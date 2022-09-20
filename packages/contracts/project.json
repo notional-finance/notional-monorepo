@@ -1,0 +1,39 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/contracts/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/contracts",
+        "main": "packages/contracts/src/index.ts",
+        "tsConfig": "packages/contracts/tsconfig.lib.json",
+        "assets": [
+          "packages/contracts/*.md",
+          "packages/contracts/src/**/*.json"
+        ]
+      }
+    },
+    "publish": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "command": "node tools/scripts/publish.mjs contracts {args.ver} {args.tag}"
+      },
+      "dependsOn": [
+        {
+          "projects": "self",
+          "target": "build"
+        }
+      ]
+    },
+    "typechain": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "command": "yarn typechain --target=ethers-v5 --out-dir=packages/contracts/src/types packages/contracts/src/**/*.json"
+      }
+    }
+  },
+  "tags": []
+}

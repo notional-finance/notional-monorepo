@@ -1,0 +1,4 @@
+{
+  "goerli:http": "https://system-cache-dev.notional-finance.workers.dev/v2/goerli",
+  "mainnet:http": "https://system-cache-dev.notional-finance.workers.dev/v2/mainnet"
+}

@@ -13,8 +13,17 @@
     "lib": ["es2017", "dom"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
     "baseUrl": ".",
-    "paths": {}
+    "paths": {
+      "@notional-finance/contracts": ["packages/contracts/src/index.ts"],
+      "@notional-finance/notionable": [
+        "packages/shared/notionable/src/index.ts"
+      ],
+      "@notional-finance/sdk-v2": ["packages/sdk-v2/src/index.ts"],
+      "@notional-finance/sdk-v2/*": ["packages/sdk-v2/src/*"]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }
