@@ -3,8 +3,8 @@
   "version": 2,
   "projects": {
     "contracts": "packages/contracts",
+    "notionable": "packages/notionable",
     "playground": "packages/playground",
-    "sdk-v2": "packages/sdk-v2",
-    "shared-notionable": "packages/shared/notionable"
+    "sdk-v2": "packages/sdk-v2"
   }
 }
