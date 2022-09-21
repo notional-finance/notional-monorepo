@@ -3,6 +3,7 @@ import { Chain } from '@web3-onboard/common';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import PanoramaFishEyeIcon from '@mui/icons-material/PanoramaFishEye';
 import { ArrowDownward } from '@mui/icons-material';
+import { ChevronRight } from '@mui/icons-material';
 import {
   useTheme,
   Box,
@@ -112,11 +113,19 @@ export function NetworkSelector() {
         variant="outlined"
         aria-expanded={open ? 'true' : undefined}
         onClick={handleClick}
-        endIcon={<ArrowDownward sx={{ transform: 'rotate(-180deg)' }} />}
+        endIcon={
+          <ChevronRight
+            sx={{
+              transform: open ? 'rotate(-90deg)' : 'rotate(90deg)',
+            }}
+          />
+        }
       >
         <TextWrapper theme={theme}>
           {chain?.id && chainEntities[chain.id] && (
-            <Typography>{chainEntities[chain.id].label}</Typography>
+            <Typography component="span" variant="body2">
+              {chainEntities[chain.id].label.slice(15)}
+            </Typography>
           )}
         </TextWrapper>
       </DropdownButton>
@@ -138,7 +147,9 @@ export function NetworkSelector() {
       >
         <Box sx={{ width: '450px', marginTop: '40px', marginBottom: '40px' }}>
           <Title>
-            <Typography variant="h5">Select a network</Typography>
+            <Typography component="span" variant="h5">
+              Select a network
+            </Typography>
           </Title>
           {supportedChains.map((data: Chain) => (
             <NetworkButton

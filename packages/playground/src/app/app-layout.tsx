@@ -1,6 +1,6 @@
-import { Box, Typography, Link, AppBar, Toolbar, Button } from '@mui/material';
+import { Box, Typography, AppBar, Toolbar, Button } from '@mui/material';
 import { Link as RouterLink, Outlet } from 'react-router-dom';
-import WalletDisplay from './wallet-display/wallet-display';
+import WalletDisplay from './components/wallet-display';
 
 export const AppLayout = () => {
   return (

@@ -1,6 +1,6 @@
 import { useWallet } from '@notional-finance/notionable';
 import { Box, Card, Typography } from '@mui/material';
-import { TokenIcon } from './token-icon/token-icon';
+import { TokenIcon } from '../components/token-icon';
 
 export const TokenBalances = () => {
   const { tokens } = useWallet();

@@ -1,7 +1,7 @@
 import { Box } from '@mui/material';
-import { AccountView } from './account-view';
-import { TokenBalances } from './token-balances';
-import { CurrencyMarkets } from './currency-markets';
+import { AccountView } from '../views/account-view';
+import { TokenBalances } from '../views/token-balances';
+import { CurrencyMarkets } from '../views/currency-markets';
 import { useAccount } from '@notional-finance/notionable';
 
 export function Home() {

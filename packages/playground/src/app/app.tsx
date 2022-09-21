@@ -1,4 +1,4 @@
-import { Box, Typography } from '@mui/material';
+import { Box } from '@mui/material';
 import {
   initializeNetwork,
   useNotionalError,
@@ -6,9 +6,10 @@ import {
 import { useCallback, useEffect } from 'react';
 import { Route, Routes, useNavigate } from 'react-router-dom';
 import { AppLayout } from './app-layout';
-import Home from './home';
-import Network from './network';
-import { ServerError } from './server-error';
+import Home from './home/home';
+import Network from './network/network';
+import { ServerError } from './error/server-error';
+import ErrorPage from './error/error-page';
 
 export function App() {
   const navigate = useNavigate();
@@ -38,7 +39,7 @@ export function App() {
       sx={{ mx: '2rem', my: '1rem', display: 'flex', flexDirection: 'column' }}
     >
       <Routes>
-        <Route path="/" element={<AppLayout />}>
+        <Route path="/" element={<AppLayout />} errorElement={<ErrorPage />}>
           <Route path="network" element={<Network />} />
           <Route path="500" element={<ServerError />} />
           <Route index element={<Home />} />

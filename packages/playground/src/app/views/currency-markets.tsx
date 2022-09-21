@@ -1,7 +1,7 @@
 import { Box, Card, Typography } from '@mui/material';
-import { TokenIcon } from './token-icon/token-icon';
 import { useAllMarkets } from '@notional-finance/notionable';
-import { Date } from './date/date';
+import { TokenIcon } from '../components/token-icon';
+import { Date } from '../components/date';
 
 export const CurrencyMarkets = () => {
   const { currencyMarkets } = useAllMarkets();

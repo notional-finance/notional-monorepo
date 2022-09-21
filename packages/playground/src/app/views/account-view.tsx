@@ -1,7 +1,7 @@
 import { Box, Typography, Card, TextField, Button } from '@mui/material';
 import { useAccount } from '@notional-finance/notionable';
-import { TokenIcon } from './token-icon/token-icon';
-import Date from './date/date';
+import { TokenIcon } from '../components/token-icon';
+import Date from '../components/date';
 import { useState } from 'react';
 
 export const AccountView = () => {
