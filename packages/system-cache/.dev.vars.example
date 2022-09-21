@@ -1,0 +1,4 @@
+ALCHEMY_KEY = '<ALCHEMY_KEY>'
+DD_BASE_URL = '<DD_BASE_URL>'
+VERSION = 'v2'
+account_id = '<ACCOUNT_ID>'

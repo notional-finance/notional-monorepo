@@ -18,9 +18,10 @@
     "baseUrl": ".",
     "paths": {
       "@notional-finance/contracts": ["packages/contracts/src/index.ts"],
+      "@notional-finance/notionable": ["packages/notionable/src/index.ts"],
       "@notional-finance/sdk-v2": ["packages/sdk-v2/src/index.ts"],
       "@notional-finance/sdk-v2/*": ["packages/sdk-v2/src/*"],
-      "@notional-finance/notionable": ["packages/notionable/src/index.ts"]
+      "@notional-finance/system-cache": ["packages/system-cache/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

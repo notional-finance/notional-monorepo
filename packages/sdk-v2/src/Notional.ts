@@ -6,7 +6,10 @@ import { Account, AccountData, AccountGraphLoader } from './account';
 // eslint-disable import/no-named-as-default import/no-named-as-default-member
 import TransactionBuilder from './TransactionBuilder';
 import TypedBigNumber, { BigNumberType } from './libs/TypedBigNumber';
-import { CACHE_DATA_REFRESH_INTERVAL, INTERNAL_TOKEN_DECIMAL_PLACES } from './config/constants';
+import {
+  CACHE_DATA_REFRESH_INTERVAL,
+  INTERNAL_TOKEN_DECIMAL_PLACES,
+} from './config/constants';
 
 /* typechain imports */
 import {
@@ -71,18 +74,44 @@ export default class Notional extends TransactionBuilder {
 
   public static getContracts(addresses: Addresses, signer: Signer): Contracts {
     return {
-      notionalProxy: new Contract(addresses.notional, NotionalABI, signer) as NotionalProxyTypechain,
+      notionalProxy: new Contract(
+        addresses.notional,
+        NotionalABI,
+        signer
+      ) as NotionalProxyTypechain,
       sNOTE: new Contract(addresses.sNOTE, sNOTEABI, signer) as SNOTE,
       note: new Contract(addresses.note, NoteERC20ABI, signer) as NoteERC20,
-      governor: new Contract(addresses.governor, GovernorABI, signer) as Governor,
-      treasury: new Contract(addresses.treasury, TreasuryManagerABI, signer) as TreasuryManager,
-      balancerVault: new Contract(addresses.balancerVault, BalancerVaultABI, signer) as BalancerVault,
-      balancerPool: new Contract(addresses.balancerPool, BalancerPoolABI, signer) as BalancerPool,
+      governor: new Contract(
+        addresses.governor,
+        GovernorABI,
+        signer
+      ) as Governor,
+      treasury: new Contract(
+        addresses.treasury,
+        TreasuryManagerABI,
+        signer
+      ) as TreasuryManager,
+      balancerVault: new Contract(
+        addresses.balancerVault,
+        BalancerVaultABI,
+        signer
+      ) as BalancerVault,
+      balancerPool: new Contract(
+        addresses.balancerPool,
+        BalancerPoolABI,
+        signer
+      ) as BalancerPool,
       exchangeV3: addresses.exchangeV3
-        ? (new Contract(addresses.exchangeV3, ExchangeV3ABI, signer) as ExchangeV3)
+        ? (new Contract(
+            addresses.exchangeV3,
+            ExchangeV3ABI,
+            signer
+          ) as ExchangeV3)
         : null,
       weth: new Contract(addresses.weth, ERC20ABI, signer) as ERC20,
-      comp: addresses.comp ? (new Contract(addresses.comp, ERC20ABI, signer) as ERC20) : null,
+      comp: addresses.comp
+        ? (new Contract(addresses.comp, ERC20ABI, signer) as ERC20)
+        : null,
     };
   }
 
@@ -133,11 +162,16 @@ export default class Notional extends TransactionBuilder {
     refreshDataInterval = CACHE_DATA_REFRESH_INTERVAL,
     skipFetchSetup = false
   ) {
-    const { addresses, graphEndpoint, pollInterval, cacheUrl } = this.getChainConfig(chainId);
+    const { addresses, graphEndpoint, pollInterval, cacheUrl } =
+      this.getChainConfig(chainId);
 
     const signer = new VoidSigner(ethers.constants.AddressZero, provider);
     const contracts = Notional.getContracts(addresses, signer);
-    const graphClient = new GraphClient(graphEndpoint, pollInterval, skipFetchSetup);
+    const graphClient = new GraphClient(
+      graphEndpoint,
+      pollInterval,
+      skipFetchSetup
+    );
     const system = await System.load(
       cacheUrl,
       graphClient,
@@ -147,7 +181,13 @@ export default class Notional extends TransactionBuilder {
       skipFetchSetup
     );
 
-    return new Notional(contracts.note, graphClient, system, provider, contracts);
+    return new Notional(
+      contracts.note,
+      graphClient,
+      system,
+      provider,
+      contracts
+    );
   }
 
   public destroy() {
@@ -155,14 +195,25 @@ export default class Notional extends TransactionBuilder {
   }
 
   public async getAccount(address: string | Signer) {
-    return Account.load(address, this.provider as ethers.providers.JsonRpcBatchProvider, this.graphClient, this.system);
+    return Account.load(
+      address,
+      this.provider as ethers.providers.JsonRpcBatchProvider,
+      this.graphClient,
+      this.system
+    );
   }
 
-  public async getAccountBalanceSummaryFromGraph(address: string, accountData: AccountData) {
+  public async getAccountBalanceSummaryFromGraph(
+    address: string,
+    accountData: AccountData
+  ) {
     return AccountGraphLoader.getBalanceSummary(address, accountData);
   }
 
-  public async getAccountAssetSummaryFromGraph(address: string, accountData: AccountData) {
+  public async getAccountAssetSummaryFromGraph(
+    address: string,
+    accountData: AccountData
+  ) {
     return AccountGraphLoader.getAssetSummary(address, accountData);
   }
 
