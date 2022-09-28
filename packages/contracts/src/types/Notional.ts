@@ -569,12 +569,9 @@ export interface NotionalInterface extends utils.Interface {
     "nTokenBalanceOf(uint16,address)": FunctionFragment;
     "nTokenClaimIncentives()": FunctionFragment;
     "nTokenGetClaimableIncentives(address,uint256)": FunctionFragment;
-    "nTokenMintViaProxy(uint16,uint256,address)": FunctionFragment;
     "nTokenPresentValueAssetDenominated(uint16)": FunctionFragment;
     "nTokenPresentValueUnderlyingDenominated(uint16)": FunctionFragment;
-    "nTokenPresentValueUnderlyingExternal(uint16)": FunctionFragment;
     "nTokenRedeem(address,uint16,uint96,bool,bool)": FunctionFragment;
-    "nTokenRedeemViaProxy(uint16,uint256,address,address)": FunctionFragment;
     "nTokenTotalSupply(address)": FunctionFragment;
     "nTokenTransfer(uint16,address,address,uint256)": FunctionFragment;
     "nTokenTransferAllowance(uint16,address,address)": FunctionFragment;
@@ -587,11 +584,12 @@ export interface NotionalInterface extends utils.Interface {
     "redeemStrategyTokensToCash(uint256,uint256,bytes)": FunctionFragment;
     "reduceMaxBorrowCapacity(address,uint80,uint256,uint256,bytes)": FunctionFragment;
     "repaySecondaryCurrencyFromVault(address,uint16,uint256,uint256,uint32,bytes)": FunctionFragment;
-    "rollVaultPosition(address,address,uint256,uint256,uint32,uint32,bytes)": FunctionFragment;
+    "rollVaultPosition(address,address,uint256,uint256,uint256,uint32,uint32,bytes)": FunctionFragment;
     "safeBatchTransferFrom(address,address,uint256[],uint256[],bytes)": FunctionFragment;
     "safeTransferFrom(address,address,uint256,uint256,bytes)": FunctionFragment;
     "setApprovalForAll(address,bool)": FunctionFragment;
     "setLendingPool(address)": FunctionFragment;
+    "setMaxBorrowCapacity(address,uint80)": FunctionFragment;
     "setPauseRouterAndGuardian(address,address)": FunctionFragment;
     "setReserveBuffer(uint16,uint256)": FunctionFragment;
     "setReserveCashBalance(uint16,int256)": FunctionFragment;
@@ -618,7 +616,6 @@ export interface NotionalInterface extends utils.Interface {
     "updateSecondaryBorrowCapacity(address,uint16,uint80)": FunctionFragment;
     "updateTokenCollateralParameters(uint16,uint8,uint8,uint8,uint8,uint8)": FunctionFragment;
     "updateVault(address,(uint16,uint16,uint32,uint16,uint8,uint8,uint8,uint8,uint16,uint16[2]),uint80)": FunctionFragment;
-    "upgradeNTokenBeacon(address)": FunctionFragment;
     "upgradeTo(address)": FunctionFragment;
     "upgradeToAndCall(address,bytes)": FunctionFragment;
     "withdraw(uint16,uint88,bool)": FunctionFragment;
@@ -711,12 +708,9 @@ export interface NotionalInterface extends utils.Interface {
       | "nTokenBalanceOf"
       | "nTokenClaimIncentives"
       | "nTokenGetClaimableIncentives"
-      | "nTokenMintViaProxy"
       | "nTokenPresentValueAssetDenominated"
       | "nTokenPresentValueUnderlyingDenominated"
-      | "nTokenPresentValueUnderlyingExternal"
       | "nTokenRedeem"
-      | "nTokenRedeemViaProxy"
       | "nTokenTotalSupply"
       | "nTokenTransfer"
       | "nTokenTransferAllowance"
@@ -734,6 +728,7 @@ export interface NotionalInterface extends utils.Interface {
       | "safeTransferFrom"
       | "setApprovalForAll"
       | "setLendingPool"
+      | "setMaxBorrowCapacity"
       | "setPauseRouterAndGuardian"
       | "setReserveBuffer"
       | "setReserveCashBalance"
@@ -760,7 +755,6 @@ export interface NotionalInterface extends utils.Interface {
       | "updateSecondaryBorrowCapacity"
       | "updateTokenCollateralParameters"
       | "updateVault"
-      | "upgradeNTokenBeacon"
       | "upgradeTo"
       | "upgradeToAndCall"
       | "withdraw"
@@ -1272,23 +1266,11 @@ export interface NotionalInterface extends utils.Interface {
     values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "nTokenMintViaProxy",
-    values: [
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>
-    ]
-  ): string;
-  encodeFunctionData(
     functionFragment: "nTokenPresentValueAssetDenominated",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "nTokenPresentValueUnderlyingDenominated",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "nTokenPresentValueUnderlyingExternal",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
@@ -1299,15 +1281,6 @@ export interface NotionalInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<boolean>,
       PromiseOrValue<boolean>
-    ]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "nTokenRedeemViaProxy",
-    values: [
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<string>,
-      PromiseOrValue<string>
     ]
   ): string;
   encodeFunctionData(
@@ -1401,6 +1374,7 @@ export interface NotionalInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
       PromiseOrValue<BytesLike>
     ]
   ): string;
@@ -1431,6 +1405,10 @@ export interface NotionalInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "setLendingPool",
     values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setMaxBorrowCapacity",
+    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "setPauseRouterAndGuardian",
@@ -1565,10 +1543,6 @@ export interface NotionalInterface extends utils.Interface {
       VaultConfigStorageStruct,
       PromiseOrValue<BigNumberish>
     ]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "upgradeNTokenBeacon",
-    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "upgradeTo",
@@ -1907,10 +1881,6 @@ export interface NotionalInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "nTokenMintViaProxy",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "nTokenPresentValueAssetDenominated",
     data: BytesLike
   ): Result;
@@ -1919,15 +1889,7 @@ export interface NotionalInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "nTokenPresentValueUnderlyingExternal",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "nTokenRedeem",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "nTokenRedeemViaProxy",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1993,6 +1955,10 @@ export interface NotionalInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "setLendingPool",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setMaxBorrowCapacity",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -2099,10 +2065,6 @@ export interface NotionalInterface extends utils.Interface {
     functionFragment: "updateVault",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "upgradeNTokenBeacon",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "upgradeTo", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "upgradeToAndCall",
@@ -2114,6 +2076,7 @@ export interface NotionalInterface extends utils.Interface {
     "AccountContextUpdate(address)": EventFragment;
     "AccountSettled(address)": EventFragment;
     "AddRemoveLiquidity(address,uint16,uint40,int256,int256,int256)": EventFragment;
+    "Approval(address,address,uint256)": EventFragment;
     "ApprovalForAll(address,address,bool)": EventFragment;
     "CashBalanceChange(address,uint16,int256)": EventFragment;
     "DeployNToken(uint16,address)": EventFragment;
@@ -2134,6 +2097,7 @@ export interface NotionalInterface extends utils.Interface {
     "SetSettlementRate(uint256,uint256,uint128)": EventFragment;
     "SettledCashDebt(address,uint16,address,int256,int256)": EventFragment;
     "SweepCashIntoMarkets(uint16,int256)": EventFragment;
+    "Transfer(address,address,uint256)": EventFragment;
     "TransferBatch(address,address,address,uint256[],uint256[])": EventFragment;
     "TransferSingle(address,address,address,uint256,uint256)": EventFragment;
     "TreasuryManagerChanged(address,address)": EventFragment;
@@ -2154,8 +2118,8 @@ export interface NotionalInterface extends utils.Interface {
     "VaultDeleverageAccount(address,address,uint256,int256)": EventFragment;
     "VaultEnterMaturity(address,uint256,address,uint256,uint256,uint256)": EventFragment;
     "VaultEnterPosition(address,address,uint256,uint256)": EventFragment;
-    "VaultExitPostMaturity(address,address,uint256)": EventFragment;
-    "VaultExitPreMaturity(address,address,uint256,uint256,uint256)": EventFragment;
+    "VaultExitPostMaturity(address,address,uint256,uint256)": EventFragment;
+    "VaultExitPreMaturity(address,address,uint256,uint256,uint256,uint256)": EventFragment;
     "VaultFeeAccrued(address,uint16,uint256,int256,int256)": EventFragment;
     "VaultLiquidatorProfit(address,address,address,uint256,bool)": EventFragment;
     "VaultMintStrategyToken(address,uint256,uint256,uint256)": EventFragment;
@@ -2171,7 +2135,6 @@ export interface NotionalInterface extends utils.Interface {
     "VaultStateUpdate(address,uint256,int256,uint256,uint256,uint256)": EventFragment;
     "VaultUpdateSecondaryBorrowCapacity(address,uint16,uint80)": EventFragment;
     "VaultUpdated(address,bool,uint80)": EventFragment;
-    "nTokenApproveAll(address,address,uint256)": EventFragment;
     "nTokenResidualPurchase(uint16,uint40,address,int256,int256)": EventFragment;
     "nTokenSupplyChange(address,uint16,int256)": EventFragment;
   };
@@ -2179,6 +2142,7 @@ export interface NotionalInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "AccountContextUpdate"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AccountSettled"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AddRemoveLiquidity"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ApprovalForAll"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "CashBalanceChange"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "DeployNToken"): EventFragment;
@@ -2205,6 +2169,7 @@ export interface NotionalInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "SetSettlementRate"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SettledCashDebt"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SweepCashIntoMarkets"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TransferBatch"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TransferSingle"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TreasuryManagerChanged"): EventFragment;
@@ -2260,7 +2225,6 @@ export interface NotionalInterface extends utils.Interface {
     nameOrSignatureOrTopic: "VaultUpdateSecondaryBorrowCapacity"
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "VaultUpdated"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "nTokenApproveAll"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "nTokenResidualPurchase"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "nTokenSupplyChange"): EventFragment;
 }
@@ -2301,6 +2265,18 @@ export type AddRemoveLiquidityEvent = TypedEvent<
 
 export type AddRemoveLiquidityEventFilter =
   TypedEventFilter<AddRemoveLiquidityEvent>;
+
+export interface ApprovalEventObject {
+  owner: string;
+  spender: string;
+  amount: BigNumber;
+}
+export type ApprovalEvent = TypedEvent<
+  [string, string, BigNumber],
+  ApprovalEventObject
+>;
+
+export type ApprovalEventFilter = TypedEventFilter<ApprovalEvent>;
 
 export interface ApprovalForAllEventObject {
   account: string;
@@ -2557,6 +2533,18 @@ export type SweepCashIntoMarketsEvent = TypedEvent<
 export type SweepCashIntoMarketsEventFilter =
   TypedEventFilter<SweepCashIntoMarketsEvent>;
 
+export interface TransferEventObject {
+  from: string;
+  to: string;
+  amount: BigNumber;
+}
+export type TransferEvent = TypedEvent<
+  [string, string, BigNumber],
+  TransferEventObject
+>;
+
+export type TransferEventFilter = TypedEventFilter<TransferEvent>;
+
 export interface TransferBatchEventObject {
   operator: string;
   from: string;
@@ -2797,9 +2785,10 @@ export interface VaultExitPostMaturityEventObject {
   vault: string;
   account: string;
   maturity: BigNumber;
+  underlyingToReceiver: BigNumber;
 }
 export type VaultExitPostMaturityEvent = TypedEvent<
-  [string, string, BigNumber],
+  [string, string, BigNumber, BigNumber],
   VaultExitPostMaturityEventObject
 >;
 
@@ -2812,9 +2801,10 @@ export interface VaultExitPreMaturityEventObject {
   maturity: BigNumber;
   fCashToLend: BigNumber;
   vaultSharesToRedeem: BigNumber;
+  underlyingToReceiver: BigNumber;
 }
 export type VaultExitPreMaturityEvent = TypedEvent<
-  [string, string, BigNumber, BigNumber, BigNumber],
+  [string, string, BigNumber, BigNumber, BigNumber, BigNumber],
   VaultExitPreMaturityEventObject
 >;
 
@@ -3034,19 +3024,6 @@ export type VaultUpdatedEvent = TypedEvent<
 >;
 
 export type VaultUpdatedEventFilter = TypedEventFilter<VaultUpdatedEvent>;
-
-export interface nTokenApproveAllEventObject {
-  owner: string;
-  spender: string;
-  amount: BigNumber;
-}
-export type nTokenApproveAllEvent = TypedEvent<
-  [string, string, BigNumber],
-  nTokenApproveAllEventObject
->;
-
-export type nTokenApproveAllEventFilter =
-  TypedEventFilter<nTokenApproveAllEvent>;
 
 export interface nTokenResidualPurchaseEventObject {
   currencyId: number;
@@ -3782,13 +3759,6 @@ export interface Notional extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
-    nTokenMintViaProxy(
-      currencyId: PromiseOrValue<BigNumberish>,
-      assets: PromiseOrValue<BigNumberish>,
-      receiver: PromiseOrValue<string>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     nTokenPresentValueAssetDenominated(
       currencyId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -3799,25 +3769,12 @@ export interface Notional extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
-    nTokenPresentValueUnderlyingExternal(
-      currencyId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
     nTokenRedeem(
       redeemer: PromiseOrValue<string>,
       currencyId: PromiseOrValue<BigNumberish>,
       tokensToRedeem_: PromiseOrValue<BigNumberish>,
       sellTokenAssets: PromiseOrValue<boolean>,
       acceptResidualAssets: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    nTokenRedeemViaProxy(
-      currencyId: PromiseOrValue<BigNumberish>,
-      shares: PromiseOrValue<BigNumberish>,
-      receiver: PromiseOrValue<string>,
-      owner: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -3901,10 +3858,11 @@ export interface Notional extends BaseContract {
       vault: PromiseOrValue<string>,
       fCashToBorrow: PromiseOrValue<BigNumberish>,
       maturity: PromiseOrValue<BigNumberish>,
+      depositAmountExternal: PromiseOrValue<BigNumberish>,
       minLendRate: PromiseOrValue<BigNumberish>,
       maxBorrowRate: PromiseOrValue<BigNumberish>,
       enterVaultData: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     safeBatchTransferFrom(
@@ -3933,6 +3891,12 @@ export interface Notional extends BaseContract {
 
     setLendingPool(
       pool: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setMaxBorrowCapacity(
+      vaultAddress: PromiseOrValue<string>,
+      maxVaultBorrowCapacity: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -4096,11 +4060,6 @@ export interface Notional extends BaseContract {
       vaultAddress: PromiseOrValue<string>,
       vaultConfig: VaultConfigStorageStruct,
       maxPrimaryBorrowCapacity: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    upgradeNTokenBeacon(
-      newImplementation: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -4792,13 +4751,6 @@ export interface Notional extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  nTokenMintViaProxy(
-    currencyId: PromiseOrValue<BigNumberish>,
-    assets: PromiseOrValue<BigNumberish>,
-    receiver: PromiseOrValue<string>,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   nTokenPresentValueAssetDenominated(
     currencyId: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
@@ -4809,25 +4761,12 @@ export interface Notional extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  nTokenPresentValueUnderlyingExternal(
-    currencyId: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
   nTokenRedeem(
     redeemer: PromiseOrValue<string>,
     currencyId: PromiseOrValue<BigNumberish>,
     tokensToRedeem_: PromiseOrValue<BigNumberish>,
     sellTokenAssets: PromiseOrValue<boolean>,
     acceptResidualAssets: PromiseOrValue<boolean>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  nTokenRedeemViaProxy(
-    currencyId: PromiseOrValue<BigNumberish>,
-    shares: PromiseOrValue<BigNumberish>,
-    receiver: PromiseOrValue<string>,
-    owner: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -4911,10 +4850,11 @@ export interface Notional extends BaseContract {
     vault: PromiseOrValue<string>,
     fCashToBorrow: PromiseOrValue<BigNumberish>,
     maturity: PromiseOrValue<BigNumberish>,
+    depositAmountExternal: PromiseOrValue<BigNumberish>,
     minLendRate: PromiseOrValue<BigNumberish>,
     maxBorrowRate: PromiseOrValue<BigNumberish>,
     enterVaultData: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   safeBatchTransferFrom(
@@ -4943,6 +4883,12 @@ export interface Notional extends BaseContract {
 
   setLendingPool(
     pool: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setMaxBorrowCapacity(
+    vaultAddress: PromiseOrValue<string>,
+    maxVaultBorrowCapacity: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -5106,11 +5052,6 @@ export interface Notional extends BaseContract {
     vaultAddress: PromiseOrValue<string>,
     vaultConfig: VaultConfigStorageStruct,
     maxPrimaryBorrowCapacity: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  upgradeNTokenBeacon(
-    newImplementation: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -5804,13 +5745,6 @@ export interface Notional extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    nTokenMintViaProxy(
-      currencyId: PromiseOrValue<BigNumberish>,
-      assets: PromiseOrValue<BigNumberish>,
-      receiver: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     nTokenPresentValueAssetDenominated(
       currencyId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -5821,25 +5755,12 @@ export interface Notional extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    nTokenPresentValueUnderlyingExternal(
-      currencyId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     nTokenRedeem(
       redeemer: PromiseOrValue<string>,
       currencyId: PromiseOrValue<BigNumberish>,
       tokensToRedeem_: PromiseOrValue<BigNumberish>,
       sellTokenAssets: PromiseOrValue<boolean>,
       acceptResidualAssets: PromiseOrValue<boolean>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    nTokenRedeemViaProxy(
-      currencyId: PromiseOrValue<BigNumberish>,
-      shares: PromiseOrValue<BigNumberish>,
-      receiver: PromiseOrValue<string>,
-      owner: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -5928,6 +5849,7 @@ export interface Notional extends BaseContract {
       vault: PromiseOrValue<string>,
       fCashToBorrow: PromiseOrValue<BigNumberish>,
       maturity: PromiseOrValue<BigNumberish>,
+      depositAmountExternal: PromiseOrValue<BigNumberish>,
       minLendRate: PromiseOrValue<BigNumberish>,
       maxBorrowRate: PromiseOrValue<BigNumberish>,
       enterVaultData: PromiseOrValue<BytesLike>,
@@ -5960,6 +5882,12 @@ export interface Notional extends BaseContract {
 
     setLendingPool(
       pool: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setMaxBorrowCapacity(
+      vaultAddress: PromiseOrValue<string>,
+      maxVaultBorrowCapacity: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -6126,11 +6054,6 @@ export interface Notional extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    upgradeNTokenBeacon(
-      newImplementation: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     upgradeTo(
       newImplementation: PromiseOrValue<string>,
       overrides?: CallOverrides
@@ -6181,6 +6104,17 @@ export interface Notional extends BaseContract {
       netfCash?: null,
       netLiquidityTokens?: null
     ): AddRemoveLiquidityEventFilter;
+
+    "Approval(address,address,uint256)"(
+      owner?: PromiseOrValue<string> | null,
+      spender?: PromiseOrValue<string> | null,
+      amount?: null
+    ): ApprovalEventFilter;
+    Approval(
+      owner?: PromiseOrValue<string> | null,
+      spender?: PromiseOrValue<string> | null,
+      amount?: null
+    ): ApprovalEventFilter;
 
     "ApprovalForAll(address,address,bool)"(
       account?: PromiseOrValue<string> | null,
@@ -6402,6 +6336,17 @@ export interface Notional extends BaseContract {
       cashIntoMarkets?: null
     ): SweepCashIntoMarketsEventFilter;
 
+    "Transfer(address,address,uint256)"(
+      from?: PromiseOrValue<string> | null,
+      to?: PromiseOrValue<string> | null,
+      amount?: null
+    ): TransferEventFilter;
+    Transfer(
+      from?: PromiseOrValue<string> | null,
+      to?: PromiseOrValue<string> | null,
+      amount?: null
+    ): TransferEventFilter;
+
     "TransferBatch(address,address,address,uint256[],uint256[])"(
       operator?: PromiseOrValue<string> | null,
       from?: PromiseOrValue<string> | null,
@@ -6579,30 +6524,34 @@ export interface Notional extends BaseContract {
       fCashBorrowed?: null
     ): VaultEnterPositionEventFilter;
 
-    "VaultExitPostMaturity(address,address,uint256)"(
+    "VaultExitPostMaturity(address,address,uint256,uint256)"(
       vault?: PromiseOrValue<string> | null,
       account?: PromiseOrValue<string> | null,
-      maturity?: PromiseOrValue<BigNumberish> | null
+      maturity?: PromiseOrValue<BigNumberish> | null,
+      underlyingToReceiver?: null
     ): VaultExitPostMaturityEventFilter;
     VaultExitPostMaturity(
       vault?: PromiseOrValue<string> | null,
       account?: PromiseOrValue<string> | null,
-      maturity?: PromiseOrValue<BigNumberish> | null
+      maturity?: PromiseOrValue<BigNumberish> | null,
+      underlyingToReceiver?: null
     ): VaultExitPostMaturityEventFilter;
 
-    "VaultExitPreMaturity(address,address,uint256,uint256,uint256)"(
+    "VaultExitPreMaturity(address,address,uint256,uint256,uint256,uint256)"(
       vault?: PromiseOrValue<string> | null,
       account?: PromiseOrValue<string> | null,
       maturity?: PromiseOrValue<BigNumberish> | null,
       fCashToLend?: null,
-      vaultSharesToRedeem?: null
+      vaultSharesToRedeem?: null,
+      underlyingToReceiver?: null
     ): VaultExitPreMaturityEventFilter;
     VaultExitPreMaturity(
       vault?: PromiseOrValue<string> | null,
       account?: PromiseOrValue<string> | null,
       maturity?: PromiseOrValue<BigNumberish> | null,
       fCashToLend?: null,
-      vaultSharesToRedeem?: null
+      vaultSharesToRedeem?: null,
+      underlyingToReceiver?: null
     ): VaultExitPreMaturityEventFilter;
 
     "VaultFeeAccrued(address,uint16,uint256,int256,int256)"(
@@ -6815,17 +6764,6 @@ export interface Notional extends BaseContract {
       enabled?: null,
       maxPrimaryBorrowCapacity?: null
     ): VaultUpdatedEventFilter;
-
-    "nTokenApproveAll(address,address,uint256)"(
-      owner?: PromiseOrValue<string> | null,
-      spender?: PromiseOrValue<string> | null,
-      amount?: null
-    ): nTokenApproveAllEventFilter;
-    nTokenApproveAll(
-      owner?: PromiseOrValue<string> | null,
-      spender?: PromiseOrValue<string> | null,
-      amount?: null
-    ): nTokenApproveAllEventFilter;
 
     "nTokenResidualPurchase(uint16,uint40,address,int256,int256)"(
       currencyId?: PromiseOrValue<BigNumberish> | null,
@@ -7396,13 +7334,6 @@ export interface Notional extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    nTokenMintViaProxy(
-      currencyId: PromiseOrValue<BigNumberish>,
-      assets: PromiseOrValue<BigNumberish>,
-      receiver: PromiseOrValue<string>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     nTokenPresentValueAssetDenominated(
       currencyId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -7413,25 +7344,12 @@ export interface Notional extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    nTokenPresentValueUnderlyingExternal(
-      currencyId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     nTokenRedeem(
       redeemer: PromiseOrValue<string>,
       currencyId: PromiseOrValue<BigNumberish>,
       tokensToRedeem_: PromiseOrValue<BigNumberish>,
       sellTokenAssets: PromiseOrValue<boolean>,
       acceptResidualAssets: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    nTokenRedeemViaProxy(
-      currencyId: PromiseOrValue<BigNumberish>,
-      shares: PromiseOrValue<BigNumberish>,
-      receiver: PromiseOrValue<string>,
-      owner: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -7515,10 +7433,11 @@ export interface Notional extends BaseContract {
       vault: PromiseOrValue<string>,
       fCashToBorrow: PromiseOrValue<BigNumberish>,
       maturity: PromiseOrValue<BigNumberish>,
+      depositAmountExternal: PromiseOrValue<BigNumberish>,
       minLendRate: PromiseOrValue<BigNumberish>,
       maxBorrowRate: PromiseOrValue<BigNumberish>,
       enterVaultData: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     safeBatchTransferFrom(
@@ -7547,6 +7466,12 @@ export interface Notional extends BaseContract {
 
     setLendingPool(
       pool: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setMaxBorrowCapacity(
+      vaultAddress: PromiseOrValue<string>,
+      maxVaultBorrowCapacity: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -7710,11 +7635,6 @@ export interface Notional extends BaseContract {
       vaultAddress: PromiseOrValue<string>,
       vaultConfig: VaultConfigStorageStruct,
       maxPrimaryBorrowCapacity: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    upgradeNTokenBeacon(
-      newImplementation: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -8283,13 +8203,6 @@ export interface Notional extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    nTokenMintViaProxy(
-      currencyId: PromiseOrValue<BigNumberish>,
-      assets: PromiseOrValue<BigNumberish>,
-      receiver: PromiseOrValue<string>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     nTokenPresentValueAssetDenominated(
       currencyId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -8300,25 +8213,12 @@ export interface Notional extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    nTokenPresentValueUnderlyingExternal(
-      currencyId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     nTokenRedeem(
       redeemer: PromiseOrValue<string>,
       currencyId: PromiseOrValue<BigNumberish>,
       tokensToRedeem_: PromiseOrValue<BigNumberish>,
       sellTokenAssets: PromiseOrValue<boolean>,
       acceptResidualAssets: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    nTokenRedeemViaProxy(
-      currencyId: PromiseOrValue<BigNumberish>,
-      shares: PromiseOrValue<BigNumberish>,
-      receiver: PromiseOrValue<string>,
-      owner: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -8402,10 +8302,11 @@ export interface Notional extends BaseContract {
       vault: PromiseOrValue<string>,
       fCashToBorrow: PromiseOrValue<BigNumberish>,
       maturity: PromiseOrValue<BigNumberish>,
+      depositAmountExternal: PromiseOrValue<BigNumberish>,
       minLendRate: PromiseOrValue<BigNumberish>,
       maxBorrowRate: PromiseOrValue<BigNumberish>,
       enterVaultData: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     safeBatchTransferFrom(
@@ -8434,6 +8335,12 @@ export interface Notional extends BaseContract {
 
     setLendingPool(
       pool: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setMaxBorrowCapacity(
+      vaultAddress: PromiseOrValue<string>,
+      maxVaultBorrowCapacity: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -8597,11 +8504,6 @@ export interface Notional extends BaseContract {
       vaultAddress: PromiseOrValue<string>,
       vaultConfig: VaultConfigStorageStruct,
       maxPrimaryBorrowCapacity: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    upgradeNTokenBeacon(
-      newImplementation: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

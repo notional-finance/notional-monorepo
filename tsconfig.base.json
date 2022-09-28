@@ -21,7 +21,8 @@
       "@notional-finance/notionable": ["packages/notionable/src/index.ts"],
       "@notional-finance/sdk-v2": ["packages/sdk-v2/src/index.ts"],
       "@notional-finance/sdk-v2/*": ["packages/sdk-v2/src/*"],
-      "@notional-finance/system-cache": ["packages/system-cache/src/index.ts"]
+      "@notional-finance/system-cache": ["packages/system-cache/src/index.ts"],
+      "@notional-finance/utils": ["packages/utils/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

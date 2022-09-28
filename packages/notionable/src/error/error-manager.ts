@@ -1,9 +1,5 @@
 import { Subject } from 'rxjs';
-
-export interface NotionalError extends Error {
-  msgId?: string;
-  code?: number;
-}
+import { NotionalError } from '../types';
 
 const errorSubject = new Subject<NotionalError>();
 

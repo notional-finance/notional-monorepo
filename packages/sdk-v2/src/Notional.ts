@@ -42,6 +42,7 @@ import goerliAddresses from './config/goerli.json';
 import mainnetAddresses from './config/mainnet.json';
 import graphEndpoints from './config/graph.json';
 import cacheEndpoint from './config/cache.json';
+import { handleError } from '@notional-finance/utils';
 
 interface Addresses {
   airdrop?: string;
@@ -172,22 +173,28 @@ export default class Notional extends TransactionBuilder {
       pollInterval,
       skipFetchSetup
     );
-    const system = await System.load(
-      cacheUrl,
-      graphClient,
-      contracts,
-      signer.provider as ethers.providers.JsonRpcBatchProvider,
-      refreshDataInterval,
-      skipFetchSetup
-    );
 
-    return new Notional(
-      contracts.note,
-      graphClient,
-      system,
-      provider,
-      contracts
-    );
+    try {
+      const system = await System.load(
+        cacheUrl,
+        graphClient,
+        contracts,
+        signer.provider as ethers.providers.JsonRpcBatchProvider,
+        refreshDataInterval,
+        skipFetchSetup
+      );
+
+      return new Notional(
+        contracts.note,
+        graphClient,
+        system,
+        provider,
+        contracts
+      );
+    } catch (e) {
+      const error = handleError(e);
+      throw error;
+    }
   }
 
   public destroy() {

@@ -169,10 +169,28 @@ export interface StakedNoteHistory {
   }[];
 }
 
+export interface VaultTradeHistory {
+  blockNumber: number;
+  transactionHash: string;
+  blockTime: Date;
+  vaultTradeType: string;
+  vaultAddress: string;
+  maturityBefore: number | undefined;
+  maturityAfter: number | undefined;
+  primaryBorrowfCashBefore: TypedBigNumber | undefined;
+  primaryBorrowfCashAfter: TypedBigNumber | undefined;
+  netPrimaryBorrowfCashChange: TypedBigNumber;
+  vaultSharesBefore: TypedBigNumber | undefined;
+  vaultSharesAfter: TypedBigNumber | undefined;
+  netVaultSharesChange: TypedBigNumber | undefined;
+  netUnderlyingCash: TypedBigNumber;
+}
+
 export type AccountHistory = {
   trades: TradeHistory[];
   balanceHistory: BalanceHistory[];
   sNOTEHistory: StakedNoteHistory;
+  vaultTradeHistory: VaultTradeHistory[];
 };
 
 export interface IncentiveFactors {
@@ -244,4 +262,23 @@ export interface CollateralAction {
   amount?: TypedBigNumber;
   fCashAmount?: TypedBigNumber;
   minLendSlippage?: number;
+}
+
+export interface VaultReturn {
+  [k: string]: number;
+  timestamp: number;
+}
+
+export enum LiquidationThresholdType {
+  exchangeRate,
+  fCashInterestRate,
+}
+
+export interface LiquidationThreshold {
+  name: string;
+  type: LiquidationThresholdType;
+  rate?: number;
+  ethExchangeRate?: TypedBigNumber;
+  debtCurrencyId?: number;
+  collateralCurrencyId?: number;
 }

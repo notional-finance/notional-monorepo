@@ -1,11 +1,12 @@
 import { BigNumber, Contract, utils } from 'ethers';
-import TypedBigNumber, { BigNumberType } from '../../libs/TypedBigNumber';
-import BaseVault, { LiquidationThreshold, LiquidationThresholdType } from '../BaseVault';
-import VaultAccount from '../VaultAccount';
-import { CashGroup, Market, System } from '../../system';
-import { getNowSeconds } from '../../libs/utils';
-import TradeHandler, { DexId } from '../../trading/TradeHandler';
-import { INTERNAL_TOKEN_PRECISION, RATE_PRECISION } from '../../config/constants';
+import TypedBigNumber, { BigNumberType } from '../../../libs/TypedBigNumber';
+import BaseVault from '../../BaseVault';
+import VaultAccount from '../../VaultAccount';
+import { CashGroup, Market, System } from '../../../system';
+import { getNowSeconds } from '../../../libs/utils';
+import TradeHandler, { DexId } from '../../../trading/TradeHandler';
+import { INTERNAL_TOKEN_PRECISION, RATE_PRECISION } from '../../../config/constants';
+import { LiquidationThreshold, LiquidationThresholdType } from '../../../libs/types';
 
 interface DepositParams {
   minPurchaseAmount: BigNumber;
@@ -23,28 +24,31 @@ interface RedeemParams {
 
 const crossCurrencyInterface = new utils.Interface(['function LEND_CURRENCY_ID() view returns (uint16)']);
 
-export default class CrossCurrencyfCash extends BaseVault<DepositParams, RedeemParams> {
-  protected _lendCurrencyId: number;
+interface InitParams {
+  lendCurrencyId: number;
+}
 
+export default class CrossCurrencyfCash extends BaseVault<DepositParams, RedeemParams, InitParams> {
   readonly depositTuple: string =
     'tuple(uint256 minPurchaseAmount, uint32 minLendRate, uint16 dexId, bytes exchangeData) d';
 
   readonly redeemTuple: string =
     'tuple(uint256 minPurchaseAmount, uint32 maxBorrowRate, uint16 dexId, bytes exchangeData) r';
 
-  constructor(vaultAddress: string) {
-    super(vaultAddress);
-    this._lendCurrencyId = 0;
-  }
-
-  public async initializeVault(): Promise<void> {
-    const provider = System.getSystem().batchProvider;
-    const contract = new Contract(this.vaultAddress, crossCurrencyInterface, provider);
-    this._lendCurrencyId = await contract.LEND_CURRENCY_ID();
+  public initVaultParams() {
+    const contract = new Contract(this.vaultAddress, crossCurrencyInterface);
+    return [
+      {
+        target: contract,
+        method: 'LEND_CURRENCY_ID',
+        args: [],
+        key: 'lendCurrencyId',
+      },
+    ];
   }
 
   public get lendCurrencyId() {
-    return this._lendCurrencyId;
+    return this.initParams.lendCurrencyId;
   }
 
   public getLendMarket(maturity: number) {
@@ -97,6 +101,8 @@ export default class CrossCurrencyfCash extends BaseVault<DepositParams, RedeemP
     vaultAccount: VaultAccount,
     blockTime = getNowSeconds()
   ): Array<LiquidationThreshold> {
+    if (vaultAccount.maturity === 0) return [];
+
     const thresholds = new Array<LiquidationThreshold>();
     const { perShareValue } = this.getLiquidationVaultShareValue(vaultAccount);
     const lendCurrencySymbol = System.getSystem().getUnderlyingSymbol(this.lendCurrencyId);

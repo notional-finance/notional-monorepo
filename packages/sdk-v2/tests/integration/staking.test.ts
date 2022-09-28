@@ -10,21 +10,19 @@ import { ethers } from 'hardhat';
 import { getAccount, setChainState } from './utils';
 import { System } from '../../src/system';
 import MockSystem from '../mocks/MockSystem';
-import {
-  ERC20,
-  BalancerVault,
-  BalancerPool,
-} from '@notional-finance/contracts';
+import { ERC20 } from '../../src/typechain/ERC20';
 import { TypedBigNumber } from '../../src';
+import { BalancerVault } from '../../src/typechain/BalancerVault';
+import { BalancerPool } from '../../src/typechain/BalancerPool';
 import { StakedNote } from '../../src/staking';
 // import Order from '../../src/staking/Order';
 // import {ExchangeV3} from '../../src/typechain/ExchangeV3';
 import { RATE_PRECISION } from '../../src/config/constants';
 
-import factoryABI from './balancer/poolFactory.json';
-import poolABI from '.././abi/BalancerPool.json';
-import BalancerVaultABI from '.././abi/BalancerVault.json';
-import ERC20ABI from '.././abi/ERC20.json';
+const factoryABI = require('./balancer/poolFactory.json');
+const poolABI = require('../../src/abi/BalancerPool.json');
+const BalancerVaultABI = require('../../src/abi/BalancerVault.json');
+const ERC20ABI = require('../../src/abi/ERC20.json');
 // const ExchangeV3ABI = require('../../src/abi/ExchangeV3.json');
 
 const forkedBlockNumber = 14191580;
@@ -57,8 +55,14 @@ describe('staking test', () => {
     //   ExchangeV3ABI,
     //   signer,
     // ) as ExchangeV3;
-    assets = ['0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', '0xCFEAead4947f0705A14ec42aC3D44129E1Ef3eD5'];
-    const pool2TokensFactory = await ethers.getContractAt(factoryABI, '0xA5bf2ddF098bb0Ef6d120C98217dD6B141c74EE0');
+    assets = [
+      '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+      '0xCFEAead4947f0705A14ec42aC3D44129E1Ef3eD5',
+    ];
+    const pool2TokensFactory = await ethers.getContractAt(
+      factoryABI,
+      '0xA5bf2ddF098bb0Ef6d120C98217dD6B141c74EE0'
+    );
     const txn = await (
       await pool2TokensFactory
         .connect(signer)
@@ -72,26 +76,44 @@ describe('staking test', () => {
           signer.address
         )
     ).wait();
-    const poolAddress = txn.events.find((e) => e.event === 'PoolCreated').args[0];
-    balancerPool = (await ethers.getContractAt(poolABI, poolAddress)) as BalancerPool;
+    const poolAddress = txn.events.find((e) => e.event === 'PoolCreated')
+      .args[0];
+    balancerPool = (await ethers.getContractAt(
+      poolABI,
+      poolAddress
+    )) as BalancerPool;
     poolId = await balancerPool.getPoolId();
-    const initialBalances = [ethers.utils.parseEther('10'), BigNumber.from(100e8)];
-    const userData = ethers.utils.defaultAbiCoder.encode(['uint256', 'uint256[]'], [0, initialBalances]);
+    const initialBalances = [
+      ethers.utils.parseEther('10'),
+      BigNumber.from(100e8),
+    ];
+    const userData = ethers.utils.defaultAbiCoder.encode(
+      ['uint256', 'uint256[]'],
+      [0, initialBalances]
+    );
     noteWhale = await getAccount('0x22341fB5D92D3d801144aA5A925F401A91418A05');
     wethWhale = await getAccount('0x6555e1cc97d3cba6eaddebbcd7ca51d75771e0b8');
     weth = (await ethers.getContractAt(ERC20ABI, assets[0])) as ERC20;
     note = (await ethers.getContractAt(ERC20ABI, assets[1])) as ERC20;
-    await weth.connect(wethWhale).transfer(noteWhale.address, ethers.utils.parseEther('1000'));
-    await weth.connect(noteWhale).approve(balancerVault.address, ethers.constants.MaxUint256);
-    await note.connect(noteWhale).approve(balancerVault.address, ethers.constants.MaxUint256);
+    await weth
+      .connect(wethWhale)
+      .transfer(noteWhale.address, ethers.utils.parseEther('1000'));
+    await weth
+      .connect(noteWhale)
+      .approve(balancerVault.address, ethers.constants.MaxUint256);
+    await note
+      .connect(noteWhale)
+      .approve(balancerVault.address, ethers.constants.MaxUint256);
 
     // Initialize the pool
-    await balancerVault.connect(noteWhale).joinPool(poolId, noteWhale.address, noteWhale.address, {
-      assets,
-      maxAmountsIn: initialBalances,
-      userData,
-      fromInternalBalance: false,
-    });
+    await balancerVault
+      .connect(noteWhale)
+      .joinPool(poolId, noteWhale.address, noteWhale.address, {
+        assets,
+        maxAmountsIn: initialBalances,
+        userData,
+        fromInternalBalance: false,
+      });
     const totalSupply = await balancerPool.totalSupply();
 
     system.setStakedNoteParameters({
@@ -99,22 +121,35 @@ describe('staking test', () => {
       coolDownTimeInSeconds: 100,
       redeemWindowSeconds: 500,
       ethBalance: TypedBigNumber.fromBalance(initialBalances[0], 'ETH', false),
-      noteBalance: TypedBigNumber.fromBalance(initialBalances[1], 'NOTE', false),
+      noteBalance: TypedBigNumber.fromBalance(
+        initialBalances[1],
+        'NOTE',
+        false
+      ),
       balancerPoolTotalSupply: totalSupply,
       sNOTEBptBalance: BigNumber.from(totalSupply),
       swapFee: ethers.utils.parseEther('0.005'),
       sNOTETotalSupply: TypedBigNumber.fromBalance(totalSupply, 'sNOTE', false),
+      noteETHOraclePrice: BigNumber.from(0),
     });
   });
 
   async function joinPool(noteIn: TypedBigNumber, ethIn: TypedBigNumber) {
-    const userData = ethers.utils.defaultAbiCoder.encode(['uint256', 'uint256[]'], [1, [ethIn.n, noteIn.n]]);
-    await balancerVault.connect(noteWhale).joinPool(poolId, noteWhale.address, noteWhale.address, {
-      assets,
-      maxAmountsIn: [ethers.utils.parseEther('10000'), ethers.utils.parseEther('10000')],
-      userData,
-      fromInternalBalance: false,
-    });
+    const userData = ethers.utils.defaultAbiCoder.encode(
+      ['uint256', 'uint256[]'],
+      [1, [ethIn.n, noteIn.n]]
+    );
+    await balancerVault
+      .connect(noteWhale)
+      .joinPool(poolId, noteWhale.address, noteWhale.address, {
+        assets,
+        maxAmountsIn: [
+          ethers.utils.parseEther('10000'),
+          ethers.utils.parseEther('10000'),
+        ],
+        userData,
+        fromInternalBalance: false,
+      });
 
     const { balances } = await balancerVault.getPoolTokens(poolId);
     const totalSupply = await balancerPool.totalSupply();
@@ -128,13 +163,18 @@ describe('staking test', () => {
       sNOTEBptBalance: BigNumber.from(totalSupply),
       swapFee: ethers.utils.parseEther('0.005'),
       sNOTETotalSupply: TypedBigNumber.fromBalance(totalSupply, 'sNOTE', false),
+      noteETHOraclePrice: BigNumber.from(0),
     });
   }
 
   it('allows entering the pool with minimal slippage', async () => {
     // Attempt to join the pool, calculate the BPT minted
     const noteIn = TypedBigNumber.fromBalance(0, 'NOTE', false);
-    const ethIn = TypedBigNumber.fromBalance(ethers.utils.parseEther('10'), 'ETH', false);
+    const ethIn = TypedBigNumber.fromBalance(
+      ethers.utils.parseEther('10'),
+      'ETH',
+      false
+    );
     const expectedBPT = StakedNote.getExpectedBPT(noteIn, ethIn);
     const balanceBefore = await balancerPool.balanceOf(noteWhale.address);
 
@@ -142,13 +182,19 @@ describe('staking test', () => {
     const balanceAfter = await balancerPool.balanceOf(noteWhale.address);
     const diff = balanceAfter.sub(balanceBefore);
     const errorFactor =
-      1 - parseFloat(ethers.utils.formatUnits(expectedBPT, 18)) / parseFloat(ethers.utils.formatUnits(diff, 18));
+      1 -
+      parseFloat(ethers.utils.formatUnits(expectedBPT, 18)) /
+        parseFloat(ethers.utils.formatUnits(diff, 18));
     expect(errorFactor).to.be.lessThan(1e-12);
   });
 
   it('doubling eth in pool doubles NOTE price', async () => {
     const noteIn = TypedBigNumber.fromBalance(0, 'NOTE', false);
-    const ethIn = TypedBigNumber.fromBalance(ethers.utils.parseEther('10'), 'ETH', false);
+    const ethIn = TypedBigNumber.fromBalance(
+      ethers.utils.parseEther('10'),
+      'ETH',
+      false
+    );
     const spotPriceBefore = StakedNote.getSpotPrice();
     const expectedPrice = StakedNote.getExpectedPriceImpact(noteIn, ethIn);
     await joinPool(noteIn, ethIn);
@@ -160,7 +206,11 @@ describe('staking test', () => {
 
   it('doubling NOTE in pool halves NOTE price', async () => {
     const noteIn = TypedBigNumber.fromBalance(100e8, 'NOTE', false);
-    const ethIn = TypedBigNumber.fromBalance(ethers.utils.parseEther('0'), 'ETH', false);
+    const ethIn = TypedBigNumber.fromBalance(
+      ethers.utils.parseEther('0'),
+      'ETH',
+      false
+    );
     const spotPriceBefore = StakedNote.getSpotPrice();
     const expectedPrice = StakedNote.getExpectedPriceImpact(noteIn, ethIn);
     await joinPool(noteIn, ethIn);
@@ -204,30 +254,48 @@ describe('staking test', () => {
 
   it('exits a pool in proportion to redemption amounts', async () => {
     const noteIn = TypedBigNumber.fromBalance(0, 'NOTE', false);
-    const ethIn = TypedBigNumber.fromBalance(ethers.utils.parseEther('10'), 'ETH', false);
+    const ethIn = TypedBigNumber.fromBalance(
+      ethers.utils.parseEther('10'),
+      'ETH',
+      false
+    );
     await joinPool(noteIn, ethIn);
     const bptExitAmount = await balancerPool.balanceOf(noteWhale.address);
     const { ethClaim, noteClaim } = StakedNote.getRedemptionValue(
       TypedBigNumber.fromBalance(bptExitAmount, 'sNOTE', false)
     );
     const minETH = ethClaim.scale((1 - 0.005) * RATE_PRECISION, RATE_PRECISION);
-    const minNOTE = noteClaim.scale((1 - 0.005) * RATE_PRECISION, RATE_PRECISION);
+    const minNOTE = noteClaim.scale(
+      (1 - 0.005) * RATE_PRECISION,
+      RATE_PRECISION
+    );
 
     // Exit pool results in the expected amounts
     const noteBalanceBefore = await note.balanceOf(noteWhale.address);
     const wethBalanceBefore = await weth.balanceOf(noteWhale.address);
-    const userData = ethers.utils.defaultAbiCoder.encode(['uint256', 'uint256'], [1, bptExitAmount]);
-    await balancerVault.connect(noteWhale).exitPool(poolId, noteWhale.address, noteWhale.address, {
-      assets,
-      minAmountsOut: [minETH.n, minNOTE.n],
-      userData,
-      toInternalBalance: false,
-    });
+    const userData = ethers.utils.defaultAbiCoder.encode(
+      ['uint256', 'uint256'],
+      [1, bptExitAmount]
+    );
+    await balancerVault
+      .connect(noteWhale)
+      .exitPool(poolId, noteWhale.address, noteWhale.address, {
+        assets,
+        minAmountsOut: [minETH.n, minNOTE.n],
+        userData,
+        toInternalBalance: false,
+      });
     const noteBalanceAfter = await note.balanceOf(noteWhale.address);
     const wethBalanceAfter = await weth.balanceOf(noteWhale.address);
 
-    const noteDiff = noteBalanceAfter.sub(noteBalanceBefore).sub(noteClaim.n).toNumber();
-    const ethDiff = wethBalanceAfter.sub(wethBalanceBefore).sub(ethClaim.n).toNumber();
+    const noteDiff = noteBalanceAfter
+      .sub(noteBalanceBefore)
+      .sub(noteClaim.n)
+      .toNumber();
+    const ethDiff = wethBalanceAfter
+      .sub(wethBalanceBefore)
+      .sub(ethClaim.n)
+      .toNumber();
     expect(noteDiff).to.be.lessThan(100);
     expect(ethDiff).to.be.lessThan(100);
   });

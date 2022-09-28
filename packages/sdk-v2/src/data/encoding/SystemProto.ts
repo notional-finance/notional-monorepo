@@ -4,13 +4,18 @@ export interface SerializedBigNumber {
   _hex?: string;
 }
 
-export function encodeSerializedBigNumber(message: SerializedBigNumber): Uint8Array {
+export function encodeSerializedBigNumber(
+  message: SerializedBigNumber
+): Uint8Array {
   let bb = popByteBuffer();
   _encodeSerializedBigNumber(message, bb);
   return toUint8Array(bb);
 }
 
-function _encodeSerializedBigNumber(message: SerializedBigNumber, bb: ByteBuffer): void {
+function _encodeSerializedBigNumber(
+  message: SerializedBigNumber,
+  bb: ByteBuffer
+): void {
   // optional bool _isBigNumber = 1;
   let $_isBigNumber = message._isBigNumber;
   if ($_isBigNumber !== undefined) {
@@ -26,7 +31,9 @@ function _encodeSerializedBigNumber(message: SerializedBigNumber, bb: ByteBuffer
   }
 }
 
-export function decodeSerializedBigNumber(binary: Uint8Array): SerializedBigNumber {
+export function decodeSerializedBigNumber(
+  binary: Uint8Array
+): SerializedBigNumber {
   return _decodeSerializedBigNumber(wrapByteBuffer(binary));
 }
 
@@ -66,13 +73,18 @@ export interface SerializedContract {
   _abiName?: string;
 }
 
-export function encodeSerializedContract(message: SerializedContract): Uint8Array {
+export function encodeSerializedContract(
+  message: SerializedContract
+): Uint8Array {
   let bb = popByteBuffer();
   _encodeSerializedContract(message, bb);
   return toUint8Array(bb);
 }
 
-function _encodeSerializedContract(message: SerializedContract, bb: ByteBuffer): void {
+function _encodeSerializedContract(
+  message: SerializedContract,
+  bb: ByteBuffer
+): void {
   // optional bool _isSerializedContract = 1;
   let $_isSerializedContract = message._isSerializedContract;
   if ($_isSerializedContract !== undefined) {
@@ -95,7 +107,9 @@ function _encodeSerializedContract(message: SerializedContract, bb: ByteBuffer):
   }
 }
 
-export function decodeSerializedContract(binary: Uint8Array): SerializedContract {
+export function decodeSerializedContract(
+  binary: Uint8Array
+): SerializedContract {
   return _decodeSerializedContract(wrapByteBuffer(binary));
 }
 
@@ -143,13 +157,18 @@ export interface SerializedTypedBigNumber {
   decimals?: number;
 }
 
-export function encodeSerializedTypedBigNumber(message: SerializedTypedBigNumber): Uint8Array {
+export function encodeSerializedTypedBigNumber(
+  message: SerializedTypedBigNumber
+): Uint8Array {
   let bb = popByteBuffer();
   _encodeSerializedTypedBigNumber(message, bb);
   return toUint8Array(bb);
 }
 
-function _encodeSerializedTypedBigNumber(message: SerializedTypedBigNumber, bb: ByteBuffer): void {
+function _encodeSerializedTypedBigNumber(
+  message: SerializedTypedBigNumber,
+  bb: ByteBuffer
+): void {
   // optional bool _isTypedBigNumber = 1;
   let $_isTypedBigNumber = message._isTypedBigNumber;
   if ($_isTypedBigNumber !== undefined) {
@@ -186,11 +205,15 @@ function _encodeSerializedTypedBigNumber(message: SerializedTypedBigNumber, bb: 
   }
 }
 
-export function decodeSerializedTypedBigNumber(binary: Uint8Array): SerializedTypedBigNumber {
+export function decodeSerializedTypedBigNumber(
+  binary: Uint8Array
+): SerializedTypedBigNumber {
   return _decodeSerializedTypedBigNumber(wrapByteBuffer(binary));
 }
 
-function _decodeSerializedTypedBigNumber(bb: ByteBuffer): SerializedTypedBigNumber {
+function _decodeSerializedTypedBigNumber(
+  bb: ByteBuffer
+): SerializedTypedBigNumber {
   let message: SerializedTypedBigNumber = {} as any;
 
   end_of_message: while (!isAtEnd(bb)) {
@@ -1084,7 +1107,8 @@ function _decodenToken(bb: ByteBuffer): nToken {
 
       // repeated int32 leverageThresholds = 6;
       case 6: {
-        let values = message.leverageThresholds || (message.leverageThresholds = []);
+        let values =
+          message.leverageThresholds || (message.leverageThresholds = []);
         if ((tag & 7) === 2) {
           let outerLimit = pushTemporaryLength(bb);
           while (!isAtEnd(bb)) {
@@ -1649,7 +1673,8 @@ function _encodeCashGroup(message: CashGroup, bb: ByteBuffer): void {
   }
 
   // repeated int32 liquidityTokenHaircutsPercent = 7;
-  let array$liquidityTokenHaircutsPercent = message.liquidityTokenHaircutsPercent;
+  let array$liquidityTokenHaircutsPercent =
+    message.liquidityTokenHaircutsPercent;
   if (array$liquidityTokenHaircutsPercent !== undefined) {
     let packed = popByteBuffer();
     for (let value of array$liquidityTokenHaircutsPercent) {
@@ -1740,7 +1765,9 @@ function _decodeCashGroup(bb: ByteBuffer): CashGroup {
 
       // repeated int32 liquidityTokenHaircutsPercent = 7;
       case 7: {
-        let values = message.liquidityTokenHaircutsPercent || (message.liquidityTokenHaircutsPercent = []);
+        let values =
+          message.liquidityTokenHaircutsPercent ||
+          (message.liquidityTokenHaircutsPercent = []);
         if ((tag & 7) === 2) {
           let outerLimit = pushTemporaryLength(bb);
           while (!isAtEnd(bb)) {
@@ -1792,13 +1819,18 @@ export interface VaultHistoricalValue {
   assetExchangeRate?: SerializedBigNumber;
 }
 
-export function encodeVaultHistoricalValue(message: VaultHistoricalValue): Uint8Array {
+export function encodeVaultHistoricalValue(
+  message: VaultHistoricalValue
+): Uint8Array {
   let bb = popByteBuffer();
   _encodeVaultHistoricalValue(message, bb);
   return toUint8Array(bb);
 }
 
-function _encodeVaultHistoricalValue(message: VaultHistoricalValue, bb: ByteBuffer): void {
+function _encodeVaultHistoricalValue(
+  message: VaultHistoricalValue,
+  bb: ByteBuffer
+): void {
   // optional int32 timestamp = 1;
   let $timestamp = message.timestamp;
   if ($timestamp !== undefined) {
@@ -1840,7 +1872,9 @@ function _encodeVaultHistoricalValue(message: VaultHistoricalValue, bb: ByteBuff
   }
 }
 
-export function decodeVaultHistoricalValue(binary: Uint8Array): VaultHistoricalValue {
+export function decodeVaultHistoricalValue(
+  binary: Uint8Array
+): VaultHistoricalValue {
   return _decodeVaultHistoricalValue(wrapByteBuffer(binary));
 }
 
@@ -1863,7 +1897,8 @@ function _decodeVaultHistoricalValue(bb: ByteBuffer): VaultHistoricalValue {
       // optional SerializedTypedBigNumber underlyingValueOfStrategyToken = 2;
       case 2: {
         let limit = pushTemporaryLength(bb);
-        message.underlyingValueOfStrategyToken = _decodeSerializedTypedBigNumber(bb);
+        message.underlyingValueOfStrategyToken =
+          _decodeSerializedTypedBigNumber(bb);
         bb.limit = limit;
         break;
       }
@@ -2082,7 +2117,8 @@ function _encodeVaultState(message: VaultState, bb: ByteBuffer): void {
   }
 
   // repeated SerializedTypedBigNumber settlementSecondaryBorrowfCashSnapshot = 16;
-  let array$settlementSecondaryBorrowfCashSnapshot = message.settlementSecondaryBorrowfCashSnapshot;
+  let array$settlementSecondaryBorrowfCashSnapshot =
+    message.settlementSecondaryBorrowfCashSnapshot;
   if (array$settlementSecondaryBorrowfCashSnapshot !== undefined) {
     for (let value of array$settlementSecondaryBorrowfCashSnapshot) {
       writeVarint32(bb, 130);
@@ -2165,7 +2201,8 @@ function _decodeVaultState(bb: ByteBuffer): VaultState {
       // optional SerializedTypedBigNumber settlementStrategyTokenValue = 8;
       case 8: {
         let limit = pushTemporaryLength(bb);
-        message.settlementStrategyTokenValue = _decodeSerializedTypedBigNumber(bb);
+        message.settlementStrategyTokenValue =
+          _decodeSerializedTypedBigNumber(bb);
         bb.limit = limit;
         break;
       }
@@ -2189,7 +2226,8 @@ function _decodeVaultState(bb: ByteBuffer): VaultState {
       // optional SerializedTypedBigNumber remainingSettledStrategyTokens = 11;
       case 11: {
         let limit = pushTemporaryLength(bb);
-        message.remainingSettledStrategyTokens = _decodeSerializedTypedBigNumber(bb);
+        message.remainingSettledStrategyTokens =
+          _decodeSerializedTypedBigNumber(bb);
         bb.limit = limit;
         break;
       }
@@ -2213,7 +2251,9 @@ function _decodeVaultState(bb: ByteBuffer): VaultState {
       // repeated SerializedTypedBigNumber totalSecondaryfCashBorrowed = 14;
       case 14: {
         let limit = pushTemporaryLength(bb);
-        let values = message.totalSecondaryfCashBorrowed || (message.totalSecondaryfCashBorrowed = []);
+        let values =
+          message.totalSecondaryfCashBorrowed ||
+          (message.totalSecondaryfCashBorrowed = []);
         values.push(_decodeSerializedTypedBigNumber(bb));
         bb.limit = limit;
         break;
@@ -2222,7 +2262,9 @@ function _decodeVaultState(bb: ByteBuffer): VaultState {
       // repeated SerializedTypedBigNumber totalSecondaryDebtShares = 15;
       case 15: {
         let limit = pushTemporaryLength(bb);
-        let values = message.totalSecondaryDebtShares || (message.totalSecondaryDebtShares = []);
+        let values =
+          message.totalSecondaryDebtShares ||
+          (message.totalSecondaryDebtShares = []);
         values.push(_decodeSerializedTypedBigNumber(bb));
         bb.limit = limit;
         break;
@@ -2232,7 +2274,8 @@ function _decodeVaultState(bb: ByteBuffer): VaultState {
       case 16: {
         let limit = pushTemporaryLength(bb);
         let values =
-          message.settlementSecondaryBorrowfCashSnapshot || (message.settlementSecondaryBorrowfCashSnapshot = []);
+          message.settlementSecondaryBorrowfCashSnapshot ||
+          (message.settlementSecondaryBorrowfCashSnapshot = []);
         values.push(_decodeSerializedTypedBigNumber(bb));
         bb.limit = limit;
         break;
@@ -2327,7 +2370,8 @@ function _encodeVaultConfig(message: VaultConfig, bb: ByteBuffer): void {
   }
 
   // optional int32 maxDeleverageCollateralRatioBasisPoints = 7;
-  let $maxDeleverageCollateralRatioBasisPoints = message.maxDeleverageCollateralRatioBasisPoints;
+  let $maxDeleverageCollateralRatioBasisPoints =
+    message.maxDeleverageCollateralRatioBasisPoints;
   if ($maxDeleverageCollateralRatioBasisPoints !== undefined) {
     writeVarint32(bb, 56);
     writeVarint64(bb, intToLong($maxDeleverageCollateralRatioBasisPoints));
@@ -2472,7 +2516,8 @@ function _encodeVaultConfig(message: VaultConfig, bb: ByteBuffer): void {
   }
 
   // repeated SerializedTypedBigNumber totalUsedSecondaryBorrowCapacity = 24;
-  let array$totalUsedSecondaryBorrowCapacity = message.totalUsedSecondaryBorrowCapacity;
+  let array$totalUsedSecondaryBorrowCapacity =
+    message.totalUsedSecondaryBorrowCapacity;
   if (array$totalUsedSecondaryBorrowCapacity !== undefined) {
     for (let value of array$totalUsedSecondaryBorrowCapacity) {
       writeVarint32(bb, 194);
@@ -2572,7 +2617,8 @@ function _decodeVaultConfig(bb: ByteBuffer): VaultConfig {
       // optional SerializedTypedBigNumber totalUsedPrimaryBorrowCapacity = 12;
       case 12: {
         let limit = pushTemporaryLength(bb);
-        message.totalUsedPrimaryBorrowCapacity = _decodeSerializedTypedBigNumber(bb);
+        message.totalUsedPrimaryBorrowCapacity =
+          _decodeSerializedTypedBigNumber(bb);
         bb.limit = limit;
         break;
       }
@@ -2636,7 +2682,9 @@ function _decodeVaultConfig(bb: ByteBuffer): VaultConfig {
 
       // repeated int32 secondaryBorrowCurrencies = 22;
       case 22: {
-        let values = message.secondaryBorrowCurrencies || (message.secondaryBorrowCurrencies = []);
+        let values =
+          message.secondaryBorrowCurrencies ||
+          (message.secondaryBorrowCurrencies = []);
         if ((tag & 7) === 2) {
           let outerLimit = pushTemporaryLength(bb);
           while (!isAtEnd(bb)) {
@@ -2652,7 +2700,9 @@ function _decodeVaultConfig(bb: ByteBuffer): VaultConfig {
       // repeated SerializedTypedBigNumber maxSecondaryBorrowCapacity = 23;
       case 23: {
         let limit = pushTemporaryLength(bb);
-        let values = message.maxSecondaryBorrowCapacity || (message.maxSecondaryBorrowCapacity = []);
+        let values =
+          message.maxSecondaryBorrowCapacity ||
+          (message.maxSecondaryBorrowCapacity = []);
         values.push(_decodeSerializedTypedBigNumber(bb));
         bb.limit = limit;
         break;
@@ -2661,7 +2711,9 @@ function _decodeVaultConfig(bb: ByteBuffer): VaultConfig {
       // repeated SerializedTypedBigNumber totalUsedSecondaryBorrowCapacity = 24;
       case 24: {
         let limit = pushTemporaryLength(bb);
-        let values = message.totalUsedSecondaryBorrowCapacity || (message.totalUsedSecondaryBorrowCapacity = []);
+        let values =
+          message.totalUsedSecondaryBorrowCapacity ||
+          (message.totalUsedSecondaryBorrowCapacity = []);
         values.push(_decodeSerializedTypedBigNumber(bb));
         bb.limit = limit;
         break;
@@ -2687,7 +2739,10 @@ export function encodeTradingEstimate(message: TradingEstimate): Uint8Array {
   return toUint8Array(bb);
 }
 
-function _encodeTradingEstimate(message: TradingEstimate, bb: ByteBuffer): void {
+function _encodeTradingEstimate(
+  message: TradingEstimate,
+  bb: ByteBuffer
+): void {
   // optional string buyTokenAddress = 1;
   let $buyTokenAddress = message.buyTokenAddress;
   if ($buyTokenAddress !== undefined) {
@@ -2969,6 +3024,7 @@ export interface SystemData {
   cashGroups?: { [key: number]: CashGroup };
   vaults?: { [key: string]: VaultConfig };
   tradingEstimates?: { [key: string]: TradingEstimate };
+  initVaultParams?: { [key: string]: string };
 }
 
 export function encodeSystemData(message: SystemData): Uint8Array {
@@ -3177,6 +3233,23 @@ function _encodeSystemData(message: SystemData, bb: ByteBuffer): void {
       pushByteBuffer(nested);
     }
   }
+
+  // optional map<string, string> initVaultParams = 13;
+  let map$initVaultParams = message.initVaultParams;
+  if (map$initVaultParams !== undefined) {
+    for (let key in map$initVaultParams) {
+      let nested = popByteBuffer();
+      let value = map$initVaultParams[key];
+      writeVarint32(nested, 10);
+      writeString(nested, key);
+      writeVarint32(nested, 18);
+      writeString(nested, value);
+      writeVarint32(bb, 106);
+      writeVarint32(bb, nested.offset);
+      writeByteBuffer(bb, nested);
+      pushByteBuffer(nested);
+    }
+  }
 }
 
 export function decodeSystemData(binary: Uint8Array): SystemData {
@@ -3213,7 +3286,8 @@ function _decodeSystemData(bb: ByteBuffer): SystemData {
 
       // optional map<string, SerializedBigNumber> USDExchangeRates = 4;
       case 4: {
-        let values = message.USDExchangeRates || (message.USDExchangeRates = {});
+        let values =
+          message.USDExchangeRates || (message.USDExchangeRates = {});
         let outerLimit = pushTemporaryLength(bb);
         let key: string | undefined;
         let value: SerializedBigNumber | undefined;
@@ -3236,7 +3310,8 @@ function _decodeSystemData(bb: ByteBuffer): SystemData {
               skipUnknownField(bb, tag & 7);
           }
         }
-        if (key === undefined || value === undefined) throw new Error('Invalid data for map: USDExchangeRates');
+        if (key === undefined || value === undefined)
+          throw new Error('Invalid data for map: USDExchangeRates');
         values[key] = value;
         bb.limit = outerLimit;
         break;
@@ -3275,7 +3350,8 @@ function _decodeSystemData(bb: ByteBuffer): SystemData {
               skipUnknownField(bb, tag & 7);
           }
         }
-        if (key === undefined || value === undefined) throw new Error('Invalid data for map: currencies');
+        if (key === undefined || value === undefined)
+          throw new Error('Invalid data for map: currencies');
         values[key] = value;
         bb.limit = outerLimit;
         break;
@@ -3306,7 +3382,8 @@ function _decodeSystemData(bb: ByteBuffer): SystemData {
               skipUnknownField(bb, tag & 7);
           }
         }
-        if (key === undefined || value === undefined) throw new Error('Invalid data for map: ethRateData');
+        if (key === undefined || value === undefined)
+          throw new Error('Invalid data for map: ethRateData');
         values[key] = value;
         bb.limit = outerLimit;
         break;
@@ -3337,7 +3414,8 @@ function _decodeSystemData(bb: ByteBuffer): SystemData {
               skipUnknownField(bb, tag & 7);
           }
         }
-        if (key === undefined || value === undefined) throw new Error('Invalid data for map: assetRateData');
+        if (key === undefined || value === undefined)
+          throw new Error('Invalid data for map: assetRateData');
         values[key] = value;
         bb.limit = outerLimit;
         break;
@@ -3368,7 +3446,8 @@ function _decodeSystemData(bb: ByteBuffer): SystemData {
               skipUnknownField(bb, tag & 7);
           }
         }
-        if (key === undefined || value === undefined) throw new Error('Invalid data for map: nTokenData');
+        if (key === undefined || value === undefined)
+          throw new Error('Invalid data for map: nTokenData');
         values[key] = value;
         bb.limit = outerLimit;
         break;
@@ -3399,7 +3478,8 @@ function _decodeSystemData(bb: ByteBuffer): SystemData {
               skipUnknownField(bb, tag & 7);
           }
         }
-        if (key === undefined || value === undefined) throw new Error('Invalid data for map: cashGroups');
+        if (key === undefined || value === undefined)
+          throw new Error('Invalid data for map: cashGroups');
         values[key] = value;
         bb.limit = outerLimit;
         break;
@@ -3430,7 +3510,8 @@ function _decodeSystemData(bb: ByteBuffer): SystemData {
               skipUnknownField(bb, tag & 7);
           }
         }
-        if (key === undefined || value === undefined) throw new Error('Invalid data for map: vaults');
+        if (key === undefined || value === undefined)
+          throw new Error('Invalid data for map: vaults');
         values[key] = value;
         bb.limit = outerLimit;
         break;
@@ -3438,7 +3519,8 @@ function _decodeSystemData(bb: ByteBuffer): SystemData {
 
       // optional map<string, TradingEstimate> tradingEstimates = 12;
       case 12: {
-        let values = message.tradingEstimates || (message.tradingEstimates = {});
+        let values =
+          message.tradingEstimates || (message.tradingEstimates = {});
         let outerLimit = pushTemporaryLength(bb);
         let key: string | undefined;
         let value: TradingEstimate | undefined;
@@ -3461,7 +3543,38 @@ function _decodeSystemData(bb: ByteBuffer): SystemData {
               skipUnknownField(bb, tag & 7);
           }
         }
-        if (key === undefined || value === undefined) throw new Error('Invalid data for map: tradingEstimates');
+        if (key === undefined || value === undefined)
+          throw new Error('Invalid data for map: tradingEstimates');
+        values[key] = value;
+        bb.limit = outerLimit;
+        break;
+      }
+
+      // optional map<string, string> initVaultParams = 13;
+      case 13: {
+        let values = message.initVaultParams || (message.initVaultParams = {});
+        let outerLimit = pushTemporaryLength(bb);
+        let key: string | undefined;
+        let value: string | undefined;
+        end_of_entry: while (!isAtEnd(bb)) {
+          let tag = readVarint32(bb);
+          switch (tag >>> 3) {
+            case 0:
+              break end_of_entry;
+            case 1: {
+              key = readString(bb, readVarint32(bb));
+              break;
+            }
+            case 2: {
+              value = readString(bb, readVarint32(bb));
+              break;
+            }
+            default:
+              skipUnknownField(bb, tag & 7);
+          }
+        }
+        if (key === undefined || value === undefined)
+          throw new Error('Invalid data for map: initVaultParams');
         values[key] = value;
         bb.limit = outerLimit;
         break;
@@ -3524,7 +3637,12 @@ function stringToLong(value: string): Long {
 function longToString(value: Long): string {
   let low = value.low;
   let high = value.high;
-  return String.fromCharCode(low & 0xffff, low >>> 16, high & 0xffff, high >>> 16);
+  return String.fromCharCode(
+    low & 0xffff,
+    low >>> 16,
+    high & 0xffff,
+    high >>> 16
+  );
 }
 
 // The code below was modified from https://github.com/protobufjs/bytebuffer.js
@@ -3677,9 +3795,14 @@ function readString(bb: ByteBuffer, count: number): string {
         c2 = bytes[i + offset + 1];
         c3 = bytes[i + offset + 2];
         c4 = bytes[i + offset + 3];
-        if (((c2 | (c3 << 8) | (c4 << 16)) & 0xc0c0c0) !== 0x808080) text += invalid;
+        if (((c2 | (c3 << 8) | (c4 << 16)) & 0xc0c0c0) !== 0x808080)
+          text += invalid;
         else {
-          c = ((c1 & 0x07) << 0x12) | ((c2 & 0x3f) << 0x0c) | ((c3 & 0x3f) << 0x06) | (c4 & 0x3f);
+          c =
+            ((c1 & 0x07) << 0x12) |
+            ((c2 & 0x3f) << 0x0c) |
+            ((c3 & 0x3f) << 0x06) |
+            (c4 & 0x3f);
           if (c < 0x10000 || c > 0x10ffff) text += invalid;
           else {
             c -= 0x10000;
@@ -3816,7 +3939,12 @@ function writeDouble(bb: ByteBuffer, value: number): void {
 function readInt32(bb: ByteBuffer): number {
   let offset = advance(bb, 4);
   let bytes = bb.bytes;
-  return bytes[offset] | (bytes[offset + 1] << 8) | (bytes[offset + 2] << 16) | (bytes[offset + 3] << 24);
+  return (
+    bytes[offset] |
+    (bytes[offset + 1] << 8) |
+    (bytes[offset + 2] << 16) |
+    (bytes[offset + 3] << 24)
+  );
 }
 
 function writeInt32(bb: ByteBuffer, value: number): void {
@@ -3950,19 +4078,25 @@ function writeVarint64(bb: ByteBuffer, value: Long): void {
     case 9:
       bytes[offset + 8] = size !== 9 ? part2 | 0x80 : part2 & 0x7f;
     case 8:
-      bytes[offset + 7] = size !== 8 ? (part1 >>> 21) | 0x80 : (part1 >>> 21) & 0x7f;
+      bytes[offset + 7] =
+        size !== 8 ? (part1 >>> 21) | 0x80 : (part1 >>> 21) & 0x7f;
     case 7:
-      bytes[offset + 6] = size !== 7 ? (part1 >>> 14) | 0x80 : (part1 >>> 14) & 0x7f;
+      bytes[offset + 6] =
+        size !== 7 ? (part1 >>> 14) | 0x80 : (part1 >>> 14) & 0x7f;
     case 6:
-      bytes[offset + 5] = size !== 6 ? (part1 >>> 7) | 0x80 : (part1 >>> 7) & 0x7f;
+      bytes[offset + 5] =
+        size !== 6 ? (part1 >>> 7) | 0x80 : (part1 >>> 7) & 0x7f;
     case 5:
       bytes[offset + 4] = size !== 5 ? part1 | 0x80 : part1 & 0x7f;
     case 4:
-      bytes[offset + 3] = size !== 4 ? (part0 >>> 21) | 0x80 : (part0 >>> 21) & 0x7f;
+      bytes[offset + 3] =
+        size !== 4 ? (part0 >>> 21) | 0x80 : (part0 >>> 21) & 0x7f;
     case 3:
-      bytes[offset + 2] = size !== 3 ? (part0 >>> 14) | 0x80 : (part0 >>> 14) & 0x7f;
+      bytes[offset + 2] =
+        size !== 3 ? (part0 >>> 14) | 0x80 : (part0 >>> 14) & 0x7f;
     case 2:
-      bytes[offset + 1] = size !== 2 ? (part0 >>> 7) | 0x80 : (part0 >>> 7) & 0x7f;
+      bytes[offset + 1] =
+        size !== 2 ? (part0 >>> 7) | 0x80 : (part0 >>> 7) & 0x7f;
     case 1:
       bytes[offset] = size !== 1 ? part0 | 0x80 : part0 & 0x7f;
   }

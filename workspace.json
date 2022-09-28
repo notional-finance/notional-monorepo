@@ -6,6 +6,7 @@
     "notionable": "packages/notionable",
     "playground": "packages/playground",
     "sdk-v2": "packages/sdk-v2",
-    "system-cache": "packages/system-cache"
+    "system-cache": "packages/system-cache",
+    "utils": "packages/utils"
   }
 }

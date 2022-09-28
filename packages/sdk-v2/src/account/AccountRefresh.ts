@@ -1,37 +1,8 @@
-import { BigNumber, ethers } from 'ethers';
+import { ethers } from 'ethers';
 import { Notional as NotionalTypechain } from '@notional-finance/contracts';
 import AccountData from './AccountData';
 import GraphClient from '../data/GraphClient';
 import AccountGraphLoader from './AccountGraphLoader';
-
-interface AssetResult {
-  currencyId: BigNumber;
-  maturity: BigNumber;
-  assetType: BigNumber;
-  notional: BigNumber;
-  storageSlot: BigNumber;
-  storageState: number;
-}
-
-interface BalanceResult {
-  currencyId: number;
-  cashBalance: BigNumber;
-  nTokenBalance: BigNumber;
-  lastClaimTime: BigNumber;
-  lastClaimIntegralSupply: BigNumber;
-}
-
-export interface GetAccountResult {
-  accountContext: {
-    nextSettleTime: number;
-    hasDebt: string;
-    assetArrayLength: number;
-    bitmapCurrencyId: number;
-    activeCurrencies: string;
-  };
-  accountBalances: BalanceResult[];
-  portfolio: AssetResult[];
-}
 
 /**
  * Manages refresh intervals for an Account. An Account has two sets of data, one is the
@@ -65,7 +36,10 @@ export default abstract class AccountRefresh {
 
   public async refreshAccountData() {
     try {
-      const vaultAccounts = await AccountGraphLoader.loadVaultAccounts(this.graphClient, this.address);
+      const vaultAccounts = await AccountGraphLoader.loadVaultAccounts(
+        this.graphClient,
+        this.address
+      );
       const data = await this.notionalProxy
         .getAccount(this.address)
         .then((r) => AccountData.loadFromBlockchain(r, vaultAccounts));

@@ -5,10 +5,17 @@ import { aggregate, AggregateCall } from '../Multicall';
 import { CurrencyConfig } from './Subgraph';
 import { convertAssetType } from '../../libs/utils';
 import { CashGroup } from '../../system';
-import { AssetRateAggregator, BalancerPool, BalancerVault, IAggregator, Notional, SNOTE } from '@notional-finance/contracts';
+import {
+  AssetRateAggregator,
+  BalancerPool,
+  BalancerVault,
+  IAggregator,
+  Notional,
+  SNOTE,
+} from '@notional-finance/contracts';
 
-import IAggregatorABI from '../.././abi/IAggregator.json';
-import AssetRateAggregatorABI from '../.././abi/AssetRateAggregator.json';
+import IAggregatorABI from '../../abi/IAggregator.json';
+import AssetRateAggregatorABI from '../../abi/AssetRateAggregator.json';
 
 const keyAppendId = (key: string) => (id: number | string) => `${key}_${id}`;
 
@@ -34,42 +41,52 @@ export const ConfigKeys = {
   MARKETS: keyAppendId('MARKETS'),
 };
 
-const firstSNOTECalls = (balancerPool: BalancerPool, sNOTE: SNOTE): AggregateCall[] => [
+const sNOTECalls = (
+  balancerPool: BalancerPool,
+  sNOTE: SNOTE,
+  balancerVault: BalancerVault
+): AggregateCall[] => [
   {
     target: balancerPool,
     method: 'getPoolId',
     args: [],
     key: ConfigKeys.sNOTE.POOL_ID,
+    stage: 0,
   },
   {
     target: balancerPool,
     method: 'totalSupply',
     args: [],
     key: ConfigKeys.sNOTE.POOL_TOTAL_SUPPLY,
+    stage: 0,
   },
   {
     target: balancerPool,
     method: 'getSwapFeePercentage',
     args: [],
     key: ConfigKeys.sNOTE.POOL_SWAP_FEE,
+    stage: 0,
   },
   {
     target: sNOTE,
     method: 'coolDownTimeInSeconds',
     args: [],
     key: ConfigKeys.sNOTE.COOL_DOWN_TIME_SECS,
+    stage: 0,
   },
   {
     target: sNOTE,
     method: 'REDEEM_WINDOW_SECONDS',
     args: [],
     key: ConfigKeys.sNOTE.REDEEM_WINDOW_SECONDS,
+    stage: 0,
   },
   {
     target: sNOTE,
     method: 'NOTE_INDEX',
     args: [],
     key: ConfigKeys.sNOTE.NOTE_INDEX,
+    stage: 0,
   },
   {
     target: sNOTE,
@@ -78,42 +95,50 @@ const firstSNOTECalls = (balancerPool: BalancerPool, sNOTE: SNOTE): AggregateCal
     key: ConfigKeys.sNOTE.TOTAL_SUPPLY,
     transform: (r: Awaited<ReturnType<typeof sNOTE.totalSupply>>) =>
       TypedBigNumber.encodeJSON(r, BigNumberType.sNOTE, 'sNOTE'),
+    stage: 0,
   },
-];
-
-const secondSNOTECalls = (
-  balancerVault: BalancerVault,
-  sNOTE: SNOTE,
-  poolToken: BalancerPool,
-  sNOTETotalSupply: BigNumber,
-  poolId: string,
-  noteIndex: number
-): AggregateCall[] => [
+  {
+    target: balancerPool,
+    method: 'getTimeWeightedAverage',
+    args: [[[0, 21600, 0]]], // Get average pair price from 1800 seconds ago
+    key: ConfigKeys.sNOTE.NOTE_ETH_ORACLE_PRICE,
+    transform: (
+      r: Awaited<ReturnType<typeof balancerPool.getTimeWeightedAverage>>
+    ) => r[0],
+    stage: 0,
+  },
   {
     target: sNOTE,
     method: 'getPoolTokenShare',
-    args: [sNOTETotalSupply],
+    args: (results) => [results[ConfigKeys.sNOTE.TOTAL_SUPPLY].hex],
     key: ConfigKeys.sNOTE.POOL_TOKEN_SHARE,
+    stage: 1,
   },
   {
     target: balancerVault,
     method: 'getPoolTokens',
-    args: [poolId],
+    args: (results) => [results[ConfigKeys.sNOTE.POOL_ID]],
     key: ConfigKeys.sNOTE.POOL_TOKEN_BALANCES,
-    transform: (r: Awaited<ReturnType<typeof balancerVault.getPoolTokens>>) => {
+    transform: (
+      r: Awaited<ReturnType<typeof balancerVault.getPoolTokens>>,
+      results: Record<string, any>
+    ) => {
+      const noteIndex = results[ConfigKeys.sNOTE.NOTE_INDEX];
       const ethIndex = 1 - noteIndex;
       return {
-        ethBalance: TypedBigNumber.encodeJSON(r.balances[ethIndex], BigNumberType.ExternalUnderlying, 'ETH'),
-        noteBalance: TypedBigNumber.encodeJSON(r.balances[noteIndex], BigNumberType.NOTE, 'NOTE'),
+        ethBalance: TypedBigNumber.encodeJSON(
+          r.balances[ethIndex],
+          BigNumberType.ExternalUnderlying,
+          'ETH'
+        ),
+        noteBalance: TypedBigNumber.encodeJSON(
+          r.balances[noteIndex],
+          BigNumberType.NOTE,
+          'NOTE'
+        ),
       };
     },
-  },
-  {
-    target: poolToken,
-    method: 'getTimeWeightedAverage',
-    args: [[[0, 21600, 0]]], // Get average pair price from 1800 seconds ago
-    key: ConfigKeys.sNOTE.NOTE_ETH_ORACLE_PRICE,
-    transform: (r: Awaited<ReturnType<typeof poolToken.getTimeWeightedAverage>>) => r[0],
+    stage: 1,
   },
 ];
 
@@ -141,9 +166,13 @@ const perCurrencyCalls = (
       method: 'latestAnswer',
       args: [],
       key: ConfigKeys.ETH_EXCHANGE_RATE(currency.id),
-      transform: (r: Awaited<ReturnType<typeof ethRate.oracle.latestAnswer>>) => {
+      transform: (
+        r: Awaited<ReturnType<typeof ethRate.oracle.latestAnswer>>
+      ) => {
         if (ethRate.mustInvert) {
-          const rateDecimals = BigNumber.from(10).pow(ethRate.rateDecimalPlaces);
+          const rateDecimals = BigNumber.from(10).pow(
+            ethRate.rateDecimalPlaces
+          );
           return rateDecimals.mul(rateDecimals).div(r);
         }
         return r;
@@ -175,17 +204,35 @@ const perCurrencyCalls = (
         method: 'nTokenPresentValueAssetDenominated',
         args: [currency.id],
         key: ConfigKeys.NTOKEN_PRESENT_VALUE(currency.id),
-        transform: (r: Awaited<ReturnType<typeof notionalProxy.nTokenPresentValueAssetDenominated>>) =>
-          TypedBigNumber.encodeJSON(r, BigNumberType.InternalAsset, currency.assetSymbol),
+        transform: (
+          r: Awaited<
+            ReturnType<typeof notionalProxy.nTokenPresentValueAssetDenominated>
+          >
+        ) =>
+          TypedBigNumber.encodeJSON(
+            r,
+            BigNumberType.InternalAsset,
+            currency.assetSymbol
+          ),
       },
       {
         target: notionalProxy,
         method: 'getNTokenAccount',
         args: [currency.nTokenAddress],
         key: ConfigKeys.NTOKEN_ACCOUNT(currency.id),
-        transform: (r: Awaited<ReturnType<typeof notionalProxy.getNTokenAccount>>) => ({
-          totalSupply: TypedBigNumber.encodeJSON(r.totalSupply, BigNumberType.nToken, currency.nTokenSymbol!),
-          cashBalance: TypedBigNumber.encodeJSON(r.cashBalance, BigNumberType.InternalAsset, currency.assetSymbol),
+        transform: (
+          r: Awaited<ReturnType<typeof notionalProxy.getNTokenAccount>>
+        ) => ({
+          totalSupply: TypedBigNumber.encodeJSON(
+            r.totalSupply,
+            BigNumberType.nToken,
+            currency.nTokenSymbol!
+          ),
+          cashBalance: TypedBigNumber.encodeJSON(
+            r.cashBalance,
+            BigNumberType.InternalAsset,
+            currency.assetSymbol
+          ),
           accumulatedNOTEPerNToken: r.accumulatedNOTEPerNToken,
           lastAccumulatedTime: r.lastAccumulatedTime,
         }),
@@ -195,13 +242,22 @@ const perCurrencyCalls = (
         method: 'getNTokenPortfolio',
         args: [currency.nTokenAddress],
         key: ConfigKeys.NTOKEN_PORTFOLIO(currency.id),
-        transform: (r: Awaited<ReturnType<typeof notionalProxy.getNTokenPortfolio>>) => ({
+        transform: (
+          r: Awaited<ReturnType<typeof notionalProxy.getNTokenPortfolio>>
+        ) => ({
           liquidityTokens: r.liquidityTokens.map((l) => ({
             currencyId: l.currencyId.toNumber(),
             maturity: l.maturity.toNumber(),
             assetType: convertAssetType(l.assetType),
-            notional: TypedBigNumber.encodeJSON(l.notional, BigNumberType.LiquidityToken, currency.assetSymbol),
-            settlementDate: CashGroup.getSettlementDate(convertAssetType(l.assetType), l.maturity.toNumber()),
+            notional: TypedBigNumber.encodeJSON(
+              l.notional,
+              BigNumberType.LiquidityToken,
+              currency.assetSymbol
+            ),
+            settlementDate: CashGroup.getSettlementDate(
+              convertAssetType(l.assetType),
+              l.maturity.toNumber()
+            ),
           })),
           fCash: r.netfCashAssets.map((f) => ({
             currencyId: f.currencyId.toNumber(),
@@ -212,7 +268,10 @@ const perCurrencyCalls = (
               BigNumberType.InternalUnderlying,
               currency.underlyingSymbol!
             ),
-            settlementDate: CashGroup.getSettlementDate(convertAssetType(f.assetType), f.maturity.toNumber()),
+            settlementDate: CashGroup.getSettlementDate(
+              convertAssetType(f.assetType),
+              f.maturity.toNumber()
+            ),
           })),
         }),
       },
@@ -221,7 +280,9 @@ const perCurrencyCalls = (
         method: 'getActiveMarkets',
         args: [currency.id],
         key: ConfigKeys.MARKETS(currency.id),
-        transform: (r: Awaited<ReturnType<typeof notionalProxy.getActiveMarkets>>) =>
+        transform: (
+          r: Awaited<ReturnType<typeof notionalProxy.getActiveMarkets>>
+        ) =>
           r.map((m) => ({
             totalfCash: TypedBigNumber.encodeJSON(
               m.totalfCash.toHexString(),
@@ -249,8 +310,16 @@ const perCurrencyCalls = (
   return calls;
 };
 
-export async function getBlockchainData(provider: providers.Provider, contracts: Contracts, config: CurrencyConfig[]) {
-  const sNOTECalls = firstSNOTECalls(contracts.balancerPool, contracts.sNOTE);
+export async function getBlockchainData(
+  provider: providers.Provider,
+  contracts: Contracts,
+  config: CurrencyConfig[]
+) {
+  const _sNOTECalls = sNOTECalls(
+    contracts.balancerPool,
+    contracts.sNOTE,
+    contracts.balancerVault
+  );
   const currencyCalls = config.flatMap((c) => {
     const rateAdapter = new Contract(
       c.assetExchangeRate?.rateAdapter._address || ethers.constants.AddressZero,
@@ -267,7 +336,11 @@ export async function getBlockchainData(provider: providers.Provider, contracts:
         nTokenAddress: c.nToken?.contract._address,
       },
       {
-        oracle: new Contract(c.ethExchangeRate.rateOracle._address!, IAggregatorABI, provider) as IAggregator,
+        oracle: new Contract(
+          c.ethExchangeRate.rateOracle._address!,
+          IAggregatorABI,
+          provider
+        ) as IAggregator,
         mustInvert: c.ethExchangeRate.mustInvert,
         rateDecimalPlaces: c.ethExchangeRate.rateDecimalPlaces,
       },
@@ -277,17 +350,9 @@ export async function getBlockchainData(provider: providers.Provider, contracts:
     );
   });
 
-  const { blockNumber, results } = await aggregate(sNOTECalls.concat(currencyCalls), provider);
-  const { results: results2 } = await aggregate(
-    secondSNOTECalls(
-      contracts.balancerVault,
-      contracts.sNOTE,
-      contracts.balancerPool,
-      BigNumber.from(results[ConfigKeys.sNOTE.TOTAL_SUPPLY].hex),
-      results[ConfigKeys.sNOTE.POOL_ID],
-      results[ConfigKeys.sNOTE.NOTE_INDEX].toNumber()
-    ),
+  const { blockNumber, results } = await aggregate(
+    _sNOTECalls.concat(currencyCalls),
     provider
   );
-  return { blockNumber, results: { ...results, ...results2 } };
+  return { blockNumber, results };
 }

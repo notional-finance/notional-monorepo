@@ -9,7 +9,11 @@ export default class VaultAccount {
     return new VaultAccount(
       vaultAddress,
       maturity,
-      TypedBigNumber.from(0, BigNumberType.VaultShare, System.getSystem().getVaultSymbol(vaultAddress, maturity)),
+      TypedBigNumber.from(
+        0,
+        BigNumberType.VaultShare,
+        System.getSystem().getVaultSymbol(vaultAddress, maturity)
+      ),
       TypedBigNumber.getZeroUnderlying(vault.primaryBorrowCurrency),
       undefined
     );
@@ -30,7 +34,8 @@ export default class VaultAccount {
     private _maturity: number,
     private _vaultShares: TypedBigNumber,
     private _primaryBorrowfCash: TypedBigNumber,
-    private _secondaryBorrowDebtShares: SecondaryBorrowArray
+    private _secondaryBorrowDebtShares: SecondaryBorrowArray,
+    private _simulatedVaultState?: VaultState
   ) {}
 
   public get maturity() {
@@ -53,12 +58,30 @@ export default class VaultAccount {
     return System.getVaultSymbol(this.vaultAddress, this.maturity);
   }
 
+  public getSimulatedStrategyTokens() {
+    if (!this._simulatedVaultState) return undefined;
+    const { totalStrategyTokens } = System.getSystem().getVaultState(
+      this.vaultAddress,
+      this.maturity
+    );
+    return this._simulatedVaultState.totalStrategyTokens.sub(
+      totalStrategyTokens
+    );
+  }
+
   public getDebtShareSymbol(index: 0 | 1) {
-    return System.getSystem().getDebtShareSymbol(this.vaultAddress, this.maturity, index);
+    return System.getSystem().getDebtShareSymbol(
+      this.vaultAddress,
+      this.maturity,
+      index
+    );
   }
 
   public getVaultState() {
-    return System.getSystem().getVaultState(this.vaultAddress, this.maturity);
+    return (
+      this._simulatedVaultState ??
+      System.getSystem().getVaultState(this.vaultAddress, this.maturity)
+    );
   }
 
   public getVault() {
@@ -75,41 +98,110 @@ export default class VaultAccount {
     if (this.maturity !== 0) throw Error('Cannot set maturity');
     if (!this.vaultShares.isZero()) throw Error('Cannot set with vault shares');
     this._maturity = maturity;
-    this._vaultShares = TypedBigNumber.from(0, BigNumberType.VaultShare, this.vaultSymbol);
+    this._vaultShares = TypedBigNumber.from(
+      0,
+      BigNumberType.VaultShare,
+      this.vaultSymbol
+    );
+    // Clear any simulated vault state when changing maturities
+    this._simulatedVaultState = undefined;
   }
 
-  public updateVaultShares(netVaultShares: TypedBigNumber) {
-    netVaultShares.check(BigNumberType.VaultShare, this.vaultSymbol);
-    const newVaultShares = this.vaultShares.add(netVaultShares);
-    if (newVaultShares.isNegative()) throw Error('Cannot reduce vault shares negative');
-    this._vaultShares = newVaultShares;
+  private _setSimulatedVaultState(updates: {
+    totalPrimaryfCashBorrowed?: TypedBigNumber;
+    totalVaultShares?: TypedBigNumber;
+    totalStrategyTokens?: TypedBigNumber;
+  }) {
+    this._simulatedVaultState = {
+      ...this.getVaultState(),
+      ...updates,
+    };
   }
 
-  public updatePrimaryBorrowfCash(netfCash: TypedBigNumber) {
-    const underlyingSymbol = System.getSystem().getUnderlyingSymbol(this.getVault().primaryBorrowCurrency);
+  public updatePrimaryBorrowfCash(
+    netfCash: TypedBigNumber,
+    simulateVaultState: boolean
+  ) {
+    const underlyingSymbol = System.getSystem().getUnderlyingSymbol(
+      this.getVault().primaryBorrowCurrency
+    );
     netfCash.check(BigNumberType.InternalUnderlying, underlyingSymbol);
     const newPrimaryBorrow = this.primaryBorrowfCash.add(netfCash);
-    if (newPrimaryBorrow.isPositive()) throw Error('Cannot have positive fCash');
-    if (newPrimaryBorrow.isNegative() && newPrimaryBorrow.neg().lt(this.getVault().minAccountBorrowSize))
+    if (newPrimaryBorrow.isPositive())
+      throw Error('Cannot have positive fCash');
+    if (
+      newPrimaryBorrow.isNegative() &&
+      newPrimaryBorrow.neg().lt(this.getVault().minAccountBorrowSize)
+    )
       throw Error('Below minimum borrow size');
     this._primaryBorrowfCash = newPrimaryBorrow;
-  }
 
-  public addStrategyTokens(strategyTokens: TypedBigNumber) {
-    const vaultState = this.getVaultState();
-    if (!vaultState.totalAssetCash.isZero()) throw Error('Cannot add strategy tokens when has asset cash');
-
-    if (vaultState.totalVaultShares.isZero()) {
-      this.updateVaultShares(vaultState.totalVaultShares.copy(strategyTokens.n));
-    } else {
-      this.updateVaultShares(vaultState.totalVaultShares.scale(strategyTokens, vaultState.totalStrategyTokens));
+    if (simulateVaultState) {
+      const { totalPrimaryfCashBorrowed } = this.getVaultState();
+      this._setSimulatedVaultState({
+        totalPrimaryfCashBorrowed: totalPrimaryfCashBorrowed.add(netfCash),
+      });
     }
   }
 
-  public addSecondaryDebtShares(secondaryfCashBorrowed: SecondaryBorrowArray) {
+  public updateVaultShares(
+    netVaultShares: TypedBigNumber,
+    simulateVaultState: boolean
+  ) {
+    netVaultShares.check(BigNumberType.VaultShare, this.vaultSymbol);
+    const newVaultShares = this.vaultShares.add(netVaultShares);
+    if (newVaultShares.isNegative())
+      throw Error('Cannot reduce vault shares negative');
+    this._vaultShares = newVaultShares;
+
+    if (simulateVaultState) {
+      const { totalVaultShares } = this.getVaultState();
+      this._setSimulatedVaultState({
+        totalVaultShares: totalVaultShares.add(netVaultShares),
+      });
+    }
+  }
+
+  public addStrategyTokens(
+    strategyTokens: TypedBigNumber,
+    simulateVaultState: boolean
+  ) {
+    const vaultState = this.getVaultState();
+    if (!vaultState.totalAssetCash.isZero())
+      throw Error('Cannot add strategy tokens when has asset cash');
+
+    if (simulateVaultState) {
+      const { totalStrategyTokens } = this.getVaultState();
+      this._setSimulatedVaultState({
+        totalStrategyTokens: totalStrategyTokens.add(strategyTokens),
+      });
+    }
+
+    if (vaultState.totalVaultShares.isZero()) {
+      this.updateVaultShares(
+        vaultState.totalVaultShares.copy(strategyTokens.n),
+        simulateVaultState
+      );
+    } else {
+      this.updateVaultShares(
+        vaultState.totalVaultShares.scale(
+          strategyTokens,
+          vaultState.totalStrategyTokens
+        ),
+        simulateVaultState
+      );
+    }
+  }
+
+  // TODO: need to implement simulate vault state
+  public addSecondaryDebtShares(
+    secondaryfCashBorrowed: SecondaryBorrowArray,
+    _simulateVaultState: boolean
+  ) {
     if (
       !secondaryfCashBorrowed ||
-      (secondaryfCashBorrowed[0] === undefined && secondaryfCashBorrowed[1] === undefined)
+      (secondaryfCashBorrowed[0] === undefined &&
+        secondaryfCashBorrowed[1] === undefined)
     ) {
       return;
     }
@@ -126,10 +218,17 @@ export default class VaultAccount {
       const symbol2 = this.getDebtShareSymbol(1);
       // Init the array if it does not yet exit
       this._secondaryBorrowDebtShares = [
-        symbol1 ? TypedBigNumber.from(0, BigNumberType.DebtShare, symbol1) : undefined,
-        symbol2 ? TypedBigNumber.from(0, BigNumberType.DebtShare, symbol2) : undefined,
+        symbol1
+          ? TypedBigNumber.from(0, BigNumberType.DebtShare, symbol1)
+          : undefined,
+        symbol2
+          ? TypedBigNumber.from(0, BigNumberType.DebtShare, symbol2)
+          : undefined,
       ];
     }
+
+    // TODO: need to initialize this and set them for simulation
+    // const { totalSecondaryDebtShares, totalSecondaryfCashBorrowed } = this.getVaultState();
 
     if (secondaryfCashBorrowed[0] && !secondaryfCashBorrowed[0].isZero()) {
       const newDebtShares = this.secondaryBorrowDebtShares![0]!.add(
@@ -149,14 +248,20 @@ export default class VaultAccount {
     }
   }
 
-  private _getDebtSharesMinted(index: number, secondaryfCashBorrowed: TypedBigNumber) {
+  private _getDebtSharesMinted(
+    index: number,
+    secondaryfCashBorrowed: TypedBigNumber
+  ) {
     const vaultState = this.getVaultState();
     const totalfCashBorrowed = vaultState.totalSecondaryfCashBorrowed![index]!;
     const totalAccountDebtShares = vaultState.totalSecondaryDebtShares![index]!;
     if (totalfCashBorrowed.isZero()) {
       return totalAccountDebtShares.copy(secondaryfCashBorrowed.neg().n);
     }
-    return totalAccountDebtShares.scale(secondaryfCashBorrowed, totalfCashBorrowed);
+    return totalAccountDebtShares.scale(
+      secondaryfCashBorrowed,
+      totalfCashBorrowed
+    );
   }
 
   public getSecondaryBorrowIndex(currencyId: number): 0 | 1 {
@@ -184,18 +289,26 @@ export default class VaultAccount {
     return [undefined, undefined];
   }
 
-  private _getSecondaryDebtOwed(vault: VaultConfig, vaultState: VaultState, index: 0 | 1) {
+  private _getSecondaryDebtOwed(
+    vault: VaultConfig,
+    vaultState: VaultState,
+    index: 0 | 1
+  ) {
     if (!vault.secondaryBorrowCurrencies) return undefined;
     if (!this.secondaryBorrowDebtShares) return undefined;
 
     if (vault.secondaryBorrowCurrencies[index] !== 0) {
-      const symbol = System.getSystem().getUnderlyingSymbol(vault.secondaryBorrowCurrencies[index]);
+      const symbol = System.getSystem().getUnderlyingSymbol(
+        vault.secondaryBorrowCurrencies[index]
+      );
       const totalBorrowed = this.secondaryBorrowDebtShares[index]?.isPositive()
         ? vaultState.totalSecondaryfCashBorrowed![index]!.scale(
             this.secondaryBorrowDebtShares[index]!,
             vaultState.totalSecondaryDebtShares![index]!
           )
-        : TypedBigNumber.getZeroUnderlying(vault.secondaryBorrowCurrencies![index]);
+        : TypedBigNumber.getZeroUnderlying(
+            vault.secondaryBorrowCurrencies![index]
+          );
       return { symbol, totalBorrowed };
     }
 
@@ -212,8 +325,14 @@ export default class VaultAccount {
     }
 
     return {
-      assetCash: vaultState.totalAssetCash.scale(this.vaultShares, vaultState.totalVaultShares),
-      strategyTokens: vaultState.totalStrategyTokens.scale(this.vaultShares, vaultState.totalVaultShares),
+      assetCash: vaultState.totalAssetCash.scale(
+        this.vaultShares,
+        vaultState.totalVaultShares
+      ),
+      strategyTokens: vaultState.totalStrategyTokens.scale(
+        this.vaultShares,
+        vaultState.totalVaultShares
+      ),
     };
   }
 
@@ -223,40 +342,57 @@ export default class VaultAccount {
     const vault = this.getVault();
 
     const totalStrategyTokenValueAtSettlement = TypedBigNumber.fromBalance(
-      vaultState.totalStrategyTokens.scale(vaultState.settlementStrategyTokenValue!, INTERNAL_TOKEN_PRECISION).n,
+      vaultState.totalStrategyTokens.scale(
+        vaultState.settlementStrategyTokenValue!,
+        INTERNAL_TOKEN_PRECISION
+      ).n,
       System.getSystem().getUnderlyingSymbol(vault.primaryBorrowCurrency),
       true
     );
 
-    let totalVaultShareValueAtSettlement = totalStrategyTokenValueAtSettlement.add(
-      vaultState.totalAssetCash.toUnderlying(true, vaultState.settlementRate)
-    );
+    let totalVaultShareValueAtSettlement =
+      totalStrategyTokenValueAtSettlement.add(
+        vaultState.totalAssetCash.toUnderlying(true, vaultState.settlementRate)
+      );
 
     let totalAccountValue = this.primaryBorrowfCash;
     if (vault.secondaryBorrowCurrencies && this.secondaryBorrowDebtShares) {
       const [debtSharesOne, debtSharesTwo] = this.secondaryBorrowDebtShares;
-      const [totalDebtOne, totalDebtTwo] = vaultState.settlementSecondaryBorrowfCashSnapshot!;
-      const [totalDebtSharesOne, totalDebtSharesTwo] = vaultState.totalSecondaryDebtShares!;
+      const [totalDebtOne, totalDebtTwo] =
+        vaultState.settlementSecondaryBorrowfCashSnapshot!;
+      const [totalDebtSharesOne, totalDebtSharesTwo] =
+        vaultState.totalSecondaryDebtShares!;
 
       if (totalDebtOne) {
         if (debtSharesOne) {
-          const debtOwedOne = totalDebtOne.scale(debtSharesOne, totalDebtSharesOne!);
+          const debtOwedOne = totalDebtOne.scale(
+            debtSharesOne,
+            totalDebtSharesOne!
+          );
           totalAccountValue = totalAccountValue.sub(debtOwedOne);
         }
-        totalVaultShareValueAtSettlement = totalVaultShareValueAtSettlement.add(totalDebtOne);
+        totalVaultShareValueAtSettlement =
+          totalVaultShareValueAtSettlement.add(totalDebtOne);
       }
 
       if (totalDebtTwo) {
         if (debtSharesTwo) {
-          const debtOwedTwo = totalDebtTwo.scale(debtSharesTwo, totalDebtSharesTwo!);
+          const debtOwedTwo = totalDebtTwo.scale(
+            debtSharesTwo,
+            totalDebtSharesTwo!
+          );
           totalAccountValue = totalAccountValue.sub(debtOwedTwo);
         }
-        totalVaultShareValueAtSettlement = totalVaultShareValueAtSettlement.add(totalDebtTwo);
+        totalVaultShareValueAtSettlement =
+          totalVaultShareValueAtSettlement.add(totalDebtTwo);
       }
     }
 
     totalAccountValue = totalAccountValue.add(
-      totalVaultShareValueAtSettlement.scale(this.vaultShares, vaultState.totalVaultShares)
+      totalVaultShareValueAtSettlement.scale(
+        this.vaultShares,
+        vaultState.totalVaultShares
+      )
     );
 
     if (totalAccountValue.isNegative()) {
@@ -265,20 +401,33 @@ export default class VaultAccount {
     }
 
     const residualAssetCashBalance = vaultState.totalAssetCash.add(
-      vaultState.totalPrimaryfCashBorrowed.toAssetCash(true, vaultState.settlementRate)
+      vaultState.totalPrimaryfCashBorrowed.toAssetCash(
+        true,
+        vaultState.settlementRate
+      )
     );
 
     const settledVaultValue = residualAssetCashBalance
       .toUnderlying(true, vaultState.settlementRate)
       .add(totalStrategyTokenValueAtSettlement);
 
-    const strategyTokens = vaultState.totalStrategyTokens.scale(totalAccountValue, settledVaultValue);
-    const assetCash = residualAssetCashBalance.scale(totalAccountValue, settledVaultValue);
+    const strategyTokens = vaultState.totalStrategyTokens.scale(
+      totalAccountValue,
+      settledVaultValue
+    );
+    const assetCash = residualAssetCashBalance.scale(
+      totalAccountValue,
+      settledVaultValue
+    );
 
     // Clear all vault data at settlement
     this._maturity = 0;
     this._primaryBorrowfCash = this.primaryBorrowfCash.copy(0);
-    this._vaultShares = TypedBigNumber.from(0, BigNumberType.VaultShare, this.vaultSymbol);
+    this._vaultShares = TypedBigNumber.from(
+      0,
+      BigNumberType.VaultShare,
+      this.vaultSymbol
+    );
     this._secondaryBorrowDebtShares = undefined;
 
     return { strategyTokens, assetCash };

@@ -5,7 +5,10 @@ import { BigNumberType, TypedBigNumber } from '../../src';
 import { CashGroup, FreeCollateral, System } from '../../src/system';
 import MockSystem from '../mocks/MockSystem';
 import MockAccountData from '../mocks/MockAccountData';
-import { INTERNAL_TOKEN_PRECISION, SECONDS_IN_QUARTER } from '../../src/config/constants';
+import {
+  INTERNAL_TOKEN_PRECISION,
+  SECONDS_IN_QUARTER,
+} from '../../src/config/constants';
 import InterestRateRisk from '../../src/system/InterestRateRisk';
 
 describe('calculates interest rate risk', () => {
@@ -33,7 +36,10 @@ describe('calculates interest rate risk', () => {
         maturity: blockTime + SECONDS_IN_QUARTER,
         assetType: AssetType.LiquidityToken_3Month,
         notional: TypedBigNumber.fromBalance(100_000e8, 'DAI', true),
-        settlementDate: CashGroup.getSettlementDate(AssetType.LiquidityToken_6Month, blockTime + SECONDS_IN_QUARTER),
+        settlementDate: CashGroup.getSettlementDate(
+          AssetType.LiquidityToken_6Month,
+          blockTime + SECONDS_IN_QUARTER
+        ),
       },
       {
         currencyId: 2,
@@ -147,7 +153,11 @@ describe('calculates interest rate risk', () => {
         override.setMarket({
           totalfCash: data.totalfCash,
           totalAssetCash: data.totalAssetCash,
-          totalLiquidity: TypedBigNumber.from(1000e8, BigNumberType.LiquidityToken, 'cETH'),
+          totalLiquidity: TypedBigNumber.from(
+            1000e8,
+            BigNumberType.LiquidityToken,
+            'cETH'
+          ),
           oracleRate: 0.02e9,
           previousTradeTime: blockTime,
           lastImpliedRate: 0.02e9,
@@ -162,7 +172,11 @@ describe('calculates interest rate risk', () => {
         override.setMarket({
           totalfCash: data.totalfCash,
           totalAssetCash: data.totalAssetCash,
-          totalLiquidity: TypedBigNumber.from(1000e8, BigNumberType.LiquidityToken, 'cETH'),
+          totalLiquidity: TypedBigNumber.from(
+            1000e8,
+            BigNumberType.LiquidityToken,
+            'cETH'
+          ),
           oracleRate: 0.04e9,
           previousTradeTime: blockTime,
           lastImpliedRate: 0.04e9,
@@ -170,7 +184,10 @@ describe('calculates interest rate risk', () => {
         return override;
       },
     });
-    expect(InterestRateRisk.getWeightedAvgInterestRate(1)).toBeCloseTo(0.03e9, -5);
+    expect(InterestRateRisk.getWeightedAvgInterestRate(1)).toBeCloseTo(
+      0.03e9,
+      -5
+    );
 
     system.setMarketProvider(cashGroup.markets[0].marketKey, null);
     system.setMarketProvider(cashGroup.markets[1].marketKey, null);
@@ -211,13 +228,19 @@ describe('calculates interest rate risk', () => {
       blockTime
     );
 
-    const { netUnderlyingAvailable } = FreeCollateral.getFreeCollateral(accountData, blockTime);
+    const { netUnderlyingAvailable } = FreeCollateral.getFreeCollateral(
+      accountData,
+      blockTime
+    );
     // The rough approximation is that the FC and the local currency value at the weighted average interest
     // rate should be about the same
-    expect(netUnderlyingAvailable.get(1)!.sub(value).toNumber() / INTERNAL_TOKEN_PRECISION).toBeCloseTo(0, -1);
+    expect(
+      netUnderlyingAvailable.get(1)!.sub(value).toNumber() /
+        INTERNAL_TOKEN_PRECISION
+    ).toBeCloseTo(0, -1);
   });
 
-  it.skip('finds liquidation rates, ntoken leverage', () => {
+  it('finds liquidation rates, ntoken leverage', () => {
     // InterestRateRisk.getNTokenSimulatedValue(TypedBigNumber.fromBalance(100e8, 'nDAI', true), undefined, blockTime)
     const accountData = new MockAccountData(0, false, true, 0, [], [], true);
     const maturity = CashGroup.getMaturityForMarketIndex(3, blockTime);
@@ -233,19 +256,22 @@ describe('calculates interest rate risk', () => {
     ];
 
     accountData.updateAsset(
-      // ETH leverage on nToken
+      // USDC leverage on nToken
       {
         currencyId: 3,
         maturity,
         assetType: AssetType.fCash,
-        notional: TypedBigNumber.fromBalance(-85e8, 'USDC', true),
+        notional: TypedBigNumber.fromBalance(-83e8, 'USDC', true),
         settlementDate: maturity,
       }
     );
 
-    const risk = InterestRateRisk.calculateInterestRateRisk(accountData, blockTime);
+    const risk = InterestRateRisk.calculateInterestRateRisk(
+      accountData,
+      blockTime
+    );
     expect(risk.get(3)?.upperLiquidationInterestRate).toBe(null);
-    expect(risk.get(3)?.lowerLiquidationInterestRate).toBeCloseTo(0.109e9, -8);
+    expect(risk.get(3)?.lowerLiquidationInterestRate).toBeCloseTo(0.029e9, -8);
   });
 
   it('finds liquidation rates, cross maturity, undercollateralized', () => {
@@ -277,14 +303,15 @@ describe('calculates interest rate risk', () => {
       settlementDate: maturity,
     });
 
-    const { netETHDebtWithBuffer, netETHCollateralWithHaircut } = FreeCollateral.getFreeCollateral(
-      accountData,
-      blockTime
-    );
+    const { netETHDebtWithBuffer, netETHCollateralWithHaircut } =
+      FreeCollateral.getFreeCollateral(accountData, blockTime);
     const aggregateFC = netETHCollateralWithHaircut.sub(netETHDebtWithBuffer);
     expect(aggregateFC.isNegative()).toBeTruthy();
 
-    const risk = InterestRateRisk.calculateInterestRateRisk(accountData, blockTime);
+    const risk = InterestRateRisk.calculateInterestRateRisk(
+      accountData,
+      blockTime
+    );
     expect(risk.get(3)?.upperLiquidationInterestRate).toBeCloseTo(0.0225e9, -6);
     expect(risk.get(3)?.lowerLiquidationInterestRate).toBe(null);
   });
@@ -318,14 +345,15 @@ describe('calculates interest rate risk', () => {
       settlementDate: maturity,
     });
 
-    const { netETHDebtWithBuffer, netETHCollateralWithHaircut } = FreeCollateral.getFreeCollateral(
-      accountData,
-      blockTime
-    );
+    const { netETHDebtWithBuffer, netETHCollateralWithHaircut } =
+      FreeCollateral.getFreeCollateral(accountData, blockTime);
     const aggregateFC = netETHCollateralWithHaircut.sub(netETHDebtWithBuffer);
     expect(aggregateFC.isPositive()).toBeTruthy();
 
-    const risk = InterestRateRisk.calculateInterestRateRisk(accountData, blockTime);
+    const risk = InterestRateRisk.calculateInterestRateRisk(
+      accountData,
+      blockTime
+    );
     expect(risk.get(3)?.upperLiquidationInterestRate).toBeCloseTo(0.0425e9, -6);
     expect(risk.get(3)?.lowerLiquidationInterestRate).toBe(null);
   });
@@ -351,7 +379,10 @@ describe('calculates interest rate risk', () => {
       settlementDate: maturity,
     });
 
-    const risk = InterestRateRisk.calculateInterestRateRisk(accountData, blockTime);
+    const risk = InterestRateRisk.calculateInterestRateRisk(
+      accountData,
+      blockTime
+    );
     expect(risk.get(3)?.upperLiquidationInterestRate).toBe(null);
     expect(risk.get(3)?.lowerLiquidationInterestRate).toBe(0.069e9);
   });

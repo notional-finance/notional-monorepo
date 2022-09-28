@@ -8,13 +8,19 @@ import { ConfigKeys, getBlockchainData } from './sources/Blockchain';
 import getUSDPriceData from './sources/ExchangeRate';
 import { getSystemConfig } from './sources/Subgraph';
 import { getTradingEstimates, NETWORKS } from './sources/ZeroExApi';
-import { decodeSystemData, encodeSystemData, SystemData as _SystemData } from './encoding/SystemProto';
+import {
+  decodeSystemData,
+  encodeSystemData,
+  SystemData as _SystemData,
+} from './encoding/SystemProto';
 
-import IAggregatorABI from '.././abi/IAggregator.json';
-import AssetRateAggregatorABI from '.././abi/AssetRateAggregator.json';
-import ERC20ABI from '.././abi/ERC20.json';
-import nTokenERC20ABI from '.././abi/nTokenERC20.json';
+import IAggregatorABI from '../abi/IAggregator.json';
+import AssetRateAggregatorABI from '../abi/AssetRateAggregator.json';
+import ERC20ABI from '../abi/ERC20.json';
+import nTokenERC20ABI from '../abi/nTokenERC20.json';
 import Notional from '..';
+import getVaultInitParams from './sources/VaultInitParams';
+import FixedPoint from '../vaults/strategy/balancer/FixedPoint';
 
 export async function fetchAndEncodeSystem(
   graphClient: GraphClient,
@@ -25,25 +31,49 @@ export async function fetchAndEncodeSystem(
   _usdExchangeRates?: Record<string, BigNumber>
 ) {
   const config = await getSystemConfig(graphClient);
-  const { blockNumber, results } = await getBlockchainData(provider, contracts, config);
+  const { blockNumber, results } = await getBlockchainData(
+    provider,
+    contracts,
+    config
+  );
   const network = await provider.getNetwork();
   const networkName = network.name === 'homestead' ? 'mainnet' : network.name;
-  const block = await provider.getBlock(blockNumber.toNumber());
+  const block = await provider.getBlock(blockNumber);
   // Only refresh exchange rates if a value is not provided
-  const usdExchangeRates = _usdExchangeRates ?? (await getUSDPriceData(exchangeRateApiKey, skipFetchSetup));
+  const usdExchangeRates =
+    _usdExchangeRates ??
+    (await getUSDPriceData(exchangeRateApiKey, skipFetchSetup));
   // Currently hardcoded to mainnet
-  const estimateResults = await getTradingEstimates(networkName as NETWORKS, skipFetchSetup);
+  const estimateResults = await getTradingEstimates(
+    networkName as NETWORKS,
+    skipFetchSetup
+  );
   const tradingEstimates = estimateResults.reduce((obj, e) => {
     const o = obj;
     o[`${e.buyTokenAddress}:${e.sellTokenAddress}`] = {
       ...e,
       estimates: e.estimates.map((e) =>
         // Serialized TypedBigNumbers
-        ({ ...e, sellAmount: e.sellAmount.toJSON(), buyAmount: e.buyAmount.toJSON() })
+        ({
+          ...e,
+          sellAmount: e.sellAmount.toJSON(),
+          buyAmount: e.buyAmount.toJSON(),
+        })
       ),
     };
     return o;
   }, {});
+  const vaults = config.reduce((obj, c) => {
+    const ret = obj;
+    c.leveragedVaults.forEach((v) => {
+      ret[v.vaultAddress] = v;
+    });
+    return ret;
+  }, {});
+  const initVaultParams = await getVaultInitParams(
+    Object.values(vaults),
+    provider
+  );
 
   const systemObject: _SystemData = {
     network: networkName,
@@ -72,7 +102,10 @@ export async function fetchAndEncodeSystem(
       const ret = obj;
       ret[c.id] = {
         ...c.ethExchangeRate,
-        latestRate: c.id === 1 ? ethers.constants.WeiPerEther : results[ConfigKeys.ETH_EXCHANGE_RATE(c.id)],
+        latestRate:
+          c.id === 1
+            ? ethers.constants.WeiPerEther
+            : results[ConfigKeys.ETH_EXCHANGE_RATE(c.id)],
       };
       return ret;
     }, {}),
@@ -109,13 +142,8 @@ export async function fetchAndEncodeSystem(
       }
       return ret;
     }, {}),
-    vaults: config.reduce((obj, c) => {
-      const ret = obj;
-      c.leveragedVaults.forEach((v) => {
-        ret[v.vaultAddress] = v;
-      });
-      return ret;
-    }, {}),
+    vaults,
+    initVaultParams,
   };
 
   const binary = encodeSystemData(systemObject);
@@ -162,14 +190,26 @@ export async function fetchSystem(
   return result;
 }
 
-function _decodeValue(val: any, provider: ethers.providers.Provider) {
+export function decodeValue(val: any, provider?: ethers.providers.Provider) {
   if (typeof val !== 'object') {
     return val;
   }
-  if (Object.prototype.hasOwnProperty.call(val, '_isBigNumber') && val._isBigNumber) {
+  if (
+    Object.prototype.hasOwnProperty.call(val, '_isBigNumber') &&
+    val._isBigNumber
+  ) {
     return BigNumber.from(val);
   }
-  if (Object.prototype.hasOwnProperty.call(val, '_isTypedBigNumber') && val._isTypedBigNumber) {
+  if (
+    Object.prototype.hasOwnProperty.call(val, '_isFixedPoint') &&
+    val._isFixedPoint
+  ) {
+    return FixedPoint.from(val._hex);
+  }
+  if (
+    Object.prototype.hasOwnProperty.call(val, '_isTypedBigNumber') &&
+    val._isTypedBigNumber
+  ) {
     return TypedBigNumber.fromObject(val);
   }
   if (Object.prototype.hasOwnProperty.call(val, '_isSerializedContract')) {
@@ -180,13 +220,13 @@ function _decodeValue(val: any, provider: ethers.providers.Provider) {
     return undefined;
   }
   if (Array.isArray(val)) {
-    return val.map((v) => _decodeValue(v, provider));
+    return val.map((v) => decodeValue(v, provider));
   }
 
   // This is an object, recurse through it to decode nested properties
   const newVal = val;
   Object.keys(newVal).forEach((key) => {
-    const decoded = _decodeValue(newVal[key], provider);
+    const decoded = decodeValue(newVal[key], provider);
     if (key === 'underlyingContract' && decoded === undefined) {
       delete newVal[key];
     } else {
@@ -199,22 +239,45 @@ function _decodeValue(val: any, provider: ethers.providers.Provider) {
 function _encodeMap(decoded: any) {
   // Coverts records to maps so that we can use .get on them and get type checking
   const mapped = decoded;
-  mapped.USDExchangeRates = new Map(Object.entries(decoded.USDExchangeRates || {}));
-  mapped.currencies = new Map(Object.entries(decoded.currencies).map(([k, v]) => [Number(k), v]));
-  mapped.ethRateData = new Map(Object.entries(decoded.ethRateData).map(([k, v]) => [Number(k), v]));
-  mapped.assetRateData = new Map(Object.entries(decoded.assetRateData).map(([k, v]) => [Number(k), v]));
-  mapped.nTokenData = new Map(Object.entries(decoded.nTokenData).map(([k, v]) => [Number(k), v]));
-  mapped.cashGroups = new Map(Object.entries(decoded.cashGroups).map(([k, v]) => [Number(k), v]));
+  mapped.USDExchangeRates = new Map(
+    Object.entries(decoded.USDExchangeRates || {})
+  );
+  mapped.currencies = new Map(
+    Object.entries(decoded.currencies).map(([k, v]) => [Number(k), v])
+  );
+  mapped.ethRateData = new Map(
+    Object.entries(decoded.ethRateData).map(([k, v]) => [Number(k), v])
+  );
+  mapped.assetRateData = new Map(
+    Object.entries(decoded.assetRateData).map(([k, v]) => [Number(k), v])
+  );
+  mapped.nTokenData = new Map(
+    Object.entries(decoded.nTokenData).map(([k, v]) => [Number(k), v])
+  );
+  mapped.cashGroups = new Map(
+    Object.entries(decoded.cashGroups).map(([k, v]) => [Number(k), v])
+  );
   mapped.vaults = new Map(Object.entries(decoded.vaults || {}));
-  mapped.tradingEstimates = new Map(Object.entries(decoded.tradingEstimates || {}));
+  mapped.tradingEstimates = new Map(
+    Object.entries(decoded.tradingEstimates || {})
+  );
+  mapped.initVaultParams = new Map(
+    Object.entries(decoded.initVaultParams || {})
+  );
   return mapped;
 }
 
-export function decodeJSON(json: any, provider: ethers.providers.Provider): SystemData {
-  return _encodeMap(_decodeValue(json, provider));
+export function decodeJSON(
+  json: any,
+  provider: ethers.providers.Provider
+): SystemData {
+  return _encodeMap(decodeValue(json, provider));
 }
 
-export function decodeBinary(binary: Uint8Array, provider: ethers.providers.Provider): SystemData {
+export function decodeBinary(
+  binary: Uint8Array,
+  provider: ethers.providers.Provider
+): SystemData {
   return decodeJSON(decodeSystemData(binary), provider);
 }
 

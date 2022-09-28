@@ -1,7 +1,12 @@
 import { gql } from '@apollo/client/core';
 import { BigNumber, ethers } from 'ethers';
 import EventEmitter from 'eventemitter3';
-import { AssetType, Contracts, IncentiveMigration, SettlementMarket } from '../libs/types';
+import {
+  AssetType,
+  Contracts,
+  IncentiveMigration,
+  SettlementMarket,
+} from '../libs/types';
 import { getNowSeconds } from '../libs/utils';
 import {
   DEFAULT_DATA_REFRESH_INTERVAL,
@@ -16,7 +21,15 @@ import CashGroup from './CashGroup';
 import Market from './Market';
 import TypedBigNumber, { BigNumberType } from '../libs/TypedBigNumber';
 import { fetchAndDecodeSystem } from '../data/SystemData';
-import { Asset, Currency, SystemData, nToken, ETHRate, TradingEstimate, VaultState } from '../data';
+import {
+  Asset,
+  Currency,
+  SystemData,
+  nToken,
+  ETHRate,
+  TradingEstimate,
+  VaultState,
+} from '../data';
 import { StakedNote } from '../staking';
 
 export enum SystemEvents {
@@ -130,7 +143,10 @@ export default class System {
 
   private assetRateProviders = new Map<number, IAssetRateProvider>();
 
-  private nTokenAssetCashPVProviders = new Map<number, INTokenAssetCashPVProvider>();
+  private nTokenAssetCashPVProviders = new Map<
+    number,
+    INTokenAssetCashPVProvider
+  >();
 
   private marketProviders = new Map<string, IMarketProvider>();
 
@@ -142,7 +158,11 @@ export default class System {
     refreshIntervalMS = DEFAULT_DATA_REFRESH_INTERVAL,
     skipFetchSetup = false
   ) {
-    const initData = await fetchAndDecodeSystem(cacheUrl, batchProvider, skipFetchSetup);
+    const initData = await fetchAndDecodeSystem(
+      cacheUrl,
+      batchProvider,
+      skipFetchSetup
+    );
     const network = await batchProvider.getNetwork();
     return new System(
       cacheUrl,
@@ -171,7 +191,11 @@ export default class System {
     this.data = initData;
     if (refreshIntervalMS > 0) {
       this.dataRefreshInterval = setInterval(async () => {
-        this.data = await fetchAndDecodeSystem(this.cacheUrl, this.batchProvider, skipFetchSetup);
+        this.data = await fetchAndDecodeSystem(
+          this.cacheUrl,
+          this.batchProvider,
+          skipFetchSetup
+        );
         this.eventEmitter.emit(SystemEvents.DATA_REFRESH);
       }, this.refreshIntervalMS);
     }
@@ -222,7 +246,9 @@ export default class System {
 
   /** Currencies * */
   public getAllCurrencies(): Currency[] {
-    return Array.from(this.data.currencies.values()).sort((a, b) => a.assetSymbol.localeCompare(b.assetSymbol));
+    return Array.from(this.data.currencies.values()).sort((a, b) =>
+      a.assetSymbol.localeCompare(b.assetSymbol)
+    );
   }
 
   public getTradableCurrencies(): Currency[] {
@@ -231,7 +257,10 @@ export default class System {
 
   public getCurrencyBySymbol(symbol: string): Currency {
     const currency = this.getAllCurrencies().find(
-      (c) => c.assetSymbol === symbol || c.underlyingSymbol === symbol || c.nTokenSymbol === symbol
+      (c) =>
+        c.assetSymbol === symbol ||
+        c.underlyingSymbol === symbol ||
+        c.nTokenSymbol === symbol
     );
     if (!currency) throw Error(`Currency ${symbol} not found`);
     return currency;
@@ -248,7 +277,9 @@ export default class System {
       return this.getWETH() as ERC20;
     }
     const currency = this.getCurrencyBySymbol(symbol);
-    return currency.assetSymbol === symbol ? currency.assetContract : currency.underlyingContract!;
+    return currency.assetSymbol === symbol
+      ? currency.assetContract
+      : currency.underlyingContract!;
   }
 
   public getCurrencyById(id: number): Currency {
@@ -271,13 +302,17 @@ export default class System {
   public getCashGroup(currencyId: number): CashGroup {
     const cashGroupData = this.data.cashGroups.get(currencyId);
     const currency = this.data.currencies.get(currencyId);
-    if (!cashGroupData || !currency) throw new Error(`Cash group ${currencyId} not found`);
+    if (!cashGroupData || !currency)
+      throw new Error(`Cash group ${currencyId} not found`);
     return new CashGroup(currency, cashGroupData);
   }
 
   public getMarkets(currencyId: number): Market[] {
     const cashGroup = this.getCashGroup(currencyId);
-    return cashGroup.markets.map((m) => this.marketProviders.get(m.marketKey)?.getMarket() ?? Market.copy(m));
+    return cashGroup.markets.map(
+      (m) =>
+        this.marketProviders.get(m.marketKey)?.getMarket() ?? Market.copy(m)
+    );
   }
 
   /** Exchange Rate Data * */
@@ -287,7 +322,10 @@ export default class System {
     if (!assetRateData) throw new Error(`Asset Rate ${currencyId} not found`);
     const provider = this.assetRateProviders.get(currencyId);
     const assetRate = provider?.getAssetRate() ?? assetRateData.latestRate;
-    return { underlyingDecimalPlaces: assetRateData.underlyingDecimalPlaces, assetRate };
+    return {
+      underlyingDecimalPlaces: assetRateData.underlyingDecimalPlaces,
+      assetRate,
+    };
   }
 
   public getAnnualizedSupplyRate(currencyId: number) {
@@ -334,7 +372,11 @@ export default class System {
       const invertRate = ethRateDecimals.mul(ethRateDecimals).div(latestRate);
       // inverted rate * 1e18 * usdcRate / (invertedRateDecimals * usdcRateDecimals)
       // returns USDC/symbol in 18 decimals
-      return invertRate.mul(ethers.constants.WeiPerEther).mul(usdcRate).div(ethRateDecimals).div(rateDecimals);
+      return invertRate
+        .mul(ethers.constants.WeiPerEther)
+        .mul(usdcRate)
+        .div(ethRateDecimals)
+        .div(rateDecimals);
     }
 
     return usdRate;
@@ -386,7 +428,8 @@ export default class System {
   }
 
   public getNTokenAssetCashPV(currencyId: number) {
-    const nTokenAssetCashPVProvider = this.nTokenAssetCashPVProviders.get(currencyId);
+    const nTokenAssetCashPVProvider =
+      this.nTokenAssetCashPVProviders.get(currencyId);
     if (nTokenAssetCashPVProvider) {
       return nTokenAssetCashPVProvider.getNTokenAssetCashPV();
     }
@@ -410,22 +453,30 @@ export default class System {
     return this.data.nTokenData.get(currencyId);
   }
 
-  public getIncentiveMigration(currencyId: number): IncentiveMigration | undefined {
+  public getIncentiveMigration(
+    currencyId: number
+  ): IncentiveMigration | undefined {
     return this.data.nTokenData.get(currencyId);
   }
 
   /** Vault Data * */
 
   public getAllVaults(onlyActive = true) {
-    return Array.from(this.data.vaults.values()).filter((v) => (onlyActive ? v.enabled : true));
+    return Array.from(this.data.vaults.values()).filter((v) =>
+      onlyActive ? v.enabled : true
+    );
   }
 
   public getVaultsByStrategy(strategyId: string, onlyActive = true) {
-    return this.getAllVaults(onlyActive).filter((v) => v.strategy === strategyId);
+    return this.getAllVaults(onlyActive).filter(
+      (v) => v.strategy === strategyId
+    );
   }
 
   public getVaultsByCurrency(currencyId: number, onlyActive = true) {
-    return this.getAllVaults(onlyActive).filter((v) => v.primaryBorrowCurrency === currencyId);
+    return this.getAllVaults(onlyActive).filter(
+      (v) => v.primaryBorrowCurrency === currencyId
+    );
   }
 
   public static getVaultSymbol(vaultAddress: string, maturity: number) {
@@ -437,12 +488,20 @@ export default class System {
   }
 
   public getDebtShareSymbols(vaultAddress: string, maturity: number) {
-    return [this.getDebtShareSymbol(vaultAddress, maturity, 0), this.getDebtShareSymbol(vaultAddress, maturity, 1)];
+    return [
+      this.getDebtShareSymbol(vaultAddress, maturity, 0),
+      this.getDebtShareSymbol(vaultAddress, maturity, 1),
+    ];
   }
 
-  public getDebtShareSymbol(vaultAddress: string, maturity: number, index: 0 | 1) {
+  public getDebtShareSymbol(
+    vaultAddress: string,
+    maturity: number,
+    index: 0 | 1
+  ) {
     const { secondaryBorrowCurrencies } = this.getVault(vaultAddress);
-    if (!secondaryBorrowCurrencies) throw Error('Invalid secondary borrow currency');
+    if (!secondaryBorrowCurrencies)
+      throw Error('Invalid secondary borrow currency');
     if (secondaryBorrowCurrencies[index] !== 0) {
       const symbol = this.getUnderlyingSymbol(secondaryBorrowCurrencies[index]);
       return `${this.getVaultSymbol(vaultAddress, maturity)}:${symbol}`;
@@ -457,6 +516,14 @@ export default class System {
     return vault;
   }
 
+  public getVaultJSONParams(vaultAddress: string) {
+    // This just returns the raw JSON string from initVaultParams for use
+    // in the VaultFactory
+    const vaultParams = this.data.initVaultParams.get(vaultAddress);
+    if (!vaultParams) throw Error(`Vault at ${vaultAddress} not found`);
+    return vaultParams;
+  }
+
   public getVaultState(vaultAddress: string, maturity: number) {
     const vault = this.getVault(vaultAddress);
     const state = vault.vaultStates?.find((s) => s.maturity === maturity);
@@ -464,20 +531,26 @@ export default class System {
       return {
         maturity,
         isSettled: false,
-        totalPrimaryfCashBorrowed: TypedBigNumber.getZeroUnderlying(vault.primaryBorrowCurrency),
-        totalAssetCash: TypedBigNumber.getZeroUnderlying(vault.primaryBorrowCurrency).toAssetCash(),
-        totalStrategyTokens: TypedBigNumber.from(0, BigNumberType.StrategyToken, `${vaultAddress}:${maturity}`),
-        totalVaultShares: TypedBigNumber.from(0, BigNumberType.VaultShare, `${vaultAddress}:${maturity}`),
+        totalPrimaryfCashBorrowed: TypedBigNumber.getZeroUnderlying(
+          vault.primaryBorrowCurrency
+        ),
+        totalAssetCash: TypedBigNumber.getZeroUnderlying(
+          vault.primaryBorrowCurrency
+        ).toAssetCash(),
+        totalStrategyTokens: TypedBigNumber.from(
+          0,
+          BigNumberType.StrategyToken,
+          `${vaultAddress}:${maturity}`
+        ),
+        totalVaultShares: TypedBigNumber.from(
+          0,
+          BigNumberType.VaultShare,
+          `${vaultAddress}:${maturity}`
+        ),
       } as VaultState;
     }
 
     return state;
-  }
-
-  public async getVaultReturns<T = Record<string, number>>(vaultAddress: string, maturity: number): Promise<T> {
-    const resp = await fetch(`${this.cacheUrl}/vault-returns/${vaultAddress}/${maturity}`);
-    if (!resp.ok) throw Error('Could not find vault returns');
-    return resp.json();
   }
 
   /** Trading Estimation Data * */
@@ -487,21 +560,32 @@ export default class System {
     }
     if (typeof symbol === 'number') {
       const currency = this.getCurrencyById(symbol);
-      return currency.underlyingContract?.address || currency.assetContract.address;
+      return (
+        currency.underlyingContract?.address || currency.assetContract.address
+      );
     }
     if (ethers.utils.isAddress(symbol)) {
       return symbol;
     }
     const currency = this.getCurrencyBySymbol(symbol);
-    return symbol === currency.underlyingSymbol ? currency.underlyingContract!.address : currency.assetContract.address;
+    return symbol === currency.underlyingSymbol
+      ? currency.underlyingContract!.address
+      : currency.assetContract.address;
   }
 
-  public getTradingEstimates(sellToken: string | number, buyToken: string | number): TradingEstimate {
+  public getTradingEstimates(
+    sellToken: string | number,
+    buyToken: string | number
+  ): TradingEstimate {
     const buyTokenAddress = this._getTokenAddressForTradingEstimation(buyToken);
-    const sellTokenAddress = this._getTokenAddressForTradingEstimation(sellToken);
+    const sellTokenAddress =
+      this._getTokenAddressForTradingEstimation(sellToken);
 
-    const estimate = this.data.tradingEstimates.get(`${buyTokenAddress}:${sellTokenAddress}`);
-    if (!estimate) throw Error(`No estimate found for ${buyToken} and ${sellToken}`);
+    const estimate = this.data.tradingEstimates.get(
+      `${buyTokenAddress}:${sellTokenAddress}`
+    );
+    if (!estimate)
+      throw Error(`No estimate found for ${buyToken} and ${sellToken}`);
     return estimate;
   }
 
@@ -519,7 +603,10 @@ export default class System {
     this.ethRateProviders.clear();
   }
 
-  public setAssetRateProvider(currencyId: number, provider: IAssetRateProvider | null) {
+  public setAssetRateProvider(
+    currencyId: number,
+    provider: IAssetRateProvider | null
+  ) {
     if (!provider) {
       this.assetRateProviders.delete(currencyId);
       return;
@@ -527,7 +614,10 @@ export default class System {
     this.assetRateProviders.set(currencyId, provider);
   }
 
-  public setMarketProvider(marketKey: string, provider: IMarketProvider | null) {
+  public setMarketProvider(
+    marketKey: string,
+    provider: IMarketProvider | null
+  ) {
     if (!provider) {
       this.marketProviders.delete(marketKey);
       return;
@@ -535,7 +625,10 @@ export default class System {
     this.marketProviders.set(marketKey, provider);
   }
 
-  public setETHRateProvider(currencyId: number, provider: IETHRateProvider | null) {
+  public setETHRateProvider(
+    currencyId: number,
+    provider: IETHRateProvider | null
+  ) {
     if (!provider) {
       this.ethRateProviders.delete(currencyId);
       return;
@@ -543,7 +636,10 @@ export default class System {
     this.ethRateProviders.set(currencyId, provider);
   }
 
-  public setNTokenAssetCashPVProvider(currencyId: number, provider: INTokenAssetCashPVProvider | null) {
+  public setNTokenAssetCashPVProvider(
+    currencyId: number,
+    provider: INTokenAssetCashPVProvider | null
+  ) {
     if (!provider) {
       this.nTokenAssetCashPVProviders.delete(currencyId);
       return;
@@ -554,24 +650,44 @@ export default class System {
   /** Settlement Rates * */
 
   // Fetch and set settlement rates
-  public async settlePortfolioAsset(asset: Asset, currentTime = getNowSeconds()) {
-    if (asset.settlementDate > currentTime) throw Error('Asset has not settled');
+  public async settlePortfolioAsset(
+    asset: Asset,
+    currentTime = getNowSeconds()
+  ) {
+    if (asset.settlementDate > currentTime)
+      throw Error('Asset has not settled');
 
     if (asset.assetType === AssetType.fCash) {
       // If an asset is fCash then we settle to cash directly
-      const rate = await this.getSettlementRate(asset.currencyId, asset.maturity);
+      const rate = await this.getSettlementRate(
+        asset.currencyId,
+        asset.maturity
+      );
       return {
         assetCash: asset.notional.toAssetCash(true, rate),
         fCashAsset: undefined,
       };
     }
 
-    const settlementMarket = await this.getSettlementMarket(asset.currencyId, asset.maturity, asset.settlementDate);
-    const fCashClaim = settlementMarket.totalfCash.scale(asset.notional.n, settlementMarket.totalLiquidity.n);
-    const assetCashClaim = settlementMarket.totalAssetCash.scale(asset.notional.n, settlementMarket.totalLiquidity.n);
+    const settlementMarket = await this.getSettlementMarket(
+      asset.currencyId,
+      asset.maturity,
+      asset.settlementDate
+    );
+    const fCashClaim = settlementMarket.totalfCash.scale(
+      asset.notional.n,
+      settlementMarket.totalLiquidity.n
+    );
+    const assetCashClaim = settlementMarket.totalAssetCash.scale(
+      asset.notional.n,
+      settlementMarket.totalLiquidity.n
+    );
     if (asset.maturity <= currentTime) {
       // fCash asset has settled as well
-      const rate = await this.getSettlementRate(asset.currencyId, asset.maturity);
+      const rate = await this.getSettlementRate(
+        asset.currencyId,
+        asset.maturity
+      );
       return {
         assetCash: assetCashClaim.add(fCashClaim.toAssetCash(true, rate)),
         fCashAsset: undefined,
@@ -598,20 +714,24 @@ export default class System {
       return this.settlementRates.get(key)!;
     }
 
-    const settlementRateResponse = await this.graphClient.queryOrThrow<SettlementRateQueryResponse>(
-      settlementRateQuery,
-      { currencyId: currencyId.toString(), maturity }
-    );
+    const settlementRateResponse =
+      await this.graphClient.queryOrThrow<SettlementRateQueryResponse>(
+        settlementRateQuery,
+        { currencyId: currencyId.toString(), maturity }
+      );
 
     // eslint-disable-next-line
     const isSettlementRateSet =
-      settlementRateResponse.settlementRates.length > 0 && settlementRateResponse.settlementRates[0].assetExchangeRate;
+      settlementRateResponse.settlementRates.length > 0 &&
+      settlementRateResponse.settlementRates[0].assetExchangeRate;
 
     if (!isSettlementRateSet) {
       // This means the rate is not set and we get the current asset rate, don't set the rate here
       // will refetch on the next call.
-      const { underlyingDecimalPlaces, assetRate } = this.getAssetRate(currencyId);
-      if (!assetRate || !underlyingDecimalPlaces) throw new Error(`Asset rate data for ${currencyId} is not found`);
+      const { underlyingDecimalPlaces, assetRate } =
+        this.getAssetRate(currencyId);
+      if (!assetRate || !underlyingDecimalPlaces)
+        throw new Error(`Asset rate data for ${currencyId} is not found`);
 
       return assetRate;
     }
@@ -622,25 +742,42 @@ export default class System {
     return rate;
   }
 
-  private async getSettlementMarket(currencyId: number, maturity: number, settlementDate: number) {
+  private async getSettlementMarket(
+    currencyId: number,
+    maturity: number,
+    settlementDate: number
+  ) {
     const key = `${currencyId}:${settlementDate}:${maturity}`;
     if (this.settlementMarkets.has(key)) {
       return this.settlementMarkets.get(key)!;
     }
 
-    const settlementMarkets = await this.graphClient.queryOrThrow<SettlementMarketsQueryResponse>(
-      settlementMarketsQuery,
-      { currencyId: currencyId.toString(), settlementDate }
-    );
+    const settlementMarkets =
+      await this.graphClient.queryOrThrow<SettlementMarketsQueryResponse>(
+        settlementMarketsQuery,
+        { currencyId: currencyId.toString(), settlementDate }
+      );
     settlementMarkets.markets.forEach((m) => {
       const k = `${currencyId}:${settlementDate}:${m.maturity}`;
       const currency = this.getCurrencyById(currencyId);
       const underlyingSymbol = this.getUnderlyingSymbol(currencyId);
       this.settlementMarkets.set(k, {
         settlementDate,
-        totalfCash: TypedBigNumber.from(m.totalfCash, BigNumberType.InternalUnderlying, underlyingSymbol),
-        totalAssetCash: TypedBigNumber.from(m.totalAssetCash, BigNumberType.InternalAsset, currency.assetSymbol),
-        totalLiquidity: TypedBigNumber.from(m.totalLiquidity, BigNumberType.LiquidityToken, currency.assetSymbol),
+        totalfCash: TypedBigNumber.from(
+          m.totalfCash,
+          BigNumberType.InternalUnderlying,
+          underlyingSymbol
+        ),
+        totalAssetCash: TypedBigNumber.from(
+          m.totalAssetCash,
+          BigNumberType.InternalAsset,
+          currency.assetSymbol
+        ),
+        totalLiquidity: TypedBigNumber.from(
+          m.totalLiquidity,
+          BigNumberType.LiquidityToken,
+          currency.assetSymbol
+        ),
       });
     });
 

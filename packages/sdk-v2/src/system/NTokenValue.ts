@@ -21,8 +21,10 @@ export default class NTokenValue {
     const { assetSymbol } = system.getCurrencyById(currencyId);
 
     if (!nToken) throw new Error(`nToken ${currencyId} not found`);
-    if (!totalSupply) throw new Error(`Total nToken supply for ${currencyId} not found`);
-    if (!nTokenPV) throw new Error(`Total nToken PV for ${currencyId} not found`);
+    if (!totalSupply)
+      throw new Error(`Total nToken supply for ${currencyId} not found`);
+    if (!nTokenPV)
+      throw new Error(`Total nToken PV for ${currencyId} not found`);
 
     return {
       nToken,
@@ -34,11 +36,13 @@ export default class NTokenValue {
 
   public static getNTokenPortfolio(currencyId: number) {
     const system = System.getSystem();
-    const { cashBalance, liquidityTokens, fCash } = system.getNTokenPortfolio(currencyId);
+    const { cashBalance, liquidityTokens, fCash } =
+      system.getNTokenPortfolio(currencyId);
     const cashGroup = system.getCashGroup(currencyId);
 
     if (!cashGroup) throw new Error(`Cash group for ${currencyId} not found`);
-    if (!cashBalance || !liquidityTokens || !fCash) throw new Error(`Missing asset data for nToken at ${currencyId}`);
+    if (!cashBalance || !liquidityTokens || !fCash)
+      throw new Error(`Missing asset data for nToken at ${currencyId}`);
 
     return {
       cashBalance,
@@ -56,16 +60,32 @@ export default class NTokenValue {
    * @param useHaircut
    * @returns
    */
-  public static convertNTokenToInternalAsset(currencyId: number, nTokenBalance: TypedBigNumber, useHaircut: boolean) {
-    const { nToken, totalSupply, nTokenPV, assetSymbol } = NTokenValue.getNTokenFactors(currencyId);
+  public static convertNTokenToInternalAsset(
+    currencyId: number,
+    nTokenBalance: TypedBigNumber,
+    useHaircut: boolean
+  ) {
+    const { nToken, totalSupply, nTokenPV, assetSymbol } =
+      NTokenValue.getNTokenFactors(currencyId);
 
-    if (totalSupply.isZero()) return TypedBigNumber.from(0, BigNumberType.InternalAsset, assetSymbol);
+    if (totalSupply.isZero())
+      return TypedBigNumber.from(0, BigNumberType.InternalAsset, assetSymbol);
     nTokenBalance.check(BigNumberType.nToken, nToken.nTokenSymbol);
-    const nTokenHaircut = useHaircut ? nToken.pvHaircutPercentage : PERCENTAGE_BASIS;
+    const nTokenHaircut = useHaircut
+      ? nToken.pvHaircutPercentage
+      : PERCENTAGE_BASIS;
 
     // Balance * PV * Haircut / (totalSupply * BASIS)
-    const internalAsset = nTokenBalance.n.mul(nTokenPV.n).mul(nTokenHaircut).div(PERCENTAGE_BASIS).div(totalSupply.n);
-    return TypedBigNumber.from(internalAsset, BigNumberType.InternalAsset, assetSymbol);
+    const internalAsset = nTokenBalance.n
+      .mul(nTokenPV.n)
+      .mul(nTokenHaircut)
+      .div(PERCENTAGE_BASIS)
+      .div(totalSupply.n);
+    return TypedBigNumber.from(
+      internalAsset,
+      BigNumberType.InternalAsset,
+      assetSymbol
+    );
   }
 
   /**
@@ -75,15 +95,23 @@ export default class NTokenValue {
    * @param assetCashAmountInternal
    * @returns
    */
-  public static getNTokensToMint(currencyId: number, assetCashAmountInternal: TypedBigNumber) {
-    const { nToken, totalSupply, nTokenPV, assetSymbol } = NTokenValue.getNTokenFactors(currencyId);
+  public static getNTokensToMint(
+    currencyId: number,
+    assetCashAmountInternal: TypedBigNumber
+  ) {
+    const { nToken, totalSupply, nTokenPV, assetSymbol } =
+      NTokenValue.getNTokenFactors(currencyId);
 
     assetCashAmountInternal.check(BigNumberType.InternalAsset, assetSymbol);
     const nTokenAmount = nTokenPV.isZero()
       ? assetCashAmountInternal.n
       : assetCashAmountInternal.n.mul(totalSupply.n).div(nTokenPV.n);
 
-    return TypedBigNumber.from(nTokenAmount, BigNumberType.nToken, nToken.nTokenSymbol);
+    return TypedBigNumber.from(
+      nTokenAmount,
+      BigNumberType.nToken,
+      nToken.nTokenSymbol
+    );
   }
 
   /**
@@ -93,13 +121,23 @@ export default class NTokenValue {
    * @param nTokenBalance
    * @returns amount of asset cash required to mint the nToken balance
    */
-  public static getAssetRequiredToMintNToken(currencyId: number, nTokenBalance: TypedBigNumber) {
-    const { nToken, totalSupply, nTokenPV, assetSymbol } = NTokenValue.getNTokenFactors(currencyId);
+  public static getAssetRequiredToMintNToken(
+    currencyId: number,
+    nTokenBalance: TypedBigNumber
+  ) {
+    const { nToken, totalSupply, nTokenPV, assetSymbol } =
+      NTokenValue.getNTokenFactors(currencyId);
 
     nTokenBalance.check(BigNumberType.nToken, nToken.nTokenSymbol);
-    const assetCash = nTokenPV.isZero() ? nTokenBalance.n : nTokenBalance.scale(nTokenPV.n, totalSupply.n);
+    const assetCash = nTokenPV.isZero()
+      ? nTokenBalance.n
+      : nTokenBalance.scale(nTokenPV.n, totalSupply.n);
 
-    return TypedBigNumber.from(assetCash, BigNumberType.InternalAsset, assetSymbol);
+    return TypedBigNumber.from(
+      assetCash,
+      BigNumberType.InternalAsset,
+      assetSymbol
+    );
   }
 
   /**
@@ -121,7 +159,11 @@ export default class NTokenValue {
     // The first guess is that the redeem amount is just a straight percentage of the total
     // supply, this is going to be pretty accurate is most cases
     let nTokenRedeem = totalSupply.scale(assetCashAmountInternal.n, nTokenPV.n);
-    let redeemValue = NTokenValue.getAssetFromRedeemNToken(currencyId, nTokenRedeem, blockTime);
+    let redeemValue = NTokenValue.getAssetFromRedeemNToken(
+      currencyId,
+      nTokenRedeem,
+      blockTime
+    );
     // We always want to redeem value slightly less than the specified amount, if we were to
     // redeem slightly more then it could result in a free collateral failure. We continue to
     // loop while assetCash - redeemValue < 0 or assetCash - redeemValue > precision. Note that
@@ -138,7 +180,11 @@ export default class NTokenValue {
       if (updateAmount.isZero()) break;
 
       nTokenRedeem = nTokenRedeem.add(updateAmount);
-      redeemValue = NTokenValue.getAssetFromRedeemNToken(currencyId, nTokenRedeem, blockTime);
+      redeemValue = NTokenValue.getAssetFromRedeemNToken(
+        currencyId,
+        nTokenRedeem,
+        blockTime
+      );
       diff = assetCashAmountInternal.sub(redeemValue);
       totalLoops += 1;
       if (totalLoops > 50) throw Error('Unable to converge on nTokenRedeem');
@@ -149,12 +195,18 @@ export default class NTokenValue {
 
   public static getNTokenStatus(currencyId: number) {
     if (!System.getSystem().getNToken(currencyId)) return NTokenStatus.NoNToken;
-    const { liquidityTokens, fCash } = NTokenValue.getNTokenPortfolio(currencyId);
+    const { liquidityTokens, fCash } =
+      NTokenValue.getNTokenPortfolio(currencyId);
 
     // If there are no liquidity tokens then the markets have not been initialized for the first time,
     // but mint and redeem are still possible.
-    if (liquidityTokens.length > 0 && hasMatured(liquidityTokens[0])) return NTokenStatus.MarketsNotInitialized;
-    if (fCash.filter((f) => !liquidityTokens.find((lt) => lt.maturity === f.maturity)).length) {
+    if (liquidityTokens.length > 0 && hasMatured(liquidityTokens[0]))
+      return NTokenStatus.MarketsNotInitialized;
+    if (
+      fCash.filter(
+        (f) => !liquidityTokens.find((lt) => lt.maturity === f.maturity)
+      ).length
+    ) {
       // If residual fCash is in the nToken account this calculation will not work. nTokens can still
       // be redeemed but will have residual fCash assets.
       return NTokenStatus.nTokenHasResidual;
@@ -176,7 +228,8 @@ export default class NTokenValue {
     blockTime = getNowSeconds()
   ) {
     const { nToken, totalSupply } = NTokenValue.getNTokenFactors(currencyId);
-    const { cashBalance, liquidityTokens, fCash, cashGroup } = NTokenValue.getNTokenPortfolio(currencyId);
+    const { cashBalance, liquidityTokens, fCash, cashGroup } =
+      NTokenValue.getNTokenPortfolio(currencyId);
     nTokenBalance.check(BigNumberType.nToken, nToken.nTokenSymbol);
 
     const status = NTokenValue.getNTokenStatus(currencyId);
@@ -197,9 +250,15 @@ export default class NTokenValue {
     return liquidityTokensToWithdraw.reduce((totalAssetCash, lt) => {
       // Inside this reduce we simulate what the redeemer will receive for withdrawing the specified
       // amount of liquidity tokens
-      const { fCashClaim, assetCashClaim } = cashGroup.getLiquidityTokenValue(lt.assetType, lt.notional, false);
+      const { fCashClaim, assetCashClaim } = cashGroup.getLiquidityTokenValue(
+        lt.assetType,
+        lt.notional,
+        false
+      );
       // This is the redeemer's share of the fCash position
-      const fCashPosition = fCash.find((f) => f.maturity === lt.maturity)?.notional || fCashClaim.copy(0);
+      const fCashPosition =
+        fCash.find((f) => f.maturity === lt.maturity)?.notional ||
+        fCashClaim.copy(0);
 
       let fCashShare: TypedBigNumber;
       if (status === NTokenStatus.Ok) {
@@ -207,7 +266,9 @@ export default class NTokenValue {
         fCashShare = fCashPosition.scale(nTokenBalance.n, totalSupply.n);
       } else {
         // In ifCash conditions, the fCash share is proportional to the liquidity tokens removed
-        const totalLiquidityTokens = liquidityTokens.find((l) => l.maturity === lt.maturity)!.notional;
+        const totalLiquidityTokens = liquidityTokens.find(
+          (l) => l.maturity === lt.maturity
+        )!.notional;
         fCashShare = fCashPosition.scale(lt.notional.n, totalLiquidityTokens.n);
       }
 
@@ -216,8 +277,13 @@ export default class NTokenValue {
 
       if (!netfCashShare.isZero()) {
         // Simulates cash generated by trading off the fCash position
-        const market = cashGroup.getMarket(CashGroup.getMarketIndexForMaturity(lt.maturity));
-        const { netCashToAccount } = market.getCashAmountGivenfCashAmount(netfCashShare.neg(), blockTime);
+        const market = cashGroup.getMarket(
+          CashGroup.getMarketIndexForMaturity(lt.maturity)
+        );
+        const { netCashToAccount } = market.getCashAmountGivenfCashAmount(
+          netfCashShare.neg(),
+          blockTime
+        );
         const netAssetCashShare = netCashToAccount.toAssetCash();
         return totalAssetCash.add(assetCashClaim).add(netAssetCashShare);
       }
@@ -241,26 +307,57 @@ export default class NTokenValue {
 
     if (status === NTokenStatus.Ok) {
       // If there are no residuals, we return the proportional share
-      return liquidityTokens.map((lt) => ({ ...lt, notional: lt.notional.scale(nTokenBalance.n, totalSupply.n) }));
+      return liquidityTokens.map((lt) => ({
+        ...lt,
+        notional: lt.notional.scale(nTokenBalance.n, totalSupply.n),
+      }));
     }
     const totalAssetValueInMarkets = liquidityTokens.reduce((total, lt) => {
-      const { fCashClaim, assetCashClaim } = cashGroup.getLiquidityTokenValue(lt.assetType, lt.notional, false);
-      const fCashPosition = fCash.find((f) => f.maturity === lt.maturity)?.notional || fCashClaim.copy(0);
+      const { fCashClaim, assetCashClaim } = cashGroup.getLiquidityTokenValue(
+        lt.assetType,
+        lt.notional,
+        false
+      );
+      const fCashPosition =
+        fCash.find((f) => f.maturity === lt.maturity)?.notional ||
+        fCashClaim.copy(0);
       const netfCash = fCashPosition.add(fCashClaim);
       return total
         .add(assetCashClaim)
-        .add(cashGroup.getfCashPresentValueUnderlyingInternal(lt.maturity, netfCash, false).toAssetCash());
+        .add(
+          cashGroup
+            .getfCashPresentValueUnderlyingInternal(
+              lt.maturity,
+              netfCash,
+              false
+            )
+            .toAssetCash()
+        );
     }, TypedBigNumber.from(0, BigNumberType.InternalAsset, currency.assetSymbol));
 
     const ifCashRiskAdjustedValue = fCash
       .filter((f) => CashGroup.isIdiosyncratic(f.maturity))
       .reduce(
         (total, f) =>
-          total.add(cashGroup.getfCashPresentValueUnderlyingInternal(f.maturity, f.notional, true).toAssetCash()),
-        TypedBigNumber.from(0, BigNumberType.InternalAsset, currency.assetSymbol)
+          total.add(
+            cashGroup
+              .getfCashPresentValueUnderlyingInternal(
+                f.maturity,
+                f.notional,
+                true
+              )
+              .toAssetCash()
+          ),
+        TypedBigNumber.from(
+          0,
+          BigNumberType.InternalAsset,
+          currency.assetSymbol
+        )
       );
 
-    const totalPortfolioValue = totalAssetValueInMarkets.add(ifCashRiskAdjustedValue);
+    const totalPortfolioValue = totalAssetValueInMarkets.add(
+      ifCashRiskAdjustedValue
+    );
 
     return liquidityTokens.map((lt) => {
       const tokensToWithdraw = lt.notional.n
@@ -281,9 +378,16 @@ export default class NTokenValue {
    * @returns a number that represents the blended annual interest rate
    */
   public static getNTokenBlendedYield(currencyId: number) {
-    const { cashBalance, liquidityTokens, fCash, cashGroup } = NTokenValue.getNTokenPortfolio(currencyId);
+    const { cashBalance, liquidityTokens, fCash, cashGroup } =
+      NTokenValue.getNTokenPortfolio(currencyId);
 
-    return NTokenValue.calculateNTokenBlendedYieldAtBlock(currencyId, cashBalance, liquidityTokens, fCash, cashGroup);
+    return NTokenValue.calculateNTokenBlendedYieldAtBlock(
+      currencyId,
+      cashBalance,
+      liquidityTokens,
+      fCash,
+      cashGroup
+    );
   }
 
   protected static calculateNTokenBlendedYieldAtBlock(
@@ -299,7 +403,8 @@ export default class NTokenValue {
     let totalAssetCash = cashBalance;
     const supplyRate = cashGroup.blockSupplyRate;
     // Check null or undefined because zero is valid supply rate
-    if (supplyRate === null || supplyRate === undefined) throw new Error(`Supply rate for ${currencyId} not found`);
+    if (supplyRate === null || supplyRate === undefined)
+      throw new Error(`Supply rate for ${currencyId} not found`);
 
     const fCashInterestRates = fCash.map((f) => {
       let { notional: fCashNotional } = f;
@@ -308,16 +413,23 @@ export default class NTokenValue {
       liquidityTokens
         .filter((l) => l.maturity === f.maturity)
         .forEach((lt, index) => {
-          if (index > 0) throw Error('Found multiple liquidity tokens for single maturity');
+          if (index > 0)
+            throw Error('Found multiple liquidity tokens for single maturity');
 
-          const { fCashClaim, assetCashClaim } = cashGroup.getLiquidityTokenValue(lt.assetType, lt.notional, false);
+          const { fCashClaim, assetCashClaim } =
+            cashGroup.getLiquidityTokenValue(lt.assetType, lt.notional, false);
           totalAssetCash = totalAssetCash.add(assetCashClaim);
           fCashNotional = fCashNotional.add(fCashClaim);
         });
 
       // The blended interest rate will be weighted average of the interest rates and their associated present values
       return {
-        rate: cashGroup.getOracleRate(f.maturity, blockTime, marketOverrides, supplyRate),
+        rate: cashGroup.getOracleRate(
+          f.maturity,
+          blockTime,
+          marketOverrides,
+          supplyRate
+        ),
         weight: cashGroup.getfCashPresentValueUnderlyingInternal(
           f.maturity,
           fCashNotional,
@@ -329,21 +441,33 @@ export default class NTokenValue {
       };
     });
 
-    const totalCashUnderlying = totalAssetCash.toUnderlying(true, assetRateOverride);
+    const totalCashUnderlying = totalAssetCash.toUnderlying(
+      true,
+      assetRateOverride
+    );
     // The denominator is the total amount of underlying that the nToken account holds
-    const totalUnderlying = fCashInterestRates.reduce((t, { weight }) => t.add(weight), totalCashUnderlying);
+    const totalUnderlying = fCashInterestRates.reduce(
+      (t, { weight }) => t.add(weight),
+      totalCashUnderlying
+    );
     // The numerator is the present value multiplied by its associated interest rate
     const numerator = fCashInterestRates.reduce(
       (num, { rate, weight }) => num.add(weight.scale(rate, 1)),
       totalCashUnderlying.scale(supplyRate, 1)
     );
 
-    return totalUnderlying.isZero() ? 0 : numerator.n.div(totalUnderlying.n).toNumber();
+    return totalUnderlying.isZero()
+      ? 0
+      : numerator.n.div(totalUnderlying.n).toNumber();
   }
 
   public static getNTokenIncentiveYield(currencyId: number) {
     const { nToken, nTokenPV } = NTokenValue.getNTokenFactors(currencyId);
-    const annualIncentivesLocalValue = TypedBigNumber.fromBalance(nToken.incentiveEmissionRate, 'NOTE', true)
+    const annualIncentivesLocalValue = TypedBigNumber.fromBalance(
+      nToken.incentiveEmissionRate,
+      'NOTE',
+      true
+    )
       .toETH(false)
       .fromETH(currencyId, false);
 
@@ -369,20 +493,27 @@ export default class NTokenValue {
     currencyId: number,
     nTokenBalance: TypedBigNumber,
     _lastClaimTime: BigNumber,
-    _accountIncentiveDebt: BigNumber,
+    _accountIncentiveDebt: BigNumber | undefined,
     blockTime = getNowSeconds()
   ): TypedBigNumber {
     // This will get rewritten in the case of migration so don't reassign to the parameter
     let accountIncentiveDebt = BigNumber.from(_accountIncentiveDebt);
     const { nToken, totalSupply } = NTokenValue.getNTokenFactors(currencyId);
-    const incentiveFactors = System.getSystem().getNTokenIncentiveFactors(currencyId);
-    if (!incentiveFactors) throw new Error('Incentive emission factors not found');
+    const incentiveFactors =
+      System.getSystem().getNTokenIncentiveFactors(currencyId);
+    if (!incentiveFactors)
+      throw new Error('Incentive emission factors not found');
     nTokenBalance.check(BigNumberType.nToken, nToken.nTokenSymbol);
     let incentives = BigNumber.from(0);
-    const migrationFactors = System.getSystem().getIncentiveMigration(currencyId);
+    const migrationFactors =
+      System.getSystem().getIncentiveMigration(currencyId);
     const lastClaimTime = _lastClaimTime.toNumber();
 
-    if (lastClaimTime > 0 && migrationFactors && lastClaimTime <= migrationFactors.migrationTime) {
+    if (
+      lastClaimTime > 0 &&
+      migrationFactors &&
+      lastClaimTime <= migrationFactors.migrationTime
+    ) {
       // nToken requires migration calculations
       const timeSinceMigration = migrationFactors.migrationTime - lastClaimTime;
 
@@ -397,29 +528,39 @@ export default class NTokenValue {
         const avgTotalSupply = migrationFactors.integralTotalSupply
           .sub(accountIncentiveDebt) // accountIncentiveDebt here is actually the lastClaimIntegralSupply
           .div(timeSinceMigration);
-        if (avgTotalSupply.isZero()) return TypedBigNumber.from(0, BigNumberType.NOTE, 'NOTE');
+        if (avgTotalSupply.isZero())
+          return TypedBigNumber.from(0, BigNumberType.NOTE, 'NOTE');
 
-        incentives = incentives.add(nTokenBalance.n.mul(incentiveRate).div(avgTotalSupply));
+        incentives = incentives.add(
+          nTokenBalance.n.mul(incentiveRate).div(avgTotalSupply)
+        );
       }
       // Set this to zero to mark the migration
       accountIncentiveDebt = BigNumber.from(0);
     }
 
     // Update the stored accumulatedNOTEPerNToken to present time
-    const timeSinceLastAccumulation = BigNumber.from(blockTime).sub(incentiveFactors.lastAccumulatedTime);
-    if (timeSinceLastAccumulation.lt(0)) throw Error('Invalid accumulation time');
-
-    const accumulatedNOTEPerNToken = incentiveFactors.accumulatedNOTEPerNToken.add(
-      timeSinceLastAccumulation
-        .mul(INCENTIVE_ACCUMULATION_PRECISION)
-        .mul(nToken.incentiveEmissionRate)
-        .div(SECONDS_IN_YEAR)
-        .div(totalSupply.n)
+    const timeSinceLastAccumulation = BigNumber.from(blockTime).sub(
+      incentiveFactors.lastAccumulatedTime
     );
+    if (timeSinceLastAccumulation.lt(0))
+      throw Error('Invalid accumulation time');
+
+    const accumulatedNOTEPerNToken =
+      incentiveFactors.accumulatedNOTEPerNToken.add(
+        timeSinceLastAccumulation
+          .mul(INCENTIVE_ACCUMULATION_PRECISION)
+          .mul(nToken.incentiveEmissionRate)
+          .div(SECONDS_IN_YEAR)
+          .div(totalSupply.n)
+      );
 
     // This is the post migration incentive calculation
     incentives = incentives.add(
-      nTokenBalance.n.mul(accumulatedNOTEPerNToken).div(INCENTIVE_ACCUMULATION_PRECISION).sub(accountIncentiveDebt)
+      nTokenBalance.n
+        .mul(accumulatedNOTEPerNToken)
+        .div(INCENTIVE_ACCUMULATION_PRECISION)
+        .sub(accountIncentiveDebt)
     );
 
     return TypedBigNumber.from(incentives, BigNumberType.NOTE, 'NOTE');

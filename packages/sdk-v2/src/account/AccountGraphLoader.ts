@@ -1,14 +1,26 @@
 import { BigNumber } from 'ethers';
 import { CashGroup, Market, System } from '../system';
 import GraphClient from '../data/GraphClient';
-import TypedBigNumber, { BigNumberType } from '../libs/TypedBigNumber';
 import { getNowSeconds } from '../libs/utils';
 import AccountData from './AccountData';
-import { AssetType, BalanceHistory, TradeType } from '../libs/types';
+import {
+  AssetType,
+  BalanceHistory,
+  TradeType,
+  AccountHistory,
+} from '../libs/types';
 import BalanceSummary from './BalanceSummary';
 import AssetSummary from './AssetSummary';
-import { BalanceResponse, AssetResponse, AccountQuery, AccountQueryResponse } from './queries/AccountQuery';
-import { BatchAccountQuery, BatchAccountResponse } from './queries/BatchAccountQuery';
+import {
+  BalanceResponse,
+  AssetResponse,
+  AccountQuery,
+  AccountQueryResponse,
+} from './queries/AccountQuery';
+import {
+  BatchAccountQuery,
+  BatchAccountResponse,
+} from './queries/BatchAccountQuery';
 import {
   BalanceHistoryResponse,
   LeveragedVaultHistoryResponse,
@@ -17,9 +29,12 @@ import {
   TransactionHistoryQuery,
   TransactionHistoryResponse,
 } from './queries/TransactionHistory';
-import { VaultAccountQuery, VaultAccountResponse } from './queries/VaultAccountQuery';
+import {
+  VaultAccountQuery,
+  VaultAccountResponse,
+} from './queries/VaultAccountQuery';
 import { VaultAccount } from '../vaults';
-import { SecondaryBorrowArray } from '..';
+import { BigNumberType, SecondaryBorrowArray, TypedBigNumber } from '..';
 
 export default class AccountGraphLoader {
   private static parseBalance(balance: BalanceResponse) {
@@ -30,9 +45,17 @@ export default class AccountGraphLoader {
       throw Error(`Currency ${currencyId} cannot be found.`);
     }
 
-    const cashBalance = TypedBigNumber.fromBalance(balance.assetCashBalance, currency.assetSymbol, true);
+    const cashBalance = TypedBigNumber.fromBalance(
+      balance.assetCashBalance,
+      currency.assetSymbol,
+      true
+    );
     const nTokenBalance = currency.nTokenSymbol
-      ? TypedBigNumber.fromBalance(balance.nTokenBalance, currency.nTokenSymbol, true)
+      ? TypedBigNumber.fromBalance(
+          balance.nTokenBalance,
+          currency.nTokenSymbol,
+          true
+        )
       : undefined;
     const lastClaimTime = BigNumber.from(balance.lastClaimTime);
     const accountIncentiveDebt = balance.didMigrateIncentives
@@ -60,8 +83,16 @@ export default class AccountGraphLoader {
 
     const notional =
       assetType === AssetType.fCash
-        ? TypedBigNumber.from(asset.notional, BigNumberType.InternalUnderlying, currency.underlyingSymbol)
-        : TypedBigNumber.from(asset.notional, BigNumberType.LiquidityToken, currency.assetSymbol);
+        ? TypedBigNumber.from(
+            asset.notional,
+            BigNumberType.InternalUnderlying,
+            currency.underlyingSymbol
+          )
+        : TypedBigNumber.from(
+            asset.notional,
+            BigNumberType.LiquidityToken,
+            currency.assetSymbol
+          );
 
     const hasMatured = maturity < getNowSeconds();
     const settlementDate = Number(asset.settlementDate);
@@ -82,14 +113,19 @@ export default class AccountGraphLoader {
       const currencyId = Number(t.currency.id);
       const maturity = BigNumber.from(t.maturity);
       const currency = System.getSystem().getCurrencyById(currencyId);
-      const underlyingSymbol = currency.underlyingSymbol || currency.assetSymbol;
+      const underlyingSymbol =
+        currency.underlyingSymbol || currency.assetSymbol;
       const { assetSymbol } = currency;
       const netUnderlyingCash = TypedBigNumber.from(
         t.netUnderlyingCash,
         BigNumberType.InternalUnderlying,
         underlyingSymbol
       );
-      const netfCash = TypedBigNumber.from(t.netfCash, BigNumberType.InternalUnderlying, underlyingSymbol);
+      const netfCash = TypedBigNumber.from(
+        t.netfCash,
+        BigNumberType.InternalUnderlying,
+        underlyingSymbol
+      );
 
       const tradedInterestRate =
         t.tradeType === TradeType.Transfer
@@ -107,14 +143,24 @@ export default class AccountGraphLoader {
         blockTime: new Date(t.timestamp * 1000),
         currencyId: Number(t.currency.id),
         tradeType: t.tradeType as TradeType,
-        settlementDate: t.market ? BigNumber.from(t.market.settlementDate) : null,
+        settlementDate: t.market
+          ? BigNumber.from(t.market.settlementDate)
+          : null,
         maturityLength: t.market ? t.market.marketMaturityLengthSeconds : null,
         maturity: BigNumber.from(t.maturity),
-        netAssetCash: TypedBigNumber.from(t.netAssetCash, BigNumberType.InternalAsset, assetSymbol),
+        netAssetCash: TypedBigNumber.from(
+          t.netAssetCash,
+          BigNumberType.InternalAsset,
+          assetSymbol
+        ),
         netfCash,
         netUnderlyingCash,
         netLiquidityTokens: t.netLiquidityTokens
-          ? TypedBigNumber.from(t.netLiquidityTokens, BigNumberType.LiquidityToken, assetSymbol)
+          ? TypedBigNumber.from(
+              t.netLiquidityTokens,
+              BigNumberType.LiquidityToken,
+              assetSymbol
+            )
           : null,
         tradedInterestRate,
       };
@@ -134,7 +180,8 @@ export default class AccountGraphLoader {
       tradeType = 'Deposit';
     }
 
-    if (!nTokenBalanceBefore || !nTokenBalanceAfter) return tradeType || 'unknown';
+    if (!nTokenBalanceBefore || !nTokenBalanceAfter)
+      return tradeType || 'unknown';
     if (nTokenBalanceBefore.gt(nTokenBalanceAfter)) {
       tradeType = tradeType ? `${tradeType} & Redeem nToken` : 'Redeem nToken';
     } else if (nTokenBalanceBefore.lt(nTokenBalanceAfter)) {
@@ -150,10 +197,19 @@ export default class AccountGraphLoader {
       const currencyId = Number(r.currency.id);
       const currency = system.getCurrencyById(currencyId);
       const { assetSymbol } = currency;
-      const underlyingSymbol = currency.underlyingSymbol || currency.assetSymbol;
+      const underlyingSymbol =
+        currency.underlyingSymbol || currency.assetSymbol;
       const nTokenSymbol = system.getNToken(currencyId)?.nTokenSymbol;
-      const assetCashBalanceBefore = TypedBigNumber.fromBalance(r.assetCashBalanceBefore, assetSymbol, true);
-      const assetCashBalanceAfter = TypedBigNumber.fromBalance(r.assetCashBalanceAfter, assetSymbol, true);
+      const assetCashBalanceBefore = TypedBigNumber.fromBalance(
+        r.assetCashBalanceBefore,
+        assetSymbol,
+        true
+      );
+      const assetCashBalanceAfter = TypedBigNumber.fromBalance(
+        r.assetCashBalanceAfter,
+        assetSymbol,
+        true
+      );
       const nTokenBalanceBefore = nTokenSymbol
         ? TypedBigNumber.fromBalance(r.nTokenBalanceBefore, nTokenSymbol, true)
         : undefined;
@@ -209,14 +265,24 @@ export default class AccountGraphLoader {
         nTokenBalanceAfter,
         nTokenValueUnderlyingBefore,
         nTokenValueUnderlyingAfter,
-        nTokenValueAssetBefore: TypedBigNumber.from(r.nTokenValueAssetBefore, BigNumberType.InternalAsset, assetSymbol),
-        nTokenValueAssetAfter: TypedBigNumber.from(r.nTokenValueAssetAfter, BigNumberType.InternalAsset, assetSymbol),
+        nTokenValueAssetBefore: TypedBigNumber.from(
+          r.nTokenValueAssetBefore,
+          BigNumberType.InternalAsset,
+          assetSymbol
+        ),
+        nTokenValueAssetAfter: TypedBigNumber.from(
+          r.nTokenValueAssetAfter,
+          BigNumberType.InternalAsset,
+          assetSymbol
+        ),
         totalUnderlyingValueChange,
       };
     });
   }
 
-  private static parseSNOTEHistory(stakedNoteBalance: StakedNoteResponse | null) {
+  private static parseSNOTEHistory(
+    stakedNoteBalance: StakedNoteResponse | null
+  ) {
     if (stakedNoteBalance === null) {
       // Handle the case where the user has not staked
       return {
@@ -233,27 +299,63 @@ export default class AccountGraphLoader {
         blockNumber: r.blockNumber,
         transactionHash: r.transactionHash,
         blockTime: new Date(r.timestamp * 1000),
-        sNOTEAmountBefore: TypedBigNumber.fromBalance(r.sNOTEAmountBefore, 'sNOTE', false),
-        sNOTEAmountAfter: TypedBigNumber.fromBalance(r.sNOTEAmountAfter, 'sNOTE', false),
-        ethAmountChange: TypedBigNumber.fromBalance(r.ethAmountChange, 'ETH', false),
-        noteAmountChange: TypedBigNumber.fromBalance(r.noteAmountChange, 'NOTE', false),
+        sNOTEAmountBefore: TypedBigNumber.fromBalance(
+          r.sNOTEAmountBefore,
+          'sNOTE',
+          false
+        ),
+        sNOTEAmountAfter: TypedBigNumber.fromBalance(
+          r.sNOTEAmountAfter,
+          'sNOTE',
+          false
+        ),
+        ethAmountChange: TypedBigNumber.fromBalance(
+          r.ethAmountChange,
+          'ETH',
+          false
+        ),
+        noteAmountChange: TypedBigNumber.fromBalance(
+          r.noteAmountChange,
+          'NOTE',
+          false
+        ),
       }))
       .sort((a, b) => b.blockNumber - a.blockNumber); // sorts descending
 
     return {
       transactions: history,
-      ethAmountJoined: TypedBigNumber.fromBalance(stakedNoteBalance.ethAmountJoined, 'ETH', false),
-      ethAmountRedeemed: TypedBigNumber.fromBalance(stakedNoteBalance.ethAmountRedeemed, 'ETH', false),
-      noteAmountJoined: TypedBigNumber.fromBalance(stakedNoteBalance.noteAmountJoined, 'NOTE', false),
-      noteAmountRedeemed: TypedBigNumber.fromBalance(stakedNoteBalance.noteAmountRedeemed, 'NOTE', false),
+      ethAmountJoined: TypedBigNumber.fromBalance(
+        stakedNoteBalance.ethAmountJoined,
+        'ETH',
+        false
+      ),
+      ethAmountRedeemed: TypedBigNumber.fromBalance(
+        stakedNoteBalance.ethAmountRedeemed,
+        'ETH',
+        false
+      ),
+      noteAmountJoined: TypedBigNumber.fromBalance(
+        stakedNoteBalance.noteAmountJoined,
+        'NOTE',
+        false
+      ),
+      noteAmountRedeemed: TypedBigNumber.fromBalance(
+        stakedNoteBalance.noteAmountRedeemed,
+        'NOTE',
+        false
+      ),
     };
   }
 
-  private static parseVaultTradeHistory(vaultTradeHistory: LeveragedVaultHistoryResponse[]) {
+  private static parseVaultTradeHistory(
+    vaultTradeHistory: LeveragedVaultHistoryResponse[]
+  ) {
     const system = System.getSystem();
     return vaultTradeHistory.map((t) => {
       const vault = system.getVault(t.leveragedVault.vaultAddress);
-      const primaryBorrowSymbol = system.getUnderlyingSymbol(vault.primaryBorrowCurrency);
+      const primaryBorrowSymbol = system.getUnderlyingSymbol(
+        vault.primaryBorrowCurrency
+      );
       const maturityBefore = t.leveragedVaultMaturityBefore?.maturity;
       const maturityAfter = t.leveragedVaultMaturityAfter?.maturity;
       const vaultSymbolBefore = maturityBefore
@@ -262,31 +364,53 @@ export default class AccountGraphLoader {
       const vaultSymbolAfter = maturityAfter
         ? system.getVaultSymbol(t.leveragedVault.vaultAddress, maturityAfter)
         : undefined;
-      const secondarySymbolsBefore = maturityBefore
-        ? system.getDebtShareSymbols(vault.vaultAddress, maturityBefore)
-        : undefined;
-      const secondarySymbolsAfter = maturityAfter
-        ? system.getDebtShareSymbols(vault.vaultAddress, maturityAfter)
-        : undefined;
+      const secondarySymbolsBefore =
+        maturityBefore && t.secondaryDebtSharesBefore
+          ? system.getDebtShareSymbols(vault.vaultAddress, maturityBefore)
+          : undefined;
+      const secondarySymbolsAfter =
+        maturityAfter && t.secondaryDebtSharesAfter
+          ? system.getDebtShareSymbols(vault.vaultAddress, maturityAfter)
+          : undefined;
 
       return {
         blockNumber: t.blockNumber,
         transactionHash: t.transactionHash,
-        timestamp: new Date(t.timestamp * 1000),
+        blockTime: new Date(t.timestamp * 1000),
         vaultTradeType: t.vaultTradeType,
         vaultAddress: vault.vaultAddress,
         maturityBefore,
         maturityAfter,
-        primaryBorrowfCashBefore: TypedBigNumber.fromBalance(t.primaryBorrowfCashBefore, primaryBorrowSymbol, true),
-        primaryBorrowfCashAfter: TypedBigNumber.fromBalance(t.primaryBorrowfCashAfter, primaryBorrowSymbol, true),
+        primaryBorrowfCashBefore: TypedBigNumber.fromBalance(
+          t.primaryBorrowfCashBefore,
+          primaryBorrowSymbol,
+          true
+        ),
+        primaryBorrowfCashAfter: TypedBigNumber.fromBalance(
+          t.primaryBorrowfCashAfter,
+          primaryBorrowSymbol,
+          true
+        ),
         netPrimaryBorrowfCashChange: t.netPrimaryBorrowfCashChange
-          ? TypedBigNumber.fromBalance(t.netPrimaryBorrowfCashChange, primaryBorrowSymbol, true)
-          : undefined,
+          ? TypedBigNumber.fromBalance(
+              t.netPrimaryBorrowfCashChange,
+              primaryBorrowSymbol,
+              true
+            )
+          : TypedBigNumber.fromBalance(0, primaryBorrowSymbol, true),
         vaultSharesBefore: vaultSymbolBefore
-          ? TypedBigNumber.from(t.vaultSharesBefore, BigNumberType.VaultShare, vaultSymbolBefore)
+          ? TypedBigNumber.from(
+              t.vaultSharesBefore,
+              BigNumberType.VaultShare,
+              vaultSymbolBefore
+            )
           : undefined,
         vaultSharesAfter: vaultSymbolAfter
-          ? TypedBigNumber.from(t.vaultSharesAfter, BigNumberType.VaultShare, vaultSymbolAfter)
+          ? TypedBigNumber.from(
+              t.vaultSharesAfter,
+              BigNumberType.VaultShare,
+              vaultSymbolAfter
+            )
           : undefined,
         netVaultSharesChange: t.netVaultSharesChange
           ? TypedBigNumber.from(
@@ -297,26 +421,54 @@ export default class AccountGraphLoader {
           : undefined,
         secondaryDebtSharesBefore: t.secondaryDebtSharesBefore?.map((s, i) =>
           secondarySymbolsBefore && secondarySymbolsBefore[i] !== undefined
-            ? TypedBigNumber.from(s, BigNumberType.DebtShare, secondarySymbolsBefore[i]!)
+            ? TypedBigNumber.from(
+                s,
+                BigNumberType.DebtShare,
+                secondarySymbolsBefore[i]!
+              )
             : undefined
         ),
         secondaryDebtSharesAfter: t.secondaryDebtSharesAfter?.map((s, i) =>
           secondarySymbolsAfter && secondarySymbolsAfter[i] !== undefined
-            ? TypedBigNumber.from(s, BigNumberType.DebtShare, secondarySymbolsAfter[i]!)
+            ? TypedBigNumber.from(
+                s,
+                BigNumberType.DebtShare,
+                secondarySymbolsAfter[i]!
+              )
             : undefined
         ),
-        netSecondaryDebtSharesChange: t.netSecondaryDebtSharesChange?.map((s, i) => {
-          if (secondarySymbolsAfter && secondarySymbolsAfter[i] !== undefined) {
-            return TypedBigNumber.from(s, BigNumberType.DebtShare, secondarySymbolsAfter[i]!);
+        netSecondaryDebtSharesChange: t.netSecondaryDebtSharesChange?.map(
+          (s, i) => {
+            if (
+              secondarySymbolsAfter &&
+              secondarySymbolsAfter[i] !== undefined
+            ) {
+              return TypedBigNumber.from(
+                s,
+                BigNumberType.DebtShare,
+                secondarySymbolsAfter[i]!
+              );
+            }
+            if (
+              secondarySymbolsBefore &&
+              secondarySymbolsBefore[i] !== undefined
+            ) {
+              return TypedBigNumber.from(
+                s,
+                BigNumberType.DebtShare,
+                secondarySymbolsBefore[i]!
+              );
+            }
+            return undefined;
           }
-          if (secondarySymbolsBefore && secondarySymbolsBefore[i] !== undefined) {
-            return TypedBigNumber.from(s, BigNumberType.DebtShare, secondarySymbolsBefore[i]!);
-          }
-          return undefined;
-        }),
+        ),
         netUnderlyingCash: t.netUnderlyingCash
-          ? TypedBigNumber.fromBalance(t.netUnderlyingCash, primaryBorrowSymbol, true)
-          : undefined,
+          ? TypedBigNumber.fromBalance(
+              t.netUnderlyingCash,
+              primaryBorrowSymbol,
+              false
+            )
+          : TypedBigNumber.fromBalance(0, primaryBorrowSymbol, false),
       };
     });
   }
@@ -325,18 +477,31 @@ export default class AccountGraphLoader {
     return data.leveragedVaultAccounts.map((v) => {
       const system = System.getSystem();
       const vault = system.getVault(v.leveragedVault.vaultAddress);
-      const primaryBorrowSymbol = system.getUnderlyingSymbol(vault.primaryBorrowCurrency);
-      const secondarySymbols = system.getDebtShareSymbols(vault.vaultAddress, v.maturity);
-      const secondaryDebtShares: SecondaryBorrowArray = v.secondaryBorrowDebtShares
-        ? [
-            secondarySymbols && secondarySymbols[0]
-              ? TypedBigNumber.from(v.secondaryBorrowDebtShares[0], BigNumberType.DebtShare, secondarySymbols[0])
-              : undefined,
-            secondarySymbols && secondarySymbols[1]
-              ? TypedBigNumber.from(v.secondaryBorrowDebtShares[1], BigNumberType.DebtShare, secondarySymbols[1])
-              : undefined,
-          ]
+      const primaryBorrowSymbol = system.getUnderlyingSymbol(
+        vault.primaryBorrowCurrency
+      );
+      const secondarySymbols = v.secondaryBorrowDebtShares
+        ? system.getDebtShareSymbols(vault.vaultAddress, v.maturity)
         : undefined;
+      const secondaryDebtShares: SecondaryBorrowArray =
+        v.secondaryBorrowDebtShares
+          ? [
+              secondarySymbols && secondarySymbols[0]
+                ? TypedBigNumber.from(
+                    v.secondaryBorrowDebtShares[0],
+                    BigNumberType.DebtShare,
+                    secondarySymbols[0]
+                  )
+                : undefined,
+              secondarySymbols && secondarySymbols[1]
+                ? TypedBigNumber.from(
+                    v.secondaryBorrowDebtShares[1],
+                    BigNumberType.DebtShare,
+                    secondarySymbols[1]
+                  )
+                : undefined,
+            ]
+          : undefined;
 
       return new VaultAccount(
         vault.vaultAddress,
@@ -346,7 +511,11 @@ export default class AccountGraphLoader {
           BigNumberType.VaultShare,
           system.getVaultSymbol(vault.vaultAddress, v.maturity)
         ),
-        TypedBigNumber.fromBalance(v.primaryBorrowfCash, primaryBorrowSymbol, true),
+        TypedBigNumber.fromBalance(
+          v.primaryBorrowfCash,
+          primaryBorrowSymbol,
+          true
+        ),
         secondaryDebtShares
       );
     });
@@ -359,7 +528,9 @@ export default class AccountGraphLoader {
    * @returns Map<string, AccountData>
    */
   public static async loadBatch(graphClient: GraphClient) {
-    const response = (await graphClient.batchQuery(BatchAccountQuery)) as BatchAccountResponse;
+    const response = (await graphClient.batchQuery(
+      BatchAccountQuery
+    )) as BatchAccountResponse;
     const accounts = new Map<string, AccountData>();
     await Promise.all(
       response.map(async (account) => {
@@ -367,7 +538,9 @@ export default class AccountGraphLoader {
           account.nextSettleTime,
           account.hasCashDebt,
           account.hasPortfolioAssetDebt,
-          account.assetBitmapCurrency?.id ? Number(account.assetBitmapCurrency.id) : undefined,
+          account.assetBitmapCurrency?.id
+            ? Number(account.assetBitmapCurrency.id)
+            : undefined,
           account.balances.map(AccountGraphLoader.parseBalance),
           account.portfolio.map(AccountGraphLoader.parseAsset),
           AccountGraphLoader.parseVaultAccount(account)
@@ -378,24 +551,35 @@ export default class AccountGraphLoader {
     return accounts;
   }
 
-  public static async loadTransactionHistory(address: string, graphClient: GraphClient) {
+  public static async loadTransactionHistory(
+    address: string,
+    graphClient: GraphClient
+  ): Promise<AccountHistory> {
     const lowerCaseAddress = address.toLowerCase(); // Account id in subgraph is in lower case.
-    const history = await graphClient.queryOrThrow<TransactionHistoryResponse>(TransactionHistoryQuery, {
-      id: lowerCaseAddress,
-    });
+    const history = await graphClient.queryOrThrow<TransactionHistoryResponse>(
+      TransactionHistoryQuery,
+      {
+        id: lowerCaseAddress,
+      }
+    );
 
     return {
       trades: this.parseTradeHistory(history.trades),
       balanceHistory: this.parseBalanceHistory(history.balanceChanges),
       sNOTEHistory: this.parseSNOTEHistory(history.stakedNoteBalance),
-      vaultTradeHistory: this.parseVaultTradeHistory(history.leveragedVaultTrades),
+      vaultTradeHistory: this.parseVaultTradeHistory(
+        history.leveragedVaultTrades
+      ),
     };
   }
 
   /**
    * Returns a summary of an account's balances with historical transactions and internal return rate
    */
-  public static async getBalanceSummary(address: string, accountData: AccountData | undefined) {
+  public static async getBalanceSummary(
+    address: string,
+    accountData: AccountData | undefined
+  ) {
     if (!accountData) {
       return {
         balanceHistory: new Array<BalanceHistory>(),
@@ -414,7 +598,10 @@ export default class AccountGraphLoader {
   /**
    * Returns the tradeHistory and assetSummary for an account
    */
-  public static async getAssetSummary(address: string, accountData?: AccountData) {
+  public static async getAssetSummary(
+    address: string,
+    accountData?: AccountData
+  ) {
     if (!accountData) {
       return {
         balanceHistory: new Array<BalanceHistory>(),
@@ -430,9 +617,15 @@ export default class AccountGraphLoader {
     return { tradeHistory, assetSummary };
   }
 
-  public static async loadVaultAccounts(graphClient: GraphClient, address: string) {
+  public static async loadVaultAccounts(
+    graphClient: GraphClient,
+    address: string
+  ) {
     const lowerCaseAddress = address.toLowerCase(); // Account id in subgraph is in lower case.
-    const response = await graphClient.queryOrThrow<VaultAccountResponse>(VaultAccountQuery, { id: lowerCaseAddress });
+    const response = await graphClient.queryOrThrow<VaultAccountResponse>(
+      VaultAccountQuery,
+      { id: lowerCaseAddress }
+    );
     return AccountGraphLoader.parseVaultAccount(response);
   }
 
@@ -444,7 +637,10 @@ export default class AccountGraphLoader {
    */
   public static async load(graphClient: GraphClient, address: string) {
     const lowerCaseAddress = address.toLowerCase(); // Account id in subgraph is in lower case.
-    const { account } = await graphClient.queryOrThrow<AccountQueryResponse>(AccountQuery, { id: lowerCaseAddress });
+    const { account } = await graphClient.queryOrThrow<AccountQueryResponse>(
+      AccountQuery,
+      { id: lowerCaseAddress }
+    );
 
     const balances = account.balances.map(AccountGraphLoader.parseBalance);
     const portfolio = account.portfolio.map(AccountGraphLoader.parseAsset);
@@ -454,7 +650,9 @@ export default class AccountGraphLoader {
       account.nextSettleTime,
       account.hasCashDebt,
       account.hasPortfolioAssetDebt,
-      account.assetBitmapCurrency?.id ? Number(account.assetBitmapCurrency?.id) : undefined,
+      account.assetBitmapCurrency?.id
+        ? Number(account.assetBitmapCurrency?.id)
+        : undefined,
       balances,
       portfolio,
       vaultAccounts

@@ -21,23 +21,67 @@ describe('Balance Summary', () => {
     transactionHash: 'xxx',
     currencyId: 2,
     tradeType: '',
-    assetCashBalanceBefore: TypedBigNumber.from(0, BigNumberType.InternalAsset, 'cDAI'),
-    assetCashBalanceAfter: TypedBigNumber.from(0, BigNumberType.InternalAsset, 'cDAI'),
-    assetCashValueUnderlyingBefore: TypedBigNumber.from(0, BigNumberType.InternalUnderlying, 'DAI'),
-    assetCashValueUnderlyingAfter: TypedBigNumber.from(0, BigNumberType.InternalUnderlying, 'DAI'),
+    assetCashBalanceBefore: TypedBigNumber.from(
+      0,
+      BigNumberType.InternalAsset,
+      'cDAI'
+    ),
+    assetCashBalanceAfter: TypedBigNumber.from(
+      0,
+      BigNumberType.InternalAsset,
+      'cDAI'
+    ),
+    assetCashValueUnderlyingBefore: TypedBigNumber.from(
+      0,
+      BigNumberType.InternalUnderlying,
+      'DAI'
+    ),
+    assetCashValueUnderlyingAfter: TypedBigNumber.from(
+      0,
+      BigNumberType.InternalUnderlying,
+      'DAI'
+    ),
     nTokenBalanceBefore: TypedBigNumber.from(0, BigNumberType.nToken, 'nDAI'),
     nTokenBalanceAfter: TypedBigNumber.from(0, BigNumberType.nToken, 'nDAI'),
-    nTokenValueUnderlyingBefore: TypedBigNumber.from(0, BigNumberType.InternalUnderlying, 'DAI'),
-    nTokenValueUnderlyingAfter: TypedBigNumber.from(0, BigNumberType.InternalUnderlying, 'DAI'),
-    nTokenValueAssetBefore: TypedBigNumber.from(0, BigNumberType.InternalAsset, 'cDAI'),
-    nTokenValueAssetAfter: TypedBigNumber.from(0, BigNumberType.InternalAsset, 'cDAI'),
-    totalUnderlyingValueChange: TypedBigNumber.from(0, BigNumberType.InternalUnderlying, 'DAI'),
+    nTokenValueUnderlyingBefore: TypedBigNumber.from(
+      0,
+      BigNumberType.InternalUnderlying,
+      'DAI'
+    ),
+    nTokenValueUnderlyingAfter: TypedBigNumber.from(
+      0,
+      BigNumberType.InternalUnderlying,
+      'DAI'
+    ),
+    nTokenValueAssetBefore: TypedBigNumber.from(
+      0,
+      BigNumberType.InternalAsset,
+      'cDAI'
+    ),
+    nTokenValueAssetAfter: TypedBigNumber.from(
+      0,
+      BigNumberType.InternalAsset,
+      'cDAI'
+    ),
+    totalUnderlyingValueChange: TypedBigNumber.from(
+      0,
+      BigNumberType.InternalUnderlying,
+      'DAI'
+    ),
   };
 
   it('it returns the entire balance to withdraw if there is no debt', () => {
     const cTokenBalance = { ...baseBalanceHistory };
-    cTokenBalance.assetCashBalanceAfter = TypedBigNumber.from(1000e8, BigNumberType.InternalAsset, 'cDAI');
-    cTokenBalance.assetCashValueUnderlyingAfter = TypedBigNumber.from(20e8, BigNumberType.InternalUnderlying, 'DAI');
+    cTokenBalance.assetCashBalanceAfter = TypedBigNumber.from(
+      1000e8,
+      BigNumberType.InternalAsset,
+      'cDAI'
+    );
+    cTokenBalance.assetCashValueUnderlyingAfter = TypedBigNumber.from(
+      20e8,
+      BigNumberType.InternalUnderlying,
+      'DAI'
+    );
     const tradeHistory = [cTokenBalance];
 
     const data = new MockAccountData(
@@ -48,7 +92,11 @@ describe('Balance Summary', () => {
       [
         {
           currencyId: 2,
-          cashBalance: TypedBigNumber.from(1000e8, BigNumberType.InternalAsset, 'cDAI'),
+          cashBalance: TypedBigNumber.from(
+            1000e8,
+            BigNumberType.InternalAsset,
+            'cDAI'
+          ),
           nTokenBalance: TypedBigNumber.from(0, BigNumberType.nToken, 'nDAI'),
           lastClaimTime: BigNumber.from(0),
           accountIncentiveDebt: BigNumber.from(0),
@@ -60,6 +108,7 @@ describe('Balance Summary', () => {
         trades: [],
         balanceHistory: tradeHistory,
         sNOTEHistory: {} as StakedNoteHistory,
+        vaultTradeHistory: [],
       }
     );
     const summary = BalanceSummary.build(data)[0];
@@ -69,11 +118,31 @@ describe('Balance Summary', () => {
 
   it('it returns the prorata balance to withdraw if there is debt', () => {
     const cTokenBalance = { ...baseBalanceHistory };
-    cTokenBalance.assetCashBalanceAfter = TypedBigNumber.from(-1000e8, BigNumberType.InternalAsset, 'cETH');
-    cTokenBalance.assetCashValueUnderlyingAfter = TypedBigNumber.from(-20e8, BigNumberType.InternalUnderlying, 'ETH');
-    cTokenBalance.nTokenBalanceAfter = TypedBigNumber.from(5000e8, BigNumberType.nToken, 'nETH');
-    cTokenBalance.nTokenValueAssetAfter = TypedBigNumber.from(2500e8, BigNumberType.InternalAsset, 'cETH');
-    cTokenBalance.nTokenValueUnderlyingAfter = TypedBigNumber.from(50e8, BigNumberType.InternalUnderlying, 'ETH');
+    cTokenBalance.assetCashBalanceAfter = TypedBigNumber.from(
+      -1000e8,
+      BigNumberType.InternalAsset,
+      'cETH'
+    );
+    cTokenBalance.assetCashValueUnderlyingAfter = TypedBigNumber.from(
+      -20e8,
+      BigNumberType.InternalUnderlying,
+      'ETH'
+    );
+    cTokenBalance.nTokenBalanceAfter = TypedBigNumber.from(
+      5000e8,
+      BigNumberType.nToken,
+      'nETH'
+    );
+    cTokenBalance.nTokenValueAssetAfter = TypedBigNumber.from(
+      2500e8,
+      BigNumberType.InternalAsset,
+      'cETH'
+    );
+    cTokenBalance.nTokenValueUnderlyingAfter = TypedBigNumber.from(
+      50e8,
+      BigNumberType.InternalUnderlying,
+      'ETH'
+    );
     const tradeHistory = [cTokenBalance];
     const data = new MockAccountData(
       0,
@@ -83,8 +152,16 @@ describe('Balance Summary', () => {
       [
         {
           currencyId: 1,
-          cashBalance: TypedBigNumber.from(-2500e8, BigNumberType.InternalAsset, 'cETH'),
-          nTokenBalance: TypedBigNumber.from(5000e8, BigNumberType.nToken, 'nETH'),
+          cashBalance: TypedBigNumber.from(
+            -2500e8,
+            BigNumberType.InternalAsset,
+            'cETH'
+          ),
+          nTokenBalance: TypedBigNumber.from(
+            5000e8,
+            BigNumberType.nToken,
+            'nETH'
+          ),
           lastClaimTime: BigNumber.from(0),
           accountIncentiveDebt: BigNumber.from(0),
         },
@@ -95,6 +172,7 @@ describe('Balance Summary', () => {
         trades: [],
         balanceHistory: tradeHistory,
         sNOTEHistory: {} as StakedNoteHistory,
+        vaultTradeHistory: [],
       }
     );
     const summary = BalanceSummary.build(data)[0];

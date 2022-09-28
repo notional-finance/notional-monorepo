@@ -1,7 +1,12 @@
 import { BigNumber, Contract } from 'ethers';
 import { AssetType, TypedBigNumber } from '..';
 import { Replaced, DeepRequired, Primitive } from '../libs/UtilityTypes';
-import { AssetRateAggregator, ERC20, NTokenERC20, IAggregator } from '@notional-finance/contracts';
+import {
+  AssetRateAggregator,
+  ERC20,
+  NTokenERC20,
+  IAggregator,
+} from '@notional-finance/contracts';
 import {
   Asset as _Asset,
   AssetRate as _AssetRate,
@@ -31,21 +36,35 @@ type Rewrite<T> = Replaced<
   Primitive | BigNumber | TypedBigNumber
 >;
 
-type RewriteRequired<T> = DeepRequired<Rewrite<T>, BigNumber | TypedBigNumber | Contract>;
+type RewriteRequired<T> = DeepRequired<
+  Rewrite<T>,
+  BigNumber | TypedBigNumber | Contract
+>;
 
 export type StakedNoteParameters = RewriteRequired<_sNOTE>;
-export type Currency = Omit<RewriteRequired<_Currency>, 'assetContract' | 'underlyingContract'> & {
+export type Currency = Omit<
+  RewriteRequired<_Currency>,
+  'assetContract' | 'underlyingContract'
+> & {
   readonly assetContract: ERC20;
   readonly underlyingContract?: ERC20;
 };
-export type ETHRate = Omit<RewriteRequired<_ETHRate>, 'rateOracle'> & { readonly rateOracle: IAggregator };
+export type ETHRate = Omit<RewriteRequired<_ETHRate>, 'rateOracle'> & {
+  readonly rateOracle: IAggregator;
+};
 export type AssetRate = Omit<RewriteRequired<_AssetRate>, 'rateAdapter'> & {
   readonly rateAdapter: AssetRateAggregator;
 };
-export type nToken = Omit<RewriteRequired<_nToken>, 'contract'> & { readonly contract: NTokenERC20 };
+export type nToken = Omit<RewriteRequired<_nToken>, 'contract'> & {
+  readonly contract: NTokenERC20;
+};
 export type CashGroupData = RewriteRequired<_CashGroup>;
-export type Asset = Omit<RewriteRequired<_Asset>, 'assetType'> & { readonly assetType: AssetType };
-export type SecondaryBorrowArray = [TypedBigNumber?, TypedBigNumber?] | undefined;
+export type Asset = Omit<RewriteRequired<_Asset>, 'assetType'> & {
+  readonly assetType: AssetType;
+};
+export type SecondaryBorrowArray =
+  | [TypedBigNumber?, TypedBigNumber?]
+  | undefined;
 export type VaultHistoricalValue = RewriteRequired<_VaultHistoricalValue>;
 export type TradingEstimate = RewriteRequired<_TradingEstimate>;
 export type VaultState = Omit<
@@ -75,7 +94,10 @@ export type VaultState = Omit<
 
 export type VaultConfig = Omit<
   RewriteRequired<_VaultConfig>,
-  'secondaryBorrowCurrencies' | 'maxSecondaryBorrowCapacity' | 'totalUsedSecondaryBorrowCapacity' | 'vaultStates'
+  | 'secondaryBorrowCurrencies'
+  | 'maxSecondaryBorrowCapacity'
+  | 'totalUsedSecondaryBorrowCapacity'
+  | 'vaultStates'
 > & {
   readonly secondaryBorrowCurrencies?: number[];
   readonly maxSecondaryBorrowCapacity?: SecondaryBorrowArray;
@@ -96,4 +118,5 @@ export interface SystemData {
   cashGroups: Map<number, CashGroupData>;
   vaults: Map<string, VaultConfig>;
   tradingEstimates: Map<string, TradingEstimate>;
+  initVaultParams: Map<string, string>;
 }

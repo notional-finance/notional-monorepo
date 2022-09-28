@@ -222,3 +222,7 @@ export interface TransactionData {
 export interface Hashable {
   hashKey: string;
 }
+export interface NotionalError extends Error {
+  msgId?: string;
+  code?: number;
+}

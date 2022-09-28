@@ -171,7 +171,7 @@ message VaultConfig {
     bool onlyVaultSettle = 19;
     bool allowsReentrancy = 20;
     repeated VaultState vaultStates = 21;
-    
+
     // These are optional
     repeated int32 secondaryBorrowCurrencies = 22;
     repeated SerializedTypedBigNumber maxSecondaryBorrowCapacity = 23;
@@ -216,4 +216,5 @@ message SystemData {
     map<string, VaultConfig> vaults = 11;
     // key = ${buyTokenAddress}:${sellTokenAddress}
     map<string, TradingEstimate> tradingEstimates = 12;
+    map<string, string> initVaultParams = 13;
 }

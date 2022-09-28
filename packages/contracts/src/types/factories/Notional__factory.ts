@@ -82,6 +82,31 @@ const _abi = [
       {
         indexed: true,
         internalType: "address",
+        name: "owner",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "spender",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
+    name: "Approval",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
         name: "account",
         type: "address",
       },
@@ -600,6 +625,31 @@ const _abi = [
       {
         indexed: true,
         internalType: "address",
+        name: "from",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
+    name: "Transfer",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
         name: "operator",
         type: "address",
       },
@@ -1043,6 +1093,12 @@ const _abi = [
         name: "maturity",
         type: "uint256",
       },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "underlyingToReceiver",
+        type: "uint256",
+      },
     ],
     name: "VaultExitPostMaturity",
     type: "event",
@@ -1078,6 +1134,12 @@ const _abi = [
         indexed: false,
         internalType: "uint256",
         name: "vaultSharesToRedeem",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "underlyingToReceiver",
         type: "uint256",
       },
     ],
@@ -1595,31 +1657,6 @@ const _abi = [
       },
     ],
     name: "VaultUpdated",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "owner",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "spender",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
-      },
-    ],
-    name: "nTokenApproveAll",
     type: "event",
   },
   {
@@ -5182,35 +5219,6 @@ const _abi = [
         name: "currencyId",
         type: "uint16",
       },
-      {
-        internalType: "uint256",
-        name: "assets",
-        type: "uint256",
-      },
-      {
-        internalType: "address",
-        name: "receiver",
-        type: "address",
-      },
-    ],
-    name: "nTokenMintViaProxy",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "payable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint16",
-        name: "currencyId",
-        type: "uint16",
-      },
     ],
     name: "nTokenPresentValueAssetDenominated",
     outputs: [
@@ -5237,25 +5245,6 @@ const _abi = [
         internalType: "int256",
         name: "",
         type: "int256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint16",
-        name: "currencyId",
-        type: "uint16",
-      },
-    ],
-    name: "nTokenPresentValueUnderlyingExternal",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
       },
     ],
     stateMutability: "view",
@@ -5295,40 +5284,6 @@ const _abi = [
         internalType: "int256",
         name: "",
         type: "int256",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint16",
-        name: "currencyId",
-        type: "uint16",
-      },
-      {
-        internalType: "uint256",
-        name: "shares",
-        type: "uint256",
-      },
-      {
-        internalType: "address",
-        name: "receiver",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "owner",
-        type: "address",
-      },
-    ],
-    name: "nTokenRedeemViaProxy",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
       },
     ],
     stateMutability: "nonpayable",
@@ -5686,6 +5641,11 @@ const _abi = [
         type: "uint256",
       },
       {
+        internalType: "uint256",
+        name: "depositAmountExternal",
+        type: "uint256",
+      },
+      {
         internalType: "uint32",
         name: "minLendRate",
         type: "uint32",
@@ -5709,7 +5669,7 @@ const _abi = [
         type: "uint256",
       },
     ],
-    stateMutability: "nonpayable",
+    stateMutability: "payable",
     type: "function",
   },
   {
@@ -5805,6 +5765,24 @@ const _abi = [
       },
     ],
     name: "setLendingPool",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "vaultAddress",
+        type: "address",
+      },
+      {
+        internalType: "uint80",
+        name: "maxVaultBorrowCapacity",
+        type: "uint80",
+      },
+    ],
+    name: "setMaxBorrowCapacity",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -6441,19 +6419,6 @@ const _abi = [
       },
     ],
     name: "updateVault",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "newImplementation",
-        type: "address",
-      },
-    ],
-    name: "upgradeNTokenBeacon",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
