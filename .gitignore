@@ -40,3 +40,4 @@ Thumbs.db
 
 .env
 .dev.vars
+.npmrc

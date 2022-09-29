@@ -1,16 +1,4 @@
 import { Signer, Contract, ethers, VoidSigner, utils, BigNumber } from 'ethers';
-import { System } from './system';
-import GraphClient from './data/GraphClient';
-import { Account, AccountData, AccountGraphLoader } from './account';
-
-// eslint-disable import/no-named-as-default import/no-named-as-default-member
-import TransactionBuilder from './TransactionBuilder';
-import TypedBigNumber, { BigNumberType } from './libs/TypedBigNumber';
-import {
-  CACHE_DATA_REFRESH_INTERVAL,
-  INTERNAL_TOKEN_DECIMAL_PLACES,
-} from './config/constants';
-
 /* typechain imports */
 import {
   NoteERC20,
@@ -23,6 +11,19 @@ import {
   BalancerVault,
   ExchangeV3,
 } from '@notional-finance/contracts';
+import { handleError } from '@notional-finance/utils';
+import { System } from './system';
+import GraphClient from './data/GraphClient';
+import { Account, AccountData, AccountGraphLoader } from './account';
+
+// eslint-disable import/no-named-as-default import/no-named-as-default-member
+import TransactionBuilder from './TransactionBuilder';
+import TypedBigNumber, { BigNumberType } from './libs/TypedBigNumber';
+import {
+  CACHE_DATA_REFRESH_INTERVAL,
+  INTERNAL_TOKEN_DECIMAL_PLACES,
+} from './config/constants';
+
 import { Contracts } from '.';
 
 /* ABI imports */
@@ -42,7 +43,6 @@ import goerliAddresses from './config/goerli.json';
 import mainnetAddresses from './config/mainnet.json';
 import graphEndpoints from './config/graph.json';
 import cacheEndpoint from './config/cache.json';
-import { handleError } from '@notional-finance/utils';
 
 interface Addresses {
   airdrop?: string;

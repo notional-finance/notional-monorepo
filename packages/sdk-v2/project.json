@@ -3,7 +3,7 @@
   "sourceRoot": "packages/sdk-v2/src",
   "projectType": "library",
   "targets": {
-    "build": {
+    "build-lib": {
       "executor": "@nrwl/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
@@ -11,6 +11,17 @@
         "main": "packages/sdk-v2/src/index.ts",
         "tsConfig": "packages/sdk-v2/tsconfig.lib.json",
         "assets": ["packages/sdk-v2/*.md", "packages/sdk-v2/*.json"]
+      }
+    },
+    "release": {
+      "executor": "@nrwl/workspace:run-commands",
+      "options": {
+        "commands": [
+          {
+            "command": "npm publish --access public"
+          }
+        ],
+        "cwd": "dist/packages/notionable"
       }
     },
     "publish": {
