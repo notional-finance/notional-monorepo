@@ -10,7 +10,8 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
-      - run: npx nx affected --target=build-lib
+      - run: yarn --fixed-lockfile
+      - run: yarn nx affected --target=build-lib
 
   publish-npm:
     needs: build
@@ -21,6 +22,7 @@ jobs:
         with:
           node-version: 16
           registry-url: https://registry.npmjs.org/
-      - run: npx nx affected --target=release
+      - run: yarn --fixed-lockfile
+      - run: yarn nx affected --target=release
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
