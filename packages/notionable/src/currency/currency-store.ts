@@ -7,7 +7,7 @@ import {
   shareReplay,
   Subject,
 } from 'rxjs';
-import { Currency } from '@notional-finance/sdk-v2';
+import { Currency } from '@notional-finance/sdk';
 import { ERC20Token } from '../types';
 
 export interface CurrencyState {

@@ -1,4 +1,4 @@
-import { TypedBigNumber } from '@notional-finance/sdk-v2';
+import { TypedBigNumber } from '@notional-finance/sdk';
 import { useObservableState } from 'observable-hooks';
 import { initialWalletState, walletState$ } from './wallet-store';
 

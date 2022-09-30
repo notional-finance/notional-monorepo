@@ -1,4 +1,4 @@
-import { AccountData } from '@notional-finance/sdk-v2';
+import { AccountData } from '@notional-finance/sdk';
 import { useObservableState } from 'observable-hooks';
 import { useCurrencyData } from '../currency/use-currency';
 import { accountState$, initialAccountState } from './account-store';

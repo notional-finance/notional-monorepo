@@ -4,7 +4,7 @@ import {
   INTERNAL_TOKEN_PRECISION,
   NOTE_CURRENCY_ID,
   STAKED_NOTE_CURRENCY_ID,
-} from '@notional-finance/sdk-v2/config/constants';
+} from '@notional-finance/sdk/config/constants';
 import { ethers } from 'ethers';
 import { useObservableState } from 'observable-hooks';
 import { useNotional } from '../notional/use-notional';

@@ -1,5 +1,5 @@
-import Notional from '@notional-finance/sdk-v2';
-import { System } from '@notional-finance/sdk-v2/system';
+import Notional from '@notional-finance/sdk';
+import { System } from '@notional-finance/sdk/system';
 import {
   BehaviorSubject,
   distinctUntilKeyChanged,

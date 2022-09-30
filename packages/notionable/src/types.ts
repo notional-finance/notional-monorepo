@@ -5,13 +5,13 @@ import {
   ContractTransaction,
   PopulatedTransaction,
 } from 'ethers';
-import { TradeHistory, TypedBigNumber } from '@notional-finance/sdk-v2';
+import { TradeHistory, TypedBigNumber } from '@notional-finance/sdk';
 import {
   NOTESummary,
   BalanceSummary,
   AssetSummary,
-} from '@notional-finance/sdk-v2/account';
-import { Market } from '@notional-finance/sdk-v2/system';
+} from '@notional-finance/sdk/account';
+import { Market } from '@notional-finance/sdk/system';
 
 export interface SetChainOptions {
   chainId: string | number;

@@ -13,7 +13,7 @@ import {
   map,
   distinctUntilChanged,
 } from 'rxjs';
-import { Market, System } from '@notional-finance/sdk-v2/system';
+import { Market, System } from '@notional-finance/sdk/system';
 import { CurrencyMarket } from '../types';
 import { updateMarketState } from './market-store';
 import { notional$ } from '../notional/notional-store';

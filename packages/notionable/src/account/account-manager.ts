@@ -1,4 +1,4 @@
-import { Account, TradeHistory } from '@notional-finance/sdk-v2';
+import { Account, TradeHistory } from '@notional-finance/sdk';
 import {
   from,
   timer,
@@ -22,8 +22,8 @@ import {
 } from 'rxjs';
 
 import { signer$ as onboardSigner$ } from '../onboard/onboard-store';
-import { BalanceSummary, AssetSummary } from '@notional-finance/sdk-v2/account';
-import Notional from '@notional-finance/sdk-v2';
+import { BalanceSummary, AssetSummary } from '@notional-finance/sdk/account';
+import Notional from '@notional-finance/sdk';
 import { notional$ } from '../notional/notional-store';
 import {
   account$,

@@ -1,4 +1,4 @@
-import { Account } from '@notional-finance/sdk-v2';
+import { Account } from '@notional-finance/sdk';
 import {
   BehaviorSubject,
   distinctUntilChanged,
@@ -11,7 +11,7 @@ import {
   BalanceSummary,
   AssetSummary,
   NOTESummary,
-} from '@notional-finance/sdk-v2/account';
+} from '@notional-finance/sdk/account';
 import { Hashable } from '../types';
 
 export interface AccountState {

@@ -14,7 +14,7 @@ import {
 } from 'rxjs';
 import { ethers, providers } from 'ethers';
 import { account$, accountConnected$ } from '../account/account-store';
-import { BigNumberType, TypedBigNumber } from '@notional-finance/sdk-v2';
+import { BigNumberType, TypedBigNumber } from '@notional-finance/sdk';
 import { TokenBalance, ERC20Token } from '../types';
 import { tokens$ } from '../currency/currency-store';
 import { updateWalletState } from './wallet-store';

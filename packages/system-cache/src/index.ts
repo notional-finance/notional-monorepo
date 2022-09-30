@@ -1,5 +1,5 @@
-import { fetchSystem } from '@notional-finance/sdk-v2/data/SystemData';
-import getUSDPriceData from '@notional-finance/sdk-v2/data/sources/ExchangeRate';
+import { fetchSystem } from '@notional-finance/sdk/data/SystemData';
+import getUSDPriceData from '@notional-finance/sdk/data/sources/ExchangeRate';
 import { BigNumber, ethers } from 'ethers';
 import { R2Bucket, DurableObjectNamespace } from '@cloudflare/workers-types';
 /**

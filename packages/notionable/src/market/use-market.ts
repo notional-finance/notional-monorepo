@@ -1,5 +1,5 @@
-import { TypedBigNumber } from '@notional-finance/sdk-v2';
-import { Market } from '@notional-finance/sdk-v2/system';
+import { TypedBigNumber } from '@notional-finance/sdk';
+import { Market } from '@notional-finance/sdk/system';
 import { useObservableState } from 'observable-hooks';
 import { useCurrencyData } from '../currency/use-currency';
 import { initialMarketState, marketState$ } from './market-store';

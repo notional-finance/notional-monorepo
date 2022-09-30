@@ -1,5 +1,5 @@
 import { getProvider, setInLocalStorage } from '../utils';
-import Notional from '@notional-finance/sdk-v2';
+import Notional from '@notional-finance/sdk';
 import { OnboardState, onboardState$ } from '../onboard/onboard-store';
 import { updateNotionalState } from './notional-store';
 import { filter } from 'rxjs';
