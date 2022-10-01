@@ -9,11 +9,12 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
+          registry-url: https://registry.npmjs.org/
       - run: yarn --fixed-lockfile
       - run: |
           yarn nx build-lib contracts
           yarn nx build-lib utils
-          yarn nx build-lib sdk
-      - run: yarn nx release sdk
+          yarn nx build-lib sd
+          yarn nx release sdk
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
