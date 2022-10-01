@@ -14,7 +14,7 @@ jobs:
       - run: |
           yarn nx build-lib contracts
           yarn nx build-lib utils
-          yarn nx build-lib sd
+          yarn nx build-lib sdk
           yarn nx release sdk
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
