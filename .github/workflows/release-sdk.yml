@@ -16,4 +16,4 @@ jobs:
           yarn nx build-lib sdk
           yarn nx release sdk
         env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
