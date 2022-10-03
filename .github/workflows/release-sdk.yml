@@ -9,12 +9,15 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: '16'
-          registry-url: 'https://registry.npmjs.org/'
+          registry-url: https://registry.npmjs.org/
       - run: yarn --fixed-lockfile
       - run: |
           yarn nx build-lib contracts
           yarn nx build-lib utils
           yarn nx build-lib sdk
+          yarn config set npmScopes.notional-finance.npmRegistryServer "https://registry.npmjs.org/"
+          yarn config set npmScopes.notional-finance.npmAlwaysAuth true
+          yarn config set npmScopes.notional-finance.npmAuthToken $NPM_AUTH_TOKEN
           yarn nx release sdk
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
