@@ -15,9 +15,9 @@ jobs:
           yarn nx build-lib contracts
           yarn nx build-lib utils
           yarn nx build-lib sdk
-          yarn config set npmScopes.notional-finance.npmRegistryServer "https://registry.npmjs.org/"
-          yarn config set npmScopes.notional-finance.npmAlwaysAuth true
-          yarn config set npmScopes.notional-finance.npmAuthToken $NPM_AUTH_TOKEN
+          yarn config set npmRegistryServer "https://registry.npmjs.org/"
+          yarn config set npmAlwaysAuth true
+          yarn config set npmAuthToken $NPM_AUTH_TOKEN
           yarn nx release sdk
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
