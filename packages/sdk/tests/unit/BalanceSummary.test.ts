@@ -175,7 +175,7 @@ describe('Balance Summary', () => {
         vaultTradeHistory: [],
       }
     );
-    const summary = BalanceSummary.build(data)[0];
+    const summary = BalanceSummary.build(data, 1662015600)[0];
     expect(summary.isWithdrawable).toBeTruthy();
     // ntoken pv == 5000, haircut value is: 4500, free collateral is 2000 <= this is what can be withdrawn
     expect(summary.maxWithdrawValueAssetCash.toExactString()).toEqual('2000.0');

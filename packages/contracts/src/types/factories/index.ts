@@ -2,6 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 export { AssetRateAggregator__factory } from "./AssetRateAggregator__factory";
+export { BalancerBoostedPool__factory } from "./BalancerBoostedPool__factory";
+export { BalancerLinearPool__factory } from "./BalancerLinearPool__factory";
 export { BalancerPool__factory } from "./BalancerPool__factory";
 export { BalancerStablePool__factory } from "./BalancerStablePool__factory";
 export { BalancerVault__factory } from "./BalancerVault__factory";

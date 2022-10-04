@@ -67,6 +67,6 @@ export function assetTypeNum(assetType: AssetType) {
   }
 }
 
-export function hasMatured(asset: Asset) {
-  return asset.maturity <= getNowSeconds();
+export function hasMatured(asset: Asset, blockTime = getNowSeconds()) {
+  return asset.maturity <= blockTime;
 }

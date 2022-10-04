@@ -1,8 +1,9 @@
-import { Contract } from 'ethers';
+import { BigNumber, Contract, utils } from 'ethers';
 import { INTERNAL_TOKEN_PRECISION } from '../../../config/constants';
 import { AggregateCall } from '../../../data/Multicall';
 import TypedBigNumber from '../../../libs/TypedBigNumber';
 import { LiquidationThreshold } from '../../../libs/types';
+import { DexId, DexTradeType } from '../../../trading/TradeHandler';
 import {
   MetaStable2Token,
   BalancerStablePool,
@@ -25,22 +26,18 @@ interface InitParams extends BaseBalancerStablePoolInitParams {
   amplificationParameter: FixedPoint;
   totalSupply: FixedPoint;
   swapFeePercentage: FixedPoint;
-  bptPrice: FixedPoint;
-  pairPrice: FixedPoint;
-  // oracleContext: {
-  //   bptPrice: FixedPoint;
-  //   pairPrice: FixedPoint;
-  // };
+  oracleContext: {
+    bptPrice: FixedPoint;
+    pairPrice: FixedPoint;
+  };
 }
 
 export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitParams> {
   public get oraclePrice() {
     if (this.initParams.poolContext.primaryTokenIndex === 0) {
-      return this.initParams.bptPrice;
-      // return this.initParams.oracleContext.bptPrice;
+      return this.initParams.oracleContext.bptPrice;
     }
-    // const { bptPrice, pairPrice } = this.initParams.oracleContext;
-    const { bptPrice, pairPrice } = this.initParams;
+    const { bptPrice, pairPrice } = this.initParams.oracleContext;
     return bptPrice.mul(FixedPoint.ONE).div(pairPrice);
   }
 
@@ -157,48 +154,33 @@ export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitPar
         stage: 1,
         target: (r) =>
           new Contract(r.poolContext.poolAddress, BalancerStablePoolABI),
-        method: 'getLatest',
-        key: 'pairPrice',
-        args: [0],
+        key: 'oracleContext',
+        method: 'getTimeWeightedAverage',
+        args: [
+          [
+            {
+              variable: 0, // Pair Price
+              secs: 3600,
+              ago: 0,
+            },
+            {
+              variable: 1, // BPT Price
+              secs: 3600,
+              ago: 0,
+            },
+          ],
+        ],
         transform: (
-          r: Awaited<ReturnType<BalancerStablePool['functions']['getLatest']>>
-        ) => FixedPoint.from(r),
+          r: Awaited<
+            ReturnType<
+              BalancerStablePool['functions']['getTimeWeightedAverage']
+            >
+          >
+        ) => ({
+          pairPrice: FixedPoint.from(r[0]),
+          bptPrice: FixedPoint.from(r[1]),
+        }),
       },
-      {
-        stage: 1,
-        target: (r) =>
-          new Contract(r.poolContext.poolAddress, BalancerStablePoolABI),
-        method: 'getLatest',
-        key: 'bptPrice',
-        args: [1],
-        transform: (
-          r: Awaited<ReturnType<BalancerStablePool['functions']['getLatest']>>
-        ) => FixedPoint.from(r),
-      },
-      // {
-      //   stage: 1,
-      //   target: (r) => new Contract(r.poolContext.poolAddress, BalancerStablePoolABI),
-      //   key: 'oracleContext',
-      //   method: 'getTimeWeightedAverage',
-      //   args: [
-      //     [
-      //       {
-      //         variable: 0, // Pair Price
-      //         secs: 3600,
-      //         ago: 0,
-      //       },
-      //       {
-      //         variable: 1, // BPT Price
-      //         secs: 3600,
-      //         ago: 0,
-      //       },
-      //     ],
-      //   ],
-      //   transform: (r: Awaited<ReturnType<BalancerStablePool['functions']['getTimeWeightedAverage']>>) => ({
-      //     pairPrice: FixedPoint.from(r[0]),
-      //     bptPrice: FixedPoint.from(r[1]),
-      //   }),
-      // },
     ] as AggregateCall[];
   }
 
@@ -332,5 +314,35 @@ export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitPar
       this.getPrimaryBorrowSymbol(),
       true
     );
+  }
+
+  private static dynamicTradeTuple =
+    'tuple(uint16 dexId, uint8 tradeType, uint32 oracleSlippagePercent, bool tradeUnwrapped, bytes exchangeData) t';
+
+  public override getRedeemParameters(
+    _maturity: number,
+    _strategyTokens: TypedBigNumber,
+    _slippageBuffer: number,
+    _blockTime?: number
+  ) {
+    const secondaryTradeParams = utils.defaultAbiCoder.encode(
+      [MetaStable2TokenAura.dynamicTradeTuple],
+      [
+        {
+          dexId: DexId.UNISWAP_V3,
+          tradeType: DexTradeType.EXACT_IN_SINGLE,
+          oracleSlippagePercent: 0.01e8,
+          tradeUnwrapped: false,
+          exchangeData: utils.defaultAbiCoder.encode(['uint24'], [3000]),
+        },
+      ]
+    );
+
+    return {
+      minSecondaryLendRate: 0, // TODO: should this be here?
+      minPrimary: BigNumber.from(0),
+      minSecondary: BigNumber.from(0),
+      secondaryTradeParams,
+    };
   }
 }

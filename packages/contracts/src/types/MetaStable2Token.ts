@@ -124,7 +124,6 @@ export type StrategyVaultSettingsStruct = {
   maxBalancerPoolShare: PromiseOrValue<BigNumberish>;
   balancerOracleWeight: PromiseOrValue<BigNumberish>;
   settlementCoolDownInMinutes: PromiseOrValue<BigNumberish>;
-  postMaturitySettlementCoolDownInMinutes: PromiseOrValue<BigNumberish>;
   feePercentage: PromiseOrValue<BigNumberish>;
   oraclePriceDeviationLimitPercent: PromiseOrValue<BigNumberish>;
   balancerPoolSlippageLimitPercent: PromiseOrValue<BigNumberish>;
@@ -132,7 +131,6 @@ export type StrategyVaultSettingsStruct = {
 
 export type StrategyVaultSettingsStructOutput = [
   BigNumber,
-  number,
   number,
   number,
   number,
@@ -154,7 +152,6 @@ export type StrategyVaultSettingsStructOutput = [
   maxBalancerPoolShare: number;
   balancerOracleWeight: number;
   settlementCoolDownInMinutes: number;
-  postMaturitySettlementCoolDownInMinutes: number;
   feePercentage: number;
   oraclePriceDeviationLimitPercent: number;
   balancerPoolSlippageLimitPercent: number;
@@ -163,13 +160,11 @@ export type StrategyVaultSettingsStructOutput = [
 export type StrategyVaultStateStruct = {
   totalStrategyTokenGlobal: PromiseOrValue<BigNumberish>;
   lastSettlementTimestamp: PromiseOrValue<BigNumberish>;
-  lastPostMaturitySettlementTimestamp: PromiseOrValue<BigNumberish>;
 };
 
-export type StrategyVaultStateStructOutput = [BigNumber, number, number] & {
+export type StrategyVaultStateStructOutput = [BigNumber, number] & {
   totalStrategyTokenGlobal: BigNumber;
   lastSettlementTimestamp: number;
-  lastPostMaturitySettlementTimestamp: number;
 };
 
 export type StrategyContextStruct = {
@@ -253,13 +248,13 @@ export interface MetaStable2TokenInterface extends utils.Interface {
     "decimals()": FunctionFragment;
     "depositFromNotional(address,uint256,uint256,bytes)": FunctionFragment;
     "getStrategyContext()": FunctionFragment;
-    "initialize((string,uint16,(uint256,uint32,uint32,uint32,uint32,uint32,uint16,uint16,uint16,uint16,uint16,uint16,uint16)))": FunctionFragment;
+    "initialize((string,uint16,(uint256,uint32,uint32,uint32,uint32,uint32,uint16,uint16,uint16,uint16,uint16,uint16)))": FunctionFragment;
     "name()": FunctionFragment;
     "proxiableUUID()": FunctionFragment;
     "redeemFromNotional(address,address,uint256,uint256,uint256,bytes)": FunctionFragment;
     "reinvestReward((bytes,uint256))": FunctionFragment;
     "repaySecondaryBorrowCallback(address,uint256,bytes)": FunctionFragment;
-    "setStrategyVaultSettings((uint256,uint32,uint32,uint32,uint32,uint32,uint16,uint16,uint16,uint16,uint16,uint16,uint16))": FunctionFragment;
+    "setStrategyVaultSettings((uint256,uint32,uint32,uint32,uint32,uint32,uint16,uint16,uint16,uint16,uint16,uint16))": FunctionFragment;
     "settleVaultEmergency(uint256,bytes)": FunctionFragment;
     "settleVaultNormal(uint256,uint256,bytes)": FunctionFragment;
     "settleVaultPostMaturity(uint256,uint256,bytes)": FunctionFragment;

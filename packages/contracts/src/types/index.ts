@@ -2,6 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { AssetRateAggregator } from "./AssetRateAggregator";
+export type { BalancerBoostedPool } from "./BalancerBoostedPool";
+export type { BalancerLinearPool } from "./BalancerLinearPool";
 export type { BalancerPool } from "./BalancerPool";
 export type { BalancerStablePool } from "./BalancerStablePool";
 export type { BalancerVault } from "./BalancerVault";
@@ -19,6 +21,8 @@ export type { NTokenERC20 } from "./NTokenERC20";
 export type { SNOTE } from "./SNOTE";
 export * as factories from "./factories";
 export { AssetRateAggregator__factory } from "./factories/AssetRateAggregator__factory";
+export { BalancerBoostedPool__factory } from "./factories/BalancerBoostedPool__factory";
+export { BalancerLinearPool__factory } from "./factories/BalancerLinearPool__factory";
 export { BalancerPool__factory } from "./factories/BalancerPool__factory";
 export { BalancerStablePool__factory } from "./factories/BalancerStablePool__factory";
 export { BalancerVault__factory } from "./factories/BalancerVault__factory";

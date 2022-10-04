@@ -5,7 +5,7 @@ import {
 } from '../../../config/constants';
 import TypedBigNumber, { BigNumberType } from '../../../libs/TypedBigNumber';
 import { BalancerVault } from '@notional-finance/contracts';
-import doBinarySearchApprox from '../../Approximation';
+import { doBinarySearch } from '../../Approximation';
 import BaseVault from '../../BaseVault';
 import VaultAccount from '../../VaultAccount';
 import FixedPoint from './FixedPoint';
@@ -304,7 +304,7 @@ export abstract class BaseBalancerStablePool<
       };
     };
 
-    const requiredDepositFP = doBinarySearchApprox(
+    const requiredDepositFP = doBinarySearch(
       initialMultiple,
       RATE_PRECISION,
       calculationFunction
@@ -363,7 +363,7 @@ export abstract class BaseBalancerStablePool<
       };
     };
 
-    const strategyTokens = doBinarySearchApprox(
+    const strategyTokens = doBinarySearch(
       initialMultiple,
       RATE_PRECISION,
       calculationFunction

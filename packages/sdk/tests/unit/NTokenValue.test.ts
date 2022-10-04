@@ -1,5 +1,4 @@
 import { BigNumber, ethers } from 'ethers';
-import { getNowSeconds } from '../../src/libs/utils';
 import { RATE_PRECISION, SECONDS_IN_YEAR } from '../../src/config/constants';
 import { System, NTokenValue, CashGroup } from '../../src/system';
 import MockSystem from '../mocks/MockSystem';
@@ -11,8 +10,8 @@ describe('nToken value', () => {
   afterAll(() => {
     system.destroy();
   });
-  const blockTime = CashGroup.getTimeReference(getNowSeconds());
-  const currentTime = getNowSeconds();
+  const blockTime = CashGroup.getTimeReference(1662015600);
+  const currentTime = 1662015600;
 
   beforeAll(async () => {
     const nETH = system.getNToken(1)!;
@@ -81,7 +80,8 @@ describe('nToken value', () => {
       3,
       TypedBigNumber.from(1e8, BigNumberType.nToken, 'nUSDC'),
       BigNumber.from(0), // this means we've migrated
-      BigNumber.from(0.5e8)
+      BigNumber.from(0.5e8),
+      currentTime
     );
 
     // Accumulate 1 NOTE per nToken, with 0.5 NOTE incentive debt
@@ -92,7 +92,7 @@ describe('nToken value', () => {
       TypedBigNumber.from(1e8, BigNumberType.nToken, 'nUSDC'),
       BigNumber.from(0), // this means we've migrated
       BigNumber.from(0.5e8),
-      getNowSeconds() + SECONDS_IN_YEAR // Fast forward a year
+      currentTime + SECONDS_IN_YEAR // Fast forward a year
     );
 
     // Accumulate another 0.1 NOTE per nToken, with 0.5 NOTE incentive debt
@@ -134,10 +134,15 @@ describe('nToken value', () => {
       BigNumberType.InternalAsset,
       'cDAI'
     );
-    const nTokenRedeem = NTokenValue.getNTokenRedeemFromAsset(2, assetCash);
+    const nTokenRedeem = NTokenValue.getNTokenRedeemFromAsset(
+      2,
+      assetCash,
+      blockTime
+    );
     const assetFromRedeem = NTokenValue.getAssetFromRedeemNToken(
       2,
-      nTokenRedeem
+      nTokenRedeem,
+      blockTime
     );
     expect(assetCash.n.toNumber()).toBeCloseTo(
       assetFromRedeem.n.toNumber(),
@@ -151,10 +156,15 @@ describe('nToken value', () => {
       BigNumberType.InternalAsset,
       'cUSDC'
     );
-    const nTokenRedeem = NTokenValue.getNTokenRedeemFromAsset(3, assetCash);
+    const nTokenRedeem = NTokenValue.getNTokenRedeemFromAsset(
+      3,
+      assetCash,
+      blockTime
+    );
     const assetFromRedeem = NTokenValue.getAssetFromRedeemNToken(
       3,
-      nTokenRedeem
+      nTokenRedeem,
+      blockTime
     );
     expect(assetCash.n.toNumber()).toBeCloseTo(
       assetFromRedeem.n.toNumber(),

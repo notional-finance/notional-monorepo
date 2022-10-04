@@ -11,6 +11,7 @@ import { System, FreeCollateral, NTokenValue } from '../system';
 import TypedBigNumber, { BigNumberType } from '../libs/TypedBigNumber';
 import { Currency, nToken } from '../data';
 import { RATE_PRECISION } from '../config/constants';
+import { getNowSeconds } from '../libs/utils';
 
 export default class BalanceSummary {
   private currency: Currency;
@@ -121,14 +122,16 @@ export default class BalanceSummary {
   // Returns cash balance and nToken withdraw amounts
   public getWithdrawAmounts(
     withdrawAmountInternalAsset: TypedBigNumber,
-    preferCash: boolean
+    preferCash: boolean,
+    blockTime = getNowSeconds()
   ) {
     withdrawAmountInternalAsset.check(
       BigNumberType.InternalAsset,
       this.currency.assetSymbol
     );
     const nTokenStatus = NTokenValue.getNTokenStatus(
-      withdrawAmountInternalAsset.currencyId
+      withdrawAmountInternalAsset.currencyId,
+      blockTime
     );
     const canWithdrawNToken =
       nTokenStatus === NTokenStatus.Ok ||
@@ -248,7 +251,7 @@ export default class BalanceSummary {
     this.nToken = system.getNToken(this.currencyId);
   }
 
-  public static build(accountData: AccountData) {
+  public static build(accountData: AccountData, blockTime = getNowSeconds()) {
     const system = System.getSystem();
     const {
       netETHCollateralWithHaircut,
@@ -286,7 +289,8 @@ export default class BalanceSummary {
             fcAggregate,
             localNetAvailable,
             system,
-            accountData.hasAssetDebt || accountData.hasCashDebt
+            accountData.hasAssetDebt || accountData.hasCashDebt,
+            blockTime
           );
 
           return new BalanceSummary(
@@ -325,10 +329,14 @@ export default class BalanceSummary {
     fcAggregate: TypedBigNumber,
     localNetAvailable: TypedBigNumber,
     system: System,
-    hasDebt: boolean
+    hasDebt: boolean,
+    blockTime = getNowSeconds()
   ) {
     let nTokenAssetPV: TypedBigNumber | undefined;
-    const nTokenStatus = NTokenValue.getNTokenStatus(balance.currencyId);
+    const nTokenStatus = NTokenValue.getNTokenStatus(
+      balance.currencyId,
+      blockTime
+    );
     if (
       nTokenStatus === NTokenStatus.Ok ||
       nTokenStatus === NTokenStatus.nTokenHasResidual

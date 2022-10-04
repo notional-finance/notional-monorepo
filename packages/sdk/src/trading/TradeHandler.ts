@@ -1,4 +1,4 @@
-import { BigNumber } from 'ethers';
+import { BigNumber, utils } from 'ethers';
 import { TradingEstimate } from '..';
 import { INTERNAL_TOKEN_PRECISION, RATE_PRECISION } from '../config/constants';
 import { getTrade, NETWORKS } from '../data/sources/ZeroExApi';
@@ -13,6 +13,13 @@ export enum DexId {
   BALANCER_V2 = 4,
   CURVE = 5,
   NOTIONAL_VAULT = 6,
+}
+
+export enum DexTradeType {
+  EXACT_IN_SINGLE = 0,
+  EXACT_OUT_SINGLE = 1,
+  EXACT_IN_BATCH = 2,
+  EXACT_OUT_BATCH = 3,
 }
 
 export default class TradeHandler {
@@ -206,6 +213,24 @@ export default class TradeHandler {
     this._checkAmount(amount);
     return amount.add(
       amount.scale(Math.floor(slippageBPS * RATE_PRECISION), RATE_PRECISION)
+    );
+  }
+
+  private static tradeTuple =
+    'tuple(uint8 tradeType, address sellToken, address buyToken, uint256 amount, uint256 limit, uint256 deadline, bytes exchangeData) t';
+
+  public static encodeTrade(
+    tradeType: DexTradeType,
+    sellToken: string,
+    buyToken: string,
+    amount: BigNumber,
+    limit: BigNumber,
+    deadline: BigNumber,
+    exchangeData: string
+  ) {
+    return utils.defaultAbiCoder.encode(
+      [this.tradeTuple],
+      [tradeType, sellToken, buyToken, amount, limit, deadline, exchangeData]
     );
   }
 }

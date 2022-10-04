@@ -508,11 +508,6 @@ const _abi = [
                   },
                   {
                     internalType: "uint16",
-                    name: "postMaturitySettlementCoolDownInMinutes",
-                    type: "uint16",
-                  },
-                  {
-                    internalType: "uint16",
                     name: "feePercentage",
                     type: "uint16",
                   },
@@ -541,11 +536,6 @@ const _abi = [
                   {
                     internalType: "uint32",
                     name: "lastSettlementTimestamp",
-                    type: "uint32",
-                  },
-                  {
-                    internalType: "uint32",
-                    name: "lastPostMaturitySettlementTimestamp",
                     type: "uint32",
                   },
                 ],
@@ -631,11 +621,6 @@ const _abi = [
               {
                 internalType: "uint16",
                 name: "settlementCoolDownInMinutes",
-                type: "uint16",
-              },
-              {
-                internalType: "uint16",
-                name: "postMaturitySettlementCoolDownInMinutes",
                 type: "uint16",
               },
               {
@@ -840,11 +825,6 @@ const _abi = [
           {
             internalType: "uint16",
             name: "settlementCoolDownInMinutes",
-            type: "uint16",
-          },
-          {
-            internalType: "uint16",
-            name: "postMaturitySettlementCoolDownInMinutes",
             type: "uint16",
           },
           {
