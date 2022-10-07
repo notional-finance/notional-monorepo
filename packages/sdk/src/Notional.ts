@@ -11,7 +11,7 @@ import {
   BalancerVault,
   ExchangeV3,
 } from '@notional-finance/contracts';
-import { handleError } from '@notional-finance/utils';
+import { handleError } from '@notional-finance/error';
 import { System } from './system';
 import GraphClient from './data/GraphClient';
 import { Account, AccountData, AccountGraphLoader } from './account';
@@ -42,7 +42,6 @@ import kovanAddresses from './config/kovan.json';
 import goerliAddresses from './config/goerli.json';
 import mainnetAddresses from './config/mainnet.json';
 import graphEndpoints from './config/graph.json';
-import cacheEndpoint from './config/cache.json';
 
 interface Addresses {
   airdrop?: string;
@@ -58,6 +57,8 @@ interface Addresses {
   comp?: string;
 }
 
+const baseCacheUrl = process.env['NX_SYSTEM_CACHE_URL'];
+console.log('baseCacheUrl', baseCacheUrl);
 /**
  * Provides an abstraction layer for interacting with Notional contracts.
  */
@@ -123,28 +124,28 @@ export default class Notional extends TransactionBuilder {
           addresses: mainnetAddresses,
           graphEndpoint: graphEndpoints['mainnet:http'],
           pollInterval: Number(graphEndpoints['mainnet:poll']),
-          cacheUrl: cacheEndpoint['mainnet:http'],
+          cacheUrl: `${baseCacheUrl}/v2/mainnet`,
         };
       case 5:
         return {
           addresses: goerliAddresses,
           graphEndpoint: graphEndpoints['goerli:http'],
           pollInterval: Number(graphEndpoints['goerli:poll']),
-          cacheUrl: cacheEndpoint['goerli:http'],
+          cacheUrl: `${baseCacheUrl}/v2/goerli`,
         };
       case 42:
         return {
           addresses: kovanAddresses,
           graphEndpoint: graphEndpoints['kovan:http'],
           pollInterval: Number(graphEndpoints['kovan:poll']),
-          cacheUrl: cacheEndpoint['kovan:http'],
+          cacheUrl: `${baseCacheUrl}/v2/kovan`,
         };
       case 1337:
         return {
           addresses: mainnetAddresses,
           graphEndpoint: graphEndpoints['mainnet:http'],
           pollInterval: Number(graphEndpoints['local:poll']),
-          cacheUrl: cacheEndpoint['mainnet:http'],
+          cacheUrl: `${baseCacheUrl}/v2/local`,
         };
       default:
         throw new Error(`Undefined chainId: ${chainId}`);
