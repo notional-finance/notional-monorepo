@@ -1,0 +1,7 @@
+name = "worker-geoip"
+main = "./src/index.ts"
+compatibility_date = "2022-07-07"
+
+workers_dev = true
+node_compat = true
+minify = true

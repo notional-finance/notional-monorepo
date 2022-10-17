@@ -7,6 +7,7 @@
     "playground": "packages/playground",
     "sdk": "packages/sdk",
     "system-cache": "packages/system-cache",
-    "utils": "packages/utils"
+    "utils": "packages/utils",
+    "worker-geoip": "packages/worker-geoip"
   }
 }
