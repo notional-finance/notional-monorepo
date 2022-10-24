@@ -13,7 +13,7 @@ jobs:
       - run: yarn --fixed-lockfile
       - run: |
           yarn nx build-lib contracts
-          yarn nx build-lib utils
+          yarn nx build-lib error
           yarn nx build-lib sdk
           yarn config set npmRegistryServer "https://registry.npmjs.org/"
           yarn config set npmAlwaysAuth true

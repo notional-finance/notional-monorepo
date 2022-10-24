@@ -1,16 +1,17 @@
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "packages/utils/src",
+  "name": "error",
+  "sourceRoot": "packages/error/src",
   "projectType": "library",
   "targets": {
     "build-lib": {
       "executor": "@nrwl/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/packages/utils",
-        "main": "packages/utils/src/index.ts",
-        "tsConfig": "packages/utils/tsconfig.lib.json",
-        "assets": ["packages/utils/*.md"]
+        "outputPath": "dist/packages/error",
+        "main": "packages/error/src/index.ts",
+        "tsConfig": "packages/error/tsconfig.lib.json",
+        "assets": ["packages/error/*.md"]
       }
     },
     "release": {
@@ -21,7 +22,7 @@
             "command": "npm publish --access public"
           }
         ],
-        "cwd": "dist/packages/utils"
+        "cwd": "dist/packages/error"
       }
     },
     "publish": {
@@ -40,14 +41,14 @@
       "executor": "@nrwl/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["packages/utils/**/*.ts"]
+        "lintFilePatterns": ["packages/error/**/*.ts"]
       }
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/packages/utils"],
+      "outputs": ["coverage/packages/error"],
       "options": {
-        "jestConfig": "packages/utils/jest.config.ts",
+        "jestConfig": "packages/error/jest.config.ts",
         "passWithNoTests": true
       }
     }

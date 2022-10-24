@@ -1,4 +1,8 @@
-import { INTERNAL_TOKEN_PRECISION } from '../../../config/constants';
+import { BigNumber } from 'ethers';
+import {
+  INTERNAL_TOKEN_PRECISION,
+  RATE_PRECISION,
+} from '../../../config/constants';
 import { AggregateCall } from '../../../data/Multicall';
 import TypedBigNumber from '../../../libs/TypedBigNumber';
 import { LiquidationThreshold } from '../../../libs/types';
@@ -235,5 +239,25 @@ export default class Boosted3TokenAuraVault extends BaseBalancerStablePool<InitP
       this.getPrimaryBorrowSymbol(),
       true
     );
+  }
+
+  public async getRedeemParametersExact(
+    maturity: number,
+    strategyTokens: TypedBigNumber,
+    slippageBuffer: number,
+    blockTime?: number
+  ) {
+    const { amountRedeemed } = this.getRedeemGivenStrategyTokens(
+      maturity,
+      strategyTokens,
+      blockTime
+    );
+    return {
+      minPrimary: amountRedeemed
+        .toExternalPrecision()
+        .scale(RATE_PRECISION - slippageBuffer, RATE_PRECISION).n,
+      minSecondary: BigNumber.from(0),
+      secondaryTradeParams: '0x',
+    };
   }
 }

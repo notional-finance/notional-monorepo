@@ -1,5 +1,5 @@
 {
-  "name": "@notional-finance/utils",
+  "name": "@notional-finance/error",
   "version": "0.0.2",
   "type": "commonjs"
 }
