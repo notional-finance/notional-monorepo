@@ -36,7 +36,35 @@ import AssetSummary from './AssetSummary';
 import BalanceSummary from './BalanceSummary';
 import NOTESummary from './NOTESummary';
 import { VaultAccount } from '../vaults';
-import { AssetResult, BalanceResult, GetAccountResult } from './types';
+
+interface AssetResult {
+  currencyId: BigNumber;
+  maturity: BigNumber;
+  assetType: BigNumber;
+  notional: BigNumber;
+  storageSlot: BigNumber;
+  storageState: number;
+}
+
+interface BalanceResult {
+  currencyId: number;
+  cashBalance: BigNumber;
+  nTokenBalance: BigNumber;
+  lastClaimTime: BigNumber;
+  accountIncentiveDebt: BigNumber;
+}
+
+export interface GetAccountResult {
+  accountContext: {
+    nextSettleTime: number;
+    hasDebt: string;
+    assetArrayLength: number;
+    bitmapCurrencyId: number;
+    activeCurrencies: string;
+  };
+  accountBalances: BalanceResult[];
+  portfolio: AssetResult[];
+}
 
 export default class AccountData {
   public accountBalances: Balance[];
@@ -468,7 +496,9 @@ export default class AccountData {
       const id = b.currencyId;
       let totalAssets = TypedBigNumber.getZeroUnderlying(id);
       let totalDebts = TypedBigNumber.getZeroUnderlying(id);
-      const cashGroup = system.getCashGroup(id);
+      const cashGroup = system.isTradable(id)
+        ? system.getCashGroup(id)
+        : undefined;
 
       const { totalCashClaims, fCashAssets } =
         FreeCollateral.getNetfCashPositions(
@@ -479,7 +509,7 @@ export default class AccountData {
         );
       totalAssets = totalAssets.add(totalCashClaims);
       fCashAssets.forEach((a) => {
-        const pv = cashGroup.getfCashPresentValueUnderlyingInternal(
+        const pv = cashGroup!.getfCashPresentValueUnderlyingInternal(
           a.maturity,
           a.notional,
           false

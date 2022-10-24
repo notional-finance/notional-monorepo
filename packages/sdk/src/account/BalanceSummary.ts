@@ -101,9 +101,15 @@ export default class BalanceSummary {
   }
 
   public get cTokenYieldDisplayString() {
-    const cTokenYield =
-      System.getSystem().getCashGroup(this.currencyId).blockSupplyRate /
-      RATE_PRECISION;
+    let cTokenYield = 0;
+    try {
+      cTokenYield =
+        System.getSystem().getCashGroup(this.currencyId).blockSupplyRate /
+        RATE_PRECISION;
+    } catch {
+      // if cash group is not found then set the yield to zero
+    }
+
     return BalanceSummary.formatYieldRate(cTokenYield);
   }
 

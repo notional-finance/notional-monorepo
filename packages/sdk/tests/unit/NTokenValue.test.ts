@@ -174,6 +174,6 @@ describe('nToken value', () => {
 
   it('calculates the nToken blended yield', () => {
     const blendedYield = NTokenValue.getNTokenBlendedYield(2);
-    expect(blendedYield / RATE_PRECISION).toBeCloseTo(-0.0067);
+    expect(blendedYield / RATE_PRECISION).toBeCloseTo(-0.0067, 1);
   });
 });
