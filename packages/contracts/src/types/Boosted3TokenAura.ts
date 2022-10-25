@@ -94,20 +94,54 @@ export type ThreeTokenPoolContextStructOutput = [
   basePool: TwoTokenPoolContextStructOutput;
 };
 
+export type UnderlyingPoolContextStruct = {
+  scaleFactor: PromiseOrValue<BigNumberish>;
+  mainBalance: PromiseOrValue<BigNumberish>;
+  wrappedBalance: PromiseOrValue<BigNumberish>;
+  virtualSupply: PromiseOrValue<BigNumberish>;
+  fee: PromiseOrValue<BigNumberish>;
+  lowerTarget: PromiseOrValue<BigNumberish>;
+  upperTarget: PromiseOrValue<BigNumberish>;
+};
+
+export type UnderlyingPoolContextStructOutput = [
+  BigNumber,
+  BigNumber,
+  BigNumber,
+  BigNumber,
+  BigNumber,
+  BigNumber,
+  BigNumber
+] & {
+  scaleFactor: BigNumber;
+  mainBalance: BigNumber;
+  wrappedBalance: BigNumber;
+  virtualSupply: BigNumber;
+  fee: BigNumber;
+  lowerTarget: BigNumber;
+  upperTarget: BigNumber;
+};
+
 export type BoostedOracleContextStruct = {
   ampParam: PromiseOrValue<BigNumberish>;
   bptBalance: PromiseOrValue<BigNumberish>;
   dueProtocolFeeBptAmount: PromiseOrValue<BigNumberish>;
+  primaryScaleFactor: PromiseOrValue<BigNumberish>;
+  primaryUnderlyingPool: UnderlyingPoolContextStruct;
 };
 
 export type BoostedOracleContextStructOutput = [
   BigNumber,
   BigNumber,
-  BigNumber
+  BigNumber,
+  BigNumber,
+  UnderlyingPoolContextStructOutput
 ] & {
   ampParam: BigNumber;
   bptBalance: BigNumber;
   dueProtocolFeeBptAmount: BigNumber;
+  primaryScaleFactor: BigNumber;
+  primaryUnderlyingPool: UnderlyingPoolContextStructOutput;
 };
 
 export type AuraStakingContextStruct = {
@@ -137,12 +171,14 @@ export type StrategyVaultSettingsStruct = {
   oracleWindowInSeconds: PromiseOrValue<BigNumberish>;
   settlementSlippageLimitPercent: PromiseOrValue<BigNumberish>;
   postMaturitySettlementSlippageLimitPercent: PromiseOrValue<BigNumberish>;
+  emergencySettlementSlippageLimitPercent: PromiseOrValue<BigNumberish>;
+  maxRewardTradeSlippageLimitPercent: PromiseOrValue<BigNumberish>;
   maxBalancerPoolShare: PromiseOrValue<BigNumberish>;
   balancerOracleWeight: PromiseOrValue<BigNumberish>;
   settlementCoolDownInMinutes: PromiseOrValue<BigNumberish>;
-  postMaturitySettlementCoolDownInMinutes: PromiseOrValue<BigNumberish>;
   feePercentage: PromiseOrValue<BigNumberish>;
-  maxRewardTradeSlippageLimitPercent: PromiseOrValue<BigNumberish>;
+  oraclePriceDeviationLimitPercent: PromiseOrValue<BigNumberish>;
+  balancerPoolSlippageLimitPercent: PromiseOrValue<BigNumberish>;
 };
 
 export type StrategyVaultSettingsStructOutput = [
@@ -155,30 +191,32 @@ export type StrategyVaultSettingsStructOutput = [
   number,
   number,
   number,
-  BigNumber
+  number,
+  number,
+  number
 ] & {
   maxUnderlyingSurplus: BigNumber;
   oracleWindowInSeconds: number;
   settlementSlippageLimitPercent: number;
   postMaturitySettlementSlippageLimitPercent: number;
+  emergencySettlementSlippageLimitPercent: number;
+  maxRewardTradeSlippageLimitPercent: number;
   maxBalancerPoolShare: number;
   balancerOracleWeight: number;
   settlementCoolDownInMinutes: number;
-  postMaturitySettlementCoolDownInMinutes: number;
   feePercentage: number;
-  maxRewardTradeSlippageLimitPercent: BigNumber;
+  oraclePriceDeviationLimitPercent: number;
+  balancerPoolSlippageLimitPercent: number;
 };
 
 export type StrategyVaultStateStruct = {
   totalStrategyTokenGlobal: PromiseOrValue<BigNumberish>;
   lastSettlementTimestamp: PromiseOrValue<BigNumberish>;
-  lastPostMaturitySettlementTimestamp: PromiseOrValue<BigNumberish>;
 };
 
-export type StrategyVaultStateStructOutput = [BigNumber, number, number] & {
+export type StrategyVaultStateStructOutput = [BigNumber, number] & {
   totalStrategyTokenGlobal: BigNumber;
   lastSettlementTimestamp: number;
-  lastPostMaturitySettlementTimestamp: number;
 };
 
 export type StrategyContextStruct = {
@@ -262,13 +300,13 @@ export interface Boosted3TokenAuraInterface extends utils.Interface {
     "decimals()": FunctionFragment;
     "depositFromNotional(address,uint256,uint256,bytes)": FunctionFragment;
     "getStrategyContext()": FunctionFragment;
-    "initialize((string,uint16,(uint256,uint32,uint32,uint32,uint16,uint16,uint16,uint16,uint16,uint256)))": FunctionFragment;
+    "initialize((string,uint16,(uint256,uint32,uint32,uint32,uint32,uint32,uint16,uint16,uint16,uint16,uint16,uint16)))": FunctionFragment;
     "name()": FunctionFragment;
     "proxiableUUID()": FunctionFragment;
     "redeemFromNotional(address,address,uint256,uint256,uint256,bytes)": FunctionFragment;
     "reinvestReward((bytes,uint256))": FunctionFragment;
     "repaySecondaryBorrowCallback(address,uint256,bytes)": FunctionFragment;
-    "setStrategyVaultSettings((uint256,uint32,uint32,uint32,uint16,uint16,uint16,uint16,uint16,uint256))": FunctionFragment;
+    "setStrategyVaultSettings((uint256,uint32,uint32,uint32,uint32,uint32,uint16,uint16,uint16,uint16,uint16,uint16))": FunctionFragment;
     "settleVaultEmergency(uint256,bytes)": FunctionFragment;
     "settleVaultNormal(uint256,uint256,bytes)": FunctionFragment;
     "settleVaultPostMaturity(uint256,uint256,bytes)": FunctionFragment;

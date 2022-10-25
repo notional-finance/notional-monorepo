@@ -24,6 +24,17 @@
         "cwd": "packages/system-cache"
       }
     },
+    "publish": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          {
+            "command": "yarn wrangler publish"
+          }
+        ],
+        "cwd": "packages/system-cache"
+      }
+    },
     "lint": {
       "executor": "@nrwl/linter:eslint",
       "outputs": ["{options.outputFile}"],

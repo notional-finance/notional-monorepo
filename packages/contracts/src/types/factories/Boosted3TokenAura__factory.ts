@@ -11,22 +11,6 @@ import type {
 
 const _abi = [
   {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "totalBPTHeld",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "bptThreshold",
-        type: "uint256",
-      },
-    ],
-    name: "BalancerPoolShareTooHigh",
-    type: "error",
-  },
-  {
     inputs: [],
     name: "CalculationDidNotConverge",
     type: "error",
@@ -435,6 +419,53 @@ const _abi = [
                 name: "dueProtocolFeeBptAmount",
                 type: "uint256",
               },
+              {
+                internalType: "uint256",
+                name: "primaryScaleFactor",
+                type: "uint256",
+              },
+              {
+                components: [
+                  {
+                    internalType: "uint256",
+                    name: "scaleFactor",
+                    type: "uint256",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "mainBalance",
+                    type: "uint256",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "wrappedBalance",
+                    type: "uint256",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "virtualSupply",
+                    type: "uint256",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "fee",
+                    type: "uint256",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "lowerTarget",
+                    type: "uint256",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "upperTarget",
+                    type: "uint256",
+                  },
+                ],
+                internalType: "struct UnderlyingPoolContext",
+                name: "primaryUnderlyingPool",
+                type: "tuple",
+              },
             ],
             internalType: "struct BoostedOracleContext",
             name: "oracleContext",
@@ -512,6 +543,16 @@ const _abi = [
                     type: "uint32",
                   },
                   {
+                    internalType: "uint32",
+                    name: "emergencySettlementSlippageLimitPercent",
+                    type: "uint32",
+                  },
+                  {
+                    internalType: "uint32",
+                    name: "maxRewardTradeSlippageLimitPercent",
+                    type: "uint32",
+                  },
+                  {
                     internalType: "uint16",
                     name: "maxBalancerPoolShare",
                     type: "uint16",
@@ -528,18 +569,18 @@ const _abi = [
                   },
                   {
                     internalType: "uint16",
-                    name: "postMaturitySettlementCoolDownInMinutes",
-                    type: "uint16",
-                  },
-                  {
-                    internalType: "uint16",
                     name: "feePercentage",
                     type: "uint16",
                   },
                   {
-                    internalType: "uint256",
-                    name: "maxRewardTradeSlippageLimitPercent",
-                    type: "uint256",
+                    internalType: "uint16",
+                    name: "oraclePriceDeviationLimitPercent",
+                    type: "uint16",
+                  },
+                  {
+                    internalType: "uint16",
+                    name: "balancerPoolSlippageLimitPercent",
+                    type: "uint16",
                   },
                 ],
                 internalType: "struct StrategyVaultSettings",
@@ -556,11 +597,6 @@ const _abi = [
                   {
                     internalType: "uint32",
                     name: "lastSettlementTimestamp",
-                    type: "uint32",
-                  },
-                  {
-                    internalType: "uint32",
-                    name: "lastPostMaturitySettlementTimestamp",
                     type: "uint32",
                   },
                 ],
@@ -624,6 +660,16 @@ const _abi = [
                 type: "uint32",
               },
               {
+                internalType: "uint32",
+                name: "emergencySettlementSlippageLimitPercent",
+                type: "uint32",
+              },
+              {
+                internalType: "uint32",
+                name: "maxRewardTradeSlippageLimitPercent",
+                type: "uint32",
+              },
+              {
                 internalType: "uint16",
                 name: "maxBalancerPoolShare",
                 type: "uint16",
@@ -640,18 +686,18 @@ const _abi = [
               },
               {
                 internalType: "uint16",
-                name: "postMaturitySettlementCoolDownInMinutes",
-                type: "uint16",
-              },
-              {
-                internalType: "uint16",
                 name: "feePercentage",
                 type: "uint16",
               },
               {
-                internalType: "uint256",
-                name: "maxRewardTradeSlippageLimitPercent",
-                type: "uint256",
+                internalType: "uint16",
+                name: "oraclePriceDeviationLimitPercent",
+                type: "uint16",
+              },
+              {
+                internalType: "uint16",
+                name: "balancerPoolSlippageLimitPercent",
+                type: "uint16",
               },
             ],
             internalType: "struct StrategyVaultSettings",
@@ -818,6 +864,16 @@ const _abi = [
             type: "uint32",
           },
           {
+            internalType: "uint32",
+            name: "emergencySettlementSlippageLimitPercent",
+            type: "uint32",
+          },
+          {
+            internalType: "uint32",
+            name: "maxRewardTradeSlippageLimitPercent",
+            type: "uint32",
+          },
+          {
             internalType: "uint16",
             name: "maxBalancerPoolShare",
             type: "uint16",
@@ -834,18 +890,18 @@ const _abi = [
           },
           {
             internalType: "uint16",
-            name: "postMaturitySettlementCoolDownInMinutes",
-            type: "uint16",
-          },
-          {
-            internalType: "uint16",
             name: "feePercentage",
             type: "uint16",
           },
           {
-            internalType: "uint256",
-            name: "maxRewardTradeSlippageLimitPercent",
-            type: "uint256",
+            internalType: "uint16",
+            name: "oraclePriceDeviationLimitPercent",
+            type: "uint16",
+          },
+          {
+            internalType: "uint16",
+            name: "balancerPoolSlippageLimitPercent",
+            type: "uint16",
           },
         ],
         internalType: "struct StrategyVaultSettings",

@@ -18,7 +18,6 @@ interface BaseVaultInstantiable<D, R, I extends Record<string, any>> {
 export default class VaultFactory {
   private static names = [
     'CrossCurrencyfCash',
-    'SimpleStrategyVault',
     'MetaStable2TokenAura',
     'Boosted3TokenAuraVault',
   ];
@@ -35,10 +34,16 @@ export default class VaultFactory {
     return m;
   }, new Map<string, string>());
 
+  // Resolves a hashed strategy id to a name
   public static resolveStrategyName(strategyId: string) {
     return this.idsToNames.get(strategyId);
   }
 
+  /**
+   * Resolves a strategy id to its generic base vault class
+   * @param strategyId
+   * @returns
+   */
   public static resolveBaseVaultClass<D, R, I extends Record<string, any>>(
     strategyId: string
   ): BaseVaultInstantiable<D, R, I> {

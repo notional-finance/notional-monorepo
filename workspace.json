@@ -3,6 +3,7 @@
   "version": 2,
   "projects": {
     "contracts": "packages/contracts",
+    "error": "packages/error",
     "notionable": "packages/notionable",
     "playground": "packages/playground",
     "sdk": "packages/sdk",

@@ -8,7 +8,7 @@
       "type": "node",
       "request": "attach",
       "name": "Attach to Wrangler",
-      "port": 9230
+      "port": 9227
     }
   ]
 }
