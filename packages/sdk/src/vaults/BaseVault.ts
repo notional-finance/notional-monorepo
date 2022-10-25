@@ -20,7 +20,7 @@ export default abstract class BaseVault<
   I extends Record<string, any>
 > extends AbstractStrategy<D, R, I> {
   // This setting can be overridden in child classes
-  protected _simulateSettledStrategyTokens = true;
+  public simulateSettledStrategyTokens = true;
 
   public static collateralToLeverageRatio(collateralRatio: number): number {
     return (
@@ -339,7 +339,7 @@ export default abstract class BaseVault<
           BigNumberType.StrategyToken,
           newVaultAccount.vaultSymbol
         ),
-        this._simulateSettledStrategyTokens
+        this.simulateSettledStrategyTokens
       );
       totalCashDeposit = totalCashDeposit.add(assetCash.toUnderlying());
     } else if (vaultAccount.maturity === 0) {
@@ -756,8 +756,9 @@ export default abstract class BaseVault<
     const market = this.getVaultMarket(maturity);
     const { netCashToAccount } =
       market.getCashAmountGivenfCashAmount(fCashToBorrow);
-    const maxBorrowRate =
-      market.interestRate(fCashToBorrow, netCashToAccount) + slippageBuffer;
+    const maxBorrowRate = fCashToBorrow.isZero()
+      ? 0
+      : market.interestRate(fCashToBorrow, netCashToAccount) + slippageBuffer;
 
     return populateTxnAndGas(notional, account, 'enterVault', [
       account,
