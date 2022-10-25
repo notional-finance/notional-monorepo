@@ -54,6 +54,11 @@ export default class VaultAccount {
     return this._secondaryBorrowDebtShares;
   }
 
+  public get isInactive() {
+    // If the account is not in any maturity or it can settle, can use any market
+    return this.maturity === 0 || this.canSettle();
+  }
+
   public get vaultSymbol() {
     return System.getVaultSymbol(this.vaultAddress, this.maturity);
   }
