@@ -6,6 +6,7 @@ import FreeCollateral from './system/FreeCollateral';
 
 export default Notional;
 export * from './libs/types';
+export * from './config/constants';
 export * from './data/index';
 export {
   FreeCollateral,
@@ -15,4 +16,4 @@ export {
   Account,
   AccountData,
 };
-export { VaultFactory, VaultAccount, BaseVault } from './vaults/index';
+export * from './vaults/index';
