@@ -50,6 +50,17 @@
         "jestConfig": "packages/sdk/jest.config.ts",
         "passWithNoTests": true
       }
+    },
+    "build-proto": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          {
+            "command": "npx pbjs src/data/encoding/System.proto --encode System --ts src/data/encoding/SystemProto.ts"
+          }
+        ],
+        "cwd": "packages/sdk"
+      }
     }
   },
   "tags": []

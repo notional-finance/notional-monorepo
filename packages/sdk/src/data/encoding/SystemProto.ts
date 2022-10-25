@@ -2297,6 +2297,7 @@ export interface VaultConfig {
   minAccountBorrowSize?: SerializedTypedBigNumber;
   minCollateralRatioBasisPoints?: number;
   maxDeleverageCollateralRatioBasisPoints?: number;
+  maxRequiredAccountCollateralRatio?: number;
   feeRateBasisPoints?: number;
   liquidationRatePercent?: number;
   maxBorrowMarketIndex?: number;
@@ -2375,6 +2376,14 @@ function _encodeVaultConfig(message: VaultConfig, bb: ByteBuffer): void {
   if ($maxDeleverageCollateralRatioBasisPoints !== undefined) {
     writeVarint32(bb, 56);
     writeVarint64(bb, intToLong($maxDeleverageCollateralRatioBasisPoints));
+  }
+
+  // optional int32 maxRequiredAccountCollateralRatio = 25;
+  let $maxRequiredAccountCollateralRatio =
+    message.maxRequiredAccountCollateralRatio;
+  if ($maxRequiredAccountCollateralRatio !== undefined) {
+    writeVarint32(bb, 200);
+    writeVarint64(bb, intToLong($maxRequiredAccountCollateralRatio));
   }
 
   // optional int32 feeRateBasisPoints = 8;
@@ -2585,6 +2594,12 @@ function _decodeVaultConfig(bb: ByteBuffer): VaultConfig {
       // optional int32 maxDeleverageCollateralRatioBasisPoints = 7;
       case 7: {
         message.maxDeleverageCollateralRatioBasisPoints = readVarint32(bb);
+        break;
+      }
+
+      // optional int32 maxRequiredAccountCollateralRatio = 25;
+      case 25: {
+        message.maxRequiredAccountCollateralRatio = readVarint32(bb);
         break;
       }
 
