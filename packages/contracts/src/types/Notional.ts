@@ -330,6 +330,7 @@ export type VaultAccountStruct = {
   vaultShares: PromiseOrValue<BigNumberish>;
   account: PromiseOrValue<string>;
   tempCashBalance: PromiseOrValue<BigNumberish>;
+  lastEntryBlockHeight: PromiseOrValue<BigNumberish>;
 };
 
 export type VaultAccountStructOutput = [
@@ -337,6 +338,7 @@ export type VaultAccountStructOutput = [
   BigNumber,
   BigNumber,
   string,
+  BigNumber,
   BigNumber
 ] & {
   fCash: BigNumber;
@@ -344,6 +346,7 @@ export type VaultAccountStructOutput = [
   vaultShares: BigNumber;
   account: string;
   tempCashBalance: BigNumber;
+  lastEntryBlockHeight: BigNumber;
 };
 
 export type VaultConfigStruct = {
@@ -362,6 +365,7 @@ export type VaultConfigStruct = {
     PromiseOrValue<BigNumberish>
   ];
   assetRate: AssetRateParametersStruct;
+  maxRequiredAccountCollateralRatio: PromiseOrValue<BigNumberish>;
 };
 
 export type VaultConfigStructOutput = [
@@ -376,7 +380,8 @@ export type VaultConfigStructOutput = [
   BigNumber,
   BigNumber,
   [number, number],
-  AssetRateParametersStructOutput
+  AssetRateParametersStructOutput,
+  BigNumber
 ] & {
   vault: string;
   flags: number;
@@ -390,6 +395,7 @@ export type VaultConfigStructOutput = [
   maxDeleverageCollateralRatio: BigNumber;
   secondaryBorrowCurrencies: [number, number];
   assetRate: AssetRateParametersStructOutput;
+  maxRequiredAccountCollateralRatio: BigNumber;
 };
 
 export type VaultStateStruct = {
@@ -456,6 +462,7 @@ export type VaultConfigStorageStruct = {
     PromiseOrValue<BigNumberish>,
     PromiseOrValue<BigNumberish>
   ];
+  maxRequiredAccountCollateralRatioBPS: PromiseOrValue<BigNumberish>;
 };
 
 export type VaultConfigStorageStructOutput = [
@@ -468,7 +475,8 @@ export type VaultConfigStorageStructOutput = [
   number,
   number,
   number,
-  [number, number]
+  [number, number],
+  number
 ] & {
   flags: number;
   borrowCurrencyId: number;
@@ -480,6 +488,7 @@ export type VaultConfigStorageStructOutput = [
   maxBorrowMarketIndex: number;
   maxDeleverageCollateralRatioBPS: number;
   secondaryBorrowCurrencies: [number, number];
+  maxRequiredAccountCollateralRatioBPS: number;
 };
 
 export interface NotionalInterface extends utils.Interface {
@@ -595,6 +604,7 @@ export interface NotionalInterface extends utils.Interface {
     "setReserveCashBalance(uint16,int256)": FunctionFragment;
     "setSecondaryIncentiveRewarder(uint16,address)": FunctionFragment;
     "setTreasuryManager(address)": FunctionFragment;
+    "setVaultDeleverageStatus(address,bool)": FunctionFragment;
     "setVaultPauseStatus(address,bool)": FunctionFragment;
     "settleAccount(address)": FunctionFragment;
     "settleVault(address,uint256)": FunctionFragment;
@@ -615,7 +625,7 @@ export interface NotionalInterface extends utils.Interface {
     "updateMaxCollateralBalance(uint16,uint72)": FunctionFragment;
     "updateSecondaryBorrowCapacity(address,uint16,uint80)": FunctionFragment;
     "updateTokenCollateralParameters(uint16,uint8,uint8,uint8,uint8,uint8)": FunctionFragment;
-    "updateVault(address,(uint16,uint16,uint32,uint16,uint8,uint8,uint8,uint8,uint16,uint16[2]),uint80)": FunctionFragment;
+    "updateVault(address,(uint16,uint16,uint32,uint16,uint8,uint8,uint8,uint8,uint16,uint16[2],uint16),uint80)": FunctionFragment;
     "upgradeTo(address)": FunctionFragment;
     "upgradeToAndCall(address,bytes)": FunctionFragment;
     "withdraw(uint16,uint88,bool)": FunctionFragment;
@@ -734,6 +744,7 @@ export interface NotionalInterface extends utils.Interface {
       | "setReserveCashBalance"
       | "setSecondaryIncentiveRewarder"
       | "setTreasuryManager"
+      | "setVaultDeleverageStatus"
       | "setVaultPauseStatus"
       | "settleAccount"
       | "settleVault"
@@ -1431,6 +1442,10 @@ export interface NotionalInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
+    functionFragment: "setVaultDeleverageStatus",
+    values: [PromiseOrValue<string>, PromiseOrValue<boolean>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setVaultPauseStatus",
     values: [PromiseOrValue<string>, PromiseOrValue<boolean>]
   ): string;
@@ -1982,6 +1997,10 @@ export interface NotionalInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "setVaultDeleverageStatus",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "setVaultPauseStatus",
     data: BytesLike
   ): Result;
@@ -2116,7 +2135,8 @@ export interface NotionalInterface extends utils.Interface {
     "UpdateTokenCollateralParameters(uint16)": EventFragment;
     "VaultBorrowCapacityChange(address,uint16,uint256)": EventFragment;
     "VaultDeleverageAccount(address,address,uint256,int256)": EventFragment;
-    "VaultEnterMaturity(address,uint256,address,uint256,uint256,uint256)": EventFragment;
+    "VaultDeleverageStatus(address,bool)": EventFragment;
+    "VaultEnterMaturity(address,uint256,address,uint256,uint256,uint256,uint256)": EventFragment;
     "VaultEnterPosition(address,address,uint256,uint256)": EventFragment;
     "VaultExitPostMaturity(address,address,uint256,uint256)": EventFragment;
     "VaultExitPreMaturity(address,address,uint256,uint256,uint256,uint256)": EventFragment;
@@ -2200,6 +2220,7 @@ export interface NotionalInterface extends utils.Interface {
   ): EventFragment;
   getEvent(nameOrSignatureOrTopic: "VaultBorrowCapacityChange"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "VaultDeleverageAccount"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "VaultDeleverageStatus"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "VaultEnterMaturity"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "VaultEnterPosition"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "VaultExitPostMaturity"): EventFragment;
@@ -2751,16 +2772,29 @@ export type VaultDeleverageAccountEvent = TypedEvent<
 export type VaultDeleverageAccountEventFilter =
   TypedEventFilter<VaultDeleverageAccountEvent>;
 
+export interface VaultDeleverageStatusEventObject {
+  vaultAddress: string;
+  disableDeleverage: boolean;
+}
+export type VaultDeleverageStatusEvent = TypedEvent<
+  [string, boolean],
+  VaultDeleverageStatusEventObject
+>;
+
+export type VaultDeleverageStatusEventFilter =
+  TypedEventFilter<VaultDeleverageStatusEvent>;
+
 export interface VaultEnterMaturityEventObject {
   vault: string;
   maturity: BigNumber;
   account: string;
-  underlyingTokensTransferred: BigNumber;
+  underlyingTokensDeposited: BigNumber;
+  cashTransferToVault: BigNumber;
   strategyTokenDeposited: BigNumber;
   vaultSharesMinted: BigNumber;
 }
 export type VaultEnterMaturityEvent = TypedEvent<
-  [string, BigNumber, string, BigNumber, BigNumber, BigNumber],
+  [string, BigNumber, string, BigNumber, BigNumber, BigNumber, BigNumber],
   VaultEnterMaturityEventObject
 >;
 
@@ -3594,10 +3628,11 @@ export interface Notional extends BaseContract {
       vault: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<
-      [BigNumber, BigNumber, BigNumber] & {
+      [BigNumber, BigNumber, BigNumber, BigNumber] & {
         collateralRatio: BigNumber;
         minCollateralRatio: BigNumber;
         maxLiquidatorDepositAssetCash: BigNumber;
+        vaultSharesToLiquidator: BigNumber;
       }
     >;
 
@@ -3926,6 +3961,12 @@ export interface Notional extends BaseContract {
 
     setTreasuryManager(
       manager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setVaultDeleverageStatus(
+      vaultAddress: PromiseOrValue<string>,
+      disableDeleverage: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -4590,10 +4631,11 @@ export interface Notional extends BaseContract {
     vault: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<
-    [BigNumber, BigNumber, BigNumber] & {
+    [BigNumber, BigNumber, BigNumber, BigNumber] & {
       collateralRatio: BigNumber;
       minCollateralRatio: BigNumber;
       maxLiquidatorDepositAssetCash: BigNumber;
+      vaultSharesToLiquidator: BigNumber;
     }
   >;
 
@@ -4918,6 +4960,12 @@ export interface Notional extends BaseContract {
 
   setTreasuryManager(
     manager: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setVaultDeleverageStatus(
+    vaultAddress: PromiseOrValue<string>,
+    disableDeleverage: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -5586,10 +5634,11 @@ export interface Notional extends BaseContract {
       vault: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<
-      [BigNumber, BigNumber, BigNumber] & {
+      [BigNumber, BigNumber, BigNumber, BigNumber] & {
         collateralRatio: BigNumber;
         minCollateralRatio: BigNumber;
         maxLiquidatorDepositAssetCash: BigNumber;
+        vaultSharesToLiquidator: BigNumber;
       }
     >;
 
@@ -5917,6 +5966,12 @@ export interface Notional extends BaseContract {
 
     setTreasuryManager(
       manager: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setVaultDeleverageStatus(
+      vaultAddress: PromiseOrValue<string>,
+      disableDeleverage: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -6494,11 +6549,21 @@ export interface Notional extends BaseContract {
       fCashRepaid?: null
     ): VaultDeleverageAccountEventFilter;
 
-    "VaultEnterMaturity(address,uint256,address,uint256,uint256,uint256)"(
+    "VaultDeleverageStatus(address,bool)"(
+      vaultAddress?: PromiseOrValue<string> | null,
+      disableDeleverage?: null
+    ): VaultDeleverageStatusEventFilter;
+    VaultDeleverageStatus(
+      vaultAddress?: PromiseOrValue<string> | null,
+      disableDeleverage?: null
+    ): VaultDeleverageStatusEventFilter;
+
+    "VaultEnterMaturity(address,uint256,address,uint256,uint256,uint256,uint256)"(
       vault?: PromiseOrValue<string> | null,
       maturity?: PromiseOrValue<BigNumberish> | null,
       account?: PromiseOrValue<string> | null,
-      underlyingTokensTransferred?: null,
+      underlyingTokensDeposited?: null,
+      cashTransferToVault?: null,
       strategyTokenDeposited?: null,
       vaultSharesMinted?: null
     ): VaultEnterMaturityEventFilter;
@@ -6506,7 +6571,8 @@ export interface Notional extends BaseContract {
       vault?: PromiseOrValue<string> | null,
       maturity?: PromiseOrValue<BigNumberish> | null,
       account?: PromiseOrValue<string> | null,
-      underlyingTokensTransferred?: null,
+      underlyingTokensDeposited?: null,
+      cashTransferToVault?: null,
       strategyTokenDeposited?: null,
       vaultSharesMinted?: null
     ): VaultEnterMaturityEventFilter;
@@ -7504,6 +7570,12 @@ export interface Notional extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    setVaultDeleverageStatus(
+      vaultAddress: PromiseOrValue<string>,
+      disableDeleverage: PromiseOrValue<boolean>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     setVaultPauseStatus(
       vaultAddress: PromiseOrValue<string>,
       enable: PromiseOrValue<boolean>,
@@ -8370,6 +8442,12 @@ export interface Notional extends BaseContract {
 
     setTreasuryManager(
       manager: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setVaultDeleverageStatus(
+      vaultAddress: PromiseOrValue<string>,
+      disableDeleverage: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
