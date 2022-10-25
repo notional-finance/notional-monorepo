@@ -51,6 +51,17 @@
         "passWithNoTests": true
       }
     },
+    "test-fork": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          {
+            "command": "npx hardhat test --no-compile tests/integration/system.test.ts"
+          }
+        ],
+        "cwd": "packages/sdk"
+      }
+    },
     "build-proto": {
       "executor": "nx:run-commands",
       "options": {
