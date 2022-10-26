@@ -48,7 +48,7 @@
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/packages/notionable"],
+      "outputs": ["{workspaceRoot}/coverage/packages/notionable"],
       "options": {
         "jestConfig": "packages/notionable/jest.config.ts",
         "passWithNoTests": true

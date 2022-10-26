@@ -44,7 +44,7 @@
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/packages/system-cache"],
+      "outputs": ["{workspaceRoot}/coverage/packages/system-cache"],
       "options": {
         "jestConfig": "packages/system-cache/jest.config.ts",
         "passWithNoTests": true
