@@ -7,6 +7,8 @@
     "notionable": "packages/notionable",
     "playground": "packages/playground",
     "sdk": "packages/sdk",
-    "system-cache": "packages/system-cache"
+    "system-cache": "packages/system-cache",
+    "utils": "packages/utils",
+    "worker-geoip": "packages/worker-geoip"
   }
 }
