@@ -25,7 +25,9 @@
       "@notional-finance/notionable/*": ["packages/notionable/src/*"],
       "@notional-finance/sdk": ["packages/sdk/src/index.ts"],
       "@notional-finance/sdk/*": ["packages/sdk/src/*"],
-      "@notional-finance/system-cache": ["packages/system-cache/src/index.ts"]
+      "@notional-finance/system-cache": ["packages/system-cache/src/index.ts"],
+      "@notional-finance/utils": ["packages/utils/src/index.ts"],
+      "@notional-finance/worker-geoip": ["packages/worker-geoip/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
