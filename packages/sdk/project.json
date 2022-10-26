@@ -56,7 +56,7 @@
       "options": {
         "commands": [
           {
-            "command": "npx hardhat test --no-compile tests/integration/system.test.ts"
+            "command": "npx hardhat test --tsconfig tsconfig.json --no-compile tests/integration/system.test.ts"
           }
         ],
         "cwd": "packages/sdk"

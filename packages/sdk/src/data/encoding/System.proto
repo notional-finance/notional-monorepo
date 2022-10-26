@@ -157,7 +157,7 @@ message VaultConfig {
     SerializedTypedBigNumber minAccountBorrowSize = 5;
     int32 minCollateralRatioBasisPoints = 6;
     int32 maxDeleverageCollateralRatioBasisPoints = 7;
-    int32 maxRequiredAccountCollateralRatio = 25;
+    int32 maxRequiredAccountCollateralRatioBasisPoints = 25;
     int32 feeRateBasisPoints = 8;
     int32 liquidationRatePercent = 9;
     int32 maxBorrowMarketIndex = 10;
