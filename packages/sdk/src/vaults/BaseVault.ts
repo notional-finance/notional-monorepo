@@ -918,6 +918,8 @@ export default abstract class BaseVault<
       newMarket.getCashAmountGivenfCashAmount(fCashToBorrow);
     const maxBorrowRate =
       newMarket.interestRate(fCashToBorrow, netCashToAccount) + slippageBuffer;
+    const overrides =
+      underlyingSymbol === 'ETH' ? { value: depositAmount.n } : {};
 
     return populateTxnAndGas(notional, account, 'rollVaultPosition', [
       account,
@@ -928,6 +930,7 @@ export default abstract class BaseVault<
       Math.max(minLendRate, 0),
       maxBorrowRate,
       this.encodeDepositParams(depositParams),
+      overrides,
     ]);
   }
 }
