@@ -439,6 +439,7 @@ export default abstract class BaseVault<
           .sub(vaultAccount.primaryBorrowfCash)
           .scale(multiple, RATE_PRECISION);
 
+        // TODO: this might exit too early
         const { newVaultAccount, isFullExit } =
           this.simulateExitPreMaturityGivenRepayment(
             vaultAccount,
