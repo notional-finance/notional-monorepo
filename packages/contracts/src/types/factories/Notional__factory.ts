@@ -1004,6 +1004,25 @@ const _abi = [
       {
         indexed: true,
         internalType: "address",
+        name: "vaultAddress",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "bool",
+        name: "disableDeleverage",
+        type: "bool",
+      },
+    ],
+    name: "VaultDeleverageStatus",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
         name: "vault",
         type: "address",
       },
@@ -1022,7 +1041,13 @@ const _abi = [
       {
         indexed: false,
         internalType: "uint256",
-        name: "underlyingTokensTransferred",
+        name: "underlyingTokensDeposited",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "cashTransferToVault",
         type: "uint256",
       },
       {
@@ -4385,6 +4410,11 @@ const _abi = [
             name: "tempCashBalance",
             type: "int256",
           },
+          {
+            internalType: "uint256",
+            name: "lastEntryBlockHeight",
+            type: "uint256",
+          },
         ],
         internalType: "struct VaultAccount",
         name: "",
@@ -4423,6 +4453,11 @@ const _abi = [
         internalType: "int256",
         name: "maxLiquidatorDepositAssetCash",
         type: "int256",
+      },
+      {
+        internalType: "uint256",
+        name: "vaultSharesToLiquidator",
+        type: "uint256",
       },
     ],
     stateMutability: "view",
@@ -4550,6 +4585,11 @@ const _abi = [
             internalType: "struct AssetRateParameters",
             name: "assetRate",
             type: "tuple",
+          },
+          {
+            internalType: "int256",
+            name: "maxRequiredAccountCollateralRatio",
+            type: "int256",
           },
         ],
         internalType: "struct VaultConfig",
@@ -5881,6 +5921,24 @@ const _abi = [
       },
       {
         internalType: "bool",
+        name: "disableDeleverage",
+        type: "bool",
+      },
+    ],
+    name: "setVaultDeleverageStatus",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "vaultAddress",
+        type: "address",
+      },
+      {
+        internalType: "bool",
         name: "enable",
         type: "bool",
       },
@@ -6406,6 +6464,11 @@ const _abi = [
             internalType: "uint16[2]",
             name: "secondaryBorrowCurrencies",
             type: "uint16[2]",
+          },
+          {
+            internalType: "uint16",
+            name: "maxRequiredAccountCollateralRatioBPS",
+            type: "uint16",
           },
         ],
         internalType: "struct VaultConfigStorage",

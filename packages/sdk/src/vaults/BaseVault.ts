@@ -20,7 +20,7 @@ export default abstract class BaseVault<
   I extends Record<string, any>
 > extends AbstractStrategy<D, R, I> {
   // This setting can be overridden in child classes
-  protected _simulateSettledStrategyTokens = true;
+  public simulateSettledStrategyTokens = true;
 
   public static collateralToLeverageRatio(collateralRatio: number): number {
     return (
@@ -339,7 +339,7 @@ export default abstract class BaseVault<
           BigNumberType.StrategyToken,
           newVaultAccount.vaultSymbol
         ),
-        this._simulateSettledStrategyTokens
+        this.simulateSettledStrategyTokens
       );
       totalCashDeposit = totalCashDeposit.add(assetCash.toUnderlying());
     } else if (vaultAccount.maturity === 0) {
@@ -439,32 +439,21 @@ export default abstract class BaseVault<
           .sub(vaultAccount.primaryBorrowfCash)
           .scale(multiple, RATE_PRECISION);
 
-        if (
-          fCashToLend
-            .add(vaultAccount.primaryBorrowfCash)
-            .abs()
-            .lt(minAccountBorrowSize)
-        ) {
-          // If the resulting position is less than the min borrow size, then
-          // we must exit the entire position
-          return {
-            actualMultiple: RATE_PRECISION,
-            breakLoop: true,
-            value: vaultAccount.primaryBorrowfCash.neg(),
-          };
-        }
-
-        const { newVaultAccount } = this.simulateExitPreMaturityGivenRepayment(
-          vaultAccount,
-          fCashToLend,
-          blockTime
-        );
+        // TODO: this might exit too early
+        const { newVaultAccount, isFullExit } =
+          this.simulateExitPreMaturityGivenRepayment(
+            vaultAccount,
+            fCashToLend,
+            blockTime
+          );
         const actualLeverageRatio = this.getLeverageRatio(newVaultAccount);
 
         return {
           actualMultiple: actualLeverageRatio,
-          breakLoop: actualLeverageRatio === RATE_PRECISION,
-          value: fCashToLend,
+          breakLoop: isFullExit,
+          value: isFullExit
+            ? fCashToLend
+            : vaultAccount.primaryBorrowfCash.abs(),
         };
       };
 
@@ -488,13 +477,42 @@ export default abstract class BaseVault<
       );
     }
 
-    return {
-      ...this.simulateExitPreMaturityGivenRepayment(
-        vaultAccount,
-        fCashToLend,
-        blockTime
-      ),
+    const repayment = this.simulateExitPreMaturityGivenRepayment(
+      vaultAccount,
       fCashToLend,
+      blockTime
+    );
+    return {
+      ...repayment,
+      fCashToLend: repayment.isFullExit
+        ? vaultAccount.primaryBorrowfCash.neg()
+        : fCashToLend,
+    };
+  }
+
+  public simulateExitPreMaturityInFull(
+    vaultAccount: VaultAccount,
+    blockTime = getNowSeconds()
+  ) {
+    const newVaultAccount = VaultAccount.copy(vaultAccount);
+    // In this condition, we must exit the vault account in full because we are going
+    // over the max required account collateral ratio. The target is to ensure that
+    // vault shares will be reduced to zero and all debt will be repaid
+    const costToRepay = this.getCostToRepay(
+      vaultAccount,
+      vaultAccount.primaryBorrowfCash,
+      blockTime
+    );
+    newVaultAccount.updatePrimaryBorrowfCash(
+      vaultAccount.primaryBorrowfCash.neg(),
+      true
+    );
+    newVaultAccount.updateVaultShares(vaultAccount.vaultShares.neg(), true);
+
+    return {
+      newVaultAccount,
+      costToRepay,
+      vaultSharesToRedeemAtCost: vaultAccount.vaultShares,
     };
   }
 
@@ -504,10 +522,25 @@ export default abstract class BaseVault<
     blockTime = getNowSeconds()
   ) {
     const vaultState = this.getVaultState(vaultAccount.maturity);
+    const {
+      minAccountBorrowSize,
+      maxRequiredAccountCollateralRatioBasisPoints,
+    } = this.getVault();
+    const postRepaymentDebt = fCashToLend.add(vaultAccount.primaryBorrowfCash);
     if (vaultState.maturity <= blockTime || vaultState.isSettled)
       throw Error('Cannot Exit, in Settlement');
-    if (fCashToLend.add(vaultAccount.primaryBorrowfCash).isPositive())
+    if (postRepaymentDebt.isPositive())
       throw Error('Cannot lend to positive balance');
+    const isBelowMinAccountSize = postRepaymentDebt
+      .abs()
+      .lt(minAccountBorrowSize);
+
+    if (isBelowMinAccountSize) {
+      return {
+        ...this.simulateExitPreMaturityInFull(vaultAccount, blockTime),
+        isFullExit: true,
+      };
+    }
 
     const newVaultAccount = VaultAccount.copy(vaultAccount);
     const costToRepay = this.getCostToRepay(
@@ -531,10 +564,25 @@ export default abstract class BaseVault<
     newVaultAccount.updatePrimaryBorrowfCash(fCashToLend, true);
     newVaultAccount.addSecondaryDebtShares(secondaryfCashRepaid, true);
 
+    const newCollateralRatio = this.getCollateralRatio(newVaultAccount);
+
+    if (
+      !newCollateralRatio ||
+      maxRequiredAccountCollateralRatioBasisPoints < newCollateralRatio
+    ) {
+      // If this condition is met, then the account must exit in full since they are above
+      // the max required account collateral ratio
+      return {
+        ...this.simulateExitPreMaturityInFull(vaultAccount, blockTime),
+        isFullExit: true,
+      };
+    }
+
     return {
       costToRepay,
       vaultSharesToRedeemAtCost,
       newVaultAccount,
+      isFullExit: false,
     };
   }
 
@@ -562,6 +610,10 @@ export default abstract class BaseVault<
     // This will also modify vault shares
     newVaultAccount.addStrategyTokens(strategyTokens.neg(), true);
     newVaultAccount.addSecondaryDebtShares(secondaryfCashRepaid, true);
+
+    // NOTE: collateral ratio will decrease in this case since only vault shares
+    // are being redeemed and no debt is being repaid so we don't check that the
+    // account is above the max collateral ratio
 
     return {
       vaultSharesToRedeemAtCost,
@@ -756,8 +808,9 @@ export default abstract class BaseVault<
     const market = this.getVaultMarket(maturity);
     const { netCashToAccount } =
       market.getCashAmountGivenfCashAmount(fCashToBorrow);
-    const maxBorrowRate =
-      market.interestRate(fCashToBorrow, netCashToAccount) + slippageBuffer;
+    const maxBorrowRate = fCashToBorrow.isZero()
+      ? 0
+      : market.interestRate(fCashToBorrow, netCashToAccount) + slippageBuffer;
 
     return populateTxnAndGas(notional, account, 'enterVault', [
       account,
@@ -801,8 +854,9 @@ export default abstract class BaseVault<
       const market = this.getVaultMarket(maturity);
       const { netCashToAccount } =
         market.getCashAmountGivenfCashAmount(fCashToLend);
-      minLendRate =
-        market.interestRate(fCashToLend, netCashToAccount) - slippageBuffer;
+      minLendRate = fCashToLend.isZero()
+        ? 0
+        : market.interestRate(fCashToLend, netCashToAccount) - slippageBuffer;
     }
 
     return populateTxnAndGas(notional, account, 'exitVault', [
@@ -865,6 +919,8 @@ export default abstract class BaseVault<
       newMarket.getCashAmountGivenfCashAmount(fCashToBorrow);
     const maxBorrowRate =
       newMarket.interestRate(fCashToBorrow, netCashToAccount) + slippageBuffer;
+    const overrides =
+      underlyingSymbol === 'ETH' ? { value: depositAmount.n } : {};
 
     return populateTxnAndGas(notional, account, 'rollVaultPosition', [
       account,
@@ -875,6 +931,7 @@ export default abstract class BaseVault<
       Math.max(minLendRate, 0),
       maxBorrowRate,
       this.encodeDepositParams(depositParams),
+      overrides,
     ]);
   }
 }

@@ -50,6 +50,28 @@
         "jestConfig": "packages/sdk/jest.config.ts",
         "passWithNoTests": true
       }
+    },
+    "test-fork": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          {
+            "command": "npx hardhat test --tsconfig tsconfig.json --no-compile tests/integration/system.test.ts"
+          }
+        ],
+        "cwd": "packages/sdk"
+      }
+    },
+    "build-proto": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          {
+            "command": "npx pbjs src/data/encoding/System.proto --encode System --ts src/data/encoding/SystemProto.ts"
+          }
+        ],
+        "cwd": "packages/sdk"
+      }
     }
   },
   "tags": []

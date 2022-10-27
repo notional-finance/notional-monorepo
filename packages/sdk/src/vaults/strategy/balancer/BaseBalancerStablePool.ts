@@ -41,7 +41,7 @@ export interface BaseBalancerStablePoolInitParams extends Record<string, any> {
 export abstract class BaseBalancerStablePool<
   I extends BaseBalancerStablePoolInitParams
 > extends BaseVault<DepositParams, RedeemParams, I> {
-  protected override _simulateSettledStrategyTokens = false;
+  public override simulateSettledStrategyTokens = false;
 
   BalancerVault = new Contract(
     '0xBA12222222228d8Ba445958a75a0704d566BF2C8',

@@ -11,7 +11,7 @@ import {
   BalancerVault,
   ExchangeV3,
 } from '@notional-finance/contracts';
-import { handleError } from '@notional-finance/error';
+// import { handleError } from '@notional-finance/error';
 import { System } from './system';
 import GraphClient from './data/GraphClient';
 import { Account, AccountData, AccountGraphLoader } from './account';
@@ -58,7 +58,6 @@ interface Addresses {
 }
 
 const baseCacheUrl = process.env['NX_SYSTEM_CACHE_URL'];
-console.log('baseCacheUrl', baseCacheUrl);
 /**
  * Provides an abstraction layer for interacting with Notional contracts.
  */
@@ -193,8 +192,8 @@ export default class Notional extends TransactionBuilder {
         contracts
       );
     } catch (e) {
-      const error = handleError(e);
-      throw error;
+      // const error = handleError(e);
+      throw e as Error;
     }
   }
 

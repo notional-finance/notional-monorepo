@@ -69,6 +69,7 @@ const systemConfigurationQuery = gql`
         minAccountBorrowSize
         minCollateralRatioBasisPoints
         maxDeleverageCollateralRatioBasisPoints
+        maxRequiredAccountCollateralRatioBasisPoints
         feeRateBasisPoints
         liquidationRatePercent
         maxBorrowMarketIndex
@@ -178,6 +179,7 @@ interface SystemQueryResult {
       minAccountBorrowSize: string;
       minCollateralRatioBasisPoints: number;
       maxDeleverageCollateralRatioBasisPoints: number;
+      maxRequiredAccountCollateralRatioBasisPoints: number | null;
       feeRateBasisPoints: number;
       liquidationRatePercent: number;
       maxBorrowMarketIndex: number;
@@ -284,6 +286,7 @@ export interface CurrencyConfig {
     minAccountBorrowSize: TypedBigNumber;
     minCollateralRatioBasisPoints: number;
     maxDeleverageCollateralRatioBasisPoints: number;
+    maxRequiredAccountCollateralRatioBasisPoints: number;
     feeRateBasisPoints: number;
     liquidationRatePercent: number;
     maxBorrowMarketIndex: number;
