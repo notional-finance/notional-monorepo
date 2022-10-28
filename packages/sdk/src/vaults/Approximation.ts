@@ -1,4 +1,5 @@
 import { BASIS_POINT } from '../config/constants';
+import TypedBigNumber from '../libs/TypedBigNumber';
 
 /**
  * This method does a bisection search to find the point where:
@@ -20,46 +21,49 @@ import { BASIS_POINT } from '../config/constants';
  * @param maxIter maximum number of iterations
  * @returns value<T> returned by func
  */
-export function doBisectionSearch<T>(
-  lowerBound: number,
-  upperBound: number,
+export function doRepaymentBisectionSearch(
+  upperBound: TypedBigNumber,
+  lowerBound: TypedBigNumber,
   target: number,
-  func: (multiple: number) => {
-    actualMultiple: number;
-    breakLoop: boolean;
-    value: T;
-  },
+  func: (repayment: TypedBigNumber) => number | null,
   tolerance = 50 * BASIS_POINT,
-  maxIter = 10
+  maxIter = 25
 ) {
   let iters = 0;
   let currentUpper = upperBound;
   let currentLower = lowerBound;
-  // eslint-disable-next-line prefer-const
-  let { actualMultiple: fUpper, value: uValue } = func(currentUpper);
-  // eslint-disable-next-line prefer-const
-  let { actualMultiple: fLower, value: lValue } = func(currentLower);
-  if (Math.abs(fUpper - target) <= tolerance) return uValue;
-  if (Math.abs(fLower - target) <= tolerance) return lValue;
+  const fUpper = func(currentUpper);
+  const fLower = func(currentLower);
+  // If the lower bound implies a full exit, then we need to full exit
+  if (fLower === null) return null;
+  if (fUpper && Math.abs(fUpper - target) <= tolerance) return upperBound;
+  if (Math.abs(fLower - target) <= tolerance) return lowerBound;
   if (fLower > target) throw RangeError('Lower bound above target');
-  if (fUpper < target) throw RangeError('Upper bound above target');
+  if (fUpper && fUpper < target) throw RangeError('Upper bound above target');
 
   do {
-    const midpoint = Math.floor((currentUpper + currentLower) / 2);
-    const { actualMultiple, breakLoop, value } = func(midpoint);
-    const delta = target - actualMultiple;
-    if (breakLoop || Math.abs(delta) < tolerance) {
-      return value;
-    }
+    const newMidpoint = currentUpper.add(currentLower).scale(1, 2);
+    const estimatedTarget = func(newMidpoint);
 
-    if (delta > 0 && currentUpper > currentLower) {
-      currentUpper = midpoint;
-    } else if (delta > 0 && currentUpper < currentLower) {
-      currentLower = midpoint;
-    } else if (delta < 0 && currentUpper > currentLower) {
-      currentLower = midpoint;
-    } else if (delta < 0 && currentUpper < currentLower) {
-      currentUpper = midpoint;
+    if (estimatedTarget === null) {
+      // If we are about to hit max iterations, assume that we cannot
+      // find a repayment point
+      if (iters === maxIter - 1) return null;
+
+      // If the estimated target is null then we should move towards
+      // the lower bound repayment such that we find an estimate that
+      // will execute
+      currentUpper = newMidpoint;
+    } else {
+      const delta = target - estimatedTarget;
+      if (Math.abs(delta) < tolerance) return newMidpoint;
+
+      if (delta > 0) {
+        // In this case we have repaid too much, move towards the lower
+        currentLower = newMidpoint;
+      } else {
+        currentUpper = newMidpoint;
+      }
     }
 
     iters += 1;
@@ -78,7 +82,7 @@ export function doBinarySearch<T>(
   },
   requiredPrecision = 50 * BASIS_POINT,
   loopAdjustment = (m: number, d: number) => Math.floor(m + d / 2),
-  maxIter = 10
+  maxIter = 25
 ) {
   let iters = 0;
   let delta = 0;
