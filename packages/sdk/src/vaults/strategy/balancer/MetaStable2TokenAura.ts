@@ -16,6 +16,8 @@ import {
   BalancerStablePool,
   MetaStable2TokenABI,
   BalancerStablePoolABI,
+  TradingModule,
+  TradingModuleABI,
 } from '@notional-finance/contracts';
 import VaultAccount from '../../VaultAccount';
 import BalancerStableMath from './BalancerStableMath';
@@ -33,19 +35,18 @@ interface InitParams extends BaseBalancerStablePoolInitParams {
   amplificationParameter: FixedPoint;
   totalSupply: FixedPoint;
   swapFeePercentage: FixedPoint;
-  oracleContext: {
-    bptPrice: FixedPoint;
-    pairPrice: FixedPoint;
-  };
+  oraclePairPrice: FixedPoint;
+  bptPrice: FixedPoint;
 }
 
 export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitParams> {
   public get oraclePrice() {
     if (this.initParams.poolContext.primaryTokenIndex === 0) {
-      return this.initParams.oracleContext.bptPrice;
+      return this.initParams.bptPrice;
     }
-    const { bptPrice, pairPrice } = this.initParams.oracleContext;
-    return bptPrice.mul(FixedPoint.ONE).div(pairPrice);
+    return this.initParams.bptPrice
+      .mul(FixedPoint.ONE)
+      .div(this.initParams.oraclePairPrice);
   }
 
   public get balances() {
@@ -78,6 +79,13 @@ export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitPar
       {
         stage: 0,
         target: vaultContract,
+        method: 'TRADING_MODULE',
+        args: [],
+        key: 'tradingModule',
+      },
+      {
+        stage: 0,
+        target: vaultContract,
         method: 'getStrategyContext',
         args: [],
         key: 'poolContext',
@@ -100,6 +108,8 @@ export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitPar
             poolAddress: r.poolContext.basePool.pool,
             poolId: r.poolContext.basePool.poolId,
             primaryTokenIndex: r.poolContext.primaryIndex,
+            primaryToken: r.poolContext.primaryToken,
+            secondaryToken: r.poolContext.secondaryToken,
             tokenOutIndex: r.poolContext.secondaryIndex,
             balances,
             totalStrategyTokensGlobal: FixedPoint.from(
@@ -159,17 +169,22 @@ export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitPar
       },
       {
         stage: 1,
+        target: (r) => new Contract(r.tradingModule, TradingModuleABI),
+        key: 'oraclePairPrice',
+        method: 'getOraclePrice',
+        args: (r) => [r.poolContext.primaryToken, r.poolContext.secondaryToken],
+        transform: (
+          r: Awaited<ReturnType<TradingModule['functions']['getOraclePrice']>>
+        ) => FixedPoint.from(r.answer),
+      },
+      {
+        stage: 1,
         target: (r) =>
           new Contract(r.poolContext.poolAddress, BalancerStablePoolABI),
-        key: 'oracleContext',
+        key: 'bptPrice',
         method: 'getTimeWeightedAverage',
         args: [
           [
-            {
-              variable: 0, // Pair Price
-              secs: 3600,
-              ago: 0,
-            },
             {
               variable: 1, // BPT Price
               secs: 3600,
@@ -183,10 +198,7 @@ export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitPar
               BalancerStablePool['functions']['getTimeWeightedAverage']
             >
           >
-        ) => ({
-          pairPrice: FixedPoint.from(r[0]),
-          bptPrice: FixedPoint.from(r[1]),
-        }),
+        ) => FixedPoint.from(r[0]),
       },
     ] as AggregateCall[];
   }
