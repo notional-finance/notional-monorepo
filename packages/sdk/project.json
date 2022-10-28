@@ -10,7 +10,7 @@
         "outputPath": "dist/packages/sdk",
         "main": "packages/sdk/src/index.ts",
         "tsConfig": "packages/sdk/tsconfig.lib.json",
-        "assets": ["packages/sdk/*.md", "packages/sdk/*.json"]
+        "assets": ["packages/sdk/*.md"]
       }
     },
     "release": {

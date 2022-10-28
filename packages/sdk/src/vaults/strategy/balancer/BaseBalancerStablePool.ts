@@ -4,13 +4,11 @@ import {
   RATE_PRECISION,
 } from '../../../config/constants';
 import TypedBigNumber, { BigNumberType } from '../../../libs/TypedBigNumber';
-import { BalancerVault } from '@notional-finance/contracts';
+import { BalancerVault, BalancerVaultABI } from '@notional-finance/contracts';
 import { doBinarySearch } from '../../Approximation';
 import BaseVault from '../../BaseVault';
 import VaultAccount from '../../VaultAccount';
 import FixedPoint from './FixedPoint';
-
-import BalancerVaultABI from '../../../abi/BalancerVault.json';
 
 export interface DepositParams {
   minBPT: BigNumber;

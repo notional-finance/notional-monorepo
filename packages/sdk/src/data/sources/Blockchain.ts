@@ -12,10 +12,9 @@ import {
   IAggregator,
   Notional,
   SNOTE,
+  IAggregatorABI,
+  AssetRateAggregatorABI,
 } from '@notional-finance/contracts';
-
-import IAggregatorABI from '../../abi/IAggregator.json';
-import AssetRateAggregatorABI from '../../abi/AssetRateAggregator.json';
 
 const keyAppendId = (key: string) => (id: number | string) => `${key}_${id}`;
 
