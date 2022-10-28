@@ -13,11 +13,13 @@ import {
   encodeSystemData,
   SystemData as _SystemData,
 } from './encoding/SystemProto';
+import {
+  AssetRateAggregatorABI,
+  ERC20ABI,
+  IAggregatorABI,
+  NTokenERC20ABI,
+} from '@notional-finance/contracts';
 
-import IAggregatorABI from '../abi/IAggregator.json';
-import AssetRateAggregatorABI from '../abi/AssetRateAggregator.json';
-import ERC20ABI from '../abi/ERC20.json';
-import nTokenERC20ABI from '../abi/nTokenERC20.json';
 import Notional from '..';
 import getVaultInitParams from './sources/VaultInitParams';
 import FixedPoint from '../vaults/strategy/balancer/FixedPoint';
@@ -156,7 +158,7 @@ function _getABI(name: string) {
     case 'ERC20':
       return ERC20ABI;
     case 'nTokenERC20':
-      return nTokenERC20ABI;
+      return NTokenERC20ABI;
     case 'IAggregator':
       return IAggregatorABI;
     case 'AssetRateAggregator':

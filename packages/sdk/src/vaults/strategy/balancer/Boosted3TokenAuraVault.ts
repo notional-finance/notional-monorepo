@@ -6,8 +6,6 @@ import {
 import { AggregateCall } from '../../../data/Multicall';
 import TypedBigNumber from '../../../libs/TypedBigNumber';
 import { LiquidationThreshold } from '../../../libs/types';
-// import { Contract } from 'ethers';
-// import { Boosted3TokenAura } from '../../../typechain/Boosted3TokenAura';
 import VaultAccount from '../../VaultAccount';
 import BalancerLinearMath, { BalancerLinearParams } from './BalancerLinearMath';
 import BalancerStableMath from './BalancerStableMath';
@@ -17,8 +15,6 @@ import {
   PoolContext,
 } from './BaseBalancerStablePool';
 import FixedPoint from './FixedPoint';
-
-// const Boosted3TokenAuraVaultABI = require('../../../abi/Boosted3TokenAuraVault.json');
 
 export interface LinearPoolContext {
   mainTokenIndex: number;

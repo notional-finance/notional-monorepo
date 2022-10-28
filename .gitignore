@@ -41,6 +41,7 @@ Thumbs.db
 .env
 .dev.vars
 .npmrc
+.yarnrc
 
 # hardhat cache directory
 packages/sdk/cache

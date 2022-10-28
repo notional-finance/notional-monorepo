@@ -14,6 +14,8 @@ import { DexId, DexTradeType } from '../../../trading/TradeHandler';
 import {
   MetaStable2Token,
   BalancerStablePool,
+  MetaStable2TokenABI,
+  BalancerStablePoolABI,
 } from '@notional-finance/contracts';
 import VaultAccount from '../../VaultAccount';
 import BalancerStableMath from './BalancerStableMath';
@@ -23,9 +25,6 @@ import {
   PoolContext,
 } from './BaseBalancerStablePool';
 import FixedPoint from './FixedPoint';
-
-import MetaStable2TokenAuraABI from '../../../abi/MetaStable2Token.json';
-import BalancerStablePoolABI from '../../../abi/BalancerStablePool.json';
 import { doBinarySearch } from '../../Approximation';
 
 interface InitParams extends BaseBalancerStablePoolInitParams {
@@ -58,7 +57,7 @@ export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitPar
   public initVaultParams() {
     const vaultContract = new Contract(
       this.vaultAddress,
-      MetaStable2TokenAuraABI
+      MetaStable2TokenABI
     ) as MetaStable2Token;
     return [
       {

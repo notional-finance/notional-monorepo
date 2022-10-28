@@ -10,6 +10,15 @@ import {
   BalancerPool,
   BalancerVault,
   ExchangeV3,
+  NoteERC20ABI,
+  NotionalABI,
+  BalancerVaultABI,
+  BalancerPoolABI,
+  SNOTEABI,
+  ERC20ABI,
+  GovernorABI,
+  TreasuryManagerABI,
+  ExchangeV3ABI,
 } from '@notional-finance/contracts';
 // import { handleError } from '@notional-finance/error';
 import { System } from './system';
@@ -25,17 +34,6 @@ import {
 } from './config/constants';
 
 import { Contracts } from '.';
-
-/* ABI imports */
-import NoteERC20ABI from './abi/NoteERC20.json';
-import NotionalABI from './abi/Notional.json';
-import BalancerVaultABI from './abi/BalancerVault.json';
-import BalancerPoolABI from './abi/BalancerPool.json';
-import sNOTEABI from './abi/sNOTE.json';
-import ERC20ABI from './abi/ERC20.json';
-import GovernorABI from './abi/Governor.json';
-import TreasuryManagerABI from './abi/TreasuryManager.json';
-import ExchangeV3ABI from './abi/ExchangeV3.json';
 
 /* Endpoints */
 import kovanAddresses from './config/kovan.json';
@@ -80,7 +78,7 @@ export default class Notional extends TransactionBuilder {
         NotionalABI,
         signer
       ) as NotionalProxyTypechain,
-      sNOTE: new Contract(addresses.sNOTE, sNOTEABI, signer) as SNOTE,
+      sNOTE: new Contract(addresses.sNOTE, SNOTEABI, signer) as SNOTE,
       note: new Contract(addresses.note, NoteERC20ABI, signer) as NoteERC20,
       governor: new Contract(
         addresses.governor,

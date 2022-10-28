@@ -1,7 +1,5 @@
 import { Contract, providers, utils } from 'ethers';
-import { Multicall2 } from '@notional-finance/contracts';
-
-import Multicall2ABI from '../abi/Multicall2.json';
+import { Multicall2, Multicall2ABI } from '@notional-finance/contracts';
 
 const MULTICALL2 = {
   mainnet: '0x5ba1e12693dc8f9c48aad8770482f4739beed696',
