@@ -3,6 +3,7 @@ import { ETHRate } from '../../../src/data';
 import BaseVault from '../../../src/vaults/BaseVault';
 import { BigNumberType, TypedBigNumber } from '../../../src';
 import {
+  BASIS_POINT,
   RATE_PRECISION,
   SECONDS_IN_DAY,
   SECONDS_IN_QUARTER,
@@ -330,7 +331,7 @@ describe('Cross Currency fCash', () => {
     );
   });
 
-  it.skip('simulates exiting a vault given target leverage ratio', () => {
+  it('simulates exiting a vault given target leverage ratio', () => {
     const vaultAccount = VaultAccount.emptyVaultAccount(
       vault.vaultAddress,
       maturity
@@ -347,18 +348,49 @@ describe('Cross Currency fCash', () => {
       ),
       false
     );
-    console.log(crossCurrency.getLeverageRatio(vaultAccount) / RATE_PRECISION);
+
+    const { newVaultAccount } = crossCurrency.getExitParamsFromLeverageRatio(
+      vaultAccount,
+      3.0e9,
+      BASIS_POINT * 500,
+      blockTime
+    );
+    expect(crossCurrency.getLeverageRatio(newVaultAccount)).toBeCloseTo(
+      3.0e9,
+      -8
+    );
+  });
+
+  it('simulates exiting a vault given target leverage ratio to full exit', () => {
+    const vaultAccount = VaultAccount.emptyVaultAccount(
+      vault.vaultAddress,
+      maturity
+    );
+    vaultAccount.updatePrimaryBorrowfCash(
+      TypedBigNumber.fromBalance(-10_000e8, 'DAI', true),
+      false
+    );
+    vaultAccount.updateVaultShares(
+      TypedBigNumber.from(
+        1255311718800,
+        BigNumberType.VaultShare,
+        vaultAccount.vaultSymbol
+      ),
+      false
+    );
 
     const { newVaultAccount, isFullExit } =
       crossCurrency.getExitParamsFromLeverageRatio(
         vaultAccount,
-        5.0e9,
+        2.0e9,
+        BASIS_POINT * 500,
         blockTime
       );
-    console.log('is full exit', isFullExit);
-    expect(crossCurrency.getLeverageRatio(newVaultAccount)).toBeCloseTo(
-      5.1e9,
-      -7
+
+    expect(isFullExit).toBe(true);
+    expect(newVaultAccount.primaryBorrowfCash.isZero()).toBe(true);
+    expect(crossCurrency.getLeverageRatio(newVaultAccount)).toBe(
+      RATE_PRECISION
     );
   });
 

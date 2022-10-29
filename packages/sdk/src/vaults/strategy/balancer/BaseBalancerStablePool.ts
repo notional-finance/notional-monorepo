@@ -26,10 +26,12 @@ export interface PoolContext {
   poolId: string;
   primaryTokenIndex: number;
   tokenOutIndex: number;
+  primaryToken: string;
+  secondaryToken: string;
   balances: FixedPoint[];
 }
 
-export interface BaseBalancerStablePoolInitParams extends Record<string, any> {
+export interface BaseBalancerStablePoolInitParams {
   strategyContext: {
     totalStrategyTokensGlobal: FixedPoint;
     totalBPTHeld: FixedPoint;
