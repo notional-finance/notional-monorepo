@@ -1,4 +1,4 @@
-import { BigNumber, Contract, utils } from 'ethers';
+import { Contract, utils } from 'ethers';
 import {
   BASIS_POINT,
   INTERNAL_TOKEN_PRECISION,
@@ -12,9 +12,9 @@ import {
 } from '../../../libs/types';
 import { DexId, DexTradeType } from '../../../trading/TradeHandler';
 import {
-  MetaStable2Token,
   BalancerStablePool,
-  MetaStable2TokenABI,
+  MetaStable2TokenAuraVault,
+  MetaStable2TokenAuraVaultABI,
   BalancerStablePoolABI,
   TradingModule,
   TradingModuleABI,
@@ -41,12 +41,7 @@ interface InitParams extends BaseBalancerStablePoolInitParams {
 
 export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitParams> {
   public get oraclePrice() {
-    if (this.initParams.poolContext.primaryTokenIndex === 0) {
-      return this.initParams.bptPrice;
-    }
-    return this.initParams.bptPrice
-      .mul(FixedPoint.ONE)
-      .div(this.initParams.oraclePairPrice);
+    return this.initParams.oraclePairPrice;
   }
 
   public get balances() {
@@ -58,8 +53,8 @@ export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitPar
   public initVaultParams() {
     const vaultContract = new Contract(
       this.vaultAddress,
-      MetaStable2TokenABI
-    ) as MetaStable2Token;
+      MetaStable2TokenAuraVaultABI
+    ) as MetaStable2TokenAuraVault;
     return [
       {
         stage: 0,
@@ -73,7 +68,7 @@ export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitPar
           totalStrategyTokensGlobal: FixedPoint.from(
             r.baseStrategy.vaultState.totalStrategyTokenGlobal
           ),
-          totalBPTHeld: FixedPoint.from(r.baseStrategy.totalBPTHeld),
+          totalBPTHeld: FixedPoint.from(r.baseStrategy.vaultState.totalBPTHeld),
         }),
       },
       {
@@ -115,7 +110,9 @@ export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitPar
             totalStrategyTokensGlobal: FixedPoint.from(
               r.baseStrategy.vaultState.totalStrategyTokenGlobal
             ),
-            totalBPTHeld: FixedPoint.from(r.baseStrategy.totalBPTHeld),
+            totalBPTHeld: FixedPoint.from(
+              r.baseStrategy.vaultState.totalBPTHeld
+            ),
           };
         },
       },
@@ -295,7 +292,9 @@ export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitPar
       };
     };
 
-    const bptValueInInternal = this.getBPTValue().div(FixedPoint.from(1e10));
+    const bptValueInInternal = this.getBPTValue(FixedPoint.ONE).div(
+      FixedPoint.from(1e10)
+    );
     const initialGuess = bptValueInInternal
       .sub(thresholdBPTValue)
       .mul(FixedPoint.from(RATE_PRECISION))
@@ -328,8 +327,20 @@ export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitPar
     ];
   }
 
-  protected getBPTValue(amountIn: FixedPoint = FixedPoint.ONE): FixedPoint {
-    return this.oraclePrice.mul(amountIn).div(FixedPoint.ONE);
+  protected getBPTValue(amountIn: FixedPoint): FixedPoint {
+    const { primaryTokenIndex } = this.initParams.poolContext;
+    return (
+      this.balances
+        // Returns the claims of one BPT on constituent tokens
+        .map((b, i) => {
+          const claim = b.mul(amountIn).div(this.initParams.totalSupply);
+          if (i === primaryTokenIndex) return claim;
+          else return claim.mul(this.oraclePrice).div(FixedPoint.ONE);
+        })
+        .reduce((s, b) => {
+          return s.add(b);
+        }, FixedPoint.from(0))
+    );
   }
 
   protected getBPTOut(tokenAmountIn: FixedPoint) {
