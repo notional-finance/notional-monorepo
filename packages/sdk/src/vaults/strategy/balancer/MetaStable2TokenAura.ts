@@ -320,7 +320,7 @@ export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitPar
 
     return [
       {
-        name: 'Threshold',
+        name: 'wstETH/ETH Threshold',
         type: LiquidationThresholdType.exchangeRate,
         ethExchangeRate,
       },
