@@ -69,6 +69,11 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "CalculationDidNotConverge",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "ERC20Error",
     type: "error",
   },
@@ -91,6 +96,27 @@ const _abi = [
       },
     ],
     name: "InSettlementCoolDown",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "InvalidEmergencySettlement",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "oraclePrice",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "poolPrice",
+        type: "uint256",
+      },
+    ],
+    name: "InvalidPrice",
     type: "error",
   },
   {
@@ -128,9 +154,9 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "uint32",
+        internalType: "uint256",
         name: "slippage",
-        type: "uint32",
+        type: "uint256",
       },
       {
         internalType: "uint32",
@@ -289,64 +315,12 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "EMERGENCY_SETTLEMENT_ROLE",
-    outputs: [
-      {
-        internalType: "bytes32",
-        name: "",
-        type: "bytes32",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "NORMAL_SETTLEMENT_ROLE",
-    outputs: [
-      {
-        internalType: "bytes32",
-        name: "",
-        type: "bytes32",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
     name: "NOTIONAL",
     outputs: [
       {
         internalType: "contract NotionalProxy",
         name: "",
         type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "POST_MATURITY_SETTLEMENT_ROLE",
-    outputs: [
-      {
-        internalType: "bytes32",
-        name: "",
-        type: "bytes32",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "REWARD_REINVESTMENT_ROLE",
-    outputs: [
-      {
-        internalType: "bytes32",
-        name: "",
-        type: "bytes32",
       },
     ],
     stateMutability: "view",
@@ -495,6 +469,25 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "uint256",
+        name: "maturity",
+        type: "uint256",
+      },
+    ],
+    name: "getEmergencySettlementBPTAmount",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "bptToSettle",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "bytes32",
         name: "role",
         type: "bytes32",
@@ -506,6 +499,60 @@ const _abi = [
         internalType: "bytes32",
         name: "",
         type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getRoles",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "bytes32",
+            name: "normalSettlement",
+            type: "bytes32",
+          },
+          {
+            internalType: "bytes32",
+            name: "emergencySettlement",
+            type: "bytes32",
+          },
+          {
+            internalType: "bytes32",
+            name: "postMaturitySettlement",
+            type: "bytes32",
+          },
+          {
+            internalType: "bytes32",
+            name: "rewardReinvestment",
+            type: "bytes32",
+          },
+        ],
+        internalType: "struct IStrategyVault.StrategyVaultRoles",
+        name: "",
+        type: "tuple",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "tokenIndex",
+        type: "uint256",
+      },
+    ],
+    name: "getSpotPrice",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "spotPrice",
+        type: "uint256",
       },
     ],
     stateMutability: "view",
@@ -560,6 +607,16 @@ const _abi = [
                 type: "uint256",
               },
               {
+                internalType: "uint256",
+                name: "primaryScaleFactor",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "secondaryScaleFactor",
+                type: "uint256",
+              },
+              {
                 components: [
                   {
                     internalType: "contract IERC20",
@@ -587,23 +644,6 @@ const _abi = [
                 internalType: "uint256",
                 name: "ampParam",
                 type: "uint256",
-              },
-              {
-                components: [
-                  {
-                    internalType: "uint256",
-                    name: "oracleWindowInSeconds",
-                    type: "uint256",
-                  },
-                  {
-                    internalType: "uint256",
-                    name: "balancerOracleWeight",
-                    type: "uint256",
-                  },
-                ],
-                internalType: "struct OracleContext",
-                name: "baseOracle",
-                type: "tuple",
               },
             ],
             internalType: "struct StableOracleContext",
@@ -663,11 +703,6 @@ const _abi = [
                   },
                   {
                     internalType: "uint32",
-                    name: "oracleWindowInSeconds",
-                    type: "uint32",
-                  },
-                  {
-                    internalType: "uint32",
                     name: "settlementSlippageLimitPercent",
                     type: "uint32",
                   },
@@ -689,11 +724,6 @@ const _abi = [
                   {
                     internalType: "uint16",
                     name: "maxBalancerPoolShare",
-                    type: "uint16",
-                  },
-                  {
-                    internalType: "uint16",
-                    name: "balancerOracleWeight",
                     type: "uint16",
                   },
                   {
@@ -817,11 +847,6 @@ const _abi = [
               },
               {
                 internalType: "uint32",
-                name: "oracleWindowInSeconds",
-                type: "uint32",
-              },
-              {
-                internalType: "uint32",
                 name: "settlementSlippageLimitPercent",
                 type: "uint32",
               },
@@ -843,11 +868,6 @@ const _abi = [
               {
                 internalType: "uint16",
                 name: "maxBalancerPoolShare",
-                type: "uint16",
-              },
-              {
-                internalType: "uint16",
-                name: "balancerOracleWeight",
                 type: "uint16",
               },
               {
@@ -1052,11 +1072,6 @@ const _abi = [
           },
           {
             internalType: "uint32",
-            name: "oracleWindowInSeconds",
-            type: "uint32",
-          },
-          {
-            internalType: "uint32",
             name: "settlementSlippageLimitPercent",
             type: "uint32",
           },
@@ -1078,11 +1093,6 @@ const _abi = [
           {
             internalType: "uint16",
             name: "maxBalancerPoolShare",
-            type: "uint16",
-          },
-          {
-            internalType: "uint16",
-            name: "balancerOracleWeight",
             type: "uint16",
           },
           {

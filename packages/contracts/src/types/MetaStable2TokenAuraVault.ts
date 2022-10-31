@@ -79,6 +79,8 @@ export type TwoTokenPoolContextStruct = {
   secondaryDecimals: PromiseOrValue<BigNumberish>;
   primaryBalance: PromiseOrValue<BigNumberish>;
   secondaryBalance: PromiseOrValue<BigNumberish>;
+  primaryScaleFactor: PromiseOrValue<BigNumberish>;
+  secondaryScaleFactor: PromiseOrValue<BigNumberish>;
   basePool: PoolContextStruct;
 };
 
@@ -91,6 +93,8 @@ export type TwoTokenPoolContextStructOutput = [
   number,
   BigNumber,
   BigNumber,
+  BigNumber,
+  BigNumber,
   PoolContextStructOutput
 ] & {
   primaryToken: string;
@@ -101,28 +105,18 @@ export type TwoTokenPoolContextStructOutput = [
   secondaryDecimals: number;
   primaryBalance: BigNumber;
   secondaryBalance: BigNumber;
+  primaryScaleFactor: BigNumber;
+  secondaryScaleFactor: BigNumber;
   basePool: PoolContextStructOutput;
-};
-
-export type OracleContextStruct = {
-  oracleWindowInSeconds: PromiseOrValue<BigNumberish>;
-  balancerOracleWeight: PromiseOrValue<BigNumberish>;
-};
-
-export type OracleContextStructOutput = [BigNumber, BigNumber] & {
-  oracleWindowInSeconds: BigNumber;
-  balancerOracleWeight: BigNumber;
 };
 
 export type StableOracleContextStruct = {
   ampParam: PromiseOrValue<BigNumberish>;
-  baseOracle: OracleContextStruct;
 };
 
-export type StableOracleContextStructOutput = [
-  BigNumber,
-  OracleContextStructOutput
-] & { ampParam: BigNumber; baseOracle: OracleContextStructOutput };
+export type StableOracleContextStructOutput = [BigNumber] & {
+  ampParam: BigNumber;
+};
 
 export type AuraStakingContextStruct = {
   liquidityGauge: PromiseOrValue<string>;
@@ -148,13 +142,11 @@ export type AuraStakingContextStructOutput = [
 
 export type StrategyVaultSettingsStruct = {
   maxUnderlyingSurplus: PromiseOrValue<BigNumberish>;
-  oracleWindowInSeconds: PromiseOrValue<BigNumberish>;
   settlementSlippageLimitPercent: PromiseOrValue<BigNumberish>;
   postMaturitySettlementSlippageLimitPercent: PromiseOrValue<BigNumberish>;
   emergencySettlementSlippageLimitPercent: PromiseOrValue<BigNumberish>;
   maxRewardTradeSlippageLimitPercent: PromiseOrValue<BigNumberish>;
   maxBalancerPoolShare: PromiseOrValue<BigNumberish>;
-  balancerOracleWeight: PromiseOrValue<BigNumberish>;
   settlementCoolDownInMinutes: PromiseOrValue<BigNumberish>;
   oraclePriceDeviationLimitPercent: PromiseOrValue<BigNumberish>;
   balancerPoolSlippageLimitPercent: PromiseOrValue<BigNumberish>;
@@ -169,18 +161,14 @@ export type StrategyVaultSettingsStructOutput = [
   number,
   number,
   number,
-  number,
-  number,
   number
 ] & {
   maxUnderlyingSurplus: BigNumber;
-  oracleWindowInSeconds: number;
   settlementSlippageLimitPercent: number;
   postMaturitySettlementSlippageLimitPercent: number;
   emergencySettlementSlippageLimitPercent: number;
   maxRewardTradeSlippageLimitPercent: number;
   maxBalancerPoolShare: number;
-  balancerOracleWeight: number;
   settlementCoolDownInMinutes: number;
   oraclePriceDeviationLimitPercent: number;
   balancerPoolSlippageLimitPercent: number;
@@ -262,14 +250,31 @@ export type ReinvestRewardParamsStructOutput = [string, BigNumber] & {
   minBPT: BigNumber;
 };
 
+export declare namespace IStrategyVault {
+  export type StrategyVaultRolesStruct = {
+    normalSettlement: PromiseOrValue<BytesLike>;
+    emergencySettlement: PromiseOrValue<BytesLike>;
+    postMaturitySettlement: PromiseOrValue<BytesLike>;
+    rewardReinvestment: PromiseOrValue<BytesLike>;
+  };
+
+  export type StrategyVaultRolesStructOutput = [
+    string,
+    string,
+    string,
+    string
+  ] & {
+    normalSettlement: string;
+    emergencySettlement: string;
+    postMaturitySettlement: string;
+    rewardReinvestment: string;
+  };
+}
+
 export interface MetaStable2TokenAuraVaultInterface extends utils.Interface {
   functions: {
     "DEFAULT_ADMIN_ROLE()": FunctionFragment;
-    "EMERGENCY_SETTLEMENT_ROLE()": FunctionFragment;
-    "NORMAL_SETTLEMENT_ROLE()": FunctionFragment;
     "NOTIONAL()": FunctionFragment;
-    "POST_MATURITY_SETTLEMENT_ROLE()": FunctionFragment;
-    "REWARD_REINVESTMENT_ROLE()": FunctionFragment;
     "TRADING_MODULE()": FunctionFragment;
     "claimRewardTokens()": FunctionFragment;
     "convertBPTClaimToStrategyTokens(uint256)": FunctionFragment;
@@ -277,11 +282,14 @@ export interface MetaStable2TokenAuraVaultInterface extends utils.Interface {
     "convertStrategyTokensToBPTClaim(uint256)": FunctionFragment;
     "decimals()": FunctionFragment;
     "depositFromNotional(address,uint256,uint256,bytes)": FunctionFragment;
+    "getEmergencySettlementBPTAmount(uint256)": FunctionFragment;
     "getRoleAdmin(bytes32)": FunctionFragment;
+    "getRoles()": FunctionFragment;
+    "getSpotPrice(uint256)": FunctionFragment;
     "getStrategyContext()": FunctionFragment;
     "grantRole(bytes32,address)": FunctionFragment;
     "hasRole(bytes32,address)": FunctionFragment;
-    "initialize((string,uint16,(uint256,uint32,uint32,uint32,uint32,uint32,uint16,uint16,uint16,uint16,uint16)))": FunctionFragment;
+    "initialize((string,uint16,(uint256,uint32,uint32,uint32,uint32,uint16,uint16,uint16,uint16)))": FunctionFragment;
     "name()": FunctionFragment;
     "proxiableUUID()": FunctionFragment;
     "redeemFromNotional(address,address,uint256,uint256,uint256,bytes)": FunctionFragment;
@@ -289,7 +297,7 @@ export interface MetaStable2TokenAuraVaultInterface extends utils.Interface {
     "renounceRole(bytes32,address)": FunctionFragment;
     "repaySecondaryBorrowCallback(address,uint256,bytes)": FunctionFragment;
     "revokeRole(bytes32,address)": FunctionFragment;
-    "setStrategyVaultSettings((uint256,uint32,uint32,uint32,uint32,uint32,uint16,uint16,uint16,uint16,uint16))": FunctionFragment;
+    "setStrategyVaultSettings((uint256,uint32,uint32,uint32,uint32,uint16,uint16,uint16,uint16))": FunctionFragment;
     "settleVaultEmergency(uint256,bytes)": FunctionFragment;
     "settleVaultNormal(uint256,uint256,bytes)": FunctionFragment;
     "settleVaultPostMaturity(uint256,uint256,bytes)": FunctionFragment;
@@ -302,11 +310,7 @@ export interface MetaStable2TokenAuraVaultInterface extends utils.Interface {
   getFunction(
     nameOrSignatureOrTopic:
       | "DEFAULT_ADMIN_ROLE"
-      | "EMERGENCY_SETTLEMENT_ROLE"
-      | "NORMAL_SETTLEMENT_ROLE"
       | "NOTIONAL"
-      | "POST_MATURITY_SETTLEMENT_ROLE"
-      | "REWARD_REINVESTMENT_ROLE"
       | "TRADING_MODULE"
       | "claimRewardTokens"
       | "convertBPTClaimToStrategyTokens"
@@ -314,7 +318,10 @@ export interface MetaStable2TokenAuraVaultInterface extends utils.Interface {
       | "convertStrategyTokensToBPTClaim"
       | "decimals"
       | "depositFromNotional"
+      | "getEmergencySettlementBPTAmount"
       | "getRoleAdmin"
+      | "getRoles"
+      | "getSpotPrice"
       | "getStrategyContext"
       | "grantRole"
       | "hasRole"
@@ -340,23 +347,7 @@ export interface MetaStable2TokenAuraVaultInterface extends utils.Interface {
     functionFragment: "DEFAULT_ADMIN_ROLE",
     values?: undefined
   ): string;
-  encodeFunctionData(
-    functionFragment: "EMERGENCY_SETTLEMENT_ROLE",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "NORMAL_SETTLEMENT_ROLE",
-    values?: undefined
-  ): string;
   encodeFunctionData(functionFragment: "NOTIONAL", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "POST_MATURITY_SETTLEMENT_ROLE",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "REWARD_REINVESTMENT_ROLE",
-    values?: undefined
-  ): string;
   encodeFunctionData(
     functionFragment: "TRADING_MODULE",
     values?: undefined
@@ -392,8 +383,17 @@ export interface MetaStable2TokenAuraVaultInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
+    functionFragment: "getEmergencySettlementBPTAmount",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "getRoleAdmin",
     values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(functionFragment: "getRoles", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "getSpotPrice",
+    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "getStrategyContext",
@@ -489,23 +489,7 @@ export interface MetaStable2TokenAuraVaultInterface extends utils.Interface {
     functionFragment: "DEFAULT_ADMIN_ROLE",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "EMERGENCY_SETTLEMENT_ROLE",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "NORMAL_SETTLEMENT_ROLE",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "NOTIONAL", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "POST_MATURITY_SETTLEMENT_ROLE",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "REWARD_REINVESTMENT_ROLE",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "TRADING_MODULE",
     data: BytesLike
@@ -532,7 +516,16 @@ export interface MetaStable2TokenAuraVaultInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "getEmergencySettlementBPTAmount",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getRoleAdmin",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "getRoles", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getSpotPrice",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -711,15 +704,7 @@ export interface MetaStable2TokenAuraVault extends BaseContract {
   functions: {
     DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<[string]>;
 
-    EMERGENCY_SETTLEMENT_ROLE(overrides?: CallOverrides): Promise<[string]>;
-
-    NORMAL_SETTLEMENT_ROLE(overrides?: CallOverrides): Promise<[string]>;
-
     NOTIONAL(overrides?: CallOverrides): Promise<[string]>;
-
-    POST_MATURITY_SETTLEMENT_ROLE(overrides?: CallOverrides): Promise<[string]>;
-
-    REWARD_REINVESTMENT_ROLE(overrides?: CallOverrides): Promise<[string]>;
 
     TRADING_MODULE(overrides?: CallOverrides): Promise<[string]>;
 
@@ -754,10 +739,24 @@ export interface MetaStable2TokenAuraVault extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    getEmergencySettlementBPTAmount(
+      maturity: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { bptToSettle: BigNumber }>;
+
     getRoleAdmin(
       role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[string]>;
+
+    getRoles(
+      overrides?: CallOverrides
+    ): Promise<[IStrategyVault.StrategyVaultRolesStructOutput]>;
+
+    getSpotPrice(
+      tokenIndex: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber] & { spotPrice: BigNumber }>;
 
     getStrategyContext(
       overrides?: CallOverrides
@@ -864,15 +863,7 @@ export interface MetaStable2TokenAuraVault extends BaseContract {
 
   DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
 
-  EMERGENCY_SETTLEMENT_ROLE(overrides?: CallOverrides): Promise<string>;
-
-  NORMAL_SETTLEMENT_ROLE(overrides?: CallOverrides): Promise<string>;
-
   NOTIONAL(overrides?: CallOverrides): Promise<string>;
-
-  POST_MATURITY_SETTLEMENT_ROLE(overrides?: CallOverrides): Promise<string>;
-
-  REWARD_REINVESTMENT_ROLE(overrides?: CallOverrides): Promise<string>;
 
   TRADING_MODULE(overrides?: CallOverrides): Promise<string>;
 
@@ -907,10 +898,24 @@ export interface MetaStable2TokenAuraVault extends BaseContract {
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  getEmergencySettlementBPTAmount(
+    maturity: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
   getRoleAdmin(
     role: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<string>;
+
+  getRoles(
+    overrides?: CallOverrides
+  ): Promise<IStrategyVault.StrategyVaultRolesStructOutput>;
+
+  getSpotPrice(
+    tokenIndex: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   getStrategyContext(
     overrides?: CallOverrides
@@ -1017,15 +1022,7 @@ export interface MetaStable2TokenAuraVault extends BaseContract {
   callStatic: {
     DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
 
-    EMERGENCY_SETTLEMENT_ROLE(overrides?: CallOverrides): Promise<string>;
-
-    NORMAL_SETTLEMENT_ROLE(overrides?: CallOverrides): Promise<string>;
-
     NOTIONAL(overrides?: CallOverrides): Promise<string>;
-
-    POST_MATURITY_SETTLEMENT_ROLE(overrides?: CallOverrides): Promise<string>;
-
-    REWARD_REINVESTMENT_ROLE(overrides?: CallOverrides): Promise<string>;
 
     TRADING_MODULE(overrides?: CallOverrides): Promise<string>;
 
@@ -1058,10 +1055,24 @@ export interface MetaStable2TokenAuraVault extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    getEmergencySettlementBPTAmount(
+      maturity: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     getRoleAdmin(
       role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<string>;
+
+    getRoles(
+      overrides?: CallOverrides
+    ): Promise<IStrategyVault.StrategyVaultRolesStructOutput>;
+
+    getSpotPrice(
+      tokenIndex: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     getStrategyContext(
       overrides?: CallOverrides
@@ -1230,17 +1241,7 @@ export interface MetaStable2TokenAuraVault extends BaseContract {
   estimateGas: {
     DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
 
-    EMERGENCY_SETTLEMENT_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
-
-    NORMAL_SETTLEMENT_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
-
     NOTIONAL(overrides?: CallOverrides): Promise<BigNumber>;
-
-    POST_MATURITY_SETTLEMENT_ROLE(
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    REWARD_REINVESTMENT_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
 
     TRADING_MODULE(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1275,8 +1276,20 @@ export interface MetaStable2TokenAuraVault extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    getEmergencySettlementBPTAmount(
+      maturity: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     getRoleAdmin(
       role: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getRoles(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getSpotPrice(
+      tokenIndex: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -1386,23 +1399,7 @@ export interface MetaStable2TokenAuraVault extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    EMERGENCY_SETTLEMENT_ROLE(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    NORMAL_SETTLEMENT_ROLE(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     NOTIONAL(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    POST_MATURITY_SETTLEMENT_ROLE(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    REWARD_REINVESTMENT_ROLE(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
 
     TRADING_MODULE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -1437,8 +1434,20 @@ export interface MetaStable2TokenAuraVault extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    getEmergencySettlementBPTAmount(
+      maturity: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     getRoleAdmin(
       role: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getRoles(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    getSpotPrice(
+      tokenIndex: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
