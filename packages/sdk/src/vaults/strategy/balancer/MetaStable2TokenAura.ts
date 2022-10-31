@@ -1,4 +1,4 @@
-import { BigNumber, Contract, utils } from 'ethers';
+import { Contract, utils } from 'ethers';
 import {
   BASIS_POINT,
   INTERNAL_TOKEN_PRECISION,
@@ -12,9 +12,9 @@ import {
 } from '../../../libs/types';
 import { DexId, DexTradeType } from '../../../trading/TradeHandler';
 import {
-  MetaStable2Token,
   BalancerStablePool,
-  MetaStable2TokenABI,
+  MetaStable2TokenAuraVault,
+  MetaStable2TokenAuraVaultABI,
   BalancerStablePoolABI,
   TradingModule,
   TradingModuleABI,
@@ -28,6 +28,7 @@ import {
 } from './BaseBalancerStablePool';
 import FixedPoint from './FixedPoint';
 import { doBinarySearch } from '../../Approximation';
+import { System } from '../../../system';
 
 interface InitParams extends BaseBalancerStablePoolInitParams {
   poolContext: PoolContext;
@@ -41,12 +42,7 @@ interface InitParams extends BaseBalancerStablePoolInitParams {
 
 export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitParams> {
   public get oraclePrice() {
-    if (this.initParams.poolContext.primaryTokenIndex === 0) {
-      return this.initParams.bptPrice;
-    }
-    return this.initParams.bptPrice
-      .mul(FixedPoint.ONE)
-      .div(this.initParams.oraclePairPrice);
+    return this.initParams.oraclePairPrice;
   }
 
   public get balances() {
@@ -58,8 +54,8 @@ export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitPar
   public initVaultParams() {
     const vaultContract = new Contract(
       this.vaultAddress,
-      MetaStable2TokenABI
-    ) as MetaStable2Token;
+      MetaStable2TokenAuraVaultABI
+    ) as MetaStable2TokenAuraVault;
     return [
       {
         stage: 0,
@@ -73,7 +69,7 @@ export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitPar
           totalStrategyTokensGlobal: FixedPoint.from(
             r.baseStrategy.vaultState.totalStrategyTokenGlobal
           ),
-          totalBPTHeld: FixedPoint.from(r.baseStrategy.totalBPTHeld),
+          totalBPTHeld: FixedPoint.from(r.baseStrategy.vaultState.totalBPTHeld),
         }),
       },
       {
@@ -115,7 +111,9 @@ export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitPar
             totalStrategyTokensGlobal: FixedPoint.from(
               r.baseStrategy.vaultState.totalStrategyTokenGlobal
             ),
-            totalBPTHeld: FixedPoint.from(r.baseStrategy.totalBPTHeld),
+            totalBPTHeld: FixedPoint.from(
+              r.baseStrategy.vaultState.totalBPTHeld
+            ),
           };
         },
       },
@@ -295,7 +293,9 @@ export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitPar
       };
     };
 
-    const bptValueInInternal = this.getBPTValue().div(FixedPoint.from(1e10));
+    const bptValueInInternal = this.getBPTValue(FixedPoint.ONE).div(
+      FixedPoint.from(1e10)
+    );
     const initialGuess = bptValueInInternal
       .sub(thresholdBPTValue)
       .mul(FixedPoint.from(RATE_PRECISION))
@@ -321,15 +321,29 @@ export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitPar
 
     return [
       {
-        name: 'Threshold',
+        name: 'wstETH/ETH Threshold',
         type: LiquidationThresholdType.exchangeRate,
         ethExchangeRate,
       },
     ];
   }
 
-  protected getBPTValue(amountIn: FixedPoint = FixedPoint.ONE): FixedPoint {
-    return this.oraclePrice.mul(amountIn).div(FixedPoint.ONE);
+  protected getBPTValue(amountIn: FixedPoint): FixedPoint {
+    const { primaryTokenIndex } = this.initParams.poolContext;
+    return (
+      // Apply this to the unscaled balances since the oracle is the wstETH price
+      // not the stETH price
+      this.initParams.poolContext.balances
+        // Returns the claims of one BPT on constituent tokens
+        .map((b, i) => {
+          const claim = b.mul(amountIn).div(this.initParams.totalSupply);
+          if (i === primaryTokenIndex) return claim;
+          else return claim.mul(FixedPoint.ONE).div(this.oraclePrice);
+        })
+        .reduce((s, b) => {
+          return s.add(b);
+        }, FixedPoint.from(0))
+    );
   }
 
   protected getBPTOut(tokenAmountIn: FixedPoint) {
@@ -475,18 +489,35 @@ export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitPar
       .mul(bptClaim)
       .div(totalSupply);
 
-    const secondaryTradeParams = utils.defaultAbiCoder.encode(
-      [MetaStable2TokenAura.dynamicTradeTuple],
-      [
-        {
-          dexId: DexId.UNISWAP_V3,
-          tradeType: DexTradeType.EXACT_IN_SINGLE,
-          oracleSlippagePercent: 0.01e8,
-          tradeUnwrapped: false,
-          exchangeData: utils.defaultAbiCoder.encode(['uint24'], [3000]),
-        },
-      ]
-    );
+    const { network } = System.getSystem();
+    let secondaryTradeParams: string;
+    if (network === 'goerli') {
+      secondaryTradeParams = utils.defaultAbiCoder.encode(
+        [MetaStable2TokenAura.dynamicTradeTuple],
+        [
+          {
+            dexId: DexId.UNISWAP_V3,
+            tradeType: DexTradeType.EXACT_IN_SINGLE,
+            oracleSlippagePercent: 0.01e8,
+            tradeUnwrapped: false,
+            exchangeData: utils.defaultAbiCoder.encode(['uint24'], [3000]),
+          },
+        ]
+      );
+    } else {
+      secondaryTradeParams = utils.defaultAbiCoder.encode(
+        [MetaStable2TokenAura.dynamicTradeTuple],
+        [
+          {
+            dexId: DexId.CURVE,
+            tradeType: DexTradeType.EXACT_IN_SINGLE,
+            oracleSlippagePercent: 0.0025e8,
+            tradeUnwrapped: true,
+            exchangeData: '0x',
+          },
+        ]
+      );
+    }
 
     return {
       minPrimary: primaryBalanceOut.mul(

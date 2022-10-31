@@ -448,7 +448,6 @@ export default abstract class BaseVault<
     const targetCollateralRatio =
       BaseVault.leverageToCollateralRatio(targetLeverageRatio);
     const currentCollateralRatio = this.getCollateralRatio(vaultAccount);
-    console.log(targetCollateralRatio, currentCollateralRatio);
 
     // Collateral ratios must increase as a result of this method
     if (

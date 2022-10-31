@@ -5,25 +5,71 @@
 import { Contract, Signer, utils } from "ethers";
 import type { Provider } from "@ethersproject/providers";
 import type {
-  MetaStable2Token,
-  MetaStable2TokenInterface,
-} from "../MetaStable2Token";
+  MetaStable2TokenAuraVault,
+  MetaStable2TokenAuraVaultInterface,
+  AuraVaultDeploymentParamsStruct,
+} from "../MetaStable2TokenAuraVault";
 
 const _abi = [
   {
     inputs: [
       {
-        internalType: "uint256",
-        name: "totalBPTHeld",
-        type: "uint256",
+        internalType: "contract NotionalProxy",
+        name: "notional_",
+        type: "address",
       },
       {
-        internalType: "uint256",
-        name: "bptThreshold",
-        type: "uint256",
+        components: [
+          {
+            internalType: "contract IAuraRewardPool",
+            name: "auraRewardPool",
+            type: "address",
+          },
+          {
+            components: [
+              {
+                internalType: "uint16",
+                name: "primaryBorrowCurrencyId",
+                type: "uint16",
+              },
+              {
+                internalType: "bytes32",
+                name: "balancerPoolId",
+                type: "bytes32",
+              },
+              {
+                internalType: "contract ILiquidityGauge",
+                name: "liquidityGauge",
+                type: "address",
+              },
+              {
+                internalType: "contract ITradingModule",
+                name: "tradingModule",
+                type: "address",
+              },
+              {
+                internalType: "uint32",
+                name: "settlementPeriodInSeconds",
+                type: "uint32",
+              },
+            ],
+            internalType: "struct DeploymentParams",
+            name: "baseParams",
+            type: "tuple",
+          },
+        ],
+        internalType: "struct AuraVaultDeploymentParams",
+        name: "params",
+        type: "tuple",
       },
     ],
-    name: "BalancerPoolShareTooHigh",
+    name: "constructor",
+    stateMutability: "nonpayable",
+    type: "constructor",
+  },
+  {
+    inputs: [],
+    name: "CalculationDidNotConverge",
     type: "error",
   },
   {
@@ -50,6 +96,27 @@ const _abi = [
       },
     ],
     name: "InSettlementCoolDown",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "InvalidEmergencySettlement",
+    type: "error",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "oraclePrice",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "poolPrice",
+        type: "uint256",
+      },
+    ],
+    name: "InvalidPrice",
     type: "error",
   },
   {
@@ -87,9 +154,9 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "uint32",
+        internalType: "uint256",
         name: "slippage",
-        type: "uint32",
+        type: "uint256",
       },
       {
         internalType: "uint32",
@@ -150,6 +217,81 @@ const _abi = [
     inputs: [
       {
         indexed: true,
+        internalType: "bytes32",
+        name: "role",
+        type: "bytes32",
+      },
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "previousAdminRole",
+        type: "bytes32",
+      },
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "newAdminRole",
+        type: "bytes32",
+      },
+    ],
+    name: "RoleAdminChanged",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "role",
+        type: "bytes32",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "sender",
+        type: "address",
+      },
+    ],
+    name: "RoleGranted",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "bytes32",
+        name: "role",
+        type: "bytes32",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "sender",
+        type: "address",
+      },
+    ],
+    name: "RoleRevoked",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
         internalType: "address",
         name: "implementation",
         type: "address",
@@ -157,6 +299,19 @@ const _abi = [
     ],
     name: "Upgraded",
     type: "event",
+  },
+  {
+    inputs: [],
+    name: "DEFAULT_ADMIN_ROLE",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
   },
   {
     inputs: [],
@@ -312,6 +467,98 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "maturity",
+        type: "uint256",
+      },
+    ],
+    name: "getEmergencySettlementBPTAmount",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "bptToSettle",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "role",
+        type: "bytes32",
+      },
+    ],
+    name: "getRoleAdmin",
+    outputs: [
+      {
+        internalType: "bytes32",
+        name: "",
+        type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getRoles",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "bytes32",
+            name: "normalSettlement",
+            type: "bytes32",
+          },
+          {
+            internalType: "bytes32",
+            name: "emergencySettlement",
+            type: "bytes32",
+          },
+          {
+            internalType: "bytes32",
+            name: "postMaturitySettlement",
+            type: "bytes32",
+          },
+          {
+            internalType: "bytes32",
+            name: "rewardReinvestment",
+            type: "bytes32",
+          },
+        ],
+        internalType: "struct IStrategyVault.StrategyVaultRoles",
+        name: "",
+        type: "tuple",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "tokenIndex",
+        type: "uint256",
+      },
+    ],
+    name: "getSpotPrice",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "spotPrice",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "getStrategyContext",
     outputs: [
@@ -360,6 +607,16 @@ const _abi = [
                 type: "uint256",
               },
               {
+                internalType: "uint256",
+                name: "primaryScaleFactor",
+                type: "uint256",
+              },
+              {
+                internalType: "uint256",
+                name: "secondaryScaleFactor",
+                type: "uint256",
+              },
+              {
                 components: [
                   {
                     internalType: "contract IERC20",
@@ -387,23 +644,6 @@ const _abi = [
                 internalType: "uint256",
                 name: "ampParam",
                 type: "uint256",
-              },
-              {
-                components: [
-                  {
-                    internalType: "uint256",
-                    name: "oracleWindowInSeconds",
-                    type: "uint256",
-                  },
-                  {
-                    internalType: "uint256",
-                    name: "balancerOracleWeight",
-                    type: "uint256",
-                  },
-                ],
-                internalType: "struct OracleContext",
-                name: "baseOracle",
-                type: "tuple",
               },
             ],
             internalType: "struct StableOracleContext",
@@ -445,11 +685,6 @@ const _abi = [
           {
             components: [
               {
-                internalType: "uint256",
-                name: "totalBPTHeld",
-                type: "uint256",
-              },
-              {
                 internalType: "uint32",
                 name: "settlementPeriodInSeconds",
                 type: "uint32",
@@ -465,11 +700,6 @@ const _abi = [
                     internalType: "uint256",
                     name: "maxUnderlyingSurplus",
                     type: "uint256",
-                  },
-                  {
-                    internalType: "uint32",
-                    name: "oracleWindowInSeconds",
-                    type: "uint32",
                   },
                   {
                     internalType: "uint32",
@@ -498,17 +728,7 @@ const _abi = [
                   },
                   {
                     internalType: "uint16",
-                    name: "balancerOracleWeight",
-                    type: "uint16",
-                  },
-                  {
-                    internalType: "uint16",
                     name: "settlementCoolDownInMinutes",
-                    type: "uint16",
-                  },
-                  {
-                    internalType: "uint16",
-                    name: "feePercentage",
                     type: "uint16",
                   },
                   {
@@ -529,6 +749,11 @@ const _abi = [
               {
                 components: [
                   {
+                    internalType: "uint256",
+                    name: "totalBPTHeld",
+                    type: "uint256",
+                  },
+                  {
                     internalType: "uint80",
                     name: "totalStrategyTokenGlobal",
                     type: "uint80",
@@ -543,11 +768,6 @@ const _abi = [
                 name: "vaultState",
                 type: "tuple",
               },
-              {
-                internalType: "address",
-                name: "feeReceiver",
-                type: "address",
-              },
             ],
             internalType: "struct StrategyContext",
             name: "baseStrategy",
@@ -557,6 +777,48 @@ const _abi = [
         internalType: "struct MetaStable2TokenAuraStrategyContext",
         name: "",
         type: "tuple",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "role",
+        type: "bytes32",
+      },
+      {
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+    ],
+    name: "grantRole",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "bytes32",
+        name: "role",
+        type: "bytes32",
+      },
+      {
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+    ],
+    name: "hasRole",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
       },
     ],
     stateMutability: "view",
@@ -585,11 +847,6 @@ const _abi = [
               },
               {
                 internalType: "uint32",
-                name: "oracleWindowInSeconds",
-                type: "uint32",
-              },
-              {
-                internalType: "uint32",
                 name: "settlementSlippageLimitPercent",
                 type: "uint32",
               },
@@ -615,17 +872,7 @@ const _abi = [
               },
               {
                 internalType: "uint16",
-                name: "balancerOracleWeight",
-                type: "uint16",
-              },
-              {
-                internalType: "uint16",
                 name: "settlementCoolDownInMinutes",
-                type: "uint16",
-              },
-              {
-                internalType: "uint16",
-                name: "feePercentage",
                 type: "uint16",
               },
               {
@@ -752,6 +999,24 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "bytes32",
+        name: "role",
+        type: "bytes32",
+      },
+      {
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+    ],
+    name: "renounceRole",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "address",
         name: "token",
         type: "address",
@@ -781,16 +1046,29 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "bytes32",
+        name: "role",
+        type: "bytes32",
+      },
+      {
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+    ],
+    name: "revokeRole",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         components: [
           {
             internalType: "uint256",
             name: "maxUnderlyingSurplus",
             type: "uint256",
-          },
-          {
-            internalType: "uint32",
-            name: "oracleWindowInSeconds",
-            type: "uint32",
           },
           {
             internalType: "uint32",
@@ -819,17 +1097,7 @@ const _abi = [
           },
           {
             internalType: "uint16",
-            name: "balancerOracleWeight",
-            type: "uint16",
-          },
-          {
-            internalType: "uint16",
             name: "settlementCoolDownInMinutes",
-            type: "uint16",
-          },
-          {
-            internalType: "uint16",
-            name: "feePercentage",
             type: "uint16",
           },
           {
@@ -933,6 +1201,25 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "bytes4",
+        name: "interfaceId",
+        type: "bytes4",
+      },
+    ],
+    name: "supportsInterface",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "address",
         name: "newImplementation",
         type: "address",
@@ -967,15 +1254,19 @@ const _abi = [
   },
 ];
 
-export class MetaStable2Token__factory {
+export class MetaStable2TokenAuraVault__factory {
   static readonly abi = _abi;
-  static createInterface(): MetaStable2TokenInterface {
-    return new utils.Interface(_abi) as MetaStable2TokenInterface;
+  static createInterface(): MetaStable2TokenAuraVaultInterface {
+    return new utils.Interface(_abi) as MetaStable2TokenAuraVaultInterface;
   }
   static connect(
     address: string,
     signerOrProvider: Signer | Provider
-  ): MetaStable2Token {
-    return new Contract(address, _abi, signerOrProvider) as MetaStable2Token;
+  ): MetaStable2TokenAuraVault {
+    return new Contract(
+      address,
+      _abi,
+      signerOrProvider
+    ) as MetaStable2TokenAuraVault;
   }
 }
