@@ -28,6 +28,7 @@ import {
 } from './BaseBalancerStablePool';
 import FixedPoint from './FixedPoint';
 import { doBinarySearch } from '../../Approximation';
+import { System } from '../../../system';
 
 interface InitParams extends BaseBalancerStablePoolInitParams {
   poolContext: PoolContext;
@@ -330,12 +331,14 @@ export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitPar
   protected getBPTValue(amountIn: FixedPoint): FixedPoint {
     const { primaryTokenIndex } = this.initParams.poolContext;
     return (
-      this.balances
+      // Apply this to the unscaled balances since the oracle is the wstETH price
+      // not the stETH price
+      this.initParams.poolContext.balances
         // Returns the claims of one BPT on constituent tokens
         .map((b, i) => {
           const claim = b.mul(amountIn).div(this.initParams.totalSupply);
           if (i === primaryTokenIndex) return claim;
-          else return claim.mul(this.oraclePrice).div(FixedPoint.ONE);
+          else return claim.mul(FixedPoint.ONE).div(this.oraclePrice);
         })
         .reduce((s, b) => {
           return s.add(b);
@@ -486,18 +489,35 @@ export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitPar
       .mul(bptClaim)
       .div(totalSupply);
 
-    const secondaryTradeParams = utils.defaultAbiCoder.encode(
-      [MetaStable2TokenAura.dynamicTradeTuple],
-      [
-        {
-          dexId: DexId.UNISWAP_V3,
-          tradeType: DexTradeType.EXACT_IN_SINGLE,
-          oracleSlippagePercent: 0.01e8,
-          tradeUnwrapped: false,
-          exchangeData: utils.defaultAbiCoder.encode(['uint24'], [3000]),
-        },
-      ]
-    );
+    const { network } = System.getSystem();
+    let secondaryTradeParams: string;
+    if (network === 'goerli') {
+      secondaryTradeParams = utils.defaultAbiCoder.encode(
+        [MetaStable2TokenAura.dynamicTradeTuple],
+        [
+          {
+            dexId: DexId.UNISWAP_V3,
+            tradeType: DexTradeType.EXACT_IN_SINGLE,
+            oracleSlippagePercent: 0.01e8,
+            tradeUnwrapped: false,
+            exchangeData: utils.defaultAbiCoder.encode(['uint24'], [3000]),
+          },
+        ]
+      );
+    } else {
+      secondaryTradeParams = utils.defaultAbiCoder.encode(
+        [MetaStable2TokenAura.dynamicTradeTuple],
+        [
+          {
+            dexId: DexId.CURVE,
+            tradeType: DexTradeType.EXACT_IN_SINGLE,
+            oracleSlippagePercent: 0.0025e8,
+            tradeUnwrapped: true,
+            exchangeData: '0x',
+          },
+        ]
+      );
+    }
 
     return {
       minPrimary: primaryBalanceOut.mul(
