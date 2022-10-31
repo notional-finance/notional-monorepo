@@ -43,23 +43,23 @@
         "lintFilePatterns": ["packages/sdk/**/*.ts"]
       }
     },
-    "test": {
+    "test-unit": {
       "executor": "@nrwl/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/packages/sdk"],
       "options": {
+        "testMatch": ["<rootDir>/tests/unit/**/+(*.)+(spec|test).+(ts|js)?(x)"],
         "jestConfig": "packages/sdk/jest.config.ts",
         "passWithNoTests": true
       }
     },
-    "test-fork": {
-      "executor": "nx:run-commands",
+    "test-integration": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/packages/sdk"],
       "options": {
-        "commands": [
-          {
-            "command": "npx hardhat test --tsconfig tsconfig.json --no-compile tests/integration/system.test.ts"
-          }
-        ],
-        "cwd": "packages/sdk"
+        "testMatch": ["<rootDir>/tests/integration/system.test.ts"],
+        "jestConfig": "packages/sdk/jest.config.ts",
+        "passWithNoTests": true,
+        "testTimeout": 50000
       }
     },
     "build-proto": {
