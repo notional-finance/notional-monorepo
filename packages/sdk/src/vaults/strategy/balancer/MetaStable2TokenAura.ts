@@ -521,11 +521,11 @@ export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitPar
 
     return {
       minPrimary: primaryBalanceOut.mul(
-        FixedPoint.from(RATE_PRECISION - slippageBuffer).div(FixedPoint.ONE)
-      ).n,
+        FixedPoint.ONE.mul(RATE_PRECISION - slippageBuffer).div(FixedPoint.from(RATE_PRECISION))
+      ).div(FixedPoint.ONE).n,
       minSecondary: secondaryBalanceOut.mul(
-        FixedPoint.from(RATE_PRECISION - slippageBuffer).div(FixedPoint.ONE)
-      ).n,
+        FixedPoint.ONE.mul(RATE_PRECISION - slippageBuffer).div(FixedPoint.from(RATE_PRECISION))
+      ).div(FixedPoint.ONE).n,
       secondaryTradeParams,
     };
   }
