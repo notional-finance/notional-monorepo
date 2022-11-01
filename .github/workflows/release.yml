@@ -23,6 +23,7 @@ jobs:
           echo "HEAD: ${{ env.NX_HEAD }}"
       - run: |
           yarn nx affected --target=build-lib
+          npm config set //registry.npmjs.org/:_authToken=$NODE_AUTH_TOKEN
           npx nx affected --target=release
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
