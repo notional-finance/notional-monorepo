@@ -40,7 +40,7 @@ export const BatchAccountQuery = gql`
         assetType
         notional
       }
-      leveragedVaults {
+      leveragedVaultAccounts: leveragedVaults {
         leveragedVault {
           vaultAddress
         }
