@@ -260,7 +260,7 @@ export default class Treasury {
     const system = System.getSystem();
     const treasuryManager = system.getTreasuryManager();
     const ordersURL = `https://api.0x.org/sra/v3/orders?makerAddress=${treasuryManager.address}`;
-    const response = await (await _fetch(ordersURL)).json();
+    const response: any = await (await _fetch(ordersURL)).json();
 
     return response.data.records.map((r: any) =>
       Order.fromAPIResponse(r.order)

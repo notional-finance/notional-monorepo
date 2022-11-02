@@ -6,12 +6,17 @@
   "targets": {
     "build": {
       "executor": "@nrwl/esbuild:esbuild",
-      "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/services/system-cache",
+        "bundle": true,
+        "sourcemap": true,
+        "minify": false,
         "main": "services/system-cache/src/index.ts",
         "tsConfig": "services/system-cache/tsconfig.app.json",
-        "assets": ["services/system-cache/*.md"]
+        "format": ["esm"],
+        "target": "esnext",
+        "conditions": ["worker", "browser"],
+        "outputPath": "services/system-cache/dist",
+        "outExtension": { ".js": ".mjs" }
       }
     },
     "serve": {
@@ -49,7 +54,8 @@
       "options": {
         "jestConfig": "services/system-cache/jest.config.ts",
         "passWithNoTests": true
-      }
+      },
+      "dependsOn": ["build"]
     }
   },
   "tags": []

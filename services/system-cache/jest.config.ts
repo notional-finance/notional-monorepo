@@ -9,7 +9,7 @@ export default {
   },
   testEnvironment: 'miniflare',
   testEnvironmentOptions: {
-    scriptPath: 'services/system-cache/src/index.ts',
+    scriptPath: 'services/system-cache/dist/index.js',
     modules: true,
     durableObjects: {
       SYSTEM_CACHE: 'SystemCache',
