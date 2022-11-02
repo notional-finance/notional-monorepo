@@ -7,9 +7,10 @@ export default {
       tsconfig: '<rootDir>/tsconfig.spec.json',
     },
   },
+  testEnvironment: 'miniflare',
   transform: {
     '^.+\\.[tj]s$': 'ts-jest',
   },
   moduleFileExtensions: ['ts', 'js', 'html'],
-  coverageDirectory: '../../coverage/packages/system-cache',
+  coverageDirectory: '../../coverage/services/system-cache',
 };

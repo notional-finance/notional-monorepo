@@ -1,16 +1,17 @@
 {
+  "name": "system-cache",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "packages/system-cache/src",
-  "projectType": "library",
+  "sourceRoot": "services/system-cache/src",
+  "projectType": "application",
   "targets": {
     "build": {
       "executor": "@nrwl/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/packages/system-cache",
-        "main": "packages/system-cache/src/index.ts",
-        "tsConfig": "packages/system-cache/tsconfig.lib.json",
-        "assets": ["packages/system-cache/*.md"]
+        "outputPath": "dist/services/system-cache",
+        "main": "services/system-cache/src/index.ts",
+        "tsConfig": "services/system-cache/tsconfig.app.json",
+        "assets": ["services/system-cache/*.md"]
       }
     },
     "start": {
@@ -18,10 +19,10 @@
       "options": {
         "commands": [
           {
-            "command": "yarn wrangler dev --local"
+            "command": "wrangler dev --local"
           }
         ],
-        "cwd": "packages/system-cache"
+        "cwd": "services/system-cache"
       }
     },
     "publish": {
@@ -29,24 +30,24 @@
       "options": {
         "commands": [
           {
-            "command": "yarn wrangler publish"
+            "command": "wrangler publish"
           }
         ],
-        "cwd": "packages/system-cache"
+        "cwd": "services/system-cache"
       }
     },
     "lint": {
       "executor": "@nrwl/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["packages/system-cache/**/*.ts"]
+        "lintFilePatterns": ["services/system-cache/**/*.ts"]
       }
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/packages/system-cache"],
+      "outputs": ["{workspaceRoot}/coverage/services/system-cache"],
       "options": {
-        "jestConfig": "packages/system-cache/jest.config.ts",
+        "jestConfig": "services/system-cache/jest.config.ts",
         "passWithNoTests": true
       }
     }

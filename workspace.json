@@ -8,6 +8,6 @@
     "notionable": "packages/notionable",
     "playground": "packages/playground",
     "sdk": "packages/sdk",
-    "system-cache": "packages/system-cache"
+    "system-cache": "services/system-cache"
   }
 }
