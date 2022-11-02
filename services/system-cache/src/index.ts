@@ -42,6 +42,19 @@ export class SystemCache {
   private storage: DurableObjectStorage;
   private env: Env;
 
+  constructor(state: DurableObjectState, env: Env) {
+    this.state = state;
+    this.storage = state.storage;
+    this.env = env;
+
+    this.state.blockConcurrencyWhile(async () => {
+      const currentAlarm = await this.storage.getAlarm();
+      if (currentAlarm == null) {
+        await this.alarm();
+      }
+    });
+  }
+
   private parsePath(path: string) {
     const splitPath = path.split('/');
 
@@ -114,19 +127,6 @@ export class SystemCache {
     } catch (e) {
       console.error(e);
     }
-  }
-
-  constructor(state: DurableObjectState, env: Env) {
-    this.state = state;
-    this.storage = state.storage;
-    this.env = env;
-
-    this.state.blockConcurrencyWhile(async () => {
-      const currentAlarm = await this.storage.getAlarm();
-      if (currentAlarm == null) {
-        await this.alarm();
-      }
-    });
   }
 
   async fetch(request: Request) {

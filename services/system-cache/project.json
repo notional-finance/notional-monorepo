@@ -5,18 +5,14 @@
   "projectType": "application",
   "targets": {
     "build": {
-      "executor": "@nrwl/esbuild:esbuild",
+      "executor": "nx:run-commands",
       "options": {
-        "bundle": true,
-        "sourcemap": true,
-        "minify": false,
-        "main": "services/system-cache/src/index.ts",
-        "tsConfig": "services/system-cache/tsconfig.app.json",
-        "format": ["esm"],
-        "target": "esnext",
-        "conditions": ["worker", "browser"],
-        "outputPath": "services/system-cache/dist",
-        "outExtension": { ".js": ".mjs" }
+        "commands": [
+          {
+            "command": "wrangler publish --dry-run --outdir dist"
+          }
+        ],
+        "cwd": "services/system-cache"
       }
     },
     "serve": {

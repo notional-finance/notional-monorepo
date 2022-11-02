@@ -5,19 +5,20 @@ export default {
   globals: {
     'ts-jest': {
       tsconfig: '<rootDir>/tsconfig.spec.json',
+      useESM: true,
     },
   },
   testEnvironment: 'miniflare',
   testEnvironmentOptions: {
     scriptPath: 'services/system-cache/dist/index.js',
     modules: true,
-    durableObjects: {
-      SYSTEM_CACHE: 'SystemCache',
-    },
+    wranglerConfigPath: 'services/system-cache/wrangler.toml',
+    wranglerConfigEnv: 'services/system-cache/.env',
   },
   transform: {
     '^.+\\.[tj]s$': 'ts-jest',
   },
   moduleFileExtensions: ['ts', 'js'],
   coverageDirectory: '../../coverage/services/system-cache',
+  testTimeout: 50000,
 };
