@@ -79,6 +79,7 @@
     "jest": "28.1.1",
     "jest-auto-spies": "^1.6.10",
     "jest-environment-jsdom": "28.1.1",
+    "jest-environment-miniflare": "^2.11.0",
     "moment": "^2.29.4",
     "nx": "15.0.3",
     "os-browserify": "^0.3.0",
@@ -102,4 +103,3 @@
     "packages/**"
   ]
 }
-
