@@ -5,7 +5,7 @@
   "projectType": "application",
   "targets": {
     "build": {
-      "executor": "@nrwl/js:tsc",
+      "executor": "@nrwl/esbuild:esbuild",
       "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/services/system-cache",
@@ -14,7 +14,7 @@
         "assets": ["services/system-cache/*.md"]
       }
     },
-    "start": {
+    "serve": {
       "executor": "nx:run-commands",
       "options": {
         "commands": [

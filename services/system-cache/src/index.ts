@@ -276,11 +276,7 @@ export class SystemCache {
 }
 
 export default {
-  async scheduled(
-    event: ScheduledController,
-    env: Env,
-    ctx: ExecutionContext
-  ): Promise<void> {
+  async scheduled(event: ScheduledController, env: Env): Promise<void> {
     const id = env.SYSTEM_CACHE.idFromName('SYSTEM_CACHE');
     const stub = env.SYSTEM_CACHE.get(id);
     // Nightly exchange rate update
@@ -292,7 +288,7 @@ export default {
       await stub.fetch('http://api.notional.finance/schedule-alarm');
     }
   },
-  async fetch(request: Request, env: Env, context: ExecutionContext) {
+  async fetch(request: Request, env: Env) {
     try {
       const id = env.SYSTEM_CACHE.idFromName('SYSTEM_CACHE');
       const stub = env.SYSTEM_CACHE.get(id);

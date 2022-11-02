@@ -8,9 +8,16 @@ export default {
     },
   },
   testEnvironment: 'miniflare',
+  testEnvironmentOptions: {
+    scriptPath: 'services/system-cache/src/index.ts',
+    modules: true,
+    durableObjects: {
+      SYSTEM_CACHE: 'SystemCache',
+    },
+  },
   transform: {
     '^.+\\.[tj]s$': 'ts-jest',
   },
-  moduleFileExtensions: ['ts', 'js', 'html'],
+  moduleFileExtensions: ['ts', 'js'],
   coverageDirectory: '../../coverage/services/system-cache',
 };

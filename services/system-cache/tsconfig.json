@@ -3,7 +3,6 @@
   "compilerOptions": {
     "lib": [ "es2021" ],
     "types": ["node", "@cloudflare/workers-types" ],
-    "paths": {}
   },
   "files": [],
   "include": [],
