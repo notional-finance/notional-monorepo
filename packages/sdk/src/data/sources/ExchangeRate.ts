@@ -23,7 +23,7 @@ async function getExchangeRateData(
   if (!resp.ok) {
     throw Error(`Exchange rate api failed: ${resp.status}, ${resp.statusText}`);
   }
-  const data = (await resp.json()) as any;
+  const data = await resp.json();
   return symbols.reduce((obj, s) => {
     const ret = obj;
     if (data.conversion_rates[s]) {
