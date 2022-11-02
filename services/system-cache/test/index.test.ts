@@ -12,14 +12,5 @@ beforeAll(async () => {
 
 test('it should return a 500 on an invalid version', async () => {
   const resp = await stub.fetch('http://localhost/v1/goerli');
-  expect(resp.status).toBe(500);
+  expect(resp.status).toBe(404);
 });
-
-// test('it', async () => {
-//   // Note we're using Worker APIs in our test, without importing anything extra
-//   const request = new Request('http://localhost/');
-//   const response = await worker.fetch(request);
-//   const resp = await response.json();
-
-//   expect(resp['country']).toBe('N/A');
-// });

@@ -13,7 +13,7 @@ export default {
     scriptPath: 'services/system-cache/dist/index.js',
     modules: true,
     wranglerConfigPath: 'services/system-cache/wrangler.toml',
-    wranglerConfigEnv: 'services/system-cache/.env',
+    wranglerConfigEnv: 'services/system-cache/.dev.vars',
   },
   transform: {
     '^.+\\.[tj]s$': 'ts-jest',
