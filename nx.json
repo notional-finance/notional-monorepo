@@ -29,6 +29,14 @@
       "dependsOn": ["^build-lib"]
     }
   },
+  "targetDependencies": {
+    "version": [
+      {
+        "target": "version",
+        "projects": "dependencies"
+      }
+    ]
+  },
   "pluginsConfig": {
     "@nrwl/js": {
       "analyzeSourceFiles": true
