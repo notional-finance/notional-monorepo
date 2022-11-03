@@ -1,30 +1,33 @@
-name: Node.js Package
+name: release
+
 on:
-  release:
-    types: [created]
+  - workflow_dispatch
+
 jobs:
-  build:
+  release:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v3
+      - name: Use Node.js
+        uses: actions/setup-node@v3
         with:
-          node-version: 16
-      - run: yarn --fixed-lockfile
-      - name: Derive appropriate SHAs for base and head for `nx affected` commands
-        uses: nrwl/nx-set-shas@v3
-        with:
-          last-successful-event: 'release'
-
-      - run: |
-          echo "BASE: ${{ env.NX_BASE }}"
-          echo "HEAD: ${{ env.NX_HEAD }}"
-      - run: |
-          yarn nx affected --target=build-lib
+          node-version: '16'
+      - name: Setup Git
+        run: |
+          git config user.name "GitHub Bot"
+          git config user.email "gituser@notionalfinance.com"
           npm config set //registry.npmjs.org/:_authToken=$NODE_AUTH_TOKEN
-          npx nx affected --target=release
+      - run: yarn install --frozen-lockfile
+      - name: Version
+        shell: bash
+        run: yarn nx affected --base=last-release --target=version
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
+      - name: Tag last-release
+        shell: bash
+        run: |
+          git tag -f last-release
+          git push origin last-release --force
