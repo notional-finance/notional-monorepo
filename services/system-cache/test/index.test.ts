@@ -1,8 +1,8 @@
 // See example here: https://blog.cloudflare.com/miniflare/
 import worker, { SystemCache } from '../src/index';
 
-console.log(getMiniflareBindings());
-const { SYSTEM_CACHE } = getMiniflareBindings();
+const env = getMiniflareBindings();
+const { SYSTEM_CACHE } = env;
 const id = SYSTEM_CACHE.idFromName('SYSTEM_CACHE');
 const stub = SYSTEM_CACHE.get(id);
 

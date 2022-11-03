@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "cli": "nx",
+  "$id": "cloudflare-worker",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Worker name",
+      "$default": {
+        "$source": "argv",
+        "index": 0
+      }
+    }
+  },
+  "required": ["name"]
+}
