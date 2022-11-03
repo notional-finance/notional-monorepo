@@ -5,6 +5,7 @@
     "contracts": "packages/contracts",
     "error": "packages/error",
     "geoip": "services/geoip",
+    "metrics": "services/metrics",
     "notionable": "packages/notionable",
     "playground": "packages/playground",
     "sdk": "packages/sdk",
