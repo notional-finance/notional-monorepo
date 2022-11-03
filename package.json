@@ -2,7 +2,9 @@
   "name": "notional-finance",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "prepare": "husky install"
+  },
   "private": true,
   "dependencies": {
     "@apollo/client": "^3.6.9",
@@ -35,8 +37,11 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^3.16.0",
+    "@commitlint/cli": "^17.0.0",
+    "@commitlint/config-conventional": "^17.0.0",
     "@emotion/babel-plugin": "11.10.2",
     "@hirez_io/observer-spy": "^2.2.0",
+    "@jscutlery/semver": "^2.27.2",
     "@nomiclabs/hardhat-ethers": "^2.1.1",
     "@nrwl/cli": "14.7.5",
     "@nrwl/devkit": "15.0.3",
@@ -77,6 +82,7 @@
     "eslint-plugin-react-hooks": "4.6.0",
     "hardhat": "^2.11.2",
     "https-browserify": "^1.0.0",
+    "husky": "^8.0.0",
     "jest": "28.1.1",
     "jest-auto-spies": "^1.6.10",
     "jest-environment-jsdom": "28.1.1",
