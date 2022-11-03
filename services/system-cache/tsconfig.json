@@ -1,22 +1,21 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "module": "commonjs",
+    "lib": [ "esnext" ],
+    "types": ["node", "@cloudflare/workers-types" ],
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "noImplicitOverride": true,
-    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitAny": false,
+    "noPropertyAccessFromIndexSignature": false,
     "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "types": [
-      "@cloudflare/workers-types"
-    ]
+    "noFallthroughCasesInSwitch": true
   },
   "files": [],
   "include": [],
   "references": [
     {
-      "path": "./tsconfig.lib.json"
+      "path": "./tsconfig.app.json"
     },
     {
       "path": "./tsconfig.spec.json"

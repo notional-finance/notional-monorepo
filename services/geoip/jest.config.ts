@@ -1,15 +1,16 @@
 /* eslint-disable */
 export default {
-  displayName: 'worker-geoip',
+  displayName: 'geoip',
   preset: '../../jest.preset.js',
   globals: {
     'ts-jest': {
       tsconfig: '<rootDir>/tsconfig.spec.json',
     },
   },
+  testEnvironment: 'miniflare',
   transform: {
     '^.+\\.[tj]s$': 'ts-jest',
   },
-  moduleFileExtensions: ['ts', 'js', 'html'],
-  coverageDirectory: '../../coverage/packages/worker-geoip',
+  moduleFileExtensions: ['ts', 'js'],
+  coverageDirectory: '../../coverage/services/geoip',
 };

@@ -1,7 +1,6 @@
 import { fetchSystem } from '@notional-finance/sdk/data/SystemData';
 import getUSDPriceData from '@notional-finance/sdk/data/sources/ExchangeRate';
 import { BigNumber, ethers } from 'ethers';
-import { R2Bucket, DurableObjectNamespace } from '@cloudflare/workers-types';
 /**
  * Welcome to Cloudflare Workers! This is your first scheduled worker.
  *
@@ -42,6 +41,19 @@ export class SystemCache {
   private state: DurableObjectState;
   private storage: DurableObjectStorage;
   private env: Env;
+
+  constructor(state: DurableObjectState, env: Env) {
+    this.state = state;
+    this.storage = state.storage;
+    this.env = env;
+
+    this.state.blockConcurrencyWhile(async () => {
+      const currentAlarm = await this.storage.getAlarm();
+      if (currentAlarm == null) {
+        await this.alarm();
+      }
+    });
+  }
 
   private parsePath(path: string) {
     const splitPath = path.split('/');
@@ -117,19 +129,6 @@ export class SystemCache {
     }
   }
 
-  constructor(state: DurableObjectState, env: Env) {
-    this.state = state;
-    this.storage = state.storage;
-    this.env = env;
-
-    this.state.blockConcurrencyWhile(async () => {
-      const currentAlarm = await this.storage.getAlarm();
-      if (currentAlarm == null) {
-        await this.alarm();
-      }
-    });
-  }
-
   async fetch(request: Request) {
     try {
       const url = new URL(request.url);
@@ -198,6 +197,8 @@ export class SystemCache {
           'Access-Control-Allow-Origin': '*',
         },
       });
+    } else {
+      return new Response('Not Found', { status: 404 });
     }
   }
 
@@ -277,11 +278,7 @@ export class SystemCache {
 }
 
 export default {
-  async scheduled(
-    event: ScheduledController,
-    env: Env,
-    ctx: ExecutionContext
-  ): Promise<void> {
+  async scheduled(event: ScheduledController, env: Env): Promise<void> {
     const id = env.SYSTEM_CACHE.idFromName('SYSTEM_CACHE');
     const stub = env.SYSTEM_CACHE.get(id);
     // Nightly exchange rate update
@@ -293,7 +290,7 @@ export default {
       await stub.fetch('http://api.notional.finance/schedule-alarm');
     }
   },
-  async fetch(request: Request, env: Env, context: ExecutionContext) {
+  async fetch(request: Request, env: Env) {
     try {
       const id = env.SYSTEM_CACHE.idFromName('SYSTEM_CACHE');
       const stub = env.SYSTEM_CACHE.get(id);

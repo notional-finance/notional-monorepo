@@ -2,6 +2,10 @@
   "extends": "nx/presets/npm.json",
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
   "npmScope": "notional-finance",
+  "workspaceLayout": {
+    "appsDir": "services",
+    "libsDir": "packages"
+  },
   "affected": {
     "defaultBase": "main"
   },
