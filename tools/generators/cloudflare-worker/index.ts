@@ -21,11 +21,8 @@ export default async function (host: Tree, schema: NewCloudflareWorker) {
     }
   );
   updateJson(host, 'workspace.json', (pkgJson) => {
-    // if scripts is undefined, set it to an empty object
     pkgJson.projects = pkgJson.projects ?? {};
-    // add greet script
     pkgJson.projects[schema.name] = `services/${schema.name}`;
-    // return modified JSON object
     return pkgJson;
   });
   await formatFiles(host);
