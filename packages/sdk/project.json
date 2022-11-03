@@ -55,14 +55,8 @@
       "options": {
         "preset": "conventional",
         "postTargets": [
-          {
-            "project": "self",
-            "target": "github-release"
-          },
-          {
-            "project": "self",
-            "target": "npm-publish"
-          }
+          "${projectName}:github-release",
+          "${projectName}:npm-publish"
         ]
       }
     },
