@@ -1,0 +1,36 @@
+name = "system-cache-dev"
+main = "./src/index.ts"
+compatibility_date = "2022-07-07"
+account_id = "274f86c6dcfbb77c09e49e86d101c753"
+
+workers_dev = true
+node_compat = true
+minify = true
+
+[durable_objects]
+bindings = [{name = "SYSTEM_CACHE", class_name = "SystemCache"}]
+
+[[r2_buckets]]
+binding = 'VAULT_RETURNS'
+preview_bucket_name = 'vault-returns-dev'
+bucket_name = 'vault-returns'
+
+[[migrations]]
+tag = "v1" # Should be unique for each entry
+new_classes = ["SystemCache"]
+
+[vars]
+VERSION = 'v2'
+DD_BASE_URL = 'https://datadoghq.com'
+
+[env.staging]
+name = "system-cache-staging"
+
+[env.production]
+name = "system-cache"
+
+[triggers]
+crons = [
+    "*/10 * * * *",
+    "0 0 * * *"
+]

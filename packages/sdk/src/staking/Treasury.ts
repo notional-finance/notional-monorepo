@@ -6,11 +6,9 @@ import { System } from '../system';
 import { populateTxnAndGas } from '../libs/utils';
 import Order from './Order';
 
-import { IAggregator } from '@notional-finance/contracts';
+import { IAggregator, IAggregatorABI } from '@notional-finance/contracts';
 import StakedNote from './StakedNote';
 import { DEFAULT_ORDER_EXPIRATION, RATE_PRECISION } from '../config/constants';
-
-import IAggregatorABI from '.././abi/IAggregator.json';
 
 const ORDER_URL = 'https://api.0x.org/sra/v3/orders';
 

@@ -10,7 +10,7 @@ import { aggregate } from '../data/Multicall';
 import TypedBigNumber, { BigNumberType } from '../libs/TypedBigNumber';
 import { getNowSeconds, populateTxnAndGas } from '../libs/utils';
 import { System, CashGroup, Market } from '../system';
-import { doBisectionSearch, doBinarySearch } from './Approximation';
+import { doBinarySearch, doRepaymentBisectionSearch } from './Approximation';
 import AbstractStrategy from './strategy/AbstractStrategy';
 import VaultAccount from './VaultAccount';
 
@@ -20,7 +20,7 @@ export default abstract class BaseVault<
   I extends Record<string, any>
 > extends AbstractStrategy<D, R, I> {
   // This setting can be overridden in child classes
-  protected _simulateSettledStrategyTokens = true;
+  public simulateSettledStrategyTokens = true;
 
   public static collateralToLeverageRatio(collateralRatio: number): number {
     return (
@@ -339,7 +339,7 @@ export default abstract class BaseVault<
           BigNumberType.StrategyToken,
           newVaultAccount.vaultSymbol
         ),
-        this._simulateSettledStrategyTokens
+        this.simulateSettledStrategyTokens
       );
       totalCashDeposit = totalCashDeposit.add(assetCash.toUnderlying());
     } else if (vaultAccount.maturity === 0) {
@@ -405,109 +405,207 @@ export default abstract class BaseVault<
     };
   }
 
+  private _calculateRepaymentEstimate(
+    debtOutstanding: TypedBigNumber,
+    assetValue: TypedBigNumber,
+    targetCollateralRatio: number,
+    slippage: number
+  ) {
+    //           (target + 1) * debt - assetValueBefore
+    // repay ~= ----------------------------------------
+    //                  target - slippage
+
+    const numerator = debtOutstanding
+      .scale(targetCollateralRatio + RATE_PRECISION, RATE_PRECISION)
+      .sub(assetValue);
+    const denominator = targetCollateralRatio - slippage;
+    if (denominator <= 0) {
+      return debtOutstanding;
+    }
+
+    const estimate = numerator.scale(RATE_PRECISION, denominator);
+    return estimate.gt(debtOutstanding) ? debtOutstanding : estimate;
+  }
+  /**
+   * Returns the fCashToLend and how many vault shares to be sold to repay that debt
+   * in order to get to a target leverage ratio.
+   *
+   * @param vaultAccount
+   * @param targetLeverageRatio
+   * @param blockTime
+   * @param precision
+   * @returns
+   */
   public getExitParamsFromLeverageRatio(
     vaultAccount: VaultAccount,
     targetLeverageRatio: number,
+    slippageRange = BASIS_POINT * 500,
     blockTime = getNowSeconds(),
-    precision = BASIS_POINT * 50
+    precision = BASIS_POINT * 25
   ) {
     if (targetLeverageRatio < RATE_PRECISION)
       throw new Error('Leverage Ratio below 1');
-    const currentLeverageRatio = this.getLeverageRatio(vaultAccount);
+    const targetCollateralRatio =
+      BaseVault.leverageToCollateralRatio(targetLeverageRatio);
+    const currentCollateralRatio = this.getCollateralRatio(vaultAccount);
+
+    // Collateral ratios must increase as a result of this method
     if (
-      currentLeverageRatio === null ||
-      targetLeverageRatio > currentLeverageRatio
+      currentCollateralRatio === null ||
+      targetCollateralRatio < currentCollateralRatio
     )
-      throw new Error('Leverage Ratio above current');
-    const { minAccountBorrowSize } = this.getVault();
+      throw new Error('Invalid Leverage Ratio for Account');
+
+    // Although the inputs are in leverage ratios, we use collateral ratios inside
+    // this method because the math is cleaner.
+    //
+    // collateralRatio = (assetValue - debtOutstanding) / debtOutstanding
+    //
+    // What we're calculating here can be represented by:
+    //
+    //                          (assetValueBefore - assetValuePostRepay) - (debt - repay)
+    // targetCollateralRatio =  --------------------------------------------------------
+    //                                            (debt - repay)
+    //
+    // where assetValuePostRepay = simulateExitPreMaturityGivenRepayment(repay)
+    //
+    // Since we cannot calculate this analytically, we must use an approximation and for
+    // this method we are using biSection search which requires an upper and lower bound
+    // in order to converge on the root of a function.
+    //
+    // The target root function in this case is: (rearranged from formula above)
+    //
+    // g(repay) = (assetValueBefore - simulate(repay)) - (target + 1)(debt - repay)
+    //
+    // assume that simulate(repay) is approximately linear ~ simulate(repay) = k * r
+    // then we know g(repay) = 0 when
+    //
+    //          assetValueBefore - (target + 1) * debt
+    // repay = ---------------------------------------
+    //                  k - (target + 1)
+    //
+    // In the best case, k = 1 (i.e. no slippage when selling assets) and more realistically
+    // k < 1 to some degree. Define that (1 - k = slippage) then we can rearrange to the
+    // following:
+    //
+    //           (target + 1) * debt - assetValueBefore
+    // repay ~= ----------------------------------------
+    //                  target - slippage
+    //
+    //   [Upper Bound] g(repay) > 0 when repay > estimate(slippage > 0) [worst case]
+    //   [Lower Bound] g(repay) < 0 when repay < estimate(slippage < 0) [best case]
+    //
+    // NOTE: it's possible that negative slippage occurs if valuations are somehow
+    // lagging or discounted
+
     const assetValue = this.getCashValueOfShares(vaultAccount).toUnderlying();
-    // Given the net asset value, in order to achieve the target leverage
-    // ratio we must reduce debt outstanding to this figure:
-    //  debtOutstanding / (assetValue - debtOutstanding) + 1 = leverageRatio
-    //  =>
-    //  ((leverageRatio - 1) * assetValue) / leverageRatio = debtOutstanding
-    const targetDebtOutstanding = assetValue
-      .scale(targetLeverageRatio - RATE_PRECISION, targetLeverageRatio)
-      .neg();
-    let fCashToLend: TypedBigNumber;
+    const upperBoundEstimate = this._calculateRepaymentEstimate(
+      vaultAccount.primaryBorrowfCash.neg(),
+      assetValue,
+      targetCollateralRatio,
+      slippageRange
+    );
+    const lowerBoundEstimate = this._calculateRepaymentEstimate(
+      vaultAccount.primaryBorrowfCash.neg(),
+      assetValue,
+      targetCollateralRatio,
+      -slippageRange
+    );
 
-    if (targetDebtOutstanding.abs().lt(minAccountBorrowSize)) {
-      fCashToLend = vaultAccount.primaryBorrowfCash.neg();
-    } else {
-      const calculationFunction = (multiple: number) => {
-        const fCashToLend = targetDebtOutstanding
-          .sub(vaultAccount.primaryBorrowfCash)
-          .scale(multiple, RATE_PRECISION);
+    const calculationFunction = (repayment: TypedBigNumber) => {
+      const { newVaultAccount } = this.simulateExitPreMaturityGivenRepayment(
+        vaultAccount,
+        repayment,
+        blockTime
+      );
 
-        if (
-          fCashToLend
-            .add(vaultAccount.primaryBorrowfCash)
-            .abs()
-            .lt(minAccountBorrowSize)
-        ) {
-          // If the resulting position is less than the min borrow size, then
-          // we must exit the entire position
-          return {
-            actualMultiple: RATE_PRECISION,
-            breakLoop: true,
-            value: vaultAccount.primaryBorrowfCash.neg(),
-          };
-        }
+      return this.getCollateralRatio(newVaultAccount);
+    };
 
-        const { newVaultAccount } = this.simulateExitPreMaturityGivenRepayment(
-          vaultAccount,
-          fCashToLend,
-          blockTime
-        );
-        const actualLeverageRatio = this.getLeverageRatio(newVaultAccount);
-
-        return {
-          actualMultiple: actualLeverageRatio,
-          breakLoop: actualLeverageRatio === RATE_PRECISION,
-          value: fCashToLend,
-        };
-      };
-
-      // Multiple used in this search determines the percentage of primary borrowed fCash
-      // to be lent (to be paid for by vault shares redeemed). targetLeverageRatio is defined to be
-      // less than currentLeverageRatio.
-      // prettier-ignore
-      fCashToLend = doBisectionSearch(
-        // For the lower bound, we pay off a multiple equal to the target leverage
-        // ratio. This will undershoot the actual leverage ratio because there is
-        // some collateral deposit in the account that does not contribute to debt.
-        targetLeverageRatio,
-        // For the upper bound, we pay off exactly the amount of fCash required
-        // to get to target debt outstanding. The resulting leverage ratio will
-        // overshoot the targetLeverageRatio due to the nature of the ratio --
-        // we need to repay more debt to reach lower leverage ratios
-        RATE_PRECISION,
-        targetLeverageRatio,
+    const fCashToLend =
+      doRepaymentBisectionSearch(
+        upperBoundEstimate,
+        lowerBoundEstimate,
+        targetCollateralRatio,
         calculationFunction,
         precision
-      );
-    }
+        // If fCashToLend is null then that signals a full repayment
+      ) || vaultAccount.primaryBorrowfCash.neg();
+
+    const repayment = this.simulateExitPreMaturityGivenRepayment(
+      vaultAccount,
+      fCashToLend,
+      blockTime
+    );
 
     return {
-      ...this.simulateExitPreMaturityGivenRepayment(
-        vaultAccount,
-        fCashToLend,
-        blockTime
-      ),
+      ...repayment,
       fCashToLend,
     };
   }
 
+  public simulateExitPreMaturityInFull(
+    vaultAccount: VaultAccount,
+    blockTime = getNowSeconds()
+  ) {
+    const newVaultAccount = VaultAccount.copy(vaultAccount);
+    // In this condition, we must exit the vault account in full because we are going
+    // over the max required account collateral ratio. The target is to ensure that
+    // vault shares will be reduced to zero and all debt will be repaid
+    const costToRepay = this.getCostToRepay(
+      vaultAccount,
+      vaultAccount.primaryBorrowfCash,
+      blockTime
+    );
+    newVaultAccount.updatePrimaryBorrowfCash(
+      vaultAccount.primaryBorrowfCash.neg(),
+      true
+    );
+    newVaultAccount.updateVaultShares(vaultAccount.vaultShares.neg(), true);
+
+    return {
+      newVaultAccount,
+      costToRepay,
+      vaultSharesToRedeemAtCost: vaultAccount.vaultShares,
+    };
+  }
+
+  /**
+   * Simulates an exit given some amount of fCash to repay and assumes that vault shares
+   * will be sold in equivalence.
+   *
+   * @param vaultAccount
+   * @param fCashToLend
+   * @param blockTime
+   * @param checkFullExit set to false when doing estimation so that we don't early exit
+   * @returns
+   */
   public simulateExitPreMaturityGivenRepayment(
     vaultAccount: VaultAccount,
     fCashToLend: TypedBigNumber,
-    blockTime = getNowSeconds()
+    blockTime = getNowSeconds(),
+    checkFullExit = true
   ) {
     const vaultState = this.getVaultState(vaultAccount.maturity);
+    const {
+      minAccountBorrowSize,
+      maxRequiredAccountCollateralRatioBasisPoints,
+    } = this.getVault();
+    const postRepaymentDebt = fCashToLend.add(vaultAccount.primaryBorrowfCash);
     if (vaultState.maturity <= blockTime || vaultState.isSettled)
       throw Error('Cannot Exit, in Settlement');
-    if (fCashToLend.add(vaultAccount.primaryBorrowfCash).isPositive())
+    if (postRepaymentDebt.isPositive())
       throw Error('Cannot lend to positive balance');
+    const isBelowMinAccountSize = postRepaymentDebt
+      .abs()
+      .lt(minAccountBorrowSize);
+
+    if (isBelowMinAccountSize && checkFullExit) {
+      return {
+        ...this.simulateExitPreMaturityInFull(vaultAccount, blockTime),
+        isFullExit: true,
+      };
+    }
 
     const newVaultAccount = VaultAccount.copy(vaultAccount);
     const costToRepay = this.getCostToRepay(
@@ -531,10 +629,26 @@ export default abstract class BaseVault<
     newVaultAccount.updatePrimaryBorrowfCash(fCashToLend, true);
     newVaultAccount.addSecondaryDebtShares(secondaryfCashRepaid, true);
 
+    const newCollateralRatio = this.getCollateralRatio(newVaultAccount);
+
+    if (
+      checkFullExit &&
+      (!newCollateralRatio ||
+        maxRequiredAccountCollateralRatioBasisPoints < newCollateralRatio)
+    ) {
+      // If this condition is met, then the account must exit in full since they are above
+      // the max required account collateral ratio
+      return {
+        ...this.simulateExitPreMaturityInFull(vaultAccount, blockTime),
+        isFullExit: true,
+      };
+    }
+
     return {
       costToRepay,
       vaultSharesToRedeemAtCost,
       newVaultAccount,
+      isFullExit: false,
     };
   }
 
@@ -562,6 +676,10 @@ export default abstract class BaseVault<
     // This will also modify vault shares
     newVaultAccount.addStrategyTokens(strategyTokens.neg(), true);
     newVaultAccount.addSecondaryDebtShares(secondaryfCashRepaid, true);
+
+    // NOTE: collateral ratio will decrease in this case since only vault shares
+    // are being redeemed and no debt is being repaid so we don't check that the
+    // account is above the max collateral ratio
 
     return {
       vaultSharesToRedeemAtCost,
@@ -756,8 +874,9 @@ export default abstract class BaseVault<
     const market = this.getVaultMarket(maturity);
     const { netCashToAccount } =
       market.getCashAmountGivenfCashAmount(fCashToBorrow);
-    const maxBorrowRate =
-      market.interestRate(fCashToBorrow, netCashToAccount) + slippageBuffer;
+    const maxBorrowRate = fCashToBorrow.isZero()
+      ? 0
+      : market.interestRate(fCashToBorrow, netCashToAccount) + slippageBuffer;
 
     return populateTxnAndGas(notional, account, 'enterVault', [
       account,
@@ -801,8 +920,9 @@ export default abstract class BaseVault<
       const market = this.getVaultMarket(maturity);
       const { netCashToAccount } =
         market.getCashAmountGivenfCashAmount(fCashToLend);
-      minLendRate =
-        market.interestRate(fCashToLend, netCashToAccount) - slippageBuffer;
+      minLendRate = fCashToLend.isZero()
+        ? 0
+        : market.interestRate(fCashToLend, netCashToAccount) - slippageBuffer;
     }
 
     return populateTxnAndGas(notional, account, 'exitVault', [
@@ -865,6 +985,8 @@ export default abstract class BaseVault<
       newMarket.getCashAmountGivenfCashAmount(fCashToBorrow);
     const maxBorrowRate =
       newMarket.interestRate(fCashToBorrow, netCashToAccount) + slippageBuffer;
+    const overrides =
+      underlyingSymbol === 'ETH' ? { value: depositAmount.n } : {};
 
     return populateTxnAndGas(notional, account, 'rollVaultPosition', [
       account,
@@ -875,6 +997,7 @@ export default abstract class BaseVault<
       Math.max(minLendRate, 0),
       maxBorrowRate,
       this.encodeDepositParams(depositParams),
+      overrides,
     ]);
   }
 }

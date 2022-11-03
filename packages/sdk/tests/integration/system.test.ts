@@ -1,5 +1,6 @@
 import { BigNumber, ethers, VoidSigner } from 'ethers';
 import Notional, { Contracts } from '../../src';
+import { AccountGraphLoader } from '../../src/account';
 import GraphClient from '../../src/data/GraphClient';
 import { decodeBinary, fetchAndEncodeSystem } from '../../src/data/SystemData';
 import { System } from '../../src/system';
@@ -35,9 +36,17 @@ describe('System Integration Test', () => {
     account.accountData?.getFullTransactionHistory();
   });
 
-  it.only('returns system configuration from the graph', async () => {
+  it('returns batch account queries', async () => {
     const graphClient = new GraphClient(mainnetGraphEndpoint, 0, false);
-    const { binary } = await fetchAndEncodeSystem(
+    const batch = await AccountGraphLoader.loadBatch(graphClient);
+    console.log(
+      Array.from(batch.values()).filter((a) => a.vaultAccounts.length !== 0)
+    );
+  });
+
+  it('returns system configuration from the graph', async () => {
+    const graphClient = new GraphClient(mainnetGraphEndpoint, 0, false);
+    const { binary, json } = await fetchAndEncodeSystem(
       graphClient,
       provider,
       contracts,
@@ -46,28 +55,28 @@ describe('System Integration Test', () => {
       { USD: BigNumber.from(1) }
     );
 
-    const initData = decodeBinary(binary, provider);
-    // console.log(json);
+    // const initData = decodeBinary(binary, provider);
+    console.log(json);
 
-    const system = new System(
-      '',
-      {} as GraphClient,
-      {} as Contracts,
-      provider,
-      0,
-      'goerli',
-      false,
-      initData
-    );
-    console.log(system.lastUpdateTimestamp);
-    const metaVault = VaultFactory.buildVaultFromCache(
-      '0x77721081',
-      '0xe767769b639af18dbedc5fb534e263ff7be43456'
-    );
+    // const system = new System(
+    //   '',
+    //   {} as GraphClient,
+    //   {} as Contracts,
+    //   provider,
+    //   0,
+    //   'goerli',
+    //   false,
+    //   initData
+    // );
+    // console.log(system.lastUpdateTimestamp);
+    // const metaVault = VaultFactory.buildVaultFromCache(
+    //   '0x77721081',
+    //   '0xe767769b639af18dbedc5fb534e263ff7be43456'
+    // );
 
-    console.log(
-      metaVault.initParams.strategyContext.totalStrategyTokensGlobal.n.toString()
-    );
+    // console.log(
+    //   metaVault.initParams.strategyContext.totalStrategyTokensGlobal.n.toString()
+    // );
   });
 
   it('initializes the meta stable vault', async () => {

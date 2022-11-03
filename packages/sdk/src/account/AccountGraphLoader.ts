@@ -474,51 +474,57 @@ export default class AccountGraphLoader {
   }
 
   public static parseVaultAccount(data: VaultAccountResponse) {
-    return data.leveragedVaultAccounts.map((v) => {
-      const system = System.getSystem();
-      const vault = system.getVault(v.leveragedVault.vaultAddress);
-      const primaryBorrowSymbol = system.getUnderlyingSymbol(
-        vault.primaryBorrowCurrency
-      );
-      const secondarySymbols = v.secondaryBorrowDebtShares
-        ? system.getDebtShareSymbols(vault.vaultAddress, v.maturity)
-        : undefined;
-      const secondaryDebtShares: SecondaryBorrowArray =
-        v.secondaryBorrowDebtShares
-          ? [
-              secondarySymbols && secondarySymbols[0]
-                ? TypedBigNumber.from(
-                    v.secondaryBorrowDebtShares[0],
-                    BigNumberType.DebtShare,
-                    secondarySymbols[0]
-                  )
-                : undefined,
-              secondarySymbols && secondarySymbols[1]
-                ? TypedBigNumber.from(
-                    v.secondaryBorrowDebtShares[1],
-                    BigNumberType.DebtShare,
-                    secondarySymbols[1]
-                  )
-                : undefined,
-            ]
-          : undefined;
+    return (
+      data.leveragedVaultAccounts
+        // Filter vault accounts where the maturity is zero, this signifies that
+        // the account was once in the vault but has now fully exited
+        .filter((v) => v.maturity !== 0)
+        .map((v) => {
+          const system = System.getSystem();
+          const vault = system.getVault(v.leveragedVault.vaultAddress);
+          const primaryBorrowSymbol = system.getUnderlyingSymbol(
+            vault.primaryBorrowCurrency
+          );
+          const secondarySymbols = v.secondaryBorrowDebtShares
+            ? system.getDebtShareSymbols(vault.vaultAddress, v.maturity)
+            : undefined;
+          const secondaryDebtShares: SecondaryBorrowArray =
+            v.secondaryBorrowDebtShares
+              ? [
+                  secondarySymbols && secondarySymbols[0]
+                    ? TypedBigNumber.from(
+                        v.secondaryBorrowDebtShares[0],
+                        BigNumberType.DebtShare,
+                        secondarySymbols[0]
+                      )
+                    : undefined,
+                  secondarySymbols && secondarySymbols[1]
+                    ? TypedBigNumber.from(
+                        v.secondaryBorrowDebtShares[1],
+                        BigNumberType.DebtShare,
+                        secondarySymbols[1]
+                      )
+                    : undefined,
+                ]
+              : undefined;
 
-      return new VaultAccount(
-        vault.vaultAddress,
-        v.maturity,
-        TypedBigNumber.from(
-          v.vaultShares,
-          BigNumberType.VaultShare,
-          system.getVaultSymbol(vault.vaultAddress, v.maturity)
-        ),
-        TypedBigNumber.fromBalance(
-          v.primaryBorrowfCash,
-          primaryBorrowSymbol,
-          true
-        ),
-        secondaryDebtShares
-      );
-    });
+          return new VaultAccount(
+            vault.vaultAddress,
+            v.maturity,
+            TypedBigNumber.from(
+              v.vaultShares,
+              BigNumberType.VaultShare,
+              system.getVaultSymbol(vault.vaultAddress, v.maturity)
+            ),
+            TypedBigNumber.fromBalance(
+              v.primaryBorrowfCash,
+              primaryBorrowSymbol,
+              true
+            ),
+            secondaryDebtShares
+          );
+        })
+    );
   }
 
   /**

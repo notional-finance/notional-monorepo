@@ -3,6 +3,7 @@ import { ETHRate } from '../../../src/data';
 import BaseVault from '../../../src/vaults/BaseVault';
 import { BigNumberType, TypedBigNumber } from '../../../src';
 import {
+  BASIS_POINT,
   RATE_PRECISION,
   SECONDS_IN_DAY,
   SECONDS_IN_QUARTER,
@@ -336,12 +337,12 @@ describe('Cross Currency fCash', () => {
       maturity
     );
     vaultAccount.updatePrimaryBorrowfCash(
-      TypedBigNumber.fromBalance(-1000e8, 'DAI', true),
+      TypedBigNumber.fromBalance(-10_000e8, 'DAI', true),
       false
     );
     vaultAccount.updateVaultShares(
       TypedBigNumber.from(
-        125531171880,
+        1255311718800,
         BigNumberType.VaultShare,
         vaultAccount.vaultSymbol
       ),
@@ -350,12 +351,46 @@ describe('Cross Currency fCash', () => {
 
     const { newVaultAccount } = crossCurrency.getExitParamsFromLeverageRatio(
       vaultAccount,
-      4.0e9,
+      3.0e9,
+      BASIS_POINT * 500,
       blockTime
     );
     expect(crossCurrency.getLeverageRatio(newVaultAccount)).toBeCloseTo(
-      4.0e9,
-      -7
+      3.0e9,
+      -8
+    );
+  });
+
+  it('simulates exiting a vault given target leverage ratio to full exit', () => {
+    const vaultAccount = VaultAccount.emptyVaultAccount(
+      vault.vaultAddress,
+      maturity
+    );
+    vaultAccount.updatePrimaryBorrowfCash(
+      TypedBigNumber.fromBalance(-10_000e8, 'DAI', true),
+      false
+    );
+    vaultAccount.updateVaultShares(
+      TypedBigNumber.from(
+        1255311718800,
+        BigNumberType.VaultShare,
+        vaultAccount.vaultSymbol
+      ),
+      false
+    );
+
+    const { newVaultAccount, isFullExit } =
+      crossCurrency.getExitParamsFromLeverageRatio(
+        vaultAccount,
+        2.0e9,
+        BASIS_POINT * 500,
+        blockTime
+      );
+
+    expect(isFullExit).toBe(true);
+    expect(newVaultAccount.primaryBorrowfCash.isZero()).toBe(true);
+    expect(crossCurrency.getLeverageRatio(newVaultAccount)).toBe(
+      RATE_PRECISION
     );
   });
 

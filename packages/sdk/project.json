@@ -10,7 +10,7 @@
         "outputPath": "dist/packages/sdk",
         "main": "packages/sdk/src/index.ts",
         "tsConfig": "packages/sdk/tsconfig.lib.json",
-        "assets": ["packages/sdk/*.md", "packages/sdk/*.json"]
+        "assets": ["packages/sdk/*.md"]
       }
     },
     "release": {
@@ -43,12 +43,34 @@
         "lintFilePatterns": ["packages/sdk/**/*.ts"]
       }
     },
-    "test": {
+    "test-unit": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/packages/sdk"],
+      "outputs": ["{workspaceRoot}/coverage/packages/sdk"],
       "options": {
+        "testMatch": ["<rootDir>/tests/unit/**/+(*.)+(spec|test).+(ts|js)?(x)"],
         "jestConfig": "packages/sdk/jest.config.ts",
         "passWithNoTests": true
+      }
+    },
+    "test-integration": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/packages/sdk"],
+      "options": {
+        "testMatch": ["<rootDir>/tests/integration/system.test.ts"],
+        "jestConfig": "packages/sdk/jest.config.ts",
+        "passWithNoTests": true,
+        "testTimeout": 50000
+      }
+    },
+    "build-proto": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          {
+            "command": "npx pbjs src/data/encoding/System.proto --encode System --ts src/data/encoding/SystemProto.ts"
+          }
+        ],
+        "cwd": "packages/sdk"
       }
     }
   },

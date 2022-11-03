@@ -2,6 +2,10 @@
   "extends": "nx/presets/npm.json",
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
   "npmScope": "notional-finance",
+  "workspaceLayout": {
+    "appsDir": "services",
+    "libsDir": "packages"
+  },
   "affected": {
     "defaultBase": "main"
   },
@@ -9,7 +13,7 @@
     "default": {
       "runner": "@nrwl/nx-cloud",
       "options": {
-        "cacheableOperations": ["build", "lint", "test", "e2e"],
+        "cacheableOperations": ["build", "build-lib", "lint", "test", "e2e"],
         "accessToken": "ZGY4MzFkOTctM2ZiMS00OTc3LTk4YmItZDcwZGU1MGEyMjY4fHJlYWQtd3JpdGU="
       }
     }
@@ -20,6 +24,9 @@
     },
     "test": {
       "inputs": ["default", "^default", "{workspaceRoot}/jest.preset.js"]
+    },
+    "build-lib": {
+      "dependsOn": ["^build-lib"]
     }
   },
   "pluginsConfig": {

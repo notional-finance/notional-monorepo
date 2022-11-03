@@ -4,13 +4,11 @@ import {
   RATE_PRECISION,
 } from '../../../config/constants';
 import TypedBigNumber, { BigNumberType } from '../../../libs/TypedBigNumber';
-import { BalancerVault } from '@notional-finance/contracts';
+import { BalancerVault, BalancerVaultABI } from '@notional-finance/contracts';
 import { doBinarySearch } from '../../Approximation';
 import BaseVault from '../../BaseVault';
 import VaultAccount from '../../VaultAccount';
 import FixedPoint from './FixedPoint';
-
-import BalancerVaultABI from '../../../abi/BalancerVault.json';
 
 export interface DepositParams {
   minBPT: BigNumber;
@@ -28,10 +26,12 @@ export interface PoolContext {
   poolId: string;
   primaryTokenIndex: number;
   tokenOutIndex: number;
+  primaryToken: string;
+  secondaryToken: string;
   balances: FixedPoint[];
 }
 
-export interface BaseBalancerStablePoolInitParams extends Record<string, any> {
+export interface BaseBalancerStablePoolInitParams {
   strategyContext: {
     totalStrategyTokensGlobal: FixedPoint;
     totalBPTHeld: FixedPoint;
@@ -41,7 +41,7 @@ export interface BaseBalancerStablePoolInitParams extends Record<string, any> {
 export abstract class BaseBalancerStablePool<
   I extends BaseBalancerStablePoolInitParams
 > extends BaseVault<DepositParams, RedeemParams, I> {
-  protected override _simulateSettledStrategyTokens = false;
+  public override simulateSettledStrategyTokens = false;
 
   BalancerVault = new Contract(
     '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
@@ -92,13 +92,16 @@ export abstract class BaseBalancerStablePool<
         .add(simulatedBPT)
         .mul(FixedPoint.from(strategyTokens.n))
         .div(totalStrategyTokens);
+    } else if (totalStrategyTokensGlobal.isZero()) {
+      return FixedPoint.from(strategyTokens.n);
+    } else {
+      return totalBPTHeld
+        .mul(FixedPoint.from(strategyTokens.n))
+        .div(totalStrategyTokensGlobal);
     }
-    return totalBPTHeld
-      .mul(FixedPoint.from(strategyTokens.n))
-      .div(totalStrategyTokensGlobal);
   }
 
-  protected abstract getBPTValue(amountIn?: FixedPoint): FixedPoint;
+  protected abstract getBPTValue(amountIn: FixedPoint): FixedPoint;
 
   protected abstract getBPTOut(tokenAmountIn: FixedPoint): FixedPoint;
 
@@ -106,17 +109,15 @@ export abstract class BaseBalancerStablePool<
 
   public getStrategyTokenValue(vaultAccount: VaultAccount): TypedBigNumber {
     const { strategyTokens } = vaultAccount.getPoolShare();
-    const oneBPTValue = this.getBPTValue();
     const simulatedStrategyTokens = vaultAccount.getSimulatedStrategyTokens();
     const bptClaim = this.convertStrategyTokensToBPT(
       strategyTokens,
       simulatedStrategyTokens
     );
+    const bptValue = this.getBPTValue(bptClaim);
     // This is in 8 decimal precision
-    const accountValue = bptClaim
-      .mul(oneBPTValue)
+    const accountValue = bptValue
       .mul(FixedPoint.from(INTERNAL_TOKEN_PRECISION))
-      .div(FixedPoint.ONE)
       .div(FixedPoint.ONE);
 
     return TypedBigNumber.fromBalance(
@@ -131,7 +132,8 @@ export abstract class BaseBalancerStablePool<
     valuation: TypedBigNumber,
     _blockTime?: number
   ) {
-    const oneBPTValue = this.getBPTValue();
+    // This is an approximation based on one BPT worth of value
+    const oneBPTValue = this.getBPTValue(FixedPoint.ONE);
     const tokens = valuation.scale(FixedPoint.ONE.n, oneBPTValue.n).n;
 
     // This is in 8 decimal precision
@@ -215,7 +217,7 @@ export abstract class BaseBalancerStablePool<
     );
     const RP = FixedPoint.from(RATE_PRECISION);
     // 1 bpt * oneBPTValue = depositAmount
-    const initialMultiple = this.getBPTValue()
+    const initialMultiple = this.getBPTValue(FixedPoint.ONE)
       .mul(RP)
       .div(FixedPoint.ONE)
       .n.toNumber();
@@ -270,7 +272,7 @@ export abstract class BaseBalancerStablePool<
     // redeemAmount / oneBPTValue = 1 bpt
     const initialMultiple = redeemAmountFP
       .mul(RP)
-      .div(this.getBPTValue())
+      .div(this.getBPTValue(FixedPoint.ONE))
       .n.toNumber();
 
     const calculationFunction = (multiple: number) => {
