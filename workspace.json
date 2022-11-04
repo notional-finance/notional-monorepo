@@ -7,7 +7,6 @@
     "geoip": "services/geoip",
     "metrics": "services/metrics",
     "notionable": "packages/notionable",
-    "playground": "apps/playground",
     "sdk": "packages/sdk",
     "system-cache": "services/system-cache"
   }
