@@ -8,7 +8,11 @@ export interface DateProps {
   fontSize?: string;
 }
 
-export function Date({ locale = 'en-US', timestampInSeconds, fontSize }: DateProps) {
+export function Date({
+  locale = 'en-US',
+  timestampInSeconds,
+  fontSize,
+}: DateProps) {
   const theme = useTheme();
 
   const displayDateFormatForLocale = () => {

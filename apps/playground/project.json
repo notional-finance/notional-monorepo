@@ -1,6 +1,7 @@
 {
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "packages/playground/src",
+  "name": "playground",
+  "sourceRoot": "apps/playground/src",
   "projectType": "application",
   "targets": {
     "build": {
@@ -9,19 +10,19 @@
       "defaultConfiguration": "production",
       "options": {
         "compiler": "babel",
-        "outputPath": "dist/packages/playground",
-        "index": "packages/playground/src/index.html",
+        "outputPath": "dist/apps/playground",
+        "index": "apps/playground/src/index.html",
         "baseHref": "/",
-        "main": "packages/playground/src/main.tsx",
-        "polyfills": "packages/playground/src/polyfills.ts",
-        "tsConfig": "packages/playground/tsconfig.app.json",
+        "main": "apps/playground/src/main.tsx",
+        "polyfills": "apps/playground/src/polyfills.ts",
+        "tsConfig": "apps/playground/tsconfig.app.json",
         "assets": [
-          "packages/playground/src/favicon.ico",
-          "packages/playground/src/assets"
+          "apps/playground/src/favicon.ico",
+          "apps/playground/src/assets"
         ],
         "styles": [],
         "scripts": [],
-        "webpackConfig": "packages/playground/webpack.config.ts"
+        "webpackConfig": "apps/playground/webpack.config.ts"
       },
       "configurations": {
         "development": {
@@ -33,8 +34,8 @@
         "production": {
           "fileReplacements": [
             {
-              "replace": "packages/playground/src/environments/environment.ts",
-              "with": "packages/playground/src/environments/environment.prod.ts"
+              "replace": "apps/playground/src/environments/environment.ts",
+              "with": "apps/playground/src/environments/environment.prod.ts"
             }
           ],
           "optimization": true,
@@ -67,14 +68,14 @@
       "executor": "@nrwl/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["packages/playground/**/*.{ts,tsx,js,jsx}"]
+        "lintFilePatterns": ["apps/playground/**/*.{ts,tsx,js,jsx}"]
       }
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/packages/playground"],
+      "outputs": ["{workspaceRoot}/coverage/apps/playground"],
       "options": {
-        "jestConfig": "packages/playground/jest.config.ts",
+        "jestConfig": "apps/playground/jest.config.ts",
         "passWithNoTests": true
       }
     }
