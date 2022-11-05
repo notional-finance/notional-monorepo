@@ -1,17 +1,18 @@
 import { BigNumber, ethers, VoidSigner } from 'ethers';
-import Notional, { Contracts } from '../../src';
+import Notional, { BigNumberType, Contracts, TypedBigNumber } from '../../src';
 import { AccountGraphLoader } from '../../src/account';
 import GraphClient from '../../src/data/GraphClient';
 import { decodeBinary, fetchAndEncodeSystem } from '../../src/data/SystemData';
+import { getNowSeconds } from '../../src/libs/utils';
 import { System } from '../../src/system';
-import { VaultFactory } from '../../src/vaults';
+import { VaultAccount, VaultFactory } from '../../src/vaults';
 
 require('dotenv').config();
 
-const mainnetAddresses = require('../../src/config/goerli.json');
+const mainnetAddresses = require('../../src/config/mainnet.json');
 
 const mainnetGraphEndpoint =
-  'https://api.thegraph.com/subgraphs/name/notional-finance/goerli-v2';
+  'https://api.thegraph.com/subgraphs/name/notional-finance/mainnet-debug';
 
 describe('System Integration Test', () => {
   let provider: ethers.providers.JsonRpcBatchProvider;
@@ -20,11 +21,11 @@ describe('System Integration Test', () => {
 
   beforeEach(async () => {
     provider = new ethers.providers.JsonRpcBatchProvider(
-      `https://eth-goerli.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`
+      `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`
     );
     const signer = new VoidSigner(ethers.constants.AddressZero, provider);
     contracts = Notional.getContracts(mainnetAddresses, signer);
-    notional = await Notional.load(5, provider);
+    notional = await Notional.load(1, provider);
   });
 
   it('loads account data', async () => {
@@ -55,28 +56,27 @@ describe('System Integration Test', () => {
       { USD: BigNumber.from(1) }
     );
 
-    // const initData = decodeBinary(binary, provider);
-    console.log(json);
+    const initData = decodeBinary(binary, provider);
+  });
 
-    // const system = new System(
-    //   '',
-    //   {} as GraphClient,
-    //   {} as Contracts,
-    //   provider,
-    //   0,
-    //   'goerli',
-    //   false,
-    //   initData
-    // );
-    // console.log(system.lastUpdateTimestamp);
-    // const metaVault = VaultFactory.buildVaultFromCache(
-    //   '0x77721081',
-    //   '0xe767769b639af18dbedc5fb534e263ff7be43456'
-    // );
-
-    // console.log(
-    //   metaVault.initParams.strategyContext.totalStrategyTokensGlobal.n.toString()
-    // );
+  it.only('returns system configuration from the graph', async () => {
+    const graphClient = new GraphClient(mainnetGraphEndpoint, 0, false);
+    const { vaultInstance: metaVault } = await VaultFactory.buildVault(
+      '0x77721081',
+      '0xf049b944ec83abb50020774d48a8cf40790996e6',
+      provider
+    );
+    const accountData = await AccountGraphLoader.load(
+      graphClient,
+      '0xd74e7325dFab7D7D1ecbf22e6E6874061C50f243'
+    );
+    const vaultAccount = accountData.vaultAccounts[0];
+    // console.log(metaVault.getStrategyTokenValue(vaultAccount).toExactString());
+    // console.log(vaultAccount.primaryBorrowfCash.toExactString());
+    // console.log(metaVault.getLeverageRatio(vaultAccount));
+    console.log(
+      metaVault.getLiquidationThresholds(vaultAccount, getNowSeconds())
+    );
   });
 
   it('initializes the meta stable vault', async () => {
