@@ -312,6 +312,7 @@ export default abstract class BaseVault<
     maturity: number,
     fCashToBorrow: TypedBigNumber,
     depositAmount: TypedBigNumber,
+    checkMinBorrow = true,
     blockTime = getNowSeconds()
   ) {
     const vaultState = this.getVaultState(maturity);
@@ -370,7 +371,11 @@ export default abstract class BaseVault<
         throw Error('Exceeds max secondary borrow capacity');
     }
 
-    newVaultAccount.updatePrimaryBorrowfCash(fCashToBorrow, true);
+    newVaultAccount.updatePrimaryBorrowfCash(
+      fCashToBorrow,
+      true,
+      checkMinBorrow
+    );
     newVaultAccount.addStrategyTokens(strategyTokens, true);
     newVaultAccount.addSecondaryDebtShares(secondaryfCashBorrowed, true);
 
@@ -803,6 +808,7 @@ export default abstract class BaseVault<
         maturity,
         fCashToBorrow,
         depositAmount,
+        false, // Don't check min borrow in this method
         blockTime
       );
 
