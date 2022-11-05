@@ -125,6 +125,7 @@ describe('Cross Currency fCash', () => {
         maturity,
         fCashToBorrow,
         TypedBigNumber.fromBalance(25e8, 'DAI', true),
+        true,
         blockTime
       );
 
@@ -166,6 +167,7 @@ describe('Cross Currency fCash', () => {
         maturity,
         fCashToBorrow,
         TypedBigNumber.fromBalance(25e8, 'DAI', true),
+        true,
         blockTime
       );
 
@@ -209,6 +211,7 @@ describe('Cross Currency fCash', () => {
         maturity,
         TypedBigNumber.fromBalance(-100e8, 'DAI', true),
         TypedBigNumber.fromBalance(0, 'DAI', true),
+        true,
         blockTime
       );
 
@@ -232,6 +235,7 @@ describe('Cross Currency fCash', () => {
         maturity,
         TypedBigNumber.fromBalance(-11_000e8, 'DAI', true),
         TypedBigNumber.fromBalance(25e8, 'DAI', true),
+        true,
         blockTime
       );
     }).toThrow('Exceeds max primary borrow capacity');
@@ -402,6 +406,7 @@ describe('Cross Currency fCash', () => {
       maturity,
       TypedBigNumber.fromBalance(-100e8, 'DAI', true),
       TypedBigNumber.fromBalance(25e8, 'DAI', true),
+      true,
       blockTime
     );
 
@@ -435,6 +440,7 @@ describe('Cross Currency fCash', () => {
       maturity,
       fCashToBorrow,
       depositAmount,
+      true,
       blockTime
     );
     expect(
@@ -449,6 +455,7 @@ describe('Cross Currency fCash', () => {
       maturity,
       TypedBigNumber.fromBalance(-100e8, 'DAI', true),
       depositAmount,
+      true,
       blockTime
     );
 
@@ -465,6 +472,7 @@ describe('Cross Currency fCash', () => {
       maturity,
       fCashToBorrow,
       depositAmount,
+      true,
       blockTime
     );
     expect(
@@ -491,6 +499,7 @@ describe('Cross Currency fCash', () => {
       maturity,
       fCashToBorrow,
       depositAmount,
+      true,
       blockTime
     );
 

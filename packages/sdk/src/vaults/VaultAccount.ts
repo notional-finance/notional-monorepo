@@ -129,7 +129,8 @@ export default class VaultAccount {
 
   public updatePrimaryBorrowfCash(
     netfCash: TypedBigNumber,
-    simulateVaultState: boolean
+    simulateVaultState: boolean,
+    checkMinBorrow = true
   ) {
     const underlyingSymbol = System.getSystem().getUnderlyingSymbol(
       this.getVault().primaryBorrowCurrency
@@ -139,6 +140,7 @@ export default class VaultAccount {
     if (newPrimaryBorrow.isPositive())
       throw Error('Cannot have positive fCash');
     if (
+      checkMinBorrow &&
       newPrimaryBorrow.isNegative() &&
       newPrimaryBorrow.neg().lt(this.getVault().minAccountBorrowSize)
     )
