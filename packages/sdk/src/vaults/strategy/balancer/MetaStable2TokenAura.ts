@@ -307,7 +307,10 @@ export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitPar
             newInvariant
           );
 
-          if (i === tokenOutIndex) targetSecondaryPrice = primaryTokenSpotPrice;
+          if (i === tokenOutIndex)
+            targetSecondaryPrice = primaryTokenSpotPrice
+              .mul(FixedPoint.ONE)
+              .div(b);
           return totalValue.add(primaryTokenSpotPrice);
         }, FixedPoint.from(0));
 
@@ -355,7 +358,7 @@ export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitPar
 
     return [
       {
-        name: 'wstETH/ETH Threshold',
+        name: 'stETH/ETH Price',
         type: LiquidationThresholdType.exchangeRate,
         ethExchangeRate,
       },

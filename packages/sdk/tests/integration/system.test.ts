@@ -75,7 +75,9 @@ describe('System Integration Test', () => {
     // console.log(vaultAccount.primaryBorrowfCash.toExactString());
     // console.log(metaVault.getLeverageRatio(vaultAccount));
     console.log(
-      metaVault.getLiquidationThresholds(vaultAccount, getNowSeconds())
+      metaVault
+        .getLiquidationThresholds(vaultAccount, getNowSeconds())[0]
+        .ethExchangeRate?.toExactString()
     );
   });
 
