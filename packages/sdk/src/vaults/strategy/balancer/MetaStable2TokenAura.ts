@@ -38,11 +38,21 @@ interface InitParams extends BaseBalancerStablePoolInitParams {
   swapFeePercentage: FixedPoint;
   oraclePairPrice: FixedPoint;
   bptPrice: FixedPoint;
+  bptPairPrice: FixedPoint;
 }
 
 export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitParams> {
   public get oraclePrice() {
     return this.initParams.oraclePairPrice;
+  }
+
+  public get balancerOraclePrice() {
+    if (this.initParams.poolContext.primaryTokenIndex === 0) {
+      return this.initParams.bptPrice;
+    }
+    return this.initParams.bptPrice
+      .mul(FixedPoint.ONE)
+      .div(this.initParams.bptPairPrice);
   }
 
   public get balances() {
@@ -198,6 +208,29 @@ export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitPar
           >
         ) => FixedPoint.from(r[0]),
       },
+      {
+        stage: 1,
+        target: (r) =>
+          new Contract(r.poolContext.poolAddress, BalancerStablePoolABI),
+        key: 'bptPairPrice',
+        method: 'getTimeWeightedAverage',
+        args: [
+          [
+            {
+              variable: 0, // BPT Pair Price
+              secs: 3600,
+              ago: 0,
+            },
+          ],
+        ],
+        transform: (
+          r: Awaited<
+            ReturnType<
+              BalancerStablePool['functions']['getTimeWeightedAverage']
+            >
+          >
+        ) => FixedPoint.from(r[0]),
+      },
     ] as AggregateCall[];
   }
 
@@ -328,22 +361,29 @@ export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitPar
     ];
   }
 
-  protected getBPTValue(amountIn: FixedPoint): FixedPoint {
+  protected getBPTValue(
+    amountIn: FixedPoint,
+    useBalancerOracle = true
+  ): FixedPoint {
     const { primaryTokenIndex } = this.initParams.poolContext;
-    return (
-      // Apply this to the unscaled balances since the oracle is the wstETH price
-      // not the stETH price
-      this.initParams.poolContext.balances
-        // Returns the claims of one BPT on constituent tokens
-        .map((b, i) => {
-          const claim = b.mul(amountIn).div(this.initParams.totalSupply);
-          if (i === primaryTokenIndex) return claim;
-          else return claim.mul(FixedPoint.ONE).div(this.oraclePrice);
-        })
-        .reduce((s, b) => {
-          return s.add(b);
-        }, FixedPoint.from(0))
-    );
+    if (useBalancerOracle) {
+      return this.balancerOraclePrice.mul(amountIn).div(FixedPoint.ONE);
+    } else {
+      return (
+        // Apply this to the unscaled balances since the oracle is the wstETH price
+        // not the stETH price
+        this.initParams.poolContext.balances
+          // Returns the claims of one BPT on constituent tokens
+          .map((b, i) => {
+            const claim = b.mul(amountIn).div(this.initParams.totalSupply);
+            if (i === primaryTokenIndex) return claim;
+            else return claim.mul(FixedPoint.ONE).div(this.oraclePrice);
+          })
+          .reduce((s, b) => {
+            return s.add(b);
+          }, FixedPoint.from(0))
+      );
+    }
   }
 
   protected getBPTOut(tokenAmountIn: FixedPoint) {
