@@ -33,10 +33,7 @@
       "executor": "@jscutlery/semver:version",
       "options": {
         "preset": "conventional",
-        "postTargets": [
-          "${projectName}:github-release",
-          "${projectName}:npm-publish"
-        ]
+        "postTargets": ["contracts:github-release", "contracts:npm-publish"]
       }
     },
     "github-release": {

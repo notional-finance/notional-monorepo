@@ -56,10 +56,7 @@
         "preset": "conventional",
         "releaseAs": "prerelease",
         "preRelease": "beta",
-        "postTargets": [
-          "${projectName}:github-release",
-          "${projectName}:npm-publish"
-        ]
+        "postTargets": ["sdk:github-release", "sdk:npm-publish"]
       }
     },
     "github-release": {

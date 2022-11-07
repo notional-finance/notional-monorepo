@@ -35,10 +35,7 @@
       "executor": "@jscutlery/semver:version",
       "options": {
         "preset": "conventional",
-        "postTargets": [
-          "${projectName}:github-release",
-          "${projectName}:npm-publish"
-        ]
+        "postTargets": ["notionable:github-release", "notionable:npm-publish"]
       }
     },
     "github-release": {
