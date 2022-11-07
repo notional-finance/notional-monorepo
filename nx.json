@@ -34,6 +34,22 @@
     },
     "build": {
       "dependsOn": ["^build"]
+    },
+    "version": {
+      "executor": "@jscutlery/semver:version",
+      "options": {
+        "preset": "conventional",
+        "push": true,
+        "skipCommitTypes": [
+          "chore",
+          "docs",
+          "perf",
+          "test",
+          "build",
+          "ci",
+          "revert"
+        ]
+      }
     }
   },
   "targetDependencies": {

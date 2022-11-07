@@ -53,8 +53,6 @@
     "version": {
       "executor": "@jscutlery/semver:version",
       "options": {
-        "preset": "conventional",
-        "push": true,
         "releaseAs": "prerelease",
         "preRelease": "beta",
         "postTargets": ["sdk:github-release", "sdk:npm-publish"]
