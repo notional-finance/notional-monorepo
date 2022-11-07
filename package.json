@@ -88,6 +88,7 @@
     "jest-environment-jsdom": "28.1.1",
     "jest-environment-miniflare": "^2.11.0",
     "moment": "^2.29.4",
+    "ngx-deploy-npm": "^4.3.2",
     "nx": "15.0.9",
     "os-browserify": "^0.3.0",
     "path-browserify": "^1.0.1",
