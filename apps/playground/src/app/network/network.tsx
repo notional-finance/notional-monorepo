@@ -1,9 +1,15 @@
 import { Box, Grid, MenuItem, Select, Typography, Button } from '@mui/material';
-import { useOnboard, chains, useNotional, switchNetwork } from '@notional-finance/notionable';
+import {
+  useOnboard,
+  chains,
+  useNotional,
+  switchNetwork,
+} from '@notional-finance/notionable';
 import { useState } from 'react';
 
 export function Network() {
-  const { connectWallet, supportedWallets, connected, chain, label } = useOnboard();
+  const { connectWallet, supportedWallets, connected, chain, label } =
+    useOnboard();
   const { connectedChain, loaded } = useNotional();
   const [selectedChain, setSelectedChain] = useState(chains[1].id);
   const [selectedWallet, setSelectedWallet] = useState('MetaMask');
@@ -20,9 +26,14 @@ export function Network() {
   };
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', mt: '1rem', mx: '3rem' }}>
+    <Box
+      sx={{ display: 'flex', flexDirection: 'column', mt: '1rem', mx: '3rem' }}
+    >
       <Box sx={{ display: 'flex', mb: '2rem' }}>
-        <Select value={selectedChain} onChange={(e) => setSelectedChain(e.target.value)}>
+        <Select
+          value={selectedChain}
+          onChange={(e) => setSelectedChain(e.target.value)}
+        >
           {chains.map((chain, index) => (
             <MenuItem key={chain.id} value={chain.id}>
               {chain.label}
@@ -32,7 +43,10 @@ export function Network() {
         <Button variant="contained" color="primary" onClick={handleChainClick}>
           Switch Chain
         </Button>
-        <Select value={selectedWallet} onChange={(e) => setSelectedWallet(e.target.value)}>
+        <Select
+          value={selectedWallet}
+          onChange={(e) => setSelectedWallet(e.target.value)}
+        >
           {supportedWallets.map((wallet) => (
             <MenuItem key={wallet} value={wallet}>
               {wallet}
