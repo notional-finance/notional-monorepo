@@ -50,12 +50,6 @@
         ],
         "cwd": "services/geoip"
       }
-    },
-    "version": {
-      "executor": "@jscutlery/semver:version",
-      "options": {
-        "preset": "conventional"
-      }
     }
   },
   "tags": []

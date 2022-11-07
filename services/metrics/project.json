@@ -52,12 +52,6 @@
         "passWithNoTests": true
       },
       "dependsOn": ["build"]
-    },
-    "version": {
-      "executor": "@jscutlery/semver:version",
-      "options": {
-        "preset": "conventional"
-      }
     }
   },
   "tags": []
