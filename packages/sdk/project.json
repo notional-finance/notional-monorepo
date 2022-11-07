@@ -63,7 +63,8 @@
       "executor": "@jscutlery/semver:github",
       "options": {
         "tag": "${tag}",
-        "notesFile": "./packages/sdk/CHANGELOG.md"
+        "notesFile": "./packages/sdk/CHANGELOG.md",
+        "push": true
       }
     },
     "npm-publish": {

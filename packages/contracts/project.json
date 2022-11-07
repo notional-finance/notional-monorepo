@@ -40,7 +40,8 @@
       "executor": "@jscutlery/semver:github",
       "options": {
         "tag": "${tag}",
-        "notesFile": "./packages/contracts/CHANGELOG.md"
+        "notesFile": "./packages/contracts/CHANGELOG.md",
+        "push": true
       }
     },
     "npm-publish": {
