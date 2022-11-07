@@ -35,6 +35,7 @@
       "executor": "@jscutlery/semver:version",
       "options": {
         "preset": "conventional",
+        "push": true,
         "postTargets": ["notionable:github-release", "notionable:npm-publish"]
       }
     },
@@ -42,8 +43,7 @@
       "executor": "@jscutlery/semver:github",
       "options": {
         "tag": "${tag}",
-        "notesFile": "./packages/notionable/CHANGELOG.md",
-        "push": true
+        "notesFile": "./packages/notionable/CHANGELOG.md"
       }
     },
     "npm-publish": {

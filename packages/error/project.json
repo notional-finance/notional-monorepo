@@ -33,6 +33,7 @@
       "executor": "@jscutlery/semver:version",
       "options": {
         "preset": "conventional",
+        "push": true,
         "postTargets": ["error:github-release", "error:npm-publish"]
       }
     },
@@ -40,8 +41,7 @@
       "executor": "@jscutlery/semver:github",
       "options": {
         "tag": "${tag}",
-        "notesFile": "./packages/error/CHANGELOG.md",
-        "push": true
+        "notesFile": "./packages/error/CHANGELOG.md"
       }
     },
     "npm-publish": {

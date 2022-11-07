@@ -33,6 +33,7 @@
       "executor": "@jscutlery/semver:version",
       "options": {
         "preset": "conventional",
+        "push": true,
         "postTargets": ["contracts:github-release", "contracts:npm-publish"]
       }
     },
@@ -40,8 +41,7 @@
       "executor": "@jscutlery/semver:github",
       "options": {
         "tag": "${tag}",
-        "notesFile": "./packages/contracts/CHANGELOG.md",
-        "push": true
+        "notesFile": "./packages/contracts/CHANGELOG.md"
       }
     },
     "npm-publish": {
