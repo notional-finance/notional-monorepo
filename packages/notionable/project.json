@@ -42,7 +42,7 @@
       "executor": "@jscutlery/semver:github",
       "options": {
         "tag": "${tag}",
-        "notes": "${notes}"
+        "notesFile": "./packages/notionable/CHANGELOG.md"
       }
     },
     "npm-publish": {
