@@ -32,8 +32,8 @@
     "test": {
       "inputs": ["default", "^default", "{workspaceRoot}/jest.preset.js"]
     },
-    "build-lib": {
-      "dependsOn": ["^build-lib"]
+    "build": {
+      "dependsOn": ["^build"]
     }
   },
   "targetDependencies": {

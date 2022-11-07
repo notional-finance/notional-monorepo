@@ -24,7 +24,7 @@ jobs:
       - name: Version
         shell: bash
         run: |
-          yarn nx affected --base=last-release --target=build-lib
+          yarn nx affected --base=last-release --target=build
           yarn nx affected --base=last-release --target=version --parallel=1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

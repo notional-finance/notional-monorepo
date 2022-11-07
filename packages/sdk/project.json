@@ -3,7 +3,7 @@
   "sourceRoot": "packages/sdk/src",
   "projectType": "library",
   "targets": {
-    "build-lib": {
+    "build": {
       "executor": "@nrwl/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
@@ -70,8 +70,7 @@
     "npm-publish": {
       "executor": "ngx-deploy-npm:deploy",
       "options": {
-        "access": "public",
-        "buildTarget": "build-lib"
+        "access": "public"
       }
     }
   },
