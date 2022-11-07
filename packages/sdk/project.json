@@ -54,6 +54,8 @@
       "executor": "@jscutlery/semver:version",
       "options": {
         "preset": "conventional",
+        "releaseAs": "prerelease",
+        "preRelease": "beta",
         "postTargets": [
           "${projectName}:github-release",
           "${projectName}:npm-publish"
