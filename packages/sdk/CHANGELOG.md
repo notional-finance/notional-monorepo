@@ -2,6 +2,10 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+# [0.6.0-beta.53](https://github.com/notional-finance/notional-monorepo/compare/sdk-0.6.0-beta.52...sdk-0.6.0-beta.53) (2022-11-07)
+
+
+
 ## [0.6.0-beta.52](https://github.com/notional-finance/notional-monorepo/compare/sdk-0.6.0-beta.51...sdk-0.6.0-beta.52) (2022-11-07)
 
 ## [0.6.0-beta.51](https://github.com/notional-finance/notional-monorepo/compare/sdk-0.6.0-beta.50...sdk-0.6.0-beta.51) (2022-11-07)
