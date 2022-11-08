@@ -1,6 +1,6 @@
 import { keccak256, toUtf8Bytes } from 'ethers/lib/utils';
 import { fetch as crossFetch } from 'cross-fetch';
-import { providers } from 'ethers';
+import { ethers, providers } from 'ethers';
 import { System } from '../system';
 import BaseVault from './BaseVault';
 import CrossCurrencyfCash from './strategy/notional/CrossCurrencyfCash';
@@ -89,12 +89,10 @@ export default class VaultFactory {
   ): Promise<VaultReturn[]> {
     const system = System.getSystem();
     const _fetch = system.skipFetchSetup ? fetch : crossFetch;
-    // const returnsURL = maturity
-    // ? `${system.cacheUrl}/vault-returns/${vaultAddress}/${maturity}`
-    // : `${system.cacheUrl}/vault-returns/${vaultAddress}`;
+    const _checkedAddress = ethers.utils.getAddress(vaultAddress);
     const returnsURL = maturity
-      ? `https://system-cache-dev.notional-finance.workers.dev/v2/mainnet/vault-returns/${vaultAddress}/${maturity}`
-      : `https://system-cache-dev.notional-finance.workers.dev/v2/mainnet/vault-returns/${vaultAddress}`;
+      ? `${system.cacheUrl}/vault-returns/${_checkedAddress}/${maturity}`
+      : `${system.cacheUrl}/vault-returns/${_checkedAddress}`;
 
     return _fetch(returnsURL).then((r) => r.json());
   }
