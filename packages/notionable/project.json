@@ -36,6 +36,15 @@
       "options": {
         "preset": "conventional",
         "push": true,
+        "skipCommitTypes": [
+          "chore",
+          "docs",
+          "perf",
+          "test",
+          "build",
+          "ci",
+          "revert"
+        ],
         "postTargets": ["notionable:github-release", "notionable:npm-publish"]
       }
     },

@@ -41,6 +41,15 @@
       "options": {
         "preset": "conventional",
         "push": true,
+        "skipCommitTypes": [
+          "chore",
+          "docs",
+          "perf",
+          "test",
+          "build",
+          "ci",
+          "revert"
+        ],
         "postTargets": ["util:github-release", "util:npm-publish"]
       }
     },
