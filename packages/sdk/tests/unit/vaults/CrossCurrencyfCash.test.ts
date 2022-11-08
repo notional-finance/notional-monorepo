@@ -139,7 +139,7 @@ describe('Cross Currency fCash', () => {
     ).toBeCloseTo(0.22, 1);
     expect(
       crossCurrency.getLeverageRatio(newVaultAccount)! / RATE_PRECISION
-    ).toBeCloseTo(5.3, 0);
+    ).toBeCloseTo(4.3, 0);
   });
 
   it('simulates entering a vault with matching shares', () => {
@@ -185,7 +185,7 @@ describe('Cross Currency fCash', () => {
     ).toBeCloseTo(0.23, 1);
     expect(
       crossCurrency.getLeverageRatio(newVaultAccount)! / RATE_PRECISION
-    ).toBeCloseTo(5.2, 0);
+    ).toBeCloseTo(4.2, 0);
   });
 
   it('simulates entering a vault with settled shares', () => {
@@ -386,16 +386,14 @@ describe('Cross Currency fCash', () => {
     const { newVaultAccount, isFullExit } =
       crossCurrency.getExitParamsFromLeverageRatio(
         vaultAccount,
-        2.0e9,
+        1.0e9,
         BASIS_POINT * 500,
         blockTime
       );
 
     expect(isFullExit).toBe(true);
     expect(newVaultAccount.primaryBorrowfCash.isZero()).toBe(true);
-    expect(crossCurrency.getLeverageRatio(newVaultAccount)).toBe(
-      RATE_PRECISION
-    );
+    expect(crossCurrency.getLeverageRatio(newVaultAccount)).toBe(0);
   });
 
   it('fails when attempting to roll a vault that is not allowed to', () => {
@@ -416,6 +414,7 @@ describe('Cross Currency fCash', () => {
         maturity + SECONDS_IN_DAY,
         TypedBigNumber.getZeroUnderlying(2),
         0.0025,
+        true,
         blockTime
       );
     }).toThrow('Cannot roll position in vault');

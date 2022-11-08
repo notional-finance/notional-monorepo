@@ -184,6 +184,11 @@ export default class AccountGraphLoader {
       return tradeType || 'unknown';
     if (nTokenBalanceBefore.gt(nTokenBalanceAfter)) {
       tradeType = tradeType ? `${tradeType} & Redeem nToken` : 'Redeem nToken';
+    } else if (
+      tradeType === 'Withdraw' &&
+      nTokenBalanceBefore.lt(nTokenBalanceAfter)
+    ) {
+      tradeType = 'Convert Cash to nToken';
     } else if (nTokenBalanceBefore.lt(nTokenBalanceAfter)) {
       tradeType = tradeType ? `${tradeType} & Mint nToken` : 'Mint nToken';
     }
@@ -347,6 +352,30 @@ export default class AccountGraphLoader {
     };
   }
 
+  private static getVaultTradeType(
+    vaultTradeType: string,
+    maturityBefore: number | undefined,
+    maturityAfter: number | undefined
+  ) {
+    if (vaultTradeType === 'EnterPosition' && !maturityBefore) {
+      return 'Establish Vault Account';
+    } else if (vaultTradeType === 'EnterPosition') {
+      return 'Increase Vault Position';
+    } else if (vaultTradeType === 'RollPosition') {
+      return 'Roll Vault Maturity';
+    } else if (vaultTradeType === 'ExitPreMaturity' && !maturityAfter) {
+      return 'Exit Vault Position';
+    } else if (vaultTradeType === 'ExitPreMaturity') {
+      return 'Reduce Vault Position';
+    } else if (vaultTradeType === 'ExitPostMaturity') {
+      return 'Exit Matured Vault Position';
+    } else if (vaultTradeType === 'DeleverageAccount') {
+      return 'Vault Position Liquidated';
+    } else {
+      return 'unknown';
+    }
+  }
+
   private static parseVaultTradeHistory(
     vaultTradeHistory: LeveragedVaultHistoryResponse[]
   ) {
@@ -377,7 +406,11 @@ export default class AccountGraphLoader {
         blockNumber: t.blockNumber,
         transactionHash: t.transactionHash,
         blockTime: new Date(t.timestamp * 1000),
-        vaultTradeType: t.vaultTradeType,
+        vaultTradeType: this.getVaultTradeType(
+          t.vaultTradeType,
+          maturityBefore,
+          maturityAfter
+        ),
         vaultAddress: vault.vaultAddress,
         maturityBefore,
         maturityAfter,

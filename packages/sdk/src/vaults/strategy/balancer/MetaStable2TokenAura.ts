@@ -343,7 +343,7 @@ export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitPar
       initialGuess, // this is the percentage difference from the threshold value
       0, // no target value since the calculation function just returns a delta
       findLiquidationUtilization,
-      100 * BASIS_POINT,
+      50 * BASIS_POINT,
       // Change the adjustment faster since trading is quite sensitive
       (m, d) => Math.floor(m - d * 0.75),
       50

@@ -23,16 +23,11 @@ export default abstract class BaseVault<
   public simulateSettledStrategyTokens = true;
 
   public static collateralToLeverageRatio(collateralRatio: number): number {
-    return (
-      Math.floor((RATE_PRECISION / collateralRatio) * RATE_PRECISION) +
-      RATE_PRECISION
-    );
+    return Math.floor((RATE_PRECISION / collateralRatio) * RATE_PRECISION);
   }
 
   public static leverageToCollateralRatio(leverageRatio: number): number {
-    return Math.floor(
-      (RATE_PRECISION / (leverageRatio - RATE_PRECISION)) * RATE_PRECISION
-    );
+    return Math.floor((RATE_PRECISION / leverageRatio) * RATE_PRECISION);
   }
 
   public encodeDepositParams(depositParams: D) {
@@ -149,18 +144,15 @@ export default abstract class BaseVault<
   }
 
   public getLeverageRatio(vaultAccount: VaultAccount) {
-    if (!vaultAccount.hasLeverage) return RATE_PRECISION;
+    if (!vaultAccount.hasLeverage) return 0;
 
     const debtOutstanding = vaultAccount.primaryBorrowfCash.toAssetCash().neg();
     const netAssetValue =
       this.getCashValueOfShares(vaultAccount).sub(debtOutstanding);
-    if (netAssetValue.isZero()) return RATE_PRECISION;
+    if (netAssetValue.isZero()) return 0;
 
-    // Minimum leverage ratio is 1
-    return (
-      debtOutstanding.scale(RATE_PRECISION, netAssetValue.n).toNumber() +
-      RATE_PRECISION
-    );
+    // Minimum leverage ratio is 0
+    return debtOutstanding.scale(RATE_PRECISION, netAssetValue.n).toNumber();
   }
 
   public getCashValueOfShares(vaultAccount: VaultAccount) {
@@ -355,16 +347,18 @@ export default abstract class BaseVault<
         totalCashDeposit,
         blockTime
       );
-    if (!this.checkBorrowCapacity(fCashToBorrow.neg()))
+    if (checkMinBorrow && !this.checkBorrowCapacity(fCashToBorrow.neg()))
       throw Error('Exceeds max primary borrow capacity');
 
     if (secondaryfCashBorrowed) {
       if (
+        checkMinBorrow &&
         secondaryfCashBorrowed[0] &&
         !this.checkBorrowCapacity(secondaryfCashBorrowed[0])
       )
         throw Error('Exceeds max secondary borrow capacity');
       if (
+        checkMinBorrow &&
         secondaryfCashBorrowed[1] &&
         !this.checkBorrowCapacity(secondaryfCashBorrowed[1])
       )
@@ -448,8 +442,7 @@ export default abstract class BaseVault<
     blockTime = getNowSeconds(),
     precision = BASIS_POINT * 25
   ) {
-    if (targetLeverageRatio < RATE_PRECISION)
-      throw new Error('Leverage Ratio below 1');
+    if (targetLeverageRatio < 0) throw new Error('Leverage Ratio below 0');
     const targetCollateralRatio =
       BaseVault.leverageToCollateralRatio(targetLeverageRatio);
     const currentCollateralRatio = this.getCollateralRatio(vaultAccount);
@@ -697,6 +690,7 @@ export default abstract class BaseVault<
     newMaturity: number,
     depositAmount: TypedBigNumber,
     slippageBuffer: number,
+    checkMinBorrow = true,
     blockTime = getNowSeconds()
   ) {
     const vault = this.getVault();
@@ -732,6 +726,7 @@ export default abstract class BaseVault<
         .scale(slippageBuffer + RATE_PRECISION, RATE_PRECISION);
 
       if (
+        checkMinBorrow &&
         !this.checkBorrowCapacity(
           fCashToBorrowForRepayment.sub(vaultAccount.primaryBorrowfCash).neg()
         )
@@ -754,7 +749,11 @@ export default abstract class BaseVault<
       ),
       true
     );
-    newVaultAccount.updatePrimaryBorrowfCash(fCashToBorrowForRepayment, true);
+    newVaultAccount.updatePrimaryBorrowfCash(
+      fCashToBorrowForRepayment,
+      true,
+      checkMinBorrow
+    );
 
     return {
       fCashToBorrowForRepayment,
