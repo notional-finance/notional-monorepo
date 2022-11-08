@@ -10,8 +10,9 @@ import {
   NOTESummary,
   BalanceSummary,
   AssetSummary,
-} from '@notional-finance/sdk/account';
-import { Market } from '@notional-finance/sdk/system';
+} from '@notional-finance/sdk/src/account';
+import { Market } from '@notional-finance/sdk/src/system';
+import { TradeProperties } from '@notional-finance/trade';
 
 export interface SetChainOptions {
   chainId: string | number;
@@ -120,93 +121,14 @@ export interface CalculateTradedRatesResult {
 
 export interface MaturityData {
   marketKey: string;
-  tradeRate: string;
+  tradeRate: number | undefined;
   maturity: number;
   hasLiquidity: boolean;
-  isFirstChild: boolean;
-  isLastChild: boolean;
+  tradeRateString: string;
   rollMaturityRoute?: string;
   fCashAmount?: TypedBigNumber;
   cashAmount?: TypedBigNumber;
 }
-
-export enum TradePropertyKeys {
-  deposit = 'transactionProperties.deposit',
-  fromCashBalance = 'transactionProperties.fromCashBalance',
-  interestEarned = 'transactionProperties.interestEarned',
-  apy = 'transactionProperties.apy',
-  fCashMinted = 'transactionProperties.fCashMinted',
-  maturity = 'transactionProperties.maturity',
-  amountToWallet = 'transactionProperties.amountToWallet',
-  amountToPortfolio = 'transactionProperties.amountToPortfolio',
-  interestDue = 'transactionProperties.interestDue',
-  collateralRatio = 'transactionProperties.collateralRatio',
-  loanToValue = 'transactionProperties.loanToValue',
-  collateralDeposit = 'transactionProperties.collateralDeposit',
-  collateralType = 'transactionProperties.collateralType',
-  collateralAPY = 'transactionProperties.collateralAPY',
-  incentivesMinted = 'transactionProperties.incentivesMinted',
-  nTokensMinted = 'transactionProperties.nTokensMinted',
-  nTokensRedeemed = 'transactionProperties.nTokensRedeemed',
-  nTokenShare = 'transactionProperties.nTokenShare',
-  newMaturity = 'transactionProperties.newMaturity',
-  newfCashAmount = 'transactionProperties.newfCashAmount',
-  costToRepay = 'transactionProperties.costToRepay',
-  repaymentRate = 'transactionProperties.repaymentRate',
-  withdrawLendRate = 'transactionProperties.withdrawLendRate',
-  leverageRatio = 'transactionProperties.leverageRatio',
-  transactionCosts = 'transactionProperties.transactionCosts',
-  assetsSold = 'transactionProperties.assetsSold',
-  debtRepaid = 'transactionProperties.debtRepaid',
-  nTokenRedeemSlippage = 'transactionProperties.nTokenRedeemSlippage',
-  noteDeposit = 'transactionProperties.noteDeposit',
-  ethDeposit = 'transactionProperties.ethDeposit',
-  notePrice = 'transactionProperties.notePrice',
-  ethReceived = 'transactionProperties.ethReceived',
-  noteReceived = 'transactionProperties.noteReceived',
-  sNOTERedeemed = 'transactionProperties.sNOTERedeemed',
-  redeemWindowBegins = 'transactionProperties.redeemWindowBegins',
-  redeemWindowEnds = 'transactionProperties.redeemWindowEnds',
-}
-
-export type TradeProperties = Partial<{
-  [TradePropertyKeys.maturity]: number;
-  [TradePropertyKeys.newMaturity]: number;
-  [TradePropertyKeys.apy]: number;
-  [TradePropertyKeys.collateralRatio]: number;
-  [TradePropertyKeys.loanToValue]: number;
-  [TradePropertyKeys.repaymentRate]: number;
-  [TradePropertyKeys.withdrawLendRate]: number;
-  [TradePropertyKeys.leverageRatio]: number;
-  [TradePropertyKeys.collateralAPY]: number;
-  [TradePropertyKeys.collateralType]: string;
-  [TradePropertyKeys.nTokenShare]: number;
-  [TradePropertyKeys.notePrice]: number;
-  [TradePropertyKeys.deposit]: TypedBigNumber;
-  [TradePropertyKeys.fromCashBalance]: TypedBigNumber;
-  [TradePropertyKeys.interestEarned]: TypedBigNumber;
-  [TradePropertyKeys.fCashMinted]: TypedBigNumber;
-  [TradePropertyKeys.amountToWallet]: TypedBigNumber;
-  [TradePropertyKeys.amountToPortfolio]: TypedBigNumber;
-  [TradePropertyKeys.interestDue]: TypedBigNumber;
-  [TradePropertyKeys.collateralDeposit]: TypedBigNumber;
-  [TradePropertyKeys.incentivesMinted]: TypedBigNumber;
-  [TradePropertyKeys.nTokensMinted]: TypedBigNumber;
-  [TradePropertyKeys.nTokensRedeemed]: TypedBigNumber;
-  [TradePropertyKeys.newfCashAmount]: TypedBigNumber;
-  [TradePropertyKeys.costToRepay]: TypedBigNumber;
-  [TradePropertyKeys.assetsSold]: TypedBigNumber;
-  [TradePropertyKeys.debtRepaid]: TypedBigNumber;
-  [TradePropertyKeys.transactionCosts]: TypedBigNumber;
-  [TradePropertyKeys.nTokenRedeemSlippage]: TypedBigNumber;
-  [TradePropertyKeys.noteDeposit]: TypedBigNumber;
-  [TradePropertyKeys.ethDeposit]: TypedBigNumber;
-  [TradePropertyKeys.ethReceived]: TypedBigNumber;
-  [TradePropertyKeys.noteReceived]: TypedBigNumber;
-  [TradePropertyKeys.sNOTERedeemed]: TypedBigNumber;
-  [TradePropertyKeys.redeemWindowBegins]: string;
-  [TradePropertyKeys.redeemWindowEnds]: string;
-}>;
 
 export interface TransactionFunction {
   transactionFn: (...args: any) => Promise<PopulatedTransaction>;
@@ -221,8 +143,4 @@ export interface TransactionData {
 
 export interface Hashable {
   hashKey: string;
-}
-export interface NotionalError extends Error {
-  msgId?: string;
-  code?: number;
 }

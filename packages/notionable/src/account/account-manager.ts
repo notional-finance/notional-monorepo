@@ -22,7 +22,10 @@ import {
 } from 'rxjs';
 
 import { signer$ as onboardSigner$ } from '../onboard/onboard-store';
-import { BalanceSummary, AssetSummary } from '@notional-finance/sdk/account';
+import {
+  BalanceSummary,
+  AssetSummary,
+} from '@notional-finance/sdk/src/account';
 import Notional from '@notional-finance/sdk';
 import { notional$ } from '../notional/notional-store';
 import {
@@ -43,7 +46,7 @@ const _startRefresh = new Subject();
 const startRefresh$ = _startRefresh.asObservable();
 const _stopRefresh = new Subject();
 const stopRefresh$ = _stopRefresh.asObservable();
-const _voidSigner = new Subject<string>();
+const _voidSigner = new Subject<string | undefined>();
 const voidSigner$ = _voidSigner.asObservable();
 
 const _defaultBalanceSummaryResult: BalanceSummaryResult = {
@@ -56,7 +59,7 @@ const _defaultAssetSummaryResult: AssetSummaryResult = {
   tradeHistory: [] as TradeHistory[],
 };
 
-export function setReadOnlyAddress(readOnlyAddress: string) {
+export function setReadOnlyAddress(readOnlyAddress?: string) {
   _voidSigner.next(readOnlyAddress);
 }
 
@@ -84,6 +87,13 @@ const _signer$ = merge(onboardSigner$, voidSigner$).pipe(
         readOnlyAddress: undefined,
         isReadOnly: false,
       });
+    } else if (signer === undefined) {
+      _stopRefresh.next(true);
+      updateAccountState({
+        ...initialAccountState,
+        readOnlyAddress: undefined,
+        isReadOnly: false,
+      });
     }
     return signer;
   })
@@ -93,6 +103,10 @@ const _accountUpdates = new Subject<Account>();
 const accountUpdates$ = _accountUpdates.asObservable().pipe(
   distinctUntilChanged((a, b) => {
     if (a && b) {
+      if (a.address !== b.address) {
+        return false;
+      }
+
       const aHash = a.accountData?.hashKey ?? '';
       const bHash = b.accountData?.hashKey ?? '';
       const areIdentical = aHash === bHash;
@@ -175,7 +189,11 @@ startRefresh$
 
 signerOrNotionalChanged$.subscribe((account) => {
   if (account && account !== null) {
-    updateAccountState({ account, accountConnected: !!account });
+    updateAccountState({
+      account,
+      accountConnected: !!account,
+      accountSummariesLoaded: false,
+    });
     _startRefresh.next(account.address);
   }
 });
@@ -183,7 +201,7 @@ signerOrNotionalChanged$.subscribe((account) => {
 accountUpdates$.subscribe({
   next: (result: Partial<AccountState>) => {
     console.log('updating account summaries');
-    updateAccountState(result);
+    updateAccountState({ ...result, accountSummariesLoaded: true });
   },
   complete: () => console.log('account updates completed'),
 });

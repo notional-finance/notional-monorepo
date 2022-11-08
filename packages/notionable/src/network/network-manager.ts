@@ -1,4 +1,7 @@
-import { getFromLocalStorage, getNetworkIdFromHostname } from '../utils';
+import {
+  getFromLocalStorage,
+  getNetworkIdFromHostname,
+} from '@notional-finance/utils';
 import { initializeNotional } from '../notional/notional-manager';
 import {
   initializeOnboard,

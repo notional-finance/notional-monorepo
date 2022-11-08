@@ -1,5 +1,5 @@
 import Notional from '@notional-finance/sdk';
-import { System } from '@notional-finance/sdk/system';
+import { System } from '@notional-finance/sdk/src/system';
 import {
   BehaviorSubject,
   distinctUntilKeyChanged,
@@ -13,7 +13,10 @@ import {
 export interface NotionalState {
   notional: Notional | null;
   loaded: boolean;
+  // This is the currently connected chain
   connectedChain: number;
+  // This is the chain that notional will be connected to next
+  pendingChainId: number;
 }
 export type NotionalStateKeys = keyof NotionalState;
 
@@ -21,6 +24,7 @@ export const initialNotionalState: NotionalState = {
   notional: null,
   loaded: false,
   connectedChain: -1,
+  pendingChainId: -1,
 };
 
 const _notionalStore = new BehaviorSubject(initialNotionalState);

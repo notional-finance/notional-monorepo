@@ -1,7 +1,7 @@
 import { combineLatest, of, map, switchMap, share, filter } from 'rxjs';
 import { Currency } from '@notional-finance/sdk';
 import { constants } from 'ethers';
-import { ETHER_CURRENCY_ID } from '@notional-finance/sdk/config/constants';
+import { ETHER_CURRENCY_ID } from '@notional-finance/sdk/src/config/constants';
 import { ERC20Token } from '../types';
 import { system$ } from '../notional/notional-store';
 import { updateCurrencyState, selectCurrencyState } from './currency-store';
