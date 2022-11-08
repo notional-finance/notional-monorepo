@@ -59,7 +59,7 @@ describe('System Integration Test', () => {
     const initData = decodeBinary(binary, provider);
   });
 
-  it.only('returns system configuration from the graph', async () => {
+  it.only('calculates a liquidation threshold', async () => {
     const graphClient = new GraphClient(mainnetGraphEndpoint, 0, false);
     const { vaultInstance: metaVault } = await VaultFactory.buildVault(
       '0x77721081',
