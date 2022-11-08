@@ -20,7 +20,7 @@ import {
   TreasuryManagerABI,
   ExchangeV3ABI,
 } from '@notional-finance/contracts';
-// import { handleError } from '@notional-finance/error';
+import { handleError } from '@notional-finance/error';
 import { System } from './system';
 import GraphClient from './data/GraphClient';
 import { Account, AccountData, AccountGraphLoader } from './account';
@@ -190,8 +190,8 @@ export default class Notional extends TransactionBuilder {
         contracts
       );
     } catch (e) {
-      // const error = handleError(e);
-      throw e as Error;
+      const error = handleError(e);
+      throw error;
     }
   }
 
