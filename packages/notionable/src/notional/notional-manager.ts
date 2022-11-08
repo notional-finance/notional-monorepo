@@ -1,4 +1,4 @@
-import { getProvider, setInLocalStorage } from '@notional-finance/utils';
+import { getProvider, setInLocalStorage } from '@notional-finance/util';
 import Notional from '@notional-finance/sdk';
 import { OnboardState, onboardState$ } from '../onboard/onboard-store';
 import { updateNotionalState } from './notional-store';

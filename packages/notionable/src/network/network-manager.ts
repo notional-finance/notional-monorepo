@@ -1,7 +1,7 @@
 import {
   getFromLocalStorage,
   getNetworkIdFromHostname,
-} from '@notional-finance/utils';
+} from '@notional-finance/util';
 import { initializeNotional } from '../notional/notional-manager';
 import {
   initializeOnboard,

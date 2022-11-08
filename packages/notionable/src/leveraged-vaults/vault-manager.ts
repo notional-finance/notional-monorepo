@@ -1,6 +1,9 @@
 import { BaseVault, VaultFactory, VaultState } from '@notional-finance/sdk';
-import { RATE_PRECISION, SECONDS_IN_DAY } from '@notional-finance/sdk/src/config/constants';
-import { getNowSeconds } from '@notional-finance/utils';
+import {
+  RATE_PRECISION,
+  SECONDS_IN_DAY,
+} from '@notional-finance/sdk/src/config/constants';
+import { getNowSeconds } from '@notional-finance/util';
 import { combineLatest, filter, forkJoin, from, map, mergeMap } from 'rxjs';
 import { system$ } from '../notional/notional-store';
 import {
@@ -22,7 +25,9 @@ system$.subscribe((system) => {
           strategyName: VaultFactory.resolveStrategyName(v.strategy),
         };
       })
-      .filter(({ strategyName }) => strategyName !== undefined) as ListedVault[];
+      .filter(
+        ({ strategyName }) => strategyName !== undefined
+      ) as ListedVault[];
 
     // Only includes vault maturities that do not have asset cash
     const { vaultMaturityStates, activeVaultMarkets } = listedVaults.reduce(
@@ -75,14 +80,14 @@ export const vaultPerformance$ = combineLatest({
         // TODO: currently does not support per maturity returns
         // VaultFactory.fetchVaultReturns(v.vaultConfig.vaultAddress).then((returns) => {
         return from(
-          VaultFactory.fetchVaultReturns('0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa').then(
-            (returns) => {
-              return {
-                vaultAddress: v.vaultConfig.vaultAddress,
-                returns,
-              };
-            }
-          )
+          VaultFactory.fetchVaultReturns(
+            '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
+          ).then((returns) => {
+            return {
+              vaultAddress: v.vaultConfig.vaultAddress,
+              returns,
+            };
+          })
         );
       })
     );
@@ -91,11 +96,21 @@ export const vaultPerformance$ = combineLatest({
     return new Map<string, VaultPerformance>(
       values.map(({ vaultAddress, returns }) => {
         const currentTime = getNowSeconds();
-        const { returnDrivers: sevenDayReturnDrivers, totalReturns: sevenDayTotalAverage } =
-          VaultFactory.calculateAverageReturns(returns, currentTime - 7 * SECONDS_IN_DAY);
+        const {
+          returnDrivers: sevenDayReturnDrivers,
+          totalReturns: sevenDayTotalAverage,
+        } = VaultFactory.calculateAverageReturns(
+          returns,
+          currentTime - 7 * SECONDS_IN_DAY
+        );
 
-        const { returnDrivers: thirtyDayReturnDrivers, totalReturns: thirtyDayTotalAverage } =
-          VaultFactory.calculateAverageReturns(returns, currentTime - 30 * SECONDS_IN_DAY);
+        const {
+          returnDrivers: thirtyDayReturnDrivers,
+          totalReturns: thirtyDayTotalAverage,
+        } = VaultFactory.calculateAverageReturns(
+          returns,
+          currentTime - 30 * SECONDS_IN_DAY
+        );
 
         return [
           vaultAddress,
@@ -119,7 +134,8 @@ export const headlineApy$ = combineLatest({
   activeVaultMarkets: activeVaultMarkets$,
 }).pipe(
   filter(
-    ({ vaultPerformance$, system }) => system !== undefined && vaultPerformance$ !== undefined
+    ({ vaultPerformance$, system }) =>
+      system !== undefined && vaultPerformance$ !== undefined
   ),
   map(({ listedVaults, vaultPerformance$, system, activeVaultMarkets }) => {
     return listedVaults.map((v) => {
@@ -163,7 +179,9 @@ export const headlineApy$ = combineLatest({
     });
   }),
   map((values) => {
-    return new Map(values.map(({ vaultAddress, headlineApy }) => [vaultAddress, headlineApy]));
+    return new Map(
+      values.map(({ vaultAddress, headlineApy }) => [vaultAddress, headlineApy])
+    );
   })
 );
 
@@ -174,7 +192,9 @@ export function calculateHeadlineVaultReturns(
 ) {
   if (averageReturn && currentBorrowRate && leverageRatio) {
     return (
-      (averageReturn - currentBorrowRate) * (leverageRatio / RATE_PRECISION - 1) + averageReturn
+      (averageReturn - currentBorrowRate) *
+        (leverageRatio / RATE_PRECISION - 1) +
+      averageReturn
     );
   }
   return undefined;

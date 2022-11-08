@@ -23,7 +23,7 @@ import {
 } from '../chains';
 import NotionalIcon from '../assets/notional.svg';
 import { providers } from 'ethers';
-import { setInLocalStorage } from '@notional-finance/utils';
+import { setInLocalStorage } from '@notional-finance/util';
 import {
   updateOnboardState,
   resetOnboardState,
