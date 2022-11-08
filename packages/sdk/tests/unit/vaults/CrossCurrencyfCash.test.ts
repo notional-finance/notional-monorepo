@@ -414,6 +414,7 @@ describe('Cross Currency fCash', () => {
         maturity + SECONDS_IN_DAY,
         TypedBigNumber.getZeroUnderlying(2),
         0.0025,
+        true,
         blockTime
       );
     }).toThrow('Cannot roll position in vault');

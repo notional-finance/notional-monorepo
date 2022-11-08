@@ -347,16 +347,18 @@ export default abstract class BaseVault<
         totalCashDeposit,
         blockTime
       );
-    if (!this.checkBorrowCapacity(fCashToBorrow.neg()))
+    if (checkMinBorrow && !this.checkBorrowCapacity(fCashToBorrow.neg()))
       throw Error('Exceeds max primary borrow capacity');
 
     if (secondaryfCashBorrowed) {
       if (
+        checkMinBorrow &&
         secondaryfCashBorrowed[0] &&
         !this.checkBorrowCapacity(secondaryfCashBorrowed[0])
       )
         throw Error('Exceeds max secondary borrow capacity');
       if (
+        checkMinBorrow &&
         secondaryfCashBorrowed[1] &&
         !this.checkBorrowCapacity(secondaryfCashBorrowed[1])
       )
@@ -688,6 +690,7 @@ export default abstract class BaseVault<
     newMaturity: number,
     depositAmount: TypedBigNumber,
     slippageBuffer: number,
+    checkMinBorrow = true,
     blockTime = getNowSeconds()
   ) {
     const vault = this.getVault();
@@ -723,6 +726,7 @@ export default abstract class BaseVault<
         .scale(slippageBuffer + RATE_PRECISION, RATE_PRECISION);
 
       if (
+        checkMinBorrow &&
         !this.checkBorrowCapacity(
           fCashToBorrowForRepayment.sub(vaultAccount.primaryBorrowfCash).neg()
         )
@@ -745,7 +749,11 @@ export default abstract class BaseVault<
       ),
       true
     );
-    newVaultAccount.updatePrimaryBorrowfCash(fCashToBorrowForRepayment, true);
+    newVaultAccount.updatePrimaryBorrowfCash(
+      fCashToBorrowForRepayment,
+      true,
+      checkMinBorrow
+    );
 
     return {
       fCashToBorrowForRepayment,
