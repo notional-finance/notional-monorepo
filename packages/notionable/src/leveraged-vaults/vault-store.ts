@@ -26,6 +26,7 @@ export interface VaultStore {
   listedVaults: ListedVault[];
   vaultMaturityStates: Map<string, VaultState[]>;
   activeVaultMarkets: Map<string, string[]>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   baseVaultInitParams: Map<string, any>;
 }
 
@@ -44,7 +45,9 @@ const {
 
 export { updateVaultState, selectVaultState, vaultState$ };
 
-export const listedVaults$ = selectVaultState('listedVaults') as Observable<ListedVault[]>;
-export const activeVaultMarkets$ = selectVaultState('activeVaultMarkets') as Observable<
-  Map<string, string[]>
+export const listedVaults$ = selectVaultState('listedVaults') as Observable<
+  ListedVault[]
 >;
+export const activeVaultMarkets$ = selectVaultState(
+  'activeVaultMarkets'
+) as Observable<Map<string, string[]>>;
