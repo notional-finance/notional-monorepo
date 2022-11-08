@@ -79,7 +79,7 @@ const _refreshWalletBalances$ = combineLatest([
 );
 
 const _walletRefreshTimer$ = timer(0, WalletRefreshInterval).pipe(
-  switchMap((_) => _refreshWalletBalances$),
+  switchMap(() => _refreshWalletBalances$),
   takeUntil(stopRefresh$)
 );
 async function getBalanceAndAllowance(
@@ -119,10 +119,10 @@ async function getBalanceAndAllowance(
 startRefresh$.pipe(exhaustMap(() => _walletRefreshTimer$)).subscribe();
 accountConnected$.subscribe((connected) => {
   connected ? _startRefresh.next(connected) : _stopRefresh.next(null);
-  updateWalletState({ walletConnected: connected });
+  updateWalletState({ walletConnected: connected, walletHasLoaded: false });
 });
 
 walletUpdates$.subscribe((tokens) => {
   console.log('wallet balances updated');
-  updateWalletState({ tokens });
+  updateWalletState({ tokens, walletHasLoaded: true });
 });

@@ -1277,6 +1277,26 @@
     md5 "2.3.0"
     webpack-virtual-modules "^0.4.4"
 
+"@datadog/browser-core@4.23.3":
+  version "4.23.3"
+  resolved "https://registry.yarnpkg.com/@datadog/browser-core/-/browser-core-4.23.3.tgz#843f6787eff5a4d06bb0f9eb93eb54ece687e631"
+  integrity sha512-XaZTE9M8mngVaPLZmZAlwY+OWxGh1fQwaIMezsbwUreK3Itnz0BgGU9UBksPQXFRvQysV2/BDtV0nonu++Psxw==
+
+"@datadog/browser-rum-core@4.23.3":
+  version "4.23.3"
+  resolved "https://registry.yarnpkg.com/@datadog/browser-rum-core/-/browser-rum-core-4.23.3.tgz#fafefd01d9ae9c0792e4b3dea2ed98d05a6fbdab"
+  integrity sha512-7uv511XgkyJjZP1B6fJWpdGvpp0XQZ38h0iqqMBCPszADVlDuRu7YYiuQFL6sUtAUR46kIWLKQSvL8IxB3/Cqg==
+  dependencies:
+    "@datadog/browser-core" "4.23.3"
+
+"@datadog/browser-rum@^4.23.3":
+  version "4.23.3"
+  resolved "https://registry.yarnpkg.com/@datadog/browser-rum/-/browser-rum-4.23.3.tgz#404d95b5259559b43d8c6ee751493f593612c616"
+  integrity sha512-wHYN8KeXCYlutgWnoJAs4S6Ck9k3rmf9jRKsxNDe6NXDiQnMP+Nlw3G5ls5FcFKYBp2g3ICAGwL30Hb8nSCWXw==
+  dependencies:
+    "@datadog/browser-core" "4.23.3"
+    "@datadog/browser-rum-core" "4.23.3"
+
 "@emotion/babel-plugin@11.10.2", "@emotion/babel-plugin@^11.10.0":
   version "11.10.2"
   resolved "https://registry.yarnpkg.com/@emotion/babel-plugin/-/babel-plugin-11.10.2.tgz#879db80ba622b3f6076917a1e6f648b1c7d008c7"
@@ -4826,6 +4846,11 @@
   resolved "https://registry.yarnpkg.com/@types/node/-/node-18.11.6.tgz#4f91b0b30d405fdf76e0029b11ef5df6a0da4261"
   integrity sha512-j3CEDa2vd96K0AXF8Wur7UucACvnjkk8hYyQAHhUNciabZLDl9nfAEVUSwmh245OOZV15bRA3Y590Gi5jUcDJg==
 
+"@types/node@16.11.7":
+  version "16.11.7"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-16.11.7.tgz#36820945061326978c42a01e56b61cd223dfdc42"
+  integrity sha512-QB5D2sqfSjCmTuWcBWyJ+/44bcjO7VbjSbOE0ucoVbAsSNQc4Lt6QkgkVXkTDwkL4z/beecZNDvVX15D4P8Jbw==
+
 "@types/node@^12.12.54":
   version "12.20.55"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-12.20.55.tgz#c329cbd434c42164f846b909bd6f85b5537f6240"
@@ -4835,11 +4860,6 @@
   version "14.18.33"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-14.18.33.tgz#8c29a0036771569662e4635790ffa9e057db379b"
   integrity sha512-qelS/Ra6sacc4loe/3MSjXNL1dNQ/GjxNHVzuChwMfmk7HuycRLVQN2qNY3XahK+fZc5E2szqQSKUyAF0E+2bg==
-
-"@types/node@latest":
-  version "18.11.9"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.11.9.tgz#02d013de7058cea16d36168ef2fc653464cfbad4"
-  integrity sha512-CRpX21/kGdzjOpFsZSkcrXMGIBWMGNIHXXBVFSH+ggkftxg+XYP20TESbh+zFvFj3EQOl5byk0HTRn1IL6hbqg==
 
 "@types/normalize-package-data@^2.4.0":
   version "2.4.1"

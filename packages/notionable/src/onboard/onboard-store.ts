@@ -76,3 +76,6 @@ export const signer$ = selectOnboardState(
   'signer'
 ) as Observable<providers.JsonRpcSigner | null>;
 export const address$ = selectOnboardState('address') as Observable<string>;
+export const modules$ = selectOnboardState('modules') as Observable<
+  SupportedWallet[]
+>;

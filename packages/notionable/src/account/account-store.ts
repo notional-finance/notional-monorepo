@@ -11,7 +11,7 @@ import {
   BalanceSummary,
   AssetSummary,
   NOTESummary,
-} from '@notional-finance/sdk/account';
+} from '@notional-finance/sdk/src/account';
 import { Hashable } from '../types';
 
 export interface AccountState {
@@ -22,6 +22,7 @@ export interface AccountState {
   assetSummary: Map<string, AssetSummary>;
   noteSummary: NOTESummary | null;
   accountConnected: boolean;
+  accountSummariesLoaded: boolean;
 }
 export type AccountStateKeys = keyof AccountState;
 
@@ -32,6 +33,7 @@ export const initialAccountState: AccountState = {
   assetSummary: new Map(),
   noteSummary: null,
   accountConnected: false,
+  accountSummariesLoaded: false,
 };
 
 const _accountStore = new BehaviorSubject(initialAccountState);

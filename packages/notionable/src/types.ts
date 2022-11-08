@@ -10,8 +10,8 @@ import {
   NOTESummary,
   BalanceSummary,
   AssetSummary,
-} from '@notional-finance/sdk/account';
-import { Market } from '@notional-finance/sdk/system';
+} from '@notional-finance/sdk/src/account';
+import { Market } from '@notional-finance/sdk/src/system';
 
 export interface SetChainOptions {
   chainId: string | number;
@@ -120,19 +120,38 @@ export interface CalculateTradedRatesResult {
 
 export interface MaturityData {
   marketKey: string;
-  tradeRate: string;
+  tradeRate: number | undefined;
   maturity: number;
   hasLiquidity: boolean;
-  isFirstChild: boolean;
-  isLastChild: boolean;
+  tradeRateString: string;
   rollMaturityRoute?: string;
   fCashAmount?: TypedBigNumber;
   cashAmount?: TypedBigNumber;
 }
 
+export interface TransactionFunction {
+  transactionFn: (...args: any) => Promise<PopulatedTransaction>;
+  transactionArgs: any[];
+}
+
+export interface TransactionData {
+  transactionHeader: string;
+  transactionProperties: TradeProperties;
+  buildTransactionCall: TransactionFunction;
+}
+
+export interface Hashable {
+  hashKey: string;
+}
+export interface NotionalError extends Error {
+  msgId?: string;
+  code?: number;
+}
+
 export enum TradePropertyKeys {
   deposit = 'transactionProperties.deposit',
   fromCashBalance = 'transactionProperties.fromCashBalance',
+  fromWalletBalance = 'transactionProperties.fromWalletBalance',
   interestEarned = 'transactionProperties.interestEarned',
   apy = 'transactionProperties.apy',
   fCashMinted = 'transactionProperties.fCashMinted',
@@ -167,6 +186,9 @@ export enum TradePropertyKeys {
   sNOTERedeemed = 'transactionProperties.sNOTERedeemed',
   redeemWindowBegins = 'transactionProperties.redeemWindowBegins',
   redeemWindowEnds = 'transactionProperties.redeemWindowEnds',
+  additionalDebt = 'transactionProperties.additionalDebt',
+  remainingDebt = 'transactionProperties.remainingDebt',
+  remainingAssets = 'transactionProperties.remainingAssets',
 }
 
 export type TradeProperties = Partial<{
@@ -184,6 +206,7 @@ export type TradeProperties = Partial<{
   [TradePropertyKeys.notePrice]: number;
   [TradePropertyKeys.deposit]: TypedBigNumber;
   [TradePropertyKeys.fromCashBalance]: TypedBigNumber;
+  [TradePropertyKeys.fromWalletBalance]: TypedBigNumber;
   [TradePropertyKeys.interestEarned]: TypedBigNumber;
   [TradePropertyKeys.fCashMinted]: TypedBigNumber;
   [TradePropertyKeys.amountToWallet]: TypedBigNumber;
@@ -206,23 +229,7 @@ export type TradeProperties = Partial<{
   [TradePropertyKeys.sNOTERedeemed]: TypedBigNumber;
   [TradePropertyKeys.redeemWindowBegins]: string;
   [TradePropertyKeys.redeemWindowEnds]: string;
+  [TradePropertyKeys.additionalDebt]: TypedBigNumber;
+  [TradePropertyKeys.remainingDebt]: TypedBigNumber;
+  [TradePropertyKeys.remainingAssets]: TypedBigNumber;
 }>;
-
-export interface TransactionFunction {
-  transactionFn: (...args: any) => Promise<PopulatedTransaction>;
-  transactionArgs: any[];
-}
-
-export interface TransactionData {
-  transactionHeader: string;
-  transactionProperties: TradeProperties;
-  buildTransactionCall: TransactionFunction;
-}
-
-export interface Hashable {
-  hashKey: string;
-}
-export interface NotionalError extends Error {
-  msgId?: string;
-  code?: number;
-}

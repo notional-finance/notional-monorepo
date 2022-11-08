@@ -5,26 +5,34 @@ import gnosisModule from '@web3-onboard/gnosis';
 import ledgerModule from '@web3-onboard/ledger';
 import trezorModule from '@web3-onboard/trezor';
 import coinbaseModule from '@web3-onboard/coinbase';
-import { BehaviorSubject, of, forkJoin, from } from 'rxjs';
 import {
+  BehaviorSubject,
+  of,
+  forkJoin,
+  from,
   distinctUntilChanged,
   share,
   catchError,
   mergeMap,
   map,
-} from 'rxjs/operators';
+  withLatestFrom,
+} from 'rxjs';
 import {
   chains as supportedChains,
   chainIds as supportedChainIds,
 } from '../chains';
 import NotionalIcon from '../assets/notional.svg';
 import { providers } from 'ethers';
-import { setInLocalStorage } from '../utils';
-import { updateOnboardState, resetOnboardState } from './onboard-store';
+import { setInLocalStorage } from '@notional-finance/util';
+import {
+  updateOnboardState,
+  resetOnboardState,
+  modules$,
+} from './onboard-store';
 import { OnboardOptions, SupportedWallet } from '../types';
 import { WalletModule, Chain } from '@web3-onboard/common';
 import { ConnectedChain } from '@web3-onboard/core';
-import { reportError } from '../error/error-manager';
+import { reportNotionalError } from '../error/error-manager';
 import { account$ } from '../account/account-store';
 
 const email = process.env['NX_CONTACT_EMAIL'] as string;
@@ -75,6 +83,7 @@ export async function connectWallet(label?: string) {
       ? { autoSelect: { label, disableModals: true } }
       : undefined;
     const [wallet] = await onboard.connectWallet(opts);
+
     if (wallet) {
       setInLocalStorage('selectedWallet', wallet.label);
     }
@@ -104,7 +113,8 @@ export async function initializeOnboard({
   enableAccountCenter = false,
   container = '#root',
 }: OnboardOptions) {
-  onboard = Onboard(getOnboardOptions({ enableAccountCenter, container }));
+  const opts = getOnboardOptions({ enableAccountCenter, container });
+  onboard = Onboard(opts);
   onboard.state.select('wallets').subscribe(_walletUpdatesBs);
   onboard.state.select('chains').subscribe(handleChainsUpdated);
   onboard.state
@@ -120,6 +130,7 @@ export async function initializeOnboard({
       )
     )
     .subscribe({ next: handleWalletModulesChange });
+  onboard.state.actions.setWalletModules(opts.wallets);
 }
 
 function hasWalletChanged([prev]: WalletState[], [curr]: WalletState[]) {
@@ -192,7 +203,8 @@ account$.subscribe((account) => {
 walletUpdates$
   .pipe(
     distinctUntilChanged(hasWalletChanged),
-    map(([wallet]) => {
+    withLatestFrom(modules$),
+    map(([[wallet], modules]) => {
       let _provider;
       let _signer;
       let _address = '';
@@ -235,19 +247,20 @@ walletUpdates$
             chain,
             icon: _icon,
             label: _label,
+            modules,
           };
         }
       } else {
-        return resetOnboardState;
+        return { ...resetOnboardState, modules };
       }
     }),
     catchError((err) => {
-      reportError({
-        ...err,
-        msgId: 'global.error.unsupportedChain',
-        code: 500,
-      });
-      return of(resetOnboardState);
+      reportNotionalError(
+        { ...err, msgId: 'global.error.unsupportedChain', code: 500 },
+        'onboard-manager',
+        'wallet-updates'
+      );
+      return of({ ...resetOnboardState });
     }),
     share()
   )

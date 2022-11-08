@@ -8,6 +8,7 @@
     "metrics": "services/metrics",
     "notionable": "packages/notionable",
     "sdk": "packages/sdk",
-    "system-cache": "services/system-cache"
+    "system-cache": "services/system-cache",
+    "util": "packages/util"
   }
 }

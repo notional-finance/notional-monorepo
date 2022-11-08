@@ -1,6 +1,10 @@
 import { logError } from '@notional-finance/util';
 import { Subject } from 'rxjs';
-import { NotionalError } from '../types';
+
+export interface NotionalError extends Error {
+  msgId?: string;
+  code?: number;
+}
 
 const errorSubject = new Subject<NotionalError>();
 

@@ -24,7 +24,8 @@
       "@notional-finance/notionable": ["packages/notionable/src/index.ts"],
       "@notional-finance/notionable/*": ["packages/notionable/src/*"],
       "@notional-finance/sdk": ["packages/sdk/src/index.ts"],
-      "@notional-finance/sdk/*": ["packages/sdk/src/*"]
+      "@notional-finance/sdk/*": ["packages/sdk/src/*"],
+      "@notional-finance/util": ["packages/util/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

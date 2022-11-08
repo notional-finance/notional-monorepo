@@ -12,12 +12,14 @@ import { TokenBalance } from '../types';
 export interface WalletState {
   tokens: Map<string, TokenBalance>;
   walletConnected: boolean;
+  walletHasLoaded: boolean;
 }
 export type WalletStateKeys = keyof WalletState;
 
 export const initialWalletState: WalletState = {
   tokens: new Map(),
   walletConnected: false,
+  walletHasLoaded: false,
 };
 
 const _walletStore = new BehaviorSubject(initialWalletState);
