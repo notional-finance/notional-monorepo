@@ -1,0 +1,2197 @@
+{
+  "+0PQag": {
+    "defaultMessage": "Unable to withdraw to target leverage ratio, reduce your withdraw amount",
+    "description": "error message"
+  },
+  "+KE3UR": {
+    "defaultMessage": "Borrow Order",
+    "description": "section heading"
+  },
+  "+Px6p+": {
+    "defaultMessage": "Borrow with confidence, fixed rates lock in what you pay.",
+    "description": "helptext"
+  },
+  "+TTROP": {
+    "defaultMessage": "Borrow today for up to 1 year & pay fixed interest."
+  },
+  "+tQA2m": {
+    "defaultMessage": "Withdraw your lending position prior to maturity for cash.",
+    "description": "tooltip text"
+  },
+  "/IzjcN": {
+    "defaultMessage": "Cost to Repay",
+    "description": "value label"
+  },
+  "/JxCED": {
+    "defaultMessage": "Performance to Date",
+    "description": "table column heading"
+  },
+  "/K8X1X": {
+    "defaultMessage": "Notional Economic Analysis",
+    "description": "button link"
+  },
+  "/Lzdef": {
+    "defaultMessage": "Governance Portal"
+  },
+  "/N95dK": {
+    "defaultMessage": "Other Yield Strategies"
+  },
+  "/O9Cpp": {
+    "defaultMessage": "Expected Yield",
+    "description": "text label"
+  },
+  "/QEBjX": {
+    "defaultMessage": "3. How much additional collateral do you want to deposit?",
+    "description": "input label"
+  },
+  "/c8xkw": {
+    "defaultMessage": "Supported Currencies"
+  },
+  "/jJLYy": {
+    "defaultMessage": "Transactions"
+  },
+  "/oqc0P": {
+    "defaultMessage": "Insufficient Liquidity",
+    "description": "error message"
+  },
+  "0AmURn": {
+    "defaultMessage": "3. How much leverage do you want to take?",
+    "description": "input label"
+  },
+  "0CpzEy": {
+    "defaultMessage": "What's the difference between fixed rates on Notional and 'stable rates' found elsewhere?",
+    "description": "faq question"
+  },
+  "0DzMGX": {
+    "defaultMessage": "Get in touch with the team, we are hear to answer any questions"
+  },
+  "0JxnvC": {
+    "defaultMessage": "Maturity",
+    "description": "Maturity header"
+  },
+  "0LbA4L": {
+    "defaultMessage": "Lock in a fixed interest rate today. Fixed rates guarantee your APY.",
+    "description": "helptext"
+  },
+  "0VE9i3": {
+    "defaultMessage": "About Notional"
+  },
+  "0g//ij": {
+    "defaultMessage": "Reminder to check in on your Notional Finance loan maturity"
+  },
+  "0n/t1s": {
+    "defaultMessage": "Entrepreneur, Writer & Co-Founder of food tour brand at UnTour.",
+    "description": "team member title"
+  },
+  "0wtdTb": {
+    "defaultMessage": "1. Select a maturity and fix your APR",
+    "description": ""
+  },
+  "1+G+Cx": {
+    "defaultMessage": "3. (Optional) Increase your new leverage ratio.",
+    "description": "input label"
+  },
+  "1CQOd6": {
+    "defaultMessage": "nTokens earn returns in many ways: trading fees on every lend and borrow, fCash interest, underlying money market interest as a passive lender on Compound or Aave, and NOTE <a1>incentives</a1> from the community. The first three sources of return are incorporated in the “Variable Rate” APY.",
+    "description": "faq answer"
+  },
+  "1IE7fM": {
+    "defaultMessage": "Kyle Long",
+    "description": "team member name"
+  },
+  "1PoYTp": {
+    "defaultMessage": "Lend today & earn fixed interest for up to 1 year."
+  },
+  "1Xx5fC": {
+    "defaultMessage": "NETWORK"
+  },
+  "1cs4Cm": {
+    "defaultMessage": "Return to Portfolio",
+    "description": "button link"
+  },
+  "1p9HrL": {
+    "defaultMessage": "Provide Liquidity",
+    "description": "empty liquidity overview button text"
+  },
+  "1pFLGZ": {
+    "defaultMessage": "Bug Bounty"
+  },
+  "2EoKMP": {
+    "defaultMessage": "Deposit additional collateral to reduce your leverage.",
+    "description": ""
+  },
+  "2IB1yr": {
+    "defaultMessage": "Repay Borrow",
+    "description": ""
+  },
+  "2OgJH3": {
+    "defaultMessage": "Your collateralization ratio represents how much collateral is deposited divided by how much debt your account has. A higher value represents less liquidation risk.",
+    "description": "tooltip text"
+  },
+  "2P/V2g": {
+    "defaultMessage": "Connect Wallet to Trade",
+    "description": "call to action button"
+  },
+  "2eWkdw": {
+    "defaultMessage": "Trade your loan to a longer dated maturity at a new fixed interest rate",
+    "description": "tool tip text"
+  },
+  "2pdMr2": {
+    "defaultMessage": "Vote",
+    "description": "title"
+  },
+  "2rH9v2": {
+    "defaultMessage": "Currency",
+    "description": "Currency header"
+  },
+  "2rUVsU": {
+    "defaultMessage": "App"
+  },
+  "2u8l2w": {
+    "defaultMessage": "Current Borrow Rate",
+    "description": "chart legend"
+  },
+  "2y+6aI": {
+    "defaultMessage": "Repay Cash Debt",
+    "description": "button text"
+  },
+  "31LS8h": {
+    "defaultMessage": "Open 0x Limit Orders",
+    "description": "Open 0x Limit Orders Table Title"
+  },
+  "34S6N3": {
+    "defaultMessage": "Vault has matured but has not yet settled.",
+    "description": "error message"
+  },
+  "38Mz8A": {
+    "defaultMessage": "Amount to Portfolio",
+    "description": "value label"
+  },
+  "3BPYCi": {
+    "defaultMessage": "2. (Optional) Deposit to maintain your leverage ratio.",
+    "description": "input label"
+  },
+  "3XHebb": {
+    "defaultMessage": "<p>NOTIONAL PRIVACY POLICY</p> <p>Last Updated: December 5, 2020</p> <p>As fellow blockchain and cryptocurrency users, we value your privacy. We also balance that against the need to monitor and improve our product. We will never collect personally identifiable information about you. Our data collection is limited to:</p> <br></br> <p>1. Anonymized crash and performance monitoring</p> <p>2. Anonymized cookie based analytics including anonymized IP addresses</p> <p>3. Aggregated, anonymized server logs</p> <br></br> <p>Our hosting provider and software vendors may have access to data about your activity including your IP address and device information as a result of using our services. These vendors include: Netlify, Google Analytics, Alchemy API, The Graph Protocol, Datadog.</p>"
+  },
+  "3qh9bg": {
+    "defaultMessage": "Convert Cash to nTokens",
+    "description": "button text"
+  },
+  "3x7Klh": {
+    "defaultMessage": "This debt can be collateralized by depositing cash of the same currency. This will act as an effective repayment and significantly reduce your liquidation risk.",
+    "description": ""
+  },
+  "3yk8fB": {
+    "defaultMessage": "Wallet"
+  },
+  "3zAixk": {
+    "defaultMessage": "Create Vault Position",
+    "description": "heading"
+  },
+  "47FYwb": {
+    "defaultMessage": "Cancel"
+  },
+  "4AHLy0": {
+    "defaultMessage": "1. Select a maturity & fix your rate",
+    "description": "input label"
+  },
+  "4B3qzj": {
+    "defaultMessage": "Add to Calendar"
+  },
+  "4Bzdl9": {
+    "defaultMessage": "Action",
+    "description": "Action header"
+  },
+  "4Cef74": {
+    "defaultMessage": "Increase",
+    "description": "button text"
+  },
+  "4CrCbD": {
+    "defaultMessage": "Community"
+  },
+  "4afMoo": {
+    "defaultMessage": "UX/UI design and brand building freelancer",
+    "description": "team member title"
+  },
+  "4iv4w4": {
+    "defaultMessage": "Lend Order",
+    "description": "section heading"
+  },
+  "4uJjZh": {
+    "defaultMessage": "Roll Maturity",
+    "description": "button text"
+  },
+  "4uXXh6": {
+    "defaultMessage": "No Eligible Markets",
+    "description": "section heading"
+  },
+  "4yBgM5": {
+    "defaultMessage": "Apply for a grant from the Notional Finance Foundation to fund your project and contribute to the growth of Notional's fixed-rate ecosystem.",
+    "description": "description"
+  },
+  "4yO42q": {
+    "defaultMessage": "Increase Vault Position: {maturity}",
+    "description": "heading"
+  },
+  "5//+aF": {
+    "defaultMessage": "Debt Repaid",
+    "description": "value label"
+  },
+  "50MkIH": {
+    "defaultMessage": "Hide transactions"
+  },
+  "55TuqE": {
+    "defaultMessage": "Enter amount to deposit into vault",
+    "description": ""
+  },
+  "5LcPTu": {
+    "defaultMessage": "sNOTE Redeemed",
+    "description": "value label"
+  },
+  "5OViYF": {
+    "defaultMessage": "James Wei",
+    "description": "team member name"
+  },
+  "5Or/Rc": {
+    "defaultMessage": "Enter amount of nTokens to redeem",
+    "description": ""
+  },
+  "5XLY/O": {
+    "defaultMessage": "You will only have 3 days to redeem your sNOTE once the cooldown ends.",
+    "description": "helptext"
+  },
+  "5cgzHn": {
+    "defaultMessage": "fCash Minted",
+    "description": "value label"
+  },
+  "5dOvV0": {
+    "defaultMessage": "Redeem Staked NOTE",
+    "description": "button cta"
+  },
+  "61zy45": {
+    "defaultMessage": "Not applicable",
+    "description": ""
+  },
+  "652hux": {
+    "defaultMessage": "Total Capacity:",
+    "description": "text label"
+  },
+  "6JC8Pb": {
+    "defaultMessage": "Minimum Borrow"
+  },
+  "6KDfHr": {
+    "defaultMessage": "Claim up to $1M for critical issues"
+  },
+  "6V2rBI": {
+    "defaultMessage": "Start Cool Down Period"
+  },
+  "6YpLg6": {
+    "defaultMessage": "Senior Consultant in the risk advisory practice at KPMG, previously at Accuracy Canada.",
+    "description": "team member title"
+  },
+  "6dn1ux": {
+    "defaultMessage": "Borrow"
+  },
+  "6k3Dhr": {
+    "defaultMessage": "Dismiss and don't show again"
+  },
+  "6slkqp": {
+    "defaultMessage": "Forum"
+  },
+  "70QzgR": {
+    "defaultMessage": "Confirm & Submit Trade",
+    "description": "call to action button"
+  },
+  "71chNq": {
+    "defaultMessage": "Maturity"
+  },
+  "7RAuhT": {
+    "defaultMessage": "Rate",
+    "description": "Rate header"
+  },
+  "7RRguR": {
+    "defaultMessage": "Leverage your crypto positions, protect your personal information, and plan for the future by borrowing at fixed rates.",
+    "description": "landing page text"
+  },
+  "7aJ4ug": {
+    "defaultMessage": "Partial Roll",
+    "description": ""
+  },
+  "7bdA0B": {
+    "defaultMessage": "Recent Audits",
+    "description": "landing section heading"
+  },
+  "7j8WED": {
+    "defaultMessage": "Build a stable portfolio with fixed rate income on your assets. No counterparty risk, and no fine print.",
+    "description": "landing page text"
+  },
+  "7lbOU9": {
+    "defaultMessage": "About",
+    "description": "Landing page about header"
+  },
+  "7t37tW": {
+    "defaultMessage": "Borrows",
+    "description": "navigation link"
+  },
+  "81KWDt": {
+    "defaultMessage": "Head of Design",
+    "description": "team member title"
+  },
+  "85GTDj": {
+    "defaultMessage": "Interest Earned",
+    "description": "value label"
+  },
+  "8EEjeT": {
+    "defaultMessage": "Connect A Wallet"
+  },
+  "8SpmtB": {
+    "defaultMessage": "User Documentation",
+    "description": "landing page link"
+  },
+  "8Uf6+X": {
+    "defaultMessage": "Connect a Wallet"
+  },
+  "8o5RuK": {
+    "defaultMessage": "Your vault position is at risk of liquidation, deleverage your position to reduce your leverage ratio and your liquidation risk.",
+    "description": "button text"
+  },
+  "8ywLSf": {
+    "defaultMessage": "Twitter"
+  },
+  "9VC4ty": {
+    "defaultMessage": "What are the risks of staking NOTE?",
+    "description": "faq question"
+  },
+  "9YazHG": {
+    "defaultMessage": "Company"
+  },
+  "9Z8nW8": {
+    "defaultMessage": "Vault Type"
+  },
+  "9fyGZi": {
+    "defaultMessage": "Repay your cash debt to avoid settlement penalties.",
+    "description": ""
+  },
+  "9pP8hI": {
+    "defaultMessage": "Create New Lend Order",
+    "description": "empty lend overview button text"
+  },
+  "9tWnHk": {
+    "defaultMessage": "Jeff Wu",
+    "description": "team member name"
+  },
+  "9xRAeu": {
+    "defaultMessage": "Staked NOTE holders earn reinvestments from protocol revenue & trading fees.",
+    "description": "subtitle"
+  },
+  "AEOsK/": {
+    "defaultMessage": "Lend",
+    "description": "lend title"
+  },
+  "AJNsEn": {
+    "defaultMessage": "Convert Notional cash deposits (denominated in cTokens) to nTokens to earn additional yield.",
+    "description": ""
+  },
+  "ATbMUa": {
+    "defaultMessage": "Provide Liquidity",
+    "description": "landing page heading"
+  },
+  "AaszXe": {
+    "defaultMessage": "Your account will be withdrawn to: {maxLeverageRatio} leverage",
+    "description": "info message"
+  },
+  "AnUcic": {
+    "defaultMessage": "Staking with 80% NOTE is recommended for best results.",
+    "description": "help text"
+  },
+  "AuYxPC": {
+    "defaultMessage": "Notional Loan Maturing"
+  },
+  "AyiKjn": {
+    "defaultMessage": "Staked NOTE FAQ",
+    "description": "section heading"
+  },
+  "AyvCNL": {
+    "defaultMessage": "Backed by the best in the industry"
+  },
+  "B+8Hvi": {
+    "defaultMessage": "Deleverage",
+    "description": ""
+  },
+  "B7Ulox": {
+    "defaultMessage": "Staking and transfers will be disabled during cooldown period.",
+    "description": "helptext"
+  },
+  "BAduzv": {
+    "defaultMessage": "COMMUNITY"
+  },
+  "BFnkxD": {
+    "defaultMessage": "takes less than 2 minutes"
+  },
+  "BMvOSh": {
+    "defaultMessage": "User Documentation"
+  },
+  "BOyksm": {
+    "defaultMessage": "Staked NOTE holders provide liquidity in an 80/20 NOTE/ETH Balancer pool. <a>Learn More</a>",
+    "description": "section helptext"
+  },
+  "Bcu64Y": {
+    "defaultMessage": "Leverage Ratio",
+    "description": "value label"
+  },
+  "BdnBjx": {
+    "defaultMessage": "Borrow from a longer term maturity to avoid settlement, minimum borrow size: {minBorrowSize}",
+    "description": "helptext"
+  },
+  "BeLYr8": {
+    "defaultMessage": "Our mission, team & values"
+  },
+  "BvXYxy": {
+    "defaultMessage": "2. How much do you want to borrow?",
+    "description": "input label"
+  },
+  "COA7KT": {
+    "defaultMessage": "We use anonymized cookies to improve our product."
+  },
+  "CZxEcO": {
+    "defaultMessage": "Total APY"
+  },
+  "CbpUHQ": {
+    "defaultMessage": "Actually Asked Questions!",
+    "description": "frequently asked questions heading"
+  },
+  "CdtlBI": {
+    "defaultMessage": "Increase your existing vault position by depositing or borrowing.",
+    "description": "helptext"
+  },
+  "CgM+QM": {
+    "defaultMessage": "No transaction history to show",
+    "description": "empty transaction history overview prompt text"
+  },
+  "D/SWcY": {
+    "defaultMessage": "Stake NOTE and earn protocol revenues."
+  },
+  "D3idYv": {
+    "defaultMessage": "Settings"
+  },
+  "DQXcsq": {
+    "defaultMessage": "We can't find the page you're looking for",
+    "description": "server error message"
+  },
+  "DQzo8D": {
+    "defaultMessage": "Low Risk",
+    "description": "risk label"
+  },
+  "DvAHHx": {
+    "defaultMessage": "nToken Share",
+    "description": "value label"
+  },
+  "DxsXjT": {
+    "defaultMessage": "Oops, something went wrong..."
+  },
+  "E38OWE": {
+    "defaultMessage": "Your collateral will automatically be converted into:",
+    "description": "input label"
+  },
+  "EGxDcI": {
+    "defaultMessage": "Capacity Used:",
+    "description": "text label"
+  },
+  "EehuAc": {
+    "defaultMessage": "View Site as Other Account"
+  },
+  "EmtfEv": {
+    "defaultMessage": "Roll Maturity"
+  },
+  "EyHE4j": {
+    "defaultMessage": "ETH Deposit",
+    "description": "value label"
+  },
+  "F3Rqit": {
+    "defaultMessage": "Seasoned frontend engineer and crypto enthusiast",
+    "description": "team member title"
+  },
+  "F57W5Y": {
+    "defaultMessage": "Time",
+    "description": "Time header"
+  },
+  "F7I722": {
+    "defaultMessage": "Data engineering lead at Atlassian & blockchain product manager at Splunk.",
+    "description": "team member title"
+  },
+  "FFX7RO": {
+    "defaultMessage": "Must Reduce Leverage Below: {maxLeverage}",
+    "description": "error message"
+  },
+  "FOzhg6": {
+    "defaultMessage": "Withdraw Matured Position",
+    "description": ""
+  },
+  "FQvMTP": {
+    "defaultMessage": "Redeem Window Ends",
+    "description": "value label"
+  },
+  "FT8pbL": {
+    "defaultMessage": "1. Enter the amount of NOTE you want to stake",
+    "description": "input label"
+  },
+  "Fg2bXf": {
+    "defaultMessage": "nTokens Redeemed",
+    "description": ""
+  },
+  "FmAtA1": {
+    "defaultMessage": "What are nTokens and what can I do with them?",
+    "description": "faq question"
+  },
+  "FpqxG6": {
+    "defaultMessage": "No eligible markets, current maturity is idiosyncratic.",
+    "description": "error message"
+  },
+  "FvmV6q": {
+    "defaultMessage": "Discord"
+  },
+  "FwXfXd": {
+    "defaultMessage": "Above maximum leverage ratio: {maxLeverageRatio}",
+    "description": "error message"
+  },
+  "G9BmAV": {
+    "defaultMessage": "You will receive nTokens in return for providing liquidity to all markets at once. nTokens earn yield from cToken supply rates, trading fees, and fCash interest. nToken holders also earn NOTE incentives.",
+    "description": "helptext"
+  },
+  "GCWS0C": {
+    "defaultMessage": "NOTE Staking"
+  },
+  "GFTHgH": {
+    "defaultMessage": "Borrow crypto with certainty"
+  },
+  "GHztJX": {
+    "defaultMessage": "New Maturity",
+    "description": "value label"
+  },
+  "GIdG1z": {
+    "defaultMessage": "Earn up to {apy}",
+    "description": "input caption"
+  },
+  "GQBsfQ": {
+    "defaultMessage": "Amount Too Large"
+  },
+  "GVvttV": {
+    "defaultMessage": "From Wallet Balance",
+    "description": "value label"
+  },
+  "H/sOGK": {
+    "defaultMessage": "Where do nToken returns come from?",
+    "description": "faq question"
+  },
+  "HFEWdX": {
+    "defaultMessage": "Collateralization Ratio:"
+  },
+  "HMxNjf": {
+    "defaultMessage": "Total Value Locked",
+    "description": "landing page heading"
+  },
+  "HNTmpp": {
+    "defaultMessage": "Video Tutorials"
+  },
+  "HNyE/R": {
+    "defaultMessage": "Enter the amount of fCash to repay",
+    "description": ""
+  },
+  "HYQ6pI": {
+    "defaultMessage": "From Cash Balance",
+    "description": "value label"
+  },
+  "Hwg6Kc": {
+    "defaultMessage": "Transaction History",
+    "description": "navigation link"
+  },
+  "I0kjSf": {
+    "defaultMessage": "Strategy",
+    "description": "Currency header"
+  },
+  "I4Hcb5": {
+    "defaultMessage": "Borrow against your crypto with certainty for up to one year. Lock in what you pay until maturity or exit early without penalty at the market rate.",
+    "description": "page heading subtitle"
+  },
+  "I51Tl1": {
+    "defaultMessage": "Notional Vault Maturing"
+  },
+  "I6S//l": {
+    "defaultMessage": "Co-Founder | CTO",
+    "description": "team member title"
+  },
+  "INlWvJ": {
+    "defaultMessage": "OR"
+  },
+  "IVXj9g": {
+    "defaultMessage": "Economic Risk",
+    "description": "landing section heading"
+  },
+  "IYMyG2": {
+    "defaultMessage": "Teddy Woodward",
+    "description": "team member name"
+  },
+  "IbrSk1": {
+    "defaultMessage": "Learn"
+  },
+  "Id8FP5": {
+    "defaultMessage": "No idle assets to display",
+    "description": "empty money market overview prompt text"
+  },
+  "IjAo5f": {
+    "defaultMessage": "Fixed APY",
+    "description": "Fixed APY header"
+  },
+  "Is4glH": {
+    "defaultMessage": "Below minimum borrow size, all debts will be repaid.",
+    "description": "info message"
+  },
+  "ItvVZa": {
+    "defaultMessage": "Amount",
+    "description": "Amount header"
+  },
+  "JHqVg1": {
+    "defaultMessage": "Governance Forum"
+  },
+  "JLmDla": {
+    "defaultMessage": "Governance"
+  },
+  "JT5Loi": {
+    "defaultMessage": "Unstaking your sNOTE requires a 15 day cooldown period. After you will have a 3 day window to redeem.",
+    "description": "helptext"
+  },
+  "JoWTMP": {
+    "defaultMessage": "Overview",
+    "description": "navigation link"
+  },
+  "JqXkm6": {
+    "defaultMessage": "Video Tutorials",
+    "description": "footer link"
+  },
+  "JuO45u": {
+    "defaultMessage": "Join Us on Discord"
+  },
+  "Jw6/HE": {
+    "defaultMessage": "Create New Borrow Order",
+    "description": "empty borrow overview button text"
+  },
+  "K/CII5": {
+    "defaultMessage": "Leverage",
+    "description": "Leverage header"
+  },
+  "K9Eukj": {
+    "defaultMessage": "nTokens Minted",
+    "description": "value label"
+  },
+  "KCGeiw": {
+    "defaultMessage": "Discuss protocol changes"
+  },
+  "KN7zKn": {
+    "defaultMessage": "Error"
+  },
+  "KOHM0V": {
+    "defaultMessage": "Interest rates in crypto swing wildly - lock in fixed rates on Notional and lay the foundation for your financial success.",
+    "description": "landing page text"
+  },
+  "KQabEt": {
+    "defaultMessage": "With Notional You Can",
+    "description": "landing page heading"
+  },
+  "KWdw7U": {
+    "defaultMessage": "Calculated Interest Rates",
+    "description": "Calculated Interest Rates Table Title"
+  },
+  "KXkzM7": {
+    "defaultMessage": "Redeem Slippage",
+    "description": "value label"
+  },
+  "KZZnsx": {
+    "defaultMessage": "Cancel Cooldown",
+    "description": "call to action"
+  },
+  "Kb0YIg": {
+    "defaultMessage": "Withdraw Lend Rate",
+    "description": "value label"
+  },
+  "KfVgBK": {
+    "defaultMessage": "Open Zeppelin, Governance Contracts | Jun 10, 2021",
+    "description": "security audit link"
+  },
+  "Kx5R3a": {
+    "defaultMessage": "Enter the amount of cash to convert to nTokens",
+    "description": ""
+  },
+  "L76VRd": {
+    "defaultMessage": "Current Value",
+    "description": "Current Value header"
+  },
+  "LAKQM8": {
+    "defaultMessage": "Reserve Balance Sheet",
+    "description": "Reserve Balance Table Title"
+  },
+  "LD/NUf": {
+    "defaultMessage": "NOTE Received",
+    "description": "value label"
+  },
+  "LGNe2v": {
+    "defaultMessage": "{value} {selectedToken} collateral value",
+    "description": "input label"
+  },
+  "LRM176": {
+    "defaultMessage": "Roll Position",
+    "description": "tab label"
+  },
+  "LVBHSK": {
+    "defaultMessage": "Unstake and Redeem sNOTE",
+    "description": "heading"
+  },
+  "LaPJ2g": {
+    "defaultMessage": "Roll your vault position to a longer dated maturity at a new fixed rate to avoid settlement.",
+    "description": "button text"
+  },
+  "Li8JYV": {
+    "defaultMessage": "Withdraw your assets from the vault.",
+    "description": "button text"
+  },
+  "LpwptN": {
+    "defaultMessage": "Deposit Collateral",
+    "description": ""
+  },
+  "LzoxfV": {
+    "defaultMessage": "Rather than collect user data, we expose ours. Anyone can audit Notional's code and balances to ensure that everyone's funds are secure.",
+    "description": "landing page text"
+  },
+  "MBf3g7": {
+    "defaultMessage": "Tenor",
+    "description": "table heading"
+  },
+  "MLTKb6": {
+    "defaultMessage": "APY"
+  },
+  "MNx0Cf": {
+    "defaultMessage": "Collateral Deposit",
+    "description": "value label"
+  },
+  "MPrueW": {
+    "defaultMessage": "Learn how Notional works"
+  },
+  "Mcm+Sd": {
+    "defaultMessage": "Percent Used",
+    "description": "Percent Used header"
+  },
+  "MtoZPi": {
+    "defaultMessage": "Code Arena | Oct 10, 2021",
+    "description": "security audit link"
+  },
+  "MwL6NB": {
+    "defaultMessage": "Sell vault assets and repay debt to reduce your leverage.",
+    "description": ""
+  },
+  "N2IrpM": {
+    "defaultMessage": "Confirm"
+  },
+  "N3bsCe": {
+    "defaultMessage": "Variable Rate",
+    "description": "Variable Rate Header"
+  },
+  "N9AEqD": {
+    "defaultMessage": "Notional Analytics",
+    "description": "landing page link"
+  },
+  "NAidKb": {
+    "defaultMessage": "Notifications"
+  },
+  "NNXVpa": {
+    "defaultMessage": "Capacity Used"
+  },
+  "NW6oec": {
+    "defaultMessage": "Goerli"
+  },
+  "NZDPwk": {
+    "defaultMessage": "Receive notifications for important events.",
+    "description": ""
+  },
+  "NZYRdf": {
+    "defaultMessage": "Mainnet"
+  },
+  "NZfJBB": {
+    "defaultMessage": "Add to Calendar",
+    "description": "call to action"
+  },
+  "NtCvb9": {
+    "defaultMessage": "Senior Backend Engineer at PicMonkey, Ethereum miner and early DeFi user.",
+    "description": "team member title"
+  },
+  "NyEjvb": {
+    "defaultMessage": "Enter the amount to deposit",
+    "description": ""
+  },
+  "O+S2UD": {
+    "defaultMessage": "Build a stable portfolio with fixed rate income on your assets. Lock in your yield for up to one year or exit early without penalty at the market rate.",
+    "description": "page subtitle"
+  },
+  "O2hlqH": {
+    "defaultMessage": "Senior Full Stack Engineer",
+    "description": "team member title"
+  },
+  "OQvLaQ": {
+    "defaultMessage": "Start Survey"
+  },
+  "ORTU60": {
+    "defaultMessage": "Fixed APY"
+  },
+  "OTVoaB": {
+    "defaultMessage": "Increase Position",
+    "description": "tab label"
+  },
+  "OX7gYi": {
+    "defaultMessage": "Fund a Leveraged Vault",
+    "description": "empty leveraged vault overview button text"
+  },
+  "OaG1zW": {
+    "defaultMessage": "Yes! nTokens are automatically used as collateral for any borrowing on Notional.",
+    "description": "faq answer"
+  },
+  "Oox56Y": {
+    "defaultMessage": "Not Initialized"
+  },
+  "OrdTVf": {
+    "defaultMessage": "Total Return",
+    "description": "Total Return Header"
+  },
+  "OtF+yB": {
+    "defaultMessage": "Transaction Hash",
+    "description": "Transaction Hash header"
+  },
+  "OvgRs4": {
+    "defaultMessage": "You can close out your loan and withdraw your funds at any time prior to maturity without penalty. By doing so, you would be closing out the remaining portion of your loan at the prevailing market rate - this could be at a higher or lower rate than what you started with.",
+    "description": "faq answer"
+  },
+  "OwO+Nr": {
+    "defaultMessage": "Mint"
+  },
+  "P9wGnS": {
+    "defaultMessage": "You currently have no lends or lend history",
+    "description": "empty lend overview prompt text"
+  },
+  "PGse3R": {
+    "defaultMessage": "Resources",
+    "description": "Landing page resource header"
+  },
+  "PJXiYB": {
+    "defaultMessage": "Insufficient ERC20 allowance",
+    "description": "error message"
+  },
+  "PLhv3R": {
+    "defaultMessage": "Stake",
+    "description": "tab label"
+  },
+  "PQaIQP": {
+    "defaultMessage": "Redeem nTokens"
+  },
+  "PU+ilE": {
+    "defaultMessage": "Liquidity providers (nToken holders) earn variable returns on their capital. The current rate is shown above, but can change based on protocol usage levels, emission rates & NOTE price, interest rates & the size of the liquidity pool relative to a single liquidity provider's share.",
+    "description": "faq answer"
+  },
+  "PXAur5": {
+    "defaultMessage": "Withdraw",
+    "description": ""
+  },
+  "Pom6Ac": {
+    "defaultMessage": "Roll Vault Position",
+    "description": "heading"
+  },
+  "Pr//Ts": {
+    "defaultMessage": "NOTE Incentive Yield"
+  },
+  "Py189G": {
+    "defaultMessage": "Security"
+  },
+  "Q0FaKt": {
+    "defaultMessage": "Borrow Amount: {borrowAmount}",
+    "description": "input label"
+  },
+  "QAA4NE": {
+    "defaultMessage": "Start 15 Day Cooldown To Unstake",
+    "description": "button text"
+  },
+  "QK1jev": {
+    "defaultMessage": "Deleverage Position",
+    "description": "heading"
+  },
+  "QK5DG0": {
+    "defaultMessage": "Recent Transactions",
+    "description": "Recent Transactions Table Title"
+  },
+  "QKc3xw": {
+    "defaultMessage": "1. How much do you want to withdraw from your vault?",
+    "description": "input label"
+  },
+  "QLQcE3": {
+    "defaultMessage": "Remind Me",
+    "description": "section heading"
+  },
+  "QNLJjM": {
+    "defaultMessage": "Co-Founder | CEO",
+    "description": "team member title"
+  },
+  "QgPDYX": {
+    "defaultMessage": "Amount Entry"
+  },
+  "QgUOZE": {
+    "defaultMessage": "Our Mission",
+    "description": "section title"
+  },
+  "QoGZ2/": {
+    "defaultMessage": "Assets Sold",
+    "description": "value label"
+  },
+  "Qshps9": {
+    "defaultMessage": "Organic Returns",
+    "description": "Organic Returns header"
+  },
+  "R+ejaQ": {
+    "defaultMessage": "Follow Notional stats"
+  },
+  "R8ZhxO": {
+    "defaultMessage": "Interest rate swap trader at Barclays Investment Bank & crypto trader at Ayanda Capital.",
+    "description": "team member title"
+  },
+  "R9K/nl": {
+    "defaultMessage": "Consensys Diligence, Notional v2.1 | Mar 9, 2021",
+    "description": "security audit link"
+  },
+  "RDwF9z": {
+    "defaultMessage": "Redemption Fees",
+    "description": ""
+  },
+  "REKenp": {
+    "defaultMessage": "Annual Reward Rate",
+    "description": "section label"
+  },
+  "RGih8E": {
+    "defaultMessage": "Enter the amount of cash to deposit",
+    "description": ""
+  },
+  "RMlyos": {
+    "defaultMessage": "3. Increase your leverage ratio by borrowing more.",
+    "description": "input label"
+  },
+  "RasO4i": {
+    "defaultMessage": "Matthew Garrett",
+    "description": "team member name"
+  },
+  "RdcBYW": {
+    "defaultMessage": "Cash to Wallet",
+    "description": ""
+  },
+  "RnDivr": {
+    "defaultMessage": "Lends",
+    "description": "navigation link"
+  },
+  "RncT8X": {
+    "defaultMessage": "Borrow Capacity",
+    "description": "Borrow Capacity header"
+  },
+  "RrljPp": {
+    "defaultMessage": "ETH Price: {currentETHPrice} {priceChange}"
+  },
+  "RspMe0": {
+    "defaultMessage": "Unstaking NOTE is subject to a mandatory 15 day cooldown. To unstake, you will initiate that cooldown period, and then submit another transaction to unstake during the three day redemption window (Day 16-18) following the cooldown period (Day 1-15). If you don’t unstake in the redemption window, you will need to re-initiate the 15 day cooldown period.",
+    "description": "faq answer"
+  },
+  "RuBVZf": {
+    "defaultMessage": "Get Clarity for DeFi",
+    "description": "button text"
+  },
+  "RvLz9g": {
+    "defaultMessage": "Net Worth",
+    "description": "Net Worth header"
+  },
+  "Rw7iI7": {
+    "defaultMessage": "Disable"
+  },
+  "S0Sseh": {
+    "defaultMessage": "By submitting a trade on our platform you agree to our <a>terms of service.</a>"
+  },
+  "S5tBcz": {
+    "defaultMessage": "Stake"
+  },
+  "S7mEPo": {
+    "defaultMessage": "Vault",
+    "description": "Vault header"
+  },
+  "S9r8/Q": {
+    "defaultMessage": "Risk Analyst",
+    "description": "team member title"
+  },
+  "SBQqpl": {
+    "defaultMessage": "Medium Risk",
+    "description": "risk label"
+  },
+  "SWx7NP": {
+    "defaultMessage": "Read the full staking documentation",
+    "description": "section link"
+  },
+  "Sk9Tol": {
+    "defaultMessage": "Redeem nTokens to a cash balance manually, you will have to withdraw cTokens in a separate transaction after this is done.",
+    "description": ""
+  },
+  "Skzxtq": {
+    "defaultMessage": "View Bounty"
+  },
+  "T5e0iQ": {
+    "defaultMessage": "Frontend Architect",
+    "description": "team member title"
+  },
+  "TBvctc": {
+    "defaultMessage": "Variable APY"
+  },
+  "TCMWlN": {
+    "defaultMessage": "We believe that everyone should have access to secure financial products that provide certainty and lay the groundwork for long-term financial success.",
+    "description": "mission statement"
+  },
+  "THIeUg": {
+    "defaultMessage": "Submit",
+    "description": "button text"
+  },
+  "TY+1is": {
+    "defaultMessage": "Risk Type",
+    "description": "Risk Type header"
+  },
+  "TYC9fN": {
+    "defaultMessage": "Maturity",
+    "description": "value label"
+  },
+  "TduB6a": {
+    "defaultMessage": "Unstake",
+    "description": "tab label"
+  },
+  "Tn66h1": {
+    "defaultMessage": "We run rigorous simulations to ensure that Notional remains secure and functions properly through all market conditions. Contact the risk team at {mailToLink}."
+  },
+  "TnQ03B": {
+    "defaultMessage": "You currently have no borrows or borrow history",
+    "description": "empty borrow overview prompt text"
+  },
+  "TwyMau": {
+    "defaultMessage": "Account"
+  },
+  "TxgT4b": {
+    "defaultMessage": "Protocol Parameters"
+  },
+  "U0xI2P": {
+    "defaultMessage": "De-risk your vault position by repaying debts and reducing your leverage.",
+    "description": "helptext"
+  },
+  "URR5It": {
+    "defaultMessage": "Certora Formal Verification | Nov 1, 2021",
+    "description": "security audit link"
+  },
+  "UTKn1t": {
+    "defaultMessage": "Provide Liquidity",
+    "description": "section heading"
+  },
+  "Ubj6fC": {
+    "defaultMessage": "Enabling a currency is required for Notional to access funds in your wallet.",
+    "description": "enable currency instructions"
+  },
+  "UeEwcm": {
+    "defaultMessage": "New fCash Amount",
+    "description": "value label"
+  },
+  "UrlnIm": {
+    "defaultMessage": "Total Capacity",
+    "description": "Total Capacity header"
+  },
+  "V52jNn": {
+    "defaultMessage": "Enabled"
+  },
+  "VAj30Q": {
+    "defaultMessage": "Successfully signed up!",
+    "description": "email subscription signup"
+  },
+  "VUUOly": {
+    "defaultMessage": "Redeem nTokens to Cash",
+    "description": ""
+  },
+  "Vn76qV": {
+    "defaultMessage": "Github"
+  },
+  "VrgVWV": {
+    "defaultMessage": "Total sNOTE Value",
+    "description": "section label"
+  },
+  "Vudksz": {
+    "defaultMessage": "Lend Fixed"
+  },
+  "WJZ9qW": {
+    "defaultMessage": "Your loan to value ratio represents how much debt by how much collateral your account has. A lower value represents less liquidation risk.",
+    "description": "tooltip text"
+  },
+  "WRmbCr": {
+    "defaultMessage": "2. How much do you want to deposit?",
+    "description": "input label"
+  },
+  "WVU+0r": {
+    "defaultMessage": "Security Audits"
+  },
+  "Wax1GS": {
+    "defaultMessage": "User Documentation",
+    "description": "footer link"
+  },
+  "WpE773": {
+    "defaultMessage": "Interest Earned"
+  },
+  "Wwhb4H": {
+    "defaultMessage": "Users of the protocol face two risks, the risk that Notional gets hacked and the risk that borrowers on the platform become insolvent. Notional takes security extremely seriously and has never been hacked. The protocol has been audited by industry leaders including Open Zeppelin, Certora, ABDK, and Code Arena. Notional’s liquidation infrastructure makes sure that borrowers do not become insolvent, and if they do, the protocol shields users from any losses with its reserve funds.",
+    "description": "faq answer"
+  },
+  "WxxFB/": {
+    "defaultMessage": "Repay your borrow before maturity at the market rate.",
+    "description": ""
+  },
+  "XFvE50": {
+    "defaultMessage": "Resources",
+    "description": "footer link"
+  },
+  "XMy9/T": {
+    "defaultMessage": "No Debt",
+    "description": "risk label"
+  },
+  "XUSoAJ": {
+    "defaultMessage": "More FAQs",
+    "description": "button link text"
+  },
+  "XX0lzZ": {
+    "defaultMessage": "Discuss",
+    "description": "title"
+  },
+  "XYDBV/": {
+    "defaultMessage": "Leverage Ratio",
+    "description": "currency header"
+  },
+  "Xmbq+r": {
+    "defaultMessage": "Yield Strategy Holdings",
+    "description": "table title"
+  },
+  "XrNdt+": {
+    "defaultMessage": "Internal system error",
+    "description": "server error message"
+  },
+  "XrXxvp": {
+    "defaultMessage": "Vote on risk parameter settings and community-led proposals.",
+    "description": "description"
+  },
+  "Y3XbLI": {
+    "defaultMessage": "Move your loan to a new maturity at a new market rate. Your current loan will be exchanged for a new loan at the selected maturity",
+    "description": ""
+  },
+  "YMF/Lh": {
+    "defaultMessage": "How do I unstake my NOTE?",
+    "description": "faq question"
+  },
+  "Yd9/jN": {
+    "defaultMessage": "Join an open forum and deliberate on protocol-related issues, ideas and the future of fixed rates.",
+    "description": "description"
+  },
+  "YftyOc": {
+    "defaultMessage": "Deposit",
+    "description": "value label"
+  },
+  "YiHm6q": {
+    "defaultMessage": "Do I have to keep my funds and collateral locked in for the entire duration of the loan maturity?",
+    "description": "faq question"
+  },
+  "Yn2tom": {
+    "defaultMessage": "You currently have no liquidity or liquidity history",
+    "description": "empty liquidity overview prompt text"
+  },
+  "Z0D07h": {
+    "defaultMessage": "How is the interest rate set?",
+    "description": "faq question"
+  },
+  "Z0RsMt": {
+    "defaultMessage": "Eliminate Volatility",
+    "description": "landing page heading"
+  },
+  "Z7NVAU": {
+    "defaultMessage": "30 Day Avg",
+    "description": "table column"
+  },
+  "Z9G6SX": {
+    "defaultMessage": "<b>Fixing</b> Finance To Work For Everyone"
+  },
+  "ZBoBlZ": {
+    "defaultMessage": "Connect a wallet to see your portfolio",
+    "description": "empty overview prompt text"
+  },
+  "ZDyUkY": {
+    "defaultMessage": "Currency",
+    "description": "Currency Header"
+  },
+  "ZWSTaH": {
+    "defaultMessage": "NOTE amount not defined, zero is accepted",
+    "description": "error message"
+  },
+  "ZWs7Qo": {
+    "defaultMessage": "Withdraw from your vault position fully or to a new leverage ratio.",
+    "description": "helptext"
+  },
+  "Zta27y": {
+    "defaultMessage": "Deposit cash to repay your debt prior to maturity.",
+    "description": "tooltip text"
+  },
+  "ZuvXm8": {
+    "defaultMessage": "Error calculating withdraw: {e}",
+    "description": "error message"
+  },
+  "ZyEi9p": {
+    "defaultMessage": "Provide Liquidity"
+  },
+  "a4NShL": {
+    "defaultMessage": "Don't rely on variable rates that are subject to volatile swings - your fixed rate on Notional can't and won't change.",
+    "description": "landing page text"
+  },
+  "a4UijW": {
+    "defaultMessage": "APY",
+    "description": "table heading"
+  },
+  "aBEWz+": {
+    "defaultMessage": "Incentives Minted",
+    "description": ""
+  },
+  "aHiw6z": {
+    "defaultMessage": "Can my nTokens be used as collateral?",
+    "description": "faq question"
+  },
+  "aLdL3V": {
+    "defaultMessage": "Assets",
+    "description": "Assets header"
+  },
+  "aYEPeB": {
+    "defaultMessage": "Redeem Window Begins",
+    "description": "value label"
+  },
+  "aaGdWz": {
+    "defaultMessage": "Borrow Crypto at Fixed Rates",
+    "description": "page heading"
+  },
+  "acTrAg": {
+    "defaultMessage": "Incentives Minted",
+    "description": "value label"
+  },
+  "agBAc4": {
+    "defaultMessage": "Select a maturity above to complete trade",
+    "description": "error message"
+  },
+  "ahbgk6": {
+    "defaultMessage": "Total Due at Maturity"
+  },
+  "aqxhsF": {
+    "defaultMessage": "Unfortunately, leveraged vaults are not available to U.S. Persons.",
+    "description": "error message"
+  },
+  "arPp4e": {
+    "defaultMessage": "Terms & Conditions"
+  },
+  "avLv82": {
+    "defaultMessage": "Increase your position in this vault by depositing or borrowing more.",
+    "description": "button text"
+  },
+  "azEess": {
+    "defaultMessage": "Repay Cash Debt",
+    "description": ""
+  },
+  "b5sQu1": {
+    "defaultMessage": "Historical Returns",
+    "description": "section heading"
+  },
+  "bFzs5L": {
+    "defaultMessage": "UX/UI Designer",
+    "description": "team member title"
+  },
+  "bpo5a9": {
+    "defaultMessage": "Maturity",
+    "description": "table heading"
+  },
+  "bxM8u/": {
+    "defaultMessage": "Lenders and borrowers get fixed interest rates on Notional which can't and won't change over the course of the maturity. While stable rates do exist on other platforms (usually at a premium) they are not fixed and often do change with certain market conditions.",
+    "description": "faq answer"
+  },
+  "c/KktL": {
+    "defaultMessage": "Resources"
+  },
+  "c17bcg": {
+    "defaultMessage": "Coming soon!"
+  },
+  "cQ3X02": {
+    "defaultMessage": "2. How much do you want to lend?",
+    "description": "input label"
+  },
+  "d4CCXE": {
+    "defaultMessage": "Debts",
+    "description": "Debts header"
+  },
+  "dDkG/J": {
+    "defaultMessage": "Permissionless Innovation",
+    "description": "section title"
+  },
+  "dHt82r": {
+    "defaultMessage": "Idle Assets",
+    "description": "navigation link"
+  },
+  "dIgBOz": {
+    "defaultMessage": "Deposit",
+    "description": ""
+  },
+  "dX7ExZ": {
+    "defaultMessage": "Get cover for your positions"
+  },
+  "dYEr0W": {
+    "defaultMessage": "Withdraw to Portfolio",
+    "description": ""
+  },
+  "dYeSET": {
+    "defaultMessage": "Co-founder Accomplice Design, a product design studio in San Francisco specializing in blockchain and fintech.",
+    "description": "team member title"
+  },
+  "ddDOxu": {
+    "defaultMessage": "Fix Your Variable Rate",
+    "description": "page heading"
+  },
+  "drPDFU": {
+    "defaultMessage": "The interest rate is updated based on a user's trade size using an automated market maker. The rate is determined by the current market's supply and demand and will vary for each individual loan. However, once executed, the user's rate is fixed for the duration of the loan and will not change.",
+    "description": "faq answer"
+  },
+  "duYZcr": {
+    "defaultMessage": "Your Email",
+    "description": "email signup"
+  },
+  "dw3MI8": {
+    "defaultMessage": "Leveraged Vaults"
+  },
+  "dzDamm": {
+    "defaultMessage": "Below Minimum Leverage for Vault: {minLeverage}",
+    "description": "error message"
+  },
+  "e+t6Si": {
+    "defaultMessage": "Are the returns fixed like borrowing and lending?",
+    "description": "faq question"
+  },
+  "e2DPLp": {
+    "defaultMessage": "Provide Liquidity & Earn Returns",
+    "description": "page heading"
+  },
+  "e2q6jh": {
+    "defaultMessage": "Media Kit"
+  },
+  "e7TNY7": {
+    "defaultMessage": "Stake NOTE",
+    "description": "section heading"
+  },
+  "eCCtKX": {
+    "defaultMessage": "Sell Assets",
+    "description": ""
+  },
+  "eCgTQl": {
+    "defaultMessage": "Dashboard",
+    "description": "footer link"
+  },
+  "eDAG71": {
+    "defaultMessage": "nToken FAQ"
+  },
+  "eJf0ww": {
+    "defaultMessage": "Build",
+    "description": "title"
+  },
+  "eKEL/g": {
+    "defaultMessage": "Pending"
+  },
+  "eL5huy": {
+    "defaultMessage": "Lend"
+  },
+  "eLInf4": {
+    "defaultMessage": "Remind Me"
+  },
+  "eQ3NKp": {
+    "defaultMessage": "Vault position matured, all profits will be withdrawn to your wallet.",
+    "description": ""
+  },
+  "erb4fz": {
+    "defaultMessage": "Remaining Debt",
+    "description": "value label"
+  },
+  "ewXBiH": {
+    "defaultMessage": "Suggested Actions"
+  },
+  "f8naUr": {
+    "defaultMessage": "Code Arena, Staked NOTE | Mar 10, 2022",
+    "description": "security audit link"
+  },
+  "fAWItl": {
+    "defaultMessage": "Current Yield",
+    "description": "Current Yield header"
+  },
+  "fEEjSV": {
+    "defaultMessage": "Mark All as Read"
+  },
+  "fKtay1": {
+    "defaultMessage": "Notional Foundation"
+  },
+  "fWUtEr": {
+    "defaultMessage": "NOTE stakers are exposed to <a1>impermanent loss</a1> from the Balancer pool. Additionally, in a <a2>collateral shortfall event</a2>, up to 50% of sNOTE assets can be used to recapitalize the Notional system.",
+    "description": "faq answer"
+  },
+  "fZ8gaW": {
+    "defaultMessage": "Borrow Fixed"
+  },
+  "fgX9NF": {
+    "defaultMessage": "Launch App"
+  },
+  "flxPIr": {
+    "defaultMessage": "Learn About Leveraged Vaults"
+  },
+  "g5pX+a": {
+    "defaultMessage": "About"
+  },
+  "gCE6Ru": {
+    "defaultMessage": "Apply for a Grant",
+    "description": "call to action"
+  },
+  "gRus5s": {
+    "defaultMessage": "Enter the amount to withdraw",
+    "description": ""
+  },
+  "gTvzy7": {
+    "defaultMessage": "Enter the amount of cash to repay",
+    "description": ""
+  },
+  "gaa8r1": {
+    "defaultMessage": "Re-Enter Vault",
+    "description": ""
+  },
+  "gj2v+5": {
+    "defaultMessage": "Borrow",
+    "description": "borrow title"
+  },
+  "gjBNUl": {
+    "defaultMessage": "Collateral Type",
+    "description": "value label"
+  },
+  "gq8IyN": {
+    "defaultMessage": "Reminder to check in on your Notional Finance vault maturity"
+  },
+  "gvHwE8": {
+    "defaultMessage": "Review technical specifications"
+  },
+  "gxsW8i": {
+    "defaultMessage": "NOTE stakers earn money by receiving additional 80/20 NOTE/ETH Balancer LP tokens. The protocol funds these rewards using protocol revenues.",
+    "description": "faq answer"
+  },
+  "h3MQdJ": {
+    "defaultMessage": "Join Us on Discord",
+    "description": "call to action"
+  },
+  "h4GQCh": {
+    "defaultMessage": "Isaac Petsch",
+    "description": "team member name"
+  },
+  "h6zaxo": {
+    "defaultMessage": "View Account"
+  },
+  "hRMkql": {
+    "defaultMessage": "Capacity Used",
+    "description": "Capacity Used header"
+  },
+  "hS9cAv": {
+    "defaultMessage": "Over maximum vault capacity.",
+    "description": "error message"
+  },
+  "hTcoHo": {
+    "defaultMessage": "Withdraw from your vault position.",
+    "description": ""
+  },
+  "hY93mg": {
+    "defaultMessage": "Leveraged Vaults",
+    "description": "page heading"
+  },
+  "hberrB": {
+    "defaultMessage": "Insufficient balance",
+    "description": "error message"
+  },
+  "huNsJS": {
+    "defaultMessage": "Liquidation Risk Breakdown",
+    "description": "Liquidation Risk Breakdown Table Title"
+  },
+  "hzSNj4": {
+    "defaultMessage": "Dashboard"
+  },
+  "i066MQ": {
+    "defaultMessage": "Last Synced Block: {number}",
+    "description": "footer link"
+  },
+  "i0cHaZ": {
+    "defaultMessage": "Transaction Pending"
+  },
+  "iD6aaG": {
+    "defaultMessage": "Apply for a grant"
+  },
+  "iDAMyu": {
+    "defaultMessage": "Create a new vault position with a deposit, minimum borrow size: {minBorrowSize}",
+    "description": "helptext"
+  },
+  "iFsDVR": {
+    "defaultMessage": "Loading"
+  },
+  "iPi5z3": {
+    "defaultMessage": "Below minimum leverage ratio: {minLeverageRatio}",
+    "description": "error message"
+  },
+  "iWCK9N": {
+    "defaultMessage": "Governance Parameters"
+  },
+  "iYmCJ+": {
+    "defaultMessage": "Enter Your Email",
+    "description": "email input form"
+  },
+  "ieiFpd": {
+    "defaultMessage": "What are the risks?",
+    "description": "faq question"
+  },
+  "iwVpZ2": {
+    "defaultMessage": "No leveraged vault data to display",
+    "description": "empty leveraged vault overview prompt text"
+  },
+  "ix27PQ": {
+    "defaultMessage": "Youtube"
+  },
+  "iyv9Tj": {
+    "defaultMessage": "Deleverage",
+    "description": "button text"
+  },
+  "j7ME/A": {
+    "defaultMessage": "Principal Developer at GigLabs, Lifelong Student",
+    "description": "team member title"
+  },
+  "j9AqQN": {
+    "defaultMessage": "Portfolio Liquidation Risk"
+  },
+  "jIeehx": {
+    "defaultMessage": "Your NOTE is converted to 80/20 NOTE/ETH Balancer LP tokens. You can stake with 100% NOTE, proportional shares of NOTE and ETH, or 100% ETH if you want to buy NOTE and stake all at once. {br}Once your NOTE is staked, your sNOTE will be redeemable for these Balancer LP tokens. As sNOTE holders earn rewards, your sNOTE will be redeemable for an ever-increasing number of Balancer LP tokens.",
+    "description": "faq answer"
+  },
+  "jQerhu": {
+    "defaultMessage": "Deposit collateral to decrease your liquidation risk.",
+    "description": ""
+  },
+  "jU8RFV": {
+    "defaultMessage": "Deleverage Vault",
+    "description": "heading"
+  },
+  "jpDzqS": {
+    "defaultMessage": "Connect your wallet to unstake",
+    "description": "button text"
+  },
+  "jwimQJ": {
+    "defaultMessage": "Ok"
+  },
+  "kAougI": {
+    "defaultMessage": "ETH Received",
+    "description": "value label"
+  },
+  "kEHOl8": {
+    "defaultMessage": "Switch wallets"
+  },
+  "kHJkft": {
+    "defaultMessage": "Too much price impact",
+    "description": "error message"
+  },
+  "kMFVke": {
+    "defaultMessage": "Reset Wallet"
+  },
+  "kc4yfl": {
+    "defaultMessage": "Max Deposit",
+    "description": "button label"
+  },
+  "kciYZa": {
+    "defaultMessage": "Cancel Cool Down Period"
+  },
+  "kfoc7z": {
+    "defaultMessage": "Back to Home"
+  },
+  "kg7xcK": {
+    "defaultMessage": "Redemption Window",
+    "description": "section heading"
+  },
+  "kwz4t/": {
+    "defaultMessage": "APY",
+    "description": "value label"
+  },
+  "l+grFE": {
+    "defaultMessage": "Borrow",
+    "description": "landing page heading"
+  },
+  "l/2dGN": {
+    "defaultMessage": "Already have cTokens? Get fixed rates on your Compound loan."
+  },
+  "l1sOyQ": {
+    "defaultMessage": "Enabled Currencies"
+  },
+  "l4syk1": {
+    "defaultMessage": "Cancel",
+    "description": "button text"
+  },
+  "l4tGY4": {
+    "defaultMessage": "Pierre-Yves Gendron",
+    "description": "team member name"
+  },
+  "lJZ/EF": {
+    "defaultMessage": "Source",
+    "description": "table column heading"
+  },
+  "lN4MBr": {
+    "defaultMessage": "Michael Burkett",
+    "description": "team member name"
+  },
+  "lNbS29": {
+    "defaultMessage": "ABDK Consulting | Nov 01, 2021",
+    "description": "security audit link"
+  },
+  "lOOXeJ": {
+    "defaultMessage": "From the Blog",
+    "description": "section title"
+  },
+  "lZ3/ZZ": {
+    "defaultMessage": "Increase Vault Position",
+    "description": "heading"
+  },
+  "lnfYOB": {
+    "defaultMessage": "Variable Yield"
+  },
+  "m94xUa": {
+    "defaultMessage": "Developer Documentation"
+  },
+  "mLr3C9": {
+    "defaultMessage": "Withdraw balances from Notional into the connected wallet.",
+    "description": ""
+  },
+  "mQ94la": {
+    "defaultMessage": "Join Us on Discord",
+    "description": "landing page link"
+  },
+  "mQHAsW": {
+    "defaultMessage": "Slippage"
+  },
+  "mRWIVq": {
+    "defaultMessage": "Withdraw Rate",
+    "description": ""
+  },
+  "mSQCmZ": {
+    "defaultMessage": "LEARN"
+  },
+  "mUE/S6": {
+    "defaultMessage": "NOTE amount cannot be blank, zero is accepted",
+    "description": "error message"
+  },
+  "mVjtAF": {
+    "defaultMessage": "Disconnect Wallet"
+  },
+  "meZcfa": {
+    "defaultMessage": "Enter the amount of fCash to withdraw",
+    "description": ""
+  },
+  "mhHKpO": {
+    "defaultMessage": "nTokens Redeemed",
+    "description": "value label"
+  },
+  "mipV5h": {
+    "defaultMessage": "Due at Maturity",
+    "description": "Due at Maturity header"
+  },
+  "mm9vNh": {
+    "defaultMessage": "Return to Form"
+  },
+  "nGrwN/": {
+    "defaultMessage": "Balance",
+    "description": "Balance header"
+  },
+  "nLPDRh": {
+    "defaultMessage": "Head of Marketing",
+    "description": "team member title"
+  },
+  "nYdV9N": {
+    "defaultMessage": "Earn up to {rate} variable APY"
+  },
+  "ngOqGC": {
+    "defaultMessage": "Understand selected parameters"
+  },
+  "ngR6xk": {
+    "defaultMessage": "GOVERNANCE"
+  },
+  "o0MEMI": {
+    "defaultMessage": "Withdraw Position",
+    "description": ""
+  },
+  "o8mmQ4": {
+    "defaultMessage": "Total at Maturity"
+  },
+  "oA0Bgq": {
+    "defaultMessage": "NOTE Deposit",
+    "description": "value label"
+  },
+  "oBwkIC": {
+    "defaultMessage": "Note Incentives",
+    "description": "Note Incentives header"
+  },
+  "oEJK8c": {
+    "defaultMessage": "Increase Position",
+    "description": "heading"
+  },
+  "oLkdRk": {
+    "defaultMessage": "See our Privacy Policy"
+  },
+  "oQW8XE": {
+    "defaultMessage": "Lend With Confidence",
+    "description": "section heading"
+  },
+  "oTsq8S": {
+    "defaultMessage": "Documentation",
+    "description": "documentation link"
+  },
+  "oVr4bm": {
+    "defaultMessage": "Total Accounts",
+    "description": "landing page heading"
+  },
+  "om2v2/": {
+    "defaultMessage": "Withdraw",
+    "description": "button text"
+  },
+  "ooU51X": {
+    "defaultMessage": "Connect with our community on Discord"
+  },
+  "oqh4ri": {
+    "defaultMessage": "Staked NOTE",
+    "description": "navigation link"
+  },
+  "p3n1AQ": {
+    "defaultMessage": "Invest and Earn",
+    "description": "Landing page invest and earn header"
+  },
+  "pCdOp5": {
+    "defaultMessage": "Repayment Rate",
+    "description": "value label"
+  },
+  "pJNeN0": {
+    "defaultMessage": "Need Help? Contact the Notional team."
+  },
+  "pL8l9W": {
+    "defaultMessage": "Lend",
+    "description": "landing page heading"
+  },
+  "pY2dW4": {
+    "defaultMessage": "Unused Currency",
+    "description": "currency header"
+  },
+  "pc3A5a": {
+    "defaultMessage": "Set calendar reminders for important dates.",
+    "description": ""
+  },
+  "pr/ZyW": {
+    "defaultMessage": "Senior Engineer",
+    "description": "team member title"
+  },
+  "pu3GHM": {
+    "defaultMessage": "Lend Crypto at Fixed Rates",
+    "description": "page heading"
+  },
+  "pvtgR2": {
+    "defaultMessage": "Decline"
+  },
+  "pze52S": {
+    "defaultMessage": "Roll Maturity",
+    "description": "heading"
+  },
+  "q0SfXL": {
+    "defaultMessage": "Success! Transaction submitted."
+  },
+  "qIFULk": {
+    "defaultMessage": "Interest Due",
+    "description": "value label"
+  },
+  "qK9GW3": {
+    "defaultMessage": "Insurance"
+  },
+  "qOLogg": {
+    "defaultMessage": "Social"
+  },
+  "qfluBH": {
+    "defaultMessage": "What happens when I stake my NOTE?",
+    "description": "faq question"
+  },
+  "qhyYY6": {
+    "defaultMessage": "Sign Up Now",
+    "description": "email signup button"
+  },
+  "qzr1kX": {
+    "defaultMessage": "Use your cTokens directly on Notional to swap your variable rate loan to a fixed rate and lock in your returns.",
+    "description": "page subtitle"
+  },
+  "r6IT+4": {
+    "defaultMessage": "Watch overview videos"
+  },
+  "rGMQLm": {
+    "defaultMessage": "Wallet has no sNOTE balance to unstake",
+    "description": "error message"
+  },
+  "rJvNfl": {
+    "defaultMessage": "Collateral Ratio",
+    "description": "value label"
+  },
+  "rOvCZ1": {
+    "defaultMessage": "Megan Sharon",
+    "description": "team member name"
+  },
+  "rR2L7r": {
+    "defaultMessage": "Leverage DeFi yields and earn up to {rate} APY"
+  },
+  "rRxUJe": {
+    "defaultMessage": "We invest in thorough testing and auditing of our smart contracts. Our contracts are open source so developers can <a>review our code</a> and we have an active bug bounty. Contact the security team at {mailToLink}."
+  },
+  "rST0BD": {
+    "defaultMessage": "2. Enter the portion of your loan to roll",
+    "description": ""
+  },
+  "rW6k1P": {
+    "defaultMessage": "Lend crypto with dependable returns"
+  },
+  "rWRphs": {
+    "defaultMessage": "Additional Debt",
+    "description": "value label"
+  },
+  "rgdwQX": {
+    "defaultMessage": "Transaction Confirmed"
+  },
+  "s/4P/W": {
+    "defaultMessage": "Get Notified",
+    "description": ""
+  },
+  "sPKcOU": {
+    "defaultMessage": "Enter the amount of fCash debt to repay",
+    "description": ""
+  },
+  "sRpX4G": {
+    "defaultMessage": "Connect a wallet to receive your airdrop"
+  },
+  "sS3LTJ": {
+    "defaultMessage": "Truly Open and Transparent",
+    "description": "landing page heading"
+  },
+  "sV2T0I": {
+    "defaultMessage": "Cash Withdrawn",
+    "description": ""
+  },
+  "suD6Vo": {
+    "defaultMessage": "Mint nTokens from your base asset to provide liquidity and earn interest, fees and NOTE incentives. TIP: Borrow against your nTokens to get cash while earning your LP rewards",
+    "description": "page heading subtitle"
+  },
+  "syqcX9": {
+    "defaultMessage": "Date: {date}",
+    "description": "chart tooltip"
+  },
+  "t/W//M": {
+    "defaultMessage": "Max Cash",
+    "description": "button label"
+  },
+  "t2lThq": {
+    "defaultMessage": "NOTE Incentives",
+    "description": "NOTE Incentives Header"
+  },
+  "t6NpuO": {
+    "defaultMessage": "Transaction Costs",
+    "description": "value label"
+  },
+  "tVPUGl": {
+    "defaultMessage": "About Notional",
+    "description": "section heading"
+  },
+  "tXo5cR": {
+    "defaultMessage": "Returns Drivers",
+    "description": "section heading"
+  },
+  "tZONDn": {
+    "defaultMessage": "Boost your returns with leveraged yield strategies and fixed borrowing costs. Borrow at a fixed rate from Notional's liquidity pools and deposit into select DeFi yield strategies. All in one click.",
+    "description": "page heading subtitle"
+  },
+  "tbzHKW": {
+    "defaultMessage": "View all transactions"
+  },
+  "tgTvqA": {
+    "defaultMessage": "1. Select a maturity and fixed borrowing rate",
+    "description": "input label"
+  },
+  "tjPuZb": {
+    "defaultMessage": "Insure Your Funds on Nexus"
+  },
+  "tjaXNN": {
+    "defaultMessage": "Remaining Assets",
+    "description": "value label"
+  },
+  "tlFeG2": {
+    "defaultMessage": "View on Etherscan"
+  },
+  "ttoPAz": {
+    "defaultMessage": "Be the first to hear Notional's news and market insights.",
+    "description": "email signup heading"
+  },
+  "tv5FG3": {
+    "defaultMessage": "Blog"
+  },
+  "u5KKg7": {
+    "defaultMessage": "Financial Model",
+    "description": "documentation link"
+  },
+  "u8Z/xV": {
+    "defaultMessage": "A Multidisciplinary Approach to Security",
+    "description": "landing section heading"
+  },
+  "uL0p9W": {
+    "defaultMessage": "Reduce your interest rate risk by redeeming nTokens and repaying debt at the same time.",
+    "description": ""
+  },
+  "uNOJ2Q": {
+    "defaultMessage": "Portfolio"
+  },
+  "uW7GQm": {
+    "defaultMessage": "Provide Liquidity by minting nTokens to earn interest, fees and NOTE incentives.",
+    "description": "landing page text"
+  },
+  "uch6cX": {
+    "defaultMessage": "Liquidity",
+    "description": "navigation link"
+  },
+  "ueZCLN": {
+    "defaultMessage": "2. What is your target leverage ratio after withdraw?",
+    "description": "input label"
+  },
+  "ujhqf8": {
+    "defaultMessage": "Total Loan Volume",
+    "description": "landing page heading"
+  },
+  "uvEFAY": {
+    "defaultMessage": "Portfolio Holdings",
+    "description": "table title"
+  },
+  "vA80NF": {
+    "defaultMessage": "Select a target leverage ratio",
+    "description": ""
+  },
+  "vECz9z": {
+    "defaultMessage": "Select from the list below to enable collateral"
+  },
+  "vIZxFv": {
+    "defaultMessage": "Total Returns: {returns}",
+    "description": "chart tooltip"
+  },
+  "vJYhWq": {
+    "defaultMessage": "Present Value",
+    "description": "Present Value header"
+  },
+  "vRWi5h": {
+    "defaultMessage": "Withdraw fCash for underlying cash at current market rates.",
+    "description": ""
+  },
+  "vSj5zl": {
+    "defaultMessage": "Loan to Value:"
+  },
+  "vak7cF": {
+    "defaultMessage": "Withdraw Lend",
+    "description": ""
+  },
+  "vbR/Do": {
+    "defaultMessage": "Strategy Overview",
+    "description": "section heading"
+  },
+  "vf7rk+": {
+    "defaultMessage": "High Risk",
+    "description": "risk label"
+  },
+  "vfm2W3": {
+    "defaultMessage": "1. How much liquidity do you want to provide?",
+    "description": "input label"
+  },
+  "vhrUgA": {
+    "defaultMessage": "Current",
+    "description": "Current header"
+  },
+  "vkKZtE": {
+    "defaultMessage": "Below minimum borrow size: {minBorrowSize}",
+    "description": "error message"
+  },
+  "vlyJTq": {
+    "defaultMessage": "Help us build a better Notional!"
+  },
+  "vo7SYC": {
+    "defaultMessage": "Low Risk"
+  },
+  "vqsLWa": {
+    "defaultMessage": "1. You will borrow at this maturity and fixed rate.",
+    "description": "input label"
+  },
+  "vv3Aav": {
+    "defaultMessage": "Meet the Team",
+    "description": "section heading"
+  },
+  "vx0nkZ": {
+    "defaultMessage": "Privacy Policy"
+  },
+  "vxDVaS": {
+    "defaultMessage": "Fixed Means Fixed",
+    "description": "landing page heading"
+  },
+  "vxIhEB": {
+    "defaultMessage": "Enter amount of sNOTE you want to unstake",
+    "description": "input label"
+  },
+  "vyIBZ+": {
+    "defaultMessage": "Below Minimum Leverage for Vault: {minLeverage}. Full exit required.",
+    "description": "info message"
+  },
+  "w20FZc": {
+    "defaultMessage": "Cool Down Period Initiated",
+    "description": "heading"
+  },
+  "w3q6yt": {
+    "defaultMessage": "Collateral APY",
+    "description": "value label"
+  },
+  "w5Tax9": {
+    "defaultMessage": "NOTE incentive yields are calculated using the oracle price from the {sNOTEPool}: {notePriceString} USD"
+  },
+  "wJ4LE2": {
+    "defaultMessage": "Return Drivers",
+    "description": "Return Drivers Table Title"
+  },
+  "wSZR47": {
+    "defaultMessage": "Submit"
+  },
+  "wX6R/Z": {
+    "defaultMessage": "Create Vault Account",
+    "description": "heading"
+  },
+  "wpyIqS": {
+    "defaultMessage": "High Yield"
+  },
+  "wsK/62": {
+    "defaultMessage": "How do NOTE stakers earn money?",
+    "description": "faq question"
+  },
+  "xB9brs": {
+    "defaultMessage": "Interest Earned",
+    "description": "Interest Earned header"
+  },
+  "xCOsiB": {
+    "defaultMessage": "What's Up"
+  },
+  "xHfqHo": {
+    "defaultMessage": "Review Notional audits"
+  },
+  "xLYeGz": {
+    "defaultMessage": "Connect A Wallet",
+    "description": "empty overview button text"
+  },
+  "xfHpYJ": {
+    "defaultMessage": "2. Adjust the amount of ETH or WETH",
+    "description": "input label"
+  },
+  "xhBFHU": {
+    "defaultMessage": "Users can also mint <a>nTokens</a> to provide liquidity and earn interest, fees & NOTE incentives. <b>Earn {nTokenYieldString} variable APY.</b>"
+  },
+  "xkNUve": {
+    "defaultMessage": "Cash to Portfolio",
+    "description": ""
+  },
+  "xz093w": {
+    "defaultMessage": "Fixed Rate Lending"
+  },
+  "y2DpeV": {
+    "defaultMessage": "Notional is a community-owned and governed protocol supported by the Notional Finance Foundation.",
+    "description": "section description"
+  },
+  "y673fv": {
+    "defaultMessage": "End Redemption Window",
+    "description": "button cta"
+  },
+  "yK34w5": {
+    "defaultMessage": "Earn up to {rate} APY"
+  },
+  "yLDYYJ": {
+    "defaultMessage": "Withdraw Lend",
+    "description": "button text"
+  },
+  "yLtLwT": {
+    "defaultMessage": "back"
+  },
+  "yRPMgg": {
+    "defaultMessage": "Updated",
+    "description": "Updated header"
+  },
+  "ySWc+9": {
+    "defaultMessage": "NOTE Price",
+    "description": "value label"
+  },
+  "ydvlu+": {
+    "defaultMessage": "1. Select a new maturity and new fixed borrowing rate.",
+    "description": "input label"
+  },
+  "yfzLjF": {
+    "defaultMessage": "Address not valid"
+  },
+  "ymdO8j": {
+    "defaultMessage": "Notional Governance",
+    "description": "call to action"
+  },
+  "yoZs6D": {
+    "defaultMessage": "Withdraw Position",
+    "description": "heading"
+  },
+  "yocH7/": {
+    "defaultMessage": "Amount to Wallet",
+    "description": "value label"
+  },
+  "z/jh4E": {
+    "defaultMessage": "Interest Due"
+  },
+  "z6W6ko": {
+    "defaultMessage": "Convert Cash to nTokens",
+    "description": ""
+  },
+  "zNb2mC": {
+    "defaultMessage": "Loan to Value",
+    "description": "value label"
+  },
+  "zS2LS+": {
+    "defaultMessage": "Repay Idiosyncratic Debt",
+    "description": ""
+  },
+  "zWm1G1": {
+    "defaultMessage": "7 Day Avg",
+    "description": "table column heading"
+  },
+  "zakNKO": {
+    "defaultMessage": "Repay Borrow",
+    "description": "button text"
+  },
+  "zdEO2L": {
+    "defaultMessage": "Leveraged Vaults",
+    "description": "navigation link"
+  },
+  "zuA3Bg": {
+    "defaultMessage": "YouTube"
+  },
+  "zxSVCt": {
+    "defaultMessage": "nTokens are the primary way users provide liquidity on Notional, similar to a liquidity provider on any decentralized exchange. nTokens are ERC20 assets that earn returns across all active maturities in the same currency. nTokens are redeemable at any time for a share of Notional's total liquidity in a given currency across all active maturities. Each asset on Notional will have its own nToken ex. nDAI, nUSDC, nETH.",
+    "description": "faq answer"
+  }
+}
