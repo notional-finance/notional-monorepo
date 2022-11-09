@@ -14,6 +14,8 @@ import {
   VaultPerformance,
 } from './vault-store';
 
+const hiddenStrategies = ['CrossCurrencyfCash'];
+
 system$.subscribe((system) => {
   if (system) {
     const listedVaults = system
@@ -26,7 +28,8 @@ system$.subscribe((system) => {
         };
       })
       .filter(
-        ({ strategyName }) => strategyName !== undefined
+        ({ strategyName }) =>
+          strategyName !== undefined && !hiddenStrategies.includes(strategyName)
       ) as ListedVault[];
 
     // Only includes vault maturities that do not have asset cash
@@ -77,17 +80,15 @@ export const vaultPerformance$ = combineLatest({
   mergeMap(({ listedVaults }) => {
     return forkJoin(
       listedVaults.map((v) => {
-        // TODO: currently does not support per maturity returns
-        // VaultFactory.fetchVaultReturns(v.vaultConfig.vaultAddress).then((returns) => {
         return from(
-          VaultFactory.fetchVaultReturns(
-            '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-          ).then((returns) => {
-            return {
-              vaultAddress: v.vaultConfig.vaultAddress,
-              returns,
-            };
-          })
+          VaultFactory.fetchVaultReturns(v.vaultConfig.vaultAddress).then(
+            (returns) => {
+              return {
+                vaultAddress: v.vaultConfig.vaultAddress,
+                returns,
+              };
+            }
+          )
         );
       })
     );
@@ -192,8 +193,7 @@ export function calculateHeadlineVaultReturns(
 ) {
   if (averageReturn && currentBorrowRate && leverageRatio) {
     return (
-      (averageReturn - currentBorrowRate) *
-        (leverageRatio / RATE_PRECISION - 1) +
+      (averageReturn - currentBorrowRate) * (leverageRatio / RATE_PRECISION) +
       averageReturn
     );
   }
