@@ -3,7 +3,7 @@
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
   "npmScope": "notional-finance",
   "workspaceLayout": {
-    "appsDir": "services",
+    "appsDir": "apps",
     "libsDir": "packages"
   },
   "affected": {

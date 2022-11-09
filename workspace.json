@@ -15,8 +15,8 @@
     "features-stake": "packages/features/stake",
     "features-treasury": "packages/features/treasury",
     "features-vault": "packages/features/vault",
-    "geoip": "services/geoip",
-    "metrics": "services/metrics",
+    "geoip": "apps/geoip",
+    "metrics": "apps/metrics",
     "notionable": "packages/notionable",
     "sdk": "packages/sdk",
     "shared-notionable-hooks": "packages/shared/notionable-hooks",
@@ -25,7 +25,7 @@
     "shared-utils": "packages/shared/utils",
     "shared-wallet": "packages/shared/wallet",
     "shared-web": "packages/shared/web",
-    "system-cache": "services/system-cache",
+    "system-cache": "apps/system-cache",
     "util": "packages/util"
   }
 }

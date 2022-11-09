@@ -1,8 +1,8 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "lib": [ "esnext" ],
-    "types": ["node", "@cloudflare/workers-types" ],
+    "lib": ["esnext"],
+    "types": ["node", "@cloudflare/workers-types"],
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "noImplicitOverride": true,

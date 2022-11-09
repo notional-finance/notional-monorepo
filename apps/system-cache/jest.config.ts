@@ -1,6 +1,6 @@
 /* eslint-disable */
 export default {
-  displayName: 'metrics',
+  displayName: 'system-cache',
   preset: '../../jest.preset.js',
   globals: {
     'ts-jest': {
@@ -10,15 +10,15 @@ export default {
   },
   testEnvironment: 'miniflare',
   testEnvironmentOptions: {
-    scriptPath: 'services/metrics/dist/index.js',
+    scriptPath: 'apps/system-cache/dist/index.js',
     modules: true,
-    wranglerConfigPath: 'services/metrics/wrangler.toml',
-    wranglerConfigEnv: 'services/metrics/.dev.vars',
+    wranglerConfigPath: 'apps/system-cache/wrangler.toml',
+    wranglerConfigEnv: 'apps/system-cache/.dev.vars',
   },
   transform: {
     '^.+\\.[tj]s$': 'ts-jest',
   },
   moduleFileExtensions: ['ts', 'js'],
-  coverageDirectory: '../../coverage/services/metrics',
+  coverageDirectory: '../../coverage/apps/system-cache',
   testTimeout: 50000,
 };

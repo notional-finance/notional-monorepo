@@ -1,31 +1,31 @@
 {
-  "name": "geoip",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "services/geoip/src",
+  "name": "geoip",
+  "sourceRoot": "apps/geoip/src",
   "projectType": "application",
   "targets": {
     "build": {
       "executor": "@nrwl/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/services/geoip",
-        "main": "services/geoip/src/index.ts",
-        "tsConfig": "services/geoip/tsconfig.app.json",
-        "assets": ["services/geoip/*.md"]
+        "outputPath": "dist/apps/geoip",
+        "main": "apps/geoip/src/index.ts",
+        "tsConfig": "apps/geoip/tsconfig.app.json",
+        "assets": ["apps/geoip/*.md"]
       }
     },
     "lint": {
       "executor": "@nrwl/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["services/geoip/**/*.ts"]
+        "lintFilePatterns": ["apps/geoip/**/*.ts"]
       }
     },
     "test": {
       "executor": "@nrwl/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "services/geoip/jest.config.ts",
+        "jestConfig": "apps/geoip/jest.config.ts",
         "passWithNoTests": true
       }
     },
@@ -37,7 +37,7 @@
             "command": "wrangler dev --local"
           }
         ],
-        "cwd": "services/geoip"
+        "cwd": "apps/geoip"
       }
     },
     "publish": {
@@ -48,7 +48,7 @@
             "command": "wrangler publish"
           }
         ],
-        "cwd": "services/geoip"
+        "cwd": "apps/geoip"
       }
     }
   },

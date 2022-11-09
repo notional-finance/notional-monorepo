@@ -1,7 +1,7 @@
 {
-  "name": "system-cache",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "services/system-cache/src",
+  "name": "system-cache",
+  "sourceRoot": "apps/system-cache/src",
   "projectType": "application",
   "targets": {
     "build": {
@@ -12,7 +12,7 @@
             "command": "wrangler publish --dry-run --outdir dist"
           }
         ],
-        "cwd": "services/system-cache"
+        "cwd": "apps/system-cache"
       }
     },
     "serve": {
@@ -23,7 +23,7 @@
             "command": "wrangler dev --local"
           }
         ],
-        "cwd": "services/system-cache"
+        "cwd": "apps/system-cache"
       }
     },
     "publish": {
@@ -34,21 +34,21 @@
             "command": "wrangler publish"
           }
         ],
-        "cwd": "services/system-cache"
+        "cwd": "apps/system-cache"
       }
     },
     "lint": {
       "executor": "@nrwl/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["services/system-cache/**/*.ts"]
+        "lintFilePatterns": ["apps/system-cache/**/*.ts"]
       }
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/services/system-cache"],
+      "outputs": ["{workspaceRoot}/coverage/apps/system-cache"],
       "options": {
-        "jestConfig": "services/system-cache/jest.config.ts",
+        "jestConfig": "apps/system-cache/jest.config.ts",
         "passWithNoTests": true
       },
       "dependsOn": ["build"]

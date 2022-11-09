@@ -1,8 +1,8 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "lib": [ "es2021" ],
-    "types": ["node", "@cloudflare/workers-types" ],
+    "lib": ["es2021"],
+    "types": ["node", "@cloudflare/workers-types"],
     "paths": {}
   },
   "files": [],
