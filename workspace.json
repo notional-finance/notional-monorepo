@@ -26,6 +26,7 @@
     "shared-wallet": "packages/shared/wallet",
     "shared-web": "packages/shared/web",
     "system-cache": "apps/system-cache",
-    "util": "packages/util"
+    "util": "packages/util",
+    "web": "apps/web"
   }
 }
