@@ -1,4 +1,4 @@
-import { VAULT_ACTIONS } from '@notional-finance/utils';
+import { VAULT_ACTIONS } from '@notional-finance/shared-config';
 import { defineMessages } from 'react-intl';
 
 export const messages = {
@@ -35,7 +35,8 @@ export const messages = {
       description: 'heading',
     },
     helptext: {
-      defaultMessage: 'Increase your existing vault position by depositing or borrowing.',
+      defaultMessage:
+        'Increase your existing vault position by depositing or borrowing.',
       description: 'helptext',
     },
     maturity: {
@@ -95,9 +96,18 @@ export const messages = {
       defaultMessage: 'Borrow Amount: {borrowAmount}',
       description: 'input label',
     },
-    expectedYield: { defaultMessage: 'Expected Yield', description: 'text label' },
-    capacityUsed: { defaultMessage: 'Capacity Used: ', description: 'text label' },
-    totalCapacity: { defaultMessage: 'Total Capacity: ', description: 'text label' },
+    expectedYield: {
+      defaultMessage: 'Expected Yield',
+      description: 'text label',
+    },
+    capacityUsed: {
+      defaultMessage: 'Capacity Used: ',
+      description: 'text label',
+    },
+    totalCapacity: {
+      defaultMessage: 'Total Capacity: ',
+      description: 'text label',
+    },
     performance: {
       defaultMessage: 'Performance to Date',
       description: 'table column heading',
@@ -107,16 +117,34 @@ export const messages = {
       defaultMessage: 'Total Returns: {returns}',
       description: 'chart tooltip',
     },
-    returns: { defaultMessage: 'Unleveraged Returns', description: 'section heading' },
+    returns: {
+      defaultMessage: 'Unleveraged Returns',
+      description: 'section heading',
+    },
     leveragedReturns: {
       defaultMessage: 'Returns at {leverageRatio} Leverage',
       description: 'section heading',
     },
-    currentBorrowRate: { defaultMessage: 'Current Borrow Rate', description: 'chart legend' },
-    returnsDrivers: { defaultMessage: 'Returns Drivers', description: 'section heading' },
-    returnsDriversSource: { defaultMessage: 'Source', description: 'table column heading' },
-    returnsDrivers7dayAverage: { defaultMessage: '7 Day Avg', description: 'table column heading' },
-    returnsDrivers30dayAverage: { defaultMessage: '30 Day Avg', description: 'table column' },
+    currentBorrowRate: {
+      defaultMessage: 'Current Borrow Rate',
+      description: 'chart legend',
+    },
+    returnsDrivers: {
+      defaultMessage: 'Returns Drivers',
+      description: 'section heading',
+    },
+    returnsDriversSource: {
+      defaultMessage: 'Source',
+      description: 'table column heading',
+    },
+    returnsDrivers7dayAverage: {
+      defaultMessage: '7 Day Avg',
+      description: 'table column heading',
+    },
+    returnsDrivers30dayAverage: {
+      defaultMessage: '30 Day Avg',
+      description: 'table column',
+    },
     strategyOverviewHeading: {
       defaultMessage: 'Strategy Overview',
       description: 'section heading',
@@ -131,13 +159,23 @@ export const messages = {
     },
   }),
   error: defineMessages({
-    noEligibleMarkets: { defaultMessage: 'No Eligible Markets', description: 'section heading' },
-    returnToPortfolio: { defaultMessage: 'Return to Portfolio', description: 'button link' },
+    noEligibleMarkets: {
+      defaultMessage: 'No Eligible Markets',
+      description: 'section heading',
+    },
+    returnToPortfolio: {
+      defaultMessage: 'Return to Portfolio',
+      description: 'button link',
+    },
     underMinBorrow: {
-      defaultMessage: 'Below {minBorrowSize} minimum borrow amount: {borrowAmount}',
+      defaultMessage:
+        'Below {minBorrowSize} minimum borrow amount: {borrowAmount}',
       description: 'error message',
     },
-    overCapacity: { defaultMessage: 'Over maximum vault capacity.', description: 'error message' },
+    overCapacity: {
+      defaultMessage: 'Over maximum vault capacity.',
+      description: 'error message',
+    },
     noEligibleMarketsIdiosyncratic: {
       defaultMessage: 'No eligible markets, current maturity is idiosyncratic.',
       description: 'error message',
@@ -147,7 +185,8 @@ export const messages = {
       description: 'error message',
     },
     belowMinimumLeverage: {
-      defaultMessage: 'Cannot decrease below leverage ratio: {minLeverageRatio}',
+      defaultMessage:
+        'Cannot decrease below leverage ratio: {minLeverageRatio}',
       description: 'error message',
     },
     aboveMaximumLeverage: {
@@ -155,7 +194,8 @@ export const messages = {
       description: 'error message',
     },
     blockedGeoActionHelptext: {
-      defaultMessage: 'Unfortunately, leveraged vaults are not available to U.S. Persons.',
+      defaultMessage:
+        'Unfortunately, leveraged vaults are not available to U.S. Persons.',
       description: 'error message',
     },
     blockedGeoCTA: {

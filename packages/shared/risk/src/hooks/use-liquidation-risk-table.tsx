@@ -1,6 +1,9 @@
-import { useRiskRatios, useRiskThresholds } from '@notional-finance/notionable-hooks';
+import {
+  useRiskRatios,
+  useRiskThresholds,
+} from '@notional-finance/notionable-hooks';
 import { AccountData } from '@notional-finance/sdk';
-import { zipByKeyToArray } from '@notional-finance/utils';
+import { zipByKeyToArray } from '@notional-finance/helpers';
 import {
   didIncrease,
   formatCurrencyForRisk,
@@ -35,7 +38,10 @@ export const useLiquidationRiskTable = (updatedAccountData?: AccountData) => {
       current: formatPercentForRisk(currentRiskRatios?.loanToValue),
       updated: {
         value: formatPercentForRisk(updatedRiskRatios?.loanToValue),
-        arrowUp: didIncrease(currentRiskRatios?.loanToValue, updatedRiskRatios?.loanToValue),
+        arrowUp: didIncrease(
+          currentRiskRatios?.loanToValue,
+          updatedRiskRatios?.loanToValue
+        ),
         checkmark: updatedRiskRatios?.loanToValue === null,
         greenOnArrowUp: false,
         greenOnCheckmark: true,
@@ -50,7 +56,8 @@ export const useLiquidationRiskTable = (updatedAccountData?: AccountData) => {
   );
   const liquidationData = mergedLiquidationPrices.map(([current, updated]) => {
     // One of these is guaranteed to be defined
-    const collateralSymbol: string = (current?.collateralSymbol || updated?.collateralSymbol)!;
+    const collateralSymbol: string = (current?.collateralSymbol ||
+      updated?.collateralSymbol)!;
     const debtSymbol: string = (current?.debtSymbol || updated?.debtSymbol)!;
 
     return {
@@ -78,13 +85,16 @@ export const useLiquidationRiskTable = (updatedAccountData?: AccountData) => {
     (t) => t.id.toString()
   );
 
-  const interestRateRiskData: RiskDataTableRow[] = mergedInterestRateRisk.flatMap(
-    ([current, updated]) => {
+  const interestRateRiskData: RiskDataTableRow[] =
+    mergedInterestRateRisk.flatMap(([current, updated]) => {
       // One of these is guaranteed to be defined
       const symbol: string = (current?.symbol || updated?.symbol)!;
       const risks: any[] = [];
 
-      if (current?.upperLiquidationInterestRate || updated?.upperLiquidationInterestRate) {
+      if (
+        current?.upperLiquidationInterestRate ||
+        updated?.upperLiquidationInterestRate
+      ) {
         risks.push({
           riskType: {
             type: 'Upper Interest Rate Risk',
@@ -98,13 +108,18 @@ export const useLiquidationRiskTable = (updatedAccountData?: AccountData) => {
               updated?.upperLiquidationInterestRate
             ),
             checkmark: updated?.upperLiquidationInterestRate === undefined,
-            greenOnArrowUp: current?.upperLiquidationInterestRate ? true : false,
+            greenOnArrowUp: current?.upperLiquidationInterestRate
+              ? true
+              : false,
             greenOnCheckmark: true,
           },
         });
       }
 
-      if (current?.lowerLiquidationInterestRate || updated?.lowerLiquidationInterestRate) {
+      if (
+        current?.lowerLiquidationInterestRate ||
+        updated?.lowerLiquidationInterestRate
+      ) {
         risks.push({
           riskType: {
             type: 'Lower Interest Rate Risk',
@@ -125,8 +140,7 @@ export const useLiquidationRiskTable = (updatedAccountData?: AccountData) => {
       }
 
       return risks;
-    }
-  );
+    });
 
   tableData.push(...liquidationData);
   tableData.push(...interestRateRiskData);

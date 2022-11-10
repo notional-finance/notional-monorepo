@@ -1,6 +1,9 @@
 import { IconCell, RailGradient, SliderCell } from '@notional-finance/mui';
 import { useRiskThresholds } from '@notional-finance/notionable-hooks';
-import { convertRateToFloat, formatNumberAsPercent } from '@notional-finance/utils';
+import {
+  convertRateToFloat,
+  formatNumberAsPercent,
+} from '@notional-finance/helpers';
 import { formatRateForRisk } from '../helpers/risk-data-helpers';
 
 const greyRGB: [number, number, number] = [149, 178, 186];

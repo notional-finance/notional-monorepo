@@ -1,6 +1,6 @@
 import { Box } from '@mui/material';
 import { PageLoading, Button } from '@notional-finance/mui';
-import { SIDEBAR_CATEGORIES } from '@notional-finance/utils';
+import { SIDEBAR_CATEGORIES } from '@notional-finance/shared-config';
 import { UnstakeStart } from './unstake-start';
 import { UnstakeRedeem } from './unstake-redeem';
 import { UnstakeCoolDown } from './unstake-cooldown';
@@ -19,7 +19,11 @@ export const UnstakeAction = () => {
   let unstakeStage: React.ReactElement;
   if (maxSNoteAmount?.isZero()) {
     unstakeStage = <FormattedMessage {...messages.unstake.noSNOTEBalance} />;
-  } else if (maxSNoteAmount?.isPositive() && !isInCoolDown && !isInRedeemWindow) {
+  } else if (
+    maxSNoteAmount?.isPositive() &&
+    !isInCoolDown &&
+    !isInRedeemWindow
+  ) {
     unstakeStage = <UnstakeStart />;
   } else if (isInCoolDown && !isInRedeemWindow) {
     unstakeStage = <UnstakeCoolDown />;

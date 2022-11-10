@@ -1,6 +1,9 @@
 import { PageLoading } from '@notional-finance/mui';
-import { AccountWithdrawInput, TradePropertiesGrid } from '@notional-finance/trade';
-import { PORTFOLIO_ACTIONS } from '@notional-finance/utils';
+import {
+  AccountWithdrawInput,
+  TradePropertiesGrid,
+} from '@notional-finance/trade';
+import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
 import { PortfolioSideDrawer } from '../components/portfolio-side-drawer';
 import { messages } from '../messages';
 import { useWithdraw } from './use-withdraw';

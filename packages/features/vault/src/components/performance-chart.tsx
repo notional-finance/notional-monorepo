@@ -1,5 +1,8 @@
 import { Box, useTheme, styled } from '@mui/material';
-import { formatNumberAsPercent, getDateString } from '@notional-finance/utils';
+import {
+  formatNumberAsPercent,
+  getDateString,
+} from '@notional-finance/helpers';
 import { H4, Label, TradeSummaryBox } from '@notional-finance/mui';
 import { FormattedMessage, useIntl } from 'react-intl';
 import {
@@ -119,13 +122,18 @@ export const PerformanceChart = ({
             <FormattedMessage
               {...messages.summary.leveragedReturns}
               values={{
-                leverageRatio: leverageRatio ? countUpLeverageRatio(leverageRatio) : '',
+                leverageRatio: leverageRatio
+                  ? countUpLeverageRatio(leverageRatio)
+                  : '',
               }}
             />
           </LegendItem>
           <LegendItem
             inline
-            sx={{ borderColor: theme.palette.primary.light, borderStyle: 'solid' }}
+            sx={{
+              borderColor: theme.palette.primary.light,
+              borderStyle: 'solid',
+            }}
           >
             <FormattedMessage {...messages.summary.returns} />
           </LegendItem>
@@ -163,11 +171,16 @@ export const PerformanceChart = ({
                 if (typeof v === 'number') {
                   const prevMonth =
                     i > 0
-                      ? intl.formatDate(historicalReturns[i - 1]['timestamp'] * 1000, {
-                          month: 'short',
-                        })
+                      ? intl.formatDate(
+                          historicalReturns[i - 1]['timestamp'] * 1000,
+                          {
+                            month: 'short',
+                          }
+                        )
                       : '';
-                  const thisMonth = intl.formatDate(v * 1000, { month: 'short' });
+                  const thisMonth = intl.formatDate(v * 1000, {
+                    month: 'short',
+                  });
 
                   // Only label the axis on the first month
                   return prevMonth !== thisMonth ? thisMonth : '';

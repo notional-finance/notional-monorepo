@@ -1,6 +1,11 @@
 import { google, outlook, office365, ics, CalendarEvent } from 'calendar-link';
-import { PORTFOLIO_CATEGORIES } from '@notional-finance/utils';
-import { GoogleCalIcon, OutlookCalIcon, IcalIcon, MicrosoftCalIcon } from '@notional-finance/icons';
+import { PORTFOLIO_CATEGORIES } from '@notional-finance/shared-config';
+import {
+  GoogleCalIcon,
+  OutlookCalIcon,
+  IcalIcon,
+  MicrosoftCalIcon,
+} from '@notional-finance/icons';
 import { PortfolioParams } from '../../portfolio-feature-shell';
 import { useIntl } from 'react-intl';
 import { useParams } from 'react-router-dom';
@@ -19,7 +24,8 @@ export function useAddToCalendar(date: string) {
     description:
       category === PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS
         ? intl.formatMessage({
-            defaultMessage: 'Reminder to check in on your Notional Finance vault maturity',
+            defaultMessage:
+              'Reminder to check in on your Notional Finance vault maturity',
           })
         : intl.formatMessage({
             defaultMessage: `Reminder to check in on your Notional Finance loan maturity`,

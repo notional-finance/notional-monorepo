@@ -1,6 +1,14 @@
 import { PortfolioSideDrawer } from '../components/portfolio-side-drawer';
-import { LEND_BORROW, PORTFOLIO_ACTIONS, useQueryParams } from '@notional-finance/utils';
-import { LendBorrowInput, TokenApprovalView, TradePropertiesGrid } from '@notional-finance/trade';
+import { useQueryParams } from '@notional-finance/utils';
+import {
+  LEND_BORROW,
+  PORTFOLIO_ACTIONS,
+} from '@notional-finance/shared-config';
+import {
+  LendBorrowInput,
+  TokenApprovalView,
+  TradePropertiesGrid,
+} from '@notional-finance/trade';
 import { useRepayBorrow } from './use-repay-borrow';
 import { messages } from '../messages';
 
@@ -33,8 +41,18 @@ export const RepayBorrow = () => {
           lendOrBorrow={LEND_BORROW.LEND}
           isRemoveAsset={true}
           selectedMarketKey={selectedMarketKey}
-          onChange={({ inputAmount, hasError, netCashAmount, netfCashAmount }) => {
-            updateRepayBorrowState({ inputAmount, hasError, netCashAmount, netfCashAmount });
+          onChange={({
+            inputAmount,
+            hasError,
+            netCashAmount,
+            netfCashAmount,
+          }) => {
+            updateRepayBorrowState({
+              inputAmount,
+              hasError,
+              netCashAmount,
+              netfCashAmount,
+            });
           }}
           inputLabel={messages[PORTFOLIO_ACTIONS.REPAY_BORROW]['inputLabel']}
         />

@@ -9,7 +9,7 @@ import {
 } from '@notional-finance/trade';
 import { RiskSlider, AccountRiskTable } from '@notional-finance/risk';
 import { useHistory, useLocation, useParams } from 'react-router-dom';
-import { LEND_BORROW } from '@notional-finance/utils';
+import { LEND_BORROW } from '@notional-finance/shared-config';
 import { defineMessage, FormattedMessage } from 'react-intl';
 import { updateBorrowState } from '../store/borrow-store';
 import { useBorrow } from '../store/use-borrow';
@@ -18,9 +18,12 @@ import { BorrowParams } from '../borrow-feature-shell';
 import { useCurrency } from '@notional-finance/notionable-hooks';
 
 export const BorrowSidebar = () => {
-  const { currency: selectedToken, collateral: selectedCollateral } = useParams<BorrowParams>();
-  const { tradableCurrencySymbols: availableCurrencies, allCurrencySymbols: collateralCurrencies } =
-    useCurrency();
+  const { currency: selectedToken, collateral: selectedCollateral } =
+    useParams<BorrowParams>();
+  const {
+    tradableCurrencySymbols: availableCurrencies,
+    allCurrencySymbols: collateralCurrencies,
+  } = useCurrency();
   const { maturityData, selectedMarketKey, canSubmit, updatedAccountData } =
     useBorrow(selectedToken);
   const txnData = useBorrowTransaction(selectedToken);
@@ -54,11 +57,22 @@ export const BorrowSidebar = () => {
         cashOrfCash={'Cash'}
         lendOrBorrow={LEND_BORROW.BORROW}
         selectedMarketKey={selectedMarketKey}
-        onChange={({ selectedToken: newToken, inputAmount, hasError, netfCashAmount }) => {
+        onChange={({
+          selectedToken: newToken,
+          inputAmount,
+          hasError,
+          netfCashAmount,
+        }) => {
           if (newToken !== selectedToken) {
-            history.push(`/${LEND_BORROW.BORROW}/${newToken}/${selectedCollateral}`);
+            history.push(
+              `/${LEND_BORROW.BORROW}/${newToken}/${selectedCollateral}`
+            );
           }
-          updateBorrowState({ inputAmount, hasError, fCashAmount: netfCashAmount });
+          updateBorrowState({
+            inputAmount,
+            hasError,
+            fCashAmount: netfCashAmount,
+          });
         }}
         inputLabel={defineMessage({
           defaultMessage: '2. How much do you want to borrow?',
@@ -77,7 +91,8 @@ export const BorrowSidebar = () => {
         selectedToken={selectedCollateral}
         selectedBorrowMarketKey={selectedMarketKey}
         inputLabel={defineMessage({
-          defaultMessage: '3. How much additional collateral do you want to deposit?',
+          defaultMessage:
+            '3. How much additional collateral do you want to deposit?',
           description: 'input label',
         })}
         onChange={(
@@ -88,7 +103,9 @@ export const BorrowSidebar = () => {
           collateralSymbol
         ) => {
           if (newCollateral !== selectedCollateral) {
-            history.push(`/${LEND_BORROW.BORROW}/${selectedToken}/${newCollateral}`);
+            history.push(
+              `/${LEND_BORROW.BORROW}/${selectedToken}/${newCollateral}`
+            );
           }
 
           updateBorrowState({
@@ -103,16 +120,25 @@ export const BorrowSidebar = () => {
 
   return txnData ? (
     <TransactionConfirmation
-      heading={<FormattedMessage defaultMessage="Borrow Order" description="section heading" />}
+      heading={
+        <FormattedMessage
+          defaultMessage="Borrow Order"
+          description="section heading"
+        />
+      }
       onCancel={handleTxnCancel}
       transactionProperties={txnData?.transactionProperties}
       buildTransactionCall={txnData?.buildTransactionCall}
     />
   ) : (
     <ActionSidebar
-      heading={defineMessage({ defaultMessage: 'Borrow Order', description: 'section heading' })}
+      heading={defineMessage({
+        defaultMessage: 'Borrow Order',
+        description: 'section heading',
+      })}
       helptext={defineMessage({
-        defaultMessage: 'Borrow with confidence, fixed rates lock in what you pay.',
+        defaultMessage:
+          'Borrow with confidence, fixed rates lock in what you pay.',
         description: 'helptext',
       })}
       CustomActionButton={TradeActionButton}

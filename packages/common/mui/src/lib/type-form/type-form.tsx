@@ -2,7 +2,10 @@ import { useState } from 'react';
 import { useTheme, Button, Box } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { Widget } from '@typeform/embed-react';
-import { setInLocalStorage, getFromLocalStorage } from '@notional-finance/utils';
+import {
+  setInLocalStorage,
+  getFromLocalStorage,
+} from '@notional-finance/helpers';
 import { WaveButtonIcon } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
 
@@ -28,7 +31,7 @@ const FormWrapper = styled(Box)(
 const StartWrapper = styled(Box)(
   ({ theme }) => `
     color: ${theme.palette.common.white};
-    width: 495px; 
+    width: 495px;
     height: 370px;
     `
 );
@@ -87,10 +90,14 @@ export const TypeForm = () => {
             <StartWrapper>
               <WaveButtonIcon></WaveButtonIcon>
               <Title>
-                <FormattedMessage defaultMessage={'Help us build a better Notional!'} />
+                <FormattedMessage
+                  defaultMessage={'Help us build a better Notional!'}
+                />
               </Title>
               <Text>
-                <FormattedMessage defaultMessage={'takes less than 2 minutes'} />
+                <FormattedMessage
+                  defaultMessage={'takes less than 2 minutes'}
+                />
               </Text>
               <Button
                 onClick={() => setShowWidget(true)}
@@ -105,7 +112,9 @@ export const TypeForm = () => {
                 <FormattedMessage defaultMessage={'Start Survey'} />
               </Button>
               <DismissText onClick={handleSubmit}>
-                <FormattedMessage defaultMessage={"Dismiss and don't show again"} />
+                <FormattedMessage
+                  defaultMessage={"Dismiss and don't show again"}
+                />
               </DismissText>
             </StartWrapper>
           )}

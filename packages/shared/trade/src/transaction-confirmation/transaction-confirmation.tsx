@@ -5,7 +5,7 @@ import { styled, Divider, useTheme } from '@mui/material';
 import { Drawer, ExternalLink } from '@notional-finance/mui';
 import { Account } from '@notional-finance/sdk';
 import { useAccount, useNotional } from '@notional-finance/notionable-hooks';
-import { logError } from '@notional-finance/utils';
+import { logError } from '@notional-finance/helpers';
 import { PendingTransaction } from './components/pending-transaction';
 import { TransactionStatus } from './components/transaction-status';
 import { TransactionButtons } from './components/transaction-buttons';
@@ -65,10 +65,15 @@ export const TransactionConfirmation = ({
           setTransactionStatus(TransactionStatus.BUILT);
         })
         .catch((e) => {
-          logError(e, 'shared/web/TransactionConfirmation', 'build-transaction-effect', {
-            transactionFn,
-            transactionArgs,
-          });
+          logError(
+            e,
+            'shared/web/TransactionConfirmation',
+            'build-transaction-effect',
+            {
+              transactionFn,
+              transactionArgs,
+            }
+          );
           setTransactionStatus(TransactionStatus.ERROR_BUILDING);
         });
     }
@@ -138,13 +143,18 @@ export const TransactionConfirmation = ({
             'By submitting a trade on our platform you agree to our <a>terms of service.</a>'
           }
           values={{
-            a: (msg: string) => <ExternalLink href="/terms">{msg}</ExternalLink>,
+            a: (msg: string) => (
+              <ExternalLink href="/terms">{msg}</ExternalLink>
+            ),
           }}
         />
       </TermsOfService>
       <TradePropertiesGrid data={transactionProperties} />
       {pendingTransaction ? (
-        <PendingTransaction hash={pendingTransaction.hash} transactionStatus={transactionStatus} />
+        <PendingTransaction
+          hash={pendingTransaction.hash}
+          transactionStatus={transactionStatus}
+        />
       ) : null}
       <TransactionButtons
         transactionStatus={transactionStatus}

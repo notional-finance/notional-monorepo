@@ -1,6 +1,11 @@
 import { useCallback, useRef } from 'react';
 import { defineMessage, FormattedMessage } from 'react-intl';
-import { PageLoading, Maturities, ActionSidebar, CurrencyInputHandle } from '@notional-finance/mui';
+import {
+  PageLoading,
+  Maturities,
+  ActionSidebar,
+  CurrencyInputHandle,
+} from '@notional-finance/mui';
 import {
   TransactionConfirmation,
   TradeActionButton,
@@ -12,11 +17,16 @@ import LendBalanceInfo from './lend-balance-info';
 import { updateLendState } from '../store/lend-store';
 import { useLend } from '../store/use-lend';
 import { useLendTransaction } from '../store/use-lend-transaction';
-import { LEND_BORROW } from '@notional-finance/utils';
+import { LEND_BORROW } from '@notional-finance/shared-config';
 
 export const LendSidebar = () => {
-  const { availableCurrencies, maturityData, selectedMarketKey, selectedToken, canSubmit } =
-    useLend();
+  const {
+    availableCurrencies,
+    maturityData,
+    selectedMarketKey,
+    selectedToken,
+    canSubmit,
+  } = useLend();
   const txnData = useLendTransaction();
   const history = useHistory();
   const { pathname } = useLocation();
@@ -44,11 +54,20 @@ export const LendSidebar = () => {
         cashOrfCash={'Cash'}
         lendOrBorrow={LEND_BORROW.LEND}
         selectedMarketKey={selectedMarketKey}
-        onChange={({ selectedToken: newToken, inputAmount, hasError, netfCashAmount }) => {
+        onChange={({
+          selectedToken: newToken,
+          inputAmount,
+          hasError,
+          netfCashAmount,
+        }) => {
           if (newToken !== selectedToken) {
             history.push(`/${LEND_BORROW.LEND}/${newToken}`);
           }
-          updateLendState({ inputAmount, hasError, fCashAmount: netfCashAmount });
+          updateLendState({
+            inputAmount,
+            hasError,
+            fCashAmount: netfCashAmount,
+          });
         }}
         inputLabel={defineMessage({
           defaultMessage: '2. How much do you want to lend?',
@@ -61,7 +80,12 @@ export const LendSidebar = () => {
 
   return txnData ? (
     <TransactionConfirmation
-      heading={<FormattedMessage defaultMessage="Lend Order" description="section heading" />}
+      heading={
+        <FormattedMessage
+          defaultMessage="Lend Order"
+          description="section heading"
+        />
+      }
       onCancel={handleTxnCancel}
       transactionProperties={txnData?.transactionProperties}
       buildTransactionCall={txnData?.buildTransactionCall}
@@ -73,7 +97,8 @@ export const LendSidebar = () => {
         description: 'section heading',
       })}
       helptext={defineMessage({
-        defaultMessage: 'Lock in a fixed interest rate today.  Fixed rates guarantee your APY.',
+        defaultMessage:
+          'Lock in a fixed interest rate today.  Fixed rates guarantee your APY.',
         description: 'helptext',
       })}
       CustomActionButton={TradeActionButton}

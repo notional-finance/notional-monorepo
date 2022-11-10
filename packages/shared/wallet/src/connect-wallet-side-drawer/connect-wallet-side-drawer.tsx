@@ -2,7 +2,7 @@ import { useTheme, Box, styled } from '@mui/material';
 import { useOnboard } from '@notional-finance/notionable-hooks';
 import { useHistory } from 'react-router-dom';
 import { ArrowIcon } from '@notional-finance/icons';
-import { SIDEBAR_CATEGORIES } from '@notional-finance/utils';
+import { SIDEBAR_CATEGORIES } from '@notional-finance/shared-config';
 import { FormattedMessage } from 'react-intl';
 import { useSideDrawerManager } from '@notional-finance/notional-web';
 import { useQueryParams } from '@notional-finance/utils';
@@ -15,13 +15,18 @@ export const ConnectWalletSideDrawer = () => {
   const theme = useTheme();
   const history = useHistory();
   const { sideDrawer } = useQueryParams();
-  const sideDrawerKey = sideDrawer ? (sideDrawer as SIDEBAR_CATEGORIES) : undefined;
+  const sideDrawerKey = sideDrawer
+    ? (sideDrawer as SIDEBAR_CATEGORIES)
+    : undefined;
   const { modules, connectWallet, connected } = useOnboard();
   const { deleteWalletSideDrawer } = useWalletSideDrawer();
   const { currentSideDrawerId } = useSideDrawerManager(sideDrawerKey);
 
   useEffect(() => {
-    if (connected && SIDEBAR_CATEGORIES.CONNECT_WALLET === currentSideDrawerId) {
+    if (
+      connected &&
+      SIDEBAR_CATEGORIES.CONNECT_WALLET === currentSideDrawerId
+    ) {
       deleteWalletSideDrawer();
     }
   }, [connected, currentSideDrawerId, history, deleteWalletSideDrawer]);
@@ -50,8 +55,16 @@ export const ConnectWalletSideDrawer = () => {
                     alt="wallet icon"
                   />
                 </Box>
-                <H4 sx={{ whiteSpace: 'nowrap', marginLeft: theme.spacing(2) }}>{label}</H4>
-                <Box sx={{ justifyContent: 'flex-end', display: 'flex', width: '100%' }}>
+                <H4 sx={{ whiteSpace: 'nowrap', marginLeft: theme.spacing(2) }}>
+                  {label}
+                </H4>
+                <Box
+                  sx={{
+                    justifyContent: 'flex-end',
+                    display: 'flex',
+                    width: '100%',
+                  }}
+                >
                   <ArrowIcon
                     sx={{
                       transform: 'rotate(90deg)',

@@ -1,5 +1,12 @@
-import { Box, styled, Typography, Button, useTheme, Input } from '@mui/material';
-import { formatBigNumberToDecimals } from '@notional-finance/utils';
+import {
+  Box,
+  styled,
+  Typography,
+  Button,
+  useTheme,
+  Input,
+} from '@mui/material';
+import { formatBigNumberToDecimals } from '@notional-finance/helpers';
 import {
   CurrencyInput,
   DataTable,
@@ -18,7 +25,8 @@ import { defineMessage } from 'react-intl';
 export const TreasuryView = () => {
   const theme = useTheme();
   const { tableData, tableColumns } = useTreasuryReservesTable();
-  const { tableData: openOrderTableData, tableColumns: openOrderColumns } = useOpenOrderTable();
+  const { tableData: openOrderTableData, tableColumns: openOrderColumns } =
+    useOpenOrderTable();
 
   const {
     isTreasuryManager,
@@ -42,13 +50,25 @@ export const TreasuryView = () => {
   const { maxReserveAmount, maxNOTEAmount, maxETHAmount } = maxAmounts;
 
   const formattedPriceFloor = tradePriceFloor?.gt(0)
-    ? formatBigNumberToDecimals(BigNumber.from(10).pow(36).div(tradePriceFloor), 18, 3)
+    ? formatBigNumberToDecimals(
+        BigNumber.from(10).pow(36).div(tradePriceFloor),
+        18,
+        3
+      )
     : '';
   const formattedSpotPrice = tradeSpotPrice?.gt(0)
-    ? formatBigNumberToDecimals(BigNumber.from(10).pow(36).div(tradeSpotPrice), 18, 3)
+    ? formatBigNumberToDecimals(
+        BigNumber.from(10).pow(36).div(tradeSpotPrice),
+        18,
+        3
+      )
     : '';
   const formattedCurrentPrice = tradeCurrentPrice?.gt(0)
-    ? formatBigNumberToDecimals(BigNumber.from(10).pow(36).div(tradeCurrentPrice), 18, 3)
+    ? formatBigNumberToDecimals(
+        BigNumber.from(10).pow(36).div(tradeCurrentPrice),
+        18,
+        3
+      )
     : '';
 
   const mainContent = (
@@ -103,13 +123,18 @@ export const TreasuryView = () => {
             placeholder="Sell reserve asset"
             decimals={8}
             onInputChange={(v) => updateTreasuryState({ inputTradeReserve: v })}
-            onSelectChange={(s) => (s ? updateTreasuryState({ selectedReserveCurrency: s }) : null)}
+            onSelectChange={(s) =>
+              s ? updateTreasuryState({ selectedReserveCurrency: s }) : null
+            }
             maxValue={maxReserveAmount}
             errorMsg={tradeReserveAmountError}
             defaultValue={'COMP'}
             currencies={['DAI', 'USDC', 'WBTC', 'COMP']}
           />
-          <Typography variant="body1" sx={{ marginRight: '1rem', marginLeft: '1rem' }}>
+          <Typography
+            variant="body1"
+            sx={{ marginRight: '1rem', marginLeft: '1rem' }}
+          >
             for
           </Typography>
           <CurrencyInput
@@ -144,7 +169,9 @@ export const TreasuryView = () => {
         >
           <LabeledText
             label="Input Price"
-            value={`${formattedCurrentPrice || '--'} ${selectedReserveCurrency}/WETH`}
+            value={`${
+              formattedCurrentPrice || '--'
+            } ${selectedReserveCurrency}/WETH`}
             labelAbove
           />
           <LabeledText
@@ -157,7 +184,11 @@ export const TreasuryView = () => {
             value={`${formattedPriceFloor} ${selectedReserveCurrency}/WETH`}
             labelAbove
           />
-          <MiniButton label="Use 0x Quote" isVisible onClick={fetchZeroExQuote} />
+          <MiniButton
+            label="Use 0x Quote"
+            isVisible
+            onClick={fetchZeroExQuote}
+          />
           <LabeledText label="Status" value={tradeReserveStatus} labelAbove />
         </Box>
         {openOrderTableData && openOrderTableData.length > 0 && (
@@ -184,7 +215,11 @@ export const TreasuryView = () => {
                   updateTreasuryState({ cancelOrderId: event.target.value });
                 }}
               />
-              <MiniButton label="Cancel Order" isVisible onClick={cancelOrder} />
+              <MiniButton
+                label="Cancel Order"
+                isVisible
+                onClick={cancelOrder}
+              />
             </Box>
             <DataTable
               tableTitle={defineMessage({
@@ -219,7 +254,10 @@ export const TreasuryView = () => {
             errorMsg={investNOTEError}
             currencies={['NOTE']}
           />
-          <Typography variant="body1" sx={{ marginRight: '1rem', marginLeft: '1rem' }}>
+          <Typography
+            variant="body1"
+            sx={{ marginRight: '1rem', marginLeft: '1rem' }}
+          >
             and
           </Typography>
           <CurrencyInput

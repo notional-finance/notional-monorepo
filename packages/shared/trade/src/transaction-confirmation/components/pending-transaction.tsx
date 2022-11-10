@@ -1,7 +1,7 @@
 import { styled, Box, useTheme } from '@mui/material';
 import { ExternalLinkIcon } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
-import { getEtherscanLink } from '@notional-finance/utils';
+import { getEtherscanLink } from '@notional-finance/helpers';
 import { TransactionStatus } from './transaction-status';
 import { useNotional } from '@notional-finance/notionable-hooks';
 
@@ -10,7 +10,10 @@ interface PendingTransactionProps {
   transactionStatus: string;
 }
 
-export const PendingTransaction = ({ hash, transactionStatus }: PendingTransactionProps) => {
+export const PendingTransaction = ({
+  hash,
+  transactionStatus,
+}: PendingTransactionProps) => {
   const theme = useTheme();
   const { connectedChain } = useNotional();
   const etherscanLink = (
@@ -32,13 +35,15 @@ export const PendingTransaction = ({ hash, transactionStatus }: PendingTransacti
     case TransactionStatus.PENDING:
       return (
         <PendingContainer>
-          <FormattedMessage defaultMessage={'Transaction Pending'} />: &nbsp;{etherscanLink}
+          <FormattedMessage defaultMessage={'Transaction Pending'} />: &nbsp;
+          {etherscanLink}
         </PendingContainer>
       );
     case TransactionStatus.CONFIRMED:
       return (
         <ConfirmedContainer>
-          <FormattedMessage defaultMessage={'Transaction Confirmed'} />: &nbsp;{etherscanLink}
+          <FormattedMessage defaultMessage={'Transaction Confirmed'} />: &nbsp;
+          {etherscanLink}
         </ConfirmedContainer>
       );
     default:

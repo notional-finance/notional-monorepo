@@ -9,7 +9,10 @@ import {
 } from '@notional-finance/mui';
 import { useYieldStrategies } from '@notional-finance/notionable-hooks';
 import { RATE_PRECISION } from '@notional-finance/sdk/src/config/constants';
-import { formatCryptoWithFiat, formatLeverageRatio } from '@notional-finance/utils';
+import {
+  formatCryptoWithFiat,
+  formatLeverageRatio,
+} from '@notional-finance/helpers';
 import moment from 'moment';
 import { FormattedMessage } from 'react-intl';
 import { useEffect, useMemo, useState } from 'react';
@@ -30,28 +33,48 @@ export const usePortfolioVaults = () => {
         textAlign: 'left',
       },
       {
-        Header: <FormattedMessage defaultMessage="Vault" description={'Vault header'} />,
+        Header: (
+          <FormattedMessage
+            defaultMessage="Vault"
+            description={'Vault header'}
+          />
+        ),
         expandableTable: true,
         Cell: ExpandableCurrencyCell,
         accessor: 'vault',
         textAlign: 'left',
       },
       {
-        Header: <FormattedMessage defaultMessage="Maturity" description={'Maturity header'} />,
+        Header: (
+          <FormattedMessage
+            defaultMessage="Maturity"
+            description={'Maturity header'}
+          />
+        ),
         expandableTable: true,
         Cell: MultiValueCell,
         accessor: 'maturity',
         textAlign: 'right',
       },
       {
-        Header: <FormattedMessage defaultMessage="Net Worth" description={'Net Worth header'} />,
+        Header: (
+          <FormattedMessage
+            defaultMessage="Net Worth"
+            description={'Net Worth header'}
+          />
+        ),
         expandableTable: true,
         Cell: MultiValueCell,
         accessor: 'netWorth',
         textAlign: 'right',
       },
       {
-        Header: <FormattedMessage defaultMessage="Leverage" description={'Leverage header'} />,
+        Header: (
+          <FormattedMessage
+            defaultMessage="Leverage"
+            description={'Leverage header'}
+          />
+        ),
         expandableTable: true,
         Cell: SliderCell,
         accessor: 'leveragePercentage',
@@ -97,14 +120,25 @@ export const usePortfolioVaults = () => {
   });
 
   useEffect(() => {
-    const formattedExpandedRows = vaultSummaryData.reduce((accumulator, _value, index) => {
-      return { ...accumulator, [index]: index === 0 ? true : false };
-    }, {});
+    const formattedExpandedRows = vaultSummaryData.reduce(
+      (accumulator, _value, index) => {
+        return { ...accumulator, [index]: index === 0 ? true : false };
+      },
+      {}
+    );
 
-    if (expandedRows === null && JSON.stringify(formattedExpandedRows) !== '{}') {
+    if (
+      expandedRows === null &&
+      JSON.stringify(formattedExpandedRows) !== '{}'
+    ) {
       setExpandedRows(formattedExpandedRows);
     }
   }, [vaultSummaryData, expandedRows, setExpandedRows]);
 
-  return { vaultSummaryColumns, vaultSummaryData, setExpandedRows, initialState };
+  return {
+    vaultSummaryColumns,
+    vaultSummaryData,
+    setExpandedRows,
+    initialState,
+  };
 };

@@ -3,7 +3,7 @@ import { Box, useTheme } from '@mui/material';
 import { MaturityData } from '@notional-finance/notionable';
 import CountUp from '../count-up/count-up';
 import { LabelValue, BodySecondary } from '../typography/typography';
-import { formatMaturity } from '@notional-finance/utils';
+import { formatMaturity } from '@notional-finance/helpers';
 
 /* eslint-disable-next-line */
 export interface MaturityCardProps {

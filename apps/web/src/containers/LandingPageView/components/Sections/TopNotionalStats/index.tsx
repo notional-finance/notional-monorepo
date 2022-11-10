@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { styled, Box, useTheme } from '@mui/material';
 import { useInView } from 'react-intersection-observer';
-import { formatNumber } from '@notional-finance/utils';
+import { formatNumber } from '@notional-finance/helpers';
 import iconUserDocsSvg from '@notional-finance/assets/icons/icon-user-docs.svg';
 import iconAnalyticsDashboard from '@notional-finance/assets/icons/icon-analytics-dashboard.svg';
 import iconDiscordSvg from '@notional-finance/assets/icons/icon-discord.svg';

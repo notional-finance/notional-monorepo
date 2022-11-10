@@ -6,7 +6,7 @@ import {
   initialAccountState,
   setReadOnlyAddress,
 } from '@notional-finance/notionable';
-import { truncateAddress } from '@notional-finance/utils';
+import { truncateAddress } from '@notional-finance/helpers';
 
 export function useAccount() {
   const {
@@ -20,7 +20,9 @@ export function useAccount() {
     accountSummariesLoaded,
   } = useObservableState(accountState$, initialAccountState);
 
-  const truncatedAddress = account?.address ? truncateAddress(account?.address) : '';
+  const truncatedAddress = account?.address
+    ? truncateAddress(account?.address)
+    : '';
 
   return {
     account,
@@ -39,10 +41,14 @@ export function useAccount() {
   };
 }
 
-export function useAccountCashBalance(selectedToken: string | undefined | null) {
+export function useAccountCashBalance(
+  selectedToken: string | undefined | null
+) {
   const { id: currencyId, isUnderlying } = useCurrencyData(selectedToken);
   const { accountDataCopy } = useAccount();
-  const _cashAmount = currencyId ? accountDataCopy?.cashBalance(currencyId) : undefined;
+  const _cashAmount = currencyId
+    ? accountDataCopy?.cashBalance(currencyId)
+    : undefined;
   return isUnderlying ? _cashAmount?.toUnderlying() : _cashAmount;
 }
 

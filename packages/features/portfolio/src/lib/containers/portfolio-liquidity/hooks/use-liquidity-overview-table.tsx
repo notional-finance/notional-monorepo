@@ -8,7 +8,10 @@ import {
   DataTableColumn,
 } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
-import { formatNumberAsPercent, formatCryptoWithFiat } from '@notional-finance/utils';
+import {
+  formatNumberAsPercent,
+  formatCryptoWithFiat,
+} from '@notional-finance/helpers';
 
 type ExpandedRows = {
   [key: string]: boolean;
@@ -29,7 +32,12 @@ export const useLiquidityOverviewTable = () => {
         textAlign: 'left',
       },
       {
-        Header: <FormattedMessage defaultMessage="Currency" description={'Currency header'} />,
+        Header: (
+          <FormattedMessage
+            defaultMessage="Currency"
+            description={'Currency header'}
+          />
+        ),
         expandableTable: true,
         Cell: ExpandableCurrencyCell,
         accessor: 'currency',
@@ -37,7 +45,10 @@ export const useLiquidityOverviewTable = () => {
       },
       {
         Header: (
-          <FormattedMessage defaultMessage="Present Value" description={'Present Value header'} />
+          <FormattedMessage
+            defaultMessage="Present Value"
+            description={'Present Value header'}
+          />
         ),
         expandableTable: true,
         Cell: MultiValueCell,
@@ -98,14 +109,25 @@ export const useLiquidityOverviewTable = () => {
   }, [nTokenHoldings]);
 
   useEffect(() => {
-    const formattedExpandedRows = nTokenHoldings.reduce((accumulator, value, index) => {
-      return { ...accumulator, [index]: index === 0 ? true : false };
-    }, {});
+    const formattedExpandedRows = nTokenHoldings.reduce(
+      (accumulator, value, index) => {
+        return { ...accumulator, [index]: index === 0 ? true : false };
+      },
+      {}
+    );
 
-    if (expandedRows === null && JSON.stringify(formattedExpandedRows) !== '{}') {
+    if (
+      expandedRows === null &&
+      JSON.stringify(formattedExpandedRows) !== '{}'
+    ) {
       setExpandedRows(formattedExpandedRows);
     }
   }, [nTokenHoldings, expandedRows, setExpandedRows]);
 
-  return { liquidityOverviewData, liquidityOverviewColumns, initialState, setExpandedRows };
+  return {
+    liquidityOverviewData,
+    liquidityOverviewColumns,
+    initialState,
+    setExpandedRows,
+  };
 };

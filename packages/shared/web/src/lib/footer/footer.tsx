@@ -4,11 +4,8 @@ import { DiscordFooter } from '@notional-finance/icons';
 import logoForDarkBackground from '@notional-finance/assets/images/logos/Notional_logo_for_dark_background.svg';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { useLastUpdateBlockNumber } from '@notional-finance/notionable-hooks';
-import {
-  formatNumber,
-  formatNumberAsPercent,
-  THEME_VARIANTS,
-} from '@notional-finance/utils';
+import { formatNumber, formatNumberAsPercent } from '@notional-finance/helpers';
+import { THEME_VARIANTS } from '@notional-finance/shared-config';
 import { useCryptoPriceState } from '../crypto-price-manager/store/use-crypto-price-state';
 import { useCryptoPriceManager } from '../crypto-price-manager/use-crypto-price-manager';
 import {

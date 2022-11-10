@@ -1,5 +1,6 @@
 import { PortfolioSideDrawer } from '../components/portfolio-side-drawer';
-import { PORTFOLIO_ACTIONS, useQueryParams } from '@notional-finance/utils';
+import { useQueryParams } from '@notional-finance/utils';
+import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
 
 import { CollateralSelect, TokenApprovalView } from '@notional-finance/trade';
 import { useDepositCollateral } from './use-deposit-collateral';
@@ -29,7 +30,13 @@ export const DepositCollateral = () => {
         inputLabel={messages[PORTFOLIO_ACTIONS.DEPOSIT]['inputLabel']}
         availableTokens={availableTokens}
         selectedToken={symbol || 'ETH'}
-        onChange={(selectedToken, collateralAction, hasError, collateralApy, collateralSymbol) => {
+        onChange={(
+          selectedToken,
+          collateralAction,
+          hasError,
+          collateralApy,
+          collateralSymbol
+        ) => {
           if (selectedToken !== (symbol || 'ETH')) {
             history.push(`${pathname}?symbol=${selectedToken}`);
           }

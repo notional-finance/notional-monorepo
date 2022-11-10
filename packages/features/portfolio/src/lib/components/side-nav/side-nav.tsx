@@ -4,7 +4,7 @@ import { defineMessages, FormattedMessage } from 'react-intl';
 import { NotionalTheme } from '@notional-finance/styles';
 import { useSideNav } from '../../hooks';
 import { PortfolioParams } from '../../portfolio-feature-shell';
-import { PORTFOLIO_CATEGORIES } from '@notional-finance/utils';
+import { PORTFOLIO_CATEGORIES } from '@notional-finance/shared-config';
 import { H5, Label } from '@notional-finance/mui';
 
 interface SideNavItemProps extends LinkProps {
@@ -83,15 +83,24 @@ export const SideNav = () => {
             >
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <Box sx={{ paddingRight: '20px', display: 'flex' }}>{Icon}</Box>
-                <H5 contrast={category === id} msg={navLabels[id]} sx={{ whiteSpace: 'nowrap' }} />
+                <H5
+                  contrast={category === id}
+                  msg={navLabels[id]}
+                  sx={{ whiteSpace: 'nowrap' }}
+                />
               </Box>
-              {notifications > 0 && <NotificationNum>{notifications}</NotificationNum>}
+              {notifications > 0 && (
+                <NotificationNum>{notifications}</NotificationNum>
+              )}
             </SideNavItem>
           );
         })}
       </Box>
       <Divider
-        sx={{ margin: theme.spacing(4, 2, 4, 3), borderColor: theme.palette.borders.default }}
+        sx={{
+          margin: theme.spacing(4, 2, 4, 3),
+          borderColor: theme.palette.borders.default,
+        }}
       />
       <Box sx={{ marginBottom: '64px' }}>
         <Label padding={theme.spacing(1.5, 3)}>
@@ -100,15 +109,25 @@ export const SideNav = () => {
         {ADV_NAV_CATEGORIES.map((id) => {
           const { notifications, Icon } = navData[id];
           // CHANGEME: special override for staked note
-          const to = id === PORTFOLIO_CATEGORIES.STAKED_NOTE ? '/stake' : `/portfolio/${id}`;
+          const to =
+            id === PORTFOLIO_CATEGORIES.STAKED_NOTE
+              ? '/stake'
+              : `/portfolio/${id}`;
 
           return (
-            <SideNavItem key={id} selected={category === id} theme={theme} to={to}>
+            <SideNavItem
+              key={id}
+              selected={category === id}
+              theme={theme}
+              to={to}
+            >
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <Box sx={{ paddingRight: '20px', display: 'flex' }}>{Icon}</Box>
                 <H5 contrast={category === id} msg={navLabels[id]} />
               </Box>
-              {notifications > 0 && <NotificationNum>{notifications}</NotificationNum>}
+              {notifications > 0 && (
+                <NotificationNum>{notifications}</NotificationNum>
+              )}
             </SideNavItem>
           );
         })}
@@ -132,7 +151,8 @@ const NotificationNum = styled(Box)(
 );
 
 const SideNavItem = styled(Link, {
-  shouldForwardProp: (prop: string) => prop !== 'selected' && prop !== 'firstItem',
+  shouldForwardProp: (prop: string) =>
+    prop !== 'selected' && prop !== 'firstItem',
 })(
   ({ theme, selected, firstItem }: SideNavItemProps) => `
   background: ${selected ? theme.palette.primary.dark : 'transparent'};
@@ -143,7 +163,9 @@ const SideNavItem = styled(Link, {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  color: ${selected ? theme.palette.common.white : theme.palette.typography.light};
+  color: ${
+    selected ? theme.palette.common.white : theme.palette.typography.light
+  };
   cursor: pointer;
   &:hover {
     ${

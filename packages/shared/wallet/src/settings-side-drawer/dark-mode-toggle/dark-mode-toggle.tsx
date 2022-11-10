@@ -1,8 +1,11 @@
 import { Box } from '@mui/material';
 import { ToggleSwitch } from '@notional-finance/mui';
-import { updateUserSettingsState, useUserSettingsState } from '@notional-finance/notional-web';
-import { THEME_VARIANTS } from '@notional-finance/utils';
-import { setInLocalStorage } from '@notional-finance/utils';
+import {
+  updateUserSettingsState,
+  useUserSettingsState,
+} from '@notional-finance/notional-web';
+import { THEME_VARIANTS } from '@notional-finance/shared-config';
+import { setInLocalStorage } from '@notional-finance/helpers';
 
 export const DarkModeToggle = () => {
   const { themeVariant } = useUserSettingsState();
@@ -20,7 +23,9 @@ export const DarkModeToggle = () => {
   };
 
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <Box
+      sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+    >
       <ToggleSwitch isChecked={isChecked} onToggle={() => handleChange()} />
     </Box>
   );

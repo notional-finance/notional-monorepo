@@ -4,7 +4,7 @@ import { Market } from '@notional-finance/sdk/src/system';
 import { useNotional } from '@notional-finance/notionable-hooks';
 import { IconCell } from '../../data-table-cells';
 import { FormattedMessage } from 'react-intl';
-import { formatMaturity, unique } from '@notional-finance/utils';
+import { formatMaturity, unique } from '@notional-finance/helpers';
 
 type CurrencyProps = Currency;
 type CurrencyMarketProps = Market;
@@ -17,7 +17,12 @@ export const useAllMarketsTable = () => {
   const formatTableColumns = useCallback((dates) => {
     const result: Record<string, any>[] = [
       {
-        Header: <FormattedMessage defaultMessage="Currency" description={'Currency Header'} />,
+        Header: (
+          <FormattedMessage
+            defaultMessage="Currency"
+            description={'Currency Header'}
+          />
+        ),
         accessor: 'currency',
         Cell: IconCell,
         textAlign: 'left',
@@ -36,18 +41,24 @@ export const useAllMarketsTable = () => {
 
   const updateAllMarkets = useCallback(() => {
     let dates: number[] = [];
-    const currencies: CurrencyProps[] = notional?.system.getTradableCurrencies() ?? [];
+    const currencies: CurrencyProps[] =
+      notional?.system.getTradableCurrencies() ?? [];
 
     const marketData = currencies.map((c: CurrencyProps) => {
-      const currencyMarkets: CurrencyMarketProps[] = notional?.system.getMarkets(c.id) ?? [];
+      const currencyMarkets: CurrencyMarketProps[] =
+        notional?.system.getMarkets(c.id) ?? [];
       dates = unique([
         ...dates,
-        ...currencyMarkets.map((market: CurrencyMarketProps) => market.maturity),
+        ...currencyMarkets.map(
+          (market: CurrencyMarketProps) => market.maturity
+        ),
       ]);
 
       const maturityData: Record<string, any> = {};
       dates.forEach((d: number) => {
-        const currentMaturityData = currencyMarkets.find((el) => el.maturity === d);
+        const currentMaturityData = currencyMarkets.find(
+          (el) => el.maturity === d
+        );
         maturityData[d] = currentMaturityData?.midRate;
       });
       return { ...maturityData, currency: c.underlyingSymbol };
@@ -58,8 +69,14 @@ export const useAllMarketsTable = () => {
   }, [notional, setTableColumns, setTableData, formatTableColumns]);
 
   const attachListeners = useCallback(() => {
-    notional?.system.eventEmitter.removeListener(SystemEvents.DATA_REFRESH, updateAllMarkets);
-    notional?.system.eventEmitter.on(SystemEvents.DATA_REFRESH, updateAllMarkets);
+    notional?.system.eventEmitter.removeListener(
+      SystemEvents.DATA_REFRESH,
+      updateAllMarkets
+    );
+    notional?.system.eventEmitter.on(
+      SystemEvents.DATA_REFRESH,
+      updateAllMarkets
+    );
   }, [notional, updateAllMarkets]);
 
   useEffect(() => {
@@ -69,7 +86,10 @@ export const useAllMarketsTable = () => {
     }
     return () => {
       if (notional && notional.system && notional.system.eventEmitter) {
-        notional.system.eventEmitter.removeListener(SystemEvents.DATA_REFRESH, updateAllMarkets);
+        notional.system.eventEmitter.removeListener(
+          SystemEvents.DATA_REFRESH,
+          updateAllMarkets
+        );
       }
     };
   }, [notional, attachListeners, updateAllMarkets]);

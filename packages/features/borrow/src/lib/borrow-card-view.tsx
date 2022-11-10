@@ -1,4 +1,4 @@
-import { LEND_BORROW } from '@notional-finance/utils';
+import { LEND_BORROW } from '@notional-finance/shared-config';
 import { CardContainer, CardVariant } from '@notional-finance/mui';
 import { useAllMarkets } from '@notional-finance/notionable-hooks';
 import { defineMessage } from 'react-intl';
@@ -28,7 +28,9 @@ export const BorrowCardView = () => {
     const rate = rates.length > i ? rates[i] : 0;
     // Special handling for borrowing ETH, default to collateralized by USDC
     const route =
-      s === 'ETH' ? `/${LEND_BORROW.BORROW}/${s}/USDC` : `/${LEND_BORROW.BORROW}/${s}/ETH`;
+      s === 'ETH'
+        ? `/${LEND_BORROW.BORROW}/${s}/USDC`
+        : `/${LEND_BORROW.BORROW}/${s}/ETH`;
     const buttonText = `Borrow ${s}`;
 
     return (

@@ -1,9 +1,12 @@
-import { useCurrencyData, useSelectedMarket } from '@notional-finance/notionable-hooks';
-import { getDateString } from '@notional-finance/utils';
+import {
+  useCurrencyData,
+  useSelectedMarket,
+} from '@notional-finance/notionable-hooks';
+import { getDateString } from '@notional-finance/helpers';
 import { FormattedMessage } from 'react-intl';
 import { Box } from '@mui/material';
 import { BoxDisplay } from '@notional-finance/mui';
-import { LEND_BORROW } from '@notional-finance/utils';
+import { LEND_BORROW } from '@notional-finance/shared-config';
 
 interface TradeActionViewProps {
   selectedMarketKey: string | null;
@@ -22,7 +25,9 @@ export const TradeActionView = ({
 }: TradeActionViewProps) => {
   const selectedMarket = useSelectedMarket(selectedMarketKey);
   const { underlyingSymbol } = useCurrencyData(selectedToken);
-  const maturityDate = selectedMarket ? ` | ${getDateString(selectedMarket.maturity)}` : '';
+  const maturityDate = selectedMarket
+    ? ` | ${getDateString(selectedMarket.maturity)}`
+    : '';
 
   const totalTitle =
     tradeAction === LEND_BORROW.LEND ? (

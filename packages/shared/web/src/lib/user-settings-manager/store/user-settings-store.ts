@@ -1,5 +1,9 @@
 import { PaletteMode } from '@mui/material';
-import { getFromLocalStorage, setInLocalStorage, THEME_VARIANTS } from '@notional-finance/utils';
+import {
+  getFromLocalStorage,
+  setInLocalStorage,
+} from '@notional-finance/helpers';
+import { THEME_VARIANTS } from '@notional-finance/shared-config';
 import { makeStore } from '@notional-finance/notionable';
 import { Observable } from 'rxjs';
 
@@ -12,7 +16,8 @@ const initTheme = () => {
 };
 initTheme();
 
-const defaultTheme = JSON.stringify(savedTheme) === '{}' ? THEME_VARIANTS.LIGHT : savedTheme;
+const defaultTheme =
+  JSON.stringify(savedTheme) === '{}' ? THEME_VARIANTS.LIGHT : savedTheme;
 
 export interface UserSettingsState {
   themeVariant: PaletteMode;
@@ -28,6 +33,8 @@ const {
   selectState: selectUserSettingsState,
 } = makeStore<UserSettingsState>(initialUserSettingsState);
 
-export const themeVariant$ = selectUserSettingsState('themeVariant') as Observable<PaletteMode>;
+export const themeVariant$ = selectUserSettingsState(
+  'themeVariant'
+) as Observable<PaletteMode>;
 
 export { updateUserSettingsState, selectUserSettingsState, userSettingsState$ };

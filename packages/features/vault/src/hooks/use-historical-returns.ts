@@ -4,11 +4,17 @@ import {
   convertRateToFloat,
   getNowSeconds,
   zipByKeyToArray,
-} from '@notional-finance/utils';
-import { RATE_PRECISION, SECONDS_IN_DAY } from '@notional-finance/sdk/src/config/constants';
+} from '@notional-finance/helpers';
+import {
+  RATE_PRECISION,
+  SECONDS_IN_DAY,
+} from '@notional-finance/sdk/src/config/constants';
 import { Market } from '@notional-finance/sdk/src/system';
 import { useObservableState } from 'observable-hooks';
-import { calculateHeadlineVaultReturns, vaultPerformance$ } from '@notional-finance/notionable';
+import {
+  calculateHeadlineVaultReturns,
+  vaultPerformance$,
+} from '@notional-finance/notionable';
 import { VaultActionContext } from '../managers';
 
 export interface HistoricalReturn {
@@ -26,12 +32,18 @@ export interface ReturnDriver {
 export const useHistoricalReturns = () => {
   const vaultPerformance = useObservableState(vaultPerformance$);
   const { state } = useContext(VaultActionContext);
-  const { vaultAddress, leverageRatio, fCashBorrowAmount, currentBorrowRate } = state;
-  const performance = vaultAddress ? vaultPerformance?.get(vaultAddress) : undefined;
+  const { vaultAddress, leverageRatio, fCashBorrowAmount, currentBorrowRate } =
+    state;
+  const performance = vaultAddress
+    ? vaultPerformance?.get(vaultAddress)
+    : undefined;
 
   const { historicalReturns, returnDrivers } = useMemo(() => {
     if (!performance || performance.historicalReturns.length === 0) {
-      return { historicalReturns: [] as HistoricalReturn[], returnDrivers: [] as ReturnDriver[] };
+      return {
+        historicalReturns: [] as HistoricalReturn[],
+        returnDrivers: [] as ReturnDriver[],
+      };
     }
     const {
       historicalReturns: returns,
@@ -56,10 +68,15 @@ export const useHistoricalReturns = () => {
         return {
           timestamp: row['timestamp'],
           totalRate,
-          leveragedReturn: leveragedReturn ? convertRateToFloat(leveragedReturn) : undefined,
+          leveragedReturn: leveragedReturn
+            ? convertRateToFloat(leveragedReturn)
+            : undefined,
           breakdown: entries.map(
             ([k, v]) =>
-              `${k}: ${Market.formatInterestRate(Math.floor((v * RATE_PRECISION) / 100), 2)}`
+              `${k}: ${Market.formatInterestRate(
+                Math.floor((v * RATE_PRECISION) / 100),
+                2
+              )}`
           ),
         };
       });

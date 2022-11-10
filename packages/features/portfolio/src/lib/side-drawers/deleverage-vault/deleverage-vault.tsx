@@ -1,5 +1,8 @@
-import { TradePropertiesGrid, WalletDepositInput } from '@notional-finance/trade';
-import { PORTFOLIO_ACTIONS } from '@notional-finance/utils';
+import {
+  TradePropertiesGrid,
+  WalletDepositInput,
+} from '@notional-finance/trade';
+import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
 import { FormattedMessage } from 'react-intl';
 import { useHistory, useLocation } from 'react-router';
 import { VaultSideDrawer } from '../components/vault-side-drawer';
@@ -79,12 +82,18 @@ export const DeleverageVault = () => {
             max={maxLeverageRatio / RATE_PRECISION}
             onChangeCommitted={(newLeverageRatio) =>
               updateDeleverageVaultState({
-                targetLeverageRatio: Math.floor(newLeverageRatio * RATE_PRECISION),
+                targetLeverageRatio: Math.floor(
+                  newLeverageRatio * RATE_PRECISION
+                ),
               })
             }
             errorMsg={sliderError}
             infoMsg={sliderInfo}
-            inputLabel={messages[PORTFOLIO_ACTIONS.DELEVERAGE_VAULT_SELL_ASSETS]['inputLabel']}
+            inputLabel={
+              messages[PORTFOLIO_ACTIONS.DELEVERAGE_VAULT_SELL_ASSETS][
+                'inputLabel'
+              ]
+            }
           />
         </Box>
       )}
@@ -96,9 +105,16 @@ export const DeleverageVault = () => {
               availableTokens={[primaryBorrowSymbol]}
               selectedToken={primaryBorrowSymbol}
               onChange={({ inputAmount, hasError }) => {
-                updateDeleverageVaultState({ depositAmount: inputAmount, hasError });
+                updateDeleverageVaultState({
+                  depositAmount: inputAmount,
+                  hasError,
+                });
               }}
-              inputLabel={messages[PORTFOLIO_ACTIONS.DELEVERAGE_VAULT_DEPOSIT]['inputLabel']}
+              inputLabel={
+                messages[PORTFOLIO_ACTIONS.DELEVERAGE_VAULT_DEPOSIT][
+                  'inputLabel'
+                ]
+              }
               errorMsgOverride={depositError}
             />
           </Box>

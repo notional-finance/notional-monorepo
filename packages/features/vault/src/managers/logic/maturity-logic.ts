@@ -6,7 +6,8 @@ import {
   VaultAccount,
 } from '@notional-finance/sdk';
 import { Market } from '@notional-finance/sdk/src/system';
-import { convertRateToFloat, logError, VAULT_ACTIONS } from '@notional-finance/utils';
+import { convertRateToFloat, logError } from '@notional-finance/helpers';
+import { VAULT_ACTIONS } from '@notional-finance/shared-config';
 
 interface VaultMaturityDataDependencies {
   // Inputs
@@ -65,7 +66,9 @@ export function getMaturityData({
     vaultMaturityData = [];
   }
 
-  const selectedMaturity = vaultMaturityData.find((m) => m.marketKey === selectedMarketKey);
+  const selectedMaturity = vaultMaturityData.find(
+    (m) => m.marketKey === selectedMarketKey
+  );
   return {
     vaultMaturityData,
     fCashBorrowAmount: selectedMaturity?.fCashAmount,
@@ -81,7 +84,10 @@ function calculateMaturityData(
 ) {
   let tradeRate: number | null;
   if (fCashToBorrow) {
-    const { cashToVault } = baseVault.getDepositedCashFromBorrow(market.maturity, fCashToBorrow);
+    const { cashToVault } = baseVault.getDepositedCashFromBorrow(
+      market.maturity,
+      fCashToBorrow
+    );
     tradeRate = market.interestRate(fCashToBorrow, cashToVault);
   } else if (insufficentLiquidity) {
     tradeRate = null;
@@ -137,7 +143,8 @@ function establishAccountMaturityData(
               m.maturity,
               settledVaultValues.assetCash.toUnderlying()
             );
-            totalStrategyTokensToAccount = totalStrategyTokensToAccount.add(strategyTokens);
+            totalStrategyTokensToAccount =
+              totalStrategyTokensToAccount.add(strategyTokens);
           }
 
           // Add the strategy tokens
@@ -159,7 +166,12 @@ function establishAccountMaturityData(
       insufficientLiquidity = true;
     }
 
-    return calculateMaturityData(m, baseVault, fCashToBorrow, insufficientLiquidity);
+    return calculateMaturityData(
+      m,
+      baseVault,
+      fCashToBorrow,
+      insufficientLiquidity
+    );
   });
 }
 
@@ -176,7 +188,8 @@ function increaseAccountMaturityData(
       let fCashToBorrow: TypedBigNumber | undefined;
       let insufficientLiquidity = false;
       const depositInternal =
-        depositAmount?.toInternalPrecision() || TypedBigNumber.getZeroUnderlying(m.currencyId);
+        depositAmount?.toInternalPrecision() ||
+        TypedBigNumber.getZeroUnderlying(m.currencyId);
 
       try {
         fCashToBorrow = baseVault.getfCashBorrowFromLeverageRatio(
@@ -190,7 +203,12 @@ function increaseAccountMaturityData(
         insufficientLiquidity = true;
       }
 
-      return calculateMaturityData(m, baseVault, fCashToBorrow, insufficientLiquidity);
+      return calculateMaturityData(
+        m,
+        baseVault,
+        fCashToBorrow,
+        insufficientLiquidity
+      );
     });
 }
 
@@ -207,29 +225,37 @@ function rollAccountMaturityData(
       let fCashToBorrow: TypedBigNumber | undefined;
       let insufficientLiquidity = false;
       const depositInternal =
-        depositAmount?.toInternalPrecision() || TypedBigNumber.getZeroUnderlying(m.currencyId);
+        depositAmount?.toInternalPrecision() ||
+        TypedBigNumber.getZeroUnderlying(m.currencyId);
 
       try {
-        const { fCashToBorrowForRepayment, newVaultAccount } = baseVault.simulateRollPosition(
-          vaultAccount,
-          m.maturity,
-          depositInternal,
-          0
-        );
+        const { fCashToBorrowForRepayment, newVaultAccount } =
+          baseVault.simulateRollPosition(
+            vaultAccount,
+            m.maturity,
+            depositInternal,
+            0
+          );
 
         // Run this to get any additional fCash to borrow as a result of the simulate roll
-        const additionalfCashToBorrow = baseVault.getfCashBorrowFromLeverageRatio(
-          m.maturity,
-          depositInternal.copy(0),
-          leverageRatio,
-          newVaultAccount
-        );
+        const additionalfCashToBorrow =
+          baseVault.getfCashBorrowFromLeverageRatio(
+            m.maturity,
+            depositInternal.copy(0),
+            leverageRatio,
+            newVaultAccount
+          );
         fCashToBorrow = fCashToBorrowForRepayment.add(additionalfCashToBorrow);
       } catch (e) {
         logError(e as Error, 'deposit-manager', 'getfCashMarketRates');
         insufficientLiquidity = true;
       }
 
-      return calculateMaturityData(m, baseVault, fCashToBorrow, insufficientLiquidity);
+      return calculateMaturityData(
+        m,
+        baseVault,
+        fCashToBorrow,
+        insufficientLiquidity
+      );
     });
 }

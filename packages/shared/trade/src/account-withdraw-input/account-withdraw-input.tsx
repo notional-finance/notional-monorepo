@@ -1,9 +1,13 @@
 import React from 'react';
 import { Box } from '@mui/material';
-import { CurrencyInput, CurrencyInputHandle, InputLabel } from '@notional-finance/mui';
+import {
+  CurrencyInput,
+  CurrencyInputHandle,
+  InputLabel,
+} from '@notional-finance/mui';
 import { TypedBigNumber } from '@notional-finance/sdk';
 import { INTERNAL_TOKEN_DECIMAL_PLACES } from '@notional-finance/sdk/src/config/constants';
-import { WITHDRAW_TYPE } from '@notional-finance/utils';
+import { WITHDRAW_TYPE } from '@notional-finance/shared-config';
 import { useEffect, useState } from 'react';
 import { FormattedMessage, MessageDescriptor } from 'react-intl';
 import { useAccountWithdraw } from './use-account-withdraw';
@@ -28,9 +32,19 @@ interface AccountWithdrawProps {
   inputLabel?: MessageDescriptor;
 }
 
-export const AccountWithdrawInput = React.forwardRef<CurrencyInputHandle, AccountWithdrawProps>(
+export const AccountWithdrawInput = React.forwardRef<
+  CurrencyInputHandle,
+  AccountWithdrawProps
+>(
   (
-    { withdrawType, availableTokens, selectedToken, onChange, errorMsgOverride, inputLabel },
+    {
+      withdrawType,
+      availableTokens,
+      selectedToken,
+      onChange,
+      errorMsgOverride,
+      inputLabel,
+    },
     ref
   ) => {
     const [inputString, setInputString] = useState<string>('');

@@ -1,8 +1,13 @@
-import { useNotional, useCurrencyData, useRiskRatios } from '@notional-finance/notionable-hooks';
+import {
+  useNotional,
+  useCurrencyData,
+  useRiskRatios,
+} from '@notional-finance/notionable-hooks';
 import { TransactionData } from '@notional-finance/notionable';
 import { TypedBigNumber } from '@notional-finance/sdk';
 import { CashOrFCash, TradePropertyKeys } from '@notional-finance/trade';
-import { tradeDefaults, useFormState } from '@notional-finance/utils';
+import { useFormState } from '@notional-finance/utils';
+import { tradeDefaults } from '@notional-finance/shared-config';
 import { useEffect } from 'react';
 import { useRemoveAsset } from '../hooks/use-remove-asset';
 
@@ -26,9 +31,17 @@ const initialRepayBorrowState = {
 
 export function useRepayBorrow(assetKey: string | undefined) {
   const { notional } = useNotional();
-  const [state, updateRepayBorrowState] = useFormState<RepayBorrowState>(initialRepayBorrowState);
-  const { hasError, inputAmount, netCashAmount, netfCashAmount, selectedToken, cashOrfCash } =
-    state;
+  const [state, updateRepayBorrowState] = useFormState<RepayBorrowState>(
+    initialRepayBorrowState
+  );
+  const {
+    hasError,
+    inputAmount,
+    netCashAmount,
+    netfCashAmount,
+    selectedToken,
+    cashOrfCash,
+  } = state;
   const { isUnderlying } = useCurrencyData(selectedToken);
   const {
     market,
@@ -43,13 +56,19 @@ export function useRepayBorrow(assetKey: string | undefined) {
 
   useEffect(() => {
     // This should only run once after initialization
-    if (defaultSelectedToken) updateRepayBorrowState({ selectedToken: defaultSelectedToken });
+    if (defaultSelectedToken)
+      updateRepayBorrowState({ selectedToken: defaultSelectedToken });
   }, [defaultSelectedToken, updateRepayBorrowState]);
 
-  const cashBalanceApplied = cashBalance && !cashBalance.isZero() ? cashBalance : undefined;
-  const costToRepay = isUnderlying ? netCashAmount?.toUnderlying() : netCashAmount;
-  const { loanToValue: updatedLoanToValue, collateralRatio: updatedCollateralRatio } =
-    useRiskRatios(updatedAccountData);
+  const cashBalanceApplied =
+    cashBalance && !cashBalance.isZero() ? cashBalance : undefined;
+  const costToRepay = isUnderlying
+    ? netCashAmount?.toUnderlying()
+    : netCashAmount;
+  const {
+    loanToValue: updatedLoanToValue,
+    collateralRatio: updatedCollateralRatio,
+  } = useRiskRatios(updatedAccountData);
 
   const canSubmit =
     !!selectedAsset &&
@@ -65,7 +84,9 @@ export function useRepayBorrow(assetKey: string | undefined) {
   let transactionData: TransactionData | undefined = undefined;
   if (canSubmit) {
     const depositAmount =
-      selectedToken === 'ETH' ? netCashAmount.neg().toUnderlying(false) : undefined;
+      selectedToken === 'ETH'
+        ? netCashAmount.neg().toUnderlying(false)
+        : undefined;
 
     transactionData = {
       transactionHeader: '',
@@ -85,7 +106,8 @@ export function useRepayBorrow(assetKey: string | undefined) {
         [TradePropertyKeys.costToRepay]: costToRepay?.abs(),
         [TradePropertyKeys.fromCashBalance]: cashBalanceApplied,
         [TradePropertyKeys.repaymentRate]: tradedRate,
-        [TradePropertyKeys.collateralRatio]: updatedCollateralRatio ?? undefined,
+        [TradePropertyKeys.collateralRatio]:
+          updatedCollateralRatio ?? undefined,
         [TradePropertyKeys.loanToValue]: updatedLoanToValue ?? undefined,
       },
     };

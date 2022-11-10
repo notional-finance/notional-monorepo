@@ -1,7 +1,7 @@
 import { Box, useTheme, styled } from '@mui/material';
 import { useCurrency, useNotional } from '@notional-finance/notionable-hooks';
 import { useEffect, useState } from 'react';
-import { THEME_VARIANTS } from '@notional-finance/utils';
+import { THEME_VARIANTS } from '@notional-finance/shared-config';
 import { FormattedMessage, defineMessage } from 'react-intl';
 import backgroundImgDark from '@notional-finance/assets/images/provide-liquidity-bg.png';
 import { useUserSettingsState } from '@notional-finance/notional-web';

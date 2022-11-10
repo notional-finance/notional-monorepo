@@ -1,4 +1,4 @@
-import { setInLocalStorage } from '@notional-finance/utils';
+import { setInLocalStorage } from '@notional-finance/helpers';
 import moment from 'moment';
 import GhostContentAPI from '@tryghost/content-api';
 
@@ -25,7 +25,10 @@ export const getNotificationsData = () => {
       const currentDate = new Date();
       const newestPublishedDate = moment(postData[0].published_at);
       const formattedCurrentDate = moment(currentDate);
-      const daysSinceLastPost = formattedCurrentDate.diff(newestPublishedDate, 'days');
+      const daysSinceLastPost = formattedCurrentDate.diff(
+        newestPublishedDate,
+        'days'
+      );
       notificationsActive = daysSinceLastPost <= 12;
       setInLocalStorage('notifications', {
         active: notificationsActive,

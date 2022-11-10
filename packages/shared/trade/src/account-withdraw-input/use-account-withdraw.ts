@@ -1,7 +1,11 @@
-import { useAccount, useCurrencyData, useNotional } from '@notional-finance/notionable-hooks';
+import {
+  useAccount,
+  useCurrencyData,
+  useNotional,
+} from '@notional-finance/notionable-hooks';
 import { TypedBigNumber } from '@notional-finance/sdk';
 import { NTokenValue } from '@notional-finance/sdk/src/system';
-import { WITHDRAW_TYPE } from '@notional-finance/utils';
+import { WITHDRAW_TYPE } from '@notional-finance/shared-config';
 import { MessageDescriptor } from 'react-intl';
 import { tradeErrors } from '../tradeErrors';
 
@@ -14,9 +18,15 @@ export function useAccountWithdraw(
   const { balanceSummary, accountDataCopy } = useAccount();
   const { id: currencyId, isUnderlying } = useCurrencyData(selectedToken);
   const inputAmount =
-    inputString && notional ? notional.parseInput(inputString, selectedToken, true) : undefined;
-  const balanceData = accountDataCopy?.accountBalances?.find((b) => b.currencyId === currencyId);
-  const selectedBalanceSummary = currencyId ? balanceSummary.get(currencyId) : undefined;
+    inputString && notional
+      ? notional.parseInput(inputString, selectedToken, true)
+      : undefined;
+  const balanceData = accountDataCopy?.accountBalances?.find(
+    (b) => b.currencyId === currencyId
+  );
+  const selectedBalanceSummary = currencyId
+    ? balanceSummary.get(currencyId)
+    : undefined;
   let maxAmount: TypedBigNumber | undefined;
   let netCashBalance: TypedBigNumber | undefined;
   let netNTokenBalance: TypedBigNumber | undefined;
@@ -49,7 +59,13 @@ export function useAccountWithdraw(
       maxAmount = selectedBalanceSummary?.nTokenBalance;
     }
 
-    if (selectedBalanceSummary && inputAmount && maxAmount && currencyId && balanceData) {
+    if (
+      selectedBalanceSummary &&
+      inputAmount &&
+      maxAmount &&
+      currencyId &&
+      balanceData
+    ) {
       if (inputAmount.lte(maxAmount)) {
         const withdrawAmounts = selectedBalanceSummary.getWithdrawAmounts(
           inputAmount.toAssetCash(),
@@ -71,7 +87,12 @@ export function useAccountWithdraw(
           ? netNTokenBalance
               .neg()
               .toAssetCash(true)
-              .sub(NTokenValue.getAssetFromRedeemNToken(currencyId, netNTokenBalance.neg()))
+              .sub(
+                NTokenValue.getAssetFromRedeemNToken(
+                  currencyId,
+                  netNTokenBalance.neg()
+                )
+              )
           : undefined;
       } else {
         errorMsg = tradeErrors.insufficientBalance;

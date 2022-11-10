@@ -1,5 +1,5 @@
 import { useNotional } from '@notional-finance/notionable-hooks';
-import { logError, networkName } from '@notional-finance/utils';
+import { logError, networkName } from '@notional-finance/helpers';
 import { useEffect, useState } from 'react';
 
 interface GeoIpResponse {

@@ -1,6 +1,6 @@
 import { Box, ThemeProvider } from '@mui/material';
 import { DropdownButton } from '@notional-finance/mui';
-import { NAV_DROPDOWN, THEME_VARIANTS } from '@notional-finance/utils';
+import { NAV_DROPDOWN, THEME_VARIANTS } from '@notional-finance/shared-config';
 import WhatsUp from '../../whats-up/whats-up';
 import AboutContent from '../about-content/about-content';
 import { useNotionalTheme } from '@notional-finance/styles';
@@ -23,7 +23,11 @@ export function AboutDropdown() {
       icon={
         <DocsIcon
           className="color-fill"
-          sx={{ fontSize: '1.5rem !important', stroke: 'transparent', fill: 'red' }}
+          sx={{
+            fontSize: '1.5rem !important',
+            stroke: 'transparent',
+            fill: 'red',
+          }}
         />
       }
     >

@@ -9,7 +9,8 @@ import {
 } from '@notional-finance/mui';
 import { INTERNAL_TOKEN_DECIMAL_PLACES } from '@notional-finance/sdk/src/config/constants';
 import { TradePropertiesGrid } from '@notional-finance/trade';
-import { useQueryParams, PORTFOLIO_ACTIONS } from '@notional-finance/utils';
+import { useQueryParams } from '@notional-finance/utils';
+import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
 import { useCallback, useEffect, useRef } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router-dom';
@@ -46,7 +47,8 @@ export const WithdrawVault = () => {
   } = useWithdrawVault(vaultAddress);
 
   useEffect(() => {
-    if (targetLeverageRatio && isSliderMounted) setSliderInput(targetLeverageRatio);
+    if (targetLeverageRatio && isSliderMounted)
+      setSliderInput(targetLeverageRatio);
   }, [targetLeverageRatio, setSliderInput, isSliderMounted]);
 
   return (
@@ -66,7 +68,9 @@ export const WithdrawVault = () => {
           <Link to={`/vaults/${vaultAddress}`}>
             <Button variant="contained" sx={{ width: '100%' }}>
               <FormattedMessage
-                {...messages[PORTFOLIO_ACTIONS.WITHDRAW_VAULT_POST_MATURITY]['reenterVault']}
+                {...messages[PORTFOLIO_ACTIONS.WITHDRAW_VAULT_POST_MATURITY][
+                  'reenterVault'
+                ]}
               />
             </Button>
           </Link>
@@ -74,17 +78,26 @@ export const WithdrawVault = () => {
       )}
       {!isPostMaturityExit && primaryBorrowSymbol && (
         <Box>
-          <InputLabel inputLabel={messages[PORTFOLIO_ACTIONS.WITHDRAW_VAULT]['inputLabel']} />
+          <InputLabel
+            inputLabel={
+              messages[PORTFOLIO_ACTIONS.WITHDRAW_VAULT]['inputLabel']
+            }
+          />
           <CurrencyInput
             placeholder="0.00000000"
             ref={inputOverrideRef}
             decimals={INTERNAL_TOKEN_DECIMAL_PLACES}
             onMaxValue={() => {
-              inputOverrideRef.current?.setInputOverride(maxWithdrawAmountString);
+              inputOverrideRef.current?.setInputOverride(
+                maxWithdrawAmountString
+              );
               updateWithdrawVaultState({ maxWithdraw: true });
             }}
             onInputChange={(withdrawAmountString) => {
-              updateWithdrawVaultState({ withdrawAmountString, maxWithdraw: false });
+              updateWithdrawVaultState({
+                withdrawAmountString,
+                maxWithdraw: false,
+              });
             }}
             errorMsg={error && <FormattedMessage {...error} />}
             currencies={[primaryBorrowSymbol]}
@@ -104,7 +117,9 @@ export const WithdrawVault = () => {
             updateWithdrawVaultState({ targetLeverageRatio: newLeverageRatio })
           }
           infoMsg={sliderInfoMessage}
-          inputLabel={messages[PORTFOLIO_ACTIONS.WITHDRAW_VAULT]['leverageInputLabel']}
+          inputLabel={
+            messages[PORTFOLIO_ACTIONS.WITHDRAW_VAULT]['leverageInputLabel']
+          }
         />
       )}
       <TradePropertiesGrid showBackground data={sideDrawerInfo} />

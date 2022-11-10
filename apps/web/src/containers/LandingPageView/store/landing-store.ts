@@ -1,14 +1,14 @@
-import { LEND_BORROW } from '@notional-finance/utils'
-import { makeStore } from '@notional-finance/notionable'
-import { TypedBigNumber } from '@notional-finance/sdk'
+import { LEND_BORROW } from '@notional-finance/shared-config';
+import { makeStore } from '@notional-finance/notionable';
+import { TypedBigNumber } from '@notional-finance/sdk';
 
 export interface LandingFeatureState {
-  inputAmount: TypedBigNumber | undefined
-  fCashAmount: TypedBigNumber | undefined
-  selectedMarketKey: string | null
-  selectedToken: string
-  hasError: boolean
-  lendOrBorrow: LEND_BORROW
+  inputAmount: TypedBigNumber | undefined;
+  fCashAmount: TypedBigNumber | undefined;
+  selectedMarketKey: string | null;
+  selectedToken: string;
+  hasError: boolean;
+  lendOrBorrow: LEND_BORROW;
 }
 
 export const initialLandingState = {
@@ -17,13 +17,13 @@ export const initialLandingState = {
   selectedToken: 'USDC',
   fCashAmount: undefined,
   selectedMarketKey: null,
-  lendOrBorrow: LEND_BORROW.BORROW
-}
+  lendOrBorrow: LEND_BORROW.BORROW,
+};
 
 const {
   updateState: updateLandingState,
   _state$: landingState$,
-  selectState: selectLandingState
-} = makeStore<LandingFeatureState>(initialLandingState)
+  selectState: selectLandingState,
+} = makeStore<LandingFeatureState>(initialLandingState);
 
-export { updateLandingState, selectLandingState, landingState$ }
+export { updateLandingState, selectLandingState, landingState$ };

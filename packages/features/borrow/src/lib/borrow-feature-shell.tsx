@@ -2,7 +2,7 @@ import { useParams } from 'react-router-dom';
 import BorrowSidebar from './borrow-sidebar/borrow-sidebar';
 import { SideBarLayout } from '@notional-finance/mui';
 import { TradeActionSummary } from '@notional-finance/trade';
-import { LEND_BORROW } from '@notional-finance/utils';
+import { LEND_BORROW } from '@notional-finance/shared-config';
 import { updateBorrowState } from './store/borrow-store';
 import { useBorrow } from './store/use-borrow';
 import { useEffect } from 'react';
@@ -16,7 +16,8 @@ export interface BorrowParams {
 export const BorrowFeatureShell = () => {
   const { currency: selectedToken } = useParams<BorrowParams>();
   const markets = useMarkets(selectedToken);
-  const { selectedMarketKey, tradedRate, fCashAmount, interestAmount } = useBorrow(selectedToken);
+  const { selectedMarketKey, tradedRate, fCashAmount, interestAmount } =
+    useBorrow(selectedToken);
 
   useEffect(() => {
     if (selectedToken) updateBorrowState({ selectedMarketKey: null });

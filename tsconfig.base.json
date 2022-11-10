@@ -17,8 +17,13 @@
     "esModuleInterop": true,
     "baseUrl": ".",
     "paths": {
-      "@notional-finance/about-us-feature-shell": ["packages/features/about-us/src/index.ts"],
-      "@notional-finance/about-us-feature-shell/*": ["packages/features/about-us/src/*"],
+      "@notional-finance/about-us-feature-shell": [
+        "packages/features/about-us/src/index.ts"
+      ],
+      "@notional-finance/about-us-feature-shell/*": [
+        "packages/features/about-us/src/*"
+      ],
+      "@notional-finance/assets/*": ["packages/shared/assets/src/assets/*"],
       "@notional-finance/borrow-feature-shell": [
         "packages/features/borrow/src/index.ts"
       ],
@@ -29,8 +34,11 @@
       "@notional-finance/contracts/*": ["packages/contracts/src/*"],
       "@notional-finance/error": ["packages/error/src/index.ts"],
       "@notional-finance/error/*": ["packages/error/src/*"],
+      "@notional-finance/helpers": ["packages/shared/helpers/src/index.ts"],
       "@notional-finance/icons": ["packages/common/icons/src/index.ts"],
       "@notional-finance/icons/*": ["packages/common/icons/src/*"],
+      "@notional-finance/lang": ["packages/shared/lang/src/index.ts"],
+      "@notional-finance/lang/*": ["packages/shared/lang/src/*"],
       "@notional-finance/lend-feature-shell": [
         "packages/features/lend/src/index.ts"
       ],
@@ -46,13 +54,13 @@
       "@notional-finance/mui": ["packages/common/mui/src/index.ts"],
       "@notional-finance/mui/*": ["packages/common/mui/src/*"],
       "@notional-finance/notionable": ["packages/notionable/src/index.ts"],
-      "@notional-finance/notionable/*": ["packages/notionable/src/*"],
       "@notional-finance/notionable-hooks": [
         "packages/shared/notionable-hooks/src/index.ts"
       ],
       "@notional-finance/notionable-hooks/*": [
         "packages/shared/notionable-hooks/src/*"
       ],
+      "@notional-finance/notionable/*": ["packages/notionable/src/*"],
       "@notional-finance/notional-web": ["packages/shared/web/src/index.ts"],
       "@notional-finance/notional-web/*": ["packages/shared/web/src/*"],
       "@notional-finance/portfolio-feature-shell": [
@@ -61,30 +69,40 @@
       "@notional-finance/portfolio-feature-shell/*": [
         "packages/features/portfolio/src/lib/*"
       ],
-      "@notional-finance/sdk": ["packages/sdk/src/index.ts"],
-      "@notional-finance/sdk/*": ["packages/sdk/src/*"],
       "@notional-finance/risk": ["packages/shared/risk/src/index.ts"],
       "@notional-finance/risk/*": ["packages/shared/risk/src/*"],
+      "@notional-finance/sdk": ["packages/sdk/src/index.ts"],
+      "@notional-finance/sdk/*": ["packages/sdk/src/*"],
+      "@notional-finance/shared-config": [
+        "packages/shared/config/src/index.ts"
+      ],
       "@notional-finance/stake-feature-shell": [
         "packages/features/stake/src/index.ts"
       ],
       "@notional-finance/stake-feature-shell/*": [
         "packages/features/stake/src/*"
       ],
-      "@notional-finance/vault-feature-shell": ["packages/features/vault/src/index.ts"],
-      "@notional-finance/vault-feature-shell/*": ["packages/features/vault/src/*"],
       "@notional-finance/styles": ["packages/common/styles/src/index.ts"],
       "@notional-finance/styles/*": ["packages/common/styles/src/*"],
       "@notional-finance/trade": ["packages/shared/trade/src/index.ts"],
       "@notional-finance/trade/*": ["packages/shared/trade/src/*"],
-      "@notional-finance/treasury-feature-shell": ["packages/features/treasury/src/index.ts"],
-      "@notional-finance/treasury-feature-shell/*": ["packages/features/treasury/src/*"],
+      "@notional-finance/treasury-feature-shell": [
+        "packages/features/treasury/src/index.ts"
+      ],
+      "@notional-finance/treasury-feature-shell/*": [
+        "packages/features/treasury/src/*"
+      ],
       "@notional-finance/util": ["packages/util/src/index.ts"],
       "@notional-finance/utils": ["packages/shared/utils/src/index.ts"],
       "@notional-finance/utils/*": ["packages/shared/utils/src/*"],
+      "@notional-finance/vault-feature-shell": [
+        "packages/features/vault/src/index.ts"
+      ],
+      "@notional-finance/vault-feature-shell/*": [
+        "packages/features/vault/src/*"
+      ],
       "@notional-finance/wallet": ["packages/shared/wallet/src/index.ts"],
-      "@notional-finance/wallet/*": ["packages/shared/wallet/src/*"],
-      "@notional-finance/assets/*": ["packages/shared/assets/src/assets/*"]
+      "@notional-finance/wallet/*": ["packages/shared/wallet/src/*"]
     }
   },
   "exclude": ["node_modules", "tmp"]

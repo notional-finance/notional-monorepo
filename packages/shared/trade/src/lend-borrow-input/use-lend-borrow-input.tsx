@@ -1,4 +1,4 @@
-import { LEND_BORROW } from '@notional-finance/utils';
+import { LEND_BORROW } from '@notional-finance/shared-config';
 import {
   useSelectedMarket,
   useNotional,
@@ -30,7 +30,9 @@ export function useLendBorrowInput(
   const accountCashBalance = useAccountCashBalance(selectedToken);
 
   const inputAmount =
-    inputString && notional ? notional.parseInput(inputString, selectedToken, true) : undefined;
+    inputString && notional
+      ? notional.parseInput(inputString, selectedToken, true)
+      : undefined;
   let errorMsg: MessageDescriptor | undefined;
   let netCashAmount: TypedBigNumber | undefined;
   let netfCashAmount: TypedBigNumber | undefined;
@@ -42,11 +44,15 @@ export function useLendBorrowInput(
     try {
       if (cashOrfCash === 'Cash') {
         netCashAmount =
-          lendOrBorrow === LEND_BORROW.LEND ? inputAmount.toUnderlying(true).neg() : inputAmount;
-        netfCashAmount = selectedMarket.getfCashAmountGivenCashAmount(netCashAmount);
+          lendOrBorrow === LEND_BORROW.LEND
+            ? inputAmount.toUnderlying(true).neg()
+            : inputAmount;
+        netfCashAmount =
+          selectedMarket.getfCashAmountGivenCashAmount(netCashAmount);
       } else {
         // fCash Input
-        netfCashAmount = lendOrBorrow === LEND_BORROW.BORROW ? inputAmount.neg() : inputAmount;
+        netfCashAmount =
+          lendOrBorrow === LEND_BORROW.BORROW ? inputAmount.neg() : inputAmount;
         ({ netCashToAccount: netCashAmount } =
           selectedMarket.getCashAmountGivenfCashAmount(netfCashAmount));
       }
@@ -82,10 +88,14 @@ export function useLendBorrowInput(
     let maxCashInput: TypedBigNumber | undefined = undefined;
     if (accountCashBalance && walletBalance) {
       maxCashInput = walletBalance.add(
-        isUnderlying ? accountCashBalance.toUnderlying(true) : accountCashBalance
+        isUnderlying
+          ? accountCashBalance.toUnderlying(true)
+          : accountCashBalance
       );
     } else if (accountCashBalance) {
-      maxCashInput = isUnderlying ? accountCashBalance.toUnderlying(true) : accountCashBalance;
+      maxCashInput = isUnderlying
+        ? accountCashBalance.toUnderlying(true)
+        : accountCashBalance;
     } else if (walletBalance) {
       maxCashInput = walletBalance;
     }

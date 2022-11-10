@@ -1,5 +1,5 @@
 import { useVault } from '@notional-finance/notionable-hooks';
-import { getGhostContentAPI } from '@notional-finance/utils';
+import { getGhostContentAPI } from '@notional-finance/helpers';
 import { PostOrPage } from '@tryghost/content-api';
 import { useEffect, useState } from 'react';
 
@@ -52,7 +52,9 @@ export const useVaultDocs = (vaultAddress: string) => {
           if (el.id === 'doc-link') {
             setDocsLink(el.attributes.getNamedItem('href')?.textContent || '');
           } else if (el.id === 'sheets-link') {
-            setFinancialModelLink(el.attributes.getNamedItem('href')?.textContent || '');
+            setFinancialModelLink(
+              el.attributes.getNamedItem('href')?.textContent || ''
+            );
           }
         }
         setOverviewContent(overviewContent);

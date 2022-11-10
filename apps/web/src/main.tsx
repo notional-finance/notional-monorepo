@@ -1,6 +1,6 @@
 import ReactDOM from 'react-dom';
 import { IntlProvider } from 'react-intl';
-import { getLanguageTranslation } from '@notional-finance/utils';
+import { getLanguageTranslation } from '@notional-finance/helpers';
 import App from './containers/App';
 
 const onI18NError = (err) => {

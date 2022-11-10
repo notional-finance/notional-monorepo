@@ -7,7 +7,7 @@ import {
   NegativeValueCell,
   DataTableColumn,
 } from '@notional-finance/mui';
-import { formatCryptoWithFiat } from '@notional-finance/utils';
+import { formatCryptoWithFiat } from '@notional-finance/helpers';
 import { TypedBigNumber } from '@notional-finance/sdk';
 import { FormattedMessage } from 'react-intl';
 
@@ -30,14 +30,24 @@ export const useMoneyMarketTable = () => {
         textAlign: 'left',
       },
       {
-        Header: <FormattedMessage defaultMessage="Currency" description={'Currency header'} />,
+        Header: (
+          <FormattedMessage
+            defaultMessage="Currency"
+            description={'Currency header'}
+          />
+        ),
         expandableTable: true,
         Cell: ExpandableCurrencyCell,
         accessor: 'currency',
         textAlign: 'left',
       },
       {
-        Header: <FormattedMessage defaultMessage="Balance" description={'Balance header'} />,
+        Header: (
+          <FormattedMessage
+            defaultMessage="Balance"
+            description={'Balance header'}
+          />
+        ),
         expandableTable: true,
         Cell: MultiValueCell,
         accessor: 'balance',
@@ -45,7 +55,10 @@ export const useMoneyMarketTable = () => {
       },
       {
         Header: (
-          <FormattedMessage defaultMessage="Current Yield" description={'Current Yield header'} />
+          <FormattedMessage
+            defaultMessage="Current Yield"
+            description={'Current Yield header'}
+          />
         ),
         expandableTable: true,
         Cell: NegativeValueCell,
@@ -101,11 +114,17 @@ export const useMoneyMarketTable = () => {
   }, [moneyMarket]);
 
   useEffect(() => {
-    const formattedExpandedRows = moneyMarketData.reduce((accumulator, _value, index) => {
-      return { ...accumulator, [index]: index === 0 ? true : false };
-    }, {});
+    const formattedExpandedRows = moneyMarketData.reduce(
+      (accumulator, _value, index) => {
+        return { ...accumulator, [index]: index === 0 ? true : false };
+      },
+      {}
+    );
 
-    if (expandedRows === null && JSON.stringify(formattedExpandedRows) !== '{}') {
+    if (
+      expandedRows === null &&
+      JSON.stringify(formattedExpandedRows) !== '{}'
+    ) {
       setExpandedRows(formattedExpandedRows);
     }
   }, [moneyMarketData, expandedRows, setExpandedRows]);

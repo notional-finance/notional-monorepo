@@ -1,7 +1,15 @@
 import { Market } from '@notional-finance/sdk/src/system';
-import { IconCell, TxnHashCell, NegativeValueCell, DataTableColumn } from '@notional-finance/mui';
-import { formatMaturity, getEtherscanLink } from '@notional-finance/utils';
-import { useNotional, useTransactionHistory } from '@notional-finance/notionable-hooks';
+import {
+  IconCell,
+  TxnHashCell,
+  NegativeValueCell,
+  DataTableColumn,
+} from '@notional-finance/mui';
+import { formatMaturity, getEtherscanLink } from '@notional-finance/helpers';
+import {
+  useNotional,
+  useTransactionHistory,
+} from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
 import moment from 'moment';
 
@@ -11,18 +19,30 @@ export const useTransactionHistoryTable = () => {
 
   const txnHistoryColumns: DataTableColumn[] = [
     {
-      Header: <FormattedMessage defaultMessage="Currency" description={'Currency header'} />,
+      Header: (
+        <FormattedMessage
+          defaultMessage="Currency"
+          description={'Currency header'}
+        />
+      ),
       accessor: 'currency',
       Cell: IconCell,
       textAlign: 'left',
     },
     {
-      Header: <FormattedMessage defaultMessage="Action" description={'Action header'} />,
+      Header: (
+        <FormattedMessage
+          defaultMessage="Action"
+          description={'Action header'}
+        />
+      ),
       accessor: 'action',
       textAlign: 'left',
     },
     {
-      Header: <FormattedMessage defaultMessage="Time" description={'Time header'} />,
+      Header: (
+        <FormattedMessage defaultMessage="Time" description={'Time header'} />
+      ),
       accessor: 'time',
       textAlign: 'left',
     },
@@ -39,18 +59,30 @@ export const useTransactionHistoryTable = () => {
       textAlign: 'right',
     },
     {
-      Header: <FormattedMessage defaultMessage="Amount" description={'Amount header'} />,
+      Header: (
+        <FormattedMessage
+          defaultMessage="Amount"
+          description={'Amount header'}
+        />
+      ),
       Cell: NegativeValueCell,
       accessor: 'amount',
       textAlign: 'right',
     },
     {
-      Header: <FormattedMessage defaultMessage="Maturity" description={'Maturity header'} />,
+      Header: (
+        <FormattedMessage
+          defaultMessage="Maturity"
+          description={'Maturity header'}
+        />
+      ),
       accessor: 'maturity',
       textAlign: 'right',
     },
     {
-      Header: <FormattedMessage defaultMessage="Rate" description={'Rate header'} />,
+      Header: (
+        <FormattedMessage defaultMessage="Rate" description={'Rate header'} />
+      ),
       accessor: 'rate',
       textAlign: 'right',
     },
@@ -62,9 +94,9 @@ export const useTransactionHistoryTable = () => {
       return {
         currency: data.amount.symbol,
         action: data.txnType,
-        time: `${moment(data.timestampMS).format('hh:mm A')}, ${moment(data.timestampMS).format(
-          'MM/DD/YY'
-        )}`,
+        time: `${moment(data.timestampMS).format('hh:mm A')}, ${moment(
+          data.timestampMS
+        ).format('MM/DD/YY')}`,
         transactionHash: {
           hash: data.transactionHash,
           href: getEtherscanLink(data.transactionHash, connectedChain),

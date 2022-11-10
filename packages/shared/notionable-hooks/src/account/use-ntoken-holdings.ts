@@ -1,5 +1,5 @@
 import { NTokenValue } from '@notional-finance/sdk/src/system';
-import { convertRateToFloat } from '@notional-finance/utils';
+import { convertRateToFloat } from '@notional-finance/helpers';
 import { useAccount } from './use-account';
 
 export function useNTokenHoldings() {
@@ -14,8 +14,12 @@ export function useNTokenHoldings() {
         underlyingSymbol: b.underlyingSymbol,
         balance: b.nTokenBalance,
         presentValue: b.nTokenValueUnderlying,
-        organicYield: convertRateToFloat(NTokenValue.getNTokenBlendedYield(b.currencyId)),
-        noteIncentiveYield: convertRateToFloat(NTokenValue.getNTokenIncentiveYield(b.currencyId)),
+        organicYield: convertRateToFloat(
+          NTokenValue.getNTokenBlendedYield(b.currencyId)
+        ),
+        noteIncentiveYield: convertRateToFloat(
+          NTokenValue.getNTokenIncentiveYield(b.currencyId)
+        ),
       };
     });
 }

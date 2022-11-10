@@ -6,7 +6,8 @@ import {
   VaultConfig,
 } from '@notional-finance/sdk';
 import { Market } from '@notional-finance/sdk/src/system';
-import { formatMaturity, tradeDefaults, VAULT_ACTIONS } from '@notional-finance/utils';
+import { formatMaturity } from '@notional-finance/helpers';
+import { tradeDefaults, VAULT_ACTIONS } from '@notional-finance/shared-config';
 
 interface UpdatedVaultAccountDependencies {
   // Inputs
@@ -36,16 +37,22 @@ export function getUpdatedVaultAccount({
       // Set this to zero if it is unset, it is optional during these two actions
       const depositInternal =
         depositAmount?.toInternalPrecision() ||
-        TypedBigNumber.getZeroUnderlying(baseVault.getVault().primaryBorrowCurrency);
+        TypedBigNumber.getZeroUnderlying(
+          baseVault.getVault().primaryBorrowCurrency
+        );
 
-      const { newVaultAccount, fCashToBorrowForRepayment } = baseVault.simulateRollPosition(
-        vaultAccount,
-        selectedMaturity,
-        depositInternal.toInternalPrecision(),
-        tradeDefaults.defaultAnnualizedSlippage
-      );
+      const { newVaultAccount, fCashToBorrowForRepayment } =
+        baseVault.simulateRollPosition(
+          vaultAccount,
+          selectedMaturity,
+          depositInternal.toInternalPrecision(),
+          tradeDefaults.defaultAnnualizedSlippage
+        );
 
-      if (fCashBorrowAmount && fCashBorrowAmount.lt(fCashToBorrowForRepayment)) {
+      if (
+        fCashBorrowAmount &&
+        fCashBorrowAmount.lt(fCashToBorrowForRepayment)
+      ) {
         // This is any additional borrow beyond the original
         updatedVaultAccount = baseVault.simulateEnter(
           newVaultAccount,
@@ -67,14 +74,19 @@ export function getUpdatedVaultAccount({
         fCashBorrowAmount,
         depositAmount.toInternalPrecision()
       ).newVaultAccount;
-    } else if (vaultAction === VAULT_ACTIONS.INCREASE_POSITION && fCashBorrowAmount) {
+    } else if (
+      vaultAction === VAULT_ACTIONS.INCREASE_POSITION &&
+      fCashBorrowAmount
+    ) {
       updatedVaultAccount = baseVault.simulateEnter(
         vaultAccount,
         selectedMaturity,
         fCashBorrowAmount,
         // Deposit amount is optional when increasing position
         depositAmount?.toInternalPrecision() ||
-          TypedBigNumber.getZeroUnderlying(baseVault.getVault().primaryBorrowCurrency)
+          TypedBigNumber.getZeroUnderlying(
+            baseVault.getVault().primaryBorrowCurrency
+          )
       ).newVaultAccount;
     }
   } catch {
@@ -105,11 +117,15 @@ export function getMinimumLeverageRatio({
 }: MinimumLeverageRatioDependencies) {
   const depositInternal =
     depositAmount?.toInternalPrecision() ||
-    TypedBigNumber.getZeroUnderlying(baseVault.getVault().primaryBorrowCurrency);
+    TypedBigNumber.getZeroUnderlying(
+      baseVault.getVault().primaryBorrowCurrency
+    );
   let minimumLeverageRatio = BaseVault.collateralToLeverageRatio(
     vaultConfig.maxRequiredAccountCollateralRatioBasisPoints
   );
-  const selectedMaturity = selectedMarketKey ? Market.parseMaturity(selectedMarketKey) : undefined;
+  const selectedMaturity = selectedMarketKey
+    ? Market.parseMaturity(selectedMarketKey)
+    : undefined;
 
   try {
     if (!selectedMaturity) {
@@ -163,15 +179,24 @@ export function getVaultAccountDefaults({
   vaultConfig,
   baseVault,
 }: VaultAccountDefaultDependencies) {
-  const defaultVaultAction = eligibleActions.length > 0 ? eligibleActions[0] : undefined;
+  const defaultVaultAction =
+    eligibleActions.length > 0 ? eligibleActions[0] : undefined;
 
   if (vaultAction === VAULT_ACTIONS.INCREASE_POSITION) {
-    const marketKey = eligibleMarkets.length > 0 ? eligibleMarkets[0].marketKey : undefined;
+    const marketKey =
+      eligibleMarkets.length > 0 ? eligibleMarkets[0].marketKey : undefined;
     const leverageRatio = baseVault.getLeverageRatio(vaultAccount);
     const vaultAccountMaturityString =
-      vaultAccount && vaultAccount.maturity > 0 ? formatMaturity(vaultAccount?.maturity) : '';
+      vaultAccount && vaultAccount.maturity > 0
+        ? formatMaturity(vaultAccount?.maturity)
+        : '';
 
-    return { selectedMarketKey: marketKey, leverageRatio, vaultAccountMaturityString, vaultAction };
+    return {
+      selectedMarketKey: marketKey,
+      leverageRatio,
+      vaultAccountMaturityString,
+      vaultAction,
+    };
   } else if (vaultAction === undefined) {
     return {
       vaultAction: defaultVaultAction,

@@ -1,7 +1,10 @@
 import { useParams } from 'react-router';
 import { PortfolioParams } from '../../portfolio-feature-shell';
 import { useWalletSideDrawer } from '@notional-finance/wallet';
-import { PORTFOLIO_CATEGORIES, SIDEBAR_CATEGORIES } from '@notional-finance/utils';
+import {
+  PORTFOLIO_CATEGORIES,
+  SIDEBAR_CATEGORIES,
+} from '@notional-finance/shared-config';
 import { defineMessages, MessageDescriptor } from 'react-intl';
 interface EmptyPortfolioData {
   messages?: { buttonText: MessageDescriptor; promptText: MessageDescriptor };
@@ -43,7 +46,8 @@ export const useEmptyPortfolio = () => {
     [PORTFOLIO_CATEGORIES.LIQUIDITY]: {
       messages: defineMessages({
         promptText: {
-          defaultMessage: 'You currently have no liquidity or liquidity history',
+          defaultMessage:
+            'You currently have no liquidity or liquidity history',
           description: 'empty liquidity overview prompt text',
         },
         buttonText: {

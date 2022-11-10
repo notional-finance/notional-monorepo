@@ -1,7 +1,7 @@
 import ReactGA from 'react-ga4';
 import axios from 'axios';
 import { ethers } from 'ethers';
-import { logError } from '../helpers/error-helpers';
+import { logError } from './error-helpers';
 
 export const GOOGLE_ANALYTICS_ID = 'G-TN4TT2L24X';
 
@@ -13,7 +13,9 @@ const IMPACT_WALLET_REGISTRATION_ID = '29429';
 const IMPACT_TXN_ID = '29430';
 
 export function initGA() {
-  ReactGA.initialize(GOOGLE_ANALYTICS_ID, { gtagOptions: { debug_mode: true } });
+  ReactGA.initialize(GOOGLE_ANALYTICS_ID, {
+    gtagOptions: { debug_mode: true },
+  });
   ReactGA.ga('set', 'anonymizeIp', true);
 }
 

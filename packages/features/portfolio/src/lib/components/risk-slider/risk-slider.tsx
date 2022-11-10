@@ -1,8 +1,18 @@
 import { Box, styled, useTheme } from '@mui/material';
 import { defineMessage, FormattedMessage } from 'react-intl';
-import { useRiskLabel, useRiskRatios } from '@notional-finance/notionable-hooks';
-import { InfoTooltip, SliderRisk, H4, Label, LabelValue, Paragraph } from '@notional-finance/mui';
-import { formatNumberAsPercent } from '@notional-finance/utils';
+import {
+  useRiskLabel,
+  useRiskRatios,
+} from '@notional-finance/notionable-hooks';
+import {
+  InfoTooltip,
+  SliderRisk,
+  H4,
+  Label,
+  LabelValue,
+  Paragraph,
+} from '@notional-finance/mui';
+import { formatNumberAsPercent } from '@notional-finance/helpers';
 import { NotionalTheme } from '@notional-finance/styles';
 
 interface RiskSliderProps {
@@ -48,7 +58,9 @@ export const RiskSlider = ({
               {collateralRatio && (
                 <>
                   <Label sx={{ marginRight: theme.spacing(1) }}>
-                    <FormattedMessage defaultMessage={'Collateralization Ratio:'} />
+                    <FormattedMessage
+                      defaultMessage={'Collateralization Ratio:'}
+                    />
                   </Label>
                   <InfoTooltip
                     toolTipText={defineMessage({
@@ -97,7 +109,12 @@ export const SuggestedActions = () => {
         <FormattedMessage defaultMessage={'Suggested Actions'} />
       </H4>
       <Paragraph
-        sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          height: '100%',
+        }}
       >
         <FormattedMessage defaultMessage={'Coming soon!'} />
       </Paragraph>

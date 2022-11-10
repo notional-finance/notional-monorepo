@@ -1,8 +1,13 @@
 import { createObservableContext } from '@notional-finance/notionable-hooks';
 import { MaturityData } from '@notional-finance/notionable';
-import { GenericBaseVault, TypedBigNumber, VaultAccount, VaultConfig } from '@notional-finance/sdk';
+import {
+  GenericBaseVault,
+  TypedBigNumber,
+  VaultAccount,
+  VaultConfig,
+} from '@notional-finance/sdk';
 import { Market } from '@notional-finance/sdk/src/system';
-import { VAULT_ACTIONS } from '@notional-finance/utils';
+import { VAULT_ACTIONS } from '@notional-finance/shared-config';
 import { MessageDescriptor } from 'react-intl';
 
 export interface VaultActionState {

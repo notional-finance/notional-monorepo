@@ -2,17 +2,28 @@ import { useState, useEffect } from 'react';
 import { Box, styled } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { FormattedMessage } from 'react-intl';
-import { GearIcon, ActiveBellIcon, BellIcon, EyeIcon } from '@notional-finance/icons';
-import { getFromLocalStorage } from '@notional-finance/utils';
+import {
+  GearIcon,
+  ActiveBellIcon,
+  BellIcon,
+  EyeIcon,
+} from '@notional-finance/icons';
+import { getFromLocalStorage } from '@notional-finance/helpers';
 import WalletSideDrawer from '../wallet-side-drawer/wallet-side-drawer';
 import { getNotificationsData } from './wallet-selector.service';
 import NetworkSelector from '../network-selector/network-selector';
-import { SIDEBAR_CATEGORIES } from '@notional-finance/utils';
 import { useOnboard, useAccount } from '@notional-finance/notionable-hooks';
 import { ProgressIndicator } from '@notional-finance/mui';
 import { useWalletSideDrawer } from '../hooks';
-import { PORTFOLIO_ACTIONS, PORTFOLIO_CATEGORIES } from '@notional-finance/utils';
-import { useSideDrawerState, useSideDrawerManager } from '@notional-finance/notional-web';
+import {
+  PORTFOLIO_ACTIONS,
+  PORTFOLIO_CATEGORIES,
+  SIDEBAR_CATEGORIES,
+} from '@notional-finance/shared-config';
+import {
+  useSideDrawerState,
+  useSideDrawerManager,
+} from '@notional-finance/notional-web';
 import { ButtonText } from '@notional-finance/mui';
 
 export interface PortfolioParams {
@@ -24,7 +35,8 @@ export function WalletSelector() {
   const theme = useTheme();
   const { connected, icon, label } = useOnboard();
   const { truncatedAddress } = useAccount();
-  const [notificationsActive, setNotificationsActive] = useState<boolean>(false);
+  const [notificationsActive, setNotificationsActive] =
+    useState<boolean>(false);
   const { sideDrawerOpen } = useSideDrawerState();
   const { currentSideDrawerId } = useSideDrawerManager();
   const notifications = getFromLocalStorage('notifications');
@@ -43,7 +55,9 @@ export function WalletSelector() {
     if (
       sideDrawerOpen &&
       currentSideDrawerId &&
-      !Object.values(SIDEBAR_CATEGORIES).includes(currentSideDrawerId as SIDEBAR_CATEGORIES)
+      !Object.values(SIDEBAR_CATEGORIES).includes(
+        currentSideDrawerId as SIDEBAR_CATEGORIES
+      )
     ) {
       deleteWalletSideDrawer();
     }
@@ -68,7 +82,14 @@ export function WalletSelector() {
                   />
                 </IconContainer>
               )}
-              <Box sx={{ flex: 1, margin: '0px 10px', display: 'flex', alignItems: 'center' }}>
+              <Box
+                sx={{
+                  flex: 1,
+                  margin: '0px 10px',
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
+              >
                 <ButtonText>{truncatedAddress}</ButtonText>
                 <Box
                   sx={{ marginLeft: '10px', display: 'flex' }}
@@ -81,17 +102,23 @@ export function WalletSelector() {
           )}
 
           {!connected && truncatedAddress && (
-            <ProcessContainer onClick={() => handleClick(SIDEBAR_CATEGORIES.CONNECT_WALLET)}>
+            <ProcessContainer
+              onClick={() => handleClick(SIDEBAR_CATEGORIES.CONNECT_WALLET)}
+            >
               <IconContainer>
                 <EyeIcon />
               </IconContainer>
-              <ButtonText sx={{ flex: 1, textAlign: 'center', alignSelf: 'center' }}>
+              <ButtonText
+                sx={{ flex: 1, textAlign: 'center', alignSelf: 'center' }}
+              >
                 {truncatedAddress}
               </ButtonText>
             </ProcessContainer>
           )}
           {!connected && !truncatedAddress && (
-            <ProcessContainer onClick={() => handleClick(SIDEBAR_CATEGORIES.CONNECT_WALLET)}>
+            <ProcessContainer
+              onClick={() => handleClick(SIDEBAR_CATEGORIES.CONNECT_WALLET)}
+            >
               <ButtonText>
                 <FormattedMessage defaultMessage="Connect a Wallet" />
               </ButtonText>

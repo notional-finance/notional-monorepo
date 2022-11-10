@@ -1,8 +1,12 @@
 import { Box, useTheme } from '@mui/material';
-import { getDateString } from '@notional-finance/utils';
+import { getDateString } from '@notional-finance/helpers';
 import { FormattedTime } from 'react-intl';
 import { DataTableColumn } from '../../data-table/data-table';
-import { SmallTableCell, TableCell, LargeTableCell } from '../../typography/typography';
+import {
+  SmallTableCell,
+  TableCell,
+  LargeTableCell,
+} from '../../typography/typography';
 
 export interface DateTimeCellProps {
   cell: {
@@ -10,7 +14,9 @@ export interface DateTimeCellProps {
     column: DataTableColumn;
   };
 }
-export const DateTimeCell = ({ cell: { value, column } }: DateTimeCellProps): JSX.Element => {
+export const DateTimeCell = ({
+  cell: { value, column },
+}: DateTimeCellProps): JSX.Element => {
   const theme = useTheme();
   const dateValue = new Date(value * 1000);
   const FirstValue = column?.expandableTable ? LargeTableCell : TableCell;
@@ -18,8 +24,12 @@ export const DateTimeCell = ({ cell: { value, column } }: DateTimeCellProps): JS
 
   return (
     <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
-      <FirstValue sx={{ width: '100%', marginBottom: '0px' }}>{getDateString(value)}</FirstValue>
-      <SecondValue sx={{ width: '100%', color: theme.palette.typography.light }}>
+      <FirstValue sx={{ width: '100%', marginBottom: '0px' }}>
+        {getDateString(value)}
+      </FirstValue>
+      <SecondValue
+        sx={{ width: '100%', color: theme.palette.typography.light }}
+      >
         <FormattedTime value={dateValue} timeZoneName="short" />
       </SecondValue>
     </Box>

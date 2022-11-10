@@ -1,9 +1,13 @@
-import { useAccount, useVaultCapacity } from '@notional-finance/notionable-hooks';
+import {
+  useAccount,
+  useVaultCapacity,
+} from '@notional-finance/notionable-hooks';
 import { TransactionFunction } from '@notional-finance/notionable';
 import { TypedBigNumber } from '@notional-finance/sdk';
 import { Market } from '@notional-finance/sdk/src/system';
 import { TradePropertyKeys } from '@notional-finance/trade';
-import { tradeDefaults, useQueryParams, VAULT_ACTIONS } from '@notional-finance/utils';
+import { tradeDefaults, VAULT_ACTIONS } from '@notional-finance/shared-config';
+import { useQueryParams } from '@notional-finance/utils';
 import { useContext } from 'react';
 import { VaultActionContext } from '../managers';
 import { messages } from '../messages';
@@ -24,10 +28,15 @@ export const useVaultTransaction = () => {
     fCashBorrowAmount,
     baseVault,
   } = state;
-  const { overCapacityError } = useVaultCapacity(vaultAddress, fCashBorrowAmount);
+  const { overCapacityError } = useVaultCapacity(
+    vaultAddress,
+    fCashBorrowAmount
+  );
   const { confirm } = useQueryParams();
   const confirmRoute = !!confirm;
-  const selectedMaturity = selectedMarketKey ? Market.parseMaturity(selectedMarketKey) : undefined;
+  const selectedMaturity = selectedMarketKey
+    ? Market.parseMaturity(selectedMarketKey)
+    : undefined;
 
   if (
     !confirmRoute ||
@@ -60,7 +69,12 @@ export const useVaultTransaction = () => {
       transactionFn: baseVault.populateEnterTransaction.bind(baseVault),
       transactionArgs: [
         address,
-        depositAmount || TypedBigNumber.fromBalance(0, baseVault.getPrimaryBorrowSymbol(), false),
+        depositAmount ||
+          TypedBigNumber.fromBalance(
+            0,
+            baseVault.getPrimaryBorrowSymbol(),
+            false
+          ),
         selectedMaturity,
         fCashBorrowAmount,
         slippageBuffer,
@@ -72,7 +86,12 @@ export const useVaultTransaction = () => {
       transactionArgs: [
         address,
         selectedMaturity,
-        depositAmount || TypedBigNumber.fromBalance(0, baseVault.getPrimaryBorrowSymbol(), false),
+        depositAmount ||
+          TypedBigNumber.fromBalance(
+            0,
+            baseVault.getPrimaryBorrowSymbol(),
+            false
+          ),
         fCashBorrowAmount,
         slippageBuffer,
         vaultAccount,
