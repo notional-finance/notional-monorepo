@@ -83,7 +83,7 @@
     "@hirez_io/observer-spy": "^2.2.0",
     "@jscutlery/semver": "^2.27.2",
     "@nomiclabs/hardhat-ethers": "^2.1.1",
-    "@nrwl/cli": "15.0.9",
+    "@nrwl/cli": "15.0.13",
     "@nrwl/devkit": "15.0.13",
     "@nrwl/eslint-plugin-nx": "15.0.13",
     "@nrwl/jest": "15.0.13",

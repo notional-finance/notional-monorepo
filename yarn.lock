@@ -3704,13 +3704,6 @@
   dependencies:
     nx "15.0.13"
 
-"@nrwl/cli@15.0.9":
-  version "15.0.9"
-  resolved "https://registry.yarnpkg.com/@nrwl/cli/-/cli-15.0.9.tgz#d6c0b1a4e97093c1f46dd1acf35739bcb7b2fa55"
-  integrity sha512-MJe1vgSBNAfDtgwPIDNcMaxgK9s0CR11mASJhV9yGfn/INrFW73Mc4WPjFAI9QuLuhZjxszP7AHaoyGyYvBrvQ==
-  dependencies:
-    nx "15.0.9"
-
 "@nrwl/cypress@15.0.13":
   version "15.0.13"
   resolved "https://registry.yarnpkg.com/@nrwl/cypress/-/cypress-15.0.13.tgz#84ad84ed30a5efb44f5e433104ce30e334b8a66e"
@@ -3920,13 +3913,6 @@
   integrity sha512-z55RKnVOYsiABKFUIj+QBf6I4fUwTlObxJpgUJp0i3E97P3BgbzhTG1EhuBxLH8fGKrbOAPs0ct38Asl+zGZfQ==
   dependencies:
     nx "15.0.13"
-
-"@nrwl/tao@15.0.9":
-  version "15.0.9"
-  resolved "https://registry.yarnpkg.com/@nrwl/tao/-/tao-15.0.9.tgz#d038d6d8c1568fd3734133616470c2ea30e34be1"
-  integrity sha512-dwQnpPOaoVknmFbKpamOxiLivvYTrq8XhH3heZ5PcqvItSDHtCGr9R9LlXM+2M0ubchnWNxjwUMuWf1IJfd0dQ==
-  dependencies:
-    nx "15.0.9"
 
 "@nrwl/web@15.0.13":
   version "15.0.13"
@@ -12466,47 +12452,6 @@ nx@15.0.13:
   dependencies:
     "@nrwl/cli" "15.0.13"
     "@nrwl/tao" "15.0.13"
-    "@parcel/watcher" "2.0.4"
-    "@yarnpkg/lockfile" "^1.1.0"
-    "@yarnpkg/parsers" "^3.0.0-rc.18"
-    "@zkochan/js-yaml" "0.0.6"
-    axios "^1.0.0"
-    chalk "4.1.0"
-    chokidar "^3.5.1"
-    cli-cursor "3.1.0"
-    cli-spinners "2.6.1"
-    cliui "^7.0.2"
-    dotenv "~10.0.0"
-    enquirer "~2.3.6"
-    fast-glob "3.2.7"
-    figures "3.2.0"
-    flat "^5.0.2"
-    fs-extra "^10.1.0"
-    glob "7.1.4"
-    ignore "^5.0.4"
-    js-yaml "4.1.0"
-    jsonc-parser "3.2.0"
-    minimatch "3.0.5"
-    npm-run-path "^4.0.1"
-    open "^8.4.0"
-    semver "7.3.4"
-    string-width "^4.2.3"
-    strong-log-transformer "^2.1.0"
-    tar-stream "~2.2.0"
-    tmp "~0.2.1"
-    tsconfig-paths "^3.9.0"
-    tslib "^2.3.0"
-    v8-compile-cache "2.3.0"
-    yargs "^17.6.2"
-    yargs-parser "21.1.1"
-
-nx@15.0.9:
-  version "15.0.9"
-  resolved "https://registry.yarnpkg.com/nx/-/nx-15.0.9.tgz#c080b4582c3252f3428e5fb768033247fa5d8a5e"
-  integrity sha512-NqMX+af7FAUvc20CjdbjP5QOU8l/TV4DTksmn5Gvxha2yuVYlC5luGXcvHM6hN+P8t6CfUCHEWC2BMoNTFsWqg==
-  dependencies:
-    "@nrwl/cli" "15.0.9"
-    "@nrwl/tao" "15.0.9"
     "@parcel/watcher" "2.0.4"
     "@yarnpkg/lockfile" "^1.1.0"
     "@yarnpkg/parsers" "^3.0.0-rc.18"
