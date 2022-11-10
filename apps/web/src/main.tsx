@@ -1,13 +1,29 @@
-import { StrictMode } from 'react';
-import * as ReactDOM from 'react-dom/client';
+import ReactDOM from 'react-dom';
+import { IntlProvider } from 'react-intl';
+import { getLanguageTranslation } from '@notional-finance/utils';
+import App from './containers/App';
 
-import App from './app/app';
+const onI18NError = (err) => {
+  // Silence missing translation errors during development
+  if (err.code === 'MISSING_TRANSLATION') return;
+  console.error(err);
+};
 
-const root = ReactDOM.createRoot(
-  document.getElementById('root') as HTMLElement
-);
-root.render(
-  <StrictMode>
-    <App />
-  </StrictMode>
-);
+async function appInit() {
+  const locale = navigator.language;
+  const languageTranslation = await getLanguageTranslation(locale);
+
+  ReactDOM.render(
+    <IntlProvider
+      locale={locale}
+      defaultLocale="en"
+      messages={languageTranslation}
+      onError={onI18NError}
+    >
+      <App />
+    </IntlProvider>,
+    document.getElementById('root')
+  );
+}
+
+appInit();

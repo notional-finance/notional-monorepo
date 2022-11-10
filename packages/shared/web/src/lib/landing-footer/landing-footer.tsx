@@ -1,6 +1,6 @@
 import { styled } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
-import notionalLogo from 'assets/images/logos/Notional_logo_for_dark_background.svg';
+import notionalLogo from '@notional-finance/assets/images/logos/Notional_logo_for_dark_background.svg';
 import { HeadingSubtitle, Label } from '@notional-finance/mui';
 
 export const LandingFooter = () => {
@@ -32,7 +32,10 @@ export const LandingFooter = () => {
                 </HeadingSubtitle>
               </li>
               <li>
-                <HeadingSubtitle contrast href="https://docs.notional.finance/notional-v2/">
+                <HeadingSubtitle
+                  contrast
+                  href="https://docs.notional.finance/notional-v2/"
+                >
                   <FormattedMessage defaultMessage="User Documentation" />
                 </HeadingSubtitle>
               </li>
@@ -57,7 +60,10 @@ export const LandingFooter = () => {
                 </HeadingSubtitle>
               </li>
               <li>
-                <HeadingSubtitle contrast href="https://docs.notional.finance/governance">
+                <HeadingSubtitle
+                  contrast
+                  href="https://docs.notional.finance/governance"
+                >
                   <FormattedMessage defaultMessage="Governance Parameters" />
                 </HeadingSubtitle>
               </li>
@@ -80,7 +86,10 @@ export const LandingFooter = () => {
                 </HeadingSubtitle>
               </li>
               <li>
-                <HeadingSubtitle contrast href="https://github.com/notional-finance/media-kit">
+                <HeadingSubtitle
+                  contrast
+                  href="https://github.com/notional-finance/media-kit"
+                >
                   <FormattedMessage defaultMessage="Media Kit" />
                 </HeadingSubtitle>
               </li>
@@ -97,17 +106,26 @@ export const LandingFooter = () => {
                 </HeadingSubtitle>
               </li>
               <li>
-                <HeadingSubtitle contrast href="https://discord.notional.finance">
+                <HeadingSubtitle
+                  contrast
+                  href="https://discord.notional.finance"
+                >
                   <FormattedMessage defaultMessage="Discord" />
                 </HeadingSubtitle>
               </li>
               <li>
-                <HeadingSubtitle contrast href="https://github.com/notional-finance/contracts-v2">
+                <HeadingSubtitle
+                  contrast
+                  href="https://github.com/notional-finance/contracts-v2"
+                >
                   <FormattedMessage defaultMessage="Github" />
                 </HeadingSubtitle>
               </li>
               <li>
-                <HeadingSubtitle contrast href="https://twitter.com/NotionalFinance">
+                <HeadingSubtitle
+                  contrast
+                  href="https://twitter.com/NotionalFinance"
+                >
                   <FormattedMessage defaultMessage="Twitter" />
                 </HeadingSubtitle>
               </li>
@@ -120,7 +138,10 @@ export const LandingFooter = () => {
                 </HeadingSubtitle>
               </li>
               <li>
-                <HeadingSubtitle contrast href="https://forum.notional.finance/">
+                <HeadingSubtitle
+                  contrast
+                  href="https://forum.notional.finance/"
+                >
                   <FormattedMessage defaultMessage="Forum" />
                 </HeadingSubtitle>
               </li>

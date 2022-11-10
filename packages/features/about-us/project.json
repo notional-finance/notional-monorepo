@@ -2,6 +2,7 @@
   "name": "features-about-us",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "packages/features/about-us/src",
+  "implicitDependencies": ["shared-assets"],
   "projectType": "library",
   "tags": [],
   "targets": {
@@ -17,6 +18,11 @@
         "rollupConfig": "@nrwl/react/plugins/bundle-rollup",
         "compiler": "babel",
         "assets": [
+          {
+            "glob": "**/*",
+            "input": "packages/shared/assets/",
+            "output": "/assets"
+          },
           {
             "glob": "packages/features/about-us/README.md",
             "input": ".",

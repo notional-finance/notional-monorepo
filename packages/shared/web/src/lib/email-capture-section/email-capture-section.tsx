@@ -4,9 +4,9 @@ import axios from 'axios';
 import { FormattedMessage } from 'react-intl';
 import { ProgressIndicator, Button, H1, Label } from '@notional-finance/mui';
 import { useInView } from 'react-intersection-observer';
-import sacredGeometryPNG from 'assets/images/sacred-geometry.png';
-import iconCheckmark from 'assets/icons/icon-checkmark.svg';
-import iconAlert from 'assets/icons/icon-alert.svg';
+import sacredGeometryPNG from '@notional-finance/assets/images/sacred-geometry.png';
+import iconCheckmark from '@notional-finance/assets/icons/icon-checkmark.svg';
+import iconAlert from '@notional-finance/assets/icons/icon-alert.svg';
 
 type SubmitState = 'Pending' | 'Success' | 'Error' | null;
 
@@ -66,7 +66,8 @@ export const EmailCaptureSection = () => {
         return (
           <div className="newsletter-input-state">
             <span>
-              <img src={iconAlert} alt="error" /> <FormattedMessage defaultMessage="Error" />
+              <img src={iconAlert} alt="error" />{' '}
+              <FormattedMessage defaultMessage="Error" />
             </span>
           </div>
         );
@@ -76,11 +77,17 @@ export const EmailCaptureSection = () => {
             <input type="hidden" name="form-name" value="newsletter" />
             <div className="newsletter-label">
               <Label contrast fontWeight="medium">
-                <FormattedMessage defaultMessage="Your Email" description="email signup" />
+                <FormattedMessage
+                  defaultMessage="Your Email"
+                  description="email signup"
+                />
               </Label>
             </div>
             <span className="newsletter-input">
-              <FormattedMessage defaultMessage={'Enter Your Email'} description="email input form">
+              <FormattedMessage
+                defaultMessage={'Enter Your Email'}
+                description="email input form"
+              >
                 {(msg: unknown) => {
                   return (
                     <input
@@ -102,7 +109,10 @@ export const EmailCaptureSection = () => {
                   padding: theme.spacing(2, 4),
                 }}
               >
-                <FormattedMessage defaultMessage="Sign Up Now" description="email signup button" />
+                <FormattedMessage
+                  defaultMessage="Sign Up Now"
+                  description="email signup button"
+                />
               </Button>
             </span>
           </form>

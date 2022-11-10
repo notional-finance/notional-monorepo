@@ -27,6 +27,7 @@
     "shared-web": "packages/shared/web",
     "system-cache": "apps/system-cache",
     "util": "packages/util",
-    "web": "apps/web"
+    "web": "apps/web",
+    "shared-assets": "packages/shared/assets"
   }
 }

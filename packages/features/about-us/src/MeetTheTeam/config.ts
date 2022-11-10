@@ -1,12 +1,12 @@
-import jwei from 'assets/images/team/jwei.png';
-import jwu from 'assets/images/team/jwu.png';
-import klong from 'assets/images/team/klong.png';
-import mburkett from 'assets/images/team/mburkett.png';
-import msharon from 'assets/images/team/msharon.png';
-import pgendron from 'assets/images/team/pgendron.png';
-import twoodward from 'assets/images/team/twoodward.png';
-import ipetsch from 'assets/images/team/ipetsch.png';
-import mgarrett from 'assets/images/team/mgarrett.png';
+import jwei from '@notional-finance/assets/images/team/jwei.png';
+import jwu from '@notional-finance/assets/images/team/jwu.png';
+import klong from '@notional-finance/assets/images/team/klong.png';
+import mburkett from '@notional-finance/assets/images/team/mburkett.png';
+import msharon from '@notional-finance/assets/images/team/msharon.png';
+import pgendron from '@notional-finance/assets/images/team/pgendron.png';
+import twoodward from '@notional-finance/assets/images/team/twoodward.png';
+import ipetsch from '@notional-finance/assets/images/team/ipetsch.png';
+import mgarrett from '@notional-finance/assets/images/team/mgarrett.png';
 import { defineMessages } from 'react-intl';
 
 export const TeamData = [
@@ -81,7 +81,8 @@ export const TeamData = [
       },
       description: {
         description: 'team member title',
-        defaultMessage: 'Entrepreneur, Writer & Co-Founder of food tour brand at UnTour.',
+        defaultMessage:
+          'Entrepreneur, Writer & Co-Founder of food tour brand at UnTour.',
       },
     }),
     social: [
@@ -167,7 +168,8 @@ export const TeamData = [
       },
       description: {
         description: 'team member title',
-        defaultMessage: 'Senior Backend Engineer at PicMonkey, Ethereum miner and early DeFi user.',
+        defaultMessage:
+          'Senior Backend Engineer at PicMonkey, Ethereum miner and early DeFi user.',
       },
     }),
     social: [

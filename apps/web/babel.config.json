@@ -1,0 +1,42 @@
+{
+  "presets": [
+    [
+      "@babel/preset-env"
+    ],
+    [
+      "@nrwl/react/babel",
+      {
+        "runtime": "automatic"
+      }
+    ]
+  ],
+  "plugins": [
+    [
+      "babel-plugin-formatjs", {
+        "idInterpolationPattern": "[sha512:contenthash:base64:6]",
+        "ast": true
+      }
+    ],
+    ["@babel/plugin-proposal-private-property-in-object", { "loose": true }],
+    ["@babel/plugin-proposal-private-methods", { "loose": true }],
+    [
+      "@emotion",
+      {
+        "importMap": {
+          "@mui/system": {
+            "styled": {
+              "canonicalImport": ["@emotion/styled", "default"],
+              "styledBaseImport": ["@mui/system", "styled"]
+            }
+          },
+          "@mui/material/styles": {
+            "styled": {
+              "canonicalImport": ["@emotion/styled", "default"],
+              "styledBaseImport": ["@mui/material/styles", "styled"]
+            }
+          }
+        }
+      }
+    ]
+  ]
+}

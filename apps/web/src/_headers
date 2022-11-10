@@ -1,0 +1,11 @@
+/*
+  X-XSS-Protection: 0
+  Content-Security-Policy: frame-ancestors https://gnosis-safe.io;
+
+/manifest.json
+  X-Frame-Options: DENY
+  X-XSS-Portection: 0
+  Access-Control-Allow-Origin: *
+
+https://swapnet-lite.pages.dev/*
+  X-Robots-Tag: noindex

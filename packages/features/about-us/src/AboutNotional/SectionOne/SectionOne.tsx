@@ -2,15 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { Box, useTheme } from '@mui/material';
 import YouTube from 'react-youtube';
 import { FormattedMessage } from 'react-intl';
-import playButtonSvg from 'assets/icons/icon-play-video.svg';
-import aboutUsBackground from 'assets/images/about-us-background.svg';
+import playButtonSvg from '@notional-finance/assets/icons/icon-play-video.svg';
+import aboutUsBackground from '@notional-finance/assets/images/about-us-background.svg';
 import { H1, H3, useWindowDimensions } from '@notional-finance/mui';
 import { YouTubePlayer } from 'youtube-player/dist/types';
 
 export const SectionOne = () => {
   const theme = useTheme();
   const [isVideoPlaying, setVideoPlaying] = useState(false);
-  const [videoTarget, setVideoTarget] = useState<YouTubePlayer | undefined>(undefined);
+  const [videoTarget, setVideoTarget] = useState<YouTubePlayer | undefined>(
+    undefined
+  );
   const { width } = useWindowDimensions();
   const [videoViewportWidth, setVideoViewportWidth] = useState(515);
   const [videoViewportHeight, setVideoViewportHeight] = useState(292);
@@ -69,8 +71,16 @@ export const SectionOne = () => {
         }}
       >
         <Box sx={{ maxWidth: '680px' }}>
-          <H3 accent textTransform={'uppercase'} letterSpacing={'1px'} fontWeight="medium">
-            <FormattedMessage defaultMessage={'About Notional'} description={'section heading'} />
+          <H3
+            accent
+            textTransform={'uppercase'}
+            letterSpacing={'1px'}
+            fontWeight="medium"
+          >
+            <FormattedMessage
+              defaultMessage={'About Notional'}
+              description={'section heading'}
+            />
           </H3>
           <Box
             sx={{
@@ -116,7 +126,8 @@ export const SectionOne = () => {
               width: { xs: '280px', sm: '515px' },
               height: { xs: '159px', sm: '292px' },
               position: 'relative',
-              background: 'linear-gradient(267.16deg, #004453 19.48%, #002B36 105.58%)',
+              background:
+                'linear-gradient(267.16deg, #004453 19.48%, #002B36 105.58%)',
               boxShadow: '0px 4px 10px 0px #142a4a12',
               opacity: 1,
               transition: 'opacity 0.75s linear',

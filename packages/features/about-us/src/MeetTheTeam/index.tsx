@@ -1,11 +1,11 @@
 import { FormattedMessage, MessageDescriptor } from 'react-intl';
 import { H1, H3, HeadingSubtitle } from '@notional-finance/mui';
 import { Box, useTheme } from '@mui/material';
-import twitterLogo from 'assets/images/logos/logo-twitter-dark.svg';
-import githubLogo from 'assets/images/logos/logo-github-dark.svg';
-import linkedinLogo from 'assets/images/logos/logo-linkedin-dark.svg';
-import telegramLogo from 'assets/images/logos/logo-telegram-dark.svg';
-import emailLogo from 'assets/images/logos/logo-email-dark.svg';
+import twitterLogo from '@notional-finance/assets/images/logos/logo-twitter-dark.svg';
+import githubLogo from '@notional-finance/assets/images/logos/logo-github-dark.svg';
+import linkedinLogo from '@notional-finance/assets/images/logos/logo-linkedin-dark.svg';
+import telegramLogo from '@notional-finance/assets/images/logos/logo-telegram-dark.svg';
+import emailLogo from '@notional-finance/assets/images/logos/logo-email-dark.svg';
 import { TeamData } from './config';
 
 type SocialProps = {
@@ -38,7 +38,12 @@ const MeetTheTeam = () => {
         {socialData.map((data: SocialProps) => (
           <li className="data-icon" key={data.name}>
             <a href={data.link} target="_blank" rel="noreferrer">
-              <img className={data.name} src={socialLogos[data.name]} alt={data.name} width={36} />
+              <img
+                className={data.name}
+                src={socialLogos[data.name]}
+                alt={data.name}
+                width={36}
+              />
             </a>
           </li>
         ))}
@@ -84,7 +89,10 @@ const MeetTheTeam = () => {
           <Box>
             <img className="photo" src={profpic} alt={name} />
             <H3
-              sx={{ marginTop: theme.spacing(5), marginBottom: theme.spacing(3) }}
+              sx={{
+                marginTop: theme.spacing(5),
+                marginBottom: theme.spacing(3),
+              }}
               fontWeight="medium"
             >
               <FormattedMessage {...displayName} />
@@ -113,7 +121,10 @@ const MeetTheTeam = () => {
       }}
     >
       <H1 align="center" contrast>
-        <FormattedMessage defaultMessage={'Meet the Team'} description="section heading" />
+        <FormattedMessage
+          defaultMessage={'Meet the Team'}
+          description="section heading"
+        />
       </H1>
       <Box
         sx={{

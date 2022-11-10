@@ -1,8 +1,8 @@
 import { MenuList, PopperPlacementType, styled, useTheme } from '@mui/material';
-import SelectUnstyled from '@mui/base/SelectUnstyled';
 import PopperUnstyled from '@mui/base/PopperUnstyled';
 import { ArrowIcon } from '@notional-finance/icons';
 import { ElementType, useState } from 'react';
+import { SelectUnstyled } from '@mui/base';
 
 interface SelectDropdownProps {
   children: React.ReactNode[];
@@ -72,7 +72,9 @@ export const SelectDropdown = ({
         backgroundColor: landingPage ? 'unset' : theme.palette.common.white,
         borderRadius: theme.shape.borderRadius(),
         h4: {
-          color: landingPage ? theme.palette.common.white : theme.palette.common.black,
+          color: landingPage
+            ? theme.palette.common.white
+            : theme.palette.common.black,
         },
         '&:hover': {
           backgroundColor: landingPage
@@ -98,6 +100,7 @@ export const SelectDropdown = ({
       disabled={onlyOneInput}
       componentsProps={componentProps}
       components={components}
+      component={buttonComponent}
       onListboxOpenChange={(isOpen: boolean) => {
         setListboxOpen(isOpen);
         if (onListboxOpen) onListboxOpen(isOpen);

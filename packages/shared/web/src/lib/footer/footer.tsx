@@ -1,13 +1,22 @@
 import { FormattedMessage } from 'react-intl';
 import { styled, Box, ThemeProvider } from '@mui/material';
 import { DiscordFooter } from '@notional-finance/icons';
-import logoForDarkBackground from 'assets/images/logos/Notional_logo_for_dark_background.svg';
+import logoForDarkBackground from '@notional-finance/assets/images/logos/Notional_logo_for_dark_background.svg';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { useLastUpdateBlockNumber } from '@notional-finance/notionable-hooks';
-import { formatNumber, formatNumberAsPercent, THEME_VARIANTS } from '@notional-finance/utils';
+import {
+  formatNumber,
+  formatNumberAsPercent,
+  THEME_VARIANTS,
+} from '@notional-finance/utils';
 import { useCryptoPriceState } from '../crypto-price-manager/store/use-crypto-price-state';
 import { useCryptoPriceManager } from '../crypto-price-manager/use-crypto-price-manager';
-import { ExternalLink, H4, HeadingSubtitle, Label } from '@notional-finance/mui';
+import {
+  ExternalLink,
+  H4,
+  HeadingSubtitle,
+  Label,
+} from '@notional-finance/mui';
 
 const FooterLeft = styled(Box)(
   ({ theme }) => `
@@ -122,15 +131,23 @@ export const Footer = () => {
   const currentETHPrice = cryptoPrices['eth']
     ? `$${formatNumber(cryptoPrices['eth'].price, 2)}`
     : '-';
-  const currentETHPercentChange = cryptoPrices['eth'] ? cryptoPrices['eth']['24H'] : 0;
+  const currentETHPercentChange = cryptoPrices['eth']
+    ? cryptoPrices['eth']['24H']
+    : 0;
 
   return (
     <ThemeProvider theme={theme}>
       <StyledFooter>
         <FooterLeft>
           <Logo src={logoForDarkBackground} alt="Notional Finance logo" />
-          <H4 contrast href="mailto:support@notional.finance" marginBottom={theme.spacing(2)}>
-            <FormattedMessage defaultMessage={'Need Help? Contact the Notional team.'} />
+          <H4
+            contrast
+            href="mailto:support@notional.finance"
+            marginBottom={theme.spacing(2)}
+          >
+            <FormattedMessage
+              defaultMessage={'Need Help? Contact the Notional team.'}
+            />
           </H4>
           <ExternalLink href="https://discord.notional.finance">
             <DiscordFooter />
@@ -138,28 +155,40 @@ export const Footer = () => {
         </FooterLeft>
         <FooterCenter>
           <Label accent uppercase marginBottom={theme.spacing(4)}>
-            <FormattedMessage defaultMessage="Resources" description="footer link" />
+            <FormattedMessage
+              defaultMessage="Resources"
+              description="footer link"
+            />
           </Label>
           <HeadingSubtitle
             contrast
             href="https://docs.notional.finance/notional-v2/faq"
             marginBottom={theme.spacing(4)}
           >
-            <FormattedMessage defaultMessage="User Documentation" description="footer link" />
+            <FormattedMessage
+              defaultMessage="User Documentation"
+              description="footer link"
+            />
           </HeadingSubtitle>
           <HeadingSubtitle
             contrast
             href="https://www.youtube.com/playlist?list=PLnKdM8f8QEJ2lJ59ZjhVCcJvrT056X0Ga"
             marginBottom={theme.spacing(4)}
           >
-            <FormattedMessage defaultMessage="Video Tutorials" description="footer link" />
+            <FormattedMessage
+              defaultMessage="Video Tutorials"
+              description="footer link"
+            />
           </HeadingSubtitle>
           <HeadingSubtitle
             contrast
             href="https://info.notional.finance/"
             marginBottom={theme.spacing(4)}
           >
-            <FormattedMessage defaultMessage="Dashboard" description="footer link" />
+            <FormattedMessage
+              defaultMessage="Dashboard"
+              description="footer link"
+            />
           </HeadingSubtitle>
         </FooterCenter>
         <FooterRight>

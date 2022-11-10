@@ -1,6 +1,6 @@
 import { Box, Typography, Button, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
-import HeaderCard from 'assets/images/HeaderCard.png';
+import HeaderCard from '@notional-finance/assets/images/HeaderCard.png';
 import { NotionalLogo } from '@notional-finance/styles';
 
 // To Update the HeaderCard:

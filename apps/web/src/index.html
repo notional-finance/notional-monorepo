@@ -2,13 +2,27 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>NotionalWeb</title>
-    <base href="/" />
-
+    <title>Notional Finance</title>
+    <link rel="icon" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <script
+      async
+      src="https://www.googleoptimize.com/optimize.js?id=OPT-P63CDRK"
+    ></script>
+    <script async src="https://www.youtube.com/iframe_api"></script>
   </head>
-  <body>
+
+  <body
+    style="
+      width: 100%;
+      overflow: scroll !important;
+      overflow-x: auto !important;
+    "
+  >
+    <form name="newsletter" netlify netlify-honeypot="bot-field" hidden>
+      <input type="email" name="email" />
+    </form>
     <div id="root"></div>
+    <div id="onboard"></div>
   </body>
 </html>

@@ -209,7 +209,11 @@ function getFontColors(themeVariant: PaletteMode) {
       accent: colors.neonTurquoise,
     };
   } else {
-    return { primary: fontColor.primary, secondary: fontColor.secondary, accent: fontColor.accent };
+    return {
+      primary: fontColor.primary,
+      secondary: fontColor.secondary,
+      accent: fontColor.accent,
+    };
   }
 }
 
@@ -244,14 +248,25 @@ const getThemeData = (themeVariant: PaletteMode) => {
     },
     palette: {
       common: {
-        black: themeVariant === THEME_VARIANTS.LIGHT ? colors.black : colors.purpleGrey,
-        white: themeVariant === THEME_VARIANTS.LIGHT ? colors.white : colors.black,
+        black:
+          themeVariant === THEME_VARIANTS.LIGHT
+            ? colors.black
+            : colors.purpleGrey,
+        white:
+          themeVariant === THEME_VARIANTS.LIGHT ? colors.white : colors.black,
       },
       primary: {
-        main: themeVariant === THEME_VARIANTS.LIGHT ? colors.green : colors.neonTurquoise,
+        main:
+          themeVariant === THEME_VARIANTS.LIGHT
+            ? colors.green
+            : colors.neonTurquoise,
         light: colors.aqua,
-        dark: themeVariant === THEME_VARIANTS.LIGHT ? colors.matteGreen : colors.white,
-        contrastText: themeVariant === THEME_VARIANTS.LIGHT ? colors.white : colors.black,
+        dark:
+          themeVariant === THEME_VARIANTS.LIGHT
+            ? colors.matteGreen
+            : colors.white,
+        contrastText:
+          themeVariant === THEME_VARIANTS.LIGHT ? colors.white : colors.black,
         accent: colors.turquoise,
       },
       secondary: undefined,
@@ -262,7 +277,10 @@ const getThemeData = (themeVariant: PaletteMode) => {
         main: colors.orange,
       },
       info: {
-        main: themeVariant === THEME_VARIANTS.LIGHT ? colors.neonTurquoise : colors.white,
+        main:
+          themeVariant === THEME_VARIANTS.LIGHT
+            ? colors.neonTurquoise
+            : colors.white,
         dark: colors.aqua,
         light: alpha(colors.neonTurquoise, 0.15),
       },
@@ -271,20 +289,38 @@ const getThemeData = (themeVariant: PaletteMode) => {
         accent: colors.greenAccent,
       },
       typography: {
-        main: themeVariant === THEME_VARIANTS.LIGHT ? colors.black : colors.white,
-        light: themeVariant === THEME_VARIANTS.LIGHT ? colors.darkGrey : colors.greenGrey,
-        contrastText: themeVariant === THEME_VARIANTS.LIGHT ? colors.white : colors.black,
+        main:
+          themeVariant === THEME_VARIANTS.LIGHT ? colors.black : colors.white,
+        light:
+          themeVariant === THEME_VARIANTS.LIGHT
+            ? colors.darkGrey
+            : colors.greenGrey,
+        contrastText:
+          themeVariant === THEME_VARIANTS.LIGHT ? colors.white : colors.black,
         accent: colors.aqua,
       },
       background: {
-        paper: themeVariant === THEME_VARIANTS.LIGHT ? colors.white : colors.darkGreen,
-        default: themeVariant === THEME_VARIANTS.LIGHT ? colors.iceWhite : colors.black,
-        accentDefault: themeVariant === THEME_VARIANTS.LIGHT ? colors.black : colors.white,
+        paper:
+          themeVariant === THEME_VARIANTS.LIGHT
+            ? colors.white
+            : colors.darkGreen,
+        default:
+          themeVariant === THEME_VARIANTS.LIGHT
+            ? colors.iceWhite
+            : colors.black,
+        accentDefault:
+          themeVariant === THEME_VARIANTS.LIGHT ? colors.black : colors.white,
         accentPaper: colors.matteGreen,
       },
       borders: {
-        paper: themeVariant === THEME_VARIANTS.LIGHT ? colors.purpleGrey : colors.blueGreen,
-        default: themeVariant === THEME_VARIANTS.LIGHT ? colors.lightGrey : colors.blueGreen,
+        paper:
+          themeVariant === THEME_VARIANTS.LIGHT
+            ? colors.purpleGrey
+            : colors.blueGreen,
+        default:
+          themeVariant === THEME_VARIANTS.LIGHT
+            ? colors.lightGrey
+            : colors.blueGreen,
         accentDefault: colors.greenGrey,
         accentPaper: colors.secondaryGrey,
       },
@@ -478,7 +514,8 @@ const getThemeData = (themeVariant: PaletteMode) => {
       green: 'linear-gradient(90deg, #004453 0%, #21B3B4 100%)',
       landing:
         'linear-gradient(271.53deg, rgba(191, 201, 245, 0.5) -60.81%, rgba(142, 161, 245, 0.5) -60.79%, #26CBCF 105.36%)',
-      landingVertical: 'linear-gradient(333.55deg, #49E0E6 14.29%, #21B3B4 82.14%)',
+      landingVertical:
+        'linear-gradient(333.55deg, #49E0E6 14.29%, #21B3B4 82.14%)',
       aqua: 'linear-gradient(180deg, #2BCAD0 0%, #8BC1E5 100%)',
       // Creates a "glow" effect on hover for an element where the gradient transitions
       // from one to another
@@ -486,7 +523,7 @@ const getThemeData = (themeVariant: PaletteMode) => {
         background: ${start};
         position: relative;
         z-index: ${zIndex};
-  
+
         &::before {
           position: absolute;
           content: '';
@@ -500,7 +537,7 @@ const getThemeData = (themeVariant: PaletteMode) => {
           transition: opacity 0.25s linear;
           opacity: 0;
         }
-  
+
         &:hover::before {
           opacity: 1;
         }

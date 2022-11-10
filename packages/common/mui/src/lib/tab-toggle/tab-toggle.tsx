@@ -7,7 +7,10 @@ export interface TabToggleProps extends TabsUnstyledProps {
   selectedTabIndex: number;
   tabLabels: React.ReactNode[];
   tabPanels: React.ReactNode[];
-  onChange?: (event: React.SyntheticEvent<Element, Event>, value: string | number) => void;
+  onChange?: (
+    event: React.SyntheticEvent<Element, Event>,
+    value: string | number | boolean
+  ) => void;
 }
 
 interface TabPanelProps extends BoxProps {
@@ -38,13 +41,24 @@ export const TabToggle = ({
         onChange={onChange}
       >
         {tabLabels.map((l, i) => {
-          return <StyledTab disableRipple={true} theme={theme} key={`tab-label-${i}`} label={l} />;
+          return (
+            <StyledTab
+              disableRipple={true}
+              theme={theme}
+              key={`tab-label-${i}`}
+              label={l}
+            />
+          );
         })}
       </StyledTabs>
       <Box id="tab-panels">
         {tabPanels.map((p, i) => {
           return (
-            <TabPanel index={i} selectedIndex={selectedTabIndex} key={`tab-panel-${i}`}>
+            <TabPanel
+              index={i}
+              selectedIndex={selectedTabIndex}
+              key={`tab-panel-${i}`}
+            >
               {p}
             </TabPanel>
           );
