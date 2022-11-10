@@ -1,0 +1,58 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "metrics",
+  "sourceRoot": "apps/metrics/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          {
+            "command": "wrangler publish --dry-run --outdir dist"
+          }
+        ],
+        "cwd": "apps/metrics"
+      }
+    },
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          {
+            "command": "wrangler dev --local"
+          }
+        ],
+        "cwd": "apps/metrics"
+      }
+    },
+    "publish": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          {
+            "command": "wrangler publish"
+          }
+        ],
+        "cwd": "apps/metrics"
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/metrics/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/apps/metrics"],
+      "options": {
+        "jestConfig": "apps/metrics/jest.config.ts",
+        "passWithNoTests": true
+      },
+      "dependsOn": ["build"]
+    }
+  },
+  "tags": []
+}
