@@ -37,8 +37,6 @@
       "@notional-finance/helpers": ["packages/shared/helpers/src/index.ts"],
       "@notional-finance/icons": ["packages/common/icons/src/index.ts"],
       "@notional-finance/icons/*": ["packages/common/icons/src/*"],
-      "@notional-finance/lang": ["packages/shared/lang/src/index.ts"],
-      "@notional-finance/lang/*": ["packages/shared/lang/src/*"],
       "@notional-finance/lend-feature-shell": [
         "packages/features/lend/src/index.ts"
       ],

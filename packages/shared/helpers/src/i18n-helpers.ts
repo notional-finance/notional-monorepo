@@ -5,17 +5,17 @@ export async function getLanguageTranslation(locale: string) {
   switch (localeCode) {
     case 'en-us' /* American English */:
       importedTranslation = await import(
-        /* webpackMode: "eager" */ '@notional-finance/lang/english.json'
+        /* webpackMode: "eager" */ './lang/english.json'
       );
       break;
     case 'zh' /* Chinese */:
       importedTranslation = await import(
-        /* webpackMode: "eager" */ '@notional-finance/lang/chinese.json'
+        /* webpackMode: "eager" */ './lang/chinese.json'
       );
       break;
     default:
       importedTranslation = await import(
-        /* webpackMode: "eager" */ '@notional-finance/lang/english.json'
+        /* webpackMode: "eager" */ './lang/english.json'
       );
       break;
   }

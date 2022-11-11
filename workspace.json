@@ -22,7 +22,6 @@
     "shared-assets": "packages/shared/assets",
     "shared-config": "packages/shared/config",
     "shared-helpers": "packages/shared/helpers",
-    "shared-lang": "packages/shared/lang",
     "shared-notionable-hooks": "packages/shared/notionable-hooks",
     "shared-risk": "packages/shared/risk",
     "shared-trade": "packages/shared/trade",

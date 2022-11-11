@@ -1,13 +1,15 @@
 import { useTheme, Box, Button } from '@mui/material';
-import { ButtonText } from '@notional-finance/mui';
-import DiscordIcon from '../discord-icon/discord-icon';
+import { ButtonText } from '../typography/typography';
+import { DiscordIcon } from '@notional-finance/icons';
 
 /* eslint-disable-next-line */
 export interface DiscordButtonGradientProps {
   buttonText: React.ReactNode;
 }
 
-export function DiscordButtonGradient({ buttonText }: DiscordButtonGradientProps) {
+export function DiscordButtonGradient({
+  buttonText,
+}: DiscordButtonGradientProps) {
   const theme = useTheme();
   return (
     <Button
@@ -29,7 +31,9 @@ export function DiscordButtonGradient({ buttonText }: DiscordButtonGradientProps
             justifyContent: 'center',
           }}
         >
-          <DiscordIcon sx={{ marginTop: '1px', fill: theme.palette.common.white }} />
+          <DiscordIcon
+            sx={{ marginTop: '1px', fill: theme.palette.common.white }}
+          />
         </Box>
       }
       href="https://discord.notional.finance"
