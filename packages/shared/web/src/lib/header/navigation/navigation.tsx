@@ -1,5 +1,5 @@
 import { NotionalPageLayoutOptions } from '@notional-finance/styles';
-import { THEME_VARIANTS } from '@notional-finance/utils';
+import { THEME_VARIANTS } from '@notional-finance/shared-config';
 import { Tab, Tabs, TabsProps, useTheme } from '@mui/material';
 import { useLocation, useHistory, Link } from 'react-router-dom';
 import { InvestAndEarnDropdown } from '../invest-and-earn/invest-and-earn-dropdown/invest-and-earn-dropdown';
@@ -13,7 +13,11 @@ export interface NavigationProps extends TabsProps {
   navLinks: INavLink[];
 }
 
-export function Navigation({ navLinks, pageLayout = 'landing', ...rest }: NavigationProps) {
+export function Navigation({
+  navLinks,
+  pageLayout = 'landing',
+  ...rest
+}: NavigationProps) {
   const theme = useTheme();
   const history = useHistory();
   const [selectedTab, setSelectedTab] = useState<string | false>(false);

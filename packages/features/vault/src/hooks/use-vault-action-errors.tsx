@@ -1,5 +1,6 @@
 import { LabelValue } from '@notional-finance/mui';
-import { formatLeverageRatio, VAULT_ACTIONS } from '@notional-finance/utils';
+import { formatLeverageRatio } from '@notional-finance/helpers';
+import { VAULT_ACTIONS } from '@notional-finance/shared-config';
 import { useVault, useVaultCapacity } from '@notional-finance/notionable-hooks';
 import { useContext } from 'react';
 import { MessageDescriptor } from 'react-intl';
@@ -30,13 +31,18 @@ export function useVaultActionErrors() {
       .abs()
       .lte(minAccountBorrowSize);
   } else if (vaultAccount && !fCashBorrowAmount && minAccountBorrowSize) {
-    underMinAccountBorrow = vaultAccount.primaryBorrowfCash.abs().lte(minAccountBorrowSize);
+    underMinAccountBorrow = vaultAccount.primaryBorrowfCash
+      .abs()
+      .lte(minAccountBorrowSize);
   } else if (fCashBorrowAmount && minAccountBorrowSize) {
     underMinAccountBorrow = fCashBorrowAmount.abs().lte(minAccountBorrowSize);
   }
 
   let inputErrorMsg: MessageDescriptor | undefined;
-  const { overCapacityError } = useVaultCapacity(vaultAddress, fCashBorrowAmount);
+  const { overCapacityError } = useVaultCapacity(
+    vaultAddress,
+    fCashBorrowAmount
+  );
   if (depositAmount && !selectedMarketKey) {
     inputErrorMsg = tradeErrors.selectMaturityToCompleteTrade;
   } else if (overCapacityError) {
@@ -46,7 +52,11 @@ export function useVaultActionErrors() {
   }
 
   let leverageRatioError: MessageDescriptor | undefined;
-  if (leverageRatio && minimumLeverageRatio && leverageRatio < minimumLeverageRatio) {
+  if (
+    leverageRatio &&
+    minimumLeverageRatio &&
+    leverageRatio < minimumLeverageRatio
+  ) {
     leverageRatioError = {
       ...messages.error.belowMinimumLeverage,
       values: {
@@ -70,7 +80,8 @@ export function useVaultActionErrors() {
     } as MessageDescriptor;
   }
 
-  const hasDepositAmount = vaultAction === VAULT_ACTIONS.ESTABLISH_ACCOUNT ? !!depositAmount : true;
+  const hasDepositAmount =
+    vaultAction === VAULT_ACTIONS.ESTABLISH_ACCOUNT ? !!depositAmount : true;
   const canSubmit =
     hasError === false &&
     inputErrorMsg === undefined &&

@@ -1,4 +1,4 @@
-import { PORTFOLIO_ACTIONS } from '@notional-finance/utils';
+import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
 import { defineMessages, MessageDescriptor } from 'react-intl';
 
 interface PortfolioMessages extends Record<string, MessageDescriptor> {
@@ -20,7 +20,10 @@ export const messages: Record<PORTFOLIO_ACTIONS, PortfolioMessages> = {
       defaultMessage: 'Deposit collateral to decrease your liquidation risk.',
       description: '',
     },
-    inputLabel: { defaultMessage: 'Enter the amount to deposit', description: '' },
+    inputLabel: {
+      defaultMessage: 'Enter the amount to deposit',
+      description: '',
+    },
   }),
   [PORTFOLIO_ACTIONS.REPAY_BORROW]: defineMessages({
     heading: { defaultMessage: 'Repay Borrow', description: '' },
@@ -28,7 +31,10 @@ export const messages: Record<PORTFOLIO_ACTIONS, PortfolioMessages> = {
       defaultMessage: 'Repay your borrow before maturity at the market rate.',
       description: '',
     },
-    inputLabel: { defaultMessage: 'Enter the amount of fCash to repay', description: '' },
+    inputLabel: {
+      defaultMessage: 'Enter the amount of fCash to repay',
+      description: '',
+    },
   }),
   [PORTFOLIO_ACTIONS.REPAY_CASH_DEBT]: defineMessages({
     heading: { defaultMessage: 'Repay Cash Debt', description: '' },
@@ -36,7 +42,10 @@ export const messages: Record<PORTFOLIO_ACTIONS, PortfolioMessages> = {
       defaultMessage: 'Repay your cash debt to avoid settlement penalties.',
       description: '',
     },
-    inputLabel: { defaultMessage: 'Enter the amount of cash to repay', description: '' },
+    inputLabel: {
+      defaultMessage: 'Enter the amount of cash to repay',
+      description: '',
+    },
   }),
   [PORTFOLIO_ACTIONS.REPAY_IFCASH_BORROW]: defineMessages({
     heading: { defaultMessage: 'Repay Idiosyncratic Debt', description: '' },
@@ -45,15 +54,22 @@ export const messages: Record<PORTFOLIO_ACTIONS, PortfolioMessages> = {
         'This debt can be collateralized by depositing cash of the same currency. This will act as an effective repayment and significantly reduce your liquidation risk.',
       description: '',
     },
-    inputLabel: { defaultMessage: 'Enter the amount of cash to deposit', description: '' },
+    inputLabel: {
+      defaultMessage: 'Enter the amount of cash to deposit',
+      description: '',
+    },
   }),
   [PORTFOLIO_ACTIONS.WITHDRAW]: defineMessages({
     heading: { defaultMessage: 'Withdraw', description: '' },
     helptext: {
-      defaultMessage: 'Withdraw balances from Notional into the connected wallet.',
+      defaultMessage:
+        'Withdraw balances from Notional into the connected wallet.',
       description: '',
     },
-    inputLabel: { defaultMessage: 'Enter the amount to withdraw', description: '' },
+    inputLabel: {
+      defaultMessage: 'Enter the amount to withdraw',
+      description: '',
+    },
     cashWithdrawn: { defaultMessage: 'Cash Withdrawn', description: '' },
     nTokensRedeemed: { defaultMessage: 'nTokens Redeemed', description: '' },
     incentivesMinted: { defaultMessage: 'Incentives Minted', description: '' },
@@ -77,7 +93,10 @@ export const messages: Record<PORTFOLIO_ACTIONS, PortfolioMessages> = {
         'Reduce your interest rate risk by redeeming nTokens and repaying debt at the same time.',
       description: '',
     },
-    inputLabel: { defaultMessage: 'Enter the amount of fCash debt to repay', description: '' },
+    inputLabel: {
+      defaultMessage: 'Enter the amount of fCash debt to repay',
+      description: '',
+    },
   }),
   // [PORTFOLIO_ACTIONS.DELEVERAGE_IDIOSYNCRATIC]: defineMessages({
   // "view.portfolio.actions.deleverage-idiosyncratic.heading: { defaultMessage: "Deleverage Idiosyncratic fCash", description: ""},
@@ -87,11 +106,18 @@ export const messages: Record<PORTFOLIO_ACTIONS, PortfolioMessages> = {
   [PORTFOLIO_ACTIONS.WITHDRAW_LEND]: defineMessages({
     heading: { defaultMessage: 'Withdraw Lend', description: '' },
     helptext: {
-      defaultMessage: 'Withdraw fCash for underlying cash at current market rates.',
+      defaultMessage:
+        'Withdraw fCash for underlying cash at current market rates.',
       description: '',
     },
-    inputLabel: { defaultMessage: 'Enter the amount of fCash to withdraw', description: '' },
-    withdrawToPortfolio: { defaultMessage: 'Withdraw to Portfolio', description: '' },
+    inputLabel: {
+      defaultMessage: 'Enter the amount of fCash to withdraw',
+      description: '',
+    },
+    withdrawToPortfolio: {
+      defaultMessage: 'Withdraw to Portfolio',
+      description: '',
+    },
     withdrawRate: { defaultMessage: 'Withdraw Rate', description: '' },
     cashToWallet: { defaultMessage: 'Cash to Wallet', description: '' },
   }),
@@ -102,7 +128,10 @@ export const messages: Record<PORTFOLIO_ACTIONS, PortfolioMessages> = {
         'Move your loan to a new maturity at a new market rate. Your current loan will be exchanged for a new loan at the selected maturity',
       description: '',
     },
-    inputLabel: { defaultMessage: '1. Select a maturity and fix your APR', description: '' },
+    inputLabel: {
+      defaultMessage: '1. Select a maturity and fix your APR',
+      description: '',
+    },
     partialRoll: { defaultMessage: 'Partial Roll', description: '' },
     partialRollInputLabel: {
       defaultMessage: '2. Enter the portion of your loan to roll',
@@ -116,7 +145,10 @@ export const messages: Record<PORTFOLIO_ACTIONS, PortfolioMessages> = {
         'Redeem nTokens to a cash balance manually, you will have to withdraw cTokens in a separate transaction after this is done.',
       description: '',
     },
-    inputLabel: { defaultMessage: 'Enter amount of nTokens to redeem', description: '' },
+    inputLabel: {
+      defaultMessage: 'Enter amount of nTokens to redeem',
+      description: '',
+    },
     cashToPortfolio: { defaultMessage: 'Cash to Portfolio', description: '' },
     redemptionFees: { defaultMessage: 'Redemption Fees', description: '' },
     incentivesMinted: { defaultMessage: 'Incentives Minted', description: '' },
@@ -124,9 +156,13 @@ export const messages: Record<PORTFOLIO_ACTIONS, PortfolioMessages> = {
   [PORTFOLIO_ACTIONS.WITHDRAW_VAULT]: defineMessages({
     heading: { defaultMessage: 'Withdraw Position', description: '' },
     cta: { defaultMessage: 'Withdraw', description: '' },
-    tooltip: { defaultMessage: 'Withdraw from your vault position.', description: '' },
+    tooltip: {
+      defaultMessage: 'Withdraw from your vault position.',
+      description: '',
+    },
     helptext: {
-      defaultMessage: 'Withdraw from your vault position fully or to a new leverage ratio.',
+      defaultMessage:
+        'Withdraw from your vault position fully or to a new leverage ratio.',
       description: 'helptext',
     },
     inputLabel: {
@@ -142,18 +178,21 @@ export const messages: Record<PORTFOLIO_ACTIONS, PortfolioMessages> = {
       description: 'info message',
     },
     unableToExit: {
-      defaultMessage: 'Unable to withdraw to target leverage ratio, reduce your withdraw amount',
+      defaultMessage:
+        'Unable to withdraw to target leverage ratio, reduce your withdraw amount',
       description: 'error message',
     },
     selectedLeverageRatioAboveMax: {
-      defaultMessage: 'Your account will be withdrawn to {maxLeverageRatio} leverage',
+      defaultMessage:
+        'Your account will be withdrawn to {maxLeverageRatio} leverage',
       description: 'info message',
     },
   }),
   [PORTFOLIO_ACTIONS.WITHDRAW_VAULT_POST_MATURITY]: defineMessages({
     heading: { defaultMessage: 'Withdraw Matured Position', description: '' },
     helptext: {
-      defaultMessage: 'Vault position matured, all profits will be withdrawn to your wallet.',
+      defaultMessage:
+        'Vault position matured, all profits will be withdrawn to your wallet.',
       description: '',
     },
     reenterVault: { defaultMessage: 'Re-Enter Vault', description: '' },
@@ -161,7 +200,8 @@ export const messages: Record<PORTFOLIO_ACTIONS, PortfolioMessages> = {
   [PORTFOLIO_ACTIONS.DELEVERAGE_VAULT]: defineMessages({
     heading: { defaultMessage: 'Deleverage Vault', description: 'heading' },
     helptext: {
-      defaultMessage: 'De-risk your vault position by repaying debts and reducing your leverage.',
+      defaultMessage:
+        'De-risk your vault position by repaying debts and reducing your leverage.',
       description: 'helptext',
     },
     aboveMaxLeverageError: {
@@ -183,25 +223,38 @@ export const messages: Record<PORTFOLIO_ACTIONS, PortfolioMessages> = {
       defaultMessage: 'Deposit additional collateral to reduce your leverage.',
       description: '',
     },
-    inputLabel: { defaultMessage: 'Enter amount to deposit into vault', description: '' },
+    inputLabel: {
+      defaultMessage: 'Enter amount to deposit into vault',
+      description: '',
+    },
     toggle: { defaultMessage: 'Deposit', description: '' },
   }),
   [PORTFOLIO_ACTIONS.DELEVERAGE_VAULT_SELL_ASSETS]: defineMessages({
     heading: { defaultMessage: 'Sell Assets', description: '' },
     helptext: {
-      defaultMessage: 'Sell vault assets and repay debt to reduce your leverage.',
+      defaultMessage:
+        'Sell vault assets and repay debt to reduce your leverage.',
       description: '',
     },
-    inputLabel: { defaultMessage: 'Select a target leverage ratio', description: '' },
+    inputLabel: {
+      defaultMessage: 'Select a target leverage ratio',
+      description: '',
+    },
     toggle: { defaultMessage: 'Sell Assets', description: '' },
   }),
   [PORTFOLIO_ACTIONS.GET_NOTIFIED]: defineMessages({
     heading: { defaultMessage: 'Get Notified', description: '' },
-    helptext: { defaultMessage: 'Receive notifications for important events.', description: '' },
+    helptext: {
+      defaultMessage: 'Receive notifications for important events.',
+      description: '',
+    },
   }),
   [PORTFOLIO_ACTIONS.REMIND_ME]: defineMessages({
     heading: { defaultMessage: 'Remind Me', description: '' },
-    helptext: { defaultMessage: 'Set calendar reminders for important dates.', description: '' },
+    helptext: {
+      defaultMessage: 'Set calendar reminders for important dates.',
+      description: '',
+    },
   }),
   // heading": "Deleverage Vault", description: ""},
   // cta": "Deleverage", description: ""},

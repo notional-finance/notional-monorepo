@@ -1,5 +1,12 @@
 import { Fragment, SetStateAction, Dispatch } from 'react';
-import { TableCell, TableBody, TableRow, TableRowProps, useTheme, Collapse } from '@mui/material';
+import {
+  TableCell,
+  TableBody,
+  TableRow,
+  TableRowProps,
+  useTheme,
+  Collapse,
+} from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { ExpandedRows, TABLE_VARIANTS } from '../data-table';
 import { NotionalTheme } from '@notional-finance/styles';
@@ -37,29 +44,41 @@ const StyledTableRow = styled(TableRow, {
       ${
         expandableTableActive || tableVariant === TABLE_VARIANTS.MINI
           ? `background: ${palette.background.paper};`
-          : `background: ${rowSelected ? palette.info.light : palette.background.default};`
+          : `background: ${
+              rowSelected ? palette.info.light : palette.background.default
+            };`
       }
     };
     cursor: ${expandableTableActive ? 'pointer' : ''};
     background: ${rowSelected ? palette.info.light : 'transparent'};
     box-sizing: border-box;
-    box-shadow: ${rowSelected ? `0px 0px 6px 0px ${palette.primary.light}` : 'none'};
+    box-shadow: ${
+      rowSelected ? `0px 0px 6px 0px ${palette.primary.light}` : 'none'
+    };
     .MuiTableRow-root, td {
       .border-cell {
         height: 100%;
         padding: ${!expandableTableActive ? '16px 24px' : '0px'};
-        border-top: 1px solid ${rowSelected ? palette.primary.light : 'transparent'};
-        border-bottom: 1px solid ${rowSelected ? palette.primary.light : 'transparent'};
+        border-top: 1px solid ${
+          rowSelected ? palette.primary.light : 'transparent'
+        };
+        border-bottom: 1px solid ${
+          rowSelected ? palette.primary.light : 'transparent'
+        };
       }
     }
     .MuiTableRow-root, td:last-child {
       .border-cell {
-        border-right: 1px solid ${rowSelected ? palette.primary.light : 'transparent'};
+        border-right: 1px solid ${
+          rowSelected ? palette.primary.light : 'transparent'
+        };
       }
     }
     .MuiTableRow-root, td:first-of-type {
       .border-cell {
-        border-left: 1px solid ${rowSelected ? palette.primary.light : 'transparent'};
+        border-left: 1px solid ${
+          rowSelected ? palette.primary.light : 'transparent'
+        };
       }
     }
   `
@@ -84,7 +103,9 @@ export const DataTableBody = ({
         const styleLastRow = lastRow['id'] === row['id'];
         const { cells } = row;
         const expandableTableActive = CustomRowComponent ? true : false;
-        const isExpanded = initialState?.expanded ? initialState?.expanded[i] : false;
+        const isExpanded = initialState?.expanded
+          ? initialState?.expanded[i]
+          : false;
 
         const handleClick = () => {
           if (expandableTableActive && setExpandedRows) {
@@ -134,7 +155,10 @@ export const DataTableBody = ({
             </StyledTableRow>
             {CustomRowComponent && (
               <TableRow key={`sub-row-${i}`}>
-                <TableCell sx={{ padding: '0px', borderBottom: 'none' }} colSpan={cells.length}>
+                <TableCell
+                  sx={{ padding: '0px', borderBottom: 'none' }}
+                  colSpan={cells.length}
+                >
                   <Collapse in={isExpanded} sx={{ margin: '0px' }}>
                     <CustomRowComponent row={row} />
                   </Collapse>

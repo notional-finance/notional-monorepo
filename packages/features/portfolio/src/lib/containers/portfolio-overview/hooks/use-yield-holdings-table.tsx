@@ -11,7 +11,7 @@ import {
   formatLeverageRatio,
   formatMaturity,
   formatValueWithFiat,
-} from '@notional-finance/utils';
+} from '@notional-finance/helpers';
 import { FormattedMessage } from 'react-intl';
 
 export const useYieldHoldingsTable = () => {

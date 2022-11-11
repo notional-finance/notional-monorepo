@@ -19,6 +19,9 @@
     "metrics": "apps/metrics",
     "notionable": "packages/notionable",
     "sdk": "packages/sdk",
+    "shared-assets": "packages/shared/assets",
+    "shared-config": "packages/shared/config",
+    "shared-helpers": "packages/shared/helpers",
     "shared-notionable-hooks": "packages/shared/notionable-hooks",
     "shared-risk": "packages/shared/risk",
     "shared-trade": "packages/shared/trade",
@@ -27,7 +30,6 @@
     "shared-web": "packages/shared/web",
     "system-cache": "apps/system-cache",
     "util": "packages/util",
-    "web": "apps/web",
-    "shared-assets": "packages/shared/assets"
+    "web": "apps/web"
   }
 }

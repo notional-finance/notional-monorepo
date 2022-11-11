@@ -3,12 +3,9 @@ import { TransactionData } from '@notional-finance/notionable';
 import { AssetType, TypedBigNumber } from '@notional-finance/sdk';
 import { Market } from '@notional-finance/sdk/src/system';
 import { TradePropertyKeys } from '@notional-finance/trade';
-import {
-  convertRateToFloat,
-  LEND_BORROW,
-  tradeDefaults,
-  useFormState,
-} from '@notional-finance/utils';
+import { useFormState } from '@notional-finance/utils';
+import { LEND_BORROW, tradeDefaults } from '@notional-finance/shared-config';
+import { convertRateToFloat } from '@notional-finance/helpers';
 
 interface RollMaturityState {
   inputAmount: TypedBigNumber | undefined;
@@ -27,7 +24,8 @@ const initialRollMaturityState = {
 export function useRollMaturity(assetKey: string | undefined) {
   const [rollMaturityState, updateRollMaturityState] =
     useFormState<RollMaturityState>(initialRollMaturityState);
-  const { inputAmount, hasError, selectedMarketKey, partialRoll } = rollMaturityState;
+  const { inputAmount, hasError, selectedMarketKey, partialRoll } =
+    rollMaturityState;
   const { notional } = useNotional();
   const { address, accountDataCopy, assetSummary } = useAccount();
 
@@ -43,7 +41,9 @@ export function useRollMaturity(assetKey: string | undefined) {
         inputAmount?.neg() ?? selectedAsset?.fCash?.notional;
 
   const rollFactors =
-    selectedAsset && rollfCashAmount ? selectedAsset.getRollFactors(rollfCashAmount) : [];
+    selectedAsset && rollfCashAmount
+      ? selectedAsset.getRollFactors(rollfCashAmount)
+      : [];
   const maturityData = rollFactors.map(({ tradeRate, market }) => {
     return {
       marketKey: market.marketKey,
@@ -86,7 +86,10 @@ export function useRollMaturity(assetKey: string | undefined) {
     });
 
     const buildTransactionCall = {
-      transactionFn: lendOrBorrow === LEND_BORROW.BORROW ? notional.rollBorrow : notional.rollLend,
+      transactionFn:
+        lendOrBorrow === LEND_BORROW.BORROW
+          ? notional.rollBorrow
+          : notional.rollLend,
       transactionArgs: [
         address,
         selectedAsset.fCash,

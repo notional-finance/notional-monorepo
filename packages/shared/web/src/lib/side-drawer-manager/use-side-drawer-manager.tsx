@@ -1,4 +1,8 @@
-import { SIDEBAR_CATEGORIES, PORTFOLIO_ACTIONS, SIDE_DRAWERS } from '@notional-finance/utils';
+import {
+  SIDEBAR_CATEGORIES,
+  PORTFOLIO_ACTIONS,
+  SIDE_DRAWERS,
+} from '@notional-finance/shared-config';
 import { useSideDrawerState } from './store/use-side-drawer-state';
 import {
   AddToCalendar,
@@ -56,7 +60,8 @@ export const useSideDrawerManager = (key?: SIDE_DRAWERS) => {
     [PORTFOLIO_ACTIONS.ADD_TO_CALENDAR]: AddToCalendar,
   };
 
-  const SideDrawerComponent = key && sideDrawers[key] ? sideDrawers[key] : undefined;
+  const SideDrawerComponent =
+    key && sideDrawers[key] ? sideDrawers[key] : undefined;
   const drawerOpen = sideDrawerOpen && SideDrawerComponent ? true : false;
 
   return {

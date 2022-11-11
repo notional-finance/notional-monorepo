@@ -1,16 +1,17 @@
-import { Tabs as MuiTabs, Tab, styled } from '@mui/material'
-import { LEND_BORROW } from '@notional-finance/utils'
-import { FormattedMessage } from 'react-intl'
-import { updateLandingState, useLandingPageInput } from '../../store'
+import { Tabs as MuiTabs, Tab, styled } from '@mui/material';
+import { LEND_BORROW } from '@notional-finance/shared-config';
+import { FormattedMessage } from 'react-intl';
+import { updateLandingState, useLandingPageInput } from '../../store';
 
 export const Tabs = () => {
-  const { lendOrBorrow } = useLandingPageInput()
-  const tabSelected = lendOrBorrow === LEND_BORROW.BORROW ? 0 : 1
+  const { lendOrBorrow } = useLandingPageInput();
+  const tabSelected = lendOrBorrow === LEND_BORROW.BORROW ? 0 : 1;
 
   const handleChange = (_, newValue: number) => {
-    const newLendOrBorrow = newValue === 0 ? LEND_BORROW.BORROW : LEND_BORROW.LEND
-    updateLandingState({ lendOrBorrow: newLendOrBorrow })
-  }
+    const newLendOrBorrow =
+      newValue === 0 ? LEND_BORROW.BORROW : LEND_BORROW.LEND;
+    updateLandingState({ lendOrBorrow: newLendOrBorrow });
+  };
 
   return (
     <StyledTabs
@@ -18,26 +19,26 @@ export const Tabs = () => {
       onChange={handleChange}
       aria-label="tabs"
       classes={{
-        indicator: 'MuiTabs-indicator'
+        indicator: 'MuiTabs-indicator',
       }}
     >
       <Tab
         label={<FormattedMessage defaultMessage={'Borrow'} />}
         classes={{
           root: 'MuiTab-root',
-          selected: 'MuiTab-selected'
+          selected: 'MuiTab-selected',
         }}
       />
       <Tab
         label={<FormattedMessage defaultMessage={'Lend'} />}
         classes={{
           root: 'MuiTab-root',
-          selected: 'MuiTab-selected'
+          selected: 'MuiTab-selected',
         }}
       />
     </StyledTabs>
-  )
-}
+  );
+};
 
 const StyledTabs = styled(MuiTabs)(
   ({ theme }) => `
@@ -65,4 +66,4 @@ const StyledTabs = styled(MuiTabs)(
     color: ${theme.palette.common.black} !important;
   }
 `
-)
+);

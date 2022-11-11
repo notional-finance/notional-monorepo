@@ -1,7 +1,11 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useAssetSummary } from '@notional-finance/notionable-hooks';
 import { MaturityData } from '@notional-finance/notionable';
-import { LEND_BORROW, formatCryptoWithFiat, formatMaturity } from '@notional-finance/utils';
+import {
+  formatCryptoWithFiat,
+  formatMaturity,
+} from '@notional-finance/helpers';
+import { LEND_BORROW } from '@notional-finance/shared-config';
 import {
   ExpandableCurrencyCell,
   ChevronCell,
@@ -33,14 +37,24 @@ export const useAssetSummaryTable = (borrowOrLend: LEND_BORROW) => {
         textAlign: 'left',
       },
       {
-        Header: <FormattedMessage defaultMessage="Currency" description={'Currency header'} />,
+        Header: (
+          <FormattedMessage
+            defaultMessage="Currency"
+            description={'Currency header'}
+          />
+        ),
         expandableTable: true,
         Cell: ExpandableCurrencyCell,
         accessor: 'currency',
         textAlign: 'left',
       },
       {
-        Header: <FormattedMessage defaultMessage="Maturity" description={'Maturity header'} />,
+        Header: (
+          <FormattedMessage
+            defaultMessage="Maturity"
+            description={'Maturity header'}
+          />
+        ),
         expandableTable: true,
         Cell: DateTimeCell,
         accessor: 'maturity',
@@ -48,7 +62,10 @@ export const useAssetSummaryTable = (borrowOrLend: LEND_BORROW) => {
       },
       {
         Header: (
-          <FormattedMessage defaultMessage="Current Value" description={'Current Value header'} />
+          <FormattedMessage
+            defaultMessage="Current Value"
+            description={'Current Value header'}
+          />
         ),
         expandableTable: true,
         Cell: MultiValueCell,
@@ -68,7 +85,12 @@ export const useAssetSummaryTable = (borrowOrLend: LEND_BORROW) => {
         textAlign: 'right',
       },
       {
-        Header: <FormattedMessage defaultMessage="Fixed APY" description={'Fixed APY header'} />,
+        Header: (
+          <FormattedMessage
+            defaultMessage="Fixed APY"
+            description={'Fixed APY header'}
+          />
+        ),
         expandableTable: true,
         Cell: BorderCell,
         accessor: 'fixedApy',
@@ -95,8 +117,12 @@ export const useAssetSummaryTable = (borrowOrLend: LEND_BORROW) => {
         maturity: data.maturity,
         currentValue: formatCryptoWithFiat(data.currentValue),
         dueAtMaturity: formatCryptoWithFiat(data.dueAtMaturity),
-        fixedApy: data?.fixedAPY ? Market.formatInterestRate(data.fixedAPY) : '-',
-        rollMaturities: data?.rollMaturities?.length ? formatMaturities(data.rollMaturities) : [],
+        fixedApy: data?.fixedAPY
+          ? Market.formatInterestRate(data.fixedAPY)
+          : '-',
+        rollMaturities: data?.rollMaturities?.length
+          ? formatMaturities(data.rollMaturities)
+          : [],
         borrowOrLend: LEND_BORROW.LEND,
         rawMaturity: moment.unix(data.maturity).format(),
         removeAssetRoute: data.removeAssetRoute,
@@ -105,14 +131,25 @@ export const useAssetSummaryTable = (borrowOrLend: LEND_BORROW) => {
   }, [assetSummary]);
 
   useEffect(() => {
-    const formattedExpandedRows = assetSummaryData.reduce((accumulator, value, index) => {
-      return { ...accumulator, [index]: index === 0 ? true : false };
-    }, {});
+    const formattedExpandedRows = assetSummaryData.reduce(
+      (accumulator, value, index) => {
+        return { ...accumulator, [index]: index === 0 ? true : false };
+      },
+      {}
+    );
 
-    if (expandedRows === null && JSON.stringify(formattedExpandedRows) !== '{}') {
+    if (
+      expandedRows === null &&
+      JSON.stringify(formattedExpandedRows) !== '{}'
+    ) {
       setExpandedRows(formattedExpandedRows);
     }
   }, [assetSummaryData, expandedRows, setExpandedRows]);
 
-  return { assetSummaryData, assetSummaryColumns, initialState, setExpandedRows };
+  return {
+    assetSummaryData,
+    assetSummaryColumns,
+    initialState,
+    setExpandedRows,
+  };
 };

@@ -1,7 +1,7 @@
 import { CountUp } from '@notional-finance/mui';
 import { TypedBigNumber } from '@notional-finance/sdk';
 import { RATE_PRECISION } from '@notional-finance/sdk/src/config/constants';
-import { convertRateToFloat, formatMaturity } from '@notional-finance/utils';
+import { convertRateToFloat, formatMaturity } from '@notional-finance/helpers';
 import { defineMessage, MessageDescriptor } from 'react-intl';
 
 export enum TradePropertyKeys {
@@ -90,10 +90,16 @@ export type TradeProperties = Partial<{
   [TradePropertyKeys.remainingAssets]: TypedBigNumber;
 }>;
 
-const formatDisplayString = (val: TypedBigNumber) => val.toDisplayStringWithSymbol(3);
-const formatfCashString = (val: TypedBigNumber) => val.toDisplayStringWithfCashSymbol(3);
-const countUpPercentage = (val: number) => <CountUp value={val} suffix="%" decimals={2} />;
-const countUpUSDAmount = (val: number) => <CountUp value={val} prefix="$" decimals={2} />;
+const formatDisplayString = (val: TypedBigNumber) =>
+  val.toDisplayStringWithSymbol(3);
+const formatfCashString = (val: TypedBigNumber) =>
+  val.toDisplayStringWithfCashSymbol(3);
+const countUpPercentage = (val: number) => (
+  <CountUp value={val} suffix="%" decimals={2} />
+);
+const countUpUSDAmount = (val: number) => (
+  <CountUp value={val} prefix="$" decimals={2} />
+);
 const countUpInterestRate = (val: number) => (
   <CountUp value={convertRateToFloat(val)} suffix="% APY" decimals={2} />
 );
@@ -103,48 +109,49 @@ export const countUpLeverageRatio = (val: number) => (
 const identity = (val: any) => val;
 type PropertyFormatter = (val: any) => React.ReactNode;
 
-export const PropertyFormatters: Record<TradePropertyKeys, PropertyFormatter> = {
-  [TradePropertyKeys.maturity]: formatMaturity,
-  [TradePropertyKeys.newMaturity]: formatMaturity,
-  [TradePropertyKeys.collateralRatio]: countUpPercentage,
-  [TradePropertyKeys.nTokenShare]: countUpPercentage,
-  [TradePropertyKeys.loanToValue]: countUpPercentage,
-  [TradePropertyKeys.apy]: countUpInterestRate,
-  [TradePropertyKeys.repaymentRate]: countUpInterestRate,
-  [TradePropertyKeys.withdrawLendRate]: countUpInterestRate,
-  [TradePropertyKeys.collateralAPY]: countUpPercentage,
-  [TradePropertyKeys.collateralType]: identity,
-  [TradePropertyKeys.leverageRatio]: countUpLeverageRatio,
-  [TradePropertyKeys.notePrice]: countUpUSDAmount,
-  [TradePropertyKeys.deposit]: formatDisplayString,
-  [TradePropertyKeys.fromCashBalance]: formatDisplayString,
-  [TradePropertyKeys.fromWalletBalance]: formatDisplayString,
-  [TradePropertyKeys.interestEarned]: formatDisplayString,
-  [TradePropertyKeys.amountToWallet]: formatDisplayString,
-  [TradePropertyKeys.amountToPortfolio]: formatDisplayString,
-  [TradePropertyKeys.interestDue]: formatDisplayString,
-  [TradePropertyKeys.collateralDeposit]: formatDisplayString,
-  [TradePropertyKeys.incentivesMinted]: formatDisplayString,
-  [TradePropertyKeys.nTokensMinted]: formatDisplayString,
-  [TradePropertyKeys.nTokensRedeemed]: formatDisplayString,
-  [TradePropertyKeys.assetsSold]: formatDisplayString,
-  [TradePropertyKeys.costToRepay]: formatDisplayString,
-  [TradePropertyKeys.transactionCosts]: formatDisplayString,
-  [TradePropertyKeys.nTokenRedeemSlippage]: formatDisplayString,
-  [TradePropertyKeys.noteDeposit]: formatDisplayString,
-  [TradePropertyKeys.ethDeposit]: formatDisplayString,
-  [TradePropertyKeys.ethReceived]: formatDisplayString,
-  [TradePropertyKeys.noteReceived]: formatDisplayString,
-  [TradePropertyKeys.sNOTERedeemed]: formatDisplayString,
-  [TradePropertyKeys.debtRepaid]: formatfCashString,
-  [TradePropertyKeys.fCashMinted]: formatfCashString,
-  [TradePropertyKeys.newfCashAmount]: formatfCashString,
-  [TradePropertyKeys.redeemWindowBegins]: identity,
-  [TradePropertyKeys.redeemWindowEnds]: identity,
-  [TradePropertyKeys.additionalDebt]: formatfCashString,
-  [TradePropertyKeys.remainingDebt]: formatDisplayString,
-  [TradePropertyKeys.remainingAssets]: formatDisplayString,
-};
+export const PropertyFormatters: Record<TradePropertyKeys, PropertyFormatter> =
+  {
+    [TradePropertyKeys.maturity]: formatMaturity,
+    [TradePropertyKeys.newMaturity]: formatMaturity,
+    [TradePropertyKeys.collateralRatio]: countUpPercentage,
+    [TradePropertyKeys.nTokenShare]: countUpPercentage,
+    [TradePropertyKeys.loanToValue]: countUpPercentage,
+    [TradePropertyKeys.apy]: countUpInterestRate,
+    [TradePropertyKeys.repaymentRate]: countUpInterestRate,
+    [TradePropertyKeys.withdrawLendRate]: countUpInterestRate,
+    [TradePropertyKeys.collateralAPY]: countUpPercentage,
+    [TradePropertyKeys.collateralType]: identity,
+    [TradePropertyKeys.leverageRatio]: countUpLeverageRatio,
+    [TradePropertyKeys.notePrice]: countUpUSDAmount,
+    [TradePropertyKeys.deposit]: formatDisplayString,
+    [TradePropertyKeys.fromCashBalance]: formatDisplayString,
+    [TradePropertyKeys.fromWalletBalance]: formatDisplayString,
+    [TradePropertyKeys.interestEarned]: formatDisplayString,
+    [TradePropertyKeys.amountToWallet]: formatDisplayString,
+    [TradePropertyKeys.amountToPortfolio]: formatDisplayString,
+    [TradePropertyKeys.interestDue]: formatDisplayString,
+    [TradePropertyKeys.collateralDeposit]: formatDisplayString,
+    [TradePropertyKeys.incentivesMinted]: formatDisplayString,
+    [TradePropertyKeys.nTokensMinted]: formatDisplayString,
+    [TradePropertyKeys.nTokensRedeemed]: formatDisplayString,
+    [TradePropertyKeys.assetsSold]: formatDisplayString,
+    [TradePropertyKeys.costToRepay]: formatDisplayString,
+    [TradePropertyKeys.transactionCosts]: formatDisplayString,
+    [TradePropertyKeys.nTokenRedeemSlippage]: formatDisplayString,
+    [TradePropertyKeys.noteDeposit]: formatDisplayString,
+    [TradePropertyKeys.ethDeposit]: formatDisplayString,
+    [TradePropertyKeys.ethReceived]: formatDisplayString,
+    [TradePropertyKeys.noteReceived]: formatDisplayString,
+    [TradePropertyKeys.sNOTERedeemed]: formatDisplayString,
+    [TradePropertyKeys.debtRepaid]: formatfCashString,
+    [TradePropertyKeys.fCashMinted]: formatfCashString,
+    [TradePropertyKeys.newfCashAmount]: formatfCashString,
+    [TradePropertyKeys.redeemWindowBegins]: identity,
+    [TradePropertyKeys.redeemWindowEnds]: identity,
+    [TradePropertyKeys.additionalDebt]: formatfCashString,
+    [TradePropertyKeys.remainingDebt]: formatDisplayString,
+    [TradePropertyKeys.remainingAssets]: formatDisplayString,
+  };
 
 export const PropertyMessages: Record<TradePropertyKeys, MessageDescriptor> = {
   [TradePropertyKeys.deposit]: defineMessage({
@@ -163,7 +170,10 @@ export const PropertyMessages: Record<TradePropertyKeys, MessageDescriptor> = {
     defaultMessage: 'Interest Earned',
     description: 'value label',
   }),
-  [TradePropertyKeys.apy]: defineMessage({ defaultMessage: 'APY', description: 'value label' }),
+  [TradePropertyKeys.apy]: defineMessage({
+    defaultMessage: 'APY',
+    description: 'value label',
+  }),
   [TradePropertyKeys.fCashMinted]: defineMessage({
     defaultMessage: 'fCash Minted',
     description: 'value label',

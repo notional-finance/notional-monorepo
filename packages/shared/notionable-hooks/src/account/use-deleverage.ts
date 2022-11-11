@@ -1,4 +1,5 @@
-import { formatMaturity, PORTFOLIO_ACTIONS } from '@notional-finance/utils';
+import { formatMaturity } from '@notional-finance/helpers';
+import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
 import { CashGroup } from '@notional-finance/sdk/src/system';
 import { useNotional } from '../notional/use-notional';
 import { useAccount } from './use-account';
@@ -19,7 +20,9 @@ export function useDeleverage() {
       // Sort from largest debt to smallest
       .sort((a, b) => (a.notional.gt(b.notional) ? -1 : 1))
       .map((a) => {
-        const hasMatchingNToken = accountData.nTokenBalance(a.currencyId)?.isPositive();
+        const hasMatchingNToken = accountData
+          .nTokenBalance(a.currencyId)
+          ?.isPositive();
         const isIdiosyncratic = CashGroup.isIdiosyncratic(a.maturity);
         const underlyingSymbol = system.getUnderlyingSymbol(a.currencyId);
         const assetKey = `${a.currencyId}:${a.maturity}`;

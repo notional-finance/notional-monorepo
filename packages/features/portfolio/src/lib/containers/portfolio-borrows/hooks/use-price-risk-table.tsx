@@ -1,11 +1,15 @@
 import { useMemo } from 'react';
 import { useRiskThresholds } from '@notional-finance/notionable-hooks';
-import { IconCell, MultiValueCell, NegativeValueCell } from '@notional-finance/mui';
+import {
+  IconCell,
+  MultiValueCell,
+  NegativeValueCell,
+} from '@notional-finance/mui';
 import {
   formatFiatWithPercent,
   formatNumberAsPercent,
   formatNumber,
-} from '@notional-finance/utils';
+} from '@notional-finance/helpers';
 import { useCryptoPriceState } from '@notional-finance/notional-web';
 
 export const usePriceRiskTable = () => {
@@ -88,7 +92,9 @@ export const usePriceRiskTable = () => {
             ? formatNegativeValueCell(cryptoPriceBySymbol['7D'])
             : { displayValue: '-' },
           liquidationPrice: formatFiatWithPercent(data.liquidationPrice),
-          penalty: formatFiatWithPercent(data.totalPenaltyETHValueAtLiquidationPrice),
+          penalty: formatFiatWithPercent(
+            data.totalPenaltyETHValueAtLiquidationPrice
+          ),
         };
       });
     }

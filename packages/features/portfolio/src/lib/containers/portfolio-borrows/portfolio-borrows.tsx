@@ -1,14 +1,23 @@
 import { DataTable } from '@notional-finance/mui';
 import { TableActionRow, EmptyPortfolio } from '../../components';
-import { LEND_BORROW } from '@notional-finance/utils';
+import { LEND_BORROW } from '@notional-finance/shared-config';
 import { useBorrowTabTable } from './hooks';
 import { useAssetSummaryTable } from '../../hooks';
 
 export const PortfolioBorrows = () => {
-  const { assetSummaryData, assetSummaryColumns, initialState, setExpandedRows } =
-    useAssetSummaryTable(LEND_BORROW.BORROW);
-  const { tableData, tableColumns, tabBarProps, CustomTabComponent, isTabComponentVisible } =
-    useBorrowTabTable();
+  const {
+    assetSummaryData,
+    assetSummaryColumns,
+    initialState,
+    setExpandedRows,
+  } = useAssetSummaryTable(LEND_BORROW.BORROW);
+  const {
+    tableData,
+    tableColumns,
+    tabBarProps,
+    CustomTabComponent,
+    isTabComponentVisible,
+  } = useBorrowTabTable();
 
   return assetSummaryData.length ? (
     <>

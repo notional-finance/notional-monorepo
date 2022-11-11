@@ -1,4 +1,4 @@
-import { formatBigNumberToDecimals } from '@notional-finance/utils';
+import { formatBigNumberToDecimals } from '@notional-finance/helpers';
 import { DateTimeCell, IconCell } from '@notional-finance/mui';
 import { BigNumber } from 'ethers';
 import { useObservableState } from 'observable-hooks';
@@ -41,8 +41,16 @@ export const useOpenOrderTable = () => {
       return {
         orderId: (i + 1).toString(),
         symbol: 'COMP',
-        makerAmount: formatBigNumberToDecimals(BigNumber.from(o.makerAssetAmount), 18, 3),
-        takerAmount: formatBigNumberToDecimals(BigNumber.from(o.takerAssetAmount), 18, 3),
+        makerAmount: formatBigNumberToDecimals(
+          BigNumber.from(o.makerAssetAmount),
+          18,
+          3
+        ),
+        takerAmount: formatBigNumberToDecimals(
+          BigNumber.from(o.takerAssetAmount),
+          18,
+          3
+        ),
         expirationTime: BigNumber.from(o.expirationTimeSeconds).toNumber(),
       };
     }) || [];

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { datadogRum } from '@datadog/browser-rum';
-import { useImpactTracking, trackGA } from '@notional-finance/utils';
+import { useImpactTracking } from '@notional-finance/utils';
+import { trackGA } from '@notional-finance/helpers';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { BrowserRouter, Switch } from 'react-router-dom';

@@ -1,4 +1,4 @@
-import { LEND_BORROW } from '@notional-finance/utils';
+import { LEND_BORROW } from '@notional-finance/shared-config';
 import { defineMessages, MessageDescriptor } from 'react-intl';
 
 interface MessageData {

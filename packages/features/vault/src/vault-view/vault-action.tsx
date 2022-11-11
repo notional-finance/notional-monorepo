@@ -13,7 +13,7 @@ import {
 } from '@notional-finance/mui';
 import { TradeActionButton, WalletDepositInput } from '@notional-finance/trade';
 import { VaultRiskTable } from '@notional-finance/risk';
-import { VAULT_ACTIONS } from '@notional-finance/utils';
+import { VAULT_ACTIONS } from '@notional-finance/shared-config';
 import { FormattedMessage } from 'react-intl';
 import { useVaultActionErrors } from '../hooks/use-vault-action-errors';
 import { messages } from '../messages';
@@ -50,10 +50,18 @@ export const VaultAction = () => {
     leverageRatio,
     fCashBorrowAmount,
   } = state;
-  const { underMinAccountBorrow, inputErrorMsg, leverageRatioError, canSubmit } =
-    useVaultActionErrors();
-  const { minBorrowSize, minDepositRequired, maxLeverageRatio, primaryBorrowSymbol } =
-    useVault(vaultAddress);
+  const {
+    underMinAccountBorrow,
+    inputErrorMsg,
+    leverageRatioError,
+    canSubmit,
+  } = useVaultActionErrors();
+  const {
+    minBorrowSize,
+    minDepositRequired,
+    maxLeverageRatio,
+    primaryBorrowSymbol,
+  } = useVault(vaultAddress);
 
   useEffect(() => {
     if (leverageRatio) setSliderInput(leverageRatio / RATE_PRECISION);
@@ -63,8 +71,16 @@ export const VaultAction = () => {
 
   if (noEligibleMarketsReason) {
     return (
-      <ActionSidebar heading={messages.error.noEligibleMarkets} helptext={noEligibleMarketsReason}>
-        <Button variant="outlined" color="primary" sx={{ width: '100%' }} to="/portfolio/vaults">
+      <ActionSidebar
+        heading={messages.error.noEligibleMarkets}
+        helptext={noEligibleMarketsReason}
+      >
+        <Button
+          variant="outlined"
+          color="primary"
+          sx={{ width: '100%' }}
+          to="/portfolio/vaults"
+        >
           <FormattedMessage {...messages.error.returnToPortfolio} />
         </Button>
       </ActionSidebar>
@@ -98,7 +114,9 @@ export const VaultAction = () => {
       helptext={
         mustBlockGeo
           ? messages.error.blockedGeoActionHelptext
-          : Object.assign(msg.helptext, { values: { minDepositRequired, minBorrowSize } })
+          : Object.assign(msg.helptext, {
+              values: { minDepositRequired, minBorrowSize },
+            })
       }
       CustomActionButton={mustBlockGeo ? WriteCongress : TradeActionButton}
       canSubmit={canSubmit}
@@ -107,17 +125,25 @@ export const VaultAction = () => {
         eligibleActions.length > 1 &&
         vaultAction !== VAULT_ACTIONS.ESTABLISH_ACCOUNT && (
           <TabToggle
-            selectedTabIndex={vaultAction === VAULT_ACTIONS.INCREASE_POSITION ? 0 : 1}
+            selectedTabIndex={
+              vaultAction === VAULT_ACTIONS.INCREASE_POSITION ? 0 : 1
+            }
             tabLabels={[
-              <FormattedMessage {...messages[VAULT_ACTIONS.INCREASE_POSITION].tabLabel} />,
-              <FormattedMessage {...messages[VAULT_ACTIONS.ROLL_POSITION].tabLabel} />,
+              <FormattedMessage
+                {...messages[VAULT_ACTIONS.INCREASE_POSITION].tabLabel}
+              />,
+              <FormattedMessage
+                {...messages[VAULT_ACTIONS.ROLL_POSITION].tabLabel}
+              />,
             ]}
             // Just use the toggle for styling so show empty boxes here
             tabPanels={[<Box />, <Box />]}
             onChange={(_, value) => {
               updateState({
                 vaultAction:
-                  value === 0 ? VAULT_ACTIONS.INCREASE_POSITION : VAULT_ACTIONS.ROLL_POSITION,
+                  value === 0
+                    ? VAULT_ACTIONS.INCREASE_POSITION
+                    : VAULT_ACTIONS.ROLL_POSITION,
               });
             }}
           />
@@ -148,7 +174,9 @@ export const VaultAction = () => {
         min={0}
         max={maxLeverageRatio / RATE_PRECISION}
         onChangeCommitted={(leverageRatio) =>
-          updateState({ leverageRatio: Math.floor(leverageRatio * RATE_PRECISION) })
+          updateState({
+            leverageRatio: Math.floor(leverageRatio * RATE_PRECISION),
+          })
         }
         errorMsg={
           leverageRatioError ||
@@ -164,7 +192,10 @@ export const VaultAction = () => {
         inputLabel={msg.leverage}
       />
       {vaultAddress && (
-        <VaultRiskTable vaultAddress={vaultAddress} updatedVaultAccount={updatedVaultAccount} />
+        <VaultRiskTable
+          vaultAddress={vaultAddress}
+          updatedVaultAccount={updatedVaultAccount}
+        />
       )}
     </ActionSidebar>
   );

@@ -5,7 +5,7 @@ import {
   getGhostContentAPI,
   truncateText,
   getDateString,
-} from '@notional-finance/utils';
+} from '@notional-finance/helpers';
 import iconPersonSVG from '@notional-finance/assets/icons/icon-person.svg';
 import { Box, styled, useTheme, Divider } from '@mui/material';
 import { H1 } from '@notional-finance/mui';

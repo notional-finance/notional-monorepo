@@ -1,6 +1,6 @@
 import { makeStore } from '@notional-finance/notionable';
 import { filter } from 'rxjs';
-import { initGA } from './tracking-helpers';
+import { initGA } from '@notional-finance/helpers';
 
 export interface TrackingState {
   hasConsent: boolean;

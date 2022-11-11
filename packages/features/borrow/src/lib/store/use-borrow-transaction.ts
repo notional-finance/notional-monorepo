@@ -1,4 +1,5 @@
-import { tradeDefaults, useQueryParams } from '@notional-finance/utils';
+import { useQueryParams } from '@notional-finance/utils';
+import { tradeDefaults } from '@notional-finance/shared-config';
 import {
   useNotional,
   useAccount,
@@ -14,9 +15,15 @@ import { TradePropertyKeys } from '@notional-finance/trade';
 export function useBorrowTransaction(selectedToken: string) {
   const { notional } = useNotional();
   const { address } = useAccount();
-  const { selectedMarketKey, tradedRate, interestAmountTBN } = useBorrow(selectedToken);
-  const { fCashAmount, inputAmount, collateralAction, collateralApy, collateralSymbol } =
-    useObservableState(borrowState$, initialBorrowState);
+  const { selectedMarketKey, tradedRate, interestAmountTBN } =
+    useBorrow(selectedToken);
+  const {
+    fCashAmount,
+    inputAmount,
+    collateralAction,
+    collateralApy,
+    collateralSymbol,
+  } = useObservableState(borrowState$, initialBorrowState);
   const { isUnderlying, assetSymbol } = useCurrencyData(selectedToken);
   const selectedMarket = useSelectedMarket(selectedMarketKey);
   const { confirm } = useQueryParams();
@@ -62,8 +69,12 @@ export function useBorrowTransaction(selectedToken: string) {
       [TradePropertyKeys.apy]: tradedRate,
       [TradePropertyKeys.collateralDeposit]: collateralAction?.amount,
       // Don't show these values if no collateral action is defined
-      [TradePropertyKeys.collateralAPY]: collateralAction ? collateralApy : undefined,
-      [TradePropertyKeys.collateralType]: collateralAction ? collateralSymbol : undefined,
+      [TradePropertyKeys.collateralAPY]: collateralAction
+        ? collateralApy
+        : undefined,
+      [TradePropertyKeys.collateralType]: collateralAction
+        ? collateralSymbol
+        : undefined,
     },
   };
 }

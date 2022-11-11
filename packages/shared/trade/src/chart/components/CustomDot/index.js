@@ -1,6 +1,6 @@
 /* eslint react/prop-types: 0 */
 import React, { PureComponent } from 'react';
-import { getStyles } from '@notional-finance/utils';
+import { getStyles } from '@notional-finance/helpers';
 
 class CustomDot extends PureComponent {
   render() {
@@ -10,7 +10,13 @@ class CustomDot extends PureComponent {
     if (isSelected) {
       // Add 8 to height to account for the dot offset
       verticalLine = (
-        <line x1={cx} x2={cx} y1={0} y2={height + 8} stroke={getStyles('brightTurquoise')} />
+        <line
+          x1={cx}
+          x2={cx}
+          y1={0}
+          y2={height + 8}
+          stroke={getStyles('brightTurquoise')}
+        />
       );
     }
 

@@ -2,7 +2,7 @@ import { Box, useTheme } from '@mui/material';
 import { defineMessages, FormattedMessage } from 'react-intl';
 import ServerErrorImage from '@notional-finance/assets/images/ServerErrorImage.png';
 import ServerErrorImageMobile from '@notional-finance/assets/images/ServerErrorImageMobile.png';
-import { DiscordButtonGradient } from '@notional-finance/icons';
+import { DiscordButtonGradient } from '@notional-finance/mui';
 import { H2, H4 } from '@notional-finance/mui';
 import { useQueryParams } from '@notional-finance/utils';
 

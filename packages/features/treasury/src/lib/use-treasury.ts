@@ -1,4 +1,4 @@
-import { logError } from '@notional-finance/utils';
+import { logError } from '@notional-finance/helpers';
 import { useAccount, useNotional } from '@notional-finance/notionable-hooks';
 import { TypedBigNumber } from '@notional-finance/sdk';
 import { StakedNote, Treasury } from '@notional-finance/sdk/src/staking';
@@ -19,7 +19,11 @@ import {
   tradeWETHAmount$,
   treasuryManager$,
 } from './treasury-manager';
-import { initialTreasuryState, treasuryState$, updateTreasuryState } from './treasury-store';
+import {
+  initialTreasuryState,
+  treasuryState$,
+  updateTreasuryState,
+} from './treasury-store';
 
 export function useTreasury() {
   const { notional } = useNotional();
@@ -47,8 +51,13 @@ export function useTreasury() {
     maxETHAmount: '',
     maxReserveAmount: '',
   });
-  const { noteModifiedPriceUSD } = calculateNotePriceImpact(investNOTEAmount, investWETHAmount);
-  const noteSpotPriceUSD = StakedNote.spotPriceToUSD(StakedNote.getSpotPrice()).toFloat();
+  const { noteModifiedPriceUSD } = calculateNotePriceImpact(
+    investNOTEAmount,
+    investWETHAmount
+  );
+  const noteSpotPriceUSD = StakedNote.spotPriceToUSD(
+    StakedNote.getSpotPrice()
+  ).toFloat();
 
   const tradeReserve = async () => {
     if (!notional) return;
@@ -83,7 +92,9 @@ export function useTreasury() {
 
     const compCurrencies = [1, 2, 3, 4];
     try {
-      const populatedTxn = await Treasury.harvestCOMPFromNotional(compCurrencies);
+      const populatedTxn = await Treasury.harvestCOMPFromNotional(
+        compCurrencies
+      );
       await account.sendTransaction(populatedTxn);
     } catch (e: unknown) {
       logError(e as Error, 'treasury.saga', 'harvestCOMP');
@@ -94,7 +105,9 @@ export function useTreasury() {
     if (!account) return;
     const reserveCurrencies = [1, 2, 3, 4];
     try {
-      const populatedTxn = await Treasury.harvestAssetsFromNotional(reserveCurrencies);
+      const populatedTxn = await Treasury.harvestAssetsFromNotional(
+        reserveCurrencies
+      );
       await account.sendTransaction(populatedTxn);
     } catch (e: unknown) {
       logError(e as Error, 'treasury.saga', 'harvestReserves');
@@ -107,7 +120,9 @@ export function useTreasury() {
         `https://api.0x.org/swap/v1/quote?sellToken=${selectedReserveCurrency}&buyToken=WETH&sellAmount=${tradeReserveAmount.toString()}`
       );
       const jsonResp: { buyAmount: string } = await resp.json();
-      updateTreasuryState({ inputTradeWETH: ethers.utils.formatUnits(jsonResp.buyAmount, 18) });
+      updateTreasuryState({
+        inputTradeWETH: ethers.utils.formatUnits(jsonResp.buyAmount, 18),
+      });
     }
   };
 
@@ -116,7 +131,9 @@ export function useTreasury() {
     if (!openLimitOrders) return;
 
     try {
-      const populatedTxn = await Treasury.cancelOrder(openLimitOrders[Number(cancelOrderId) - 1]);
+      const populatedTxn = await Treasury.cancelOrder(
+        openLimitOrders[Number(cancelOrderId) - 1]
+      );
       await account.sendTransaction(populatedTxn);
     } catch (e) {
       console.error(e);
@@ -126,7 +143,10 @@ export function useTreasury() {
   const investNOTE = async () => {
     if (!account || !investNOTEAmount || !investWETHAmount) return;
     try {
-      const populatedTxn = await Treasury.investIntoStakedNOTE(investNOTEAmount, investWETHAmount);
+      const populatedTxn = await Treasury.investIntoStakedNOTE(
+        investNOTEAmount,
+        investWETHAmount
+      );
       await account.sendTransaction(populatedTxn);
     } catch (e: unknown) {
       logError(e as Error, 'treasury.saga', 'investNOTE');

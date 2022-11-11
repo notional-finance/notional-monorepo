@@ -1,8 +1,11 @@
 import { useEffect } from 'react';
 import { Toolbar, Box, useTheme, ThemeProvider } from '@mui/material';
 import { AppBar, AppBarProps, H4 } from '@notional-finance/mui';
-import { NotionalLogo, NotionalPageLayoutOptions } from '@notional-finance/styles';
-import { THEME_VARIANTS } from '@notional-finance/utils';
+import {
+  NotionalLogo,
+  NotionalPageLayoutOptions,
+} from '@notional-finance/styles';
+import { THEME_VARIANTS } from '@notional-finance/shared-config';
 import { useNotionalTheme } from '@notional-finance/styles';
 import Navigation from './navigation/navigation';
 import { useNavLinks } from './use-nav-links';

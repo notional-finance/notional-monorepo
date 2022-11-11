@@ -39,7 +39,9 @@ export function TrackingConsent() {
       onDecline={updateConsent}
     >
       <span>
-        <FormattedMessage defaultMessage={'We use anonymized cookies to improve our product.'} />
+        <FormattedMessage
+          defaultMessage={'We use anonymized cookies to improve our product.'}
+        />
       </span>
       &nbsp;
       <StyledLink to="/privacy">

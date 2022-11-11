@@ -1,5 +1,9 @@
 import { PortfolioSideDrawer } from '../components/portfolio-side-drawer';
-import { LEND_BORROW, PORTFOLIO_ACTIONS, useQueryParams } from '@notional-finance/utils';
+import { useQueryParams } from '@notional-finance/utils';
+import {
+  LEND_BORROW,
+  PORTFOLIO_ACTIONS,
+} from '@notional-finance/shared-config';
 import { LendBorrowInput, TradePropertiesGrid } from '@notional-finance/trade';
 import { useWithdrawLend } from './use-withdraw-lend';
 import { FormattedMessage } from 'react-intl';
@@ -28,7 +32,11 @@ export const WithdrawLend = () => {
       transactionData={transactionData}
       advancedToggle={{
         label: (
-          <FormattedMessage {...messages[PORTFOLIO_ACTIONS.WITHDRAW_LEND]['withdrawToPortfolio']} />
+          <FormattedMessage
+            {...messages[PORTFOLIO_ACTIONS.WITHDRAW_LEND][
+              'withdrawToPortfolio'
+            ]}
+          />
         ),
         onToggle: (isChecked) => {
           updateWithdrawLendState({ withdrawToPortfolio: isChecked });
@@ -44,8 +52,18 @@ export const WithdrawLend = () => {
           lendOrBorrow={LEND_BORROW.BORROW}
           isRemoveAsset={true}
           selectedMarketKey={selectedMarketKey}
-          onChange={({ inputAmount, hasError, netCashAmount, netfCashAmount }) => {
-            updateWithdrawLendState({ inputAmount, hasError, netCashAmount, netfCashAmount });
+          onChange={({
+            inputAmount,
+            hasError,
+            netCashAmount,
+            netfCashAmount,
+          }) => {
+            updateWithdrawLendState({
+              inputAmount,
+              hasError,
+              netCashAmount,
+              netfCashAmount,
+            });
           }}
           inputLabel={messages[PORTFOLIO_ACTIONS.WITHDRAW_LEND]['inputLabel']}
         />

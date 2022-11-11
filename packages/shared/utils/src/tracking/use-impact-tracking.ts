@@ -1,5 +1,8 @@
 import { useEffect } from 'react';
-import { getFromLocalStorage, setInLocalStorage } from '../helpers/storage-helpers';
+import {
+  getFromLocalStorage,
+  setInLocalStorage,
+} from '@notional-finance/helpers';
 import { updateTrackingState } from './tracking-store';
 
 export const useImpactTracking = () => {

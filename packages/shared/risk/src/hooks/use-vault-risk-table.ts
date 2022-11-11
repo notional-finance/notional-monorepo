@@ -1,6 +1,16 @@
-import { getNowSeconds, logError, zipByKeyToArray } from '@notional-finance/utils';
-import { useBaseVault, useVaultAccount } from '@notional-finance/notionable-hooks';
-import { LiquidationThreshold, LiquidationThresholdType } from '@notional-finance/sdk';
+import {
+  getNowSeconds,
+  logError,
+  zipByKeyToArray,
+} from '@notional-finance/helpers';
+import {
+  useBaseVault,
+  useVaultAccount,
+} from '@notional-finance/notionable-hooks';
+import {
+  LiquidationThreshold,
+  LiquidationThresholdType,
+} from '@notional-finance/sdk';
 import { VaultAccount } from '@notional-finance/sdk/src/vaults';
 import {
   didIncrease,
@@ -9,21 +19,37 @@ import {
   RiskDataTableRow,
 } from '../helpers/risk-data-helpers';
 
-export function useVaultRiskTable(vaultAddress: string, updatedVaultAccount?: VaultAccount) {
+export function useVaultRiskTable(
+  vaultAddress: string,
+  updatedVaultAccount?: VaultAccount
+) {
   const { vaultAccount: currentVaultAccount } = useVaultAccount(vaultAddress);
   const baseVault = useBaseVault(vaultAddress);
 
-  let mergedThresholds: [LiquidationThreshold | undefined, LiquidationThreshold | undefined][] = [];
+  let mergedThresholds: [
+    LiquidationThreshold | undefined,
+    LiquidationThreshold | undefined
+  ][] = [];
   try {
     const currentThresholds =
       currentVaultAccount && baseVault
-        ? baseVault.getLiquidationThresholds(currentVaultAccount, getNowSeconds())
+        ? baseVault.getLiquidationThresholds(
+            currentVaultAccount,
+            getNowSeconds()
+          )
         : [];
     const updatedThresholds =
       updatedVaultAccount && baseVault
-        ? baseVault.getLiquidationThresholds(updatedVaultAccount, getNowSeconds())
+        ? baseVault.getLiquidationThresholds(
+            updatedVaultAccount,
+            getNowSeconds()
+          )
         : [];
-    mergedThresholds = zipByKeyToArray(currentThresholds, updatedThresholds, (t) => t.name);
+    mergedThresholds = zipByKeyToArray(
+      currentThresholds,
+      updatedThresholds,
+      (t) => t.name
+    );
   } catch (e) {
     logError(e as Error, 'use-vault-risk-table', 'getLiquidationThresholds');
   }
@@ -48,7 +74,9 @@ export function useVaultRiskTable(vaultAddress: string, updatedVaultAccount?: Va
       current: formatLeverageForRisk(currentLeverage),
       updated: {
         value: formatLeverageForRisk(updatedLeverage),
-        arrowUp: updatedLeverage ? didIncrease(currentLeverage, updatedLeverage) : null,
+        arrowUp: updatedLeverage
+          ? didIncrease(currentLeverage, updatedLeverage)
+          : null,
         checkmark: updatedLeverage === null,
         greenOnArrowUp: false,
         greenOnCheckmark: true,
@@ -58,10 +86,14 @@ export function useVaultRiskTable(vaultAddress: string, updatedVaultAccount?: Va
 
   tableData.push(
     ...mergedThresholds.map(([current, updated]) => {
-      const type: LiquidationThresholdType | undefined = current?.type || updated?.type;
+      const type: LiquidationThresholdType | undefined =
+        current?.type || updated?.type;
       const increase =
         type === LiquidationThresholdType.exchangeRate
-          ? didIncrease(current?.ethExchangeRate?.toFloat(), updated?.ethExchangeRate?.toFloat())
+          ? didIncrease(
+              current?.ethExchangeRate?.toFloat(),
+              updated?.ethExchangeRate?.toFloat()
+            )
           : didIncrease(current?.rate, updated?.rate);
 
       return {

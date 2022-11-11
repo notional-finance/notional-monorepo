@@ -6,7 +6,10 @@ import {
   useYieldStrategies,
 } from '@notional-finance/notionable-hooks';
 import { useTheme } from '@mui/material';
-import { LEND_BORROW, PORTFOLIO_CATEGORIES } from '@notional-finance/utils';
+import {
+  LEND_BORROW,
+  PORTFOLIO_CATEGORIES,
+} from '@notional-finance/shared-config';
 import {
   BarChartIcon,
   CoinsIcon,
@@ -82,7 +85,11 @@ export const useSideNav = () => {
     [PORTFOLIO_CATEGORIES.STAKED_NOTE]: {
       Icon: (
         <StakeIcon
-          sx={{ width: '17px', stroke: theme.palette.typography.light, fill: 'transparent' }}
+          sx={{
+            width: '17px',
+            stroke: theme.palette.typography.light,
+            fill: 'transparent',
+          }}
         />
       ),
       notifications: 0,

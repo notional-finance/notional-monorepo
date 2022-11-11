@@ -1,8 +1,11 @@
 import { Box, ThemeProvider } from '@mui/material';
 import { DropdownButton } from '@notional-finance/mui';
-import { NotionalPageLayoutOptions, useNotionalTheme } from '@notional-finance/styles';
+import {
+  NotionalPageLayoutOptions,
+  useNotionalTheme,
+} from '@notional-finance/styles';
 import { useUserSettingsState } from '../../../user-settings-manager/store/use-user-settings-state';
-import { NAV_DROPDOWN, THEME_VARIANTS } from '@notional-finance/utils';
+import { NAV_DROPDOWN, THEME_VARIANTS } from '@notional-finance/shared-config';
 import { useLocation } from 'react-router-dom';
 import { PieChartIcon } from '@notional-finance/icons';
 import HighYield from '../high-yield/high-yield';
@@ -14,7 +17,9 @@ export interface InvestAndEarnDropdownProps {
   pageLayout?: NotionalPageLayoutOptions;
 }
 
-export function InvestAndEarnDropdown({ pageLayout = 'landing' }: InvestAndEarnDropdownProps) {
+export function InvestAndEarnDropdown({
+  pageLayout = 'landing',
+}: InvestAndEarnDropdownProps) {
   const { pathname } = useLocation();
   const { themeVariant } = useUserSettingsState();
 
@@ -26,7 +31,9 @@ export function InvestAndEarnDropdown({ pageLayout = 'landing' }: InvestAndEarnD
   const theme = useNotionalTheme(flippedTheme);
   const tabOptions = ['/vaults', '/stake', '/unstake', '/provide'];
   const currentTab = tabOptions.find((data) => {
-    return pathname.includes(data) && !pathname.includes('portfolio') ? true : false;
+    return pathname.includes(data) && !pathname.includes('portfolio')
+      ? true
+      : false;
   });
 
   return (

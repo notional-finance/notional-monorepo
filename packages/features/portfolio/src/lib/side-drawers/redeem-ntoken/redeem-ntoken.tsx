@@ -1,5 +1,12 @@
-import { AccountWithdrawInput, TradePropertiesGrid } from '@notional-finance/trade';
-import { PORTFOLIO_ACTIONS, useQueryParams, WITHDRAW_TYPE } from '@notional-finance/utils';
+import {
+  AccountWithdrawInput,
+  TradePropertiesGrid,
+} from '@notional-finance/trade';
+import { useQueryParams } from '@notional-finance/utils';
+import {
+  PORTFOLIO_ACTIONS,
+  WITHDRAW_TYPE,
+} from '@notional-finance/shared-config';
 import { useEffect } from 'react';
 import { useHistory, useLocation, useParams } from 'react-router';
 import { PortfolioParams } from '../../portfolio-feature-shell';

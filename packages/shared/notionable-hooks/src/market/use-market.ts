@@ -1,12 +1,19 @@
 import { TypedBigNumber } from '@notional-finance/sdk';
 import { Market } from '@notional-finance/sdk/src/system';
-import { convertRateToFloat } from '@notional-finance/utils';
+import { convertRateToFloat } from '@notional-finance/helpers';
 import { useObservableState } from 'observable-hooks';
 import { useCurrencyData } from '../currency/use-currency';
-import { initialMarketState, marketState$, MaturityData } from '@notional-finance/notionable';
+import {
+  initialMarketState,
+  marketState$,
+  MaturityData,
+} from '@notional-finance/notionable';
 
 export const useAllMarkets = () => {
-  const { currencyMarkets } = useObservableState(marketState$, initialMarketState);
+  const { currencyMarkets } = useObservableState(
+    marketState$,
+    initialMarketState
+  );
 
   const orderedCurrencyIds = Array.from(currencyMarkets.keys()).sort();
 
@@ -47,7 +54,9 @@ export const useAllMarkets = () => {
   };
 };
 
-export const useMarkets = (selectedToken: string | null | undefined): Market[] => {
+export const useMarkets = (
+  selectedToken: string | null | undefined
+): Market[] => {
   const { currencyMarkets } = useAllMarkets();
   const { id } = useCurrencyData(selectedToken);
 
@@ -86,7 +95,8 @@ export const useMaturityData = (
     return {
       marketKey: m.marketKey,
       tradeRate: tradeRate ? convertRateToFloat(tradeRate) : undefined,
-      tradeRateString: tradeRate !== undefined ? Market.formatInterestRate(tradeRate) : '',
+      tradeRateString:
+        tradeRate !== undefined ? Market.formatInterestRate(tradeRate) : '',
       maturity: m.maturity,
       hasLiquidity: m.hasLiquidity,
       fCashAmount,

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAllMarkets } from '@notional-finance/notionable-hooks';
-import { LEND_BORROW } from '@notional-finance/utils';
+import { LEND_BORROW } from '@notional-finance/shared-config';
 import {
   CardContainer,
   CardVariant,

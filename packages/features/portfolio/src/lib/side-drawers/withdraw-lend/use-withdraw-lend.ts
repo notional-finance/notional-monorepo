@@ -7,7 +7,8 @@ import {
 import { TransactionData } from '@notional-finance/notionable';
 import { TypedBigNumber } from '@notional-finance/sdk';
 import { CashOrFCash, TradePropertyKeys } from '@notional-finance/trade';
-import { tradeDefaults, useFormState } from '@notional-finance/utils';
+import { useFormState } from '@notional-finance/utils';
+import { tradeDefaults } from '@notional-finance/shared-config';
 import { useEffect } from 'react';
 import { useRemoveAsset } from '../hooks/use-remove-asset';
 
@@ -32,8 +33,9 @@ const initialWithdrawLendState = {
 };
 
 export function useWithdrawLend(assetKey: string | undefined) {
-  const [state, updateWithdrawLendState] =
-    useFormState<WithdrawLendState>(initialWithdrawLendState);
+  const [state, updateWithdrawLendState] = useFormState<WithdrawLendState>(
+    initialWithdrawLendState
+  );
   const { notional } = useNotional();
   const {
     hasError,
@@ -58,16 +60,24 @@ export function useWithdrawLend(assetKey: string | undefined) {
   } = useRemoveAsset(assetKey, cashOrfCash, netCashAmount, netfCashAmount);
 
   if (withdrawToPortfolio && selectedAsset) {
-    updatedAccountData.updateBalance(selectedAsset.currencyId, netCashAmount?.toAssetCash(true));
+    updatedAccountData.updateBalance(
+      selectedAsset.currencyId,
+      netCashAmount?.toAssetCash(true)
+    );
   }
 
-  const { loanToValue: updatedLoanToValue, collateralRatio: updatedCollateralRatio } =
-    useRiskRatios(updatedAccountData);
-  const cashWithdrawn = isUnderlying ? netCashAmount?.toUnderlying() : netCashAmount;
+  const {
+    loanToValue: updatedLoanToValue,
+    collateralRatio: updatedCollateralRatio,
+  } = useRiskRatios(updatedAccountData);
+  const cashWithdrawn = isUnderlying
+    ? netCashAmount?.toUnderlying()
+    : netCashAmount;
 
   useEffect(() => {
     // This should only run once after initialization
-    if (defaultSelectedToken) updateWithdrawLendState({ selectedToken: defaultSelectedToken });
+    if (defaultSelectedToken)
+      updateWithdrawLendState({ selectedToken: defaultSelectedToken });
   }, [defaultSelectedToken, updateWithdrawLendState]);
 
   const canSubmit =
@@ -112,10 +122,15 @@ export function useWithdrawLend(assetKey: string | undefined) {
       },
       transactionProperties: {
         [TradePropertyKeys.maturity]: selectedAsset.maturity,
-        [TradePropertyKeys.amountToWallet]: !withdrawToPortfolio ? cashWithdrawn : undefined,
-        [TradePropertyKeys.amountToPortfolio]: withdrawToPortfolio ? cashWithdrawn : undefined,
+        [TradePropertyKeys.amountToWallet]: !withdrawToPortfolio
+          ? cashWithdrawn
+          : undefined,
+        [TradePropertyKeys.amountToPortfolio]: withdrawToPortfolio
+          ? cashWithdrawn
+          : undefined,
         [TradePropertyKeys.withdrawLendRate]: tradedRate,
-        [TradePropertyKeys.collateralRatio]: updatedCollateralRatio ?? undefined,
+        [TradePropertyKeys.collateralRatio]:
+          updatedCollateralRatio ?? undefined,
         [TradePropertyKeys.loanToValue]: updatedLoanToValue ?? undefined,
       },
     };
@@ -129,8 +144,12 @@ export function useWithdrawLend(assetKey: string | undefined) {
     updatedAccountData: canSubmit ? updatedAccountData : undefined,
     transactionData,
     sideDrawerInfo: {
-      [TradePropertyKeys.amountToWallet]: !withdrawToPortfolio ? cashWithdrawn : undefined,
-      [TradePropertyKeys.amountToPortfolio]: withdrawToPortfolio ? cashWithdrawn : undefined,
+      [TradePropertyKeys.amountToWallet]: !withdrawToPortfolio
+        ? cashWithdrawn
+        : undefined,
+      [TradePropertyKeys.amountToPortfolio]: withdrawToPortfolio
+        ? cashWithdrawn
+        : undefined,
       [TradePropertyKeys.withdrawLendRate]: tradedRate,
     },
     cashOrfCash,

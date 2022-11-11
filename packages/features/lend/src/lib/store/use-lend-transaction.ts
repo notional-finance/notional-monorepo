@@ -1,4 +1,5 @@
-import { tradeDefaults, useQueryParams } from '@notional-finance/utils';
+import { useQueryParams } from '@notional-finance/utils';
+import { tradeDefaults } from '@notional-finance/shared-config';
 import {
   useAccount,
   useCurrencyData,
@@ -16,16 +17,23 @@ import { TradePropertyKeys } from '@notional-finance/trade';
 export function useLendTransaction() {
   const { notional } = useNotional();
   const { address } = useAccount();
-  const { selectedToken, selectedMarketKey, tradedRate, interestAmountTBN } = useLend();
-  const { usedWalletBalance, usedAccountBalance, hasCashBalance } = useBalanceInfo();
-  const { fCashAmount, inputAmount } = useObservableState(lendState$, initialLendState);
+  const { selectedToken, selectedMarketKey, tradedRate, interestAmountTBN } =
+    useLend();
+  const { usedWalletBalance, usedAccountBalance, hasCashBalance } =
+    useBalanceInfo();
+  const { fCashAmount, inputAmount } = useObservableState(
+    lendState$,
+    initialLendState
+  );
   const { isUnderlying, assetSymbol } = useCurrencyData(selectedToken);
   const selectedMarket = useSelectedMarket(selectedMarketKey);
   const { confirm } = useQueryParams();
   const confirmRoute = !!confirm;
   // If hasCashBalance is true then we use the used wallet balance figure, otherwise
   // there is no cash balance and we use inputAmount instead.
-  const depositAmount = (hasCashBalance ? usedWalletBalance : inputAmount)?.toExternalPrecision();
+  const depositAmount = (
+    hasCashBalance ? usedWalletBalance : inputAmount
+  )?.toExternalPrecision();
 
   if (
     !confirmRoute ||
@@ -44,7 +52,10 @@ export function useLendTransaction() {
   }
 
   let buildTransactionCall;
-  const minSlippage = Math.max(tradedRate - tradeDefaults.defaultAnnualizedSlippage, 0);
+  const minSlippage = Math.max(
+    tradedRate - tradeDefaults.defaultAnnualizedSlippage,
+    0
+  );
   if (selectedToken === 'ETH') {
     const { exchangeRatePostSlippage } = Market.getSlippageRate(
       fCashAmount,
@@ -52,7 +63,10 @@ export function useLendTransaction() {
       selectedMarket.maturity,
       -1 * tradeDefaults.defaultAnnualizedSlippage
     );
-    const adjfCashAmount = Market.fCashFromExchangeRate(exchangeRatePostSlippage, inputAmount);
+    const adjfCashAmount = Market.fCashFromExchangeRate(
+      exchangeRatePostSlippage,
+      inputAmount
+    );
 
     buildTransactionCall = {
       transactionFn: notional.lend,

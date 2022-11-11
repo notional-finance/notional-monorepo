@@ -1,5 +1,5 @@
 import React from 'react';
-import { LEND_BORROW } from '@notional-finance/utils';
+import { LEND_BORROW } from '@notional-finance/shared-config';
 import {
   CurrencyInput,
   CurrencyInputHandle,
@@ -38,7 +38,10 @@ interface LendBorrowInputProps {
   inputLabel?: MessageDescriptor;
 }
 
-export const LendBorrowInput = React.forwardRef<CurrencyInputHandle, LendBorrowInputProps>(
+export const LendBorrowInput = React.forwardRef<
+  CurrencyInputHandle,
+  LendBorrowInputProps
+>(
   (
     {
       availableTokens,
@@ -56,16 +59,22 @@ export const LendBorrowInput = React.forwardRef<CurrencyInputHandle, LendBorrowI
     ref
   ) => {
     const [inputString, setInputString] = useState<string>('');
-    const { inputAmount, errorMsg, netCashAmount, netfCashAmount, maxAmount, maxAmountString } =
-      useLendBorrowInput(
-        selectedToken,
-        cashOrfCash,
-        lendOrBorrow,
-        isRemoveAsset,
-        selectedMarketKey,
-        inputString,
-        selectedAssetKey
-      );
+    const {
+      inputAmount,
+      errorMsg,
+      netCashAmount,
+      netfCashAmount,
+      maxAmount,
+      maxAmountString,
+    } = useLendBorrowInput(
+      selectedToken,
+      cashOrfCash,
+      lendOrBorrow,
+      isRemoveAsset,
+      selectedMarketKey,
+      inputString,
+      selectedAssetKey
+    );
     const error = errorMsgOverride === undefined ? errorMsg : errorMsgOverride;
 
     // Updates parent using typed big numbers

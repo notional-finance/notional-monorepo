@@ -14,8 +14,14 @@ import {
   PortfolioMoneyMarket,
   PortfolioTransactionHistory,
 } from './containers';
-import { updateSideDrawerState, useSideDrawerManager } from '@notional-finance/notional-web';
-import { PORTFOLIO_ACTIONS, PORTFOLIO_CATEGORIES } from '@notional-finance/utils';
+import {
+  updateSideDrawerState,
+  useSideDrawerManager,
+} from '@notional-finance/notional-web';
+import {
+  PORTFOLIO_ACTIONS,
+  PORTFOLIO_CATEGORIES,
+} from '@notional-finance/shared-config';
 
 export interface PortfolioParams {
   category?: PORTFOLIO_CATEGORIES;
@@ -26,7 +32,9 @@ export const PortfolioFeatureShell = () => {
   const history = useHistory();
   const theme = useTheme();
   const params = useParams<PortfolioParams>();
-  const { SideDrawerComponent, drawerOpen } = useSideDrawerManager(params.sideDrawerKey);
+  const { SideDrawerComponent, drawerOpen } = useSideDrawerManager(
+    params.sideDrawerKey
+  );
   const { buttonData } = usePortfolioButtonBar();
   const { accountConnected } = useAccount();
 
@@ -38,7 +46,9 @@ export const PortfolioFeatureShell = () => {
 
   const handleDrawer = (drawerState: boolean) => {
     if (drawerState === false) {
-      history.push(`/portfolio/${params?.category || PORTFOLIO_CATEGORIES.OVERVIEW}`);
+      history.push(
+        `/portfolio/${params?.category || PORTFOLIO_CATEGORIES.OVERVIEW}`
+      );
     }
     updateSideDrawerState({ sideDrawerOpen: drawerState });
   };
@@ -53,19 +63,30 @@ export const PortfolioFeatureShell = () => {
         <EnabledCurrencies />
       </PortfolioSidebar>
       <PortfolioMainContent>
-        {accountConnected && params.category !== PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS && (
-          <Box sx={{ justifyContent: 'flex-end', display: 'flex' }}>
-            <ButtonBar buttonOptions={buttonData} sx={{ marginBottom: theme.spacing(1) }} />
-          </Box>
-        )}
-        {(params.category === PORTFOLIO_CATEGORIES.OVERVIEW || params.category === undefined) && (
-          <PortfolioOverview />
-        )}
+        {accountConnected &&
+          params.category !== PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS && (
+            <Box sx={{ justifyContent: 'flex-end', display: 'flex' }}>
+              <ButtonBar
+                buttonOptions={buttonData}
+                sx={{ marginBottom: theme.spacing(1) }}
+              />
+            </Box>
+          )}
+        {(params.category === PORTFOLIO_CATEGORIES.OVERVIEW ||
+          params.category === undefined) && <PortfolioOverview />}
         {params.category === PORTFOLIO_CATEGORIES.LENDS && <PortfolioLends />}
-        {params.category === PORTFOLIO_CATEGORIES.BORROWS && <PortfolioBorrows />}
-        {params.category === PORTFOLIO_CATEGORIES.LIQUIDITY && <PortfolioLiquidity />}
-        {params.category === PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS && <PortfolioVaults />}
-        {params.category === PORTFOLIO_CATEGORIES.MONEY_MARKET && <PortfolioMoneyMarket />}
+        {params.category === PORTFOLIO_CATEGORIES.BORROWS && (
+          <PortfolioBorrows />
+        )}
+        {params.category === PORTFOLIO_CATEGORIES.LIQUIDITY && (
+          <PortfolioLiquidity />
+        )}
+        {params.category === PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS && (
+          <PortfolioVaults />
+        )}
+        {params.category === PORTFOLIO_CATEGORIES.MONEY_MARKET && (
+          <PortfolioMoneyMarket />
+        )}
         {params.category === PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY && (
           <PortfolioTransactionHistory />
         )}

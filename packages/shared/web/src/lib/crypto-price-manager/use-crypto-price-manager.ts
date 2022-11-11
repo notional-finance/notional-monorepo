@@ -1,6 +1,6 @@
 import { updateCryptoPriceState } from './store/crypto-price-store';
 import { useCryptoPriceState } from './store/use-crypto-price-state';
-import { convertArrayToObject, logError } from '@notional-finance/utils';
+import { convertArrayToObject, logError } from '@notional-finance/helpers';
 
 interface ResponseData {
   symbol: string;
@@ -20,7 +20,13 @@ interface ResponseData {
 export const useCryptoPriceManager = () => {
   const { cryptoPrices } = useCryptoPriceState();
   const fiatKey = 'usd';
-  const coinGeckoKeys = ['ethereum', 'bitcoin', 'wrapped-bitcoin', 'dai', 'usd-coin'];
+  const coinGeckoKeys = [
+    'ethereum',
+    'bitcoin',
+    'wrapped-bitcoin',
+    'dai',
+    'usd-coin',
+  ];
 
   if (Object.keys(cryptoPrices).length === 0) {
     const priceDataPromises = coinGeckoKeys.map((key) => {
@@ -46,7 +52,11 @@ export const useCryptoPriceManager = () => {
           };
         })
         .catch((error) => {
-          logError(error as Error, 'web/crypto-price-manager', 'use-crypto-price-manager');
+          logError(
+            error as Error,
+            'web/crypto-price-manager',
+            'use-crypto-price-manager'
+          );
           return {
             '7D': 0,
             '24H': 0,
@@ -58,8 +68,8 @@ export const useCryptoPriceManager = () => {
 
     if (priceDataPromises.length > 0) {
       Promise.all(priceDataPromises).then((values) => {
-          const formattedValues = convertArrayToObject(values, 'symbol');
-          updateCryptoPriceState({ cryptoPrices: formattedValues });
+        const formattedValues = convertArrayToObject(values, 'symbol');
+        updateCryptoPriceState({ cryptoPrices: formattedValues });
       });
     }
   }

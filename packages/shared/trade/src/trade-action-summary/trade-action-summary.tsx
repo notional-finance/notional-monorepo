@@ -1,5 +1,5 @@
 import { FormattedMessage } from 'react-intl';
-import { LEND_BORROW } from '@notional-finance/utils';
+import { LEND_BORROW } from '@notional-finance/shared-config';
 // @ts-ignore
 import Chart from '../chart';
 import {
@@ -70,7 +70,8 @@ export function TradeActionSummary({
           selectedToken={selectedToken}
         />
 
-        {(tradeAction === LEND_BORROW.BORROW || tradeAction === LEND_BORROW.LEND) && (
+        {(tradeAction === LEND_BORROW.BORROW ||
+          tradeAction === LEND_BORROW.LEND) && (
           <CalculatedRatesTable
             selectedMarketKey={selectedMarketKey}
             selectedToken={selectedToken}

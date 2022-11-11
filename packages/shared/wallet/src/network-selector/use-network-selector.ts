@@ -1,6 +1,10 @@
 import { useOnboard, useNotional } from '@notional-finance/notionable-hooks';
-import { chains, chainEntities, switchNetwork } from '@notional-finance/notionable';
-import { CHAIN_NAMES } from '@notional-finance/utils';
+import {
+  chains,
+  chainEntities,
+  switchNetwork,
+} from '@notional-finance/notionable';
+import { CHAIN_NAMES } from '@notional-finance/shared-config';
 import { defineMessages } from 'react-intl';
 
 export function useNetworkSelector() {

@@ -1,5 +1,5 @@
 import { Box } from '@mui/material';
-import { LEND_BORROW } from '@notional-finance/utils';
+import { LEND_BORROW } from '@notional-finance/shared-config';
 import { DataTable } from '@notional-finance/mui';
 import { useCalculatedRates } from './use-calculated-rates';
 import { defineMessage } from 'react-intl';

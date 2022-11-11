@@ -10,7 +10,8 @@ import {
   BodySecondary,
   HeadingSubtitle,
 } from '@notional-finance/mui';
-import { LEND_BORROW, trackEvent } from '@notional-finance/utils';
+import { trackEvent } from '@notional-finance/utils';
+import { LEND_BORROW } from '@notional-finance/shared-config';
 import { Tabs } from '../../Tabs';
 import { Boxes } from '../../Boxes';
 import { CurrencyInputAndSelectBox } from '../../CurrencyInputAndSelectBox';

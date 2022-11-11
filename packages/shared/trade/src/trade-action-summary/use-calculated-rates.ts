@@ -1,10 +1,10 @@
-import { getDateString, getNowSeconds } from '@notional-finance/utils';
+import { getDateString, getNowSeconds } from '@notional-finance/helpers';
 import { defineMessages, useIntl } from 'react-intl';
 import { BorderCell } from '@notional-finance/mui';
 import { useMarkets, useNotional } from '@notional-finance/notionable-hooks';
 import { Market } from '@notional-finance/sdk/src/system';
 import { getAmountKeys } from './amount-keys';
-import { LEND_BORROW } from '@notional-finance/utils';
+import { LEND_BORROW } from '@notional-finance/shared-config';
 
 const headers = defineMessages({
   tenor: {
@@ -80,7 +80,8 @@ export const useCalculatedRates = (
             ? notional?.parseInput(value, m.underlyingSymbol, true)?.neg()
             : notional?.parseInput(value, m.underlyingSymbol, true);
         const fCash =
-          parsedCashValue && m.getfCashAmountGivenCashAmount(parsedCashValue.toUnderlying(true));
+          parsedCashValue &&
+          m.getfCashAmountGivenCashAmount(parsedCashValue.toUnderlying(true));
 
         if (fCash && parsedCashValue) {
           const r = Market.exchangeToInterestRate(
@@ -89,7 +90,8 @@ export const useCalculatedRates = (
             m.maturity
           );
 
-          rate = r === undefined || r === 0 ? '-' : Market.formatInterestRate(r);
+          rate =
+            r === undefined || r === 0 ? '-' : Market.formatInterestRate(r);
         }
       } catch {
         // If errors, the rate returned will be '--'

@@ -7,12 +7,12 @@ import {
 import { TransactionData } from '@notional-finance/notionable';
 import { TypedBigNumber, VaultAccount } from '@notional-finance/sdk';
 import { TradeProperties, TradePropertyKeys } from '@notional-finance/trade';
+import { useFormState } from '@notional-finance/utils';
 import {
-  formatLeverageRatio,
   PORTFOLIO_ACTIONS,
   tradeDefaults,
-  useFormState,
-} from '@notional-finance/utils';
+} from '@notional-finance/shared-config';
+import { formatLeverageRatio } from '@notional-finance/helpers';
 import { useEffect } from 'react';
 import { MessageDescriptor } from 'react-intl';
 import { messages } from '../messages';
@@ -29,14 +29,20 @@ const initialDeleverageVaultState = {
   targetLeverageRatio: undefined,
 };
 
-export function useDeleverageVault(vaultAddress: string, action: PORTFOLIO_ACTIONS) {
-  const [state, updateDeleverageVaultState] = useFormState<DeleverageVaultState>(
-    initialDeleverageVaultState
-  );
+export function useDeleverageVault(
+  vaultAddress: string,
+  action: PORTFOLIO_ACTIONS
+) {
+  const [state, updateDeleverageVaultState] =
+    useFormState<DeleverageVaultState>(initialDeleverageVaultState);
   const { address } = useAccount();
   const { vaultAccount } = useVaultAccount(vaultAddress);
-  const { primaryBorrowSymbol, maxLeverageRatio, defaultLeverageRatio, minLeverageRatio } =
-    useVault(vaultAddress);
+  const {
+    primaryBorrowSymbol,
+    maxLeverageRatio,
+    defaultLeverageRatio,
+    minLeverageRatio,
+  } = useVault(vaultAddress);
   const baseVault = useBaseVault(vaultAddress);
   const { depositAmount, hasError, targetLeverageRatio } = state;
   const isDeposit = action === PORTFOLIO_ACTIONS.DELEVERAGE_VAULT_DEPOSIT;
@@ -47,7 +53,13 @@ export function useDeleverageVault(vaultAddress: string, action: PORTFOLIO_ACTIO
   let fCashToLend: TypedBigNumber | undefined;
   let vaultSharesToRedeemAtCost: TypedBigNumber | undefined;
   let updatedVaultAccount: VaultAccount | undefined;
-  if (vaultAccount && baseVault && isDeposit && primaryBorrowSymbol && depositAmount) {
+  if (
+    vaultAccount &&
+    baseVault &&
+    isDeposit &&
+    primaryBorrowSymbol &&
+    depositAmount
+  ) {
     ({ newVaultAccount: updatedVaultAccount } = baseVault.simulateEnter(
       vaultAccount,
       vaultAccount.maturity,
@@ -57,7 +69,9 @@ export function useDeleverageVault(vaultAddress: string, action: PORTFOLIO_ACTIO
 
     if (baseVault.getLeverageRatio(updatedVaultAccount) < minLeverageRatio) {
       depositError = {
-        ...messages[PORTFOLIO_ACTIONS.DELEVERAGE_VAULT]['belowMinLeverageError'],
+        ...messages[PORTFOLIO_ACTIONS.DELEVERAGE_VAULT][
+          'belowMinLeverageError'
+        ],
         values: {
           minLeverage: formatLeverageRatio(minLeverageRatio, 2),
         },
@@ -69,7 +83,9 @@ export function useDeleverageVault(vaultAddress: string, action: PORTFOLIO_ACTIO
     const currentLeverageRatio = baseVault.getLeverageRatio(vaultAccount);
     if (targetLeverageRatio > currentLeverageRatio) {
       sliderError = {
-        ...messages[PORTFOLIO_ACTIONS.DELEVERAGE_VAULT]['aboveMaxLeverageError'],
+        ...messages[PORTFOLIO_ACTIONS.DELEVERAGE_VAULT][
+          'aboveMaxLeverageError'
+        ],
         values: {
           maxLeverage: formatLeverageRatio(currentLeverageRatio, 2),
         },
@@ -163,7 +179,12 @@ export function useDeleverageVault(vaultAddress: string, action: PORTFOLIO_ACTIO
   }
 
   useEffect(() => {
-    if (!isDeposit && baseVault && vaultAccount && targetLeverageRatio === undefined) {
+    if (
+      !isDeposit &&
+      baseVault &&
+      vaultAccount &&
+      targetLeverageRatio === undefined
+    ) {
       // Set the leverage ratio to the max deleverage ratio by default
       updateDeleverageVaultState({ targetLeverageRatio: defaultLeverageRatio });
     }

@@ -3,7 +3,7 @@ import {
   MultiValueCell,
   DataTableColumn,
 } from '@notional-finance/mui';
-import { formatValueWithFiat } from '@notional-finance/utils';
+import { formatValueWithFiat } from '@notional-finance/helpers';
 import {
   useTotalHoldings,
   useAccount,

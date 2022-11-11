@@ -1,5 +1,5 @@
 import { useAccountWithdrawableTokens } from '@notional-finance/notionable-hooks';
-import { PORTFOLIO_ACTIONS } from '@notional-finance/utils';
+import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
 import { useLocation, useHistory } from 'react-router-dom';
 
 export const usePortfolioButtonBar = () => {

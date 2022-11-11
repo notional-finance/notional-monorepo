@@ -3,14 +3,21 @@ import { FormattedMessage } from 'react-intl';
 import { DataTable, Button } from '@notional-finance/mui';
 import { EmptyPortfolio } from '../../components';
 import { useLiquidityOverviewTable } from './hooks';
-import { PORTFOLIO_ACTIONS, PORTFOLIO_CATEGORIES } from '@notional-finance/utils';
+import {
+  PORTFOLIO_ACTIONS,
+  PORTFOLIO_CATEGORIES,
+} from '@notional-finance/shared-config';
 import { PortfolioParams } from '../../portfolio-feature-shell';
 import { Link, useParams } from 'react-router-dom';
 
 export const PortfolioLiquidity = () => {
   const { category } = useParams<PortfolioParams>();
-  const { liquidityOverviewData, liquidityOverviewColumns, initialState, setExpandedRows } =
-    useLiquidityOverviewTable();
+  const {
+    liquidityOverviewData,
+    liquidityOverviewColumns,
+    initialState,
+    setExpandedRows,
+  } = useLiquidityOverviewTable();
 
   const RedeemNTokenButton = ({
     row,

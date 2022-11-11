@@ -1,6 +1,6 @@
 import { useTheme } from '@mui/material';
 import { AccountData } from '@notional-finance/sdk';
-import { collateralDefaults } from '@notional-finance/utils';
+import { collateralDefaults } from '@notional-finance/shared-config';
 import { defineMessages, MessageDescriptor } from 'react-intl';
 import { useRiskRatios } from './use-risk-ratios';
 import { useRiskThresholds } from './use-risk-thresholds';
@@ -27,7 +27,8 @@ const riskLevels = defineMessages({
 export function useRiskLabel(_accountDataCopy?: AccountData) {
   const theme = useTheme();
   const { loanToValue, fcToNetValue } = useRiskRatios(_accountDataCopy);
-  const { liquidationPrices, hasInterestRateRisk } = useRiskThresholds(_accountDataCopy);
+  const { liquidationPrices, hasInterestRateRisk } =
+    useRiskThresholds(_accountDataCopy);
 
   let riskLevel: MessageDescriptor;
   let hasRisk = false;
@@ -37,7 +38,10 @@ export function useRiskLabel(_accountDataCopy?: AccountData) {
   if (loanToValue === null) {
     riskLevel = riskLevels.noDebt;
   } else if (liquidationPrices?.length === 0 && !hasInterestRateRisk) {
-    if (fcToNetValue !== null && fcToNetValue < collateralDefaults.fcToNetValueRisk) {
+    if (
+      fcToNetValue !== null &&
+      fcToNetValue < collateralDefaults.fcToNetValueRisk
+    ) {
       riskLevel = riskLevels.highRisk;
       showCheckSimulatorWarning = true;
       riskLevelColor = theme.palette.error.main;

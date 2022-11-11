@@ -7,10 +7,14 @@ import {
   useAccountCashBalance,
   useAccountWithdrawableTokens,
 } from '@notional-finance/notionable-hooks';
-import { TransactionData, TransactionFunction } from '@notional-finance/notionable';
+import {
+  TransactionData,
+  TransactionFunction,
+} from '@notional-finance/notionable';
 import { TypedBigNumber } from '@notional-finance/sdk';
 import { TradePropertyKeys } from '@notional-finance/trade';
-import { useFormState, WITHDRAW_TYPE } from '@notional-finance/utils';
+import { useFormState } from '@notional-finance/utils';
+import { WITHDRAW_TYPE } from '@notional-finance/shared-config';
 
 interface WithdrawState {
   inputAmount: TypedBigNumber | undefined;
@@ -35,7 +39,8 @@ const initialWithdrawState = {
 };
 
 export function useWithdraw() {
-  const [state, updateWithdrawState] = useFormState<WithdrawState>(initialWithdrawState);
+  const [state, updateWithdrawState] =
+    useFormState<WithdrawState>(initialWithdrawState);
   const { notional } = useNotional();
   const { address, accountDataCopy } = useAccount();
   const {
@@ -48,7 +53,11 @@ export function useWithdraw() {
     noteIncentivesMinted,
     redemptionFees,
   } = state;
-  const { id: currencyId, assetSymbol, isUnderlying } = useCurrencyData(selectedToken);
+  const {
+    id: currencyId,
+    assetSymbol,
+    isUnderlying,
+  } = useCurrencyData(selectedToken);
   const assetCashBalance = useAccountCashBalance(assetSymbol);
   const availableTokens = useAccountWithdrawableTokens();
 
@@ -62,17 +71,24 @@ export function useWithdraw() {
   let amountToWallet: TypedBigNumber | undefined;
   if (currencyId && assetSymbol && (netCashBalance || netNTokenBalance)) {
     accountDataCopy.updateBalance(currencyId, netCashBalance, netNTokenBalance);
-    amountToWallet = netCashBalance?.neg() || TypedBigNumber.fromBalance(0, assetSymbol, true);
+    amountToWallet =
+      netCashBalance?.neg() || TypedBigNumber.fromBalance(0, assetSymbol, true);
     if (netNTokenBalance)
-      amountToWallet = amountToWallet.add(netNTokenBalance.neg().toAssetCash(true));
+      amountToWallet = amountToWallet.add(
+        netNTokenBalance.neg().toAssetCash(true)
+      );
 
-    amountToWallet = isUnderlying ? amountToWallet.toUnderlying() : amountToWallet;
+    amountToWallet = isUnderlying
+      ? amountToWallet.toUnderlying()
+      : amountToWallet;
   } else if (selectedToken) {
     amountToWallet = TypedBigNumber.fromBalance(0, selectedToken, true);
   }
 
-  const { loanToValue: updatedLoanToValue, collateralRatio: updatedCollateralRatio } =
-    useRiskRatios(accountDataCopy);
+  const {
+    loanToValue: updatedLoanToValue,
+    collateralRatio: updatedCollateralRatio,
+  } = useRiskRatios(accountDataCopy);
   const nTokensRedeemed = netNTokenBalance?.neg();
 
   let transactionData: TransactionData | undefined = undefined;
@@ -91,7 +107,9 @@ export function useWithdraw() {
         assetCashBalance?.isZero() ||
         // In this case the cash balance is strictly equal to everything and if there are nTokens
         // redeemed then they will also be withdrawn to wallet
-        (netCashBalance && assetCashBalance && netCashBalance.neg().eq(assetCashBalance));
+        (netCashBalance &&
+          assetCashBalance &&
+          netCashBalance.neg().eq(assetCashBalance));
 
       const withdrawAmountInternalPrecision = withdrawEntireCashBalance
         ? TypedBigNumber.fromBalance(0, assetSymbol, true)
@@ -131,7 +149,8 @@ export function useWithdraw() {
           : isUnderlying
           ? redemptionFees?.toUnderlying()
           : redemptionFees,
-        [TradePropertyKeys.collateralRatio]: updatedCollateralRatio ?? undefined,
+        [TradePropertyKeys.collateralRatio]:
+          updatedCollateralRatio ?? undefined,
         [TradePropertyKeys.loanToValue]: updatedLoanToValue ?? undefined,
       },
     };
@@ -152,7 +171,9 @@ export function useWithdraw() {
     selectedToken,
     sideDrawerInfo: {
       [TradePropertyKeys.amountToWallet]: amountToWallet,
-      [TradePropertyKeys.nTokensRedeemed]: nTokensRedeemed?.isZero() ? undefined : nTokensRedeemed,
+      [TradePropertyKeys.nTokensRedeemed]: nTokensRedeemed?.isZero()
+        ? undefined
+        : nTokensRedeemed,
       [TradePropertyKeys.incentivesMinted]: noteIncentivesMinted?.isZero()
         ? undefined
         : noteIncentivesMinted,

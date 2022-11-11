@@ -1,9 +1,16 @@
 import { styled, Box, Button, useTheme } from '@mui/material';
 import { TokenIcon } from '@notional-finance/icons';
 import OptionUnstyled from '@mui/base/OptionUnstyled';
-import { Caption, CountUp, H4, InputLabel, Paragraph, SelectDropdown } from '@notional-finance/mui';
+import {
+  Caption,
+  CountUp,
+  H4,
+  InputLabel,
+  Paragraph,
+  SelectDropdown,
+} from '@notional-finance/mui';
 import { CollateralAction } from '@notional-finance/sdk';
-import { formatNumber, formatNumberAsPercent } from '@notional-finance/utils';
+import { formatNumber, formatNumberAsPercent } from '@notional-finance/helpers';
 import { useEffect, useState } from 'react';
 import { defineMessage, FormattedMessage, MessageDescriptor } from 'react-intl';
 import { useCollateralSelect } from './use-collateral-select';
@@ -85,13 +92,21 @@ export const CollateralSelect = ({
     highestApyString,
     updateCollateralSelectState,
   } = useCollateralSelect(selectedToken, selectedBorrowMarketKey);
-  const selectedOption = collateralOptions.find(({ symbol }) => symbol === selectedOptionKey);
+  const selectedOption = collateralOptions.find(
+    ({ symbol }) => symbol === selectedOptionKey
+  );
   const selectedApy = selectedOption?.apy;
   const selectedSymbol = selectedOption?.symbol;
 
   useEffect(() => {
     // NOTE: do not trigger this on selectedToken change or we will get an infinite loop
-    onChange(selectedToken, collateralAction, hasError, selectedApy, selectedSymbol);
+    onChange(
+      selectedToken,
+      collateralAction,
+      hasError,
+      selectedApy,
+      selectedSymbol
+    );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [collateralAction, hasError, selectedApy, selectedSymbol]);
 
@@ -101,7 +116,11 @@ export const CollateralSelect = ({
       <WalletDepositInput
         availableTokens={availableTokens}
         selectedToken={selectedToken}
-        onChange={({ selectedToken: newSelectedToken, inputAmount, hasError }) => {
+        onChange={({
+          selectedToken: newSelectedToken,
+          inputAmount,
+          hasError,
+        }) => {
           if (selectedToken !== newSelectedToken)
             onChange(newSelectedToken, undefined, false, undefined, undefined);
           updateCollateralSelectState({ inputAmount, hasError });
@@ -112,7 +131,8 @@ export const CollateralSelect = ({
         <div>
           <InputLabel
             inputLabel={defineMessage({
-              defaultMessage: 'Your collateral will automatically be converted into:',
+              defaultMessage:
+                'Your collateral will automatically be converted into:',
               description: 'input label',
             })}
           />
@@ -125,51 +145,58 @@ export const CollateralSelect = ({
             }}
             onListboxOpen={(isOpen) => setHasFocus(isOpen)}
           >
-            {collateralOptions.map(({ symbol, apy, collateralValue, apySuffix, tokenIcon }) => {
-              const shouldCountUp = !hasFocus && symbol === selectedOptionKey;
-              const apyComponent =
-                shouldCountUp && apy ? (
-                  <CountUp value={apy} suffix={`% ${apySuffix}`} decimals={2} />
-                ) : (
-                  <span>
-                    {formatNumberAsPercent(apy)}&nbsp;{apySuffix}
-                  </span>
-                );
-              const collateralValueComponent =
-                shouldCountUp && collateralValue ? (
-                  <CountUp value={collateralValue} decimals={2} />
-                ) : (
-                  <span>{formatNumber(collateralValue, 2)}</span>
-                );
+            {collateralOptions.map(
+              ({ symbol, apy, collateralValue, apySuffix, tokenIcon }) => {
+                const shouldCountUp = !hasFocus && symbol === selectedOptionKey;
+                const apyComponent =
+                  shouldCountUp && apy ? (
+                    <CountUp
+                      value={apy}
+                      suffix={`% ${apySuffix}`}
+                      decimals={2}
+                    />
+                  ) : (
+                    <span>
+                      {formatNumberAsPercent(apy)}&nbsp;{apySuffix}
+                    </span>
+                  );
+                const collateralValueComponent =
+                  shouldCountUp && collateralValue ? (
+                    <CountUp value={collateralValue} decimals={2} />
+                  ) : (
+                    <span>{formatNumber(collateralValue, 2)}</span>
+                  );
 
-              return (
-                <StyledMenuItem
-                  key={symbol}
-                  value={symbol}
-                  sx={{ justifyContent: 'space-between' }}
-                >
-                  <StyledSymbol className="symbol">
-                    <TokenIcon size="medium" symbol={tokenIcon} />
-                    <H4 marginLeft={theme.spacing(2)}>{symbol}</H4>
-                  </StyledSymbol>
-                  <CollateralInfo>
-                    <H4>{apyComponent}</H4>
-                    <Caption>
-                      <FormattedMessage
-                        {...defineMessage({
-                          defaultMessage: '{value} {selectedToken} collateral value',
-                          description: 'input label',
-                        })}
-                        values={{
-                          selectedToken,
-                          value: collateralValueComponent,
-                        }}
-                      />
-                    </Caption>
-                  </CollateralInfo>
-                </StyledMenuItem>
-              );
-            })}
+                return (
+                  <StyledMenuItem
+                    key={symbol}
+                    value={symbol}
+                    sx={{ justifyContent: 'space-between' }}
+                  >
+                    <StyledSymbol className="symbol">
+                      <TokenIcon size="medium" symbol={tokenIcon} />
+                      <H4 marginLeft={theme.spacing(2)}>{symbol}</H4>
+                    </StyledSymbol>
+                    <CollateralInfo>
+                      <H4>{apyComponent}</H4>
+                      <Caption>
+                        <FormattedMessage
+                          {...defineMessage({
+                            defaultMessage:
+                              '{value} {selectedToken} collateral value',
+                            description: 'input label',
+                          })}
+                          values={{
+                            selectedToken,
+                            value: collateralValueComponent,
+                          }}
+                        />
+                      </Caption>
+                    </CollateralInfo>
+                  </StyledMenuItem>
+                );
+              }
+            )}
           </SelectDropdown>
           <Paragraph marginTop={theme.spacing(1)}>
             {highestApyString ? (

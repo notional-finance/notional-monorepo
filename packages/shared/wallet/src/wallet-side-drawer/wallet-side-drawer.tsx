@@ -2,10 +2,17 @@ import { useEffect } from 'react';
 import { Box, styled } from '@mui/material';
 import { SideDrawer } from '@notional-finance/mui';
 import { CloseX } from '@notional-finance/icons';
-import { SIDEBAR_CATEGORIES, useQueryParams, THEME_VARIANTS } from '@notional-finance/utils';
+import {
+  SIDEBAR_CATEGORIES,
+  THEME_VARIANTS,
+} from '@notional-finance/shared-config';
+import { useQueryParams } from '@notional-finance/utils';
 import { NotionalTheme, useNotionalTheme } from '@notional-finance/styles';
 import { useWalletSideDrawer } from '../hooks';
-import { updateSideDrawerState, useSideDrawerManager } from '@notional-finance/notional-web';
+import {
+  updateSideDrawerState,
+  useSideDrawerManager,
+} from '@notional-finance/notional-web';
 import { FormattedMessage } from 'react-intl';
 
 interface SettingsButtonProps {
@@ -17,7 +24,9 @@ export function WalletSideDrawer() {
   const theme = useNotionalTheme(THEME_VARIANTS.LIGHT);
   const { sideDrawer } = useQueryParams();
   const { setWalletSideDrawer, deleteWalletSideDrawer } = useWalletSideDrawer();
-  const sideDrawerKey = sideDrawer ? (sideDrawer as SIDEBAR_CATEGORIES) : undefined;
+  const sideDrawerKey = sideDrawer
+    ? (sideDrawer as SIDEBAR_CATEGORIES)
+    : undefined;
 
   const { SideDrawerComponent, currentSideDrawerId, drawerOpen } =
     useSideDrawerManager(sideDrawerKey);
@@ -150,7 +159,7 @@ const SettingsButton = styled(Box, {
   display: flex;
   align-items: center;
   justify-content: center;
-  flex: 1; 
+  flex: 1;
   cursor: pointer;
   border-bottom: 5px solid transparent;
   ${
@@ -173,7 +182,7 @@ const NotificationsButton = styled(Box, {
   display: flex;
   align-items: center;
   justify-content: center;
-  flex: 1; 
+  flex: 1;
   cursor: pointer;
   border-bottom: 5px solid transparent;
   ${

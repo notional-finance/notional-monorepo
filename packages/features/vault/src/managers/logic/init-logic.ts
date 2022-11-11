@@ -8,7 +8,8 @@ import {
   VaultFactory,
 } from '@notional-finance/sdk';
 import { Market, System } from '@notional-finance/sdk/src/system';
-import { getNowSeconds, VAULT_ACTIONS } from '@notional-finance/utils';
+import { VAULT_ACTIONS } from '@notional-finance/shared-config';
+import { getNowSeconds } from '@notional-finance/helpers';
 import { MessageDescriptor } from 'react-intl';
 import { messages } from '../../messages';
 
@@ -37,7 +38,10 @@ export function getInitVaultAction({
 
   try {
     vaultConfig = system.getVault(vaultAddress);
-    baseVault = VaultFactory.buildVaultFromCache(vaultConfig.strategy, vaultAddress);
+    baseVault = VaultFactory.buildVaultFromCache(
+      vaultConfig.strategy,
+      vaultAddress
+    );
     eligibleMarkets = getEligibleMarkets(
       system,
       vaultConfig,
@@ -57,7 +61,11 @@ export function getInitVaultAction({
     // May throw an error on undefined vault address, in this case
     // we return default values for the rest of the parameters but report
     // an error which takes us to the 404 page
-    reportNotionalError({ ...(e as Error), code: 404 }, 'vault-action', 'getInitVaultAction');
+    reportNotionalError(
+      { ...(e as Error), code: 404 },
+      'vault-action',
+      'getInitVaultAction'
+    );
   }
 
   return {
@@ -101,16 +109,24 @@ function getEligibleMarkets(
   }
 }
 
-function getEligibleActions(eligibleMarkets: Market[], vaultAccount: VaultAccount) {
+function getEligibleActions(
+  eligibleMarkets: Market[],
+  vaultAccount: VaultAccount
+) {
   const eligibleActions: VAULT_ACTIONS[] = [];
   if (vaultAccount.isInactive) {
     eligibleActions.push(VAULT_ACTIONS.ESTABLISH_ACCOUNT);
   } else {
-    if (eligibleMarkets.map((m) => m.maturity).includes(vaultAccount.maturity)) {
+    if (
+      eligibleMarkets.map((m) => m.maturity).includes(vaultAccount.maturity)
+    ) {
       eligibleActions.push(VAULT_ACTIONS.INCREASE_POSITION);
     }
 
-    if (eligibleMarkets.filter((m) => m.maturity > vaultAccount.maturity).length > 0) {
+    if (
+      eligibleMarkets.filter((m) => m.maturity > vaultAccount.maturity).length >
+      0
+    ) {
       eligibleActions.push(VAULT_ACTIONS.ROLL_POSITION);
     }
   }

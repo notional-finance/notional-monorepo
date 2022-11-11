@@ -1,5 +1,6 @@
 import { PortfolioSideDrawer } from '../components/portfolio-side-drawer';
-import { PORTFOLIO_ACTIONS, useQueryParams } from '@notional-finance/utils';
+import { useQueryParams } from '@notional-finance/utils';
+import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
 import { Maturities } from '@notional-finance/mui';
 import { LendBorrowInput } from '@notional-finance/trade';
 import { useRollMaturity } from './use-roll-maturity';
@@ -8,7 +9,11 @@ import { FormattedMessage } from 'react-intl';
 import { messages } from '../messages';
 
 export const RollMaturity = () => {
-  const { assetKey, marketKey, partialRoll: partialRollParam } = useQueryParams();
+  const {
+    assetKey,
+    marketKey,
+    partialRoll: partialRollParam,
+  } = useQueryParams();
   const {
     updatedAccountData,
     transactionData,
@@ -36,7 +41,11 @@ export const RollMaturity = () => {
       updatedAccountData={updatedAccountData}
       transactionData={transactionData}
       advancedToggle={{
-        label: <FormattedMessage {...messages[PORTFOLIO_ACTIONS.ROLL_MATURITY]['partialRoll']} />,
+        label: (
+          <FormattedMessage
+            {...messages[PORTFOLIO_ACTIONS.ROLL_MATURITY]['partialRoll']}
+          />
+        ),
         onToggle: (isChecked) => {
           updateRollMaturityState({ partialRoll: isChecked });
         },
@@ -63,7 +72,9 @@ export const RollMaturity = () => {
           onChange={({ inputAmount, hasError }) => {
             updateRollMaturityState({ inputAmount, hasError });
           }}
-          inputLabel={messages[PORTFOLIO_ACTIONS.ROLL_MATURITY]['partialRollInputLabel']}
+          inputLabel={
+            messages[PORTFOLIO_ACTIONS.ROLL_MATURITY]['partialRollInputLabel']
+          }
         />
       )}
     </PortfolioSideDrawer>

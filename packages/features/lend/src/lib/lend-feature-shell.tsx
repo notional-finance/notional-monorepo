@@ -5,15 +5,22 @@ import { TradeActionSummary } from '@notional-finance/trade';
 import { useEffect } from 'react';
 import { updateLendState } from './store/lend-store';
 import { useLend } from './store/use-lend';
-import { LEND_BORROW } from '@notional-finance/utils';
+import { LEND_BORROW } from '@notional-finance/shared-config';
 
 export const LendFeatureShell = () => {
   const { currency } = useParams<Record<string, string>>();
-  const { markets, selectedToken, selectedMarketKey, tradedRate, fCashAmount, interestAmount } =
-    useLend();
+  const {
+    markets,
+    selectedToken,
+    selectedMarketKey,
+    tradedRate,
+    fCashAmount,
+    interestAmount,
+  } = useLend();
 
   useEffect(() => {
-    if (currency) updateLendState({ selectedToken: currency, selectedMarketKey: '' });
+    if (currency)
+      updateLendState({ selectedToken: currency, selectedMarketKey: '' });
   }, [currency]);
 
   return (

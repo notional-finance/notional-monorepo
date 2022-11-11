@@ -1,4 +1,4 @@
-import { PORTFOLIO_CATEGORIES } from '@notional-finance/utils';
+import { PORTFOLIO_CATEGORIES } from '@notional-finance/shared-config';
 import { defineMessages, MessageDescriptor } from 'react-intl';
 import { useParams } from 'react-router';
 import { PortfolioParams } from '../../portfolio-feature-shell';
@@ -28,7 +28,8 @@ export const useTableActionRow = () => {
         description: 'button text',
       },
       toolTip: {
-        defaultMessage: 'Withdraw your lending position prior to maturity for cash.',
+        defaultMessage:
+          'Withdraw your lending position prior to maturity for cash.',
         description: 'tooltip text',
       },
     }),

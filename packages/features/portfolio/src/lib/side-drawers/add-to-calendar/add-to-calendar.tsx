@@ -1,5 +1,6 @@
 import { Typography, Box, styled, useTheme } from '@mui/material';
-import { PORTFOLIO_ACTIONS, useQueryParams } from '@notional-finance/utils';
+import { useQueryParams } from '@notional-finance/utils';
+import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
 import { ExternalLink } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
 import { messages } from '../messages';
@@ -13,7 +14,9 @@ export const AddToCalendar = () => {
   return (
     <Box>
       <Title>
-        <FormattedMessage {...messages[PORTFOLIO_ACTIONS.ADD_TO_CALENDAR].heading} />
+        <FormattedMessage
+          {...messages[PORTFOLIO_ACTIONS.ADD_TO_CALENDAR].heading}
+        />
       </Title>
       {calData.map(({ label, Icon, href }, index) => (
         <WalletButton key={index}>

@@ -4,16 +4,18 @@ import {
   useCurrencyData,
   useRiskRatios,
 } from '@notional-finance/notionable-hooks';
-import { TransactionData, TransactionFunction } from '@notional-finance/notionable';
+import {
+  TransactionData,
+  TransactionFunction,
+} from '@notional-finance/notionable';
 import { AssetType, TypedBigNumber } from '@notional-finance/sdk';
 import { NTokenValue } from '@notional-finance/sdk/src/system';
 import { TradePropertyKeys } from '@notional-finance/trade';
+import { useFormState, useQueryParams } from '@notional-finance/utils';
 import {
   PORTFOLIO_ACTIONS,
   tradeDefaults,
-  useFormState,
-  useQueryParams,
-} from '@notional-finance/utils';
+} from '@notional-finance/shared-config';
 import { useEffect } from 'react';
 
 interface RedeemNTokenState {
@@ -37,10 +39,12 @@ const initialRedeemNTokenState = {
 };
 
 export function useRedeemNToken(action: PORTFOLIO_ACTIONS) {
-  const [state, updateRedeemNTokenState] =
-    useFormState<RedeemNTokenState>(initialRedeemNTokenState);
+  const [state, updateRedeemNTokenState] = useFormState<RedeemNTokenState>(
+    initialRedeemNTokenState
+  );
   const { notional } = useNotional();
-  const { address, accountDataCopy, balanceSummary, assetSummary } = useAccount();
+  const { address, accountDataCopy, balanceSummary, assetSummary } =
+    useAccount();
   const {
     selectedToken,
     hasError,
@@ -69,9 +73,20 @@ export function useRedeemNToken(action: PORTFOLIO_ACTIONS) {
 
   useEffect(() => {
     // The selected token must be the nTokenSymbol
-    if (isDeleverage && selectedAsset && nTokenSymbol && selectedToken !== nTokenSymbol)
+    if (
+      isDeleverage &&
+      selectedAsset &&
+      nTokenSymbol &&
+      selectedToken !== nTokenSymbol
+    )
       updateRedeemNTokenState({ selectedToken: nTokenSymbol });
-  }, [isDeleverage, selectedAsset, nTokenSymbol, selectedToken, updateRedeemNTokenState]);
+  }, [
+    isDeleverage,
+    selectedAsset,
+    nTokenSymbol,
+    selectedToken,
+    updateRedeemNTokenState,
+  ]);
 
   let cashFromRedemption: TypedBigNumber | undefined;
   let lendfCashAmount: TypedBigNumber | undefined;
@@ -80,7 +95,10 @@ export function useRedeemNToken(action: PORTFOLIO_ACTIONS) {
   try {
     cashFromRedemption =
       currencyId && netNTokenBalance
-        ? NTokenValue.getAssetFromRedeemNToken(currencyId, netNTokenBalance.neg())
+        ? NTokenValue.getAssetFromRedeemNToken(
+            currencyId,
+            netNTokenBalance.neg()
+          )
         : undefined;
   } catch {
     // If this errors then the account is unable to redeem any nTokens
@@ -111,12 +129,18 @@ export function useRedeemNToken(action: PORTFOLIO_ACTIONS) {
     !!currencyId &&
     !!cashFromRedemption;
 
-  const { loanToValue: updatedLoanToValue, collateralRatio: updatedCollateralRatio } =
-    useRiskRatios(accountDataCopy);
+  const {
+    loanToValue: updatedLoanToValue,
+    collateralRatio: updatedCollateralRatio,
+  } = useRiskRatios(accountDataCopy);
 
   let transactionData: TransactionData | undefined;
   if (canSubmit) {
-    accountDataCopy.updateBalance(currencyId, cashFromRedemption, netNTokenBalance);
+    accountDataCopy.updateBalance(
+      currencyId,
+      cashFromRedemption,
+      netNTokenBalance
+    );
 
     if (lendfCashAmount && selectedAsset) {
       accountDataCopy.updateAsset({
@@ -130,11 +154,20 @@ export function useRedeemNToken(action: PORTFOLIO_ACTIONS) {
 
     let buildTransactionCall: TransactionFunction;
     if (isDeleverage && lendfCashAmount && redemptionRate) {
-      const minLendSlippage = Math.max(redemptionRate - tradeDefaults.defaultAnnualizedSlippage, 0);
+      const minLendSlippage = Math.max(
+        redemptionRate - tradeDefaults.defaultAnnualizedSlippage,
+        0
+      );
       buildTransactionCall = {
         transactionFn: notional.deleverageNToken,
         // Set to sell token assets and accept residuals
-        transactionArgs: [address, selectedAsset, inputAmount, lendfCashAmount, minLendSlippage],
+        transactionArgs: [
+          address,
+          selectedAsset,
+          inputAmount,
+          lendfCashAmount,
+          minLendSlippage,
+        ],
       };
     } else {
       // If we are in deleverage but against an ifCash asset, then we will still just
@@ -155,7 +188,8 @@ export function useRedeemNToken(action: PORTFOLIO_ACTIONS) {
         [TradePropertyKeys.nTokenRedeemSlippage]: redeemFees,
         [TradePropertyKeys.incentivesMinted]: noteIncentivesMinted,
         [TradePropertyKeys.loanToValue]: updatedLoanToValue ?? undefined,
-        [TradePropertyKeys.collateralRatio]: updatedCollateralRatio ?? undefined,
+        [TradePropertyKeys.collateralRatio]:
+          updatedCollateralRatio ?? undefined,
       },
     };
   }
@@ -169,7 +203,9 @@ export function useRedeemNToken(action: PORTFOLIO_ACTIONS) {
     sidebarInfo: {
       [TradePropertyKeys.amountToPortfolio]:
         cashToPortfolio?.toUnderlying() ||
-        (assetSymbol ? TypedBigNumber.fromBalance(0, assetSymbol, true).toUnderlying() : undefined),
+        (assetSymbol
+          ? TypedBigNumber.fromBalance(0, assetSymbol, true).toUnderlying()
+          : undefined),
       [TradePropertyKeys.nTokenRedeemSlippage]: redeemFees,
       [TradePropertyKeys.incentivesMinted]: noteIncentivesMinted,
     },

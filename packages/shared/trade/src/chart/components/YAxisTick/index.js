@@ -1,6 +1,6 @@
 /* eslint react/prop-types: 0 */
 import React, { PureComponent } from 'react';
-import { formatNumber } from '@notional-finance/utils';
+import { formatNumber } from '@notional-finance/helpers';
 
 class YAxisTick extends PureComponent {
   render() {

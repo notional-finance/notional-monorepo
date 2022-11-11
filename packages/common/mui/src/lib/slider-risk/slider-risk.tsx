@@ -1,5 +1,5 @@
 import { Box, styled } from '@mui/material';
-import { collateralDefaults } from '@notional-finance/utils';
+import { collateralDefaults } from '@notional-finance/shared-config';
 import { FormattedMessage, MessageDescriptor } from 'react-intl';
 import SliderBasic from '../slider-basic/slider-basic';
 import { H2, H4 } from '../typography/typography';
@@ -30,7 +30,9 @@ export const SliderRisk = ({
   updatedLoanToValue,
   showInteriorTitle = false,
 }: SliderRiskProps) => {
-  const marks = updatedLoanToValue ? [{ value: updatedLoanToValue, label: 'Updated' }] : undefined;
+  const marks = updatedLoanToValue
+    ? [{ value: updatedLoanToValue, label: 'Updated' }]
+    : undefined;
 
   return (
     <SliderContainer sx={{ marginBottom: loanToValue === 0 ? '0px' : '' }}>

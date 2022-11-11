@@ -10,7 +10,7 @@ import {
   ComposedChart,
   CartesianGrid,
 } from 'recharts';
-import { getStyles, getDateString } from '@notional-finance/utils';
+import { getStyles, getDateString } from '@notional-finance/helpers';
 import { FormattedMessage } from 'react-intl';
 import XAxisDateTick from './components/XAxisDateTick';
 import CustomDot from './components/CustomDot';
@@ -117,7 +117,10 @@ class Chart extends Component {
             marketKey: market.marketKey,
           };
           // This is the displayed currency
-          obj[currency] = parseFloat(market.midRate.substring(0, market.midRate.length - 1), 10);
+          obj[currency] = parseFloat(
+            market.midRate.substring(0, market.midRate.length - 1),
+            10
+          );
 
           return obj;
         })
@@ -154,7 +157,12 @@ class Chart extends Component {
   };
 
   selectMaturity = (marketKey) => {
-    const { setSelectedMarket, unsetSelectedMarket, selectedMarketKey, lockSelection } = this.props;
+    const {
+      setSelectedMarket,
+      unsetSelectedMarket,
+      selectedMarketKey,
+      lockSelection,
+    } = this.props;
     // Disable further selection if the confirmation modal is open
     if (lockSelection) return;
     if (marketKey === selectedMarketKey) unsetSelectedMarket();
@@ -170,7 +178,8 @@ class Chart extends Component {
       return (
         <div className="tooltip">
           <span className="maturity-rate">
-            <FormattedMessage defaultMessage={'Maturity'} />: {getDateString(maturity)}
+            <FormattedMessage defaultMessage={'Maturity'} />:{' '}
+            {getDateString(maturity)}
           </span>
           <span className="maturity-rate">
             <FormattedMessage defaultMessage={'Interest Rate'} />: {midRate}%
@@ -204,7 +213,10 @@ class Chart extends Component {
                 scale="time"
                 type="number"
                 axisLine={false}
-                domain={[(dataMin) => dataMin - ONE_WEEK, (dataMax) => dataMax + ONE_WEEK]}
+                domain={[
+                  (dataMin) => dataMin - ONE_WEEK,
+                  (dataMax) => dataMax + ONE_WEEK,
+                ]}
                 tick={
                   <XAxisDateTick
                     selectedMaturity={selectedMaturity}
@@ -233,7 +245,10 @@ class Chart extends Component {
                 fillOpacity={1}
                 fill="url(#shade)"
                 dot={
-                  <CustomDot selectedMaturity={selectedMaturity} onClick={this.selectMaturity} />
+                  <CustomDot
+                    selectedMaturity={selectedMaturity}
+                    onClick={this.selectMaturity}
+                  />
                 }
               />
               <CartesianGrid

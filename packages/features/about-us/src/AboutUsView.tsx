@@ -1,7 +1,10 @@
 import { Box, ThemeProvider } from '@mui/material';
 import AboutNotional from './AboutNotional';
-import { THEME_VARIANTS } from '@notional-finance/utils';
-import { EmailCaptureSection, LandingFooter } from '@notional-finance/notional-web';
+import { THEME_VARIANTS } from '@notional-finance/shared-config';
+import {
+  EmailCaptureSection,
+  LandingFooter,
+} from '@notional-finance/notional-web';
 import { useNotionalTheme } from '@notional-finance/styles';
 import MeetTheTeam from './MeetTheTeam';
 
