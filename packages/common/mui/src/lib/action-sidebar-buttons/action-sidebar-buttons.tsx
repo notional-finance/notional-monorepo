@@ -21,6 +21,12 @@ const Container = styled(Box, {
   box-shadow: 0 -50px 50px -20px ${theme.palette.background.paper};
   padding-top: 20px;
   padding-bottom: 48px;
+  ${theme.breakpoints.down('sm')} {
+    position: relative;
+    box-shadow: none;
+    position: relative;
+    background: ${theme.palette.background.default};
+  }
 `
 );
 
@@ -39,7 +45,9 @@ export const ActionSidebarButtons = ({
 }: ActionSidebarButtonsProps) => {
   const theme = useTheme();
   const { pathname, search } = useLocation();
-  const confirmQueryString = search ? `${search}&confirm=true` : '?confirm=true';
+  const confirmQueryString = search
+    ? `${search}&confirm=true`
+    : '?confirm=true';
   const confirmRoute = `${pathname}${confirmQueryString}`;
   const showDefaultButtons = cancelRoute && !CustomActionButton;
 
@@ -49,10 +57,21 @@ export const ActionSidebarButtons = ({
       {showDefaultButtons && (
         <>
           <Button variant="outlined" size="large" to={cancelRoute}>
-            <FormattedMessage defaultMessage={'Cancel'} description="button text" />
+            <FormattedMessage
+              defaultMessage={'Cancel'}
+              description="button text"
+            />
           </Button>
-          <Button variant="contained" disabled={!canSubmit} size="large" to={confirmRoute}>
-            <FormattedMessage defaultMessage={'Submit'} description="button text" />
+          <Button
+            variant="contained"
+            disabled={!canSubmit}
+            size="large"
+            to={confirmRoute}
+          >
+            <FormattedMessage
+              defaultMessage={'Submit'}
+              description="button text"
+            />
           </Button>
         </>
       )}

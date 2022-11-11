@@ -1,4 +1,4 @@
-import { useTheme, Box, styled } from '@mui/material';
+import { useTheme, Box, styled, SxProps } from '@mui/material';
 import { ArrowIcon } from '@notional-finance/icons';
 import { FormattedMessage, MessageDescriptor } from 'react-intl';
 
@@ -6,6 +6,7 @@ import { FormattedMessage, MessageDescriptor } from 'react-intl';
 export interface SideBarSubHeaderProps {
   callback: (event?: MouseEvent | KeyboardEvent) => void;
   titleText?: MessageDescriptor;
+  sx?: SxProps;
 }
 
 const SubHeader = styled(Box)(
@@ -18,18 +19,36 @@ const SubHeader = styled(Box)(
   `
 );
 
-export function SideBarSubHeader({ callback, titleText }: SideBarSubHeaderProps) {
+export function SideBarSubHeader({
+  callback,
+  titleText,
+  sx,
+}: SideBarSubHeaderProps) {
   const theme = useTheme();
   return (
     <SubHeader>
       <Box
         onClick={() => callback()}
-        sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', paddingTop: '74px' }}
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          cursor: 'pointer',
+          paddingTop: '74px',
+          ...sx,
+        }}
       >
         <ArrowIcon
-          sx={{ transform: 'rotate(-90deg)', fill: theme.palette.typography.main }}
+          sx={{
+            transform: 'rotate(-90deg)',
+            fill: theme.palette.typography.main,
+          }}
         ></ArrowIcon>
-        <Box sx={{ marginLeft: theme.spacing(1), color: theme.palette.typography.main }}>
+        <Box
+          sx={{
+            marginLeft: theme.spacing(1),
+            color: theme.palette.typography.main,
+          }}
+        >
           <FormattedMessage {...titleText} />
         </Box>
       </Box>

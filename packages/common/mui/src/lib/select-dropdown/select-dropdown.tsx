@@ -1,8 +1,8 @@
 import { MenuList, PopperPlacementType, styled, useTheme } from '@mui/material';
+import SelectUnstyled from '@mui/base/SelectUnstyled';
 import PopperUnstyled from '@mui/base/PopperUnstyled';
 import { ArrowIcon } from '@notional-finance/icons';
 import { ElementType, useState } from 'react';
-import { SelectUnstyled } from '@mui/base';
 
 interface SelectDropdownProps {
   children: React.ReactNode[];
@@ -11,11 +11,12 @@ interface SelectDropdownProps {
   buttonComponent: ElementType;
   onChange: (value: any) => void;
   onListboxOpen?: (isOpen: boolean) => void;
+  popperRef?: any;
 }
 
 const StyledMenu = styled(MenuList)(
   ({ theme }) => `
-  width: 447px;
+  width: inherit;
   margin-top: 0.5rem;
   outline: none;
   border: ${theme.shape.borderStandard};
@@ -25,7 +26,7 @@ const StyledMenu = styled(MenuList)(
   `
 );
 const StyledPopper = styled(PopperUnstyled)`
-  z-index: 1;
+  z-index: 2;
 `;
 
 export const SelectDropdown = ({
@@ -35,16 +36,23 @@ export const SelectDropdown = ({
   onListboxOpen,
   onChange,
   value,
+  popperRef,
 }: SelectDropdownProps) => {
   const theme = useTheme();
   const [isListboxOpen, setListboxOpen] = useState(false);
   const onlyOneInput = children.length === 1;
+  const currentRef = popperRef.current;
 
   const components = {
     Root: buttonComponent,
     Listbox: StyledMenu,
     Popper: StyledPopper,
   };
+
+  const popperPlacement =
+    window.innerWidth <= theme.breakpoints.values.sm
+      ? 'bottom'
+      : ('bottom-end' as PopperPlacementType);
 
   const componentProps = {
     root: {
@@ -87,27 +95,43 @@ export const SelectDropdown = ({
       theme,
     },
     popper: {
+      anchorEl: currentRef,
       popperOptions: {
-        placement: 'bottom-end' as PopperPlacementType,
+        placement: popperPlacement,
+        modifiers: [
+          {
+            name: 'sameWidth',
+            enabled: true,
+            phase: 'beforeWrite',
+            requires: ['computeStyles'],
+            fn: ({ state }) => {
+              state.styles.popper.width = `${state.rects.reference.width}px`;
+            },
+            effect: ({ state }) => {
+              state.elements.popper.style.width = `${state.elements.reference.offsetWidth}px`;
+            },
+          },
+        ],
       },
       theme,
     },
   };
 
   return (
-    <SelectUnstyled
-      value={value}
-      disabled={onlyOneInput}
-      componentsProps={componentProps}
-      components={components}
-      component={buttonComponent}
-      onListboxOpenChange={(isOpen: boolean) => {
-        setListboxOpen(isOpen);
-        if (onListboxOpen) onListboxOpen(isOpen);
-      }}
-      onChange={onChange}
-    >
-      {children}
-    </SelectUnstyled>
+    currentRef && (
+      <SelectUnstyled
+        value={value}
+        disabled={onlyOneInput}
+        componentsProps={componentProps}
+        components={components}
+        onListboxOpenChange={(isOpen: boolean) => {
+          setListboxOpen(isOpen);
+          if (onListboxOpen) onListboxOpen(isOpen);
+        }}
+        onChange={onChange}
+      >
+        {children}
+      </SelectUnstyled>
+    )
   );
 };
