@@ -3,6 +3,7 @@ import { TableTitleButtonsType } from '../data-table';
 import { ButtonBar } from '../../button-bar/button-bar';
 import { FormattedMessage, MessageDescriptor } from 'react-intl';
 import { TABLE_VARIANTS } from '../data-table';
+import { TableCell, ModuleTitle } from '../../typography/typography';
 
 interface DataTableTitleBarProps {
   tableTitle: MessageDescriptor;
@@ -15,27 +16,43 @@ export const DataTableTitleBar = ({
   tableTitle,
   tableVariant,
 }: DataTableTitleBarProps) => {
-  const { palette } = useTheme();
+  const theme = useTheme();
+
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-      {tableTitle && (
-        <Box
+    <Box
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+      }}
+    >
+      {tableVariant === TABLE_VARIANTS.MINI ? (
+        <TableCell
           sx={{
-            padding: tableVariant === TABLE_VARIANTS.MINI ? '16px' : '16px 24px',
-            color: palette.common.black,
-            paddingBottom: tableVariant === TABLE_VARIANTS.SPARSE ? '0px' : '7px',
-            paddingTop: tableVariant === TABLE_VARIANTS.SPARSE ? '0.625rem' : '27px',
-            fontWeight: '600',
-            fontSize: tableVariant === TABLE_VARIANTS.MINI ? '12px' : '16px',
-            textTransform: tableVariant === TABLE_VARIANTS.SPARSE ? 'uppercase' : '',
+            paddingTop: theme.spacing(1),
+            paddingBottom: theme.spacing(2),
+            paddingLeft: theme.spacing(1),
           }}
         >
           <FormattedMessage {...tableTitle} />
-        </Box>
+        </TableCell>
+      ) : (
+        <ModuleTitle
+          sx={{
+            padding: theme.spacing(2, 3),
+            paddingBottom: theme.spacing(1),
+            paddingTop: theme.spacing(3),
+          }}
+        >
+          <FormattedMessage {...tableTitle} />
+        </ModuleTitle>
       )}
       {tableTitleButtons?.length && (
         <Box sx={{ padding: '25px 17px 7px 17px' }}>
-          <ButtonBar buttonVariant="outlined" buttonOptions={tableTitleButtons} />
+          <ButtonBar
+            buttonVariant="outlined"
+            buttonOptions={tableTitleButtons}
+          />
         </Box>
       )}
     </Box>

@@ -10,6 +10,11 @@ import {
 import { styled } from '@mui/material/styles';
 import { ExpandedRows, TABLE_VARIANTS } from '../data-table';
 import { NotionalTheme } from '@notional-finance/styles';
+import {
+  SmallTableCell,
+  TableCell as TypographyTableCell,
+} from '../../typography/typography';
+
 interface StyledTableRowProps extends TableRowProps {
   theme: NotionalTheme;
   rowSelected?: boolean;
@@ -132,23 +137,27 @@ export const DataTableBody = ({
                 return (
                   <TableCell
                     sx={{
-                      fontSize:
-                        tableVariant === TABLE_VARIANTS.MINI
-                          ? theme.typography.body2.fontSize
-                          : theme.typography.tableCell.fontSize,
                       padding:
                         tableVariant === TABLE_VARIANTS.MINI
-                          ? '16px'
+                          ? theme.spacing(1)
                           : cell['column'].padding || '16px 24px',
-                      color: theme.palette.common.black,
                       textAlign: cell['column'].textAlign || 'center',
                       borderBottom: 'none',
                       whiteSpace: 'nowrap',
-                      fontWeight: 500,
                     }}
                     {...cell['getCellProps']()}
                   >
-                    {cell['render']('Cell')}
+                    {tableVariant === TABLE_VARIANTS.MINI ? (
+                      <SmallTableCell
+                        sx={{ color: theme.palette.typography.main }}
+                      >
+                        {cell['render']('Cell')}
+                      </SmallTableCell>
+                    ) : (
+                      <TypographyTableCell>
+                        {cell['render']('Cell')}
+                      </TypographyTableCell>
+                    )}
                   </TableCell>
                 );
               })}

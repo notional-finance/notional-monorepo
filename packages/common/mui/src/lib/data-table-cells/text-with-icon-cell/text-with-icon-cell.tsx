@@ -1,5 +1,6 @@
 import { TokenIcon } from '@notional-finance/icons';
-import { Box } from '@mui/material';
+import { Box, useTheme } from '@mui/material';
+import { SmallTableCell } from '../../typography/typography';
 
 export interface TextWithIconCellProps {
   cell: {
@@ -17,6 +18,7 @@ export const TextWithIconCell = ({
 }: TextWithIconCellProps): JSX.Element => {
   const iconZero = icons && icons[0];
   const iconOne = icons && icons[1];
+  const theme = useTheme();
   return (
     <Box
       sx={{
@@ -25,9 +27,16 @@ export const TextWithIconCell = ({
       }}
     >
       {iconZero && <TokenIcon symbol={icons[0] || 'unknown'} size="small" />}
-      {iconOne && <Box sx={{ margin: '3px' }}>/</Box>}
+      {iconOne && <Box sx={{ margin: theme.spacing(0.5) }}>/</Box>}
       {iconOne && <TokenIcon symbol={icons[1] || 'unknown'} size="small" />}
-      <Box sx={{ marginLeft: iconOne || iconZero ? '5px' : '' }}>{type}</Box>
+      <SmallTableCell
+        sx={{
+          color: theme.palette.typography.main,
+          marginLeft: iconOne || iconZero ? theme.spacing(0.5) : undefined,
+        }}
+      >
+        {type}
+      </SmallTableCell>
     </Box>
   );
 };
