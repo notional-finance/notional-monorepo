@@ -38,14 +38,11 @@ export const RiskSlider = ({
         <H4>
           <FormattedMessage defaultMessage={'Portfolio Liquidation Risk'} />
         </H4>
-        {loanToValue && maxLoanToValue && (
-          <SliderRisk
-            loanToValue={loanToValue}
-            maxLoanToValue={maxLoanToValue}
-            riskLevel={riskLevel}
-          />
-        )}
-
+        <SliderRisk
+          loanToValue={loanToValue}
+          maxLoanToValue={maxLoanToValue}
+          riskLevel={riskLevel}
+        />
         {hasRisk && (
           <Box
             sx={{

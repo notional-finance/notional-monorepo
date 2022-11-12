@@ -39,13 +39,7 @@ export const PortfolioMoneyMarket = () => {
 
     return (
       <Box sx={{ padding: theme.spacing(3) }}>
-        <Button
-          size="large"
-          sx={{
-            background: theme.palette.primary.light,
-          }}
-          to={actionLink}
-        >
+        <Button size="large" to={actionLink}>
           <FormattedMessage {...buttonLabel} />
         </Button>
       </Box>

@@ -65,7 +65,7 @@
         "packages/features/portfolio/src/index.ts"
       ],
       "@notional-finance/portfolio-feature-shell/*": [
-        "packages/features/portfolio/src/lib/*"
+        "packages/features/portfolio/src/*"
       ],
       "@notional-finance/risk": ["packages/shared/risk/src/index.ts"],
       "@notional-finance/risk/*": ["packages/shared/risk/src/*"],

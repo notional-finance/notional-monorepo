@@ -1,2 +1,2 @@
-export * from './lib/side-drawers';
-export * from './lib/portfolio-feature-shell';
+export * from './side-drawers';
+export * from './portfolio-feature-shell';
