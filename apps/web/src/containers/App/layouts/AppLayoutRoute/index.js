@@ -1,8 +1,8 @@
-import PropTypes from 'prop-types'
-import { CompatRoute } from 'react-router-dom-v5-compat'
-import { Footer } from '@notional-finance/notional-web'
-import { HeaderRenderer } from '../../HeaderRenderer'
-import { Box, styled } from '@mui/material'
+import PropTypes from 'prop-types';
+import { CompatRoute } from 'react-router-dom-v5-compat';
+import { Footer } from '@notional-finance/shared-web';
+import { HeaderRenderer } from '../../HeaderRenderer';
+import { Box, styled } from '@mui/material';
 
 const AppLayoutRoute = ({ component: Component, path, routeKey }) => {
   return (
@@ -23,8 +23,8 @@ const AppLayoutRoute = ({ component: Component, path, routeKey }) => {
         </Box>
       )}
     />
-  )
-}
+  );
+};
 
 const AppShell = styled(Box)(
   ({ theme }) => `
@@ -42,7 +42,7 @@ const AppShell = styled(Box)(
     padding-top: 73px;
   }
 `
-)
+);
 
 const MainContent = styled('div')(
   ({ theme }) => `
@@ -53,18 +53,18 @@ const MainContent = styled('div')(
     width: 100%;
   }
 `
-)
+);
 
-const StyledFooter = styled(Footer)({})
+const StyledFooter = styled(Footer)({});
 
 AppLayoutRoute.propTypes = {
   component: PropTypes.elementType.isRequired,
   path: PropTypes.string.isRequired,
-  routeKey: PropTypes.string
-}
+  routeKey: PropTypes.string,
+};
 
 AppLayoutRoute.defaultProps = {
-  routeKey: ''
-}
+  routeKey: '',
+};
 
-export default AppLayoutRoute
+export default AppLayoutRoute;

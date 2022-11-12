@@ -8,7 +8,10 @@ export interface MobileSubNavProps {
   handleSideDrawer: (event: any) => void;
 }
 
-const MobileSubNav = ({ mobileSubNavLinks, handleSideDrawer }: MobileSubNavProps) => {
+const MobileSubNav = ({
+  mobileSubNavLinks,
+  handleSideDrawer,
+}: MobileSubNavProps) => {
   const theme = useTheme();
   return (
     <>
@@ -17,7 +20,7 @@ const MobileSubNav = ({ mobileSubNavLinks, handleSideDrawer }: MobileSubNavProps
           key={data.key}
           sx={{
             display: 'flex',
-            background: '#F4FAFA',
+            background: theme.palette.background.paper,
             alignItems: 'center',
             zIndex: 2,
           }}

@@ -14,7 +14,7 @@ import LandingPageLayoutRoute from './layouts/LandingPageLayoutRoute';
 import {
   TrackingConsent,
   useUserSettingsState,
-} from '@notional-finance/notional-web';
+} from '@notional-finance/shared-web';
 import { useNotional } from '@notional-finance/notionable-hooks';
 import { initializeNetwork } from '@notional-finance/notionable';
 import { ServerError } from '../../containers/server-error/server-error';

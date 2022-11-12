@@ -59,8 +59,8 @@
         "packages/shared/notionable-hooks/src/*"
       ],
       "@notional-finance/notionable/*": ["packages/notionable/src/*"],
-      "@notional-finance/notional-web": ["packages/shared/web/src/index.ts"],
-      "@notional-finance/notional-web/*": ["packages/shared/web/src/*"],
+      "@notional-finance/shared-web": ["packages/shared/web/src/index.ts"],
+      "@notional-finance/shared-web/*": ["packages/shared/web/src/*"],
       "@notional-finance/portfolio-feature-shell": [
         "packages/features/portfolio/src/index.ts"
       ],

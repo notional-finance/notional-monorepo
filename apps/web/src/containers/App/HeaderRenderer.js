@@ -1,4 +1,4 @@
-import { Header, LaunchAppButton } from '@notional-finance/notional-web';
+import { Header, LaunchAppButton } from '@notional-finance/shared-web';
 import { WalletSelector } from '@notional-finance/wallet';
 import { trackEvent } from '@notional-finance/helpers';
 

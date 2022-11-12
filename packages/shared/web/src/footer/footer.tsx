@@ -20,12 +20,10 @@ const FooterLeft = styled(Box)(
   display: block;
   text-align: left;
   margin-bottom: ${theme.spacing(8)};
-  text-align: center;
 
   ${theme.breakpoints.up('md')} {
     margin-bottom: 0px;
     margin-left: 0px;
-    text-align: left;
   }
 `
 );
@@ -40,12 +38,10 @@ const FooterCenter = styled(Box)(
   display: block;
   text-align: left;
   margin-bottom: ${theme.spacing(4)};
-  text-align: center;
 
   @media (min-width: ${theme.breakpoints.values.md}px) {
     margin-bottom: 0px;
     margin-left: 0px;
-    text-align: left;
   }
 `
 );
@@ -75,6 +71,10 @@ const StyledFooter = styled(Box)(
     align-items: flex-start;
     padding-left: ${theme.spacing(15)};
     padding-right: ${theme.spacing(15)};
+  }
+  ${theme.breakpoints.down('md')} {
+    align-items: flex-start;
+    padding: ${theme.spacing(8, 4)};
   }
 `
 );

@@ -1,9 +1,10 @@
-import { Box, BoxProps, Typography } from '@mui/material';
+import { Box, BoxProps, Typography, useTheme } from '@mui/material';
 import { useResourceLinks } from '../use-side-drawer-links';
 import MobileNavTab from '../mobile-nav-tab/mobile-nav-tab';
 import { styled } from '@mui/material/styles';
 
 const MobileSideDrawerResources = () => {
+  const theme = useTheme();
   const { learn, governance, community } = useResourceLinks();
 
   interface StyledBoxProps extends BoxProps {
@@ -25,7 +26,12 @@ const MobileSideDrawerResources = () => {
   return (
     <>
       {learn.title && (
-        <StyledBox borderLeftColor="#1F9B99" backgroundColor="#F4FAFA" zIndex="3">
+        <StyledBox
+          // NOTE* The border colors are intentionally hardcoded here
+          borderLeftColor="#1F9B99"
+          backgroundColor={theme.palette.background.default}
+          zIndex="3"
+        >
           <Typography
             sx={{
               width: '90%',
@@ -42,7 +48,11 @@ const MobileSideDrawerResources = () => {
         </StyledBox>
       )}
       {governance.title && (
-        <StyledBox borderLeftColor="#2DE1E8" backgroundColor="#F8FAFA" zIndex="2">
+        <StyledBox
+          borderLeftColor="#2DE1E8"
+          backgroundColor={theme.palette.background.paper}
+          zIndex="2"
+        >
           <Typography
             sx={{
               width: '90%',
@@ -59,7 +69,11 @@ const MobileSideDrawerResources = () => {
         </StyledBox>
       )}
       {community.title && (
-        <StyledBox borderLeftColor="#8F9BB3" backgroundColor="#F4FAFA" zIndex="1">
+        <StyledBox
+          borderLeftColor="#8F9BB3"
+          backgroundColor={theme.palette.background.default}
+          zIndex="1"
+        >
           <Typography
             sx={{
               width: '90%',

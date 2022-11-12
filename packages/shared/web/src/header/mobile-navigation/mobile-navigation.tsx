@@ -1,30 +1,43 @@
 import { CloseX } from '@notional-finance/icons';
-import { Tab, Tabs, TabsProps, IconButton, Drawer, Box, useTheme } from '@mui/material';
+import {
+  Tab,
+  Tabs,
+  TabsProps,
+  IconButton,
+  Drawer,
+  Box,
+  useTheme,
+} from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { useLocation, useHistory } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { SyntheticEvent } from 'react';
 import { ReactElement } from 'react';
 import { MouseEvent } from 'react';
-import MobileOnlyNav from './mobile-sub-nav/mobile-sub-nav';
+import MobileSubNav from './mobile-sub-nav/mobile-sub-nav';
 import MobileSideDrawer from './mobile-side-drawer/mobile-side-drawer';
+import { MOBILE_SUB_NAV_ACTIONS } from '@notional-finance/shared-config';
 import { useNavLinks } from '../use-nav-links';
 
-/* eslint-disable-next-line */
 export interface MobileNavigationProps extends TabsProps {
   rightButton?: ReactElement;
 }
 
-export function MobileNavigation({ rightButton, ...rest }: MobileNavigationProps) {
+export function MobileNavigation({
+  rightButton,
+  ...rest
+}: MobileNavigationProps) {
   const theme = useTheme();
   const history = useHistory();
   const [selectedTab, setSelectedTab] = useState<string | false>(false);
   const { navLinks, mobileSubNavLinks } = useNavLinks(true, theme);
   const { pathname } = useLocation();
   const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null);
-  const [sideDrawerDataKey, setSideDrawerDataKey] = useState<string>('');
+  const [sideDrawerDataKey, setSideDrawerDataKey] =
+    useState<MOBILE_SUB_NAV_ACTIONS>(MOBILE_SUB_NAV_ACTIONS.INVEST_AND_EARN);
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
-  const currentTab = navLinks.find(({ link }) => link === pathname)?.link || false;
+  const currentTab =
+    navLinks.find(({ link }) => link === pathname)?.link || false;
 
   useEffect(() => {
     setSelectedTab(currentTab);
@@ -66,7 +79,9 @@ export function MobileNavigation({ rightButton, ...rest }: MobileNavigationProps
         aria-haspopup="true"
         color="inherit"
         onClick={
-          anchorElNav ? (event) => handleCloseNavMenu(event) : (event) => handleOpenNavMenu(event)
+          anchorElNav
+            ? (event) => handleCloseNavMenu(event)
+            : (event) => handleOpenNavMenu(event)
         }
       >
         {anchorElNav ? (
@@ -114,7 +129,6 @@ export function MobileNavigation({ rightButton, ...rest }: MobileNavigationProps
               boxShadow: '0px 0px 6px rgb(25 19 102 / 11%)',
               zIndex: '9',
             },
-            '.MuiTabs-vertical': {},
             '.MuiTabs-indicator': {
               display: 'none',
             },
@@ -129,6 +143,20 @@ export function MobileNavigation({ rightButton, ...rest }: MobileNavigationProps
               padding: '45px 20px 30px 20px',
               width: '100%',
               textAlign: 'center',
+              maxWidth: {
+                xs: '286px',
+                sm: '286px',
+                md: '0px',
+                lg: '0px',
+                xl: '0px',
+              },
+              margin: {
+                xs: 'auto',
+                sm: 'auto',
+                md: '0px',
+                lg: '0px',
+                xl: '0px',
+              },
             }}
           >
             {rightButton}
@@ -163,7 +191,8 @@ export function MobileNavigation({ rightButton, ...rest }: MobileNavigationProps
                   width: '90%',
                   padding: '0px',
                   margin: 'auto',
-                  borderBottom: t.key !== 'provide' ? '1px solid #089CA3' : 'none',
+                  borderBottom:
+                    t.key !== 'provide' ? '1px solid #089CA3' : 'none',
                 },
                 '&:hover': {
                   svg: {
@@ -179,7 +208,10 @@ export function MobileNavigation({ rightButton, ...rest }: MobileNavigationProps
             />
           ))}
         </Tabs>
-        <MobileOnlyNav mobileSubNavLinks={mobileSubNavLinks} handleSideDrawer={handleSideDrawer} />
+        <MobileSubNav
+          mobileSubNavLinks={mobileSubNavLinks}
+          handleSideDrawer={handleSideDrawer}
+        />
         <MobileSideDrawer
           dataKey={sideDrawerDataKey}
           setDrawerOpen={setDrawerOpen}

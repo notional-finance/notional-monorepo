@@ -5,8 +5,13 @@ import {
   DocsIcon,
   NotionalPlainIcon,
   ResourcesIcon,
+  PieChartIcon,
 } from '@notional-finance/icons';
-import { NotionalPageLayoutOptions, NotionalTheme } from '@notional-finance/styles';
+import { MOBILE_SUB_NAV_ACTIONS } from '@notional-finance/shared-config';
+import {
+  NotionalPageLayoutOptions,
+  NotionalTheme,
+} from '@notional-finance/styles';
 import { useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { INavLink } from './nav-link';
@@ -14,7 +19,9 @@ import { INavLink } from './nav-link';
 export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
   const [_, setPageLayout] = useState<NotionalPageLayoutOptions>('app');
 
-  const textColor = mobileNav ? theme.palette.common.black : theme.palette.common.white;
+  const textColor = mobileNav
+    ? theme.palette.common.black
+    : theme.palette.common.white;
 
   const navLinks: INavLink[] = [
     {
@@ -54,24 +61,45 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
 
   const mobileSubNavLinks: INavLink[] = [
     {
-      key: 'resources',
+      key: MOBILE_SUB_NAV_ACTIONS.INVEST_AND_EARN,
+      label: <FormattedMessage defaultMessage={'Invest and Earn'} />,
+      link: '',
+      iconImg: (
+        <PieChartIcon
+          className="color-stroke"
+          sx={{ fontSize: '1.125rem', stroke: '', fill: textColor }}
+        />
+      ),
+    },
+    {
+      key: MOBILE_SUB_NAV_ACTIONS.RESOURCES,
       label: <FormattedMessage defaultMessage={'Resources'} />,
       link: '/resources',
-      iconImg: <DocsIcon sx={{ color: theme.palette.common.black, fontSize: '1.125rem' }} />,
+      iconImg: (
+        <DocsIcon
+          sx={{ color: theme.palette.common.black, fontSize: '1.125rem' }}
+        />
+      ),
     },
     {
-      key: 'security',
+      key: MOBILE_SUB_NAV_ACTIONS.SECURITY,
       label: <FormattedMessage defaultMessage={'Security'} />,
       link: '/security',
-      iconImg: <ResourcesIcon sx={{ color: theme.palette.common.black, fontSize: '1.125rem' }} />,
+      iconImg: (
+        <ResourcesIcon
+          sx={{ color: theme.palette.common.black, fontSize: '1.125rem' }}
+        />
+      ),
     },
     {
-      key: 'company',
+      key: MOBILE_SUB_NAV_ACTIONS.COMPANY,
       label: <FormattedMessage defaultMessage={'Company'} />,
       link: '/company',
       noBottomBorder: true,
       iconImg: (
-        <NotionalPlainIcon sx={{ color: theme.palette.common.black, fontSize: '1.125rem' }} />
+        <NotionalPlainIcon
+          sx={{ color: theme.palette.common.black, fontSize: '1.125rem' }}
+        />
       ),
     },
   ];
