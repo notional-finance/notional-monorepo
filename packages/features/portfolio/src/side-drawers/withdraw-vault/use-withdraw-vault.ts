@@ -13,13 +13,12 @@ import {
   TradeProperties,
   TradePropertyKeys,
 } from '@notional-finance/trade';
+import { useFormState } from '@notional-finance/utils';
+import { logError, NonLoggedError } from '@notional-finance/helpers';
 import {
-  logError,
-  NonLoggedError,
   PORTFOLIO_ACTIONS,
   tradeDefaults,
-  useFormState,
-} from '@notional-finance/utils';
+} from '@notional-finance/shared-config';
 import { MessageDescriptor } from 'react-intl';
 import { messages } from '../messages';
 import { useMaxWithdraw } from './use-max-withdraw';
