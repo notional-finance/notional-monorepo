@@ -18,15 +18,17 @@ export function formatCurrencyForRisk(
 ) {
   return !n || n.isZero()
     ? '-'
-    : n.toCUR(localCurrency).toDisplayStringWithSymbol(3);
+    : n.toCUR(localCurrency).toDisplayStringWithSymbol(2);
 }
 
 export function formatPercentForRisk(n?: number | null) {
-  return n && n !== null ? formatNumberAsPercent(n) : '-';
+  return n && n !== null ? formatNumberAsPercent(n, 1) : '-';
 }
 
 export function formatRateForRisk(n?: number | null) {
-  return n && n !== null ? formatNumberAsPercent(convertRateToFloat(n)) : '-';
+  return n && n !== null
+    ? formatNumberAsPercent(convertRateToFloat(n), 1)
+    : '-';
 }
 
 export function formatLeverageForRisk(n?: number | null) {
