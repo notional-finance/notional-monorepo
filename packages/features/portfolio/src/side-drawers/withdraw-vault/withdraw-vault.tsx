@@ -2,16 +2,14 @@ import { Box } from '@mui/material';
 import {
   CurrencyInput,
   InputLabel,
-  SliderInput,
   Button,
   CurrencyInputHandle,
-  SliderInputHandle,
 } from '@notional-finance/mui';
 import { INTERNAL_TOKEN_DECIMAL_PLACES } from '@notional-finance/sdk/src/config/constants';
 import { TradePropertiesGrid } from '@notional-finance/trade';
 import { useQueryParams } from '@notional-finance/utils';
 import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
-import { useCallback, useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router-dom';
 import { VaultSideDrawer } from '../components/vault-side-drawer';
@@ -21,15 +19,6 @@ import { useWithdrawVault } from './use-withdraw-vault';
 export const WithdrawVault = () => {
   const { vaultAddress } = useQueryParams();
   const inputOverrideRef = useRef<CurrencyInputHandle>(null);
-  const sliderInputRef = useRef<SliderInputHandle>(null);
-  const isSliderMounted = !!sliderInputRef.current;
-  const setSliderInput = useCallback(
-    (input: number) => {
-      sliderInputRef.current?.setInputOverride(input);
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [sliderInputRef, isSliderMounted]
-  );
 
   const {
     canSubmit,
@@ -38,18 +27,11 @@ export const WithdrawVault = () => {
     isPostMaturityExit,
     error,
     maxWithdrawAmountString,
-    sliderInfoMessage,
+    isFullRepayment,
     primaryBorrowSymbol,
-    maxLeverageRatio,
-    targetLeverageRatio,
     updatedVaultAccount,
     updateWithdrawVaultState,
   } = useWithdrawVault(vaultAddress);
-
-  useEffect(() => {
-    if (targetLeverageRatio && isSliderMounted)
-      setSliderInput(targetLeverageRatio);
-  }, [targetLeverageRatio, setSliderInput, isSliderMounted]);
 
   return (
     <VaultSideDrawer
@@ -100,6 +82,15 @@ export const WithdrawVault = () => {
               });
             }}
             errorMsg={error && <FormattedMessage {...error} />}
+            captionMsg={
+              isFullRepayment && (
+                <FormattedMessage
+                  {...messages[PORTFOLIO_ACTIONS.WITHDRAW_VAULT][
+                    'fullRepaymentInfo'
+                  ]}
+                />
+              )
+            }
             currencies={[primaryBorrowSymbol]}
             defaultValue={primaryBorrowSymbol}
             onSelectChange={() => {
@@ -107,20 +98,6 @@ export const WithdrawVault = () => {
             }}
           />
         </Box>
-      )}
-      {!isPostMaturityExit && (
-        <SliderInput
-          ref={sliderInputRef}
-          min={0}
-          max={maxLeverageRatio}
-          onChangeCommitted={(newLeverageRatio) =>
-            updateWithdrawVaultState({ targetLeverageRatio: newLeverageRatio })
-          }
-          infoMsg={sliderInfoMessage}
-          inputLabel={
-            messages[PORTFOLIO_ACTIONS.WITHDRAW_VAULT]['leverageInputLabel']
-          }
-        />
       )}
       <TradePropertiesGrid showBackground data={sideDrawerInfo} />
     </VaultSideDrawer>

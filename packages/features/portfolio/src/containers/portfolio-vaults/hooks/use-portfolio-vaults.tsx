@@ -8,7 +8,6 @@ import {
   DataTableColumn,
 } from '@notional-finance/mui';
 import { useYieldStrategies } from '@notional-finance/notionable-hooks';
-import { RATE_PRECISION } from '@notional-finance/sdk/src/config/constants';
 import {
   formatCryptoWithFiat,
   formatLeverageRatio,

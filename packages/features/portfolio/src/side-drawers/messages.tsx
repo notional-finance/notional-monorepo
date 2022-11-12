@@ -174,7 +174,8 @@ export const messages: Record<PORTFOLIO_ACTIONS, PortfolioMessages> = {
       description: 'input label',
     },
     fullRepaymentInfo: {
-      defaultMessage: 'Below minimum borrow size, all debts will be repaid.',
+      defaultMessage:
+        'Below minimum borrow size, all assets will be withdrawn.',
       description: 'info message',
     },
     unableToExit: {

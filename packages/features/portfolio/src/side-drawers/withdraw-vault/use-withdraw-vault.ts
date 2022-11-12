@@ -7,33 +7,25 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { TransactionData } from '@notional-finance/notionable';
 import { TypedBigNumber, VaultAccount } from '@notional-finance/sdk';
-import {
-  BASIS_POINT,
-  RATE_PRECISION,
-} from '@notional-finance/sdk/src/config/constants';
+import { RATE_PRECISION } from '@notional-finance/sdk/src/config/constants';
 import {
   tradeErrors,
   TradeProperties,
   TradePropertyKeys,
 } from '@notional-finance/trade';
-import { useFormState } from '@notional-finance/utils';
 import {
-  PORTFOLIO_ACTIONS,
-  tradeDefaults,
-} from '@notional-finance/shared-config';
-import {
-  formatLeverageRatio,
   logError,
   NonLoggedError,
-} from '@notional-finance/helpers';
-import { useEffect } from 'react';
+  PORTFOLIO_ACTIONS,
+  tradeDefaults,
+  useFormState,
+} from '@notional-finance/utils';
 import { MessageDescriptor } from 'react-intl';
 import { messages } from '../messages';
 import { useMaxWithdraw } from './use-max-withdraw';
 
 interface WithdrawVaultState {
   withdrawAmountString: string;
-  targetLeverageRatio: number | undefined;
   minimumLeverageRatio: number | undefined;
   maximumLeverageRatio: number | undefined;
   maxWithdraw: boolean;
@@ -41,7 +33,6 @@ interface WithdrawVaultState {
 
 const initialWithdrawVaultState = {
   withdrawAmountString: '',
-  targetLeverageRatio: undefined,
   minimumLeverageRatio: undefined,
   maximumLeverageRatio: undefined,
   maxWithdraw: false,
@@ -54,22 +45,19 @@ export function useWithdrawVault(vaultAddress: string) {
   const { notional } = useNotional();
   const { address } = useAccount();
   const { vaultAccount } = useVaultAccount(vaultAddress);
-  const {
-    primaryBorrowSymbol,
-    maxLeverageRatio,
-    minLeverageRatio,
-    defaultLeverageRatio,
-  } = useVault(vaultAddress);
+  const { primaryBorrowSymbol, maxLeverageRatio, minLeverageRatio } =
+    useVault(vaultAddress);
   const baseVault = useBaseVault(vaultAddress);
-  const { withdrawAmountString, targetLeverageRatio, maxWithdraw } = state;
+  const { withdrawAmountString, maxWithdraw } = state;
   const {
     maxWithdrawAmount,
     maxWithdrawAmountString,
     maxWithdrawVaultAccount,
   } = useMaxWithdraw(vaultAddress);
-  const scaledLeverageRatio = targetLeverageRatio
-    ? Math.floor(targetLeverageRatio * RATE_PRECISION)
-    : undefined;
+  const targetLeverageRatio =
+    baseVault && vaultAccount
+      ? baseVault.getLeverageRatio(vaultAccount)
+      : undefined;
 
   const isPostMaturityExit = vaultAccount?.canSettle() || false;
   let error: MessageDescriptor | undefined;
@@ -113,8 +101,8 @@ export function useWithdrawVault(vaultAddress: string) {
         vaultSharesToRedeem = vaultAccount.vaultShares;
         fCashToLend = vaultAccount.primaryBorrowfCash.neg();
       } else if (
-        scaledLeverageRatio &&
-        scaledLeverageRatio < newLeverageRatio
+        targetLeverageRatio &&
+        targetLeverageRatio < newLeverageRatio
       ) {
         // If we are above the target leverage ratio then we need to calculate
         // how much fCashToLend and vault shares to sell in order to reduce the
@@ -122,7 +110,7 @@ export function useWithdrawVault(vaultAddress: string) {
         try {
           const repayment = baseVault.getExitParamsFromLeverageRatio(
             newVaultAccount,
-            scaledLeverageRatio
+            targetLeverageRatio
           );
 
           vaultSharesToRedeem = repayment.isFullExit
@@ -185,7 +173,7 @@ export function useWithdrawVault(vaultAddress: string) {
         [TradePropertyKeys.amountToWallet]: isFullRepayment
           ? maxWithdrawAmount
           : withdrawAmount,
-        [TradePropertyKeys.leverageRatio]: scaledLeverageRatio,
+        [TradePropertyKeys.leverageRatio]: targetLeverageRatio,
         [TradePropertyKeys.remainingDebt]: newVaultAccount
           ? newVaultAccount.primaryBorrowfCash
           : vaultAccount.primaryBorrowfCash,
@@ -231,44 +219,6 @@ export function useWithdrawVault(vaultAddress: string) {
     };
   }
 
-  useEffect(() => {
-    if (!baseVault) return;
-
-    if (scaledLeverageRatio === undefined && vaultAccount) {
-      // Set the default leverage ratio to the current
-      const accountLeverageRatio = baseVault.getLeverageRatio(vaultAccount);
-      updateWithdrawVaultState({
-        targetLeverageRatio: accountLeverageRatio / RATE_PRECISION,
-      });
-    }
-  }, [
-    scaledLeverageRatio,
-    vaultAccount,
-    baseVault,
-    newVaultAccount,
-    defaultLeverageRatio,
-    updateWithdrawVaultState,
-  ]);
-
-  let sliderInfoMessage: MessageDescriptor | undefined;
-  if (isFullRepayment) {
-    sliderInfoMessage =
-      messages[PORTFOLIO_ACTIONS.WITHDRAW_VAULT]['fullRepaymentInfo'];
-  } else if (newVaultAccount && baseVault && scaledLeverageRatio) {
-    const newLeverageRatio = baseVault.getLeverageRatio(newVaultAccount);
-    const diff = Math.abs(newLeverageRatio - scaledLeverageRatio);
-    if (newLeverageRatio < scaledLeverageRatio && diff > 50 * BASIS_POINT) {
-      sliderInfoMessage = {
-        ...messages[PORTFOLIO_ACTIONS.WITHDRAW_VAULT][
-          'selectedLeverageRatioAboveMax'
-        ],
-        values: {
-          maxLeverageRatio: formatLeverageRatio(newLeverageRatio, 2),
-        },
-      } as MessageDescriptor;
-    }
-  }
-
   return {
     canSubmit,
     transactionData,
@@ -276,7 +226,7 @@ export function useWithdrawVault(vaultAddress: string) {
     isPostMaturityExit,
     maxWithdrawAmountString,
     error,
-    sliderInfoMessage,
+    isFullRepayment,
     primaryBorrowSymbol,
     minLeverageRatio: minLeverageRatio / RATE_PRECISION,
     targetLeverageRatio,
