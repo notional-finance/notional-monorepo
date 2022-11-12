@@ -1,5 +1,5 @@
 import { FormattedMessage } from 'react-intl';
-import { LEND_BORROW } from '@notional-finance/shared-config';
+import { NOTIONAL_CATEGORIES } from '@notional-finance/shared-config';
 // @ts-ignore
 import Chart from '../chart';
 import {
@@ -13,13 +13,14 @@ import { TradeActionView } from './trade-action-view';
 import { CalculatedRatesTable } from './calculated-rates-table';
 import { Market } from '@notional-finance/sdk/src/system';
 import { useQueryParams } from '@notional-finance/utils';
+import { MobileTradeActionSummary } from './mobile-trade-action-summary';
 import { messages } from './messages';
 interface TradeActionSummaryProps {
   markets: Market[];
   selectedToken: string | null;
   selectedMarketKey: string | null;
   onSelectMarketKey: (marketKey: string | null) => void;
-  tradeAction: LEND_BORROW;
+  tradeAction: NOTIONAL_CATEGORIES;
   tradedRate: number | undefined;
   fCashAmount: number | undefined;
   interestAmount: number | undefined;
@@ -38,48 +39,61 @@ export function TradeActionSummary({
   const { confirm } = useQueryParams();
   const { loaded } = useNotional();
   if (!loaded || !selectedToken) return <PageLoading />;
+  const fixedAPY = tradedRate ? (tradedRate * 100) / 1e9 : undefined;
 
   return (
-    <TradeSummaryContainer>
-      <div id="trade-action-view-left-content">
-        <TradeActionHeader
-          token={selectedToken}
-          actionText={<FormattedMessage {...messages[tradeAction].title} />}
-        />
-
-        <TradeActionTitle
-          value={tradedRate ? (tradedRate * 100) / 1e9 : undefined}
-          title={<FormattedMessage defaultMessage={'Fixed APY'} />}
-          valueSuffix="%"
-        />
-
-        <Chart
-          markets={markets}
-          currency={selectedToken}
-          selectedMarketKey={selectedMarketKey || ''}
-          setSelectedMarket={onSelectMarketKey}
-          unsetSelectedMarket={() => onSelectMarketKey(null)}
-          lockSelection={!!confirm}
-        />
-
-        <TradeActionView
-          selectedMarketKey={selectedMarketKey}
-          tradeAction={tradeAction}
-          fCashAmount={fCashAmount}
-          interestAmount={interestAmount}
-          selectedToken={selectedToken}
-        />
-
-        {(tradeAction === LEND_BORROW.BORROW ||
-          tradeAction === LEND_BORROW.LEND) && (
-          <CalculatedRatesTable
-            selectedMarketKey={selectedMarketKey}
-            selectedToken={selectedToken}
-            tradeAction={tradeAction}
+    <>
+      <TradeSummaryContainer>
+        <div id="trade-action-view-left-content">
+          <TradeActionHeader
+            token={selectedToken}
+            actionText={<FormattedMessage {...messages[tradeAction].title} />}
           />
-        )}
-      </div>
-    </TradeSummaryContainer>
+
+          <TradeActionTitle
+            value={fixedAPY}
+            title={<FormattedMessage defaultMessage={'Fixed APY'} />}
+            valueSuffix="%"
+          />
+
+          <Chart
+            markets={markets}
+            currency={selectedToken}
+            selectedMarketKey={selectedMarketKey || ''}
+            setSelectedMarket={onSelectMarketKey}
+            unsetSelectedMarket={() => onSelectMarketKey(null)}
+            lockSelection={!!confirm}
+          />
+
+          <TradeActionView
+            selectedMarketKey={selectedMarketKey}
+            tradeAction={tradeAction}
+            fCashAmount={fCashAmount}
+            interestAmount={interestAmount}
+            selectedToken={selectedToken}
+          />
+
+          {(tradeAction === NOTIONAL_CATEGORIES.BORROW ||
+            tradeAction === NOTIONAL_CATEGORIES.LEND) && (
+            <CalculatedRatesTable
+              selectedMarketKey={selectedMarketKey}
+              selectedToken={selectedToken}
+              tradeAction={tradeAction}
+            />
+          )}
+        </div>
+      </TradeSummaryContainer>
+
+      <MobileTradeActionSummary
+        tradeAction={tradeAction}
+        selectedToken={selectedToken}
+        dataPointOne={fCashAmount}
+        dataPointOneSuffix={` ${selectedToken}`}
+        dataPointTwo={interestAmount}
+        dataPointTwoSuffix={` ${selectedToken}`}
+        fixedAPY={fixedAPY}
+      />
+    </>
   );
 }
 

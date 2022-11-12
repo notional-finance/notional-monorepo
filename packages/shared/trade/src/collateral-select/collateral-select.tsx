@@ -11,7 +11,7 @@ import {
 } from '@notional-finance/mui';
 import { CollateralAction } from '@notional-finance/sdk';
 import { formatNumber, formatNumberAsPercent } from '@notional-finance/helpers';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { defineMessage, FormattedMessage, MessageDescriptor } from 'react-intl';
 import { useCollateralSelect } from './use-collateral-select';
 import { WalletDepositInput } from '../wallet-deposit-input/wallet-deposit-input';
@@ -84,6 +84,7 @@ export const CollateralSelect = ({
 }: CollateralSelectProps) => {
   const theme = useTheme();
   const [hasFocus, setHasFocus] = useState(false);
+  const dropDownRef = useRef(null);
   const {
     selectedOptionKey,
     collateralAction,
@@ -137,6 +138,7 @@ export const CollateralSelect = ({
             })}
           />
           <SelectDropdown
+            popperRef={dropDownRef}
             buttonComponent={StyledButton}
             value={selectedOptionKey}
             landingPage={false}
@@ -198,6 +200,7 @@ export const CollateralSelect = ({
               }
             )}
           </SelectDropdown>
+          <div ref={dropDownRef}></div>
           <Paragraph marginTop={theme.spacing(1)}>
             {highestApyString ? (
               <FormattedMessage

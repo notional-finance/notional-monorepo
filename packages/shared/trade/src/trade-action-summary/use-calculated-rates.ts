@@ -4,7 +4,7 @@ import { BorderCell } from '@notional-finance/mui';
 import { useMarkets, useNotional } from '@notional-finance/notionable-hooks';
 import { Market } from '@notional-finance/sdk/src/system';
 import { getAmountKeys } from './amount-keys';
-import { LEND_BORROW } from '@notional-finance/shared-config';
+import { NOTIONAL_CATEGORIES } from '@notional-finance/shared-config';
 
 const headers = defineMessages({
   tenor: {
@@ -24,7 +24,7 @@ const headers = defineMessages({
 export const useCalculatedRates = (
   selectedToken: string,
   selectedMarketKey: string | null,
-  tradeAction: LEND_BORROW
+  tradeAction: NOTIONAL_CATEGORIES
 ) => {
   const intl = useIntl();
   const { notional } = useNotional();
@@ -76,7 +76,7 @@ export const useCalculatedRates = (
       let rate = '-';
       try {
         const parsedCashValue =
-          tradeAction === LEND_BORROW.LEND
+          tradeAction === NOTIONAL_CATEGORIES.LEND
             ? notional?.parseInput(value, m.underlyingSymbol, true)?.neg()
             : notional?.parseInput(value, m.underlyingSymbol, true);
         const fCash =
