@@ -3,6 +3,24 @@ export enum LEND_BORROW {
   BORROW = 'borrow',
 }
 
+export enum NOTIONAL_CATEGORIES {
+  LEND = 'lend',
+  BORROW = 'borrow',
+  PROVIDE_LIQUIDITY = 'provide-liquidity',
+  STAKE = 'stake',
+}
+
+export enum MOBILE_SUB_NAV_ACTIONS {
+  INVEST_AND_EARN = 'invest-and-earn',
+  VAULTS = 'vaults',
+  BORROW = 'provide-liquidity',
+  PROVIDE_LIQUIDITY = 'provide-liquidity',
+  STAKE = 'stake',
+  RESOURCES = 'resources',
+  SECURITY = 'security',
+  COMPANY = 'company',
+}
+
 export enum PORTFOLIO_ACTIONS {
   ADD_TO_CALENDAR = 'add-to-calendar',
   DEPOSIT = 'deposit',
@@ -75,5 +93,8 @@ export enum THEME_VARIANTS {
   DARK = 'dark',
 }
 
-export type TRANSACTION_ACTIONS = LEND_BORROW | PORTFOLIO_ACTIONS | NTOKEN_ACTIONS;
+export type TRANSACTION_ACTIONS =
+  | LEND_BORROW
+  | PORTFOLIO_ACTIONS
+  | NTOKEN_ACTIONS;
 export type SIDE_DRAWERS = SIDEBAR_CATEGORIES | PORTFOLIO_ACTIONS;
