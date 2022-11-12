@@ -10,7 +10,7 @@ import {
   formatNumberAsPercent,
   formatNumber,
 } from '@notional-finance/helpers';
-import { useCryptoPriceState } from '@notional-finance/notional-web';
+import { useCryptoPriceState } from '@notional-finance/shared-web';
 
 export const usePriceRiskTable = () => {
   const riskThresholds = useRiskThresholds();

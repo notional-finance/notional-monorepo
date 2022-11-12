@@ -1,5 +1,5 @@
 import { useLocation, useHistory } from 'react-router-dom';
-import { updateSideDrawerState } from '@notional-finance/notional-web';
+import { updateSideDrawerState } from '@notional-finance/shared-web';
 
 export const useWalletSideDrawer = () => {
   const history = useHistory();

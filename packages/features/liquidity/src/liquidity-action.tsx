@@ -6,7 +6,7 @@ import { trimRouterMatchToPath } from '@notional-finance/helpers';
 import { THEME_VARIANTS } from '@notional-finance/shared-config';
 import backgroundImgDark from '@notional-finance/assets/images/provide-liquidity-bg-alt.png';
 import backgroundImgLight from '@notional-finance/assets/images/provide-liquidity-light-bg.png';
-import { useUserSettingsState } from '@notional-finance/notional-web';
+import { useUserSettingsState } from '@notional-finance/shared-web';
 import { LiquiditySummary } from './liquidity-summary/liquidity-summary';
 import { LiquiditySidebar } from './liquidity-sidebar/liquidity-sidebar';
 import { updateLiquidityState } from './store/liquidity-store';

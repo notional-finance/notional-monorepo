@@ -23,7 +23,7 @@ import {
 import {
   useSideDrawerState,
   useSideDrawerManager,
-} from '@notional-finance/notional-web';
+} from '@notional-finance/shared-web';
 import { ButtonText } from '@notional-finance/mui';
 
 export interface PortfolioParams {

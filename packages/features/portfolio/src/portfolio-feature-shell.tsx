@@ -17,7 +17,7 @@ import {
 import {
   updateSideDrawerState,
   useSideDrawerManager,
-} from '@notional-finance/notional-web';
+} from '@notional-finance/shared-web';
 import {
   PORTFOLIO_ACTIONS,
   PORTFOLIO_CATEGORIES,

@@ -4,7 +4,7 @@ import { THEME_VARIANTS } from '@notional-finance/shared-config';
 import {
   EmailCaptureSection,
   LandingFooter,
-} from '@notional-finance/notional-web';
+} from '@notional-finance/shared-web';
 import { useNotionalTheme } from '@notional-finance/styles';
 import MeetTheTeam from './MeetTheTeam';
 

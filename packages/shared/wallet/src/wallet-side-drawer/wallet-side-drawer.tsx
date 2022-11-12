@@ -12,7 +12,7 @@ import { useWalletSideDrawer } from '../hooks';
 import {
   updateSideDrawerState,
   useSideDrawerManager,
-} from '@notional-finance/notional-web';
+} from '@notional-finance/shared-web';
 import { FormattedMessage } from 'react-intl';
 
 interface SettingsButtonProps {
