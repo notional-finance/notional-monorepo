@@ -11,7 +11,8 @@ import { LiquiditySummary } from './liquidity-summary/liquidity-summary';
 import { LiquiditySidebar } from './liquidity-sidebar/liquidity-sidebar';
 import { updateLiquidityState } from './store/liquidity-store';
 
-const LiquidityCurrencyBackground = styled('img')`
+const LiquidityCurrencyBackground = styled('img')(
+  ({ theme }) => `
   position: absolute;
   top: 0;
   bottom: 0;
@@ -20,7 +21,11 @@ const LiquidityCurrencyBackground = styled('img')`
   width: 100%;
   height: 100%;
   z-index: -1;
-`;
+  ${theme.breakpoints.down('sm')} {
+    display: none;
+  }
+`
+);
 
 export const LiquidityCurrencyView = () => {
   const { themeVariant } = useUserSettingsState();
@@ -43,14 +48,24 @@ export const LiquidityCurrencyView = () => {
         src={bgImg}
         alt="provide liquidity background"
       />
-      <Box sx={{ minHeight: '1550px' }}>
+      <Container>
         <SideBarLayout
+          mobileHeader
           sideBar={<LiquiditySidebar />}
           mainContent={<LiquiditySummary />}
         />
-      </Box>
+      </Container>
     </>
   );
 };
+
+const Container = styled(Box)(
+  ({ theme }) => `
+    min-height: 1550px;
+    ${theme.breakpoints.down('sm')} {
+      min-height: 0px;
+    }
+    `
+);
 
 export default LiquidityCurrencyView;
