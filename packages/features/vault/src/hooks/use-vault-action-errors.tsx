@@ -24,13 +24,17 @@ export function useVaultActionErrors() {
   } = state;
   const { minAccountBorrowSize, maxLeverageRatio } = useVault(vaultAddress);
 
-  let underMinAccountBorrow = true;
+  let underMinAccountBorrow = false;
   if (vaultAccount && fCashBorrowAmount && minAccountBorrowSize) {
     underMinAccountBorrow = fCashBorrowAmount
       .add(vaultAccount.primaryBorrowfCash)
       .abs()
       .lte(minAccountBorrowSize);
-  } else if (vaultAccount && !fCashBorrowAmount && minAccountBorrowSize) {
+  } else if (
+    vaultAccount?.primaryBorrowfCash.isZero() === false &&
+    !fCashBorrowAmount &&
+    minAccountBorrowSize
+  ) {
     underMinAccountBorrow = vaultAccount.primaryBorrowfCash
       .abs()
       .lte(minAccountBorrowSize);
