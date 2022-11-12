@@ -85,7 +85,6 @@ export const TreasuryView = () => {
           data={tableData}
           columns={tableColumns}
           hideExcessRows={false}
-          tableVariant={TABLE_VARIANTS.SPARSE}
         />
         <Button
           sx={{ marginTop: '1rem' }}
@@ -229,7 +228,6 @@ export const TreasuryView = () => {
               data={openOrderTableData}
               columns={openOrderColumns}
               hideExcessRows={false}
-              tableVariant={TABLE_VARIANTS.SPARSE}
             />
           </Box>
         )}
