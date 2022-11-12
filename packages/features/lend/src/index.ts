@@ -1,1 +1,1 @@
-export * from './lib/lend-feature-shell';
+export * from './lend-feature-shell';

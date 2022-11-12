@@ -41,7 +41,7 @@
         "packages/features/lend/src/index.ts"
       ],
       "@notional-finance/lend-feature-shell/*": [
-        "packages/features/lend/src/lib/*"
+        "packages/features/lend/src/*"
       ],
       "@notional-finance/liquidity-feature-shell": [
         "packages/features/liquidity/src/index.ts"

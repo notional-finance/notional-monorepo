@@ -45,7 +45,17 @@ export const LendBalanceInfo = ({ setInputAmount }: LendBalanceInfoProps) => {
   }, [fillDefaultCashBalance, cashBalanceString, setInputAmount]);
 
   return (
-    <Box>
+    <Box
+      sx={{
+        display: {
+          xs: 'none',
+          sm: 'none',
+          md: 'block',
+          lg: 'block',
+          xl: 'block',
+        },
+      }}
+    >
       {hasCashBalance && (
         <BalanceWrapper>
           <BalanceInfoWrapper>
@@ -58,7 +68,10 @@ export const LendBalanceInfo = ({ setInputAmount }: LendBalanceInfoProps) => {
                 isVisible={!!cashBalanceString}
                 onClick={() => setInputAmount(cashBalanceString)}
               >
-                <FormattedMessage defaultMessage="Max Cash" description="button label" />
+                <FormattedMessage
+                  defaultMessage="Max Cash"
+                  description="button label"
+                />
               </MiniButton>
             </Box>
           </BalanceInfoWrapper>
@@ -68,7 +81,10 @@ export const LendBalanceInfo = ({ setInputAmount }: LendBalanceInfoProps) => {
               propertyKey={TradePropertyKeys.fromWalletBalance}
             />
             <MiniButton isVisible={false}>
-              <FormattedMessage defaultMessage="Max Deposit" description="button label" />
+              <FormattedMessage
+                defaultMessage="Max Deposit"
+                description="button label"
+              />
             </MiniButton>
           </BalanceInfoWrapper>
         </BalanceWrapper>

@@ -5,7 +5,7 @@ import { TradeActionSummary } from '@notional-finance/trade';
 import { useEffect } from 'react';
 import { updateLendState } from './store/lend-store';
 import { useLend } from './store/use-lend';
-import { LEND_BORROW } from '@notional-finance/shared-config';
+import { NOTIONAL_CATEGORIES } from '@notional-finance/shared-config';
 
 export const LendFeatureShell = () => {
   const { currency } = useParams<Record<string, string>>();
@@ -25,6 +25,7 @@ export const LendFeatureShell = () => {
 
   return (
     <SideBarLayout
+      mobileHeader
       sideBar={<LendSidebar />}
       mainContent={
         <TradeActionSummary
@@ -35,7 +36,7 @@ export const LendFeatureShell = () => {
           onSelectMarketKey={(marketKey: string | null) => {
             updateLendState({ selectedMarketKey: marketKey });
           }}
-          tradeAction={LEND_BORROW.LEND}
+          tradeAction={NOTIONAL_CATEGORIES.LEND}
           fCashAmount={fCashAmount}
           interestAmount={interestAmount}
         />
