@@ -8,7 +8,7 @@ import {
   ShapeOptions,
   alpha,
 } from '@mui/material';
-import { THEME_VARIANTS } from '@notional-finance/shared-config';
+import { THEME_VARIANTS } from '@notional-finance/utils';
 import { NotionalFonts } from './fonts';
 import { NormalizeCss } from './normalize';
 import React from 'react';
@@ -271,18 +271,19 @@ const getThemeData = (themeVariant: PaletteMode) => {
       },
       secondary: undefined,
       error: {
+        light: alpha(colors.red, 0.15),
         main: colors.red,
       },
       warning: {
         main: colors.orange,
       },
       info: {
+        light: alpha(colors.neonTurquoise, 0.15),
         main:
           themeVariant === THEME_VARIANTS.LIGHT
             ? colors.neonTurquoise
             : colors.white,
         dark: colors.aqua,
-        light: alpha(colors.neonTurquoise, 0.15),
       },
       success: {
         main: colors.aqua,
@@ -404,7 +405,7 @@ const getThemeData = (themeVariant: PaletteMode) => {
       body2: {
         fontSize: pxToRem(12),
         fontWeight: fontWeight.medium,
-        color: fontColor.secondary,
+        color: getFontColors(themeVariant).secondary,
         lineHeight,
         marginBottom: pxToMargin(12),
       },
