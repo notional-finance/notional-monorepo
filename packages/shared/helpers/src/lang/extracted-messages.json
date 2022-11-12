@@ -79,6 +79,10 @@
   "0g//ij": {
     "defaultMessage": "Reminder to check in on your Notional Finance loan maturity"
   },
+  "0iqWBg": {
+    "defaultMessage": "Below {minBorrowSize} minimum borrow amount: {borrowAmount}",
+    "description": "error message"
+  },
   "0n/t1s": {
     "defaultMessage": "Entrepreneur, Writer & Co-Founder of food tour brand at UnTour.",
     "description": "team member title"
@@ -277,9 +281,6 @@
     "defaultMessage": "Total Capacity:",
     "description": "text label"
   },
-  "6JC8Pb": {
-    "defaultMessage": "Minimum Borrow"
-  },
   "6KDfHr": {
     "defaultMessage": "Claim up to $1M for critical issues"
   },
@@ -381,6 +382,10 @@
     "defaultMessage": "Jeff Wu",
     "description": "team member name"
   },
+  "9uY01w": {
+    "defaultMessage": "Below minimum vault requirements. Full exit required.",
+    "description": "info message"
+  },
   "9xRAeu": {
     "defaultMessage": "Staked NOTE holders earn reinvestments from protocol revenue & trading fees.",
     "description": "subtitle"
@@ -396,10 +401,6 @@
   "ATbMUa": {
     "defaultMessage": "Provide Liquidity",
     "description": "landing page heading"
-  },
-  "AaszXe": {
-    "defaultMessage": "Your account will be withdrawn to: {maxLeverageRatio} leverage",
-    "description": "info message"
   },
   "AnUcic": {
     "defaultMessage": "Staking with 80% NOTE is recommended for best results.",
@@ -474,6 +475,9 @@
   },
   "D3idYv": {
     "defaultMessage": "Settings"
+  },
+  "D3rOMr": {
+    "defaultMessage": "No Data"
   },
   "DQXcsq": {
     "defaultMessage": "We can't find the page you're looking for",
@@ -1041,6 +1045,10 @@
   "Skzxtq": {
     "defaultMessage": "View Bounty"
   },
+  "SqI4eb": {
+    "defaultMessage": "Returns at {leverageRatio} Leverage",
+    "description": "section heading"
+  },
   "T5e0iQ": {
     "defaultMessage": "Frontend Architect",
     "description": "team member title"
@@ -1112,6 +1120,10 @@
     "defaultMessage": "Successfully signed up!",
     "description": "email subscription signup"
   },
+  "VEI5FK": {
+    "defaultMessage": "Unleveraged Returns",
+    "description": "section heading"
+  },
   "VUUOly": {
     "defaultMessage": "Redeem nTokens to Cash",
     "description": ""
@@ -1151,6 +1163,9 @@
   "WxxFB/": {
     "defaultMessage": "Repay your borrow before maturity at the market rate.",
     "description": ""
+  },
+  "X9dsyb": {
+    "defaultMessage": "Minimum Deposit"
   },
   "XFvE50": {
     "defaultMessage": "Resources",
@@ -1304,10 +1319,6 @@
     "defaultMessage": "Repay Cash Debt",
     "description": ""
   },
-  "b5sQu1": {
-    "defaultMessage": "Historical Returns",
-    "description": "section heading"
-  },
   "bFzs5L": {
     "defaultMessage": "UX/UI Designer",
     "description": "team member title"
@@ -1390,6 +1401,10 @@
   "e7TNY7": {
     "defaultMessage": "Stake NOTE",
     "description": "section heading"
+  },
+  "e8ZofU": {
+    "defaultMessage": "Cannot decrease below leverage ratio: {minLeverageRatio}",
+    "description": "error message"
   },
   "eCCtKX": {
     "defaultMessage": "Sell Assets",
@@ -1538,16 +1553,8 @@
   "iD6aaG": {
     "defaultMessage": "Apply for a grant"
   },
-  "iDAMyu": {
-    "defaultMessage": "Create a new vault position with a deposit, minimum borrow size: {minBorrowSize}",
-    "description": "helptext"
-  },
   "iFsDVR": {
     "defaultMessage": "Loading"
-  },
-  "iPi5z3": {
-    "defaultMessage": "Below minimum leverage ratio: {minLeverageRatio}",
-    "description": "error message"
   },
   "iWCK9N": {
     "defaultMessage": "Governance Parameters"
@@ -1941,6 +1948,10 @@
   "tlFeG2": {
     "defaultMessage": "View on Etherscan"
   },
+  "tpx8Jl": {
+    "defaultMessage": "Your account will be withdrawn to {maxLeverageRatio} leverage",
+    "description": "info message"
+  },
   "ttoPAz": {
     "defaultMessage": "Be the first to hear Notional's news and market insights.",
     "description": "email signup heading"
@@ -2025,10 +2036,6 @@
     "defaultMessage": "Current",
     "description": "Current header"
   },
-  "vkKZtE": {
-    "defaultMessage": "Below minimum borrow size: {minBorrowSize}",
-    "description": "error message"
-  },
   "vlyJTq": {
     "defaultMessage": "Help us build a better Notional!"
   },
@@ -2053,10 +2060,6 @@
   "vxIhEB": {
     "defaultMessage": "Enter amount of sNOTE you want to unstake",
     "description": "input label"
-  },
-  "vyIBZ+": {
-    "defaultMessage": "Below Minimum Leverage for Vault: {minLeverage}. Full exit required.",
-    "description": "info message"
   },
   "w20FZc": {
     "defaultMessage": "Cool Down Period Initiated",
@@ -2086,6 +2089,10 @@
   "wsK/62": {
     "defaultMessage": "How do NOTE stakers earn money?",
     "description": "faq question"
+  },
+  "wsvSo0": {
+    "defaultMessage": "Create a new vault position with a deposit, minimum deposit amount: {minDepositRequired}",
+    "description": "helptext"
   },
   "xB9brs": {
     "defaultMessage": "Interest Earned",
