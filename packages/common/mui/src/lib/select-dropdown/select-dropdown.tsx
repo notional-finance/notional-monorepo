@@ -44,9 +44,9 @@ export const SelectDropdown = ({
   const currentRef = popperRef.current;
 
   const components = {
-    Root: buttonComponent,
-    Listbox: StyledMenu,
-    Popper: StyledPopper,
+    root: buttonComponent,
+    listbox: StyledMenu,
+    popper: StyledPopper,
   };
 
   const popperPlacement =
@@ -122,8 +122,8 @@ export const SelectDropdown = ({
       <SelectUnstyled
         value={value}
         disabled={onlyOneInput}
-        componentsProps={componentProps}
-        components={components}
+        slotProps={componentProps}
+        slots={components}
         onListboxOpenChange={(isOpen: boolean) => {
           setListboxOpen(isOpen);
           if (onListboxOpen) onListboxOpen(isOpen);
