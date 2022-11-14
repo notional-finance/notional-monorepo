@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { THEME_VARIANTS } from '@notional-finance/shared-config';
 import { FormattedMessage, defineMessage } from 'react-intl';
 import backgroundImgDark from '@notional-finance/assets/images/provide-liquidity-bg.png';
-import { useUserSettingsState } from '@notional-finance/notional-web';
+import { useUserSettingsState } from '@notional-finance/shared-web';
 import backgroundImgLight from '@notional-finance/assets/images/provide-liquidity-light-bg.png';
 import { NTokenValue } from '@notional-finance/sdk/src/system';
 import { INTERNAL_TOKEN_PRECISION } from '@notional-finance/sdk/src/config/constants';

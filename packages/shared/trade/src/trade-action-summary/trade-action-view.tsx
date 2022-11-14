@@ -6,11 +6,11 @@ import { getDateString } from '@notional-finance/helpers';
 import { FormattedMessage } from 'react-intl';
 import { Box } from '@mui/material';
 import { BoxDisplay } from '@notional-finance/mui';
-import { LEND_BORROW } from '@notional-finance/shared-config';
+import { NOTIONAL_CATEGORIES } from '@notional-finance/shared-config';
 
 interface TradeActionViewProps {
   selectedMarketKey: string | null;
-  tradeAction: LEND_BORROW;
+  tradeAction: NOTIONAL_CATEGORIES;
   selectedToken: string;
   fCashAmount: number | undefined;
   interestAmount: number | undefined;
@@ -30,13 +30,13 @@ export const TradeActionView = ({
     : '';
 
   const totalTitle =
-    tradeAction === LEND_BORROW.LEND ? (
+    tradeAction === NOTIONAL_CATEGORIES.LEND ? (
       <FormattedMessage defaultMessage={'Total at Maturity'} />
     ) : (
       <FormattedMessage defaultMessage={'Total Due at Maturity'} />
     );
   const interestTitle =
-    tradeAction === LEND_BORROW.LEND ? (
+    tradeAction === NOTIONAL_CATEGORIES.LEND ? (
       <FormattedMessage defaultMessage={'Interest Earned'} />
     ) : (
       <FormattedMessage defaultMessage={'Interest Due'} />

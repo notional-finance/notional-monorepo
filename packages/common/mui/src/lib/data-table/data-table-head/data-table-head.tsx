@@ -2,6 +2,7 @@ import { HeaderGroup } from 'react-table';
 import { TABLE_VARIANTS } from '../data-table';
 import { TableCell, TableHead, TableRow, useTheme } from '@mui/material';
 import { DataTableColumn } from '../data-table';
+import { TableColumnHeading } from '../../typography/typography';
 
 interface DataTableHeadProps {
   headerGroups: Array<HeaderGroup>;
@@ -31,22 +32,22 @@ export const DataTableHead = ({
                 color: expandableTable
                   ? theme.palette.background.accentDefault
                   : theme.palette.borders.accentPaper,
-                fontWeight: '600',
-                fontSize: '12px',
                 padding: expandableTable
-                  ? '5px 24px'
+                  ? theme.spacing(0.5, 3)
                   : tableVariant === TABLE_VARIANTS.MINI
-                  ? '16px'
-                  : '16px 24px',
-                letterSpacing: '1px',
+                  ? theme.spacing(1)
+                  : theme.spacing(2, 3),
                 textAlign: column['textAlign'] || 'center',
-                textTransform: 'uppercase',
-                borderBottom: expandableTable ? theme.shape.borderStandard : 'none',
+                borderBottom: expandableTable
+                  ? theme.shape.borderStandard
+                  : 'none',
                 whiteSpace: 'nowrap',
               }}
               {...column['getHeaderProps']()}
             >
-              {column['render']('Header')}
+              <TableColumnHeading>
+                {column['render']('Header')}
+              </TableColumnHeading>
             </TableCell>
           ))}
         </TableRow>

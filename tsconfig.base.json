@@ -41,7 +41,7 @@
         "packages/features/lend/src/index.ts"
       ],
       "@notional-finance/lend-feature-shell/*": [
-        "packages/features/lend/src/lib/*"
+        "packages/features/lend/src/*"
       ],
       "@notional-finance/liquidity-feature-shell": [
         "packages/features/liquidity/src/index.ts"
@@ -59,13 +59,13 @@
         "packages/shared/notionable-hooks/src/*"
       ],
       "@notional-finance/notionable/*": ["packages/notionable/src/*"],
-      "@notional-finance/notional-web": ["packages/shared/web/src/index.ts"],
-      "@notional-finance/notional-web/*": ["packages/shared/web/src/*"],
+      "@notional-finance/shared-web": ["packages/shared/web/src/index.ts"],
+      "@notional-finance/shared-web/*": ["packages/shared/web/src/*"],
       "@notional-finance/portfolio-feature-shell": [
         "packages/features/portfolio/src/index.ts"
       ],
       "@notional-finance/portfolio-feature-shell/*": [
-        "packages/features/portfolio/src/lib/*"
+        "packages/features/portfolio/src/*"
       ],
       "@notional-finance/risk": ["packages/shared/risk/src/index.ts"],
       "@notional-finance/risk/*": ["packages/shared/risk/src/*"],

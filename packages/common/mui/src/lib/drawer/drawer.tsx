@@ -27,15 +27,17 @@ const StyledDrawer = styled(Paper)(
       border-radius: ${theme.shape.borderRadius()};
     }
   }
+  ${theme.breakpoints.down('sm')} {
+    background-color: ${theme.palette.background.default};
+    border: none;
+    box-shadow: none;
+  }
 `
 );
 
-const SidebarContainer = styled('div')(
-  ({ theme }) => `
+const SidebarContainer = styled('div')`
   height: 100%;
-  background-color: ${theme.palette.background.paper};
-`
-);
+`;
 
 export function Drawer({ children, size }: DrawerProps) {
   const width = size === 'large' ? '543px' : '400px';

@@ -9,7 +9,7 @@ import { useLocation, useParams } from 'react-router';
 import { EMPTY, Observable, scan, switchMap } from 'rxjs';
 import { QueryParamConfigMap, useQueryParams } from 'use-query-params';
 
-interface ObservableContext<T> {
+export interface ObservableContext<T> {
   updateState: (args: Partial<T>) => void;
   state$: Observable<T>;
   state: T;
@@ -44,8 +44,15 @@ export function useObservableContext<T>(
   const [query, setQuery] = useQueryParams(queryParamConfig);
 
   // Creates an observable state object that can be updated
-  const [updateState, state$] = useObservableCallback<T, Partial<T>, [Partial<T>]>(
-    (state$) => state$.pipe(scan((state, update) => ({ ...state, ...update }), initialState)),
+  const [updateState, state$] = useObservableCallback<
+    T,
+    Partial<T>,
+    [Partial<T>]
+  >(
+    (state$) =>
+      state$.pipe(
+        scan((state, update) => ({ ...state, ...update }), initialState)
+      ),
     // Transforms the list of args into a single arg which is Partial<T>
     (args) => args[0]
   );
@@ -54,7 +61,10 @@ export function useObservableContext<T>(
   // Loads managers and has them start listening to state. As each manager emits a value
   // it will be individually updated to state
   useSubscription(
-    useObservable((s$) => s$.pipe(switchMap(([s]) => loadManagers(s))), [state$]),
+    useObservable(
+      (s$) => s$.pipe(switchMap(([s]) => loadManagers(s))),
+      [state$]
+    ),
     updateState
   );
 

@@ -4,7 +4,7 @@ import { useHistory } from 'react-router-dom';
 import { ArrowIcon } from '@notional-finance/icons';
 import { SIDEBAR_CATEGORIES } from '@notional-finance/shared-config';
 import { FormattedMessage } from 'react-intl';
-import { useSideDrawerManager } from '@notional-finance/notional-web';
+import { useSideDrawerManager } from '@notional-finance/shared-web';
 import { useQueryParams } from '@notional-finance/utils';
 import { ViewAsAccount } from '../view-as-account/view-as-account';
 import { useWalletSideDrawer } from '../hooks';

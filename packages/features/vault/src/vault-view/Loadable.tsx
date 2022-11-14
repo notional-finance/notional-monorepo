@@ -1,3 +1,3 @@
-import loadable from '@notional-finance/utils/src/loadable/loadable';
+import { loadable } from '@notional-finance/mui';
 
 export default loadable(() => import('./vault-action-provider'));

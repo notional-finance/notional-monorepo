@@ -84,6 +84,63 @@ export function useVaultRiskTable(
     });
   }
 
+  const updatedAssets =
+    baseVault && updatedVaultAccount
+      ? baseVault.getCashValueOfShares(updatedVaultAccount)
+      : undefined;
+  const currentAssets =
+    baseVault && currentVaultAccount
+      ? baseVault.getCashValueOfShares(currentVaultAccount)
+      : undefined;
+
+  tableData.push({
+    riskType: {
+      type: 'Assets',
+    },
+    current: currentAssets?.toUnderlying().toDisplayStringWithSymbol(2) || '-',
+    updated: {
+      value: updatedAssets?.toUnderlying().toDisplayStringWithSymbol(2) || '-',
+      arrowUp:
+        (updatedAssets &&
+          currentAssets &&
+          !currentAssets.isZero() &&
+          updatedAssets.gt(currentAssets)) ||
+        null,
+      checkmark: false,
+      greenOnArrowUp: true,
+      greenOnCheckmark: false,
+    },
+  });
+
+  const updatedDebts =
+    baseVault && updatedVaultAccount
+      ? updatedVaultAccount.primaryBorrowfCash
+      : undefined;
+  const currentDebts =
+    baseVault && currentVaultAccount
+      ? currentVaultAccount.primaryBorrowfCash
+      : undefined;
+
+  tableData.push({
+    riskType: {
+      type: 'Debts',
+    },
+    current: currentDebts?.neg().toDisplayStringWithfCashSymbol(2) || '-',
+    updated: {
+      value: updatedDebts?.neg().toDisplayStringWithfCashSymbol(2) || '-',
+      // NOTE: debts are negative so greater is lower
+      arrowUp:
+        (updatedDebts &&
+          currentDebts &&
+          !currentDebts.isZero() &&
+          updatedDebts.lt(currentDebts)) ||
+        null,
+      checkmark: false,
+      greenOnArrowUp: true,
+      greenOnCheckmark: false,
+    },
+  });
+
   tableData.push(
     ...mergedThresholds.map(([current, updated]) => {
       const type: LiquidationThresholdType | undefined =
@@ -109,7 +166,7 @@ export function useVaultRiskTable(
             type === LiquidationThresholdType.exchangeRate
               ? updated?.ethExchangeRate?.toDisplayStringWithSymbol() || '-'
               : formatRateForRisk(updated?.rate),
-          arrowUp: increase,
+          arrowUp: current === undefined ? null : increase,
           checkmark: updated === undefined,
           greenOnArrowUp: false,
           greenOnCheckmark: true,

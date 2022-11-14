@@ -10,7 +10,6 @@ import { FormattedMessage, MessageDescriptor } from 'react-intl';
 import { TableCell } from '../typography/typography';
 
 export enum TABLE_VARIANTS {
-  SPARSE = 'sparse',
   MINI = 'mini',
   DEFAULT = 'default',
 }
@@ -89,7 +88,7 @@ export const DataTable = ({
   const tableReady = !tableLoading && columns?.length && data?.length;
   const expandableTable = CustomRowComponent ? true : false;
 
-  /** 
+  /**
       This table has multiple versions:
 
     - NOTE* All table variations are affected by the tableVariant prop used only for styling.
@@ -98,8 +97,8 @@ export const DataTable = ({
 
     - DataTableTitleBar: Requires a tableTitle string. Optionally the tableTitleButtons prop can be passed to render a button bank.
 
-    - DataTableTabBar: Requires the tabBarProps object and data/columns passed for each differing table. This will render a tabbed table. 
-      If the TabComponentVisible and CustomTabComponent props are included any react component can be rendered as the table body. 
+    - DataTableTabBar: Requires the tabBarProps object and data/columns passed for each differing table. This will render a tabbed table.
+      If the TabComponentVisible and CustomTabComponent props are included any react component can be rendered as the table body.
   */
 
   return (
@@ -107,17 +106,17 @@ export const DataTable = ({
       sx={{
         overflow: 'scroll',
         '&.MuiPaper-root': {
+          width: '100%',
           boxShadow: 'none',
           border: theme.shape.borderStandard,
           borderRadius: theme.shape.borderRadius(),
           overflow: !tableReady ? 'hidden' : 'auto',
           backgroundColor:
-            tableVariant === TABLE_VARIANTS.SPARSE
-              ? theme.palette.background.default
-              : tableVariant === TABLE_VARIANTS.MINI
+            tableVariant === TABLE_VARIANTS.MINI
               ? theme.palette.common.white
               : theme.palette.background.paper,
-          padding: tableVariant === TABLE_VARIANTS.SPARSE ? '1.25rem' : '1px',
+          padding:
+            tableVariant === TABLE_VARIANTS.MINI ? theme.spacing(2) : '1px',
         },
       }}
       component={Paper}
@@ -129,7 +128,9 @@ export const DataTable = ({
           tableVariant={tableVariant}
         />
       )}
+
       {tabBarProps && <DataTableTabBar tabBarProps={tabBarProps} />}
+
       {TabComponentVisible && CustomTabComponent && <CustomTabComponent />}
 
       {tableReady ? (
@@ -169,7 +170,9 @@ export const DataTable = ({
           {tableLoading ? (
             <PageLoading />
           ) : (
-            <TableCell sx={{ textAlign: 'center', margin: theme.spacing(4, 0) }}>
+            <TableCell
+              sx={{ textAlign: 'center', margin: theme.spacing(4, 0) }}
+            >
               <FormattedMessage defaultMessage="No Data" />
             </TableCell>
           )}

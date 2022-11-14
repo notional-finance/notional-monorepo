@@ -3,7 +3,7 @@ import { ToggleSwitch } from '@notional-finance/mui';
 import {
   updateUserSettingsState,
   useUserSettingsState,
-} from '@notional-finance/notional-web';
+} from '@notional-finance/shared-web';
 import { THEME_VARIANTS } from '@notional-finance/shared-config';
 import { setInLocalStorage } from '@notional-finance/helpers';
 

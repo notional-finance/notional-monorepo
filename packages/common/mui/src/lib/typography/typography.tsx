@@ -5,7 +5,7 @@ import { ExternalLink } from '../external-link/external-link';
 
 type StylesProps = Omit<TypographyProps, 'variant'>;
 
-interface CustomTypographyProps extends StylesProps {
+export interface CustomTypographyProps extends StylesProps {
   accent?: boolean;
   contrast?: boolean;
   error?: boolean;

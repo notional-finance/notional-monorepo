@@ -3,7 +3,7 @@ import OptionUnstyled from '@mui/base/OptionUnstyled';
 import { NotionalTheme } from '@notional-finance/styles';
 import { Button, useTheme } from '@mui/material';
 import { TokenIcon } from '@notional-finance/icons';
-import { useEffect, useState } from 'react';
+import { ForwardedRef, ReactNode, useEffect, useState } from 'react';
 import { SelectDropdown } from '../select-dropdown/select-dropdown';
 import { H4 } from '../typography/typography';
 
@@ -12,6 +12,8 @@ export interface CurrencySelectProps {
   landingPage?: boolean;
   defaultValue?: string;
   onSelectChange?: (value: string | null) => void;
+  popperRef?: ForwardedRef<unknown>;
+  children?: ReactNode;
 }
 
 const StyledItem = styled(OptionUnstyled)(
@@ -45,14 +47,18 @@ const StyledButton = styled(Button)`
   }
 `;
 
-export function CurrencySelect({
-  defaultValue,
-  currencies,
-  onSelectChange,
-  landingPage = false,
-}: CurrencySelectProps) {
+export function CurrencySelect(props: CurrencySelectProps) {
+  const {
+    defaultValue,
+    currencies,
+    onSelectChange,
+    landingPage = false,
+    popperRef,
+  } = props;
   const theme = useTheme() as NotionalTheme;
-  const [value, setValue] = useState<string | null>(defaultValue || currencies[0]);
+  const [value, setValue] = useState<string | null>(
+    defaultValue || currencies[0]
+  );
 
   useEffect(() => {
     // If the default changes and is not undefined then set it as selected
@@ -62,6 +68,7 @@ export function CurrencySelect({
 
   return (
     <SelectDropdown
+      popperRef={popperRef}
       value={value}
       buttonComponent={StyledButton}
       landingPage={landingPage}

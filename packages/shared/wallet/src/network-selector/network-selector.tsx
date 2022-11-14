@@ -5,7 +5,15 @@ import { Chain } from '@web3-onboard/common';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { NotionalTheme } from '@notional-finance/styles';
 import { ArrowIcon, CircleIcon } from '@notional-finance/icons';
-import { useTheme, Box, Button, styled, ListItemIcon, Popover, Typography } from '@mui/material';
+import {
+  useTheme,
+  Box,
+  Button,
+  styled,
+  ListItemIcon,
+  Popover,
+  Typography,
+} from '@mui/material';
 import { useNetworkSelector } from './use-network-selector';
 
 /* eslint-disable-next-line */
@@ -20,7 +28,7 @@ export interface NetworkButtonProps {
 
 const NetworkSelectorWrapper = styled(Box)(
   ({ theme }) => `
-    margin-left: ${theme.spacing(2.5)};    
+    margin-left: ${theme.spacing(2.5)};
     #basic-button {
       padding: 10px 15px;
       border-radius: ${theme.shape.borderRadius()};
@@ -29,7 +37,23 @@ const NetworkSelectorWrapper = styled(Box)(
     #basic-menu {
       border-radius: ${theme.shape.borderRadius()};
     }
-    box-shadow: ${theme.shape.shadowStandard}
+    box-shadow: ${theme.shape.shadowStandard};
+    ${theme.breakpoints.down('sm')} {
+      margin-left: 0px;
+      margin-top: ${theme.spacing(3)};
+    }
+  `
+);
+
+const NetworkInnerWrapper = styled(Box)(
+  ({ theme }) => `
+    width: 450px;
+    margin-top: ${theme.spacing(5)};
+    margin-bottom: ${theme.spacing(5)};
+    ${theme.breakpoints.down('sm')} {
+      width: 100%;
+      padding: ${theme.spacing(1)};
+    }
   `
 );
 
@@ -61,6 +85,9 @@ const Title = styled(Typography)(
   width: 380px;
   font-weight: 700;
   color: ${theme.palette.primary.dark};
+  ${theme.breakpoints.down('sm')} {
+    width: auto;
+  }
   `
 );
 
@@ -71,20 +98,32 @@ const NetworkButton = styled(Box, {
   width: 380px;
   padding: 15px 10px;
   border-radius: ${theme.shape.borderRadius()};
-  border: 1px solid ${active ? theme.palette.primary.main : theme.palette.borders.accentPaper};
+  border: 1px solid ${
+    active ? theme.palette.primary.main : theme.palette.borders.accentPaper
+  };
   margin: 15px auto;
   cursor: pointer;
-  background: ${active ? theme.palette.info.light : theme.palette.background.paper};
+  background: ${
+    active ? theme.palette.info.light : theme.palette.background.paper
+  };
   color: ${theme.palette.primary.dark};
   font-weight: 500;
   display: flex;
+  ${theme.breakpoints.down('sm')} {
+    width: auto;
+  }
   `
 );
 
 export function NetworkSelector() {
   const theme = useTheme();
-  const { switchNetwork, supportedChains, chainEntities, getConnectedChain, labels } =
-    useNetworkSelector();
+  const {
+    switchNetwork,
+    supportedChains,
+    chainEntities,
+    getConnectedChain,
+    labels,
+  } = useNetworkSelector();
   const chain = getConnectedChain();
   const [anchorEl, setAnchorEl] = useState<any>(null);
   const open = Boolean(anchorEl);
@@ -113,7 +152,9 @@ export function NetworkSelector() {
         endIcon={<ArrowIcon sx={{ transform: 'rotate(-180deg)' }} />}
       >
         <TextWrapper theme={theme}>
-          {chain?.id && chainEntities[chain.id] && chainEntities[chain.id].label}
+          {chain?.id &&
+            chainEntities[chain.id] &&
+            chainEntities[chain.id].label}
         </TextWrapper>
       </DropdownButton>
       <Popover
@@ -126,6 +167,13 @@ export function NetworkSelector() {
           marginTop: '10px',
           '.MuiPopover-paper': {
             boxShadow: theme.shape.shadowLarge(),
+            width: {
+              xs: '100%',
+              sm: '100%',
+              md: 'auto',
+              lg: 'auto',
+              xl: 'auto',
+            },
           },
         }}
         anchorOrigin={{
@@ -137,7 +185,7 @@ export function NetworkSelector() {
           horizontal: 'right',
         }}
       >
-        <Box sx={{ width: '450px', marginTop: '40px', marginBottom: '40px' }}>
+        <NetworkInnerWrapper>
           <Title>
             <FormattedMessage defaultMessage={'NETWORK'} />
           </Title>
@@ -154,7 +202,13 @@ export function NetworkSelector() {
               <Box sx={{ flex: 1, alignItems: 'center', display: 'flex' }}>
                 <FormattedMessage {...labels[data.label]} />
               </Box>
-              <Box sx={{ justifyContent: 'flex-end', display: 'flex', alignItems: 'center' }}>
+              <Box
+                sx={{
+                  justifyContent: 'flex-end',
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
+              >
                 {chain?.id === data.id ? (
                   <CheckCircleIcon sx={{ fill: theme.palette.primary.main }} />
                 ) : (
@@ -169,7 +223,7 @@ export function NetworkSelector() {
               </Box>
             </NetworkButton>
           ))}
-        </Box>
+        </NetworkInnerWrapper>
       </Popover>
     </NetworkSelectorWrapper>
   );

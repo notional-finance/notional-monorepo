@@ -23,7 +23,13 @@ export const StakeView = () => {
     sidebarContent = <StakeSidebarView stakeOrUnstake={stakeOrUnstake} />;
   }
 
-  return <SideBarLayout mainContent={<MainContent />} sideBar={sidebarContent} />;
+  return (
+    <SideBarLayout
+      mainContent={<MainContent />}
+      sideBar={sidebarContent}
+      mobileHeader
+    />
+  );
 };
 
 export default StakeView;

@@ -9,15 +9,21 @@ export interface SideDrawerProps {
   CustomHeader?: ({ onClose }: { onClose: () => void }) => JSX.Element;
 }
 
-export function SideDrawer({ children, drawerOpen, callback, CustomHeader }: SideDrawerProps) {
+export function SideDrawer({
+  children,
+  drawerOpen,
+  callback,
+  CustomHeader,
+}: SideDrawerProps) {
   const theme = useTheme();
-  const toggleDrawer = (open: boolean) => (event?: MouseEvent | KeyboardEvent) => {
-    if (event?.type === 'keydown') {
-      const e = event as KeyboardEvent;
-      if (e.key === 'Tab' || e.key === 'Shift') return;
-    }
-    callback(open);
-  };
+  const toggleDrawer =
+    (open: boolean) => (event?: MouseEvent | KeyboardEvent) => {
+      if (event?.type === 'keydown') {
+        const e = event as KeyboardEvent;
+        if (e.key === 'Tab' || e.key === 'Shift') return;
+      }
+      callback(open);
+    };
 
   return (
     <SwipeableDrawer
@@ -35,6 +41,7 @@ export function SideDrawer({ children, drawerOpen, callback, CustomHeader }: Sid
         },
         '&.MuiPaper-root, .MuiPaper-elevation': {
           overflowX: 'hidden',
+          width: { xs: '100%', sm: '100%', md: '543px' },
         },
       }}
     >
@@ -43,9 +50,13 @@ export function SideDrawer({ children, drawerOpen, callback, CustomHeader }: Sid
         sx={{
           display: 'flex',
           flexDirection: 'column',
-          width: { sm: '100vw', md: '543px' },
+          width: { xs: '100%', sm: '100%', md: '543px' },
           height: '100%',
-          padding: '0px 48px',
+          padding: {
+            xs: theme.spacing(0, 2),
+            sm: theme.spacing(0, 2),
+            md: theme.spacing(0, 6),
+          },
         }}
       >
         {!CustomHeader && (

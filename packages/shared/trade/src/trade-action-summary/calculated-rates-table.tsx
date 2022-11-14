@@ -1,5 +1,5 @@
 import { Box } from '@mui/material';
-import { LEND_BORROW } from '@notional-finance/shared-config';
+import { NOTIONAL_CATEGORIES } from '@notional-finance/shared-config';
 import { DataTable } from '@notional-finance/mui';
 import { useCalculatedRates } from './use-calculated-rates';
 import { defineMessage } from 'react-intl';
@@ -7,7 +7,7 @@ import { defineMessage } from 'react-intl';
 interface CalculatedRatesTableProps {
   selectedToken: string;
   selectedMarketKey: string | null;
-  tradeAction: LEND_BORROW;
+  tradeAction: NOTIONAL_CATEGORIES;
 }
 
 export const CalculatedRatesTable = ({

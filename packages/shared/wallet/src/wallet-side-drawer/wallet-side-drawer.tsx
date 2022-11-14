@@ -12,8 +12,11 @@ import { useWalletSideDrawer } from '../hooks';
 import {
   updateSideDrawerState,
   useSideDrawerManager,
-} from '@notional-finance/notional-web';
+} from '@notional-finance/shared-web';
 import { FormattedMessage } from 'react-intl';
+import SettingsSideDrawer from '../settings-side-drawer/settings-side-drawer';
+import NotificationsSideDrawer from '../notifications-side-drawer/notifications-side-drawer';
+import ConnectWalletSideDrawer from '../connect-wallet-side-drawer/connect-wallet-side-drawer';
 
 interface SettingsButtonProps {
   theme: NotionalTheme;
@@ -28,8 +31,20 @@ export function WalletSideDrawer() {
     ? (sideDrawer as SIDEBAR_CATEGORIES)
     : undefined;
 
-  const { SideDrawerComponent, currentSideDrawerId, drawerOpen } =
-    useSideDrawerManager(sideDrawerKey);
+  const {
+    SideDrawerComponent,
+    currentSideDrawerId,
+    drawerOpen,
+    addSideDrawers,
+  } = useSideDrawerManager(sideDrawerKey);
+
+  useEffect(() => {
+    addSideDrawers({
+      [SIDEBAR_CATEGORIES.SETTINGS]: SettingsSideDrawer,
+      [SIDEBAR_CATEGORIES.NOTIFICATIONS]: NotificationsSideDrawer,
+      [SIDEBAR_CATEGORIES.CONNECT_WALLET]: ConnectWalletSideDrawer,
+    });
+  }, []);
 
   const showSettingsHeader =
     currentSideDrawerId === SIDEBAR_CATEGORIES.SETTINGS ||

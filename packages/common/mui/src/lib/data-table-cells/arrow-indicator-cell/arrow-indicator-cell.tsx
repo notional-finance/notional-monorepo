@@ -1,5 +1,6 @@
 import { AngledArrowIcon, CheckmarkIcon } from '@notional-finance/icons';
 import { Box, useTheme } from '@mui/material';
+import { SmallTableCell } from '../../typography/typography';
 
 export interface ArrowIndicatorCellData {
   value: string;
@@ -16,14 +17,23 @@ interface ArrowIndicatorCellProps {
   };
 }
 
-export const ArrowIndicatorCell = ({ cell }: ArrowIndicatorCellProps): JSX.Element => {
+export const ArrowIndicatorCell = ({
+  cell,
+}: ArrowIndicatorCellProps): JSX.Element => {
   const {
     column: { textAlign },
     value: { arrowUp, checkmark, greenOnArrowUp, greenOnCheckmark, value },
   } = cell;
   const { palette, shape, spacing } = useTheme();
   const colorOnUp = greenOnArrowUp ? palette.primary.light : palette.error.main;
-  const colorOnDown = greenOnArrowUp ? palette.error.main : palette.primary.light;
+  const colorOnDown = greenOnArrowUp
+    ? palette.error.main
+    : palette.primary.light;
+  let backgroundColor = palette.info.light;
+  if (arrowUp === true && greenOnArrowUp === false)
+    backgroundColor = palette.error.light;
+  if (arrowUp === false && greenOnArrowUp === true)
+    backgroundColor = palette.error.light;
 
   return (
     <Box
@@ -34,49 +44,49 @@ export const ArrowIndicatorCell = ({ cell }: ArrowIndicatorCellProps): JSX.Eleme
     >
       <Box
         sx={{
-          background: palette.info.light,
-          padding: `2px ${spacing(1)}`,
+          background: backgroundColor,
+          padding: spacing(0.25, 1),
+          // Establish a minimum width for the box if it doesn't have a value
+          minWidth: spacing(8),
+          height: spacing(3),
           borderRadius: shape.borderRadiusLarge,
           display: 'flex',
           alignItems: 'center',
+          justifyContent: 'flex-end',
         }}
       >
-        {checkmark && arrowUp === null && (
-          <Box
-            sx={{
-              width: spacing(6),
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-            }}
-          >
-            <Box sx={{ color: palette.common.black }}>-</Box>
-            <CheckmarkIcon
-              sx={{ fill: greenOnCheckmark ? palette.primary.light : palette.secondary.main }}
-            />
-          </Box>
-        )}
-        {!checkmark && arrowUp === null && (
-          <Box
-            sx={{
-              width: spacing(6),
-              display: 'flex',
-              alignItems: 'center',
-            }}
-          >
-            <Box sx={{ color: palette.common.black, flex: 1, textAlign: 'center' }}>-</Box>
-          </Box>
-        )}
-        {!checkmark && arrowUp !== null && (
+        {arrowUp !== null ? (
           <>
-            <Box sx={{ marginRight: '5px' }}>{value}</Box>
+            <SmallTableCell sx={{ color: palette.typography.main }}>
+              {value}
+            </SmallTableCell>
             <AngledArrowIcon
               sx={{
+                marginLeft: spacing(0.5),
+                marginRight: spacing(-0.25),
                 color: arrowUp ? colorOnUp : colorOnDown,
-                width: '12px',
+                width: spacing(1.5),
                 transform: arrowUp ? 'rotate(180deg)' : 'rotate(270deg)',
               }}
             />
+          </>
+        ) : (
+          <>
+            <SmallTableCell sx={{ color: palette.typography.main }}>
+              {value}
+            </SmallTableCell>
+            {checkmark && (
+              <CheckmarkIcon
+                sx={{
+                  marginLeft: spacing(0.5),
+                  marginRight: spacing(-0.5),
+                  fill:
+                    greenOnCheckmark === true
+                      ? palette.primary.light
+                      : palette.error.main,
+                }}
+              />
+            )}
           </>
         )}
       </Box>

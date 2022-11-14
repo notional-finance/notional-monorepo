@@ -3,14 +3,15 @@ import { FormattedMessage } from 'react-intl';
 import { TransactionStatus } from './transaction-status';
 import transactionSuccessSvg from '../../icons/icon-checkmark.svg';
 import transactionErrorSvg from '../../icons/icon-alert.svg';
-import { ProgressIndicator } from '@notional-finance/mui';
+import {
+  ProgressIndicator,
+  LargeInputTextEmphasized,
+} from '@notional-finance/mui';
 
-const Heading = styled(Box)`
-  font-size: 1.5rem;
-  line-height: 1.4;
+const Heading = styled(LargeInputTextEmphasized)`
   margin-bottom: 1.25rem;
 `;
-const HeadingContainer = styled(Box)``;
+
 const StatusIcon = styled(Box)`
   margin-bottom: 1rem;
   width: 4rem;
@@ -21,7 +22,10 @@ interface StatusHeadingProps {
   transactionStatus: TransactionStatus;
 }
 
-export const StatusHeading = ({ heading, transactionStatus }: StatusHeadingProps) => {
+export const StatusHeading = ({
+  heading,
+  transactionStatus,
+}: StatusHeadingProps) => {
   let statusIcon;
   let headingText;
 
@@ -36,13 +40,25 @@ export const StatusHeading = ({ heading, transactionStatus }: StatusHeadingProps
       );
       break;
     case TransactionStatus.CONFIRMED:
-      statusIcon = <img className="status-icon" src={transactionSuccessSvg} alt="Success" />;
-      headingText = <FormattedMessage defaultMessage={'Success! Transaction submitted.'} />;
+      statusIcon = (
+        <img
+          className="status-icon"
+          src={transactionSuccessSvg}
+          alt="Success"
+        />
+      );
+      headingText = (
+        <FormattedMessage defaultMessage={'Success! Transaction submitted.'} />
+      );
       break;
     case TransactionStatus.REVERT:
     case TransactionStatus.ERROR_BUILDING:
       statusIcon = (
-        <img className="status-icon" src={transactionErrorSvg} alt="Exclamation point" />
+        <img
+          className="status-icon"
+          src={transactionErrorSvg}
+          alt="Exclamation point"
+        />
       );
       headingText = <FormattedMessage defaultMessage={'Error'} />;
       break;
@@ -65,9 +81,9 @@ export const StatusHeading = ({ heading, transactionStatus }: StatusHeadingProps
   }
 
   return (
-    <HeadingContainer>
+    <Box>
       <StatusIcon>{statusIcon}</StatusIcon>
       <Heading>{headingText}</Heading>
-    </HeadingContainer>
+    </Box>
   );
 };

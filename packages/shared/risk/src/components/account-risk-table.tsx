@@ -1,4 +1,4 @@
-import { Box } from '@mui/material';
+import { styled, Box } from '@mui/material';
 import { AccountData } from '@notional-finance/sdk';
 import {
   ArrowIndicatorCell,
@@ -16,29 +16,46 @@ interface RiskDataTableProps {
 
 const TABLE_COLUMNS: DataTableColumn[] = [
   {
-    Header: <FormattedMessage defaultMessage="Risk Type" description={'Risk Type header'} />,
+    Header: (
+      <FormattedMessage
+        defaultMessage="Risk Type"
+        description={'Risk Type header'}
+      />
+    ),
     Cell: TextWithIconCell,
     accessor: 'riskType',
     textAlign: 'left',
   },
   {
-    Header: <FormattedMessage defaultMessage="Current" description={'Current header'} />,
+    Header: (
+      <FormattedMessage
+        defaultMessage="Current"
+        description={'Current header'}
+      />
+    ),
     accessor: 'current',
     textAlign: 'right',
   },
   {
-    Header: <FormattedMessage defaultMessage="Updated" description={'Updated header'} />,
+    Header: (
+      <FormattedMessage
+        defaultMessage="Updated"
+        description={'Updated header'}
+      />
+    ),
     Cell: ArrowIndicatorCell,
     accessor: 'updated',
     textAlign: 'right',
   },
 ];
 
-export const AccountRiskTable = ({ updatedAccountData }: RiskDataTableProps) => {
+export const AccountRiskTable = ({
+  updatedAccountData,
+}: RiskDataTableProps) => {
   const { tableData } = useLiquidationRiskTable(updatedAccountData);
 
   return (
-    <Box>
+    <AccountRiskTableContainer>
       <DataTable
         data={tableData}
         columns={TABLE_COLUMNS}
@@ -48,6 +65,14 @@ export const AccountRiskTable = ({ updatedAccountData }: RiskDataTableProps) => 
         })}
         tableVariant={TABLE_VARIANTS.MINI}
       />
-    </Box>
+    </AccountRiskTableContainer>
   );
 };
+
+const AccountRiskTableContainer = styled(Box)(
+  ({ theme }) => `
+  ${theme.breakpoints.down('sm')} {
+    max-width: 95vw;
+  }
+`
+);

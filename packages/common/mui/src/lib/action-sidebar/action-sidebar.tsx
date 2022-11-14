@@ -3,8 +3,13 @@ import { Box, Divider, styled, useTheme } from '@mui/material';
 import { Drawer } from '../drawer/drawer';
 import { ActionSidebarButtons } from '../action-sidebar-buttons/action-sidebar-buttons';
 import { FormattedMessage, MessageDescriptor } from 'react-intl';
-import ToggleSwitch, { ToggleSwitchProps } from '../toggle-switch/toggle-switch';
-import { LargeInputTextEmphasized, HeadingSubtitle } from '../typography/typography';
+import ToggleSwitch, {
+  ToggleSwitchProps,
+} from '../toggle-switch/toggle-switch';
+import {
+  LargeInputTextEmphasized,
+  HeadingSubtitle,
+} from '../typography/typography';
 
 export interface ActionSidebarProps {
   heading: MessageDescriptor;
@@ -45,38 +50,54 @@ export const ActionSidebar = ({
 }: ActionSidebarProps) => {
   const theme = useTheme();
   const inner = (
-    <Box sx={{ background: theme.palette.background.paper }}>
+    <>
       <Box
         sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
+          display: {
+            xs: 'none',
+            sm: 'none',
+            md: 'block',
+            lg: 'block',
+            xl: 'block',
+          },
         }}
       >
-        <LargeInputTextEmphasized gutter="default">
-          <FormattedMessage {...heading} />
-        </LargeInputTextEmphasized>
-        {advancedToggle && (
-          <Box
-            sx={{
-              display: 'inline',
-              position: 'relative',
-              top: theme.spacing(-11),
-            }}
-          >
-            <ToggleSwitch {...advancedToggle} />
-          </Box>
-        )}
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+          }}
+        >
+          <LargeInputTextEmphasized gutter="default">
+            <FormattedMessage {...heading} />
+          </LargeInputTextEmphasized>
+          {advancedToggle && (
+            <Box
+              sx={{
+                display: 'inline',
+                position: 'relative',
+                top: theme.spacing(-11),
+              }}
+            >
+              <ToggleSwitch {...advancedToggle} />
+            </Box>
+          )}
+        </Box>
+        <HeadingSubtitle
+          marginBottom={theme.spacing(3)}
+          sx={{ color: theme.palette.typography.light }}
+        >
+          <FormattedMessage {...helptext} />
+        </HeadingSubtitle>
+        <Divider
+          sx={{
+            marginBottom: theme.spacing(6),
+            background: theme.palette.borders.paper,
+          }}
+          variant="fullWidth"
+        />
       </Box>
-      <HeadingSubtitle
-        marginBottom={theme.spacing(3)}
-        sx={{ color: theme.palette.typography.light }}
-      >
-        <FormattedMessage {...helptext} />
-      </HeadingSubtitle>
-      <Divider
-        sx={{ marginBottom: '48px', background: theme.palette.borders.paper }}
-        variant="fullWidth"
-      />
+
       <FormSection>
         {children}
         {showActionButtons && (
@@ -88,7 +109,7 @@ export const ActionSidebar = ({
           />
         )}
       </FormSection>
-    </Box>
+    </>
   );
 
   return showDrawer ? <Drawer size="large">{inner}</Drawer> : inner;

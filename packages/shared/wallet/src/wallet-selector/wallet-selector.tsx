@@ -23,7 +23,7 @@ import {
 import {
   useSideDrawerState,
   useSideDrawerManager,
-} from '@notional-finance/notional-web';
+} from '@notional-finance/shared-web';
 import { ButtonText } from '@notional-finance/mui';
 
 export interface PortfolioParams {
@@ -68,7 +68,7 @@ export function WalletSelector() {
 
   return (
     <>
-      <Box sx={{ display: 'flex', alignItems: 'center', minWidth: '240px' }}>
+      <OuterContainer>
         <Container>
           {connected && truncatedAddress && (
             <>
@@ -136,12 +136,20 @@ export function WalletSelector() {
             <GearIcon />
           </IconContainer>
         </Container>
-      </Box>
+      </OuterContainer>
       <WalletSideDrawer />
       <NetworkSelector />
     </>
   );
 }
+
+const OuterContainer = styled(Box)(
+  ({ theme }) => `
+  display: flex;
+  align-items: center;
+  min-width: ${theme.spacing(30)};
+`
+);
 
 const Container = styled(Box)(
   ({ theme }) => `

@@ -1,3 +1,3 @@
-import { loadable } from '@notional-finance/utils';
+import { loadable } from '@notional-finance/mui';
 
 export default loadable(() => import('./borrow-feature-shell'));

@@ -1,3 +1,4 @@
+import { CSSProperties } from 'react';
 import unknown from '../../assets/icons/currencies/currency-unknown.svg';
 import wbtc from '../../assets/icons/currencies/currency-wbtc.svg';
 import eth from '../../assets/icons/currencies/currency-eth.svg';
@@ -156,9 +157,10 @@ export const TokenImageList: TokenImageMap = {
 export interface TokenIconProps {
   symbol: string;
   size: 'small' | 'medium' | 'large' | 'extraLarge';
+  style?: React.CSSProperties;
 }
 
-export function TokenIcon({ symbol, size }: TokenIconProps) {
+export function TokenIcon({ symbol, size, style }: TokenIconProps) {
   const tokenKey = symbol.toLowerCase();
   const tokenIcon: TokenImg = Object.keys(TokenImageList).includes(tokenKey)
     ? TokenImageList[tokenKey]
@@ -181,7 +183,15 @@ export function TokenIcon({ symbol, size }: TokenIconProps) {
     tokenIcon.alt = `${symbol.toLowerCase()} ${tokenIcon.alt}`;
   }
 
-  return <img width={tokenSizes[size]} height={tokenSizes[size]} src={image} alt={tokenIcon.alt} />;
+  return (
+    <img
+      width={tokenSizes[size]}
+      height={tokenSizes[size]}
+      src={image}
+      alt={tokenIcon.alt}
+      style={{ ...style }}
+    />
+  );
 }
 
 export default TokenIcon;

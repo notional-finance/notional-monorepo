@@ -9,8 +9,8 @@ import VentureCapitalPartners from './components/Sections/VentureCapitalPartners
 import MultidisciplinarySecurityApproach from './components/Sections/MultidisciplinarySecurityApproach';
 import FromTheBlogSection from './components/Sections/FromTheBlogSection';
 import { useNotionalTheme } from '@notional-finance/styles';
-import { EmailCaptureSection } from '@notional-finance/notional-web';
-import { LandingFooter } from '@notional-finance/notional-web';
+import { EmailCaptureSection } from '@notional-finance/shared-web';
+import { LandingFooter } from '@notional-finance/shared-web';
 
 export const LandingPageView = () => {
   const theme = useNotionalTheme(THEME_VARIANTS.LIGHT);
