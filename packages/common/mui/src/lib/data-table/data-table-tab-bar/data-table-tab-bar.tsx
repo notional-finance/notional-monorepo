@@ -1,4 +1,4 @@
-import { TabBarPropsType } from '../data-table';
+import { TabBarPropsType } from '../types';
 import { InfoTooltip } from '../../info-tooltip/info-tooltip';
 import { Box, Tab, Tabs, useTheme } from '@mui/material';
 
@@ -25,7 +25,10 @@ export const DataTableTabBar = ({ tabBarProps }: DataTableTabBarProps) => {
           justifyContent: 'space-evenly',
         },
         borderBottom: shape.borderStandard,
-        '.MuiTabs-indicator': { height: '4px', background: palette.primary.light },
+        '.MuiTabs-indicator': {
+          height: '4px',
+          background: palette.primary.light,
+        },
         flex: 1,
       }}
     >

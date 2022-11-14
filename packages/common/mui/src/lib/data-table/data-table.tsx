@@ -8,32 +8,13 @@ import { PageLoading } from '../page-loading/page-loading';
 import { useTable, useExpanded, Column } from 'react-table';
 import { FormattedMessage, MessageDescriptor } from 'react-intl';
 import { TableCell } from '../typography/typography';
-
-export enum TABLE_VARIANTS {
-  MINI = 'mini',
-  DEFAULT = 'default',
-}
-
-export type TabBarPropsType = {
-  tableTabs: { title: string; toolTipText?: MessageDescriptor }[];
-  setCurrentTab: Dispatch<SetStateAction<number>>;
-  currentTab: number;
-};
-
-export type TableTitleButtonsType = {
-  buttonText: string;
-  callback: () => void;
-};
-
-export type ExpandedRows = {
-  [key: string]: boolean;
-};
-
-export type DataTableColumn = Column & {
-  expandableTable?: boolean;
-  textAlign?: string;
-  showLinkIcon?: boolean;
-};
+import {
+  DataTableColumn,
+  ExpandedRows,
+  TabBarPropsType,
+  TableTitleButtonsType,
+  TABLE_VARIANTS,
+} from './types';
 
 interface DataTableProps {
   columns: Array<DataTableColumn>;

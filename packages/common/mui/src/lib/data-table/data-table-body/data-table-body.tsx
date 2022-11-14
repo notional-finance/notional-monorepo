@@ -8,7 +8,7 @@ import {
   Collapse,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { ExpandedRows, TABLE_VARIANTS } from '../data-table';
+import { ExpandedRows, TABLE_VARIANTS } from '../types';
 import { NotionalTheme } from '@notional-finance/styles';
 import {
   SmallTableCell,
