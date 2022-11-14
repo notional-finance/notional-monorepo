@@ -7,6 +7,7 @@ import { PortfolioParams } from '../../portfolio-feature-shell';
 import { MaturityData } from '@notional-finance/notionable';
 import { RemindMe } from '../remind-me/remind-me';
 import { ActionRowButton } from '../action-row-button/action-row-button';
+import { Label } from '../../types';
 
 export const TableActionRow = ({ row }) => {
   const history = useHistory();
@@ -54,7 +55,9 @@ export const TableActionRow = ({ row }) => {
                     padding: '9px 20px',
                   }}
                   onClick={() => {
-                    history.push(`/portfolio/${category}/${data.rollMaturityRoute}`);
+                    history.push(
+                      `/portfolio/${category}/${data.rollMaturityRoute}`
+                    );
                   }}
                 >
                   <Box>
@@ -70,15 +73,6 @@ export const TableActionRow = ({ row }) => {
     </MainContainer>
   );
 };
-
-export const Label = styled(H5)(
-  () => `
-  line-height: normal;
-  margin: 20px 0px 30px 0px;
-  display: flex;
-  align-items: center;
-`
-);
 
 const CustomDivider = styled(Divider)(
   ({ theme }) => `
