@@ -1,6 +1,8 @@
-import { useAccount } from '..';
+import { useAccount } from './use-account';
 
 export function useTransactionHistory() {
   const { accountDataCopy } = useAccount();
-  return accountDataCopy.accountHistory ? accountDataCopy.getFullTransactionHistory() : [];
+  return accountDataCopy.accountHistory
+    ? accountDataCopy.getFullTransactionHistory()
+    : [];
 }

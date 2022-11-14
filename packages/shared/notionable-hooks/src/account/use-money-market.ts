@@ -1,4 +1,4 @@
-import { useAccount } from '..';
+import { useAccount } from './use-account';
 
 export function useMoneyMarket() {
   const { balanceSummary } = useAccount();
@@ -10,7 +10,9 @@ export function useMoneyMarket() {
         underlyingSymbol: b.underlyingSymbol,
         balance: b.assetCashBalance,
         currentYield: b.cTokenYieldDisplayString,
-        interestEarned: b.assetCashBalance.isPositive() ? b.totalCTokenInterest : undefined,
+        interestEarned: b.assetCashBalance.isPositive()
+          ? b.totalCTokenInterest
+          : undefined,
       };
     })
     .filter((v) => !v.balance.isZero());

@@ -1,8 +1,7 @@
 import { Box, useTheme } from '@mui/material';
-import { TableTitleButtonsType } from '../data-table';
+import { TableTitleButtonsType, TABLE_VARIANTS } from '../types';
 import { ButtonBar } from '../../button-bar/button-bar';
 import { FormattedMessage, MessageDescriptor } from 'react-intl';
-import { TABLE_VARIANTS } from '../data-table';
 import { TableCell, ModuleTitle } from '../../typography/typography';
 
 interface DataTableTitleBarProps {

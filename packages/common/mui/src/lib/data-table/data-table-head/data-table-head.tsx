@@ -1,7 +1,6 @@
 import { HeaderGroup } from 'react-table';
-import { TABLE_VARIANTS } from '../data-table';
+import { DataTableColumn, TABLE_VARIANTS } from '../types';
 import { TableCell, TableHead, TableRow, useTheme } from '@mui/material';
-import { DataTableColumn } from '../data-table';
 import { TableColumnHeading } from '../../typography/typography';
 
 interface DataTableHeadProps {

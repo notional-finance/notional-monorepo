@@ -1,5 +1,5 @@
 import React, { lazy, Suspense } from 'react';
-import { PageLoading } from '@notional-finance/mui';
+import { PageLoading } from '../page-loading/page-loading';
 
 export const loadable = (importFunc) => {
   const LazyComponent = lazy(importFunc);
