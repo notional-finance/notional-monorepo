@@ -23,14 +23,21 @@ jobs:
         run: yarn install --frozen-lockfile
       - name: Build Web
         run: yarn nx build web --parallel
-      - name: Publish
+      - name: Publish Staging
+        if: github.ref_name == 'main'
         uses: cloudflare/pages-action@1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          if: github.ref_name == 'main'
           projectName: notional-web-staging
-          if: github.ref_name == 'beta'
+          directory: dist/apps/web
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish Beta
+        if: github.ref_name == 'beta'
+        uses: cloudflare/pages-action@1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           projectName: notional-web-beta
           directory: dist/apps/web
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
