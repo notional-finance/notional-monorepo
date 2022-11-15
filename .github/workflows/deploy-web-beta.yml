@@ -1,10 +1,7 @@
-name: deploy-web
+name: deploy-web-beta
 on:
   workflow_dispatch:
 
-  push:
-    branches:
-      - main
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -25,14 +22,15 @@ jobs:
         run: yarn install --frozen-lockfile
       - name: Build Web
         run: yarn nx build web --parallel
-      - name: Publish Staging
+      - name: Publish Beta
         uses: cloudflare/pages-action@1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: notional-web-staging
+          projectName: notional-web
           directory: dist/apps/web
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Slack Notification
         uses: rtCamp/action-slack-notify@v2
         env:
