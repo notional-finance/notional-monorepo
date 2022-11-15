@@ -1,0 +1,31 @@
+on:
+  push:
+    branches:
+      - "beta"
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: write
+    name: Deploy to Cloudflare Pages
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+      - name: Yarn Install
+        run: yarn install --frozen-lockfile
+      - name: Build Web
+        run: yarn nx build web --parallel
+      - name: Publish
+        uses: cloudflare/pages-action@1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: 'notional-website-beta'
+          directory: '/dist/apps/web'
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
