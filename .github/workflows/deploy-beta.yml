@@ -28,9 +28,4 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           projectName: 'notional-web-beta'
           directory: 'dist/apps/web'
-          environment:
-            NX_APP_URL: https://beta.notional.finance
-            NX_CONTACT_EMAIL: support@notional.finance
-            NX_DD_SITE: datadoghq.com
-            NX_SYSTEM_CACHE_URL: https://system-cache-dev.notional-finance.workers.dev
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
