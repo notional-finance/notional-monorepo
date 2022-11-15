@@ -1,7 +1,7 @@
 on:
   push:
     branches:
-      - "beta"
+      - beta
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -26,6 +26,6 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: 'notional-web-beta'
-          directory: 'dist/apps/web'
+          projectName: notional-web-beta
+          directory: dist/apps/web
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
