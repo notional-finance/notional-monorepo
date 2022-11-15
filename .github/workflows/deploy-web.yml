@@ -1,7 +1,9 @@
+name: deploy-web
 on:
   push:
     branches:
       - main
+      - beta
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -26,7 +28,9 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          if: github.ref_name == 'main'
           projectName: notional-web-staging
+          if: github.ref_name == 'beta'
+          projectName: notional-web-beta
           directory: dist/apps/web
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-          environment: Production
