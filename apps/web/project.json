@@ -70,6 +70,16 @@
         }
       }
     },
+    "publish": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          {
+            "command": "yarn wrangler pages publish ./dist/apps/web/"
+          }
+        ]
+      }
+    },
     "lint": {
       "executor": "@nrwl/linter:eslint",
       "outputs": ["{options.outputFile}"],
