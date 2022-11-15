@@ -20,7 +20,7 @@ jobs:
       - name: Yarn Install
         run: yarn install --frozen-lockfile
       - name: Build Web
-        run: yarn nx build web --parallel
+        run: yarn nx build web --parallel --skip-nx-cache
       - name: Publish
         uses: cloudflare/pages-action@1
         with:
