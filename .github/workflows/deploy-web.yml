@@ -1,9 +1,15 @@
 name: deploy-web
 on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Select Environment: <staging|beta>'
+        required: true
+        default: 'staging'
+
   push:
     branches:
       - main
-      - beta
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -34,7 +40,7 @@ jobs:
           directory: dist/apps/web
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
       - name: Publish Beta
-        if: github.ref_name == 'beta'
+        if: github.event.inputs.environment == 'beta'
         uses: cloudflare/pages-action@1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -42,3 +48,8 @@ jobs:
           projectName: notional-web-beta
           directory: dist/apps/web
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Slack Notification
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
