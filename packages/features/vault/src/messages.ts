@@ -113,8 +113,12 @@ export const messages = {
       description: 'table column heading',
     },
     date: { defaultMessage: 'Date: {date}', description: 'chart tooltip' },
-    performanceTotalReturns: {
-      defaultMessage: 'Total Returns: {returns}',
+    performanceStrategyReturns: {
+      defaultMessage: 'Strategy Returns: {returns}',
+      description: 'chart tooltip',
+    },
+    performanceLeveragedReturns: {
+      defaultMessage: 'Leveraged Returns: {returns}',
       description: 'chart tooltip',
     },
     returns: {
