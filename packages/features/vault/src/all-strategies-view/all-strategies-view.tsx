@@ -13,6 +13,7 @@ export const AllStrategyView = () => {
         headlineRate,
         strategyName,
         capacityUsedPercentage,
+        capacityRemaining,
       } = v;
       return (
         <CardVariant
@@ -22,8 +23,9 @@ export const AllStrategyView = () => {
           rate={headlineRate || 0}
           minDepositRequired={minDepositRequired}
           route={`/vaults/${vaultAddress}`}
-          buttonText={'Deposit'}
+          buttonText={'Enter Vault'}
           capacityUsedPercentage={capacityUsedPercentage}
+          capacityRemaining={capacityRemaining}
         />
       );
     }) || [];
