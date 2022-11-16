@@ -142,8 +142,9 @@ export const CollateralSelect = ({
             buttonComponent={StyledButton}
             value={selectedOptionKey}
             landingPage={false}
-            onChange={(selectedCollateral: string) => {
-              updateCollateralSelectState({ selectedCollateral });
+            onChange={(selectedCollateral: string | null) => {
+              if(selectedCollateral)
+                updateCollateralSelectState({ selectedCollateral });
             }}
             onListboxOpen={(isOpen) => setHasFocus(isOpen)}
           >

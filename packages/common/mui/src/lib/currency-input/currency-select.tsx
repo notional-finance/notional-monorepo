@@ -72,7 +72,7 @@ export function CurrencySelect(props: CurrencySelectProps) {
       value={value}
       buttonComponent={StyledButton}
       landingPage={landingPage}
-      onChange={(value) => {
+      onChange={(value: string | null) => {
         setValue(value);
         if (onSelectChange) onSelectChange(value);
       }}
