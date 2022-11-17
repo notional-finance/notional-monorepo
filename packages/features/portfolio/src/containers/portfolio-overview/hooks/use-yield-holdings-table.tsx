@@ -6,11 +6,10 @@ import {
   SliderCell,
 } from '@notional-finance/mui';
 import { useYieldStrategies } from '@notional-finance/notionable-hooks';
-import { RATE_PRECISION } from '@notional-finance/sdk/src/config/constants';
 import {
+  formatCryptoWithFiat,
   formatLeverageRatio,
   formatMaturity,
-  formatValueWithFiat,
 } from '@notional-finance/helpers';
 import { FormattedMessage } from 'react-intl';
 
@@ -48,7 +47,7 @@ export const useYieldHoldingsTable = () => {
         />
       ),
       Cell: MultiValueCell,
-      accessor: '/assets',
+      accessor: 'assets',
       textAlign: 'right',
     },
     {
@@ -91,9 +90,9 @@ export const useYieldHoldingsTable = () => {
           ? `Maturity: ${formatMaturity(s.maturity)}`
           : undefined,
       },
-      netWorth: formatValueWithFiat(s.netWorth),
-      assets: formatValueWithFiat(s.assetValue),
-      debts: formatValueWithFiat(s.debtValue),
+      netWorth: formatCryptoWithFiat(s.netWorth),
+      assets: formatCryptoWithFiat(s.assetValue),
+      debts: formatCryptoWithFiat(s.debtValue),
       leveragePercentage: s.leveragePercentage
         ? {
             value: s.leveragePercentage,
