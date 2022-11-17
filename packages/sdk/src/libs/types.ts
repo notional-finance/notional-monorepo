@@ -277,8 +277,10 @@ export enum LiquidationThresholdType {
 export interface LiquidationThreshold {
   name: string;
   type: LiquidationThresholdType;
+  debtCurrencySymbol: string;
+  source: string;
   rate?: number;
+  collateralCurrencySymbol?: string;
   ethExchangeRate?: TypedBigNumber;
-  debtCurrencyId?: number;
-  collateralCurrencyId?: number;
+  currentPrice?: TypedBigNumber;
 }

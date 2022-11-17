@@ -1,7 +1,9 @@
 import { INTERNAL_TOKEN_PRECISION } from '../config/constants';
 import { SecondaryBorrowArray, VaultConfig, VaultState } from '../data';
 import TypedBigNumber, { BigNumberType } from '../libs/TypedBigNumber';
+import { getNowSeconds } from '../libs/utils';
 import { System } from '../system';
+import VaultFactory from './VaultFactory';
 
 export default class VaultAccount {
   public static emptyVaultAccount(vaultAddress: string, maturity = 0) {
@@ -345,6 +347,15 @@ export default class VaultAccount {
         vaultState.totalVaultShares
       ),
     };
+  }
+
+  public getLiquidationThresholds(blockTime = getNowSeconds()) {
+    const strategyId = this.getVault().strategy;
+    const baseVault = VaultFactory.buildVaultFromCache(
+      strategyId,
+      this.vaultAddress
+    );
+    return baseVault.getLiquidationThresholds(this, blockTime);
   }
 
   public getSettlementValues() {
