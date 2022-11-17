@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
 import { datadogRum } from '@datadog/browser-rum';
 import { useImpactTracking } from '@notional-finance/utils';
-import { trackEvent } from '@notional-finance/helpers';
+import { initPlausible } from '@notional-finance/helpers';
 import {
   setInLocalStorage,
   getFromLocalStorage,
 } from '@notional-finance/helpers';
+import Plausible from 'plausible-tracker';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { BrowserRouter, Switch } from 'react-router-dom';
@@ -69,6 +70,7 @@ datadogRum.init({
 });
 
 export const App = () => {
+  const { trackPageview } = Plausible();
   const [routeKey, setRouteKey] = useState('');
   const { themeVariant } = useUserSettingsState();
   const notionalTheme = useNotionalTheme(themeVariant);
@@ -86,6 +88,11 @@ export const App = () => {
         code: 500,
       });
     }
+  }, []);
+
+  useEffect(() => {
+    initPlausible();
+    trackPageview();
   }, []);
 
   useEffect(() => {

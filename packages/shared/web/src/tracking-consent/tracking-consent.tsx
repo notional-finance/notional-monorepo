@@ -3,6 +3,7 @@ import { styled, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import CookieConsent, { getCookieConsentValue } from 'react-cookie-consent';
 import { Link } from 'react-router-dom';
+import { setInLocalStorage } from '@notional-finance/helpers';
 import { updateTrackingState } from '@notional-finance/utils';
 
 const StyledLink = styled(Link)(
@@ -13,12 +14,9 @@ const StyledLink = styled(Link)(
 
 export function TrackingConsent() {
   const theme = useTheme();
-  const updateConsent = () => {
-    const hasConsent = getCookieConsentValue() === 'true';
-    updateTrackingState({ hasConsent });
+  const onDecline = () => {
+    setInLocalStorage('plausible_ignore', true);
   };
-
-  useEffect(updateConsent, []);
 
   return (
     <CookieConsent
@@ -35,8 +33,7 @@ export function TrackingConsent() {
         background: theme.palette.primary.accent,
         borderRadius: theme.shape.borderRadius(),
       }}
-      onAccept={updateConsent}
-      onDecline={updateConsent}
+      onDecline={onDecline}
     >
       <span>
         <FormattedMessage

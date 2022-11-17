@@ -14,7 +14,7 @@ const IMPACT_TXN_ID = '29430';
 
 export function initPlausible() {
   const plausible = Plausible({
-    domain: 'staging.notional.finance',
+    domain: window.location.hostname,
     apiHost: 'https://plausible.io',
   });
 }
