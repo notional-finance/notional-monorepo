@@ -622,7 +622,7 @@ export async function getSystemConfig(
 // Occasionally they don't like how we name things
 function getVaultNameOverride(name: string) {
   if (name === 'Balancer V2 wstETH/ETH LP (ETH Leverage)') {
-    return 'Balancer/Aura ETH/wstETH LP';
+    return 'Balancer ETH/wstETH LP';
   }
 
   return name;
