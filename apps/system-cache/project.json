@@ -4,17 +4,6 @@
   "sourceRoot": "apps/system-cache/src",
   "projectType": "application",
   "targets": {
-    "build": {
-      "executor": "nx:run-commands",
-      "options": {
-        "commands": [
-          {
-            "command": "wrangler publish --dry-run --outdir dist"
-          }
-        ],
-        "cwd": "apps/system-cache"
-      }
-    },
     "serve": {
       "executor": "nx:run-commands",
       "options": {
@@ -26,12 +15,12 @@
         "cwd": "apps/system-cache"
       }
     },
-    "publish": {
+    "wrangler-publish": {
       "executor": "nx:run-commands",
       "options": {
         "commands": [
           {
-            "command": "wrangler publish"
+            "command": "yarn wrangler publish"
           }
         ],
         "cwd": "apps/system-cache"
@@ -50,8 +39,7 @@
       "options": {
         "jestConfig": "apps/system-cache/jest.config.ts",
         "passWithNoTests": true
-      },
-      "dependsOn": ["build"]
+      }
     }
   },
   "tags": []

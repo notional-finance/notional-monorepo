@@ -4,34 +4,23 @@
   "sourceRoot": "apps/metrics/src",
   "projectType": "application",
   "targets": {
-    "build": {
-      "executor": "nx:run-commands",
-      "options": {
-        "commands": [
-          {
-            "command": "wrangler publish --dry-run --outdir dist"
-          }
-        ],
-        "cwd": "apps/metrics"
-      }
-    },
     "serve": {
       "executor": "nx:run-commands",
       "options": {
         "commands": [
           {
-            "command": "wrangler dev --local"
+            "command": "yarn wrangler dev --local"
           }
         ],
         "cwd": "apps/metrics"
       }
     },
-    "publish": {
+    "wrangler-publish": {
       "executor": "nx:run-commands",
       "options": {
         "commands": [
           {
-            "command": "wrangler publish"
+            "command": "yarn wrangler publish"
           }
         ],
         "cwd": "apps/metrics"
@@ -50,8 +39,7 @@
       "options": {
         "jestConfig": "apps/metrics/jest.config.ts",
         "passWithNoTests": true
-      },
-      "dependsOn": ["build"]
+      }
     }
   },
   "tags": []
