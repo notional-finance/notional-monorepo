@@ -174,20 +174,6 @@ export const useRiskOverviewTable = () => {
   const riskOverviewData = priceRiskData
     .concat(interestRateRiskData)
     .concat(vaultRiskData);
-  // {
-  //   collateral: {
-  //     symbol: 'ETH',
-  //     label: 'ETH',
-  //     caption: 'nETH, fETH',
-  //   },
-  //   riskFactor: {
-  //     data: ['ETH/USD', 'Chainlink Oracle Price'],
-  //     isNegative: false,
-  //   },
-  //   currentPrice: '1,200 USD',
-  //   liquidationPrice: '897 USD',
-  // },
-
   return {
     riskOverviewData,
     riskOverviewColumns,
