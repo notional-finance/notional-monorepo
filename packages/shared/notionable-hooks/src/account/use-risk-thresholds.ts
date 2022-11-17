@@ -11,6 +11,17 @@ import {
 import { useNotional } from '../notional/use-notional';
 import { useAccount } from './use-account';
 
+function hasNTokenCollateral(currencyId: number, accountData: AccountData) {
+  return accountData.nTokenBalance(currencyId)?.isPositive() || false;
+}
+
+function hasfCashCollateral(currencyId: number, accountData: AccountData) {
+  return !!accountData.portfolio.find(
+    (a) =>
+      a.currencyId === currencyId && a.notional.isPositive() && !hasMatured(a)
+  );
+}
+
 function calculateLiquidationPairs(accountData: AccountData) {
   const { netUnderlyingAvailable } =
     FreeCollateral.getFreeCollateral(accountData);
@@ -34,13 +45,8 @@ function calculateLiquidationPairs(accountData: AccountData) {
       return {
         debtCurrencyId: d.currencyId,
         collateralCurrencyId: c.currencyId,
-        hasNTokenCollateral: !!accountData.nTokenBalance(c.currencyId),
-        hasfCashCollateral: !!accountData.portfolio.find(
-          (a) =>
-            a.currencyId === c.currencyId &&
-            a.notional.isPositive() &&
-            !hasMatured(a)
-        ),
+        hasNTokenCollateral: hasNTokenCollateral(c.currencyId, accountData),
+        hasfCashCollateral: hasfCashCollateral(c.currencyId, accountData),
       };
     });
   });
@@ -126,6 +132,8 @@ export function useRiskThresholds(
     return {
       id: k,
       symbol,
+      hasNTokenCollateral: hasNTokenCollateral(k, accountDataCopy),
+      hasfCashCollateral: hasfCashCollateral(k, accountDataCopy),
       ...interestRateRisk.get(k)!,
     };
   });

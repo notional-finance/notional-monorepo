@@ -74,9 +74,9 @@ export const useInterestRateRiskTable = () => {
 
       return {
         symbol,
-        lowerRate: formatRateForRisk(lowerLiquidationInterestRate),
-        currentAvg: formatRateForRisk(currentWeightedAvgInterestRate),
-        upperRate: formatRateForRisk(upperLiquidationInterestRate),
+        lowerRate: formatRateForRisk(lowerLiquidationInterestRate, 3),
+        currentAvg: formatRateForRisk(currentWeightedAvgInterestRate, 3),
+        upperRate: formatRateForRisk(upperLiquidationInterestRate, 3),
         sliderData: {
           stepSize,
           value: convertRateToFloat(currentWeightedAvgInterestRate || 0),

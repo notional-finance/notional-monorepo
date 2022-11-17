@@ -4,6 +4,7 @@ import {
   MultiValueIconCell,
 } from '@notional-finance/mui';
 import { useRiskThresholds } from '@notional-finance/notionable-hooks';
+import { formatRateForRisk } from '@notional-finance/risk/helpers/risk-data-helpers';
 import { FormattedMessage } from 'react-intl';
 
 export const useRiskOverviewTable = () => {
@@ -65,9 +66,9 @@ export const useRiskOverviewTable = () => {
     }) => {
       let caption: string[] = [];
       if (hasNTokenCollateral && collateralSymbol)
-        caption.push(`n${collateralSymbol}`);
+        caption.push(`n${collateralSymbol.toUpperCase()}`);
       if (hasfCashCollateral && collateralSymbol)
-        caption.push(`f${collateralSymbol}`);
+        caption.push(`f${collateralSymbol.toUpperCase()}`);
 
       return {
         collateral: {
@@ -85,7 +86,61 @@ export const useRiskOverviewTable = () => {
     }
   );
 
-  const riskOverviewData = priceRiskData;
+  const interestRateRiskData = interestRateRiskArray.map(
+    ({
+      symbol,
+      hasNTokenCollateral,
+      hasfCashCollateral,
+      currentWeightedAvgInterestRate,
+      lowerLiquidationInterestRate,
+      upperLiquidationInterestRate,
+    }) => {
+      let caption: string[] = [];
+      if (hasNTokenCollateral && symbol)
+        caption.push(`n${symbol.toUpperCase()}`);
+      if (hasfCashCollateral && symbol)
+        caption.push(`f${symbol.toUpperCase()}`);
+
+      let liquidationPrice: string;
+      lowerLiquidationInterestRate = 0.0223e9;
+      if (upperLiquidationInterestRate && lowerLiquidationInterestRate) {
+        liquidationPrice = `Below ${formatRateForRisk(
+          lowerLiquidationInterestRate,
+          3
+        )}, Above ${formatRateForRisk(upperLiquidationInterestRate, 3)}`;
+      } else if (upperLiquidationInterestRate) {
+        liquidationPrice = `Above ${formatRateForRisk(
+          upperLiquidationInterestRate,
+          3
+        )}`;
+      } else if (lowerLiquidationInterestRate) {
+        liquidationPrice = `Below ${formatRateForRisk(
+          lowerLiquidationInterestRate,
+          3
+        )}`;
+      } else {
+        liquidationPrice = '-';
+      }
+
+      return {
+        collateral: {
+          symbol: symbol,
+          label: symbol,
+          caption: caption.join(', '),
+        },
+        riskFactor: {
+          data: [`${symbol} Interest Rates`, 'Notional Interest Rate Oracle'],
+          isNegative: false,
+        },
+        currentPrice: currentWeightedAvgInterestRate
+          ? formatRateForRisk(currentWeightedAvgInterestRate, 3)
+          : '-',
+        liquidationPrice,
+      };
+    }
+  );
+
+  const riskOverviewData = priceRiskData.concat(interestRateRiskData);
   // {
   //   collateral: {
   //     symbol: 'ETH',
