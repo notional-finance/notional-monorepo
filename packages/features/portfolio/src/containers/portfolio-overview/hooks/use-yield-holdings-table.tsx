@@ -43,7 +43,7 @@ export const useYieldHoldingsTable = () => {
       Header: (
         <FormattedMessage
           defaultMessage="Assets"
-          description={'/assets header'}
+          description={'assets header'}
         />
       ),
       Cell: MultiValueCell,

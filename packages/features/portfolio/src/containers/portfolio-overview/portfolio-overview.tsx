@@ -4,23 +4,39 @@ import { DataTable } from '@notional-finance/mui';
 import { usePortfolioHoldingsTable } from './hooks';
 import { defineMessage } from 'react-intl';
 import { useYieldHoldingsTable } from './hooks/use-yield-holdings-table';
+import { useRiskOverviewTable } from './hooks/use-risk-overview-table';
 
 export const PortfolioOverview = () => {
   const { accountConnected } = useAccount();
+  const { riskOverviewData, riskOverviewColumns } = useRiskOverviewTable();
   const { portfolioHoldingsColumns, portfolioHoldingsData, tableLoading } =
     usePortfolioHoldingsTable();
   const { yieldHoldingsColumns, yieldHoldingsData } = useYieldHoldingsTable();
 
   return accountConnected ? (
     <>
-      <RiskSlider displaySuggestedActions showBorder />
+      {/* 
+        Risk slider and suggested actions are hidden for now
+        <RiskSlider displaySuggestedActions showBorder />
+      */}
+      {riskOverviewData.length > 0 && (
+        <DataTable
+          data={riskOverviewData}
+          columns={riskOverviewColumns}
+          tableLoading={tableLoading}
+          tableTitle={defineMessage({
+            defaultMessage: 'Risk Overview',
+            description: 'table title',
+          })}
+        />
+      )}
       {portfolioHoldingsData.length > 0 && (
         <DataTable
           data={portfolioHoldingsData}
           columns={portfolioHoldingsColumns}
           tableLoading={tableLoading}
           tableTitle={defineMessage({
-            defaultMessage: 'Portfolio Holdings',
+            defaultMessage: 'Loan and Liquidity Positions',
             description: 'table title',
           })}
         />

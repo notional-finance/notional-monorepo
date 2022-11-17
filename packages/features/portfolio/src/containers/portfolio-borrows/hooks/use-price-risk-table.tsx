@@ -81,17 +81,14 @@ export const usePriceRiskTable = () => {
         return {
           debt: data.debtSymbol,
           collateral: data.collateralSymbol,
-          currentPrice:
-            cryptoPriceBySymbol && cryptoPriceBySymbol.price > 0
-              ? `${formatNumber(cryptoPriceBySymbol?.price, 2)} ${fiatKey}`
-              : '-',
+          currentPrice: data.currentPrice?.toDisplayStringWithSymbol(2),
           '24H': cryptoPriceBySymbol
             ? formatNegativeValueCell(cryptoPriceBySymbol['24H'])
             : { displayValue: '-' },
           '7D': cryptoPriceBySymbol
             ? formatNegativeValueCell(cryptoPriceBySymbol['7D'])
             : { displayValue: '-' },
-          liquidationPrice: formatFiatWithPercent(data.liquidationPrice),
+          liquidationPrice: data.liquidationPrice?.toDisplayStringWithSymbol(2),
           penalty: formatFiatWithPercent(
             data.totalPenaltyETHValueAtLiquidationPrice
           ),
