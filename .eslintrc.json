@@ -4,7 +4,7 @@
   "plugins": ["@nrwl/nx", "formatjs"],
   "rules": {
     "formatjs/no-offset": "error",
-        "formatjs/no-id": "error"
+    "formatjs/no-id": "error"
   },
   "overrides": [
     {
