@@ -1,4 +1,4 @@
-import ReactGA from 'react-ga4';
+import Plausible from 'plausible-tracker';
 import axios from 'axios';
 import { ethers } from 'ethers';
 import { logError } from './error-helpers';
@@ -12,32 +12,17 @@ const IMPACT_EMAIL_SIGNUP_ID = '30034';
 const IMPACT_WALLET_REGISTRATION_ID = '29429';
 const IMPACT_TXN_ID = '29430';
 
-export function initGA() {
-  ReactGA.initialize(GOOGLE_ANALYTICS_ID, {
-    gtagOptions: { debug_mode: true },
+export function initPlausible() {
+  const plausible = Plausible({
+    domain: window.location.hostname,
+    apiHost: 'https://plausible.io',
   });
-  ReactGA.ga('set', 'anonymizeIp', true);
 }
 
-export function trackGA() {
-  ReactGA.send('pageview');
-}
 
-export function trackEvent(
-  category: string,
-  action: string,
-  label: string,
-  value?: number,
-  nonInteraction = false
-) {
-  const props = {
-    category,
-    action,
-    label,
-    value,
-    nonInteraction,
-  };
-  ReactGA.event(props);
+export function trackEvent(category: string, props?: Record<string, any>) {
+  const { trackEvent } = Plausible();
+  trackEvent(category, props);
 }
 
 async function postToImpact(payload: Record<string, string>) {

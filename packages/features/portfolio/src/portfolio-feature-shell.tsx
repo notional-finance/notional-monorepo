@@ -50,7 +50,9 @@ export const PortfolioFeatureShell = () => {
   const params = useParams<PortfolioParams>();
   const { SideDrawerComponent, drawerOpen, addSideDrawers } =
     useSideDrawerManager(params.sideDrawerKey);
+
   const { buttonData } = usePortfolioButtonBar();
+
   const { accountConnected } = useAccount();
 
   useEffect(() => {
@@ -135,7 +137,7 @@ export const PortfolioFeatureShell = () => {
 };
 
 // NOTE*
-// max-width: 1330px is necessary for portfolio page to render correctly on laptops
+// max-width: 1312px is necessary for portfolio page to render correctly on laptops
 // We should consider adding a 1280px breakpoint in the future
 
 const PortfolioContainer = styled(Box)(
@@ -144,17 +146,19 @@ const PortfolioContainer = styled(Box)(
   gap: 64px;
   margin: 64px;
   margin-top: 80px;
+  @media (max-width: 768px) {
+    flex-flow: column;
+  };
   @media (max-width: 1330px) {
     margin: 80px 16px;
     gap: 24px;
   };
-  @media (min-width: ${theme.breakpoints.values.xl}) {
+
+  ${theme.breakpoints.up('lg')} {
     margin: 80px auto;
-    max-width: 1440px;
+    max-width: 1312px;
   };
-  @media (max-width: 768px) {
-    flex-flow: column;
-  };
+
 `
 );
 

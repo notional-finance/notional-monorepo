@@ -4,7 +4,7 @@ import { trackEvent } from '@notional-finance/helpers';
 
 export const HeaderRenderer = ({ pageLayout }) => {
   const handleAppLaunch = () => {
-    trackEvent('LINK', 'LANDING_CTA', 'Launch App');
+    trackEvent('Launch App');
   };
 
   const renderRightButton = () => {

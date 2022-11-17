@@ -57,7 +57,13 @@ export const FixedAPYAPR = () => {
             height: theme.spacing(7),
           }}
           disableRipple
-          onClick={() => trackEvent('LINK', 'LANDING_CTA', lendOrBorrow)}
+          onClick={() =>
+            trackEvent('LANDING_CTA', {
+              props: {
+                variation: lendOrBorrow,
+              },
+            })
+          }
           fullWidth
         >
           {lendOrBorrow === LEND_BORROW.BORROW ? (

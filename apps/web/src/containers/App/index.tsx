@@ -1,7 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
 import { datadogRum } from '@datadog/browser-rum';
 import { useImpactTracking } from '@notional-finance/utils';
-import { trackGA } from '@notional-finance/helpers';
+import { initPlausible } from '@notional-finance/helpers';
+import {
+  setInLocalStorage,
+  getFromLocalStorage,
+} from '@notional-finance/helpers';
+import Plausible from 'plausible-tracker';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { BrowserRouter, Switch } from 'react-router-dom';
@@ -46,8 +51,14 @@ const clientToken = process.env['NX_DD_CLIENT_TOKEN'] as string;
 const site = process.env['NX_DD_SITE'];
 // COMMIT_REF environment variable is supplied by netlify on deployment
 const version = `${process.env['COMMIT_REF']?.substring(0, 8) || 'local'}`;
+const { disableErrorReporting } = getFromLocalStorage('privacySettings');
 
 datadogRum.init({
+  beforeSend: (event) => {
+    if (disableErrorReporting) {
+      return false;
+    }
+  },
   applicationId,
   clientToken,
   site,
@@ -59,6 +70,7 @@ datadogRum.init({
 });
 
 export const App = () => {
+  const { trackPageview } = Plausible();
   const [routeKey, setRouteKey] = useState('');
   const { themeVariant } = useUserSettingsState();
   const notionalTheme = useNotionalTheme(themeVariant);
@@ -79,11 +91,11 @@ export const App = () => {
   }, []);
 
   useEffect(() => {
-    // Called once upon app initialization
+    initPlausible();
+    trackPageview();
+  }, []);
 
-    // Track the initial page load, all other tracking occurs
-    // in the <RouteContainer />
-    trackGA();
+  useEffect(() => {
     initApplication();
   }, [initApplication]);
 

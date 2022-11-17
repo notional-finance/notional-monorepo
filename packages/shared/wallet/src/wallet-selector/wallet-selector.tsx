@@ -13,6 +13,7 @@ import WalletSideDrawer from '../wallet-side-drawer/wallet-side-drawer';
 import { getNotificationsData } from './wallet-selector.service';
 import NetworkSelector from '../network-selector/network-selector';
 import { useOnboard, useAccount } from '@notional-finance/notionable-hooks';
+import { useParams } from 'react-router-dom';
 import { ProgressIndicator } from '@notional-finance/mui';
 import { useWalletSideDrawer } from '../hooks';
 import {
@@ -33,12 +34,12 @@ export interface PortfolioParams {
 
 export function WalletSelector() {
   const theme = useTheme();
+  const params = useParams<PortfolioParams>();
   const { connected, icon, label } = useOnboard();
   const { truncatedAddress } = useAccount();
   const [notificationsActive, setNotificationsActive] =
     useState<boolean>(false);
-  const { sideDrawerOpen } = useSideDrawerState();
-  const { currentSideDrawerId } = useSideDrawerManager();
+  const { drawerOpen } = useSideDrawerManager();
   const notifications = getFromLocalStorage('notifications');
   const { setWalletSideDrawer, deleteWalletSideDrawer } = useWalletSideDrawer();
 
@@ -51,17 +52,12 @@ export function WalletSelector() {
     setNotificationsActive(notifications.active);
   }, [notifications]);
 
-  const handleClick = (key: string) => {
-    if (
-      sideDrawerOpen &&
-      currentSideDrawerId &&
-      !Object.values(SIDEBAR_CATEGORIES).includes(
-        currentSideDrawerId as SIDEBAR_CATEGORIES
-      )
-    ) {
+  const handleClick = (key: SIDEBAR_CATEGORIES) => {
+    if (drawerOpen) {
       deleteWalletSideDrawer();
     }
-    if (!sideDrawerOpen) {
+
+    if (!drawerOpen && !params?.sideDrawerKey) {
       setWalletSideDrawer(key);
     }
   };

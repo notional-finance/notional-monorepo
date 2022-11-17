@@ -1,4 +1,8 @@
-import { AddressButton, WalletSwitcher } from './wallet-switcher/wallet-switcher';
+import {
+  AddressButton,
+  WalletSwitcher,
+} from './wallet-switcher/wallet-switcher';
+import { Privacy } from './privacy/privacy';
 import { DarkModeToggle } from './dark-mode-toggle/dark-mode-toggle';
 import { useAccount } from '@notional-finance/notionable-hooks';
 
@@ -49,6 +53,7 @@ export const useSettingsSideDrawer = () => {
       key: 'privacy',
       active: false,
       label: 'Privacy',
+      ViewComponent: Privacy,
       buttonText: 'Default',
     },
     {
