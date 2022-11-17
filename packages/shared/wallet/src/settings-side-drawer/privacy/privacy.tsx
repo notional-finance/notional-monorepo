@@ -19,7 +19,7 @@ import { FormattedMessage } from 'react-intl';
 export const Privacy = () => {
   const theme = useTheme();
 
-  const { disableErrorReporting } = getFromLocalStorage('dataDog');
+  const { disableErrorReporting } = getFromLocalStorage('privacySettings');
 
   const plausibleIgnore = getFromLocalStorage('plausible_ignore');
 
@@ -35,7 +35,7 @@ export const Privacy = () => {
   );
 
   const handleReportingChange = () => {
-    setInLocalStorage('dataDog', {
+    setInLocalStorage('privacySettings', {
       disableErrorReporting: !disableDataDogReporting,
     });
     setDisableDataDogReporting(!disableDataDogReporting);
