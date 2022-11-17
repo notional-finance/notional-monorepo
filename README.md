@@ -1,55 +1,42 @@
 
 
-# NotionalFinance
+# Notional Finance Monorepo
 
-This project was generated using [Nx](https://nx.dev).
+This is the monorepo for all the Notional finance code. It is split into the following subpackages:
 
-<p style="text-align: center;"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="450"></p>
+- `@notional-finance/contracts`: smart contract code and tests using [Buidler](https://buidler.dev).
+- `@notional-finance/sdk`: A typescript based SDK that contains user centered logic for interacting with Notional contracts, including calculating rates off line. We will continue to expand and update this SDk as the underlying contracts evolve so that UIs have an abstraction layer to work with.
+- `@notional-finance/subgraph`: [Graph Protocol Subgraph](https://thegraph.com) subgraph for caching contract interactions
+- `@notional-finance/web`: Web frontend using React
 
-🔎 **Smart, Fast and Extensible Build System**
+## Getting Started
 
-## Adding capabilities to your workspace
+* You can learn more about the design of Notional from the [whitepaper](https://notional.finance/litepaper).
 
-Nx supports many plugins which add capabilities for developing different types of applications and different tools.
+## Contract Details
 
-These capabilities include generating applications, libraries, etc as well as the devtools to test, and build projects as well.
 
-Below are our core plugins:
+## Developers
 
-- [React](https://reactjs.org)
-  - `npm install --save-dev @nrwl/react`
-- Web (no framework frontends)
-  - `npm install --save-dev @nrwl/web`
-- [Angular](https://angular.io)
-  - `npm install --save-dev @nrwl/angular`
-- [Nest](https://nestjs.com)
-  - `npm install --save-dev @nrwl/nest`
-- [Express](https://expressjs.com)
-  - `npm install --save-dev @nrwl/express`
-- [Node](https://nodejs.org)
-  - `npm install --save-dev @nrwl/node`
-
-There are also many [community plugins](https://nx.dev/community) you could add.
-
-## Generate an application
+## Generate a React Application
 
 Run `nx g @nrwl/react:app my-app` to generate an application.
 
-> You can use any of the plugins above to generate applications as well.
-
 When using Nx, you can create multiple applications and libraries in the same workspace.
 
-## Generate a library
+## Generate libraries
+### Grouped Library
+Uses the following syntax
+Run `nx g @nrwl/react:lib {features|common|shared}/lib-name --standaloneConfig --component false --buildable --import-path @notional-finance/lib-name` to generate a library.
 
-Run `nx g @nrwl/react:lib my-lib` to generate a library.
-
-> You can also use any of the plugins above to generate libraries as well.
+### NPM Publishable Library
+Run `nx g @nrwl/js:lib lib-name --standaloneConfig --component false --publishable --buildable --import-path @notional-finance/lib-name`
 
 Libraries are shareable across libraries and applications. They can be imported from `@notional-finance/mylib`.
 
 ## Development server
 
-Run `nx serve my-app` for a dev server. Navigate to http://localhost:4200/. The app will automatically reload if you change any of the source files.
+Run `nx serve web` for a dev server. Navigate to http://localhost:3000/. The app will automatically reload if you change any of the source files.
 
 ## Code scaffolding
 
@@ -64,12 +51,6 @@ Run `nx build my-app` to build the project. The build artifacts will be stored i
 Run `nx test my-app` to execute the unit tests via [Jest](https://jestjs.io).
 
 Run `nx affected:test` to execute the unit tests affected by a change.
-
-## Running end-to-end tests
-
-Run `nx e2e my-app` to execute the end-to-end tests via [Cypress](https://www.cypress.io).
-
-Run `nx affected:e2e` to execute the end-to-end tests affected by a change.
 
 ## Understand your workspace
 
