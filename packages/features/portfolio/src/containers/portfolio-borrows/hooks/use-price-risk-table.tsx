@@ -5,11 +5,7 @@ import {
   MultiValueCell,
   NegativeValueCell,
 } from '@notional-finance/mui';
-import {
-  formatFiatWithPercent,
-  formatNumberAsPercent,
-  formatNumber,
-} from '@notional-finance/helpers';
+import { formatNumberAsPercent } from '@notional-finance/helpers';
 import { useCryptoPriceState } from '@notional-finance/shared-web';
 
 export const usePriceRiskTable = () => {
@@ -89,9 +85,15 @@ export const usePriceRiskTable = () => {
             ? formatNegativeValueCell(cryptoPriceBySymbol['7D'])
             : { displayValue: '-' },
           liquidationPrice: data.liquidationPrice?.toDisplayStringWithSymbol(2),
-          penalty: formatFiatWithPercent(
-            data.totalPenaltyETHValueAtLiquidationPrice
-          ),
+          penalty: {
+            data: [
+              data.totalPenaltyValue?.toDisplayStringWithSymbol(2) || '-',
+              data?.totalPenaltyRate
+                ? formatNumberAsPercent(data?.totalPenaltyRate)
+                : '-',
+            ],
+            isNegative: false,
+          },
         };
       });
     }

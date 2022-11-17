@@ -91,7 +91,7 @@ export function useRiskThresholds(
               true
             )
               .toETH(false)
-              .fromETH(debtCurrencyId)
+              .fromETH(debtCurrencyId, false)
           : undefined;
 
         return {
@@ -101,7 +101,10 @@ export function useRiskThresholds(
           // Liquidation Price is returned in Debt Currency
           liquidationPrice,
           totalPenaltyRate,
-          totalPenaltyETHValueAtLiquidationPrice,
+          totalPenaltyValue: totalPenaltyETHValueAtLiquidationPrice?.fromETH(
+            collateralCurrencyId,
+            false
+          ),
           debtSymbol,
           collateralSymbol,
           currentPrice,
