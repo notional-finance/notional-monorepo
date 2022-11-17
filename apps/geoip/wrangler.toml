@@ -1,4 +1,4 @@
-name = "geoip"
+name = "geoip-dev"
 main = "./src/index.ts"
 compatibility_date = "2022-07-07"
 
@@ -6,3 +6,12 @@ workers_dev = true
 node_compat = true
 minify = true
 usage_model = "bundled"
+
+[env.dev]
+name = "geoip-dev"
+
+[env.staging]
+name = "geoip-staging"
+
+[env.production]
+name = "geoip"

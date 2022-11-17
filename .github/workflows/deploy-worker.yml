@@ -1,10 +1,11 @@
+name: Deploy Cloudflare Worker
 on:
   workflow_dispatch:
     inputs:
       environment:
-        description: 'Choose an environment to deploy to: <staging|production>'
+        description: 'Choose an environment to deploy to: <dev|staging|production>'
         required: true
-        default: 'production'
+        default: 'dev'
 
 jobs:
   deploy:
@@ -21,9 +22,9 @@ jobs:
           cache: 'yarn'
       - run: yarn install --frozen-lockfile
 
-      - name: Version
+      - name: Wrangler Publish
         shell: bash
         run: yarn nx affected --base=last-release --target=wrangler-publish --env ${{ github.event.inputs.environment }}
         env:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_WORKER_TOKEN }}

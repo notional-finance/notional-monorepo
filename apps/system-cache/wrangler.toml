@@ -23,6 +23,9 @@ new_classes = ["SystemCache"]
 VERSION = 'v2'
 DD_BASE_URL = 'https://datadoghq.com'
 
+[env.dev]
+name = "system-cache-dev"
+
 [env.staging]
 name = "system-cache-staging"
 
