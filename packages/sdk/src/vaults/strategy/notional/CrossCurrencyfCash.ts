@@ -161,8 +161,11 @@ export default class CrossCurrencyfCash extends BaseVault<
       ethExchangeRate: perShareValue
         .scale(riskAdjustedExchangeRate, RATE_PRECISION)
         .toETH(false),
-      debtCurrencyId: this.getVault().primaryBorrowCurrency,
-      collateralCurrencyId: this.lendCurrencyId,
+      source: 'Chainlink Oracle',
+      debtCurrencySymbol: this.getPrimaryBorrowSymbol(),
+      collateralCurrencySymbol: System.getSystem().getUnderlyingSymbol(
+        this.lendCurrencyId
+      ),
     });
 
     const perShareValueInLendCurrency = perShareValue
@@ -192,7 +195,11 @@ export default class CrossCurrencyfCash extends BaseVault<
         name: 'Interest Rate',
         type: LiquidationThresholdType.fCashInterestRate,
         rate: liquidationInterestRate,
-        collateralCurrencyId: this.lendCurrencyId,
+        source: 'Notional Interest Rate Oracle',
+        debtCurrencySymbol: this.getPrimaryBorrowSymbol(),
+        collateralCurrencySymbol: System.getSystem().getUnderlyingSymbol(
+          this.lendCurrencyId
+        ),
       });
     }
 

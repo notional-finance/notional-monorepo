@@ -11,19 +11,21 @@ export const AllStrategyView = () => {
         vaultAddress,
         underlyingSymbol,
         headlineRate,
-        strategyName,
+        vaultName,
         capacityUsedPercentage,
+        capacityRemaining,
       } = v;
       return (
         <CardVariant
           variant="vault"
-          strategy={strategyName}
+          vaultName={vaultName}
           symbol={underlyingSymbol}
           rate={headlineRate || 0}
           minDepositRequired={minDepositRequired}
           route={`/vaults/${vaultAddress}`}
-          buttonText={'Deposit'}
+          buttonText={'Enter Vault'}
           capacityUsedPercentage={capacityUsedPercentage}
+          capacityRemaining={capacityRemaining}
         />
       );
     }) || [];

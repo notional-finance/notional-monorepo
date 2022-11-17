@@ -9,7 +9,7 @@ interface SelectDropdownProps {
   landingPage: boolean;
   value: any;
   buttonComponent: ElementType;
-  onChange: (value: any) => void;
+  onChange: (value: string | null) => void;
   onListboxOpen?: (isOpen: boolean) => void;
   popperRef?: any;
 }
@@ -128,7 +128,9 @@ export const SelectDropdown = ({
           setListboxOpen(isOpen);
           if (onListboxOpen) onListboxOpen(isOpen);
         }}
-        onChange={onChange}
+        onChange={(e: any) => {
+          onChange(e?.target.textContent);
+        }}
       >
         {children}
       </SelectUnstyled>

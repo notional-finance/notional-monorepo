@@ -78,7 +78,8 @@ export const PerformanceChart = ({
   const renderTooltip = (props: TooltipProps<number, string>) => {
     const { active, payload } = props;
     if (active && payload) {
-      const { timestamp, totalRate, breakdown } = payload[0].payload;
+      const { timestamp, totalRate, breakdown, leveragedReturn } =
+        payload[0].payload;
 
       return (
         <ToolTipBox>
@@ -88,15 +89,20 @@ export const PerformanceChart = ({
               values={{ date: getDateString(timestamp) }}
             />
           </Label>
-          {(breakdown as string[]).map((b: string, i: number) => {
-            return <Label key={`breakdown-${i}`}>{b}</Label>;
-          })}
-          <Label key="total-rate" fontWeight="medium">
+          <Label>
             <FormattedMessage
-              {...messages.summary.performanceTotalReturns}
+              {...messages.summary.performanceStrategyReturns}
               values={{ returns: formatNumberAsPercent(totalRate) }}
             />
           </Label>
+          {leveragedReturn && (
+            <Label fontWeight="medium">
+              <FormattedMessage
+                {...messages.summary.performanceLeveragedReturns}
+                values={{ returns: formatNumberAsPercent(leveragedReturn) }}
+              />
+            </Label>
+          )}
         </ToolTipBox>
       );
     }

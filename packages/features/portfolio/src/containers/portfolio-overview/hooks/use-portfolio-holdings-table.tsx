@@ -41,11 +41,11 @@ export const usePortfolioHoldingsTable = () => {
       Header: (
         <FormattedMessage
           defaultMessage="Assets"
-          description={'/assets header'}
+          description={'assets header'}
         />
       ),
       Cell: MultiValueCell,
-      accessor: '/assets',
+      accessor: 'assets',
       textAlign: 'right',
     },
     {

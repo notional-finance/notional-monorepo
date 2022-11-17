@@ -1,4 +1,8 @@
-import { headlineApy$, initialVaultState, vaultState$ } from '@notional-finance/notionable';
+import {
+  headlineApy$,
+  initialVaultState,
+  vaultState$,
+} from '@notional-finance/notionable';
 import { getMinDepositRequiredString } from '@notional-finance/notionable-hooks';
 
 import { RATE_PRECISION } from '@notional-finance/sdk/src/config/constants';
@@ -7,7 +11,7 @@ import { useObservableState } from 'observable-hooks';
 export const useStrategies = () => {
   const { listedVaults } = useObservableState(vaultState$, initialVaultState);
   const headlineApy = useObservableState(headlineApy$);
-  const allVaults = listedVaults.map(({ vaultConfig, underlyingSymbol, strategyName }) => {
+  const allVaults = listedVaults.map(({ vaultConfig, underlyingSymbol }) => {
     const headlineRate = headlineApy?.get(vaultConfig.vaultAddress) || 0;
     const capacityUsedPercentage =
       (vaultConfig.totalUsedPrimaryBorrowCapacity
@@ -16,14 +20,18 @@ export const useStrategies = () => {
         100) /
       RATE_PRECISION;
     const minDepositRequired = getMinDepositRequiredString(vaultConfig);
+    const capacityRemaining = vaultConfig.maxPrimaryBorrowCapacity.sub(
+      vaultConfig.totalUsedPrimaryBorrowCapacity
+    );
 
     return {
       vaultAddress: vaultConfig.vaultAddress,
       minDepositRequired,
       underlyingSymbol,
       headlineRate,
-      strategyName,
+      vaultName: vaultConfig.name,
       capacityUsedPercentage,
+      capacityRemaining: capacityRemaining.toDisplayStringWithSymbol(0),
     };
   });
 

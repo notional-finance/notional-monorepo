@@ -5,11 +5,7 @@ import {
   MultiValueCell,
   NegativeValueCell,
 } from '@notional-finance/mui';
-import {
-  formatFiatWithPercent,
-  formatNumberAsPercent,
-  formatNumber,
-} from '@notional-finance/helpers';
+import { formatNumberAsPercent } from '@notional-finance/helpers';
 import { useCryptoPriceState } from '@notional-finance/shared-web';
 
 export const usePriceRiskTable = () => {
@@ -81,20 +77,23 @@ export const usePriceRiskTable = () => {
         return {
           debt: data.debtSymbol,
           collateral: data.collateralSymbol,
-          currentPrice:
-            cryptoPriceBySymbol && cryptoPriceBySymbol.price > 0
-              ? `${formatNumber(cryptoPriceBySymbol?.price, 2)} ${fiatKey}`
-              : '-',
+          currentPrice: data.currentPrice?.toDisplayStringWithSymbol(2),
           '24H': cryptoPriceBySymbol
             ? formatNegativeValueCell(cryptoPriceBySymbol['24H'])
             : { displayValue: '-' },
           '7D': cryptoPriceBySymbol
             ? formatNegativeValueCell(cryptoPriceBySymbol['7D'])
             : { displayValue: '-' },
-          liquidationPrice: formatFiatWithPercent(data.liquidationPrice),
-          penalty: formatFiatWithPercent(
-            data.totalPenaltyETHValueAtLiquidationPrice
-          ),
+          liquidationPrice: data.liquidationPrice?.toDisplayStringWithSymbol(2),
+          penalty: {
+            data: [
+              data.totalPenaltyValue?.toDisplayStringWithSymbol(2) || '-',
+              data?.totalPenaltyRate
+                ? formatNumberAsPercent(data?.totalPenaltyRate)
+                : '-',
+            ],
+            isNegative: false,
+          },
         };
       });
     }

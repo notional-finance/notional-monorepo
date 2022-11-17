@@ -21,13 +21,8 @@ type AllCardVariantProps = CardVariantProps &
 const StyledIcon = styled(Box)(
   ({ theme }) => `
   position: relative;
-  // margin-top on the card is theme.spacing(6) so we can "undo" that to
-  // move the icon to the top of the card, and then we have it pop over
-  // the top of the card with theme.spacing(3)
-  top: ${theme.spacing(-9)};
   // card width is theme.spacing(38), this includes theme.spacing(3) of 
   // padding on both sides so we can space this at 38 - 6 - (72 / 8) (23)
-  // 
   left: ${theme.spacing(23)};
 
   img {
@@ -60,7 +55,10 @@ export function CardVariant(props: AllCardVariantProps) {
   const theme = useNotionalTheme('light');
   const { variant, route, symbol, buttonText } = props;
   let height = '240px';
-  if (variant === 'incentive' && (props as IncentiveVariantProps).incentiveRate) {
+  if (
+    variant === 'incentive' &&
+    (props as IncentiveVariantProps).incentiveRate
+  ) {
     height = '370px';
   } else if (variant === 'vault') {
     height = '440px';
@@ -70,14 +68,30 @@ export function CardVariant(props: AllCardVariantProps) {
     <Link to={route}>
       <Card height={height}>
         {symbol && (
-          <StyledIcon theme={theme}>
+          <StyledIcon
+            // margin-top on the card is theme.spacing(6) so we can "undo" that to
+            // move the icon to the top of the card, and then we have it pop over
+            // the top of the card with theme.spacing(3)
+            top={variant === 'vault' ? theme.spacing(-3) : theme.spacing(-9)}
+          >
             <TokenIcon symbol={symbol} size="extraLarge" />
           </StyledIcon>
         )}
-        {variant === 'currency' && <CurrencyVariant {...(props as CurrencyVariantProps)} />}
-        {variant === 'vault' && <VaultVariant {...(props as VaultVariantProps)} />}
-        {variant === 'incentive' && <IncentiveVariant {...(props as IncentiveVariantProps)} />}
-        <Button fullWidth size="medium" variant="contained">
+        {variant === 'currency' && (
+          <CurrencyVariant {...(props as CurrencyVariantProps)} />
+        )}
+        {variant === 'vault' && (
+          <VaultVariant {...(props as VaultVariantProps)} />
+        )}
+        {variant === 'incentive' && (
+          <IncentiveVariant {...(props as IncentiveVariantProps)} />
+        )}
+        <Button
+          fullWidth
+          size="medium"
+          variant="contained"
+          sx={{ background: theme.palette.primary.light }}
+        >
           {buttonText}
         </Button>
       </Card>

@@ -4,7 +4,7 @@
 
 /manifest.json
   X-Frame-Options: DENY
-  X-XSS-Portection: 0
+  X-XSS-Protection: 0
   Access-Control-Allow-Origin: *
 
 https://swapnet-lite.pages.dev/*

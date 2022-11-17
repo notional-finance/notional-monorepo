@@ -46,13 +46,13 @@ export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitPar
     return this.initParams.oraclePairPrice;
   }
 
-  public get balancerOraclePrice() {
+  public get balancerPairPrice() {
     if (this.initParams.poolContext.primaryTokenIndex === 0) {
-      return this.initParams.bptPrice;
+      return this.initParams.bptPairPrice;
     }
-    return this.initParams.bptPrice
-      .mul(FixedPoint.ONE)
-      .div(this.initParams.bptPairPrice);
+
+    // Invert the bpt pair price
+    return FixedPoint.ONE.mul(FixedPoint.ONE).div(this.initParams.bptPairPrice);
   }
 
   public get balances() {
@@ -356,9 +356,19 @@ export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitPar
       true
     ).toETH(false);
 
+    const currentPrice = TypedBigNumber.fromBalance(
+      this.balancerPairPrice.div(FixedPoint.from(1e10)).n,
+      this.getPrimaryBorrowSymbol(),
+      true
+    ).toETH(false);
+
     return [
       {
-        name: 'stETH/ETH Price',
+        name: 'stETH/ETH Liquidation Price',
+        debtCurrencySymbol: this.getPrimaryBorrowSymbol(),
+        collateralCurrencySymbol: 'stETH',
+        source: 'Chainlink Oracle',
+        currentPrice,
         type: LiquidationThresholdType.exchangeRate,
         ethExchangeRate,
       },
@@ -371,7 +381,19 @@ export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitPar
   ): FixedPoint {
     const { primaryTokenIndex } = this.initParams.poolContext;
     if (useBalancerOracle) {
-      return this.balancerOraclePrice.mul(amountIn).div(FixedPoint.ONE);
+      // Apply this to scaled balances since the balancer pairPrice is in stETH
+      return (
+        this.balances
+          // Returns the claims of one BPT on constituent tokens
+          .map((b, i) => {
+            const claim = b.mul(amountIn).div(this.initParams.totalSupply);
+            if (i === primaryTokenIndex) return claim;
+            else return claim.mul(FixedPoint.ONE).div(this.balancerPairPrice);
+          })
+          .reduce((s, b) => {
+            return s.add(b);
+          }, FixedPoint.from(0))
+      );
     } else {
       return (
         // Apply this to the unscaled balances since the oracle is the wstETH price

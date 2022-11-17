@@ -1,10 +1,30 @@
-import { AccountData } from '@notional-finance/sdk';
-import { FreeCollateral, InterestRateRisk } from '@notional-finance/sdk/src/system';
+import {
+  AccountData,
+  INTERNAL_TOKEN_PRECISION,
+  TypedBigNumber,
+} from '@notional-finance/sdk';
+import { hasMatured } from '@notional-finance/sdk/libs/utils';
+import {
+  FreeCollateral,
+  InterestRateRisk,
+} from '@notional-finance/sdk/src/system';
 import { useNotional } from '../notional/use-notional';
 import { useAccount } from './use-account';
 
+function hasNTokenCollateral(currencyId: number, accountData: AccountData) {
+  return accountData.nTokenBalance(currencyId)?.isPositive() || false;
+}
+
+function hasfCashCollateral(currencyId: number, accountData: AccountData) {
+  return !!accountData.portfolio.find(
+    (a) =>
+      a.currencyId === currencyId && a.notional.isPositive() && !hasMatured(a)
+  );
+}
+
 function calculateLiquidationPairs(accountData: AccountData) {
-  const { netUnderlyingAvailable } = FreeCollateral.getFreeCollateral(accountData);
+  const { netUnderlyingAvailable } =
+    FreeCollateral.getFreeCollateral(accountData);
   if (netUnderlyingAvailable.size === 0) return [];
   const netUnderlying = Array.from(netUnderlyingAvailable.values());
 
@@ -25,46 +45,80 @@ function calculateLiquidationPairs(accountData: AccountData) {
       return {
         debtCurrencyId: d.currencyId,
         collateralCurrencyId: c.currencyId,
-        hasNTokenCollateral: !!accountData.nTokenBalance(c.currencyId),
+        hasNTokenCollateral: hasNTokenCollateral(c.currencyId, accountData),
+        hasfCashCollateral: hasfCashCollateral(c.currencyId, accountData),
       };
     });
   });
 }
 
-export function useRiskThresholds(_accountDataCopy?: AccountData, numLiquidationPairs = 2) {
+export function useRiskThresholds(
+  _accountDataCopy?: AccountData,
+  numLiquidationPairs = 2
+) {
   const { accountDataCopy: a } = useAccount();
   const { system } = useNotional();
   const accountDataCopy = _accountDataCopy?.copy() || a;
-  const interestRateRisk = InterestRateRisk.calculateInterestRateRisk(accountDataCopy);
+  const interestRateRisk =
+    InterestRateRisk.calculateInterestRateRisk(accountDataCopy);
   const hasInterestRateRisk = interestRateRisk.size > 0;
   const liquidationPrices = calculateLiquidationPairs(accountDataCopy)
     .slice(0, numLiquidationPairs)
-    .map(({ debtCurrencyId, collateralCurrencyId }) => {
-      const liquidationPrice = accountDataCopy.getLiquidationPrice(
-        collateralCurrencyId,
-        debtCurrencyId
-      );
-      const debtSymbol = system?.getUnderlyingSymbol(debtCurrencyId);
-      const collateralSymbol = system?.getUnderlyingSymbol(collateralCurrencyId);
-      // Only calculate these if there is a liquidation price
-      const { totalPenaltyRate, totalPenaltyETHValueAtLiquidationPrice } = liquidationPrice
-        ? accountDataCopy.getLiquidationPenalty(collateralCurrencyId, liquidationPrice)
-        : {
-            totalPenaltyRate: undefined,
-            totalPenaltyETHValueAtLiquidationPrice: undefined,
-          };
-      return {
-        id: `${debtCurrencyId}:${collateralCurrencyId}`,
+    .map(
+      ({
         debtCurrencyId,
         collateralCurrencyId,
-        // Liquidation Price is returned in Debt Currency
-        liquidationPrice,
-        totalPenaltyRate,
-        totalPenaltyETHValueAtLiquidationPrice,
-        debtSymbol,
-        collateralSymbol,
-      };
-    })
+        hasNTokenCollateral,
+        hasfCashCollateral,
+      }) => {
+        const liquidationPrice = accountDataCopy.getLiquidationPrice(
+          collateralCurrencyId,
+          debtCurrencyId
+        );
+        const debtSymbol = system?.getUnderlyingSymbol(debtCurrencyId);
+        const collateralSymbol =
+          system?.getUnderlyingSymbol(collateralCurrencyId);
+        // Only calculate these if there is a liquidation price
+        const { totalPenaltyRate, totalPenaltyETHValueAtLiquidationPrice } =
+          liquidationPrice
+            ? accountDataCopy.getLiquidationPenalty(
+                collateralCurrencyId,
+                liquidationPrice
+              )
+            : {
+                totalPenaltyRate: undefined,
+                totalPenaltyETHValueAtLiquidationPrice: undefined,
+              };
+
+        const currentPrice = collateralSymbol
+          ? TypedBigNumber.fromBalance(
+              INTERNAL_TOKEN_PRECISION,
+              collateralSymbol,
+              true
+            )
+              .toETH(false)
+              .fromETH(debtCurrencyId, false)
+          : undefined;
+
+        return {
+          id: `${debtCurrencyId}:${collateralCurrencyId}`,
+          debtCurrencyId,
+          collateralCurrencyId,
+          // Liquidation Price is returned in Debt Currency
+          liquidationPrice,
+          totalPenaltyRate,
+          totalPenaltyValue: totalPenaltyETHValueAtLiquidationPrice?.fromETH(
+            collateralCurrencyId,
+            false
+          ),
+          debtSymbol,
+          collateralSymbol,
+          currentPrice,
+          hasNTokenCollateral,
+          hasfCashCollateral,
+        };
+      }
+    )
     .filter(({ liquidationPrice }) => !!liquidationPrice);
 
   const maxMarketRates = new Map<number, number>(
@@ -78,8 +132,27 @@ export function useRiskThresholds(_accountDataCopy?: AccountData, numLiquidation
     return {
       id: k,
       symbol,
+      hasNTokenCollateral: hasNTokenCollateral(k, accountDataCopy),
+      hasfCashCollateral: hasfCashCollateral(k, accountDataCopy),
       ...interestRateRisk.get(k)!,
     };
+  });
+
+  const vaultRiskThresholds = accountDataCopy.vaultAccounts.flatMap((a) => {
+    const thresholds = a.getLiquidationThresholds();
+    const vaultConfig = a.getVault();
+    const primaryBorrowSymbol = system?.getUnderlyingSymbol(
+      vaultConfig.primaryBorrowCurrency
+    );
+
+    return thresholds.map((t) => {
+      return {
+        primaryBorrowSymbol,
+        primaryBorrowCurrency: vaultConfig.primaryBorrowCurrency,
+        vaultName: vaultConfig.name,
+        ...t,
+      };
+    });
   });
 
   return {
@@ -88,5 +161,6 @@ export function useRiskThresholds(_accountDataCopy?: AccountData, numLiquidation
     hasInterestRateRisk,
     liquidationPrices,
     maxMarketRates,
+    vaultRiskThresholds,
   };
 }
