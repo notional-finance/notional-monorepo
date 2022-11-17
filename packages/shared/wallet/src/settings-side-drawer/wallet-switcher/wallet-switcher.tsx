@@ -14,25 +14,35 @@ export const AddressButton = () => {
   const theme = useTheme();
 
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <Box
+      sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+    >
       {connected || (!connected && !truncatedAddress) ? (
         <Radio
           checked
           size="small"
           sx={{
             padding: '0px',
-            color: connected ? theme.palette.info.main : theme.palette.error.main,
+            color: connected
+              ? theme.palette.info.main
+              : theme.palette.error.main,
             '&.Mui-checked': {
-              color: connected ? theme.palette.info.main : theme.palette.error.main,
+              color: connected
+                ? theme.palette.info.main
+                : theme.palette.error.main,
             },
           }}
         />
       ) : (
         ''
       )}
-      {truncatedAddress && !connected && <EyeIcon sx={{ height: '18px', width: '18px' }} />}
+      {truncatedAddress && !connected && (
+        <EyeIcon sx={{ height: '18px', width: '18px' }} />
+      )}
 
-      {truncatedAddress && <Box sx={{ paddingLeft: theme.spacing(1) }}>{truncatedAddress}</Box>}
+      {truncatedAddress && (
+        <Box sx={{ paddingLeft: theme.spacing(1) }}>{truncatedAddress}</Box>
+      )}
     </Box>
   );
 };
@@ -87,9 +97,17 @@ export const WalletSwitcher = () => {
                 >
                   {label}
                 </H4>
-                <Box sx={{ justifyContent: 'flex-end', display: 'flex', width: '100%' }}>
+                <Box
+                  sx={{
+                    justifyContent: 'flex-end',
+                    display: 'flex',
+                    width: '100%',
+                  }}
+                >
                   {currentLabel === label ? (
-                    <CheckCircleIcon sx={{ fill: theme.palette.primary.main }} />
+                    <CheckCircleIcon
+                      sx={{ fill: theme.palette.primary.main }}
+                    />
                   ) : (
                     <CircleIcon
                       sx={{
@@ -115,7 +133,9 @@ const WalletButton = styled(Box, {
   ({ theme, active }: { active: boolean; theme: NotionalTheme }) => `
   padding: 20px;
   border-radius: ${theme.shape.borderRadius()};
-  border: 1px solid ${active ? theme.palette.primary.main : theme.palette.borders.paper};
+  border: 1px solid ${
+    active ? theme.palette.primary.main : theme.palette.borders.paper
+  };
   margin: ${theme.spacing(1)} 0px;
   cursor: pointer;
   background: ${active ? theme.palette.info.light : theme.palette.common.white};
@@ -134,7 +154,7 @@ const Title = styled(Typography)(
   ({ theme }) => `
   margin-bottom: 20px;
   font-weight: 700;
-  color: ${theme.palette.primary.dark};
+  color: ${theme.palette.borders.accentDefault};
   text-transform: uppercase;
   `
 );

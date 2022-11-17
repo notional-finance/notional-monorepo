@@ -1,7 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import { datadogRum } from '@datadog/browser-rum';
 import { useImpactTracking } from '@notional-finance/utils';
-import { trackGA } from '@notional-finance/helpers';
+import { trackEvent } from '@notional-finance/helpers';
+import {
+  setInLocalStorage,
+  getFromLocalStorage,
+} from '@notional-finance/helpers';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { BrowserRouter, Switch } from 'react-router-dom';
@@ -46,8 +50,14 @@ const clientToken = process.env['NX_DD_CLIENT_TOKEN'] as string;
 const site = process.env['NX_DD_SITE'];
 // COMMIT_REF environment variable is supplied by netlify on deployment
 const version = `${process.env['COMMIT_REF']?.substring(0, 8) || 'local'}`;
+const { disableErrorReporting } = getFromLocalStorage('dataDog');
 
 datadogRum.init({
+  beforeSend: (event) => {
+    if (disableErrorReporting) {
+      return false;
+    }
+  },
   applicationId,
   clientToken,
   site,
@@ -79,11 +89,6 @@ export const App = () => {
   }, []);
 
   useEffect(() => {
-    // Called once upon app initialization
-
-    // Track the initial page load, all other tracking occurs
-    // in the <RouteContainer />
-    trackGA();
     initApplication();
   }, [initApplication]);
 

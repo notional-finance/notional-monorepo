@@ -110,6 +110,7 @@ export function MobileNavigation({
           display: { xs: 'block', lg: 'none' },
           color: theme.palette.common.black,
           width: 100,
+          overflow: 'scroll',
           '& .MuiDrawer-paper, .MuiDrawer-paperAnchorTop': {
             top: { xs: 56, sm: 64 },
           },
@@ -120,8 +121,10 @@ export function MobileNavigation({
           value={selectedTab}
           onChange={handleChange}
           orientation="vertical"
+          variant="scrollable"
           aria-label="Notional site Mobilenavigation"
           sx={{
+            marginBottom: theme.spacing(8),
             '&.MuiTabs-root': {
               display: 'flex',
               flexDirection: 'column',
@@ -135,7 +138,6 @@ export function MobileNavigation({
             '.MuiTabs-scroller': {
               backgroundColor: theme.palette.background.default,
             },
-            '.MuiTabs-flexContainer': {},
           }}
         >
           <Box
@@ -207,11 +209,12 @@ export function MobileNavigation({
               }}
             />
           ))}
+          <MobileSubNav
+            mobileSubNavLinks={mobileSubNavLinks}
+            handleSideDrawer={handleSideDrawer}
+          />
         </Tabs>
-        <MobileSubNav
-          mobileSubNavLinks={mobileSubNavLinks}
-          handleSideDrawer={handleSideDrawer}
-        />
+
         <MobileSideDrawer
           dataKey={sideDrawerDataKey}
           setDrawerOpen={setDrawerOpen}

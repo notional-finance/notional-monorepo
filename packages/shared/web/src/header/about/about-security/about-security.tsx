@@ -16,35 +16,63 @@ export function AboutSecurity() {
       title: <FormattedMessage defaultMessage={'Security'} />,
       to: 'https://github.com/notional-finance/contracts-v2/tree/master/audits',
       icon: (
-        <ResourcesIcon sx={{ color: theme.palette.background.accentDefault, fontSize: '1.5rem' }} />
+        <ResourcesIcon
+          sx={{
+            color: theme.palette.background.accentDefault,
+            fontSize: '1.5rem',
+          }}
+        />
       ),
-      description: <FormattedMessage defaultMessage={'Review Notional audits'} />,
+      description: (
+        <FormattedMessage defaultMessage={'Review Notional audits'} />
+      ),
     },
     {
       title: <FormattedMessage defaultMessage={'Insurance'} />,
       to: 'https://app.nexusmutual.io/cover/buy/get-quote?address=0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
       icon: (
-        <InsuranceIcon sx={{ color: theme.palette.background.accentDefault, fontSize: '1.5rem' }} />
+        <InsuranceIcon
+          sx={{
+            color: theme.palette.background.accentDefault,
+            fontSize: '1.5rem',
+          }}
+        />
       ),
-      description: <FormattedMessage defaultMessage={'Get cover for your positions'} />,
+      description: (
+        <FormattedMessage defaultMessage={'Get cover for your positions'} />
+      ),
     },
     {
       title: <FormattedMessage defaultMessage={'Bug Bounty'} />,
       to: 'https://immunefi.com/bounty/notional/',
       icon: (
-        <BugBountyIcon sx={{ color: theme.palette.background.accentDefault, fontSize: '1.5rem' }} />
+        <BugBountyIcon
+          sx={{
+            color: theme.palette.background.accentDefault,
+            fontSize: '1.5rem',
+          }}
+        />
       ),
-      description: <FormattedMessage defaultMessage={'Claim up to $1M for critical issues'} />,
+      description: (
+        <FormattedMessage
+          defaultMessage={'Claim up to $500K for critical issues'}
+        />
+      ),
     },
     {
       title: <FormattedMessage defaultMessage={'Protocol Parameters'} />,
       to: 'https://docs.notional.finance/governance',
       icon: (
         <GovernanceIcon
-          sx={{ color: theme.palette.background.accentDefault, fontSize: '1.5rem' }}
+          sx={{
+            color: theme.palette.background.accentDefault,
+            fontSize: '1.5rem',
+          }}
         />
       ),
-      description: <FormattedMessage defaultMessage={'Understand selected parameters'} />,
+      description: (
+        <FormattedMessage defaultMessage={'Understand selected parameters'} />
+      ),
     },
   ];
 

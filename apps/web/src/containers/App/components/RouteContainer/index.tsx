@@ -1,8 +1,9 @@
 import { useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
-import { trackGA } from '@notional-finance/helpers';
 import { Box } from '@mui/material';
+import Plausible from 'plausible-tracker';
 import { useNotionalError } from '@notional-finance/notionable-hooks';
+import { initConsoleObservable } from '@datadog/browser-core';
 
 interface RouteContainerProps {
   children: React.ReactNode | React.ReactNode[];
@@ -12,6 +13,8 @@ interface RouteContainerProps {
 const RouteContainer = ({ children, onRouteChange }: RouteContainerProps) => {
   const history = useHistory();
   const { error } = useNotionalError();
+  const { trackPageview } = Plausible();
+  const url = location.href;
 
   useEffect(() => {
     if (error) {
@@ -24,7 +27,9 @@ const RouteContainer = ({ children, onRouteChange }: RouteContainerProps) => {
   useEffect(() => {
     return history.listen((location) => {
       onRouteChange(location.pathname);
-      trackGA();
+      trackPageview({
+        url: url,
+      });
     });
   }, [history, onRouteChange]);
 

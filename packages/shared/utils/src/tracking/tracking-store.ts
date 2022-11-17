@@ -1,6 +1,6 @@
 import { makeStore } from '@notional-finance/notionable';
 import { filter } from 'rxjs';
-import { initGA } from '@notional-finance/helpers';
+import { initPlausible } from '@notional-finance/helpers';
 
 export interface TrackingState {
   hasConsent: boolean;
@@ -22,9 +22,9 @@ const {
 
 export { updateTrackingState, selectTrackingState, trackingState$ };
 
-const _initGA$ = selectTrackingState('hasConsent')
+const _initPlausible$ = selectTrackingState('hasConsent')
   .pipe(filter((c) => c === true))
   .subscribe(() => {
-    initGA();
+    initPlausible()
     updateTrackingState({ hasAnalyticsInit: true });
   });
