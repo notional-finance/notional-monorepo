@@ -18,9 +18,8 @@ import { FormattedMessage } from 'react-intl';
 
 export const Privacy = () => {
   const theme = useTheme();
-
   const { disableErrorReporting } = getFromLocalStorage('privacySettings');
-
+  // NOTE* The Plausible API requires plausible_ignore to be at the local storage root level and to be snake case
   const plausibleIgnore = getFromLocalStorage('plausible_ignore');
 
   const disableTrackingDefault =
