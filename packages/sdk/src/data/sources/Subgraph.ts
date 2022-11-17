@@ -509,6 +509,7 @@ export async function getSystemConfig(
 
             return {
               ...v,
+              name: getVaultNameOverride(v.name),
               primaryBorrowCurrency: Number(v.primaryBorrowCurrency.id),
               minAccountBorrowSize: TypedBigNumber.from(
                 v.minAccountBorrowSize,
@@ -616,4 +617,13 @@ export async function getSystemConfig(
           }),
         } as CurrencyConfig)
     );
+}
+
+// Occasionally they don't like how we name things
+function getVaultNameOverride(name: string) {
+  if (name === 'Balancer V2 wstETH/ETH LP (ETH Leverage)') {
+    return 'Balancer/Aura ETH/wstETH LP';
+  }
+
+  return name;
 }
