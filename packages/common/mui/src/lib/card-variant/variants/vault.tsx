@@ -13,7 +13,7 @@ import {
 
 export interface VaultVariantProps {
   symbol: string;
-  strategy: string;
+  vaultName: string;
   rate: number;
   minDepositRequired: string;
   capacityUsedPercentage: number;
@@ -21,7 +21,7 @@ export interface VaultVariantProps {
 }
 
 export function VaultVariant({
-  strategy,
+  vaultName,
   rate,
   symbol,
   minDepositRequired,
@@ -36,7 +36,7 @@ export function VaultVariant({
         {symbol}
       </H3>
       <LabelValue textAlign="left" marginBottom={theme.spacing(4)}>
-        {strategy}
+        {vaultName}
       </LabelValue>
       <H5 textAlign="left" gutter="default">
         <FormattedMessage defaultMessage="Estimated Return" />

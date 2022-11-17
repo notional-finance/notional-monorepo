@@ -11,31 +11,29 @@ import { useObservableState } from 'observable-hooks';
 export const useStrategies = () => {
   const { listedVaults } = useObservableState(vaultState$, initialVaultState);
   const headlineApy = useObservableState(headlineApy$);
-  const allVaults = listedVaults.map(
-    ({ vaultConfig, underlyingSymbol, strategyName }) => {
-      const headlineRate = headlineApy?.get(vaultConfig.vaultAddress) || 0;
-      const capacityUsedPercentage =
-        (vaultConfig.totalUsedPrimaryBorrowCapacity
-          .scale(RATE_PRECISION, vaultConfig.maxPrimaryBorrowCapacity)
-          .toNumber() *
-          100) /
-        RATE_PRECISION;
-      const minDepositRequired = getMinDepositRequiredString(vaultConfig);
-      const capacityRemaining = vaultConfig.maxPrimaryBorrowCapacity.sub(
-        vaultConfig.totalUsedPrimaryBorrowCapacity
-      );
+  const allVaults = listedVaults.map(({ vaultConfig, underlyingSymbol }) => {
+    const headlineRate = headlineApy?.get(vaultConfig.vaultAddress) || 0;
+    const capacityUsedPercentage =
+      (vaultConfig.totalUsedPrimaryBorrowCapacity
+        .scale(RATE_PRECISION, vaultConfig.maxPrimaryBorrowCapacity)
+        .toNumber() *
+        100) /
+      RATE_PRECISION;
+    const minDepositRequired = getMinDepositRequiredString(vaultConfig);
+    const capacityRemaining = vaultConfig.maxPrimaryBorrowCapacity.sub(
+      vaultConfig.totalUsedPrimaryBorrowCapacity
+    );
 
-      return {
-        vaultAddress: vaultConfig.vaultAddress,
-        minDepositRequired,
-        underlyingSymbol,
-        headlineRate,
-        strategyName,
-        capacityUsedPercentage,
-        capacityRemaining: capacityRemaining.toDisplayStringWithSymbol(0),
-      };
-    }
-  );
+    return {
+      vaultAddress: vaultConfig.vaultAddress,
+      minDepositRequired,
+      underlyingSymbol,
+      headlineRate,
+      vaultName: vaultConfig.name,
+      capacityUsedPercentage,
+      capacityRemaining: capacityRemaining.toDisplayStringWithSymbol(0),
+    };
+  });
 
   return allVaults;
 };
