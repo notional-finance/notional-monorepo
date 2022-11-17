@@ -50,7 +50,9 @@ export const PortfolioFeatureShell = () => {
   const params = useParams<PortfolioParams>();
   const { SideDrawerComponent, drawerOpen, addSideDrawers } =
     useSideDrawerManager(params.sideDrawerKey);
+
   const { buttonData } = usePortfolioButtonBar();
+
   const { accountConnected } = useAccount();
 
   useEffect(() => {
