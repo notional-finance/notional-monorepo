@@ -138,11 +138,29 @@ export function useRiskThresholds(
     };
   });
 
+  const vaultRiskThresholds = accountDataCopy.vaultAccounts.flatMap((a) => {
+    const thresholds = a.getLiquidationThresholds();
+    const vaultConfig = a.getVault();
+    const primaryBorrowSymbol = system?.getUnderlyingSymbol(
+      vaultConfig.primaryBorrowCurrency
+    );
+
+    return thresholds.map((t) => {
+      return {
+        primaryBorrowSymbol,
+        primaryBorrowCurrency: vaultConfig.primaryBorrowCurrency,
+        vaultName: vaultConfig.name,
+        ...t,
+      };
+    });
+  });
+
   return {
     interestRateRisk,
     interestRateRiskArray,
     hasInterestRateRisk,
     liquidationPrices,
     maxMarketRates,
+    vaultRiskThresholds,
   };
 }

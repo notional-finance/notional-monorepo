@@ -8,7 +8,8 @@ import { formatRateForRisk } from '@notional-finance/risk/helpers/risk-data-help
 import { FormattedMessage } from 'react-intl';
 
 export const useRiskOverviewTable = () => {
-  const { interestRateRiskArray, liquidationPrices } = useRiskThresholds();
+  const { interestRateRiskArray, liquidationPrices, vaultRiskThresholds } =
+    useRiskThresholds();
 
   const riskOverviewColumns: DataTableColumn[] = [
     {
@@ -102,7 +103,6 @@ export const useRiskOverviewTable = () => {
         caption.push(`f${symbol.toUpperCase()}`);
 
       let liquidationPrice: string;
-      lowerLiquidationInterestRate = 0.0223e9;
       if (upperLiquidationInterestRate && lowerLiquidationInterestRate) {
         liquidationPrice = `Below ${formatRateForRisk(
           lowerLiquidationInterestRate,
@@ -140,7 +140,40 @@ export const useRiskOverviewTable = () => {
     }
   );
 
-  const riskOverviewData = priceRiskData.concat(interestRateRiskData);
+  const vaultRiskData = vaultRiskThresholds.map(
+    ({
+      primaryBorrowSymbol,
+      currentPrice,
+      vaultName,
+      collateralCurrencySymbol,
+      debtCurrencySymbol,
+      ethExchangeRate,
+      primaryBorrowCurrency,
+    }) => {
+      return {
+        collateral: {
+          symbol: primaryBorrowSymbol,
+          label: vaultName,
+          caption: 'Leveraged Vault',
+        },
+        riskFactor: {
+          data: [
+            `${collateralCurrencySymbol}/${debtCurrencySymbol}`,
+            'Chainlink Oracle Price',
+          ],
+          isNegative: false,
+        },
+        // TODO: stETH is not listed as a collateral currency in the system so
+        // we don't have a way to represent this using typed big numbers
+        currentPrice: `${currentPrice?.toDisplayString(2)} stETH`,
+        liquidationPrice: `${ethExchangeRate?.toDisplayString(2)} stETH`,
+      };
+    }
+  );
+
+  const riskOverviewData = priceRiskData
+    .concat(interestRateRiskData)
+    .concat(vaultRiskData);
   // {
   //   collateral: {
   //     symbol: 'ETH',
