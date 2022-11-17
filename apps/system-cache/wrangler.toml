@@ -23,6 +23,12 @@ new_classes = ["SystemCache"]
 VERSION = 'v2'
 DD_BASE_URL = 'https://datadoghq.com'
 
+[triggers]
+crons = [
+    "*/10 * * * *",
+    "0 0 * * *"
+]
+
 [env.dev]
 name = "system-cache-dev"
 
@@ -31,9 +37,3 @@ name = "system-cache-staging"
 
 [env.production]
 name = "system-cache"
-
-[triggers]
-crons = [
-    "*/10 * * * *",
-    "0 0 * * *"
-]
