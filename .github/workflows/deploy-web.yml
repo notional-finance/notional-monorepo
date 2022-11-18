@@ -12,7 +12,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.environment || 'dev' }}
     permissions:
       contents: read
       deployments: write
@@ -28,7 +27,6 @@ jobs:
           cache: 'yarn'
       - name: Yarn Install
         run: yarn install --frozen-lockfile
-      - if: github.event.inputs.environment == 'stage'
       - name: Build Web - Stage
         if: github.event.inputs.environment == 'stage'
         run: yarn nx build web --parallel
