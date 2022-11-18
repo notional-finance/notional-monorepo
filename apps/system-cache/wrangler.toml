@@ -9,6 +9,10 @@ minify = true
 [durable_objects]
 bindings = [{name = "SYSTEM_CACHE", class_name = "SystemCache"}]
 
+[[r2_buckets]]
+binding = 'VAULT_RETURNS'
+bucket_name = 'vault-returns'
+
 [[migrations]]
 tag = "v1" # Should be unique for each entry
 new_classes = ["SystemCache"]
@@ -24,20 +28,8 @@ crons = [
 
 [env.dev]
 
-[[r2_buckets]]
-binding = 'VAULT_RETURNS'
-bucket_name = 'vault-returns-dev'
-
 [env.beta]
 name = "system-cache-beta"
 
-[[r2_buckets]]
-binding = 'VAULT_RETURNS'
-bucket_name = 'vault-returns-beta'
-
 [env.prod]
 name = "system-cache"
-
-[[r2_buckets]]
-binding = 'VAULT_RETURNS'
-bucket_name = 'vault-returns'
