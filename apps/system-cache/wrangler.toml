@@ -32,8 +32,8 @@ crons = [
 [env.dev]
 name = "system-cache-dev"
 
-[env.staging]
-name = "system-cache-staging"
+[env.stage]
+name = "system-cache-stage"
 
-[env.production]
+[env.prod]
 name = "system-cache"

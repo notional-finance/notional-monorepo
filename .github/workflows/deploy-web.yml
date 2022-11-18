@@ -1,12 +1,17 @@
 name: deploy-web
 on:
   workflow_dispatch:
-
+    inputs:
+      environment:
+        description: 'Choose an environment to deploy to: <dev|stage|prod>'
+        required: true
+        default: 'dev'
   push:
     branches:
       - main
 jobs:
   deploy:
+    environment: ${{ github.event.inputs.environment }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -25,12 +30,22 @@ jobs:
         run: yarn install --frozen-lockfile
       - name: Build Web
         run: yarn nx build web --parallel
-      - name: Publish Staging
+        env:
+          NX_BLOCK_NATIVE_DAPP_ID: ${{ secrets.NX_BLOCK_NATIVE_DAPP_ID }}
+          NX_CONTACT_EMAIL: ${{ secrets.NX_CONTACT_EMAIL }}
+          NX_DD_APP_ID: ${{ secrets.NX_DD_APP_ID }}
+          NX_DD_CLIENT_TOKEN: ${{ secrets.NX_DD_CLIENT_TOKEN }}
+          NX_DD_SITE: ${{ secrets.NX_DD_SITE }}
+          NX_GOOGLE_ANALYTICS_ID: ${{ secrets.NX_GOOGLE_ANALYTICS_ID }}
+          NX_INFURA_KEY: ${{ secrets.NX_INFURA_KEY }}
+          NX_APP_URL: ${{ env.NX_APP_URL }}
+          NX_SYSTEM_CACHE_URL: ${{ env.NX_SYSTEM_CACHE_URL }}
+      - name: Publish Dev
         uses: cloudflare/pages-action@1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: notional-web-staging
+          projectName: notional-web-${{ github.event.inputs.environment }}
           directory: dist/apps/web
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
       - name: Slack Notification
