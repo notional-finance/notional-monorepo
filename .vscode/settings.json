@@ -9,8 +9,9 @@
         "source.fixAll.eslint": true
     },
     "cSpell.words": [
-        "Numberish",
         "arrayify",
+        "noindex",
+        "Numberish",
         "xirr"
     ],
     "[typescriptreact]": {

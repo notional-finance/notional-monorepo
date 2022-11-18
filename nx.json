@@ -21,6 +21,7 @@
           "test",
           "e2e"
         ],
+        "runtimeCacheInputs": ["echo $NX_APP_URL"],
         "accessToken": "ZGY4MzFkOTctM2ZiMS00OTc3LTk4YmItZDcwZGU1MGEyMjY4fHJlYWQtd3JpdGU="
       }
     }
