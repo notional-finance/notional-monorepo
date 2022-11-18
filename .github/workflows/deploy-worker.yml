@@ -28,7 +28,7 @@ jobs:
 
       - name: Wrangler Publish
         shell: bash
-        run: yarn nx run-many --target=wrangler-publish --projects=${{ github.event.inputs.workers }} --env ${{ github.event.inputs.environment }}
+        run: yarn nx run-many --target=wrangler-publish --config=./wrangler.toml --projects=${{ github.event.inputs.workers }} --env ${{ github.event.inputs.environment }}
         env:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_WORKER_TOKEN }}
