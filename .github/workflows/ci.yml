@@ -17,7 +17,6 @@ on:
 
 jobs:
   main:
-    environment: dev
     name: Nx Cloud - Main Job
     uses: nrwl/ci/.github/workflows/nx-cloud-main.yml@v0.8
     with:
@@ -31,6 +30,7 @@ jobs:
 
   agents:
     name: Nx Cloud - Agents
+    environment: dev
     uses: nrwl/ci/.github/workflows/nx-cloud-agents.yml@v0.8
     with:
       number-of-agents: 3
