@@ -1,21 +1,5 @@
 name: ci
-on:
-  pull_request:
-
-jobs:
-  main:
-    name: Nx Cloud - Main Job
-    environment: dev
-    uses: nrwl/ci/.github/workflows/nx-cloud-main.yml@v0.8
-    with:
-      number-of-agents: 3
-      init-commands: |
-        yarn nx-cloud start-ci-run --stop-agents-after="build" --agent-count=3
-      parallel-commands: |
-        yarn nx-cloud record -- yarn nx workspace-lint
-      parallel-commands-on-agents: |
-        yarn nx affected --target=build --parallel=3
-    env:
+env:
       NX_BLOCK_NATIVE_DAPP_ID: ${{ secrets.NX_BLOCK_NATIVE_DAPP_ID }}
       NX_CONTACT_EMAIL: ${{ secrets.NX_CONTACT_EMAIL }}
       NX_DD_APP_ID: ${{ secrets.NX_DD_APP_ID }}
@@ -27,6 +11,23 @@ jobs:
       NX_SYSTEM_CACHE_URL: ${{ secrets.NX_SYSTEM_CACHE_URL }}
       NX_ALCHEMY_KEY: ${{ secrets.NX_ALCHEMY_KEY }}
       NX_EXCHANGE_RATE_API: ${{ secrets.NX_EXCHANGE_RATE_API }}
+      NX_BRANCH: ${{ github.GITHUB_REF }}
+on:
+  pull_request:
+
+jobs:
+  main:
+    environment: dev
+    name: Nx Cloud - Main Job
+    uses: nrwl/ci/.github/workflows/nx-cloud-main.yml@v0.8
+    with:
+      number-of-agents: 3
+      init-commands: |
+        yarn nx-cloud start-ci-run --stop-agents-after="build" --agent-count=3
+      parallel-commands: |
+        yarn nx-cloud record -- yarn nx workspace-lint
+      parallel-commands-on-agents: |
+        yarn nx affected --target=build --parallel=3
 
   agents:
     name: Nx Cloud - Agents
