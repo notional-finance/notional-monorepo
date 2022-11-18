@@ -16,11 +16,11 @@ import { BigNumber, ethers } from 'ethers';
 export interface Env {
   SYSTEM_CACHE: DurableObjectNamespace;
   VAULT_RETURNS: R2Bucket;
-  EXCHANGE_RATE_API_KEY: string;
-  ALCHEMY_KEY: string;
-  DD_API_KEY: string;
-  DD_APP_KEY: string;
-  DD_BASE_URL: string;
+  NX_EXCHANGE_RATE_API: string;
+  NX_ALCHEMY_KEY: string;
+  NX_DD_CLIENT_TOKEN: string;
+  NX_DD_APP_ID: string;
+  NX_DD_SITE: string;
   VERSION: string;
 }
 
@@ -83,13 +83,13 @@ export class SystemCache {
         ],
       });
 
-      await fetch(`${env.DD_BASE_URL}/api/v1/series`, {
+      await fetch(`https://${env.NX_DD_SITE}/api/v1/series`, {
         method: 'POST',
         body: bodyData,
         headers: {
           'Content-Type': 'application/json',
-          'DD-API-KEY': env.DD_API_KEY,
-          'DD-APPLICATION-KEY': env.DD_APP_KEY,
+          'DD-API-KEY': env.NX_DD_CLIENT_TOKEN,
+          'DD-APPLICATION-KEY': env.NX_DD_APP_ID,
         },
       });
     } catch (e) {
@@ -115,13 +115,13 @@ export class SystemCache {
         alert_type: eventType,
       });
 
-      await fetch(`${env.DD_BASE_URL}/api/v1/events`, {
+      await fetch(`https://${env.NX_DD_SITE}/api/v1/events`, {
         method: 'POST',
         body: bodyData,
         headers: {
           'Content-Type': 'application/json',
-          'DD-API-KEY': env.DD_API_KEY,
-          'DD-APPLICATION-KEY': env.DD_APP_KEY,
+          'DD-API-KEY': env.NX_DD_CLIENT_TOKEN,
+          'DD-APPLICATION-KEY': env.NX_DD_APP_ID,
         },
       });
     } catch (e) {
@@ -205,7 +205,7 @@ export class SystemCache {
   async refreshExchangeRates() {
     try {
       const usdExchangeRates = await getUSDPriceData(
-        this.env.EXCHANGE_RATE_API_KEY,
+        this.env.NX_EXCHANGE_RATE_API,
         true
       );
       await this.storage.put(`cache:usdExchangeRates`, usdExchangeRates);
@@ -248,7 +248,7 @@ export class SystemCache {
 
     for (const chain of supportedChains) {
       const { url, network, chainId } = chain;
-      const providerUrl = `${url}/${this.env.ALCHEMY_KEY}`;
+      const providerUrl = `${url}/${this.env.NX_ALCHEMY_KEY}`;
       const providerNetwork = ethers.providers.getNetwork(network);
       // skipFetchSetup is required to get this to work inside web workers
       // https://github.com/ethers-io/ethers.js/issues/1886
