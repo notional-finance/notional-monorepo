@@ -11,8 +11,8 @@ on:
       - main
 jobs:
   deploy:
-    environment: ${{ github.event.inputs.environment || 'dev' }}
     runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment || 'dev' }}
     permissions:
       contents: read
       deployments: write
@@ -28,7 +28,9 @@ jobs:
           cache: 'yarn'
       - name: Yarn Install
         run: yarn install --frozen-lockfile
-      - name: Build Web
+      - if: github.event.inputs.environment == 'stage'
+      - name: Build Web - Stage
+        if: github.event.inputs.environment == 'stage'
         run: yarn nx build web --parallel
         env:
           NX_BLOCK_NATIVE_DAPP_ID: ${{ secrets.NX_BLOCK_NATIVE_DAPP_ID }}
@@ -38,8 +40,21 @@ jobs:
           NX_DD_SITE: ${{ secrets.NX_DD_SITE }}
           NX_GOOGLE_ANALYTICS_ID: ${{ secrets.NX_GOOGLE_ANALYTICS_ID }}
           NX_INFURA_KEY: ${{ secrets.NX_INFURA_KEY }}
-          NX_APP_URL: ${{ secrets.NX_APP_URL }}
-          NX_SYSTEM_CACHE_URL: ${{ secrets.NX_SYSTEM_CACHE_URL }}
+          NX_APP_URL: https://beta.notional.finance
+          NX_SYSTEM_CACHE_URL: https://system-cache-dev.notional-finance.workers.dev
+      - name: Build Web
+        if: github.event.inputs.environment != 'stage'
+        run: yarn nx build web --parallel
+        env:
+          NX_BLOCK_NATIVE_DAPP_ID: ${{ secrets.NX_BLOCK_NATIVE_DAPP_ID }}
+          NX_CONTACT_EMAIL: ${{ secrets.NX_CONTACT_EMAIL }}
+          NX_DD_APP_ID: ${{ secrets.NX_DD_APP_ID }}
+          NX_DD_CLIENT_TOKEN: ${{ secrets.NX_DD_CLIENT_TOKEN }}
+          NX_DD_SITE: ${{ secrets.NX_DD_SITE }}
+          NX_GOOGLE_ANALYTICS_ID: ${{ secrets.NX_GOOGLE_ANALYTICS_ID }}
+          NX_INFURA_KEY: ${{ secrets.NX_INFURA_KEY }}
+          NX_APP_URL: https://${{ github.event.inputs.environment || 'dev' }}.notional.finance
+          NX_SYSTEM_CACHE_URL: https://system-cache-${{ github.event.inputs.environment || 'dev' }}.notional-finance.workers.dev
       - name: Publish Dev
         uses: cloudflare/pages-action@1
         with:
