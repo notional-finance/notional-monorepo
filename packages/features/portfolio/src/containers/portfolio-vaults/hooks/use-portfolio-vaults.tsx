@@ -15,6 +15,7 @@ import {
 import moment from 'moment';
 import { FormattedMessage } from 'react-intl';
 import { useEffect, useMemo, useState } from 'react';
+import { formatRateAsPercent } from '@notional-finance/risk/helpers/risk-data-helpers';
 
 export const usePortfolioVaults = () => {
   const [expandedRows, setExpandedRows] = useState<ExpandedRows | null>(null);
@@ -35,7 +36,7 @@ export const usePortfolioVaults = () => {
         Header: (
           <FormattedMessage
             defaultMessage="Vault"
-            description={'Vault header'}
+            description="column header"
           />
         ),
         expandableTable: true,
@@ -47,7 +48,7 @@ export const usePortfolioVaults = () => {
         Header: (
           <FormattedMessage
             defaultMessage="Maturity"
-            description={'Maturity header'}
+            description="column header"
           />
         ),
         expandableTable: true,
@@ -59,7 +60,7 @@ export const usePortfolioVaults = () => {
         Header: (
           <FormattedMessage
             defaultMessage="Net Worth"
-            description={'Net Worth header'}
+            description="column header"
           />
         ),
         expandableTable: true,
@@ -69,14 +70,10 @@ export const usePortfolioVaults = () => {
       },
       {
         Header: (
-          <FormattedMessage
-            defaultMessage="Leverage"
-            description={'Leverage header'}
-          />
+          <FormattedMessage defaultMessage="APY" description="column header" />
         ),
         expandableTable: true,
-        Cell: SliderCell,
-        accessor: 'leveragePercentage',
+        accessor: 'apy',
         textAlign: 'right',
       },
     ];
@@ -105,12 +102,7 @@ export const usePortfolioVaults = () => {
         ],
       },
       netWorth: formatCryptoWithFiat(v.netWorth),
-      leveragePercentage: {
-        value: v.leveragePercentage,
-        captionLeft: formatLeverageRatio(v.leverageRatio || 0, 1),
-        captionRight: `Max: ${formatLeverageRatio(v.maxLeverageRatio || 0, 1)}`,
-        trackColor,
-      },
+      apy: formatRateAsPercent(v.apy, 3),
       actionRow: {
         maturity: v.maturity ? moment.unix(v.maturity).format() : undefined,
         routes: v.routes,

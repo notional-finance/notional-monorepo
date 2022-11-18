@@ -22,6 +22,7 @@ interface YieldStrategies {
   netWorth: TypedBigNumber;
   isLeveragedVault: boolean;
   maturity?: number;
+  apy?: number;
   debtValue?: TypedBigNumber;
   leverageRatio?: number;
   maxLeverageRatio?: number;
@@ -85,6 +86,7 @@ export function useYieldStrategies(
         logError(e as Error, 'notionable/account', 'use-yield-strategies');
       }
 
+      const apy = accountData.getVaultHistoricalRate(vaultAccount.vaultAddress);
       const canIncreasePosition =
         activeMarketKeys.find(
           (k) => Market.parseMaturity(k) === vaultAccount.maturity
@@ -103,6 +105,7 @@ export function useYieldStrategies(
         debtValue,
         // NOTE: debt value is negative
         netWorth: debtValue ? assetValue.add(debtValue) : assetValue,
+        apy,
         leverageRatio,
         maxLeverageRatio,
         leveragePercentage,
