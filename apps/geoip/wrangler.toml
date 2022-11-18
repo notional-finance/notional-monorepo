@@ -10,8 +10,8 @@ usage_model = "bundled"
 [env.dev]
 name = "geoip-dev"
 
-[env.staging]
-name = "geoip-staging"
+[env.stage]
+name = "geoip-stage"
 
-[env.production]
+[env.prod]
 name = "geoip"

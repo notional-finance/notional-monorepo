@@ -1,11 +1,11 @@
 name: ci
-
 on:
   pull_request:
 
 jobs:
   main:
     name: Nx Cloud - Main Job
+    environment: dev
     uses: nrwl/ci/.github/workflows/nx-cloud-main.yml@v0.8
     with:
       number-of-agents: 3
@@ -18,6 +18,17 @@ jobs:
 
   agents:
     name: Nx Cloud - Agents
+    environment: dev
     uses: nrwl/ci/.github/workflows/nx-cloud-agents.yml@v0.8
+    env:
+      NX_BLOCK_NATIVE_DAPP_ID: ${{ secrets.NX_BLOCK_NATIVE_DAPP_ID }}
+      NX_CONTACT_EMAIL: ${{ secrets.NX_CONTACT_EMAIL }}
+      NX_DD_APP_ID: ${{ secrets.NX_DD_APP_ID }}
+      NX_DD_CLIENT_TOKEN: ${{ secrets.NX_DD_CLIENT_TOKEN }}
+      NX_DD_SITE: ${{ secrets.NX_DD_SITE }}
+      NX_GOOGLE_ANALYTICS_ID: ${{ secrets.NX_GOOGLE_ANALYTICS_ID }}
+      NX_INFURA_KEY: ${{ secrets.NX_INFURA_KEY }}
+      NX_APP_URL: ${{ env.NX_APP_URL }}
+      NX_SYSTEM_CACHE_URL: ${{ env.NX_SYSTEM_CACHE_URL }}
     with:
       number-of-agents: 3
