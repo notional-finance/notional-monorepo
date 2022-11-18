@@ -29,9 +29,6 @@ crons = [
     "0 0 * * *"
 ]
 
-[env.dev]
-name = "system-cache-dev"
-
 [env.stage]
 name = "system-cache-stage"
 
