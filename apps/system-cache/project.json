@@ -20,7 +20,7 @@
       "options": {
         "commands": [
           {
-            "command": "yarn wrangler publish"
+            "command": "wrangler publish"
           }
         ],
         "cwd": "apps/system-cache"
