@@ -11,7 +11,7 @@ on:
       - main
 jobs:
   deploy:
-    environment: ${{ github.event.inputs.environment }}
+    environment: ${{ github.event.inputs.environment || 'dev' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -38,14 +38,14 @@ jobs:
           NX_DD_SITE: ${{ secrets.NX_DD_SITE }}
           NX_GOOGLE_ANALYTICS_ID: ${{ secrets.NX_GOOGLE_ANALYTICS_ID }}
           NX_INFURA_KEY: ${{ secrets.NX_INFURA_KEY }}
-          NX_APP_URL: ${{ env.NX_APP_URL }}
-          NX_SYSTEM_CACHE_URL: ${{ env.NX_SYSTEM_CACHE_URL }}
+          NX_APP_URL: ${{ secrets.NX_APP_URL }}
+          NX_SYSTEM_CACHE_URL: ${{ secrets.NX_SYSTEM_CACHE_URL }}
       - name: Publish Dev
         uses: cloudflare/pages-action@1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: notional-web-${{ github.event.inputs.environment }}
+          projectName: notional-web-${{ github.event.inputs.environment || 'dev' }}
           directory: dist/apps/web
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
       - name: Slack Notification
