@@ -1,11 +1,11 @@
 name: ci
-environment: dev
 on:
   pull_request:
 
 jobs:
   main:
     name: Nx Cloud - Main Job
+    environment: dev
     uses: nrwl/ci/.github/workflows/nx-cloud-main.yml@v0.8
     env:
       NX_BLOCK_NATIVE_DAPP_ID: ${{ secrets.NX_BLOCK_NATIVE_DAPP_ID }}
