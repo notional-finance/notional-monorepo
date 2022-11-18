@@ -42,6 +42,7 @@ Thumbs.db
 .env
 .env.*
 .dev.vars
+.*.vars.json
 .npmrc
 .yarnrc
 

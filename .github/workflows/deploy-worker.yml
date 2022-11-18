@@ -29,12 +29,8 @@ jobs:
 
       - name: Wrangler Publish
         shell: bash
-        run: yarn nx run-many --target=wrangler-publish --projects=${{ github.event.inputs.workers }} --env ${{ github.event.inputs.environment || 'dev' }}
+        run: |
+          yarn nx run-many --target=wrangler-publish --projects=${{ github.event.inputs.workers }} --env ${{ github.event.inputs.environment || 'dev' }}
         env:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_WORKER_TOKEN }}
-          NX_ALCHEMY_KEY: ${{ secrets.NX_ALCHEMY_KEY }}
-          NX_EXCHANGE_RATE_API: ${{ secrets.NX_EXCHANGE_RATE_API }}
-          NX_DD_APP_ID: ${{ secrets.NX_DD_APP_ID }}
-          NX_DD_CLIENT_TOKEN: ${{ secrets.NX_DD_CLIENT_TOKEN }}
-          NX_DD_SITE: ${{ secrets.NX_DD_SITE }}
