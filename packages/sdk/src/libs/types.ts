@@ -55,6 +55,17 @@ export enum AssetType {
   LiquidityToken_20Year = 'LiquidityToken_20Year',
 }
 
+export enum VaultTradeTypes {
+  EstablishVaultAccount = 'Establish Vault Account',
+  IncreaseVaultPosition = 'Increase Vault Position',
+  RollVaultMaturity = 'Roll Vault Maturity',
+  ExitVaultPosition = 'Exit Vault Position',
+  ReduceVaultPosition = 'Reduce Vault Position',
+  ExitMaturedVaultPosition = 'Exit Matured Vault Position',
+  VaultPositionLiquidated = 'Vault Position Liquidated',
+  Unknown = 'Unknown',
+}
+
 export interface WalletBalance {
   lastUpdateBlockNumber: number;
   lastUpdateTime: Date;

@@ -8,6 +8,7 @@ import {
   BalanceHistory,
   TradeType,
   AccountHistory,
+  VaultTradeTypes,
 } from '../libs/types';
 import BalanceSummary from './BalanceSummary';
 import AssetSummary from './AssetSummary';
@@ -358,21 +359,21 @@ export default class AccountGraphLoader {
     maturityAfter: number | undefined
   ) {
     if (vaultTradeType === 'EnterPosition' && !maturityBefore) {
-      return 'Establish Vault Account';
+      return VaultTradeTypes.EstablishVaultAccount;
     } else if (vaultTradeType === 'EnterPosition') {
-      return 'Increase Vault Position';
+      return VaultTradeTypes.IncreaseVaultPosition;
     } else if (vaultTradeType === 'RollPosition') {
-      return 'Roll Vault Maturity';
+      return VaultTradeTypes.RollVaultMaturity;
     } else if (vaultTradeType === 'ExitPreMaturity' && !maturityAfter) {
-      return 'Exit Vault Position';
+      return VaultTradeTypes.ExitVaultPosition;
     } else if (vaultTradeType === 'ExitPreMaturity') {
-      return 'Reduce Vault Position';
+      return VaultTradeTypes.ReduceVaultPosition;
     } else if (vaultTradeType === 'ExitPostMaturity') {
-      return 'Exit Matured Vault Position';
+      return VaultTradeTypes.ExitMaturedVaultPosition;
     } else if (vaultTradeType === 'DeleverageAccount') {
-      return 'Vault Position Liquidated';
+      return VaultTradeTypes.VaultPositionLiquidated;
     } else {
-      return 'unknown';
+      return VaultTradeTypes.Unknown;
     }
   }
 
