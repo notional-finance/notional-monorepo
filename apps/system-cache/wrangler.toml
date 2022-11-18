@@ -1,10 +1,19 @@
 name = "system-cache-dev"
 main = "./src/index.ts"
 compatibility_date = "2022-07-07"
+account_id = "274f86c6dcfbb77c09e49e86d101c753"
 
 workers_dev = true
 node_compat = true
 minify = true
+
+[triggers]
+crons = [
+    "*/10 * * * *",
+    "0 0 * * *"
+]
+
+[env.dev]
 
 [durable_objects]
 bindings = [{name = "SYSTEM_CACHE", class_name = "SystemCache"}]
@@ -19,17 +28,38 @@ new_classes = ["SystemCache"]
 
 [vars]
 VERSION = 'v2'
-
-[triggers]
-crons = [
-    "*/10 * * * *",
-    "0 0 * * *"
-]
-
-[env.dev]
+DD_BASE_URL = 'https://datadoghq.com'
 
 [env.beta]
 name = "system-cache-beta"
+[durable_objects]
+bindings = [{name = "SYSTEM_CACHE", class_name = "SystemCache"}]
+
+[[r2_buckets]]
+binding = 'VAULT_RETURNS'
+bucket_name = 'vault-returns'
+
+[[migrations]]
+tag = "v1" # Should be unique for each entry
+new_classes = ["SystemCache"]
+
+[vars]
+VERSION = 'v2'
+DD_BASE_URL = 'https://datadoghq.com'
 
 [env.prod]
 name = "system-cache"
+[durable_objects]
+bindings = [{name = "SYSTEM_CACHE", class_name = "SystemCache"}]
+
+[[r2_buckets]]
+binding = 'VAULT_RETURNS'
+bucket_name = 'vault-returns'
+
+[[migrations]]
+tag = "v1" # Should be unique for each entry
+new_classes = ["SystemCache"]
+
+[vars]
+VERSION = 'v2'
+DD_BASE_URL = 'https://datadoghq.com'
