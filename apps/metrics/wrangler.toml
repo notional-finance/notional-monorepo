@@ -9,9 +9,7 @@ usage_model = "bundled"
 
 [env.dev]
 name = "metrics-dev"
-
 [env.staging]
 name = "metrics-staging"
-
 [env.production]
 name = "metrics"
