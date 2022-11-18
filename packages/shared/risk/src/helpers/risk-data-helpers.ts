@@ -25,7 +25,7 @@ export function formatPercentForRisk(n?: number | null) {
   return n && n !== null ? formatNumberAsPercent(n, 1) : '-';
 }
 
-export function formatRateForRisk(n?: number | null, digits = 1) {
+export function formatRateAsPercent(n?: number | null, digits = 1) {
   return n && n !== null
     ? formatNumberAsPercent(convertRateToFloat(n), digits)
     : '-';

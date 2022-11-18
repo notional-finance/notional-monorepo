@@ -4,7 +4,7 @@ import {
   convertRateToFloat,
   formatNumberAsPercent,
 } from '@notional-finance/helpers';
-import { formatRateForRisk } from '../helpers/risk-data-helpers';
+import { formatRateAsPercent } from '../helpers/risk-data-helpers';
 
 const greyRGB: [number, number, number] = [149, 178, 186];
 const redRGB: [number, number, number] = [255, 61, 13];
@@ -74,9 +74,9 @@ export const useInterestRateRiskTable = () => {
 
       return {
         symbol,
-        lowerRate: formatRateForRisk(lowerLiquidationInterestRate, 3),
-        currentAvg: formatRateForRisk(currentWeightedAvgInterestRate, 3),
-        upperRate: formatRateForRisk(upperLiquidationInterestRate, 3),
+        lowerRate: formatRateAsPercent(lowerLiquidationInterestRate, 3),
+        currentAvg: formatRateAsPercent(currentWeightedAvgInterestRate, 3),
+        upperRate: formatRateAsPercent(upperLiquidationInterestRate, 3),
         sliderData: {
           stepSize,
           value: convertRateToFloat(currentWeightedAvgInterestRate || 0),

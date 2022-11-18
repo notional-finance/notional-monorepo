@@ -8,7 +8,7 @@ import {
   didIncrease,
   formatCurrencyForRisk,
   formatPercentForRisk,
-  formatRateForRisk,
+  formatRateAsPercent,
   RiskDataTableRow,
 } from '../helpers/risk-data-helpers';
 
@@ -100,9 +100,9 @@ export const useLiquidationRiskTable = (updatedAccountData?: AccountData) => {
             type: 'Upper Interest Rate Risk',
             icons: [symbol],
           },
-          current: formatRateForRisk(current?.upperLiquidationInterestRate),
+          current: formatRateAsPercent(current?.upperLiquidationInterestRate),
           updated: {
-            value: formatRateForRisk(updated?.upperLiquidationInterestRate),
+            value: formatRateAsPercent(updated?.upperLiquidationInterestRate),
             arrowUp: didIncrease(
               current?.upperLiquidationInterestRate,
               updated?.upperLiquidationInterestRate
@@ -125,9 +125,9 @@ export const useLiquidationRiskTable = (updatedAccountData?: AccountData) => {
             type: 'Lower Interest Rate Risk',
             icons: [symbol],
           },
-          current: formatRateForRisk(current?.lowerLiquidationInterestRate),
+          current: formatRateAsPercent(current?.lowerLiquidationInterestRate),
           updated: {
-            value: formatRateForRisk(updated?.lowerLiquidationInterestRate),
+            value: formatRateAsPercent(updated?.lowerLiquidationInterestRate),
             arrowUp: didIncrease(
               current?.lowerLiquidationInterestRate,
               updated?.lowerLiquidationInterestRate

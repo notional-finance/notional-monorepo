@@ -4,7 +4,7 @@ import {
   MultiValueIconCell,
 } from '@notional-finance/mui';
 import { useRiskThresholds } from '@notional-finance/notionable-hooks';
-import { formatRateForRisk } from '@notional-finance/risk/helpers/risk-data-helpers';
+import { formatRateAsPercent } from '@notional-finance/risk/helpers/risk-data-helpers';
 import { FormattedMessage } from 'react-intl';
 
 export const useRiskOverviewTable = () => {
@@ -104,17 +104,17 @@ export const useRiskOverviewTable = () => {
 
       let liquidationPrice: string;
       if (upperLiquidationInterestRate && lowerLiquidationInterestRate) {
-        liquidationPrice = `Below ${formatRateForRisk(
+        liquidationPrice = `Below ${formatRateAsPercent(
           lowerLiquidationInterestRate,
           3
-        )}, Above ${formatRateForRisk(upperLiquidationInterestRate, 3)}`;
+        )}, Above ${formatRateAsPercent(upperLiquidationInterestRate, 3)}`;
       } else if (upperLiquidationInterestRate) {
-        liquidationPrice = `Above ${formatRateForRisk(
+        liquidationPrice = `Above ${formatRateAsPercent(
           upperLiquidationInterestRate,
           3
         )}`;
       } else if (lowerLiquidationInterestRate) {
-        liquidationPrice = `Below ${formatRateForRisk(
+        liquidationPrice = `Below ${formatRateAsPercent(
           lowerLiquidationInterestRate,
           3
         )}`;
@@ -133,7 +133,7 @@ export const useRiskOverviewTable = () => {
           isNegative: false,
         },
         currentPrice: currentWeightedAvgInterestRate
-          ? formatRateForRisk(currentWeightedAvgInterestRate, 3)
+          ? formatRateAsPercent(currentWeightedAvgInterestRate, 3)
           : '-',
         liquidationPrice,
       };
