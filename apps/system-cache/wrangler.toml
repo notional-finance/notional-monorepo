@@ -16,41 +16,49 @@ crons = [
 [env.dev]
 
 [durable_objects]
-bindings = [{name = "SYSTEM_CACHE", class_name = "SystemCache"}]
+bindings = [
+  { name = "SYSTEM_CACHE", class_name = "SystemCache", script_name = "system-cache-dev" }
+]
 
-[[r2_buckets]]
-binding = 'VAULT_RETURNS'
-bucket_name = 'vault-returns'
+r2_buckets = [
+  { binding = "VAULT_RETURNS", bucket_name = "vault-returns-dev", preview_bucket_name = "vault-returns-dev" }
+]
 
 [[migrations]]
 tag = "v1" # Should be unique for each entry
 new_classes = ["SystemCache"]
 
 [vars]
-VERSION = 'v2'
-DD_BASE_URL = 'https://datadoghq.com'
+DD_BASE_URL = "https://datadoghq.com"
+VERSION = "v2"
 
 [env.beta]
 name = "system-cache-beta"
-[durable_objects]
-bindings = [{name = "SYSTEM_CACHE", class_name = "SystemCache"}]
 
-[[r2_buckets]]
-binding = 'VAULT_RETURNS'
-bucket_name = 'vault-returns'
+[durable_objects]
+bindings = [
+  { name = "SYSTEM_CACHE", class_name = "SystemCache", script_name = "system-cache-beta" }
+]
+
+r2_buckets = [
+  { binding = "VAULT_RETURNS", bucket_name = "vault-returns-beta", preview_bucket_name = "vault-returns-beta" }
+]
 
 [[migrations]]
 tag = "v1" # Should be unique for each entry
 new_classes = ["SystemCache"]
 
 [vars]
-VERSION = 'v2'
-DD_BASE_URL = 'https://datadoghq.com'
+DD_BASE_URL = "https://datadoghq.com"
+VERSION = "v2"
 
 [env.prod]
 name = "system-cache"
+
 [durable_objects]
-bindings = [{name = "SYSTEM_CACHE", class_name = "SystemCache"}]
+bindings = [
+  { name = "SYSTEM_CACHE", class_name = "SystemCache", script_name = "system-cache" }
+]
 
 [[r2_buckets]]
 binding = 'VAULT_RETURNS'
@@ -61,5 +69,5 @@ tag = "v1" # Should be unique for each entry
 new_classes = ["SystemCache"]
 
 [vars]
-VERSION = 'v2'
-DD_BASE_URL = 'https://datadoghq.com'
+DD_BASE_URL = "https://datadoghq.com"
+VERSION = "v2"
