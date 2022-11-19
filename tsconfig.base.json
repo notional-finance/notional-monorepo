@@ -34,6 +34,7 @@
       "@notional-finance/contracts/*": ["packages/contracts/src/*"],
       "@notional-finance/error": ["packages/error/src/index.ts"],
       "@notional-finance/error/*": ["packages/error/src/*"],
+      "@notional-finance/graph-client": ["packages/graph-client/src/index.ts"],
       "@notional-finance/helpers": ["packages/shared/helpers/src/index.ts"],
       "@notional-finance/icons": ["packages/common/icons/src/index.ts"],
       "@notional-finance/icons/*": ["packages/common/icons/src/*"],
