@@ -2,10 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { datadogRum } from '@datadog/browser-rum';
 import { useImpactTracking } from '@notional-finance/utils';
 import { initPlausible } from '@notional-finance/helpers';
-import {
-  setInLocalStorage,
-  getFromLocalStorage,
-} from '@notional-finance/helpers';
+import { getFromLocalStorage } from '@notional-finance/helpers';
 import Plausible from 'plausible-tracker';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -54,7 +51,7 @@ const version = `${process.env['COMMIT_REF']?.substring(0, 8) || 'local'}`;
 const { disableErrorReporting } = getFromLocalStorage('privacySettings');
 
 datadogRum.init({
-  beforeSend: (event) => {
+  beforeSend: () => {
     if (disableErrorReporting) {
       return false;
     }
@@ -93,7 +90,7 @@ export const App = () => {
   useEffect(() => {
     initPlausible();
     trackPageview();
-  }, []);
+  }, [trackPageview]);
 
   useEffect(() => {
     initApplication();

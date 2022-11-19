@@ -9,5 +9,6 @@ import 'regenerator-runtime/runtime';
 window.global = window;
 // eslint-disable-next-line @typescript-eslint/no-use-before-define
 if (global === undefined) {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const global = window;
 }

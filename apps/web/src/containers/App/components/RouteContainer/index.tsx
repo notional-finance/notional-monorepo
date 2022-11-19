@@ -13,7 +13,6 @@ const RouteContainer = ({ children, onRouteChange }: RouteContainerProps) => {
   const history = useHistory();
   const { error } = useNotionalError();
   const { trackPageview } = Plausible();
-  const url = location.href;
 
   useEffect(() => {
     if (error) {
@@ -26,11 +25,9 @@ const RouteContainer = ({ children, onRouteChange }: RouteContainerProps) => {
   useEffect(() => {
     return history.listen((location) => {
       onRouteChange(location.pathname);
-      trackPageview({
-        url: url,
-      });
+      trackPageview();
     });
-  }, [history, onRouteChange]);
+  }, [history, onRouteChange, trackPageview]);
 
   return <Box height="100%">{children}</Box>;
 };
