@@ -1,1 +1,2 @@
-export * from './lib/graph-client';
+import { GraphClient } from './GraphClient';
+export default GraphClient;
