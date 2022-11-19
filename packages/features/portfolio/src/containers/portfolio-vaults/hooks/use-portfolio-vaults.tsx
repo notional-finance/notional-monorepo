@@ -106,6 +106,7 @@ export const usePortfolioVaults = () => {
         displayValue: formatRateAsPercent(v.apy, 3),
         isNegative: v.apy && v.apy < 0,
       },
+      profit: formatCryptoWithFiat(v.profit),
       actionRow: {
         maturity: v.maturity ? moment.unix(v.maturity).format() : undefined,
         routes: v.routes,

@@ -26,6 +26,7 @@ interface YieldStrategies {
   assetValue: TypedBigNumber;
   netWorth: TypedBigNumber;
   isLeveragedVault: boolean;
+  profit?: TypedBigNumber;
   maturity?: number;
   apy?: number;
   debtValue?: TypedBigNumber;
@@ -92,9 +93,8 @@ export function useYieldStrategies(
         logError(e as Error, 'notionable/account', 'use-yield-strategies');
       }
 
-      const { avgBorrowRate } = accountData.getVaultHistoricalFactors(
-        vaultAccount.vaultAddress
-      );
+      const { avgBorrowRate, netCashDeposited } =
+        accountData.getVaultHistoricalFactors(vaultAccount.vaultAddress);
       const vaultReturns = vaultPerformance?.get(
         vaultAccount.vaultAddress
       )?.sevenDayTotalAverage;
@@ -114,15 +114,20 @@ export function useYieldStrategies(
           (k) => Market.parseMaturity(k) > vaultAccount.maturity
         ) !== undefined;
 
+      // NOTE: debt value is negative
+      const netWorth = debtValue ? assetValue.add(debtValue) : assetValue;
+      const profit = netWorth.sub(netCashDeposited);
+
       return {
         strategyName: vaultConfig.name,
         currencySymbol,
         maturity: vaultAccount.maturity,
         assetValue,
         debtValue,
-        // NOTE: debt value is negative
-        netWorth: debtValue ? assetValue.add(debtValue) : assetValue,
+        netWorth,
+        profit,
         apy,
+        netCashDeposited,
         leverageRatio,
         maxLeverageRatio,
         leveragePercentage,
