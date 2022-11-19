@@ -148,7 +148,6 @@ export const useRiskOverviewTable = () => {
       collateralCurrencySymbol,
       debtCurrencySymbol,
       ethExchangeRate,
-      primaryBorrowCurrency,
     }) => {
       return {
         collateral: {
@@ -171,11 +170,10 @@ export const useRiskOverviewTable = () => {
     }
   );
 
-  const riskOverviewData = priceRiskData
-    .concat(interestRateRiskData)
-    .concat(vaultRiskData);
   return {
-    riskOverviewData,
+    priceRiskData,
+    interestRateRiskData,
+    vaultRiskData,
     riskOverviewColumns,
   };
 };
