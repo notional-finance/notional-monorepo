@@ -1,4 +1,3 @@
-import { CSSProperties } from 'react';
 import unknown from '../../assets/icons/currencies/currency-unknown.svg';
 import wbtc from '../../assets/icons/currencies/currency-wbtc.svg';
 import eth from '../../assets/icons/currencies/currency-eth.svg';
@@ -24,6 +23,7 @@ import fDAI from '../../assets/icons/currencies/fDAI.svg';
 import fUSDC from '../../assets/icons/currencies/fUSDC.svg';
 import fWBTC from '../../assets/icons/currencies/fWBTC.svg';
 import fETH from '../../assets/icons/currencies/fETH.svg';
+import wstETH_ETH from '../../assets/icons/currencies/wstETH-ETH.svg';
 
 export interface TokenImg {
   name: string;
@@ -146,6 +146,11 @@ export const TokenImageList: TokenImageMap = {
     name: 'fwbtc',
     img: fWBTC,
     alt: 'fCash WBTC icon',
+  },
+  wsteth_eth: {
+    name: 'wsteth_eth',
+    img: wstETH_ETH,
+    alt: 'wstETH ETH',
   },
   unknown: {
     name: 'unknown',

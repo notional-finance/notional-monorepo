@@ -18,7 +18,6 @@ export const usePortfolioVaults = () => {
   const [expandedRows, setExpandedRows] = useState<ExpandedRows | null>(null);
   const initialState = expandedRows !== null ? { expanded: expandedRows } : {};
   const vaults = useYieldStrategies(true);
-  const theme = useTheme();
 
   const vaultSummaryColumns: DataTableColumn[] = useMemo(() => {
     return [
