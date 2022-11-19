@@ -1,13 +1,16 @@
 import {
   AccountData,
+  BaseVault,
   INTERNAL_TOKEN_PRECISION,
   TypedBigNumber,
+  VaultFactory,
 } from '@notional-finance/sdk';
 import { hasMatured } from '@notional-finance/sdk/libs/utils';
 import {
   FreeCollateral,
   InterestRateRisk,
 } from '@notional-finance/sdk/src/system';
+import { logError } from '@notional-finance/util';
 import { useNotional } from '../notional/use-notional';
 import { useAccount } from './use-account';
 
@@ -144,12 +147,30 @@ export function useRiskThresholds(
     const primaryBorrowSymbol = system?.getUnderlyingSymbol(
       vaultConfig.primaryBorrowCurrency
     );
+    let leverageRatio: number | undefined;
+    let leveragePercentage: number | undefined;
+    const maxLeverageRatio = BaseVault.collateralToLeverageRatio(
+      vaultConfig.minCollateralRatioBasisPoints
+    );
+    try {
+      const baseVault = VaultFactory.buildVaultFromCache(
+        vaultConfig.strategy,
+        vaultConfig.vaultAddress
+      );
+      leverageRatio = baseVault.getLeverageRatio(a);
+      leveragePercentage = (leverageRatio / maxLeverageRatio) * 100;
+    } catch (e) {
+      logError(e as Error, 'notionable/account', 'use-risk-thresholds');
+    }
 
     return thresholds.map((t) => {
       return {
         primaryBorrowSymbol,
         primaryBorrowCurrency: vaultConfig.primaryBorrowCurrency,
         vaultName: vaultConfig.name,
+        leverageRatio,
+        leveragePercentage,
+        maxLeverageRatio,
         ...t,
       };
     });

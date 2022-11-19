@@ -1,3 +1,5 @@
+import { useTheme } from '@mui/material';
+import { formatLeverageRatio } from '@notional-finance/helpers';
 import {
   DataTableColumn,
   MultiValueCell,
@@ -8,6 +10,7 @@ import { formatRateAsPercent } from '@notional-finance/risk/helpers/risk-data-he
 import { FormattedMessage } from 'react-intl';
 
 export const useRiskOverviewTable = () => {
+  const theme = useTheme();
   const { interestRateRiskArray, liquidationPrices, vaultRiskThresholds } =
     useRiskThresholds();
 
@@ -148,7 +151,20 @@ export const useRiskOverviewTable = () => {
       collateralCurrencySymbol,
       debtCurrencySymbol,
       ethExchangeRate,
+      leveragePercentage,
+      maxLeverageRatio,
+      leverageRatio,
     }) => {
+      let trackColor: string | undefined;
+      if (leveragePercentage) {
+        trackColor =
+          leveragePercentage > 90
+            ? theme.palette.error.main
+            : leveragePercentage > 70
+            ? theme.palette.warning.main
+            : undefined;
+      }
+
       return {
         collateral: {
           symbol: primaryBorrowSymbol,
@@ -166,6 +182,12 @@ export const useRiskOverviewTable = () => {
         // we don't have a way to represent this using typed big numbers
         currentPrice: `${currentPrice?.toDisplayString(2)} stETH`,
         liquidationPrice: `${ethExchangeRate?.toDisplayString(2)} stETH`,
+        leveragePercentage: {
+          value: leveragePercentage,
+          captionLeft: formatLeverageRatio(leverageRatio || 0, 1),
+          captionRight: `Max: ${formatLeverageRatio(maxLeverageRatio || 0, 1)}`,
+          trackColor,
+        },
       };
     }
   );
