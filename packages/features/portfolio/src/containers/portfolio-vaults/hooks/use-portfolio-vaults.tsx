@@ -4,14 +4,11 @@ import {
   ChevronCell,
   ExpandedRows,
   MultiValueCell,
-  SliderCell,
   DataTableColumn,
+  NegativeValueCell,
 } from '@notional-finance/mui';
 import { useYieldStrategies } from '@notional-finance/notionable-hooks';
-import {
-  formatCryptoWithFiat,
-  formatLeverageRatio,
-} from '@notional-finance/helpers';
+import { formatCryptoWithFiat } from '@notional-finance/helpers';
 import moment from 'moment';
 import { FormattedMessage } from 'react-intl';
 import { useEffect, useMemo, useState } from 'react';
@@ -73,23 +70,26 @@ export const usePortfolioVaults = () => {
           <FormattedMessage defaultMessage="APY" description="column header" />
         ),
         expandableTable: true,
+        Cell: NegativeValueCell,
         accessor: 'apy',
+        textAlign: 'right',
+      },
+      {
+        Header: (
+          <FormattedMessage
+            defaultMessage="Profit"
+            description="column header"
+          />
+        ),
+        expandableTable: true,
+        Cell: MultiValueCell,
+        accessor: 'profit',
         textAlign: 'right',
       },
     ];
   }, []);
 
   const vaultSummaryData = vaults.map((v) => {
-    let trackColor: string | undefined;
-    if (v.leveragePercentage) {
-      trackColor =
-        v.leveragePercentage > 90
-          ? theme.palette.error.main
-          : v.leveragePercentage > 70
-          ? theme.palette.warning.main
-          : undefined;
-    }
-
     return {
       vault: {
         symbol: v.currencySymbol,
@@ -102,7 +102,10 @@ export const usePortfolioVaults = () => {
         ],
       },
       netWorth: formatCryptoWithFiat(v.netWorth),
-      apy: formatRateAsPercent(v.apy, 3),
+      apy: {
+        displayValue: formatRateAsPercent(v.apy, 3),
+        isNegative: v.apy && v.apy < 0,
+      },
       actionRow: {
         maturity: v.maturity ? moment.unix(v.maturity).format() : undefined,
         routes: v.routes,

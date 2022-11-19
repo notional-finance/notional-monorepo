@@ -195,6 +195,8 @@ export interface VaultTradeHistory {
   vaultSharesAfter: TypedBigNumber | undefined;
   netVaultSharesChange: TypedBigNumber | undefined;
   netUnderlyingCash: TypedBigNumber;
+  netBorrowedUnderlying: TypedBigNumber;
+  netDepositUnderlying: TypedBigNumber;
 }
 
 export type AccountHistory = {

@@ -5,7 +5,6 @@ import {
   MAX_BALANCES,
   MAX_BITMAP_ASSETS,
   MAX_PORTFOLIO_ASSETS,
-  RATE_PRECISION,
 } from '../config/constants';
 import TypedBigNumber, { BigNumberType } from '../libs/TypedBigNumber';
 import {
@@ -163,12 +162,13 @@ export default class AccountData {
     if (
       v.maturityAfter &&
       !v.netPrimaryBorrowfCashChange.isZero() &&
-      !v.netUnderlyingCash.toInternalPrecision().isZero()
+      !v.netBorrowedUnderlying.toInternalPrecision().isZero()
     ) {
       const exchangeRate = Market.exchangeRate(
         v.netPrimaryBorrowfCashChange,
-        v.netUnderlyingCash.toInternalPrecision()
+        v.netBorrowedUnderlying.toInternalPrecision()
       );
+
       return Market.exchangeToInterestRate(
         exchangeRate,
         v.blockTime.getTime() / 1000,
@@ -193,35 +193,42 @@ export default class AccountData {
     });
   }
 
-  public getVaultHistoricalRate(vaultAddress: string) {
+  public getVaultHistoricalFactors(vaultAddress: string) {
     const { primaryBorrowCurrency } = System.getSystem().getVault(vaultAddress);
-    const { weightedRate, totalCashDeposited } = (
+    const { weightedRate, totalCashBorrowed, netCashDeposited } = (
       this.accountHistory?.vaultTradeHistory || []
     )
       .filter((h) => h.vaultAddress === vaultAddress)
       .sort((a, b) => a.blockNumber - b.blockNumber)
       .reduce(
         (enters, h) => {
+          enters.netCashDeposited = enters.netCashDeposited.add(
+            h.netDepositUnderlying.toInternalPrecision()
+          );
+
           // Reset history if exit vault position
           if (
             h.vaultTradeType === VaultTradeTypes.ExitVaultPosition ||
             h.vaultTradeType === VaultTradeTypes.ExitMaturedVaultPosition
           ) {
             enters.weightedRate = 0;
-            enters.totalCashDeposited = TypedBigNumber.getZeroUnderlying(
+            enters.totalCashBorrowed = TypedBigNumber.getZeroUnderlying(
+              primaryBorrowCurrency
+            );
+            enters.netCashDeposited = TypedBigNumber.getZeroUnderlying(
               primaryBorrowCurrency
             );
           } else if (
             h.vaultTradeType === VaultTradeTypes.EstablishVaultAccount ||
             h.vaultTradeType === VaultTradeTypes.IncreaseVaultPosition
           ) {
-            const { netUnderlyingCash } = h;
+            const { netBorrowedUnderlying } = h;
             const rate = this._getVaultRate(h);
             enters.weightedRate += rate
-              ? rate * netUnderlyingCash.toInternalPrecision().toFloat()
+              ? rate * netBorrowedUnderlying.toInternalPrecision().toFloat()
               : 0;
-            enters.totalCashDeposited = enters.totalCashDeposited.add(
-              netUnderlyingCash.toInternalPrecision()
+            enters.totalCashBorrowed = enters.totalCashBorrowed.add(
+              netBorrowedUnderlying.toInternalPrecision()
             );
           }
 
@@ -229,13 +236,19 @@ export default class AccountData {
         },
         {
           weightedRate: 0,
-          totalCashDeposited: TypedBigNumber.getZeroUnderlying(
+          totalCashBorrowed: TypedBigNumber.getZeroUnderlying(
+            primaryBorrowCurrency
+          ),
+          netCashDeposited: TypedBigNumber.getZeroUnderlying(
             primaryBorrowCurrency
           ),
         }
       );
 
-    return Math.floor(weightedRate / totalCashDeposited.toFloat());
+    return {
+      avgBorrowRate: Math.floor(weightedRate / totalCashBorrowed.toFloat()),
+      totalCashBorrowed,
+    };
   }
 
   public getFullTransactionHistory(

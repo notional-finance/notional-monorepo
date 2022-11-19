@@ -496,13 +496,21 @@ export default class AccountGraphLoader {
             return undefined;
           }
         ),
-        netUnderlyingCash: t.netUnderlyingCash
-          ? TypedBigNumber.fromBalance(
-              t.netUnderlyingCash,
-              primaryBorrowSymbol,
-              false
-            )
-          : TypedBigNumber.fromBalance(0, primaryBorrowSymbol, false),
+        netUnderlyingCash: TypedBigNumber.fromBalance(
+          t.netUnderlyingCash || 0,
+          primaryBorrowSymbol,
+          false
+        ),
+        netBorrowedUnderlying: TypedBigNumber.fromBalance(
+          t.netBorrowedUnderlying || 0,
+          primaryBorrowSymbol,
+          false
+        ),
+        netDepositUnderlying: TypedBigNumber.fromBalance(
+          t.netDepositUnderlying || 0,
+          primaryBorrowSymbol,
+          false
+        ),
       };
     });
   }
