@@ -7,11 +7,8 @@ node_compat = true
 minify = true
 usage_model = "bundled"
 
-[env.dev]
-name = "geoip-dev"
-
-[env.stage]
-name = "geoip-stage"
+[env.beta]
+name = "geoip-beta"
 
 [env.prod]
 name = "geoip"

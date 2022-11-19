@@ -7,9 +7,7 @@ node_compat = true
 minify = true
 usage_model = "bundled"
 
-[env.dev]
-name = "metrics-dev"
-[env.stage]
-name = "metrics-stage"
+[env.beta]
+name = "metrics-beta"
 [env.prod]
 name = "metrics"

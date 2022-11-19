@@ -7,13 +7,9 @@ workers_dev = true
 node_compat = true
 minify = true
 
-[triggers]
-crons = [
-    "*/10 * * * *",
-    "0 0 * * *"
-]
-
-[env.dev]
+[vars]
+DD_BASE_URL = "https://datadoghq.com"
+VERSION = "v2"
 
 [durable_objects]
 bindings = [
@@ -28,46 +24,28 @@ r2_buckets = [
 tag = "v1" # Should be unique for each entry
 new_classes = ["SystemCache"]
 
-[vars]
-DD_BASE_URL = "https://datadoghq.com"
-VERSION = "v2"
+[triggers]
+crons = [
+    "*/10 * * * *",
+    "0 0 * * *"
+]
 
 [env.beta]
 name = "system-cache-beta"
 
-[durable_objects]
+[env.beta.vars]
+DD_BASE_URL = "https://datadoghq.com"
+VERSION = "v2"
+
+[env.beta.durable_objects]
 bindings = [
   { name = "SYSTEM_CACHE", class_name = "SystemCache", script_name = "system-cache-beta" }
 ]
 
-r2_buckets = [
-  { binding = "VAULT_RETURNS", bucket_name = "vault-returns-beta", preview_bucket_name = "vault-returns-beta" }
-]
+[[env.beta.r2_buckets]]
+binding = "VAULT_RETURNS"
+bucket_name = "vault-returns-beta"
 
-[[migrations]]
+[[env.beta.migrations]]
 tag = "v1" # Should be unique for each entry
 new_classes = ["SystemCache"]
-
-[vars]
-DD_BASE_URL = "https://datadoghq.com"
-VERSION = "v2"
-
-[env.prod]
-name = "system-cache"
-
-[durable_objects]
-bindings = [
-  { name = "SYSTEM_CACHE", class_name = "SystemCache", script_name = "system-cache" }
-]
-
-[[r2_buckets]]
-binding = 'VAULT_RETURNS'
-bucket_name = 'vault-returns'
-
-[[migrations]]
-tag = "v1" # Should be unique for each entry
-new_classes = ["SystemCache"]
-
-[vars]
-DD_BASE_URL = "https://datadoghq.com"
-VERSION = "v2"
