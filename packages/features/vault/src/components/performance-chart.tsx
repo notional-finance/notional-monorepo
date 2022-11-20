@@ -78,8 +78,7 @@ export const PerformanceChart = ({
   const renderTooltip = (props: TooltipProps<number, string>) => {
     const { active, payload } = props;
     if (active && payload) {
-      const { timestamp, totalRate, breakdown, leveragedReturn } =
-        payload[0].payload;
+      const { timestamp, totalRate, leveragedReturn } = payload[0].payload;
 
       return (
         <ToolTipBox>

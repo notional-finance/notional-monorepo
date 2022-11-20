@@ -1,11 +1,10 @@
 import { BigNumber, ethers, VoidSigner } from 'ethers';
-import Notional, { BigNumberType, Contracts, TypedBigNumber } from '../../src';
+import Notional, { Contracts } from '../../src';
 import { AccountGraphLoader } from '../../src/account';
 import GraphClient from '../../src/data/GraphClient';
 import { decodeBinary, fetchAndEncodeSystem } from '../../src/data/SystemData';
 import { getNowSeconds } from '../../src/libs/utils';
-import { System } from '../../src/system';
-import { VaultAccount, VaultFactory } from '../../src/vaults';
+import { VaultFactory } from '../../src/vaults';
 
 require('dotenv').config();
 

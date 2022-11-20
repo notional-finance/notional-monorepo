@@ -684,7 +684,7 @@ class TypedBigNumber {
     );
   }
 
-  toJSON(_?: string): any {
+  toJSON(): any {
     return {
       _isTypedBigNumber: true,
       hex: this.toHexString(),

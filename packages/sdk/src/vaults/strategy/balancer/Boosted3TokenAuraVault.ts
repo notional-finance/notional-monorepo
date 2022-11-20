@@ -6,7 +6,6 @@ import {
 import { AggregateCall } from '../../../data/Multicall';
 import TypedBigNumber from '../../../libs/TypedBigNumber';
 import { LiquidationThreshold } from '../../../libs/types';
-import VaultAccount from '../../VaultAccount';
 import BalancerLinearMath, { BalancerLinearParams } from './BalancerLinearMath';
 import BalancerStableMath from './BalancerStableMath';
 import {
@@ -84,10 +83,7 @@ export default class Boosted3TokenAuraVault extends BaseBalancerStablePool<InitP
     return [] as AggregateCall[];
   }
 
-  public getLiquidationThresholds(
-    _: VaultAccount,
-    __: number
-  ): Array<LiquidationThreshold> {
+  public getLiquidationThresholds(): Array<LiquidationThreshold> {
     return [];
   }
 
@@ -240,13 +236,11 @@ export default class Boosted3TokenAuraVault extends BaseBalancerStablePool<InitP
   public async getRedeemParametersExact(
     maturity: number,
     strategyTokens: TypedBigNumber,
-    slippageBuffer: number,
-    blockTime?: number
+    slippageBuffer: number
   ) {
     const { amountRedeemed } = this.getRedeemGivenStrategyTokens(
       maturity,
-      strategyTokens,
-      blockTime
+      strategyTokens
     );
     return {
       minPrimary: amountRedeemed

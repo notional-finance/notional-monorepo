@@ -132,12 +132,12 @@ export class SystemCache {
   async fetch(request: Request) {
     try {
       const url = new URL(request.url);
+      const currentAlarm = await this.storage.getAlarm();
+      const currentMillis = Date.now();
       switch (url.pathname) {
         case '/refresh-exchange-rate':
           return this.refreshExchangeRates();
         case '/schedule-alarm':
-          const currentAlarm = await this.storage.getAlarm();
-          const currentMillis = Date.now();
           if (currentAlarm == null || currentAlarm < currentMillis) {
             await this.alarm();
           }

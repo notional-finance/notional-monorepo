@@ -1,7 +1,7 @@
 import { defineMessage, FormattedMessage } from 'react-intl';
 import { useHistory, useParams } from 'react-router-dom';
 import { Box, styled, Divider } from '@mui/material';
-import { Button, InfoTooltip, H5 } from '@notional-finance/mui';
+import { Button, InfoTooltip } from '@notional-finance/mui';
 import { useTableActionRow } from './use-table-action-row';
 import { PortfolioParams } from '../../portfolio-feature-shell';
 import { MaturityData } from '@notional-finance/notionable';

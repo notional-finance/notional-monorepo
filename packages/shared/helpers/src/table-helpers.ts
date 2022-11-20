@@ -1,5 +1,4 @@
 import { TypedBigNumber } from '@notional-finance/sdk';
-import { formatNumberAsPercent } from './number-helpers';
 
 // ===== NOTE: All of these helpers are to be used with the MultiValueCell
 export const formatCryptoWithFiat = (tbn?: TypedBigNumber | null) => {

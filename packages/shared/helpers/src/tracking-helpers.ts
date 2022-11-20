@@ -13,12 +13,11 @@ const IMPACT_WALLET_REGISTRATION_ID = '29429';
 const IMPACT_TXN_ID = '29430';
 
 export function initPlausible() {
-  const plausible = Plausible({
+  return Plausible({
     domain: window.location.hostname,
     apiHost: 'https://plausible.io',
   });
 }
-
 
 export function trackEvent(category: string, props?: Record<string, any>) {
   const { trackEvent } = Plausible();
