@@ -14,7 +14,7 @@ crons = [
 
 [env.dev]
 name = "system-cache-dev"
-[env.beta.dev]
+[env.dev.vars]
 DD_BASE_URL = "https://datadoghq.com"
 VERSION = "v2"
 
