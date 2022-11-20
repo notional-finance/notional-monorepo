@@ -1,7 +1,7 @@
 {
   "root": true,
   "ignorePatterns": ["**/*"],
-  "plugins": ["@nrwl/nx", "formatjs"],
+  "plugins": ["@nrwl/nx", "formatjs", "react-hooks", "react"],
   "rules": {
     "formatjs/no-offset": "error",
     "formatjs/no-id": "error"
@@ -41,12 +41,12 @@
       "rules": {}
     },
     {
-      "files": ["*.spec.ts", "*.spec.tsx", "*.spec.js", "*.spec.jsx"],
+      "files": ["*.spec.ts", "*.spec.tsx", "*.spec.js", "*.spec.jsx", "*.test.ts"],
       "env": {
         "jest": true
       },
       "rules": {
-
+        "@typescript-eslint/no-non-null-assertion": ["off"]
       }
     }
   ]

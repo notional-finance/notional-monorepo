@@ -1,4 +1,4 @@
-import { RiskSlider, EmptyPortfolio } from '../../components';
+import { EmptyPortfolio } from '../../components';
 import { useAccount } from '@notional-finance/notionable-hooks';
 import { DataTable } from '@notional-finance/mui';
 import { usePortfolioHoldingsTable } from './hooks';

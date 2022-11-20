@@ -539,8 +539,7 @@ export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitPar
   public async getRedeemParametersExact(
     _maturity: number,
     strategyTokens: TypedBigNumber,
-    slippageBuffer: number,
-    _blockTime?: number
+    slippageBuffer: number
   ) {
     const bptClaim = this.convertStrategyTokensToBPT(strategyTokens);
     const { totalSupply } = this.initParams;

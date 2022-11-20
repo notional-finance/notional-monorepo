@@ -195,6 +195,4 @@ describe('balancer vault test', () => {
     console.log('bpt balance', await balancerPool.balanceOf(wethWhale.address));
     console.log(amountRedeemed.toExactString());
   });
-
-  it('calculates the value of tokens out when exiting', () => {});
 });

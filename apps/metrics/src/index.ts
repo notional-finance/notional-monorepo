@@ -1,5 +1,8 @@
-export interface Env {}
+export interface Env {
+  TEST: string;
+}
 
+/*
 export default {
   async scheduled(event: ScheduledController, env: Env): Promise<void> {
     // Put any scheduled cron code here
@@ -8,3 +11,4 @@ export default {
     return new Response('Ok', { status: 200 });
   },
 };
+*/

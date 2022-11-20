@@ -11,7 +11,6 @@ import { useCryptoPriceState } from '@notional-finance/shared-web';
 export const usePriceRiskTable = () => {
   const riskThresholds = useRiskThresholds();
   const { cryptoPrices } = useCryptoPriceState();
-  const fiatKey = 'USD';
   const tableColumns: Record<string, any>[] = useMemo(() => {
     return [
       {

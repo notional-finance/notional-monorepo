@@ -1,4 +1,4 @@
-name = "metrics-dev"
+
 main = "./src/index.ts"
 compatibility_date = "2022-07-07"
 
@@ -7,6 +7,8 @@ node_compat = true
 minify = true
 usage_model = "bundled"
 
+[env.dev]
+name = "metrics-dev"
 [env.beta]
 name = "metrics-beta"
 [env.prod]

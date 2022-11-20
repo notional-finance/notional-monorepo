@@ -236,6 +236,7 @@ export default class InterestRateRisk {
     // If starting from the max rate, we decrease the rate else we increase. Starting epsilon is
     // a single percentage point
     let epsilon = fromMaxRate ? -100 * BASIS_POINT : 100 * BASIS_POINT;
+    // eslint-disable-next-line no-constant-condition
     while (true) {
       simulatedLocalCollateral = InterestRateRisk.simulateLocalCurrencyValue(
         currencyId,

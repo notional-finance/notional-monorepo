@@ -77,7 +77,7 @@ export const PortfolioFeatureShell = () => {
       [PORTFOLIO_ACTIONS.WITHDRAW_VAULT_POST_MATURITY]: WithdrawVault,
       [PORTFOLIO_ACTIONS.ADD_TO_CALENDAR]: AddToCalendar,
     } as Record<PORTFOLIO_ACTIONS, React.ElementType>);
-  }, []);
+  }, [addSideDrawers]);
 
   useEffect(() => {
     if (SideDrawerComponent) {

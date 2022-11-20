@@ -206,9 +206,10 @@ export default class VaultAccount {
     }
   }
 
-  // TODO: need to implement simulate vault state
   public addSecondaryDebtShares(
     secondaryfCashBorrowed: SecondaryBorrowArray,
+    // TODO: need to implement simulation
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _simulateVaultState: boolean
   ) {
     if (

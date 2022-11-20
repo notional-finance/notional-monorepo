@@ -129,8 +129,7 @@ export abstract class BaseBalancerStablePool<
 
   public getStrategyTokensFromValue(
     maturity: number,
-    valuation: TypedBigNumber,
-    _blockTime?: number
+    valuation: TypedBigNumber
   ) {
     // This is an approximation based on one BPT worth of value
     const oneBPTValue = this.getBPTValue(FixedPoint.ONE);
@@ -147,8 +146,7 @@ export abstract class BaseBalancerStablePool<
   public async getDepositParametersExact(
     _maturity: number,
     depositAmount: TypedBigNumber,
-    slippageBuffer: number,
-    _blockTime?: number
+    slippageBuffer: number
   ) {
     // Convert deposit amount to 18 decimals
     const tokenAmountIn = FixedPoint.from(
@@ -169,9 +167,7 @@ export abstract class BaseBalancerStablePool<
 
   public getStrategyTokensGivenDeposit(
     maturity: number,
-    depositAmount: TypedBigNumber,
-    _blockTime?: number,
-    _?: VaultAccount
+    depositAmount: TypedBigNumber
   ) {
     // Convert deposit amount to 18 decimals
     const tokenAmountIn = FixedPoint.from(
@@ -188,9 +184,7 @@ export abstract class BaseBalancerStablePool<
 
   public getRedeemGivenStrategyTokens(
     _maturity: number,
-    strategyTokens: TypedBigNumber,
-    _blockTime?: number,
-    _?: VaultAccount
+    strategyTokens: TypedBigNumber
   ) {
     // Convert strategy token amount to 18 decimals
     const BPTIn = FixedPoint.from(
@@ -205,9 +199,7 @@ export abstract class BaseBalancerStablePool<
 
   public getDepositGivenStrategyTokens(
     maturity: number,
-    strategyTokens: TypedBigNumber,
-    _blockTime?: number,
-    _vaultAccount?: VaultAccount
+    strategyTokens: TypedBigNumber
   ) {
     // In this case, all strategy tokens are "simulated" in that they are additional tokens
     // added to the pool
@@ -259,9 +251,7 @@ export abstract class BaseBalancerStablePool<
 
   public getStrategyTokensGivenRedeem(
     maturity: number,
-    redeemAmount: TypedBigNumber,
-    _blockTime?: number,
-    _vaultAccount?: VaultAccount
+    redeemAmount: TypedBigNumber
   ) {
     const RP = FixedPoint.from(RATE_PRECISION);
     const redeemAmountFP = FixedPoint.from(

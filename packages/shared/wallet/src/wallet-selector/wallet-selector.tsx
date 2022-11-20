@@ -21,10 +21,7 @@ import {
   PORTFOLIO_CATEGORIES,
   SIDEBAR_CATEGORIES,
 } from '@notional-finance/shared-config';
-import {
-  useSideDrawerState,
-  useSideDrawerManager,
-} from '@notional-finance/shared-web';
+import { useSideDrawerManager } from '@notional-finance/shared-web';
 import { ButtonText } from '@notional-finance/mui';
 
 export interface PortfolioParams {
