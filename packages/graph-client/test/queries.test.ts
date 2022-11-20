@@ -7,6 +7,7 @@ describe('it runs graphql queries', () => {
     const result = await mainnet.queryOrThrow(Currency);
     result.currencies.map((c) => {
       c.id;
+      c.tokenAddress;
     });
   });
 });

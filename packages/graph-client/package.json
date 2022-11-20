@@ -1,8 +1,5 @@
 {
   "name": "@notional-finance/graph-client",
   "version": "0.0.1",
-  "type": "commonjs",
-  "devDependencies": {
-    "@graphql-codegen/client-preset": "^1.1.4"
-  }
+  "type": "commonjs"
 }
