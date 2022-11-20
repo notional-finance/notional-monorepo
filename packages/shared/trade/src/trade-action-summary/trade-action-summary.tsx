@@ -1,5 +1,7 @@
 import { FormattedMessage } from 'react-intl';
 import { NOTIONAL_CATEGORIES } from '@notional-finance/shared-config';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import Chart from '../chart';
 import {
   TradeActionHeader,
