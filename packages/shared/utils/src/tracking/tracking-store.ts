@@ -1,5 +1,4 @@
 import { makeStore } from '@notional-finance/notionable';
-import { filter } from 'rxjs';
 
 export interface TrackingState {
   hasConsent: boolean;

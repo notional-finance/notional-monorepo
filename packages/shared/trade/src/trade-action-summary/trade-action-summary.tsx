@@ -1,6 +1,5 @@
 import { FormattedMessage } from 'react-intl';
 import { NOTIONAL_CATEGORIES } from '@notional-finance/shared-config';
-// @ts-ignore
 import Chart from '../chart';
 import {
   TradeActionHeader,

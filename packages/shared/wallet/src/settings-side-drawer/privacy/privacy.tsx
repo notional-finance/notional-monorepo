@@ -1,23 +1,14 @@
 import { useState } from 'react';
-import { Box, Typography, styled, Radio, useTheme } from '@mui/material';
-import { logError } from '@notional-finance/util';
-import { datadogRum } from '@datadog/browser-rum';
-import { H4, ToggleSwitch, LinkText } from '@notional-finance/mui';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import { CircleIcon, EyeIcon } from '@notional-finance/icons';
-import { NotionalTheme } from '@notional-finance/styles';
+import { Box, Typography, styled } from '@mui/material';
+import { H4, ToggleSwitch } from '@notional-finance/mui';
 import { Link } from 'react-router-dom';
 import {
-  setInLocalStorage,
   getFromLocalStorage,
+  setInLocalStorage,
 } from '@notional-finance/helpers';
-import { useOnboard, useAccount } from '@notional-finance/notionable-hooks';
-import { ViewAsAccount } from '../../view-as-account/view-as-account';
-import { useWalletSideDrawer } from '../../hooks';
 import { FormattedMessage } from 'react-intl';
 
 export const Privacy = () => {
-  const theme = useTheme();
   const { disableErrorReporting } = getFromLocalStorage('privacySettings');
   // NOTE* The Plausible API requires plausible_ignore to be at the local storage root level and to be snake case
   const plausibleIgnore = getFromLocalStorage('plausible_ignore');

@@ -1,10 +1,8 @@
-import { useEffect } from 'react';
 import { styled, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
-import CookieConsent, { getCookieConsentValue } from 'react-cookie-consent';
+import CookieConsent from 'react-cookie-consent';
 import { Link } from 'react-router-dom';
 import { setInLocalStorage } from '@notional-finance/helpers';
-import { updateTrackingState } from '@notional-finance/utils';
 
 const StyledLink = styled(Link)(
   ({ theme }) => `

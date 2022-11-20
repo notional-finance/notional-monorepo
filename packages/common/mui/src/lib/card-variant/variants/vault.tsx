@@ -2,14 +2,7 @@ import { Box, useTheme } from '@mui/material';
 import Market from '@notional-finance/sdk/src/system/Market';
 import { FormattedMessage } from 'react-intl';
 import SliderBasic from '../../slider-basic/slider-basic';
-import {
-  BodySecondary,
-  H3,
-  H4,
-  H5,
-  Label,
-  LabelValue,
-} from '../../typography/typography';
+import { BodySecondary, H3, H5, LabelValue } from '../../typography/typography';
 
 export interface VaultVariantProps {
   symbol: string;

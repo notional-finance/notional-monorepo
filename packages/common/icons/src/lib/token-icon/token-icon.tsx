@@ -1,4 +1,3 @@
-import { CSSProperties } from 'react';
 import unknown from '../../assets/icons/currencies/currency-unknown.svg';
 import wbtc from '../../assets/icons/currencies/currency-wbtc.svg';
 import eth from '../../assets/icons/currencies/currency-eth.svg';

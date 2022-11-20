@@ -65,7 +65,7 @@ export const useRiskOverviewTable = () => {
       liquidationPrice,
       currentPrice,
     }) => {
-      let caption: string[] = [];
+      const caption: string[] = [];
       if (hasNTokenCollateral && collateralSymbol)
         caption.push(`n${collateralSymbol.toUpperCase()}`);
       if (hasfCashCollateral && collateralSymbol)
@@ -96,7 +96,7 @@ export const useRiskOverviewTable = () => {
       lowerLiquidationInterestRate,
       upperLiquidationInterestRate,
     }) => {
-      let caption: string[] = [];
+      const caption: string[] = [];
       if (hasNTokenCollateral && symbol)
         caption.push(`n${symbol.toUpperCase()}`);
       if (hasfCashCollateral && symbol)
@@ -148,7 +148,6 @@ export const useRiskOverviewTable = () => {
       collateralCurrencySymbol,
       debtCurrencySymbol,
       ethExchangeRate,
-      primaryBorrowCurrency,
     }) => {
       return {
         collateral: {

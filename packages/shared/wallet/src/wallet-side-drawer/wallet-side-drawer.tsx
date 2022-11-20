@@ -44,7 +44,7 @@ export function WalletSideDrawer() {
       [SIDEBAR_CATEGORIES.NOTIFICATIONS]: NotificationsSideDrawer,
       [SIDEBAR_CATEGORIES.CONNECT_WALLET]: ConnectWalletSideDrawer,
     });
-  }, []);
+  }, [addSideDrawers]);
 
   const showSettingsHeader =
     currentSideDrawerId === SIDEBAR_CATEGORIES.SETTINGS ||
