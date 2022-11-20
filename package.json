@@ -80,6 +80,7 @@
     "@commitlint/cli": "^17.0.0",
     "@commitlint/config-conventional": "^17.0.0",
     "@emotion/babel-plugin": "11.10.2",
+    "@graphql-codegen/cli": "^2.13.12",
     "@hirez_io/observer-spy": "^2.2.0",
     "@jscutlery/semver": "^2.27.2",
     "@nomiclabs/hardhat-ethers": "^2.1.1",

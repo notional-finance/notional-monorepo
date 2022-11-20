@@ -4,6 +4,17 @@
   "sourceRoot": "packages/graph-client/src",
   "projectType": "library",
   "targets": {
+    "generate-graphql": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          {
+            "command": "yarn run graphql-code-generator"
+          }
+        ],
+        "cwd": "packages/graph-client"
+      }
+    },
     "build": {
       "executor": "@nrwl/js:tsc",
       "outputs": ["{options.outputPath}"],
