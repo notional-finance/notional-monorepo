@@ -17,7 +17,7 @@ bindings = [
 ]
 
 r2_buckets = [
-  { binding = "VAULT_RETURNS", bucket_name = "vault-returns-dev", preview_bucket_name = "vault-returns-dev" }
+  { binding = "VAULT_RETURNS", bucket_name = "vault-returns", preview_bucket_name = "vault-returns-dev" }
 ]
 
 [[migrations]]
@@ -44,7 +44,7 @@ bindings = [
 
 [[env.beta.r2_buckets]]
 binding = "VAULT_RETURNS"
-bucket_name = "vault-returns-beta"
+bucket_name = "vault-returns"
 
 [[env.beta.migrations]]
 tag = "v1" # Should be unique for each entry
