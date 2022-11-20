@@ -1,4 +1,4 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-yarn nx --affected --target=lint --base=origin/master --head=HEAD
+yarn nx --affected --target=lint --base=origin/main --head=HEAD
