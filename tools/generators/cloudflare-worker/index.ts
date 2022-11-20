@@ -15,14 +15,14 @@ export default async function (host: Tree, schema: NewCloudflareWorker) {
   generateFiles(
     host,
     joinPathFragments(__dirname, './files'),
-    `./services/${schema.name}`,
+    `./apps/${schema.name}`,
     {
       name: schema.name,
     }
   );
   updateJson(host, 'workspace.json', (pkgJson) => {
     pkgJson.projects = pkgJson.projects ?? {};
-    pkgJson.projects[schema.name] = `services/${schema.name}`;
+    pkgJson.projects[schema.name] = `apps/${schema.name}`;
     return pkgJson;
   });
   await formatFiles(host);

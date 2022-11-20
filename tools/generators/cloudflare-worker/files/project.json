@@ -1,20 +1,9 @@
 {
   "name": "<%= name %>",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "services/<%= name %>/src",
+  "sourceRoot": "apps/<%= name %>/src",
   "projectType": "application",
   "targets": {
-    "build": {
-      "executor": "nx:run-commands",
-      "options": {
-        "commands": [
-          {
-            "command": "wrangler publish --dry-run --outdir dist"
-          }
-        ],
-        "cwd": "services/<%= name %>"
-      }
-    },
     "serve": {
       "executor": "nx:run-commands",
       "options": {
@@ -23,10 +12,10 @@
             "command": "wrangler dev --local"
           }
         ],
-        "cwd": "services/<%= name %>"
+        "cwd": "apps/<%= name %>"
       }
     },
-    "publish": {
+    "publish-wrangler": {
       "executor": "nx:run-commands",
       "options": {
         "commands": [
@@ -34,21 +23,21 @@
             "command": "wrangler publish"
           }
         ],
-        "cwd": "services/<%= name %>"
+        "cwd": "apps/<%= name %>"
       }
     },
     "lint": {
       "executor": "@nrwl/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["services/<%= name %>/**/*.ts"]
+        "lintFilePatterns": ["apps/<%= name %>/**/*.ts"]
       }
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/services/<%= name %>"],
+      "outputs": ["{workspaceRoot}/coverage/apps/<%= name %>"],
       "options": {
-        "jestConfig": "services/<%= name %>/jest.config.ts",
+        "jestConfig": "apps/<%= name %>/jest.config.ts",
         "passWithNoTests": true
       },
       "dependsOn": ["build"]

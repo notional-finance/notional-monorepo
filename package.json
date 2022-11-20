@@ -76,7 +76,7 @@
     "@babel/preset-typescript": "7.17.12",
     "@babel/register": "^7.17.7",
     "@babel/runtime": "^7.18.3",
-    "@cloudflare/workers-types": "^3.16.0",
+    "@cloudflare/workers-types": "^4.20221111.1",
     "@commitlint/cli": "^17.0.0",
     "@commitlint/config-conventional": "^17.0.0",
     "@emotion/babel-plugin": "11.10.2",

@@ -1,15 +1,23 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "lib": ["esnext"],
+    "target": "es2021",
+    "lib": ["es2021"],
+    "module": "es2022",
+    "jsx": "react",
     "types": ["node", "@cloudflare/workers-types"],
     "forceConsistentCasingInFileNames": true,
     "strict": true,
+    "resolveJsonModule": true,
     "noImplicitOverride": true,
     "noImplicitAny": false,
     "noPropertyAccessFromIndexSignature": false,
     "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "noEmit": true,
+    "isolatedModules": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true
   },
   "files": [],
   "include": [],

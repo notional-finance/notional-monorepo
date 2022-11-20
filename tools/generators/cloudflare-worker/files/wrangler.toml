@@ -1,8 +1,16 @@
-name = "<%= name %>"
 main = "./src/index.ts"
-compatibility_date = "2022-07-07"
+compatibility_date = "2022-11-11"
 
 workers_dev = true
 node_compat = true
 minify = true
 usage_model = "bundled"
+
+[env.dev]
+name = "<%= name %>-dev"
+
+[env.beta]
+name = "<%= name %>-beta"
+
+[env.prod]
+name = "<%= name %>"
