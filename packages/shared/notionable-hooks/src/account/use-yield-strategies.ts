@@ -11,7 +11,12 @@ import {
   VAULT_ACTIONS,
 } from '@notional-finance/shared-config';
 import { useObservableState } from 'observable-hooks';
-import { vaultState$, initialVaultState } from '@notional-finance/notionable';
+import {
+  vaultState$,
+  initialVaultState,
+  vaultPerformance$,
+  calculateHeadlineVaultReturns,
+} from '@notional-finance/notionable';
 import { useNotional } from '../notional/use-notional';
 import { useAccount } from './use-account';
 
@@ -21,7 +26,9 @@ interface YieldStrategies {
   assetValue: TypedBigNumber;
   netWorth: TypedBigNumber;
   isLeveragedVault: boolean;
+  profit?: TypedBigNumber;
   maturity?: number;
+  apy?: number;
   debtValue?: TypedBigNumber;
   leverageRatio?: number;
   maxLeverageRatio?: number;
@@ -41,6 +48,7 @@ export function useYieldStrategies(
 ): YieldStrategies[] {
   const { system } = useNotional();
   const { accountDataCopy: accountData, noteSummary } = useAccount();
+  const vaultPerformance = useObservableState(vaultPerformance$);
   const { activeVaultMarkets } = useObservableState(
     vaultState$,
     initialVaultState
@@ -85,6 +93,17 @@ export function useYieldStrategies(
         logError(e as Error, 'notionable/account', 'use-yield-strategies');
       }
 
+      const { avgBorrowRate, netCashDeposited } =
+        accountData.getVaultHistoricalFactors(vaultAccount.vaultAddress);
+      const vaultReturns = vaultPerformance?.get(
+        vaultAccount.vaultAddress
+      )?.sevenDayTotalAverage;
+      const apy = calculateHeadlineVaultReturns(
+        vaultReturns,
+        avgBorrowRate,
+        leverageRatio
+      );
+
       const canIncreasePosition =
         activeMarketKeys.find(
           (k) => Market.parseMaturity(k) === vaultAccount.maturity
@@ -95,14 +114,20 @@ export function useYieldStrategies(
           (k) => Market.parseMaturity(k) > vaultAccount.maturity
         ) !== undefined;
 
+      // NOTE: debt value is negative
+      const netWorth = debtValue ? assetValue.add(debtValue) : assetValue;
+      const profit = netWorth.sub(netCashDeposited);
+
       return {
         strategyName: vaultConfig.name,
         currencySymbol,
         maturity: vaultAccount.maturity,
         assetValue,
         debtValue,
-        // NOTE: debt value is negative
-        netWorth: debtValue ? assetValue.add(debtValue) : assetValue,
+        netWorth,
+        profit,
+        apy,
+        netCashDeposited,
         leverageRatio,
         maxLeverageRatio,
         leveragePercentage,

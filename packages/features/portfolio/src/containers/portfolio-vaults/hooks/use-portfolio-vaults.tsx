@@ -1,26 +1,22 @@
-import { useTheme } from '@mui/material';
 import {
   ExpandableCurrencyCell,
   ChevronCell,
   ExpandedRows,
   MultiValueCell,
-  SliderCell,
   DataTableColumn,
+  NegativeValueCell,
 } from '@notional-finance/mui';
 import { useYieldStrategies } from '@notional-finance/notionable-hooks';
-import {
-  formatCryptoWithFiat,
-  formatLeverageRatio,
-} from '@notional-finance/helpers';
+import { formatCryptoWithFiat } from '@notional-finance/helpers';
 import moment from 'moment';
 import { FormattedMessage } from 'react-intl';
 import { useEffect, useMemo, useState } from 'react';
+import { formatRateAsPercent } from '@notional-finance/risk/helpers/risk-data-helpers';
 
 export const usePortfolioVaults = () => {
   const [expandedRows, setExpandedRows] = useState<ExpandedRows | null>(null);
   const initialState = expandedRows !== null ? { expanded: expandedRows } : {};
   const vaults = useYieldStrategies(true);
-  const theme = useTheme();
 
   const vaultSummaryColumns: DataTableColumn[] = useMemo(() => {
     return [
@@ -35,7 +31,7 @@ export const usePortfolioVaults = () => {
         Header: (
           <FormattedMessage
             defaultMessage="Vault"
-            description={'Vault header'}
+            description="column header"
           />
         ),
         expandableTable: true,
@@ -47,7 +43,7 @@ export const usePortfolioVaults = () => {
         Header: (
           <FormattedMessage
             defaultMessage="Maturity"
-            description={'Maturity header'}
+            description="column header"
           />
         ),
         expandableTable: true,
@@ -59,7 +55,7 @@ export const usePortfolioVaults = () => {
         Header: (
           <FormattedMessage
             defaultMessage="Net Worth"
-            description={'Net Worth header'}
+            description="column header"
           />
         ),
         expandableTable: true,
@@ -69,30 +65,29 @@ export const usePortfolioVaults = () => {
       },
       {
         Header: (
+          <FormattedMessage defaultMessage="APY" description="column header" />
+        ),
+        expandableTable: true,
+        Cell: NegativeValueCell,
+        accessor: 'apy',
+        textAlign: 'right',
+      },
+      {
+        Header: (
           <FormattedMessage
-            defaultMessage="Leverage"
-            description={'Leverage header'}
+            defaultMessage="Profit"
+            description="column header"
           />
         ),
         expandableTable: true,
-        Cell: SliderCell,
-        accessor: 'leveragePercentage',
+        Cell: MultiValueCell,
+        accessor: 'profit',
         textAlign: 'right',
       },
     ];
   }, []);
 
   const vaultSummaryData = vaults.map((v) => {
-    let trackColor: string | undefined;
-    if (v.leveragePercentage) {
-      trackColor =
-        v.leveragePercentage > 90
-          ? theme.palette.error.main
-          : v.leveragePercentage > 70
-          ? theme.palette.warning.main
-          : undefined;
-    }
-
     return {
       vault: {
         symbol: v.currencySymbol,
@@ -105,12 +100,11 @@ export const usePortfolioVaults = () => {
         ],
       },
       netWorth: formatCryptoWithFiat(v.netWorth),
-      leveragePercentage: {
-        value: v.leveragePercentage,
-        captionLeft: formatLeverageRatio(v.leverageRatio || 0, 1),
-        captionRight: `Max: ${formatLeverageRatio(v.maxLeverageRatio || 0, 1)}`,
-        trackColor,
+      apy: {
+        displayValue: formatRateAsPercent(v.apy, 3),
+        isNegative: v.apy && v.apy < 0,
       },
+      profit: formatCryptoWithFiat(v.profit),
       actionRow: {
         maturity: v.maturity ? moment.unix(v.maturity).format() : undefined,
         routes: v.routes,

@@ -86,6 +86,8 @@ export interface LeveragedVaultHistoryResponse {
   secondaryDebtSharesAfter: string[] | null;
   netSecondaryDebtSharesChange: string[] | null;
   netUnderlyingCash: string | null;
+  netBorrowedUnderlying: string | null;
+  netDepositUnderlying: string | null;
 }
 
 export interface TransactionHistoryResponse {
@@ -191,6 +193,8 @@ export const TransactionHistoryQuery = gql`
       secondaryDebtSharesAfter
       netSecondaryDebtSharesChange
       netUnderlyingCash
+      netBorrowedUnderlying
+      netDepositUnderlying
     }
   }
 `;

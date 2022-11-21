@@ -8,10 +8,18 @@ import { useRiskOverviewTable } from './hooks/use-risk-overview-table';
 
 export const PortfolioOverview = () => {
   const { accountConnected } = useAccount();
-  const { riskOverviewData, riskOverviewColumns } = useRiskOverviewTable();
+  const {
+    priceRiskData,
+    interestRateRiskData,
+    vaultRiskData,
+    riskOverviewColumns,
+  } = useRiskOverviewTable();
   const { portfolioHoldingsColumns, portfolioHoldingsData, tableLoading } =
     usePortfolioHoldingsTable();
   const { yieldHoldingsColumns, yieldHoldingsData } = useYieldHoldingsTable();
+  const riskOverviewData = priceRiskData
+    .concat(interestRateRiskData)
+    .concat(vaultRiskData);
 
   return accountConnected ? (
     <>

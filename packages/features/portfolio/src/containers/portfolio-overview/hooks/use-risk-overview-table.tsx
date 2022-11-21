@@ -1,13 +1,16 @@
+import { useTheme } from '@mui/material';
+import { formatLeverageRatio } from '@notional-finance/helpers';
 import {
   DataTableColumn,
   MultiValueCell,
   MultiValueIconCell,
 } from '@notional-finance/mui';
 import { useRiskThresholds } from '@notional-finance/notionable-hooks';
-import { formatRateForRisk } from '@notional-finance/risk/helpers/risk-data-helpers';
+import { formatRateAsPercent } from '@notional-finance/risk/helpers/risk-data-helpers';
 import { FormattedMessage } from 'react-intl';
 
 export const useRiskOverviewTable = () => {
+  const theme = useTheme();
   const { interestRateRiskArray, liquidationPrices, vaultRiskThresholds } =
     useRiskThresholds();
 
@@ -104,17 +107,17 @@ export const useRiskOverviewTable = () => {
 
       let liquidationPrice: string;
       if (upperLiquidationInterestRate && lowerLiquidationInterestRate) {
-        liquidationPrice = `Below ${formatRateForRisk(
+        liquidationPrice = `Below ${formatRateAsPercent(
           lowerLiquidationInterestRate,
           3
-        )}, Above ${formatRateForRisk(upperLiquidationInterestRate, 3)}`;
+        )}, Above ${formatRateAsPercent(upperLiquidationInterestRate, 3)}`;
       } else if (upperLiquidationInterestRate) {
-        liquidationPrice = `Above ${formatRateForRisk(
+        liquidationPrice = `Above ${formatRateAsPercent(
           upperLiquidationInterestRate,
           3
         )}`;
       } else if (lowerLiquidationInterestRate) {
-        liquidationPrice = `Below ${formatRateForRisk(
+        liquidationPrice = `Below ${formatRateAsPercent(
           lowerLiquidationInterestRate,
           3
         )}`;
@@ -133,7 +136,7 @@ export const useRiskOverviewTable = () => {
           isNegative: false,
         },
         currentPrice: currentWeightedAvgInterestRate
-          ? formatRateForRisk(currentWeightedAvgInterestRate, 3)
+          ? formatRateAsPercent(currentWeightedAvgInterestRate, 3)
           : '-',
         liquidationPrice,
       };
@@ -148,7 +151,20 @@ export const useRiskOverviewTable = () => {
       collateralCurrencySymbol,
       debtCurrencySymbol,
       ethExchangeRate,
+      leveragePercentage,
+      maxLeverageRatio,
+      leverageRatio
     }) => {
+      let trackColor: string | undefined;
+      if (leveragePercentage) {
+        trackColor =
+          leveragePercentage > 90
+            ? theme.palette.error.main
+            : leveragePercentage > 70
+            ? theme.palette.warning.main
+            : undefined;
+      }
+
       return {
         collateral: {
           symbol: primaryBorrowSymbol,
@@ -166,15 +182,20 @@ export const useRiskOverviewTable = () => {
         // we don't have a way to represent this using typed big numbers
         currentPrice: `${currentPrice?.toDisplayString(2)} stETH`,
         liquidationPrice: `${ethExchangeRate?.toDisplayString(2)} stETH`,
+        leveragePercentage: {
+          value: leveragePercentage,
+          captionLeft: formatLeverageRatio(leverageRatio || 0, 1),
+          captionRight: `Max: ${formatLeverageRatio(maxLeverageRatio || 0, 1)}`,
+          trackColor,
+        },
       };
     }
   );
 
-  const riskOverviewData = priceRiskData
-    .concat(interestRateRiskData)
-    .concat(vaultRiskData);
   return {
-    riskOverviewData,
+    priceRiskData,
+    interestRateRiskData,
+    vaultRiskData,
     riskOverviewColumns,
   };
 };

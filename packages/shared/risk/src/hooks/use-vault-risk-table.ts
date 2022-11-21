@@ -15,7 +15,7 @@ import { VaultAccount } from '@notional-finance/sdk/src/vaults';
 import {
   didIncrease,
   formatLeverageForRisk,
-  formatRateForRisk,
+  formatRateAsPercent,
   RiskDataTableRow,
 } from '../helpers/risk-data-helpers';
 
@@ -160,12 +160,12 @@ export function useVaultRiskTable(
         current:
           type === LiquidationThresholdType.exchangeRate
             ? current?.ethExchangeRate?.toDisplayStringWithSymbol() || '-'
-            : formatRateForRisk(current?.rate),
+            : formatRateAsPercent(current?.rate),
         updated: {
           value:
             type === LiquidationThresholdType.exchangeRate
               ? updated?.ethExchangeRate?.toDisplayStringWithSymbol() || '-'
-              : formatRateForRisk(updated?.rate),
+              : formatRateAsPercent(updated?.rate),
           arrowUp: current === undefined ? null : increase,
           checkmark: updated === undefined,
           greenOnArrowUp: false,

@@ -159,6 +159,11 @@ const PortfolioContainer = styled(Box)(
     max-width: 1312px;
   };
 
+  ${theme.breakpoints.up('xl')} {
+    margin: 80px 64px;
+    max-width: unset;
+  };
+
 `
 );
 
