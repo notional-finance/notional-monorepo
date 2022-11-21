@@ -3,7 +3,7 @@ import {
   PORTFOLIO_ACTIONS,
   SIDE_DRAWERS,
 } from '@notional-finance/shared-config';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useSideDrawerState } from './store/use-side-drawer-state';
 
 export const GetNotified = () => {
@@ -26,9 +26,14 @@ export const useSideDrawerManager = (key?: SIDE_DRAWERS) => {
     key && sideDrawers[key] ? sideDrawers[key] : undefined;
   const drawerOpen = sideDrawerOpen && SideDrawerComponent ? true : false;
 
-  const addSideDrawers = (drawers) => {
-    setSideDrawers({ ...sideDrawers, ...drawers });
-  };
+  const addSideDrawers = useCallback(
+    (drawers) => {
+      setSideDrawers({ ...sideDrawers, ...drawers });
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [setSideDrawers]
+  );
+
   return {
     currentSideDrawerId: key,
     SideDrawerComponent,
