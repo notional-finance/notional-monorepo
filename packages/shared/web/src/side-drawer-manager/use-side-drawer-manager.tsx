@@ -30,6 +30,7 @@ export const useSideDrawerManager = (key?: SIDE_DRAWERS) => {
     (drawers) => {
       setSideDrawers({ ...sideDrawers, ...drawers });
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [setSideDrawers]
   );
 
