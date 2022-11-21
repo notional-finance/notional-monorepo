@@ -1,6 +1,10 @@
 # graph-client
 
-This library was generated with [Nx](https://nx.dev).
+Generates typed graphql queries using schemas. Schemas can be downloaded directly via URL or using the following command:
+
+`rover graph introspect https://api.thegraph.com/subgraphs/name/notional-finance/mainnet-v2`
+
+See: https://www.apollographql.com/docs/rover/
 
 ## Building
 
