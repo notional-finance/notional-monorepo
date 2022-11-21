@@ -1,4 +1,3 @@
-import { useTheme } from '@mui/material';
 import {
   ExpandableCurrencyCell,
   ChevronCell,
