@@ -7,7 +7,7 @@ import {
   MicrosoftCalIcon,
 } from '@notional-finance/icons';
 import { PortfolioParams } from '../../portfolio-feature-shell';
-import { useIntl } from 'react-intl';
+import { useIntl, FormattedMessage } from 'react-intl';
 import { useParams } from 'react-router-dom';
 
 export function useAddToCalendar(date: string) {
@@ -35,22 +35,22 @@ export function useAddToCalendar(date: string) {
 
   const calData = [
     {
-      label: 'Google',
+      label: <FormattedMessage defaultMessage={'Google'} />,
       Icon: GoogleCalIcon,
       href: google(calEvent),
     },
     {
-      label: 'Microsoft',
+      label: <FormattedMessage defaultMessage={'Microsoft'} />,
       Icon: MicrosoftCalIcon,
       href: office365(calEvent),
     },
     {
-      label: 'Outlook',
+      label: <FormattedMessage defaultMessage={'Outlook'} />,
       Icon: OutlookCalIcon,
       href: outlook(calEvent),
     },
     {
-      label: 'iCal',
+      label: <FormattedMessage defaultMessage={'iCal'} />,
       Icon: IcalIcon,
       href: ics(calEvent),
     },

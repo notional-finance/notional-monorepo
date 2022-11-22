@@ -7,24 +7,26 @@ import { THEME_VARIANTS } from '@notional-finance/shared-config';
 import { makeStore } from '@notional-finance/notionable';
 import { Observable } from 'rxjs';
 
-const savedTheme = getFromLocalStorage('themeVariant');
+const userSettings = getFromLocalStorage('userSettings');
 
 const initTheme = () => {
-  if (JSON.stringify(savedTheme) === '{}') {
-    setInLocalStorage('themeVariant', THEME_VARIANTS.LIGHT);
+  if (!userSettings?.themeVariant) {
+    setInLocalStorage('userSettings', { ...userSettings, themeVariant: THEME_VARIANTS.LIGHT });
   }
 };
 initTheme();
 
 const defaultTheme =
-  JSON.stringify(savedTheme) === '{}' ? THEME_VARIANTS.LIGHT : savedTheme;
+!userSettings?.themeVariant ? THEME_VARIANTS.LIGHT : userSettings.themeVariant;
 
 export interface UserSettingsState {
   themeVariant: PaletteMode;
+  language: null | string;
 }
 
 export const initialUserSettingsState = {
   themeVariant: defaultTheme,
+  language: null,
 };
 
 const {
@@ -36,5 +38,9 @@ const {
 export const themeVariant$ = selectUserSettingsState(
   'themeVariant'
 ) as Observable<PaletteMode>;
+
+export const language$ = selectUserSettingsState(
+  'language'
+) as Observable<null | string>;
 
 export { updateUserSettingsState, selectUserSettingsState, userSettingsState$ };

@@ -93,6 +93,12 @@ export enum THEME_VARIANTS {
   DARK = 'dark',
 }
 
+export enum LOCALES {
+  EN_US = 'en-US',
+  JA = 'ja',
+  ZH = 'ZH',
+}
+
 export type TRANSACTION_ACTIONS =
   | LEND_BORROW
   | PORTFOLIO_ACTIONS

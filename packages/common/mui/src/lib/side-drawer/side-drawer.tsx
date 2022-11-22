@@ -41,7 +41,7 @@ export function SideDrawer({
         },
         '&.MuiPaper-root, .MuiPaper-elevation': {
           overflowX: 'hidden',
-          width: { xs: '100%', sm: '100%', md: '543px' },
+          maxWidth: { xs: '100%', sm: '100%', md: '543px' },
         },
       }}
     >

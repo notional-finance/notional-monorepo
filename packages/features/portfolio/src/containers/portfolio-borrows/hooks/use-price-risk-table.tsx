@@ -7,26 +7,28 @@ import {
 } from '@notional-finance/mui';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
 import { useCryptoPriceState } from '@notional-finance/shared-web';
+import { FormattedMessage } from 'react-intl';
 
 export const usePriceRiskTable = () => {
   const riskThresholds = useRiskThresholds();
   const { cryptoPrices } = useCryptoPriceState();
+
   const tableColumns: Record<string, any>[] = useMemo(() => {
     return [
       {
-        Header: 'Debt',
+        Header: <FormattedMessage defaultMessage="Debt" />,
         Cell: IconCell,
         accessor: 'debt',
         textAlign: 'left',
       },
       {
-        Header: 'Collateral',
+        Header: <FormattedMessage defaultMessage="Collateral" />,
         Cell: IconCell,
         accessor: 'collateral',
         textAlign: 'left',
       },
       {
-        Header: 'Current Price',
+        Header: <FormattedMessage defaultMessage="Current Price" />,
         accessor: 'currentPrice',
         textAlign: 'right',
       },
@@ -43,13 +45,13 @@ export const usePriceRiskTable = () => {
         textAlign: 'right',
       },
       {
-        Header: 'Liquidation Price',
+        Header: <FormattedMessage defaultMessage="Liquidation Price" />,
         Cell: MultiValueCell,
         accessor: 'liquidationPrice',
         textAlign: 'right',
       },
       {
-        Header: 'Penalty',
+        Header: <FormattedMessage defaultMessage="Penalty" />,
         Cell: MultiValueCell,
         accessor: 'penalty',
         textAlign: 'right',

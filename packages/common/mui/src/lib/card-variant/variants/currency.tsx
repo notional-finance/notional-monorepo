@@ -1,6 +1,7 @@
 import { useTheme } from '@mui/material';
 import { H3, H4 } from '../../typography/typography';
 import { Market } from '@notional-finance/sdk/src/system';
+import { FormattedMessage } from 'react-intl';
 
 export interface CurrencyVariantProps {
   symbol: string;
@@ -9,7 +10,7 @@ export interface CurrencyVariantProps {
 
 export function CurrencyVariant({ symbol, rate }: CurrencyVariantProps) {
   const theme = useTheme();
-  const formattedRate = `${Market.formatInterestRate(rate, 2)} Fixed APY`;
+  const formattedRate = Market.formatInterestRate(rate, 2);
   return (
     <>
       <H4
@@ -22,7 +23,12 @@ export function CurrencyVariant({ symbol, rate }: CurrencyVariantProps) {
         {symbol}
       </H4>
       <H3 textAlign="left" marginBottom={theme.spacing(4)} fontWeight="bold">
-        {formattedRate}
+        <FormattedMessage
+          defaultMessage="{formattedRate} Fixed APY"
+          values={{
+            formattedRate: formattedRate,
+          }}
+        />
       </H3>
     </>
   );

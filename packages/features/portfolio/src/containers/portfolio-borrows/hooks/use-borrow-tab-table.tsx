@@ -6,6 +6,7 @@ import { useBorrowCapacityTable } from './use-borrow-capacity-table';
 import { usePriceRiskTable } from './use-price-risk-table';
 import { useInterestRateRiskTable } from '@notional-finance/risk';
 import { ButtonBar } from '@notional-finance/mui';
+import { FormattedMessage } from 'react-intl';
 
 export const useBorrowTabTable = () => {
   const [currentTab, setCurrentTab] = useState(0);
@@ -14,14 +15,19 @@ export const useBorrowTabTable = () => {
   const interestRateRisk = useInterestRateRiskTable();
   const { buttonData } = usePortfolioButtonBar();
 
-  const tableTabs = [{ title: 'Risk Overview' }, { title: 'Borrow Capacity' }];
+  const tableTabs = [
+    { title: <FormattedMessage defaultMessage="Risk Overview" /> },
+    { title: <FormattedMessage defaultMessage="Borrow Capacity" /> },
+  ];
 
   if (priceRiskTable.tableData.length > 0) {
-    tableTabs.push({ title: 'Price Risk' });
+    tableTabs.push({ title: <FormattedMessage defaultMessage="Price Risk" /> });
   }
 
   if (interestRateRisk.tableData.length > 0) {
-    tableTabs.push({ title: 'Interest Rate Risk' });
+    tableTabs.push({
+      title: <FormattedMessage defaultMessage="Interest Rate Risk" />,
+    });
   }
 
   const TabComponent = () => {

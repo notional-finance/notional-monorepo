@@ -5,9 +5,10 @@ import {
   convertRateToFloat,
   formatNumberAsPercent,
 } from '@notional-finance/helpers';
+import { ReactNode } from 'react';
 
 export interface RiskDataTableRow {
-  riskType: { type: string; icons?: string[] };
+  riskType: { type: ReactNode; icons?: string[] };
   current: string;
   updated: ArrowIndicatorCellData;
 }

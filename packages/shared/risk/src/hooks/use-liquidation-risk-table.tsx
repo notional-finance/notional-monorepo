@@ -4,6 +4,7 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { AccountData } from '@notional-finance/sdk';
 import { zipByKeyToArray } from '@notional-finance/helpers';
+import { FormattedMessage } from 'react-intl';
 import {
   didIncrease,
   formatCurrencyForRisk,
@@ -20,7 +21,9 @@ export const useLiquidationRiskTable = (updatedAccountData?: AccountData) => {
 
   const tableData: RiskDataTableRow[] = [
     {
-      riskType: { type: 'Collateralization Ratio' },
+      riskType: {
+        type: <FormattedMessage defaultMessage="Collateralization Ratio" />,
+      },
       current: formatPercentForRisk(currentRiskRatios?.collateralRatio),
       updated: {
         value: formatPercentForRisk(updatedRiskRatios?.collateralRatio),
@@ -34,7 +37,9 @@ export const useLiquidationRiskTable = (updatedAccountData?: AccountData) => {
       },
     },
     {
-      riskType: { type: 'Loan to Value Ratio' },
+      riskType: {
+        type: <FormattedMessage defaultMessage="Loan to Value Ratio" />,
+      },
       current: formatPercentForRisk(currentRiskRatios?.loanToValue),
       updated: {
         value: formatPercentForRisk(updatedRiskRatios?.loanToValue),
@@ -62,7 +67,7 @@ export const useLiquidationRiskTable = (updatedAccountData?: AccountData) => {
 
     return {
       riskType: {
-        type: 'Liquidation Price',
+        type: <FormattedMessage defaultMessage="Liquidation Price" />,
         icons: [collateralSymbol, debtSymbol],
       },
       current: formatCurrencyForRisk(current?.liquidationPrice),
@@ -97,7 +102,9 @@ export const useLiquidationRiskTable = (updatedAccountData?: AccountData) => {
       ) {
         risks.push({
           riskType: {
-            type: 'Upper Interest Rate Risk',
+            type: (
+              <FormattedMessage defaultMessage="Upper Interest Rate Risk" />
+            ),
             icons: [symbol],
           },
           current: formatRateAsPercent(current?.upperLiquidationInterestRate),
@@ -122,7 +129,9 @@ export const useLiquidationRiskTable = (updatedAccountData?: AccountData) => {
       ) {
         risks.push({
           riskType: {
-            type: 'Lower Interest Rate Risk',
+            type: (
+              <FormattedMessage defaultMessage="Lower Interest Rate Risk" />
+            ),
             icons: [symbol],
           },
           current: formatRateAsPercent(current?.lowerLiquidationInterestRate),

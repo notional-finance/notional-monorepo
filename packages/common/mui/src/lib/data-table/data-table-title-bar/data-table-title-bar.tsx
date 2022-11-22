@@ -38,7 +38,7 @@ export const DataTableTitleBar = ({
       ) : (
         <ModuleTitle
           sx={{
-            padding: theme.spacing(2, 3),
+            padding: theme.spacing(2),
             paddingBottom: theme.spacing(1),
             paddingTop: theme.spacing(3),
           }}

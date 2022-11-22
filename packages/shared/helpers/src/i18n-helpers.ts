@@ -1,11 +1,11 @@
 export async function getLanguageTranslation(locale: string) {
-  const localeCode = locale.toLowerCase()
+  const localeCode = locale?.toLowerCase()
   let importedTranslation;
   
-  switch (locale) {
+  switch (localeCode) {
     case 'en_us' /* American English */:
       importedTranslation = await import(
-        /* webpackMode: "eager" */ './lang/english.json'
+        /* webpackMode: "eager" */ './lang/en.json'
       );
       break;
     case 'zh' /* Chinese */:
@@ -20,7 +20,7 @@ export async function getLanguageTranslation(locale: string) {
       break;
     default:
       importedTranslation = await import(
-        /* webpackMode: "eager" */ './lang/english.json'
+        /* webpackMode: "eager" */ './lang/en.json'
       );
       break;
   }

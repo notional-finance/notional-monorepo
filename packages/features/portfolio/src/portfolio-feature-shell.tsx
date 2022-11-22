@@ -143,8 +143,8 @@ export const PortfolioFeatureShell = () => {
 const PortfolioContainer = styled(Box)(
   ({ theme }) => `
   display: flex;
-  gap: 64px;
-  margin: 64px;
+  gap: 24px;
+  margin: 24px;
   margin-top: 80px;
   @media (max-width: 768px) {
     flex-flow: column;
@@ -156,14 +156,14 @@ const PortfolioContainer = styled(Box)(
 
   ${theme.breakpoints.up('lg')} {
     margin: 80px auto;
-    max-width: 1312px;
+    max-width: 95vw;
   };
 
   ${theme.breakpoints.up('xl')} {
-    margin: 80px 64px;
-    max-width: unset;
+    margin: 80px auto;
+    gap: 64px;
+    max-width: 1400px;
   };
-
 `
 );
 

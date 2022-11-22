@@ -63,7 +63,7 @@ const StyledTableRow = styled(TableRow, {
     .MuiTableRow-root, td {
       .border-cell {
         height: 100%;
-        padding: ${!expandableTableActive ? '16px 24px' : '0px'};
+        padding: ${!expandableTableActive ? '16px' : '0px'};
         border-top: 1px solid ${
           rowSelected ? palette.primary.light : 'transparent'
         };
@@ -140,7 +140,7 @@ export const DataTableBody = ({
                       padding:
                         tableVariant === TABLE_VARIANTS.MINI
                           ? theme.spacing(1)
-                          : cell['column'].padding || '16px 24px',
+                          : cell['column'].padding || '16px',
                       textAlign: cell['column'].textAlign || 'center',
                       borderBottom: 'none',
                       whiteSpace: 'nowrap',

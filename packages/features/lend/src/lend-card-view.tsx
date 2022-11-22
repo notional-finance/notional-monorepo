@@ -176,7 +176,6 @@ export function LendCardView() {
     (s, i) => {
       const rate = rates.length > i ? rates[i] : 0;
       const route = `/${LEND_BORROW.LEND}/${s}`;
-      const buttonText = `Lend ${s}`;
 
       return (
         <CardVariant
@@ -184,7 +183,14 @@ export function LendCardView() {
           symbol={s}
           rate={rate}
           route={route}
-          buttonText={buttonText}
+          buttonText={
+            <FormattedMessage
+              defaultMessage="Lend {symbol}"
+              values={{
+                symbol: s,
+              }}
+            />
+          }
         />
       );
     }
