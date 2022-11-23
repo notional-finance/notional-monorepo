@@ -6,6 +6,7 @@ import {
   VaultAccount,
   Account,
   VaultFactory,
+  TypedBigNumber,
 } from '@notional-finance/sdk';
 import { Market, System } from '@notional-finance/sdk/src/system';
 import { VAULT_ACTIONS } from '@notional-finance/shared-config';
@@ -26,10 +27,13 @@ export function getInitVaultAction({
   vaultAddress,
   activeVaultMarkets,
 }: InitVaultActionDependencies) {
-  const vaultAccount = getVaultAccount(account?.accountData, vaultAddress);
-  const settledVaultValues = vaultAccount.canSettle()
-    ? vaultAccount.getSettlementValues()
-    : undefined;
+  let vaultAccount: VaultAccount | undefined;
+  let settledVaultValues:
+    | {
+        strategyTokens: TypedBigNumber;
+        assetCash: TypedBigNumber;
+      }
+    | undefined;
   let vaultConfig: VaultConfig | undefined;
   let baseVault: GenericBaseVault | undefined;
   let eligibleMarkets: Market[] = [];
@@ -37,6 +41,10 @@ export function getInitVaultAction({
   let noEligibleMarketsReason: MessageDescriptor | undefined;
 
   try {
+    vaultAccount = getVaultAccount(account?.accountData, vaultAddress);
+    settledVaultValues = vaultAccount.canSettle()
+      ? vaultAccount.getSettlementValues()
+      : undefined;
     vaultConfig = system.getVault(vaultAddress);
     baseVault = VaultFactory.buildVaultFromCache(
       vaultConfig.strategy,
