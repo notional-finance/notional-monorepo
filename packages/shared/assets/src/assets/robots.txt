@@ -1,3 +1,0 @@
-User-agent: *
-Disallow:
-Sitemap: https://notional.finance/site1-sitemap.xml

@@ -19,6 +19,9 @@
         "tsConfig": "apps/web/tsconfig.app.json",
         "assets": [
           "apps/web/src/favicon.svg",
+          "apps/web/src/meta-image.png",
+          "apps/web/src/robots.txt",
+          "apps/web/src/manifest.json",
           {
             "glob": "**/*",
             "input": "packages/shared/assets/src/assets",
