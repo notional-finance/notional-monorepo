@@ -1,7 +1,7 @@
 import { Box } from '@mui/material';
 import { ReactElement, useRef, useState, useEffect } from 'react';
 // NOTE: Leaving this here incase we want to add it back in the future
-// import { TypeForm } from '../type-form/type-form';
+import { TypeForm } from '../type-form/type-form';
 import useWindowDimensions from '../hooks/use-window-dimensions/use-window-dimensions';
 
 /* eslint-disable-next-line */
@@ -82,7 +82,7 @@ export function SideBarLayout({
       >
         {sideBar}
       </Box>
-      {/* <TypeForm /> */}
+      <TypeForm />
     </Box>
   );
 }

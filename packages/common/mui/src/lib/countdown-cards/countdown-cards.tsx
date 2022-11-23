@@ -73,6 +73,7 @@ const CountDownText = styled(Box)(
   color: ${palette.primary.light};
   border-radius: 15px;
   padding: 0.625rem;
+  text-transform: uppercase;
   `
 );
 
@@ -148,25 +149,25 @@ export const CountdownCards = ({
                     <Box sx={{ flex: '1' }}>
                       <CountDownNumber>{days}</CountDownNumber>
                       <CountDownText>
-                        <FormattedMessage defaultMessage={'DAYS'} />
+                        <FormattedMessage defaultMessage={'days'} />
                       </CountDownText>
                     </Box>
                     <Box sx={{ flex: '1' }}>
                       <CountDownNumber>{hours}</CountDownNumber>
                       <CountDownText>
-                        <FormattedMessage defaultMessage={'HOURS'} />
+                        <FormattedMessage defaultMessage={'hours'} />
                       </CountDownText>
                     </Box>
                     <Box sx={{ flex: '1' }}>
                       <CountDownNumber>{minutes}</CountDownNumber>
                       <CountDownText>
-                        <FormattedMessage defaultMessage={'MINUTES'} />
+                        <FormattedMessage defaultMessage={'minutes'} />
                       </CountDownText>
                     </Box>
                     <Box sx={{ flex: '1' }}>
                       <CountDownNumber>{seconds}</CountDownNumber>
                       <CountDownText>
-                        <FormattedMessage defaultMessage={'SECONDS'} />
+                        <FormattedMessage defaultMessage={'seconds'} />
                       </CountDownText>
                     </Box>
                   </Box>

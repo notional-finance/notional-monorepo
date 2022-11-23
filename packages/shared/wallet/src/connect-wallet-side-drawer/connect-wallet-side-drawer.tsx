@@ -85,10 +85,10 @@ export const ConnectWalletSideDrawer = () => {
 //
 const WalletButton = styled(Box)(
   ({ theme }) => `
-  padding: 20px;
+  padding: ${theme.spacing(2.5)};
   border-radius: 6px;
   border: 1px solid ${theme.palette.borders.default};
-  margin: 24px 0px;
+  margin: ${theme.spacing(3, 0)};
   cursor: pointer;
   color: ${theme.palette.primary.dark};
   font-weight: 500;
@@ -104,8 +104,8 @@ const WalletButton = styled(Box)(
 
 const Title = styled(Box)(
   ({ theme }) => `
-  margin-bottom: 20px;
-  margin-top: 20px;
+  margin-bottom: ${theme.spacing(2.5)};
+  margin-top: ${theme.spacing(2.5)};
   font-weight: 700;
   color: ${theme.palette.primary.dark};
   display: flex;

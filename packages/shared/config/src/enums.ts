@@ -96,7 +96,7 @@ export enum THEME_VARIANTS {
 export enum LOCALES {
   EN_US = 'en-US',
   JA = 'ja',
-  ZH = 'ZH',
+  ZH_CN = 'zh-CN',
 }
 
 export type TRANSACTION_ACTIONS =

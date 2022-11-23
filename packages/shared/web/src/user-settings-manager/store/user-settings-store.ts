@@ -21,12 +21,10 @@ const defaultTheme =
 
 export interface UserSettingsState {
   themeVariant: PaletteMode;
-  language: null | string;
 }
 
 export const initialUserSettingsState = {
   themeVariant: defaultTheme,
-  language: null,
 };
 
 const {
@@ -38,9 +36,5 @@ const {
 export const themeVariant$ = selectUserSettingsState(
   'themeVariant'
 ) as Observable<PaletteMode>;
-
-export const language$ = selectUserSettingsState(
-  'language'
-) as Observable<null | string>;
 
 export { updateUserSettingsState, selectUserSettingsState, userSettingsState$ };

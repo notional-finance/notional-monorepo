@@ -7,10 +7,12 @@ import { Language, LanguageButton } from './language/language';
 import { DarkModeToggle } from './dark-mode-toggle/dark-mode-toggle';
 import { useAccount } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
+import { ReactNode } from 'react';
+
 export interface SettingsItem {
   key: string;
   active: boolean;
-  label: any;
+  label: ReactNode;
   CustomButton?: React.ElementType;
   ViewComponent?: React.ElementType;
   buttonText?: string;

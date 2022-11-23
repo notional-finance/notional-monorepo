@@ -18,17 +18,17 @@ import { messages } from './messages';
 
 const languageOptions = [
   {
-    label: 'English',
+    label: <FormattedMessage defaultMessage={'English'} />,
     key: LOCALES.EN_US,
     Icon: InternationalIcon,
   },
   {
-    label: 'Chinese',
-    key: LOCALES.ZH,
+    label: <FormattedMessage defaultMessage={'Chinese (Simplified)'} />,
+    key: LOCALES.ZH_CN,
     Icon: ChineseFlagIcon,
   },
   {
-    label: 'Japanese',
+    label: <FormattedMessage defaultMessage={'Japanese'} />,
     key: LOCALES.JA,
     Icon: JapaneseFlagIcon,
   },
@@ -45,7 +45,9 @@ export const LanguageButton = () => {
       sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
     >
       <Box sx={{ paddingRight: theme.spacing(1), display: 'flex' }}>
-        {langData?.Icon && <langData.Icon sx={{ height: '20px' }} />}
+        {langData?.Icon && (
+          <langData.Icon sx={{ height: theme.spacing(2.5) }} />
+        )}
       </Box>
 
       <FormattedMessage {...messages[savedLanguage]} />
@@ -84,7 +86,7 @@ export const Language = () => {
               justifyContent: 'center',
             }}
           >
-            <Icon sx={{ height: '46px', width: '46px' }} />
+            <Icon sx={{ height: theme.spacing(6), width: theme.spacing(6) }} />
           </Box>
           <H4
             sx={{ whiteSpace: 'nowrap', marginLeft: theme.spacing(3) }}
@@ -105,8 +107,8 @@ export const Language = () => {
               <CircleIcon
                 sx={{
                   stroke: theme.palette.borders.accentPaper,
-                  width: '20px',
-                  height: '20px',
+                  width: theme.spacing(2.5),
+                  height: theme.spacing(2.5),
                 }}
               />
             )}
@@ -121,7 +123,7 @@ const WalletButton = styled(Box, {
   shouldForwardProp: (prop: string) => prop !== 'active',
 })(
   ({ theme, active }: { active: boolean; theme: NotionalTheme }) => `
-  padding: 20px;
+  padding: ${theme.spacing(2.5)};
   border-radius: ${theme.shape.borderRadius()};
   border: 1px solid ${
     active ? theme.palette.primary.main : theme.palette.borders.paper
@@ -142,7 +144,7 @@ const WalletButton = styled(Box, {
 
 const Title = styled(Typography)(
   ({ theme }) => `
-  margin-bottom: 20px;
+  margin-bottom: ${theme.spacing(2.5)};
   font-weight: 700;
   color: ${theme.palette.borders.accentDefault};
   text-transform: uppercase;

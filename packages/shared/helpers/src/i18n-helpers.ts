@@ -8,7 +8,7 @@ export async function getLanguageTranslation(locale: string) {
         /* webpackMode: "eager" */ './lang/en.json'
       );
       break;
-    case 'zh' /* Chinese */:
+    case 'zh-cn' /* Chinese */:
       importedTranslation = await import(
         /* webpackMode: "eager" */ './lang/zh-cn.json'
       );

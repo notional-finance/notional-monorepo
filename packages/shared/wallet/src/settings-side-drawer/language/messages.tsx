@@ -6,8 +6,8 @@ export const messages = defineMessages({
     defaultMessage: 'English',
     description: 'Language button title',
   },
-  [LOCALES.ZH]: {
-    defaultMessage: 'Chinese',
+  [LOCALES.ZH_CN]: {
+    defaultMessage: 'Chinese (Simplified)',
     description: 'Language button title',
   },
   [LOCALES.JA]: {
