@@ -153,7 +153,7 @@ export const useRiskOverviewTable = () => {
       ethExchangeRate,
       leveragePercentage,
       maxLeverageRatio,
-      leverageRatio
+      leverageRatio,
     }) => {
       let trackColor: string | undefined;
       if (leveragePercentage) {
@@ -180,8 +180,8 @@ export const useRiskOverviewTable = () => {
         },
         // TODO: stETH is not listed as a collateral currency in the system so
         // we don't have a way to represent this using typed big numbers
-        currentPrice: `${currentPrice?.toDisplayString(2)} stETH`,
-        liquidationPrice: `${ethExchangeRate?.toDisplayString(2)} stETH`,
+        currentPrice: `${currentPrice?.toDisplayString(4)} stETH`,
+        liquidationPrice: `${ethExchangeRate?.toDisplayString(4)} stETH`,
         leveragePercentage: {
           value: leveragePercentage,
           captionLeft: formatLeverageRatio(leverageRatio || 0, 1),

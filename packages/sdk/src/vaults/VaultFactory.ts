@@ -116,7 +116,7 @@ export default class VaultFactory {
           .filter((k) => k !== 'timestamp')
           .forEach((h) => {
             const [sum, count] = accumulators.get(h)!;
-            accumulators.set(h, [sum + row[h], count + 1]);
+            accumulators.set(h, [sum + (row[h] || 0), count + 1]);
           });
       });
 

@@ -43,7 +43,17 @@ interface InitParams extends BaseBalancerStablePoolInitParams {
 
 export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitParams> {
   public get oraclePrice() {
-    return this.initParams.oraclePairPrice;
+    const wstETHTokenIndex = 1 - this.initParams.poolContext.primaryTokenIndex;
+    // Multiply by the scaling factor to get stETH terms...
+    const scalingFactor = this.initParams.scalingFactors[wstETHTokenIndex];
+
+    // NOTE: this oracle price is in wstETH terms and we have to invert it here
+    const wstETHToETH = FixedPoint.ONE.mul(FixedPoint.ONE).div(
+      this.initParams.oraclePairPrice
+    );
+
+    // Returns stETH to ETH
+    return wstETHToETH.mul(FixedPoint.ONE).div(scalingFactor);
   }
 
   public get balancerPairPrice() {
@@ -357,7 +367,7 @@ export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitPar
     ).toETH(false);
 
     const currentPrice = TypedBigNumber.fromBalance(
-      this.balancerPairPrice.div(FixedPoint.from(1e10)).n,
+      this.oraclePrice.div(FixedPoint.from(1e10)).n,
       this.getPrimaryBorrowSymbol(),
       true
     ).toETH(false);
