@@ -1,3 +1,4 @@
+import { reportNotionalError } from '@notional-finance/notionable';
 import { TypedBigNumber, VaultConfig } from '@notional-finance/sdk';
 import { RATE_PRECISION } from '@notional-finance/sdk/src/config/constants';
 import BaseVault from '@notional-finance/sdk/src/vaults/BaseVault';
@@ -6,7 +7,18 @@ import { useNotional } from '../notional/use-notional';
 
 export const useVault = (vaultAddress?: string) => {
   const { system } = useNotional();
-  const vaultConfig = vaultAddress ? system?.getVault(vaultAddress) : undefined;
+  let vaultConfig: VaultConfig | undefined;
+  try {
+    vaultConfig = vaultAddress ? system?.getVault(vaultAddress) : undefined;
+  } catch (e) {
+    // Throws an error on an unknown vault address
+    reportNotionalError(
+      { ...(e as Error), code: 404 },
+      'notionable-vaults',
+      'useVault'
+    );
+  }
+
   let primaryBorrowCurrency: number | undefined = undefined;
   let primaryBorrowSymbol: string | undefined = undefined;
   let minBorrowSize: string | undefined = undefined;
@@ -20,7 +32,8 @@ export const useVault = (vaultAddress?: string) => {
   if (vaultConfig && system) {
     primaryBorrowCurrency = vaultConfig.primaryBorrowCurrency;
     primaryBorrowSymbol = system.getUnderlyingSymbol(primaryBorrowCurrency);
-    minBorrowSize = vaultConfig.minAccountBorrowSize.toDisplayStringWithSymbol(0);
+    minBorrowSize =
+      vaultConfig.minAccountBorrowSize.toDisplayStringWithSymbol(0);
     minAccountBorrowSize = vaultConfig.minAccountBorrowSize;
     strategyName = VaultFactory.resolveStrategyName(vaultConfig.strategy) || '';
     minDepositRequired = getMinDepositRequiredString(vaultConfig);
@@ -57,7 +70,10 @@ export function getMinDepositRequiredString(vaultConfig: VaultConfig) {
     .toDisplayStringWithSymbol(2);
 
   const upperDeposit = vaultConfig.minAccountBorrowSize
-    .scale(vaultConfig.maxRequiredAccountCollateralRatioBasisPoints, RATE_PRECISION)
+    .scale(
+      vaultConfig.maxRequiredAccountCollateralRatioBasisPoints,
+      RATE_PRECISION
+    )
     .toDisplayStringWithSymbol(2);
   return `${lowerDeposit} to ${upperDeposit}`;
 }

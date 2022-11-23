@@ -1,16 +1,14 @@
 export function getNetworkIdFromHostname(hostname: string) {
-  if (hostname.endsWith('sad-yonath-181142.netlify.app')) {
-    return 1;
-  } else if (hostname.endsWith('kovan-v2.netlify.app')) {
-    return 42;
-  }
-
   switch (hostname) {
     case 'notional.finance':
       return 1;
-    case 'develop.notional.finance':
+    case 'www.notional.finance':
+      return 1;
+    case 'beta.notional.finance':
+      return 1;
+    case 'dev.notional.finance':
       return 5;
-    case 'localhost':
+    case 'localhost:3000':
       return 5;
     default:
       return 5;
