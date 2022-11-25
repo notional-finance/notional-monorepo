@@ -1,4 +1,5 @@
 import { styled, Box, useTheme } from '@mui/material';
+import { VideoPlayerHero } from '@notional-finance/shared-web';
 import { useEffect } from 'react';
 import { FormattedMessage, MessageDescriptor } from 'react-intl';
 import { HeadingSubtitle, H1 } from '../typography/typography';
@@ -11,18 +12,18 @@ export interface CardContainerProps {
 }
 
 const StyledContainer = styled(Box)`
-  padding: 160px 32px 96px 32px;
-  max-width: 1440px;
+  // padding: 160px 32px 96px 32px;
+  // max-width: 1440px;
   margin: 0 auto;
   overflow: hidden;
 
-  @media (max-width: 1440px) {
+  /* @media (max-width: 1440px) {
     padding: 80px 16px 48px 16px;
   }
 
   @media (max-width: 800px) {
     padding: 40px 16px 24px 16px;
-  }
+  } */
 `;
 
 const StyledCardList = styled('ul')`
@@ -30,7 +31,7 @@ const StyledCardList = styled('ul')`
   flex-wrap: wrap;
   justify-content: center;
   overflow: visible;
-  margin-top: 64px;
+  margin-top: -96px;
   margin-bottom: 64px;
   width: 100%;
 `;
@@ -45,22 +46,38 @@ const StyledCard = styled('li')`
   }
 `;
 
-export function CardContainer({ heading, subtitle, cards, children }: CardContainerProps) {
+export function CardContainer({
+  heading,
+  subtitle,
+  cards,
+  children,
+}: CardContainerProps) {
   const theme = useTheme();
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
+  const titleText = (
+    <>
+      <H1 contrast gutter="default">
+        <FormattedMessage {...heading} />
+      </H1>
+      <HeadingSubtitle
+        contrast
+        fontWeight="regular"
+        maxWidth={theme.spacing(96)}
+      >
+        <FormattedMessage {...subtitle} />
+      </HeadingSubtitle>
+    </>
+  );
   return (
     <StyledContainer>
-      <Box>
-        <H1 gutter="default">
-          <FormattedMessage {...heading} />
-        </H1>
-        <HeadingSubtitle fontWeight="regular" maxWidth={theme.spacing(96)}>
-          <FormattedMessage {...subtitle} />
-        </HeadingSubtitle>
-      </Box>
+      <VideoPlayerHero
+        titleText={titleText}
+        videoId="dD3tVNp2uq0"
+        height="640px"
+      />
       <StyledCardList>
         {cards.map((c, i) => (
           <StyledCard key={`key-${i}`}>{c}</StyledCard>
