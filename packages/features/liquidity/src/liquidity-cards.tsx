@@ -19,7 +19,7 @@ import { Link } from 'react-router-dom';
 
 const StyledLink = styled(Link)(
   ({ theme }) => `
-  color: ${theme.palette.info.main};
+  color: ${theme.palette.info.accent};
 `
 );
 

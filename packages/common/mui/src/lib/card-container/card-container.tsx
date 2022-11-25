@@ -8,12 +8,14 @@ export interface CardContainerProps {
   heading: MessageDescriptor;
   subtitle: MessageDescriptor;
   cards: React.ReactNode[];
+  videoId?: string;
   children?: React.ReactNode;
 }
 
 const StyledContainer = styled(Box)`
   margin: 0 auto;
   overflow: hidden;
+  margin-bottom: 64px;
 `;
 
 const StyledCardList = styled('ul')(
@@ -47,6 +49,7 @@ export function CardContainer({
   subtitle,
   cards,
   children,
+  videoId,
 }: CardContainerProps) {
   const theme = useTheme();
   useEffect(() => {
@@ -65,17 +68,46 @@ export function CardContainer({
   );
   return (
     <StyledContainer>
-      <VideoPlayerHero
-        titleText={titleText}
-        videoId="dD3tVNp2uq0"
-        heightUnits={80}
-      />
+      {videoId ? (
+        <VideoPlayerHero
+          titleText={titleText}
+          videoId={videoId}
+          heightUnits={80}
+        />
+      ) : (
+        <Box
+          sx={{
+            margin: {
+              xs: theme.spacing(4, 'auto'),
+              md: theme.spacing(8, 'auto'),
+              lg: theme.spacing(20, 'auto'),
+            },
+            padding: {
+              xs: theme.spacing(0, 4),
+              md: theme.spacing(0, 8),
+              lg: theme.spacing(0, 16),
+            },
+          }}
+        >
+          {titleText}
+        </Box>
+      )}
       <StyledCardList>
         {cards.map((c, i) => (
           <StyledCard key={`key-${i}`}>{c}</StyledCard>
         ))}
       </StyledCardList>
-      {children}
+      <Box
+        sx={{
+          padding: {
+            xs: theme.spacing(0, 4),
+            md: theme.spacing(0, 8),
+            lg: theme.spacing(0, 16),
+          },
+        }}
+      >
+        {children}
+      </Box>
     </StyledContainer>
   );
 }

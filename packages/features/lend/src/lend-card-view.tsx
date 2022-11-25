@@ -224,6 +224,7 @@ export function LendCardView() {
         heading={tabSelected === TokenTab ? heading.fixed : heading.variable}
         subtitle={tabSelected === TokenTab ? subtitle.fixed : subtitle.variable}
         cards={cards}
+        videoId={'uIuVLZEVRyM'}
       />
       <CTokenBox>
         <CTokenContainer>
