@@ -6,7 +6,6 @@ export * from './lib/button/button';
 export * from './lib/button-bar/button-bar';
 export * from './lib/card/card';
 export * from './lib/card-variant/card-variant';
-export * from './lib/card-container/card-container';
 export * from './lib/count-up/count-up';
 export * from './lib/countdown-cards/countdown-cards';
 export * from './lib/currency-img/currency-img';

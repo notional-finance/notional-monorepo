@@ -3,6 +3,7 @@ export * from './crypto-price-manager/store/crypto-price-store';
 export * from './crypto-price-manager/store/use-crypto-price-state';
 export * from './tracking-consent/tracking-consent';
 export * from './email-capture-section/email-capture-section';
+export * from './card-container/card-container';
 export * from './video-player-hero/video-player-hero';
 export * from './landing-footer/landing-footer';
 export * from './header/wallet-display/wallet-display';

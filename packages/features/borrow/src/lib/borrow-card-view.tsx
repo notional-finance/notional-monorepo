@@ -1,5 +1,6 @@
 import { LEND_BORROW } from '@notional-finance/shared-config';
-import { CardContainer, CardVariant } from '@notional-finance/mui';
+import { CardContainer } from '@notional-finance/shared-web';
+import { CardVariant } from '@notional-finance/mui';
 import { useAllMarkets } from '@notional-finance/notionable-hooks';
 import { defineMessage, FormattedMessage } from 'react-intl';
 

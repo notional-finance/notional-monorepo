@@ -1,5 +1,6 @@
 import { useStrategies } from './use-strategies';
-import { CardVariant, CardContainer } from '@notional-finance/mui';
+import { CardContainer } from '@notional-finance/shared-web';
+import { CardVariant } from '@notional-finance/mui';
 import { defineMessage, FormattedMessage } from 'react-intl';
 
 export const AllStrategyView = () => {

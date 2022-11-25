@@ -1,11 +1,8 @@
 import { useState } from 'react';
 import { useAllMarkets } from '@notional-finance/notionable-hooks';
 import { LEND_BORROW } from '@notional-finance/shared-config';
-import {
-  CardContainer,
-  CardVariant,
-  HeadingSubtitle,
-} from '@notional-finance/mui';
+import { CardContainer } from '@notional-finance/shared-web';
+import { CardVariant, HeadingSubtitle } from '@notional-finance/mui';
 import { Tabs as MuiTabs, Tab, styled, Box, useTheme } from '@mui/material';
 import CompoundSVG from '@notional-finance/assets/images/logos/logo-compound.svg';
 import { defineMessages, FormattedMessage } from 'react-intl';

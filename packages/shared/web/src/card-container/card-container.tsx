@@ -1,8 +1,8 @@
 import { styled, Box, useTheme } from '@mui/material';
-import { VideoPlayerHero } from '@notional-finance/shared-web';
+import { VideoPlayerHero } from '../video-player-hero/video-player-hero';
 import { useEffect } from 'react';
 import { FormattedMessage, MessageDescriptor } from 'react-intl';
-import { HeadingSubtitle, H1 } from '../typography/typography';
+import { HeadingSubtitle, H1 } from '@notional-finance/mui';
 
 export interface CardContainerProps {
   heading: MessageDescriptor;
