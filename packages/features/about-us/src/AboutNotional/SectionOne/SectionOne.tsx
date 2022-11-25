@@ -24,7 +24,7 @@ export const SectionOne = () => {
           display: 'block',
         }}
       >
-        <H1 contrast>
+        <H1>
           <FormattedMessage
             defaultMessage="<b>Fixing</b> Finance To Work For Everyone"
             values={{
@@ -47,7 +47,7 @@ export const SectionOne = () => {
       <VideoPlayerHero
         titleText={titleText}
         videoId="dD3tVNp2uq0"
-        height="865px"
+        heightUnits={108}
       />
     </Box>
   );

@@ -12,21 +12,12 @@ export interface CardContainerProps {
 }
 
 const StyledContainer = styled(Box)`
-  // padding: 160px 32px 96px 32px;
-  // max-width: 1440px;
   margin: 0 auto;
   overflow: hidden;
-
-  /* @media (max-width: 1440px) {
-    padding: 80px 16px 48px 16px;
-  }
-
-  @media (max-width: 800px) {
-    padding: 40px 16px 24px 16px;
-  } */
 `;
 
-const StyledCardList = styled('ul')`
+const StyledCardList = styled('ul')(
+  ({ theme }) => `
   display: inline-flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -34,7 +25,12 @@ const StyledCardList = styled('ul')`
   margin-top: -96px;
   margin-bottom: 64px;
   width: 100%;
-`;
+
+  ${theme.breakpoints.down('lg')} {
+    margin-top: 0px;
+  }
+`
+);
 
 const StyledCard = styled('li')`
   margin-top: 10px;
@@ -59,14 +55,10 @@ export function CardContainer({
 
   const titleText = (
     <>
-      <H1 contrast gutter="default">
+      <H1 gutter="default">
         <FormattedMessage {...heading} />
       </H1>
-      <HeadingSubtitle
-        contrast
-        fontWeight="regular"
-        maxWidth={theme.spacing(96)}
-      >
+      <HeadingSubtitle fontWeight="regular" maxWidth={theme.spacing(96)}>
         <FormattedMessage {...subtitle} />
       </HeadingSubtitle>
     </>
@@ -76,7 +68,7 @@ export function CardContainer({
       <VideoPlayerHero
         titleText={titleText}
         videoId="dD3tVNp2uq0"
-        height="640px"
+        heightUnits={80}
       />
       <StyledCardList>
         {cards.map((c, i) => (
