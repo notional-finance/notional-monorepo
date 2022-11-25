@@ -1,5 +1,5 @@
 import { MessageDescriptor } from 'react-intl';
-import { Dispatch, SetStateAction } from 'react';
+import { Dispatch, ReactNode, SetStateAction } from 'react';
 import { Column } from 'react-table';
 
 export enum TABLE_VARIANTS {
@@ -8,7 +8,7 @@ export enum TABLE_VARIANTS {
 }
 
 export type TabBarPropsType = {
-  tableTabs: { title: string; toolTipText?: MessageDescriptor }[];
+  tableTabs: { title: ReactNode; toolTipText?: MessageDescriptor }[];
   setCurrentTab: Dispatch<SetStateAction<number>>;
   currentTab: number;
 };

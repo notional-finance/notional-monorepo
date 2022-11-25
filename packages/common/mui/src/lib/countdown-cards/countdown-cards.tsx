@@ -3,6 +3,7 @@ import moment from 'moment';
 import Countdown from 'react-countdown';
 import { ThemeProvider } from '@mui/material/styles';
 import { LargeInputTextEmphasized } from '../typography/typography';
+import { FormattedMessage } from 'react-intl';
 
 export interface CountdownProps {
   futureDate?: Date | string;
@@ -72,6 +73,7 @@ const CountDownText = styled(Box)(
   color: ${palette.primary.light};
   border-radius: 15px;
   padding: 0.625rem;
+  text-transform: uppercase;
   `
 );
 
@@ -84,7 +86,10 @@ export const CountdownCards = ({
   const currentDate = new Date();
   const formattedFutureDate = moment(futureDate);
   const formattedCurrentDate = moment(currentDate);
-  const numberOfHoursLeft = formattedFutureDate.diff(formattedCurrentDate, 'hours');
+  const numberOfHoursLeft = formattedFutureDate.diff(
+    formattedCurrentDate,
+    'hours'
+  );
   const totalHours = totalDaysToCountDown ? totalDaysToCountDown * 24 : 0;
   const percentComplete = Math.trunc((numberOfHoursLeft / totalHours) * 100);
 
@@ -104,17 +109,23 @@ export const CountdownCards = ({
                 <SmallCountDownContainer>
                   <Box>
                     <SmallCountDownNumber>{days}</SmallCountDownNumber>
-                    <Label>Days</Label>
+                    <Label>
+                      <FormattedMessage defaultMessage={'Days'} />
+                    </Label>
                   </Box>
                   <LargeInputTextEmphasized>:</LargeInputTextEmphasized>
                   <Box>
                     <SmallCountDownNumber>{hours}</SmallCountDownNumber>
-                    <Label>Hours</Label>
+                    <Label>
+                      <FormattedMessage defaultMessage={'Hours'} />
+                    </Label>
                   </Box>
                   <LargeInputTextEmphasized>:</LargeInputTextEmphasized>
                   <Box>
                     <SmallCountDownNumber>{minutes}</SmallCountDownNumber>
-                    <Label>Minutes</Label>
+                    <Label>
+                      <FormattedMessage defaultMessage={'Minutes'} />
+                    </Label>
                   </Box>
                 </SmallCountDownContainer>
               );
@@ -137,27 +148,40 @@ export const CountdownCards = ({
                   <Box sx={{ display: 'flex' }}>
                     <Box sx={{ flex: '1' }}>
                       <CountDownNumber>{days}</CountDownNumber>
-                      <CountDownText>DAYS</CountDownText>
+                      <CountDownText>
+                        <FormattedMessage defaultMessage={'days'} />
+                      </CountDownText>
                     </Box>
                     <Box sx={{ flex: '1' }}>
                       <CountDownNumber>{hours}</CountDownNumber>
-                      <CountDownText>HOURS</CountDownText>
+                      <CountDownText>
+                        <FormattedMessage defaultMessage={'hours'} />
+                      </CountDownText>
                     </Box>
                     <Box sx={{ flex: '1' }}>
                       <CountDownNumber>{minutes}</CountDownNumber>
-                      <CountDownText>MINUTES</CountDownText>
+                      <CountDownText>
+                        <FormattedMessage defaultMessage={'minutes'} />
+                      </CountDownText>
                     </Box>
                     <Box sx={{ flex: '1' }}>
                       <CountDownNumber>{seconds}</CountDownNumber>
-                      <CountDownText>SECONDS</CountDownText>
+                      <CountDownText>
+                        <FormattedMessage defaultMessage={'seconds'} />
+                      </CountDownText>
                     </Box>
                   </Box>
                 );
               }
             }}
           />
-          <ThemeProvider theme={(outerTheme) => ({ ...outerTheme, direction: 'rtl' })}>
-            <BorderLinearProgress variant="determinate" value={percentComplete} />
+          <ThemeProvider
+            theme={(outerTheme) => ({ ...outerTheme, direction: 'rtl' })}
+          >
+            <BorderLinearProgress
+              variant="determinate"
+              value={percentComplete}
+            />
           </ThemeProvider>
         </>
       )}

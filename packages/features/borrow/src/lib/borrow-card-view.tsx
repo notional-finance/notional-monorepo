@@ -1,7 +1,7 @@
 import { LEND_BORROW } from '@notional-finance/shared-config';
 import { CardContainer, CardVariant } from '@notional-finance/mui';
 import { useAllMarkets } from '@notional-finance/notionable-hooks';
-import { defineMessage } from 'react-intl';
+import { defineMessage, FormattedMessage } from 'react-intl';
 
 export const BorrowCardView = () => {
   const { currencyMarkets } = useAllMarkets();
@@ -31,7 +31,6 @@ export const BorrowCardView = () => {
       s === 'ETH'
         ? `/${LEND_BORROW.BORROW}/${s}/USDC`
         : `/${LEND_BORROW.BORROW}/${s}/ETH`;
-    const buttonText = `Borrow ${s}`;
 
     return (
       <CardVariant
@@ -39,7 +38,14 @@ export const BorrowCardView = () => {
         symbol={s}
         rate={rate}
         route={route}
-        buttonText={buttonText}
+        buttonText={
+          <FormattedMessage
+            defaultMessage="Borrow {symbol}"
+            values={{
+              symbol: s,
+            }}
+          />
+        }
       />
     );
   });

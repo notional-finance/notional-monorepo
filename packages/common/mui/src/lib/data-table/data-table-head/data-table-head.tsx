@@ -32,10 +32,10 @@ export const DataTableHead = ({
                   ? theme.palette.background.accentDefault
                   : theme.palette.borders.accentPaper,
                 padding: expandableTable
-                  ? theme.spacing(0.5, 3)
+                  ? theme.spacing(0.5, 2)
                   : tableVariant === TABLE_VARIANTS.MINI
                   ? theme.spacing(1)
-                  : theme.spacing(2, 3),
+                  : theme.spacing(2),
                 textAlign: column['textAlign'] || 'center',
                 borderBottom: expandableTable
                   ? theme.shape.borderStandard

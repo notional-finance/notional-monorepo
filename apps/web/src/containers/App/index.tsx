@@ -21,7 +21,6 @@ import { useNotional } from '@notional-finance/notionable-hooks';
 import { initializeNetwork } from '@notional-finance/notionable';
 import { ServerError } from '../../containers/server-error/server-error';
 import { PageLoading } from '@notional-finance/mui';
-
 import { useNotionalTheme } from '@notional-finance/styles';
 // Lazy Loaded Views
 import AboutUsView from '@notional-finance/about-us-feature-shell/Loadable';

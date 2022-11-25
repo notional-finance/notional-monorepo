@@ -1,6 +1,9 @@
 import ReactDOM from 'react-dom';
 import { IntlProvider } from 'react-intl';
-import { getLanguageTranslation } from '@notional-finance/helpers';
+import {
+  getLanguageTranslation,
+  getFromLocalStorage,
+} from '@notional-finance/helpers';
 import App from './containers/App';
 
 const onI18NError = (err) => {
@@ -10,7 +13,9 @@ const onI18NError = (err) => {
 };
 
 async function appInit() {
-  const locale = navigator.language;
+  const { language } = getFromLocalStorage('userSettings');
+  const locale = language ? language : navigator.language;
+
   const languageTranslation = await getLanguageTranslation(locale);
 
   ReactDOM.render(

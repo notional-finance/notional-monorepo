@@ -3,13 +3,16 @@ import {
   WalletSwitcher,
 } from './wallet-switcher/wallet-switcher';
 import { Privacy } from './privacy/privacy';
+import { Language, LanguageButton } from './language/language';
 import { DarkModeToggle } from './dark-mode-toggle/dark-mode-toggle';
 import { useAccount } from '@notional-finance/notionable-hooks';
+import { FormattedMessage } from 'react-intl';
+import { ReactNode } from 'react';
 
 export interface SettingsItem {
   key: string;
   active: boolean;
-  label: string;
+  label: ReactNode;
   CustomButton?: React.ElementType;
   ViewComponent?: React.ElementType;
   buttonText?: string;
@@ -22,7 +25,12 @@ export const useSettingsSideDrawer = () => {
     ? {
         key: 'reset-wallets',
         active: false,
-        label: 'Reset Wallets',
+        label: (
+          <FormattedMessage
+            defaultMessage="Reset Wallets"
+            description={'Reset Wallets option title'}
+          />
+        ),
         CustomButton: AddressButton,
         ViewComponent: WalletSwitcher,
         buttonText: '',
@@ -30,7 +38,12 @@ export const useSettingsSideDrawer = () => {
     : {
         key: 'connect-wallet',
         active: false,
-        label: 'Connect Wallet',
+        label: (
+          <FormattedMessage
+            defaultMessage="Connect Wallet"
+            description={'Connect Wallet option title'}
+          />
+        ),
         CustomButton: AddressButton,
         ViewComponent: WalletSwitcher,
         buttonText: '',
@@ -46,20 +59,37 @@ export const useSettingsSideDrawer = () => {
     {
       key: 'language',
       active: false,
-      label: 'Language',
+      label: (
+        <FormattedMessage
+          defaultMessage="Language"
+          description={'Language option title'}
+        />
+      ),
+      CustomButton: LanguageButton,
+      ViewComponent: Language,
       buttonText: 'English',
     },
     {
       key: 'privacy',
       active: false,
-      label: 'Privacy',
+      label: (
+        <FormattedMessage
+          defaultMessage="Privacy"
+          description={'Privacy option title'}
+        />
+      ),
       ViewComponent: Privacy,
       buttonText: 'Default',
     },
     {
       key: 'darkMode',
       active: false,
-      label: 'Dark Mode',
+      label: (
+        <FormattedMessage
+          defaultMessage="Dark Mode"
+          description={'Dark Mode option title'}
+        />
+      ),
       CustomButton: DarkModeToggle,
       buttonText: '',
     },
@@ -83,7 +113,12 @@ export const useSettingsSideDrawer = () => {
     {
       key: 'base-currency',
       active: false,
-      label: 'Base Currency',
+      label: (
+        <FormattedMessage
+          defaultMessage="Base Currency"
+          description={'Base Currency option title'}
+        />
+      ),
       buttonText: '$USD',
     },
   ];

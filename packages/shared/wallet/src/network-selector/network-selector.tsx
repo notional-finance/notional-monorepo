@@ -215,8 +215,8 @@ export function NetworkSelector() {
                   <CircleIcon
                     sx={{
                       stroke: theme.palette.borders.accentPaper,
-                      width: '20px',
-                      height: '20px',
+                      width: theme.spacing(2.5),
+                      height: theme.spacing(2.5),
                     }}
                   />
                 )}

@@ -78,7 +78,7 @@ export const ProvideLiquidityCards = () => {
     const rate = rates.length > i ? rates[i] : 0;
     const incentiveRate = incentiveRates.length > i ? incentiveRates[i] : 0;
     const route = `/provide/${symbol}`;
-    const buttonText = `Provide ${symbol}`;
+
     return (
       <CardVariant
         variant="incentive"
@@ -86,7 +86,14 @@ export const ProvideLiquidityCards = () => {
         rate={rate}
         incentiveRate={incentiveRate}
         route={route}
-        buttonText={buttonText}
+        buttonText={
+          <FormattedMessage
+            defaultMessage="Provide {symbol}"
+            values={{
+              symbol: symbol,
+            }}
+          />
+        }
       />
     );
   });

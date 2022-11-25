@@ -1,9 +1,10 @@
+import { ReactNode } from 'react';
 import { ButtonGroup, Button, SxProps } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 
 /* eslint-disable-next-line */
 export type ButtonOptionsType = {
-  buttonText: string;
+  buttonText: ReactNode;
   disabled?: boolean;
   callback: () => void;
 };
@@ -42,7 +43,10 @@ export const ButtonBar = ({
               buttonVariant === 'contained'
                 ? theme.palette.typography.contrastText
                 : theme.palette.primary.main,
-            background: buttonVariant === 'contained' ? theme.palette.primary.main : 'transparent',
+            background:
+              buttonVariant === 'contained'
+                ? theme.palette.primary.main
+                : 'transparent',
             borderRadius: theme.shape.borderRadius(),
           }}
         >

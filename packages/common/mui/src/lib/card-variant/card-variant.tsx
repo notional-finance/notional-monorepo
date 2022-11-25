@@ -1,3 +1,4 @@
+import { ReactNode } from 'react';
 import { styled, Box } from '@mui/material';
 import { TokenIcon } from '@notional-finance/icons';
 import { Button } from '../button/button';
@@ -12,7 +13,7 @@ interface CardVariantProps {
   variant: 'currency' | 'vault' | 'incentive';
   symbol?: string;
   route: string;
-  buttonText: string;
+  buttonText: ReactNode;
 }
 
 type AllCardVariantProps = CardVariantProps &

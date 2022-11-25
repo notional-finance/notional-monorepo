@@ -6,6 +6,6 @@ export function useUserSettingsState() {
   const themeVariant = useObservableState(themeVariant$) as PaletteMode;
 
   return {
-    themeVariant,
+    themeVariant
   };
 }

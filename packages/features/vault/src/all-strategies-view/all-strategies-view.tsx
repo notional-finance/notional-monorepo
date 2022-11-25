@@ -1,6 +1,6 @@
 import { useStrategies } from './use-strategies';
 import { CardVariant, CardContainer } from '@notional-finance/mui';
-import { defineMessage } from 'react-intl';
+import { defineMessage, FormattedMessage } from 'react-intl';
 
 export const AllStrategyView = () => {
   const allVaults = useStrategies();
@@ -23,7 +23,7 @@ export const AllStrategyView = () => {
           rate={headlineRate || 0}
           minDepositRequired={minDepositRequired}
           route={`/vaults/${vaultAddress}`}
-          buttonText={'Enter Vault'}
+          buttonText={<FormattedMessage defaultMessage="Enter Vault" />}
           capacityUsedPercentage={capacityUsedPercentage}
           capacityRemaining={capacityRemaining}
         />

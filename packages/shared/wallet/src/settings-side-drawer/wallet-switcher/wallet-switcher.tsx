@@ -112,8 +112,8 @@ export const WalletSwitcher = () => {
                     <CircleIcon
                       sx={{
                         stroke: theme.palette.borders.accentPaper,
-                        width: '20px',
-                        height: '20px',
+                        width: theme.spacing(2.5),
+                        height: theme.spacing(2.5),
                       }}
                     />
                   )}
@@ -131,7 +131,7 @@ const WalletButton = styled(Box, {
   shouldForwardProp: (prop: string) => prop !== 'active',
 })(
   ({ theme, active }: { active: boolean; theme: NotionalTheme }) => `
-  padding: 20px;
+  padding: ${theme.spacing(2.5)};
   border-radius: ${theme.shape.borderRadius()};
   border: 1px solid ${
     active ? theme.palette.primary.main : theme.palette.borders.paper
@@ -152,7 +152,7 @@ const WalletButton = styled(Box, {
 
 const Title = styled(Typography)(
   ({ theme }) => `
-  margin-bottom: 20px;
+  margin-bottom: ${theme.spacing(2.5)};
   font-weight: 700;
   color: ${theme.palette.borders.accentDefault};
   text-transform: uppercase;
