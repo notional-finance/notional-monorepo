@@ -162,6 +162,7 @@ declare module '@mui/material/styles' {
     green: string;
     landing: string;
     landingVertical: string;
+    heroGradient: string;
     aqua: string;
     hoverTransition: (start: string, end: string, zIndex?: number) => string;
   }
@@ -173,6 +174,7 @@ declare module '@mui/material/styles' {
     green?: string;
     landing?: string;
     landingVertical?: string;
+    heroGradient?: string;
     aqua?: string;
     hoverTransition?: (start: string, end: string, zIndex?: number) => string;
   }
@@ -284,6 +286,7 @@ const getThemeData = (themeVariant: PaletteMode) => {
             ? colors.neonTurquoise
             : colors.white,
         dark: colors.aqua,
+        accent: colors.neonTurquoise,
       },
       success: {
         main: colors.aqua,
@@ -513,6 +516,8 @@ const getThemeData = (themeVariant: PaletteMode) => {
       darkGreen: 'linear-gradient(270deg, #053542 -45.52%, #06657E 123.72%)',
       darkBlue: 'linear-gradient(270deg, #06657E -45.52%, #053542 123.72%)',
       green: 'linear-gradient(90deg, #004453 0%, #21B3B4 100%)',
+      heroGradient:
+        'linear-gradient(267.16deg, #004453 19.48%, #002B36 105.58%)',
       landing:
         'linear-gradient(271.53deg, rgba(191, 201, 245, 0.5) -60.81%, rgba(142, 161, 245, 0.5) -60.79%, #26CBCF 105.36%)',
       landingVertical:

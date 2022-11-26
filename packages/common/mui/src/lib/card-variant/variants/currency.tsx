@@ -6,9 +6,14 @@ import { FormattedMessage } from 'react-intl';
 export interface CurrencyVariantProps {
   symbol: string;
   rate: number;
+  isVariable?: boolean;
 }
 
-export function CurrencyVariant({ symbol, rate }: CurrencyVariantProps) {
+export function CurrencyVariant({
+  symbol,
+  rate,
+  isVariable,
+}: CurrencyVariantProps) {
   const theme = useTheme();
   const formattedRate = Market.formatInterestRate(rate, 2);
   return (
@@ -23,12 +28,21 @@ export function CurrencyVariant({ symbol, rate }: CurrencyVariantProps) {
         {symbol}
       </H4>
       <H3 textAlign="left" marginBottom={theme.spacing(4)} fontWeight="bold">
-        <FormattedMessage
-          defaultMessage="{formattedRate} Fixed APY"
-          values={{
-            formattedRate: formattedRate,
-          }}
-        />
+        {isVariable ? (
+          <FormattedMessage
+            defaultMessage="{formattedRate} Variable APY"
+            values={{
+              formattedRate: formattedRate,
+            }}
+          />
+        ) : (
+          <FormattedMessage
+            defaultMessage="{formattedRate} Fixed APY"
+            values={{
+              formattedRate: formattedRate,
+            }}
+          />
+        )}
       </H3>
     </>
   );

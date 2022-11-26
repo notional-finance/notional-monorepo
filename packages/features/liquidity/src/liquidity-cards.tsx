@@ -8,8 +8,8 @@ import { useUserSettingsState } from '@notional-finance/shared-web';
 import backgroundImgLight from '@notional-finance/assets/images/provide-liquidity-light-bg.png';
 import { NTokenValue } from '@notional-finance/sdk/src/system';
 import { INTERNAL_TOKEN_PRECISION } from '@notional-finance/sdk/src/config/constants';
+import { CardContainer } from '@notional-finance/shared-web';
 import {
-  CardContainer,
   useWindowDimensions,
   CardVariant,
   HeadingSubtitle,
@@ -19,7 +19,7 @@ import { Link } from 'react-router-dom';
 
 const StyledLink = styled(Link)(
   ({ theme }) => `
-  color: ${theme.palette.info.main};
+  color: ${theme.palette.info.accent};
 `
 );
 

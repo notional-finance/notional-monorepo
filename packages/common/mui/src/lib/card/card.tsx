@@ -32,8 +32,13 @@ const StyledCard = styled(MuiCard)(
     a {
       position: relative;
     }
+
+    ${theme.gradient.hoverTransition(
+      theme.palette.background.paper,
+      theme.palette.info.light
+    )}
+
     &:hover {
-      background: ${theme.palette.info.light};
       box-shadow: ${theme.shape.shadowLarge(theme.palette.primary.light)};
       transition: 0.25s linear;
     }

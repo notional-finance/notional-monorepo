@@ -11,15 +11,25 @@ export interface IncentiveVariantProps {
   incentiveRate?: number;
 }
 
-export function IncentiveVariant({ symbol, rate, incentiveRate }: IncentiveVariantProps) {
+export function IncentiveVariant({
+  symbol,
+  rate,
+  incentiveRate,
+}: IncentiveVariantProps) {
   const theme = useTheme();
   if (!incentiveRate) {
-    return <CurrencyVariant symbol={symbol} rate={rate} />;
+    return <CurrencyVariant symbol={symbol} rate={rate} isVariable />;
   }
 
-  const formattedTotalRate = `${Market.formatInterestRate(rate + incentiveRate, 2)} APY`;
+  const formattedTotalRate = `${Market.formatInterestRate(
+    rate + incentiveRate,
+    2
+  )} APY`;
   const formattedRate = `${Market.formatInterestRate(rate, 2)} APY`;
-  const formattedIncentiveRate = `${Market.formatInterestRate(incentiveRate, 2)} APY`;
+  const formattedIncentiveRate = `${Market.formatInterestRate(
+    incentiveRate,
+    2
+  )} APY`;
   return (
     <>
       <H4
