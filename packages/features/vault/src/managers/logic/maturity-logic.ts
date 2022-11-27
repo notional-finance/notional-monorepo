@@ -7,7 +7,7 @@ import {
 } from '@notional-finance/sdk';
 import { Market } from '@notional-finance/sdk/src/system';
 import { convertRateToFloat, logError } from '@notional-finance/helpers';
-import { VAULT_ACTIONS } from '@notional-finance/shared-config';
+import { tradeDefaults, VAULT_ACTIONS } from '@notional-finance/shared-config';
 
 interface VaultMaturityDataDependencies {
   // Inputs
@@ -234,7 +234,7 @@ function rollAccountMaturityData(
             vaultAccount,
             m.maturity,
             depositInternal,
-            0
+            tradeDefaults.defaultAnnualizedSlippage
           );
 
         // Run this to get any additional fCash to borrow as a result of the simulate roll
