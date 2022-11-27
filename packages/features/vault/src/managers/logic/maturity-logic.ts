@@ -238,13 +238,15 @@ function rollAccountMaturityData(
           );
 
         // Run this to get any additional fCash to borrow as a result of the simulate roll
-        const additionalfCashToBorrow =
-          baseVault.getfCashBorrowFromLeverageRatio(
+        let additionalfCashToBorrow = fCashToBorrowForRepayment.copy(0);
+        if (baseVault.getLeverageRatio(newVaultAccount) < leverageRatio) {
+          additionalfCashToBorrow = baseVault.getfCashBorrowFromLeverageRatio(
             m.maturity,
             depositInternal.copy(0),
             leverageRatio,
             newVaultAccount
           );
+        }
         fCashToBorrow = fCashToBorrowForRepayment.add(additionalfCashToBorrow);
       } catch (e) {
         logError(e as Error, 'deposit-manager', 'getfCashMarketRates');

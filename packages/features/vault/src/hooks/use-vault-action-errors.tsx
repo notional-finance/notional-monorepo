@@ -1,7 +1,8 @@
 import { LabelValue } from '@notional-finance/mui';
 import { formatLeverageRatio } from '@notional-finance/helpers';
 import { VAULT_ACTIONS } from '@notional-finance/shared-config';
-import { useVault, useVaultCapacity } from '@notional-finance/notionable-hooks';
+import { useVault } from '@notional-finance/notionable-hooks';
+import { useVaultCapacity } from './use-vault-capacity';
 import { useContext } from 'react';
 import { MessageDescriptor } from 'react-intl';
 import { VaultActionContext } from '../managers';
@@ -23,6 +24,7 @@ export function useVaultActionErrors() {
     vaultAccount,
   } = state;
   const { minAccountBorrowSize, maxLeverageRatio } = useVault(vaultAddress);
+  const { overCapacityError } = useVaultCapacity();
 
   let underMinAccountBorrow = false;
   if (vaultAccount && fCashBorrowAmount && minAccountBorrowSize) {
@@ -43,10 +45,6 @@ export function useVaultActionErrors() {
   }
 
   let inputErrorMsg: MessageDescriptor | undefined;
-  const { overCapacityError } = useVaultCapacity(
-    vaultAddress,
-    fCashBorrowAmount
-  );
   if (depositAmount && !selectedMarketKey) {
     inputErrorMsg = tradeErrors.selectMaturityToCompleteTrade;
   } else if (overCapacityError) {
