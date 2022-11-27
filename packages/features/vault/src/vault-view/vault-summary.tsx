@@ -7,13 +7,14 @@ import {
   TradeActionTitle,
   TradeSummaryContainer,
 } from '@notional-finance/mui';
-import { useVault, useVaultCapacity } from '@notional-finance/notionable-hooks';
+import { useVault } from '@notional-finance/notionable-hooks';
 import { useContext } from 'react';
 import { FormattedMessage, defineMessage } from 'react-intl';
 import PerformanceChart from '../components/performance-chart';
 import VaultDescription from '../components/vault-description';
 import { useHistoricalReturns } from '../hooks/use-historical-returns';
 import { useReturnDrivers } from '../hooks/use-return-drivers';
+import { useVaultCapacity } from '../hooks/use-vault-capacity';
 import { VaultActionContext } from '../managers';
 import { messages } from '../messages';
 
@@ -22,7 +23,7 @@ export const VaultSummary = () => {
   const { state } = useContext(VaultActionContext);
   const { vaultAddress, leverageRatio } = state || {};
   const { primaryBorrowSymbol, vaultName } = useVault(vaultAddress);
-  const { historicalReturns, currentBorrowRate, returnDrivers, headlineApy, fCashBorrowAmount } =
+  const { historicalReturns, currentBorrowRate, returnDrivers, headlineApy } =
     useHistoricalReturns();
   const tableColumns = useReturnDrivers();
   const {
@@ -31,23 +32,30 @@ export const VaultSummary = () => {
     maxVaultCapacity,
     capacityUsedPercentage,
     capacityWithUserBorrowPercentage,
-  } = useVaultCapacity(vaultAddress, fCashBorrowAmount);
+  } = useVaultCapacity();
 
-  if (!vaultName || !primaryBorrowSymbol || !vaultAddress) return <PageLoading />;
+  if (!vaultName || !primaryBorrowSymbol || !vaultAddress)
+    return <PageLoading />;
 
   const userCapacityMark = capacityWithUserBorrowPercentage
     ? [
         {
           value: capacityWithUserBorrowPercentage,
           label: '',
-          color: overCapacityError ? theme.palette.error.main : theme.palette.primary.light,
+          color: overCapacityError
+            ? theme.palette.error.main
+            : theme.palette.primary.light,
         },
       ]
     : undefined;
 
   return (
     <TradeSummaryContainer>
-      <TradeActionHeader token={primaryBorrowSymbol} actionText={vaultName} hideTokenName />
+      <TradeActionHeader
+        token={primaryBorrowSymbol}
+        actionText={vaultName}
+        hideTokenName
+      />
       <TradeActionTitle
         value={headlineApy}
         valueSuffix="%"

@@ -7,7 +7,7 @@ import {
 } from '@notional-finance/sdk';
 import { Market } from '@notional-finance/sdk/src/system';
 import { convertRateToFloat, logError } from '@notional-finance/helpers';
-import { VAULT_ACTIONS } from '@notional-finance/shared-config';
+import { tradeDefaults, VAULT_ACTIONS } from '@notional-finance/shared-config';
 
 interface VaultMaturityDataDependencies {
   // Inputs
@@ -234,17 +234,19 @@ function rollAccountMaturityData(
             vaultAccount,
             m.maturity,
             depositInternal,
-            0
+            tradeDefaults.defaultAnnualizedSlippage
           );
 
         // Run this to get any additional fCash to borrow as a result of the simulate roll
-        const additionalfCashToBorrow =
-          baseVault.getfCashBorrowFromLeverageRatio(
+        let additionalfCashToBorrow = fCashToBorrowForRepayment.copy(0);
+        if (baseVault.getLeverageRatio(newVaultAccount) < leverageRatio) {
+          additionalfCashToBorrow = baseVault.getfCashBorrowFromLeverageRatio(
             m.maturity,
             depositInternal.copy(0),
             leverageRatio,
             newVaultAccount
           );
+        }
         fCashToBorrow = fCashToBorrowForRepayment.add(additionalfCashToBorrow);
       } catch (e) {
         logError(e as Error, 'deposit-manager', 'getfCashMarketRates');

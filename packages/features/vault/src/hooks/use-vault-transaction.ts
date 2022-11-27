@@ -1,7 +1,5 @@
-import {
-  useAccount,
-  useVaultCapacity,
-} from '@notional-finance/notionable-hooks';
+import { useAccount } from '@notional-finance/notionable-hooks';
+import { useVaultCapacity } from './use-vault-capacity';
 import { TransactionFunction } from '@notional-finance/notionable';
 import { TypedBigNumber } from '@notional-finance/sdk';
 import { Market } from '@notional-finance/sdk/src/system';
@@ -24,14 +22,10 @@ export const useVaultTransaction = () => {
     leverageRatio,
     vaultAction,
     vaultAccount,
-    vaultAddress,
     fCashBorrowAmount,
     baseVault,
   } = state;
-  const { overCapacityError } = useVaultCapacity(
-    vaultAddress,
-    fCashBorrowAmount
-  );
+  const { overCapacityError } = useVaultCapacity();
   const { confirm } = useQueryParams();
   const confirmRoute = !!confirm;
   const selectedMaturity = selectedMarketKey

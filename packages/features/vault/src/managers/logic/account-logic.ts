@@ -146,7 +146,7 @@ export function getMinimumLeverageRatio({
         vaultAccount,
         selectedMaturity,
         depositInternal,
-        0
+        tradeDefaults.defaultAnnualizedSlippage
       );
 
       const vaultLeverageRatio = baseVault.getLeverageRatio(newVaultAccount);
