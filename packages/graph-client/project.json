@@ -1,0 +1,45 @@
+{
+  "name": "graph-client",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/graph-client/src",
+  "projectType": "library",
+  "targets": {
+    "generate-graphql": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          {
+            "command": "yarn run graphql-code-generator"
+          }
+        ],
+        "cwd": "packages/graph-client"
+      }
+    },
+    "build": {
+      "executor": "@nrwl/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/packages/graph-client",
+        "main": "packages/graph-client/src/index.ts",
+        "tsConfig": "packages/graph-client/tsconfig.lib.json",
+        "assets": ["packages/graph-client/*.md"]
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["packages/graph-client/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "packages/graph-client/jest.config.ts",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}

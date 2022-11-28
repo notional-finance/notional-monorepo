@@ -16,6 +16,8 @@
     "features-treasury": "packages/features/treasury",
     "features-vault": "packages/features/vault",
     "geoip": "apps/geoip",
+    "graph-client": "packages/graph-client",
+    "multicall": "packages/multicall",
     "notionable": "packages/notionable",
     "sdk": "packages/sdk",
     "shared-assets": "packages/shared/assets",

@@ -34,6 +34,7 @@
       "@notional-finance/contracts/*": ["packages/contracts/src/*"],
       "@notional-finance/error": ["packages/error/src/index.ts"],
       "@notional-finance/error/*": ["packages/error/src/*"],
+      "@notional-finance/graph-client": ["packages/graph-client/src/index.ts"],
       "@notional-finance/helpers": ["packages/shared/helpers/src/index.ts"],
       "@notional-finance/icons": ["packages/common/icons/src/index.ts"],
       "@notional-finance/icons/*": ["packages/common/icons/src/*"],
@@ -51,6 +52,7 @@
       ],
       "@notional-finance/mui": ["packages/common/mui/src/index.ts"],
       "@notional-finance/mui/*": ["packages/common/mui/src/*"],
+      "@notional-finance/multicall": ["packages/multicall/src/index.ts"],
       "@notional-finance/notionable": ["packages/notionable/src/index.ts"],
       "@notional-finance/notionable-hooks": [
         "packages/shared/notionable-hooks/src/index.ts"
