@@ -94,6 +94,7 @@ export async function connectWallet(label?: string) {
 }
 
 export async function resetWallet(label: string) {
+  setInLocalStorage('selectedWallet', null);
   await onboard.disconnectWallet({ label });
 }
 
