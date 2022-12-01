@@ -1,10 +1,15 @@
+import { useEffect } from 'react';
 import {
-  SIDEBAR_CATEGORIES,
+  SETTINGS_SIDE_DRAWERS,
   PORTFOLIO_ACTIONS,
   SIDE_DRAWERS,
+  PORTFOLIO_CATEGORIES,
+  SIDE_DRAWERS_TYPE,
 } from '@notional-finance/shared-config';
-import { useCallback, useState } from 'react';
+import { useQueryParams } from '@notional-finance/utils';
+import { useLocation, useHistory, useParams } from 'react-router-dom';
 import { useSideDrawerState } from './store/use-side-drawer-state';
+import { updateSideDrawerState } from './store/side-drawer-store';
 
 export const GetNotified = () => {
   return <div>Get Notified</div>;
@@ -16,28 +21,73 @@ export const ConvertCashToNToken = () => {
   return <div>Convert Cash To nTokens</div>;
 };
 
-export const useSideDrawerManager = (key?: SIDE_DRAWERS) => {
-  const { sideDrawerOpen } = useSideDrawerState();
-  const [sideDrawers, setSideDrawers] = useState<
-    Record<SIDE_DRAWERS, React.ElementType>
-  >({} as Record<SIDE_DRAWERS, React.ElementType>);
+export interface PortfolioParams {
+  category?: PORTFOLIO_CATEGORIES;
+  sideDrawerKey?: PORTFOLIO_ACTIONS;
+}
 
-  const SideDrawerComponent =
-    key && sideDrawers[key] ? sideDrawers[key] : undefined;
-  const drawerOpen = sideDrawerOpen && SideDrawerComponent ? true : false;
+export const useSideDrawerManager = () => {
+  const history = useHistory();
+  const { sideDrawer } = useQueryParams();
+  const { search, pathname } = useLocation();
+  const params = useParams<PortfolioParams>();
+  const searchParams = new URLSearchParams(search);
+  const { sideDrawerOpen, currentSideDrawerKey } = useSideDrawerState();
 
-  const addSideDrawers = useCallback(
-    (drawers) => {
-      setSideDrawers({ ...sideDrawers, ...drawers });
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [setSideDrawers]
-  );
+  useEffect(() => {
+    if (sideDrawerOpen && (!params?.sideDrawerKey || !sideDrawer))
+      updateSideDrawerState({
+        sideDrawerOpen: false,
+        currentSideDrawerKey: null,
+      });
+  }, [params?.sideDrawerKey, sideDrawer, sideDrawerOpen]);
+
+  if (
+    sideDrawer &&
+    !currentSideDrawerKey &&
+    Object.values(SIDE_DRAWERS).includes(
+      sideDrawer as unknown as SIDE_DRAWERS
+    ) &&
+    !sideDrawerOpen
+  ) {
+    updateSideDrawerState({
+      sideDrawerOpen: true,
+      currentSideDrawerKey: sideDrawer,
+    });
+  }
+
+  if (
+    params?.sideDrawerKey &&
+    !currentSideDrawerKey &&
+    Object.values(SIDE_DRAWERS).includes(
+      params.sideDrawerKey as unknown as SIDE_DRAWERS
+    ) &&
+    !sideDrawerOpen
+  ) {
+    updateSideDrawerState({
+      sideDrawerOpen: true,
+      currentSideDrawerKey: params?.sideDrawerKey,
+    });
+  }
+
+  const setWalletSideDrawer = (key: string) => {
+    if (!currentSideDrawerKey) {
+      searchParams.set('sideDrawer', key);
+      history.push(`${pathname}?${searchParams.toString()}`);
+    }
+  };
+
+  const deleteWalletSideDrawer = () => {
+    updateSideDrawerState({
+      sideDrawerOpen: false,
+      currentSideDrawerKey: null,
+    });
+    searchParams.delete('sideDrawer');
+    history.push(`${pathname}?${searchParams.toString()}`);
+  };
 
   return {
-    currentSideDrawerId: key,
-    SideDrawerComponent,
-    drawerOpen,
-    addSideDrawers,
+    setWalletSideDrawer,
+    deleteWalletSideDrawer,
   };
 };

@@ -71,7 +71,32 @@ export enum PORTFOLIO_CATEGORIES {
   MONEY_MARKET = 'money-market',
 }
 
-export enum SIDEBAR_CATEGORIES {
+export enum SETTINGS_SIDE_DRAWERS {
+  SETTINGS = 'settings',
+  NOTIFICATIONS = 'notifications',
+  CONNECT_WALLET = 'connect-wallet',
+}
+
+export enum SIDE_DRAWERS {
+  ADD_TO_CALENDAR = 'add-to-calendar',
+  DEPOSIT = 'deposit',
+  REPAY_CASH_DEBT = 'repay-cash-debt',
+  REPAY_IFCASH_BORROW = 'repay-ifcash-borrow',
+  REPAY_BORROW = 'repay-borrow',
+  WITHDRAW = 'withdraw',
+  WITHDRAW_LEND = 'withdraw-lend',
+  ROLL_MATURITY = 'roll-maturity',
+  CONVERT_CASH = 'convert-cash',
+  REDEEM_NTOKEN = 'redeem-ntoken',
+  // TODO: this should route to redeem-ntoken as a component
+  DELEVERAGE = 'deleverage',
+  DELEVERAGE_VAULT = 'deleverage-vault',
+  DELEVERAGE_VAULT_SELL_ASSETS = 'deleverage-vault-sell-assets',
+  DELEVERAGE_VAULT_DEPOSIT = 'deleverage-vault-deposit',
+  WITHDRAW_VAULT = 'withdraw-vault',
+  WITHDRAW_VAULT_POST_MATURITY = 'withdraw-vault-post-maturity',
+  GET_NOTIFIED = 'get-notified',
+  REMIND_ME = 'remind-me',
   SETTINGS = 'settings',
   NOTIFICATIONS = 'notifications',
   CONNECT_WALLET = 'connect-wallet',
@@ -103,4 +128,5 @@ export type TRANSACTION_ACTIONS =
   | LEND_BORROW
   | PORTFOLIO_ACTIONS
   | NTOKEN_ACTIONS;
-export type SIDE_DRAWERS = SIDEBAR_CATEGORIES | PORTFOLIO_ACTIONS;
+
+export type SIDE_DRAWERS_TYPE = SETTINGS_SIDE_DRAWERS | PORTFOLIO_ACTIONS;

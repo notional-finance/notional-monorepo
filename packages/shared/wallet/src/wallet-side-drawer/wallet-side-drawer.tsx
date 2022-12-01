@@ -1,22 +1,15 @@
-import { useEffect } from 'react';
-import { Box, styled } from '@mui/material';
+import { Box, styled, useTheme } from '@mui/material';
 import { SideDrawer } from '@notional-finance/mui';
 import { CloseX } from '@notional-finance/icons';
 import {
-  SIDEBAR_CATEGORIES,
+  SETTINGS_SIDE_DRAWERS,
   THEME_VARIANTS,
 } from '@notional-finance/shared-config';
-import { useQueryParams } from '@notional-finance/utils';
+import { useLocation, useHistory } from 'react-router-dom';
 import { NotionalTheme, useNotionalTheme } from '@notional-finance/styles';
+import { useSideDrawerManager } from '@notional-finance/shared-web';
 import { useWalletSideDrawer } from '../hooks';
-import {
-  updateSideDrawerState,
-  useSideDrawerManager,
-} from '@notional-finance/shared-web';
 import { FormattedMessage } from 'react-intl';
-import SettingsSideDrawer from '../settings-side-drawer/settings-side-drawer';
-import NotificationsSideDrawer from '../notifications-side-drawer/notifications-side-drawer';
-import ConnectWalletSideDrawer from '../connect-wallet-side-drawer/connect-wallet-side-drawer';
 
 interface SettingsButtonProps {
   theme: NotionalTheme;
@@ -24,72 +17,51 @@ interface SettingsButtonProps {
 }
 
 export function WalletSideDrawer() {
-  const theme = useNotionalTheme(THEME_VARIANTS.LIGHT);
-  const { sideDrawer } = useQueryParams();
-  const { setWalletSideDrawer, deleteWalletSideDrawer } = useWalletSideDrawer();
-  const sideDrawerKey = sideDrawer
-    ? (sideDrawer as SIDEBAR_CATEGORIES)
-    : undefined;
-
-  const {
-    SideDrawerComponent,
-    currentSideDrawerId,
-    drawerOpen,
-    addSideDrawers,
-  } = useSideDrawerManager(sideDrawerKey);
-
-  useEffect(() => {
-    addSideDrawers({
-      [SIDEBAR_CATEGORIES.SETTINGS]: SettingsSideDrawer,
-      [SIDEBAR_CATEGORIES.NOTIFICATIONS]: NotificationsSideDrawer,
-      [SIDEBAR_CATEGORIES.CONNECT_WALLET]: ConnectWalletSideDrawer,
-    });
-  }, [addSideDrawers]);
-
+  const lightTheme = useNotionalTheme(THEME_VARIANTS.LIGHT);
+  const defaultTheme = useTheme();
+  const history = useHistory();
+  const { search, pathname } = useLocation();
+  const searchParams = new URLSearchParams(search);
+  const { deleteWalletSideDrawer } = useSideDrawerManager();
+  const { SideDrawerComponent, openDrawer, currentSideDrawerKey } =
+    useWalletSideDrawer();
   const showSettingsHeader =
-    currentSideDrawerId === SIDEBAR_CATEGORIES.SETTINGS ||
-    currentSideDrawerId === SIDEBAR_CATEGORIES.NOTIFICATIONS;
-
-  useEffect(() => {
-    if (SideDrawerComponent) {
-      updateSideDrawerState({ sideDrawerOpen: true });
-    }
-  }, [SideDrawerComponent]);
+    currentSideDrawerKey === SETTINGS_SIDE_DRAWERS.SETTINGS ||
+    currentSideDrawerKey === SETTINGS_SIDE_DRAWERS.NOTIFICATIONS;
 
   const handleClick = (key: string) => {
-    setWalletSideDrawer(key);
+    // This method for setting the side drawer should only be used here.
+    searchParams.set('sideDrawer', key);
+    history.push(`${pathname}?${searchParams.toString()}`);
   };
 
-  const handleDrawer = (drawerState: boolean) => {
-    if (drawerState === false) {
-      deleteWalletSideDrawer();
-    }
-    updateSideDrawerState({ sideDrawerOpen: drawerState });
+  const handleDrawer = () => {
+    deleteWalletSideDrawer();
   };
 
-  const SettingsHeader = currentSideDrawerId
+  const SettingsHeader = currentSideDrawerKey
     ? () => {
         return (
-          <HeaderContainer theme={theme}>
+          <HeaderContainer theme={lightTheme}>
             <SettingsButton
-              onClick={() => handleClick(SIDEBAR_CATEGORIES.SETTINGS)}
-              currentSidebar={currentSideDrawerId}
-              theme={theme}
+              onClick={() => handleClick(SETTINGS_SIDE_DRAWERS.SETTINGS)}
+              currentSidebar={currentSideDrawerKey}
+              theme={lightTheme}
             >
               <FormattedMessage defaultMessage="Settings" />
             </SettingsButton>
             <NotificationsButton
-              onClick={() => handleClick(SIDEBAR_CATEGORIES.NOTIFICATIONS)}
-              currentSidebar={currentSideDrawerId}
-              theme={theme}
+              onClick={() => handleClick(SETTINGS_SIDE_DRAWERS.NOTIFICATIONS)}
+              currentSidebar={currentSideDrawerKey}
+              theme={lightTheme}
             >
               <FormattedMessage defaultMessage="Notifications" />
             </NotificationsButton>
-            <CloseButton theme={theme}>
+            <CloseButton theme={lightTheme}>
               <CloseX
-                onClick={() => handleDrawer(false)}
+                onClick={() => handleDrawer()}
                 style={{
-                  stroke: theme.palette.primary.contrastText,
+                  stroke: lightTheme.palette.primary.contrastText,
                   float: 'right',
                   cursor: 'pointer',
                 }}
@@ -102,12 +74,12 @@ export function WalletSideDrawer() {
 
   const ConnectWalletHeader = () => {
     return (
-      <ConnectWalletContainer theme={theme}>
-        <CloseButton theme={theme}>
+      <ConnectWalletContainer theme={defaultTheme}>
+        <CloseButton theme={defaultTheme}>
           <CloseX
-            onClick={() => handleDrawer(false)}
+            onClick={() => handleDrawer()}
             style={{
-              stroke: theme.palette.primary.contrastText,
+              stroke: defaultTheme.palette.primary.dark,
               float: 'right',
               cursor: 'pointer',
             }}
@@ -120,7 +92,7 @@ export function WalletSideDrawer() {
   return (
     <SideDrawer
       callback={handleDrawer}
-      drawerOpen={drawerOpen}
+      openDrawer={openDrawer}
       CustomHeader={showSettingsHeader ? SettingsHeader : ConnectWalletHeader}
     >
       {SideDrawerComponent && <SideDrawerComponent />}
@@ -178,7 +150,7 @@ const SettingsButton = styled(Box, {
   cursor: pointer;
   border-bottom: 5px solid transparent;
   ${
-    currentSidebar === SIDEBAR_CATEGORIES.SETTINGS &&
+    currentSidebar === SETTINGS_SIDE_DRAWERS.SETTINGS &&
     `color: ${theme.palette.info.main};
     border-bottom: 5px solid ${theme.palette.info.main};
     height: 100%;
@@ -201,7 +173,7 @@ const NotificationsButton = styled(Box, {
   cursor: pointer;
   border-bottom: 5px solid transparent;
   ${
-    currentSidebar === SIDEBAR_CATEGORIES.NOTIFICATIONS &&
+    currentSidebar === SETTINGS_SIDE_DRAWERS.NOTIFICATIONS &&
     `color: ${theme.palette.info.main};
     border-bottom: 5px solid ${theme.palette.info.main};
     height: 100%;

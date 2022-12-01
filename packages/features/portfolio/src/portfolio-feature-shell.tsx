@@ -1,9 +1,8 @@
-import { useEffect } from 'react';
 import { Box, styled, useTheme } from '@mui/material';
 import { useAccount } from '@notional-finance/notionable-hooks';
 import { useParams, useHistory } from 'react-router-dom';
 import { ButtonBar, SideDrawer } from '@notional-finance/mui';
-import { usePortfolioButtonBar } from './hooks';
+import { usePortfolioButtonBar, usePortfolioSideDrawers } from './hooks';
 import { EnabledCurrencies, SideNav } from './components';
 import {
   PortfolioOverview,
@@ -14,30 +13,11 @@ import {
   PortfolioMoneyMarket,
   PortfolioTransactionHistory,
 } from './containers';
-import {
-  ConvertCashToNToken,
-  updateSideDrawerState,
-  useSideDrawerManager,
-  RemindMe,
-  GetNotified,
-} from '@notional-finance/shared-web';
+import { useSideDrawerManager } from '@notional-finance/shared-web';
 import {
   PORTFOLIO_ACTIONS,
   PORTFOLIO_CATEGORIES,
-  SIDE_DRAWERS,
 } from '@notional-finance/shared-config';
-import {
-  AddToCalendar,
-  DeleverageVault,
-  DepositCollateral,
-  RedeemNToken,
-  RepayBorrow,
-  RepayCash,
-  RollMaturity,
-  Withdraw,
-  WithdrawLend,
-  WithdrawVault,
-} from './side-drawers';
 
 export interface PortfolioParams {
   category?: PORTFOLIO_CATEGORIES;
@@ -45,58 +25,23 @@ export interface PortfolioParams {
 }
 
 export const PortfolioFeatureShell = () => {
-  const history = useHistory();
   const theme = useTheme();
+  const history = useHistory();
   const params = useParams<PortfolioParams>();
-  const { SideDrawerComponent, drawerOpen, addSideDrawers } =
-    useSideDrawerManager(params.sideDrawerKey);
-
+  useSideDrawerManager();
+  const { SideDrawerComponent, openDrawer } = usePortfolioSideDrawers();
   const { buttonData } = usePortfolioButtonBar();
-
   const { accountConnected } = useAccount();
 
-  useEffect(() => {
-    addSideDrawers({
-      [PORTFOLIO_ACTIONS.REPAY_BORROW]: RepayBorrow,
-      [PORTFOLIO_ACTIONS.WITHDRAW_LEND]: WithdrawLend,
-      [PORTFOLIO_ACTIONS.ROLL_MATURITY]: RollMaturity,
-      [PORTFOLIO_ACTIONS.REPAY_CASH_DEBT]: RepayCash,
-      [PORTFOLIO_ACTIONS.REPAY_IFCASH_BORROW]: RepayCash,
-      [PORTFOLIO_ACTIONS.REDEEM_NTOKEN]: RedeemNToken,
-      [PORTFOLIO_ACTIONS.CONVERT_CASH]: ConvertCashToNToken,
-      [PORTFOLIO_ACTIONS.REMIND_ME]: RemindMe,
-      [PORTFOLIO_ACTIONS.DEPOSIT]: DepositCollateral,
-      [PORTFOLIO_ACTIONS.WITHDRAW]: Withdraw,
-      [PORTFOLIO_ACTIONS.GET_NOTIFIED]: GetNotified,
-      // TODO: deleverage might need to change
-      [PORTFOLIO_ACTIONS.DELEVERAGE]: RedeemNToken,
-      [PORTFOLIO_ACTIONS.DELEVERAGE_VAULT]: DeleverageVault,
-      [PORTFOLIO_ACTIONS.DELEVERAGE_VAULT_SELL_ASSETS]: DeleverageVault,
-      [PORTFOLIO_ACTIONS.DELEVERAGE_VAULT_DEPOSIT]: DeleverageVault,
-      [PORTFOLIO_ACTIONS.WITHDRAW_VAULT]: WithdrawVault,
-      [PORTFOLIO_ACTIONS.WITHDRAW_VAULT_POST_MATURITY]: WithdrawVault,
-      [PORTFOLIO_ACTIONS.ADD_TO_CALENDAR]: AddToCalendar,
-    } as Record<PORTFOLIO_ACTIONS, React.ElementType>);
-  }, [addSideDrawers]);
-
-  useEffect(() => {
-    if (SideDrawerComponent) {
-      updateSideDrawerState({ sideDrawerOpen: true });
-    }
-  }, [SideDrawerComponent]);
-
-  const handleDrawer = (drawerState: boolean) => {
-    if (drawerState === false) {
-      history.push(
-        `/portfolio/${params?.category || PORTFOLIO_CATEGORIES.OVERVIEW}`
-      );
-    }
-    updateSideDrawerState({ sideDrawerOpen: drawerState });
+  const handleDrawer = () => {
+    history.push(
+      `/portfolio/${params?.category || PORTFOLIO_CATEGORIES.OVERVIEW}`
+    );
   };
 
   return (
     <PortfolioContainer>
-      <SideDrawer callback={handleDrawer} drawerOpen={drawerOpen}>
+      <SideDrawer callback={handleDrawer} openDrawer={openDrawer}>
         {SideDrawerComponent && <SideDrawerComponent />}
       </SideDrawer>
       <PortfolioSidebar>

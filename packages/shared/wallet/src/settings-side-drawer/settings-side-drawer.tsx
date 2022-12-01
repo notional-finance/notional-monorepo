@@ -2,10 +2,13 @@ import { useState, useRef, useEffect } from 'react';
 import { Box, styled, useTheme, Typography, Slide } from '@mui/material';
 import { useOnboard } from '@notional-finance/notionable-hooks';
 import { SideBarSubHeader, Button, H4 } from '@notional-finance/mui';
-import { SettingsItem, useSettingsSideDrawer } from './use-settings-side-drawer';
+import {
+  SettingsItem,
+  useSettingsSideDrawer,
+} from './use-settings-side-drawer';
+import { useSideDrawerManager } from '@notional-finance/shared-web';
 import { NotionalTheme } from '@notional-finance/styles';
 import { defineMessage, FormattedMessage } from 'react-intl';
-import { useWalletSideDrawer } from '../hooks';
 
 /* eslint-disable-next-line */
 export interface SettingsSideDrawerProps {
@@ -17,11 +20,13 @@ interface StyledWalletButton {
   clickable?: boolean;
 }
 
-export const SettingsSideDrawer = ({ showConnectWallet }: SettingsSideDrawerProps) => {
+export const SettingsSideDrawer = ({
+  showConnectWallet,
+}: SettingsSideDrawerProps) => {
   const containerRef = useRef(null);
   const theme = useTheme();
   const { accountData, transactionData } = useSettingsSideDrawer();
-  const { deleteWalletSideDrawer } = useWalletSideDrawer();
+  const { deleteWalletSideDrawer } = useSideDrawerManager();
   const { label, resetWallet, connected } = useOnboard();
   const [settingsItem, setSettingsItem] = useState<SettingsItem | null>(null);
 
@@ -66,9 +71,13 @@ export const SettingsSideDrawer = ({ showConnectWallet }: SettingsSideDrawerProp
             >
               {data.label}
             </H4>
-            {data.key === 'darkMode' && data.CustomButton && <data.CustomButton />}
+            {data.key === 'darkMode' && data.CustomButton && (
+              <data.CustomButton />
+            )}
             {data.key !== 'darkMode' && (
-              <ButtonData>{data.CustomButton ? <data.CustomButton /> : data.buttonText}</ButtonData>
+              <ButtonData>
+                {data.CustomButton ? <data.CustomButton /> : data.buttonText}
+              </ButtonData>
             )}
           </WalletButton>
         ))}
@@ -78,7 +87,11 @@ export const SettingsSideDrawer = ({ showConnectWallet }: SettingsSideDrawerProp
           <FormattedMessage defaultMessage="Transactions" />
         </Title>
         {transactionData.map((data) => (
-          <WalletButton theme={theme} onClick={() => handleClick(data)} key={data.key}>
+          <WalletButton
+            theme={theme}
+            onClick={() => handleClick(data)}
+            key={data.key}
+          >
             <H4
               sx={{
                 flex: 1,
@@ -88,25 +101,44 @@ export const SettingsSideDrawer = ({ showConnectWallet }: SettingsSideDrawerProp
             >
               {data.label}
             </H4>
-            <ButtonData>{data?.CustomButton ? <data.CustomButton /> : data.buttonText}</ButtonData>
+            <ButtonData>
+              {data?.CustomButton ? <data.CustomButton /> : data.buttonText}
+            </ButtonData>
           </WalletButton>
         ))}
       </Box>
       {connected && (
-        <Box sx={{ textAlign: 'center', marginTop: 'auto', marginBottom: theme.spacing(6) }}>
-          <Button size="large" fullWidth variant="outlined" onClick={() => handleDisconnect()}>
+        <Box
+          sx={{
+            textAlign: 'center',
+            marginTop: 'auto',
+            marginBottom: theme.spacing(6),
+          }}
+        >
+          <Button
+            size="large"
+            fullWidth
+            variant="outlined"
+            onClick={() => handleDisconnect()}
+          >
             <FormattedMessage defaultMessage="Disconnect Wallet" />
           </Button>
         </Box>
       )}
 
-      <Slide direction="left" in={settingsItem !== null} container={containerRef.current}>
+      <Slide
+        direction="left"
+        in={settingsItem !== null}
+        container={containerRef.current}
+      >
         <SubSidebar>
           <SideBarSubHeader
             callback={() => handleClick(null)}
             titleText={defineMessage({ defaultMessage: 'Settings' })}
           />
-          {settingsItem && settingsItem?.ViewComponent && <settingsItem.ViewComponent />}
+          {settingsItem && settingsItem?.ViewComponent && (
+            <settingsItem.ViewComponent />
+          )}
         </SubSidebar>
       </Slide>
     </>
