@@ -71,11 +71,17 @@ export enum PORTFOLIO_CATEGORIES {
   MONEY_MARKET = 'money-market',
 }
 
-export enum SIDEBAR_CATEGORIES {
+export enum SETTINGS_SIDE_DRAWERS {
   SETTINGS = 'settings',
   NOTIFICATIONS = 'notifications',
   CONNECT_WALLET = 'connect-wallet',
 }
+
+export const SIDE_DRAWERS = {
+  ...PORTFOLIO_ACTIONS,
+  ...SETTINGS_SIDE_DRAWERS
+}
+
 
 export enum NAV_DROPDOWN {
   ABOUT = 'About',
@@ -103,4 +109,5 @@ export type TRANSACTION_ACTIONS =
   | LEND_BORROW
   | PORTFOLIO_ACTIONS
   | NTOKEN_ACTIONS;
-export type SIDE_DRAWERS = SIDEBAR_CATEGORIES | PORTFOLIO_ACTIONS;
+
+export type SIDE_DRAWERS_TYPE = SETTINGS_SIDE_DRAWERS | PORTFOLIO_ACTIONS;

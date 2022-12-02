@@ -1,9 +1,9 @@
 import { useParams } from 'react-router';
 import { PortfolioParams } from '../../portfolio-feature-shell';
-import { useWalletSideDrawer } from '@notional-finance/wallet';
+import { useSideDrawerManager } from '@notional-finance/shared-web';
 import {
   PORTFOLIO_CATEGORIES,
-  SIDEBAR_CATEGORIES,
+  SETTINGS_SIDE_DRAWERS,
 } from '@notional-finance/shared-config';
 import { defineMessages, MessageDescriptor } from 'react-intl';
 interface EmptyPortfolioData {
@@ -14,7 +14,7 @@ interface EmptyPortfolioData {
 
 export const useEmptyPortfolio = () => {
   const { category } = useParams<PortfolioParams>();
-  const { setWalletSideDrawer } = useWalletSideDrawer();
+  const { setWalletSideDrawer } = useSideDrawerManager();
 
   const emptyData = {
     [PORTFOLIO_CATEGORIES.BORROWS]: {
@@ -68,7 +68,7 @@ export const useEmptyPortfolio = () => {
           description: 'empty overview button text',
         },
       }),
-      callback: () => setWalletSideDrawer(SIDEBAR_CATEGORIES.CONNECT_WALLET),
+      callback: () => setWalletSideDrawer(SETTINGS_SIDE_DRAWERS.CONNECT_WALLET),
     },
     [PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY]: {
       messages: defineMessages({

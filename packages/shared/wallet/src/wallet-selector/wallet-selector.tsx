@@ -13,15 +13,14 @@ import WalletSideDrawer from '../wallet-side-drawer/wallet-side-drawer';
 import { getNotificationsData } from './wallet-selector.service';
 import NetworkSelector from '../network-selector/network-selector';
 import { useOnboard, useAccount } from '@notional-finance/notionable-hooks';
-import { useParams } from 'react-router-dom';
 import { ProgressIndicator } from '@notional-finance/mui';
+import { useSideDrawerManager } from '@notional-finance/shared-web';
 import { useWalletSideDrawer } from '../hooks';
 import {
   PORTFOLIO_ACTIONS,
   PORTFOLIO_CATEGORIES,
-  SIDEBAR_CATEGORIES,
+  SETTINGS_SIDE_DRAWERS,
 } from '@notional-finance/shared-config';
-import { useSideDrawerManager } from '@notional-finance/shared-web';
 import { ButtonText } from '@notional-finance/mui';
 
 export interface PortfolioParams {
@@ -31,14 +30,14 @@ export interface PortfolioParams {
 
 export function WalletSelector() {
   const theme = useTheme();
-  const params = useParams<PortfolioParams>();
   const { connected, icon, label } = useOnboard();
   const { truncatedAddress } = useAccount();
   const [notificationsActive, setNotificationsActive] =
     useState<boolean>(false);
-  const { drawerOpen } = useSideDrawerManager();
   const notifications = getFromLocalStorage('notifications');
-  const { setWalletSideDrawer, deleteWalletSideDrawer } = useWalletSideDrawer();
+  const { setWalletSideDrawer, deleteWalletSideDrawer } =
+    useSideDrawerManager();
+  const { openDrawer } = useWalletSideDrawer();
 
   useEffect(() => {
     if (!notifications.blogData) {
@@ -49,12 +48,11 @@ export function WalletSelector() {
     setNotificationsActive(notifications.active);
   }, [notifications]);
 
-  const handleClick = (key: SIDEBAR_CATEGORIES) => {
-    if (drawerOpen) {
+  const handleClick = (key: SETTINGS_SIDE_DRAWERS) => {
+    if (openDrawer) {
       deleteWalletSideDrawer();
     }
-
-    if (!drawerOpen && !params?.sideDrawerKey) {
+    if (!openDrawer) {
       setWalletSideDrawer(key);
     }
   };
@@ -86,7 +84,9 @@ export function WalletSelector() {
                 <ButtonText>{truncatedAddress}</ButtonText>
                 <Box
                   sx={{ marginLeft: '10px', display: 'flex' }}
-                  onClick={() => handleClick(SIDEBAR_CATEGORIES.NOTIFICATIONS)}
+                  onClick={() =>
+                    handleClick(SETTINGS_SIDE_DRAWERS.NOTIFICATIONS)
+                  }
                 >
                   {notificationsActive ? <ActiveBellIcon /> : <BellIcon />}
                 </Box>
@@ -96,7 +96,7 @@ export function WalletSelector() {
 
           {!connected && truncatedAddress && (
             <ProcessContainer
-              onClick={() => handleClick(SIDEBAR_CATEGORIES.CONNECT_WALLET)}
+              onClick={() => handleClick(SETTINGS_SIDE_DRAWERS.CONNECT_WALLET)}
             >
               <IconContainer>
                 <EyeIcon />
@@ -110,7 +110,7 @@ export function WalletSelector() {
           )}
           {!connected && !truncatedAddress && (
             <ProcessContainer
-              onClick={() => handleClick(SIDEBAR_CATEGORIES.CONNECT_WALLET)}
+              onClick={() => handleClick(SETTINGS_SIDE_DRAWERS.CONNECT_WALLET)}
             >
               <ButtonText>
                 <FormattedMessage defaultMessage="Connect a Wallet" />
@@ -124,7 +124,7 @@ export function WalletSelector() {
           )}
           <IconContainer
             sx={{ background: theme.palette.info.light }}
-            onClick={() => handleClick(SIDEBAR_CATEGORIES.SETTINGS)}
+            onClick={() => handleClick(SETTINGS_SIDE_DRAWERS.SETTINGS)}
           >
             <GearIcon />
           </IconContainer>

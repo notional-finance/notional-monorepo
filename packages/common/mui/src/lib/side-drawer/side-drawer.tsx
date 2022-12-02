@@ -4,14 +4,14 @@ import { SideBarSubHeader } from '../side-bar-sub-header/side-bar-sub-header';
 
 export interface SideDrawerProps {
   children: React.ReactNode;
-  drawerOpen: boolean;
+  openDrawer: boolean;
   callback: (drawerState: boolean) => void;
   CustomHeader?: ({ onClose }: { onClose: () => void }) => JSX.Element;
 }
 
 export function SideDrawer({
   children,
-  drawerOpen,
+  openDrawer,
   callback,
   CustomHeader,
 }: SideDrawerProps) {
@@ -28,7 +28,7 @@ export function SideDrawer({
   return (
     <SwipeableDrawer
       anchor="right"
-      open={drawerOpen}
+      open={openDrawer}
       onClose={() => toggleDrawer(false)}
       onOpen={() => toggleDrawer(true)}
       onBackdropClick={() => callback(false)}

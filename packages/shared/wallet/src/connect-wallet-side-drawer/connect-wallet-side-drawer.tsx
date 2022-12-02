@@ -1,11 +1,9 @@
 import { useTheme, Box, styled } from '@mui/material';
 import { useOnboard } from '@notional-finance/notionable-hooks';
-import { useHistory } from 'react-router-dom';
 import { ArrowIcon } from '@notional-finance/icons';
-import { SIDEBAR_CATEGORIES } from '@notional-finance/shared-config';
+import { SETTINGS_SIDE_DRAWERS } from '@notional-finance/shared-config';
 import { FormattedMessage } from 'react-intl';
 import { useSideDrawerManager } from '@notional-finance/shared-web';
-import { useQueryParams } from '@notional-finance/utils';
 import { ViewAsAccount } from '../view-as-account/view-as-account';
 import { useWalletSideDrawer } from '../hooks';
 import { useEffect } from 'react';
@@ -13,23 +11,18 @@ import { H4 } from '@notional-finance/mui';
 
 export const ConnectWalletSideDrawer = () => {
   const theme = useTheme();
-  const history = useHistory();
-  const { sideDrawer } = useQueryParams();
-  const sideDrawerKey = sideDrawer
-    ? (sideDrawer as SIDEBAR_CATEGORIES)
-    : undefined;
   const { modules, connectWallet, connected } = useOnboard();
-  const { deleteWalletSideDrawer } = useWalletSideDrawer();
-  const { currentSideDrawerId } = useSideDrawerManager(sideDrawerKey);
+  const { currentSideDrawerKey } = useWalletSideDrawer();
+  const { deleteWalletSideDrawer } = useSideDrawerManager();
 
   useEffect(() => {
     if (
       connected &&
-      SIDEBAR_CATEGORIES.CONNECT_WALLET === currentSideDrawerId
+      SETTINGS_SIDE_DRAWERS.CONNECT_WALLET === currentSideDrawerKey
     ) {
       deleteWalletSideDrawer();
     }
-  }, [connected, currentSideDrawerId, history, deleteWalletSideDrawer]);
+  }, [connected, currentSideDrawerKey, deleteWalletSideDrawer]);
 
   return (
     <>
