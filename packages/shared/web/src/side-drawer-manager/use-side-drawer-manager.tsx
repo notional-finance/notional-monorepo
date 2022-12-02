@@ -46,7 +46,7 @@ export const useSideDrawerManager = () => {
     sideDrawer &&
     !currentSideDrawerKey &&
     Object.values(SIDE_DRAWERS).includes(
-      sideDrawer as unknown as SIDE_DRAWERS
+      sideDrawer as unknown as SIDE_DRAWERS_TYPE
     ) &&
     !sideDrawerOpen
   ) {
@@ -60,7 +60,7 @@ export const useSideDrawerManager = () => {
     params?.sideDrawerKey &&
     !currentSideDrawerKey &&
     Object.values(SIDE_DRAWERS).includes(
-      params.sideDrawerKey as unknown as SIDE_DRAWERS
+      params.sideDrawerKey as unknown as SIDE_DRAWERS_TYPE
     ) &&
     !sideDrawerOpen
   ) {

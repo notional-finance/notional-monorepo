@@ -77,30 +77,11 @@ export enum SETTINGS_SIDE_DRAWERS {
   CONNECT_WALLET = 'connect-wallet',
 }
 
-export enum SIDE_DRAWERS {
-  ADD_TO_CALENDAR = 'add-to-calendar',
-  DEPOSIT = 'deposit',
-  REPAY_CASH_DEBT = 'repay-cash-debt',
-  REPAY_IFCASH_BORROW = 'repay-ifcash-borrow',
-  REPAY_BORROW = 'repay-borrow',
-  WITHDRAW = 'withdraw',
-  WITHDRAW_LEND = 'withdraw-lend',
-  ROLL_MATURITY = 'roll-maturity',
-  CONVERT_CASH = 'convert-cash',
-  REDEEM_NTOKEN = 'redeem-ntoken',
-  // TODO: this should route to redeem-ntoken as a component
-  DELEVERAGE = 'deleverage',
-  DELEVERAGE_VAULT = 'deleverage-vault',
-  DELEVERAGE_VAULT_SELL_ASSETS = 'deleverage-vault-sell-assets',
-  DELEVERAGE_VAULT_DEPOSIT = 'deleverage-vault-deposit',
-  WITHDRAW_VAULT = 'withdraw-vault',
-  WITHDRAW_VAULT_POST_MATURITY = 'withdraw-vault-post-maturity',
-  GET_NOTIFIED = 'get-notified',
-  REMIND_ME = 'remind-me',
-  SETTINGS = 'settings',
-  NOTIFICATIONS = 'notifications',
-  CONNECT_WALLET = 'connect-wallet',
+export const SIDE_DRAWERS = {
+  ...PORTFOLIO_ACTIONS,
+  ...SETTINGS_SIDE_DRAWERS
 }
+
 
 export enum NAV_DROPDOWN {
   ABOUT = 'About',

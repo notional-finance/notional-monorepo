@@ -11,7 +11,7 @@
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
       "rules": {
         "@nrwl/nx/enforce-module-boundaries": [
-          "error",
+          "warn",
           {
             "enforceBuildableLibDependency": true,
             "allow": [],
@@ -32,7 +32,7 @@
         "@typescript-eslint/no-unused-vars": ["error", { "varsIgnorePattern": "[_].*"}],
         "react-hooks/exhaustive-deps": ["error"],
         "array-callback-return": ["error"],
-        "@nrwl/nx/enforce-module-boundaries": ["error"]
+        "@nrwl/nx/enforce-module-boundaries": ["warn"]
       }
     },
     {
