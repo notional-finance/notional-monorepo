@@ -11,14 +11,15 @@ export function useStakedNoteReturns() {
   if (notional) {
     // TODO: update this calculation somehow...
     const { sNOTETotalSupply } = notional.system.getStakedNoteParameters();
-    const { ethClaim, noteClaim } = StakedNote.getRedemptionValue(sNOTETotalSupply);
+    const { ethClaim, noteClaim } =
+      StakedNote.getRedemptionValue(sNOTETotalSupply);
     totalStakedNOTEValueUSD = ethClaim
       .toInternalPrecision()
       .fromETH(NOTE_CURRENCY_ID, false)
       .add(noteClaim)
       .toUSD()
       .toFloat();
-    annualInvestmentRate = 1850000;
+    annualInvestmentRate = 388000;
     stakedNOTEApy = (annualInvestmentRate / totalStakedNOTEValueUSD) * 100;
   }
 
