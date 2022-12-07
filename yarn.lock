@@ -1505,7 +1505,7 @@
     "@datadog/browser-core" "4.24.1"
     "@datadog/browser-rum-core" "4.24.1"
 
-"@datadog/datadog-api-client@^1.0.0":
+"@datadog/datadog-api-client@^1.6.0":
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/@datadog/datadog-api-client/-/datadog-api-client-1.6.0.tgz#c09caa7e34ddaa346ba56c04c0e43bb288c501bd"
   integrity sha512-+iYaZt/yb7Unv4zIsh2WSdQU15cwsBTKrtpU4Z1wG90G2LFabqhWzARx/4qQ2Wms07hjUkA2rLTffd0+vGgyGA==
