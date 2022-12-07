@@ -28,36 +28,6 @@
         "jestConfig": "packages/error/jest.config.ts",
         "passWithNoTests": true
       }
-    },
-    "version": {
-      "executor": "@jscutlery/semver:version",
-      "options": {
-        "preset": "conventional",
-        "push": true,
-        "skipCommitTypes": [
-          "chore",
-          "docs",
-          "perf",
-          "test",
-          "build",
-          "ci",
-          "revert"
-        ],
-        "postTargets": ["error:github-release", "error:npm-publish"]
-      }
-    },
-    "github-release": {
-      "executor": "@jscutlery/semver:github",
-      "options": {
-        "tag": "${tag}",
-        "notesFile": "./packages/error/CHANGELOG.md"
-      }
-    },
-    "npm-publish": {
-      "executor": "ngx-deploy-npm:deploy",
-      "options": {
-        "access": "public"
-      }
     }
   },
   "tags": []
