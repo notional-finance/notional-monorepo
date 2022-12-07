@@ -42,6 +42,7 @@ jobs:
           NX_SYSTEM_CACHE_URL: ${{ secrets.NX_SYSTEM_CACHE_URL }}
           NX_ALCHEMY_KEY: ${{ secrets.NX_ALCHEMY_KEY }}
           NX_EXCHANGE_RATE_API: ${{ secrets.NX_EXCHANGE_RATE_API }}
+          NX_ENV: ${{ github.event.inputs.environment || 'dev' }}
       - name: Publish Dev
         uses: cloudflare/pages-action@1
         with:
