@@ -9,7 +9,7 @@
   "dependencies": {
     "@apollo/client": "^3.7.0",
     "@datadog/browser-rum": "^4.11.3",
-    "@datadog/datadog-api-client": "^1.0.0",
+    "@datadog/datadog-api-client": "^1.6.0",
     "@emotion/react": "11.10.4",
     "@emotion/styled": "11.10.4",
     "@ethersproject/abi": "^5.7.0",
@@ -23,6 +23,7 @@
     "abi-decoder": "^2.4.0",
     "axios": "^0.27.2",
     "bnc-sdk": "^4.3.0",
+    "browserify-zlib": "^0.2.0",
     "calendar-link": "^2.1.1",
     "core-js": "^3.6.5",
     "cross-fetch": "^3.1.5",
@@ -60,6 +61,7 @@
     "sha256": "^0.2.0",
     "tslib": "^2.3.0",
     "use-query-params": "^2.1.1",
+    "winston": "^3.8.2",
     "yarn": "^1.22.19"
   },
   "devDependencies": {
@@ -100,6 +102,7 @@
     "@testing-library/react": "12.1.5",
     "@testing-library/react-hooks": "7.0.2",
     "@typechain/ethers-v5": "^10.1.0",
+    "@types/datadog-winston": "^1.0.5",
     "@types/jest": "28.1.1",
     "@types/node": "16.11.7",
     "@types/react": "17.0.39",
@@ -126,6 +129,7 @@
     "babel-plugin-formatjs": "^10.3.29",
     "chai": "^4.3.6",
     "crypto-browserify": "^3.12.0",
+    "datadog-winston": "^1.5.1",
     "eslint": "~8.15.0",
     "eslint-config-prettier": "8.1.0",
     "eslint-plugin-formatjs": "^4.3.4",

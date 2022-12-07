@@ -17,6 +17,7 @@
     "features-vault": "packages/features/vault",
     "geoip": "apps/geoip",
     "graph-client": "packages/graph-client",
+    "logging": "packages/logging",
     "multicall": "packages/multicall",
     "notionable": "packages/notionable",
     "sdk": "packages/sdk",
