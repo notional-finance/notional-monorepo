@@ -11,7 +11,8 @@
         "outputPath": "dist/packages/logging",
         "main": "packages/logging/src/index.ts",
         "tsConfig": "packages/logging/tsconfig.lib.json",
-        "assets": ["packages/logging/*.md"]
+        "assets": ["packages/logging/*.md"],
+        "buildableProjectDepsInPackageJsonType": "dependencies"
       }
     },
     "publish": {
