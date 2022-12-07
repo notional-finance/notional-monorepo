@@ -9,7 +9,8 @@ import {
   setChain,
 } from '../onboard/onboard-manager';
 import { OnboardOptions } from '../types';
-import { chainIds as supportedChainIds } from '../chains';
+import { chainIds as supportedChainIds, chainEntities } from '../chains';
+import { log } from '@notional-finance/logging';
 
 export async function initializeNetwork({
   enableAccountCenter = false,
@@ -30,8 +31,16 @@ export async function initializeNetwork({
     if (wallet && typeof wallet === 'string') {
       await connectWallet(wallet);
     }
+    log({
+      message: 'Network Initialized',
+      level: 'info',
+      chain: getNetworkName(chainId),
+    });
   } catch (e) {
-    console.error(e);
+    log({
+      message: 'Failed to initialize network',
+      level: 'error',
+    });
     throw new Error('Failed to initialize network');
   }
 }
@@ -62,4 +71,11 @@ export function getDefaultNetwork() {
     return chainId;
   }
   return getNetworkIdFromHostname(window.location.hostname);
+}
+
+export function getNetworkName(chainId: number | string) {
+  const id =
+    typeof chainId === 'number' ? `0x${chainId.toString(16)}` : chainId;
+  const chain = chainEntities[id].label;
+  return chain;
 }

@@ -41,12 +41,15 @@ import TermsView from '../../containers/TermsView/Loadable';
 import PrivacyView from '../../containers/PrivacyView/Loadable';
 import LandingPageView from '../../containers/LandingPageView/Loadable';
 import { ProvideLiquidityCards } from '@notional-finance/liquidity-feature-shell';
-
+import { createLogger } from '@notional-finance/logging';
 const applicationId = process.env['NX_DD_APP_ID'] as string;
-const clientToken = process.env['NX_DD_CLIENT_TOKEN'] as string;
-const site = process.env['NX_DD_SITE'];
+const clientToken = process.env['NX_DD_API_KEY'] as string;
+const site = process.env['NX_DD_BASE_URL'];
 // COMMIT_REF environment variable is supplied by netlify on deployment
 const version = `${process.env['COMMIT_REF']?.substring(0, 8) || 'local'}`;
+const DD_API_KEY = process.env['NX_DD_API_KEY'] as string;
+const service = 'web-frontend';
+const NX_ENV = process.env['NX_ENV'] as string;
 const { disableErrorReporting } = getFromLocalStorage('privacySettings');
 
 datadogRum.init({
@@ -58,7 +61,7 @@ datadogRum.init({
   applicationId,
   clientToken,
   site,
-  service: 'web-frontend',
+  service,
   env: window.location.hostname,
   version,
   sampleRate: 100,
@@ -75,6 +78,12 @@ export const App = () => {
 
   const initApplication = useCallback(async () => {
     try {
+      createLogger({
+        apiKey: DD_API_KEY,
+        service,
+        env: NX_ENV,
+        version,
+      });
       await initializeNetwork({ container: '#onboard' });
     } catch (error) {
       reportError({

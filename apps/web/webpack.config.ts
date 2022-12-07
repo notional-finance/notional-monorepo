@@ -12,6 +12,7 @@ function getWebpackConfig(config: webpack.Configuration) {
     buffer: require.resolve('buffer'),
     crypto: require.resolve('crypto-browserify'),
     events: require.resolve('events/'),
+    fs: false,
     http: require.resolve('stream-http'),
     https: require.resolve('https-browserify'),
     path: require.resolve('path-browserify'),
@@ -22,6 +23,7 @@ function getWebpackConfig(config: webpack.Configuration) {
     timers: require.resolve('timers-browserify'),
     stream: require.resolve('stream-browserify'),
     os: require.resolve('os-browserify/browser'),
+    zlib: require.resolve('browserify-zlib'),
   };
 
   config.experiments = {

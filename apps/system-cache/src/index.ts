@@ -1,6 +1,7 @@
 import { fetchSystem } from '@notional-finance/sdk/data/SystemData';
 import getUSDPriceData from '@notional-finance/sdk/data/sources/ExchangeRate';
 import { BigNumber, ethers } from 'ethers';
+import { createLogger, log } from '@notional-finance/logging';
 /**
  * Welcome to Cloudflare Workers! This is your first scheduled worker.
  *
@@ -18,10 +19,11 @@ export interface Env {
   VAULT_RETURNS: R2Bucket;
   EXCHANGE_RATE_API_KEY: string;
   ALCHEMY_KEY: string;
-  DD_API_KEY: string;
-  DD_APP_ID: string;
-  DD_BASE_URL: string;
+  NX_DD_API_KEY: string;
+  NX_DD_APP_ID: string;
+  NX_DD_BASE_URL: string;
   VERSION: string;
+  NX_ENV: string;
 }
 
 const REFRESH_INTERVAL_MILLISECONDS = 6 * 1000;
@@ -35,8 +37,6 @@ const supportedChains = [
   { chainId: 5, network: 'goerli', url: 'https://eth-goerli.alchemyapi.io/v2' },
 ];
 
-type DataDogEventTypes = 'error' | 'warning' | 'info' | 'success';
-
 export class SystemCache {
   private state: DurableObjectState;
   private storage: DurableObjectStorage;
@@ -46,12 +46,20 @@ export class SystemCache {
     this.state = state;
     this.storage = state.storage;
     this.env = env;
+    this.log = log.bind(this);
 
     this.state.blockConcurrencyWhile(async () => {
       const currentAlarm = await this.storage.getAlarm();
       if (currentAlarm == null) {
         await this.alarm();
       }
+    });
+
+    createLogger({
+      service: 'system-cache',
+      version: env.VERSION,
+      env: env.NX_ENV,
+      apiKey: env.NX_DD_API_KEY,
     });
   }
 
@@ -63,70 +71,6 @@ export class SystemCache {
       network: splitPath[2],
       action: splitPath.length < 4 ? 'cache' : splitPath[3],
     };
-  }
-
-  private async fireDataDogMetric(
-    eventName: string,
-    metric: string | number,
-    network: string,
-    env: Env = this.env
-  ) {
-    const timestamp = Math.floor(new Date().getTime() / 1000);
-    try {
-      const bodyData = JSON.stringify({
-        series: [
-          {
-            metric: `${network}.system_cache.${env.VERSION}.${eventName}`,
-            points: [[timestamp, metric]],
-            tags: network,
-          },
-        ],
-      });
-
-      await fetch(`${env.DD_BASE_URL}/api/v1/series`, {
-        method: 'POST',
-        body: bodyData,
-        headers: {
-          'Content-Type': 'application/json',
-          'DD-API-KEY': env.DD_API_KEY,
-          'DD-APPLICATION-KEY': env.DD_APP_ID,
-        },
-      });
-    } catch (e) {
-      console.error(e);
-    }
-  }
-
-  private async fireDataDogEvent(
-    eventName: string,
-    eventType: DataDogEventTypes,
-    text: string,
-    network: string,
-    env: Env = this.env
-  ) {
-    const timestamp = Math.floor(new Date().getTime() / 1000);
-    try {
-      const bodyData = JSON.stringify({
-        aggregation_key: `${network}.system_cache.${env.VERSION}.${eventName}`,
-        title: eventName,
-        text: text,
-        tags: network,
-        date_happened: timestamp,
-        alert_type: eventType,
-      });
-
-      await fetch(`${env.DD_BASE_URL}/api/v1/events`, {
-        method: 'POST',
-        body: bodyData,
-        headers: {
-          'Content-Type': 'application/json',
-          'DD-API-KEY': env.DD_API_KEY,
-          'DD-APPLICATION-KEY': env.DD_APP_ID,
-        },
-      });
-    } catch (e) {
-      console.error(e);
-    }
   }
 
   async fetch(request: Request) {
@@ -209,21 +153,21 @@ export class SystemCache {
         true
       );
       await this.storage.put(`cache:usdExchangeRates`, usdExchangeRates);
-      await this.fireDataDogEvent(
-        'exchange_rate.refresh',
-        'success',
-        'Exchange Rate Update Success',
-        'mainnet'
-      );
+      this.log({
+        message: 'Exchange Rate Update Success',
+        level: 'info',
+        chain: 'mainnet',
+        action: 'exchange_rate.refresh',
+      });
       return new Response('OK', { status: 200, statusText: 'OK' });
     } catch (e) {
-      console.error(e);
-      await this.fireDataDogEvent(
-        'exchange_rate.refresh',
-        'error',
-        (e as Error).message,
-        'mainnet'
-      );
+      this.log({
+        message: (e as Error).message,
+        level: 'error',
+        chain: 'mainnet',
+        action: 'exchange_rate.refresh',
+      });
+
       throw e;
     }
   }
@@ -233,12 +177,12 @@ export class SystemCache {
       `cache:usdExchangeRates`
     );
     if (rates === undefined || Array.from(Object.keys(rates)).length === 0) {
-      await this.fireDataDogEvent(
-        'exchange_rate.missing',
-        'error',
-        'Exchange Rate Data Missing',
-        'mainnet'
-      );
+      this.log({
+        message: 'Exchange Rate Data Missing',
+        level: 'error',
+        chain: 'mainnet',
+        action: 'exchange_rate.missing',
+      });
     }
     return rates || {};
   }
@@ -266,11 +210,13 @@ export class SystemCache {
       );
       await this.storage.put(`${network}:cache:binary`, binary);
       await this.storage.put(`${network}:cache:json`, json);
-      await this.fireDataDogMetric(
-        'cache_update',
-        JSON.parse(json).lastUpdateBlockNumber,
-        network
-      );
+      this.log({
+        message: 'Cache Update Success',
+        action: 'cache_update',
+        lastUpdateBlockNumber: JSON.parse(json).lastUpdateBlockNumber,
+        level: 'info',
+        chain: network,
+      });
     }
 
     this.storage.setAlarm(Date.now() + REFRESH_INTERVAL_MILLISECONDS);
