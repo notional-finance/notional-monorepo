@@ -15,7 +15,7 @@ crons = [
 [env.dev]
 name = "system-cache-dev"
 [env.dev.vars]
-DD_BASE_URL = "https://datadoghq.com"
+NX_ENV = "dev"
 VERSION = "v2"
 
 [env.dev.durable_objects]
@@ -36,7 +36,7 @@ new_classes = ["SystemCache"]
 name = "system-cache-beta"
 
 [env.beta.vars]
-DD_BASE_URL = "https://datadoghq.com"
+NX_ENV = "beta"
 VERSION = "v2"
 
 [env.beta.durable_objects]

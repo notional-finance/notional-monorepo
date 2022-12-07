@@ -1,4 +1,4 @@
 ALCHEMY_KEY = '<ALCHEMY_KEY>'
-DD_BASE_URL = '<DD_BASE_URL>'
+NX_ENV = 'dev'
 VERSION = 'v2'
 account_id = '<ACCOUNT_ID>'
