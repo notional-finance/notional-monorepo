@@ -16,6 +16,13 @@ This file was generated using [@jscutlery/semver](https://github.com/jscutlery/s
 
 * **util:** change default network ([080890d](https://github.com/notional-finance/notional-monorepo/commit/080890d5a334983cda9b64f65a66342eb4b09aeb))
 
+## [0.1.1](https://github.com/notional-finance/notional-monorepo/compare/util-0.1.0...util-0.1.1) (2022-12-07)
+
+
+### Bug Fixes
+
+* **util:** change default network ([080890d](https://github.com/notional-finance/notional-monorepo/commit/080890d5a334983cda9b64f65a66342eb4b09aeb))
+
 ## 0.1.0 (2022-11-08)
 
 
