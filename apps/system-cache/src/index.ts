@@ -1,7 +1,7 @@
 import { fetchSystem } from '@notional-finance/sdk/data/SystemData';
 import getUSDPriceData from '@notional-finance/sdk/data/sources/ExchangeRate';
 import { BigNumber, ethers } from 'ethers';
-import { LogMessage } from '@notional-finance/logging';
+import { initLogger, log } from '@notional-finance/logging';
 /**
  * Welcome to Cloudflare Workers! This is your first scheduled worker.
  *
@@ -47,6 +47,7 @@ export class SystemCache {
     this.state = state;
     this.storage = state.storage;
     this.env = env;
+    this.log = log.bind(this);
 
     this.state.blockConcurrencyWhile(async () => {
       const currentAlarm = await this.storage.getAlarm();
@@ -56,36 +57,12 @@ export class SystemCache {
     });
 
     const version = `${env.NX_COMMIT_REF?.substring(0, 8) ?? 'local'}`;
-    this.logOpts = {
+    initLogger({
       service: 'system-cache',
       version,
       env: env.NX_ENV,
-      ddsource: 'nodejs',
-      level: 'info',
-    };
-  }
-
-  async log(msg: LogMessage) {
-    try {
-      const timestamp = new Date();
-      const bodyData = {
-        ...this.logOpts,
-        ...msg,
-        timestamp,
-      };
-
-      await fetch(`https://http-intake.logs.datadoghq.com/api/v2/logs`, {
-        method: 'POST',
-        body: JSON.stringify(bodyData),
-        headers: {
-          'content-type': 'application/json',
-          'dd-api-key': this.env.NX_DD_API_KEY,
-        },
-      });
-      console.log(bodyData);
-    } catch (e) {
-      console.error(e);
-    }
+      apiKey: env.NX_DD_API_KEY,
+    });
   }
 
   private parsePath(path: string) {
