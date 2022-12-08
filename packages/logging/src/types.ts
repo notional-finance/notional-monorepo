@@ -1,8 +1,9 @@
 export type LoggerOptions = {
   service: string;
-  version?: string;
+  version: string;
+  apiKey: string;
   env?: string;
-  apiKey?: string;
+  url?: string;
 };
 export type LogMessage = {
   message: string;

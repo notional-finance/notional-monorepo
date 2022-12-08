@@ -1,42 +1,56 @@
-import {
-  createLogger as createWinstonLogger,
-  transports,
-  format,
-  Logger,
-} from 'winston';
 import { LoggerOptions, LogMessage } from './types';
 
-const DefaultLoggerOptions = {
-  host: `http-intake.logs.datadoghq.com`,
-  path: `/api/v2/logs?dd-api-key=`,
-  ssl: true,
+const DefaultLoggerConfig = {
+  url: `https://http-intake.logs.datadoghq.com/api/v2/logs`,
 };
 
-let logger: Logger;
+const MessageDefaults = {
+  level: 'info',
+  ddsource: 'nodejs',
+  message: '',
+};
 
-export function createLogger(opts: LoggerOptions): Logger {
-  const { host, path, ssl } = DefaultLoggerOptions;
-  const { service, version, env, apiKey } = opts;
-  logger = createWinstonLogger({
-    transports: [
-      new transports.Http({
-        host,
-        path: `${path}${apiKey}`,
-        ssl,
-      }),
-    ],
-    defaultMeta: { ddsource: 'nodejs', service, env, version },
-    format: format.combine(format.timestamp(), format.json()),
-  });
-  return logger;
+let baseMessage: LogMessage;
+let loggerConfig: LoggerOptions;
+
+export function initLogger(opts: LoggerOptions) {
+  const { service, version, env, apiKey, url } = opts;
+  loggerConfig = {
+    url,
+    apiKey,
+    service,
+    version,
+    env,
+  };
+
+  baseMessage = {
+    ...MessageDefaults,
+    service,
+    version,
+    env,
+  };
 }
 
-export function log(msg: LogMessage) {
-  const { level, message, chain, tags, ...rest } = msg;
-  logger.log(level ?? 'info', {
-    message,
-    chain: chain ?? '',
-    tags: tags ?? '',
-    ...rest,
-  });
+export async function log(msg: LogMessage) {
+  try {
+    const timestamp = new Date();
+    const body = JSON.stringify({
+      ...baseMessage,
+      ...msg,
+      timestamp,
+    });
+
+    const opts = {
+      method: 'POST',
+      body,
+      headers: {
+        'content-type': 'application/json',
+        'dd-api-key': loggerConfig.apiKey,
+      },
+    };
+
+    await fetch(loggerConfig.url ?? DefaultLoggerConfig.url, opts);
+  } catch (e) {
+    console.error(e);
+  }
 }
