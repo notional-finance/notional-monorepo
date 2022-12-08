@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [0.2.0](https://github.com/notional-finance/notional-monorepo/compare/logging-0.1.1...logging-0.2.0) (2022-12-08)
+
+
+### Features
+
+* **logging:** create minimal logger ([b903d8a](https://github.com/notional-finance/notional-monorepo/commit/b903d8af33820366c39492ef0d9c14eb56b7ea5a))
+
 ## [0.1.1](https://github.com/notional-finance/notional-monorepo/compare/logging-0.1.0...logging-0.1.1) (2022-12-07)
 
 
