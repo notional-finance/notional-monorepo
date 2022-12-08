@@ -5,7 +5,7 @@ import { SideBarSubHeader } from '../side-bar-sub-header/side-bar-sub-header';
 export interface SideDrawerProps {
   children: React.ReactNode;
   openDrawer: boolean;
-  callback: (drawerState: boolean) => void;
+  callback: () => void;
   CustomHeader?: ({ onClose }: { onClose: () => void }) => JSX.Element;
 }
 
@@ -16,22 +16,14 @@ export function SideDrawer({
   CustomHeader,
 }: SideDrawerProps) {
   const theme = useTheme();
-  const toggleDrawer =
-    (open: boolean) => (event?: MouseEvent | KeyboardEvent) => {
-      if (event?.type === 'keydown') {
-        const e = event as KeyboardEvent;
-        if (e.key === 'Tab' || e.key === 'Shift') return;
-      }
-      callback(open);
-    };
 
   return (
     <SwipeableDrawer
       anchor="right"
       open={openDrawer}
-      onClose={() => toggleDrawer(false)}
-      onOpen={() => toggleDrawer(true)}
-      onBackdropClick={() => callback(false)}
+      onClose={() => callback()}
+      onOpen={() => callback()}
+      onBackdropClick={() => callback()}
       sx={{
         '.MuiBackdrop-root': {
           backgroundColor: alpha(theme.palette.background.accentDefault, 0.5),
@@ -45,7 +37,7 @@ export function SideDrawer({
         },
       }}
     >
-      {CustomHeader && <CustomHeader onClose={toggleDrawer(false)} />}
+      {CustomHeader && <CustomHeader onClose={() => callback()} />}
       <Box
         sx={{
           display: 'flex',
@@ -61,7 +53,7 @@ export function SideDrawer({
       >
         {!CustomHeader && (
           <SideBarSubHeader
-            callback={toggleDrawer(false)}
+            callback={() => callback()}
             titleText={defineMessage({ defaultMessage: 'back' })}
           />
         )}

@@ -34,6 +34,12 @@ const EmptyPortfolioWrapper = styled(Box)(
   margin-top: ${theme.spacing(6)};
   border-radius: ${theme.shape.borderRadius()};
   border: ${theme.shape.borderStandard};
+  ${theme.breakpoints.down('sm')} {
+    flex-direction: column;
+    p {
+      margin-bottom: ${theme.spacing(2)};
+    }
+  }
 `
 );
 

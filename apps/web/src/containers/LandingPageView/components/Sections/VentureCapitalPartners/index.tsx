@@ -9,9 +9,12 @@ import parafiSvg from '@notional-finance/assets/marketing/partners/parafi.svg';
 import nascentSvg from '@notional-finance/assets/marketing/partners/nascent.svg';
 import { Box, styled, useTheme } from '@mui/material';
 import { ExternalLink, H1 } from '@notional-finance/mui';
+import { useNotionalTheme } from '@notional-finance/styles';
+import { THEME_VARIANTS } from '@notional-finance/shared-config';
 
 const VentureCapitalPartners = () => {
   const theme = useTheme();
+  const lightTheme = useNotionalTheme(THEME_VARIANTS.LIGHT);
   const { ref, inView } = useInView({
     /* Optional options */
     threshold: 0,
@@ -24,7 +27,7 @@ const VentureCapitalPartners = () => {
       <Box
         className={`section ${inViewClassName}`}
         sx={{
-          background: theme.palette.background.accentPaper,
+          background: lightTheme.palette.background.accentPaper,
           paddingTop: theme.spacing(16),
           paddingLeft: { xs: theme.spacing(4), lg: theme.spacing(20) },
           paddingRight: { xs: theme.spacing(4), lg: theme.spacing(20) },

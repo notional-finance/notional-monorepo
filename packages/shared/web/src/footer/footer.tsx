@@ -76,6 +76,9 @@ const StyledFooter = styled(Box)(
     align-items: flex-start;
     padding: ${theme.spacing(8, 4)};
   }
+  ${theme.breakpoints.down('sm')} {
+    display: none;
+  }
 `
 );
 
