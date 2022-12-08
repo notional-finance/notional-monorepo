@@ -47,6 +47,7 @@ export function Drawer({ children, size }: DrawerProps) {
     <StyledDrawer
       sx={{
         width,
+        float: 'right',
         padding: {
           xs: '30px 10px',
           sm: '30px 10px',

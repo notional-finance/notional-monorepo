@@ -242,8 +242,8 @@ const getThemeData = (themeVariant: PaletteMode) => {
     breakpoints: {
       values: {
         xs: 0,
-        sm: 600,
-        md: 900,
+        sm: 768,
+        md: 1152,
         lg: 1440,
         xl: 1536,
       },
@@ -314,7 +314,7 @@ const getThemeData = (themeVariant: PaletteMode) => {
             : colors.black,
         accentDefault:
           themeVariant === THEME_VARIANTS.LIGHT ? colors.black : colors.white,
-        accentPaper: colors.matteGreen,
+        accentPaper: themeVariant === THEME_VARIANTS.LIGHT ? colors.matteGreen : colors.lightGrey,
       },
       borders: {
         paper:
@@ -466,14 +466,14 @@ const getThemeData = (themeVariant: PaletteMode) => {
         marginBottom: pxToMargin(12),
       },
       caption: {
-        fontSize: pxToRem(10),
+        fontSize: pxToRem(12),
         fontWeight: fontWeight.medium,
         color: getFontColors(themeVariant).secondary,
         lineHeight,
         marginBottom: pxToMargin(10),
       },
       captionAccent: {
-        fontSize: pxToRem(10),
+        fontSize: pxToRem(12),
         fontWeight: fontWeight.demiBold,
         color: getFontColors(themeVariant).accent,
         letterSpacing: pxToRem(1),

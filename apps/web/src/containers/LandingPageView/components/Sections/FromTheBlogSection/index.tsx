@@ -118,7 +118,7 @@ const StyledView = styled(Box)(
         background: ${theme.palette.common.white};
         border-radius: 4px;
         width: 46%;
-        box-shadow: 1px 2px 10px ${theme.palette.background.accentPaper};
+        box-shadow: ${theme.shape.shadowStandard};
         padding-bottom: 30px;
 
         img {

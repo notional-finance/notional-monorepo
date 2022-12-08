@@ -3,7 +3,7 @@ import { useAccount } from '@notional-finance/notionable-hooks';
 import { useParams, useHistory } from 'react-router-dom';
 import { ButtonBar, SideDrawer } from '@notional-finance/mui';
 import { usePortfolioButtonBar, usePortfolioSideDrawers } from './hooks';
-import { EnabledCurrencies, SideNav } from './components';
+import { EnabledCurrencies, SideNav, PortfolioMobileNav } from './components';
 import {
   PortfolioOverview,
   PortfolioLends,
@@ -77,6 +77,7 @@ export const PortfolioFeatureShell = () => {
           <PortfolioTransactionHistory />
         )}
       </PortfolioMainContent>
+      <PortfolioMobileNav />
     </PortfolioContainer>
   );
 };
@@ -113,9 +114,10 @@ const PortfolioContainer = styled(Box)(
 );
 
 const PortfolioSidebar = styled(Box)(
-  () => `
+  ({ theme }) => `
   width: 314px;
-  @media (max-width: 768px) {
+  ${theme.breakpoints.down('sm')} {
+    display: none;
     flex-flow: column;
     width: 100%;
   }
@@ -123,7 +125,7 @@ const PortfolioSidebar = styled(Box)(
 );
 
 const PortfolioMainContent = styled(Box)(
-  () => `
+  ({ theme }) => `
   flex: 1;
   display: flex;
   flex-flow: column;
@@ -132,6 +134,9 @@ const PortfolioMainContent = styled(Box)(
   overflow: hidden;
   @media (max-width: 1330px) {
     max-width: 70vw;
+  };
+  ${theme.breakpoints.down('sm')} {
+    min-width: 100%;
   };
 `
 );
