@@ -60,28 +60,29 @@ export class SystemCache {
       service: 'system-cache',
       version,
       env: env.NX_ENV,
-      source: 'nodejs',
+      ddsource: 'nodejs',
+      level: 'info',
     };
   }
 
   async log(msg: LogMessage) {
     try {
-      const timestamp = Math.floor(new Date().getTime() / 1000);
-      const body = JSON.stringify({
+      const timestamp = new Date();
+      const bodyData = {
         ...this.logOpts,
         ...msg,
         timestamp,
-      });
+      };
 
       await fetch(`https://http-intake.logs.datadoghq.com/api/v2/logs`, {
         method: 'POST',
-        body,
+        body: JSON.stringify(bodyData),
         headers: {
           'content-type': 'application/json',
-          accept: '*/*',
           'dd-api-key': this.env.NX_DD_API_KEY,
         },
       });
+      console.log(bodyData);
     } catch (e) {
       console.error(e);
     }
