@@ -24,6 +24,7 @@ export interface Env {
   NX_DD_BASE_URL: string;
   VERSION: string;
   NX_ENV: string;
+  NX_COMMIT_REF: string;
 }
 
 const REFRESH_INTERVAL_MILLISECONDS = 6 * 1000;
@@ -55,9 +56,10 @@ export class SystemCache {
       }
     });
 
+    const version = `${env.NX_COMMIT_REF?.substring(0, 8) ?? 'local'}`;
     createLogger({
       service: 'system-cache',
-      version: env.VERSION,
+      version,
       env: env.NX_ENV,
       apiKey: env.NX_DD_API_KEY,
     });

@@ -44,9 +44,9 @@ import { ProvideLiquidityCards } from '@notional-finance/liquidity-feature-shell
 import { createLogger } from '@notional-finance/logging';
 const applicationId = process.env['NX_DD_APP_ID'] as string;
 const clientToken = process.env['NX_DD_API_KEY'] as string;
-const site = process.env['NX_DD_BASE_URL'];
+const DD_SITE = process.env['NX_DD_SITE'];
 // COMMIT_REF environment variable is supplied by netlify on deployment
-const version = `${process.env['COMMIT_REF']?.substring(0, 8) || 'local'}`;
+const version = `${process.env['NX_COMMIT_REF']?.substring(0, 8) || 'local'}`;
 const DD_API_KEY = process.env['NX_DD_API_KEY'] as string;
 const service = 'web-frontend';
 const NX_ENV = process.env['NX_ENV'] as string;
@@ -60,7 +60,7 @@ datadogRum.init({
   },
   applicationId,
   clientToken,
-  site,
+  site: DD_SITE,
   service,
   env: window.location.hostname,
   version,

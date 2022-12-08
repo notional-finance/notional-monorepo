@@ -36,6 +36,7 @@ jobs:
           NX_DD_APP_ID: ${{ secrets.NX_DD_APP_ID }}
           NX_DD_API_KEY: ${{ secrets.NX_DD_API_KEY }}
           NX_DD_BASE_URL: ${{ secrets.NX_DD_BASE_URL }}
+          NX_DD_SITE: ${{ secrets.NX_DD_SITE }}
           NX_GOOGLE_ANALYTICS_ID: ${{ secrets.NX_GOOGLE_ANALYTICS_ID }}
           NX_INFURA_KEY: ${{ secrets.NX_INFURA_KEY }}
           NX_APP_URL: ${{ secrets.NX_APP_URL }}
@@ -43,6 +44,7 @@ jobs:
           NX_ALCHEMY_KEY: ${{ secrets.NX_ALCHEMY_KEY }}
           NX_EXCHANGE_RATE_API: ${{ secrets.NX_EXCHANGE_RATE_API }}
           NX_ENV: ${{ github.event.inputs.environment || 'dev' }}
+          NX_COMMIT_REF: ${{ github.sha }}
       - name: Publish Dev
         uses: cloudflare/pages-action@1
         with:
