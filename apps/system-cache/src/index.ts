@@ -56,9 +56,10 @@ export class SystemCache {
       }
     });
 
+    const version = `${env.NX_COMMIT_REF?.substring(0, 8) ?? 'local'}`;
     createLogger({
       service: 'system-cache',
-      version: env.NX_COMMIT_REF | version,
+      version,
       env: env.NX_ENV,
       apiKey: env.NX_DD_API_KEY,
     });
