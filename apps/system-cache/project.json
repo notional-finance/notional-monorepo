@@ -15,6 +15,17 @@
         "cwd": "apps/system-cache"
       }
     },
+    "wrangler-publish-manual": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          {
+            "command": "wrangler publish --env {args.env}  --var NX_COMMIT_REF:$(git rev-parse HEAD)"
+          }
+        ],
+        "cwd": "apps/system-cache"
+      }
+    },
     "wrangler-publish": {
       "executor": "nx:run-commands",
       "options": {

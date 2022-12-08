@@ -1,7 +1,7 @@
 import { fetchSystem } from '@notional-finance/sdk/data/SystemData';
 import getUSDPriceData from '@notional-finance/sdk/data/sources/ExchangeRate';
 import { BigNumber, ethers } from 'ethers';
-import { createLogger, log } from '@notional-finance/logging';
+import { LogMessage } from '@notional-finance/logging';
 /**
  * Welcome to Cloudflare Workers! This is your first scheduled worker.
  *
@@ -47,7 +47,6 @@ export class SystemCache {
     this.state = state;
     this.storage = state.storage;
     this.env = env;
-    this.log = log.bind(this);
 
     this.state.blockConcurrencyWhile(async () => {
       const currentAlarm = await this.storage.getAlarm();
@@ -57,12 +56,35 @@ export class SystemCache {
     });
 
     const version = `${env.NX_COMMIT_REF?.substring(0, 8) ?? 'local'}`;
-    createLogger({
+    this.logOpts = {
       service: 'system-cache',
       version,
       env: env.NX_ENV,
-      apiKey: env.NX_DD_API_KEY,
-    });
+      source: 'nodejs',
+    };
+  }
+
+  async log(msg: LogMessage) {
+    try {
+      const timestamp = Math.floor(new Date().getTime() / 1000);
+      const body = JSON.stringify({
+        ...this.logOpts,
+        ...msg,
+        timestamp,
+      });
+
+      await fetch(`https://http-intake.logs.datadoghq.com/api/v2/logs`, {
+        method: 'POST',
+        body,
+        headers: {
+          'content-type': 'application/json',
+          accept: '*/*',
+          'dd-api-key': this.env.NX_DD_API_KEY,
+        },
+      });
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   private parsePath(path: string) {
@@ -155,7 +177,7 @@ export class SystemCache {
         true
       );
       await this.storage.put(`cache:usdExchangeRates`, usdExchangeRates);
-      this.log({
+      await this.log({
         message: 'Exchange Rate Update Success',
         level: 'info',
         chain: 'mainnet',
@@ -163,14 +185,12 @@ export class SystemCache {
       });
       return new Response('OK', { status: 200, statusText: 'OK' });
     } catch (e) {
-      this.log({
+      await this.log({
         message: (e as Error).message,
         level: 'error',
         chain: 'mainnet',
         action: 'exchange_rate.refresh',
       });
-
-      throw e;
     }
   }
 
@@ -179,7 +199,7 @@ export class SystemCache {
       `cache:usdExchangeRates`
     );
     if (rates === undefined || Array.from(Object.keys(rates)).length === 0) {
-      this.log({
+      await this.log({
         message: 'Exchange Rate Data Missing',
         level: 'error',
         chain: 'mainnet',
@@ -212,7 +232,7 @@ export class SystemCache {
       );
       await this.storage.put(`${network}:cache:binary`, binary);
       await this.storage.put(`${network}:cache:json`, json);
-      this.log({
+      await this.log({
         message: 'Cache Update Success',
         action: 'cache_update',
         lastUpdateBlockNumber: JSON.parse(json).lastUpdateBlockNumber,
