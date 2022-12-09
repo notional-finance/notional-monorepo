@@ -169,6 +169,7 @@ export class SystemCache {
         chain: 'mainnet',
         action: 'exchange_rate.refresh',
       });
+      return new Response('Error', { status: 500, statusText: 'Error' });
     }
   }
 
@@ -192,31 +193,40 @@ export class SystemCache {
 
     for (const chain of supportedChains) {
       const { url, network, chainId } = chain;
-      const providerUrl = `${url}/${this.env.ALCHEMY_KEY}`;
-      const providerNetwork = ethers.providers.getNetwork(network);
-      // skipFetchSetup is required to get this to work inside web workers
-      // https://github.com/ethers-io/ethers.js/issues/1886
-      const provider = new ethers.providers.JsonRpcBatchProvider(
-        { url: providerUrl, skipFetchSetup: true },
-        providerNetwork
-      );
+      try {
+        const providerUrl = `${url}/${this.env.ALCHEMY_KEY}`;
+        const providerNetwork = ethers.providers.getNetwork(network);
+        // skipFetchSetup is required to get this to work inside web workers
+        // https://github.com/ethers-io/ethers.js/issues/1886
+        const provider = new ethers.providers.JsonRpcBatchProvider(
+          { url: providerUrl, skipFetchSetup: true },
+          providerNetwork
+        );
 
-      const { binary, json } = await fetchSystem(
-        chainId,
-        provider,
-        '',
-        true,
-        usdExchangeRates
-      );
-      await this.storage.put(`${network}:cache:binary`, binary);
-      await this.storage.put(`${network}:cache:json`, json);
-      await this.log({
-        message: 'Cache Update Success',
-        action: 'cache_update',
-        lastUpdateBlockNumber: JSON.parse(json).lastUpdateBlockNumber,
-        level: 'info',
-        chain: network,
-      });
+        const { binary, json } = await fetchSystem(
+          chainId,
+          provider,
+          '',
+          true,
+          usdExchangeRates
+        );
+        await this.storage.put(`${network}:cache:binary`, binary);
+        await this.storage.put(`${network}:cache:json`, json);
+        await this.log({
+          message: 'Cache Update Success',
+          action: 'cache_update',
+          lastUpdateBlockNumber: JSON.parse(json).lastUpdateBlockNumber,
+          level: 'info',
+          chain: network,
+        });
+      } catch (e) {
+        await this.log({
+          message: (e as Error).toString(),
+          action: 'cache_update',
+          level: 'error',
+          chain: network,
+        });
+      }
     }
 
     this.storage.setAlarm(Date.now() + REFRESH_INTERVAL_MILLISECONDS);
@@ -225,7 +235,7 @@ export class SystemCache {
 
 export default {
   async scheduled(event: ScheduledController, env: Env): Promise<void> {
-    const id = env.SYSTEM_CACHE.idFromName('SYSTEM_CACHE');
+    const id = env.SYSTEM_CACHE.idFromName('SYSTEM_CACHE_V2');
     const stub = env.SYSTEM_CACHE.get(id);
     // Nightly exchange rate update
     if (event.cron === '0 0 * * *') {
@@ -238,7 +248,7 @@ export default {
   },
   async fetch(request: Request, env: Env) {
     try {
-      const id = env.SYSTEM_CACHE.idFromName('SYSTEM_CACHE');
+      const id = env.SYSTEM_CACHE.idFromName('SYSTEM_CACHE_V2');
       const stub = env.SYSTEM_CACHE.get(id);
       return await stub.fetch(request);
     } catch (e: any) {
