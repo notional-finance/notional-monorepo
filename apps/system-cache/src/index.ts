@@ -151,7 +151,7 @@ export class SystemCache {
   async refreshExchangeRates() {
     try {
       const usdExchangeRates = await getUSDPriceData(
-        this.env.EXCHANGE_RATE_API,
+        this.env.EXCHANGE_RATE_API_KEY,
         true
       );
       await this.storage.put(`cache:usdExchangeRates`, usdExchangeRates);
