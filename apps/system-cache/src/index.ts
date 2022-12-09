@@ -192,8 +192,8 @@ export class SystemCache {
     const usdExchangeRates = await this.useCachedExchangeRates();
 
     for (const chain of supportedChains) {
+      const { url, network, chainId } = chain;
       try {
-        const { url, network, chainId } = chain;
         const providerUrl = `${url}/${this.env.ALCHEMY_KEY}`;
         const providerNetwork = ethers.providers.getNetwork(network);
         // skipFetchSetup is required to get this to work inside web workers
@@ -224,6 +224,7 @@ export class SystemCache {
           message: (e as Error).toString(),
           action: 'cache_update',
           level: 'error',
+          chain: network,
         });
       }
     }
