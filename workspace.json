@@ -7,6 +7,7 @@
     "common-styles": "packages/common/styles",
     "contracts": "packages/contracts",
     "error": "packages/error",
+    "exchange-rate-monitor": "apps/exchange-rate-monitor",
     "features-about-us": "packages/features/about-us",
     "features-borrow": "packages/features/borrow",
     "features-lend": "packages/features/lend",
