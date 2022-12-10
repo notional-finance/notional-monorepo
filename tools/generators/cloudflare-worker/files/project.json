@@ -9,7 +9,18 @@
       "options": {
         "commands": [
           {
-            "command": "wrangler dev --local"
+            "command": "wrangler dev --local --var NX_COMMIT_REF:$(git rev-parse HEAD)"
+          }
+        ],
+        "cwd": "apps/<%= name %>"
+      }
+    },
+    "wrangler-publish-manual": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          {
+            "command": "wrangler publish --env {args.env}  --var NX_COMMIT_REF:$(git rev-parse HEAD)"
           }
         ],
         "cwd": "apps/<%= name %>"
