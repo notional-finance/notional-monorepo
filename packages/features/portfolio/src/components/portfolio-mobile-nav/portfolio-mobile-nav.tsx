@@ -16,7 +16,7 @@ import { ArrowIcon } from '@notional-finance/icons';
 import { NotionalTheme } from '@notional-finance/styles';
 
 interface NavSliderProps {
-  navOptions?: NAV_OPTIONS | null;
+  navoptions?: NAV_OPTIONS | null;
 }
 
 interface CustomLinkProps {
@@ -50,10 +50,10 @@ export function PortfolioMobileNav() {
 
   return (
     <MobileNavContainer {...handlers}>
-      <NavSlider navOptions={navOptions}>
+      <NavSlider navoptions={navOptions}>
         <Box sx={{ display: 'flex', width: '100vw' }}>
           {optionSetOne.map(({ title, Icon, to, id }) => (
-            <NavOption>
+            <NavOption key={id}>
               <CustomLink to={to} id={id} theme={theme} category={category}>
                 <Box>{Icon}</Box>
                 <Title to={to} id={id} theme={theme} category={category}>
@@ -83,7 +83,7 @@ export function PortfolioMobileNav() {
             />
           </ArrowContainer>
           {optionSetTwo.map(({ title, Icon, to, id }) => (
-            <NavOption>
+            <NavOption key={id}>
               <CustomLink to={to} id={id} theme={theme} category={category}>
                 <Box>{Icon}</Box>
                 <Title to={to} id={id} theme={theme} category={category}>
@@ -101,11 +101,11 @@ export function PortfolioMobileNav() {
 export const NavSlider = styled(Box, {
   shouldForwardProp: (prop: string) => prop !== 'option',
 })(
-  ({ navOptions }: NavSliderProps) => `
+  ({ navoptions }: NavSliderProps) => `
   display: flex;
-  transition: transform 1s ease;
+  transition: transform .5s ease;
   transform: ${
-    navOptions === NAV_OPTIONS.SET_TWO ? 'translateX(-50%)' : 'translateX(0%)'
+    navoptions === NAV_OPTIONS.SET_TWO ? 'translateX(-50%)' : 'translateX(0%)'
   };
 `
 );
