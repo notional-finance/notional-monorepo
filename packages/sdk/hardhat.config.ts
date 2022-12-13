@@ -1,4 +1,5 @@
 import '@nomiclabs/hardhat-ethers';
+import 'tsconfig-paths/register';
 
 export default {
   defaultNetwork: 'hardhat',
