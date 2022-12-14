@@ -1,182 +1,63 @@
-import { Link, LinkProps, useParams } from 'react-router-dom';
-import { Box, styled, useTheme, Divider } from '@mui/material';
-import { defineMessages, FormattedMessage } from 'react-intl';
+import { useState } from 'react';
+import { Box, styled, useTheme, Collapse } from '@mui/material';
 import { NotionalTheme } from '@notional-finance/styles';
-import { useSideNav } from '../../hooks';
-import { PortfolioParams } from '../../portfolio-feature-shell';
-import { PORTFOLIO_CATEGORIES } from '@notional-finance/shared-config';
-import { H5, Label } from '@notional-finance/mui';
+import { SideNavOptons } from './side-nav-options';
 
-interface SideNavItemProps extends LinkProps {
+interface CollapsibleProps {
   theme: NotionalTheme;
-  selected: boolean;
-  firstItem?: boolean;
+  open: boolean;
 }
 
-const TOP_NAV_CATEGORIES = [
-  PORTFOLIO_CATEGORIES.OVERVIEW,
-  PORTFOLIO_CATEGORIES.LENDS,
-  PORTFOLIO_CATEGORIES.BORROWS,
-  PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY,
-];
-
-const ADV_NAV_CATEGORIES = [
-  PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS,
-  PORTFOLIO_CATEGORIES.LIQUIDITY,
-  PORTFOLIO_CATEGORIES.STAKED_NOTE,
-  PORTFOLIO_CATEGORIES.MONEY_MARKET,
-];
-
-export const navLabels = defineMessages({
-  [PORTFOLIO_CATEGORIES.OVERVIEW]: {
-    defaultMessage: 'Overview',
-    description: 'navigation link',
-  },
-  [PORTFOLIO_CATEGORIES.LENDS]: {
-    defaultMessage: 'Lends',
-    description: 'navigation link',
-  },
-  [PORTFOLIO_CATEGORIES.BORROWS]: {
-    defaultMessage: 'Borrows',
-    description: 'navigation link',
-  },
-  [PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY]: {
-    defaultMessage: 'Transaction History',
-    description: 'navigation link',
-  },
-  [PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS]: {
-    defaultMessage: 'Leveraged Vaults',
-    description: 'navigation link',
-  },
-  [PORTFOLIO_CATEGORIES.LIQUIDITY]: {
-    defaultMessage: 'Liquidity',
-    description: 'navigation link',
-  },
-  [PORTFOLIO_CATEGORIES.STAKED_NOTE]: {
-    defaultMessage: 'Staked NOTE',
-    description: 'navigation link',
-  },
-  [PORTFOLIO_CATEGORIES.MONEY_MARKET]: {
-    defaultMessage: 'Idle Assets',
-    description: 'navigation link',
-  },
-});
-
 export const SideNav = () => {
-  const navData = useSideNav();
-  const { category } = useParams<PortfolioParams>();
   const theme = useTheme();
+  const [open, setOpen] = useState(false);
 
   return (
-    <Box>
-      <Box>
-        {TOP_NAV_CATEGORIES.map((id, index) => {
-          const { notifications, Icon } = navData[id];
-
-          return (
-            <SideNavItem
-              key={id}
-              selected={category === id}
-              firstItem={index === 0}
-              theme={theme}
-              to={`/portfolio/${id}`}
-            >
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <Box sx={{ paddingRight: '20px', display: 'flex' }}>{Icon}</Box>
-                <H5
-                  contrast={category === id}
-                  msg={navLabels[id]}
-                  sx={{ whiteSpace: 'nowrap' }}
-                />
-              </Box>
-              {notifications > 0 && (
-                <NotificationNum>{notifications}</NotificationNum>
-              )}
-            </SideNavItem>
-          );
-        })}
-      </Box>
-      <Divider
-        sx={{
-          margin: theme.spacing(4, 2, 4, 3),
-          borderColor: theme.palette.borders.default,
-        }}
-      />
-      <Box sx={{ marginBottom: '64px' }}>
-        <Label padding={theme.spacing(1.5, 3)}>
-          <FormattedMessage defaultMessage="Other Yield Strategies" />
-        </Label>
-        {ADV_NAV_CATEGORIES.map((id) => {
-          const { notifications, Icon } = navData[id];
-          // CHANGEME: special override for staked note
-          const to =
-            id === PORTFOLIO_CATEGORIES.STAKED_NOTE
-              ? '/stake'
-              : `/portfolio/${id}`;
-
-          return (
-            <SideNavItem
-              key={id}
-              selected={category === id}
-              theme={theme}
-              to={to}
-            >
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <Box sx={{ paddingRight: '20px', display: 'flex' }}>{Icon}</Box>
-                <H5 contrast={category === id} msg={navLabels[id]} />
-              </Box>
-              {notifications > 0 && (
-                <NotificationNum>{notifications}</NotificationNum>
-              )}
-            </SideNavItem>
-          );
-        })}
-      </Box>
-    </Box>
+    <>
+      <NonCollapsible>
+        <SideNavOptons />
+      </NonCollapsible>
+      <Collapsible
+        onMouseEnter={() => setOpen(true)}
+        onMouseLeave={() => setOpen(false)}
+        theme={theme}
+        open={open}
+      >
+        <Collapse orientation="horizontal" in={open} collapsedSize={64}>
+          <SideNavOptons />
+        </Collapse>
+      </Collapsible>
+    </>
   );
 };
 
-const NotificationNum = styled(Box)(
+const NonCollapsible = styled(Box)(
   ({ theme }) => `
-  border-radius: 50%;
-  width: 1.4rem;
-  height: 1.4rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: ${theme.palette.primary.light};
-  color: ${theme.palette.background.default};
-  font-size: 0.75rem;
+  position: fixed;
+  width: inherit;
+  ${theme.breakpoints.down('lg')} {
+    display: none;
+  }
 `
 );
 
-const SideNavItem = styled(Link, {
-  shouldForwardProp: (prop: string) =>
-    prop !== 'selected' && prop !== 'firstItem',
-})(
-  ({ theme, selected, firstItem }: SideNavItemProps) => `
-  background: ${selected ? theme.palette.primary.dark : 'transparent'};
-  border-radius: ${selected ? '60px' : '0px'};
-  padding: ${theme.spacing(1.5, 3)};
-  padding-right: ${theme.spacing(1.5)};
-  margin-top: ${!firstItem ? theme.spacing(1.5) : '0px'};
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  color: ${
-    selected ? theme.palette.common.white : theme.palette.typography.light
-  };
-  cursor: pointer;
-  &:hover {
-    ${
-      !selected
-        ? `transition: .5s ease;
-    background: ${theme.palette.borders.paper};
-    border-radius: 60px;`
-        : ''
-    }
+// NOTE* this unique padding-top is necessary to align with the button bar
+const Collapsible = styled(Box)(
+  ({ theme, open }: CollapsibleProps) => `  
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  padding-top: 154px;
+  padding-left: ${theme.spacing(3)};
+  background: ${theme.palette.background.default};
+  z-index: 4;
+  padding-right: ${theme.spacing(3)};  
+  box-shadow: ${open ? '34px 0 50px -2px rgba(20, 42, 74, 0.3)' : 'none'};
+  ${theme.breakpoints.up('lg')} {
+    display: none;
   }
-  `
+`
 );
 
 export default SideNav;

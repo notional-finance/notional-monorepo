@@ -22,11 +22,6 @@ import {
 } from '@notional-finance/icons';
 import { PortfolioParams } from '../portfolio-feature-shell';
 
-interface SideNavDataProps {
-  Icon: JSX.Element;
-  notifications: number;
-}
-
 export const useSideNav = () => {
   const { category } = useParams<PortfolioParams>();
   const theme = useTheme();
@@ -36,16 +31,20 @@ export const useSideNav = () => {
   const moneyMarket = useMoneyMarket();
   const nTokenHoldings = useNTokenHoldings();
 
-  const navData: Record<PORTFOLIO_CATEGORIES, SideNavDataProps> = {
-    [PORTFOLIO_CATEGORIES.OVERVIEW]: {
+  const sideNavOne = [
+    {
       Icon: <FourSquareIcon sx={{ width: '17px' }} />,
+      id: PORTFOLIO_CATEGORIES.OVERVIEW,
+      to: `/portfolio/${PORTFOLIO_CATEGORIES.OVERVIEW}`,
       notifications: 0,
     },
-    [PORTFOLIO_CATEGORIES.LENDS]: {
+    {
       Icon: <BarChartIcon sx={{ width: '17px' }} />,
+      id: PORTFOLIO_CATEGORIES.LENDS,
+      to: `/portfolio/${PORTFOLIO_CATEGORIES.LENDS}`,
       notifications: lendSummary?.length,
     },
-    [PORTFOLIO_CATEGORIES.BORROWS]: {
+    {
       Icon: (
         <CoinsIcon
           sx={{
@@ -58,13 +57,20 @@ export const useSideNav = () => {
           }}
         />
       ),
+      id: PORTFOLIO_CATEGORIES.BORROWS,
+      to: `/portfolio/${PORTFOLIO_CATEGORIES.BORROWS}`,
       notifications: borrowSummary.length,
     },
-    [PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY]: {
+    {
       Icon: <HistoryIcon sx={{ width: '17px' }} />,
+      id: PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY,
+      to: `/portfolio/${PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY}`,
       notifications: 0,
     },
-    [PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS]: {
+  ];
+
+  const sideNavTwo = [
+    {
       Icon: (
         <VaultIcon
           sx={{
@@ -76,13 +82,17 @@ export const useSideNav = () => {
           }}
         />
       ),
+      id: PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS,
+      to: `/portfolio/${PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS}`,
       notifications: leveragedVaultPositions.length,
     },
-    [PORTFOLIO_CATEGORIES.LIQUIDITY]: {
+    {
       Icon: <PieChartIcon sx={{ width: '17px' }} />,
+      id: PORTFOLIO_CATEGORIES.LIQUIDITY,
+      to: `/portfolio/${PORTFOLIO_CATEGORIES.LIQUIDITY}`,
       notifications: nTokenHoldings.length,
     },
-    [PORTFOLIO_CATEGORIES.STAKED_NOTE]: {
+    {
       Icon: (
         <StakeIcon
           sx={{
@@ -92,9 +102,11 @@ export const useSideNav = () => {
           }}
         />
       ),
+      id: PORTFOLIO_CATEGORIES.STAKED_NOTE,
+      to: `/stake`,
       notifications: 0,
     },
-    [PORTFOLIO_CATEGORIES.MONEY_MARKET]: {
+    {
       Icon: (
         <MoneyMarketIcon
           sx={{
@@ -106,9 +118,11 @@ export const useSideNav = () => {
           }}
         />
       ),
+      id: PORTFOLIO_CATEGORIES.MONEY_MARKET,
+      to: `/portfolio/${PORTFOLIO_CATEGORIES.MONEY_MARKET}`,
       notifications: moneyMarket.length,
     },
-  };
+  ];
 
-  return navData;
+  return { sideNavOne, sideNavTwo };
 };

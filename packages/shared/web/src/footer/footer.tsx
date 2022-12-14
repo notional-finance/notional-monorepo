@@ -54,7 +54,7 @@ const FooterRight = styled(Box)`
 // NOTE* this border is hard coded because it goes against the light theme settings.
 const StyledFooter = styled(Box)(
   ({ theme }) => `
-  z-index: 1;
+  z-index: 5;
   background: ${theme.palette.background.accentDefault};
   border-top: 1px solid #3B7A8B;
   width: 100%;

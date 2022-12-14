@@ -3,7 +3,7 @@ import { useAccount } from '@notional-finance/notionable-hooks';
 import { useParams, useHistory } from 'react-router-dom';
 import { ButtonBar, SideDrawer } from '@notional-finance/mui';
 import { usePortfolioButtonBar, usePortfolioSideDrawers } from './hooks';
-import { EnabledCurrencies, SideNav, PortfolioMobileNav } from './components';
+import { SideNav, PortfolioMobileNav } from './components';
 import {
   PortfolioOverview,
   PortfolioLends,
@@ -46,7 +46,6 @@ export const PortfolioFeatureShell = () => {
       </SideDrawer>
       <PortfolioSidebar>
         <SideNav />
-        <EnabledCurrencies />
       </PortfolioSidebar>
       <PortfolioMainContent>
         {accountConnected &&
@@ -54,7 +53,10 @@ export const PortfolioFeatureShell = () => {
             <Box sx={{ justifyContent: 'flex-end', display: 'flex' }}>
               <ButtonBar
                 buttonOptions={buttonData}
-                sx={{ marginBottom: theme.spacing(1) }}
+                sx={{
+                  marginBottom: theme.spacing(1),
+                  height: theme.spacing(5),
+                }}
               />
             </Box>
           )}
@@ -82,44 +84,45 @@ export const PortfolioFeatureShell = () => {
   );
 };
 
-// NOTE*
-// max-width: 1312px is necessary for portfolio page to render correctly on laptops
-// We should consider adding a 1280px breakpoint in the future
-
 const PortfolioContainer = styled(Box)(
   ({ theme }) => `
   display: flex;
-  gap: 24px;
-  margin: 24px;
-  margin-top: 80px;
+  gap: ${theme.spacing(3)};
+  margin: ${theme.spacing(3)};
+  margin-top: ${theme.spacing(10)};
   @media (max-width: 768px) {
     flex-flow: column;
   };
   @media (max-width: 1330px) {
-    margin: 80px 16px;
-    gap: 24px;
+    margin: ${theme.spacing(10, 3)};
+    gap: ${theme.spacing(3)};
   };
 
   ${theme.breakpoints.up('lg')} {
-    margin: 80px auto;
+    margin: ${theme.spacing(10)} auto;
     max-width: 95vw;
   };
 
   ${theme.breakpoints.up('xl')} {
-    margin: 80px auto;
-    gap: 64px;
-    max-width: 1400px;
+    margin: ${theme.spacing(10)} auto;
+    gap: ${theme.spacing(8)};
+    max-width: 1440px;
   };
 `
 );
 
 const PortfolioSidebar = styled(Box)(
   ({ theme }) => `
-  width: 314px;
+  width: ${theme.spacing(39)};
+  ${theme.breakpoints.down('lg')} {
+    width: ${theme.spacing(8)};
+    height: 100vh;
+  }
   ${theme.breakpoints.down('sm')} {
     display: none;
     flex-flow: column;
     width: 100%;
+    height: auto;
   }
 `
 );
@@ -129,14 +132,15 @@ const PortfolioMainContent = styled(Box)(
   flex: 1;
   display: flex;
   flex-flow: column;
-  gap: 24px;
+  gap: ${theme.spacing(3)};
   width: 65vw;
   overflow: hidden;
-  @media (max-width: 1330px) {
-    max-width: 70vw;
-  };
+  ${theme.breakpoints.down('lg')} {
+    width: 100%;
+  }
   ${theme.breakpoints.down('sm')} {
     min-width: 100%;
+    max-width: 70vw;
   };
 `
 );
