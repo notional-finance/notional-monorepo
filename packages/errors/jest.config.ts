@@ -1,6 +1,6 @@
 /* eslint-disable */
 export default {
-  displayName: 'error',
+  displayName: 'errors',
   preset: '../../jest.preset.js',
   globals: {
     'ts-jest': {
@@ -11,5 +11,5 @@ export default {
     '^.+\\.[tj]s$': 'ts-jest',
   },
   moduleFileExtensions: ['ts', 'js', 'html'],
-  coverageDirectory: '../../coverage/packages/error',
+  coverageDirectory: '../../coverage/packages/errors',
 };

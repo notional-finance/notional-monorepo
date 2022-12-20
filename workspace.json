@@ -7,7 +7,7 @@
     "common-mui": "packages/common/mui",
     "common-styles": "packages/common/styles",
     "contracts": "packages/contracts",
-    "error": "packages/error",
+    "errors": "packages/errors",
     "features-about-us": "packages/features/about-us",
     "features-borrow": "packages/features/borrow",
     "features-lend": "packages/features/lend",
