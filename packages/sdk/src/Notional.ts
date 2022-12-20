@@ -20,7 +20,7 @@ import {
   TreasuryManagerABI,
   ExchangeV3ABI,
 } from '@notional-finance/contracts';
-import { handleError } from '@notional-finance/error';
+import { handleError } from '@notional-finance/errors';
 import { System } from './system';
 import GraphClient from './data/GraphClient';
 import { Account, AccountData, AccountGraphLoader } from './account';
