@@ -1,3 +1,7 @@
+import { AggregateCall } from '@notional-finance/multicall';
+import { ExecutionContext } from '@cloudflare/workers-types';
+import { providers } from 'ethers';
+
 export interface MonitorJob {
   run: (opts: JobOptions) => Promise<void>;
 }

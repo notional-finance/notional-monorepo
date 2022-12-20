@@ -1,8 +1,9 @@
 import { getProviders } from './providers';
 import { ethers } from 'ethers';
-import { IAggregatorABI, IAggregator } from '@notional-finance/contracts';
-import { aggregate } from '@notional-finance/multicall';
+import { IAggregatorABI } from '@notional-finance/contracts';
+import { aggregate, AggregateCall } from '@notional-finance/multicall';
 import { log } from '@notional-finance/logging';
+import { AggregateCallList, JobOptions, MonitorJob } from './types';
 
 let providers: Record<string, ethers.providers.JsonRpcBatchProvider> = {};
 
@@ -28,30 +29,36 @@ async function aggregateCalls() {
 }
 
 function getCallMap(): Map<number, AggregateCallList> {
+  const ethUsdContract = new ethers.Contract(
+    '0x5f4ec3df9cbd43714fe2740f5e3616155c5b8419',
+    IAggregatorABI,
+    providers['mainnet']
+  );
+  const btcUsdContract = new ethers.Contract(
+    '0xf4030086522a5beea4988f8ca5b36dbc97bee88c',
+    IAggregatorABI,
+    providers['mainnet']
+  );
   const mainnetCalls: AggregateCall[] = [
     {
-      target: new ethers.Contract(
-        '0x5f4ec3df9cbd43714fe2740f5e3616155c5b8419',
-        IAggregatorABI,
-        providers.mainnet
-      ),
+      target: ethUsdContract,
       method: 'latestAnswer',
       args: [],
       key: 'eth_usd',
-      transform: (r: Awaited<ReturnType<typeof IAggregator.latestAnswer>>) => {
+      transform: (
+        r: Awaited<ReturnType<typeof ethUsdContract.latestAnswer>>
+      ) => {
         return r.toString();
       },
     },
     {
-      target: new ethers.Contract(
-        '0xf4030086522a5beea4988f8ca5b36dbc97bee88c',
-        IAggregatorABI,
-        providers.mainnet
-      ),
+      target: btcUsdContract,
       method: 'latestAnswer',
       args: [],
       key: 'btc_usd',
-      transform: (r: Awaited<ReturnType<typeof IAggregator.latestAnswer>>) => {
+      transform: (
+        r: Awaited<ReturnType<typeof btcUsdContract.latestAnswer>>
+      ) => {
         return r.toString();
       },
     },
@@ -60,8 +67,8 @@ function getCallMap(): Map<number, AggregateCallList> {
   const goerliCalls: AggregateCall[] = [];
 
   const callMap = new Map<number, AggregateCallList>([
-    [1, { provider: providers.mainnet, calls: mainnetCalls }],
-    [5, { provider: providers.goerli, calls: goerliCalls }],
+    [1, { provider: providers['mainnet'], calls: mainnetCalls }],
+    [5, { provider: providers['goerli'], calls: goerliCalls }],
   ]);
 
   return callMap;
