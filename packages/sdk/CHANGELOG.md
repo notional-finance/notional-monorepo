@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [0.3.1](https://github.com/notional-finance/notional-monorepo/compare/sdk-0.3.0...sdk-0.3.1) (2022-12-20)
+
+
+### Bug Fixes
+
+* **sdk:** try renamed errors package ([189709e](https://github.com/notional-finance/notional-monorepo/commit/189709edaa5b6fd6edb20827e946bd5bfc443381))
+
 ## [0.3.0](https://github.com/notional-finance/notional-monorepo/compare/sdk-0.2.0...sdk-0.3.0) (2022-12-20)
 
 
