@@ -1,5 +1,6 @@
-import { Contract, providers, utils } from 'ethers';
+import { Contract, providers } from 'ethers';
 import { Multicall2, Multicall2ABI } from '@notional-finance/contracts';
+import { AggregateCall } from './types';
 
 const MULTICALL2 = {
   mainnet: '0x5ba1e12693dc8f9c48aad8770482f4739beed696',
@@ -8,22 +9,6 @@ const MULTICALL2 = {
   goerli: '0x5ba1e12693dc8f9c48aad8770482f4739beed696',
   ropsten: '0x5ba1e12693dc8f9c48aad8770482f4739beed696',
 };
-
-export interface AggregateCall {
-  // Contract to target in the call
-  target: Contract | ((prevResults: Record<string, any>) => Contract);
-  // Function fragment to get the corresponding interface
-  method: string | utils.FunctionFragment;
-  // Arguments to call the method with
-  args: any[] | ((prevResults: Record<string, any>) => any[]);
-  // Key to lookup the result from the aggregate
-  key: string;
-  // Transform to apply to decoded result
-  transform?: (callResult: any, aggregateResults: Record<string, any>) => any;
-  // Allows multi-stage aggregate calls where results from the first
-  // stage inform the second stage
-  stage?: number;
-}
 
 async function executeStage<T extends Record<string, any>>(
   calls: AggregateCall[],

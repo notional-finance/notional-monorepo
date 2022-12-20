@@ -1,7 +1,7 @@
 {
-  "name": "<%= name %>",
+  "name": "blockchain-monitor",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "apps/<%= name %>/src",
+  "sourceRoot": "apps/blockchain-monitor/src",
   "projectType": "application",
   "targets": {
     "serve": {
@@ -12,7 +12,7 @@
             "command": "wrangler dev --local --var NX_COMMIT_REF:$(git rev-parse HEAD)"
           }
         ],
-        "cwd": "apps/<%= name %>"
+        "cwd": "apps/blockchain-monitor"
       }
     },
     "wrangler-publish-manual": {
@@ -23,7 +23,7 @@
             "command": "wrangler publish --env {args.env}  --var NX_COMMIT_REF:$(git rev-parse HEAD)"
           }
         ],
-        "cwd": "apps/<%= name %>"
+        "cwd": "apps/blockchain-monitor"
       }
     },
     "publish-wrangler": {
@@ -34,21 +34,21 @@
             "command": "wrangler publish"
           }
         ],
-        "cwd": "apps/<%= name %>"
+        "cwd": "apps/blockchain-monitor"
       }
     },
     "lint": {
       "executor": "@nrwl/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["apps/<%= name %>/**/*.ts"]
+        "lintFilePatterns": ["apps/blockchain-monitor/**/*.ts"]
       }
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/apps/<%= name %>"],
+      "outputs": ["{workspaceRoot}/coverage/apps/blockchain-monitor"],
       "options": {
-        "jestConfig": "apps/<%= name %>/jest.config.ts",
+        "jestConfig": "apps/blockchain-monitor/jest.config.ts",
         "passWithNoTests": true
       },
       "dependsOn": ["build"]

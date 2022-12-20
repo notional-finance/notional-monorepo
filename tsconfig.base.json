@@ -51,6 +51,7 @@
         "packages/features/liquidity/src/*"
       ],
       "@notional-finance/logging": ["packages/logging/src/index.ts"],
+      "@notional-finance/monitors": ["packages/monitors/src/index.ts"],
       "@notional-finance/mui": ["packages/common/mui/src/index.ts"],
       "@notional-finance/mui/*": ["packages/common/mui/src/*"],
       "@notional-finance/multicall": ["packages/multicall/src/index.ts"],

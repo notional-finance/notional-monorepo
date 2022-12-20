@@ -2,6 +2,7 @@
   "$schema": "./node_modules/nx/schemas/workspace-schema.json",
   "version": 2,
   "projects": {
+    "blockchain-monitor": "apps/blockchain-monitor",
     "common-icons": "packages/common/icons",
     "common-mui": "packages/common/mui",
     "common-styles": "packages/common/styles",
@@ -18,6 +19,7 @@
     "geoip": "apps/geoip",
     "graph-client": "packages/graph-client",
     "logging": "packages/logging",
+    "monitors": "packages/monitors",
     "multicall": "packages/multicall",
     "notionable": "packages/notionable",
     "sdk": "packages/sdk",
