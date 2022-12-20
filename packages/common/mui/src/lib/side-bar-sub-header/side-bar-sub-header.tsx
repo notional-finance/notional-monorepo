@@ -1,8 +1,8 @@
-import { useTheme, Box, styled, SxProps } from '@mui/material';
+import { useTheme, Box, styled } from '@mui/material';
 import { ArrowIcon } from '@notional-finance/icons';
 import { FormattedMessage, MessageDescriptor } from 'react-intl';
 import { NotionalTheme } from '@notional-finance/styles';
-import { H4 } from '@notional-finance/mui';
+import { H4 } from '../typography/typography';
 
 /* eslint-disable-next-line */
 export interface SideBarSubHeaderProps {

@@ -7,7 +7,6 @@ import {
   CollateralSelect,
   TokenApprovalView,
 } from '@notional-finance/trade';
-import { Box, useTheme } from '@mui/material';
 import { RiskSlider, AccountRiskTable } from '@notional-finance/risk';
 import { useHistory, useLocation, useParams } from 'react-router-dom';
 import { LEND_BORROW } from '@notional-finance/shared-config';
@@ -19,7 +18,6 @@ import { BorrowParams } from '../borrow-feature-shell';
 import { useCurrency } from '@notional-finance/notionable-hooks';
 
 export const BorrowSidebar = () => {
-  const theme = useTheme();
   const { currency: selectedToken, collateral: selectedCollateral } =
     useParams<BorrowParams>();
   const {

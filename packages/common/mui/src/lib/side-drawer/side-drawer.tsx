@@ -16,7 +16,7 @@ export function SideDrawer({
   openDrawer,
   callback,
   CustomHeader,
-  zIndex = 9,
+  zIndex,
   marginTop,
 }: SideDrawerProps) {
   const theme = useTheme();

@@ -110,9 +110,7 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
       key: MOBILE_SUB_NAV_ACTIONS.SETTINGS,
       label: <FormattedMessage defaultMessage={'Settings'} />,
       link: '',
-      iconImg: (
-        <GearIcon sx={{ fontSize: '24px', stroke: '', fill: textColor }} />
-      ),
+      iconImg: <GearIcon sx={{ fontSize: '24px' }} />,
     },
     {
       key: MOBILE_SUB_NAV_ACTIONS.NOTIFICATIONS,

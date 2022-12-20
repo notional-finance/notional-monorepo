@@ -121,9 +121,11 @@ const ActionSideBarContainer = styled(Box, {
   shouldForwardProp: (prop: string) => prop !== 'hideTextOnMobile',
 })(
   ({ hideTextOnMobile, theme }: ActionSideBarContainerProps) => `
-  ${theme.breakpoints.down('lg')} {
+  ${theme.breakpoints.down('sm')} {
     display: ${hideTextOnMobile ? 'none' : 'block'};
   }
   
   `
 );
+
+export default ActionSidebar;

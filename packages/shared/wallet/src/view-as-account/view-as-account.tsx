@@ -83,7 +83,7 @@ export function ViewAsAccount() {
 
 const Container = styled(Box)(
   ({ theme }) => `
-  padding-bottom: 48px;
+  padding-bottom: ${theme.spacing(6)}};
   margin-top: auto;
   ${theme.breakpoints.down('sm')} {
     display: flex;
