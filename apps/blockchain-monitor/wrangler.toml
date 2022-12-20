@@ -1,0 +1,23 @@
+main = "./src/index.ts"
+compatibility_date = "2022-11-11"
+
+workers_dev = true
+node_compat = true
+minify = true
+usage_model = "bundled"
+
+[triggers]
+crons = ["* * * * *", "*/15 * * * *", "0 * * * *"]
+
+[env.dev]
+name = "blockchain-monitor-dev"
+
+[env.dev.vars]
+NX_ENV = "dev"
+VERSION = "v2"
+
+[env.beta]
+name = "blockchain-monitor-beta"
+
+[env.prod]
+name = "blockchain-monitor"

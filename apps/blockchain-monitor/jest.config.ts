@@ -1,6 +1,6 @@
 /* eslint-disable */
 export default {
-  displayName: 'exchange-rate-monitor',
+  displayName: 'blockchain-monitor',
   preset: '../../jest.preset.js',
   globals: {
     'ts-jest': {
@@ -10,15 +10,15 @@ export default {
   },
   testEnvironment: 'miniflare',
   testEnvironmentOptions: {
-    scriptPath: 'apps/exchange-rate-monitor/dist/index.js',
+    scriptPath: 'apps/blockchain-monitor/dist/index.js',
     modules: true,
-    wranglerConfigPath: 'apps/exchange-rate-monitor/wrangler.toml',
-    wranglerConfigEnv: 'apps/exchange-rate-monitor/.dev.vars',
+    wranglerConfigPath: 'apps/blockchain-monitor/wrangler.toml',
+    wranglerConfigEnv: 'apps/blockchain-monitor/.dev.vars',
   },
   transform: {
     '^.+\\.[tj]s$': 'ts-jest',
   },
   moduleFileExtensions: ['ts', 'js'],
-  coverageDirectory: '../../coverage/apps/exchange-rate-monitor',
+  coverageDirectory: '../../coverage/apps/blockchain-monitor',
   testTimeout: 50000,
 };
