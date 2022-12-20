@@ -124,6 +124,10 @@ const ConnectWalletContainer = styled(Box)(
   align-items: center;
   justify-content: flex-end;
   width: 100%;
+  ${theme.breakpoints.down('sm')} {
+    margin-top: 0px;
+    z-index: 1210;
+  }
     `
 );
 

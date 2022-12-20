@@ -49,15 +49,17 @@ export function Drawer({ children, size }: DrawerProps) {
         width,
         float: 'right',
         padding: {
-          xs: '30px 10px',
-          sm: '30px 10px',
+          xs: '30px 16px',
+          sm: '30px 16px',
           md: '48px',
           lg: '48px',
           xl: '48px',
         },
       }}
     >
-      <SidebarContainer theme={theme}>{children}</SidebarContainer>
+      <SidebarContainer id="SidebarContainer" theme={theme}>
+        {children}
+      </SidebarContainer>
     </StyledDrawer>
   );
 }

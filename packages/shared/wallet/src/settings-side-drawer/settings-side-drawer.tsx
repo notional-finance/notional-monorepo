@@ -50,7 +50,7 @@ export const SettingsSideDrawer = ({
   };
 
   return (
-    <>
+    <SettingsContainer>
       <Box ref={containerRef}>
         <Title>
           <FormattedMessage defaultMessage="Account" />
@@ -133,6 +133,7 @@ export const SettingsSideDrawer = ({
       >
         <SubSidebar>
           <SideBarSubHeader
+            paddingTop={`${theme.spacing(1)}`}
             callback={() => handleClick(null)}
             titleText={defineMessage({ defaultMessage: 'Settings' })}
           />
@@ -141,9 +142,21 @@ export const SettingsSideDrawer = ({
           )}
         </SubSidebar>
       </Slide>
-    </>
+    </SettingsContainer>
   );
 };
+
+const SettingsContainer = styled(Box)(
+  ({ theme }) => `
+  ${theme.breakpoints.down('sm')} {
+    padding: ${theme.spacing(2)};
+    background: ${theme.palette.background.paper};
+    ${theme.breakpoints.down('sm')} {
+      padding-bottom: ${theme.spacing(10)};
+    }
+  }
+  `
+);
 
 const WalletButton = styled('div', {
   shouldForwardProp: (prop: string) => prop !== 'clickable',
@@ -195,6 +208,11 @@ const SubSidebar = styled(Box)(
   padding: 0px ${theme.spacing(6)};
   &.MuiModal-root, .MuiDrawer-root: {
     z-index: 9999;
+  }
+  ${theme.breakpoints.down('sm')} {
+    padding: ${theme.spacing(2)};
+    z-index: 1207;
+    height: 100vh;
   }
   `
 );

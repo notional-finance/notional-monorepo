@@ -12,25 +12,39 @@ import MenuIcon from '@mui/icons-material/Menu';
 import { useLocation, useHistory } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { SyntheticEvent } from 'react';
-import { ReactElement } from 'react';
 import { MouseEvent } from 'react';
 import MobileSubNav from './mobile-sub-nav/mobile-sub-nav';
 import MobileSideDrawer from './mobile-side-drawer/mobile-side-drawer';
-import { MOBILE_SUB_NAV_ACTIONS } from '@notional-finance/shared-config';
+import {
+  MOBILE_SUB_NAV_ACTIONS,
+  SETTINGS_SIDE_DRAWERS,
+} from '@notional-finance/shared-config';
+import { useOnboard } from '@notional-finance/notionable-hooks';
+import {
+  useNotionalTheme,
+  NotionalPageLayoutOptions,
+} from '@notional-finance/styles';
+import { THEME_VARIANTS } from '@notional-finance/shared-config';
+import { useSideDrawerManager } from '../../side-drawer-manager/use-side-drawer-manager';
 import { useNavLinks } from '../use-nav-links';
+import { Button } from '@notional-finance/mui';
+import { FormattedMessage } from 'react-intl';
 
 export interface MobileNavigationProps extends TabsProps {
-  rightButton?: ReactElement;
+  pageLayout?: NotionalPageLayoutOptions;
 }
 
 export function MobileNavigation({
-  rightButton,
+  pageLayout,
   ...rest
 }: MobileNavigationProps) {
   const theme = useTheme();
+  const lightTheme = useNotionalTheme(THEME_VARIANTS.LIGHT);
   const history = useHistory();
+  const { connected } = useOnboard();
+  const { setWalletSideDrawer } = useSideDrawerManager();
   const [selectedTab, setSelectedTab] = useState<string | false>(false);
-  const { navLinks, mobileSubNavLinks } = useNavLinks(true, theme);
+  const { navLinks } = useNavLinks(true, theme);
   const { pathname } = useLocation();
   const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null);
   const [sideDrawerDataKey, setSideDrawerDataKey] =
@@ -72,47 +86,65 @@ export function MobileNavigation({
 
   return window.innerWidth <= theme.breakpoints.values.sm ? (
     <>
-      <IconButton
-        size="large"
-        aria-label="Notional site navigation"
-        aria-controls="menu-notional"
-        aria-haspopup="true"
-        color="inherit"
-        onClick={
-          anchorElNav
-            ? (event) => handleCloseNavMenu(event)
-            : (event) => handleOpenNavMenu(event)
-        }
-      >
-        {anchorElNav ? (
-          <CloseX
+      <Box>
+        {!connected && pageLayout === 'app' && (
+          <Button
+            onClick={() =>
+              setWalletSideDrawer(SETTINGS_SIDE_DRAWERS.CONNECT_WALLET)
+            }
             sx={{
-              marginLeft: '5px',
-              marginTop: '5px',
-              stroke: theme.palette.common.black,
+              background: theme.gradient.landing,
+              color: lightTheme.palette.common.white,
             }}
-          />
-        ) : (
-          <MenuIcon
-            sx={{
-              color: theme.palette.common.black,
-            }}
-          />
+          >
+            <FormattedMessage defaultMessage={'Connect A Wallet'} />
+          </Button>
         )}
-      </IconButton>
+        <IconButton
+          size="large"
+          aria-label="Notional site navigation"
+          aria-controls="menu-notional"
+          aria-haspopup="true"
+          color="inherit"
+          onClick={
+            anchorElNav
+              ? (event) => handleCloseNavMenu(event)
+              : (event) => handleOpenNavMenu(event)
+          }
+          sx={{ paddingRight: '0px', paddingLeft: theme.spacing(3) }}
+        >
+          {anchorElNav ? (
+            <CloseX
+              sx={{
+                stroke: theme.palette.common.black,
+              }}
+            />
+          ) : (
+            <MenuIcon
+              sx={{
+                color: theme.palette.common.black,
+              }}
+            />
+          )}
+        </IconButton>
+      </Box>
+
       <Drawer
         id="menu-notional"
         anchor="top"
         keepMounted
         open={Boolean(anchorElNav)}
         onClose={handleCloseNavMenu}
+        BackdropProps={{ invisible: true }}
         sx={{
           display: { xs: 'block', lg: 'none' },
           color: theme.palette.common.black,
           width: 100,
           overflow: 'scroll',
           '& .MuiDrawer-paper, .MuiDrawer-paperAnchorTop': {
-            top: { xs: 56, sm: 64 },
+            top: { xs: 73, sm: 73 },
+            background: theme.palette.background.paper,
+            maxWidth: '100vw',
           },
         }}
       >
@@ -129,90 +161,64 @@ export function MobileNavigation({
               display: 'flex',
               flexDirection: 'column',
               flexGrow: 1,
-              boxShadow: '0px 0px 6px rgb(25 19 102 / 11%)',
               zIndex: '9',
+              height: '100vh',
             },
             '.MuiTabs-indicator': {
               display: 'none',
             },
             '.MuiTabs-scroller': {
-              backgroundColor: theme.palette.background.default,
+              backgroundColor: theme.palette.background.paper,
             },
           }}
         >
-          <Box
-            sx={{
-              padding: '45px 20px 30px 20px',
-              width: '100%',
-              textAlign: 'center',
-              maxWidth: {
-                xs: '286px',
-                sm: '286px',
-                md: '0px',
-                lg: '0px',
-                xl: '0px',
-              },
-              margin: {
-                xs: 'auto',
-                sm: 'auto',
-                md: '0px',
-                lg: '0px',
-                xl: '0px',
-              },
-            }}
-          >
-            {rightButton}
-          </Box>
-          {navLinks.map((t) => (
-            <Tab
-              key={t.key}
-              icon={t.iconImg}
-              iconPosition="start"
-              label={t.label}
-              href={t.link}
-              value={t.link}
-              rel={t.external && t.target === '_blank' ? 'noreferrer' : ''}
-              target={t.target || '_self'}
-              component="a"
-              onClick={handleCloseNavMenu}
-              sx={{
-                display: {
-                  xs: 'flex',
-                  md: 'none',
-                },
-                '.MuiSvgIcon-root': {
-                  color: theme.palette.common.black,
-                },
-                '&.MuiTab-root, .MuiTab-labelIcon': {
-                  opacity: 1,
-                  color: theme.palette.common.black,
-                  textTransform: 'capitalize',
-                  fontSize: '1rem',
-                  justifyContent: 'flex-start',
-                  maxWidth: 'none',
-                  width: '90%',
-                  padding: '0px',
-                  margin: 'auto',
-                  borderBottom:
-                    t.key !== 'provide' ? '1px solid #089CA3' : 'none',
-                },
-                '&:hover': {
-                  svg: {
-                    filter:
-                      'invert(63%) sepia(16%) saturate(1939%) hue-rotate(134deg) brightness(91%) contrast(96%)',
+          <Box sx={{ boxShadow: theme.shape.shadowStandard }}>
+            {navLinks.map((t) => (
+              <Tab
+                key={t.key}
+                icon={t.iconImg}
+                iconPosition="start"
+                label={t.label}
+                href={t.link}
+                value={t.link}
+                rel={t.external && t.target === '_blank' ? 'noreferrer' : ''}
+                target={t.target || '_self'}
+                component="a"
+                sx={{
+                  display: {
+                    xs: 'flex',
+                    md: 'none',
                   },
-                  color: theme.palette.primary.light,
-                },
-                '&.Mui-selected': {
-                  fontWeight: 700,
-                },
-              }}
-            />
-          ))}
-          <MobileSubNav
-            mobileSubNavLinks={mobileSubNavLinks}
-            handleSideDrawer={handleSideDrawer}
-          />
+                  '.MuiSvgIcon-root': {
+                    color: theme.palette.common.black,
+                  },
+                  '&.MuiTab-root, .MuiTab-labelIcon': {
+                    opacity: 1,
+                    color: theme.palette.common.black,
+                    textTransform: 'capitalize',
+                    fontSize: '1rem',
+                    justifyContent: 'flex-start',
+                    maxWidth: 'none',
+                    width: '90%',
+                    padding: '0px',
+                    margin: 'auto',
+                    borderBottom: '1px solid #089CA3',
+                  },
+                  '&:hover': {
+                    svg: {
+                      filter:
+                        'invert(63%) sepia(16%) saturate(1939%) hue-rotate(134deg) brightness(91%) contrast(96%)',
+                    },
+                    color: theme.palette.primary.light,
+                  },
+                  '&.Mui-selected': {
+                    fontWeight: 700,
+                  },
+                }}
+              />
+            ))}
+          </Box>
+          <MobileSubNav handleSideDrawer={handleSideDrawer} />
         </Tabs>
 
         <MobileSideDrawer

@@ -5,6 +5,10 @@ import { ArrowIcon } from '@notional-finance/icons';
 import MobileSideDrawerResources from '../mobile-side-drawer-resources/mobile-side-drawer-resources';
 import MobileNavTab from '../mobile-nav-tab/mobile-nav-tab';
 import { MOBILE_SUB_NAV_ACTIONS } from '@notional-finance/shared-config';
+import {
+  SettingsSideDrawer,
+  NotificationsSideDrawer,
+} from '@notional-finance/wallet';
 import { FormattedMessage } from 'react-intl';
 import { H4 } from '@notional-finance/mui';
 import { KeyboardEvent, MouseEvent } from 'react';
@@ -47,34 +51,6 @@ const MobileSideDrawer = ({
       onClose={toggleDrawer(false)}
       onOpen={toggleDrawer(true)}
     >
-      <Toolbar
-        sx={{
-          '&.MuiToolbar-root': {
-            height: '4.6rem',
-            padding: '0px',
-            zIndex: '10',
-            boxShadow: '0px 0px 6px rgb(25 19 102 / 11%)',
-          },
-        }}
-      >
-        <Box sx={{ width: '90%', margin: 'auto', display: 'flex' }}>
-          <ArrowIcon
-            onClick={toggleDrawer(false)}
-            sx={{
-              transform: 'rotate(-90deg)',
-              color: theme.palette.common.black,
-            }}
-          />
-          <H4
-            sx={{
-              marginLeft: theme.spacing(1),
-              fontWeight: theme.typography.fontWeightRegular,
-            }}
-          >
-            <FormattedMessage defaultMessage="back" />
-          </H4>
-        </Box>
-      </Toolbar>
       <Tabs
         orientation="vertical"
         variant="scrollable"
@@ -95,8 +71,41 @@ const MobileSideDrawer = ({
           },
         }}
       >
+        <Toolbar
+          sx={{
+            '&.MuiToolbar-root': {
+              height: '4.6rem',
+              padding: '0px',
+              zIndex: '10',
+              boxShadow: '0px 0px 6px rgb(25 19 102 / 11%)',
+            },
+          }}
+        >
+          <Box sx={{ width: '90%', margin: 'auto', display: 'flex' }}>
+            <Box sx={{ display: 'flex' }} onClick={toggleDrawer(false)}>
+              <ArrowIcon
+                sx={{
+                  transform: 'rotate(-90deg)',
+                  color: theme.palette.common.black,
+                }}
+              />
+              <H4
+                sx={{
+                  marginLeft: theme.spacing(1),
+                  fontWeight: theme.typography.fontWeightRegular,
+                }}
+              >
+                <FormattedMessage defaultMessage="back" />
+              </H4>
+            </Box>
+          </Box>
+        </Toolbar>
         {dataKey === MOBILE_SUB_NAV_ACTIONS.RESOURCES ? (
           <MobileSideDrawerResources />
+        ) : dataKey === MOBILE_SUB_NAV_ACTIONS.SETTINGS ? (
+          <SettingsSideDrawer />
+        ) : dataKey === MOBILE_SUB_NAV_ACTIONS.NOTIFICATIONS ? (
+          <NotificationsSideDrawer />
         ) : (
           sideDrawerLinks.map((data) => (
             <MobileNavTab key={data.key} data={data} />

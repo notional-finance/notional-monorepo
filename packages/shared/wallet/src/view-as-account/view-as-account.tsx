@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ethers } from 'ethers';
-import { Box, useTheme } from '@mui/material';
+import { Box, useTheme, styled } from '@mui/material';
 import { Input, Button } from '@notional-finance/mui';
 import { useAccount } from '@notional-finance/notionable-hooks';
 import { useSideDrawerManager } from '@notional-finance/shared-web';
@@ -33,12 +33,7 @@ export function ViewAsAccount() {
   };
 
   return (
-    <Box
-      sx={{
-        paddingBottom: '48px',
-        marginTop: 'auto',
-      }}
-    >
+    <Container>
       <Box
         sx={{
           borderTop: `1px solid ${theme.palette.borders.default}`,
@@ -71,13 +66,30 @@ export function ViewAsAccount() {
         fullWidth
         variant="outlined"
         size="large"
-        sx={{ marginTop: theme.spacing(4) }}
+        sx={{
+          marginTop: {
+            xs: theme.spacing(1),
+            sm: theme.spacing(1),
+            md: theme.spacing(4),
+          },
+        }}
         onClick={() => handleClick()}
       >
         <FormattedMessage defaultMessage="View Account" />
       </Button>
-    </Box>
+    </Container>
   );
 }
+
+const Container = styled(Box)(
+  ({ theme }) => `
+  padding-bottom: 48px;
+  margin-top: auto;
+  ${theme.breakpoints.down('sm')} {
+    display: flex;
+    flex-direction: column;
+  }
+  `
+);
 
 export default ViewAsAccount;

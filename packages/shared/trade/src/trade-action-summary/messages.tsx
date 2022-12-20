@@ -3,6 +3,7 @@ import { defineMessages, MessageDescriptor } from 'react-intl';
 
 interface MessageData {
   title?: MessageDescriptor;
+  returnType?: MessageDescriptor;
   dataPointOneTitle?: MessageDescriptor;
   dataPointTwoTitle?: MessageDescriptor;
 }
@@ -14,6 +15,10 @@ export const messages = {
     title: {
       defaultMessage: 'Borrow',
       description: 'borrow title',
+    },
+    returnType: {
+      defaultMessage: 'Fixed APY',
+      description: 'return type',
     },
     dataPointOneTitle: {
       defaultMessage: 'Due At Maturity',
@@ -30,6 +35,10 @@ export const messages = {
       defaultMessage: 'Lend',
       description: 'lend title',
     },
+    returnType: {
+      defaultMessage: 'Fixed APY',
+      description: 'return type',
+    },
     dataPointOneTitle: {
       defaultMessage: 'Total At Maturity',
       description: 'data point one description',
@@ -40,6 +49,10 @@ export const messages = {
     },
   }),
   [NOTIONAL_CATEGORIES.PROVIDE_LIQUIDITY]: defineMessages({
+    returnType: {
+      defaultMessage: 'Total APY',
+      description: 'return type',
+    },
     dataPointOneTitle: {
       defaultMessage: 'Variable APY',
       description: 'data point one description',
@@ -50,6 +63,10 @@ export const messages = {
     },
   }),
   [NOTIONAL_CATEGORIES.STAKE]: defineMessages({
+    returnType: {
+      defaultMessage: 'APY',
+      description: 'return type',
+    },
     dataPointOneTitle: {
       defaultMessage: 'Total sNOTE Value',
       description: 'data point one description',

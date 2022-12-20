@@ -37,23 +37,17 @@ export const BorrowSidebar = () => {
   }, [history, pathname]);
 
   const maturityCards = (
-    <Box
-      sx={{
-        marginTop: { xs: theme.spacing(22), sm: theme.spacing(22), md: '0px' },
+    <Maturities
+      maturityData={maturityData || []}
+      onSelect={(selectedMarketKey) => {
+        updateBorrowState({ selectedMarketKey });
       }}
-    >
-      <Maturities
-        maturityData={maturityData || []}
-        onSelect={(selectedMarketKey) => {
-          updateBorrowState({ selectedMarketKey });
-        }}
-        currentMarketKey={selectedMarketKey}
-        inputLabel={defineMessage({
-          defaultMessage: '1. Select a maturity & fix your rate',
-          description: 'input label',
-        })}
-      />
-    </Box>
+      currentMarketKey={selectedMarketKey}
+      inputLabel={defineMessage({
+        defaultMessage: '1. Select a maturity & fix your rate',
+        description: 'input label',
+      })}
+    />
   );
 
   const currencyInputHandler =

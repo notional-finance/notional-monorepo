@@ -91,3 +91,5 @@ export const useSideDrawerManager = () => {
     deleteWalletSideDrawer,
   };
 };
+
+export default useSideDrawerManager;

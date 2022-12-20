@@ -8,7 +8,6 @@ import {
   BellIcon,
   EyeIcon,
 } from '@notional-finance/icons';
-import { getFromLocalStorage } from '@notional-finance/helpers';
 import WalletSideDrawer from '../wallet-side-drawer/wallet-side-drawer';
 import { getNotificationsData } from './wallet-selector.service';
 import NetworkSelector from '../network-selector/network-selector';
@@ -34,19 +33,16 @@ export function WalletSelector() {
   const { truncatedAddress } = useAccount();
   const [notificationsActive, setNotificationsActive] =
     useState<boolean>(false);
-  const notifications = getFromLocalStorage('notifications');
+
   const { setWalletSideDrawer, deleteWalletSideDrawer } =
     useSideDrawerManager();
   const { openDrawer } = useWalletSideDrawer();
 
   useEffect(() => {
-    if (!notifications.blogData) {
-      getNotificationsData().then((activeResult) =>
-        activeResult ? setNotificationsActive(activeResult) : null
-      );
-    }
-    setNotificationsActive(notifications.active);
-  }, [notifications]);
+    getNotificationsData().then((activeResult) => {
+      return activeResult ? setNotificationsActive(activeResult) : null;
+    });
+  }, []);
 
   const handleClick = (key: SETTINGS_SIDE_DRAWERS) => {
     if (openDrawer) {

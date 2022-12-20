@@ -25,7 +25,7 @@ const Container = styled(Box, {
     position: relative;
     box-shadow: none;
     position: relative;
-    background: ${theme.palette.background.default};
+    background: transparent;
   }
 `
 );

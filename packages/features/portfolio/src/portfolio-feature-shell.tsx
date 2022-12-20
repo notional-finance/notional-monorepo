@@ -41,7 +41,12 @@ export const PortfolioFeatureShell = () => {
 
   return (
     <PortfolioContainer>
-      <SideDrawer callback={handleDrawer} openDrawer={openDrawer}>
+      <SideDrawer
+        callback={handleDrawer}
+        openDrawer={openDrawer}
+        zIndex={1202}
+        marginTop="80px"
+      >
         {SideDrawerComponent && <SideDrawerComponent />}
       </SideDrawer>
       <PortfolioSidebar>

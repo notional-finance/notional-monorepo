@@ -29,7 +29,7 @@ export const NotificationsSideDrawer = () => {
   };
 
   return (
-    <Box>
+    <Container>
       <Title>
         <FormattedMessage defaultMessage="Notifications" />
         {notifications.active && (
@@ -81,7 +81,7 @@ export const NotificationsSideDrawer = () => {
       ) : (
         <PageLoading></PageLoading>
       )}
-    </Box>
+    </Container>
   );
 };
 
@@ -112,6 +112,15 @@ const Text = styled(Typography)(
   font-weight: 500;
   font-size: 16px;
   color: ${theme.palette.typography.main};
+  white-space: normal;
+  `
+);
+
+const Container = styled(Box)(
+  ({ theme }) => `
+  ${theme.breakpoints.down('sm')} {
+    margin: ${theme.spacing(2)};
+  }
   `
 );
 

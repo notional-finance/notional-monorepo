@@ -8,13 +8,13 @@ import useWindowDimensions from '../hooks/use-window-dimensions/use-window-dimen
 export interface SideBarLayoutProps {
   mainContent: ReactElement;
   sideBar: ReactElement;
-  mobileHeader?: boolean;
+  showTransactionConfirmation?: boolean;
 }
 
 export function SideBarLayout({
   mainContent,
   sideBar,
-  mobileHeader,
+  showTransactionConfirmation,
 }: SideBarLayoutProps) {
   const [viewHeight, setViewHeight] = useState(0);
   const viewRef = useRef<HTMLDivElement | null>(null);
@@ -69,15 +69,13 @@ export function SideBarLayout({
       </Box>
       <Box
         sx={{
-          marginTop: mobileHeader
-            ? { xs: '184px', sm: '184px', md: '0px', lg: '0px', xl: '0px' }
-            : '0px',
           minHeight: '100%',
           flexGrow: { xs: 1, md: 1, lg: 0, xl: 0 },
           borderRadius: 'unset',
           '&>div': {
             height: '100%',
           },
+          zIndex: showTransactionConfirmation ? 5 : 1,
         }}
       >
         {sideBar}

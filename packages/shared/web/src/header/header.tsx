@@ -33,7 +33,14 @@ export function Header({ rightButton, pageLayout = 'app' }: HeaderProps) {
   return (
     <ThemeProvider theme={theme}>
       <AppBar position="fixed" elevation={0}>
-        <Toolbar sx={{ '&.MuiToolbar-root': { minHeight: '100%' } }}>
+        <Toolbar
+          sx={{
+            '&.MuiToolbar-root': {
+              minHeight: '100%',
+              maxWidth: { xs: '100vw', sm: '100vw', md: '100%' },
+            },
+          }}
+        >
           <H4 to="/">
             <NotionalLogo />
           </H4>
@@ -75,7 +82,7 @@ export function Header({ rightButton, pageLayout = 'app' }: HeaderProps) {
               flexDirection: 'row-reverse',
             }}
           >
-            <MobileNavigation rightButton={rightButton} />
+            <MobileNavigation pageLayout={pageLayout} />
           </Box>
           <Box
             sx={{

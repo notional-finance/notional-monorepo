@@ -98,7 +98,7 @@ const WalletButton = styled(Box)(
 const Title = styled(Box)(
   ({ theme }) => `
   margin-bottom: ${theme.spacing(2.5)};
-  margin-top: ${theme.spacing(2.5)};
+  margin-top: ${theme.spacing(3)};
   font-weight: 700;
   color: ${theme.palette.primary.dark};
   display: flex;

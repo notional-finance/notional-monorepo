@@ -4,6 +4,7 @@ import { SideBarLayout } from '@notional-finance/mui';
 import { TradeActionSummary } from '@notional-finance/trade';
 import { NOTIONAL_CATEGORIES } from '@notional-finance/shared-config';
 import { updateBorrowState } from './store/borrow-store';
+import { useBorrowTransaction } from './store/use-borrow-transaction';
 import { useBorrow } from './store/use-borrow';
 import { useEffect } from 'react';
 import { useMarkets } from '@notional-finance/notionable-hooks';
@@ -16,6 +17,8 @@ export interface BorrowParams {
 export const BorrowFeatureShell = () => {
   const { currency: selectedToken } = useParams<BorrowParams>();
   const markets = useMarkets(selectedToken);
+  const txnData = useBorrowTransaction(selectedToken);
+  const showTransactionConfirmation = txnData ? true : false;
   const { selectedMarketKey, tradedRate, fCashAmount, interestAmount } =
     useBorrow(selectedToken);
 
@@ -25,6 +28,7 @@ export const BorrowFeatureShell = () => {
 
   return (
     <SideBarLayout
+      showTransactionConfirmation={showTransactionConfirmation}
       sideBar={<BorrowSidebar />}
       mainContent={
         <TradeActionSummary

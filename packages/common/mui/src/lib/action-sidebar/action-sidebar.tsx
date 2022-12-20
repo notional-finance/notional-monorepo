@@ -10,6 +10,7 @@ import {
   LargeInputTextEmphasized,
   HeadingSubtitle,
 } from '../typography/typography';
+import { NotionalTheme } from '@notional-finance/styles';
 
 export interface ActionSidebarProps {
   heading: MessageDescriptor;
@@ -20,20 +21,31 @@ export interface ActionSidebarProps {
   cancelRoute?: string;
   CustomActionButton?: React.ReactNode;
   showActionButtons?: boolean;
+  hideTextOnMobile?: boolean;
   advancedToggle?: ToggleSwitchProps;
 }
+export interface ActionSideBarContainerProps {
+  hideTextOnMobile: boolean;
+  theme: NotionalTheme;
+}
 
-const FormSection = styled(Box)`
+const FormSection = styled(Box, {
+  shouldForwardProp: (prop: string) => prop !== 'hideTextOnMobile',
+})(
+  ({ hideTextOnMobile, theme }: ActionSideBarContainerProps) => `
   > *:not(:last-child) {
-    margin-bottom: 48px;
+    margin-bottom: ${theme.spacing(6)};
     width: 100%;
   }
   > *:last-child {
     width: 100%;
   }
-`;
+  ${theme.breakpoints.down('sm')} {
+    margin-top: ${hideTextOnMobile ? theme.spacing(22) : '0px'};
+  }
+`
+);
 
-// NOTE:
 // - > *:not(:last-child) styles all of the children but the last one
 // - > *  styles the last child element
 
@@ -47,21 +59,12 @@ export const ActionSidebar = ({
   CustomActionButton,
   advancedToggle,
   showActionButtons = true,
+  hideTextOnMobile = false,
 }: ActionSidebarProps) => {
   const theme = useTheme();
   const inner = (
     <>
-      <Box
-        sx={{
-          display: {
-            xs: 'none',
-            sm: 'none',
-            md: 'block',
-            lg: 'block',
-            xl: 'block',
-          },
-        }}
-      >
+      <ActionSideBarContainer hideTextOnMobile={hideTextOnMobile} theme={theme}>
         <Box
           sx={{
             display: 'flex',
@@ -96,9 +99,8 @@ export const ActionSidebar = ({
           }}
           variant="fullWidth"
         />
-      </Box>
-
-      <FormSection>
+      </ActionSideBarContainer>
+      <FormSection hideTextOnMobile={hideTextOnMobile} theme={theme}>
         {children}
         {showActionButtons && (
           <ActionSidebarButtons
@@ -114,3 +116,14 @@ export const ActionSidebar = ({
 
   return showDrawer ? <Drawer size="large">{inner}</Drawer> : inner;
 };
+
+const ActionSideBarContainer = styled(Box, {
+  shouldForwardProp: (prop: string) => prop !== 'hideTextOnMobile',
+})(
+  ({ hideTextOnMobile, theme }: ActionSideBarContainerProps) => `
+  ${theme.breakpoints.down('lg')} {
+    display: ${hideTextOnMobile ? 'none' : 'block'};
+  }
+  
+  `
+);
