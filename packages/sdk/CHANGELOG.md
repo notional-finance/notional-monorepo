@@ -2,6 +2,20 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [0.3.0](https://github.com/notional-finance/notional-monorepo/compare/sdk-0.2.0...sdk-0.3.0) (2022-12-20)
+
+
+### Features
+
+* **feature-portfolio:** fixing apy for vault ([de9a9b6](https://github.com/notional-finance/notional-monorepo/commit/de9a9b678ea5528e01b75586fc2d5b444161df92))
+* **features-portfolio:** add profit figure to vaults ([796053f](https://github.com/notional-finance/notional-monorepo/commit/796053fef4d93bc75b5e33e90491c4749fd9af27))
+* **sdk:** adding vault historical borrow rate ([c5af94f](https://github.com/notional-finance/notional-monorepo/commit/c5af94fcd883f9ecb48cb078f6bf1898d4580a7f))
+
+
+### Bug Fixes
+
+* **sdk:** fix stETH/ETH current price ([11f6570](https://github.com/notional-finance/notional-monorepo/commit/11f657099c169c021c4bfb6ba5187bcd16223bed))
+
 ## [0.2.0](https://github.com/notional-finance/notional-monorepo/compare/sdk-0.1.1...sdk-0.2.0) (2022-11-17)
 
 
