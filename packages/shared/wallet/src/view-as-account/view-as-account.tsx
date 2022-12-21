@@ -63,7 +63,7 @@ export function ViewAsAccount() {
         {error ? <FormattedMessage defaultMessage="Address not valid" /> : '_'}
       </Box>
       <Button
-        fullWidth={true}
+        fullWidth
         variant="outlined"
         size="large"
         sx={{

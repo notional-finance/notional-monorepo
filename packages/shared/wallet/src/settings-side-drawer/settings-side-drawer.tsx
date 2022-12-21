@@ -60,7 +60,10 @@ export const SettingsSideDrawer = ({
           titleText={defineMessage({ defaultMessage: 'back' })}
         />
       )}
-      <Box ref={containerRef}>
+      <Box
+        ref={containerRef}
+        sx={{ visibility: settingsItem === null ? 'visible' : 'hidden' }}
+      >
         <Title>
           <FormattedMessage defaultMessage="Account" />
         </Title>
@@ -126,7 +129,7 @@ export const SettingsSideDrawer = ({
         >
           <Button
             size="large"
-            fullWidth={true}
+            fullWidth
             variant="outlined"
             onClick={() => handleDisconnect()}
           >

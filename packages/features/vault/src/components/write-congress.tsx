@@ -8,7 +8,7 @@ export const WriteCongress = () => {
     <Box width="100%">
       <Button
         size="large"
-        fullWidth={true}
+        fullWidth
         href="https://www.congress.gov/members/find-your-member"
       >
         <FormattedMessage {...messages.error.blockedGeoCTA} />

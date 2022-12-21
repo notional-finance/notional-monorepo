@@ -88,7 +88,7 @@ export function CardVariant(props: AllCardVariantProps) {
           <IncentiveVariant {...(props as IncentiveVariantProps)} />
         )}
         <Button
-          fullWidth={true}
+          fullWidth
           size="medium"
           variant="contained"
           sx={{ background: theme.palette.primary.light }}

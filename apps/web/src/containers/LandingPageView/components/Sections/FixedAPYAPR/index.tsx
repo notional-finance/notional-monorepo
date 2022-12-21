@@ -64,7 +64,7 @@ export const FixedAPYAPR = () => {
               },
             })
           }
-          fullWidth={true}
+          fullWidth
         >
           {lendOrBorrow === LEND_BORROW.BORROW ? (
             <FormattedMessage defaultMessage="Borrow" />
