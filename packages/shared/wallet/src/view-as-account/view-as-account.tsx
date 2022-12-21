@@ -3,7 +3,7 @@ import { ethers } from 'ethers';
 import { Box, useTheme, styled } from '@mui/material';
 import { Input, Button } from '@notional-finance/mui';
 import { useAccount } from '@notional-finance/notionable-hooks';
-import { useSideDrawerManager } from '@notional-finance/shared-web';
+import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { defineMessage, FormattedMessage } from 'react-intl';
 
 export function ViewAsAccount() {
@@ -11,12 +11,12 @@ export function ViewAsAccount() {
   const [address, setAddress] = useState<string>('');
   const [error, setError] = useState<boolean>(false);
   const { setReadOnlyAddress } = useAccount();
-  const { deleteWalletSideDrawer } = useSideDrawerManager();
+  const { clearWalletSideDrawer } = useSideDrawerManager();
 
   const handleClick = () => {
     if (ethers.utils.isAddress(address)) {
       setReadOnlyAddress(address);
-      deleteWalletSideDrawer();
+      clearWalletSideDrawer();
     } else {
       setError(true);
     }
@@ -63,7 +63,7 @@ export function ViewAsAccount() {
         {error ? <FormattedMessage defaultMessage="Address not valid" /> : '_'}
       </Box>
       <Button
-        fullWidth
+        fullWidth={true}
         variant="outlined"
         size="large"
         sx={{
@@ -83,11 +83,13 @@ export function ViewAsAccount() {
 
 const Container = styled(Box)(
   ({ theme }) => `
-  padding-bottom: ${theme.spacing(6)}};
+  padding-bottom: ${theme.spacing(6)};
   margin-top: auto;
   ${theme.breakpoints.down('sm')} {
     display: flex;
     flex-direction: column;
+    height: 100%;
+    background: ${theme.palette.background.paper};
   }
   `
 );

@@ -78,6 +78,9 @@
       ],
       "@notional-finance/shared-web": ["packages/shared/web/src/index.ts"],
       "@notional-finance/shared-web/*": ["packages/shared/web/src/*"],
+      "@notional-finance/side-drawer": [
+        "packages/shared/side-drawer/src/index.ts"
+      ],
       "@notional-finance/stake-feature-shell": [
         "packages/features/stake/src/index.ts"
       ],
@@ -93,6 +96,9 @@
       ],
       "@notional-finance/treasury-feature-shell/*": [
         "packages/features/treasury/src/*"
+      ],
+      "@notional-finance/user-settings-manager": [
+        "packages/shared/user-settings-manager/src/index.ts"
       ],
       "@notional-finance/util": ["packages/util/src/index.ts"],
       "@notional-finance/utils": ["packages/shared/utils/src/index.ts"],

@@ -7,7 +7,7 @@ import { THEME_VARIANTS } from '@notional-finance/shared-config';
 import backgroundImgDark from '@notional-finance/assets/images/provide-liquidity-bg-alt.png';
 import backgroundImgLight from '@notional-finance/assets/images/provide-liquidity-light-bg.png';
 import { useLiquidityTransaction } from './store/use-liquidity-transaction';
-import { useUserSettingsState } from '@notional-finance/shared-web';
+import { useUserSettingsState } from '@notional-finance/user-settings-manager';
 import { LiquiditySummary } from './liquidity-summary/liquidity-summary';
 import { LiquiditySidebar } from './liquidity-sidebar/liquidity-sidebar';
 import { updateLiquidityState } from './store/liquidity-store';

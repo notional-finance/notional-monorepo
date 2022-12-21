@@ -11,7 +11,11 @@ import { ArrowIcon } from '@notional-finance/icons';
 import { ReactElement, ReactNode, useRef } from 'react';
 import { FormattedMessage, MessageDescriptor } from 'react-intl';
 import HoverPopover from 'material-ui-popup-state/HoverPopover';
-import { usePopupState, bindHover, bindPopover } from 'material-ui-popup-state/hooks';
+import {
+  usePopupState,
+  bindHover,
+  bindPopover,
+} from 'material-ui-popup-state/hooks';
 
 /* eslint-disable-next-line */
 export interface DropdownButtonProps extends ButtonProps {

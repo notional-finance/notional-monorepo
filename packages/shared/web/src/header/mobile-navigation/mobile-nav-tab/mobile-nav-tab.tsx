@@ -48,7 +48,9 @@ const MobileNavTab = ({
           width: '90%',
           padding: '0px',
           margin: 'auto',
-          borderBottom: data?.noBottomBorder ? 'none' : '1px solid #089CA3',
+          borderBottom: data?.noBottomBorder
+            ? 'none'
+            : theme.shape.borderStandard,
         },
         '&:hover': {
           color: theme.palette.primary.light,

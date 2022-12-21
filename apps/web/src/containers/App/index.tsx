@@ -13,12 +13,10 @@ import { ReactRouter5Adapter } from 'use-query-params/adapters/react-router-5';
 import RouteContainer from './components/RouteContainer';
 import AppLayoutRoute from './layouts/AppLayoutRoute';
 import LandingPageLayoutRoute from './layouts/LandingPageLayoutRoute';
-import {
-  TrackingConsent,
-  useUserSettingsState,
-} from '@notional-finance/shared-web';
+import { useUserSettingsState } from '@notional-finance/user-settings-manager';
 import { useNotional } from '@notional-finance/notionable-hooks';
 import { initializeNetwork } from '@notional-finance/notionable';
+import { TrackingConsent } from '@notional-finance/shared-web';
 import { ServerError } from '../../containers/server-error/server-error';
 import { PageLoading } from '@notional-finance/mui';
 import { useNotionalTheme } from '@notional-finance/styles';

@@ -3,7 +3,7 @@ import { useOnboard } from '@notional-finance/notionable-hooks';
 import { ArrowIcon } from '@notional-finance/icons';
 import { SETTINGS_SIDE_DRAWERS } from '@notional-finance/shared-config';
 import { FormattedMessage } from 'react-intl';
-import { useSideDrawerManager } from '@notional-finance/shared-web';
+import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { ViewAsAccount } from '../view-as-account/view-as-account';
 import { useWalletSideDrawer } from '../hooks';
 import { useEffect } from 'react';
@@ -13,16 +13,16 @@ export const ConnectWalletSideDrawer = () => {
   const theme = useTheme();
   const { modules, connectWallet, connected } = useOnboard();
   const { currentSideDrawerKey } = useWalletSideDrawer();
-  const { deleteWalletSideDrawer } = useSideDrawerManager();
+  const { clearWalletSideDrawer } = useSideDrawerManager();
 
   useEffect(() => {
     if (
       connected &&
       SETTINGS_SIDE_DRAWERS.CONNECT_WALLET === currentSideDrawerKey
     ) {
-      deleteWalletSideDrawer();
+      clearWalletSideDrawer();
     }
-  }, [connected, currentSideDrawerKey, deleteWalletSideDrawer]);
+  }, [connected, currentSideDrawerKey, clearWalletSideDrawer]);
 
   return (
     <>

@@ -10,10 +10,3 @@ export * from './header/wallet-display/wallet-display';
 export * from './footer/footer';
 export * from './header/header';
 export * from './header/launch-app-button/launch-app-button';
-
-export * from './side-drawer-manager/use-side-drawer-manager';
-export * from './side-drawer-manager/store/side-drawer-store';
-export * from './side-drawer-manager/store/use-side-drawer-state';
-
-export * from './user-settings-manager/store/user-settings-store';
-export * from './user-settings-manager/store/use-user-settings-state';

@@ -13,7 +13,7 @@ import { getNotificationsData } from './wallet-selector.service';
 import NetworkSelector from '../network-selector/network-selector';
 import { useOnboard, useAccount } from '@notional-finance/notionable-hooks';
 import { ProgressIndicator } from '@notional-finance/mui';
-import { useSideDrawerManager } from '@notional-finance/shared-web';
+import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { useWalletSideDrawer } from '../hooks';
 import {
   PORTFOLIO_ACTIONS,
@@ -34,8 +34,7 @@ export function WalletSelector() {
   const [notificationsActive, setNotificationsActive] =
     useState<boolean>(false);
 
-  const { setWalletSideDrawer, deleteWalletSideDrawer } =
-    useSideDrawerManager();
+  const { setWalletSideDrawer, clearWalletSideDrawer } = useSideDrawerManager();
   const { openDrawer } = useWalletSideDrawer();
 
   useEffect(() => {
@@ -46,7 +45,7 @@ export function WalletSelector() {
 
   const handleClick = (key: SETTINGS_SIDE_DRAWERS) => {
     if (openDrawer) {
-      deleteWalletSideDrawer();
+      clearWalletSideDrawer();
     }
     if (!openDrawer) {
       setWalletSideDrawer(key);

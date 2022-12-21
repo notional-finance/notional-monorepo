@@ -1,6 +1,6 @@
 import { Box, styled, useTheme } from '@mui/material';
 import { useAccount } from '@notional-finance/notionable-hooks';
-import { useParams, useHistory } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { ButtonBar, SideDrawer } from '@notional-finance/mui';
 import { usePortfolioButtonBar, usePortfolioSideDrawers } from './hooks';
 import { SideNav, PortfolioMobileNav } from './components';
@@ -13,7 +13,7 @@ import {
   PortfolioMoneyMarket,
   PortfolioTransactionHistory,
 } from './containers';
-import { useSideDrawerManager } from '@notional-finance/shared-web';
+import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import {
   PORTFOLIO_ACTIONS,
   PORTFOLIO_CATEGORIES,
@@ -26,15 +26,14 @@ export interface PortfolioParams {
 
 export const PortfolioFeatureShell = () => {
   const theme = useTheme();
-  const history = useHistory();
   const params = useParams<PortfolioParams>();
-  useSideDrawerManager();
+  const { clearSideDrawer } = useSideDrawerManager();
   const { SideDrawerComponent, openDrawer } = usePortfolioSideDrawers();
   const { buttonData } = usePortfolioButtonBar();
   const { accountConnected } = useAccount();
 
   const handleDrawer = () => {
-    history.push(
+    clearSideDrawer(
       `/portfolio/${params?.category || PORTFOLIO_CATEGORIES.OVERVIEW}`
     );
   };

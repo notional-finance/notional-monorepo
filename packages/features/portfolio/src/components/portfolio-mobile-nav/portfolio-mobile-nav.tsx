@@ -56,7 +56,7 @@ export function PortfolioMobileNav() {
             <NavOption key={id}>
               <CustomLink to={to} id={id} theme={theme} category={category}>
                 <Box>{Icon}</Box>
-                <Title to={to} id={id} theme={theme} category={category}>
+                <Title id={id} theme={theme} category={category}>
                   {title}
                 </Title>
               </CustomLink>
@@ -86,7 +86,7 @@ export function PortfolioMobileNav() {
             <NavOption key={id}>
               <CustomLink to={to} id={id} theme={theme} category={category}>
                 <Box>{Icon}</Box>
-                <Title to={to} id={id} theme={theme} category={category}>
+                <Title id={id} theme={theme} category={category}>
                   {title}
                 </Title>
               </CustomLink>

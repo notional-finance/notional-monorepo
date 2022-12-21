@@ -19,6 +19,7 @@ export interface ActionSidebarProps {
   showDrawer?: boolean;
   canSubmit?: boolean;
   cancelRoute?: string;
+  onCancelCallback?: () => void;
   CustomActionButton?: React.ReactNode;
   showActionButtons?: boolean;
   hideTextOnMobile?: boolean;
@@ -56,6 +57,7 @@ export const ActionSidebar = ({
   showDrawer = true,
   canSubmit,
   cancelRoute,
+  onCancelCallback,
   CustomActionButton,
   advancedToggle,
   showActionButtons = true,
@@ -106,6 +108,7 @@ export const ActionSidebar = ({
           <ActionSidebarButtons
             canSubmit={canSubmit}
             cancelRoute={cancelRoute}
+            onCancelCallback={onCancelCallback}
             CustomActionButton={CustomActionButton}
             sticky
           />

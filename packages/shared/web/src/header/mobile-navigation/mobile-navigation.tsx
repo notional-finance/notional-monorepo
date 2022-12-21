@@ -9,8 +9,8 @@ import {
   useTheme,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import { useLocation, useHistory } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useHistory } from 'react-router-dom';
+import { useState } from 'react';
 import { SyntheticEvent } from 'react';
 import { MouseEvent } from 'react';
 import MobileSubNav from './mobile-sub-nav/mobile-sub-nav';
@@ -25,7 +25,7 @@ import {
   NotionalPageLayoutOptions,
 } from '@notional-finance/styles';
 import { THEME_VARIANTS } from '@notional-finance/shared-config';
-import { useSideDrawerManager } from '../../side-drawer-manager/use-side-drawer-manager';
+import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { useNavLinks } from '../use-nav-links';
 import { Button } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
@@ -43,20 +43,14 @@ export function MobileNavigation({
   const history = useHistory();
   const { connected } = useOnboard();
   const { setWalletSideDrawer } = useSideDrawerManager();
-  const [selectedTab, setSelectedTab] = useState<string | false>(false);
+
   const { navLinks } = useNavLinks(true, theme);
-  const { pathname } = useLocation();
+
   const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null);
+
   const [sideDrawerDataKey, setSideDrawerDataKey] =
     useState<MOBILE_SUB_NAV_ACTIONS>(MOBILE_SUB_NAV_ACTIONS.INVEST_AND_EARN);
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
-  const currentTab =
-    navLinks.find(({ link }) => link === pathname)?.link || false;
-
-  useEffect(() => {
-    setSelectedTab(currentTab);
-    setAnchorElNav(null);
-  }, [currentTab]);
 
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     event.preventDefault();
@@ -150,7 +144,7 @@ export function MobileNavigation({
       >
         <Tabs
           {...rest}
-          value={selectedTab}
+          value={false}
           onChange={handleChange}
           orientation="vertical"
           variant="scrollable"
@@ -169,55 +163,54 @@ export function MobileNavigation({
             },
             '.MuiTabs-scroller': {
               backgroundColor: theme.palette.background.paper,
+              paddingBottom: theme.spacing(3),
             },
           }}
         >
-          <Box sx={{ boxShadow: theme.shape.shadowStandard }}>
-            {navLinks.map((t) => (
-              <Tab
-                key={t.key}
-                icon={t.iconImg}
-                iconPosition="start"
-                label={t.label}
-                href={t.link}
-                value={t.link}
-                rel={t.external && t.target === '_blank' ? 'noreferrer' : ''}
-                target={t.target || '_self'}
-                component="a"
-                sx={{
-                  display: {
-                    xs: 'flex',
-                    md: 'none',
+          {navLinks.map((t) => (
+            <Tab
+              key={t.key}
+              icon={t.iconImg}
+              iconPosition="start"
+              label={t.label}
+              href={t.link}
+              value={t.link}
+              rel={t.external && t.target === '_blank' ? 'noreferrer' : ''}
+              target={t.target || '_self'}
+              component="a"
+              sx={{
+                display: {
+                  xs: 'flex',
+                  md: 'none',
+                },
+                '.MuiSvgIcon-root': {
+                  color: theme.palette.common.black,
+                },
+                '&.MuiTab-root, .MuiTab-labelIcon': {
+                  opacity: 1,
+                  color: theme.palette.common.black,
+                  textTransform: 'capitalize',
+                  fontSize: '1rem',
+                  justifyContent: 'flex-start',
+                  maxWidth: 'none',
+                  width: '90%',
+                  padding: '0px',
+                  margin: 'auto',
+                  borderBottom: theme.shape.borderStandard,
+                },
+                '&:hover': {
+                  svg: {
+                    filter:
+                      'invert(63%) sepia(16%) saturate(1939%) hue-rotate(134deg) brightness(91%) contrast(96%)',
                   },
-                  '.MuiSvgIcon-root': {
-                    color: theme.palette.common.black,
-                  },
-                  '&.MuiTab-root, .MuiTab-labelIcon': {
-                    opacity: 1,
-                    color: theme.palette.common.black,
-                    textTransform: 'capitalize',
-                    fontSize: '1rem',
-                    justifyContent: 'flex-start',
-                    maxWidth: 'none',
-                    width: '90%',
-                    padding: '0px',
-                    margin: 'auto',
-                    borderBottom: '1px solid #089CA3',
-                  },
-                  '&:hover': {
-                    svg: {
-                      filter:
-                        'invert(63%) sepia(16%) saturate(1939%) hue-rotate(134deg) brightness(91%) contrast(96%)',
-                    },
-                    color: theme.palette.primary.light,
-                  },
-                  '&.Mui-selected': {
-                    fontWeight: 700,
-                  },
-                }}
-              />
-            ))}
-          </Box>
+                  color: theme.palette.primary.light,
+                },
+                '&.Mui-selected': {
+                  fontWeight: 700,
+                },
+              }}
+            />
+          ))}
           <MobileSubNav handleSideDrawer={handleSideDrawer} />
         </Tabs>
 

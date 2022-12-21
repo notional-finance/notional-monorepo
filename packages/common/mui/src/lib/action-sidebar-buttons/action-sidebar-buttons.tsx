@@ -34,6 +34,7 @@ interface ActionSidebarButtonsProps {
   canSubmit?: boolean;
   sticky?: boolean;
   cancelRoute?: string;
+  onCancelCallback?: () => void;
   CustomActionButton?: any;
 }
 
@@ -41,6 +42,7 @@ export const ActionSidebarButtons = ({
   canSubmit,
   sticky = true,
   cancelRoute,
+  onCancelCallback,
   CustomActionButton,
 }: ActionSidebarButtonsProps) => {
   const theme = useTheme();
@@ -49,19 +51,20 @@ export const ActionSidebarButtons = ({
     ? `${search}&confirm=true`
     : '?confirm=true';
   const confirmRoute = `${pathname}${confirmQueryString}`;
-  const showDefaultButtons = cancelRoute && !CustomActionButton;
 
   return (
     <Container sticky={sticky} theme={theme}>
       {CustomActionButton && <CustomActionButton canSubmit={canSubmit} />}
-      {showDefaultButtons && (
+      {!CustomActionButton && (
         <>
-          <Button variant="outlined" size="large" to={cancelRoute}>
-            <FormattedMessage
-              defaultMessage={'Cancel'}
-              description="button text"
-            />
-          </Button>
+          <Box onClick={onCancelCallback}>
+            <Button variant="outlined" size="large" to={cancelRoute}>
+              <FormattedMessage
+                defaultMessage={'Cancel'}
+                description="button text"
+              />
+            </Button>
+          </Box>
           <Button
             variant="contained"
             disabled={!canSubmit}

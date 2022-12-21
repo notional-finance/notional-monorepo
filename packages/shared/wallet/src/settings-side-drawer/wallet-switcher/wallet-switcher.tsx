@@ -4,7 +4,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { CircleIcon, EyeIcon } from '@notional-finance/icons';
 import { NotionalTheme } from '@notional-finance/styles';
 import { useOnboard, useAccount } from '@notional-finance/notionable-hooks';
-import { useSideDrawerManager } from '@notional-finance/shared-web';
+import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { ViewAsAccount } from '../../view-as-account/view-as-account';
 import { FormattedMessage } from 'react-intl';
 
@@ -49,13 +49,13 @@ export const AddressButton = () => {
 
 export const WalletSwitcher = () => {
   const { modules, connectWallet, label, connected } = useOnboard();
-  const { deleteWalletSideDrawer } = useSideDrawerManager();
+  const { clearWalletSideDrawer } = useSideDrawerManager();
   const theme = useTheme();
   const currentLabel = label;
 
   const handleConnect = (label: string) => {
     connectWallet(label);
-    deleteWalletSideDrawer();
+    clearWalletSideDrawer();
   };
 
   return (

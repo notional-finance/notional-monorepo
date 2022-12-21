@@ -6,6 +6,7 @@ import { RiskSlider, AccountRiskTable } from '@notional-finance/risk';
 import { useQueryParams } from '@notional-finance/utils';
 import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
 import { useHistory, useLocation, useParams } from 'react-router';
+import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { PortfolioParams } from '../../portfolio-feature-shell';
 import { messages } from '../messages';
 
@@ -40,6 +41,7 @@ export const PortfolioSideDrawer = ({
     searchParams.toString() ? '?' + searchParams.toString() : ''
   }`;
   const returnToPortfolio = `/portfolio/${category}`;
+  const { clearSideDrawer } = useSideDrawerManager();
 
   return confirmRoute && transactionData ? (
     <TransactionConfirmation
@@ -57,7 +59,7 @@ export const PortfolioSideDrawer = ({
       advancedToggle={advancedToggle}
       showDrawer={false}
       canSubmit={canSubmit}
-      cancelRoute={returnToPortfolio}
+      onCancelCallback={() => clearSideDrawer(returnToPortfolio)}
     >
       {children}
       <RiskSlider key={'risk-slider'} updatedAccountData={updatedAccountData} />

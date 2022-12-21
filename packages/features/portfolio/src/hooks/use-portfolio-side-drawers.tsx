@@ -1,10 +1,10 @@
 import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
 import {
+  useSideDrawerState,
   ConvertCashToNToken,
   RemindMe,
   GetNotified,
-  useSideDrawerState,
-} from '@notional-finance/shared-web';
+} from '@notional-finance/side-drawer';
 import {
   AddToCalendar,
   DeleverageVault,

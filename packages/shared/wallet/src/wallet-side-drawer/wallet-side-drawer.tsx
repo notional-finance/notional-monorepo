@@ -5,9 +5,8 @@ import {
   SETTINGS_SIDE_DRAWERS,
   THEME_VARIANTS,
 } from '@notional-finance/shared-config';
-import { useLocation, useHistory } from 'react-router-dom';
 import { NotionalTheme, useNotionalTheme } from '@notional-finance/styles';
-import { useSideDrawerManager } from '@notional-finance/shared-web';
+import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { useWalletSideDrawer } from '../hooks';
 import { FormattedMessage } from 'react-intl';
 
@@ -19,10 +18,7 @@ interface SettingsButtonProps {
 export function WalletSideDrawer() {
   const lightTheme = useNotionalTheme(THEME_VARIANTS.LIGHT);
   const defaultTheme = useTheme();
-  const history = useHistory();
-  const { search, pathname } = useLocation();
-  const searchParams = new URLSearchParams(search);
-  const { deleteWalletSideDrawer } = useSideDrawerManager();
+  const { clearWalletSideDrawer, setWalletSideDrawer } = useSideDrawerManager();
   const { SideDrawerComponent, openDrawer, currentSideDrawerKey } =
     useWalletSideDrawer();
   const showSettingsHeader =
@@ -30,13 +26,11 @@ export function WalletSideDrawer() {
     currentSideDrawerKey === SETTINGS_SIDE_DRAWERS.NOTIFICATIONS;
 
   const handleClick = (key: string) => {
-    // This method for setting the side drawer should only be used here.
-    searchParams.set('sideDrawer', key);
-    history.push(`${pathname}?${searchParams.toString()}`);
+    setWalletSideDrawer(key, true);
   };
 
   const handleDrawer = () => {
-    deleteWalletSideDrawer();
+    clearWalletSideDrawer();
   };
 
   const SettingsHeader = currentSideDrawerKey
