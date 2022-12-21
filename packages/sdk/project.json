@@ -40,6 +40,17 @@
         "testTimeout": 50000
       }
     },
+    "test-fork": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          {
+            "command": "npx hardhat --tsconfig tsconfig.spec.json test tests/integration/system.test.ts"
+          }
+        ],
+        "cwd": "packages/sdk"
+      }
+    },
     "build-proto": {
       "executor": "nx:run-commands",
       "options": {
