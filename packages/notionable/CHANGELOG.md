@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [0.2.0](https://github.com/notional-finance/notional-monorepo/compare/notionable-0.1.1...notionable-0.2.0) (2022-12-21)
+
+
+### Features
+
+* **notionable:** use notional logging ([4aa4856](https://github.com/notional-finance/notional-monorepo/commit/4aa4856ec11a8399f9fff30ddd8a2043b6325e3a))
+
 ### [0.1.1](https://github.com/notional-finance/notional-monorepo/compare/notionable-0.1.0...notionable-0.1.1) (2022-11-09)
 
 
