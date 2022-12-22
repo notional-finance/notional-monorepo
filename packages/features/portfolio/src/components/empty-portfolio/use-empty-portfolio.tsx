@@ -1,6 +1,6 @@
 import { useParams } from 'react-router';
 import { PortfolioParams } from '../../portfolio-feature-shell';
-import { useSideDrawerManager } from '@notional-finance/shared-web';
+import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import {
   PORTFOLIO_CATEGORIES,
   SETTINGS_SIDE_DRAWERS,

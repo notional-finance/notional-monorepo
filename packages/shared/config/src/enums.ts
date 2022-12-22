@@ -12,6 +12,8 @@ export enum NOTIONAL_CATEGORIES {
 
 export enum MOBILE_SUB_NAV_ACTIONS {
   INVEST_AND_EARN = 'invest-and-earn',
+  SETTINGS = 'settings',
+  NOTIFICATIONS = 'notifications',
   VAULTS = 'vaults',
   BORROW = 'provide-liquidity',
   PROVIDE_LIQUIDITY = 'provide-liquidity',

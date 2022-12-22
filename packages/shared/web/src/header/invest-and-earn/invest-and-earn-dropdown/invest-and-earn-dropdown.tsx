@@ -4,7 +4,7 @@ import {
   NotionalPageLayoutOptions,
   useNotionalTheme,
 } from '@notional-finance/styles';
-import { useUserSettingsState } from '../../../user-settings-manager/store/use-user-settings-state';
+import { useUserSettingsState } from '@notional-finance/user-settings-manager';
 import { NAV_DROPDOWN, THEME_VARIANTS } from '@notional-finance/shared-config';
 import { useLocation } from 'react-router-dom';
 import { PieChartIcon } from '@notional-finance/icons';

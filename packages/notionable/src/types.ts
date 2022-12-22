@@ -12,6 +12,7 @@ import {
   AssetSummary,
 } from '@notional-finance/sdk/src/account';
 import { Market } from '@notional-finance/sdk/src/system';
+import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
 
 export interface SetChainOptions {
   chainId: string | number;

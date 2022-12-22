@@ -1,18 +1,18 @@
 import { Box, useTheme } from '@mui/material';
-import { INavLink } from '../../nav-link';
 import { ArrowIcon } from '@notional-finance/icons';
 import MobileNavTab from '../mobile-nav-tab/mobile-nav-tab';
-
+import { useAccount } from '@notional-finance/notionable-hooks';
+import { MOBILE_SUB_NAV_ACTIONS } from '@notional-finance/shared-config';
+import { useNavLinks } from '../../use-nav-links';
+import { H4 } from '@notional-finance/mui';
 export interface MobileSubNavProps {
-  mobileSubNavLinks: INavLink[];
   handleSideDrawer: (event: any) => void;
 }
 
-const MobileSubNav = ({
-  mobileSubNavLinks,
-  handleSideDrawer,
-}: MobileSubNavProps) => {
+const MobileSubNav = ({ handleSideDrawer }: MobileSubNavProps) => {
   const theme = useTheme();
+  const { mobileSubNavLinks } = useNavLinks(true, theme);
+  const { truncatedAddress } = useAccount();
   return (
     <>
       {mobileSubNavLinks.map((data) => (
@@ -20,21 +20,44 @@ const MobileSubNav = ({
           key={data.key}
           sx={{
             display: 'flex',
-            background: theme.palette.background.paper,
+            background:
+              data.key === MOBILE_SUB_NAV_ACTIONS.SETTINGS ||
+              data.key === MOBILE_SUB_NAV_ACTIONS.NOTIFICATIONS
+                ? theme.palette.background.paper
+                : theme.palette.info.light,
+            boxShadow:
+              data.key === MOBILE_SUB_NAV_ACTIONS.COMPANY
+                ? theme.shape.shadowStandard
+                : 'none',
             alignItems: 'center',
-            zIndex: 2,
+            zIndex: data.key === MOBILE_SUB_NAV_ACTIONS.COMPANY ? 3 : 2,
           }}
         >
           {' '}
           <MobileNavTab data={data} handleClick={handleSideDrawer} />
-          <ArrowIcon
+          <Box
             sx={{
-              color: theme.palette.primary.light,
               position: 'absolute',
               right: '5%',
-              transform: 'rotate(90deg)',
+              display: 'flex',
+              alignItems: 'end',
             }}
-          />
+          >
+            <H4
+              sx={{
+                marginRight: theme.spacing(1),
+                fontWeight: theme.typography.fontWeightRegular,
+              }}
+            >
+              {truncatedAddress && data.key === 'settings' && truncatedAddress}
+            </H4>
+            <ArrowIcon
+              sx={{
+                color: theme.palette.primary.light,
+                transform: 'rotate(90deg)',
+              }}
+            />
+          </Box>
         </Box>
       ))}
     </>

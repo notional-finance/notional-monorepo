@@ -9,6 +9,4 @@ export default {
 const Template: Story<NotionalLogoProps> = (args) => <NotionalLogo {...args} />;
 
 export const Default = Template.bind({});
-Default.args = {
-  logoTextColor: '#ffffff',
-};
+Default.args = {};

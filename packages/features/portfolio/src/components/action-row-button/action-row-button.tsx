@@ -7,7 +7,8 @@ interface ActionRowButtonProps {
   heading?: MessageDescriptor;
   label: MessageDescriptor;
   tooltip?: MessageDescriptor;
-  route: string;
+  route?: string;
+  callBack?: () => void;
   sx?: SxProps;
 }
 
@@ -16,6 +17,7 @@ export const ActionRowButton = ({
   label,
   route,
   tooltip,
+  callBack,
   sx,
 }: ActionRowButtonProps) => {
   const theme = useTheme();
@@ -33,9 +35,16 @@ export const ActionRowButton = ({
           <InfoTooltip toolTipText={tooltip} sx={{ marginLeft: '10px' }} />
         )}
       </Label>
-      <ActionButton variant="contained" to={route}>
-        <FormattedMessage {...label} />
-      </ActionButton>
+      {route && (
+        <ActionButton variant="contained" to={route}>
+          <FormattedMessage {...label} />
+        </ActionButton>
+      )}
+      {callBack && (
+        <ActionButton variant="contained" onClick={callBack}>
+          <FormattedMessage {...label} />
+        </ActionButton>
+      )}
     </Box>
   );
 };

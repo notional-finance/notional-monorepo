@@ -8,13 +8,12 @@ import {
   BellIcon,
   EyeIcon,
 } from '@notional-finance/icons';
-import { getFromLocalStorage } from '@notional-finance/helpers';
 import WalletSideDrawer from '../wallet-side-drawer/wallet-side-drawer';
 import { getNotificationsData } from './wallet-selector.service';
 import NetworkSelector from '../network-selector/network-selector';
 import { useOnboard, useAccount } from '@notional-finance/notionable-hooks';
 import { ProgressIndicator } from '@notional-finance/mui';
-import { useSideDrawerManager } from '@notional-finance/shared-web';
+import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { useWalletSideDrawer } from '../hooks';
 import {
   PORTFOLIO_ACTIONS,
@@ -34,23 +33,19 @@ export function WalletSelector() {
   const { truncatedAddress } = useAccount();
   const [notificationsActive, setNotificationsActive] =
     useState<boolean>(false);
-  const notifications = getFromLocalStorage('notifications');
-  const { setWalletSideDrawer, deleteWalletSideDrawer } =
-    useSideDrawerManager();
+
+  const { setWalletSideDrawer, clearWalletSideDrawer } = useSideDrawerManager();
   const { openDrawer } = useWalletSideDrawer();
 
   useEffect(() => {
-    if (!notifications.blogData) {
-      getNotificationsData().then((activeResult) =>
-        activeResult ? setNotificationsActive(activeResult) : null
-      );
-    }
-    setNotificationsActive(notifications.active);
-  }, [notifications]);
+    getNotificationsData().then((activeResult) => {
+      return activeResult ? setNotificationsActive(activeResult) : null;
+    });
+  }, []);
 
   const handleClick = (key: SETTINGS_SIDE_DRAWERS) => {
     if (openDrawer) {
-      deleteWalletSideDrawer();
+      clearWalletSideDrawer();
     }
     if (!openDrawer) {
       setWalletSideDrawer(key);

@@ -1,4 +1,8 @@
-import { Button as MuiButton, ButtonProps as MuiButtonProps, useTheme } from '@mui/material';
+import {
+  Button as MuiButton,
+  ButtonProps as MuiButtonProps,
+  useTheme,
+} from '@mui/material';
 import { Link } from 'react-router-dom';
 import { ExternalLink } from '../external-link/external-link';
 
@@ -23,10 +27,12 @@ export function Button(props: ButtonProps) {
       whiteSpace: 'nowrap',
       boxShadow: 'none',
       color:
-        variant === 'outlined' ? theme.palette.primary.main : theme.palette.typography.contrastText,
+        variant === 'outlined'
+          ? theme.palette.primary.main
+          : theme.palette.typography.contrastText,
       padding:
         size === 'large'
-          ? theme.spacing(2, 9)
+          ? theme.spacing(2, 7)
           : size === 'medium'
           ? theme.spacing(1, 5)
           : theme.spacing(1, 2),

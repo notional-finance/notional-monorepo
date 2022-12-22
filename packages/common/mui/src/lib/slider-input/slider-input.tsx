@@ -59,7 +59,10 @@ const NumberFormatter = React.forwardRef<NumberFormat<string>>((props, ref) => {
   );
 });
 
-export const SliderInput = React.forwardRef<SliderInputHandle, SliderInputProps>(
+export const SliderInput = React.forwardRef<
+  SliderInputHandle,
+  SliderInputProps
+>(
   (
     {
       min,
@@ -95,7 +98,9 @@ export const SliderInput = React.forwardRef<SliderInputHandle, SliderInputProps>
         <InputLabel inputLabel={inputLabel} />
         <Container
           sx={{
-            border: `1px solid ${hasFocus ? theme.palette.info.main : theme.palette.borders.paper}`,
+            border: `1px solid ${
+              hasFocus ? theme.palette.info.main : theme.palette.borders.paper
+            }`,
           }}
         >
           <ValueContainer

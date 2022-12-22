@@ -23,7 +23,10 @@ export const LiquiditySidebar = () => {
   return txnData ? (
     <TransactionConfirmation
       heading={
-        <FormattedMessage defaultMessage={'Provide Liquidity'} description="section heading" />
+        <FormattedMessage
+          defaultMessage={'Provide Liquidity'}
+          description="section heading"
+        />
       }
       onCancel={() => history.push(pathname)}
       transactionProperties={txnData.transactionProperties}
@@ -40,6 +43,7 @@ export const LiquiditySidebar = () => {
           'You will receive nTokens in return for providing liquidity to all markets at once. nTokens earn yield from cToken supply rates, trading fees, and fCash interest. nToken holders also earn NOTE incentives.',
         description: 'helptext',
       })}
+      hideTextOnMobile
       CustomActionButton={TradeActionButton}
       canSubmit={canSubmit}
     >
@@ -47,9 +51,14 @@ export const LiquiditySidebar = () => {
         <WalletDepositInput
           availableTokens={availableCurrencies}
           selectedToken={selectedToken}
-          onChange={({ selectedToken: newSelectedToken, inputAmount, hasError }) => {
+          onChange={({
+            selectedToken: newSelectedToken,
+            inputAmount,
+            hasError,
+          }) => {
             // Will update the route and the parent component will update the store
-            if (newSelectedToken !== selectedToken) history.push(`/provide/${newSelectedToken}`);
+            if (newSelectedToken !== selectedToken)
+              history.push(`/provide/${newSelectedToken}`);
             updateLiquidityState({ inputAmount, hasError });
           }}
           inputLabel={defineMessage({

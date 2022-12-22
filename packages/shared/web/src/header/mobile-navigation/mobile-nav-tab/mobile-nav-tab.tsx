@@ -9,7 +9,12 @@ interface MobileNavTabProps extends TabProps {
   value?: string;
 }
 
-const MobileNavTab = ({ data, handleClick, displayXS, displayMD }: MobileNavTabProps) => {
+const MobileNavTab = ({
+  data,
+  handleClick,
+  displayXS,
+  displayMD,
+}: MobileNavTabProps) => {
   const theme = useTheme();
 
   return (
@@ -43,13 +48,11 @@ const MobileNavTab = ({ data, handleClick, displayXS, displayMD }: MobileNavTabP
           width: '90%',
           padding: '0px',
           margin: 'auto',
-          borderBottom: data?.noBottomBorder ? 'none' : '1px solid #089CA3',
+          borderBottom: data?.noBottomBorder
+            ? 'none'
+            : theme.shape.borderStandard,
         },
         '&:hover': {
-          svg: {
-            filter:
-              'invert(63%) sepia(16%) saturate(1939%) hue-rotate(134deg) brightness(91%) contrast(96%)',
-          },
           color: theme.palette.primary.light,
         },
         '&.Mui-selected': {

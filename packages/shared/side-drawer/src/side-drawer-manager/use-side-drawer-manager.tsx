@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import {
   SETTINGS_SIDE_DRAWERS,
   PORTFOLIO_ACTIONS,
@@ -6,7 +5,6 @@ import {
   PORTFOLIO_CATEGORIES,
   SIDE_DRAWERS_TYPE,
 } from '@notional-finance/shared-config';
-import { useQueryParams } from '@notional-finance/utils';
 import { useLocation, useHistory, useParams } from 'react-router-dom';
 import { useSideDrawerState } from './store/use-side-drawer-state';
 import { updateSideDrawerState } from './store/side-drawer-store';
@@ -28,33 +26,10 @@ export interface PortfolioParams {
 
 export const useSideDrawerManager = () => {
   const history = useHistory();
-  const { sideDrawer } = useQueryParams();
   const { search, pathname } = useLocation();
   const params = useParams<PortfolioParams>();
   const searchParams = new URLSearchParams(search);
-  const { sideDrawerOpen, currentSideDrawerKey } = useSideDrawerState();
-
-  useEffect(() => {
-    if (sideDrawerOpen && (!params?.sideDrawerKey || !sideDrawer))
-      updateSideDrawerState({
-        sideDrawerOpen: false,
-        currentSideDrawerKey: null,
-      });
-  }, [params?.sideDrawerKey, sideDrawer, sideDrawerOpen]);
-
-  if (
-    sideDrawer &&
-    !currentSideDrawerKey &&
-    Object.values(SIDE_DRAWERS).includes(
-      sideDrawer as unknown as SIDE_DRAWERS_TYPE
-    ) &&
-    !sideDrawerOpen
-  ) {
-    updateSideDrawerState({
-      sideDrawerOpen: true,
-      currentSideDrawerKey: sideDrawer,
-    });
-  }
+  const { currentSideDrawerKey, sideDrawerOpen } = useSideDrawerState();
 
   if (
     params?.sideDrawerKey &&
@@ -70,24 +45,50 @@ export const useSideDrawerManager = () => {
     });
   }
 
-  const setWalletSideDrawer = (key: string) => {
-    if (!currentSideDrawerKey) {
+  const setWalletSideDrawer = (key: string, overRide?: boolean) => {
+    if (!currentSideDrawerKey || overRide) {
       searchParams.set('sideDrawer', key);
       history.push(`${pathname}?${searchParams.toString()}`);
+      updateSideDrawerState({
+        sideDrawerOpen: true,
+        currentSideDrawerKey: key,
+      });
     }
   };
 
-  const deleteWalletSideDrawer = () => {
+  const clearWalletSideDrawer = () => {
+    searchParams.delete('sideDrawer');
+    history.push(`${pathname}?${searchParams.toString()}`);
     updateSideDrawerState({
       sideDrawerOpen: false,
       currentSideDrawerKey: null,
     });
-    searchParams.delete('sideDrawer');
-    history.push(`${pathname}?${searchParams.toString()}`);
+  };
+
+  const setSideDrawer = (newPath: string, key: PORTFOLIO_ACTIONS) => {
+    if (!currentSideDrawerKey) {
+      history.push(newPath);
+      updateSideDrawerState({
+        sideDrawerOpen: true,
+        currentSideDrawerKey: key,
+      });
+    }
+  };
+
+  const clearSideDrawer = (key: string) => {
+    history.push(key);
+    updateSideDrawerState({
+      sideDrawerOpen: false,
+      currentSideDrawerKey: null,
+    });
   };
 
   return {
+    setSideDrawer,
+    clearSideDrawer,
     setWalletSideDrawer,
-    deleteWalletSideDrawer,
+    clearWalletSideDrawer,
   };
 };
+
+export default useSideDrawerManager;

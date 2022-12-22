@@ -7,6 +7,8 @@ export interface SideDrawerProps {
   openDrawer: boolean;
   callback: () => void;
   CustomHeader?: ({ onClose }: { onClose: () => void }) => JSX.Element;
+  zIndex?: number;
+  marginTop?: string;
 }
 
 export function SideDrawer({
@@ -14,6 +16,8 @@ export function SideDrawer({
   openDrawer,
   callback,
   CustomHeader,
+  zIndex,
+  marginTop,
 }: SideDrawerProps) {
   const theme = useTheme();
 
@@ -29,11 +33,14 @@ export function SideDrawer({
           backgroundColor: alpha(theme.palette.background.accentDefault, 0.5),
         },
         '&.MuiModal-root, .MuiPopover-root': {
-          zIndex: 8,
+          zIndex: { xs: 1202, sm: 1202, md: 8 },
+          height: { xs: '100vh', sm: '100vh', md: '100%' },
+          position: { xs: 'absolute', sm: 'absolute', md: 'relative' },
         },
         '&.MuiPaper-root, .MuiPaper-elevation': {
           overflowX: 'hidden',
           maxWidth: { xs: '100%', sm: '100%', md: '543px' },
+          width: { xs: '100%', sm: '100%', md: '543px' },
         },
       }}
     >
@@ -44,6 +51,13 @@ export function SideDrawer({
           flexDirection: 'column',
           width: { xs: '100%', sm: '100%', md: '543px' },
           height: '100%',
+          position: { xs: 'absolute', sm: 'absolute', md: 'relative' },
+          marginTop: {
+            xs: '0px',
+            sm: '0px',
+            md: marginTop ? marginTop : '0px',
+          },
+          zIndex: zIndex ? zIndex : 8,
           padding: {
             xs: theme.spacing(0, 2),
             sm: theme.spacing(0, 2),

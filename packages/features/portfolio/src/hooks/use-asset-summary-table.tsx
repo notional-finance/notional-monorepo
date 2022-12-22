@@ -5,7 +5,10 @@ import {
   formatCryptoWithFiat,
   formatMaturity,
 } from '@notional-finance/helpers';
-import { LEND_BORROW } from '@notional-finance/shared-config';
+import {
+  LEND_BORROW,
+  PORTFOLIO_ACTIONS,
+} from '@notional-finance/shared-config';
 import {
   ExpandableCurrencyCell,
   ChevronCell,

@@ -7,7 +7,6 @@ import {
   CollateralSelect,
   TokenApprovalView,
 } from '@notional-finance/trade';
-import { Box, useTheme } from '@mui/material';
 import { RiskSlider, AccountRiskTable } from '@notional-finance/risk';
 import { useHistory, useLocation, useParams } from 'react-router-dom';
 import { LEND_BORROW } from '@notional-finance/shared-config';
@@ -19,7 +18,6 @@ import { BorrowParams } from '../borrow-feature-shell';
 import { useCurrency } from '@notional-finance/notionable-hooks';
 
 export const BorrowSidebar = () => {
-  const theme = useTheme();
   const { currency: selectedToken, collateral: selectedCollateral } =
     useParams<BorrowParams>();
   const {
@@ -37,23 +35,17 @@ export const BorrowSidebar = () => {
   }, [history, pathname]);
 
   const maturityCards = (
-    <Box
-      sx={{
-        marginTop: { xs: theme.spacing(22), sm: theme.spacing(22), md: '0px' },
+    <Maturities
+      maturityData={maturityData || []}
+      onSelect={(selectedMarketKey) => {
+        updateBorrowState({ selectedMarketKey });
       }}
-    >
-      <Maturities
-        maturityData={maturityData || []}
-        onSelect={(selectedMarketKey) => {
-          updateBorrowState({ selectedMarketKey });
-        }}
-        currentMarketKey={selectedMarketKey}
-        inputLabel={defineMessage({
-          defaultMessage: '1. Select a maturity & fix your rate',
-          description: 'input label',
-        })}
-      />
-    </Box>
+      currentMarketKey={selectedMarketKey}
+      inputLabel={defineMessage({
+        defaultMessage: '1. Select a maturity & fix your rate',
+        description: 'input label',
+      })}
+    />
   );
 
   const currencyInputHandler =

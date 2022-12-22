@@ -51,14 +51,14 @@ export function MobileTradeActionSummary({
         sx={{
           background: theme.palette.background.paper,
           width: '100%',
-          padding: theme.spacing(2),
+          padding: theme.spacing(3, 2),
           boxShadow: theme.shape.shadowStandard,
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Box sx={{ flex: 1 }}>
             <H5>
-              <FormattedMessage defaultMessage={'FIXED APY'} />
+              <FormattedMessage {...messages[tradeAction].returnType} />
             </H5>
             <LargeInputTextEmphasized sx={{ flex: 1 }}>
               <CountUp value={fixedAPY} suffix="% APY" decimals={2} />

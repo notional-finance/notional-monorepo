@@ -1,13 +1,17 @@
 import {
   BarChartIcon,
+  ActiveBellIcon,
+  BellIcon,
   CoinsIcon,
   PortfolioIcon,
   DocsIcon,
   NotionalPlainIcon,
   ResourcesIcon,
   PieChartIcon,
+  GearIcon,
 } from '@notional-finance/icons';
 import { MOBILE_SUB_NAV_ACTIONS } from '@notional-finance/shared-config';
+import { getFromLocalStorage } from '@notional-finance/helpers';
 import {
   NotionalPageLayoutOptions,
   NotionalTheme,
@@ -17,6 +21,7 @@ import { FormattedMessage } from 'react-intl';
 import { INavLink } from './nav-link';
 
 export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
+  const notifications = getFromLocalStorage('notifications');
   const [_, setPageLayout] = useState<NotionalPageLayoutOptions>('app');
 
   const textColor = mobileNav
@@ -77,7 +82,7 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
       link: '/resources',
       iconImg: (
         <DocsIcon
-          sx={{ color: theme.palette.common.black, fontSize: '1.125rem' }}
+          sx={{ color: theme.palette.common.black, fontSize: '24px' }}
         />
       ),
     },
@@ -95,10 +100,32 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
       key: MOBILE_SUB_NAV_ACTIONS.COMPANY,
       label: <FormattedMessage defaultMessage={'Company'} />,
       link: '/company',
-      noBottomBorder: true,
       iconImg: (
         <NotionalPlainIcon
           sx={{ color: theme.palette.common.black, fontSize: '1.125rem' }}
+        />
+      ),
+    },
+    {
+      key: MOBILE_SUB_NAV_ACTIONS.SETTINGS,
+      label: <FormattedMessage defaultMessage={'Settings'} />,
+      link: '',
+      iconImg: <GearIcon sx={{ fontSize: '24px' }} />,
+    },
+    {
+      key: MOBILE_SUB_NAV_ACTIONS.NOTIFICATIONS,
+      label: <FormattedMessage defaultMessage={'Notifications'} />,
+      link: '',
+      noBottomBorder: true,
+      iconImg: notifications.active ? (
+        <ActiveBellIcon
+          className="color-stroke"
+          sx={{ fontSize: '24px', stroke: '', fill: textColor }}
+        />
+      ) : (
+        <BellIcon
+          className="color-stroke"
+          sx={{ fontSize: '24px', stroke: '', fill: textColor }}
         />
       ),
     },

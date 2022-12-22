@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, Dispatch, SetStateAction } from 'react';
 import { Box, styled, useTheme, Typography, Slide } from '@mui/material';
 import { useOnboard } from '@notional-finance/notionable-hooks';
 import { SideBarSubHeader, Button, H4 } from '@notional-finance/mui';
@@ -6,13 +6,14 @@ import {
   SettingsItem,
   useSettingsSideDrawer,
 } from './use-settings-side-drawer';
-import { useSideDrawerManager } from '@notional-finance/shared-web';
+import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { NotionalTheme } from '@notional-finance/styles';
 import { defineMessage, FormattedMessage } from 'react-intl';
 
 /* eslint-disable-next-line */
 export interface SettingsSideDrawerProps {
   showConnectWallet?: boolean;
+  toggleDrawer?: Dispatch<SetStateAction<boolean>>;
 }
 
 interface StyledWalletButton {
@@ -22,11 +23,12 @@ interface StyledWalletButton {
 
 export const SettingsSideDrawer = ({
   showConnectWallet,
+  toggleDrawer,
 }: SettingsSideDrawerProps) => {
   const containerRef = useRef(null);
   const theme = useTheme();
   const { accountData, transactionData } = useSettingsSideDrawer();
-  const { deleteWalletSideDrawer } = useSideDrawerManager();
+  const { clearWalletSideDrawer } = useSideDrawerManager();
   const { label, resetWallet, connected } = useOnboard();
   const [settingsItem, setSettingsItem] = useState<SettingsItem | null>(null);
 
@@ -41,7 +43,7 @@ export const SettingsSideDrawer = ({
   const handleDisconnect = () => {
     if (label) {
       resetWallet(label);
-      deleteWalletSideDrawer();
+      clearWalletSideDrawer();
     }
   };
 
@@ -50,8 +52,18 @@ export const SettingsSideDrawer = ({
   };
 
   return (
-    <>
-      <Box ref={containerRef}>
+    <SettingsContainer>
+      {toggleDrawer && (
+        <SideBarSubHeader
+          paddingTop={`${theme.spacing(1)}`}
+          callback={() => toggleDrawer(false)}
+          titleText={defineMessage({ defaultMessage: 'back' })}
+        />
+      )}
+      <Box
+        ref={containerRef}
+        sx={{ visibility: settingsItem === null ? 'visible' : 'hidden' }}
+      >
         <Title>
           <FormattedMessage defaultMessage="Account" />
         </Title>
@@ -112,7 +124,7 @@ export const SettingsSideDrawer = ({
           sx={{
             textAlign: 'center',
             marginTop: 'auto',
-            marginBottom: theme.spacing(6),
+            paddingBottom: theme.spacing(6),
           }}
         >
           <Button
@@ -133,6 +145,7 @@ export const SettingsSideDrawer = ({
       >
         <SubSidebar>
           <SideBarSubHeader
+            paddingTop={`${theme.spacing(1)}`}
             callback={() => handleClick(null)}
             titleText={defineMessage({ defaultMessage: 'Settings' })}
           />
@@ -141,9 +154,21 @@ export const SettingsSideDrawer = ({
           )}
         </SubSidebar>
       </Slide>
-    </>
+    </SettingsContainer>
   );
 };
+
+const SettingsContainer = styled(Box)(
+  ({ theme }) => `
+  ${theme.breakpoints.down('sm')} {
+    padding: ${theme.spacing(2)};
+    background: ${theme.palette.background.paper};
+    ${theme.breakpoints.down('sm')} {
+      height: 100vh;
+    }
+  }
+  `
+);
 
 const WalletButton = styled('div', {
   shouldForwardProp: (prop: string) => prop !== 'clickable',
@@ -195,6 +220,11 @@ const SubSidebar = styled(Box)(
   padding: 0px ${theme.spacing(6)};
   &.MuiModal-root, .MuiDrawer-root: {
     z-index: 9999;
+  }
+  ${theme.breakpoints.down('sm')} {
+    padding: ${theme.spacing(2)};
+    z-index: 1207;
+    height: 100vh;
   }
   `
 );

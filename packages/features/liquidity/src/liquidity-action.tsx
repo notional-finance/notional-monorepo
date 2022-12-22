@@ -6,7 +6,8 @@ import { trimRouterMatchToPath } from '@notional-finance/helpers';
 import { THEME_VARIANTS } from '@notional-finance/shared-config';
 import backgroundImgDark from '@notional-finance/assets/images/provide-liquidity-bg-alt.png';
 import backgroundImgLight from '@notional-finance/assets/images/provide-liquidity-light-bg.png';
-import { useUserSettingsState } from '@notional-finance/shared-web';
+import { useLiquidityTransaction } from './store/use-liquidity-transaction';
+import { useUserSettingsState } from '@notional-finance/user-settings-manager';
 import { LiquiditySummary } from './liquidity-summary/liquidity-summary';
 import { LiquiditySidebar } from './liquidity-sidebar/liquidity-sidebar';
 import { updateLiquidityState } from './store/liquidity-store';
@@ -29,6 +30,8 @@ const LiquidityCurrencyBackground = styled('img')(
 
 export const LiquidityCurrencyView = () => {
   const { themeVariant } = useUserSettingsState();
+  const txnData = useLiquidityTransaction();
+  const showTransactionConfirmation = txnData ? true : false;
   const bgImg =
     themeVariant === THEME_VARIANTS.LIGHT
       ? backgroundImgLight
@@ -50,7 +53,7 @@ export const LiquidityCurrencyView = () => {
       />
       <Container>
         <SideBarLayout
-          mobileHeader
+          showTransactionConfirmation={showTransactionConfirmation}
           sideBar={<LiquiditySidebar />}
           mainContent={<LiquiditySummary />}
         />

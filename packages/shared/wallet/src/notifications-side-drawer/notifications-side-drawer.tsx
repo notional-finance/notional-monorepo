@@ -1,12 +1,13 @@
+import { Dispatch, SetStateAction } from 'react';
 import { Box, styled, Typography, useTheme } from '@mui/material';
-import { PageLoading } from '@notional-finance/mui';
+import { PageLoading, SideBarSubHeader } from '@notional-finance/mui';
 import { AnnouncementIcon } from '@notional-finance/icons';
+import { defineMessage, FormattedMessage } from 'react-intl';
 import {
   getFromLocalStorage,
   setInLocalStorage,
   truncateText,
 } from '@notional-finance/helpers';
-import { FormattedMessage } from 'react-intl';
 import moment from 'moment';
 
 export interface blogData {
@@ -17,19 +18,32 @@ export interface blogData {
   excerpt: string;
 }
 
-export const NotificationsSideDrawer = () => {
+export interface NotificationsSideDrawerProps {
+  toggleDrawer?: Dispatch<SetStateAction<boolean>>;
+}
+
+export const NotificationsSideDrawer = ({
+  toggleDrawer,
+}: NotificationsSideDrawerProps) => {
   const notifications = getFromLocalStorage('notifications');
   const theme = useTheme();
+
   const handleMarkAsRead = () => {
     setInLocalStorage('notifications', {
       active: false,
       blogData: notifications.blogData,
     });
-    // setNotificationsActive(false);
   };
 
   return (
-    <Box>
+    <Container>
+      {toggleDrawer && (
+        <SideBarSubHeader
+          paddingTop={`${theme.spacing(1)}`}
+          callback={() => toggleDrawer(false)}
+          titleText={defineMessage({ defaultMessage: 'back' })}
+        />
+      )}
       <Title>
         <FormattedMessage defaultMessage="Notifications" />
         {notifications.active && (
@@ -81,7 +95,7 @@ export const NotificationsSideDrawer = () => {
       ) : (
         <PageLoading></PageLoading>
       )}
-    </Box>
+    </Container>
   );
 };
 
@@ -101,7 +115,7 @@ const Title = styled(Box)(
   margin-bottom: 20px;
   margin-top: 40px;
   font-weight: 700;
-  color: ${theme.palette.primary.dark};
+  color: ${theme.palette.borders.accentDefault};
   display: flex;
   text-transform: uppercase;
   `
@@ -112,6 +126,15 @@ const Text = styled(Typography)(
   font-weight: 500;
   font-size: 16px;
   color: ${theme.palette.typography.main};
+  white-space: normal;
+  `
+);
+
+const Container = styled(Box)(
+  ({ theme }) => `
+  ${theme.breakpoints.down('sm')} {
+    margin: ${theme.spacing(2)};
+  }
   `
 );
 

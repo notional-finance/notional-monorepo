@@ -4,11 +4,14 @@ import { SideBarLayout } from '@notional-finance/mui';
 import { TradeActionSummary } from '@notional-finance/trade';
 import { useEffect } from 'react';
 import { updateLendState } from './store/lend-store';
+import { useLendTransaction } from './store/use-lend-transaction';
 import { useLend } from './store/use-lend';
 import { NOTIONAL_CATEGORIES } from '@notional-finance/shared-config';
 
 export const LendFeatureShell = () => {
   const { currency } = useParams<Record<string, string>>();
+  const txnData = useLendTransaction();
+  const showTransactionConfirmation = txnData ? true : false;
   const {
     markets,
     selectedToken,
@@ -25,7 +28,7 @@ export const LendFeatureShell = () => {
 
   return (
     <SideBarLayout
-      mobileHeader
+      showTransactionConfirmation={showTransactionConfirmation}
       sideBar={<LendSidebar />}
       mainContent={
         <TradeActionSummary

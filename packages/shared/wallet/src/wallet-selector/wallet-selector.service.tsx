@@ -1,9 +1,13 @@
-import { setInLocalStorage } from '@notional-finance/helpers';
+import {
+  setInLocalStorage,
+  getFromLocalStorage,
+} from '@notional-finance/helpers';
 import moment from 'moment';
 import GhostContentAPI from '@tryghost/content-api';
 
 export const getNotificationsData = () => {
-  let notificationsActive = false;
+  const notifications = getFromLocalStorage('notifications');
+
   const api = new GhostContentAPI({
     url: 'https://notional-finance.ghost.io',
     key: '8aaf8ab675aff1a497228a380b',
@@ -29,11 +33,17 @@ export const getNotificationsData = () => {
         newestPublishedDate,
         'days'
       );
-      notificationsActive = daysSinceLastPost <= 12;
-      setInLocalStorage('notifications', {
-        active: notificationsActive,
-        blogData: postData,
-      });
+
+      const notificationsActive =
+        daysSinceLastPost >= 12 || !notifications.blogData;
+
+      if (notificationsActive) {
+        setInLocalStorage('notifications', {
+          active: true,
+          blogData: postData,
+        });
+      }
+
       return notificationsActive;
     })
     .catch((error) => {

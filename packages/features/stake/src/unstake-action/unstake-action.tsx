@@ -6,7 +6,7 @@ import { UnstakeRedeem } from './unstake-redeem';
 import { UnstakeCoolDown } from './unstake-cooldown';
 import { useUnstakeAction } from './use-unstake-action';
 import { useAccount, useOnboard } from '@notional-finance/notionable-hooks';
-import { useSideDrawerManager } from '@notional-finance/shared-web';
+import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { FormattedMessage } from 'react-intl';
 import { messages } from '../messages';
 

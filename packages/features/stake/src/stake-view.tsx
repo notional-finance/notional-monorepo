@@ -27,7 +27,7 @@ export const StakeView = () => {
     <SideBarLayout
       mainContent={<MainContent />}
       sideBar={sidebarContent}
-      mobileHeader
+      showTransactionConfirmation={confirmRoute}
     />
   );
 };
