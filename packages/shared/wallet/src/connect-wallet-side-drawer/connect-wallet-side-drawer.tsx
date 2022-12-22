@@ -4,6 +4,7 @@ import { ArrowIcon } from '@notional-finance/icons';
 import { SETTINGS_SIDE_DRAWERS } from '@notional-finance/shared-config';
 import { FormattedMessage } from 'react-intl';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
+import { trackEvent } from '@notional-finance/helpers';
 import { ViewAsAccount } from '../view-as-account/view-as-account';
 import { useWalletSideDrawer } from '../hooks';
 import { useEffect } from 'react';
@@ -24,6 +25,11 @@ export const ConnectWalletSideDrawer = () => {
     }
   }, [connected, currentSideDrawerKey, clearWalletSideDrawer]);
 
+  const handleConnectWallet = (label: string) => {
+    connectWallet(label);
+    trackEvent('CONNECT_WALLET', { wallet: label });
+  };
+
   return (
     <>
       <Box>
@@ -32,7 +38,10 @@ export const ConnectWalletSideDrawer = () => {
         </Title>
         {modules.length
           ? modules.map(({ label, icon }, index) => (
-              <WalletButton onClick={() => connectWallet(label)} key={index}>
+              <WalletButton
+                onClick={() => handleConnectWallet(label)}
+                key={index}
+              >
                 <Box
                   sx={{
                     height: '35px',

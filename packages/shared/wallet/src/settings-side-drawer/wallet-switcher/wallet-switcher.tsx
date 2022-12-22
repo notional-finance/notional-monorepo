@@ -5,6 +5,7 @@ import { CircleIcon, EyeIcon } from '@notional-finance/icons';
 import { NotionalTheme } from '@notional-finance/styles';
 import { useOnboard, useAccount } from '@notional-finance/notionable-hooks';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
+import { trackEvent } from '@notional-finance/helpers';
 import { ViewAsAccount } from '../../view-as-account/view-as-account';
 import { FormattedMessage } from 'react-intl';
 
@@ -54,7 +55,9 @@ export const WalletSwitcher = () => {
   const currentLabel = label;
 
   const handleConnect = (label: string) => {
+    console.log({ label });
     connectWallet(label);
+    trackEvent('CONNECT_WALLET', { wallet: label });
     clearWalletSideDrawer();
   };
 
