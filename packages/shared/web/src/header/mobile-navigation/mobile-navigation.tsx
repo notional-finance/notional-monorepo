@@ -9,8 +9,8 @@ import {
   useTheme,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import { useHistory } from 'react-router-dom';
-import { useState } from 'react';
+import { useHistory, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { SyntheticEvent } from 'react';
 import { MouseEvent } from 'react';
 import MobileSubNav from './mobile-sub-nav/mobile-sub-nav';
@@ -41,12 +41,21 @@ export function MobileNavigation({
   const theme = useTheme();
   const lightTheme = useNotionalTheme(THEME_VARIANTS.LIGHT);
   const history = useHistory();
+  const { pathname } = useLocation();
   const { connected } = useOnboard();
   const { setWalletSideDrawer } = useSideDrawerManager();
 
   const { navLinks } = useNavLinks(true, theme);
-
+  const [selectedTab, setSelectedTab] = useState<string | false>(false);
   const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null);
+
+  const currentTab =
+    navLinks.find(({ link }) => link === pathname)?.link || false;
+
+  useEffect(() => {
+    setSelectedTab(currentTab);
+    setAnchorElNav(null);
+  }, [currentTab]);
 
   const [sideDrawerDataKey, setSideDrawerDataKey] =
     useState<MOBILE_SUB_NAV_ACTIONS>(MOBILE_SUB_NAV_ACTIONS.INVEST_AND_EARN);
@@ -144,7 +153,7 @@ export function MobileNavigation({
       >
         <Tabs
           {...rest}
-          value={false}
+          value={selectedTab}
           onChange={handleChange}
           orientation="vertical"
           variant="scrollable"
