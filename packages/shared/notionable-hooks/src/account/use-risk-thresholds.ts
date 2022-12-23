@@ -2,6 +2,7 @@ import {
   AccountData,
   BaseVault,
   INTERNAL_TOKEN_PRECISION,
+  LiquidationThreshold,
   TypedBigNumber,
   VaultFactory,
 } from '@notional-finance/sdk';
@@ -142,7 +143,12 @@ export function useRiskThresholds(
   });
 
   const vaultRiskThresholds = accountDataCopy.vaultAccounts.flatMap((a) => {
-    const thresholds = a.getLiquidationThresholds();
+    let thresholds: LiquidationThreshold[] = [];
+    try {
+      thresholds = a.getLiquidationThresholds();
+    } catch (e) {
+      console.error(e);
+    }
     const vaultConfig = a.getVault();
     const primaryBorrowSymbol = system?.getUnderlyingSymbol(
       vaultConfig.primaryBorrowCurrency
