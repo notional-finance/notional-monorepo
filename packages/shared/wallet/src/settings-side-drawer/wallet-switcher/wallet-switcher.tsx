@@ -55,7 +55,6 @@ export const WalletSwitcher = () => {
   const currentLabel = label;
 
   const handleConnect = (label: string) => {
-    console.log({ label });
     connectWallet(label);
     trackEvent('CONNECT_WALLET', { wallet: label });
     clearWalletSideDrawer();
