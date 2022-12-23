@@ -1,6 +1,7 @@
 import { Box, styled, useTheme } from '@mui/material';
 import { Button } from '../button/button';
 import { NotionalTheme } from '@notional-finance/styles';
+import { trackEvent } from '@notional-finance/helpers';
 import { FormattedMessage } from 'react-intl';
 import { useLocation } from 'react-router';
 
@@ -69,6 +70,7 @@ export const ActionSidebarButtons = ({
             variant="contained"
             disabled={!canSubmit}
             size="large"
+            onClick={() => trackEvent('SUBMIT_TXN', { url: pathname })}
             to={confirmRoute}
           >
             <FormattedMessage

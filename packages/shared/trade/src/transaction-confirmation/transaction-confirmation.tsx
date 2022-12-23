@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { FormattedMessage } from 'react-intl';
+import { useLocation } from 'react-router';
 import { PopulatedTransaction, ethers } from 'ethers';
 import { styled, Divider, useTheme } from '@mui/material';
 import { Drawer, ExternalLink } from '@notional-finance/mui';
 import { Account } from '@notional-finance/sdk';
 import { useAccount, useNotional } from '@notional-finance/notionable-hooks';
-import { logError } from '@notional-finance/helpers';
+import { trackEvent, logError } from '@notional-finance/helpers';
 import { PendingTransaction } from './components/pending-transaction';
 import { TransactionStatus } from './components/transaction-status';
 import { TransactionButtons } from './components/transaction-buttons';
@@ -38,6 +39,7 @@ export const TransactionConfirmation = ({
   const theme = useTheme();
   const { account } = useAccount();
   const { notional } = useNotional();
+  const { pathname } = useLocation();
   const [transactionToSubmit, setTransactionToSubmit] = useState<
     PopulatedTransaction | undefined
   >();
@@ -123,6 +125,7 @@ export const TransactionConfirmation = ({
             setPendingTransaction(p);
             // Dispatches an event for tracking purposes
             // Clear the transaction to submit if the user does it
+            trackEvent('CONFIRM_TXN', { url: pathname });
             setTransactionToSubmit(undefined);
           })
           .catch(() => {
