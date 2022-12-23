@@ -146,7 +146,9 @@ export function useRiskThresholds(
     let thresholds: LiquidationThreshold[] = [];
     try {
       thresholds = a.getLiquidationThresholds();
-    } catch {}
+    } catch (e) {
+      console.error(e);
+    }
     const vaultConfig = a.getVault();
     const primaryBorrowSymbol = system?.getUnderlyingSymbol(
       vaultConfig.primaryBorrowCurrency
