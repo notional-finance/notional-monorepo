@@ -135,7 +135,7 @@ async function run(): Promise<void> {
           blockNumber,
           exchangeRate: results[currency],
           volatilityType: configMap.has(currency)
-            ? configMap.get(currency).volatilityType
+            ? configMap.get(currency)!.volatilityType
             : VolatilityType.VOLATILE,
         });
       })

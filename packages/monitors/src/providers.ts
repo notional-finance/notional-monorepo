@@ -32,5 +32,5 @@ export function getProvider(
     throw new Error(`Provider for network ${network} not found`);
   }
 
-  return providers.get(network);
+  return providers.get(network)!;
 }
