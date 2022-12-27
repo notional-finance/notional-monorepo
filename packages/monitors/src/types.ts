@@ -31,4 +31,14 @@ export interface AggregateCallList {
   calls: AggregateCall[];
 }
 
-export type OracleContract = [string, string, number];
+export enum VolatilityType {
+  STABLE = 'stable',
+  VOLATILE = 'volatile',
+}
+
+export interface OracleContractConfig {
+  key: string;
+  address: string;
+  decimals: number;
+  volatilityType: VolatilityType;
+}
