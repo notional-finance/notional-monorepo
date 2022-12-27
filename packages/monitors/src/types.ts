@@ -30,3 +30,5 @@ export interface AggregateCallList {
   provider: providers.JsonRpcBatchProvider;
   calls: AggregateCall[];
 }
+
+export type OracleContract = [string, string, number];

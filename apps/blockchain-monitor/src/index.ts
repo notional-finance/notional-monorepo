@@ -17,8 +17,10 @@ export default {
     });
 
     if (monitors.has(controller.cron)) {
-      await Promise.all(
-        monitors.get(controller.cron).map((m) => m.run({ ctx, env }))
+      ctx.waitUntil(
+        await Promise.all(
+          monitors.get(controller.cron).map((m) => m.run({ ctx, env }))
+        )
       );
     }
   },
