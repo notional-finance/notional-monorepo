@@ -1,6 +1,6 @@
 import { ethers, FixedNumber, providers } from 'ethers';
 import { IAggregatorABI } from '@notional-finance/contracts';
-import { aggregate, AggregateCall } from '@notional-finance/multicall';
+import { aggregate } from '@notional-finance/multicall';
 import { log } from '@notional-finance/logging';
 import {
   AggregateCallList,
