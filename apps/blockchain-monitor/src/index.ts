@@ -1,5 +1,5 @@
 import { initLogger } from '@notional-finance/logging';
-import { monitors } from './monitors';
+import { getJobs } from './monitors';
 import { JobMonitorEnv } from '@notional-finance/monitors';
 
 export default {
@@ -16,10 +16,12 @@ export default {
       apiKey: env.NX_DD_API_KEY,
     });
 
-    if (monitors.has(controller.cron)) {
+    if (getJobs(env.NX_ENV).has(controller.cron)) {
       ctx.waitUntil(
         await Promise.all(
-          monitors.get(controller.cron).map((m) => m.run({ ctx, env }))
+          getJobs(env.NX_ENV)
+            .get(controller.cron)
+            .map((m) => m.run({ ctx, env }))
         )
       );
     }
