@@ -1,18 +1,36 @@
 import { providers as ethersProviders } from 'ethers';
+let initialized = false;
+const providers: Map<string, ethersProviders.JsonRpcBatchProvider> = new Map();
 
-export function getProviders(key: string) {
-  const mainnetProvider = new ethersProviders.JsonRpcBatchProvider({
-    url: `https://eth-mainnet.g.alchemy.com/v2/${key}`,
-    skipFetchSetup: true,
-  });
+export function initializeProviders(alchemyKey: string) {
+  providers.set(
+    'mainnet',
+    new ethersProviders.JsonRpcBatchProvider({
+      url: `https://eth-mainnet.g.alchemy.com/v2/${alchemyKey}`,
+      skipFetchSetup: true,
+    })
+  );
 
-  const goerliProvider = new ethersProviders.JsonRpcBatchProvider({
-    url: `https://eth-goerli.g.alchemy.com/v2/${key}`,
-    skipFetchSetup: true,
-  });
+  providers.set(
+    'goerli',
+    new ethersProviders.JsonRpcBatchProvider({
+      url: `https://eth-goerli.g.alchemy.com/v2/${alchemyKey}`,
+      skipFetchSetup: true,
+    })
+  );
 
-  return {
-    mainnet: mainnetProvider,
-    goerli: goerliProvider,
-  };
+  initialized = true;
+}
+
+export function getProvider(
+  network: string
+): ethersProviders.JsonRpcBatchProvider {
+  if (!initialized) {
+    throw new Error('Providers not initialized');
+  }
+  if (!providers.has(network)) {
+    throw new Error(`Provider for network ${network} not found`);
+  }
+
+  return providers.get(network);
 }

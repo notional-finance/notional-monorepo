@@ -1,13 +1,9 @@
-import { ethers, FixedNumber, providers } from 'ethers';
+import { ethers, FixedNumber } from 'ethers';
 import { IAggregatorABI } from '@notional-finance/contracts';
 import { aggregate } from '@notional-finance/multicall';
 import { log } from '@notional-finance/logging';
-import {
-  AggregateCallList,
-  JobOptions,
-  MonitorJob,
-  OracleContract,
-} from './types';
+import { getProvider } from './providers';
+import { AggregateCallList, MonitorJob, OracleContract } from './types';
 
 let provider: ethers.providers.JsonRpcBatchProvider;
 
@@ -46,12 +42,9 @@ async function aggregateCalls() {
   return { network: name, blockNumber, results };
 }
 
-async function run(opts: JobOptions): Promise<void> {
+async function run(): Promise<void> {
   try {
-    provider = new providers.JsonRpcBatchProvider({
-      url: `https://eth-mainnet.g.alchemy.com/v2/${opts.env.ALCHEMY_KEY}`,
-      skipFetchSetup: true,
-    });
+    provider = getProvider('mainnet');
     const { network, blockNumber, results } = await aggregateCalls();
 
     await Promise.all(
@@ -66,11 +59,13 @@ async function run(opts: JobOptions): Promise<void> {
         });
       })
     );
-    console.log(
-      `Scheduled response: ${JSON.stringify({ network, blockNumber, results })}`
-    );
   } catch (e) {
-    console.log(e);
+    await log({
+      message: (e as Error).message,
+      level: 'error',
+      chain: 'homestead',
+      action: 'exchange_rate.refresh',
+    });
   }
 }
 

@@ -1,6 +1,6 @@
 import { initLogger } from '@notional-finance/logging';
 import { getJobs } from './monitors';
-import { JobMonitorEnv } from '@notional-finance/monitors';
+import { JobMonitorEnv, initializeProviders } from '@notional-finance/monitors';
 
 export default {
   async scheduled(
@@ -15,6 +15,7 @@ export default {
       env: env.NX_ENV,
       apiKey: env.NX_DD_API_KEY,
     });
+    initializeProviders(env.ALCHEMY_KEY);
 
     if (getJobs(env.NX_ENV).has(controller.cron)) {
       ctx.waitUntil(
