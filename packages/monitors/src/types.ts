@@ -30,3 +30,15 @@ export interface AggregateCallList {
   provider: providers.JsonRpcBatchProvider;
   calls: AggregateCall[];
 }
+
+export enum VolatilityType {
+  STABLE = 'stable',
+  VOLATILE = 'volatile',
+}
+
+export interface OracleContractConfig {
+  key: string;
+  address: string;
+  decimals: number;
+  volatilityType: VolatilityType;
+}

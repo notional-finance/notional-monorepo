@@ -1,8 +1,31 @@
 import { MonitorSchedule } from '@notional-finance/monitors';
-import { MonitorJob, exchangeRateMonitor } from '@notional-finance/monitors';
+import {
+  MonitorJob,
+  exchangeRateMonitorMainnet,
+} from '@notional-finance/monitors';
 
-export const monitors: Map<string, MonitorJob[]> = new Map([
-  [MonitorSchedule.EVERY_MINUTE, [exchangeRateMonitor]],
-  [MonitorSchedule.EVERY_15_MINUTES, []],
-  [MonitorSchedule.EVERY_HOUR, []],
-]);
+const jobs = {
+  local: new Map([
+    [MonitorSchedule.EVERY_MINUTE, [exchangeRateMonitorMainnet]],
+    [MonitorSchedule.EVERY_15_MINUTES, []],
+    [MonitorSchedule.EVERY_HOUR, []],
+  ]),
+  dev: new Map([
+    [MonitorSchedule.EVERY_MINUTE, []],
+    [MonitorSchedule.EVERY_15_MINUTES, [exchangeRateMonitorMainnet]],
+    [MonitorSchedule.EVERY_HOUR, []],
+  ]),
+  beta: new Map([
+    [MonitorSchedule.EVERY_MINUTE, []],
+    [MonitorSchedule.EVERY_15_MINUTES, [exchangeRateMonitorMainnet]],
+    [MonitorSchedule.EVERY_HOUR, []],
+  ]),
+  prod: new Map([
+    [MonitorSchedule.EVERY_MINUTE, [exchangeRateMonitorMainnet]],
+    [MonitorSchedule.EVERY_15_MINUTES, []],
+    [MonitorSchedule.EVERY_HOUR, []],
+  ]),
+};
+export function getJobs(env: string): Map<string, MonitorJob[]> {
+  return jobs[env];
+}

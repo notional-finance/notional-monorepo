@@ -19,5 +19,12 @@ VERSION = "v2"
 [env.beta]
 name = "blockchain-monitor-beta"
 
+[env.beta.vars]
+NX_ENV = "beta"
+VERSION = "v2"
+
 [env.prod]
 name = "blockchain-monitor"
+[env.prod.vars]
+NX_ENV = "prod"
+VERSION = "v2"
