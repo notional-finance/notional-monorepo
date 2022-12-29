@@ -3,6 +3,7 @@ import { IAggregatorABI } from '@notional-finance/contracts';
 import { aggregate } from '@notional-finance/multicall';
 import { log } from '@notional-finance/logging';
 import { getProvider } from './providers';
+import { JobOptions } from './types';
 import {
   AggregateCallList,
   MonitorJob,
@@ -120,11 +121,21 @@ async function aggregateCalls() {
   return { network: name, blockNumber, results };
 }
 
-async function run(): Promise<void> {
+async function run({ env }: JobOptions): Promise<void> {
   try {
+    const id = env.EXCHANGE_RATE_STORE.idFromName(
+      env.EXCHANGE_RATES_WORKER_NAME
+    );
+    const stub = env.EXCHANGE_RATE_STORE.get(id);
+
     provider = getProvider('mainnet');
     const { network, blockNumber, results } = await aggregateCalls();
-
+    const req = new Request(`${env.EXCHANGE_RATE_URL}/exchange-rates`, {
+      method: 'PUT',
+      body: JSON.stringify({ rates: { network, blockNumber, results } }),
+    });
+    const resp = await stub.fetch(req);
+    console.log(JSON.stringify(resp));
     await Promise.all(
       Object.keys(results).map(async (currency) => {
         await log({
@@ -141,6 +152,7 @@ async function run(): Promise<void> {
       })
     );
   } catch (e) {
+    console.log(e);
     await log({
       message: (e as Error).message,
       level: 'error',

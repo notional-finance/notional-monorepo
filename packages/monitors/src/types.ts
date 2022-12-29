@@ -1,5 +1,8 @@
 import { AggregateCall } from '@notional-finance/multicall';
-import { ExecutionContext } from '@cloudflare/workers-types';
+import {
+  DurableObjectNamespace,
+  ExecutionContext,
+} from '@cloudflare/workers-types';
 import { providers } from 'ethers';
 
 export interface MonitorJob {
@@ -7,6 +10,9 @@ export interface MonitorJob {
 }
 
 export interface JobMonitorEnv {
+  EXCHANGE_RATE_STORE: DurableObjectNamespace;
+  EXCHANGE_RATE_URL: string;
+  EXCHANGE_RATES_WORKER_NAME: string;
   ALCHEMY_KEY: string;
   NX_DD_API_KEY: string;
   NX_DD_BASE_URL: string;
@@ -16,6 +22,7 @@ export interface JobMonitorEnv {
 }
 
 export interface JobOptions {
+  request: Request;
   ctx: ExecutionContext;
   env: JobMonitorEnv;
 }

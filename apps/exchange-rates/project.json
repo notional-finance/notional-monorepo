@@ -1,0 +1,58 @@
+{
+  "name": "exchange-rates",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/exchange-rates/src",
+  "projectType": "application",
+  "targets": {
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          {
+            "command": "wrangler dev --local --var NX_COMMIT_REF:$(git rev-parse HEAD)"
+          }
+        ],
+        "cwd": "apps/exchange-rates"
+      }
+    },
+    "wrangler-publish-manual": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          {
+            "command": "wrangler publish --env {args.env}  --var NX_COMMIT_REF:$(git rev-parse HEAD)"
+          }
+        ],
+        "cwd": "apps/exchange-rates"
+      }
+    },
+    "publish-wrangler": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          {
+            "command": "wrangler publish"
+          }
+        ],
+        "cwd": "apps/exchange-rates"
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/exchange-rates/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/apps/exchange-rates"],
+      "options": {
+        "jestConfig": "apps/exchange-rates/jest.config.ts",
+        "passWithNoTests": true
+      },
+      "dependsOn": ["build"]
+    }
+  },
+  "tags": []
+}

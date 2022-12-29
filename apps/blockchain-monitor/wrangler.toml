@@ -1,4 +1,5 @@
 main = "./src/index.ts"
+account_id = "274f86c6dcfbb77c09e49e86d101c753"
 compatibility_date = "2022-11-11"
 
 workers_dev = true
@@ -9,22 +10,37 @@ usage_model = "bundled"
 [triggers]
 crons = ["* * * * *", "*/15 * * * *", "0 * * * *"]
 
+[env.local]
+name = "blockchain-monitor-local"
+
+[env.local.vars]
+NX_ENV = "local"
+VERSION = "v2"
+EXCHANGE_RATE_URL = "http://127.0.0.1:8787"
+EXCHANGE_RATES_WORKER_NAME = "exchange-rates-local"
+
+[env.local.durable_objects]
+bindings = [{name = "EXCHANGE_RATE_STORE", class_name = "ExchangeRateStore", script_name = "exchange-rates-local"}]
+
 [env.dev]
 name = "blockchain-monitor-dev"
 
 [env.dev.vars]
 NX_ENV = "dev"
 VERSION = "v2"
+EXCHANGE_RATE_URL = "https://exchange-rates-dev.notional-finance.workers.dev"
+EXCHANGE_RATES_WORKER_NAME = "exchange-rates-dev"
 
-[env.beta]
-name = "blockchain-monitor-beta"
-
-[env.beta.vars]
-NX_ENV = "beta"
-VERSION = "v2"
+[env.dev.durable_objects]
+bindings = [{name = "EXCHANGE_RATE_STORE", class_name = "ExchangeRateStore", script_name = "exchange-rates-dev"}]
 
 [env.prod]
 name = "blockchain-monitor"
 [env.prod.vars]
 NX_ENV = "prod"
 VERSION = "v2"
+EXCHANGE_RATE_URL = "https://exchange-rates.notional-finance.workers.dev"
+EXCHANGE_RATES_WORKER_NAME = "exchange-rates"
+
+[env.prod.durable_objects]
+bindings = [{name = "EXCHANGE_RATE_STORE", class_name = "ExchangeRateStore", script_name = "exchange-rates"}]
