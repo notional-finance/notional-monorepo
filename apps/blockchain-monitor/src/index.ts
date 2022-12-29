@@ -3,16 +3,8 @@ import { getJobs } from './monitors';
 import { JobMonitorEnv, initializeProviders } from '@notional-finance/monitors';
 
 export default {
-  async fetch(
-    request: Request,
-    env: JobMonitorEnv,
-    ctx: ExecutionContext
-  ): Promise<Response> {
-    const id = env.EXCHANGE_RATE_STORE.idFromName(
-      new URL(request.url).pathname
-    );
-    const stub = env.EXCHANGE_RATE_STORE.get(id);
-    const response = await stub.fetch(request);
+  async fetch(): Promise<Response> {
+    const response = new Response('OK', { status: 200 });
     return response;
   },
 
