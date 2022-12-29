@@ -1,4 +1,3 @@
-import { ExchangeRateResponse } from './types';
 import {
   DurableObjectState,
   DurableObjectNamespace,
@@ -37,31 +36,26 @@ export class ExchangeRateStore {
       const { rates } = req;
       await this.state.storage.put(rates.network, rates);
       return new Response('Rates Updated', { status: 200, statusText: 'OK' });
-    } catch (error) {
-      return new Response(error, { status: 500 });
+    } catch (e) {
+      return new Response((e as Error).message, { status: 500 });
     }
   }
 
-  async put(rates: ExchangeRateResponse) {
+  async get(network: string | null) {
     try {
-      await this.state.storage.put(rates.network, rates);
-      return new Response('Rates Updated', { status: 200, statusText: 'OK' });
-    } catch (error) {
-      return new Response(error, { status: 500 });
-    }
-  }
-
-  async get(network: string) {
-    try {
-      const rates = await this.state.storage.get(network);
-      const headers = { 'content-type': 'application/json' };
-      const response = new Response(JSON.stringify(rates), {
-        status: 200,
-        headers,
-      });
-      return response;
-    } catch (error) {
-      return new Response(error, { status: 500 });
+      if (network && typeof network === 'string') {
+        const rates = await this.state.storage.get(network);
+        const headers = { 'content-type': 'application/json' };
+        const response = new Response(JSON.stringify(rates), {
+          status: 200,
+          headers,
+        });
+        return response;
+      } else {
+        return new Response('Not Found', { status: 404 });
+      }
+    } catch (e) {
+      return new Response((e as Error).message, { status: 500 });
     }
   }
 }

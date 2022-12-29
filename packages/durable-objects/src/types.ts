@@ -1,4 +1,4 @@
-import BigNumber from 'ethers';
+import { BigNumber } from 'ethers';
 
 export interface ExchangeRateResponse {
   blockNumber: number;
