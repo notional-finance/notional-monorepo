@@ -1,10 +1,9 @@
-import { ethers, FixedNumber } from 'ethers';
-import { Request } from '@cloudflare/workers-types';
+import { BigNumber, ethers, FixedNumber } from 'ethers';
 import { IAggregatorABI } from '@notional-finance/contracts';
 import { aggregate } from '@notional-finance/multicall';
 import { log } from '@notional-finance/logging';
 import { getProvider } from './providers';
-import { JobOptions } from './types';
+import { JobOptions, VolatilityType } from './types';
 import {
   AggregateCallList,
   MonitorJob,
@@ -99,16 +98,13 @@ const configMap: Map<string, OracleContractConfig> = new Map([
 ]);
 
 function getCalls(): AggregateCallList {
-  const calls = [...configMap.values()].map(({ key, address, decimals }) => {
+  const calls = [...configMap.values()].map(({ key, address }) => {
     const contract = new ethers.Contract(address, IAggregatorABI, provider);
     return {
       target: contract,
       method: 'latestAnswer',
       args: [],
       key,
-      transform: (r: Awaited<ReturnType<typeof contract.latestAnswer>>) => {
-        return FixedNumber.fromValue(r, decimals).toUnsafeFloat();
-      },
     };
   });
 
@@ -139,16 +135,21 @@ async function run({ env }: JobOptions): Promise<void> {
     console.log(JSON.stringify(resp));
     await Promise.all(
       Object.keys(results).map(async (currency) => {
+        const volatilityType = configMap.has(currency)
+          ? configMap.get(currency)!.volatilityType
+          : VolatilityType.VOLATILE;
+        const exchangeRate = FixedNumber.fromValue(
+          results[currency] as BigNumber,
+          configMap.get(currency)!.decimals
+        ).toUnsafeFloat();
         await log({
           level: 'info',
           message: `exchange rate for ${currency}`,
           chain: network,
           currency,
           blockNumber,
-          exchangeRate: results[currency],
-          volatilityType: configMap.has(currency)
-            ? configMap.get(currency)!.volatilityType
-            : VolatilityType.VOLATILE,
+          exchangeRate,
+          volatilityType,
         });
       })
     );

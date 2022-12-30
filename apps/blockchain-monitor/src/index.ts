@@ -23,13 +23,17 @@ export default {
     initializeProviders(env.ALCHEMY_KEY);
 
     if (getJobs(env.NX_ENV).has(controller.cron)) {
-      ctx.waitUntil(
-        await Promise.all(
-          getJobs(env.NX_ENV)
-            .get(controller.cron)
-            .map((m) => m.run({ ctx, env }))
-        )
-      );
+      try {
+        ctx.waitUntil(
+          await Promise.all(
+            getJobs(env.NX_ENV)
+              .get(controller.cron)
+              .map((m) => m.run({ ctx, env }))
+          )
+        );
+      } catch (error) {
+        console.log((error as Error).message);
+      }
     }
   },
 };
