@@ -1,4 +1,4 @@
-import { initLogger } from '@notional-finance/logging';
+import { initLogger, log } from '@notional-finance/logging';
 import { getJobs } from './monitors';
 import { JobMonitorEnv, initializeProviders } from '@notional-finance/monitors';
 
@@ -31,8 +31,12 @@ export default {
               .map((m) => m.run({ ctx, env }))
           )
         );
-      } catch (error) {
-        console.log((error as Error).message);
+      } catch (e) {
+        await log({
+          message: (e as Error).message,
+          level: 'error',
+          action: 'blockchain_monitor.scheduled',
+        });
       }
     }
   },

@@ -131,8 +131,8 @@ async function run({ env }: JobOptions): Promise<void> {
       method: 'PUT',
       body: JSON.stringify({ rates: { network, blockNumber, results } }),
     });
-    const resp = await stub.fetch(req);
-    console.log(JSON.stringify(resp));
+    await stub.fetch(req);
+
     await Promise.all(
       Object.keys(results).map(async (currency) => {
         const volatilityType = configMap.has(currency)
