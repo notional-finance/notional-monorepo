@@ -1,4 +1,5 @@
 import { ethers, FixedNumber } from 'ethers';
+import { Request } from '@cloudflare/workers-types';
 import { IAggregatorABI } from '@notional-finance/contracts';
 import { aggregate } from '@notional-finance/multicall';
 import { log } from '@notional-finance/logging';
