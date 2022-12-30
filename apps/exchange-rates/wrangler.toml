@@ -1,0 +1,45 @@
+main = "./src/index.ts"
+compatibility_date = "2022-11-11"
+account_id = "274f86c6dcfbb77c09e49e86d101c753"
+
+workers_dev = true
+node_compat = true
+minify = true
+usage_model = "bundled"
+
+[[migrations]]
+tag = "v1"
+new_classes = ["ExchangeRateStore"]
+
+[env.local]
+name = "exchange-rates-local"
+
+[env.local.vars]
+NX_ENV = "local"
+VERSION = "v2"
+WORKER_NAME = "exchange-rates-local"
+
+[env.local.durable_objects]
+bindings = [{name = "EXCHANGE_RATE_STORE", class_name = "ExchangeRateStore"}]
+
+[env.dev]
+name = "exchange-rates-dev"
+
+[env.dev.vars]
+NX_ENV = "dev"
+VERSION = "v2"
+WORKER_NAME = "exchange-rates-dev"
+
+[env.dev.durable_objects]
+bindings = [{name = "EXCHANGE_RATE_STORE", class_name = "ExchangeRateStore"}]
+
+[env.prod]
+name = "exchange-rates"
+
+[env.prod.vars]
+NX_ENV = "prod"
+VERSION = "v2"
+WORKER_NAME = "exchange-rates"
+
+[env.prod.durable_objects]
+bindings = [{name = "EXCHANGE_RATE_STORE", class_name = "ExchangeRateStore"}]
