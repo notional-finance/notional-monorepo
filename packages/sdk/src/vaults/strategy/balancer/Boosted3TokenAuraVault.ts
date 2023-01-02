@@ -191,7 +191,7 @@ export default class Boosted3TokenAuraVault extends BaseBalancerStablePool<InitP
         0,
         BPTIn,
         basePoolTotalSupply,
-        basePoolFee, // FixedPoint.from(0),
+        basePoolFee,
         invariant
       );
       // Scale amountOut
