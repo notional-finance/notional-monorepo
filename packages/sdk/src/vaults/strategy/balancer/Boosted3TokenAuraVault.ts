@@ -125,6 +125,8 @@ export default class Boosted3TokenAuraVault extends BaseBalancerStablePool<InitP
         .div(FixedPoint.ONE);
       linearBPT = BalancerLinearMath.calcBptOutPerMainIn(
         amountIn,
+        // underlyingPoolBalances() rearranges the balances so that main is always in the
+        // zero index spot
         balances[0],
         balances[1],
         underlyingPoolTotalSupply,
@@ -147,9 +149,7 @@ export default class Boosted3TokenAuraVault extends BaseBalancerStablePool<InitP
         balances,
         true
       );
-      const feeAmount = linearBPT.mulUp(basePoolFee);
       const amountIn = linearBPT
-        .sub(feeAmount)
         .mul(basePoolScalingFactors[context.primaryTokenIndex])
         .div(FixedPoint.ONE);
       boostedBPT = BalancerStableMath.calcBptOutGivenExactTokensIn(
@@ -159,7 +159,7 @@ export default class Boosted3TokenAuraVault extends BaseBalancerStablePool<InitP
         // zero index spot
         [amountIn, FixedPoint.from(0), FixedPoint.from(0)],
         basePoolTotalSupply,
-        FixedPoint.from(0),
+        basePoolFee,
         invariant
       );
     }
@@ -191,13 +191,11 @@ export default class Boosted3TokenAuraVault extends BaseBalancerStablePool<InitP
         0,
         BPTIn,
         basePoolTotalSupply,
-        FixedPoint.from(0),
+        basePoolFee, // FixedPoint.from(0),
         invariant
       );
-      const feeAmount = amountOut.mulUp(basePoolFee);
       // Scale amountOut
       linearBPT = amountOut
-        .sub(feeAmount)
         .mul(FixedPoint.ONE)
         .div(basePoolScalingFactors[context.primaryTokenIndex]);
     }
@@ -213,6 +211,8 @@ export default class Boosted3TokenAuraVault extends BaseBalancerStablePool<InitP
       } = this.initParams;
       const amountOut = BalancerLinearMath.calcMainOutPerBptIn(
         linearBPT,
+        // underlyingPoolBalances() rearranges the balances so that main is always in the
+        // zero index spot
         balances[0],
         balances[1],
         underlyingPoolTotalSupply,
