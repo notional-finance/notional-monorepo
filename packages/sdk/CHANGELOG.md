@@ -2,6 +2,14 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [0.3.2](https://github.com/notional-finance/notional-monorepo/compare/sdk-0.3.1...sdk-0.3.2) (2023-01-04)
+
+
+### Bug Fixes
+
+* cleaning up ([79ae4f5](https://github.com/notional-finance/notional-monorepo/commit/79ae4f53c906767f468f5ec1dceafe1d69cb8bc7))
+* fixing balancer boosted pool tests ([a157079](https://github.com/notional-finance/notional-monorepo/commit/a15707922f28cb3e1e4ddd249d666203d17655d0))
+
 ## [0.3.1](https://github.com/notional-finance/notional-monorepo/compare/sdk-0.3.0...sdk-0.3.1) (2022-12-20)
 
 
