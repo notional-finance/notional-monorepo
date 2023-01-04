@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [0.2.1](https://github.com/notional-finance/notional-monorepo/compare/contracts-0.2.0...contracts-0.2.1) (2023-01-04)
+
+
+### Bug Fixes
+
+* fixing balancer boosted pool tests ([a157079](https://github.com/notional-finance/notional-monorepo/commit/a15707922f28cb3e1e4ddd249d666203d17655d0))
+
 ## [0.2.0](https://github.com/notional-finance/notional-monorepo/compare/contracts-0.1.0...contracts-0.2.0) (2022-12-20)
 
 
