@@ -1,7 +1,12 @@
 import { useState, useRef, useEffect, Dispatch, SetStateAction } from 'react';
 import { Box, styled, useTheme, Typography, Slide } from '@mui/material';
 import { useOnboard } from '@notional-finance/notionable-hooks';
-import { SideBarSubHeader, Button, H4 } from '@notional-finance/mui';
+import {
+  SideBarSubHeader,
+  Button,
+  H4,
+  ButtonText,
+} from '@notional-finance/mui';
 import {
   SettingsItem,
   useSettingsSideDrawer,
@@ -103,6 +108,7 @@ export const SettingsSideDrawer = ({
             theme={theme}
             onClick={() => handleClick(data)}
             key={data.key}
+            clickable={data.ViewComponent ? true : false}
           >
             <H4
               sx={{
@@ -194,15 +200,15 @@ const Title = styled(Typography)(
   `
 );
 
-const ButtonData = styled(Box)(
+const ButtonData = styled(ButtonText)(
   ({ theme }) => `
     float: right;
     border: ${theme.shape.borderStandard};
     background: ${theme.palette.background.paper};
-    font-size: 16px;
-    padding: 2px 15px;
+    padding: ${theme.spacing(1, 2)};
     border-radius: ${theme.shape.borderRadius()};
-    color: ${theme.palette.common.black}
+    color: ${theme.palette.common.black};
+    margin-bottom: 0px;
   `
 );
 

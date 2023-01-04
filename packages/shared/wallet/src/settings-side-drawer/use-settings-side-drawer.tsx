@@ -4,6 +4,14 @@ import {
 } from './wallet-switcher/wallet-switcher';
 import { Privacy } from './privacy/privacy';
 import { Language, LanguageButton } from './language/language';
+import {
+  NetworkSelector,
+  NetworkSelectorButton,
+} from './network-selector/network-selector';
+import {
+  EnabledCurrencies,
+  EnabledCurrenciesButton,
+} from './enabled-currencies/enabled-currencies';
 import { DarkModeToggle } from './dark-mode-toggle/dark-mode-toggle';
 import { useAccount } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
@@ -56,6 +64,19 @@ export const useSettingsSideDrawer = () => {
     //   label: 'Notification & Reminder Settings',
     //   buttonText: 'Default',
     // },
+    {
+      key: 'network',
+      active: false,
+      label: (
+        <FormattedMessage
+          defaultMessage="Network"
+          description={'Network option title'}
+        />
+      ),
+      ViewComponent: NetworkSelector,
+      CustomButton: NetworkSelectorButton,
+      buttonText: '',
+    },
     {
       key: 'language',
       active: false,
@@ -110,6 +131,19 @@ export const useSettingsSideDrawer = () => {
     //   label: 'Token Approval',
     //   buttonText: 'Unlimited',
     // },
+    {
+      key: 'enabled-currencies',
+      active: false,
+      label: (
+        <FormattedMessage
+          defaultMessage="Enabled Currencies"
+          description={'Enabled Currencies title'}
+        />
+      ),
+      ViewComponent: EnabledCurrencies,
+      CustomButton: EnabledCurrenciesButton,
+      buttonText: '',
+    },
     {
       key: 'base-currency',
       active: false,
