@@ -103,6 +103,7 @@ export const SettingsSideDrawer = ({
             theme={theme}
             onClick={() => handleClick(data)}
             key={data.key}
+            clickable={data.ViewComponent ? true : false}
           >
             <H4
               sx={{
@@ -200,7 +201,7 @@ const ButtonData = styled(Box)(
     border: ${theme.shape.borderStandard};
     background: ${theme.palette.background.paper};
     font-size: 16px;
-    padding: 2px 15px;
+    padding: 8px 16px;
     border-radius: ${theme.shape.borderRadius()};
     color: ${theme.palette.common.black}
   `
