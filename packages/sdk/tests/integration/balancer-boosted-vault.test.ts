@@ -22,16 +22,16 @@ import { BASIS_POINT } from '../../src/config/constants';
 import TypedBigNumber from '../../src/libs/TypedBigNumber';
 import Boosted3TokenAuraVault from '../../src/vaults/strategy/balancer/Boosted3TokenAuraVault';
 
-import ERC20ABI from '../../src/abi/ERC20.json';
-import poolABI from '../../src/abi/BalancerBoostedPool.json';
-import linearPoolABI from '../../src/abi/BalancerLinearPool.json';
-import BalancerVaultABI from '../../src/abi/BalancerVault.json';
+import ERC20ABI from '../../../contracts/src/abi/ERC20.json';
+import poolABI from '../../../contracts/src/abi/BalancerBoostedPool.json';
+import linearPoolABI from '../../../contracts/src/abi/BalancerLinearPool.json';
+import BalancerVaultABI from '../../../contracts/src/abi/BalancerVault.json';
 
-const forkedBlockNumber = 15521384;
+const forkedBlockNumber = 16320665;
 
 describe('balancer Boosted vault test', () => {
   const poolID =
-    '0x7b50775383d3d6f0215a8f290f2c9e2eebbeceb20000000000000000000000fe';
+    '0xa13a9247ea42d743238089903570127dda72fe4400000000000000000000035d';
   let balancerVault: BalancerVault;
   let balancerPool: BalancerBoostedPool;
   let daiLinearPool: BalancerLinearPool;
@@ -85,12 +85,13 @@ describe('balancer Boosted vault test', () => {
       poolABI,
       address
     )) as BalancerBoostedPool;
-    daiWhale = await getAccount('0x5d38b4e4783e34e2301a2a36c39a03c45798c4dd');
+    daiWhale = await getAccount('0xb527a981e1d415af696936b3174f2d7ac8d11369');
     ({ tokens: baseAssets, balances: baseBalances } =
       await balancerVault.getPoolTokens(poolID));
+
     daiLinearPool = (await ethers.getContractAt(
       linearPoolABI,
-      baseAssets[2]
+      baseAssets[3]
     )) as BalancerLinearPool;
     ({ balances: underlyingBalances } = await balancerVault.getPoolTokens(
       await daiLinearPool.getPoolId()
@@ -130,11 +131,11 @@ describe('balancer Boosted vault test', () => {
       basePoolContext: {
         poolAddress: address,
         poolId: poolID,
-        primaryTokenIndex: 2, // DAI linear pool
-        tokenOutIndex: 1, // Boosted pool BPT
+        primaryTokenIndex: 3, // DAI linear pool
+        tokenOutIndex: 2, // Boosted pool BPT
         balances: baseBalances.map(FixedPoint.from),
         secondaryTokenIndex: 0, // USDT linear pool
-        tertiaryTokenIndex: 3, // USDC linear pool
+        tertiaryTokenIndex: 1, // USDC linear pool
       },
       basePoolScalingFactors: (await balancerPool.getScalingFactors()).map(
         FixedPoint.from
@@ -144,7 +145,7 @@ describe('balancer Boosted vault test', () => {
       ),
       basePoolFee: FixedPoint.from(await balancerPool.getSwapFeePercentage()),
       basePoolTotalSupply: FixedPoint.from(
-        await balancerPool.getVirtualSupply()
+        await balancerPool.getActualSupply()
       ),
     };
     boosted = new Boosted3TokenAuraVault(vault.vaultAddress, initParams);
