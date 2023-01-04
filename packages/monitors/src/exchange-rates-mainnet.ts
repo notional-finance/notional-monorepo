@@ -1,4 +1,4 @@
-import { BigNumber, ethers, FixedNumber } from 'ethers';
+import { ethers, FixedNumber } from 'ethers';
 import { IAggregatorABI } from '@notional-finance/contracts';
 import { aggregate } from '@notional-finance/multicall';
 import { log } from '@notional-finance/logging';
