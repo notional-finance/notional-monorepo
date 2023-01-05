@@ -1,4 +1,4 @@
-import { BigNumber, ethers, FixedNumber } from 'ethers';
+import { ethers, FixedNumber } from 'ethers';
 import { IAggregatorABI } from '@notional-finance/contracts';
 import { aggregate } from '@notional-finance/multicall';
 import { log } from '@notional-finance/logging';
@@ -115,7 +115,27 @@ async function aggregateCalls() {
   const { provider, calls } = getCalls();
   const { name } = await provider.getNetwork();
   const { blockNumber, results } = await aggregate(calls, provider);
-  return { network: name, blockNumber, results };
+  const exchangeRates = Object.keys(results).map((key) => {
+    const quote = key.split('_')[0];
+    const base = key.split('_')[1];
+    const metadata = {
+      source: 'chainlink',
+      address: configMap.get(key)!.address,
+      volatilityType: configMap.get(key)!.volatilityType,
+      blockNumber,
+      key,
+    };
+    const value = results[key];
+    const decimals = configMap.get(key)!.decimals;
+    return {
+      quote,
+      base,
+      value,
+      decimals,
+      metadata,
+    };
+  });
+  return { network: name, blockNumber, results: exchangeRates };
 }
 
 async function run({ env }: JobOptions): Promise<void> {
@@ -134,19 +154,18 @@ async function run({ env }: JobOptions): Promise<void> {
     await stub.fetch(req);
 
     await Promise.all(
-      Object.keys(results).map(async (currency) => {
-        const volatilityType = configMap.has(currency)
-          ? configMap.get(currency)!.volatilityType
-          : VolatilityType.VOLATILE;
+      results.map(async (quote) => {
+        const volatilityType = quote.metadata.volatilityType;
         const exchangeRate = FixedNumber.fromValue(
-          results[currency] as BigNumber,
-          configMap.get(currency)!.decimals
+          quote.value,
+          quote.decimals
         ).toUnsafeFloat();
         await log({
           level: 'info',
-          message: `exchange rate for ${currency}`,
+          message: `exchange rate for ${quote.metadata.key}`,
           chain: network,
-          currency,
+          metadata: quote.metadata,
+          currency: quote.metadata.key,
           blockNumber,
           exchangeRate,
           volatilityType,
