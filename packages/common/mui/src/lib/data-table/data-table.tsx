@@ -149,7 +149,7 @@ export const DataTable = ({
       ) : (
         <Box sx={{ display: TabComponentVisible ? 'none' : '' }}>
           {tableLoading ? (
-            <PageLoading />
+            <PageLoading type="notional" />
           ) : (
             <TableCell
               sx={{ textAlign: 'center', margin: theme.spacing(4, 0) }}
