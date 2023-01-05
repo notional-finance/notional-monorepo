@@ -1,7 +1,9 @@
+import { Player, Controls } from '@lottiefiles/react-lottie-player';
 import { CircularProgress, LinearProgress, styled } from '@mui/material';
+import NotionalLogo from '../../assets/icons/notional_lottie.json';
 
 export interface ProgressIndicatorProps {
-  type?: 'linear' | 'circular';
+  type?: 'linear' | 'circular' | 'notional';
   width?: '25' | '50' | '60' | '75' | '100';
   size?: number;
 }
@@ -27,6 +29,19 @@ export const ProgressIndicator = ({
             }}
             className="progress-indicator-linear"
           />
+        </div>
+      );
+    } else if (type === 'notional') {
+      indicator = (
+        <div className="progress-indicator-notional">
+          <Player
+            autoplay
+            loop
+            src={NotionalLogo}
+            style={{ height: `${width}px`, width: `${width}px` }}
+          >
+            <Controls visible={false} />
+          </Player>
         </div>
       );
     } else {

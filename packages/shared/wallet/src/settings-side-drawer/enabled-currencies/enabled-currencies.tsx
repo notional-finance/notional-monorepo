@@ -59,7 +59,7 @@ export const EnabledCurrencies = () => {
               marginTop: theme.spacing(10),
             }}
           >
-            <ProgressIndicator type="circular" size={30} />
+            <ProgressIndicator type="notional" />
           </Box>
         ) : walletConnected ? (
           enabledTokens.map((c) => {
@@ -93,7 +93,7 @@ export const EnabledCurrencies = () => {
               marginTop: theme.spacing(10),
             }}
           >
-            <ProgressIndicator type="circular" size={30} />
+            <ProgressIndicator type="notional" />
           </Box>
         ) : walletConnected ? (
           supportedTokens.map((c) => {
