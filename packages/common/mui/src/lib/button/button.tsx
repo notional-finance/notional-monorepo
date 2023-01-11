@@ -19,7 +19,7 @@ export function Button(props: ButtonProps) {
   const newProps = {
     ...rest,
     sx: {
-      background: variant === 'contained' ? theme.palette.primary.main : '',
+      background: variant === 'contained' ? theme.palette.primary.light : '',
       textTransform: 'capitalize',
       fontWeight: theme.typography.button.fontWeight,
       fontSize: theme.typography.button.fontSize,

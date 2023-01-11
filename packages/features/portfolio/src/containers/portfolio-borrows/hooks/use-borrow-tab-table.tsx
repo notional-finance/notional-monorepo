@@ -13,7 +13,7 @@ export const useBorrowTabTable = () => {
   const borrowCapacity = useBorrowCapacityTable();
   const priceRiskTable = usePriceRiskTable();
   const interestRateRisk = useInterestRateRiskTable();
-  const { buttonData } = usePortfolioButtonBar();
+  const buttonData = usePortfolioButtonBar();
 
   const tableTabs = [
     { title: <FormattedMessage defaultMessage="Risk Overview" /> },

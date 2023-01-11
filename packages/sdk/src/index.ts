@@ -6,6 +6,7 @@ import FreeCollateral from './system/FreeCollateral';
 
 export default Notional;
 export * from './libs/types';
+export * from './libs/utils';
 export * from './config/constants';
 export * from './data/index';
 export {
