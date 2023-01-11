@@ -48,3 +48,4 @@ export * from './lib/active-bell-icon/active-bell-icon';
 export * from './lib/bell-icon/bell-icon';
 export * from './lib/announcement-icon/announcement-icon';
 export * from './lib/plus-icon/plus-icon';
+export * from './lib/note-with-shadow/note-with-shadow';

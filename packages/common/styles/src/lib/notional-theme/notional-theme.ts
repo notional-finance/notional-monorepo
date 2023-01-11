@@ -262,7 +262,7 @@ const getThemeData = (themeVariant: PaletteMode) => {
           themeVariant === THEME_VARIANTS.LIGHT
             ? colors.green
             : colors.neonTurquoise,
-        light: colors.aqua,
+        light: themeVariant === THEME_VARIANTS.LIGHT ? colors.aqua : colors.neonTurquoise,
         dark:
           themeVariant === THEME_VARIANTS.LIGHT
             ? colors.matteGreen
