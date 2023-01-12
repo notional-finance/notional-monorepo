@@ -17,6 +17,7 @@ interface PortfolioSideDrawerProps {
   transactionData?: TransactionData;
   updatedAccountData?: AccountData;
   advancedToggle?: ToggleSwitchProps;
+  showRiskTable?: boolean;
 }
 
 export const PortfolioSideDrawer = ({
@@ -26,6 +27,7 @@ export const PortfolioSideDrawer = ({
   transactionData,
   updatedAccountData,
   advancedToggle,
+  showRiskTable = true,
 }: PortfolioSideDrawerProps) => {
   const history = useHistory();
   const { search } = useLocation();
@@ -63,10 +65,12 @@ export const PortfolioSideDrawer = ({
     >
       {children}
       <RiskSlider key={'risk-slider'} updatedAccountData={updatedAccountData} />
-      <AccountRiskTable
-        key={'risk-data-table'}
-        updatedAccountData={updatedAccountData}
-      />
+      {showRiskTable && (
+        <AccountRiskTable
+          key={'risk-data-table'}
+          updatedAccountData={updatedAccountData}
+        />
+      )}
     </ActionSidebar>
   );
 };

@@ -1,12 +1,12 @@
 import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
 import {
   useSideDrawerState,
-  ConvertCashToNToken,
   RemindMe,
   GetNotified,
 } from '@notional-finance/side-drawer';
 import {
   AddToCalendar,
+  ConvertCashToNTokens,
   DeleverageVault,
   DepositCollateral,
   RedeemNToken,
@@ -28,7 +28,7 @@ export const usePortfolioSideDrawers = () => {
     [PORTFOLIO_ACTIONS.REPAY_CASH_DEBT]: RepayCash,
     [PORTFOLIO_ACTIONS.REPAY_IFCASH_BORROW]: RepayCash,
     [PORTFOLIO_ACTIONS.REDEEM_NTOKEN]: RedeemNToken,
-    [PORTFOLIO_ACTIONS.CONVERT_CASH]: ConvertCashToNToken,
+    [PORTFOLIO_ACTIONS.CONVERT_CASH]: ConvertCashToNTokens,
     [PORTFOLIO_ACTIONS.REMIND_ME]: RemindMe,
     [PORTFOLIO_ACTIONS.DEPOSIT]: DepositCollateral,
     [PORTFOLIO_ACTIONS.WITHDRAW]: Withdraw,
