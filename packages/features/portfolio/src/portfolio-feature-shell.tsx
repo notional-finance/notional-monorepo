@@ -2,8 +2,12 @@ import { Box, styled, useTheme } from '@mui/material';
 import { useAccount } from '@notional-finance/notionable-hooks';
 import { useParams } from 'react-router-dom';
 import { ButtonBar, SideDrawer } from '@notional-finance/mui';
-import { usePortfolioButtonBar, usePortfolioSideDrawers } from './hooks';
-import { SideNav, PortfolioMobileNav } from './components';
+import {
+  usePortfolioButtonBar,
+  usePortfolioSideDrawers,
+  useClaimNote,
+} from './hooks';
+import { SideNav, PortfolioMobileNav, ClaimNoteButton } from './components';
 import {
   PortfolioOverview,
   PortfolioLends,
@@ -29,7 +33,8 @@ export const PortfolioFeatureShell = () => {
   const params = useParams<PortfolioParams>();
   const { clearSideDrawer } = useSideDrawerManager();
   const { SideDrawerComponent, openDrawer } = usePortfolioSideDrawers();
-  const { buttonData } = usePortfolioButtonBar();
+  const buttonData = usePortfolioButtonBar();
+  const claimNoteData = useClaimNote();
   const { accountConnected } = useAccount();
 
   const handleDrawer = () => {
@@ -62,6 +67,7 @@ export const PortfolioFeatureShell = () => {
                   height: theme.spacing(5),
                 }}
               />
+              <ClaimNoteButton claimNoteData={claimNoteData} />
             </Box>
           )}
         {(params.category === PORTFOLIO_CATEGORIES.OVERVIEW ||
