@@ -1,5 +1,5 @@
 import { MouseEventHandler } from 'react';
-import { styled, Box } from '@mui/material';
+import { styled, Box, useTheme } from '@mui/material';
 import { ProgressIndicator, Button } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
 import { TransactionStatus } from './transaction-status';
@@ -9,11 +9,6 @@ const ButtonContainer = styled(Box)`
   display: inline-flex;
   justify-content: space-between;
   width: 100%;
-`;
-
-const ReturnToForm = styled(Button)`
-  width: 100%;
-  margin-top: 30px;
 `;
 
 const Spinner = styled('span')`
@@ -37,15 +32,21 @@ export const TransactionButtons = ({
   onReturnToForm,
   isLoaded,
 }: TransactionButtonsProps) => {
+  const theme = useTheme();
   switch (transactionStatus) {
     case TransactionStatus.PENDING:
     case TransactionStatus.CONFIRMED:
     case TransactionStatus.ERROR_BUILDING:
     case TransactionStatus.REVERT:
       return (
-        <ReturnToForm variant="outlined" onClick={onReturnToForm || onCancel}>
+        <Button
+          variant="outlined"
+          onClick={onReturnToForm || onCancel}
+          size="large"
+          sx={{ marginTop: theme.spacing(4), width: '100%' }}
+        >
           <FormattedMessage defaultMessage={'Return to Form'} />
-        </ReturnToForm>
+        </Button>
       );
     default:
       return (
@@ -54,7 +55,12 @@ export const TransactionButtons = ({
             <FormattedMessage defaultMessage={'Cancel'} />
           </Button>
 
-          <Button variant="contained" size="large" onClick={onSubmit} disabled={!isLoaded}>
+          <Button
+            variant="contained"
+            size="large"
+            onClick={onSubmit}
+            disabled={!isLoaded}
+          >
             {!isLoaded && (
               <Spinner>
                 <ProgressIndicator type="circular" size={18} />

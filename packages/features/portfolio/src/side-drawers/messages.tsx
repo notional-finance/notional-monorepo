@@ -78,7 +78,7 @@ export const messages: Record<PORTFOLIO_ACTIONS, PortfolioMessages> = {
     heading: { defaultMessage: 'Convert Cash to nTokens', description: '' },
     helptext: {
       defaultMessage:
-        'Convert Notional cash deposits (denominated in cTokens) to nTokens to earn additional yield.',
+        'Convert your cash held in Notional to nTokens to earn additional variable yield and NOTE incentives.',
       description: '',
     },
     inputLabel: {

@@ -1,159 +1,113 @@
-import {
-  useAccountCashBalance,
-  useCurrencyData,
-  useNotional,
-  useRiskRatios,
-} from '@notional-finance/notionable-hooks';
-import { TransactionData } from '@notional-finance/notionable';
 import { TypedBigNumber } from '@notional-finance/sdk';
-import { CashOrFCash, TradePropertyKeys } from '@notional-finance/trade';
 import { useFormState } from '@notional-finance/utils';
-import { tradeDefaults } from '@notional-finance/shared-config';
-import { useEffect } from 'react';
-import { useRemoveAsset } from '../hooks/use-remove-asset';
+import { errorMsgs } from './error-msgs';
+import { TransactionData } from '@notional-finance/notionable';
+import { TradePropertyKeys } from '@notional-finance/trade';
+import { useNotional, useAccountCashBalance, useCurrencyData, useAccount } from '@notional-finance/notionable-hooks';
+import { MessageDescriptor } from 'react-intl';
 
-interface WithdrawLendState {
+
+
+interface CashToNTokensState {
   inputAmount: TypedBigNumber | undefined;
-  netCashAmount: TypedBigNumber | undefined;
-  netfCashAmount: TypedBigNumber | undefined;
+  netCashChange: TypedBigNumber | undefined;
+  netNTokenChange: TypedBigNumber | undefined;
   selectedToken: string;
   hasError: boolean;
-  cashOrfCash: CashOrFCash;
-  withdrawToPortfolio: boolean;
+  currencyId: number;
 }
 
-const initialWithdrawLendState = {
+const initialCashToNTokensState = {
   hasError: false,
   inputAmount: undefined,
-  netCashAmount: undefined,
-  netfCashAmount: undefined,
+  currencyId: 0,
+  netCashChange: undefined,
+  netNTokenChange: undefined,
   selectedToken: '',
-  cashOrfCash: 'fCash' as CashOrFCash,
-  withdrawToPortfolio: false,
 };
 
-export function useConvertCashToNTokens(assetKey: string | undefined) {
-  const [state, updateWithdrawLendState] = useFormState<WithdrawLendState>(
-    initialWithdrawLendState
-  );
+
+export function useConvertCashToNTokensInput(selectedToken: string, inputString: string) {
   const { notional } = useNotional();
-  const {
-    hasError,
-    inputAmount,
-    netCashAmount,
-    netfCashAmount,
-    selectedToken,
-    cashOrfCash,
-    withdrawToPortfolio,
-  } = state;
-  const { isUnderlying } = useCurrencyData(selectedToken);
-  const cashBalance = useAccountCashBalance(selectedToken);
+  const maxBalance = useAccountCashBalance(selectedToken);
+  const maxValue = maxBalance?.toExactString();
+  const { id } = useCurrencyData(selectedToken); 
 
-  const {
-    market,
-    address,
-    updatedAccountData,
-    selectedAsset,
-    availableTokens,
-    tradedRate,
-    defaultSelectedToken,
-  } = useRemoveAsset(assetKey, cashOrfCash, netCashAmount, netfCashAmount);
+  const inputAmount =
+    inputString && notional
+      ? notional.parseInput(inputString, selectedToken, true)
+      : undefined;
 
-  if (withdrawToPortfolio && selectedAsset) {
-    updatedAccountData.updateBalance(
-      selectedAsset.currencyId,
-      netCashAmount?.toAssetCash(true)
-    );
-  }
 
-  const {
-    loanToValue: updatedLoanToValue,
-    collateralRatio: updatedCollateralRatio,
-  } = useRiskRatios(updatedAccountData);
-  const cashWithdrawn = isUnderlying
-    ? netCashAmount?.toUnderlying()
-    : netCashAmount;
-
-  useEffect(() => {
-    // This should only run once after initialization
-    if (defaultSelectedToken)
-      updateWithdrawLendState({ selectedToken: defaultSelectedToken });
-  }, [defaultSelectedToken, updateWithdrawLendState]);
-
-  const canSubmit =
-    !!selectedAsset &&
-    !!notional &&
-    !!address &&
-    !!inputAmount &&
-    hasError === false &&
-    !!netfCashAmount &&
-    !!netCashAmount &&
-    !!tradedRate;
-
-  let transactionData: TransactionData | undefined = undefined;
-  if (canSubmit) {
-    // If there is a negative cash balance then we want to withdraw entire cash balance, this will
-    // be whatever positive balance is left after repayment
-    const hasCashBalance = cashBalance?.isPositive() || false;
-
-    // If there is no cash balance and we are not withdrawing to portfolio (withdrawing to wallet)<
-    // then withdraw everything to avoid dust amounts
-    const withdrawEntireCashBalance = !hasCashBalance && !withdrawToPortfolio;
-    // If there is an existing cash balance we want to only withdraw the netCash amount (only
-    // if we are withdrawing to wallet)
-    const withdrawAmountInternalPrecision =
-      hasCashBalance && !withdrawToPortfolio
-        ? netCashAmount.toAssetCash(true)
-        : TypedBigNumber.fromBalance(0, selectedAsset.symbol, true);
-
-    transactionData = {
-      transactionHeader: '',
-      buildTransactionCall: {
-        transactionFn: notional.withdrawLend,
-        transactionArgs: [
-          address,
-          selectedAsset.fCash,
-          netfCashAmount.neg(),
-          tradedRate + tradeDefaults.defaultAnnualizedSlippage,
-          withdrawAmountInternalPrecision,
-          withdrawEntireCashBalance,
-          isUnderlying,
-        ],
-      },
-      transactionProperties: {
-        [TradePropertyKeys.maturity]: selectedAsset.maturity,
-        [TradePropertyKeys.amountToWallet]: !withdrawToPortfolio
-          ? cashWithdrawn
-          : undefined,
-        [TradePropertyKeys.amountToPortfolio]: withdrawToPortfolio
-          ? cashWithdrawn
-          : undefined,
-        [TradePropertyKeys.withdrawLendRate]: tradedRate,
-        [TradePropertyKeys.collateralRatio]:
-          updatedCollateralRatio ?? undefined,
-        [TradePropertyKeys.loanToValue]: updatedLoanToValue ?? undefined,
-      },
-    };
+  let errorMsg: MessageDescriptor | undefined;  
+  if (maxBalance && inputAmount?.lte(maxBalance) === false) {
+    errorMsg = errorMsgs.insufficientBalance;
+  } else if (inputAmount?.isZero()) {
+    errorMsg = errorMsgs.inputGreaterThanZero;
+  } else if (inputAmount === undefined) {
+    errorMsg = undefined;
   }
 
   return {
-    selectedToken,
-    availableTokens,
-    selectedMarketKey: market?.marketKey || null,
+    inputAmount,
+    maxValue: maxValue,
+    currencyId: id,
+    errorMsg,
+  };
+}
+
+export function useConvertCashToNTokens(symbol: string | undefined) {
+  const { notional } = useNotional();
+  const { address, accountDataCopy } = useAccount();
+  const [state, updateCashToNTokensState] = useFormState<CashToNTokensState>(
+    initialCashToNTokensState
+  );
+    
+  const {
+    hasError,
+    currencyId,
+    inputAmount,
+    netCashChange,
+    netNTokenChange,
+  } = state;
+
+
+  const canSubmit =
+    !!symbol &&
+    !!notional &&
+    !!address &&
+    !!inputAmount &&
+    !!netCashChange &&
+    !!netNTokenChange &&
+    hasError === false &&
+    inputAmount?.isPositive()
+
+  
+    let transactionData: TransactionData | undefined;
+    if (canSubmit) {
+      accountDataCopy.updateBalance(currencyId, netCashChange, netNTokenChange);
+      transactionData = {
+        transactionHeader: '',
+        buildTransactionCall: {
+          transactionFn: notional.mintNToken,
+          transactionArgs: [
+            address,
+            symbol,
+            inputAmount,
+            true,
+          ]
+        },
+        transactionProperties: {
+          [TradePropertyKeys.nTokensMinted]: netNTokenChange,
+          [TradePropertyKeys.fromCashBalance]: inputAmount,
+        },
+      };
+    }
+
+  return {
     canSubmit,
-    updatedAccountData: canSubmit ? updatedAccountData : undefined,
+    updatedAccountData: canSubmit ? accountDataCopy : undefined,
     transactionData,
-    sideDrawerInfo: {
-      [TradePropertyKeys.amountToWallet]: !withdrawToPortfolio
-        ? cashWithdrawn
-        : undefined,
-      [TradePropertyKeys.amountToPortfolio]: withdrawToPortfolio
-        ? cashWithdrawn
-        : undefined,
-      [TradePropertyKeys.withdrawLendRate]: tradedRate,
-    },
-    cashOrfCash,
-    withdrawToPortfolio,
-    updateWithdrawLendState,
+    updateCashToNTokensState,
   };
 }
