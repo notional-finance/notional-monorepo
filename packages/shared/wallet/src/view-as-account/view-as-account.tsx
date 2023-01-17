@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { ethers } from 'ethers';
 import { Box, useTheme, styled } from '@mui/material';
 import { Input, Button } from '@notional-finance/mui';
@@ -32,6 +32,12 @@ export function ViewAsAccount() {
     }
   };
 
+  const handleKeyDown = (event) => {
+    if (event.key === 'Enter') {
+      handleClick();
+    }
+  };
+
   return (
     <Container>
       <Box
@@ -47,6 +53,7 @@ export function ViewAsAccount() {
         })}
         handleChange={handleChange}
         inputValue={address}
+        onKeyDown={handleKeyDown}
         sx={{
           marginTop: '10px',
           borderColor: error ? theme.palette.error.main : '',

@@ -147,7 +147,12 @@ export const TransactionConfirmation = ({
           }
           values={{
             a: (msg: string) => (
-              <ExternalLink href="/terms">{msg}</ExternalLink>
+              <ExternalLink
+                href="/terms"
+                style={{ color: theme.palette.primary.accent }}
+              >
+                {msg}
+              </ExternalLink>
             ),
           }}
         />
@@ -178,10 +183,6 @@ const TermsOfService = styled('p')(
   margin-top: 1rem;
   margin-bottom: 1.5rem;
   color: ${theme.palette.borders.accentPaper};
-
-  a {
-    color: ${theme.palette.primary.accent};
-  }
 `
 );
 

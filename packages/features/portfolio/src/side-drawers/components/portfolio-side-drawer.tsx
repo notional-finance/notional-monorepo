@@ -9,6 +9,7 @@ import { useHistory, useLocation, useParams } from 'react-router';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { PortfolioParams } from '../../portfolio-feature-shell';
 import { messages } from '../messages';
+import { useEffect } from 'react';
 
 interface PortfolioSideDrawerProps {
   action: PORTFOLIO_ACTIONS;
@@ -42,6 +43,13 @@ export const PortfolioSideDrawer = ({
   }`;
   const returnToPortfolio = `/portfolio/${category}`;
   const { clearSideDrawer } = useSideDrawerManager();
+
+  useEffect(() => {
+    if (search.includes('confirm=true')) {
+      history.push(cancelRoute);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return confirmRoute && transactionData ? (
     <TransactionConfirmation

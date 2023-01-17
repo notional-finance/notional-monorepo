@@ -12,7 +12,7 @@ import WalletSideDrawer from '../wallet-side-drawer/wallet-side-drawer';
 import { getNotificationsData } from './wallet-selector.service';
 import NetworkSelector from '../network-selector/network-selector';
 import { useOnboard, useAccount } from '@notional-finance/notionable-hooks';
-import { ProgressIndicator } from '@notional-finance/mui';
+import { ProgressIndicator, ButtonText, Caption } from '@notional-finance/mui';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { useWalletSideDrawer } from '../hooks';
 import {
@@ -20,7 +20,6 @@ import {
   PORTFOLIO_CATEGORIES,
   SETTINGS_SIDE_DRAWERS,
 } from '@notional-finance/shared-config';
-import { ButtonText } from '@notional-finance/mui';
 
 export interface PortfolioParams {
   category?: PORTFOLIO_CATEGORIES;
@@ -30,9 +29,10 @@ export interface PortfolioParams {
 export function WalletSelector() {
   const theme = useTheme();
   const { connected, icon, label } = useOnboard();
-  const { truncatedAddress } = useAccount();
+  const { truncatedAddress, address } = useAccount();
   const [notificationsActive, setNotificationsActive] =
     useState<boolean>(false);
+  const [showAlert, setShowAlert] = useState<boolean>(false);
 
   const { setWalletSideDrawer, clearWalletSideDrawer } = useSideDrawerManager();
   const { openDrawer } = useWalletSideDrawer();
@@ -49,6 +49,21 @@ export function WalletSelector() {
     }
     if (!openDrawer) {
       setWalletSideDrawer(key);
+    }
+  };
+
+  useEffect(() => {
+    if (showAlert) {
+      setTimeout(() => {
+        setShowAlert(false);
+      }, 1000);
+    }
+  }, [showAlert, setShowAlert]);
+
+  const handleCopy = () => {
+    if (address) {
+      navigator.clipboard.writeText(address);
+      setShowAlert(true);
     }
   };
 
@@ -76,7 +91,25 @@ export function WalletSelector() {
                   alignItems: 'center',
                 }}
               >
-                <ButtonText>{truncatedAddress}</ButtonText>
+                <Caption
+                  sx={{
+                    background: theme.palette.background.paper,
+                    color: theme.palette.typography.main,
+                    padding: theme.spacing(1.5),
+                    position: 'absolute',
+                    borderRadius: theme.shape.borderRadius(),
+                    border: `1px solid ${theme.palette.primary.light}`,
+                    marginTop: theme.spacing(12),
+                    transition: 'all 0.3s ease-in-out',
+                    opacity: showAlert ? 1 : 0,
+                  }}
+                >
+                  <FormattedMessage defaultMessage="Address Copied" />
+                </Caption>
+                <Box onClick={handleCopy}>
+                  <ButtonText>{truncatedAddress}</ButtonText>
+                </Box>
+
                 <Box
                   sx={{ marginLeft: '10px', display: 'flex' }}
                   onClick={() =>
