@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useEffect, useCallback } from 'react';
 import { PageLoading, Maturities, ActionSidebar } from '@notional-finance/mui';
 import {
   TransactionConfirmation,
@@ -28,11 +28,18 @@ export const BorrowSidebar = () => {
     useBorrow(selectedToken);
   const txnData = useBorrowTransaction(selectedToken);
   const history = useHistory();
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
 
   const handleTxnCancel = useCallback(() => {
     history.push(pathname);
   }, [history, pathname]);
+
+  useEffect(() => {
+    if (search.includes('confirm=true')) {
+      handleTxnCancel();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const maturityCards = (
     <Maturities

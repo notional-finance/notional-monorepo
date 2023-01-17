@@ -61,9 +61,10 @@ export const ActionSidebar = ({
   CustomActionButton,
   advancedToggle,
   showActionButtons = true,
-  hideTextOnMobile = false,
+  hideTextOnMobile = true,
 }: ActionSidebarProps) => {
   const theme = useTheme();
+
   const inner = (
     <>
       <ActionSideBarContainer hideTextOnMobile={hideTextOnMobile} theme={theme}>

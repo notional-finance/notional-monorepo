@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react';
+import { useEffect, useCallback, useRef } from 'react';
 import { defineMessage, FormattedMessage } from 'react-intl';
 import {
   PageLoading,
@@ -29,7 +29,7 @@ export const LendSidebar = () => {
   } = useLend();
   const txnData = useLendTransaction();
   const history = useHistory();
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
 
   const handleTxnCancel = useCallback(() => {
     history.push(pathname);
@@ -43,6 +43,13 @@ export const LendSidebar = () => {
     },
     [inputRef]
   );
+
+  useEffect(() => {
+    if (search.includes('confirm=true')) {
+      handleTxnCancel();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const currencyInputHandler =
     availableCurrencies.length && selectedToken ? (

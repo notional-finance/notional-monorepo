@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import {
   TransactionConfirmation,
   TradeActionButton,
@@ -16,9 +17,16 @@ import { useLiquidityTransaction } from '../store/use-liquidity-transaction';
 export const LiquiditySidebar = () => {
   const { selectedToken, tradeProperties, canSubmit } = useLiquidity();
   const { tradableCurrencySymbols: availableCurrencies } = useCurrency();
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   const history = useHistory();
   const txnData = useLiquidityTransaction();
+
+  useEffect(() => {
+    if (search.includes('confirm=true')) {
+      history.push(pathname);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return txnData ? (
     <TransactionConfirmation
