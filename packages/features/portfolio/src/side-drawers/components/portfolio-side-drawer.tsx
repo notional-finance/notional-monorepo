@@ -50,7 +50,7 @@ export const PortfolioSideDrawer = ({
       transactionProperties={transactionData?.transactionProperties}
       buildTransactionCall={transactionData?.buildTransactionCall}
       showDrawer={false}
-      onReturnToForm={() => history.push(returnToPortfolio)}
+      onReturnToForm={() => history.push(cancelRoute)}
     />
   ) : (
     <ActionSidebar

@@ -31,7 +31,7 @@ export const StatusHeading = ({
 
   switch (transactionStatus) {
     case TransactionStatus.PENDING:
-      statusIcon = <ProgressIndicator />;
+      statusIcon = <ProgressIndicator type="notional" width="75" />;
       headingText = (
         <>
           <FormattedMessage defaultMessage={'Pending'} />

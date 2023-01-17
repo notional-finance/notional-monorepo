@@ -15,9 +15,6 @@ export const GetNotified = () => {
 export const RemindMe = () => {
   return <div>Remind Me</div>;
 };
-export const ConvertCashToNToken = () => {
-  return <div>Convert Cash To nTokens</div>;
-};
 
 export interface PortfolioParams {
   category?: PORTFOLIO_CATEGORIES;
