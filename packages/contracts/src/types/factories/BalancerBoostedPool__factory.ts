@@ -7,9 +7,88 @@ import type { Provider } from "@ethersproject/providers";
 import type {
   BalancerBoostedPool,
   BalancerBoostedPoolInterface,
+  ComposableStablePool,
 } from "../BalancerBoostedPool";
 
 const _abi = [
+  {
+    inputs: [
+      {
+        components: [
+          {
+            internalType: "contract IVault",
+            name: "vault",
+            type: "address",
+          },
+          {
+            internalType: "contract IProtocolFeePercentagesProvider",
+            name: "protocolFeeProvider",
+            type: "address",
+          },
+          {
+            internalType: "string",
+            name: "name",
+            type: "string",
+          },
+          {
+            internalType: "string",
+            name: "symbol",
+            type: "string",
+          },
+          {
+            internalType: "contract IERC20[]",
+            name: "tokens",
+            type: "address[]",
+          },
+          {
+            internalType: "contract IRateProvider[]",
+            name: "rateProviders",
+            type: "address[]",
+          },
+          {
+            internalType: "uint256[]",
+            name: "tokenRateCacheDurations",
+            type: "uint256[]",
+          },
+          {
+            internalType: "bool[]",
+            name: "exemptFromYieldProtocolFeeFlags",
+            type: "bool[]",
+          },
+          {
+            internalType: "uint256",
+            name: "amplificationParameter",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "swapFeePercentage",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "pauseWindowDuration",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "bufferPeriodDuration",
+            type: "uint256",
+          },
+          {
+            internalType: "address",
+            name: "owner",
+            type: "address",
+          },
+        ],
+        internalType: "struct ComposableStablePool.NewPoolParams",
+        name: "params",
+        type: "tuple",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "constructor",
+  },
   {
     anonymous: false,
     inputs: [
@@ -84,25 +163,31 @@ const _abi = [
     inputs: [
       {
         indexed: false,
-        internalType: "uint256",
-        name: "protocolSwapFeePercentage",
-        type: "uint256",
+        internalType: "bool",
+        name: "paused",
+        type: "bool",
       },
     ],
-    name: "CachedProtocolSwapFeePercentageUpdated",
+    name: "PausedStateChanged",
     type: "event",
   },
   {
     anonymous: false,
     inputs: [
       {
+        indexed: true,
+        internalType: "uint256",
+        name: "feeType",
+        type: "uint256",
+      },
+      {
         indexed: false,
         internalType: "uint256",
-        name: "bptAmount",
+        name: "protocolFeePercentage",
         type: "uint256",
       },
     ],
-    name: "DueProtocolFeeIncreased",
+    name: "ProtocolFeePercentageCacheUpdated",
     type: "event",
   },
   {
@@ -111,11 +196,11 @@ const _abi = [
       {
         indexed: false,
         internalType: "bool",
-        name: "paused",
+        name: "enabled",
         type: "bool",
       },
     ],
-    name: "PausedStateChanged",
+    name: "RecoveryModeStateChanged",
     type: "event",
   },
   {
@@ -136,9 +221,9 @@ const _abi = [
     inputs: [
       {
         indexed: true,
-        internalType: "contract IERC20",
-        name: "token",
-        type: "address",
+        internalType: "uint256",
+        name: "tokenIndex",
+        type: "uint256",
       },
       {
         indexed: false,
@@ -155,9 +240,9 @@ const _abi = [
     inputs: [
       {
         indexed: true,
-        internalType: "contract IERC20",
-        name: "token",
-        type: "address",
+        internalType: "uint256",
+        name: "tokenIndex",
+        type: "uint256",
       },
       {
         indexed: true,
@@ -199,6 +284,19 @@ const _abi = [
     ],
     name: "Transfer",
     type: "event",
+  },
+  {
+    inputs: [],
+    name: "DELEGATE_PROTOCOL_SWAP_FEES_SENTINEL",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
   },
   {
     inputs: [],
@@ -318,6 +416,20 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "disableRecoveryMode",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "enableRecoveryMode",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "bytes4",
@@ -331,6 +443,19 @@ const _abi = [
         internalType: "bytes32",
         name: "",
         type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getActualSupply",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
       },
     ],
     stateMutability: "view",
@@ -387,12 +512,12 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "getCachedProtocolSwapFeePercentage",
+    name: "getDomainSeparator",
     outputs: [
       {
-        internalType: "uint256",
+        internalType: "bytes32",
         name: "",
-        type: "uint256",
+        type: "bytes32",
       },
     ],
     stateMutability: "view",
@@ -400,29 +525,16 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "getDueProtocolFeeBptAmount",
+    name: "getLastJoinExitData",
     outputs: [
       {
         internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "getLastInvariant",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "lastInvariant",
+        name: "lastJoinExitAmplification",
         type: "uint256",
       },
       {
         internalType: "uint256",
-        name: "lastInvariantAmp",
+        name: "lastPostJoinExitInvariant",
         type: "uint256",
       },
     ],
@@ -440,6 +552,25 @@ const _abi = [
       },
     ],
     stateMutability: "pure",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+    ],
+    name: "getNextNonce",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -492,6 +623,51 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "feeType",
+        type: "uint256",
+      },
+    ],
+    name: "getProtocolFeePercentageCache",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getProtocolFeesCollector",
+    outputs: [
+      {
+        internalType: "contract IProtocolFeesCollector",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getProtocolSwapFeeDelegation",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "getRate",
     outputs: [
@@ -510,27 +686,8 @@ const _abi = [
     outputs: [
       {
         internalType: "contract IRateProvider[]",
-        name: "providers",
-        type: "address[]",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "contract IERC20",
-        name: "token",
-        type: "address",
-      },
-    ],
-    name: "getScalingFactor",
-    outputs: [
-      {
-        internalType: "uint256",
         name: "",
-        type: "uint256",
+        type: "address[]",
       },
     ],
     stateMutability: "view",
@@ -598,6 +755,11 @@ const _abi = [
       },
       {
         internalType: "uint256",
+        name: "oldRate",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
         name: "duration",
         type: "uint256",
       },
@@ -625,12 +787,12 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "getVirtualSupply",
+    name: "inRecoveryMode",
     outputs: [
       {
-        internalType: "uint256",
+        internalType: "bool",
         name: "",
-        type: "uint256",
+        type: "bool",
       },
     ],
     stateMutability: "view",
@@ -658,6 +820,25 @@ const _abi = [
       },
     ],
     stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "contract IERC20",
+        name: "token",
+        type: "address",
+      },
+    ],
+    name: "isTokenExemptFromYieldProtocolFee",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -882,79 +1063,10 @@ const _abi = [
     type: "function",
   },
   {
-    inputs: [
-      {
-        components: [
-          {
-            internalType: "enum IVault.SwapKind",
-            name: "kind",
-            type: "uint8",
-          },
-          {
-            internalType: "contract IERC20",
-            name: "tokenIn",
-            type: "address",
-          },
-          {
-            internalType: "contract IERC20",
-            name: "tokenOut",
-            type: "address",
-          },
-          {
-            internalType: "uint256",
-            name: "amount",
-            type: "uint256",
-          },
-          {
-            internalType: "bytes32",
-            name: "poolId",
-            type: "bytes32",
-          },
-          {
-            internalType: "uint256",
-            name: "lastChangeBlock",
-            type: "uint256",
-          },
-          {
-            internalType: "address",
-            name: "from",
-            type: "address",
-          },
-          {
-            internalType: "address",
-            name: "to",
-            type: "address",
-          },
-          {
-            internalType: "bytes",
-            name: "userData",
-            type: "bytes",
-          },
-        ],
-        internalType: "struct IPoolSwapStructs.SwapRequest",
-        name: "",
-        type: "tuple",
-      },
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    name: "onSwap",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "pure",
+    inputs: [],
+    name: "pause",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -1129,19 +1241,6 @@ const _abi = [
   {
     inputs: [
       {
-        internalType: "bool",
-        name: "paused",
-        type: "bool",
-      },
-    ],
-    name: "setPaused",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
         internalType: "uint256",
         name: "swapFeePercentage",
         type: "uint256",
@@ -1276,7 +1375,14 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "updateCachedProtocolSwapFeePercentage",
+    name: "unpause",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "updateProtocolFeePercentageCache",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
