@@ -4,6 +4,7 @@ import {
   ExecutionContext,
 } from '@cloudflare/workers-types';
 import { providers } from 'ethers';
+import { BigNumber } from 'ethers';
 
 export interface MonitorJob {
   run: (opts: JobOptions) => Promise<void>;
@@ -48,4 +49,15 @@ export interface OracleContractConfig {
   address: string;
   decimals: number;
   volatilityType: VolatilityType;
+}
+
+export interface VolumeKPI {
+  total: BigNumber;
+  lend: BigNumber;
+  borrow: BigNumber;
+}
+
+export interface CurrencyVolumeKPI {
+  usd: VolumeKPI;
+  local: VolumeKPI;
 }
