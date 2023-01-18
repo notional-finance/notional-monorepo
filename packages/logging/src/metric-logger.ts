@@ -1,4 +1,4 @@
-import { MetricLoggerOptions } from './types';
+import { DDSeries, MetricLoggerOptions } from './types';
 
 const DefaultConfig = {
   url: `https://api.datadoghq.com/api/v2/series`,
@@ -27,10 +27,9 @@ export async function submitMetrics(series: DDSeries) {
       },
     };
 
-    const resp = await fetch(config.url ?? DefaultConfig.url, opts);
-    // console.log(`submitMetrics: ${JSON.stringify(resp)}`);
-    return resp;
+    await fetch(config.url ?? DefaultConfig.url, opts);
   } catch (e) {
     console.error(e);
+    throw e;
   }
 }
