@@ -13,3 +13,19 @@ export type LogMessage = {
   chain?: string;
   [key: string]: unknown;
 };
+
+export type MetricLoggerOptions = {
+  apiKey: string;
+  url?: string;
+};
+
+export type DDMetric = {
+  name: string;
+  value: number;
+  tags: string[];
+  timestamp: number;
+};
+
+export type DDSeries = {
+  series: DDMetric[];
+};
