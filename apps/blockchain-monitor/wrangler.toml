@@ -10,17 +10,9 @@ usage_model = "bundled"
 [triggers]
 crons = ["* * * * *", "*/15 * * * *", "0 * * * *"]
 
-[env.local]
-name = "blockchain-monitor-local"
-
-[env.local.vars]
-NX_ENV = "local"
-VERSION = "v2"
-EXCHANGE_RATE_URL = "https://exchange-rates-dev.notional-finance.workers.dev"
-EXCHANGE_RATES_WORKER_NAME = "exchange-rates-dev"
-
-[env.local.durable_objects]
-bindings = [{name = "EXCHANGE_RATE_STORE", class_name = "ExchangeRateStore", script_name = "exchange-rates-dev"}]
+[[migrations]]
+tag = "v1"
+new_classes = ["ExchangeRateStore"]
 
 [env.dev]
 name = "blockchain-monitor-dev"
@@ -32,7 +24,7 @@ EXCHANGE_RATE_URL = "https://exchange-rates-dev.notional-finance.workers.dev"
 EXCHANGE_RATES_WORKER_NAME = "exchange-rates-dev"
 
 [env.dev.durable_objects]
-bindings = [{name = "EXCHANGE_RATE_STORE", class_name = "ExchangeRateStore", script_name = "exchange-rates-dev"}]
+bindings = [{name = "EXCHANGE_RATE_STORE", class_name = "ExchangeRateStore"}]
 
 [env.prod]
 name = "blockchain-monitor"

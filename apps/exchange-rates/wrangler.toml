@@ -11,17 +11,6 @@ usage_model = "bundled"
 tag = "v1"
 new_classes = ["ExchangeRateStore"]
 
-[env.local]
-name = "exchange-rates-local"
-
-[env.local.vars]
-NX_ENV = "local"
-VERSION = "v2"
-WORKER_NAME = "exchange-rates-local"
-
-[env.local.durable_objects]
-bindings = [{name = "EXCHANGE_RATE_STORE", class_name = "ExchangeRateStore"}]
-
 [env.dev]
 name = "exchange-rates-dev"
 
@@ -31,7 +20,7 @@ VERSION = "v2"
 WORKER_NAME = "exchange-rates-dev"
 
 [env.dev.durable_objects]
-bindings = [{name = "EXCHANGE_RATE_STORE", class_name = "ExchangeRateStore"}]
+bindings = [{name = "EXCHANGE_RATE_STORE", class_name = "ExchangeRateStore", script_name = "exchange-rates-dev"}]
 
 [env.prod]
 name = "exchange-rates"

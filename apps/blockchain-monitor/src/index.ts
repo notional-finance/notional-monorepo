@@ -1,6 +1,8 @@
-import { initLogger, log } from '@notional-finance/logging';
+import { initLogger, initMetricLogger, log } from '@notional-finance/logging';
 import { getJobs } from './monitors';
 import { JobMonitorEnv, initializeProviders } from '@notional-finance/monitors';
+import { ExchangeRateStore } from '@notional-finance/durable-objects';
+export { ExchangeRateStore };
 
 export default {
   async fetch(): Promise<Response> {
@@ -18,6 +20,9 @@ export default {
       service: 'blockchain-monitor',
       version,
       env: env.NX_ENV,
+      apiKey: env.NX_DD_API_KEY,
+    });
+    initMetricLogger({
       apiKey: env.NX_DD_API_KEY,
     });
     initializeProviders(env.ALCHEMY_KEY);

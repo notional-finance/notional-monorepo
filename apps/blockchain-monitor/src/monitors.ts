@@ -1,18 +1,17 @@
-import { MonitorSchedule } from '@notional-finance/monitors';
 import {
   MonitorJob,
   exchangeRateMonitorMainnet,
+  kpiMonitorMainnet,
+  MonitorSchedule,
 } from '@notional-finance/monitors';
 
 const jobs = {
-  local: new Map([
-    [MonitorSchedule.EVERY_MINUTE, [exchangeRateMonitorMainnet]],
-    [MonitorSchedule.EVERY_15_MINUTES, []],
-    [MonitorSchedule.EVERY_HOUR, []],
-  ]),
   dev: new Map([
     [MonitorSchedule.EVERY_MINUTE, []],
-    [MonitorSchedule.EVERY_15_MINUTES, [exchangeRateMonitorMainnet]],
+    [
+      MonitorSchedule.EVERY_15_MINUTES,
+      [exchangeRateMonitorMainnet, kpiMonitorMainnet],
+    ],
     [MonitorSchedule.EVERY_HOUR, []],
   ]),
   prod: new Map([
