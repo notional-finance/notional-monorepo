@@ -2,7 +2,6 @@ import {
   DurableObjectState,
   DurableObjectNamespace,
 } from '@cloudflare/workers-types';
-import { GetExchangeRatesResponse } from './types';
 
 export interface ExchangeRatesEnv {
   EXCHANGE_RATE_STORE: DurableObjectNamespace;
