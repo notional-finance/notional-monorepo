@@ -19,9 +19,10 @@ const kpis = {
   accounts: {},
 };
 
+let nowSeconds = 0;
+
 async function processLoanVolumes(volumes: DailyLendBorrowVolume[]) {
   // Group the volumes by period
-  const nowSeconds = new Date().getTime() / 1000;
   const lastDay = nowSeconds - secondsInDay;
   const lastWeek = nowSeconds - secondsInDay * 7;
   const lastMonth = nowSeconds - secondsInDay * 30;
@@ -37,8 +38,6 @@ async function processLoanVolumes(volumes: DailyLendBorrowVolume[]) {
   ['daily', 'weekly', 'monthly'].forEach((period) => {
     recordVolumeByCurrency(volumeByPeriod[period], period);
   });
-
-  console.log(`KPI: ${JSON.stringify(kpis)}`);
 }
 
 function recordOverallVolume(volumes: DailyLendBorrowVolume[]) {
@@ -57,7 +56,7 @@ function recordOverallVolume(volumes: DailyLendBorrowVolume[]) {
       tags: [`type:overall`, `chain:mainnet`, `volumeType:${key}}`],
       points: [
         {
-          timestamp: Math.round(new Date().getTime() / 1000),
+          timestamp: nowSeconds,
           value: FixedNumber.fromValue(volumeTotal[key], 8).toUnsafeFloat(),
         },
       ],
@@ -111,7 +110,7 @@ function recordVolumeByCurrency(
         tags: [`type:currency`, `chain:mainnet`, `volumeType:${key}}`],
         points: [
           {
-            timestamp: Math.round(new Date().getTime() / 1000),
+            timestamp: nowSeconds,
             value: FixedNumber.fromValue(volumeKPI[key], 8).toUnsafeFloat(),
           },
         ],
@@ -139,11 +138,10 @@ function getLocalVolumeKPI(volumes: DailyLendBorrowVolume[]): VolumeKPI {
       const usdRate = exchangeRatesUSD.get(
         `${v.currency.underlyingSymbol.toLowerCase()}_usd`
       );
-      const usdValue = usdRate
-        ? localValue
-            .mul(usdRate.rate)
-            .div(BigNumber.from(10).pow(usdRate.decimals))
-        : localValue;
+      if (!usdRate) throw new Error('No USD rate found for currency');
+      const usdValue = localValue
+        .mul(usdRate.rate)
+        .div(BigNumber.from(10).pow(usdRate.decimals));
       switch (v.tradeType.toLowerCase()) {
         case 'lend':
           acc.lend = acc.lend.add(usdValue);
@@ -170,7 +168,6 @@ function getLocalVolumeKPI(volumes: DailyLendBorrowVolume[]): VolumeKPI {
 
 async function processAccountResults(accounts: Account[]) {
   try {
-    const nowSeconds = new Date().getTime() / 1000;
     const dailyActive = accounts.filter(
       (a) => a.lastUpdateTimestamp > nowSeconds - secondsInDay
     );
@@ -215,7 +212,7 @@ async function processAccountResults(accounts: Account[]) {
         tags: [`period:${period}`, `type:overall`, `chain:mainnet`],
         points: [
           {
-            timestamp: Math.round(new Date().getTime() / 1000),
+            timestamp: nowSeconds,
             value: overall,
           },
         ],
@@ -225,7 +222,7 @@ async function processAccountResults(accounts: Account[]) {
         tags: [`period:${period}`, `type:borrowers`, `chain:mainnet`],
         points: [
           {
-            timestamp: Math.round(new Date().getTime() / 1000),
+            timestamp: nowSeconds,
             value: borrowers,
           },
         ],
@@ -266,6 +263,7 @@ function setExchangeRatesUSD(rates: ExchangeRate[]) {
 
 const run = async ({ env }: JobOptions) => {
   try {
+    nowSeconds = Math.round(new Date().getTime() / 1000);
     const id = env.EXCHANGE_RATE_STORE.idFromName(
       env.EXCHANGE_RATES_WORKER_NAME
     );
@@ -311,8 +309,6 @@ const run = async ({ env }: JobOptions) => {
       processAccountResults(accountsResult),
       processLoanVolumes(volumesResult),
     ]);
-
-    //console.log(`Volume: ${JSON.stringify(volumesResult[0])}`);
     await submitMetrics(series);
   } catch (e) {
     console.log(e);
