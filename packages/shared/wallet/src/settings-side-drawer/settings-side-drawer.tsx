@@ -1,11 +1,12 @@
 import { useState, useRef, useEffect, Dispatch, SetStateAction } from 'react';
-import { Box, styled, useTheme, Typography, Slide } from '@mui/material';
+import { Box, styled, useTheme, Slide } from '@mui/material';
 import { useOnboard } from '@notional-finance/notionable-hooks';
 import {
   SideBarSubHeader,
   Button,
   H4,
   ButtonText,
+  LabelValue,
 } from '@notional-finance/mui';
 import {
   SettingsItem,
@@ -190,11 +191,10 @@ const WalletButton = styled('div', {
   `
 );
 
-const Title = styled(Typography)(
+const Title = styled(LabelValue)(
   ({ theme }) => `
   margin-bottom: ${theme.spacing(2.5)};
   margin-top: ${theme.spacing(5)};
-  font-weight: 700;
   color: ${theme.palette.borders.accentDefault};
   text-transform: uppercase;
   `
