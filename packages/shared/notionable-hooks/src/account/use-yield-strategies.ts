@@ -4,6 +4,7 @@ import {
   TypedBigNumber,
   VaultFactory,
 } from '@notional-finance/sdk';
+import { useLocation } from 'react-router-dom';
 import { Market } from '@notional-finance/sdk/src/system';
 import { getNowSeconds, logError } from '@notional-finance/helpers';
 import {
@@ -47,6 +48,7 @@ export function useYieldStrategies(
   onlyLeveragedVaults: boolean
 ): YieldStrategies[] {
   const { system } = useNotional();
+  const { pathname: currentPath } = useLocation();
   const { accountDataCopy: accountData, noteSummary } = useAccount();
   const vaultPerformance = useObservableState(vaultPerformance$);
   const { activeVaultMarkets } = useObservableState(
@@ -133,6 +135,7 @@ export function useYieldStrategies(
         leveragePercentage,
         isLeveragedVault: true,
         routes: {
+          manageVault: `${currentPath}/manage-vault/?vaultAddress=${vaultConfig.vaultAddress}`,
           increasePosition: canIncreasePosition
             ? `/vaults/${vaultConfig.vaultAddress}?vaultAction=${VAULT_ACTIONS.INCREASE_POSITION}`
             : undefined,
