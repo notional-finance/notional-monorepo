@@ -14,7 +14,7 @@ const jobs = {
   prod: new Map([
     [MonitorSchedule.EVERY_MINUTE, [exchangeRateMonitorMainnet]],
     [MonitorSchedule.EVERY_15_MINUTES, []],
-    [MonitorSchedule.EVERY_HOUR, []],
+    [MonitorSchedule.EVERY_HOUR, [kpiMonitorMainnet]],
   ]),
 };
 export function getJobs(env: string): Map<string, MonitorJob[]> {
