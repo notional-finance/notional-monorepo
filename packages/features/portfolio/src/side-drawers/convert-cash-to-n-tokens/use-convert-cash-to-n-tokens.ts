@@ -1,6 +1,6 @@
 import { TypedBigNumber } from '@notional-finance/sdk';
 import { useFormState } from '@notional-finance/utils';
-import { errorMsgs } from './error-msgs';
+import { tradeErrors } from '@notional-finance/trade';
 import { TransactionData } from '@notional-finance/notionable';
 import { TradePropertyKeys } from '@notional-finance/trade';
 import { useNotional, useAccountCashBalance, useCurrencyData, useAccount } from '@notional-finance/notionable-hooks';
@@ -41,9 +41,7 @@ export function useConvertCashToNTokensInput(selectedToken: string, inputString:
 
   let errorMsg: MessageDescriptor | undefined;  
   if (maxBalance && inputAmount?.lte(maxBalance) === false) {
-    errorMsg = errorMsgs.insufficientBalance;
-  } else if (inputAmount?.isZero()) {
-    errorMsg = errorMsgs.inputGreaterThanZero;
+    errorMsg = tradeErrors.insufficientBalance;
   } else if (inputAmount === undefined) {
     errorMsg = undefined;
   }
