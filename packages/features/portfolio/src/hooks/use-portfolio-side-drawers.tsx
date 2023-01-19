@@ -16,6 +16,7 @@ import {
   Withdraw,
   WithdrawLend,
   WithdrawVault,
+  ManageVault,
 } from '../side-drawers';
 
 export const usePortfolioSideDrawers = () => {
@@ -41,6 +42,7 @@ export const usePortfolioSideDrawers = () => {
     [PORTFOLIO_ACTIONS.WITHDRAW_VAULT]: WithdrawVault,
     [PORTFOLIO_ACTIONS.WITHDRAW_VAULT_POST_MATURITY]: WithdrawVault,
     [PORTFOLIO_ACTIONS.ADD_TO_CALENDAR]: AddToCalendar,
+    [PORTFOLIO_ACTIONS.MANAGE_VAULT]: ManageVault,
   };
 
   const SideDrawerComponent =

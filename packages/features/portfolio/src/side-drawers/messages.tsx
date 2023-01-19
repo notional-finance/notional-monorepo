@@ -257,7 +257,14 @@ export const messages: Record<PORTFOLIO_ACTIONS, PortfolioMessages> = {
       description: '',
     },
   }),
-  // heading": "Deleverage Vault", description: ""},
-  // cta": "Deleverage", description: ""},
-  // tooltip": "", description: ""},
+  [PORTFOLIO_ACTIONS.MANAGE_VAULT]: defineMessages({
+    heading: {
+      defaultMessage: 'Manage {vaultName} Vault',
+      description: '',
+    },
+    helptext: {
+      defaultMessage: 'Manage your vault position.',
+      description: '',
+    },
+  }),
 };

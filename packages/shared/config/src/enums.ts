@@ -43,6 +43,7 @@ export enum PORTFOLIO_ACTIONS {
   WITHDRAW_VAULT_POST_MATURITY = 'withdraw-vault-post-maturity',
   GET_NOTIFIED = 'get-notified',
   REMIND_ME = 'remind-me',
+  MANAGE_VAULT = 'manage-vault',
 }
 
 export enum WITHDRAW_TYPE {
