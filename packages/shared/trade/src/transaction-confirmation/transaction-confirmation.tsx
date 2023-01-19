@@ -3,7 +3,7 @@ import { FormattedMessage } from 'react-intl';
 import { useLocation } from 'react-router';
 import { PopulatedTransaction, ethers } from 'ethers';
 import { styled, Divider, useTheme } from '@mui/material';
-import { Drawer, ExternalLink } from '@notional-finance/mui';
+import { Drawer, ExternalLink, HeadingSubtitle } from '@notional-finance/mui';
 import { Account } from '@notional-finance/sdk';
 import { useAccount, useNotional } from '@notional-finance/notionable-hooks';
 import { trackEvent, logError } from '@notional-finance/helpers';
@@ -177,9 +177,8 @@ export const TransactionConfirmation = ({
   return showDrawer ? <Drawer size="large">{inner}</Drawer> : inner;
 };
 
-const TermsOfService = styled('p')(
+const TermsOfService = styled(HeadingSubtitle)(
   ({ theme }) => `
-  font-size: 1rem;
   margin-top: 1rem;
   margin-bottom: 1.5rem;
   color: ${theme.palette.borders.accentPaper};

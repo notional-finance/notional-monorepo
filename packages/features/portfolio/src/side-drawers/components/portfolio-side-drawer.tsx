@@ -68,6 +68,7 @@ export const PortfolioSideDrawer = ({
       showDrawer={false}
       canSubmit={canSubmit}
       onCancelCallback={() => clearSideDrawer(returnToPortfolio)}
+      hideTextOnMobile={false}
     >
       {children}
       <RiskSlider key={'risk-slider'} updatedAccountData={updatedAccountData} />
