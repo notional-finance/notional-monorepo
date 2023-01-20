@@ -15,8 +15,8 @@ import {
   TooltipProps,
   ComposedChart,
 } from 'recharts';
-import { HistoricalReturn } from '../hooks/use-historical-returns';
-import { messages } from '../messages';
+import { HistoricalReturn } from '../../hooks/use-historical-returns';
+import { messages } from '../../messages';
 import { countUpLeverageRatio } from '@notional-finance/trade';
 
 const ONE_WEEK = 86400 * 7;
