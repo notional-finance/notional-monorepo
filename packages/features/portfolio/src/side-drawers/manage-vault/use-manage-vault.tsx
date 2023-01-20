@@ -8,7 +8,7 @@ export function useManageVault() {
       href: '',
     },
     {
-      label: <FormattedMessage defaultMessage={'Withdraw and repay debt'} />,
+      label: <FormattedMessage defaultMessage={'Withdraw and Repay Debt'} />,
       href: '',
     },
   ];

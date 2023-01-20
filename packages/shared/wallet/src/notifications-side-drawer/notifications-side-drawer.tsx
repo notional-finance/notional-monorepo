@@ -105,7 +105,6 @@ const ContentBlock = styled(Box)(
   border-radius: ${theme.shape.borderRadius()};
   margin: 30px 0px;
   background: ${theme.palette.background.default};
-  border: ${theme.shape.borderStandard};
   cursor: pointer;
   `
 );

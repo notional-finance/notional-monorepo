@@ -41,6 +41,7 @@ export * from './lib/slider-basic/slider-basic';
 export * from './lib/slider-risk/slider-risk';
 export * from './lib/side-bar-sub-header/side-bar-sub-header';
 export * from './lib/side-drawer/side-drawer';
+export * from './lib/side-drawer-button/side-drawer-button';
 export * from './lib/switch/switch';
 export * from './lib/tab-toggle/tab-toggle';
 export * from './lib/toggle-switch/toggle-switch';
