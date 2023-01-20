@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [0.2.2](https://github.com/notional-finance/notional-monorepo/compare/contracts-0.2.1...contracts-0.2.2) (2023-01-20)
+
+
+### Bug Fixes
+
+* **contracts:** generate missing contracts ([ff81516](https://github.com/notional-finance/notional-monorepo/commit/ff81516434c11aca884214cf1554e598bc245166))
+
 ## [0.2.1](https://github.com/notional-finance/notional-monorepo/compare/contracts-0.2.0...contracts-0.2.1) (2023-01-04)
 
 
