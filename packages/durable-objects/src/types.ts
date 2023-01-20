@@ -1,9 +1,15 @@
 import { BigNumber } from 'ethers';
 
-export interface ExchangeRateResponse {
+export interface GetExchangeRatesResponse {
   blockNumber: number;
   network: string;
-  rates: {
-    [key: string]: BigNumber;
-  };
+  results: ExchangeRate[];
+}
+
+export interface ExchangeRate {
+  quote: string;
+  base: string;
+  value: BigNumber;
+  decimals: number;
+  metadata: Record<string, unknown>;
 }

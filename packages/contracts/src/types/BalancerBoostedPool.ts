@@ -27,6 +27,54 @@ import type {
   PromiseOrValue,
 } from "./common";
 
+export declare namespace ComposableStablePool {
+  export type NewPoolParamsStruct = {
+    vault: PromiseOrValue<string>;
+    protocolFeeProvider: PromiseOrValue<string>;
+    name: PromiseOrValue<string>;
+    symbol: PromiseOrValue<string>;
+    tokens: PromiseOrValue<string>[];
+    rateProviders: PromiseOrValue<string>[];
+    tokenRateCacheDurations: PromiseOrValue<BigNumberish>[];
+    exemptFromYieldProtocolFeeFlags: PromiseOrValue<boolean>[];
+    amplificationParameter: PromiseOrValue<BigNumberish>;
+    swapFeePercentage: PromiseOrValue<BigNumberish>;
+    pauseWindowDuration: PromiseOrValue<BigNumberish>;
+    bufferPeriodDuration: PromiseOrValue<BigNumberish>;
+    owner: PromiseOrValue<string>;
+  };
+
+  export type NewPoolParamsStructOutput = [
+    string,
+    string,
+    string,
+    string,
+    string[],
+    string[],
+    BigNumber[],
+    boolean[],
+    BigNumber,
+    BigNumber,
+    BigNumber,
+    BigNumber,
+    string
+  ] & {
+    vault: string;
+    protocolFeeProvider: string;
+    name: string;
+    symbol: string;
+    tokens: string[];
+    rateProviders: string[];
+    tokenRateCacheDurations: BigNumber[];
+    exemptFromYieldProtocolFeeFlags: boolean[];
+    amplificationParameter: BigNumber;
+    swapFeePercentage: BigNumber;
+    pauseWindowDuration: BigNumber;
+    bufferPeriodDuration: BigNumber;
+    owner: string;
+  };
+}
+
 export declare namespace IPoolSwapStructs {
   export type SwapRequestStruct = {
     kind: PromiseOrValue<BigNumberish>;
@@ -65,44 +113,50 @@ export declare namespace IPoolSwapStructs {
 
 export interface BalancerBoostedPoolInterface extends utils.Interface {
   functions: {
+    "DELEGATE_PROTOCOL_SWAP_FEES_SENTINEL()": FunctionFragment;
     "DOMAIN_SEPARATOR()": FunctionFragment;
     "allowance(address,address)": FunctionFragment;
     "approve(address,uint256)": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
     "decimals()": FunctionFragment;
     "decreaseAllowance(address,uint256)": FunctionFragment;
+    "disableRecoveryMode()": FunctionFragment;
+    "enableRecoveryMode()": FunctionFragment;
     "getActionId(bytes4)": FunctionFragment;
+    "getActualSupply()": FunctionFragment;
     "getAmplificationParameter()": FunctionFragment;
     "getAuthorizer()": FunctionFragment;
     "getBptIndex()": FunctionFragment;
-    "getCachedProtocolSwapFeePercentage()": FunctionFragment;
-    "getDueProtocolFeeBptAmount()": FunctionFragment;
-    "getLastInvariant()": FunctionFragment;
+    "getDomainSeparator()": FunctionFragment;
+    "getLastJoinExitData()": FunctionFragment;
     "getMinimumBpt()": FunctionFragment;
+    "getNextNonce(address)": FunctionFragment;
     "getOwner()": FunctionFragment;
     "getPausedState()": FunctionFragment;
     "getPoolId()": FunctionFragment;
+    "getProtocolFeePercentageCache(uint256)": FunctionFragment;
+    "getProtocolFeesCollector()": FunctionFragment;
+    "getProtocolSwapFeeDelegation()": FunctionFragment;
     "getRate()": FunctionFragment;
     "getRateProviders()": FunctionFragment;
-    "getScalingFactor(address)": FunctionFragment;
     "getScalingFactors()": FunctionFragment;
     "getSwapFeePercentage()": FunctionFragment;
     "getTokenRate(address)": FunctionFragment;
     "getTokenRateCache(address)": FunctionFragment;
     "getVault()": FunctionFragment;
-    "getVirtualSupply()": FunctionFragment;
+    "inRecoveryMode()": FunctionFragment;
     "increaseAllowance(address,uint256)": FunctionFragment;
+    "isTokenExemptFromYieldProtocolFee(address)": FunctionFragment;
     "name()": FunctionFragment;
     "nonces(address)": FunctionFragment;
     "onExitPool(bytes32,address,address,uint256[],uint256,uint256,bytes)": FunctionFragment;
     "onJoinPool(bytes32,address,address,uint256[],uint256,uint256,bytes)": FunctionFragment;
     "onSwap((uint8,address,address,uint256,bytes32,uint256,address,address,bytes),uint256[],uint256,uint256)": FunctionFragment;
-    "onSwap((uint8,address,address,uint256,bytes32,uint256,address,address,bytes),uint256,uint256)": FunctionFragment;
+    "pause()": FunctionFragment;
     "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)": FunctionFragment;
     "queryExit(bytes32,address,address,uint256[],uint256,uint256,bytes)": FunctionFragment;
     "queryJoin(bytes32,address,address,uint256[],uint256,uint256,bytes)": FunctionFragment;
     "setAssetManagerPoolConfig(address,bytes)": FunctionFragment;
-    "setPaused(bool)": FunctionFragment;
     "setSwapFeePercentage(uint256)": FunctionFragment;
     "setTokenRateCacheDuration(address,uint256)": FunctionFragment;
     "startAmplificationParameterUpdate(uint256,uint256)": FunctionFragment;
@@ -111,50 +165,57 @@ export interface BalancerBoostedPoolInterface extends utils.Interface {
     "totalSupply()": FunctionFragment;
     "transfer(address,uint256)": FunctionFragment;
     "transferFrom(address,address,uint256)": FunctionFragment;
-    "updateCachedProtocolSwapFeePercentage()": FunctionFragment;
+    "unpause()": FunctionFragment;
+    "updateProtocolFeePercentageCache()": FunctionFragment;
     "updateTokenRateCache(address)": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
+      | "DELEGATE_PROTOCOL_SWAP_FEES_SENTINEL"
       | "DOMAIN_SEPARATOR"
       | "allowance"
       | "approve"
       | "balanceOf"
       | "decimals"
       | "decreaseAllowance"
+      | "disableRecoveryMode"
+      | "enableRecoveryMode"
       | "getActionId"
+      | "getActualSupply"
       | "getAmplificationParameter"
       | "getAuthorizer"
       | "getBptIndex"
-      | "getCachedProtocolSwapFeePercentage"
-      | "getDueProtocolFeeBptAmount"
-      | "getLastInvariant"
+      | "getDomainSeparator"
+      | "getLastJoinExitData"
       | "getMinimumBpt"
+      | "getNextNonce"
       | "getOwner"
       | "getPausedState"
       | "getPoolId"
+      | "getProtocolFeePercentageCache"
+      | "getProtocolFeesCollector"
+      | "getProtocolSwapFeeDelegation"
       | "getRate"
       | "getRateProviders"
-      | "getScalingFactor"
       | "getScalingFactors"
       | "getSwapFeePercentage"
       | "getTokenRate"
       | "getTokenRateCache"
       | "getVault"
-      | "getVirtualSupply"
+      | "inRecoveryMode"
       | "increaseAllowance"
+      | "isTokenExemptFromYieldProtocolFee"
       | "name"
       | "nonces"
       | "onExitPool"
       | "onJoinPool"
-      | "onSwap((uint8,address,address,uint256,bytes32,uint256,address,address,bytes),uint256[],uint256,uint256)"
-      | "onSwap((uint8,address,address,uint256,bytes32,uint256,address,address,bytes),uint256,uint256)"
+      | "onSwap"
+      | "pause"
       | "permit"
       | "queryExit"
       | "queryJoin"
       | "setAssetManagerPoolConfig"
-      | "setPaused"
       | "setSwapFeePercentage"
       | "setTokenRateCacheDuration"
       | "startAmplificationParameterUpdate"
@@ -163,10 +224,15 @@ export interface BalancerBoostedPoolInterface extends utils.Interface {
       | "totalSupply"
       | "transfer"
       | "transferFrom"
-      | "updateCachedProtocolSwapFeePercentage"
+      | "unpause"
+      | "updateProtocolFeePercentageCache"
       | "updateTokenRateCache"
   ): FunctionFragment;
 
+  encodeFunctionData(
+    functionFragment: "DELEGATE_PROTOCOL_SWAP_FEES_SENTINEL",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "DOMAIN_SEPARATOR",
     values?: undefined
@@ -189,8 +255,20 @@ export interface BalancerBoostedPoolInterface extends utils.Interface {
     values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
+    functionFragment: "disableRecoveryMode",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "enableRecoveryMode",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "getActionId",
     values: [PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getActualSupply",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "getAmplificationParameter",
@@ -205,20 +283,20 @@ export interface BalancerBoostedPoolInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "getCachedProtocolSwapFeePercentage",
+    functionFragment: "getDomainSeparator",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "getDueProtocolFeeBptAmount",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getLastInvariant",
+    functionFragment: "getLastJoinExitData",
     values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "getMinimumBpt",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getNextNonce",
+    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(functionFragment: "getOwner", values?: undefined): string;
   encodeFunctionData(
@@ -226,14 +304,22 @@ export interface BalancerBoostedPoolInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "getPoolId", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "getProtocolFeePercentageCache",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getProtocolFeesCollector",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getProtocolSwapFeeDelegation",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "getRate", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "getRateProviders",
     values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getScalingFactor",
-    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "getScalingFactors",
@@ -253,12 +339,16 @@ export interface BalancerBoostedPoolInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "getVault", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "getVirtualSupply",
+    functionFragment: "inRecoveryMode",
     values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "increaseAllowance",
     values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isTokenExemptFromYieldProtocolFee",
+    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
   encodeFunctionData(
@@ -290,7 +380,7 @@ export interface BalancerBoostedPoolInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "onSwap((uint8,address,address,uint256,bytes32,uint256,address,address,bytes),uint256[],uint256,uint256)",
+    functionFragment: "onSwap",
     values: [
       IPoolSwapStructs.SwapRequestStruct,
       PromiseOrValue<BigNumberish>[],
@@ -298,14 +388,7 @@ export interface BalancerBoostedPoolInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>
     ]
   ): string;
-  encodeFunctionData(
-    functionFragment: "onSwap((uint8,address,address,uint256,bytes32,uint256,address,address,bytes),uint256,uint256)",
-    values: [
-      IPoolSwapStructs.SwapRequestStruct,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>
-    ]
-  ): string;
+  encodeFunctionData(functionFragment: "pause", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "permit",
     values: [
@@ -347,10 +430,6 @@ export interface BalancerBoostedPoolInterface extends utils.Interface {
     values: [PromiseOrValue<string>, PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
-    functionFragment: "setPaused",
-    values: [PromiseOrValue<boolean>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "setSwapFeePercentage",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
@@ -383,8 +462,9 @@ export interface BalancerBoostedPoolInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>
     ]
   ): string;
+  encodeFunctionData(functionFragment: "unpause", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "updateCachedProtocolSwapFeePercentage",
+    functionFragment: "updateProtocolFeePercentageCache",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -392,6 +472,10 @@ export interface BalancerBoostedPoolInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
 
+  decodeFunctionResult(
+    functionFragment: "DELEGATE_PROTOCOL_SWAP_FEES_SENTINEL",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "DOMAIN_SEPARATOR",
     data: BytesLike
@@ -405,7 +489,19 @@ export interface BalancerBoostedPoolInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "disableRecoveryMode",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "enableRecoveryMode",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getActionId",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getActualSupply",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -421,19 +517,19 @@ export interface BalancerBoostedPoolInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getCachedProtocolSwapFeePercentage",
+    functionFragment: "getDomainSeparator",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getDueProtocolFeeBptAmount",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getLastInvariant",
+    functionFragment: "getLastJoinExitData",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "getMinimumBpt",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getNextNonce",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "getOwner", data: BytesLike): Result;
@@ -442,13 +538,21 @@ export interface BalancerBoostedPoolInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "getPoolId", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "getRate", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "getRateProviders",
+    functionFragment: "getProtocolFeePercentageCache",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getScalingFactor",
+    functionFragment: "getProtocolFeesCollector",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getProtocolSwapFeeDelegation",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "getRate", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getRateProviders",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -469,25 +573,23 @@ export interface BalancerBoostedPoolInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "getVault", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "getVirtualSupply",
+    functionFragment: "inRecoveryMode",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "increaseAllowance",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "isTokenExemptFromYieldProtocolFee",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "nonces", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "onExitPool", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "onJoinPool", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "onSwap((uint8,address,address,uint256,bytes32,uint256,address,address,bytes),uint256[],uint256,uint256)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "onSwap((uint8,address,address,uint256,bytes32,uint256,address,address,bytes),uint256,uint256)",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "onSwap", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "pause", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "permit", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "queryExit", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "queryJoin", data: BytesLike): Result;
@@ -495,7 +597,6 @@ export interface BalancerBoostedPoolInterface extends utils.Interface {
     functionFragment: "setAssetManagerPoolConfig",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "setPaused", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setSwapFeePercentage",
     data: BytesLike
@@ -522,8 +623,9 @@ export interface BalancerBoostedPoolInterface extends utils.Interface {
     functionFragment: "transferFrom",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "unpause", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "updateCachedProtocolSwapFeePercentage",
+    functionFragment: "updateProtocolFeePercentageCache",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -535,23 +637,23 @@ export interface BalancerBoostedPoolInterface extends utils.Interface {
     "AmpUpdateStarted(uint256,uint256,uint256,uint256)": EventFragment;
     "AmpUpdateStopped(uint256)": EventFragment;
     "Approval(address,address,uint256)": EventFragment;
-    "CachedProtocolSwapFeePercentageUpdated(uint256)": EventFragment;
-    "DueProtocolFeeIncreased(uint256)": EventFragment;
     "PausedStateChanged(bool)": EventFragment;
+    "ProtocolFeePercentageCacheUpdated(uint256,uint256)": EventFragment;
+    "RecoveryModeStateChanged(bool)": EventFragment;
     "SwapFeePercentageChanged(uint256)": EventFragment;
-    "TokenRateCacheUpdated(address,uint256)": EventFragment;
-    "TokenRateProviderSet(address,address,uint256)": EventFragment;
+    "TokenRateCacheUpdated(uint256,uint256)": EventFragment;
+    "TokenRateProviderSet(uint256,address,uint256)": EventFragment;
     "Transfer(address,address,uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "AmpUpdateStarted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "AmpUpdateStopped"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
-  getEvent(
-    nameOrSignatureOrTopic: "CachedProtocolSwapFeePercentageUpdated"
-  ): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "DueProtocolFeeIncreased"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PausedStateChanged"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "ProtocolFeePercentageCacheUpdated"
+  ): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RecoveryModeStateChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SwapFeePercentageChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TokenRateCacheUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TokenRateProviderSet"): EventFragment;
@@ -595,28 +697,6 @@ export type ApprovalEvent = TypedEvent<
 
 export type ApprovalEventFilter = TypedEventFilter<ApprovalEvent>;
 
-export interface CachedProtocolSwapFeePercentageUpdatedEventObject {
-  protocolSwapFeePercentage: BigNumber;
-}
-export type CachedProtocolSwapFeePercentageUpdatedEvent = TypedEvent<
-  [BigNumber],
-  CachedProtocolSwapFeePercentageUpdatedEventObject
->;
-
-export type CachedProtocolSwapFeePercentageUpdatedEventFilter =
-  TypedEventFilter<CachedProtocolSwapFeePercentageUpdatedEvent>;
-
-export interface DueProtocolFeeIncreasedEventObject {
-  bptAmount: BigNumber;
-}
-export type DueProtocolFeeIncreasedEvent = TypedEvent<
-  [BigNumber],
-  DueProtocolFeeIncreasedEventObject
->;
-
-export type DueProtocolFeeIncreasedEventFilter =
-  TypedEventFilter<DueProtocolFeeIncreasedEvent>;
-
 export interface PausedStateChangedEventObject {
   paused: boolean;
 }
@@ -627,6 +707,29 @@ export type PausedStateChangedEvent = TypedEvent<
 
 export type PausedStateChangedEventFilter =
   TypedEventFilter<PausedStateChangedEvent>;
+
+export interface ProtocolFeePercentageCacheUpdatedEventObject {
+  feeType: BigNumber;
+  protocolFeePercentage: BigNumber;
+}
+export type ProtocolFeePercentageCacheUpdatedEvent = TypedEvent<
+  [BigNumber, BigNumber],
+  ProtocolFeePercentageCacheUpdatedEventObject
+>;
+
+export type ProtocolFeePercentageCacheUpdatedEventFilter =
+  TypedEventFilter<ProtocolFeePercentageCacheUpdatedEvent>;
+
+export interface RecoveryModeStateChangedEventObject {
+  enabled: boolean;
+}
+export type RecoveryModeStateChangedEvent = TypedEvent<
+  [boolean],
+  RecoveryModeStateChangedEventObject
+>;
+
+export type RecoveryModeStateChangedEventFilter =
+  TypedEventFilter<RecoveryModeStateChangedEvent>;
 
 export interface SwapFeePercentageChangedEventObject {
   swapFeePercentage: BigNumber;
@@ -640,11 +743,11 @@ export type SwapFeePercentageChangedEventFilter =
   TypedEventFilter<SwapFeePercentageChangedEvent>;
 
 export interface TokenRateCacheUpdatedEventObject {
-  token: string;
+  tokenIndex: BigNumber;
   rate: BigNumber;
 }
 export type TokenRateCacheUpdatedEvent = TypedEvent<
-  [string, BigNumber],
+  [BigNumber, BigNumber],
   TokenRateCacheUpdatedEventObject
 >;
 
@@ -652,12 +755,12 @@ export type TokenRateCacheUpdatedEventFilter =
   TypedEventFilter<TokenRateCacheUpdatedEvent>;
 
 export interface TokenRateProviderSetEventObject {
-  token: string;
+  tokenIndex: BigNumber;
   provider: string;
   cacheDuration: BigNumber;
 }
 export type TokenRateProviderSetEvent = TypedEvent<
-  [string, string, BigNumber],
+  [BigNumber, string, BigNumber],
   TokenRateProviderSetEventObject
 >;
 
@@ -703,6 +806,10 @@ export interface BalancerBoostedPool extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    DELEGATE_PROTOCOL_SWAP_FEES_SENTINEL(
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
     DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<[string]>;
 
     allowance(
@@ -730,10 +837,20 @@ export interface BalancerBoostedPool extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    disableRecoveryMode(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    enableRecoveryMode(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     getActionId(
       selector: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[string]>;
+
+    getActualSupply(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     getAmplificationParameter(
       overrides?: CallOverrides
@@ -749,22 +866,23 @@ export interface BalancerBoostedPool extends BaseContract {
 
     getBptIndex(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    getCachedProtocolSwapFeePercentage(
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+    getDomainSeparator(overrides?: CallOverrides): Promise<[string]>;
 
-    getDueProtocolFeeBptAmount(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    getLastInvariant(
+    getLastJoinExitData(
       overrides?: CallOverrides
     ): Promise<
       [BigNumber, BigNumber] & {
-        lastInvariant: BigNumber;
-        lastInvariantAmp: BigNumber;
+        lastJoinExitAmplification: BigNumber;
+        lastPostJoinExitInvariant: BigNumber;
       }
     >;
 
     getMinimumBpt(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    getNextNonce(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
 
     getOwner(overrides?: CallOverrides): Promise<[string]>;
 
@@ -780,16 +898,18 @@ export interface BalancerBoostedPool extends BaseContract {
 
     getPoolId(overrides?: CallOverrides): Promise<[string]>;
 
-    getRate(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    getRateProviders(
-      overrides?: CallOverrides
-    ): Promise<[string[]] & { providers: string[] }>;
-
-    getScalingFactor(
-      token: PromiseOrValue<string>,
+    getProtocolFeePercentageCache(
+      feeType: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
+
+    getProtocolFeesCollector(overrides?: CallOverrides): Promise<[string]>;
+
+    getProtocolSwapFeeDelegation(overrides?: CallOverrides): Promise<[boolean]>;
+
+    getRate(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    getRateProviders(overrides?: CallOverrides): Promise<[string[]]>;
 
     getScalingFactors(overrides?: CallOverrides): Promise<[BigNumber[]]>;
 
@@ -804,8 +924,9 @@ export interface BalancerBoostedPool extends BaseContract {
       token: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<
-      [BigNumber, BigNumber, BigNumber] & {
+      [BigNumber, BigNumber, BigNumber, BigNumber] & {
         rate: BigNumber;
+        oldRate: BigNumber;
         duration: BigNumber;
         expires: BigNumber;
       }
@@ -813,13 +934,18 @@ export interface BalancerBoostedPool extends BaseContract {
 
     getVault(overrides?: CallOverrides): Promise<[string]>;
 
-    getVirtualSupply(overrides?: CallOverrides): Promise<[BigNumber]>;
+    inRecoveryMode(overrides?: CallOverrides): Promise<[boolean]>;
 
     increaseAllowance(
       spender: PromiseOrValue<string>,
       addedValue: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    isTokenExemptFromYieldProtocolFee(
+      token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
 
     name(overrides?: CallOverrides): Promise<[string]>;
 
@@ -850,7 +976,7 @@ export interface BalancerBoostedPool extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "onSwap((uint8,address,address,uint256,bytes32,uint256,address,address,bytes),uint256[],uint256,uint256)"(
+    onSwap(
       swapRequest: IPoolSwapStructs.SwapRequestStruct,
       balances: PromiseOrValue<BigNumberish>[],
       indexIn: PromiseOrValue<BigNumberish>,
@@ -858,12 +984,9 @@ export interface BalancerBoostedPool extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "onSwap((uint8,address,address,uint256,bytes32,uint256,address,address,bytes),uint256,uint256)"(
-      arg0: IPoolSwapStructs.SwapRequestStruct,
-      arg1: PromiseOrValue<BigNumberish>,
-      arg2: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+    pause(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     permit(
       owner: PromiseOrValue<string>,
@@ -901,11 +1024,6 @@ export interface BalancerBoostedPool extends BaseContract {
     setAssetManagerPoolConfig(
       token: PromiseOrValue<string>,
       poolConfig: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    setPaused(
-      paused: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -947,7 +1065,11 @@ export interface BalancerBoostedPool extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    updateCachedProtocolSwapFeePercentage(
+    unpause(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    updateProtocolFeePercentageCache(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -956,6 +1078,10 @@ export interface BalancerBoostedPool extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
+
+  DELEGATE_PROTOCOL_SWAP_FEES_SENTINEL(
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<string>;
 
@@ -984,10 +1110,20 @@ export interface BalancerBoostedPool extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  disableRecoveryMode(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  enableRecoveryMode(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   getActionId(
     selector: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<string>;
+
+  getActualSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
   getAmplificationParameter(
     overrides?: CallOverrides
@@ -1003,22 +1139,23 @@ export interface BalancerBoostedPool extends BaseContract {
 
   getBptIndex(overrides?: CallOverrides): Promise<BigNumber>;
 
-  getCachedProtocolSwapFeePercentage(
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
+  getDomainSeparator(overrides?: CallOverrides): Promise<string>;
 
-  getDueProtocolFeeBptAmount(overrides?: CallOverrides): Promise<BigNumber>;
-
-  getLastInvariant(
+  getLastJoinExitData(
     overrides?: CallOverrides
   ): Promise<
     [BigNumber, BigNumber] & {
-      lastInvariant: BigNumber;
-      lastInvariantAmp: BigNumber;
+      lastJoinExitAmplification: BigNumber;
+      lastPostJoinExitInvariant: BigNumber;
     }
   >;
 
   getMinimumBpt(overrides?: CallOverrides): Promise<BigNumber>;
+
+  getNextNonce(
+    account: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
 
   getOwner(overrides?: CallOverrides): Promise<string>;
 
@@ -1034,14 +1171,18 @@ export interface BalancerBoostedPool extends BaseContract {
 
   getPoolId(overrides?: CallOverrides): Promise<string>;
 
+  getProtocolFeePercentageCache(
+    feeType: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  getProtocolFeesCollector(overrides?: CallOverrides): Promise<string>;
+
+  getProtocolSwapFeeDelegation(overrides?: CallOverrides): Promise<boolean>;
+
   getRate(overrides?: CallOverrides): Promise<BigNumber>;
 
   getRateProviders(overrides?: CallOverrides): Promise<string[]>;
-
-  getScalingFactor(
-    token: PromiseOrValue<string>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
 
   getScalingFactors(overrides?: CallOverrides): Promise<BigNumber[]>;
 
@@ -1056,8 +1197,9 @@ export interface BalancerBoostedPool extends BaseContract {
     token: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<
-    [BigNumber, BigNumber, BigNumber] & {
+    [BigNumber, BigNumber, BigNumber, BigNumber] & {
       rate: BigNumber;
+      oldRate: BigNumber;
       duration: BigNumber;
       expires: BigNumber;
     }
@@ -1065,13 +1207,18 @@ export interface BalancerBoostedPool extends BaseContract {
 
   getVault(overrides?: CallOverrides): Promise<string>;
 
-  getVirtualSupply(overrides?: CallOverrides): Promise<BigNumber>;
+  inRecoveryMode(overrides?: CallOverrides): Promise<boolean>;
 
   increaseAllowance(
     spender: PromiseOrValue<string>,
     addedValue: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
+
+  isTokenExemptFromYieldProtocolFee(
+    token: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
   name(overrides?: CallOverrides): Promise<string>;
 
@@ -1102,7 +1249,7 @@ export interface BalancerBoostedPool extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "onSwap((uint8,address,address,uint256,bytes32,uint256,address,address,bytes),uint256[],uint256,uint256)"(
+  onSwap(
     swapRequest: IPoolSwapStructs.SwapRequestStruct,
     balances: PromiseOrValue<BigNumberish>[],
     indexIn: PromiseOrValue<BigNumberish>,
@@ -1110,12 +1257,9 @@ export interface BalancerBoostedPool extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "onSwap((uint8,address,address,uint256,bytes32,uint256,address,address,bytes),uint256,uint256)"(
-    arg0: IPoolSwapStructs.SwapRequestStruct,
-    arg1: PromiseOrValue<BigNumberish>,
-    arg2: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
+  pause(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   permit(
     owner: PromiseOrValue<string>,
@@ -1153,11 +1297,6 @@ export interface BalancerBoostedPool extends BaseContract {
   setAssetManagerPoolConfig(
     token: PromiseOrValue<string>,
     poolConfig: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  setPaused(
-    paused: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1199,7 +1338,11 @@ export interface BalancerBoostedPool extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  updateCachedProtocolSwapFeePercentage(
+  unpause(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  updateProtocolFeePercentageCache(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1209,6 +1352,10 @@ export interface BalancerBoostedPool extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    DELEGATE_PROTOCOL_SWAP_FEES_SENTINEL(
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<string>;
 
     allowance(
@@ -1236,10 +1383,16 @@ export interface BalancerBoostedPool extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
+    disableRecoveryMode(overrides?: CallOverrides): Promise<void>;
+
+    enableRecoveryMode(overrides?: CallOverrides): Promise<void>;
+
     getActionId(
       selector: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<string>;
+
+    getActualSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
     getAmplificationParameter(
       overrides?: CallOverrides
@@ -1255,22 +1408,23 @@ export interface BalancerBoostedPool extends BaseContract {
 
     getBptIndex(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getCachedProtocolSwapFeePercentage(
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    getDomainSeparator(overrides?: CallOverrides): Promise<string>;
 
-    getDueProtocolFeeBptAmount(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getLastInvariant(
+    getLastJoinExitData(
       overrides?: CallOverrides
     ): Promise<
       [BigNumber, BigNumber] & {
-        lastInvariant: BigNumber;
-        lastInvariantAmp: BigNumber;
+        lastJoinExitAmplification: BigNumber;
+        lastPostJoinExitInvariant: BigNumber;
       }
     >;
 
     getMinimumBpt(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getNextNonce(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     getOwner(overrides?: CallOverrides): Promise<string>;
 
@@ -1286,14 +1440,18 @@ export interface BalancerBoostedPool extends BaseContract {
 
     getPoolId(overrides?: CallOverrides): Promise<string>;
 
+    getProtocolFeePercentageCache(
+      feeType: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getProtocolFeesCollector(overrides?: CallOverrides): Promise<string>;
+
+    getProtocolSwapFeeDelegation(overrides?: CallOverrides): Promise<boolean>;
+
     getRate(overrides?: CallOverrides): Promise<BigNumber>;
 
     getRateProviders(overrides?: CallOverrides): Promise<string[]>;
-
-    getScalingFactor(
-      token: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
 
     getScalingFactors(overrides?: CallOverrides): Promise<BigNumber[]>;
 
@@ -1308,8 +1466,9 @@ export interface BalancerBoostedPool extends BaseContract {
       token: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<
-      [BigNumber, BigNumber, BigNumber] & {
+      [BigNumber, BigNumber, BigNumber, BigNumber] & {
         rate: BigNumber;
+        oldRate: BigNumber;
         duration: BigNumber;
         expires: BigNumber;
       }
@@ -1317,11 +1476,16 @@ export interface BalancerBoostedPool extends BaseContract {
 
     getVault(overrides?: CallOverrides): Promise<string>;
 
-    getVirtualSupply(overrides?: CallOverrides): Promise<BigNumber>;
+    inRecoveryMode(overrides?: CallOverrides): Promise<boolean>;
 
     increaseAllowance(
       spender: PromiseOrValue<string>,
       addedValue: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    isTokenExemptFromYieldProtocolFee(
+      token: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
@@ -1354,7 +1518,7 @@ export interface BalancerBoostedPool extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber[], BigNumber[]]>;
 
-    "onSwap((uint8,address,address,uint256,bytes32,uint256,address,address,bytes),uint256[],uint256,uint256)"(
+    onSwap(
       swapRequest: IPoolSwapStructs.SwapRequestStruct,
       balances: PromiseOrValue<BigNumberish>[],
       indexIn: PromiseOrValue<BigNumberish>,
@@ -1362,12 +1526,7 @@ export interface BalancerBoostedPool extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "onSwap((uint8,address,address,uint256,bytes32,uint256,address,address,bytes),uint256,uint256)"(
-      arg0: IPoolSwapStructs.SwapRequestStruct,
-      arg1: PromiseOrValue<BigNumberish>,
-      arg2: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    pause(overrides?: CallOverrides): Promise<void>;
 
     permit(
       owner: PromiseOrValue<string>,
@@ -1412,11 +1571,6 @@ export interface BalancerBoostedPool extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    setPaused(
-      paused: PromiseOrValue<boolean>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     setSwapFeePercentage(
       swapFeePercentage: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -1453,9 +1607,9 @@ export interface BalancerBoostedPool extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    updateCachedProtocolSwapFeePercentage(
-      overrides?: CallOverrides
-    ): Promise<void>;
+    unpause(overrides?: CallOverrides): Promise<void>;
+
+    updateProtocolFeePercentageCache(overrides?: CallOverrides): Promise<void>;
 
     updateTokenRateCache(
       token: PromiseOrValue<string>,
@@ -1493,22 +1647,24 @@ export interface BalancerBoostedPool extends BaseContract {
       value?: null
     ): ApprovalEventFilter;
 
-    "CachedProtocolSwapFeePercentageUpdated(uint256)"(
-      protocolSwapFeePercentage?: null
-    ): CachedProtocolSwapFeePercentageUpdatedEventFilter;
-    CachedProtocolSwapFeePercentageUpdated(
-      protocolSwapFeePercentage?: null
-    ): CachedProtocolSwapFeePercentageUpdatedEventFilter;
-
-    "DueProtocolFeeIncreased(uint256)"(
-      bptAmount?: null
-    ): DueProtocolFeeIncreasedEventFilter;
-    DueProtocolFeeIncreased(
-      bptAmount?: null
-    ): DueProtocolFeeIncreasedEventFilter;
-
     "PausedStateChanged(bool)"(paused?: null): PausedStateChangedEventFilter;
     PausedStateChanged(paused?: null): PausedStateChangedEventFilter;
+
+    "ProtocolFeePercentageCacheUpdated(uint256,uint256)"(
+      feeType?: PromiseOrValue<BigNumberish> | null,
+      protocolFeePercentage?: null
+    ): ProtocolFeePercentageCacheUpdatedEventFilter;
+    ProtocolFeePercentageCacheUpdated(
+      feeType?: PromiseOrValue<BigNumberish> | null,
+      protocolFeePercentage?: null
+    ): ProtocolFeePercentageCacheUpdatedEventFilter;
+
+    "RecoveryModeStateChanged(bool)"(
+      enabled?: null
+    ): RecoveryModeStateChangedEventFilter;
+    RecoveryModeStateChanged(
+      enabled?: null
+    ): RecoveryModeStateChangedEventFilter;
 
     "SwapFeePercentageChanged(uint256)"(
       swapFeePercentage?: null
@@ -1517,22 +1673,22 @@ export interface BalancerBoostedPool extends BaseContract {
       swapFeePercentage?: null
     ): SwapFeePercentageChangedEventFilter;
 
-    "TokenRateCacheUpdated(address,uint256)"(
-      token?: PromiseOrValue<string> | null,
+    "TokenRateCacheUpdated(uint256,uint256)"(
+      tokenIndex?: PromiseOrValue<BigNumberish> | null,
       rate?: null
     ): TokenRateCacheUpdatedEventFilter;
     TokenRateCacheUpdated(
-      token?: PromiseOrValue<string> | null,
+      tokenIndex?: PromiseOrValue<BigNumberish> | null,
       rate?: null
     ): TokenRateCacheUpdatedEventFilter;
 
-    "TokenRateProviderSet(address,address,uint256)"(
-      token?: PromiseOrValue<string> | null,
+    "TokenRateProviderSet(uint256,address,uint256)"(
+      tokenIndex?: PromiseOrValue<BigNumberish> | null,
       provider?: PromiseOrValue<string> | null,
       cacheDuration?: null
     ): TokenRateProviderSetEventFilter;
     TokenRateProviderSet(
-      token?: PromiseOrValue<string> | null,
+      tokenIndex?: PromiseOrValue<BigNumberish> | null,
       provider?: PromiseOrValue<string> | null,
       cacheDuration?: null
     ): TokenRateProviderSetEventFilter;
@@ -1550,6 +1706,10 @@ export interface BalancerBoostedPool extends BaseContract {
   };
 
   estimateGas: {
+    DELEGATE_PROTOCOL_SWAP_FEES_SENTINEL(
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<BigNumber>;
 
     allowance(
@@ -1577,10 +1737,20 @@ export interface BalancerBoostedPool extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    disableRecoveryMode(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    enableRecoveryMode(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     getActionId(
       selector: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    getActualSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
     getAmplificationParameter(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1588,15 +1758,16 @@ export interface BalancerBoostedPool extends BaseContract {
 
     getBptIndex(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getCachedProtocolSwapFeePercentage(
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    getDomainSeparator(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getDueProtocolFeeBptAmount(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getLastInvariant(overrides?: CallOverrides): Promise<BigNumber>;
+    getLastJoinExitData(overrides?: CallOverrides): Promise<BigNumber>;
 
     getMinimumBpt(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getNextNonce(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     getOwner(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1604,14 +1775,18 @@ export interface BalancerBoostedPool extends BaseContract {
 
     getPoolId(overrides?: CallOverrides): Promise<BigNumber>;
 
+    getProtocolFeePercentageCache(
+      feeType: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getProtocolFeesCollector(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getProtocolSwapFeeDelegation(overrides?: CallOverrides): Promise<BigNumber>;
+
     getRate(overrides?: CallOverrides): Promise<BigNumber>;
 
     getRateProviders(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getScalingFactor(
-      token: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
 
     getScalingFactors(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1629,12 +1804,17 @@ export interface BalancerBoostedPool extends BaseContract {
 
     getVault(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getVirtualSupply(overrides?: CallOverrides): Promise<BigNumber>;
+    inRecoveryMode(overrides?: CallOverrides): Promise<BigNumber>;
 
     increaseAllowance(
       spender: PromiseOrValue<string>,
       addedValue: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    isTokenExemptFromYieldProtocolFee(
+      token: PromiseOrValue<string>,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     name(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1666,7 +1846,7 @@ export interface BalancerBoostedPool extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "onSwap((uint8,address,address,uint256,bytes32,uint256,address,address,bytes),uint256[],uint256,uint256)"(
+    onSwap(
       swapRequest: IPoolSwapStructs.SwapRequestStruct,
       balances: PromiseOrValue<BigNumberish>[],
       indexIn: PromiseOrValue<BigNumberish>,
@@ -1674,11 +1854,8 @@ export interface BalancerBoostedPool extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "onSwap((uint8,address,address,uint256,bytes32,uint256,address,address,bytes),uint256,uint256)"(
-      arg0: IPoolSwapStructs.SwapRequestStruct,
-      arg1: PromiseOrValue<BigNumberish>,
-      arg2: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
+    pause(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     permit(
@@ -1717,11 +1894,6 @@ export interface BalancerBoostedPool extends BaseContract {
     setAssetManagerPoolConfig(
       token: PromiseOrValue<string>,
       poolConfig: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    setPaused(
-      paused: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1763,7 +1935,11 @@ export interface BalancerBoostedPool extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    updateCachedProtocolSwapFeePercentage(
+    unpause(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    updateProtocolFeePercentageCache(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1774,6 +1950,10 @@ export interface BalancerBoostedPool extends BaseContract {
   };
 
   populateTransaction: {
+    DELEGATE_PROTOCOL_SWAP_FEES_SENTINEL(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     allowance(
@@ -1801,10 +1981,20 @@ export interface BalancerBoostedPool extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    disableRecoveryMode(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    enableRecoveryMode(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     getActionId(
       selector: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    getActualSupply(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getAmplificationParameter(
       overrides?: CallOverrides
@@ -1814,17 +2004,20 @@ export interface BalancerBoostedPool extends BaseContract {
 
     getBptIndex(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    getCachedProtocolSwapFeePercentage(
+    getDomainSeparator(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    getDueProtocolFeeBptAmount(
+    getLastJoinExitData(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
-
-    getLastInvariant(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getMinimumBpt(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    getNextNonce(
+      account: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
 
     getOwner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -1832,14 +2025,22 @@ export interface BalancerBoostedPool extends BaseContract {
 
     getPoolId(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    getProtocolFeePercentageCache(
+      feeType: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getProtocolFeesCollector(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getProtocolSwapFeeDelegation(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     getRate(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getRateProviders(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    getScalingFactor(
-      token: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
 
     getScalingFactors(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -1859,12 +2060,17 @@ export interface BalancerBoostedPool extends BaseContract {
 
     getVault(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    getVirtualSupply(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    inRecoveryMode(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     increaseAllowance(
       spender: PromiseOrValue<string>,
       addedValue: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    isTokenExemptFromYieldProtocolFee(
+      token: PromiseOrValue<string>,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     name(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -1896,7 +2102,7 @@ export interface BalancerBoostedPool extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "onSwap((uint8,address,address,uint256,bytes32,uint256,address,address,bytes),uint256[],uint256,uint256)"(
+    onSwap(
       swapRequest: IPoolSwapStructs.SwapRequestStruct,
       balances: PromiseOrValue<BigNumberish>[],
       indexIn: PromiseOrValue<BigNumberish>,
@@ -1904,11 +2110,8 @@ export interface BalancerBoostedPool extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "onSwap((uint8,address,address,uint256,bytes32,uint256,address,address,bytes),uint256,uint256)"(
-      arg0: IPoolSwapStructs.SwapRequestStruct,
-      arg1: PromiseOrValue<BigNumberish>,
-      arg2: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
+    pause(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     permit(
@@ -1950,11 +2153,6 @@ export interface BalancerBoostedPool extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    setPaused(
-      paused: PromiseOrValue<boolean>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     setSwapFeePercentage(
       swapFeePercentage: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1993,7 +2191,11 @@ export interface BalancerBoostedPool extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    updateCachedProtocolSwapFeePercentage(
+    unpause(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    updateProtocolFeePercentageCache(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

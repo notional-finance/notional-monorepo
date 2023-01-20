@@ -1711,6 +1711,14 @@ export type CurrencyAssetExchangeRateHistoricalDataArgs = {
   where?: InputMaybe<AssetExchangeRateHistoricalData_Filter>;
 };
 
+export type CurrencyEthExchangeRateHistoricalDataArgs = {
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<EthExchangeRateHistoricalData_OrderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  skip?: InputMaybe<Scalars['Int']>;
+  where?: InputMaybe<EthExchangeRateHistoricalData_Filter>;
+};
+
 export type CurrencyLeveragedVaultsArgs = {
   first?: InputMaybe<Scalars['Int']>;
   orderBy?: InputMaybe<LeveragedVault_OrderBy>;
@@ -10370,6 +10378,19 @@ export enum SNoteChangeType {
   Unstake = 'Unstake',
 }
 
+export type AccountsQueryVariables = Exact<{ [key: string]: never }>;
+
+export type AccountsQuery = {
+  __typename?: 'Query';
+  accounts: Array<{
+    __typename?: 'Account';
+    id: string;
+    lastUpdateTimestamp: number;
+    hasCashDebt: boolean;
+    hasPortfolioAssetDebt: boolean;
+  }>;
+};
+
 export type CurrenciesQueryVariables = Exact<{ [key: string]: never }>;
 
 export type CurrenciesQuery = {
@@ -10385,6 +10406,62 @@ export type CurrenciesQuery = {
   }>;
 };
 
+export type DailyLendBorrowVolumesQueryVariables = Exact<{
+  [key: string]: never;
+}>;
+
+export type DailyLendBorrowVolumesQuery = {
+  __typename?: 'Query';
+  dailyLendBorrowVolumes: Array<{
+    __typename?: 'DailyLendBorrowVolume';
+    id: string;
+    date: number;
+    tradeType: TradeType;
+    marketIndex: number;
+    totalVolumeUnderlyingCash: string;
+    currency: {
+      __typename?: 'Currency';
+      id: string;
+      symbol: string;
+      underlyingSymbol?: string | null;
+    };
+  }>;
+};
+
+export const AccountsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'Accounts' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'accounts' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'lastUpdateTimestamp' },
+                },
+                { kind: 'Field', name: { kind: 'Name', value: 'hasCashDebt' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'hasPortfolioAssetDebt' },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<AccountsQuery, AccountsQueryVariables>;
 export const CurrenciesDocument = {
   kind: 'Document',
   definitions: [
@@ -10418,3 +10495,57 @@ export const CurrenciesDocument = {
     },
   ],
 } as unknown as DocumentNode<CurrenciesQuery, CurrenciesQueryVariables>;
+export const DailyLendBorrowVolumesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'DailyLendBorrowVolumes' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'dailyLendBorrowVolumes' },
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'date' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'tradeType' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'marketIndex' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'currency' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'symbol' },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'underlyingSymbol' },
+                      },
+                    ],
+                  },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'totalVolumeUnderlyingCash' },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  DailyLendBorrowVolumesQuery,
+  DailyLendBorrowVolumesQueryVariables
+>;
+/** All built-in and custom scalars, mapped to their actual values */

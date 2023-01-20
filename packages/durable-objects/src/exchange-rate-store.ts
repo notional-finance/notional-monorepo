@@ -46,11 +46,13 @@ export class ExchangeRateStore {
       if (network && typeof network === 'string') {
         const rates = await this.state.storage.get(network);
         const headers = { 'content-type': 'application/json' };
-        const response = new Response(JSON.stringify(rates), {
+        if (!rates) {
+          return new Response('Not Found', { status: 404 });
+        }
+        return new Response(JSON.stringify(rates ?? {}), {
           status: 200,
           headers,
         });
-        return response;
       } else {
         return new Response('Not Found', { status: 404 });
       }
