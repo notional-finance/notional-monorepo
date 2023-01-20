@@ -2,6 +2,18 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [0.3.0](https://github.com/notional-finance/notional-monorepo/compare/logging-0.2.0...logging-0.3.0) (2023-01-20)
+
+
+### Features
+
+* **logging:** add metric logger ([29aaae7](https://github.com/notional-finance/notional-monorepo/commit/29aaae73ed28081c8ab8e48ae49f64847ed9b84f))
+
+
+### Bug Fixes
+
+* **logging:** throw errors, remove unused imports ([5914ae4](https://github.com/notional-finance/notional-monorepo/commit/5914ae46a18669525236c29bd359cba0c47f3ba0))
+
 ## [0.2.0](https://github.com/notional-finance/notional-monorepo/compare/logging-0.1.1...logging-0.2.0) (2022-12-08)
 
 
