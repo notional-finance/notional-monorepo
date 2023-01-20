@@ -11,7 +11,7 @@ import {
 import { useVault } from '@notional-finance/notionable-hooks';
 import { useContext } from 'react';
 import { FormattedMessage, defineMessage } from 'react-intl';
-import VaultDescription from '../components/vault-description';
+import { VaultDescription } from '../components';
 import { useHistoricalReturns } from '../hooks/use-historical-returns';
 import { useReturnDrivers } from '../hooks/use-return-drivers';
 import { useVaultCapacity } from '../hooks/use-vault-capacity';
