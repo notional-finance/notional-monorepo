@@ -1,7 +1,7 @@
 import { Typography, Box, styled, useTheme } from '@mui/material';
 import { useQueryParams } from '@notional-finance/utils';
 import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
-import { ExternalLink } from '@notional-finance/mui';
+import { ExternalLink, SideDrawerButton, H4 } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
 import { messages } from '../messages';
 import { useAddToCalendar } from './use-add-to-calendar';
@@ -19,7 +19,7 @@ export const AddToCalendar = () => {
         />
       </Title>
       {calData.map(({ label, Icon, href }, index) => (
-        <WalletButton key={index}>
+        <SideDrawerButton key={index}>
           <ExternalLink
             href={href}
             fitContent
@@ -27,7 +27,6 @@ export const AddToCalendar = () => {
               display: 'flex',
               alignItems: 'center',
               width: '100%',
-              padding: theme.spacing(2.5),
             }}
           >
             <Box
@@ -41,9 +40,19 @@ export const AddToCalendar = () => {
             >
               <Icon style={{ height: '35px', width: '35px' }} />
             </Box>
-            <Box sx={{ whiteSpace: 'nowrap', marginLeft: '15px' }}>{label}</Box>
+            <H4
+              sx={{
+                flex: 1,
+                color: theme.palette.common.black,
+                whiteSpace: 'nowrap',
+                marginLeft: '15px',
+              }}
+              fontWeight="regular"
+            >
+              {label}
+            </H4>
           </ExternalLink>
-        </WalletButton>
+        </SideDrawerButton>
       ))}
     </Box>
   );
@@ -55,23 +64,5 @@ const Title = styled(Typography)(
   font-weight: 700;
   color: ${theme.palette.primary.dark};
   text-transform: uppercase;
-  `
-);
-
-const WalletButton = styled(Box)(
-  ({ theme }) => `
-  border-radius: ${theme.shape.borderRadiusLarge};
-  border: 1px solid ${theme.palette.borders.paper};
-  margin: ${theme.spacing(1)} 0px;
-  cursor: pointer;
-  background: ${theme.palette.common.white};
-  color: ${theme.palette.primary.dark};
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  &:hover {
-    transition: .5s ease;
-    background: ${theme.palette.info.light};
-  }
   `
 );
