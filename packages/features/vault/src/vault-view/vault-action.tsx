@@ -20,8 +20,8 @@ import { messages } from '../messages';
 import { VaultActionContext } from '../managers';
 import { useVault } from '@notional-finance/notionable-hooks';
 import { RATE_PRECISION } from '@notional-finance/sdk/src/config/constants';
-import { WriteCongress } from '../components/write-congress';
-import { useGeoipBlock } from '../hooks/use-geoip-block';
+import { WriteCongress } from '../components';
+import { useGeoipBlock } from '../hooks';
 
 export const VaultAction = () => {
   const { updateState, state } = useContext(VaultActionContext);
