@@ -5,6 +5,7 @@ import {
   ExternalLink,
   LabelValue,
   LargeInputTextEmphasized,
+  SideDrawerButton,
 } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
 import { useManageVault } from './use-manage-vault';
@@ -35,7 +36,7 @@ export const ManageVault = () => {
         <FormattedMessage defaultMessage={'Reduce leverage'} />
       </Title>
       {reduceLeverageOptions.map(({ label, href }, index) => (
-        <WalletButton key={index}>
+        <SideDrawerButton key={index}>
           <ExternalLink
             href={href}
             fitContent
@@ -55,7 +56,7 @@ export const ManageVault = () => {
               {label}
             </H4>
           </ExternalLink>
-        </WalletButton>
+        </SideDrawerButton>
       ))}
       <Box
         component={'hr'}
@@ -65,7 +66,7 @@ export const ManageVault = () => {
         }}
       ></Box>
       {manageVaultOptions.map(({ label, href }, index) => (
-        <WalletButton key={index}>
+        <SideDrawerButton key={index}>
           <ExternalLink
             href={href}
             fitContent
@@ -85,7 +86,7 @@ export const ManageVault = () => {
               {label}
             </H4>
           </ExternalLink>
-        </WalletButton>
+        </SideDrawerButton>
       ))}
     </Box>
   );
@@ -97,17 +98,5 @@ const Title = styled(LabelValue)(
   margin-top: ${theme.spacing(5)};
   color: ${theme.palette.borders.accentDefault};
   text-transform: uppercase;
-  `
-);
-
-const WalletButton = styled(Box)(
-  ({ theme }) => `
-  padding: ${theme.spacing(2.5)};
-  border-radius: ${theme.shape.borderRadius()};
-  margin-bottom: ${theme.spacing(2)};
-  cursor: pointer;
-  background: ${theme.palette.background.default};
-  display: flex;
-  align-items: center;
   `
 );

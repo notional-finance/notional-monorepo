@@ -7,24 +7,19 @@ import {
   H4,
   ButtonText,
   LabelValue,
+  SideDrawerButton,
 } from '@notional-finance/mui';
 import {
   SettingsItem,
   useSettingsSideDrawer,
 } from './use-settings-side-drawer';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
-import { NotionalTheme } from '@notional-finance/styles';
 import { defineMessage, FormattedMessage } from 'react-intl';
 
 /* eslint-disable-next-line */
 export interface SettingsSideDrawerProps {
   showConnectWallet?: boolean;
   toggleDrawer?: Dispatch<SetStateAction<boolean>>;
-}
-
-interface StyledWalletButton {
-  theme: NotionalTheme;
-  clickable?: boolean;
 }
 
 export const SettingsSideDrawer = ({
@@ -74,8 +69,7 @@ export const SettingsSideDrawer = ({
           <FormattedMessage defaultMessage="Account" />
         </Title>
         {accountData.map((data) => (
-          <WalletButton
-            theme={theme}
+          <SideDrawerButton
             onClick={() => handleClick(data)}
             key={data.key}
             clickable={data.ViewComponent ? true : false}
@@ -97,7 +91,7 @@ export const SettingsSideDrawer = ({
                 {data.CustomButton ? <data.CustomButton /> : data.buttonText}
               </ButtonData>
             )}
-          </WalletButton>
+          </SideDrawerButton>
         ))}
       </Box>
       <Box sx={{ marginBottom: '48px' }}>
@@ -105,8 +99,7 @@ export const SettingsSideDrawer = ({
           <FormattedMessage defaultMessage="Transactions" />
         </Title>
         {transactionData.map((data) => (
-          <WalletButton
-            theme={theme}
+          <SideDrawerButton
             onClick={() => handleClick(data)}
             key={data.key}
             clickable={data.ViewComponent ? true : false}
@@ -123,7 +116,7 @@ export const SettingsSideDrawer = ({
             <ButtonData>
               {data?.CustomButton ? <data.CustomButton /> : data.buttonText}
             </ButtonData>
-          </WalletButton>
+          </SideDrawerButton>
         ))}
       </Box>
       {connected && (
@@ -174,20 +167,6 @@ const SettingsContainer = styled(Box)(
       height: 100vh;
     }
   }
-  `
-);
-
-const WalletButton = styled('div', {
-  shouldForwardProp: (prop: string) => prop !== 'clickable',
-})(
-  ({ theme, clickable }: StyledWalletButton) => `
-  padding: ${theme.spacing(2.5)};
-  border-radius: ${theme.shape.borderRadius()};
-  margin: 10px 0px;
-  cursor: ${clickable ? 'pointer' : 'normal'};
-  background: ${theme.palette.background.default};
-  display: flex;
-  align-items: center;
   `
 );
 
