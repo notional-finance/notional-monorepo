@@ -13,3 +13,13 @@ export interface ExchangeRate {
   decimals: number;
   metadata: Record<string, unknown>;
 }
+
+export interface ExchangeRatesDOEnv {
+  EXCHANGE_RATE_DO: DurableObjectNamespace;
+  WORKER_NAME: string;
+}
+
+export interface KPIsDOEnv {
+  KPIsDO: DurableObjectNamespace;
+  WORKER_NAME: string;
+}

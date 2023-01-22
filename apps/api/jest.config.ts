@@ -1,6 +1,6 @@
 /* eslint-disable */
 export default {
-  displayName: 'exchange-rates',
+  displayName: 'api',
   preset: '../../jest.preset.js',
   globals: {
     'ts-jest': {
@@ -10,15 +10,15 @@ export default {
   },
   testEnvironment: 'miniflare',
   testEnvironmentOptions: {
-    scriptPath: 'apps/exchange-rates/dist/index.js',
+    scriptPath: 'apps/api/dist/index.js',
     modules: true,
-    wranglerConfigPath: 'apps/exchange-rates/wrangler.toml',
-    wranglerConfigEnv: 'apps/exchange-rates/.dev.vars',
+    wranglerConfigPath: 'apps/api/wrangler.toml',
+    wranglerConfigEnv: 'apps/api/.dev.vars',
   },
   transform: {
     '^.+\\.[tj]s$': 'ts-jest',
   },
   moduleFileExtensions: ['ts', 'js'],
-  coverageDirectory: '../../coverage/apps/exchange-rates',
+  coverageDirectory: '../../coverage/apps/api',
   testTimeout: 50000,
 };

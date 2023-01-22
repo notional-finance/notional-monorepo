@@ -1,8 +1,8 @@
 import { initLogger, initMetricLogger, log } from '@notional-finance/logging';
 import { getJobs } from './monitors';
 import { JobMonitorEnv, initializeProviders } from '@notional-finance/monitors';
-import { ExchangeRateStore } from '@notional-finance/durable-objects';
-export { ExchangeRateStore };
+import { ExchangeRatesDO, KPIsDO } from '@notional-finance/durable-objects';
+export { ExchangeRatesDO, KPIsDO };
 
 export default {
   async fetch(): Promise<Response> {
@@ -37,6 +37,7 @@ export default {
           )
         );
       } catch (e) {
+        console.log('Error running scheduled job', e);
         await log({
           message: (e as Error).message,
           level: 'error',

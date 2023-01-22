@@ -135,12 +135,11 @@ function getLocalVolumeKPI(volumes: DailyLendBorrowVolume[]): VolumeKPI {
   return volumes.reduce(
     (acc, v) => {
       const localValue = BigNumber.from(v.totalVolumeUnderlyingCash);
-      const usdRate = exchangeRatesUSD.get(
-        `${v.currency.underlyingSymbol.toLowerCase()}_usd`
-      );
-      if (!usdRate) throw new Error('No USD rate found for currency');
+      const currency = `${v.currency.underlyingSymbol.toLowerCase()}`;
+      const usdRate = exchangeRatesUSD.get(currency);
+      if (!usdRate) throw new Error(`No USD rate found for ${currency}`);
       const usdValue = localValue
-        .mul(usdRate.rate)
+        .mul(usdRate.value)
         .div(BigNumber.from(10).pow(usdRate.decimals));
       switch (v.tradeType.toLowerCase()) {
         case 'lend':
@@ -246,7 +245,7 @@ function setExchangeRatesUSD(rates: ExchangeRate[]) {
     const baseRates = rates.filter((r) => r.base === base);
     baseRates.forEach((r) => {
       if (r.base === 'usd') {
-        exchangeRatesUSD.set(r.quote, r);
+        exchangeRatesUSD.set(r.quote, { ...r, value: BigNumber.from(r.value) });
       } else {
         const quoteRate = BigNumber.from(r.value);
         const usdRate = usdRates.find((ur) => ur.quote === r.base);
@@ -264,15 +263,24 @@ function setExchangeRatesUSD(rates: ExchangeRate[]) {
 const run = async ({ env }: JobOptions) => {
   try {
     nowSeconds = Math.round(new Date().getTime() / 1000);
-    const id = env.EXCHANGE_RATE_STORE.idFromName(
-      env.EXCHANGE_RATES_WORKER_NAME
+    const kpisId = env.KPIS_DO.idFromName(env.KPIS_NAME);
+    const kpisStub = env.KPIS_DO.get(kpisId);
+
+    const ratesId = env.EXCHANGE_RATES_DO.idFromName(env.EXCHANGE_RATES_NAME);
+    const ratesStub = env.EXCHANGE_RATES_DO.get(ratesId);
+    const ratesReq = new Request(
+      `http://${env.EXCHANGE_RATES_NAME}/exchange-rates?network=mainnet`,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
     );
-    console.log(`ExchangeRate id: ${id} `);
-    const stub = env.EXCHANGE_RATE_STORE.get(id);
-    const req = new Request(
-      `${env.EXCHANGE_RATE_URL}/exchange-rates?network=homestead`
-    );
-    const exchangeRateResp = await stub.fetch(req);
+    const exchangeRateResp = await ratesStub.fetch(ratesReq);
+
+    if (!exchangeRateResp.ok) {
+      throw new Error("Couldn't fetch exchange rates");
+    }
     const data = await exchangeRateResp.json();
 
     if (data && data.results) {
@@ -310,6 +318,15 @@ const run = async ({ env }: JobOptions) => {
       processLoanVolumes(volumesResult),
     ]);
     await submitMetrics(series);
+
+    const kpisReq = new Request(
+      `http://${env.KPIS_NAME}/kpis?network=mainnet`,
+      {
+        body: JSON.stringify({ kpis }),
+        method: 'PUT',
+      }
+    );
+    await kpisStub.fetch(kpisReq);
   } catch (e) {
     console.log(e);
     await log({

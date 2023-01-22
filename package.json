@@ -87,6 +87,7 @@
     "@graphql-codegen/client-preset": "^1.1.4",
     "@hirez_io/observer-spy": "^2.2.0",
     "@jscutlery/semver": "^2.27.2",
+    "@miniflare/tre": "3.0.0-next.8",
     "@nomiclabs/hardhat-ethers": "^2.1.1",
     "@nrwl/cli": "15.3.0",
     "@nrwl/devkit": "15.3.0",
@@ -170,7 +171,7 @@
     "url-loader": "^4.1.1",
     "webpack": "^5.75.0",
     "webpack-merge": "^5.8.0",
-    "wrangler": "^2.7.1"
+    "wrangler": "^2.8.0"
   },
   "workspaces": [
     "packages/**",
