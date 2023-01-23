@@ -2,6 +2,9 @@ import { JobOptions, MonitorJob, VolumeKPI } from './types';
 import GraphClient, {
   Account,
   DailyLendBorrowVolume,
+  CurrencyQuery,
+  Currency,
+  CurrencyTvlsQuery,
 } from '@notional-finance/graph-client';
 import { log, submitMetrics } from '@notional-finance/logging';
 import { DDMetric } from '@notional-finance/logging';
@@ -9,7 +12,7 @@ import { BigNumber, FixedNumber } from 'ethers';
 import { ExchangeRate } from '@notional-finance/durable-objects';
 
 const secondsInDay = 86400;
-
+const mainnet = GraphClient.getClient('mainnet/notional', 0, true);
 const exchangeRatesUSD = new Map<string, ExchangeRate>();
 
 const series: DDMetric[] = [];
@@ -17,6 +20,7 @@ const series: DDMetric[] = [];
 const kpis = {
   volume: {},
   accounts: {},
+  tvl: {},
 };
 
 let nowSeconds = 0;
@@ -260,6 +264,32 @@ function setExchangeRatesUSD(rates: ExchangeRate[]) {
   });
 }
 
+async function processTVL(currencies: Currency[]) {
+  const tvls = await Promise.all(
+    currencies.map(async (c): [string, number] => {
+      const { id, underlyingSymbol } = c;
+      const {
+        currencyTvls: [cTvl],
+      } = await mainnet.queryOrThrow(CurrencyTvlsQuery, {
+        currencyId: id,
+      });
+
+      return [
+        underlyingSymbol,
+        FixedNumber.fromValue(BigNumber.from(cTvl.usdValue), 8).toUnsafeFloat(),
+      ];
+    })
+  );
+  const tvl = tvls.reduce(
+    (acc, [symbol, usdValue]) => {
+      const total = acc.total + usdValue;
+      return { ...acc, total, [symbol]: usdValue };
+    },
+    { total: 0 }
+  );
+  kpis.tvl = { ...tvl };
+}
+
 const run = async ({ env }: JobOptions) => {
   try {
     nowSeconds = Math.round(new Date().getTime() / 1000);
@@ -287,7 +317,6 @@ const run = async ({ env }: JobOptions) => {
       setExchangeRatesUSD(data.results);
     }
 
-    const mainnet = GraphClient.getClient('mainnet/notional', 0, true);
     const accountsQuery = `{ id lastUpdateTimestamp hasCashDebt hasPortfolioAssetDebt }`;
     const volumeQuery = `{
             id
@@ -309,13 +338,18 @@ const run = async ({ env }: JobOptions) => {
       'dailyLendBorrowVolumes',
       volumeQuery
     );
-    const [accountsResult, volumesResult] = await Promise.all([
-      mainnet.batchQuery(batchedAccountsQuery),
-      mainnet.batchQuery(batchedVolumeQuery),
-    ]);
+    const [accountsResult, volumesResult, currenciesResult] = await Promise.all(
+      [
+        mainnet.batchQuery(batchedAccountsQuery),
+        mainnet.batchQuery(batchedVolumeQuery),
+        mainnet.queryOrThrow(CurrencyQuery),
+      ]
+    );
+
     await Promise.all([
       processAccountResults(accountsResult),
       processLoanVolumes(volumesResult),
+      processTVL(currenciesResult.currencies),
     ]);
     await submitMetrics(series);
 

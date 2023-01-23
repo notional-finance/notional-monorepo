@@ -5,7 +5,7 @@ account_id = "274f86c6dcfbb77c09e49e86d101c753"
 workers_dev = true
 node_compat = true
 minify = true
-# usage_model = "bundled"
+usage_model = "bundled"
 tsconfig = "tsconfig.json"
 
 [[migrations]]
@@ -23,16 +23,27 @@ durable_objects.bindings = [
 
 [env.dev]
 name = "api-dev"
-vars = { NX_ENV = "dev", VERSION = "v2", EXCHANGE_RATES_NAME = "EXCHANGE_RATES_DO", KPIS_NAME = "KPIS_DO" }
+route = { pattern = "data-dev.notional.finance", custom_domain = true }
+durable_objects.bindings = [
+  { name = "EXCHANGE_RATES_DO", class_name = "ExchangeRatesDO" },
+  { name = "KPIS_DO", class_name = "KPIsDO" }
+]
+[env.dev.vars]
+NX_ENV = "dev"
+VERSION = "v2"
+EXCHANGE_RATES_NAME = "EXCHANGE_RATES_DO"
+KPIS_NAME = "KPIS_DO"
+
+[env.prod]
+name = "api"
+route = { pattern = "data.notional.finance", custom_domain = true }
 durable_objects.bindings = [
   { name = "EXCHANGE_RATES_DO", class_name = "ExchangeRatesDO" },
   { name = "KPIS_DO", class_name = "KPIsDO" }
 ]
 
-[env.prod]
-name = "api"
-vars = { NX_ENV = "dev", VERSION = "v2" }
-durable_objects.bindings = [
-  { name = "EXCHANGE_RATES_DO", class_name = "ExchangeRatesDO" },
-  { name = "KPIS_DO", class_name = "KPIsDO" }
-]
+[env.prod.vars]
+NX_ENV = "dev"
+VERSION = "v2"
+EXCHANGE_RATES_NAME = "EXCHANGE_RATES_DO"
+KPIS_NAME = "KPIS_DO"

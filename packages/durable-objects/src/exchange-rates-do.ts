@@ -46,7 +46,12 @@ export class ExchangeRatesDO {
   async get(network: string | null) {
     try {
       const rates = await this.state.storage.get(network);
-      const headers = { 'content-type': 'application/json' };
+      const headers = {
+        'content-type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, OPTIONS',
+        'Access-Control-Max-Age': '86400',
+      };
       if (!rates) {
         return new Response('Not Found', { status: 404 });
       }

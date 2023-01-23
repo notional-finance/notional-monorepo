@@ -5,7 +5,7 @@ compatibility_date = "2022-11-11"
 workers_dev = true
 node_compat = true
 minify = true
-# usage_model = "bundled"
+usage_model = "bundled"
 tsconfig = "tsconfig.json"
 
 [[migrations]]
