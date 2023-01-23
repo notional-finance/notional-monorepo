@@ -10,7 +10,7 @@ import {
 import { useVault } from '@notional-finance/notionable-hooks';
 import { useContext } from 'react';
 import { FormattedMessage, defineMessage } from 'react-intl';
-import { PerformanceChart, VaultDescription } from '../components';
+import { PerformanceChart, VaultDescription, VaultSubNav } from '../components';
 import { useHistoricalReturns } from '../hooks/use-historical-returns';
 import { useReturnDrivers } from '../hooks/use-return-drivers';
 import { useVaultCapacity } from '../hooks/use-vault-capacity';
@@ -49,53 +49,60 @@ export const VaultSummary = () => {
     : undefined;
 
   return (
-    <TradeSummaryContainer>
-      <TradeActionHeader
-        token={primaryBorrowSymbol}
-        actionText={vaultName}
-        hideTokenName
-      />
-      <TradeActionTitle
-        value={headlineApy}
-        valueSuffix="%"
-        title={<FormattedMessage {...messages.summary.expectedYield} />}
-      />
-      <SliderDisplay
-        min={0}
-        max={100}
-        value={capacityUsedPercentage}
-        captionLeft={{
-          title: messages.summary.capacityUsed,
-          value: totalCapacityUsed,
-        }}
-        captionRight={{
-          title: messages.summary.totalCapacity,
-          value: maxVaultCapacity,
-        }}
-        marks={userCapacityMark}
-        sx={{
-          border: overCapacityError
-            ? `2px solid ${theme.palette.error.main}`
-            : theme.shape.borderStandard,
-        }}
-      />
-      <PerformanceChart
-        historicalReturns={historicalReturns}
-        leverageRatio={leverageRatio}
-        currentBorrowRate={currentBorrowRate}
-      />
-      <Box sx={{ marginTop: theme.spacing(2) }}>
-        <DataTable
-          data={returnDrivers}
-          columns={tableColumns}
-          tableTitle={defineMessage({
-            defaultMessage: 'Return Drivers',
-            description: 'Return Drivers Table Title',
-          })}
-        />
+    <Box>
+      <VaultSubNav />
+      <Box
+        sx={{ display: 'flex', justifyContent: 'center', marginTop: '100px' }}
+      >
+        <TradeSummaryContainer>
+          <TradeActionHeader
+            token={primaryBorrowSymbol}
+            actionText={vaultName}
+            hideTokenName
+          />
+          <TradeActionTitle
+            value={headlineApy}
+            valueSuffix="%"
+            title={<FormattedMessage {...messages.summary.expectedYield} />}
+          />
+          <SliderDisplay
+            min={0}
+            max={100}
+            value={capacityUsedPercentage}
+            captionLeft={{
+              title: messages.summary.capacityUsed,
+              value: totalCapacityUsed,
+            }}
+            captionRight={{
+              title: messages.summary.totalCapacity,
+              value: maxVaultCapacity,
+            }}
+            marks={userCapacityMark}
+            sx={{
+              border: overCapacityError
+                ? `2px solid ${theme.palette.error.main}`
+                : theme.shape.borderStandard,
+            }}
+          />
+          <PerformanceChart
+            historicalReturns={historicalReturns}
+            leverageRatio={leverageRatio}
+            currentBorrowRate={currentBorrowRate}
+          />
+          <Box sx={{ marginTop: theme.spacing(2) }}>
+            <DataTable
+              data={returnDrivers}
+              columns={tableColumns}
+              tableTitle={defineMessage({
+                defaultMessage: 'Return Drivers',
+                description: 'Return Drivers Table Title',
+              })}
+            />
+          </Box>
+          <VaultDescription vaultAddress={vaultAddress} />
+        </TradeSummaryContainer>
       </Box>
-      <VaultDescription vaultAddress={vaultAddress} />
-    </TradeSummaryContainer>
+    </Box>
   );
 };
 
