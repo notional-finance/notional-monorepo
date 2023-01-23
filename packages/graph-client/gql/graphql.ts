@@ -10391,6 +10391,21 @@ export type AccountsQuery = {
   }>;
 };
 
+export type CurrencyTvLsQueryVariables = Exact<{
+  currencyId?: InputMaybe<Scalars['String']>;
+}>;
+
+export type CurrencyTvLsQuery = {
+  __typename?: 'Query';
+  currencyTvls: Array<{
+    __typename?: 'CurrencyTvl';
+    id: string;
+    usdValue: string;
+    underlyingValue: string;
+    currency: { __typename?: 'Currency'; id: string };
+  }>;
+};
+
 export type CurrenciesQueryVariables = Exact<{ [key: string]: never }>;
 
 export type CurrenciesQuery = {
@@ -10403,6 +10418,7 @@ export type CurrenciesQuery = {
     decimals: string;
     name: string;
     symbol: string;
+    underlyingSymbol?: string | null;
   }>;
 };
 
@@ -10462,6 +10478,90 @@ export const AccountsDocument = {
     },
   ],
 } as unknown as DocumentNode<AccountsQuery, AccountsQueryVariables>;
+export const CurrencyTvLsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'CurrencyTVLs' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'currencyId' },
+          },
+          type: { kind: 'NamedType', name: { kind: 'Name', value: 'String' } },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'currencyTvls' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'where' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: { kind: 'Name', value: 'currency' },
+                      value: {
+                        kind: 'Variable',
+                        name: { kind: 'Name', value: 'currencyId' },
+                      },
+                    },
+                  ],
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'first' },
+                value: { kind: 'IntValue', value: '1' },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'orderBy' },
+                value: { kind: 'EnumValue', value: 'id' },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'orderDirection' },
+                value: { kind: 'EnumValue', value: 'desc' },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'usdValue' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'underlyingValue' },
+                },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'currency' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      { kind: 'Field', name: { kind: 'Name', value: 'id' } },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CurrencyTvLsQuery, CurrencyTvLsQueryVariables>;
 export const CurrenciesDocument = {
   kind: 'Document',
   definitions: [
@@ -10487,6 +10587,10 @@ export const CurrenciesDocument = {
                 { kind: 'Field', name: { kind: 'Name', value: 'decimals' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'name' } },
                 { kind: 'Field', name: { kind: 'Name', value: 'symbol' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'underlyingSymbol' },
+                },
               ],
             },
           },
@@ -10548,4 +10652,3 @@ export const DailyLendBorrowVolumesDocument = {
   DailyLendBorrowVolumesQuery,
   DailyLendBorrowVolumesQueryVariables
 >;
-/** All built-in and custom scalars, mapped to their actual values */

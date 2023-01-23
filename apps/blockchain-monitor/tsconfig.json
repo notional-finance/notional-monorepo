@@ -1,6 +1,7 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "sourceMap": true,
     "lib": ["esnext"],
     "types": ["node", "@cloudflare/workers-types"]
   },

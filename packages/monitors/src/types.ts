@@ -11,9 +11,8 @@ export interface MonitorJob {
 }
 
 export interface JobMonitorEnv {
-  EXCHANGE_RATE_STORE: DurableObjectNamespace;
-  EXCHANGE_RATE_URL: string;
-  EXCHANGE_RATES_WORKER_NAME: string;
+  EXCHANGE_RATES_DO: DurableObjectNamespace;
+  KPIS_DO: DurableObjectNamespace;
   ALCHEMY_KEY: string;
   NX_DD_API_KEY: string;
   NX_DD_BASE_URL: string;

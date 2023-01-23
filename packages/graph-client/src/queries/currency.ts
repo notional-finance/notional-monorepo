@@ -8,6 +8,7 @@ export default graphql(`
       decimals
       name
       symbol
+      underlyingSymbol
     }
   }
 `);

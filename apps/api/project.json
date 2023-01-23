@@ -1,7 +1,7 @@
 {
-  "name": "exchange-rates",
+  "name": "api",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "apps/exchange-rates/src",
+  "sourceRoot": "apps/api/src",
   "projectType": "application",
   "targets": {
     "serve": {
@@ -12,7 +12,7 @@
             "command": "wrangler dev --local --var NX_COMMIT_REF:$(git rev-parse HEAD)"
           }
         ],
-        "cwd": "apps/exchange-rates"
+        "cwd": "apps/api"
       }
     },
     "wrangler-publish-manual": {
@@ -23,7 +23,7 @@
             "command": "wrangler publish --env {args.env}  --var NX_COMMIT_REF:$(git rev-parse HEAD)"
           }
         ],
-        "cwd": "apps/exchange-rates"
+        "cwd": "apps/api"
       }
     },
     "publish-wrangler": {
@@ -34,21 +34,21 @@
             "command": "wrangler publish"
           }
         ],
-        "cwd": "apps/exchange-rates"
+        "cwd": "apps/api"
       }
     },
     "lint": {
       "executor": "@nrwl/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["apps/exchange-rates/**/*.ts"]
+        "lintFilePatterns": ["apps/api/**/*.ts"]
       }
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/apps/exchange-rates"],
+      "outputs": ["{workspaceRoot}/coverage/apps/api"],
       "options": {
-        "jestConfig": "apps/exchange-rates/jest.config.ts",
+        "jestConfig": "apps/api/jest.config.ts",
         "passWithNoTests": true
       },
       "dependsOn": ["build"]

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { styled, Box, useTheme } from '@mui/material';
 import { useInView } from 'react-intersection-observer';
@@ -22,26 +22,37 @@ const TopNotionalStats = () => {
     totalAccounts: string;
   } | null>();
 
-  useEffect(() => {
-    fetch('/.netlify/functions/kpi-query')
-      .then((response) => response.json())
-      .then((data) => {
-        const oneMillion = 1_000_000;
-        const { totalValueLocked, totalLoanVolume, totalAccounts } = data;
-        setTopStats({
-          totalValueLocked: `$${formatNumber(
-            totalValueLocked / oneMillion,
-            0
-          )}M`,
-          totalLoanVolume: `$${formatNumber(totalLoanVolume / oneMillion, 0)}M`,
-          totalAccounts: formatNumber(totalAccounts, 0),
-        });
-      })
-      .catch(() => {
-        // If this query fails then the top stats bar won't show
-        setTopStats(null);
+  const fetchKPIs = useCallback(async () => {
+    try {
+      const response = await fetch(
+        'https://data-dev.notional.finance/kpis?network=mainnet',
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      const data = await response.json();
+      const oneMillion = 1_000_000;
+      const totalAccounts = data.accounts.total.overall;
+      const totalLoanVolume = data.volume.overall.total;
+      const totalValueLocked = data.tvl.total;
+      setTopStats({
+        totalValueLocked: `$${formatNumber(totalValueLocked / oneMillion, 0)}M`,
+        totalLoanVolume: `$${formatNumber(totalLoanVolume / oneMillion, 0)}M`,
+        totalAccounts: formatNumber(totalAccounts, 0),
       });
+    } catch (e) {
+      console.error(e);
+      // If this query fails then the top stats bar won't show
+      setTopStats(null);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchKPIs();
+  }, [fetchKPIs]);
 
   return (
     <Box ref={ref} sx={{}}>

@@ -1,3 +1,4 @@
+import { DurableObjectNamespace } from '@cloudflare/workers-types';
 import { BigNumber } from 'ethers';
 
 export interface GetExchangeRatesResponse {
@@ -12,4 +13,14 @@ export interface ExchangeRate {
   value: BigNumber;
   decimals: number;
   metadata: Record<string, unknown>;
+}
+
+export interface ExchangeRatesDOEnv {
+  EXCHANGE_RATE_DO: DurableObjectNamespace;
+  WORKER_NAME: string;
+}
+
+export interface KPIsDOEnv {
+  KPIsDO: DurableObjectNamespace;
+  WORKER_NAME: string;
 }

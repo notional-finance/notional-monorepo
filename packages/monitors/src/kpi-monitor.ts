@@ -2,6 +2,9 @@ import { JobOptions, MonitorJob, VolumeKPI } from './types';
 import GraphClient, {
   Account,
   DailyLendBorrowVolume,
+  CurrencyQuery,
+  Currency,
+  CurrencyTvlsQuery,
 } from '@notional-finance/graph-client';
 import { log, submitMetrics } from '@notional-finance/logging';
 import { DDMetric } from '@notional-finance/logging';
@@ -9,7 +12,7 @@ import { BigNumber, FixedNumber } from 'ethers';
 import { ExchangeRate } from '@notional-finance/durable-objects';
 
 const secondsInDay = 86400;
-
+const mainnet = GraphClient.getClient('mainnet/notional', 0, true);
 const exchangeRatesUSD = new Map<string, ExchangeRate>();
 
 const series: DDMetric[] = [];
@@ -17,6 +20,7 @@ const series: DDMetric[] = [];
 const kpis = {
   volume: {},
   accounts: {},
+  tvl: {},
 };
 
 let nowSeconds = 0;
@@ -135,12 +139,11 @@ function getLocalVolumeKPI(volumes: DailyLendBorrowVolume[]): VolumeKPI {
   return volumes.reduce(
     (acc, v) => {
       const localValue = BigNumber.from(v.totalVolumeUnderlyingCash);
-      const usdRate = exchangeRatesUSD.get(
-        `${v.currency.underlyingSymbol.toLowerCase()}_usd`
-      );
-      if (!usdRate) throw new Error('No USD rate found for currency');
+      const currency = `${v.currency.underlyingSymbol.toLowerCase()}`;
+      const usdRate = exchangeRatesUSD.get(currency);
+      if (!usdRate) throw new Error(`No USD rate found for ${currency}`);
       const usdValue = localValue
-        .mul(usdRate.rate)
+        .mul(usdRate.value)
         .div(BigNumber.from(10).pow(usdRate.decimals));
       switch (v.tradeType.toLowerCase()) {
         case 'lend':
@@ -246,7 +249,7 @@ function setExchangeRatesUSD(rates: ExchangeRate[]) {
     const baseRates = rates.filter((r) => r.base === base);
     baseRates.forEach((r) => {
       if (r.base === 'usd') {
-        exchangeRatesUSD.set(r.quote, r);
+        exchangeRatesUSD.set(r.quote, { ...r, value: BigNumber.from(r.value) });
       } else {
         const quoteRate = BigNumber.from(r.value);
         const usdRate = usdRates.find((ur) => ur.quote === r.base);
@@ -261,25 +264,59 @@ function setExchangeRatesUSD(rates: ExchangeRate[]) {
   });
 }
 
+async function processTVL(currencies: Currency[]) {
+  const tvls = await Promise.all(
+    currencies.map(async (c): [string, number] => {
+      const { id, underlyingSymbol } = c;
+      const {
+        currencyTvls: [cTvl],
+      } = await mainnet.queryOrThrow(CurrencyTvlsQuery, {
+        currencyId: id,
+      });
+
+      return [
+        underlyingSymbol,
+        FixedNumber.fromValue(BigNumber.from(cTvl.usdValue), 8).toUnsafeFloat(),
+      ];
+    })
+  );
+  const tvl = tvls.reduce(
+    (acc, [symbol, usdValue]) => {
+      const total = acc.total + usdValue;
+      return { ...acc, total, [symbol]: usdValue };
+    },
+    { total: 0 }
+  );
+  kpis.tvl = { ...tvl };
+}
+
 const run = async ({ env }: JobOptions) => {
   try {
     nowSeconds = Math.round(new Date().getTime() / 1000);
-    const id = env.EXCHANGE_RATE_STORE.idFromName(
-      env.EXCHANGE_RATES_WORKER_NAME
+    const kpisId = env.KPIS_DO.idFromName(env.KPIS_NAME);
+    const kpisStub = env.KPIS_DO.get(kpisId);
+
+    const ratesId = env.EXCHANGE_RATES_DO.idFromName(env.EXCHANGE_RATES_NAME);
+    const ratesStub = env.EXCHANGE_RATES_DO.get(ratesId);
+    const ratesReq = new Request(
+      `http://${env.EXCHANGE_RATES_NAME}/exchange-rates?network=mainnet`,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
     );
-    console.log(`ExchangeRate id: ${id} `);
-    const stub = env.EXCHANGE_RATE_STORE.get(id);
-    const req = new Request(
-      `${env.EXCHANGE_RATE_URL}/exchange-rates?network=homestead`
-    );
-    const exchangeRateResp = await stub.fetch(req);
+    const exchangeRateResp = await ratesStub.fetch(ratesReq);
+
+    if (!exchangeRateResp.ok) {
+      throw new Error("Couldn't fetch exchange rates");
+    }
     const data = await exchangeRateResp.json();
 
     if (data && data.results) {
       setExchangeRatesUSD(data.results);
     }
 
-    const mainnet = GraphClient.getClient('mainnet/notional', 0, true);
     const accountsQuery = `{ id lastUpdateTimestamp hasCashDebt hasPortfolioAssetDebt }`;
     const volumeQuery = `{
             id
@@ -301,15 +338,29 @@ const run = async ({ env }: JobOptions) => {
       'dailyLendBorrowVolumes',
       volumeQuery
     );
-    const [accountsResult, volumesResult] = await Promise.all([
-      mainnet.batchQuery(batchedAccountsQuery),
-      mainnet.batchQuery(batchedVolumeQuery),
-    ]);
+    const [accountsResult, volumesResult, currenciesResult] = await Promise.all(
+      [
+        mainnet.batchQuery(batchedAccountsQuery),
+        mainnet.batchQuery(batchedVolumeQuery),
+        mainnet.queryOrThrow(CurrencyQuery),
+      ]
+    );
+
     await Promise.all([
       processAccountResults(accountsResult),
       processLoanVolumes(volumesResult),
+      processTVL(currenciesResult.currencies),
     ]);
     await submitMetrics(series);
+
+    const kpisReq = new Request(
+      `http://${env.KPIS_NAME}/kpis?network=mainnet`,
+      {
+        body: JSON.stringify({ kpis }),
+        method: 'PUT',
+      }
+    );
+    await kpisStub.fetch(kpisReq);
   } catch (e) {
     console.log(e);
     await log({

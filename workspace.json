@@ -2,6 +2,7 @@
   "$schema": "./node_modules/nx/schemas/workspace-schema.json",
   "version": 2,
   "projects": {
+    "api": "apps/api",
     "blockchain-monitor": "apps/blockchain-monitor",
     "common-icons": "packages/common/icons",
     "common-mui": "packages/common/mui",
@@ -9,7 +10,6 @@
     "contracts": "packages/contracts",
     "durable-objects": "packages/durable-objects",
     "errors": "packages/errors",
-    "exchange-rates": "apps/exchange-rates",
     "features-about-us": "packages/features/about-us",
     "features-borrow": "packages/features/borrow",
     "features-lend": "packages/features/lend",

@@ -1,0 +1,49 @@
+main = "./src/index.ts"
+compatibility_date = "2022-11-11"
+account_id = "274f86c6dcfbb77c09e49e86d101c753"
+
+workers_dev = true
+node_compat = true
+minify = true
+usage_model = "bundled"
+tsconfig = "tsconfig.json"
+
+[[migrations]]
+tag = "v1"
+new_classes = ["ExchangeRatesDO", "KPIsDO"]
+
+[env.local]
+name = "api-local"
+minify = false
+vars = { NX_ENV = "local", VERSION = "v2", EXCHANGE_RATES_NAME = "EXCHANGE_RATES_DO", KPIS_NAME = "KPIS_DO" }
+durable_objects.bindings = [
+  { name = "EXCHANGE_RATES_DO", class_name = "ExchangeRatesDO" },
+  { name = "KPIS_DO", class_name = "KPIsDO" }
+]
+
+[env.dev]
+name = "api-dev"
+route = { pattern = "data-dev.notional.finance", custom_domain = true }
+durable_objects.bindings = [
+  { name = "EXCHANGE_RATES_DO", class_name = "ExchangeRatesDO" },
+  { name = "KPIS_DO", class_name = "KPIsDO" }
+]
+[env.dev.vars]
+NX_ENV = "dev"
+VERSION = "v2"
+EXCHANGE_RATES_NAME = "EXCHANGE_RATES_DO"
+KPIS_NAME = "KPIS_DO"
+
+[env.prod]
+name = "api"
+route = { pattern = "data.notional.finance", custom_domain = true }
+durable_objects.bindings = [
+  { name = "EXCHANGE_RATES_DO", class_name = "ExchangeRatesDO" },
+  { name = "KPIS_DO", class_name = "KPIsDO" }
+]
+
+[env.prod.vars]
+NX_ENV = "dev"
+VERSION = "v2"
+EXCHANGE_RATES_NAME = "EXCHANGE_RATES_DO"
+KPIS_NAME = "KPIS_DO"

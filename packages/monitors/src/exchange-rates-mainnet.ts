@@ -114,6 +114,7 @@ function getCalls(): AggregateCallList {
 async function aggregateCalls() {
   const { provider, calls } = getCalls();
   const { name } = await provider.getNetwork();
+  const network = name === 'homestead' ? 'mainnet' : name;
   const { blockNumber, results } = await aggregate(calls, provider);
   const exchangeRates = Object.keys(results).map((key) => {
     const quote = key.split('_')[0];
@@ -135,24 +136,25 @@ async function aggregateCalls() {
       metadata,
     };
   });
-  return { network: name, blockNumber, results: exchangeRates };
+  return { network, blockNumber, results: exchangeRates };
 }
 
 async function run({ env }: JobOptions): Promise<void> {
   try {
-    const id = env.EXCHANGE_RATE_STORE.idFromName(
-      env.EXCHANGE_RATES_WORKER_NAME
-    );
-    const stub = env.EXCHANGE_RATE_STORE.get(id);
-
     provider = getProvider('mainnet');
     const { network, blockNumber, results } = await aggregateCalls();
-    const req = new Request(`${env.EXCHANGE_RATE_URL}/exchange-rates`, {
-      method: 'PUT',
-      body: JSON.stringify({ rates: { network, blockNumber, results } }),
-    });
-    await stub.fetch(req);
 
+    const id = env.EXCHANGE_RATES_DO.idFromName(env.EXCHANGE_RATES_NAME);
+    const stub = env.EXCHANGE_RATES_DO.get(id);
+
+    const req = new Request(
+      `http://${env.EXCHANGE_RATES_NAME}/exchange-rates`,
+      {
+        method: 'PUT',
+        body: JSON.stringify({ rates: { network, blockNumber, results } }),
+      }
+    );
+    await stub.fetch(req);
     await Promise.all(
       results.map(async (quote) => {
         const volatilityType = quote.metadata.volatilityType;
@@ -177,7 +179,7 @@ async function run({ env }: JobOptions): Promise<void> {
     await log({
       message: (e as Error).message,
       level: 'error',
-      chain: 'homestead',
+      chain: 'mainnet',
       action: 'exchange_rate.refresh',
     });
   }
