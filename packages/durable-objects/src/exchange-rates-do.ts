@@ -43,7 +43,7 @@ export class ExchangeRatesDO {
     }
   }
 
-  async get(network: string | null) {
+  async get(network: string) {
     try {
       const rates = await this.state.storage.get(network);
       const headers = {

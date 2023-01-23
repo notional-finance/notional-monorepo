@@ -1,3 +1,4 @@
+import { DurableObjectNamespace } from '@cloudflare/workers-types';
 import { BigNumber } from 'ethers';
 
 export interface GetExchangeRatesResponse {

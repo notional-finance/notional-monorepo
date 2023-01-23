@@ -38,7 +38,7 @@ export class KPIsDO {
     }
   }
 
-  async get(network: string | null) {
+  async get(network: string) {
     try {
       const kpis = await this.state.storage.get(network);
       const headers = {
