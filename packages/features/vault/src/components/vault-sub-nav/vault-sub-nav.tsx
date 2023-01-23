@@ -1,6 +1,5 @@
 import { styled, Box, useTheme } from '@mui/material';
 import { Label } from '@notional-finance/mui';
-import { useNotionalTheme } from '@notional-finance/styles';
 import { THEME_VARIANTS } from '@notional-finance/shared-config';
 
 const subNavData = [
