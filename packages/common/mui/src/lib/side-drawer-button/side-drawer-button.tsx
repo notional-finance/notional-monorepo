@@ -5,33 +5,34 @@ import { NotionalTheme } from '@notional-finance/styles';
 export interface SideDrawerButtonProps {
   children: any;
   onClick?: () => void;
-  clickable?: boolean;
+  canClick?: boolean;
   sx?: SxProps;
 }
 interface ButtonProps {
   theme: NotionalTheme;
-  clickable?: boolean;
+  canClick?: boolean;
 }
 
 export function SideDrawerButton({
   children,
   sx,
-  clickable = true,
+  canClick = true,
+  onClick,
 }: SideDrawerButtonProps) {
   const theme = useTheme();
   return (
-    <Button theme={theme} clickable={clickable} sx={{ ...sx }}>
+    <Button theme={theme} canClick={canClick} sx={{ ...sx }} onClick={onClick}>
       {children}
     </Button>
   );
 }
 
 const Button = styled(Box)(
-  ({ theme, clickable }: ButtonProps) => `
+  ({ theme, canClick }: ButtonProps) => `
   padding: ${theme.spacing(2.5)};
   margin-bottom: ${theme.spacing(2)};
   border-radius: ${theme.shape.borderRadius()};
-  cursor: ${clickable ? 'pointer' : 'normal'};
+  cursor: ${canClick ? 'pointer' : 'normal'};
   background: ${theme.palette.background.default};
   display: flex;
   align-items: center;
