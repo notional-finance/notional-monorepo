@@ -301,7 +301,7 @@ const getThemeData = (themeVariant: PaletteMode) => {
             : colors.greenGrey,
         contrastText:
           themeVariant === THEME_VARIANTS.LIGHT ? colors.white : colors.black,
-        accent: colors.aqua,
+        accent: themeVariant === THEME_VARIANTS.LIGHT ? colors.aqua : colors.neonTurquoise,
       },
       background: {
         paper:
