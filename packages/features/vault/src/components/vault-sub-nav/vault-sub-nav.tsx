@@ -123,16 +123,15 @@ const NavItem = styled(Box, {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 600;
+    font-weight: ${theme.typography.fontWeightMedium};
     
     .span1, .span2 {
-      content: "";
+      width: ${theme.spacing(3)};
+      height: ${theme.spacing(2.5)};
       position: fixed;
-      width: ${theme.spacing(2)};
-      height: ${theme.spacing(2)};
-      margin-left: -${theme.spacing(2)};
-      margin-top: ${theme.spacing(7.5)};
-      transform: translate(50%, -50%) rotate(45deg);
+      margin-top: ${theme.spacing(8.375)};
+      clip-path: polygon(100% 100%, 0 100%, 50% 50%);
+      transform: rotate(180deg);
       background: ${theme.palette.background.accentDefault};
     }
     .span2 {
@@ -150,7 +149,6 @@ const NavItemContainer = styled(Box)(
   flex: 1;
   display: flex;
   min-width: ${theme.spacing(94)};
-  padding-right: -15px;
   ${theme.breakpoints.down('lg')} {
     margin: ${theme.spacing(0, 2)};
   }
