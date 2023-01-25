@@ -9,6 +9,7 @@ import {
   AreaChart,
 } from '@notional-finance/mui';
 import { useVault } from '@notional-finance/notionable-hooks';
+import { VAULT_SUB_NAV_ACTIONS } from '@notional-finance/shared-config';
 import { useContext } from 'react';
 import { FormattedMessage, defineMessage } from 'react-intl';
 import { VaultDescription, VaultSubNav } from '../components';
@@ -56,39 +57,49 @@ export const VaultSummary = () => {
     <Box>
       <VaultSubNav />
       <Box
-        sx={{ display: 'flex', justifyContent: 'center', marginTop: '100px' }}
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          marginTop: theme.spacing(6),
+        }}
       >
         <TradeSummaryContainer>
-          <TradeActionHeader
-            token={primaryBorrowSymbol}
-            actionText={vaultName}
-            hideTokenName
-          />
-          <TradeActionTitle
-            value={headlineApy}
-            valueSuffix="%"
-            title={<FormattedMessage {...messages.summary.expectedYield} />}
-          />
-          <SliderDisplay
-            min={0}
-            max={100}
-            value={capacityUsedPercentage}
-            captionLeft={{
-              title: messages.summary.capacityUsed,
-              value: totalCapacityUsed,
-            }}
-            captionRight={{
-              title: messages.summary.totalCapacity,
-              value: maxVaultCapacity,
-            }}
-            marks={userCapacityMark}
-            sx={{
-              border: overCapacityError
-                ? `2px solid ${theme.palette.error.main}`
-                : theme.shape.borderStandard,
-            }}
-          />
-          <Box sx={{ marginTop: theme.spacing(2) }}>
+          <Box id={VAULT_SUB_NAV_ACTIONS.OVERVIEW}>
+            <TradeActionHeader
+              token={primaryBorrowSymbol}
+              actionText={vaultName}
+              hideTokenName
+            />
+            <TradeActionTitle
+              value={headlineApy}
+              valueSuffix="%"
+              title={<FormattedMessage {...messages.summary.expectedYield} />}
+            />
+
+            <SliderDisplay
+              min={0}
+              max={100}
+              value={capacityUsedPercentage}
+              captionLeft={{
+                title: messages.summary.capacityUsed,
+                value: totalCapacityUsed,
+              }}
+              captionRight={{
+                title: messages.summary.totalCapacity,
+                value: maxVaultCapacity,
+              }}
+              marks={userCapacityMark}
+              sx={{
+                border: overCapacityError
+                  ? `2px solid ${theme.palette.error.main}`
+                  : theme.shape.borderStandard,
+              }}
+            />
+          </Box>
+          <Box
+            sx={{ marginTop: theme.spacing(2) }}
+            id={VAULT_SUB_NAV_ACTIONS.MARKET_RETURNS}
+          >
             <DataTable
               data={returnDrivers}
               columns={tableColumns}
@@ -98,7 +109,9 @@ export const VaultSummary = () => {
               })}
             />
           </Box>
-          <VaultDescription vaultAddress={vaultAddress} />
+          <Box id={VAULT_SUB_NAV_ACTIONS.STRATEGY_DETAILS}>
+            <VaultDescription vaultAddress={vaultAddress} />
+          </Box>
         </TradeSummaryContainer>
       </Box>
     </Box>
