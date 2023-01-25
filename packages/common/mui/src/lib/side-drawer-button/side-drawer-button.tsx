@@ -1,4 +1,3 @@
-    <Button theme={theme} clickable={clickable} sx={{ ...sx }}>
 import { styled, Box, useTheme, SxProps } from '@mui/material';
 import { NotionalTheme } from '@notional-finance/styles';
 
