@@ -2,6 +2,7 @@ import { PageLoading, SideBarLayout } from '@notional-finance/mui';
 import { useQueryParams } from '@notional-finance/utils';
 import { useContext } from 'react';
 import { ConfirmVaultTxn } from '../components/confirm-vault-txn/confirm-vault-txn';
+import { VAULT_SUB_NAV_ACTIONS } from '@notional-finance/shared-config';
 import { useVaultTransaction } from '../hooks/use-vault-transaction';
 import { VaultActionContext } from '../managers';
 import { VaultAction } from './vault-action';
