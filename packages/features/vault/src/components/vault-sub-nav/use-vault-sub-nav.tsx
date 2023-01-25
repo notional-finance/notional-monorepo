@@ -13,11 +13,11 @@ export const useVaultSubNav = () => {
       key: VAULT_SUB_NAV_ACTIONS.MARKET_RETURNS,
       anchor: VAULT_SUB_NAV_ACTIONS.MARKET_RETURNS,
     },
-    {
-      label: 'Yield Drivers',
-      key: VAULT_SUB_NAV_ACTIONS.YIELD_DRIVERS,
-      anchor: VAULT_SUB_NAV_ACTIONS.YIELD_DRIVERS,
-    },
+    // {
+    //   label: 'Yield Drivers',
+    //   key: VAULT_SUB_NAV_ACTIONS.YIELD_DRIVERS,
+    //   anchor: VAULT_SUB_NAV_ACTIONS.YIELD_DRIVERS,
+    // },
     {
       label: 'Strategy Details',
       key: VAULT_SUB_NAV_ACTIONS.STRATEGY_DETAILS,
