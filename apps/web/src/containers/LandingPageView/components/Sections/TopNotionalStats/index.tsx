@@ -8,6 +8,7 @@ import iconAnalyticsDashboard from '@notional-finance/assets/icons/icon-analytic
 import iconDiscordSvg from '@notional-finance/assets/icons/icon-discord.svg';
 import { H1, H3, H4 } from '@notional-finance/mui';
 
+const KPIUrl = process.env['NX_KPIS_URL'] || 'https://data.notional.finance';
 const TopNotionalStats = () => {
   const { ref, inView } = useInView({
     /* Optional options */
@@ -24,15 +25,12 @@ const TopNotionalStats = () => {
 
   const fetchKPIs = useCallback(async () => {
     try {
-      const response = await fetch(
-        'https://data-dev.notional.finance/kpis?network=mainnet',
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+      const response = await fetch(`${KPIUrl}/kpis?network=mainnet`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
       const data = await response.json();
       const oneMillion = 1_000_000;
       const totalAccounts = data.accounts.total.overall;
