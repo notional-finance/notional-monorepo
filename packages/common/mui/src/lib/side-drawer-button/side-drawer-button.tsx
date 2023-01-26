@@ -10,7 +10,7 @@ export interface SideDrawerButtonProps {
 }
 interface ButtonProps {
   theme: NotionalTheme;
-  canClick?: boolean;
+  canclick?: boolean;
 }
 
 export function SideDrawerButton({
@@ -21,18 +21,18 @@ export function SideDrawerButton({
 }: SideDrawerButtonProps) {
   const theme = useTheme();
   return (
-    <Button theme={theme} canClick={canClick} sx={{ ...sx }} onClick={onClick}>
+    <Button theme={theme} canclick={canClick} sx={{ ...sx }} onClick={onClick}>
       {children}
     </Button>
   );
 }
 
 const Button = styled(Box)(
-  ({ theme, canClick }: ButtonProps) => `
+  ({ theme, canclick }: ButtonProps) => `
   padding: ${theme.spacing(2.5)};
   margin-bottom: ${theme.spacing(2)};
   border-radius: ${theme.shape.borderRadius()};
-  cursor: ${canClick ? 'pointer' : 'normal'};
+  cursor: ${canclick ? 'pointer' : 'normal'};
   background: ${theme.palette.background.default};
   display: flex;
   align-items: center;

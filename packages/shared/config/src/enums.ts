@@ -23,6 +23,15 @@ export enum MOBILE_SUB_NAV_ACTIONS {
   COMPANY = 'company',
 }
 
+export enum VAULT_SUB_NAV_ACTIONS {
+  OVERVIEW = 'overview',
+  MARKET_RETURNS = 'market-returns',
+  YIELD_DRIVERS = 'yeild-drivers',
+  STRATEGY_DETAILS = 'strategy-details',
+  BACK_TO_TOP = 'back-to-top',
+  FULL_DOCUMENTATION = 'full-documentation',
+}
+
 export enum PORTFOLIO_ACTIONS {
   ADD_TO_CALENDAR = 'add-to-calendar',
   DEPOSIT = 'deposit',
