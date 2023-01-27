@@ -6,6 +6,7 @@ import { VAULT_SUB_NAV_ACTIONS } from '@notional-finance/shared-config';
 import { useVaultTransaction } from '../hooks/use-vault-transaction';
 import { VaultActionContext } from '../managers';
 import { VaultAction } from './vault-action';
+import { VaultActionSideBar } from './vault-action-side-bar';
 import { VaultSummary } from './vault-summary';
 
 export const VaultView = () => {
@@ -19,7 +20,7 @@ export const VaultView = () => {
   return vaultAddress ? (
     <SideBarLayout
       showTransactionConfirmation={showTransactionConfirmation}
-      sideBar={confirmRoute ? <ConfirmVaultTxn /> : <VaultAction />}
+      sideBar={confirmRoute ? <ConfirmVaultTxn /> : <VaultActionSideBar />}
       mainContent={<VaultSummary />}
     />
   ) : (

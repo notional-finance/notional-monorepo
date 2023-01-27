@@ -28,6 +28,7 @@ export function SideDrawer({
       onClose={() => callback()}
       onOpen={() => callback()}
       onBackdropClick={() => callback()}
+      // hideBackdrop
       sx={{
         '.MuiBackdrop-root': {
           backgroundColor: alpha(theme.palette.background.accentDefault, 0.5),
