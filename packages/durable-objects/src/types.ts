@@ -1,5 +1,18 @@
 import { DurableObjectNamespace } from '@cloudflare/workers-types';
+import { BlockTriggerEvent } from 'defender-autotask-utils';
 import { BigNumber } from 'ethers';
+
+export interface SentinalRequest {
+  events: BlockTriggerEvent[];
+}
+export interface APIEnv {
+  EXCHANGE_RATES_DO: DurableObjectNamespace;
+  KPIS_DO: DurableObjectNamespace;
+  ACCOUNTS_DO: DurableObjectNamespace;
+  EXCHANGE_RATES_NAME: string;
+  KPIS_NAME: string;
+  ACCOUNTS_NAME: string;
+}
 
 export interface GetExchangeRatesResponse {
   blockNumber: number;
@@ -13,14 +26,4 @@ export interface ExchangeRate {
   value: BigNumber;
   decimals: number;
   metadata: Record<string, unknown>;
-}
-
-export interface ExchangeRatesDOEnv {
-  EXCHANGE_RATE_DO: DurableObjectNamespace;
-  WORKER_NAME: string;
-}
-
-export interface KPIsDOEnv {
-  KPIsDO: DurableObjectNamespace;
-  WORKER_NAME: string;
 }

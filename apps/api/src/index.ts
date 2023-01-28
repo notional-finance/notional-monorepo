@@ -1,12 +1,10 @@
-import { DurableObjectNamespace } from '@cloudflare/workers-types';
-import { ExchangeRatesDO, KPIsDO } from '@notional-finance/durable-objects';
-export { ExchangeRatesDO, KPIsDO };
-export interface APIEnv {
-  EXCHANGE_RATES_DO: DurableObjectNamespace;
-  KPIS_DO: DurableObjectNamespace;
-  EXCHANGE_RATES_NAME: string;
-  KPIS_NAME: string;
-}
+import {
+  ExchangeRatesDO,
+  KPIsDO,
+  AccountsDO,
+  APIEnv,
+} from '@notional-finance/durable-objects';
+export { ExchangeRatesDO, KPIsDO, AccountsDO, APIEnv };
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -18,8 +16,10 @@ export default {
   async fetch(request: Request, env: APIEnv): Promise<Response> {
     const req = request.clone();
     const { url, method, headers } = request;
+
     const path = new URL(url).pathname;
-    if (method !== 'GET' && method !== 'OPTIONS') {
+
+    if (method !== 'GET' && method !== 'OPTIONS' && method !== 'POST') {
       return new Response('Not Found', { status: 404 });
     }
     if (method === 'OPTIONS') {
@@ -39,7 +39,7 @@ export default {
 
       return new Response(null, {
         headers: {
-          Allow: 'GET, OPTIONS',
+          Allow: 'GET, OPTIONS, POST',
         },
       });
     }
@@ -50,6 +50,10 @@ export default {
     } else if (path === '/kpis') {
       const id = env.KPIS_DO.idFromName(env.KPIS_NAME);
       const stub = env.KPIS_DO.get(id);
+      return stub.fetch(req);
+    } else if (path === '/accounts') {
+      const id = env.ACCOUNTS_DO.idFromName(env.ACCOUNTS_NAME);
+      const stub = env.ACCOUNTS_DO.get(id);
       return stub.fetch(req);
     }
     return new Response('Not Found', { status: 404 });

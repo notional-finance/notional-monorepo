@@ -29,7 +29,12 @@
       "files": ["*.ts", "*.tsx"],
       "extends": ["plugin:@nrwl/nx/typescript"],
       "rules": {
-        "@typescript-eslint/no-unused-vars": ["error", { "varsIgnorePattern": "[_].*"}],
+        "@typescript-eslint/no-unused-vars": [
+          "error",
+          {
+            "varsIgnorePattern": "[_].*"
+          }
+        ],
         "react-hooks/exhaustive-deps": ["error"],
         "array-callback-return": ["error"],
         "@nrwl/nx/enforce-module-boundaries": ["warn"]
@@ -41,13 +46,24 @@
       "rules": {}
     },
     {
-      "files": ["*.spec.ts", "*.spec.tsx", "*.spec.js", "*.spec.jsx", "*.test.ts"],
+      "files": [
+        "*.spec.ts",
+        "*.spec.tsx",
+        "*.spec.js",
+        "*.spec.jsx",
+        "*.test.ts"
+      ],
       "env": {
         "jest": true
       },
       "rules": {
         "@typescript-eslint/no-non-null-assertion": ["off"]
       }
+    },
+    {
+      "files": "*.json",
+      "parser": "jsonc-eslint-parser",
+      "rules": {}
     }
   ]
 }
