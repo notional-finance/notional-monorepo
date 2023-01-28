@@ -18,9 +18,6 @@ export class AccountsDO {
       if (method !== 'POST' && method !== 'GET') {
         return new Response('Method Not Allowed', { status: 405 });
       }
-      /* const existingAccounts = await this.state.storage.get<string[]>(
-        'accounts'
-      ); */
       if (method === 'POST') {
         return this.update(req);
       } else if (method === 'GET') {
