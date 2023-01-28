@@ -1,4 +1,5 @@
 import { DurableObjectState } from '@cloudflare/workers-types';
+import { APIEnv } from './types';
 
 export class KPIsDO {
   state: DurableObjectState;

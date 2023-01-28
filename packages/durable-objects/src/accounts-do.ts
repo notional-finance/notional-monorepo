@@ -63,6 +63,9 @@ export class AccountsDO {
     try {
       const { url } = request;
       const network = new URL(url).searchParams.get('network');
+      if (!network) {
+        return new Response('Network Required', { status: 400 });
+      }
       const existingAccounts =
         (await this.state.storage.get<string[]>(network)) ?? [];
       const headers = {
