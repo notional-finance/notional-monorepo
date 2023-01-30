@@ -34,7 +34,10 @@ export class AccountsDO {
     try {
       const { events }: SentinalRequest = await request.json();
       if (events && events.length > 0) {
-        const network = events[0].sentinel.network;
+        const { id, network } = events[0].sentinel;
+        if (id !== this.env.SENTINEL_ID) {
+          return new Response('Bad Request', { status: 400 });
+        }
         const accounts = unique(events.map((e) => e.transaction.from));
         const existingAccounts =
           (await this.state.storage.get<string[]>(network)) ?? [];
