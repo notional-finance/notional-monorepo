@@ -1,11 +1,11 @@
 import { DurableObjectState } from '@cloudflare/workers-types';
-import { KPIsDOEnv } from './types';
+import { APIEnv } from './types';
 
 export class KPIsDO {
   state: DurableObjectState;
-  env: KPIsDOEnv;
+  env: APIEnv;
 
-  constructor(state: DurableObjectState, env: KPIsDOEnv) {
+  constructor(state: DurableObjectState, env: APIEnv) {
     this.state = state;
     this.env = env;
   }

@@ -1,23 +1,19 @@
 {
-    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
-    "eslint.format.enable": true,
-    "eslint.alwaysShowStatus": true,
-    "editor.detectIndentation": true,
-    "typescript.validate.enable": false,
-    "editor.formatOnSave": true,
-    "editor.codeActionsOnSave": {
-        "source.fixAll.eslint": true
-    },
-    "cSpell.words": [
-        "arrayify",
-        "noindex",
-        "Numberish",
-        "xirr"
-    ],
-    "[typescriptreact]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
-    },
-    "[javascript]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
-    }
+  "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+  "eslint.format.enable": true,
+  "eslint.alwaysShowStatus": true,
+  "editor.detectIndentation": true,
+  "typescript.validate.enable": false,
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+  "cSpell.words": ["arrayify", "noindex", "Numberish", "xirr"],
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "eslint.validate": ["json"]
 }

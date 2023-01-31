@@ -1,11 +1,11 @@
 import { DurableObjectState } from '@cloudflare/workers-types';
-import { ExchangeRatesDOEnv } from './types';
+import { APIEnv } from './types';
 
 export class ExchangeRatesDO {
   state: DurableObjectState;
-  env: ExchangeRatesDOEnv;
+  env: APIEnv;
 
-  constructor(state: DurableObjectState, env: ExchangeRatesDOEnv) {
+  constructor(state: DurableObjectState, env: APIEnv) {
     this.state = state;
     this.env = env;
   }
