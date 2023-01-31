@@ -42,7 +42,7 @@ export const ConvertCashToNTokensInput = React.forwardRef<
       onChange({
         inputAmount,
         currencyId,
-        netCashChange: inputAmount?.neg(),
+        netCashChange: inputAmount.neg(),
         netNTokenChange: NTokenValue.getNTokensToMint(currencyId, inputAmount),
         hasError: !!error,
       });
