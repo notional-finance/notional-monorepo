@@ -1,12 +1,15 @@
 import { TypedBigNumber } from '@notional-finance/sdk';
 import { useFormState } from '@notional-finance/utils';
-import { errorMsgs } from './error-msgs';
+import { tradeErrors } from '@notional-finance/trade';
 import { TransactionData } from '@notional-finance/notionable';
 import { TradePropertyKeys } from '@notional-finance/trade';
-import { useNotional, useAccountCashBalance, useCurrencyData, useAccount } from '@notional-finance/notionable-hooks';
+import {
+  useNotional,
+  useAccountCashBalance,
+  useCurrencyData,
+  useAccount,
+} from '@notional-finance/notionable-hooks';
 import { MessageDescriptor } from 'react-intl';
-
-
 
 interface CashToNTokensState {
   inputAmount: TypedBigNumber | undefined;
@@ -26,24 +29,23 @@ const initialCashToNTokensState = {
   selectedToken: '',
 };
 
-
-export function useConvertCashToNTokensInput(selectedToken: string, inputString: string) {
+export function useConvertCashToNTokensInput(
+  selectedToken: string,
+  inputString: string
+) {
   const { notional } = useNotional();
   const maxBalance = useAccountCashBalance(selectedToken);
   const maxValue = maxBalance?.toExactString();
-  const { id } = useCurrencyData(selectedToken); 
+  const { id } = useCurrencyData(selectedToken);
 
   const inputAmount =
     inputString && notional
       ? notional.parseInput(inputString, selectedToken, true)
       : undefined;
 
-
-  let errorMsg: MessageDescriptor | undefined;  
+  let errorMsg: MessageDescriptor | undefined;
   if (maxBalance && inputAmount?.lte(maxBalance) === false) {
-    errorMsg = errorMsgs.insufficientBalance;
-  } else if (inputAmount?.isZero()) {
-    errorMsg = errorMsgs.inputGreaterThanZero;
+    errorMsg = tradeErrors.insufficientBalance;
   } else if (inputAmount === undefined) {
     errorMsg = undefined;
   }
@@ -62,15 +64,9 @@ export function useConvertCashToNTokens(symbol: string | undefined) {
   const [state, updateCashToNTokensState] = useFormState<CashToNTokensState>(
     initialCashToNTokensState
   );
-    
-  const {
-    hasError,
-    currencyId,
-    inputAmount,
-    netCashChange,
-    netNTokenChange,
-  } = state;
 
+  const { hasError, currencyId, inputAmount, netCashChange, netNTokenChange } =
+    state;
 
   const canSubmit =
     !!symbol &&
@@ -80,29 +76,23 @@ export function useConvertCashToNTokens(symbol: string | undefined) {
     !!netCashChange &&
     !!netNTokenChange &&
     hasError === false &&
-    inputAmount?.isPositive()
+    inputAmount?.isPositive();
 
-  
-    let transactionData: TransactionData | undefined;
-    if (canSubmit) {
-      accountDataCopy.updateBalance(currencyId, netCashChange, netNTokenChange);
-      transactionData = {
-        transactionHeader: '',
-        buildTransactionCall: {
-          transactionFn: notional.mintNToken,
-          transactionArgs: [
-            address,
-            symbol,
-            inputAmount,
-            true,
-          ]
-        },
-        transactionProperties: {
-          [TradePropertyKeys.nTokensMinted]: netNTokenChange,
-          [TradePropertyKeys.fromCashBalance]: inputAmount,
-        },
-      };
-    }
+  let transactionData: TransactionData | undefined;
+  if (canSubmit) {
+    accountDataCopy.updateBalance(currencyId, netCashChange, netNTokenChange);
+    transactionData = {
+      transactionHeader: '',
+      buildTransactionCall: {
+        transactionFn: notional.mintNToken,
+        transactionArgs: [address, symbol, inputAmount, true],
+      },
+      transactionProperties: {
+        [TradePropertyKeys.nTokensMinted]: netNTokenChange,
+        [TradePropertyKeys.fromCashBalance]: inputAmount,
+      },
+    };
+  }
 
   return {
     canSubmit,

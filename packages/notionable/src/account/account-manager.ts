@@ -110,12 +110,8 @@ const accountUpdates$ = _accountUpdates.asObservable().pipe(
       const aHash = a.accountData?.hashKey ?? '';
       const bHash = b.accountData?.hashKey ?? '';
       const areIdentical = aHash === bHash;
-      /* console.log(`Prev Hash: ${aHash}`);
-      console.log(`New Hash: ${bHash}`); */
-      console.log(`Accounts are identical: ${areIdentical}`);
       return areIdentical;
     }
-    console.log(`accounts are different`);
     return false;
   }),
   mergeMap((account) => {

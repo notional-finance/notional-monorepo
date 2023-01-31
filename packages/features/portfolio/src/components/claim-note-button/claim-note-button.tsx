@@ -2,47 +2,47 @@ import { useEffect, useState } from 'react';
 import { Box, useTheme, styled } from '@mui/material';
 import { CountUp, ButtonText } from '@notional-finance/mui';
 import { useAccount } from '@notional-finance/notionable-hooks';
-import { THEME_VARIANTS } from '@notional-finance/shared-config';
 import { NoteWithShadow } from '@notional-finance/icons';
 import { useNotional } from '@notional-finance/notionable-hooks';
 import { NotionalTheme } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
+import { UserNoteData } from '../../hooks';
 
 interface ClaimNoteType {
   theme: NotionalTheme;
   hover?: boolean;
 }
 
-export const ClaimNoteButton = ({ claimNoteData }) => {
+interface ClaimNoteButtonProps {
+  claimNoteData: UserNoteData;
+}
+
+export const ClaimNoteButton = ({ claimNoteData }: ClaimNoteButtonProps) => {
   const theme = useTheme();
   const { notional } = useNotional();
-  const { account } = useAccount();
-  const { accountSummariesLoaded } = useAccount();
+  const { account, accountSummariesLoaded } = useAccount();
   const [noteCountUp, setNoteCountUp] = useState<number>(0);
   const [hover, setHover] = useState(false);
-  const [noteData, setNoteData] = useState<any | null>(null);
 
   useEffect(() => {
-    if (noteData === null) {
-      claimNoteData.then((data) => {
-        setNoteData(data);
-        setNoteCountUp(data.userNoteEarnedFloat);
-      });
+    if (claimNoteData.userNoteEarnedFloat) {
+      setNoteCountUp(claimNoteData.userNoteEarnedFloat);
     }
-  }, [claimNoteData, noteData]);
+  }, [claimNoteData.userNoteEarnedFloat]);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      if (noteData && noteData.userNoteEarnedPerSecond > 0) {
+      if (claimNoteData.userNoteEarnedPerSecond > 0) {
         setNoteCountUp(
-          (noteCountUp) => noteCountUp + 0.1 * noteData.userNoteEarnedPerSecond
+          (noteCountUp) =>
+            noteCountUp + 0.1 * claimNoteData.userNoteEarnedPerSecond
         );
       }
     }, 100);
     return () => clearInterval(interval);
-  }, [noteData]);
+  }, [claimNoteData.userNoteEarnedPerSecond]);
 
-  const handleCLick = async () => {
+  const handleClick = async () => {
     if (account?.address && notional) {
       const unsignedTxn = await notional.claimIncentives(account.address);
       await account.sendTransaction(unsignedTxn);
@@ -51,12 +51,12 @@ export const ClaimNoteButton = ({ claimNoteData }) => {
 
   // NOTE: accountSummariesLoaded is used here to ensure that the button is rendered on time with the button-bar
   return (
-    <div>
-      {!noteData?.userNoteEarned.isZero() && accountSummariesLoaded && (
+    <Box>
+      {!claimNoteData?.userNoteEarned.isZero() && accountSummariesLoaded && (
         <Wrapper
           onMouseEnter={() => setHover(true)}
           onMouseLeave={() => setHover(false)}
-          onClick={handleCLick}
+          onClick={handleClick}
         >
           <ClaimNoteWrapper hover={hover} theme={theme}>
             <FormattedMessage defaultMessage={'Claim NOTE'} />{' '}
@@ -73,7 +73,7 @@ export const ClaimNoteButton = ({ claimNoteData }) => {
           </NoteWrapper>
         </Wrapper>
       )}
-    </div>
+    </Box>
   );
 };
 
