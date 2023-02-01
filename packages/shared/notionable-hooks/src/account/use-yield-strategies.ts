@@ -5,16 +5,17 @@ import {
   VaultFactory,
 } from '@notional-finance/sdk';
 import { useLocation } from 'react-router-dom';
-import { Market } from '@notional-finance/sdk/src/system';
-import { getNowSeconds, logError } from '@notional-finance/helpers';
+// import { Market } from '@notional-finance/sdk/src/system';
+// import { getNowSeconds, logError } from '@notional-finance/helpers';
+import { logError } from '@notional-finance/helpers';
 import {
   PORTFOLIO_ACTIONS,
   VAULT_ACTIONS,
 } from '@notional-finance/shared-config';
 import { useObservableState } from 'observable-hooks';
 import {
-  vaultState$,
-  initialVaultState,
+  // vaultState$,
+  // initialVaultState,
   vaultPerformance$,
   calculateHeadlineVaultReturns,
 } from '@notional-finance/notionable';
@@ -51,18 +52,18 @@ export function useYieldStrategies(
   const { pathname: currentPath } = useLocation();
   const { accountDataCopy: accountData, noteSummary } = useAccount();
   const vaultPerformance = useObservableState(vaultPerformance$);
-  const { activeVaultMarkets } = useObservableState(
-    vaultState$,
-    initialVaultState
-  );
+  // const { activeVaultMarkets } = useObservableState(
+  //   vaultState$,
+  //   initialVaultState
+  // );
 
   if (!system) return [];
 
   const leveragedVaultPositions: YieldStrategies[] =
     accountData.vaultAccounts.map((vaultAccount) => {
       const vaultConfig = vaultAccount.getVault();
-      const activeMarketKeys =
-        activeVaultMarkets.get(vaultConfig.vaultAddress) || [];
+      // const activeMarketKeys =
+      //   activeVaultMarkets.get(vaultConfig.vaultAddress) || [];
       const currencySymbol = system.getUnderlyingSymbol(
         vaultConfig.primaryBorrowCurrency
       );
@@ -79,7 +80,7 @@ export function useYieldStrategies(
       let assetValue = TypedBigNumber.fromBalance(0, currencySymbol, true);
       let leverageRatio: number | undefined;
       let leveragePercentage: number | undefined;
-      let mustDeleverage = false;
+      // let mustDeleverage = false;
       try {
         const baseVault = VaultFactory.buildVaultFromCache(
           vaultConfig.strategy,
@@ -90,7 +91,7 @@ export function useYieldStrategies(
           .toUnderlying(true);
         leverageRatio = baseVault.getLeverageRatio(vaultAccount);
         leveragePercentage = (leverageRatio / maxLeverageRatio) * 100;
-        mustDeleverage = leveragePercentage > 70;
+        // mustDeleverage = leveragePercentage > 70;
       } catch (e) {
         logError(e as Error, 'notionable/account', 'use-yield-strategies');
       }
@@ -106,15 +107,15 @@ export function useYieldStrategies(
         leverageRatio
       );
 
-      const canIncreasePosition =
-        activeMarketKeys.find(
-          (k) => Market.parseMaturity(k) === vaultAccount.maturity
-        ) !== undefined;
-      const canRollPosition =
-        vaultAccount.maturity > getNowSeconds() &&
-        activeMarketKeys.find(
-          (k) => Market.parseMaturity(k) > vaultAccount.maturity
-        ) !== undefined;
+      // const canIncreasePosition =
+      //   activeMarketKeys.find(
+      //     (k) => Market.parseMaturity(k) === vaultAccount.maturity
+      //   ) !== undefined;
+      // const canRollPosition =
+      //   vaultAccount.maturity > getNowSeconds() &&
+      //   activeMarketKeys.find(
+      //     (k) => Market.parseMaturity(k) > vaultAccount.maturity
+      //   ) !== undefined;
 
       // NOTE: debt value is negative
       const netWorth = debtValue ? assetValue.add(debtValue) : assetValue;
