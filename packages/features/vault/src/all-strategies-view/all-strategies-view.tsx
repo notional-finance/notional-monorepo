@@ -1,5 +1,6 @@
 import { useStrategies } from './use-strategies';
 import { CardContainer } from '@notional-finance/shared-web';
+import { VAULT_ACTIONS } from '@notional-finance/shared-config';
 import { CardVariant } from '@notional-finance/mui';
 import { defineMessage, FormattedMessage } from 'react-intl';
 
@@ -16,6 +17,9 @@ export const AllStrategyView = () => {
         capacityUsedPercentage,
         capacityRemaining,
       } = v;
+
+      console.log({ vaultAddress });
+
       return (
         <CardVariant
           variant="vault"

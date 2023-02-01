@@ -64,7 +64,7 @@ export function getUpdatedVaultAccount({
         updatedVaultAccount = newVaultAccount;
       }
     } else if (
-      vaultAction === VAULT_ACTIONS.ESTABLISH_ACCOUNT &&
+      vaultAction === VAULT_ACTIONS.CREATE_VAULT_POSITION &&
       fCashBorrowAmount &&
       depositAmount
     ) {

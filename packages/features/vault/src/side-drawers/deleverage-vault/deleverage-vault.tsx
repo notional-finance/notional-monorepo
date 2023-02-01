@@ -2,7 +2,7 @@ import {
   TradePropertiesGrid,
   WalletDepositInput,
 } from '@notional-finance/trade';
-import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
+import { VAULT_ACTIONS } from '@notional-finance/shared-config';
 import { FormattedMessage } from 'react-intl';
 import { useHistory, useLocation } from 'react-router';
 import { VaultSideDrawer } from '../components/vault-side-drawer';
@@ -17,7 +17,7 @@ export const DeleverageVault = () => {
   const { search, pathname } = useLocation();
   const searchParams = new URLSearchParams(search);
   const vaultAddress = searchParams.get('vaultAddress') || '';
-  const action = searchParams.get('action') as PORTFOLIO_ACTIONS;
+  const action = searchParams.get('action') as VAULT_ACTIONS;
   const history = useHistory();
   const inputRef = useRef<SliderInputHandle>(null);
   const setInputAmount = useCallback(
@@ -61,15 +61,14 @@ export const DeleverageVault = () => {
           searchParams.set(
             'action',
             isChecked
-              ? PORTFOLIO_ACTIONS.DELEVERAGE_VAULT_DEPOSIT
-              : PORTFOLIO_ACTIONS.DELEVERAGE_VAULT_SELL_ASSETS
+              ? VAULT_ACTIONS.DELEVERAGE_VAULT_DEPOSIT
+              : VAULT_ACTIONS.WITHDRAW_AND_REPAY_DEBT
           );
-          history.push(`${pathname}?${searchParams.toString()}`);
         },
-        isChecked: action === PORTFOLIO_ACTIONS.DELEVERAGE_VAULT_DEPOSIT,
+        isChecked: action === VAULT_ACTIONS.DELEVERAGE_VAULT_DEPOSIT,
       }}
     >
-      {action === PORTFOLIO_ACTIONS.DELEVERAGE_VAULT_SELL_ASSETS && (
+      {action === VAULT_ACTIONS.WITHDRAW_AND_REPAY_DEBT && (
         <Box>
           {/* This will reflect the leverage ratio after the deleverage set
               automatically to 10% below the max leverage ratio. Users can reduce
@@ -90,14 +89,12 @@ export const DeleverageVault = () => {
             errorMsg={sliderError}
             infoMsg={sliderInfo}
             inputLabel={
-              messages[PORTFOLIO_ACTIONS.DELEVERAGE_VAULT_SELL_ASSETS][
-                'inputLabel'
-              ]
+              messages[VAULT_ACTIONS.WITHDRAW_AND_REPAY_DEBT]['inputLabel']
             }
           />
         </Box>
       )}
-      {action === PORTFOLIO_ACTIONS.DELEVERAGE_VAULT_DEPOSIT &&
+      {action === VAULT_ACTIONS.DELEVERAGE_VAULT_DEPOSIT &&
         primaryBorrowSymbol &&
         targetLeverageRatio && (
           <Box>
@@ -111,9 +108,7 @@ export const DeleverageVault = () => {
                 });
               }}
               inputLabel={
-                messages[PORTFOLIO_ACTIONS.DELEVERAGE_VAULT_DEPOSIT][
-                  'inputLabel'
-                ]
+                messages[VAULT_ACTIONS.DELEVERAGE_VAULT_DEPOSIT]['inputLabel']
               }
               errorMsgOverride={depositError}
             />

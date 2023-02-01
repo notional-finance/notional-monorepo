@@ -1,8 +1,8 @@
 import { VAULT_ACTIONS } from '@notional-finance/shared-config';
 import { defineMessages } from 'react-intl';
 
-export const messages = {
-  [VAULT_ACTIONS.ESTABLISH_ACCOUNT]: defineMessages({
+export const  messages = {
+  [VAULT_ACTIONS.CREATE_VAULT_POSITION]: defineMessages({
     heading: {
       defaultMessage: 'Create Vault Position',
       description: 'heading',
