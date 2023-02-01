@@ -7,7 +7,6 @@ import {
 import {
   AddToCalendar,
   ConvertCashToNTokens,
-  DeleverageVault,
   DepositCollateral,
   RedeemNToken,
   RepayBorrow,
@@ -15,7 +14,6 @@ import {
   RollMaturity,
   Withdraw,
   WithdrawLend,
-  WithdrawVault,
   ManageVault,
 } from '../side-drawers';
 
@@ -36,11 +34,6 @@ export const usePortfolioSideDrawers = () => {
     [PORTFOLIO_ACTIONS.GET_NOTIFIED]: GetNotified,
     // TODO: deleverage might need to change
     [PORTFOLIO_ACTIONS.DELEVERAGE]: RedeemNToken,
-    [PORTFOLIO_ACTIONS.DELEVERAGE_VAULT]: DeleverageVault,
-    [PORTFOLIO_ACTIONS.DELEVERAGE_VAULT_SELL_ASSETS]: DeleverageVault,
-    [PORTFOLIO_ACTIONS.DELEVERAGE_VAULT_DEPOSIT]: DeleverageVault,
-    [PORTFOLIO_ACTIONS.WITHDRAW_VAULT]: WithdrawVault,
-    [PORTFOLIO_ACTIONS.WITHDRAW_VAULT_POST_MATURITY]: WithdrawVault,
     [PORTFOLIO_ACTIONS.ADD_TO_CALENDAR]: AddToCalendar,
     [PORTFOLIO_ACTIONS.MANAGE_VAULT]: ManageVault,
   };

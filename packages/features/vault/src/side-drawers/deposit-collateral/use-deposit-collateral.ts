@@ -9,7 +9,7 @@ import { TypedBigNumber, VaultAccount } from '@notional-finance/sdk';
 import { TradeProperties, TradePropertyKeys } from '@notional-finance/trade';
 import { useFormState } from '@notional-finance/utils';
 import {
-  PORTFOLIO_ACTIONS,
+  VAULT_ACTIONS,
   tradeDefaults,
 } from '@notional-finance/shared-config';
 import { formatLeverageRatio } from '@notional-finance/helpers';
@@ -31,7 +31,7 @@ const initialDeleverageVaultState = {
 
 export function useDeleverageVault(
   vaultAddress: string,
-  action: PORTFOLIO_ACTIONS
+  action: VAULT_ACTIONS
 ) {
   const [state, updateDeleverageVaultState] =
     useFormState<DeleverageVaultState>(initialDeleverageVaultState);
@@ -45,7 +45,7 @@ export function useDeleverageVault(
   } = useVault(vaultAddress);
   const baseVault = useBaseVault(vaultAddress);
   const { depositAmount, hasError, targetLeverageRatio } = state;
-  const isDeposit = action === PORTFOLIO_ACTIONS.DELEVERAGE_VAULT_DEPOSIT;
+  const isDeposit = action === VAULT_ACTIONS.DELEVERAGE_VAULT_DEPOSIT;
   let sliderError: MessageDescriptor | undefined;
   let sliderInfo: MessageDescriptor | undefined;
   let depositError: MessageDescriptor | undefined;
@@ -69,7 +69,7 @@ export function useDeleverageVault(
 
     if (baseVault.getLeverageRatio(updatedVaultAccount) < minLeverageRatio) {
       depositError = {
-        ...messages[PORTFOLIO_ACTIONS.DELEVERAGE_VAULT][
+        ...messages[VAULT_ACTIONS.DELEVERAGE_VAULT][
           'belowMinLeverageError'
         ],
         values: {
@@ -83,7 +83,7 @@ export function useDeleverageVault(
     const currentLeverageRatio = baseVault.getLeverageRatio(vaultAccount);
     if (targetLeverageRatio > currentLeverageRatio) {
       sliderError = {
-        ...messages[PORTFOLIO_ACTIONS.DELEVERAGE_VAULT][
+        ...messages[VAULT_ACTIONS.DELEVERAGE_VAULT][
           'aboveMaxLeverageError'
         ],
         values: {
@@ -100,7 +100,7 @@ export function useDeleverageVault(
 
       if (exitParams.isFullExit) {
         sliderInfo = {
-          ...messages[PORTFOLIO_ACTIONS.DELEVERAGE_VAULT]['fullExitInfo'],
+          ...messages[VAULT_ACTIONS.DELEVERAGE_VAULT]['fullExitInfo'],
         } as MessageDescriptor;
       }
 

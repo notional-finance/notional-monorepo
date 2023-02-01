@@ -148,6 +148,10 @@ export const App = () => {
                   />
                   <AppLayoutRoute path="/unstake" component={StakeView} />
                   <AppLayoutRoute
+                    path="/vaults/:vaultAddress/:sideDrawerKey"
+                    component={VaultLoadable}
+                  />
+                  <AppLayoutRoute
                     path="/vaults/:vaultAddress"
                     component={VaultLoadable}
                   />

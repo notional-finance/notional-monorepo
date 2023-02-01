@@ -1,21 +1,28 @@
 import { Box, styled, useTheme } from '@mui/material';
-import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
+import {
+  PORTFOLIO_ACTIONS,
+  VAULT_ACTIONS,
+} from '@notional-finance/shared-config';
 import {
   H4,
-  ExternalLink,
   LabelValue,
   LargeInputTextEmphasized,
   SideDrawerButton,
 } from '@notional-finance/mui';
+import { Link, useParams } from 'react-router-dom';
 import { FormattedMessage } from 'react-intl';
 import { useManageVault } from './use-manage-vault';
-import { useQueryParams } from '@notional-finance/utils';
 import { useVault } from '@notional-finance/notionable-hooks';
 import { messages } from '../messages';
 
+interface VaultParams {
+  vaultAddress?: string;
+  sideDrawerKey?: VAULT_ACTIONS;
+}
+
 export const ManageVault = () => {
   const theme = useTheme();
-  const { vaultAddress } = useQueryParams();
+  const { vaultAddress } = useParams<VaultParams>();
   const { reduceLeverageOptions, manageVaultOptions } = useManageVault();
   const { vaultName } = useVault(vaultAddress);
 
@@ -35,15 +42,15 @@ export const ManageVault = () => {
       <Title>
         <FormattedMessage defaultMessage={'Reduce leverage'} />
       </Title>
-      {reduceLeverageOptions.map(({ label, href }, index) => (
-        <SideDrawerButton key={index}>
-          <ExternalLink
-            href={href}
-            fitContent
+      {reduceLeverageOptions.map(({ label, link }, index) => (
+        <SideDrawerButton key={index} sx={{ padding: '0px' }}>
+          <Link
+            to={link}
             style={{
               display: 'flex',
               alignItems: 'center',
               width: '100%',
+              padding: theme.spacing(2.5),
             }}
           >
             <H4
@@ -55,7 +62,7 @@ export const ManageVault = () => {
             >
               {label}
             </H4>
-          </ExternalLink>
+          </Link>
         </SideDrawerButton>
       ))}
       <Box
@@ -65,15 +72,15 @@ export const ManageVault = () => {
           border: `1px solid ${theme.palette.borders.default}`,
         }}
       ></Box>
-      {manageVaultOptions.map(({ label, href }, index) => (
-        <SideDrawerButton key={index}>
-          <ExternalLink
-            href={href}
-            fitContent
+      {manageVaultOptions.map(({ label, link }, index) => (
+        <SideDrawerButton key={index} sx={{ padding: '0px' }}>
+          <Link
+            to={link}
             style={{
               display: 'flex',
               alignItems: 'center',
               width: '100%',
+              padding: theme.spacing(2.5),
             }}
           >
             <H4
@@ -85,7 +92,7 @@ export const ManageVault = () => {
             >
               {label}
             </H4>
-          </ExternalLink>
+          </Link>
         </SideDrawerButton>
       ))}
     </Box>

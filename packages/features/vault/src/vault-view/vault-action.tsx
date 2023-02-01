@@ -123,7 +123,7 @@ export const VaultAction = () => {
     >
       {eligibleActions &&
         eligibleActions.length > 1 &&
-        vaultAction !== VAULT_ACTIONS.ESTABLISH_ACCOUNT && (
+        vaultAction !== VAULT_ACTIONS.CREATE_VAULT_POSITION && (
           <TabToggle
             selectedTabIndex={
               vaultAction === VAULT_ACTIONS.INCREASE_POSITION ? 0 : 1

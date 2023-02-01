@@ -2,12 +2,14 @@ import { Box, styled, useTheme } from '@mui/material';
 import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
 import {
   H4,
-  ExternalLink,
+  LinkText,
   LabelValue,
   LargeInputTextEmphasized,
   SideDrawerButton,
 } from '@notional-finance/mui';
+import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { FormattedMessage } from 'react-intl';
+import { Link } from 'react-router-dom';
 import { useManageVault } from './use-manage-vault';
 import { useQueryParams } from '@notional-finance/utils';
 import { useVault } from '@notional-finance/notionable-hooks';
@@ -35,28 +37,29 @@ export const ManageVault = () => {
       <Title>
         <FormattedMessage defaultMessage={'Reduce leverage'} />
       </Title>
-      {reduceLeverageOptions.map(({ label, href }, index) => (
-        <SideDrawerButton key={index}>
-          <ExternalLink
-            href={href}
-            fitContent
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              width: '100%',
-            }}
-          >
-            <H4
+      {reduceLeverageOptions.map(({ label, link, key }, index) => (
+        <Link to={link}>
+          <SideDrawerButton key={index}>
+            <LinkText
               sx={{
-                flex: 1,
-                color: theme.palette.common.black,
+                display: 'flex',
+                alignItems: 'center',
+                width: '100%',
+                textDecoration: 'none',
               }}
-              fontWeight="regular"
             >
-              {label}
-            </H4>
-          </ExternalLink>
-        </SideDrawerButton>
+              <H4
+                sx={{
+                  flex: 1,
+                  color: theme.palette.common.black,
+                }}
+                fontWeight="regular"
+              >
+                {label}
+              </H4>
+            </LinkText>
+          </SideDrawerButton>
+        </Link>
       ))}
       <Box
         component={'hr'}
@@ -65,28 +68,29 @@ export const ManageVault = () => {
           border: `1px solid ${theme.palette.borders.default}`,
         }}
       ></Box>
-      {manageVaultOptions.map(({ label, href }, index) => (
-        <SideDrawerButton key={index}>
-          <ExternalLink
-            href={href}
-            fitContent
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              width: '100%',
-            }}
-          >
-            <H4
+      {manageVaultOptions.map(({ label, link, key }, index) => (
+        <Link to={link}>
+          <SideDrawerButton key={index}>
+            <LinkText
               sx={{
-                flex: 1,
-                color: theme.palette.common.black,
+                display: 'flex',
+                alignItems: 'center',
+                width: '100%',
+                textDecoration: 'none',
               }}
-              fontWeight="regular"
             >
-              {label}
-            </H4>
-          </ExternalLink>
-        </SideDrawerButton>
+              <H4
+                sx={{
+                  flex: 1,
+                  color: theme.palette.common.black,
+                }}
+                fontWeight="regular"
+              >
+                {label}
+              </H4>
+            </LinkText>
+          </SideDrawerButton>
+        </Link>
       ))}
     </Box>
   );

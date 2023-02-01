@@ -1,30 +1,32 @@
-import { PORTFOLIO_CATEGORIES } from '@notional-finance/shared-config';
+import { VAULT_ACTIONS } from '@notional-finance/shared-config';
+import { useLocation } from 'react-router-dom';
 import { FormattedMessage } from 'react-intl';
 
 export function useManageVault() {
+  const { pathname: currentPath } = useLocation();
   const reduceLeverageOptions = [
     {
       label: <FormattedMessage defaultMessage={'Deposit Collateral'} />,
-      href: '',
+      link: `${currentPath}/${VAULT_ACTIONS.DEPOSIT_COLLATERAL}`,
     },
     {
       label: <FormattedMessage defaultMessage={'Withdraw and Repay Debt'} />,
-      href: '',
+      link: `${currentPath}/${VAULT_ACTIONS.WITHDRAW_AND_REPAY_DEBT}`,
     },
   ];
 
   const manageVaultOptions = [
     {
       label: <FormattedMessage defaultMessage={'Increase Position'} />,
-      href: '',
+      link: `${currentPath}/${VAULT_ACTIONS.INCREASE_POSITION}`,
     },
     {
       label: <FormattedMessage defaultMessage={'Roll Maturity'} />,
-      href: '',
+      link: `${currentPath}/${VAULT_ACTIONS.ROLL_POSITION}`,
     },
     {
       label: <FormattedMessage defaultMessage={'Withdraw / Exit Vault'} />,
-      href: '',
+      link: `${currentPath}/${VAULT_ACTIONS.WITHDRAW_VAULT}`,
     },
   ];
 

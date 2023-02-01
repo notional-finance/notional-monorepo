@@ -123,7 +123,7 @@ function getEligibleActions(
 ) {
   const eligibleActions: VAULT_ACTIONS[] = [];
   if (vaultAccount.isInactive) {
-    eligibleActions.push(VAULT_ACTIONS.ESTABLISH_ACCOUNT);
+    eligibleActions.push(VAULT_ACTIONS.CREATE_VAULT_POSITION);
   } else {
     if (
       eligibleMarkets.map((m) => m.maturity).includes(vaultAccount.maturity)

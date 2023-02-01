@@ -35,10 +35,10 @@ interface YieldStrategies {
   maxLeverageRatio?: number;
   leveragePercentage?: number;
   routes: {
-    deleveragePosition?: string;
-    increasePosition?: string;
-    withdrawPosition?: string;
-    rollPosition?: string;
+    manageVault?: string;
+    // increasePosition?: string;
+    // withdrawPosition?: string;
+    // rollPosition?: string;
     stakeNOTE?: string;
     unstakeNOTE?: string;
   };
@@ -136,16 +136,16 @@ export function useYieldStrategies(
         isLeveragedVault: true,
         routes: {
           manageVault: `${currentPath}/manage-vault/?vaultAddress=${vaultConfig.vaultAddress}`,
-          increasePosition: canIncreasePosition
-            ? `/vaults/${vaultConfig.vaultAddress}?vaultAction=${VAULT_ACTIONS.INCREASE_POSITION}`
-            : undefined,
-          rollPosition: canRollPosition
-            ? `/vaults/${vaultConfig.vaultAddress}?vaultAction=${VAULT_ACTIONS.ROLL_POSITION}`
-            : undefined,
-          withdrawPosition: `${PORTFOLIO_ACTIONS.WITHDRAW_VAULT}?vaultAddress=${vaultConfig.vaultAddress}`,
-          deleveragePosition: mustDeleverage
-            ? `${PORTFOLIO_ACTIONS.DELEVERAGE_VAULT}?vaultAddress=${vaultConfig.vaultAddress}&action=${PORTFOLIO_ACTIONS.DELEVERAGE_VAULT_SELL_ASSETS}`
-            : undefined,
+          // increasePosition: canIncreasePosition
+          //   ? `/vaults/${vaultConfig.vaultAddress}?vaultAction=${VAULT_ACTIONS.INCREASE_POSITION}`
+          //   : undefined,
+          // rollPosition: canRollPosition
+          //   ? `/vaults/${vaultConfig.vaultAddress}?vaultAction=${VAULT_ACTIONS.ROLL_POSITION}`
+          //   : undefined,
+          // withdrawPosition: `${VAULT_ACTIONS.WITHDRAW_VAULT}?vaultAddress=${vaultConfig.vaultAddress}`,
+          // deleveragePosition: mustDeleverage
+          //   ? `${VAULT_ACTIONS.DELEVERAGE_VAULT}?vaultAddress=${vaultConfig.vaultAddress}&action=${VAULT_ACTIONS.DELEVERAGE_VAULT_SELL_ASSETS}`
+          //   : undefined,
         },
       };
     });
