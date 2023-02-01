@@ -16,7 +16,7 @@ import {
 import { useFormState } from '@notional-finance/utils';
 import { logError, NonLoggedError } from '@notional-finance/helpers';
 import {
-  PORTFOLIO_ACTIONS,
+  VAULT_ACTIONS,
   tradeDefaults,
 } from '@notional-finance/shared-config';
 import { MessageDescriptor } from 'react-intl';
@@ -117,7 +117,7 @@ export function useWithdrawVault(vaultAddress: string) {
             : vaultSharesToRedeem.add(repayment.vaultSharesToRedeemAtCost);
 
           // This method should be the entire cash balance above a certain point
-          fCashToLend = vaultAccount.primaryBorrowfCash.neg();
+          fCashToLend = repayment.fCashToLend;
           newVaultAccount = repayment.newVaultAccount;
         } catch (e) {
           logError(
@@ -125,7 +125,7 @@ export function useWithdrawVault(vaultAddress: string) {
             'use-withdraw-vault',
             'getExitParamsFromLeverageRatio'
           );
-          error = messages[PORTFOLIO_ACTIONS.WITHDRAW_VAULT]['unableToExit'];
+          error = messages[VAULT_ACTIONS.WITHDRAW_VAULT]['unableToExit'];
           newVaultAccount = undefined;
         }
       }

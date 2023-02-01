@@ -72,7 +72,9 @@ export const SettingsSideDrawer = ({
           <SideDrawerButton
             onClick={() => handleClick(data)}
             key={data.key}
-            canClick={data.ViewComponent ? true : false}
+            sx={{
+              cursor: data.ViewComponent ? 'pointer' : 'normal',
+            }}
           >
             <H4
               sx={{
@@ -102,7 +104,9 @@ export const SettingsSideDrawer = ({
           <SideDrawerButton
             onClick={() => handleClick(data)}
             key={data.key}
-            canClick={data.ViewComponent ? true : false}
+            sx={{
+              cursor: data.ViewComponent ? 'pointer' : 'normal',
+            }}
           >
             <H4
               sx={{

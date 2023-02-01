@@ -37,7 +37,7 @@ export function getMaturityData({
 }: VaultMaturityDataDependencies) {
   let vaultMaturityData: MaturityData[];
 
-  if (vaultAction === VAULT_ACTIONS.ESTABLISH_ACCOUNT) {
+  if (vaultAction === VAULT_ACTIONS.CREATE_VAULT_POSITION) {
     vaultMaturityData = establishAccountMaturityData(
       vaultAccount,
       depositAmount,

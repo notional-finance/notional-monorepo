@@ -4,6 +4,7 @@ import {
   SIDE_DRAWERS,
   PORTFOLIO_CATEGORIES,
   SIDE_DRAWERS_TYPE,
+  VAULT_ACTIONS,
 } from '@notional-finance/shared-config';
 import { useLocation, useHistory, useParams } from 'react-router-dom';
 import { useSideDrawerState } from './store/use-side-drawer-state';
@@ -42,6 +43,19 @@ export const useSideDrawerManager = () => {
     });
   }
 
+  if (
+    !params?.sideDrawerKey &&
+    sideDrawerOpen &&
+    Object.values(VAULT_ACTIONS).includes(
+      currentSideDrawerKey as unknown as VAULT_ACTIONS
+    )
+  ) {
+    updateSideDrawerState({
+      sideDrawerOpen: false,
+      currentSideDrawerKey: null,
+    });
+  }
+
   const setWalletSideDrawer = (key: string, overRide?: boolean) => {
     if (!currentSideDrawerKey || overRide) {
       searchParams.set('sideDrawer', key);
@@ -62,8 +76,11 @@ export const useSideDrawerManager = () => {
     });
   };
 
-  const setSideDrawer = (newPath: string, key: PORTFOLIO_ACTIONS) => {
-    if (!currentSideDrawerKey) {
+  const setSideDrawer = (newPath: string, key: SIDE_DRAWERS_TYPE) => {
+    if (
+      !currentSideDrawerKey ||
+      currentSideDrawerKey === PORTFOLIO_ACTIONS.MANAGE_VAULT
+    ) {
       history.push(newPath);
       updateSideDrawerState({
         sideDrawerOpen: true,

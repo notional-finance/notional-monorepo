@@ -1,8 +1,11 @@
-import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
+import {
+  PORTFOLIO_ACTIONS,
+  VAULT_ACTIONS,
+} from '@notional-finance/shared-config';
 import { defineMessages } from 'react-intl';
 
 export const messages = {
-  [PORTFOLIO_ACTIONS.WITHDRAW_VAULT]: defineMessages({
+  [VAULT_ACTIONS.WITHDRAW_VAULT]: defineMessages({
     heading: { defaultMessage: 'Withdraw Position', description: '' },
     cta: { defaultMessage: 'Withdraw', description: '' },
     tooltip: {
@@ -38,7 +41,7 @@ export const messages = {
       description: 'info message',
     },
   }),
-  [PORTFOLIO_ACTIONS.WITHDRAW_VAULT_POST_MATURITY]: defineMessages({
+  [VAULT_ACTIONS.WITHDRAW_VAULT_POST_MATURITY]: defineMessages({
     heading: { defaultMessage: 'Withdraw Matured Position', description: '' },
     helptext: {
       defaultMessage:
@@ -47,7 +50,28 @@ export const messages = {
     },
     reenterVault: { defaultMessage: 'Re-Enter Vault', description: '' },
   }),
-  [PORTFOLIO_ACTIONS.DELEVERAGE_VAULT]: defineMessages({
+  [VAULT_ACTIONS.DEPOSIT_COLLATERAL]: defineMessages({
+    heading: { defaultMessage: 'Deposit Collateral', description: '' },
+    helptext: {
+      defaultMessage: 'Deposit Collateral Stuff',
+      description: '',
+    },
+  }),
+  [VAULT_ACTIONS.INCREASE_POSITION]: defineMessages({
+    heading: { defaultMessage: 'Increase Vault Position', description: '' },
+    helptext: {
+      defaultMessage: 'Increase Vault Stuff',
+      description: '',
+    },
+  }),
+  [VAULT_ACTIONS.ROLL_POSITION]: defineMessages({
+    heading: { defaultMessage: 'Roll to New Maturity', description: '' },
+    helptext: {
+      defaultMessage: 'Roll Maturity Stuff',
+      description: '',
+    },
+  }),
+  [VAULT_ACTIONS.DELEVERAGE_VAULT]: defineMessages({
     heading: { defaultMessage: 'Deleverage Vault', description: 'heading' },
     helptext: {
       defaultMessage:
@@ -67,7 +91,7 @@ export const messages = {
       description: 'error message',
     },
   }),
-  [PORTFOLIO_ACTIONS.DELEVERAGE_VAULT_DEPOSIT]: defineMessages({
+  [VAULT_ACTIONS.DELEVERAGE_VAULT_DEPOSIT]: defineMessages({
     heading: { defaultMessage: 'Deposit', description: '' },
     helptext: {
       defaultMessage: 'Deposit additional collateral to reduce your leverage.',
@@ -79,7 +103,7 @@ export const messages = {
     },
     toggle: { defaultMessage: 'Deposit', description: '' },
   }),
-  [PORTFOLIO_ACTIONS.DELEVERAGE_VAULT_SELL_ASSETS]: defineMessages({
+  [VAULT_ACTIONS.WITHDRAW_AND_REPAY_DEBT]: defineMessages({
     heading: { defaultMessage: 'Sell Assets', description: '' },
     helptext: {
       defaultMessage:
@@ -92,6 +116,34 @@ export const messages = {
     },
     toggle: { defaultMessage: 'Sell Assets', description: '' },
   }),
+  [VAULT_ACTIONS.CREATE_VAULT_POSITION]: defineMessages({
+    heading: {
+      defaultMessage: 'Create Vault Position',
+      description: 'heading',
+    },
+    helptext: {
+      defaultMessage:
+        'Create a new vault position with a deposit, minimum deposit amount: {minDepositRequired}',
+      description: 'helptext',
+    },
+    maturity: {
+      defaultMessage: '1. Select a maturity and fixed borrowing rate',
+      description: 'input label',
+    },
+    depositAmount: {
+      defaultMessage: '2. How much do you want to deposit?',
+      description: 'input label',
+    },
+    leverage: {
+      defaultMessage: '3. How much leverage do you want to take?',
+      description: 'input label',
+    },
+    confirm: {
+      defaultMessage: 'Create Vault Account',
+      description: 'heading',
+    },
+  }),
+
   [PORTFOLIO_ACTIONS.MANAGE_VAULT]: defineMessages({
     heading: {
       defaultMessage: 'Manage {vaultName} Vault',

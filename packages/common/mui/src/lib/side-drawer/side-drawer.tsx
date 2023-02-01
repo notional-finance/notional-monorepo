@@ -9,6 +9,7 @@ export interface SideDrawerProps {
   CustomHeader?: ({ onClose }: { onClose: () => void }) => JSX.Element;
   zIndex?: number;
   marginTop?: string;
+  disableBackDrop?: boolean;
 }
 
 export function SideDrawer({
@@ -18,6 +19,7 @@ export function SideDrawer({
   CustomHeader,
   zIndex,
   marginTop,
+  disableBackDrop = false,
 }: SideDrawerProps) {
   const theme = useTheme();
 
@@ -28,7 +30,8 @@ export function SideDrawer({
       onClose={() => callback()}
       onOpen={() => callback()}
       onBackdropClick={() => callback()}
-      // hideBackdrop
+      hideBackdrop={disableBackDrop}
+      disableScrollLock={disableBackDrop}
       sx={{
         '.MuiBackdrop-root': {
           backgroundColor: alpha(theme.palette.background.accentDefault, 0.5),
@@ -40,17 +43,19 @@ export function SideDrawer({
         },
         '&.MuiPaper-root, .MuiPaper-elevation': {
           overflowX: 'hidden',
-          maxWidth: { xs: '100%', sm: '100%', md: '543px' },
-          width: { xs: '100%', sm: '100%', md: '543px' },
+          maxWidth: { xs: '100%', sm: '100%', md: '558px' },
+          width: { xs: '100%', sm: '100%', md: '100%' },
+          boxShadow: disableBackDrop ? 'none' : '',
         },
       }}
     >
       {CustomHeader && <CustomHeader onClose={() => callback()} />}
+
       <Box
         sx={{
           display: 'flex',
           flexDirection: 'column',
-          width: { xs: '100%', sm: '100%', md: '543px' },
+          width: { xs: '100%', sm: '100%', md: '100%' },
           height: '100%',
           position: { xs: 'absolute', sm: 'absolute', md: 'relative' },
           marginTop: {
