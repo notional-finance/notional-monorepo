@@ -2,13 +2,11 @@ import { Box, styled, useTheme } from '@mui/material';
 import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
 import {
   H4,
-  LinkText,
   LabelValue,
   LargeInputTextEmphasized,
   SideDrawerButton,
 } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
-import { Link } from 'react-router-dom';
 import { useManageVault } from './use-manage-vault';
 import { useQueryParams } from '@notional-finance/utils';
 import { useVault } from '@notional-finance/notionable-hooks';
@@ -37,28 +35,15 @@ export const ManageVault = () => {
         <FormattedMessage defaultMessage={'Reduce leverage'} />
       </Title>
       {reduceLeverageOptions.map(({ label, link }, index) => (
-        <Link to={link} key={index}>
-          <SideDrawerButton>
-            <LinkText
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                width: '100%',
-                textDecoration: 'none',
-              }}
-            >
-              <H4
-                sx={{
-                  flex: 1,
-                  color: theme.palette.common.black,
-                }}
-                fontWeight="regular"
-              >
-                {label}
-              </H4>
-            </LinkText>
-          </SideDrawerButton>
-        </Link>
+        <SideDrawerButton key={index} sx={{ padding: '0px' }}>
+          <H4
+            to={link}
+            fontWeight="regular"
+            sx={{ padding: theme.spacing(2.5) }}
+          >
+            {label}
+          </H4>
+        </SideDrawerButton>
       ))}
       <Box
         component={'hr'}
@@ -68,28 +53,15 @@ export const ManageVault = () => {
         }}
       ></Box>
       {manageVaultOptions.map(({ label, link }, index) => (
-        <Link to={link} key={index}>
-          <SideDrawerButton>
-            <LinkText
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                width: '100%',
-                textDecoration: 'none',
-              }}
-            >
-              <H4
-                sx={{
-                  flex: 1,
-                  color: theme.palette.common.black,
-                }}
-                fontWeight="regular"
-              >
-                {label}
-              </H4>
-            </LinkText>
-          </SideDrawerButton>
-        </Link>
+        <SideDrawerButton key={index} sx={{ padding: '0px' }}>
+          <H4
+            to={link}
+            fontWeight="regular"
+            sx={{ padding: theme.spacing(2.5) }}
+          >
+            {label}
+          </H4>
+        </SideDrawerButton>
       ))}
     </Box>
   );

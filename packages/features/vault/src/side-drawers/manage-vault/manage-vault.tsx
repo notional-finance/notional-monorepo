@@ -9,7 +9,7 @@ import {
   LargeInputTextEmphasized,
   SideDrawerButton,
 } from '@notional-finance/mui';
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { FormattedMessage } from 'react-intl';
 import { useManageVault } from './use-manage-vault';
 import { useVault } from '@notional-finance/notionable-hooks';
@@ -44,25 +44,13 @@ export const ManageVault = () => {
       </Title>
       {reduceLeverageOptions.map(({ label, link }, index) => (
         <SideDrawerButton key={index} sx={{ padding: '0px' }}>
-          <Link
+          <H4
+            fontWeight="regular"
             to={link}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              width: '100%',
-              padding: theme.spacing(2.5),
-            }}
+            sx={{ padding: theme.spacing(2.5) }}
           >
-            <H4
-              sx={{
-                flex: 1,
-                color: theme.palette.common.black,
-              }}
-              fontWeight="regular"
-            >
-              {label}
-            </H4>
-          </Link>
+            {label}
+          </H4>
         </SideDrawerButton>
       ))}
       <Box
@@ -74,25 +62,13 @@ export const ManageVault = () => {
       ></Box>
       {manageVaultOptions.map(({ label, link }, index) => (
         <SideDrawerButton key={index} sx={{ padding: '0px' }}>
-          <Link
+          <H4
+            fontWeight="regular"
             to={link}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              width: '100%',
-              padding: theme.spacing(2.5),
-            }}
+            sx={{ padding: theme.spacing(2.5) }}
           >
-            <H4
-              sx={{
-                flex: 1,
-                color: theme.palette.common.black,
-              }}
-              fontWeight="regular"
-            >
-              {label}
-            </H4>
-          </Link>
+            {label}
+          </H4>
         </SideDrawerButton>
       ))}
     </Box>

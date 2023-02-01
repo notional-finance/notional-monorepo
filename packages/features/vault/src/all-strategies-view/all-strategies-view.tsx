@@ -18,8 +18,6 @@ export const AllStrategyView = () => {
         capacityRemaining,
       } = v;
 
-      console.log({ vaultAddress });
-
       return (
         <CardVariant
           variant="vault"
