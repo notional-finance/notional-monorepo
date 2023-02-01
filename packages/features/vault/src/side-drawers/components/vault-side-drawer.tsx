@@ -3,9 +3,8 @@ import { TransactionData } from '@notional-finance/notionable';
 import { VaultAccount } from '@notional-finance/sdk';
 import { TransactionConfirmation } from '@notional-finance/trade';
 import { VaultRiskTable } from '@notional-finance/risk';
-import { useQueryParams } from '@notional-finance/utils';
 import { VAULT_ACTIONS } from '@notional-finance/shared-config';
-import { useHistory, useLocation, useParams } from 'react-router';
+import { useHistory } from 'react-router';
 import { messages } from '../messages';
 
 export interface VaultParams {
