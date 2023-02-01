@@ -16,7 +16,6 @@ import { useHistoricalReturns } from '../hooks/use-historical-returns';
 import { useReturnDrivers } from '../hooks/use-return-drivers';
 import { useVaultCapacity } from '../hooks/use-vault-capacity';
 import { VaultActionContext } from '../managers';
-import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { messages } from '../messages';
 
 export const VaultSummary = () => {

@@ -7,7 +7,6 @@ import {
   LargeInputTextEmphasized,
   SideDrawerButton,
 } from '@notional-finance/mui';
-import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { FormattedMessage } from 'react-intl';
 import { Link } from 'react-router-dom';
 import { useManageVault } from './use-manage-vault';
@@ -37,9 +36,9 @@ export const ManageVault = () => {
       <Title>
         <FormattedMessage defaultMessage={'Reduce leverage'} />
       </Title>
-      {reduceLeverageOptions.map(({ label, link, key }, index) => (
-        <Link to={link}>
-          <SideDrawerButton key={index}>
+      {reduceLeverageOptions.map(({ label, link }, index) => (
+        <Link to={link} key={index}>
+          <SideDrawerButton>
             <LinkText
               sx={{
                 display: 'flex',
@@ -68,9 +67,9 @@ export const ManageVault = () => {
           border: `1px solid ${theme.palette.borders.default}`,
         }}
       ></Box>
-      {manageVaultOptions.map(({ label, link, key }, index) => (
-        <Link to={link}>
-          <SideDrawerButton key={index}>
+      {manageVaultOptions.map(({ label, link }, index) => (
+        <Link to={link} key={index}>
+          <SideDrawerButton>
             <LinkText
               sx={{
                 display: 'flex',
