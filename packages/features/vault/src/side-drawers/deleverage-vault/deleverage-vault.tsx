@@ -4,7 +4,7 @@ import {
 } from '@notional-finance/trade';
 import { VAULT_ACTIONS } from '@notional-finance/shared-config';
 import { FormattedMessage } from 'react-intl';
-import { useHistory, useLocation } from 'react-router';
+import { useLocation } from 'react-router';
 import { VaultSideDrawer } from '../components/vault-side-drawer';
 import { SliderInput, SliderInputHandle } from '@notional-finance/mui';
 import { useDeleverageVault } from './use-deleverage-vault';
@@ -14,11 +14,10 @@ import { RATE_PRECISION } from '@notional-finance/sdk/src/config/constants';
 import { useCallback, useEffect, useRef } from 'react';
 
 export const DeleverageVault = () => {
-  const { search, pathname } = useLocation();
+  const { search } = useLocation();
   const searchParams = new URLSearchParams(search);
   const vaultAddress = searchParams.get('vaultAddress') || '';
   const action = searchParams.get('action') as VAULT_ACTIONS;
-  const history = useHistory();
   const inputRef = useRef<SliderInputHandle>(null);
   const setInputAmount = useCallback(
     (input: number) => {
