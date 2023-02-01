@@ -4,26 +4,23 @@ import { VaultAccount } from '@notional-finance/sdk';
 import { TransactionConfirmation } from '@notional-finance/trade';
 import { VaultRiskTable } from '@notional-finance/risk';
 import { useQueryParams } from '@notional-finance/utils';
-import {
-  PORTFOLIO_ACTIONS,
-  PORTFOLIO_CATEGORIES,
-} from '@notional-finance/shared-config';
+import { VAULT_ACTIONS } from '@notional-finance/shared-config';
 import { useHistory, useLocation, useParams } from 'react-router';
 import { messages } from '../messages';
 
+export interface VaultParams {
+  vaultAddress?: string;
+  sideDrawerKey?: VAULT_ACTIONS;
+}
+
 interface VaultSideDrawerProps {
-  action: PORTFOLIO_ACTIONS;
+  action: VAULT_ACTIONS;
   canSubmit: boolean;
   vaultAddress: string;
   updatedVaultAccount?: VaultAccount;
   children?: React.ReactNode | React.ReactNode[];
   transactionData?: TransactionData;
   advancedToggle?: ToggleSwitchProps;
-}
-
-export interface VaultParams {
-  category?: PORTFOLIO_CATEGORIES;
-  sideDrawerKey?: PORTFOLIO_ACTIONS;
 }
 
 export const VaultSideDrawer = ({
@@ -36,25 +33,29 @@ export const VaultSideDrawer = ({
   updatedVaultAccount,
 }: VaultSideDrawerProps) => {
   const history = useHistory();
-  const { category, sideDrawerKey } = useParams<VaultParams>();
-  const { confirm } = useQueryParams();
-  const { search } = useLocation();
-  const confirmRoute = !!confirm;
-  const searchParams = new URLSearchParams(search);
-  searchParams.delete('confirm');
-  const cancelRoute = `/portfolio/${category}/${sideDrawerKey}${
-    searchParams.toString() ? '?' + searchParams.toString() : ''
-  }`;
-  const returnToPortfolio = `/portfolio/${category}`;
+  // const { sideDrawerKey } = useParams<VaultParams>();
+  // const { confirm } = useQueryParams();
+  // const { search } = useLocation();
+  // const confirmRoute = !!confirm;
 
-  return confirmRoute && transactionData ? (
+  // const searchParams = new URLSearchParams(search);
+
+  // searchParams.delete('confirm');
+
+  // const cancelRoute = `/vaults/${vaultAddress}/${sideDrawerKey}${
+  //   searchParams.toString() ? '?' + searchParams.toString() : ''
+  // }`;
+
+  // const returnToVaults = `/vaults/${vaultAddress}`;
+
+  return transactionData ? (
     <TransactionConfirmation
       heading={transactionData?.transactionHeader}
-      onCancel={() => history.push(cancelRoute)}
+      onCancel={() => history.push('')}
       transactionProperties={transactionData?.transactionProperties}
       buildTransactionCall={transactionData?.buildTransactionCall}
       showDrawer={false}
-      onReturnToForm={() => history.push(returnToPortfolio)}
+      onReturnToForm={() => history.push('')}
     />
   ) : (
     <ActionSidebar
@@ -63,10 +64,10 @@ export const VaultSideDrawer = ({
       advancedToggle={advancedToggle}
       showDrawer={false}
       canSubmit={canSubmit}
-      cancelRoute={returnToPortfolio}
+      cancelRoute={''}
     >
       {children}
-      {action !== PORTFOLIO_ACTIONS.WITHDRAW_VAULT_POST_MATURITY && (
+      {action !== VAULT_ACTIONS.WITHDRAW_VAULT_POST_MATURITY && (
         <VaultRiskTable
           key={'vault-risk-table'}
           updatedVaultAccount={updatedVaultAccount}

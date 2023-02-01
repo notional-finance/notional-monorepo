@@ -45,11 +45,6 @@ export enum PORTFOLIO_ACTIONS {
   REDEEM_NTOKEN = 'redeem-ntoken',
   // TODO: this should route to redeem-ntoken as a component
   DELEVERAGE = 'deleverage',
-  DELEVERAGE_VAULT = 'deleverage-vault',
-  DELEVERAGE_VAULT_SELL_ASSETS = 'deleverage-vault-sell-assets',
-  DELEVERAGE_VAULT_DEPOSIT = 'deleverage-vault-deposit',
-  WITHDRAW_VAULT = 'withdraw-vault',
-  WITHDRAW_VAULT_POST_MATURITY = 'withdraw-vault-post-maturity',
   GET_NOTIFIED = 'get-notified',
   REMIND_ME = 'remind-me',
   MANAGE_VAULT = 'manage-vault',
@@ -68,8 +63,15 @@ export enum NTOKEN_ACTIONS {
 
 export enum VAULT_ACTIONS {
   ESTABLISH_ACCOUNT = 'establish-account',
+  CREATE_VAULT_POSITION = 'create-vault-position',
   INCREASE_POSITION = 'increase-position',
+  DEPOSIT_COLLATERAL = 'deposit-collateral',
   ROLL_POSITION = 'roll-position',
+  DELEVERAGE_VAULT = 'deleverage-vault',
+  WITHDRAW_AND_REPAY_DEBT = 'withdraw-and-repay-debt',
+  DELEVERAGE_VAULT_DEPOSIT = 'deleverage-vault-deposit',
+  WITHDRAW_VAULT = 'withdraw-vault',
+  WITHDRAW_VAULT_POST_MATURITY = 'withdraw-vault-post-maturity',
 }
 
 export enum PORTFOLIO_CATEGORIES {
@@ -91,7 +93,8 @@ export enum SETTINGS_SIDE_DRAWERS {
 
 export const SIDE_DRAWERS = {
   ...PORTFOLIO_ACTIONS,
-  ...SETTINGS_SIDE_DRAWERS
+  ...SETTINGS_SIDE_DRAWERS,
+  ...VAULT_ACTIONS,
 }
 
 
@@ -123,4 +126,4 @@ export type TRANSACTION_ACTIONS =
   | PORTFOLIO_ACTIONS
   | NTOKEN_ACTIONS;
 
-export type SIDE_DRAWERS_TYPE = SETTINGS_SIDE_DRAWERS | PORTFOLIO_ACTIONS;
+export type SIDE_DRAWERS_TYPE = SETTINGS_SIDE_DRAWERS | PORTFOLIO_ACTIONS | VAULT_ACTIONS;
