@@ -31,11 +31,19 @@ export default abstract class BaseVault<
   }
 
   public encodeDepositParams(depositParams: D) {
-    return utils.defaultAbiCoder.encode([this.depositTuple], [depositParams]);
+    if (this.depositTuple) {
+      return utils.defaultAbiCoder.encode([this.depositTuple], [depositParams]);
+    } else {
+      return '0x';
+    }
   }
 
   public encodeRedeemParams(redeemParams: R) {
-    return utils.defaultAbiCoder.encode([this.redeemTuple], [redeemParams]);
+    if (this.redeemTuple) {
+      return utils.defaultAbiCoder.encode([this.redeemTuple], [redeemParams]);
+    } else {
+      return '0x';
+    }
   }
 
   constructor(public vaultAddress: string, initParams?: I) {

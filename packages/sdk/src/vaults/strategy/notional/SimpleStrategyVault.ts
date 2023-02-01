@@ -1,16 +1,12 @@
-import { SecondaryBorrowArray } from '@notional-finance/sdk';
-import TypedBigNumber, {
-  BigNumberType,
-} from '@notional-finance/sdk/libs/TypedBigNumber';
+import TypedBigNumber, { BigNumberType } from '../../../libs/TypedBigNumber';
 import {
   LiquidationThreshold,
   LiquidationThresholdType,
-} from '@notional-finance/sdk/libs/types';
+} from '../../../libs/types';
 import { BigNumber, Contract, ethers, utils } from 'ethers';
 import BaseVault from '../../BaseVault';
 import VaultAccount from '../../VaultAccount';
-
-interface NullBytes {}
+import { SecondaryBorrowArray } from '../../../data';
 
 interface InitParams {
   exchangeRate: BigNumber;
@@ -21,13 +17,13 @@ const simpleStrategyVaultInterface = new utils.Interface([
 ]);
 
 export default class SimpleStrategyVault extends BaseVault<
-  NullBytes,
-  NullBytes,
+  Record<string, never>,
+  Record<string, never>,
   InitParams
 > {
-  readonly depositTuple: string = 'tuple() d';
+  readonly depositTuple: string = '';
 
-  readonly redeemTuple: string = 'tuple() r';
+  readonly redeemTuple: string = '';
 
   public initVaultParams() {
     const contract = new Contract(
@@ -39,7 +35,7 @@ export default class SimpleStrategyVault extends BaseVault<
         target: contract,
         method: 'tokenExchangeRate',
         args: [],
-        key: 'tokenExchangeRate',
+        key: 'exchangeRate',
       },
     ];
   }
@@ -113,7 +109,7 @@ export default class SimpleStrategyVault extends BaseVault<
     _slippageBuffer: number,
     _blockTime?: number
   ) {
-    return [];
+    return {};
   }
 
   public async getRedeemParametersExact(
@@ -122,7 +118,7 @@ export default class SimpleStrategyVault extends BaseVault<
     _slippageBuffer: number,
     _blockTime?: number
   ) {
-    return [];
+    return {};
   }
 
   public getDepositGivenStrategyTokens(
