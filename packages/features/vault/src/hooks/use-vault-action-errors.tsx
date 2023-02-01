@@ -83,7 +83,9 @@ export function useVaultActionErrors() {
   }
 
   const hasDepositAmount =
-    vaultAction === VAULT_ACTIONS.ESTABLISH_ACCOUNT ? !!depositAmount : true;
+    vaultAction === VAULT_ACTIONS.CREATE_VAULT_POSITION
+      ? !!depositAmount
+      : true;
   const canSubmit =
     hasError === false &&
     inputErrorMsg === undefined &&

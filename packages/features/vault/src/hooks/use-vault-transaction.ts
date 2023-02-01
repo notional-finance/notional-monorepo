@@ -47,7 +47,7 @@ export const useVaultTransaction = () => {
 
   const slippageBuffer = tradeDefaults.defaultAnnualizedSlippage;
   let buildTransactionCall: TransactionFunction;
-  if (vaultAction === VAULT_ACTIONS.ESTABLISH_ACCOUNT) {
+  if (vaultAction === VAULT_ACTIONS.CREATE_VAULT_POSITION) {
     buildTransactionCall = {
       transactionFn: baseVault.populateEnterTransaction.bind(baseVault),
       transactionArgs: [

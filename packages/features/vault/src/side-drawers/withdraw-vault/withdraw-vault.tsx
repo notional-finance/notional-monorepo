@@ -7,17 +7,21 @@ import {
 } from '@notional-finance/mui';
 import { INTERNAL_TOKEN_DECIMAL_PLACES } from '@notional-finance/sdk/src/config/constants';
 import { TradePropertiesGrid } from '@notional-finance/trade';
-import { useQueryParams } from '@notional-finance/utils';
-import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
+import { VAULT_ACTIONS } from '@notional-finance/shared-config';
 import { useRef } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { VaultSideDrawer } from '../components/vault-side-drawer';
 import { messages } from '../messages';
 import { useWithdrawVault } from './use-withdraw-vault';
 
+interface VaultParams {
+  vaultAddress: string;
+  sideDrawerKey?: VAULT_ACTIONS;
+}
+
 export const WithdrawVault = () => {
-  const { vaultAddress } = useQueryParams();
+  const { vaultAddress } = useParams<VaultParams>();
   const inputOverrideRef = useRef<CurrencyInputHandle>(null);
 
   const {
@@ -37,8 +41,8 @@ export const WithdrawVault = () => {
     <VaultSideDrawer
       action={
         isPostMaturityExit
-          ? PORTFOLIO_ACTIONS.WITHDRAW_VAULT_POST_MATURITY
-          : PORTFOLIO_ACTIONS.WITHDRAW_VAULT
+          ? VAULT_ACTIONS.WITHDRAW_VAULT_POST_MATURITY
+          : VAULT_ACTIONS.WITHDRAW_VAULT
       }
       canSubmit={canSubmit}
       transactionData={transactionData}
@@ -50,7 +54,7 @@ export const WithdrawVault = () => {
           <Link to={`/vaults/${vaultAddress}`}>
             <Button variant="contained" sx={{ width: '100%' }}>
               <FormattedMessage
-                {...messages[PORTFOLIO_ACTIONS.WITHDRAW_VAULT_POST_MATURITY][
+                {...messages[VAULT_ACTIONS.WITHDRAW_VAULT_POST_MATURITY][
                   'reenterVault'
                 ]}
               />
@@ -61,9 +65,7 @@ export const WithdrawVault = () => {
       {!isPostMaturityExit && primaryBorrowSymbol && (
         <Box>
           <InputLabel
-            inputLabel={
-              messages[PORTFOLIO_ACTIONS.WITHDRAW_VAULT]['inputLabel']
-            }
+            inputLabel={messages[VAULT_ACTIONS.WITHDRAW_VAULT]['inputLabel']}
           />
           <CurrencyInput
             placeholder="0.00000000"
@@ -85,7 +87,7 @@ export const WithdrawVault = () => {
             captionMsg={
               isFullRepayment && (
                 <FormattedMessage
-                  {...messages[PORTFOLIO_ACTIONS.WITHDRAW_VAULT][
+                  {...messages[VAULT_ACTIONS.WITHDRAW_VAULT][
                     'fullRepaymentInfo'
                   ]}
                 />
