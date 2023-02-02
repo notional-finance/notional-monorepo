@@ -9,6 +9,7 @@ import MetaStable2TokenAura from './strategy/balancer/MetaStable2TokenAura';
 import Boosted3TokenAuraVault from './strategy/balancer/Boosted3TokenAuraVault';
 import { RATE_PRECISION } from '../config/constants';
 import { decodeValue } from '../data/SystemData';
+import SimpleStrategyVault from './strategy/notional/SimpleStrategyVault';
 
 interface BaseVaultInstantiable<D, R, I extends Record<string, any>> {
   new (vaultAddress: string, initParams?: I): BaseVault<D, R, I>;
@@ -20,12 +21,14 @@ export default class VaultFactory {
     'CrossCurrencyfCash',
     'MetaStable2TokenAura',
     'Boosted3TokenAuraVault',
+    'SimpleStrategyVault',
   ];
 
   private static nameToClass: Record<string, any> = {
     CrossCurrencyfCash,
     MetaStable2TokenAura,
     Boosted3TokenAuraVault,
+    SimpleStrategyVault,
   };
 
   private static idsToNames = this.names.reduce((m, n: string) => {
