@@ -2,6 +2,18 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [0.4.0](https://github.com/notional-finance/notional-monorepo/compare/sdk-0.3.2...sdk-0.4.0) (2023-02-02)
+
+
+### Features
+
+* **sdk-vault:** new code for simple strategy vault ([45afc6b](https://github.com/notional-finance/notional-monorepo/commit/45afc6b1a00c45b4e810b272b1190c9a5e6852d1))
+
+
+### Bug Fixes
+
+* **sdk:** fixing parameter decoding ([36b05c8](https://github.com/notional-finance/notional-monorepo/commit/36b05c82ee13ce58ce9cf6da5cf2f48964891ed3))
+
 ## [0.3.2](https://github.com/notional-finance/notional-monorepo/compare/sdk-0.3.1...sdk-0.3.2) (2023-01-04)
 
 
