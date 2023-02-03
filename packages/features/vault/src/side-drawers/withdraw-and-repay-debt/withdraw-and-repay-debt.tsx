@@ -1,13 +1,13 @@
-import { TradePropertiesGrid } from '@notional-finance/trade';
 import { VAULT_ACTIONS } from '@notional-finance/shared-config';
 import { VaultSideDrawer } from '../components/vault-side-drawer';
 import { SliderInput, SliderInputHandle } from '@notional-finance/mui';
-import { useDeleverageVault } from './use-withdraw-and-repay-debt';
-import { Box } from '@mui/material';
+import { WalletDepositInput } from '@notional-finance/trade';
+import { useWithdrawAndRepayDebt } from './use-withdraw-and-repay-debt';
 import { useParams } from 'react-router-dom';
 import { messages } from '../messages';
+import { VaultActionContext } from '../../managers';
 import { RATE_PRECISION } from '@notional-finance/sdk/src/config/constants';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useContext } from 'react';
 
 interface VaultParams {
   vaultAddress: string;
@@ -15,14 +15,9 @@ interface VaultParams {
 }
 
 export const WithdrawAndRepayDebt = () => {
-  const { vaultAddress, sideDrawerKey } = useParams<VaultParams>();
-  const action = sideDrawerKey || VAULT_ACTIONS.DEPOSIT_COLLATERAL;
-  // const { search, pathname } = useLocation();
-  // const searchParams = new URLSearchParams(search);
-  // const vaultAddress = searchParams.get('vaultAddress') || '';
-  // const action = searchParams.get('action') as VAULT_ACTIONS;
-  // const history = useHistory();
+  const { vaultAddress } = useParams<VaultParams>();
   const inputRef = useRef<SliderInputHandle>(null);
+  const { updateState } = useContext(VaultActionContext);
   const setInputAmount = useCallback(
     (input: number) => {
       inputRef.current?.setInputOverride(input);
@@ -33,14 +28,14 @@ export const WithdrawAndRepayDebt = () => {
   const {
     canSubmit,
     transactionData,
-    sideDrawerInfo,
     sliderError,
     sliderInfo,
     maxLeverageRatio,
     targetLeverageRatio,
+    primaryBorrowSymbol,
     updatedVaultAccount,
-    updateDeleverageVaultState,
-  } = useDeleverageVault(vaultAddress, action);
+    updateWithdrawAndRepayDebtState,
+  } = useWithdrawAndRepayDebt(vaultAddress);
 
   useEffect(() => {
     if (targetLeverageRatio) {
@@ -50,32 +45,39 @@ export const WithdrawAndRepayDebt = () => {
 
   return (
     <VaultSideDrawer
-      action={action}
+      action={VAULT_ACTIONS.WITHDRAW_AND_REPAY_DEBT}
       canSubmit={canSubmit}
       transactionData={transactionData}
       vaultAddress={vaultAddress}
       updatedVaultAccount={updatedVaultAccount}
     >
-      <Box>
-        <SliderInput
-          ref={inputRef}
-          min={0}
-          max={maxLeverageRatio / RATE_PRECISION}
-          onChangeCommitted={(newLeverageRatio) =>
-            updateDeleverageVaultState({
-              targetLeverageRatio: Math.floor(
-                newLeverageRatio * RATE_PRECISION
-              ),
-            })
-          }
-          errorMsg={sliderError}
-          infoMsg={sliderInfo}
+      {primaryBorrowSymbol && (
+        <WalletDepositInput
+          availableTokens={[primaryBorrowSymbol]}
+          selectedToken={primaryBorrowSymbol}
+          onChange={({ inputAmount, hasError }) => {
+            updateState({ depositAmount: inputAmount, hasError });
+          }}
           inputLabel={
-            messages[VAULT_ACTIONS.WITHDRAW_AND_REPAY_DEBT]['inputLabel']
+            messages[VAULT_ACTIONS.WITHDRAW_AND_REPAY_DEBT].inputLabel
           }
+          errorMsgOverride={undefined}
         />
-      </Box>
-      <TradePropertiesGrid showBackground data={sideDrawerInfo} />
+      )}
+
+      <SliderInput
+        ref={inputRef}
+        min={0}
+        max={maxLeverageRatio / RATE_PRECISION}
+        onChangeCommitted={(newLeverageRatio) =>
+          updateWithdrawAndRepayDebtState({
+            targetLeverageRatio: Math.floor(newLeverageRatio * RATE_PRECISION),
+          })
+        }
+        errorMsg={sliderError}
+        infoMsg={sliderInfo}
+        inputLabel={messages[VAULT_ACTIONS.WITHDRAW_AND_REPAY_DEBT].leverage}
+      />
     </VaultSideDrawer>
   );
 };
