@@ -29,7 +29,7 @@ const initialDeleverageVaultState = {
   targetLeverageRatio: undefined,
 };
 
-export function useDeleverageVault(
+export function useRollMaturity(
   vaultAddress: string,
   action: VAULT_ACTIONS
 ) {
