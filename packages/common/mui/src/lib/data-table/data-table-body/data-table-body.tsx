@@ -48,7 +48,7 @@ const StyledTableRow = styled(TableRow, {
     .MuiTableRow-root, &:nth-of-type(odd) {
       ${
         expandableTableActive || tableVariant === TABLE_VARIANTS.MINI
-          ? `background: ${palette.background.paper};`
+          ? `background: ${palette.background.default};`
           : `background: ${
               rowSelected ? palette.info.light : palette.background.default
             };`

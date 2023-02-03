@@ -1,12 +1,10 @@
-import {
-  TradePropertiesGrid,
-  WalletDepositInput,
-} from '@notional-finance/trade';
+import { useRef } from 'react';
+import { WalletDepositInput } from '@notional-finance/trade';
 import { VAULT_ACTIONS } from '@notional-finance/shared-config';
+import { SliderInput, SliderInputHandle } from '@notional-finance/mui';
 import { useParams } from 'react-router-dom';
 import { VaultSideDrawer } from '../components/vault-side-drawer';
-import { useDeleverageVault } from './use-deposit-collateral';
-import { Box } from '@mui/material';
+import { useDepositCollateral } from './use-deposit-collateral';
 import { messages } from '../messages';
 import { RATE_PRECISION } from '@notional-finance/sdk/src/config/constants';
 
@@ -16,47 +14,57 @@ interface VaultParams {
 }
 
 export const DepositCollateral = () => {
-  const { vaultAddress, sideDrawerKey } = useParams<VaultParams>();
-  const action = sideDrawerKey || VAULT_ACTIONS.DEPOSIT_COLLATERAL;
+  const { vaultAddress } = useParams<VaultParams>();
+  const inputRef = useRef<SliderInputHandle>(null);
 
   const {
     canSubmit,
     transactionData,
-    sideDrawerInfo,
+    sliderError,
+    sliderInfo,
+    maxLeverageRatio,
     depositError,
     targetLeverageRatio,
     primaryBorrowSymbol,
     updatedVaultAccount,
-    updateDeleverageVaultState,
-  } = useDeleverageVault(vaultAddress, action);
+    updateDepositCollateralState,
+  } = useDepositCollateral(vaultAddress);
 
   return (
     <VaultSideDrawer
-      action={action}
+      action={VAULT_ACTIONS.DEPOSIT_COLLATERAL}
       canSubmit={canSubmit}
       transactionData={transactionData}
       vaultAddress={vaultAddress}
       updatedVaultAccount={updatedVaultAccount}
     >
       {primaryBorrowSymbol && targetLeverageRatio && (
-        <Box>
-          <WalletDepositInput
-            availableTokens={[primaryBorrowSymbol]}
-            selectedToken={primaryBorrowSymbol}
-            onChange={({ inputAmount, hasError }) => {
-              updateDeleverageVaultState({
-                depositAmount: inputAmount,
-                hasError,
-              });
-            }}
-            inputLabel={
-              messages[VAULT_ACTIONS.DELEVERAGE_VAULT_DEPOSIT]['inputLabel']
-            }
-            errorMsgOverride={depositError}
-          />
-        </Box>
+        <WalletDepositInput
+          availableTokens={[primaryBorrowSymbol]}
+          selectedToken={primaryBorrowSymbol}
+          onChange={({ inputAmount, hasError }) => {
+            updateDepositCollateralState({
+              depositAmount: inputAmount,
+              hasError,
+            });
+          }}
+          inputLabel={messages[VAULT_ACTIONS.DEPOSIT_COLLATERAL]['inputLabel']}
+          errorMsgOverride={depositError}
+        />
       )}
-      <TradePropertiesGrid showBackground data={sideDrawerInfo} />
+      <SliderInput
+        ref={inputRef}
+        min={0}
+        max={maxLeverageRatio / RATE_PRECISION}
+        onChangeCommitted={(newLeverageRatio) =>
+          updateDepositCollateralState({
+            targetLeverageRatio: Math.floor(newLeverageRatio * RATE_PRECISION),
+          })
+        }
+        errorMsg={sliderError}
+        infoMsg={sliderInfo}
+        inputLabel={messages[VAULT_ACTIONS.DEPOSIT_COLLATERAL].leverage}
+      />
     </VaultSideDrawer>
   );
 };

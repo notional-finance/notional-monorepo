@@ -1,7 +1,13 @@
 import { useContext } from 'react';
-import { Drawer, SideDrawer, SideBarSubHeader } from '@notional-finance/mui';
+import {
+  Drawer,
+  SideDrawer,
+  SideBarSubHeader,
+  PageLoading,
+} from '@notional-finance/mui';
 import { Box, useTheme } from '@mui/material';
 import { useVaultSideDrawers } from '../hooks';
+import { useAccount, useOnboard } from '@notional-finance/notionable-hooks';
 import { CreateVaultPosition, ManageVault } from '../side-drawers';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
@@ -10,9 +16,11 @@ import { defineMessage } from 'react-intl';
 
 export const VaultActionSideDrawer = () => {
   const theme = useTheme();
+  const { accountSummariesLoaded } = useAccount();
+  const { connected } = useOnboard();
   const { SideDrawerComponent, openDrawer } = useVaultSideDrawers();
   const {
-    state: { vaultAccount, vaultAddress },
+    state: { vaultAddress, vaultAccount },
   } = useContext(VaultActionContext);
 
   const { clearSideDrawer } = useSideDrawerManager();
@@ -36,7 +44,12 @@ export const VaultActionSideDrawer = () => {
 
   return (
     <Drawer size="large">
-      {vaultAccount?.isInactive ? <CreateVaultPosition /> : <ManageVault />}
+      {!connected && <CreateVaultPosition />}
+      {accountSummariesLoaded && vaultAccount?.isInactive && (
+        <CreateVaultPosition />
+      )}
+      {accountSummariesLoaded && !vaultAccount?.isInactive && <ManageVault />}
+      {connected && !accountSummariesLoaded && <PageLoading type="notional" />}
       <SideDrawer
         callback={handleDrawer}
         openDrawer={openDrawer}
