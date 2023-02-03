@@ -32,7 +32,7 @@ export default class VaultFactory {
   };
 
   private static idsToNames = this.names.reduce((m, n: string) => {
-    const hash = keccak256(toUtf8Bytes(n)).slice(0, 10);
+    const hash = this.getStrategyId(n);
     m.set(hash, n);
     return m;
   }, new Map<string, string>());
@@ -40,6 +40,10 @@ export default class VaultFactory {
   // Resolves a hashed strategy id to a name
   public static resolveStrategyName(strategyId: string) {
     return this.idsToNames.get(strategyId);
+  }
+
+  public static getStrategyId(name: string) {
+    return keccak256(toUtf8Bytes(name)).slice(0, 10);
   }
 
   /**

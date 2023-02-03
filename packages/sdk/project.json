@@ -47,7 +47,7 @@
       "options": {
         "commands": [
           {
-            "command": "npx hardhat --tsconfig tsconfig.spec.json test tests/integration/balancer-boosted-vault.test.ts"
+            "command": "npx hardhat --tsconfig tsconfig.spec.json test tests/integration/balancer-metastable-vault.test.ts"
           }
         ],
         "cwd": "packages/sdk"
