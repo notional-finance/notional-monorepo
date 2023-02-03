@@ -28,3 +28,24 @@ export interface ExchangeRate {
   decimals: number;
   metadata: Record<string, unknown>;
 }
+
+export enum EventSignature {
+  AccountContextUpdate = 'AccountContextUpdate(address)',
+  VaultEnterPosition = 'VaultEnterPosition(address,address,uint256,uint256)',
+}
+
+export const corsHeaders = {
+  'content-type': 'application/json',
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, OPTIONS',
+  'Access-Control-Max-Age': '86400',
+};
+
+export interface VaultDOStorage {
+  [key: string]: string[]; // vault address -> account addresses
+}
+
+export interface AccountDOStorage {
+  accounts: string[];
+  vaults: VaultDOStorage;
+}

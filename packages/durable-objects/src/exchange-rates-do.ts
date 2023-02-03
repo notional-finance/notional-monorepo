@@ -1,5 +1,6 @@
 import { DurableObjectState } from '@cloudflare/workers-types';
-import { APIEnv } from './types';
+//import { log } from '@notional-finance/logging';
+import { APIEnv, corsHeaders } from './types';
 
 export class ExchangeRatesDO {
   state: DurableObjectState;
@@ -39,6 +40,11 @@ export class ExchangeRatesDO {
       await this.state.storage.put(rates.network, rates);
       return new Response('Rates Updated', { status: 200, statusText: 'OK' });
     } catch (e) {
+      /* await log({
+        message: (e as Error).message,
+        level: 'error',
+        action: 'exchange-rates-do-update',
+      }); */
       return new Response((e as Error).message, { status: 500 });
     }
   }
@@ -46,18 +52,13 @@ export class ExchangeRatesDO {
   async get(network: string) {
     try {
       const rates = await this.state.storage.get(network);
-      const headers = {
-        'content-type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, OPTIONS',
-        'Access-Control-Max-Age': '86400',
-      };
+
       if (!rates) {
         return new Response('Not Found', { status: 404 });
       }
       return new Response(JSON.stringify(rates), {
         status: 200,
-        headers,
+        headers: { ...corsHeaders },
       });
     } catch (e) {
       return new Response((e as Error).message, { status: 500 });

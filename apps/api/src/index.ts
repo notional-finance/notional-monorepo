@@ -12,36 +12,26 @@ const corsHeaders = {
   'Access-Control-Max-Age': '86400',
 };
 
+const allowedRequestMethods = ['GET', 'OPTIONS', 'POST'];
+
 export default {
   async fetch(request: Request, env: APIEnv): Promise<Response> {
+    /* const version = `${env.NX_COMMIT_REF?.substring(0, 8) ?? 'local'}`;
+    initLogger({
+      service: 'api',
+      version,
+      env: env.NX_ENV,
+      apiKey: env.NX_DD_API_KEY,
+    }); */
     const req = request.clone();
-    const { url, method, headers } = request;
-
+    const { url, method } = request;
     const path = new URL(url).pathname;
 
-    if (method !== 'GET' && method !== 'OPTIONS' && method !== 'POST') {
+    if (!allowedRequestMethods.includes(method)) {
       return new Response('Not Found', { status: 404 });
     }
     if (method === 'OPTIONS') {
-      if (
-        headers.get('Origin') !== null &&
-        headers.get('Access-Control-Request-Method') !== null &&
-        headers.get('Access-Control-Request-Headers') !== null
-      ) {
-        const respHeaders = {
-          ...corsHeaders,
-          'Access-Control-Allow-Headers': headers.get(
-            'Access-Control-Request-Headers'
-          ),
-        };
-        return new Response(null, { headers: respHeaders });
-      }
-
-      return new Response(null, {
-        headers: {
-          Allow: 'GET, OPTIONS, POST',
-        },
-      });
+      handleOptionsRequest(request);
     }
     if (path === '/exchange-rates') {
       const id = env.EXCHANGE_RATES_DO.idFromName(env.EXCHANGE_RATES_NAME);
@@ -59,3 +49,26 @@ export default {
     return new Response('Not Found', { status: 404 });
   },
 };
+
+function handleOptionsRequest(request: Request) {
+  const headers = request.headers;
+  if (
+    headers.get('Origin') !== null &&
+    headers.get('Access-Control-Request-Method') !== null &&
+    headers.get('Access-Control-Request-Headers') !== null
+  ) {
+    const respHeaders = {
+      ...corsHeaders,
+      'Access-Control-Allow-Headers': headers.get(
+        'Access-Control-Request-Headers'
+      ),
+    };
+    return new Response(null, { headers: respHeaders });
+  }
+
+  return new Response(null, {
+    headers: {
+      Allow: 'GET, OPTIONS, POST',
+    },
+  });
+}

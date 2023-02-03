@@ -1,6 +1,17 @@
 import { DurableObjectState } from '@cloudflare/workers-types';
-import { APIEnv, SentinalRequest } from './types';
+import {
+  AccountDOStorage,
+  APIEnv,
+  corsHeaders,
+  EventSignature,
+  SentinalRequest,
+} from './types';
 import { unique } from '@notional-finance/helpers';
+import {
+  SentinelBaseAbiConditionSummary,
+  BlockTriggerEvent,
+} from 'defender-autotask-utils';
+//import { log } from '@notional-finance/logging';
 
 export class AccountsDO {
   state: DurableObjectState;
@@ -38,19 +49,17 @@ export class AccountsDO {
         if (id !== this.env.SENTINEL_ID) {
           return new Response('Bad Request', { status: 400 });
         }
-        const accounts = unique(events.map((e) => e.transaction.from));
-        const existingAccounts =
-          (await this.state.storage.get<string[]>(network)) ?? [];
-        if (network && accounts) {
-          const newAccts = (accounts as string[]).filter(
-            (a: string) => !existingAccounts.includes(a)
-          );
-          existingAccounts.push(...newAccts);
-          await this.state.storage.put(network, existingAccounts);
-          return new Response('Accounts Updated', {
-            status: 200,
-            statusText: 'OK',
-          });
+        const { matchReasons } = events[0];
+        const eventSummary = matchReasons.find(
+          (e) => e.type === 'event'
+        ) as SentinelBaseAbiConditionSummary;
+
+        if (eventSummary?.signature === EventSignature.AccountContextUpdate) {
+          return this.handleAccountContextUpdate(events, network);
+        } else if (
+          eventSummary.signature === EventSignature.VaultEnterPosition
+        ) {
+          return this.handleVaultEnterPosition(eventSummary, network);
         }
       }
       return new Response('No New Accounts', {
@@ -58,8 +67,82 @@ export class AccountsDO {
         statusText: 'OK',
       });
     } catch (e) {
+      /* await log({
+        message: (e as Error).message,
+        level: 'error',
+        action: 'accounts-do-update',
+      }); */
       return new Response((e as Error).message, { status: 500 });
     }
+  }
+
+  async handleAccountContextUpdate(
+    events: BlockTriggerEvent[],
+    network: string
+  ) {
+    const accounts = unique(events.map((e) => e.params.account));
+
+    const existingAccounts = (await this.state.storage.get<
+      AccountDOStorage | string[]
+    >(network)) ?? { accounts: [], vaults: {} };
+
+    if (existingAccounts instanceof Array) {
+      return this.migrateStorage(network, existingAccounts);
+    }
+
+    if (network && accounts) {
+      const newAccts = (accounts as string[]).filter(
+        (a: string) => !existingAccounts.accounts.includes(a)
+      );
+      existingAccounts.accounts.push(...newAccts);
+      await this.state.storage.put(network, existingAccounts);
+      return new Response('Accounts Updated', {
+        status: 200,
+        statusText: 'OK',
+      });
+    }
+    return new Response('No New Accounts', {
+      status: 200,
+      statusText: 'OK',
+    });
+  }
+
+  async migrateStorage(network: string, accounts: string[]) {
+    await this.state.storage.put(network, {
+      accounts,
+      vaults: {},
+    });
+    return new Response('Accounts Converted', {
+      status: 200,
+      statusText: 'OK',
+    });
+  }
+
+  async handleVaultEnterPosition(
+    eventSummary: SentinelBaseAbiConditionSummary,
+    network: string
+  ) {
+    const { vault, account } = eventSummary.params;
+    const storage = (await this.state.storage.get<AccountDOStorage | string[]>(
+      network
+    )) ?? { accounts: [], vaults: {} };
+
+    if (storage instanceof Array) {
+      return this.migrateStorage(network, storage);
+    }
+    if (!storage.vaults) {
+      storage.vaults = {};
+    }
+    const existingVaults = storage.vaults[vault] ?? [];
+    if (!existingVaults.includes(account)) {
+      existingVaults.push(account);
+      storage.vaults[vault] = existingVaults;
+      await this.state.storage.put(network, storage);
+    }
+    return new Response('Vault Accounts Updated', {
+      status: 200,
+      statusText: 'OK',
+    });
   }
 
   async get(request: Request) {
@@ -69,19 +152,23 @@ export class AccountsDO {
       if (!network) {
         return new Response('Network Required', { status: 400 });
       }
-      const existingAccounts =
-        (await this.state.storage.get<string[]>(network)) ?? [];
-      const headers = {
-        'content-type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, OPTIONS',
-        'Access-Control-Max-Age': '86400',
-      };
+      const storage = (await this.state.storage.get<
+        AccountDOStorage | string[]
+      >(network)) ?? { accounts: [], vaults: {} };
+
+      if (storage instanceof Array) {
+        return this.migrateStorage(network, storage);
+      }
+
       return new Response(
-        JSON.stringify({ accounts: existingAccounts, network }),
+        JSON.stringify({
+          accounts: storage.accounts,
+          network,
+          vaults: storage.vaults,
+        }),
         {
           status: 200,
-          headers,
+          headers: { ...corsHeaders },
         }
       );
     } catch (e) {
