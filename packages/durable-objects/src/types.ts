@@ -49,3 +49,32 @@ export interface AccountDOStorage {
   accounts: string[];
   vaults: VaultDOStorage;
 }
+export interface SentinelBaseConditionSummary {
+  condition?: string;
+}
+export interface SentinelBaseAbiConditionSummary
+  extends SentinelBaseConditionSummary {
+  signature: string;
+  args: any[];
+  address: string;
+  params: {
+    [key: string]: any;
+  };
+}
+
+export interface EnterVaultConditionSummary
+  extends SentinelBaseAbiConditionSummary {
+  params: {
+    vault: string;
+    account: string;
+    maturity: string;
+    fCashBorrowed: string;
+  };
+}
+
+export interface AccountContextUpdateConditionSummary
+  extends SentinelBaseAbiConditionSummary {
+  params: {
+    account: string;
+  };
+}

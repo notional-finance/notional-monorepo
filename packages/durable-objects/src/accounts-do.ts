@@ -3,12 +3,13 @@ import {
   AccountDOStorage,
   APIEnv,
   corsHeaders,
+  EnterVaultConditionSummary,
   EventSignature,
   SentinalRequest,
 } from './types';
 import { unique } from '@notional-finance/helpers';
 import {
-  SentinelBaseAbiConditionSummary,
+  SentinelConditionSummary,
   BlockTriggerEvent,
 } from 'defender-autotask-utils';
 //import { log } from '@notional-finance/logging';
@@ -52,7 +53,7 @@ export class AccountsDO {
         const { matchReasons } = events[0];
         const eventSummary = matchReasons.find(
           (e) => e.type === 'event'
-        ) as SentinelBaseAbiConditionSummary;
+        ) as SentinelConditionSummary;
 
         if (eventSummary?.signature === EventSignature.AccountContextUpdate) {
           return this.handleAccountContextUpdate(events, network);
@@ -119,7 +120,7 @@ export class AccountsDO {
   }
 
   async handleVaultEnterPosition(
-    eventSummary: SentinelBaseAbiConditionSummary,
+    eventSummary: EnterVaultConditionSummary,
     network: string
   ) {
     const { vault, account } = eventSummary.params;
