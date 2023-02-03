@@ -94,7 +94,7 @@ export const DataTable = ({
           overflow: !tableReady ? 'hidden' : 'auto',
           backgroundColor:
             tableVariant === TABLE_VARIANTS.MINI
-              ? theme.palette.common.white
+              ? theme.palette.background.default
               : theme.palette.background.paper,
           padding:
             tableVariant === TABLE_VARIANTS.MINI ? theme.spacing(2) : '1px',
