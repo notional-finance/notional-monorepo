@@ -155,12 +155,18 @@ export abstract class BaseLiquidityPool<P> extends AbstractLiquidityPool {
    */
   protected getBalanceArraySpotValue(
     balances: BigNumber[],
-    primaryTokenIndex: number
+    primaryTokenIndex: number,
+    balanceOverrides?: BigNumber[]
   ): BigNumber {
     return balances
       .map((b, i) => {
         if (i === primaryTokenIndex) return b;
-        const { tokensOut } = this.calculateTokenTrade(b, primaryTokenIndex, i);
+        const { tokensOut } = this.calculateTokenTrade(
+          b,
+          primaryTokenIndex,
+          i,
+          balanceOverrides
+        );
         return tokensOut;
       })
       .reduce((t, v) => t.add(v), BigNumber.from(0));
@@ -376,4 +382,32 @@ export abstract class BaseLiquidityPool<P> extends AbstractLiquidityPool {
       );
     }
   }
+
+  // protected getPriceExposureTable(
+  //   tokenPurchasedIndex: number,
+  //   tokenSoldIndex: number,
+  //   percentDepthTraded = 80
+  // ) {
+  //   Array(percentDepthTraded).map((_, i) => {
+  //     // Percentage of the sold token index
+  //     const tokensSold = this.balances[tokenSoldIndex].mul(i).div(100);
+  //     const { tokensOut } = this.calculateTokenTrade(
+  //       tokensSold,
+  //       tokenSoldIndex,
+  //       tokenPurchasedIndex
+  //     );
+
+  //     let newBalances = Array.from(this.balances);
+  //     newBalances[tokenSoldIndex] = newBalances[tokenSoldIndex].sub(tokensSold);
+  //     newBalances[tokenPurchasedIndex] =
+  //       newBalances[tokenPurchasedIndex].add(tokensOut);
+
+  //     // const primaryTokenValue = this.getLPTokenSpotValue(
+  //     //   tokenPurchasedIndex,
+  //     //   newBalance
+  //     // );
+  //     // TODO: what is the secondary token price here? (that defines "priceLevel")
+  //     // TODO: need to calculate the price for a trade at one unit
+  //   });
+  // }
 }

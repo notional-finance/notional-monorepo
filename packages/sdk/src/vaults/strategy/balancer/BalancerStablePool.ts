@@ -112,6 +112,8 @@ export class BalancerStablePool extends BaseLiquidityPool<PoolParams> {
       invariant
     );
 
+    // TODO: does this include scaling factors?
+
     return {
       tokensOut: tokensOut.n,
       feesPaid: [],

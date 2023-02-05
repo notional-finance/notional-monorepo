@@ -298,3 +298,17 @@ export interface LiquidationThreshold {
   ethExchangeRate?: TypedBigNumber;
   currentPrice?: TypedBigNumber;
 }
+
+export interface PriceExposure {
+  secondaryCurrencySymbol: string;
+  primaryCurrencySymbol: string;
+  levels: {
+    // Both of these values are in terms of primary currency symbol
+    priceLevel: TypedBigNumber;
+    profitLoss: TypedBigNumber;
+    // This is a rate precision (1e9) value
+    priceExposure: number;
+    percentPoolTraded: number;
+    isLiquidationPrice: boolean;
+  }[];
+}

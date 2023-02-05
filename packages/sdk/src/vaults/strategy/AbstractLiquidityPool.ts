@@ -9,13 +9,15 @@ export abstract class AbstractLiquidityPool {
    * @param tokensIn amount of tokens in
    * @param tokenIndexIn index of tokens in
    * @param tokenIndexOut index of tokens out
+   * @param balanceOverrides overrides default balances for ad hoc analysis
    * @returns tokensOut amount of tokens out
    * @returns feesPaid array of fees paid amounts
    */
   protected abstract calculateTokenTrade(
     tokensIn: BigNumber,
     tokenIndexIn: number,
-    tokenIndexOut: number
+    tokenIndexOut: number,
+    balanceOverrides?: BigNumber[]
   ): {
     tokensOut: BigNumber;
     feesPaid: BigNumber[];

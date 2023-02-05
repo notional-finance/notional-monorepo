@@ -128,9 +128,12 @@ export default class BalancerStableMath extends FixedPoint {
     // Fees rounded up and applied to token out
     const taxableAmount = amountOutWithoutFee.mulUp(taxablePercentage);
     const nonTaxableAmount = amountOutWithoutFee.sub(taxableAmount);
-    return nonTaxableAmount.add(
+    const amountOut = nonTaxableAmount.add(
       taxableAmount.mulDown(FixedPoint.ONE.sub(swapFeePercentage))
     );
+    const feePaid = amountOutWithoutFee.sub(amountOut);
+
+    return { amountOut, feePaid };
   }
 
   public static calcBptOutGivenExactTokensIn(
@@ -245,5 +248,133 @@ export default class BalancerStableMath extends FixedPoint {
     return accumulatedTokenSwapFees
       .mulDown(protocolSwapFeePercentage)
       .divDown(FixedPoint.ONE);
+  }
+
+  /**
+   * @dev Returns the amount of protocol fees to pay, given the value of the last stored invariant and the current
+   * balances.
+   */
+  public static getDueProtocolFeeAmounts(
+    amplificationParameter: FixedPoint,
+    invariant: FixedPoint,
+    balances: FixedPoint[],
+    protocolSwapFeePercentage: FixedPoint
+  ) {
+    // Initialize with zeros
+    const numTokens = balances.length;
+    const dueProtocolFeeAmounts = new Array<FixedPoint>(numTokens).fill(
+      FixedPoint.from(0)
+    );
+
+    // Early return if the protocol swap fee percentage is zero, saving gas.
+    if (protocolSwapFeePercentage.isZero()) {
+      return dueProtocolFeeAmounts;
+    }
+
+    // Instead of paying the protocol swap fee in all tokens proportionally, we will pay it in a single one. This
+    // will reduce gas costs for single asset joins and exits, as at most only two Pool balances will change (the
+    // token joined/exited, and the token in which fees will be paid).
+
+    // The protocol fee is charged using the token with the highest balance in the pool.
+    let chosenTokenIndex = 0;
+    let maxBalance = balances[0];
+    for (let i = 1; i < numTokens; i += 1) {
+      const currentBalance = balances[i];
+      if (currentBalance.gt(maxBalance)) {
+        chosenTokenIndex = i;
+        maxBalance = currentBalance;
+      }
+    }
+
+    // Set the fee amount to pay in the selected token
+    dueProtocolFeeAmounts[chosenTokenIndex] =
+      BalancerStableMath.calcDueTokenProtocolSwapFeeAmount(
+        amplificationParameter,
+        balances,
+        invariant,
+        chosenTokenIndex,
+        protocolSwapFeePercentage
+      );
+
+    return dueProtocolFeeAmounts;
+  }
+
+  public static getSimulatedBalancesAfterTrade(
+    amplificationParameter: FixedPoint,
+    balances: FixedPoint[],
+    scalingFactors: FixedPoint[],
+    tokenOutIndex: number,
+    tokenInIndex: number,
+    tokensSold: FixedPoint
+  ) {
+    const invariant = this.calculateInvariant(
+      amplificationParameter,
+      balances,
+      true
+    );
+
+    const tokensOut = this.calcOutGivenIn(
+      amplificationParameter,
+      balances,
+      tokenOutIndex,
+      tokenInIndex,
+      tokensSold,
+      invariant
+    );
+
+    const newBalances = balances.map((b, i) => {
+      const scalingFactor = scalingFactors[i];
+      let newB: FixedPoint;
+      if (i === tokenOutIndex) newB = b.add(tokensSold);
+      else if (i === tokenInIndex) newB = b.sub(tokensOut);
+      // Any other balances will remain unchanged
+      else newB = b;
+
+      // Apply the scaling factor after the balance adjustment
+      return newB.mul(scalingFactor).div(FixedPoint.ONE);
+    });
+
+    return newBalances;
+  }
+
+  public static getSpotPriceInPrimary(
+    amplificationParameter: FixedPoint,
+    balances: FixedPoint[],
+    totalSupply: FixedPoint,
+    primaryTokenIndex: number,
+    secondaryTokenIndex: number
+  ) {
+    const invariant = this.calculateInvariant(
+      amplificationParameter,
+      balances,
+      true
+    );
+
+    let secondaryTokenPrice = FixedPoint.from(0);
+    const oneBPTValueSpotInPrimary = balances
+      // Returns the claims of one BPT on constituent tokens
+      .map((b) => b.mul(FixedPoint.ONE).div(totalSupply))
+      .reduce((totalValue, b, i) => {
+        if (i === primaryTokenIndex) return totalValue.add(b);
+
+        // Calculate how much primary token you get for one unit of
+        // secondary token to get the current spot price
+        const primaryTokenSpotPrice = this.calcOutGivenIn(
+          amplificationParameter,
+          balances,
+          i, // selling the current token index
+          primaryTokenIndex, // purchasing primary token
+          b, // selling all of the secondary token claim
+          invariant
+        );
+
+        if (i === secondaryTokenIndex)
+          secondaryTokenPrice = primaryTokenSpotPrice
+            .mul(FixedPoint.ONE)
+            .div(b);
+        return totalValue.add(primaryTokenSpotPrice);
+      }, FixedPoint.from(0));
+
+    return { secondaryTokenPrice, oneBPTValueSpotInPrimary };
   }
 }
