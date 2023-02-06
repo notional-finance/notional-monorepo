@@ -9,7 +9,7 @@ import { System } from '../../src/system';
 import { VaultConfig } from '../../src/data';
 import { BASIS_POINT } from '../../src/config/constants';
 import TypedBigNumber from '../../src/libs/TypedBigNumber';
-import { VaultFactory } from '@notional-finance/sdk';
+import { VaultFactory } from '../../src/vaults';
 
 const forkedBlockNumber = 16547700;
 const VAULT_ADDRESS = '0xf049b944ec83abb50020774d48a8cf40790996e6';
