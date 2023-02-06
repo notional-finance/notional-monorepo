@@ -8,6 +8,7 @@
     "common-mui": "packages/common/mui",
     "common-styles": "packages/common/styles",
     "contracts": "packages/contracts",
+    "dex-simulator": "packages/dex-simulator",
     "durable-objects": "packages/durable-objects",
     "errors": "packages/errors",
     "features-about-us": "packages/features/about-us",
