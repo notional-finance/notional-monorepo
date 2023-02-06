@@ -94,7 +94,7 @@ export abstract class BaseLiquidityPool<P> extends AbstractLiquidityPool {
    * in 18 decimal precision)
    * @param primaryTokenIndex index of the primary token
    */
-  protected getValueInPrimary(
+  public getValueInPrimary(
     balances: BigNumber[],
     oraclePrices: BigNumber[],
     primaryTokenIndex: number
@@ -123,7 +123,7 @@ export abstract class BaseLiquidityPool<P> extends AbstractLiquidityPool {
    * in 18 decimal precision)
    * @param primaryTokenIndex index of the primary token
    */
-  protected getLPTokenOracleValue(
+  public getLPTokenOracleValue(
     lpTokens: BigNumber,
     oraclePrices: BigNumber[],
     primaryTokenIndex: number
@@ -138,7 +138,7 @@ export abstract class BaseLiquidityPool<P> extends AbstractLiquidityPool {
    * @param primaryTokenIndex
    * @returns valuation of the lp token in the primary token
    */
-  protected getLPTokenSpotValue(
+  public getLPTokenSpotValue(
     primaryTokenIndex: number,
     balancesOverride?: BigNumber[]
   ): BigNumber {
@@ -181,7 +181,7 @@ export abstract class BaseLiquidityPool<P> extends AbstractLiquidityPool {
    * @param lpTokens
    * @returns array of token claims the amount of lp tokens has
    */
-  protected getLPTokenClaims(
+  public getLPTokenClaims(
     lpTokens: BigNumber,
     balancesOverride?: BigNumber[]
   ): BigNumber[] {
@@ -198,7 +198,7 @@ export abstract class BaseLiquidityPool<P> extends AbstractLiquidityPool {
    * @param lpTokensRequired
    * @param singleSidedEntryTokenIndex
    */
-  protected getTokensRequiredForLPTokens(
+  public getTokensRequiredForLPTokens(
     lpTokensRequired: BigNumber,
     singleSidedEntryTokenIndex?: number
   ): {
@@ -250,7 +250,7 @@ export abstract class BaseLiquidityPool<P> extends AbstractLiquidityPool {
     }
   }
 
-  protected getLPTokensRequiredForTokens(tokensOut: BigNumber[]): {
+  public getLPTokensRequiredForTokens(tokensOut: BigNumber[]): {
     lpTokens: BigNumber;
     feesPaid: BigNumber[];
   } {
@@ -391,7 +391,7 @@ export abstract class BaseLiquidityPool<P> extends AbstractLiquidityPool {
     }
   }
 
-  protected getPriceExposureTable(
+  public getPriceExposureTable(
     tokenIndexIn: number,
     tokenIndexOut: number,
     percentDepthTraded = 80

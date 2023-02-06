@@ -7,7 +7,7 @@ interface PoolParams {
   swapFeePercentage: FixedPoint;
 }
 
-export class MetaStable2Token extends BaseBalancerPool<PoolParams> {
+export default class MetaStable2Token extends BaseBalancerPool<PoolParams> {
   protected getLPTokensGivenTokens(tokensIn: BigNumber[]): {
     lpTokens: BigNumber;
     feesPaid: BigNumber[];
