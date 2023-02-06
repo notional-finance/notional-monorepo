@@ -99,7 +99,7 @@ export default class Boosted3TokenAuraVault extends BaseBalancerStablePool<InitP
       true
     );
 
-    return BalancerStableMath.calcTokenOutGivenExactBptIn(
+    const { amountOut } = BalancerStableMath.calcTokenOutGivenExactBptIn(
       basePoolAmp,
       balances,
       primaryTokenIndex,
@@ -108,6 +108,8 @@ export default class Boosted3TokenAuraVault extends BaseBalancerStablePool<InitP
       FixedPoint.from(0), // swap fee percentage set to zero
       invariant
     );
+
+    return amountOut;
   }
 
   protected getBPTOut(tokenAmountIn: FixedPoint) {
@@ -183,7 +185,7 @@ export default class Boosted3TokenAuraVault extends BaseBalancerStablePool<InitP
         balances,
         true
       );
-      const amountOut = BalancerStableMath.calcTokenOutGivenExactBptIn(
+      const { amountOut } = BalancerStableMath.calcTokenOutGivenExactBptIn(
         basePoolAmp,
         balances,
         // basePoolBalances() rearranges the balances so that primary is always in the

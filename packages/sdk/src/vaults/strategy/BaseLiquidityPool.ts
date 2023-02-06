@@ -1,4 +1,4 @@
-import { BigNumber, constants } from 'ethers';
+import { BigNumber, constants, utils } from 'ethers';
 import {
   INTERNAL_TOKEN_PRECISION,
   RATE_PRECISION,
@@ -138,9 +138,12 @@ export abstract class BaseLiquidityPool<P> extends AbstractLiquidityPool {
    * @param primaryTokenIndex
    * @returns valuation of the lp token in the primary token
    */
-  protected getLPTokenSpotValue(primaryTokenIndex: number): BigNumber {
+  protected getLPTokenSpotValue(
+    primaryTokenIndex: number,
+    balancesOverride?: BigNumber[]
+  ): BigNumber {
     return this.getBalanceArraySpotValue(
-      this.getLPTokenClaims(this.LP_TOKEN_PRECISION),
+      this.getLPTokenClaims(this.LP_TOKEN_PRECISION, balancesOverride),
       primaryTokenIndex
     );
   }
@@ -178,8 +181,13 @@ export abstract class BaseLiquidityPool<P> extends AbstractLiquidityPool {
    * @param lpTokens
    * @returns array of token claims the amount of lp tokens has
    */
-  protected getLPTokenClaims(lpTokens: BigNumber): BigNumber[] {
-    return this.balances.map((b) => lpTokens.mul(b).div(this.totalSupply));
+  protected getLPTokenClaims(
+    lpTokens: BigNumber,
+    balancesOverride?: BigNumber[]
+  ): BigNumber[] {
+    return (balancesOverride || this.balances).map((b) =>
+      lpTokens.mul(b).div(this.totalSupply)
+    );
   }
 
   /**
@@ -383,31 +391,50 @@ export abstract class BaseLiquidityPool<P> extends AbstractLiquidityPool {
     }
   }
 
-  // protected getPriceExposureTable(
-  //   tokenPurchasedIndex: number,
-  //   tokenSoldIndex: number,
-  //   percentDepthTraded = 80
-  // ) {
-  //   Array(percentDepthTraded).map((_, i) => {
-  //     // Percentage of the sold token index
-  //     const tokensSold = this.balances[tokenSoldIndex].mul(i).div(100);
-  //     const { tokensOut } = this.calculateTokenTrade(
-  //       tokensSold,
-  //       tokenSoldIndex,
-  //       tokenPurchasedIndex
-  //     );
+  protected getPriceExposureTable(
+    tokenIndexIn: number,
+    tokenIndexOut: number,
+    percentDepthTraded = 80
+  ) {
+    return Array(percentDepthTraded)
+      .map((_, i) => {
+        // Percentage of the sold token index
+        const tokensIn = this.balances[tokenIndexIn].mul(i).div(100);
+        const { tokensOut } = this.calculateTokenTrade(
+          tokensIn,
+          tokenIndexIn,
+          tokenIndexOut
+        );
 
-  //     let newBalances = Array.from(this.balances);
-  //     newBalances[tokenSoldIndex] = newBalances[tokenSoldIndex].sub(tokensSold);
-  //     newBalances[tokenPurchasedIndex] =
-  //       newBalances[tokenPurchasedIndex].add(tokensOut);
+        const newBalances = Array.from(this.balances);
+        newBalances[tokenIndexIn] = newBalances[tokenIndexIn].sub(tokensIn);
+        newBalances[tokenIndexOut] = newBalances[tokenIndexOut].add(tokensOut);
 
-  //     // const primaryTokenValue = this.getLPTokenSpotValue(
-  //     //   tokenPurchasedIndex,
-  //     //   newBalance
-  //     // );
-  //     // TODO: what is the secondary token price here? (that defines "priceLevel")
-  //     // TODO: need to calculate the price for a trade at one unit
-  //   });
-  // }
+        const lpTokenValue = this.getLPTokenSpotValue(
+          tokenIndexOut,
+          newBalances
+        );
+
+        const { tokensOut: secondaryTokenPrice } = this.calculateTokenTrade(
+          this.tokenDecimals[tokenIndexIn],
+          tokenIndexIn,
+          tokenIndexOut,
+          newBalances
+        );
+
+        const decimalPlaces = Math.log10(
+          this.tokenDecimals[tokenIndexOut].toNumber()
+        );
+        const priceLevelIndex = parseFloat(
+          utils.formatUnits(secondaryTokenPrice, decimalPlaces)
+        ).toPrecision(2);
+
+        return { lpTokenValue, secondaryTokenPrice, priceLevelIndex };
+      })
+      .filter(
+        // Filter out duplicate indexes at the specified level of precision
+        ({ priceLevelIndex }, i, arr) =>
+          i === 0 || arr[i - 1].priceLevelIndex !== priceLevelIndex
+      );
+  }
 }
