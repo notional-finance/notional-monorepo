@@ -95,6 +95,9 @@
       ],
       "@notional-finance/styles": ["packages/common/styles/src/index.ts"],
       "@notional-finance/styles/*": ["packages/common/styles/src/*"],
+      "@notional-finance/token-balance": [
+        "packages/token-balance/src/index.ts"
+      ],
       "@notional-finance/trade": ["packages/shared/trade/src/index.ts"],
       "@notional-finance/trade/*": ["packages/shared/trade/src/*"],
       "@notional-finance/treasury-feature-shell": [

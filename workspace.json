@@ -38,6 +38,7 @@
     "shared-wallet": "packages/shared/wallet",
     "shared-web": "packages/shared/web",
     "system-cache": "apps/system-cache",
+    "token-balance": "packages/token-balance",
     "util": "packages/util",
     "web": "apps/web"
   }
