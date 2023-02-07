@@ -1,1 +1,3 @@
-export * from './lib/token-balance';
+export * from './TokenRegistry';
+export * from './TokenBalance';
+export * from './Matchers';
