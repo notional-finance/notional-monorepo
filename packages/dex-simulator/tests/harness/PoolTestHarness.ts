@@ -1,35 +1,33 @@
-import { BigNumber, Contract, Signer } from 'ethers';
-import { BaseLiquidityPool } from '../../src/exchanges/BaseLiquidityPool';
+import { BigNumber, Signer } from 'ethers';
 
-export abstract class PoolTestHarness<P> {
-  constructor(
-    public poolInstance: BaseLiquidityPool<P>,
-    public poolContract: Contract
-  ) {}
-
-  public abstract singleSideEntry(
+export interface PoolTestHarness {
+  singleSideEntry(
     signer: Signer,
     entryTokenIndex: number,
     entryTokenAmount: BigNumber
-  ): Promise<BigNumber>;
+  ): Promise<{ lpTokens: BigNumber; feesPaid: BigNumber[] }>;
 
-  public abstract singleSideExit(
+  singleSideExit(
     signer: Signer,
     exitTokenIndex: number,
     lpTokenAmount: BigNumber
-  );
+  ): Promise<{ tokensOut: BigNumber; feesPaid: BigNumber[] }>;
 
-  public abstract multiTokenExit(
+  multiTokenEntry(
     signer: Signer,
-    exitTokenIndex: number,
-    lpTokenAmount: BigNumber
-  );
+    tokensIn: BigNumber[]
+  ): Promise<{ lpTokens: BigNumber; feesPaid: BigNumber[] }>;
 
-  // TODO: confirm single sided entry
-  // TODO: confirm single sided exit
-  // TODO: confirm balanced entry
-  // TODO: confirm balanced exit
-  // TODO: confirm unbalanced entry
-  // TODO: confirm unbalanced exit
-  // TODO: confirm trade calculation [small, medium, large]
+  multiTokenExit(
+    signer: Signer,
+    lpTokenAmount: BigNumber,
+    minTokensOut?: BigNumber[]
+  ): Promise<{ tokensOut: BigNumber[]; feesPaid: BigNumber[] }>;
+
+  trade(
+    signer: Signer,
+    tokensInIndex: number,
+    tokensOutIndex: number,
+    tokensIn: BigNumber
+  ): Promise<{ tokensOut: BigNumber; feesPaid: BigNumber[] }>;
 }
