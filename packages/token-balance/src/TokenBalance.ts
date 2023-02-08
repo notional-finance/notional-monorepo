@@ -1,5 +1,6 @@
 import { BigNumber, BigNumberish, utils } from 'ethers';
 import { TokenDefinition, TokenStandard } from './TokenRegistry';
+import { RATE_PRECISION } from '@notional-finance/sdk/config/constants';
 
 export class TokenBalance {
   /** Create Methods */
@@ -19,6 +20,14 @@ export class TokenBalance {
 
   static zero(token: TokenDefinition, underlying?: TokenDefinition) {
     return new TokenBalance(BigNumber.from(0), token, underlying);
+  }
+
+  static unit(token: TokenDefinition, underlying?: TokenDefinition) {
+    return new TokenBalance(
+      BigNumber.from(10).pow(token.decimalPlaces),
+      token,
+      underlying
+    );
   }
 
   static fromJSON(obj: TokenBalance['json']) {
@@ -117,6 +126,34 @@ export class TokenBalance {
     }
 
     return this.copy(this.n.mul(num).div(denom));
+  }
+
+  /**
+   * Multiplies in 1e9 rate precision
+   */
+  mulInRatePrecision(numerator: BigNumberish) {
+    return this.scale(numerator, RATE_PRECISION);
+  }
+
+  /**
+   * Divides in 1e9 rate precision
+   */
+  divInRatePrecision(denominator: BigNumberish) {
+    return this.scale(RATE_PRECISION, denominator);
+  }
+
+  /**
+   * Returns a BigNumber ratio with a corresponding token balance
+   */
+  ratioWith(denominator: TokenBalance) {
+    return this.scale(RATE_PRECISION, denominator).n;
+  }
+
+  /**
+   * Scales to a given number of decimal places
+   */
+  scaleTo(decimalPlaces: number) {
+    return this.scale(BigNumber.from(10).pow(decimalPlaces), this.decimals).n;
   }
 
   /** Comparison Methods */

@@ -1,4 +1,5 @@
-import { BigNumber, ethers } from 'ethers';
+import { TokenBalance } from '@notional-finance/token-balance';
+import { BigNumber, BigNumberish, ethers } from 'ethers';
 
 export default class FixedPoint {
   public static _1 = FixedPoint.from(1);
@@ -7,7 +8,12 @@ export default class FixedPoint {
 
   constructor(public n: BigNumber) {}
 
-  public static from(v: any) {
+  public static convert(t: TokenBalance) {
+    // All Balancer internal calculations are in 18 decimals
+    return FixedPoint.from(t.scaleTo(18));
+  }
+
+  public static from(v: BigNumberish) {
     if (v instanceof BigNumber) {
       return new FixedPoint(v);
     }
@@ -73,6 +79,10 @@ export default class FixedPoint {
       return FixedPoint._1.add(this.sub(FixedPoint._1).div(b));
     }
     return this.div(b);
+  }
+
+  public convertTo(t: TokenBalance) {
+    return t.copy(this.n.mul(t.decimals).div(ethers.constants.WeiPerEther));
   }
 
   public complement() {

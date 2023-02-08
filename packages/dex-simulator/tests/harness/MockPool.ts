@@ -10,12 +10,10 @@ export class MockPool extends BaseLiquidityPool<Record<string, never>> {
     public override balances: BigNumber[],
     public oracleRate: BigNumber,
     public override totalLPTokensHeld: BigNumber,
-    public override totalStrategyTokensGlobal: BigNumber,
     public override totalSupply: BigNumber
   ) {
     super(
       totalLPTokensHeld.mul(lpTokenPrecision),
-      totalStrategyTokensGlobal.mul(lpTokenPrecision),
       tokenDecimals,
       balances,
       totalSupply.mul(lpTokenPrecision),
