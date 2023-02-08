@@ -1,25 +1,25 @@
-import { BigNumber } from 'ethers';
-import FixedPoint from '../../math/FixedPoint';
-import BaseBalancerPool from './BaseBalancerPool';
+import { TokenBalance } from '@notional-finance/token-balance';
+import FixedPoint from './FixedPoint';
+import { BaseLiquidityPool } from '../BaseLiquidityPool';
 
 interface PoolParams {
   amplificationParameter: FixedPoint;
   swapFeePercentage: FixedPoint;
 }
 
-export default class MetaStable2Token extends BaseBalancerPool<PoolParams> {
-  protected getLPTokensGivenTokens(tokensIn: BigNumber[]): {
-    lpTokens: BigNumber;
-    feesPaid: BigNumber[];
+export default class MetaStable2Token extends BaseLiquidityPool<PoolParams> {
+  protected getLPTokensGivenTokens(tokensIn: TokenBalance[]): {
+    lpTokens: TokenBalance;
+    feesPaid: TokenBalance[];
   } {
-    const balances = this.balances.map(FixedPoint.from);
+    const balances = this.balances.map(FixedPoint.convert);
     const invariant = this.calculateInvariant(
       this.poolParams.amplificationParameter,
       balances,
       true
     );
 
-    const amountsIn = tokensIn.map(FixedPoint.from);
+    const amountsIn = tokensIn.map(FixedPoint.convert);
 
     const feesPaid = this.getDueProtocolFeeAmounts(
       this.poolParams.amplificationParameter,
@@ -33,26 +33,26 @@ export default class MetaStable2Token extends BaseBalancerPool<PoolParams> {
       this.poolParams.amplificationParameter,
       balancesWithoutFees,
       amountsIn,
-      FixedPoint.from(this.totalSupply),
+      FixedPoint.convert(this.totalSupply),
       this.poolParams.swapFeePercentage,
       invariant
     );
 
     return {
-      lpTokens: lpTokens.n,
-      feesPaid: feesPaid.map((f) => f.n),
+      lpTokens: lpTokens.convertTo(this.totalSupply),
+      feesPaid: feesPaid.map((f, i) => f.convertTo(this.balances[i])),
     };
   }
 
   protected getTokensOutGivenLPTokens(
-    lpTokens: BigNumber,
+    lpTokens: TokenBalance,
     singleSidedExitTokenIndex?: number
   ): {
-    tokensOut: BigNumber[];
-    feesPaid: BigNumber[];
+    tokensOut: TokenBalance[];
+    feesPaid: TokenBalance[];
   } {
     if (singleSidedExitTokenIndex) {
-      const balances = this.balances.map(FixedPoint.from);
+      const balances = this.balances.map(FixedPoint.convert);
       const invariant = this.calculateInvariant(
         this.poolParams.amplificationParameter,
         balances,
@@ -63,15 +63,22 @@ export default class MetaStable2Token extends BaseBalancerPool<PoolParams> {
         this.poolParams.amplificationParameter,
         balances,
         singleSidedExitTokenIndex,
-        FixedPoint.from(lpTokens),
-        FixedPoint.from(this.totalSupply),
+        FixedPoint.convert(lpTokens),
+        FixedPoint.convert(this.totalSupply),
         this.poolParams.swapFeePercentage,
         invariant
       );
+
       const tokensOut = this.zeroTokenArray();
       const feesPaid = this.zeroTokenArray();
-      tokensOut[singleSidedExitTokenIndex] = amountOut.n;
-      feesPaid[singleSidedExitTokenIndex] = feePaid;
+
+      tokensOut[singleSidedExitTokenIndex] = amountOut.convertTo(
+        tokensOut[singleSidedExitTokenIndex]
+      );
+      feesPaid[singleSidedExitTokenIndex] = feePaid.convertTo(
+        feesPaid[singleSidedExitTokenIndex]
+      );
+
       return {
         tokensOut,
         feesPaid,
@@ -85,35 +92,37 @@ export default class MetaStable2Token extends BaseBalancerPool<PoolParams> {
   }
 
   protected calculateTokenTrade(
-    tokensIn: BigNumber,
+    tokensIn: TokenBalance,
     tokenIndexIn: number,
     tokenIndexOut: number,
-    balanceOverrides: BigNumber[]
+    balanceOverrides: TokenBalance[]
   ): {
-    tokensOut: BigNumber;
-    feesPaid: BigNumber[];
+    tokensOut: TokenBalance;
+    feesPaid: TokenBalance[];
   } {
-    const balances = (balanceOverrides || this.balances).map(FixedPoint.from);
+    const balances = (balanceOverrides || this.balances).map(
+      FixedPoint.convert
+    );
     const invariant = this.calculateInvariant(
       this.poolParams.amplificationParameter,
       balances,
       true
     );
 
-    // TODO: not sure how to calculate fees paid
     const tokensOut = this.calcOutGivenIn(
       this.poolParams.amplificationParameter,
       balances,
       tokenIndexIn,
       tokenIndexOut,
-      FixedPoint.from(tokensIn),
+      FixedPoint.convert(tokensIn),
       invariant
     );
 
     // TODO: does this include scaling factors?
 
     return {
-      tokensOut: tokensOut.n,
+      tokensOut: tokensOut.convertTo(this.balances[tokenIndexOut]),
+      // TODO: not sure how to calculate fees paid
       feesPaid: [],
     };
   }

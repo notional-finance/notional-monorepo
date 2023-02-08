@@ -1,93 +1,87 @@
-import { BigNumber, constants, utils } from 'ethers';
-import {
-  INTERNAL_TOKEN_PRECISION,
-  RATE_PRECISION,
-} from '@notional-finance/sdk/config/constants';
-import TypedBigNumber, {
-  BigNumberType,
-} from '@notional-finance/sdk/libs/TypedBigNumber';
+import { BigNumber } from 'ethers';
+import { RATE_PRECISION } from '@notional-finance/sdk/config/constants';
 import { doBinarySearch } from '../math/Approximation';
 import { AbstractLiquidityPool } from './AbstractLiquidityPool';
+import { TokenBalance } from '@notional-finance/token-balance';
 
 export abstract class BaseLiquidityPool<P> extends AbstractLiquidityPool {
-  public readonly ORACLE_RATE_PRECISION = constants.WeiPerEther;
-
   constructor(
-    protected totalLPTokensHeld: BigNumber,
-    protected totalStrategyTokensGlobal: BigNumber,
+    protected totalLPTokensHeld: TokenBalance,
     protected tokenDecimals: BigNumber[],
-    protected balances: BigNumber[],
-    protected totalSupply: BigNumber,
+    protected balances: TokenBalance[],
+    protected totalSupply: TokenBalance,
     protected poolParams: P
   ) {
     super();
   }
 
   protected zeroTokenArray() {
-    return Array(this.balances.length).fill(BigNumber.from(0));
+    return this.balances.map((b) => b.copy(0));
   }
 
-  /**
-   * Converts a number of LP tokens into strategy tokens
-   * @param lpTokens
-   * @param vaultSymbol
-   * @returns strategy tokens as TypedBigNumber
-   */
-  protected convertLPTokensToStrategyTokens(
-    lpTokens: BigNumber,
-    vaultSymbol: string
-  ): TypedBigNumber {
-    const strategyTokens = this.totalLPTokensHeld.isZero()
-      ? lpTokens.mul(INTERNAL_TOKEN_PRECISION).div(this.LP_TOKEN_PRECISION)
-      : this.totalStrategyTokensGlobal
-          .mul(lpTokens)
-          .div(this.totalLPTokensHeld);
-
-    return TypedBigNumber.from(
-      strategyTokens,
-      BigNumberType.StrategyToken,
-      vaultSymbol
-    );
+  protected oneLPToken() {
+    return this.totalSupply.copy(this.totalLPTokensHeld.decimals);
   }
 
-  /**
-   * Converts a number of strategy tokens to LP tokens, simulating the minting
-   * of additional strategy tokens if required.
-   *
-   * @param strategyTokens
-   * @param simulatedStrategyTokens used for ad hoc analysis of post entry liquidity
-   * pool dynamics
-   * @returns amount of LP tokens that the strategy tokens have a claim on
-   */
-  protected convertStrategyTokensToLPTokens(
-    strategyTokens: TypedBigNumber,
-    simulatedStrategyTokens?: TypedBigNumber
-  ): BigNumber {
-    let totalStrategyTokens = this.totalStrategyTokensGlobal;
-    let totalLPTokensHeld = this.totalLPTokensHeld;
-    let accountStrategyTokens = strategyTokens;
+  // /**
+  //  * Converts a number of LP tokens into strategy tokens
+  //  * @param lpTokens
+  //  * @param vaultSymbol
+  //  * @returns strategy tokens as TypedBigNumber
+  //  */
+  // protected convertLPTokensToStrategyTokens(
+  //   lpTokens: TokenBalance,
+  //   vaultSymbol: string
+  // ): TypedBigNumber {
+  //   const strategyTokens = this.totalLPTokensHeld.isZero()
+  //     ? lpTokens.scale(INTERNAL_TOKEN_PRECISION, this.LP_TOKEN_PRECISION)
+  //     : this.totalStrategyTokensGlobal.scale(lpTokens, this.totalLPTokensHeld);
 
-    if (simulatedStrategyTokens) {
-      // When minting additional strategy tokens we need to simulate the entry
-      totalStrategyTokens = totalStrategyTokens.add(simulatedStrategyTokens.n);
-      totalLPTokensHeld = totalLPTokensHeld.add(
-        simulatedStrategyTokens.n
-          .mul(this.LP_TOKEN_PRECISION)
-          .div(INTERNAL_TOKEN_PRECISION)
-      );
-      accountStrategyTokens = accountStrategyTokens.add(
-        simulatedStrategyTokens
-      );
-    }
+  //   return TypedBigNumber.from(
+  //     strategyTokens,
+  //     BigNumberType.StrategyToken,
+  //     vaultSymbol
+  //   );
+  // }
 
-    const accountLPTokens = accountStrategyTokens.n
-      .mul(this.LP_TOKEN_PRECISION)
-      .div(INTERNAL_TOKEN_PRECISION);
+  // /**
+  //  * Converts a number of strategy tokens to LP tokens, simulating the minting
+  //  * of additional strategy tokens if required.
+  //  *
+  //  * @param strategyTokens
+  //  * @param simulatedStrategyTokens used for ad hoc analysis of post entry liquidity
+  //  * pool dynamics
+  //  * @returns amount of LP tokens that the strategy tokens have a claim on
+  //  */
+  // protected convertStrategyTokensToLPTokens(
+  //   strategyTokens: TypedBigNumber,
+  //   simulatedStrategyTokens?: TypedBigNumber
+  // ): BigNumber {
+  //   let totalStrategyTokens = this.totalStrategyTokensGlobal.n;
+  //   let totalLPTokensHeld = this.totalLPTokensHeld.n;
+  //   let accountStrategyTokens = strategyTokens;
 
-    return totalStrategyTokens.isZero()
-      ? accountLPTokens
-      : totalLPTokensHeld.mul(accountStrategyTokens.n).div(totalStrategyTokens);
-  }
+  //   if (simulatedStrategyTokens) {
+  //     // When minting additional strategy tokens we need to simulate the entry
+  //     totalStrategyTokens = totalStrategyTokens.add(simulatedStrategyTokens.n);
+  //     totalLPTokensHeld = totalLPTokensHeld.add(
+  //       simulatedStrategyTokens.n
+  //         .mul(this.LP_TOKEN_PRECISION)
+  //         .div(INTERNAL_TOKEN_PRECISION)
+  //     );
+  //     accountStrategyTokens = accountStrategyTokens.add(
+  //       simulatedStrategyTokens
+  //     );
+  //   }
+
+  //   const accountLPTokens = accountStrategyTokens.n
+  //     .mul(this.LP_TOKEN_PRECISION)
+  //     .div(INTERNAL_TOKEN_PRECISION);
+
+  //   return totalStrategyTokens.isZero()
+  //     ? accountLPTokens
+  //     : totalLPTokensHeld.mul(accountStrategyTokens.n).div(totalStrategyTokens);
+  // }
 
   /**
    * Returns the value of tokens given the oracle price in the primary token index
@@ -97,10 +91,10 @@ export abstract class BaseLiquidityPool<P> extends AbstractLiquidityPool {
    * @param primaryTokenIndex index of the primary token
    */
   public getBalanceArrayOracleValue(
-    balances: BigNumber[],
+    balances: TokenBalance[],
     oraclePrices: BigNumber[],
     primaryTokenIndex: number
-  ): BigNumber {
+  ): TokenBalance {
     return (
       balances
         .map((b, i) =>
@@ -126,10 +120,10 @@ export abstract class BaseLiquidityPool<P> extends AbstractLiquidityPool {
    * @param primaryTokenIndex index of the primary token
    */
   public getLPTokenOracleValue(
-    lpTokens: BigNumber,
+    lpTokens: TokenBalance,
     oraclePrices: BigNumber[],
     primaryTokenIndex: number
-  ): BigNumber {
+  ): TokenBalance {
     const tokensOut = this.getLPTokenClaims(lpTokens);
     return this.getBalanceArrayOracleValue(
       tokensOut,
@@ -146,10 +140,10 @@ export abstract class BaseLiquidityPool<P> extends AbstractLiquidityPool {
    */
   public getLPTokenSpotValue(
     primaryTokenIndex: number,
-    balancesOverride?: BigNumber[]
-  ): BigNumber {
+    balancesOverride?: TokenBalance[]
+  ): TokenBalance {
     return this.getBalanceArraySpotValue(
-      this.getLPTokenClaims(this.LP_TOKEN_PRECISION, balancesOverride),
+      this.getLPTokenClaims(this.oneLPToken(), balancesOverride),
       primaryTokenIndex
     );
   }
@@ -163,10 +157,10 @@ export abstract class BaseLiquidityPool<P> extends AbstractLiquidityPool {
    * @returns value of all the balances traded to the primary on this LP pool
    */
   public getBalanceArraySpotValue(
-    balances: BigNumber[],
+    balances: TokenBalance[],
     primaryTokenIndex: number,
-    balanceOverrides?: BigNumber[]
-  ): BigNumber {
+    balanceOverrides?: TokenBalance[]
+  ): TokenBalance {
     return balances
       .map((b, i) => {
         if (i === primaryTokenIndex) return b;
@@ -178,7 +172,7 @@ export abstract class BaseLiquidityPool<P> extends AbstractLiquidityPool {
         );
         return tokensOut;
       })
-      .reduce((t, v) => t.add(v), BigNumber.from(0));
+      .reduce((t, v) => t.add(v), this.balances[primaryTokenIndex].copy(0));
   }
 
   /**
@@ -188,11 +182,11 @@ export abstract class BaseLiquidityPool<P> extends AbstractLiquidityPool {
    * @returns array of token claims the amount of lp tokens has
    */
   public getLPTokenClaims(
-    lpTokens: BigNumber,
-    balancesOverride?: BigNumber[]
-  ): BigNumber[] {
+    lpTokens: TokenBalance,
+    balancesOverride?: TokenBalance[]
+  ): TokenBalance[] {
     return (balancesOverride || this.balances).map((b) =>
-      lpTokens.mul(b).div(this.totalSupply)
+      b.scale(lpTokens, this.totalSupply)
     );
   }
 
@@ -205,37 +199,30 @@ export abstract class BaseLiquidityPool<P> extends AbstractLiquidityPool {
    * @param singleSidedEntryTokenIndex
    */
   public getTokensRequiredForLPTokens(
-    lpTokensRequired: BigNumber,
+    lpTokensRequired: TokenBalance,
     singleSidedEntryTokenIndex?: number
   ): {
-    tokensIn: BigNumber[];
-    feesPaid: BigNumber[];
+    tokensIn: TokenBalance[];
+    feesPaid: TokenBalance[];
   } {
     // Balancer has an odd fee calculation method on single sided joins so this is
     // not the equivalent of join + swap
     if (singleSidedEntryTokenIndex) {
       const amountIn = this.getLPTokenSpotValue(singleSidedEntryTokenIndex);
       const lpToAmountInEstimate = amountIn
-        .mul(RATE_PRECISION)
-        .div(this.LP_TOKEN_PRECISION)
+        .divInRatePrecision(this.oneLPToken().decimals)
         .toNumber();
 
       const calculationFunction = (lpToPrimaryRatio: number) => {
         const tokensIn = Array(this.balances.length).fill(BigNumber.from(0));
-        const primaryTokensIn = lpTokensRequired
-          .mul(lpToPrimaryRatio)
-          .div(RATE_PRECISION);
+        const primaryTokensIn =
+          lpTokensRequired.mulInRatePrecision(lpToPrimaryRatio);
 
         tokensIn[singleSidedEntryTokenIndex] = primaryTokensIn;
         const { lpTokens, feesPaid } = this.getLPTokensGivenTokens(tokensIn);
 
-        const actualMultiple = lpTokens
-          .mul(RATE_PRECISION)
-          .div(lpTokensRequired)
-          .toNumber();
-
         return {
-          actualMultiple,
+          actualMultiple: lpTokens.ratioWith(lpTokensRequired).toNumber(),
           breakLoop: false,
           value: { tokensIn, feesPaid },
         };
@@ -256,9 +243,9 @@ export abstract class BaseLiquidityPool<P> extends AbstractLiquidityPool {
     }
   }
 
-  public getLPTokensRequiredForTokens(tokensOut: BigNumber[]): {
-    lpTokens: BigNumber;
-    feesPaid: BigNumber[];
+  public getLPTokensRequiredForTokens(tokensOut: TokenBalance[]): {
+    lpTokens: TokenBalance;
+    feesPaid: TokenBalance[];
   } {
     const nonZeroIndexes = tokensOut.reduce(
       (l, t, i) => (t.isZero() ? l : [...l, i]),
@@ -272,14 +259,12 @@ export abstract class BaseLiquidityPool<P> extends AbstractLiquidityPool {
       // to exit the pool
       const amountOutRequired = tokensOut[singleSidedExitTokenIndex];
       const lpToAmountOutEstimate = amountOutRequired
-        .mul(RATE_PRECISION)
-        .div(this.getLPTokenSpotValue(singleSidedExitTokenIndex))
+        .ratioWith(this.getLPTokenSpotValue(singleSidedExitTokenIndex))
         .toNumber();
 
       const calculationFunction = (lpToAmountRatio: number) => {
-        const lpTokens = amountOutRequired
-          .mul(lpToAmountRatio)
-          .div(RATE_PRECISION);
+        const lpTokens = amountOutRequired.mulInRatePrecision(lpToAmountRatio);
+
         // Passing in single sided exit token index forces the exit to be in
         // the given token index
         const { tokensOut, feesPaid } = this.getTokensOutGivenLPTokens(
@@ -287,13 +272,10 @@ export abstract class BaseLiquidityPool<P> extends AbstractLiquidityPool {
           singleSidedExitTokenIndex
         );
 
-        const actualMultiple = tokensOut[singleSidedExitTokenIndex]
-          .mul(RATE_PRECISION)
-          .div(amountOutRequired)
-          .toNumber();
-
         return {
-          actualMultiple,
+          actualMultiple: tokensOut[singleSidedExitTokenIndex]
+            .ratioWith(amountOutRequired)
+            .toNumber(),
           breakLoop: false,
           value: { lpTokens, feesPaid },
         };
@@ -309,10 +291,10 @@ export abstract class BaseLiquidityPool<P> extends AbstractLiquidityPool {
       // starting point for an estimate
       const [_, largestTokenIndex] = nonZeroIndexes.reduce(
         ([prevValue, prevIndex], i) =>
-          (prevValue.lt(tokensOut[i])
-            ? [tokensOut[i], i]
-            : [prevValue, prevIndex]) as [BigNumber, number],
-        [BigNumber.from(0), -1] as [BigNumber, number]
+          prevValue < tokensOut[i].toFloat()
+            ? [tokensOut[i].toFloat(), i]
+            : [prevValue, prevIndex],
+        [0, -1]
       );
 
       const totalValueOutRequired = this.getBalanceArraySpotValue(
@@ -321,14 +303,12 @@ export abstract class BaseLiquidityPool<P> extends AbstractLiquidityPool {
       );
 
       const lpToTotalOutEstimate = totalValueOutRequired
-        .mul(RATE_PRECISION)
-        .div(this.getLPTokenSpotValue(largestTokenIndex))
+        .ratioWith(this.getLPTokenSpotValue(largestTokenIndex))
         .toNumber();
 
       const calculationFunction = (lpToAmountRatio: number) => {
-        const lpTokens = totalValueOutRequired
-          .mul(lpToAmountRatio)
-          .div(RATE_PRECISION);
+        const lpTokens =
+          totalValueOutRequired.mulInRatePrecision(lpToAmountRatio);
 
         const { tokensOut: tokensOutTemp, feesPaid: _feesPaid } =
           this.getTokensOutGivenLPTokens(lpTokens);
@@ -352,7 +332,7 @@ export abstract class BaseLiquidityPool<P> extends AbstractLiquidityPool {
             tokenDiff = tokenDiff.add(tokensTraded);
 
             // Modifies the token diff array in place
-            diffs[positiveIndex] = BigNumber.from(0);
+            diffs[positiveIndex] = diffs[positiveIndex].copy(0);
 
             // Aggregate all fees traded
             feesPaid = feesPaid.map((f, i) => f.add(feesFromTrade[i]));
@@ -371,19 +351,16 @@ export abstract class BaseLiquidityPool<P> extends AbstractLiquidityPool {
           // the required amount. There should be no positive values if there are
           // negative values. Calculate an adjustment to the valuation here.
           const undershotAdjustment = this.getBalanceArraySpotValue(
-            diffFromTarget.map((_) => _.mul(-1)),
+            diffFromTarget.map((_) => _.neg()),
             largestTokenIndex
           );
           valueOfTokensOut = valueOfTokensOut.add(undershotAdjustment);
         }
 
-        const actualMultiple = valueOfTokensOut
-          .mul(RATE_PRECISION)
-          .div(totalValueOutRequired)
-          .toNumber();
-
         return {
-          actualMultiple,
+          actualMultiple: valueOfTokensOut
+            .ratioWith(totalValueOutRequired)
+            .toNumber(),
           breakLoop: false,
           value: { lpTokens, feesPaid },
         };
@@ -405,7 +382,7 @@ export abstract class BaseLiquidityPool<P> extends AbstractLiquidityPool {
     return Array(percentDepthTraded)
       .map((_, i) => {
         // Percentage of the sold token index
-        const tokensIn = this.balances[tokenIndexIn].mul(i).div(100);
+        const tokensIn = this.balances[tokenIndexIn].scale(i, 100);
         const { tokensOut } = this.calculateTokenTrade(
           tokensIn,
           tokenIndexIn,
@@ -422,18 +399,16 @@ export abstract class BaseLiquidityPool<P> extends AbstractLiquidityPool {
         );
 
         const { tokensOut: secondaryTokenPrice } = this.calculateTokenTrade(
-          this.tokenDecimals[tokenIndexIn],
+          // Calculate the trade of a single unit of the token index in
+          this.balances[tokenIndexIn].copy(
+            this.balances[tokenIndexIn].decimals
+          ),
           tokenIndexIn,
           tokenIndexOut,
           newBalances
         );
 
-        const decimalPlaces = Math.log10(
-          this.tokenDecimals[tokenIndexOut].toNumber()
-        );
-        const priceLevelIndex = parseFloat(
-          utils.formatUnits(secondaryTokenPrice, decimalPlaces)
-        ).toPrecision(2);
+        const priceLevelIndex = secondaryTokenPrice.toFloat().toPrecision(2);
 
         return { lpTokenValue, secondaryTokenPrice, priceLevelIndex };
       })

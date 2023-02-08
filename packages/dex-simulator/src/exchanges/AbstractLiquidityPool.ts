@@ -1,8 +1,6 @@
-import { BigNumber } from 'ethers';
+import { TokenBalance } from '@notional-finance/token-balance';
 
 export abstract class AbstractLiquidityPool {
-  abstract readonly LP_TOKEN_PRECISION: BigNumber;
-
   /**
    * Calculates an EXACT_IN_SINGLE trade on the liquidity pool
    *
@@ -14,13 +12,13 @@ export abstract class AbstractLiquidityPool {
    * @returns feesPaid array of fees paid amounts
    */
   protected abstract calculateTokenTrade(
-    tokensIn: BigNumber,
+    tokensIn: TokenBalance,
     tokenIndexIn: number,
     tokenIndexOut: number,
-    balanceOverrides?: BigNumber[]
+    balanceOverrides?: TokenBalance[]
   ): {
-    tokensOut: BigNumber;
-    feesPaid: BigNumber[];
+    tokensOut: TokenBalance;
+    feesPaid: TokenBalance[];
   };
 
   /**
@@ -30,9 +28,9 @@ export abstract class AbstractLiquidityPool {
    * @returns the amount of lpTokens minted
    * @returns fees paid in each corresponding token balance
    */
-  protected abstract getLPTokensGivenTokens(tokensIn: BigNumber[]): {
-    lpTokens: BigNumber;
-    feesPaid: BigNumber[];
+  protected abstract getLPTokensGivenTokens(tokensIn: TokenBalance[]): {
+    lpTokens: TokenBalance;
+    feesPaid: TokenBalance[];
   };
 
   /**
@@ -45,10 +43,10 @@ export abstract class AbstractLiquidityPool {
    * @returns feesPaid the amount of fees paid in each token
    */
   protected abstract getTokensOutGivenLPTokens(
-    lpTokens: BigNumber,
+    lpTokens: TokenBalance,
     singleSidedExitTokenIndex?: number
   ): {
-    tokensOut: BigNumber[];
-    feesPaid: BigNumber[];
+    tokensOut: TokenBalance[];
+    feesPaid: TokenBalance[];
   };
 }
