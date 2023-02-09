@@ -7,11 +7,35 @@ import { Network, TokenDefinition, TokenInterface } from './Definitions';
 export class TokenRegistry {
   private static tokens: typeof defaultTokens;
 
+  /**
+   * @param network refers to the network the token is deployed on
+   * @param symbol the symbol of the token
+   * @returns a token definition object or undefined if not found
+   */
   public static getToken(network: Network, symbol: string) {
     return (
       defaultTokens.get(network)?.get(symbol) ||
       this.tokens.get(network)?.get(symbol)
     );
+  }
+
+  /**
+   * Registers a new token in the list of tokens
+   */
+  public static registerToken(token: TokenDefinition) {
+    if (this.getToken(token.network, token.symbol)) {
+      throw Error(
+        `Cannot register duplicate token ${token.symbol} on network ${token.network}`
+      );
+    }
+
+    let networkMap = this.tokens.get(token.network);
+    if (!networkMap) {
+      networkMap = new Map<string, TokenDefinition>();
+      this.tokens.set(token.network, networkMap);
+    }
+
+    networkMap.set(token.symbol, token);
   }
 
   public static getStrategyTokenDefinition(
@@ -42,22 +66,6 @@ export class TokenRegistry {
       tokenInterface: TokenInterface.Notional_VaultShare,
       maturity,
     };
-  }
-
-  public static registerToken(token: TokenDefinition) {
-    if (this.getToken(token.network, token.symbol)) {
-      throw Error(
-        `Cannot register duplicate token ${token.symbol} on network ${token.network}`
-      );
-    }
-
-    let networkMap = this.tokens.get(token.network);
-    if (!networkMap) {
-      networkMap = new Map<string, TokenDefinition>();
-      this.tokens.set(token.network, networkMap);
-    }
-
-    networkMap.set(token.symbol, token);
   }
 
   public static isMaturingToken(tokenInterface: TokenInterface) {
