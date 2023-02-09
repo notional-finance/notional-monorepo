@@ -1,48 +1,40 @@
 import { BigNumber, BigNumberish, utils } from 'ethers';
-import { TokenDefinition, TokenStandard } from './TokenRegistry';
+import { TokenDefinition, TokenInterface } from './registry/Definitions';
 import { RATE_PRECISION } from '@notional-finance/sdk/config/constants';
+import { TokenRegistry } from './registry/TokenRegistry';
 
 export class TokenBalance {
   /** Create Methods */
-  constructor(
-    public n: BigNumber,
-    public token: TokenDefinition,
-    public underlying?: TokenDefinition
-  ) {}
-
-  static from(
-    n: BigNumberish,
-    token: TokenDefinition,
-    underlying?: TokenDefinition
-  ) {
-    return new TokenBalance(BigNumber.from(n), token, underlying);
+  constructor(public n: BigNumber, public token: TokenDefinition) {
+    if (TokenRegistry.isMaturingToken(token.tokenInterface) && !token.maturity)
+      throw Error(`Maturity required for ${token.symbol}`);
   }
 
-  static zero(token: TokenDefinition, underlying?: TokenDefinition) {
-    return new TokenBalance(BigNumber.from(0), token, underlying);
+  static from(n: BigNumberish, token: TokenDefinition) {
+    return new TokenBalance(BigNumber.from(n), token);
   }
 
-  static unit(token: TokenDefinition, underlying?: TokenDefinition) {
-    return new TokenBalance(
-      BigNumber.from(10).pow(token.decimalPlaces),
-      token,
-      underlying
-    );
+  static zero(token: TokenDefinition) {
+    return new TokenBalance(BigNumber.from(0), token);
+  }
+
+  static unit(token: TokenDefinition) {
+    return new TokenBalance(BigNumber.from(10).pow(token.decimalPlaces), token);
   }
 
   static fromJSON(obj: TokenBalance['json']) {
     if (!obj._isTokenBalance) throw Error('Invalid JSON Token Balance');
-    return TokenBalance.from(obj.hex, obj.token, obj.underlying);
+    return TokenBalance.from(obj.hex, obj.token);
   }
 
   copy(n: BigNumberish = this.n) {
-    return TokenBalance.from(n, this.token, this.underlying);
+    return TokenBalance.from(n, this.token);
   }
 
   /** Attributes Methods */
 
   get isWETH() {
-    return this.token.tokenStandard === TokenStandard.WETH;
+    return this.token.tokenInterface === TokenInterface.WETH;
   }
 
   /**
@@ -62,7 +54,7 @@ export class TokenBalance {
         this.token.network,
         this.token.symbol,
         this.token.decimalPlaces,
-        this.token.tokenStandard,
+        this.token.tokenInterface,
         this.token.maturity,
       ].join(':')
     );
@@ -83,7 +75,6 @@ export class TokenBalance {
       _isTokenBalance: true,
       hex: this.n.toHexString(),
       token: this.token,
-      underlying: this.underlying,
     };
   }
 
@@ -177,9 +168,9 @@ export class TokenBalance {
       throw TypeError(
         `Type Key [decimalPlaces]: ${this.token.decimalPlaces} != ${m.token.decimalPlaces}`
       );
-    } else if (this.token.tokenStandard !== m.token.tokenStandard) {
+    } else if (this.token.tokenInterface !== m.token.tokenInterface) {
       throw TypeError(
-        `Type Key [tokenStandard]: ${this.token.tokenStandard} != ${m.token.tokenStandard}`
+        `Type Key [tokenStandard]: ${this.token.tokenInterface} != ${m.token.tokenInterface}`
       );
     } else if (this.token.maturity !== m.token.maturity) {
       throw TypeError(
