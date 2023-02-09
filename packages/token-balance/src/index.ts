@@ -1,3 +1,3 @@
-export * from './TokenRegistry';
+export * from './registry/TokenRegistry';
 export * from './TokenBalance';
 export * from './Matchers';
