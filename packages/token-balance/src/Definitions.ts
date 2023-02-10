@@ -1,7 +1,7 @@
 export enum Network {
-  All,
-  Mainnet,
-  Goerli,
+  All = 'all',
+  Mainnet = 'mainnet',
+  Goerli = 'goerli',
 }
 
 export enum TokenInterface {

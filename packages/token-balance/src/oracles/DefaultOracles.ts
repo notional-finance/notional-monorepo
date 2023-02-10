@@ -1,4 +1,4 @@
-import { Network, OracleDefinition, OracleInterface } from './Definitions';
+import { Network, OracleDefinition, OracleInterface } from '../Definitions';
 
 const assignDefaults = (
   list: Partial<OracleDefinition>[],

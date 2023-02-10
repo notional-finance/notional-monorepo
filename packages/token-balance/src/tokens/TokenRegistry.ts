@@ -1,8 +1,8 @@
 import { INTERNAL_TOKEN_DECIMAL_PLACES } from '@notional-finance/sdk/config/constants';
 import { BigNumber, utils } from 'ethers';
-import { TokenBalance } from '../TokenBalance';
+import { TokenBalance } from './TokenBalance';
 import defaultTokens from './DefaultTokens';
-import { Network, TokenDefinition, TokenInterface } from './Definitions';
+import { Network, TokenDefinition, TokenInterface } from '../Definitions';
 
 export class TokenRegistry {
   private static tokens: typeof defaultTokens;

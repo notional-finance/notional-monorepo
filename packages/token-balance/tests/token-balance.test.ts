@@ -5,3 +5,7 @@ describe('TokenBalance', () => {
   it.todo('comparison operations throw errors on mismatch');
   it.todo('formats display strings properly across options');
 });
+
+describe('TokenRegistry', () => {
+  it.todo('makes balances from various strings');
+});
