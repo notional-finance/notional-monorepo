@@ -1,5 +1,13 @@
 import { BigNumber, Contract, ethers } from 'ethers';
-import { BehaviorSubject, Subject } from 'rxjs';
+import {
+  BehaviorSubject,
+  combineLatest,
+  EMPTY,
+  map,
+  reduce,
+  Subject,
+  withLatestFrom,
+} from 'rxjs';
 import {
   AssetRateAggregatorABI,
   IAggregatorABI,
@@ -7,18 +15,24 @@ import {
 import { aggregate, AggregateCall } from '@notional-finance/multicall';
 import defaultOracles from './DefaultOracles';
 import { Network, OracleDefinition, OracleInterface } from './Definitions';
+import {
+  RATE_PRECISION,
+  RATE_PRECISION_SQUARED,
+} from '@notional-finance/sdk/config/constants';
 
-// Exchange rate graph is quote => base since there are fewer quote
-// currencies that we deal with versus many base currencies
-type Quote = string;
-type Base = string;
 type OracleSubject = BehaviorSubject<BigNumber | undefined>;
-type AdjList = Map<Quote, Set<Base>>;
+type AdjList = Map<string, Set<string>>;
 
 interface OracleGraph {
-  baseQuoteAdjList: AdjList;
+  adjList: AdjList;
   oracles: Map<string, OracleDefinition[]>;
   subjects: Map<string, OracleSubject>;
+}
+
+interface OraclePath {
+  key: string;
+  oracleIndex: number;
+  mustInvert: boolean;
 }
 
 export class OracleRegistry {
@@ -30,18 +44,18 @@ export class OracleRegistry {
   protected static oracleGraphs = new Map<Network, OracleGraph>(
     defaultOracles.map(([n, _oracles]) => {
       // Initializes the oracle graph using the default oracles
-      const baseQuoteAdjList = new Map<Quote, Set<Base>>();
+      const adjList = new Map<string, Set<string>>();
       const oracles = new Map<string, OracleDefinition[]>();
       const subjects = new Map<string, OracleSubject>();
 
       _oracles.forEach((o) => {
-        this.addOracle(o, baseQuoteAdjList, oracles, subjects);
+        this.addOracle(o, adjList, oracles, subjects);
       });
 
       // Reset the last update block to zero
       this.lastUpdateBlock.set(n, new BehaviorSubject<number>(0));
 
-      return [n, { oracles, baseQuoteAdjList, subjects }];
+      return [n, { oracles, adjList, subjects }];
     })
   );
 
@@ -51,9 +65,13 @@ export class OracleRegistry {
     oracles: Map<string, OracleDefinition[]>,
     subjects: Map<string, OracleSubject>
   ) {
-    const bases = adjList.get(o.quote) || new Set<Base>();
-    bases.add(o.base);
-    adjList.set(o.quote, bases);
+    const quoteToBase = adjList.get(o.quote) || new Set<string>();
+    quoteToBase.add(o.base);
+    adjList.set(o.quote, quoteToBase);
+
+    const baseToQuote = adjList.get(o.base) || new Set<string>();
+    baseToQuote.add(o.quote);
+    adjList.set(o.base, baseToQuote);
 
     const key = this.getOracleKey(o);
     oracles.set(key, (oracles.get(key) || []).concat(o));
@@ -90,18 +108,28 @@ export class OracleRegistry {
   }
 
   public static registerOracle(network: Network, oracle: OracleDefinition) {
-    const { baseQuoteAdjList, oracles, subjects } =
-      this.getOracleGraph(network);
-    this.addOracle(oracle, baseQuoteAdjList, oracles, subjects);
+    const {
+      adjList: oracleAdjList,
+      oracles,
+      subjects,
+    } = this.getOracleGraph(network);
+    this.addOracle(oracle, oracleAdjList, oracles, subjects);
   }
 
   public static getAggregateCall(oracle: OracleDefinition) {
+    // All oracles are transformed into RATE_PRECISION decimal places
+    const defaultScale = (result: BigNumber) => {
+      const decimals = BigNumber.from(10).pow(oracle.decimalPlaces);
+      return result.mul(RATE_PRECISION).div(decimals);
+    };
+
     switch (oracle.oracleInterface) {
       case OracleInterface.Chainlink:
         return {
           target: new Contract(oracle.address, IAggregatorABI),
           method: 'latestAnswer',
           args: [],
+          transform: defaultScale,
         };
 
       case OracleInterface.CompoundV2_cToken:
@@ -109,6 +137,7 @@ export class OracleRegistry {
           target: new Contract(oracle.address, AssetRateAggregatorABI),
           method: 'getExchangeRateView',
           args: [],
+          transform: defaultScale,
         };
 
       default:
@@ -143,29 +172,139 @@ export class OracleRegistry {
     return { blockNumber, results };
   }
 
-  // public static findRoute(
-  //   base: string,
-  //   quote: string,
-  //   network: Network,
-  //   onlyManipulationResistant = true
-  // ) {
+  protected static breadthFirstSearch(
+    quote: string,
+    base: string,
+    adjList: AdjList
+  ) {
+    if (base === quote) throw Error(`Invalid exchange rate ${base}/${quote}`);
 
-  // }
+    let path = [quote];
+    const queue = [path];
 
-  // private static breadthFirstSearch(root: string) {
-  //   const path = []
-  //   const queue = [ root ]
-  //   while (queue.length > 0) {
-  //     const current = queue.shift()
-  //     if (!current) continue
-  //     path.push(current)
-  //     for (const child of current.children) {
-  //       queue.push(child)
-  //     }
-  //   }
+    while (queue.length > 0) {
+      const currentPath = queue.shift();
+      if (!currentPath || currentPath.length === 0) continue;
 
-  //   return path
-  // }
+      const lastSymbol = currentPath[currentPath.length - 1];
+      // If the last symbol of the path is the base then quit
+      if (lastSymbol === base) {
+        path = currentPath;
+        break;
+      }
+
+      // Loop into nodes linked to the last symbol
+      Array.from(adjList.get(lastSymbol)?.values() || []).forEach((s) => {
+        // Check if the current path includes the symbol, if it does then skip adding it
+        if (!currentPath.includes(s)) queue.push([...currentPath, s]);
+      });
+    }
+
+    // This ensures there are at least 2 entries in the path since base !== quote
+    if (path[path.length - 1] !== base)
+      throw Error(`Path from ${base} to ${quote} not found`);
+
+    return path;
+  }
+
+  public static findPath(
+    base: string,
+    quote: string,
+    network: Network,
+    onlyManipulationResistant = true
+  ) {
+    // TODO: switch on only manipulation resistant oracles
+    const { adjList, oracles } = this.getOracleGraph(network);
+    const path = this.breadthFirstSearch(quote, base, adjList);
+
+    return path.reduce((p, c, i) => {
+      if (i === 0) return p;
+
+      let key = `${path[i - 1]}/${c}`;
+      let mustInvert = false;
+      let oracleIndex =
+        oracles
+          .get(key)
+          ?.findIndex((o) =>
+            onlyManipulationResistant
+              ? this.isManipulationResistant(o.oracleInterface)
+              : true
+          ) || -1;
+
+      if (oracleIndex < 0) {
+        key = `${c}/${path[i - 1]}`;
+        mustInvert = true;
+        oracleIndex =
+          oracles
+            .get(key)
+            ?.findIndex((o) =>
+              onlyManipulationResistant
+                ? this.isManipulationResistant(o.oracleInterface)
+                : true
+            ) || -1;
+      }
+
+      if (oracleIndex < 0) throw Error(`No oracle found for ${key}`);
+      p.push({ key, oracleIndex, mustInvert });
+      return p;
+    }, [] as OraclePath[]);
+  }
+
+  /**
+   * @param network
+   * @param oraclePath
+   * @returns an array of observables that represents the path
+   */
+  protected static getObservablesFromPath(
+    network: Network,
+    oraclePath: OraclePath[]
+  ) {
+    const { subjects } = this.getOracleGraph(network);
+    return oraclePath.map(({ key, oracleIndex, mustInvert }) => {
+      const observable = subjects.get(`${key}:${oracleIndex}`)?.asObservable();
+      if (!observable)
+        throw Error(`Update Subject for ${key}:${oracleIndex} not found`);
+      return mustInvert
+        ? observable.pipe(
+            map((r: BigNumber | undefined) =>
+              r ? RATE_PRECISION_SQUARED.div(r) : undefined
+            )
+          )
+        : observable;
+    });
+  }
+
+  private static combineRates(rates: (BigNumber | undefined)[]) {
+    return rates.reduce(
+      (p, c) => (c ? p?.mul(c).div(RATE_PRECISION) : undefined),
+      BigNumber.from(1)
+    );
+  }
+
+  public static getLatestFromPath(network: Network, oraclePath: OraclePath[]) {
+    const observables = this.getObservablesFromPath(network, oraclePath);
+    let latestRate: BigNumber | undefined;
+
+    EMPTY.pipe(
+      withLatestFrom(...observables),
+      reduce(
+        (_, [, ...rates]) => this.combineRates(rates),
+        undefined as BigNumber | undefined
+      )
+    ).forEach((v) => (latestRate = v));
+
+    return latestRate;
+  }
+
+  public static subscribeToPath(network: Network, oraclePath: OraclePath[]) {
+    const observables = this.getObservablesFromPath(network, oraclePath);
+    return combineLatest(observables).pipe(
+      reduce(
+        (_, rates) => this.combineRates(rates),
+        undefined as BigNumber | undefined
+      )
+    );
+  }
 
   public static getLatestFromOracle(network: Network, oracleIndexKey: string) {
     const { subjects } = this.getOracleGraph(network);
@@ -177,10 +316,7 @@ export class OracleRegistry {
     return s.value;
   }
 
-  public static subscribeLatestFromOracle(
-    network: Network,
-    oracleIndexKey: string
-  ) {
+  public static subscribeToOracle(network: Network, oracleIndexKey: string) {
     const { subjects } = this.getOracleGraph(network);
     const s = subjects.get(oracleIndexKey);
     if (!s)

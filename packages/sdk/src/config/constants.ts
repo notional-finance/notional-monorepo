@@ -3,6 +3,7 @@ import { ethers } from 'ethers';
 export const SECONDS_IN_YEAR_ACTUAL = 31536000;
 
 export const RATE_PRECISION = 1e9;
+export const RATE_PRECISION_SQUARED = ethers.constants.WeiPerEther; // 1e18
 export const MAX_MARKET_PROPORTION = (RATE_PRECISION * 99) / 100;
 export const BASIS_POINT = 1e5;
 export const INTERNAL_TOKEN_PRECISION = 1e8;
