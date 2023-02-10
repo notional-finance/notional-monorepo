@@ -14,7 +14,7 @@ import {
 } from '@notional-finance/contracts';
 import { aggregate, AggregateCall } from '@notional-finance/multicall';
 import defaultOracles from './DefaultOracles';
-import { Network, OracleDefinition, OracleInterface } from './Definitions';
+import { Network, OracleDefinition, OracleInterface } from '../Definitions';
 import {
   RATE_PRECISION,
   RATE_PRECISION_SQUARED,

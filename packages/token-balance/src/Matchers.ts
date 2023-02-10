@@ -1,4 +1,4 @@
-import { TokenBalance } from './TokenBalance';
+import { TokenBalance } from './tokens/TokenBalance';
 
 export const tokenBalanceMatchers = {
   toEqTB(r: TokenBalance, a: TokenBalance) {

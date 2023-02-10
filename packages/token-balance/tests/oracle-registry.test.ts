@@ -1,4 +1,4 @@
-import { OracleRegistry } from '../src/registry/OracleRegistry';
+import { OracleRegistry } from '../src/oracles/OracleRegistry';
 
 class MockOracleRegistry extends OracleRegistry {
   public static search(
@@ -25,6 +25,9 @@ describe('Oracle Path', () => {
     });
   });
 
+  it.todo('creates a complete adjacency list of oracles');
+
+  // TODO: switch these to use "findPath"
   it('[SINGLE] can find a path from usd => eth', () => {
     const path = MockOracleRegistry.search('USD', 'ETH', adjList);
     expect(path).toEqual(['USD', 'ETH']);
@@ -48,4 +51,16 @@ describe('Oracle Path', () => {
       MockOracleRegistry.search('eETH', 'USD', adjList)
     ).toThrowError('Path from USD to eETH not found');
   });
+});
+
+describe('Fetch Oracle Rates', () => {
+  // TODO: use a snapshot test here on a fixed block
+  it.todo('generates aggregate calls and fetches oracle rates');
+
+  it.todo('returns the latest value from an oracle path');
+  it.todo('returns undefined if the oracle path is not complete');
+  it.todo('returns the latest value from a single oracle');
+  it.todo('subscribes to an oracle path');
+  it.todo('subscribes to a single oracle');
+  it.todo('subscribes to update blocks');
 });

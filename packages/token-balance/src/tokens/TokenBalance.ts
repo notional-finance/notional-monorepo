@@ -1,7 +1,7 @@
 import { BigNumber, BigNumberish, utils } from 'ethers';
-import { TokenDefinition, TokenInterface } from './registry/Definitions';
+import { TokenDefinition, TokenInterface } from '../Definitions';
 import { RATE_PRECISION } from '@notional-finance/sdk/config/constants';
-import { TokenRegistry } from './registry/TokenRegistry';
+import { TokenRegistry } from './TokenRegistry';
 
 export class TokenBalance {
   /** Create Methods */
