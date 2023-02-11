@@ -12,12 +12,19 @@ describe.withFork = (
   fn: () => void
 ) => {
   const jsonRpcUrl = `https://eth-${network}.alchemyapi.io/v2/${process.env['ALCHEMY_API_KEY']}`;
-  forkProc = spawn('anvil', [
-    '--fork-url',
-    jsonRpcUrl,
-    '--fork-block-number',
-    blockNumber.toString(),
-  ]);
+  forkProc = spawn(
+    'anvil',
+    ['--fork-url', jsonRpcUrl, '--fork-block-number', blockNumber.toString()],
+    {
+      cwd: undefined,
+      env: process.env,
+      shell: true,
+    }
+  );
+
+  // forkProc.stdout.on('data', (data) => {
+  //   console.log(data.toString());
+  // });
 
   (global as any).provider = new ethers.providers.JsonRpcProvider(
     'http://127.0.0.1:8545'

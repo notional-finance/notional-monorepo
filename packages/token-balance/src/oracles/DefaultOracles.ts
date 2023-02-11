@@ -3,7 +3,7 @@ import { Network, OracleDefinition, OracleInterface } from '../Definitions';
 const assignDefaults = (
   list: Partial<OracleDefinition>[],
   defaultProps: Partial<OracleDefinition>
-) => list.map((o) => Object.assign(o, defaultProps));
+) => list.map((o) => Object.assign({}, defaultProps, o));
 
 // Chainlink price feeds can be found here: https://docs.chain.link/data-feeds/price-feeds/addresses
 const mainnetChainlinkUSD = assignDefaults(
@@ -49,6 +49,7 @@ const mainnetChainlinkUSD = assignDefaults(
       address: '0x8770d8dEb4Bc923bf929cd260280B5F1dd69564D',
       heartbeat: 86400,
       base: 'wstETH',
+      decimalPlaces: 18,
     },
   ],
   { oracleInterface: OracleInterface.Chainlink, quote: 'USD', decimalPlaces: 8 }
@@ -85,23 +86,27 @@ const compundV2AssetRates = assignDefaults(
   [
     {
       address: '0x8e3d447ebe244db6d28e2303bca86ef3033cfad6',
-      quote: 'cETH',
-      base: 'ETH',
+      base: 'cETH',
+      quote: 'ETH',
+      decimalPlaces: 28,
     },
     {
       address: '0x719993e82974f5b5ea0c5eba25c260cd5af78e00',
-      quote: 'cDAI',
-      base: 'DAI',
+      base: 'cDAI',
+      quote: 'DAI',
+      decimalPlaces: 28,
     },
     {
       address: '0x612741825acedc6f88d8709319fe65bcb015c693',
-      quote: 'cUSDC',
-      base: 'USDC',
+      base: 'cUSDC',
+      quote: 'USDC',
+      decimalPlaces: 16,
     },
     {
       address: '0x39d9590721331b13c8e9a42941a2b961b513e69d',
-      quote: 'cWBTC',
-      base: 'WBTC',
+      base: 'cWBTC',
+      quote: 'WBTC',
+      decimalPlaces: 18,
     },
   ],
   { oracleInterface: OracleInterface.CompoundV2_cToken }

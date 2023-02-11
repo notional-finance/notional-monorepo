@@ -1,0 +1,66 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Fetch Oracle Rates generates aggregate calls and fetches oracle rates 1`] = `
+Object {
+  "BAL/ETH:0": Object {
+    "hex": "0x402268",
+    "type": "BigNumber",
+  },
+  "BTC/USD:0": Object {
+    "hex": "0x13b94404ae0a",
+    "type": "BigNumber",
+  },
+  "COMP/USD:0": Object {
+    "hex": "0x0b9e459300",
+    "type": "BigNumber",
+  },
+  "DAI/USD:0": Object {
+    "hex": "0x3b9b0a24",
+    "type": "BigNumber",
+  },
+  "ETH/USD:0": Object {
+    "hex": "0x0161be9f91d0",
+    "type": "BigNumber",
+  },
+  "USDC/USD:0": Object {
+    "hex": "0x3b9aca00",
+    "type": "BigNumber",
+  },
+  "USDT/USD:0": Object {
+    "hex": "0x3b9c50a0",
+    "type": "BigNumber",
+  },
+  "WBTC/BTC:0": Object {
+    "hex": "0x3b949464",
+    "type": "BigNumber",
+  },
+  "cDAI/DAI:0": Object {
+    "hex": "0x015220f0",
+    "type": "BigNumber",
+  },
+  "cETH/ETH:0": Object {
+    "hex": "0x013265d6",
+    "type": "BigNumber",
+  },
+  "cUSDC/USDC:0": Object {
+    "hex": "0x015af32a",
+    "type": "BigNumber",
+  },
+  "cWBTC/WBTC:0": Object {
+    "hex": "0x01324c1d",
+    "type": "BigNumber",
+  },
+  "stETH/ETH:0": Object {
+    "hex": "0x3b78ec8b",
+    "type": "BigNumber",
+  },
+  "stETH/USD:0": Object {
+    "hex": "0x0161594f6184",
+    "type": "BigNumber",
+  },
+  "wstETH/USD:0": Object {
+    "hex": "0x0187ec65e191",
+    "type": "BigNumber",
+  },
+}
+`;
