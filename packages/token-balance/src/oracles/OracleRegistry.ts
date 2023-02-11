@@ -2,9 +2,8 @@ import { BigNumber, Contract, ethers } from 'ethers';
 import {
   BehaviorSubject,
   combineLatest,
-  EMPTY,
   map,
-  reduce,
+  of,
   Subject,
   withLatestFrom,
 } from 'rxjs';
@@ -87,7 +86,7 @@ export class OracleRegistry {
   }
 
   public static getOracleKey(o: OracleDefinition, oracleIndex?: number) {
-    return oracleIndex
+    return oracleIndex !== undefined
       ? `${o.base}/${o.quote}:${oracleIndex}`
       : `${o.base}/${o.quote}`;
   }
@@ -116,7 +115,10 @@ export class OracleRegistry {
     this.addOracle(oracle, oracleAdjList, oracles, subjects);
   }
 
-  public static getAggregateCall(oracle: OracleDefinition) {
+  public static getAggregateCall(
+    oracle: OracleDefinition,
+    provider: ethers.providers.Provider
+  ) {
     // All oracles are transformed into RATE_PRECISION decimal places
     const defaultScale = (result: BigNumber) => {
       const decimals = BigNumber.from(10).pow(oracle.decimalPlaces);
@@ -126,7 +128,7 @@ export class OracleRegistry {
     switch (oracle.oracleInterface) {
       case OracleInterface.Chainlink:
         return {
-          target: new Contract(oracle.address, IAggregatorABI),
+          target: new Contract(oracle.address, IAggregatorABI, provider),
           method: 'latestAnswer',
           args: [],
           transform: defaultScale,
@@ -134,7 +136,11 @@ export class OracleRegistry {
 
       case OracleInterface.CompoundV2_cToken:
         return {
-          target: new Contract(oracle.address, AssetRateAggregatorABI),
+          target: new Contract(
+            oracle.address,
+            AssetRateAggregatorABI,
+            provider
+          ),
           method: 'getExchangeRateView',
           args: [],
           transform: defaultScale,
@@ -145,21 +151,24 @@ export class OracleRegistry {
     }
   }
 
-  public static getAggregateMulticallData(network: Network): AggregateCall[] {
+  public static getAggregateMulticallData(
+    network: Network,
+    provider: ethers.providers.Provider
+  ): AggregateCall[] {
     const { oracles } = this.getOracleGraph(network);
-    return Array.from(oracles.values())
-      .flat()
-      .map((o, i) => {
+    return Array.from(oracles.values()).flatMap((oracleList) => {
+      return oracleList.map((o, i) => {
         const key = this.getOracleKey(o, i);
-        return Object.assign({ key }, this.getAggregateCall(o));
+        return Object.assign({ key }, this.getAggregateCall(o, provider));
       });
+    });
   }
 
   public static async fetchOracleData(
     network: Network,
     provider: ethers.providers.Provider
   ) {
-    const aggregateCall = this.getAggregateMulticallData(network);
+    const aggregateCall = this.getAggregateMulticallData(network, provider);
     const { subjects } = this.getOracleGraph(network);
     const { blockNumber, results } = await aggregate<Record<string, BigNumber>>(
       aggregateCall,
@@ -260,6 +269,7 @@ export class OracleRegistry {
   ) {
     const { subjects } = this.getOracleGraph(network);
     return oraclePath.map(({ key, oracleIndex, mustInvert }) => {
+      // shareReplay ensures that the latest results trigger the observable
       const observable = subjects.get(`${key}:${oracleIndex}`)?.asObservable();
       if (!observable)
         throw Error(`Update Subject for ${key}:${oracleIndex} not found`);
@@ -276,7 +286,7 @@ export class OracleRegistry {
   private static combineRates(rates: (BigNumber | undefined)[]) {
     return rates.reduce(
       (p, c) => (c ? p?.mul(c).div(RATE_PRECISION) : undefined),
-      BigNumber.from(1)
+      BigNumber.from(RATE_PRECISION)
     );
   }
 
@@ -284,13 +294,14 @@ export class OracleRegistry {
     const observables = this.getObservablesFromPath(network, oraclePath);
     let latestRate: BigNumber | undefined;
 
-    EMPTY.pipe(
-      withLatestFrom(...observables),
-      reduce(
-        (_, [, ...rates]) => this.combineRates(rates),
-        undefined as BigNumber | undefined
+    of(1)
+      .pipe(
+        withLatestFrom(...observables),
+        map(([, ...rates]) => this.combineRates(rates))
       )
-    ).forEach((v) => (latestRate = v));
+      .forEach((v) => {
+        latestRate = v;
+      });
 
     return latestRate;
   }
@@ -298,10 +309,7 @@ export class OracleRegistry {
   public static subscribeToPath(network: Network, oraclePath: OraclePath[]) {
     const observables = this.getObservablesFromPath(network, oraclePath);
     return combineLatest(observables).pipe(
-      reduce(
-        (_, rates) => this.combineRates(rates),
-        undefined as BigNumber | undefined
-      )
+      map((rates) => this.combineRates(rates))
     );
   }
 
@@ -322,6 +330,7 @@ export class OracleRegistry {
       throw Error(
         `Oracle Index Key: ${oracleIndexKey} not found on network ${network}`
       );
+    // shareReplay ensures that the latest results trigger the observable
     return s.asObservable();
   }
 
