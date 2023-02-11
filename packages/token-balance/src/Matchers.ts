@@ -6,12 +6,12 @@ export const tokenBalanceMatchers = {
       r.isMatch(a);
       return {
         pass: r.eq(a),
-        message: `expected ${r.toExactString()} == ${a.toExactString()}`,
+        message: () => `expected ${r.toExactString()} == ${a.toExactString()}`,
       };
     } catch (e) {
       return {
         pass: false,
-        message: (e as TypeError).toString(),
+        message: () => (e as TypeError).toString(),
       };
     }
   },
@@ -20,12 +20,12 @@ export const tokenBalanceMatchers = {
       r.isMatch(a);
       return {
         pass: r.lt(a),
-        message: `expected ${r.toExactString()} < ${a.toExactString()}`,
+        message: () => `expected ${r.toExactString()} < ${a.toExactString()}`,
       };
     } catch (e) {
       return {
         pass: false,
-        message: (e as TypeError).toString(),
+        message: () => (e as TypeError).toString(),
       };
     }
   },
@@ -34,12 +34,12 @@ export const tokenBalanceMatchers = {
       r.isMatch(a);
       return {
         pass: r.lte(a),
-        message: `expected ${r.toExactString()} <= ${a.toExactString()}`,
+        message: () => `expected ${r.toExactString()} <= ${a.toExactString()}`,
       };
     } catch (e) {
       return {
         pass: false,
-        message: (e as TypeError).toString(),
+        message: () => (e as TypeError).toString(),
       };
     }
   },
@@ -48,12 +48,12 @@ export const tokenBalanceMatchers = {
       r.isMatch(a);
       return {
         pass: r.gt(a),
-        message: `expected ${r.toExactString()} > ${a.toExactString()}`,
+        message: () => `expected ${r.toExactString()} > ${a.toExactString()}`,
       };
     } catch (e) {
       return {
         pass: false,
-        message: (e as TypeError).toString(),
+        message: () => (e as TypeError).toString(),
       };
     }
   },
@@ -62,12 +62,12 @@ export const tokenBalanceMatchers = {
       r.isMatch(a);
       return {
         pass: r.lte(a),
-        message: `expected ${r.toExactString()} >= ${a.toExactString()}`,
+        message: () => `expected ${r.toExactString()} >= ${a.toExactString()}`,
       };
     } catch (e) {
       return {
         pass: false,
-        message: (e as TypeError).toString(),
+        message: () => (e as TypeError).toString(),
       };
     }
   },
@@ -77,12 +77,13 @@ export const tokenBalanceMatchers = {
       const pass = rel ? Math.abs(r.toFloat() / a.toFloat() - 1) <= rel : true;
       return {
         pass,
-        message: `expected ${r.toExactString()} +/- ${rel} == ${a.toExactString()}`,
+        message: () =>
+          `expected ${r.toExactString()} +/- ${rel} == ${a.toExactString()}`,
       };
     } catch (e) {
       return {
         pass: false,
-        message: (e as TypeError).toString(),
+        message: () => (e as TypeError).toString(),
       };
     }
   },
