@@ -6,25 +6,25 @@ export enum Network {
 
 export enum TokenInterface {
   /** Standard transferrable ERC20 */
-  ERC20,
+  ERC20 = 'ERC20',
   /** ERC4626 yield bearing tokens with an extension of ERC20 */
-  ERC4626,
+  ERC4626 = 'ERC4626',
   /** Special handling for ETH */
-  ETH,
+  ETH = 'ETH',
   /** Special handling for WETH */
-  WETH,
+  WETH = 'WETH',
   /** Notional internal ERC20 balances, denominated as 8 decimals  */
-  Notional_InternalERC20,
+  Notional_InternalERC20 = 'Notional_InternalERC20',
   /** Notional fCash market liquidity tokens, only held by the nToken */
-  Notional_LiquidityToken,
+  Notional_LiquidityToken = 'Notional_LiquidityToken',
   /** Notional fCash, associated with a maturity */
-  Notional_fCash,
+  fCash = 'fCash',
   /** Notional leveraged vault shares, associated with a maturity */
-  Notional_VaultShare,
+  VaultShare = 'VaultShare',
   /** Notional leveraged vault strategy tokens, associated with a maturity */
-  Notional_StrategyToken,
+  StrategyToken = 'StrategyToken',
   /** Non-crypto denominated fiat balance (i.e. USD, JPY, EUR) */
-  FIAT,
+  FIAT = 'FIAT',
 }
 
 export interface TokenDefinition {

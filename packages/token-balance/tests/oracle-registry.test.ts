@@ -47,7 +47,9 @@ describe('Oracle Path', () => {
 
 describe('Fetch Oracle Rates', () => {
   // TODO: use a snapshot test here on a fixed block
-  it.todo('generates aggregate calls and fetches oracle rates');
+  it('generates aggregate calls and fetches oracle rates', () => {
+    // OracleRegistry.fetchOracleData(Network.Mainnet, hre.provider);
+  });
 
   it.todo('returns the latest value from an oracle path');
   it.todo('returns undefined if the oracle path is not complete');

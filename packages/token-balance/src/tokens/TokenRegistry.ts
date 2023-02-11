@@ -5,7 +5,11 @@ import defaultTokens from './DefaultTokens';
 import { Network, TokenDefinition, TokenInterface } from '../Definitions';
 
 export class TokenRegistry {
-  private static tokens: typeof defaultTokens;
+  private static tokens = new Map(defaultTokens);
+
+  public static getAllTokens(network: Network) {
+    return Array.from(this.tokens.get(network)?.values() || []);
+  }
 
   /**
    * @param network refers to the network the token is deployed on
@@ -13,10 +17,7 @@ export class TokenRegistry {
    * @returns a token definition object or undefined if not found
    */
   public static getToken(network: Network, symbol: string) {
-    return (
-      defaultTokens.get(network)?.get(symbol) ||
-      this.tokens.get(network)?.get(symbol)
-    );
+    return this.tokens.get(network)?.get(symbol);
   }
 
   /**
@@ -48,7 +49,7 @@ export class TokenRegistry {
       network,
       symbol: `STRATEGY_TOKEN_${vaultAddress}_@_${maturity}`,
       decimalPlaces: INTERNAL_TOKEN_DECIMAL_PLACES,
-      tokenInterface: TokenInterface.Notional_StrategyToken,
+      tokenInterface: TokenInterface.StrategyToken,
       maturity,
     };
   }
@@ -63,16 +64,16 @@ export class TokenRegistry {
       network,
       symbol: `VAULT_SHARE_${vaultAddress}_@_${maturity}`,
       decimalPlaces: INTERNAL_TOKEN_DECIMAL_PLACES,
-      tokenInterface: TokenInterface.Notional_VaultShare,
+      tokenInterface: TokenInterface.VaultShare,
       maturity,
     };
   }
 
   public static isMaturingToken(tokenInterface: TokenInterface) {
     return (
-      tokenInterface === TokenInterface.Notional_fCash ||
-      tokenInterface === TokenInterface.Notional_VaultShare ||
-      tokenInterface === TokenInterface.Notional_StrategyToken ||
+      tokenInterface === TokenInterface.fCash ||
+      tokenInterface === TokenInterface.VaultShare ||
+      tokenInterface === TokenInterface.StrategyToken ||
       tokenInterface === TokenInterface.Notional_LiquidityToken
     );
   }
