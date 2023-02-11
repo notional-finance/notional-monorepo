@@ -222,29 +222,28 @@ export class OracleRegistry {
 
       let key = `${path[i - 1]}/${c}`;
       let mustInvert = false;
-      let oracleIndex =
-        oracles
+      let oracleIndex = oracles
+        .get(key)
+        ?.findIndex((o) =>
+          onlyManipulationResistant
+            ? this.isManipulationResistant(o.oracleInterface)
+            : true
+        );
+
+      if (oracleIndex === undefined || oracleIndex < 0) {
+        key = `${c}/${path[i - 1]}`;
+        mustInvert = true;
+        oracleIndex = oracles
           .get(key)
           ?.findIndex((o) =>
             onlyManipulationResistant
               ? this.isManipulationResistant(o.oracleInterface)
               : true
-          ) || -1;
-
-      if (oracleIndex < 0) {
-        key = `${c}/${path[i - 1]}`;
-        mustInvert = true;
-        oracleIndex =
-          oracles
-            .get(key)
-            ?.findIndex((o) =>
-              onlyManipulationResistant
-                ? this.isManipulationResistant(o.oracleInterface)
-                : true
-            ) || -1;
+          );
       }
 
-      if (oracleIndex < 0) throw Error(`No oracle found for ${key}`);
+      if (oracleIndex === undefined || oracleIndex < 0)
+        throw Error(`No oracle found for ${key}`);
       p.push({ key, oracleIndex, mustInvert });
       return p;
     }, [] as OraclePath[]);

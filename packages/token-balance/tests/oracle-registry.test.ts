@@ -1,55 +1,47 @@
+import { Network } from '../src/Definitions';
 import { OracleRegistry } from '../src/oracles/OracleRegistry';
 
-class MockOracleRegistry extends OracleRegistry {
-  public static search(
-    quote: string,
-    base: string,
-    adjList: Map<string, Set<string>>
-  ): string[] {
-    return this.breadthFirstSearch(quote, base, adjList);
-  }
-}
-
 describe('Oracle Path', () => {
-  const adjList = new Map<string, Set<string>>();
-  adjList.set('ETH', new Set<string>(['COMP', 'BAL', 'stETH', 'cETH']));
-  adjList.set('USD', new Set<string>(['ETH', 'USDC', 'DAI', 'BTC', 'FRAX']));
-  adjList.set('USDC', new Set<string>(['cUSDC']));
-  adjList.set('BTC', new Set<string>(['WBTC']));
-
-  Array.from(adjList.keys()).forEach((k) => {
-    (adjList.get(k) || []).forEach((v) => {
-      const list = adjList.get(v) || new Set<string>();
-      list.add(k);
-      adjList.set(v, list);
-    });
+  it('[FORWARD] can find a path from usd => eth', () => {
+    const path = OracleRegistry.findPath('USD', 'ETH', Network.Mainnet);
+    expect(path.length).toBe(1);
+    expect(path[0].key).toBe('ETH/USD');
+    expect(path[0].mustInvert).toBe(false);
   });
 
-  it.todo('creates a complete adjacency list of oracles');
-
-  // TODO: switch these to use "findPath"
-  it('[SINGLE] can find a path from usd => eth', () => {
-    const path = MockOracleRegistry.search('USD', 'ETH', adjList);
-    expect(path).toEqual(['USD', 'ETH']);
-
-    expect(MockOracleRegistry.search('ETH', 'USD', adjList)).toEqual(
-      path.reverse()
-    );
+  it('[REVERSE] can find a path from usd => eth', () => {
+    const path = OracleRegistry.findPath('ETH', 'USD', Network.Mainnet);
+    expect(path.length).toBe(1);
+    expect(path[0].key).toBe('ETH/USD');
+    expect(path[0].mustInvert).toBe(true);
   });
 
   it('[MULTIHOP] can find a path from cUSDC => cETH', () => {
-    const path = MockOracleRegistry.search('cETH', 'cUSDC', adjList);
-    expect(path).toEqual(['cETH', 'ETH', 'USD', 'USDC', 'cUSDC']);
+    const path = OracleRegistry.findPath('cETH', 'cUSDC', Network.Mainnet);
+    expect(path.length).toBe(4);
+    expect(path.map((p) => p.key)).toEqual([
+      'USDC/cUSDC',
+      'USDC/USD',
+      'ETH/USD',
+      'ETH/cETH',
+    ]);
+    expect(path.map((p) => p.mustInvert)).toEqual([true, false, true, false]);
 
-    expect(MockOracleRegistry.search('cUSDC', 'cETH', adjList)).toEqual(
-      path.reverse()
-    );
+    const revPath = OracleRegistry.findPath('cUSDC', 'cETH', Network.Mainnet);
+    expect(revPath.length).toBe(4);
+    expect(revPath.map((p) => p.key)).toEqual([
+      'ETH/cETH',
+      'ETH/USD',
+      'USDC/USD',
+      'USDC/cUSDC',
+    ]);
+    expect(path.map((p) => p.mustInvert)).toEqual([true, false, true, false]);
   });
 
   it('[ERROR] throws on an unknown path', () => {
     expect(() =>
-      MockOracleRegistry.search('eETH', 'USD', adjList)
-    ).toThrowError('Path from USD to eETH not found');
+      OracleRegistry.findPath('xxxx', 'USD', Network.Mainnet)
+    ).toThrowError('Path from xxxx to USD not found');
   });
 });
 

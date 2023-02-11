@@ -11,5 +11,6 @@
     "tests/**/*.spec.ts",
     "tests/**/*.d.ts",
     "**/*.ts",
+    "../../jest.d.ts"
   ]
 }
