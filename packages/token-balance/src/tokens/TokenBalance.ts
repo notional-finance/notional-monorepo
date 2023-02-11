@@ -257,11 +257,32 @@ export class TokenBalance {
 
   /**
    * @param decimalPlaces maximum number of decimal places to show
+   * @param abbr abbreviate to thousands (k), millions (m), billions (b)
    * @param locale formatting locale
    * @returns a string with the specified number of decimal places
    */
-  toDisplayString(decimalPlaces = 3, locale = 'en-US') {
-    const localeString = this.toFloat().toLocaleString(locale, {
+  toDisplayString(decimalPlaces = 3, abbr = false, locale = 'en-US') {
+    let value = this.toFloat();
+    let suffix = '';
+
+    if (abbr) {
+      if (value < 1_000) {
+        suffix = '';
+      } else if (value < 1_000_000) {
+        suffix = 'k';
+        value = value / 1_000;
+      } else if (value < 1_000_000_000) {
+        suffix = 'm';
+        value = value / 1_000_000;
+      } else if (value < 1_000_000_000_000) {
+        suffix = 'b';
+        value = value / 1_000_000_000;
+      } else {
+        throw Error('Abbreviation overflow');
+      }
+    }
+
+    const localeString = value.toLocaleString(locale, {
       minimumFractionDigits: decimalPlaces,
       maximumFractionDigits: decimalPlaces,
     });
@@ -271,7 +292,7 @@ export class TokenBalance {
       return localeString.replace('-', '');
     }
 
-    return localeString;
+    return `${localeString}${suffix}`;
   }
 
   /**
@@ -279,8 +300,8 @@ export class TokenBalance {
    * @param locale formatting locale
    * @returns a string with the specified number of decimal places and a symbol appended
    */
-  toDisplayStringWithSymbol(decimalPlaces = 3, locale = 'en-US') {
-    return `${this.toDisplayString(decimalPlaces, locale)} ${
+  toDisplayStringWithSymbol(decimalPlaces = 3, abbr = false, locale = 'en-US') {
+    return `${this.toDisplayString(decimalPlaces, abbr, locale)} ${
       this.token.symbol
     }`;
   }

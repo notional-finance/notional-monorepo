@@ -7,7 +7,7 @@ const assignDefaults = (
 ): [string, TokenDefinition][] =>
   Object.entries(obj).map(([key, value]) => [
     key,
-    Object.assign(defaultProps, value, { symbol: key }) as TokenDefinition,
+    Object.assign({}, defaultProps, value, { symbol: key }) as TokenDefinition,
   ]);
 
 const mainnet = assignDefaults(
@@ -19,52 +19,82 @@ const mainnet = assignDefaults(
       tokenInterface: TokenInterface.ETH,
     },
     WETH: {
-      address: ethers.constants.AddressZero,
+      address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
       decimalPlaces: 18,
       // Overrides default property of ERC20
       tokenInterface: TokenInterface.WETH,
     },
-    // {
-    //   address:
-    //   symbol: 'DAI',
-    //   decimalPlaces: 18,
-    // },
-    // {
-    //   address:
-    //   symbol: 'USDC',
-    //   decimalPlaces: 6,
-    // },
-    // {
-    //   address:
-    //   symbol: 'WBTC',
-    //   decimalPlaces: 8,
-    // },
-    // {
-    //   address:
-    //   symbol: 'wstETH',
-    //   decimalPlaces: 18,
-    // },
-    // {
-    //   address:
-    //   symbol: 'stETH',
-    //   decimalPlaces: 18,
-    // },
-    // {
-    //   address:
-    //   symbol: 'COMP',
-    //   decimalPlaces: 18,
-    // },
-    // {
-    //   address:
-    //   symbol: 'NOTE',
-    //   decimalPlaces: 8,
-    // },
-    // {
-    //   address:
-    //   symbol: 'sNOTE',
-    //   decimalPlaces: 8,
-    // },
-    // TODO: add cTokens, eTokens, aTokens, etc.
+    DAI: {
+      address: '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+      decimalPlaces: 18,
+    },
+    USDC: {
+      address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
+      decimalPlaces: 6,
+    },
+    WBTC: {
+      address: '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599',
+      symbol: 'WBTC',
+      decimalPlaces: 8,
+    },
+    wstETH: {
+      address: '0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0',
+      decimalPlaces: 18,
+    },
+    stETH: {
+      address: '0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84',
+      decimalPlaces: 18,
+    },
+    COMP: {
+      address: '0xc00e94Cb662C3520282E6f5717214004A7f26888',
+      decimalPlaces: 18,
+    },
+    BAL: {
+      address: '0xba100000625a3754423978a60c9317c58a424e3D',
+      decimalPlaces: 18,
+    },
+    NOTE: {
+      address: '0xCFEAead4947f0705A14ec42aC3D44129E1Ef3eD5',
+      decimalPlaces: 8,
+    },
+    sNOTE: {
+      address: '0x38DE42F4BA8a35056b33A746A6b45bE9B1c3B9d2',
+      decimalPlaces: 18,
+    },
+    // Compound V2 Tokens
+    cETH: {
+      address: '0x4Ddc2D193948926D02f9B1fE9e1daa0718270ED5',
+      decimalPlaces: 8,
+    },
+    cDAI: {
+      address: '0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643',
+      decimalPlaces: 8,
+    },
+    cUSDC: {
+      address: '0x39aa39c021dfbae8fac545936693ac917d5e7563',
+      decimalPlaces: 8,
+    },
+    cWBTC: {
+      address: '0xccf4429db6322d5c611ee964527d42e5d685dd6a',
+      decimalPlaces: 8,
+    },
+    // Notional nTokens
+    nETH: {
+      address: '0xabc07bf91469c5450d6941dd0770e6e6761b90d6',
+      decimalPlaces: 8,
+    },
+    nDAI: {
+      address: '0x6ebce2453398af200c688c7c4ebd479171231818',
+      decimalPlaces: 8,
+    },
+    nUSDC: {
+      address: '0x18b0fc5a233acf1586da7c199ca9e3f486305a29',
+      decimalPlaces: 8,
+    },
+    nWBTC: {
+      address: '0x0ace2dc3995acd739ae5e0599e71a5524b93b886',
+      decimalPlaces: 8,
+    },
   },
   { tokenInterface: TokenInterface.ERC20 }
 );
@@ -75,13 +105,18 @@ const mainnet = assignDefaults(
 const fiat = assignDefaults(
   {
     USD: {},
-    JPY: {},
     EUR: {},
-    CNY: {},
     AUD: {},
-    GBP: {},
     CAD: {},
     CHF: {},
+    GBP: {},
+    JPY: {},
+    CNY: {},
+    KRW: {},
+    NZD: {},
+    BRL: {},
+    SGD: {},
+    TRY: {},
   },
   {
     tokenInterface: TokenInterface.FIAT,
