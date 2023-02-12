@@ -1,63 +1,76 @@
-import { BigNumber, constants } from 'ethers';
+import { ExchangeRate, TokenBalance } from '@notional-finance/token-balance';
 import { BaseLiquidityPool } from '../../src/exchanges/BaseLiquidityPool';
 
 export class MockPool extends BaseLiquidityPool<Record<string, never>> {
-  LP_TOKEN_PRECISION: BigNumber;
-
   constructor(
-    public lpTokenPrecision: BigNumber,
-    public override tokenDecimals: BigNumber[],
-    public override balances: BigNumber[],
-    public oracleRate: BigNumber,
-    public override totalLPTokensHeld: BigNumber,
-    public override totalSupply: BigNumber
+    public override balances: TokenBalance[],
+    public oracleRate: ExchangeRate,
+    public override totalSupply: TokenBalance
   ) {
-    super(
-      totalLPTokensHeld.mul(lpTokenPrecision),
-      tokenDecimals,
-      balances,
-      totalSupply.mul(lpTokenPrecision),
-      {}
-    );
+    super(balances, totalSupply, {});
+  }
 
-    this.LP_TOKEN_PRECISION = lpTokenPrecision;
+  public setOracleRate(newOracleRate: ExchangeRate) {
+    this.oracleRate = newOracleRate;
   }
 
   public calculateTokenTrade(
-    tokensIn: BigNumber,
+    tokensIn: TokenBalance,
     _tokenIndexIn: number,
     tokenIndexOut: number,
-    _balanceOverrides?: BigNumber[]
-  ): { tokensOut: BigNumber; feesPaid: BigNumber[] } {
+    _balanceOverrides?: TokenBalance[]
+  ): { tokensOut: TokenBalance; feesPaid: TokenBalance[] } {
+    const balances = _balanceOverrides || this.balances;
+    const tokenOutDefinition = balances[tokenIndexOut].token;
+    const tokensOut = tokensIn.toToken(tokenOutDefinition, this.oracleRate);
+
     return {
-      tokensOut: tokensIn
-        .mul(this.tokenDecimals[tokenIndexOut])
-        .mul(this.oracleRate)
-        .div(constants.WeiPerEther),
-      feesPaid: Array(2).fill(BigNumber.from(0)),
+      tokensOut,
+      feesPaid: balances.map((b) => b.copy(0)),
     };
   }
 
-  public override getLPTokensGivenTokens(_tokensIn: BigNumber[]): {
-    lpTokens: BigNumber;
-    feesPaid: BigNumber[];
+  public override getLPTokensGivenTokens(tokensIn: TokenBalance[]): {
+    lpTokens: TokenBalance;
+    feesPaid: TokenBalance[];
   } {
+    const lpTokenDefinition = this.totalSupply.token;
+    const lpTokens = tokensIn[0]
+      .toToken(lpTokenDefinition, this.oracleRate)
+      .add(tokensIn[1].toToken(lpTokenDefinition, this.oracleRate));
+
     return {
-      lpTokens: BigNumber.from(0),
-      feesPaid: Array(2).fill(BigNumber.from(0)),
+      lpTokens,
+      feesPaid: this.balances.map((b) => b.copy(0)),
     };
   }
 
   public getTokensOutGivenLPTokens(
-    _lpTokens: BigNumber,
-    _singleSidedExitTokenIndex?: number
+    lpTokens: TokenBalance,
+    singleSidedExitTokenIndex?: number
   ): {
-    tokensOut: BigNumber[];
-    feesPaid: BigNumber[];
+    tokensOut: TokenBalance[];
+    feesPaid: TokenBalance[];
   } {
+    const tokensOut = this.balances.map((b) =>
+      b.scale(lpTokens, this.totalSupply)
+    );
+
+    if (singleSidedExitTokenIndex) {
+      const tokensInIndex = 1 - singleSidedExitTokenIndex;
+      const { tokensOut: addTokensOut } = this.calculateTokenTrade(
+        tokensOut[tokensInIndex],
+        tokensInIndex,
+        singleSidedExitTokenIndex
+      );
+      tokensOut[tokensInIndex] = tokensOut[tokensInIndex].copy(0);
+      tokensOut[singleSidedExitTokenIndex] =
+        tokensOut[singleSidedExitTokenIndex].add(addTokensOut);
+    }
+
     return {
-      tokensOut: Array(2).fill(BigNumber.from(0)),
-      feesPaid: Array(2).fill(BigNumber.from(0)),
+      tokensOut,
+      feesPaid: this.balances.map((b) => b.copy(0)),
     };
   }
 }

@@ -122,6 +122,5 @@
       "@notional-finance/wallet/*": ["packages/shared/wallet/src/*"]
     }
   },
-  "exclude": ["node_modules", "tmp"],
-  "include": ["jest.d.ts"]
+  "exclude": ["node_modules", "tmp"]
 }
