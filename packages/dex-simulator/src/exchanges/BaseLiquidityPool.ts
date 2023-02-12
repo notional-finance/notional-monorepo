@@ -2,12 +2,10 @@ import { BigNumber } from 'ethers';
 import { RATE_PRECISION } from '@notional-finance/sdk/config/constants';
 import { doBinarySearch } from '../math/Approximation';
 import { AbstractLiquidityPool } from './AbstractLiquidityPool';
-import { TokenBalance } from '@notional-finance/token-balance';
+import { ExchangeRate, TokenBalance } from '@notional-finance/token-balance';
 
 export abstract class BaseLiquidityPool<P> extends AbstractLiquidityPool {
   constructor(
-    protected totalLPTokensHeld: TokenBalance,
-    protected tokenDecimals: BigNumber[],
     protected balances: TokenBalance[],
     protected totalSupply: TokenBalance,
     protected poolParams: P
@@ -20,7 +18,7 @@ export abstract class BaseLiquidityPool<P> extends AbstractLiquidityPool {
   }
 
   protected oneLPToken() {
-    return this.totalSupply.copy(this.totalLPTokensHeld.decimals);
+    return this.totalSupply.copy(this.totalSupply.decimals);
   }
 
   // /**
@@ -92,23 +90,22 @@ export abstract class BaseLiquidityPool<P> extends AbstractLiquidityPool {
    */
   public getBalanceArrayOracleValue(
     balances: TokenBalance[],
-    oraclePrices: BigNumber[],
-    primaryTokenIndex: number
+    primaryTokenIndex: number,
+    oraclePrices?: ExchangeRate[]
   ): TokenBalance {
+    const primaryToken = balances[primaryTokenIndex].token;
     return (
       balances
         .map((b, i) =>
           i === primaryTokenIndex
             ? b
-            : // Convert balance to primary in primary decimals
-              b
-                .mul(oraclePrices[i])
-                .mul(this.tokenDecimals[primaryTokenIndex])
-                .div(this.ORACLE_RATE_PRECISION)
-                .div(this.tokenDecimals[i])
+            : b.toToken(
+                primaryToken,
+                oraclePrices ? oraclePrices[i] : undefined
+              )
         )
         // Sum all balances in primary valuation
-        .reduce((v, i) => v.add(i), BigNumber.from(0))
+        .reduce((v, i) => v.add(i), TokenBalance.zero(primaryToken))
     );
   }
 
@@ -121,14 +118,14 @@ export abstract class BaseLiquidityPool<P> extends AbstractLiquidityPool {
    */
   public getLPTokenOracleValue(
     lpTokens: TokenBalance,
-    oraclePrices: BigNumber[],
-    primaryTokenIndex: number
+    primaryTokenIndex: number,
+    oraclePrices?: ExchangeRate[]
   ): TokenBalance {
     const tokensOut = this.getLPTokenClaims(lpTokens);
     return this.getBalanceArrayOracleValue(
       tokensOut,
-      oraclePrices,
-      primaryTokenIndex
+      primaryTokenIndex,
+      oraclePrices
     );
   }
 
@@ -166,8 +163,8 @@ export abstract class BaseLiquidityPool<P> extends AbstractLiquidityPool {
         if (i === primaryTokenIndex) return b;
         const { tokensOut } = this.calculateTokenTrade(
           b,
-          primaryTokenIndex,
           i,
+          primaryTokenIndex,
           balanceOverrides
         );
         return tokensOut;
