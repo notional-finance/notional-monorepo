@@ -1,5 +1,5 @@
 import { BigNumber, BigNumberish, utils } from 'ethers';
-import { TokenDefinition, TokenInterface } from '../Definitions';
+import { ExchangeRate, TokenDefinition, TokenInterface } from '../Definitions';
 import { RATE_PRECISION } from '@notional-finance/sdk/config/constants';
 import { TokenRegistry } from './TokenRegistry';
 
@@ -306,8 +306,42 @@ export class TokenBalance {
     }`;
   }
 
-  /** Conversion Methods */
+  /**
+   * Converts a token to a different token
+   * @param token new token definition
+   * @param exchangeRate token exchange rate, will look up from oracle if defined
+   * @param discount a discount or buffer scaled to a 100, used for haircuts and buffers
+   * @returns a new token balance object
+   */
+  toToken(
+    token: TokenDefinition,
+    exchangeRate?: ExchangeRate,
+    discount?: number
+  ) {
+    // TODO: do a lookup against the OracleRegistry here...
+    if (!exchangeRate) throw Error('No Exchange Rate');
 
-  // toToken()
-  // toUnderlying()
+    const mustInvert =
+      exchangeRate.quote === token.symbol &&
+      exchangeRate.base === this.token.symbol;
+    if (
+      !mustInvert &&
+      exchangeRate.base !== token.symbol &&
+      exchangeRate.quote !== this.token.symbol
+    ) {
+      throw Error(
+        `Exchange rate ${exchangeRate} does not match conversion ${this.token.symbol}/${token.symbol}`
+      );
+    }
+
+    const newToken = new TokenBalance(
+      (mustInvert
+        ? this.divInRatePrecision(exchangeRate.rate)
+        : this.mulInRatePrecision(exchangeRate.rate)
+      ).scaleTo(token.decimalPlaces),
+      token
+    );
+
+    return discount ? newToken.scale(discount, 100) : newToken;
+  }
 }

@@ -1,4 +1,5 @@
 import { ERC20, ERC20ABI } from '@notional-finance/contracts';
+import { RATE_PRECISION } from '@notional-finance/sdk/config/constants';
 import { BigNumber, Contract, ethers } from 'ethers';
 import { Network, TokenInterface } from '../src/Definitions';
 import { TokenBalance } from '../src/tokens/TokenBalance';
@@ -106,6 +107,48 @@ describe('TokenBalance', () => {
     expect(ETH.toFloat()).toBe(0.1234);
     expect(ETH.toString()).toBe('123400000000000000');
     expect(ETH.toDisplayStringWithSymbol()).toBe('0.123 ETH');
+  });
+
+  it('throws errors on invalid conversion', () => {
+    const ETH = TokenRegistry.makeBalance('0.1234', 'ETH', Network.Mainnet);
+    expect(() => {
+      ETH.toToken(TokenRegistry.getToken(Network.Mainnet, 'USDC')!, {
+        base: 'ETH',
+        quote: 'DAI',
+        rate: BigNumber.from(0),
+        validTimestamp: 0,
+      });
+    }).toThrowError();
+  });
+
+  it('converts token balances', () => {
+    const ETH = TokenRegistry.makeBalance('0.1234', 'ETH', Network.Mainnet);
+    const DAI = ETH.toToken(TokenRegistry.getToken(Network.Mainnet, 'DAI')!, {
+      base: 'ETH',
+      quote: 'DAI',
+      rate: BigNumber.from(RATE_PRECISION),
+      validTimestamp: 0,
+    });
+    expect(DAI).toEqTB(
+      TokenRegistry.makeBalance('0.1234', 'DAI', Network.Mainnet)
+    );
+  });
+
+  it('converts token balances with adjustments', () => {
+    const ETH = TokenRegistry.makeBalance('1', 'ETH', Network.Mainnet);
+    const DAI = ETH.toToken(
+      TokenRegistry.getToken(Network.Mainnet, 'DAI')!,
+      {
+        base: 'ETH',
+        quote: 'DAI',
+        rate: BigNumber.from(RATE_PRECISION),
+        validTimestamp: 0,
+      },
+      90
+    );
+    expect(DAI).toEqTB(
+      TokenRegistry.makeBalance('0.9', 'DAI', Network.Mainnet)
+    );
   });
 });
 
