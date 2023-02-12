@@ -1,3 +1,5 @@
+import { BigNumber } from 'ethers';
+
 export enum Network {
   All = 'all',
   Mainnet = 'mainnet',
@@ -76,4 +78,11 @@ export interface OracleDefinition {
   decimalPlaces: number;
   /** Maximum update cadence in seconds, if defined. Typically only valid for off-chain oracles */
   heartbeat?: number;
+}
+
+export interface ExchangeRate {
+  base: string;
+  quote: string;
+  rate: BigNumber;
+  validTimestamp: number;
 }
