@@ -9,17 +9,24 @@ import {
 } from 'rxjs';
 import {
   AssetRateAggregatorABI,
+  IAggregator,
   IAggregatorABI,
 } from '@notional-finance/contracts';
 import { aggregate, AggregateCall } from '@notional-finance/multicall';
 import defaultOracles from './DefaultOracles';
-import { Network, OracleDefinition, OracleInterface } from '../Definitions';
+import {
+  ExchangeRate,
+  Network,
+  OracleDefinition,
+  OracleInterface,
+} from '../Definitions';
 import {
   RATE_PRECISION,
   RATE_PRECISION_SQUARED,
 } from '@notional-finance/sdk/config/constants';
+import { getNowSeconds } from '@notional-finance/util';
 
-type OracleSubject = BehaviorSubject<BigNumber | undefined>;
+type OracleSubject = BehaviorSubject<ExchangeRate | undefined>;
 type AdjList = Map<string, Set<string>>;
 
 interface OracleGraph {
@@ -81,7 +88,7 @@ export class OracleRegistry {
     const indexKey = this.getOracleKey(o, index);
     subjects.set(
       indexKey,
-      new BehaviorSubject<BigNumber | undefined>(undefined)
+      new BehaviorSubject<ExchangeRate | undefined>(undefined)
     );
   }
 
@@ -116,26 +123,45 @@ export class OracleRegistry {
   }
 
   public static getAggregateCall(
+    key: string,
     oracle: OracleDefinition,
     provider: ethers.providers.Provider
-  ) {
+  ): AggregateCall {
     // All oracles are transformed into RATE_PRECISION decimal places
-    const defaultScale = (result: BigNumber) => {
+    const defaultScale = (
+      result: BigNumber,
+      validTimestamp: number = getNowSeconds()
+    ): ExchangeRate => {
       const decimals = BigNumber.from(10).pow(oracle.decimalPlaces);
-      return result.mul(RATE_PRECISION).div(decimals);
+      return {
+        rate: result.mul(RATE_PRECISION).div(decimals),
+        base: oracle.base,
+        quote: oracle.quote,
+        validTimestamp,
+      };
     };
 
     switch (oracle.oracleInterface) {
-      case OracleInterface.Chainlink:
+      case OracleInterface.Chainlink: {
+        const target = new Contract(
+          oracle.address,
+          IAggregatorABI,
+          provider
+        ) as IAggregator;
+
         return {
-          target: new Contract(oracle.address, IAggregatorABI, provider),
-          method: 'latestAnswer',
+          key,
+          target,
+          method: 'latestRoundData',
           args: [],
-          transform: defaultScale,
+          transform: (r: Awaited<ReturnType<typeof target.latestRoundData>>) =>
+            defaultScale(r.answer, r.updatedAt.toNumber()),
         };
+      }
 
       case OracleInterface.CompoundV2_cToken:
         return {
+          key,
           target: new Contract(
             oracle.address,
             AssetRateAggregatorABI,
@@ -143,7 +169,7 @@ export class OracleRegistry {
           ),
           method: 'getExchangeRateView',
           args: [],
-          transform: defaultScale,
+          transform: (r: BigNumber) => defaultScale(r),
         };
 
       default:
@@ -156,12 +182,11 @@ export class OracleRegistry {
     provider: ethers.providers.Provider
   ): AggregateCall[] {
     const { oracles } = this.getOracleGraph(network);
-    return Array.from(oracles.values()).flatMap((oracleList) => {
-      return oracleList.map((o, i) => {
-        const key = this.getOracleKey(o, i);
-        return Object.assign({ key }, this.getAggregateCall(o, provider));
-      });
-    });
+    return Array.from(oracles.values()).flatMap((oracleList) =>
+      oracleList.map((o, i) =>
+        this.getAggregateCall(this.getOracleKey(o, i), o, provider)
+      )
+    );
   }
 
   public static async fetchOracleData(
@@ -170,7 +195,9 @@ export class OracleRegistry {
   ) {
     const aggregateCall = this.getAggregateMulticallData(network, provider);
     const { subjects } = this.getOracleGraph(network);
-    const { blockNumber, results } = await aggregate<Record<string, BigNumber>>(
+    const { blockNumber, results } = await aggregate<
+      Record<string, ExchangeRate>
+    >(
       aggregateCall,
       provider,
       // This will call next() on all the update subjects
@@ -182,13 +209,13 @@ export class OracleRegistry {
   }
 
   protected static breadthFirstSearch(
-    quote: string,
     base: string,
+    quote: string,
     adjList: AdjList
   ) {
     if (base === quote) throw Error(`Invalid exchange rate ${base}/${quote}`);
 
-    let path = [quote];
+    let path = [base];
     const queue = [path];
 
     while (queue.length > 0) {
@@ -197,7 +224,7 @@ export class OracleRegistry {
 
       const lastSymbol = currentPath[currentPath.length - 1];
       // If the last symbol of the path is the base then quit
-      if (lastSymbol === base) {
+      if (lastSymbol === quote) {
         path = currentPath;
         break;
       }
@@ -210,7 +237,7 @@ export class OracleRegistry {
     }
 
     // This ensures there are at least 2 entries in the path since base !== quote
-    if (path[path.length - 1] !== base)
+    if (path[path.length - 1] !== quote)
       throw Error(`Path from ${base} to ${quote} not found`);
 
     return path;
@@ -224,7 +251,7 @@ export class OracleRegistry {
   ) {
     // TODO: switch on only manipulation resistant oracles
     const { adjList, oracles } = this.getOracleGraph(network);
-    const path = this.breadthFirstSearch(quote, base, adjList);
+    const path = this.breadthFirstSearch(base, quote, adjList);
 
     return path.reduce((p, c, i) => {
       if (i === 0) return p;
@@ -269,30 +296,53 @@ export class OracleRegistry {
   ) {
     const { subjects } = this.getOracleGraph(network);
     return oraclePath.map(({ key, oracleIndex, mustInvert }) => {
-      // shareReplay ensures that the latest results trigger the observable
       const observable = subjects.get(`${key}:${oracleIndex}`)?.asObservable();
       if (!observable)
         throw Error(`Update Subject for ${key}:${oracleIndex} not found`);
+
       return mustInvert
         ? observable.pipe(
-            map((r: BigNumber | undefined) =>
-              r ? RATE_PRECISION_SQUARED.div(r) : undefined
-            )
+            map((r: ExchangeRate | undefined) => {
+              if (r) {
+                return {
+                  // Invert the base and quote
+                  base: r.quote,
+                  quote: r.base,
+                  rate: RATE_PRECISION_SQUARED.div(r.rate),
+                  validTimestamp: r.validTimestamp,
+                };
+              }
+
+              return undefined;
+            })
           )
         : observable;
     });
   }
 
-  private static combineRates(rates: (BigNumber | undefined)[]) {
-    return rates.reduce(
-      (p, c) => (c ? p?.mul(c).div(RATE_PRECISION) : undefined),
-      BigNumber.from(RATE_PRECISION)
+  private static combineRates(rates: (ExchangeRate | undefined)[]) {
+    if (rates.length === 0) return undefined;
+
+    const base = rates[0]?.base;
+    const quote = rates[rates.length - 1]?.quote;
+
+    const rate = rates.reduce(
+      (p, er) => (er && p ? p.mul(er.rate).div(RATE_PRECISION) : undefined),
+      BigNumber.from(RATE_PRECISION) as BigNumber | undefined
     );
+
+    const validTimestamp = Math.min(
+      ...rates.map((r) => r?.validTimestamp || 0)
+    );
+
+    return rate && base && quote
+      ? { base, quote, rate, validTimestamp }
+      : undefined;
   }
 
   public static getLatestFromPath(network: Network, oraclePath: OraclePath[]) {
     const observables = this.getObservablesFromPath(network, oraclePath);
-    let latestRate: BigNumber | undefined;
+    let latestRate: ExchangeRate | undefined;
 
     of(1)
       .pipe(

@@ -3,64 +3,139 @@
 exports[`Fetch Oracle Rates generates aggregate calls and fetches oracle rates 1`] = `
 Object {
   "BAL/ETH:0": Object {
-    "hex": "0x402268",
-    "type": "BigNumber",
+    "base": "BAL",
+    "quote": "ETH",
+    "rate": Object {
+      "hex": "0x402268",
+      "type": "BigNumber",
+    },
+    "validTimestamp": 1676063447,
   },
   "BTC/USD:0": Object {
-    "hex": "0x13b94404ae0a",
-    "type": "BigNumber",
+    "base": "BTC",
+    "quote": "USD",
+    "rate": Object {
+      "hex": "0x13b94404ae0a",
+      "type": "BigNumber",
+    },
+    "validTimestamp": 1676116523,
   },
   "COMP/USD:0": Object {
-    "hex": "0x0b9e459300",
-    "type": "BigNumber",
+    "base": "COMP",
+    "quote": "USD",
+    "rate": Object {
+      "hex": "0x0b9e459300",
+      "type": "BigNumber",
+    },
+    "validTimestamp": 1676115047,
   },
   "DAI/USD:0": Object {
-    "hex": "0x3b9b0a24",
-    "type": "BigNumber",
+    "base": "DAI",
+    "quote": "USD",
+    "rate": Object {
+      "hex": "0x3b9b0a24",
+      "type": "BigNumber",
+    },
+    "validTimestamp": 1676116391,
   },
   "ETH/USD:0": Object {
-    "hex": "0x0161be9f91d0",
-    "type": "BigNumber",
+    "base": "ETH",
+    "quote": "USD",
+    "rate": Object {
+      "hex": "0x0161be9f91d0",
+      "type": "BigNumber",
+    },
+    "validTimestamp": 1676116535,
   },
   "USDC/USD:0": Object {
-    "hex": "0x3b9aca00",
-    "type": "BigNumber",
+    "base": "USDC",
+    "quote": "USD",
+    "rate": Object {
+      "hex": "0x3b9aca00",
+      "type": "BigNumber",
+    },
+    "validTimestamp": 1676094599,
   },
   "USDT/USD:0": Object {
-    "hex": "0x3b9c50a0",
-    "type": "BigNumber",
+    "base": "USDT",
+    "quote": "USD",
+    "rate": Object {
+      "hex": "0x3b9c50a0",
+      "type": "BigNumber",
+    },
+    "validTimestamp": 1676060159,
   },
   "WBTC/BTC:0": Object {
-    "hex": "0x3b949464",
-    "type": "BigNumber",
+    "base": "WBTC",
+    "quote": "BTC",
+    "rate": Object {
+      "hex": "0x3b949464",
+      "type": "BigNumber",
+    },
+    "validTimestamp": 1676065271,
   },
   "cDAI/DAI:0": Object {
-    "hex": "0x015220f0",
-    "type": "BigNumber",
+    "base": "cDAI",
+    "quote": "DAI",
+    "rate": Object {
+      "hex": "0x015220f0",
+      "type": "BigNumber",
+    },
+    "validTimestamp": 1676210417,
   },
   "cETH/ETH:0": Object {
-    "hex": "0x013265d6",
-    "type": "BigNumber",
+    "base": "cETH",
+    "quote": "ETH",
+    "rate": Object {
+      "hex": "0x013265d6",
+      "type": "BigNumber",
+    },
+    "validTimestamp": 1676210417,
   },
   "cUSDC/USDC:0": Object {
-    "hex": "0x015af32a",
-    "type": "BigNumber",
+    "base": "cUSDC",
+    "quote": "USDC",
+    "rate": Object {
+      "hex": "0x015af32a",
+      "type": "BigNumber",
+    },
+    "validTimestamp": 1676210417,
   },
   "cWBTC/WBTC:0": Object {
-    "hex": "0x01324c1d",
-    "type": "BigNumber",
+    "base": "cWBTC",
+    "quote": "WBTC",
+    "rate": Object {
+      "hex": "0x01324c1d",
+      "type": "BigNumber",
+    },
+    "validTimestamp": 1676210417,
   },
   "stETH/ETH:0": Object {
-    "hex": "0x3b78ec8b",
-    "type": "BigNumber",
+    "base": "stETH",
+    "quote": "ETH",
+    "rate": Object {
+      "hex": "0x3b78ec8b",
+      "type": "BigNumber",
+    },
+    "validTimestamp": 1676040395,
   },
   "stETH/USD:0": Object {
-    "hex": "0x0161594f6184",
-    "type": "BigNumber",
+    "base": "stETH",
+    "quote": "USD",
+    "rate": Object {
+      "hex": "0x0161594f6184",
+      "type": "BigNumber",
+    },
+    "validTimestamp": 1676115899,
   },
   "wstETH/USD:0": Object {
-    "hex": "0x0187ec65e191",
-    "type": "BigNumber",
+    "base": "wstETH",
+    "quote": "USD",
+    "rate": Object {
+      "hex": "0x0187ec65e191",
+      "type": "BigNumber",
+    },
+    "validTimestamp": 1676115899,
   },
 }
 `;
