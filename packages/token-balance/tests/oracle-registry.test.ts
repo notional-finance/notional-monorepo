@@ -57,6 +57,7 @@ describe.withFork(
   'Fetch Oracle Rates',
   () => {
     beforeAll(async () => {
+      process.env['FAKE_TIME'] = '1676210417';
       await OracleRegistry.fetchOracleData(Network.Mainnet, provider);
     }, 60_000);
 
