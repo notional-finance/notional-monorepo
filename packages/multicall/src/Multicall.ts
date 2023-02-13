@@ -34,7 +34,7 @@ async function executeStage<T extends Record<string, unknown>>(
     const contract =
       typeof c.target === 'function' ? c.target(aggregateResults) : c.target;
     const args =
-      typeof c.args === 'function' ? c.args(aggregateResults) : c.args;
+      typeof c.args === 'function' ? c.args(aggregateResults) : c.args || [];
 
     return {
       ...c,
@@ -95,8 +95,10 @@ export async function aggregate<T extends Record<string, unknown>>(
     ));
   }
 
+  const block = await provider.getBlock(blockNumber);
+
   // Emits into subjects if they are are passed in via the map
   if (subjects)
     Object.keys(results).forEach((k) => subjects.get(k)?.next(results[k]));
-  return { blockNumber, results };
+  return { block, blockNumber, results };
 }

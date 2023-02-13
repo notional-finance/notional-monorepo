@@ -47,6 +47,11 @@ export class OracleRegistry {
     BehaviorSubject<number>
   >();
 
+  protected static lastUpdateTimestamp = new Map<
+    Network,
+    BehaviorSubject<number>
+  >();
+
   protected static oracleGraphs = new Map<Network, OracleGraph>(
     defaultOracles.map(([n, _oracles]) => {
       // Initializes the oracle graph using the default oracles
@@ -142,22 +147,16 @@ export class OracleRegistry {
     };
 
     switch (oracle.oracleInterface) {
-      case OracleInterface.Chainlink: {
-        const target = new Contract(
-          oracle.address,
-          IAggregatorABI,
-          provider
-        ) as IAggregator;
-
+      case OracleInterface.Chainlink:
         return {
           key,
-          target,
+          target: new Contract(oracle.address, IAggregatorABI, provider),
           method: 'latestRoundData',
           args: [],
-          transform: (r: Awaited<ReturnType<typeof target.latestRoundData>>) =>
-            defaultScale(r.answer, r.updatedAt.toNumber()),
+          transform: (
+            r: Awaited<ReturnType<IAggregator['functions']['latestRoundData']>>
+          ) => defaultScale(r.answer, r.updatedAt.toNumber()),
         };
-      }
 
       case OracleInterface.CompoundV2_cToken:
         return {
@@ -195,18 +194,21 @@ export class OracleRegistry {
   ) {
     const aggregateCall = this.getAggregateMulticallData(network, provider);
     const { subjects } = this.getOracleGraph(network);
-    const { blockNumber, results } = await aggregate<
-      Record<string, ExchangeRate>
-    >(
+    const { block, results } = await aggregate<Record<string, ExchangeRate>>(
       aggregateCall,
       provider,
       // This will call next() on all the update subjects
       subjects as Map<string, Subject<unknown>>
     );
-    this.lastUpdateBlock.get(network)?.next(blockNumber);
 
-    return { blockNumber, results };
+    // TODO: also update timestamp here
+    this.lastUpdateBlock.get(network)?.next(block.number);
+    this.lastUpdateTimestamp.get(network)?.next(block.timestamp);
+
+    return { blockNumber: block.number, results };
   }
+
+  // public static async fetchFromCache(_cacheUrl: string) {}
 
   protected static breadthFirstSearch(
     base: string,
@@ -390,5 +392,13 @@ export class OracleRegistry {
 
   public static subscribeLastUpdateBlock(network: Network) {
     return this.lastUpdateBlock.get(network)?.asObservable();
+  }
+
+  public static getLastUpdateTimestamp(network: Network) {
+    return this.lastUpdateTimestamp.get(network)?.value || 0;
+  }
+
+  public static subscribeLastUpdateTimestamp(network: Network) {
+    return this.lastUpdateTimestamp.get(network)?.asObservable();
   }
 }

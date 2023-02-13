@@ -6,7 +6,7 @@ export interface AggregateCall {
   // Function fragment to get the corresponding interface
   method: string | utils.FunctionFragment;
   // Arguments to call the method with
-  args: any[] | ((prevResults: Record<string, any>) => any[]);
+  args?: any[] | ((prevResults: Record<string, any>) => any[]);
   // Key to lookup the result from the aggregate
   key: string;
   // Transform to apply to decoded result

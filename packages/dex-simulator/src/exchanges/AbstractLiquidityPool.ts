@@ -1,6 +1,14 @@
-import { TokenBalance } from '@notional-finance/token-balance';
+import { AggregateCall } from '@notional-finance/multicall';
+import { Network, TokenBalance } from '@notional-finance/token-balance';
 
 export abstract class AbstractLiquidityPool {
+  public static getInitData(
+    _network: Network,
+    _poolAddress: string
+  ): AggregateCall[] {
+    throw Error('Unimplemented');
+  }
+
   /**
    * Calculates an EXACT_IN_SINGLE trade on the liquidity pool
    *
@@ -11,7 +19,7 @@ export abstract class AbstractLiquidityPool {
    * @returns tokensOut amount of tokens out
    * @returns feesPaid array of fees paid amounts
    */
-  protected abstract calculateTokenTrade(
+  public abstract calculateTokenTrade(
     tokensIn: TokenBalance,
     tokenIndexIn: number,
     tokenIndexOut: number,
@@ -28,7 +36,7 @@ export abstract class AbstractLiquidityPool {
    * @returns the amount of lpTokens minted
    * @returns fees paid in each corresponding token balance
    */
-  protected abstract getLPTokensGivenTokens(tokensIn: TokenBalance[]): {
+  public abstract getLPTokensGivenTokens(tokensIn: TokenBalance[]): {
     lpTokens: TokenBalance;
     feesPaid: TokenBalance[];
   };
@@ -42,7 +50,7 @@ export abstract class AbstractLiquidityPool {
    * @returns tokensOut the amount of each token received
    * @returns feesPaid the amount of fees paid in each token
    */
-  protected abstract getTokensOutGivenLPTokens(
+  public abstract getTokensOutGivenLPTokens(
     lpTokens: TokenBalance,
     singleSidedExitTokenIndex?: number
   ): {
