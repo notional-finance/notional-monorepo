@@ -1,13 +1,20 @@
-import { BigNumber, Signer, ethers } from 'ethers';
-import { PoolTestHarness } from './PoolTestHarness';
+import { BigNumber, Signer, ethers, Contract } from 'ethers';
 import {
   BalancerPool,
+  BalancerStablePoolABI,
   BalancerVault,
+  BalancerVaultABI,
   ERC20,
+  ERC20ABI,
 } from '@notional-finance/contracts';
 import { getNowSeconds } from '@notional-finance/util';
+import { Network, TokenBalance } from '@notional-finance/token-balance';
+import { aggregate } from '@notional-finance/multicall';
 
-export class BalancerPoolHarness implements PoolTestHarness {
+import { PoolTestHarness } from './PoolTestHarness';
+import MetaStable2Token from '../../src/exchanges/BalancerV2/MetaStableTwoToken';
+
+export class BalancerPoolHarness extends PoolTestHarness {
   public JoinKind = {
     EXACT_TOKENS_IN_FOR_BPT_OUT: {
       kind: 1,
@@ -43,9 +50,6 @@ export class BalancerPoolHarness implements PoolTestHarness {
       // [BPT_IN_FOR_EXACT_TOKENS_OUT, amountsOut, maxBPTAmountIn]
       encoding: ['uint256', 'uint256[]', 'uint256'],
     },
-    MANAGEMENT_FEE_TOKENS_OUT: {
-      kind: 3,
-    },
   };
 
   public SwapKind = {
@@ -53,12 +57,38 @@ export class BalancerPoolHarness implements PoolTestHarness {
     GivenOut: 1,
   };
 
+  public static override async makePoolHarness(
+    network: Network,
+    poolAddress: string
+  ) {
+    const callData = MetaStable2Token.getInitData(network, poolAddress);
+    const { results } = await aggregate(callData, provider);
+    return new BalancerPoolHarness(
+      results['poolId'] as string,
+      new Contract(
+        poolAddress,
+        BalancerStablePoolABI,
+        provider
+      ) as BalancerPool,
+      new Contract(
+        results['vaultAddress'] as string,
+        BalancerVaultABI,
+        provider
+      ) as BalancerVault,
+      (results['balances'] as TokenBalance[]).map(
+        (b) => new Contract(b.token.address, ERC20ABI, provider) as ERC20
+      )
+    );
+  }
+
   constructor(
     public poolId: string,
     public balancerPool: BalancerPool,
     public balancerVault: BalancerVault,
     public tokens: ERC20[]
-  ) {}
+  ) {
+    super();
+  }
 
   public async singleSideEntry(
     signer: Signer,

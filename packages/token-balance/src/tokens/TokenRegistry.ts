@@ -21,6 +21,21 @@ export class TokenRegistry {
   }
 
   /**
+   * @param network refers to the network the token is deployed on
+   * @param address address of the token
+   * @returns a token definition object or undefined if not found
+   */
+  public static getTokenByAddress(network: Network, address: string) {
+    const tokens = this.getAllTokens(network).filter(
+      (t) => t.address === address
+    );
+
+    // This is is possible if searching for ERC1155 tokens or Leveraged Vault tokens
+    if (tokens.length > 1) throw Error(`Multiple tokens found for ${address}`);
+    return tokens.length === 1 ? tokens[0] : undefined;
+  }
+
+  /**
    * Registers a new token in the list of tokens
    */
   public static registerToken(token: TokenDefinition) {
