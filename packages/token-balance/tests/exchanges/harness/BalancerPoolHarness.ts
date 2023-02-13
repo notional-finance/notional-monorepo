@@ -12,7 +12,7 @@ import { Network, TokenBalance } from '../../../src';
 import { aggregate } from '@notional-finance/multicall';
 
 import { PoolTestHarness } from './PoolTestHarness';
-import MetaStable2Token from '../../../src/exchanges';
+import { MetaStable2Token } from '../../../src/exchanges';
 
 export class BalancerPoolHarness extends PoolTestHarness {
   public JoinKind = {

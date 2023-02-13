@@ -12,7 +12,7 @@ import {
   IAggregator,
   IAggregatorABI,
 } from '@notional-finance/contracts';
-import { aggregate, AggregateCall } from '@notional-finance/multicall';
+import { AggregateCall } from '@notional-finance/multicall';
 import defaultOracles from './DefaultOracles';
 import {
   ExchangeRate,
@@ -25,6 +25,7 @@ import {
   RATE_PRECISION_SQUARED,
 } from '@notional-finance/sdk/config/constants';
 import { getNowSeconds } from '@notional-finance/util';
+import { BaseCachable } from '../common/BaseCachable';
 
 type OracleSubject = BehaviorSubject<ExchangeRate | undefined>;
 type AdjList = Map<string, Set<string>>;
@@ -41,17 +42,7 @@ interface OraclePath {
   mustInvert: boolean;
 }
 
-export class OracleRegistry {
-  protected static lastUpdateBlock = new Map<
-    Network,
-    BehaviorSubject<number>
-  >();
-
-  protected static lastUpdateTimestamp = new Map<
-    Network,
-    BehaviorSubject<number>
-  >();
-
+export class OracleRegistry extends BaseCachable {
   protected static oracleGraphs = new Map<Network, OracleGraph>(
     defaultOracles.map(([n, _oracles]) => {
       // Initializes the oracle graph using the default oracles
@@ -194,21 +185,14 @@ export class OracleRegistry {
   ) {
     const aggregateCall = this.getAggregateMulticallData(network, provider);
     const { subjects } = this.getOracleGraph(network);
-    const { block, results } = await aggregate<Record<string, ExchangeRate>>(
+
+    return await this.fetchLatest(
+      network,
       aggregateCall,
       provider,
-      // This will call next() on all the update subjects
       subjects as Map<string, Subject<unknown>>
     );
-
-    // TODO: also update timestamp here
-    this.lastUpdateBlock.get(network)?.next(block.number);
-    this.lastUpdateTimestamp.get(network)?.next(block.timestamp);
-
-    return { blockNumber: block.number, results };
   }
-
-  // public static async fetchFromCache(_cacheUrl: string) {}
 
   protected static breadthFirstSearch(
     base: string,
@@ -384,21 +368,5 @@ export class OracleRegistry {
       );
     // shareReplay ensures that the latest results trigger the observable
     return s.asObservable();
-  }
-
-  public static getLastUpdateBlock(network: Network) {
-    return this.lastUpdateBlock.get(network)?.value || 0;
-  }
-
-  public static subscribeLastUpdateBlock(network: Network) {
-    return this.lastUpdateBlock.get(network)?.asObservable();
-  }
-
-  public static getLastUpdateTimestamp(network: Network) {
-    return this.lastUpdateTimestamp.get(network)?.value || 0;
-  }
-
-  public static subscribeLastUpdateTimestamp(network: Network) {
-    return this.lastUpdateTimestamp.get(network)?.asObservable();
   }
 }

@@ -1,7 +1,6 @@
 import { tokenBalanceMatchers } from './packages/token-balance/src';
 import { spawn } from 'child_process';
 import { ethers } from 'ethers';
-import { initConsoleObservable } from '@datadog/browser-core';
 
 require('dotenv').config();
 
