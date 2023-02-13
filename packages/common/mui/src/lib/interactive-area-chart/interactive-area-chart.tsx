@@ -52,11 +52,11 @@ export const InteractiveAreaChart = ({
     if (!selectedMarketKey) {
       setActiveTimestamp(0);
     }
-    const result = interactiveAreaChartData.find(
+    const selectedMarketData = interactiveAreaChartData.find(
       (data) => data?.marketKey === selectedMarketKey
     );
-    if (result?.timestamp) {
-      setActiveTimestamp(result?.timestamp);
+    if (selectedMarketData?.timestamp) {
+      setActiveTimestamp(selectedMarketData?.timestamp);
     }
   }, [
     selectedMarketKey,

@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useTheme } from '@mui/material';
 import { Box, styled } from '@mui/material';
 import { useIntl } from 'react-intl';
@@ -37,7 +36,6 @@ export const AreaChart = ({
   areaHeaderData,
 }: AreaChartProps) => {
   const isLine = areaChartData[0]?.line;
-  const [activeTick, setActiveTick] = useState<number>(0);
   const theme = useTheme();
   const intl = useIntl();
 
@@ -62,26 +60,16 @@ export const AreaChart = ({
     return result;
   };
 
-  const handleClick = (props) => {
-    setActiveTick(props.value);
-  };
-
   const CustomTickHandler = (props) => {
     const {
       x,
       y,
       payload: { value },
     } = props;
-    const isActive = value === activeTick;
+
     return (
       <g transform={`translate(${x},${y})`} cursor={'pointer'}>
-        <text
-          x={0}
-          y={0}
-          dy={16}
-          textAnchor="center"
-          fill={isActive ? 'red' : '#666'}
-        >
+        <text x={0} y={0} dy={16} textAnchor="center">
           {intl.formatDate(value * 1000, {
             month: 'short',
             year: 'numeric',
@@ -109,7 +97,6 @@ export const AreaChart = ({
                 axisLine={false}
                 tickSize={0}
                 tickMargin={20}
-                onClick={handleClick}
                 domain={[
                   (dataMin: number) => dataMin - ONE_WEEK,
                   (dataMax: number) => dataMax + ONE_WEEK,
