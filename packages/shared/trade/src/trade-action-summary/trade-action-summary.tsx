@@ -2,19 +2,21 @@ import { FormattedMessage } from 'react-intl';
 import { NOTIONAL_CATEGORIES } from '@notional-finance/shared-config';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-import Chart from '../chart';
 import {
   TradeActionHeader,
   PageLoading,
   TradeSummaryContainer,
   TradeActionTitle,
+  InteractiveAreaChart,
 } from '@notional-finance/mui';
+import { useTradeSummaryChart } from './hooks/use-trade-summary-chart';
 import { useNotional } from '@notional-finance/notionable-hooks';
 import { TradeActionView } from './trade-action-view';
 import { CalculatedRatesTable } from './calculated-rates-table';
 import { Market } from '@notional-finance/sdk/src/system';
 import { useQueryParams } from '@notional-finance/utils';
 import { MobileTradeActionSummary } from './mobile-trade-action-summary';
+import { TradeActionTooltip } from './trade-action-tool-tip';
 import { messages } from './messages';
 interface TradeActionSummaryProps {
   markets: Market[];
@@ -39,6 +41,10 @@ export function TradeActionSummary({
 }: TradeActionSummaryProps) {
   const { confirm } = useQueryParams();
   const { loaded } = useNotional();
+  const { marketData, areaHeaderData } = useTradeSummaryChart(
+    selectedToken,
+    markets
+  );
   if (!loaded || !selectedToken) return <PageLoading />;
   const fixedAPY = tradedRate ? (tradedRate * 100) / 1e9 : undefined;
 
@@ -57,12 +63,12 @@ export function TradeActionSummary({
             valueSuffix="%"
           />
 
-          <Chart
-            markets={markets}
-            currency={selectedToken}
+          <InteractiveAreaChart
+            interactiveAreaChartData={marketData}
+            areaHeaderData={areaHeaderData}
+            onSelectMarketKey={onSelectMarketKey}
             selectedMarketKey={selectedMarketKey || ''}
-            setSelectedMarket={onSelectMarketKey}
-            unsetSelectedMarket={() => onSelectMarketKey(null)}
+            CustomTooltip={TradeActionTooltip}
             lockSelection={!!confirm}
           />
 

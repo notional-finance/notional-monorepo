@@ -23,6 +23,7 @@ export const manifestJSON = {
 
 export const INTERNAL_TOKEN_DECIMAL_PLACES = 8;
 const BASIS_POINT = 1e5;
+export const ONE_WEEK = 86400 * 7;
 // 5 min polling in ms, don't need to poll too often because using blocknative
 export const DEFAULT_ACCOUNT_POLLING_INTERVAL = 300000;
 
