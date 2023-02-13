@@ -32,9 +32,6 @@
       ],
       "@notional-finance/contracts": ["packages/contracts/src/index.ts"],
       "@notional-finance/contracts/*": ["packages/contracts/src/*"],
-      "@notional-finance/dex-simulator": [
-        "packages/dex-simulator/src/index.ts"
-      ],
       "@notional-finance/durable-objects": [
         "packages/durable-objects/src/index.ts"
       ],

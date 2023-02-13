@@ -1,5 +1,5 @@
-import { ExchangeRate, TokenBalance } from '@notional-finance/token-balance';
-import { BaseLiquidityPool } from '../../src/exchanges/BaseLiquidityPool';
+import { ExchangeRate, TokenBalance } from '../../../src';
+import { BaseLiquidityPool } from '../../../src/exchanges/BaseLiquidityPool';
 
 export class MockPool extends BaseLiquidityPool<Record<string, never>> {
   constructor(
