@@ -1,4 +1,4 @@
-import { Network } from '@notional-finance/token-balance';
+import { Network } from '../../../src';
 import { BigNumber, Signer } from 'ethers';
 
 export abstract class PoolTestHarness {

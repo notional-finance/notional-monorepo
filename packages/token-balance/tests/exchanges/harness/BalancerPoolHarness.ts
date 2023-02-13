@@ -8,11 +8,11 @@ import {
   ERC20ABI,
 } from '@notional-finance/contracts';
 import { getNowSeconds } from '@notional-finance/util';
-import { Network, TokenBalance } from '@notional-finance/token-balance';
+import { Network, TokenBalance } from '../../../src';
 import { aggregate } from '@notional-finance/multicall';
 
 import { PoolTestHarness } from './PoolTestHarness';
-import MetaStable2Token from '../../src/exchanges/BalancerV2/MetaStableTwoToken';
+import MetaStable2Token from '../../../src/exchanges';
 
 export class BalancerPoolHarness extends PoolTestHarness {
   public JoinKind = {

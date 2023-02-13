@@ -81,8 +81,12 @@ export interface OracleDefinition {
 }
 
 export interface ExchangeRate {
+  /** Symbol of the base currency */
   base: string;
+  /** Symbol of the quote currency */
   quote: string;
+  /** Exchange rate in RATE_PRECISION */
   rate: BigNumber;
+  /** Timestamp of the last update, can be used to check for value freshness */
   validTimestamp: number;
 }

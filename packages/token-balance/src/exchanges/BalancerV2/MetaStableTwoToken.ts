@@ -1,14 +1,100 @@
-import { TokenBalance } from '@notional-finance/token-balance';
+import { Network, TokenBalance, TokenRegistry } from '../..';
 import FixedPoint from './FixedPoint';
 import { BaseLiquidityPool } from '../BaseLiquidityPool';
+import {
+  BalancerStablePool,
+  BalancerStablePoolABI,
+  BalancerVault,
+  BalancerVaultABI,
+} from '@notional-finance/contracts';
+import { BigNumber, Contract } from 'ethers';
+import { AggregateCall } from '@notional-finance/multicall';
 
 interface PoolParams {
   amplificationParameter: FixedPoint;
   swapFeePercentage: FixedPoint;
+  scalingFactors: FixedPoint[];
+  poolId: string;
 }
 
 export default class MetaStable2Token extends BaseLiquidityPool<PoolParams> {
-  protected getLPTokensGivenTokens(tokensIn: TokenBalance[]): {
+  public static override getInitData(
+    network: Network,
+    poolAddress: string
+  ): AggregateCall[] {
+    const pool = new Contract(poolAddress, BalancerStablePoolABI);
+    return [
+      {
+        stage: 0,
+        target: pool,
+        method: 'getAmplificationParameter',
+        key: 'amplificationParameter',
+        transform: (
+          r: Awaited<
+            ReturnType<
+              BalancerStablePool['functions']['getAmplificationParameter']
+            >
+          >
+        ) => FixedPoint.from(r.value),
+      },
+      {
+        stage: 0,
+        target: pool,
+        method: 'getSwapFeePercentage',
+        key: 'swapFeePercentage',
+        args: [],
+        transform: (r: BigNumber) => FixedPoint.from(r),
+      },
+      {
+        stage: 0,
+        target: pool,
+        method: 'totalSupply',
+        key: 'totalSupply',
+        args: [],
+        transform: (r: BigNumber) => FixedPoint.from(r),
+      },
+      {
+        stage: 0,
+        target: pool,
+        method: 'getScalingFactors',
+        key: 'scalingFactors',
+        transform: (
+          r: Awaited<
+            ReturnType<BalancerStablePool['functions']['getScalingFactors']>
+          >[0]
+        ) => r.map(FixedPoint.from),
+      },
+      {
+        stage: 0,
+        target: pool,
+        method: 'getPoolId',
+        key: 'poolId',
+      },
+      {
+        stage: 0,
+        target: pool,
+        method: 'getVault',
+        key: 'vaultAddress',
+      },
+      {
+        stage: 1,
+        target: (r) => new Contract(r['vaultAddress'], BalancerVaultABI),
+        method: 'getPoolTokens',
+        args: (r) => [r['poolId']],
+        key: 'balances',
+        transform: (
+          r: Awaited<ReturnType<BalancerVault['functions']['getPoolTokens']>>
+        ) =>
+          r.balances.map((b, i) => {
+            const token = TokenRegistry.getTokenByAddress(network, r.tokens[i]);
+            if (!token) throw Error(`${r.tokens[i]} not found in registry`);
+            return TokenBalance.from(b, token);
+          }),
+      },
+    ];
+  }
+
+  public getLPTokensGivenTokens(tokensIn: TokenBalance[]): {
     lpTokens: TokenBalance;
     feesPaid: TokenBalance[];
   } {
@@ -44,7 +130,7 @@ export default class MetaStable2Token extends BaseLiquidityPool<PoolParams> {
     };
   }
 
-  protected getTokensOutGivenLPTokens(
+  public getTokensOutGivenLPTokens(
     lpTokens: TokenBalance,
     singleSidedExitTokenIndex?: number
   ): {
@@ -91,7 +177,7 @@ export default class MetaStable2Token extends BaseLiquidityPool<PoolParams> {
     }
   }
 
-  protected calculateTokenTrade(
+  public calculateTokenTrade(
     tokensIn: TokenBalance,
     tokenIndexIn: number,
     tokenIndexOut: number,

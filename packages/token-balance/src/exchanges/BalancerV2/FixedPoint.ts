@@ -1,4 +1,4 @@
-import { TokenBalance } from '@notional-finance/token-balance';
+import { TokenBalance } from '../..';
 import { BigNumber, BigNumberish, ethers } from 'ethers';
 
 export default class FixedPoint {

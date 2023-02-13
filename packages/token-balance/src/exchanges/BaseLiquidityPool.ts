@@ -1,8 +1,8 @@
 import { BigNumber } from 'ethers';
 import { RATE_PRECISION } from '@notional-finance/sdk/config/constants';
-import { doBinarySearch } from '../math/Approximation';
+import { doBinarySearch } from './math/Approximation';
 import { AbstractLiquidityPool } from './AbstractLiquidityPool';
-import { ExchangeRate, TokenBalance } from '@notional-finance/token-balance';
+import { ExchangeRate, TokenBalance } from '..';
 
 export abstract class BaseLiquidityPool<P> extends AbstractLiquidityPool {
   constructor(
