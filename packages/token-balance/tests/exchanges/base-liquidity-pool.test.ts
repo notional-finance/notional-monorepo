@@ -5,7 +5,7 @@ import {
   TokenInterface,
   TokenRegistry,
   ExchangeRate,
-} from '@notional-finance/token-balance';
+} from '../../src';
 import { BigNumber, ethers } from 'ethers';
 import { MockPool } from './harness/MockPool';
 

@@ -1,6 +1,6 @@
 import { Network, TokenBalance, TokenRegistry } from '../..';
 import FixedPoint from './FixedPoint';
-import { BaseLiquidityPool } from '../BaseLiquidityPool';
+import BaseLiquidityPool from '../BaseLiquidityPool';
 import {
   BalancerStablePool,
   BalancerStablePoolABI,
