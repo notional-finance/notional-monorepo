@@ -2,18 +2,20 @@ import { Box, styled } from '@mui/material';
 import { H5 } from '../typography/typography';
 import { TooltipProps } from 'recharts';
 
-interface ChartToolTipProps extends TooltipProps<number, string> {
-  chartToolTipData: {
-    timestamp?: {
-      title: (data: number) => string;
-    };
-    area?: {
-      title: (data: number) => string;
-    };
-    line?: {
-      title: (data: number) => string;
-    };
+export interface ChartToolTipDataProps {
+  timestamp?: {
+    title: (data: number) => string | JSX.Element;
   };
+  area?: {
+    title: (data: number) => string | JSX.Element;
+  };
+  line?: {
+    title: (data: number) => string | JSX.Element;
+  };
+}
+
+export interface ChartToolTipProps extends TooltipProps<number, string> {
+  chartToolTipData?: ChartToolTipDataProps;
 }
 
 export const ChartToolTip = (props: ChartToolTipProps) => {

@@ -19,7 +19,10 @@ import {
   ComposedChart,
   ResponsiveContainer,
 } from 'recharts';
-import ChartToolTip from '../chart-tool-tip/chart-tool-tip';
+import {
+  ChartToolTip,
+  ChartToolTipDataProps,
+} from '../chart-tool-tip/chart-tool-tip';
 
 export interface InteractiveAreaChartData {
   timestamp: number;
@@ -32,7 +35,7 @@ interface InteractiveAreaChartProps {
   onSelectMarketKey: (marketKey: string | null) => void;
   lockSelection?: boolean;
   selectedMarketKey?: string;
-  chartToolTipData?: any;
+  chartToolTipData?: ChartToolTipDataProps;
   areaHeaderData?: AreaHeaderData;
 }
 

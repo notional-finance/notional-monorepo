@@ -8,11 +8,6 @@ export interface AreaHeaderData {
   legendOne?: ReactElement<any, any>;
   legendTwo?: ReactElement<any, any>;
 }
-export interface AreaHeaderData {
-  leftHeader?: ReactElement<any, any>;
-  legendOne?: ReactElement<any, any>;
-  legendTwo?: ReactElement<any, any>;
-}
 
 interface AreaChartHeaderProps {
   areaHeaderData: AreaHeaderData;
