@@ -1,11 +1,12 @@
 import { FormattedMessage } from 'react-intl';
+import { InteractiveAreaChartData } from '@notional-finance/mui';
 import { Market } from '@notional-finance/sdk/src/system';
 
 export const useTradeSummaryChart = (
   currency: string | null,
   markets: Market[]
 ) => {
-  let marketData;
+  let marketData: InteractiveAreaChartData[] = [];
 
   if (markets && markets.length && currency) {
     marketData = markets

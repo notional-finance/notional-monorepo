@@ -20,7 +20,7 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 
-interface InteractiveAreaChartData {
+export interface InteractiveAreaChartData {
   timestamp: number;
   area: number;
   marketKey: string;
