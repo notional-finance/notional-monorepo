@@ -136,7 +136,7 @@ export const InteractiveAreaChart = ({
               <Area
                 type="monotone"
                 dataKey="area"
-                strokeWidth={2}
+                strokeWidth={1.5}
                 stroke={theme.palette.primary.light}
                 isAnimationActive={false}
                 yAxisId="line"
@@ -150,7 +150,7 @@ export const InteractiveAreaChart = ({
                   <stop
                     offset="5%"
                     stopColor={theme.palette.info.dark}
-                    stopOpacity={0.5}
+                    stopOpacity={0.2}
                   />
                   <stop
                     offset="95%"
@@ -180,6 +180,9 @@ const ChartContainer = styled(Box)(
   font-size: ${theme.typography.body1.fontSize};
   .recharts-surface {
     overflow: visible;
+  }
+  .recharts-area-curve {
+    filter: drop-shadow(${theme.shape.chartLineShadow});
   }
 `
 );

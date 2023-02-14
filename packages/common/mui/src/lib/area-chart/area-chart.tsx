@@ -142,16 +142,16 @@ export const AreaChart = ({
               <Line
                 type="monotone"
                 dataKey="line"
+                strokeWidth={1.5}
                 stroke={areaChartStyles?.lineColor || theme.palette.charts.main}
                 strokeDasharray="3 3"
                 dot={false}
                 fillOpacity={1}
-                fill="red"
               />
               <Area
                 type="monotone"
                 dataKey="area"
-                stroke={theme.palette.charts.main}
+                stroke={theme.palette.primary.light}
                 dot={false}
                 fillOpacity={1}
                 fill="url(#colorPv)"
@@ -161,7 +161,7 @@ export const AreaChart = ({
                   <stop
                     offset="5%"
                     stopColor={theme.palette.charts.main}
-                    stopOpacity={0.5}
+                    stopOpacity={0.2}
                   />
                   <stop
                     offset="95%"
@@ -187,6 +187,9 @@ const ChartContainer = styled(Box)(
   width: 100%;
   height: 100%;
   font-size: ${theme.typography.body1.fontSize};
+  .recharts-area-curve {
+    filter: drop-shadow(${theme.shape.chartLineShadow});
+  }
 `
 );
 
