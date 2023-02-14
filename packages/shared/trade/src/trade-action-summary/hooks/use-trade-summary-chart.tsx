@@ -1,6 +1,10 @@
 import { FormattedMessage } from 'react-intl';
+import { Market } from '@notional-finance/sdk/src/system';
 
-export const useTradeSummaryChart = (currency, markets) => {
+export const useTradeSummaryChart = (
+  currency: string | null,
+  markets: Market[]
+) => {
   let marketData;
 
   if (markets && markets.length && currency) {
@@ -8,7 +12,9 @@ export const useTradeSummaryChart = (currency, markets) => {
       .map((market) => {
         return {
           timestamp: market.maturity,
-          area: parseFloat(market.midRate.substring(0, market.midRate.length - 1)),
+          area: parseFloat(
+            market.midRate.substring(0, market.midRate.length - 1)
+          ),
           marketKey: market.marketKey,
         };
       })
@@ -21,5 +27,5 @@ export const useTradeSummaryChart = (currency, markets) => {
     legendTwo: undefined,
   };
 
-  return {marketData, areaHeaderData};
+  return { marketData, areaHeaderData };
 };
