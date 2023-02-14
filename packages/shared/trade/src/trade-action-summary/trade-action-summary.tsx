@@ -41,10 +41,7 @@ export function TradeActionSummary({
 }: TradeActionSummaryProps) {
   const { confirm } = useQueryParams();
   const { loaded } = useNotional();
-  const { marketData, areaHeaderData } = useTradeSummaryChart(
-    selectedToken,
-    markets
-  );
+  const { marketData, areaHeaderData } = useTradeSummaryChart(markets);
   if (!loaded || !selectedToken) return <PageLoading />;
   const fixedAPY = tradedRate ? (tradedRate * 100) / 1e9 : undefined;
 
