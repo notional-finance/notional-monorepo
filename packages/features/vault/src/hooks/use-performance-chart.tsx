@@ -2,6 +2,7 @@ import { useHistoricalReturns } from './use-historical-returns';
 import { FormattedMessage } from 'react-intl';
 import { useContext } from 'react';
 import { countUpLeverageRatio } from '@notional-finance/trade';
+import { ChartToolTipDataProps } from '@notional-finance/mui';
 import {
   formatNumberAsPercent,
   getDateString,
@@ -14,7 +15,7 @@ export const usePerformanceChart = () => {
   const { state } = useContext(VaultActionContext);
   const { leverageRatio } = state || {};
 
-  const chartToolTipData = {
+  const chartToolTipData: ChartToolTipDataProps = {
     timestamp: {
       title: (timestamp) => (
         <FormattedMessage

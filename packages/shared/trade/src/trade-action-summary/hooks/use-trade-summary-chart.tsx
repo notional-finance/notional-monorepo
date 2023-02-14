@@ -1,5 +1,8 @@
 import { FormattedMessage } from 'react-intl';
-import { InteractiveAreaChartData } from '@notional-finance/mui';
+import {
+  InteractiveAreaChartData,
+  ChartToolTipDataProps,
+} from '@notional-finance/mui';
 import {
   formatNumberAsPercent,
   getDateString,
@@ -9,7 +12,7 @@ import { Market } from '@notional-finance/sdk/src/system';
 export const useTradeSummaryChart = (markets: Market[]) => {
   let marketData: InteractiveAreaChartData[] = [];
 
-  const chartToolTipData = {
+  const chartToolTipData: ChartToolTipDataProps = {
     timestamp: {
       title: (timestamp) => getDateString(timestamp),
     },
