@@ -99,11 +99,17 @@ export default class MetaStable2Token extends BaseLiquidityPool<PoolParams> {
     ];
   }
 
+  protected getScaledBalances(balanceOverrides?: TokenBalance[]): FixedPoint[] {
+    return (balanceOverrides || this.balances)
+      .map(FixedPoint.convert)
+      .map((b, i) => b.mulDown(this.poolParams.scalingFactors[i]));
+  }
+
   public getLPTokensGivenTokens(tokensIn: TokenBalance[]): {
     lpTokens: TokenBalance;
     feesPaid: TokenBalance[];
   } {
-    const balances = this.balances.map(FixedPoint.convert);
+    const balances = this.getScaledBalances();
     const invariant = this.calculateInvariant(
       this.poolParams.amplificationParameter,
       balances,
@@ -143,7 +149,7 @@ export default class MetaStable2Token extends BaseLiquidityPool<PoolParams> {
     feesPaid: TokenBalance[];
   } {
     if (singleSidedExitTokenIndex) {
-      const balances = this.balances.map(FixedPoint.convert);
+      const balances = this.getScaledBalances();
       const invariant = this.calculateInvariant(
         this.poolParams.amplificationParameter,
         balances,
@@ -191,30 +197,37 @@ export default class MetaStable2Token extends BaseLiquidityPool<PoolParams> {
     tokensOut: TokenBalance;
     feesPaid: TokenBalance[];
   } {
-    const balances = (balanceOverrides || this.balances).map(
-      FixedPoint.convert
-    );
+    const balances = this.getScaledBalances(balanceOverrides);
+
     const invariant = this.calculateInvariant(
       this.poolParams.amplificationParameter,
       balances,
       true
     );
 
-    const tokensOut = this.calcOutGivenIn(
+    const scaledTokensIn = FixedPoint.convert(tokensIn).mulUp(
+      this.poolParams.scalingFactors[tokenIndexIn]
+    );
+
+    let tokensOut = this.calcOutGivenIn(
       this.poolParams.amplificationParameter,
       balances,
       tokenIndexIn,
       tokenIndexOut,
-      FixedPoint.convert(tokensIn),
+      scaledTokensIn,
       invariant
     );
 
-    // TODO: does this include scaling factors?
+    const feesPaid = this.zeroTokenArray();
+    const tokenOutFeePaid = tokensOut.mulUp(this.poolParams.swapFeePercentage);
+    feesPaid[tokenIndexOut] = tokenOutFeePaid.convertTo(
+      this.balances[tokenIndexOut]
+    );
+    tokensOut = tokensOut.sub(tokenOutFeePaid);
 
     return {
       tokensOut: tokensOut.convertTo(this.balances[tokenIndexOut]),
-      // TODO: not sure how to calculate fees paid
-      feesPaid: [],
+      feesPaid,
     };
   }
 
@@ -456,15 +469,22 @@ export default class MetaStable2Token extends BaseLiquidityPool<PoolParams> {
         tokenIndex
       );
 
+    console.log('final balance', finalBalanceFeeToken.n.toString());
+
     if (balances[tokenIndex].lte(finalBalanceFeeToken)) {
       // This shouldn't happen outside of rounding errors, but have this safeguard nonetheless to prevent the Pool
       // from entering a locked state in which joins and exits revert while computing accumulated swap fees.
+      console.log('inside zero', balances[tokenIndex].n.toString());
       return FixedPoint.from(0);
     }
 
     // Result is rounded down
     const accumulatedTokenSwapFees =
       balances[tokenIndex].sub(finalBalanceFeeToken);
+    console.log(
+      'accumulated token swap fees',
+      accumulatedTokenSwapFees.n.toString()
+    );
     return accumulatedTokenSwapFees
       .mulDown(protocolSwapFeePercentage)
       .divDown(FixedPoint.ONE);

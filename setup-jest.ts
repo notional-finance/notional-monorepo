@@ -1,6 +1,6 @@
 import { tokenBalanceMatchers } from './packages/token-balance/src';
 import { spawn } from 'child_process';
-import { ethers } from 'ethers';
+import { ethers, Signer } from 'ethers';
 
 require('dotenv').config();
 
@@ -40,6 +40,7 @@ describe.withFork = (
         try {
           await provider.getBlockNumber();
           initialSnapshot = await provider.send('evm_snapshot', []);
+          (global as any).whales = await setupWhales(provider);
           return;
         } catch (e) {
           retries += 1;
@@ -63,3 +64,27 @@ describe.withFork = (
     });
   });
 };
+
+async function setupWhales(provider: ethers.providers.JsonRpcProvider) {
+  // prettier-ignore
+  // [token, whale address]
+  const whales = [
+    // WETH
+    ['0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', '0xf8b721bFf6Bf7095a0E10791cE8f998baa254Fd0'],
+    // wstETH
+    ['0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0', '0x67c89126fb7E793a2FaC54e0C4bD8baA53395767'],
+  ];
+
+  for (let [_, account] of whales) {
+    await provider.send('anvil_impersonateAccount', [account]);
+    // @note This only works for non-contract accounts
+    await provider.send('anvil_setBalance', [
+      account,
+      '0xffffffffffffffffffffff',
+    ]);
+  }
+
+  return new Map<string, Signer>(
+    whales.map(([token, account]) => [token, provider.getSigner(account)])
+  );
+}

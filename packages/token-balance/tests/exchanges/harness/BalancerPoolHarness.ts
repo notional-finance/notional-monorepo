@@ -203,11 +203,14 @@ export class BalancerPoolHarness extends PoolTestHarness {
 
   public async trade(
     signer: Signer,
+    tokensIn: BigNumber,
     tokensInIndex: number,
-    tokensOutIndex: number,
-    tokensIn: BigNumber
+    tokensOutIndex: number
   ) {
     const address = await signer.getAddress();
+    await this.tokens[tokensInIndex]
+      .connect(signer)
+      .approve(this.balancerVault.address, ethers.constants.MaxUint256);
 
     const balanceBefore = await this.tokens[tokensOutIndex].balanceOf(address);
     const _rcpt = await (
