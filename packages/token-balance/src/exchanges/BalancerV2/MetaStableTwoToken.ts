@@ -51,7 +51,11 @@ export default class MetaStable2Token extends BaseLiquidityPool<PoolParams> {
         method: 'totalSupply',
         key: 'totalSupply',
         args: [],
-        transform: (r: BigNumber) => FixedPoint.from(r),
+        transform: (r: BigNumber) => {
+          const token = TokenRegistry.getTokenByAddress(network, poolAddress);
+          if (!token) throw Error(`${poolAddress} not found in token registry`);
+          return TokenBalance.from(r, token);
+        },
       },
       {
         stage: 0,
@@ -78,9 +82,10 @@ export default class MetaStable2Token extends BaseLiquidityPool<PoolParams> {
       },
       {
         stage: 1,
-        target: (r) => new Contract(r['vaultAddress'], BalancerVaultABI),
+        target: (r) =>
+          new Contract(r[`${poolAddress}.vaultAddress`], BalancerVaultABI),
         method: 'getPoolTokens',
-        args: (r) => [r['poolId']],
+        args: (r) => [r[`${poolAddress}.poolId`]],
         key: 'balances',
         transform: (
           r: Awaited<ReturnType<BalancerVault['functions']['getPoolTokens']>>

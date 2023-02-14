@@ -61,21 +61,23 @@ export class BalancerPoolHarness extends PoolTestHarness {
     network: Network,
     poolAddress: string
   ) {
-    const callData = MetaStable2Token.getInitData(network, poolAddress);
+    const callData = MetaStable2Token.getInitData(network, poolAddress).map(
+      (c) => Object.assign(c, { key: `${poolAddress}.${c.key}` })
+    );
     const { results } = await aggregate(callData, provider);
     return new BalancerPoolHarness(
-      results['poolId'] as string,
+      results[`${poolAddress}.poolId`] as string,
       new Contract(
         poolAddress,
         BalancerStablePoolABI,
         provider
       ) as BalancerPool,
       new Contract(
-        results['vaultAddress'] as string,
+        results[`${poolAddress}.vaultAddress`] as string,
         BalancerVaultABI,
         provider
       ) as BalancerVault,
-      (results['balances'] as TokenBalance[]).map(
+      (results[`${poolAddress}.balances`] as TokenBalance[]).map(
         (b) => new Contract(b.token.address, ERC20ABI, provider) as ERC20
       )
     );

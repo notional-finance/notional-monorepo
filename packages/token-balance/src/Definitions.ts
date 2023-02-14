@@ -1,4 +1,5 @@
 import { BigNumber } from 'ethers';
+import { BaseLiquidityPool } from './exchanges';
 
 export enum Network {
   All = 'all',
@@ -89,4 +90,13 @@ export interface ExchangeRate {
   rate: BigNumber;
   /** Timestamp of the last update, can be used to check for value freshness */
   validTimestamp: number;
+}
+
+export interface PoolDefinition {
+  /** Address of the pool */
+  address: string;
+  /** Typescript class of the pool to instantiate */
+  poolClass: typeof BaseLiquidityPool;
+  /** LP token definition to add to TokenRegistry */
+  lpToken: TokenDefinition;
 }
