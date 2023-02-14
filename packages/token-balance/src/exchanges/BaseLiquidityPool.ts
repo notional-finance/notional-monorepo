@@ -8,18 +8,18 @@ export default abstract class BaseLiquidityPool<
   P
 > extends AbstractLiquidityPool {
   constructor(
-    protected balances: TokenBalance[],
-    protected totalSupply: TokenBalance,
-    protected poolParams: P
+    public balances: TokenBalance[],
+    public totalSupply: TokenBalance,
+    public poolParams: P
   ) {
     super();
   }
 
-  protected zeroTokenArray() {
+  public zeroTokenArray() {
     return this.balances.map((b) => b.copy(0));
   }
 
-  protected oneLPToken() {
+  public oneLPToken() {
     return this.totalSupply.copy(this.totalSupply.decimals);
   }
 

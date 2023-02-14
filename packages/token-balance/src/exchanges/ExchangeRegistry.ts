@@ -1,6 +1,12 @@
 import { ethers } from 'ethers';
 import { BehaviorSubject, map } from 'rxjs';
-import { Network, TokenBalance } from '..';
+import {
+  Network,
+  PoolDefinition,
+  TokenBalance,
+  TokenDefinition,
+  TokenRegistry,
+} from '..';
 import { BaseCachable } from '../common/BaseCachable';
 import BaseLiquidityPool from './BaseLiquidityPool';
 import defaultPools from './DefaultPools';
@@ -17,32 +23,65 @@ type PoolConstructor = new (
   poolParams: unknown
 ) => BaseLiquidityPool<unknown>;
 
+interface NetworkPools {
+  poolClass: Map<string, typeof BaseLiquidityPool<unknown>>;
+  poolData: Map<string, BehaviorSubject<PoolData | undefined>>;
+  poolToken: Map<string, TokenDefinition>;
+}
+
 export class ExchangeRegistry extends BaseCachable {
-  protected static pools = defaultPools;
+  protected static pools = new Map<Network, NetworkPools>(
+    defaultPools.map(([n, _pools]) => {
+      const poolClass = new Map<string, typeof BaseLiquidityPool<unknown>>();
+      const poolData = new Map<string, BehaviorSubject<PoolData | undefined>>();
+      const poolToken = new Map<string, TokenDefinition>();
 
-  protected static poolDataSubjects = new Map<
-    Network,
-    Map<string, BehaviorSubject<PoolData | undefined>>
-  >();
+      _pools.forEach((poolDef) =>
+        this.addPool(poolDef, poolClass, poolData, poolToken)
+      );
 
-  public static async registerPool(
-    network: Network,
-    poolAddress: string,
-    poolClass: typeof BaseLiquidityPool
+      return [n, { poolClass, poolData, poolToken }];
+    })
+  );
+
+  protected static addPool(
+    poolDef: PoolDefinition,
+    poolClass: Map<string, typeof BaseLiquidityPool<unknown>>,
+    poolData: Map<string, BehaviorSubject<PoolData | undefined>>,
+    poolToken: Map<string, TokenDefinition>
   ) {
-    const networkPools =
-      this.pools.get(network) || new Map<string, typeof BaseLiquidityPool>();
-    networkPools.set(poolAddress, poolClass);
-    this.pools.set(network, networkPools);
-
-    const networkSubjects =
-      this.poolDataSubjects.get(network) ||
-      new Map<string, BehaviorSubject<PoolData | undefined>>();
-    networkSubjects.set(
-      poolAddress,
+    poolClass.set(poolDef.address, poolDef.poolClass);
+    poolData.set(
+      poolDef.address,
       new BehaviorSubject<PoolData | undefined>(undefined)
     );
-    this.poolDataSubjects.set(network, networkSubjects);
+    poolToken.set(poolDef.address, poolDef.lpToken);
+
+    if (
+      !TokenRegistry.getToken(poolDef.lpToken.network, poolDef.lpToken.symbol)
+    ) {
+      // Register the token in the registry if not yet set
+      TokenRegistry.registerToken(poolDef.lpToken);
+    }
+  }
+
+  public static registerPool(network: Network, poolDef: PoolDefinition) {
+    const { poolClass, poolData, poolToken } = this.pools.get(network) || {
+      poolClass: new Map<string, typeof BaseLiquidityPool<unknown>>(),
+      poolData: new Map<string, BehaviorSubject<PoolData | undefined>>(),
+      poolToken: new Map<string, TokenDefinition>(),
+    };
+
+    this.addPool(poolDef, poolClass, poolData, poolToken);
+    this.pools.set(network, { poolClass, poolData, poolToken });
+  }
+
+  public static getPoolToken(network: Network, address: string) {
+    return this.pools.get(network)?.poolToken.get(address);
+  }
+
+  public static getAllPools(network: Network) {
+    return Array.from(this.pools.get(network)?.poolToken.keys() || []);
   }
 
   public static async fetchPoolData(
@@ -50,9 +89,10 @@ export class ExchangeRegistry extends BaseCachable {
     provider: ethers.providers.Provider
   ) {
     // Loop over all pools and fetch its init data and put it into an observable
-    const pools = defaultPools.get(network);
-    if (!pools) throw Error(`No pools found for network ${network}`);
-    const aggregateCall = Array.from(pools.entries()).flatMap(
+    const poolClasses = this.pools.get(network)?.poolClass;
+    if (!poolClasses) throw Error(`No pools found for network ${network}`);
+
+    const aggregateCall = Array.from(poolClasses.entries()).flatMap(
       ([poolAddress, PoolClass]) =>
         PoolClass.getInitData(network, poolAddress).map((c) =>
           // Prepend the pool address to the call data
@@ -66,8 +106,8 @@ export class ExchangeRegistry extends BaseCachable {
       provider
     );
 
-    const updateSubjects = this.poolDataSubjects.get(network);
-    if (!updateSubjects)
+    const poolData = this.pools.get(network)?.poolData;
+    if (!poolData)
       throw Error(`Exchange update subjects not found for ${network}`);
 
     // Remap results into a per pool PoolData
@@ -95,16 +135,13 @@ export class ExchangeRegistry extends BaseCachable {
     // Calls next() on all the pool update subjects
     Array.from(allPoolData.keys()).forEach((k) => {
       const data = allPoolData.get(k);
-      if (data) updateSubjects.get(k)?.next(data);
+      if (data) poolData.get(k)?.next(data);
     });
   }
 
   public static getPoolInstance(network: Network, poolAddress: string) {
-    const poolData = this.poolDataSubjects
-      .get(network)
-      ?.get(poolAddress)?.value;
-
-    const PoolClass = this.pools.get(network)?.get(poolAddress) as
+    const poolData = this.pools.get(network)?.poolData.get(poolAddress)?.value;
+    const PoolClass = this.pools.get(network)?.poolClass.get(poolAddress) as
       | PoolConstructor
       | undefined;
     if (!poolData || !PoolClass) return undefined;
@@ -117,12 +154,12 @@ export class ExchangeRegistry extends BaseCachable {
   }
 
   public static subscribePoolInstance(network: Network, poolAddress: string) {
-    const poolDataObservable = this.poolDataSubjects
+    const poolDataObservable = this.pools
       .get(network)
-      ?.get(poolAddress)
+      ?.poolData.get(poolAddress)
       ?.asObservable();
 
-    const PoolClass = this.pools.get(network)?.get(poolAddress) as
+    const PoolClass = this.pools.get(network)?.poolClass.get(poolAddress) as
       | PoolConstructor
       | undefined;
     if (!poolDataObservable || !PoolClass) return undefined;
