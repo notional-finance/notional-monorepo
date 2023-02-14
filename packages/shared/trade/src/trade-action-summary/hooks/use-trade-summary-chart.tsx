@@ -1,9 +1,22 @@
 import { FormattedMessage } from 'react-intl';
 import { InteractiveAreaChartData } from '@notional-finance/mui';
+import {
+  formatNumberAsPercent,
+  getDateString,
+} from '@notional-finance/helpers';
 import { Market } from '@notional-finance/sdk/src/system';
 
 export const useTradeSummaryChart = (markets: Market[]) => {
   let marketData: InteractiveAreaChartData[] = [];
+
+  const chartToolTipData = {
+    timestamp: {
+      title: (timestamp) => getDateString(timestamp),
+    },
+    area: {
+      title: (area) => formatNumberAsPercent(area),
+    },
+  };
 
   if (markets && markets.length) {
     marketData = markets.map((market) => {
@@ -23,5 +36,5 @@ export const useTradeSummaryChart = (markets: Market[]) => {
     legendTwo: undefined,
   };
 
-  return { marketData, areaHeaderData };
+  return { marketData, areaHeaderData, chartToolTipData };
 };

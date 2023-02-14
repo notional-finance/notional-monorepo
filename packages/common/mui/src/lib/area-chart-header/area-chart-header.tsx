@@ -1,19 +1,30 @@
 import React, { ReactElement } from 'react';
 import { H4 } from '../typography/typography';
 import { Box, styled, useTheme } from '@mui/material';
+import { AreaChartStylesProps } from '../area-chart/area-chart';
 
 export interface AreaHeaderData {
   leftHeader?: ReactElement<any, any>;
   legendOne?: ReactElement<any, any>;
   legendTwo?: ReactElement<any, any>;
 }
+export interface AreaHeaderData {
+  leftHeader?: ReactElement<any, any>;
+  legendOne?: ReactElement<any, any>;
+  legendTwo?: ReactElement<any, any>;
+}
+
+interface AreaChartHeaderProps {
+  areaHeaderData: AreaHeaderData;
+  areaChartStyles?: AreaChartStylesProps;
+}
 
 export const AreaChartHeader = ({
-  leftHeader,
-  legendOne,
-  legendTwo,
-}: AreaHeaderData) => {
+  areaHeaderData,
+  areaChartStyles,
+}: AreaChartHeaderProps) => {
   const theme = useTheme();
+  const { leftHeader, legendOne, legendTwo } = areaHeaderData;
 
   return (
     <HeadingContainer>
@@ -36,7 +47,8 @@ export const AreaChartHeader = ({
           <LegendItem
             inline
             sx={{
-              borderColor: theme.palette.success.main,
+              borderColor:
+                areaChartStyles?.lineColor || theme.palette.charts.main,
               borderStyle: 'dotted',
               visibility: 'visible',
             }}

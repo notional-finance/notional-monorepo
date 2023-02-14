@@ -2,6 +2,10 @@ import { useHistoricalReturns } from './use-historical-returns';
 import { FormattedMessage } from 'react-intl';
 import { useContext } from 'react';
 import { countUpLeverageRatio } from '@notional-finance/trade';
+import {
+  formatNumberAsPercent,
+  getDateString,
+} from '@notional-finance/helpers';
 import { VaultActionContext } from '../managers';
 import { messages } from '../messages';
 
@@ -9,6 +13,35 @@ export const usePerformanceChart = () => {
   const { historicalReturns, currentBorrowRate } = useHistoricalReturns();
   const { state } = useContext(VaultActionContext);
   const { leverageRatio } = state || {};
+
+  const chartToolTipData = {
+    timestamp: {
+      title: (timestamp) => (
+        <FormattedMessage
+          {...messages.summary.date}
+          values={{ date: getDateString(timestamp) }}
+        />
+      ),
+    },
+
+    area: {
+      title: (area) => (
+        <FormattedMessage
+          {...messages.summary.performanceStrategyReturns}
+          values={{ returns: formatNumberAsPercent(area) }}
+        />
+      ),
+    },
+
+    line: {
+      title: (line) => (
+        <FormattedMessage
+          {...messages.summary.performanceLeveragedReturns}
+          values={{ returns: formatNumberAsPercent(line) }}
+        />
+      ),
+    },
+  };
 
   const areaChartData = historicalReturns.map((item) => {
     return {
@@ -33,5 +66,5 @@ export const usePerformanceChart = () => {
     legendTwo: <FormattedMessage defaultMessage={'Unleveraged Returns'} />,
   };
 
-  return { areaChartData, areaHeaderData };
+  return { areaChartData, areaHeaderData, chartToolTipData };
 };

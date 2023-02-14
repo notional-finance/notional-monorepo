@@ -11,7 +11,6 @@ import {
 import { useVault } from '@notional-finance/notionable-hooks';
 import { useContext } from 'react';
 import { FormattedMessage, defineMessage } from 'react-intl';
-import CustomTooltip from '../components/custom-tool-tip';
 import VaultDescription from '../components/vault-description';
 import { useHistoricalReturns } from '../hooks/use-historical-returns';
 import { useReturnDrivers } from '../hooks/use-return-drivers';
@@ -26,7 +25,8 @@ export const VaultSummary = () => {
   const { vaultAddress } = state || {};
   const { primaryBorrowSymbol, vaultName } = useVault(vaultAddress);
   const { returnDrivers, headlineApy } = useHistoricalReturns();
-  const { areaChartData, areaHeaderData } = usePerformanceChart();
+  const { areaChartData, areaHeaderData, chartToolTipData } =
+    usePerformanceChart();
 
   const tableColumns = useReturnDrivers();
   const {
@@ -86,7 +86,7 @@ export const VaultSummary = () => {
       <AreaChart
         areaHeaderData={areaHeaderData}
         areaChartData={areaChartData}
-        CustomTooltip={CustomTooltip}
+        chartToolTipData={chartToolTipData}
       />
       <Box sx={{ marginTop: theme.spacing(2) }}>
         <DataTable

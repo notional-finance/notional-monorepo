@@ -10,14 +10,26 @@ export const CustomDot = (props) => {
   return (
     <g>
       {isActive && (
-        <line x1={cx} x2={cx} y1={0} y2={height} stroke={'#13BBC2'} />
+        <line
+          x1={cx}
+          x2={cx}
+          y1={0}
+          y2={height}
+          stroke={theme.palette.charts.main}
+        />
       )}
       <circle
         cx={cx}
         cy={cy}
         r="8"
-        fill={isActive ? '#33F8FF' : '#13BBC2'}
-        filter={isActive ? 'drop-shadow(0px 0px 5px #13BBC2)' : 'none'}
+        fill={
+          isActive ? theme.palette.charts.accent : theme.palette.charts.main
+        }
+        filter={
+          isActive
+            ? `drop-shadow(0px 0px 5px ${theme.palette.charts.main})`
+            : 'none'
+        }
         style={{ background: 'red' }}
       />
       <circle cx={cx} cy={cy} r="6" fill={theme.palette.background.paper} />

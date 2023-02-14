@@ -19,6 +19,7 @@ import {
   ComposedChart,
   ResponsiveContainer,
 } from 'recharts';
+import ChartToolTip from '../chart-tool-tip/chart-tool-tip';
 
 export interface InteractiveAreaChartData {
   timestamp: number;
@@ -31,13 +32,13 @@ interface InteractiveAreaChartProps {
   onSelectMarketKey: (marketKey: string | null) => void;
   lockSelection?: boolean;
   selectedMarketKey?: string;
-  CustomTooltip?: any;
+  chartToolTipData?: any;
   areaHeaderData?: AreaHeaderData;
 }
 
 export const InteractiveAreaChart = ({
   interactiveAreaChartData,
-  CustomTooltip,
+  chartToolTipData,
   areaHeaderData,
   onSelectMarketKey,
   selectedMarketKey,
@@ -85,7 +86,9 @@ export const InteractiveAreaChart = ({
     <TradeSummaryBox sx={{ width: '100%', paddingBottom: theme.spacing(5) }}>
       {interactiveAreaChartData && interactiveAreaChartData?.length > 0 ? (
         <ChartContainer>
-          {areaHeaderData && <AreaChartHeader {...areaHeaderData} />}
+          {areaHeaderData && (
+            <AreaChartHeader areaHeaderData={areaHeaderData} />
+          )}
           <ResponsiveContainer width="100%" height={300}>
             <ComposedChart
               data={interactiveAreaChartData}
@@ -99,7 +102,7 @@ export const InteractiveAreaChart = ({
                 stroke={theme.palette.borders.paper}
               />
               <Tooltip
-                content={CustomTooltip}
+                content={<ChartToolTip chartToolTipData={chartToolTipData} />}
                 position={{ y: 0 }}
                 wrapperStyle={{ outline: 'none' }}
               />

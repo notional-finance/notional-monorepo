@@ -21,11 +21,17 @@ const SelectedDate = (x, y) => {
           y="6"
           width="75"
           height="35"
-          fill="#EAFCFD"
-          stroke="#13BBC2"
+          stroke={theme.palette.charts.main}
           rx="6"
         />
-        <rect x="6" y="6" width="75" height="35" stroke="#13BBC2" rx="6" />
+        <rect
+          x="6"
+          y="6"
+          width="75"
+          height="35"
+          stroke={theme.palette.charts.main}
+          rx="6"
+        />
       </g>
       <defs>
         <filter

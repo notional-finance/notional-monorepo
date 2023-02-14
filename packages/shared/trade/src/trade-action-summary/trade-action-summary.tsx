@@ -16,7 +16,6 @@ import { CalculatedRatesTable } from './calculated-rates-table';
 import { Market } from '@notional-finance/sdk/src/system';
 import { useQueryParams } from '@notional-finance/utils';
 import { MobileTradeActionSummary } from './mobile-trade-action-summary';
-import { TradeActionTooltip } from './trade-action-tool-tip';
 import { messages } from './messages';
 interface TradeActionSummaryProps {
   markets: Market[];
@@ -41,7 +40,8 @@ export function TradeActionSummary({
 }: TradeActionSummaryProps) {
   const { confirm } = useQueryParams();
   const { loaded } = useNotional();
-  const { marketData, areaHeaderData } = useTradeSummaryChart(markets);
+  const { marketData, areaHeaderData, chartToolTipData } =
+    useTradeSummaryChart(markets);
   if (!loaded || !selectedToken) return <PageLoading />;
   const fixedAPY = tradedRate ? (tradedRate * 100) / 1e9 : undefined;
 
@@ -65,8 +65,8 @@ export function TradeActionSummary({
             areaHeaderData={areaHeaderData}
             onSelectMarketKey={onSelectMarketKey}
             selectedMarketKey={selectedMarketKey || ''}
-            CustomTooltip={TradeActionTooltip}
             lockSelection={!!confirm}
+            chartToolTipData={chartToolTipData}
           />
 
           <TradeActionView

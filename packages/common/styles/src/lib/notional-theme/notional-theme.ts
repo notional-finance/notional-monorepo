@@ -329,9 +329,9 @@ const getThemeData = (themeVariant: PaletteMode) => {
         accentPaper: colors.secondaryGrey,
       },
       charts: {
-        main: colors.turquoise,
+        main: colors.aqua,
         dark: colors.matteGreen,
-        accent: colors.purple,
+        accent: colors.neonTurquoise,
       },
     } as PaletteOptions,
     typography: {

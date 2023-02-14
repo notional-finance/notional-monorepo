@@ -17,23 +17,29 @@ import {
   ComposedChart,
   ResponsiveContainer,
 } from 'recharts';
+import ChartToolTip from '../chart-tool-tip/chart-tool-tip';
 
 interface AreaChartData {
   timestamp: number;
   line: number;
   area: number;
 }
+export interface AreaChartStylesProps {
+  lineColor: string;
+}
 
 interface AreaChartProps {
   areaChartData: AreaChartData[];
-  CustomTooltip?: any;
+  chartToolTipData?: any;
   areaHeaderData?: AreaHeaderData;
+  areaChartStyles?: AreaChartStylesProps;
 }
 
 export const AreaChart = ({
   areaChartData,
-  CustomTooltip,
   areaHeaderData,
+  areaChartStyles,
+  chartToolTipData,
 }: AreaChartProps) => {
   const isLine = areaChartData[0]?.line;
   const theme = useTheme();
@@ -83,14 +89,23 @@ export const AreaChart = ({
     <TradeSummaryBox sx={{ width: '100%' }}>
       {areaChartData && areaChartData?.length > 0 ? (
         <ChartContainer>
-          {areaHeaderData && <AreaChartHeader {...areaHeaderData} />}
+          {areaHeaderData && (
+            <AreaChartHeader
+              areaHeaderData={areaHeaderData}
+              areaChartStyles={areaChartStyles}
+            />
+          )}
           <ResponsiveContainer width="100%" height={400}>
             <ComposedChart
               height={200}
               data={areaChartData}
               margin={{ top: 30, right: 30, left: 20, bottom: 20 }}
             >
-              <Tooltip content={CustomTooltip} position={{ y: 0 }} />
+              <Tooltip
+                wrapperStyle={{ outline: 'none' }}
+                content={<ChartToolTip chartToolTipData={chartToolTipData} />}
+                position={{ y: 0 }}
+              />
               <XAxis
                 dataKey="timestamp"
                 tickCount={0}
@@ -124,7 +139,7 @@ export const AreaChart = ({
               <Line
                 type="monotone"
                 dataKey="line"
-                stroke={theme.palette.success.main}
+                stroke={areaChartStyles?.lineColor || theme.palette.charts.main}
                 strokeDasharray="3 3"
                 dot={false}
                 fillOpacity={1}
@@ -133,7 +148,7 @@ export const AreaChart = ({
               <Area
                 type="monotone"
                 dataKey="area"
-                stroke={theme.palette.info.dark}
+                stroke={theme.palette.charts.main}
                 dot={false}
                 fillOpacity={1}
                 fill="url(#colorPv)"
@@ -142,12 +157,12 @@ export const AreaChart = ({
                 <linearGradient id="colorPv" x1="0" y1="0" x2="0" y2="1">
                   <stop
                     offset="5%"
-                    stopColor={theme.palette.info.dark}
+                    stopColor={theme.palette.charts.main}
                     stopOpacity={0.5}
                   />
                   <stop
                     offset="95%"
-                    stopColor={theme.palette.info.dark}
+                    stopColor={theme.palette.charts.main}
                     stopOpacity={0.1}
                   />
                 </linearGradient>
