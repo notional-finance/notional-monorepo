@@ -34,8 +34,8 @@ export abstract class PoolTestHarness {
 
   public abstract trade(
     signer: Signer,
+    tokensIn: BigNumber,
     tokensInIndex: number,
-    tokensOutIndex: number,
-    tokensIn: BigNumber
+    tokensOutIndex: number
   ): Promise<{ tokensOut: BigNumber; feesPaid: BigNumber[] }>;
 }

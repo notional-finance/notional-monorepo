@@ -1,11 +1,13 @@
 /// <reference types="jest" />
 
 import { TokenBalance } from '@notional-finance/token-balance';
+import { Signer } from 'ethers';
 
 export {};
 
 declare global {
   const provider: ethers.providers.JsonRpcProvider;
+  const whales: Map<string, Signer>;
 
   namespace jest {
     interface Describe {
