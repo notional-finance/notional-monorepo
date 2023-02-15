@@ -1,4 +1,3 @@
-import { Box } from '@mui/material';
 import { NOTIONAL_CATEGORIES } from '@notional-finance/shared-config';
 import { DataTable } from '@notional-finance/mui';
 import { useCalculatedRates } from './use-calculated-rates';
@@ -22,15 +21,13 @@ export const CalculatedRatesTable = ({
   );
 
   return (
-    <Box sx={{ margin: '0 15px' }}>
-      <DataTable
-        data={tableData}
-        columns={tableColumns}
-        tableTitle={defineMessage({
-          defaultMessage: 'Calculated Interest Rates',
-          description: 'Calculated Interest Rates Table Title',
-        })}
-      />
-    </Box>
+    <DataTable
+      data={tableData}
+      columns={tableColumns}
+      tableTitle={defineMessage({
+        defaultMessage: 'Calculated Interest Rates',
+        description: 'Calculated Interest Rates Table Title',
+      })}
+    />
   );
 };

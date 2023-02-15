@@ -58,7 +58,7 @@ export function BoxDisplay({
         sx={{
           fontWeight: 500,
           fontSize: '1rem',
-          color: theme.palette.primary.main,
+          color: theme.palette.typography.main,
           background: 'unset',
           backgroundClip: 'unset',
           WebkitBackgroundClip: 'unset',

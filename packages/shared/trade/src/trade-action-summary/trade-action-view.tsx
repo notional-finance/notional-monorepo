@@ -4,7 +4,7 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { getDateString } from '@notional-finance/helpers';
 import { FormattedMessage } from 'react-intl';
-import { Box } from '@mui/material';
+import { Box, useTheme } from '@mui/material';
 import { BoxDisplay } from '@notional-finance/mui';
 import { NOTIONAL_CATEGORIES } from '@notional-finance/shared-config';
 
@@ -23,6 +23,7 @@ export const TradeActionView = ({
   interestAmount,
   selectedToken,
 }: TradeActionViewProps) => {
+  const theme = useTheme();
   const selectedMarket = useSelectedMarket(selectedMarketKey);
   const { underlyingSymbol } = useCurrencyData(selectedToken);
   const maturityDate = selectedMarket
@@ -45,10 +46,10 @@ export const TradeActionView = ({
   return (
     <Box
       sx={{
-        marginTop: '2.5rem',
-        marginBottom: '2.5rem',
+        marginTop: theme.spacing(5),
+        marginBottom: theme.spacing(5),
         display: 'flex',
-        justifyContent: 'space-between',
+        gridGap: theme.spacing(5),
         width: '100%',
       }}
     >
@@ -61,12 +62,14 @@ export const TradeActionView = ({
         }
         value={fCashAmount ? Math.abs(fCashAmount) : 0}
         symbol={underlyingSymbol || ''}
+        overrides={{ margin: '0px' }}
       />
 
       <BoxDisplay
         title={interestTitle}
         value={interestAmount ? Math.abs(interestAmount) : 0}
         symbol={underlyingSymbol || ''}
+        overrides={{ margin: '0px' }}
       />
     </Box>
   );

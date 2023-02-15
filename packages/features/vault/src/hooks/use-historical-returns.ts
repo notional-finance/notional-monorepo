@@ -21,6 +21,7 @@ export interface HistoricalReturn {
   timestamp: number;
   totalRate: number;
   breakdown: string[];
+  leveragedReturn?: number;
 }
 
 export interface ReturnDriver {

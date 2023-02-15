@@ -118,7 +118,7 @@ export const messages = {
       description: 'chart tooltip',
     },
     performanceLeveragedReturns: {
-      defaultMessage: 'Leveraged Returns: {returns}',
+      defaultMessage: 'Unleveraged Returns: {returns}',
       description: 'chart tooltip',
     },
     returns: {
