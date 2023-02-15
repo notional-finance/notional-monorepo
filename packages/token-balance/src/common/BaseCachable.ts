@@ -3,6 +3,10 @@ import { BehaviorSubject, Subject } from 'rxjs';
 import { aggregate, AggregateCall } from '@notional-finance/multicall';
 import { BigNumber, ethers } from 'ethers';
 import FixedPoint from '../exchanges/BalancerV2/FixedPoint';
+import crossFetch from 'cross-fetch';
+
+const USE_CROSS_FETCH = process.env['NX_USE_CROSS_FETCH'];
+const CACHE_HOSTNAME = process.env['NX_CACHE_HOSTNAME'];
 
 interface CacheSchema<T> {
   values: Array<[string, T | null]>;
@@ -104,15 +108,24 @@ export class BaseCachable {
 
   protected static async _fetchFromCache<T>(
     subjectMap: Map<string, BehaviorSubject<T | null>>,
-    jsonMap: string
+    path: string
   ) {
-    // @todo run http fetch here
-    // @todo configuration must be present on both sides, runtime registration will not result in cache updates
-    // configuration will update via the configuration registry
-    const data = JSON.parse(jsonMap, this.reviver) as CacheSchema<T>;
-    data.values.map(([key, value]) => subjectMap.get(key)?.next(value));
+    const _fetch = USE_CROSS_FETCH ? crossFetch : fetch;
+    try {
+      const jsonMap = await (await _fetch(`${CACHE_HOSTNAME}${path}`)).text();
 
-    this.lastUpdateBlock.get(data.network)?.next(data.lastUpdateBlock);
-    this.lastUpdateTimestamp.get(data.network)?.next(data.lastUpdateTimestamp);
+      // @todo configuration must be present on both sides, runtime registration will not result in cache updates
+      // configuration will update via the configuration registry
+      const data = JSON.parse(jsonMap, this.reviver) as CacheSchema<T>;
+      data.values.map(([key, value]) => subjectMap.get(key)?.next(value));
+
+      this.lastUpdateBlock.get(data.network)?.next(data.lastUpdateBlock);
+      this.lastUpdateTimestamp
+        .get(data.network)
+        ?.next(data.lastUpdateTimestamp);
+    } catch (error) {
+      // @todo log errors somewhere
+      console.error(error);
+    }
   }
 }

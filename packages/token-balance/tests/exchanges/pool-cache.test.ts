@@ -1,4 +1,5 @@
 import { Network, ExchangeRegistry } from '../../src';
+import fetchMock from 'jest-fetch-mock';
 
 describe.withFork(
   { blockNumber: 16605421, network: 'mainnet' },
@@ -14,6 +15,7 @@ describe.withFork(
       const data = JSON.parse(rawString);
       const poolAddress = data['values'][0][0];
       data['values'][0][1]['totalSupply']['hex'] = '0x00';
+      fetchMock.mockResponseOnce(JSON.stringify(data));
 
       ExchangeRegistry.subscribePoolInstance(
         Network.Mainnet,
@@ -22,7 +24,7 @@ describe.withFork(
         if (basePool?.totalSupply.isZero()) done();
       });
 
-      ExchangeRegistry.fetchFromCache(Network.Mainnet, JSON.stringify(data));
+      ExchangeRegistry.fetchFromCache(Network.Mainnet);
     });
   }
 );
