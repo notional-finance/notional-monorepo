@@ -8,6 +8,7 @@
     "common-mui": "packages/common/mui",
     "common-styles": "packages/common/styles",
     "contracts": "packages/contracts",
+    "core-entities": "packages/core-entities",
     "durable-objects": "packages/durable-objects",
     "errors": "packages/errors",
     "features-about-us": "packages/features/about-us",
@@ -37,7 +38,6 @@
     "shared-wallet": "packages/shared/wallet",
     "shared-web": "packages/shared/web",
     "system-cache": "apps/system-cache",
-    "token-balance": "packages/token-balance",
     "util": "packages/util",
     "web": "apps/web"
   }

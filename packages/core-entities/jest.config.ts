@@ -1,6 +1,6 @@
 /* eslint-disable */
 export default {
-  displayName: 'token-balance',
+  displayName: 'core-entities',
   preset: '../../jest.preset.js',
   globals: {
     'ts-jest': {
@@ -11,6 +11,6 @@ export default {
     '^.+\\.[tj]s$': 'ts-jest',
   },
   moduleFileExtensions: ['ts', 'js', 'html'],
-  coverageDirectory: '../../coverage/packages/token-balance',
+  coverageDirectory: '../../coverage/packages/core-entities',
   setupFilesAfterEnv: ['../../setup-jest.ts'],
 };
