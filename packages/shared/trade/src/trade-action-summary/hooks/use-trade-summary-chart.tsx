@@ -34,7 +34,7 @@ export const useTradeSummaryChart = (markets: Market[]) => {
   }
 
   const areaHeaderData = {
-    leftHeader: <FormattedMessage defaultMessage={'Performance To Date'} />,
+    leftHeader: <FormattedMessage defaultMessage={'Yield Curve'} />,
     legendOne: undefined,
     legendTwo: undefined,
   };
