@@ -1,4 +1,4 @@
-import { Box, styled, useTheme } from '@mui/material';
+import { Box, styled, useTheme, Divider } from '@mui/material';
 import { useContext } from 'react';
 import {
   PORTFOLIO_ACTIONS,
@@ -86,13 +86,12 @@ export const ManageVault = () => {
               </SideDrawerButton>
             </H4>
           ))}
-          <Box
-            component={'hr'}
+          <Divider
             sx={{
               margin: theme.spacing(5, 0),
               border: `1px solid ${theme.palette.borders.default}`,
             }}
-          ></Box>
+          ></Divider>
           {manageVaultOptions.map(({ label, link }, index) => (
             <H4 fontWeight="regular" to={link} key={index}>
               <SideDrawerButton sx={{ padding: theme.spacing(2.5) }}>
