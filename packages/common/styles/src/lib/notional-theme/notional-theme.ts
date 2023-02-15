@@ -513,8 +513,8 @@ const getThemeData = (themeVariant: PaletteMode) => {
           ? '0px 4px 50px -10px #33f8ff'
           : '0px 4px 50px -10px #33F8FF',
       chartLineShadow: themeVariant === THEME_VARIANTS.LIGHT
-          ? '0px 0px 2px rgba(0, 0, 0, 0.5)'
-          : '0px 0px 2px rgba(51, 248, 255, 0.4)',
+          ? '0px 3px 5px #1F9B99'
+          : '0px 3px 5px #13BBC2',
     } as ShapeOptions,
     gradient: {
       lightGreen: 'linear-gradient(180deg, #259C9C -47.56%, #1BD7D9 229.78%)',
