@@ -7,7 +7,7 @@ export {};
 
 declare global {
   const provider: ethers.providers.JsonRpcProvider;
-  const whales: Map<string, Signer>;
+  const signer: Signer;
 
   namespace jest {
     interface Describe {

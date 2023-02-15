@@ -1,12 +1,13 @@
 import { tokenBalanceMatchers } from './packages/token-balance/src';
 import { spawn } from 'child_process';
-import { ethers, Signer } from 'ethers';
+import { Contract, ethers, Signer, Wallet } from 'ethers';
+import { ERC20, ERC20ABI } from './packages/contracts/src';
 
 require('dotenv').config();
 
 expect.extend(tokenBalanceMatchers);
 
-describe.withFork = (
+(describe as any).withFork = (
   { blockNumber, network }: { blockNumber: number; network: string },
   name: string,
   fn: () => void
@@ -26,7 +27,14 @@ describe.withFork = (
   const provider = new ethers.providers.JsonRpcProvider(
     'http://127.0.0.1:8545'
   );
+
+  // Default signer will hold all tokens transferred from whales
+  const signer = new Wallet(
+    '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80',
+    provider
+  );
   (global as any).provider = provider;
+  (global as any).signer = signer;
 
   describe(name, () => {
     let initialSnapshot: string;
@@ -39,10 +47,11 @@ describe.withFork = (
       while (retries < maxRetries) {
         try {
           await provider.getBlockNumber();
+          (global as any).whales = await setupWhales(signer, provider);
           initialSnapshot = await provider.send('evm_snapshot', []);
-          (global as any).whales = await setupWhales(provider);
           return;
         } catch (e) {
+          console.log(e);
           retries += 1;
           await new Promise((r) => setTimeout(r, 1000));
         }
@@ -51,12 +60,12 @@ describe.withFork = (
       throw Error('Anvil did not startup');
     }, 10000);
 
-    // Reset to initial snapshot
-    beforeEach(async () => {
+    fn();
+
+    // Reset to snapshot
+    afterEach(async () => {
       await provider.send('evm_revert', [initialSnapshot]);
     });
-
-    fn();
 
     afterAll(() => {
       // Cleanup anvil process
@@ -65,23 +74,36 @@ describe.withFork = (
   });
 };
 
-async function setupWhales(provider: ethers.providers.JsonRpcProvider) {
+async function setupWhales(
+  signer: Signer,
+  provider: ethers.providers.JsonRpcProvider
+) {
   // prettier-ignore
   // [token, whale address]
   const whales = [
     // WETH
-    ['0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', '0xf8b721bFf6Bf7095a0E10791cE8f998baa254Fd0'],
+    ['0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', '0x2F0b23f53734252Bda2277357e97e1517d6B042A'],
     // wstETH
     ['0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0', '0x67c89126fb7E793a2FaC54e0C4bD8baA53395767'],
   ];
 
-  for (let [_, account] of whales) {
+  const signerAddress = await signer.getAddress();
+  for (let [token, account] of whales) {
     await provider.send('anvil_impersonateAccount', [account]);
-    // @note This only works for non-contract accounts
     await provider.send('anvil_setBalance', [
       account,
       '0xffffffffffffffffffffff',
     ]);
+
+    const erc20 = new Contract(token, ERC20ABI, provider) as ERC20;
+    const balance = await erc20.balanceOf(account);
+
+    // Transfers 10% of the whale's balance to the account. Be careful about using
+    // whales that tests are dependent on (i.e. Balancer Vault) or will run into weird
+    // issues.
+    await erc20
+      .connect(provider.getSigner(account))
+      .transfer(signerAddress, balance.mul(10).div(100));
   }
 
   return new Map<string, Signer>(

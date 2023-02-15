@@ -92,6 +92,16 @@ export class BalancerPoolHarness extends PoolTestHarness {
     super();
   }
 
+  protected parseFeeFromEvents(events?: ethers.Event[]) {
+    const args = events?.find((e) => e.event === 'PoolBalanceChanged')?.args;
+    if (args) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return (args as any).protocolFeeAmounts as BigNumber[];
+    }
+
+    return undefined;
+  }
+
   public async singleSideEntry(
     signer: Signer,
     entryTokenIndex: number,
@@ -119,7 +129,7 @@ export class BalancerPoolHarness extends PoolTestHarness {
     );
 
     const balanceBefore = await this.tokens[exitTokenIndex].balanceOf(address);
-    const _rcpt = (
+    const rcpt = await (
       await this.balancerVault
         .connect(signer)
         .exitPool(this.poolId, address, address, {
@@ -131,8 +141,9 @@ export class BalancerPoolHarness extends PoolTestHarness {
     ).wait();
     const balanceAfter = await this.tokens[exitTokenIndex].balanceOf(address);
 
-    // TODO: grab these from events
-    const feesPaid = Array(this.tokens.length).fill(BigNumber.from(0));
+    const feesPaid: BigNumber[] =
+      this.parseFeeFromEvents(rcpt.events) ||
+      Array(this.tokens.length).fill(BigNumber.from(0));
 
     return { tokensOut: balanceAfter.sub(balanceBefore), feesPaid };
   }
@@ -142,11 +153,17 @@ export class BalancerPoolHarness extends PoolTestHarness {
 
     const userData = ethers.utils.defaultAbiCoder.encode(
       this.JoinKind.EXACT_TOKENS_IN_FOR_BPT_OUT.encoding,
-      [this.JoinKind.EXACT_TOKENS_IN_FOR_BPT_OUT, tokensIn, 0]
+      [this.JoinKind.EXACT_TOKENS_IN_FOR_BPT_OUT.kind, tokensIn, 0]
     );
 
+    for (const t of this.tokens) {
+      await t
+        .connect(signer)
+        .approve(this.balancerVault.address, ethers.constants.MaxUint256);
+    }
+
     const balanceBefore = await this.balancerPool.balanceOf(address);
-    const _rcpt = (
+    const rcpt = await (
       await this.balancerVault
         .connect(signer)
         .joinPool(this.poolId, address, address, {
@@ -158,8 +175,9 @@ export class BalancerPoolHarness extends PoolTestHarness {
     ).wait();
     const balanceAfter = await this.balancerPool.balanceOf(address);
 
-    // TODO: grab these from events
-    const feesPaid = Array(this.tokens.length).fill(BigNumber.from(0));
+    const feesPaid: BigNumber[] =
+      this.parseFeeFromEvents(rcpt.events) ||
+      Array(this.tokens.length).fill(BigNumber.from(0));
 
     return { lpTokens: balanceAfter.sub(balanceBefore), feesPaid };
   }
@@ -178,7 +196,7 @@ export class BalancerPoolHarness extends PoolTestHarness {
     const balancesBefore = await Promise.all(
       this.tokens.map((t) => t.balanceOf(address))
     );
-    const _rcpt = (
+    const rcpt = await (
       await this.balancerVault
         .connect(signer)
         .exitPool(this.poolId, address, address, {
@@ -192,8 +210,9 @@ export class BalancerPoolHarness extends PoolTestHarness {
       this.tokens.map((t) => t.balanceOf(address))
     );
 
-    // TODO: grab these from events
-    const feesPaid = Array(this.tokens.length).fill(BigNumber.from(0));
+    const feesPaid: BigNumber[] =
+      this.parseFeeFromEvents(rcpt.events) ||
+      Array(this.tokens.length).fill(BigNumber.from(0));
 
     return {
       tokensOut: balancesAfter.map((b, i) => b.sub(balancesBefore[i])),

@@ -71,10 +71,12 @@ export const tokenBalanceMatchers = {
       };
     }
   },
-  toBeApprox(r: TokenBalance, a: TokenBalance, rel = 1e-5) {
+  toBeApprox(r: TokenBalance, a: TokenBalance, rel = 5e-6) {
     try {
       r.isMatch(a);
-      const pass = rel ? Math.abs(r.toFloat() / a.toFloat() - 1) <= rel : true;
+      const pass =
+        r.toFloat() === a.toFloat() ||
+        Math.abs(r.toFloat() / a.toFloat() - 1) <= rel;
       return {
         pass,
         message: () =>
