@@ -1,4 +1,4 @@
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import { Network } from '../src/Definitions';
 import { OracleRegistry } from '../src/oracles/OracleRegistry';
 
@@ -48,12 +48,12 @@ describe('Oracle Path', () => {
   it('returns undefined if the oracle path is not complete', () => {
     const path = OracleRegistry.findPath('cUSDC', 'cETH', Network.Mainnet);
     const rate = OracleRegistry.getLatestFromPath(Network.Mainnet, path);
-    expect(rate).not.toBeDefined();
+    expect(rate).toBe(null);
   });
 });
 
 describe.withFork(
-  { blockNumber: 16605421, network: 'mainnet' },
+  { blockNumber: 16605421, network: 'mainnet', useTokens: false },
   'Fetch Oracle Rates',
   () => {
     beforeAll(async () => {
@@ -94,7 +94,7 @@ describe.withFork(
       );
 
       OracleRegistry.fetchOracleData(Network.Mainnet, provider);
-    });
+    }, 10_0000);
 
     it('returns the latest value from a single oracle', () => {
       const latest = OracleRegistry.getLatestFromOracle(
@@ -117,13 +117,43 @@ describe.withFork(
       );
     });
 
-    it('subscribes to update blocks', (done) => {
+    it('blocks and timestamps update in cache', (done) => {
+      const jsonMap = OracleRegistry.serializeToCache(Network.Mainnet);
+      const data = JSON.parse(jsonMap);
+      data['lastUpdateBlock'] += 1;
+
       OracleRegistry.subscribeLastUpdateBlock(Network.Mainnet)?.subscribe(
         (block) => {
-          expect(block).toBe(16605421);
+          // Receives two updates here, one is the initial block and the the
+          // next one will be the correct block
+          if (block < 16605422) return;
+          expect(block).toBe(16605422);
           done();
         }
       );
+
+      OracleRegistry.fetchFromCache(Network.Mainnet, JSON.stringify(data));
+    });
+
+    it('exchange rates update in cache', (done) => {
+      const jsonMap = OracleRegistry.serializeToCache(Network.Mainnet);
+      const data = JSON.parse(jsonMap);
+      data['values'][0][1]['rate'] = BigNumber.from(1).toJSON();
+
+      let updates = 0;
+      OracleRegistry.subscribeToOracle(Network.Mainnet, 'WBTC/BTC:0').subscribe(
+        (rate) => {
+          updates += 1;
+          if (updates == 2) {
+            expect(rate?.rate.toNumber()).toBe(1);
+            expect(rate?.base).toBe('WBTC');
+            expect(rate?.quote).toBe('BTC');
+            done();
+          }
+        }
+      );
+
+      OracleRegistry.fetchFromCache(Network.Mainnet, JSON.stringify(data));
     });
   }
 );

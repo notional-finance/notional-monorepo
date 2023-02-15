@@ -153,7 +153,7 @@ describe('TokenBalance', () => {
 });
 
 describe.withFork(
-  { blockNumber: 16605421, network: 'mainnet' },
+  { blockNumber: 16605421, network: 'mainnet', useTokens: false },
   'TokenRegistry',
   () => {
     it('all token symbols and decimals match on chain', async () => {
