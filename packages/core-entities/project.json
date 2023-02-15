@@ -1,17 +1,17 @@
 {
-  "name": "token-balance",
+  "name": "core-entities",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "packages/token-balance/src",
+  "sourceRoot": "packages/core-entities/src",
   "projectType": "library",
   "targets": {
     "build": {
       "executor": "@nrwl/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/packages/token-balance",
-        "main": "packages/token-balance/src/index.ts",
-        "tsConfig": "packages/token-balance/tsconfig.lib.json",
-        "assets": ["packages/token-balance/*.md"]
+        "outputPath": "dist/packages/core-entities",
+        "main": "packages/core-entities/src/index.ts",
+        "tsConfig": "packages/core-entities/tsconfig.lib.json",
+        "assets": ["packages/core-entities/*.md"]
       }
     },
     "publish": {
@@ -25,14 +25,14 @@
       "executor": "@nrwl/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["packages/token-balance/**/*.ts"]
+        "lintFilePatterns": ["packages/core-entities/**/*.ts"]
       }
     },
     "test": {
       "executor": "@nrwl/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "packages/token-balance/jest.config.ts",
+        "jestConfig": "packages/core-entities/jest.config.ts",
         "passWithNoTests": true
       }
     }

@@ -1,4 +1,4 @@
-import { tokenBalanceMatchers } from './packages/token-balance/src';
+import { tokenBalanceMatchers } from './packages/core-entities/src';
 import { spawn } from 'child_process';
 import { Contract, ethers, Signer, Wallet } from 'ethers';
 import { ERC20, ERC20ABI } from './packages/contracts/src';
