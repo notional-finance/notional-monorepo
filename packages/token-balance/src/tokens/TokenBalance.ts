@@ -22,7 +22,7 @@ export class TokenBalance {
     return new TokenBalance(BigNumber.from(10).pow(token.decimalPlaces), token);
   }
 
-  static fromJSON(obj: TokenBalance['json']) {
+  static fromJSON(obj: ReturnType<TokenBalance['toJSON']>) {
     if (!obj._isTokenBalance) throw Error('Invalid JSON Token Balance');
     return TokenBalance.from(obj.hex, obj.token);
   }
@@ -70,7 +70,7 @@ export class TokenBalance {
   /**
    * Returns a JSON serializable version of the object
    */
-  get json() {
+  toJSON() {
     return {
       _isTokenBalance: true,
       hex: this.n.toHexString(),

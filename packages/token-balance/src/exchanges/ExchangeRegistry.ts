@@ -25,7 +25,7 @@ type PoolConstructor = new (
 
 interface NetworkPools {
   poolClass: Map<string, typeof BaseLiquidityPool<unknown>>;
-  poolData: Map<string, BehaviorSubject<PoolData | undefined>>;
+  poolData: Map<string, BehaviorSubject<PoolData | null>>;
   poolToken: Map<string, TokenDefinition>;
 }
 
@@ -33,7 +33,7 @@ export class ExchangeRegistry extends BaseCachable {
   protected static pools = new Map<Network, NetworkPools>(
     defaultPools.map(([n, _pools]) => {
       const poolClass = new Map<string, typeof BaseLiquidityPool<unknown>>();
-      const poolData = new Map<string, BehaviorSubject<PoolData | undefined>>();
+      const poolData = new Map<string, BehaviorSubject<PoolData | null>>();
       const poolToken = new Map<string, TokenDefinition>();
 
       _pools.forEach((poolDef) =>
@@ -47,14 +47,11 @@ export class ExchangeRegistry extends BaseCachable {
   protected static addPool(
     poolDef: PoolDefinition,
     poolClass: Map<string, typeof BaseLiquidityPool<unknown>>,
-    poolData: Map<string, BehaviorSubject<PoolData | undefined>>,
+    poolData: Map<string, BehaviorSubject<PoolData | null>>,
     poolToken: Map<string, TokenDefinition>
   ) {
     poolClass.set(poolDef.address, poolDef.poolClass);
-    poolData.set(
-      poolDef.address,
-      new BehaviorSubject<PoolData | undefined>(undefined)
-    );
+    poolData.set(poolDef.address, new BehaviorSubject<PoolData | null>(null));
     poolToken.set(poolDef.address, poolDef.lpToken);
 
     if (
@@ -68,7 +65,7 @@ export class ExchangeRegistry extends BaseCachable {
   public static registerPool(network: Network, poolDef: PoolDefinition) {
     const { poolClass, poolData, poolToken } = this.pools.get(network) || {
       poolClass: new Map<string, typeof BaseLiquidityPool<unknown>>(),
-      poolData: new Map<string, BehaviorSubject<PoolData | undefined>>(),
+      poolData: new Map<string, BehaviorSubject<PoolData | null>>(),
       poolToken: new Map<string, TokenDefinition>(),
     };
 
@@ -169,5 +166,17 @@ export class ExchangeRegistry extends BaseCachable {
         p ? new PoolClass(p.balances, p.totalSupply, p.poolParams) : undefined
       )
     );
+  }
+
+  public static serializeToCache(network: Network) {
+    const subjects = this.pools.get(network)?.poolData;
+    if (!subjects) throw Error(`Pool Data not found for ${network}`);
+    return this._serializeToCache<PoolData>(network, subjects);
+  }
+
+  public static async fetchFromCache(network: Network, jsonMap: string) {
+    const subjects = this.pools.get(network)?.poolData;
+    if (!subjects) throw Error(`Pool Data not found for ${network}`);
+    return this._fetchFromCache<PoolData>(subjects, jsonMap);
   }
 }

@@ -2,8 +2,6 @@ import { BalancerPoolHarness } from './harness/BalancerPoolHarness';
 import { Network, ExchangeRegistry } from '../../src';
 import { BaseLiquidityPool } from '../../src/exchanges';
 import { PoolTestHarness } from './harness/PoolTestHarness';
-// import { Contract } from 'ethers';
-// import { ERC20, ERC20ABI } from '@notional-finance/contracts';
 
 describe.withFork(
   { blockNumber: 16605421, network: 'mainnet' },

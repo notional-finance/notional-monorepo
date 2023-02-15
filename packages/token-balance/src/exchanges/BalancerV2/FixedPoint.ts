@@ -20,6 +20,11 @@ export default class FixedPoint {
     return new FixedPoint(BigNumber.from(v));
   }
 
+  public static fromJSON(obj: ReturnType<FixedPoint['toJSON']>) {
+    if (!obj._isFixedPoint) throw Error('Invalid JSON Fixed Point');
+    return this.from(obj._hex);
+  }
+
   public add(b: FixedPoint) {
     return new FixedPoint(this.n.add(b.n));
   }
