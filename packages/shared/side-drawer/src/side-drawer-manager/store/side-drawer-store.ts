@@ -1,4 +1,5 @@
 import { makeStore } from '@notional-finance/notionable';
+import { SIDE_DRAWERS_TYPE } from '@notional-finance/shared-config';
 import { Observable } from 'rxjs';
 
 export interface SideDrawerState {
@@ -18,6 +19,6 @@ const {
 } = makeStore<SideDrawerState>(initialSideDrawerState);
 
 export const sideDrawerOpen$ = selectSideDrawerState('sideDrawerOpen') as Observable<boolean>;
-export const currentSideDrawerKey$ = selectSideDrawerState('currentSideDrawerKey') as Observable<string | null>;
+export const currentSideDrawerKey$ = selectSideDrawerState('currentSideDrawerKey') as Observable<SIDE_DRAWERS_TYPE | null>;
 
 export { updateSideDrawerState, selectSideDrawerState, sideDrawerState$ };
