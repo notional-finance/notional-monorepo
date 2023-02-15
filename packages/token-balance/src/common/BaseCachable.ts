@@ -1,7 +1,8 @@
-import { Network } from '..';
+import { Network, TokenBalance } from '..';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { aggregate, AggregateCall } from '@notional-finance/multicall';
 import { BigNumber, ethers } from 'ethers';
+import FixedPoint from '../exchanges/BalancerV2/FixedPoint';
 
 interface CacheSchema<T> {
   values: Array<[string, T | null]>;
@@ -56,19 +57,28 @@ export class BaseCachable {
     return { blockNumber: block.number, results };
   }
 
-  protected static reviver(key: string, value: unknown) {
-    if (
-      value &&
-      typeof value === 'object' &&
-      Object.prototype.hasOwnProperty.call(value, 'type')
-    ) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      switch ((value as any)['type']) {
-        case 'BigNumber':
-          return BigNumber.from(value);
-
-        default:
-          throw Error(`unknown value for key ${key}: ${value}`);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  protected static reviver(key: string, value: any): any {
+    if (Array.isArray(value)) {
+      return value.map((v, i) =>
+        BaseCachable.reviver(`${key}:${i.toString()}`, v)
+      );
+    } else if (typeof value === 'object') {
+      if (
+        Object.prototype.hasOwnProperty.call(value, 'type') &&
+        value.type === 'BigNumber'
+      ) {
+        return BigNumber.from(value);
+      } else if (
+        Object.prototype.hasOwnProperty.call(value, '_isFixedPoint') &&
+        value._isFixedPoint
+      ) {
+        return FixedPoint.from(value._hex);
+      } else if (
+        Object.prototype.hasOwnProperty.call(value, '_isTokenBalance') &&
+        value._isTokenBalance
+      ) {
+        return TokenBalance.fromJSON(value);
       }
     }
 

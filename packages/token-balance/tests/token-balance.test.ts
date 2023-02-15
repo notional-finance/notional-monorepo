@@ -60,7 +60,7 @@ describe('TokenBalance', () => {
       decimalPlaces: 8,
       tokenInterface: TokenInterface.ERC20,
     });
-    const jsonString = JSON.stringify(tb1.json);
+    const jsonString = JSON.stringify(tb1);
     const tb2 = TokenBalance.fromJSON(JSON.parse(jsonString));
 
     expect(tb1).toEqTB(tb2);
