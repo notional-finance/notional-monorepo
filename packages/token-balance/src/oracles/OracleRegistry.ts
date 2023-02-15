@@ -373,8 +373,8 @@ export class OracleRegistry extends BaseCachable {
     return this._serializeToCache<ExchangeRate>(network, subjects);
   }
 
-  public static async fetchFromCache(network: Network, jsonMap: string) {
+  public static async fetchFromCache(network: Network) {
     const { subjects } = this.getOracleGraph(network);
-    return this._fetchFromCache<ExchangeRate>(subjects, jsonMap);
+    return this._fetchFromCache<ExchangeRate>(subjects, '/oracles');
   }
 }

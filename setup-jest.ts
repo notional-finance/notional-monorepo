@@ -2,9 +2,11 @@ import { tokenBalanceMatchers } from './packages/token-balance/src';
 import { spawn } from 'child_process';
 import { Contract, ethers, Signer, Wallet } from 'ethers';
 import { ERC20, ERC20ABI } from './packages/contracts/src';
+import fetchMock from 'jest-fetch-mock';
 
 require('dotenv').config();
 
+fetchMock.enableMocks();
 expect.extend(tokenBalanceMatchers);
 
 (describe as any).withFork = (

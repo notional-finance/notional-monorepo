@@ -1,6 +1,7 @@
 import { BigNumber, ethers } from 'ethers';
 import { Network } from '../src/Definitions';
 import { OracleRegistry } from '../src/oracles/OracleRegistry';
+import fetchMock from 'jest-fetch-mock';
 
 describe('Oracle Path', () => {
   it('[FORWARD] can find a path from usd => eth', () => {
@@ -121,6 +122,7 @@ describe.withFork(
       const jsonMap = OracleRegistry.serializeToCache(Network.Mainnet);
       const data = JSON.parse(jsonMap);
       data['lastUpdateBlock'] += 1;
+      fetchMock.mockResponseOnce(JSON.stringify(data));
 
       OracleRegistry.subscribeLastUpdateBlock(Network.Mainnet)?.subscribe(
         (block) => {
@@ -132,13 +134,14 @@ describe.withFork(
         }
       );
 
-      OracleRegistry.fetchFromCache(Network.Mainnet, JSON.stringify(data));
+      OracleRegistry.fetchFromCache(Network.Mainnet);
     });
 
     it('exchange rates update in cache', (done) => {
       const jsonMap = OracleRegistry.serializeToCache(Network.Mainnet);
       const data = JSON.parse(jsonMap);
       data['values'][0][1]['rate'] = BigNumber.from(1).toJSON();
+      fetchMock.mockResponseOnce(JSON.stringify(data));
 
       let updates = 0;
       OracleRegistry.subscribeToOracle(Network.Mainnet, 'WBTC/BTC:0').subscribe(
@@ -153,7 +156,7 @@ describe.withFork(
         }
       );
 
-      OracleRegistry.fetchFromCache(Network.Mainnet, JSON.stringify(data));
+      OracleRegistry.fetchFromCache(Network.Mainnet);
     });
   }
 );

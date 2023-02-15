@@ -174,9 +174,9 @@ export class ExchangeRegistry extends BaseCachable {
     return this._serializeToCache<PoolData>(network, subjects);
   }
 
-  public static async fetchFromCache(network: Network, jsonMap: string) {
+  public static async fetchFromCache(network: Network) {
     const subjects = this.pools.get(network)?.poolData;
     if (!subjects) throw Error(`Pool Data not found for ${network}`);
-    return this._fetchFromCache<PoolData>(subjects, jsonMap);
+    return this._fetchFromCache<PoolData>(subjects, '/exchanges');
   }
 }
