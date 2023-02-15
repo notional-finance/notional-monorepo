@@ -95,6 +95,11 @@ export const VaultSummary = () => {
                   : theme.shape.borderStandard,
               }}
             />
+            <AreaChart
+              areaChartData={areaChartData}
+              areaHeaderData={areaHeaderData}
+              chartToolTipData={chartToolTipData}
+            />
           </Box>
           <Box
             sx={{ marginTop: theme.spacing(2) }}
