@@ -27,7 +27,7 @@ import {
 import { getNowSeconds } from '@notional-finance/util';
 import { BaseCachable } from '../common/BaseCachable';
 
-type OracleSubject = BehaviorSubject<ExchangeRate | undefined>;
+type OracleSubject = BehaviorSubject<ExchangeRate | null>;
 type AdjList = Map<string, Set<string>>;
 
 interface OracleGraph {
@@ -82,10 +82,7 @@ export class OracleRegistry extends BaseCachable {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const index = oracles.get(key)!.length - 1;
     const indexKey = this.getOracleKey(o, index);
-    subjects.set(
-      indexKey,
-      new BehaviorSubject<ExchangeRate | undefined>(undefined)
-    );
+    subjects.set(indexKey, new BehaviorSubject<ExchangeRate | null>(null));
   }
 
   public static getOracleKey(o: OracleDefinition, oracleIndex?: number) {
@@ -288,7 +285,7 @@ export class OracleRegistry extends BaseCachable {
 
       return mustInvert
         ? observable.pipe(
-            map((r: ExchangeRate | undefined) => {
+            map((r: ExchangeRate | null) => {
               if (r) {
                 return {
                   // Invert the base and quote
@@ -299,36 +296,37 @@ export class OracleRegistry extends BaseCachable {
                 };
               }
 
-              return undefined;
+              return null;
             })
           )
         : observable;
     });
   }
 
-  private static combineRates(rates: (ExchangeRate | undefined)[]) {
-    if (rates.length === 0) return undefined;
+  private static combineRates(rates: (ExchangeRate | null)[]) {
+    if (rates.length === 0) return null;
 
     const base = rates[0]?.base;
     const quote = rates[rates.length - 1]?.quote;
 
     const rate = rates.reduce(
-      (p, er) => (er && p ? p.mul(er.rate).div(RATE_PRECISION) : undefined),
-      BigNumber.from(RATE_PRECISION) as BigNumber | undefined
+      (p, er) => (er && p ? p.mul(er.rate).div(RATE_PRECISION) : null),
+      BigNumber.from(RATE_PRECISION) as BigNumber | null
     );
 
     const validTimestamp = Math.min(
       ...rates.map((r) => r?.validTimestamp || 0)
     );
 
-    return rate && base && quote
-      ? { base, quote, rate, validTimestamp }
-      : undefined;
+    return rate && base && quote ? { base, quote, rate, validTimestamp } : null;
   }
 
-  public static getLatestFromPath(network: Network, oraclePath: OraclePath[]) {
+  public static getLatestFromPath(
+    network: Network,
+    oraclePath: OraclePath[]
+  ): ExchangeRate | null {
     const observables = this.getObservablesFromPath(network, oraclePath);
-    let latestRate: ExchangeRate | undefined;
+    let latestRate: ExchangeRate | null = null;
 
     of(1)
       .pipe(
@@ -368,5 +366,15 @@ export class OracleRegistry extends BaseCachable {
       );
     // shareReplay ensures that the latest results trigger the observable
     return s.asObservable();
+  }
+
+  public static serializeToCache(network: Network) {
+    const { subjects } = this.getOracleGraph(network);
+    return this._serializeToCache<ExchangeRate>(network, subjects);
+  }
+
+  public static async fetchFromCache(network: Network, jsonMap: string) {
+    const { subjects } = this.getOracleGraph(network);
+    return this._fetchFromCache<ExchangeRate>(subjects, jsonMap);
   }
 }

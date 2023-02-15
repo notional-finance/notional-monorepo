@@ -12,7 +12,11 @@ declare global {
   namespace jest {
     interface Describe {
       withFork: (
-        chainConfig: { blockNumber: number; network: string },
+        chainConfig: {
+          blockNumber: number;
+          network: string;
+          useTokens?: boolean;
+        },
         name: string,
         fn: () => void
       ) => void;

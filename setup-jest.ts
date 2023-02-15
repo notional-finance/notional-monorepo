@@ -8,7 +8,11 @@ require('dotenv').config();
 expect.extend(tokenBalanceMatchers);
 
 (describe as any).withFork = (
-  { blockNumber, network }: { blockNumber: number; network: string },
+  {
+    blockNumber,
+    network,
+    useTokens = true,
+  }: { blockNumber: number; network: string; useTokens?: boolean },
   name: string,
   fn: () => void
 ) => {
@@ -47,7 +51,10 @@ expect.extend(tokenBalanceMatchers);
       while (retries < maxRetries) {
         try {
           await provider.getBlockNumber();
-          (global as any).whales = await setupWhales(signer, provider);
+
+          (global as any).whales = useTokens
+            ? await setupWhales(signer, provider)
+            : undefined;
           initialSnapshot = await provider.send('evm_snapshot', []);
           return;
         } catch (e) {
