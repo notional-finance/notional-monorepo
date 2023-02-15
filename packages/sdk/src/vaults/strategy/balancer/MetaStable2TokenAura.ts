@@ -247,69 +247,6 @@ export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitPar
     ] as AggregateCall[];
   }
 
-  public getPriceExposure(_vaultAccount?: VaultAccount) {
-    // const { strategyTokens } = vaultAccount.getPoolShare();
-    // const bptClaim = this.convertStrategyTokensToBPT(strategyTokens);
-    // const priceExposure: PriceExposure = {
-    //   secondaryCurrencySymbol: 'stETH',
-    //   primaryCurrencySymbol: 'ETH',
-    //   levels: [],
-    // };
-    const percentTraded = [...Array(80).keys()];
-    const { tokenOutIndex, primaryTokenIndex, balances } =
-      this.initParams.poolContext;
-    const { totalSupply, amplificationParameter, scalingFactors } =
-      this.initParams;
-
-    const levels = percentTraded
-      .map((t) => {
-        const secondaryTokensSold = this.balances[tokenOutIndex]
-          .mul(FixedPoint.from(t))
-          .div(FixedPoint.from(100));
-
-        const newBalances = BalancerStableMath.getSimulatedBalancesAfterTrade(
-          amplificationParameter,
-          balances,
-          scalingFactors,
-          tokenOutIndex,
-          primaryTokenIndex,
-          secondaryTokensSold
-        );
-
-        const { secondaryTokenPrice, oneBPTValueSpotInPrimary } =
-          BalancerStableMath.getSpotPriceInPrimary(
-            amplificationParameter,
-            newBalances,
-            totalSupply,
-            primaryTokenIndex,
-            tokenOutIndex
-          );
-
-        const priceLevel = TypedBigNumber.fromBalance(
-          secondaryTokenPrice.div(FixedPoint.from(1e10)).n,
-          this.getPrimaryBorrowSymbol(),
-          true
-        ).toETH(false);
-
-        const lpTokenValue = TypedBigNumber.fromBalance(
-          oneBPTValueSpotInPrimary.div(FixedPoint.from(1e10)).n,
-          this.getPrimaryBorrowSymbol(),
-          true
-        ).toETH(false);
-
-        const priceLevelIndex = priceLevel.toFloat().toPrecision(2);
-
-        return { t, priceLevel, priceLevelIndex, lpTokenValue };
-      })
-      .filter(
-        // Filter out duplicate indexes at the specified level of precision
-        ({ priceLevelIndex }, i, arr) =>
-          i === 0 || arr[i - 1].priceLevelIndex !== priceLevelIndex
-      );
-
-    return levels;
-  }
-
   public getLiquidationThresholds(
     vaultAccount: VaultAccount
   ): Array<LiquidationThreshold> {
@@ -318,9 +255,6 @@ export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitPar
     if (!perStrategyTokenValue) return [] as LiquidationThreshold[];
     const thresholdBPTValue = FixedPoint.from(perStrategyTokenValue.n);
 
-    // TODO: also adapt this for Boosted Three Token
-
-    // If you sell x% of the secondary tokens in the pool, what will the price be of the
     // Finds how much the pool needs to move away from the primary token in order to hit
     // the liquidation strategy token value.
     const findLiquidationUtilization = (secondaryPercentSold: number) => {
@@ -331,7 +265,6 @@ export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitPar
         .mul(FixedPoint.from(secondaryPercentSold))
         .div(FixedPoint.from(RATE_PRECISION));
 
-      /*** MOVE THIS TO BalancerStableMath.getSimulatedBalancesAfterTrade */
       const initialInvariant = BalancerStableMath.calculateInvariant(
         this.initParams.amplificationParameter,
         this.balances,
@@ -361,9 +294,7 @@ export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitPar
         // Apply the scaling factor after the balance adjustment
         return newB.mul(scalingFactor).div(FixedPoint.ONE);
       });
-      /*** MOVE THIS TO BalancerStableMath.getSimulatedBalancesAfterTrade */
 
-      /*** MOVE THIS TO BalancerStableMath.getSpotPriceInPrimary */
       // Re-calculate the invariant at the new utilization
       const newInvariant = BalancerStableMath.calculateInvariant(
         this.initParams.amplificationParameter,
@@ -395,13 +326,6 @@ export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitPar
               .div(b);
           return totalValue.add(primaryTokenSpotPrice);
         }, FixedPoint.from(0));
-      /*** MOVE THIS TO BalancerStableMath.getSpotPriceInPrimary */
-
-      // For price risk, we want to simulate trading until we hit some targetSecondaryPrice,
-      // and then return the totalSecondary in the pool, so the delta here will simply
-      // be the difference between targetSecondaryPrice (above) and secondaryPriceDesired
-      // (probably rename some variables) and then the value returned is the result of
-      // new balances where i == tokenOutIndex
 
       // Get the percentage difference in price in RATE_PRECISION
       const delta = oneBPTValueSpotInPrimary
@@ -427,8 +351,6 @@ export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitPar
       .div(bptValueInInternal)
       .n.toNumber();
 
-    // This is the price of the secondary token in terms of the primary token at the
-    // thresholdBPTValue
     // prettier-ignore
     const targetSecondaryPrice = doBinarySearch(
       initialGuess, // this is the percentage difference from the threshold value
@@ -522,7 +444,7 @@ export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitPar
     );
     amountsIn[primaryTokenIndex] = tokenAmountIn;
 
-    const dueProtocolFeeAmounts = BalancerStableMath.getDueProtocolFeeAmounts(
+    const dueProtocolFeeAmounts = this.getDueProtocolFeeAmounts(
       amplificationParameter,
       invariant,
       balances,
@@ -542,6 +464,55 @@ export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitPar
     );
   }
 
+  /**
+   * @dev Returns the amount of protocol fees to pay, given the value of the last stored invariant and the current
+   * balances.
+   */
+  public getDueProtocolFeeAmounts(
+    amplificationParameter: FixedPoint,
+    invariant: FixedPoint,
+    balances: FixedPoint[],
+    protocolSwapFeePercentage: FixedPoint
+  ) {
+    // Initialize with zeros
+    const numTokens = this.balances.length;
+    const dueProtocolFeeAmounts = new Array<FixedPoint>(numTokens).fill(
+      FixedPoint.from(0)
+    );
+
+    // Early return if the protocol swap fee percentage is zero, saving gas.
+    if (protocolSwapFeePercentage.isZero()) {
+      return dueProtocolFeeAmounts;
+    }
+
+    // Instead of paying the protocol swap fee in all tokens proportionally, we will pay it in a single one. This
+    // will reduce gas costs for single asset joins and exits, as at most only two Pool balances will change (the
+    // token joined/exited, and the token in which fees will be paid).
+
+    // The protocol fee is charged using the token with the highest balance in the pool.
+    let chosenTokenIndex = 0;
+    let maxBalance = balances[0];
+    for (let i = 1; i < numTokens; i += 1) {
+      const currentBalance = balances[i];
+      if (currentBalance.gt(maxBalance)) {
+        chosenTokenIndex = i;
+        maxBalance = currentBalance;
+      }
+    }
+
+    // Set the fee amount to pay in the selected token
+    dueProtocolFeeAmounts[chosenTokenIndex] =
+      BalancerStableMath.calcDueTokenProtocolSwapFeeAmount(
+        amplificationParameter,
+        balances,
+        invariant,
+        chosenTokenIndex,
+        protocolSwapFeePercentage
+      );
+
+    return dueProtocolFeeAmounts;
+  }
+
   protected getUnderlyingOut(BPTIn: FixedPoint) {
     const {
       amplificationParameter,
@@ -556,7 +527,7 @@ export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitPar
       true
     );
 
-    const { amountOut } = BalancerStableMath.calcTokenOutGivenExactBptIn(
+    const tokensOut = BalancerStableMath.calcTokenOutGivenExactBptIn(
       amplificationParameter,
       balances,
       poolContext.primaryTokenIndex,
@@ -567,7 +538,7 @@ export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitPar
     );
 
     return TypedBigNumber.fromBalance(
-      amountOut
+      tokensOut
         .mul(FixedPoint.from(INTERNAL_TOKEN_PRECISION))
         .div(FixedPoint.ONE).n,
       this.getPrimaryBorrowSymbol(),
