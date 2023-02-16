@@ -7,12 +7,21 @@ import { ExchangeRate, TokenBalance } from '..';
 export default abstract class BaseLiquidityPool<
   P
 > extends AbstractLiquidityPool {
+  // Balances and total supply are marked as protected so ComposableStablePool can work properly
   constructor(
-    public balances: TokenBalance[],
-    public totalSupply: TokenBalance,
+    protected _balances: TokenBalance[],
+    protected _totalSupply: TokenBalance,
     public poolParams: P
   ) {
     super();
+  }
+
+  public get balances() {
+    return this._balances;
+  }
+
+  public get totalSupply() {
+    return this._totalSupply;
   }
 
   public zeroTokenArray() {
