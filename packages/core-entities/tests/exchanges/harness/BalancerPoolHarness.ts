@@ -12,7 +12,7 @@ import { Network, TokenBalance } from '../../../src';
 import { aggregate } from '@notional-finance/multicall';
 
 import { PoolTestHarness } from './PoolTestHarness';
-import { MetaStable2Token } from '../../../src/exchanges';
+import { MetaStablePool } from '../../../src/exchanges';
 
 export class BalancerPoolHarness extends PoolTestHarness {
   public JoinKind = {
@@ -61,8 +61,8 @@ export class BalancerPoolHarness extends PoolTestHarness {
     network: Network,
     poolAddress: string
   ) {
-    const callData = MetaStable2Token.getInitData(network, poolAddress).map(
-      (c) => Object.assign(c, { key: `${poolAddress}.${c.key}` })
+    const callData = MetaStablePool.getInitData(network, poolAddress).map((c) =>
+      Object.assign(c, { key: `${poolAddress}.${c.key}` })
     );
     const { results } = await aggregate(callData, provider);
     return new BalancerPoolHarness(
