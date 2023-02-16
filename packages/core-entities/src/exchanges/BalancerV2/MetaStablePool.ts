@@ -150,7 +150,7 @@ export default class MetaStablePool extends BaseLiquidityPool<MetaStablePoolPara
     tokensIn: TokenBalance,
     tokenIndexIn: number,
     tokenIndexOut: number,
-    balanceOverrides: TokenBalance[]
+    balanceOverrides?: TokenBalance[]
   ): {
     tokensOut: TokenBalance;
     feesPaid: TokenBalance[];
