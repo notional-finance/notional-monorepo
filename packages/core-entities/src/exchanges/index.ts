@@ -1,4 +1,5 @@
-import MetaStable2Token from './BalancerV2/MetaStableTwoToken';
+import MetaStablePool from './BalancerV2/MetaStablePool';
+import WeightedPool from './BalancerV2/WeightedPool';
 import BaseLiquidityPool from './BaseLiquidityPool';
 
-export { MetaStable2Token, BaseLiquidityPool };
+export { MetaStablePool, WeightedPool, BaseLiquidityPool };

@@ -1,10 +1,10 @@
 import { Network, PoolDefinition, TokenInterface } from '../Definitions';
-import { MetaStable2Token } from '.';
+import { MetaStablePool } from '.';
 
 const mainnetPools = [
   {
     address: '0x32296969ef14eb0c6d29669c550d4a0449130230',
-    poolClass: MetaStable2Token,
+    poolClass: MetaStablePool,
     lpToken: {
       address: '0x32296969ef14eb0c6d29669c550d4a0449130230',
       network: Network.Mainnet,
