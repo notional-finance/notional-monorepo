@@ -11,8 +11,11 @@ import {
   getUpdatedVaultAccount,
   getVaultAccountDefaults,
 } from './logic/account-logic';
-import { getInitVaultAction } from './logic/get-init-vault-action';
-import { getBorrowMarketData } from './logic/get-borrow-market-data';
+import {
+  getInitVaultAction,
+  getBorrowMarketData,
+  getWithdrawAmountData,
+} from './logic';
 import { VaultActionState } from './vault-action-store';
 
 export const loadVaultActionManager = (
@@ -58,6 +61,19 @@ export const loadVaultActionManager = (
     )
   );
 
+  // Returns withdraw amounts and the corresponding updated vault account during
+  // withdraw and repay debt actions
+  const withdrawAmountData$ = state$.pipe(
+    requireKeysDefined('baseVault', 'vaultAccount', 'vaultAction'),
+    mapWithDistinctInputs(
+      getWithdrawAmountData,
+      'vaultAction',
+      'withdrawAmount',
+      'maxWithdraw',
+      'leverageRatio'
+    )
+  );
+
   const updatedVaultAccount$ = state$.pipe(
     requireKeysDefined('baseVault', 'vaultAccount', 'selectedMarketKey'),
     mapWithDistinctInputs(
@@ -99,6 +115,7 @@ export const loadVaultActionManager = (
   return merge(
     initVaultAction$,
     borrowMarketData$,
+    withdrawAmountData$,
     updatedVaultAccount$,
     minimumLeverageRatio$,
     accountDefaults$
