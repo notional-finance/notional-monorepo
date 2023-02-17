@@ -1,4 +1,3 @@
-import { MaturityData } from '@notional-finance/notionable';
 import {
   GenericBaseVault,
   BigNumberType,
@@ -8,8 +7,9 @@ import {
 import { Market } from '@notional-finance/sdk/src/system';
 import { convertRateToFloat, logError } from '@notional-finance/helpers';
 import { tradeDefaults, VAULT_ACTIONS } from '@notional-finance/shared-config';
+import { MaturityData } from '../../types';
 
-interface VaultMaturityDataDependencies {
+interface VaultBorrowDataDependencies {
   // Inputs
   vaultAction?: VAULT_ACTIONS;
   depositAmount?: TypedBigNumber;
@@ -25,7 +25,7 @@ interface VaultMaturityDataDependencies {
   };
 }
 
-export function getMaturityData({
+export function getBorrowMarketData({
   vaultAccount,
   vaultAction,
   depositAmount,
@@ -34,11 +34,11 @@ export function getMaturityData({
   baseVault,
   settledVaultValues,
   selectedMarketKey,
-}: VaultMaturityDataDependencies) {
-  let vaultMaturityData: MaturityData[];
+}: VaultBorrowDataDependencies) {
+  let borrowMarketData: MaturityData[];
 
   if (vaultAction === VAULT_ACTIONS.CREATE_VAULT_POSITION) {
-    vaultMaturityData = establishAccountMaturityData(
+    borrowMarketData = createAccountMaturityData(
       vaultAccount,
       depositAmount,
       eligibleMarkets,
@@ -47,7 +47,7 @@ export function getMaturityData({
       settledVaultValues
     );
   } else if (vaultAction === VAULT_ACTIONS.INCREASE_POSITION) {
-    vaultMaturityData = increaseAccountMaturityData(
+    borrowMarketData = increaseAccountMaturityData(
       vaultAccount,
       depositAmount,
       eligibleMarkets,
@@ -55,7 +55,7 @@ export function getMaturityData({
       baseVault
     );
   } else if (vaultAction === VAULT_ACTIONS.ROLL_POSITION) {
-    vaultMaturityData = rollAccountMaturityData(
+    borrowMarketData = rollAccountMaturityData(
       vaultAccount,
       depositAmount,
       eligibleMarkets,
@@ -63,14 +63,14 @@ export function getMaturityData({
       baseVault
     );
   } else {
-    vaultMaturityData = [];
+    borrowMarketData = [];
   }
 
-  const selectedMaturity = vaultMaturityData.find(
+  const selectedMaturity = borrowMarketData.find(
     (m) => m.marketKey === selectedMarketKey
   );
   return {
-    vaultMaturityData,
+    vaultMaturityData: borrowMarketData,
     fCashBorrowAmount: selectedMaturity?.fCashAmount,
     currentBorrowRate: selectedMaturity?.tradeRate,
   };
@@ -80,7 +80,7 @@ function calculateMaturityData(
   market: Market,
   baseVault: GenericBaseVault,
   fCashToBorrow: TypedBigNumber | undefined,
-  insufficentLiquidity: boolean
+  insufficientLiquidity: boolean
 ) {
   let tradeRate: number | null;
   if (fCashToBorrow) {
@@ -89,7 +89,7 @@ function calculateMaturityData(
       fCashToBorrow
     );
     tradeRate = market.interestRate(fCashToBorrow, cashToVault);
-  } else if (insufficentLiquidity) {
+  } else if (insufficientLiquidity) {
     tradeRate = null;
   } else {
     tradeRate = market.marketAnnualizedRate();
@@ -105,7 +105,7 @@ function calculateMaturityData(
   };
 }
 
-function establishAccountMaturityData(
+function createAccountMaturityData(
   vaultAccount: VaultAccount,
   depositAmount: TypedBigNumber | undefined,
   eligibleMarkets: Market[],

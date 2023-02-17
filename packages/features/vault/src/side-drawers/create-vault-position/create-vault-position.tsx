@@ -14,7 +14,7 @@ interface VaultParams {
 export const CreateVaultPosition = () => {
   const { vaultAddress } = useParams<VaultParams>();
   const { updateState, state } = useContext(VaultActionContext);
-  const { selectedMarketKey, borrowMarketData } = state;
+  const { selectedMarketKey, vaultMaturityData } = state;
 
   return (
     <VaultSideDrawer
@@ -24,7 +24,7 @@ export const CreateVaultPosition = () => {
       vaultAddress={vaultAddress}
     >
       <Maturities
-        maturityData={borrowMarketData || []}
+        maturityData={vaultMaturityData || []}
         onSelect={(marketKey: string | null) => {
           updateState({ selectedMarketKey: marketKey || '' });
         }}
