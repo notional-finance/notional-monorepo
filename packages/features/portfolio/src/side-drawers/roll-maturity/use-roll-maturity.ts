@@ -1,8 +1,7 @@
 import { useAccount, useNotional } from '@notional-finance/notionable-hooks';
-import { TransactionData } from '@notional-finance/notionable';
 import { AssetType, TypedBigNumber } from '@notional-finance/sdk';
 import { Market } from '@notional-finance/sdk/src/system';
-import { TradePropertyKeys } from '@notional-finance/trade';
+import { TradePropertyKeys, TransactionData } from '@notional-finance/trade';
 import { useFormState } from '@notional-finance/utils';
 import { LEND_BORROW, tradeDefaults } from '@notional-finance/shared-config';
 import { convertRateToFloat } from '@notional-finance/helpers';

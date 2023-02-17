@@ -1,7 +1,9 @@
 import { ActionSidebar, ToggleSwitchProps } from '@notional-finance/mui';
-import { TransactionData } from '@notional-finance/notionable';
 import { VaultAccount } from '@notional-finance/sdk';
-import { TransactionConfirmation } from '@notional-finance/trade';
+import {
+  TransactionConfirmation,
+  TransactionData,
+} from '@notional-finance/trade';
 import { VaultRiskTable } from '@notional-finance/risk';
 import { useQueryParams } from '@notional-finance/utils';
 import { VAULT_ACTIONS } from '@notional-finance/shared-config';

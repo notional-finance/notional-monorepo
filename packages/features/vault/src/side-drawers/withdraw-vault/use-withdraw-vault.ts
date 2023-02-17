@@ -5,20 +5,17 @@ import {
   useVault,
   useVaultAccount,
 } from '@notional-finance/notionable-hooks';
-import { TransactionData } from '@notional-finance/notionable';
 import { TypedBigNumber, VaultAccount } from '@notional-finance/sdk';
 import { RATE_PRECISION } from '@notional-finance/sdk/src/config/constants';
 import {
   tradeErrors,
   TradeProperties,
   TradePropertyKeys,
+  TransactionData,
 } from '@notional-finance/trade';
 import { useFormState } from '@notional-finance/utils';
 import { logError, NonLoggedError } from '@notional-finance/helpers';
-import {
-  VAULT_ACTIONS,
-  tradeDefaults,
-} from '@notional-finance/shared-config';
+import { VAULT_ACTIONS, tradeDefaults } from '@notional-finance/shared-config';
 import { MessageDescriptor } from 'react-intl';
 import { messages } from '../messages';
 import { useMaxWithdraw } from './use-max-withdraw';

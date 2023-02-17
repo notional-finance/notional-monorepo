@@ -1,7 +1,6 @@
 import { TypedBigNumber } from '@notional-finance/sdk';
 import { useFormState } from '@notional-finance/utils';
-import { tradeErrors } from '@notional-finance/trade';
-import { TransactionData } from '@notional-finance/notionable';
+import { tradeErrors, TransactionData } from '@notional-finance/trade';
 import { TradePropertyKeys } from '@notional-finance/trade';
 import {
   useNotional,

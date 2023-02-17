@@ -4,9 +4,12 @@ import {
   useNotional,
   useRiskRatios,
 } from '@notional-finance/notionable-hooks';
-import { TransactionData } from '@notional-finance/notionable';
 import { TypedBigNumber } from '@notional-finance/sdk';
-import { CashOrFCash, TradePropertyKeys } from '@notional-finance/trade';
+import {
+  CashOrFCash,
+  TradePropertyKeys,
+  TransactionData,
+} from '@notional-finance/trade';
 import { useFormState } from '@notional-finance/utils';
 import { tradeDefaults } from '@notional-finance/shared-config';
 import { useEffect } from 'react';

@@ -118,6 +118,7 @@
     "@types/react-is": "17.0.3",
     "@types/react-router": "^5.1.17",
     "@types/react-router-dom": "5.3.3",
+    "@types/react-scroll": "^1.8.6",
     "@types/react-table": "^7.7.9",
     "@types/sanitize-html": "^2.6.2",
     "@types/set-interval-async": "^1.0.0",

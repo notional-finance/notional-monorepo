@@ -6,7 +6,7 @@ import {
   InputLabel,
 } from '@notional-finance/mui';
 import { INTERNAL_TOKEN_DECIMAL_PLACES } from '@notional-finance/sdk/src/config/constants';
-import { useConvertCashToNTokensInput } from './use-convert-cash-to-n-tokens';
+import { useConvertCashToNTokensInput } from './use-convert-cash-to-ntokens';
 import { NTokenValue } from '@notional-finance/sdk/src/system';
 import { TypedBigNumber } from '@notional-finance/sdk';
 import { useEffect, useState } from 'react';

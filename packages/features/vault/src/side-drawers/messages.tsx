@@ -70,6 +70,10 @@ export const messages = {
       defaultMessage: 'Roll Maturity Stuff',
       description: '',
     },
+    inputLabel: {
+      defaultMessage: 'Select a target leverage ratio',
+      description: '',
+    },
   }),
   [VAULT_ACTIONS.DELEVERAGE_VAULT]: defineMessages({
     heading: { defaultMessage: 'Deleverage Vault', description: 'heading' },

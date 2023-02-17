@@ -22,7 +22,7 @@ export const useVaultSideDrawers = () => {
     [VAULT_ACTIONS.WITHDRAW_AND_REPAY_DEBT]: WithdrawAndRepayDebt,
     [VAULT_ACTIONS.WITHDRAW_VAULT]: WithdrawVault,
     [VAULT_ACTIONS.WITHDRAW_VAULT_POST_MATURITY]: WithdrawVault,
-  };
+  } as Record<string, () => JSX.Element>;
 
   const SideDrawerComponent =
     currentSideDrawerKey && drawers[currentSideDrawerKey]

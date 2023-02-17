@@ -4,14 +4,14 @@ import {
   useVault,
   useVaultAccount,
 } from '@notional-finance/notionable-hooks';
-import { TransactionData } from '@notional-finance/notionable';
 import { TypedBigNumber, VaultAccount } from '@notional-finance/sdk';
-import { TradeProperties, TradePropertyKeys } from '@notional-finance/trade';
-import { useFormState } from '@notional-finance/utils';
 import {
-  VAULT_ACTIONS,
-  tradeDefaults,
-} from '@notional-finance/shared-config';
+  TradeProperties,
+  TradePropertyKeys,
+  TransactionData,
+} from '@notional-finance/trade';
+import { useFormState } from '@notional-finance/utils';
+import { VAULT_ACTIONS, tradeDefaults } from '@notional-finance/shared-config';
 import { formatLeverageRatio } from '@notional-finance/helpers';
 import { useEffect } from 'react';
 import { MessageDescriptor } from 'react-intl';
@@ -69,9 +69,7 @@ export function useDeleverageVault(
 
     if (baseVault.getLeverageRatio(updatedVaultAccount) < minLeverageRatio) {
       depositError = {
-        ...messages[VAULT_ACTIONS.DELEVERAGE_VAULT][
-          'belowMinLeverageError'
-        ],
+        ...messages[VAULT_ACTIONS.DELEVERAGE_VAULT]['belowMinLeverageError'],
         values: {
           minLeverage: formatLeverageRatio(minLeverageRatio, 2),
         },
@@ -83,9 +81,7 @@ export function useDeleverageVault(
     const currentLeverageRatio = baseVault.getLeverageRatio(vaultAccount);
     if (targetLeverageRatio > currentLeverageRatio) {
       sliderError = {
-        ...messages[VAULT_ACTIONS.DELEVERAGE_VAULT][
-          'aboveMaxLeverageError'
-        ],
+        ...messages[VAULT_ACTIONS.DELEVERAGE_VAULT]['aboveMaxLeverageError'],
         values: {
           maxLeverage: formatLeverageRatio(currentLeverageRatio, 2),
         },
