@@ -1,10 +1,7 @@
-import {
-  account$,
-  activeVaultMarkets$,
-  requireKeysDefined,
-  system$,
-  mapWithDistinctInputs,
-} from '..';
+import { requireKeysDefined, mapWithDistinctInputs } from '../utils';
+import { system$ } from '../notional/notional-store';
+import { account$ } from '../account/account-store';
+import { activeVaultMarkets$ } from './vault-store';
 import { combineLatest, merge, Observable, map } from 'rxjs';
 import {
   getMinimumLeverageRatio,
