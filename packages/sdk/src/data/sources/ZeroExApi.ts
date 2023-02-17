@@ -76,7 +76,7 @@ interface Token {
   decimals: number;
 }
 
-const Tokens: Record<string, Token> = {
+const _Tokens: Record<string, Token> = {
   USDC: {
     symbol: 'USDC',
     address: '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48',
@@ -107,50 +107,50 @@ const RequiredEstimates: Record<
   }[]
 > = {
   mainnet: [
-    {
-      buyToken: Tokens.USDC,
-      sellToken: Tokens.DAI,
-      sellRanges: [100_000, 10_000_000],
-    },
-    {
-      buyToken: Tokens.DAI,
-      sellToken: Tokens.USDC,
-      sellRanges: [100_000, 10_000_000],
-    },
-    {
-      buyToken: Tokens.ETH,
-      sellToken: Tokens.DAI,
-      sellRanges: [100_000, 10_000_000],
-    },
+    // {
+    //   buyToken: Tokens.USDC,
+    //   sellToken: Tokens.DAI,
+    //   sellRanges: [100_000, 10_000_000],
+    // },
+    // {
+    //   buyToken: Tokens.DAI,
+    //   sellToken: Tokens.USDC,
+    //   sellRanges: [100_000, 10_000_000],
+    // },
+    // {
+    //   buyToken: Tokens.ETH,
+    //   sellToken: Tokens.DAI,
+    //   sellRanges: [100_000, 10_000_000],
+    // },
   ],
   goerli: [
-    {
-      buyToken: Tokens.USDC,
-      sellToken: Tokens.DAI,
-      sellRanges: [100_000, 10_000_000],
-      addressOverride: {
-        buyToken: '0x31dd61ac1b7a0bc88f7a58389c0660833a66c35c',
-        sellToken: '0x84e90bddff9a0e124f1ab7f4d1d33a7c748c1a16',
-      },
-    },
-    {
-      buyToken: Tokens.DAI,
-      sellToken: Tokens.USDC,
-      sellRanges: [100_000, 10_000_000],
-      addressOverride: {
-        buyToken: '0x84e90bddff9a0e124f1ab7f4d1d33a7c748c1a16',
-        sellToken: '0x31dd61ac1b7a0bc88f7a58389c0660833a66c35c',
-      },
-    },
-    {
-      buyToken: Tokens.ETH,
-      sellToken: Tokens.DAI,
-      sellRanges: [100_000, 10_000_000],
-      addressOverride: {
-        buyToken: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
-        sellToken: '0x84e90bddff9a0e124f1ab7f4d1d33a7c748c1a16',
-      },
-    },
+    // {
+    //   buyToken: Tokens.USDC,
+    //   sellToken: Tokens.DAI,
+    //   sellRanges: [100_000, 10_000_000],
+    //   addressOverride: {
+    //     buyToken: '0x31dd61ac1b7a0bc88f7a58389c0660833a66c35c',
+    //     sellToken: '0x84e90bddff9a0e124f1ab7f4d1d33a7c748c1a16',
+    //   },
+    // },
+    // {
+    //   buyToken: Tokens.DAI,
+    //   sellToken: Tokens.USDC,
+    //   sellRanges: [100_000, 10_000_000],
+    //   addressOverride: {
+    //     buyToken: '0x84e90bddff9a0e124f1ab7f4d1d33a7c748c1a16',
+    //     sellToken: '0x31dd61ac1b7a0bc88f7a58389c0660833a66c35c',
+    //   },
+    // },
+    // {
+    //   buyToken: Tokens.ETH,
+    //   sellToken: Tokens.DAI,
+    //   sellRanges: [100_000, 10_000_000],
+    //   addressOverride: {
+    //     buyToken: '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+    //     sellToken: '0x84e90bddff9a0e124f1ab7f4d1d33a7c748c1a16',
+    //   },
+    // },
   ],
 };
 
