@@ -7,7 +7,11 @@ import {
 } from '@notional-finance/sdk';
 import { Market } from '@notional-finance/sdk/src/system';
 import { VAULT_ACTIONS } from '@notional-finance/shared-config';
-import { MessageDescriptor } from 'react-intl';
+
+export enum NoEligibleMarketsReason {
+  IsIdiosyncratic,
+  MaturedNotSettled,
+}
 
 export interface VaultActionState {
   selectedMarketKey?: string;
@@ -33,7 +37,7 @@ export interface VaultActionState {
     strategyTokens: TypedBigNumber;
     assetCash: TypedBigNumber;
   };
-  noEligibleMarketsReason?: MessageDescriptor;
+  noEligibleMarketsReason?: NoEligibleMarketsReason;
   defaultVaultAction?: VAULT_ACTIONS;
   vaultAccountMaturityString?: string;
 }
