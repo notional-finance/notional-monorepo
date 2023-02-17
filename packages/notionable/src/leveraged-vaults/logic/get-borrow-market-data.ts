@@ -66,9 +66,13 @@ export function getBorrowMarketData({
     borrowMarketData = [];
   }
 
-  const selectedMaturity = borrowMarketData.find(
-    (m) => m.marketKey === selectedMarketKey
-  );
+  const selectedMaturity =
+    // When increasing position, the borrow market is pre-selected as the matching maturity
+    vaultAction === VAULT_ACTIONS.INCREASE_POSITION &&
+    borrowMarketData.length === 1
+      ? borrowMarketData[0]
+      : borrowMarketData.find((m) => m.marketKey === selectedMarketKey);
+
   return {
     vaultMaturityData: borrowMarketData,
     fCashBorrowAmount: selectedMaturity?.fCashAmount,

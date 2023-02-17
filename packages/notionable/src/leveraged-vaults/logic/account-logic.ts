@@ -6,7 +6,6 @@ import {
   VaultConfig,
 } from '@notional-finance/sdk';
 import { Market } from '@notional-finance/sdk/src/system';
-import { formatMaturity } from '@notional-finance/helpers';
 import { tradeDefaults, VAULT_ACTIONS } from '@notional-finance/shared-config';
 
 interface UpdatedVaultAccountDependencies {
@@ -157,54 +156,46 @@ export function getMinimumLeverageRatio({
     // is not correct
   }
 
+  // Return min, max and default
   return { minimumLeverageRatio };
 }
 
-interface VaultAccountDefaultDependencies {
-  // Inputs
-  vaultAction?: VAULT_ACTIONS;
-  // Via Init
-  vaultAccount: VaultAccount;
-  vaultConfig: VaultConfig;
-  baseVault: GenericBaseVault;
-  eligibleMarkets: Market[];
-  eligibleActions: VAULT_ACTIONS[];
-}
+// interface VaultAccountDefaultDependencies {
+//   // Inputs
+//   vaultAction?: VAULT_ACTIONS;
+//   // Via Init
+//   vaultAccount: VaultAccount;
+//   vaultConfig: VaultConfig;
+//   baseVault: GenericBaseVault;
+//   eligibleMarkets: Market[];
+//   eligibleActions: VAULT_ACTIONS[];
+// }
 
-export function getVaultAccountDefaults({
-  eligibleMarkets,
-  eligibleActions,
-  vaultAction,
-  vaultAccount,
-  vaultConfig,
-  baseVault,
-}: VaultAccountDefaultDependencies) {
-  const defaultVaultAction =
-    eligibleActions.length > 0 ? eligibleActions[0] : undefined;
+// export function getVaultAccountDefaults({
+//   eligibleMarkets,
+//   eligibleActions,
+//   vaultAction,
+//   vaultAccount,
+//   vaultConfig,
+//   baseVault,
+// }: VaultAccountDefaultDependencies) {
+//   const defaultVaultAction =
+//     eligibleActions.length > 0 ? eligibleActions[0] : undefined;
 
-  if (vaultAction === VAULT_ACTIONS.INCREASE_POSITION) {
-    const marketKey =
-      eligibleMarkets.length > 0 ? eligibleMarkets[0].marketKey : undefined;
-    const leverageRatio = baseVault.getLeverageRatio(vaultAccount);
-    const vaultAccountMaturityString =
-      vaultAccount && vaultAccount.maturity > 0
-        ? formatMaturity(vaultAccount?.maturity)
-        : '';
+//   if (vaultAction === VAULT_ACTIONS.INCREASE_POSITION) {
+//     const leverageRatio = baseVault.getLeverageRatio(vaultAccount);
 
-    return {
-      selectedMarketKey: marketKey,
-      leverageRatio,
-      vaultAccountMaturityString,
-      vaultAction,
-    };
-  } else if (vaultAction === undefined) {
-    return {
-      vaultAction: defaultVaultAction,
-      leverageRatio: BaseVault.collateralToLeverageRatio(
-        vaultConfig.maxDeleverageCollateralRatioBasisPoints
-      ),
-    };
-  } else {
-    return {};
-  }
-}
+//     return {
+//       leverageRatio,
+//       vaultAction,
+//     };
+//   } else if (vaultAction === undefined) {
+//     return {
+//       leverageRatio: BaseVault.collateralToLeverageRatio(
+//         vaultConfig.maxDeleverageCollateralRatioBasisPoints
+//       ),
+//     };
+//   } else {
+//     return {};
+//   }
+// }

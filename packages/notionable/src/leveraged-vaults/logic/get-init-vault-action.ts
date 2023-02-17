@@ -8,7 +8,7 @@ import {
 import { Market, System } from '@notional-finance/sdk/src/system';
 import { VAULT_ACTIONS } from '@notional-finance/shared-config';
 import { getNowSeconds } from '@notional-finance/helpers';
-import { NoEligibleMarketsReason } from '../vault-action-store';
+import { NoEligibleMarketsReason, VaultError } from '../vault-action-store';
 
 interface InitVaultActionDependencies {
   system: System;
@@ -42,6 +42,7 @@ export function getInitVaultAction({
     return {
       eligibleActions: [],
       eligibleMarkets: [],
+      error: VaultError.VaultConfigNotFound,
     };
   }
 

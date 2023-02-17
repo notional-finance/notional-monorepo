@@ -6,6 +6,7 @@ import {
   VaultAccount,
 } from '@notional-finance/sdk';
 import { VAULT_ACTIONS } from '@notional-finance/shared-config';
+import { VaultError } from '../vault-action-store';
 
 interface VaultWithdrawDataDependencies {
   // Via Inputs
@@ -59,10 +60,13 @@ export function getWithdrawAmountData({
   } catch (e) {
     logError(
       e as NonLoggedError,
-      'use-withdraw-vault',
-      'getExitParamsFromLeverageRatio'
+      'vault-action-manager',
+      'getWithdrawAmountData'
     );
-    // TODO: handle errors
+
+    return {
+      error: VaultError.ErrorCalculatingWithdraw,
+    };
   }
 
   // In any other action, return undefined values to clear data in store

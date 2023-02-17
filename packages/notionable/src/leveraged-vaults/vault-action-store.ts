@@ -13,6 +13,11 @@ export enum NoEligibleMarketsReason {
   MaturedNotSettled,
 }
 
+export enum VaultError {
+  VaultConfigNotFound,
+  ErrorCalculatingWithdraw,
+}
+
 /** These inputs come externally */
 interface VaultInputs {
   // Relevant on all screens
@@ -43,8 +48,6 @@ interface VaultInitData {
     assetCash: TypedBigNumber;
   };
   noEligibleMarketsReason?: NoEligibleMarketsReason;
-  defaultVaultAction?: VAULT_ACTIONS;
-  vaultAccountMaturityString?: string;
 }
 
 export interface VaultActionState
@@ -66,6 +69,7 @@ export interface VaultActionState
   minimumLeverageRatio?: number;
   updatedVaultAccount?: VaultAccount;
   maxWithdrawAmount?: TypedBigNumber;
+  vaultError?: VaultError;
 }
 
 export const initialVaultActionState: VaultActionState = {

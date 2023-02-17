@@ -9,7 +9,6 @@ import { combineLatest, merge, Observable, map } from 'rxjs';
 import {
   getMinimumLeverageRatio,
   getUpdatedVaultAccount,
-  getVaultAccountDefaults,
 } from './logic/account-logic';
 import {
   getInitVaultAction,
@@ -95,29 +94,29 @@ export const loadVaultActionManager = (
     )
   );
 
-  const accountDefaults$ = state$.pipe(
-    requireKeysDefined(
-      'baseVault',
-      'vaultAccount',
-      'vaultConfig',
-      'eligibleMarkets',
-      'eligibleActions'
-    ),
-    mapWithDistinctInputs(
-      getVaultAccountDefaults,
-      'vaultAction',
-      'vaultAccount',
-      'eligibleMarkets',
-      'eligibleActions'
-    )
-  );
+  // const accountDefaults$ = state$.pipe(
+  //   requireKeysDefined(
+  //     'baseVault',
+  //     'vaultAccount',
+  //     'vaultConfig',
+  //     'eligibleMarkets',
+  //     'eligibleActions'
+  //   ),
+  //   mapWithDistinctInputs(
+  //     getVaultAccountDefaults,
+  //     'vaultAction',
+  //     'vaultAccount',
+  //     'eligibleMarkets',
+  //     'eligibleActions'
+  //   )
+  // );
 
   return merge(
     initVaultAction$,
     borrowMarketData$,
     withdrawAmountData$,
     updatedVaultAccount$,
-    minimumLeverageRatio$,
-    accountDefaults$
+    minimumLeverageRatio$
+    // accountDefaults$
   );
 };
