@@ -24,8 +24,8 @@ import {
 
 interface AreaChartData {
   timestamp: number;
-  line: number;
-  area: number;
+  line?: number;
+  area?: number;
 }
 export interface AreaChartStylesProps {
   lineColor: string;

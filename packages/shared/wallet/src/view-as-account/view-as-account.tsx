@@ -55,7 +55,9 @@ export function ViewAsAccount() {
         inputValue={address}
         onKeyDown={handleKeyDown}
         sx={{
-          marginTop: '10px',
+          marginTop: theme.spacing(1),
+          paddingLeft: theme.spacing(1),
+          paddingRight: theme.spacing(1),
           borderColor: error ? theme.palette.error.main : '',
         }}
       />

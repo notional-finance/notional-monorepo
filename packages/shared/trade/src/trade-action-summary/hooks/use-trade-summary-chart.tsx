@@ -14,10 +14,20 @@ export const useTradeSummaryChart = (markets: Market[]) => {
 
   const chartToolTipData: ChartToolTipDataProps = {
     timestamp: {
-      title: (timestamp) => getDateString(timestamp),
+      title: (timestamp) => (
+        <FormattedMessage
+          defaultMessage="Maturity: {date}"
+          values={{ date: getDateString(timestamp) }}
+        />
+      ),
     },
     area: {
-      title: (area) => formatNumberAsPercent(area),
+      title: (area) => (
+        <FormattedMessage
+          defaultMessage="Fixed Rate: {rate}"
+          values={{ rate: formatNumberAsPercent(area) }}
+        />
+      ),
     },
   };
 

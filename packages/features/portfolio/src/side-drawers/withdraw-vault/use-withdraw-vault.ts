@@ -117,7 +117,7 @@ export function useWithdrawVault(vaultAddress: string) {
             : vaultSharesToRedeem.add(repayment.vaultSharesToRedeemAtCost);
 
           // This method should be the entire cash balance above a certain point
-          fCashToLend = vaultAccount.primaryBorrowfCash.neg();
+          fCashToLend = repayment.fCashToLend;
           newVaultAccount = repayment.newVaultAccount;
         } catch (e) {
           logError(

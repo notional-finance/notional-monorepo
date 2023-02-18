@@ -29,10 +29,10 @@ export const ChartToolTip = (props: ChartToolTipProps) => {
         {chartToolTipData?.timestamp && (
           <H5>{chartToolTipData?.timestamp.title(timestamp)}</H5>
         )}
-        {chartToolTipData?.area && (
+        {chartToolTipData?.area && area && (
           <H5>{chartToolTipData?.area.title(area)}</H5>
         )}
-        {chartToolTipData?.line && (
+        {chartToolTipData?.line && line && (
           <H5>{chartToolTipData?.line.title(line)}</H5>
         )}
       </ToolTipBox>
