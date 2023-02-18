@@ -28,7 +28,7 @@ export const usePerformanceChart = () => {
     area: {
       title: (area) => (
         <FormattedMessage
-          {...messages.summary.performanceStrategyReturns}
+          {...messages.summary.performanceLeveragedReturns}
           values={{ returns: formatNumberAsPercent(area) }}
         />
       ),
@@ -37,7 +37,7 @@ export const usePerformanceChart = () => {
     line: {
       title: (line) => (
         <FormattedMessage
-          {...messages.summary.performanceLeveragedReturns}
+          {...messages.summary.performanceStrategyReturns}
           values={{ returns: formatNumberAsPercent(line) }}
         />
       ),
@@ -48,7 +48,7 @@ export const usePerformanceChart = () => {
     return {
       timestamp: item?.timestamp,
       line: item?.totalRate,
-      area: item?.leveragedReturn ? item?.leveragedReturn : 0,
+      area: item?.leveragedReturn,
     };
   });
 
