@@ -22,7 +22,11 @@ export async function populateTxnAndGas(
 
 export function getNowSeconds() {
   const fakeTime = process.env['FAKE_TIME'] || process.env['NX_FAKE_TIME'];
-  if (process.env['NODE_ENV'] === 'development' && fakeTime) {
+  if (
+    (process.env['NODE_ENV'] === 'development' ||
+      process.env['NODE_ENV'] === 'test') &&
+    fakeTime
+  ) {
     const ts = parseInt(fakeTime, 10);
     return ts;
   }

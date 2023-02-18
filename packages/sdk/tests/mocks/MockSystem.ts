@@ -125,4 +125,8 @@ export default class MockSystem extends System {
   public setVault(vault: VaultConfig) {
     this.data.vaults.set(vault.vaultAddress, vault);
   }
+
+  public setVaultData(vaultAddress: string, vaultData: unknown) {
+    this.data.initVaultParams.set(vaultAddress, JSON.stringify(vaultData));
+  }
 }
