@@ -74,7 +74,7 @@ export function getBorrowMarketData({
       : borrowMarketData.find((m) => m.marketKey === selectedMarketKey);
 
   return {
-    vaultMaturityData: borrowMarketData,
+    borrowMarketData,
     fCashBorrowAmount: selectedMaturity?.fCashAmount,
     currentBorrowRate: selectedMaturity?.tradeRate,
   };

@@ -19,12 +19,10 @@ import { errors$ } from '../src/error/error-manager';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import MockSystem from '../../sdk/tests/mocks/MockSystem';
 import { VAULT_ACTIONS } from '@notional-finance/shared-config';
+import { ethers } from 'ethers';
+import { getSequencer } from './test-utils';
 
-interface VaultMock extends VaultAccount {
-  mockId: string;
-}
-
-describe('Vault Actions - Initialization', () => {
+describe('Vault Actions', () => {
   const VAULT = '0xaaaa';
   const VAULT_NO_ROLL = '0xbbbb';
   const { updateState, _state$: state$ } = makeStore<VaultActionState>(
@@ -36,7 +34,7 @@ describe('Vault Actions - Initialization', () => {
     system.getMarkets(1)[0].maturity - SECONDS_IN_MONTH
   ).toString();
 
-  const getMockAccount = (maturity: number, mockId: string) => {
+  const getMockAccount = (maturity: number) => {
     const accountData = {
       getVaultAccount: jest.fn((a) => {
         // Add any mocks to simulated vault account here
@@ -53,17 +51,13 @@ describe('Vault Actions - Initialization', () => {
           };
         });
 
-        // Add a mock ID to differentiate between accounts in subscribes
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (acct as VaultMock).mockId = mockId;
-
         return acct;
       }),
     };
 
     // Set the hash key on the account data so that account-store triggers updates
     Object.defineProperty(accountData, 'hashKey', {
-      get: jest.fn(() => mockId || 'none'),
+      get: jest.fn(() => 'mock'),
     });
 
     return {
@@ -71,12 +65,7 @@ describe('Vault Actions - Initialization', () => {
     } as unknown as Account;
   };
 
-  const isMock = (
-    vaultAccount: VaultAccount | undefined,
-    mockId: string | undefined
-  ) => {
-    return vaultAccount && (vaultAccount as VaultMock).mockId === mockId;
-  };
+  const testSequence = getSequencer(updateState, vaultActionUpdates);
 
   beforeAll(() => {
     system.setVault({
@@ -85,6 +74,7 @@ describe('Vault Actions - Initialization', () => {
       strategy: '0x71b1fca4', // simple strategy
       maxBorrowMarketIndex: 2,
       allowRollPosition: true,
+      feeRateBasisPoints: 0,
       vaultStates: [
         {
           maturity: 1,
@@ -92,7 +82,7 @@ describe('Vault Actions - Initialization', () => {
         },
       ],
     } as VaultConfig);
-    system.setVaultData(VAULT, { exchangeRate: 1 });
+    system.setVaultData(VAULT, { exchangeRate: ethers.constants.WeiPerEther });
 
     system.setVault({
       vaultAddress: VAULT_NO_ROLL,
@@ -116,123 +106,199 @@ describe('Vault Actions - Initialization', () => {
 
     updateNotionalState({ notional: { system } as unknown as Notional });
     updateVaultState({ activeVaultMarkets });
+    vaultActionUpdates.subscribe(updateState);
   });
 
-  it('reports an error on an unknown vault address', (done) => {
-    errors$.subscribe((e) => {
-      expect(e.code).toBe(404);
-      done();
+  describe.only('Initialization', () => {
+    it('reports an error on an unknown vault address', (done) => {
+      let isDone = false;
+      errors$.subscribe((e) => {
+        expect(e.code).toBe(404);
+        if (!isDone) {
+          isDone = true;
+          done();
+        }
+      });
+
+      vaultActionUpdates.subscribe(() => {
+        // Empty subscription to trigger event
+        return 1;
+      });
+
+      updateState({ vaultAddress: '0x1234' });
     });
 
-    vaultActionUpdates.subscribe(() => {
-      // Empty subscription to trigger event
-      return 1;
+    it('only returns create vault if no maturity', () => {
+      testSequence([
+        [
+          { vaultAddress: VAULT },
+          (v) => {
+            expect(v.eligibleActions).toEqual([
+              VAULT_ACTIONS.CREATE_VAULT_POSITION,
+            ]);
+            expect(v.eligibleMarkets?.length).toEqual(2);
+          },
+        ],
+      ]);
     });
 
-    updateState({ vaultAddress: '0x1234' });
+    it('returns withdraw post maturity and create vault position if has matured', () => {
+      const maturedAccount = getMockAccount(1);
+      updateAccountState({ account: maturedAccount });
+
+      testSequence([
+        [
+          { vaultAddress: VAULT },
+          (s) => {
+            expect(s.eligibleActions).toEqual([
+              VAULT_ACTIONS.CREATE_VAULT_POSITION,
+              VAULT_ACTIONS.WITHDRAW_VAULT_POST_MATURITY,
+            ]);
+            expect(s.eligibleMarkets?.length).toEqual(2);
+            expect(s.settledVaultValues).toBeDefined();
+          },
+        ],
+      ]);
+    });
+
+    it('allows roll position', () => {
+      const maturity = system.getMarkets(1)[0].maturity;
+      const activeAccount = getMockAccount(maturity);
+      updateAccountState({ account: activeAccount });
+
+      testSequence([
+        [
+          { vaultAddress: VAULT },
+          (s) => {
+            expect(s.eligibleActions).toEqual([
+              VAULT_ACTIONS.DEPOSIT_COLLATERAL,
+              VAULT_ACTIONS.WITHDRAW_AND_REPAY_DEBT,
+              VAULT_ACTIONS.WITHDRAW_VAULT,
+              VAULT_ACTIONS.INCREASE_POSITION,
+              VAULT_ACTIONS.ROLL_POSITION,
+            ]);
+            expect(s.eligibleMarkets?.length).toEqual(2);
+          },
+        ],
+      ]);
+    });
+
+    it('filters longer dated maturities for roll position', () => {
+      const maturity = system.getMarkets(1)[1].maturity;
+      const activeAccount = getMockAccount(maturity);
+      updateAccountState({ account: activeAccount });
+
+      testSequence([
+        [
+          { vaultAddress: VAULT },
+          (s) => {
+            expect(s.eligibleActions).toEqual([
+              VAULT_ACTIONS.DEPOSIT_COLLATERAL,
+              VAULT_ACTIONS.WITHDRAW_AND_REPAY_DEBT,
+              VAULT_ACTIONS.WITHDRAW_VAULT,
+              VAULT_ACTIONS.INCREASE_POSITION,
+            ]);
+            expect(s.eligibleMarkets?.length).toEqual(1);
+          },
+        ],
+      ]);
+    });
+
+    it('restricts eligible markets if not allow roll position', () => {
+      const maturity = system.getMarkets(1)[0].maturity;
+      const activeAccount = getMockAccount(maturity);
+      updateAccountState({ account: activeAccount });
+
+      testSequence([
+        [
+          { vaultAddress: VAULT_NO_ROLL },
+          (s) => {
+            expect(s.eligibleActions).toEqual([
+              VAULT_ACTIONS.DEPOSIT_COLLATERAL,
+              VAULT_ACTIONS.WITHDRAW_AND_REPAY_DEBT,
+              VAULT_ACTIONS.WITHDRAW_VAULT,
+              VAULT_ACTIONS.INCREASE_POSITION,
+            ]);
+            expect(s.eligibleMarkets?.length).toEqual(1);
+          },
+        ],
+      ]);
+    });
   });
 
-  it('only returns create vault if no maturity', (done) => {
-    vaultActionUpdates.subscribe((s) => {
-      if (isMock(s.vaultAccount, undefined)) {
-        expect(s.eligibleActions).toEqual([
-          VAULT_ACTIONS.CREATE_VAULT_POSITION,
-        ]);
-        expect(s.eligibleMarkets?.length).toEqual(2);
-        done();
-      }
+  describe('Borrow Markets', () => {
+    it('sets borrow market data on create vault position', () => {
+      testSequence([
+        { vaultAddress: VAULT },
+        { vaultAction: VAULT_ACTIONS.CREATE_VAULT_POSITION },
+        [
+          { leverageRatio: 5e9 },
+          (v) => {
+            expect(v.borrowMarketData?.length).toEqual(2);
+          },
+        ],
+        // user switches markets
+        [
+          { selectedMarketKey: '1:1:1679616000' },
+          (v) => {
+            // Switches traded rate based on selected market key
+            expect(v.currentBorrowRate).toEqual(
+              v.borrowMarketData![0].tradeRate
+            );
+          },
+        ],
+        [
+          { selectedMarketKey: '1:2:1687392000' },
+          (v) => {
+            expect(v.currentBorrowRate).toEqual(
+              v.borrowMarketData![1].tradeRate
+            );
+          },
+        ],
+        // user enters deposit amount
+        [
+          {
+            depositAmount: TypedBigNumber.fromBalance(1e8, 'ETH', true),
+          },
+          (v, index, values) => {
+            expect(v.fCashBorrowAmount).toBeDefined();
+            expect(v.currentBorrowRate).toBeGreaterThan(
+              values[index - 1].currentBorrowRate!
+            );
+          },
+        ],
+        [
+          // user clears deposit amount
+          { depositAmount: undefined },
+          (v) => {
+            expect(v.fCashBorrowAmount).toBeUndefined();
+          },
+        ],
+      ]);
     });
 
-    updateState({ vaultAddress: VAULT });
-  });
+    it.skip('sets borrow market data on increase vault position', () => {
+      const maturity = system.getMarkets(1)[0].maturity;
+      const activeAccount = getMockAccount(maturity);
+      updateAccountState({ account: activeAccount });
 
-  it('returns withdraw post maturity and create vault position if has matured', (done) => {
-    vaultActionUpdates.subscribe((s) => {
-      if (isMock(s.vaultAccount, 'A')) {
-        expect(s.eligibleActions).toEqual([
-          VAULT_ACTIONS.CREATE_VAULT_POSITION,
-          VAULT_ACTIONS.WITHDRAW_VAULT_POST_MATURITY,
-        ]);
-        expect(s.eligibleMarkets?.length).toEqual(2);
-        expect(s.settledVaultValues).toBeDefined();
-        done();
-      }
+      testSequence([
+        { vaultAddress: VAULT },
+        { vaultAction: VAULT_ACTIONS.INCREASE_POSITION },
+        [
+          { leverageRatio: 5e9 },
+          (v) => {
+            console.log(v);
+            expect(v.borrowMarketData?.length).toEqual(1);
+          },
+        ],
+      ]);
     });
-
-    const maturedAccount = getMockAccount(1, 'A');
-    updateAccountState({ account: maturedAccount });
-    updateState({ vaultAddress: VAULT });
-  });
-
-  it('allows roll position', (done) => {
-    const maturity = system.getMarkets(1)[0].maturity;
-
-    vaultActionUpdates.subscribe((s) => {
-      console.log(s);
-      if (isMock(s.vaultAccount, 'B')) {
-        expect(s.eligibleActions).toEqual([
-          VAULT_ACTIONS.DEPOSIT_COLLATERAL,
-          VAULT_ACTIONS.WITHDRAW_AND_REPAY_DEBT,
-          VAULT_ACTIONS.WITHDRAW_VAULT,
-          VAULT_ACTIONS.INCREASE_POSITION,
-          VAULT_ACTIONS.ROLL_POSITION,
-        ]);
-        expect(s.eligibleMarkets?.length).toEqual(2);
-        done();
-      }
-    });
-
-    const activeAccount = getMockAccount(maturity, 'B');
-    updateAccountState({ account: activeAccount });
-    updateState({ vaultAddress: VAULT });
-  });
-
-  it('filters longer dated maturities for roll position', (done) => {
-    // Allows roll but there is no longer dated market
-    vaultActionUpdates.subscribe((s) => {
-      if (isMock(s.vaultAccount, 'C')) {
-        expect(s.eligibleActions).toEqual([
-          VAULT_ACTIONS.DEPOSIT_COLLATERAL,
-          VAULT_ACTIONS.WITHDRAW_AND_REPAY_DEBT,
-          VAULT_ACTIONS.WITHDRAW_VAULT,
-          VAULT_ACTIONS.INCREASE_POSITION,
-        ]);
-        expect(s.eligibleMarkets?.length).toEqual(1);
-        done();
-      }
-    });
-
-    const maturity = system.getMarkets(1)[1].maturity;
-    const activeAccount = getMockAccount(maturity, 'C');
-    updateAccountState({ account: activeAccount });
-    updateState({ vaultAddress: VAULT });
-  });
-
-  it('restricts eligible markets if not allow roll position', (done) => {
-    // Allows roll but there is no longer dated market
-    vaultActionUpdates.subscribe((s) => {
-      if (isMock(s.vaultAccount, 'D')) {
-        expect(s.eligibleActions).toEqual([
-          VAULT_ACTIONS.DEPOSIT_COLLATERAL,
-          VAULT_ACTIONS.WITHDRAW_AND_REPAY_DEBT,
-          VAULT_ACTIONS.WITHDRAW_VAULT,
-          VAULT_ACTIONS.INCREASE_POSITION,
-        ]);
-        expect(s.eligibleMarkets?.length).toEqual(1);
-        done();
-      }
-    });
-
-    const maturity = system.getMarkets(1)[0].maturity;
-    const activeAccount = getMockAccount(maturity, 'D');
-    updateAccountState({ account: activeAccount });
-    updateState({ vaultAddress: VAULT_NO_ROLL });
+    // it('emits data whenever deposit amount changes')
+    // it('emits data whenever leverage ratio changes')
+    // it('emits data whenever selected market key changes')
   });
 });
-
-// describe('Vault Actions - Borrow Data', () => {
-
-// })
 
 // describe('Vault Actions - Withdraw Data', () => {
 
