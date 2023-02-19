@@ -1,5 +1,6 @@
 import { Observable } from 'rxjs';
 import { TestScheduler } from 'rxjs/testing';
+const LOG_FRAMES = false;
 
 const alphanumeric = 'abcdefghijklmnopqrstuvwxyz0123456789'.split('');
 type Actions<T> = (Partial<T> | [Partial<T>, ExpectFn<T> | Partial<T>])[];
@@ -20,6 +21,7 @@ const mergeFrames = <T extends Record<string, unknown>>(f: Frame<T>[]) => {
       // Merge values from frames together
       const lastValue = r[r.length - 1].notification.value;
       r[r.length - 1].notification.value = Object.assign(
+        {},
         lastValue,
         curFrame.notification.value
       );
@@ -41,6 +43,12 @@ export function getTestScheduler<T extends Record<string, unknown>>() {
   const testFn = (_actual: Frame<T>[], _expected: Frame<T>[]) => {
     const actual = mergeFrames(_actual);
     const expected = mergeFrames(_expected);
+    if (LOG_FRAMES) {
+      _actual.forEach((f) => {
+        console.log('frame', f.frame);
+        console.log(f.notification.value);
+      });
+    }
 
     expected.forEach(({ frame, notification }) => {
       const index = actual.findIndex((f) => f.frame === frame);

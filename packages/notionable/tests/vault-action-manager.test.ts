@@ -100,6 +100,12 @@ describe('Vault Actions', () => {
       maxDeleverageCollateralRatioBasisPoints: 0.08e9,
       minCollateralRatioBasisPoints: 0.05e9,
       maxRequiredAccountCollateralRatioBasisPoints: 0.1e9,
+      totalUsedPrimaryBorrowCapacity: TypedBigNumber.fromBalance(
+        1e8,
+        'ETH',
+        true
+      ),
+      maxPrimaryBorrowCapacity: TypedBigNumber.fromBalance(1000e8, 'ETH', true),
       vaultStates: [
         {
           maturity: 1,
@@ -273,7 +279,7 @@ describe('Vault Actions', () => {
   });
 
   describe('Borrow', () => {
-    it.only('sets borrow market data on create vault position', () => {
+    it('sets borrow market data on create vault position', () => {
       testSequence([
         { vaultAddress: VAULT },
         [
@@ -311,8 +317,7 @@ describe('Vault Actions', () => {
             expect(v.currentBorrowRate).toBeGreaterThan(
               values[index - 1].currentBorrowRate!
             );
-            console.log(v);
-            // @todo update vault account should trigger
+            expect(v.updatedVaultAccount).toBeDefined();
           },
         ],
         [
@@ -320,12 +325,13 @@ describe('Vault Actions', () => {
           { depositAmount: undefined },
           (v) => {
             expect(v.fCashBorrowAmount).toBeUndefined();
+            expect(v.updatedVaultAccount).toBeUndefined();
           },
         ],
       ]);
     });
 
-    it('sets borrow market data on increase vault position', () => {
+    it.only('sets borrow market data on increase vault position', () => {
       const maturity = system.getMarkets(1)[0].maturity;
       const activeAccount = getMockAccount(maturity, 5e8, -1e8);
       updateAccountState({ account: activeAccount });
@@ -335,19 +341,42 @@ describe('Vault Actions', () => {
         [
           { vaultAction: VAULT_ACTIONS.INCREASE_POSITION },
           (v) => {
-            console.log(v);
             expect(v.borrowMarketData?.length).toEqual(1);
+            expect(v.updatedVaultAccount).toBeDefined();
+          },
+        ],
+        [
+          { vaultAction: VAULT_ACTIONS.ROLL_POSITION },
+          (v) => {
+            expect(v.borrowMarketData?.length).toEqual(2);
+            expect(v.updatedVaultAccount).toBeUndefined();
           },
         ],
       ]);
     });
 
-    // it('sets borrow market data on roll vault position', () => {});
+    it('sets borrow market data on roll vault position', () => {
+      const maturity = system.getMarkets(1)[0].maturity;
+      const activeAccount = getMockAccount(maturity, 5e8, -1e8);
+      updateAccountState({ account: activeAccount });
+
+      testSequence([
+        { vaultAddress: VAULT },
+        [
+          { vaultAction: VAULT_ACTIONS.ROLL_POSITION },
+          (v) => {
+            expect(v.borrowMarketData?.length).toEqual(1);
+            // This gets clobbered by withdraw update account
+            expect(v.updatedVaultAccount).toBeDefined();
+          },
+        ],
+      ]);
+    });
   });
 
-  describe('Withdraw', () => {});
+  // describe('Withdraw', () => {});
 
-  describe('Deposit', () => {});
+  // describe('Deposit', () => {});
 
   afterEach(() => {
     updateState(initialVaultActionState);

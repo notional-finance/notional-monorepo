@@ -3,12 +3,12 @@ import { system$ } from '../notional/notional-store';
 import { account$ } from '../account/account-store';
 import { activeVaultMarkets$ } from './vault-store';
 import { combineLatest, merge, Observable, map, filter } from 'rxjs';
-import { getUpdatedVaultAccount } from './logic/account-logic';
 import {
   getInitVaultAction,
   getBorrowMarketData,
   getWithdrawAmountData,
   getDefaultLeverageRatio,
+  getUpdatedVaultAccount,
 } from './logic';
 import { VaultActionState } from './vault-action-store';
 
@@ -85,32 +85,14 @@ export const loadVaultActionManager = (
   );
 
   const updatedVaultAccount$ = state$.pipe(
-    requireKeysDefined('baseVault', 'vaultAccount', 'selectedMarketKey'),
+    requireKeysDefined('baseVault', 'vaultAccount'),
     mapWithDistinctInputs(
       getUpdatedVaultAccount,
       'vaultAction',
       'depositAmount',
-      'selectedMarketKey',
-      'fCashBorrowAmount'
+      'selectedMarketKey'
     )
   );
-
-  // const accountDefaults$ = state$.pipe(
-  //   requireKeysDefined(
-  //     'baseVault',
-  //     'vaultAccount',
-  //     'vaultConfig',
-  //     'eligibleMarkets',
-  //     'eligibleActions'
-  //   ),
-  //   mapWithDistinctInputs(
-  //     getVaultAccountDefaults,
-  //     'vaultAction',
-  //     'vaultAccount',
-  //     'eligibleMarkets',
-  //     'eligibleActions'
-  //   )
-  // );
 
   return merge(
     initVaultAction$,
@@ -118,6 +100,5 @@ export const loadVaultActionManager = (
     borrowMarketData$,
     withdrawAmountData$,
     updatedVaultAccount$
-    // accountDefaults$
   );
 };

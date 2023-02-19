@@ -38,8 +38,13 @@ export function getWithdrawAmountData({
         amountRedeemed: amountToWallet,
         newVaultAccount: updatedVaultAccount,
       } = baseVault.simulateExitPostMaturity(vaultAccount));
-      fCashToLend = vaultAccount.primaryBorrowfCash.copy(0);
-      vaultSharesToRedeem = vaultAccount.vaultShares.copy(0);
+
+      return {
+        amountToWallet,
+        updatedVaultAccount,
+        fCashToLend: vaultAccount.primaryBorrowfCash.copy(0),
+        vaultSharesToRedeem: vaultAccount.vaultShares.copy(0),
+      };
     } else if (vaultAction === VAULT_ACTIONS.WITHDRAW_VAULT && maxWithdraw) {
       return getFullWithdrawAmounts(baseVault, vaultAccount);
     } else if (vaultAction === VAULT_ACTIONS.WITHDRAW_VAULT && withdrawAmount) {
@@ -56,6 +61,13 @@ export function getWithdrawAmountData({
         vaultAccount,
         leverageRatio
       ));
+
+      return {
+        amountToWallet: undefined,
+        updatedVaultAccount,
+        fCashToLend,
+        vaultSharesToRedeem,
+      };
     }
   } catch (e) {
     logError(
@@ -69,12 +81,12 @@ export function getWithdrawAmountData({
     };
   }
 
-  // In any other action, return undefined values to clear data in store
+  // In any other action, return undefined values to clear data in store except for
+  // updatedVaultAccount.
   return {
     amountToWallet,
     fCashToLend,
     vaultSharesToRedeem,
-    updatedVaultAccount,
   };
 }
 

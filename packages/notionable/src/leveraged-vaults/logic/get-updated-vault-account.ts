@@ -10,7 +10,7 @@ interface UpdatedVaultAccountDependencies {
   // Inputs
   vaultAction?: VAULT_ACTIONS;
   depositAmount?: TypedBigNumber;
-  selectedMarketKey: string;
+  selectedMarketKey?: string;
   fCashBorrowAmount?: TypedBigNumber;
   // Via Init
   vaultAccount: VaultAccount;
@@ -26,11 +26,18 @@ export function getUpdatedVaultAccount({
   selectedMarketKey,
 }: UpdatedVaultAccountDependencies) {
   let updatedVaultAccount: VaultAccount | undefined;
-  if (!selectedMarketKey) return { updatedVaultAccount: undefined };
+  console.log(`inside updated vault account
+  fcash borrow amount: ${fCashBorrowAmount?.toExactString()}
+  selected market key: ${selectedMarketKey}
+  deposit amount: ${depositAmount?.toExactString()}
+  vault action: ${vaultAction}
+  `);
+  const selectedMaturity = selectedMarketKey
+    ? Market.parseMaturity(selectedMarketKey)
+    : undefined;
 
   try {
-    const selectedMaturity = Market.parseMaturity(selectedMarketKey);
-    if (vaultAction === VAULT_ACTIONS.ROLL_POSITION) {
+    if (vaultAction === VAULT_ACTIONS.ROLL_POSITION && selectedMaturity) {
       // Set this to zero if it is unset, it is optional during these two actions
       const depositInternal =
         depositAmount?.toInternalPrecision() ||
@@ -63,7 +70,8 @@ export function getUpdatedVaultAccount({
     } else if (
       vaultAction === VAULT_ACTIONS.CREATE_VAULT_POSITION &&
       fCashBorrowAmount &&
-      depositAmount
+      depositAmount &&
+      selectedMaturity
     ) {
       updatedVaultAccount = baseVault.simulateEnter(
         vaultAccount,
@@ -77,7 +85,7 @@ export function getUpdatedVaultAccount({
     ) {
       updatedVaultAccount = baseVault.simulateEnter(
         vaultAccount,
-        selectedMaturity,
+        vaultAccount.maturity,
         fCashBorrowAmount,
         // Deposit amount is optional when increasing position
         depositAmount?.toInternalPrecision() ||
@@ -85,9 +93,13 @@ export function getUpdatedVaultAccount({
             baseVault.getVault().primaryBorrowCurrency
           )
       ).newVaultAccount;
+
+      console.log('got here', updatedVaultAccount);
     }
-  } catch {
+  } catch (e) {
+    console.log(e);
     // Errors may occur when the maturity is not correct
+    return { updatedVaultAccount };
   }
 
   return { updatedVaultAccount };
