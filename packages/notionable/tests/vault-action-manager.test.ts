@@ -111,8 +111,27 @@ describe('Vault Actions', () => {
           maturity: 1,
           isSettled: true,
         },
+        {
+          maturity: system.getMarkets(1)[0].maturity,
+          totalVaultShares: TypedBigNumber.from(
+            1000e8,
+            BigNumberType.VaultShare,
+            `${VAULT}:${system.getMarkets(1)[0].maturity}`
+          ),
+          totalStrategyTokens: TypedBigNumber.from(
+            1000e8,
+            BigNumberType.StrategyToken,
+            `${VAULT}:${system.getMarkets(1)[0].maturity}`
+          ),
+          totalAssetCash: TypedBigNumber.fromBalance(0, 'cETH', true),
+          totalPrimaryfCashBorrowed: TypedBigNumber.fromBalance(
+            -1000e8,
+            'ETH',
+            true
+          ),
+        },
       ],
-    } as VaultConfig);
+    } as unknown as VaultConfig);
     system.setVaultData(VAULT, { exchangeRate: ethers.constants.WeiPerEther });
 
     system.setVault({
@@ -331,7 +350,7 @@ describe('Vault Actions', () => {
       ]);
     });
 
-    it.only('sets borrow market data on increase vault position', () => {
+    it('sets borrow market data on increase vault position', () => {
       const maturity = system.getMarkets(1)[0].maturity;
       const activeAccount = getMockAccount(maturity, 5e8, -1e8);
       updateAccountState({ account: activeAccount });
@@ -348,7 +367,7 @@ describe('Vault Actions', () => {
         [
           { vaultAction: VAULT_ACTIONS.ROLL_POSITION },
           (v) => {
-            expect(v.borrowMarketData?.length).toEqual(2);
+            expect(v.borrowMarketData?.length).toEqual(1);
             expect(v.updatedVaultAccount).toBeUndefined();
           },
         ],
@@ -365,8 +384,16 @@ describe('Vault Actions', () => {
         [
           { vaultAction: VAULT_ACTIONS.ROLL_POSITION },
           (v) => {
+            // @todo maybe fix this?
+            // There is only one market here (also in increase markets), but we do not
+            // auto select it in the manager.
             expect(v.borrowMarketData?.length).toEqual(1);
-            // This gets clobbered by withdraw update account
+            expect(v.updatedVaultAccount).toBeUndefined();
+          },
+        ],
+        [
+          { selectedMarketKey: '1:2:1687392000' },
+          (v) => {
             expect(v.updatedVaultAccount).toBeDefined();
           },
         ],
@@ -374,9 +401,41 @@ describe('Vault Actions', () => {
     });
   });
 
-  // describe('Withdraw', () => {});
+  describe('Withdraw', () => {
+    it('updates vault account on deposit amount', () => {});
+  });
 
-  // describe('Deposit', () => {});
+  describe.only('Deposit', () => {
+    it('updates vault account on deposit amount', () => {
+      const maturity = system.getMarkets(1)[0].maturity;
+      const activeAccount = getMockAccount(maturity, 5e8, -1e8);
+      updateAccountState({ account: activeAccount });
+
+      testSequence([
+        { vaultAddress: VAULT },
+        [
+          { vaultAction: VAULT_ACTIONS.DEPOSIT_COLLATERAL },
+          (v) => {
+            expect(v.updatedVaultAccount).toBeUndefined();
+          },
+        ],
+        [
+          { depositAmount: TypedBigNumber.fromBalance(0.1e8, 'ETH', true) },
+          (v) => {
+            expect(v.updatedVaultAccount).toBeDefined();
+            expect(v.updatedVaultAccount?.vaultShares.toFloat()).toBe(5.1);
+          },
+        ],
+        [
+          { depositAmount: TypedBigNumber.fromBalance(0.2e8, 'ETH', true) },
+          (v) => {
+            expect(v.updatedVaultAccount).toBeDefined();
+            expect(v.updatedVaultAccount?.vaultShares.toFloat()).toBe(5.2);
+          },
+        ],
+      ]);
+    });
+  });
 
   afterEach(() => {
     updateState(initialVaultActionState);

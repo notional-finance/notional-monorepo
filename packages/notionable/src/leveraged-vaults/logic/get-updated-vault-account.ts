@@ -26,12 +26,6 @@ export function getUpdatedVaultAccount({
   selectedMarketKey,
 }: UpdatedVaultAccountDependencies) {
   let updatedVaultAccount: VaultAccount | undefined;
-  console.log(`inside updated vault account
-  fcash borrow amount: ${fCashBorrowAmount?.toExactString()}
-  selected market key: ${selectedMarketKey}
-  deposit amount: ${depositAmount?.toExactString()}
-  vault action: ${vaultAction}
-  `);
   const selectedMaturity = selectedMarketKey
     ? Market.parseMaturity(selectedMarketKey)
     : undefined;
@@ -93,8 +87,18 @@ export function getUpdatedVaultAccount({
             baseVault.getVault().primaryBorrowCurrency
           )
       ).newVaultAccount;
-
-      console.log('got here', updatedVaultAccount);
+    } else if (
+      vaultAction === VAULT_ACTIONS.DEPOSIT_COLLATERAL &&
+      depositAmount
+    ) {
+      updatedVaultAccount = baseVault.simulateEnter(
+        vaultAccount,
+        vaultAccount.maturity,
+        TypedBigNumber.getZeroUnderlying(
+          baseVault.getVault().primaryBorrowCurrency
+        ),
+        depositAmount.toInternalPrecision()
+      ).newVaultAccount;
     }
   } catch (e) {
     console.log(e);
@@ -104,43 +108,3 @@ export function getUpdatedVaultAccount({
 
   return { updatedVaultAccount };
 }
-
-// interface VaultAccountDefaultDependencies {
-//   // Inputs
-//   vaultAction?: VAULT_ACTIONS;
-//   // Via Init
-//   vaultAccount: VaultAccount;
-//   vaultConfig: VaultConfig;
-//   baseVault: GenericBaseVault;
-//   eligibleMarkets: Market[];
-//   eligibleActions: VAULT_ACTIONS[];
-// }
-
-// export function getVaultAccountDefaults({
-//   eligibleMarkets,
-//   eligibleActions,
-//   vaultAction,
-//   vaultAccount,
-//   vaultConfig,
-//   baseVault,
-// }: VaultAccountDefaultDependencies) {
-//   const defaultVaultAction =
-//     eligibleActions.length > 0 ? eligibleActions[0] : undefined;
-
-//   if (vaultAction === VAULT_ACTIONS.INCREASE_POSITION) {
-//     const leverageRatio = baseVault.getLeverageRatio(vaultAccount);
-
-//     return {
-//       leverageRatio,
-//       vaultAction,
-//     };
-//   } else if (vaultAction === undefined) {
-//     return {
-//       leverageRatio: BaseVault.collateralToLeverageRatio(
-//         vaultConfig.maxDeleverageCollateralRatioBasisPoints
-//       ),
-//     };
-//   } else {
-//     return {};
-//   }
-// }
