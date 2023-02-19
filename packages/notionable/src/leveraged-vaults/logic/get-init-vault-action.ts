@@ -4,6 +4,7 @@ import {
   VaultAccount,
   Account,
   VaultFactory,
+  BaseVault,
 } from '@notional-finance/sdk';
 import { Market, System } from '@notional-finance/sdk/src/system';
 import { VAULT_ACTIONS } from '@notional-finance/shared-config';
@@ -66,6 +67,13 @@ export function getInitVaultAction({
     vaultAddress
   );
   const eligibleActions = getEligibleActions(eligibleMarkets, vaultAccount);
+  const minLeverageRatio = BaseVault.collateralToLeverageRatio(
+    vaultConfig.maxRequiredAccountCollateralRatioBasisPoints
+  );
+
+  const maxLeverageRatio = BaseVault.collateralToLeverageRatio(
+    vaultConfig.minCollateralRatioBasisPoints
+  );
 
   return {
     vaultAccount,
@@ -75,8 +83,15 @@ export function getInitVaultAction({
     eligibleActions,
     settledVaultValues,
     noEligibleMarketsReason,
-    // Clear the vault action so it can get reset
+    minLeverageRatio,
+    maxLeverageRatio,
+    // Clear inputs back to initial conditions
     vaultAction: undefined,
+    hasError: false,
+    selectedMarketKey: undefined,
+    leverageRatio: undefined,
+    withdrawAmount: undefined,
+    maxWithdraw: undefined,
   };
 }
 

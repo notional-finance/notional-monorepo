@@ -48,6 +48,8 @@ interface VaultInitData {
     assetCash: TypedBigNumber;
   };
   noEligibleMarketsReason?: NoEligibleMarketsReason;
+  minLeverageRatio?: number;
+  maxLeverageRatio?: number;
 }
 
 export interface VaultActionState

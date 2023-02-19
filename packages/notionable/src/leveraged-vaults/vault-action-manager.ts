@@ -2,15 +2,13 @@ import { requireKeysDefined, mapWithDistinctInputs } from '../utils';
 import { system$ } from '../notional/notional-store';
 import { account$ } from '../account/account-store';
 import { activeVaultMarkets$ } from './vault-store';
-import { combineLatest, merge, Observable, map } from 'rxjs';
-import {
-  getMinimumLeverageRatio,
-  getUpdatedVaultAccount,
-} from './logic/account-logic';
+import { combineLatest, merge, Observable, map, filter } from 'rxjs';
+import { getUpdatedVaultAccount } from './logic/account-logic';
 import {
   getInitVaultAction,
   getBorrowMarketData,
   getWithdrawAmountData,
+  getDefaultLeverageRatio,
 } from './logic';
 import { VaultActionState } from './vault-action-store';
 
@@ -34,6 +32,22 @@ export const loadVaultActionManager = (
       'account',
       'system',
       'activeVaultMarkets'
+    )
+  );
+
+  // Sets the valid leverage ratio range based on inputs
+  const defaultLeverageRatio$ = state$.pipe(
+    requireKeysDefined(
+      'baseVault',
+      'vaultAccount',
+      'vaultConfig',
+      'vaultAction'
+    ),
+    filter((s) => s['leverageRatio'] === undefined),
+    mapWithDistinctInputs(
+      getDefaultLeverageRatio,
+      'vaultAction',
+      'leverageRatio'
     )
   );
 
@@ -81,16 +95,6 @@ export const loadVaultActionManager = (
     )
   );
 
-  const minimumLeverageRatio$ = state$.pipe(
-    requireKeysDefined('baseVault', 'vaultAccount', 'vaultConfig'),
-    mapWithDistinctInputs(
-      getMinimumLeverageRatio,
-      'vaultAction',
-      'depositAmount',
-      'selectedMarketKey'
-    )
-  );
-
   // const accountDefaults$ = state$.pipe(
   //   requireKeysDefined(
   //     'baseVault',
@@ -110,10 +114,10 @@ export const loadVaultActionManager = (
 
   return merge(
     initVaultAction$,
+    defaultLeverageRatio$,
     borrowMarketData$,
     withdrawAmountData$,
-    updatedVaultAccount$,
-    minimumLeverageRatio$
+    updatedVaultAccount$
     // accountDefaults$
   );
 };

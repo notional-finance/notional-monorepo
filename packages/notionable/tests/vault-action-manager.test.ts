@@ -34,11 +34,32 @@ describe('Vault Actions', () => {
     system.getMarkets(1)[0].maturity - SECONDS_IN_MONTH
   ).toString();
 
-  const getMockAccount = (maturity: number) => {
+  const getMockAccount = (
+    maturity: number,
+    strategyTokens?: number,
+    debt?: number
+  ) => {
     const accountData = {
       getVaultAccount: jest.fn((a) => {
         // Add any mocks to simulated vault account here
         const acct = VaultAccount.emptyVaultAccount(a, maturity);
+        if (strategyTokens) {
+          acct.addStrategyTokens(
+            TypedBigNumber.from(
+              strategyTokens,
+              BigNumberType.StrategyToken,
+              acct.vaultSymbol
+            ),
+            true
+          );
+        }
+
+        if (debt) {
+          acct.updatePrimaryBorrowfCash(
+            TypedBigNumber.fromBalance(debt, 'ETH', true),
+            true
+          );
+        }
 
         acct.getSettlementValues = jest.fn(() => {
           return {
@@ -75,6 +96,10 @@ describe('Vault Actions', () => {
       maxBorrowMarketIndex: 2,
       allowRollPosition: true,
       feeRateBasisPoints: 0,
+      minAccountBorrowSize: TypedBigNumber.fromBalance(0, 'ETH', true),
+      maxDeleverageCollateralRatioBasisPoints: 0.08e9,
+      minCollateralRatioBasisPoints: 0.05e9,
+      maxRequiredAccountCollateralRatioBasisPoints: 0.1e9,
       vaultStates: [
         {
           maturity: 1,
@@ -90,6 +115,9 @@ describe('Vault Actions', () => {
       strategy: '0x71b1fca4', // simple strategy
       maxBorrowMarketIndex: 2,
       allowRollPosition: false,
+      maxDeleverageCollateralRatioBasisPoints: 0.01e9,
+      minCollateralRatioBasisPoints: 0.01e9,
+      maxRequiredAccountCollateralRatioBasisPoints: 0.01e9,
       vaultStates: [
         {
           maturity: 1,
@@ -109,7 +137,7 @@ describe('Vault Actions', () => {
     vaultActionUpdates.subscribe(updateState);
   });
 
-  describe.only('Initialization', () => {
+  describe('Initialization', () => {
     it('reports an error on an unknown vault address', (done) => {
       let isDone = false;
       errors$.subscribe((e) => {
@@ -224,16 +252,34 @@ describe('Vault Actions', () => {
         ],
       ]);
     });
+
+    it('resets vault information to default state when actions change', () => {
+      testSequence([
+        { vaultAddress: VAULT_NO_ROLL },
+        { vaultAction: VAULT_ACTIONS.CREATE_VAULT_POSITION },
+        { selectedMarketKey: '1:1:1679616000' },
+        [
+          { vaultAddress: VAULT },
+          (s) => {
+            expect(s.vaultConfig?.vaultAddress).toBe(VAULT);
+            expect(s.minLeverageRatio).toBe(10e9);
+            expect(s.maxLeverageRatio).toBe(20e9);
+            expect(s.selectedMarketKey).toBeUndefined();
+            expect(s.leverageRatio).toBeUndefined();
+          },
+        ],
+      ]);
+    });
   });
 
-  describe('Borrow Markets', () => {
-    it('sets borrow market data on create vault position', () => {
+  describe('Borrow', () => {
+    it.only('sets borrow market data on create vault position', () => {
       testSequence([
         { vaultAddress: VAULT },
-        { vaultAction: VAULT_ACTIONS.CREATE_VAULT_POSITION },
         [
-          { leverageRatio: 5e9 },
+          { vaultAction: VAULT_ACTIONS.CREATE_VAULT_POSITION },
           (v) => {
+            expect(v.leverageRatio).toBe(12.5e9);
             expect(v.borrowMarketData?.length).toEqual(2);
           },
         ],
@@ -265,6 +311,8 @@ describe('Vault Actions', () => {
             expect(v.currentBorrowRate).toBeGreaterThan(
               values[index - 1].currentBorrowRate!
             );
+            console.log(v);
+            // @todo update vault account should trigger
           },
         ],
         [
@@ -277,16 +325,15 @@ describe('Vault Actions', () => {
       ]);
     });
 
-    it.skip('sets borrow market data on increase vault position', () => {
+    it('sets borrow market data on increase vault position', () => {
       const maturity = system.getMarkets(1)[0].maturity;
-      const activeAccount = getMockAccount(maturity);
+      const activeAccount = getMockAccount(maturity, 5e8, -1e8);
       updateAccountState({ account: activeAccount });
 
       testSequence([
         { vaultAddress: VAULT },
-        { vaultAction: VAULT_ACTIONS.INCREASE_POSITION },
         [
-          { leverageRatio: 5e9 },
+          { vaultAction: VAULT_ACTIONS.INCREASE_POSITION },
           (v) => {
             console.log(v);
             expect(v.borrowMarketData?.length).toEqual(1);
@@ -294,16 +341,16 @@ describe('Vault Actions', () => {
         ],
       ]);
     });
-    // it('emits data whenever deposit amount changes')
-    // it('emits data whenever leverage ratio changes')
-    // it('emits data whenever selected market key changes')
+
+    // it('sets borrow market data on roll vault position', () => {});
+  });
+
+  describe('Withdraw', () => {});
+
+  describe('Deposit', () => {});
+
+  afterEach(() => {
+    updateState(initialVaultActionState);
+    updateAccountState({ account: undefined });
   });
 });
-
-// describe('Vault Actions - Withdraw Data', () => {
-
-// })
-
-// describe('Vault Actions - Update Account', () => {
-
-// })

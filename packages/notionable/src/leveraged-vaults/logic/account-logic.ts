@@ -1,9 +1,7 @@
 import {
   GenericBaseVault,
-  BaseVault,
   TypedBigNumber,
   VaultAccount,
-  VaultConfig,
 } from '@notional-finance/sdk';
 import { Market } from '@notional-finance/sdk/src/system';
 import { tradeDefaults, VAULT_ACTIONS } from '@notional-finance/shared-config';
@@ -93,71 +91,6 @@ export function getUpdatedVaultAccount({
   }
 
   return { updatedVaultAccount };
-}
-
-interface MinimumLeverageRatioDependencies {
-  // Inputs
-  vaultAction?: VAULT_ACTIONS;
-  depositAmount?: TypedBigNumber;
-  selectedMarketKey?: string;
-  // Via Init
-  vaultConfig: VaultConfig;
-  vaultAccount: VaultAccount;
-  baseVault: GenericBaseVault;
-}
-
-export function getMinimumLeverageRatio({
-  vaultAction,
-  baseVault,
-  selectedMarketKey,
-  vaultAccount,
-  vaultConfig,
-  depositAmount,
-}: MinimumLeverageRatioDependencies) {
-  const depositInternal =
-    depositAmount?.toInternalPrecision() ||
-    TypedBigNumber.getZeroUnderlying(
-      baseVault.getVault().primaryBorrowCurrency
-    );
-  let minimumLeverageRatio = BaseVault.collateralToLeverageRatio(
-    vaultConfig.maxRequiredAccountCollateralRatioBasisPoints
-  );
-  const selectedMaturity = selectedMarketKey
-    ? Market.parseMaturity(selectedMarketKey)
-    : undefined;
-
-  try {
-    if (!selectedMaturity) {
-      return { minimumLeverageRatio };
-    } else if (vaultAction === VAULT_ACTIONS.INCREASE_POSITION) {
-      const { newVaultAccount } = baseVault.simulateEnter(
-        vaultAccount,
-        selectedMaturity,
-        depositInternal.copy(0), // sets borrow amount to zero
-        depositInternal,
-        false // Don't check min borrow
-      );
-
-      const vaultLeverageRatio = baseVault.getLeverageRatio(newVaultAccount);
-      minimumLeverageRatio = Math.max(vaultLeverageRatio, minimumLeverageRatio);
-    } else if (vaultAction === VAULT_ACTIONS.ROLL_POSITION) {
-      const { newVaultAccount } = baseVault.simulateRollPosition(
-        vaultAccount,
-        selectedMaturity,
-        depositInternal,
-        tradeDefaults.defaultAnnualizedSlippage
-      );
-
-      const vaultLeverageRatio = baseVault.getLeverageRatio(newVaultAccount);
-      minimumLeverageRatio = Math.max(vaultLeverageRatio, minimumLeverageRatio);
-    }
-  } catch {
-    // Errors may occur on account connection when selected maturity
-    // is not correct
-  }
-
-  // Return min, max and default
-  return { minimumLeverageRatio };
 }
 
 // interface VaultAccountDefaultDependencies {
