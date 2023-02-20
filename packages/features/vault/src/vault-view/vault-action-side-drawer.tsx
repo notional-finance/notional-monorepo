@@ -5,10 +5,11 @@ import {
   SideBarSubHeader,
   PageLoading,
 } from '@notional-finance/mui';
-import { Box, useTheme } from '@mui/material';
+import { Box, useTheme, styled } from '@mui/material';
 import { useVaultSideDrawers } from '../hooks';
 import { useAccount, useOnboard } from '@notional-finance/notionable-hooks';
 import { CreateVaultPosition, ManageVault } from '../side-drawers';
+import { MobileVaultSummary } from '../components';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
 import { VaultActionContext } from '../managers';
@@ -31,14 +32,9 @@ export const VaultActionSideDrawer = () => {
 
   const CustomHeader = () => {
     return (
-      <Box
-        sx={{ padding: theme.spacing(0, 6), marginTop: theme.spacing(9.25) }}
-      >
-        <SideBarSubHeader
-          callback={() => handleDrawer()}
-          titleText={defineMessage({ defaultMessage: 'Manage' })}
-        />
-      </Box>
+      <Container>
+        <MobileVaultSummary />
+      </Container>
     );
   };
 
@@ -57,8 +53,36 @@ export const VaultActionSideDrawer = () => {
         zIndex={1202}
         disableBackDrop
       >
+        <Box
+          sx={{
+            marginTop: {
+              xs: theme.spacing(20),
+              sm: theme.spacing(20),
+              md: theme.spacing(9),
+            },
+          }}
+        >
+          <SideBarSubHeader
+            callback={() => handleDrawer()}
+            titleText={defineMessage({ defaultMessage: 'Manage' })}
+          />
+        </Box>
         {SideDrawerComponent && <SideDrawerComponent />}
       </SideDrawer>
     </Drawer>
   );
 };
+
+const Container = styled(Box)(
+  ({ theme }) => `
+  display: none;
+  ${theme.breakpoints.down('sm')} {
+    display: flex;
+    min-width: 100vw;
+    top: 0;
+    position: fixed;
+    left: 0;
+    z-index: 1203;
+  }
+`
+);
