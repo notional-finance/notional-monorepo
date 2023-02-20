@@ -5,7 +5,7 @@ import {
   SideBarSubHeader,
   PageLoading,
 } from '@notional-finance/mui';
-import { Box, useTheme, styled } from '@mui/material';
+import { Box, useTheme } from '@mui/material';
 import { useVaultSideDrawers } from '../hooks';
 import { useAccount, useOnboard } from '@notional-finance/notionable-hooks';
 import { CreateVaultPosition, ManageVault } from '../side-drawers';
