@@ -9,7 +9,6 @@ export interface SideDrawerProps {
   CustomHeader?: ({ onClose }: { onClose: () => void }) => JSX.Element;
   zIndex?: number;
   marginTop?: string;
-  mobileTopMargin?: string;
   disableBackDrop?: boolean;
 }
 
@@ -21,7 +20,6 @@ export function SideDrawer({
   zIndex,
   marginTop,
   disableBackDrop = false,
-  mobileTopMargin,
 }: SideDrawerProps) {
   const theme = useTheme();
 
@@ -48,12 +46,6 @@ export function SideDrawer({
           maxWidth: { xs: '100%', sm: '100%', md: '543px' },
           width: { xs: '100%', sm: '100%', md: '100%' },
           boxShadow: disableBackDrop ? 'none' : '',
-          marginTop: {
-            xs: mobileTopMargin ? mobileTopMargin : '0px',
-            sm: mobileTopMargin ? mobileTopMargin : '0px',
-            md: '0px',
-          },
-          marginBottom: '100px',
         },
       }}
     >

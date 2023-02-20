@@ -8,11 +8,13 @@ import {
   CountUp,
   SliderInputHandle,
 } from '@notional-finance/mui';
+import { Box, styled, useTheme } from '@mui/material';
 import { RATE_PRECISION } from '@notional-finance/sdk/src/config/constants';
 import { VAULT_ACTIONS } from '@notional-finance/shared-config';
 import { VaultActionContext } from '../../managers';
 import { VaultSideDrawer } from '../components/vault-side-drawer';
 import { useVault } from '@notional-finance/notionable-hooks';
+import { MobileVaultSummary } from '../../components';
 import { useVaultActionErrors } from '../../hooks';
 import { WalletDepositInput } from '@notional-finance/trade';
 import { messages } from '../messages';
@@ -23,6 +25,7 @@ interface VaultParams {
 }
 
 export const CreateVaultPosition = () => {
+  const theme = useTheme();
   const { vaultAddress } = useParams<VaultParams>();
   const { updateState, state } = useContext(VaultActionContext);
   const {
@@ -70,52 +73,69 @@ export const CreateVaultPosition = () => {
   );
 
   return (
-    <VaultSideDrawer
-      action={VAULT_ACTIONS.CREATE_VAULT_POSITION}
-      transactionData={undefined}
-      vaultAddress={vaultAddress}
-      canSubmit={canSubmit}
-      updatedVaultAccount={updatedVaultAccount}
-    >
-      <Maturities
-        maturityData={vaultMaturityData || []}
-        onSelect={(marketKey: string | null) => {
-          updateState({ selectedMarketKey: marketKey || '' });
-        }}
-        currentMarketKey={selectedMarketKey || ''}
-        inputLabel={messages[VAULT_ACTIONS.CREATE_VAULT_POSITION].maturity}
-      />
-      <WalletDepositInput
-        availableTokens={[primaryBorrowSymbol]}
-        selectedToken={primaryBorrowSymbol}
-        onChange={({ inputAmount, hasError }) => {
-          updateState({ depositAmount: inputAmount, hasError });
-        }}
-        inputLabel={messages[VAULT_ACTIONS.CREATE_VAULT_POSITION].depositAmount}
-        errorMsgOverride={inputErrorMsg}
-      />
-      <SliderInput
-        ref={sliderInputRef}
-        min={0}
-        max={maxLeverageRatio / RATE_PRECISION}
-        onChangeCommitted={(leverageRatio) =>
-          updateState({
-            leverageRatio: Math.floor(leverageRatio * RATE_PRECISION),
-          })
-        }
-        errorMsg={
-          leverageRatioError ||
-          (underMinAccountBorrow
-            ? Object.assign(messages.error.underMinBorrow, {
-                values: { minBorrowSize, borrowAmount },
+    <>
+      <SummaryWrapper>
+        <MobileVaultSummary />
+      </SummaryWrapper>
+      <Box sx={{ marginTop: theme.spacing(22) }}>
+        <VaultSideDrawer
+          action={VAULT_ACTIONS.CREATE_VAULT_POSITION}
+          transactionData={undefined}
+          vaultAddress={vaultAddress}
+          canSubmit={canSubmit}
+          updatedVaultAccount={updatedVaultAccount}
+        >
+          <Maturities
+            maturityData={vaultMaturityData || []}
+            onSelect={(marketKey: string | null) => {
+              updateState({ selectedMarketKey: marketKey || '' });
+            }}
+            currentMarketKey={selectedMarketKey || ''}
+            inputLabel={messages[VAULT_ACTIONS.CREATE_VAULT_POSITION].maturity}
+          />
+          <WalletDepositInput
+            availableTokens={[primaryBorrowSymbol]}
+            selectedToken={primaryBorrowSymbol}
+            onChange={({ inputAmount, hasError }) => {
+              updateState({ depositAmount: inputAmount, hasError });
+            }}
+            inputLabel={
+              messages[VAULT_ACTIONS.CREATE_VAULT_POSITION].depositAmount
+            }
+            errorMsgOverride={inputErrorMsg}
+          />
+          <SliderInput
+            ref={sliderInputRef}
+            min={0}
+            max={maxLeverageRatio / RATE_PRECISION}
+            onChangeCommitted={(leverageRatio) =>
+              updateState({
+                leverageRatio: Math.floor(leverageRatio * RATE_PRECISION),
               })
-            : undefined)
-        }
-        infoMsg={Object.assign(messages.summary.borrowAmount, {
-          values: { borrowAmount },
-        })}
-        inputLabel={messages[VAULT_ACTIONS.CREATE_VAULT_POSITION].leverage}
-      />
-    </VaultSideDrawer>
+            }
+            errorMsg={
+              leverageRatioError ||
+              (underMinAccountBorrow
+                ? Object.assign(messages.error.underMinBorrow, {
+                    values: { minBorrowSize, borrowAmount },
+                  })
+                : undefined)
+            }
+            infoMsg={Object.assign(messages.summary.borrowAmount, {
+              values: { borrowAmount },
+            })}
+            inputLabel={messages[VAULT_ACTIONS.CREATE_VAULT_POSITION].leverage}
+          />
+        </VaultSideDrawer>
+      </Box>
+    </>
   );
 };
+
+const SummaryWrapper = styled(Box)`
+  position: fixed;
+  top: 70px;
+  left: 0;
+  min-width: 100vw;
+  z-index: 1;
+`;
