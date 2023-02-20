@@ -5,7 +5,7 @@ import {
   SideBarSubHeader,
   PageLoading,
 } from '@notional-finance/mui';
-import { Box, useTheme } from '@mui/material';
+import { Box, useTheme, styled } from '@mui/material';
 import { useVaultSideDrawers } from '../hooks';
 import { useAccount, useOnboard } from '@notional-finance/notionable-hooks';
 import { CreateVaultPosition, ManageVault } from '../side-drawers';
@@ -32,9 +32,9 @@ export const VaultActionSideDrawer = () => {
 
   const CustomHeader = () => {
     return (
-      <Box sx={{ padding: theme.spacing(0, 2) }}>
+      <Container>
         <MobileVaultSummary />
-      </Box>
+      </Container>
     );
   };
 
@@ -52,7 +52,6 @@ export const VaultActionSideDrawer = () => {
         CustomHeader={CustomHeader}
         zIndex={1202}
         disableBackDrop
-        mobileTopMargin="70px"
       >
         <Box
           sx={{
@@ -73,3 +72,17 @@ export const VaultActionSideDrawer = () => {
     </Drawer>
   );
 };
+
+const Container = styled(Box)(
+  ({ theme }) => `
+  display: none;
+  ${theme.breakpoints.down('sm')} {
+    display: flex;
+    min-width: 100vw;
+    top: 0;
+    position: fixed;
+    left: 0;
+    z-index: 1203;
+  }
+`
+);

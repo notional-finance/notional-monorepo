@@ -9,6 +9,7 @@ import ToggleSwitch, {
 import {
   LargeInputTextEmphasized,
   HeadingSubtitle,
+  H4,
 } from '../typography/typography';
 import { NotionalTheme } from '@notional-finance/styles';
 
@@ -74,9 +75,22 @@ export const ActionSidebar = ({
             justifyContent: 'space-between',
           }}
         >
-          <LargeInputTextEmphasized gutter="default">
+          <LargeInputTextEmphasized
+            gutter="default"
+            sx={{ display: { xs: 'none', sm: 'none', md: 'block' } }}
+          >
             <FormattedMessage {...heading} />
           </LargeInputTextEmphasized>
+          <H4
+            gutter="default"
+            sx={{
+              display: { xs: 'block', sm: 'block', md: 'none' },
+              textTransform: 'uppercase',
+              marginBottom: theme.spacing(5),
+            }}
+          >
+            <FormattedMessage {...heading} />
+          </H4>
           {advancedToggle && (
             <Box
               sx={{
@@ -91,7 +105,10 @@ export const ActionSidebar = ({
         </Box>
         <HeadingSubtitle
           marginBottom={theme.spacing(3)}
-          sx={{ color: theme.palette.typography.light }}
+          sx={{
+            color: theme.palette.typography.light,
+            display: { xs: 'none', sm: 'none', md: 'block' },
+          }}
         >
           <FormattedMessage {...helptext} />
         </HeadingSubtitle>
@@ -99,6 +116,7 @@ export const ActionSidebar = ({
           sx={{
             marginBottom: theme.spacing(6),
             background: theme.palette.borders.paper,
+            display: { xs: 'none', sm: 'none', md: 'block' },
           }}
           variant="fullWidth"
         />
