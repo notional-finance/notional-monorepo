@@ -82,6 +82,7 @@ export interface VaultActionState
   maxWithdrawAmount?: TypedBigNumber;
   vaultError?: VaultError;
   buildTransactionCall?: TransactionFunction;
+  netCapacityChange?: TypedBigNumber;
 }
 
 export const initialVaultActionState: VaultActionState = {

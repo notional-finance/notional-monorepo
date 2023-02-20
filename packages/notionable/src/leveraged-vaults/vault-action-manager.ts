@@ -11,6 +11,7 @@ import {
   getUpdatedVaultAccount,
 } from './logic';
 import { VaultActionState } from './vault-action-store';
+import { getVaultCapacity } from './logic/get-vault-capacity';
 
 export const loadVaultActionManager = (
   state$: Observable<VaultActionState>
@@ -81,7 +82,7 @@ export const loadVaultActionManager = (
   );
 
   const onEntryValuesChange$ = state$.pipe(
-    requireKeysDefined('baseVault', 'vaultAccount', 'accountAddress'),
+    requireKeysDefined('baseVault', 'vaultAccount'),
     mapWithDistinctInputs(
       getUpdatedVaultAccount,
       'accountAddress',
@@ -91,11 +92,29 @@ export const loadVaultActionManager = (
     )
   );
 
+  // Returns net capacity change based on the action
+  const onCapacityChange$ = state$.pipe(
+    requireKeysDefined('vaultConfig'),
+    mapWithDistinctInputs(
+      getVaultCapacity,
+      'vaultAction',
+      'vaultAccount',
+      // @note mapWithDistinctInputs has problems with circular dependencies, so
+      // a direct dependency on fCashToLend or fCashToBorrow causes issues here
+      'depositAmount',
+      'leverageRatio',
+      'selectedMarketKey',
+      'withdrawAmount',
+      'maxWithdraw'
+    )
+  );
+
   return merge(
     onVaultChange$,
     defaultLeverageRatio$,
     onBorrowInputChange$,
     onWithdrawInputChange$,
-    onEntryValuesChange$
+    onEntryValuesChange$,
+    onCapacityChange$
   );
 };

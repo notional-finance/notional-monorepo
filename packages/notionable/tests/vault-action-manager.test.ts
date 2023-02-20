@@ -405,6 +405,9 @@ describe('Vault Actions', () => {
               values[index - 1].currentBorrowRate!
             );
             expect(v.updatedVaultAccount).toBeDefined();
+            expect(v.netCapacityChange?.neg().eq(v.fCashBorrowAmount!)).toBe(
+              true
+            );
           },
         ],
         [
@@ -413,6 +416,7 @@ describe('Vault Actions', () => {
           (v) => {
             expect(v.fCashBorrowAmount).toBeUndefined();
             expect(v.updatedVaultAccount).toBeUndefined();
+            expect(v.netCapacityChange?.isZero()).toBe(true);
           },
         ],
       ]);
@@ -489,6 +493,7 @@ describe('Vault Actions', () => {
             expect(v.fCashToLend?.toFloat()).toBe(0);
             expect(v.vaultSharesToRedeem?.toFloat()).toBe(0);
             expect(v.amountToWallet?.toFloat()).toBe(0);
+            expect(v.netCapacityChange?.isZero()).toBe(true);
           },
         ],
       ]);
@@ -510,6 +515,7 @@ describe('Vault Actions', () => {
             expect(v.fCashToLend?.toFloat()).toBe(0.05);
             expect(v.vaultSharesToRedeem?.toFloat()).toBeCloseTo(0.06);
             expect(v.amountToWallet?.toFloat()).toBeCloseTo(0.01, 3);
+            expect(v.netCapacityChange?.eq(v.fCashToLend!.neg())).toBe(true);
           },
         ],
         [
@@ -522,6 +528,7 @@ describe('Vault Actions', () => {
             expect(v.fCashToLend?.toFloat()).toBe(4);
             expect(v.vaultSharesToRedeem?.toFloat()).toBe(5);
             expect(v.amountToWallet?.toFloat()).toBeCloseTo(1, 1);
+            expect(v.netCapacityChange?.eq(v.fCashToLend!.neg())).toBe(true);
           },
         ],
         [
@@ -546,6 +553,7 @@ describe('Vault Actions', () => {
             expect(v.vaultSharesToRedeem?.toFloat()).toBeCloseTo(5);
             expect(v.amountToWallet?.toFloat()).toBeCloseTo(1, 1);
             expect(v.fCashToLend?.toFloat()).toBe(4);
+            expect(v.netCapacityChange?.eq(v.fCashToLend!.neg())).toBe(true);
           },
         ],
       ]);
