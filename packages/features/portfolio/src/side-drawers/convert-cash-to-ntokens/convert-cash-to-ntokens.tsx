@@ -4,8 +4,8 @@ import {
   LEND_BORROW,
   PORTFOLIO_ACTIONS,
 } from '@notional-finance/shared-config';
-import { ConvertCashToNTokensInput } from './convert-cash-to-n-tokens-input';
-import { useConvertCashToNTokens } from './use-convert-cash-to-n-tokens';
+import { ConvertCashToNTokensInput } from './convert-cash-to-ntokens-input';
+import { useConvertCashToNTokens } from './use-convert-cash-to-ntokens';
 import { messages } from '../messages';
 
 export const ConvertCashToNTokens = () => {

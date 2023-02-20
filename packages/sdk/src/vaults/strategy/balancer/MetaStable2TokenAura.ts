@@ -140,7 +140,7 @@ export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitPar
       {
         stage: 1,
         target: (r) =>
-          new Contract(r.poolContext.poolAddress, BalancerStablePoolABI),
+          new Contract(r['poolContext'].poolAddress, BalancerStablePoolABI),
         method: 'getAmplificationParameter',
         key: 'amplificationParameter',
         transform: (
@@ -154,7 +154,7 @@ export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitPar
       {
         stage: 1,
         target: (r) =>
-          new Contract(r.poolContext.poolAddress, BalancerStablePoolABI),
+          new Contract(r['poolContext'].poolAddress, BalancerStablePoolABI),
         method: 'getSwapFeePercentage',
         key: 'swapFeePercentage',
         transform: (
@@ -166,7 +166,7 @@ export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitPar
       {
         stage: 1,
         target: (r) =>
-          new Contract(r.poolContext.poolAddress, BalancerStablePoolABI),
+          new Contract(r['poolContext'].poolAddress, BalancerStablePoolABI),
         method: 'totalSupply',
         key: 'totalSupply',
         transform: (
@@ -176,7 +176,7 @@ export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitPar
       {
         stage: 1,
         target: (r) =>
-          new Contract(r.poolContext.poolAddress, BalancerStablePoolABI),
+          new Contract(r['poolContext'].poolAddress, BalancerStablePoolABI),
         method: 'getScalingFactors',
         key: 'scalingFactors',
         transform: (
@@ -187,10 +187,13 @@ export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitPar
       },
       {
         stage: 1,
-        target: (r) => new Contract(r.tradingModule, TradingModuleABI),
+        target: (r) => new Contract(r['tradingModule'], TradingModuleABI),
         key: 'oraclePairPrice',
         method: 'getOraclePrice',
-        args: (r) => [r.poolContext.primaryToken, r.poolContext.secondaryToken],
+        args: (r) => [
+          r['poolContext'].primaryToken,
+          r['poolContext'].secondaryToken,
+        ],
         transform: (
           r: Awaited<ReturnType<TradingModule['functions']['getOraclePrice']>>
         ) => FixedPoint.from(r.answer),
@@ -198,7 +201,7 @@ export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitPar
       {
         stage: 1,
         target: (r) =>
-          new Contract(r.poolContext.poolAddress, BalancerStablePoolABI),
+          new Contract(r['poolContext'].poolAddress, BalancerStablePoolABI),
         key: 'bptPrice',
         method: 'getTimeWeightedAverage',
         args: [
@@ -221,7 +224,7 @@ export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitPar
       {
         stage: 1,
         target: (r) =>
-          new Contract(r.poolContext.poolAddress, BalancerStablePoolABI),
+          new Contract(r['poolContext'].poolAddress, BalancerStablePoolABI),
         key: 'bptPairPrice',
         method: 'getTimeWeightedAverage',
         args: [

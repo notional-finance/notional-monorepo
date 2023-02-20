@@ -88,16 +88,18 @@ export default class GraphClient {
    * @param variables
    * @returns
    */
-  public async batchQuery<TData = any, TVariables = OperationVariables>(
+  public async batchQuery<
+    TData extends { batch: { id: string; [key: string]: unknown }[] },
+    TVariables = OperationVariables
+  >(
     query: DocumentNode | TypedDocumentNode<TData, TVariables>,
     variables?: TVariables,
     initialID = '0',
-    listKey = 'batch',
     pageSize = 1000
   ) {
     let hasMoreResults = false;
     let lastID = initialID;
-    const batchResult: any[] = [];
+    const batchResult: unknown[] = [];
 
     do {
       // eslint-disable-next-line no-await-in-loop
@@ -106,11 +108,11 @@ export default class GraphClient {
         pageSize,
         lastID,
       } as unknown as TVariables);
-      batchResult.push(...results[listKey]);
+      const resultList = results.batch;
+      batchResult.push(...resultList);
 
-      hasMoreResults = results[listKey].length > 0;
-      if (hasMoreResults)
-        lastID = results[listKey][results[listKey].length - 1].id;
+      hasMoreResults = resultList.length > 0;
+      if (hasMoreResults) lastID = resultList[resultList.length - 1].id;
     } while (hasMoreResults);
 
     return batchResult;

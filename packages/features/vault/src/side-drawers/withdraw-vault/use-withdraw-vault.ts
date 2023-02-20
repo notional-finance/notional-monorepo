@@ -5,13 +5,13 @@ import {
   useVault,
   useVaultAccount,
 } from '@notional-finance/notionable-hooks';
-import { TransactionData } from '@notional-finance/notionable';
 import { TypedBigNumber, VaultAccount } from '@notional-finance/sdk';
 import { RATE_PRECISION } from '@notional-finance/sdk/src/config/constants';
 import {
   tradeErrors,
   TradeProperties,
   TradePropertyKeys,
+  TransactionData,
 } from '@notional-finance/trade';
 import { useFormState } from '@notional-finance/utils';
 import { logError, NonLoggedError } from '@notional-finance/helpers';

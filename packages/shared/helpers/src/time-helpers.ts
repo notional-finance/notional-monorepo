@@ -1,5 +1,9 @@
 export function getNowSeconds() {
-  if (process.env['NODE_ENV'] === 'development' && process.env['FAKE_TIME']) {
+  if (
+    (process.env['NODE_ENV'] === 'development' ||
+      process.env['NODE_ENV'] === 'test') &&
+    process.env['FAKE_TIME']
+  ) {
     return parseInt(process.env['FAKE_TIME'], 10);
   }
 
@@ -11,15 +15,21 @@ export interface DateStringOptions {
   showTime?: boolean;
 }
 
-export function getDateString(timestampInSeconds: number, opts: DateStringOptions = {}) {
+export function getDateString(
+  timestampInSeconds: number,
+  opts: DateStringOptions = {}
+) {
   // Multiply by 1000 because javascript uses milliseconds.
   const date = new Date(timestampInSeconds * 1000);
 
   if (opts?.slashesFormat && opts?.showTime) {
-    return `${date.toLocaleDateString('en-US')}, ${date.toLocaleTimeString('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-    })}`;
+    return `${date.toLocaleDateString('en-US')}, ${date.toLocaleTimeString(
+      'en-US',
+      {
+        hour: '2-digit',
+        minute: '2-digit',
+      }
+    )}`;
   } else if (opts?.slashesFormat) {
     return `${date.toLocaleDateString('en-US')}`;
   }

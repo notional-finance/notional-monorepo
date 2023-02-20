@@ -4,13 +4,13 @@ import {
   useCurrencyData,
   useRiskRatios,
 } from '@notional-finance/notionable-hooks';
-import {
-  TransactionData,
-  TransactionFunction,
-} from '@notional-finance/notionable';
 import { AssetType, TypedBigNumber } from '@notional-finance/sdk';
 import { NTokenValue } from '@notional-finance/sdk/src/system';
-import { TradePropertyKeys } from '@notional-finance/trade';
+import {
+  TradePropertyKeys,
+  TransactionData,
+  TransactionFunction,
+} from '@notional-finance/trade';
 import { useFormState, useQueryParams } from '@notional-finance/utils';
 import {
   PORTFOLIO_ACTIONS,
