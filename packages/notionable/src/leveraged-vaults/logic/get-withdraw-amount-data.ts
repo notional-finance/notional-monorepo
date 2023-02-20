@@ -5,7 +5,7 @@ import {
   TypedBigNumber,
   VaultAccount,
 } from '@notional-finance/sdk';
-import { VAULT_ACTIONS } from '@notional-finance/shared-config';
+import { tradeDefaults, VAULT_ACTIONS } from '@notional-finance/shared-config';
 import { VaultError } from '../vault-action-store';
 
 interface VaultWithdrawDataDependencies {
@@ -15,11 +15,59 @@ interface VaultWithdrawDataDependencies {
   maxWithdraw?: boolean;
   leverageRatio?: number;
   // Via Init
+  accountAddress?: string;
   vaultAccount: VaultAccount;
   baseVault: GenericBaseVault;
 }
 
-export function getWithdrawAmountData({
+export function getWithdrawAmountData(inputs: VaultWithdrawDataDependencies) {
+  if (
+    ![
+      VAULT_ACTIONS.WITHDRAW_AND_REPAY_DEBT,
+      VAULT_ACTIONS.WITHDRAW_VAULT,
+      VAULT_ACTIONS.WITHDRAW_VAULT_POST_MATURITY,
+    ].includes(inputs.vaultAction)
+  ) {
+    // If not in the withdraw and repay debt action, clear all of these inputs, do not
+    // clear updatedVaultAccount
+    return {
+      amountToWallet: undefined,
+      fCashToLend: undefined,
+      vaultSharesToRedeem: undefined,
+    };
+  }
+
+  const {
+    amountToWallet,
+    fCashToLend,
+    vaultSharesToRedeem,
+    updatedVaultAccount,
+  } = _getWithdrawAmountData(inputs);
+
+  const { accountAddress, baseVault, vaultAccount } = inputs;
+
+  return {
+    amountToWallet,
+    fCashToLend,
+    vaultSharesToRedeem,
+    updatedVaultAccount,
+    buildTransactionCall:
+      updatedVaultAccount && accountAddress
+        ? {
+            transactionFn: baseVault.populateEnterTransaction.bind(baseVault),
+            transactionArgs: [
+              accountAddress,
+              vaultAccount.maturity,
+              vaultSharesToRedeem,
+              fCashToLend,
+              tradeDefaults.defaultAnnualizedSlippage,
+            ],
+          }
+        : undefined,
+  };
+}
+
+function _getWithdrawAmountData({
   vaultAction,
   withdrawAmount,
   maxWithdraw,
@@ -31,22 +79,6 @@ export function getWithdrawAmountData({
   let fCashToLend: TypedBigNumber | undefined;
   let vaultSharesToRedeem: TypedBigNumber | undefined;
   let updatedVaultAccount: VaultAccount | undefined;
-
-  if (
-    ![
-      VAULT_ACTIONS.WITHDRAW_AND_REPAY_DEBT,
-      VAULT_ACTIONS.WITHDRAW_VAULT,
-      VAULT_ACTIONS.WITHDRAW_VAULT_POST_MATURITY,
-    ].includes(vaultAction)
-  ) {
-    // If not in the withdraw and repay debt action, clear all of these inputs, do not
-    // clear updatedVaultAccount
-    return {
-      amountToWallet: undefined,
-      fCashToLend: undefined,
-      vaultSharesToRedeem: undefined,
-    };
-  }
 
   try {
     if (vaultAction === VAULT_ACTIONS.WITHDRAW_VAULT_POST_MATURITY) {

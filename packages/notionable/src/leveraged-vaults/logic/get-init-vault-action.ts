@@ -76,6 +76,7 @@ export function getInitVaultAction({
   );
 
   return {
+    accountAddress: account?.address || undefined,
     vaultAccount,
     vaultConfig,
     baseVault,

@@ -14,6 +14,7 @@ interface UpdatedVaultAccountDependencies {
   selectedMarketKey?: string;
   fCashBorrowAmount?: TypedBigNumber;
   // Via Init
+  accountAddress?: string;
   vaultAccount: VaultAccount;
   baseVault: GenericBaseVault;
 }
@@ -25,14 +26,14 @@ export function getUpdatedVaultAccount({
   fCashBorrowAmount,
   depositAmount,
   selectedMarketKey,
+  accountAddress,
 }: UpdatedVaultAccountDependencies) {
-  let updatedVaultAccount: VaultAccount | undefined;
   const selectedMaturity = selectedMarketKey
     ? Market.parseMaturity(selectedMarketKey)
     : undefined;
 
   if (vaultAction === undefined) {
-    return { updatedVaultAccount };
+    return { updatedVaultAccount: undefined, buildTransactionCall: undefined };
   } else if (
     [
       VAULT_ACTIONS.WITHDRAW_AND_REPAY_DEBT,
@@ -47,73 +48,49 @@ export function getUpdatedVaultAccount({
 
   try {
     if (vaultAction === VAULT_ACTIONS.ROLL_POSITION && selectedMaturity) {
-      // Set this to zero if it is unset, it is optional during these two actions
-      const depositInternal =
-        depositAmount?.toInternalPrecision() ||
-        TypedBigNumber.getZeroUnderlying(
-          baseVault.getVault().primaryBorrowCurrency
-        );
-
-      const { newVaultAccount, fCashToBorrowForRepayment } =
-        baseVault.simulateRollPosition(
-          vaultAccount,
-          selectedMaturity,
-          depositInternal.toInternalPrecision(),
-          tradeDefaults.defaultAnnualizedSlippage
-        );
-
-      if (
-        fCashBorrowAmount &&
-        fCashBorrowAmount.lt(fCashToBorrowForRepayment)
-      ) {
-        // This is any additional borrow beyond the original
-        updatedVaultAccount = baseVault.simulateEnter(
-          newVaultAccount,
-          selectedMaturity,
-          fCashBorrowAmount.sub(fCashToBorrowForRepayment),
-          depositInternal.copy(0)
-        ).newVaultAccount;
-      } else {
-        updatedVaultAccount = newVaultAccount;
-      }
+      return getRollPosition(
+        accountAddress,
+        baseVault,
+        selectedMaturity,
+        vaultAccount,
+        fCashBorrowAmount,
+        depositAmount
+      );
     } else if (
       vaultAction === VAULT_ACTIONS.CREATE_VAULT_POSITION &&
       fCashBorrowAmount &&
       depositAmount &&
       selectedMaturity
     ) {
-      updatedVaultAccount = baseVault.simulateEnter(
-        vaultAccount,
+      return getCreatePosition(
+        accountAddress,
+        baseVault,
         selectedMaturity,
+        vaultAccount,
         fCashBorrowAmount,
-        depositAmount.toInternalPrecision()
-      ).newVaultAccount;
+        depositAmount
+      );
     } else if (
       vaultAction === VAULT_ACTIONS.INCREASE_POSITION &&
       fCashBorrowAmount
     ) {
-      updatedVaultAccount = baseVault.simulateEnter(
+      return getIncreasePosition(
+        accountAddress,
+        baseVault,
         vaultAccount,
-        vaultAccount.maturity,
         fCashBorrowAmount,
-        // Deposit amount is optional when increasing position
-        depositAmount?.toInternalPrecision() ||
-          TypedBigNumber.getZeroUnderlying(
-            baseVault.getVault().primaryBorrowCurrency
-          )
-      ).newVaultAccount;
+        depositAmount
+      );
     } else if (
       vaultAction === VAULT_ACTIONS.DEPOSIT_COLLATERAL &&
       depositAmount
     ) {
-      updatedVaultAccount = baseVault.simulateEnter(
+      return getDepositPosition(
+        accountAddress,
+        baseVault,
         vaultAccount,
-        vaultAccount.maturity,
-        TypedBigNumber.getZeroUnderlying(
-          baseVault.getVault().primaryBorrowCurrency
-        ),
-        depositAmount.toInternalPrecision()
-      ).newVaultAccount;
+        depositAmount
+      );
     }
   } catch (e) {
     logError(
@@ -122,8 +99,158 @@ export function getUpdatedVaultAccount({
       'get-updated-vault-account'
     );
     // Errors may occur when the maturity is not correct
-    return { updatedVaultAccount: undefined };
+    return { updatedVaultAccount: undefined, buildTransactionCall: undefined };
   }
 
-  return { updatedVaultAccount };
+  return { updatedVaultAccount: undefined, buildTransactionCall: undefined };
+}
+
+function getRollPosition(
+  address: string | undefined,
+  baseVault: GenericBaseVault,
+  selectedMaturity: number,
+  vaultAccount: VaultAccount,
+  fCashBorrowAmount?: TypedBigNumber,
+  depositAmount = TypedBigNumber.getZeroUnderlying(
+    baseVault.getVault().primaryBorrowCurrency
+  )
+) {
+  let updatedVaultAccount: VaultAccount;
+
+  const depositInternal = depositAmount.toInternalPrecision();
+  const { newVaultAccount, fCashToBorrowForRepayment } =
+    baseVault.simulateRollPosition(
+      vaultAccount,
+      selectedMaturity,
+      depositInternal,
+      tradeDefaults.defaultAnnualizedSlippage
+    );
+
+  if (fCashBorrowAmount && fCashBorrowAmount.lt(fCashToBorrowForRepayment)) {
+    // This is any additional borrow beyond the original
+    updatedVaultAccount = baseVault.simulateEnter(
+      newVaultAccount,
+      selectedMaturity,
+      fCashBorrowAmount.sub(fCashToBorrowForRepayment),
+      depositInternal.copy(0)
+    ).newVaultAccount;
+  } else {
+    updatedVaultAccount = newVaultAccount;
+  }
+
+  return {
+    updatedVaultAccount,
+    buildTransactionCall: address
+      ? {
+          transactionFn: baseVault.populateRollTransaction.bind(baseVault),
+          transactionArgs: [
+            address,
+            selectedMaturity,
+            depositAmount.toExternalPrecision(),
+            fCashBorrowAmount || fCashToBorrowForRepayment,
+            tradeDefaults.defaultAnnualizedSlippage,
+            vaultAccount,
+          ],
+        }
+      : undefined,
+  };
+}
+
+function getCreatePosition(
+  address: string | undefined,
+  baseVault: GenericBaseVault,
+  selectedMaturity: number,
+  vaultAccount: VaultAccount,
+  fCashBorrowAmount: TypedBigNumber,
+  depositAmount: TypedBigNumber
+) {
+  const { newVaultAccount: updatedVaultAccount } = baseVault.simulateEnter(
+    vaultAccount,
+    selectedMaturity,
+    fCashBorrowAmount,
+    depositAmount.toInternalPrecision()
+  );
+
+  return {
+    updatedVaultAccount,
+    buildTransactionCall: address
+      ? {
+          transactionFn: baseVault.populateEnterTransaction.bind(baseVault),
+          transactionArgs: [
+            address,
+            depositAmount.toExternalPrecision(),
+            selectedMaturity,
+            fCashBorrowAmount,
+            tradeDefaults.defaultAnnualizedSlippage,
+          ],
+        }
+      : undefined,
+  };
+}
+
+function getIncreasePosition(
+  address: string | undefined,
+  baseVault: GenericBaseVault,
+  vaultAccount: VaultAccount,
+  fCashBorrowAmount: TypedBigNumber,
+  depositAmount = TypedBigNumber.getZeroUnderlying(
+    baseVault.getVault().primaryBorrowCurrency
+  )
+) {
+  const { newVaultAccount: updatedVaultAccount } = baseVault.simulateEnter(
+    vaultAccount,
+    vaultAccount.maturity,
+    fCashBorrowAmount,
+    depositAmount.toInternalPrecision()
+  );
+
+  return {
+    updatedVaultAccount,
+    buildTransactionCall: address
+      ? {
+          transactionFn: baseVault.populateEnterTransaction.bind(baseVault),
+          transactionArgs: [
+            address,
+            depositAmount.toExternalPrecision(),
+            vaultAccount.maturity,
+            fCashBorrowAmount,
+            tradeDefaults.defaultAnnualizedSlippage,
+          ],
+        }
+      : undefined,
+  };
+}
+
+function getDepositPosition(
+  address: string | undefined,
+  baseVault: GenericBaseVault,
+  vaultAccount: VaultAccount,
+  depositAmount: TypedBigNumber
+) {
+  const fCashBorrowAmount = TypedBigNumber.getZeroUnderlying(
+    baseVault.getVault().primaryBorrowCurrency
+  );
+
+  const { newVaultAccount: updatedVaultAccount } = baseVault.simulateEnter(
+    vaultAccount,
+    vaultAccount.maturity,
+    fCashBorrowAmount,
+    depositAmount.toInternalPrecision()
+  );
+
+  return {
+    updatedVaultAccount,
+    buildTransactionCall: address
+      ? {
+          transactionFn: baseVault.populateEnterTransaction.bind(baseVault),
+          transactionArgs: [
+            address,
+            depositAmount.toExternalPrecision(),
+            vaultAccount.maturity,
+            fCashBorrowAmount,
+            tradeDefaults.defaultAnnualizedSlippage,
+          ],
+        }
+      : undefined,
+  };
 }

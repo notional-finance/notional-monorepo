@@ -81,9 +81,10 @@ export const loadVaultActionManager = (
   );
 
   const onEntryValuesChange$ = state$.pipe(
-    requireKeysDefined('baseVault', 'vaultAccount'),
+    requireKeysDefined('baseVault', 'vaultAccount', 'accountAddress'),
     mapWithDistinctInputs(
       getUpdatedVaultAccount,
+      'accountAddress',
       'vaultAction',
       'depositAmount',
       'selectedMarketKey'

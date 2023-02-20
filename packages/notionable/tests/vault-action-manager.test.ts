@@ -73,6 +73,7 @@ describe('Vault Actions', () => {
 
     return {
       accountData,
+      address: '0x1234356',
     } as unknown as Account;
   };
 
@@ -330,24 +331,32 @@ describe('Vault Actions', () => {
           { maxWithdraw: true },
           (v) => {
             expect(v.updatedVaultAccount).toBeDefined();
+            expect(v.buildTransactionCall).toBeDefined();
           },
         ],
         [
           { vaultAction: VAULT_ACTIONS.DEPOSIT_COLLATERAL },
           (v) => {
+            expect(v).toHaveProperty('updatedVaultAccount');
+            expect(v).toHaveProperty('buildTransactionCall');
             expect(v.updatedVaultAccount).toBeUndefined();
+            expect(v.buildTransactionCall).toBeUndefined();
           },
         ],
         [
           { depositAmount: TypedBigNumber.fromBalance(0.1e8, 'ETH', true) },
           (v) => {
             expect(v.updatedVaultAccount).toBeDefined();
+            expect(v.buildTransactionCall).toBeDefined();
           },
         ],
         [
           { vaultAction: VAULT_ACTIONS.WITHDRAW_AND_REPAY_DEBT },
           (v) => {
+            expect(v).toHaveProperty('updatedVaultAccount');
+            expect(v).toHaveProperty('buildTransactionCall');
             expect(v.updatedVaultAccount).toBeUndefined();
+            expect(v.buildTransactionCall).toBeUndefined();
           },
         ],
       ]);
