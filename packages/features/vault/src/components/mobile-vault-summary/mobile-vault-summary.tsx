@@ -5,12 +5,11 @@ import {
   LargeInputTextEmphasized,
   CountUp,
   SliderBasic,
-  SideBarSubHeader,
 } from '@notional-finance/mui';
 import { THEME_VARIANTS } from '@notional-finance/shared-config';
 import { useVault } from '@notional-finance/notionable-hooks';
 import { useHistoricalReturns } from '../../hooks/use-historical-returns';
-import { useSideDrawerManager } from '@notional-finance/side-drawer';
+// import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { useVaultCapacity } from '../../hooks/use-vault-capacity';
 import { TokenIcon } from '@notional-finance/icons';
 import { VaultActionContext } from '../../managers';
@@ -25,29 +24,29 @@ export const MobileVaultSummary = () => {
   const { primaryBorrowSymbol, vaultName } = useVault(vaultAddress);
   const { headlineApy } = useHistoricalReturns();
   const {
-    overCapacityError,
+    // overCapacityError,
     maxVaultCapacity,
     capacityUsedPercentage,
-    capacityWithUserBorrowPercentage,
+    // capacityWithUserBorrowPercentage,
   } = useVaultCapacity();
 
-  const { clearSideDrawer } = useSideDrawerManager();
+  // const { clearSideDrawer } = useSideDrawerManager();
 
-  const handleDrawer = () => {
-    clearSideDrawer(`/vaults/${vaultAddress}`);
-  };
+  // const handleDrawer = () => {
+  //   clearSideDrawer(`/vaults/${vaultAddress}`);
+  // };
 
-  const userCapacityMark = capacityWithUserBorrowPercentage
-    ? [
-        {
-          value: capacityWithUserBorrowPercentage,
-          label: '',
-          color: overCapacityError
-            ? theme.palette.error.main
-            : theme.palette.primary.light,
-        },
-      ]
-    : undefined;
+  // const userCapacityMark = capacityWithUserBorrowPercentage
+  //   ? [
+  //       {
+  //         value: capacityWithUserBorrowPercentage,
+  //         label: '',
+  //         color: overCapacityError
+  //           ? theme.palette.error.main
+  //           : theme.palette.primary.light,
+  //       },
+  //     ]
+  //   : undefined;
 
   return (
     <Container>
