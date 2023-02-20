@@ -6,25 +6,29 @@ import {
   TradeActionHeader,
   TradeActionTitle,
   TradeSummaryContainer,
+  AreaChart,
 } from '@notional-finance/mui';
 import { useVault } from '@notional-finance/notionable-hooks';
 import { VAULT_SUB_NAV_ACTIONS } from '@notional-finance/shared-config';
 import { useContext } from 'react';
 import { FormattedMessage, defineMessage } from 'react-intl';
-import { PerformanceChart, VaultDescription, VaultSubNav } from '../components';
+import { VaultDescription, VaultSubNav } from '../components';
 import { useHistoricalReturns } from '../hooks/use-historical-returns';
 import { useReturnDrivers } from '../hooks/use-return-drivers';
 import { useVaultCapacity } from '../hooks/use-vault-capacity';
+import { usePerformanceChart } from '../hooks/use-performance-chart';
 import { VaultActionContext } from '../managers';
 import { messages } from '../messages';
 
 export const VaultSummary = () => {
   const theme = useTheme();
   const { state } = useContext(VaultActionContext);
-  const { vaultAddress, leverageRatio } = state || {};
+  const { vaultAddress } = state || {};
   const { primaryBorrowSymbol, vaultName } = useVault(vaultAddress);
-  const { historicalReturns, currentBorrowRate, returnDrivers, headlineApy } =
-    useHistoricalReturns();
+  const { returnDrivers, headlineApy } = useHistoricalReturns();
+  const { areaChartData, areaHeaderData, chartToolTipData } =
+    usePerformanceChart();
+
   const tableColumns = useReturnDrivers();
   const {
     overCapacityError,
@@ -91,10 +95,10 @@ export const VaultSummary = () => {
                   : theme.shape.borderStandard,
               }}
             />
-            <PerformanceChart
-              historicalReturns={historicalReturns}
-              leverageRatio={leverageRatio}
-              currentBorrowRate={currentBorrowRate}
+            <AreaChart
+              areaChartData={areaChartData}
+              areaHeaderData={areaHeaderData}
+              chartToolTipData={chartToolTipData}
             />
           </Box>
           <Box

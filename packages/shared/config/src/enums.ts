@@ -62,17 +62,16 @@ export enum NTOKEN_ACTIONS {
 }
 
 export enum VAULT_ACTIONS {
+  ESTABLISH_ACCOUNT = 'establish-account',
   CREATE_VAULT_POSITION = 'create-vault-position',
   INCREASE_POSITION = 'increase-position',
   DEPOSIT_COLLATERAL = 'deposit-collateral',
   ROLL_POSITION = 'roll-position',
+  DELEVERAGE_VAULT = 'deleverage-vault',
   WITHDRAW_AND_REPAY_DEBT = 'withdraw-and-repay-debt',
+  DELEVERAGE_VAULT_DEPOSIT = 'deleverage-vault-deposit',
   WITHDRAW_VAULT = 'withdraw-vault',
   WITHDRAW_VAULT_POST_MATURITY = 'withdraw-vault-post-maturity',
-  // @todo remove this and remap keys
-  DELEVERAGE_VAULT = 'deleverage-vault',
-  // @todo remap this to DEPOSIT_COLLATERAL
-  DELEVERAGE_VAULT_DEPOSIT = 'deleverage-vault-deposit',
 }
 
 export enum PORTFOLIO_CATEGORIES {
@@ -96,7 +95,8 @@ export const SIDE_DRAWERS = {
   ...PORTFOLIO_ACTIONS,
   ...SETTINGS_SIDE_DRAWERS,
   ...VAULT_ACTIONS,
-};
+}
+
 
 export enum NAV_DROPDOWN {
   ABOUT = 'About',
@@ -125,7 +125,4 @@ export type TRANSACTION_ACTIONS =
   | PORTFOLIO_ACTIONS
   | NTOKEN_ACTIONS;
 
-export type SIDE_DRAWERS_TYPE =
-  | SETTINGS_SIDE_DRAWERS
-  | PORTFOLIO_ACTIONS
-  | VAULT_ACTIONS;
+export type SIDE_DRAWERS_TYPE = SETTINGS_SIDE_DRAWERS | PORTFOLIO_ACTIONS | VAULT_ACTIONS;

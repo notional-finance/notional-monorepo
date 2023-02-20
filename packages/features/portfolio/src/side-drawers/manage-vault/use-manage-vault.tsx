@@ -16,7 +16,7 @@ export function useManageVault() {
     },
     {
       label: <FormattedMessage defaultMessage={'Withdraw and Repay Debt'} />,
-      link: `/vaults/${vaultAddress}/${VAULT_ACTIONS.WITHDRAW_VAULT}`,
+      link: `/vaults/${vaultAddress}/${VAULT_ACTIONS.WITHDRAW_AND_REPAY_DEBT}`,
       key: VAULT_ACTIONS.WITHDRAW_VAULT,
     },
   ];

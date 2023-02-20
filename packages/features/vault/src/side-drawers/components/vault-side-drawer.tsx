@@ -1,8 +1,9 @@
 import { ActionSidebar, ToggleSwitchProps } from '@notional-finance/mui';
+import { TransactionData } from '@notional-finance/notionable';
 import { VaultAccount } from '@notional-finance/sdk';
 import {
   TransactionConfirmation,
-  TransactionData,
+  TradeActionButton,
 } from '@notional-finance/trade';
 import { VaultRiskTable } from '@notional-finance/risk';
 import { VAULT_ACTIONS } from '@notional-finance/shared-config';
@@ -66,6 +67,7 @@ export const VaultSideDrawer = ({
       showDrawer={false}
       canSubmit={canSubmit}
       cancelRoute={''}
+      CustomActionButton={TradeActionButton}
     >
       {children}
       {action !== VAULT_ACTIONS.WITHDRAW_VAULT_POST_MATURITY && (

@@ -141,6 +141,7 @@ declare module '@mui/material/styles' {
     shadowStandard: string;
     shadowLandingPage: string;
     shadowAccent: string;
+    chartLineShadow?: string;
     shadowLarge: (color?: string) => string;
   }
 
@@ -152,6 +153,7 @@ declare module '@mui/material/styles' {
     shadowStandard?: string;
     shadowLandingPage?: string;
     shadowAccent?: string;
+    chartLineShadow?: string;
     shadowLarge?: (color?: string) => string;
   }
 
@@ -329,9 +331,9 @@ const getThemeData = (themeVariant: PaletteMode) => {
         accentPaper: colors.secondaryGrey,
       },
       charts: {
-        main: colors.turquoise,
+        main: colors.aqua,
         dark: colors.matteGreen,
-        accent: colors.purple,
+        accent: colors.neonTurquoise,
       },
     } as PaletteOptions,
     typography: {
@@ -510,6 +512,9 @@ const getThemeData = (themeVariant: PaletteMode) => {
         themeVariant === THEME_VARIANTS.LIGHT
           ? '0px 4px 50px -10px #33f8ff'
           : '0px 4px 50px -10px #33F8FF',
+      chartLineShadow: themeVariant === THEME_VARIANTS.LIGHT
+          ? '0px 3px 5px #1F9B99'
+          : '0px 3px 5px #13BBC2',
     } as ShapeOptions,
     gradient: {
       lightGreen: 'linear-gradient(180deg, #259C9C -47.56%, #1BD7D9 229.78%)',

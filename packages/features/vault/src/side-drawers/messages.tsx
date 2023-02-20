@@ -6,7 +6,7 @@ import { defineMessages } from 'react-intl';
 
 export const messages = {
   [VAULT_ACTIONS.WITHDRAW_VAULT]: defineMessages({
-    heading: { defaultMessage: 'Withdraw Position', description: '' },
+    heading: { defaultMessage: 'Withdraw / Exit Vault', description: '' },
     cta: { defaultMessage: 'Withdraw', description: '' },
     tooltip: {
       defaultMessage: 'Withdraw from your vault position.',
@@ -52,6 +52,14 @@ export const messages = {
   }),
   [VAULT_ACTIONS.DEPOSIT_COLLATERAL]: defineMessages({
     heading: { defaultMessage: 'Deposit Collateral', description: '' },
+    inputLabel: {
+      defaultMessage: '1. Enter Deposit Amount',
+      description: '',
+    },
+    leverage: {
+      defaultMessage: '2. Change Leverage (Optional)',
+      description: '',
+    },
     helptext: {
       defaultMessage: 'Deposit Collateral Stuff',
       description: '',
@@ -70,8 +78,12 @@ export const messages = {
       defaultMessage: 'Roll Maturity Stuff',
       description: '',
     },
+    maturity: {
+      defaultMessage: '1. Select a New Maturity and fixed borrow rate',
+      description: '',
+    },
     inputLabel: {
-      defaultMessage: 'Select a target leverage ratio',
+      defaultMessage: '2. Change Leverage  (Optional) ',
       description: '',
     },
   }),
@@ -102,23 +114,26 @@ export const messages = {
       description: '',
     },
     inputLabel: {
-      defaultMessage: 'Enter amount to deposit into vault',
+      defaultMessage: '1. Enter amount to deposit into vault',
       description: '',
     },
     toggle: { defaultMessage: 'Deposit', description: '' },
   }),
   [VAULT_ACTIONS.WITHDRAW_AND_REPAY_DEBT]: defineMessages({
-    heading: { defaultMessage: 'Sell Assets', description: '' },
+    heading: { defaultMessage: 'Withdraw and Repay Debt', description: '' },
     helptext: {
       defaultMessage:
-        'Sell vault assets and repay debt to reduce your leverage.',
+        'Withdraw a portion of your earnings to deleverage your position.',
       description: '',
     },
     inputLabel: {
-      defaultMessage: 'Select a target leverage ratio',
+      defaultMessage: '1. Enter Amount to Withdraw',
       description: '',
     },
-    toggle: { defaultMessage: 'Sell Assets', description: '' },
+    leverage: {
+      defaultMessage: '2. Change Leverage  (Optional) ',
+      description: 'slider label',
+    },
   }),
   [VAULT_ACTIONS.CREATE_VAULT_POSITION]: defineMessages({
     heading: {
@@ -153,9 +168,129 @@ export const messages = {
       defaultMessage: 'Manage {vaultName} Vault',
       description: '',
     },
+    headingTwo: {
+      defaultMessage: 'Your {vaultName} Vault Position',
+      description: '',
+    },
     helptext: {
       defaultMessage: 'Manage your vault position.',
       description: '',
+    },
+  }),
+  summary: defineMessages({
+    borrowAmount: {
+      defaultMessage: 'Borrow Amount: {borrowAmount}',
+      description: 'input label',
+    },
+    expectedYield: {
+      defaultMessage: 'Expected Yield',
+      description: 'text label',
+    },
+    capacityUsed: {
+      defaultMessage: 'Capacity Used: ',
+      description: 'text label',
+    },
+    totalCapacity: {
+      defaultMessage: 'Total Capacity: ',
+      description: 'text label',
+    },
+    performance: {
+      defaultMessage: 'Performance to Date',
+      description: 'table column heading',
+    },
+    date: { defaultMessage: 'Date: {date}', description: 'chart tooltip' },
+    performanceStrategyReturns: {
+      defaultMessage: 'Strategy Returns: {returns}',
+      description: 'chart tooltip',
+    },
+    performanceLeveragedReturns: {
+      defaultMessage: 'Leveraged Returns: {returns}',
+      description: 'chart tooltip',
+    },
+    returns: {
+      defaultMessage: 'Unleveraged Returns',
+      description: 'section heading',
+    },
+    leveragedReturns: {
+      defaultMessage: 'Returns at {leverageRatio} Leverage',
+      description: 'section heading',
+    },
+    currentBorrowRate: {
+      defaultMessage: 'Current Borrow Rate',
+      description: 'chart legend',
+    },
+    returnsDrivers: {
+      defaultMessage: 'Returns Drivers',
+      description: 'section heading',
+    },
+    returnsDriversSource: {
+      defaultMessage: 'Source',
+      description: 'table column heading',
+    },
+    returnsDrivers7dayAverage: {
+      defaultMessage: '7 Day Avg',
+      description: 'table column heading',
+    },
+    returnsDrivers30dayAverage: {
+      defaultMessage: '30 Day Avg',
+      description: 'table column',
+    },
+    strategyOverviewHeading: {
+      defaultMessage: 'Strategy Overview',
+      description: 'section heading',
+    },
+    strategyOverviewDocumentation: {
+      defaultMessage: 'Documentation',
+      description: 'documentation link',
+    },
+    strategyOverviewFinancialModel: {
+      defaultMessage: 'Financial Model',
+      description: 'documentation link',
+    },
+  }),
+  error: defineMessages({
+    noEligibleMarkets: {
+      defaultMessage: 'No Eligible Markets',
+      description: 'section heading',
+    },
+    returnToPortfolio: {
+      defaultMessage: 'Return to Portfolio',
+      description: 'button link',
+    },
+    underMinBorrow: {
+      defaultMessage:
+        'Below {minBorrowSize} minimum borrow amount: {borrowAmount}',
+      description: 'error message',
+    },
+    overCapacity: {
+      defaultMessage: 'Over maximum vault capacity.',
+      description: 'error message',
+    },
+    noEligibleMarketsIdiosyncratic: {
+      defaultMessage: 'No eligible markets, current maturity is idiosyncratic.',
+      description: 'error message',
+    },
+    maturedNotSettled: {
+      defaultMessage: 'Vault has matured but has not yet settled.',
+      description: 'error message',
+    },
+    belowMinimumLeverage: {
+      defaultMessage:
+        'Cannot decrease below leverage ratio: {minLeverageRatio}',
+      description: 'error message',
+    },
+    aboveMaximumLeverage: {
+      defaultMessage: 'Above maximum leverage ratio: {maxLeverageRatio}',
+      description: 'error message',
+    },
+    blockedGeoActionHelptext: {
+      defaultMessage:
+        'Unfortunately, leveraged vaults are not available to U.S. Persons.',
+      description: 'error message',
+    },
+    blockedGeoCTA: {
+      defaultMessage: 'Get Clarity for DeFi',
+      description: 'button text',
     },
   }),
 };

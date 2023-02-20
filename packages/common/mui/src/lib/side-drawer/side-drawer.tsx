@@ -43,7 +43,7 @@ export function SideDrawer({
         },
         '&.MuiPaper-root, .MuiPaper-elevation': {
           overflowX: 'hidden',
-          maxWidth: { xs: '100%', sm: '100%', md: '558px' },
+          maxWidth: { xs: '100%', sm: '100%', md: '543px' },
           width: { xs: '100%', sm: '100%', md: '100%' },
           boxShadow: disableBackDrop ? 'none' : '',
         },

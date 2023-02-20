@@ -5,12 +5,6 @@ import {
   useVaultAccount,
 } from '@notional-finance/notionable-hooks';
 import { TypedBigNumber, VaultAccount } from '@notional-finance/sdk';
-import {
-  TradeProperties,
-  TradePropertyKeys,
-  TransactionData,
-} from '@notional-finance/trade';
-import { useFormState } from '@notional-finance/utils';
 import { VAULT_ACTIONS, tradeDefaults } from '@notional-finance/shared-config';
 import { formatLeverageRatio } from '@notional-finance/helpers';
 import { useEffect } from 'react';
@@ -29,10 +23,7 @@ const initialDeleverageVaultState = {
   targetLeverageRatio: undefined,
 };
 
-export function useDeleverageVault(
-  vaultAddress: string,
-  action: VAULT_ACTIONS
-) {
+export function useRollMaturity(vaultAddress: string, action: VAULT_ACTIONS) {
   const [state, updateDeleverageVaultState] =
     useFormState<DeleverageVaultState>(initialDeleverageVaultState);
   const { address } = useAccount();

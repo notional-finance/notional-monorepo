@@ -35,15 +35,11 @@ export const ManageVault = () => {
         <FormattedMessage defaultMessage={'Reduce leverage'} />
       </Title>
       {reduceLeverageOptions.map(({ label, link }, index) => (
-        <SideDrawerButton key={index} sx={{ padding: '0px' }}>
-          <H4
-            to={link}
-            fontWeight="regular"
-            sx={{ padding: theme.spacing(2.5) }}
-          >
+        <H4 fontWeight="regular" to={link} key={index}>
+          <SideDrawerButton sx={{ padding: theme.spacing(2.5) }}>
             {label}
-          </H4>
-        </SideDrawerButton>
+          </SideDrawerButton>
+        </H4>
       ))}
       <Box
         component={'hr'}
@@ -53,15 +49,11 @@ export const ManageVault = () => {
         }}
       ></Box>
       {manageVaultOptions.map(({ label, link }, index) => (
-        <SideDrawerButton key={index} sx={{ padding: '0px' }}>
-          <H4
-            to={link}
-            fontWeight="regular"
-            sx={{ padding: theme.spacing(2.5) }}
-          >
+        <H4 fontWeight="regular" to={link} key={index}>
+          <SideDrawerButton sx={{ padding: theme.spacing(2.5) }}>
             {label}
-          </H4>
-        </SideDrawerButton>
+          </SideDrawerButton>
+        </H4>
       ))}
     </Box>
   );
