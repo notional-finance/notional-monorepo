@@ -35,8 +35,8 @@ export const ManageVault = () => {
   return (
     <Box>
       {vaultAddress && (
-        <>
-          <Wrapper>
+        <MainWrapper>
+          <TableWrapper>
             <LargeInputTextEmphasized
               gutter="default"
               sx={{ marginBottom: theme.spacing(5) }}
@@ -63,43 +63,45 @@ export const ManageVault = () => {
               updatedVaultAccount={updatedVaultAccount}
               vaultAddress={vaultAddress}
             />
-          </Wrapper>
+          </TableWrapper>
 
-          <LargeInputTextEmphasized
-            gutter="default"
-            sx={{ marginBottom: theme.spacing(5) }}
-          >
-            <FormattedMessage
-              {...messages[PORTFOLIO_ACTIONS.MANAGE_VAULT].heading}
-              values={{
-                vaultName,
+          <Box>
+            <LargeInputTextEmphasized
+              gutter="default"
+              sx={{ marginBottom: theme.spacing(5) }}
+            >
+              <FormattedMessage
+                {...messages[PORTFOLIO_ACTIONS.MANAGE_VAULT].heading}
+                values={{
+                  vaultName,
+                }}
+              />
+            </LargeInputTextEmphasized>
+            <Title>
+              <FormattedMessage defaultMessage={'Reduce leverage'} />
+            </Title>
+            {reduceLeverageOptions.map(({ label, link }, index) => (
+              <H4 fontWeight="regular" to={link} key={index}>
+                <SideDrawerButton sx={{ padding: theme.spacing(2.5) }}>
+                  {label}
+                </SideDrawerButton>
+              </H4>
+            ))}
+            <Divider
+              sx={{
+                margin: theme.spacing(5, 0),
+                border: `1px solid ${theme.palette.borders.default}`,
               }}
-            />
-          </LargeInputTextEmphasized>
-          <Title>
-            <FormattedMessage defaultMessage={'Reduce leverage'} />
-          </Title>
-          {reduceLeverageOptions.map(({ label, link }, index) => (
-            <H4 fontWeight="regular" to={link} key={index}>
-              <SideDrawerButton sx={{ padding: theme.spacing(2.5) }}>
-                {label}
-              </SideDrawerButton>
-            </H4>
-          ))}
-          <Divider
-            sx={{
-              margin: theme.spacing(5, 0),
-              border: `1px solid ${theme.palette.borders.default}`,
-            }}
-          ></Divider>
-          {manageVaultOptions.map(({ label, link }, index) => (
-            <H4 fontWeight="regular" to={link} key={index}>
-              <SideDrawerButton sx={{ padding: theme.spacing(2.5) }}>
-                {label}
-              </SideDrawerButton>
-            </H4>
-          ))}
-        </>
+            ></Divider>
+            {manageVaultOptions.map(({ label, link }, index) => (
+              <H4 fontWeight="regular" to={link} key={index}>
+                <SideDrawerButton sx={{ padding: theme.spacing(2.5) }}>
+                  {label}
+                </SideDrawerButton>
+              </H4>
+            ))}
+          </Box>
+        </MainWrapper>
       )}
     </Box>
   );
@@ -114,11 +116,20 @@ const Title = styled(LabelValue)(
   `
 );
 
-const Wrapper = styled(Box)(
+const TableWrapper = styled(Box)(
   ({ theme }) => `
   margin-bottom: ${theme.spacing(5)};
   ${theme.breakpoints.down('sm')} {
-    display: none;
+    margin-top: ${theme.spacing(5)};
+  }
+  `
+);
+
+const MainWrapper = styled(Box)(
+  ({ theme }) => `
+  ${theme.breakpoints.down('sm')} {
+    display: flex;
+    flex-direction: column-reverse;
   }
   `
 );
