@@ -1,4 +1,4 @@
-import { Box, SwipeableDrawer, useTheme, alpha, SxProps } from '@mui/material';
+import { Box, SwipeableDrawer, useTheme, alpha } from '@mui/material';
 import { defineMessage } from 'react-intl';
 import { SideBarSubHeader } from '../side-bar-sub-header/side-bar-sub-header';
 
