@@ -420,6 +420,13 @@ describe('Vault Actions', () => {
           { vaultAction: VAULT_ACTIONS.INCREASE_POSITION },
           (v) => {
             expect(v.borrowMarketData?.length).toEqual(1);
+            // Current maturity is selected
+            expect(v.selectedMarketKey).toEqual('1:1:1679616000');
+          },
+        ],
+        [
+          {},
+          (v) => {
             expect(v.updatedVaultAccount).toBeDefined();
           },
         ],
@@ -427,7 +434,8 @@ describe('Vault Actions', () => {
           { vaultAction: VAULT_ACTIONS.ROLL_POSITION },
           (v) => {
             expect(v.borrowMarketData?.length).toEqual(1);
-            expect(v.updatedVaultAccount).toBeUndefined();
+            // Next maturity is selected
+            expect(v.selectedMarketKey).toEqual('1:2:1687392000');
           },
         ],
       ]);
@@ -443,15 +451,13 @@ describe('Vault Actions', () => {
         [
           { vaultAction: VAULT_ACTIONS.ROLL_POSITION },
           (v) => {
-            // @todo maybe fix this?
-            // There is only one market here (also in increase markets), but we do not
-            // auto select it in the manager.
             expect(v.borrowMarketData?.length).toEqual(1);
-            expect(v.updatedVaultAccount).toBeUndefined();
+            // There is only one market here (also in increase markets) and it is auto selected
+            expect(v.selectedMarketKey).toEqual('1:2:1687392000');
           },
         ],
         [
-          { selectedMarketKey: '1:2:1687392000' },
+          {},
           (v) => {
             expect(v.updatedVaultAccount).toBeDefined();
           },

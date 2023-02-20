@@ -66,18 +66,24 @@ export function getBorrowMarketData({
     borrowMarketData = [];
   }
 
-  const selectedMaturity =
-    // When increasing position, the borrow market is pre-selected as the matching maturity
-    vaultAction === VAULT_ACTIONS.INCREASE_POSITION &&
-    borrowMarketData.length === 1
-      ? borrowMarketData[0]
-      : borrowMarketData.find((m) => m.marketKey === selectedMarketKey);
-
-  return {
-    borrowMarketData,
-    fCashBorrowAmount: selectedMaturity?.fCashAmount,
-    currentBorrowRate: selectedMaturity?.tradeRate,
-  };
+  if (borrowMarketData.length === 1) {
+    // If there is only one borrow market, the selected market key is hardcoded to it
+    return {
+      borrowMarketData,
+      fCashBorrowAmount: borrowMarketData[0].fCashAmount,
+      currentBorrowRate: borrowMarketData[0].tradeRate,
+      selectedMarketKey: borrowMarketData[0].marketKey,
+    };
+  } else {
+    const selectedMaturity = borrowMarketData.find(
+      (m) => m.marketKey === selectedMarketKey
+    );
+    return {
+      borrowMarketData,
+      fCashBorrowAmount: selectedMaturity?.fCashAmount,
+      currentBorrowRate: selectedMaturity?.tradeRate,
+    };
+  }
 }
 
 function calculateMaturityData(

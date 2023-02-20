@@ -19,7 +19,7 @@ export const loadVaultActionManager = (
 
   // Returns initial vault action values, runs whenever the account or vault address
   // changes (for the most part)
-  const initVaultAction$ = combineLatest({
+  const onVaultChange$ = combineLatest({
     system: system$,
     account: account$,
     vaultAddress: vaultAddress$,
@@ -50,7 +50,7 @@ export const loadVaultActionManager = (
   // Returns market data relevant to borrowing, only relevant for create account,
   // increase account and roll account actions. If not one of those actions then
   // will return empty values to clear that data from the store
-  const borrowMarketData$ = state$.pipe(
+  const onBorrowInputChange$ = state$.pipe(
     requireKeysDefined(
       'baseVault',
       'vaultAccount',
@@ -69,7 +69,7 @@ export const loadVaultActionManager = (
 
   // Returns withdraw amounts and the corresponding updated vault account during
   // withdraw and repay debt actions
-  const withdrawAmountData$ = state$.pipe(
+  const onWithdrawInputChange$ = state$.pipe(
     requireKeysDefined('baseVault', 'vaultAccount', 'vaultAction'),
     mapWithDistinctInputs(
       getWithdrawAmountData,
@@ -80,7 +80,7 @@ export const loadVaultActionManager = (
     )
   );
 
-  const updatedVaultAccount$ = state$.pipe(
+  const onEntryValuesChange$ = state$.pipe(
     requireKeysDefined('baseVault', 'vaultAccount'),
     mapWithDistinctInputs(
       getUpdatedVaultAccount,
@@ -91,10 +91,10 @@ export const loadVaultActionManager = (
   );
 
   return merge(
-    initVaultAction$,
+    onVaultChange$,
     defaultLeverageRatio$,
-    borrowMarketData$,
-    withdrawAmountData$,
-    updatedVaultAccount$
+    onBorrowInputChange$,
+    onWithdrawInputChange$,
+    onEntryValuesChange$
   );
 };
