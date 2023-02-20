@@ -14,14 +14,23 @@ import { StatusHeading } from './components/status-heading';
 import { TradeProperties } from '../trade-properties';
 import { TradePropertiesGrid } from '../trade-properties/trade-properties-grid';
 
+export interface TransactionFunction {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  transactionFn: (...args: any) => Promise<PopulatedTransaction>;
+  transactionArgs: unknown[];
+}
+
+export interface TransactionData {
+  transactionHeader: string;
+  transactionProperties: TradeProperties;
+  buildTransactionCall: TransactionFunction;
+}
+
 export interface TransactionConfirmationProps {
   heading: React.ReactNode;
   onCancel: () => void;
   transactionProperties: TradeProperties;
-  buildTransactionCall: {
-    transactionFn: (...args: any) => Promise<PopulatedTransaction>;
-    transactionArgs: any[];
-  };
+  buildTransactionCall: TransactionFunction;
   onTxnConfirm?: (receipt: ethers.providers.TransactionReceipt) => void;
   showDrawer?: boolean;
   onReturnToForm?: () => void;

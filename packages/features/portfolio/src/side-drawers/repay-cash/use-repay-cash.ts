@@ -5,9 +5,8 @@ import {
   useAccount,
   useAccountCashBalance,
 } from '@notional-finance/notionable-hooks';
-import { TransactionData } from '@notional-finance/notionable';
 import { TypedBigNumber } from '@notional-finance/sdk';
-import { TradePropertyKeys } from '@notional-finance/trade';
+import { TradePropertyKeys, TransactionData } from '@notional-finance/trade';
 import { useFormState } from '@notional-finance/utils';
 import { useEffect } from 'react';
 
@@ -23,10 +22,15 @@ const initialRepayCashState = {
   selectedToken: null,
 };
 
-export function useRepayCash(symbol: string | undefined, assetKey: string | undefined) {
+export function useRepayCash(
+  symbol: string | undefined,
+  assetKey: string | undefined
+) {
   const { notional } = useNotional();
   const { address, accountDataCopy, assetSummary } = useAccount();
-  const [state, updateRepayCashState] = useFormState<RepayCashState>(initialRepayCashState);
+  const [state, updateRepayCashState] = useFormState<RepayCashState>(
+    initialRepayCashState
+  );
   const { hasError, inputAmount, selectedToken } = state;
   const selectedAsset = assetKey ? assetSummary.get(assetKey) : undefined;
   const defaultSymbol = symbol || selectedAsset?.underlyingSymbol;
@@ -36,7 +40,9 @@ export function useRepayCash(symbol: string | undefined, assetKey: string | unde
     underlyingSymbol,
     assetSymbol,
   } = useCurrencyData(selectedToken || defaultSymbol);
-  const availableTokens = [underlyingSymbol, assetSymbol].filter((s) => !!s) as string[];
+  const availableTokens = [underlyingSymbol, assetSymbol].filter(
+    (s) => !!s
+  ) as string[];
   const cashBalance = useAccountCashBalance(selectedToken);
 
   useEffect(() => {
@@ -46,9 +52,15 @@ export function useRepayCash(symbol: string | undefined, assetKey: string | unde
 
   let defaultRepaymentAssetCash: TypedBigNumber | undefined;
   if (assetSymbol) {
-    defaultRepaymentAssetCash = TypedBigNumber.fromBalance(0, assetSymbol, true);
+    defaultRepaymentAssetCash = TypedBigNumber.fromBalance(
+      0,
+      assetSymbol,
+      true
+    );
     if (cashBalance?.isNegative()) {
-      defaultRepaymentAssetCash = defaultRepaymentAssetCash.add(cashBalance.toAssetCash().neg());
+      defaultRepaymentAssetCash = defaultRepaymentAssetCash.add(
+        cashBalance.toAssetCash().neg()
+      );
     }
     if (selectedAsset?.fCash) {
       defaultRepaymentAssetCash = defaultRepaymentAssetCash.add(
@@ -60,10 +72,13 @@ export function useRepayCash(symbol: string | undefined, assetKey: string | unde
   if (inputAmount && currencyId) {
     accountDataCopy.updateBalance(currencyId, inputAmount.toAssetCash(true));
   }
-  const { loanToValue: updatedLoanToValue, collateralRatio: updatedCollateralRatio } =
-    useRiskRatios(accountDataCopy);
+  const {
+    loanToValue: updatedLoanToValue,
+    collateralRatio: updatedCollateralRatio,
+  } = useRiskRatios(accountDataCopy);
 
-  const canSubmit = !!notional && !!address && !!inputAmount && hasError === false;
+  const canSubmit =
+    !!notional && !!address && !!inputAmount && hasError === false;
 
   let transactionData: TransactionData | undefined = undefined;
   if (canSubmit) {
@@ -80,7 +95,8 @@ export function useRepayCash(symbol: string | undefined, assetKey: string | unde
       },
       transactionProperties: {
         [TradePropertyKeys.deposit]: inputAmount,
-        [TradePropertyKeys.collateralRatio]: updatedCollateralRatio ?? undefined,
+        [TradePropertyKeys.collateralRatio]:
+          updatedCollateralRatio ?? undefined,
         [TradePropertyKeys.loanToValue]: updatedLoanToValue ?? undefined,
       },
     };
@@ -93,7 +109,10 @@ export function useRepayCash(symbol: string | undefined, assetKey: string | unde
     updatedAccountData: canSubmit ? accountDataCopy : undefined,
     transactionData,
     defaultRepaymentAmount: isUnderlying
-      ? defaultRepaymentAssetCash?.toUnderlying().toExternalPrecision().toExactString()
+      ? defaultRepaymentAssetCash
+          ?.toUnderlying()
+          .toExternalPrecision()
+          .toExactString()
       : defaultRepaymentAssetCash?.toExternalPrecision().toExactString(),
     updateRepayCashState,
   };

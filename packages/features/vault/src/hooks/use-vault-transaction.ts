@@ -1,9 +1,11 @@
 import { useAccount } from '@notional-finance/notionable-hooks';
 import { useVaultCapacity } from './use-vault-capacity';
-import { TransactionFunction } from '@notional-finance/notionable';
 import { TypedBigNumber } from '@notional-finance/sdk';
 import { Market } from '@notional-finance/sdk/src/system';
-import { TradePropertyKeys } from '@notional-finance/trade';
+import {
+  TradePropertyKeys,
+  TransactionFunction,
+} from '@notional-finance/trade';
 import { tradeDefaults, VAULT_ACTIONS } from '@notional-finance/shared-config';
 import { useQueryParams } from '@notional-finance/utils';
 import { useContext } from 'react';

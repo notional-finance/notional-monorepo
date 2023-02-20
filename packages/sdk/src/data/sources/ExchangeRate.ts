@@ -30,7 +30,7 @@ async function getExchangeRateData(
       ret[s] = convertToWei(data.conversion_rates[s]);
     }
     return ret;
-  }, {});
+  }, {} as Record<string, BigNumber>);
 }
 
 /**
