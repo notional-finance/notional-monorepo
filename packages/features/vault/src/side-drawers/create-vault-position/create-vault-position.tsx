@@ -132,10 +132,12 @@ export const CreateVaultPosition = () => {
   );
 };
 
-const SummaryWrapper = styled(Box)`
+const SummaryWrapper = styled(Box)(
+  ({ theme }) => `
   position: fixed;
-  top: 70px;
+  top: ${theme.spacing(8.75)};
   left: 0;
   min-width: 100vw;
   z-index: 1;
-`;
+`
+);

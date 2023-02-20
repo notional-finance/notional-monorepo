@@ -33,7 +33,7 @@ export const MobileVaultSummary = () => {
         boxShadow: theme.shape.shadowStandard,
       }}
     >
-      <Box sx={{ display: 'flex', flex: 1 }}>
+      <Box sx={{ display: 'flex' }}>
         <Box sx={{ flex: 1 }}>
           <H5 sx={{ whiteSpace: 'nowrap' }}>{vaultName}</H5>
           {primaryBorrowSymbol && (
