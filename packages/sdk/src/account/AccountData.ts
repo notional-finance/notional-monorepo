@@ -318,6 +318,13 @@ export default class AccountData {
     );
   }
 
+  public getVaultAccount(vaultAddress: string) {
+    return (
+      this.vaultAccounts.find((v) => v.vaultAddress === vaultAddress) ||
+      VaultAccount.emptyVaultAccount(vaultAddress)
+    );
+  }
+
   public copy() {
     return AccountData.copyAccountData(this);
   }

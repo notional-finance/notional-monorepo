@@ -1,5 +1,4 @@
 import { reportNotionalError } from '@notional-finance/notionable';
-import { getVaultAccount } from '@notional-finance/notionable-hooks';
 import {
   GenericBaseVault,
   VaultConfig,
@@ -41,7 +40,9 @@ export function getInitVaultAction({
   let noEligibleMarketsReason: MessageDescriptor | undefined;
 
   try {
-    vaultAccount = getVaultAccount(account?.accountData, vaultAddress);
+    vaultAccount =
+      account?.accountData?.getVaultAccount(vaultAddress) ||
+      VaultAccount.emptyVaultAccount(vaultAddress);
     settledVaultValues = vaultAccount.canSettle()
       ? vaultAccount.getSettlementValues()
       : undefined;

@@ -3,7 +3,7 @@
   "eslint.format.enable": true,
   "eslint.alwaysShowStatus": true,
   "editor.detectIndentation": true,
-  "typescript.validate.enable": false,
+  "typescript.validate.enable": true,
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true

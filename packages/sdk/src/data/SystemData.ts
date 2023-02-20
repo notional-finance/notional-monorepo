@@ -7,11 +7,16 @@ import { Contracts } from '../libs/types';
 import { ConfigKeys, getBlockchainData } from './sources/Blockchain';
 import getUSDPriceData from './sources/ExchangeRate';
 import { getSystemConfig } from './sources/Subgraph';
-import { getTradingEstimates, NETWORKS } from './sources/ZeroExApi';
 import {
+  AssetRate,
+  CashGroup,
+  Currency,
   decodeSystemData,
   encodeSystemData,
+  ETHRate,
+  nToken,
   SystemData as _SystemData,
+  VaultConfig,
 } from './encoding/SystemProto';
 import {
   AssetRateAggregatorABI,
@@ -45,35 +50,18 @@ export async function fetchAndEncodeSystem(
   const usdExchangeRates =
     _usdExchangeRates ??
     (await getUSDPriceData(exchangeRateApiKey, skipFetchSetup));
-  // Currently hardcoded to mainnet
-  const estimateResults = await getTradingEstimates(
-    networkName as NETWORKS,
-    skipFetchSetup
-  );
-  const tradingEstimates = estimateResults.reduce((obj, e) => {
-    const o = obj;
-    o[`${e.buyTokenAddress}:${e.sellTokenAddress}`] = {
-      ...e,
-      estimates: e.estimates.map((e) =>
-        // Serialized TypedBigNumbers
-        ({
-          ...e,
-          sellAmount: e.sellAmount.toJSON(),
-          buyAmount: e.buyAmount.toJSON(),
-        })
-      ),
-    };
-    return o;
-  }, {});
+
   const vaults = config.reduce((obj, c) => {
     const ret = obj;
     c.leveragedVaults.forEach((v) => {
-      ret[v.vaultAddress] = v;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ret[v.vaultAddress] = v as any;
     });
     return ret;
-  }, {});
+  }, {} as { [key: string]: VaultConfig });
   const initVaultParams = await getVaultInitParams(
-    Object.values(vaults),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    Object.values(vaults as any),
     provider
   );
 
@@ -82,7 +70,8 @@ export async function fetchAndEncodeSystem(
     lastUpdateBlockNumber: block.number,
     lastUpdateTimestamp: block.timestamp,
     USDExchangeRates: usdExchangeRates,
-    tradingEstimates,
+    // @note this is current disabled, will be deprecated in favor of core-entities
+    tradingEstimates: undefined,
     StakedNoteParameters: {
       poolId: results[ConfigKeys.sNOTE.POOL_ID],
       coolDownTimeInSeconds: results[ConfigKeys.sNOTE.COOL_DOWN_TIME_SECS],
@@ -97,9 +86,9 @@ export async function fetchAndEncodeSystem(
     },
     currencies: config.reduce((obj, c) => {
       const ret = obj;
-      ret[c.id] = c;
+      ret[c.id] = c as Currency;
       return ret;
-    }, {}),
+    }, {} as { [key: string]: Currency }),
     ethRateData: config.reduce((obj, c) => {
       const ret = obj;
       ret[c.id] = {
@@ -110,7 +99,7 @@ export async function fetchAndEncodeSystem(
             : results[ConfigKeys.ETH_EXCHANGE_RATE(c.id)],
       };
       return ret;
-    }, {}),
+    }, {} as { [key: string]: ETHRate }),
     assetRateData: config.reduce((obj, c) => {
       const ret = obj;
       if (c.assetExchangeRate) {
@@ -121,7 +110,7 @@ export async function fetchAndEncodeSystem(
         };
       }
       return ret;
-    }, {}),
+    }, {} as { [key: string]: AssetRate }),
     nTokenData: config.reduce((obj, c) => {
       const ret = obj;
       if (c.nToken) {
@@ -133,7 +122,7 @@ export async function fetchAndEncodeSystem(
         };
       }
       return ret;
-    }, {}),
+    }, {} as { [key: string]: nToken }),
     cashGroups: config.reduce((obj, c) => {
       const ret = obj;
       if (c.cashGroup) {
@@ -143,7 +132,7 @@ export async function fetchAndEncodeSystem(
         };
       }
       return ret;
-    }, {}),
+    }, {} as { [key: string]: CashGroup }),
     vaults,
     initVaultParams,
   };
@@ -192,7 +181,12 @@ export async function fetchSystem(
   return result;
 }
 
-export function decodeValue(val: any, provider?: ethers.providers.Provider) {
+export function decodeValue(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  val: any,
+  provider?: ethers.providers.Provider
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+): any {
   if (typeof val !== 'object') {
     return val;
   }
