@@ -42,9 +42,8 @@ export const VaultSubNav = () => {
                   to={anchor}
                   smooth={true}
                   spy={true}
-                  duration={300}
+                  duration={400}
                   offset={-200}
-                  spyThrottle={400}
                 >
                   <Box>{label}</Box>
                   <span className="span1"></span>
