@@ -20,7 +20,7 @@ import { errors$ } from '../src/error/error-manager';
 import MockSystem from '../../sdk/tests/mocks/MockSystem';
 import { VAULT_ACTIONS } from '@notional-finance/shared-config';
 import { BigNumber, ethers } from 'ethers';
-import { getSequencer } from './test-utils';
+import { getSequencer } from './test-utils.spec';
 
 describe('Vault Actions', () => {
   const VAULT = '0xaaaa';
