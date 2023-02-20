@@ -32,6 +32,22 @@ export function getWithdrawAmountData({
   let vaultSharesToRedeem: TypedBigNumber | undefined;
   let updatedVaultAccount: VaultAccount | undefined;
 
+  if (
+    ![
+      VAULT_ACTIONS.WITHDRAW_AND_REPAY_DEBT,
+      VAULT_ACTIONS.WITHDRAW_VAULT,
+      VAULT_ACTIONS.WITHDRAW_VAULT_POST_MATURITY,
+    ].includes(vaultAction)
+  ) {
+    // If not in the withdraw and repay debt action, clear all of these inputs, do not
+    // clear updatedVaultAccount
+    return {
+      amountToWallet: undefined,
+      fCashToLend: undefined,
+      vaultSharesToRedeem: undefined,
+    };
+  }
+
   try {
     if (vaultAction === VAULT_ACTIONS.WITHDRAW_VAULT_POST_MATURITY) {
       ({
@@ -81,12 +97,11 @@ export function getWithdrawAmountData({
     };
   }
 
-  // In any other action, return undefined values to clear data in store except for
-  // updatedVaultAccount.
   return {
     amountToWallet,
     fCashToLend,
     vaultSharesToRedeem,
+    updatedVaultAccount: undefined,
   };
 }
 

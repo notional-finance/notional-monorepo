@@ -44,11 +44,7 @@ export const loadVaultActionManager = (
       'vaultAction'
     ),
     filter((s) => s['leverageRatio'] === undefined),
-    mapWithDistinctInputs(
-      getDefaultLeverageRatio,
-      'vaultAction',
-      'leverageRatio'
-    )
+    mapWithDistinctInputs(getDefaultLeverageRatio, 'vaultAction')
   );
 
   // Returns market data relevant to borrowing, only relevant for create account,

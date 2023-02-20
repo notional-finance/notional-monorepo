@@ -90,6 +90,7 @@ export function getInitVaultAction({
     hasError: false,
     selectedMarketKey: undefined,
     leverageRatio: undefined,
+    depositAmount: undefined,
     withdrawAmount: undefined,
     maxWithdraw: undefined,
   };

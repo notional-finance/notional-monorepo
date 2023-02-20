@@ -253,7 +253,7 @@ function rollAccountMaturityData(
         }
         fCashToBorrow = fCashToBorrowForRepayment.add(additionalfCashToBorrow);
       } catch (e) {
-        logError(e as Error, 'deposit-manager', 'getfCashMarketRates');
+        logError(e as Error, 'deposit-manager', 'rollAccountMaturityData');
         insufficientLiquidity = true;
       }
 

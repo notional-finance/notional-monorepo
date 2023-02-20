@@ -5,6 +5,7 @@ import {
 } from '@notional-finance/sdk';
 import { Market } from '@notional-finance/sdk/src/system';
 import { tradeDefaults, VAULT_ACTIONS } from '@notional-finance/shared-config';
+import { logError, NonLoggedError } from '@notional-finance/util';
 
 interface UpdatedVaultAccountDependencies {
   // Inputs
@@ -29,6 +30,20 @@ export function getUpdatedVaultAccount({
   const selectedMaturity = selectedMarketKey
     ? Market.parseMaturity(selectedMarketKey)
     : undefined;
+
+  if (vaultAction === undefined) {
+    return { updatedVaultAccount };
+  } else if (
+    [
+      VAULT_ACTIONS.WITHDRAW_AND_REPAY_DEBT,
+      VAULT_ACTIONS.WITHDRAW_VAULT,
+      VAULT_ACTIONS.WITHDRAW_VAULT_POST_MATURITY,
+    ].includes(vaultAction)
+  ) {
+    // Do not return anything if one of the withdraw methods is defined here,
+    // updated vault account is returned from get-withdraw-amount-data instead
+    return {};
+  }
 
   try {
     if (vaultAction === VAULT_ACTIONS.ROLL_POSITION && selectedMaturity) {
@@ -101,9 +116,13 @@ export function getUpdatedVaultAccount({
       ).newVaultAccount;
     }
   } catch (e) {
-    console.log(e);
+    logError(
+      e as NonLoggedError,
+      'vault-action-manager',
+      'get-updated-vault-account'
+    );
     // Errors may occur when the maturity is not correct
-    return { updatedVaultAccount };
+    return { updatedVaultAccount: undefined };
   }
 
   return { updatedVaultAccount };

@@ -9,7 +9,6 @@ import { VAULT_ACTIONS } from '@notional-finance/shared-config';
 interface LeverageRatioDependencies {
   // Inputs
   vaultAction: VAULT_ACTIONS;
-  leverageRatio?: number;
   // Via Init
   vaultConfig: VaultConfig;
   vaultAccount: VaultAccount;
@@ -21,7 +20,6 @@ export function getDefaultLeverageRatio({
   baseVault,
   vaultAccount,
   vaultConfig,
-  leverageRatio,
 }: LeverageRatioDependencies) {
   const defaultLeverageRatio = BaseVault.collateralToLeverageRatio(
     vaultConfig.maxDeleverageCollateralRatioBasisPoints
@@ -48,5 +46,5 @@ export function getDefaultLeverageRatio({
   }
 
   // For any other actions, do not reset the leverage ratio
-  return { leverageRatio };
+  return {};
 }
