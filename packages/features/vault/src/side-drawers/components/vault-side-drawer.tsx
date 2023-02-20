@@ -35,20 +35,6 @@ export const VaultSideDrawer = ({
   updatedVaultAccount,
 }: VaultSideDrawerProps) => {
   const history = useHistory();
-  // const { sideDrawerKey } = useParams<VaultParams>();
-  // const { confirm } = useQueryParams();
-  // const { search } = useLocation();
-  // const confirmRoute = !!confirm;
-
-  // const searchParams = new URLSearchParams(search);
-
-  // searchParams.delete('confirm');
-
-  // const cancelRoute = `/vaults/${vaultAddress}/${sideDrawerKey}${
-  //   searchParams.toString() ? '?' + searchParams.toString() : ''
-  // }`;
-
-  // const returnToVaults = `/vaults/${vaultAddress}`;
 
   return transactionData ? (
     <TransactionConfirmation
@@ -68,6 +54,7 @@ export const VaultSideDrawer = ({
       canSubmit={canSubmit}
       cancelRoute={''}
       CustomActionButton={TradeActionButton}
+      hideTextOnMobile={false}
     >
       {children}
       {action !== VAULT_ACTIONS.WITHDRAW_VAULT_POST_MATURITY && (

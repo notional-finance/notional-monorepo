@@ -36,7 +36,7 @@ export const ManageVault = () => {
     <Box>
       {vaultAddress && (
         <>
-          <Box sx={{ marginBottom: theme.spacing(5) }}>
+          <Wrapper>
             <LargeInputTextEmphasized
               gutter="default"
               sx={{ marginBottom: theme.spacing(5) }}
@@ -63,7 +63,7 @@ export const ManageVault = () => {
               updatedVaultAccount={updatedVaultAccount}
               vaultAddress={vaultAddress}
             />
-          </Box>
+          </Wrapper>
 
           <LargeInputTextEmphasized
             gutter="default"
@@ -111,5 +111,14 @@ const Title = styled(LabelValue)(
   margin-top: ${theme.spacing(5)};
   color: ${theme.palette.borders.accentDefault};
   text-transform: uppercase;
+  `
+);
+
+const Wrapper = styled(Box)(
+  ({ theme }) => `
+  margin-bottom: ${theme.spacing(5)};
+  ${theme.breakpoints.down('sm')} {
+    display: none;
+  }
   `
 );
