@@ -1,6 +1,6 @@
 import { VAULT_ACTIONS } from '@notional-finance/shared-config';
 import { useContext } from 'react';
-import { VaultActionContext } from '../managers';
+import { VaultActionContext } from '../vault-view/vault-action-provider';
 
 export const useVaultCapacity = () => {
   const { state } = useContext(VaultActionContext);

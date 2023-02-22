@@ -68,6 +68,7 @@ export const useCryptoPriceManager = () => {
 
     if (priceDataPromises.length > 0) {
       Promise.all(priceDataPromises).then((values) => {
+        // TODO: Fix this type error properly
         const formattedValues = convertArrayToObject(values, 'symbol');
         updateCryptoPriceState({ cryptoPrices: formattedValues });
       });

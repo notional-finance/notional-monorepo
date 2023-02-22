@@ -11,7 +11,7 @@ import {
 import { Box, styled, useTheme } from '@mui/material';
 import { RATE_PRECISION } from '@notional-finance/sdk/src/config/constants';
 import { VAULT_ACTIONS } from '@notional-finance/shared-config';
-import { VaultActionContext } from '../../managers';
+import { VaultActionContext } from '../../vault-view/vault-action-provider';
 import { VaultSideDrawer } from '../components/vault-side-drawer';
 import { useVault } from '@notional-finance/notionable-hooks';
 import { MobileVaultSummary } from '../../components';
@@ -30,11 +30,18 @@ export const CreateVaultPosition = () => {
   const { updateState, state } = useContext(VaultActionContext);
   const {
     selectedMarketKey,
-    vaultMaturityData,
+    borrowMarketData,
     fCashBorrowAmount,
     leverageRatio,
     updatedVaultAccount,
   } = state;
+
+  useEffect(() => {
+    updateState({
+      vaultAction: VAULT_ACTIONS.CREATE_VAULT_POSITION,
+    });
+  }, [updateState]);
+
   const { minBorrowSize, maxLeverageRatio, primaryBorrowSymbol } =
     useVault(vaultAddress);
   const {
@@ -77,7 +84,15 @@ export const CreateVaultPosition = () => {
       <SummaryWrapper>
         <MobileVaultSummary />
       </SummaryWrapper>
-      <Box sx={{ marginTop: theme.spacing(22) }}>
+      <Box
+        sx={{
+          marginTop: {
+            xs: theme.spacing(22),
+            sm: theme.spacing(22),
+            md: '0px',
+          },
+        }}
+      >
         <VaultSideDrawer
           action={VAULT_ACTIONS.CREATE_VAULT_POSITION}
           transactionData={undefined}
@@ -86,7 +101,7 @@ export const CreateVaultPosition = () => {
           updatedVaultAccount={updatedVaultAccount}
         >
           <Maturities
-            maturityData={vaultMaturityData || []}
+            maturityData={borrowMarketData || []}
             onSelect={(marketKey: string | null) => {
               updateState({ selectedMarketKey: marketKey || '' });
             }}
@@ -134,10 +149,14 @@ export const CreateVaultPosition = () => {
 
 const SummaryWrapper = styled(Box)(
   ({ theme }) => `
-  position: fixed;
-  top: ${theme.spacing(8.75)};
-  left: 0;
-  min-width: 100vw;
-  z-index: 1;
+  display: none;
+  ${theme.breakpoints.down('sm')} {
+    display: block;
+    position: fixed;
+    top: ${theme.spacing(8.75)};
+    left: 0;
+    min-width: 100vw;
+    z-index: 1;
+  }
 `
 );
