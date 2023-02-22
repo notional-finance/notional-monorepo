@@ -7,4 +7,4 @@ export * from './repay-cash/repay-cash';
 export * from './roll-maturity/roll-maturity';
 export * from './withdraw/withdraw';
 export * from './withdraw-lend/withdraw-lend';
-export * from './convert-cash-to-n-tokens/convert-cash-to-n-tokens';
+export * from './convert-cash-to-ntokens/convert-cash-to-ntokens';

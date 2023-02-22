@@ -15,7 +15,7 @@ import {
   calculateHeadlineVaultReturns,
   vaultPerformance$,
 } from '@notional-finance/notionable';
-import { VaultActionContext } from '../managers';
+import { VaultActionContext } from '../vault-view/vault-action-provider';
 
 export interface HistoricalReturn {
   timestamp: number;
@@ -35,6 +35,7 @@ export const useHistoricalReturns = () => {
   const { state } = useContext(VaultActionContext);
   const { vaultAddress, leverageRatio, fCashBorrowAmount, currentBorrowRate } =
     state;
+
   const performance = vaultAddress
     ? vaultPerformance?.get(vaultAddress)
     : undefined;
@@ -53,6 +54,7 @@ export const useHistoricalReturns = () => {
       sevenDayTotalAverage,
       thirtyDayTotalAverage,
     } = performance;
+    
     const historicalReturns = returns
       .filter((row) => row['timestamp'] > getNowSeconds() - 90 * SECONDS_IN_DAY)
       .map((row) => {

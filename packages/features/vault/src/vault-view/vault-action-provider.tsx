@@ -1,7 +1,18 @@
-import { initialVaultActionState, VaultActionContext } from '../managers';
-import { loadVaultActionManager } from '../managers';
-import { useObservableContext } from '@notional-finance/notionable-hooks';
+import {
+  initialVaultActionState,
+  loadVaultActionManager,
+  VaultActionState,
+} from '@notional-finance/notionable';
+import {
+  useObservableContext,
+  createObservableContext,
+} from '@notional-finance/notionable-hooks';
 import VaultView from './vault-view';
+
+export const VaultActionContext = createObservableContext<VaultActionState>(
+  'vault-action-context',
+  initialVaultActionState
+);
 
 export const VaultActionProvider = () => {
   const value = useObservableContext(

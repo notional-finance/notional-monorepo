@@ -13,6 +13,7 @@ import { defineMessage, FormattedMessage } from 'react-intl';
 interface VaultRiskTableProps {
   vaultAddress: string;
   updatedVaultAccount?: VaultAccount;
+  hideUpdatedColumn?: boolean;
 }
 
 const TABLE_COLUMNS: DataTableColumn[] = [
@@ -53,13 +54,15 @@ const TABLE_COLUMNS: DataTableColumn[] = [
 export const VaultRiskTable = ({
   vaultAddress,
   updatedVaultAccount,
+  hideUpdatedColumn,
 }: VaultRiskTableProps) => {
   const { tableData } = useVaultRiskTable(vaultAddress, updatedVaultAccount);
+
   return (
     <Box>
       <DataTable
         data={tableData}
-        columns={TABLE_COLUMNS}
+        columns={hideUpdatedColumn ? TABLE_COLUMNS.slice(0, 2) : TABLE_COLUMNS}
         tableTitle={defineMessage({
           defaultMessage: 'Vault Details',
           description: 'Vault Details Table Title',

@@ -7,7 +7,7 @@ import {
   formatNumberAsPercent,
   getDateString,
 } from '@notional-finance/helpers';
-import { VaultActionContext } from '../managers';
+import { VaultActionContext } from '../vault-view/vault-action-provider';
 import { messages } from '../messages';
 
 export const usePerformanceChart = () => {

@@ -44,6 +44,13 @@ interface VaultInputs {
 
 /** These values are calculated on init, when either the account or vault changes */
 interface VaultInitData {
+
+  primaryBorrowCurrency?: number;
+  primaryBorrowSymbol?: string;
+  minBorrowSize?: string; 
+  minAccountBorrowSize?: TypedBigNumber;
+  strategyName?: string;
+
   // Calculate Init Data
   accountAddress?: string;
   eligibleMarkets?: Market[];

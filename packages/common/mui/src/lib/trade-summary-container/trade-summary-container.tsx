@@ -3,7 +3,7 @@ import { styled, Box } from '@mui/material';
 export const TradeSummaryContainer = styled(Box)(
   ({ theme }) => `
   max-width: 800px;
-  min-width: 690px;
+  width: 800px;
   padding: 0 16px;
   &:last-child {
     margin-bottom: ${theme.spacing(25)};
