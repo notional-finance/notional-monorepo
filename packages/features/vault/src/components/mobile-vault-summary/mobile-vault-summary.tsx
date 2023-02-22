@@ -11,7 +11,7 @@ import { useVault } from '@notional-finance/notionable-hooks';
 import { useHistoricalReturns } from '../../hooks/use-historical-returns';
 import { useVaultCapacity } from '../../hooks/use-vault-capacity';
 import { TokenIcon } from '@notional-finance/icons';
-import { VaultActionContext } from '../../managers';
+import { VaultActionContext } from '../../vault-view/vault-action-provider';
 import { messages } from '../../side-drawers/messages';
 import { FormattedMessage } from 'react-intl';
 

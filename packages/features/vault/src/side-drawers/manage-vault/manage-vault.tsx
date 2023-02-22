@@ -14,7 +14,7 @@ import {
 import { useParams } from 'react-router-dom';
 import { FormattedMessage } from 'react-intl';
 import { useManageVault } from './use-manage-vault';
-import { VaultActionContext } from '../../managers';
+import { VaultActionContext } from '../../vault-view/vault-action-provider';
 import { useVault } from '@notional-finance/notionable-hooks';
 import { messages } from '../messages';
 
@@ -27,9 +27,9 @@ export const ManageVault = () => {
   const theme = useTheme();
   const { vaultAddress } = useParams<VaultParams>();
   const {
-    state: { updatedVaultAccount },
+    state: { eligibleActions, updatedVaultAccount },
   } = useContext(VaultActionContext);
-  const { reduceLeverageOptions, manageVaultOptions } = useManageVault();
+  const { manageVaultActions } = useManageVault();
   const { vaultName } = useVault(vaultAddress);
 
   return (
@@ -62,6 +62,7 @@ export const ManageVault = () => {
               key={'vault-risk-table'}
               updatedVaultAccount={updatedVaultAccount}
               vaultAddress={vaultAddress}
+              hideUpdatedColumn={true}
             />
           </TableWrapper>
 
@@ -77,28 +78,27 @@ export const ManageVault = () => {
                 }}
               />
             </LargeInputTextEmphasized>
-            <Title>
-              <FormattedMessage defaultMessage={'Reduce leverage'} />
-            </Title>
-            {reduceLeverageOptions.map(({ label, link }, index) => (
-              <H4 fontWeight="regular" to={link} key={index}>
-                <SideDrawerButton sx={{ padding: theme.spacing(2.5) }}>
-                  {label}
-                </SideDrawerButton>
-              </H4>
-            ))}
-            <Divider
-              sx={{
-                margin: theme.spacing(5, 0),
-                border: `1px solid ${theme.palette.borders.default}`,
-              }}
-            ></Divider>
-            {manageVaultOptions.map(({ label, link }, index) => (
-              <H4 fontWeight="regular" to={link} key={index}>
-                <SideDrawerButton sx={{ padding: theme.spacing(2.5) }}>
-                  {label}
-                </SideDrawerButton>
-              </H4>
+            {eligibleActions?.includes(VAULT_ACTIONS.DEPOSIT_COLLATERAL) && (
+              <Title>
+                <FormattedMessage defaultMessage={'Reduce leverage'} />
+              </Title>
+            )}
+            {eligibleActions?.map((key, index) => (
+              <Box key={index}>
+                {key === VAULT_ACTIONS.INCREASE_POSITION && (
+                  <Divider
+                    sx={{
+                      margin: theme.spacing(5, 0),
+                      border: `1px solid ${theme.palette.borders.default}`,
+                    }}
+                  ></Divider>
+                )}
+                <H4 fontWeight="regular" to={manageVaultActions[key].link}>
+                  <SideDrawerButton sx={{ padding: theme.spacing(2.5) }}>
+                    {manageVaultActions[key].label}
+                  </SideDrawerButton>
+                </H4>
+              </Box>
             ))}
           </Box>
         </MainWrapper>

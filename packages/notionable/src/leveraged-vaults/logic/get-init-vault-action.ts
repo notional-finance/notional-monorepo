@@ -64,7 +64,7 @@ export function getInitVaultAction({
     vaultConfig,
     vaultAccount,
     activeVaultMarkets,
-    vaultAddress
+    vaultAddress,
   );
   const eligibleActions = getEligibleActions(eligibleMarkets, vaultAccount);
   const minLeverageRatio = BaseVault.collateralToLeverageRatio(
@@ -86,6 +86,13 @@ export function getInitVaultAction({
     noEligibleMarketsReason,
     minLeverageRatio,
     maxLeverageRatio,
+    primaryBorrowCurrency: vaultConfig.primaryBorrowCurrency,
+    primaryBorrowSymbol: system.getUnderlyingSymbol(vaultConfig.primaryBorrowCurrency),
+    minBorrowSize: vaultConfig.minAccountBorrowSize.toDisplayStringWithSymbol(0),
+    minAccountBorrowSize: vaultConfig.minAccountBorrowSize,
+    strategyName: VaultFactory.resolveStrategyName(vaultConfig.strategy) || '',
+    // TODO: - this getMinDepositRequiredString method is causing a error need to figure out why
+    // minDepositRequired: getMinDepositRequiredString(vaultConfig),
     // Clear inputs back to initial conditions
     vaultAction: undefined,
     hasError: false,

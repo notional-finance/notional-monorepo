@@ -9,7 +9,7 @@ import {
 import { tradeDefaults, VAULT_ACTIONS } from '@notional-finance/shared-config';
 import { useQueryParams } from '@notional-finance/utils';
 import { useContext } from 'react';
-import { VaultActionContext } from '../managers';
+import { VaultActionContext } from '../vault-view/vault-action-provider';
 import { messages } from '../messages';
 import { useGeoipBlock } from './use-geoip-block';
 

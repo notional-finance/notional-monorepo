@@ -4,7 +4,7 @@ import { VaultSideDrawer } from '../components/vault-side-drawer';
 import { Maturities } from '@notional-finance/mui';
 import { useParams } from 'react-router-dom';
 import { messages } from '../messages';
-import { VaultActionContext } from '../../managers';
+import { VaultActionContext } from '../../vault-view/vault-action-provider';
 import { RATE_PRECISION } from '@notional-finance/sdk/src/config/constants';
 
 interface VaultParams {
@@ -15,8 +15,10 @@ interface VaultParams {
 export const RollMaturity = () => {
   const { vaultAddress } = useParams<VaultParams>();
 
-  const { updateState, state } = useContext(VaultActionContext);
-  const { selectedMarketKey, vaultMaturityData, updatedVaultAccount } = state;
+  const {
+    updateState,
+    state: { selectedMarketKey, borrowMarketData, updatedVaultAccount },
+  } = useContext(VaultActionContext);
 
   // const inputRef = useRef<SliderInputHandle>(null);
   // const setInputAmount = useCallback(
@@ -53,7 +55,7 @@ export const RollMaturity = () => {
       updatedVaultAccount={updatedVaultAccount}
     >
       <Maturities
-        maturityData={vaultMaturityData || []}
+        maturityData={borrowMarketData || []}
         onSelect={(marketKey: string | null) => {
           updateState({ selectedMarketKey: marketKey || '' });
         }}

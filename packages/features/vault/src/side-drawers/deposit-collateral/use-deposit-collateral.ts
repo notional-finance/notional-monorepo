@@ -4,7 +4,7 @@ import {
   useVault,
   useVaultAccount,
 } from '@notional-finance/notionable-hooks';
-import { TransactionData } from '@notional-finance/notionable';
+import { TransactionData } from '@notional-finance/trade';
 import { TypedBigNumber, VaultAccount } from '@notional-finance/sdk';
 import { TradeProperties, TradePropertyKeys } from '@notional-finance/trade';
 import { useFormState } from '@notional-finance/utils';
