@@ -5,7 +5,7 @@ import {
   TransactionConfirmation,
   TradeActionButton,
 } from '@notional-finance/trade';
-import { VaultRiskTable } from '@notional-finance/risk';
+import { VaultDetailsTable } from '@notional-finance/risk';
 import { VAULT_ACTIONS } from '@notional-finance/shared-config';
 import { useHistory } from 'react-router';
 import { messages } from '../messages';
@@ -58,7 +58,7 @@ export const VaultSideDrawer = ({
     >
       {children}
       {action !== VAULT_ACTIONS.WITHDRAW_VAULT_POST_MATURITY && (
-        <VaultRiskTable
+        <VaultDetailsTable
           key={'vault-risk-table'}
           updatedVaultAccount={updatedVaultAccount}
           vaultAddress={vaultAddress}

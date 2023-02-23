@@ -20,7 +20,7 @@ import { useTreasuryReservesTable } from './lib/use-treasury-reserves';
 import { useOpenOrderTable } from './lib/use-open-orders';
 import { updateTreasuryState } from './lib/treasury-store';
 import { useTreasury } from './lib/use-treasury';
-import { defineMessage } from 'react-intl';
+import { FormattedMessage } from 'react-intl';
 
 export const TreasuryView = () => {
   const theme = useTheme();
@@ -78,10 +78,14 @@ export const TreasuryView = () => {
           Manage Reserves
         </Typography>
         <DataTable
-          tableTitle={defineMessage({
-            defaultMessage: 'Reserve Balance Sheet',
-            description: 'Reserve Balance Table Title',
-          })}
+          tableTitle={
+            <div>
+              <FormattedMessage
+                defaultMessage="Reserve Balance Sheet"
+                description="Reserve Balance Table Title"
+              />
+            </div>
+          }
           data={tableData}
           columns={tableColumns}
           hideExcessRows={false}
@@ -221,10 +225,14 @@ export const TreasuryView = () => {
               />
             </Box>
             <DataTable
-              tableTitle={defineMessage({
-                defaultMessage: 'Open 0x Limit Orders',
-                description: 'Open 0x Limit Orders Table Title',
-              })}
+              tableTitle={
+                <div>
+                  <FormattedMessage
+                    defaultMessage="Open 0x Limit Orders"
+                    description="Open 0x Limit Orders Table Title"
+                  />
+                </div>
+              }
               data={openOrderTableData}
               columns={openOrderColumns}
               hideExcessRows={false}

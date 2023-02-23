@@ -4,7 +4,7 @@ import {
   PORTFOLIO_ACTIONS,
   VAULT_ACTIONS,
 } from '@notional-finance/shared-config';
-import { VaultRiskTable } from '@notional-finance/risk';
+import { VaultDetailsTable } from '@notional-finance/risk';
 import {
   H4,
   LabelValue,
@@ -14,8 +14,8 @@ import {
 import { useParams } from 'react-router-dom';
 import { FormattedMessage } from 'react-intl';
 import { useManageVault } from './use-manage-vault';
+import { formatMaturity } from '@notional-finance/helpers';
 import { VaultActionContext } from '../../vault-view/vault-action-provider';
-import { useVault } from '@notional-finance/notionable-hooks';
 import { messages } from '../messages';
 
 interface VaultParams {
@@ -27,10 +27,13 @@ export const ManageVault = () => {
   const theme = useTheme();
   const { vaultAddress } = useParams<VaultParams>();
   const {
-    state: { eligibleActions, updatedVaultAccount },
+    state: { eligibleActions, updatedVaultAccount, vaultConfig, vaultAccount },
   } = useContext(VaultActionContext);
   const { manageVaultActions } = useManageVault();
-  const { vaultName } = useVault(vaultAddress);
+  const vaultName = vaultConfig?.name;
+  const formattedMaturity = vaultAccount?.maturity
+    ? formatMaturity(vaultAccount?.maturity)
+    : '';
 
   return (
     <Box>
@@ -58,9 +61,10 @@ export const ManageVault = () => {
                 <FormattedMessage defaultMessage={'View in Portfolio'} />
               </H4>
             </LargeInputTextEmphasized>
-            <VaultRiskTable
+            <VaultDetailsTable
               key={'vault-risk-table'}
               updatedVaultAccount={updatedVaultAccount}
+              maturity={formattedMaturity}
               vaultAddress={vaultAddress}
               hideUpdatedColumn={true}
             />

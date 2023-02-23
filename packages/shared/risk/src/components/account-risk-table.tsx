@@ -8,7 +8,7 @@ import {
   DataTableColumn,
 } from '@notional-finance/mui';
 import { useLiquidationRiskTable } from '../hooks/use-liquidation-risk-table';
-import { defineMessage, FormattedMessage } from 'react-intl';
+import { FormattedMessage } from 'react-intl';
 
 interface RiskDataTableProps {
   updatedAccountData?: AccountData;
@@ -59,10 +59,14 @@ export const AccountRiskTable = ({
       <DataTable
         data={tableData}
         columns={TABLE_COLUMNS}
-        tableTitle={defineMessage({
-          defaultMessage: 'Liquidation Risk Breakdown',
-          description: 'Liquidation Risk Breakdown Table Title',
-        })}
+        tableTitle={
+          <div>
+            <FormattedMessage
+              defaultMessage="Liquidation Risk Breakdown"
+              description="Liquidation Risk Breakdown Table Title"
+            />
+          </div>
+        }
         tableVariant={TABLE_VARIANTS.MINI}
       />
     </AccountRiskTableContainer>

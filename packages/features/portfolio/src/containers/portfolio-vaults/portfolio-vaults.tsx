@@ -1,6 +1,6 @@
 import { Box, useTheme } from '@mui/material';
 import { DataTable, SliderCell } from '@notional-finance/mui';
-import { defineMessage, FormattedMessage } from 'react-intl';
+import { FormattedMessage } from 'react-intl';
 import { VaultActionRow, EmptyPortfolio } from '../../components';
 import { useRiskOverviewTable } from '../portfolio-overview/hooks/use-risk-overview-table';
 import { usePortfolioVaults } from './hooks/use-portfolio-vaults';
@@ -44,10 +44,14 @@ export const PortfolioVaults = () => {
               accessor: 'leveragePercentage',
               textAlign: 'right',
             })}
-            tableTitle={defineMessage({
-              defaultMessage: 'Vault Risk Overview',
-              description: 'table title',
-            })}
+            tableTitle={
+              <div>
+                <FormattedMessage
+                  defaultMessage="Vault Risk Overview"
+                  description="table title"
+                />
+              </div>
+            }
           />
         </Box>
       )}
