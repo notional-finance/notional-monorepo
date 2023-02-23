@@ -8,7 +8,6 @@ import {
   TradeSummaryContainer,
   AreaChart,
 } from '@notional-finance/mui';
-import { useVault } from '@notional-finance/notionable-hooks';
 import { VAULT_SUB_NAV_ACTIONS } from '@notional-finance/shared-config';
 import { useContext } from 'react';
 import { FormattedMessage, defineMessage } from 'react-intl';
@@ -22,12 +21,11 @@ import { messages } from '../messages';
 
 export const VaultSummary = () => {
   const theme = useTheme();
-  const { state } = useContext(VaultActionContext);
-  const { vaultAddress, vaultConfig } = state || {};
+  const {
+    state: { vaultAddress, vaultConfig, primaryBorrowSymbol },
+  } = useContext(VaultActionContext);
 
   const vaultName = vaultConfig?.name;
-
-  const { primaryBorrowSymbol } = useVault(vaultAddress);
 
   const { returnDrivers, headlineApy } = useHistoricalReturns();
   const { areaChartData, areaHeaderData, chartToolTipData } =
