@@ -20,16 +20,13 @@ export const VaultView = () => {
   const showTransactionConfirmation = txnData ? true : false;
 
   useEffect(() => {
-    updateState({ vaultAction: sideDrawerKey });
-  }, [sideDrawerKey, updateState]);
-
-  useEffect(() => {
     if (vaultAddress) {
       updateState({
         vaultAddress,
+        vaultAction: sideDrawerKey,
       });
     }
-  }, [vaultAddress, updateState]);
+  }, [vaultAddress, updateState, sideDrawerKey]);
 
   return vaultAddress ? (
     <SideBarLayout

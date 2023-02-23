@@ -44,7 +44,6 @@ interface VaultInputs {
 
 /** These values are calculated on init, when either the account or vault changes */
 interface VaultInitData {
-
   primaryBorrowCurrency?: number;
   primaryBorrowSymbol?: string;
   minBorrowSize?: string; 
