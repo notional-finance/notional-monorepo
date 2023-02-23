@@ -19,7 +19,7 @@ import {
   RiskDataTableRow,
 } from '../helpers/risk-data-helpers';
 
-export function useVaultRiskTable(
+export function useVaultDetailsTable(
   vaultAddress: string,
   updatedVaultAccount?: VaultAccount
 ) {

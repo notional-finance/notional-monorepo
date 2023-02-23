@@ -6,7 +6,7 @@ import { DataTableHead } from './data-table-head/data-table-head';
 import { DataTableBody } from './data-table-body/data-table-body';
 import { PageLoading } from '../page-loading/page-loading';
 import { useTable, useExpanded } from 'react-table';
-import { FormattedMessage, MessageDescriptor } from 'react-intl';
+import { FormattedMessage } from 'react-intl';
 import { TableCell } from '../typography/typography';
 import {
   DataTableColumn,
@@ -24,7 +24,7 @@ interface DataTableProps {
   TabComponentVisible?: boolean;
   tabBarProps?: TabBarPropsType;
   tableTitleButtons?: TableTitleButtonsType[];
-  tableTitle?: MessageDescriptor;
+  tableTitle?: JSX.Element;
   tableVariant?: TABLE_VARIANTS;
   hideExcessRows?: boolean;
   initialState?: Record<any, any>;
