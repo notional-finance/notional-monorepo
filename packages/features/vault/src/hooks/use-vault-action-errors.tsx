@@ -5,7 +5,7 @@ import { useVault } from '@notional-finance/notionable-hooks';
 import { useVaultCapacity } from './use-vault-capacity';
 import { useContext } from 'react';
 import { MessageDescriptor } from 'react-intl';
-import { VaultActionContext } from '../managers';
+import { VaultActionContext } from '../vault-view/vault-action-provider';
 import { messages } from '../messages';
 import { tradeErrors } from '@notional-finance/trade';
 

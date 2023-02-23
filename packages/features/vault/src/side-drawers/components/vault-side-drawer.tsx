@@ -1,5 +1,5 @@
 import { ActionSidebar, ToggleSwitchProps } from '@notional-finance/mui';
-import { TransactionData } from '@notional-finance/notionable';
+import { TransactionData } from '@notional-finance/trade';
 import { VaultAccount } from '@notional-finance/sdk';
 import {
   TransactionConfirmation,

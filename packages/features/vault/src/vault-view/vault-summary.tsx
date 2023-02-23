@@ -8,23 +8,25 @@ import {
   TradeSummaryContainer,
   AreaChart,
 } from '@notional-finance/mui';
-import { useVault } from '@notional-finance/notionable-hooks';
 import { VAULT_SUB_NAV_ACTIONS } from '@notional-finance/shared-config';
 import { useContext } from 'react';
 import { FormattedMessage, defineMessage } from 'react-intl';
 import { VaultDescription, VaultSubNav } from '../components';
 import { useHistoricalReturns } from '../hooks/use-historical-returns';
+import { VaultActionContext } from './vault-action-provider';
 import { useReturnDrivers } from '../hooks/use-return-drivers';
 import { useVaultCapacity } from '../hooks/use-vault-capacity';
 import { usePerformanceChart } from '../hooks/use-performance-chart';
-import { VaultActionContext } from '../managers';
 import { messages } from '../messages';
 
 export const VaultSummary = () => {
   const theme = useTheme();
-  const { state } = useContext(VaultActionContext);
-  const { vaultAddress } = state || {};
-  const { primaryBorrowSymbol, vaultName } = useVault(vaultAddress);
+  const {
+    state: { vaultAddress, vaultConfig, primaryBorrowSymbol },
+  } = useContext(VaultActionContext);
+
+  const vaultName = vaultConfig?.name;
+
   const { returnDrivers, headlineApy } = useHistoricalReturns();
   const { areaChartData, areaHeaderData, chartToolTipData } =
     usePerformanceChart();

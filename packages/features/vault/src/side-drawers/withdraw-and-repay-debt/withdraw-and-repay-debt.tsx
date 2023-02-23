@@ -5,7 +5,7 @@ import { WalletDepositInput } from '@notional-finance/trade';
 import { useWithdrawAndRepayDebt } from './use-withdraw-and-repay-debt';
 import { useParams } from 'react-router-dom';
 import { messages } from '../messages';
-import { VaultActionContext } from '../../managers';
+import { VaultActionContext } from '../../vault-view/vault-action-provider';
 import { RATE_PRECISION } from '@notional-finance/sdk/src/config/constants';
 import { useCallback, useEffect, useRef, useContext } from 'react';
 
