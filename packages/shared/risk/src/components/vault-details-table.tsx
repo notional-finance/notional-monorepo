@@ -7,11 +7,12 @@ import {
   DataTableColumn,
 } from '@notional-finance/mui';
 import { VaultAccount } from '@notional-finance/sdk/src/vaults';
-import { useVaultRiskTable } from '../hooks/use-vault-risk-table';
-import { defineMessage, FormattedMessage } from 'react-intl';
+import { useVaultDetailsTable } from '../hooks/use-vault-details-table';
+import { FormattedMessage } from 'react-intl';
 
-interface VaultRiskTableProps {
+interface VaultDetailsTableProps {
   vaultAddress: string;
+  maturity?: string;
   updatedVaultAccount?: VaultAccount;
   hideUpdatedColumn?: boolean;
 }
@@ -51,22 +52,34 @@ const TABLE_COLUMNS: DataTableColumn[] = [
   },
 ];
 
-export const VaultRiskTable = ({
+export const VaultDetailsTable = ({
   vaultAddress,
+  maturity,
   updatedVaultAccount,
   hideUpdatedColumn,
-}: VaultRiskTableProps) => {
-  const { tableData } = useVaultRiskTable(vaultAddress, updatedVaultAccount);
+}: VaultDetailsTableProps) => {
+  const { tableData } = useVaultDetailsTable(vaultAddress, updatedVaultAccount);
 
   return (
     <Box>
       <DataTable
         data={tableData}
         columns={hideUpdatedColumn ? TABLE_COLUMNS.slice(0, 2) : TABLE_COLUMNS}
-        tableTitle={defineMessage({
-          defaultMessage: 'Vault Details',
-          description: 'Vault Details Table Title',
-        })}
+        tableTitle={
+          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+            <div>
+              <FormattedMessage
+                defaultMessage="Vault Details"
+                description="Vault Details Table Title"
+              />
+            </div>
+            {maturity && (
+              <div>
+                <FormattedMessage defaultMessage="Maturity:" /> {maturity}
+              </div>
+            )}
+          </Box>
+        }
         tableVariant={TABLE_VARIANTS.MINI}
         tableLoading={false}
       />

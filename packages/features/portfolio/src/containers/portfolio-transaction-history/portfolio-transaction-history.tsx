@@ -2,7 +2,7 @@ import { EmptyPortfolio } from '../../components';
 import { DataTable } from '@notional-finance/mui';
 import { PORTFOLIO_CATEGORIES } from '@notional-finance/shared-config';
 import { useTransactionHistoryTable } from '../../hooks';
-import { defineMessage } from 'react-intl';
+import { FormattedMessage } from 'react-intl';
 
 export const PortfolioTransactionHistory = () => {
   const { txnHistoryData, txnHistoryColumns } = useTransactionHistoryTable();
@@ -11,10 +11,14 @@ export const PortfolioTransactionHistory = () => {
     <DataTable
       data={txnHistoryData}
       columns={txnHistoryColumns}
-      tableTitle={defineMessage({
-        defaultMessage: 'Recent Transactions',
-        description: 'Recent Transactions Table Title',
-      })}
+      tableTitle={
+        <div>
+          <FormattedMessage
+            defaultMessage="Recent Transactions"
+            description="Recent Transactions Table Title"
+          />
+        </div>
+      }
     />
   ) : (
     <EmptyPortfolio />

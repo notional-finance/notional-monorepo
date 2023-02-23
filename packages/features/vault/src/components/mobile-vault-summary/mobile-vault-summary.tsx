@@ -6,8 +6,6 @@ import {
   CountUp,
   SliderBasic,
 } from '@notional-finance/mui';
-import { THEME_VARIANTS } from '@notional-finance/shared-config';
-import { useVault } from '@notional-finance/notionable-hooks';
 import { useHistoricalReturns } from '../../hooks/use-historical-returns';
 import { useVaultCapacity } from '../../hooks/use-vault-capacity';
 import { TokenIcon } from '@notional-finance/icons';
@@ -18,9 +16,9 @@ import { FormattedMessage } from 'react-intl';
 export const MobileVaultSummary = () => {
   const theme = useTheme();
   const {
-    state: { vaultAddress },
+    state: { primaryBorrowSymbol, vaultConfig },
   } = useContext(VaultActionContext);
-  const { primaryBorrowSymbol, vaultName } = useVault(vaultAddress);
+  const vaultName = vaultConfig?.name;
   const { headlineApy } = useHistoricalReturns();
   const { maxVaultCapacity, capacityUsedPercentage } = useVaultCapacity();
 

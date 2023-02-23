@@ -10,7 +10,7 @@ import {
 } from '@notional-finance/mui';
 import { VAULT_SUB_NAV_ACTIONS } from '@notional-finance/shared-config';
 import { useContext } from 'react';
-import { FormattedMessage, defineMessage } from 'react-intl';
+import { FormattedMessage } from 'react-intl';
 import { VaultDescription, VaultSubNav } from '../components';
 import { useHistoricalReturns } from '../hooks/use-historical-returns';
 import { VaultActionContext } from './vault-action-provider';
@@ -21,9 +21,8 @@ import { messages } from '../messages';
 
 export const VaultSummary = () => {
   const theme = useTheme();
-  const {
-    state: { vaultAddress, vaultConfig, primaryBorrowSymbol },
-  } = useContext(VaultActionContext);
+  const { state } = useContext(VaultActionContext);
+  const { vaultAddress, vaultConfig, primaryBorrowSymbol } = state;
 
   const vaultName = vaultConfig?.name;
 
@@ -110,10 +109,14 @@ export const VaultSummary = () => {
             <DataTable
               data={returnDrivers}
               columns={tableColumns}
-              tableTitle={defineMessage({
-                defaultMessage: 'Return Drivers',
-                description: 'Return Drivers Table Title',
-              })}
+              tableTitle={
+                <div>
+                  <FormattedMessage
+                    defaultMessage="Return Drivers"
+                    description="Return Drivers Table Title"
+                  />
+                </div>
+              }
             />
           </Box>
           <Box id={VAULT_SUB_NAV_ACTIONS.STRATEGY_DETAILS}>

@@ -2,7 +2,7 @@ import { EmptyPortfolio } from '../../components';
 import { useAccount } from '@notional-finance/notionable-hooks';
 import { DataTable } from '@notional-finance/mui';
 import { usePortfolioHoldingsTable } from './hooks';
-import { defineMessage } from 'react-intl';
+import { FormattedMessage } from 'react-intl';
 import { useYieldHoldingsTable } from './hooks/use-yield-holdings-table';
 import { useRiskOverviewTable } from './hooks/use-risk-overview-table';
 
@@ -32,10 +32,14 @@ export const PortfolioOverview = () => {
           data={riskOverviewData}
           columns={riskOverviewColumns}
           tableLoading={tableLoading}
-          tableTitle={defineMessage({
-            defaultMessage: 'Risk Overview',
-            description: 'table title',
-          })}
+          tableTitle={
+            <div>
+              <FormattedMessage
+                defaultMessage="Risk Overview"
+                description="table title"
+              />
+            </div>
+          }
         />
       )}
       {portfolioHoldingsData.length > 0 && (
@@ -43,20 +47,28 @@ export const PortfolioOverview = () => {
           data={portfolioHoldingsData}
           columns={portfolioHoldingsColumns}
           tableLoading={tableLoading}
-          tableTitle={defineMessage({
-            defaultMessage: 'Loan and Liquidity Positions',
-            description: 'table title',
-          })}
+          tableTitle={
+            <div>
+              <FormattedMessage
+                defaultMessage="Loan and Liquidity Positions"
+                description="table title"
+              />
+            </div>
+          }
         />
       )}
       {yieldHoldingsData.length > 0 && (
         <DataTable
           data={yieldHoldingsData}
           columns={yieldHoldingsColumns}
-          tableTitle={defineMessage({
-            defaultMessage: 'Yield Strategy Holdings',
-            description: 'table title',
-          })}
+          tableTitle={
+            <div>
+              <FormattedMessage
+                defaultMessage="Yield Strategy Holdings"
+                description="table title"
+              />
+            </div>
+          }
         />
       )}
     </>

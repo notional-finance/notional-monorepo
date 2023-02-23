@@ -1,5 +1,6 @@
-import { useVault } from '@notional-finance/notionable-hooks';
+import { useContext } from 'react';
 import { getGhostContentAPI } from '@notional-finance/helpers';
+import { VaultActionContext } from '../vault-view/vault-action-provider';
 import { PostOrPage } from '@tryghost/content-api';
 import { useEffect, useState } from 'react';
 
@@ -9,10 +10,10 @@ interface OverviewContent {
 }
 
 export const useVaultDocs = (vaultAddress: string) => {
-  const { strategyName } = useVault(vaultAddress);
   const [overviewContent, setOverviewContent] = useState<OverviewContent[]>();
   const [docsLink, setDocsLink] = useState<string>();
   const [financialModelLink, setFinancialModelLink] = useState<string>();
+  const { state: { strategyName } } = useContext(VaultActionContext);
 
   useEffect(() => {
     if (!vaultAddress || !strategyName) return;
