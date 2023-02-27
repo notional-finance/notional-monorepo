@@ -23,7 +23,6 @@ export const VaultView = () => {
     if (vaultAddress) {
       updateState({
         vaultAddress,
-        vaultAction: sideDrawerKey,
       });
     }
   }, [vaultAddress, updateState, sideDrawerKey]);

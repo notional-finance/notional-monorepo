@@ -40,12 +40,12 @@ export const VaultActionSideDrawer = () => {
 
   return (
     <Drawer size="large">
-      {!connected && <CreateVaultPosition />}
+      {!connected && accountSummariesLoaded && <CreateVaultPosition />}
       {accountSummariesLoaded && vaultAccount?.isInactive && (
         <CreateVaultPosition />
       )}
       {accountSummariesLoaded && !vaultAccount?.isInactive && <ManageVault />}
-      {connected && !accountSummariesLoaded && <PageLoading type="notional" />}
+      {!accountSummariesLoaded && <PageLoading type="notional" />}
       <SideDrawer
         callback={handleDrawer}
         openDrawer={openDrawer}

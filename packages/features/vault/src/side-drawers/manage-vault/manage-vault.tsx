@@ -1,5 +1,5 @@
 import { Box, styled, useTheme, Divider } from '@mui/material';
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import {
   PORTFOLIO_ACTIONS,
   VAULT_ACTIONS,
@@ -25,8 +25,9 @@ interface VaultParams {
 
 export const ManageVault = () => {
   const theme = useTheme();
-  const { vaultAddress } = useParams<VaultParams>();
+  const { vaultAddress, sideDrawerKey } = useParams<VaultParams>();
   const {
+    updateState,
     state: { eligibleActions, updatedVaultAccount, vaultConfig, vaultAccount },
   } = useContext(VaultActionContext);
   const { manageVaultActions } = useManageVault();
@@ -34,6 +35,12 @@ export const ManageVault = () => {
   const formattedMaturity = vaultAccount?.maturity
     ? formatMaturity(vaultAccount?.maturity)
     : '';
+
+  useEffect(() => {
+    updateState({
+      vaultAction: sideDrawerKey,
+    });
+  }, [updateState, sideDrawerKey]);
 
   return (
     <Box>
@@ -89,7 +96,7 @@ export const ManageVault = () => {
             )}
             {eligibleActions?.map((key, index) => (
               <Box key={index}>
-                {key === VAULT_ACTIONS.INCREASE_POSITION && (
+                {key === VAULT_ACTIONS.WITHDRAW_VAULT && (
                   <Divider
                     sx={{
                       margin: theme.spacing(5, 0),
