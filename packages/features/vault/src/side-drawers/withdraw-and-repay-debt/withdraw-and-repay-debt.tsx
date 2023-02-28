@@ -1,23 +1,23 @@
 import { VAULT_ACTIONS } from '@notional-finance/shared-config';
 import { VaultSideDrawer } from '../components/vault-side-drawer';
 import { SliderInput, SliderInputHandle } from '@notional-finance/mui';
-import { WalletDepositInput } from '@notional-finance/trade';
 import { useWithdrawAndRepayDebt } from './use-withdraw-and-repay-debt';
-import { useParams } from 'react-router-dom';
 import { messages } from '../messages';
 import { VaultActionContext } from '../../vault-view/vault-action-provider';
 import { RATE_PRECISION } from '@notional-finance/sdk/src/config/constants';
 import { useCallback, useEffect, useRef, useContext } from 'react';
 
-interface VaultParams {
-  vaultAddress: string;
-  sideDrawerKey?: VAULT_ACTIONS;
-}
-
 export const WithdrawAndRepayDebt = () => {
-  const { vaultAddress } = useParams<VaultParams>();
+  const {
+    updateState,
+    state: { maxLeverageRatio, leverageRatio },
+  } = useContext(VaultActionContext);
   const inputRef = useRef<SliderInputHandle>(null);
-  const { updateState } = useContext(VaultActionContext);
+  const transactionData = useWithdrawAndRepayDebt();
+
+  const sliderError = undefined;
+  const sliderInfo = undefined;
+
   const setInputAmount = useCallback(
     (input: number) => {
       inputRef.current?.setInputOverride(input);
@@ -25,45 +25,21 @@ export const WithdrawAndRepayDebt = () => {
     [inputRef]
   );
 
-  const {
-    transactionData,
-    sliderError,
-    sliderInfo,
-    maxLeverageRatio,
-    targetLeverageRatio,
-    primaryBorrowSymbol,
-    updateWithdrawAndRepayDebtState,
-  } = useWithdrawAndRepayDebt(vaultAddress);
-
   useEffect(() => {
-    if (targetLeverageRatio) {
-      setInputAmount(targetLeverageRatio / RATE_PRECISION);
+    if (leverageRatio) {
+      setInputAmount(leverageRatio / RATE_PRECISION);
     }
-  }, [targetLeverageRatio, setInputAmount]);
+  }, [leverageRatio, setInputAmount]);
 
   return (
     <VaultSideDrawer transactionData={transactionData}>
-      {primaryBorrowSymbol && (
-        <WalletDepositInput
-          availableTokens={[primaryBorrowSymbol]}
-          selectedToken={primaryBorrowSymbol}
-          onChange={({ inputAmount, hasError }) => {
-            updateState({ depositAmount: inputAmount, hasError });
-          }}
-          inputLabel={
-            messages[VAULT_ACTIONS.WITHDRAW_AND_REPAY_DEBT].inputLabel
-          }
-          errorMsgOverride={undefined}
-        />
-      )}
-
       <SliderInput
         ref={inputRef}
         min={0}
-        max={maxLeverageRatio / RATE_PRECISION}
+        max={maxLeverageRatio ? maxLeverageRatio / RATE_PRECISION : 0}
         onChangeCommitted={(newLeverageRatio) =>
-          updateWithdrawAndRepayDebtState({
-            targetLeverageRatio: Math.floor(newLeverageRatio * RATE_PRECISION),
+          updateState({
+            leverageRatio: Math.floor(newLeverageRatio * RATE_PRECISION),
           })
         }
         errorMsg={sliderError}
