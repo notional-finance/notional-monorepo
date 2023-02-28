@@ -14,13 +14,13 @@ export function useManageVault() {
       label: <FormattedMessage defaultMessage={'Withdraw and Repay Debt'} />,
       link: `${currentPath}/${VAULT_ACTIONS.WITHDRAW_AND_REPAY_DEBT}`,
     },
-    [VAULT_ACTIONS.WITHDRAW_VAULT]: {
-      label: <FormattedMessage defaultMessage={'Withdraw / Exit Vault'} />,
-      link: `${currentPath}/${VAULT_ACTIONS.WITHDRAW_VAULT}`,
-    },
     [VAULT_ACTIONS.INCREASE_POSITION]: {
       label: <FormattedMessage defaultMessage={'Increase Position'} />,
       link: `${currentPath}/${VAULT_ACTIONS.INCREASE_POSITION}`,
+    },
+    [VAULT_ACTIONS.WITHDRAW_VAULT]: {
+      label: <FormattedMessage defaultMessage={'Withdraw / Exit Vault'} />,
+      link: `${currentPath}/${VAULT_ACTIONS.WITHDRAW_VAULT}`,
     },
     [VAULT_ACTIONS.ROLL_POSITION]: {
       label: <FormattedMessage defaultMessage={'Roll Maturity'} />,

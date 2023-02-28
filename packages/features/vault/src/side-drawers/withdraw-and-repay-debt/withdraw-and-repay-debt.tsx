@@ -26,14 +26,12 @@ export const WithdrawAndRepayDebt = () => {
   );
 
   const {
-    canSubmit,
     transactionData,
     sliderError,
     sliderInfo,
     maxLeverageRatio,
     targetLeverageRatio,
     primaryBorrowSymbol,
-    updatedVaultAccount,
     updateWithdrawAndRepayDebtState,
   } = useWithdrawAndRepayDebt(vaultAddress);
 
@@ -44,13 +42,7 @@ export const WithdrawAndRepayDebt = () => {
   }, [targetLeverageRatio, setInputAmount]);
 
   return (
-    <VaultSideDrawer
-      action={VAULT_ACTIONS.WITHDRAW_AND_REPAY_DEBT}
-      canSubmit={canSubmit}
-      transactionData={transactionData}
-      vaultAddress={vaultAddress}
-      updatedVaultAccount={updatedVaultAccount}
-    >
+    <VaultSideDrawer transactionData={transactionData}>
       {primaryBorrowSymbol && (
         <WalletDepositInput
           availableTokens={[primaryBorrowSymbol]}

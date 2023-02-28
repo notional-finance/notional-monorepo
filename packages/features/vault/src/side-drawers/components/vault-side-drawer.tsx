@@ -1,12 +1,16 @@
+import { useContext } from 'react';
 import { ActionSidebar, ToggleSwitchProps } from '@notional-finance/mui';
+import { useLocation } from 'react-router-dom';
 import { TransactionData } from '@notional-finance/trade';
-import { VaultAccount } from '@notional-finance/sdk';
+import { useQueryParams } from '@notional-finance/utils';
 import {
   TransactionConfirmation,
   TradeActionButton,
 } from '@notional-finance/trade';
 import { VaultDetailsTable } from '@notional-finance/risk';
 import { VAULT_ACTIONS } from '@notional-finance/shared-config';
+import { VaultActionContext } from '../../vault-view/vault-action-provider';
+import { formatMaturity } from '@notional-finance/helpers';
 import { useHistory } from 'react-router';
 import { messages } from '../messages';
 
@@ -16,39 +20,52 @@ export interface VaultParams {
 }
 
 interface VaultSideDrawerProps {
-  action: VAULT_ACTIONS;
-  canSubmit: boolean;
-  vaultAddress: string;
-  updatedVaultAccount?: VaultAccount;
   children?: React.ReactNode | React.ReactNode[];
   transactionData?: TransactionData;
   advancedToggle?: ToggleSwitchProps;
 }
 
 export const VaultSideDrawer = ({
-  action,
   children,
-  canSubmit,
   transactionData,
   advancedToggle,
-  vaultAddress,
-  updatedVaultAccount,
 }: VaultSideDrawerProps) => {
   const history = useHistory();
 
-  return transactionData ? (
+  const { confirm } = useQueryParams();
+  const { pathname: currentPath } = useLocation();
+  const confirmRoute = !!confirm;
+  const {
+    state: {
+      vaultAccount,
+      vaultAddress,
+      vaultAction,
+      buildTransactionCall,
+      updatedVaultAccount,
+    },
+  } = useContext(VaultActionContext);
+  const currentVaultAddress = vaultAddress || '';
+  const canSubmit = buildTransactionCall ? true : false;
+  const currentAction: VAULT_ACTIONS =
+    vaultAction || VAULT_ACTIONS.CREATE_VAULT_POSITION;
+
+  const formattedMaturity = vaultAccount?.maturity
+    ? formatMaturity(vaultAccount?.maturity)
+    : '';
+
+  return transactionData && confirmRoute ? (
     <TransactionConfirmation
       heading={transactionData?.transactionHeader}
-      onCancel={() => history.push('')}
+      onCancel={() => history.push(`${currentPath}/${currentAction}`)}
       transactionProperties={transactionData?.transactionProperties}
       buildTransactionCall={transactionData?.buildTransactionCall}
       showDrawer={false}
-      onReturnToForm={() => history.push('')}
+      onReturnToForm={() => history.push(`${currentPath}/${currentAction}`)}
     />
   ) : (
     <ActionSidebar
-      heading={messages[action].heading}
-      helptext={messages[action].helptext}
+      heading={messages[currentAction].heading}
+      helptext={messages[currentAction].helptext}
       advancedToggle={advancedToggle}
       showDrawer={false}
       canSubmit={canSubmit}
@@ -57,11 +74,12 @@ export const VaultSideDrawer = ({
       hideTextOnMobile={false}
     >
       {children}
-      {action !== VAULT_ACTIONS.WITHDRAW_VAULT_POST_MATURITY && (
+      {currentAction !== VAULT_ACTIONS.WITHDRAW_VAULT_POST_MATURITY && (
         <VaultDetailsTable
           key={'vault-risk-table'}
           updatedVaultAccount={updatedVaultAccount}
-          vaultAddress={vaultAddress}
+          maturity={formattedMaturity}
+          vaultAddress={currentVaultAddress}
         />
       )}
     </ActionSidebar>
