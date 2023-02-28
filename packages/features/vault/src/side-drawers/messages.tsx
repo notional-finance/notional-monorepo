@@ -126,12 +126,8 @@ export const messages = {
         'Withdraw a portion of your earnings to deleverage your position.',
       description: '',
     },
-    inputLabel: {
-      defaultMessage: '1. Enter Amount to Withdraw',
-      description: '',
-    },
     leverage: {
-      defaultMessage: '2. Change Leverage  (Optional) ',
+      defaultMessage: 'Change Leverage',
       description: 'slider label',
     },
   }),
