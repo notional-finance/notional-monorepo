@@ -2,22 +2,14 @@ import { useContext } from 'react';
 import { VAULT_ACTIONS } from '@notional-finance/shared-config';
 import { VaultSideDrawer } from '../components/vault-side-drawer';
 import { Maturities } from '@notional-finance/mui';
-import { useParams } from 'react-router-dom';
 import { messages } from '../messages';
 import { VaultActionContext } from '../../vault-view/vault-action-provider';
 import { RATE_PRECISION } from '@notional-finance/sdk/src/config/constants';
 
-interface VaultParams {
-  vaultAddress: string;
-  sideDrawerKey?: VAULT_ACTIONS;
-}
-
 export const RollMaturity = () => {
-  const { vaultAddress } = useParams<VaultParams>();
-
   const {
     updateState,
-    state: { selectedMarketKey, borrowMarketData, updatedVaultAccount },
+    state: { selectedMarketKey, borrowMarketData },
   } = useContext(VaultActionContext);
 
   // const inputRef = useRef<SliderInputHandle>(null);
@@ -47,13 +39,7 @@ export const RollMaturity = () => {
   // }, [targetLeverageRatio, setInputAmount]);
 
   return (
-    <VaultSideDrawer
-      action={VAULT_ACTIONS.ROLL_POSITION}
-      canSubmit={false}
-      transactionData={undefined}
-      vaultAddress={vaultAddress}
-      updatedVaultAccount={updatedVaultAccount}
-    >
+    <VaultSideDrawer transactionData={undefined}>
       <Maturities
         maturityData={borrowMarketData || []}
         onSelect={(marketKey: string | null) => {

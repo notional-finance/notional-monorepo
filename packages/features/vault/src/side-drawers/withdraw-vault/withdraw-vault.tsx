@@ -25,7 +25,6 @@ export const WithdrawVault = () => {
   const inputOverrideRef = useRef<CurrencyInputHandle>(null);
 
   const {
-    canSubmit,
     transactionData,
     sideDrawerInfo,
     isPostMaturityExit,
@@ -33,22 +32,11 @@ export const WithdrawVault = () => {
     maxWithdrawAmountString,
     isFullRepayment,
     primaryBorrowSymbol,
-    updatedVaultAccount,
     updateWithdrawVaultState,
   } = useWithdrawVault(vaultAddress);
 
   return (
-    <VaultSideDrawer
-      action={
-        isPostMaturityExit
-          ? VAULT_ACTIONS.WITHDRAW_VAULT_POST_MATURITY
-          : VAULT_ACTIONS.WITHDRAW_VAULT
-      }
-      canSubmit={canSubmit}
-      transactionData={transactionData}
-      vaultAddress={vaultAddress}
-      updatedVaultAccount={updatedVaultAccount}
-    >
+    <VaultSideDrawer transactionData={transactionData}>
       {isPostMaturityExit && (
         <Box>
           <Link to={`/vaults/${vaultAddress}`}>
