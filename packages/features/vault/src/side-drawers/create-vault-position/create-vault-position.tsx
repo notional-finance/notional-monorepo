@@ -33,7 +33,6 @@ export const CreateVaultPosition = () => {
     borrowMarketData,
     fCashBorrowAmount,
     leverageRatio,
-    updatedVaultAccount,
   } = state;
 
   useEffect(() => {
@@ -44,12 +43,8 @@ export const CreateVaultPosition = () => {
 
   const { minBorrowSize, maxLeverageRatio, primaryBorrowSymbol } =
     useVault(vaultAddress);
-  const {
-    underMinAccountBorrow,
-    inputErrorMsg,
-    leverageRatioError,
-    canSubmit,
-  } = useVaultActionErrors();
+  const { underMinAccountBorrow, inputErrorMsg, leverageRatioError } =
+    useVaultActionErrors();
 
   const sliderInputRef = useRef<SliderInputHandle>(null);
   const isInputRefDefined = !!sliderInputRef.current;
@@ -93,13 +88,7 @@ export const CreateVaultPosition = () => {
           },
         }}
       >
-        <VaultSideDrawer
-          action={VAULT_ACTIONS.CREATE_VAULT_POSITION}
-          transactionData={undefined}
-          vaultAddress={vaultAddress}
-          canSubmit={canSubmit}
-          updatedVaultAccount={updatedVaultAccount}
-        >
+        <VaultSideDrawer transactionData={undefined}>
           <Maturities
             maturityData={borrowMarketData || []}
             onSelect={(marketKey: string | null) => {

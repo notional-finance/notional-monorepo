@@ -9,25 +9,12 @@ import { messages } from '../messages';
 export const DepositCollateral = () => {
   const {
     updateState,
-    state: {
-      primaryBorrowSymbol,
-      updatedVaultAccount,
-      vaultAddress,
-      buildTransactionCall,
-    },
+    state: { primaryBorrowSymbol },
   } = useContext(VaultActionContext);
   const transactionData = useDepositCollateral();
-  const canSubmit = buildTransactionCall ? true : false;
-  const currentVaultAddress = vaultAddress || '';
 
   return (
-    <VaultSideDrawer
-      action={VAULT_ACTIONS.DEPOSIT_COLLATERAL}
-      canSubmit={canSubmit}
-      transactionData={transactionData}
-      vaultAddress={currentVaultAddress}
-      updatedVaultAccount={updatedVaultAccount}
-    >
+    <VaultSideDrawer transactionData={transactionData}>
       {primaryBorrowSymbol && (
         <WalletDepositInput
           availableTokens={[primaryBorrowSymbol]}
