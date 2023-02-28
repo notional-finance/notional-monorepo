@@ -54,7 +54,7 @@ export function getWithdrawAmountData(inputs: VaultWithdrawDataDependencies) {
     buildTransactionCall:
       updatedVaultAccount && accountAddress
         ? {
-            transactionFn: baseVault.populateEnterTransaction.bind(baseVault),
+            transactionFn: baseVault.populateExitTransaction.bind(baseVault),
             transactionArgs: [
               accountAddress,
               vaultAccount.maturity,
