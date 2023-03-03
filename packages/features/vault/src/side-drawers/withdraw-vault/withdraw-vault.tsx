@@ -12,7 +12,7 @@ import { VAULT_ACTIONS } from '@notional-finance/shared-config';
 import { useRef } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { VaultSideDrawer } from '../components/vault-side-drawer';
-import { messages } from '../messages';
+import { messages } from '../../messages';
 import { useWithdrawVault } from './use-withdraw-vault';
 
 export const WithdrawVault = () => {
