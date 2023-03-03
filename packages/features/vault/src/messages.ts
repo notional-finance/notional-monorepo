@@ -9,7 +9,7 @@ export const  messages = {
     },
     helptext: {
       defaultMessage:
-        'Create a new vault position with a deposit, minimum deposit amount: {minDepositRequired}',
+        'Create a new vault position with a deposit, minimum deposit amount: {value}',
       description: 'helptext',
     },
     maturity: {

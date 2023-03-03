@@ -1,77 +1,79 @@
 import { Box } from '@mui/material';
+import { useCallback, useContext, useEffect } from 'react';
+import { useNotional } from '@notional-finance/notionable-hooks';
 import {
   CurrencyInput,
   InputLabel,
-  Button,
   CurrencyInputHandle,
 } from '@notional-finance/mui';
 import { INTERNAL_TOKEN_DECIMAL_PLACES } from '@notional-finance/sdk/src/config/constants';
-import { TradePropertiesGrid } from '@notional-finance/trade';
+import { VaultActionContext } from '../../vault-view/vault-action-provider';
 import { VAULT_ACTIONS } from '@notional-finance/shared-config';
 import { useRef } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { Link, useParams } from 'react-router-dom';
 import { VaultSideDrawer } from '../components/vault-side-drawer';
 import { messages } from '../messages';
 import { useWithdrawVault } from './use-withdraw-vault';
 
-interface VaultParams {
-  vaultAddress: string;
-  sideDrawerKey?: VAULT_ACTIONS;
-}
-
 export const WithdrawVault = () => {
-  const { vaultAddress } = useParams<VaultParams>();
+  const { notional } = useNotional();
   const inputOverrideRef = useRef<CurrencyInputHandle>(null);
+  const { updateState, state } = useContext(VaultActionContext);
 
   const {
-    transactionData,
-    sideDrawerInfo,
-    isPostMaturityExit,
-    error,
-    maxWithdrawAmountString,
-    isFullRepayment,
     primaryBorrowSymbol,
-    updateWithdrawVaultState,
-  } = useWithdrawVault(vaultAddress);
+    vaultAccount,
+    maxWithdrawAmountString,
+    maxWithdraw,
+  } = state;
+  const isFullRepayment = vaultAccount?.primaryBorrowfCash.isZero();
+  const transactionData = useWithdrawVault();
+
+  const setInputAmount = useCallback(
+    (input: string) => {
+      inputOverrideRef.current?.setInputOverride(input);
+    },
+    [inputOverrideRef]
+  );
+
+  useEffect(() => {
+    if (maxWithdraw && maxWithdrawAmountString)
+      setInputAmount(maxWithdrawAmountString);
+  }, [maxWithdraw, maxWithdrawAmountString, setInputAmount]);
 
   return (
     <VaultSideDrawer transactionData={transactionData}>
-      {isPostMaturityExit && (
-        <Box>
-          <Link to={`/vaults/${vaultAddress}`}>
-            <Button variant="contained" sx={{ width: '100%' }}>
-              <FormattedMessage
-                {...messages[VAULT_ACTIONS.WITHDRAW_VAULT_POST_MATURITY][
-                  'reenterVault'
-                ]}
-              />
-            </Button>
-          </Link>
-        </Box>
-      )}
-      {!isPostMaturityExit && primaryBorrowSymbol && (
+      {primaryBorrowSymbol && (
         <Box>
           <InputLabel
             inputLabel={messages[VAULT_ACTIONS.WITHDRAW_VAULT]['inputLabel']}
           />
           <CurrencyInput
-            placeholder="0.00000000"
             ref={inputOverrideRef}
+            placeholder="0.00000000"
             decimals={INTERNAL_TOKEN_DECIMAL_PLACES}
-            onMaxValue={() => {
-              inputOverrideRef.current?.setInputOverride(
-                maxWithdrawAmountString
-              );
-              updateWithdrawVaultState({ maxWithdraw: true });
-            }}
             onInputChange={(withdrawAmountString) => {
-              updateWithdrawVaultState({
-                withdrawAmountString,
-                maxWithdraw: false,
+              try {
+                updateState({
+                  withdrawAmount: notional?.parseInput(
+                    withdrawAmountString,
+                    primaryBorrowSymbol,
+                    true
+                  ),
+                });
+              } catch (e) {
+                updateState({
+                  withdrawAmount: undefined,
+                });
+              }
+            }}
+            onMaxValue={() => {
+              updateState({
+                maxWithdraw: true,
               });
             }}
-            errorMsg={error && <FormattedMessage {...error} />}
+            // TODO: add error messages
+            // errorMsg={error && <FormattedMessage {...error} />}
             captionMsg={
               isFullRepayment && (
                 <FormattedMessage
@@ -83,13 +85,9 @@ export const WithdrawVault = () => {
             }
             currencies={[primaryBorrowSymbol]}
             defaultValue={primaryBorrowSymbol}
-            onSelectChange={() => {
-              /* No Token Select */
-            }}
           />
         </Box>
       )}
-      <TradePropertiesGrid showBackground data={sideDrawerInfo} />
     </VaultSideDrawer>
   );
 };
