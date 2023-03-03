@@ -14,6 +14,7 @@ import { VAULT_ACTIONS } from '@notional-finance/shared-config';
 import { VaultActionContext } from '../../vault-view/vault-action-provider';
 import { VaultSideDrawer } from '../components/vault-side-drawer';
 import { useVault } from '@notional-finance/notionable-hooks';
+import { useCreateVaultPosition } from './use-create-vault-position';
 import { MobileVaultSummary } from '../../components';
 import { useVaultActionErrors } from '../../hooks';
 import { WalletDepositInput } from '@notional-finance/trade';
@@ -28,6 +29,7 @@ export const CreateVaultPosition = () => {
   const theme = useTheme();
   const { vaultAddress } = useParams<VaultParams>();
   const { updateState, state } = useContext(VaultActionContext);
+  const transactionData = useCreateVaultPosition();
   const {
     selectedMarketKey,
     borrowMarketData,
@@ -88,7 +90,7 @@ export const CreateVaultPosition = () => {
           },
         }}
       >
-        <VaultSideDrawer transactionData={undefined}>
+        <VaultSideDrawer transactionData={transactionData}>
           <Maturities
             maturityData={borrowMarketData || []}
             onSelect={(marketKey: string | null) => {

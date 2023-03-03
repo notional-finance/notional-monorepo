@@ -10,6 +10,7 @@ import { Market, System } from '@notional-finance/sdk/src/system';
 import { VAULT_ACTIONS } from '@notional-finance/shared-config';
 import { getNowSeconds } from '@notional-finance/helpers';
 import { NoEligibleMarketsReason, VaultError } from '../vault-action-store';
+import { getFullWithdrawAmounts } from './get-withdraw-amount-data';
 
 interface InitVaultActionDependencies {
   system: System;
@@ -74,6 +75,14 @@ export function getInitVaultAction({
   const maxLeverageRatio = BaseVault.collateralToLeverageRatio(
     vaultConfig.minCollateralRatioBasisPoints
   );
+  
+  let maxWithdrawAmountString = '';
+  try {
+    const { amountToWallet } = getFullWithdrawAmounts(baseVault, vaultAccount)
+    maxWithdrawAmountString = amountToWallet?.toExactString();
+  } catch(e) {
+    maxWithdrawAmountString = ''
+  }
 
   return {
     accountAddress: account?.address || undefined,
@@ -91,6 +100,7 @@ export function getInitVaultAction({
     minBorrowSize: vaultConfig.minAccountBorrowSize.toDisplayStringWithSymbol(0),
     minAccountBorrowSize: vaultConfig.minAccountBorrowSize,
     strategyName: VaultFactory.resolveStrategyName(vaultConfig.strategy) || '',
+    maxWithdrawAmountString: maxWithdrawAmountString,
     // Clear inputs back to initial conditions
     vaultAction: undefined,
     hasError: false,

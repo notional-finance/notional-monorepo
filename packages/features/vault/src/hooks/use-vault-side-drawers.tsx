@@ -3,6 +3,7 @@ import { useSideDrawerState } from '@notional-finance/side-drawer';
 import {
   RollMaturity,
   WithdrawVault,
+  WithdrawVaultPostMaturity,
   DepositCollateral,
   CreateVaultPosition,
   WithdrawAndRepayDebt,
@@ -21,7 +22,7 @@ export const useVaultSideDrawers = () => {
     [VAULT_ACTIONS.ROLL_POSITION]: RollMaturity,
     [VAULT_ACTIONS.WITHDRAW_AND_REPAY_DEBT]: WithdrawAndRepayDebt,
     [VAULT_ACTIONS.WITHDRAW_VAULT]: WithdrawVault,
-    [VAULT_ACTIONS.WITHDRAW_VAULT_POST_MATURITY]: WithdrawVault,
+    [VAULT_ACTIONS.WITHDRAW_VAULT_POST_MATURITY]: WithdrawVaultPostMaturity,
   };
 
   const SideDrawerComponent =
