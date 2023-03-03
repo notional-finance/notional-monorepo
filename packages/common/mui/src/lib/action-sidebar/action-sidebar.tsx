@@ -16,6 +16,7 @@ import { NotionalTheme } from '@notional-finance/styles';
 export interface ActionSidebarProps {
   heading: MessageDescriptor;
   helptext: MessageDescriptor;
+  helpTextValues?: string;
   children: React.ReactNode | React.ReactNode[];
   showDrawer?: boolean;
   canSubmit?: boolean;
@@ -47,7 +48,6 @@ const FormSection = styled(Box, {
   }
 `
 );
-
 // - > *:not(:last-child) styles all of the children but the last one
 // - > *  styles the last child element
 
@@ -63,9 +63,9 @@ export const ActionSidebar = ({
   advancedToggle,
   showActionButtons = true,
   hideTextOnMobile = true,
+  helpTextValues,
 }: ActionSidebarProps) => {
   const theme = useTheme();
-
   const inner = (
     <>
       <ActionSideBarContainer hideTextOnMobile={hideTextOnMobile} theme={theme}>
@@ -110,7 +110,12 @@ export const ActionSidebar = ({
             display: { xs: 'none', sm: 'none', md: 'block' },
           }}
         >
-          <FormattedMessage {...helptext} />
+          <FormattedMessage
+            {...helptext}
+            values={{
+              value: helpTextValues ? helpTextValues : '',
+            }}
+          />
         </HeadingSubtitle>
         <Divider
           sx={{

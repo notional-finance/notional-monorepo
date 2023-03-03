@@ -117,23 +117,29 @@ export const SelectDropdown = ({
     },
   };
 
-  return (
-    currentRef && (
-      <SelectUnstyled
-        value={value}
-        disabled={onlyOneInput}
-        slotProps={componentProps}
-        slots={components}
-        onListboxOpenChange={(isOpen: boolean) => {
-          setListboxOpen(isOpen);
-          if (onListboxOpen) onListboxOpen(isOpen);
-        }}
-        onChange={(e: any) => {
-          onChange(e?.target.textContent);
-        }}
-      >
-        {children}
-      </SelectUnstyled>
-    )
+  return currentRef && !onlyOneInput ? (
+    <SelectUnstyled
+      value={value}
+      slotProps={componentProps}
+      slots={components}
+      onListboxOpenChange={(isOpen: boolean) => {
+        setListboxOpen(isOpen);
+        if (onListboxOpen) onListboxOpen(isOpen);
+      }}
+      onChange={(e: any) => {
+        onChange(e?.target.textContent);
+      }}
+    >
+      {children}
+    </SelectUnstyled>
+  ) : (
+    <SelectUnstyled
+      value={value}
+      disabled={onlyOneInput}
+      slotProps={componentProps}
+      slots={components}
+    >
+      {children}
+    </SelectUnstyled>
   );
 };
