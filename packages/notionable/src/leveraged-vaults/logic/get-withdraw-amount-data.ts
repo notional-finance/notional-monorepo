@@ -137,7 +137,7 @@ function _getWithdrawAmountData({
   };
 }
 
-function getFullWithdrawAmounts(
+export function getFullWithdrawAmounts(
   baseVault: GenericBaseVault,
   vaultAccount: VaultAccount
 ) {

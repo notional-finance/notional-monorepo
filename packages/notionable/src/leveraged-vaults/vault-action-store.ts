@@ -65,6 +65,7 @@ interface VaultInitData {
   noEligibleMarketsReason?: NoEligibleMarketsReason;
   minLeverageRatio?: number;
   maxLeverageRatio?: number;
+  maxWithdrawAmountString?: string;
 }
 
 export interface VaultActionState
@@ -85,7 +86,6 @@ export interface VaultActionState
   maximumLeverageRatio?: number;
   minimumLeverageRatio?: number;
   updatedVaultAccount?: VaultAccount;
-  maxWithdrawAmount?: TypedBigNumber;
   vaultError?: VaultError;
   buildTransactionCall?: TransactionFunction;
   netCapacityChange?: TypedBigNumber;
