@@ -86,7 +86,7 @@ export const VaultSideDrawer = ({
           <ActionSidebar
             heading={messages[vaultAction].heading}
             helptext={messages[vaultAction].helptext}
-            helpTextVaules={messageVaules[vaultAction]}
+            helpTextValues={messageVaules[vaultAction]}
             advancedToggle={advancedToggle}
             showDrawer={false}
             canSubmit={canSubmit}
