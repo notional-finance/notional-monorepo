@@ -16,7 +16,7 @@ import { useVault } from '@notional-finance/notionable-hooks';
 import { VaultActionContext } from '../../vault-view/vault-action-provider';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { formatMaturity } from '@notional-finance/helpers';
-import { messages } from '../messages';
+import { messages } from '../../messages';
 
 export interface VaultParams {
   vaultAddress?: string;
@@ -65,7 +65,6 @@ export const VaultSideDrawer = ({
       updateState({
         maxWithdraw: false,
         withdrawAmount: undefined,
-        withdrawAmountString: '',
       });
     }
   };
