@@ -2,7 +2,7 @@ import { VAULT_ACTIONS } from '@notional-finance/shared-config';
 import { VaultSideDrawer } from '../components/vault-side-drawer';
 import { SliderInput, SliderInputHandle } from '@notional-finance/mui';
 import { useWithdrawAndRepayDebt } from './use-withdraw-and-repay-debt';
-import { messages } from '../messages';
+import { messages } from '../../messages';
 import { VaultActionContext } from '../../vault-view/vault-action-provider';
 import { RATE_PRECISION } from '@notional-finance/sdk/src/config/constants';
 import { useCallback, useEffect, useRef, useContext } from 'react';

@@ -18,7 +18,7 @@ import { useCreateVaultPosition } from './use-create-vault-position';
 import { MobileVaultSummary } from '../../components';
 import { useVaultActionErrors } from '../../hooks';
 import { WalletDepositInput } from '@notional-finance/trade';
-import { messages } from '../messages';
+import { messages } from '../../messages';
 
 interface VaultParams {
   vaultAddress: string;

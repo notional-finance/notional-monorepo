@@ -16,7 +16,7 @@ import { FormattedMessage } from 'react-intl';
 import { useManageVault } from './use-manage-vault';
 import { formatMaturity } from '@notional-finance/helpers';
 import { VaultActionContext } from '../../vault-view/vault-action-provider';
-import { messages } from '../messages';
+import { messages } from '../../messages';
 
 interface VaultParams {
   vaultAddress?: string;
