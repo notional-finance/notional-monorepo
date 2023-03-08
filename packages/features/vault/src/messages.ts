@@ -31,7 +31,7 @@ export const  messages = {
   }),
   [VAULT_ACTIONS.INCREASE_POSITION]: defineMessages({
     heading: {
-      defaultMessage: 'Increase Vault Position: {maturity}',
+      defaultMessage: 'Increase Vault Position',
       description: 'heading',
     },
     helptext: {
@@ -43,21 +43,17 @@ export const  messages = {
       defaultMessage: '1. You will borrow at this maturity and fixed rate.',
       description: 'input label',
     },
-    depositAmount: {
-      defaultMessage: '2. (Optional) Deposit to maintain your leverage ratio.',
-      description: 'input label',
-    },
     leverage: {
-      defaultMessage: '3. Increase your leverage ratio by borrowing more.',
+      defaultMessage: '2. Adjust Leverage (Optional)',
       description: 'input label',
     },
     confirm: {
       defaultMessage: 'Increase Vault Position',
       description: 'heading',
     },
-    tabLabel: {
-      defaultMessage: 'Increase Position',
-      description: 'tab label',
+    inputLabel: {
+      defaultMessage: '1. Enter Amount to Deposit',
+      description: 'input label',
     },
   }),
   [VAULT_ACTIONS.WITHDRAW_VAULT]: defineMessages({
@@ -171,19 +167,19 @@ export const  messages = {
     },
     helptext: {
       defaultMessage:
-        'Borrow from a longer term maturity to avoid settlement, minimum borrow size: {minBorrowSize}',
+        'Borrow from a longer term maturity to avoid settlement, minimum borrow size: {value}',
       description: 'helptext',
     },
     maturity: {
       defaultMessage: '1. Select a new maturity and new fixed borrowing rate.',
       description: 'input label',
     },
-    depositAmount: {
-      defaultMessage: '2. (Optional) Deposit to maintain your leverage ratio.',
+    inputLabel: {
+      defaultMessage: '2. Deposit to maintain your leverage ratio (Optional)',
       description: 'input label',
     },
     leverage: {
-      defaultMessage: '3. (Optional) Increase your new leverage ratio.',
+      defaultMessage: '3. Adjust Leverage (Optional)',
       description: 'input label',
     },
     confirm: {

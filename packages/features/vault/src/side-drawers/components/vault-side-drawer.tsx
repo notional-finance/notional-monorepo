@@ -45,6 +45,7 @@ export const VaultSideDrawer = ({
       vaultAction,
       buildTransactionCall,
       updatedVaultAccount,
+      minBorrowSize,
     },
   } = useContext(VaultActionContext);
   const useVaultData = useVault(vaultAddress);
@@ -53,6 +54,7 @@ export const VaultSideDrawer = ({
 
   const messageValues = {
     [VAULT_ACTIONS.CREATE_VAULT_POSITION]: useVaultData?.minDepositRequired,
+    [VAULT_ACTIONS.ROLL_POSITION]: minBorrowSize,
   };
 
   const formattedMaturity = vaultAccount?.maturity
