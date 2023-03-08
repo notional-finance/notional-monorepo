@@ -7,17 +7,15 @@ import {
   DepositCollateral,
   CreateVaultPosition,
   WithdrawAndRepayDebt,
+  IncreaseVaultPosition,
 } from '../side-drawers';
-import { useLocation } from 'react-router';
 
 export const useVaultSideDrawers = () => {
   const { sideDrawerOpen, currentSideDrawerKey } = useSideDrawerState();
-  const { pathname: currentPath } = useLocation();
-  const TempComp = () => <div>currentPath: {currentPath}</div>;
 
   const drawers = {
     [VAULT_ACTIONS.CREATE_VAULT_POSITION]: CreateVaultPosition,
-    [VAULT_ACTIONS.INCREASE_POSITION]: TempComp,
+    [VAULT_ACTIONS.INCREASE_POSITION]: IncreaseVaultPosition,
     [VAULT_ACTIONS.DEPOSIT_COLLATERAL]: DepositCollateral,
     [VAULT_ACTIONS.ROLL_POSITION]: RollMaturity,
     [VAULT_ACTIONS.WITHDRAW_AND_REPAY_DEBT]: WithdrawAndRepayDebt,

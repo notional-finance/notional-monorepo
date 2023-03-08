@@ -3,7 +3,7 @@ import { VaultActionContext } from '../../vault-view/vault-action-provider';
 import { useContext } from 'react';
 
 
-export function useRollMaturity() {
+export function useIncreaseVaultPosition() {
     const { state: { 
       vaultAccount,
       buildTransactionCall,

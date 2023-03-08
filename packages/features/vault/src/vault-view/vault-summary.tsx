@@ -55,7 +55,15 @@ export const VaultSummary = () => {
     : undefined;
 
   return (
-    <Box sx={{ display: { xs: 'none', sm: 'none', md: 'block' } }}>
+    <Box
+      sx={{
+        display: {
+          xs: 'none',
+          sm: 'none',
+          md: 'block',
+        },
+      }}
+    >
       <VaultSubNav />
       <Box
         sx={{
