@@ -1,3 +1,4 @@
+// import { useEffect, useState } from 'react';
 import { Box, SwipeableDrawer, useTheme, alpha } from '@mui/material';
 import { defineMessage } from 'react-intl';
 import { SideBarSubHeader } from '../side-bar-sub-header/side-bar-sub-header';
@@ -22,6 +23,16 @@ export function SideDrawer({
   disableBackDrop = false,
 }: SideDrawerProps) {
   const theme = useTheme();
+  // const [hoverActive, setHoverActive] = useState(false);
+  // const mainScreenCanScroll = disableBackDrop && !hoverActive;
+
+  // useEffect(() => {
+  //   if (!mainScreenCanScroll) {
+  //     document.body.style.overflowY = 'hidden';
+  //   } else {
+  //     document.body.style.overflowY = 'auto';
+  //   }
+  // }, [mainScreenCanScroll]);
 
   return (
     <SwipeableDrawer
@@ -32,6 +43,8 @@ export function SideDrawer({
       onBackdropClick={() => callback()}
       hideBackdrop={disableBackDrop}
       disableScrollLock={disableBackDrop}
+      // onMouseEnter={() => setHoverActive(true)}
+      // onMouseLeave={() => setHoverActive(false)}
       sx={{
         '.MuiBackdrop-root': {
           backgroundColor: alpha(theme.palette.background.accentDefault, 0.5),
@@ -43,6 +56,7 @@ export function SideDrawer({
         },
         '&.MuiPaper-root, .MuiPaper-elevation': {
           overflowX: 'hidden',
+          // overflowY: hoverActive ? 'auto' : 'hidden',
           maxWidth: { xs: '100%', sm: '100%', md: '543px' },
           width: { xs: '100%', sm: '100%', md: '100%' },
           boxShadow: disableBackDrop ? 'none' : '',

@@ -37,6 +37,12 @@ export const ManageVault = () => {
     : '';
 
   useEffect(() => {
+    if (!sideDrawerKey) {
+      window.scrollTo(0, 0);
+    }
+  }, [sideDrawerKey]);
+
+  useEffect(() => {
     updateState({
       vaultAction: sideDrawerKey,
     });

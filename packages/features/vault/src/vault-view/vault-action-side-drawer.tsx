@@ -7,7 +7,6 @@ import {
 } from '@notional-finance/mui';
 import { Box, useTheme, styled } from '@mui/material';
 import { useVaultSideDrawers } from '../hooks';
-import { VAULT_ACTIONS } from '@notional-finance/shared-config';
 import { useAccount, useOnboard } from '@notional-finance/notionable-hooks';
 import { CreateVaultPosition, ManageVault } from '../side-drawers';
 import { MobileVaultSummary } from '../components';

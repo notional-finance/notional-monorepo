@@ -4,7 +4,7 @@ import { InputLabel } from '../input-label/input-label';
 import { useState } from 'react';
 import SliderBasic from '../slider-basic/slider-basic';
 import { MessageDescriptor } from 'react-intl';
-import { Label } from '../typography/typography';
+import { Label, Caption } from '../typography/typography';
 import React from 'react';
 
 interface SliderInputProps {
@@ -16,6 +16,8 @@ interface SliderInputProps {
   errorMsg?: MessageDescriptor;
   infoMsg?: MessageDescriptor;
   inputLabel?: MessageDescriptor;
+  rightCaption?: JSX.Element;
+  bottomCaption?: JSX.Element;
 }
 
 export interface SliderInputHandle {
@@ -73,6 +75,8 @@ export const SliderInput = React.forwardRef<
       errorMsg,
       infoMsg,
       inputLabel,
+      rightCaption,
+      bottomCaption,
     },
     ref
   ) => {
@@ -95,7 +99,17 @@ export const SliderInput = React.forwardRef<
 
     return (
       <Box>
-        <InputLabel inputLabel={inputLabel} />
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <InputLabel inputLabel={inputLabel} />
+          <Caption>{rightCaption}</Caption>
+        </Box>
+
         <Container
           sx={{
             border: `1px solid ${
@@ -161,6 +175,9 @@ export const SliderInput = React.forwardRef<
             />
           </SliderContainer>
         </Container>
+        <Caption sx={{ marginTop: theme.spacing(1.5) }}>
+          {bottomCaption}
+        </Caption>
         <Label error={isError} marginTop={theme.spacing(1)} msg={captionMsg} />
       </Box>
     );
