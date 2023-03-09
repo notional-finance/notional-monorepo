@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import {
   ActionSidebar,
   ToggleSwitchProps,
@@ -16,6 +16,7 @@ import { useVault } from '@notional-finance/notionable-hooks';
 import { VaultActionContext } from '../../vault-view/vault-action-provider';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { formatMaturity } from '@notional-finance/helpers';
+import { useParams } from 'react-router';
 import { messages } from '../../messages';
 
 export interface VaultParams {
@@ -35,6 +36,7 @@ export const VaultSideDrawer = ({
   advancedToggle,
 }: VaultSideDrawerProps) => {
   const { confirm } = useQueryParams();
+  const { sideDrawerKey } = useParams<VaultParams>();
   const { clearSideDrawer } = useSideDrawerManager();
   const confirmRoute = !!confirm;
   const {
@@ -70,6 +72,14 @@ export const VaultSideDrawer = ({
       });
     }
   };
+
+  useEffect(() => {
+    if (!vaultAction) {
+      updateState({
+        vaultAction: sideDrawerKey,
+      });
+    }
+  }, [vaultAction, sideDrawerKey, updateState]);
 
   return (
     <div>

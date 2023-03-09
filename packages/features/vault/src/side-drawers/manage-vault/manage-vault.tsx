@@ -110,7 +110,15 @@ export const ManageVault = () => {
                     }}
                   ></Divider>
                 )}
-                <H4 fontWeight="regular" to={manageVaultActions[key].link}>
+                <H4
+                  fontWeight="regular"
+                  to={manageVaultActions[key].link}
+                  onClick={() =>
+                    updateState({
+                      vaultAction: key,
+                    })
+                  }
+                >
                   <SideDrawerButton sx={{ padding: theme.spacing(2.5) }}>
                     {manageVaultActions[key].label}
                   </SideDrawerButton>
