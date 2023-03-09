@@ -5,22 +5,19 @@ import {
   SliderInput,
   SliderInputHandle,
   InfoTooltip,
-  Maturities,
 } from '@notional-finance/mui';
 import { VAULT_ACTIONS } from '@notional-finance/shared-config';
 import { VaultSideDrawer } from '../components/vault-side-drawer';
 import { VaultActionContext } from '../../vault-view/vault-action-provider';
 import { RATE_PRECISION } from '@notional-finance/sdk/src/config/constants';
-import { useRollMaturity } from './use-roll-maturity';
+import { useIncreaseVaultPosition } from './use-increase-vault-position';
 import { messages } from '../../messages';
 import { FormattedMessage, defineMessage } from 'react-intl';
 
-export const RollMaturity = () => {
+export const IncreaseVaultPosition = () => {
   const {
     updateState,
     state: {
-      selectedMarketKey,
-      borrowMarketData,
       primaryBorrowSymbol,
       maxLeverageRatio,
       leverageRatio,
@@ -28,7 +25,7 @@ export const RollMaturity = () => {
     },
   } = useContext(VaultActionContext);
   const theme = useTheme();
-  const transactionData = useRollMaturity();
+
   const inputRef = useRef<SliderInputHandle>(null);
 
   const sliderError = undefined;
@@ -47,19 +44,12 @@ export const RollMaturity = () => {
     }
   }, [leverageRatio, setInputAmount]);
 
+  const transactionData = useIncreaseVaultPosition();
   const amountBorrowed =
     fCashBorrowAmount?.neg().toDisplayStringWithfCashSymbol() || '0.000';
 
   return (
     <VaultSideDrawer transactionData={transactionData}>
-      <Maturities
-        maturityData={borrowMarketData || []}
-        onSelect={(marketKey: string | null) => {
-          updateState({ selectedMarketKey: marketKey || '' });
-        }}
-        currentMarketKey={selectedMarketKey || ''}
-        inputLabel={messages[VAULT_ACTIONS.ROLL_POSITION].maturity}
-      />
       {primaryBorrowSymbol && (
         <WalletDepositInput
           availableTokens={[primaryBorrowSymbol]}
@@ -70,7 +60,7 @@ export const RollMaturity = () => {
               hasError,
             });
           }}
-          inputLabel={messages[VAULT_ACTIONS.ROLL_POSITION]['inputLabel']}
+          inputLabel={messages[VAULT_ACTIONS.INCREASE_POSITION]['inputLabel']}
           errorMsgOverride={undefined}
         />
       )}
@@ -85,7 +75,7 @@ export const RollMaturity = () => {
         }
         errorMsg={sliderError}
         infoMsg={sliderInfo}
-        inputLabel={messages[VAULT_ACTIONS.ROLL_POSITION].leverage}
+        inputLabel={messages[VAULT_ACTIONS.INCREASE_POSITION].leverage}
         rightCaption={
           <Box sx={{ display: 'flex' }}>
             <FormattedMessage defaultMessage="Borrow Amount: " />
