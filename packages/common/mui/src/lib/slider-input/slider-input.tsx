@@ -119,6 +119,7 @@ export const SliderInput = React.forwardRef<
         >
           <ValueContainer
             sx={{
+              display: 'flex',
               borderRight: `1px solid ${
                 hasFocus ? theme.palette.info.main : theme.palette.borders.paper
               }`,
@@ -145,7 +146,11 @@ export const SliderInput = React.forwardRef<
                   textAlign: 'right',
                 },
                 color: theme.palette.typography.main,
-                fontSize: theme.typography.h3.fontSize,
+                fontSize: {
+                  xs: theme.typography.h4.fontSize,
+                  sm: theme.typography.h4.fontSize,
+                  md: theme.typography.h3.fontSize,
+                },
                 fontWeight: theme.typography.fontWeightMedium,
                 marginBottom: theme.spacing(0),
               }}

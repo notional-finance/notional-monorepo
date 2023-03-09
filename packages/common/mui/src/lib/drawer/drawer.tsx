@@ -37,6 +37,7 @@ const StyledDrawer = styled(Paper)(
 
 const SidebarContainer = styled('div')`
   height: 100%;
+  width: 100%;
 `;
 
 export function Drawer({ children, size, sx }: DrawerProps) {

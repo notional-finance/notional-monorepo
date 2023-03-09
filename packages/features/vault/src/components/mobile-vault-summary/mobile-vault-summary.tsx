@@ -26,7 +26,8 @@ export const MobileVaultSummary = () => {
     <Box
       sx={{
         background: theme.palette.background.paper,
-        width: '100%',
+        minWidth: '100vw',
+        position: 'fixed',
         padding: theme.spacing(3, 2, 0, 2),
         boxShadow: theme.shape.shadowStandard,
       }}
