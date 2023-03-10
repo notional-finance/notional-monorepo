@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import { Drawer, SideBarSubHeader, PageLoading } from '@notional-finance/mui';
 import { Transition } from 'react-transition-group';
 import { Box, useTheme } from '@mui/material';
@@ -8,6 +8,7 @@ import { CreateVaultPosition, ManageVault } from '../side-drawers';
 import { VaultActionContext } from '../vault-view/vault-action-provider';
 import { defineMessage } from 'react-intl';
 import { useHistory } from 'react-router';
+import { useSideDrawerManager } from '@notional-finance/side-drawer';
 
 interface TransitionStyles {
   entering: Record<string, string | number>;
@@ -46,6 +47,12 @@ export const VaultActionSideDrawer = () => {
   const { accountSummariesLoaded } = useAccount();
   const { connected } = useOnboard();
   const { SideDrawerComponent, openDrawer } = useVaultSideDrawers();
+  const { clearSideDrawer } = useSideDrawerManager();
+
+  useEffect(() => {
+    clearSideDrawer();
+  }, [clearSideDrawer]);
+
   const {
     state: { vaultAddress, vaultAccount },
     updateState,
