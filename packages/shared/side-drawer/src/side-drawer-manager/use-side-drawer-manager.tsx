@@ -43,19 +43,6 @@ export const useSideDrawerManager = () => {
     });
   }
 
-  if (
-    !params?.sideDrawerKey &&
-    sideDrawerOpen &&
-    Object.values(VAULT_ACTIONS).includes(
-      currentSideDrawerKey as unknown as VAULT_ACTIONS
-    )
-  ) {
-    updateSideDrawerState({
-      sideDrawerOpen: false,
-      currentSideDrawerKey: null,
-    });
-  }
-
   const setWalletSideDrawer = (key: string, overRide?: boolean) => {
     if (!currentSideDrawerKey || overRide) {
       searchParams.set('sideDrawer', key);
