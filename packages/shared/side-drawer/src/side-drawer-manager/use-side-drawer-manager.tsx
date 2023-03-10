@@ -76,8 +76,10 @@ export const useSideDrawerManager = () => {
     }
   };
 
-  const clearSideDrawer = (key: string) => {
-    history.push(key);
+  const clearSideDrawer = (key?: string) => {
+    if (key) {
+      history.push(key);
+    }
     updateSideDrawerState({
       sideDrawerOpen: false,
       currentSideDrawerKey: null,
