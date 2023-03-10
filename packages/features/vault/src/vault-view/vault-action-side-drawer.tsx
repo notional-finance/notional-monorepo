@@ -51,7 +51,7 @@ export const VaultActionSideDrawer = () => {
 
   useEffect(() => {
     clearSideDrawer();
-  }, [clearSideDrawer]);
+  }, []);
 
   const {
     state: { vaultAddress, vaultAccount },
