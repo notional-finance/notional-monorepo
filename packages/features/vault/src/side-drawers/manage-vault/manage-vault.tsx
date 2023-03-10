@@ -15,13 +15,9 @@ import { useParams } from 'react-router-dom';
 import { FormattedMessage } from 'react-intl';
 import { useManageVault } from './use-manage-vault';
 import { formatMaturity } from '@notional-finance/helpers';
+import { VaultParams } from '../../vault-view/vault-view';
 import { VaultActionContext } from '../../vault-view/vault-action-provider';
 import { messages } from '../../messages';
-
-interface VaultParams {
-  vaultAddress?: string;
-  sideDrawerKey?: VAULT_ACTIONS;
-}
 
 export const ManageVault = () => {
   const theme = useTheme();

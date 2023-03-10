@@ -24,13 +24,9 @@ import { VaultActionContext } from './vault-action-provider';
 import { useReturnDrivers } from '../hooks/use-return-drivers';
 import { useVaultCapacity } from '../hooks/use-vault-capacity';
 import { usePerformanceChart } from '../hooks/use-performance-chart';
+import { VaultParams } from './vault-view';
 import { useParams } from 'react-router';
 import { messages } from '../messages';
-
-export interface VaultParams {
-  vaultAddress?: string;
-  sideDrawerKey?: VAULT_ACTIONS;
-}
 
 export const VaultSummary = () => {
   const theme = useTheme();

@@ -1,4 +1,4 @@
-import { useContext, useEffect } from 'react';
+import { useContext } from 'react';
 import {
   ActionSidebar,
   ToggleSwitchProps,
@@ -14,14 +14,13 @@ import { VaultDetailsTable } from '@notional-finance/risk';
 import { VAULT_ACTIONS } from '@notional-finance/shared-config';
 import { useVault } from '@notional-finance/notionable-hooks';
 import { VaultActionContext } from '../../vault-view/vault-action-provider';
-import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { formatMaturity } from '@notional-finance/helpers';
-import { useParams } from 'react-router';
+import { useHistory } from 'react-router';
 import { messages } from '../../messages';
 
 export interface VaultParams {
   vaultAddress?: string;
-  sideDrawerKey?: VAULT_ACTIONS;
+  useHistory?: VAULT_ACTIONS;
 }
 
 interface VaultSideDrawerProps {
@@ -36,8 +35,7 @@ export const VaultSideDrawer = ({
   advancedToggle,
 }: VaultSideDrawerProps) => {
   const { confirm } = useQueryParams();
-  const { sideDrawerKey } = useParams<VaultParams>();
-  const { clearSideDrawer } = useSideDrawerManager();
+  const history = useHistory();
   const confirmRoute = !!confirm;
   const {
     updateState,
@@ -64,7 +62,8 @@ export const VaultSideDrawer = ({
     : '';
 
   const handleCancel = () => {
-    clearSideDrawer(`/vaults/${vaultAddress}`);
+    history.push(`/vaults/${vaultAddress}`);
+    updateState({ vaultAction: undefined });
     if (vaultAction === VAULT_ACTIONS.WITHDRAW_VAULT) {
       updateState({
         maxWithdraw: false,
@@ -72,14 +71,6 @@ export const VaultSideDrawer = ({
       });
     }
   };
-
-  useEffect(() => {
-    if (!vaultAction) {
-      updateState({
-        vaultAction: sideDrawerKey,
-      });
-    }
-  }, [vaultAction, sideDrawerKey, updateState]);
 
   return (
     <div>
