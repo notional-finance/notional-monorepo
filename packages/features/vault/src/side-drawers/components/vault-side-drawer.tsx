@@ -18,11 +18,6 @@ import { formatMaturity } from '@notional-finance/helpers';
 import { useHistory } from 'react-router';
 import { messages } from '../../messages';
 
-export interface VaultParams {
-  vaultAddress?: string;
-  useHistory?: VAULT_ACTIONS;
-}
-
 interface VaultSideDrawerProps {
   children?: React.ReactNode | React.ReactNode[];
   transactionData?: TransactionData;
