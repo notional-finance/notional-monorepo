@@ -5,16 +5,23 @@ import { Box, useTheme } from '@mui/material';
 import { useVaultSideDrawers } from '../hooks';
 import { useAccount, useOnboard } from '@notional-finance/notionable-hooks';
 import { CreateVaultPosition, ManageVault } from '../side-drawers';
-import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { VaultActionContext } from '../vault-view/vault-action-provider';
 import { defineMessage } from 'react-intl';
+import { useHistory } from 'react-router';
+
+interface TransitionStyles {
+  entering: Record<string, string | number>;
+  entered: Record<string, string | number>;
+  exiting: Record<string, string | number>;
+  exited: Record<string, string | number>;
+}
 
 const fadeStart = {
   transition: `opacity 150ms ease`,
   opacity: 0,
 };
 
-const fadeTransition: Record<string, any> = {
+const fadeTransition: TransitionStyles = {
   entering: { opacity: 0 },
   entered: { opacity: 1 },
   exiting: { opacity: 1 },
@@ -26,7 +33,7 @@ const slideStart = {
   transform: 'translateX(130%)',
 };
 
-const slideTransition: Record<string, any> = {
+const slideTransition: TransitionStyles = {
   entering: { transform: 'translateX(130%)' },
   entered: { transform: 'translateX(0)' },
   exiting: { transform: 'translateX(0)' },
@@ -35,17 +42,18 @@ const slideTransition: Record<string, any> = {
 
 export const VaultActionSideDrawer = () => {
   const theme = useTheme();
+  const history = useHistory();
   const { accountSummariesLoaded } = useAccount();
   const { connected } = useOnboard();
   const { SideDrawerComponent, openDrawer } = useVaultSideDrawers();
   const {
     state: { vaultAddress, vaultAccount },
+    updateState,
   } = useContext(VaultActionContext);
 
-  const { clearSideDrawer } = useSideDrawerManager();
-
   const handleDrawer = () => {
-    clearSideDrawer(`/vaults/${vaultAddress}`);
+    history.push(`/vaults/${vaultAddress}`);
+    updateState({ vaultAction: undefined });
   };
 
   const manageVaultActive =
