@@ -1,5 +1,8 @@
+import { useContext } from 'react';
 import { VAULT_ACTIONS } from '@notional-finance/shared-config';
-import { useSideDrawerState } from '@notional-finance/side-drawer';
+import { VaultActionContext } from '../vault-view/vault-action-provider';
+import { VaultParams } from '../vault-view/vault-view';
+import { useParams } from 'react-router';
 import {
   RollMaturity,
   WithdrawVault,
@@ -11,7 +14,10 @@ import {
 } from '../side-drawers';
 
 export const useVaultSideDrawers = () => {
-  const { sideDrawerOpen, currentSideDrawerKey } = useSideDrawerState();
+  const { sideDrawerKey } = useParams<VaultParams>();
+  const {
+    state: { vaultAction },
+  } = useContext(VaultActionContext);
 
   const drawers = {
     [VAULT_ACTIONS.CREATE_VAULT_POSITION]: CreateVaultPosition,
@@ -24,11 +30,9 @@ export const useVaultSideDrawers = () => {
   };
 
   const SideDrawerComponent =
-    currentSideDrawerKey && drawers[currentSideDrawerKey]
-      ? drawers[currentSideDrawerKey]
-      : null;
+    vaultAction && drawers[vaultAction] ? drawers[vaultAction] : null;
 
-  const openDrawer = SideDrawerComponent && sideDrawerOpen ? true : false;
+  const openDrawer = SideDrawerComponent && sideDrawerKey ? true : false;
 
   return { SideDrawerComponent, openDrawer };
 };

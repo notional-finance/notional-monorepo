@@ -30,7 +30,6 @@ export const RollMaturity = () => {
   const theme = useTheme();
   const transactionData = useRollMaturity();
   const inputRef = useRef<SliderInputHandle>(null);
-
   const sliderError = undefined;
   const sliderInfo = undefined;
 

@@ -8,7 +8,7 @@ import { VaultActionSideDrawer } from './vault-action-side-drawer';
 import { VaultSummary } from './vault-summary';
 import { useParams } from 'react-router';
 
-interface VaultParams {
+export interface VaultParams {
   vaultAddress?: string;
   sideDrawerKey?: VAULT_ACTIONS;
 }
