@@ -1,9 +1,6 @@
 import { Box, ThemeProvider } from '@mui/material';
 import { DropdownButton } from '@notional-finance/mui';
-import {
-  NotionalPageLayoutOptions,
-  useNotionalTheme,
-} from '@notional-finance/styles';
+import { useNotionalTheme } from '@notional-finance/styles';
 import { useUserSettingsState } from '@notional-finance/user-settings-manager';
 import { NAV_DROPDOWN, THEME_VARIANTS } from '@notional-finance/shared-config';
 import { useLocation } from 'react-router-dom';
@@ -12,19 +9,12 @@ import HighYield from '../high-yield/high-yield';
 import LowRisk from '../low-risk/low-risk';
 import { messages } from '../../messages';
 
-/* eslint-disable-next-line */
-export interface InvestAndEarnDropdownProps {
-  pageLayout?: NotionalPageLayoutOptions;
-}
-
-export function InvestAndEarnDropdown({
-  pageLayout = 'landing',
-}: InvestAndEarnDropdownProps) {
+export function InvestAndEarnDropdown() {
   const { pathname } = useLocation();
   const { themeVariant } = useUserSettingsState();
 
   const flippedTheme =
-    themeVariant === THEME_VARIANTS.DARK || pageLayout === 'landing'
+    themeVariant === THEME_VARIANTS.DARK || pathname === '/'
       ? THEME_VARIANTS.LIGHT
       : THEME_VARIANTS.DARK;
 

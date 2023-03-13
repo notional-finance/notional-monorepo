@@ -20,24 +20,14 @@ import {
   SETTINGS_SIDE_DRAWERS,
 } from '@notional-finance/shared-config';
 import { useOnboard } from '@notional-finance/notionable-hooks';
-import {
-  useNotionalTheme,
-  NotionalPageLayoutOptions,
-} from '@notional-finance/styles';
+import { useNotionalTheme } from '@notional-finance/styles';
 import { THEME_VARIANTS } from '@notional-finance/shared-config';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { useNavLinks } from '../use-nav-links';
 import { Button } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
 
-export interface MobileNavigationProps extends TabsProps {
-  pageLayout?: NotionalPageLayoutOptions;
-}
-
-export function MobileNavigation({
-  pageLayout,
-  ...rest
-}: MobileNavigationProps) {
+export function MobileNavigation({ ...rest }: TabsProps) {
   const theme = useTheme();
   const lightTheme = useNotionalTheme(THEME_VARIANTS.LIGHT);
   const history = useHistory();
@@ -90,7 +80,7 @@ export function MobileNavigation({
   return window.innerWidth <= theme.breakpoints.values.sm ? (
     <>
       <Box>
-        {!connected && pageLayout === 'app' && (
+        {!connected && pathname === '/' && (
           <Button
             onClick={() =>
               setWalletSideDrawer(SETTINGS_SIDE_DRAWERS.CONNECT_WALLET)

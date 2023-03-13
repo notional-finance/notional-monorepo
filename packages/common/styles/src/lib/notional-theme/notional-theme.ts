@@ -559,8 +559,6 @@ const getThemeData = (themeVariant: PaletteMode) => {
   return theme;
 };
 
-export type NotionalPageLayoutOptions = 'landing' | 'app';
-
 export const useNotionalTheme = (themeVariant: PaletteMode) => {
   const notionalTheme = createTheme(getThemeData(themeVariant));
   return notionalTheme;
