@@ -51,7 +51,7 @@ const sections = [
   },
 ];
 
-const FixedOpenAndTransparent = () => {
+export const FixedOpenAndTransparent = () => {
   const theme = useTheme();
   const { ref, inView } = useInView({
     /* Optional options */

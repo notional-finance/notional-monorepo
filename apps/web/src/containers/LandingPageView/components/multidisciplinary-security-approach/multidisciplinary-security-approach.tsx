@@ -52,7 +52,7 @@ const auditLinks = [
       'https://blog.openzeppelin.com/notional-v2-audit-governance-contracts',
   },
 ];
-const MultidisciplinarySecurityApproach = () => {
+export const MultidisciplinarySecurityApproach = () => {
   const theme = useTheme();
   const { ref, inView } = useInView({
     /* Optional options */

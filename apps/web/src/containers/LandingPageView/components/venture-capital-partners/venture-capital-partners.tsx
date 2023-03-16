@@ -12,9 +12,9 @@ import { ExternalLink, H1 } from '@notional-finance/mui';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { THEME_VARIANTS } from '@notional-finance/shared-config';
 
-const VentureCapitalPartners = () => {
+export const VentureCapitalPartners = () => {
   const theme = useTheme();
-  const lightTheme = useNotionalTheme(THEME_VARIANTS.LIGHT);
+  const lightTheme = useNotionalTheme(THEME_VARIANTS.LIGHT, 'landing');
   const { ref, inView } = useInView({
     /* Optional options */
     threshold: 0,

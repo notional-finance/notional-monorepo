@@ -1,15 +1,12 @@
-import { useCallback, useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { styled, Box, useTheme } from '@mui/material';
 import { useInView } from 'react-intersection-observer';
-import { formatNumber } from '@notional-finance/helpers';
 import iconUserDocsSvg from '@notional-finance/assets/icons/icon-user-docs.svg';
 import iconAnalyticsDashboard from '@notional-finance/assets/icons/icon-analytics-dashboard.svg';
 import iconDiscordSvg from '@notional-finance/assets/icons/icon-discord.svg';
-import { H1, H3, H4 } from '@notional-finance/mui';
+import { H4 } from '@notional-finance/mui';
 
-const KPIUrl = process.env['NX_KPIS_URL'] || 'https://data.notional.finance';
-const TopNotionalStats = () => {
+export const TopNotionalStats = () => {
   const { ref, inView } = useInView({
     /* Optional options */
     threshold: 0,
@@ -17,92 +14,11 @@ const TopNotionalStats = () => {
   });
   const theme = useTheme();
   const inViewClassName = inView ? 'fade-in' : 'hidden';
-  const [topStats, setTopStats] = useState<{
-    totalValueLocked: string;
-    totalLoanVolume: string;
-    totalAccounts: string;
-  } | null>();
-
-  const fetchKPIs = useCallback(async () => {
-    try {
-      const response = await fetch(`${KPIUrl}/kpis?network=mainnet`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      const data = await response.json();
-      const oneMillion = 1_000_000;
-      const totalAccounts = data.accounts.total.overall;
-      const totalLoanVolume = data.volume.overall.total;
-      const totalValueLocked = data.tvl.total;
-      setTopStats({
-        totalValueLocked: `$${formatNumber(totalValueLocked / oneMillion, 0)}M`,
-        totalLoanVolume: `$${formatNumber(totalLoanVolume / oneMillion, 0)}M`,
-        totalAccounts: formatNumber(totalAccounts, 0),
-      });
-    } catch (e) {
-      console.error(e);
-      // If this query fails then the top stats bar won't show
-      setTopStats(null);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchKPIs();
-  }, [fetchKPIs]);
 
   return (
     <Box ref={ref} sx={{}}>
       <Box className={`section ${inViewClassName}`}>
         <Box>
-          <Box
-            hidden={topStats === null}
-            sx={{
-              background: theme.gradient.landing,
-              padding: { xs: '30px 0', lg: '0 40px' },
-              ul: {
-                display: { xs: 'block', lg: 'flex' },
-                justifyContent: 'space-around',
-                color: theme.palette.common.white,
-                li: {
-                  padding: { xs: '20px 0', lg: '70px' },
-                  textAlign: 'center',
-                  width: '100%',
-                },
-              },
-            }}
-          >
-            <ul>
-              <li>
-                <H1 contrast>{topStats?.totalValueLocked}</H1>
-                <H3 contrast fontWeight="light">
-                  <FormattedMessage
-                    defaultMessage="Total Value Locked"
-                    description={'landing page heading'}
-                  />
-                </H3>
-              </li>
-              <li>
-                <H1 contrast>{topStats?.totalLoanVolume}</H1>
-                <H3 contrast fontWeight="light">
-                  <FormattedMessage
-                    defaultMessage="Total Loan Volume"
-                    description={'landing page heading'}
-                  />
-                </H3>
-              </li>
-              <li>
-                <H1 contrast>{topStats?.totalAccounts}</H1>
-                <H3 contrast fontWeight="light">
-                  <FormattedMessage
-                    defaultMessage="Total Accounts"
-                    description={'landing page heading'}
-                  />
-                </H3>
-              </li>
-            </ul>
-          </Box>
           <Box
             id="section-2-bottom-section"
             sx={{

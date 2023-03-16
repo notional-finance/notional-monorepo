@@ -55,7 +55,7 @@ const sections = [
   },
 ];
 
-const WithNotionalYouCan = () => {
+export const WithNotionalYouCan = () => {
   const theme = useTheme();
   const { ref, inView } = useInView({
     /* Optional options */

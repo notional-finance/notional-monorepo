@@ -10,7 +10,7 @@ import iconPersonSVG from '@notional-finance/assets/icons/icon-person.svg';
 import { Box, styled, useTheme, Divider } from '@mui/material';
 import { H1 } from '@notional-finance/mui';
 
-const FromTheBlogSection = () => {
+export const FromTheBlog = () => {
   const theme = useTheme();
   const [blogPosts, setBlogPosts] = useState<any[]>([]);
   const { ref, inView } = useInView({
@@ -190,4 +190,4 @@ const StyledView = styled(Box)(
 `
 );
 
-export default FromTheBlogSection;
+export default FromTheBlog;
