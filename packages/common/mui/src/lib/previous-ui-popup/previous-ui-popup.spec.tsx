@@ -1,10 +1,10 @@
 import { render } from '@testing-library/react';
 
-import TypeForm from './type-form';
+import PreviousUiPopup from './previous-ui-popup';
 
-describe('TypeForm', () => {
+describe('PreviousUiPopup', () => {
   it('should render successfully', () => {
-    const { baseElement } = render(<TypeForm />);
+    const { baseElement } = render(<PreviousUiPopup />);
     expect(baseElement).toBeTruthy();
   });
 });
