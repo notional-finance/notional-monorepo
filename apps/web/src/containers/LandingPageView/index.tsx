@@ -1,7 +1,6 @@
 import { Box, ThemeProvider } from '@mui/material';
 import { THEME_VARIANTS } from '@notional-finance/shared-config';
 import {
-  TopNotionalStats,
   FixedOpenAndTransparent,
   AskedQuestionsAccordion,
   WithNotionalYouCan,
@@ -20,7 +19,6 @@ export const LandingPageView = () => {
     <ThemeProvider theme={theme}>
       <Box sx={{ overflow: 'hidden' }}>
         <Hero />
-        <TopNotionalStats />
         <FixedOpenAndTransparent />
         <WithNotionalYouCan />
         <VentureCapitalPartners />

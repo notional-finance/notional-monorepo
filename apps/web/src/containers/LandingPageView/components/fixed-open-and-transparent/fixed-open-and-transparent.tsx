@@ -61,7 +61,7 @@ export const FixedOpenAndTransparent = () => {
   const inViewClassName = inView ? 'fade-in' : 'hidden';
 
   return (
-    <Box ref={ref}>
+    <Box ref={ref} sx={{ position: 'relative' }}>
       <Box
         className={`section ${inViewClassName}`}
         sx={{
