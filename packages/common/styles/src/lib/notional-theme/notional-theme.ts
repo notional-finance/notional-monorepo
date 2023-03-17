@@ -221,7 +221,311 @@ function getFontColors(themeVariant: PaletteMode) {
   }
 }
 
-const getThemeData = (themeVariant: PaletteMode) => {
+function getTypography(themeVariant: PaletteMode, pageLayout?: NotionalPageLayoutOptions) {
+  let selectedTypography = {};
+  if (pageLayout === 'landing') {
+    selectedTypography = {
+      h1: {
+        fontSize: pxToRem(56),
+        fontWeight: fontWeight.bold,
+        lineHeight,
+        color: getFontColors(themeVariant).primary,
+        marginBottom: pxToMargin(48),
+      },
+      h2: {
+        fontSize: pxToRem(36),
+        fontWeight: fontWeight.bold,
+        lineHeight,
+        color: getFontColors(themeVariant).primary,
+        marginBottom: pxToMargin(32),
+      },
+      h3: {
+        fontSize: pxToRem(32),
+        fontWeight: fontWeight.demiBold,
+        lineHeight,
+        color: getFontColors(themeVariant).primary,
+        marginBottom: pxToMargin(24),
+      },
+      h4: {
+        fontSize: pxToRem(28),
+        fontWeight: fontWeight.bold,
+        lineHeight,
+        color: getFontColors(themeVariant).primary,
+        marginBottom: pxToMargin(16),
+      },
+      h5: {
+        fontSize: pxToRem(16),
+        fontWeight: fontWeight.bold,
+        lineHeight,
+        letterSpacing: pxToRem(1),
+        textTransform: 'uppercase',
+        color: getFontColors(themeVariant).secondary,
+        marginBottom: pxToMargin(12),
+      },
+    largeInput: {
+         fontSize: pxToRem(48),
+        fontWeight: fontWeight.demiBold,
+        lineHeight,
+        color: getFontColors(themeVariant).primary,
+        marginBottom: pxToMargin(48),
+    },
+    currencyTitle: {
+         fontSize: pxToRem(24),
+        fontWeight: fontWeight.bold,
+        lineHeight,
+        color: getFontColors(themeVariant).primary,
+        marginBottom: pxToMargin(48),
+    },
+    diagramTitle: {
+         fontSize: pxToRem(22),
+        fontWeight: fontWeight.demiBold,
+        lineHeight,
+        color: getFontColors(themeVariant).primary,
+        marginBottom: pxToMargin(48),
+    },
+    cardInput: {
+         fontSize: pxToRem(20),
+        fontWeight: fontWeight.demiBold,
+        lineHeight,
+        color: getFontColors(themeVariant).primary,
+        marginBottom: pxToMargin(48),
+    },
+      body1: {
+        fontSize: pxToRem(20),
+        fontWeight: fontWeight.medium,
+        color: getFontColors(themeVariant).secondary,
+        lineHeight,
+        marginBottom: pxToMargin(14),
+      },
+      body2: {
+        fontSize: pxToRem(18),
+        fontWeight: fontWeight.medium,
+        color: getFontColors(themeVariant).primary,
+        lineHeight,
+        marginBottom: pxToMargin(12),
+      },
+      smallInput: {
+        fontSize: pxToRem(16),
+        fontWeight: fontWeight.demiBold,
+        color: getFontColors(themeVariant).secondary,
+        lineHeight,
+        marginBottom: pxToMargin(12),
+      },
+      body3: {
+        fontSize: pxToRem(16),
+        fontWeight: fontWeight.medium,
+        color: getFontColors(themeVariant).secondary,
+        lineHeight,
+        marginBottom: pxToMargin(12),
+      },
+      link: {
+        fontSize: pxToRem(12),
+        fontWeight: fontWeight.medium,
+        color: getFontColors(themeVariant).accent,
+        textDecoration: 'underline',
+        lineHeight,
+        marginBottom: pxToMargin(12),
+      },
+      button: {
+        fontSize: pxToRem(16),
+        fontWeight: fontWeight.demiBold,
+        color: getFontColors(themeVariant).secondary,
+        lineHeight,
+        textTransform: 'none',
+      },
+      caption: {
+        fontSize: pxToRem(14),
+        fontWeight: fontWeight.medium,
+        color: getFontColors(themeVariant).secondary,
+        lineHeight,
+        marginBottom: pxToMargin(10),
+      },
+      captionAccent: {
+        fontSize: pxToRem(14),
+        fontWeight: fontWeight.demiBold,
+        color: getFontColors(themeVariant).accent,
+        letterSpacing: pxToRem(1),
+        lineHeight,
+        marginBottom: pxToMargin(10),
+      },
+      sectionTitle: {
+        fontSize: pxToRem(12),
+        fontWeight: fontWeight.demiBold,
+        color: getFontColors(themeVariant).primary,
+        lineHeight,
+        textTransform: 'uppercase',
+        marginBottom: pxToMargin(14),
+      },
+      mobileNav: {
+        fontSize: pxToRem(12),
+        fontWeight: fontWeight.medium,
+        color: getFontColors(themeVariant).primary,
+        lineHeight,
+        marginBottom: pxToMargin(14),
+      },
+      mobileNavAccent: {
+        fontSize: pxToRem(12),
+        fontWeight: fontWeight.demiBold,
+        color: getFontColors(themeVariant).primary,
+        lineHeight,
+        marginBottom: pxToMargin(14),
+      },
+    };
+  } else {
+    selectedTypography = {    
+      h1: {
+      fontSize: pxToRem(48),
+      fontWeight: fontWeight.bold,
+      lineHeight,
+      color: getFontColors(themeVariant).primary,
+      marginBottom: pxToMargin(48),
+    },
+    h2: {
+      fontSize: pxToRem(32),
+      fontWeight: fontWeight.demiBold,
+      lineHeight,
+      color: getFontColors(themeVariant).primary,
+      marginBottom: pxToMargin(32),
+    },
+    h3: {
+      fontSize: pxToRem(24),
+      fontWeight: fontWeight.bold,
+      lineHeight,
+      color: getFontColors(themeVariant).primary,
+      marginBottom: pxToMargin(24),
+    },
+    // Uses: module title, large table data
+    h4: {
+      fontSize: pxToRem(16),
+      fontWeight: fontWeight.demiBold,
+      lineHeight,
+      color: getFontColors(themeVariant).primary,
+      marginBottom: pxToMargin(16),
+    },
+    // Uses: table column titles, paragraph titles, side nav
+    h5: {
+      fontSize: pxToRem(12),
+      fontWeight: fontWeight.demiBold,
+      lineHeight,
+      letterSpacing: pxToRem(1),
+      textTransform: 'uppercase',
+      color: getFontColors(themeVariant).secondary,
+      marginBottom: pxToMargin(12),
+    },
+    // Uses: paragraph, labels
+    body1: {
+      fontSize: pxToRem(14),
+      fontWeight: fontWeight.medium,
+      color: getFontColors(themeVariant).secondary,
+      lineHeight,
+      marginBottom: pxToMargin(14),
+    },
+    labelValue: {
+      fontSize: pxToRem(14),
+      fontWeight: fontWeight.bold,
+      color: getFontColors(themeVariant).primary,
+      lineHeight,
+      marginBottom: pxToMargin(14),
+    },
+    tableCell: {
+      fontSize: pxToRem(14),
+      fontWeight: fontWeight.medium,
+      color: getFontColors(themeVariant).primary,
+      lineHeight,
+    },
+    // Uses: secondary text in table cells, tooltip
+    body2: {
+      fontSize: pxToRem(12),
+      fontWeight: fontWeight.medium,
+      color: getFontColors(themeVariant).secondary,
+      lineHeight,
+      marginBottom: pxToMargin(12),
+    },
+    button: {
+      fontSize: pxToRem(16),
+      fontWeight: fontWeight.medium,
+      color: getFontColors(themeVariant).primary,
+      lineHeight,
+      textTransform: 'none',
+    },
+    // Uses: preceded by H1 or H2
+    subtitle1: {
+      fontSize: pxToRem(16),
+      fontWeight: fontWeight.medium,
+      color: getFontColors(themeVariant).primary,
+      lineHeight,
+      marginBottom: pxToMargin(16),
+    },
+    largeNumber: {
+      fontSize: pxToRem(26),
+      fontWeight: fontWeight.demiBold,
+      color: getFontColors(themeVariant).primary,
+      lineHeight,
+      marginBottom: pxToMargin(26),
+    },
+    largeNumberLabel: {
+      fontSize: pxToRem(12),
+      fontWeight: fontWeight.medium,
+      color: getFontColors(themeVariant).secondary,
+      lineHeight,
+      textTransform: 'uppercase',
+      letterSpacing: pxToRem(2),
+      marginBottom: pxToMargin(12),
+    },
+    largeInput: {
+      fontSize: pxToRem(24),
+      fontWeight: fontWeight.medium,
+      color: getFontColors(themeVariant).primary,
+      lineHeight,
+      marginBottom: pxToMargin(24),
+    },
+    largeInputEmphasized: {
+      fontSize: pxToRem(24),
+      fontWeight: fontWeight.demiBold,
+      color: getFontColors(themeVariant).primary,
+      lineHeight,
+      marginBottom: pxToMargin(24),
+    },
+    link: {
+      fontSize: pxToRem(12),
+      fontWeight: fontWeight.medium,
+      color: getFontColors(themeVariant).accent,
+      textDecoration: 'underline',
+      lineHeight,
+      marginBottom: pxToMargin(12),
+    },
+    caption: {
+      fontSize: pxToRem(12),
+      fontWeight: fontWeight.medium,
+      color: getFontColors(themeVariant).secondary,
+      lineHeight,
+      marginBottom: pxToMargin(10),
+    },
+    captionAccent: {
+      fontSize: pxToRem(12),
+      fontWeight: fontWeight.demiBold,
+      color: getFontColors(themeVariant).accent,
+      letterSpacing: pxToRem(1),
+      lineHeight,
+      marginBottom: pxToMargin(10),
+    },
+    // NOTE: these MUI options are disabled
+    h6: undefined,
+    subtitle2: undefined,
+    overline: undefined,
+}
+  }
+  return {
+    fontFamily: 'Avenir-Next, sans-serif',
+    fontWeightLight: fontWeight.light,
+    fontWeightRegular: fontWeight.medium,
+    fontWeightMedium: fontWeight.demiBold,
+    fontWeightBold: fontWeight.bold,
+    ...selectedTypography,
+  }  
+}
+
+const getThemeData = (themeVariant: PaletteMode, pageLayout?: NotionalPageLayoutOptions) => {
   const theme: ThemeOptions = {
     components: {
       MuiCssBaseline: {
@@ -336,157 +640,7 @@ const getThemeData = (themeVariant: PaletteMode) => {
         accent: colors.neonTurquoise,
       },
     } as PaletteOptions,
-    typography: {
-      fontFamily: 'Avenir-Next, sans-serif',
-      fontWeightLight: fontWeight.light,
-      fontWeightRegular: fontWeight.medium,
-      fontWeightMedium: fontWeight.demiBold,
-      fontWeightBold: fontWeight.bold,
-      // Font sizes are specified in rems here to accommodate
-      // users who want to change their font sizes via the browser
-      // for accessibility reasons. There should be no reason to
-      // override any of the font sizes specified here within the app
-      h1: {
-        fontSize: pxToRem(48),
-        fontWeight: fontWeight.bold,
-        lineHeight,
-        color: getFontColors(themeVariant).primary,
-        marginBottom: pxToMargin(48),
-      },
-      h2: {
-        fontSize: pxToRem(32),
-        fontWeight: fontWeight.demiBold,
-        lineHeight,
-        color: getFontColors(themeVariant).primary,
-        marginBottom: pxToMargin(32),
-      },
-      h3: {
-        fontSize: pxToRem(24),
-        fontWeight: fontWeight.bold,
-        lineHeight,
-        color: getFontColors(themeVariant).primary,
-        marginBottom: pxToMargin(24),
-      },
-      // Uses: module title, large table data
-      h4: {
-        fontSize: pxToRem(16),
-        fontWeight: fontWeight.demiBold,
-        lineHeight,
-        color: getFontColors(themeVariant).primary,
-        marginBottom: pxToMargin(16),
-      },
-      // Uses: table column titles, paragraph titles, side nav
-      h5: {
-        fontSize: pxToRem(12),
-        fontWeight: fontWeight.demiBold,
-        lineHeight,
-        letterSpacing: pxToRem(1),
-        textTransform: 'uppercase',
-        color: getFontColors(themeVariant).secondary,
-        marginBottom: pxToMargin(12),
-      },
-      // Uses: paragraph, labels
-      body1: {
-        fontSize: pxToRem(14),
-        fontWeight: fontWeight.medium,
-        color: getFontColors(themeVariant).secondary,
-        lineHeight,
-        marginBottom: pxToMargin(14),
-      },
-      labelValue: {
-        fontSize: pxToRem(14),
-        fontWeight: fontWeight.bold,
-        color: getFontColors(themeVariant).primary,
-        lineHeight,
-        marginBottom: pxToMargin(14),
-      },
-      tableCell: {
-        fontSize: pxToRem(14),
-        fontWeight: fontWeight.medium,
-        color: getFontColors(themeVariant).primary,
-        lineHeight,
-      },
-      // Uses: secondary text in table cells, tooltip
-      body2: {
-        fontSize: pxToRem(12),
-        fontWeight: fontWeight.medium,
-        color: getFontColors(themeVariant).secondary,
-        lineHeight,
-        marginBottom: pxToMargin(12),
-      },
-      button: {
-        fontSize: pxToRem(16),
-        fontWeight: fontWeight.medium,
-        color: getFontColors(themeVariant).primary,
-        lineHeight,
-        textTransform: 'none',
-      },
-      // Uses: preceded by H1 or H2
-      subtitle1: {
-        fontSize: pxToRem(16),
-        fontWeight: fontWeight.medium,
-        color: getFontColors(themeVariant).primary,
-        lineHeight,
-        marginBottom: pxToMargin(16),
-      },
-      largeNumber: {
-        fontSize: pxToRem(26),
-        fontWeight: fontWeight.demiBold,
-        color: getFontColors(themeVariant).primary,
-        lineHeight,
-        marginBottom: pxToMargin(26),
-      },
-      largeNumberLabel: {
-        fontSize: pxToRem(12),
-        fontWeight: fontWeight.medium,
-        color: getFontColors(themeVariant).secondary,
-        lineHeight,
-        textTransform: 'uppercase',
-        letterSpacing: pxToRem(2),
-        marginBottom: pxToMargin(12),
-      },
-      largeInput: {
-        fontSize: pxToRem(24),
-        fontWeight: fontWeight.medium,
-        color: getFontColors(themeVariant).primary,
-        lineHeight,
-        marginBottom: pxToMargin(24),
-      },
-      largeInputEmphasized: {
-        fontSize: pxToRem(24),
-        fontWeight: fontWeight.demiBold,
-        color: getFontColors(themeVariant).primary,
-        lineHeight,
-        marginBottom: pxToMargin(24),
-      },
-      link: {
-        fontSize: pxToRem(12),
-        fontWeight: fontWeight.medium,
-        color: getFontColors(themeVariant).accent,
-        textDecoration: 'underline',
-        lineHeight,
-        marginBottom: pxToMargin(12),
-      },
-      caption: {
-        fontSize: pxToRem(12),
-        fontWeight: fontWeight.medium,
-        color: getFontColors(themeVariant).secondary,
-        lineHeight,
-        marginBottom: pxToMargin(10),
-      },
-      captionAccent: {
-        fontSize: pxToRem(12),
-        fontWeight: fontWeight.demiBold,
-        color: getFontColors(themeVariant).accent,
-        letterSpacing: pxToRem(1),
-        lineHeight,
-        marginBottom: pxToMargin(10),
-      },
-      // NOTE: these MUI options are disabled
-      h6: undefined,
-      subtitle2: undefined,
-      overline: undefined,
-    },
+    typography: getTypography(themeVariant, pageLayout),
     shape: {
       // TODO: can we make this a function?
       borderStandard:
@@ -559,9 +713,9 @@ const getThemeData = (themeVariant: PaletteMode) => {
   return theme;
 };
 
-export type NotionalPageLayoutOptions = 'landing' | 'app';
+export type NotionalPageLayoutOptions = 'landing' | 'product';
 
-export const useNotionalTheme = (themeVariant: PaletteMode) => {
-  const notionalTheme = createTheme(getThemeData(themeVariant));
+export const useNotionalTheme = (themeVariant: PaletteMode, pageLayout?: NotionalPageLayoutOptions) => {
+  const notionalTheme = createTheme(getThemeData(themeVariant, pageLayout));
   return notionalTheme;
 };

@@ -12,7 +12,7 @@ const AppLayoutRoute = ({ component: Component, path, routeKey }) => {
       render={(matchProps) => (
         <Box>
           <AppShell>
-            <HeaderRenderer pageLayout="app" />
+            <HeaderRenderer />
 
             <MainContent>
               <Component {...matchProps} />

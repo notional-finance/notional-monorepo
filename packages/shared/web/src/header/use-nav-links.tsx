@@ -12,17 +12,12 @@ import {
 } from '@notional-finance/icons';
 import { MOBILE_SUB_NAV_ACTIONS } from '@notional-finance/shared-config';
 import { getFromLocalStorage } from '@notional-finance/helpers';
-import {
-  NotionalPageLayoutOptions,
-  NotionalTheme,
-} from '@notional-finance/styles';
-import { useState } from 'react';
+import { NotionalTheme } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import { INavLink } from './nav-link';
 
 export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
   const notifications = getFromLocalStorage('notifications');
-  const [_, setPageLayout] = useState<NotionalPageLayoutOptions>('app');
 
   const textColor = mobileNav
     ? theme.palette.common.black
@@ -132,7 +127,6 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
   ];
 
   return {
-    setPageLayout,
     navLinks,
     mobileSubNavLinks,
   };

@@ -1,34 +1,27 @@
-import { useEffect } from 'react';
 import { Toolbar, Box, useTheme, ThemeProvider } from '@mui/material';
 import { AppBar, AppBarProps, H4 } from '@notional-finance/mui';
-import {
-  NotionalLogo,
-  NotionalPageLayoutOptions,
-} from '@notional-finance/styles';
+import { NotionalLogo } from '@notional-finance/styles';
 import { THEME_VARIANTS } from '@notional-finance/shared-config';
 import { useNotionalTheme } from '@notional-finance/styles';
 import Navigation from './navigation/navigation';
 import { useNavLinks } from './use-nav-links';
 import MobileNavigation from './mobile-navigation/mobile-navigation';
 import { ReactElement } from 'react';
+import { useLocation } from 'react-router-dom';
 import ResourcesDropdown from './resources/resources-dropdown/resources-dropdown';
 import AboutDropdown from './about/about-dropdown/about-dropdown';
 
 /* eslint-disable-next-line */
 export interface HeaderProps extends AppBarProps {
-  pageLayout?: NotionalPageLayoutOptions;
   rightButton?: ReactElement;
 }
 
-export function Header({ rightButton, pageLayout = 'app' }: HeaderProps) {
+export function Header({ rightButton }: HeaderProps) {
   const landingTheme = useNotionalTheme(THEME_VARIANTS.DARK);
   const appTheme = useTheme();
-  const theme = pageLayout === 'app' ? appTheme : landingTheme;
-  const { navLinks, setPageLayout } = useNavLinks(false, theme);
-
-  useEffect(() => {
-    setPageLayout(pageLayout);
-  }, [pageLayout, setPageLayout]);
+  const { pathname } = useLocation();
+  const theme = pathname === '/' ? landingTheme : appTheme;
+  const { navLinks } = useNavLinks(false, theme);
 
   return (
     <ThemeProvider theme={theme}>
@@ -55,7 +48,7 @@ export function Header({ rightButton, pageLayout = 'app' }: HeaderProps) {
               },
             }}
           >
-            <Navigation navLinks={navLinks} pageLayout={pageLayout} />
+            <Navigation navLinks={navLinks} />
           </Box>
           <Box
             sx={{
@@ -68,7 +61,7 @@ export function Header({ rightButton, pageLayout = 'app' }: HeaderProps) {
               alignItems: 'center',
             }}
           >
-            {pageLayout === 'landing' && (
+            {pathname === '/' && (
               <>
                 <AboutDropdown />
                 <ResourcesDropdown />
@@ -82,7 +75,7 @@ export function Header({ rightButton, pageLayout = 'app' }: HeaderProps) {
               flexDirection: 'row-reverse',
             }}
           >
-            <MobileNavigation pageLayout={pageLayout} />
+            <MobileNavigation />
           </Box>
           <Box
             sx={{

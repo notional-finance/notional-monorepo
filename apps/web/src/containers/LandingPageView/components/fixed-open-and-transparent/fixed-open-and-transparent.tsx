@@ -51,7 +51,7 @@ const sections = [
   },
 ];
 
-const FixedOpenAndTransparent = () => {
+export const FixedOpenAndTransparent = () => {
   const theme = useTheme();
   const { ref, inView } = useInView({
     /* Optional options */
@@ -61,7 +61,7 @@ const FixedOpenAndTransparent = () => {
   const inViewClassName = inView ? 'fade-in' : 'hidden';
 
   return (
-    <Box ref={ref}>
+    <Box ref={ref} sx={{ position: 'relative' }}>
       <Box
         className={`section ${inViewClassName}`}
         sx={{
