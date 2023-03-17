@@ -56,6 +56,9 @@ interface Addresses {
 }
 
 const baseCacheUrl = process.env['NX_SYSTEM_CACHE_URL'];
+const subgraphId = process.env['NX_SUBGRAPH_ID'];
+const subgraphApiKey = process.env['NX_SUBGRAPH_API_KEY'];
+
 /**
  * Provides an abstraction layer for interacting with Notional contracts.
  */
@@ -119,7 +122,7 @@ export default class Notional extends TransactionBuilder {
       case 1:
         return {
           addresses: mainnetAddresses,
-          graphEndpoint: graphEndpoints['mainnet:http'],
+          graphEndpoint: `${graphEndpoints['mainnet:http']}/api/${subgraphApiKey}/subgraphs/id/${subgraphId}`,
           pollInterval: Number(graphEndpoints['mainnet:poll']),
           cacheUrl: `${baseCacheUrl}/v2/mainnet`,
         };
@@ -140,7 +143,7 @@ export default class Notional extends TransactionBuilder {
       case 1337:
         return {
           addresses: mainnetAddresses,
-          graphEndpoint: graphEndpoints['mainnet:http'],
+          graphEndpoint: `${graphEndpoints['mainnet:http']}/api/${subgraphApiKey}/subgraphs/id/${subgraphId}`,
           pollInterval: Number(graphEndpoints['local:poll']),
           cacheUrl: `${baseCacheUrl}/v2/local`,
         };
