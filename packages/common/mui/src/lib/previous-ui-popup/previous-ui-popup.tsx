@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTheme, Box, styled } from '@mui/material';
-import { H3, Body } from './typography/typography';
-import { Button } from './button/button';
+import { H3, Body } from '../typography/typography';
+import { Button } from '../button/button';
 import {
   setInLocalStorage,
   getFromLocalStorage,
