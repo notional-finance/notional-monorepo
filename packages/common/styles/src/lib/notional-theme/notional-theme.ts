@@ -205,8 +205,6 @@ declare module '@mui/material/Typography' {
 
 export type NotionalTheme = Theme;
 
-
-
 function getFontColors(themeVariant: PaletteMode) {
   if (themeVariant === 'dark') {
     return {
@@ -222,7 +220,6 @@ function getFontColors(themeVariant: PaletteMode) {
     };
   }
 }
-
 
 function getTypography(themeVariant: PaletteMode, pageLayout?: NotionalPageLayoutOptions) {
   let selectedTypography = {};
@@ -643,8 +640,6 @@ const getThemeData = (themeVariant: PaletteMode, pageLayout?: NotionalPageLayout
         accent: colors.neonTurquoise,
       },
     } as PaletteOptions,
-
-    // TYPOGRAPHY SHIT GOES HERE
     typography: getTypography(themeVariant, pageLayout),
     shape: {
       // TODO: can we make this a function?
@@ -721,14 +716,6 @@ const getThemeData = (themeVariant: PaletteMode, pageLayout?: NotionalPageLayout
 export type NotionalPageLayoutOptions = 'landing' | 'product';
 
 export const useNotionalTheme = (themeVariant: PaletteMode, pageLayout?: NotionalPageLayoutOptions) => {
-  console.log('pageLayout TEST', { pageLayout })
   const notionalTheme = createTheme(getThemeData(themeVariant, pageLayout));
   return notionalTheme;
 };
-
-
-
-
-
-
-
