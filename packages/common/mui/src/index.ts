@@ -32,6 +32,7 @@ export * from './lib/maturity-card/maturity-card';
 export * from './lib/maturities/maturities';
 export * from './lib/mini-button/mini-button';
 export * from './lib/page-loading/page-loading';
+export * from './lib/previous-ui-popup/previous-ui-popup';
 export * from './lib/progress-indicator/progress-indicator';
 export * from './lib/section/section';
 export * from './lib/select-dropdown/select-dropdown';

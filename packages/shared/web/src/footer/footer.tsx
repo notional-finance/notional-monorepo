@@ -17,7 +17,9 @@ import {
 
 const FooterLeft = styled(Box)(
   ({ theme }) => `
-  display: block;
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
   text-align: left;
   margin-bottom: ${theme.spacing(8)};
 
@@ -143,14 +145,24 @@ export const Footer = () => {
           <H4
             contrast
             href="mailto:support@notional.finance"
-            marginBottom={theme.spacing(2)}
+            marginBottom={theme.spacing(4)}
           >
             <FormattedMessage
               defaultMessage={'Need Help? Contact the Notional team.'}
             />
           </H4>
-          <ExternalLink href="https://discord.notional.finance">
+          <ExternalLink
+            href="https://discord.notional.finance"
+            style={{ marginBottom: theme.spacing(3) }}
+          >
             <DiscordFooter />
+          </ExternalLink>
+          <ExternalLink
+            href="https://notional.finance"
+            textDecoration
+            style={{ color: theme.palette.info.accent }}
+          >
+            <FormattedMessage defaultMessage={'View Previous UI'} />
           </ExternalLink>
         </FooterLeft>
         <FooterCenter>

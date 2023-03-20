@@ -7,6 +7,7 @@ import {
   LargeInputText,
   BodySecondary,
   Button,
+  ProgressIndicator,
 } from '@notional-finance/mui';
 import { ExternalLinkIcon } from '@notional-finance/icons';
 import backgroundImg from './background.svg';
@@ -94,40 +95,46 @@ export const Hero = () => {
         </Box>
         <StatsContainer>
           <StatsContent>
-            <LargeInputText>
-              {topStats?.totalValueLocked}
-              <BodySecondary>
-                <FormattedMessage defaultMessage={'Total Value Locked'} />
-              </BodySecondary>
-            </LargeInputText>
-            <LargeInputText sx={{ marginTop: theme.spacing(9) }}>
-              {topStats?.totalLoanVolume}
-              <BodySecondary>
-                <FormattedMessage defaultMessage={'Total Loan Volume'} />
-              </BodySecondary>
-            </LargeInputText>
-            <LargeInputText sx={{ marginTop: theme.spacing(9) }}>
-              {topStats?.totalAccounts}
-              <BodySecondary>
-                <FormattedMessage defaultMessage={'Active Accounts'} />
-              </BodySecondary>
-            </LargeInputText>
-            <Button
-              size="large"
-              variant="outlined"
-              sx={{ marginTop: theme.spacing(9) }}
-              href="https://info.notional.finance/"
-            >
-              <FormattedMessage defaultMessage={'Analytics Dashboard'} />
-              <ExternalLinkIcon
-                sx={{
-                  marginLeft: theme.spacing(2),
-                  height: '1rem',
-                  marginTop: '-2px',
-                }}
-                fill={theme.palette.primary.main}
-              />
-            </Button>
+            {topStats ? (
+              <div>
+                <LargeInputText>
+                  {topStats?.totalValueLocked}
+                  <BodySecondary>
+                    <FormattedMessage defaultMessage={'Total Value Locked'} />
+                  </BodySecondary>
+                </LargeInputText>
+                <LargeInputText sx={{ marginTop: theme.spacing(9) }}>
+                  {topStats?.totalLoanVolume}
+                  <BodySecondary>
+                    <FormattedMessage defaultMessage={'Total Loan Volume'} />
+                  </BodySecondary>
+                </LargeInputText>
+                <LargeInputText sx={{ marginTop: theme.spacing(9) }}>
+                  {topStats?.totalAccounts}
+                  <BodySecondary>
+                    <FormattedMessage defaultMessage={'Active Accounts'} />
+                  </BodySecondary>
+                </LargeInputText>
+                <Button
+                  size="large"
+                  variant="outlined"
+                  sx={{ marginTop: theme.spacing(9) }}
+                  href="https://info.notional.finance/"
+                >
+                  <FormattedMessage defaultMessage={'Analytics Dashboard'} />
+                  <ExternalLinkIcon
+                    sx={{
+                      marginLeft: theme.spacing(2),
+                      height: '1rem',
+                      marginTop: '-2px',
+                    }}
+                    fill={theme.palette.primary.main}
+                  />
+                </Button>
+              </div>
+            ) : (
+              <ProgressIndicator type="circular" />
+            )}
           </StatsContent>
         </StatsContainer>
       </HeroContainer>
