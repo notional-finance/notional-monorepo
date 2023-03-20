@@ -21,7 +21,7 @@ export function ResourcesDropdown() {
         fontWeight: 400,
         height: '100%',
       }}
-      icon={<ResourcesIcon sx={{ color: 'red', fontSize: '1.125rem' }} />}
+      icon={<ResourcesIcon sx={{ fontSize: '1.125rem' }} />}
     >
       <ThemeProvider theme={theme}>
         <Box

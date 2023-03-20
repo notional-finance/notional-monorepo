@@ -89,6 +89,7 @@ export enum NAV_DROPDOWN {
   ABOUT = 'About',
   RESOURCES = 'Resources',
   INVEST_AND_EARN = 'Invest and earn',
+  ANALYTICS = 'Analytics',
 }
 
 export enum CHAIN_NAMES {

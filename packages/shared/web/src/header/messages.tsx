@@ -14,4 +14,8 @@ export const messages = defineMessages({
     defaultMessage: 'Invest and Earn',
     description: 'Landing page invest and earn header',
   },
+  [NAV_DROPDOWN.ANALYTICS]: {
+    defaultMessage: 'Analytics',
+    description: 'Landing page Analytics header',
+  },
 });

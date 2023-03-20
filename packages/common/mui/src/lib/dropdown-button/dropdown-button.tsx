@@ -58,10 +58,10 @@ export function DropdownButton({
   const textColor = theme.palette.common.black;
   const bindHoverData = hideOnClick ? bindHover(popupState) : null;
   return (
-    <Box>
+    <Box sx={{ minHeight: '100%', display: 'flex' }}>
       <Box
         sx={{
-          height: '100%',
+          minHeight: '100%',
           position: 'relative',
           display: 'block',
           alignItems: 'center',
@@ -83,6 +83,7 @@ export function DropdownButton({
           }
           aria-describedby="dropdown-menu"
           sx={{
+            minHeight: '100%',
             'span.MuiButton-endIcon > svg.dropdown-arrow': {
               fontSize: '.875rem',
             },

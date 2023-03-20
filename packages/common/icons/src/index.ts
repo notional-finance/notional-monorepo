@@ -1,5 +1,7 @@
+export * from './lib/analytics-icon/analytics-icon';
 export * from './lib/stake-icon/stake-icon';
 export * from './lib/token-icon/token-icon';
+export * from './lib/token-terminal-icon/token-terminal-icon';
 export * from './lib/vault-icon/vault-icon';
 export * from './lib/governance-icon/governance-icon';
 export * from './lib/history-icon/history-icon';
@@ -29,6 +31,8 @@ export * from './lib/japanese-flag-icon/japanese-flag-icon';
 export * from './lib/bug-bounty-icon/bug-bounty-icon';
 export * from './lib/cal-add-icon/cal-add-icon';
 export * from './lib/developer-docs-icon/developer-docs-icon';
+export * from './lib/defi-Llama-icon/defi-Llama-icon';
+export * from './lib/dune-icon/dune-icon';
 export * from './lib/forum-icon/forum-icon';
 export * from './lib/four-square-icon/four-square-icon';
 export * from './lib/gear-icon/gear-icon';
