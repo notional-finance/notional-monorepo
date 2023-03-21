@@ -28,7 +28,7 @@ const StyledIcon = styled(Box)(
 
   img {
     left: 0px;
-    top: ${theme.spacing(-2)};
+    top: ${theme.spacing(3)};
     position: absolute;
     z-index: 2;
   }
@@ -36,7 +36,7 @@ const StyledIcon = styled(Box)(
   &::after {
     position: absolute;
     content: '';
-    top: ${theme.spacing(-3)};
+    top: ${theme.spacing(2)};
     right: 0px;
     bottom: 0px;
     left: ${theme.spacing(-1)};
@@ -73,7 +73,7 @@ export function CardVariant(props: AllCardVariantProps) {
             // margin-top on the card is theme.spacing(6) so we can "undo" that to
             // move the icon to the top of the card, and then we have it pop over
             // the top of the card with theme.spacing(3)
-            top={variant === 'vault' ? theme.spacing(-3) : theme.spacing(-9)}
+            top={variant === 'vault' ? theme.spacing(2) : theme.spacing(-9)}
           >
             <TokenIcon symbol={symbol} size="extraLarge" />
           </StyledIcon>

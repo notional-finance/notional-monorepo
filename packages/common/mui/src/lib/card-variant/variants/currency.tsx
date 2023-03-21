@@ -21,13 +21,13 @@ export function CurrencyVariant({
       <H4
         accent
         textAlign="left"
-        marginTop={theme.spacing(6)}
-        marginBottom={theme.spacing(1)}
+        // marginTop={theme.spacing(6)}
+        // marginBottom={theme.spacing(1)}
         fontWeight="bold"
       >
         {symbol}
       </H4>
-      <H3 textAlign="left" marginBottom={theme.spacing(4)} fontWeight="bold">
+      {/* <H4 textAlign="left" marginBottom={theme.spacing(4)} fontWeight="bold">
         {isVariable ? (
           <FormattedMessage
             defaultMessage="{formattedRate} Variable APY"
@@ -43,7 +43,7 @@ export function CurrencyVariant({
             }}
           />
         )}
-      </H3>
+      </H4> */}
     </>
   );
 }

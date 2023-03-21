@@ -63,7 +63,6 @@ export const BorrowCardView = () => {
         description: 'page heading subtitle',
       })}
       cards={cards}
-      videoId={'uIuVLZEVRyM'}
     />
   );
 };

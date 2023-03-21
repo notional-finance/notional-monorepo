@@ -1,5 +1,4 @@
 import { styled, Box, useTheme } from '@mui/material';
-import { VideoPlayerHero } from '../video-player-hero/video-player-hero';
 import { useEffect } from 'react';
 import { FormattedMessage, MessageDescriptor } from 'react-intl';
 import { HeadingSubtitle, H1 } from '@notional-finance/mui';
@@ -8,7 +7,6 @@ export interface CardContainerProps {
   heading: MessageDescriptor;
   subtitle: MessageDescriptor;
   cards: React.ReactNode[];
-  videoId?: string;
   children?: React.ReactNode;
 }
 
@@ -24,7 +22,7 @@ const StyledCardList = styled('ul')(
   flex-wrap: wrap;
   justify-content: center;
   overflow: visible;
-  margin-top: -96px;
+  margin-top: -196px;
   margin-bottom: 64px;
   width: 100%;
 
@@ -49,7 +47,6 @@ export function CardContainer({
   subtitle,
   cards,
   children,
-  videoId,
 }: CardContainerProps) {
   const theme = useTheme();
   useEffect(() => {
@@ -68,30 +65,25 @@ export function CardContainer({
   );
   return (
     <StyledContainer>
-      {videoId ? (
-        <VideoPlayerHero
-          titleText={titleText}
-          videoId={videoId}
-          heightUnits={80}
-        />
-      ) : (
-        <Box
-          sx={{
-            margin: {
-              xs: theme.spacing(4, 'auto'),
-              md: theme.spacing(8, 'auto'),
-              lg: theme.spacing(20, 'auto'),
-            },
-            padding: {
-              xs: theme.spacing(0, 4),
-              md: theme.spacing(0, 8),
-              lg: theme.spacing(0, 16),
-            },
-          }}
-        >
-          {titleText}
-        </Box>
-      )}
+      <Box
+        sx={{
+          background:
+            'linear-gradient(to right, #053542 32.07%, #06657e 123.72%)',
+          height: '550px',
+          // margin: {
+          //   xs: theme.spacing(4, 'auto'),
+          //   md: theme.spacing(8, 'auto'),
+          //   lg: theme.spacing(20, 'auto'),
+          // },
+          // padding: {
+          //   xs: theme.spacing(0, 4),
+          //   md: theme.spacing(0, 8),
+          //   lg: theme.spacing(0, 16),
+          // },
+        }}
+      >
+        {titleText}
+      </Box>
       <StyledCardList>
         {cards.map((c, i) => (
           <StyledCard key={`key-${i}`}>{c}</StyledCard>

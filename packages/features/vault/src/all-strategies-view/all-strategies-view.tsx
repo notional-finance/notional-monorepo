@@ -43,7 +43,6 @@ export const AllStrategyView = () => {
         description: 'page heading subtitle',
       })}
       cards={cards}
-      videoId={'vkaPi1s5aeI'}
     />
   );
 };
