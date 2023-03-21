@@ -9,7 +9,7 @@ import MobileNavigation from './mobile-navigation/mobile-navigation';
 import { ReactElement } from 'react';
 import { useLocation } from 'react-router-dom';
 import ResourcesDropdown from './resources/resources-dropdown/resources-dropdown';
-import AboutDropdown from './about/about-dropdown/about-dropdown';
+import AnalyticsDropdown from './analytics-dropdown/analytics-dropdown';
 
 /* eslint-disable-next-line */
 export interface HeaderProps extends AppBarProps {
@@ -63,7 +63,7 @@ export function Header({ rightButton }: HeaderProps) {
           >
             {pathname === '/' && (
               <>
-                <AboutDropdown />
+                <AnalyticsDropdown />
                 <ResourcesDropdown />
               </>
             )}
