@@ -1,6 +1,10 @@
 import { useTheme } from '@mui/material';
-import TuneIcon from '@mui/icons-material/Tune';
-import { ForumIcon } from '@notional-finance/icons';
+import {
+  ResourcesIcon,
+  BugBountyIcon,
+  ForumIcon,
+  NotionalPlainIcon,
+} from '@notional-finance/icons';
 import { SectionLinkProps, Section } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
 
@@ -9,16 +13,63 @@ export function ResourcesGovernance() {
   const heading = <FormattedMessage defaultMessage={'Governance'} />;
   const links: SectionLinkProps[] = [
     {
-      title: <FormattedMessage defaultMessage={'Protocol Parameters'} />,
-      icon: <TuneIcon sx={{ color: theme.palette.background.accentDefault }} />,
-      description: <FormattedMessage defaultMessage={'Understand selected parameters'} />,
-      to: 'https://docs.notional.finance/governance',
+      title: <FormattedMessage defaultMessage={'Governance Forum'} />,
+      icon: (
+        <ForumIcon sx={{ color: theme.palette.background.accentDefault }} />
+      ),
+      description: (
+        <FormattedMessage defaultMessage={'Discuss protocol changes'} />
+      ),
+      to: 'https://forum.notional.finance/',
     },
     {
-      title: <FormattedMessage defaultMessage={'Governance Forum'} />,
-      icon: <ForumIcon sx={{ color: theme.palette.background.accentDefault }} />,
-      description: <FormattedMessage defaultMessage={'Discuss protocol changes'} />,
-      to: 'https://forum.notional.finance/',
+      title: <FormattedMessage defaultMessage={'Security'} />,
+      to: 'https://github.com/notional-finance/contracts-v2/tree/master/audits',
+      icon: (
+        <ResourcesIcon
+          sx={{
+            color: theme.palette.background.accentDefault,
+            fontSize: '1.5rem',
+          }}
+        />
+      ),
+      description: (
+        <FormattedMessage defaultMessage={'Review Notional audits'} />
+      ),
+    },
+    {
+      title: <FormattedMessage defaultMessage={'Bug Bounty'} />,
+      to: 'https://immunefi.com/bounty/notional/',
+      icon: (
+        <BugBountyIcon
+          sx={{
+            color: theme.palette.background.accentDefault,
+            fontSize: '1.5rem',
+          }}
+        />
+      ),
+      description: (
+        <FormattedMessage
+          defaultMessage={'Claim up to $500K for critical issues'}
+        />
+      ),
+    },
+    {
+      title: <FormattedMessage defaultMessage={'About Notional'} />,
+      to: '/about',
+      icon: (
+        <NotionalPlainIcon
+          sx={{
+            color: theme.palette.background.accentDefault,
+            fontSize: '1.5rem',
+          }}
+        />
+      ),
+      description: (
+        <FormattedMessage defaultMessage={'Our mission, team and values'} />
+      ),
+      hideBorder: true,
+      external: false,
     },
   ];
   return (
@@ -26,7 +77,8 @@ export function ResourcesGovernance() {
       heading={heading}
       links={links}
       sx={{
-        paddingTop: '48px',
+        paddingTop: theme.spacing(6),
+        background: theme.palette.background.paper,
         '.section-link-paper, .MuiPaper-root': {
           '&:hover': {
             transition: '.3s',

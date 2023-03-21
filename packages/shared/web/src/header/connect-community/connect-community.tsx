@@ -16,8 +16,10 @@ export function ConnectCommunity() {
       rel="noreferrer"
       sx={{
         display: 'flex',
+        alignItems: 'center',
         backgroundColor: theme.palette.background.default,
         padding: '2rem',
+        paddingLeft: theme.spacing(10),
         borderTop: '1px solid',
         borderImage: 'linear-gradient(90deg, #004453 0%, #21B3B4 100%)',
         borderImageSlice: '1',
@@ -36,7 +38,7 @@ export function ConnectCommunity() {
         <DiscordIcon
           sx={{
             color: theme.palette.background.accentDefault,
-            fontSize: '3rem',
+            fontSize: '5rem',
           }}
         />
       </Box>
@@ -55,9 +57,12 @@ export function ConnectCommunity() {
             sx={{
               fontWeight: 700,
               fontSize: '1.375rem',
+              marginBottom: theme.spacing(1),
             }}
           >
-            <FormattedMessage defaultMessage={'Connect with our community on Discord'} />
+            <FormattedMessage
+              defaultMessage={'Connect with our community on Discord'}
+            />
           </Typography>
         </Box>
         <Box sx={{}}>
@@ -70,12 +75,20 @@ export function ConnectCommunity() {
             }}
           >
             <FormattedMessage
-              defaultMessage={'Get in touch with the team, we are hear to answer any questions'}
+              defaultMessage={
+                'Get in touch with the team, we are hear to answer any questions'
+              }
             />
           </Typography>
         </Box>
       </Box>
-      <Box>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          paddingRight: theme.spacing(10),
+        }}
+      >
         <IconButton sx={{ background: theme.gradient.landing }}>
           <ArrowIcon
             sx={{
