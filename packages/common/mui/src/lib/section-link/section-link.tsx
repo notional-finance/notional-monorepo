@@ -13,6 +13,7 @@ export interface SectionLinkProps {
   title: ReactNode;
   description?: ReactNode;
   condensed?: boolean;
+  hideBorder?: boolean;
 }
 
 export function SectionLink({
@@ -23,6 +24,7 @@ export function SectionLink({
   title,
   description,
   condensed = false,
+  hideBorder = false,
 }: SectionLinkProps) {
   const theme = useTheme();
   const history = useHistory();
@@ -41,7 +43,9 @@ export function SectionLink({
     <Box
       sx={{
         textDecoration: 'none',
-        borderBottom: `1px solid ${theme.palette.borders.default}`,
+        borderBottom: !hideBorder
+          ? `1px solid ${theme.palette.borders.default}`
+          : 'none',
         marginRight: '30px',
       }}
       className="section-link-container"

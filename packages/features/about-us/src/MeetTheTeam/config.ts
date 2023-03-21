@@ -2,7 +2,6 @@ import jwei from '@notional-finance/assets/images/team/jwei.png';
 import jwu from '@notional-finance/assets/images/team/jwu.png';
 import klong from '@notional-finance/assets/images/team/klong.png';
 import mburkett from '@notional-finance/assets/images/team/mburkett.png';
-import msharon from '@notional-finance/assets/images/team/msharon.png';
 import pgendron from '@notional-finance/assets/images/team/pgendron.png';
 import twoodward from '@notional-finance/assets/images/team/twoodward.png';
 import ipetsch from '@notional-finance/assets/images/team/ipetsch.png';
@@ -179,34 +178,6 @@ export const TeamData = [
       },
     ],
     profpic: jwei,
-  },
-  {
-    name: 'msharon',
-    ...defineMessages({
-      displayName: {
-        description: 'team member name',
-        defaultMessage: 'Megan Sharon',
-      },
-      title: {
-        description: 'team member title',
-        defaultMessage: 'Senior Full Stack Engineer',
-      },
-      description: {
-        description: 'team member title',
-        defaultMessage: 'Principal Developer at GigLabs, Lifelong Student',
-      },
-    }),
-    social: [
-      {
-        name: 'github',
-        link: 'https://github.com/mgnsharon',
-      },
-      {
-        name: 'linkedin',
-        link: 'https://www.linkedin.com/in/megansharon/',
-      },
-    ],
-    profpic: msharon,
   },
   {
     name: 'ipetsch',

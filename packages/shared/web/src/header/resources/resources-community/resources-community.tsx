@@ -1,5 +1,10 @@
 import { useTheme } from '@mui/material';
-import { GitHub, Twitter, YouTube, DescriptionOutlined } from '@mui/icons-material';
+import {
+  GitHub,
+  Twitter,
+  YouTube,
+  DescriptionOutlined,
+} from '@mui/icons-material';
 
 import { Section, SectionLinkProps } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
@@ -13,7 +18,10 @@ export function ResourcesCommunity() {
       title: <FormattedMessage defaultMessage={'Blog'} />,
       icon: (
         <DescriptionOutlined
-          sx={{ color: theme.palette.background.accentDefault, fontSize: '1.5rem' }}
+          sx={{
+            color: theme.palette.background.accentDefault,
+            fontSize: theme.spacing(3),
+          }}
         />
       ),
       to: 'https://blog.notional.finance/',
@@ -22,25 +30,50 @@ export function ResourcesCommunity() {
       title: <FormattedMessage defaultMessage={'Discord'} />,
       icon: (
         <DiscordPlainIcon
-          sx={{ color: theme.palette.background.accentDefault, fontSize: '1.5rem' }}
+          sx={{
+            color: theme.palette.background.accentDefault,
+            fontSize: theme.spacing(3),
+          }}
         />
       ),
       to: 'https://discord.notional.finance/',
     },
     {
       title: <FormattedMessage defaultMessage={'Github'} />,
-      icon: <GitHub sx={{ color: theme.palette.background.accentDefault, fontSize: '1.5rem' }} />,
+      icon: (
+        <GitHub
+          sx={{
+            color: theme.palette.background.accentDefault,
+            fontSize: theme.spacing(3),
+          }}
+        />
+      ),
       to: 'https://github.com/notional-finance/contracts-v2',
     },
     {
       title: <FormattedMessage defaultMessage={'Twitter'} />,
-      icon: <Twitter sx={{ color: theme.palette.background.accentDefault, fontSize: '1.5rem' }} />,
+      icon: (
+        <Twitter
+          sx={{
+            color: theme.palette.background.accentDefault,
+            fontSize: theme.spacing(3),
+          }}
+        />
+      ),
       to: 'https://twitter.com/NotionalFinance',
     },
     {
       title: <FormattedMessage defaultMessage={'YouTube'} />,
-      icon: <YouTube sx={{ color: theme.palette.background.accentDefault, fontSize: '1.5rem' }} />,
+      icon: (
+        <YouTube
+          sx={{
+            color: theme.palette.background.accentDefault,
+            fontSize: theme.spacing(3),
+          }}
+        />
+      ),
       to: 'https://www.youtube.com/channel/UC3JxsK1mTxPxRZs6TtGDo5g',
+      hideBorder: true,
     },
   ];
   return (
@@ -49,8 +82,10 @@ export function ResourcesCommunity() {
       heading={heading}
       links={links}
       sx={{
-        paddingTop: '48px',
+        paddingTop: theme.spacing(6),
+        paddingRight: theme.spacing(10),
         background: theme.palette.background.default,
+
         '.section-link-paper, .MuiPaper-root': {
           '&:hover': {
             transition: '.3s',

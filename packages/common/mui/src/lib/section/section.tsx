@@ -10,7 +10,13 @@ export interface SectionProps extends BoxProps {
   condensed?: boolean;
 }
 
-export function Section({ heading, links, sx, condensed = false, ...rest }: SectionProps) {
+export function Section({
+  heading,
+  links,
+  sx,
+  condensed = false,
+  ...rest
+}: SectionProps) {
   return (
     <Box
       sx={{
@@ -32,6 +38,7 @@ export function Section({ heading, links, sx, condensed = false, ...rest }: Sect
           description={t.description}
           external={t.external}
           condensed={condensed}
+          hideBorder={t.hideBorder}
         />
       ))}
     </Box>

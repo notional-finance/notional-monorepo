@@ -1,4 +1,5 @@
-import { Box, Typography, useTheme, IconButton } from '@mui/material';
+import { Box, useTheme, IconButton } from '@mui/material';
+import { Body, H3 } from '@notional-finance/mui';
 import { ArrowIcon, DiscordIcon } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
 import { useRef } from 'react';
@@ -16,8 +17,10 @@ export function ConnectCommunity() {
       rel="noreferrer"
       sx={{
         display: 'flex',
+        alignItems: 'center',
         backgroundColor: theme.palette.background.default,
-        padding: '2rem',
+        padding: theme.spacing(4),
+        paddingLeft: theme.spacing(10),
         borderTop: '1px solid',
         borderImage: 'linear-gradient(90deg, #004453 0%, #21B3B4 100%)',
         borderImageSlice: '1',
@@ -36,7 +39,7 @@ export function ConnectCommunity() {
         <DiscordIcon
           sx={{
             color: theme.palette.background.accentDefault,
-            fontSize: '3rem',
+            fontSize: theme.spacing(10),
           }}
         />
       </Box>
@@ -45,37 +48,29 @@ export function ConnectCommunity() {
           display: 'flex',
           flexGrow: 1,
           flexDirection: 'column',
-          marginLeft: '1.5rem',
+          marginLeft: theme.spacing(3),
         }}
       >
-        <Box sx={{}}>
-          <Typography
-            variant="h3"
-            color={theme.palette.common.black}
-            sx={{
-              fontWeight: 700,
-              fontSize: '1.375rem',
-            }}
-          >
-            <FormattedMessage defaultMessage={'Connect with our community on Discord'} />
-          </Typography>
-        </Box>
-        <Box sx={{}}>
-          <Typography
-            variant="subtitle1"
-            color={theme.palette.borders.accentPaper}
-            sx={{
-              fontWeight: 500,
-              fontSize: '.875rem',
-            }}
-          >
-            <FormattedMessage
-              defaultMessage={'Get in touch with the team, we are hear to answer any questions'}
-            />
-          </Typography>
-        </Box>
+        <H3>
+          <FormattedMessage
+            defaultMessage={'Connect with our community on Discord'}
+          />
+        </H3>
+        <Body>
+          <FormattedMessage
+            defaultMessage={
+              'Get in touch with the team, we are hear to answer any questions'
+            }
+          />
+        </Body>
       </Box>
-      <Box>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          paddingRight: theme.spacing(10),
+        }}
+      >
         <IconButton sx={{ background: theme.gradient.landing }}>
           <ArrowIcon
             sx={{
