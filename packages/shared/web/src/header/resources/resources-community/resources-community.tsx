@@ -20,7 +20,7 @@ export function ResourcesCommunity() {
         <DescriptionOutlined
           sx={{
             color: theme.palette.background.accentDefault,
-            fontSize: '1.5rem',
+            fontSize: theme.spacing(3),
           }}
         />
       ),
@@ -32,7 +32,7 @@ export function ResourcesCommunity() {
         <DiscordPlainIcon
           sx={{
             color: theme.palette.background.accentDefault,
-            fontSize: '1.5rem',
+            fontSize: theme.spacing(3),
           }}
         />
       ),
@@ -44,7 +44,7 @@ export function ResourcesCommunity() {
         <GitHub
           sx={{
             color: theme.palette.background.accentDefault,
-            fontSize: '1.5rem',
+            fontSize: theme.spacing(3),
           }}
         />
       ),
@@ -56,7 +56,7 @@ export function ResourcesCommunity() {
         <Twitter
           sx={{
             color: theme.palette.background.accentDefault,
-            fontSize: '1.5rem',
+            fontSize: theme.spacing(3),
           }}
         />
       ),
@@ -68,7 +68,7 @@ export function ResourcesCommunity() {
         <YouTube
           sx={{
             color: theme.palette.background.accentDefault,
-            fontSize: '1.5rem',
+            fontSize: theme.spacing(3),
           }}
         />
       ),
@@ -82,7 +82,7 @@ export function ResourcesCommunity() {
       heading={heading}
       links={links}
       sx={{
-        paddingTop: '48px',
+        paddingTop: theme.spacing(6),
         paddingRight: theme.spacing(10),
         background: theme.palette.background.default,
 

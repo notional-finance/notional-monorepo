@@ -29,7 +29,7 @@ export function ResourcesGovernance() {
         <ResourcesIcon
           sx={{
             color: theme.palette.background.accentDefault,
-            fontSize: '1.5rem',
+            fontSize: theme.spacing(3),
           }}
         />
       ),
@@ -44,7 +44,7 @@ export function ResourcesGovernance() {
         <BugBountyIcon
           sx={{
             color: theme.palette.background.accentDefault,
-            fontSize: '1.5rem',
+            fontSize: theme.spacing(3),
           }}
         />
       ),
@@ -61,7 +61,7 @@ export function ResourcesGovernance() {
         <NotionalPlainIcon
           sx={{
             color: theme.palette.background.accentDefault,
-            fontSize: '1.5rem',
+            fontSize: theme.spacing(3),
           }}
         />
       ),
