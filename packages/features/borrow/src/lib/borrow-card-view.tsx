@@ -1,10 +1,13 @@
-import { LEND_BORROW } from '@notional-finance/shared-config';
+import { LEND_BORROW, THEME_VARIANTS } from '@notional-finance/shared-config';
 import { CardContainer } from '@notional-finance/shared-web';
 import { CardVariant } from '@notional-finance/mui';
 import { useAllMarkets } from '@notional-finance/notionable-hooks';
+import { useNotionalTheme } from '@notional-finance/styles';
 import { defineMessage, FormattedMessage } from 'react-intl';
+import { ThemeProvider } from '@mui/material';
 
 export const BorrowCardView = () => {
+  const themeLanding = useNotionalTheme(THEME_VARIANTS.LIGHT, 'landing');
   const { currencyMarkets } = useAllMarkets();
   const orderedCurrencyIds = Array.from(currencyMarkets.keys()).sort();
   const rates = orderedCurrencyIds.map((i) => {
@@ -52,18 +55,20 @@ export const BorrowCardView = () => {
   });
 
   return (
-    <CardContainer
-      heading={defineMessage({
-        defaultMessage: 'Borrow Crypto at Fixed Rates',
-        description: 'page heading',
-      })}
-      subtitle={defineMessage({
-        defaultMessage:
-          'Borrow against your crypto with certainty for up to one year. Lock in what you pay until maturity or exit early without penalty at the market rate.',
-        description: 'page heading subtitle',
-      })}
-      cards={cards}
-    />
+    <ThemeProvider theme={themeLanding}>
+      <CardContainer
+        heading={defineMessage({
+          defaultMessage: 'Borrow Crypto at Fixed Rates',
+          description: 'page heading',
+        })}
+        subtitle={defineMessage({
+          defaultMessage:
+            'Borrow against your crypto with certainty for up to one year. Lock in what you pay until maturity or exit early without penalty at the market rate.',
+          description: 'page heading subtitle',
+        })}
+        cards={cards}
+      />
+    </ThemeProvider>
   );
 };
 

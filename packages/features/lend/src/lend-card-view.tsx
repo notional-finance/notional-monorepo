@@ -2,9 +2,10 @@ import { useAllMarkets } from '@notional-finance/notionable-hooks';
 import { LEND_BORROW, THEME_VARIANTS } from '@notional-finance/shared-config';
 import { CardContainer } from '@notional-finance/shared-web';
 import { CardVariant } from '@notional-finance/mui';
-import { Box, ThemeProvider, useTheme } from '@mui/material';
+import { ThemeProvider } from '@mui/material';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { defineMessages, FormattedMessage } from 'react-intl';
+// import { formatMaturityData } from '@notional-finance/helpers';
 
 export function LendCardView() {
   // const theme = useTheme();
@@ -14,7 +15,6 @@ export function LendCardView() {
   const cards = unwrappedCurrencies.map((s, i) => {
     const rate = rates.length > i ? rates[i] : 0;
     const route = `/${LEND_BORROW.LEND}/${s}`;
-
     return (
       <CardVariant
         variant={'currency'}
@@ -57,13 +57,11 @@ export function LendCardView() {
   });
   return (
     <ThemeProvider theme={themeLanding}>
-      <Box>
-        <CardContainer
-          heading={heading.fixed}
-          subtitle={subtitle.fixed}
-          cards={cards}
-        />
-      </Box>
+      <CardContainer
+        heading={heading.fixed}
+        subtitle={subtitle.fixed}
+        cards={cards}
+      />
     </ThemeProvider>
   );
 }

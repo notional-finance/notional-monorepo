@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { useState, ReactNode } from 'react';
 import { styled, Box } from '@mui/material';
 import { TokenIcon } from '@notional-finance/icons';
 import { Button } from '../button/button';
@@ -54,8 +54,10 @@ const StyledIcon = styled(Box)(
 
 export function CardVariant(props: AllCardVariantProps) {
   const theme = useNotionalTheme('light');
+  const [hovered, setHovered] = useState(false);
+
   const { variant, route, symbol, buttonText } = props;
-  let height = '240px';
+  let height = '264px';
   if (
     variant === 'incentive' &&
     (props as IncentiveVariantProps).incentiveRate
@@ -67,7 +69,11 @@ export function CardVariant(props: AllCardVariantProps) {
 
   return (
     <Link to={route}>
-      <Card height={height}>
+      <Card
+        height={height}
+        onMouseOver={() => setHovered(true)}
+        onMouseOut={() => setHovered(false)}
+      >
         {symbol && (
           <StyledIcon
             // margin-top on the card is theme.spacing(6) so we can "undo" that to
@@ -79,7 +85,10 @@ export function CardVariant(props: AllCardVariantProps) {
           </StyledIcon>
         )}
         {variant === 'currency' && (
-          <CurrencyVariant {...(props as CurrencyVariantProps)} />
+          <CurrencyVariant
+            {...(props as CurrencyVariantProps)}
+            hovered={hovered}
+          />
         )}
         {variant === 'vault' && (
           <VaultVariant {...(props as VaultVariantProps)} />
@@ -89,9 +98,12 @@ export function CardVariant(props: AllCardVariantProps) {
         )}
         <Button
           fullWidth
-          size="medium"
+          size="large"
           variant="contained"
-          sx={{ background: theme.palette.primary.light }}
+          sx={{
+            background: theme.palette.primary.light,
+            textTransform: 'uppercase',
+          }}
         >
           {buttonText}
         </Button>

@@ -29,6 +29,7 @@ const StyledCard = styled(MuiCard)(
     position: relative;
     box-shadow: ${theme.shape.shadowLarge()};
     overflow: visible;
+    transition: 0.3s ease;
     a {
       position: relative;
     }
@@ -40,7 +41,8 @@ const StyledCard = styled(MuiCard)(
 
     &:hover {
       box-shadow: ${theme.shape.shadowLarge(theme.palette.primary.light)};
-      transition: 0.25s linear;
+      transition: 0.3s ease;
+      transform: scale(1.1);
     }
   `
 );

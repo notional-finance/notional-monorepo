@@ -90,6 +90,7 @@ export const ButtonText = makeVariant('button');
 export const HeadingSubtitle = makeVariant('subtitle1');
 export const LargeNumber = makeVariant('largeNumber');
 export const LargeNumberLabel = makeVariant('largeNumberLabel');
+export const CurrencyTitle = makeVariant('largeNumberLabel');
 export const LargeInputText = makeVariant('largeInput');
 export const LargeInputTextEmphasized = makeVariant('largeInputEmphasized');
 export const LinkText = makeVariant('link');

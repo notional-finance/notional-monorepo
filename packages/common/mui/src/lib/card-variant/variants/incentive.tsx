@@ -18,7 +18,7 @@ export function IncentiveVariant({
 }: IncentiveVariantProps) {
   const theme = useTheme();
   if (!incentiveRate) {
-    return <CurrencyVariant symbol={symbol} rate={rate} isVariable />;
+    return <CurrencyVariant symbol={symbol} rate={rate} isVariable hovered />;
   }
 
   const formattedTotalRate = `${Market.formatInterestRate(

@@ -1,6 +1,7 @@
 import { styled, Box, useTheme } from '@mui/material';
 import { useEffect } from 'react';
 import { FormattedMessage, MessageDescriptor } from 'react-intl';
+import { colors } from '@notional-finance/styles';
 import { HeadingSubtitle, H1 } from '@notional-finance/mui';
 
 export interface CardContainerProps {
@@ -9,38 +10,6 @@ export interface CardContainerProps {
   cards: React.ReactNode[];
   children?: React.ReactNode;
 }
-
-const StyledContainer = styled(Box)`
-  margin: 0 auto;
-  overflow: hidden;
-  margin-bottom: 64px;
-`;
-
-const StyledCardList = styled('ul')(
-  ({ theme }) => `
-  display: inline-flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  overflow: visible;
-  margin-top: -196px;
-  margin-bottom: 64px;
-  width: 100%;
-
-  ${theme.breakpoints.down('lg')} {
-    margin-top: 0px;
-  }
-`
-);
-
-const StyledCard = styled('li')`
-  margin-top: 10px;
-  margin-bottom: 10px;
-  margin-right: 40px;
-
-  @media (max-width: 600px) {
-    margin: 10px 0;
-  }
-`;
 
 export function CardContainer({
   heading,
@@ -54,14 +23,19 @@ export function CardContainer({
   }, []);
 
   const titleText = (
-    <>
-      <H1 gutter="default">
+    // TODO: figure out the actual margin here
+    <Box sx={{ marginLeft: '120px' }}>
+      <H1 gutter="default" style={{ color: colors.white }}>
         <FormattedMessage {...heading} />
       </H1>
-      <HeadingSubtitle fontWeight="regular" maxWidth={theme.spacing(96)}>
+      <HeadingSubtitle
+        fontWeight="regular"
+        maxWidth={theme.spacing(96)}
+        style={{ color: colors.white }}
+      >
         <FormattedMessage {...subtitle} />
       </HeadingSubtitle>
-    </>
+    </Box>
   );
   return (
     <StyledContainer>
@@ -70,16 +44,8 @@ export function CardContainer({
           background:
             'linear-gradient(to right, #053542 32.07%, #06657e 123.72%)',
           height: '550px',
-          // margin: {
-          //   xs: theme.spacing(4, 'auto'),
-          //   md: theme.spacing(8, 'auto'),
-          //   lg: theme.spacing(20, 'auto'),
-          // },
-          // padding: {
-          //   xs: theme.spacing(0, 4),
-          //   md: theme.spacing(0, 8),
-          //   lg: theme.spacing(0, 16),
-          // },
+          display: 'flex',
+          alignItems: 'center',
         }}
       >
         {titleText}
@@ -103,3 +69,29 @@ export function CardContainer({
     </StyledContainer>
   );
 }
+
+const StyledContainer = styled(Box)`
+  margin: 0 auto;
+  overflow: hidden;
+  margin-bottom: 200px;
+`;
+
+const StyledCardList = styled('ul')`
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  overflow: visible;
+  margin-top: -196px;
+  margin-bottom: 64px;
+  width: 100%;
+  grid-gap: 40px;
+`;
+
+const StyledCard = styled('li')`
+  margin-top: 10px;
+  margin-bottom: 10px;
+
+  @media (max-width: 600px) {
+    margin: 10px 0;
+  }
+`;

@@ -14,7 +14,7 @@ import { NormalizeCss } from './normalize';
 import React from 'react';
 import { CommonColors } from '@mui/material/styles/createPalette';
 
-const colors = {
+export const colors = {
   // primaries
   green: '#1F9B99',
   aqua: '#13BBC2',
@@ -269,7 +269,7 @@ function getTypography(themeVariant: PaletteMode, pageLayout?: NotionalPageLayou
         color: getFontColors(themeVariant).primary,
         marginBottom: pxToMargin(48),
     },
-    currencyTitle: {
+    largeNumberLabel: {
          fontSize: pxToRem(24),
         fontWeight: fontWeight.bold,
         lineHeight,
@@ -335,7 +335,7 @@ function getTypography(themeVariant: PaletteMode, pageLayout?: NotionalPageLayou
       },
       caption: {
         fontSize: pxToRem(14),
-        fontWeight: fontWeight.medium,
+        fontWeight: fontWeight.demiBold,
         color: getFontColors(themeVariant).secondary,
         lineHeight,
         marginBottom: pxToMargin(10),
