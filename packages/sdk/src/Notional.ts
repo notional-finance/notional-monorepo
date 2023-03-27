@@ -166,8 +166,6 @@ export default class Notional extends TransactionBuilder {
   ) {
     const { addresses, graphEndpoint, pollInterval, cacheUrl } =
       this.getChainConfig(chainId);
-    console.log(graphEndpoint);
-
     const signer = new VoidSigner(ethers.constants.AddressZero, provider);
     const contracts = Notional.getContracts(addresses, signer);
     const graphClient = new GraphClient(
