@@ -29,35 +29,6 @@ export const useAllMarkets = () => {
 
   const orderedCurrencyIds = Array.from(currencyMarkets.keys()).sort();
 
-  let allRates = {}
-  orderedCurrencyIds.map((i) => {
-    try {
-      const { orderedMarkets } = currencyMarkets.get(i)!;
-      return orderedMarkets.map((data, index) => {
-        if(!allRates[data.underlyingSymbol] && data.marketAnnualizedRate() > 0){
-          allRates = {
-            [data.underlyingSymbol]: {
-              [index]: data.marketAnnualizedRate(),
-            },
-            ...allRates    
-          }
-        }
-        if(data.marketAnnualizedRate() > 0){
-          allRates[data.underlyingSymbol] = {
-            [index]: data.marketAnnualizedRate(),
-            ...allRates[data.underlyingSymbol]
-          }
-        }
-        // NOTE* this return is just to please the linter
-        return '';
-      })
-      
-    } catch {
-      return 0;
-    }
-  });
-
-
   const getMaxOrMinRates = (returnMax: boolean) => {
     return orderedCurrencyIds.map((i) => {
       try {
