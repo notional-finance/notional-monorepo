@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { styled, Box } from '@mui/material';
+import { styled, Box, useTheme } from '@mui/material';
 import { TokenIcon } from '@notional-finance/icons';
 import { Button } from '../../button/button';
 import { Card } from '../../card/card';
@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 import { H4, CurrencyTitle, SectionTitle } from '../../typography/typography';
 import { Market } from '@notional-finance/sdk/src/system';
 import { FormattedMessage } from 'react-intl';
-import { useNotionalTheme } from '@notional-finance/styles';
+import { colors } from '@notional-finance/styles';
 
 export interface CurrencyProps {
   rate: number;
@@ -17,7 +17,7 @@ export interface CurrencyProps {
 }
 
 export const Currency = (props: CurrencyProps) => {
-  const theme = useNotionalTheme('light');
+  const theme = useTheme();
   const { route, symbol, buttonText, rate } = props;
   const formattedRate = Market.formatInterestRate(rate, 2);
 
@@ -54,7 +54,6 @@ export const Currency = (props: CurrencyProps) => {
           size="large"
           variant="contained"
           sx={{
-            background: theme.palette.primary.light,
             textTransform: 'uppercase',
           }}
         >
@@ -85,10 +84,10 @@ const StyledIcon = styled(Box)(
     bottom: 0px;
     left: ${theme.spacing(-1)};
     border-radius: 50%;
-    border: 10px solid ${theme.palette.common.white};
+    border: 10px solid ${colors.white};
     padding: 34px;
     background: ${theme.palette.common.white};
-    box-shadow: 1px 2px 3px 0px #14296633;
+    box-shadow: ${theme.shape.shadowStandard};
     z-index: 1;
     width: 0;
     height: 0;

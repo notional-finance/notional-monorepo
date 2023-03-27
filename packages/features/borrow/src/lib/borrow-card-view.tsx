@@ -3,11 +3,13 @@ import { CardContainer } from '@notional-finance/shared-web';
 import { CurrencyFixed } from '@notional-finance/mui';
 import { useAllMarkets } from '@notional-finance/notionable-hooks';
 import { useNotionalTheme } from '@notional-finance/styles';
+import { useUserSettingsState } from '@notional-finance/user-settings-manager';
 import { defineMessage, FormattedMessage } from 'react-intl';
 import { ThemeProvider } from '@mui/material';
 
 export const BorrowCardView = () => {
-  const themeLanding = useNotionalTheme(THEME_VARIANTS.LIGHT, 'landing');
+  const { themeVariant } = useUserSettingsState();
+  const themeLanding = useNotionalTheme(themeVariant, 'landing');
   const { cardData } = useAllMarkets();
 
   return (

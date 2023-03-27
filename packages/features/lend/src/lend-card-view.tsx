@@ -5,9 +5,11 @@ import { CurrencyFixed } from '@notional-finance/mui';
 import { ThemeProvider } from '@mui/material';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { defineMessages, FormattedMessage } from 'react-intl';
+import { useUserSettingsState } from '@notional-finance/user-settings-manager';
 
 export function LendCardView() {
-  const themeLanding = useNotionalTheme(THEME_VARIANTS.LIGHT, 'landing');
+  const { themeVariant } = useUserSettingsState();
+  const themeLanding = useNotionalTheme(themeVariant, 'landing');
   const { cardData } = useAllMarkets();
 
   const heading = defineMessages({

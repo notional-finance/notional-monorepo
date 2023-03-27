@@ -279,10 +279,10 @@ function getTypography(themeVariant: PaletteMode, pageLayout?: NotionalPageLayou
         marginBottom: pxToMargin(48),
     },
     largeNumberLabel: {
-         fontSize: pxToRem(24),
+        fontSize: pxToRem(24),
         fontWeight: fontWeight.bold,
         lineHeight,
-        color: getFontColors(themeVariant).primary,
+        color: getFontColors(themeVariant).accent,
         marginBottom: pxToMargin(48),
     },
     diagramTitle: {
@@ -593,7 +593,20 @@ const getThemeData = (themeVariant: PaletteMode, pageLayout?: NotionalPageLayout
           themeVariant === THEME_VARIANTS.LIGHT ? colors.white : colors.black,
         accent: colors.turquoise,
       },
-      secondary: undefined,
+      secondary: {
+        main:
+          themeVariant === THEME_VARIANTS.LIGHT
+            ? colors.green
+            : colors.neonTurquoise,
+        light: themeVariant === THEME_VARIANTS.LIGHT ? colors.aqua : colors.neonTurquoise,
+        dark:
+          themeVariant === THEME_VARIANTS.LIGHT
+            ? colors.matteGreen
+            : colors.white,
+        contrastText:
+          themeVariant === THEME_VARIANTS.LIGHT ? colors.white : colors.black,
+        accent: themeVariant === THEME_VARIANTS.LIGHT ? colors.aqua : colors.purpleGrey,
+      },
       error: {
         light: alpha(colors.red, 0.15),
         main: colors.red,
@@ -670,10 +683,10 @@ const getThemeData = (themeVariant: PaletteMode, pageLayout?: NotionalPageLayout
         themeVariant === THEME_VARIANTS.LIGHT
           ? '0px 4px 10px rgba(20, 42, 74, 0.07)'
           : '0px 4px 10px rgba(51, 248, 255, 0.07)',
-      shadowLarge: (color = '#142a4a4d') =>
+      shadowLarge: (color = themeVariant === THEME_VARIANTS.LIGHT ? '#142a4a4d' : 'rgba(51, 248, 255, 0.3)') =>
         themeVariant === THEME_VARIANTS.LIGHT
-          ? `0px 34px 50px -15px ${color}`
-          : `0px 34px 50px -15px rgba(51, 248, 255, 0.3)`,
+          ? `0px 24px 40px -15px ${color}`
+          : `0px 24px 40px -15px ${color}`,
       shadowLandingPage:
         themeVariant === THEME_VARIANTS.LIGHT
           ? '0px 4px 10px 0px #142A4A12'

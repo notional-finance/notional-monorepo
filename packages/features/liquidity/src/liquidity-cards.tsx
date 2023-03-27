@@ -3,11 +3,9 @@ import { useCurrency, useNotional } from '@notional-finance/notionable-hooks';
 import { useEffect, useState } from 'react';
 import { THEME_VARIANTS } from '@notional-finance/shared-config';
 import { FormattedMessage, defineMessage } from 'react-intl';
-import backgroundImgDark from '@notional-finance/assets/images/provide-liquidity-bg.png';
-import { useUserSettingsState } from '@notional-finance/user-settings-manager';
-import backgroundImgLight from '@notional-finance/assets/images/provide-liquidity-light-bg.png';
 import { NTokenValue } from '@notional-finance/sdk/src/system';
 import { INTERNAL_TOKEN_PRECISION } from '@notional-finance/sdk/src/config/constants';
+import { useUserSettingsState } from '@notional-finance/user-settings-manager';
 import { CardContainer } from '@notional-finance/shared-web';
 import { useNotionalTheme } from '@notional-finance/styles';
 import {
@@ -26,16 +24,12 @@ const StyledLink = styled(Link)(
 );
 
 export const ProvideLiquidityCards = () => {
-  const themeLanding = useNotionalTheme(THEME_VARIANTS.LIGHT, 'landing');
   const { themeVariant } = useUserSettingsState();
+  const themeLanding = useNotionalTheme(themeVariant, 'landing');
   const { tradableCurrencies } = useCurrency();
   const { notional, loaded } = useNotional();
   const { height } = useWindowDimensions();
   const [notePriceString, setNotePriceString] = useState('');
-  const bgImg =
-    themeVariant === THEME_VARIANTS.LIGHT
-      ? backgroundImgLight
-      : backgroundImgDark;
 
   useEffect(() => {
     if (loaded && notional) {
@@ -69,7 +63,6 @@ export const ProvideLiquidityCards = () => {
     <ThemeProvider theme={themeLanding}>
       <Box
         sx={{
-          backgroundImage: `url(${bgImg})`,
           backgroundSize: 'cover',
           minHeight: height - (73 + 113), // Screen height - (header height + footer height)
           overflowX: 'hidden',

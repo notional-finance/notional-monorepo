@@ -4,11 +4,13 @@ import { CardContainer } from '@notional-finance/shared-web';
 import { Vault } from '@notional-finance/mui';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { defineMessage, FormattedMessage } from 'react-intl';
+import { useUserSettingsState } from '@notional-finance/user-settings-manager';
 import { ThemeProvider } from '@mui/material';
 
 export const AllStrategyView = () => {
   const allVaults = useStrategies();
-  const themeLanding = useNotionalTheme(THEME_VARIANTS.LIGHT, 'landing');
+  const { themeVariant } = useUserSettingsState();
+  const themeLanding = useNotionalTheme(themeVariant, 'landing');
 
   return (
     <ThemeProvider theme={themeLanding}>

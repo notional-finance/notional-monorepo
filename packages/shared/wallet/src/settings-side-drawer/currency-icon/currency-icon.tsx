@@ -136,7 +136,7 @@ const CurrencyImg = styled('div', {
     `
   img {
     border: 5px solid ${theme.palette.primary.main};
-    box-shadow: 1px 2px 3px 0px #14296633;
+    box-shadow: ${theme.shape.shadowStandard};
   }
 `
   }}
@@ -145,7 +145,7 @@ ${
   enabled &&
   `img {
     border: 5px solid ${theme.palette.primary.main};
-    box-shadow: 1px 2px 3px 0px #14296633;
+    box-shadow: ${theme.shape.shadowStandard};
   }`
 }
 `

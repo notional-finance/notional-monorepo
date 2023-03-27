@@ -40,7 +40,7 @@ const StyledCard = styled(MuiCard)(
     )}
 
     &:hover {
-      box-shadow: ${theme.shape.shadowLarge(theme.palette.primary.light)};
+      box-shadow: ${theme.shape.shadowLarge(theme.palette.secondary.accent)};
       transition: 0.3s ease;
       transform: scale(1.1);
     }
