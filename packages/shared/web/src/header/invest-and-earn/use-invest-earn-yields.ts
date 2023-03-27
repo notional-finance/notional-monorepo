@@ -5,10 +5,10 @@ import { useObservableState } from 'observable-hooks';
 
 // Returns the highest yields in each of the invest / earn categories
 export function useInvestEarnYields() {
-  const { rates } = useAllMarkets();
+  const { maxRates } = useAllMarkets();
   const { tradableCurrencyList } = useCurrency();
   const headlineApy = useObservableState(headlineApy$, new Map<string, number | undefined>());
-  const highestLendRate = Market.formatInterestRate(Math.max(...rates), 2);
+  const highestLendRate = Market.formatInterestRate(Math.max(...maxRates), 2);
   const highestNTokenRate = Market.formatInterestRate(
     Math.max(
       ...tradableCurrencyList.map(({ id }) => {

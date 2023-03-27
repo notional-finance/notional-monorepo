@@ -1,7 +1,6 @@
-import { Box, BoxProps } from '@mui/material';
 import { ReactElement } from 'react';
 import { SectionLink, SectionLinkProps } from '../section-link/section-link';
-import SectionTitle from '../section-title/section-title';
+import { Typography, useTheme, Box, BoxProps } from '@mui/material';
 
 /* eslint-disable-next-line */
 export interface SectionProps extends BoxProps {
@@ -17,6 +16,8 @@ export function Section({
   condensed = false,
   ...rest
 }: SectionProps) {
+  const theme = useTheme();
+
   return (
     <Box
       sx={{
@@ -28,7 +29,19 @@ export function Section({
       }}
       {...rest}
     >
-      <SectionTitle heading={heading} />
+      <Typography
+        variant="h3"
+        color={theme.palette.primary.light}
+        sx={{
+          fontSize: '1rem',
+          fontWeight: 700,
+          textTransform: 'uppercase',
+          marginBottom: '1rem',
+          paddingLeft: '1rem',
+        }}
+      >
+        {heading}
+      </Typography>
       {links.map((t) => (
         <SectionLink
           key={t.to}

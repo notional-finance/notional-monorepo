@@ -119,6 +119,9 @@ declare module '@mui/material/styles' {
     largeInputEmphasized: React.CSSProperties;
     link: React.CSSProperties;
     captionAccent: React.CSSProperties;
+    cardInput: React.CSSProperties;
+    smallInput: React.CSSProperties;
+    sectionTitle: React.CSSProperties;
   }
 
   interface TypographyVariantsOptions {
@@ -130,6 +133,9 @@ declare module '@mui/material/styles' {
     largeInputEmphasized?: React.CSSProperties;
     link?: React.CSSProperties;
     captionAccent?: React.CSSProperties;
+    cardInput?: React.CSSProperties;
+    smallInput?: React.CSSProperties;
+    sectionTitle?: React.CSSProperties;
   }
 
   interface Shape {
@@ -200,6 +206,9 @@ declare module '@mui/material/Typography' {
     largeInputEmphasized: true;
     link: true;
     captionAccent: true;
+    cardInput: true;
+    smallInput: true;
+    sectionTitle: true;
   }
 }
 
@@ -284,7 +293,21 @@ function getTypography(themeVariant: PaletteMode, pageLayout?: NotionalPageLayou
         marginBottom: pxToMargin(48),
     },
     cardInput: {
-         fontSize: pxToRem(20),
+        fontSize: pxToRem(20),
+        fontWeight: fontWeight.demiBold,
+        lineHeight,
+        color: getFontColors(themeVariant).primary,
+        marginBottom: pxToMargin(48),
+    },
+    smallInput: {
+      fontSize: pxToRem(16),
+      fontWeight: fontWeight.demiBold,
+      color: getFontColors(themeVariant).primary,
+      lineHeight,
+      marginBottom: pxToMargin(12),
+    },
+    subtitle2: {
+        fontSize: pxToRem(20),
         fontWeight: fontWeight.demiBold,
         lineHeight,
         color: getFontColors(themeVariant).primary,
@@ -304,14 +327,7 @@ function getTypography(themeVariant: PaletteMode, pageLayout?: NotionalPageLayou
         lineHeight,
         marginBottom: pxToMargin(12),
       },
-      smallInput: {
-        fontSize: pxToRem(16),
-        fontWeight: fontWeight.demiBold,
-        color: getFontColors(themeVariant).secondary,
-        lineHeight,
-        marginBottom: pxToMargin(12),
-      },
-      body3: {
+      subtitle1: {
         fontSize: pxToRem(16),
         fontWeight: fontWeight.medium,
         color: getFontColors(themeVariant).secondary,
@@ -351,7 +367,7 @@ function getTypography(themeVariant: PaletteMode, pageLayout?: NotionalPageLayou
       sectionTitle: {
         fontSize: pxToRem(12),
         fontWeight: fontWeight.demiBold,
-        color: getFontColors(themeVariant).primary,
+        color: getFontColors(themeVariant).secondary,
         lineHeight,
         textTransform: 'uppercase',
         marginBottom: pxToMargin(14),

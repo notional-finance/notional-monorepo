@@ -17,20 +17,53 @@ export const useAllMarkets = () => {
 
   const orderedCurrencyIds = Array.from(currencyMarkets.keys()).sort();
 
-  const rates = orderedCurrencyIds.map((i) => {
+  let allRates = {}
+  orderedCurrencyIds.map((i) => {
     try {
       const { orderedMarkets } = currencyMarkets.get(i)!;
-
-      return orderedMarkets.reduce((maxRate: number, m) => {
-        const rate = m.marketAnnualizedRate();
-        if (maxRate === 0) return rate;
-
-        return rate > maxRate ? rate : maxRate;
-      }, 0);
+      return orderedMarkets.map((data, index) => {
+        if(!allRates[data.underlyingSymbol] && data.marketAnnualizedRate() > 0){
+          allRates = {
+            [data.underlyingSymbol]: {
+              [index]: data.marketAnnualizedRate(),
+            },
+            ...allRates    
+          }
+        }
+        if(data.marketAnnualizedRate() > 0){
+          allRates[data.underlyingSymbol] = {
+            [index]: data.marketAnnualizedRate(),
+            ...allRates[data.underlyingSymbol]
+          }
+        }
+        // NOTE* this return is just to please the linter
+        return '';
+      })
+      
     } catch {
       return 0;
     }
   });
+
+
+  const getMaxOrMinRates = (returnMax: boolean) => {
+    return orderedCurrencyIds.map((i) => {
+      try {
+        const { orderedMarkets } = currencyMarkets.get(i)!;
+  
+        return orderedMarkets.reduce((maxRate: number, m) => {
+          const rate = m.marketAnnualizedRate();
+          if (maxRate === 0) return rate;
+          const maxRates = rate > maxRate ? rate : maxRate;
+          const minRates = rate < maxRate ? rate : maxRate;
+          return returnMax ? maxRates : minRates;
+        }, 0);
+      } catch {
+        return 0;
+      }
+    })
+  }
+
 
   const unwrappedCurrencies = orderedCurrencyIds.map((i) => {
     const { symbol, underlyingSymbol } = currencyMarkets.get(i)!;
@@ -42,12 +75,14 @@ export const useAllMarkets = () => {
     return symbol;
   });
 
-  const largestLendRate = Market.formatInterestRate(Math.max(...rates), 2);
+  const largestLendRate = Market.formatInterestRate(Math.max(...getMaxOrMinRates(true)), 2);
 
   return {
     orderedCurrencyIds,
     currencyMarkets,
-    rates,
+    maxRates: getMaxOrMinRates(true),
+    minRates: getMaxOrMinRates(false),
+    allRates,
     unwrappedCurrencies,
     cTokens,
     largestLendRate,

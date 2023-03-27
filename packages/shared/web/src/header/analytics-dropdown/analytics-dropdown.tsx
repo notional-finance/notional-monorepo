@@ -65,7 +65,7 @@ export function AnalyticsDropdown() {
             }}
           >
             <Section
-              heading={<FormattedMessage defaultMessage={'Stats'} />}
+              heading={<FormattedMessage defaultMessage={'Analytics'} />}
               links={links}
               sx={{
                 padding: '64px',

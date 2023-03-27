@@ -1,5 +1,4 @@
 import {
-  BarChartIcon,
   ActiveBellIcon,
   BellIcon,
   CoinsIcon,
@@ -30,17 +29,6 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
       link: '/portfolio/overview',
       iconImg: (
         <PortfolioIcon
-          className="color-fill"
-          sx={{ fontSize: '1.125rem', fill: textColor, stroke: 'transparent' }}
-        />
-      ),
-    },
-    {
-      key: 'lend',
-      label: <FormattedMessage defaultMessage={'Lend Fixed'} />,
-      link: '/lend',
-      iconImg: (
-        <BarChartIcon
           className="color-fill"
           sx={{ fontSize: '1.125rem', fill: textColor, stroke: 'transparent' }}
         />

@@ -1,4 +1,4 @@
-import { styled, Box, useTheme } from '@mui/material';
+import { styled, Box, useTheme, SxProps } from '@mui/material';
 import { useEffect } from 'react';
 import { FormattedMessage, MessageDescriptor } from 'react-intl';
 import { colors } from '@notional-finance/styles';
@@ -7,15 +7,15 @@ import { HeadingSubtitle, H1 } from '@notional-finance/mui';
 export interface CardContainerProps {
   heading: MessageDescriptor;
   subtitle: MessageDescriptor;
-  cards: React.ReactNode[];
   children?: React.ReactNode;
+  sx?: SxProps;
 }
 
 export function CardContainer({
   heading,
   subtitle,
-  cards,
   children,
+  sx,
 }: CardContainerProps) {
   const theme = useTheme();
   useEffect(() => {
@@ -38,7 +38,7 @@ export function CardContainer({
     </Box>
   );
   return (
-    <StyledContainer>
+    <StyledContainer sx={{ ...sx }}>
       <Box
         sx={{
           background:
@@ -50,22 +50,7 @@ export function CardContainer({
       >
         {titleText}
       </Box>
-      <StyledCardList>
-        {cards.map((c, i) => (
-          <StyledCard key={`key-${i}`}>{c}</StyledCard>
-        ))}
-      </StyledCardList>
-      <Box
-        sx={{
-          padding: {
-            xs: theme.spacing(0, 4),
-            md: theme.spacing(0, 8),
-            lg: theme.spacing(0, 16),
-          },
-        }}
-      >
-        {children}
-      </Box>
+      <StyledCardList>{children}</StyledCardList>
     </StyledContainer>
   );
 }
@@ -85,13 +70,4 @@ const StyledCardList = styled('ul')`
   margin-bottom: 64px;
   width: 100%;
   grid-gap: 40px;
-`;
-
-const StyledCard = styled('li')`
-  margin-top: 10px;
-  margin-bottom: 10px;
-
-  @media (max-width: 600px) {
-    margin: 10px 0;
-  }
 `;
