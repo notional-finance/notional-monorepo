@@ -26,7 +26,7 @@
         "cwd": "apps/api"
       }
     },
-    "publish-wrangler": {
+    "wrangler-publish": {
       "executor": "nx:run-commands",
       "options": {
         "commands": [
