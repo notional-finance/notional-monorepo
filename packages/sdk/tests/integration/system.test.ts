@@ -27,13 +27,11 @@ describe('System Integration Test', () => {
     notional = await Notional.load(1, provider);
   });
 
-  it('loads account data', async () => {
-    const addr = '0x4ba1d028e053A53842Ce31b0357C5864B40Ef909';
+  it.only('loads account data', async () => {
+    const addr = '0x9a25d79ab755718e0b12bd3c927a010a543c2b31';
     const account = await notional.getAccount(addr);
     await account.accountData?.fetchHistory(addr);
-    // console.log(account);
-    // console.log(account.accountData?.accountHistory);
-    account.accountData?.getFullTransactionHistory();
+    console.log(account.accountData?.getFullTransactionHistory());
   });
 
   it('returns batch account queries', async () => {
@@ -58,7 +56,7 @@ describe('System Integration Test', () => {
     const initData = decodeBinary(binary, provider);
   });
 
-  it.only('calculates a liquidation threshold', async () => {
+  it('calculates a liquidation threshold', async () => {
     const graphClient = new GraphClient(mainnetGraphEndpoint, 0, false);
     const { vaultInstance: metaVault } = await VaultFactory.buildVault(
       '0x77721081',

@@ -16,13 +16,13 @@ import fetch from 'cross-fetch';
 type BatchTData<TData> = { batch: TData[] };
 
 type GraphKey = keyof typeof GraphClient.graphUrls;
+const subgraphApiKey = process.env['NX_SUBGRAPH_API_KEY'];
 
 export class GraphClient {
   public apollo: ApolloClient<NormalizedCacheObject>;
 
   public static graphUrls = {
-    'mainnet/notional':
-      'https://api.thegraph.com/subgraphs/name/notional-finance/mainnet-v2',
+    'mainnet/notional': `https://gateway.thegraph.com/api/${subgraphApiKey}/subgraphs/id/71WhECGDCsRfgVSdeEg2SVuveBuHa4P44VxebdVaQic5`,
     'goerli/notional':
       'https://api.thegraph.com/subgraphs/name/notional-finance/goerli-v2',
   };
