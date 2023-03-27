@@ -14,7 +14,6 @@ export interface CurrencyProps {
   symbol?: string;
   route: string;
   buttonText: ReactNode;
-  // TODO: add maturity and rates data structure
 }
 
 export const Currency = (props: CurrencyProps) => {

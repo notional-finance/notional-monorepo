@@ -1,6 +1,7 @@
 import { ReactElement } from 'react';
 import { SectionLink, SectionLinkProps } from '../section-link/section-link';
-import { Typography, useTheme, Box, BoxProps } from '@mui/material';
+import { H3 } from '../typography/typography';
+import { Box, BoxProps } from '@mui/material';
 
 /* eslint-disable-next-line */
 export interface SectionProps extends BoxProps {
@@ -16,8 +17,6 @@ export function Section({
   condensed = false,
   ...rest
 }: SectionProps) {
-  const theme = useTheme();
-
   return (
     <Box
       sx={{
@@ -29,19 +28,7 @@ export function Section({
       }}
       {...rest}
     >
-      <Typography
-        variant="h3"
-        color={theme.palette.primary.light}
-        sx={{
-          fontSize: '1rem',
-          fontWeight: 700,
-          textTransform: 'uppercase',
-          marginBottom: '1rem',
-          paddingLeft: '1rem',
-        }}
-      >
-        {heading}
-      </Typography>
+      <H3>{heading}</H3>
       {links.map((t) => (
         <SectionLink
           key={t.to}

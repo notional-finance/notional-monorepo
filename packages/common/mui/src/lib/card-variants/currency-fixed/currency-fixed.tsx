@@ -15,9 +15,13 @@ import { Market } from '@notional-finance/sdk/src/system';
 import { FormattedMessage } from 'react-intl';
 import { useNotionalTheme, NotionalTheme } from '@notional-finance/styles';
 
+interface AllRates {
+  rate: string;
+  maturity: string;
+}
 export interface CurrencyFixedProps {
   rate: number;
-  allRates: Record<number, number>;
+  allRates: AllRates[];
   symbol?: string;
   route: string;
   buttonText: ReactNode;
@@ -56,54 +60,21 @@ export const CurrencyFixed = (props: CurrencyFixedProps) => {
           </CurrencyTitle>
           <ContentWrapper hovered={hovered} theme={theme}>
             <Box>
-              {allRates[0] && (
+              {allRates.map(({ rate, maturity }, index) => (
                 <Box
+                  key={index}
                   sx={{
                     display: 'flex',
                     alignItems: 'baseline',
                     marginBottom: theme.spacing(1),
                   }}
                 >
-                  <CardInput>
-                    {Market.formatInterestRate(allRates[0], 2)}
-                  </CardInput>
+                  <CardInput>{rate}</CardInput>
                   <Subtitle sx={{ marginLeft: theme.spacing(1) }}>
-                    <FormattedMessage defaultMessage={'3 Month'} />
+                    {maturity}
                   </Subtitle>
                 </Box>
-              )}
-              {allRates[1] && (
-                <Box
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'baseline',
-                    marginBottom: theme.spacing(1),
-                  }}
-                >
-                  <CardInput>
-                    {Market.formatInterestRate(allRates[1], 2)}
-                  </CardInput>
-                  <Subtitle sx={{ marginLeft: theme.spacing(1) }}>
-                    <FormattedMessage defaultMessage={'6 Month'} />
-                  </Subtitle>
-                </Box>
-              )}
-              {allRates[2] && (
-                <Box
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'baseline',
-                    marginBottom: theme.spacing(1),
-                  }}
-                >
-                  <CardInput>
-                    {Market.formatInterestRate(allRates[2], 2)}
-                  </CardInput>
-                  <Subtitle sx={{ marginLeft: theme.spacing(1) }}>
-                    <FormattedMessage defaultMessage={'1 year'} />
-                  </Subtitle>
-                </Box>
-              )}
+              ))}
             </Box>
             <Box>
               <SectionTitle textAlign="left">

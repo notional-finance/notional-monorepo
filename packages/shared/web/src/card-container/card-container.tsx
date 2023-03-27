@@ -23,7 +23,6 @@ export function CardContainer({
   }, []);
 
   const titleText = (
-    // TODO: figure out the actual margin here
     <Box sx={{ marginLeft: '120px' }}>
       <H1 gutter="default" style={{ color: colors.white }}>
         <FormattedMessage {...heading} />
@@ -55,19 +54,23 @@ export function CardContainer({
   );
 }
 
-const StyledContainer = styled(Box)`
+const StyledContainer = styled(Box)(
+  ({ theme }) => `
   margin: 0 auto;
   overflow: hidden;
-  margin-bottom: 200px;
-`;
+  margin-bottom: ${theme.spacing(25)};
+`
+);
 
-const StyledCardList = styled('ul')`
+const StyledCardList = styled('ul')(
+  ({ theme }) => `
   display: inline-flex;
   flex-wrap: wrap;
   justify-content: center;
   overflow: visible;
-  margin-top: -196px;
-  margin-bottom: 64px;
+  margin-top: -${theme.spacing(24.5)};
+  margin-bottom: ${theme.spacing(22)};
   width: 100%;
-  grid-gap: 40px;
-`;
+  grid-gap: ${theme.spacing(5)};
+`
+);

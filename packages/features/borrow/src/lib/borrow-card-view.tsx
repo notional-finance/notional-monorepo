@@ -8,8 +8,7 @@ import { ThemeProvider } from '@mui/material';
 
 export const BorrowCardView = () => {
   const themeLanding = useNotionalTheme(THEME_VARIANTS.LIGHT, 'landing');
-  const { minRates, currencyMarkets, orderedCurrencyIds, allRates } =
-    useAllMarkets();
+  const { cardData } = useAllMarkets();
 
   return (
     <ThemeProvider theme={themeLanding}>
@@ -24,27 +23,24 @@ export const BorrowCardView = () => {
           description: 'page heading subtitle',
         })}
       >
-        {orderedCurrencyIds.map((cid, i) => {
-          const { underlyingSymbol, symbol } = currencyMarkets.get(cid)!;
-          const s = underlyingSymbol || symbol;
-          const rate = minRates.length > i ? minRates[i] : 0;
+        {cardData.map(({ symbol, minRate, allRates }, index) => {
           // Special handling for borrowing ETH, default to collateralized by USDC
           const route =
-            s === 'ETH'
-              ? `/${LEND_BORROW.BORROW}/${s}/USDC`
-              : `/${LEND_BORROW.BORROW}/${s}/ETH`;
-
+            symbol === 'ETH'
+              ? `/${LEND_BORROW.BORROW}/${symbol}/USDC`
+              : `/${LEND_BORROW.BORROW}/${symbol}/ETH`;
           return (
             <CurrencyFixed
-              symbol={s}
-              rate={rate}
-              allRates={allRates[s]}
+              key={index}
+              symbol={symbol}
+              rate={minRate}
+              allRates={allRates}
               route={route}
               buttonText={
                 <FormattedMessage
                   defaultMessage="Borrow {symbol}"
                   values={{
-                    symbol: s,
+                    symbol,
                   }}
                 />
               }

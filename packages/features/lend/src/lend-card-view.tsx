@@ -5,11 +5,10 @@ import { CurrencyFixed } from '@notional-finance/mui';
 import { ThemeProvider } from '@mui/material';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { defineMessages, FormattedMessage } from 'react-intl';
-// import { formatMaturityData } from '@notional-finance/helpers';
 
 export function LendCardView() {
   const themeLanding = useNotionalTheme(THEME_VARIANTS.LIGHT, 'landing');
-  const { maxRates, unwrappedCurrencies, allRates } = useAllMarkets();
+  const { cardData } = useAllMarkets();
 
   const heading = defineMessages({
     fixed: {
@@ -37,20 +36,20 @@ export function LendCardView() {
   return (
     <ThemeProvider theme={themeLanding}>
       <CardContainer heading={heading.fixed} subtitle={subtitle.fixed}>
-        {unwrappedCurrencies.map((s, i) => {
-          const rate = maxRates.length > i ? maxRates[i] : 0;
-          const route = `/${LEND_BORROW.LEND}/${s}`;
+        {cardData.map(({ symbol, maxRate, allRates }, index) => {
+          const route = `/${LEND_BORROW.LEND}/${symbol}`;
           return (
             <CurrencyFixed
-              symbol={s}
-              rate={rate}
-              allRates={allRates[s]}
+              key={index}
+              symbol={symbol}
+              rate={maxRate}
+              allRates={allRates}
               route={route}
               buttonText={
                 <FormattedMessage
                   defaultMessage="Lend {symbol}"
                   values={{
-                    symbol: s,
+                    symbol,
                   }}
                 />
               }

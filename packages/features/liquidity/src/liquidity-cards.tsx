@@ -98,6 +98,7 @@ export const ProvideLiquidityCards = () => {
 
             return incentiveRate > 0 ? (
               <Incentive
+                key={`incentive-${i}`}
                 symbol={symbol}
                 rate={rate}
                 incentiveRate={incentiveRate}
@@ -113,6 +114,7 @@ export const ProvideLiquidityCards = () => {
               />
             ) : (
               <Currency
+                key={`currency-${i}`}
                 symbol={symbol}
                 rate={rate}
                 route={route}
