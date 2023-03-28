@@ -7,8 +7,10 @@ export interface SentinalRequest {
 }
 export interface APIEnv {
   KPIS_DO: DurableObjectNamespace;
+  EXCHANGE_RATES_DO: DurableObjectNamespace;
   YIELDS_DO: DurableObjectNamespace;
   KPIS_NAME: string;
+  EXCHANGE_RATE_NAME: string;
   YIELDS_NAME: string;
   SENTINEL_ID: string;
   NX_DD_API_KEY: string;
