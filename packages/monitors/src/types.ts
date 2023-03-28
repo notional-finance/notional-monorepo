@@ -23,7 +23,6 @@ export interface JobMonitorEnv {
 }
 
 export interface JobOptions {
-  request: Request;
   ctx: ExecutionContext;
   env: JobMonitorEnv;
 }
