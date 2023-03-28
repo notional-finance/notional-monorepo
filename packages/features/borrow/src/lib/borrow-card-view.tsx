@@ -16,14 +16,18 @@ export const BorrowCardView = () => {
     <ThemeProvider theme={themeLanding}>
       <CardContainer
         heading={defineMessage({
-          defaultMessage: 'Borrow Crypto at Fixed Rates',
+          defaultMessage: 'Fixed Rate Borrowing',
           description: 'page heading',
         })}
         subtitle={defineMessage({
-          defaultMessage:
-            'Borrow against your crypto with certainty for up to one year. Lock in what you pay until maturity or exit early without penalty at the market rate.',
+          defaultMessage: `Fix your rate and never worry about spiking borrowing costs again.`,
           description: 'page heading subtitle',
         })}
+        linkText={defineMessage({
+          defaultMessage: 'Read fixed borrow docs',
+          description: 'docs link',
+        })}
+        docsLink="https://docs.notional.finance/notional-v2/notional-v2-basics/borrowing"
       >
         {cardData.map(({ symbol, minRate, allRates }, index) => {
           // Special handling for borrowing ETH, default to collateralized by USDC

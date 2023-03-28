@@ -70,14 +70,18 @@ export const ProvideLiquidityCards = () => {
       >
         <CardContainer
           heading={defineMessage({
-            defaultMessage: 'Provide Liquidity & Earn Returns',
+            defaultMessage: 'Provide Liquidity',
             description: 'page heading',
           })}
           subtitle={defineMessage({
-            defaultMessage:
-              'Mint nTokens from your base asset to provide liquidity and earn interest, fees and NOTE incentives. TIP: Borrow against your nTokens to get cash while earning your LP rewards',
+            defaultMessage: `Set it and forget it. Earn passive interest, fees, and NOTE from depositing into Notional's liquidity pools.`,
             description: 'page heading subtitle',
           })}
+          linkText={defineMessage({
+            defaultMessage: 'Read provide liquidity docs',
+            description: 'docs link',
+          })}
+          docsLink="https://docs.notional.finance/notional-v2/notional-v2-basics/liquidity-pools"
           sx={{
             marginBottom: '0px',
           }}

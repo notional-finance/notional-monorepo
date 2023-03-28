@@ -2,11 +2,13 @@ import { styled, Box, useTheme, SxProps } from '@mui/material';
 import { useEffect } from 'react';
 import { FormattedMessage, MessageDescriptor } from 'react-intl';
 import { colors } from '@notional-finance/styles';
-import { HeadingSubtitle, H1 } from '@notional-finance/mui';
+import { HeadingSubtitle, H1, ExternalLink } from '@notional-finance/mui';
 
 export interface CardContainerProps {
   heading: MessageDescriptor;
   subtitle: MessageDescriptor;
+  linkText: MessageDescriptor;
+  docsLink: string;
   children?: React.ReactNode;
   sx?: SxProps;
 }
@@ -14,6 +16,8 @@ export interface CardContainerProps {
 export function CardContainer({
   heading,
   subtitle,
+  linkText,
+  docsLink,
   children,
   sx,
 }: CardContainerProps) {
@@ -22,20 +26,6 @@ export function CardContainer({
     window.scrollTo(0, 0);
   }, []);
 
-  const titleText = (
-    <Box sx={{ marginLeft: '120px' }}>
-      <H1 gutter="default" style={{ color: colors.white }}>
-        <FormattedMessage {...heading} />
-      </H1>
-      <HeadingSubtitle
-        fontWeight="regular"
-        maxWidth={theme.spacing(96)}
-        style={{ color: colors.white }}
-      >
-        <FormattedMessage {...subtitle} />
-      </HeadingSubtitle>
-    </Box>
-  );
   return (
     <StyledContainer sx={{ ...sx }}>
       <Box
@@ -45,9 +35,38 @@ export function CardContainer({
           height: '550px',
           display: 'flex',
           alignItems: 'center',
+          minWidth: '100%',
         }}
       >
-        {titleText}
+        <Box
+          sx={{
+            width: '100%',
+            maxWidth: '1335px',
+            display: 'flex',
+            flexDirection: 'column',
+            margin: 'auto',
+          }}
+        >
+          <H1 gutter="default" style={{ color: colors.white }}>
+            <FormattedMessage {...heading} />
+          </H1>
+          <Box sx={{ width: '500px' }}>
+            <HeadingSubtitle
+              fontWeight="regular"
+              maxWidth={theme.spacing(96)}
+              style={{ color: colors.white }}
+            >
+              <FormattedMessage {...subtitle} />
+            </HeadingSubtitle>
+            <ExternalLink
+              href={docsLink}
+              textDecoration
+              style={{ color: theme.palette.info.accent }}
+            >
+              <FormattedMessage {...linkText} />
+            </ExternalLink>
+          </Box>
+        </Box>
       </Box>
       <StyledCardList>{children}</StyledCardList>
     </StyledContainer>
@@ -59,6 +78,7 @@ const StyledContainer = styled(Box)(
   margin: 0 auto;
   overflow: hidden;
   margin-bottom: ${theme.spacing(25)};
+  width: 100%;
 `
 );
 
