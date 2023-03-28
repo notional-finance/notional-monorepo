@@ -1,12 +1,12 @@
-import { DDSeries, MetricLoggerOptions } from './types';
+import { DDEvent, EventLoggerOptions } from './types';
 
 const DefaultConfig = {
-  url: `https://api.datadoghq.com/api/v2/series`,
+  url: `https://api.datadoghq.com/api/v2/events`,
 };
 
-let config: MetricLoggerOptions;
+let config: EventLoggerOptions;
 
-export function initMetricLogger(opts: MetricLoggerOptions) {
+export function initEventLogger(opts: EventLoggerOptions) {
   const { apiKey, url } = opts;
   config = {
     ...DefaultConfig,
@@ -15,9 +15,9 @@ export function initMetricLogger(opts: MetricLoggerOptions) {
   };
 }
 
-export async function submitMetrics(series: DDSeries) {
+export async function submitEvent(event: DDEvent) {
   try {
-    const body = JSON.stringify({ series });
+    const body = JSON.stringify(event);
     const opts = {
       method: 'POST',
       body,

@@ -5,6 +5,7 @@ export type LoggerOptions = {
   env?: string;
   url?: string;
 };
+
 export type LogMessage = {
   message: string;
   level?: string;
@@ -28,4 +29,27 @@ export type DDMetric = {
 
 export type DDSeries = {
   series: DDMetric[];
+};
+
+export type EventLoggerOptions = {
+  apiKey: string;
+  url?: string;
+};
+
+enum DDEventKey {
+  GeoIPLog = 'GeoIPLog',
+}
+
+enum DDEventAlertType {
+  error = 'error',
+  warning = 'warning',
+  info = 'info',
+}
+
+export type DDEvent = {
+  aggregation_key: DDEventKey;
+  alert_type: DDEventAlertType;
+  title: string;
+  tags: string[];
+  text: string;
 };
