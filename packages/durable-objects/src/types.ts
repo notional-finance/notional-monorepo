@@ -13,6 +13,7 @@ export interface APIEnv {
   KPIS_NAME: string;
   ACCOUNTS_NAME: string;
   SENTINEL_ID: string;
+  NX_DD_API_KEY: string;
 }
 
 export interface GetExchangeRatesResponse {

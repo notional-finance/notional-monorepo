@@ -36,11 +36,11 @@ export type EventLoggerOptions = {
   url?: string;
 };
 
-enum DDEventKey {
+export enum DDEventKey {
   GeoIPLog = 'GeoIPLog',
 }
 
-enum DDEventAlertType {
+export enum DDEventAlertType {
   error = 'error',
   warning = 'warning',
   info = 'info',

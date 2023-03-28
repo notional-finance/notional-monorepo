@@ -1,9 +1,13 @@
+import { Response, Request } from '@cloudflare/workers-types';
+import { Router, IRequest } from 'itty-router';
 import {
   ExchangeRatesDO,
   KPIsDO,
   AccountsDO,
   APIEnv,
 } from '@notional-finance/durable-objects';
+import { handleGeoIP, handleKPIs } from './routes';
+
 export { ExchangeRatesDO, KPIsDO, AccountsDO, APIEnv };
 
 const corsHeaders = {
@@ -12,50 +16,60 @@ const corsHeaders = {
   'Access-Control-Max-Age': '86400',
 };
 
+function handleOptions(request: IRequest) {
+  if (
+    request.headers.get('Origin') !== null &&
+    request.headers.get('Access-Control-Request-Method') !== null &&
+    request.headers.get('Access-Control-Request-Headers') !== null
+  ) {
+    const respHeaders = {
+      ...corsHeaders,
+      'Access-Control-Allow-Headers': request.headers.get(
+        'Access-Control-Request-Headers'
+      ),
+    };
+    return new Response(null, { headers: respHeaders });
+  }
+
+  return new Response(null, {
+    headers: {
+      Allow: 'GET, OPTIONS, POST',
+    },
+  });
+}
+
+const router = Router();
+// Handles preflight options
+router.options('*', handleOptions);
+
+router.get('/kpis', handleKPIs);
+// router.get('/yields', handleYields);
+router.get('/geoip', handleGeoIP);
+router.post('/geoip', handleGeoIP);
+// router.post('/newsletter', handleNewsletter);
+
+// Fall through catch for 404 errors
+router.all('*', () => new Response('Not Found', { status: 404 }));
+
 export default {
   async fetch(request: Request, env: APIEnv): Promise<Response> {
-    const req = request.clone();
-    const { url, method, headers } = request;
+    return router
+      .handle(request, env)
+      .then((response: Response) => {
+        // Set default headers if unset
+        if (!response.headers.has('Access-Control-Allow-Origin'))
+          response.headers.set('Access-Control-Allow-Origin', '*');
+        if (!response.headers.has('Access-Control-Allow-Methods'))
+          response.headers.set('Access-Control-Allow-Methods', 'GET,OPTIONS');
+        if (!response.headers.has('Access-Control-Max-Age'))
+          response.headers.set('Access-Control-Max-Age', '86400');
+        if (!response.headers.has('Content-Type'))
+          response.headers.set('Content-Type', 'application/json');
 
-    const path = new URL(url).pathname;
-
-    if (method !== 'GET' && method !== 'OPTIONS' && method !== 'POST') {
-      return new Response('Not Found', { status: 404 });
-    }
-    if (method === 'OPTIONS') {
-      if (
-        headers.get('Origin') !== null &&
-        headers.get('Access-Control-Request-Method') !== null &&
-        headers.get('Access-Control-Request-Headers') !== null
-      ) {
-        const respHeaders = {
-          ...corsHeaders,
-          'Access-Control-Allow-Headers': headers.get(
-            'Access-Control-Request-Headers'
-          ),
-        };
-        return new Response(null, { headers: respHeaders });
-      }
-
-      return new Response(null, {
-        headers: {
-          Allow: 'GET, OPTIONS, POST',
-        },
+        return response;
+      })
+      .catch((err) => {
+        return new Response(err, { status: 500 });
       });
-    }
-    if (path === '/exchange-rates') {
-      const id = env.EXCHANGE_RATES_DO.idFromName(env.EXCHANGE_RATES_NAME);
-      const stub = env.EXCHANGE_RATES_DO.get(id);
-      return stub.fetch(req);
-    } else if (path === '/kpis') {
-      const id = env.KPIS_DO.idFromName(env.KPIS_NAME);
-      const stub = env.KPIS_DO.get(id);
-      return stub.fetch(req);
-    } else if (path === '/accounts') {
-      const id = env.ACCOUNTS_DO.idFromName(env.ACCOUNTS_NAME);
-      const stub = env.ACCOUNTS_DO.get(id);
-      return stub.fetch(req);
-    }
-    return new Response('Not Found', { status: 404 });
   },
 };
