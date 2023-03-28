@@ -23,7 +23,7 @@ export function LendCardView() {
   });
 
   const docsText = defineMessage({
-    defaultMessage: 'Read fixed lend docs.',
+    defaultMessage: 'Read fixed lend docs',
     description: 'docs link',
   });
 
@@ -33,7 +33,7 @@ export function LendCardView() {
         heading={heading}
         subtitle={subtitle}
         linkText={docsText}
-        docsLink="https://docs.notional.finance/notional-v2/notional-v2-basics/lending"
+        docsLink="https://docs.notional.finance/notional-v2/what-you-can-do/fixed-rate-lending"
       >
         {cardData.map(({ symbol, maxRate, allRates }, index) => {
           const route = `/${LEND_BORROW.LEND}/${symbol}`;

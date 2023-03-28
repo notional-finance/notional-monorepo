@@ -1,21 +1,28 @@
-import { styled, Box } from '@mui/material';
+import { styled, Box, useTheme } from '@mui/material';
 import { useLocation } from 'react-router-dom';
-import { colors } from '@notional-finance/styles';
+import { colors, NotionalTheme } from '@notional-finance/styles';
 import { Button } from '@notional-finance/mui';
 import { useCardSubNav } from './use-card-sub-nav';
 
 interface StyledButtonProps {
   active: boolean;
+  theme: NotionalTheme;
 }
 
 export const CardSubNav = () => {
+  const theme = useTheme();
   const { pathname } = useLocation();
   const { links } = useCardSubNav();
 
   return (
     <StyledContainer>
       {links.map(({ title, to }) => (
-        <StyledButton to={to} variant="outlined" active={to === pathname}>
+        <StyledButton
+          to={to}
+          variant="outlined"
+          active={to === pathname}
+          theme={theme}
+        >
           {title}
         </StyledButton>
       ))}
@@ -26,15 +33,18 @@ export const CardSubNav = () => {
 const StyledButton = styled(Button, {
   shouldForwardProp: (prop: string) => prop !== 'active',
 })(
-  ({ active }: StyledButtonProps) => `
+  ({ active, theme }: StyledButtonProps) => `
     color: ${active ? colors.black : colors.white};
     background: ${active ? colors.neonTurquoise : ''};
     border: 1px solid ${colors.neonTurquoise};
     font-weight: 500;
+    
 
     &:hover {
-        background: ${colors.neonTurquoise};
-        color: ${colors.black};
+      transition: all .3s ease;
+        background: ${active ? colors.neonTurquoise : theme.palette.info.light};
+        color: ${active ? colors.black : colors.white};
+        border: 1px solid ${colors.neonTurquoise};
     }
 `
 );

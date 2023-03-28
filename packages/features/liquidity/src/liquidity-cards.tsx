@@ -81,7 +81,7 @@ export const ProvideLiquidityCards = () => {
             defaultMessage: 'Read provide liquidity docs',
             description: 'docs link',
           })}
-          docsLink="https://docs.notional.finance/notional-v2/notional-v2-basics/liquidity-pools"
+          docsLink="https://docs.notional.finance/notional-v2/what-you-can-do/providing-liquidity"
           sx={{
             marginBottom: '0px',
           }}

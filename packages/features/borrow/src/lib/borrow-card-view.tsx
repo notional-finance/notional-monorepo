@@ -27,7 +27,7 @@ export const BorrowCardView = () => {
           defaultMessage: 'Read fixed borrow docs',
           description: 'docs link',
         })}
-        docsLink="https://docs.notional.finance/notional-v2/notional-v2-basics/borrowing"
+        docsLink="https://docs.notional.finance/notional-v2/what-you-can-do/fixed-rate-borrowing"
       >
         {cardData.map(({ symbol, minRate, allRates }, index) => {
           // Special handling for borrowing ETH, default to collateralized by USDC

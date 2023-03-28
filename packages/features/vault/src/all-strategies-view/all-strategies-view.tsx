@@ -27,7 +27,7 @@ export const AllStrategyView = () => {
           defaultMessage: 'Read leveraged vault docs',
           description: 'docs link',
         })}
-        docsLink="https://docs.notional.finance/notional-v2/leveraged-vaults/overview"
+        docsLink="https://docs.notional.finance/notional-v2/what-you-can-do/leveraged-vaults"
       >
         {allVaults?.map((v) => {
           const {

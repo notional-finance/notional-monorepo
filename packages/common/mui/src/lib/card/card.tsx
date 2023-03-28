@@ -23,7 +23,6 @@ const StyledCard = styled(MuiCard)(
     height: ${height};
     margin-top: ${theme.spacing(6)};
     padding: ${theme.spacing(3)};
-    border: none;
     cursor: pointer;
     text-align: center;
     position: relative;
