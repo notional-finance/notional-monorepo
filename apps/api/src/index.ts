@@ -6,7 +6,7 @@ import {
   AccountsDO,
   APIEnv,
 } from '@notional-finance/durable-objects';
-import { handleGeoIP, handleKPIs, handleNewsletter } from './routes';
+import { handleGeoIP, handleKPIs, handleNewsletter, handleYields } from './routes';
 
 export { ExchangeRatesDO, KPIsDO, AccountsDO, APIEnv };
 
@@ -43,7 +43,7 @@ const router = Router();
 router.options('*', handleOptions);
 
 router.get('/kpis', handleKPIs);
-// router.get('/yields', handleYields);
+router.get('/yields', handleYields);
 router.get('/geoip', handleGeoIP);
 router.post('/geoip', handleGeoIP);
 router.post('/newsletter', handleNewsletter);
