@@ -54,11 +54,7 @@ export const Vault = ({
           >
             {symbol}
           </CurrencyTitle>
-          <SmallInput
-            textAlign="left"
-            marginBottom={theme.spacing(4)}
-            sx={{ textTransform: 'capitalize' }}
-          >
+          <SmallInput textAlign="left" marginBottom={theme.spacing(4)}>
             {vaultName}
           </SmallInput>
           <SectionTitle textAlign="left" gutter="default">

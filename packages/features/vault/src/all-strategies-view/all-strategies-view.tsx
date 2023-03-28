@@ -20,10 +20,14 @@ export const AllStrategyView = () => {
           description: 'page heading',
         })}
         subtitle={defineMessage({
-          defaultMessage:
-            "Boost your returns with leveraged yield strategies and fixed borrowing costs. Borrow at a fixed rate from Notional's liquidity pools and deposit into select DeFi yield strategies. All in one click.",
+          defaultMessage: `Get one-click access to sophisticated DeFi yield strategies and dial up your leverage for maximum efficiency.`,
           description: 'page heading subtitle',
         })}
+        linkText={defineMessage({
+          defaultMessage: 'Read leveraged vault docs',
+          description: 'docs link',
+        })}
+        docsLink="https://docs.notional.finance/notional-v2/what-you-can-do/leveraged-vaults"
       >
         {allVaults?.map((v) => {
           const {
