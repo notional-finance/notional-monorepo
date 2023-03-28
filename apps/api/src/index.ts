@@ -1,4 +1,4 @@
-import { Response, Request } from '@cloudflare/workers-types';
+import { Request } from '@cloudflare/workers-types';
 import { Router, IRequest } from 'itty-router';
 import {
   ExchangeRatesDO,
@@ -6,7 +6,12 @@ import {
   AccountsDO,
   APIEnv,
 } from '@notional-finance/durable-objects';
-import { handleGeoIP, handleKPIs, handleNewsletter, handleYields } from './routes';
+import {
+  handleGeoIP,
+  handleKPIs,
+  handleNewsletter,
+  handleYields,
+} from './routes';
 
 export { ExchangeRatesDO, KPIsDO, AccountsDO, APIEnv };
 
@@ -56,17 +61,15 @@ export default {
     return router
       .handle(request, env)
       .then((response: Response) => {
-        // Set default headers if unset
-        if (!response.headers.has('Access-Control-Allow-Origin'))
-          response.headers.set('Access-Control-Allow-Origin', '*');
-        if (!response.headers.has('Access-Control-Allow-Methods'))
-          response.headers.set('Access-Control-Allow-Methods', 'GET,OPTIONS');
-        if (!response.headers.has('Access-Control-Max-Age'))
-          response.headers.set('Access-Control-Max-Age', '86400');
-        if (!response.headers.has('Content-Type'))
-          response.headers.set('Content-Type', 'application/json');
-
-        return response;
+        return new Response(response.body, {
+          headers: {
+            // Set default headers if unset
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+            // Response specific headers will override above
+            ...response.headers,
+          },
+        });
       })
       .catch((err) => {
         return new Response(err, { status: 500 });
