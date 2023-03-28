@@ -28,7 +28,8 @@ function getToken(env: APIEnv) {
 export async function handleNewsletter(_request: IRequest, env: APIEnv) {
   try {
     const request = _request as unknown as CFRequest;
-    const { email } = await request.json<{ email: string }>();
+    const data = await request.formData()
+    const email = data.get('email')
     const token = getToken(env);
 
     const url = 'https://notional-finance.ghost.io/ghost/api/admin/members/';
