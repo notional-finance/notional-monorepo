@@ -1,6 +1,7 @@
 import {
   PieChartIcon,
   VaultIcon,
+  BarChartIcon,
   StakeIcon,
   DocsIcon,
   InsuranceIcon,
@@ -166,6 +167,17 @@ export const useSideDrawerLinks = (dataKey: MOBILE_SUB_NAV_ACTIONS) => {
 
   const mobileSubNavData = {
     [MOBILE_SUB_NAV_ACTIONS.INVEST_AND_EARN]: [
+      {
+        key: 'lend',
+        label: <FormattedMessage defaultMessage={'Lend Fixed'} />,
+        link: '/lend',
+        iconImg: (
+          <BarChartIcon
+            className="color-stroke"
+            sx={{ fontSize: '1.125rem', fill: theme.palette.common.black }}
+          />
+        ),
+      },
       {
         key: 'vaults',
         label: <FormattedMessage defaultMessage={'Leveraged Vaults'} />,
