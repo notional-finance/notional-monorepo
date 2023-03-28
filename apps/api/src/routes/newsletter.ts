@@ -6,47 +6,30 @@ import {
 } from '@notional-finance/logging';
 import { Request as CFRequest } from '@cloudflare/workers-types';
 import { IRequest } from 'itty-router';
-import jwt from 'jsonwebtoken';
 import { APIEnv } from '..';
 
-function getToken(env: APIEnv) {
-  // Admin API key goes here
-  const key = env.GHOST_ADMIN_KEY;
-
-  // Split the key into ID and SECRET
-  const [id, secret] = key.split(':');
-
-  // Create the token (including decoding secret)
-  return jwt.sign({}, Buffer.from(secret, 'hex'), {
-    keyid: id,
-    algorithm: 'HS256',
-    expiresIn: '5m',
-    audience: `/canary/admin/`,
-  });
-}
-
+// NOTE: this posts to Netlify because the Cloudflare worker environment is not compatible
+// with jsonwebtoken signing.
 export async function handleNewsletter(_request: IRequest, env: APIEnv) {
   try {
     const request = _request as unknown as CFRequest;
-    const data = await request.formData()
-    const email = data.get('email')
-    const token = getToken(env);
+    const data = await request.formData();
+    const email = data.get('email');
 
-    const url = 'https://notional-finance.ghost.io/ghost/api/admin/members/';
-    const headers = { Authorization: `Ghost ${token}` };
-    const payload = {
-      members: [
-        { email: email, subscribed: true, labels: ['via-landing-page'] },
-      ],
-    };
+    const url =
+      'https://classic.notional.finance/.netlify/functions/newsletter';
+    const payload = { data: { email } };
 
-    await fetch(url, {
+    const resp = await fetch(url, {
       method: 'POST',
-      body: JSON.stringify(payload),
-      headers,
+      body: JSON.stringify({ payload }),
     });
 
-    return new Response('POST Success', { status: 200 });
+    if (resp.status === 200) {
+      return new Response('POST Success', { status: 200 });
+    } else {
+      throw Error(await resp.text());
+    }
   } catch (err) {
     initEventLogger({ apiKey: env.NX_DD_API_KEY });
     submitEvent({

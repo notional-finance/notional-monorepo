@@ -62,6 +62,8 @@ export default {
       .handle(request, env)
       .then((response: Response) => {
         return new Response(response.body, {
+          status: response.status,
+          statusText: response.statusText,
           headers: {
             // Set default headers if unset
             ...corsHeaders,
