@@ -14,7 +14,7 @@ import { NormalizeCss } from './normalize';
 import React from 'react';
 import { CommonColors } from '@mui/material/styles/createPalette';
 
-const colors = {
+export const colors = {
   // primaries
   green: '#1F9B99',
   aqua: '#13BBC2',
@@ -119,6 +119,9 @@ declare module '@mui/material/styles' {
     largeInputEmphasized: React.CSSProperties;
     link: React.CSSProperties;
     captionAccent: React.CSSProperties;
+    cardInput: React.CSSProperties;
+    smallInput: React.CSSProperties;
+    sectionTitle: React.CSSProperties;
   }
 
   interface TypographyVariantsOptions {
@@ -130,6 +133,9 @@ declare module '@mui/material/styles' {
     largeInputEmphasized?: React.CSSProperties;
     link?: React.CSSProperties;
     captionAccent?: React.CSSProperties;
+    cardInput?: React.CSSProperties;
+    smallInput?: React.CSSProperties;
+    sectionTitle?: React.CSSProperties;
   }
 
   interface Shape {
@@ -200,6 +206,9 @@ declare module '@mui/material/Typography' {
     largeInputEmphasized: true;
     link: true;
     captionAccent: true;
+    cardInput: true;
+    smallInput: true;
+    sectionTitle: true;
   }
 }
 
@@ -269,11 +278,11 @@ function getTypography(themeVariant: PaletteMode, pageLayout?: NotionalPageLayou
         color: getFontColors(themeVariant).primary,
         marginBottom: pxToMargin(48),
     },
-    currencyTitle: {
-         fontSize: pxToRem(24),
+    largeNumberLabel: {
+        fontSize: pxToRem(24),
         fontWeight: fontWeight.bold,
         lineHeight,
-        color: getFontColors(themeVariant).primary,
+        color: getFontColors(themeVariant).accent,
         marginBottom: pxToMargin(48),
     },
     diagramTitle: {
@@ -284,7 +293,21 @@ function getTypography(themeVariant: PaletteMode, pageLayout?: NotionalPageLayou
         marginBottom: pxToMargin(48),
     },
     cardInput: {
-         fontSize: pxToRem(20),
+        fontSize: pxToRem(20),
+        fontWeight: fontWeight.demiBold,
+        lineHeight,
+        color: getFontColors(themeVariant).primary,
+        marginBottom: pxToMargin(48),
+    },
+    smallInput: {
+      fontSize: pxToRem(16),
+      fontWeight: fontWeight.demiBold,
+      color: getFontColors(themeVariant).primary,
+      lineHeight,
+      marginBottom: pxToMargin(12),
+    },
+    subtitle2: {
+        fontSize: pxToRem(20),
         fontWeight: fontWeight.demiBold,
         lineHeight,
         color: getFontColors(themeVariant).primary,
@@ -304,14 +327,7 @@ function getTypography(themeVariant: PaletteMode, pageLayout?: NotionalPageLayou
         lineHeight,
         marginBottom: pxToMargin(12),
       },
-      smallInput: {
-        fontSize: pxToRem(16),
-        fontWeight: fontWeight.demiBold,
-        color: getFontColors(themeVariant).secondary,
-        lineHeight,
-        marginBottom: pxToMargin(12),
-      },
-      body3: {
+      subtitle1: {
         fontSize: pxToRem(16),
         fontWeight: fontWeight.medium,
         color: getFontColors(themeVariant).secondary,
@@ -335,7 +351,7 @@ function getTypography(themeVariant: PaletteMode, pageLayout?: NotionalPageLayou
       },
       caption: {
         fontSize: pxToRem(14),
-        fontWeight: fontWeight.medium,
+        fontWeight: fontWeight.demiBold,
         color: getFontColors(themeVariant).secondary,
         lineHeight,
         marginBottom: pxToMargin(10),
@@ -351,7 +367,7 @@ function getTypography(themeVariant: PaletteMode, pageLayout?: NotionalPageLayou
       sectionTitle: {
         fontSize: pxToRem(12),
         fontWeight: fontWeight.demiBold,
-        color: getFontColors(themeVariant).primary,
+        color: getFontColors(themeVariant).secondary,
         lineHeight,
         textTransform: 'uppercase',
         marginBottom: pxToMargin(14),
@@ -577,7 +593,20 @@ const getThemeData = (themeVariant: PaletteMode, pageLayout?: NotionalPageLayout
           themeVariant === THEME_VARIANTS.LIGHT ? colors.white : colors.black,
         accent: colors.turquoise,
       },
-      secondary: undefined,
+      secondary: {
+        main:
+          themeVariant === THEME_VARIANTS.LIGHT
+            ? colors.green
+            : colors.neonTurquoise,
+        light: themeVariant === THEME_VARIANTS.LIGHT ? colors.aqua : colors.neonTurquoise,
+        dark:
+          themeVariant === THEME_VARIANTS.LIGHT
+            ? colors.matteGreen
+            : colors.white,
+        contrastText:
+          themeVariant === THEME_VARIANTS.LIGHT ? colors.white : colors.black,
+        accent: themeVariant === THEME_VARIANTS.LIGHT ? colors.aqua : colors.purpleGrey,
+      },
       error: {
         light: alpha(colors.red, 0.15),
         main: colors.red,
@@ -654,10 +683,10 @@ const getThemeData = (themeVariant: PaletteMode, pageLayout?: NotionalPageLayout
         themeVariant === THEME_VARIANTS.LIGHT
           ? '0px 4px 10px rgba(20, 42, 74, 0.07)'
           : '0px 4px 10px rgba(51, 248, 255, 0.07)',
-      shadowLarge: (color = '#142a4a4d') =>
+      shadowLarge: (color = themeVariant === THEME_VARIANTS.LIGHT ? '#142a4a4d' : 'rgba(51, 248, 255, 0.3)') =>
         themeVariant === THEME_VARIANTS.LIGHT
-          ? `0px 34px 50px -15px ${color}`
-          : `0px 34px 50px -15px rgba(51, 248, 255, 0.3)`,
+          ? `0px 24px 40px -15px ${color}`
+          : `0px 24px 40px -15px ${color}`,
       shadowLandingPage:
         themeVariant === THEME_VARIANTS.LIGHT
           ? '0px 4px 10px 0px #142A4A12'

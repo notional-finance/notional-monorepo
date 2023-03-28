@@ -68,6 +68,14 @@ const makeVariant = (variant: TypographyProps['variant']) => {
   };
 };
 
+// LANDING/CARD PAGE SPECIFIC============
+export const CardInput = makeVariant('cardInput');
+export const SmallInput = makeVariant('smallInput');
+export const SectionTitle = makeVariant('sectionTitle');
+export const CurrencyTitle = makeVariant('largeNumberLabel');
+export const LargeInputText = makeVariant('largeInput');
+
+// DEFAULT ============
 export const H1 = makeVariant('h1');
 export const H2 = makeVariant('h2');
 export const H3 = makeVariant('h3');
@@ -85,12 +93,12 @@ export const LabelValue = makeVariant('labelValue');
 export const TableCell = makeVariant('tableCell');
 export const BodySecondary = makeVariant('body2');
 export const TooltipText = makeVariant('body2');
+export const Subtitle = makeVariant('subtitle1');
 export const SmallTableCell = makeVariant('caption');
 export const ButtonText = makeVariant('button');
 export const HeadingSubtitle = makeVariant('subtitle1');
 export const LargeNumber = makeVariant('largeNumber');
 export const LargeNumberLabel = makeVariant('largeNumberLabel');
-export const LargeInputText = makeVariant('largeInput');
 export const LargeInputTextEmphasized = makeVariant('largeInputEmphasized');
 export const LinkText = makeVariant('link');
 export const Caption = makeVariant('caption');

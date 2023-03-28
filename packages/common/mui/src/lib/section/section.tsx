@@ -1,7 +1,7 @@
-import { Box, BoxProps } from '@mui/material';
 import { ReactElement } from 'react';
 import { SectionLink, SectionLinkProps } from '../section-link/section-link';
-import SectionTitle from '../section-title/section-title';
+import { H3 } from '../typography/typography';
+import { Box, BoxProps } from '@mui/material';
 
 /* eslint-disable-next-line */
 export interface SectionProps extends BoxProps {
@@ -28,7 +28,7 @@ export function Section({
       }}
       {...rest}
     >
-      <SectionTitle heading={heading} />
+      <H3>{heading}</H3>
       {links.map((t) => (
         <SectionLink
           key={t.to}

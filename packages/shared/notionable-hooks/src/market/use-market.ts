@@ -1,6 +1,6 @@
 import { TypedBigNumber } from '@notional-finance/sdk';
 import { Market } from '@notional-finance/sdk/src/system';
-import { convertRateToFloat } from '@notional-finance/helpers';
+import { convertRateToFloat, formatMaturity } from '@notional-finance/helpers';
 import { useObservableState } from 'observable-hooks';
 import { useCurrencyData } from '../currency/use-currency';
 import {
@@ -8,6 +8,18 @@ import {
   marketState$,
   MaturityData,
 } from '@notional-finance/notionable';
+
+
+interface AllRates {
+  rate: string,
+  maturity: string,
+}
+interface CardData {
+  symbol: string,
+  minRate: number,
+  maxRate: number,
+  allRates: AllRates[],
+}
 
 export const useAllMarkets = () => {
   const { currencyMarkets } = useObservableState(
@@ -17,20 +29,43 @@ export const useAllMarkets = () => {
 
   const orderedCurrencyIds = Array.from(currencyMarkets.keys()).sort();
 
-  const rates = orderedCurrencyIds.map((i) => {
-    try {
-      const { orderedMarkets } = currencyMarkets.get(i)!;
+  const getMaxOrMinRates = (returnMax: boolean) => {
+    return orderedCurrencyIds.map((i) => {
+      try {
+        const { orderedMarkets } = currencyMarkets.get(i)!;
+  
+        return orderedMarkets.reduce((maxRate: number, m) => {
+          const rate = m.marketAnnualizedRate();
+          if (maxRate === 0) return rate;
+          const maxRates = rate > maxRate ? rate : maxRate;
+          const minRates = rate < maxRate ? rate : maxRate;
+          return returnMax ? maxRates : minRates;
+        }, 0);
+      } catch {
+        return 0;
+      }
+    })
+  }
 
-      return orderedMarkets.reduce((maxRate: number, m) => {
-        const rate = m.marketAnnualizedRate();
-        if (maxRate === 0) return rate;
+  const getCardData = (): CardData[] => {
+    return orderedCurrencyIds.map((id, index) => {
+      const { symbol, underlyingSymbol } = currencyMarkets.get(id)!;
+      const { orderedMarkets } = currencyMarkets.get(id)!;
+      const minRates = getMaxOrMinRates(false)
+      const maxRates = getMaxOrMinRates(true)
 
-        return rate > maxRate ? rate : maxRate;
-      }, 0);
-    } catch {
-      return 0;
-    }
-  });
+      return {
+        symbol: underlyingSymbol || symbol,
+        minRate: minRates.length > index ? minRates[index] : 0,
+        maxRate: maxRates.length > index ? maxRates[index] : 0,
+        allRates: orderedMarkets.map((data) => {
+          return {
+          rate: Market.formatInterestRate(data.marketAnnualizedRate(), 2), maturity: formatMaturity(data.maturity)}
+        })
+      }
+    });
+  }
+
 
   const unwrappedCurrencies = orderedCurrencyIds.map((i) => {
     const { symbol, underlyingSymbol } = currencyMarkets.get(i)!;
@@ -42,15 +77,14 @@ export const useAllMarkets = () => {
     return symbol;
   });
 
-  const largestLendRate = Market.formatInterestRate(Math.max(...rates), 2);
 
   return {
     orderedCurrencyIds,
     currencyMarkets,
-    rates,
+    maxRates: getMaxOrMinRates(true),
+    cardData: getCardData(),
     unwrappedCurrencies,
     cTokens,
-    largestLendRate,
   };
 };
 
