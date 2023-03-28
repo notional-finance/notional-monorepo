@@ -14,6 +14,7 @@ export interface APIEnv {
   ACCOUNTS_NAME: string;
   SENTINEL_ID: string;
   NX_DD_API_KEY: string;
+  GHOST_ADMIN_KEY: string;
 }
 
 export interface GetExchangeRatesResponse {

@@ -6,7 +6,7 @@ import {
   AccountsDO,
   APIEnv,
 } from '@notional-finance/durable-objects';
-import { handleGeoIP, handleKPIs } from './routes';
+import { handleGeoIP, handleKPIs, handleNewsletter } from './routes';
 
 export { ExchangeRatesDO, KPIsDO, AccountsDO, APIEnv };
 
@@ -46,7 +46,7 @@ router.get('/kpis', handleKPIs);
 // router.get('/yields', handleYields);
 router.get('/geoip', handleGeoIP);
 router.post('/geoip', handleGeoIP);
-// router.post('/newsletter', handleNewsletter);
+router.post('/newsletter', handleNewsletter);
 
 // Fall through catch for 404 errors
 router.all('*', () => new Response('Not Found', { status: 404 }));

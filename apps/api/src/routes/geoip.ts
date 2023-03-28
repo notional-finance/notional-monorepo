@@ -24,7 +24,7 @@ export async function handleGeoIP(_request: IRequest, env: APIEnv) {
         aggregation_key: DDEventKey.GeoIPLog,
         alert_type: DDEventAlertType.warning,
         title: 'GeoIP Log Event',
-        tags: ['geoip'],
+        tags: ['geoip', 'api-worker'],
         text: JSON.stringify({ requestBody, cfProps }),
       });
     }

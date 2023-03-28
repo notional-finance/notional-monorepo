@@ -38,6 +38,7 @@ export type EventLoggerOptions = {
 
 export enum DDEventKey {
   GeoIPLog = 'GeoIPLog',
+  NewsletterSubmitFailure = 'NewsletterSubmitFailure',
 }
 
 export enum DDEventAlertType {
