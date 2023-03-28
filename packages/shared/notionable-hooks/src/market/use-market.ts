@@ -77,7 +77,6 @@ export const useAllMarkets = () => {
     return symbol;
   });
 
-  const largestLendRate = Market.formatInterestRate(Math.max(...getMaxOrMinRates(true)), 2);
 
   return {
     orderedCurrencyIds,
@@ -86,7 +85,6 @@ export const useAllMarkets = () => {
     cardData: getCardData(),
     unwrappedCurrencies,
     cTokens,
-    largestLendRate,
   };
 };
 
