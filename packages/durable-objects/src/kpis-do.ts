@@ -1,61 +1,19 @@
 import { DurableObjectState } from '@cloudflare/workers-types';
+import { BaseDO } from './base-do';
 import { APIEnv } from './types';
 
-export class KPIsDO {
-  state: DurableObjectState;
-  env: APIEnv;
-
+export class KPIsDO extends BaseDO {
   constructor(state: DurableObjectState, env: APIEnv) {
-    this.state = state;
-    this.env = env;
+    super(state, env);
   }
 
-  async fetch(request: Request): Promise<Response> {
-    const req = request.clone();
-    const { url: requestUrl, method } = request;
-    const url = new URL(requestUrl);
+  public isValidPath(path: string): boolean {
+    return path === '/kpis';
+  }
+
+  public getStorageKey(url: URL): string {
     const network = url.searchParams.get('network');
-    const path = url.pathname;
-    if (!network) {
-      return new Response('Network Required', { status: 400 });
-    }
-    if (path === '/kpis' && method === 'PUT') {
-      return this.update(network, req);
-    } else if (path === '/kpis' && method === 'GET') {
-      return this.get(network);
-    }
-    return new Response('Not Found', { status: 404 });
-  }
-
-  async update(network: string, request: Request) {
-    try {
-      const req = await request.json();
-      const { kpis } = req;
-      await this.state.storage.put(network, kpis);
-      return new Response('KPIs Updated', { status: 200, statusText: 'OK' });
-    } catch (e) {
-      return new Response((e as Error).message, { status: 500 });
-    }
-  }
-
-  async get(network: string) {
-    try {
-      const kpis = await this.state.storage.get(network);
-      const headers = {
-        'content-type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, OPTIONS',
-        'Access-Control-Max-Age': '86400',
-      };
-      if (!kpis) {
-        return new Response('Not Found', { status: 404 });
-      }
-      return new Response(JSON.stringify(kpis), {
-        status: 200,
-        headers,
-      });
-    } catch (e) {
-      return new Response((e as Error).message, { status: 500 });
-    }
+    if (!network) throw Error('Network Not Found');
+    return network;
   }
 }

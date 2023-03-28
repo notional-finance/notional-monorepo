@@ -13,6 +13,7 @@ export interface MonitorJob {
 export interface JobMonitorEnv {
   EXCHANGE_RATES_DO: DurableObjectNamespace;
   KPIS_DO: DurableObjectNamespace;
+  EXCHANGE_RATES_NAME: string;
   ALCHEMY_KEY: string;
   NX_DD_API_KEY: string;
   NX_DD_BASE_URL: string;
@@ -22,7 +23,6 @@ export interface JobMonitorEnv {
 }
 
 export interface JobOptions {
-  request: Request;
   ctx: ExecutionContext;
   env: JobMonitorEnv;
 }

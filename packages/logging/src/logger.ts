@@ -52,6 +52,5 @@ export async function log(msg: LogMessage) {
     await fetch(loggerConfig.url ?? DefaultLoggerConfig.url, opts);
   } catch (e) {
     console.error(e);
-    throw e;
   }
 }

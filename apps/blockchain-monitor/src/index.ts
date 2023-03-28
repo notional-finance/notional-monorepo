@@ -30,11 +30,13 @@ export default {
     if (getJobs(env.NX_ENV).has(controller.cron)) {
       try {
         ctx.waitUntil(
-          await Promise.all(
+          Promise.all(
             getJobs(env.NX_ENV)
               .get(controller.cron)
               .map((m) => m.run({ ctx, env }))
-          )
+          ).then(() => {
+            return;
+          })
         );
       } catch (e) {
         console.log('Error running scheduled job', e);

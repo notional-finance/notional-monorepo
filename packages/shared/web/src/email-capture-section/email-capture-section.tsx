@@ -10,6 +10,7 @@ import iconAlert from '@notional-finance/assets/icons/icon-alert.svg';
 
 type SubmitState = 'Pending' | 'Success' | 'Error' | null;
 
+const APIUrl = process.env['NX_DATA_URL'] || 'https://data.notional.finance';
 export const EmailCaptureSection = () => {
   const { ref, inView } = useInView({
     /* Optional options */
@@ -27,7 +28,7 @@ export const EmailCaptureSection = () => {
     // dispatch({ type: constants.SUBSCRIBE_EMAIL });
     setSubmitState('Pending');
     axios({
-      url: '/',
+      url: `${APIUrl}/newsletter`,
       method: 'post',
       data: `form-name=newsletter&email=${encodeURIComponent(email)}`,
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },

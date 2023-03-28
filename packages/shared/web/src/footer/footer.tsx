@@ -158,7 +158,7 @@ export const Footer = () => {
             <DiscordFooter />
           </ExternalLink>
           <ExternalLink
-            href="https://notional.finance"
+            href="https://classic.notional.finance"
             textDecoration
             style={{ color: theme.palette.info.accent }}
           >

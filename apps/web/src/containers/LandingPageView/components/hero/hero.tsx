@@ -16,7 +16,7 @@ import { useNotionalTheme } from '@notional-finance/styles';
 import { formatNumber } from '@notional-finance/helpers';
 import { FormattedMessage } from 'react-intl';
 
-const KPIUrl = process.env['NX_KPIS_URL'] || 'https://data.notional.finance';
+const KPIUrl = process.env['NX_DATA_URL'] || 'https://data.notional.finance';
 export const Hero = () => {
   const themeLanding = useNotionalTheme(THEME_VARIANTS.DARK, 'landing');
   const theme = useTheme();
@@ -34,11 +34,11 @@ export const Hero = () => {
           'Content-Type': 'application/json',
         },
       });
-      const data = await response.json();
+      const { kpis } = await response.json();
       const oneMillion = 1_000_000;
-      const totalAccounts = data.accounts.total.overall;
-      const totalLoanVolume = data.volume.overall.total;
-      const totalValueLocked = data.tvl.total;
+      const totalAccounts = kpis.accounts.total.overall;
+      const totalLoanVolume = kpis.volume.overall.total;
+      const totalValueLocked = kpis.tvl.total;
       setTopStats({
         totalValueLocked: `$${formatNumber(totalValueLocked / oneMillion, 0)}M`,
         totalLoanVolume: `$${formatNumber(totalLoanVolume / oneMillion, 0)}M`,
