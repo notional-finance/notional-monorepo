@@ -65,7 +65,7 @@ export function getInitVaultAction({
     vaultConfig,
     vaultAccount,
     activeVaultMarkets,
-    vaultAddress,
+    vaultAddress
   );
   const eligibleActions = getEligibleActions(eligibleMarkets, vaultAccount);
   const minLeverageRatio = BaseVault.collateralToLeverageRatio(
@@ -75,13 +75,13 @@ export function getInitVaultAction({
   const maxLeverageRatio = BaseVault.collateralToLeverageRatio(
     vaultConfig.minCollateralRatioBasisPoints
   );
-  
+
   let maxWithdrawAmountString = '';
   try {
-    const { amountToWallet } = getFullWithdrawAmounts(baseVault, vaultAccount)
+    const { amountToWallet } = getFullWithdrawAmounts(baseVault, vaultAccount);
     maxWithdrawAmountString = amountToWallet?.toExactString();
-  } catch(e) {
-    maxWithdrawAmountString = ''
+  } catch (e) {
+    maxWithdrawAmountString = '';
   }
 
   return {
@@ -96,8 +96,11 @@ export function getInitVaultAction({
     minLeverageRatio,
     maxLeverageRatio,
     primaryBorrowCurrency: vaultConfig.primaryBorrowCurrency,
-    primaryBorrowSymbol: system.getUnderlyingSymbol(vaultConfig.primaryBorrowCurrency),
-    minBorrowSize: vaultConfig.minAccountBorrowSize.toDisplayStringWithSymbol(0),
+    primaryBorrowSymbol: system.getUnderlyingSymbol(
+      vaultConfig.primaryBorrowCurrency
+    ),
+    minBorrowSize:
+      vaultConfig.minAccountBorrowSize.toDisplayStringWithSymbol(0),
     minAccountBorrowSize: vaultConfig.minAccountBorrowSize,
     strategyName: VaultFactory.resolveStrategyName(vaultConfig.strategy) || '',
     maxWithdrawAmountString: maxWithdrawAmountString,
