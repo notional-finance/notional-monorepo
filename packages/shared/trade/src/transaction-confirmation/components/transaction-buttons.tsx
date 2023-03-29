@@ -51,13 +51,19 @@ export const TransactionButtons = ({
     default:
       return (
         <ButtonContainer>
-          <Button variant="outlined" size="large" onClick={onCancel}>
+          <Button
+            variant="outlined"
+            size="large"
+            sx={{ width: '48%' }}
+            onClick={onCancel}
+          >
             <FormattedMessage defaultMessage={'Cancel'} />
           </Button>
 
           <Button
             variant="contained"
             size="large"
+            sx={{ width: '48%' }}
             onClick={onSubmit}
             disabled={!isLoaded}
           >
