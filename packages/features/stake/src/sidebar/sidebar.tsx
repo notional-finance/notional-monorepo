@@ -18,8 +18,16 @@ export const StakeSidebarView = ({ stakeOrUnstake }: StakeSidebarViewProps) => {
 
   return (
     <ActionSidebar
-      heading={selectedTab === STAKE_TAB ? messages.stake.heading : messages.unstake.heading}
-      helptext={selectedTab === STAKE_TAB ? messages.stake.helptext : messages.unstake.helptext}
+      heading={
+        selectedTab === STAKE_TAB
+          ? messages.stake.heading
+          : messages.unstake.heading
+      }
+      helptext={
+        selectedTab === STAKE_TAB
+          ? messages.stake.helptext
+          : messages.unstake.helptext
+      }
       showActionButtons={false}
     >
       <TabToggle

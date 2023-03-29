@@ -16,7 +16,6 @@ import { NotionalTheme } from '@notional-finance/styles';
 export interface ActionSidebarProps {
   heading: MessageDescriptor;
   helptext: MessageDescriptor;
-  helpTextValues?: string;
   children: React.ReactNode | React.ReactNode[];
   showDrawer?: boolean;
   canSubmit?: boolean;
@@ -63,7 +62,6 @@ export const ActionSidebar = ({
   advancedToggle,
   showActionButtons = true,
   hideTextOnMobile = true,
-  helpTextValues,
 }: ActionSidebarProps) => {
   const theme = useTheme();
   const inner = (
@@ -110,12 +108,7 @@ export const ActionSidebar = ({
             display: { xs: 'none', sm: 'none', md: 'block' },
           }}
         >
-          <FormattedMessage
-            {...helptext}
-            values={{
-              value: helpTextValues ? helpTextValues : '',
-            }}
-          />
+          <FormattedMessage {...helptext} />
         </HeadingSubtitle>
         <Divider
           sx={{

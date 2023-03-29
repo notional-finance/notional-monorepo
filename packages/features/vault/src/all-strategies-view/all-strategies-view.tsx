@@ -40,6 +40,7 @@ export const AllStrategyView = () => {
           } = v;
           return (
             <Vault
+              key={vaultAddress}
               vaultName={vaultName}
               symbol={underlyingSymbol}
               rate={headlineRate || 0}
