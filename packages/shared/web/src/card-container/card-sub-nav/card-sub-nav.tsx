@@ -18,6 +18,7 @@ export const CardSubNav = () => {
     <StyledContainer>
       {links.map(({ title, to }) => (
         <StyledButton
+          key={`${to}`}
           to={to}
           variant="outlined"
           active={to === pathname}
