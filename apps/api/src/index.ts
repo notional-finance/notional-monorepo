@@ -61,6 +61,9 @@ export default {
     return router
       .handle(request, env)
       .then((response: Response) => {
+        // Don't edit the OPTIONS preflight response
+        if (request.method === 'OPTIONS') return response;
+
         return new Response(response.body, {
           status: response.status,
           statusText: response.statusText,
