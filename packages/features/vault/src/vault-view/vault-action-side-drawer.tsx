@@ -61,7 +61,7 @@ export const VaultActionSideDrawer = () => {
   };
 
   const manageVaultActive =
-    accountSummariesLoaded && !vaultAccount?.isInactive && !openDrawer
+    accountSummariesLoaded && vaultAccount?.isInactive === false && !openDrawer
       ? true
       : false;
   const sideDrawerActive = SideDrawerComponent && openDrawer ? true : false;

@@ -84,6 +84,10 @@ export function getInitVaultAction({
     maxWithdrawAmountString = '';
   }
 
+  // If there is only one eligible vault action, then set it as the default
+  const vaultAction =
+    eligibleActions.length === 1 ? eligibleActions[0] : undefined;
+
   return {
     accountAddress: account?.address || undefined,
     vaultAccount,
@@ -105,7 +109,7 @@ export function getInitVaultAction({
     strategyName: VaultFactory.resolveStrategyName(vaultConfig.strategy) || '',
     maxWithdrawAmountString: maxWithdrawAmountString,
     // Clear inputs back to initial conditions
-    vaultAction: undefined,
+    vaultAction,
     hasError: false,
     selectedMarketKey: undefined,
     leverageRatio: undefined,
