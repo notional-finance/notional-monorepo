@@ -98,7 +98,6 @@ export enum SETTINGS_SIDE_DRAWERS {
 export const SIDE_DRAWERS = {
   ...PORTFOLIO_ACTIONS,
   ...SETTINGS_SIDE_DRAWERS,
-  // ...VAULT_ACTIONS,
 };
 
 export enum NAV_DROPDOWN {
