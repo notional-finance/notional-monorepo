@@ -31,11 +31,6 @@ export async function initializeNetwork({
     if (wallet && typeof wallet === 'string') {
       await connectWallet(wallet);
     }
-    log({
-      message: 'Network Initialized',
-      level: 'info',
-      chain: getNetworkName(chainId),
-    });
   } catch (e) {
     log({
       message: 'Failed to initialize network',
