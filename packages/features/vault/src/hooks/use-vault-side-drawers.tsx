@@ -19,7 +19,7 @@ export const useVaultSideDrawers = () => {
     state: { vaultAction },
   } = useContext(VaultActionContext);
 
-  const drawers = {
+  const drawers: Record<VAULT_ACTIONS, React.ComponentType> = {
     [VAULT_ACTIONS.CREATE_VAULT_POSITION]: CreateVaultPosition,
     [VAULT_ACTIONS.INCREASE_POSITION]: IncreaseVaultPosition,
     [VAULT_ACTIONS.DEPOSIT_COLLATERAL]: DepositCollateral,
