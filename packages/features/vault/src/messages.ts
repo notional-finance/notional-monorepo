@@ -1,7 +1,10 @@
-import { VAULT_ACTIONS, PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
+import {
+  VAULT_ACTIONS,
+  PORTFOLIO_ACTIONS,
+} from '@notional-finance/shared-config';
 import { defineMessages } from 'react-intl';
 
-export const  messages = {
+export const messages = {
   [VAULT_ACTIONS.CREATE_VAULT_POSITION]: defineMessages({
     heading: {
       defaultMessage: 'Create Vault Position',
@@ -9,7 +12,7 @@ export const  messages = {
     },
     helptext: {
       defaultMessage:
-        'Create a new vault position with a deposit, minimum deposit amount: {value}',
+        'Create a new vault position with a deposit, minimum deposit amount: {minDepositRequired}',
       description: 'helptext',
     },
     maturity: {
@@ -101,7 +104,7 @@ export const  messages = {
     },
     reenterVault: { defaultMessage: 'Re-Enter Vault', description: '' },
   }),
-
+  /*
   [VAULT_ACTIONS.DELEVERAGE_VAULT]: defineMessages({
     heading: { defaultMessage: 'Deleverage Vault', description: 'heading' },
     helptext: {
@@ -146,6 +149,7 @@ export const  messages = {
       description: 'slider label',
     },
   }),
+  */
   [PORTFOLIO_ACTIONS.MANAGE_VAULT]: defineMessages({
     heading: {
       defaultMessage: 'Manage {vaultName} Vault',
@@ -167,7 +171,7 @@ export const  messages = {
     },
     helptext: {
       defaultMessage:
-        'Borrow from a longer term maturity to avoid settlement, minimum borrow size: {value}',
+        'Borrow from a longer term maturity to avoid settlement, minimum borrow size: {minBorrowSize}',
       description: 'helptext',
     },
     maturity: {

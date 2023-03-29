@@ -47,9 +47,9 @@ export const VaultSideDrawer = ({
   const currentVaultAddress = vaultAddress || '';
   const canSubmit = buildTransactionCall ? true : false;
 
-  const messageValues = {
-    [VAULT_ACTIONS.CREATE_VAULT_POSITION]: useVaultData?.minDepositRequired,
-    [VAULT_ACTIONS.ROLL_POSITION]: minBorrowSize,
+  const helptextValues = {
+    minDepositRequired: useVaultData?.minDepositRequired,
+    minBorrowSize,
   };
 
   const formattedMaturity = vaultAccount?.maturity
@@ -82,7 +82,10 @@ export const VaultSideDrawer = ({
         ) : (
           <ActionSidebar
             heading={messages[vaultAction].heading}
-            helptext={messages[vaultAction].helptext}
+            helptext={{
+              ...messages[vaultAction].helptext,
+              values: helptextValues,
+            }}
             advancedToggle={advancedToggle}
             showDrawer={false}
             canSubmit={canSubmit}
