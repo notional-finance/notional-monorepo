@@ -166,6 +166,7 @@ describe('Vault Actions', () => {
       maxDeleverageCollateralRatioBasisPoints: 0.01e9,
       minCollateralRatioBasisPoints: 0.01e9,
       maxRequiredAccountCollateralRatioBasisPoints: 0.01e9,
+      minAccountBorrowSize: TypedBigNumber.fromBalance(100e8, 'ETH', true),
       vaultStates: [
         {
           maturity: 1,
@@ -209,6 +210,7 @@ describe('Vault Actions', () => {
         [
           { vaultAddress: VAULT },
           (v) => {
+            expect(v.vaultAction).toBeUndefined();
             expect(v.eligibleActions).toEqual([
               VAULT_ACTIONS.CREATE_VAULT_POSITION,
             ]);

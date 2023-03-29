@@ -7,8 +7,9 @@ import { useAccount, useOnboard } from '@notional-finance/notionable-hooks';
 import { CreateVaultPosition, ManageVault } from '../side-drawers';
 import { VaultActionContext } from '../vault-view/vault-action-provider';
 import { defineMessage } from 'react-intl';
-import { useHistory } from 'react-router';
+import { useHistory, useParams } from 'react-router';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
+import { VaultParams } from './vault-view';
 
 const fadeStart = {
   transition: `opacity 150ms ease`,
@@ -39,6 +40,7 @@ const slideTransition: Record<TransitionStatus, SxProps> = {
 export const VaultActionSideDrawer = () => {
   const theme = useTheme();
   const history = useHistory();
+  const { vaultAddress: vaultAddressInURL } = useParams<VaultParams>();
   const { accountSummariesLoaded } = useAccount();
   const { connected } = useOnboard();
   const { SideDrawerComponent, openDrawer } = useVaultSideDrawers();
@@ -49,12 +51,12 @@ export const VaultActionSideDrawer = () => {
   }, [clearSideDrawer]);
 
   const {
-    state: { vaultAddress, vaultAccount },
+    state: { vaultAddress: vaultAddressInState, vaultAccount },
     updateState,
   } = useContext(VaultActionContext);
 
   const handleDrawer = () => {
-    history.push(`/vaults/${vaultAddress}`);
+    history.push(`/vaults/${vaultAddressInState}`);
     updateState({ vaultAction: undefined });
   };
 
@@ -63,6 +65,57 @@ export const VaultActionSideDrawer = () => {
       ? true
       : false;
   const sideDrawerActive = SideDrawerComponent && openDrawer ? true : false;
+  const vaultContextIsLoading = vaultAddressInState !== vaultAddressInURL;
+
+  let drawerEl;
+  if (vaultContextIsLoading) {
+    drawerEl = <PageLoading type="notional" />;
+  } else if (!connected || vaultAccount?.isInactive) {
+    drawerEl = <CreateVaultPosition />;
+  } else {
+    drawerEl = (
+      <>
+        <Transition in={manageVaultActive} timeout={150}>
+          {(state: TransitionStatus) => {
+            return (
+              <Box
+                sx={{
+                  ...fadeStart,
+                  ...fadeTransition[state],
+                }}
+              >
+                {manageVaultActive && <ManageVault />}
+              </Box>
+            );
+          }}
+        </Transition>
+        <Transition in={sideDrawerActive} timeout={150}>
+          {(state: TransitionStatus) => {
+            return (
+              <Box
+                sx={{
+                  ...slideStart,
+                  ...slideTransition[state],
+                }}
+              >
+                {sideDrawerActive && SideDrawerComponent !== null && (
+                  <>
+                    <SideBarSubHeader
+                      paddingTop="150px"
+                      callback={() => handleDrawer()}
+                      titleText={defineMessage({ defaultMessage: 'Manage' })}
+                    />
+
+                    <SideDrawerComponent />
+                  </>
+                )}
+              </Box>
+            );
+          }}
+        </Transition>
+      </>
+    );
+  }
 
   return (
     <Drawer
@@ -79,51 +132,7 @@ export const VaultActionSideDrawer = () => {
           : '',
       }}
     >
-      {!connected && accountSummariesLoaded && <CreateVaultPosition />}
-      {accountSummariesLoaded && vaultAccount?.isInactive && (
-        <CreateVaultPosition />
-      )}
-      {!accountSummariesLoaded && !openDrawer && (
-        <PageLoading type="notional" />
-      )}
-      <Transition in={manageVaultActive} timeout={150}>
-        {(state: TransitionStatus) => {
-          return (
-            <Box
-              sx={{
-                ...fadeStart,
-                ...fadeTransition[state],
-              }}
-            >
-              {manageVaultActive && <ManageVault />}
-            </Box>
-          );
-        }}
-      </Transition>
-      <Transition in={sideDrawerActive} timeout={150}>
-        {(state: TransitionStatus) => {
-          return (
-            <Box
-              sx={{
-                ...slideStart,
-                ...slideTransition[state],
-              }}
-            >
-              {sideDrawerActive && SideDrawerComponent !== null && (
-                <>
-                  <SideBarSubHeader
-                    paddingTop="150px"
-                    callback={() => handleDrawer()}
-                    titleText={defineMessage({ defaultMessage: 'Manage' })}
-                  />
-
-                  <SideDrawerComponent />
-                </>
-              )}
-            </Box>
-          );
-        }}
-      </Transition>
+      {drawerEl}
     </Drawer>
   );
 };

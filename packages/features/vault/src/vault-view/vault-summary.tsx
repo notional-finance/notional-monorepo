@@ -8,10 +8,7 @@ import {
   TradeSummaryContainer,
   AreaChart,
 } from '@notional-finance/mui';
-import {
-  VAULT_SUB_NAV_ACTIONS,
-  VAULT_ACTIONS,
-} from '@notional-finance/shared-config';
+import { VAULT_SUB_NAV_ACTIONS } from '@notional-finance/shared-config';
 import { useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
 import {

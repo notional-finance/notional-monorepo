@@ -15,17 +15,13 @@ export interface VaultParams {
 
 export const VaultView = () => {
   const { updateState } = useContext(VaultActionContext);
-  const { vaultAddress, sideDrawerKey } = useParams<VaultParams>();
+  const { vaultAddress } = useParams<VaultParams>();
   const txnData = useVaultTransaction();
   const showTransactionConfirmation = txnData ? true : false;
 
   useEffect(() => {
-    if (vaultAddress) {
-      updateState({
-        vaultAddress,
-      });
-    }
-  }, [vaultAddress, updateState, sideDrawerKey]);
+    if (vaultAddress) updateState({ vaultAddress });
+  }, [vaultAddress, updateState]);
 
   return vaultAddress ? (
     <SideBarLayout
