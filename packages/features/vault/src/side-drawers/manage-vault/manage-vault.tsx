@@ -59,16 +59,6 @@ export const ManageVault = () => {
                   vaultName,
                 }}
               />
-              <H4
-                to="/portfolio/vaults"
-                sx={{
-                  marginTop: theme.spacing(3),
-                  textDecoration: 'underline',
-                  color: theme.palette.typography.accent,
-                }}
-              >
-                <FormattedMessage defaultMessage={'View in Portfolio'} />
-              </H4>
             </LargeInputTextEmphasized>
             <VaultDetailsTable
               key={'vault-risk-table'}
@@ -77,6 +67,16 @@ export const ManageVault = () => {
               vaultAddress={vaultAddress}
               hideUpdatedColumn={true}
             />
+            <H4
+              to="/portfolio/vaults"
+              sx={{
+                marginTop: theme.spacing(3),
+                textDecoration: 'underline',
+                color: theme.palette.typography.accent,
+              }}
+            >
+              <FormattedMessage defaultMessage={'View in Portfolio'} />
+            </H4>
           </TableWrapper>
 
           <Box>
