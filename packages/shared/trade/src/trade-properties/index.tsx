@@ -45,6 +45,7 @@ export enum TradePropertyKeys {
   additionalDebt = 'transactionProperties.additionalDebt',
   remainingDebt = 'transactionProperties.remainingDebt',
   remainingAssets = 'transactionProperties.remainingAssets',
+  totalAssets = 'transactionProperties.totalAssets',
 }
 
 export type TradeProperties = Partial<{
@@ -88,6 +89,7 @@ export type TradeProperties = Partial<{
   [TradePropertyKeys.additionalDebt]: TypedBigNumber;
   [TradePropertyKeys.remainingDebt]: TypedBigNumber;
   [TradePropertyKeys.remainingAssets]: TypedBigNumber;
+  [TradePropertyKeys.totalAssets]: TypedBigNumber;
 }>;
 
 const formatDisplayString = (val: TypedBigNumber) =>
@@ -151,6 +153,7 @@ export const PropertyFormatters: Record<TradePropertyKeys, PropertyFormatter> =
     [TradePropertyKeys.additionalDebt]: formatfCashString,
     [TradePropertyKeys.remainingDebt]: formatDisplayString,
     [TradePropertyKeys.remainingAssets]: formatDisplayString,
+    [TradePropertyKeys.totalAssets]: formatDisplayString,
   };
 
 export const PropertyMessages: Record<TradePropertyKeys, MessageDescriptor> = {
@@ -312,6 +315,10 @@ export const PropertyMessages: Record<TradePropertyKeys, MessageDescriptor> = {
   }),
   [TradePropertyKeys.remainingAssets]: defineMessage({
     defaultMessage: 'Remaining Assets',
+    description: 'value label',
+  }),
+  [TradePropertyKeys.totalAssets]: defineMessage({
+    defaultMessage: 'Total Assets',
     description: 'value label',
   }),
 };

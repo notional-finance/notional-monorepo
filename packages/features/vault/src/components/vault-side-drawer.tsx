@@ -4,7 +4,6 @@ import {
   ToggleSwitchProps,
   ProgressIndicator,
 } from '@notional-finance/mui';
-import { TransactionData } from '@notional-finance/trade';
 import { useQueryParams } from '@notional-finance/utils';
 import {
   TransactionConfirmation,
@@ -13,20 +12,19 @@ import {
 import { VaultDetailsTable } from '@notional-finance/risk';
 import { VAULT_ACTIONS } from '@notional-finance/shared-config';
 import { useVault } from '@notional-finance/notionable-hooks';
-import { VaultActionContext } from '../../vault-view/vault-action-provider';
+import { VaultActionContext } from '../vault-view/vault-action-provider';
 import { formatMaturity } from '@notional-finance/helpers';
 import { useHistory } from 'react-router';
-import { messages } from '../../messages';
+import { messages } from '../messages';
+import { useTransactionProperties } from '../hooks/use-transaction-properties';
 
 interface VaultSideDrawerProps {
   children?: React.ReactNode | React.ReactNode[];
-  transactionData?: TransactionData;
   advancedToggle?: ToggleSwitchProps;
 }
 
 export const VaultSideDrawer = ({
   children,
-  transactionData,
   advancedToggle,
 }: VaultSideDrawerProps) => {
   const { confirm } = useQueryParams();
@@ -43,6 +41,7 @@ export const VaultSideDrawer = ({
       minBorrowSize,
     },
   } = useContext(VaultActionContext);
+  const transactionData = useTransactionProperties();
   const useVaultData = useVault(vaultAddress);
   const currentVaultAddress = vaultAddress || '';
   const canSubmit = buildTransactionCall ? true : false;
@@ -58,7 +57,7 @@ export const VaultSideDrawer = ({
 
   const handleCancel = () => {
     history.push(`/vaults/${vaultAddress}`);
-    updateState({ vaultAction: undefined });
+    // updateState({ vaultAction: undefined });
     if (vaultAction === VAULT_ACTIONS.WITHDRAW_VAULT) {
       updateState({
         maxWithdraw: false,
