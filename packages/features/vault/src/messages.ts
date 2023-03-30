@@ -60,7 +60,7 @@ export const messages = {
     },
   }),
   [VAULT_ACTIONS.WITHDRAW_VAULT]: defineMessages({
-    heading: { defaultMessage: 'Withdraw / Exit Vault', description: '' },
+    heading: { defaultMessage: 'Withdraw', description: '' },
     cta: { defaultMessage: 'Withdraw', description: '' },
     tooltip: {
       defaultMessage: 'Withdraw from your vault position.',
@@ -139,10 +139,13 @@ export const messages = {
   }),
   */
   [VAULT_ACTIONS.WITHDRAW_AND_REPAY_DEBT]: defineMessages({
-    heading: { defaultMessage: 'Withdraw and Repay Debt', description: '' },
+    heading: {
+      defaultMessage: 'Repay Debt with Vault Assets',
+      description: '',
+    },
     helptext: {
       defaultMessage:
-        'Withdraw a portion of your earnings to deleverage your position.',
+        'Repay debt with vault assets in order to reduce your leverage ratio.',
       description: '',
     },
     leverage: {
