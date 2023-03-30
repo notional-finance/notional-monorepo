@@ -31,23 +31,27 @@ export const ManageVault = () => {
           }}
         />
       </LargeInputTextEmphasized>
-      <Title>
-        <FormattedMessage defaultMessage={'Reduce leverage'} />
-      </Title>
-      {reduceLeverageOptions.map(({ label, link }, index) => (
-        <H4 fontWeight="regular" to={link} key={index}>
-          <SideDrawerButton sx={{ padding: theme.spacing(2.5) }}>
-            {label}
-          </SideDrawerButton>
-        </H4>
-      ))}
-      <Box
-        component={'hr'}
-        sx={{
-          margin: theme.spacing(5, 0),
-          border: `1px solid ${theme.palette.borders.default}`,
-        }}
-      ></Box>
+      {reduceLeverageOptions.length > 0 && (
+        <>
+          <Title>
+            <FormattedMessage defaultMessage={'Reduce leverage'} />
+          </Title>
+          {reduceLeverageOptions.map(({ label, link }, index) => (
+            <H4 fontWeight="regular" to={link} key={index}>
+              <SideDrawerButton sx={{ padding: theme.spacing(2.5) }}>
+                {label}
+              </SideDrawerButton>
+            </H4>
+          ))}
+          <Box
+            component={'hr'}
+            sx={{
+              margin: theme.spacing(5, 0),
+              border: `1px solid ${theme.palette.borders.default}`,
+            }}
+          />
+        </>
+      )}
       {manageVaultOptions.map(({ label, link }, index) => (
         <H4 fontWeight="regular" to={link} key={index}>
           <SideDrawerButton sx={{ padding: theme.spacing(2.5) }}>
