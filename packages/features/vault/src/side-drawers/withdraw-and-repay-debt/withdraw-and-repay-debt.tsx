@@ -1,11 +1,11 @@
 import { VAULT_ACTIONS } from '@notional-finance/shared-config';
 import { VaultSideDrawer } from '../components/vault-side-drawer';
-import { SliderInput, SliderInputHandle } from '@notional-finance/mui';
+import { SliderInput, useSliderInputRef } from '@notional-finance/mui';
 import { useWithdrawAndRepayDebt } from './use-withdraw-and-repay-debt';
 import { messages } from '../../messages';
 import { VaultActionContext } from '../../vault-view/vault-action-provider';
 import { RATE_PRECISION } from '@notional-finance/sdk/src/config/constants';
-import { useCallback, useEffect, useRef, useContext } from 'react';
+import { useEffect, useContext } from 'react';
 import { DebtAmountCaption, TransactionCostCaption } from '../../components';
 
 export const WithdrawAndRepayDebt = () => {
@@ -13,29 +13,21 @@ export const WithdrawAndRepayDebt = () => {
     updateState,
     state: { maxLeverageRatio, leverageRatio, primaryBorrowSymbol },
   } = useContext(VaultActionContext);
-  const inputRef = useRef<SliderInputHandle>(null);
-  const transactionData = useWithdrawAndRepayDebt();
-
-  const sliderError = undefined;
-  const sliderInfo = undefined;
-
-  const setInputAmount = useCallback(
-    (input: number) => {
-      inputRef.current?.setInputOverride(input);
-    },
-    [inputRef]
-  );
-
+  const { sliderInputRef, setSliderInput } = useSliderInputRef();
   useEffect(() => {
     if (leverageRatio) {
-      setInputAmount(leverageRatio / RATE_PRECISION);
+      setSliderInput(leverageRatio / RATE_PRECISION);
     }
-  }, [leverageRatio, setInputAmount]);
+  }, [leverageRatio, setSliderInput]);
+
+  const transactionData = useWithdrawAndRepayDebt();
+  const sliderError = undefined;
+  const sliderInfo = undefined;
 
   return (
     <VaultSideDrawer transactionData={transactionData}>
       <SliderInput
-        ref={inputRef}
+        ref={sliderInputRef}
         min={0}
         max={maxLeverageRatio ? maxLeverageRatio / RATE_PRECISION : 0}
         onChangeCommitted={(newLeverageRatio) =>

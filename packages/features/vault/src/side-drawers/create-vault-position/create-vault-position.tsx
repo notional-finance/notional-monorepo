@@ -1,4 +1,4 @@
-import { useEffect, useContext, useRef, useCallback } from 'react';
+import { useEffect, useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import {
   Maturities,
@@ -6,7 +6,7 @@ import {
   SliderInput,
   LabelValue,
   CountUp,
-  SliderInputHandle,
+  useSliderInputRef,
 } from '@notional-finance/mui';
 import { Box, styled, useTheme } from '@mui/material';
 import { RATE_PRECISION } from '@notional-finance/sdk/src/config/constants';
@@ -31,6 +31,12 @@ export const CreateVaultPosition = () => {
   const { vaultAddress } = useParams<VaultParams>();
   const { updateState, state } = useContext(VaultActionContext);
   const transactionData = useCreateVaultPosition();
+  const { setSliderInput, sliderInputRef } = useSliderInputRef();
+  const { minBorrowSize, maxLeverageRatio, primaryBorrowSymbol } =
+    useVault(vaultAddress);
+  const { underMinAccountBorrow, inputErrorMsg, leverageRatioError } =
+    useVaultActionErrors();
+
   const {
     selectedMarketKey,
     borrowMarketData,
@@ -43,23 +49,6 @@ export const CreateVaultPosition = () => {
       vaultAction: VAULT_ACTIONS.CREATE_VAULT_POSITION,
     });
   }, [updateState]);
-
-  const { minBorrowSize, maxLeverageRatio, primaryBorrowSymbol } =
-    useVault(vaultAddress);
-  const { underMinAccountBorrow, inputErrorMsg, leverageRatioError } =
-    useVaultActionErrors();
-
-  const sliderInputRef = useRef<SliderInputHandle>(null);
-  const isInputRefDefined = !!sliderInputRef.current;
-  const setSliderInput = useCallback(
-    (input: number) => {
-      sliderInputRef.current?.setInputOverride(input);
-    },
-    // isInputRefDefined must be in the dependencies otherwise the useCallback will not
-    // properly trigger to generate a new function when the input ref becomes defined
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [sliderInputRef, isInputRefDefined]
-  );
 
   useEffect(() => {
     if (leverageRatio) setSliderInput(leverageRatio / RATE_PRECISION);

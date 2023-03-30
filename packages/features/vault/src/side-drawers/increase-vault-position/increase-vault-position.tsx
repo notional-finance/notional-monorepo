@@ -1,6 +1,6 @@
-import { useCallback, useContext, useRef, useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 import { WalletDepositInput } from '@notional-finance/trade';
-import { SliderInput, SliderInputHandle } from '@notional-finance/mui';
+import { SliderInput, useSliderInputRef } from '@notional-finance/mui';
 import { VAULT_ACTIONS } from '@notional-finance/shared-config';
 import { VaultSideDrawer } from '../components/vault-side-drawer';
 import { VaultActionContext } from '../../vault-view/vault-action-provider';
@@ -14,26 +14,16 @@ export const IncreaseVaultPosition = () => {
     updateState,
     state: { primaryBorrowSymbol, maxLeverageRatio, leverageRatio },
   } = useContext(VaultActionContext);
-
-  const inputRef = useRef<SliderInputHandle>(null);
-
-  const sliderError = undefined;
-  const sliderInfo = undefined;
-
-  const setInputAmount = useCallback(
-    (input: number) => {
-      inputRef.current?.setInputOverride(input);
-    },
-    [inputRef]
-  );
-
+  const { sliderInputRef, setSliderInput } = useSliderInputRef();
   useEffect(() => {
     if (leverageRatio) {
-      setInputAmount(leverageRatio / RATE_PRECISION);
+      setSliderInput(leverageRatio / RATE_PRECISION);
     }
-  }, [leverageRatio, setInputAmount]);
+  }, [leverageRatio, setSliderInput]);
 
   const transactionData = useIncreaseVaultPosition();
+  const sliderError = undefined;
+  const sliderInfo = undefined;
 
   return (
     <VaultSideDrawer transactionData={transactionData}>
@@ -52,7 +42,7 @@ export const IncreaseVaultPosition = () => {
         />
       )}
       <SliderInput
-        ref={inputRef}
+        ref={sliderInputRef}
         min={0}
         max={maxLeverageRatio ? maxLeverageRatio / RATE_PRECISION : 0}
         onChangeCommitted={(newLeverageRatio) =>
