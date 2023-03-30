@@ -1,30 +1,19 @@
 import { useCallback, useContext, useRef, useEffect } from 'react';
 import { WalletDepositInput } from '@notional-finance/trade';
-import { Box, useTheme } from '@mui/material';
-import {
-  SliderInput,
-  SliderInputHandle,
-  InfoTooltip,
-} from '@notional-finance/mui';
+import { SliderInput, SliderInputHandle } from '@notional-finance/mui';
 import { VAULT_ACTIONS } from '@notional-finance/shared-config';
 import { VaultSideDrawer } from '../components/vault-side-drawer';
 import { VaultActionContext } from '../../vault-view/vault-action-provider';
 import { RATE_PRECISION } from '@notional-finance/sdk/src/config/constants';
 import { useIncreaseVaultPosition } from './use-increase-vault-position';
 import { messages } from '../../messages';
-import { FormattedMessage, defineMessage } from 'react-intl';
+import { DebtAmountCaption, TransactionCostCaption } from '../../components';
 
 export const IncreaseVaultPosition = () => {
   const {
     updateState,
-    state: {
-      primaryBorrowSymbol,
-      maxLeverageRatio,
-      leverageRatio,
-      fCashBorrowAmount,
-    },
+    state: { primaryBorrowSymbol, maxLeverageRatio, leverageRatio },
   } = useContext(VaultActionContext);
-  const theme = useTheme();
 
   const inputRef = useRef<SliderInputHandle>(null);
 
@@ -45,8 +34,6 @@ export const IncreaseVaultPosition = () => {
   }, [leverageRatio, setInputAmount]);
 
   const transactionData = useIncreaseVaultPosition();
-  const amountBorrowed =
-    fCashBorrowAmount?.neg().toDisplayStringWithfCashSymbol() || '0.000';
 
   return (
     <VaultSideDrawer transactionData={transactionData}>
@@ -77,27 +64,21 @@ export const IncreaseVaultPosition = () => {
         infoMsg={sliderInfo}
         inputLabel={messages[VAULT_ACTIONS.INCREASE_POSITION].leverage}
         rightCaption={
-          <Box sx={{ display: 'flex' }}>
-            <FormattedMessage defaultMessage="Borrow Amount: " />
-            <Box sx={{ fontWeight: 'bold', marginLeft: theme.spacing(1) }}>
-              {amountBorrowed}
-            </Box>
-          </Box>
+          primaryBorrowSymbol ? (
+            <DebtAmountCaption
+              borrowAmount={cashBorrowed}
+              suffix={primaryBorrowSymbol}
+            />
+          ) : undefined
         }
         bottomCaption={
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <FormattedMessage defaultMessage="Transaction Costs: " />
-            <InfoTooltip
-              toolTipText={defineMessage({
-                defaultMessage: 'TBD',
-                description: 'tooltip text',
-              })}
-              sx={{ fontSize: '14px', marginLeft: theme.spacing(0.5) }}
+          primaryBorrowSymbol ? (
+            <TransactionCostCaption
+              toolTipText={messages.summary.transactionCostToolTip}
+              transactionCost={transactionCost}
+              suffix={primaryBorrowSymbol}
             />
-            <Box sx={{ fontWeight: 'bold', marginLeft: theme.spacing(1) }}>
-              0.00
-            </Box>
-          </Box>
+          ) : undefined
         }
       />
     </VaultSideDrawer>
