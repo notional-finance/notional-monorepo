@@ -24,7 +24,7 @@ export const messages = {
       description: 'input label',
     },
     leverage: {
-      defaultMessage: '3. How much leverage do you want to take?',
+      defaultMessage: '3. Specify a leverage amount',
       description: 'input label',
     },
     confirm: {
@@ -137,6 +137,7 @@ export const messages = {
     },
     toggle: { defaultMessage: 'Deposit', description: '' },
   }),
+  */
   [VAULT_ACTIONS.WITHDRAW_AND_REPAY_DEBT]: defineMessages({
     heading: { defaultMessage: 'Withdraw and Repay Debt', description: '' },
     helptext: {
@@ -145,11 +146,10 @@ export const messages = {
       description: '',
     },
     leverage: {
-      defaultMessage: 'Change Leverage',
+      defaultMessage: 'Reduce your leverage:',
       description: 'slider label',
     },
   }),
-  */
   [PORTFOLIO_ACTIONS.MANAGE_VAULT]: defineMessages({
     heading: {
       defaultMessage: 'Manage Vault',

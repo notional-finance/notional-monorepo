@@ -74,7 +74,7 @@ export const useSliderInputRef = () => {
     [sliderInputRef, isInputRefDefined]
   );
 
-  return {setSliderInput, sliderInputRef};
+  return { setSliderInput, sliderInputRef };
 };
 
 export const SliderInput = React.forwardRef<
@@ -119,7 +119,7 @@ export const SliderInput = React.forwardRef<
           sx={{
             display: 'flex',
             justifyContent: 'space-between',
-            alignItems: 'center',
+            alignItems: 'baseline',
           }}
         >
           <InputLabel inputLabel={inputLabel} />

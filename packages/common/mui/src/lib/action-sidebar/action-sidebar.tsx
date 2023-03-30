@@ -15,7 +15,7 @@ import { NotionalTheme } from '@notional-finance/styles';
 
 export interface ActionSidebarProps {
   heading: MessageDescriptor;
-  helptext: MessageDescriptor;
+  helptext: MessageDescriptor & { values?: Record<string, unknown> };
   children: React.ReactNode | React.ReactNode[];
   showDrawer?: boolean;
   canSubmit?: boolean;
