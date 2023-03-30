@@ -1,7 +1,7 @@
 import NumberFormat from 'react-number-format';
 import { Box, Input, styled, useTheme } from '@mui/material';
 import { InputLabel } from '../input-label/input-label';
-import { useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import SliderBasic from '../slider-basic/slider-basic';
 import { MessageDescriptor } from 'react-intl';
 import { Label, Caption } from '../typography/typography';
@@ -60,6 +60,22 @@ const NumberFormatter = React.forwardRef<NumberFormat<string>>((props, ref) => {
     />
   );
 });
+
+export const useSliderInputRef = () => {
+  const sliderInputRef = useRef<SliderInputHandle>(null);
+  const isInputRefDefined = !!sliderInputRef.current;
+  const setSliderInput = useCallback(
+    (input: number) => {
+      sliderInputRef.current?.setInputOverride(input);
+    },
+    // isInputRefDefined must be in the dependencies otherwise the useCallback will not
+    // properly trigger to generate a new function when the input ref becomes defined
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [sliderInputRef, isInputRefDefined]
+  );
+
+  return {setSliderInput, sliderInputRef};
+};
 
 export const SliderInput = React.forwardRef<
   SliderInputHandle,
