@@ -112,6 +112,9 @@ const OuterWrapper = styled(Box, {
     margin-right: ${theme.spacing(2)};
     margin-bottom: ${popUpStyles ? theme.spacing(47) : theme.spacing(10)};
     box-shadow: -2px 1px 24px rgba(20, 41, 102, 0.2), 0px 4px 16px rgba(29, 116, 119, 0.4);
+    ${theme.breakpoints.down('sm')} {
+      display: none;
+    }
     `
 );
 
