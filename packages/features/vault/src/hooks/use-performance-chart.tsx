@@ -3,6 +3,7 @@ import { FormattedMessage } from 'react-intl';
 import { useContext } from 'react';
 import { countUpLeverageRatio } from '@notional-finance/trade';
 import { ChartToolTipDataProps } from '@notional-finance/mui';
+import { Box, useTheme } from '@mui/material';
 import {
   formatNumberAsPercent,
   getDateString,
@@ -11,6 +12,7 @@ import { VaultActionContext } from '../vault-view/vault-action-provider';
 import { messages } from '../messages';
 
 export const usePerformanceChart = () => {
+  const theme = useTheme();
   const { historicalReturns, currentBorrowRate } = useHistoricalReturns();
   const { state } = useContext(VaultActionContext);
   const { leverageRatio } = state || {};
@@ -54,16 +56,25 @@ export const usePerformanceChart = () => {
 
   const areaHeaderData = {
     leftHeader: <FormattedMessage defaultMessage={'Performance To Date'} />,
-    legendOne: currentBorrowRate ? (
-      <FormattedMessage
-        {...messages.summary.leveragedReturns}
-        values={{
-          leverageRatio: leverageRatio
-            ? countUpLeverageRatio(leverageRatio)
-            : '',
-        }}
-      />
-    ) : undefined,
+    legendOne: (
+      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+        <FormattedMessage {...messages.summary.leveragedReturns} />
+        <Box
+          sx={{
+            background: theme.palette.borders.default,
+            borderRadius: theme.shape.borderRadius(),
+            marginLeft: theme.spacing(1),
+            padding: theme.spacing(0.5, 1),
+          }}
+        >
+          {currentBorrowRate && leverageRatio ? (
+            countUpLeverageRatio(leverageRatio)
+          ) : (
+            <Box sx={{ padding: theme.spacing(0, 2) }}>--</Box>
+          )}
+        </Box>
+      </Box>
+    ),
     legendTwo: <FormattedMessage defaultMessage={'Unleveraged Returns'} />,
   };
 

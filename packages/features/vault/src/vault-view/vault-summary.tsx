@@ -7,6 +7,7 @@ import {
   TradeActionTitle,
   TradeSummaryContainer,
   AreaChart,
+  TABLE_VARIANTS,
 } from '@notional-finance/mui';
 import { VAULT_SUB_NAV_ACTIONS } from '@notional-finance/shared-config';
 import { useContext } from 'react';
@@ -140,6 +141,7 @@ export const VaultSummary = () => {
               <DataTable
                 data={returnDrivers}
                 columns={tableColumns}
+                tableVariant={TABLE_VARIANTS.TOTAL_ROW}
                 tableTitle={
                   <div>
                     <FormattedMessage

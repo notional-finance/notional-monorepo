@@ -5,6 +5,7 @@ import { Column } from 'react-table';
 export enum TABLE_VARIANTS {
   MINI = 'mini',
   DEFAULT = 'default',
+  TOTAL_ROW = 'total-row',
 }
 
 export type TabBarPropsType = {

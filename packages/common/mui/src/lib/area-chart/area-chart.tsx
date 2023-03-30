@@ -8,6 +8,7 @@ import {
 import ProgressIndicator from '../progress-indicator/progress-indicator';
 import { TradeSummaryBox } from '../trade-summary-box/trade-summary-box';
 import { ONE_WEEK } from '@notional-finance/shared-config';
+import moment from 'moment';
 import {
   Area,
   XAxis,
@@ -51,6 +52,7 @@ export const AreaChart = ({
   const xAxisTickHandler = (v: number, i: number) => {
     let result = '';
     if (typeof v === 'number') {
+      // TODO: Fix all of this shit
       const prevMonth =
         i > 0
           ? intl.formatDate(areaChartData[i - 1]['timestamp'] * 1000, {
@@ -58,10 +60,21 @@ export const AreaChart = ({
               year: 'numeric',
             })
           : '';
+      const test = i > 0 ? areaChartData[i - 1]['timestamp'] * 1000 : 0;
+      console.log({ test });
+      const dateOne = moment(test);
+      const dateTwo = moment(v * 1000);
+      console.log({ dateTwo });
+      const diff = dateTwo.diff(dateOne, 'days');
+
       const thisMonth = intl.formatDate(v * 1000, {
         month: 'short',
         year: 'numeric',
       });
+
+      console.log({ diff });
+      console.log({ prevMonth });
+      console.log({ thisMonth });
 
       // Only label the axis on the first month
       result = prevMonth !== thisMonth ? thisMonth : '';
