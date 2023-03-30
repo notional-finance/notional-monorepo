@@ -2,7 +2,7 @@ import { Drawer, PageLoading } from '@notional-finance/mui';
 import { TransactionConfirmation } from '@notional-finance/trade';
 import { FormattedMessage } from 'react-intl';
 import { useHistory, useLocation } from 'react-router';
-import { useVaultTransaction } from '../../hooks/use-vault-transaction';
+import { useVaultTransaction } from '../hooks/use-vault-transaction';
 
 export const ConfirmVaultTxn = () => {
   const history = useHistory();

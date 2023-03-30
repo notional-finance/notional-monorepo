@@ -6,11 +6,11 @@ import {
   CountUp,
   SliderBasic,
 } from '@notional-finance/mui';
-import { useHistoricalReturns } from '../../hooks/use-historical-returns';
-import { useVaultCapacity } from '../../hooks/use-vault-capacity';
+import { useHistoricalReturns } from '../hooks/use-historical-returns';
+import { useVaultCapacity } from '../hooks/use-vault-capacity';
 import { TokenIcon } from '@notional-finance/icons';
-import { VaultActionContext } from '../../vault-view/vault-action-provider';
-import { messages } from '../../messages';
+import { VaultActionContext } from '../vault-view/vault-action-provider';
+import { messages } from '../messages';
 import { FormattedMessage } from 'react-intl';
 
 export const MobileVaultSummary = () => {
