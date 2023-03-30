@@ -77,8 +77,13 @@ export function CardMobileNav() {
             />
           </ArrowContainer>
           {optionSetTwo.map(({ title, Icon, to, id }) => (
-            <NavOption key={id}>
-              <CustomLink to={to} theme={theme} active={pathname === to}>
+            <NavOption key={id} sx={{ justifyContent: 'flex-start' }}>
+              <CustomLink
+                to={to}
+                theme={theme}
+                active={pathname === to}
+                sx={{ width: theme.spacing(11.5) }}
+              >
                 <Box>{Icon}</Box>
                 <Title theme={theme} active={pathname === to}>
                   {title}
@@ -109,7 +114,7 @@ const MobileNavContainer = styled(Box)(
   display: none;
   ${theme.breakpoints.down('sm')} {
     background: ${theme.palette.background.accentDefault};
-    height: ${theme.spacing(11)};
+    height: fit-content;
     display: flex;
     width: 100%;    
     z-index: 2;
@@ -152,7 +157,7 @@ const CustomLink = styled(Link, {
   ({ active, theme }: CustomLinkProps) => `
   background: ${active ? theme.palette.background.paper : 'transparent'};
   padding: ${theme.spacing(0.5, 1)};
-  margin: 0px 8px;
+  margin: ${theme.spacing(1)};
   border-radius: ${theme.shape.borderRadiusLarge};
   min-width: ${theme.spacing(9)};
 `
