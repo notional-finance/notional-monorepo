@@ -1,7 +1,7 @@
 import { Box } from '@mui/material';
 import { Button } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
-import { messages } from '../../messages';
+import { messages } from '../messages';
 
 export const WriteCongress = () => {
   return (

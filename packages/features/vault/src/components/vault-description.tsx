@@ -6,9 +6,9 @@ import {
   TradeSummaryBox,
 } from '@notional-finance/mui';
 import { Box, styled, useTheme } from '@mui/material';
-import { useVaultDocs } from '../../hooks';
+import { useVaultDocs } from '../hooks';
 import { ExternalLinkIcon } from '@notional-finance/icons';
-import { messages } from '../../messages';
+import { messages } from '../messages';
 
 const HeadingContainer = styled(Box)(
   ({ theme }) => `
