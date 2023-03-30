@@ -75,12 +75,14 @@ export interface VaultActionState
   // Calculated Borrow Data
   borrowMarketData?: MaturityData[];
   fCashBorrowAmount?: TypedBigNumber;
+  cashBorrowed?: TypedBigNumber;
   currentBorrowRate?: number;
 
   // Calculated Withdraw Data
   fCashToLend?: TypedBigNumber;
   vaultSharesToRedeem?: TypedBigNumber;
   amountToWallet?: TypedBigNumber;
+  costToLend?: TypedBigNumber;
 
   transactionCosts?: TypedBigNumber;
 

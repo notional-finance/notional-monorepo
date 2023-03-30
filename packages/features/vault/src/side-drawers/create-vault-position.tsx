@@ -19,7 +19,6 @@ import { useVaultActionErrors } from '../hooks';
 import { WalletDepositInput } from '@notional-finance/trade';
 import { messages } from '../messages';
 import { DebtAmountCaption, TransactionCostCaption } from '../components';
-import { useTransactionProperties } from '../hooks/use-transaction-properties';
 
 interface VaultParams {
   vaultAddress: string;
@@ -29,7 +28,6 @@ interface VaultParams {
 export const CreateVaultPosition = () => {
   const theme = useTheme();
   const { vaultAddress } = useParams<VaultParams>();
-  const transactionData = useTransactionProperties();
   const { setSliderInput, sliderInputRef } = useSliderInputRef();
   const { minBorrowSize, maxLeverageRatio, primaryBorrowSymbol } =
     useVault(vaultAddress);
@@ -42,6 +40,8 @@ export const CreateVaultPosition = () => {
       borrowMarketData,
       fCashBorrowAmount,
       leverageRatio,
+      transactionCosts,
+      cashBorrowed,
     },
   } = useContext(VaultActionContext);
 
@@ -81,7 +81,7 @@ export const CreateVaultPosition = () => {
           },
         }}
       >
-        <VaultSideDrawer transactionData={transactionData}>
+        <VaultSideDrawer>
           <Maturities
             maturityData={borrowMarketData || []}
             onSelect={(marketKey: string | null) => {
@@ -118,17 +118,11 @@ export const CreateVaultPosition = () => {
                   })
                 : undefined)
             }
-            rightCaption={
-              <DebtAmountCaption
-                borrowAmount={cashBorrowed}
-                suffix={primaryBorrowSymbol}
-              />
-            }
+            rightCaption={<DebtAmountCaption amount={cashBorrowed} />}
             bottomCaption={
               <TransactionCostCaption
                 toolTipText={messages.summary.transactionCostToolTip}
-                transactionCost={transactionCost}
-                suffix={primaryBorrowSymbol}
+                transactionCosts={transactionCosts}
               />
             }
             inputLabel={messages[VAULT_ACTIONS.CREATE_VAULT_POSITION].leverage}

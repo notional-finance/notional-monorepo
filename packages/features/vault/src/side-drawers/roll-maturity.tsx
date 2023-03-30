@@ -21,6 +21,8 @@ export const RollMaturity = () => {
       primaryBorrowSymbol,
       maxLeverageRatio,
       leverageRatio,
+      transactionCosts,
+      cashBorrowed,
     },
   } = useContext(VaultActionContext);
   const { sliderInputRef, setSliderInput } = useSliderInputRef();
@@ -69,22 +71,12 @@ export const RollMaturity = () => {
         errorMsg={sliderError}
         infoMsg={sliderInfo}
         inputLabel={messages[VAULT_ACTIONS.ROLL_POSITION].leverage}
-        rightCaption={
-          primaryBorrowSymbol ? (
-            <DebtAmountCaption
-              borrowAmount={cashBorrowed}
-              suffix={primaryBorrowSymbol}
-            />
-          ) : undefined
-        }
+        rightCaption={<DebtAmountCaption amount={cashBorrowed} />}
         bottomCaption={
-          primaryBorrowSymbol ? (
-            <TransactionCostCaption
-              toolTipText={messages.summary.transactionCostToolTip}
-              transactionCost={transactionCost}
-              suffix={primaryBorrowSymbol}
-            />
-          ) : undefined
+          <TransactionCostCaption
+            toolTipText={messages.summary.transactionCostToolTip}
+            transactionCosts={transactionCosts}
+          />
         }
       />
     </VaultSideDrawer>
