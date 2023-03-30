@@ -5,6 +5,7 @@ import {
   TransactionData,
 } from '@notional-finance/trade';
 import { useContext } from 'react';
+import { FormattedMessage } from 'react-intl';
 import { messages } from '../messages';
 import { VaultActionContext } from '../vault-view/vault-action-provider';
 
@@ -25,7 +26,10 @@ export function useTransactionProperties(): TransactionData | undefined {
   // Check that all dependencies are defined
   if (!(buildTransactionCall && vaultAction && vaultAccount && baseVault))
     return undefined;
-  const transactionHeader = messages[vaultAction].heading;
+
+  const transactionHeader = (
+    <FormattedMessage {...messages[vaultAction].heading} />
+  );
 
   let transactionProperties: TradeProperties;
   switch (vaultAction) {

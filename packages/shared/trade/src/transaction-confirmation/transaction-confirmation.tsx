@@ -21,7 +21,7 @@ export interface TransactionFunction {
 }
 
 export interface TransactionData {
-  transactionHeader: string;
+  transactionHeader: React.ReactNode;
   transactionProperties: TradeProperties;
   buildTransactionCall: TransactionFunction;
 }
