@@ -19,6 +19,7 @@ import { MobileVaultSummary } from '../../components';
 import { useVaultActionErrors } from '../../hooks';
 import { WalletDepositInput } from '@notional-finance/trade';
 import { messages } from '../../messages';
+import { DebtAmountCaption, TransactionCostCaption } from '../../components';
 
 interface VaultParams {
   vaultAddress: string;
@@ -127,9 +128,19 @@ export const CreateVaultPosition = () => {
                   })
                 : undefined)
             }
-            infoMsg={Object.assign(messages.summary.borrowAmount, {
-              values: { borrowAmount },
-            })}
+            rightCaption={
+              <DebtAmountCaption
+                borrowAmount={cashBorrowed}
+                suffix={primaryBorrowSymbol}
+              />
+            }
+            bottomCaption={
+              <TransactionCostCaption
+                toolTipText={messages.summary.transactionCostToolTip}
+                transactionCost={transactionCost}
+                suffix={primaryBorrowSymbol}
+              />
+            }
             inputLabel={messages[VAULT_ACTIONS.CREATE_VAULT_POSITION].leverage}
           />
         </VaultSideDrawer>

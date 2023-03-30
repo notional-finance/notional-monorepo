@@ -6,11 +6,12 @@ import { messages } from '../../messages';
 import { VaultActionContext } from '../../vault-view/vault-action-provider';
 import { RATE_PRECISION } from '@notional-finance/sdk/src/config/constants';
 import { useCallback, useEffect, useRef, useContext } from 'react';
+import { DebtAmountCaption, TransactionCostCaption } from '../../components';
 
 export const WithdrawAndRepayDebt = () => {
   const {
     updateState,
-    state: { maxLeverageRatio, leverageRatio },
+    state: { maxLeverageRatio, leverageRatio, primaryBorrowSymbol },
   } = useContext(VaultActionContext);
   const inputRef = useRef<SliderInputHandle>(null);
   const transactionData = useWithdrawAndRepayDebt();
@@ -44,6 +45,24 @@ export const WithdrawAndRepayDebt = () => {
         }
         errorMsg={sliderError}
         infoMsg={sliderInfo}
+        rightCaption={
+          primaryBorrowSymbol ? (
+            <DebtAmountCaption
+              repayDebt
+              amount={cashBorrowed}
+              suffix={primaryBorrowSymbol}
+            />
+          ) : undefined
+        }
+        bottomCaption={
+          primaryBorrowSymbol ? (
+            <TransactionCostCaption
+              toolTipText={messages.summary.transactionCostToolTip}
+              transactionCost={transactionCost}
+              suffix={primaryBorrowSymbol}
+            />
+          ) : undefined
+        }
         inputLabel={messages[VAULT_ACTIONS.WITHDRAW_AND_REPAY_DEBT].leverage}
       />
     </VaultSideDrawer>

@@ -152,7 +152,7 @@ export const messages = {
   */
   [PORTFOLIO_ACTIONS.MANAGE_VAULT]: defineMessages({
     heading: {
-      defaultMessage: 'Manage {vaultName} Vault',
+      defaultMessage: 'Manage Vault',
       description: '',
     },
     headingTwo: {
@@ -206,7 +206,8 @@ export const messages = {
       description: '',
     },
     helptext: {
-      defaultMessage: 'Deposit Collateral Stuff',
+      defaultMessage:
+        'Deposit additional collateral from your wallet to reduce the leverage in your vault.',
       description: '',
     },
   }),
@@ -279,6 +280,11 @@ export const messages = {
     strategyOverviewFinancialModel: {
       defaultMessage: 'Financial Model',
       description: 'documentation link',
+    },
+    transactionCostToolTip: {
+      defaultMessage:
+        'Transaction costs are paid on entry and exit. They include trading fees paid to Notional as well as any other fees incurred from trading on decentralized exchanges.',
+      description: 'transaction cost tooltip',
     },
   }),
   error: defineMessages({
