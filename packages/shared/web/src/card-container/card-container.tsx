@@ -5,6 +5,7 @@ import { useLocation } from 'react-router-dom';
 import { colors } from '@notional-finance/styles';
 import { HeadingSubtitle, H1, ExternalLink } from '@notional-finance/mui';
 import { CardSubNav } from './card-sub-nav/card-sub-nav';
+import { CardTable } from './card-table/card-table';
 
 export interface CardContainerProps {
   heading: MessageDescriptor;
@@ -30,60 +31,101 @@ export function CardContainer({
   }, []);
 
   return (
-    <StyledContainer sx={{ ...sx }}>
-      <Box
-        sx={{
-          background: 'linear-gradient(90deg, #053542 28.68%, #06657E 126.35%)',
-          height: '550px',
-          display: 'flex',
-          alignItems: 'center',
-          minWidth: '100%',
-        }}
-      >
+    <MainContainer sx={{ ...sx }}>
+      <Background>
         <StyledTopContent>
-          {/* NOTE: this conditional is temporary until variable borrowing is introduced */}
-          {!pathname.includes('borrow') && <CardSubNav />}
-          <H1 gutter="default" style={{ color: colors.white }}>
-            <FormattedMessage {...heading} />
-          </H1>
-          <Box
-            sx={{
-              width: {
-                xs: 'auto',
-                sm: 'auto',
-                md: theme.spacing(62),
-                lg: theme.spacing(62),
-              },
-            }}
-          >
-            <HeadingSubtitle
-              fontWeight="regular"
-              maxWidth={theme.spacing(96)}
-              style={{ color: colors.white }}
+          <ContentContainer>
+            <Box
+              sx={{
+                marginBottom: {
+                  xs: theme.spacing(8),
+                  sm: theme.spacing(8),
+                  md: theme.spacing(8),
+                  lg: '0px',
+                  xl: '0px',
+                },
+              }}
             >
-              <FormattedMessage {...subtitle} />
-            </HeadingSubtitle>
-            <ExternalLink
-              href={docsLink}
-              textDecoration
-              style={{ color: theme.palette.info.accent }}
-            >
-              <FormattedMessage {...linkText} />
-            </ExternalLink>
-          </Box>
+              {/* NOTE: this conditional is temporary until variable borrowing is introduced */}
+              {!pathname.includes('borrow') && <CardSubNav />}
+              <Title gutter="default">
+                <FormattedMessage {...heading} />
+              </Title>
+              <Box
+                sx={{
+                  width: {
+                    xs: 'auto',
+                    sm: 'auto',
+                    md: theme.spacing(62),
+                    lg: theme.spacing(62),
+                  },
+                }}
+              >
+                <HeadingSubtitle
+                  fontWeight="regular"
+                  maxWidth={theme.spacing(96)}
+                  style={{ color: colors.white }}
+                >
+                  <FormattedMessage {...subtitle} />
+                </HeadingSubtitle>
+                <ExternalLink
+                  href={docsLink}
+                  textDecoration
+                  style={{ color: theme.palette.info.accent }}
+                >
+                  <FormattedMessage {...linkText} />
+                </ExternalLink>
+              </Box>
+            </Box>
+            <CardTable />
+          </ContentContainer>
         </StyledTopContent>
-      </Box>
+      </Background>
       <StyledCardList>{children}</StyledCardList>
-    </StyledContainer>
+    </MainContainer>
   );
 }
 
-const StyledContainer = styled(Box)(
+const MainContainer = styled(Box)(
   ({ theme }) => `
   margin: 0 auto;
   overflow: hidden;
   margin-bottom: ${theme.spacing(25)};
   width: 100%;
+`
+);
+
+const Title = styled(H1)(
+  ({ theme }) => `
+  color: ${colors.white};
+  ${theme.breakpoints.down('sm')} {
+    font-size: 36px;
+  }
+`
+);
+
+const Background = styled(Box)(
+  ({ theme }) => `
+  background: linear-gradient(90deg, #053542 28.68%, #06657E 126.35%);
+  height: ${theme.spacing(69)};
+  display: flex;
+  align-items: center;
+  minWidth: 100%;
+  ${theme.breakpoints.down('md')} {
+    height: ${theme.spacing(94)};
+  }
+`
+);
+
+const ContentContainer = styled(Box)(
+  ({ theme }) => `
+  display: flex;
+  justify-content: space-between;
+  ${theme.breakpoints.down('md')} {
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: ${theme.spacing(10)};
+  }
 `
 );
 
@@ -97,6 +139,11 @@ const StyledTopContent = styled(Box)(
   margin: auto;
   ${theme.breakpoints.down('lg')} {
     margin-left: ${theme.spacing(6)};
+    margin-right: ${theme.spacing(6)};
+  }
+  ${theme.breakpoints.down('sm')} {
+    margin-left: ${theme.spacing(2)};
+    margin-right: ${theme.spacing(2)};
   }
 `
 );
