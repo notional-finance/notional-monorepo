@@ -82,7 +82,7 @@ export interface VaultActionState
   fCashToLend?: TypedBigNumber;
   vaultSharesToRedeem?: TypedBigNumber;
   amountToWallet?: TypedBigNumber;
-  costToLend?: TypedBigNumber;
+  costToRepay?: TypedBigNumber;
 
   transactionCosts?: TypedBigNumber;
 
