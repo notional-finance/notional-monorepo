@@ -32,14 +32,14 @@ export function useVaultDetailsTable(
   ][] = [];
   try {
     const currentThresholds =
-      currentVaultAccount && baseVault
+      currentVaultAccount?.isInactive === false && baseVault
         ? baseVault.getLiquidationThresholds(
             currentVaultAccount,
             getNowSeconds()
           )
         : [];
     const updatedThresholds =
-      updatedVaultAccount && baseVault
+      updatedVaultAccount?.isInactive === false && baseVault
         ? baseVault.getLiquidationThresholds(
             updatedVaultAccount,
             getNowSeconds()
@@ -51,7 +51,7 @@ export function useVaultDetailsTable(
       (t) => t.name
     );
   } catch (e) {
-    logError(e as Error, 'use-vault-risk-table', 'getLiquidationThresholds');
+    logError(e as Error, 'use-vault-details-table', 'getLiquidationThresholds');
   }
 
   const currentLeverage =
