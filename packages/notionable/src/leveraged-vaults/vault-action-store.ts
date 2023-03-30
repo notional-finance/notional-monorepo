@@ -46,7 +46,7 @@ interface VaultInputs {
 interface VaultInitData {
   primaryBorrowCurrency?: number;
   primaryBorrowSymbol?: string;
-  minBorrowSize?: string; 
+  minBorrowSize?: string;
   minAccountBorrowSize?: TypedBigNumber;
   strategyName?: string;
 
@@ -81,6 +81,8 @@ export interface VaultActionState
   fCashToLend?: TypedBigNumber;
   vaultSharesToRedeem?: TypedBigNumber;
   amountToWallet?: TypedBigNumber;
+
+  transactionCosts?: TypedBigNumber;
 
   // Calculated Account Data
   maximumLeverageRatio?: number;

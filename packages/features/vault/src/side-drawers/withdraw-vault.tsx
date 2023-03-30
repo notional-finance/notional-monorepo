@@ -7,16 +7,15 @@ import {
   useCurrencyInputRef,
 } from '@notional-finance/mui';
 import { INTERNAL_TOKEN_DECIMAL_PLACES } from '@notional-finance/sdk/src/config/constants';
-import { VaultActionContext } from '../../vault-view/vault-action-provider';
+import { VaultActionContext } from '../vault-view/vault-action-provider';
 import { VAULT_ACTIONS } from '@notional-finance/shared-config';
 import { FormattedMessage } from 'react-intl';
 import { VaultSideDrawer } from '../components/vault-side-drawer';
-import { messages } from '../../messages';
-import { useWithdrawVault } from './use-withdraw-vault';
+import { messages } from '../messages';
 
 export const WithdrawVault = () => {
   const { notional } = useNotional();
-  const {setCurrencyInput, currencyInputRef} = useCurrencyInputRef()
+  const { setCurrencyInput, currencyInputRef } = useCurrencyInputRef();
   const { updateState, state } = useContext(VaultActionContext);
 
   const {
@@ -26,8 +25,6 @@ export const WithdrawVault = () => {
     maxWithdraw,
   } = state;
   const isFullRepayment = vaultAccount?.primaryBorrowfCash.isZero();
-  // TODO: transaction data should include costs...
-  const transactionData = useWithdrawVault();
 
   useEffect(() => {
     if (maxWithdraw && maxWithdrawAmountString)
@@ -35,7 +32,7 @@ export const WithdrawVault = () => {
   }, [maxWithdraw, maxWithdrawAmountString, setCurrencyInput]);
 
   return (
-    <VaultSideDrawer transactionData={transactionData}>
+    <VaultSideDrawer>
       {primaryBorrowSymbol && (
         <Box>
           <InputLabel

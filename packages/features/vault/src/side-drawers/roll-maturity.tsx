@@ -1,18 +1,27 @@
 import { useContext, useEffect } from 'react';
 import { WalletDepositInput } from '@notional-finance/trade';
-import { SliderInput, useSliderInputRef } from '@notional-finance/mui';
+import {
+  SliderInput,
+  useSliderInputRef,
+  Maturities,
+} from '@notional-finance/mui';
 import { VAULT_ACTIONS } from '@notional-finance/shared-config';
 import { VaultSideDrawer } from '../components/vault-side-drawer';
-import { VaultActionContext } from '../../vault-view/vault-action-provider';
+import { VaultActionContext } from '../vault-view/vault-action-provider';
 import { RATE_PRECISION } from '@notional-finance/sdk/src/config/constants';
-import { useIncreaseVaultPosition } from './use-increase-vault-position';
-import { messages } from '../../messages';
-import { DebtAmountCaption, TransactionCostCaption } from '../../components';
+import { messages } from '../messages';
+import { DebtAmountCaption, TransactionCostCaption } from '../components';
 
-export const IncreaseVaultPosition = () => {
+export const RollMaturity = () => {
   const {
     updateState,
-    state: { primaryBorrowSymbol, maxLeverageRatio, leverageRatio },
+    state: {
+      selectedMarketKey,
+      borrowMarketData,
+      primaryBorrowSymbol,
+      maxLeverageRatio,
+      leverageRatio,
+    },
   } = useContext(VaultActionContext);
   const { sliderInputRef, setSliderInput } = useSliderInputRef();
   useEffect(() => {
@@ -21,12 +30,19 @@ export const IncreaseVaultPosition = () => {
     }
   }, [leverageRatio, setSliderInput]);
 
-  const transactionData = useIncreaseVaultPosition();
   const sliderError = undefined;
   const sliderInfo = undefined;
 
   return (
-    <VaultSideDrawer transactionData={transactionData}>
+    <VaultSideDrawer>
+      <Maturities
+        maturityData={borrowMarketData || []}
+        onSelect={(marketKey: string | null) => {
+          updateState({ selectedMarketKey: marketKey || '' });
+        }}
+        currentMarketKey={selectedMarketKey || ''}
+        inputLabel={messages[VAULT_ACTIONS.ROLL_POSITION].maturity}
+      />
       {primaryBorrowSymbol && (
         <WalletDepositInput
           availableTokens={[primaryBorrowSymbol]}
@@ -37,7 +53,7 @@ export const IncreaseVaultPosition = () => {
               hasError,
             });
           }}
-          inputLabel={messages[VAULT_ACTIONS.INCREASE_POSITION]['inputLabel']}
+          inputLabel={messages[VAULT_ACTIONS.ROLL_POSITION]['inputLabel']}
           errorMsgOverride={undefined}
         />
       )}
@@ -52,7 +68,7 @@ export const IncreaseVaultPosition = () => {
         }
         errorMsg={sliderError}
         infoMsg={sliderInfo}
-        inputLabel={messages[VAULT_ACTIONS.INCREASE_POSITION].leverage}
+        inputLabel={messages[VAULT_ACTIONS.ROLL_POSITION].leverage}
         rightCaption={
           primaryBorrowSymbol ? (
             <DebtAmountCaption

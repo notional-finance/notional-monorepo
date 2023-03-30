@@ -1,12 +1,11 @@
 import { VAULT_ACTIONS } from '@notional-finance/shared-config';
 import { VaultSideDrawer } from '../components/vault-side-drawer';
 import { SliderInput, useSliderInputRef } from '@notional-finance/mui';
-import { useWithdrawAndRepayDebt } from './use-withdraw-and-repay-debt';
-import { messages } from '../../messages';
-import { VaultActionContext } from '../../vault-view/vault-action-provider';
+import { messages } from '../messages';
+import { VaultActionContext } from '../vault-view/vault-action-provider';
 import { RATE_PRECISION } from '@notional-finance/sdk/src/config/constants';
 import { useEffect, useContext } from 'react';
-import { DebtAmountCaption, TransactionCostCaption } from '../../components';
+import { DebtAmountCaption, TransactionCostCaption } from '../components';
 
 export const WithdrawAndRepayDebt = () => {
   const {
@@ -20,12 +19,11 @@ export const WithdrawAndRepayDebt = () => {
     }
   }, [leverageRatio, setSliderInput]);
 
-  const transactionData = useWithdrawAndRepayDebt();
   const sliderError = undefined;
   const sliderInfo = undefined;
 
   return (
-    <VaultSideDrawer transactionData={transactionData}>
+    <VaultSideDrawer>
       <SliderInput
         ref={sliderInputRef}
         min={0}

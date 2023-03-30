@@ -11,15 +11,15 @@ import {
 import { Box, styled, useTheme } from '@mui/material';
 import { RATE_PRECISION } from '@notional-finance/sdk/src/config/constants';
 import { VAULT_ACTIONS } from '@notional-finance/shared-config';
-import { VaultActionContext } from '../../vault-view/vault-action-provider';
+import { VaultActionContext } from '../vault-view/vault-action-provider';
 import { VaultSideDrawer } from '../components/vault-side-drawer';
 import { useVault } from '@notional-finance/notionable-hooks';
-import { useCreateVaultPosition } from './use-create-vault-position';
-import { MobileVaultSummary } from '../../components';
-import { useVaultActionErrors } from '../../hooks';
+import { MobileVaultSummary } from '../components';
+import { useVaultActionErrors } from '../hooks';
 import { WalletDepositInput } from '@notional-finance/trade';
-import { messages } from '../../messages';
-import { DebtAmountCaption, TransactionCostCaption } from '../../components';
+import { messages } from '../messages';
+import { DebtAmountCaption, TransactionCostCaption } from '../components';
+import { useTransactionProperties } from '../hooks/use-transaction-properties';
 
 interface VaultParams {
   vaultAddress: string;
@@ -29,20 +29,21 @@ interface VaultParams {
 export const CreateVaultPosition = () => {
   const theme = useTheme();
   const { vaultAddress } = useParams<VaultParams>();
-  const { updateState, state } = useContext(VaultActionContext);
-  const transactionData = useCreateVaultPosition();
+  const transactionData = useTransactionProperties();
   const { setSliderInput, sliderInputRef } = useSliderInputRef();
   const { minBorrowSize, maxLeverageRatio, primaryBorrowSymbol } =
     useVault(vaultAddress);
   const { underMinAccountBorrow, inputErrorMsg, leverageRatioError } =
     useVaultActionErrors();
-
   const {
-    selectedMarketKey,
-    borrowMarketData,
-    fCashBorrowAmount,
-    leverageRatio,
-  } = state;
+    updateState,
+    state: {
+      selectedMarketKey,
+      borrowMarketData,
+      fCashBorrowAmount,
+      leverageRatio,
+    },
+  } = useContext(VaultActionContext);
 
   useEffect(() => {
     updateState({
