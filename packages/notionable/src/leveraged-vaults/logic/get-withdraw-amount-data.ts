@@ -34,6 +34,7 @@ export function getWithdrawAmountData(inputs: VaultWithdrawDataDependencies) {
       amountToWallet: undefined,
       fCashToLend: undefined,
       vaultSharesToRedeem: undefined,
+      costToRepay: undefined,
     };
   }
 
@@ -42,6 +43,8 @@ export function getWithdrawAmountData(inputs: VaultWithdrawDataDependencies) {
     fCashToLend,
     vaultSharesToRedeem,
     updatedVaultAccount,
+    costToRepay,
+    transactionCosts,
   } = _getWithdrawAmountData(inputs);
 
   const { accountAddress, baseVault, vaultAccount } = inputs;
@@ -50,6 +53,8 @@ export function getWithdrawAmountData(inputs: VaultWithdrawDataDependencies) {
     amountToWallet,
     fCashToLend,
     vaultSharesToRedeem,
+    costToRepay: costToRepay?.toUnderlying(),
+    transactionCosts: transactionCosts?.toUnderlying(),
     updatedVaultAccount,
     buildTransactionCall:
       updatedVaultAccount && accountAddress
@@ -77,6 +82,8 @@ function _getWithdrawAmountData({
 }: VaultWithdrawDataDependencies) {
   let amountToWallet: TypedBigNumber | undefined;
   let fCashToLend: TypedBigNumber | undefined;
+  let costToRepay: TypedBigNumber | undefined;
+  let netTradingFee: TypedBigNumber | undefined;
   let vaultSharesToRedeem: TypedBigNumber | undefined;
   let updatedVaultAccount: VaultAccount | undefined;
 
@@ -90,6 +97,8 @@ function _getWithdrawAmountData({
       return {
         amountToWallet,
         updatedVaultAccount,
+        costToRepay: vaultAccount.primaryBorrowfCash.copy(0),
+        transactionCosts: vaultAccount.primaryBorrowfCash.copy(0),
         fCashToLend: vaultAccount.primaryBorrowfCash.copy(0),
         vaultSharesToRedeem: vaultAccount.vaultShares.copy(0),
       };
@@ -103,6 +112,8 @@ function _getWithdrawAmountData({
     ) {
       ({
         fCashToLend,
+        costToRepay,
+        netTradingFee,
         newVaultAccount: updatedVaultAccount,
         vaultSharesToRedeemAtCost: vaultSharesToRedeem,
       } = baseVault.getExitParamsFromLeverageRatio(
@@ -114,6 +125,8 @@ function _getWithdrawAmountData({
         amountToWallet: undefined,
         updatedVaultAccount,
         fCashToLend,
+        costToRepay,
+        transactionCosts: netTradingFee,
         vaultSharesToRedeem,
       };
     }
@@ -132,6 +145,8 @@ function _getWithdrawAmountData({
   return {
     amountToWallet,
     fCashToLend,
+    costToRepay,
+    transactionCosts: netTradingFee,
     vaultSharesToRedeem,
     updatedVaultAccount: undefined,
   };
@@ -141,8 +156,11 @@ export function getFullWithdrawAmounts(
   baseVault: GenericBaseVault,
   vaultAccount: VaultAccount
 ) {
-  const { costToRepay, newVaultAccount: updatedVaultAccount } =
-    baseVault.simulateExitPreMaturityInFull(vaultAccount);
+  const {
+    costToRepay,
+    newVaultAccount: updatedVaultAccount,
+    netTradingFee,
+  } = baseVault.simulateExitPreMaturityInFull(vaultAccount);
 
   const amountToWallet = baseVault
     .getCashValueOfShares(vaultAccount)
@@ -157,6 +175,8 @@ export function getFullWithdrawAmounts(
     amountToWallet,
     fCashToLend,
     vaultSharesToRedeem,
+    costToRepay,
+    transactionCosts: netTradingFee,
   };
 }
 
@@ -165,6 +185,8 @@ function getPartialWithdrawAmounts(
   vaultAccount: VaultAccount,
   withdrawAmount: TypedBigNumber
 ) {
+  let costToRepay: TypedBigNumber | undefined;
+  let netTradingFee: TypedBigNumber | undefined;
   let fCashToLend: TypedBigNumber | undefined;
   let vaultSharesToRedeem: TypedBigNumber | undefined;
   let updatedVaultAccount: VaultAccount | undefined;
@@ -204,6 +226,8 @@ function getPartialWithdrawAmounts(
       newVaultAccount: updatedVaultAccount,
       isFullExit,
       vaultSharesToRedeemAtCost,
+      costToRepay,
+      netTradingFee,
     } = baseVault.getExitParamsFromLeverageRatio(
       updatedVaultAccount,
       previousLeverageRatio
@@ -224,5 +248,7 @@ function getPartialWithdrawAmounts(
     fCashToLend,
     vaultSharesToRedeem,
     updatedVaultAccount,
+    costToRepay,
+    transactionCosts: netTradingFee,
   };
 }

@@ -25,6 +25,11 @@ interface VaultBorrowDataDependencies {
   };
 }
 
+interface ExtendedMaturityData extends MaturityData {
+  cashBorrowed?: TypedBigNumber;
+  assessedFee?: TypedBigNumber;
+}
+
 export function getBorrowMarketData({
   vaultAccount,
   vaultAction,
@@ -35,7 +40,7 @@ export function getBorrowMarketData({
   settledVaultValues,
   selectedMarketKey,
 }: VaultBorrowDataDependencies) {
-  let borrowMarketData: MaturityData[];
+  let borrowMarketData: ExtendedMaturityData[];
 
   if (vaultAction === VAULT_ACTIONS.CREATE_VAULT_POSITION) {
     borrowMarketData = createAccountMaturityData(
@@ -73,6 +78,8 @@ export function getBorrowMarketData({
       fCashBorrowAmount: borrowMarketData[0].fCashAmount,
       currentBorrowRate: borrowMarketData[0].tradeRate,
       selectedMarketKey: borrowMarketData[0].marketKey,
+      cashBorrowed: borrowMarketData[0].cashBorrowed,
+      transactionCosts: borrowMarketData[0].assessedFee,
     };
   } else {
     const selectedMaturity = borrowMarketData.find(
@@ -82,6 +89,8 @@ export function getBorrowMarketData({
       borrowMarketData,
       fCashBorrowAmount: selectedMaturity?.fCashAmount,
       currentBorrowRate: selectedMaturity?.tradeRate,
+      cashBorrowed: selectedMaturity?.cashBorrowed,
+      transactionCosts: selectedMaturity?.assessedFee,
     };
   }
 }
@@ -93,11 +102,13 @@ function calculateMaturityData(
   insufficientLiquidity: boolean
 ) {
   let tradeRate: number | null;
+  let assessedFee: TypedBigNumber | undefined;
+  let cashToVault: TypedBigNumber | undefined;
   if (fCashToBorrow) {
-    const { cashToVault } = baseVault.getDepositedCashFromBorrow(
+    ({ cashToVault, assessedFee } = baseVault.getDepositedCashFromBorrow(
       market.maturity,
       fCashToBorrow
-    );
+    ));
     tradeRate = market.interestRate(fCashToBorrow, cashToVault);
   } else if (insufficientLiquidity) {
     tradeRate = null;
@@ -112,6 +123,8 @@ function calculateMaturityData(
     maturity: market.maturity,
     hasLiquidity: market.hasLiquidity,
     fCashAmount: fCashToBorrow,
+    assessedFee: assessedFee?.toUnderlying(),
+    cashBorrowed: cashToVault?.toUnderlying(),
   };
 }
 

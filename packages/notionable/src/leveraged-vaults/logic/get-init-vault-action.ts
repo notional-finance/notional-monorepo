@@ -11,6 +11,7 @@ import { VAULT_ACTIONS } from '@notional-finance/shared-config';
 import { getNowSeconds } from '@notional-finance/helpers';
 import { NoEligibleMarketsReason, VaultError } from '../vault-action-store';
 import { getFullWithdrawAmounts } from './get-withdraw-amount-data';
+import { getDefaultLeverageRatio } from './get-default-leverage-ratio';
 
 interface InitVaultActionDependencies {
   system: System;
@@ -84,9 +85,19 @@ export function getInitVaultAction({
     maxWithdrawAmountString = '';
   }
 
-  // If there is only one eligible vault action, then set it as the default
+  // If there is only one eligible vault action, then set it as the default. A race
+  // condition requires setting the leverage ratio as well.
+  let leverageRatio: number | undefined = undefined;
   const vaultAction =
     eligibleActions.length === 1 ? eligibleActions[0] : undefined;
+  if (vaultAction) {
+    ({ leverageRatio } = getDefaultLeverageRatio({
+      vaultAction,
+      baseVault,
+      vaultAccount,
+      vaultConfig,
+    }));
+  }
 
   return {
     accountAddress: account?.address || undefined,
@@ -110,12 +121,13 @@ export function getInitVaultAction({
     maxWithdrawAmountString: maxWithdrawAmountString,
     // Clear inputs back to initial conditions
     vaultAction,
+    leverageRatio,
     hasError: false,
     selectedMarketKey: undefined,
-    leverageRatio: undefined,
     depositAmount: undefined,
     withdrawAmount: undefined,
     maxWithdraw: undefined,
+    transactionCosts: undefined,
   };
 }
 

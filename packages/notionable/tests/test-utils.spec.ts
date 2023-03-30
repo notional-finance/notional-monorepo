@@ -36,7 +36,8 @@ const mergeFrames = <T extends Record<string, unknown>>(f: Frame<T>[]) => {
 export type ExpectFn<T> = (
   value: Partial<T>,
   index: number,
-  allValues: Partial<T>[]
+  aggregateState: Partial<T>,
+  frameSequence: Partial<T>[]
 ) => void;
 
 export function getTestScheduler<T extends Record<string, unknown>>() {
@@ -60,6 +61,9 @@ export function getTestScheduler<T extends Record<string, unknown>>() {
         (expectedValue as ExpectFn<T>)(
           actual[index]?.notification.value,
           index,
+          actual.reduce((p, c) => {
+            return { ...c.notification.value, ...p };
+          }, {} as Partial<T>),
           actual.map((f) => f.notification.value)
         );
       } else {

@@ -32,9 +32,7 @@ describe('Vault Actions', () => {
   } = makeStore<VaultActionState>(initialVaultActionState);
   const vaultActionUpdates = loadVaultActionManager(state$);
   const system = new MockSystem();
-  process.env['FAKE_TIME'] = (
-    system.getMarkets(1)[0].maturity - SECONDS_IN_MONTH
-  ).toString();
+  process.env['FAKE_TIME'] = '1677707666';
 
   const getMockAccount = (
     maturity: number,
@@ -77,7 +75,10 @@ describe('Vault Actions', () => {
     } as unknown as Account;
   };
 
-  const testSequence = getSequencer(updateState, vaultActionUpdates);
+  const testSequence = getSequencer((s) => {
+    console.log('saw state', s);
+    updateState(s);
+  }, vaultActionUpdates);
 
   beforeAll(() => {
     system.setVault({
@@ -210,7 +211,7 @@ describe('Vault Actions', () => {
         [
           { vaultAddress: VAULT },
           (v) => {
-            expect(v.vaultAction).toBeUndefined();
+            expect(v.vaultAction).toEqual(VAULT_ACTIONS.CREATE_VAULT_POSITION);
             expect(v.eligibleActions).toEqual([
               VAULT_ACTIONS.CREATE_VAULT_POSITION,
             ]);
@@ -370,12 +371,13 @@ describe('Vault Actions', () => {
       updateAccountState({ account: getMockAccount(0) });
 
       testSequence([
-        { vaultAddress: VAULT },
         [
-          { vaultAction: VAULT_ACTIONS.CREATE_VAULT_POSITION },
+          { vaultAddress: VAULT },
           (v) => {
-            expect(v.leverageRatio).toBe(10e9);
             expect(v.borrowMarketData?.length).toEqual(2);
+            expect(v.leverageRatio).toBe(10e9);
+            expect(v.transactionCosts).toBeUndefined();
+            expect(v.cashBorrowed).toBeUndefined();
           },
         ],
         // user switches markets
@@ -401,7 +403,7 @@ describe('Vault Actions', () => {
           {
             depositAmount: TypedBigNumber.fromBalance(1e8, 'ETH', true),
           },
-          (v, index, values) => {
+          (v, index, _, values) => {
             expect(v.fCashBorrowAmount).toBeDefined();
             expect(v.currentBorrowRate).toBeGreaterThan(
               values[index - 1].currentBorrowRate!
@@ -410,6 +412,8 @@ describe('Vault Actions', () => {
             expect(v.netCapacityChange?.neg().eq(v.fCashBorrowAmount!)).toBe(
               true
             );
+            expect(v.transactionCosts).toBeDefined();
+            expect(v.cashBorrowed).toBeDefined();
           },
         ],
         [
@@ -419,6 +423,8 @@ describe('Vault Actions', () => {
             expect(v.fCashBorrowAmount).toBeUndefined();
             expect(v.updatedVaultAccount).toBeUndefined();
             expect(v.netCapacityChange?.isZero()).toBe(true);
+            expect(v.transactionCosts).toBeUndefined();
+            expect(v.cashBorrowed).toBeUndefined();
           },
         ],
       ]);
@@ -437,6 +443,8 @@ describe('Vault Actions', () => {
             expect(v.borrowMarketData?.length).toEqual(1);
             // Current maturity is selected
             expect(v.selectedMarketKey).toEqual('1:1:1679616000');
+            expect(v.transactionCosts).toBeDefined();
+            expect(v.cashBorrowed).toBeDefined();
           },
         ],
         [
@@ -451,6 +459,8 @@ describe('Vault Actions', () => {
             expect(v.borrowMarketData?.length).toEqual(1);
             // Next maturity is selected
             expect(v.selectedMarketKey).toEqual('1:2:1687392000');
+            expect(v.transactionCosts).toBeDefined();
+            expect(v.cashBorrowed).toBeDefined();
           },
         ],
       ]);
@@ -469,6 +479,8 @@ describe('Vault Actions', () => {
             expect(v.borrowMarketData?.length).toEqual(1);
             // There is only one market here (also in increase markets) and it is auto selected
             expect(v.selectedMarketKey).toEqual('1:2:1687392000');
+            expect(v.transactionCosts).toBeDefined();
+            expect(v.cashBorrowed).toBeDefined();
           },
         ],
         [
@@ -496,6 +508,8 @@ describe('Vault Actions', () => {
             expect(v.vaultSharesToRedeem?.toFloat()).toBe(0);
             expect(v.amountToWallet?.toFloat()).toBe(0);
             expect(v.netCapacityChange?.isZero()).toBe(true);
+            expect(v.transactionCosts?.isZero()).toBe(true);
+            expect(v.costToRepay?.isZero()).toBe(true);
           },
         ],
       ]);
@@ -518,6 +532,8 @@ describe('Vault Actions', () => {
             expect(v.vaultSharesToRedeem?.toFloat()).toBeCloseTo(0.06);
             expect(v.amountToWallet?.toFloat()).toBeCloseTo(0.01, 3);
             expect(v.netCapacityChange?.eq(v.fCashToLend!.neg())).toBe(true);
+            expect(v.transactionCosts).toBeDefined();
+            expect(v.costToRepay).toBeDefined();
           },
         ],
         [
@@ -531,6 +547,8 @@ describe('Vault Actions', () => {
             expect(v.vaultSharesToRedeem?.toFloat()).toBe(5);
             expect(v.amountToWallet?.toFloat()).toBeCloseTo(1, 1);
             expect(v.netCapacityChange?.eq(v.fCashToLend!.neg())).toBe(true);
+            expect(v.transactionCosts).toBeDefined();
+            expect(v.costToRepay).toBeDefined();
           },
         ],
         [
@@ -545,6 +563,8 @@ describe('Vault Actions', () => {
             expect(v.fCashToLend).toBeUndefined();
             expect(v.vaultSharesToRedeem).toBeUndefined();
             expect(v.amountToWallet).toBeUndefined();
+            expect(v.transactionCosts).toBeUndefined();
+            expect(v.costToRepay).toBeUndefined();
           },
         ],
         [
@@ -556,6 +576,8 @@ describe('Vault Actions', () => {
             expect(v.amountToWallet?.toFloat()).toBeCloseTo(1, 1);
             expect(v.fCashToLend?.toFloat()).toBe(4);
             expect(v.netCapacityChange?.eq(v.fCashToLend!.neg())).toBe(true);
+            expect(v.transactionCosts).toBeDefined();
+            expect(v.costToRepay).toBeDefined();
           },
         ],
       ]);
@@ -590,6 +612,8 @@ describe('Vault Actions', () => {
               expect(true).toBe(false);
             }
             expect(v.amountToWallet).toBeUndefined();
+            expect(v.transactionCosts).toBeDefined();
+            expect(v.costToRepay).toBeDefined();
           },
         ],
       ]);

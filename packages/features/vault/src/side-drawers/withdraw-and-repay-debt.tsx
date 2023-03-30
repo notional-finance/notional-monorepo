@@ -10,7 +10,7 @@ import { DebtAmountCaption, TransactionCostCaption } from '../components';
 export const WithdrawAndRepayDebt = () => {
   const {
     updateState,
-    state: { maxLeverageRatio, leverageRatio, costToLend, transactionCosts },
+    state: { maxLeverageRatio, leverageRatio, costToRepay, transactionCosts },
   } = useContext(VaultActionContext);
   const { sliderInputRef, setSliderInput } = useSliderInputRef();
   useEffect(() => {
@@ -35,7 +35,7 @@ export const WithdrawAndRepayDebt = () => {
         }
         errorMsg={sliderError}
         infoMsg={sliderInfo}
-        rightCaption={<DebtAmountCaption repayDebt amount={costToLend} />}
+        rightCaption={<DebtAmountCaption repayDebt amount={costToRepay} />}
         bottomCaption={
           <TransactionCostCaption
             toolTipText={messages.summary.transactionCostToolTip}
