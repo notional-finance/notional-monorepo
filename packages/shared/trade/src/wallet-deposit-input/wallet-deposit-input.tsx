@@ -1,6 +1,10 @@
 import React from 'react';
 import { Box } from '@mui/material';
-import { CurrencyInput, CurrencyInputHandle, InputLabel } from '@notional-finance/mui';
+import {
+  CurrencyInput,
+  CurrencyInputHandle,
+  InputLabel,
+} from '@notional-finance/mui';
 import { useCurrencyData } from '@notional-finance/notionable-hooks';
 import { TypedBigNumber } from '@notional-finance/sdk';
 import { useEffect, useState } from 'react';
@@ -19,7 +23,7 @@ interface WalletDepositInputProps {
   selectedToken: string;
   onChange: (change: WalletDepositChange) => void;
   maxValueOverride?: string;
-  errorMsgOverride?: MessageDescriptor;
+  errorMsgOverride?: MessageDescriptor & { values?: Record<string, unknown> };
   inputLabel?: MessageDescriptor;
 }
 
@@ -28,17 +32,25 @@ interface WalletDepositInputProps {
  * it will handle proper parsing, balance checks, and max input amounts.
  * Token approvals will be handled by the token-approval-view
  */
-export const WalletDepositInput = React.forwardRef<CurrencyInputHandle, WalletDepositInputProps>(
+export const WalletDepositInput = React.forwardRef<
+  CurrencyInputHandle,
+  WalletDepositInputProps
+>(
   (
-    { availableTokens, selectedToken, onChange, maxValueOverride, errorMsgOverride, inputLabel },
+    {
+      availableTokens,
+      selectedToken,
+      onChange,
+      maxValueOverride,
+      errorMsgOverride,
+      inputLabel,
+    },
     ref
   ) => {
     const [inputString, setInputString] = useState<string>('');
     const { decimalPlaces } = useCurrencyData(selectedToken);
-    const { inputAmount, maxBalance, maxBalanceString, errorMsg } = useWalletDeposit(
-      selectedToken,
-      inputString
-    );
+    const { inputAmount, maxBalance, maxBalanceString, errorMsg } =
+      useWalletDeposit(selectedToken, inputString);
     const error = errorMsgOverride || errorMsg;
 
     useEffect(() => {

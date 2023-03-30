@@ -30,7 +30,6 @@ export enum VaultError {
 interface VaultInputs {
   // Relevant on all screens
   vaultAction?: VAULT_ACTIONS;
-  hasError: boolean;
   // Relevant on create and roll position
   selectedMarketKey?: string;
   // Relevant on create, increase, roll, and deposit
@@ -65,7 +64,7 @@ interface VaultInitData {
   noEligibleMarketsReason?: NoEligibleMarketsReason;
   minLeverageRatio?: number;
   maxLeverageRatio?: number;
-  maxWithdrawAmountString?: string;
+  maxWithdrawAmount?: TypedBigNumber;
 }
 
 export interface VaultActionState
@@ -93,8 +92,8 @@ export interface VaultActionState
   vaultError?: VaultError;
   buildTransactionCall?: TransactionFunction;
   netCapacityChange?: TypedBigNumber;
+
+  error?: VaultError;
 }
 
-export const initialVaultActionState: VaultActionState = {
-  hasError: false,
-};
+export const initialVaultActionState: VaultActionState = {};
