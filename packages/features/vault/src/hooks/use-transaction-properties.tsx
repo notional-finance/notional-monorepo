@@ -67,10 +67,10 @@ export function useTransactionProperties(): TransactionData | undefined {
         [TradePropertyKeys.remainingAssets]: updatedVaultAccount
           ? baseVault.getCashValueOfShares(updatedVaultAccount).toUnderlying()
           : baseVault.getCashValueOfShares(vaultAccount).toUnderlying(),
+        [TradePropertyKeys.transactionCosts]: transactionCosts,
         [TradePropertyKeys.leverageRatio]: updatedVaultAccount
           ? baseVault?.getLeverageRatio(updatedVaultAccount)
           : baseVault?.getLeverageRatio(vaultAccount),
-        [TradePropertyKeys.transactionCosts]: transactionCosts,
       };
       break;
     case VAULT_ACTIONS.WITHDRAW_VAULT:
@@ -82,10 +82,10 @@ export function useTransactionProperties(): TransactionData | undefined {
         [TradePropertyKeys.remainingAssets]: updatedVaultAccount
           ? baseVault.getCashValueOfShares(updatedVaultAccount).toUnderlying()
           : baseVault.getCashValueOfShares(vaultAccount).toUnderlying(),
+        [TradePropertyKeys.transactionCosts]: transactionCosts,
         [TradePropertyKeys.leverageRatio]: updatedVaultAccount
           ? baseVault?.getLeverageRatio(updatedVaultAccount)
           : baseVault?.getLeverageRatio(vaultAccount),
-        [TradePropertyKeys.transactionCosts]: transactionCosts,
       };
       break;
     case VAULT_ACTIONS.WITHDRAW_VAULT_POST_MATURITY:

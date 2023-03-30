@@ -38,38 +38,58 @@ export function getWithdrawAmountData(inputs: VaultWithdrawDataDependencies) {
     };
   }
 
-  const {
-    amountToWallet,
-    fCashToLend,
-    vaultSharesToRedeem,
-    updatedVaultAccount,
-    costToRepay,
-    transactionCosts,
-  } = _getWithdrawAmountData(inputs);
+  try {
+    const {
+      amountToWallet,
+      fCashToLend,
+      vaultSharesToRedeem,
+      updatedVaultAccount,
+      costToRepay,
+      transactionCosts,
+    } = _getWithdrawAmountData(inputs);
 
-  const { accountAddress, baseVault, vaultAccount } = inputs;
+    const { accountAddress, baseVault, vaultAccount } = inputs;
 
-  return {
-    amountToWallet,
-    fCashToLend,
-    vaultSharesToRedeem,
-    costToRepay: costToRepay?.toUnderlying(),
-    transactionCosts: transactionCosts?.toUnderlying(),
-    updatedVaultAccount,
-    buildTransactionCall:
-      updatedVaultAccount && accountAddress
-        ? {
-            transactionFn: baseVault.populateExitTransaction.bind(baseVault),
-            transactionArgs: [
-              accountAddress,
-              vaultAccount.maturity,
-              vaultSharesToRedeem,
-              fCashToLend,
-              tradeDefaults.defaultAnnualizedSlippage,
-            ],
-          }
-        : undefined,
-  };
+    return {
+      error: undefined,
+      amountToWallet,
+      fCashToLend,
+      vaultSharesToRedeem,
+      costToRepay: costToRepay?.toUnderlying(),
+      transactionCosts: transactionCosts?.toUnderlying(),
+      updatedVaultAccount,
+      buildTransactionCall:
+        updatedVaultAccount && accountAddress
+          ? {
+              transactionFn: baseVault.populateExitTransaction.bind(baseVault),
+              transactionArgs: [
+                accountAddress,
+                vaultAccount.maturity,
+                vaultSharesToRedeem,
+                fCashToLend,
+                tradeDefaults.defaultAnnualizedSlippage,
+              ],
+            }
+          : undefined,
+    };
+  } catch (e) {
+    logError(
+      e as NonLoggedError,
+      'vault-action-manager',
+      'getWithdrawAmountData'
+    );
+
+    return {
+      error: VaultError.ErrorCalculatingWithdraw,
+      amountToWallet: undefined,
+      fCashToLend: undefined,
+      vaultSharesToRedeem: undefined,
+      costToRepay: undefined,
+      transactionCosts: undefined,
+      updatedVaultAccount: undefined,
+      buildTransactionCall: undefined
+    };
+  }
 }
 
 function _getWithdrawAmountData({
@@ -87,58 +107,41 @@ function _getWithdrawAmountData({
   let vaultSharesToRedeem: TypedBigNumber | undefined;
   let updatedVaultAccount: VaultAccount | undefined;
 
-  try {
-    if (vaultAction === VAULT_ACTIONS.WITHDRAW_VAULT_POST_MATURITY) {
-      ({
-        amountRedeemed: amountToWallet,
-        newVaultAccount: updatedVaultAccount,
-      } = baseVault.simulateExitPostMaturity(vaultAccount));
-
-      return {
-        amountToWallet,
-        updatedVaultAccount,
-        costToRepay: vaultAccount.primaryBorrowfCash.copy(0),
-        transactionCosts: vaultAccount.primaryBorrowfCash.copy(0),
-        fCashToLend: vaultAccount.primaryBorrowfCash.copy(0),
-        vaultSharesToRedeem: vaultAccount.vaultShares.copy(0),
-      };
-    } else if (vaultAction === VAULT_ACTIONS.WITHDRAW_VAULT && maxWithdraw) {
-      return getFullWithdrawAmounts(baseVault, vaultAccount);
-    } else if (vaultAction === VAULT_ACTIONS.WITHDRAW_VAULT && withdrawAmount) {
-      return getPartialWithdrawAmounts(baseVault, vaultAccount, withdrawAmount);
-    } else if (
-      vaultAction === VAULT_ACTIONS.WITHDRAW_AND_REPAY_DEBT &&
-      leverageRatio
-    ) {
-      ({
-        fCashToLend,
-        costToRepay,
-        netTradingFee,
-        newVaultAccount: updatedVaultAccount,
-        vaultSharesToRedeemAtCost: vaultSharesToRedeem,
-      } = baseVault.getExitParamsFromLeverageRatio(
-        vaultAccount,
-        leverageRatio
-      ));
-
-      return {
-        amountToWallet: undefined,
-        updatedVaultAccount,
-        fCashToLend,
-        costToRepay,
-        transactionCosts: netTradingFee,
-        vaultSharesToRedeem,
-      };
-    }
-  } catch (e) {
-    logError(
-      e as NonLoggedError,
-      'vault-action-manager',
-      'getWithdrawAmountData'
-    );
+  if (vaultAction === VAULT_ACTIONS.WITHDRAW_VAULT_POST_MATURITY) {
+    ({ amountRedeemed: amountToWallet, newVaultAccount: updatedVaultAccount } =
+      baseVault.simulateExitPostMaturity(vaultAccount));
 
     return {
-      error: VaultError.ErrorCalculatingWithdraw,
+      amountToWallet,
+      updatedVaultAccount,
+      costToRepay: vaultAccount.primaryBorrowfCash.copy(0),
+      transactionCosts: vaultAccount.primaryBorrowfCash.copy(0),
+      fCashToLend: vaultAccount.primaryBorrowfCash.copy(0),
+      vaultSharesToRedeem: vaultAccount.vaultShares.copy(0),
+    };
+  } else if (vaultAction === VAULT_ACTIONS.WITHDRAW_VAULT && maxWithdraw) {
+    return getFullWithdrawAmounts(baseVault, vaultAccount);
+  } else if (vaultAction === VAULT_ACTIONS.WITHDRAW_VAULT && withdrawAmount) {
+    return getPartialWithdrawAmounts(baseVault, vaultAccount, withdrawAmount);
+  } else if (
+    vaultAction === VAULT_ACTIONS.WITHDRAW_AND_REPAY_DEBT &&
+    leverageRatio
+  ) {
+    ({
+      fCashToLend,
+      costToRepay,
+      netTradingFee,
+      newVaultAccount: updatedVaultAccount,
+      vaultSharesToRedeemAtCost: vaultSharesToRedeem,
+    } = baseVault.getExitParamsFromLeverageRatio(vaultAccount, leverageRatio));
+
+    return {
+      amountToWallet: undefined,
+      updatedVaultAccount,
+      fCashToLend,
+      costToRepay,
+      transactionCosts: netTradingFee,
+      vaultSharesToRedeem,
     };
   }
 

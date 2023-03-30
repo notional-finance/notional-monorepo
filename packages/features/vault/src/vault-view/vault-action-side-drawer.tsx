@@ -3,7 +3,7 @@ import { Drawer, SideBarSubHeader, PageLoading } from '@notional-finance/mui';
 import { Transition, TransitionStatus } from 'react-transition-group';
 import { Box, SxProps, useTheme } from '@mui/material';
 import { useVaultSideDrawers } from '../hooks';
-import { useAccount, useOnboard } from '@notional-finance/notionable-hooks';
+import { useOnboard } from '@notional-finance/notionable-hooks';
 import { CreateVaultPosition, ManageVault } from '../side-drawers';
 import { VaultActionContext } from '../vault-view/vault-action-provider';
 import { defineMessage } from 'react-intl';
@@ -41,7 +41,6 @@ export const VaultActionSideDrawer = () => {
   const theme = useTheme();
   const history = useHistory();
   const { vaultAddress: vaultAddressInURL } = useParams<VaultParams>();
-  const { accountSummariesLoaded } = useAccount();
   const { connected } = useOnboard();
   const { SideDrawerComponent, openDrawer } = useVaultSideDrawers();
   const { clearSideDrawer } = useSideDrawerManager();
@@ -60,17 +59,18 @@ export const VaultActionSideDrawer = () => {
     updateState({ vaultAction: undefined });
   };
 
-  const manageVaultActive =
-    accountSummariesLoaded && vaultAccount?.isInactive === false && !openDrawer
-      ? true
-      : false;
+  const manageVaultActive = !openDrawer ? true : false;
   const sideDrawerActive = SideDrawerComponent && openDrawer ? true : false;
   const vaultContextIsLoading = vaultAddressInState !== vaultAddressInURL;
 
   let drawerEl;
   if (vaultContextIsLoading) {
     drawerEl = <PageLoading type="notional" />;
-  } else if (!connected || vaultAccount?.isInactive) {
+  } else if (
+    !connected ||
+    // If the vault can settle then we go to the manage vault screen
+    (vaultAccount?.isInactive && !vaultAccount?.canSettle())
+  ) {
     drawerEl = <CreateVaultPosition />;
   } else {
     drawerEl = (

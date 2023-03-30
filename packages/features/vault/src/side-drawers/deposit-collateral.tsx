@@ -8,8 +8,21 @@ import { messages } from '../messages';
 export const DepositCollateral = () => {
   const {
     updateState,
-    state: { primaryBorrowSymbol },
+    state: {
+      primaryBorrowSymbol,
+      updatedVaultAccount,
+      minLeverageRatio,
+      baseVault,
+    },
   } = useContext(VaultActionContext);
+
+  const errorMsg =
+    minLeverageRatio &&
+    updatedVaultAccount &&
+    baseVault &&
+    baseVault.getLeverageRatio(updatedVaultAccount) < minLeverageRatio
+      ? messages[VAULT_ACTIONS.DEPOSIT_COLLATERAL]['belowMinLeverageError']
+      : undefined;
 
   return (
     <VaultSideDrawer>
@@ -24,7 +37,7 @@ export const DepositCollateral = () => {
             });
           }}
           inputLabel={messages[VAULT_ACTIONS.DEPOSIT_COLLATERAL]['inputLabel']}
-          errorMsgOverride={undefined}
+          errorMsgOverride={errorMsg}
         />
       )}
     </VaultSideDrawer>

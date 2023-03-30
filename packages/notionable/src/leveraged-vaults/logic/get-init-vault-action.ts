@@ -5,6 +5,7 @@ import {
   Account,
   VaultFactory,
   BaseVault,
+  TypedBigNumber,
 } from '@notional-finance/sdk';
 import { Market, System } from '@notional-finance/sdk/src/system';
 import { VAULT_ACTIONS } from '@notional-finance/shared-config';
@@ -77,12 +78,14 @@ export function getInitVaultAction({
     vaultConfig.minCollateralRatioBasisPoints
   );
 
-  let maxWithdrawAmountString = '';
+  let maxWithdrawAmount: TypedBigNumber | undefined;
   try {
-    const { amountToWallet } = getFullWithdrawAmounts(baseVault, vaultAccount);
-    maxWithdrawAmountString = amountToWallet?.toExactString();
+    ({ amountToWallet: maxWithdrawAmount } = getFullWithdrawAmounts(
+      baseVault,
+      vaultAccount
+    ));
   } catch (e) {
-    maxWithdrawAmountString = '';
+    // leave as undefined
   }
 
   // If there is only one eligible vault action, then set it as the default. A race
@@ -118,11 +121,11 @@ export function getInitVaultAction({
       vaultConfig.minAccountBorrowSize.toDisplayStringWithSymbol(0),
     minAccountBorrowSize: vaultConfig.minAccountBorrowSize,
     strategyName: VaultFactory.resolveStrategyName(vaultConfig.strategy) || '',
-    maxWithdrawAmountString: maxWithdrawAmountString,
+    maxWithdrawAmount,
     // Clear inputs back to initial conditions
     vaultAction,
     leverageRatio,
-    hasError: false,
+    error: undefined,
     selectedMarketKey: undefined,
     depositAmount: undefined,
     withdrawAmount: undefined,

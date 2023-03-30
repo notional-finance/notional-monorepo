@@ -20,16 +20,17 @@ export const WithdrawVault = () => {
 
   const {
     primaryBorrowSymbol,
-    vaultAccount,
-    maxWithdrawAmountString,
+    updatedVaultAccount,
+    maxWithdrawAmount,
+    withdrawAmount,
     maxWithdraw,
   } = state;
-  const isFullRepayment = vaultAccount?.primaryBorrowfCash.isZero();
+  const isFullRepayment = updatedVaultAccount?.primaryBorrowfCash.isZero();
 
   useEffect(() => {
-    if (maxWithdraw && maxWithdrawAmountString)
-      setCurrencyInput(maxWithdrawAmountString);
-  }, [maxWithdraw, maxWithdrawAmountString, setCurrencyInput]);
+    if (maxWithdraw && maxWithdrawAmount)
+      setCurrencyInput(maxWithdrawAmount.toExactString());
+  }, [maxWithdraw, maxWithdrawAmount, setCurrencyInput]);
 
   return (
     <VaultSideDrawer>
@@ -50,6 +51,7 @@ export const WithdrawVault = () => {
                     primaryBorrowSymbol,
                     true
                   ),
+                  maxWithdraw: false,
                 });
               } catch (e) {
                 updateState({
@@ -62,8 +64,18 @@ export const WithdrawVault = () => {
                 maxWithdraw: true,
               });
             }}
-            // TODO: add error messages
-            // errorMsg={error && <FormattedMessage {...error} />}
+            errorMsg={
+              withdrawAmount &&
+              maxWithdrawAmount &&
+              withdrawAmount.gt(maxWithdrawAmount) ? (
+                <FormattedMessage
+                  {...messages[VAULT_ACTIONS.WITHDRAW_VAULT].aboveMaxWithdraw}
+                  values={{
+                    maxWithdraw: maxWithdrawAmount?.toDisplayStringWithSymbol(),
+                  }}
+                />
+              ) : undefined
+            }
             captionMsg={
               isFullRepayment && (
                 <FormattedMessage
