@@ -24,7 +24,7 @@ export const TransactionCostCaption = ({
         {transactionCosts ? (
           <CountUp
             value={transactionCosts.toFloat()}
-            suffix={transactionCosts.symbol}
+            suffix={` ${transactionCosts.symbol}`}
             decimals={2}
           />
         ) : (
