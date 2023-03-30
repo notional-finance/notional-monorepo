@@ -73,6 +73,13 @@ export enum PORTFOLIO_CATEGORIES {
   MONEY_MARKET = 'money-market',
 }
 
+export enum CARD_CATEGORIES {
+  LEND_FIXED = 'lend',
+  BORROW_FIXED = 'borrow',
+  LEVERAGED_VAULTS = 'vaults',
+  PROVIDE_LIQUIDITY = 'provide',
+}
+
 export enum SETTINGS_SIDE_DRAWERS {
   SETTINGS = 'settings',
   NOTIFICATIONS = 'notifications',

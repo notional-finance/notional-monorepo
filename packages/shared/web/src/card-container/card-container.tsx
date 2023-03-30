@@ -6,6 +6,7 @@ import { colors } from '@notional-finance/styles';
 import { HeadingSubtitle, H1, ExternalLink } from '@notional-finance/mui';
 import { CardSubNav } from './card-sub-nav/card-sub-nav';
 import { CardTable } from './card-table/card-table';
+import { CardMobileNav } from './card-mobile-nav/card-mobile-nav';
 
 export interface CardContainerProps {
   heading: MessageDescriptor;
@@ -82,6 +83,7 @@ export function CardContainer({
         </StyledTopContent>
       </Background>
       <StyledCardList>{children}</StyledCardList>
+      <CardMobileNav />
     </MainContainer>
   );
 }
