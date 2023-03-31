@@ -36,7 +36,7 @@ const StyledButton = styled(Button, {
 })(
   ({ active, theme }: StyledButtonProps) => `
     color: ${active ? colors.black : colors.white};
-    background: ${active ? colors.neonTurquoise : ''};
+    background: ${active ? colors.neonTurquoise : colors.black};
     border: 1px solid ${colors.neonTurquoise};
     font-weight: 500;
     
