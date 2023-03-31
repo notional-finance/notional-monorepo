@@ -4,7 +4,7 @@ import {
   PORTFOLIO_CATEGORIES,
 } from '@notional-finance/shared-config';
 import { Box, styled, useTheme } from '@mui/material';
-import { Caption } from '@notional-finance/mui';
+import { MobileNav } from '@notional-finance/mui';
 import { useSwipeable } from 'react-swipeable';
 import { Link, useLocation } from 'react-router-dom';
 import { useCardMobileNav, NAV_OPTIONS } from './use-card-mobile-nav';
@@ -49,7 +49,7 @@ export function CardMobileNav() {
           {optionSetOne.map(({ title, Icon, to, id }) => (
             <NavOption key={id}>
               <CustomLink to={to} theme={theme} active={pathname === to}>
-                <Box>{Icon}</Box>
+                <Box sx={{ height: theme.spacing(3) }}>{Icon}</Box>
                 <Title theme={theme} active={pathname === to}>
                   {title}
                 </Title>
@@ -82,9 +82,9 @@ export function CardMobileNav() {
                 to={to}
                 theme={theme}
                 active={pathname === to}
-                sx={{ width: theme.spacing(11.5) }}
+                sx={{ width: theme.spacing(11) }}
               >
-                <Box>{Icon}</Box>
+                <Box sx={{ height: theme.spacing(3) }}>{Icon}</Box>
                 <Title theme={theme} active={pathname === to}>
                   {title}
                 </Title>
@@ -163,7 +163,7 @@ const CustomLink = styled(Link, {
 `
 );
 
-const Title = styled(Caption, {
+const Title = styled(MobileNav, {
   shouldForwardProp: (prop: string) => prop !== 'active',
 })(
   ({ active, theme }: CustomLinkProps) => `

@@ -122,6 +122,7 @@ declare module '@mui/material/styles' {
     cardInput: React.CSSProperties;
     smallInput: React.CSSProperties;
     sectionTitle: React.CSSProperties;
+    mobileNav: React.CSSProperties;
   }
 
   interface TypographyVariantsOptions {
@@ -136,6 +137,7 @@ declare module '@mui/material/styles' {
     cardInput?: React.CSSProperties;
     smallInput?: React.CSSProperties;
     sectionTitle?: React.CSSProperties;
+    mobileNav?: React.CSSProperties;
   }
 
   interface Shape {
@@ -209,6 +211,7 @@ declare module '@mui/material/Typography' {
     cardInput: true;
     smallInput: true;
     sectionTitle: true;
+    mobileNav: true;
   }
 }
 

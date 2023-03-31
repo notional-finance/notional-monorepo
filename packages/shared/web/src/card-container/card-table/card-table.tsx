@@ -94,7 +94,7 @@ const ContentContainer = styled('ul')(
     position: relative;
   }
   ${theme.breakpoints.down('sm')} {
-    width: ${theme.spacing(39)};
+    width: ${theme.spacing(40.25)};
   }
 `
 );
