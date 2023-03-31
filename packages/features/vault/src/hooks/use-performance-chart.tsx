@@ -2,7 +2,11 @@ import { useHistoricalReturns } from './use-historical-returns';
 import { FormattedMessage } from 'react-intl';
 import { useContext } from 'react';
 import { countUpLeverageRatio } from '@notional-finance/trade';
-import { ChartToolTipDataProps } from '@notional-finance/mui';
+import {
+  ChartToolTipDataProps,
+  Label,
+  LabelValue,
+} from '@notional-finance/mui';
 import { Box, useTheme } from '@mui/material';
 import {
   formatNumberAsPercent,
@@ -58,7 +62,9 @@ export const usePerformanceChart = () => {
     leftHeader: <FormattedMessage defaultMessage={'Performance To Date'} />,
     legendOne: (
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <FormattedMessage {...messages.summary.leveragedReturns} />
+        <Label>
+          <FormattedMessage {...messages.summary.leveragedReturns} />
+        </Label>
         <Box
           sx={{
             background: theme.palette.borders.default,
@@ -68,14 +74,18 @@ export const usePerformanceChart = () => {
           }}
         >
           {currentBorrowRate && leverageRatio ? (
-            countUpLeverageRatio(leverageRatio)
+            <LabelValue>{countUpLeverageRatio(leverageRatio)}</LabelValue>
           ) : (
-            <Box sx={{ padding: theme.spacing(0, 2) }}>--</Box>
+            <LabelValue sx={{ padding: theme.spacing(0, 2) }}>--</LabelValue>
           )}
         </Box>
       </Box>
     ),
-    legendTwo: <FormattedMessage defaultMessage={'Unleveraged Returns'} />,
+    legendTwo: (
+      <Label>
+        <FormattedMessage defaultMessage={'Unleveraged Returns'} />
+      </Label>
+    ),
   };
 
   return { areaChartData, areaHeaderData, chartToolTipData };
