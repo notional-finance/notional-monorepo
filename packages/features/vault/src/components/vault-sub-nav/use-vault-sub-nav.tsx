@@ -32,6 +32,7 @@ export const useVaultSubNav = () => {
     {
       label: <FormattedMessage defaultMessage={'Full Documentation'} />,
       key: VAULT_SUB_NAV_ACTIONS.FULL_DOCUMENTATION,
+      // TODO: we need to have a registry for this
       href: 'https://docs.notional.finance/leveraged-vaults/leveraged-vaults/balancer-aura-wsteth-weth-strategy',
     },
   ];
