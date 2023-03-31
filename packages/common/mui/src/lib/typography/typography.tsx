@@ -74,6 +74,7 @@ export const SmallInput = makeVariant('smallInput');
 export const SectionTitle = makeVariant('sectionTitle');
 export const CurrencyTitle = makeVariant('largeNumberLabel');
 export const LargeInputText = makeVariant('largeInput');
+export const MobileNav = makeVariant('mobileNav');
 
 // DEFAULT ============
 export const H1 = makeVariant('h1');
