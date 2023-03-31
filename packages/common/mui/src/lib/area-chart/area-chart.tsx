@@ -92,7 +92,7 @@ export const AreaChart = ({
             <ComposedChart
               height={200}
               data={areaChartData}
-              margin={{ top: 30, right: 30, left: 20, bottom: 20 }}
+              margin={{ top: 30, right: 43, left: 20, bottom: 20 }}
             >
               <Tooltip
                 wrapperStyle={{ outline: 'none' }}
