@@ -39,7 +39,7 @@ export const VaultSummary = () => {
   const tableColumns = useReturnDrivers();
   const {
     overCapacityError,
-    totalCapacityUsed,
+    totalCapacityRemaining,
     maxVaultCapacity,
     capacityUsedPercentage,
     capacityWithUserBorrowPercentage,
@@ -113,8 +113,8 @@ export const VaultSummary = () => {
                 max={100}
                 value={capacityUsedPercentage}
                 captionLeft={{
-                  title: messages.summary.capacityUsed,
-                  value: totalCapacityUsed,
+                  title: messages.summary.capacityRemaining,
+                  value: totalCapacityRemaining,
                 }}
                 captionRight={{
                   title: messages.summary.totalCapacity,
