@@ -1,16 +1,18 @@
 import { ActionSidebar, ToggleSwitchProps } from '@notional-finance/mui';
-import { TransactionData } from '@notional-finance/notionable';
 import { VaultAccount } from '@notional-finance/sdk';
-import { TransactionConfirmation } from '@notional-finance/trade';
-import { VaultRiskTable } from '@notional-finance/risk';
+import {
+  TransactionConfirmation,
+  TransactionData,
+} from '@notional-finance/trade';
+import { VaultDetailsTable } from '@notional-finance/risk';
 import { useQueryParams } from '@notional-finance/utils';
-import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
+import { VAULT_ACTIONS } from '@notional-finance/shared-config';
 import { useHistory, useLocation, useParams } from 'react-router';
 import { PortfolioParams } from '../../portfolio-feature-shell';
 import { messages } from '../messages';
 
 interface VaultSideDrawerProps {
-  action: PORTFOLIO_ACTIONS;
+  action: VAULT_ACTIONS;
   canSubmit: boolean;
   vaultAddress: string;
   updatedVaultAccount?: VaultAccount;
@@ -59,8 +61,8 @@ export const VaultSideDrawer = ({
       cancelRoute={returnToPortfolio}
     >
       {children}
-      {action !== PORTFOLIO_ACTIONS.WITHDRAW_VAULT_POST_MATURITY && (
-        <VaultRiskTable
+      {action !== VAULT_ACTIONS.WITHDRAW_VAULT_POST_MATURITY && (
+        <VaultDetailsTable
           key={'vault-risk-table'}
           updatedVaultAccount={updatedVaultAccount}
           vaultAddress={vaultAddress}

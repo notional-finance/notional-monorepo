@@ -4,16 +4,18 @@ import {
   TypedBigNumber,
   VaultFactory,
 } from '@notional-finance/sdk';
-import { Market } from '@notional-finance/sdk/src/system';
-import { getNowSeconds, logError } from '@notional-finance/helpers';
+import { useLocation } from 'react-router-dom';
+// import { Market } from '@notional-finance/sdk/src/system';
+// import { getNowSeconds, logError } from '@notional-finance/helpers';
+import { logError } from '@notional-finance/helpers';
 import {
   PORTFOLIO_ACTIONS,
   VAULT_ACTIONS,
 } from '@notional-finance/shared-config';
 import { useObservableState } from 'observable-hooks';
 import {
-  vaultState$,
-  initialVaultState,
+  // vaultState$,
+  // initialVaultState,
   vaultPerformance$,
   calculateHeadlineVaultReturns,
 } from '@notional-finance/notionable';
@@ -34,10 +36,10 @@ interface YieldStrategies {
   maxLeverageRatio?: number;
   leveragePercentage?: number;
   routes: {
-    deleveragePosition?: string;
-    increasePosition?: string;
-    withdrawPosition?: string;
-    rollPosition?: string;
+    manageVault?: string;
+    // increasePosition?: string;
+    // withdrawPosition?: string;
+    // rollPosition?: string;
     stakeNOTE?: string;
     unstakeNOTE?: string;
   };
@@ -47,20 +49,21 @@ export function useYieldStrategies(
   onlyLeveragedVaults: boolean
 ): YieldStrategies[] {
   const { system } = useNotional();
+  const { pathname: currentPath } = useLocation();
   const { accountDataCopy: accountData, noteSummary } = useAccount();
   const vaultPerformance = useObservableState(vaultPerformance$);
-  const { activeVaultMarkets } = useObservableState(
-    vaultState$,
-    initialVaultState
-  );
+  // const { activeVaultMarkets } = useObservableState(
+  //   vaultState$,
+  //   initialVaultState
+  // );
 
   if (!system) return [];
 
   const leveragedVaultPositions: YieldStrategies[] =
     accountData.vaultAccounts.map((vaultAccount) => {
       const vaultConfig = vaultAccount.getVault();
-      const activeMarketKeys =
-        activeVaultMarkets.get(vaultConfig.vaultAddress) || [];
+      // const activeMarketKeys =
+      //   activeVaultMarkets.get(vaultConfig.vaultAddress) || [];
       const currencySymbol = system.getUnderlyingSymbol(
         vaultConfig.primaryBorrowCurrency
       );
@@ -77,7 +80,7 @@ export function useYieldStrategies(
       let assetValue = TypedBigNumber.fromBalance(0, currencySymbol, true);
       let leverageRatio: number | undefined;
       let leveragePercentage: number | undefined;
-      let mustDeleverage = false;
+      // let mustDeleverage = false;
       try {
         const baseVault = VaultFactory.buildVaultFromCache(
           vaultConfig.strategy,
@@ -88,7 +91,7 @@ export function useYieldStrategies(
           .toUnderlying(true);
         leverageRatio = baseVault.getLeverageRatio(vaultAccount);
         leveragePercentage = (leverageRatio / maxLeverageRatio) * 100;
-        mustDeleverage = leveragePercentage > 70;
+        // mustDeleverage = leveragePercentage > 70;
       } catch (e) {
         logError(e as Error, 'notionable/account', 'use-yield-strategies');
       }
@@ -104,15 +107,15 @@ export function useYieldStrategies(
         leverageRatio
       );
 
-      const canIncreasePosition =
-        activeMarketKeys.find(
-          (k) => Market.parseMaturity(k) === vaultAccount.maturity
-        ) !== undefined;
-      const canRollPosition =
-        vaultAccount.maturity > getNowSeconds() &&
-        activeMarketKeys.find(
-          (k) => Market.parseMaturity(k) > vaultAccount.maturity
-        ) !== undefined;
+      // const canIncreasePosition =
+      //   activeMarketKeys.find(
+      //     (k) => Market.parseMaturity(k) === vaultAccount.maturity
+      //   ) !== undefined;
+      // const canRollPosition =
+      //   vaultAccount.maturity > getNowSeconds() &&
+      //   activeMarketKeys.find(
+      //     (k) => Market.parseMaturity(k) > vaultAccount.maturity
+      //   ) !== undefined;
 
       // NOTE: debt value is negative
       const netWorth = debtValue ? assetValue.add(debtValue) : assetValue;
@@ -133,16 +136,17 @@ export function useYieldStrategies(
         leveragePercentage,
         isLeveragedVault: true,
         routes: {
-          increasePosition: canIncreasePosition
-            ? `/vaults/${vaultConfig.vaultAddress}?vaultAction=${VAULT_ACTIONS.INCREASE_POSITION}`
-            : undefined,
-          rollPosition: canRollPosition
-            ? `/vaults/${vaultConfig.vaultAddress}?vaultAction=${VAULT_ACTIONS.ROLL_POSITION}`
-            : undefined,
-          withdrawPosition: `${PORTFOLIO_ACTIONS.WITHDRAW_VAULT}?vaultAddress=${vaultConfig.vaultAddress}`,
-          deleveragePosition: mustDeleverage
-            ? `${PORTFOLIO_ACTIONS.DELEVERAGE_VAULT}?vaultAddress=${vaultConfig.vaultAddress}&action=${PORTFOLIO_ACTIONS.DELEVERAGE_VAULT_SELL_ASSETS}`
-            : undefined,
+          manageVault: `${currentPath}/manage-vault/?vaultAddress=${vaultConfig.vaultAddress}`,
+          // increasePosition: canIncreasePosition
+          //   ? `/vaults/${vaultConfig.vaultAddress}?vaultAction=${VAULT_ACTIONS.INCREASE_POSITION}`
+          //   : undefined,
+          // rollPosition: canRollPosition
+          //   ? `/vaults/${vaultConfig.vaultAddress}?vaultAction=${VAULT_ACTIONS.ROLL_POSITION}`
+          //   : undefined,
+          // withdrawPosition: `${VAULT_ACTIONS.WITHDRAW_VAULT}?vaultAddress=${vaultConfig.vaultAddress}`,
+          // deleveragePosition: mustDeleverage
+          //   ? `${VAULT_ACTIONS.DELEVERAGE_VAULT}?vaultAddress=${vaultConfig.vaultAddress}&action=${VAULT_ACTIONS.DELEVERAGE_VAULT_SELL_ASSETS}`
+          //   : undefined,
         },
       };
     });

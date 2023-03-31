@@ -1,8 +1,11 @@
-import { VAULT_ACTIONS } from '@notional-finance/shared-config';
+import {
+  VAULT_ACTIONS,
+  PORTFOLIO_ACTIONS,
+} from '@notional-finance/shared-config';
 import { defineMessages } from 'react-intl';
 
 export const messages = {
-  [VAULT_ACTIONS.ESTABLISH_ACCOUNT]: defineMessages({
+  [VAULT_ACTIONS.CREATE_VAULT_POSITION]: defineMessages({
     heading: {
       defaultMessage: 'Create Vault Position',
       description: 'heading',
@@ -21,7 +24,7 @@ export const messages = {
       description: 'input label',
     },
     leverage: {
-      defaultMessage: '3. How much leverage do you want to take?',
+      defaultMessage: '3. Specify a leverage amount',
       description: 'input label',
     },
     confirm: {
@@ -31,7 +34,7 @@ export const messages = {
   }),
   [VAULT_ACTIONS.INCREASE_POSITION]: defineMessages({
     heading: {
-      defaultMessage: 'Increase Vault Position: {maturity}',
+      defaultMessage: 'Increase Vault Position',
       description: 'heading',
     },
     helptext: {
@@ -43,21 +46,124 @@ export const messages = {
       defaultMessage: '1. You will borrow at this maturity and fixed rate.',
       description: 'input label',
     },
-    depositAmount: {
-      defaultMessage: '2. (Optional) Deposit to maintain your leverage ratio.',
-      description: 'input label',
-    },
     leverage: {
-      defaultMessage: '3. Increase your leverage ratio by borrowing more.',
+      defaultMessage: '2. Adjust Leverage (Optional)',
       description: 'input label',
     },
     confirm: {
       defaultMessage: 'Increase Vault Position',
       description: 'heading',
     },
-    tabLabel: {
-      defaultMessage: 'Increase Position',
-      description: 'tab label',
+    inputLabel: {
+      defaultMessage: '1. Enter Amount to Deposit',
+      description: 'input label',
+    },
+  }),
+  [VAULT_ACTIONS.WITHDRAW_VAULT]: defineMessages({
+    heading: { defaultMessage: 'Withdraw', description: '' },
+    cta: { defaultMessage: 'Withdraw', description: '' },
+    tooltip: {
+      defaultMessage: 'Withdraw from your vault position.',
+      description: '',
+    },
+    helptext: {
+      defaultMessage:
+        'Withdraw from your vault position fully or to a new leverage ratio.',
+      description: 'helptext',
+    },
+    inputLabel: {
+      defaultMessage: 'How much do you want to withdraw from your vault?',
+      description: 'input label',
+    },
+    fullRepaymentInfo: {
+      defaultMessage:
+        'Below minimum borrow size, all assets will be withdrawn.',
+      description: 'info message',
+    },
+    aboveMaxWithdraw: {
+      defaultMessage: 'Cannot withdraw above maximum: {maxWithdraw}',
+      description: 'error message',
+    },
+  }),
+  [VAULT_ACTIONS.WITHDRAW_VAULT_POST_MATURITY]: defineMessages({
+    heading: { defaultMessage: 'Withdraw Matured Position', description: '' },
+    helptext: {
+      defaultMessage:
+        'Vault position matured, all profits will be withdrawn to your wallet.',
+      description: '',
+    },
+    reenterVault: { defaultMessage: 'Re-Enter Vault', description: '' },
+  }),
+  /*
+  [VAULT_ACTIONS.DELEVERAGE_VAULT]: defineMessages({
+    heading: { defaultMessage: 'Deleverage Vault', description: 'heading' },
+    helptext: {
+      defaultMessage:
+        'De-risk your vault position by repaying debts and reducing your leverage.',
+      description: 'helptext',
+    },
+    aboveMaxLeverageError: {
+      defaultMessage: 'Must Reduce Leverage Below: {maxLeverage}',
+      description: 'error message',
+    },
+    fullExitInfo: {
+      defaultMessage: 'Below minimum vault requirements. Full exit required.',
+      description: 'info message',
+    },
+    belowMinLeverageError: {
+      defaultMessage: 'Below Minimum Leverage for Vault: {minLeverage}',
+      description: 'error message',
+    },
+  }),
+  [VAULT_ACTIONS.DELEVERAGE_VAULT_DEPOSIT]: defineMessages({
+    heading: { defaultMessage: 'Deposit', description: '' },
+    helptext: {
+      defaultMessage: 'Deposit additional collateral to reduce your leverage.',
+      description: '',
+    },
+    inputLabel: {
+      defaultMessage: '1. Enter amount to deposit into vault',
+      description: '',
+    },
+    toggle: { defaultMessage: 'Deposit', description: '' },
+  }),
+  */
+  [VAULT_ACTIONS.WITHDRAW_AND_REPAY_DEBT]: defineMessages({
+    heading: {
+      defaultMessage: 'Repay Debt with Vault Assets',
+      description: '',
+    },
+    helptext: {
+      defaultMessage:
+        'Repay debt with vault assets in order to reduce your leverage ratio.',
+      description: '',
+    },
+    leverage: {
+      defaultMessage: 'Reduce your leverage:',
+      description: 'slider label',
+    },
+    leverageTooHigh: {
+      defaultMessage: 'Selected leverage ratio is too high.',
+      description: 'error message',
+    },
+    fullRepaymentInfo: {
+      defaultMessage:
+        'Below minimum borrow size, all assets will be withdrawn.',
+      description: 'info message',
+    },
+  }),
+  [PORTFOLIO_ACTIONS.MANAGE_VAULT]: defineMessages({
+    heading: {
+      defaultMessage: 'Manage Vault',
+      description: '',
+    },
+    headingTwo: {
+      defaultMessage: 'Your {vaultName} Vault Position',
+      description: '',
+    },
+    helptext: {
+      defaultMessage: 'Manage your vault position.',
+      description: '',
     },
   }),
   [VAULT_ACTIONS.ROLL_POSITION]: defineMessages({
@@ -74,12 +180,12 @@ export const messages = {
       defaultMessage: '1. Select a new maturity and new fixed borrowing rate.',
       description: 'input label',
     },
-    depositAmount: {
-      defaultMessage: '2. (Optional) Deposit to maintain your leverage ratio.',
+    inputLabel: {
+      defaultMessage: '2. Deposit to maintain your leverage ratio (Optional)',
       description: 'input label',
     },
     leverage: {
-      defaultMessage: '3. (Optional) Increase your new leverage ratio.',
+      defaultMessage: '3. Adjust Leverage (Optional)',
       description: 'input label',
     },
     confirm: {
@@ -91,6 +197,26 @@ export const messages = {
       description: 'tab label',
     },
   }),
+  [VAULT_ACTIONS.DEPOSIT_COLLATERAL]: defineMessages({
+    heading: { defaultMessage: 'Deposit Collateral', description: '' },
+    inputLabel: {
+      defaultMessage: '1. Enter Deposit Amount',
+      description: '',
+    },
+    leverage: {
+      defaultMessage: '2. Change Leverage (Optional)',
+      description: '',
+    },
+    helptext: {
+      defaultMessage:
+        'Deposit additional collateral from your wallet to reduce the leverage in your vault.',
+      description: '',
+    },
+    belowMinLeverageError: {
+      defaultMessage: 'Below Minimum Leverage for Vault',
+      description: 'error message',
+    },
+  }),
   summary: defineMessages({
     borrowAmount: {
       defaultMessage: 'Borrow Amount: {borrowAmount}',
@@ -100,8 +226,8 @@ export const messages = {
       defaultMessage: 'Expected Yield',
       description: 'text label',
     },
-    capacityUsed: {
-      defaultMessage: 'Capacity Used: ',
+    capacityRemaining: {
+      defaultMessage: 'Capacity Remaining: ',
       description: 'text label',
     },
     totalCapacity: {
@@ -126,7 +252,7 @@ export const messages = {
       description: 'section heading',
     },
     leveragedReturns: {
-      defaultMessage: 'Returns at {leverageRatio} Leverage',
+      defaultMessage: 'Leveraged Returns',
       description: 'section heading',
     },
     currentBorrowRate: {
@@ -160,6 +286,11 @@ export const messages = {
     strategyOverviewFinancialModel: {
       defaultMessage: 'Financial Model',
       description: 'documentation link',
+    },
+    transactionCostToolTip: {
+      defaultMessage:
+        'Transaction costs are paid on entry and exit. They include trading fees paid to Notional as well as any other fees incurred from trading on decentralized exchanges.',
+      description: 'transaction cost tooltip',
     },
   }),
   error: defineMessages({

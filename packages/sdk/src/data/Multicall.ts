@@ -75,7 +75,7 @@ export async function aggregate<T extends Record<string, any>>(
     const networkName = network.name === 'homestead' ? 'mainnet' : network.name;
     // eslint-disable-next-line no-param-reassign
     multicall = new Contract(
-      MULTICALL2[networkName],
+      MULTICALL2[networkName as keyof typeof MULTICALL2],
       Multicall2ABI,
       provider
     ) as Multicall2;

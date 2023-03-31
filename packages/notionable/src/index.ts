@@ -8,6 +8,8 @@ export * from './error/error-manager';
 
 export * from './leveraged-vaults/vault-manager';
 export * from './leveraged-vaults/vault-store';
+export * from './leveraged-vaults/vault-action-manager';
+export * from './leveraged-vaults/vault-action-store';
 
 export * from './market/market-manager';
 export * from './market/market-store';

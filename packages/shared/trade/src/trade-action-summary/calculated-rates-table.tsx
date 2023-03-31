@@ -1,7 +1,7 @@
 import { NOTIONAL_CATEGORIES } from '@notional-finance/shared-config';
 import { DataTable } from '@notional-finance/mui';
 import { useCalculatedRates } from './use-calculated-rates';
-import { defineMessage } from 'react-intl';
+import { FormattedMessage } from 'react-intl';
 
 interface CalculatedRatesTableProps {
   selectedToken: string;
@@ -24,10 +24,14 @@ export const CalculatedRatesTable = ({
     <DataTable
       data={tableData}
       columns={tableColumns}
-      tableTitle={defineMessage({
-        defaultMessage: 'Calculated Interest Rates',
-        description: 'Calculated Interest Rates Table Title',
-      })}
+      tableTitle={
+        <div>
+          <FormattedMessage
+            defaultMessage="Calculated Interest Rates"
+            description="Calculated Interest Rates Table Title"
+          />
+        </div>
+      }
     />
   );
 };

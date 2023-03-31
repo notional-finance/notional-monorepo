@@ -5,7 +5,7 @@ import { useVault } from '@notional-finance/notionable-hooks';
 import { useVaultCapacity } from './use-vault-capacity';
 import { useContext } from 'react';
 import { MessageDescriptor } from 'react-intl';
-import { VaultActionContext } from '../managers';
+import { VaultActionContext } from '../vault-view/vault-action-provider';
 import { messages } from '../messages';
 import { tradeErrors } from '@notional-finance/trade';
 
@@ -83,7 +83,9 @@ export function useVaultActionErrors() {
   }
 
   const hasDepositAmount =
-    vaultAction === VAULT_ACTIONS.ESTABLISH_ACCOUNT ? !!depositAmount : true;
+    vaultAction === VAULT_ACTIONS.CREATE_VAULT_POSITION
+      ? !!depositAmount
+      : true;
   const canSubmit =
     hasError === false &&
     inputErrorMsg === undefined &&

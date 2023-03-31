@@ -1,13 +1,15 @@
 import { useAccount } from '@notional-finance/notionable-hooks';
 import { useVaultCapacity } from './use-vault-capacity';
-import { TransactionFunction } from '@notional-finance/notionable';
 import { TypedBigNumber } from '@notional-finance/sdk';
 import { Market } from '@notional-finance/sdk/src/system';
-import { TradePropertyKeys } from '@notional-finance/trade';
+import {
+  TradePropertyKeys,
+  TransactionFunction,
+} from '@notional-finance/trade';
 import { tradeDefaults, VAULT_ACTIONS } from '@notional-finance/shared-config';
 import { useQueryParams } from '@notional-finance/utils';
 import { useContext } from 'react';
-import { VaultActionContext } from '../managers';
+import { VaultActionContext } from '../vault-view/vault-action-provider';
 import { messages } from '../messages';
 import { useGeoipBlock } from './use-geoip-block';
 
@@ -47,7 +49,7 @@ export const useVaultTransaction = () => {
 
   const slippageBuffer = tradeDefaults.defaultAnnualizedSlippage;
   let buildTransactionCall: TransactionFunction;
-  if (vaultAction === VAULT_ACTIONS.ESTABLISH_ACCOUNT) {
+  if (vaultAction === VAULT_ACTIONS.CREATE_VAULT_POSITION) {
     buildTransactionCall = {
       transactionFn: baseVault.populateEnterTransaction.bind(baseVault),
       transactionArgs: [

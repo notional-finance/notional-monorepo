@@ -90,9 +90,10 @@ export const MainContent = () => {
           >
             <FormattedMessage {...messages.summary.moreFAQ} />
           </H4>
-          {messages.faq.map(({ question, answer }) => {
+          {messages.faq.map(({ question, answer }, i) => {
             return (
               <Faq
+                key={`faq-${i}`}
                 question={<FormattedMessage {...question} />}
                 answer={<FormattedMessage {...answer} />}
               />

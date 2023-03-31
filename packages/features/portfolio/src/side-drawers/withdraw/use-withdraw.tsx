@@ -7,12 +7,12 @@ import {
   useAccountCashBalance,
   useAccountWithdrawableTokens,
 } from '@notional-finance/notionable-hooks';
+import { TypedBigNumber } from '@notional-finance/sdk';
 import {
+  TradePropertyKeys,
   TransactionData,
   TransactionFunction,
-} from '@notional-finance/notionable';
-import { TypedBigNumber } from '@notional-finance/sdk';
-import { TradePropertyKeys } from '@notional-finance/trade';
+} from '@notional-finance/trade';
 import { useFormState } from '@notional-finance/utils';
 import { WITHDRAW_TYPE } from '@notional-finance/shared-config';
 

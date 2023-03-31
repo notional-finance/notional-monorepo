@@ -23,6 +23,15 @@ export enum MOBILE_SUB_NAV_ACTIONS {
   COMPANY = 'company',
 }
 
+export enum VAULT_SUB_NAV_ACTIONS {
+  OVERVIEW = 'overview',
+  MARKET_RETURNS = 'market-returns',
+  YIELD_DRIVERS = 'yeild-drivers',
+  STRATEGY_DETAILS = 'strategy-details',
+  BACK_TO_TOP = 'back-to-top',
+  FULL_DOCUMENTATION = 'full-documentation',
+}
+
 export enum PORTFOLIO_ACTIONS {
   ADD_TO_CALENDAR = 'add-to-calendar',
   DEPOSIT = 'deposit',
@@ -36,13 +45,9 @@ export enum PORTFOLIO_ACTIONS {
   REDEEM_NTOKEN = 'redeem-ntoken',
   // TODO: this should route to redeem-ntoken as a component
   DELEVERAGE = 'deleverage',
-  DELEVERAGE_VAULT = 'deleverage-vault',
-  DELEVERAGE_VAULT_SELL_ASSETS = 'deleverage-vault-sell-assets',
-  DELEVERAGE_VAULT_DEPOSIT = 'deleverage-vault-deposit',
-  WITHDRAW_VAULT = 'withdraw-vault',
-  WITHDRAW_VAULT_POST_MATURITY = 'withdraw-vault-post-maturity',
   GET_NOTIFIED = 'get-notified',
   REMIND_ME = 'remind-me',
+  MANAGE_VAULT = 'manage-vault',
 }
 
 export enum WITHDRAW_TYPE {
@@ -57,9 +62,13 @@ export enum NTOKEN_ACTIONS {
 }
 
 export enum VAULT_ACTIONS {
-  ESTABLISH_ACCOUNT = 'establish-account',
+  CREATE_VAULT_POSITION = 'create-vault-position',
   INCREASE_POSITION = 'increase-position',
+  DEPOSIT_COLLATERAL = 'deposit-collateral',
   ROLL_POSITION = 'roll-position',
+  WITHDRAW_AND_REPAY_DEBT = 'withdraw-and-repay-debt',
+  WITHDRAW_VAULT = 'withdraw-vault',
+  WITHDRAW_VAULT_POST_MATURITY = 'withdraw-vault-post-maturity',
 }
 
 export enum PORTFOLIO_CATEGORIES {
@@ -88,9 +97,8 @@ export enum SETTINGS_SIDE_DRAWERS {
 
 export const SIDE_DRAWERS = {
   ...PORTFOLIO_ACTIONS,
-  ...SETTINGS_SIDE_DRAWERS
-}
-
+  ...SETTINGS_SIDE_DRAWERS,
+};
 
 export enum NAV_DROPDOWN {
   ABOUT = 'About',

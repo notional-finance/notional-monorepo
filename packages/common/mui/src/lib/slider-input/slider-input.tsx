@@ -1,10 +1,10 @@
 import NumberFormat from 'react-number-format';
 import { Box, Input, styled, useTheme } from '@mui/material';
 import { InputLabel } from '../input-label/input-label';
-import { useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import SliderBasic from '../slider-basic/slider-basic';
 import { MessageDescriptor } from 'react-intl';
-import { Label } from '../typography/typography';
+import { Label, Caption } from '../typography/typography';
 import React from 'react';
 
 interface SliderInputProps {
@@ -16,6 +16,8 @@ interface SliderInputProps {
   errorMsg?: MessageDescriptor;
   infoMsg?: MessageDescriptor;
   inputLabel?: MessageDescriptor;
+  rightCaption?: JSX.Element;
+  bottomCaption?: JSX.Element;
 }
 
 export interface SliderInputHandle {
@@ -59,6 +61,22 @@ const NumberFormatter = React.forwardRef<NumberFormat<string>>((props, ref) => {
   );
 });
 
+export const useSliderInputRef = () => {
+  const sliderInputRef = useRef<SliderInputHandle>(null);
+  const isInputRefDefined = !!sliderInputRef.current;
+  const setSliderInput = useCallback(
+    (input: number) => {
+      sliderInputRef.current?.setInputOverride(input);
+    },
+    // isInputRefDefined must be in the dependencies otherwise the useCallback will not
+    // properly trigger to generate a new function when the input ref becomes defined
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [sliderInputRef, isInputRefDefined]
+  );
+
+  return { setSliderInput, sliderInputRef };
+};
+
 export const SliderInput = React.forwardRef<
   SliderInputHandle,
   SliderInputProps
@@ -73,6 +91,8 @@ export const SliderInput = React.forwardRef<
       errorMsg,
       infoMsg,
       inputLabel,
+      rightCaption,
+      bottomCaption,
     },
     ref
   ) => {
@@ -95,7 +115,17 @@ export const SliderInput = React.forwardRef<
 
     return (
       <Box>
-        <InputLabel inputLabel={inputLabel} />
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'baseline',
+          }}
+        >
+          <InputLabel inputLabel={inputLabel} />
+          <Caption>{rightCaption}</Caption>
+        </Box>
+
         <Container
           sx={{
             border: `1px solid ${
@@ -105,6 +135,7 @@ export const SliderInput = React.forwardRef<
         >
           <ValueContainer
             sx={{
+              display: 'flex',
               borderRight: `1px solid ${
                 hasFocus ? theme.palette.info.main : theme.palette.borders.paper
               }`,
@@ -131,7 +162,11 @@ export const SliderInput = React.forwardRef<
                   textAlign: 'right',
                 },
                 color: theme.palette.typography.main,
-                fontSize: theme.typography.h3.fontSize,
+                fontSize: {
+                  xs: theme.typography.h4.fontSize,
+                  sm: theme.typography.h4.fontSize,
+                  md: theme.typography.h3.fontSize,
+                },
                 fontWeight: theme.typography.fontWeightMedium,
                 marginBottom: theme.spacing(0),
               }}
@@ -161,6 +196,9 @@ export const SliderInput = React.forwardRef<
             />
           </SliderContainer>
         </Container>
+        <Caption sx={{ marginTop: theme.spacing(1.5) }}>
+          {bottomCaption}
+        </Caption>
         <Label error={isError} marginTop={theme.spacing(1)} msg={captionMsg} />
       </Box>
     );

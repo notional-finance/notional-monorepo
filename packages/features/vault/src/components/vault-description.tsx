@@ -1,6 +1,12 @@
-import { H4, H5, PageLoading, Paragraph, TradeSummaryBox } from '@notional-finance/mui';
+import {
+  H4,
+  H5,
+  PageLoading,
+  Paragraph,
+  TradeSummaryBox,
+} from '@notional-finance/mui';
 import { Box, styled, useTheme } from '@mui/material';
-import { useVaultDocs } from '../hooks/use-vault-docs';
+import { useVaultDocs } from '../hooks';
 import { ExternalLinkIcon } from '@notional-finance/icons';
 import { messages } from '../messages';
 
@@ -36,7 +42,11 @@ const SummaryContainer = styled(Box)(
 `
 );
 
-export const StrategyDescription = ({ vaultAddress }: { vaultAddress: string }) => {
+export const VaultDescription = ({
+  vaultAddress,
+}: {
+  vaultAddress: string;
+}) => {
   const theme = useTheme();
   const { overviewContent, docsLink } = useVaultDocs(vaultAddress);
 
@@ -66,7 +76,10 @@ export const StrategyDescription = ({ vaultAddress }: { vaultAddress: string }) 
             overviewContent.map(({ heading, paragraphs }, i) => {
               return (
                 <Box key={`section-${i}`} marginBottom={theme.spacing(3)}>
-                  <H5 gutter="default" sx={{ color: theme.palette.typography.main }}>
+                  <H5
+                    gutter="default"
+                    sx={{ color: theme.palette.typography.main }}
+                  >
                     {heading}
                   </H5>
                   {paragraphs.map((c, j) => (
@@ -81,4 +94,4 @@ export const StrategyDescription = ({ vaultAddress }: { vaultAddress: string }) 
   );
 };
 
-export default StrategyDescription;
+export default VaultDescription;

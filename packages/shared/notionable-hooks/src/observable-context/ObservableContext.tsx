@@ -33,7 +33,7 @@ export function createObservableContext<T>(
   return context;
 }
 
-export function useObservableContext<T>(
+export function useObservableContext<T extends Record<string, unknown>>(
   initialState: T,
   queryParamConfig: QueryParamConfigMap,
   loadManagers: (state$: Observable<T>) => Observable<Partial<T>> = () =>
@@ -79,7 +79,7 @@ export function useObservableContext<T>(
 
   useEffect(() => {
     const updates = Object.keys(query).reduce((u, k) => {
-      const stateVal = k in state ? (state as any)[k] : undefined;
+      const stateVal = k in state ? state[k] : undefined;
       if (stateVal === undefined && query[k] !== undefined) {
         // If param is undefined in state, it has param has precedence
         return { ...u, [k]: query[k] };

@@ -3,7 +3,7 @@ import { FormattedMessage } from 'react-intl';
 import { useLocation } from 'react-router';
 import { PopulatedTransaction, ethers } from 'ethers';
 import { styled, Divider, useTheme } from '@mui/material';
-import { Drawer, ExternalLink } from '@notional-finance/mui';
+import { Drawer, ExternalLink, HeadingSubtitle } from '@notional-finance/mui';
 import { Account } from '@notional-finance/sdk';
 import { useAccount, useNotional } from '@notional-finance/notionable-hooks';
 import { trackEvent, logError } from '@notional-finance/helpers';
@@ -14,14 +14,23 @@ import { StatusHeading } from './components/status-heading';
 import { TradeProperties } from '../trade-properties';
 import { TradePropertiesGrid } from '../trade-properties/trade-properties-grid';
 
+export interface TransactionFunction {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  transactionFn: (...args: any) => Promise<PopulatedTransaction>;
+  transactionArgs: unknown[];
+}
+
+export interface TransactionData {
+  transactionHeader: React.ReactNode;
+  transactionProperties: TradeProperties;
+  buildTransactionCall: TransactionFunction;
+}
+
 export interface TransactionConfirmationProps {
   heading: React.ReactNode;
   onCancel: () => void;
   transactionProperties: TradeProperties;
-  buildTransactionCall: {
-    transactionFn: (...args: any) => Promise<PopulatedTransaction>;
-    transactionArgs: any[];
-  };
+  buildTransactionCall: TransactionFunction;
   onTxnConfirm?: (receipt: ethers.providers.TransactionReceipt) => void;
   showDrawer?: boolean;
   onReturnToForm?: () => void;
@@ -177,9 +186,8 @@ export const TransactionConfirmation = ({
   return showDrawer ? <Drawer size="large">{inner}</Drawer> : inner;
 };
 
-const TermsOfService = styled('p')(
+const TermsOfService = styled(HeadingSubtitle)(
   ({ theme }) => `
-  font-size: 1rem;
   margin-top: 1rem;
   margin-bottom: 1.5rem;
   color: ${theme.palette.borders.accentPaper};

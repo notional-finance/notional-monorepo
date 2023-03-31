@@ -1,8 +1,14 @@
 import BlocknativeSdk from 'bnc-sdk';
 import { selectOnboardState } from '@notional-finance/notionable';
-import { Subject, Subscription, fromEvent, ReplaySubject, combineLatest, Observable } from 'rxjs';
+import {
+  Subject,
+  Subscription,
+  fromEvent,
+  ReplaySubject,
+  combineLatest,
+  Observable,
+} from 'rxjs';
 import { share, tap } from 'rxjs/operators';
-// import { TransactionData, TransactionEventLog } from 'bnc-sdk/dist/types/src/interfaces';
 
 const address$ = selectOnboardState('address') as Observable<string>;
 const dappId = process.env['NX_BLOCK_NATIVE_DAPP_ID'] as string;

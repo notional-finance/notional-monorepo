@@ -1,5 +1,4 @@
 import { useStrategies } from './use-strategies';
-import { THEME_VARIANTS } from '@notional-finance/shared-config';
 import { CardContainer } from '@notional-finance/shared-web';
 import { Vault } from '@notional-finance/mui';
 import { useNotionalTheme } from '@notional-finance/styles';
@@ -41,6 +40,7 @@ export const AllStrategyView = () => {
           } = v;
           return (
             <Vault
+              key={vaultAddress}
               vaultName={vaultName}
               symbol={underlyingSymbol}
               rate={headlineRate || 0}

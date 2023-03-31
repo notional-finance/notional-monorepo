@@ -5,6 +5,7 @@ import { NotionalTheme } from '@notional-finance/styles';
 import CurrencySelect, { CurrencySelectProps } from './currency-select';
 import MaxButton from '../max-button/max-button';
 import { Paragraph } from '../typography/typography';
+import { useCallback, useRef } from 'react';
 
 export interface CurrencyInputStyleProps {
   landingPage: boolean;
@@ -57,6 +58,22 @@ const InputContainer = styled(Box)(
   border-style: solid;
 `
 );
+
+export const useCurrencyInputRef = () => {
+  const currencyInputRef = useRef<CurrencyInputHandle>(null);
+  const isInputRefDefined = !!currencyInputRef.current;
+  const setCurrencyInput = useCallback(
+    (input: string) => {
+      currencyInputRef.current?.setInputOverride(input);
+    },
+    // isInputRefDefined must be in the dependencies otherwise the useCallback will not
+    // properly trigger to generate a new function when the input ref becomes defined
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [currencyInputRef, isInputRefDefined]
+  );
+
+  return { setCurrencyInput, currencyInputRef };
+};
 
 export const CurrencyInput = React.forwardRef<
   CurrencyInputHandle,

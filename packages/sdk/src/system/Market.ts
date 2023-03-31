@@ -642,7 +642,7 @@ export default class Market {
       .add(cashToReserve)
       .neg();
 
-    return { cashToReserve, netCashToAccount, netCashToMarket };
+    return { cashToReserve, netCashToAccount, netCashToMarket, netFee };
   }
 
   private iterateRates(cashAmount: TypedBigNumber, blockTime: number) {

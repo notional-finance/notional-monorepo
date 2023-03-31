@@ -7,23 +7,32 @@ import {
   TradeActionTitle,
   TradeSummaryContainer,
   AreaChart,
+  TABLE_VARIANTS,
 } from '@notional-finance/mui';
-import { useVault } from '@notional-finance/notionable-hooks';
+import { VAULT_SUB_NAV_ACTIONS } from '@notional-finance/shared-config';
 import { useContext } from 'react';
-import { FormattedMessage, defineMessage } from 'react-intl';
-import VaultDescription from '../components/vault-description';
+import { FormattedMessage } from 'react-intl';
+import {
+  VaultDescription,
+  VaultSubNav,
+  MobileVaultSummary,
+} from '../components';
 import { useHistoricalReturns } from '../hooks/use-historical-returns';
+import { VaultActionContext } from './vault-action-provider';
 import { useReturnDrivers } from '../hooks/use-return-drivers';
 import { useVaultCapacity } from '../hooks/use-vault-capacity';
 import { usePerformanceChart } from '../hooks/use-performance-chart';
-import { VaultActionContext } from '../managers';
+import { VaultParams } from './vault-view';
+import { useParams } from 'react-router';
 import { messages } from '../messages';
 
 export const VaultSummary = () => {
   const theme = useTheme();
   const { state } = useContext(VaultActionContext);
-  const { vaultAddress } = state || {};
-  const { primaryBorrowSymbol, vaultName } = useVault(vaultAddress);
+  const { vaultAddress, vaultConfig, primaryBorrowSymbol } = state;
+  const { sideDrawerKey } = useParams<VaultParams>();
+  const vaultName = vaultConfig?.name;
+
   const { returnDrivers, headlineApy } = useHistoricalReturns();
   const { areaChartData, areaHeaderData, chartToolTipData } =
     usePerformanceChart();
@@ -31,7 +40,7 @@ export const VaultSummary = () => {
   const tableColumns = useReturnDrivers();
   const {
     overCapacityError,
-    totalCapacityUsed,
+    totalCapacityRemaining,
     maxVaultCapacity,
     capacityUsedPercentage,
     capacityWithUserBorrowPercentage,
@@ -53,53 +62,103 @@ export const VaultSummary = () => {
     : undefined;
 
   return (
-    <TradeSummaryContainer>
-      <TradeActionHeader
-        token={primaryBorrowSymbol}
-        actionText={vaultName}
-        hideTokenName
-      />
-      <TradeActionTitle
-        value={headlineApy}
-        valueSuffix="%"
-        title={<FormattedMessage {...messages.summary.expectedYield} />}
-      />
-      <SliderDisplay
-        min={0}
-        max={100}
-        value={capacityUsedPercentage}
-        captionLeft={{
-          title: messages.summary.capacityUsed,
-          value: totalCapacityUsed,
-        }}
-        captionRight={{
-          title: messages.summary.totalCapacity,
-          value: maxVaultCapacity,
-        }}
-        marks={userCapacityMark}
+    <Box>
+      {sideDrawerKey && (
+        <Box
+          sx={{
+            zIndex: 10,
+            position: 'fixed',
+            maxWidth: '100vw',
+            display: {
+              xs: 'block',
+              sm: 'block',
+              md: 'none',
+            },
+          }}
+        >
+          <MobileVaultSummary />
+        </Box>
+      )}
+      <Box
         sx={{
-          border: overCapacityError
-            ? `2px solid ${theme.palette.error.main}`
-            : theme.shape.borderStandard,
+          display: {
+            xs: 'none',
+            sm: 'none',
+            md: 'block',
+          },
         }}
-      />
-      <AreaChart
-        areaHeaderData={areaHeaderData}
-        areaChartData={areaChartData}
-        chartToolTipData={chartToolTipData}
-      />
-      <Box sx={{ marginTop: theme.spacing(2) }}>
-        <DataTable
-          data={returnDrivers}
-          columns={tableColumns}
-          tableTitle={defineMessage({
-            defaultMessage: 'Return Drivers',
-            description: 'Return Drivers Table Title',
-          })}
-        />
+      >
+        <VaultSubNav />
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            marginTop: theme.spacing(6),
+          }}
+        >
+          <TradeSummaryContainer>
+            <Box id={VAULT_SUB_NAV_ACTIONS.OVERVIEW}>
+              <TradeActionHeader
+                token={primaryBorrowSymbol}
+                actionText={vaultName}
+                hideTokenName
+              />
+              <TradeActionTitle
+                value={headlineApy}
+                valueSuffix="%"
+                title={<FormattedMessage {...messages.summary.expectedYield} />}
+              />
+
+              <SliderDisplay
+                min={0}
+                max={100}
+                value={capacityUsedPercentage}
+                captionLeft={{
+                  title: messages.summary.capacityRemaining,
+                  value: totalCapacityRemaining,
+                }}
+                captionRight={{
+                  title: messages.summary.totalCapacity,
+                  value: maxVaultCapacity,
+                }}
+                marks={userCapacityMark}
+                sx={{
+                  border: overCapacityError
+                    ? `2px solid ${theme.palette.error.main}`
+                    : theme.shape.borderStandard,
+                }}
+              />
+              <AreaChart
+                areaChartData={areaChartData}
+                areaHeaderData={areaHeaderData}
+                chartToolTipData={chartToolTipData}
+              />
+            </Box>
+            <Box
+              sx={{ marginTop: theme.spacing(2) }}
+              id={VAULT_SUB_NAV_ACTIONS.MARKET_RETURNS}
+            >
+              <DataTable
+                data={returnDrivers}
+                columns={tableColumns}
+                tableVariant={TABLE_VARIANTS.TOTAL_ROW}
+                tableTitle={
+                  <div>
+                    <FormattedMessage
+                      defaultMessage="Return Drivers"
+                      description="Return Drivers Table Title"
+                    />
+                  </div>
+                }
+              />
+            </Box>
+            <Box id={VAULT_SUB_NAV_ACTIONS.STRATEGY_DETAILS}>
+              <VaultDescription vaultAddress={vaultAddress} />
+            </Box>
+          </TradeSummaryContainer>
+        </Box>
       </Box>
-      <VaultDescription vaultAddress={vaultAddress} />
-    </TradeSummaryContainer>
+    </Box>
   );
 };
 

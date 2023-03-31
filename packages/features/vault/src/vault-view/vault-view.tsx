@@ -1,24 +1,32 @@
+import { useEffect } from 'react';
 import { PageLoading, SideBarLayout } from '@notional-finance/mui';
-import { useQueryParams } from '@notional-finance/utils';
 import { useContext } from 'react';
-import { ConfirmVaultTxn } from '../components/confirm-vault-txn';
+import { VAULT_ACTIONS } from '@notional-finance/shared-config';
 import { useVaultTransaction } from '../hooks/use-vault-transaction';
-import { VaultActionContext } from '../managers';
-import { VaultAction } from './vault-action';
+import { VaultActionContext } from './vault-action-provider';
+import { VaultActionSideDrawer } from './vault-action-side-drawer';
 import { VaultSummary } from './vault-summary';
+import { useParams } from 'react-router';
+
+export interface VaultParams {
+  vaultAddress?: string;
+  sideDrawerKey?: VAULT_ACTIONS;
+}
 
 export const VaultView = () => {
-  const { state } = useContext(VaultActionContext);
+  const { updateState } = useContext(VaultActionContext);
+  const { vaultAddress } = useParams<VaultParams>();
   const txnData = useVaultTransaction();
   const showTransactionConfirmation = txnData ? true : false;
-  const { vaultAddress } = state || {};
-  const { confirm } = useQueryParams();
-  const confirmRoute = !!confirm;
+
+  useEffect(() => {
+    if (vaultAddress) updateState({ vaultAddress });
+  }, [vaultAddress, updateState]);
 
   return vaultAddress ? (
     <SideBarLayout
       showTransactionConfirmation={showTransactionConfirmation}
-      sideBar={confirmRoute ? <ConfirmVaultTxn /> : <VaultAction />}
+      sideBar={<VaultActionSideDrawer />}
       mainContent={<VaultSummary />}
     />
   ) : (

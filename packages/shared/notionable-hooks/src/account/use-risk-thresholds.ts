@@ -144,11 +144,14 @@ export function useRiskThresholds(
 
   const vaultRiskThresholds = accountDataCopy.vaultAccounts.flatMap((a) => {
     let thresholds: LiquidationThreshold[] = [];
-    try {
-      thresholds = a.getLiquidationThresholds();
-    } catch (e) {
-      console.error(e);
+    if (a.isInactive === false) {
+      try {
+        thresholds = a.getLiquidationThresholds();
+      } catch (e) {
+        console.error(e);
+      }
     }
+
     const vaultConfig = a.getVault();
     const primaryBorrowSymbol = system?.getUnderlyingSymbol(
       vaultConfig.primaryBorrowCurrency

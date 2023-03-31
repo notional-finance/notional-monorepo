@@ -1,13 +1,12 @@
-import { VAULT_ACTIONS } from '@notional-finance/shared-config';
 import { useContext } from 'react';
-import { VaultActionContext } from '../managers';
+import { VaultActionContext } from '../vault-view/vault-action-provider';
 
 export const useVaultCapacity = () => {
   const { state } = useContext(VaultActionContext);
-  const { vaultConfig, fCashBorrowAmount, vaultAction, vaultAccount } = state;
+  const { vaultConfig, fCashBorrowAmount, netCapacityChange } = state;
 
   let maxVaultCapacity = '';
-  let totalCapacityUsed = '';
+  let totalCapacityRemaining = '';
   let capacityUsedPercentage = 0;
   let capacityWithUserBorrowPercentage: number | undefined = undefined;
   let overCapacityError = false;
@@ -21,31 +20,26 @@ export const useVaultCapacity = () => {
       maxPrimaryBorrowCapacity,
     } = vaultConfig;
 
-    let fCashRepaid = minAccountBorrowSize.copy(0);
-    if (vaultAction === VAULT_ACTIONS.ROLL_POSITION && vaultAccount) {
-      // When rolling positions, the existing fCash debt will be repaid
-      fCashRepaid = vaultAccount.primaryBorrowfCash;
-    }
-
     underMinAccountBorrow = fCashToBorrow
       ? fCashToBorrow.lt(minAccountBorrowSize)
       : false;
-    overCapacityError = fCashToBorrow
-      ? fCashToBorrow
-          .add(totalUsedPrimaryBorrowCapacity)
-          .add(fCashRepaid)
+    overCapacityError = netCapacityChange
+      ? totalUsedPrimaryBorrowCapacity
+          .add(netCapacityChange)
           .gt(maxPrimaryBorrowCapacity)
       : false;
     maxVaultCapacity = maxPrimaryBorrowCapacity.toDisplayStringWithSymbol(0);
-    totalCapacityUsed =
-      totalUsedPrimaryBorrowCapacity.toDisplayStringWithSymbol(0);
+    totalCapacityRemaining = overCapacityError
+      ? ''
+      : maxPrimaryBorrowCapacity
+          .sub(totalUsedPrimaryBorrowCapacity)
+          .toDisplayStringWithSymbol(0);
     capacityUsedPercentage = totalUsedPrimaryBorrowCapacity
       .scale(100, maxPrimaryBorrowCapacity)
       .toNumber();
-    capacityWithUserBorrowPercentage = fCashToBorrow
+    capacityWithUserBorrowPercentage = netCapacityChange
       ? totalUsedPrimaryBorrowCapacity
-          .add(fCashToBorrow)
-          .add(fCashRepaid)
+          .add(netCapacityChange)
           .scale(100, maxPrimaryBorrowCapacity)
           .toNumber()
       : undefined;
@@ -54,7 +48,7 @@ export const useVaultCapacity = () => {
   return {
     underMinAccountBorrow,
     overCapacityError,
-    totalCapacityUsed,
+    totalCapacityRemaining,
     maxVaultCapacity,
     capacityUsedPercentage,
     capacityWithUserBorrowPercentage,

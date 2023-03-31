@@ -4,9 +4,8 @@ import {
   useNotional,
   useRiskRatios,
 } from '@notional-finance/notionable-hooks';
-import { TransactionData } from '@notional-finance/notionable';
 import { CollateralAction } from '@notional-finance/sdk';
-import { TradePropertyKeys } from '@notional-finance/trade';
+import { TradePropertyKeys, TransactionData } from '@notional-finance/trade';
 import { useFormState } from '@notional-finance/utils';
 
 interface DepositCollateralState {
@@ -24,9 +23,8 @@ const initialDepositCollateralState = {
 };
 
 export function useDepositCollateral() {
-  const [state, updateDepositCollateralState] = useFormState<DepositCollateralState>(
-    initialDepositCollateralState
-  );
+  const [state, updateDepositCollateralState] =
+    useFormState<DepositCollateralState>(initialDepositCollateralState);
   const { notional } = useNotional();
   const { allCurrencySymbols: availableTokens } = useCurrency();
   const { hasError, collateralAction, collateralApy, collateralSymbol } = state;
@@ -38,9 +36,12 @@ export function useDepositCollateral() {
     !!notional &&
     !!address;
 
-  if (collateralAction) accountDataCopy.updateCollateralAction(collateralAction);
-  const { loanToValue: updatedLoanToValue, collateralRatio: updatedCollateralRatio } =
-    useRiskRatios(accountDataCopy);
+  if (collateralAction)
+    accountDataCopy.updateCollateralAction(collateralAction);
+  const {
+    loanToValue: updatedLoanToValue,
+    collateralRatio: updatedCollateralRatio,
+  } = useRiskRatios(accountDataCopy);
 
   let transactionData: TransactionData | undefined;
   if (canSubmit) {
@@ -51,7 +52,8 @@ export function useDepositCollateral() {
         transactionArgs: [address, collateralAction],
       },
       transactionProperties: {
-        [TradePropertyKeys.collateralRatio]: updatedCollateralRatio ?? undefined,
+        [TradePropertyKeys.collateralRatio]:
+          updatedCollateralRatio ?? undefined,
         [TradePropertyKeys.loanToValue]: updatedLoanToValue ?? 0,
         [TradePropertyKeys.collateralAPY]: collateralApy,
         [TradePropertyKeys.collateralDeposit]: collateralAction?.amount,

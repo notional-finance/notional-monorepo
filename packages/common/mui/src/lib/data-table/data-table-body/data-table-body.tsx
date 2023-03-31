@@ -14,6 +14,7 @@ import {
   SmallTableCell,
   TableCell as TypographyTableCell,
 } from '../../typography/typography';
+import { THEME_VARIANTS } from '@notional-finance/shared-config';
 
 interface StyledTableRowProps extends TableRowProps {
   theme: NotionalTheme;
@@ -47,13 +48,24 @@ const StyledTableRow = styled(TableRow, {
   }: StyledTableRowProps) => `
     .MuiTableRow-root, &:nth-of-type(odd) {
       ${
-        expandableTableActive || tableVariant === TABLE_VARIANTS.MINI
+        tableVariant === TABLE_VARIANTS.MINI
+          ? `background: ${palette.background.default};`
+          : tableVariant === TABLE_VARIANTS.TOTAL_ROW
           ? `background: ${palette.background.paper};`
-          : `background: ${
-              rowSelected ? palette.info.light : palette.background.default
-            };`
+          : expandableTableActive
+          ? `background: ${palette.background.paper};`
+          : rowSelected
+          ? `background: ${palette.info.light};`
+          : `background: ${palette.background.default};`
       }
     };
+    .MuiTableRow-root, &:last-of-type {
+      ${
+        tableVariant === TABLE_VARIANTS.TOTAL_ROW
+          ? `background: ${palette.background.default};`
+          : ''
+      }   
+    }
     cursor: ${expandableTableActive ? 'pointer' : ''};
     background: ${rowSelected ? palette.info.light : 'transparent'};
     box-sizing: border-box;

@@ -199,7 +199,7 @@ export default abstract class BaseVault<
     fCashToBorrow: TypedBigNumber,
     blockTime = getNowSeconds()
   ) {
-    const { netCashToAccount: cashToBorrow } =
+    const { netCashToAccount: cashToBorrow, netFee: netTradingFee } =
       market.getCashAmountGivenfCashAmount(fCashToBorrow, blockTime);
     const assessedFee = BaseVault.assessVaultFees(
       market.maturity,
@@ -209,7 +209,7 @@ export default abstract class BaseVault<
     );
     return {
       cashToVault: cashToBorrow.sub(assessedFee),
-      assessedFee,
+      assessedFee: assessedFee.add(netTradingFee),
     };
   }
 
@@ -261,21 +261,25 @@ export default abstract class BaseVault<
     const { assetCash } = vaultAccount.getPoolShare();
     const vaultMarket = this.getVaultMarket(vaultAccount.maturity);
     // Calculate the cost to exit the position
-    let costToLend: TypedBigNumber;
+    let costToRepay: TypedBigNumber;
+    let netTradingFee: TypedBigNumber;
     try {
       // netCashToAccount is negative here
-      const { netCashToAccount } = vaultMarket.getCashAmountGivenfCashAmount(
-        fCashDebtToRepay.neg(),
-        blockTime
-      );
-      costToLend = netCashToAccount.toAssetCash().sub(assetCash);
+      const { netCashToAccount, netFee } =
+        vaultMarket.getCashAmountGivenfCashAmount(
+          fCashDebtToRepay.neg(),
+          blockTime
+        );
+      costToRepay = netCashToAccount.toAssetCash().sub(assetCash);
+      netTradingFee = netFee;
     } catch {
       // If unable to lend then the cost to lend is at 0% interest
-      costToLend = fCashDebtToRepay.toAssetCash();
+      costToRepay = fCashDebtToRepay.toAssetCash();
+      netTradingFee = costToRepay.copy(0);
     }
 
     // Cost to lend returned is negative
-    return costToLend;
+    return { costToRepay, netTradingFee };
   }
 
   public checkBorrowCapacity(fCashToBorrow: TypedBigNumber) {
@@ -558,7 +562,7 @@ export default abstract class BaseVault<
     // In this condition, we must exit the vault account in full because we are going
     // over the max required account collateral ratio. The target is to ensure that
     // vault shares will be reduced to zero and all debt will be repaid
-    const costToRepay = this.getCostToRepay(
+    const { costToRepay, netTradingFee } = this.getCostToRepay(
       vaultAccount,
       vaultAccount.primaryBorrowfCash,
       blockTime
@@ -572,6 +576,7 @@ export default abstract class BaseVault<
     return {
       newVaultAccount,
       costToRepay,
+      netTradingFee,
       vaultSharesToRedeemAtCost: vaultAccount.vaultShares,
     };
   }
@@ -614,7 +619,7 @@ export default abstract class BaseVault<
     }
 
     const newVaultAccount = VaultAccount.copy(vaultAccount);
-    const costToRepay = this.getCostToRepay(
+    const { costToRepay, netTradingFee } = this.getCostToRepay(
       vaultAccount,
       fCashToLend.neg(),
       blockTime
@@ -652,6 +657,7 @@ export default abstract class BaseVault<
 
     return {
       costToRepay,
+      netTradingFee,
       vaultSharesToRedeemAtCost,
       newVaultAccount,
       isFullExit: false,
@@ -710,11 +716,13 @@ export default abstract class BaseVault<
       throw Error('Cannot Roll, in Settlement');
 
     // This is a negative number in asset cash terms
-    const costToRepay = this.getCostToRepay(
+    // eslint-disable-next-line prefer-const
+    let { costToRepay, netTradingFee } = this.getCostToRepay(
       vaultAccount,
       vaultAccount.primaryBorrowfCash,
       blockTime
-    ).add(depositAmount.toAssetCash());
+    );
+    costToRepay = costToRepay.add(depositAmount.toAssetCash());
 
     // Calculate amount to borrow to get sufficient funds for cost to lend
     let fCashToBorrowForRepayment: TypedBigNumber;
@@ -766,6 +774,7 @@ export default abstract class BaseVault<
     return {
       fCashToBorrowForRepayment,
       costToRepay,
+      netTradingFee,
       newVaultAccount,
     };
   }
@@ -968,7 +977,7 @@ export default abstract class BaseVault<
       newMaturity,
       fCashToBorrow
     );
-    const costToRepay = this.getCostToRepay(
+    const { costToRepay } = this.getCostToRepay(
       vaultAccount,
       vaultAccount.primaryBorrowfCash
     );

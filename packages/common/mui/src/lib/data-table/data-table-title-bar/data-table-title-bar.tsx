@@ -1,11 +1,10 @@
 import { Box, useTheme } from '@mui/material';
 import { TableTitleButtonsType, TABLE_VARIANTS } from '../types';
 import { ButtonBar } from '../../button-bar/button-bar';
-import { FormattedMessage, MessageDescriptor } from 'react-intl';
 import { TableCell, ModuleTitle } from '../../typography/typography';
 
 interface DataTableTitleBarProps {
-  tableTitle: MessageDescriptor;
+  tableTitle: JSX.Element;
   tableTitleButtons?: TableTitleButtonsType[];
   tableVariant?: TABLE_VARIANTS;
 }
@@ -31,9 +30,11 @@ export const DataTableTitleBar = ({
             paddingTop: theme.spacing(1),
             paddingBottom: theme.spacing(2),
             paddingLeft: theme.spacing(1),
+            paddingRight: theme.spacing(1),
+            width: '100%',
           }}
         >
-          <FormattedMessage {...tableTitle} />
+          {tableTitle}
         </TableCell>
       ) : (
         <ModuleTitle
@@ -43,7 +44,7 @@ export const DataTableTitleBar = ({
             paddingTop: theme.spacing(3),
           }}
         >
-          <FormattedMessage {...tableTitle} />
+          {tableTitle}
         </ModuleTitle>
       )}
       {tableTitleButtons?.length && (

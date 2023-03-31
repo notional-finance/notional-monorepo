@@ -6,6 +6,9 @@ interface GeoIpResponse {
   country: string;
 }
 
+const dataURL =
+  process.env['NX_DATA_URL'] || 'https://data.notional.finance';
+
 export function useGeoipBlock() {
   const { connectedChain } = useNotional();
   const [country, setCountry] = useState<string>('N/A');
@@ -14,7 +17,7 @@ export function useGeoipBlock() {
   const isBlockableNetwork = networkName(connectedChain) !== 'goerli';
 
   useEffect(() => {
-    fetch('https://geoip.notional.finance')
+    fetch(`${dataURL}/geoip`)
       .then((v) => {
         return v.json() as Promise<GeoIpResponse>;
       })

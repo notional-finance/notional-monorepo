@@ -1,12 +1,13 @@
 import React from 'react';
 import { useTheme } from '@mui/material';
-import { styled } from '@mui/material/styles';
+import { styled, SxProps } from '@mui/material/styles';
 import { Paper } from '@mui/material';
 import { NotionalTheme } from '@notional-finance/styles';
 
 export interface DrawerProps {
   children: React.ReactNode;
   size: 'large' | 'small';
+  sx?: SxProps;
 }
 
 const StyledDrawer = styled(Paper)(
@@ -28,7 +29,6 @@ const StyledDrawer = styled(Paper)(
     }
   }
   ${theme.breakpoints.down('sm')} {
-    background-color: ${theme.palette.background.default};
     border: none;
     box-shadow: none;
   }
@@ -37,9 +37,10 @@ const StyledDrawer = styled(Paper)(
 
 const SidebarContainer = styled('div')`
   height: 100%;
+  width: 100%;
 `;
 
-export function Drawer({ children, size }: DrawerProps) {
+export function Drawer({ children, size, sx }: DrawerProps) {
   const width = size === 'large' ? '543px' : '400px';
   const theme = useTheme() as NotionalTheme;
 
@@ -55,6 +56,7 @@ export function Drawer({ children, size }: DrawerProps) {
           lg: theme.spacing(6),
           xl: theme.spacing(6),
         },
+        ...sx,
       }}
     >
       <SidebarContainer id="SidebarContainer" theme={theme}>

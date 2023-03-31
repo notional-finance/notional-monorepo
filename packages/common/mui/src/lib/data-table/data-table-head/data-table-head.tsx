@@ -21,6 +21,10 @@ export const DataTableHead = ({
       sx={{
         position: 'relative',
         boxShadow: expandableTable ? theme.shape.shadowStandard : '',
+        borderBottom:
+          tableVariant === TABLE_VARIANTS.TOTAL_ROW
+            ? theme.shape.borderStandard
+            : '',
       }}
     >
       {headerGroups.map((headerGroup: HeaderGroup) => (

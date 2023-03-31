@@ -16,6 +16,9 @@ interface ResponseData {
     };
   };
 }
+interface CryptoPriceData { 
+  [symbol: string]: { '7D': number; '24H': number; price: number; symbol: string; } 
+}
 
 export const useCryptoPriceManager = () => {
   const { cryptoPrices } = useCryptoPriceState();
@@ -68,7 +71,7 @@ export const useCryptoPriceManager = () => {
 
     if (priceDataPromises.length > 0) {
       Promise.all(priceDataPromises).then((values) => {
-        const formattedValues = convertArrayToObject(values, 'symbol');
+        const formattedValues = convertArrayToObject(values as any, 'symbol') as unknown as CryptoPriceData;
         updateCryptoPriceState({ cryptoPrices: formattedValues });
       });
     }

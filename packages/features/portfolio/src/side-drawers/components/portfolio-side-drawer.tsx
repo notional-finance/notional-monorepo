@@ -1,7 +1,9 @@
 import { ActionSidebar, ToggleSwitchProps } from '@notional-finance/mui';
-import { TransactionData } from '@notional-finance/notionable';
 import { AccountData } from '@notional-finance/sdk';
-import { TransactionConfirmation } from '@notional-finance/trade';
+import {
+  TransactionConfirmation,
+  TransactionData,
+} from '@notional-finance/trade';
 import { RiskSlider, AccountRiskTable } from '@notional-finance/risk';
 import { useQueryParams } from '@notional-finance/utils';
 import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
@@ -68,6 +70,7 @@ export const PortfolioSideDrawer = ({
       showDrawer={false}
       canSubmit={canSubmit}
       onCancelCallback={() => clearSideDrawer(returnToPortfolio)}
+      hideTextOnMobile={false}
     >
       {children}
       <RiskSlider key={'risk-slider'} updatedAccountData={updatedAccountData} />

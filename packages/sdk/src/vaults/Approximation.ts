@@ -1,4 +1,4 @@
-import { BASIS_POINT } from '../config/constants';
+import { BASIS_POINT, RATE_PRECISION } from '../config/constants';
 import TypedBigNumber from '../libs/TypedBigNumber';
 
 /**
@@ -47,8 +47,14 @@ export function doRepaymentBisectionSearch(
 
     if (estimatedTarget === null) {
       // If we are about to hit max iterations, assume that we cannot
-      // find a repayment point
-      if (iters === maxIter - 1) return null;
+      // find a repayment point and do full exit. If the delta between the
+      // midpoint and the upper is less than the tolerance than also exit
+      const midpointDistance = currentUpper
+        .sub(newMidpoint)
+        .scale(RATE_PRECISION, currentUpper)
+        .abs()
+        .toNumber();
+      if (iters === maxIter - 1 || midpointDistance < tolerance) return null;
 
       // If the estimated target is null then we should move towards
       // the lower bound repayment such that we find an estimate that
