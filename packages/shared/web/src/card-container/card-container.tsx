@@ -72,7 +72,7 @@ export function CardContainer({
                 <ExternalLink
                   href={docsLink}
                   textDecoration
-                  style={{ color: theme.palette.info.accent }}
+                  style={{ color: theme.palette.info.accent, fontSize: '1rem' }}
                 >
                   <FormattedMessage {...linkText} />
                 </ExternalLink>

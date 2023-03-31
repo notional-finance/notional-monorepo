@@ -11,7 +11,6 @@ import { useNotionalTheme } from '@notional-finance/styles';
 import {
   useWindowDimensions,
   Incentive,
-  Currency,
   HeadingSubtitle,
 } from '@notional-finance/mui';
 import { TypedBigNumber } from '@notional-finance/sdk';
@@ -19,7 +18,11 @@ import { Link } from 'react-router-dom';
 
 const StyledLink = styled(Link)(
   ({ theme }) => `
-  color: ${theme.palette.info.accent};
+  color: ${theme.palette.primary.light};
+  text-decoration: underline;
+  &:hover {
+    text-decoration: underline;
+  }
 `
 );
 
@@ -92,28 +95,12 @@ export const ProvideLiquidityCards = () => {
             const incentiveRate =
               incentiveRates.length > i ? incentiveRates[i] : 0;
             const route = `/provide/${symbol}`;
-
-            return incentiveRate > 0 ? (
+            return (
               <Incentive
                 key={`incentive-${i}`}
                 symbol={symbol}
                 rate={rate}
                 incentiveRate={incentiveRate}
-                route={route}
-                buttonText={
-                  <FormattedMessage
-                    defaultMessage="Provide {symbol}"
-                    values={{
-                      symbol: symbol,
-                    }}
-                  />
-                }
-              />
-            ) : (
-              <Currency
-                key={`currency-${i}`}
-                symbol={symbol}
-                rate={rate}
                 route={route}
                 buttonText={
                   <FormattedMessage
