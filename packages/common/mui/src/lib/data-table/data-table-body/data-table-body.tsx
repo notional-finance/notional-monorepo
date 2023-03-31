@@ -111,19 +111,6 @@ export const DataTableBody = ({
 }: DataTableBodyProps) => {
   const theme = useTheme() as NotionalTheme;
 
-  // const getRowBackgroundColor = (key: string) => {
-  //   switch (key) {
-  //     case TABLE_VARIANTS.MINI:
-  //       return theme.palette.background.default;
-
-  //     case 'expandableTableActive':
-  //       return 'white';
-
-  //     default:
-  //       break;
-  //   }
-  // };
-
   return (
     <TableBody>
       {rows.map((row, i) => {
