@@ -226,8 +226,8 @@ export const messages = {
       defaultMessage: 'Expected Yield',
       description: 'text label',
     },
-    capacityUsed: {
-      defaultMessage: 'Capacity Used: ',
+    capacityRemaining: {
+      defaultMessage: 'Capacity Remaining: ',
       description: 'text label',
     },
     totalCapacity: {

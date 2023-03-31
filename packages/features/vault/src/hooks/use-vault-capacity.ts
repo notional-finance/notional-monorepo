@@ -6,7 +6,7 @@ export const useVaultCapacity = () => {
   const { vaultConfig, fCashBorrowAmount, netCapacityChange } = state;
 
   let maxVaultCapacity = '';
-  let totalCapacityUsed = '';
+  let totalCapacityRemaining = '';
   let capacityUsedPercentage = 0;
   let capacityWithUserBorrowPercentage: number | undefined = undefined;
   let overCapacityError = false;
@@ -29,8 +29,11 @@ export const useVaultCapacity = () => {
           .gt(maxPrimaryBorrowCapacity)
       : false;
     maxVaultCapacity = maxPrimaryBorrowCapacity.toDisplayStringWithSymbol(0);
-    totalCapacityUsed =
-      totalUsedPrimaryBorrowCapacity.toDisplayStringWithSymbol(0);
+    totalCapacityRemaining = overCapacityError
+      ? ''
+      : maxPrimaryBorrowCapacity
+          .sub(totalUsedPrimaryBorrowCapacity)
+          .toDisplayStringWithSymbol(0);
     capacityUsedPercentage = totalUsedPrimaryBorrowCapacity
       .scale(100, maxPrimaryBorrowCapacity)
       .toNumber();
@@ -45,7 +48,7 @@ export const useVaultCapacity = () => {
   return {
     underMinAccountBorrow,
     overCapacityError,
-    totalCapacityUsed,
+    totalCapacityRemaining,
     maxVaultCapacity,
     capacityUsedPercentage,
     capacityWithUserBorrowPercentage,
