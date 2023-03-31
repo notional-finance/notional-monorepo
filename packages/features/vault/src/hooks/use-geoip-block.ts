@@ -7,7 +7,7 @@ interface GeoIpResponse {
 }
 
 const dataURL =
-  process.env['NX_DATA_URL'] || 'https://data.notional.finance.finance';
+  process.env['NX_DATA_URL'] || 'https://data.notional.finance';
 
 export function useGeoipBlock() {
   const { connectedChain } = useNotional();

@@ -3,6 +3,11 @@ import { NotionalTheme } from '@notional-finance/styles';
 import { useTheme, styled } from '@mui/material';
 import { Button } from '@notional-finance/mui';
 import { useAccount, useOnboard } from '@notional-finance/notionable-hooks';
+import { SETTINGS_SIDE_DRAWERS } from '@notional-finance/shared-config';
+import {
+  useSideDrawerState,
+  useSideDrawerManager,
+} from '@notional-finance/side-drawer';
 import { useHistory, useLocation } from 'react-router-dom';
 
 /* eslint-disable-next-line */
@@ -49,10 +54,22 @@ export function TradeActionButton({
 }: TradeActionButtonProps) {
   const theme = useTheme();
   const { accountConnected } = useAccount();
-  const { connectWallet } = useOnboard();
+  const { connected } = useOnboard();
+  const { sideDrawerOpen } = useSideDrawerState();
+  const { setWalletSideDrawer, clearWalletSideDrawer } = useSideDrawerManager();
   const { pathname } = useLocation();
   const history = useHistory();
-  const _onSubmit = onSubmit ?? (() => history.push(`${pathname}?confirm=true`));
+  const _onSubmit =
+    onSubmit ?? (() => history.push(`${pathname}?confirm=true`));
+
+  const handleConnectWallet = () => {
+    if (sideDrawerOpen) {
+      clearWalletSideDrawer();
+    }
+    if (!sideDrawerOpen) {
+      setWalletSideDrawer(SETTINGS_SIDE_DRAWERS.CONNECT_WALLET);
+    }
+  };
 
   const buttonTextWalletConnected =
     walletConnectedText ||
@@ -75,12 +92,14 @@ export function TradeActionButton({
       width={width}
       margin={margin}
       variant={buttonVariant || 'contained'}
-      disabled={!canSubmit}
-      canSubmit={canSubmit}
-      onClick={accountConnected ? _onSubmit : () => connectWallet()}
+      disabled={!canSubmit && connected}
+      canSubmit={canSubmit || !connected}
+      onClick={accountConnected ? _onSubmit : () => handleConnectWallet()}
     >
       <FormattedMessage
-        {...(accountConnected ? buttonTextWalletConnected : buttonTextWalletNotConnected)}
+        {...(accountConnected
+          ? buttonTextWalletConnected
+          : buttonTextWalletNotConnected)}
       />
     </StyledTradeActionButton>
   );

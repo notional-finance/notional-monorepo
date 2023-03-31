@@ -252,7 +252,7 @@ export const messages = {
       description: 'section heading',
     },
     leveragedReturns: {
-      defaultMessage: 'Returns at {leverageRatio} Leverage',
+      defaultMessage: 'Leveraged Returns',
       description: 'section heading',
     },
     currentBorrowRate: {

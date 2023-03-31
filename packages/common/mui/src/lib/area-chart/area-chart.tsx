@@ -7,6 +7,7 @@ import {
 } from '../area-chart-header/area-chart-header';
 import ProgressIndicator from '../progress-indicator/progress-indicator';
 import { TradeSummaryBox } from '../trade-summary-box/trade-summary-box';
+import { getDateString } from '@notional-finance/helpers';
 import { ONE_WEEK } from '@notional-finance/shared-config';
 import {
   Area,
@@ -51,20 +52,9 @@ export const AreaChart = ({
   const xAxisTickHandler = (v: number, i: number) => {
     let result = '';
     if (typeof v === 'number') {
-      const prevMonth =
-        i > 0
-          ? intl.formatDate(areaChartData[i - 1]['timestamp'] * 1000, {
-              month: 'short',
-              year: 'numeric',
-            })
-          : '';
-      const thisMonth = intl.formatDate(v * 1000, {
-        month: 'short',
-        year: 'numeric',
-      });
-
-      // Only label the axis on the first month
-      result = prevMonth !== thisMonth ? thisMonth : '';
+      const showTick = i % 15 === 0;
+      const date = getDateString(v);
+      result = showTick ? date.toUpperCase() : '';
     }
     return result;
   };
