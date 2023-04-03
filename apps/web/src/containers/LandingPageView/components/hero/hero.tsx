@@ -70,7 +70,7 @@ export const Hero = () => {
               sx={{ marginTop: theme.spacing(3), maxWidth: theme.spacing(68) }}
             >
               <FormattedMessage
-                defaultMessage={`Lend, borrow, and earn leveraged yield with DeFi’s only fixed and variable rate lending protocol.`}
+                defaultMessage={`Lend, borrow, and earn leveraged yield with DeFi's only fixed and variable rate lending protocol.`}
               />
             </Body>
             <ButtonContainer>
@@ -86,7 +86,7 @@ export const Hero = () => {
               <Button
                 size="large"
                 variant="outlined"
-                href="https://docs.notional.finance/developer-documentation/"
+                href="https://docs.notional.finance/notional-v2/"
               >
                 <FormattedMessage defaultMessage={'View Docs'} />
               </Button>
