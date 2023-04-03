@@ -5,6 +5,7 @@ import {
   NOTESummary,
   BalanceSummary,
   AssetSummary,
+  Account,
 } from '@notional-finance/sdk/src/account';
 import { Market } from '@notional-finance/sdk/src/system';
 
@@ -53,6 +54,7 @@ export interface AssetSummaryResult {
 export interface SummaryUpdateResult {
   balance: BalanceSummaryResult;
   asset: AssetSummaryResult;
+  account: Account;
 }
 
 export interface ERC20 {

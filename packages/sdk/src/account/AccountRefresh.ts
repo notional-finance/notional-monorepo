@@ -9,15 +9,9 @@ import AccountGraphLoader from './AccountGraphLoader';
  * Notional related balances and the other is a set of balances in it's Wallet
  */
 export default abstract class AccountRefresh {
-  private _lastUpdateBlockNumber = 0;
-
   private _lastUpdateTime: Date = new Date(0);
 
   private _accountData?: AccountData;
-
-  get lastUpdateBlockNumber() {
-    return this._lastUpdateBlockNumber;
-  }
 
   get lastUpdateTime() {
     return this._lastUpdateTime;
@@ -45,6 +39,7 @@ export default abstract class AccountRefresh {
         .then((r) => AccountData.loadFromBlockchain(r, vaultAccounts));
       await data.fetchHistory(this.address);
       this._accountData = data;
+      this._lastUpdateTime = new Date();
     } catch (e) {
       throw new Error(`Failed to refresh account data for ${this.address}`);
     }

@@ -13,6 +13,7 @@ import { TransactionButtons } from './components/transaction-buttons';
 import { StatusHeading } from './components/status-heading';
 import { TradeProperties } from '../trade-properties';
 import { TradePropertiesGrid } from '../trade-properties/trade-properties-grid';
+import { updateAccountState } from '@notional-finance/notionable';
 
 export interface TransactionFunction {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -132,6 +133,8 @@ export const TransactionConfirmation = ({
           .then((p) => {
             setTransactionStatus(TransactionStatus.PENDING);
             setPendingTransaction(p);
+            // This sets the pending transaction at a global state for the account refresh listener
+            updateAccountState({ pendingTransaction: p });
             // Dispatches an event for tracking purposes
             // Clear the transaction to submit if the user does it
             trackEvent('CONFIRM_TXN', { url: pathname });

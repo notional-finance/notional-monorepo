@@ -18,7 +18,6 @@ import {
   withLatestFrom,
   finalize,
   distinctUntilChanged,
-  filter,
 } from 'rxjs';
 
 import { signer$ as onboardSigner$ } from '../onboard/onboard-store';
@@ -34,6 +33,7 @@ import {
   AccountState,
   initialAccountState,
   isReadOnly$,
+  pendingTransaction$,
 } from './account-store';
 import {
   AssetSummaryResult,
@@ -119,14 +119,16 @@ const accountUpdates$ = _accountUpdates.asObservable().pipe(
       return forkJoin({
         balance: from(account.getBalanceSummary()),
         asset: from(account.getAssetSummary()),
+        account: from(Promise.resolve(account)),
       });
     }
     return of({
       balance: _defaultBalanceSummaryResult,
       asset: _defaultAssetSummaryResult,
+      account,
     } as SummaryUpdateResult);
   }),
-  switchMap(({ asset, balance }) => {
+  switchMap(({ asset, balance, account }) => {
     const assetSummary = new Map(
       asset.assetSummary?.map((item) => [item.assetKey, item]) ?? []
     );
@@ -134,7 +136,12 @@ const accountUpdates$ = _accountUpdates.asObservable().pipe(
       balance.balanceSummary?.map((item) => [item.currencyId, item]) ?? []
     );
     const noteSummary = balance.noteSummary;
-    return of({ assetSummary, balanceSummary, noteSummary });
+    return of({
+      assetSummary,
+      balanceSummary,
+      noteSummary,
+      lastUpdateTime: Math.floor(account.lastUpdateTime.getTime() / 1000),
+    });
   }),
   catchError((err) => {
     console.error(err);
@@ -149,8 +156,7 @@ const _accountRefresh$ = account$.pipe(
     }
     return of(account);
   }),
-  filter((account) => account !== null),
-  map((account) => _accountUpdates.next(account!))
+  map((account) => (account ? _accountUpdates.next(account) : undefined))
 );
 
 // Streams
@@ -183,6 +189,17 @@ startRefresh$
   )
   .subscribe();
 
+// Refresh the account when pending transactions complete
+pendingTransaction$
+  .pipe(withLatestFrom(account$))
+  .subscribe(async ([pending, account]) => {
+    if (account && pending) {
+      await pending.wait();
+      updateAccountState({ pendingTransaction: undefined });
+      _startRefresh.next(account.address);
+    }
+  });
+
 signerOrNotionalChanged$.subscribe((account) => {
   if (account && account !== null) {
     updateAccountState({
@@ -196,7 +213,7 @@ signerOrNotionalChanged$.subscribe((account) => {
 
 accountUpdates$.subscribe({
   next: (result: Partial<AccountState>) => {
-    console.log('updating account summaries');
+    console.log('updating account summaries', result);
     updateAccountState({ ...result, accountSummariesLoaded: true });
   },
   complete: () => console.log('account updates completed'),
