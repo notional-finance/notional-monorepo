@@ -16,7 +16,7 @@ import { VaultSideDrawer } from '../components/vault-side-drawer';
 import { useVault } from '@notional-finance/notionable-hooks';
 import { MobileVaultSummary } from '../components';
 import { useVaultActionErrors } from '../hooks';
-import { WalletDepositInput } from '@notional-finance/trade';
+import { TokenApprovalView, WalletDepositInput } from '@notional-finance/trade';
 import { messages } from '../messages';
 import { DebtAmountCaption, TransactionCostCaption } from '../components';
 
@@ -127,6 +127,7 @@ export const CreateVaultPosition = () => {
             }
             inputLabel={messages[VAULT_ACTIONS.CREATE_VAULT_POSITION].leverage}
           />
+          <TokenApprovalView symbol={primaryBorrowSymbol} />
         </VaultSideDrawer>
       </Box>
     </>

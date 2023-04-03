@@ -1,5 +1,5 @@
 import { useContext, useEffect } from 'react';
-import { WalletDepositInput } from '@notional-finance/trade';
+import { TokenApprovalView, WalletDepositInput } from '@notional-finance/trade';
 import {
   SliderInput,
   useSliderInputRef,
@@ -79,6 +79,7 @@ export const RollMaturity = () => {
           />
         }
       />
+      <TokenApprovalView symbol={primaryBorrowSymbol} />
     </VaultSideDrawer>
   );
 };
