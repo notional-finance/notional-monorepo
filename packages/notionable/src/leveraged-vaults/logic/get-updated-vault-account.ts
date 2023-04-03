@@ -13,6 +13,7 @@ interface UpdatedVaultAccountDependencies {
   depositAmount?: TypedBigNumber;
   selectedMarketKey?: string;
   fCashBorrowAmount?: TypedBigNumber;
+  leverageRatio?: number;
   // Via Init
   accountAddress?: string;
   vaultAccount: VaultAccount;
