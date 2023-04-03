@@ -1,8 +1,7 @@
-import { INTERNAL_TOKEN_DECIMAL_PLACES } from '@notional-finance/sdk/config/constants';
 import { BigNumber, utils } from 'ethers';
 import { TokenBalance } from './TokenBalance';
 import defaultTokens from './DefaultTokens';
-import { Network, TokenDefinition, TokenInterface } from '../Definitions';
+import { Network, TokenDefinition } from '../Definitions';
 
 export class TokenRegistry {
   private static tokens = new Map(defaultTokens);
@@ -54,46 +53,7 @@ export class TokenRegistry {
     networkMap.set(token.symbol, token);
   }
 
-  public static getStrategyTokenDefinition(
-    vaultAddress: string,
-    network: Network,
-    maturity: number
-  ) {
-    return {
-      address: vaultAddress,
-      network,
-      symbol: `STRATEGY_TOKEN_${vaultAddress}_@_${maturity}`,
-      decimalPlaces: INTERNAL_TOKEN_DECIMAL_PLACES,
-      tokenInterface: TokenInterface.StrategyToken,
-      maturity,
-    };
-  }
-
-  public static getVaultShareDefinition(
-    vaultAddress: string,
-    network: Network,
-    maturity: number
-  ) {
-    return {
-      address: vaultAddress,
-      network,
-      symbol: `VAULT_SHARE_${vaultAddress}_@_${maturity}`,
-      decimalPlaces: INTERNAL_TOKEN_DECIMAL_PLACES,
-      tokenInterface: TokenInterface.VaultShare,
-      maturity,
-    };
-  }
-
-  public static isMaturingToken(tokenInterface: TokenInterface) {
-    return (
-      tokenInterface === TokenInterface.fCash ||
-      tokenInterface === TokenInterface.VaultShare ||
-      tokenInterface === TokenInterface.StrategyToken ||
-      tokenInterface === TokenInterface.Notional_LiquidityToken
-    );
-  }
-
-  public static makeBalance(
+  public static makeERC20Token(
     input: string | BigNumber,
     symbol: string,
     network: Network,
@@ -111,27 +71,15 @@ export class TokenRegistry {
     return TokenBalance.from(value, Object.assign(token, maturity));
   }
 
-  public static makeStrategyToken(
-    value: BigNumber,
-    vaultAddress: string,
+  public static makeERC1155Token(
     network: Network,
-    maturity: number
+    tokenAddress: string,
+    value: BigNumber,
+    id: string
   ) {
     return TokenBalance.from(
       value,
       this.getStrategyTokenDefinition(vaultAddress, network, maturity)
-    );
-  }
-
-  public static makeVaultShare(
-    value: BigNumber,
-    vaultAddress: string,
-    network: Network,
-    maturity: number
-  ) {
-    return TokenBalance.from(
-      value,
-      this.getVaultShareDefinition(vaultAddress, network, maturity)
     );
   }
 }
