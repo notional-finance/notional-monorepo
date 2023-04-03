@@ -12,20 +12,16 @@ export enum TokenInterface {
   ERC20 = 'ERC20',
   /** ERC4626 yield bearing tokens with an extension of ERC20 */
   ERC4626 = 'ERC4626',
+  /** ERC1155 tokens */
+  ERC1155 = 'ERC1155',
+  /** ERC721 NFTs */
+  ERC721 = 'ERC1155',
   /** Special handling for ETH */
   ETH = 'ETH',
   /** Special handling for WETH */
   WETH = 'WETH',
   /** Notional internal ERC20 balances, denominated as 8 decimals  */
   Notional_InternalERC20 = 'Notional_InternalERC20',
-  /** Notional fCash market liquidity tokens, only held by the nToken */
-  Notional_LiquidityToken = 'Notional_LiquidityToken',
-  /** Notional fCash, associated with a maturity */
-  fCash = 'fCash',
-  /** Notional leveraged vault shares, associated with a maturity */
-  VaultShare = 'VaultShare',
-  /** Notional leveraged vault strategy tokens, associated with a maturity */
-  StrategyToken = 'StrategyToken',
   /** Non-crypto denominated fiat balance (i.e. USD, JPY, EUR) */
   FIAT = 'FIAT',
 }
@@ -41,6 +37,8 @@ export interface TokenDefinition {
   decimalPlaces: number;
   /** Defines the token standard this token relies on */
   tokenInterface: TokenInterface;
+  /** Defines the ERC1155 or ERC721 id of the token, if it exists */
+  id?: string;
   /** Defines the maturity of the token, if it exists */
   maturity?: number;
 }
