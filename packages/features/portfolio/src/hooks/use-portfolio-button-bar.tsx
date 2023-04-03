@@ -3,10 +3,10 @@ import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
 import { FormattedMessage } from 'react-intl';
 import { useLocation, useHistory } from 'react-router-dom';
 import { ButtonOptionsType } from '@notional-finance/mui';
-import { Account, getNowSeconds } from '@notional-finance/sdk';
+import { getNowSeconds } from '@notional-finance/sdk';
 import { BigNumber, ethers } from 'ethers';
 import { useAccount } from '@notional-finance/notionable-hooks';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 export interface UserNoteData {
   userNoteEarnedPerSecond: number;
@@ -22,41 +22,49 @@ export const useClaimNote = () => {
     userNoteEarned: BigNumber.from(0),
   });
 
-  const fetchNoteData = async (account: Account | null) => {
+  const fetchNoteData = useCallback(async () => {
     let userNoteEarnedPerSecond = 0;
     let userNoteEarnedFloat = 0;
     let userNoteEarned = BigNumber.from(0);
 
-    if (account) {
-      const nowInSeconds = getNowSeconds();
-      userNoteEarned = await account.fetchClaimableIncentives(account?.address);
-
-      const userNoteEarnedPlus100 = await account.fetchClaimableIncentives(
-        account.address,
-        nowInSeconds + 100
-      );
-
-      if (userNoteEarned) {
-        const perSecond = userNoteEarnedPlus100.sub(userNoteEarned).div(100);
-        userNoteEarnedPerSecond = parseFloat(
-          ethers.utils.formatUnits(perSecond, 8)
+    try {
+      if (account) {
+        const nowInSeconds = getNowSeconds();
+        userNoteEarned = await account.fetchClaimableIncentives(
+          account?.address
         );
-        userNoteEarnedFloat = parseFloat(
-          ethers.utils.formatUnits(userNoteEarned, 8)
+
+        const userNoteEarnedPlus100 = await account.fetchClaimableIncentives(
+          account.address,
+          nowInSeconds + 100
         );
+
+        if (userNoteEarned) {
+          const perSecond = userNoteEarnedPlus100.sub(userNoteEarned).div(100);
+          userNoteEarnedPerSecond = parseFloat(
+            ethers.utils.formatUnits(perSecond, 8)
+          );
+          userNoteEarnedFloat = parseFloat(
+            ethers.utils.formatUnits(userNoteEarned, 8)
+          );
+        }
       }
-    }
 
-    return { userNoteEarnedPerSecond, userNoteEarnedFloat, userNoteEarned };
-  };
+      setNoteData({
+        userNoteEarnedPerSecond,
+        userNoteEarnedFloat,
+        userNoteEarned,
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  }, [account, setNoteData]);
 
   useEffect(() => {
-    fetchNoteData(account)
-      .then(setNoteData)
-      .catch((e) => console.error(e));
-  }, [account]);
+    fetchNoteData();
+  }, [fetchNoteData]);
 
-  return noteData;
+  return { ...noteData, fetchNoteData };
 };
 
 export const usePortfolioButtonBar = () => {
