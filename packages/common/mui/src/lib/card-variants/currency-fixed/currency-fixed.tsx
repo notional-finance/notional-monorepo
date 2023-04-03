@@ -25,6 +25,7 @@ export interface CurrencyFixedProps {
   symbol?: string;
   route: string;
   buttonText: ReactNode;
+  apyTagline: ReactNode;
 }
 
 export interface ContentWrapperProps {
@@ -34,7 +35,7 @@ export interface ContentWrapperProps {
 
 export const CurrencyFixed = (props: CurrencyFixedProps) => {
   const theme = useTheme();
-  const { route, symbol, buttonText, rate, allRates } = props;
+  const { route, symbol, buttonText, rate, allRates, apyTagline } = props;
   const [hovered, setHovered] = useState(false);
   const formattedRate = Market.formatInterestRate(rate, 2);
 
@@ -77,9 +78,7 @@ export const CurrencyFixed = (props: CurrencyFixedProps) => {
               ))}
             </Box>
             <Box>
-              <SectionTitle textAlign="left">
-                <FormattedMessage defaultMessage={'AS HIGH AS'} />
-              </SectionTitle>
+              <SectionTitle textAlign="left">{apyTagline}</SectionTitle>
               <H4
                 textAlign="left"
                 fontWeight="bold"
