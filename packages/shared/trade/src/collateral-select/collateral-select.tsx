@@ -143,7 +143,7 @@ export const CollateralSelect = ({
             value={selectedOptionKey}
             landingPage={false}
             onChange={(selectedCollateral: string | null) => {
-              if(selectedCollateral)
+              if (selectedCollateral)
                 updateCollateralSelectState({ selectedCollateral });
             }}
             onListboxOpen={(isOpen) => setHasFocus(isOpen)}
@@ -201,7 +201,8 @@ export const CollateralSelect = ({
               }
             )}
           </SelectDropdown>
-          <div ref={dropDownRef}></div>
+          {/* This is where the dropdown will pop up from */}
+          <div ref={dropDownRef} />
           <Paragraph marginTop={theme.spacing(1)}>
             {highestApyString ? (
               <FormattedMessage

@@ -126,8 +126,8 @@ export const SelectDropdown = ({
         setListboxOpen(isOpen);
         if (onListboxOpen) onListboxOpen(isOpen);
       }}
-      onChange={(e: any) => {
-        onChange(e?.target.textContent);
+      onChange={(_, value) => {
+        onChange(value);
       }}
     >
       {children}
