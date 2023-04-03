@@ -13,6 +13,7 @@ export function useMoneyMarket() {
         interestEarned: b.assetCashBalance.isPositive()
           ? b.totalCTokenInterest
           : undefined,
+        hashKey: b.hashKey,
       };
     })
     .filter((v) => !v.balance.isZero());

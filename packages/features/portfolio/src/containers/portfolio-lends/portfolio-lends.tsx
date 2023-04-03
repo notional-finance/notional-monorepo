@@ -1,6 +1,5 @@
 import { DataTable } from '@notional-finance/mui';
 import { TableActionRow, EmptyPortfolio } from '../../components';
-import { PORTFOLIO_CATEGORIES } from '@notional-finance/shared-config';
 import { LEND_BORROW } from '@notional-finance/shared-config';
 import { useAssetSummaryTable } from '../../hooks';
 

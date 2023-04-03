@@ -17,7 +17,7 @@ import {
   merge,
   withLatestFrom,
   finalize,
-  distinctUntilChanged,
+  filter,
 } from 'rxjs';
 
 import { signer$ as onboardSigner$ } from '../onboard/onboard-store';
@@ -34,6 +34,7 @@ import {
   initialAccountState,
   isReadOnly$,
   pendingTransaction$,
+  lastSeenAccountHashKey$,
 } from './account-store';
 import {
   AssetSummaryResult,
@@ -101,20 +102,11 @@ const _signer$ = merge(onboardSigner$, voidSigner$).pipe(
 
 const _accountUpdates = new Subject<Account>();
 const accountUpdates$ = _accountUpdates.asObservable().pipe(
-  distinctUntilChanged((a, b) => {
-    if (a && b) {
-      if (a.address !== b.address) {
-        return false;
-      }
-
-      const aHash = a.accountData?.hashKey ?? '';
-      const bHash = b.accountData?.hashKey ?? '';
-      const areIdentical = aHash === bHash;
-      return areIdentical;
-    }
-    return false;
+  withLatestFrom(lastSeenAccountHashKey$),
+  filter(([account, lastSeenAccountHashKey]) => {
+    return account.accountData?.hashKey !== lastSeenAccountHashKey;
   }),
-  mergeMap((account) => {
+  mergeMap(([account]) => {
     if (account && account !== null) {
       return forkJoin({
         balance: from(account.getBalanceSummary()),
@@ -122,6 +114,7 @@ const accountUpdates$ = _accountUpdates.asObservable().pipe(
         account: from(Promise.resolve(account)),
       });
     }
+
     return of({
       balance: _defaultBalanceSummaryResult,
       asset: _defaultAssetSummaryResult,
@@ -141,6 +134,7 @@ const accountUpdates$ = _accountUpdates.asObservable().pipe(
       balanceSummary,
       noteSummary,
       lastUpdateTime: Math.floor(account.lastUpdateTime.getTime() / 1000),
+      lastSeenAccountHashKey: account.accountData?.hashKey || null,
     });
   }),
   catchError((err) => {
@@ -213,7 +207,6 @@ signerOrNotionalChanged$.subscribe((account) => {
 
 accountUpdates$.subscribe({
   next: (result: Partial<AccountState>) => {
-    console.log('updating account summaries', result);
     updateAccountState({ ...result, accountSummariesLoaded: true });
   },
   complete: () => console.log('account updates completed'),

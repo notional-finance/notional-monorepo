@@ -26,6 +26,7 @@ export interface AccountState {
   accountSummariesLoaded: boolean;
   pendingTransaction?: TransactionResponse;
   lastUpdateTime: number | null;
+  lastSeenAccountHashKey: string | null;
 }
 export type AccountStateKeys = keyof AccountState;
 
@@ -38,6 +39,7 @@ export const initialAccountState: AccountState = {
   accountConnected: false,
   accountSummariesLoaded: false,
   lastUpdateTime: null,
+  lastSeenAccountHashKey: null,
 };
 
 const _accountStore = new BehaviorSubject(initialAccountState);
@@ -123,7 +125,9 @@ export const isReadOnly$ = selectAccountState(
 export const readOnlyAddress$ = selectAccountState(
   'readOnlyAddress'
 ) as Observable<string | undefined>;
-
 export const pendingTransaction$ = selectAccountState(
   'pendingTransaction'
 ) as Observable<TransactionResponse | undefined>;
+export const lastSeenAccountHashKey$ = selectAccountState(
+  'lastSeenAccountHashKey'
+) as Observable<string | null>;

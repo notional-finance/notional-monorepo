@@ -3,10 +3,7 @@ import { FormattedMessage } from 'react-intl';
 import { DataTable, Button } from '@notional-finance/mui';
 import { EmptyPortfolio } from '../../components';
 import { useLiquidityOverviewTable } from './hooks';
-import {
-  PORTFOLIO_ACTIONS,
-  PORTFOLIO_CATEGORIES,
-} from '@notional-finance/shared-config';
+import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
 import { PortfolioParams } from '../../portfolio-feature-shell';
 import { Link, useParams } from 'react-router-dom';
 

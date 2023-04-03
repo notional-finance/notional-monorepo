@@ -5,10 +5,7 @@ import {
   formatCryptoWithFiat,
   formatMaturity,
 } from '@notional-finance/helpers';
-import {
-  LEND_BORROW,
-  PORTFOLIO_ACTIONS,
-} from '@notional-finance/shared-config';
+import { LEND_BORROW } from '@notional-finance/shared-config';
 import {
   ExpandableCurrencyCell,
   ChevronCell,
@@ -111,6 +108,7 @@ export const useAssetSummaryTable = (borrowOrLend: LEND_BORROW) => {
     }));
   };
 
+  const assetSummaryHashKey = assetSummary.map((a) => a.hashKey).join(':');
   const assetSummaryData = useMemo(() => {
     return assetSummary.map((data) => {
       return {
@@ -131,11 +129,12 @@ export const useAssetSummaryTable = (borrowOrLend: LEND_BORROW) => {
         removeAssetRoute: data.removeAssetRoute,
       };
     });
-  }, [assetSummary]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [assetSummary, assetSummaryHashKey]);
 
   useEffect(() => {
     const formattedExpandedRows = assetSummaryData.reduce(
-      (accumulator, value, index) => {
+      (accumulator, _, index) => {
         return { ...accumulator, [index]: index === 0 ? true : false };
       },
       {}
