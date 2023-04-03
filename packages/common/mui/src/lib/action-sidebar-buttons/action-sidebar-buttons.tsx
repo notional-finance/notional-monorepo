@@ -57,28 +57,42 @@ export const ActionSidebarButtons = ({
     <Container sticky={sticky} theme={theme}>
       {CustomActionButton && <CustomActionButton canSubmit={canSubmit} />}
       {!CustomActionButton && (
-        <>
-          <Box onClick={onCancelCallback}>
-            <Button variant="outlined" size="large" to={cancelRoute}>
+        <Box
+          sx={{
+            width: '100%',
+            display: 'inline-flex',
+            justifyContent: 'space-between',
+          }}
+        >
+          <Box onClick={onCancelCallback} sx={{ width: '48%' }}>
+            <Button
+              variant="outlined"
+              size="large"
+              to={cancelRoute}
+              sx={{ width: '100%' }}
+            >
               <FormattedMessage
                 defaultMessage={'Cancel'}
                 description="button text"
               />
             </Button>
           </Box>
-          <Button
-            variant="contained"
-            disabled={!canSubmit}
-            size="large"
-            onClick={() => trackEvent('SUBMIT_TXN', { url: pathname })}
-            to={confirmRoute}
-          >
-            <FormattedMessage
-              defaultMessage={'Submit'}
-              description="button text"
-            />
-          </Button>
-        </>
+          <Box sx={{ width: '48%' }}>
+            <Button
+              variant="contained"
+              disabled={!canSubmit}
+              size="large"
+              sx={{ width: '100%' }}
+              onClick={() => trackEvent('SUBMIT_TXN', { url: pathname })}
+              to={confirmRoute}
+            >
+              <FormattedMessage
+                defaultMessage={'Submit'}
+                description="button text"
+              />
+            </Button>
+          </Box>
+        </Box>
       )}
     </Container>
   );
