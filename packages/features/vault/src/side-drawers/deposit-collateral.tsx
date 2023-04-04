@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { WalletDepositInput } from '@notional-finance/trade';
+import { TokenApprovalView, WalletDepositInput } from '@notional-finance/trade';
 import { VAULT_ACTIONS } from '@notional-finance/shared-config';
 import { VaultSideDrawer } from '../components/vault-side-drawer';
 import { VaultActionContext } from '../vault-view/vault-action-provider';
@@ -40,6 +40,7 @@ export const DepositCollateral = () => {
           errorMsgOverride={errorMsg}
         />
       )}
+      <TokenApprovalView symbol={primaryBorrowSymbol} />
     </VaultSideDrawer>
   );
 };

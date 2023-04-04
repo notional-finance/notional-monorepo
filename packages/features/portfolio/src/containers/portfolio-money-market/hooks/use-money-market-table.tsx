@@ -98,6 +98,7 @@ export const useMoneyMarketTable = () => {
         };
   };
 
+  const moneyMarketHashKey = moneyMarket.map((m) => m.hashKey).join(':');
   const moneyMarketData = useMemo(() => {
     return moneyMarket.map((data) => {
       return {
@@ -111,7 +112,8 @@ export const useMoneyMarketTable = () => {
         interestEarned: isTbnZero(data.interestEarned),
       };
     });
-  }, [moneyMarket]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [moneyMarket, moneyMarketHashKey]);
 
   useEffect(() => {
     const formattedExpandedRows = moneyMarketData.reduce(

@@ -91,26 +91,25 @@ export const useLiquidityOverviewTable = () => {
         };
   };
 
+  const nTokenHoldingsHashKey = nTokenHoldings.map((n) => n.hashKey).join(':');
   const liquidityOverviewData = useMemo(() => {
-    if (nTokenHoldings.length) {
-      return nTokenHoldings?.map((data) => {
-        return {
-          currency: {
-            symbol: data.underlyingSymbol,
-          },
-          nTokenSymbol: data.nTokenSymbol,
-          presentValue: formatCryptoWithFiat(data?.presentValue),
-          organicReturns: isPercentZero(data.organicYield),
-          noteIncentives: isPercentZero(data.noteIncentiveYield),
-        };
-      });
-    }
-    return [];
-  }, [nTokenHoldings]);
+    return nTokenHoldings?.map((data) => {
+      return {
+        currency: {
+          symbol: data.underlyingSymbol,
+        },
+        nTokenSymbol: data.nTokenSymbol,
+        presentValue: formatCryptoWithFiat(data?.presentValue),
+        organicReturns: isPercentZero(data.organicYield),
+        noteIncentives: isPercentZero(data.noteIncentiveYield),
+      };
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nTokenHoldings, nTokenHoldingsHashKey]);
 
   useEffect(() => {
     const formattedExpandedRows = nTokenHoldings.reduce(
-      (accumulator, value, index) => {
+      (accumulator, _, index) => {
         return { ...accumulator, [index]: index === 0 ? true : false };
       },
       {}

@@ -17,7 +17,6 @@ import {
   merge,
   withLatestFrom,
   finalize,
-  distinctUntilChanged,
   filter,
 } from 'rxjs';
 
@@ -34,6 +33,8 @@ import {
   AccountState,
   initialAccountState,
   isReadOnly$,
+  pendingTransaction$,
+  lastSeenAccountHashKey$,
 } from './account-store';
 import {
   AssetSummaryResult,
@@ -101,32 +102,26 @@ const _signer$ = merge(onboardSigner$, voidSigner$).pipe(
 
 const _accountUpdates = new Subject<Account>();
 const accountUpdates$ = _accountUpdates.asObservable().pipe(
-  distinctUntilChanged((a, b) => {
-    if (a && b) {
-      if (a.address !== b.address) {
-        return false;
-      }
-
-      const aHash = a.accountData?.hashKey ?? '';
-      const bHash = b.accountData?.hashKey ?? '';
-      const areIdentical = aHash === bHash;
-      return areIdentical;
-    }
-    return false;
+  withLatestFrom(lastSeenAccountHashKey$),
+  filter(([account, lastSeenAccountHashKey]) => {
+    return account.accountData?.hashKey !== lastSeenAccountHashKey;
   }),
-  mergeMap((account) => {
+  mergeMap(([account]) => {
     if (account && account !== null) {
       return forkJoin({
         balance: from(account.getBalanceSummary()),
         asset: from(account.getAssetSummary()),
+        account: from(Promise.resolve(account)),
       });
     }
+
     return of({
       balance: _defaultBalanceSummaryResult,
       asset: _defaultAssetSummaryResult,
+      account,
     } as SummaryUpdateResult);
   }),
-  switchMap(({ asset, balance }) => {
+  switchMap(({ asset, balance, account }) => {
     const assetSummary = new Map(
       asset.assetSummary?.map((item) => [item.assetKey, item]) ?? []
     );
@@ -134,7 +129,13 @@ const accountUpdates$ = _accountUpdates.asObservable().pipe(
       balance.balanceSummary?.map((item) => [item.currencyId, item]) ?? []
     );
     const noteSummary = balance.noteSummary;
-    return of({ assetSummary, balanceSummary, noteSummary });
+    return of({
+      assetSummary,
+      balanceSummary,
+      noteSummary,
+      lastUpdateTime: Math.floor(account.lastUpdateTime.getTime() / 1000),
+      lastSeenAccountHashKey: account.accountData?.hashKey || null,
+    });
   }),
   catchError((err) => {
     console.error(err);
@@ -149,8 +150,7 @@ const _accountRefresh$ = account$.pipe(
     }
     return of(account);
   }),
-  filter((account) => account !== null),
-  map((account) => _accountUpdates.next(account!))
+  map((account) => (account ? _accountUpdates.next(account) : undefined))
 );
 
 // Streams
@@ -183,6 +183,17 @@ startRefresh$
   )
   .subscribe();
 
+// Refresh the account when pending transactions complete
+pendingTransaction$
+  .pipe(withLatestFrom(account$))
+  .subscribe(async ([pending, account]) => {
+    if (account && pending) {
+      await pending.wait();
+      updateAccountState({ pendingTransaction: undefined });
+      _startRefresh.next(account.address);
+    }
+  });
+
 signerOrNotionalChanged$.subscribe((account) => {
   if (account && account !== null) {
     updateAccountState({
@@ -196,7 +207,6 @@ signerOrNotionalChanged$.subscribe((account) => {
 
 accountUpdates$.subscribe({
   next: (result: Partial<AccountState>) => {
-    console.log('updating account summaries');
     updateAccountState({ ...result, accountSummariesLoaded: true });
   },
   complete: () => console.log('account updates completed'),

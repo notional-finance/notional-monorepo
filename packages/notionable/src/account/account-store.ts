@@ -13,6 +13,7 @@ import {
   NOTESummary,
 } from '@notional-finance/sdk/src/account';
 import { Hashable } from '../types';
+import { TransactionResponse } from '@ethersproject/providers';
 
 export interface AccountState {
   isReadOnly: boolean;
@@ -23,6 +24,9 @@ export interface AccountState {
   noteSummary: NOTESummary | null;
   accountConnected: boolean;
   accountSummariesLoaded: boolean;
+  pendingTransaction?: TransactionResponse;
+  lastUpdateTime: number | null;
+  lastSeenAccountHashKey: string | null;
 }
 export type AccountStateKeys = keyof AccountState;
 
@@ -34,6 +38,8 @@ export const initialAccountState: AccountState = {
   noteSummary: null,
   accountConnected: false,
   accountSummariesLoaded: false,
+  lastUpdateTime: null,
+  lastSeenAccountHashKey: null,
 };
 
 const _accountStore = new BehaviorSubject(initialAccountState);
@@ -119,3 +125,9 @@ export const isReadOnly$ = selectAccountState(
 export const readOnlyAddress$ = selectAccountState(
   'readOnlyAddress'
 ) as Observable<string | undefined>;
+export const pendingTransaction$ = selectAccountState(
+  'pendingTransaction'
+) as Observable<TransactionResponse | undefined>;
+export const lastSeenAccountHashKey$ = selectAccountState(
+  'lastSeenAccountHashKey'
+) as Observable<string | null>;

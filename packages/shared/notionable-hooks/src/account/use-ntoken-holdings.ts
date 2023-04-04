@@ -20,6 +20,7 @@ export function useNTokenHoldings() {
         noteIncentiveYield: convertRateToFloat(
           NTokenValue.getNTokenIncentiveYield(b.currencyId)
         ),
+        hashKey: b.hashKey,
       };
     });
 }

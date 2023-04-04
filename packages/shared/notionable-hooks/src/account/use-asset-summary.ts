@@ -16,6 +16,7 @@ export interface AssetSummary {
   fixedAPY: number | undefined;
   removeAssetRoute: string | undefined;
   rollMaturities: MaturityData[] | undefined;
+  hashKey: string;
 }
 
 export function useAssetSummary(borrowOrLend: LEND_BORROW) {
@@ -74,6 +75,7 @@ export function useAssetSummary(borrowOrLend: LEND_BORROW) {
         fixedAPY: a.mostRecentTradedRate(),
         removeAssetRoute,
         rollMaturities: isIdiosyncratic ? undefined : rollMaturityData,
+        hashKey: a.hashKey,
       };
     });
 

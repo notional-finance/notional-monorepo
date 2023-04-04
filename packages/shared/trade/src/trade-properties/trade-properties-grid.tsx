@@ -27,19 +27,25 @@ export function TradePropertiesGrid({
       sx={{
         marginLeft: '0px',
         width: '100%',
-        paddingBottom: '16px',
-        paddingRight: '16px',
+        paddingBottom: theme.spacing(2),
+        paddingRight: theme.spacing(1),
         color: theme.palette.common.black,
         border: showBackground ? theme.shape.borderStandard : 'unset',
         borderRadius: showBackground ? theme.shape.borderRadiusLarge : 'unset',
-        backgroundColor: showBackground ? theme.palette.background.default : 'unset',
+        backgroundColor: showBackground
+          ? theme.palette.background.default
+          : 'unset',
       }}
     >
       {keys.map((k) => {
         const value = data[k];
         return value !== undefined ? (
           <StyledGridItem item xs={4} key={k as string}>
-            <TradeProperty propertyKey={k} value={value} labelAbove={labelsAbove} />
+            <TradeProperty
+              propertyKey={k}
+              value={value}
+              labelAbove={labelsAbove}
+            />
           </StyledGridItem>
         ) : null;
       })}

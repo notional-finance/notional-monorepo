@@ -18,6 +18,7 @@ export function useAccount() {
     isReadOnly,
     readOnlyAddress,
     accountSummariesLoaded,
+    lastUpdateTime,
   } = useObservableState(accountState$, initialAccountState);
 
   const truncatedAddress = account?.address
@@ -38,6 +39,7 @@ export function useAccount() {
     isReadOnly,
     readOnlyAddress,
     setReadOnlyAddress,
+    lastUpdateTime,
   };
 }
 

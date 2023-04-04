@@ -44,6 +44,7 @@ export function LendCardView() {
               rate={maxRate}
               allRates={allRates}
               route={route}
+              apyTagline={<FormattedMessage defaultMessage={'AS HIGH AS'} />}
               buttonText={
                 <FormattedMessage
                   defaultMessage="Lend {symbol}"

@@ -32,7 +32,13 @@ export const useLiquidationRiskTable = (updatedAccountData?: AccountData) => {
           updatedRiskRatios?.collateralRatio
         ),
         checkmark: updatedRiskRatios?.collateralRatio === null,
-        greenOnArrowUp: true,
+        greenOnArrowUp:
+          // Edge case when decreases to null we want to show green
+          // Edge case when increases from null we want to show red
+          currentRiskRatios?.collateralRatio === null ||
+          updatedRiskRatios?.collateralRatio === null
+            ? false
+            : true,
         greenOnCheckmark: true,
       },
     },

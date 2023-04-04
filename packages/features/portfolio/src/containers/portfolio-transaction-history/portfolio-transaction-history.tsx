@@ -1,6 +1,5 @@
 import { EmptyPortfolio } from '../../components';
 import { DataTable } from '@notional-finance/mui';
-import { PORTFOLIO_CATEGORIES } from '@notional-finance/shared-config';
 import { useTransactionHistoryTable } from '../../hooks';
 import { FormattedMessage } from 'react-intl';
 

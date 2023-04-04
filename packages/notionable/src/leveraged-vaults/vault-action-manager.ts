@@ -88,7 +88,8 @@ export const loadVaultActionManager = (
       'accountAddress',
       'vaultAction',
       'depositAmount',
-      'selectedMarketKey'
+      'selectedMarketKey',
+      'leverageRatio'
     )
   );
 

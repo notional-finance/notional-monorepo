@@ -42,6 +42,7 @@ export const BorrowCardView = () => {
               rate={minRate}
               allRates={allRates}
               route={route}
+              apyTagline={<FormattedMessage defaultMessage={'AS LOW AS'} />}
               buttonText={
                 <FormattedMessage
                   defaultMessage="Borrow {symbol}"

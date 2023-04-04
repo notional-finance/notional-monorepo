@@ -14,7 +14,13 @@ export interface TokenApprovalProps {
   approved?: boolean;
   approvalPending?: boolean;
   sx?: Record<string, string>;
-  onChange: ({ symbol, approved }: { symbol: string; approved: boolean }) => void;
+  onChange: ({
+    symbol,
+    approved,
+  }: {
+    symbol: string;
+    approved: boolean;
+  }) => void;
 }
 
 export function TokenApproval({
@@ -45,7 +51,9 @@ export function TokenApproval({
     }
   }, [error]);
 
-  const handleChange = ({ target: { checked } }: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = ({
+    target: { checked },
+  }: React.ChangeEvent<HTMLInputElement>) => {
     setPending(true);
     onChange({ symbol: symbol, approved: checked });
   };
@@ -101,20 +109,24 @@ export function TokenApproval({
         <LabelValue
           inline
           sx={{
-            color: approved ? theme.palette.typography.main : theme.palette.typography.light,
+            color: approved
+              ? theme.palette.typography.main
+              : theme.palette.typography.light,
           }}
         >
           {approved ? (
             <FormattedMessage defaultMessage="Enabled" />
           ) : (
-            <FormattedMessage defaultMessage="Disable" />
+            <FormattedMessage defaultMessage="Disabled" />
           )}
         </LabelValue>
       </Box>
       <Label
         sx={{
           padding: theme.spacing(2, 0),
-          color: approved ? theme.palette.typography.main : theme.palette.typography.light,
+          color: approved
+            ? theme.palette.typography.main
+            : theme.palette.typography.light,
         }}
       >
         <FormattedMessage

@@ -254,7 +254,7 @@ export const PropertyMessages: Record<TradePropertyKeys, MessageDescriptor> = {
     description: 'value label',
   }),
   [TradePropertyKeys.withdrawLendRate]: defineMessage({
-    defaultMessage: 'Withdraw Lend Rate',
+    defaultMessage: 'Withdraw Lend APY',
     description: 'value label',
   }),
   [TradePropertyKeys.leverageRatio]: defineMessage({

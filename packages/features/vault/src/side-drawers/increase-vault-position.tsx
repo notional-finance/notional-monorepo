@@ -1,5 +1,5 @@
 import { useContext, useEffect } from 'react';
-import { WalletDepositInput } from '@notional-finance/trade';
+import { TokenApprovalView, WalletDepositInput } from '@notional-finance/trade';
 import { SliderInput, useSliderInputRef } from '@notional-finance/mui';
 import { VAULT_ACTIONS } from '@notional-finance/shared-config';
 import { VaultSideDrawer } from '../components/vault-side-drawer';
@@ -65,6 +65,7 @@ export const IncreaseVaultPosition = () => {
           />
         }
       />
+      <TokenApprovalView symbol={primaryBorrowSymbol} />
     </VaultSideDrawer>
   );
 };

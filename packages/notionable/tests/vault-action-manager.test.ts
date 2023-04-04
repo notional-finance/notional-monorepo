@@ -75,10 +75,7 @@ describe('Vault Actions', () => {
     } as unknown as Account;
   };
 
-  const testSequence = getSequencer((s) => {
-    console.log('saw state', s);
-    updateState(s);
-  }, vaultActionUpdates);
+  const testSequence = getSequencer(updateState, vaultActionUpdates);
 
   beforeAll(() => {
     system.setVault({
@@ -402,6 +399,23 @@ describe('Vault Actions', () => {
         [
           {
             depositAmount: TypedBigNumber.fromBalance(1e8, 'ETH', true),
+          },
+          (v, index, _, values) => {
+            expect(v.fCashBorrowAmount).toBeDefined();
+            expect(v.currentBorrowRate).toBeGreaterThan(
+              values[index - 1].currentBorrowRate!
+            );
+            expect(v.updatedVaultAccount).toBeDefined();
+            expect(v.netCapacityChange?.neg().eq(v.fCashBorrowAmount!)).toBe(
+              true
+            );
+            expect(v.transactionCosts).toBeDefined();
+            expect(v.cashBorrowed).toBeDefined();
+          },
+        ],
+        [
+          {
+            leverageRatio: 10.1e9,
           },
           (v, index, _, values) => {
             expect(v.fCashBorrowAmount).toBeDefined();

@@ -6,7 +6,6 @@ import {
   useNotional,
   useSelectedMarket,
 } from '@notional-finance/notionable-hooks';
-import { TypedBigNumber, BigNumberType } from '@notional-finance/sdk';
 import { Market } from '@notional-finance/sdk/src/system';
 import { useObservableState } from 'observable-hooks';
 import { initialLendState, lendState$ } from './lend-store';
@@ -77,8 +76,8 @@ export function useLendTransaction() {
         adjfCashAmount,
         selectedMarket.marketIndex,
         minSlippage,
-        TypedBigNumber.from(0, BigNumberType.InternalAsset, 'cETH'),
-        true,
+        depositAmount.copy(0).toAssetCash().toInternalPrecision(),
+        true, // This always withdraws cash no matter what since cash is applied first
         true, // is underlying
       ],
     };
