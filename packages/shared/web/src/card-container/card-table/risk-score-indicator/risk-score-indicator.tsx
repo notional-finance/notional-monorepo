@@ -29,8 +29,9 @@ export const RiskScoreIndicator = (props) => {
           marginRight: theme.spacing(1),
         }}
       >
-        {riskData[riskLevel].activeBars.map((active) => (
+        {riskData[riskLevel].activeBars.map((active, index) => (
           <Box
+            key={index}
             sx={{
               width: '3px',
               marginRight: '3px',

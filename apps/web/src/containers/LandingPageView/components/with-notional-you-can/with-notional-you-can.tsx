@@ -214,7 +214,7 @@ const StyledCard = styled(Box)(
     )}
   }
 
-  &:nth-child(2) {
+  &:nth-of-type(2) {
     ${theme.gradient.hoverTransition(
       'linear-gradient(146.93deg, #49e0e6 -51.7%, #21b3b4 60.7%)',
       'linear-gradient(326.93deg, #49e0e6 -51.7%, #21b3b4 60.7%)'

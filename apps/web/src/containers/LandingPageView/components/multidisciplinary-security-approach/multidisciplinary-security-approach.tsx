@@ -78,7 +78,7 @@ export const MultidisciplinarySecurityApproach = () => {
                 description="landing section heading"
               />
             </H1>
-            <Paragraph contrast fontWeight="light">
+            <Paragraph contrast fontWeight="light" component={'div'}>
               <FormattedMessage
                 defaultMessage={
                   'We invest in thorough testing and auditing of our smart contracts. Our contracts are open source so developers can <a>review our code</a> and we have an active bug bounty. Contact the security team at {mailToLink}.'
@@ -181,6 +181,7 @@ export const MultidisciplinarySecurityApproach = () => {
               contrast
               fontWeight="light"
               marginBottom={theme.spacing(4)}
+              component={'div'}
             >
               <FormattedMessage
                 defaultMessage="We run rigorous simulations to ensure that Notional remains secure and functions properly through all market conditions. Contact the risk team at {mailToLink}."

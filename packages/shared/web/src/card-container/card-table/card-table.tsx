@@ -1,3 +1,4 @@
+import React from 'react';
 import { useTheme, styled, Box } from '@mui/material';
 import { colors } from '@notional-finance/styles';
 import { useCardTable } from './use-card-table';
@@ -9,8 +10,8 @@ export const CardTable = () => {
   return (
     <OuterContainer>
       <ContentContainer>
-        {cardTableData?.map(({ key, value }) => (
-          <>
+        {cardTableData?.map(({ key, value }, index) => (
+          <React.Fragment key={index}>
             <TableContent
               sx={{
                 justifyContent: 'flex-end',
@@ -29,7 +30,7 @@ export const CardTable = () => {
             >
               {value}
             </TableContent>
-          </>
+          </React.Fragment>
         ))}
       </ContentContainer>
     </OuterContainer>

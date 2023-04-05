@@ -1,10 +1,7 @@
 /* eslint react/prop-types: 0 */
 import React from 'react';
-import { useTheme } from '@mui/material';
-import { useIntl } from 'react-intl';
 
-const SelectedDate = (x, y) => {
-  const theme = useTheme();
+const SelectedDate = (x, y, theme) => {
   return (
     <svg
       width="88"
@@ -75,9 +72,8 @@ const SelectedDate = (x, y) => {
 };
 
 export const XAxisDateTick = (props) => {
-  const intl = useIntl();
-  const theme = useTheme();
-  const { x, y, visibleTicksCount, payload, activeTimestamp } = props;
+  const { x, y, visibleTicksCount, payload, activeTimestamp, theme, intl } =
+    props;
   const isActive = activeTimestamp === payload.value;
 
   let textAnchor = 'middle';
@@ -101,7 +97,7 @@ export const XAxisDateTick = (props) => {
       cursor={'pointer'}
       fill={theme.palette.typography.light}
     >
-      {isActive ? SelectedDate(mBoxDx, -12) : null}
+      {isActive ? SelectedDate(mBoxDx, -12, theme) : null}
       <text
         x={0}
         y={0}
