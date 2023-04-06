@@ -3,8 +3,9 @@ import { Box, Input, styled, useTheme } from '@mui/material';
 import { InputLabel } from '../input-label/input-label';
 import { useCallback, useRef, useState } from 'react';
 import SliderBasic from '../slider-basic/slider-basic';
-import { MessageDescriptor } from 'react-intl';
-import { Label, Caption } from '../typography/typography';
+import { FormattedMessage, MessageDescriptor } from 'react-intl';
+import { Caption } from '../typography/typography';
+import ErrorMessage from '../error-message/error-message';
 import React from 'react';
 
 interface SliderInputProps {
@@ -199,7 +200,10 @@ export const SliderInput = React.forwardRef<
         <Caption sx={{ marginTop: theme.spacing(1.5) }}>
           {bottomCaption}
         </Caption>
-        <Label error={isError} marginTop={theme.spacing(1)} msg={captionMsg} />
+        <ErrorMessage
+          variant={isError ? 'error' : 'warning'}
+          message={captionMsg && <FormattedMessage {...captionMsg} />}
+        />
       </Box>
     );
   }

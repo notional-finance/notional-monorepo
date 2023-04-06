@@ -441,7 +441,7 @@ function getTypography(themeVariant: PaletteMode, pageLayout?: NotionalPageLayou
     },
     labelValue: {
       fontSize: pxToRem(14),
-      fontWeight: fontWeight.bold,
+      fontWeight: fontWeight.demiBold,
       color: getFontColors(themeVariant).primary,
       lineHeight,
       marginBottom: pxToMargin(14),
@@ -615,6 +615,7 @@ const getThemeData = (themeVariant: PaletteMode, pageLayout?: NotionalPageLayout
         main: colors.red,
       },
       warning: {
+        light: alpha(colors.orange, 0.15),
         main: colors.orange,
       },
       info: {
