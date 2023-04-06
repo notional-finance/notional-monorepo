@@ -45,7 +45,7 @@ export const Hero = () => {
         totalAccounts: formatNumber(totalAccounts, 0),
       });
     } catch (e) {
-      console.error(e);
+      console.warn(e);
       // If this query fails then the top stats bar won't show
       setTopStats(null);
     }

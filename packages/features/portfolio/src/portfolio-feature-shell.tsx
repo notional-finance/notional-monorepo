@@ -95,6 +95,7 @@ const PortfolioContainer = styled(Box)(
   gap: ${theme.spacing(3)};
   margin: ${theme.spacing(3)};
   margin-top: ${theme.spacing(10)};
+  min-height: 100vh;
   @media (max-width: 768px) {
     flex-flow: column;
   };

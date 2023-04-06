@@ -180,7 +180,7 @@ const StyledFooter = styled('div')(
       float: left;
       margin-right: 15%;
 
-      &:first-child {
+      &:first-of-type. {
         margin-left: 0px;
       }
     }
@@ -190,7 +190,7 @@ const StyledFooter = styled('div')(
       color: $white;
       margin-bottom: 36px;
 
-      &:first-child {
+      &:first-of-type. {
         color: ${theme.palette.info.main};
       }
     }

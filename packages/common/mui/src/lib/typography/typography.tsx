@@ -16,6 +16,8 @@ export interface CustomTypographyProps extends StylesProps {
   uppercase?: boolean;
   gutter?: 'default' | 'tight' | 'none';
   msg?: MessageDescriptor;
+  component?: any;
+  // NOTE: This is intentionally a any type. MUI does not provide a clear way to get the type for this
 }
 
 const makeVariant = (variant: TypographyProps['variant']) => {
@@ -30,6 +32,7 @@ const makeVariant = (variant: TypographyProps['variant']) => {
     uppercase,
     gutter = 'none',
     msg,
+    component,
     ...style
   }: CustomTypographyProps) => {
     const theme = useTheme();
@@ -53,6 +56,7 @@ const makeVariant = (variant: TypographyProps['variant']) => {
         color={color}
         variant={variant}
         display={inline ? 'inline' : 'block'}
+        component={component}
       >
         {msg ? <FormattedMessage {...msg} /> : children}
       </Typography>

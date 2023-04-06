@@ -10,6 +10,7 @@ import {
   AreaHeaderData,
 } from '../area-chart-header/area-chart-header';
 import { useYAxis, YAxisTick } from './y-axis-tick';
+import { useIntl } from 'react-intl';
 import {
   Area,
   XAxis,
@@ -47,10 +48,11 @@ export const InteractiveAreaChart = ({
   selectedMarketKey,
   lockSelection,
 }: InteractiveAreaChartProps) => {
+  const intl = useIntl();
+  const theme = useTheme();
   const { ticks, lines, maxTick } = useYAxis(interactiveAreaChartData);
   const [activeTimestamp, setActiveTimestamp] = useState<number>(0);
   const gridHeight = 260;
-  const theme = useTheme();
 
   useEffect(() => {
     if (!selectedMarketKey) {
@@ -119,7 +121,13 @@ export const InteractiveAreaChart = ({
                   (dataMax: number) => dataMax + ONE_WEEK,
                 ]}
                 style={{ fill: theme.palette.typography.main }}
-                tick={<XAxisDateTick activeTimestamp={activeTimestamp} />}
+                tick={
+                  <XAxisDateTick
+                    activeTimestamp={activeTimestamp}
+                    intl={intl}
+                    theme={theme}
+                  />
+                }
                 tickLine={false}
               />
               <YAxis

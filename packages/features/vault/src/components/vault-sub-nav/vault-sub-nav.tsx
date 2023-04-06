@@ -31,7 +31,15 @@ export const VaultSubNav = () => {
           return (
             <NavItem key={key} theme={theme} reverseTheme={reverseTheme}>
               {callback && (
-                <Label sx={{ padding: theme.spacing(0, 2) }} onClick={callback}>
+                <Label
+                  sx={{
+                    padding: theme.spacing(0, 2),
+                    display: 'flex',
+                    height: '100%',
+                    alignItems: 'center',
+                  }}
+                  onClick={callback}
+                >
                   {label}
                 </Label>
               )}
