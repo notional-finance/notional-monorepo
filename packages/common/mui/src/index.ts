@@ -18,6 +18,7 @@ export * from './lib/data-table-cells';
 export * from './lib/drawer/drawer';
 export * from './lib/dropdown/dropdown';
 export * from './lib/dropdown-button/dropdown-button';
+export * from './lib/error-message/error-message';
 export * from './lib/discord-button-gradient/discord-button-gradient';
 export * from './lib/faq/faq';
 export * from './lib/hooks';

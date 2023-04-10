@@ -3,6 +3,7 @@ import NumberFormat from 'react-number-format';
 import { Input, Box, useTheme, Divider, styled } from '@mui/material';
 import { NotionalTheme } from '@notional-finance/styles';
 import CurrencySelect, { CurrencySelectProps } from './currency-select';
+import ErrorMessage from '../error-message/error-message';
 import MaxButton from '../max-button/max-button';
 import { Paragraph } from '../typography/typography';
 import { useCallback, useRef } from 'react';
@@ -119,13 +120,11 @@ export const CurrencyInput = React.forwardRef<
     if (hasFocus) return theme.palette.info.main;
     return theme.palette.borders.paper;
   };
-  const borderColor = getBorderColor();
 
-  const getMessageColor = () => {
-    if (errorMsg) return theme.palette.error.main;
-    if (warningMsg) return theme.palette.warning.main;
-    return undefined;
-  };
+  const currentErrorMessage = errorMsg || warningMsg;
+  const errorType = errorMsg ? 'error' : 'warning';
+
+  const borderColor = getBorderColor();
 
   const CustomSelect = React.forwardRef((props: CurrencySelectProps, ref) => {
     return <CurrencySelect {...{ ...props, popperRef: ref }} />;
@@ -219,8 +218,9 @@ export const CurrencyInput = React.forwardRef<
           }}
         />
       </InputContainer>
-      <Paragraph marginTop={theme.spacing(1)} sx={{ color: getMessageColor() }}>
-        {errorMsg || warningMsg || captionMsg || '\u00A0'}
+      <ErrorMessage variant={errorType} message={currentErrorMessage} />
+      <Paragraph marginTop={theme.spacing(1)}>
+        {captionMsg || '\u00A0'}
       </Paragraph>
     </Container>
   );

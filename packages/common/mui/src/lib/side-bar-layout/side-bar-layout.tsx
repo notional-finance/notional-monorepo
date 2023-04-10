@@ -1,4 +1,4 @@
-import { Box } from '@mui/material';
+import { Box, useTheme } from '@mui/material';
 import { ReactElement, useRef, useState, useEffect } from 'react';
 // NOTE: Leaving this here incase we want to add it back in the future
 import { TypeForm } from '../type-form/type-form';
@@ -16,6 +16,7 @@ export function SideBarLayout({
   sideBar,
   showTransactionConfirmation,
 }: SideBarLayoutProps) {
+  const theme = useTheme();
   const [viewHeight, setViewHeight] = useState(0);
   const viewRef = useRef<HTMLDivElement | null>(null);
   const windowDimensions = useWindowDimensions();
@@ -46,11 +47,11 @@ export function SideBarLayout({
           flexGrow: 1,
           display: 'inline-flex',
           marginTop: {
-            xs: '17px',
-            sm: '17px',
-            md: '17px',
-            lg: '48px',
-            xl: '48px',
+            xs: theme.spacing(2),
+            sm: theme.spacing(2),
+            md: theme.spacing(2),
+            lg: theme.spacing(6),
+            xl: theme.spacing(6),
           },
           '&>div': {
             margin: '0 auto',
@@ -58,9 +59,9 @@ export function SideBarLayout({
             marginBottom: {
               xs: '0px',
               sm: '0px',
-              md: '0px',
-              lg: '48px',
-              xl: '48px',
+              md: theme.spacing(12.5),
+              lg: theme.spacing(6),
+              xl: theme.spacing(6),
             },
           },
         }}
