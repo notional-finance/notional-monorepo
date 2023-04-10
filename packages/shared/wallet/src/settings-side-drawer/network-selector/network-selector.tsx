@@ -58,40 +58,43 @@ export function NetworkSelector() {
       <Title>
         <FormattedMessage defaultMessage={'NETWORK'} />
       </Title>
-      {supportedChains.map((data: Chain) => (
-        <NetworkButton
-          key={data.id}
-          onClick={() => handleClick(data)}
-          active={chain?.id === data.id}
-          theme={theme}
-        >
-          <ListItemIcon sx={{ marginRight: '0px' }}>
-            <TokenIcon symbol="eth" size="large" />
-          </ListItemIcon>
-          <H4 sx={{ flex: 1, alignItems: 'center', display: 'flex' }}>
-            <FormattedMessage {...labels[data.label]} />
-          </H4>
-          <Box
-            sx={{
-              justifyContent: 'flex-end',
-              display: 'flex',
-              alignItems: 'center',
-            }}
+      {supportedChains.map((data: Chain) => {
+        const label = data.label ? labels[data.label] : '';
+        return (
+          <NetworkButton
+            key={data.id}
+            onClick={() => handleClick(data)}
+            active={chain?.id === data.id}
+            theme={theme}
           >
-            {chain?.id === data.id ? (
-              <CheckCircleIcon sx={{ fill: theme.palette.primary.main }} />
-            ) : (
-              <CircleIcon
-                sx={{
-                  stroke: theme.palette.borders.accentPaper,
-                  width: theme.spacing(2.5),
-                  height: theme.spacing(2.5),
-                }}
-              />
-            )}
-          </Box>
-        </NetworkButton>
-      ))}
+            <ListItemIcon sx={{ marginRight: '0px' }}>
+              <TokenIcon symbol="eth" size="large" />
+            </ListItemIcon>
+            <H4 sx={{ flex: 1, alignItems: 'center', display: 'flex' }}>
+              <FormattedMessage {...label} />
+            </H4>
+            <Box
+              sx={{
+                justifyContent: 'flex-end',
+                display: 'flex',
+                alignItems: 'center',
+              }}
+            >
+              {chain?.id === data.id ? (
+                <CheckCircleIcon sx={{ fill: theme.palette.primary.main }} />
+              ) : (
+                <CircleIcon
+                  sx={{
+                    stroke: theme.palette.borders.accentPaper,
+                    width: theme.spacing(2.5),
+                    height: theme.spacing(2.5),
+                  }}
+                />
+              )}
+            </Box>
+          </NetworkButton>
+        );
+      })}
     </NetworkWrapper>
   );
 }
