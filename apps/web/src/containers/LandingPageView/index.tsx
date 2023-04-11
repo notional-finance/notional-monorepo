@@ -8,6 +8,7 @@ import {
   MultidisciplinarySecurityApproach,
   FromTheBlog,
   Hero,
+  ProductCards,
 } from './components';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { EmailCaptureSection } from '@notional-finance/shared-web';
@@ -19,7 +20,8 @@ export const LandingPageView = () => {
     <ThemeProvider theme={theme}>
       <Box sx={{ overflow: 'hidden' }}>
         <Hero />
-        <FixedOpenAndTransparent />
+        <ProductCards />
+        {/* <FixedOpenAndTransparent /> */}
         <WithNotionalYouCan />
         <VentureCapitalPartners />
         <AskedQuestionsAccordion />

@@ -5,3 +5,4 @@ export * from './multidisciplinary-security-approach/multidisciplinary-security-
 export * from './venture-capital-partners/venture-capital-partners'
 export * from './with-notional-you-can/with-notional-you-can'
 export * from './hero/hero'
+export * from './product-cards/product-cards'
