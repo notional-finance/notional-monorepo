@@ -1,14 +1,21 @@
 import {
   AppBar as MuiAppBar,
   AppBarProps as MuiAppBarProps,
+  useTheme,
 } from '@mui/material';
 import { ReactNode } from 'react';
 
 export interface AppBarProps extends MuiAppBarProps {
   children: ReactNode;
+  showBorder?: boolean;
 }
 
-export const AppBar = ({ children, ...rest }: AppBarProps) => {
+export const AppBar = ({
+  children,
+  showBorder = false,
+  ...rest
+}: AppBarProps) => {
+  const theme = useTheme();
   return (
     <MuiAppBar
       sx={{
@@ -16,7 +23,10 @@ export const AppBar = ({ children, ...rest }: AppBarProps) => {
         paddingRight: '0px',
         '&.MuiAppBar-root': {
           height: '4.6rem',
-          background: 'transparent',
+          borderBottom: showBorder ? theme.shape.borderStandard : '',
+          background: showBorder
+            ? theme.palette.background.default
+            : 'transparent',
         },
       }}
       {...rest}

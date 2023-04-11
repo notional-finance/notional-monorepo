@@ -37,7 +37,7 @@ export function Header({ rightButton }: HeaderProps) {
 
   return (
     <ThemeProvider theme={theme}>
-      <AppBar position="fixed" elevation={0}>
+      <AppBar position="fixed" elevation={0} showBorder={pathname !== '/'}>
         <Toolbar
           id="TEST"
           sx={{
