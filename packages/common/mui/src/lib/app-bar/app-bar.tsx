@@ -1,15 +1,21 @@
-import { AppBar as MuiAppBar, AppBarProps as MuiAppBarProps } from '@mui/material';
-import { NotionalTheme } from '@notional-finance/styles';
-import { useTheme } from '@mui/material/styles';
+import {
+  AppBar as MuiAppBar,
+  AppBarProps as MuiAppBarProps,
+  useTheme,
+} from '@mui/material';
 import { ReactNode } from 'react';
 
 export interface AppBarProps extends MuiAppBarProps {
   children: ReactNode;
+  showBorder?: boolean;
 }
 
-export const AppBar = ({ children, ...rest }: AppBarProps) => {
-  const theme = useTheme() as NotionalTheme;
-
+export const AppBar = ({
+  children,
+  showBorder = false,
+  ...rest
+}: AppBarProps) => {
+  const theme = useTheme();
   return (
     <MuiAppBar
       sx={{
@@ -17,8 +23,10 @@ export const AppBar = ({ children, ...rest }: AppBarProps) => {
         paddingRight: '0px',
         '&.MuiAppBar-root': {
           height: '4.6rem',
-          background: theme.palette.background.default,
-          borderBottom: theme.shape.borderStandard,
+          borderBottom: showBorder ? theme.shape.borderStandard : '',
+          background: showBorder
+            ? theme.palette.background.default
+            : 'transparent',
         },
       }}
       {...rest}

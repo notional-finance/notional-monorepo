@@ -1,4 +1,3 @@
-import { THEME_VARIANTS } from '@notional-finance/shared-config';
 import { Tab, Tabs, TabsProps, useTheme } from '@mui/material';
 import { useLocation, useHistory, Link } from 'react-router-dom';
 import { InvestAndEarnDropdown } from '../invest-and-earn/invest-and-earn-dropdown/invest-and-earn-dropdown';
@@ -70,7 +69,6 @@ export function Navigation({ navLinks, ...rest }: NavigationProps) {
             sx={{
               '&.MuiTab-root, .MuiTab-labelIcon': {
                 color: theme.palette.common.black,
-                backgroundColor: theme.palette.background.default,
                 opacity: 1,
                 textTransform: 'capitalize',
                 fontWeight: 400,

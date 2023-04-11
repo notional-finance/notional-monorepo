@@ -10,11 +10,7 @@ const LandingPageLayoutRoute = ({ component: Component, path, routeKey }) => {
       key={routeKey}
       render={(matchProps) => (
         <Box>
-          <Box
-            sx={{
-              marginTop: { xs: '56px', sm: '64px', lg: '72px' },
-            }}
-          >
+          <Box>
             <HeaderRenderer />
             <Component {...matchProps} />
           </Box>
