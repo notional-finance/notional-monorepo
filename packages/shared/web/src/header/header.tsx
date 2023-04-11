@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Toolbar, Box, useTheme, ThemeProvider } from '@mui/material';
 import { AppBar, AppBarProps, H4 } from '@notional-finance/mui';
 import { NotionalLogo } from '@notional-finance/styles';
@@ -10,6 +11,7 @@ import { ReactElement } from 'react';
 import { useLocation } from 'react-router-dom';
 import ResourcesDropdown from './resources/resources-dropdown/resources-dropdown';
 import AnalyticsDropdown from './analytics-dropdown/analytics-dropdown';
+import ScrollIndicator from './scroll-indicator/scroll-indicator';
 
 /* eslint-disable-next-line */
 export interface HeaderProps extends AppBarProps {
@@ -17,20 +19,35 @@ export interface HeaderProps extends AppBarProps {
 }
 
 export function Header({ rightButton }: HeaderProps) {
+  const [isTop, setIsTop] = useState(true);
   const landingTheme = useNotionalTheme(THEME_VARIANTS.DARK);
   const appTheme = useTheme();
   const { pathname } = useLocation();
   const theme = pathname === '/' ? landingTheme : appTheme;
   const { navLinks } = useNavLinks(false, theme);
 
+  window.addEventListener('scroll', () => {
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    if (scrollTop > 0) {
+      setIsTop(false);
+    } else {
+      setIsTop(true);
+    }
+  });
+
   return (
     <ThemeProvider theme={theme}>
       <AppBar position="fixed" elevation={0}>
         <Toolbar
+          id="TEST"
           sx={{
             '&.MuiToolbar-root': {
               minHeight: '100%',
               maxWidth: { xs: '100vw', sm: '100vw', md: '100%' },
+              transition: 'background 0.3s ease-in-out',
+              background: isTop
+                ? 'transparent'
+                : theme.palette.background.default,
             },
           }}
         >
@@ -90,6 +107,7 @@ export function Header({ rightButton }: HeaderProps) {
             {rightButton}
           </Box>
         </Toolbar>
+        {pathname === '/' && <ScrollIndicator />}
       </AppBar>
     </ThemeProvider>
   );

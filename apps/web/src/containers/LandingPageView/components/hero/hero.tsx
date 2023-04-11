@@ -151,7 +151,6 @@ const HeroContainer = styled(Box)(
   min-width: 100vw;
   background-color: ${theme.palette.background.paper};
   overflow: hidden;
-  margin-top: -${theme.spacing(9)};
   ${theme.breakpoints.down('md')} {
     background-size: 100% 100%;
     min-height: ${theme.spacing(180)};
@@ -187,6 +186,7 @@ const HeroContent = styled(Box)(
 
 const StatsContainer = styled(Box)(
   ({ theme }) => `
+  margin-top: ${theme.spacing(9)};
   background: url(${statsImg}) no-repeat;
   background-size: ${theme.spacing(50)} 100%;
   height: 100vh;
@@ -198,7 +198,7 @@ const StatsContainer = styled(Box)(
   top: 0;
   border-image: linear-gradient(to top, ${
     theme.palette.primary.light
-  }, rgba(0, 0, 0, 0)) 1 100%;
+  }, rgba(0, 0, 0, 0)) 50 100%;
   border-width: 0 0 0 1px;
   border-style: solid;
   text-align: center;
@@ -225,7 +225,7 @@ const StatsContent = styled(Box)(
   z-index: 2;
   display: flex;
   flex-direction: column;
-  margin-top: ${theme.spacing(20)};
+  margin-top: ${theme.spacing(11)};
   ${theme.breakpoints.down('md')} {
     margin: 0 ${theme.spacing(2)} 0 ${theme.spacing(2)}};
     align-items: center;
