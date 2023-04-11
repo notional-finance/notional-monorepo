@@ -39,7 +39,6 @@ export function Header({ rightButton }: HeaderProps) {
     <ThemeProvider theme={theme}>
       <AppBar position="fixed" elevation={0} showBorder={pathname !== '/'}>
         <Toolbar
-          id="TEST"
           sx={{
             '&.MuiToolbar-root': {
               minHeight: '100%',
