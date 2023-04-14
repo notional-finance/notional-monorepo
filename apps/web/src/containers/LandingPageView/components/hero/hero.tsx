@@ -94,48 +94,50 @@ export const Hero = () => {
           </HeroContent>
         </Box>
         <StatsContainer>
-          <StatsContent>
-            {topStats ? (
-              <div>
-                <LargeInputText>
-                  {topStats?.totalValueLocked}
-                  <BodySecondary>
-                    <FormattedMessage defaultMessage={'Total Value Locked'} />
-                  </BodySecondary>
-                </LargeInputText>
-                <LargeInputText sx={{ marginTop: theme.spacing(9) }}>
-                  {topStats?.totalLoanVolume}
-                  <BodySecondary>
-                    <FormattedMessage defaultMessage={'Total Loan Volume'} />
-                  </BodySecondary>
-                </LargeInputText>
-                <LargeInputText sx={{ marginTop: theme.spacing(9) }}>
-                  {topStats?.totalAccounts}
-                  <BodySecondary>
-                    <FormattedMessage defaultMessage={'Active Accounts'} />
-                  </BodySecondary>
-                </LargeInputText>
-                <Button
-                  size="large"
-                  variant="outlined"
-                  sx={{ marginTop: theme.spacing(9) }}
-                  href="https://info.notional.finance/"
-                >
-                  <FormattedMessage defaultMessage={'Analytics Dashboard'} />
-                  <ExternalLinkIcon
-                    sx={{
-                      marginLeft: theme.spacing(2),
-                      height: '1rem',
-                      marginTop: '-2px',
-                    }}
-                    fill={theme.palette.primary.main}
-                  />
-                </Button>
-              </div>
-            ) : (
-              <ProgressIndicator type="circular" />
-            )}
-          </StatsContent>
+          <StatsWrapper>
+            <StatsContent>
+              {topStats ? (
+                <div>
+                  <LargeInputText>
+                    {topStats?.totalValueLocked}
+                    <BodySecondary>
+                      <FormattedMessage defaultMessage={'Total Value Locked'} />
+                    </BodySecondary>
+                  </LargeInputText>
+                  <LargeInputText sx={{ marginTop: theme.spacing(9) }}>
+                    {topStats?.totalLoanVolume}
+                    <BodySecondary>
+                      <FormattedMessage defaultMessage={'Total Loan Volume'} />
+                    </BodySecondary>
+                  </LargeInputText>
+                  <LargeInputText sx={{ marginTop: theme.spacing(9) }}>
+                    {topStats?.totalAccounts}
+                    <BodySecondary>
+                      <FormattedMessage defaultMessage={'Active Accounts'} />
+                    </BodySecondary>
+                  </LargeInputText>
+                  <Button
+                    size="large"
+                    variant="outlined"
+                    sx={{ marginTop: theme.spacing(9) }}
+                    href="https://info.notional.finance/"
+                  >
+                    <FormattedMessage defaultMessage={'Analytics Dashboard'} />
+                    <ExternalLinkIcon
+                      sx={{
+                        marginLeft: theme.spacing(2),
+                        height: '1rem',
+                        marginTop: '-2px',
+                      }}
+                      fill={theme.palette.primary.main}
+                    />
+                  </Button>
+                </div>
+              ) : (
+                <ProgressIndicator type="circular" />
+              )}
+            </StatsContent>
+          </StatsWrapper>
         </StatsContainer>
       </HeroContainer>
     </ThemeProvider>
@@ -186,21 +188,12 @@ const HeroContent = styled(Box)(
 
 const StatsContainer = styled(Box)(
   ({ theme }) => `
-  margin-top: ${theme.spacing(9)};
-  background: url(${statsImg}) no-repeat;
-  background-size: ${theme.spacing(50)} 100%;
   height: 100vh;
   min-height: ${theme.spacing(100)};
   width: ${theme.spacing(50)};
   right: 0;
   position: absolute;
-  backdrop-filter: blur(2px);
   top: 0;
-  border-image: linear-gradient(to top, ${
-    theme.palette.primary.light
-  }, rgba(0, 0, 0, 0)) 50 100%;
-  border-width: 0 0 0 1px;
-  border-style: solid;
   text-align: center;
   overflow: hidden;
   display: flex;
@@ -216,6 +209,33 @@ const StatsContainer = styled(Box)(
     justify-content: center;
     border: 1px solid ${theme.palette.primary.light};
     border-radius: ${theme.shape.borderRadius()};
+  }
+  ${theme.breakpoints.down('sm')} {
+    height: ${theme.spacing(88)};
+  }
+`
+);
+
+const StatsWrapper = styled(Box)(
+  ({ theme }) => `
+  border-image: linear-gradient(to top, ${
+    theme.palette.primary.light
+  }, rgba(0, 0, 0, 0)) 50 100%;
+  margin-top: ${theme.spacing(9)};
+  padding-top: 0px;
+  padding-bottom: 0px;
+  height: 100%;
+  border-width: 0 0 0 1px;
+  border-style: solid;
+  width: 100%;
+  backdrop-filter: blur(2px);
+  background: url(${statsImg}) no-repeat;
+  background-size: ${theme.spacing(50)} 100%;
+  
+  ${theme.breakpoints.down('md')} {
+    margin-top: 0px;
+    padding-top: ${theme.spacing(9)};
+    padding-bottom: ${theme.spacing(9)};
   }
 `
 );

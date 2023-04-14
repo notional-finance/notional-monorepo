@@ -371,6 +371,7 @@ function getTypography(themeVariant: PaletteMode, pageLayout?: NotionalPageLayou
         fontSize: pxToRem(12),
         fontWeight: fontWeight.demiBold,
         color: getFontColors(themeVariant).secondary,
+        letterSpacing: pxToRem(1),
         lineHeight,
         textTransform: 'uppercase',
         marginBottom: pxToMargin(14),
