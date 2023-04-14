@@ -16,8 +16,6 @@ export interface PillProps {
   variableRate: boolean;
   theme: NotionalTheme;
 }
-
-// create interface for ProductCards props
 export interface ProductCardsProps {
   title: ReactNode;
   link: string;
