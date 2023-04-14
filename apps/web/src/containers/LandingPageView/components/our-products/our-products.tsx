@@ -28,10 +28,10 @@ export const OurProducts = () => {
           minHeight={theme.spacing(8)}
           width="373px"
           tabLabels={[
-            <Box sx={{ fontSize: '20px' }}>
+            <Box sx={{ fontSize: '1.25rem' }}>
               <FormattedMessage defaultMessage={'Earn Yield'} />
             </Box>,
-            <Box sx={{ fontSize: '20px' }}>
+            <Box sx={{ fontSize: '1.25rem' }}>
               <FormattedMessage defaultMessage={'Borrow'} />
             </Box>,
           ]}
@@ -56,31 +56,31 @@ export const OurProducts = () => {
 const Container = styled(Box)(
   ({ theme }) => `
     z-index: 2;
-    width: 1200px;
-    height: 1338px;
+    width: ${theme.spacing(150)};
+    height: ${theme.spacing(167)};
     margin: auto;
-    top: -60px;
+    top: -${theme.spacing(7.5)};;
     position: relative;
     background: ${colors.black};
     padding: ${theme.spacing(17)};
     border-radius: ${theme.shape.borderRadiusLarge};
     border: ${theme.shape.borderHighlight};
     ${theme.breakpoints.down(1220)} {
-      width: 1000px;
+      width: ${theme.spacing(125)};
       padding: ${theme.spacing(6)};
     }
 
     ${theme.breakpoints.down(1000)} {
       width: 90%;
       height: 100%;
-      padding: 48px;
+      padding: ${theme.spacing(6)};
       display: flex;
       align-items: center;
       flex-direction: column;
     }
 
     ${theme.breakpoints.down(theme.breakpoints.values.sm)} {
-      padding: 16px;
+      padding: ${theme.spacing(2)};
       margin-bottom: ${theme.spacing(11)};
       background: ${colors.white};
       border: none;
@@ -114,7 +114,7 @@ const TitleContainer = styled(Box)(
       }
       h5 {
         color: ${colors.aqua};
-        font-size: 16px;
+        font-size: 1rem;
         font-weight: 600;
       }
     }
