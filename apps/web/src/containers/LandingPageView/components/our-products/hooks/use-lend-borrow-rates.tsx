@@ -7,11 +7,11 @@ export const useLendBorrowRates = () => {
   let currentMaxRate = 0;
   let currentMinRate: number | undefined = undefined;
   let maxFixedLendRateData = {
-    symbol: '',
+    symbol: 'eth',
     maxRate: '0%',
   };
   let minFixedBorrowRateData = {
-    symbol: '',
+    symbol: 'eth',
     minRate: '0%',
   };
 

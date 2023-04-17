@@ -11,7 +11,7 @@ export const useProvideLiquidityMaxRate = (): MaxRateProvideLiquidityData => {
   const { tradableCurrencies } = useCurrency();
   let currentRate = 0;
   let maxRateProvideLiquidityData = {
-    symbol: 'ETH',
+    symbol: 'eth',
     maxRate: '0%',
   };
 

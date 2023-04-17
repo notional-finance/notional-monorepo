@@ -16,7 +16,7 @@ export const useVaultMaxRate = (): MaxVaultRateData => {
   const headlineApy = useObservableState(headlineApy$);
   let currentRate = 0;
   let maxVaultRateData = {
-    symbol: 'ETH',
+    symbol: 'eth',
     maxRate: '0%',
   };
 

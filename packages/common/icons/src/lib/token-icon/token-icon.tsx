@@ -35,7 +35,7 @@ export interface TokenImg {
   name: string;
   img: string;
   alt: string;
-  altImg?: string;
+  accentBorderImg?: string;
   widths?: Record<string, string>;
 }
 export interface TokenImageMap {
@@ -45,25 +45,25 @@ export const TokenImageList: TokenImageMap = {
   wbtc: {
     name: 'wbtc',
     img: wbtc,
-    altImg: wbtc_alt,
+    accentBorderImg: wbtc_alt,
     alt: 'Wrapped Bitcoin icon',
   },
   eth: {
     name: 'eth',
     img: eth,
-    altImg: eth_alt,
+    accentBorderImg: eth_alt,
     alt: 'Ethereum icon',
   },
   usdc: {
     name: 'usdc',
     img: usdc,
-    altImg: usdc_alt,
+    accentBorderImg: usdc_alt,
     alt: 'USD Coin icon',
   },
   dai: {
     name: 'dai',
     img: dai,
-    altImg: dai_alt,
+    accentBorderImg: dai_alt,
     alt: 'DAI Stablecoin icon',
   },
   cwbtc: {
@@ -184,10 +184,15 @@ export interface TokenIconProps {
   symbol: string;
   size: 'small' | 'medium' | 'large' | 'extraLarge';
   style?: React.CSSProperties;
-  useAltImg?: boolean;
+  useAccentBorderImg?: boolean;
 }
 
-export function TokenIcon({ symbol, size, style, useAltImg }: TokenIconProps) {
+export function TokenIcon({
+  symbol,
+  size,
+  style,
+  useAccentBorderImg,
+}: TokenIconProps) {
   const tokenKey = symbol.toLowerCase();
   const tokenIcon: TokenImg = Object.keys(TokenImageList).includes(tokenKey)
     ? TokenImageList[tokenKey]
@@ -215,7 +220,7 @@ export function TokenIcon({ symbol, size, style, useAltImg }: TokenIconProps) {
     <img
       width={tokenSizes[size]}
       height={tokenSizes[size]}
-      src={useAltImg ? tokenIcon.altImg : image}
+      src={useAccentBorderImg ? tokenIcon.accentBorderImg : image}
       alt={tokenIcon.alt}
       style={{ ...style }}
     />
