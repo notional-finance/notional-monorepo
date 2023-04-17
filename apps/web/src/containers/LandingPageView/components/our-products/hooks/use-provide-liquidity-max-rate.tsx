@@ -7,7 +7,12 @@ interface MaxRateProvideLiquidityData {
   maxRate: string;
 }
 
-export const useProvideLiquidityMaxRate = (): MaxRateProvideLiquidityData => {
+interface ProvideLiquidityMaxRate {
+  maxRateProvideLiquidityData: MaxRateProvideLiquidityData;
+  provideLiquidityLoading: boolean;
+}
+
+export const useProvideLiquidityMaxRate = (): ProvideLiquidityMaxRate => {
   const { tradableCurrencies } = useCurrency();
   let currentRate = 0;
   let maxRateProvideLiquidityData = {
@@ -27,5 +32,9 @@ export const useProvideLiquidityMaxRate = (): MaxRateProvideLiquidityData => {
       };
     }
   });
-  return maxRateProvideLiquidityData;
+
+  return {
+    maxRateProvideLiquidityData,
+    provideLiquidityLoading: [...tradableCurrencies.values()].length === 0,
+  };
 };

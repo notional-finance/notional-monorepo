@@ -11,7 +11,12 @@ interface MaxVaultRateData {
   maxRate: string;
 }
 
-export const useVaultMaxRate = (): MaxVaultRateData => {
+interface VaultMaxRate {
+  maxVaultRateData: MaxVaultRateData;
+  vaultDataloading: boolean;
+}
+
+export const useVaultMaxRate = (): VaultMaxRate => {
   const { listedVaults } = useObservableState(vaultState$, initialVaultState);
   const headlineApy = useObservableState(headlineApy$);
   let currentRate = 0;
@@ -31,5 +36,5 @@ export const useVaultMaxRate = (): MaxVaultRateData => {
     }
   });
 
-  return maxVaultRateData;
+  return { maxVaultRateData, vaultDataloading: listedVaults.length === 0 };
 };

@@ -4,9 +4,14 @@ import { useProvideLiquidityMaxRate } from './use-provide-liquidity-max-rate';
 import { useLendBorrowRates } from './use-lend-borrow-rates';
 
 export const useProductCards = () => {
-  const maxVaultRateData = useVaultMaxRate();
-  const maxRateProvideLiquidityData = useProvideLiquidityMaxRate();
-  const { maxFixedLendRateData, minFixedBorrowRateData } = useLendBorrowRates();
+  const { maxVaultRateData, vaultDataloading } = useVaultMaxRate();
+  const { maxRateProvideLiquidityData, provideLiquidityLoading } =
+    useProvideLiquidityMaxRate();
+  const {
+    maxFixedLendRateData,
+    minFixedBorrowRateData,
+    lendBorrowFixedLoading,
+  } = useLendBorrowRates();
 
   const earnYieldData = [
     {
@@ -21,6 +26,7 @@ export const useProductCards = () => {
       symbol: maxFixedLendRateData.symbol,
       groupedSymbols: 'eth_dai_usdc_wbtc',
       apyTitle: <FormattedMessage defaultMessage={'as high as'} />,
+      loading: lendBorrowFixedLoading,
     },
     {
       title: <FormattedMessage defaultMessage={'Leveraged Vaults'} />,
@@ -36,6 +42,7 @@ export const useProductCards = () => {
       symbol: maxVaultRateData.symbol,
       groupedSymbols: 'eth_dai_usdc',
       apyTitle: <FormattedMessage defaultMessage={'as high as'} />,
+      loading: vaultDataloading,
       variableRate: true,
     },
     {
@@ -51,6 +58,7 @@ export const useProductCards = () => {
       symbol: 'eth',
       groupedSymbols: 'eth_dai_usdc_wbtc',
       apyTitle: <FormattedMessage defaultMessage={'as high as'} />,
+      loading: false,
       variableRate: true,
       comingSoon: true,
     },
@@ -66,6 +74,7 @@ export const useProductCards = () => {
       symbol: maxRateProvideLiquidityData.symbol,
       groupedSymbols: 'eth_dai_usdc_wbtc',
       apyTitle: <FormattedMessage defaultMessage={'as high as'} />,
+      loading: provideLiquidityLoading,
       variableRate: true,
     },
   ];
@@ -83,6 +92,7 @@ export const useProductCards = () => {
       symbol: minFixedBorrowRateData.symbol,
       groupedSymbols: 'eth_dai_usdc_wbtc',
       apyTitle: <FormattedMessage defaultMessage={'as low as'} />,
+      loading: lendBorrowFixedLoading,
     },
     {
       title: <FormattedMessage defaultMessage={'Variable Borrow'} />,
@@ -96,6 +106,7 @@ export const useProductCards = () => {
       symbol: 'eth',
       groupedSymbols: 'eth_dai_usdc_wbtc',
       apyTitle: <FormattedMessage defaultMessage={'as low as'} />,
+      loading: false,
       variableRate: true,
       comingSoon: true,
     },

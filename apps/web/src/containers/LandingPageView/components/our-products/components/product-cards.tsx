@@ -10,6 +10,7 @@ import {
   BodySecondary,
   SectionTitle,
   CardInput,
+  ProgressIndicator,
 } from '@notional-finance/mui';
 
 export interface PillProps {
@@ -26,6 +27,7 @@ export interface ProductCardsProps {
   apyTitle: ReactNode;
   variableRate?: boolean;
   comingSoon?: boolean;
+  loading?: boolean;
 }
 
 export interface PillProps {
@@ -43,6 +45,7 @@ export const ProductCards = ({
   apyTitle,
   variableRate = false,
   comingSoon,
+  loading,
 }: ProductCardsProps) => {
   const theme = useTheme();
   return (
@@ -75,21 +78,27 @@ export const ProductCards = ({
             >
               {apyTitle}
             </SectionTitle>
-            <H4
-              sx={{
-                color: colors.white,
-                display: 'flex',
-                alignItems: 'center',
-              }}
-            >
-              <TokenIcon
-                symbol={symbol}
-                size="large"
-                useAccentBorderImg
-                style={{ marginRight: theme.spacing(1.5) }}
-              />
-              {apy}
-            </H4>
+            {!loading ? (
+              <H4
+                sx={{
+                  color: colors.white,
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
+              >
+                <TokenIcon
+                  symbol={symbol}
+                  size="large"
+                  useAccentBorderImg
+                  style={{ marginRight: theme.spacing(1.5) }}
+                />
+                {apy}
+              </H4>
+            ) : (
+              <Box sx={{ width: theme.spacing(6) }}>
+                <ProgressIndicator />
+              </Box>
+            )}
           </>
         )}
       </CardContent>

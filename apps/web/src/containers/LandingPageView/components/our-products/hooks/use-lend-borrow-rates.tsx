@@ -39,5 +39,9 @@ export const useLendBorrowRates = () => {
     }
   });
 
-  return { maxFixedLendRateData, minFixedBorrowRateData };
+  return {
+    maxFixedLendRateData,
+    minFixedBorrowRateData,
+    lendBorrowFixedLoading: cardData.length === 0,
+  };
 };
