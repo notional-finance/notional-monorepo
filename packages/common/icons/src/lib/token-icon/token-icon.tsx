@@ -24,11 +24,18 @@ import fUSDC from '../../assets/icons/currencies/fUSDC.svg';
 import fWBTC from '../../assets/icons/currencies/fWBTC.svg';
 import fETH from '../../assets/icons/currencies/fETH.svg';
 import wstETH_ETH from '../../assets/icons/currencies/wstETH-ETH.svg';
+import ETH_DAI_USDC_WBTC from '../../assets/icons/currencies/eth-dai-usdc-wbtc.svg';
+import ETH_DAI_USDC from '../../assets/icons/currencies/eth-dai-usdc.svg';
+import eth_alt from '../../assets/icons/currencies/eth-alt.svg';
+import usdc_alt from '../../assets/icons/currencies/usdc-alt.svg';
+import wbtc_alt from '../../assets/icons/currencies/wBTC-alt.svg';
+import dai_alt from '../../assets/icons/currencies/dai-alt.svg';
 
 export interface TokenImg {
   name: string;
   img: string;
   alt: string;
+  accentBorderImg?: string;
   widths?: Record<string, string>;
 }
 export interface TokenImageMap {
@@ -38,21 +45,25 @@ export const TokenImageList: TokenImageMap = {
   wbtc: {
     name: 'wbtc',
     img: wbtc,
+    accentBorderImg: wbtc_alt,
     alt: 'Wrapped Bitcoin icon',
   },
   eth: {
     name: 'eth',
     img: eth,
+    accentBorderImg: eth_alt,
     alt: 'Ethereum icon',
   },
   usdc: {
     name: 'usdc',
     img: usdc,
+    accentBorderImg: usdc_alt,
     alt: 'USD Coin icon',
   },
   dai: {
     name: 'dai',
     img: dai,
+    accentBorderImg: dai_alt,
     alt: 'DAI Stablecoin icon',
   },
   cwbtc: {
@@ -152,6 +163,16 @@ export const TokenImageList: TokenImageMap = {
     img: wstETH_ETH,
     alt: 'wstETH ETH',
   },
+  eth_dai_usdc_wbtc: {
+    name: 'eth-dai-usdc-wbtc',
+    img: ETH_DAI_USDC_WBTC,
+    alt: ' ETH_DAI_USDC_WBTC',
+  },
+  eth_dai_usdc: {
+    name: 'eth-dai-usdc',
+    img: ETH_DAI_USDC,
+    alt: ' ETH_DAI_USDC',
+  },
   unknown: {
     name: 'unknown',
     img: unknown,
@@ -163,9 +184,15 @@ export interface TokenIconProps {
   symbol: string;
   size: 'small' | 'medium' | 'large' | 'extraLarge';
   style?: React.CSSProperties;
+  useAccentBorderImg?: boolean;
 }
 
-export function TokenIcon({ symbol, size, style }: TokenIconProps) {
+export function TokenIcon({
+  symbol,
+  size,
+  style,
+  useAccentBorderImg,
+}: TokenIconProps) {
   const tokenKey = symbol.toLowerCase();
   const tokenIcon: TokenImg = Object.keys(TokenImageList).includes(tokenKey)
     ? TokenImageList[tokenKey]
@@ -184,6 +211,7 @@ export function TokenIcon({ symbol, size, style }: TokenIconProps) {
     tokenIcon.widths && tokenSizes[size] in tokenIcon.widths
       ? tokenIcon.widths[tokenSizes[size]]
       : tokenIcon.img;
+
   if (tokenIcon.name === 'unknown') {
     tokenIcon.alt = `${symbol.toLowerCase()} ${tokenIcon.alt}`;
   }
@@ -192,7 +220,7 @@ export function TokenIcon({ symbol, size, style }: TokenIconProps) {
     <img
       width={tokenSizes[size]}
       height={tokenSizes[size]}
-      src={image}
+      src={useAccentBorderImg ? tokenIcon.accentBorderImg : image}
       alt={tokenIcon.alt}
       style={{ ...style }}
     />

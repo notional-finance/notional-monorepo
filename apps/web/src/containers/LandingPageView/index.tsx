@@ -1,25 +1,25 @@
 import { Box, ThemeProvider } from '@mui/material';
 import { THEME_VARIANTS } from '@notional-finance/shared-config';
 import {
-  FixedOpenAndTransparent,
   AskedQuestionsAccordion,
   WithNotionalYouCan,
   VentureCapitalPartners,
   MultidisciplinarySecurityApproach,
   FromTheBlog,
   Hero,
+  OurProducts,
 } from './components';
-import { useNotionalTheme } from '@notional-finance/styles';
+import { useNotionalTheme, colors } from '@notional-finance/styles';
 import { EmailCaptureSection } from '@notional-finance/shared-web';
 import { LandingFooter } from '@notional-finance/shared-web';
 
 export const LandingPageView = () => {
-  const theme = useNotionalTheme(THEME_VARIANTS.LIGHT);
+  const theme = useNotionalTheme(THEME_VARIANTS.LIGHT, 'landing');
   return (
     <ThemeProvider theme={theme}>
-      <Box sx={{ overflow: 'hidden' }}>
+      <Box sx={{ overflow: 'hidden', background: colors.white }}>
         <Hero />
-        <FixedOpenAndTransparent />
+        <OurProducts />
         <WithNotionalYouCan />
         <VentureCapitalPartners />
         <AskedQuestionsAccordion />

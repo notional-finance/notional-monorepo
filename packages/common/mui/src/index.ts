@@ -48,6 +48,7 @@ export * from './lib/side-drawer/side-drawer';
 export * from './lib/side-drawer-button/side-drawer-button';
 export * from './lib/switch/switch';
 export * from './lib/tab-toggle/tab-toggle';
+export * from './lib/toggle/toggle';
 export * from './lib/toggle-switch/toggle-switch';
 export * from './lib/token-approval/token-approval';
 export * from './lib/trade-action-header/trade-action-header';
