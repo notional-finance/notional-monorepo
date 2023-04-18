@@ -3,7 +3,7 @@ import { Drawer, SideBarSubHeader, PageLoading } from '@notional-finance/mui';
 import { Transition, TransitionStatus } from 'react-transition-group';
 import { Box, SxProps, useTheme } from '@mui/material';
 import { useVaultSideDrawers } from '../hooks';
-import { useOnboard } from '@notional-finance/notionable-hooks';
+import { useAccount } from '@notional-finance/notionable-hooks';
 import { CreateVaultPosition, ManageVault } from '../side-drawers';
 import { VaultActionContext } from '../vault-view/vault-action-provider';
 import { defineMessage } from 'react-intl';
@@ -41,7 +41,7 @@ export const VaultActionSideDrawer = () => {
   const theme = useTheme();
   const history = useHistory();
   const { vaultAddress: vaultAddressInURL } = useParams<VaultParams>();
-  const { connected } = useOnboard();
+  const { accountConnected: connected } = useAccount();
   const { SideDrawerComponent, openDrawer } = useVaultSideDrawers();
   const { clearSideDrawer } = useSideDrawerManager();
 
