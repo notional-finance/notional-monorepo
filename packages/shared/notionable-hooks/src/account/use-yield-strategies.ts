@@ -1,21 +1,8 @@
-import {
-  BaseVault,
-  RATE_PRECISION,
-  TypedBigNumber,
-  VaultFactory,
-} from '@notional-finance/sdk';
+import { BaseVault, TypedBigNumber, VaultFactory } from '@notional-finance/sdk';
 import { useLocation } from 'react-router-dom';
-// import { Market } from '@notional-finance/sdk/src/system';
-// import { getNowSeconds, logError } from '@notional-finance/helpers';
 import { logError } from '@notional-finance/helpers';
-import {
-  PORTFOLIO_ACTIONS,
-  VAULT_ACTIONS,
-} from '@notional-finance/shared-config';
 import { useObservableState } from 'observable-hooks';
 import {
-  // vaultState$,
-  // initialVaultState,
   vaultPerformance$,
   calculateHeadlineVaultReturns,
 } from '@notional-finance/notionable';
@@ -37,9 +24,6 @@ interface YieldStrategies {
   leveragePercentage?: number;
   routes: {
     manageVault?: string;
-    // increasePosition?: string;
-    // withdrawPosition?: string;
-    // rollPosition?: string;
     stakeNOTE?: string;
     unstakeNOTE?: string;
   };
@@ -52,10 +36,6 @@ export function useYieldStrategies(
   const { pathname: currentPath } = useLocation();
   const { accountDataCopy: accountData, noteSummary } = useAccount();
   const vaultPerformance = useObservableState(vaultPerformance$);
-  // const { activeVaultMarkets } = useObservableState(
-  //   vaultState$,
-  //   initialVaultState
-  // );
 
   if (!system) return [];
 
@@ -109,16 +89,6 @@ export function useYieldStrategies(
         leverageRatio
       );
 
-      // const canIncreasePosition =
-      //   activeMarketKeys.find(
-      //     (k) => Market.parseMaturity(k) === vaultAccount.maturity
-      //   ) !== undefined;
-      // const canRollPosition =
-      //   vaultAccount.maturity > getNowSeconds() &&
-      //   activeMarketKeys.find(
-      //     (k) => Market.parseMaturity(k) > vaultAccount.maturity
-      //   ) !== undefined;
-
       // NOTE: debt value is negative
       const netWorth = debtValue ? assetValue.add(debtValue) : assetValue;
       const profit = netWorth.sub(netCashDeposited);
@@ -139,16 +109,6 @@ export function useYieldStrategies(
         isLeveragedVault: true,
         routes: {
           manageVault: `${currentPath}/manage-vault/?vaultAddress=${vaultConfig.vaultAddress}`,
-          // increasePosition: canIncreasePosition
-          //   ? `/vaults/${vaultConfig.vaultAddress}?vaultAction=${VAULT_ACTIONS.INCREASE_POSITION}`
-          //   : undefined,
-          // rollPosition: canRollPosition
-          //   ? `/vaults/${vaultConfig.vaultAddress}?vaultAction=${VAULT_ACTIONS.ROLL_POSITION}`
-          //   : undefined,
-          // withdrawPosition: `${VAULT_ACTIONS.WITHDRAW_VAULT}?vaultAddress=${vaultConfig.vaultAddress}`,
-          // deleveragePosition: mustDeleverage
-          //   ? `${VAULT_ACTIONS.DELEVERAGE_VAULT}?vaultAddress=${vaultConfig.vaultAddress}&action=${VAULT_ACTIONS.DELEVERAGE_VAULT_SELL_ASSETS}`
-          //   : undefined,
         },
       };
     });
