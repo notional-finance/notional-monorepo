@@ -1,11 +1,19 @@
 import { useTheme, Box, styled } from '@mui/material';
 import { colors } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
-import { H5, H2, Body } from '@notional-finance/mui';
+import {
+  H5,
+  H2,
+  Body,
+  ExternalLink,
+  BodySecondary,
+} from '@notional-finance/mui';
 import dashboard from './images/dashboard.svg';
+import { useDashboardLinks } from './use-dashboard-links';
 
 export const StatsAndTransparency = () => {
   const theme = useTheme();
+  const dashboardLinks = useDashboardLinks();
 
   return (
     <BackgroundContainer>
@@ -26,8 +34,17 @@ export const StatsAndTransparency = () => {
         </Box>
 
         <Wrapper>
+          <LinksContainer>
+            {dashboardLinks.map(({ link, title }) => (
+              <ExternalLink href={link} style={{ padding: theme.spacing(3) }}>
+                <BodySecondary sx={{ fontWeight: 600, color: colors.black }}>
+                  {title}
+                </BodySecondary>
+              </ExternalLink>
+            ))}
+          </LinksContainer>
           <Box sx={{ marginTop: '-82px', marginRight: '-100px' }}>
-            <img src={dashboard} alt="dashboard" style={{ height: '600px' }} />
+            <img src={dashboard} alt="dashboard" style={{ height: '560px' }} />
           </Box>
         </Wrapper>
       </InnerContainer>
@@ -59,4 +76,13 @@ const Wrapper = styled(Box)(
     display: flex;
     justify-content: end;
       `
+);
+
+const LinksContainer = styled(Box)(
+  `
+  width: 600px;
+  display: flex;
+  flex-direction: column;
+  margin-top: 100px;
+`
 );
