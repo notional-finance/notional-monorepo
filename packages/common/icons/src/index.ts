@@ -17,6 +17,7 @@ export * from './lib/launch-icon/launch-icon';
 export * from './lib/microsoft-cal-icon/microsoft-cal-icon';
 export * from './lib/money-market-icon/money-market-icon';
 export * from './lib/arrow-icon/arrow-icon';
+export * from './lib/arrow-right-alt-icon/arrow-right-alt-icon';
 export * from './lib/arrow-right-icon/arrow-right-icon';
 export * from './lib/resources-icon/resources-icon';
 export * from './lib/signature-icon/signature-icon';

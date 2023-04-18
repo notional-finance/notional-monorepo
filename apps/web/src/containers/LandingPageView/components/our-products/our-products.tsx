@@ -65,6 +65,7 @@ const Container = styled(Box)(
     padding: ${theme.spacing(17)};
     border-radius: ${theme.shape.borderRadiusLarge};
     border: ${theme.shape.borderHighlight};
+    box-shadow: ${theme.shape.shadowLarge()};
     ${theme.breakpoints.down(1220)} {
       width: ${theme.spacing(125)};
       padding: ${theme.spacing(6)};
@@ -80,11 +81,11 @@ const Container = styled(Box)(
     }
 
     ${theme.breakpoints.down(theme.breakpoints.values.sm)} {
-      padding: ${theme.spacing(2)};
+      padding: 0px;
       margin-bottom: ${theme.spacing(11)};
       background: ${colors.white};
       border: none;
-      width: 100%;
+      width: 90%;
       top: 0;
     }
   `

@@ -41,7 +41,12 @@ export const VentureCapitalPartners = () => {
             marginBottom: theme.spacing(16),
           }}
         >
-          <H1 contrast sx={{ textAlign: { xs: 'center', lg: 'left' } }}>
+          <H1
+            contrast
+            sx={{
+              textAlign: { xs: 'center', lg: 'left' },
+            }}
+          >
             <FormattedMessage
               defaultMessage={'Backed by the best in the industry'}
             />
