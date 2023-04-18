@@ -4,6 +4,7 @@ import { VAULT_ACTIONS } from '@notional-finance/shared-config';
 import { VaultSideDrawer } from '../components/vault-side-drawer';
 import { VaultActionContext } from '../vault-view/vault-action-provider';
 import { messages } from '../messages';
+import { useCurrencyInputRef } from '@notional-finance/mui';
 
 export const DepositCollateral = () => {
   const {
@@ -15,6 +16,7 @@ export const DepositCollateral = () => {
       baseVault,
     },
   } = useContext(VaultActionContext);
+  const { currencyInputRef } = useCurrencyInputRef();
 
   const errorMsg =
     minLeverageRatio &&
@@ -28,6 +30,8 @@ export const DepositCollateral = () => {
     <VaultSideDrawer>
       {primaryBorrowSymbol && (
         <WalletDepositInput
+          ref={currencyInputRef}
+          inputRef={currencyInputRef}
           availableTokens={[primaryBorrowSymbol]}
           selectedToken={primaryBorrowSymbol}
           onChange={({ inputAmount, hasError }) => {

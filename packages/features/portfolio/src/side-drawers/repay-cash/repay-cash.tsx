@@ -23,7 +23,8 @@ export const RepayCash = () => {
   } = useRepayCash(symbol, assetKey);
 
   useEffect(() => {
-    if (defaultRepaymentAmount) inputRef.current?.setInputOverride(defaultRepaymentAmount);
+    if (defaultRepaymentAmount)
+      inputRef.current?.setInputOverride(defaultRepaymentAmount);
   }, [defaultRepaymentAmount, inputRef]);
 
   return selectedToken && sideDrawerKey ? (
@@ -35,6 +36,7 @@ export const RepayCash = () => {
     >
       <WalletDepositInput
         ref={inputRef}
+        inputRef={inputRef}
         availableTokens={availableTokens}
         selectedToken={selectedToken}
         onChange={({ selectedToken, inputAmount, hasError }) => {

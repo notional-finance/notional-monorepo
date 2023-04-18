@@ -1,6 +1,10 @@
 import React from 'react';
 import { Box } from '@mui/material';
-import { CurrencyInput, CurrencyInputHandle, InputLabel } from '@notional-finance/mui';
+import {
+  CurrencyInput,
+  CurrencyInputHandle,
+  InputLabel,
+} from '@notional-finance/mui';
 import { useCurrencyData } from '@notional-finance/notionable-hooks';
 import { TypedBigNumber } from '@notional-finance/sdk';
 import { useEffect, useState } from 'react';
@@ -21,6 +25,7 @@ interface WalletDepositInputProps {
   maxValueOverride?: string;
   errorMsgOverride?: MessageDescriptor;
   inputLabel?: MessageDescriptor;
+  inputRef: React.RefObject<CurrencyInputHandle>;
 }
 
 /**
@@ -28,17 +33,26 @@ interface WalletDepositInputProps {
  * it will handle proper parsing, balance checks, and max input amounts.
  * Token approvals will be handled by the token-approval-view
  */
-export const WalletDepositInput = React.forwardRef<CurrencyInputHandle, WalletDepositInputProps>(
+export const WalletDepositInput = React.forwardRef<
+  CurrencyInputHandle,
+  WalletDepositInputProps
+>(
   (
-    { availableTokens, selectedToken, onChange, maxValueOverride, errorMsgOverride, inputLabel },
+    {
+      availableTokens,
+      selectedToken,
+      onChange,
+      maxValueOverride,
+      errorMsgOverride,
+      inputLabel,
+      inputRef,
+    },
     ref
   ) => {
     const [inputString, setInputString] = useState<string>('');
     const { decimalPlaces } = useCurrencyData(selectedToken);
-    const { inputAmount, maxBalance, maxBalanceString, errorMsg } = useWalletDeposit(
-      selectedToken,
-      inputString
-    );
+    const { inputAmount, maxBalance, maxBalanceString, errorMsg } =
+      useWalletDeposit(selectedToken, inputString);
     const error = errorMsgOverride || errorMsg;
 
     useEffect(() => {
@@ -67,7 +81,7 @@ export const WalletDepositInput = React.forwardRef<CurrencyInputHandle, WalletDe
           defaultValue={selectedToken}
           onSelectChange={(newToken: string | null) => {
             // Always clear the input string when we change tokens
-            setInputString('');
+            inputRef.current?.setInputOverride('');
             onChange({
               selectedToken: newToken,
               inputAmount: undefined,

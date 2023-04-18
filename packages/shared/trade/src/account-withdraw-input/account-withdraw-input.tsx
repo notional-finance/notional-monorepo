@@ -30,6 +30,7 @@ interface AccountWithdrawProps {
   onChange: (changes: AccountWithdrawChange) => void;
   errorMsgOverride?: MessageDescriptor;
   inputLabel?: MessageDescriptor;
+  inputRef: React.RefObject<CurrencyInputHandle>;
 }
 
 export const AccountWithdrawInput = React.forwardRef<
@@ -44,10 +45,12 @@ export const AccountWithdrawInput = React.forwardRef<
       onChange,
       errorMsgOverride,
       inputLabel,
+      inputRef,
     },
     ref
   ) => {
     const [inputString, setInputString] = useState<string>('');
+
     const {
       inputAmount,
       errorMsg,
@@ -76,7 +79,7 @@ export const AccountWithdrawInput = React.forwardRef<
       inputAmount?.hashKey,
       maxAmount?.hashKey,
       selectedToken,
-      error,
+      error?.id,
       netCashBalance?.hashKey,
       netNTokenBalance?.hashKey,
       noteIncentivesMinted?.hashKey,
@@ -97,7 +100,7 @@ export const AccountWithdrawInput = React.forwardRef<
           currencies={availableTokens}
           defaultValue={selectedToken}
           onSelectChange={(newToken: string | null) => {
-            setInputString('');
+            inputRef.current?.setInputOverride('');
             onChange({
               selectedToken: newToken,
               inputAmount: undefined,

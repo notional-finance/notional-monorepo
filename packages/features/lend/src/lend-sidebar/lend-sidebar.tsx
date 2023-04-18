@@ -1,10 +1,10 @@
-import { useEffect, useCallback, useRef } from 'react';
+import { useEffect, useCallback } from 'react';
 import { defineMessage, FormattedMessage } from 'react-intl';
 import {
   PageLoading,
   Maturities,
   ActionSidebar,
-  CurrencyInputHandle,
+  useCurrencyInputRef,
 } from '@notional-finance/mui';
 import {
   TransactionConfirmation,
@@ -30,19 +30,12 @@ export const LendSidebar = () => {
   const txnData = useLendTransaction();
   const history = useHistory();
   const { pathname, search } = useLocation();
+  const { setCurrencyInput, currencyInputRef: inputRef } =
+    useCurrencyInputRef();
 
   const handleTxnCancel = useCallback(() => {
     history.push(pathname);
   }, [history, pathname]);
-
-  const inputRef = useRef<CurrencyInputHandle>(null);
-  // This is passed into the balance info box to set the input amount
-  const setInputAmount = useCallback(
-    (input: string) => {
-      inputRef.current?.setInputOverride(input);
-    },
-    [inputRef]
-  );
 
   useEffect(() => {
     if (search.includes('confirm=true')) {
@@ -55,6 +48,7 @@ export const LendSidebar = () => {
     availableCurrencies.length && selectedToken ? (
       <LendBorrowInput
         ref={inputRef}
+        inputRef={inputRef}
         availableTokens={availableCurrencies}
         selectedToken={selectedToken}
         isRemoveAsset={false}
@@ -123,7 +117,7 @@ export const LendSidebar = () => {
         })}
       />
       {currencyInputHandler}
-      <LendBalanceInfo setInputAmount={setInputAmount} />
+      <LendBalanceInfo setInputAmount={setCurrencyInput} />
       <TokenApprovalView />
     </ActionSidebar>
   );

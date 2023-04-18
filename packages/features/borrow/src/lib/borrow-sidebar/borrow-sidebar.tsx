@@ -1,5 +1,5 @@
 import { useEffect, useCallback } from 'react';
-import { PageLoading, Maturities, ActionSidebar } from '@notional-finance/mui';
+import { PageLoading, Maturities, ActionSidebar, useCurrencyInputRef } from '@notional-finance/mui';
 import {
   TransactionConfirmation,
   TradeActionButton,
@@ -29,6 +29,7 @@ export const BorrowSidebar = () => {
   const txnData = useBorrowTransaction(selectedToken);
   const history = useHistory();
   const { pathname, search } = useLocation();
+  const { currencyInputRef } = useCurrencyInputRef();
 
   const handleTxnCancel = useCallback(() => {
     history.push(pathname);
@@ -58,6 +59,8 @@ export const BorrowSidebar = () => {
   const currencyInputHandler =
     availableCurrencies.length && selectedToken ? (
       <LendBorrowInput
+        ref={currencyInputRef}
+        inputRef={currencyInputRef}
         availableTokens={availableCurrencies}
         selectedToken={selectedToken}
         isRemoveAsset={false}

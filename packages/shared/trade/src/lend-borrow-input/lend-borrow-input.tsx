@@ -36,6 +36,7 @@ interface LendBorrowInputProps {
   errorMsgOverride?: MessageDescriptor | null;
   style?: CurrencyInputStyleProps;
   inputLabel?: MessageDescriptor;
+  inputRef: React.RefObject<CurrencyInputHandle>;
 }
 
 export const LendBorrowInput = React.forwardRef<
@@ -55,6 +56,7 @@ export const LendBorrowInput = React.forwardRef<
       errorMsgOverride,
       style,
       inputLabel,
+      inputRef,
     },
     ref
   ) => {
@@ -111,7 +113,7 @@ export const LendBorrowInput = React.forwardRef<
           defaultValue={selectedToken}
           onSelectChange={(newToken) => {
             // Always clear the input string when we change tokens
-            setInputString('');
+            inputRef.current?.setInputOverride('');
             onChange({
               selectedToken: newToken,
               inputAmount: undefined,

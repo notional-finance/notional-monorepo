@@ -8,6 +8,7 @@ import {
   InputLabel,
   Paragraph,
   SelectDropdown,
+  useCurrencyInputRef,
 } from '@notional-finance/mui';
 import { CollateralAction } from '@notional-finance/sdk';
 import { formatNumber, formatNumberAsPercent } from '@notional-finance/helpers';
@@ -93,6 +94,7 @@ export const CollateralSelect = ({
     highestApyString,
     updateCollateralSelectState,
   } = useCollateralSelect(selectedToken, selectedBorrowMarketKey);
+  const { currencyInputRef } = useCurrencyInputRef();
   const selectedOption = collateralOptions.find(
     ({ symbol }) => symbol === selectedOptionKey
   );
@@ -115,6 +117,8 @@ export const CollateralSelect = ({
     // Tight margin top is used to make the spacing look cleaner on the borrow side drawer
     <Box marginTop={tightMarginTop ? theme.spacing(-3) : undefined}>
       <WalletDepositInput
+        ref={currencyInputRef}
+        inputRef={currencyInputRef}
         availableTokens={availableTokens}
         selectedToken={selectedToken}
         onChange={({

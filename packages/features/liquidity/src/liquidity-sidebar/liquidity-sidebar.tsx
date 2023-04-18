@@ -6,7 +6,11 @@ import {
   WalletDepositInput,
   TradePropertiesGrid,
 } from '@notional-finance/trade';
-import { PageLoading, ActionSidebar } from '@notional-finance/mui';
+import {
+  PageLoading,
+  ActionSidebar,
+  useCurrencyInputRef,
+} from '@notional-finance/mui';
 import { useCurrency } from '@notional-finance/notionable-hooks';
 import { useHistory, useLocation } from 'react-router-dom';
 import { defineMessage, FormattedMessage } from 'react-intl';
@@ -20,6 +24,7 @@ export const LiquiditySidebar = () => {
   const { pathname, search } = useLocation();
   const history = useHistory();
   const txnData = useLiquidityTransaction();
+  const { currencyInputRef } = useCurrencyInputRef();
 
   useEffect(() => {
     if (search.includes('confirm=true')) {
@@ -57,6 +62,8 @@ export const LiquiditySidebar = () => {
     >
       {availableCurrencies.length && selectedToken ? (
         <WalletDepositInput
+          ref={currencyInputRef}
+          inputRef={currencyInputRef}
           availableTokens={availableCurrencies}
           selectedToken={selectedToken}
           onChange={({
