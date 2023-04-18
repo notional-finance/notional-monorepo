@@ -54,6 +54,12 @@ export function getInitVaultAction({
     account?.accountData?.getVaultAccount(vaultAddress) ||
     VaultAccount.emptyVaultAccount(vaultAddress);
 
+  let avgBorrowRate: number | undefined;
+  if (account && account.accountData) {
+    ({ avgBorrowRate } =
+      account.accountData.getVaultHistoricalFactors(vaultAddress));
+  }
+
   const settledVaultValues = vaultAccount.canSettle()
     ? vaultAccount.getSettlementValues()
     : undefined;
@@ -125,6 +131,7 @@ export function getInitVaultAction({
     // Clear inputs back to initial conditions
     vaultAction,
     leverageRatio,
+    avgBorrowRate,
     error: undefined,
     selectedMarketKey: undefined,
     depositAmount: undefined,

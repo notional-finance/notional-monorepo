@@ -1,21 +1,11 @@
-import { useContext, useMemo } from 'react';
+import { useContext } from 'react';
 import {
   convertFloatToRate,
   convertRateToFloat,
-  getNowSeconds,
-  zipByKeyToArray,
 } from '@notional-finance/helpers';
-import {
-  RATE_PRECISION,
-  SECONDS_IN_DAY,
-} from '@notional-finance/sdk/src/config/constants';
-import { Market } from '@notional-finance/sdk/src/system';
-import { useObservableState } from 'observable-hooks';
-import {
-  calculateHeadlineVaultReturns,
-  vaultPerformance$,
-} from '@notional-finance/notionable';
+import { calculateHeadlineVaultReturns } from '@notional-finance/notionable';
 import { VaultActionContext } from '../vault-view/vault-action-provider';
+import { messages } from '../messages';
 
 export interface HistoricalReturn {
   timestamp: number;
@@ -31,93 +21,66 @@ export interface ReturnDriver {
 }
 
 export const useHistoricalReturns = () => {
-  const vaultPerformance = useObservableState(vaultPerformance$);
   const { state } = useContext(VaultActionContext);
-  const { vaultAddress, leverageRatio, fCashBorrowAmount, currentBorrowRate } =
-    state;
+  const {
+    leverageRatio,
+    fCashBorrowAmount,
+    currentBorrowRate,
+    avgBorrowRate,
+    vaultAccount,
+    baseVault,
+    historicalReturns: _historicalReturns,
+    returnDrivers,
+    sevenDayAverageReturn,
+  } = state;
 
-  const performance = vaultAddress
-    ? vaultPerformance?.get(vaultAddress)
-    : undefined;
+  // If the current borrow rate is set, we show the expected yield for the net new portion
+  const vaultAPYTitle = currentBorrowRate
+    ? messages.summary.expectedYield
+    : messages.summary.currentYield;
 
-  const { historicalReturns, returnDrivers } = useMemo(() => {
-    if (!performance || performance.historicalReturns.length === 0) {
-      return {
-        historicalReturns: [] as HistoricalReturn[],
-        returnDrivers: [] as ReturnDriver[],
-      };
-    }
-    const {
-      historicalReturns: returns,
-      sevenDayReturnDrivers,
-      thirtyDayReturnDrivers,
-      sevenDayTotalAverage,
-      thirtyDayTotalAverage,
-    } = performance;
-    
-    const historicalReturns = returns
-      .filter((row) => row['timestamp'] > getNowSeconds() - 90 * SECONDS_IN_DAY)
-      .map((row) => {
-        const entries = Object.entries(row).filter(([h]) => h !== 'timestamp');
-        const totalRate = entries.reduce((sum, [, v]) => sum + v, 0);
-        const leveragedReturn = currentBorrowRate
-          ? calculateHeadlineVaultReturns(
-              convertFloatToRate(totalRate),
-              convertFloatToRate(currentBorrowRate),
-              leverageRatio
-            )
-          : undefined;
+  // TODO: need to determine what the average borrow rate and leverage ratio to use here is.
+  //  - net new position when increasing vault shares, calculated on net leverage, net cash and net borrow rate
+  //  - historical average position prior to any changes
+  //  - updated average with new net borrow rate
 
-        return {
-          timestamp: row['timestamp'],
-          totalRate,
-          leveragedReturn: leveragedReturn
-            ? convertRateToFloat(leveragedReturn)
-            : undefined,
-          breakdown: entries.map(
-            ([k, v]) =>
-              `${k}: ${Market.formatInterestRate(
-                Math.floor((v * RATE_PRECISION) / 100),
-                2
-              )}`
-          ),
-        };
-      });
+  const historicalReturns = _historicalReturns.map((row) => {
+    const leveragedReturn = currentBorrowRate
+      ? calculateHeadlineVaultReturns(
+          convertFloatToRate(row.totalRate),
+          convertFloatToRate(currentBorrowRate),
+          leverageRatio
+        )
+      : undefined;
 
-    const returnDrivers = zipByKeyToArray(
-      sevenDayReturnDrivers,
-      thirtyDayReturnDrivers,
-      (r) => r.source
-    )
-      .map(([seven, thirty]) => {
-        return {
-          // Non-null assertion is valid because of how zipByKeyToArray works
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          source: (seven?.source || thirty?.source)!,
-          shortAvg: Market.formatInterestRate(seven?.avg || 0),
-          longAvg: Market.formatInterestRate(thirty?.avg || 0),
-        };
-      })
-      .concat({
-        source: 'Total Returns',
-        shortAvg: Market.formatInterestRate(sevenDayTotalAverage),
-        longAvg: Market.formatInterestRate(thirtyDayTotalAverage),
-      });
+    return { ...row, leveragedReturn };
+  });
 
-    return { historicalReturns, returnDrivers };
-  }, [performance, currentBorrowRate, leverageRatio]);
-
-  const headlineApy = calculateHeadlineVaultReturns(
-    performance?.sevenDayTotalAverage,
+  const netNewPositionApy = calculateHeadlineVaultReturns(
+    sevenDayAverageReturn,
     currentBorrowRate ? convertFloatToRate(currentBorrowRate) : undefined,
     leverageRatio
+  );
+
+  const currentVaultAccountApy = calculateHeadlineVaultReturns(
+    sevenDayAverageReturn,
+    avgBorrowRate ? convertFloatToRate(avgBorrowRate) : undefined,
+    baseVault && vaultAccount
+      ? baseVault.getLeverageRatio(vaultAccount)
+      : undefined
   );
 
   return {
     returnDrivers,
     historicalReturns,
     currentBorrowRate,
-    headlineApy: headlineApy ? convertRateToFloat(headlineApy) : undefined,
+    netNewPositionApy: netNewPositionApy
+      ? convertRateToFloat(netNewPositionApy)
+      : undefined,
+    currentVaultAccountApy: currentVaultAccountApy
+      ? convertRateToFloat(currentVaultAccountApy)
+      : undefined,
     fCashBorrowAmount,
+    vaultAPYTitle,
   };
 };
