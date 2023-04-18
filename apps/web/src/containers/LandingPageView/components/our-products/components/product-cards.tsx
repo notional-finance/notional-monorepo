@@ -177,6 +177,13 @@ const CardContainer = styled(Link)(
           font-size: 1rem;
         }
         box-shadow: 0px 34px 50px -15px rgba(20, 42, 74, 0.3);
+        &:hover {
+          cursor: pointer;
+          box-shadow: 0px 34px 50px -15px rgba(20, 42, 74, 0.3);
+          transition: none;
+          transform: none;
+        }
+        ${theme.gradient.hoverTransition(colors.white, colors.white)}
       }
     `
 );

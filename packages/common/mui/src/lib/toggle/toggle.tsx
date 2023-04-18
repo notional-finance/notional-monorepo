@@ -97,7 +97,7 @@ const StyledTab = styled(Tab)(
   ({ theme }) => `
   height: 100%;
   font-family: ${theme.typography.fontFamily};
-  color: ${theme.palette.common.white};
+  color: ${colors.greenGrey};
   font-weight: 500;
   background-color: transparent;
   z-index: 2;
@@ -107,7 +107,7 @@ const StyledTab = styled(Tab)(
   min-height: unset;
 
   &.Mui-selected {
-    color: ${theme.palette.common.white};
+    color: ${colors.white};
   }
 `
 );
