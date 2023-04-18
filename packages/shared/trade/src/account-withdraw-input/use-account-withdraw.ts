@@ -66,7 +66,14 @@ export function useAccountWithdraw(
       currencyId &&
       balanceData
     ) {
-      if (inputAmount.lte(maxAmount)) {
+      if (withdrawType === WITHDRAW_TYPE.REDEEM_TO_CASH) {
+        // Don't use get withdraw amounts here since cash is not leaving the system
+        netCashBalance = NTokenValue.getAssetFromRedeemNToken(
+          currencyId,
+          inputAmount
+        );
+        netNTokenBalance = inputAmount.neg();
+      } else if (inputAmount.lte(maxAmount)) {
         const withdrawAmounts = selectedBalanceSummary.getWithdrawAmounts(
           inputAmount.toAssetCash(),
           withdrawType === WITHDRAW_TYPE.ONLY_CASH // Prefer Cash
@@ -74,29 +81,30 @@ export function useAccountWithdraw(
 
         netCashBalance = withdrawAmounts?.cashWithdraw.neg();
         netNTokenBalance = withdrawAmounts.nTokenRedeem?.neg();
-        noteIncentivesMinted =
-          netNTokenBalance && balanceData.nTokenBalance
-            ? NTokenValue.getClaimableIncentives(
-                currencyId,
-                balanceData.nTokenBalance,
-                balanceData.lastClaimTime,
-                balanceData.accountIncentiveDebt
-              )
-            : undefined;
-        redemptionFees = netNTokenBalance
-          ? netNTokenBalance
-              .neg()
-              .toAssetCash(true)
-              .sub(
-                NTokenValue.getAssetFromRedeemNToken(
-                  currencyId,
-                  netNTokenBalance.neg()
-                )
-              )
-          : undefined;
       } else {
         errorMsg = tradeErrors.insufficientBalance;
       }
+
+      noteIncentivesMinted =
+        netNTokenBalance && balanceData.nTokenBalance
+          ? NTokenValue.getClaimableIncentives(
+              currencyId,
+              balanceData.nTokenBalance,
+              balanceData.lastClaimTime,
+              balanceData.accountIncentiveDebt
+            )
+          : undefined;
+      redemptionFees = netNTokenBalance
+        ? netNTokenBalance
+            .neg()
+            .toAssetCash(true)
+            .sub(
+              NTokenValue.getAssetFromRedeemNToken(
+                currencyId,
+                netNTokenBalance.neg()
+              )
+            )
+        : undefined;
     }
   } catch (e) {
     errorMsg = {
