@@ -137,15 +137,7 @@ export const CurrencyInput = React.forwardRef<
         theme={theme}
         borderColor={borderColor}
         sx={{
-          background: style?.landingPage
-            ? 'transparent'
-            : {
-                xs: theme.palette.background.paper,
-                sm: theme.palette.background.paper,
-                md: '',
-                lg: '',
-                xl: '',
-              },
+          background: theme.palette.common.white,
           width: '100%',
           borderColor: borderColor,
           borderTopWidth: style?.landingPage ? '0px' : '1px',

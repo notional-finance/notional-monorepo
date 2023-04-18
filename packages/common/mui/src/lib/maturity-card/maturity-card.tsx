@@ -67,6 +67,10 @@ export function MaturityCard({
         width: theme.spacing(14),
         background: getBackgroundColor(),
         cursor: disabled ? 'not-allowed' : 'pointer',
+        transition: 'background 0.3s ease',
+        ':hover': {
+          background: `${theme.palette.primary.light}15`,
+        },
       }}
     >
       <BodySecondary accent={selected} gutter="tight">

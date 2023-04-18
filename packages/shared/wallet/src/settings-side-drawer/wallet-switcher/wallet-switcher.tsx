@@ -61,71 +61,68 @@ export const WalletSwitcher = () => {
   };
 
   return (
-    <>
-      <WalletSelectorContainer>
-        <Title>
-          {connected ? (
-            <FormattedMessage defaultMessage="Switch wallets" />
-          ) : (
-            <FormattedMessage defaultMessage="Connect a Wallet" />
-          )}
-        </Title>
-        {modules
-          ? modules.map(({ label, icon }, index) => (
-              <WalletButton
-                onClick={() => handleConnect(label)}
-                key={index}
-                active={currentLabel === label}
-                theme={theme}
+    <WalletSelectorContainer>
+      <Title>
+        {connected ? (
+          <FormattedMessage defaultMessage="Switch wallets" />
+        ) : (
+          <FormattedMessage defaultMessage="Connect a Wallet" />
+        )}
+      </Title>
+      {modules
+        ? modules.map(({ label, icon }, index) => (
+            <WalletButton
+              onClick={() => handleConnect(label)}
+              key={index}
+              active={currentLabel === label}
+              theme={theme}
+            >
+              <Box
+                sx={{
+                  height: '35px',
+                  width: '35px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
               >
-                <Box
-                  sx={{
-                    height: '35px',
-                    width: '35px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <img
-                    src={`data:image/svg+xml;utf8,${encodeURIComponent(icon)}`}
-                    style={{ height: '35px', width: '35px' }}
-                    alt="wallet icon"
+                <img
+                  src={`data:image/svg+xml;utf8,${encodeURIComponent(icon)}`}
+                  style={{ height: '35px', width: '35px' }}
+                  alt="wallet icon"
+                />
+              </Box>
+              <H4
+                sx={{ whiteSpace: 'nowrap', marginLeft: theme.spacing(1) }}
+                fontWeight="regular"
+              >
+                {label}
+              </H4>
+              <Box
+                sx={{
+                  justifyContent: 'flex-end',
+                  display: 'flex',
+                  width: '100%',
+                }}
+              >
+                {currentLabel === label ? (
+                  <CheckCircleIcon sx={{ fill: theme.palette.primary.main }} />
+                ) : (
+                  <CircleIcon
+                    sx={{
+                      stroke: theme.palette.borders.accentPaper,
+                      width: theme.spacing(2.5),
+                      height: theme.spacing(2.5),
+                    }}
                   />
-                </Box>
-                <H4
-                  sx={{ whiteSpace: 'nowrap', marginLeft: theme.spacing(1) }}
-                  fontWeight="regular"
-                >
-                  {label}
-                </H4>
-                <Box
-                  sx={{
-                    justifyContent: 'flex-end',
-                    display: 'flex',
-                    width: '100%',
-                  }}
-                >
-                  {currentLabel === label ? (
-                    <CheckCircleIcon
-                      sx={{ fill: theme.palette.primary.main }}
-                    />
-                  ) : (
-                    <CircleIcon
-                      sx={{
-                        stroke: theme.palette.borders.accentPaper,
-                        width: theme.spacing(2.5),
-                        height: theme.spacing(2.5),
-                      }}
-                    />
-                  )}
-                </Box>
-              </WalletButton>
-            ))
-          : null}
-      </WalletSelectorContainer>
+                )}
+              </Box>
+            </WalletButton>
+          ))
+        : null}
+
       <ViewAsAccount />
-    </>
+    </WalletSelectorContainer>
   );
 };
 
@@ -165,6 +162,7 @@ const WalletSelectorContainer = styled(Box)(
   ({ theme }) => `
   margin: 0px;
   font-weight: 700;
+  min-height: 100vh;
   color: ${theme.palette.primary.dark};
   background: ${theme.palette.background.paper};
   `
