@@ -65,7 +65,7 @@ const Container = styled(Box)(
     padding: ${theme.spacing(17)};
     border-radius: ${theme.shape.borderRadiusLarge};
     border: ${theme.shape.borderHighlight};
-    box-shadow: ${theme.shape.shadowLarge()};
+    box-shadow: 0px 34px 50px -15px rgba(20, 42, 74, 0.3);
     ${theme.breakpoints.down(1220)} {
       width: ${theme.spacing(125)};
       padding: ${theme.spacing(6)};

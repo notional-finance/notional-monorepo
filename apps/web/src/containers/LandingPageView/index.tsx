@@ -8,6 +8,7 @@ import {
   OurProducts,
   HowItWorks,
   AuditAndSecurity,
+  StatsAndTransparency,
 } from './components';
 import { useNotionalTheme, colors } from '@notional-finance/styles';
 import { EmailCaptureSection } from '@notional-finance/shared-web';
@@ -23,6 +24,7 @@ export const LandingPageView = () => {
         <OurProducts />
         <HowItWorks />
         <AuditAndSecurity />
+        <StatsAndTransparency />
         {/* NOTE* This is a temporary fix to get the old landing page components to render correctly. Will remove this once the rest of the components are updated */}
         <ThemeProvider theme={lightTheme}>
           <VentureCapitalPartners />
