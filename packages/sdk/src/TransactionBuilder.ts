@@ -16,7 +16,7 @@ export default class TransactionBuilder {
   private async populateTxnAndGas(
     msgSender: string,
     methodName: string,
-    methodArgs: any[]
+    methodArgs: unknown[]
   ) {
     const proxy = System.getSystem().getNotionalProxy();
     return populateTxnAndGas(proxy, msgSender, methodName, methodArgs);
@@ -63,6 +63,9 @@ export default class TransactionBuilder {
         throw Error('Unable to complete lend collateral action');
 
       if (amount.symbol === 'ETH') {
+        if (collateralAction.withdrawCashOnLend === undefined)
+          throw Error('Withdraw cash on lend is undefined');
+
         return this.lend(
           address,
           'ETH',
@@ -71,10 +74,11 @@ export default class TransactionBuilder {
           marketIndex,
           collateralAction.minLendSlippage || 0,
           TypedBigNumber.fromBalance(0, 'cETH', true),
-          true, // withdraw entire cash balance
+          collateralAction.withdrawCashOnLend, // withdraw entire cash balance
           true // redeem to underlying
         );
       }
+
       return this.batchLend(
         address,
         amount.symbol,
@@ -424,12 +428,15 @@ export default class TransactionBuilder {
       if (!lendMarketIndex)
         throw Error('Unable to complete lend fCash collateral action');
 
+      if (collateralAction.withdrawCashOnLend === undefined)
+        throw Error('Withdraw cash on lend is undefined');
+
       collateralParams = {
         actionType,
         currencyId: amount.currencyId,
         depositActionAmount: amount.n,
         withdrawAmountInternalPrecision: BigNumber.from(0),
-        withdrawEntireCashBalance: true,
+        withdrawEntireCashBalance: collateralAction.withdrawCashOnLend,
         redeemToUnderlying: amount.isUnderlying(),
         trades: [
           this.encodeTradeType(

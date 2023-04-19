@@ -275,6 +275,7 @@ export interface CollateralAction {
   amount?: TypedBigNumber;
   fCashAmount?: TypedBigNumber;
   minLendSlippage?: number;
+  withdrawCashOnLend?: boolean
 }
 
 export interface VaultReturn {
