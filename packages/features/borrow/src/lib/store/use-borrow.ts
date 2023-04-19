@@ -34,7 +34,7 @@ export function useBorrow(selectedToken: string) {
     !!selectedMarket &&
     !!fCashAmount;
 
-  let hasSufficientCollateral = false;
+  let hasSufficientCollateral: boolean | undefined;
   if (canSubmit) {
     accountDataCopy.updateAsset({
       currencyId: selectedMarket.currencyId,
@@ -65,12 +65,13 @@ export function useBorrow(selectedToken: string) {
 
   return {
     selectedMarketKey,
-    canSubmit: canSubmit && hasSufficientCollateral,
+    canSubmit: canSubmit && hasSufficientCollateral === true,
     updatedAccountData: canSubmit ? accountDataCopy : undefined,
     maturityData,
     fCashAmount: fCashAmount?.toFloat(),
     interestAmount: interestAmountTBN?.toFloat(),
     interestAmountTBN,
     tradedRate,
+    insufficientCollateralError: hasSufficientCollateral === false
   };
 }
