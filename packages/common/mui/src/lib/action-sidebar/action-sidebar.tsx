@@ -94,7 +94,6 @@ export const ActionSidebar = ({
               sx={{
                 display: 'inline',
                 position: 'relative',
-                top: theme.spacing(-11),
               }}
             >
               <ToggleSwitch {...advancedToggle} />

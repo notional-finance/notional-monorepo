@@ -61,7 +61,7 @@ const Container = styled(Box, {
 })(
   ({ theme, paddingTop }: ContainerProps) => `
   padding: ${theme.spacing(3)} 0px;
-  margin-bottom: ${theme.spacing(5)};
+  margin-bottom: ${theme.spacing(2)};
   ${theme.breakpoints.down('sm')} {
     padding-top: ${paddingTop ? paddingTop : theme.spacing(3)};
   }
