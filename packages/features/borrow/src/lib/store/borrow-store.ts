@@ -10,6 +10,7 @@ export interface BorrowFeatureState {
   collateralAction: CollateralAction | undefined;
   collateralApy: number | undefined;
   collateralSymbol: string | undefined;
+  borrowToPortfolio: boolean;
 }
 
 export const initialBorrowState = {
@@ -21,6 +22,7 @@ export const initialBorrowState = {
   collateralAction: undefined,
   collateralApy: undefined,
   collateralSymbol: undefined,
+  borrowToPortfolio: false
 };
 
 const {

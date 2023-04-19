@@ -5,8 +5,8 @@ import {
   useAccount,
   useCurrencyData,
   useSelectedMarket,
+  useAccountCashBalance,
 } from '@notional-finance/notionable-hooks';
-import { TypedBigNumber } from '@notional-finance/sdk';
 import { useObservableState } from 'observable-hooks';
 import { borrowState$, initialBorrowState } from './borrow-store';
 import { useBorrow } from './use-borrow';
@@ -23,11 +23,13 @@ export function useBorrowTransaction(selectedToken: string) {
     collateralAction,
     collateralApy,
     collateralSymbol,
+    borrowToPortfolio,
   } = useObservableState(borrowState$, initialBorrowState);
   const { isUnderlying, assetSymbol } = useCurrencyData(selectedToken);
   const selectedMarket = useSelectedMarket(selectedMarketKey);
   const { confirm } = useQueryParams();
   const confirmRoute = !!confirm;
+  const cashBalance = useAccountCashBalance(selectedToken);
 
   if (
     !confirmRoute ||
@@ -37,11 +39,19 @@ export function useBorrowTransaction(selectedToken: string) {
     !selectedMarket ||
     !fCashAmount ||
     !inputAmount ||
+    !inputAmount ||
     tradedRate === undefined ||
     interestAmountTBN === undefined
   ) {
     return undefined;
   }
+
+  const withdrawEntireCashBalance =
+    (cashBalance?.isZero() || cashBalance === undefined) && !borrowToPortfolio;
+  const withdrawAmountInternalPrecision =
+    withdrawEntireCashBalance || borrowToPortfolio
+      ? inputAmount.toAssetCash().copy(0)
+      : inputAmount.toAssetCash();
 
   const maxSlippage = tradedRate + tradeDefaults.defaultAnnualizedSlippage;
   const buildTransactionCall = {
@@ -52,8 +62,8 @@ export function useBorrowTransaction(selectedToken: string) {
       fCashAmount,
       selectedMarket.marketIndex,
       maxSlippage,
-      TypedBigNumber.fromBalance(0, assetSymbol, true),
-      true, // withdraw entire cash balance
+      withdrawAmountInternalPrecision,
+      withdrawEntireCashBalance,
       isUnderlying, // redeem to underlying
       collateralAction, // collateral action
     ],
@@ -63,7 +73,12 @@ export function useBorrowTransaction(selectedToken: string) {
     buildTransactionCall,
     transactionHeader: '',
     transactionProperties: {
-      [TradePropertyKeys.amountToWallet]: inputAmount,
+      [TradePropertyKeys.amountToPortfolio]: borrowToPortfolio
+        ? inputAmount
+        : undefined,
+      [TradePropertyKeys.amountToWallet]: !borrowToPortfolio
+        ? inputAmount
+        : undefined,
       [TradePropertyKeys.maturity]: selectedMarket.maturity,
       [TradePropertyKeys.interestDue]: interestAmountTBN,
       [TradePropertyKeys.apy]: tradedRate,

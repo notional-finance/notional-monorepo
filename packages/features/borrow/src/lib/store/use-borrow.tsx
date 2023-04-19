@@ -1,6 +1,8 @@
-import { useSelectedMarket, useMaturityData, useAccount } from '@notional-finance/notionable-hooks';
+import { useSelectedMarket, useMaturityData, useAccount, useAccountCashBalance } from '@notional-finance/notionable-hooks';
 import { AssetType, TypedBigNumber } from '@notional-finance/sdk';
+import { tradeErrors } from '@notional-finance/trade';
 import { useObservableState } from 'observable-hooks';
+import { FormattedMessage } from 'react-intl';
 import { borrowState$, initialBorrowState } from './borrow-store';
 
 export function useBorrow(selectedToken: string) {
@@ -12,10 +14,12 @@ export function useBorrow(selectedToken: string) {
     fCashAmount,
     hasCollateralError,
     collateralAction,
+    borrowToPortfolio
   } = useObservableState(borrowState$, initialBorrowState);
   const selectedMarket = useSelectedMarket(selectedMarketKey);
   const inputAmountUnderlying = inputAmount?.toUnderlying(true);
   const maturityData = useMaturityData(selectedToken, inputAmountUnderlying);
+  const cashBalance = useAccountCashBalance(selectedToken);
 
   const tradedRate =
     inputAmountUnderlying?.isPositive() && fCashAmount
@@ -63,6 +67,18 @@ export function useBorrow(selectedToken: string) {
     hasSufficientCollateral = netETHCollateralWithHaircut.gt(netETHDebtWithBuffer);
   }
 
+  let warningMsg: React.ReactNode | undefined;
+  if (cashBalance?.isNegative()) {
+    warningMsg = (
+      <FormattedMessage
+        {...{
+          ...tradeErrors.negativeCashWarningOnBorrow,
+          values: { cashBalance: cashBalance.neg().toDisplayStringWithSymbol() },
+        }}
+      />
+    );
+  }
+
   return {
     selectedMarketKey,
     canSubmit: canSubmit && hasSufficientCollateral === true,
@@ -72,6 +88,8 @@ export function useBorrow(selectedToken: string) {
     interestAmount: interestAmountTBN?.toFloat(),
     interestAmountTBN,
     tradedRate,
-    insufficientCollateralError: hasSufficientCollateral === false
+    insufficientCollateralError: hasSufficientCollateral === false,
+    borrowToPortfolio,
+    warningMsg
   };
 }

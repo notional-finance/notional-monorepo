@@ -38,6 +38,8 @@ export const BorrowSidebar = () => {
     canSubmit,
     updatedAccountData,
     insufficientCollateralError,
+    borrowToPortfolio,
+    warningMsg,
   } = useBorrow(selectedToken);
   const txnData = useBorrowTransaction(selectedToken);
   const history = useHistory();
@@ -78,6 +80,7 @@ export const BorrowSidebar = () => {
         selectedToken={selectedToken}
         isRemoveAsset={false}
         cashOrfCash={'Cash'}
+        warningMsg={warningMsg}
         lendOrBorrow={LEND_BORROW.BORROW}
         selectedMarketKey={selectedMarketKey}
         onChange={({
@@ -166,6 +169,13 @@ export const BorrowSidebar = () => {
       })}
       CustomActionButton={TradeActionButton}
       canSubmit={canSubmit}
+      advancedToggle={{
+        isChecked: borrowToPortfolio,
+        onToggle: (isChecked) => {
+          updateBorrowState({ borrowToPortfolio: isChecked });
+        },
+        label: <FormattedMessage defaultMessage={'Borrow To Portfolio'} />,
+      }}
     >
       {maturityCards}
       {currencyInputHandler}

@@ -215,7 +215,7 @@ export function useCollateralSelect(
     warningMsg = (
       <FormattedMessage
         {...{
-          ...tradeErrors.negativeCashWarning,
+          ...tradeErrors.negativeCashWarningOnDeposit,
           values: { cashBalance: cashBalance.neg().toDisplayStringWithSymbol() },
         }}
       />
