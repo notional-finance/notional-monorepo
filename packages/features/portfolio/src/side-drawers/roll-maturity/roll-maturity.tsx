@@ -1,7 +1,7 @@
 import { PortfolioSideDrawer } from '../components/portfolio-side-drawer';
 import { useQueryParams } from '@notional-finance/utils';
 import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
-import { Maturities } from '@notional-finance/mui';
+import { Maturities, useCurrencyInputRef } from '@notional-finance/mui';
 import { LendBorrowInput } from '@notional-finance/trade';
 import { useRollMaturity } from './use-roll-maturity';
 import { useEffect } from 'react';
@@ -25,6 +25,7 @@ export const RollMaturity = () => {
     partialRoll,
     updateRollMaturityState,
   } = useRollMaturity(assetKey);
+  const { currencyInputRef } = useCurrencyInputRef()
 
   useEffect(() => {
     updateRollMaturityState({ selectedMarketKey: marketKey });
@@ -62,6 +63,8 @@ export const RollMaturity = () => {
       />
       {partialRoll && selectedToken && (
         <LendBorrowInput
+          ref={currencyInputRef}
+          inputRef={currencyInputRef}
           availableTokens={[selectedToken]}
           selectedToken={selectedToken}
           cashOrfCash={'fCash'}

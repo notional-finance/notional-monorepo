@@ -11,6 +11,7 @@ import {
 } from '@notional-finance/trade';
 import { useRepayBorrow } from './use-repay-borrow';
 import { messages } from '../messages';
+import { useCurrencyInputRef } from '@notional-finance/mui';
 
 export const RepayBorrow = () => {
   const { assetKey } = useQueryParams();
@@ -25,6 +26,7 @@ export const RepayBorrow = () => {
     cashOrfCash,
     updateRepayBorrowState,
   } = useRepayBorrow(assetKey);
+  const { currencyInputRef } = useCurrencyInputRef();
 
   return (
     <PortfolioSideDrawer
@@ -35,6 +37,8 @@ export const RepayBorrow = () => {
     >
       {selectedToken && availableTokens.length > 0 && (
         <LendBorrowInput
+          ref={currencyInputRef}
+          inputRef={currencyInputRef}
           availableTokens={availableTokens}
           selectedToken={selectedToken}
           cashOrfCash={cashOrfCash}

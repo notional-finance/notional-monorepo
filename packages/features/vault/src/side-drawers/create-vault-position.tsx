@@ -7,6 +7,7 @@ import {
   LabelValue,
   CountUp,
   useSliderInputRef,
+  useCurrencyInputRef,
 } from '@notional-finance/mui';
 import { Box, styled, useTheme } from '@mui/material';
 import { RATE_PRECISION } from '@notional-finance/sdk/src/config/constants';
@@ -44,6 +45,7 @@ export const CreateVaultPosition = () => {
       cashBorrowed,
     },
   } = useContext(VaultActionContext);
+  const { currencyInputRef } = useCurrencyInputRef()
 
   useEffect(() => {
     updateState({
@@ -91,6 +93,8 @@ export const CreateVaultPosition = () => {
             inputLabel={messages[VAULT_ACTIONS.CREATE_VAULT_POSITION].maturity}
           />
           <WalletDepositInput
+          ref={currencyInputRef}
+          inputRef={currencyInputRef}
             availableTokens={[primaryBorrowSymbol]}
             selectedToken={primaryBorrowSymbol}
             onChange={({ inputAmount, hasError }) => {

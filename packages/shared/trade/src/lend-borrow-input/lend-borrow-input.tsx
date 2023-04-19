@@ -34,8 +34,10 @@ interface LendBorrowInputProps {
   onChange: (change: LendBorrowChange) => void;
   selectedAssetKey?: string;
   errorMsgOverride?: MessageDescriptor | null;
+  warningMsg?: React.ReactNode;
   style?: CurrencyInputStyleProps;
   inputLabel?: MessageDescriptor;
+  inputRef: React.RefObject<CurrencyInputHandle>;
 }
 
 export const LendBorrowInput = React.forwardRef<
@@ -53,8 +55,10 @@ export const LendBorrowInput = React.forwardRef<
       onChange,
       selectedAssetKey,
       errorMsgOverride,
+      warningMsg,
       style,
       inputLabel,
+      inputRef,
     },
     ref
   ) => {
@@ -107,11 +111,12 @@ export const LendBorrowInput = React.forwardRef<
           maxValue={maxAmountString}
           onInputChange={(input) => setInputString(input)}
           errorMsg={error && <FormattedMessage {...error} />}
+          warningMsg={warningMsg}
           currencies={availableTokens}
           defaultValue={selectedToken}
           onSelectChange={(newToken) => {
             // Always clear the input string when we change tokens
-            setInputString('');
+            inputRef.current?.setInputOverride('');
             onChange({
               selectedToken: newToken,
               inputAmount: undefined,

@@ -1,4 +1,5 @@
 import {
+  useAccountCashBalance,
   useCurrencyData,
   useMaturityData,
   useNotional,
@@ -17,6 +18,8 @@ import {
 } from '@notional-finance/helpers';
 import { tradeDefaults } from '@notional-finance/shared-config';
 import { useEffect, useMemo } from 'react';
+import { FormattedMessage } from 'react-intl';
+import { tradeErrors } from '../tradeErrors';
 
 interface CollateralSelectState {
   selectedCollateral: string;
@@ -64,6 +67,7 @@ export function useCollateralSelect(
   const inputUpToDate =
     inputAmount?.symbol === selectedToken || inputAmount === undefined;
   const collateralOptions: CollateralOption[] = [];
+  const cashBalance = useAccountCashBalance(selectedToken);
 
   if (assetSymbol && inputUpToDate && currencyId && system) {
     let annualSupplyRate = 0;
@@ -193,6 +197,7 @@ export function useCollateralSelect(
       amount: inputAmount,
       fCashAmount: selectedfCashAmount,
       minLendSlippage: selectedMinSlippageRate,
+      withdrawCashOnLend: cashBalance?.isZero(), // only withdraw cash if there is no balance
     };
     // Disabling linter due to selectedfCashAmount key (which is checked)
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -202,7 +207,20 @@ export function useCollateralSelect(
     inputAmount,
     selectedMinSlippageRate,
     selectedfCashAmount?.hashKey,
+    cashBalance?.hashKey,
   ]);
+
+  let warningMsg: React.ReactNode | undefined;
+  if (cashBalance?.isNegative()) {
+    warningMsg = (
+      <FormattedMessage
+        {...{
+          ...tradeErrors.negativeCashWarningOnDeposit,
+          values: { cashBalance: cashBalance.neg().toDisplayStringWithSymbol() },
+        }}
+      />
+    );
+  }
 
   return {
     selectedToken,
@@ -216,5 +234,6 @@ export function useCollateralSelect(
         }`
       : undefined,
     updateCollateralSelectState,
+    warningMsg,
   };
 }

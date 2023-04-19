@@ -1,11 +1,18 @@
 import { useEffect, useCallback } from 'react';
-import { PageLoading, Maturities, ActionSidebar } from '@notional-finance/mui';
+import {
+  PageLoading,
+  Maturities,
+  ActionSidebar,
+  useCurrencyInputRef,
+  ErrorMessage,
+} from '@notional-finance/mui';
 import {
   TransactionConfirmation,
   TradeActionButton,
   LendBorrowInput,
   CollateralSelect,
   TokenApprovalView,
+  tradeErrors,
 } from '@notional-finance/trade';
 import { RiskSlider, AccountRiskTable } from '@notional-finance/risk';
 import { useHistory, useLocation, useParams } from 'react-router-dom';
@@ -16,6 +23,7 @@ import { useBorrow } from '../store/use-borrow';
 import { useBorrowTransaction } from '../store/use-borrow-transaction';
 import { BorrowParams } from '../borrow-feature-shell';
 import { useCurrency } from '@notional-finance/notionable-hooks';
+import { Box } from '@mui/material';
 
 export const BorrowSidebar = () => {
   const { currency: selectedToken, collateral: selectedCollateral } =
@@ -24,11 +32,19 @@ export const BorrowSidebar = () => {
     tradableCurrencySymbols: availableCurrencies,
     allCurrencySymbols: collateralCurrencies,
   } = useCurrency();
-  const { maturityData, selectedMarketKey, canSubmit, updatedAccountData } =
-    useBorrow(selectedToken);
+  const {
+    maturityData,
+    selectedMarketKey,
+    canSubmit,
+    updatedAccountData,
+    insufficientCollateralError,
+    borrowToPortfolio,
+    warningMsg,
+  } = useBorrow(selectedToken);
   const txnData = useBorrowTransaction(selectedToken);
   const history = useHistory();
   const { pathname, search } = useLocation();
+  const { currencyInputRef } = useCurrencyInputRef();
 
   const handleTxnCancel = useCallback(() => {
     history.push(pathname);
@@ -58,10 +74,13 @@ export const BorrowSidebar = () => {
   const currencyInputHandler =
     availableCurrencies.length && selectedToken ? (
       <LendBorrowInput
+        ref={currencyInputRef}
+        inputRef={currencyInputRef}
         availableTokens={availableCurrencies}
         selectedToken={selectedToken}
         isRemoveAsset={false}
         cashOrfCash={'Cash'}
+        warningMsg={warningMsg}
         lendOrBorrow={LEND_BORROW.BORROW}
         selectedMarketKey={selectedMarketKey}
         onChange={({
@@ -150,10 +169,27 @@ export const BorrowSidebar = () => {
       })}
       CustomActionButton={TradeActionButton}
       canSubmit={canSubmit}
+      advancedToggle={{
+        isChecked: borrowToPortfolio,
+        onToggle: (isChecked) => {
+          updateBorrowState({ borrowToPortfolio: isChecked });
+        },
+        label: <FormattedMessage defaultMessage={'Borrow To Portfolio'} />,
+      }}
     >
       {maturityCards}
       {currencyInputHandler}
-      {collateralSelect}
+      <Box>
+        {collateralSelect}
+        {insufficientCollateralError && (
+          <ErrorMessage
+            variant="error"
+            message={
+              <FormattedMessage {...tradeErrors.insufficientCollateral} />
+            }
+          />
+        )}
+      </Box>
       <TokenApprovalView symbol={selectedCollateral} />
       <RiskSlider updatedAccountData={updatedAccountData} />
       <AccountRiskTable updatedAccountData={updatedAccountData} />

@@ -4,6 +4,7 @@ import {
   SliderInput,
   useSliderInputRef,
   Maturities,
+  useCurrencyInputRef,
 } from '@notional-finance/mui';
 import { VAULT_ACTIONS } from '@notional-finance/shared-config';
 import { VaultSideDrawer } from '../components/vault-side-drawer';
@@ -26,6 +27,7 @@ export const RollMaturity = () => {
     },
   } = useContext(VaultActionContext);
   const { sliderInputRef, setSliderInput } = useSliderInputRef();
+  const { currencyInputRef } = useCurrencyInputRef()
   useEffect(() => {
     if (leverageRatio) {
       setSliderInput(leverageRatio / RATE_PRECISION);
@@ -47,6 +49,8 @@ export const RollMaturity = () => {
       />
       {primaryBorrowSymbol && (
         <WalletDepositInput
+          ref={currencyInputRef}
+          inputRef={currencyInputRef}
           availableTokens={[primaryBorrowSymbol]}
           selectedToken={primaryBorrowSymbol}
           onChange={({ inputAmount, hasError }) => {

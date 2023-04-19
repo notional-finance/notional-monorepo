@@ -13,11 +13,13 @@ import { PortfolioParams } from '../../portfolio-feature-shell';
 import { PortfolioSideDrawer } from '../components/portfolio-side-drawer';
 import { messages } from '../messages';
 import { useRedeemNToken } from './use-redeem-ntoken';
+import { useCurrencyInputRef } from '@notional-finance/mui';
 
 export const RedeemNToken = () => {
   const history = useHistory();
   const { pathname } = useLocation();
   const { sideDrawerKey } = useParams<PortfolioParams>();
+  const { currencyInputRef } = useCurrencyInputRef();
   const { symbol } = useQueryParams();
   const action = sideDrawerKey ?? PORTFOLIO_ACTIONS.REDEEM_NTOKEN;
   const {
@@ -48,6 +50,8 @@ export const RedeemNToken = () => {
           withdrawType={WITHDRAW_TYPE.REDEEM_TO_CASH}
           availableTokens={availableTokens}
           selectedToken={selectedToken}
+          ref={currencyInputRef}
+          inputRef={currencyInputRef}
           onChange={({
             inputAmount,
             hasError,

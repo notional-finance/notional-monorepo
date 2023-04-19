@@ -8,6 +8,7 @@ import { LendBorrowInput, TradePropertiesGrid } from '@notional-finance/trade';
 import { useWithdrawLend } from './use-withdraw-lend';
 import { FormattedMessage } from 'react-intl';
 import { messages } from '../messages';
+import { useCurrencyInputRef } from '@notional-finance/mui';
 
 export const WithdrawLend = () => {
   const { assetKey } = useQueryParams();
@@ -23,6 +24,7 @@ export const WithdrawLend = () => {
     withdrawToPortfolio,
     updateWithdrawLendState,
   } = useWithdrawLend(assetKey);
+  const { currencyInputRef } = useCurrencyInputRef()
 
   return (
     <PortfolioSideDrawer
@@ -46,6 +48,8 @@ export const WithdrawLend = () => {
     >
       {selectedToken && availableTokens.length > 0 && (
         <LendBorrowInput
+          ref={currencyInputRef}
+          inputRef={currencyInputRef}
           availableTokens={availableTokens}
           selectedToken={selectedToken}
           cashOrfCash={cashOrfCash}

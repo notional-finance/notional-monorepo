@@ -1,4 +1,4 @@
-import { PageLoading } from '@notional-finance/mui';
+import { PageLoading, useCurrencyInputRef } from '@notional-finance/mui';
 import {
   AccountWithdrawInput,
   TradePropertiesGrid,
@@ -19,6 +19,7 @@ export const Withdraw = () => {
     sideDrawerInfo,
     updateWithdrawState,
   } = useWithdraw();
+  const { currencyInputRef } = useCurrencyInputRef();
 
   return (
     <PortfolioSideDrawer
@@ -33,6 +34,8 @@ export const Withdraw = () => {
             withdrawType={withdrawType}
             availableTokens={availableTokens}
             selectedToken={selectedToken}
+            ref={currencyInputRef}
+            inputRef={currencyInputRef}
             onChange={({
               inputAmount,
               hasError,

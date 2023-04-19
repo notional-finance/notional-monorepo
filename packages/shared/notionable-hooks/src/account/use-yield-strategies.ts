@@ -93,7 +93,9 @@ export function useYieldStrategies(
         leveragePercentage = (leverageRatio / maxLeverageRatio) * 100;
         // mustDeleverage = leveragePercentage > 70;
       } catch (e) {
-        logError(e as Error, 'notionable/account', 'use-yield-strategies');
+        if ((e as Error).message.match('Vault at 0x.* not found') === null) {
+          logError(e as Error, 'notionable/account', 'use-yield-strategies');
+        }
       }
 
       const { avgBorrowRate, netCashDeposited } =
