@@ -78,12 +78,15 @@ export async function setChain(chainId: string | number) {
 }
 
 export async function connectWallet(label?: string) {
+  console.log({label})
   try {
     const opts = label
       ? { autoSelect: { label, disableModals: true } }
       : undefined;
+    console.log({opts})
+    console.log({onboard})
     const [wallet] = await onboard.connectWallet(opts);
-
+    console.log({wallet})
     if (wallet) {
       setInLocalStorage('selectedWallet', wallet.label);
     }
