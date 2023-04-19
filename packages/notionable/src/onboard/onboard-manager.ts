@@ -82,17 +82,12 @@ export async function connectWallet(label?: string) {
     const opts = label
       ? { autoSelect: { label, disableModals: true } }
       : undefined;
-    console.log({onboard})
-    const [wallet] = await onboard.connectWallet(opts);
-    const testConnectWallet = await onboard.connectWallet(opts);
-    console.log("onboard.connectWallet(opts) ", onboard.connectWallet(opts))
-    const testWallet = testConnectWallet[0]
-    console.log({testConnectWallet})
-    console.log({testWallet})
-    console.log({wallet})
+
     if (label) {
       setInLocalStorage('selectedWallet', label);
     }
+    await onboard.connectWallet(opts);
+    
   } catch (e) {
     console.error(e);
     setInLocalStorage('selectedWallet', null);
