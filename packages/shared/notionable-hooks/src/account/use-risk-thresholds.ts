@@ -169,7 +169,9 @@ export function useRiskThresholds(
       leverageRatio = baseVault.getLeverageRatio(a);
       leveragePercentage = (leverageRatio / maxLeverageRatio) * 100;
     } catch (e) {
-      logError(e as Error, 'notionable/account', 'use-risk-thresholds');
+      if ((e as Error).message.match('Vault at 0x.* not found') === null) {
+        logError(e as Error, 'notionable/account', 'use-risk-thresholds');
+      }
     }
 
     return thresholds.map((t) => {
