@@ -36,7 +36,9 @@ import { reportNotionalError } from '../error/error-manager';
 import { account$ } from '../account/account-store';
 
 const email = process.env['NX_CONTACT_EMAIL'] as string;
-const appUrl = process.env['NX_APP_URL'] as string;
+// const appUrl = process.env['NX_APP_URL'] as string;
+// TODO: Revert this. Just for testing purposes
+const appUrl = 'https://dev.notional.finance/';
 
 const injected = injectedModule();
 const walletConnect = walletConnectModule();
