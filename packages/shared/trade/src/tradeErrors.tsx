@@ -21,4 +21,8 @@ export const tradeErrors = defineMessages({
     defaultMessage: 'Error calculating withdraw: {e}',
     description: 'error message',
   },
+  negativeCashWarning: {
+    defaultMessage: 'Debt balance of {cashBalance} must be repaid during deposit.',
+    description: 'warning message',
+  }
 });

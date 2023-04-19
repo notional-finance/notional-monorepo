@@ -92,6 +92,7 @@ export const CollateralSelect = ({
     hasError,
     collateralOptions,
     highestApyString,
+    warningMsg,
     updateCollateralSelectState,
   } = useCollateralSelect(selectedToken, selectedBorrowMarketKey);
   const { currencyInputRef } = useCurrencyInputRef();
@@ -121,6 +122,7 @@ export const CollateralSelect = ({
         inputRef={currencyInputRef}
         availableTokens={availableTokens}
         selectedToken={selectedToken}
+        warningMsg={warningMsg}
         onChange={({
           selectedToken: newSelectedToken,
           inputAmount,

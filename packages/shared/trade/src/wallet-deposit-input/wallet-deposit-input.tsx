@@ -24,6 +24,7 @@ interface WalletDepositInputProps {
   onChange: (change: WalletDepositChange) => void;
   maxValueOverride?: string;
   errorMsgOverride?: MessageDescriptor;
+  warningMsg?: React.ReactNode;
   inputLabel?: MessageDescriptor;
   inputRef: React.RefObject<CurrencyInputHandle>;
 }
@@ -44,6 +45,7 @@ export const WalletDepositInput = React.forwardRef<
       onChange,
       maxValueOverride,
       errorMsgOverride,
+      warningMsg,
       inputLabel,
       inputRef,
     },
@@ -77,6 +79,7 @@ export const WalletDepositInput = React.forwardRef<
           maxValue={maxValueOverride || maxBalanceString}
           onInputChange={(input) => setInputString(input)}
           errorMsg={error && <FormattedMessage {...error} />}
+          warningMsg={warningMsg}
           currencies={availableTokens}
           defaultValue={selectedToken}
           onSelectChange={(newToken: string | null) => {
