@@ -25,8 +25,10 @@ export const useHistoricalReturns = () => {
   const {
     leverageRatio,
     fCashBorrowAmount,
+    priorAvgBorrowRate,
+    totalCashBorrowed,
     currentBorrowRate,
-    avgBorrowRate,
+    cashBorrowed,
     vaultAccount,
     baseVault,
     historicalReturns: _historicalReturns,
@@ -34,53 +36,86 @@ export const useHistoricalReturns = () => {
     sevenDayAverageReturn,
   } = state;
 
-  // If the current borrow rate is set, we show the expected yield for the net new portion
-  const vaultAPYTitle = currentBorrowRate
-    ? messages.summary.expectedYield
-    : messages.summary.currentYield;
+  // priorAvgBorrowRate = weightedRate / totalCashBorrowed
+  // newAverageBorrowRate = cashBorrowed / newTotalCashBorrowed * priorAvgBorrowRate +
+  //    totalCashBorrowed / newTotalCashBorrowed * currentBorrowRate
+  let newAverageBorrowRateInRatePrecision: number | undefined;
+  const currentBorrowRateInRatePrecision =
+    currentBorrowRate !== undefined
+      ? convertFloatToRate(currentBorrowRate)
+      : undefined;
 
-  // TODO: need to determine what the average borrow rate and leverage ratio to use here is.
-  //  - net new position when increasing vault shares, calculated on net leverage, net cash and net borrow rate
-  //  - historical average position prior to any changes
-  //  - updated average with new net borrow rate
+  if (
+    priorAvgBorrowRate &&
+    totalCashBorrowed &&
+    cashBorrowed &&
+    currentBorrowRateInRatePrecision
+  ) {
+    const newTotalCashBorrowed = totalCashBorrowed.add(cashBorrowed).toFloat();
+    const _cashBorrowed = cashBorrowed.toFloat();
+    const _totalCashBorrowed = totalCashBorrowed.toFloat();
 
-  const historicalReturns = _historicalReturns.map((row) => {
-    const leveragedReturn = currentBorrowRate
+    newAverageBorrowRateInRatePrecision =
+      priorAvgBorrowRate * (_cashBorrowed / newTotalCashBorrowed) +
+      currentBorrowRateInRatePrecision *
+        (_totalCashBorrowed / newTotalCashBorrowed);
+  } else if (currentBorrowRateInRatePrecision) {
+    newAverageBorrowRateInRatePrecision = currentBorrowRateInRatePrecision;
+  }
+
+  const historicalReturns = (_historicalReturns || []).map((row) => {
+    const chartRate = newAverageBorrowRateInRatePrecision || priorAvgBorrowRate;
+    const leveragedReturn = chartRate
       ? calculateHeadlineVaultReturns(
           convertFloatToRate(row.totalRate),
-          convertFloatToRate(currentBorrowRate),
+          chartRate,
           leverageRatio
         )
       : undefined;
 
-    return { ...row, leveragedReturn };
+    return {
+      ...row,
+      leveragedReturn: leveragedReturn
+        ? convertRateToFloat(leveragedReturn)
+        : undefined,
+    };
   });
 
-  const netNewPositionApy = calculateHeadlineVaultReturns(
+  const newVaultReturns = calculateHeadlineVaultReturns(
     sevenDayAverageReturn,
-    currentBorrowRate ? convertFloatToRate(currentBorrowRate) : undefined,
+    newAverageBorrowRateInRatePrecision,
     leverageRatio
   );
 
-  const currentVaultAccountApy = calculateHeadlineVaultReturns(
+  const priorVaultReturns = calculateHeadlineVaultReturns(
     sevenDayAverageReturn,
-    avgBorrowRate ? convertFloatToRate(avgBorrowRate) : undefined,
+    priorAvgBorrowRate,
     baseVault && vaultAccount
       ? baseVault.getLeverageRatio(vaultAccount)
       : undefined
   );
 
+  // If the account is borrowing fCash then set the expected yield
+  const vaultAPYTitle =
+    newVaultReturns !== undefined
+      ? messages.summary.expectedYield
+      : messages.summary.currentYield;
+
+  const headlineApy =
+    newVaultReturns !== undefined ? newVaultReturns : priorVaultReturns;
+
   return {
-    returnDrivers,
+    returnDrivers: returnDrivers || [],
     historicalReturns,
-    currentBorrowRate,
-    netNewPositionApy: netNewPositionApy
-      ? convertRateToFloat(netNewPositionApy)
+    priorVaultReturns: priorVaultReturns
+      ? convertRateToFloat(priorVaultReturns)
       : undefined,
-    currentVaultAccountApy: currentVaultAccountApy
-      ? convertRateToFloat(currentVaultAccountApy)
+    newVaultReturns: newVaultReturns
+      ? convertRateToFloat(newVaultReturns)
       : undefined,
     fCashBorrowAmount,
+    headlineApy: headlineApy ? convertRateToFloat(headlineApy) : undefined,
     vaultAPYTitle,
+    currentBorrowRate,
   };
 };

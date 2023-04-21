@@ -78,12 +78,13 @@ interface VaultInitData {
   minLeverageRatio?: number;
   maxLeverageRatio?: number;
   maxWithdrawAmount?: TypedBigNumber;
-  avgBorrowRate?: number;
+  priorAvgBorrowRate?: number;
+  totalCashBorrowed?: TypedBigNumber;
 }
 
 interface VaultReturnsData {
-  historicalReturns: HistoricalReturn[];
-  returnDrivers: ReturnDriver[];
+  historicalReturns?: HistoricalReturn[];
+  returnDrivers?: ReturnDriver[];
   sevenDayAverageReturn?: number;
 }
 
@@ -117,7 +118,4 @@ export interface VaultActionState
   error?: VaultError;
 }
 
-export const initialVaultActionState: VaultActionState = {
-  historicalReturns: [],
-  returnDrivers: [],
-};
+export const initialVaultActionState: VaultActionState = {};
