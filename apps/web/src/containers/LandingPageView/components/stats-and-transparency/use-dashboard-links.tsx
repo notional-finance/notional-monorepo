@@ -1,7 +1,7 @@
-import dashboard from './images/dashboard-new.svg';
-import defiLlama from './images/defi-llama-new.svg';
-import dune from './images/dune-new.svg';
-import tokenTerminal from './images/token-terminal-new.svg';
+import dashboard from './images/dashboard.svg';
+import defiLlama from './images/defi-llama.svg';
+import dune from './images/dune.svg';
+import tokenTerminal from './images/token-terminal.svg';
 import {
   DuneIcon,
   DashboardIcon,
