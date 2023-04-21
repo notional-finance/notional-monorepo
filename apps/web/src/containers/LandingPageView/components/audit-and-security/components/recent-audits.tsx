@@ -20,8 +20,9 @@ export const RecentAudits = () => {
         <FormattedMessage defaultMessage={'Recent Audits'} />
       </ButtonText>
       <AuditBlock>
-        {auditLinks.map(({ name, route, date }) => (
+        {auditLinks.map(({ name, route, date }, index) => (
           <ExternalLink
+            key={index}
             href={route}
             style={{
               alignItems: 'flex-start',
@@ -30,6 +31,7 @@ export const RecentAudits = () => {
               marginBottom: theme.spacing(3),
             }}
           >
+            {/* <HoverContainer> */}
             <Box
               sx={{
                 display: 'flex',
@@ -69,8 +71,10 @@ export const RecentAudits = () => {
                 fontSize: '1rem',
                 marginTop: '3px',
                 marginLeft: theme.spacing(2),
+                fill: colors.white,
               }}
             />
+            {/* </HoverContainer> */}
           </ExternalLink>
         ))}
         <ExternalLink
@@ -101,6 +105,21 @@ const Container = styled(Box)(
     }
       `
 );
+
+// const HoverContainer = styled(Box)(`
+//   display: flex;
+//   &:hover {
+//     span {
+//       transition: all 0.3s ease;
+//       color: ${colors.neonTurquoise};
+//     }
+//     svg {
+//       transition: all 0.3s ease;
+//       fill: ${colors.neonTurquoise};
+//     }
+//   }
+//       `);
+
 const AuditBlock = styled(Box)(
   ({ theme }) => `
           display: flex;

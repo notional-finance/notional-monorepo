@@ -1,52 +1,30 @@
 import { useTheme, Box, styled } from '@mui/material';
 import { colors } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
-import {
-  H5,
-  H2,
-  Body,
-  ExternalLink,
-  BodySecondary,
-} from '@notional-finance/mui';
-import dashboard from './images/dashboard.svg';
-import { useDashboardLinks } from './use-dashboard-links';
+import { H5, H2, Body } from '@notional-finance/mui';
+import { DashboardCarousel } from './components';
 
 export const StatsAndTransparency = () => {
   const theme = useTheme();
-  const dashboardLinks = useDashboardLinks();
 
   return (
     <BackgroundContainer>
       <InnerContainer>
-        <Box sx={{ width: '1200px', margin: 'auto' }}>
+        <Test>
           <H5 sx={{ color: colors.purpleGrey, marginBottom: theme.spacing(2) }}>
             <FormattedMessage defaultMessage={'Stats & Transparency'} />
           </H5>
           <H2 sx={{ color: colors.white, marginBottom: theme.spacing(3) }}>
             <FormattedMessage defaultMessage={'Don’t Trust, Verify'} />
           </H2>
-          <Body sx={{ color: colors.white, width: '520px' }}>
+          <BodyText>
             <FormattedMessage
               defaultMessage={`Notional is fully public, open source, and on-chain. Anyone can audit
         Notional’s code and balances to ensure funds are secure.`}
             />
-          </Body>
-        </Box>
-
-        <Wrapper>
-          <LinksContainer>
-            {dashboardLinks.map(({ link, title }) => (
-              <ExternalLink href={link} style={{ padding: theme.spacing(3) }}>
-                <BodySecondary sx={{ fontWeight: 600, color: colors.black }}>
-                  {title}
-                </BodySecondary>
-              </ExternalLink>
-            ))}
-          </LinksContainer>
-          <Box sx={{ marginTop: '-82px', marginRight: '-100px' }}>
-            <img src={dashboard} alt="dashboard" style={{ height: '560px' }} />
-          </Box>
-        </Wrapper>
+          </BodyText>
+        </Test>
+        <DashboardCarousel />
       </InnerContainer>
     </BackgroundContainer>
   );
@@ -71,18 +49,29 @@ const InnerContainer = styled(Box)(
       `
 );
 
-const Wrapper = styled(Box)(
-  `
-    display: flex;
-    justify-content: end;
-      `
+const BodyText = styled(Body)(
+  ({ theme }) => `
+  color: ${colors.white}; 
+  width: 520px;
+  ${theme.breakpoints.down(1220)} {
+    width: 65%; 
+  }
+  ${theme.breakpoints.down('sm')} {
+    width: 100%;
+  }
+    `
 );
 
-const LinksContainer = styled(Box)(
-  `
-  width: 600px;
-  display: flex;
-  flex-direction: column;
-  margin-top: 100px;
-`
+const Test = styled(Box)(
+  ({ theme }) => `
+  width: 1200px; 
+  margin: auto;
+  ${theme.breakpoints.down(1220)} {
+    width: 1000px; 
+    padding-bottom: 32px;
+  }
+  ${theme.breakpoints.down(1000)} {
+    width: 90%;
+  }
+    `
 );

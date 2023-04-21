@@ -83,7 +83,8 @@ const Container = styled(Box)(
     ${theme.breakpoints.down(theme.breakpoints.values.sm)} {
       padding: 0px;
       margin-bottom: ${theme.spacing(11)};
-      background: ${colors.white};
+      background: transparent;
+      box-shadow: none;
       border: none;
       width: 90%;
       top: 0;
