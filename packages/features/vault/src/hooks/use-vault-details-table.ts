@@ -17,7 +17,7 @@ import {
   formatLeverageForRisk,
   formatRateAsPercent,
   RiskDataTableRow,
-} from '../helpers/risk-data-helpers';
+} from '@notional-finance/risk';
 
 export function useVaultDetailsTable(
   vaultAddress: string,

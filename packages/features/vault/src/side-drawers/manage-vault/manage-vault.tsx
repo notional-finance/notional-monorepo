@@ -4,7 +4,6 @@ import {
   PORTFOLIO_ACTIONS,
   VAULT_ACTIONS,
 } from '@notional-finance/shared-config';
-import { VaultDetailsTable } from '@notional-finance/risk';
 import {
   H4,
   LabelValue,
@@ -18,6 +17,7 @@ import { formatMaturity } from '@notional-finance/helpers';
 import { VaultParams } from '../../vault-view/vault-view';
 import { VaultActionContext } from '../../vault-view/vault-action-provider';
 import { messages } from '../../messages';
+import { VaultDetailsTable } from '../../components/vault-details-table';
 
 export const ManageVault = () => {
   const theme = useTheme();
