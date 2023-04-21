@@ -42,15 +42,7 @@ export const DashboardLinks = ({
               paddingRight: '8px',
             }}
           >
-            <BodySecondary
-              sx={{
-                fontWeight: 600,
-                color: colors.black,
-                display: 'flex',
-                alignItems: 'center',
-                whiteSpace: 'nowrap',
-              }}
-            >
+            <BodyText>
               <Box
                 sx={{
                   marginRight: theme.spacing(3),
@@ -60,7 +52,7 @@ export const DashboardLinks = ({
                 {icon}
               </Box>
               {title}
-            </BodySecondary>
+            </BodyText>
             <ViewDashboard
               fadeActive={currentImageIndex === index}
               theme={theme}
@@ -84,7 +76,7 @@ const LinksContainer = styled(Box)(
   width: 40%;
   display: flex;
   flex-direction: column;
-  margin-top: 100px;
+  margin-top: ${theme.spacing(12.5)};
   ${theme.breakpoints.down(1000)} {
    display: none;
   }
@@ -117,5 +109,13 @@ const ViewDashboard = styled(SmallInput, {
   opacity: ${fadeActive ? '1' : '0'};
 `
 );
+
+const BodyText = styled(BodySecondary)(`
+  font-weight: 600;
+  color: ${colors.black};
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+`);
 
 export default DashboardLinks;

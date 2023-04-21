@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useTheme, Box, styled } from '@mui/material';
-import { ExternalLink } from '@notional-finance/mui';
-import { NotionalTheme } from '@notional-finance/styles';
+import { ExternalLink, SmallInput } from '@notional-finance/mui';
+import { FormattedMessage } from 'react-intl';
+import { NotionalTheme, colors } from '@notional-finance/styles';
 import { useDashboardLinks } from '../use-dashboard-links';
 import { DashboardLinks } from './dashboard-links';
 import { DashboardLinksMobile } from './dashboard-links-mobile';
+import { ArrowRightIcon } from '@notional-finance/icons';
 
 interface FadeBoxProps {
   fadeActive: boolean;
@@ -44,6 +46,15 @@ export const DashboardCarousel = () => {
         handleImageHover={handleImageHover}
       />
       <FadeCarouselWrapper>
+        <ViewDashboard>
+          <ExternalLink href={dashboardLinks[currentImageIndex].link}>
+            <FormattedMessage defaultMessage={'View Dashboard'} />
+            <ArrowRightIcon
+              fill="white"
+              sx={{ height: '14px', marginLeft: theme.spacing(2) }}
+            />
+          </ExternalLink>
+        </ViewDashboard>
         {dashboardLinks.map(({ image }, index) => {
           return (
             <ExternalLink href={dashboardLinks[currentImageIndex].link}>
@@ -98,6 +109,7 @@ const FadeBox = styled('img', {
 const FadeCarouselWrapper = styled(Box)(
   ({ theme }) => `
   display: flex;
+  flex-direction: column;
   width: 803px;
   margin-top: -82px;
   margin-right: -100px;
@@ -107,6 +119,19 @@ const FadeCarouselWrapper = styled(Box)(
   }
   ${theme.breakpoints.down(1000)} {
     margin: auto;
+   }
+`
+);
+
+const ViewDashboard = styled(SmallInput)(
+  ({ theme }) => `
+  display: none;
+  ${theme.breakpoints.down(1000)} {
+    display: flex;
+    align-items: center;
+    color: ${colors.white};
+    margin-left: ${theme.spacing(3.75)};
+    margin-bottom: ${theme.spacing(2)};
    }
 `
 );

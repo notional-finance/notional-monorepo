@@ -41,10 +41,10 @@ const BackgroundContainer = styled(Box)(
 );
 
 const InnerContainer = styled(Box)(
-  `
-  height: 1100px;
+  ({ theme }) => `
+  height: ${theme.spacing(137.5)};
   margin: auto; 
-  padding-top: 120px;
+  padding-top: ${theme.spacing(15)};
   
       `
 );
@@ -52,7 +52,7 @@ const InnerContainer = styled(Box)(
 const BodyText = styled(Body)(
   ({ theme }) => `
   color: ${colors.white}; 
-  width: 520px;
+  width: ${theme.spacing(65)};
   ${theme.breakpoints.down(1220)} {
     width: 65%; 
   }
@@ -64,11 +64,11 @@ const BodyText = styled(Body)(
 
 const Test = styled(Box)(
   ({ theme }) => `
-  width: 1200px; 
+  width: ${theme.spacing(150)};
   margin: auto;
   ${theme.breakpoints.down(1220)} {
-    width: 1000px; 
-    padding-bottom: 32px;
+    width: ${theme.spacing(125)}; 
+    padding-bottom: ${theme.spacing(4)};
   }
   ${theme.breakpoints.down(1000)} {
     width: 90%;

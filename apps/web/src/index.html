@@ -33,14 +33,16 @@
   <body
     style="
       width: 100%;
-      overflow: scroll !important;
-      overflow-x: auto !important;
+      overflow-x: hidden !important;
     "
   >
+  <div style="overflow-x: hidden !important; position: relative;">
     <form name="newsletter" netlify netlify-honeypot="bot-field" hidden>
       <input type="email" name="email" />
     </form>
     <div id="root"></div>
     <div id="onboard"></div>
+  </div>
+
   </body>
 </html>
