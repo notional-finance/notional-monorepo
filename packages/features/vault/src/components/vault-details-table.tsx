@@ -7,8 +7,8 @@ import {
   DataTableColumn,
 } from '@notional-finance/mui';
 import { VaultAccount } from '@notional-finance/sdk/src/vaults';
-import { useVaultDetailsTable } from '../hooks/use-vault-details-table';
 import { FormattedMessage } from 'react-intl';
+import { useVaultDetailsTable } from '../hooks/use-vault-details-table';
 
 interface VaultDetailsTableProps {
   vaultAddress: string;
@@ -20,10 +20,7 @@ interface VaultDetailsTableProps {
 const TABLE_COLUMNS: DataTableColumn[] = [
   {
     Header: (
-      <FormattedMessage
-        defaultMessage="Risk Type"
-        description={'Risk Type header'}
-      />
+      <FormattedMessage defaultMessage="Detail" description={'Detail header'} />
     ),
     Cell: TextWithIconCell,
     accessor: 'riskType',

@@ -33,7 +33,7 @@ export const VaultSummary = () => {
   const { sideDrawerKey } = useParams<VaultParams>();
   const vaultName = vaultConfig?.name;
 
-  const { returnDrivers, headlineApy } = useHistoricalReturns();
+  const { returnDrivers, headlineApy, vaultAPYTitle } = useHistoricalReturns();
   const { areaChartData, areaHeaderData, chartToolTipData } =
     usePerformanceChart();
 
@@ -106,9 +106,8 @@ export const VaultSummary = () => {
               <TradeActionTitle
                 value={headlineApy}
                 valueSuffix="%"
-                title={<FormattedMessage {...messages.summary.expectedYield} />}
+                title={<FormattedMessage {...vaultAPYTitle} />}
               />
-
               <SliderDisplay
                 min={0}
                 max={100}

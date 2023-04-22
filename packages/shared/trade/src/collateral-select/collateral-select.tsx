@@ -29,6 +29,7 @@ interface CollateralSelectProps {
     collateralSymbol: string | undefined
   ) => void;
   selectedBorrowMarketKey?: string | null;
+  errorMsg?: MessageDescriptor;
   tightMarginTop?: boolean;
 }
 
@@ -80,6 +81,7 @@ export const CollateralSelect = ({
   selectedToken,
   selectedBorrowMarketKey,
   inputLabel,
+  errorMsg,
   onChange,
   tightMarginTop,
 }: CollateralSelectProps) => {
@@ -122,6 +124,7 @@ export const CollateralSelect = ({
         inputRef={currencyInputRef}
         availableTokens={availableTokens}
         selectedToken={selectedToken}
+        errorMsgOverride={errorMsg}
         warningMsg={warningMsg}
         onChange={({
           selectedToken: newSelectedToken,

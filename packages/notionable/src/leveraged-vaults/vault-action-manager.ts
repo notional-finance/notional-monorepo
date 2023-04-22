@@ -12,6 +12,7 @@ import {
 } from './logic';
 import { VaultActionState } from './vault-action-store';
 import { getVaultCapacity } from './logic/get-vault-capacity';
+import { vaultPerformance$ } from './vault-manager';
 
 export const loadVaultActionManager = (
   state$: Observable<VaultActionState>
@@ -25,6 +26,7 @@ export const loadVaultActionManager = (
     account: account$,
     vaultAddress: vaultAddress$,
     activeVaultMarkets: activeVaultMarkets$,
+    vaultPerformance: vaultPerformance$,
   }).pipe(
     requireKeysDefined('system', 'vaultAddress'),
     mapWithDistinctInputs(

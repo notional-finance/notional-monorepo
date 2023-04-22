@@ -26,6 +26,19 @@ export enum VaultError {
   ErrorCalculatingWithdraw,
 }
 
+export interface HistoricalReturn {
+  timestamp: number;
+  totalRate: number;
+  breakdown: string[];
+  leveragedReturn?: number;
+}
+
+export interface ReturnDriver {
+  source: string;
+  shortAvg: string;
+  longAvg: string;
+}
+
 /** These inputs come externally */
 interface VaultInputs {
   // Relevant on all screens
@@ -65,11 +78,20 @@ interface VaultInitData {
   minLeverageRatio?: number;
   maxLeverageRatio?: number;
   maxWithdrawAmount?: TypedBigNumber;
+  priorAvgBorrowRate?: number;
+  totalCashBorrowed?: TypedBigNumber;
+}
+
+interface VaultReturnsData {
+  historicalReturns?: HistoricalReturn[];
+  returnDrivers?: ReturnDriver[];
+  sevenDayAverageReturn?: number;
 }
 
 export interface VaultActionState
   extends VaultInputs,
     VaultInitData,
+    VaultReturnsData,
     Record<string, unknown> {
   // Calculated Borrow Data
   borrowMarketData?: MaturityData[];

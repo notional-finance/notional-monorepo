@@ -15,15 +15,18 @@ import { VaultAccount } from '@notional-finance/sdk/src/vaults';
 import {
   didIncrease,
   formatLeverageForRisk,
+  formatPercentForRisk,
   formatRateAsPercent,
   RiskDataTableRow,
-} from '../helpers/risk-data-helpers';
+} from '@notional-finance/risk';
+import { useHistoricalReturns } from './use-historical-returns';
 
 export function useVaultDetailsTable(
   vaultAddress: string,
   updatedVaultAccount?: VaultAccount
 ) {
   const { vaultAccount: currentVaultAccount } = useVaultAccount(vaultAddress);
+  const { priorVaultReturns, newVaultReturns } = useHistoricalReturns();
   const baseVault = useBaseVault(vaultAddress);
 
   let mergedThresholds: [
@@ -140,6 +143,22 @@ export function useVaultDetailsTable(
       greenOnCheckmark: false,
     },
   });
+
+  if (priorVaultReturns !== undefined && newVaultReturns !== undefined) {
+    tableData.push({
+      riskType: {
+        type: 'APY',
+      },
+      current: formatPercentForRisk(priorVaultReturns),
+      updated: {
+        value: formatPercentForRisk(newVaultReturns),
+        arrowUp: didIncrease(priorVaultReturns, newVaultReturns),
+        checkmark: false,
+        greenOnArrowUp: true,
+        greenOnCheckmark: false,
+      },
+    });
+  }
 
   tableData.push(
     ...mergedThresholds.map(([current, updated]) => {

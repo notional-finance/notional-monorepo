@@ -246,7 +246,9 @@ export default class AccountData {
       );
 
     return {
-      avgBorrowRate: Math.floor(weightedRate / totalCashBorrowed.toFloat()),
+      avgBorrowRate: totalCashBorrowed.isZero()
+        ? undefined
+        : Math.floor(weightedRate / totalCashBorrowed.toFloat()),
       netCashDeposited,
       totalCashBorrowed,
     };

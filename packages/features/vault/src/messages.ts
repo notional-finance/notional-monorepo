@@ -223,7 +223,11 @@ export const messages = {
       description: 'input label',
     },
     expectedYield: {
-      defaultMessage: 'Expected Yield',
+      defaultMessage: 'Expected APY',
+      description: 'text label',
+    },
+    currentYield: {
+      defaultMessage: 'Current APY',
       description: 'text label',
     },
     capacityRemaining: {

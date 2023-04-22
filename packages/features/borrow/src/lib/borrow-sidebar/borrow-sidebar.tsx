@@ -4,7 +4,6 @@ import {
   Maturities,
   ActionSidebar,
   useCurrencyInputRef,
-  ErrorMessage,
 } from '@notional-finance/mui';
 import {
   TransactionConfirmation,
@@ -23,7 +22,6 @@ import { useBorrow } from '../store/use-borrow';
 import { useBorrowTransaction } from '../store/use-borrow-transaction';
 import { BorrowParams } from '../borrow-feature-shell';
 import { useCurrency } from '@notional-finance/notionable-hooks';
-import { Box } from '@mui/material';
 
 export const BorrowSidebar = () => {
   const { currency: selectedToken, collateral: selectedCollateral } =
@@ -116,6 +114,11 @@ export const BorrowSidebar = () => {
         availableTokens={collateralCurrencies}
         selectedToken={selectedCollateral}
         selectedBorrowMarketKey={selectedMarketKey}
+        errorMsg={
+          insufficientCollateralError
+            ? tradeErrors.insufficientCollateral
+            : undefined
+        }
         inputLabel={defineMessage({
           defaultMessage:
             '3. How much additional collateral do you want to deposit?',
@@ -179,17 +182,7 @@ export const BorrowSidebar = () => {
     >
       {maturityCards}
       {currencyInputHandler}
-      <Box>
-        {collateralSelect}
-        {insufficientCollateralError && (
-          <ErrorMessage
-            variant="error"
-            message={
-              <FormattedMessage {...tradeErrors.insufficientCollateral} />
-            }
-          />
-        )}
-      </Box>
+      {collateralSelect}
       <TokenApprovalView symbol={selectedCollateral} />
       <RiskSlider updatedAccountData={updatedAccountData} />
       <AccountRiskTable updatedAccountData={updatedAccountData} />

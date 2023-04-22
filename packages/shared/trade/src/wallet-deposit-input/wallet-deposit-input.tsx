@@ -61,12 +61,12 @@ export const WalletDepositInput = React.forwardRef<
       onChange({
         selectedToken,
         inputAmount,
-        hasError: !!error,
+        hasError: errorMsg !== undefined || errorMsgOverride !== undefined,
         maxBalance,
       });
       // NOTE: all values checked via hash key
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [inputAmount?.hashKey, maxBalance?.hashKey, selectedToken, error]);
+    }, [inputAmount?.hashKey, maxBalance?.hashKey, selectedToken, errorMsg]);
 
     return (
       <Box>

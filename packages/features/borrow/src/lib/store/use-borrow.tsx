@@ -1,4 +1,9 @@
-import { useSelectedMarket, useMaturityData, useAccount, useAccountCashBalance } from '@notional-finance/notionable-hooks';
+import {
+  useSelectedMarket,
+  useMaturityData,
+  useAccount,
+  useAccountCashBalance,
+} from '@notional-finance/notionable-hooks';
 import { AssetType, TypedBigNumber } from '@notional-finance/sdk';
 import { tradeErrors } from '@notional-finance/trade';
 import { useObservableState } from 'observable-hooks';
@@ -14,7 +19,7 @@ export function useBorrow(selectedToken: string) {
     fCashAmount,
     hasCollateralError,
     collateralAction,
-    borrowToPortfolio
+    borrowToPortfolio,
   } = useObservableState(borrowState$, initialBorrowState);
   const selectedMarket = useSelectedMarket(selectedMarketKey);
   const inputAmountUnderlying = inputAmount?.toUnderlying(true);
@@ -50,9 +55,18 @@ export function useBorrow(selectedToken: string) {
 
     // simulate cash balance netting off negative or being fully withdrawn
     const cashBalance = accountDataCopy.cashBalance(selectedMarket.currencyId);
-    if (cashBalance?.isPositive()) {
+    if (borrowToPortfolio) {
+      // Add the cash to the portfolio
+      accountDataCopy.updateBalance(
+        selectedMarket.currencyId,
+        inputAmountUnderlying?.toAssetCash()
+      );
+    } else if (cashBalance?.isPositive()) {
       // Cash balance will be fully withdrawn here
-      accountDataCopy.updateBalance(selectedMarket.currencyId, cashBalance.neg());
+      accountDataCopy.updateBalance(
+        selectedMarket.currencyId,
+        inputAmountUnderlying?.toAssetCash().neg()
+      );
     } else if (cashBalance?.isNegative()) {
       // Negative cash balance will be repaid to zero
       accountDataCopy.updateBalance(
@@ -61,10 +75,12 @@ export function useBorrow(selectedToken: string) {
       );
     }
 
-    if (collateralAction) accountDataCopy.updateCollateralAction(collateralAction);
+    if (collateralAction)
+      accountDataCopy.updateCollateralAction(collateralAction);
     const { netETHCollateralWithHaircut, netETHDebtWithBuffer } =
       accountDataCopy.getFreeCollateral();
-    hasSufficientCollateral = netETHCollateralWithHaircut.gt(netETHDebtWithBuffer);
+    hasSufficientCollateral =
+      netETHCollateralWithHaircut.gt(netETHDebtWithBuffer);
   }
 
   let warningMsg: React.ReactNode | undefined;
@@ -73,7 +89,9 @@ export function useBorrow(selectedToken: string) {
       <FormattedMessage
         {...{
           ...tradeErrors.negativeCashWarningOnBorrow,
-          values: { cashBalance: cashBalance.neg().toDisplayStringWithSymbol() },
+          values: {
+            cashBalance: cashBalance.neg().toDisplayStringWithSymbol(),
+          },
         }}
       />
     );
@@ -90,6 +108,6 @@ export function useBorrow(selectedToken: string) {
     tradedRate,
     insufficientCollateralError: hasSufficientCollateral === false,
     borrowToPortfolio,
-    warningMsg
+    warningMsg,
   };
 }

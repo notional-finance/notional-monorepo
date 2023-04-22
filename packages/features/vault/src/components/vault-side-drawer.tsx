@@ -9,7 +9,6 @@ import {
   TransactionConfirmation,
   TradeActionButton,
 } from '@notional-finance/trade';
-import { VaultDetailsTable } from '@notional-finance/risk';
 import { VAULT_ACTIONS } from '@notional-finance/shared-config';
 import { useVault } from '@notional-finance/notionable-hooks';
 import { VaultActionContext } from '../vault-view/vault-action-provider';
@@ -17,6 +16,7 @@ import { formatMaturity } from '@notional-finance/helpers';
 import { useHistory } from 'react-router';
 import { messages } from '../messages';
 import { useTransactionProperties } from '../hooks/use-transaction-properties';
+import { VaultDetailsTable } from './vault-details-table';
 
 interface VaultSideDrawerProps {
   children?: React.ReactNode | React.ReactNode[];
