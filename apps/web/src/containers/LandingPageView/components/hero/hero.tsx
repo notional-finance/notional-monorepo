@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { Player, Controls } from '@lottiefiles/react-lottie-player';
 import { styled, Box, useTheme } from '@mui/material';
 import {
   Body,
@@ -11,6 +12,8 @@ import {
 import { ExternalLinkIcon } from '@notional-finance/icons';
 import backgroundImg from './background.svg';
 import statsImg from './stats_overlay.svg';
+import HeroAnimation from './data.json';
+import HeroAnimationTwo from './data-two.json';
 import { formatNumber } from '@notional-finance/helpers';
 import { FormattedMessage } from 'react-intl';
 
@@ -54,7 +57,23 @@ export const Hero = () => {
 
   return (
     <HeroContainer>
-      <Box sx={{ maxWidth: theme.breakpoints.values.lg, margin: 'auto' }}>
+      <Player
+        autoplay
+        loop
+        src={HeroAnimationTwo}
+        style={{ minHeight: `100vh`, minWidth: `100vw` }}
+      >
+        <Controls visible={false} />
+      </Player>
+      <Box
+        sx={{
+          position: 'absolute',
+          maxWidth: theme.breakpoints.values.lg,
+          margin: 'auto',
+          top: 0,
+          left: '120px',
+        }}
+      >
         <HeroContent>
           <H1>
             <FormattedMessage defaultMessage={'Maximum Returns.'} />
@@ -141,8 +160,8 @@ export const Hero = () => {
 
 const HeroContainer = styled(Box)(
   ({ theme }) => `
-  background: url(${backgroundImg}) no-repeat;
-  background-size: 100% 100%;
+  // background: url(${backgroundImg}) no-repeat;
+  // background-size: 100% 100%;
   height: 100vh;
   min-height: ${theme.spacing(100)};
   min-width: 100vw;
