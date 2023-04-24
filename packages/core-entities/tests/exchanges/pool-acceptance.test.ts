@@ -138,8 +138,8 @@ describe.withFork(
           });
         }, 10_000);
 
-        // it.todo('calculates a price exposure table');
         // it.todo('calculates unbalanced entry and exit');
+        // it.todo('calculates a price exposure table');
       },
       20_000
     );

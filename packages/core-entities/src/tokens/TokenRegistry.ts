@@ -53,7 +53,7 @@ export class TokenRegistry {
     networkMap.set(token.symbol, token);
   }
 
-  public static makeERC20Token(
+  public static makeBalance(
     input: string | BigNumber,
     symbol: string,
     network: Network,
@@ -69,17 +69,5 @@ export class TokenRegistry {
 
     // Will throw an error if maturity is required and not set
     return TokenBalance.from(value, Object.assign(token, maturity));
-  }
-
-  public static makeERC1155Token(
-    network: Network,
-    tokenAddress: string,
-    value: BigNumber,
-    id: string
-  ) {
-    return TokenBalance.from(
-      value,
-      this.getStrategyTokenDefinition(vaultAddress, network, maturity)
-    );
   }
 }
