@@ -3,11 +3,11 @@ import BaseLiquidityPool from '../../../src/exchanges/BaseLiquidityPool';
 
 export class MockPool extends BaseLiquidityPool<Record<string, never>> {
   constructor(
-    public override balances: TokenBalance[],
+    _balances: TokenBalance[],
     public oracleRate: ExchangeRate,
-    public override totalSupply: TokenBalance
+    _totalSupply: TokenBalance
   ) {
-    super(balances, totalSupply, {});
+    super(_balances, _totalSupply, {});
   }
 
   public setOracleRate(newOracleRate: ExchangeRate) {

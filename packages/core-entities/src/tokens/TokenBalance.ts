@@ -1,13 +1,12 @@
 import { BigNumber, BigNumberish, utils } from 'ethers';
 import { ExchangeRate, TokenDefinition, TokenInterface } from '../Definitions';
 import { RATE_PRECISION } from '@notional-finance/sdk/config/constants';
-import { TokenRegistry } from './TokenRegistry';
 
 export class TokenBalance {
   /** Create Methods */
   constructor(public n: BigNumber, public token: TokenDefinition) {
-    if (TokenRegistry.isMaturingToken(token.tokenInterface) && !token.maturity)
-      throw Error(`Maturity required for ${token.symbol}`);
+    // if (TokenRegistry.isMaturingToken(token.tokenInterface) && !token.maturity)
+    //   throw Error(`Maturity required for ${token.symbol}`);
   }
 
   static from(n: BigNumberish, token: TokenDefinition) {

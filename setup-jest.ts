@@ -18,20 +18,29 @@ expect.extend(tokenBalanceMatchers);
   name: string,
   fn: () => void
 ) => {
-  const jsonRpcUrl = `https://eth-${network}.alchemyapi.io/v2/${process.env['ALCHEMY_API_KEY']}`;
-  const forkProc = spawn(
-    'anvil',
-    ['--fork-url', jsonRpcUrl, '--fork-block-number', blockNumber.toString()],
-    {
-      cwd: undefined,
-      // TODO: this env is not correct since it is inside the jest environment
-      env: process.env,
-      shell: true,
-    }
-  );
+  // NOTE: it is unreliable to spawn processes like this because anvil does not find the correct
+  // environment variables to set snapshots
+  // const jsonRpcUrl = `https://eth-${network}.alchemyapi.io/v2/${process.env['ALCHEMY_API_KEY']}`;
+  // const forkProc = spawn(
+  //   'anvil',
+  //   [
+  //     '--fork-url',
+  //     jsonRpcUrl,
+  //     '--fork-block-number',
+  //     blockNumber.toString(),
+  //     '--port',
+  //     '8546',
+  //   ],
+  //   {
+  //     cwd: undefined,
+  //     // TODO: this env is not correct since it is inside the jest environment
+  //     env: process.env,
+  //     shell: true,
+  //   }
+  // );
 
   const provider = new ethers.providers.JsonRpcProvider(
-    'http://127.0.0.1:8545'
+    'http://127.0.0.1:8546'
   );
 
   // Default signer will hold all tokens transferred from whales
