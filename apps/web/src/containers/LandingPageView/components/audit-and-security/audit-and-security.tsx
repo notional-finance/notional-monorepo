@@ -58,7 +58,7 @@ const BackgroundContainer = styled(Box)(
   `
         height: 100%;
         width: 100%;
-        background: linear-gradient(80.16deg, #053542 62.26%, #06657E 107.19%);
+        background: ${colors.black};
     `
 );
 

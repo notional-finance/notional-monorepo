@@ -80,7 +80,7 @@ export function MobileNavigation({ ...rest }: TabsProps) {
   return window.innerWidth <= theme.breakpoints.values.sm ? (
     <>
       <Box>
-        {!connected && pathname === '/' && (
+        {!connected && pathname !== '/' && (
           <Button
             onClick={() =>
               setWalletSideDrawer(SETTINGS_SIDE_DRAWERS.CONNECT_WALLET)

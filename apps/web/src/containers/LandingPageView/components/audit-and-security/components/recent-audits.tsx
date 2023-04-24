@@ -20,57 +20,56 @@ export const RecentAudits = () => {
         <FormattedMessage defaultMessage={'Recent Audits'} />
       </ButtonText>
       <AuditBlock>
-        {auditLinks.map(({ name, route, date }) => (
+        {auditLinks.map(({ name, route, date }, index) => (
           <ExternalLink
+            key={index}
             href={route}
             style={{
-              alignItems: 'flex-start',
-              display: 'flex',
-              justifyContent: 'space-between',
               marginBottom: theme.spacing(3),
             }}
           >
-            <Box
-              sx={{
-                display: 'flex',
-                color: colors.white,
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              <ButtonText
+            <HoverContainer>
+              <Box
                 sx={{
+                  display: 'flex',
                   color: colors.white,
                   overflow: 'hidden',
-                  textOverflow: 'ellipsis',
                   whiteSpace: 'nowrap',
                 }}
               >
-                {name}
-              </ButtonText>
-              <ButtonText
-                sx={{ color: colors.white, margin: theme.spacing(0, 1) }}
-              >
-                |
-              </ButtonText>
-              <ButtonText
+                <ButtonText
+                  sx={{
+                    color: colors.white,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {name}
+                </ButtonText>
+                <ButtonText
+                  sx={{ color: colors.white, margin: theme.spacing(0, 1) }}
+                >
+                  |
+                </ButtonText>
+                <ButtonText
+                  sx={{
+                    color: colors.white,
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {date}
+                </ButtonText>
+              </Box>
+              <ArrowRightAltIcon
                 sx={{
-                  color: colors.white,
-                  whiteSpace: 'nowrap',
+                  fontSize: '1rem',
+                  marginTop: '3px',
+                  marginLeft: theme.spacing(2),
+                  fill: colors.white,
                 }}
-              >
-                {date}
-              </ButtonText>
-            </Box>
-
-            <ArrowRightAltIcon
-              sx={{
-                fontSize: '1rem',
-                marginTop: '3px',
-                marginLeft: theme.spacing(2),
-              }}
-            />
+              />
+            </HoverContainer>
           </ExternalLink>
         ))}
         <ExternalLink
@@ -101,6 +100,26 @@ const Container = styled(Box)(
     }
       `
 );
+
+const HoverContainer = styled(Box)(`
+  display: flex;
+  overflow: hidden;
+  align-items: flex-start;
+  display: flex;
+  justify-content: space-between;
+    &:hover {
+      span {
+        transition: all 0.3s ease;
+        color: ${colors.neonTurquoise};
+      }
+      svg {
+        transition: all 0.3s ease;
+        fill: ${colors.neonTurquoise};
+      }
+
+  }
+      `);
+
 const AuditBlock = styled(Box)(
   ({ theme }) => `
           display: flex;

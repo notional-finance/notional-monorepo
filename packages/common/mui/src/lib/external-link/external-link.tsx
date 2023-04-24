@@ -7,6 +7,7 @@ interface ExternalLinkProps {
   textDecoration?: boolean;
   fitContent?: boolean;
   style?: React.CSSProperties;
+  onClick?: () => void;
 }
 
 export const ExternalLink = ({
@@ -16,6 +17,7 @@ export const ExternalLink = ({
   fitContent,
   textDecoration = false,
   style,
+  onClick,
 }: ExternalLinkProps) => {
   const theme = useTheme();
   return (
@@ -30,6 +32,7 @@ export const ExternalLink = ({
       }}
       target="_blank"
       rel="noreferrer"
+      onClick={onClick}
     >
       {children}
     </a>
