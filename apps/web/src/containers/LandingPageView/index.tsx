@@ -2,7 +2,7 @@ import { Box, ThemeProvider } from '@mui/material';
 import { THEME_VARIANTS } from '@notional-finance/shared-config';
 import {
   AskedQuestionsAccordion,
-  VentureCapitalPartners,
+  OurBackers,
   FromTheBlog,
   Hero,
   OurProducts,
@@ -31,8 +31,9 @@ export const LandingPageView = () => {
         <AuditAndSecurity />
         <StatsAndTransparency />
         {/* NOTE* This is a temporary fix to get the old landing page components to render correctly. Will remove this once the rest of the components are updated */}
+
+        <OurBackers />
         <ThemeProvider theme={lightTheme}>
-          <VentureCapitalPartners />
           <AskedQuestionsAccordion />
           <FromTheBlog />
           <EmailCaptureSection />
