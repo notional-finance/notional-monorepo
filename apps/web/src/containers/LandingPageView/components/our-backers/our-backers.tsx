@@ -17,18 +17,20 @@ export const OurBackers = () => {
 
   return (
     <BackgroundContainer>
-      <Box sx={{ marginBottom: theme.spacing(3) }}>
-        <H5
-          sx={{ color: colors.neonTurquoise, marginBottom: theme.spacing(2) }}
-        >
-          <FormattedMessage defaultMessage={'Our Backers'} />
-        </H5>
-        <H2 sx={{ color: colors.white }}>
-          <FormattedMessage
-            defaultMessage={'World-Class Investors, Enthusiastic Users'}
-          />
-        </H2>
-      </Box>
+      <InnerContainer>
+        <Box sx={{ marginBottom: theme.spacing(3) }}>
+          <H5
+            sx={{ color: colors.neonTurquoise, marginBottom: theme.spacing(2) }}
+          >
+            <FormattedMessage defaultMessage={'Our Backers'} />
+          </H5>
+          <H2 sx={{ color: colors.white }}>
+            <FormattedMessage
+              defaultMessage={'World-Class Investors, Enthusiastic Users'}
+            />
+          </H2>
+        </Box>
+      </InnerContainer>
     </BackgroundContainer>
   );
 };
@@ -38,6 +40,21 @@ const BackgroundContainer = styled(Box)(
         height: 100%;
         width: 100%;
         background: ${colors.black};
+    `
+);
+
+const InnerContainer = styled(Box)(
+  ({ theme }) => `
+        width: ${theme.spacing(150)};
+        margin: auto;
+        padding-top: ${theme.spacing(15)};
+        padding-bottom: ${theme.spacing(15)};
+        ${theme.breakpoints.down(1220)} {
+          width: ${theme.spacing(125)};
+        }
+        ${theme.breakpoints.down(1000)} {
+            width: 90%;
+        }
     `
 );
 
