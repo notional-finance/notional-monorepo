@@ -12,44 +12,49 @@ export const OurProducts = () => {
   const theme = useTheme();
 
   return (
-    <Container>
-      <TitleContainer>
-        <Box id="title-text">
-          <H5
-            sx={{ color: colors.neonTurquoise, marginBottom: theme.spacing(2) }}
-          >
-            <FormattedMessage defaultMessage={'Our Products'} />
-          </H5>
-          <H2 sx={{ color: colors.white }}>
-            <FormattedMessage defaultMessage={'With Notional You Can'} />
-          </H2>
-        </Box>
-        <Toggle
-          minHeight={theme.spacing(8)}
-          width="373px"
-          tabLabels={[
-            <Box sx={{ fontSize: '1.25rem' }}>
-              <FormattedMessage defaultMessage={'Earn Yield'} />
-            </Box>,
-            <Box sx={{ fontSize: '1.25rem' }}>
-              <FormattedMessage defaultMessage={'Borrow'} />
-            </Box>,
-          ]}
-          selectedTabIndex={selectedTab}
-          onChange={(_, v) => setSelectedTab(v as number)}
-        />
-      </TitleContainer>
+    <Box sx={{ zIndex: 3, position: 'relative', background: colors.white }}>
+      <Container>
+        <TitleContainer>
+          <Box id="title-text">
+            <H5
+              sx={{
+                color: colors.neonTurquoise,
+                marginBottom: theme.spacing(2),
+              }}
+            >
+              <FormattedMessage defaultMessage={'Our Products'} />
+            </H5>
+            <H2 sx={{ color: colors.white }}>
+              <FormattedMessage defaultMessage={'With Notional You Can'} />
+            </H2>
+          </Box>
+          <Toggle
+            minHeight={theme.spacing(8)}
+            width="373px"
+            tabLabels={[
+              <Box sx={{ fontSize: '1.25rem' }}>
+                <FormattedMessage defaultMessage={'Earn Yield'} />
+              </Box>,
+              <Box sx={{ fontSize: '1.25rem' }}>
+                <FormattedMessage defaultMessage={'Borrow'} />
+              </Box>,
+            ]}
+            selectedTabIndex={selectedTab}
+            onChange={(_, v) => setSelectedTab(v as number)}
+          />
+        </TitleContainer>
 
-      <FlexWrapper>
-        {selectedTab === 0
-          ? earnYieldData.map((data, index) => (
-              <ProductCards key={index} {...data} />
-            ))
-          : borrowData.map((data, index) => (
-              <ProductCards key={index} {...data} />
-            ))}
-      </FlexWrapper>
-    </Container>
+        <FlexWrapper>
+          {selectedTab === 0
+            ? earnYieldData.map((data, index) => (
+                <ProductCards key={index} {...data} />
+              ))
+            : borrowData.map((data, index) => (
+                <ProductCards key={index} {...data} />
+              ))}
+        </FlexWrapper>
+      </Container>
+    </Box>
   );
 };
 
@@ -59,13 +64,17 @@ const Container = styled(Box)(
     width: ${theme.spacing(150)};
     height: ${theme.spacing(167)};
     margin: auto;
-    top: -${theme.spacing(7.5)};;
+    top: -${theme.spacing(4)};
     position: relative;
     background: ${colors.black};
     padding: ${theme.spacing(17)};
     border-radius: ${theme.shape.borderRadiusLarge};
     border: ${theme.shape.borderHighlight};
     box-shadow: 0px 34px 50px -15px rgba(20, 42, 74, 0.3);
+    @media(min-height: 800px) {
+      top: -${theme.spacing(7.5)};
+    }
+
     ${theme.breakpoints.down(1220)} {
       width: ${theme.spacing(125)};
       padding: ${theme.spacing(6)};
