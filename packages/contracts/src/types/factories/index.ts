@@ -8,6 +8,7 @@ export { BalancerPool__factory } from "./BalancerPool__factory";
 export { BalancerStablePool__factory } from "./BalancerStablePool__factory";
 export { BalancerVault__factory } from "./BalancerVault__factory";
 export { Boosted3TokenAuraVault__factory } from "./Boosted3TokenAuraVault__factory";
+export { CurvePoolV1__factory } from "./CurvePoolV1__factory";
 export { ERC20__factory } from "./ERC20__factory";
 export { ExchangeV3__factory } from "./ExchangeV3__factory";
 export { Governor__factory } from "./Governor__factory";

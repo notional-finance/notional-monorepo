@@ -1,5 +1,6 @@
 import MetaStablePool from './BalancerV2/MetaStablePool';
 import WeightedPool from './BalancerV2/WeightedPool';
+import CurvePoolV1 from './Curve/CurvePoolV1';
 import BaseLiquidityPool from './BaseLiquidityPool';
 import {
   TwoTokenComposableStablePool,
@@ -12,4 +13,5 @@ export {
   BaseLiquidityPool,
   TwoTokenComposableStablePool,
   ThreeTokenComposableStablePool,
+  CurvePoolV1,
 };

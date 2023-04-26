@@ -87,7 +87,7 @@ expect.extend(tokenBalanceMatchers);
 
     afterAll(() => {
       // Cleanup anvil process
-      forkProc.kill();
+      //forkProc.kill();
     });
   });
 };

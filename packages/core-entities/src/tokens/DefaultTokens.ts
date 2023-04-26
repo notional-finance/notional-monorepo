@@ -18,6 +18,12 @@ const mainnet = assignDefaults(
       // Overrides default property of ERC20
       tokenInterface: TokenInterface.ETH,
     },
+    ALT_ETH: {
+      address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+      decimalPlaces: 18,
+      // Overrides default property of ERC20
+      tokenInterface: TokenInterface.ETH,
+    },
     WETH: {
       address: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
       decimalPlaces: 18,
