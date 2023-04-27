@@ -280,6 +280,54 @@ export default class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPool
     throw Error('Calculation did not converge');
   }
 
+  private _get_y(i: number, j: number, x: BigNumber, xp: TokenBalance[]) {
+    // x in the input is converted to the same price/precision
+
+    const amp = this.poolParams.amplificationParameter;
+    const D = this._get_D(xp, amp);
+    const Ann = amp.mul(Curve2TokenPoolV1.N_COINS);
+    let c = D;
+    let S_ = BigNumber.from(0);
+    let _x = BigNumber.from(0);
+    let y_prev = BigNumber.from(0);
+
+    for (let _i = 0; _i < Curve2TokenPoolV1.N_COINS.toNumber(); _i++) {
+      if (_i == i) {
+        _x = x;
+      } else if (_i != j) {
+        _x = xp[_i].n;
+      } else {
+        continue;
+      }
+      S_ = S_.add(_x);
+      c = c.mul(D).div(_x.mul(Curve2TokenPoolV1.N_COINS));
+    }
+
+    c = c
+      .mul(D)
+      .mul(Curve2TokenPoolV1.A_PRECISION)
+      .div(Ann.mul(Curve2TokenPoolV1.N_COINS));
+    const b = S_.add(D.mul(Curve2TokenPoolV1.A_PRECISION).div(Ann)); // - D
+    let y = D;
+
+    for (let _i = 0; _i < 255; _i++) {
+      y_prev = y;
+      y = y.mul(y).add(c).div(BigNumber.from(2).mul(y).add(b).sub(D));
+      // Equality with the precision of 1
+      if (y.gt(y_prev)) {
+        if (y.sub(y_prev).lte(1)) {
+          return y;
+        }
+      } else {
+        if (y_prev.sub(y).lte(1)) {
+          return y;
+        }
+      }
+    }
+
+    throw Error('Calculation did not converge');
+  }
+
   private _calc_withdraw_one_coin(lpTokens: TokenBalance, i: number) {
     const amp = this.poolParams.amplificationParameter;
     const xp = this.balances;
@@ -369,9 +417,37 @@ export default class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPool
     tokenIndexOut: number,
     _balanceOverrides?: TokenBalance[]
   ) {
+    const adminBalances = [
+      this.poolParams.adminBalance_0,
+      this.poolParams.adminBalance_1,
+    ];
+    const xp = _balanceOverrides ? _balanceOverrides : this.balances;
+    const x = xp[tokenIndexIn].n.add(tokensIn.n);
+    const y = this._get_y(tokenIndexIn, tokenIndexOut, x, xp);
+    let dy = xp[tokenIndexOut].n.sub(y).sub(1);
+    const dy_fee = dy
+      .sub(this.poolParams.fee)
+      .div(Curve2TokenPoolV1.FEE_DENOMINATOR);
+
+    // Convert all to real units
+    dy = dy.sub(dy_fee);
+
+    const admin_fee = this.poolParams.adminFee;
+    const feesPaid = [];
+    if (!admin_fee.isZero()) {
+      const dy_admin_fee = dy_fee
+        .mul(admin_fee)
+        .div(Curve2TokenPoolV1.FEE_DENOMINATOR);
+      if (!dy_admin_fee.isZero()) {
+        feesPaid.push(
+          xp[tokenIndexOut].copy(adminBalances[tokenIndexOut].add(dy_admin_fee))
+        );
+      }
+    }
+
     return {
-      tokensOut: tokensIn,
-      feesPaid: [],
+      tokensOut: xp[tokenIndexOut].copy(dy),
+      feesPaid: feesPaid,
     };
   }
 }
