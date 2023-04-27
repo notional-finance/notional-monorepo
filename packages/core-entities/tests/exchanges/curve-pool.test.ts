@@ -20,6 +20,7 @@ describe.withFork({ blockNumber: 16605421, network: 'mainnet' }, 'test', () => {
     if (pool) {
       console.log(pool.balances.map((r) => r.n.toString()));
       console.log(pool.totalSupply.n.toString());
+      console.log(JSON.stringify(pool.poolParams));
     }
   });
 });
