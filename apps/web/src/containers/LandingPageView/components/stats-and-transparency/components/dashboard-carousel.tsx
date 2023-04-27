@@ -57,9 +57,11 @@ export const DashboardCarousel = () => {
         </ViewDashboard>
         {dashboardLinks.map(({ image }, index) => {
           return (
-            <ExternalLink href={dashboardLinks[currentImageIndex].link}>
+            <ExternalLink
+              href={dashboardLinks[currentImageIndex].link}
+              key={index}
+            >
               <FadeBox
-                key={index}
                 fadeActive={currentImageIndex === index}
                 theme={theme}
                 src={image}

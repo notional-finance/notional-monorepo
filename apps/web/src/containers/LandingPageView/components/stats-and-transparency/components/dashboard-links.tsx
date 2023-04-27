@@ -44,6 +44,7 @@ export const DashboardLinks = ({
           >
             <BodyText>
               <Box
+                component={'span'}
                 sx={{
                   marginRight: theme.spacing(3),
                   display: 'flex',
