@@ -23,7 +23,11 @@ export const UserCards = () => {
           />
           <Card key={index}>
             <Box>
-              <img src={quotes} alt="quotes" style={{ height: '31px' }} />
+              <img
+                src={quotes}
+                alt="quotes"
+                style={{ height: theme.spacing(4) }}
+              />
               <BodyText sx={{ marginTop: theme.spacing(3) }}>{text}</BodyText>
             </Box>
             <TitleContainer>
@@ -90,7 +94,7 @@ const Card = styled(Box)(
         padding: ${theme.spacing(4)};
         padding-top: 0px;
         width: inherit;
-        height: 89%;
+        height: 90%;
         display: flex;
         flex-direction: column;
         justify-content: space-between;

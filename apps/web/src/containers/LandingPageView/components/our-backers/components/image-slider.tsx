@@ -2,13 +2,13 @@ import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import { Box, styled } from '@mui/material';
-import panteraSvg from '@notional-finance/assets/marketing/partners/pantera-new.svg';
-import spartanSvg from '@notional-finance/assets/marketing/partners/spartan-new.svg';
-import ideoCoLabSvg from '@notional-finance/assets/marketing/partners/ideo-colab-new.svg';
-import oneCSvg from '@notional-finance/assets/marketing/partners/1c-new.svg';
-import coinbaseVenturesSvg from '@notional-finance/assets/marketing/partners/coinbase-ventures-new.svg';
-import parafiSvg from '@notional-finance/assets/marketing/partners/parafi-new.svg';
-import nascentSvg from '@notional-finance/assets/marketing/partners/nascent-new.svg';
+import panteraSvg from '@notional-finance/assets/marketing/partners/pantera.svg';
+import spartanSvg from '@notional-finance/assets/marketing/partners/spartan.svg';
+import ideoCoLabSvg from '@notional-finance/assets/marketing/partners/ideo-colab.svg';
+import oneCSvg from '@notional-finance/assets/marketing/partners/1c.svg';
+import coinbaseVenturesSvg from '@notional-finance/assets/marketing/partners/coinbase-ventures.svg';
+import parafiSvg from '@notional-finance/assets/marketing/partners/parafi.svg';
+import nascentSvg from '@notional-finance/assets/marketing/partners/nascent.svg';
 
 export const ImageSlider = () => {
   const settings = {
