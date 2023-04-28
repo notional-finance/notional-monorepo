@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { FormattedMessage } from 'react-intl';
-// import { useInView } from 'react-intersection-observer';
 import { getGhostContentAPI } from '@notional-finance/helpers';
 import { colors } from '@notional-finance/styles';
 import { Box, styled, useTheme } from '@mui/material';
