@@ -10,7 +10,7 @@ export const StatsAndTransparency = () => {
   return (
     <BackgroundContainer>
       <InnerContainer>
-        <Test>
+        <HeaderContainer>
           <H5 sx={{ color: colors.purpleGrey, marginBottom: theme.spacing(2) }}>
             <FormattedMessage defaultMessage={'Stats & Transparency'} />
           </H5>
@@ -23,7 +23,7 @@ export const StatsAndTransparency = () => {
         Notional’s code and balances to ensure funds are secure.`}
             />
           </BodyText>
-        </Test>
+        </HeaderContainer>
         <DashboardCarousel />
       </InnerContainer>
     </BackgroundContainer>
@@ -45,6 +45,9 @@ const InnerContainer = styled(Box)(
   height: ${theme.spacing(119)};
   margin: auto; 
   padding-top: ${theme.spacing(15)};
+  ${theme.breakpoints.down('smLanding')} {
+    height: ${theme.spacing(135)};
+  }
   
       `
 );
@@ -62,7 +65,7 @@ const BodyText = styled(Body)(
     `
 );
 
-const Test = styled(Box)(
+const HeaderContainer = styled(Box)(
   ({ theme }) => `
   width: ${theme.spacing(150)};
   margin: auto;

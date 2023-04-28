@@ -1,5 +1,4 @@
-export * from './asked-questions-accordion/asked-questions-accordion'
-export * from './from-the-blog/from-the-blog'
+export * from './notional-blog/notional-blog'
 export * from './our-backers/our-backers'
 export * from './hero/hero'
 export * from './our-products/our-products'
