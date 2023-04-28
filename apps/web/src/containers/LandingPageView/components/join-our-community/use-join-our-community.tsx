@@ -19,7 +19,7 @@ export const useJoinOurCommunity = (): JoinOurCommunityProps[] => {
   const communityData = [
     {
       title: <FormattedMessage defaultMessage={'Join Us on Discord'} />,
-      link: 'https://discord.com/invite/VKtyh9DgNu',
+      link: 'https://discord.notional.finance',
       linkText: <FormattedMessage defaultMessage={'Discord'} />,
       icon: discordIcon,
       text: (

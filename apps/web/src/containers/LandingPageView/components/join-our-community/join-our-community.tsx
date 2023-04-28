@@ -46,11 +46,11 @@ const BackgroundContainer = styled(Box)(
 
 const InnerContainer = styled(Box)(
   ({ theme }) => `
-    width: 896px;
+    width: ${theme.spacing(112)};
     margin: auto;
     padding-top: ${theme.spacing(15)};
     padding-bottom: ${theme.spacing(15)};
-    ${theme.breakpoints.down(1000)} {
+    ${theme.breakpoints.down('smLanding')} {
         width: 90%;
     }
 
@@ -61,7 +61,7 @@ const CardContainer = styled(Box)(
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
-    ${theme.breakpoints.down(1000)} {
+    ${theme.breakpoints.down('smLanding')} {
         justify-content: space-evenly;
     }
     ${theme.breakpoints.down('sm')} {

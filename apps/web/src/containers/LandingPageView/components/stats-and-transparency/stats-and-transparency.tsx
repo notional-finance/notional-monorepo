@@ -42,7 +42,7 @@ const BackgroundContainer = styled(Box)(
 
 const InnerContainer = styled(Box)(
   ({ theme }) => `
-  height: ${theme.spacing(137.5)};
+  height: ${theme.spacing(119)};
   margin: auto; 
   padding-top: ${theme.spacing(15)};
   
