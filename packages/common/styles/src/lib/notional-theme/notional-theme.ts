@@ -59,6 +59,16 @@ const fontWeight = {
 };
 
 declare module '@mui/material/styles' {
+
+  interface BreakpointOverrides {
+    xs: true;
+    sm: true;
+    md: true;
+    lg: true;
+    xl: true;
+    smLanding: true;
+    mdLanding: true;
+  }
   interface Theme {
     shape: Shape;
     gradient: Gradient;
@@ -94,6 +104,7 @@ declare module '@mui/material/styles' {
     info?: PaletteColorOptions;
     success?: PaletteColorOptions;
   }
+
 
   interface PaletteColor {
     accent: string;
@@ -572,6 +583,8 @@ const getThemeData = (themeVariant: PaletteMode, pageLayout?: NotionalPageLayout
         md: 1152,
         lg: 1440,
         xl: 1536,
+        smLanding: 1000,
+        mdLanding: 1220,
       },
     },
     palette: {

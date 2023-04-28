@@ -54,7 +54,7 @@ const ContentWrapper = styled(Box)(
       margin-left: ${theme.spacing(8)};  
     }
   
-    ${theme.breakpoints.down(1220)} {
+    ${theme.breakpoints.down('mdLanding')} {
       padding-top: ${theme.spacing(5)};
     }
   
@@ -85,7 +85,7 @@ const ButtonContainer = styled(Box)(
   ({ theme }) => `
     margin-top: ${theme.spacing(9)};
     margin-bottom: ${theme.spacing(9)};
-    ${theme.breakpoints.down(1000)} {
+    ${theme.breakpoints.down('smLanding')} {
       button {
         width: 100%;
         margin-bottom: ${theme.spacing(4)};

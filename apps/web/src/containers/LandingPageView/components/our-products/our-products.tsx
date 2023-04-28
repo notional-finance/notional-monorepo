@@ -75,12 +75,12 @@ const Container = styled(Box)(
       top: -${theme.spacing(7.5)};
     }
 
-    ${theme.breakpoints.down(1220)} {
+    ${theme.breakpoints.down('mdLanding')} {
       width: ${theme.spacing(125)};
       padding: ${theme.spacing(6)};
     }
 
-    ${theme.breakpoints.down(1000)} {
+    ${theme.breakpoints.down('smLanding')} {
       width: 90%;
       height: 100%;
       padding: ${theme.spacing(6)};
@@ -106,7 +106,7 @@ const TitleContainer = styled(Box)(
     display: flex;
     justify-content: space-between;
     align-items: center;
-    ${theme.breakpoints.down(1000)} {
+    ${theme.breakpoints.down('smLanding')} {
       align-items: flex-start;
       flex-direction: column;
       h2 {
@@ -137,7 +137,7 @@ const FlexWrapper = styled(Box)(
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-    ${theme.breakpoints.down(1000)} {
+    ${theme.breakpoints.down('smLanding')} {
       flex-direction: column;
     }
   `

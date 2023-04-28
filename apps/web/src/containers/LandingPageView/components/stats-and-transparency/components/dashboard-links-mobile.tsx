@@ -39,7 +39,7 @@ export const DashboardLinksMobile = ({
 const LinksContainer = styled(Box)(
   ({ theme }) => `
   display: none;
-  ${theme.breakpoints.down(1000)} {
+  ${theme.breakpoints.down('smLanding')} {
    display: flex;
    margin-bottom: ${theme.spacing(8)};
   }

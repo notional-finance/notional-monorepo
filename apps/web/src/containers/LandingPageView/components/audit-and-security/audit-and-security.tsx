@@ -68,10 +68,10 @@ const InnerContainer = styled(Box)(
         margin: auto;
         padding-top: ${theme.spacing(15)};
         padding-bottom: ${theme.spacing(15)};
-        ${theme.breakpoints.down(1220)} {
+        ${theme.breakpoints.down('mdLanding')} {
           width: ${theme.spacing(125)};
         }
-        ${theme.breakpoints.down(1000)} {
+        ${theme.breakpoints.down('smLanding')} {
             width: 90%;
         }
     `
@@ -82,11 +82,11 @@ const CardContainer = styled(Box)(
     display: flex;
     flex-direction: row;
     gap: ${theme.spacing(8)};
-    ${theme.breakpoints.down(1220)} {
+    ${theme.breakpoints.down('mdLanding')} {
       justify-content: space-between;
     }
 
-    ${theme.breakpoints.down(1000)} {
+    ${theme.breakpoints.down('smLanding')} {
       flex-direction: column;
     }
     `
@@ -97,7 +97,7 @@ const BodyText = styled(Body)(
     color: ${colors.lightGrey};
     margin-bottom: ${theme.spacing(10)};
     width: ${theme.spacing(102)};
-    ${theme.breakpoints.down(1000)} {
+    ${theme.breakpoints.down('smLanding')} {
         width: 100%;
     }
     `

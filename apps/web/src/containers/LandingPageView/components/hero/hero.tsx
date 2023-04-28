@@ -31,7 +31,7 @@ export const Hero = () => {
 
 const HeroContainer = styled(Box)(
   ({ theme }) => `
-  ${theme.breakpoints.down(1000)} {
+  ${theme.breakpoints.down('smLanding')} {
     #lottie-player {
       display: none;
     }
@@ -61,7 +61,7 @@ const Container = styled(Box)(
   justify-content: space-between;
   left: 0;
   width: 100%;
-  ${theme.breakpoints.down(1000)} {
+  ${theme.breakpoints.down('smLanding')} {
     flex-direction: column;
   }
   `

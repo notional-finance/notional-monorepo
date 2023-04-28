@@ -45,10 +45,10 @@ const InnerContainer = styled(Box)(
         margin: auto;
         padding-top: ${theme.spacing(15)};
         padding-bottom: ${theme.spacing(12.5)};
-        ${theme.breakpoints.down(1220)} {
+        ${theme.breakpoints.down('mdLanding')} {
           width: ${theme.spacing(125)};
         }
-        ${theme.breakpoints.down(1000)} {
+        ${theme.breakpoints.down('smLanding')} {
             width: 90%;
         }
     `

@@ -83,7 +83,7 @@ const OuterContainer = styled(Box)(
     justify-content: end;
     margin: auto;
     overflow: hidden;
-    ${theme.breakpoints.down(1000)} {
+    ${theme.breakpoints.down('smLanding')} {
       flex-direction: column;
       width: 90%;
     }
@@ -101,7 +101,7 @@ const FadeBox = styled('img', {
   opacity: 0;
   transition: opacity 3s ease-in-out;
   opacity: ${fadeActive ? '1' : '0'};
-  ${theme.breakpoints.down(1220)} {
+  ${theme.breakpoints.down('mdLanding')} {
     width: 703px;
     height: 460px;
   }
@@ -115,11 +115,11 @@ const FadeCarouselWrapper = styled(Box)(
   width: 803px;
   margin-top: -82px;
   margin-right: -100px;
-  ${theme.breakpoints.down(1220)} {
+  ${theme.breakpoints.down('mdLanding')} {
     margin-top: 0px;
     width: 703px;
   }
-  ${theme.breakpoints.down(1000)} {
+  ${theme.breakpoints.down('smLanding')} {
     margin: auto;
    }
 `
@@ -128,7 +128,7 @@ const FadeCarouselWrapper = styled(Box)(
 const ViewDashboard = styled(SmallInput)(
   ({ theme }) => `
   display: none;
-  ${theme.breakpoints.down(1000)} {
+  ${theme.breakpoints.down('smLanding')} {
     display: flex;
     align-items: center;
     color: ${colors.white};

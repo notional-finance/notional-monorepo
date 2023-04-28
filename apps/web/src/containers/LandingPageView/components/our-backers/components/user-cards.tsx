@@ -61,10 +61,10 @@ const CardContainer = styled(Box)(
         justify-content: space-between;
         flex-direction: row;
         gap: ${theme.spacing(6)};
-        ${theme.breakpoints.down(1220)} {
+        ${theme.breakpoints.down('mdLanding')} {
           flex-wrap: wrap;
         }
-        ${theme.breakpoints.down(1000)} {
+        ${theme.breakpoints.down('smLanding')} {
           gap: ${theme.spacing(4)};
         }
         ${theme.breakpoints.down('sm')} {
@@ -80,7 +80,7 @@ const Wrapper = styled(Box)(
         background: ${colors.matteGreen};
         border: 1px solid ${colors.blueGreen};
         border-radius: ${theme.shape.borderRadius()};
-        ${theme.breakpoints.down(1220)} {
+        ${theme.breakpoints.down('mdLanding')} {
           max-width: calc(95% / 2);
         };
         ${theme.breakpoints.down('sm')} {

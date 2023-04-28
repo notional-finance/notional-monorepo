@@ -109,7 +109,7 @@ const StatsContainer = styled(Box)(
       display: flex;
       flex-direction: column;
       align-items: center;
-      ${theme.breakpoints.down(1000)} {
+      ${theme.breakpoints.down('smLanding')} {
         background-size: 100% ${theme.spacing(81)};
         min-height: 0px;
         height: ${theme.spacing(81)};
@@ -146,7 +146,7 @@ const ImgContainer = styled(Box)(
         margin-top: 0px;
         padding-bottom: ${theme.spacing(6)};
       }
-      ${theme.breakpoints.down(1000)} {
+      ${theme.breakpoints.down('smLanding')} {
         background-size: 100% 100%;
       }
     `
@@ -157,7 +157,7 @@ const StatsContent = styled(Box)(
       display: flex;
       flex-direction: column;
       padding-top: ${theme.spacing(19.75)};
-      ${theme.breakpoints.down(1220)} {
+      ${theme.breakpoints.down('mdLanding')} {
         padding-top: ${theme.spacing(5)};
       }
       @media(max-height: 800px) {
