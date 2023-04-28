@@ -30,8 +30,7 @@ export const EmailCaptureSection = () => {
       .then(() => {
         setSubmitState('success');
       })
-      .catch((error) => {
-        console.log({ error });
+      .catch(() => {
         setSubmitState('error');
       });
   };
