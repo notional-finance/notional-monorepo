@@ -53,7 +53,7 @@ const BodyText = styled(Body)(
   ({ theme }) => `
   color: ${colors.white}; 
   width: ${theme.spacing(65)};
-  ${theme.breakpoints.down(1220)} {
+  ${theme.breakpoints.down('mdLanding')} {
     width: 65%; 
   }
   ${theme.breakpoints.down('sm')} {
@@ -66,11 +66,11 @@ const Test = styled(Box)(
   ({ theme }) => `
   width: ${theme.spacing(150)};
   margin: auto;
-  ${theme.breakpoints.down(1220)} {
+  ${theme.breakpoints.down('mdLanding')} {
     width: ${theme.spacing(125)}; 
     padding-bottom: ${theme.spacing(4)};
   }
-  ${theme.breakpoints.down(1000)} {
+  ${theme.breakpoints.down('smLanding')} {
     width: 90%;
   }
     `

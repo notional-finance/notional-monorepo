@@ -1,4 +1,4 @@
-import { Player, Controls } from '@lottiefiles/react-lottie-player';
+import { Player } from '@lottiefiles/react-lottie-player';
 import { styled, Box } from '@mui/material';
 import { HeroContent, HeroStats } from './components';
 import backgroundImg from './images/background.svg';
@@ -20,21 +20,18 @@ export const Hero = () => {
           background:
             'linear-gradient(259.11deg, #004453 5.12%, #002129 99.67%)',
         }}
-      >
-        <Controls visible={false} />
-        <Container>
-          <HeroContent />
-          <HeroStats />
-        </Container>
-      </Player>
+      />
+      <Container>
+        <HeroContent />
+        <HeroStats />
+      </Container>
     </HeroContainer>
   );
 };
 
 const HeroContainer = styled(Box)(
   ({ theme }) => `
-  
-  ${theme.breakpoints.down(1000)} {
+  ${theme.breakpoints.down('smLanding')} {
     #lottie-player {
       display: none;
     }
@@ -64,7 +61,7 @@ const Container = styled(Box)(
   justify-content: space-between;
   left: 0;
   width: 100%;
-  ${theme.breakpoints.down(1000)} {
+  ${theme.breakpoints.down('smLanding')} {
     flex-direction: column;
   }
   `

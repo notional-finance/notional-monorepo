@@ -1,6 +1,6 @@
 export * from './asked-questions-accordion/asked-questions-accordion'
 export * from './from-the-blog/from-the-blog'
-export * from './venture-capital-partners/venture-capital-partners'
+export * from './our-backers/our-backers'
 export * from './hero/hero'
 export * from './our-products/our-products'
 export * from './how-it-works/how-it-works'

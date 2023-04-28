@@ -44,6 +44,7 @@ export const DashboardLinks = ({
           >
             <BodyText>
               <Box
+                component={'span'}
                 sx={{
                   marginRight: theme.spacing(3),
                   display: 'flex',
@@ -77,7 +78,7 @@ const LinksContainer = styled(Box)(
   display: flex;
   flex-direction: column;
   margin-top: ${theme.spacing(12.5)};
-  ${theme.breakpoints.down(1000)} {
+  ${theme.breakpoints.down('smLanding')} {
    display: none;
   }
 `
@@ -94,7 +95,7 @@ const LinkWrapper = styled(Box, {
   border-radius: 8px 0px 0px 8px;
   margin-right: -4px;
   cursor: pointer;
-  ${theme.breakpoints.down(1220)} {
+  ${theme.breakpoints.down('mdLanding')} {
     margin-right: -25px;
   }
 `

@@ -39,10 +39,10 @@ export const BugBounty = () => {
 const Container = styled(Box)(
   ({ theme }) => `
       width: 100%;
-      ${theme.breakpoints.down(1220)} {
+      ${theme.breakpoints.down('mdLanding')} {
         width: ${theme.spacing(58)};
       }
-      ${theme.breakpoints.down(1000)} {
+      ${theme.breakpoints.down('smLanding')} {
         width: 100%;
     }
       `
