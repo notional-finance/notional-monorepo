@@ -262,7 +262,7 @@ export default class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPool
 
   private _calc_withdraw_one_coin(lpTokens: TokenBalance, i: number) {
     const amp = this.poolParams.A;
-    const xp = this.balances;
+    const xp = [...this.balances];
     const D0 = this._get_D(xp, amp);
     const totalSupply = this.totalSupply;
     const D1 = D0.sub(lpTokens.n.mul(D0).div(totalSupply.n));
@@ -327,7 +327,7 @@ export default class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPool
       ];
       tokensOut = [this.balances[singleSidedExitTokenIndex].copy(dy)];
     } else {
-      const tokensOut = this.balances;
+      const tokensOut = [...this.balances];
       const totalSupply = this.totalSupply;
 
       for (let i = 0; i < Curve2TokenPoolV1.N_COINS.toNumber(); i++) {
@@ -353,7 +353,7 @@ export default class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPool
       this.poolParams.adminBalance_0,
       this.poolParams.adminBalance_1,
     ];
-    const xp = _balanceOverrides || this.balances;
+    const xp = [...(_balanceOverrides || this.balances)];
     const x = xp[tokenIndexIn].n.add(tokensIn.n);
     const y = this._get_y(tokenIndexIn, tokenIndexOut, x, xp);
     let dy = xp[tokenIndexOut].n.sub(y).sub(1);
