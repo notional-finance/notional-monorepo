@@ -9,6 +9,7 @@ export type { BalancerStablePool } from "./BalancerStablePool";
 export type { BalancerVault } from "./BalancerVault";
 export type { Boosted3TokenAuraVault } from "./Boosted3TokenAuraVault";
 export type { CurvePoolV1 } from "./CurvePoolV1";
+export type { CurvePoolV2 } from "./CurvePoolV2";
 export type { ERC20 } from "./ERC20";
 export type { ExchangeV3 } from "./ExchangeV3";
 export type { Governor } from "./Governor";
@@ -30,6 +31,7 @@ export { BalancerStablePool__factory } from "./factories/BalancerStablePool__fac
 export { BalancerVault__factory } from "./factories/BalancerVault__factory";
 export { Boosted3TokenAuraVault__factory } from "./factories/Boosted3TokenAuraVault__factory";
 export { CurvePoolV1__factory } from "./factories/CurvePoolV1__factory";
+export { CurvePoolV2__factory } from "./factories/CurvePoolV2__factory";
 export { ERC20__factory } from "./factories/ERC20__factory";
 export { ExchangeV3__factory } from "./factories/ExchangeV3__factory";
 export { Governor__factory } from "./factories/Governor__factory";

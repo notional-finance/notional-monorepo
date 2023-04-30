@@ -6,6 +6,7 @@ export { default as BalancerStablePoolABI } from './BalancerStablePool.json';
 export { default as BalancerVaultABI } from './BalancerVault.json';
 export { default as Boosted3TokenAuraVaultABI } from './Boosted3TokenAuraVault.json';
 export { default as CurvePoolV1ABI } from './CurvePoolV1.json';
+export { default as CurvePoolV2ABI } from './CurvePoolV2.json';
 export { default as ERC20ABI } from './ERC20.json';
 export { default as ExchangeV3ABI } from './ExchangeV3.json';
 export { default as GovernorABI } from './Governor.json';

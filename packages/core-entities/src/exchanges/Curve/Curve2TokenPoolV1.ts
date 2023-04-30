@@ -3,9 +3,10 @@ import BaseLiquidityPool from '../BaseLiquidityPool';
 import { AggregateCall } from '@notional-finance/multicall';
 import { BigNumber, Contract } from 'ethers';
 import { Network, TokenBalance, TokenRegistry } from '../..';
+import { getCommonCurveAggregateCall } from './Common';
 
 export interface Curve2TokenPoolV1Params {
-  amplificationParameter: BigNumber;
+  A: BigNumber;
   adminBalance_0: BigNumber;
   adminBalance_1: BigNumber;
   adminFee: BigNumber;
@@ -22,40 +23,20 @@ export default class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPool
     poolAddress: string
   ): AggregateCall[] {
     const pool = new Contract(poolAddress, CurvePoolV1ABI);
+    const commonCalls = getCommonCurveAggregateCall(network, poolAddress, pool);
 
-    return [
+    return commonCalls.concat([
       {
         stage: 0,
         target: pool,
         method: 'A_precise',
-        key: 'amplificationParameter',
+        key: 'A',
       },
       {
         stage: 0,
         target: pool,
         method: 'lp_token',
         key: 'lpTokenAddress',
-      },
-      {
-        stage: 0,
-        target: pool,
-        method: 'coins',
-        key: 'coins_0',
-        args: [0],
-      },
-      {
-        stage: 0,
-        target: pool,
-        method: 'coins',
-        key: 'coins_1',
-        args: [1],
-      },
-      {
-        stage: 0,
-        target: pool,
-        method: 'balances',
-        key: 'balances_0',
-        args: [0],
       },
       {
         stage: 0,
@@ -77,60 +58,11 @@ export default class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPool
         method: 'admin_fee',
         key: 'adminFee',
       },
-      {
-        stage: 0,
-        target: pool,
-        method: 'fee',
-        key: 'fee',
-      },
-      {
-        stage: 1,
-        target: (r) =>
-          new Contract(r[`${poolAddress}.lpTokenAddress`], ERC20ABI),
-        method: 'totalSupply',
-        key: 'totalSupply',
-        args: [],
-        transform: (r: BigNumber, ar) => {
-          const lpTokenAddress = ar[`${poolAddress}.lpTokenAddress`];
-          const token = TokenRegistry.getTokenByAddress(
-            network,
-            lpTokenAddress
-          );
-          if (!token)
-            throw Error(`${lpTokenAddress} not found in token registry`);
-          return TokenBalance.from(r, token);
-        },
-      },
-      {
-        stage: 1,
-        target: pool,
-        method: 'balances',
-        args: [1],
-        key: 'balances',
-        transform: (r: BigNumber, ar) => {
-          const coins = [
-            ar[`${poolAddress}.coins_0`],
-            ar[`${poolAddress}.coins_1`],
-          ];
-          return [ar[`${poolAddress}.balances_0`], r].map((b, i) => {
-            const token = TokenRegistry.getTokenByAddress(network, coins[i]);
-            if (!token) throw Error(`${coins[i]} not found in registry`);
-            return TokenBalance.from(b, token);
-          });
-        },
-      },
-    ];
-  }
-
-  public override getLPTokenClaims(
-    lpTokens: TokenBalance,
-    _balancesOverrides?: TokenBalance[]
-  ): TokenBalance[] {
-    return [];
+    ]);
   }
 
   public override getLPTokensGivenTokens(tokensIn: TokenBalance[]) {
-    const amp = this.poolParams.amplificationParameter;
+    const amp = this.poolParams.A;
     const adminBalances = [
       this.poolParams.adminBalance_0,
       this.poolParams.adminBalance_1,
@@ -283,7 +215,7 @@ export default class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPool
   private _get_y(i: number, j: number, x: BigNumber, xp: TokenBalance[]) {
     // x in the input is converted to the same price/precision
 
-    const amp = this.poolParams.amplificationParameter;
+    const amp = this.poolParams.A;
     const D = this._get_D(xp, amp);
     const Ann = amp.mul(Curve2TokenPoolV1.N_COINS);
     let c = D;
@@ -329,7 +261,7 @@ export default class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPool
   }
 
   private _calc_withdraw_one_coin(lpTokens: TokenBalance, i: number) {
-    const amp = this.poolParams.amplificationParameter;
+    const amp = this.poolParams.A;
     const xp = this.balances;
     const D0 = this._get_D(xp, amp);
     const totalSupply = this.totalSupply;
@@ -421,7 +353,7 @@ export default class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPool
       this.poolParams.adminBalance_0,
       this.poolParams.adminBalance_1,
     ];
-    const xp = _balanceOverrides ? _balanceOverrides : this.balances;
+    const xp = _balanceOverrides || this.balances;
     const x = xp[tokenIndexIn].n.add(tokensIn.n);
     const y = this._get_y(tokenIndexIn, tokenIndexOut, x, xp);
     let dy = xp[tokenIndexOut].n.sub(y).sub(1);

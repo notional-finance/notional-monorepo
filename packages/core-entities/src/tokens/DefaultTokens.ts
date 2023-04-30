@@ -101,6 +101,14 @@ const mainnet = assignDefaults(
       address: '0x0ace2dc3995acd739ae5e0599e71a5524b93b886',
       decimalPlaces: 8,
     },
+    cbETH: {
+      address: '0xBe9895146f7AF43049ca1c1AE358B0541Ea49704',
+      decimalPlaces: 18,
+    },
+    frxETH: {
+      address: '0x5E8422345238F34275888049021821E8E08CAa1f',
+      decimalPlaces: 18,
+    },
   },
   { tokenInterface: TokenInterface.ERC20 }
 );

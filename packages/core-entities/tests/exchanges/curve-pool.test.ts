@@ -3,7 +3,9 @@ import { Network, ExchangeRegistry } from '../../src';
 import { BaseLiquidityPool } from '../../src/exchanges';
 import { PoolTestHarness } from './harness/PoolTestHarness';
 
-describe.withFork({ blockNumber: 16605421, network: 'mainnet' }, 'test', () => {
+describe.withFork({ blockNumber: 17134339, network: 'mainnet' }, 'test', () => {
+  jest.setTimeout(60000);
+
   // Create matching Pool Harness
   const allPools = ExchangeRegistry.getAllPools(Network.Mainnet);
 
@@ -14,8 +16,18 @@ describe.withFork({ blockNumber: 16605421, network: 'mainnet' }, 'test', () => {
     await ExchangeRegistry.fetchPoolData(Network.Mainnet, provider);
   });
 
-  it('test', async () => {
+  it('test v1 pool', async () => {
     const pool = ExchangeRegistry.getPoolInstance(Network.Mainnet, allPools[1]);
+
+    if (pool) {
+      console.log(pool.balances.map((r) => r.n.toString()));
+      console.log(pool.totalSupply.n.toString());
+      console.log(JSON.stringify(pool.poolParams));
+    }
+  });
+
+  it('test v2 pool', async () => {
+    const pool = ExchangeRegistry.getPoolInstance(Network.Mainnet, allPools[2]);
 
     if (pool) {
       console.log(pool.balances.map((r) => r.n.toString()));
