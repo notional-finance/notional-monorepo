@@ -63,61 +63,53 @@ export default class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPool
 
   public override getLPTokensGivenTokens(tokensIn: TokenBalance[]) {
     const amp = this.poolParams.A;
-    const adminBalances = [
+    const admin_balances = [
       this.poolParams.adminBalance_0,
       this.poolParams.adminBalance_1,
     ];
-    const oldBalances = this.balances.map((b, i) =>
-      TokenBalance.from(b.n.sub(adminBalances[i]), b.token)
+    const old_balances = this.balances.map((b, i) =>
+      b.copy(b.n.sub(admin_balances[i]))
     );
-    const D0 = this._get_D(oldBalances, amp);
 
-    const tokenSupply = this.totalSupply;
-    const newBalances = oldBalances.map((b, i) => {
-      if (tokenSupply.isZero()) {
-        if (tokensIn[i].isZero()) {
-          throw Error('Invalid tokensIn');
-        }
-      }
+    const D0 = this._get_D(old_balances, amp);
+
+    const token_supply = this.totalSupply;
+    const new_balances = old_balances.map((b, i) => {
       return b.add(tokensIn[i]);
     });
 
     // # Invariant after change
-    const D1 = this._get_D(newBalances, amp);
-
-    if (!D1.gt(D0)) {
-      throw Error('Invariant error');
-    }
+    const D1 = this._get_D(new_balances, amp);
 
     // We need to recalculate the invariant accounting for fees
     // to calculate fair user's share
     const fees = [BigNumber.from(0), BigNumber.from(0)];
     let mintAmount = BigNumber.from(0);
     //D2: uint256 = 0
-    if (tokenSupply.n.gt(0)) {
+    if (token_supply.n.gt(0)) {
       //  # Only account for fees if we are not the first to deposit
       const fee = this.poolParams.fee
         .mul(Curve2TokenPoolV1.N_COINS)
         .div(BigNumber.from(4).mul(Curve2TokenPoolV1.N_COINS.sub(1)));
-      const adminFee = this.poolParams.adminFee;
+      const admin_fee = this.poolParams.adminFee;
       for (let i = 0; i < Curve2TokenPoolV1.N_COINS.toNumber(); i++) {
-        const idealBalance = D1.mul(oldBalances[i].n.div(D0));
+        const ideal_balance = D1.mul(old_balances[i].n).div(D0);
         let difference = BigNumber.from(0);
-        if (idealBalance.gt(newBalances[i].n)) {
-          difference = idealBalance.sub(newBalances[i].n);
+        if (ideal_balance.gt(new_balances[i].n)) {
+          difference = ideal_balance.sub(new_balances[i].n);
         } else {
-          difference = newBalances[i].n.sub(idealBalance);
+          difference = new_balances[i].n.sub(ideal_balance);
         }
         fees[i] = fee.mul(difference).div(Curve2TokenPoolV1.FEE_DENOMINATOR);
-        if (!adminFee.isZero()) {
-          adminBalances[i] = adminBalances[i].add(
-            fees[i].mul(adminFee).div(Curve2TokenPoolV1.FEE_DENOMINATOR)
+        if (!admin_fee.isZero()) {
+          admin_balances[i] = admin_balances[i].add(
+            fees[i].mul(admin_fee).div(Curve2TokenPoolV1.FEE_DENOMINATOR)
           );
         }
-        newBalances[i].n = newBalances[i].n.sub(fees[i]);
+        new_balances[i].n = new_balances[i].n.sub(fees[i]);
       }
-      const D2 = this._get_D(newBalances, amp);
-      mintAmount = tokenSupply.n.mul(D2.sub(D0)).div(D0);
+      const D2 = this._get_D(new_balances, amp);
+      mintAmount = token_supply.n.mul(D2.sub(D0)).div(D0);
     } else {
       mintAmount = D1; // Take the dust if there was any
     }
@@ -139,29 +131,28 @@ export default class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPool
     const Ann = amp.mul(Curve2TokenPoolV1.N_COINS);
     for (let i = 0; i < 255; i++) {
       let D_P = D;
-      for (let j = 0; j < xp.length; j++) {
-        const _x = xp[j];
+      for (const _x of xp) {
         D_P = D_P.mul(D).div(_x.n.mul(Curve2TokenPoolV1.N_COINS).add(1)); // +1 is to prevent /0
-        Dprev = D;
-        D = Ann.mul(S)
-          .div(Curve2TokenPoolV1.A_PRECISION)
-          .add(D_P.mul(Curve2TokenPoolV1.N_COINS))
-          .mul(D)
-          .div(
-            Ann.sub(Curve2TokenPoolV1.A_PRECISION)
-              .mul(D)
-              .div(Curve2TokenPoolV1.A_PRECISION)
-              .add(Curve2TokenPoolV1.N_COINS.add(1).mul(D_P))
-          );
-        // Equality with the precision of 1
-        if (D.gt(Dprev)) {
-          if (D.sub(Dprev).lte(1)) {
-            return D;
-          }
-        } else {
-          if (Dprev.sub(D).lte(1)) {
-            return D;
-          }
+      }
+      Dprev = D;
+      D = Ann.mul(S)
+        .div(Curve2TokenPoolV1.A_PRECISION)
+        .add(D_P.mul(Curve2TokenPoolV1.N_COINS))
+        .mul(D)
+        .div(
+          Ann.sub(Curve2TokenPoolV1.A_PRECISION)
+            .mul(D)
+            .div(Curve2TokenPoolV1.A_PRECISION)
+            .add(Curve2TokenPoolV1.N_COINS.add(1).mul(D_P))
+        );
+      // Equality with the precision of 1
+      if (D.gt(Dprev)) {
+        if (D.sub(Dprev).lte(1)) {
+          return D;
+        }
+      } else {
+        if (Dprev.sub(D).lte(1)) {
+          return D;
         }
       }
     }
@@ -327,12 +318,11 @@ export default class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPool
       ];
       tokensOut = [this.balances[singleSidedExitTokenIndex].copy(dy)];
     } else {
-      const tokensOut = [...this.balances];
       const totalSupply = this.totalSupply;
 
       for (let i = 0; i < Curve2TokenPoolV1.N_COINS.toNumber(); i++) {
         tokensOut[i] = this.balances[i].copy(
-          tokensOut[i].n.mul(lpTokens.n).div(totalSupply.n)
+          this.balances[i].n.mul(lpTokens.n).div(totalSupply.n)
         );
       }
     }

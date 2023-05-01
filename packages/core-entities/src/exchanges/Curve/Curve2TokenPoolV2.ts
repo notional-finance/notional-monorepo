@@ -71,12 +71,6 @@ export default class Curve2TokenPoolV2 extends BaseLiquidityPool<Curve2TokenPool
       {
         stage: 0,
         target: pool,
-        method: 'fee',
-        key: 'fee',
-      },
-      {
-        stage: 0,
-        target: pool,
         method: 'get_virtual_price',
         key: 'virtualPrice',
       },
@@ -104,6 +98,35 @@ export default class Curve2TokenPoolV2 extends BaseLiquidityPool<Curve2TokenPool
     return fee.mul(Sdiff).div(S).add(Curve2TokenPoolV2.NOISE_FEE);
   }
 
+  private _geometric_mean(unsorted_x: TokenBalance[], sort: boolean) {
+    // (x[0] * x[1] * ...) ** (1/N)
+    let x = unsorted_x.map((b) => b.n);
+    if (sort && x[0].lt(x[1])) {
+      x = [unsorted_x[1].n, unsorted_x[0].n];
+    }
+    let D = x[0];
+    let diff = BigNumber.from(0);
+    for (let i = 0; i < 255; i++) {
+      const D_prev = D;
+      // tmp: uint256 = 10**18
+      // for _x in x:
+      //     tmp = tmp * _x / D
+      // D = D * ((N_COINS - 1) * 10**18 + tmp) / (N_COINS * 10**18)
+      // line below makes it for 2 coins
+      D = D.add(x[0].mul(x[1]).div(D)).div(Curve2TokenPoolV2.N_COINS);
+      if (D.gt(D_prev)) {
+        diff = D.sub(D_prev);
+      } else {
+        diff = D_prev.sub(D);
+      }
+      if (diff.lte(1) || diff.mul(Curve2TokenPoolV2.PRECISION).lt(D)) {
+        return D;
+      }
+    }
+
+    throw Error('Calculation did not converge');
+  }
+
   private _newton_D(
     ANN: BigNumber,
     gamma: BigNumber,
@@ -115,7 +138,7 @@ export default class Curve2TokenPoolV2 extends BaseLiquidityPool<Curve2TokenPool
       x = [x_unsorted[1], x_unsorted[0]];
     }
 
-    let D = Curve2TokenPoolV2.N_COINS.mul(self._geometric_mean(x, false));
+    let D = Curve2TokenPoolV2.N_COINS.mul(this._geometric_mean(x, false));
     const S = x[0].add(x[1]);
 
     for (let i = 0; i < 255; i++) {

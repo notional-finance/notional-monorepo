@@ -1,5 +1,6 @@
 import { BalancerPoolHarness } from './harness/BalancerPoolHarness';
 import { Network, ExchangeRegistry } from '../../src';
+import { ethers, BigNumber } from 'ethers';
 import { BaseLiquidityPool } from '../../src/exchanges';
 import { PoolTestHarness } from './harness/PoolTestHarness';
 
@@ -23,6 +24,17 @@ describe.withFork({ blockNumber: 17134339, network: 'mainnet' }, 'test', () => {
       console.log(pool.balances.map((r) => r.n.toString()));
       console.log(pool.totalSupply.n.toString());
       console.log(JSON.stringify(pool.poolParams));
+
+      const result1 = pool.getLPTokensGivenTokens([
+        pool.balances[0].copy(BigNumber.from(ethers.utils.parseEther('1'))),
+        pool.balances[1].copy(BigNumber.from(ethers.utils.parseEther('1'))),
+      ]);
+
+      console.log(`lpToken=${result1.lpTokens.n.toString()}`);
+
+      const result2 = pool.getTokensOutGivenLPTokens(result1.lpTokens);
+
+      console.log(`tokensOut=${result2.tokensOut.map((b) => b.n.toString())}`);
     }
   });
 
@@ -33,6 +45,13 @@ describe.withFork({ blockNumber: 17134339, network: 'mainnet' }, 'test', () => {
       console.log(pool.balances.map((r) => r.n.toString()));
       console.log(pool.totalSupply.n.toString());
       console.log(JSON.stringify(pool.poolParams));
+
+      const result1 = pool.getLPTokensGivenTokens([
+        pool.balances[0].copy(BigNumber.from(ethers.utils.parseEther('1'))),
+        pool.balances[1].copy(BigNumber.from(ethers.utils.parseEther('1'))),
+      ]);
+
+      console.log(`lpToken=${result1.lpTokens.n.toString()}`);
     }
   });
 });

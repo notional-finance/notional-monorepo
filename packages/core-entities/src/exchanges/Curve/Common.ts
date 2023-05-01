@@ -31,6 +31,12 @@ export function getCommonCurveAggregateCall(
       args: [0],
     },
     {
+      stage: 0,
+      target: pool,
+      method: 'fee',
+      key: 'fee',
+    },
+    {
       stage: 1,
       target: (r) => new Contract(r[`${poolAddress}.lpTokenAddress`], ERC20ABI),
       method: 'totalSupply',
