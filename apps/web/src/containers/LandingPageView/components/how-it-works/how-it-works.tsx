@@ -1,6 +1,6 @@
 import { Box, styled } from '@mui/material';
 // import { Box, styled, useTheme } from '@mui/material';
-// import { colors } from '@notional-finance/styles';
+import { colors } from '@notional-finance/styles';
 // import { FormattedMessage } from 'react-intl';
 // import { H5, H2 } from '@notional-finance/mui';
 
@@ -8,8 +8,9 @@ export const HowItWorks = () => {
   //   const theme = useTheme();
   // NOTE* This will be used once we have the lottie animation
   return (
-    <Container>
-      {/* <Box>
+    <BackgroundContainer>
+      <InnerContainer>
+        {/* <Box>
         <H5 sx={{ color: colors.aqua, marginBottom: theme.spacing(2) }}>
           <FormattedMessage defaultMessage={'How it Works'} />
         </H5>
@@ -17,11 +18,20 @@ export const HowItWorks = () => {
           <FormattedMessage defaultMessage={'How Notional Maximizes Returns'} />
         </H2> 
       </Box> */}
-    </Container>
+      </InnerContainer>
+    </BackgroundContainer>
   );
 };
 
-const Container = styled(Box)(
+const BackgroundContainer = styled(Box)(
+  `
+        height: 100%;
+        width: 100%;
+        background: ${colors.white};
+    `
+);
+
+const InnerContainer = styled(Box)(
   () => `
     height: 200px;
     width: 1200px;

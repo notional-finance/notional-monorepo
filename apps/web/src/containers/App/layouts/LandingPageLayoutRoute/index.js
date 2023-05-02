@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import { CompatRoute } from 'react-router-dom-v5-compat';
-import { Box } from '@mui/material';
-import { HeaderRenderer } from '../../HeaderRenderer';
+import { Box, styled } from '@mui/material';
+import { colors } from '@notional-finance/styles';
 
 const LandingPageLayoutRoute = ({ component: Component, path, routeKey }) => {
   return (
@@ -9,16 +9,21 @@ const LandingPageLayoutRoute = ({ component: Component, path, routeKey }) => {
       path={path}
       key={routeKey}
       render={(matchProps) => (
-        <Box>
-          <Box>
-            <HeaderRenderer />
-            <Component {...matchProps} />
-          </Box>
-        </Box>
+        <Wrapper>
+          <Component {...matchProps} />
+        </Wrapper>
       )}
     />
   );
 };
+
+const Wrapper = styled(Box)(
+  `
+  width: 100%;
+  min-height: 100vh;
+  background: ${colors.black};
+`
+);
 
 LandingPageLayoutRoute.propTypes = {
   component: PropTypes.func.isRequired,

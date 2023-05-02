@@ -18,7 +18,6 @@ import { useNotional } from '@notional-finance/notionable-hooks';
 import { initializeNetwork } from '@notional-finance/notionable';
 import { TrackingConsent } from '@notional-finance/shared-web';
 import { ServerError } from '../../containers/server-error/server-error';
-import { PageLoading } from '@notional-finance/mui';
 import { useNotionalTheme } from '@notional-finance/styles';
 // Lazy Loaded Views
 import AboutUsView from '@notional-finance/about-us-feature-shell/Loadable';
@@ -71,7 +70,7 @@ export const App = () => {
   const [routeKey, setRouteKey] = useState('');
   const { themeVariant } = useUserSettingsState();
   const notionalTheme = useNotionalTheme(themeVariant);
-  const { loaded, pendingChainId, initializeNotional } = useNotional();
+  const { pendingChainId, initializeNotional } = useNotional();
   useImpactTracking();
 
   const initApplication = useCallback(async () => {
@@ -113,79 +112,66 @@ export const App = () => {
       <BrowserRouter>
         <QueryParamProvider adapter={ReactRouter5Adapter}>
           <CompatRouter>
-            {loaded ? (
-              <RouteContainer onRouteChange={setRouteKey}>
-                <Switch>
-                  <AppLayoutRoute path="/airdrop" component={AirdropView} />
-                  <AppLayoutRoute
-                    path="/borrow/:currency/:collateral"
-                    routeKey={routeKey}
-                    component={BorrowCurrencyView}
-                  />
-                  <AppLayoutRoute path="/borrow" component={BorrowCardView} />
-                  <AppLayoutRoute
-                    path="/lend/:currency"
-                    component={LendCurrencyView}
-                  />
-                  <AppLayoutRoute path="/lend" component={LendCardView} />
-                  <AppLayoutRoute
-                    path="/provide/:currency"
-                    routeKey={routeKey}
-                    component={LiquidityCurrencyView}
-                  />
-                  <AppLayoutRoute
-                    path="/provide"
-                    component={ProvideLiquidityCards}
-                  />
-                  <AppLayoutRoute
-                    path="/stake/:ethOrWeth"
-                    component={StakeView}
-                  />
-                  <AppLayoutRoute path="/stake" component={StakeView} />
-                  <AppLayoutRoute
-                    path="/unstake/:unstakePath"
-                    component={StakeView}
-                  />
-                  <AppLayoutRoute path="/unstake" component={StakeView} />
-                  <AppLayoutRoute
-                    path="/vaults/:vaultAddress/:sideDrawerKey"
-                    component={VaultLoadable}
-                  />
-                  <AppLayoutRoute
-                    path="/vaults/:vaultAddress"
-                    component={VaultLoadable}
-                  />
-                  <AppLayoutRoute
-                    path="/vaults"
-                    component={AllVaultsLoadable}
-                  />
-                  <AppLayoutRoute path="/terms" component={TermsView} />
-                  <AppLayoutRoute path="/privacy" component={PrivacyView} />
-                  <AppLayoutRoute
-                    path="/portfolio/:category/:sideDrawerKey"
-                    component={PortfolioView}
-                  />
-                  <AppLayoutRoute
-                    path="/portfolio/:category/"
-                    component={PortfolioView}
-                  />
-                  <AppLayoutRoute path="/portfolio" component={PortfolioView} />
-                  <AppLayoutRoute path="/treasury" component={TreasuryView} />
-                  <AppLayoutRoute path="/error" component={ServerError} />
-                  <LandingPageLayoutRoute
-                    path="/about"
-                    component={AboutUsView}
-                  />
-                  <LandingPageLayoutRoute
-                    path="/"
-                    component={LandingPageView}
-                  />
-                </Switch>
-                <TrackingConsent />
-              </RouteContainer>
-            ) : (
-              <PageLoading />
-            )}
+            <RouteContainer onRouteChange={setRouteKey}>
+              <Switch>
+                <AppLayoutRoute path="/airdrop" component={AirdropView} />
+                <AppLayoutRoute
+                  path="/borrow/:currency/:collateral"
+                  routeKey={routeKey}
+                  component={BorrowCurrencyView}
+                />
+                <AppLayoutRoute path="/borrow" component={BorrowCardView} />
+                <AppLayoutRoute
+                  path="/lend/:currency"
+                  component={LendCurrencyView}
+                />
+                <AppLayoutRoute path="/lend" component={LendCardView} />
+                <AppLayoutRoute
+                  path="/provide/:currency"
+                  routeKey={routeKey}
+                  component={LiquidityCurrencyView}
+                />
+                <AppLayoutRoute
+                  path="/provide"
+                  component={ProvideLiquidityCards}
+                />
+                <AppLayoutRoute
+                  path="/stake/:ethOrWeth"
+                  component={StakeView}
+                />
+                <AppLayoutRoute path="/stake" component={StakeView} />
+                <AppLayoutRoute
+                  path="/unstake/:unstakePath"
+                  component={StakeView}
+                />
+                <AppLayoutRoute path="/unstake" component={StakeView} />
+                <AppLayoutRoute
+                  path="/vaults/:vaultAddress/:sideDrawerKey"
+                  component={VaultLoadable}
+                />
+                <AppLayoutRoute
+                  path="/vaults/:vaultAddress"
+                  component={VaultLoadable}
+                />
+                <AppLayoutRoute path="/vaults" component={AllVaultsLoadable} />
+                <AppLayoutRoute path="/terms" component={TermsView} />
+                <AppLayoutRoute path="/privacy" component={PrivacyView} />
+                <AppLayoutRoute
+                  path="/portfolio/:category/:sideDrawerKey"
+                  component={PortfolioView}
+                />
+                <AppLayoutRoute
+                  path="/portfolio/:category/"
+                  component={PortfolioView}
+                />
+                <AppLayoutRoute path="/portfolio" component={PortfolioView} />
+                <AppLayoutRoute path="/treasury" component={TreasuryView} />
+                <AppLayoutRoute path="/error" component={ServerError} />
+                <LandingPageLayoutRoute path="/about" component={AboutUsView} />
+                <LandingPageLayoutRoute path="/" component={LandingPageView} />
+              </Switch>
+              <TrackingConsent />
+            </RouteContainer>
           </CompatRouter>
         </QueryParamProvider>
       </BrowserRouter>
