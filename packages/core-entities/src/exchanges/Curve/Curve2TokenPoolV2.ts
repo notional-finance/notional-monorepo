@@ -374,7 +374,7 @@ export default class Curve2TokenPoolV2 extends BaseLiquidityPool<Curve2TokenPool
       const S = x_j.n.add(y);
 
       let _g1k0 = gamma.add(Curve2TokenPoolV2.PRECISION);
-      if (_g1k0 > K0) {
+      if (_g1k0.gt(K0)) {
         _g1k0 = _g1k0.sub(K0).add(1);
       } else {
         _g1k0 = K0.sub(_g1k0).add(1);
@@ -397,7 +397,7 @@ export default class Curve2TokenPoolV2 extends BaseLiquidityPool<Curve2TokenPool
       let yfprime = Curve2TokenPoolV2.PRECISION.mul(y)
         .add(S.mul(mul2))
         .add(mul1);
-      const _dyfprime = this.poolParams.D.mul(mul2);
+      const _dyfprime = D.mul(mul2);
       if (yfprime.lt(_dyfprime)) {
         y = y_prev.div(2);
         continue;
@@ -410,7 +410,7 @@ export default class Curve2TokenPoolV2 extends BaseLiquidityPool<Curve2TokenPool
       // y = (yfprime + 10**18 * D - 10**18 * S) // fprime + mul1 // fprime * (10**18 - K0) // K0
       let y_minus = mul1.div(fprime);
       const y_plus = yfprime
-        .add(Curve2TokenPoolV2.PRECISION.mul(this.poolParams.D))
+        .add(Curve2TokenPoolV2.PRECISION.mul(D))
         .div(fprime)
         .add(y_minus.mul(Curve2TokenPoolV2.PRECISION).div(K0));
       y_minus = y_minus.add(Curve2TokenPoolV2.PRECISION.mul(S).div(fprime));
@@ -428,7 +428,7 @@ export default class Curve2TokenPoolV2 extends BaseLiquidityPool<Curve2TokenPool
         diff = y_prev.sub(y);
       }
       if (
-        diff < this._max(convergence_limit, y.div(BigNumber.from(10).pow(14)))
+        diff.lt(this._max(convergence_limit, y.div(BigNumber.from(10).pow(14))))
       ) {
         return y;
       }

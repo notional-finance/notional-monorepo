@@ -348,7 +348,7 @@ export default class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPool
     const y = this._get_y(tokenIndexIn, tokenIndexOut, x, xp);
     let dy = xp[tokenIndexOut].n.sub(y).sub(1);
     const dy_fee = dy
-      .sub(this.poolParams.fee)
+      .mul(this.poolParams.fee)
       .div(Curve2TokenPoolV1.FEE_DENOMINATOR);
 
     // Convert all to real units
