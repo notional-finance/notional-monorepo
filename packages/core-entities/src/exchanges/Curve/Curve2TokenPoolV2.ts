@@ -47,7 +47,7 @@ export default class Curve2TokenPoolV2 extends BaseLiquidityPool<Curve2TokenPool
       {
         stage: 0,
         target: pool,
-        method: 'A',
+        method: 'gamma',
         key: 'gamma',
       },
       {
@@ -134,12 +134,12 @@ export default class Curve2TokenPoolV2 extends BaseLiquidityPool<Curve2TokenPool
   ) {
     // Initial value of invariant D is that for constant-product invariant
     let x = x_unsorted;
-    if (x[0].lt(x[1])) {
+    if (x[0].n.lt(x[1].n)) {
       x = [x_unsorted[1], x_unsorted[0]];
     }
 
     let D = Curve2TokenPoolV2.N_COINS.mul(this._geometric_mean(x, false));
-    const S = x[0].add(x[1]);
+    const S = x[0].n.add(x[1].n);
 
     for (let i = 0; i < 255; i++) {
       const D_prev = D;
@@ -179,15 +179,14 @@ export default class Curve2TokenPoolV2 extends BaseLiquidityPool<Curve2TokenPool
         .mul(K0)
         .div(_g1k0);
 
-      const neg_fprime = S.n
-        .add(S.n.mul(mul2).div(Curve2TokenPoolV2.PRECISION))
+      const neg_fprime = S.add(S.mul(mul2).div(Curve2TokenPoolV2.PRECISION))
         .add(mul1.mul(Curve2TokenPoolV2.N_COINS).div(K0))
         .sub(mul2.mul(D).div(Curve2TokenPoolV2.PRECISION));
 
       // D -= f / fprime
-      const D_plus = D.mul(neg_fprime.add(S.n)).div(neg_fprime);
+      const D_plus = D.mul(neg_fprime.add(S)).div(neg_fprime);
       let D_minus = D.mul(D).div(neg_fprime);
-      if (Curve2TokenPoolV2.PRECISION > K0) {
+      if (Curve2TokenPoolV2.PRECISION.gt(K0)) {
         D_minus = D_minus.add(
           D.mul(mul1.div(neg_fprime))
             .div(Curve2TokenPoolV2.PRECISION)
@@ -216,10 +215,10 @@ export default class Curve2TokenPoolV2 extends BaseLiquidityPool<Curve2TokenPool
         diff = D_prev.sub(D);
       }
       if (
-        diff.mul(BigNumber.from(10).pow(14)) <
-        this._max(BigNumber.from(10).pow(16), D)
+        diff
+          .mul(BigNumber.from(10).pow(14))
+          .lt(this._max(BigNumber.from(10).pow(16), D))
       ) {
-        // Could reduce precision for gas efficiency here
         return D;
       }
     }
@@ -228,24 +227,22 @@ export default class Curve2TokenPoolV2 extends BaseLiquidityPool<Curve2TokenPool
   }
 
   private _get_precisions() {
-    return [
-      BigNumber.from(10).pow(this.balances[0].decimals),
-      BigNumber.from(10).pow(this.balances[1].decimals),
-    ];
+    return this.balances.map((b) =>
+      Curve2TokenPoolV2.PRECISION.div(b.decimals)
+    );
   }
 
   public override getLPTokensGivenTokens(tokensIn: TokenBalance[]) {
     const A_gamma = [this.poolParams.A, this.poolParams.gamma];
     let xp = [...this.balances];
-    const amountsp = [tokensIn[0].copy(0), tokensIn[1].copy(0)];
+    const amountsp = this.balances.map((b) => b.copy(0));
     let d_token = BigNumber.from(0);
     let d_token_fee = BigNumber.from(0);
     let old_D = BigNumber.from(0);
-    let xp_old = xp;
+    let xp_old = [...xp];
 
     for (let i = 0; i < Curve2TokenPoolV2.N_COINS.toNumber(); i++) {
-      const bal = xp[i].add(tokensIn[i]);
-      xp[i] = bal;
+      xp[i] = xp[i].add(tokensIn[i]);
     }
 
     const precisions = this._get_precisions();
@@ -280,9 +277,7 @@ export default class Curve2TokenPoolV2 extends BaseLiquidityPool<Curve2TokenPool
     if (old_D.gt(0)) {
       d_token = token_supply.n.mul(D).div(old_D).sub(token_supply.n);
     } else {
-      /*
-        self.get_xcp(self.D) = totalSupply * virtualPrice / 10**18
-      */
+      // d_token = self.get_xcp(self.D) = totalSupply * virtualPrice / 10**18
       d_token = this.totalSupply.n
         .mul(this.poolParams.virtualPrice)
         .div(Curve2TokenPoolV2.PRECISION); // making initial virtual price equal to 1

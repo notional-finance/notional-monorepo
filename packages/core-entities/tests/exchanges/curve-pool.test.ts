@@ -26,11 +26,13 @@ describe.withFork({ blockNumber: 17134339, network: 'mainnet' }, 'test', () => {
       console.log(JSON.stringify(pool.poolParams));
 
       const result1 = pool.getLPTokensGivenTokens([
-        pool.balances[0].copy(BigNumber.from(ethers.utils.parseEther('1'))),
-        pool.balances[1].copy(BigNumber.from(ethers.utils.parseEther('1'))),
+        pool.balances[0].copy(BigNumber.from('966192981919433140')),
+        pool.balances[1].copy(BigNumber.from('1033871524968180711')),
       ]);
 
       console.log(`lpToken=${result1.lpTokens.n.toString()}`);
+
+      await ExchangeRegistry.fetchPoolData(Network.Mainnet, provider);
 
       const result2 = pool.getTokensOutGivenLPTokens(result1.lpTokens);
 
@@ -47,11 +49,17 @@ describe.withFork({ blockNumber: 17134339, network: 'mainnet' }, 'test', () => {
       console.log(JSON.stringify(pool.poolParams));
 
       const result1 = pool.getLPTokensGivenTokens([
-        pool.balances[0].copy(BigNumber.from(ethers.utils.parseEther('1'))),
-        pool.balances[1].copy(BigNumber.from(ethers.utils.parseEther('1'))),
+        pool.balances[0].copy(BigNumber.from('830695611202905600')),
+        pool.balances[1].copy(BigNumber.from('1173551974707159337')),
       ]);
 
       console.log(`lpToken=${result1.lpTokens.n.toString()}`);
+
+      await ExchangeRegistry.fetchPoolData(Network.Mainnet, provider);
+
+      const result2 = pool.getTokensOutGivenLPTokens(result1.lpTokens);
+
+      console.log(`tokensOut=${result2.tokensOut.map((b) => b.n.toString())}`);
     }
   });
 });
