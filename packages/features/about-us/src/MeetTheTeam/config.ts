@@ -1,6 +1,5 @@
 import jwei from '@notional-finance/assets/images/team/jwei.png';
 import jwu from '@notional-finance/assets/images/team/jwu.png';
-import klong from '@notional-finance/assets/images/team/klong.png';
 import mburkett from '@notional-finance/assets/images/team/mburkett.png';
 import pgendron from '@notional-finance/assets/images/team/pgendron.png';
 import twoodward from '@notional-finance/assets/images/team/twoodward.png';
