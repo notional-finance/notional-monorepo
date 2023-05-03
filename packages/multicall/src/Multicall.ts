@@ -30,23 +30,26 @@ async function executeStage<T extends Record<string, unknown>>(
   aggregateResults: T,
   multicall: Multicall2
 ) {
-  const aggregateCall = calls.map((c) => {
-    const contract =
-      typeof c.target === 'function' ? c.target(aggregateResults) : c.target;
-    const args =
-      typeof c.args === 'function' ? c.args(aggregateResults) : c.args || [];
+  const aggregateCall = calls
+    .filter((c) => c.target !== undefined)
+    .map((c) => {
+      const contract =
+        typeof c.target === 'function' ? c.target(aggregateResults) : c.target;
+      const args =
+        typeof c.args === 'function' ? c.args(aggregateResults) : c.args || [];
 
-    return {
-      ...c,
-      target: contract.address,
-      callData: contract.interface.encodeFunctionData(c.method, args),
-      contract,
-    };
-  });
+      return {
+        ...c,
+        target: contract.address,
+        callData: contract.interface.encodeFunctionData(c.method, args),
+        contract,
+      };
+    });
 
   const { blockNumber, returnData } = await multicall.callStatic.aggregate(
     aggregateCall
   );
+
   const results = returnData.reduce((obj, r, i) => {
     const { key, method, transform, contract } = aggregateCall[i];
     let decoded = contract.interface.decodeFunctionResult(method, r);
@@ -55,9 +58,17 @@ async function executeStage<T extends Record<string, unknown>>(
     if (decoded.length === 1) [decoded] = decoded;
 
     // eslint-disable-next-line no-param-reassign
-    (obj[key] as Record<string, unknown>) = transform
-      ? transform(decoded, obj)
-      : decoded;
+    const values = transform ? transform(decoded, obj) : decoded;
+    if (typeof key === 'string') {
+      (obj as Record<string, unknown>)[key] = values;
+    } else {
+      (key as string[]).forEach(
+        (k) =>
+          ((obj as Record<string, unknown>)[k] = (
+            values as Record<string, unknown>
+          )[k])
+      );
+    }
     return obj;
   }, aggregateResults);
 
