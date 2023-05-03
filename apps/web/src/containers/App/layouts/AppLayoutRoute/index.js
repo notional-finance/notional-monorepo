@@ -1,26 +1,34 @@
 import PropTypes from 'prop-types';
 import { CompatRoute } from 'react-router-dom-v5-compat';
-import { Footer } from '@notional-finance/shared-web';
-import { PreviousUiPopup } from '@notional-finance/mui';
-import { HeaderRenderer } from '../../HeaderRenderer';
+import { Footer, Header } from '@notional-finance/shared-web';
+import { PreviousUiPopup, PageLoading } from '@notional-finance/mui';
+import { WalletSelector } from '@notional-finance/wallet';
+import { useNotional } from '@notional-finance/notionable-hooks';
 import { Box, styled } from '@mui/material';
 
 const AppLayoutRoute = ({ component: Component, path, routeKey }) => {
+  const { loaded } = useNotional();
   return (
     <CompatRoute
       path={path}
       key={routeKey}
       render={(matchProps) => (
         <Box>
-          <AppShell>
-            <HeaderRenderer />
+          {loaded ? (
+            <AppShell>
+              <Header>
+                <WalletSelector />
+              </Header>
 
-            <MainContent>
-              <Component {...matchProps} />
-            </MainContent>
-            <PreviousUiPopup />
-            <StyledFooter />
-          </AppShell>
+              <MainContent>
+                <Component {...matchProps} />
+              </MainContent>
+              <PreviousUiPopup />
+              <StyledFooter />
+            </AppShell>
+          ) : (
+            <PageLoading />
+          )}
         </Box>
       )}
     />

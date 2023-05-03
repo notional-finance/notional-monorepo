@@ -99,7 +99,7 @@ const FadeBox = styled('img', {
   width: 803px;
   height: 560px;
   opacity: 0;
-  transition: opacity 3s ease-in-out;
+  transition: opacity 1.5s ease-in-out;
   opacity: ${fadeActive ? '1' : '0'};
   ${theme.breakpoints.down('mdLanding')} {
     width: 703px;

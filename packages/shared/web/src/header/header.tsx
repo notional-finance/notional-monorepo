@@ -7,18 +7,15 @@ import { useNotionalTheme } from '@notional-finance/styles';
 import Navigation from './navigation/navigation';
 import { useNavLinks } from './use-nav-links';
 import MobileNavigation from './mobile-navigation/mobile-navigation';
-import { ReactElement } from 'react';
 import { useLocation } from 'react-router-dom';
 import ResourcesDropdown from './resources/resources-dropdown/resources-dropdown';
 import AnalyticsDropdown from './analytics-dropdown/analytics-dropdown';
 import ScrollIndicator from './scroll-indicator/scroll-indicator';
 
 /* eslint-disable-next-line */
-export interface HeaderProps extends AppBarProps {
-  rightButton?: ReactElement;
-}
+export interface HeaderProps extends AppBarProps {}
 
-export function Header({ rightButton }: HeaderProps) {
+export function Header({ children }: HeaderProps) {
   const [isTop, setIsTop] = useState(true);
   const landingTheme = useNotionalTheme(THEME_VARIANTS.DARK);
   const appTheme = useTheme();
@@ -103,7 +100,7 @@ export function Header({ rightButton }: HeaderProps) {
               },
             }}
           >
-            {rightButton}
+            {children}
           </Box>
         </Toolbar>
         {pathname === '/' && <ScrollIndicator />}

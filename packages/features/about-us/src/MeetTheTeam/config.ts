@@ -1,6 +1,5 @@
 import jwei from '@notional-finance/assets/images/team/jwei.png';
 import jwu from '@notional-finance/assets/images/team/jwu.png';
-import klong from '@notional-finance/assets/images/team/klong.png';
 import mburkett from '@notional-finance/assets/images/team/mburkett.png';
 import pgendron from '@notional-finance/assets/images/team/pgendron.png';
 import twoodward from '@notional-finance/assets/images/team/twoodward.png';
@@ -66,35 +65,6 @@ export const TeamData = [
       },
     ],
     profpic: jwu,
-  },
-  {
-    name: 'klong',
-    ...defineMessages({
-      displayName: {
-        description: 'team member name',
-        defaultMessage: 'Kyle Long',
-      },
-      title: {
-        description: 'team member title',
-        defaultMessage: 'Head of Marketing',
-      },
-      description: {
-        description: 'team member title',
-        defaultMessage:
-          'Entrepreneur, Writer & Co-Founder of food tour brand at UnTour.',
-      },
-    }),
-    social: [
-      {
-        name: 'linkedin',
-        link: 'https://www.linkedin.com/in/kyle-long-5702bb6/',
-      },
-      {
-        name: 'email',
-        link: 'mailto:kyle@notional.finance',
-      },
-    ],
-    profpic: klong,
   },
   {
     name: 'mburkett',
