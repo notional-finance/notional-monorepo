@@ -79,6 +79,7 @@ export const SectionTitle = makeVariant('sectionTitle');
 export const CurrencyTitle = makeVariant('largeNumberLabel');
 export const LargeInputText = makeVariant('largeInput');
 export const MobileNav = makeVariant('mobileNav');
+export const DiagramTitle = makeVariant('diagramTitle');
 
 // DEFAULT ============
 export const H1 = makeVariant('h1');
