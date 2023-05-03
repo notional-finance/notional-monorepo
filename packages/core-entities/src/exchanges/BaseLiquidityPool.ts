@@ -32,66 +32,6 @@ export default abstract class BaseLiquidityPool<
     return this.totalSupply.copy(this.totalSupply.decimals);
   }
 
-  // /**
-  //  * Converts a number of LP tokens into strategy tokens
-  //  * @param lpTokens
-  //  * @param vaultSymbol
-  //  * @returns strategy tokens as TypedBigNumber
-  //  */
-  // protected convertLPTokensToStrategyTokens(
-  //   lpTokens: TokenBalance,
-  //   vaultSymbol: string
-  // ): TypedBigNumber {
-  //   const strategyTokens = this.totalLPTokensHeld.isZero()
-  //     ? lpTokens.scale(INTERNAL_TOKEN_PRECISION, this.LP_TOKEN_PRECISION)
-  //     : this.totalStrategyTokensGlobal.scale(lpTokens, this.totalLPTokensHeld);
-
-  //   return TypedBigNumber.from(
-  //     strategyTokens,
-  //     BigNumberType.StrategyToken,
-  //     vaultSymbol
-  //   );
-  // }
-
-  // /**
-  //  * Converts a number of strategy tokens to LP tokens, simulating the minting
-  //  * of additional strategy tokens if required.
-  //  *
-  //  * @param strategyTokens
-  //  * @param simulatedStrategyTokens used for ad hoc analysis of post entry liquidity
-  //  * pool dynamics
-  //  * @returns amount of LP tokens that the strategy tokens have a claim on
-  //  */
-  // protected convertStrategyTokensToLPTokens(
-  //   strategyTokens: TypedBigNumber,
-  //   simulatedStrategyTokens?: TypedBigNumber
-  // ): BigNumber {
-  //   let totalStrategyTokens = this.totalStrategyTokensGlobal.n;
-  //   let totalLPTokensHeld = this.totalLPTokensHeld.n;
-  //   let accountStrategyTokens = strategyTokens;
-
-  //   if (simulatedStrategyTokens) {
-  //     // When minting additional strategy tokens we need to simulate the entry
-  //     totalStrategyTokens = totalStrategyTokens.add(simulatedStrategyTokens.n);
-  //     totalLPTokensHeld = totalLPTokensHeld.add(
-  //       simulatedStrategyTokens.n
-  //         .mul(this.LP_TOKEN_PRECISION)
-  //         .div(INTERNAL_TOKEN_PRECISION)
-  //     );
-  //     accountStrategyTokens = accountStrategyTokens.add(
-  //       simulatedStrategyTokens
-  //     );
-  //   }
-
-  //   const accountLPTokens = accountStrategyTokens.n
-  //     .mul(this.LP_TOKEN_PRECISION)
-  //     .div(INTERNAL_TOKEN_PRECISION);
-
-  //   return totalStrategyTokens.isZero()
-  //     ? accountLPTokens
-  //     : totalLPTokensHeld.mul(accountStrategyTokens.n).div(totalStrategyTokens);
-  // }
-
   /**
    * Returns the value of tokens given the oracle price in the primary token index
    * @param balances balances in each constituent token
