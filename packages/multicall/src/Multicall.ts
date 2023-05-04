@@ -25,9 +25,9 @@ async function getMulticall(provider: providers.Provider) {
   ) as Multicall2;
 }
 
-async function executeStage<T extends Record<string, unknown>>(
-  calls: AggregateCall[],
-  aggregateResults: T,
+async function executeStage<T>(
+  calls: AggregateCall<T>[],
+  aggregateResults: Record<string, T>,
   multicall: Multicall2
 ) {
   const aggregateCall = calls
@@ -75,27 +75,27 @@ async function executeStage<T extends Record<string, unknown>>(
   return { blockNumber: blockNumber.toNumber(), results };
 }
 
-function getStages(calls: AggregateCall[]) {
+function getStages<T>(calls: AggregateCall<T>[]) {
   const groupedStages = calls.reduce((m, c) => {
     const stage = c.stage || 0;
     m.set(stage, [...(m.get(stage) || []), c]);
     return m;
-  }, new Map<number, AggregateCall[]>());
+  }, new Map<number, AggregateCall<T>[]>());
 
   return Array.from(groupedStages.entries())
     .sort(([a], [b]) => a - b)
     .map(([_, c]) => c);
 }
 
-export async function aggregate<T extends Record<string, unknown>>(
-  calls: AggregateCall[],
+export async function aggregate<T = unknown>(
+  calls: AggregateCall<T>[],
   provider: providers.Provider,
-  subjects?: Map<string, Subject<unknown>>,
+  subjects?: Map<string, Subject<T>>,
   _multicall?: Multicall2
 ) {
   const multicall = _multicall || (await getMulticall(provider));
   const stages = getStages(calls);
-  let results = {} as T;
+  let results = {} as Record<string, T>;
   let blockNumber = 0;
 
   for (const calls of stages) {
