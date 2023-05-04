@@ -4,6 +4,13 @@
   "sourceRoot": "packages/core-entities/src",
   "projectType": "library",
   "targets": {
+    "build-graph": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "graphclient build --dir packages/core-entities"
+      },
+      "cwd": "packages/core-entities"
+    },
     "build": {
       "executor": "@nrwl/js:tsc",
       "outputs": ["{options.outputPath}"],

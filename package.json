@@ -87,6 +87,7 @@
     "@commitlint/cli": "^17.0.0",
     "@commitlint/config-conventional": "^17.0.0",
     "@emotion/babel-plugin": "11.10.5",
+    "@graphprotocol/client-cli": "^2.2.22",
     "@graphql-codegen/cli": "^2.13.12",
     "@graphql-codegen/client-preset": "^1.1.4",
     "@hirez_io/observer-spy": "^2.2.0",
