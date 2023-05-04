@@ -1,6 +1,14 @@
 import { BigNumber } from 'ethers';
 import { BaseLiquidityPool } from './exchanges';
 
+export enum AssetType {
+  FCASH_ASSET_TYPE = 1,
+  VAULT_CASH_ASSET_TYPE = 9,
+  VAULT_SHARE_ASSET_TYPE = 10,
+  VAULT_DEBT_ASSET_TYPE = 11,
+  LEGACY_NTOKEN_ASSET_TYPE = 12,
+}
+
 export enum Network {
   All = 'all',
   Mainnet = 'mainnet',
@@ -49,13 +57,13 @@ export interface TokenDefinition {
   /** String based token symbol */
   symbol: string;
   /** Number of native decimal places for the token */
-  decimalPlaces: number;
+  decimals: number;
   /** Defines the token standard this token relies on */
   tokenInterface: TokenInterface;
   /** Defines the token type */
   tokenType: TokenType;
   /** Link to the underlying token definition, if it exists */
-  underlying?: TokenDefinition;
+  underlying?: string;
   /** Defines the maturity of the token, if it exists */
   maturity?: number;
   /** Vault Address */

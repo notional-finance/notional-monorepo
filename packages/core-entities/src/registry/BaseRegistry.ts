@@ -28,28 +28,33 @@ interface SubjectKey {
  * - [Both] Updates observables internal timestamps and block numbers
  */
 export abstract class BaseRegistry<T> {
-  private _interval?: Observable<number>;
-  private _intervalSubscription?: Subscription;
+  private _interval = new Map<Network, Observable<number>>();
+  private _intervalSubscription = new Map<Network, Subscription>();
 
-  protected abstract _refresh(): Promise<CacheSchema<T>>;
+  protected abstract _refresh(network: Network): Promise<CacheSchema<T>>;
 
-  protected stopRefresh() {
-    if (this._intervalSubscription) this._intervalSubscription.unsubscribe();
+  protected stopRefresh(network: Network) {
+    this._intervalSubscription.get(network)?.unsubscribe();
   }
 
-  protected startRefreshInterval(intervalMS: number) {
-    if (this._intervalSubscription) this._intervalSubscription.unsubscribe();
+  protected startRefreshInterval(network: Network, intervalMS: number) {
+    this.stopRefresh(network);
 
-    this._interval = interval(intervalMS);
-    this._intervalSubscription = this._interval
-      .pipe(
-        // This will block until the previous refresh has completed so that they do not stack up
-        // if there is a long timeout
-        exhaustMap(() => {
-          return from(this._refresh()).pipe(timeout(intervalMS / 2));
-        })
-      )
-      .subscribe(this._updateNetworkObservables);
+    const newInterval = interval(intervalMS);
+    this._intervalSubscription.set(
+      network,
+      newInterval
+        .pipe(
+          // This will block until the previous refresh has completed so that they do not stack up
+          // if there is a long timeout
+          exhaustMap(() => {
+            return from(this._refresh(network)).pipe(timeout(intervalMS / 2));
+          })
+        )
+        .subscribe(this._updateNetworkObservables)
+    );
+
+    this._interval.set(network, newInterval);
   }
 
   protected subjectRegistered = new BehaviorSubject<SubjectKey | null>(null);

@@ -1,13 +1,16 @@
 import { BigNumber, BigNumberish, utils } from 'ethers';
-import { ExchangeRate, TokenDefinition, TokenInterface } from '../Definitions';
+import {
+  ExchangeRate,
+  TokenDefinition,
+  TokenInterface,
+  TokenType,
+} from '../Definitions';
 import { RATE_PRECISION } from '@notional-finance/sdk/config/constants';
+import { OracleRegistry } from '../oracles/OracleRegistry';
 
 export class TokenBalance {
   /** Create Methods */
-  constructor(public n: BigNumber, public token: TokenDefinition) {
-    // if (TokenRegistry.isMaturingToken(token.tokenInterface) && !token.maturity)
-    //   throw Error(`Maturity required for ${token.symbol}`);
-  }
+  constructor(public n: BigNumber, public token: TokenDefinition) {}
 
   static from(n: BigNumberish, token: TokenDefinition) {
     return new TokenBalance(BigNumber.from(n), token);
@@ -18,7 +21,7 @@ export class TokenBalance {
   }
 
   static unit(token: TokenDefinition) {
-    return new TokenBalance(BigNumber.from(10).pow(token.decimalPlaces), token);
+    return new TokenBalance(BigNumber.from(10).pow(token.decimals), token);
   }
 
   static fromJSON(obj: ReturnType<TokenBalance['toJSON']>) {
@@ -39,8 +42,8 @@ export class TokenBalance {
   /**
    * The token's decimals raised to a power of 10
    */
-  get decimals() {
-    return BigNumber.from(10).pow(this.token.decimalPlaces);
+  get precision() {
+    return BigNumber.from(10).pow(this.token.decimals);
   }
 
   /**
@@ -52,7 +55,7 @@ export class TokenBalance {
         this.token.address,
         this.token.network,
         this.token.symbol,
-        this.token.decimalPlaces,
+        this.token.decimals,
         this.token.tokenInterface,
         this.token.maturity,
       ].join(':')
@@ -143,7 +146,7 @@ export class TokenBalance {
    * Scales to a given number of decimal places
    */
   scaleTo(decimalPlaces: number) {
-    return this.scale(BigNumber.from(10).pow(decimalPlaces), this.decimals).n;
+    return this.scale(BigNumber.from(10).pow(decimalPlaces), this.precision).n;
   }
 
   /** Comparison Methods */
@@ -163,9 +166,9 @@ export class TokenBalance {
       throw TypeError(
         `Type Key [symbol]: ${this.token.symbol} != ${m.token.symbol}`
       );
-    } else if (this.token.decimalPlaces !== m.token.decimalPlaces) {
+    } else if (this.token.decimals !== m.token.decimals) {
       throw TypeError(
-        `Type Key [decimalPlaces]: ${this.token.decimalPlaces} != ${m.token.decimalPlaces}`
+        `Type Key [decimalPlaces]: ${this.token.decimals} != ${m.token.decimals}`
       );
     } else if (this.token.tokenInterface !== m.token.tokenInterface) {
       throw TypeError(
@@ -251,7 +254,7 @@ export class TokenBalance {
    * @returns a string representation of the decimal number number
    */
   toExactString() {
-    return utils.formatUnits(this.n, this.token.decimalPlaces);
+    return utils.formatUnits(this.n, this.token.decimals);
   }
 
   /**
@@ -312,35 +315,52 @@ export class TokenBalance {
    * @param discount a discount or buffer scaled to a 100, used for haircuts and buffers
    * @returns a new token balance object
    */
-  toToken(
-    token: TokenDefinition,
-    exchangeRate?: ExchangeRate,
-    discount?: number
-  ) {
-    // TODO: do a lookup against the OracleRegistry here...
+  toToken(token: TokenDefinition, exchangeRate?: ExchangeRate | null) {
+    if (!exchangeRate) {
+      // Fetch the latest exchange rate
+      const path = OracleRegistry.findPath(
+        this.token.id,
+        token.id,
+        this.token.network,
+        true
+      );
+      exchangeRate = OracleRegistry.getLatestFromPath(this.token.network, path);
+    }
+
     if (!exchangeRate) throw Error('No Exchange Rate');
 
     const mustInvert =
-      exchangeRate.quote === token.symbol &&
-      exchangeRate.base === this.token.symbol;
+      exchangeRate.oracle.quote.id == token.id &&
+      exchangeRate.oracle.base.id === this.token.id;
+
     if (
       !mustInvert &&
-      exchangeRate.base !== token.symbol &&
-      exchangeRate.quote !== this.token.symbol
+      exchangeRate.oracle.base.id !== token.id &&
+      exchangeRate.oracle.quote.id !== this.token.id
     ) {
       throw Error(
         `Exchange rate ${exchangeRate} does not match conversion ${this.token.symbol}/${token.symbol}`
       );
     }
 
-    const newToken = new TokenBalance(
+    return new TokenBalance(
       (mustInvert
         ? this.divInRatePrecision(exchangeRate.rate)
         : this.mulInRatePrecision(exchangeRate.rate)
-      ).scaleTo(token.decimalPlaces),
+      ).scaleTo(token.decimals),
       token
     );
+  }
 
-    return discount ? newToken.scale(discount, 100) : newToken;
+  toUnderlying() {
+    if (this.token.tokenType == TokenType.Underlying) return this;
+    if (!this.token.underlying)
+      throw Error(`No underlying defined for ${this.token.symbol}`);
+    return this.toToken(TokenRegistry.getRegistry().getTokenById(this.token.underlying));
+  }
+
+  toRiskAdjustedUnderlying() {
+    // TODO: fix this
+    return this;
   }
 }

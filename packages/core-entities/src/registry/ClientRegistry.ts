@@ -1,6 +1,7 @@
 import crossFetch from 'cross-fetch';
 import { BigNumber } from 'ethers';
 import { CacheSchema } from '.';
+import { Network } from '..';
 import FixedPoint from '../exchanges/BalancerV2/FixedPoint';
 import { TokenBalance } from '../tokens/TokenBalance';
 import { BaseRegistry } from './BaseRegistry';
@@ -8,7 +9,7 @@ import { BaseRegistry } from './BaseRegistry';
 const USE_CROSS_FETCH = process.env['NX_USE_CROSS_FETCH'];
 
 export abstract class ClientRegistry<T> extends BaseRegistry<T> {
-  protected abstract _cacheURL: string;
+  protected abstract _cacheURL(network: Network): string;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected reviver(key: string, value: any): any {
@@ -36,9 +37,9 @@ export abstract class ClientRegistry<T> extends BaseRegistry<T> {
     return value;
   }
 
-  protected async _refresh(): Promise<CacheSchema<T>> {
+  protected async _refresh(network: Network): Promise<CacheSchema<T>> {
     const _fetch = USE_CROSS_FETCH ? crossFetch : fetch;
-    const jsonMap = await (await _fetch(this._cacheURL)).text();
+    const jsonMap = await (await _fetch(this._cacheURL(network))).text();
     return JSON.parse(jsonMap, this.reviver) as CacheSchema<T>;
   }
 }
