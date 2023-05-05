@@ -6,21 +6,17 @@ import { getNowSeconds } from '@notional-finance/util';
 import { Exact, Maybe } from '../.graphclient';
 
 type GraphSDKQuery<R> = (
-  variables?: Exact<{ [key: string]: never }>,
+  variables?: Exact<{ [key: string]: unknown }>,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   options?: any
 ) => Promise<R>;
 
 export abstract class ServerRegistry<T> extends BaseRegistry<T> {
-  protected abstract _getAggregateCalls(network: Network): {
-    calls: AggregateCall<T>[];
-    transforms: ((r: Record<string, T>) => Record<string, T>)[];
-  };
-
   protected async _fetchUsingMulticall(
-    network: Network
+    network: Network,
+    calls: AggregateCall<T>[],
+    transforms: ((r: Record<string, T>) => Record<string, T>)[]
   ): Promise<CacheSchema<T>> {
-    const { calls, transforms } = this._getAggregateCalls(network);
     const { block, results } = await aggregate<T>(calls, provider);
     const finalResults = transforms.reduce((r, t) => t(r), results);
 
@@ -38,7 +34,7 @@ export abstract class ServerRegistry<T> extends BaseRegistry<T> {
     network: Network,
     query: GraphSDKQuery<R>,
     transform: (r: R) => Record<string, T>,
-    variables?: Exact<{ [key: string]: never }>
+    variables?: Exact<{ [key: string]: unknown }>
   ): Promise<CacheSchema<T>> {
     const data = await query(variables, { chainName: network });
     const finalResults = transform(data);

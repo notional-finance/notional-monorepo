@@ -1,0 +1,25 @@
+query AllOracles($numHistoricalRates: Int) {
+  oracles {
+    id
+    lastUpdateBlockNumber
+    lastUpdateTimestamp
+    base { id }
+    quote { id }
+    ratePrecision
+    oracleAddress
+    oracleType
+    mustInvert
+    latestRate
+    historicalRates(first: $numHistoricalRates) {
+      blockNumber
+      timestamp
+      rate
+    }
+  }
+
+  _meta {
+    block {
+        number
+    }
+  }
+}

@@ -1,48 +1,11 @@
 import { BigNumber } from 'ethers';
 import { BaseLiquidityPool } from './exchanges';
-
-export enum AssetType {
-  FCASH_ASSET_TYPE = 1,
-  VAULT_CASH_ASSET_TYPE = 9,
-  VAULT_SHARE_ASSET_TYPE = 10,
-  VAULT_DEBT_ASSET_TYPE = 11,
-  LEGACY_NTOKEN_ASSET_TYPE = 12,
-}
+import { TokenInterface, TokenType, OracleType } from './.graphclient';
 
 export enum Network {
   All = 'all',
   Mainnet = 'mainnet',
-  ArbitrumOne = 'ArbitrumOne',
-}
-
-export enum TokenInterface {
-  /** Standard transferrable ERC20 */
-  ERC20 = 'ERC20',
-  /** ERC4626 yield bearing tokens with an extension of ERC20 */
-  ERC4626 = 'ERC4626',
-  /** ERC1155 tokens */
-  ERC1155 = 'ERC1155',
-  /** ERC721 NFTs */
-  ERC721 = 'ERC721',
-  /** Special handling for ETH */
-  ETH = 'ETH',
-  /** Special handling for WETH */
-  WETH = 'WETH',
-  /** Non-crypto denominated fiat balance (i.e. USD, JPY, EUR) */
-  FIAT = 'FIAT',
-}
-
-export enum TokenType {
-  Underlying = 'Underlying',
-  nToken = 'nToken',
-  WrappedfCash = 'WrappedfCash',
-  PrimeCash = 'PrimeCash',
-  PrimeDebt = 'PrimeDebt',
-  fCash = 'fCash',
-  VaultShare = 'VaultShare',
-  VaultDebt = 'VaultDebt',
-  VaultCash = 'VaultCash',
-  NOTE = 'NOTE',
+  ArbitrumOne = 'arbitrum-one',
 }
 
 export interface TokenDefinition {
@@ -72,46 +35,33 @@ export interface TokenDefinition {
   isFCashDebt?: boolean;
 }
 
-export enum OracleType {
-  /** Standard Chainlink IAggregator interface */
-  Chainlink,
-  fCashOracleRate,
-  fCashSettlementRate,
-  PrimeCashToUnderlyingOracleInterestRate,
-  MoneyMarketToUnderlyingOracleInterestRate,
-  PrimeCashToUnderlyingExchangeRate,
-  PrimeCashToMoneyMarketExchangeRate,
-  PrimeDebtToUnderlyingExchangeRate,
-  PrimeDebtToMoneyMarketExchangeRate,
-  MoneyMarketToUnderlyingExchangeRate,
-  VaultShareOracleRate,
-  /** Balancer V2 time weighted average price oracle */
-  BalancerV2_TWAP,
-}
-
 export interface OracleDefinition {
+  id: string;
   /** Address of the oracle */
-  address: string;
+  oracleAddress: string;
   /** Network the address refers to */
   network: Network;
   /** Type of oracle interface */
   oracleType: OracleType;
-  /** Base for the oracle, rate is quoted as 1 unit of this token.  */
-  base: TokenDefinition;
-  /** Quote for the oracle, rate is how many tokens 1 unit of base will purchase.  */
-  quote: TokenDefinition;
+  /** Base ID for the oracle, rate is quoted as 1 unit of this token.  */
+  base: string;
+  /** Quote ID for the oracle, rate is how many tokens 1 unit of base will purchase.  */
+  quote: string;
   /** Number of decimal places the rate is quoted in */
-  decimalPlaces: number;
-  /** Maximum update cadence in seconds, if defined. Typically only valid for off-chain oracles */
-  heartbeat?: number;
+  decimals: number;
+  /** Most current exchange rate for this oracle */
+  latestRate: ExchangeRate;
+  /** Array of historical exchange rates for this oracle */
+  historicalRates: ExchangeRate[];
 }
 
 export interface ExchangeRate {
-  oracle: OracleDefinition;
   /** Exchange rate in RATE_PRECISION */
   rate: BigNumber;
   /** Timestamp of the last update, can be used to check for value freshness */
   timestamp: number;
+  /** Block number of the last update, can be used to check for value freshness */
+  blockNumber: number;
 }
 
 export interface PoolDefinition {

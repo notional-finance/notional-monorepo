@@ -12,7 +12,7 @@ sources:
           validateSchema: false
 
 documents:
-  - ./queries/AllTokens.graphql
+  - ./queries/*.graphql
 
 codegen:
   contextType: 'MeshContext & { chainName: string }'

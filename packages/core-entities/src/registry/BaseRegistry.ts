@@ -137,8 +137,6 @@ export abstract class BaseRegistry<T> {
 
   /**
    * Returns a subscription to when keys are updated
-   * @param network
-   * @param key
    */
   public subscribeNetworkKeys(network: Network) {
     return this.subjectRegistered
@@ -146,10 +144,23 @@ export abstract class BaseRegistry<T> {
       .pipe(filter((v) => v?.network === network));
   }
 
+  /**
+   * Returns all the registered subject keys
+   */
+  public getAllSubjectKeys(network: Network) {
+    return Array.from(this._getNetworkSubjects(network).keys());
+  }
+
+  /**
+   * Returns true if a key has already been registered
+   */
   public isKeyRegistered(network: Network, key: string) {
     return this.networkSubjects.get(network)?.has(key) === true;
   }
 
+  /**
+   * Executes a callback once when a key has been registered
+   */
   public onSubjectKeyRegistered(network: Network, key: string, fn: () => void) {
     return this.subjectRegistered
       .asObservable()
@@ -160,6 +171,10 @@ export abstract class BaseRegistry<T> {
       .subscribe(fn);
   }
 
+  /**
+   * Returns an observable that can be subscribed to whenever a key is updated. Will throw
+   * error if the key is not yet registered.
+   */
   public subscribeSubject(network: Network, key: string) {
     if (!this.isKeyRegistered(network, key))
       throw Error('Subject key not registered');
@@ -167,7 +182,21 @@ export abstract class BaseRegistry<T> {
     return this._getNetworkSubjects(network).get(key)?.asObservable();
   }
 
+  /**
+   * Returns the latest value from a subject
+   */
   public getLatestFromSubject(network: Network, key: string) {
     return this._getNetworkSubjects(network).get(key)?.value;
+  }
+
+  /**
+   * Returns the latest value from all subjects (if a value is set)
+   */
+  protected getLatestFromAllSubjects(network: Network) {
+    return this.getAllSubjectKeys(network).reduce((map, k) => {
+      const v = this.getLatestFromSubject(network, k);
+      if (v) map.set(k, v);
+      return map;
+    }, new Map<string, T>());
   }
 }
