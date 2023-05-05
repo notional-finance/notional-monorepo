@@ -135,9 +135,7 @@ export abstract class BaseRegistry<T> {
     return this.lastUpdateTimestamp.get(network)?.asObservable();
   }
 
-  /**
-   * Returns a subscription to when keys are updated
-   */
+  /** Returns a subscription to when keys are updated */
   public subscribeNetworkKeys(network: Network) {
     return this.subjectRegistered
       .asObservable()
