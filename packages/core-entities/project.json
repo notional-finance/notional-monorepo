@@ -7,7 +7,7 @@
     "build-graph": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "graphclient build --dir packages/core-entities"
+        "command": "graphclient build --dir packages/core-entities/src"
       },
       "cwd": "packages/core-entities"
     },

@@ -31,7 +31,10 @@ export abstract class BaseRegistry<T> {
   private _interval = new Map<Network, Observable<number>>();
   private _intervalSubscription = new Map<Network, Subscription>();
 
-  protected abstract _refresh(network: Network): Promise<CacheSchema<T>>;
+  protected abstract _refresh(
+    network: Network,
+    intervalNum: number
+  ): Promise<CacheSchema<T>>;
 
   protected stopRefresh(network: Network) {
     this._intervalSubscription.get(network)?.unsubscribe();
@@ -47,8 +50,10 @@ export abstract class BaseRegistry<T> {
         .pipe(
           // This will block until the previous refresh has completed so that they do not stack up
           // if there is a long timeout
-          exhaustMap(() => {
-            return from(this._refresh(network)).pipe(timeout(intervalMS / 2));
+          exhaustMap((intervalNum) => {
+            return from(this._refresh(network, intervalNum)).pipe(
+              timeout(intervalMS / 2)
+            );
           })
         )
         .subscribe(this._updateNetworkObservables)

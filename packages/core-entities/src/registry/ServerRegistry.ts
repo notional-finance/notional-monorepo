@@ -3,7 +3,7 @@ import { BaseRegistry } from './BaseRegistry';
 import { CacheSchema } from '.';
 import { AggregateCall, aggregate } from '@notional-finance/multicall';
 import { getNowSeconds } from '@notional-finance/util';
-import { Exact, Maybe } from '../../.graphclient';
+import { Exact, Maybe } from '../.graphclient';
 
 type GraphSDKQuery<R> = (
   variables?: Exact<{ [key: string]: never }>,

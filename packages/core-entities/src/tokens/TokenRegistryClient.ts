@@ -1,61 +1,10 @@
 import { BigNumber, utils } from 'ethers';
 import { TokenBalance } from './TokenBalance';
-import {
-  AssetType,
-  Network,
-  TokenDefinition,
-  TokenInterface,
-  TokenType,
-} from '../Definitions';
-import { ServerRegistry } from '../registry/ServerRegistry';
-import { AggregateCall } from '@notional-finance/multicall';
-import { CacheSchema } from '../registry';
-import { AllTokensQuery, getBuiltGraphSDK } from '../../.graphclient';
+import { AssetType, Network, TokenDefinition } from '../Definitions';
 import { ClientRegistry } from '../registry/ClientRegistry';
 
-export class TokenRegistryServer extends ServerRegistry<TokenDefinition> {
-  protected _getAggregateCalls(_network: Network): {
-    calls: AggregateCall<TokenDefinition>[];
-    transforms: ((
-      r: Record<string, TokenDefinition>
-    ) => Record<string, TokenDefinition>)[];
-  } {
-    throw Error('Unimplemented');
-  }
-
-  protected _refresh(network: Network): Promise<CacheSchema<TokenDefinition>> {
-    const sdk = getBuiltGraphSDK();
-    return this._fetchUsingGraph<AllTokensQuery>(
-      network,
-      sdk.AllTokens,
-      (r) => {
-        return r.tokens.reduce((obj, v) => {
-          obj[v.id] = {
-            id: v.id,
-            address: v.tokenAddress as string,
-            network,
-            name: v.name,
-            symbol: v.symbol,
-            decimals: v.decimals,
-            tokenInterface: v.tokenInterface as TokenInterface,
-            tokenType: v.tokenType as TokenType,
-            underlying: v.underlying as string | undefined,
-            maturity: v.maturity as number | undefined,
-            vaultAddress: v.vaultAddress as string | undefined,
-            isFCashDebt: v.isfCashDebt,
-          };
-
-          return obj;
-        }, {} as Record<string, TokenDefinition>);
-      }
-    );
-  }
-}
-
 export class TokenRegistryClient extends ClientRegistry<TokenDefinition> {
-  protected _cacheURL(network: Network): string {
-    return `http://localhost:3000/tokens?network=${network}`;
-  }
+  protected cachePath = 'tokens';
 
   public getAllTokens(network: Network) {
     const subjects = this._getNetworkSubjects(network);
