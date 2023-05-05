@@ -73,13 +73,15 @@ abstract class ComposableStablePool extends BaseLiquidityPool<ComposableStablePo
   private baseMetaStablePool: MetaStablePool;
 
   constructor(
+    protected override _network: Network,
     protected override _balances: TokenBalance[],
     protected override _totalSupply: TokenBalance,
     public override poolParams: ComposableStablePoolParams
   ) {
-    super(_balances, _totalSupply, poolParams);
+    super(_network, _balances, _totalSupply, poolParams);
 
     this.baseMetaStablePool = new MetaStablePool(
+      _network,
       _balances,
       _totalSupply,
       poolParams
@@ -641,7 +643,7 @@ export class ThreeTokenComposableStablePool extends ComposableStablePool {
    * @param poolParams this matches the composable stable pool params above
    */
   constructor(
-    network: Network,
+    protected override _network: Network,
     protected override _balances: TokenBalance[],
     protected override _totalSupply: TokenBalance,
     inputs: ThreeTokenMultiCallResults
@@ -650,30 +652,30 @@ export class ThreeTokenComposableStablePool extends ComposableStablePool {
     // mesh well Multicall input structure
     const mainTokenDefinitions = [
       TokenRegistry.getTokenByAddress(
-        network,
+        _network,
         inputs.linearPoolBalances_0.tokens[inputs.linearPoolMainIndex_0]
       ),
       TokenRegistry.getTokenByAddress(
-        network,
+        _network,
         inputs.linearPoolBalances_1.tokens[inputs.linearPoolMainIndex_1]
       ),
       TokenRegistry.getTokenByAddress(
-        network,
+        _network,
         inputs.linearPoolBalances_2.tokens[inputs.linearPoolMainIndex_2]
       ),
     ] as TokenDefinition[];
 
     const wrappedTokenDefinitions = [
       TokenRegistry.getTokenByAddress(
-        network,
+        _network,
         inputs.linearPoolBalances_0.tokens[inputs.linearPoolWrappedIndex_0]
       ),
       TokenRegistry.getTokenByAddress(
-        network,
+        _network,
         inputs.linearPoolBalances_1.tokens[inputs.linearPoolWrappedIndex_1]
       ),
       TokenRegistry.getTokenByAddress(
-        network,
+        _network,
         inputs.linearPoolBalances_2.tokens[inputs.linearPoolWrappedIndex_2]
       ),
     ] as TokenDefinition[];
@@ -741,7 +743,7 @@ export class ThreeTokenComposableStablePool extends ComposableStablePool {
       ],
     } as ComposableStablePoolParams;
 
-    super(_balances, _totalSupply, poolParams);
+    super(_network, _balances, _totalSupply, poolParams);
   }
 }
 
@@ -754,7 +756,7 @@ export class TwoTokenComposableStablePool extends ComposableStablePool {
    * @param poolParams this matches the composable stable pool params above
    */
   constructor(
-    network: Network,
+    protected override _network: Network,
     protected override _balances: TokenBalance[],
     protected override _totalSupply: TokenBalance,
     inputs: TwoTokenMultiCallResults
@@ -763,22 +765,22 @@ export class TwoTokenComposableStablePool extends ComposableStablePool {
     // mesh well Multicall input structure
     const mainTokenDefinitions = [
       TokenRegistry.getTokenByAddress(
-        network,
+        _network,
         inputs.linearPoolBalances_0.tokens[inputs.linearPoolMainIndex_0]
       ),
       TokenRegistry.getTokenByAddress(
-        network,
+        _network,
         inputs.linearPoolBalances_1.tokens[inputs.linearPoolMainIndex_1]
       ),
     ] as TokenDefinition[];
 
     const wrappedTokenDefinitions = [
       TokenRegistry.getTokenByAddress(
-        network,
+        _network,
         inputs.linearPoolBalances_0.tokens[inputs.linearPoolWrappedIndex_0]
       ),
       TokenRegistry.getTokenByAddress(
-        network,
+        _network,
         inputs.linearPoolBalances_1.tokens[inputs.linearPoolWrappedIndex_1]
       ),
     ] as TokenDefinition[];
@@ -833,6 +835,6 @@ export class TwoTokenComposableStablePool extends ComposableStablePool {
       ],
     } as ComposableStablePoolParams;
 
-    super(_balances, _totalSupply, poolParams);
+    super(_network, _balances, _totalSupply, poolParams);
   }
 }

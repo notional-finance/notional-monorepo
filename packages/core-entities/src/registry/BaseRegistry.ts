@@ -19,13 +19,6 @@ interface SubjectKey {
 
 /**
  * Generic class for registries that manages internal subjects and creates observables for them.
- *
- * - [Server Side] Serializes cached data
- * - [Server Side] Fetches data from Graph
- * - [Server Side] Fetches data from Blockchain
- * - [Client Side] Fetches and deserializes cached data
- * - [Both] Updates observables when new data has changed
- * - [Both] Updates observables internal timestamps and block numbers
  */
 export abstract class BaseRegistry<T> {
   private _interval = new Map<Network, Observable<number>>();

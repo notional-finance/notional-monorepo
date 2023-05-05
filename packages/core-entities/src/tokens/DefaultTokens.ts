@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { Network, TokenDefinition, TokenInterface } from '../Definitions';
+import { TokenDefinition } from '../Definitions';
 
 const assignDefaults = (
   obj: Record<string, Partial<TokenDefinition>>,
@@ -30,26 +30,14 @@ const fiat = assignDefaults(
     TRY: {},
   },
   {
-    tokenInterface: TokenInterface.FIAT,
+    tokenInterface: 'FIAT',
     address: ethers.constants.AddressZero,
     decimals: 6,
   }
 );
 
-const assignNetwork = (
-  t: [string, TokenDefinition][],
-  network: Network
-): [Network, Map<string, TokenDefinition>] => [
-  network,
-  new Map<string, TokenDefinition>(
-    t.map(([k, v]) => [k, Object.assign(v, { network })])
-  ),
-];
-
 // Add lists of other default tokens on networks here
-const defaultTokens = new Map<Network, Map<string, TokenDefinition>>([
-  assignNetwork(fiat, Network.All),
-]);
+const defaultTokens = new Map<string, TokenDefinition>(fiat);
 
 /**
  * Returns a list of default underlying tokens across supported networks

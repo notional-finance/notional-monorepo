@@ -91,7 +91,10 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
     schema: CacheSchema<OracleDefinition>
   ): Promise<CacheSchema<OracleDefinition>> {
     const calls = this._getAggregateCalls(schema);
-    const { block, results } = await aggregate(calls, provider);
+    const { block, results } = await aggregate(
+      calls,
+      this.getProvider(schema.network)
+    );
     const timestamp = block.timestamp;
     const blockNumber = block.number;
 
@@ -123,6 +126,7 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
   private _getAggregateCalls(
     results: CacheSchema<OracleDefinition>
   ): AggregateCall<BigNumber>[] {
+    const provider = this.getProvider(results.network);
     return results.values
       .map(([id, oracle]) => {
         if (!oracle) return null;

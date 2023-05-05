@@ -1,6 +1,7 @@
 import { BigNumber } from 'ethers';
-import { BaseLiquidityPool } from './exchanges';
+import { PoolClasses } from './exchanges';
 import { TokenInterface, TokenType, OracleType } from './.graphclient';
+import { TokenBalance } from './tokens/TokenBalance';
 
 export enum Network {
   All = 'all',
@@ -64,11 +65,17 @@ export interface ExchangeRate {
   blockNumber: number;
 }
 
+export interface PoolData {
+  balances: TokenBalance[];
+  totalSupply: TokenBalance;
+  poolParams: Record<string, unknown>;
+}
+
 export interface PoolDefinition {
-  /** Address of the pool */
+  /** Address of the pool which also defines the LP token definition */
   address: string;
   /** Typescript class of the pool to instantiate */
-  poolClass: typeof BaseLiquidityPool;
-  /** LP token definition to add to TokenRegistry */
-  lpToken: TokenDefinition;
+  PoolClass: keyof typeof PoolClasses;
+  /** Pool data used to instantiate the BaseLiquidityPool */
+  latestPoolData?: PoolData;
 }

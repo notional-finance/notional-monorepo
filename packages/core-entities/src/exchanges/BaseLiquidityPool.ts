@@ -2,13 +2,14 @@ import { BigNumber } from 'ethers';
 import { RATE_PRECISION } from '@notional-finance/sdk/config/constants';
 import { doBinarySearch } from './math/Approximation';
 import { AbstractLiquidityPool } from './AbstractLiquidityPool';
-import { ExchangeRate, TokenBalance } from '..';
+import { ExchangeRate, Network, TokenBalance } from '..';
 
 export default abstract class BaseLiquidityPool<
   P
 > extends AbstractLiquidityPool {
   // Balances and total supply are marked as protected so ComposableStablePool can work properly
   constructor(
+    protected _network: Network,
     protected _balances: TokenBalance[],
     protected _totalSupply: TokenBalance,
     public poolParams: P
@@ -29,7 +30,7 @@ export default abstract class BaseLiquidityPool<
   }
 
   public oneLPToken() {
-    return this.totalSupply.copy(this.totalSupply.decimals);
+    return this.totalSupply.copy(this.totalSupply.precision);
   }
 
   /**
@@ -158,7 +159,7 @@ export default abstract class BaseLiquidityPool<
     if (singleSidedEntryTokenIndex) {
       const amountIn = this.getLPTokenSpotValue(singleSidedEntryTokenIndex);
       const lpToAmountInEstimate = amountIn
-        .divInRatePrecision(this.oneLPToken().decimals)
+        .divInRatePrecision(this.oneLPToken().precision)
         .toNumber();
 
       const calculationFunction = (lpToPrimaryRatio: number) => {
@@ -349,7 +350,7 @@ export default abstract class BaseLiquidityPool<
         const { tokensOut: secondaryTokenPrice } = this.calculateTokenTrade(
           // Calculate the trade of a single unit of the token index in
           this.balances[tokenIndexIn].copy(
-            this.balances[tokenIndexIn].decimals
+            this.balances[tokenIndexIn].precision
           ),
           tokenIndexIn,
           tokenIndexOut,
