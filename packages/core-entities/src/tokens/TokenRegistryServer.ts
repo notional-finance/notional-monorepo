@@ -1,10 +1,9 @@
 import { TokenDefinition, Network } from '..';
-import { CacheSchema } from '../registry';
 import { ServerRegistry } from '../registry/ServerRegistry';
 import { getBuiltGraphSDK, AllTokensQuery } from '../.graphclient';
 
 export class TokenRegistryServer extends ServerRegistry<TokenDefinition> {
-  protected _refresh(network: Network): Promise<CacheSchema<TokenDefinition>> {
+  protected _refresh(network: Network) {
     const sdk = getBuiltGraphSDK();
     return this._fetchUsingGraph<AllTokensQuery>(
       network,

@@ -1,7 +1,7 @@
 import { AggregateCall } from '@notional-finance/multicall';
 import { BehaviorSubject } from 'rxjs';
 import { Network } from '..';
-import { BaseCachable } from '../common/BaseCachable';
+import { BaseCachable } from '../registry/BaseRegistry';
 
 interface ProtocolConfig {
   configValues: Map<string, BehaviorSubject<unknown | undefined>>;

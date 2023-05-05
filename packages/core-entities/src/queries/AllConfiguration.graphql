@@ -1,0 +1,108 @@
+query AllConfiguration {
+    currencyConfigurations {
+        id
+        underlying { id }
+        pCash { id }
+        pDebt { id }
+        maxUnderlyingSupply
+        collateralHaircut
+        debtBuffer
+        liquidationDiscount
+        primeCashRateOracleTimeWindowSeconds
+        primeCashHoldingsOracle
+        primeCashCurve {
+            kinkUtilization1
+            kinkUtilization2
+            kinkRate1
+            kinkRate2
+            maxRate
+            minFeeRate
+            maxFeeRate
+            feeRatePercent
+        }
+        primeDebtAllowed
+
+        fCashRateOracleTimeWindowSeconds
+        fCashReserveFeeSharePercent
+        fCashDebtBufferBasisPoints
+        fCashHaircutBasisPoints
+        fCashMinOracleRate
+        fCashMaxOracleRate
+        fCashMaxDiscountFactor
+        fCashLiquidationHaircutBasisPoints
+        fCashLiquidationDebtBufferBasisPoints
+        fCashActiveCurves {
+            kinkUtilization1
+            kinkUtilization2
+            kinkRate1
+            kinkRate2
+            maxRate
+            minFeeRate
+            maxFeeRate
+            feeRatePercent
+        }
+        fCashNextCurves {
+            kinkUtilization1
+            kinkUtilization2
+            kinkRate1
+            kinkRate2
+            maxRate
+            minFeeRate
+            maxFeeRate
+            feeRatePercent
+        }
+
+        treasuryReserveBuffer
+        primeCashHoldings
+        rebalancingTargets
+        rebalancingCooldown
+
+        depositShares
+        leverageThresholds
+        proportions
+        incentiveEmissionRate
+        secondaryIncentiveRewarder
+        residualPurchaseIncentiveBasisPoints
+        residualPurchaseTimeBufferSeconds
+        cashWithholdingBufferBasisPoints
+        pvHaircutPercentage
+        liquidationHaircutPercentage
+    }
+
+    vaultConfigurations {
+        id
+        vaultAddress
+        strategy
+        name
+        primaryBorrowCurrency { id }
+        minAccountBorrowSize
+        minCollateralRatioBasisPoints
+        maxDeleverageCollateralRatioBasisPoints
+        feeRateBasisPoints
+        reserveFeeSharePercent
+        liquidationRatePercent
+        maxBorrowMarketIndex
+        secondaryBorrowCurrencies { id }
+        maxRequiredAccountCollateralRatioBasisPoints
+        enabled
+        allowRollPosition
+        onlyVaultEntry
+        onlyVaultExit
+        onlyVaultRoll
+        onlyVaultDeleverage
+        onlyVaultSettle
+        allowsReentrancy
+        deleverageDisabled
+        maxPrimaryBorrowCapacity
+        totalUsedPrimaryBorrowCapacity
+        maxSecondaryBorrowCapacity
+        totalUsedSecondaryBorrowCapacity
+        minAccountSecondaryBorrow
+    }
+
+    _meta {
+        block {
+            number
+        }
+    }
+}
