@@ -7,7 +7,7 @@ query AllTokens {
         currencyId
         name
         symbol
-        precision
+        decimals
         totalSupply
         hasTransferFee
         isfCashDebt

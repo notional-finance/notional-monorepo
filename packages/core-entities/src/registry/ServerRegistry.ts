@@ -20,7 +20,10 @@ export abstract class ServerRegistry<T> extends BaseRegistry<T> {
     calls: AggregateCall<T>[],
     transforms: ((r: Record<string, T>) => Record<string, T>)[]
   ): Promise<CacheSchema<T>> {
-    const { block, results } = await aggregate<T>(calls, provider);
+    const { block, results } = await aggregate<T>(
+      calls,
+      this.getProvider(network)
+    );
     const finalResults = transforms.reduce((r, t) => t(r), results);
 
     return {
@@ -69,6 +72,4 @@ export abstract class ServerRegistry<T> extends BaseRegistry<T> {
   protected getProvider(network: Network) {
     return getProviderFromNetwork(network);
   }
-
-  // TODO: add a method to merge defaults into results
 }

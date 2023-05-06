@@ -8,7 +8,12 @@ import {
 import { AggregateCall } from '@notional-finance/multicall';
 import { Network } from '@notional-finance/util';
 import { BigNumber, Contract } from 'ethers';
-import { TokenBalance, TokenDefinition } from '../..';
+import {
+  Registry,
+  SerializedTokenBalance,
+  TokenBalance,
+  TokenDefinition,
+} from '../..';
 import BaseLiquidityPool from '../BaseLiquidityPool';
 import FixedPoint from './FixedPoint';
 import MetaStablePool, { MetaStablePoolParams } from './MetaStablePool';
@@ -466,11 +471,8 @@ abstract class ComposableStablePool extends BaseLiquidityPool<ComposableStablePo
         method: 'getActualSupply',
         key: 'totalSupply',
         args: [],
-        transform: (r: BigNumber) => {
-          const token = TokenRegistry.getTokenByAddress(network, poolAddress);
-          if (!token) throw Error(`${poolAddress} not found in token registry`);
-          return TokenBalance.from(r, token);
-        },
+        transform: (r: BigNumber) =>
+          TokenBalance.toJSON(r, poolAddress, network),
       },
       {
         stage: 0,
@@ -518,7 +520,10 @@ abstract class ComposableStablePool extends BaseLiquidityPool<ComposableStablePo
       {
         stage: 1,
         target: (r) =>
-          new Contract(r[`${poolAddress}.vaultAddress`], BalancerVaultABI),
+          new Contract(
+            r[`${poolAddress}.vaultAddress`] as string,
+            BalancerVaultABI
+          ),
         method: 'getPoolTokens',
         args: (r) => [r[`${poolAddress}.poolId`]],
         key: 'balances',
@@ -532,12 +537,7 @@ abstract class ComposableStablePool extends BaseLiquidityPool<ComposableStablePo
             .filter((_, i) => i === aggregateResults[`${poolAddress}.bptIndex`])
             .map((b, i) => {
               // These tokens are linear BPT token
-              const token = TokenRegistry.getTokenByAddress(
-                network,
-                r.tokens[i]
-              );
-              if (!token) throw Error(`${r.tokens[i]} not found in registry`);
-              return TokenBalance.from(b, token);
+              return TokenBalance.toJSON(b, r.tokens[i], network);
             }),
       },
       ...Array(this.NUM_LINEAR_POOL_TOKENS).flatMap((_, i) => {
@@ -547,7 +547,9 @@ abstract class ComposableStablePool extends BaseLiquidityPool<ComposableStablePo
             stage: 2,
             target: (r) =>
               new Contract(
-                r[`${poolAddress}.balances`][i].token.address,
+                (r[`${poolAddress}.balances`] as SerializedTokenBalance[])[
+                  i
+                ].tokenId,
                 BalancerLinearPoolABI
               ),
             method: 'getPoolId',
@@ -557,7 +559,9 @@ abstract class ComposableStablePool extends BaseLiquidityPool<ComposableStablePo
             stage: 2,
             target: (r) =>
               new Contract(
-                r[`${poolAddress}.balances`][i].token.address,
+                (r[`${poolAddress}.balances`] as SerializedTokenBalance[])[
+                  i
+                ].tokenId,
                 BalancerLinearPoolABI
               ),
             method: 'getScalingFactors',
@@ -568,7 +572,9 @@ abstract class ComposableStablePool extends BaseLiquidityPool<ComposableStablePo
             stage: 2,
             target: (r) =>
               new Contract(
-                r[`${poolAddress}.balances`][i].token.address,
+                (r[`${poolAddress}.balances`] as SerializedTokenBalance[])[
+                  i
+                ].tokenId,
                 BalancerLinearPoolABI
               ),
             method: 'getVirtualSupply',
@@ -578,7 +584,9 @@ abstract class ComposableStablePool extends BaseLiquidityPool<ComposableStablePo
             stage: 2,
             target: (r) =>
               new Contract(
-                r[`${poolAddress}.balances`][i].token.address,
+                (r[`${poolAddress}.balances`] as SerializedTokenBalance[])[
+                  i
+                ].tokenId,
                 BalancerLinearPoolABI
               ),
             method: 'getMainIndex',
@@ -588,7 +596,9 @@ abstract class ComposableStablePool extends BaseLiquidityPool<ComposableStablePo
             stage: 2,
             target: (r) =>
               new Contract(
-                r[`${poolAddress}.balances`][i].token.address,
+                (r[`${poolAddress}.balances`] as SerializedTokenBalance[])[
+                  i
+                ].tokenId,
                 BalancerLinearPoolABI
               ),
             method: 'getWrappedIndex',
@@ -598,7 +608,9 @@ abstract class ComposableStablePool extends BaseLiquidityPool<ComposableStablePo
             stage: 2,
             target: (r) =>
               new Contract(
-                r[`${poolAddress}.balances`][i].token.address,
+                (r[`${poolAddress}.balances`] as SerializedTokenBalance[])[
+                  i
+                ].tokenId,
                 BalancerLinearPoolABI
               ),
             method: 'getSwapFeePercentage',
@@ -608,7 +620,9 @@ abstract class ComposableStablePool extends BaseLiquidityPool<ComposableStablePo
             stage: 2,
             target: (r) =>
               new Contract(
-                r[`${poolAddress}.balances`][i].token.address,
+                (r[`${poolAddress}.balances`] as SerializedTokenBalance[])[
+                  i
+                ].tokenId,
                 BalancerLinearPoolABI
               ),
             method: 'getTargets',
@@ -617,7 +631,10 @@ abstract class ComposableStablePool extends BaseLiquidityPool<ComposableStablePo
           {
             stage: 3,
             target: (r) =>
-              new Contract(r[`${poolAddress}.vaultAddress`], BalancerVaultABI),
+              new Contract(
+                r[`${poolAddress}.vaultAddress`] as string,
+                BalancerVaultABI
+              ),
             method: 'getPoolTokens',
             args: (r) => [r[`${poolAddress}.linearPoolId_${i}`]],
             key: `linearPoolBalances_${i}`,
@@ -649,33 +666,34 @@ export class ThreeTokenComposableStablePool extends ComposableStablePool {
     protected override _totalSupply: TokenBalance,
     inputs: ThreeTokenMultiCallResults
   ) {
+    const tokenRegistry = Registry.getTokenRegistry();
     // Multicall Inputs need to be remapped into ComposableStablePoolParams due to how Linear pools do not
     // mesh well Multicall input structure
     const mainTokenDefinitions = [
-      TokenRegistry.getTokenByAddress(
+      tokenRegistry.getTokenByAddress(
         _network,
         inputs.linearPoolBalances_0.tokens[inputs.linearPoolMainIndex_0]
       ),
-      TokenRegistry.getTokenByAddress(
+      tokenRegistry.getTokenByAddress(
         _network,
         inputs.linearPoolBalances_1.tokens[inputs.linearPoolMainIndex_1]
       ),
-      TokenRegistry.getTokenByAddress(
+      tokenRegistry.getTokenByAddress(
         _network,
         inputs.linearPoolBalances_2.tokens[inputs.linearPoolMainIndex_2]
       ),
     ] as TokenDefinition[];
 
     const wrappedTokenDefinitions = [
-      TokenRegistry.getTokenByAddress(
+      tokenRegistry.getTokenByAddress(
         _network,
         inputs.linearPoolBalances_0.tokens[inputs.linearPoolWrappedIndex_0]
       ),
-      TokenRegistry.getTokenByAddress(
+      tokenRegistry.getTokenByAddress(
         _network,
         inputs.linearPoolBalances_1.tokens[inputs.linearPoolWrappedIndex_1]
       ),
-      TokenRegistry.getTokenByAddress(
+      tokenRegistry.getTokenByAddress(
         _network,
         inputs.linearPoolBalances_2.tokens[inputs.linearPoolWrappedIndex_2]
       ),
@@ -762,25 +780,26 @@ export class TwoTokenComposableStablePool extends ComposableStablePool {
     protected override _totalSupply: TokenBalance,
     inputs: TwoTokenMultiCallResults
   ) {
+    const tokenRegistry = Registry.getTokenRegistry();
     // Multicall Inputs need to be remapped into ComposableStablePoolParams due to how Linear pools do not
     // mesh well Multicall input structure
     const mainTokenDefinitions = [
-      TokenRegistry.getTokenByAddress(
+      tokenRegistry.getTokenByAddress(
         _network,
         inputs.linearPoolBalances_0.tokens[inputs.linearPoolMainIndex_0]
       ),
-      TokenRegistry.getTokenByAddress(
+      tokenRegistry.getTokenByAddress(
         _network,
         inputs.linearPoolBalances_1.tokens[inputs.linearPoolMainIndex_1]
       ),
     ] as TokenDefinition[];
 
     const wrappedTokenDefinitions = [
-      TokenRegistry.getTokenByAddress(
+      tokenRegistry.getTokenByAddress(
         _network,
         inputs.linearPoolBalances_0.tokens[inputs.linearPoolWrappedIndex_0]
       ),
-      TokenRegistry.getTokenByAddress(
+      tokenRegistry.getTokenByAddress(
         _network,
         inputs.linearPoolBalances_1.tokens[inputs.linearPoolWrappedIndex_1]
       ),

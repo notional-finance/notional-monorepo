@@ -26,9 +26,7 @@ export function getCommonBalancerAggregateCall(
       key: 'totalSupply',
       args: [],
       transform: (r: BigNumber) => {
-        const token = TokenRegistry.getTokenByAddress(network, poolAddress);
-        if (!token) throw Error(`${poolAddress} not found in token registry`);
-        return TokenBalance.from(r, token);
+        return TokenBalance.toJSON(r, poolAddress, network);
       },
     },
     {
@@ -46,18 +44,17 @@ export function getCommonBalancerAggregateCall(
     {
       stage: 1,
       target: (r) =>
-        new Contract(r[`${poolAddress}.vaultAddress`], BalancerVaultABI),
+        new Contract(
+          r[`${poolAddress}.vaultAddress`] as string,
+          BalancerVaultABI
+        ),
       method: 'getPoolTokens',
       args: (r) => [r[`${poolAddress}.poolId`]],
       key: 'balances',
       transform: (
         r: Awaited<ReturnType<BalancerVault['functions']['getPoolTokens']>>
       ) =>
-        r.balances.map((b, i) => {
-          const token = TokenRegistry.getTokenByAddress(network, r.tokens[i]);
-          if (!token) throw Error(`${r.tokens[i]} not found in registry`);
-          return TokenBalance.from(b, token);
-        }),
+        r.balances.map((b, i) => TokenBalance.toJSON(b, r.tokens[i], network)),
     },
   ];
 }

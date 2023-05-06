@@ -1,4 +1,4 @@
-import { BASIS_POINT } from '@notional-finance/sdk/config/constants';
+import { BASIS_POINT } from '@notional-finance/util';
 
 export function doBinarySearch<T>(
   initialMultiple: number,

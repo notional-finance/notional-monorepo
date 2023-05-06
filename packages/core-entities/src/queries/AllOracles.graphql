@@ -5,7 +5,7 @@ query AllOracles($numHistoricalRates: Int) {
     lastUpdateTimestamp
     base { id }
     quote { id }
-    ratePrecision
+    decimals
     oracleAddress
     oracleType
     mustInvert
