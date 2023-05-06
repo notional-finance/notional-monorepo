@@ -1,4 +1,4 @@
-import { Network } from '@notional-finance/util';
+import { getNowSeconds, Network } from '@notional-finance/util';
 import {
   BehaviorSubject,
   exhaustMap,
@@ -17,11 +17,10 @@ interface SubjectKey {
   key: string;
 }
 
-/**
- * Generic class for registries that manages internal subjects and creates observables for them.
- */
+/** Generic class for registries that manages internal subjects and creates observables for them.  */
 export abstract class BaseRegistry<T> {
   private _interval = new Map<Network, Observable<number>>();
+  private _intervalMS = new Map<Network, number>();
   private _intervalSubscription = new Map<Network, Subscription>();
 
   protected abstract _refresh(
@@ -94,6 +93,8 @@ export abstract class BaseRegistry<T> {
   /** Stops refreshes on the selected network */
   public stopRefresh(network: Network) {
     this._intervalSubscription.get(network)?.unsubscribe();
+    this._interval.delete(network);
+    this._intervalMS.delete(network);
   }
 
   /** Starts refreshes on the network at the specified interval */
@@ -117,6 +118,7 @@ export abstract class BaseRegistry<T> {
     );
 
     this._interval.set(network, newInterval);
+    this._intervalMS.set(network, intervalMS);
   }
 
   // Public Observable methods
@@ -183,8 +185,28 @@ export abstract class BaseRegistry<T> {
 
   /**
    * Returns the latest value from a subject
+   *
+   * @param checkFreshness (default: 1) ensures that the returned value is within certain refresh intervals. Set
+   * this to zero if no refresh check is desired
    */
-  public getLatestFromSubject(network: Network, key: string) {
+  public getLatestFromSubject(
+    network: Network,
+    key: string,
+    checkFreshness = 1
+  ) {
+    if (checkFreshness > 0) {
+      const updateTimestamp = this.getLastUpdateTimestamp(network);
+      const intervalMS = this._intervalMS.get(network);
+      if (!intervalMS) throw Error(`${key} on ${network} is not refreshing`);
+      if (updateTimestamp + intervalMS * checkFreshness < getNowSeconds()) {
+        throw Error(
+          `${key} on ${network} has missed ${Math.floor(
+            updateTimestamp - getNowSeconds() / intervalMS
+          )} refreshes`
+        );
+      }
+    }
+
     return this._getNetworkSubjects(network).get(key)?.value;
   }
 

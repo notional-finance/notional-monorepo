@@ -1,4 +1,5 @@
 import { ethers } from 'ethers';
+import { Network, NetworkId } from './constants';
 
 class AlchemyBatchProvider extends ethers.providers.AlchemyProvider {
   // _pendingBatchAggregator?: NodeJS.Timer;
@@ -38,4 +39,13 @@ export function getProvider(networkId: number) {
     provider.send = ethers.providers.JsonRpcBatchProvider.prototype.send;
     return provider;
   }
+}
+
+export function getProviderFromNetwork(network: Network) {
+  const provider = new ethers.providers.AlchemyProvider(
+    NetworkId[network],
+    'JU05SBqaAUg1-2xYuUvvJlE2-zcFKSwz'
+  );
+  provider.send = ethers.providers.JsonRpcBatchProvider.prototype.send;
+  return provider;
 }

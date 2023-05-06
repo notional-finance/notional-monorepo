@@ -1,6 +1,7 @@
-import { TokenDefinition, Network } from '..';
+import { TokenDefinition } from '..';
 import { ServerRegistry } from '../registry/ServerRegistry';
 import { getBuiltGraphSDK, AllTokensQuery } from '../.graphclient';
+import { Network } from '@notional-finance/util';
 
 export class TokenRegistryServer extends ServerRegistry<TokenDefinition> {
   protected _refresh(network: Network) {

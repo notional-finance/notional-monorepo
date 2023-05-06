@@ -14,3 +14,9 @@ export enum Network {
   Mainnet = 'mainnet',
   ArbitrumOne = 'arbitrum-one',
 }
+
+export const NetworkId: Record<Network, number> = {
+  [Network.All]: 0,
+  [Network.Mainnet]: 1,
+  [Network.ArbitrumOne]: 42161,
+};
