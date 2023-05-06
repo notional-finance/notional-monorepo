@@ -75,19 +75,49 @@ export abstract class BaseRegistry<T> {
       if (s) {
         s.next(value);
       } else {
-        // Create a new subject at the key if it does not yet exist
-        const newSubject = new BehaviorSubject<T | null>(null);
-        newSubject.next(value);
-        subjects.set(key, newSubject);
-
-        // Emits a message that a new subject has been registered at a given key
-        this.subjectRegistered.next({ network: data.network, key });
+        this._addSubjectKey(subjects, data.network, key, value);
       }
     });
 
     // Update global counters for the given network
     this.lastUpdateBlock.get(data.network)?.next(data.lastUpdateBlock);
     this.lastUpdateTimestamp.get(data.network)?.next(data.lastUpdateTimestamp);
+  }
+
+  private _addSubjectKey(
+    subjects: SubjectMap<T>,
+    network: Network,
+    key: string,
+    value: T | null
+  ) {
+    // Create a new subject at the key if it does not yet exist
+    const newSubject = new BehaviorSubject<T | null>(null);
+    newSubject.next(value);
+    subjects.set(key, newSubject);
+
+    // Emits a message that a new subject has been registered at a given key
+    this.subjectRegistered.next({ network: network, key });
+  }
+
+  /** Protected method that allows child classes to expose direct listing of subject keys */
+  protected _updateSubjectKeyDirect(
+    network: Network,
+    key: string,
+    value: T,
+    allowUpdate = false
+  ) {
+    if (!this.networkSubjects.has(network)) {
+      // Initialize the network if it does not yet exist
+      this._initializeNetworkSubject(network);
+    }
+    const subjects = this._getNetworkSubjects(network);
+
+    if (allowUpdate && subjects.has(key)) {
+      subjects.get(key)?.next(value);
+    } else if (!subjects.has(key)) {
+      // Do not re-register the subject key if it is already registered
+      this._addSubjectKey(subjects, network, key, value);
+    }
   }
 
   /** Stops refreshes on the selected network */

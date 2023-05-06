@@ -1,7 +1,8 @@
 import { BigNumber, utils } from 'ethers';
 import { TokenBalance } from './TokenBalance';
-import { Network, TokenDefinition } from '../Definitions';
+import { TokenDefinition } from '../Definitions';
 import { ClientRegistry } from '../registry/ClientRegistry';
+import { Network } from '@notional-finance/util';
 
 export class TokenRegistryClient extends ClientRegistry<TokenDefinition> {
   protected cachePath = 'tokens';
@@ -40,13 +41,24 @@ export class TokenRegistryClient extends ClientRegistry<TokenDefinition> {
     return token;
   }
 
-  public makeBalance(
+  /** Allows various tokens to be registered externally on the client */
+  public registerToken(network: Network, token: TokenDefinition) {
+    // Do not allow re-registration of subject keys
+    this._updateSubjectKeyDirect(network, token.id, token, false);
+  }
+
+  public parseInputToTokenBalance(
     input: string | BigNumber,
-    id: string,
-    network: Network,
-    maturity?: number
+    idOrSymbol: string,
+    network: Network
   ) {
-    const token = this.getTokenByID(network, id);
+    let token: TokenDefinition | undefined;
+    try {
+      token = this.getTokenByID(network, idOrSymbol);
+    } catch {
+      token = this.getTokenBySymbol(network, idOrSymbol);
+    }
+    if (!token) throw Error(`${idOrSymbol} token not found`);
 
     const value =
       typeof input === 'string'
@@ -54,6 +66,6 @@ export class TokenRegistryClient extends ClientRegistry<TokenDefinition> {
         : input;
 
     // Will throw an error if maturity is required and not set
-    return TokenBalance.from(value, Object.assign(token, maturity));
+    return TokenBalance.from(value, token);
   }
 }

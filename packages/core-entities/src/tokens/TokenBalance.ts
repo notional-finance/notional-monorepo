@@ -1,6 +1,7 @@
+import { RATE_PRECISION, SCALAR_PRECISION } from '@notional-finance/util';
 import { BigNumber, BigNumberish, utils } from 'ethers';
 import { ExchangeRate, TokenDefinition } from '../Definitions';
-import { RATE_PRECISION } from '@notional-finance/sdk/config/constants';
+import { Registry } from '../Registry';
 
 export class TokenBalance {
   /** Create Methods */
@@ -305,52 +306,39 @@ export class TokenBalance {
    */
   toToken(token: TokenDefinition, exchangeRate?: ExchangeRate | null) {
     if (!exchangeRate) {
+      const oracleRegistry = Registry.getOracleRegistry();
       // Fetch the latest exchange rate
-      const path = OracleRegistry.findPath(
+      const path = oracleRegistry.findPath(
         this.token.id,
         token.id,
-        this.token.network,
-        true
+        this.token.network
       );
-      exchangeRate = OracleRegistry.getLatestFromPath(this.token.network, path);
+      exchangeRate = oracleRegistry.getLatestFromPath(this.token.network, path);
     }
 
     if (!exchangeRate) throw Error('No Exchange Rate');
-
-    const mustInvert =
-      exchangeRate.oracle.quote.id == token.id &&
-      exchangeRate.oracle.base.id === this.token.id;
-
-    if (
-      !mustInvert &&
-      exchangeRate.oracle.base.id !== token.id &&
-      exchangeRate.oracle.quote.id !== this.token.id
-    ) {
-      throw Error(
-        `Exchange rate ${exchangeRate} does not match conversion ${this.token.symbol}/${token.symbol}`
-      );
-    }
-
     return new TokenBalance(
-      (mustInvert
-        ? this.divInRatePrecision(exchangeRate.rate)
-        : this.mulInRatePrecision(exchangeRate.rate)
-      ).scaleTo(token.decimals),
+      // All exchange rates from the registry are in scalar precision
+      this.scale(exchangeRate.rate, SCALAR_PRECISION).scaleTo(token.decimals),
       token
     );
   }
 
   toUnderlying() {
-    if (this.token.tokenType == TokenType.Underlying) return this;
+    if (this.token.tokenType == 'Underlying') return this;
     if (!this.token.underlying)
       throw Error(`No underlying defined for ${this.token.symbol}`);
-    return this.toToken(
-      TokenRegistry.getRegistry().getTokenById(this.token.underlying)
+    const underlying = Registry.getTokenRegistry().getTokenByID(
+      this.token.network,
+      this.token.underlying
     );
+
+    // Does the exchange rate conversion and decimal scaling
+    return this.toToken(underlying);
   }
 
   toRiskAdjustedUnderlying() {
-    // TODO: fix this
+    throw Error('Unimplemented');
     return this;
   }
 }
