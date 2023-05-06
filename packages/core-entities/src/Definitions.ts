@@ -73,4 +73,6 @@ export interface PoolDefinition {
   PoolClass: keyof typeof PoolClasses;
   /** Pool data used to instantiate the BaseLiquidityPool */
   latestPoolData?: PoolData;
+  /** A list of tokens to register directly on the client before initializing the pool data */
+  registerTokens: TokenDefinition[];
 }

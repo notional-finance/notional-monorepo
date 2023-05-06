@@ -1,71 +1,87 @@
-import { RATE_PRECISION, SCALAR_PRECISION } from '@notional-finance/util';
+import {
+  Network,
+  RATE_PRECISION,
+  SCALAR_PRECISION,
+} from '@notional-finance/util';
 import { BigNumber, BigNumberish, utils } from 'ethers';
 import { ExchangeRate, TokenDefinition } from '../Definitions';
 import { Registry } from '../Registry';
 
+export type SerializedTokenBalance = ReturnType<TokenBalance['toJSON']>;
+
 export class TokenBalance {
   /** Create Methods */
-  constructor(public n: BigNumber, public token: TokenDefinition) {}
+  constructor(
+    public n: BigNumber,
+    public tokenId: string,
+    public network: Network
+  ) {}
 
   static from(n: BigNumberish, token: TokenDefinition) {
-    return new TokenBalance(BigNumber.from(n), token);
+    return new TokenBalance(BigNumber.from(n), token.id, token.network);
   }
 
   static zero(token: TokenDefinition) {
-    return new TokenBalance(BigNumber.from(0), token);
+    return new TokenBalance(BigNumber.from(0), token.id, token.network);
   }
 
   static unit(token: TokenDefinition) {
-    return new TokenBalance(BigNumber.from(10).pow(token.decimals), token);
+    return new TokenBalance(
+      BigNumber.from(10).pow(token.decimals),
+      token.id,
+      token.network
+    );
   }
 
-  static fromJSON(obj: ReturnType<TokenBalance['toJSON']>) {
+  static fromJSON(obj: SerializedTokenBalance) {
     if (!obj._isTokenBalance) throw Error('Invalid JSON Token Balance');
-    return TokenBalance.from(obj.hex, obj.token);
+    return new TokenBalance(BigNumber.from(obj.hex), obj.tokenId, obj.network);
+  }
+
+  /** Creates a serialized JSON token balance */
+  static toJSON(
+    n: BigNumber,
+    tokenId: string,
+    network: Network
+  ): SerializedTokenBalance {
+    return {
+      _isTokenBalance: true,
+      hex: n.toHexString(),
+      tokenId,
+      network,
+    };
+  }
+
+  get token() {
+    return Registry.getTokenRegistry().getTokenByID(this.network, this.tokenId);
   }
 
   copy(n: BigNumberish = this.n) {
     return TokenBalance.from(n, this.token);
   }
 
-  /**
-   * The token's decimals raised to a power of 10
-   */
+  /** The token's decimals raised to a power of 10 */
   get precision() {
     return BigNumber.from(10).pow(this.token.decimals);
   }
 
-  /**
-   * TokenBalance objects with the same typeKey can be added together
-   */
+  /** TokenBalance objects with the same typeKey can be added together */
   get typeKey() {
-    return utils.id(
-      [
-        this.token.address,
-        this.token.network,
-        this.token.symbol,
-        this.token.decimals,
-        this.token.tokenInterface,
-        this.token.maturity,
-      ].join(':')
-    );
+    return utils.id([this.token.id, this.token.network].join(':'));
   }
 
-  /**
-   * TokenBalance objects with the same hash key have the same value
-   */
+  /** TokenBalance objects with the same hash key have the same value */
   get hashKey() {
     return utils.id([this.typeKey, this.n.toString()].join(':'));
   }
 
-  /**
-   * Returns a JSON serializable version of the object
-   */
+  /** Returns a JSON serializable version of the object */
   toJSON() {
     return {
       _isTokenBalance: true,
       hex: this.n.toHexString(),
-      token: this.token,
+      tokenId: this.tokenId,
+      network: this.network,
     };
   }
 
@@ -110,30 +126,22 @@ export class TokenBalance {
     return this.copy(this.n.mul(num).div(denom));
   }
 
-  /**
-   * Multiplies in 1e9 rate precision
-   */
+  /** Multiplies in 1e9 rate precision */
   mulInRatePrecision(numerator: BigNumberish) {
     return this.scale(numerator, RATE_PRECISION);
   }
 
-  /**
-   * Divides in 1e9 rate precision
-   */
+  /** Divides in 1e9 rate precision */
   divInRatePrecision(denominator: BigNumberish) {
     return this.scale(RATE_PRECISION, denominator);
   }
 
-  /**
-   * Returns a BigNumber ratio with a corresponding token balance
-   */
+  /** Returns a BigNumber ratio with a corresponding token balance */
   ratioWith(denominator: TokenBalance) {
     return this.scale(RATE_PRECISION, denominator).n;
   }
 
-  /**
-   * Scales to a given number of decimal places
-   */
+  /** Scales to a given number of decimal places */
   scaleTo(decimalPlaces: number) {
     return this.scale(BigNumber.from(10).pow(decimalPlaces), this.precision).n;
   }
@@ -320,7 +328,8 @@ export class TokenBalance {
     return new TokenBalance(
       // All exchange rates from the registry are in scalar precision
       this.scale(exchangeRate.rate, SCALAR_PRECISION).scaleTo(token.decimals),
-      token
+      token.id,
+      token.network
     );
   }
 

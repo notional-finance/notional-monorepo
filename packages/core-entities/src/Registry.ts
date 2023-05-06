@@ -1,5 +1,6 @@
 import { Network, ONE_MINUTE_MS, ONE_SECOND_MS } from '@notional-finance/util';
 import { ConfigurationClient } from './configuration/ConfigurationClient';
+import defaultPools from './exchanges/DefaultPools';
 import { ExchangeRegistryClient } from './exchanges/ExchangeRegistryClient';
 import { OracleRegistryClient } from './oracles/OracleRegistryClient';
 import { TokenRegistryClient } from './tokens/TokenRegistryClient';
@@ -17,19 +18,15 @@ export class Registry {
 
   constructor(cacheHostname: string) {
     Registry._tokens = new TokenRegistryClient(cacheHostname);
-    Registry._exchanges = new ExchangeRegistryClient(cacheHostname);
     Registry._oracles = new OracleRegistryClient(cacheHostname);
     Registry._configurations = new ConfigurationClient(cacheHostname);
+    Registry._exchanges = new ExchangeRegistryClient(cacheHostname);
   }
 
   public static startRefresh(network: Network) {
     Registry.getTokenRegistry().startRefreshInterval(
       network,
       Registry.DEFAULT_TOKEN_REFRESH
-    );
-    Registry.getExchangeRegistry().startRefreshInterval(
-      network,
-      Registry.DEFAULT_EXCHANGE_REFRESH
     );
     Registry.getOracleRegistry().startRefreshInterval(
       network,
@@ -38,6 +35,18 @@ export class Registry {
     Registry.getConfigurationRegistry().startRefreshInterval(
       network,
       Registry.DEFAULT_CONFIGURATION_REFRESH
+    );
+
+    // Prior to starting the exchange registry, register all the required tokens. When
+    // reviving data from the cache host it will attempt to find these token definitions
+    const tokenRegistry = Registry.getTokenRegistry();
+    defaultPools[network].forEach((pool) =>
+      pool.registerTokens.forEach(tokenRegistry.registerToken)
+    );
+
+    Registry.getExchangeRegistry().startRefreshInterval(
+      network,
+      Registry.DEFAULT_EXCHANGE_REFRESH
     );
   }
 

@@ -42,9 +42,9 @@ export class TokenRegistryClient extends ClientRegistry<TokenDefinition> {
   }
 
   /** Allows various tokens to be registered externally on the client */
-  public registerToken(network: Network, token: TokenDefinition) {
+  public registerToken(token: TokenDefinition) {
     // Do not allow re-registration of subject keys
-    this._updateSubjectKeyDirect(network, token.id, token, false);
+    this._updateSubjectKeyDirect(token.network, token.id, token, false);
   }
 
   public parseInputToTokenBalance(
