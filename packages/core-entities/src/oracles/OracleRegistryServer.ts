@@ -3,12 +3,13 @@ import { aggregate, AggregateCall } from '@notional-finance/multicall';
 import {
   decodeERC1155Id,
   INTERNAL_TOKEN_PRECISION,
+  Network,
   ZERO_ADDRESS,
 } from '@notional-finance/util';
 import { BigNumber, Contract } from 'ethers';
-import { OracleDefinition, Network } from '..';
+import { OracleDefinition } from '..';
 import { AllOraclesQuery, getBuiltGraphSDK } from '../.graphclient';
-import { CacheSchema } from '../registry';
+import { CacheSchema } from '../registry/index';
 import { ServerRegistry } from '../registry/ServerRegistry';
 
 export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {

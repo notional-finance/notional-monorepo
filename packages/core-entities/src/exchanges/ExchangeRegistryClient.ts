@@ -1,6 +1,7 @@
+import { Network } from '@notional-finance/util';
 import { map } from 'rxjs';
 import { PoolClasses, PoolConstructor } from '.';
-import { Network, PoolDefinition } from '..';
+import { PoolDefinition } from '..';
 import { ClientRegistry } from '../registry/ClientRegistry';
 
 export class ExchangeRegistryClient extends ClientRegistry<PoolDefinition> {

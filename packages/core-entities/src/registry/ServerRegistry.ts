@@ -1,8 +1,7 @@
-import { Network } from '..';
 import { BaseRegistry } from './BaseRegistry';
 import { CacheSchema } from '.';
 import { AggregateCall, aggregate } from '@notional-finance/multicall';
-import { getNowSeconds } from '@notional-finance/util';
+import { getNowSeconds, Network } from '@notional-finance/util';
 import { Exact, Maybe } from '../.graphclient';
 import { ethers } from 'ethers';
 

@@ -1,6 +1,7 @@
 import { aggregate } from '@notional-finance/multicall';
+import { Network } from '@notional-finance/util';
 import { PoolClasses } from '.';
-import { PoolDefinition, Network, PoolData, TokenBalance } from '..';
+import { PoolDefinition, PoolData, TokenBalance } from '..';
 import { ServerRegistry } from '../registry/ServerRegistry';
 import defaultPools from './DefaultPools';
 

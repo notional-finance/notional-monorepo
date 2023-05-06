@@ -1,7 +1,8 @@
 import { BalancerVault, BalancerVaultABI } from '@notional-finance/contracts';
 import { AggregateCall } from '@notional-finance/multicall';
+import { Network } from '@notional-finance/util';
 import { BigNumber, Contract } from 'ethers';
-import { Network, TokenBalance, TokenRegistry } from '../..';
+import { TokenBalance } from '../..';
 import FixedPoint from './FixedPoint';
 
 export function getCommonBalancerAggregateCall(

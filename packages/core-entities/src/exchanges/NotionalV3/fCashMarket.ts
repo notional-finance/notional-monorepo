@@ -1,12 +1,10 @@
 import BaseLiquidityPool from '../BaseLiquidityPool';
 import { AggregateCall } from '@notional-finance/multicall';
-import { Network } from '../../Definitions';
 import { TokenBalance } from '../../tokens/TokenBalance';
-import { getNowSeconds } from '@notional-finance/util';
+import { getNowSeconds, Network } from '@notional-finance/util';
 import { RATE_PRECISION, SECONDS_IN_YEAR } from '@notional-finance/sdk';
 import { Notional, NotionalABI } from '@notional-finance/contracts';
 import { Contract } from 'ethers';
-import { TokenRegistry } from '../../tokens/TokenRegistry';
 
 interface fCashMarketParams {
   perMarketCash: TokenBalance[];

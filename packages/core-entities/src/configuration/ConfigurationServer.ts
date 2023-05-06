@@ -1,6 +1,6 @@
 import { ServerRegistry } from '../registry/ServerRegistry';
 import { getBuiltGraphSDK, AllConfigurationQuery } from '../.graphclient';
-import { Network } from '..';
+import { Network } from '@notional-finance/util';
 
 export class ConfigurationServer extends ServerRegistry<AllConfigurationQuery> {
   /** Returns the all configuration query type as is, parsing will be done in the client */

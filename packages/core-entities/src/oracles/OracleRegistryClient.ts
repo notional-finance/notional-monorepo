@@ -1,8 +1,8 @@
 import { BigNumber } from 'ethers';
 import { combineLatest, map, of, Subscription, withLatestFrom } from 'rxjs';
-import { ExchangeRate, Network, OracleDefinition } from '../Definitions';
+import { ExchangeRate, OracleDefinition } from '../Definitions';
 import { ClientRegistry } from '../registry/ClientRegistry';
-import { SCALAR_PRECISION } from '@notional-finance/util';
+import { SCALAR_PRECISION, Network } from '@notional-finance/util';
 
 // type OracleSubject = BehaviorSubject<ExchangeRate | null>;
 type AdjList = Map<string, Set<string>>;
@@ -12,8 +12,9 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
   protected adjLists = new Map<Network, AdjList>();
   private _adjListSubscription: Subscription;
 
-  constructor() {
-    super();
+  constructor(cacheHostname: string) {
+    super(cacheHostname);
+
     this._adjListSubscription = this.subjectRegistered
       .asObservable()
       .subscribe((subjectKey) => {

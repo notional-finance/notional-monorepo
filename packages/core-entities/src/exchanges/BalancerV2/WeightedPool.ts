@@ -1,7 +1,8 @@
 import { BalancerPoolABI } from '@notional-finance/contracts';
 import { AggregateCall } from '@notional-finance/multicall';
+import { Network } from '@notional-finance/util';
 import { BigNumber, Contract } from 'ethers';
-import { Network, TokenBalance } from '../..';
+import { TokenBalance } from '../..';
 import BaseLiquidityPool from '../BaseLiquidityPool';
 import { getCommonBalancerAggregateCall } from './Common';
 import FixedPoint from './FixedPoint';

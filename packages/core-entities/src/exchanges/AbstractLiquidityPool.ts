@@ -1,5 +1,6 @@
 import { AggregateCall } from '@notional-finance/multicall';
-import { Network, TokenBalance } from '..';
+import { Network } from '@notional-finance/util';
+import { TokenBalance } from '..';
 
 export abstract class AbstractLiquidityPool {
   public static getInitData(

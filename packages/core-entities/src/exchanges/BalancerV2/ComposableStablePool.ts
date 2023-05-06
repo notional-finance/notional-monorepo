@@ -6,8 +6,9 @@ import {
   BalancerLinearPoolABI,
 } from '@notional-finance/contracts';
 import { AggregateCall } from '@notional-finance/multicall';
+import { Network } from '@notional-finance/util';
 import { BigNumber, Contract } from 'ethers';
-import { Network, TokenBalance, TokenDefinition, TokenRegistry } from '../..';
+import { TokenBalance, TokenDefinition } from '../..';
 import BaseLiquidityPool from '../BaseLiquidityPool';
 import FixedPoint from './FixedPoint';
 import MetaStablePool, { MetaStablePoolParams } from './MetaStablePool';

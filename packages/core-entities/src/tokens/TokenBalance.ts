@@ -1,12 +1,6 @@
 import { BigNumber, BigNumberish, utils } from 'ethers';
-import {
-  ExchangeRate,
-  TokenDefinition,
-  TokenInterface,
-  TokenType,
-} from '../Definitions';
+import { ExchangeRate, TokenDefinition } from '../Definitions';
 import { RATE_PRECISION } from '@notional-finance/sdk/config/constants';
-import { OracleRegistry } from '../oracles/OracleRegistry';
 
 export class TokenBalance {
   /** Create Methods */
@@ -31,12 +25,6 @@ export class TokenBalance {
 
   copy(n: BigNumberish = this.n) {
     return TokenBalance.from(n, this.token);
-  }
-
-  /** Attributes Methods */
-
-  get isWETH() {
-    return this.token.tokenInterface === TokenInterface.WETH;
   }
 
   /**
@@ -356,7 +344,9 @@ export class TokenBalance {
     if (this.token.tokenType == TokenType.Underlying) return this;
     if (!this.token.underlying)
       throw Error(`No underlying defined for ${this.token.symbol}`);
-    return this.toToken(TokenRegistry.getRegistry().getTokenById(this.token.underlying));
+    return this.toToken(
+      TokenRegistry.getRegistry().getTokenById(this.token.underlying)
+    );
   }
 
   toRiskAdjustedUnderlying() {

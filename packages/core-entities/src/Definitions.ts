@@ -2,12 +2,7 @@ import { BigNumber } from 'ethers';
 import { PoolClasses } from './exchanges';
 import { TokenInterface, TokenType, OracleType } from './.graphclient';
 import { TokenBalance } from './tokens/TokenBalance';
-
-export enum Network {
-  All = 'all',
-  Mainnet = 'mainnet',
-  ArbitrumOne = 'arbitrum-one',
-}
+import { Network } from '@notional-finance/util';
 
 export interface TokenDefinition {
   /** Defines the ERC1155 or ERC721 id of the token, if it exists */

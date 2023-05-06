@@ -1,5 +1,5 @@
+import { Network } from '@notional-finance/util';
 import { BehaviorSubject } from 'rxjs';
-import { Network } from '../Definitions';
 
 export interface CacheSchema<T> {
   values: Array<[string, T | null]>;

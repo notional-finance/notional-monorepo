@@ -6,7 +6,7 @@ import {
   ThreeTokenComposableStablePool,
 } from './BalancerV2/ComposableStablePool';
 import { TokenBalance } from '../tokens/TokenBalance';
-import { Network } from '..';
+import { Network } from '@notional-finance/util';
 
 type PoolConstructor = new (
   network: Network,
