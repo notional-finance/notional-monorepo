@@ -17,3 +17,4 @@ export { default as NTokenERC20ABI } from './nTokenERC20.json';
 export { default as SNOTEABI } from './sNOTE.json';
 export { default as TreasuryManagerABI } from './TreasuryManager.json';
 export { default as TradingModuleABI } from './TradingModule.json';
+export { default as IStrategyVaultABI } from './IStrategyVault.json';

@@ -1,4 +1,8 @@
-import { IAggregatorABI, IAggregator } from '@notional-finance/contracts';
+import {
+  IAggregatorABI,
+  IAggregator,
+  IStrategyVaultABI,
+} from '@notional-finance/contracts';
 import { aggregate, AggregateCall } from '@notional-finance/multicall';
 import {
   decodeERC1155Id,

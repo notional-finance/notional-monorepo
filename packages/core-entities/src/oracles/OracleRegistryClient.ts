@@ -1,8 +1,8 @@
+import { SCALAR_PRECISION, Network } from '@notional-finance/util';
 import { BigNumber } from 'ethers';
 import { combineLatest, map, of, Subscription, withLatestFrom } from 'rxjs';
 import { ExchangeRate, OracleDefinition } from '../Definitions';
 import { ClientRegistry } from '../registry/ClientRegistry';
-import { SCALAR_PRECISION, Network } from '@notional-finance/util';
 
 // type OracleSubject = BehaviorSubject<ExchangeRate | null>;
 type AdjList = Map<string, Set<string>>;
