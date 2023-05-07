@@ -45,7 +45,8 @@ export class Logger {
         method: 'POST',
         body,
         headers: {
-          'content-type': 'application/json',
+          'Content-Encoding': 'gzip',
+          'Content-Type': 'application/json',
           'dd-api-key': this.loggerConfig.apiKey,
         },
       };
