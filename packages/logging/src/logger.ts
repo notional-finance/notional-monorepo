@@ -10,47 +10,49 @@ const MessageDefaults = {
   message: '',
 };
 
-let baseMessage: LogMessage;
-let loggerConfig: LoggerOptions;
+export class Logger {
+  baseMessage: LogMessage;
+  loggerConfig: LoggerOptions;
 
-export function initLogger(opts: LoggerOptions) {
-  const { service, version, env, apiKey, url } = opts;
-  loggerConfig = {
-    url,
-    apiKey,
-    service,
-    version,
-    env,
-  };
-
-  baseMessage = {
-    ...MessageDefaults,
-    service,
-    version,
-    env,
-  };
-}
-
-export async function log(msg: LogMessage) {
-  try {
-    const timestamp = new Date();
-    const body = JSON.stringify({
-      ...baseMessage,
-      ...msg,
-      timestamp,
-    });
-
-    const opts = {
-      method: 'POST',
-      body,
-      headers: {
-        'content-type': 'application/json',
-        'dd-api-key': loggerConfig.apiKey,
-      },
+  constructor(opts: LoggerOptions) {
+    const { service, version, env, apiKey, url } = opts;
+    this.loggerConfig = {
+      url,
+      apiKey,
+      service,
+      version,
+      env,
     };
 
-    await fetch(loggerConfig.url ?? DefaultLoggerConfig.url, opts);
-  } catch (e) {
-    console.error(e);
+    this.baseMessage = {
+      ...MessageDefaults,
+      service,
+      version,
+      env,
+    };
+  }
+
+  async log(msg: LogMessage) {
+    try {
+      const timestamp = new Date();
+      const body = JSON.stringify({
+        ...this.baseMessage,
+        ...msg,
+        timestamp,
+      });
+
+      const opts = {
+        method: 'POST',
+        body,
+        headers: {
+          'content-type': 'application/json',
+          'dd-api-key': this.loggerConfig.apiKey,
+        },
+      };
+
+      await fetch(this.loggerConfig.url ?? DefaultLoggerConfig.url, opts);
+    } catch (e) {
+      console.error(e);
+    }
   }
 }
