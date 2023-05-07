@@ -6,11 +6,51 @@ node_compat = true
 minify = true
 usage_model = "bundled"
 
+[[migrations]]
+tag = "v1"
+new_classes = [
+    "TokenRegistryDO",
+    "ConfigurationRegistryDO",
+    "ExchangeRegistryDO",
+    "OracleRegistryDO"
+]
+
+[env.local]
+name = "registry-local"
+minify = false
+durable_objects.bindings = [
+  { name = "TOKEN_REGISTRY_DO", class_name = "TokenRegistryDO" },
+  { name = "CONFIGURATION_REGISTRY_DO", class_name = "ConfigurationRegistryDO" },
+  { name = "EXCHANGE_REGISTRY_DO", class_name = "ExchangeRegistryDO" },
+  { name = "ORACLE_REGISTRY_DO", class_name = "OracleRegistryDO" },
+]
+
+[env.local.vars]
+NX_ENV = 'local'
+VERSION = 'v3'
+
 [env.dev]
 name = "registry-dev"
+durable_objects.bindings = [
+  { name = "TOKEN_REGISTRY_DO", class_name = "TokenRegistryDO" },
+  { name = "CONFIGURATION_REGISTRY_DO", class_name = "ConfigurationRegistryDO" },
+  { name = "EXCHANGE_REGISTRY_DO", class_name = "ExchangeRegistryDO" },
+  { name = "ORACLE_REGISTRY_DO", class_name = "OracleRegistryDO" },
+]
 
-[env.beta]
-name = "registry-beta"
+[env.dev.vars]
+NX_ENV = 'dev'
+VERSION = 'v3'
 
 [env.prod]
 name = "registry"
+durable_objects.bindings = [
+  { name = "TOKEN_REGISTRY_DO", class_name = "TokenRegistryDO" },
+  { name = "CONFIGURATION_REGISTRY_DO", class_name = "ConfigurationRegistryDO" },
+  { name = "EXCHANGE_REGISTRY_DO", class_name = "ExchangeRegistryDO" },
+  { name = "ORACLE_REGISTRY_DO", class_name = "OracleRegistryDO" },
+]
+
+[env.prod.vars]
+NX_ENV = 'dev'
+VERSION = 'v3'
