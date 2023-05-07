@@ -1,6 +1,6 @@
 import { BigNumber, ethers } from 'ethers';
-import { Network } from '../src/Definitions';
-import { OracleRegistry } from '../src/oracles/OracleRegistry';
+import { Network } from '../src/definitions';
+import { OracleRegistry } from '../src/oracles/oracle-registry-client';
 import fetchMock from 'jest-fetch-mock';
 
 describe('Oracle Path', () => {

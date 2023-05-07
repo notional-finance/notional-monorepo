@@ -1,4 +1,3 @@
-import { RATE_PRECISION } from '@notional-finance/sdk/config/constants';
 import {
   Network,
   TokenDefinition,

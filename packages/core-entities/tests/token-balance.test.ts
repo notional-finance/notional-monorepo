@@ -1,9 +1,8 @@
 import { ERC20, ERC20ABI } from '@notional-finance/contracts';
-import { RATE_PRECISION } from '@notional-finance/sdk/config/constants';
 import { BigNumber, Contract, ethers } from 'ethers';
-import { Network, TokenInterface } from '../src/Definitions';
-import { TokenBalance } from '../src/tokens/TokenBalance';
-import { TokenRegistry } from '../src/tokens/TokenRegistry';
+import { Network, TokenInterface } from '../src/definitions';
+import { TokenBalance } from '../src/tokens/token-balance';
+import { TokenRegistry } from '../src/tokens/token-registry-client';
 
 describe('TokenBalance', () => {
   it('creates tokens', () => {

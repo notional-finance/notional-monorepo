@@ -1,5 +1,5 @@
 import { ExchangeRate, TokenBalance } from '../../../src';
-import BaseLiquidityPool from '../../../src/exchanges/BaseLiquidityPool';
+import BaseLiquidityPool from '../../../src/exchanges/base-liquidity-pool';
 
 export class MockPool extends BaseLiquidityPool<Record<string, never>> {
   constructor(
