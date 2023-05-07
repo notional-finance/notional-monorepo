@@ -1,39 +1,22 @@
-/**
- * Welcome to Cloudflare Workers! This is your first scheduled worker.
- *
- * - Run `wrangler dev --local` in your terminal to start a development server
- * - Run `curl "http://localhost:8787/cdn-cgi/mf/scheduled"` to trigger the scheduled event
- * - Go back to the console to see what your worker has logged
- * - Update the Cron trigger in wrangler.toml (see https://developers.cloudflare.com/workers/wrangler/configuration/#triggers)
- * - Run `wrangler publish --name my-worker` to publish your worker
- *
- * Learn more at https://developers.cloudflare.com/workers/runtime-apis/scheduled-event/
- */
+import { DurableObjectNamespace } from '@cloudflare/workers-types';
+import { APIEnv } from '@notional-finance/durable-objects';
 
-export interface Env {
-  // Example binding to KV. Learn more at https://developers.cloudflare.com/workers/runtime-apis/kv/
-  // MY_KV_NAMESPACE: KVNamespace;
-  //
-  // Example binding to Durable Object. Learn more at https://developers.cloudflare.com/workers/runtime-apis/durable-objects/
-  // MY_DURABLE_OBJECT: DurableObjectNamespace;
-  //
-  // Example binding to R2. Learn more at https://developers.cloudflare.com/workers/runtime-apis/r2/
-  // MY_BUCKET: R2Bucket;
+async function runHealthCheck(ns: DurableObjectNamespace, version: string) {
+  const stub = ns.get(ns.idFromName(version));
+  await stub.fetch('http://hostname/healthcheck');
 }
 
 export default {
-  async fetch(
-    request: Request,
-    env: Env,
-    ctx: ExecutionContext
-  ): Promise<Response> {
-    return new Response('Hello World!');
+  async fetch(): Promise<Response> {
+    return new Response('Not Found', { status: 404, statusText: 'Not Found' });
   },
-  async scheduled(
-    controller: ScheduledController,
-    env: Env,
-    ctx: ExecutionContext
-  ): Promise<void> {
-    console.log(`Hello World!`);
+  async scheduled(_: ScheduledController, env: APIEnv): Promise<void> {
+    // Run a healthcheck against all of the durable objects.
+    await Promise.all([
+      runHealthCheck(env.TOKEN_REGISTRY_DO, env.VERSION),
+      runHealthCheck(env.CONFIGURATION_REGISTRY_DO, env.VERSION),
+      runHealthCheck(env.EXCHANGE_REGISTRY_DO, env.VERSION),
+      runHealthCheck(env.ORACLE_REGISTRY_DO, env.VERSION),
+    ]);
   },
 };

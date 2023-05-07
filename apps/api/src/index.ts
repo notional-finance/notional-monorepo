@@ -1,19 +1,16 @@
 import { Request } from '@cloudflare/workers-types';
 import { Router, IRequest } from 'itty-router';
+import { APIEnv } from '@notional-finance/durable-objects';
 import {
-  ExchangeRatesDO,
-  KPIsDO,
-  AccountsDO,
-  APIEnv,
-} from '@notional-finance/durable-objects';
-import {
+  handleConfigurations,
+  handleExchanges,
   handleGeoIP,
   handleKPIs,
   handleNewsletter,
+  handleOracles,
+  handleTokens,
   handleYields,
 } from './routes';
-
-export { ExchangeRatesDO, KPIsDO, AccountsDO, APIEnv };
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -50,7 +47,10 @@ router.options('*', handleOptions);
 router.get('/kpis', handleKPIs);
 router.get('/yields', handleYields);
 router.get('/geoip', handleGeoIP);
-router.post('/geoip', handleGeoIP);
+router.get('/tokens', handleTokens);
+router.get('/configurations', handleConfigurations);
+router.get('/oracles', handleOracles);
+router.post('/exchanges', handleExchanges);
 router.post('/newsletter', handleNewsletter);
 
 // Fall through catch for 404 errors

@@ -5,7 +5,6 @@ import {
 } from '@notional-finance/core-entities';
 import { BaseDO } from './base-do';
 import { BaseDOEnv } from '.';
-import { Network } from '@notional-finance/util';
 
 export abstract class RegistryDO extends BaseDO<BaseDOEnv> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -27,10 +26,6 @@ export abstract class RegistryDO extends BaseDO<BaseDOEnv> {
     this.registry = new RegistryClass();
   }
 
-  isValidPath(path: string): boolean {
-    return path === '/' + this.serviceName;
-  }
-
   getStorageKey(url: URL): string {
     const network = url.searchParams.get('network');
     if (!network) throw Error('Network Not Found');
@@ -40,7 +35,7 @@ export abstract class RegistryDO extends BaseDO<BaseDOEnv> {
   async onRefresh() {
     try {
       await Promise.all(
-        (Object.keys(Network) as Network[]).map(async (network) => {
+        this.env.SUPPORTED_NETWORKS.map(async (network) => {
           const intervalNum =
             (await this.state.storage.get<number>(`interval/${network}`)) || 0;
 

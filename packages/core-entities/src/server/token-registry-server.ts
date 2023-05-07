@@ -4,7 +4,7 @@ import { getBuiltGraphSDK, AllTokensQuery } from '../.graphclient';
 import { Network } from '@notional-finance/util';
 
 export class TokenRegistryServer extends ServerRegistry<TokenDefinition> {
-  public static CachePath = 'tokens';
+  public static override CachePath = 'tokens';
 
   protected _refresh(network: Network) {
     const sdk = getBuiltGraphSDK();

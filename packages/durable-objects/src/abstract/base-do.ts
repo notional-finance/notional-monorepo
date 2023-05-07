@@ -49,10 +49,6 @@ export abstract class BaseDO<E extends BaseDOEnv> {
       return this.healthcheck();
     }
 
-    if (url.pathname === `/${this.serviceName}`) {
-      return new Response('Not Found', { status: 404 });
-    }
-
     try {
       const storageKey = this.getStorageKey(url);
 

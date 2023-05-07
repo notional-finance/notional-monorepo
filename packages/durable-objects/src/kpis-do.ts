@@ -1,5 +1,6 @@
 import { DurableObjectState } from '@cloudflare/workers-types';
-import { APIEnv, BaseDO } from './abstract';
+import { APIEnv } from '.';
+import { BaseDO } from './abstract';
 
 export class KPIsDO extends BaseDO<APIEnv> {
   constructor(state: DurableObjectState, env: APIEnv) {
