@@ -12,8 +12,6 @@ export interface BaseDOEnv {
   NX_DD_API_KEY: string;
   NX_ENV: string;
   NX_COMMIT_REF: string;
-  SERVICE_NAME: string;
-  ALARM_CADENCE_MS: number | undefined;
 }
 
 export interface APIEnv extends BaseDOEnv {

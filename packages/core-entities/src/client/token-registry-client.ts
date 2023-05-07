@@ -3,9 +3,10 @@ import { TokenBalance } from '../token-balance';
 import { TokenDefinition } from '../definitions';
 import { ClientRegistry } from '../registry/client-registry';
 import { Network } from '@notional-finance/util';
+import { TokenRegistryServer } from '../server/token-registry-server';
 
 export class TokenRegistryClient extends ClientRegistry<TokenDefinition> {
-  protected cachePath = 'tokens';
+  protected cachePath = TokenRegistryServer.CachePath;
 
   public getAllTokens(network: Network) {
     return Array.from(this.getLatestFromAllSubjects(network).values());

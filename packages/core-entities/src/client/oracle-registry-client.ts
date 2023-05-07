@@ -3,12 +3,14 @@ import { BigNumber } from 'ethers';
 import { combineLatest, map, of, Subscription, withLatestFrom } from 'rxjs';
 import { ExchangeRate, OracleDefinition } from '../definitions';
 import { ClientRegistry } from '../registry/client-registry';
+import { OracleRegistryServer } from '../server/oracle-registry-server';
 
 // type OracleSubject = BehaviorSubject<ExchangeRate | null>;
 type AdjList = Map<string, Set<string>>;
 
 export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
-  protected cachePath = 'oracles';
+  protected cachePath = OracleRegistryServer.CachePath;
+
   protected adjLists = new Map<Network, AdjList>();
   private _adjListSubscription: Subscription;
 

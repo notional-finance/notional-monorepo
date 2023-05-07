@@ -1,5 +1,8 @@
 import { DurableObjectState } from '@cloudflare/workers-types';
-import { ServerRegistryConstructor } from '@notional-finance/core-entities';
+import {
+  ServerRegistryConstructor,
+  ServerRegistryClass,
+} from '@notional-finance/core-entities';
 import { BaseDO } from './base-do';
 import { BaseDOEnv } from '.';
 import { Network } from '@notional-finance/util';
@@ -11,15 +14,21 @@ export abstract class RegistryDO extends BaseDO<BaseDOEnv> {
   constructor(
     state: DurableObjectState,
     env: BaseDOEnv,
+    alarmCadenceMS: number,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     protected RegistryClass: ServerRegistryConstructor<any>
   ) {
-    super(state, env);
+    super(
+      state,
+      env,
+      (RegistryClass as unknown as ServerRegistryClass).CachePath,
+      alarmCadenceMS
+    );
     this.registry = new RegistryClass();
   }
 
   isValidPath(path: string): boolean {
-    return path === '/' + this.env.SERVICE_NAME;
+    return path === '/' + this.serviceName;
   }
 
   getStorageKey(url: URL): string {
@@ -39,7 +48,7 @@ export abstract class RegistryDO extends BaseDO<BaseDOEnv> {
           await this.registry.refresh(network, intervalNum);
           // put the serialized data into the correct network storage key
           await this.state.storage.put(
-            `${this.env.SERVICE_NAME}/${network}`,
+            `${this.serviceName}/${network}`,
             this.registry.serializeToJSON(network)
           );
 

@@ -3,11 +3,7 @@ import { BaseDO, APIEnv } from './abstract';
 
 export class YieldsDO extends BaseDO<APIEnv> {
   constructor(state: DurableObjectState, env: APIEnv) {
-    super(state, env);
-  }
-
-  isValidPath(path: string): boolean {
-    return path === '/yields';
+    super(state, env, 'yields');
   }
 
   getStorageKey(url: URL): string {

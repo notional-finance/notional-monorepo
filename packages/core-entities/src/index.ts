@@ -8,3 +8,4 @@ export * from './registry';
 export const Servers = Server;
 import { ServerRegistry } from './server/server-registry';
 export type ServerRegistryConstructor<T> = new () => ServerRegistry<T>;
+export type ServerRegistryClass = typeof ServerRegistry;

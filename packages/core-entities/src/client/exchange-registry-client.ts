@@ -3,9 +3,10 @@ import { map } from 'rxjs';
 import { PoolClasses, PoolConstructor } from '../exchanges';
 import { PoolDefinition } from '..';
 import { ClientRegistry } from '../registry/client-registry';
+import { ExchangeRegistryServer } from '../server/exchange-registry-server';
 
 export class ExchangeRegistryClient extends ClientRegistry<PoolDefinition> {
-  protected cachePath = 'exchanges';
+  protected cachePath = ExchangeRegistryServer.CachePath;
 
   public subscribePoolInstance(network: Network, address: string) {
     return this.subscribeSubject(network, address)?.pipe(

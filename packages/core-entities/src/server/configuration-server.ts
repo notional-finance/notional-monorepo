@@ -3,6 +3,8 @@ import { getBuiltGraphSDK, AllConfigurationQuery } from '../.graphclient';
 import { Network } from '@notional-finance/util';
 
 export class ConfigurationServer extends ServerRegistry<AllConfigurationQuery> {
+  public static override CachePath = 'configuration';
+
   /** Returns the all configuration query type as is, parsing will be done in the client */
   protected _refresh(network: Network) {
     const sdk = getBuiltGraphSDK();

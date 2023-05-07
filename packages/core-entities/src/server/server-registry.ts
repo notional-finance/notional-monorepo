@@ -15,6 +15,8 @@ type GraphSDKQuery<R> = (
 ) => Promise<R>;
 
 export abstract class ServerRegistry<T> extends BaseRegistry<T> {
+  public static CachePath: string;
+
   protected async _fetchUsingMulticall(
     network: Network,
     calls: AggregateCall<T>[],

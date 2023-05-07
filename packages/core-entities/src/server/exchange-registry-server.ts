@@ -6,6 +6,8 @@ import { ServerRegistry } from './server-registry';
 import defaultPools from '../exchanges/default-pools';
 
 export class ExchangeRegistryServer extends ServerRegistry<PoolDefinition> {
+  public static override CachePath = 'exchanges';
+
   protected async _refresh(network: Network) {
     const networkPools = defaultPools[network];
     const poolKeys = new Map<string, string[]>();

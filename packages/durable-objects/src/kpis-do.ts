@@ -3,11 +3,7 @@ import { APIEnv, BaseDO } from './abstract';
 
 export class KPIsDO extends BaseDO<APIEnv> {
   constructor(state: DurableObjectState, env: APIEnv) {
-    super(state, env);
-  }
-
-  isValidPath(path: string): boolean {
-    return path === '/kpis';
+    super(state, env, 'kpis');
   }
 
   getStorageKey(url: URL): string {
