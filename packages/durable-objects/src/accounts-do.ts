@@ -1,5 +1,5 @@
 import { DurableObjectState } from '@cloudflare/workers-types';
-import { APIEnv, SentinalRequest } from './types';
+import { APIEnv, SentinelRequest } from './abstract';
 import { unique } from '@notional-finance/helpers';
 
 export class AccountsDO {
@@ -32,7 +32,7 @@ export class AccountsDO {
 
   async update(request: Request) {
     try {
-      const { events }: SentinalRequest = await request.json();
+      const { events }: SentinelRequest = await request.json();
       if (events && events.length > 0) {
         const { id, network } = events[0].sentinel;
         if (id !== this.env.SENTINEL_ID) {
