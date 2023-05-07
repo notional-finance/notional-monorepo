@@ -3,7 +3,6 @@
   "version": 2,
   "projects": {
     "api": "apps/api",
-    "blockchain-monitor": "apps/blockchain-monitor",
     "common-icons": "packages/common/icons",
     "common-mui": "packages/common/mui",
     "common-styles": "packages/common/styles",
@@ -19,10 +18,7 @@
     "features-stake": "packages/features/stake",
     "features-treasury": "packages/features/treasury",
     "features-vault": "packages/features/vault",
-    "geoip": "apps/geoip",
-    "graph-client": "packages/graph-client",
     "logging": "packages/logging",
-    "monitors": "packages/monitors",
     "multicall": "packages/multicall",
     "notionable": "packages/notionable",
     "registry": "apps/registry",

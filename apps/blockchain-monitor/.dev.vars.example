@@ -1,4 +1,0 @@
-ALCHEMY_KEY = '<ALCHEMY_KEY>'
-NX_ENV = 'dev'
-NX_DD_API_KEY='<Datadog_API_Key>'
-account_id = '<ACCOUNT_ID>'
