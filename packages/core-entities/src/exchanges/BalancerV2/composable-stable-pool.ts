@@ -14,9 +14,9 @@ import {
   TokenBalance,
   TokenDefinition,
 } from '../..';
-import BaseLiquidityPool from '../BaseLiquidityPool';
-import FixedPoint from './FixedPoint';
-import MetaStablePool, { MetaStablePoolParams } from './MetaStablePool';
+import BaseLiquidityPool from '../base-liquidity-pool';
+import FixedPoint from './fixed-point';
+import MetaStablePool, { MetaStablePoolParams } from './meta-stable-pool';
 
 interface LinearPoolBalances {
   tokens: string[];

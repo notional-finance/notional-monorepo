@@ -1,4 +1,4 @@
-import { ClientRegistry } from '../registry/ClientRegistry';
+import { ClientRegistry } from '../registry/client-registry';
 import { AllConfigurationQuery } from '../.graphclient';
 
 export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {

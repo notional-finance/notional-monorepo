@@ -1,13 +1,13 @@
 import { TokenBalance } from '../..';
-import FixedPoint from './FixedPoint';
-import BaseLiquidityPool from '../BaseLiquidityPool';
+import FixedPoint from './fixed-point';
+import BaseLiquidityPool from '../base-liquidity-pool';
 import {
   BalancerStablePool,
   BalancerStablePoolABI,
 } from '@notional-finance/contracts';
 import { Contract } from 'ethers';
 import { AggregateCall } from '@notional-finance/multicall';
-import { getCommonBalancerAggregateCall } from './Common';
+import { getCommonBalancerAggregateCall } from './common-calls';
 import { Network } from '@notional-finance/util';
 
 export interface MetaStablePoolParams {

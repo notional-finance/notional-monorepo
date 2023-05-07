@@ -1,11 +1,11 @@
-import MetaStablePool from './BalancerV2/MetaStablePool';
-import WeightedPool from './BalancerV2/WeightedPool';
-import BaseLiquidityPool from './BaseLiquidityPool';
+import MetaStablePool from './BalancerV2/meta-stable-pool';
+import WeightedPool from './BalancerV2/weighted-pool';
+import BaseLiquidityPool from './base-liquidity-pool';
 import {
   TwoTokenComposableStablePool,
   ThreeTokenComposableStablePool,
-} from './BalancerV2/ComposableStablePool';
-import { TokenBalance } from '../tokens/TokenBalance';
+} from './BalancerV2/composable-stable-pool';
+import { TokenBalance } from '../tokens/token-balance';
 import { Network } from '@notional-finance/util';
 
 type PoolConstructor = new (

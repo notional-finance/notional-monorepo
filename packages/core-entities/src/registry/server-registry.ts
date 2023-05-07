@@ -1,4 +1,4 @@
-import { BaseRegistry } from './BaseRegistry';
+import { BaseRegistry } from './base-registry';
 import { CacheSchema } from '.';
 import { AggregateCall, aggregate } from '@notional-finance/multicall';
 import {

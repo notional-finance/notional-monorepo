@@ -1,5 +1,5 @@
 import { Network } from '@notional-finance/util';
-import { PoolDefinition } from '../Definitions';
+import { PoolDefinition } from '../definitions';
 
 const defaultPools: Record<Network, PoolDefinition[]> = {
   [Network.Mainnet]: [

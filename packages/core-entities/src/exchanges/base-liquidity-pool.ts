@@ -1,6 +1,6 @@
 import { BigNumber } from 'ethers';
-import { doBinarySearch } from './math/Approximation';
-import { AbstractLiquidityPool } from './AbstractLiquidityPool';
+import { doBinarySearch } from './math/binary-search';
+import { AbstractLiquidityPool } from './abstract-liquidity-pool';
 import { ExchangeRate, TokenBalance } from '..';
 import { Network, RATE_PRECISION } from '@notional-finance/util';
 

@@ -1,5 +1,5 @@
 import { Network } from '@notional-finance/util';
-import { OracleDefinition } from '../Definitions';
+import { OracleDefinition } from '../definitions';
 
 const assignDefaults = (
   list: Partial<OracleDefinition>[],

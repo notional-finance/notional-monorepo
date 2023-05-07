@@ -2,9 +2,9 @@ import { Network } from '@notional-finance/util';
 import crossFetch from 'cross-fetch';
 import { BigNumber } from 'ethers';
 import { CacheSchema } from '.';
-import FixedPoint from '../exchanges/BalancerV2/FixedPoint';
-import { TokenBalance } from '../tokens/TokenBalance';
-import { BaseRegistry } from './BaseRegistry';
+import FixedPoint from '../exchanges/BalancerV2/fixed-point';
+import { TokenBalance } from '../tokens/token-balance';
+import { BaseRegistry } from './base-registry';
 
 const USE_CROSS_FETCH = process.env['NX_USE_CROSS_FETCH'];
 

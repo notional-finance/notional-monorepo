@@ -1,5 +1,5 @@
 import { TokenDefinition } from '..';
-import { ServerRegistry } from '../registry/ServerRegistry';
+import { ServerRegistry } from '../registry/server-registry';
 import { getBuiltGraphSDK, AllTokensQuery } from '../.graphclient';
 import { Network } from '@notional-finance/util';
 

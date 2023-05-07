@@ -1,4 +1,4 @@
-import { ServerRegistry } from '../registry/ServerRegistry';
+import { ServerRegistry } from '../registry/server-registry';
 import { getBuiltGraphSDK, AllConfigurationQuery } from '../.graphclient';
 import { Network } from '@notional-finance/util';
 

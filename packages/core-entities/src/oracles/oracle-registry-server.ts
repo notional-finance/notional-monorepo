@@ -14,7 +14,7 @@ import { BigNumber, Contract } from 'ethers';
 import { OracleDefinition } from '..';
 import { AllOraclesQuery, getBuiltGraphSDK } from '../.graphclient';
 import { CacheSchema } from '../registry/index';
-import { ServerRegistry } from '../registry/ServerRegistry';
+import { ServerRegistry } from '../registry/server-registry';
 
 export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
   public NUM_HISTORICAL_RATES = 25;

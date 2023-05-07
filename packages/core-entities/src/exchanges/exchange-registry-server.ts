@@ -2,8 +2,8 @@ import { aggregate } from '@notional-finance/multicall';
 import { Network } from '@notional-finance/util';
 import { PoolClasses } from '.';
 import { PoolDefinition, PoolData, TokenBalance } from '..';
-import { ServerRegistry } from '../registry/ServerRegistry';
-import defaultPools from './DefaultPools';
+import { ServerRegistry } from '../registry/server-registry';
+import defaultPools from './default-pools';
 
 export class ExchangeRegistryServer extends ServerRegistry<PoolDefinition> {
   protected async _refresh(network: Network) {

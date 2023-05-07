@@ -1,7 +1,7 @@
 import { BigNumber } from 'ethers';
 import { PoolClasses } from './exchanges';
 import { TokenInterface, TokenType, OracleType } from './.graphclient';
-import { TokenBalance } from './tokens/TokenBalance';
+import { TokenBalance } from './tokens/token-balance';
 import { Network } from '@notional-finance/util';
 
 export interface TokenDefinition {

@@ -1,7 +1,7 @@
 import { BigNumber, utils } from 'ethers';
-import { TokenBalance } from './TokenBalance';
-import { TokenDefinition } from '../Definitions';
-import { ClientRegistry } from '../registry/ClientRegistry';
+import { TokenBalance } from './token-balance';
+import { TokenDefinition } from '../definitions';
+import { ClientRegistry } from '../registry/client-registry';
 import { Network } from '@notional-finance/util';
 
 export class TokenRegistryClient extends ClientRegistry<TokenDefinition> {

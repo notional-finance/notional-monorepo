@@ -3,7 +3,7 @@ import { AggregateCall } from '@notional-finance/multicall';
 import { Network } from '@notional-finance/util';
 import { BigNumber, Contract } from 'ethers';
 import { TokenBalance } from '../..';
-import FixedPoint from './FixedPoint';
+import FixedPoint from './fixed-point';
 
 export function getCommonBalancerAggregateCall(
   network: Network,

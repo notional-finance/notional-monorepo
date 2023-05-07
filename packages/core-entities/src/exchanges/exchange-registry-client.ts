@@ -2,7 +2,7 @@ import { Network } from '@notional-finance/util';
 import { map } from 'rxjs';
 import { PoolClasses, PoolConstructor } from '.';
 import { PoolDefinition } from '..';
-import { ClientRegistry } from '../registry/ClientRegistry';
+import { ClientRegistry } from '../registry/client-registry';
 
 export class ExchangeRegistryClient extends ClientRegistry<PoolDefinition> {
   protected cachePath = 'exchanges';

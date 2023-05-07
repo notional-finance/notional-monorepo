@@ -1,9 +1,9 @@
 import { Network, ONE_MINUTE_MS, ONE_SECOND_MS } from '@notional-finance/util';
-import { ConfigurationClient } from './configuration/ConfigurationClient';
-import defaultPools from './exchanges/DefaultPools';
-import { ExchangeRegistryClient } from './exchanges/ExchangeRegistryClient';
-import { OracleRegistryClient } from './oracles/OracleRegistryClient';
-import { TokenRegistryClient } from './tokens/TokenRegistryClient';
+import { ConfigurationClient } from './configuration/configuration-client';
+import defaultPools from './exchanges/default-pools';
+import { ExchangeRegistryClient } from './exchanges/exchange-registry-client';
+import { OracleRegistryClient } from './oracles/oracle-registry-client';
+import { TokenRegistryClient } from './tokens/token-registry-client';
 
 export class Registry {
   protected static _tokens?: TokenRegistryClient;
