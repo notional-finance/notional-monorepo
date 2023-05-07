@@ -1,5 +1,5 @@
 import { BigNumber, utils } from 'ethers';
-import { TokenBalance } from './token-balance';
+import { TokenBalance } from '../token-balance';
 import { TokenDefinition } from '../definitions';
 import { ClientRegistry } from '../registry/client-registry';
 import { Network } from '@notional-finance/util';

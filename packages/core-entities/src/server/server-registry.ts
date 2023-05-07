@@ -1,5 +1,3 @@
-import { BaseRegistry } from './base-registry';
-import { CacheSchema } from '.';
 import { AggregateCall, aggregate } from '@notional-finance/multicall';
 import {
   getNowSeconds,
@@ -7,6 +5,8 @@ import {
   Network,
 } from '@notional-finance/util';
 import { Exact, Maybe } from '../.graphclient';
+import { CacheSchema } from '../registry/index';
+import { BaseRegistry } from '../registry/base-registry';
 
 type GraphSDKQuery<R> = (
   variables?: Exact<{ [key: string]: unknown }>,
@@ -54,6 +54,16 @@ export abstract class ServerRegistry<T> extends BaseRegistry<T> {
     };
   }
 
+  protected getProvider(network: Network) {
+    return getProviderFromNetwork(network);
+  }
+
+  /** Triggers a refresh of the underlying data */
+  public async refresh(network: Network, intervalNum: number) {
+    await this._refresh(network, intervalNum);
+  }
+
+  /** Serializes the data for the given network */
   public serializeToJSON(network: Network) {
     const subjects = this._getNetworkSubjects(network);
     const values = Array.from(subjects.entries()).map(([key, subject]) => [
@@ -67,9 +77,5 @@ export abstract class ServerRegistry<T> extends BaseRegistry<T> {
       lastUpdateTimestamp: this.getLastUpdateTimestamp(network),
       lastUpdateBlock: this.getLastUpdateBlock(network),
     } as CacheSchema<T>);
-  }
-
-  protected getProvider(network: Network) {
-    return getProviderFromNetwork(network);
   }
 }

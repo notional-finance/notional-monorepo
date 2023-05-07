@@ -4,8 +4,8 @@ import {
   SCALAR_PRECISION,
 } from '@notional-finance/util';
 import { BigNumber, BigNumberish, utils } from 'ethers';
-import { ExchangeRate, TokenDefinition } from '../definitions';
-import { Registry } from '../registry';
+import { ExchangeRate, TokenDefinition } from './definitions';
+import { Registry } from './registry';
 
 export type SerializedTokenBalance = ReturnType<TokenBalance['toJSON']>;
 

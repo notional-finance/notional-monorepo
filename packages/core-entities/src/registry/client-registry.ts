@@ -3,7 +3,7 @@ import crossFetch from 'cross-fetch';
 import { BigNumber } from 'ethers';
 import { CacheSchema } from '.';
 import FixedPoint from '../exchanges/BalancerV2/fixed-point';
-import { TokenBalance } from '../tokens/token-balance';
+import { TokenBalance } from '../token-balance';
 import { BaseRegistry } from './base-registry';
 
 const USE_CROSS_FETCH = process.env['NX_USE_CROSS_FETCH'];

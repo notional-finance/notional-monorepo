@@ -1,8 +1,8 @@
 import { ERC20, ERC20ABI } from '@notional-finance/contracts';
 import { BigNumber, Contract, ethers } from 'ethers';
 import { Network, TokenInterface } from '../src/definitions';
-import { TokenBalance } from '../src/tokens/token-balance';
-import { TokenRegistry } from '../src/tokens/token-registry-client';
+import { TokenBalance } from '../src/token-balance';
+import { TokenRegistry } from '../src/client/token-registry-client';
 
 describe('TokenBalance', () => {
   it('creates tokens', () => {
