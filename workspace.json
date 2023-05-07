@@ -25,6 +25,7 @@
     "monitors": "packages/monitors",
     "multicall": "packages/multicall",
     "notionable": "packages/notionable",
+    "registry": "apps/registry",
     "sdk": "packages/sdk",
     "shared-assets": "packages/shared/assets",
     "shared-config": "packages/shared/config",
