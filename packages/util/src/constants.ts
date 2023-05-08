@@ -22,7 +22,7 @@ export const SECONDS_IN_YEAR_ACTUAL = 31536000;
 export enum Network {
   All = 'all',
   Mainnet = 'mainnet',
-  ArbitrumOne = 'arbitrum-one',
+  ArbitrumOne = 'arbitrum',
 }
 
 export const NetworkId: Record<Network, number> = {

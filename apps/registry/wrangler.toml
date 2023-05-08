@@ -1,10 +1,11 @@
 main = "./src/index.ts"
 compatibility_date = "2022-11-11"
+account_id = "274f86c6dcfbb77c09e49e86d101c753"
 
 workers_dev = true
 node_compat = true
 minify = true
-usage_model = "bundled"
+usage_model = "unbound"
 
 [[migrations]]
 tag = "v1"
@@ -18,39 +19,50 @@ new_classes = [
 [env.local]
 name = "registry-local"
 minify = false
-durable_objects.bindings = [
-  { name = "TOKEN_REGISTRY_DO", class_name = "TokenRegistryDO" },
-  { name = "CONFIGURATION_REGISTRY_DO", class_name = "ConfigurationRegistryDO" },
-  { name = "EXCHANGE_REGISTRY_DO", class_name = "ExchangeRegistryDO" },
-  { name = "ORACLE_REGISTRY_DO", class_name = "OracleRegistryDO" },
-]
 
 [env.local.vars]
 NX_ENV = 'local'
 VERSION = 'v3'
+SUPPORTED_NETWORKS = ['arbitrum']
 
-[env.dev]
-name = "registry-dev"
-durable_objects.bindings = [
+[env.local.durable_objects]
+bindings = [
   { name = "TOKEN_REGISTRY_DO", class_name = "TokenRegistryDO" },
   { name = "CONFIGURATION_REGISTRY_DO", class_name = "ConfigurationRegistryDO" },
   { name = "EXCHANGE_REGISTRY_DO", class_name = "ExchangeRegistryDO" },
   { name = "ORACLE_REGISTRY_DO", class_name = "OracleRegistryDO" },
 ]
+
+
+[env.dev]
+name = "registry-dev"
 
 [env.dev.vars]
 NX_ENV = 'dev'
 VERSION = 'v3'
+SUPPORTED_NETWORKS = [ 'arbitrum' ]
 
-[env.prod]
-name = "registry"
-durable_objects.bindings = [
+[env.dev.durable_objects]
+bindings = [
   { name = "TOKEN_REGISTRY_DO", class_name = "TokenRegistryDO" },
   { name = "CONFIGURATION_REGISTRY_DO", class_name = "ConfigurationRegistryDO" },
   { name = "EXCHANGE_REGISTRY_DO", class_name = "ExchangeRegistryDO" },
   { name = "ORACLE_REGISTRY_DO", class_name = "OracleRegistryDO" },
 ]
 
+
+[env.prod]
+name = "registry"
+
 [env.prod.vars]
 NX_ENV = 'dev'
 VERSION = 'v3'
+SUPPORTED_NETWORKS = [ 'arbitrum' ]
+
+[env.prod.durable_objects]
+bindings = [
+  { name = "TOKEN_REGISTRY_DO", class_name = "TokenRegistryDO" },
+  { name = "CONFIGURATION_REGISTRY_DO", class_name = "ConfigurationRegistryDO" },
+  { name = "EXCHANGE_REGISTRY_DO", class_name = "ExchangeRegistryDO" },
+  { name = "ORACLE_REGISTRY_DO", class_name = "OracleRegistryDO" },
+]

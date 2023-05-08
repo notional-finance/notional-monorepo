@@ -16,6 +16,11 @@ export abstract class BaseDO<E extends BaseDOEnv> {
     this.state = state;
     this.env = env;
 
+    this.state.blockConcurrencyWhile(async () => {
+      if (alarmCadenceMS)
+        await this.state.storage.setAlarm(Date.now() + alarmCadenceMS);
+    });
+
     const version = `${env.NX_COMMIT_REF?.substring(0, 8) ?? 'local'}`;
     this.logger = new Logger({
       service: serviceName,

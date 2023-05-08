@@ -62,7 +62,7 @@ export abstract class ServerRegistry<T> extends BaseRegistry<T> {
 
   /** Triggers a refresh of the underlying data */
   public async refresh(network: Network, intervalNum: number) {
-    await this._refresh(network, intervalNum);
+    this._updateNetworkObservables(await this._refresh(network, intervalNum));
   }
 
   /** Serializes the data for the given network */

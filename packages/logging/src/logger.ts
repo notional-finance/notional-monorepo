@@ -33,14 +33,14 @@ export class Logger {
   }
 
   async log(msg: LogMessage) {
-    try {
-      const timestamp = new Date();
-      const body = JSON.stringify({
-        ...this.baseMessage,
-        ...msg,
-        timestamp,
-      });
+    const timestamp = new Date();
+    const body = JSON.stringify({
+      ...this.baseMessage,
+      ...msg,
+      timestamp,
+    });
 
+    try {
       const opts = {
         method: 'POST',
         body,
@@ -53,7 +53,7 @@ export class Logger {
 
       await fetch(this.loggerConfig.url ?? DefaultLoggerConfig.url, opts);
     } catch (e) {
-      console.error(e);
+      console.log(body);
     }
   }
 }
