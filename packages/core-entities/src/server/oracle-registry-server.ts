@@ -12,9 +12,8 @@ import {
 } from '@notional-finance/util';
 import { BigNumber, Contract } from 'ethers';
 import { OracleDefinition } from '..';
-import { AllOraclesQuery, getBuiltGraphSDK } from '../.graphclient';
 import { CacheSchema } from '../registry/index';
-import { ServerRegistry } from './server-registry';
+import { loadGraphClientDeferred, ServerRegistry } from './server-registry';
 
 export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
   public NUM_HISTORICAL_RATES = 25;
@@ -51,11 +50,11 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
     return this._updateLatestRates(results);
   }
 
-  private _queryAllOracles(network: Network, numHistoricalRates: number) {
-    const sdk = getBuiltGraphSDK();
-    return this._fetchUsingGraph<AllOraclesQuery>(
+  private async _queryAllOracles(network: Network, numHistoricalRates: number) {
+    const { AllOraclesDocument } = await loadGraphClientDeferred();
+    return this._fetchUsingGraph(
       network,
-      sdk.AllOracles,
+      AllOraclesDocument,
       (r) => {
         return r.oracles.reduce((obj, v) => {
           obj[v.id] = {

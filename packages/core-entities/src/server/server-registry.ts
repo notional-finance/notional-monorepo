@@ -4,15 +4,25 @@ import {
   getProviderFromNetwork,
   Network,
 } from '@notional-finance/util';
-import { Exact, Maybe } from '../.graphclient';
 import { CacheSchema } from '../registry/index';
 import { BaseRegistry } from '../registry/base-registry';
+import { TypedDocumentNode } from '@graphql-typed-document-node/core';
 
-type GraphSDKQuery<R> = (
-  variables?: Exact<{ [key: string]: unknown }>,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  options?: any
-) => Promise<R>;
+export async function loadGraphClientDeferred() {
+  const {
+    execute,
+    AllTokensDocument,
+    AllConfigurationDocument,
+    AllOraclesDocument,
+  } = await import('../.graphclient/index');
+
+  return {
+    execute,
+    AllTokensDocument,
+    AllConfigurationDocument,
+    AllOraclesDocument,
+  };
+}
 
 export abstract class ServerRegistry<T> extends BaseRegistry<T> {
   protected async _fetchUsingMulticall(
@@ -34,17 +44,20 @@ export abstract class ServerRegistry<T> extends BaseRegistry<T> {
     };
   }
 
-  protected async _fetchUsingGraph<
-    R extends { _meta?: Maybe<{ block: { number: number } }> }
-  >(
+  protected async _fetchUsingGraph<R>(
     network: Network,
-    query: GraphSDKQuery<R>,
+    query: TypedDocumentNode<R, any>,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     transform: (r: R) => Record<string, T>,
-    variables?: Exact<{ [key: string]: unknown }>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    variables?: any
   ): Promise<CacheSchema<T>> {
-    const data = await query(variables, { chainName: network });
-    const finalResults = transform(data);
-    const blockNumber = data._meta?.block.number || 0;
+    // NOTE: in order for this to deploy with cloudflare workers, the import statement
+    // has to be deferred until here.
+    const { execute } = await loadGraphClientDeferred();
+    const data = await execute(query, variables, { chainName: network });
+    const finalResults = transform(data['data']);
+    const blockNumber = data['data']._meta?.block.number || 0;
 
     return {
       values: Object.entries(finalResults),

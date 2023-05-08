@@ -17,3 +17,4 @@ export enum Routes {
   Oracles = 'oracles',
   Exchanges = 'exchanges',
 }
+
