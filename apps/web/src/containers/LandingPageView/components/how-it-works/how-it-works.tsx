@@ -27,23 +27,9 @@ export const HowItWorks = () => {
         </Box>
         <LottieContainer>
           <Box sx={{ zIndex: 3, position: 'relative' }}>
-            {leftDataSet.map(
-              (
-                { title, bodyText, actionItems, linkData, hoverTitle },
-                index
-              ) => (
-                <Card
-                  key={index}
-                  title={title}
-                  hoverTitle={hoverTitle}
-                  bodyText={bodyText}
-                  actionItems={actionItems}
-                  linkData={linkData}
-                  index={index}
-                  cardSet="left"
-                />
-              )
-            )}
+            {leftDataSet.map((data, index) => (
+              <Card key={index} parentIndex={index} cardSet="left" {...data} />
+            ))}
           </Box>
           <Player autoplay loop src={Cropped} id="lottie-player" />
           <Box sx={{ position: 'absolute' }}>
@@ -59,22 +45,9 @@ export const HowItWorks = () => {
             />
           </Box>
           <Box>
-            {rightDataSet.map(
-              (
-                { title, bodyText, actionItems, linkData, hoverTitle },
-                index
-              ) => (
-                <Card
-                  key={index}
-                  title={title}
-                  hoverTitle={hoverTitle}
-                  bodyText={bodyText}
-                  actionItems={actionItems}
-                  linkData={linkData}
-                  index={index}
-                />
-              )
-            )}
+            {rightDataSet.map((data, index) => (
+              <Card key={index} parentIndex={index} cardSet="right" {...data} />
+            ))}
           </Box>
         </LottieContainer>
       </InnerContainer>

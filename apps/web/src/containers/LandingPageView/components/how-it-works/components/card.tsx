@@ -8,6 +8,7 @@ import {
   SectionTitle,
 } from '@notional-finance/mui';
 import { Link } from 'react-router-dom';
+import { DataSets } from '../use-how-it-works';
 
 export interface CardContainerProps {
   hovered: boolean;
@@ -17,21 +18,34 @@ export interface CardContainerProps {
 export interface CustomSectionTitleProps {
   cardSet: string;
   theme: NotionalTheme;
-  index?: number;
+  parentIndex?: number;
 }
 
-export const Card = (props) => {
+interface CardProps extends DataSets {
+  parentIndex: number;
+  cardSet: string;
+}
+
+export const Card = ({
+  title,
+  bodyText,
+  actionItems,
+  parentIndex,
+  cardSet,
+  linkData,
+  hoverTitle,
+}: CardProps) => {
   const theme = useTheme();
-  const { title, bodyText, actionItems, index, cardSet, linkData, hoverTitle } =
-    props;
   const [hovered, setHovered] = useState(false);
 
   return (
     <CardContainer
-      key={index}
+      key={parentIndex}
       theme={theme}
       hovered={hovered}
-      sx={{ height: index === 1 ? theme.spacing(34.75) : theme.spacing(30) }}
+      sx={{
+        height: parentIndex === 1 ? theme.spacing(34.75) : theme.spacing(30),
+      }}
       onMouseOver={() => setHovered(true)}
       onMouseOut={() => setHovered(false)}
     >
@@ -49,7 +63,11 @@ export const Card = (props) => {
             {bodyText}
           </BodySecondary>
         </Box>
-        <SectionTitleContainer theme={theme} cardSet={cardSet} index={index}>
+        <SectionTitleContainer
+          theme={theme}
+          cardSet={cardSet}
+          parentIndex={parentIndex}
+        >
           {actionItems.map(({ itemText, icon }, index) => (
             <CustomSectionTitle key={index} theme={theme} cardSet={cardSet}>
               <img src={icon} alt="icon" />
@@ -62,7 +80,9 @@ export const Card = (props) => {
         id="hover-content"
         sx={{
           marginTop:
-            index === 1 ? `-${theme.spacing(29.125)}` : `-${theme.spacing(25)}`,
+            parentIndex === 1
+              ? `-${theme.spacing(29.125)}`
+              : `-${theme.spacing(25)}`,
         }}
       >
         <DiagramTitle
@@ -167,19 +187,19 @@ const CustomSectionTitle = styled(SectionTitle, {
 const SectionTitleContainer = styled(Box, {
   shouldForwardProp: (prop: string) => prop !== 'cardSet',
 })(
-  ({ cardSet, index }: CustomSectionTitleProps) => `
+  ({ cardSet, parentIndex }: CustomSectionTitleProps) => `
   ${
     cardSet === 'left'
       ? `
       position: relative;
       align-self: end;
       text-align: right;
-      padding-top: ${index === 1 ? '21px' : '82px'};
+      padding-top: ${parentIndex === 1 ? '21px' : '82px'};
     `
       : `
       position: relative;
       align-self: end;
-      padding-top: ${index === 1 ? '43px' : '59px'};
+      padding-top: ${parentIndex === 1 ? '43px' : '59px'};
     `
   }
       `

@@ -6,7 +6,7 @@ import TurgArrowRight from './images/turq-arrow-right.svg';
 import TurgArrowLeft from './images/turq-arrow-left.svg';
 import Plus from './images/plus.svg';
 
-interface DataSets {
+export interface DataSets {
   title: ReactNode;
   hoverTitle: ReactNode;
   bodyText: ReactNode;
