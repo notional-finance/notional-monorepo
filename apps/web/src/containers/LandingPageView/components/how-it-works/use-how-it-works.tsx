@@ -1,10 +1,23 @@
 import { ReactNode } from 'react';
 import { FormattedMessage } from 'react-intl';
+import GreenArrowLeft from './images/green-arrow-left.svg';
+import GreenArrowRight from './images/green-arrow-right.svg';
+import TurgArrowRight from './images/turq-arrow-right.svg';
+import TurgArrowLeft from './images/turq-arrow-left.svg';
+import Plus from './images/plus.svg';
 
 interface DataSets {
   title: ReactNode;
+  hoverTitle: ReactNode;
   bodyText: ReactNode;
-  actionItems: ReactNode[];
+  actionItems: {
+    itemText: ReactNode;
+    icon: string;
+  }[];
+  linkData: {
+    linkText: ReactNode;
+    link: string;
+  }[];
 }
 
 interface HowItWorks {
@@ -20,8 +33,23 @@ export const useHowItWorks = (): HowItWorks => {
         <FormattedMessage defaultMessage={'Deposit assets to earn interest.'} />
       ),
       actionItems: [
-        <FormattedMessage defaultMessage={'Deposit'} />,
-        <FormattedMessage defaultMessage={'Earn Interest'} />,
+        {
+          itemText: <FormattedMessage defaultMessage={'Deposit'} />,
+          icon: GreenArrowRight,
+        },
+        {
+          itemText: <FormattedMessage defaultMessage={'Earn Interest'} />,
+          icon: TurgArrowLeft,
+        },
+      ],
+      hoverTitle: <FormattedMessage defaultMessage={'Lending'} />,
+      linkData: [
+        {
+          linkText: (
+            <FormattedMessage defaultMessage={'View All Fixed Rates'} />
+          ),
+          link: '/lend',
+        },
       ],
     },
     {
@@ -34,9 +62,27 @@ export const useHowItWorks = (): HowItWorks => {
         />
       ),
       actionItems: [
-        <FormattedMessage defaultMessage={'Deposit'} />,
-        <FormattedMessage defaultMessage={'Earn Interest'} />,
-        <FormattedMessage defaultMessage={'Earn Fees and incentives'} />,
+        {
+          itemText: <FormattedMessage defaultMessage={'Deposit'} />,
+          icon: GreenArrowRight,
+        },
+        {
+          itemText: <FormattedMessage defaultMessage={'Earn Interest'} />,
+          icon: TurgArrowLeft,
+        },
+        {
+          itemText: (
+            <FormattedMessage defaultMessage={'Earn Fees and incentives'} />
+          ),
+          icon: TurgArrowLeft,
+        },
+      ],
+      hoverTitle: <FormattedMessage defaultMessage={'Provide Liquidity'} />,
+      linkData: [
+        {
+          linkText: <FormattedMessage defaultMessage={'View Opportunities'} />,
+          link: '/provide',
+        },
       ],
     },
   ];
@@ -51,8 +97,23 @@ export const useHowItWorks = (): HowItWorks => {
         />
       ),
       actionItems: [
-        <FormattedMessage defaultMessage={'Borrow'} />,
-        <FormattedMessage defaultMessage={'Pay Interest'} />,
+        {
+          itemText: <FormattedMessage defaultMessage={'Borrow'} />,
+          icon: TurgArrowRight,
+        },
+        {
+          itemText: <FormattedMessage defaultMessage={'Pay Interest'} />,
+          icon: GreenArrowLeft,
+        },
+      ],
+      hoverTitle: <FormattedMessage defaultMessage={'Borrowing'} />,
+      linkData: [
+        {
+          linkText: (
+            <FormattedMessage defaultMessage={'View All Fixed Rates'} />
+          ),
+          link: '/borrow',
+        },
       ],
     },
     {
@@ -65,9 +126,27 @@ export const useHowItWorks = (): HowItWorks => {
         />
       ),
       actionItems: [
-        <FormattedMessage defaultMessage={'Borrow'} />,
-        <FormattedMessage defaultMessage={'Earn Vault Yield'} />,
-        <FormattedMessage defaultMessage={'Pay Interest'} />,
+        {
+          itemText: <FormattedMessage defaultMessage={'Borrow'} />,
+          icon: TurgArrowRight,
+        },
+        {
+          itemText: <FormattedMessage defaultMessage={'Earn Vault Yield'} />,
+          icon: Plus,
+        },
+        {
+          itemText: <FormattedMessage defaultMessage={'Pay Interest'} />,
+          icon: GreenArrowLeft,
+        },
+      ],
+      hoverTitle: <FormattedMessage defaultMessage={'Leveraged Vaults'} />,
+      linkData: [
+        {
+          linkText: (
+            <FormattedMessage defaultMessage={'View Available Vaults'} />
+          ),
+          link: '/vaults',
+        },
       ],
     },
   ];

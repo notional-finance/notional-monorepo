@@ -34,6 +34,9 @@ export const HeroContent = () => {
           variant="outlined"
           sx={{
             background: colors.black,
+            ':hover': {
+              background: colors.matteGreen,
+            },
           }}
           href="https://docs.notional.finance/notional-v2/"
         >

@@ -2,16 +2,11 @@ import { Player } from '@lottiefiles/react-lottie-player';
 import { Box, styled, useTheme } from '@mui/material';
 import { colors } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
-import {
-  H5,
-  H2,
-  DiagramTitle,
-  BodySecondary,
-  SectionTitle,
-} from '@notional-finance/mui';
-import FullSize from './full-size.json';
-import Cropped from './cropped.json';
+import { H5, H2 } from '@notional-finance/mui';
+import Cropped from './images/cropped.json';
+import NotionalCircle from './images/notional-circle.svg';
 import { useHowItWorks } from './use-how-it-works';
+import { Card } from './components/card';
 
 export const HowItWorks = () => {
   const theme = useTheme();
@@ -31,66 +26,55 @@ export const HowItWorks = () => {
           </H2>
         </Box>
         <LottieContainer>
-          <Box>
-            {leftDataSet.map(({ title, bodyText, actionItems }, index) => (
-              <CardContainer
-                key={index}
-                sx={{ height: index === 1 ? '280px' : '240px' }}
-              >
-                <DiagramTitle
-                  sx={{ color: colors.black, marginBottom: theme.spacing(1) }}
-                >
-                  {title}
-                </DiagramTitle>
-                <BodySecondary
-                  sx={{ color: colors.darkGrey, fontSize: '1rem' }}
-                >
-                  {bodyText}
-                </BodySecondary>
-                <Box
-                  sx={{
-                    position: 'relative',
-                    alignSelf: 'end',
-                    textAlign: 'right',
-                  }}
-                >
-                  {actionItems.map((item) => (
-                    <SectionTitle sx={{ color: colors.black }}>
-                      {item}
-                    </SectionTitle>
-                  ))}
-                </Box>
-              </CardContainer>
-            ))}
+          <Box sx={{ zIndex: 3, position: 'relative' }}>
+            {leftDataSet.map(
+              (
+                { title, bodyText, actionItems, linkData, hoverTitle },
+                index
+              ) => (
+                <Card
+                  key={index}
+                  title={title}
+                  hoverTitle={hoverTitle}
+                  bodyText={bodyText}
+                  actionItems={actionItems}
+                  linkData={linkData}
+                  index={index}
+                  cardSet="left"
+                />
+              )
+            )}
           </Box>
           <Player autoplay loop src={Cropped} id="lottie-player" />
+          <Box sx={{ position: 'absolute' }}>
+            <img
+              src={NotionalCircle}
+              alt="notional circle"
+              style={{
+                height: theme.spacing(38.125),
+                left: theme.spacing(55.5),
+                top: theme.spacing(20.75),
+                position: 'relative',
+              }}
+            />
+          </Box>
           <Box>
-            <Box>
-              {rightDataSet.map(({ title, bodyText, actionItems }, index) => (
-                <CardContainer
+            {rightDataSet.map(
+              (
+                { title, bodyText, actionItems, linkData, hoverTitle },
+                index
+              ) => (
+                <Card
                   key={index}
-                  sx={{ height: index === 1 ? '280px' : '240px' }}
-                >
-                  <DiagramTitle
-                    sx={{ color: colors.black, marginBottom: theme.spacing(1) }}
-                  >
-                    {title}
-                  </DiagramTitle>
-                  <BodySecondary
-                    sx={{ color: colors.darkGrey, fontSize: '1rem' }}
-                  >
-                    {bodyText}
-                  </BodySecondary>
-                  <Box sx={{ position: 'relative', alignSelf: 'end' }}>
-                    {actionItems.map((item) => (
-                      <SectionTitle sx={{ color: colors.black }}>
-                        {item}
-                      </SectionTitle>
-                    ))}
-                  </Box>
-                </CardContainer>
-              ))}
-            </Box>
+                  title={title}
+                  hoverTitle={hoverTitle}
+                  bodyText={bodyText}
+                  actionItems={actionItems}
+                  linkData={linkData}
+                  index={index}
+                />
+              )
+            )}
           </Box>
         </LottieContainer>
       </InnerContainer>
@@ -99,10 +83,13 @@ export const HowItWorks = () => {
 };
 
 const BackgroundContainer = styled(Box)(
-  `
+  ({ theme }) => `
   height: 100%;
   width: 100%;
   background: ${colors.white};
+  ${theme.breakpoints.down('md')} {
+    height: ${theme.spacing(10)};
+  }
     `
 );
 
@@ -111,34 +98,25 @@ const InnerContainer = styled(Box)(
   height: 100%;
   width: 1200px;
   margin: auto;
-  padding-top: ${theme.spacing(15)};
+  padding-top: ${theme.spacing(7)};
   margin-bottom: ${theme.spacing(15)};
+  ${theme.breakpoints.down('md')} {
+    display: none;
+  }
+
 `
 );
 
 const LottieContainer = styled(Box)(
   ({ theme }) => `
-  margin-top: 100px;
+  margin-top: ${theme.spacing(12.5)};
   height: 100%;
   width: 100%;
   display: flex;
   #lottie-player {
-    width: 592px;
-    padding-top: 135px;
+    width: ${theme.spacing(74)};
+    padding-top: ${theme.spacing(19.375)};
   }
-    `
-);
-
-const CardContainer = styled(Box)(
-  ({ theme }) => `
-  display: grid;
-  width: 300px;
-  background: ${colors.white};
-  border-radius: ${theme.shape.borderRadius()};
-  border: 1px solid ${colors.purpleGrey};
-  box-shadow: 0px 4px 10px rgba(20, 42, 74, 0.12);
-  margin-bottom: ${theme.spacing(6)};
-  padding: ${theme.spacing(4)};
     `
 );
 
