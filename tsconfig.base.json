@@ -32,12 +32,14 @@
       ],
       "@notional-finance/contracts": ["packages/contracts/src/index.ts"],
       "@notional-finance/contracts/*": ["packages/contracts/src/*"],
+      "@notional-finance/core-entities": [
+        "packages/core-entities/src/index.ts"
+      ],
       "@notional-finance/durable-objects": [
         "packages/durable-objects/src/index.ts"
       ],
       "@notional-finance/error/*": ["packages/error/src/*"],
       "@notional-finance/errors": ["packages/errors/src/index.ts"],
-      "@notional-finance/graph-client": ["packages/graph-client/src/index.ts"],
       "@notional-finance/helpers": ["packages/shared/helpers/src/index.ts"],
       "@notional-finance/icons": ["packages/common/icons/src/index.ts"],
       "@notional-finance/icons/*": ["packages/common/icons/src/*"],
@@ -53,8 +55,9 @@
       "@notional-finance/liquidity-feature-shell/*": [
         "packages/features/liquidity/src/*"
       ],
-      "@notional-finance/logging": ["packages/logging/src/index.ts"],
+      "@notional-finance/graph-client": ["packages/graph-client/src/index.ts"],
       "@notional-finance/monitors": ["packages/monitors/src/index.ts"],
+      "@notional-finance/logging": ["packages/logging/src/index.ts"],
       "@notional-finance/mui": ["packages/common/mui/src/index.ts"],
       "@notional-finance/mui/*": ["packages/common/mui/src/*"],
       "@notional-finance/multicall": ["packages/multicall/src/index.ts"],

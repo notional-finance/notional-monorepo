@@ -1,19 +1,19 @@
 import { DurableObjectState } from '@cloudflare/workers-types';
-import { BaseDO } from './base-do';
-import { APIEnv } from './types';
+import { APIEnv } from '.';
+import { BaseDO } from './abstract';
 
-export class KPIsDO extends BaseDO {
+export class KPIsDO extends BaseDO<APIEnv> {
   constructor(state: DurableObjectState, env: APIEnv) {
-    super(state, env);
+    super(state, env, 'kpis');
   }
 
-  public isValidPath(path: string): boolean {
-    return path === '/kpis';
-  }
-
-  public getStorageKey(url: URL): string {
+  getStorageKey(url: URL): string {
     const network = url.searchParams.get('network');
     if (!network) throw Error('Network Not Found');
     return network;
+  }
+
+  async onRefresh() {
+    return;
   }
 }

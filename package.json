@@ -87,6 +87,7 @@
     "@commitlint/cli": "^17.0.0",
     "@commitlint/config-conventional": "^17.0.0",
     "@emotion/babel-plugin": "11.10.5",
+    "@graphprotocol/client-cli": "^2.2.22",
     "@graphql-codegen/cli": "^2.13.12",
     "@graphql-codegen/client-preset": "^1.1.4",
     "@hirez_io/observer-spy": "^2.2.0",
@@ -159,6 +160,7 @@
     "jest-auto-spies": "^1.6.10",
     "jest-environment-jsdom": "28.1.1",
     "jest-environment-miniflare": "^2.11.0",
+    "jest-fetch-mock": "^3.0.3",
     "jsonc-eslint-parser": "^2.1.0",
     "ngx-deploy-npm": "^4.3.2",
     "nx": "15.3.0",
@@ -184,7 +186,7 @@
     "url-loader": "^4.1.1",
     "webpack": "^5.75.0",
     "webpack-merge": "^5.8.0",
-    "wrangler": "^2.13.0"
+    "wrangler": "^2.19.0"
   },
   "workspaces": [
     "packages/**",

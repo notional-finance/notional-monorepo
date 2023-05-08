@@ -10,7 +10,7 @@ tsconfig = "tsconfig.json"
 
 [[migrations]]
 tag = "v1"
-new_classes = ["ExchangeRatesDO", "KPIsDO"]
+new_classes = ["KPIsDO"]
 
 [[migrations]]
 tag = "v2"
@@ -19,25 +19,28 @@ new_classes = ["AccountsDO"]
 [env.local]
 name = "api-local"
 minify = false
-vars = { NX_ENV = "local", VERSION = "v2", EXCHANGE_RATES_NAME = "EXCHANGE_RATES_DO", KPIS_NAME = "KPIS_DO", ACCOUNTS_NAME = "ACCOUNTS_DO" }
 durable_objects.bindings = [
-  { name = "EXCHANGE_RATES_DO", class_name = "ExchangeRatesDO" },
   { name = "KPIS_DO", class_name = "KPIsDO" },
   { name = "ACCOUNTS_DO", class_name = "AccountsDO" }
 ]
+
+[env.local.vars]
+NX_ENV = "local"
+VERSION = "v2"
+KPIS_NAME = "KPIS_DO"
+ACCOUNTS_NAME = "ACCOUNTS_DO"
 
 [env.dev]
 name = "api-dev"
 route = { pattern = "data-dev.notional.finance", custom_domain = true }
 durable_objects.bindings = [
-  { name = "EXCHANGE_RATES_DO", class_name = "ExchangeRatesDO" },
   { name = "KPIS_DO", class_name = "KPIsDO" },
   { name = "ACCOUNTS_DO", class_name = "AccountsDO" }
 ]
+
 [env.dev.vars]
 NX_ENV = "dev"
 VERSION = "v2"
-EXCHANGE_RATES_NAME = "EXCHANGE_RATES_DO"
 KPIS_NAME = "KPIS_DO"
 ACCOUNTS_NAME = "ACCOUNTS_DO"
 
@@ -45,14 +48,12 @@ ACCOUNTS_NAME = "ACCOUNTS_DO"
 name = "api"
 route = { pattern = "data.notional.finance", custom_domain = true }
 durable_objects.bindings = [
-  { name = "EXCHANGE_RATES_DO", class_name = "ExchangeRatesDO" },
   { name = "KPIS_DO", class_name = "KPIsDO" },
   { name = "ACCOUNTS_DO", class_name = "AccountsDO" }
 ]
 
 [env.prod.vars]
-NX_ENV = "dev"
+NX_ENV = "prod"
 VERSION = "v2"
-EXCHANGE_RATES_NAME = "EXCHANGE_RATES_DO"
 KPIS_NAME = "KPIS_DO"
 ACCOUNTS_NAME = "ACCOUNTS_DO"

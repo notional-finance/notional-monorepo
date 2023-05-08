@@ -1,0 +1,24 @@
+query AllTokens {
+    tokens {
+        id
+        tokenType
+        tokenInterface
+        underlying { id }
+        currencyId
+        name
+        symbol
+        decimals
+        totalSupply
+        hasTransferFee
+        isfCashDebt
+        maturity
+        vaultAddress
+        tokenAddress
+    }
+
+    _meta {
+        block {
+            number
+        }
+    }
+}
