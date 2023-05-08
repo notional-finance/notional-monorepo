@@ -1,22 +1,35 @@
 import { Player } from '@lottiefiles/react-lottie-player';
 import { styled, Box } from '@mui/material';
 import { HeroContent, HeroStats } from './components';
-import backgroundImg from './images/background.svg';
-import HeroAnimationTwo from './images/data-two.json';
+import MobileLottie from './images/mobile-lottie.json';
+import DesktopLottie from './images/desktop-lottie.json';
+import { useState } from 'react';
 
 export const Hero = () => {
+  const [isMobile, setIsMobile] = useState<boolean>(false);
+  const width = window.innerWidth;
+  if (width < 1000 && !isMobile) {
+    setIsMobile(true);
+  }
+
+  window.addEventListener('resize', () => {
+    const width = window.innerWidth;
+    if (width < 1000 && !isMobile) {
+      setIsMobile(true);
+    }
+    if (width > 1000 && isMobile) {
+      setIsMobile(false);
+    }
+  });
+
   return (
     <HeroContainer>
       <Player
         autoplay
         loop
         id="lottie-player"
-        src={HeroAnimationTwo}
+        src={isMobile ? MobileLottie : DesktopLottie}
         style={{
-          minWidth: `100vw`,
-          maxHeight: '100vh',
-          height: '100%',
-          paddingTop: '1px',
           background:
             'linear-gradient(259.11deg, #004453 5.12%, #002129 99.67%)',
         }}
@@ -31,19 +44,25 @@ export const Hero = () => {
 
 const HeroContainer = styled(Box)(
   ({ theme }) => `
+   #lottie-player {
+      min-width: 100vw;
+      max-height: 100vh;
+      height: 100%;
+      padding-top: 1px;
+    }
+
   ${theme.breakpoints.down('smLanding')} {
     #lottie-player {
-      display: none;
+      height: ${theme.spacing(180)};
+      width: ${theme.spacing(125)};
+      max-height: 100%;
     }
-    background: url(${backgroundImg}) no-repeat;
-    background-size: 100% 100%;
     height: 100%;
     min-height: ${theme.spacing(100)};
     min-width: 100vw;
     background-color: ${theme.palette.background.paper};
     overflow: hidden;
     ${theme.breakpoints.down('md')} {
-      background-size: 100% 100%;
       min-height: ${theme.spacing(180)};
     }
     ${theme.breakpoints.down('sm')} {
