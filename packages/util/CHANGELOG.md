@@ -2,6 +2,8 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [0.1.4](https://github.com/notional-finance/notional-monorepo/compare/util-0.1.3...util-0.1.4) (2023-05-08)
+
 ## [0.1.1](https://github.com/notional-finance/notional-monorepo/compare/util-0.1.0...util-0.1.1) (2022-12-08)
 
 
