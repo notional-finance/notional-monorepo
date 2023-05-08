@@ -17,6 +17,7 @@ export type { MetaStable2TokenAuraVault } from "./MetaStable2TokenAuraVault";
 export type { Multicall2 } from "./Multicall2";
 export type { NoteERC20 } from "./NoteERC20";
 export type { Notional } from "./Notional";
+export type { NotionalV3 } from "./NotionalV3";
 export type { TradingModule } from "./TradingModule";
 export type { TreasuryManager } from "./TreasuryManager";
 export type { NTokenERC20 } from "./NTokenERC20";
@@ -38,6 +39,7 @@ export { MetaStable2TokenAuraVault__factory } from "./factories/MetaStable2Token
 export { Multicall2__factory } from "./factories/Multicall2__factory";
 export { NoteERC20__factory } from "./factories/NoteERC20__factory";
 export { Notional__factory } from "./factories/Notional__factory";
+export { NotionalV3__factory } from "./factories/NotionalV3__factory";
 export { TradingModule__factory } from "./factories/TradingModule__factory";
 export { TreasuryManager__factory } from "./factories/TreasuryManager__factory";
 export { NTokenERC20__factory } from "./factories/NTokenERC20__factory";
