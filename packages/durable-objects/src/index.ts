@@ -4,6 +4,7 @@ import { RegistryDOEnv } from './registries';
 export * from './kpis-do';
 export * from './abstract';
 export * from './accounts-do';
+export * from './exchange-rates-do';
 export * from './registries';
 
 export interface APIEnv extends RegistryDOEnv {

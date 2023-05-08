@@ -3,26 +3,10 @@ import { Multicall2, Multicall2ABI } from '@notional-finance/contracts';
 import { AggregateCall } from './types';
 import { Subject } from 'rxjs';
 
-const MULTICALL2 = {
-  mainnet: '0x5ba1e12693dc8f9c48aad8770482f4739beed696',
-  kovan: '0x5ba1e12693dc8f9c48aad8770482f4739beed696',
-  rinkeby: '0x5ba1e12693dc8f9c48aad8770482f4739beed696',
-  goerli: '0x5ba1e12693dc8f9c48aad8770482f4739beed696',
-  ropsten: '0x5ba1e12693dc8f9c48aad8770482f4739beed696',
-};
+const MULTICALL3 = '0xcA11bde05977b3631167028862bE2a173976CA11';
 
 async function getMulticall(provider: providers.Provider) {
-  const network = await provider.getNetwork();
-  const networkName = network.name === 'homestead' ? 'mainnet' : network.name;
-  if (!Object.keys(MULTICALL2).includes(networkName)) {
-    throw Error(`Unknown Network in Multicall: ${networkName}`);
-  }
-
-  return new Contract(
-    MULTICALL2[networkName as keyof typeof MULTICALL2],
-    Multicall2ABI,
-    provider
-  ) as Multicall2;
+  return new Contract(MULTICALL3, Multicall2ABI, provider) as Multicall2;
 }
 
 async function executeStage<T>(

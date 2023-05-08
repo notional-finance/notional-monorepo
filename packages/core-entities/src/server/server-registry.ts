@@ -14,6 +14,7 @@ export async function loadGraphClientDeferred() {
     AllTokensDocument,
     AllConfigurationDocument,
     AllOraclesDocument,
+    // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
   } = await import('../.graphclient/index');
 
   return {

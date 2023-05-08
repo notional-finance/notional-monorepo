@@ -34,5 +34,5 @@ export const NetworkId: Record<Network, number> = {
 export const AlchemyUrl: Record<Network, string> = {
   [Network.All]: '',
   [Network.Mainnet]: 'https://eth-mainnet.g.alchemy.com/v2',
-  [Network.ArbitrumOne]: 'https://arb-mainnet.g.alchemy.com/v2/',
+  [Network.ArbitrumOne]: 'https://arb-mainnet.g.alchemy.com/v2',
 };
