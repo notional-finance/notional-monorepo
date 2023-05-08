@@ -67,6 +67,9 @@ const HeroContainer = styled(Box)(
     }
     ${theme.breakpoints.down('sm')} {
       min-height: ${theme.spacing(180)};
+      #lottie-player {
+        display: none;
+      }
     }
   }
 `
