@@ -1,8 +1,8 @@
-import { initLogger, initMetricLogger, log } from '@notional-finance/logging';
+import { initMetricLogger } from '@notional-finance/logging';
 import { getJobs } from './monitors';
 import { JobMonitorEnv, initializeProviders } from '@notional-finance/monitors';
-import { ExchangeRatesDO, KPIsDO } from '@notional-finance/durable-objects';
-export { ExchangeRatesDO, KPIsDO };
+import { KPIsDO } from '@notional-finance/durable-objects';
+export { KPIsDO };
 
 export default {
   async fetch(): Promise<Response> {
@@ -15,13 +15,6 @@ export default {
     env: JobMonitorEnv,
     ctx: ExecutionContext
   ): Promise<void> {
-    const version = `${env.NX_COMMIT_REF?.substring(0, 8) ?? 'local'}`;
-    initLogger({
-      service: 'blockchain-monitor',
-      version,
-      env: env.NX_ENV,
-      apiKey: env.NX_DD_API_KEY,
-    });
     initMetricLogger({
       apiKey: env.NX_DD_API_KEY,
     });
@@ -40,11 +33,6 @@ export default {
         );
       } catch (e) {
         console.log('Error running scheduled job', e);
-        await log({
-          message: (e as Error).message,
-          level: 'error',
-          action: 'blockchain_monitor.scheduled',
-        });
       }
     }
   },
