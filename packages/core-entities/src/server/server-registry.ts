@@ -68,7 +68,8 @@ export abstract class ServerRegistry<T> extends BaseRegistry<T> {
   }
 
   protected getProvider(network: Network) {
-    return getProviderFromNetwork(network);
+    // Skip fetch setup in cloudflare workers
+    return getProviderFromNetwork(network, true);
   }
 
   /** Triggers a refresh of the underlying data */
