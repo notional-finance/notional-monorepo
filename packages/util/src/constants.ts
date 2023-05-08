@@ -2,7 +2,7 @@ import { BigNumber, ethers } from 'ethers';
 
 export const INTERNAL_TOKEN_PRECISION = 1e8;
 export const RATE_PRECISION = 1e9;
-export const SCALAR_PRECISION = BigNumber.from(1e18);
+export const SCALAR_PRECISION = BigNumber.from(10).pow(18);
 export const ZERO_ADDRESS = ethers.constants.AddressZero;
 export const BASIS_POINT = 1e5;
 export const PERCENTAGE_BASIS = 100;
