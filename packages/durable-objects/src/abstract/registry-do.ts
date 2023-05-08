@@ -25,6 +25,10 @@ export abstract class RegistryDO extends BaseDO<BaseDOEnv> {
     return `${this.serviceName}/${network}`;
   }
 
+  override parseData(data: any) {
+    return JSON.parse(data || '{}');
+  }
+
   async onRefresh() {
     try {
       await Promise.all(
@@ -35,10 +39,8 @@ export abstract class RegistryDO extends BaseDO<BaseDOEnv> {
           // Call refresh on the registry for each network on its specified interval cadence
           await this.registry.refresh(network, intervalNum);
           // put the serialized data into the correct network storage key
-          await this.state.storage.put(
-            `${this.serviceName}/${network}`,
-            this.registry.serializeToJSON(network)
-          );
+          const data = this.registry.serializeToJSON(network);
+          await this.state.storage.put(`${this.serviceName}/${network}`, data);
 
           await this.state.storage.put(`interval/${network}`, intervalNum + 1);
           this.logger.log({

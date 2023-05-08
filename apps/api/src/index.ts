@@ -16,6 +16,10 @@ export {
   AccountsDO,
   KPIsDO,
   ExchangeRatesDO,
+  TokenRegistryDO,
+  ConfigurationRegistryDO,
+  ExchangeRegistryDO,
+  OracleRegistryDO,
 } from '@notional-finance/durable-objects';
 
 const corsHeaders = {
@@ -56,7 +60,7 @@ router.get('/geoip', handleGeoIP);
 router.get('/tokens', handleTokens);
 router.get('/configurations', handleConfigurations);
 router.get('/oracles', handleOracles);
-router.post('/exchanges', handleExchanges);
+router.get('/exchanges', handleExchanges);
 router.post('/newsletter', handleNewsletter);
 
 // Fall through catch for 404 errors
