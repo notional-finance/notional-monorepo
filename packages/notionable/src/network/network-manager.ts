@@ -10,7 +10,6 @@ import {
 } from '../onboard/onboard-manager';
 import { OnboardOptions } from '../types';
 import { chainIds as supportedChainIds, chainEntities } from '../chains';
-import { log } from '@notional-finance/logging';
 
 export async function initializeNetwork({
   enableAccountCenter = false,
@@ -32,10 +31,6 @@ export async function initializeNetwork({
       await connectWallet(wallet);
     }
   } catch (e) {
-    log({
-      message: 'Failed to initialize network',
-      level: 'error',
-    });
     throw new Error('Failed to initialize network');
   }
 }
