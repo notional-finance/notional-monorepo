@@ -38,7 +38,6 @@ import TermsView from '../../containers/TermsView/Loadable';
 import PrivacyView from '../../containers/PrivacyView/Loadable';
 import LandingPageView from '../../containers/LandingPageView/Loadable';
 import { ProvideLiquidityCards } from '@notional-finance/liquidity-feature-shell';
-import { initLogger } from '@notional-finance/logging';
 const applicationId = process.env['NX_DD_APP_ID'] as string;
 const clientToken = process.env['NX_DD_API_KEY'] as string;
 const DD_SITE = process.env['NX_DD_SITE'];
@@ -75,12 +74,6 @@ export const App = () => {
 
   const initApplication = useCallback(async () => {
     try {
-      initLogger({
-        apiKey: DD_API_KEY,
-        service,
-        env: NX_ENV,
-        version,
-      });
       await initializeNetwork({ container: '#onboard' });
     } catch (error) {
       reportError({
