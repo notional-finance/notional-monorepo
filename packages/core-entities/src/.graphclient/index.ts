@@ -6071,7 +6071,13 @@ export function getBuiltGraphSDK<TGlobalContext = any, TOperationContext = any>(
 export type AllConfigurationQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type AllConfigurationQuery = { currencyConfigurations: Array<Pick<CurrencyConfiguration, 'id'>>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
+export type AllConfigurationQuery = { currencyConfigurations: Array<(
+    Pick<CurrencyConfiguration, 'id' | 'maxUnderlyingSupply' | 'collateralHaircut' | 'debtBuffer' | 'liquidationDiscount' | 'primeCashRateOracleTimeWindowSeconds' | 'primeCashHoldingsOracle' | 'primeDebtAllowed' | 'fCashRateOracleTimeWindowSeconds' | 'fCashReserveFeeSharePercent' | 'fCashDebtBufferBasisPoints' | 'fCashHaircutBasisPoints' | 'fCashMinOracleRate' | 'fCashMaxOracleRate' | 'fCashMaxDiscountFactor' | 'fCashLiquidationHaircutBasisPoints' | 'fCashLiquidationDebtBufferBasisPoints' | 'treasuryReserveBuffer' | 'primeCashHoldings' | 'rebalancingTargets' | 'rebalancingCooldown' | 'depositShares' | 'leverageThresholds' | 'proportions' | 'incentiveEmissionRate' | 'secondaryIncentiveRewarder' | 'residualPurchaseIncentiveBasisPoints' | 'residualPurchaseTimeBufferSeconds' | 'cashWithholdingBufferBasisPoints' | 'pvHaircutPercentage' | 'liquidationHaircutPercentage'>
+    & { underlying?: Maybe<Pick<Token, 'id'>>, pCash?: Maybe<Pick<Token, 'id'>>, pDebt?: Maybe<Pick<Token, 'id'>>, primeCashCurve?: Maybe<Pick<InterestRateCurve, 'kinkUtilization1' | 'kinkUtilization2' | 'kinkRate1' | 'kinkRate2' | 'maxRate' | 'minFeeRate' | 'maxFeeRate' | 'feeRatePercent'>>, fCashActiveCurves?: Maybe<Array<Pick<InterestRateCurve, 'kinkUtilization1' | 'kinkUtilization2' | 'kinkRate1' | 'kinkRate2' | 'maxRate' | 'minFeeRate' | 'maxFeeRate' | 'feeRatePercent'>>>, fCashNextCurves?: Maybe<Array<Pick<InterestRateCurve, 'kinkUtilization1' | 'kinkUtilization2' | 'kinkRate1' | 'kinkRate2' | 'maxRate' | 'minFeeRate' | 'maxFeeRate' | 'feeRatePercent'>>> }
+  )>, vaultConfigurations: Array<(
+    Pick<VaultConfiguration, 'id' | 'vaultAddress' | 'strategy' | 'name' | 'minAccountBorrowSize' | 'minCollateralRatioBasisPoints' | 'maxDeleverageCollateralRatioBasisPoints' | 'feeRateBasisPoints' | 'reserveFeeSharePercent' | 'liquidationRatePercent' | 'maxBorrowMarketIndex' | 'maxRequiredAccountCollateralRatioBasisPoints' | 'enabled' | 'allowRollPosition' | 'onlyVaultEntry' | 'onlyVaultExit' | 'onlyVaultRoll' | 'onlyVaultDeleverage' | 'onlyVaultSettle' | 'allowsReentrancy' | 'deleverageDisabled' | 'maxPrimaryBorrowCapacity' | 'totalUsedPrimaryBorrowCapacity' | 'maxSecondaryBorrowCapacity' | 'totalUsedSecondaryBorrowCapacity' | 'minAccountSecondaryBorrow'>
+    & { primaryBorrowCurrency: Pick<Token, 'id'>, secondaryBorrowCurrencies?: Maybe<Array<Pick<Token, 'id'>>> }
+  )>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
 
 export type AllOraclesQueryVariables = Exact<{
   numHistoricalRates?: InputMaybe<Scalars['Int']>;
@@ -6096,6 +6102,109 @@ export const AllConfigurationDocument = gql`
     query AllConfiguration {
   currencyConfigurations {
     id
+    underlying {
+      id
+    }
+    pCash {
+      id
+    }
+    pDebt {
+      id
+    }
+    maxUnderlyingSupply
+    collateralHaircut
+    debtBuffer
+    liquidationDiscount
+    primeCashRateOracleTimeWindowSeconds
+    primeCashHoldingsOracle
+    primeCashCurve {
+      kinkUtilization1
+      kinkUtilization2
+      kinkRate1
+      kinkRate2
+      maxRate
+      minFeeRate
+      maxFeeRate
+      feeRatePercent
+    }
+    primeDebtAllowed
+    fCashRateOracleTimeWindowSeconds
+    fCashReserveFeeSharePercent
+    fCashDebtBufferBasisPoints
+    fCashHaircutBasisPoints
+    fCashMinOracleRate
+    fCashMaxOracleRate
+    fCashMaxDiscountFactor
+    fCashLiquidationHaircutBasisPoints
+    fCashLiquidationDebtBufferBasisPoints
+    fCashActiveCurves {
+      kinkUtilization1
+      kinkUtilization2
+      kinkRate1
+      kinkRate2
+      maxRate
+      minFeeRate
+      maxFeeRate
+      feeRatePercent
+    }
+    fCashNextCurves {
+      kinkUtilization1
+      kinkUtilization2
+      kinkRate1
+      kinkRate2
+      maxRate
+      minFeeRate
+      maxFeeRate
+      feeRatePercent
+    }
+    treasuryReserveBuffer
+    primeCashHoldings
+    rebalancingTargets
+    rebalancingCooldown
+    depositShares
+    leverageThresholds
+    proportions
+    incentiveEmissionRate
+    secondaryIncentiveRewarder
+    residualPurchaseIncentiveBasisPoints
+    residualPurchaseTimeBufferSeconds
+    cashWithholdingBufferBasisPoints
+    pvHaircutPercentage
+    liquidationHaircutPercentage
+  }
+  vaultConfigurations {
+    id
+    vaultAddress
+    strategy
+    name
+    primaryBorrowCurrency {
+      id
+    }
+    minAccountBorrowSize
+    minCollateralRatioBasisPoints
+    maxDeleverageCollateralRatioBasisPoints
+    feeRateBasisPoints
+    reserveFeeSharePercent
+    liquidationRatePercent
+    maxBorrowMarketIndex
+    secondaryBorrowCurrencies {
+      id
+    }
+    maxRequiredAccountCollateralRatioBasisPoints
+    enabled
+    allowRollPosition
+    onlyVaultEntry
+    onlyVaultExit
+    onlyVaultRoll
+    onlyVaultDeleverage
+    onlyVaultSettle
+    allowsReentrancy
+    deleverageDisabled
+    maxPrimaryBorrowCapacity
+    totalUsedPrimaryBorrowCapacity
+    maxSecondaryBorrowCapacity
+    totalUsedSecondaryBorrowCapacity
+    minAccountSecondaryBorrow
   }
   _meta {
     block {

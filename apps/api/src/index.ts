@@ -58,7 +58,7 @@ router.get('/kpis', handleKPIs);
 router.get('/yields', handleYields);
 router.get('/geoip', handleGeoIP);
 router.get('/tokens', handleTokens);
-router.get('/configurations', handleConfigurations);
+router.get('/configuration', handleConfigurations);
 router.get('/oracles', handleOracles);
 router.get('/exchanges', handleExchanges);
 router.post('/newsletter', handleNewsletter);

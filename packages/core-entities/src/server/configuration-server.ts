@@ -12,8 +12,124 @@ type Scalars = {
   Bytes: any;
 };
 
-type AllConfigurationQuery = {
-  currencyConfigurations: Array<Pick<CurrencyConfiguration, 'id'>>;
+export type AllConfigurationQuery = {
+  currencyConfigurations: Array<
+    Pick<
+      CurrencyConfiguration,
+      | 'id'
+      | 'maxUnderlyingSupply'
+      | 'collateralHaircut'
+      | 'debtBuffer'
+      | 'liquidationDiscount'
+      | 'primeCashRateOracleTimeWindowSeconds'
+      | 'primeCashHoldingsOracle'
+      | 'primeDebtAllowed'
+      | 'fCashRateOracleTimeWindowSeconds'
+      | 'fCashReserveFeeSharePercent'
+      | 'fCashDebtBufferBasisPoints'
+      | 'fCashHaircutBasisPoints'
+      | 'fCashMinOracleRate'
+      | 'fCashMaxOracleRate'
+      | 'fCashMaxDiscountFactor'
+      | 'fCashLiquidationHaircutBasisPoints'
+      | 'fCashLiquidationDebtBufferBasisPoints'
+      | 'treasuryReserveBuffer'
+      | 'primeCashHoldings'
+      | 'rebalancingTargets'
+      | 'rebalancingCooldown'
+      | 'depositShares'
+      | 'leverageThresholds'
+      | 'proportions'
+      | 'incentiveEmissionRate'
+      | 'secondaryIncentiveRewarder'
+      | 'residualPurchaseIncentiveBasisPoints'
+      | 'residualPurchaseTimeBufferSeconds'
+      | 'cashWithholdingBufferBasisPoints'
+      | 'pvHaircutPercentage'
+      | 'liquidationHaircutPercentage'
+    > & {
+      underlying?: Maybe<Pick<Token, 'id'>>;
+      pCash?: Maybe<Pick<Token, 'id'>>;
+      pDebt?: Maybe<Pick<Token, 'id'>>;
+      primeCashCurve?: Maybe<
+        Pick<
+          InterestRateCurve,
+          | 'kinkUtilization1'
+          | 'kinkUtilization2'
+          | 'kinkRate1'
+          | 'kinkRate2'
+          | 'maxRate'
+          | 'minFeeRate'
+          | 'maxFeeRate'
+          | 'feeRatePercent'
+        >
+      >;
+      fCashActiveCurves?: Maybe<
+        Array<
+          Pick<
+            InterestRateCurve,
+            | 'kinkUtilization1'
+            | 'kinkUtilization2'
+            | 'kinkRate1'
+            | 'kinkRate2'
+            | 'maxRate'
+            | 'minFeeRate'
+            | 'maxFeeRate'
+            | 'feeRatePercent'
+          >
+        >
+      >;
+      fCashNextCurves?: Maybe<
+        Array<
+          Pick<
+            InterestRateCurve,
+            | 'kinkUtilization1'
+            | 'kinkUtilization2'
+            | 'kinkRate1'
+            | 'kinkRate2'
+            | 'maxRate'
+            | 'minFeeRate'
+            | 'maxFeeRate'
+            | 'feeRatePercent'
+          >
+        >
+      >;
+    }
+  >;
+  vaultConfigurations: Array<
+    Pick<
+      VaultConfiguration,
+      | 'id'
+      | 'vaultAddress'
+      | 'strategy'
+      | 'name'
+      | 'minAccountBorrowSize'
+      | 'minCollateralRatioBasisPoints'
+      | 'maxDeleverageCollateralRatioBasisPoints'
+      | 'feeRateBasisPoints'
+      | 'reserveFeeSharePercent'
+      | 'liquidationRatePercent'
+      | 'maxBorrowMarketIndex'
+      | 'maxRequiredAccountCollateralRatioBasisPoints'
+      | 'enabled'
+      | 'allowRollPosition'
+      | 'onlyVaultEntry'
+      | 'onlyVaultExit'
+      | 'onlyVaultRoll'
+      | 'onlyVaultDeleverage'
+      | 'onlyVaultSettle'
+      | 'allowsReentrancy'
+      | 'deleverageDisabled'
+      | 'maxPrimaryBorrowCapacity'
+      | 'totalUsedPrimaryBorrowCapacity'
+      | 'maxSecondaryBorrowCapacity'
+      | 'totalUsedSecondaryBorrowCapacity'
+      | 'minAccountSecondaryBorrow'
+    > & {
+      primaryBorrowCurrency: Pick<Token, 'id'>;
+      secondaryBorrowCurrencies?: Maybe<Array<Pick<Token, 'id'>>>;
+    }
+  >;
 };
 
 type Maybe<T> = T | null;
@@ -161,6 +277,64 @@ type TokenType =
   | 'VaultCash'
   | 'NOTE'
   | 'Fiat';
+
+type VaultConfiguration = {
+  /** ID is the address of the vault */
+  id: Scalars['ID'];
+  lastUpdateBlockHash: Scalars['Bytes'];
+  lastUpdateBlockNumber: Scalars['Int'];
+  lastUpdateTimestamp: Scalars['Int'];
+  lastUpdateTransactionHash: Scalars['Bytes'];
+  /** Address of the strategy vault */
+  vaultAddress: Scalars['Bytes'];
+  /** Strategy identifier for the vault */
+  strategy: Scalars['Bytes'];
+  /** Name of the strategy vault */
+  name: Scalars['String'];
+  /** Primary currency the vault borrows in */
+  primaryBorrowCurrency: Token;
+  /** Minimum amount of primary currency that must be borrowed */
+  minAccountBorrowSize: Scalars['BigInt'];
+  /** Minimum collateral ratio before liquidation */
+  minCollateralRatioBasisPoints: Scalars['Int'];
+  /** Maximum collateral ratio that liquidation can reach */
+  maxDeleverageCollateralRatioBasisPoints: Scalars['Int'];
+  /** Fee assessed on primary borrow paid to the nToken and protocol */
+  feeRateBasisPoints: Scalars['Int'];
+  /** Share of fee paid to protocol reserve */
+  reserveFeeSharePercent: Scalars['Int'];
+  /** Discount rate given to liquidators */
+  liquidationRatePercent: Scalars['Int'];
+  /** Maximum market index for borrowing terms */
+  maxBorrowMarketIndex: Scalars['Int'];
+  /** Secondary borrow currencies (if any) */
+  secondaryBorrowCurrencies?: Maybe<Array<Token>>;
+  /** Max required collateral ratio for vault accounts */
+  maxRequiredAccountCollateralRatioBasisPoints?: Maybe<Scalars['Int']>;
+  /** Can the vault be entered */
+  enabled: Scalars['Boolean'];
+  /** Allows positions to be rolled forward */
+  allowRollPosition: Scalars['Boolean'];
+  /** Only the vault can enter */
+  onlyVaultEntry: Scalars['Boolean'];
+  /** Only the vault can exit */
+  onlyVaultExit: Scalars['Boolean'];
+  /** Only the vault can roll */
+  onlyVaultRoll: Scalars['Boolean'];
+  /** Only the vault can liquidate */
+  onlyVaultDeleverage: Scalars['Boolean'];
+  /** Only the vault can settle */
+  onlyVaultSettle: Scalars['Boolean'];
+  /** Vault is allowed to re-enter Notional */
+  allowsReentrancy: Scalars['Boolean'];
+  /** Deleveraging is disabled on this vault */
+  deleverageDisabled?: Maybe<Scalars['Boolean']>;
+  maxPrimaryBorrowCapacity: Scalars['BigInt'];
+  totalUsedPrimaryBorrowCapacity: Scalars['BigInt'];
+  maxSecondaryBorrowCapacity?: Maybe<Array<Scalars['BigInt']>>;
+  totalUsedSecondaryBorrowCapacity?: Maybe<Array<Scalars['BigInt']>>;
+  minAccountSecondaryBorrow?: Maybe<Array<Scalars['BigInt']>>;
+};
 
 export class ConfigurationServer extends ServerRegistry<AllConfigurationQuery> {
   /** Returns the all configuration query type as is, parsing will be done in the client */
