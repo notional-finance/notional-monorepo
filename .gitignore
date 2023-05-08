@@ -51,4 +51,3 @@ Thumbs.db
 # hardhat cache directory
 packages/sdk/cache
 services/**/dist
-.graphclient
