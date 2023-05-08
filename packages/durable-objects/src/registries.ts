@@ -2,7 +2,7 @@ import {
   DurableObjectNamespace,
   DurableObjectState,
 } from '@cloudflare/workers-types';
-import { Servers } from '@notional-finance/core-entities';
+import { Servers, Routes } from '@notional-finance/core-entities/src/server';
 import { ONE_MINUTE_MS } from '@notional-finance/util';
 import { BaseDOEnv, RegistryDO } from './abstract';
 
@@ -15,24 +15,48 @@ export interface RegistryDOEnv extends BaseDOEnv {
 
 export class TokenRegistryDO extends RegistryDO {
   constructor(state: DurableObjectState, env: BaseDOEnv) {
-    super(state, env, 20 * ONE_MINUTE_MS, Servers.TokenRegistryServer);
+    super(
+      state,
+      env,
+      20 * ONE_MINUTE_MS,
+      Routes.Tokens,
+      Servers.TokenRegistryServer
+    );
   }
 }
 
 export class ConfigurationRegistryDO extends RegistryDO {
   constructor(state: DurableObjectState, env: BaseDOEnv) {
-    super(state, env, 20 * ONE_MINUTE_MS, Servers.ConfigurationServer);
+    super(
+      state,
+      env,
+      20 * ONE_MINUTE_MS,
+      Routes.Configuration,
+      Servers.ConfigurationServer
+    );
   }
 }
 
 export class ExchangeRegistryDO extends RegistryDO {
   constructor(state: DurableObjectState, env: BaseDOEnv) {
-    super(state, env, ONE_MINUTE_MS, Servers.ExchangeRegistryServer);
+    super(
+      state,
+      env,
+      ONE_MINUTE_MS,
+      Routes.Exchanges,
+      Servers.ExchangeRegistryServer
+    );
   }
 }
 
 export class OracleRegistryDO extends RegistryDO {
   constructor(state: DurableObjectState, env: BaseDOEnv) {
-    super(state, env, ONE_MINUTE_MS, Servers.OracleRegistryServer);
+    super(
+      state,
+      env,
+      ONE_MINUTE_MS,
+      Routes.Oracles,
+      Servers.OracleRegistryServer
+    );
   }
 }

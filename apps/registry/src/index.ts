@@ -1,5 +1,13 @@
 import { DurableObjectNamespace } from '@cloudflare/workers-types';
-import { APIEnv } from '@notional-finance/durable-objects';
+import { RegistryDOEnv } from '@notional-finance/durable-objects';
+
+// Exports durable objects so migrations can be run
+export {
+  TokenRegistryDO,
+  ConfigurationRegistryDO,
+  ExchangeRegistryDO,
+  OracleRegistryDO,
+} from '@notional-finance/durable-objects';
 
 async function runHealthCheck(ns: DurableObjectNamespace, version: string) {
   const stub = ns.get(ns.idFromName(version));
@@ -10,7 +18,7 @@ export default {
   async fetch(): Promise<Response> {
     return new Response('Not Found', { status: 404, statusText: 'Not Found' });
   },
-  async scheduled(_: ScheduledController, env: APIEnv): Promise<void> {
+  async scheduled(_: ScheduledController, env: RegistryDOEnv): Promise<void> {
     // Run a healthcheck against all of the durable objects.
     await Promise.all([
       runHealthCheck(env.TOKEN_REGISTRY_DO, env.VERSION),
