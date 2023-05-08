@@ -12,6 +12,12 @@ import {
   handleYields,
 } from './routes';
 
+export {
+  AccountsDO,
+  KPIsDO,
+  ExchangeRatesDO,
+} from '@notional-finance/durable-objects';
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET,OPTIONS',

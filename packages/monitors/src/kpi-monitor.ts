@@ -6,7 +6,7 @@ import GraphClient, {
   Currency,
   CurrencyTvlsQuery,
 } from '@notional-finance/graph-client';
-import { log, submitMetrics } from '@notional-finance/logging';
+import { submitMetrics } from '@notional-finance/logging';
 import { DDMetric } from '@notional-finance/logging';
 import { BigNumber, FixedNumber } from 'ethers';
 import { ExchangeRate } from '@notional-finance/durable-objects';
