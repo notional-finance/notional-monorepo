@@ -1,8 +1,5 @@
 import { DurableObjectState } from '@cloudflare/workers-types';
-import {
-  ServerRegistryConstructor,
-  ServerRegistryClass,
-} from '@notional-finance/core-entities';
+import { ServerRegistryConstructor } from '@notional-finance/core-entities/src/server';
 import { BaseDO } from './base-do';
 import { BaseDOEnv } from '.';
 
@@ -14,22 +11,18 @@ export abstract class RegistryDO extends BaseDO<BaseDOEnv> {
     state: DurableObjectState,
     env: BaseDOEnv,
     alarmCadenceMS: number,
+    serviceName: string,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     protected RegistryClass: ServerRegistryConstructor<any>
   ) {
-    super(
-      state,
-      env,
-      (RegistryClass as unknown as ServerRegistryClass).CachePath,
-      alarmCadenceMS
-    );
+    super(state, env, serviceName, alarmCadenceMS);
     this.registry = new RegistryClass();
   }
 
   getStorageKey(url: URL): string {
     const network = url.searchParams.get('network');
     if (!network) throw Error('Network Not Found');
-    return network;
+    return `${this.serviceName}/${network}`;
   }
 
   async onRefresh() {

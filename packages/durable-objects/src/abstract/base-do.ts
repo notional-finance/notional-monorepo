@@ -17,8 +17,11 @@ export abstract class BaseDO<E extends BaseDOEnv> {
     this.env = env;
 
     this.state.blockConcurrencyWhile(async () => {
-      if (alarmCadenceMS)
-        await this.state.storage.setAlarm(Date.now() + alarmCadenceMS);
+      if (alarmCadenceMS) {
+        // Set the initial alarm to run almost immediately, note that this does not get
+        // triggered until some scheduled run or fetch that will instantiate the object
+        await this.state.storage.setAlarm(Date.now() + 500);
+      }
     });
 
     const version = `${env.NX_COMMIT_REF?.substring(0, 8) ?? 'local'}`;

@@ -11,4 +11,9 @@ export const Servers = {
   TokenRegistryServer: TokenRegistryServer,
 };
 export type ServerRegistryConstructor<T> = new () => ServerRegistry<T>;
-export type ServerRegistryClass = typeof ServerRegistry;
+export enum Routes {
+  Configuration = 'configuration',
+  Tokens = 'tokens',
+  Oracles = 'oracles',
+  Exchanges = 'exchanges',
+}

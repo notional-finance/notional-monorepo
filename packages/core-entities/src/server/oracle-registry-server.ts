@@ -17,8 +17,6 @@ import { CacheSchema } from '../registry/index';
 import { ServerRegistry } from './server-registry';
 
 export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
-  public static override CachePath = 'oracles';
-
   public NUM_HISTORICAL_RATES = 25;
   // Interval refreshes only update the latest rates
   public INTERVAL_REFRESH_SECONDS = 10;
