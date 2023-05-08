@@ -1,0 +1,59 @@
+main = "./src/index.ts"
+account_id = "274f86c6dcfbb77c09e49e86d101c753"
+compatibility_date = "2022-11-11"
+
+workers_dev = true
+node_compat = true
+minify = true
+usage_model = "bundled"
+tsconfig = "tsconfig.json"
+
+[[migrations]]
+tag = "v1"
+new_classes = ["ExchangeRateStore"]
+
+[[migrations]]
+tag = "v2"
+deleted_classes = ["ExchangeRateStore"]
+
+[triggers]
+crons = ["* * * * *", "*/15 * * * *", "0 * * * *"]
+
+[env.local]
+name = "blockchain-monitor-local"
+minify = false
+durable_objects.bindings = [
+  { name = "EXCHANGE_RATES_DO", class_name = "ExchangeRatesDO", script_name = "api-local" },
+  { name = "KPIS_DO", class_name = "KPIsDO", script_name = "api-local" }
+]
+
+[env.local.vars]
+NX_ENV = "local"
+VERSION = "v2"
+EXCHANGE_RATES_NAME = "EXCHANGE_RATES_DO"
+KPIS_NAME = "KPIS_DO"
+
+[env.dev]
+name = "blockchain-monitor-dev"
+durable_objects.bindings = [
+  { name = "EXCHANGE_RATES_DO", class_name = "ExchangeRatesDO", script_name = "api-dev" },
+  { name = "KPIS_DO", class_name = "KPIsDO", script_name = "api-dev" }
+]
+
+[env.dev.vars]
+NX_ENV = "dev"
+VERSION = "v2"
+EXCHANGE_RATES_NAME = "EXCHANGE_RATES_DO"
+KPIS_NAME = "KPIS_DO"
+
+[env.prod]
+name = "blockchain-monitor"
+durable_objects.bindings = [
+  { name = "EXCHANGE_RATES_DO", class_name = "ExchangeRatesDO", script_name = "api" },
+  { name = "KPIS_DO", class_name = "KPIsDO", script_name = "api" }
+]
+[env.prod.vars]
+NX_ENV = "prod"
+VERSION = "v2"
+EXCHANGE_RATES_NAME = "EXCHANGE_RATES_DO"
+KPIS_NAME = "KPIS_DO"

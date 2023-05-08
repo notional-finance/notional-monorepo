@@ -68,9 +68,3 @@ export const setChainState = async (
     ],
   });
 };
-
-export const getProvider = () => {
-  return new ethers.providers.JsonRpcBatchProvider(
-    `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`
-  );
-};

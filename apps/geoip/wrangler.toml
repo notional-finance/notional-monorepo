@@ -1,0 +1,17 @@
+
+main = "./src/index.ts"
+compatibility_date = "2022-11-11"
+
+workers_dev = true
+node_compat = true
+minify = true
+usage_model = "bundled"
+
+[env.dev]
+name = "geoip-dev"
+
+[env.beta]
+name = "geoip-beta"
+
+[env.prod]
+name = "geoip"

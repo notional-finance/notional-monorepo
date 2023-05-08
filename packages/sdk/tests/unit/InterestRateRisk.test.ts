@@ -261,7 +261,7 @@ describe('calculates interest rate risk', () => {
         currencyId: 3,
         maturity,
         assetType: AssetType.fCash,
-        notional: TypedBigNumber.fromBalance(-84e8, 'USDC', true),
+        notional: TypedBigNumber.fromBalance(-83e8, 'USDC', true),
         settlementDate: maturity,
       }
     );
