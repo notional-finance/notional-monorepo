@@ -36,7 +36,7 @@ export abstract class BaseDO<E extends BaseDOEnv> {
   abstract getStorageKey(url: URL): string;
   abstract onRefresh(): Promise<void>;
 
-  parseData(data: any) {
+  async parseData(data: any) {
     return data;
   }
 
@@ -66,7 +66,9 @@ export abstract class BaseDO<E extends BaseDOEnv> {
 
       // Only accept get requests
       if (request.method === 'GET') {
-        const data = this.parseData(await this.state.storage.get(storageKey));
+        const data = await this.parseData(
+          await this.state.storage.get(storageKey)
+        );
         return new Response(JSON.stringify(data), {
           status: 200,
           headers: { 'Content-Type': 'application/json' },
