@@ -191,13 +191,17 @@ export abstract class BaseRegistry<T> {
 
   /** Executes a callback once when a key has been registered */
   public onSubjectKeyRegistered(network: Network, key: string, fn: () => void) {
-    return this.subjectRegistered
-      .asObservable()
-      .pipe(
-        filter((v) => v?.network === network && v?.key === key),
-        take(1)
-      )
-      .subscribe(fn);
+    if (this.isKeyRegistered(network, key)) {
+      fn();
+    } else {
+      this.subjectRegistered
+        .asObservable()
+        .pipe(
+          filter((v) => v?.network === network && v?.key === key),
+          take(1)
+        )
+        .subscribe(fn);
+    }
   }
 
   /** Executes a callback when a key has been registered and data is populated */
