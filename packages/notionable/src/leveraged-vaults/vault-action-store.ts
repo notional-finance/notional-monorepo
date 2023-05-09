@@ -116,6 +116,7 @@ export interface VaultActionState
   netCapacityChange?: TypedBigNumber;
 
   error?: VaultError;
+  test?: any;
 }
 
 export const initialVaultActionState: VaultActionState = {};

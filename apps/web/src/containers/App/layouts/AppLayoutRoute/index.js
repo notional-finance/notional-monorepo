@@ -14,21 +14,21 @@ const AppLayoutRoute = ({ component: Component, path, routeKey }) => {
       key={routeKey}
       render={(matchProps) => (
         <Box>
-          {loaded ? (
-            <AppShell>
-              <Header>
-                <WalletSelector />
-              </Header>
+          {/* {loaded ? ( */}
+          <AppShell>
+            <Header>
+              <WalletSelector />
+            </Header>
 
-              <MainContent>
-                <Component {...matchProps} />
-              </MainContent>
-              <PreviousUiPopup />
-              <StyledFooter />
-            </AppShell>
-          ) : (
+            <MainContent>
+              <Component {...matchProps} />
+            </MainContent>
+            <PreviousUiPopup />
+            <StyledFooter />
+          </AppShell>
+          {/* ) : (
             <PageLoading />
-          )}
+          )} */}
         </Box>
       )}
     />

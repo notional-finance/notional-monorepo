@@ -30,7 +30,7 @@ import BorrowCurrencyView from '@notional-finance/borrow-feature-shell/Loadable'
 import LiquidityCurrencyView from '@notional-finance/liquidity-feature-shell/Loadable';
 import TreasuryView from '@notional-finance/treasury-feature-shell/Loadable';
 import {
-  VaultLoadable,
+  VaultActionProvider,
   AllVaultsLoadable,
 } from '@notional-finance/vault-feature-shell';
 import AirdropView from '../../containers/AirdropView/Loadable';
@@ -140,11 +140,11 @@ export const App = () => {
                 <AppLayoutRoute path="/unstake" component={StakeView} />
                 <AppLayoutRoute
                   path="/vaults/:vaultAddress/:sideDrawerKey"
-                  component={VaultLoadable}
+                  component={VaultActionProvider}
                 />
                 <AppLayoutRoute
                   path="/vaults/:vaultAddress"
-                  component={VaultLoadable}
+                  component={VaultActionProvider}
                 />
                 <AppLayoutRoute path="/vaults" component={AllVaultsLoadable} />
                 <AppLayoutRoute path="/terms" component={TermsView} />
