@@ -38,6 +38,7 @@ expect.extend(tokenBalanceMatchers);
   //     shell: true,
   //   }
   // );
+  let forkProc: any | undefined;
 
   const provider = new ethers.providers.JsonRpcProvider(
     'http://127.0.0.1:8546'
@@ -87,7 +88,7 @@ expect.extend(tokenBalanceMatchers);
 
     afterAll(() => {
       // Cleanup anvil process
-      forkProc.kill();
+      if (forkProc) forkProc.kill();
     });
   });
 };
