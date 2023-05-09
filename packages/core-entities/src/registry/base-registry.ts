@@ -1,14 +1,14 @@
-import { getNowSeconds, Network } from '@notional-finance/util';
+import { filterEmpty, getNowSeconds, Network } from '@notional-finance/util';
 import {
   BehaviorSubject,
   exhaustMap,
   filter,
   from,
-  interval,
   Observable,
   Subscription,
   take,
   timeout,
+  timer,
 } from 'rxjs';
 import { CacheSchema, SubjectMap } from '.';
 
@@ -23,11 +23,6 @@ export abstract class BaseRegistry<T> {
   private _intervalMS = new Map<Network, number>();
   private _intervalSubscription = new Map<Network, Subscription>();
 
-  protected abstract _refresh(
-    network: Network,
-    intervalNum: number
-  ): Promise<CacheSchema<T>>;
-
   /** Emits a subject key (network, key) tuple every time a new subject is registered */
   protected subjectRegistered = new BehaviorSubject<SubjectKey | null>(null);
 
@@ -39,6 +34,11 @@ export abstract class BaseRegistry<T> {
 
   /** Last time the timestamp was updated for a given block */
   protected lastUpdateTimestamp = new Map<Network, BehaviorSubject<number>>();
+
+  protected abstract _refresh(
+    network: Network,
+    intervalNum: number
+  ): Promise<CacheSchema<T>>;
 
   /** Gets the map of subjects for a given network, checking for existence */
   protected _getNetworkSubjects(network: Network) {
@@ -69,6 +69,10 @@ export abstract class BaseRegistry<T> {
     }
     const subjects = this._getNetworkSubjects(data.network);
 
+    // Update global counters for the given network
+    this.lastUpdateBlock.get(data.network)?.next(data.lastUpdateBlock);
+    this.lastUpdateTimestamp.get(data.network)?.next(data.lastUpdateTimestamp);
+
     // Calls next on all the data that is pushed into the base registry.
     data.values.forEach(([key, value]) => {
       const s = subjects.get(key);
@@ -78,10 +82,6 @@ export abstract class BaseRegistry<T> {
         this._addSubjectKey(subjects, data.network, key, value);
       }
     });
-
-    // Update global counters for the given network
-    this.lastUpdateBlock.get(data.network)?.next(data.lastUpdateBlock);
-    this.lastUpdateTimestamp.get(data.network)?.next(data.lastUpdateTimestamp);
   }
 
   private _addSubjectKey(
@@ -131,7 +131,7 @@ export abstract class BaseRegistry<T> {
   public startRefreshInterval(network: Network, intervalMS: number) {
     this.stopRefresh(network);
 
-    const newInterval = interval(intervalMS);
+    const newInterval = timer(0, intervalMS);
     this._intervalSubscription.set(
       network,
       newInterval
@@ -144,7 +144,7 @@ export abstract class BaseRegistry<T> {
             );
           })
         )
-        .subscribe(this._updateNetworkObservables)
+        .subscribe((d) => this._updateNetworkObservables(d))
     );
 
     this._interval.set(network, newInterval);
@@ -189,9 +189,7 @@ export abstract class BaseRegistry<T> {
     return this.networkSubjects.get(network)?.has(key) === true;
   }
 
-  /**
-   * Executes a callback once when a key has been registered
-   */
+  /** Executes a callback once when a key has been registered */
   public onSubjectKeyRegistered(network: Network, key: string, fn: () => void) {
     return this.subjectRegistered
       .asObservable()
@@ -200,6 +198,15 @@ export abstract class BaseRegistry<T> {
         take(1)
       )
       .subscribe(fn);
+  }
+
+  /** Executes a callback when a key has been registered and data is populated */
+  public onSubjectKeyReady(network: Network, key: string, fn: (v: T) => void) {
+    this.onSubjectKeyRegistered(network, key, () => {
+      this.subscribeSubject(network, key)
+        ?.pipe(filterEmpty(), take(1))
+        .subscribe(fn);
+    });
   }
 
   /**
@@ -243,9 +250,9 @@ export abstract class BaseRegistry<T> {
   /**
    * Returns the latest value from all subjects (if a value is set)
    */
-  public getLatestFromAllSubjects(network: Network) {
+  public getLatestFromAllSubjects(network: Network, checkFreshness = 1) {
     return this.getAllSubjectKeys(network).reduce((map, k) => {
-      const v = this.getLatestFromSubject(network, k);
+      const v = this.getLatestFromSubject(network, k, checkFreshness);
       if (v) map.set(k, v);
       return map;
     }, new Map<string, T>());
