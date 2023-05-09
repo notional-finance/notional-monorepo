@@ -327,7 +327,7 @@ export class TokenBalance {
     if (!exchangeRate) throw Error('No Exchange Rate');
     return new TokenBalance(
       // All exchange rates from the registry are in scalar precision
-      this.scale(exchangeRate.rate, SCALAR_PRECISION).scaleTo(token.decimals),
+      this.scale(SCALAR_PRECISION, exchangeRate.rate).scaleTo(token.decimals),
       token.id,
       token.network
     );
