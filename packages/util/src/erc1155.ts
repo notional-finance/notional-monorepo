@@ -16,16 +16,16 @@ export function decodeERC1155Id(_id: string) {
   if (assetType === AssetType.FCASH_ASSET_TYPE) {
     return {
       assetType,
-      maturity: parseInt(_id.slice(52, 62), 16),
-      currencyId: parseInt(_id.slice(48, 52), 16),
-      isfCashDebt: parseInt(_id.slice(46, 48), 16) == 1,
+      maturity: parseInt(id.slice(52, 62), 16),
+      currencyId: parseInt(id.slice(48, 52), 16),
+      isfCashDebt: parseInt(id.slice(46, 48), 16) == 1,
     };
   } else {
     return {
       assetType,
-      maturity: parseInt(_id.slice(52, 62), 16),
-      currencyId: parseInt(_id.slice(48, 52), 16),
-      vaultAddress: parseInt(_id.slice(8, 48), 16),
+      maturity: parseInt(id.slice(52, 62), 16),
+      currencyId: parseInt(id.slice(48, 52), 16),
+      vaultAddress: parseInt(id.slice(8, 48), 16),
       isfCashDebt: false,
     };
   }
@@ -62,13 +62,15 @@ export function encodeVaultId(
   const _currencyId = currencyId.toString(16).toUpperCase().padStart(4, '0');
   const _maturity = maturity.toString(16).toUpperCase().padStart(10, '0');
   const _assetType = assetType.toString(16).toUpperCase().padStart(2, '0');
-  return BigNumber.from(
-    '0x' +
-      `${_vaultAddress}${_currencyId}${_maturity}${_assetType}`.padStart(
-        64,
-        '0'
-      )
-  ).toString();
+  return padToHex256(
+    BigNumber.from(
+      '0x' +
+        `${_vaultAddress}${_currencyId}${_maturity}${_assetType}`.padStart(
+          64,
+          '0'
+        )
+    )
+  );
 }
 
 export function encodefCashId(
@@ -79,7 +81,13 @@ export function encodefCashId(
   const _isDebt = isfCashDebt ? '01' : '00';
   const _currencyId = currencyId.toString(16).toUpperCase().padStart(4, '0');
   const _maturity = maturity.toString(16).toUpperCase().padStart(10, '0');
-  return BigNumber.from(
-    '0x' + `${_isDebt}${_currencyId}${_maturity}01`.padStart(64, '0')
-  ).toString();
+  return padToHex256(
+    BigNumber.from(
+      '0x' + `${_isDebt}${_currencyId}${_maturity}01`.padStart(64, '0')
+    )
+  );
+}
+
+function padToHex256(bn: BigNumber) {
+  return `0x${bn.toHexString().slice(2).padStart(64, '0')}`.toLowerCase();
 }

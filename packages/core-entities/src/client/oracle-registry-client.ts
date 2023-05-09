@@ -1,18 +1,35 @@
-import { SCALAR_PRECISION, Network } from '@notional-finance/util';
-import { BigNumber } from 'ethers';
+import {
+  SCALAR_PRECISION,
+  Network,
+  SCALAR_DECIMALS,
+  decodeERC1155Id,
+  getNowSeconds,
+  RATE_PRECISION,
+  SECONDS_IN_YEAR,
+} from '@notional-finance/util';
+import { BigNumber, utils } from 'ethers';
 import { combineLatest, map, of, Subscription, withLatestFrom } from 'rxjs';
 import { ExchangeRate, OracleDefinition } from '../definitions';
 import { ClientRegistry } from '../registry/client-registry';
 import { Routes } from '../server';
 
-// type OracleSubject = BehaviorSubject<ExchangeRate | null>;
-type AdjList = Map<string, Set<string>>;
+interface Node {
+  id: string;
+  inverted: boolean;
+}
+type AdjList = Map<string, Map<string, Node>>;
 
 export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
   protected cachePath = Routes.Oracles;
 
   protected adjLists = new Map<Network, AdjList>();
   private _adjListSubscription: Subscription;
+
+  private _unitRate$ = of({
+    rate: SCALAR_PRECISION,
+    timestamp: 2 ** 32,
+    blockNumber: 2 ** 32,
+  });
 
   constructor(cacheHostname: string) {
     super(cacheHostname);
@@ -24,18 +41,27 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
           // Builds the adjacency list as new subjects are registered
           const { network, key } = subjectKey;
           const networkList =
-            this.adjLists.get(network) || new Map<string, Set<string>>();
-          const oracle = this.getLatestFromSubject(network, key);
+            this.adjLists.get(network) || new Map<string, Map<string, Node>>();
+          const oracle = this.getLatestFromSubject(network, key, 0);
           if (!oracle) throw Error('Oracle undefined');
 
           const quoteToBase =
-            networkList.get(oracle.quote) || new Set<string>();
-          quoteToBase.add(oracle.base);
-          networkList.set(oracle.quote, quoteToBase);
+            networkList.get(oracle.quote) || new Map<string, Node>();
+          quoteToBase.set(oracle.base, {
+            id: oracle.id,
+            inverted: false,
+          });
 
-          const baseToQuote = networkList.get(oracle.base) || new Set<string>();
-          baseToQuote.add(oracle.quote);
+          const baseToQuote =
+            networkList.get(oracle.base) || new Map<string, Node>();
+          baseToQuote.set(oracle.quote, {
+            id: oracle.id,
+            inverted: true,
+          });
+
+          networkList.set(oracle.quote, quoteToBase);
           networkList.set(oracle.base, baseToQuote);
+          this.adjLists.set(network, networkList);
         }
       });
   }
@@ -70,7 +96,7 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
       }
 
       // Loop into nodes linked to the last symbol
-      Array.from(adjList.get(lastID)?.values() || []).forEach((id) => {
+      Array.from(adjList.get(lastID)?.keys() || []).forEach((id) => {
         // Check if the current path includes the symbol, if it does then skip adding it
         if (!currentPath.includes(id)) queue.push([...currentPath, id]);
       });
@@ -90,13 +116,36 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
     if (!adjList) throw Error(`Adjacency list not found for ${network}`);
 
     return path.map((id, i) => {
-      const inverted = i > 0 && adjList.get(id)?.has(path[i - 1]) === false;
-      const observable = subjects.get(id)?.asObservable();
-      if (!observable) throw Error(`Update Subject for ${id} not found`);
+      if (i == 0) return this._unitRate$;
+
+      const node = adjList.get(id)?.get(path[i - 1]);
+      if (!node) throw Error(`${id} node is not found`);
+
+      const observable = subjects.get(node.id)?.asObservable();
+      if (!observable) throw Error(`Update Subject for ${node.id} not found`);
 
       return observable.pipe(
         map((r: OracleDefinition | null) => {
-          if (r && inverted) {
+          // fCash rates are interest rates so convert them to exchange rates in SCALAR_PRECISION here
+          if (
+            r?.oracleType === 'fCashOracleRate' ||
+            r?.oracleType === 'fCashSpotRate'
+          ) {
+            const { maturity } = decodeERC1155Id(r.quote);
+            const exchangeRate = this.interestToExchangeRate(
+              r.latestRate.rate,
+              maturity
+            );
+
+            return node.inverted
+              ? this.invertRate({
+                  ...r.latestRate,
+                  rate: exchangeRate,
+                })
+              : { ...r.latestRate, rate: exchangeRate };
+          }
+
+          if (r && node.inverted) {
             // Invert and scale to 18 decimals:
             // (r.decimals * 2 + 18 - r.decimals) = r.decimals + 18
             const num = BigNumber.from(10).pow(r.decimals + 18);
@@ -167,5 +216,38 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
     const blockNumber = Math.min(...rates.map((r) => r?.blockNumber || 0));
 
     return rate ? { rate, timestamp, blockNumber } : null;
+  }
+
+  invertRate(rate: ExchangeRate) {
+    return {
+      ...rate,
+      rate: SCALAR_PRECISION.mul(SCALAR_PRECISION).div(rate.rate),
+    };
+  }
+
+  formatString(rate: ExchangeRate) {
+    return utils.formatUnits(rate.rate, SCALAR_DECIMALS);
+  }
+
+  formatNumber(rate: ExchangeRate) {
+    return parseFloat(utils.formatUnits(rate.rate, SCALAR_DECIMALS));
+  }
+
+  interestToExchangeRate(
+    interestRate: BigNumber,
+    maturity: number,
+    currentTime = getNowSeconds()
+  ) {
+    if (maturity <= currentTime) return SCALAR_PRECISION;
+
+    // exchange rate = e ^ (rt)
+    return BigNumber.from(
+      Math.floor(
+        Math.exp(
+          (interestRate.toNumber() * (maturity - currentTime)) /
+            (SECONDS_IN_YEAR * RATE_PRECISION)
+        ) * RATE_PRECISION
+      )
+    ).mul(RATE_PRECISION);
   }
 }
