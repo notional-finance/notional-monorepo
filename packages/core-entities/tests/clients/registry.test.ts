@@ -57,7 +57,19 @@ describe('Snapshot', () => {
   });
 
   // No exchanges listed yet
-  it.todo('[Exchanges]');
+  it('[Exchanges]', (done) => {
+    const exchanges = Registry.getExchangeRegistry();
+    exchanges.onSubjectKeyReady(
+      Network.ArbitrumOne,
+      '0x06D45ef1f8b3C37b0de66f156B11F10b4837619A',
+      () => {
+        expect(
+          exchanges.getLatestFromAllSubjects(Network.ArbitrumOne)
+        ).toMatchSnapshot();
+        done();
+      }
+    );
+  });
 
   it('[Tokens]', (done) => {
     const config = Registry.getTokenRegistry();
