@@ -1,7 +1,6 @@
 import { Contract, providers } from 'ethers';
 import { Multicall2, Multicall2ABI } from '@notional-finance/contracts';
 import { AggregateCall } from './types';
-import { Subject } from 'rxjs';
 
 const MULTICALL3 = '0xcA11bde05977b3631167028862bE2a173976CA11';
 
@@ -21,16 +20,28 @@ async function executeStage<T>(
         typeof c.target === 'function' ? c.target(aggregateResults) : c.target;
       const args =
         typeof c.args === 'function' ? c.args(aggregateResults) : c.args || [];
-
-      return {
-        ...c,
-        target: contract.address,
-        callData: contract.interface.encodeFunctionData(c.method, args),
-        contract,
-      };
+      try {
+        return {
+          ...c,
+          target: contract.address,
+          callData: contract.interface.encodeFunctionData(c.method, args),
+          contract,
+        };
+      } catch (e) {
+        throw new SyntaxError(`
+Error in Multicall, attempting to encode: ${contract.address}#${c.method}(${c.args}):
+${e}`);
+      }
     });
 
-  const { returnData } = await multicall.callStatic.aggregate(aggregateCall);
+  let returnData: string[];
+  try {
+    ({ returnData } = await multicall.callStatic.aggregate(aggregateCall));
+  } catch (e) {
+    throw new Error(`
+Error executing Multicall: ${aggregateCall}
+${e}`);
+  }
 
   const results = returnData.reduce((obj, r, i) => {
     const { key, method, transform, contract } = aggregateCall[i];
@@ -41,15 +52,15 @@ async function executeStage<T>(
 
     // eslint-disable-next-line no-param-reassign
     const values = transform ? transform(decoded, obj) : decoded;
-    if (typeof key === 'string') {
-      (obj as Record<string, unknown>)[key] = values;
-    } else {
+    if (Array.isArray(key)) {
       (key as string[]).forEach(
         (k) =>
           ((obj as Record<string, unknown>)[k] = (
             values as Record<string, unknown>
           )[k])
       );
+    } else {
+      (obj as Record<string, unknown>)[key] = values;
     }
     return obj;
   }, aggregateResults);
@@ -72,7 +83,6 @@ function getStages<T>(calls: AggregateCall<T>[]) {
 export async function aggregate<T = unknown>(
   calls: AggregateCall<T>[],
   provider: providers.Provider,
-  subjects?: Map<string, Subject<T>>,
   _multicall?: Multicall2
 ) {
   const multicall = _multicall || (await getMulticall(provider));
@@ -87,8 +97,5 @@ export async function aggregate<T = unknown>(
   // on arbitrum: https://developer.arbitrum.io/time#case-study-multicall
   const block = await provider.getBlock('latest');
 
-  // Emits into subjects if they are are passed in via the map
-  if (subjects)
-    Object.keys(results).forEach((k) => subjects.get(k)?.next(results[k]));
   return { block, results };
 }

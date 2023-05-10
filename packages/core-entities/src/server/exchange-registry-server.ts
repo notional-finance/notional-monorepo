@@ -15,9 +15,18 @@ export class ExchangeRegistryServer extends ServerRegistry<PoolDefinition> {
 
       const calls = PoolClasses[PoolClass].getInitData(network, address).map(
         (c) => {
-          keys.push(...c.key);
-          // Prepend the pool address to the call data
-          return Object.assign(c, { key: `${address}.${c.key}` });
+          // Prepend the pool address to the call data so that matching keys do not
+          // override each other
+          let newKeys: string | string[];
+          if (Array.isArray(c.key)) {
+            keys.push(...c.key);
+            newKeys = c.key.map((k) => `${address}.${k}`);
+          } else {
+            keys.push(c.key);
+            newKeys = `${address}.${c.key}`;
+          }
+
+          return Object.assign(c, { key: newKeys });
         }
       );
       poolKeys.set(address, keys);
@@ -34,18 +43,21 @@ export class ExchangeRegistryServer extends ServerRegistry<PoolDefinition> {
       const keys = poolKeys.get(address) || [];
 
       // Unpack the pool keys into latestPoolData
-      const latestPoolData = keys.reduce((obj, k) => {
-        const value = results[`${address}.${k}`];
-        if (k === 'balances') {
-          return Object.assign(obj, { balances: value as TokenBalance[] });
-        } else if (k === 'totalSupply') {
-          return Object.assign(obj, { totalSupply: value as TokenBalance });
-        } else {
-          return Object.assign(obj, {
-            poolParams: Object.assign(obj.poolParams, { value }),
-          });
-        }
-      }, {} as PoolData);
+      const latestPoolData = keys.reduce(
+        (obj, k) => {
+          const value = results[`${address}.${k}`];
+          if (k === 'balances') {
+            return Object.assign(obj, { balances: value as TokenBalance[] });
+          } else if (k === 'totalSupply') {
+            return Object.assign(obj, { totalSupply: value as TokenBalance });
+          } else {
+            return Object.assign(obj, {
+              poolParams: Object.assign(obj.poolParams, { value }),
+            });
+          }
+        },
+        { poolParams: {} } as PoolData
+      );
 
       return [address, Object.assign(pool, { latestPoolData })] as [
         string,

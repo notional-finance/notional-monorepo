@@ -7,6 +7,7 @@ import {
 } from './BalancerV2/composable-stable-pool';
 import { TokenBalance } from '../token-balance';
 import { Network } from '@notional-finance/util';
+import { fCashMarket } from './NotionalV3/fCash-market';
 
 type PoolConstructor = new (
   network: Network,
@@ -22,6 +23,7 @@ const PoolClasses: Record<
 > = {
   MetaStablePool: MetaStablePool,
   WeightedPool: WeightedPool,
+  fCashMarket: fCashMarket,
   TwoTokenComposableStablePool: TwoTokenComposableStablePool,
   ThreeTokenComposableStablePool: ThreeTokenComposableStablePool,
 };

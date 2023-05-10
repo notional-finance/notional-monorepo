@@ -13,7 +13,7 @@ import {
   NTokenERC20ABI,
   NotionalV3ABI,
 } from '@notional-finance/contracts';
-import { Contract } from 'ethers';
+import { BigNumber, Contract } from 'ethers';
 import { TokenBalance } from '../../token-balance';
 import BaseLiquidityPool from '../base-liquidity-pool';
 
@@ -79,6 +79,14 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
         key: 'currencyId',
       },
       {
+        stage: 0,
+        target: nToken,
+        method: 'totalSupply',
+        key: 'totalSupply',
+        transform: (r: BigNumber) =>
+          TokenBalance.toJSON(r, poolAddress, network),
+      },
+      {
         stage: 1,
         target: notional,
         method: 'pCashAddress',
@@ -88,7 +96,7 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
       {
         stage: 1,
         target: notional,
-        method: 'getNTokenAccount',
+        method: 'getInterestRateCurve',
         key: 'interestRateCurve',
         args: (r) => [r[`${poolAddress}.currencyId`]],
         transform: (
@@ -96,7 +104,7 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
             ReturnType<NotionalV3['functions']['getInterestRateCurve']>
           >
         ) => {
-          r.activeInterestRateCurve.map((c) => {
+          return r.activeInterestRateCurve.map((c) => {
             return {
               kinkUtilization1: c.kinkUtilization1.toNumber(),
               kinkUtilization2: c.kinkUtilization2.toNumber(),
@@ -117,7 +125,9 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
         key: ['perMarketCash', 'balances'],
         args: (r) => [r[`${poolAddress}.currencyId`]],
         transform: (
-          r: Awaited<ReturnType<NotionalV3['functions']['getActiveMarkets']>>,
+          r: Awaited<
+            ReturnType<NotionalV3['functions']['getActiveMarkets']>
+          >[0],
           aggregateResults: Record<string, unknown>
         ) => {
           const pCashAddress = aggregateResults[
@@ -126,11 +136,12 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
           const currencyId = aggregateResults[
             `${poolAddress}.currencyId`
           ] as number;
-          const perMarketCash = r[0].map((m) =>
+
+          const perMarketCash = r.map((m) =>
             TokenBalance.toJSON(m.totalPrimeCash, pCashAddress, network)
           );
 
-          const balances = r[0].map((m) => {
+          const balances = r.map((m) => {
             const fCashId = encodeERC1155Id(
               currencyId,
               m.maturity.toNumber(),
@@ -140,7 +151,10 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
             return TokenBalance.toJSON(m.totalfCash, fCashId, network);
           });
 
-          return { perMarketCash, balances };
+          return {
+            [`${poolAddress}.perMarketCash`]: perMarketCash,
+            [`${poolAddress}.balances`]: balances,
+          };
         },
       },
     ];
