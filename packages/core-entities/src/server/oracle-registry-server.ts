@@ -11,8 +11,7 @@ import {
   ZERO_ADDRESS,
 } from '@notional-finance/util';
 import { BigNumber, Contract } from 'ethers';
-import { OracleDefinition } from '..';
-import { CacheSchema } from '../registry/index';
+import { OracleDefinition, CacheSchema } from '..';
 import { loadGraphClientDeferred, ServerRegistry } from './server-registry';
 
 export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {

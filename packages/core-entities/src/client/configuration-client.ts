@@ -1,4 +1,4 @@
-import { ClientRegistry } from '../registry/client-registry';
+import { ClientRegistry } from './client-registry';
 import { Routes } from '../server';
 import { AllConfigurationQuery } from '../server/configuration-server';
 

@@ -10,7 +10,7 @@ import {
   timeout,
   timer,
 } from 'rxjs';
-import { CacheSchema, SubjectMap } from '.';
+import { CacheSchema, SubjectMap } from '../definitions';
 
 interface SubjectKey {
   network: Network;

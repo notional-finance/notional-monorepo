@@ -4,8 +4,8 @@ import {
   getProviderFromNetwork,
   Network,
 } from '@notional-finance/util';
-import { CacheSchema } from '../registry/index';
-import { BaseRegistry } from '../registry/base-registry';
+import { CacheSchema } from '../definitions';
+import { BaseRegistry } from '../base';
 import { TypedDocumentNode } from '@graphql-typed-document-node/core';
 
 export type TypedDocumentReturnType<T> = T extends TypedDocumentNode<
