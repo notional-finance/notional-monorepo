@@ -68,12 +68,15 @@ const ContentContainer = styled(Box)(
 const HoverContainer = styled(Box)(
   ({ theme }) => `
   transition: all 0.3s ease;
-  &:hover {
-    cursor: pointer;
-    box-shadow: ${theme.shape.shadowLarge(colors.matteGreen)};
-    transition: all 0.3s ease;
-    transform: scale(1.1);
+    ${theme.breakpoints.up('sm')} {
+      &:hover {
+      cursor: pointer;
+      box-shadow: ${theme.shape.shadowLarge(colors.matteGreen)};
+      transition: all 0.3s ease;
+      transform: scale(1.1);
+    }
   }
+  
     `
 );
 
