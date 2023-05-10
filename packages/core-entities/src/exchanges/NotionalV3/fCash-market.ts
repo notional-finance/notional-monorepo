@@ -21,6 +21,7 @@ interface fCashMarketParams {
   perMarketCash: TokenBalance[];
   nTokenFCash: TokenBalance[];
   nTokenCash: TokenBalance;
+  currencyId: number;
   interestRateCurve: InterestRateParameters[];
 }
 
