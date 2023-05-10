@@ -48,7 +48,7 @@ durable_objects.bindings = [
 
 [env.dev.vars]
 NX_ENV = "dev"
-VERSION = "v2"
+VERSION = "v3.1"
 KPIS_NAME = "KPIS_DO"
 ACCOUNTS_NAME = "ACCOUNTS_DO"
 

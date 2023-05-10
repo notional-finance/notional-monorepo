@@ -4,7 +4,8 @@ import crossFetch from 'cross-fetch';
 import { Registry } from '../../src';
 import httpserver from 'http-server';
 
-// const cacheHostname = 'https://data-dev.notional.finance';
+const serveLocal = true;
+const apiHostname = 'https://data-dev.notional.finance';
 const cacheHostname = 'http://localhost:9999';
 const server = httpserver.createServer({
   root: `${__dirname}/__snapshots__`,
@@ -12,11 +13,10 @@ const server = httpserver.createServer({
 
 describe('Snapshot', () => {
   beforeAll(async () => {
-    Registry.initialize(cacheHostname);
+    Registry.initialize(serveLocal ? cacheHostname : apiHostname);
 
-    if (cacheHostname === 'http://localhost:9999') {
+    if (serveLocal) {
       await new Promise<void>((resolve) => {
-        console.log('in server start');
         server.listen(9999, () => {
           resolve();
         });

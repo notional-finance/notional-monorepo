@@ -14,7 +14,7 @@ const server = httpserver.createServer({
   root: `${__dirname}/__snapshots__`,
 });
 
-process.env['FAKE_TIME'] = '1683655180';
+process.env['FAKE_TIME'] = '1683676178';
 
 describe('Token Registry', () => {
   let tokens: TokenRegistryClient;
@@ -131,6 +131,30 @@ describe('Token Registry', () => {
         tb1.copy(BigNumber.from(10).pow(13).mul(123)).toDisplayString(2, true)
       ).toBe('1.23b');
     });
+
+    it('can convert between tokens', () => {
+      const eth = tokens.parseInputToTokenBalance(
+        '1',
+        'ETH',
+        Network.ArbitrumOne
+      );
+
+      expect(
+        eth
+          .toToken(tokens.getTokenBySymbol(Network.ArbitrumOne, 'USDC'))
+          .toDisplayStringWithSymbol()
+      ).toBe('1,849.711 USDC');
+    });
+
+    it('can convert prime cash to underlying tokens', () => {
+      const peth = tokens.parseInputToTokenBalance(
+        '1',
+        'pEther',
+        Network.ArbitrumOne
+      );
+
+      expect(peth.toUnderlying().toExactString()).toBe('1.000');
+    });
   });
 
   describe('Exchange Rates', () => {
@@ -141,12 +165,8 @@ describe('Token Registry', () => {
       expect(path).toEqual([eth.id, usdc.id]);
       const value = oracles.getLatestFromPath(Network.ArbitrumOne, path);
       expect(oracles.formatNumber(oracles.invertRate(value!))).toBeCloseTo(
-        1842.066
+        1849.711
       );
-
-      // TODO: these are wrong in the snapshot
-      // console.log(value?.blockNumber);
-      // console.log(value?.timestamp);
     });
 
     it('[REVERSE] can find a path from eth => usdc', () => {
@@ -156,11 +176,7 @@ describe('Token Registry', () => {
       expect(path).toEqual([usdc.id, eth.id]);
 
       const value = oracles.getLatestFromPath(Network.ArbitrumOne, path);
-      expect(oracles.formatNumber(value!)).toBeCloseTo(1842.066);
-
-      // TODO: these are wrong in the snapshot
-      // console.log(value?.blockNumber);
-      // console.log(value?.timestamp);
+      expect(oracles.formatNumber(value!)).toBeCloseTo(1849.711);
     });
 
     it('[MULTIHOP] can find a path from wsteth => wbtc', () => {
@@ -169,7 +185,7 @@ describe('Token Registry', () => {
       const path = oracles.findPath(wsteth.id, wbtc.id, Network.ArbitrumOne);
 
       const value = oracles.getLatestFromPath(Network.ArbitrumOne, path);
-      expect(oracles.formatNumber(value!)).toBeCloseTo(13.35);
+      expect(oracles.formatNumber(value!)).toBeCloseTo(13.335);
     });
 
     it('[MULTIHOP] can find a path from fusdc => fdai', () => {

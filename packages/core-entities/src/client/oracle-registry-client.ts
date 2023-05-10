@@ -45,6 +45,7 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
           const oracle = this.getLatestFromSubject(network, key, 0);
           if (!oracle) throw Error('Oracle undefined');
 
+          // TODO: fcash rates there are two versions...
           const quoteToBase =
             networkList.get(oracle.quote) || new Map<string, Node>();
           quoteToBase.set(oracle.base, {

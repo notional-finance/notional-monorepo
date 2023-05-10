@@ -39,7 +39,7 @@ name = "registry-dev"
 
 [env.dev.vars]
 NX_ENV = 'dev'
-VERSION = 'v3'
+VERSION = 'v3.1'
 SUPPORTED_NETWORKS = [ 'arbitrum' ]
 
 [env.dev.durable_objects]

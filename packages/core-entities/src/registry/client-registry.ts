@@ -6,7 +6,8 @@ import FixedPoint from '../exchanges/BalancerV2/fixed-point';
 import { TokenBalance } from '../token-balance';
 import { BaseRegistry } from './base-registry';
 
-const USE_CROSS_FETCH = process.env['NX_USE_CROSS_FETCH'];
+const USE_CROSS_FETCH =
+  process.env['NX_USE_CROSS_FETCH'] || process.env['NODE_ENV'] == 'test';
 
 export abstract class ClientRegistry<T> extends BaseRegistry<T> {
   protected abstract cachePath: string;
