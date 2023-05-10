@@ -1,14 +1,14 @@
-import { getNowSeconds, Network } from '@notional-finance/util';
+import { filterEmpty, getNowSeconds, Network } from '@notional-finance/util';
 import {
   BehaviorSubject,
   exhaustMap,
   filter,
   from,
-  interval,
   Observable,
   Subscription,
   take,
   timeout,
+  timer,
 } from 'rxjs';
 import { CacheSchema, SubjectMap } from '.';
 
@@ -23,10 +23,8 @@ export abstract class BaseRegistry<T> {
   private _intervalMS = new Map<Network, number>();
   private _intervalSubscription = new Map<Network, Subscription>();
 
-  protected abstract _refresh(
-    network: Network,
-    intervalNum: number
-  ): Promise<CacheSchema<T>>;
+  /** Emits a network when a network has completed its first refresh */
+  protected networkRegistered = new BehaviorSubject<Network | null>(null);
 
   /** Emits a subject key (network, key) tuple every time a new subject is registered */
   protected subjectRegistered = new BehaviorSubject<SubjectKey | null>(null);
@@ -39,6 +37,11 @@ export abstract class BaseRegistry<T> {
 
   /** Last time the timestamp was updated for a given block */
   protected lastUpdateTimestamp = new Map<Network, BehaviorSubject<number>>();
+
+  protected abstract _refresh(
+    network: Network,
+    intervalNum: number
+  ): Promise<CacheSchema<T>>;
 
   /** Gets the map of subjects for a given network, checking for existence */
   protected _getNetworkSubjects(network: Network) {
@@ -63,11 +66,17 @@ export abstract class BaseRegistry<T> {
    * @param data fetched data from a single network
    */
   protected _updateNetworkObservables(data: CacheSchema<T>) {
+    let didInitNetwork = false;
     if (!this.networkSubjects.has(data.network)) {
       // Initialize the network if it does not yet exist
       this._initializeNetworkSubject(data.network);
+      didInitNetwork = true;
     }
     const subjects = this._getNetworkSubjects(data.network);
+
+    // Update global counters for the given network
+    this.lastUpdateBlock.get(data.network)?.next(data.lastUpdateBlock);
+    this.lastUpdateTimestamp.get(data.network)?.next(data.lastUpdateTimestamp);
 
     // Calls next on all the data that is pushed into the base registry.
     data.values.forEach(([key, value]) => {
@@ -79,9 +88,7 @@ export abstract class BaseRegistry<T> {
       }
     });
 
-    // Update global counters for the given network
-    this.lastUpdateBlock.get(data.network)?.next(data.lastUpdateBlock);
-    this.lastUpdateTimestamp.get(data.network)?.next(data.lastUpdateTimestamp);
+    if (didInitNetwork) this.networkRegistered.next(data.network);
   }
 
   private _addSubjectKey(
@@ -106,9 +113,11 @@ export abstract class BaseRegistry<T> {
     value: T,
     allowUpdate = false
   ) {
+    let didInitNetwork = false;
     if (!this.networkSubjects.has(network)) {
       // Initialize the network if it does not yet exist
       this._initializeNetworkSubject(network);
+      didInitNetwork = true;
     }
     const subjects = this._getNetworkSubjects(network);
 
@@ -118,6 +127,8 @@ export abstract class BaseRegistry<T> {
       // Do not re-register the subject key if it is already registered
       this._addSubjectKey(subjects, network, key, value);
     }
+
+    if (didInitNetwork) this.networkRegistered.next(network);
   }
 
   /** Stops refreshes on the selected network */
@@ -131,7 +142,7 @@ export abstract class BaseRegistry<T> {
   public startRefreshInterval(network: Network, intervalMS: number) {
     this.stopRefresh(network);
 
-    const newInterval = interval(intervalMS);
+    const newInterval = timer(0, intervalMS);
     this._intervalSubscription.set(
       network,
       newInterval
@@ -144,7 +155,7 @@ export abstract class BaseRegistry<T> {
             );
           })
         )
-        .subscribe(this._updateNetworkObservables)
+        .subscribe((d) => this._updateNetworkObservables(d))
     );
 
     this._interval.set(network, newInterval);
@@ -168,6 +179,10 @@ export abstract class BaseRegistry<T> {
     return this.lastUpdateTimestamp.get(network)?.asObservable();
   }
 
+  public subscribeNetworkRegistered() {
+    return this.networkRegistered.asObservable().pipe(filterEmpty());
+  }
+
   /** Returns a subscription to when keys are updated */
   public subscribeNetworkKeys(network: Network) {
     return this.subjectRegistered
@@ -189,17 +204,28 @@ export abstract class BaseRegistry<T> {
     return this.networkSubjects.get(network)?.has(key) === true;
   }
 
-  /**
-   * Executes a callback once when a key has been registered
-   */
+  /** Executes a callback once when a key has been registered */
   public onSubjectKeyRegistered(network: Network, key: string, fn: () => void) {
-    return this.subjectRegistered
-      .asObservable()
-      .pipe(
-        filter((v) => v?.network === network && v?.key === key),
-        take(1)
-      )
-      .subscribe(fn);
+    if (this.isKeyRegistered(network, key)) {
+      fn();
+    } else {
+      this.subjectRegistered
+        .asObservable()
+        .pipe(
+          filter((v) => v?.network === network && v?.key === key),
+          take(1)
+        )
+        .subscribe(fn);
+    }
+  }
+
+  /** Executes a callback when a key has been registered and data is populated */
+  public onSubjectKeyReady(network: Network, key: string, fn: (v: T) => void) {
+    this.onSubjectKeyRegistered(network, key, () => {
+      this.subscribeSubject(network, key)
+        ?.pipe(filterEmpty(), take(1))
+        .subscribe(fn);
+    });
   }
 
   /**
@@ -228,7 +254,8 @@ export abstract class BaseRegistry<T> {
       const updateTimestamp = this.getLastUpdateTimestamp(network);
       const intervalMS = this._intervalMS.get(network);
       if (!intervalMS) throw Error(`${key} on ${network} is not refreshing`);
-      if (updateTimestamp + intervalMS * checkFreshness < getNowSeconds()) {
+      const nextRefreshTime = updateTimestamp + intervalMS * checkFreshness;
+      if (nextRefreshTime < getNowSeconds()) {
         throw Error(
           `${key} on ${network} has missed ${Math.floor(
             updateTimestamp - getNowSeconds() / intervalMS
@@ -243,9 +270,9 @@ export abstract class BaseRegistry<T> {
   /**
    * Returns the latest value from all subjects (if a value is set)
    */
-  public getLatestFromAllSubjects(network: Network) {
+  public getLatestFromAllSubjects(network: Network, checkFreshness = 1) {
     return this.getAllSubjectKeys(network).reduce((map, k) => {
-      const v = this.getLatestFromSubject(network, k);
+      const v = this.getLatestFromSubject(network, k, checkFreshness);
       if (v) map.set(k, v);
       return map;
     }, new Map<string, T>());

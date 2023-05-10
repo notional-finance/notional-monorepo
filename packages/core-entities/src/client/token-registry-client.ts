@@ -18,7 +18,9 @@ export class TokenRegistryClient extends ClientRegistry<TokenDefinition> {
    * @returns a token definition object or undefined if not found
    */
   public getTokenBySymbol(network: Network, symbol: string) {
-    return this.getAllTokens(network).find((t) => t.symbol === symbol);
+    const token = this.getAllTokens(network).find((t) => t.symbol === symbol);
+    if (!token) throw Error(`${symbol} not found on ${network}`);
+    return token;
   }
 
   /**
@@ -31,9 +33,9 @@ export class TokenRegistryClient extends ClientRegistry<TokenDefinition> {
       (t) => t.address === address
     );
 
-    // This is is possible if searching for ERC1155 tokens or Leveraged Vault tokens
     if (tokens.length > 1) throw Error(`Multiple tokens found for ${address}`);
-    return tokens.length === 1 ? tokens[0] : undefined;
+    if (tokens.length < 1) throw Error(`No tokens found for ${address}`);
+    return tokens[0];
   }
 
   public getTokenByID(network: Network, id: string) {

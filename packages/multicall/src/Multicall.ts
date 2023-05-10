@@ -30,9 +30,7 @@ async function executeStage<T>(
       };
     });
 
-  const { blockNumber, returnData } = await multicall.callStatic.aggregate(
-    aggregateCall
-  );
+  const { returnData } = await multicall.callStatic.aggregate(aggregateCall);
 
   const results = returnData.reduce((obj, r, i) => {
     const { key, method, transform, contract } = aggregateCall[i];
@@ -56,7 +54,7 @@ async function executeStage<T>(
     return obj;
   }, aggregateResults);
 
-  return { blockNumber: blockNumber.toNumber(), results };
+  return { results };
 }
 
 function getStages<T>(calls: AggregateCall<T>[]) {
@@ -80,20 +78,17 @@ export async function aggregate<T = unknown>(
   const multicall = _multicall || (await getMulticall(provider));
   const stages = getStages(calls);
   let results = {} as Record<string, T>;
-  let blockNumber = 0;
 
   for (const calls of stages) {
-    ({ blockNumber, results } = await executeStage<T>(
-      calls,
-      results,
-      multicall
-    ));
+    ({ results } = await executeStage<T>(calls, results, multicall));
   }
 
-  const block = await provider.getBlock(blockNumber);
+  // Use latest block here, the returned block number from multicall is not accurate
+  // on arbitrum: https://developer.arbitrum.io/time#case-study-multicall
+  const block = await provider.getBlock('latest');
 
   // Emits into subjects if they are are passed in via the map
   if (subjects)
     Object.keys(results).forEach((k) => subjects.get(k)?.next(results[k]));
-  return { block, blockNumber, results };
+  return { block, results };
 }

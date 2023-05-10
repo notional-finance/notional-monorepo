@@ -1,5 +1,11 @@
 query AllOracles($numHistoricalRates: Int) {
-  oracles {
+  oracles(where: { oracleType_not_in: [
+    PrimeCashToUnderlyingOracleInterestRate,
+    PrimeCashToMoneyMarketExchangeRate,
+    PrimeDebtToMoneyMarketExchangeRate,
+    MoneyMarketToUnderlyingExchangeRate,
+    MoneyMarketToUnderlyingOracleInterestRate
+  ]}) {
     id
     lastUpdateBlockNumber
     lastUpdateTimestamp

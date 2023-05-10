@@ -6,6 +6,7 @@ import { OracleRegistryClient } from './client/oracle-registry-client';
 import { TokenRegistryClient } from './client/token-registry-client';
 
 export class Registry {
+  protected static _self?: Registry;
   protected static _tokens?: TokenRegistryClient;
   protected static _exchanges?: ExchangeRegistryClient;
   protected static _oracles?: OracleRegistryClient;
@@ -16,11 +17,19 @@ export class Registry {
   public static DEFAULT_EXCHANGE_REFRESH = 10 * ONE_SECOND_MS;
   public static DEFAULT_ORACLE_REFRESH = 10 * ONE_SECOND_MS;
 
-  constructor(cacheHostname: string) {
-    Registry._tokens = new TokenRegistryClient(cacheHostname);
-    Registry._oracles = new OracleRegistryClient(cacheHostname);
-    Registry._configurations = new ConfigurationClient(cacheHostname);
-    Registry._exchanges = new ExchangeRegistryClient(cacheHostname);
+  static initialize(cacheHostname: string) {
+    Registry._self = new Registry(cacheHostname);
+  }
+
+  private constructor(protected _cacheHostname: string) {
+    Registry._tokens = new TokenRegistryClient(_cacheHostname);
+    Registry._oracles = new OracleRegistryClient(_cacheHostname);
+    Registry._configurations = new ConfigurationClient(_cacheHostname);
+    Registry._exchanges = new ExchangeRegistryClient(_cacheHostname);
+  }
+
+  static get cacheHostname() {
+    return Registry._self?._cacheHostname;
   }
 
   public static startRefresh(network: Network) {

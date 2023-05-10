@@ -6,7 +6,8 @@ import FixedPoint from '../exchanges/BalancerV2/fixed-point';
 import { TokenBalance } from '../token-balance';
 import { BaseRegistry } from './base-registry';
 
-const USE_CROSS_FETCH = process.env['NX_USE_CROSS_FETCH'];
+const USE_CROSS_FETCH =
+  process.env['NX_USE_CROSS_FETCH'] || process.env['NODE_ENV'] == 'test';
 
 export abstract class ClientRegistry<T> extends BaseRegistry<T> {
   protected abstract cachePath: string;
@@ -15,14 +16,18 @@ export abstract class ClientRegistry<T> extends BaseRegistry<T> {
     super();
   }
 
-  protected _cacheURL(network: Network) {
-    return `http://${this.cacheHostname}/${this.cachePath}?network=${network}`;
+  public cacheURL(network: Network) {
+    return `${this.cacheHostname}/${this.cachePath}?network=${network}`;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  protected reviver(key: string, value: any): any {
-    if (Array.isArray(value)) {
-      return value.map((v, i) => this.reviver(`${key}:${i.toString()}`, v));
+  protected static reviver(key: string, value: any): any {
+    if (value === undefined || value === null) {
+      return value;
+    } else if (Array.isArray(value)) {
+      return value.map((v, i) =>
+        ClientRegistry.reviver(`${key}:${i.toString()}`, v)
+      );
     } else if (typeof value === 'object') {
       if (
         Object.prototype.hasOwnProperty.call(value, 'type') &&
@@ -47,7 +52,9 @@ export abstract class ClientRegistry<T> extends BaseRegistry<T> {
 
   protected async _refresh(network: Network): Promise<CacheSchema<T>> {
     const _fetch = USE_CROSS_FETCH ? crossFetch : fetch;
-    const jsonMap = await (await _fetch(this._cacheURL(network))).text();
-    return JSON.parse(jsonMap, this.reviver) as CacheSchema<T>;
+    const cacheUrl = this.cacheURL(network);
+    const result = await _fetch(cacheUrl);
+    const body = await result.text();
+    return JSON.parse(body, ClientRegistry.reviver) as CacheSchema<T>;
   }
 }

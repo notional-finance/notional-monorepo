@@ -16,7 +16,7 @@ export class TokenRegistryServer extends ServerRegistry<TokenDefinition> {
           decimals: v.decimals,
           tokenInterface: v.tokenInterface,
           tokenType: v.tokenType,
-          underlying: v.underlying as string | undefined,
+          underlying: v.underlying?.id as string | undefined,
           maturity: v.maturity as number | undefined,
           vaultAddress: v.vaultAddress as string | undefined,
           isFCashDebt: v.isfCashDebt,

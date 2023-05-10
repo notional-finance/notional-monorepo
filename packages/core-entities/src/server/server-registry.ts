@@ -8,6 +8,14 @@ import { CacheSchema } from '../registry/index';
 import { BaseRegistry } from '../registry/base-registry';
 import { TypedDocumentNode } from '@graphql-typed-document-node/core';
 
+export type TypedDocumentReturnType<T> = T extends TypedDocumentNode<
+  infer U,
+  infer _V
+>
+  ? U
+  : unknown;
+export type DocumentTypes = Awaited<ReturnType<typeof loadGraphClientDeferred>>;
+
 export async function loadGraphClientDeferred() {
   const {
     execute,

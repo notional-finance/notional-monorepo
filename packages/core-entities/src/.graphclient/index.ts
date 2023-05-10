@@ -6215,7 +6215,9 @@ export const AllConfigurationDocument = gql`
     ` as unknown as DocumentNode<AllConfigurationQuery, AllConfigurationQueryVariables>;
 export const AllOraclesDocument = gql`
     query AllOracles($numHistoricalRates: Int) {
-  oracles {
+  oracles(
+    where: {oracleType_not_in: [PrimeCashToUnderlyingOracleInterestRate, PrimeCashToMoneyMarketExchangeRate, PrimeDebtToMoneyMarketExchangeRate, MoneyMarketToUnderlyingExchangeRate, MoneyMarketToUnderlyingOracleInterestRate]}
+  ) {
     id
     lastUpdateBlockNumber
     lastUpdateTimestamp
