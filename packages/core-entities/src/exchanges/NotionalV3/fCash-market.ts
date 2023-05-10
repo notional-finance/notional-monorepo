@@ -1,9 +1,21 @@
-import BaseLiquidityPool from '../BaseLiquidityPool';
 import { AggregateCall } from '@notional-finance/multicall';
-import { TokenBalance } from '../../tokens/TokenBalance';
-import { getNowSeconds, Network } from '@notional-finance/util';
-import { Notional, NotionalABI } from '@notional-finance/contracts';
+import {
+  AssetType,
+  encodeERC1155Id,
+  getNowSeconds,
+  Network,
+  NotionalAddress,
+  RATE_PRECISION,
+  SECONDS_IN_YEAR,
+} from '@notional-finance/util';
+import {
+  NotionalV3,
+  NTokenERC20ABI,
+  NotionalV3ABI,
+} from '@notional-finance/contracts';
 import { Contract } from 'ethers';
+import { TokenBalance } from '../../token-balance';
+import BaseLiquidityPool from '../base-liquidity-pool';
 
 interface fCashMarketParams {
   perMarketCash: TokenBalance[];
@@ -36,8 +48,8 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
     network: Network,
     poolAddress: string
   ): AggregateCall[] {
-    const notional = new Contract(getNotional(network), NotionalABI);
-    const nToken = new Contract(poolAddress, nTokenABI);
+    const notional = new Contract(NotionalAddress[network], NotionalV3ABI);
+    const nToken = new Contract(poolAddress, NTokenERC20ABI);
 
     return [
       {
@@ -47,15 +59,16 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
         key: 'nTokenFCash',
         args: [poolAddress],
         transform: (
-          r: Awaited<ReturnType<Notional['functions']['getNTokenPortfolio']>>
+          r: Awaited<ReturnType<NotionalV3['functions']['getNTokenPortfolio']>>
         ) => {
           return r.netfCashAssets.map((a) => {
-            const token = TokenRegistry.getTokenByID(
-              network,
-              a.assetType.toString()
+            const fCashId = encodeERC1155Id(
+              a.currencyId,
+              a.maturity.toNumber(),
+              a.assetType.toNumber(),
+              a.notional.isNegative()
             );
-            if (!token) throw Error(`fCash asset not found in registry`);
-            return TokenBalance.from(a.notional, token);
+            return TokenBalance.toJSON(a.notional, fCashId, network);
           });
         },
       },
@@ -68,31 +81,9 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
       {
         stage: 1,
         target: notional,
-        method: 'getActiveMarkets',
-        key: ['perMarketCash', 'balances'],
+        method: 'pCashAddress',
         args: (r) => [r[`${poolAddress}.currencyId`]],
-        transform: (
-          r: Awaited<ReturnType<Notional['functions']['getActiveMarkets']>>,
-          aggregateResults: Record<string, unknown>
-        ) => {
-          const token = TokenRegistry.getTokenByAddress(
-            network,
-            aggregateResults['pCashAddress']
-          );
-          if (!token) throw Error(`pCash asset not found in registry`);
-
-          const perMarketCash = r[0].map((m) => {
-            return TokenBalance.from(m.totalAssetCash, token);
-          });
-          const balances = r[0].map((m) => {
-            const token = TokenRegistry.getTokenByID(network, todo);
-            if (!token) throw Error(`fCash asset not found in registry`);
-
-            return TokenBalance.from(m.totalfCash, token);
-          });
-
-          return { perMarketCash, balances };
-        },
+        key: 'pCashAddress',
       },
       {
         stage: 1,
@@ -101,7 +92,9 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
         key: 'interestRateCurve',
         args: (r) => [r[`${poolAddress}.currencyId`]],
         transform: (
-          r: Awaited<ReturnType<Notional['functions']['getInterestRateCurve']>>
+          r: Awaited<
+            ReturnType<NotionalV3['functions']['getInterestRateCurve']>
+          >
         ) => {
           r.activeInterestRateCurve.map((c) => {
             return {
@@ -115,6 +108,39 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
               feeRatePercent: c.feeRatePercent.toNumber(),
             };
           });
+        },
+      },
+      {
+        stage: 2,
+        target: notional,
+        method: 'getActiveMarkets',
+        key: ['perMarketCash', 'balances'],
+        args: (r) => [r[`${poolAddress}.currencyId`]],
+        transform: (
+          r: Awaited<ReturnType<NotionalV3['functions']['getActiveMarkets']>>,
+          aggregateResults: Record<string, unknown>
+        ) => {
+          const pCashAddress = aggregateResults[
+            `${poolAddress}.pCashAddress`
+          ] as string;
+          const currencyId = aggregateResults[
+            `${poolAddress}.currencyId`
+          ] as number;
+          const perMarketCash = r[0].map((m) =>
+            TokenBalance.toJSON(m.totalPrimeCash, pCashAddress, network)
+          );
+
+          const balances = r[0].map((m) => {
+            const fCashId = encodeERC1155Id(
+              currencyId,
+              m.maturity.toNumber(),
+              AssetType.FCASH_ASSET_TYPE,
+              false
+            );
+            return TokenBalance.toJSON(m.totalfCash, fCashId, network);
+          });
+
+          return { perMarketCash, balances };
         },
       },
     ];
