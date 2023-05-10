@@ -122,6 +122,22 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
       {
         stage: 2,
         target: notional,
+        method: 'getNTokenAccount',
+        key: 'nTokenCash',
+        args: [poolAddress],
+        transform: (
+          r: Awaited<ReturnType<NotionalV3['functions']['getNTokenAccount']>>,
+          aggregateResults: Record<string, unknown>
+        ) => {
+          const pCashAddress = aggregateResults[
+            `${poolAddress}.pCashAddress`
+          ] as string;
+          return TokenBalance.toJSON(r.cashBalance, pCashAddress, network);
+        },
+      },
+      {
+        stage: 2,
+        target: notional,
         method: 'getActiveMarkets',
         key: ['perMarketCash', 'balances'],
         args: (r) => [r[`${poolAddress}.currencyId`]],
@@ -159,6 +175,20 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
         },
       },
     ];
+  }
+
+  constructor(
+    _network: Network,
+    _balances: TokenBalance[],
+    _totalSupply: TokenBalance,
+    poolParams: fCashMarketParams
+  ) {
+    // Prepend the total cash balances as the token zero for the nToken
+    const totalCash = poolParams.perMarketCash
+      .reduce((p, c) => p.add(c))
+      .add(poolParams.nTokenCash);
+    const balances = [totalCash, ..._balances];
+    super(_network, balances, _totalSupply, poolParams);
   }
 
   /**

@@ -8,7 +8,51 @@
         "registerTokens": [],
         "latestPoolData": {
           "poolParams": {
-            "value": [
+            "nTokenFCash": [
+              {
+                "_isTokenBalance": true,
+                "hex": "-0x228101",
+                "tokenId": "0x00000000000000000000000000000000000000000000000100050064938f0001",
+                "network": "arbitrum"
+              },
+              {
+                "_isTokenBalance": true,
+                "hex": "-0x228101",
+                "tokenId": "0x000000000000000000000000000000000000000000000001000500650a360001",
+                "network": "arbitrum"
+              }
+            ],
+            "currencyId": 5,
+            "pCashAddress": "0xbC323E3564Fb498E55CDc83a3Ea6bB1AF8402D6B",
+            "interestRateCurve": [
+              {
+                "kinkUtilization1": 150000000,
+                "kinkUtilization2": 700000000,
+                "kinkRate1": 2343750,
+                "kinkRate2": 19921875,
+                "maxRate": 300000000,
+                "minFeeRate": 1500000,
+                "maxFeeRate": 20000000,
+                "feeRatePercent": 8
+              },
+              {
+                "kinkUtilization1": 150000000,
+                "kinkUtilization2": 700000000,
+                "kinkRate1": 1953125,
+                "kinkRate2": 20507812,
+                "maxRate": 250000000,
+                "minFeeRate": 1500000,
+                "maxFeeRate": 20000000,
+                "feeRatePercent": 8
+              }
+            ],
+            "nTokenCash": {
+              "_isTokenBalance": true,
+              "hex": "0x00",
+              "tokenId": "0xbC323E3564Fb498E55CDc83a3Ea6bB1AF8402D6B",
+              "network": "arbitrum"
+            },
+            "perMarketCash": [
               {
                 "_isTokenBalance": true,
                 "hex": "0x228101",
@@ -54,7 +98,51 @@
         "registerTokens": [],
         "latestPoolData": {
           "poolParams": {
-            "value": [
+            "nTokenFCash": [
+              {
+                "_isTokenBalance": true,
+                "hex": "-0x01289c5323",
+                "tokenId": "0x00000000000000000000000000000000000000000000000100030064938f0001",
+                "network": "arbitrum"
+              },
+              {
+                "_isTokenBalance": true,
+                "hex": "-0xf2ae7291",
+                "tokenId": "0x000000000000000000000000000000000000000000000001000300650a360001",
+                "network": "arbitrum"
+              }
+            ],
+            "currencyId": 3,
+            "pCashAddress": "0x6f28cafe12bd97E474a52bcbfEa6F2c18AE0F53D",
+            "interestRateCurve": [
+              {
+                "kinkUtilization1": 150000000,
+                "kinkUtilization2": 800000000,
+                "kinkRate1": 19921875,
+                "kinkRate2": 59765625,
+                "maxRate": 300000000,
+                "minFeeRate": 1500000,
+                "maxFeeRate": 20000000,
+                "feeRatePercent": 8
+              },
+              {
+                "kinkUtilization1": 150000000,
+                "kinkUtilization2": 800000000,
+                "kinkRate1": 19531250,
+                "kinkRate2": 59570312,
+                "maxRate": 250000000,
+                "minFeeRate": 1500000,
+                "maxFeeRate": 20000000,
+                "feeRatePercent": 8
+              }
+            ],
+            "nTokenCash": {
+              "_isTokenBalance": true,
+              "hex": "0x00",
+              "tokenId": "0x6f28cafe12bd97E474a52bcbfEa6F2c18AE0F53D",
+              "network": "arbitrum"
+            },
+            "perMarketCash": [
               {
                 "_isTokenBalance": true,
                 "hex": "0x4c093553",
@@ -100,7 +188,51 @@
         "registerTokens": [],
         "latestPoolData": {
           "poolParams": {
-            "value": [
+            "nTokenFCash": [
+              {
+                "_isTokenBalance": true,
+                "hex": "-0x01a39de0",
+                "tokenId": "0x00000000000000000000000000000000000000000000000100010064938f0001",
+                "network": "arbitrum"
+              },
+              {
+                "_isTokenBalance": true,
+                "hex": "-0x015752a0",
+                "tokenId": "0x000000000000000000000000000000000000000000000001000100650a360001",
+                "network": "arbitrum"
+              }
+            ],
+            "currencyId": 1,
+            "pCashAddress": "0xabc07BF91469C5450D6941dD0770E6E6761B90d6",
+            "interestRateCurve": [
+              {
+                "kinkUtilization1": 150000000,
+                "kinkUtilization2": 700000000,
+                "kinkRate1": 19921875,
+                "kinkRate2": 59765625,
+                "maxRate": 300000000,
+                "minFeeRate": 1500000,
+                "maxFeeRate": 20000000,
+                "feeRatePercent": 8
+              },
+              {
+                "kinkUtilization1": 150000000,
+                "kinkUtilization2": 700000000,
+                "kinkRate1": 19531250,
+                "kinkRate2": 59570312,
+                "maxRate": 250000000,
+                "minFeeRate": 1500000,
+                "maxFeeRate": 20000000,
+                "feeRatePercent": 8
+              }
+            ],
+            "nTokenCash": {
+              "_isTokenBalance": true,
+              "hex": "0x00",
+              "tokenId": "0xabc07BF91469C5450D6941dD0770E6E6761B90d6",
+              "network": "arbitrum"
+            },
+            "perMarketCash": [
               {
                 "_isTokenBalance": true,
                 "hex": "0x01a39de0",
@@ -146,7 +278,51 @@
         "registerTokens": [],
         "latestPoolData": {
           "poolParams": {
-            "value": [
+            "nTokenFCash": [
+              {
+                "_isTokenBalance": true,
+                "hex": "-0x012884af8e",
+                "tokenId": "0x00000000000000000000000000000000000000000000000100020064938f0001",
+                "network": "arbitrum"
+              },
+              {
+                "_isTokenBalance": true,
+                "hex": "-0xf29b1b45",
+                "tokenId": "0x000000000000000000000000000000000000000000000001000200650a360001",
+                "network": "arbitrum"
+              }
+            ],
+            "currencyId": 2,
+            "pCashAddress": "0x0Ace2DC3995aCD739aE5e0599E71A5524b93b886",
+            "interestRateCurve": [
+              {
+                "kinkUtilization1": 150000000,
+                "kinkUtilization2": 800000000,
+                "kinkRate1": 19921875,
+                "kinkRate2": 59765625,
+                "maxRate": 300000000,
+                "minFeeRate": 1500000,
+                "maxFeeRate": 20000000,
+                "feeRatePercent": 8
+              },
+              {
+                "kinkUtilization1": 150000000,
+                "kinkUtilization2": 800000000,
+                "kinkRate1": 19531250,
+                "kinkRate2": 59570312,
+                "maxRate": 250000000,
+                "minFeeRate": 1500000,
+                "maxFeeRate": 20000000,
+                "feeRatePercent": 8
+              }
+            ],
+            "nTokenCash": {
+              "_isTokenBalance": true,
+              "hex": "0x00",
+              "tokenId": "0x0Ace2DC3995aCD739aE5e0599E71A5524b93b886",
+              "network": "arbitrum"
+            },
+            "perMarketCash": [
               {
                 "_isTokenBalance": true,
                 "hex": "0x012884af8e",
@@ -192,7 +368,51 @@
         "registerTokens": [],
         "latestPoolData": {
           "poolParams": {
-            "value": [
+            "nTokenFCash": [
+              {
+                "_isTokenBalance": true,
+                "hex": "-0x03734d",
+                "tokenId": "0x00000000000000000000000000000000000000000000000100040064938f0001",
+                "network": "arbitrum"
+              },
+              {
+                "_isTokenBalance": true,
+                "hex": "-0x03734d",
+                "tokenId": "0x000000000000000000000000000000000000000000000001000400650a360001",
+                "network": "arbitrum"
+              }
+            ],
+            "currencyId": 4,
+            "pCashAddress": "0xB9bFBB35C2eD588a42f9Fd1120929c607B463192",
+            "interestRateCurve": [
+              {
+                "kinkUtilization1": 150000000,
+                "kinkUtilization2": 700000000,
+                "kinkRate1": 4687500,
+                "kinkRate2": 39843750,
+                "maxRate": 300000000,
+                "minFeeRate": 1500000,
+                "maxFeeRate": 20000000,
+                "feeRatePercent": 8
+              },
+              {
+                "kinkUtilization1": 150000000,
+                "kinkUtilization2": 700000000,
+                "kinkRate1": 4882812,
+                "kinkRate2": 40039062,
+                "maxRate": 250000000,
+                "minFeeRate": 1500000,
+                "maxFeeRate": 20000000,
+                "feeRatePercent": 8
+              }
+            ],
+            "nTokenCash": {
+              "_isTokenBalance": true,
+              "hex": "0x00",
+              "tokenId": "0xB9bFBB35C2eD588a42f9Fd1120929c607B463192",
+              "network": "arbitrum"
+            },
+            "perMarketCash": [
               {
                 "_isTokenBalance": true,
                 "hex": "0x03734d",
@@ -238,7 +458,51 @@
         "registerTokens": [],
         "latestPoolData": {
           "poolParams": {
-            "value": [
+            "nTokenFCash": [
+              {
+                "_isTokenBalance": true,
+                "hex": "-0x012884a0fd",
+                "tokenId": "0x00000000000000000000000000000000000000000000000100060064938f0001",
+                "network": "arbitrum"
+              },
+              {
+                "_isTokenBalance": true,
+                "hex": "-0xf29b0f5b",
+                "tokenId": "0x000000000000000000000000000000000000000000000001000600650a360001",
+                "network": "arbitrum"
+              }
+            ],
+            "currencyId": 6,
+            "pCashAddress": "0x1fd865a55eaf5333e6374Fb3Ad66D22e9885d3Aa",
+            "interestRateCurve": [
+              {
+                "kinkUtilization1": 150000000,
+                "kinkUtilization2": 800000000,
+                "kinkRate1": 19921875,
+                "kinkRate2": 59765625,
+                "maxRate": 300000000,
+                "minFeeRate": 1500000,
+                "maxFeeRate": 20000000,
+                "feeRatePercent": 8
+              },
+              {
+                "kinkUtilization1": 150000000,
+                "kinkUtilization2": 800000000,
+                "kinkRate1": 19531250,
+                "kinkRate2": 59570312,
+                "maxRate": 250000000,
+                "minFeeRate": 1500000,
+                "maxFeeRate": 20000000,
+                "feeRatePercent": 8
+              }
+            ],
+            "nTokenCash": {
+              "_isTokenBalance": true,
+              "hex": "0x00",
+              "tokenId": "0x1fd865a55eaf5333e6374Fb3Ad66D22e9885d3Aa",
+              "network": "arbitrum"
+            },
+            "perMarketCash": [
               {
                 "_isTokenBalance": true,
                 "hex": "0x012884a0fd",
@@ -278,6 +542,6 @@
     ]
   ],
   "network": "arbitrum",
-  "lastUpdateTimestamp": 1683741880,
-  "lastUpdateBlock": 89337451
+  "lastUpdateTimestamp": 1683756371,
+  "lastUpdateBlock": 89392759
 }

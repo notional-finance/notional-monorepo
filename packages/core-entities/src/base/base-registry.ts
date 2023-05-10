@@ -258,7 +258,7 @@ export abstract class BaseRegistry<T> {
       if (nextRefreshTime < getNowSeconds()) {
         throw Error(
           `${key} on ${network} has missed ${Math.floor(
-            updateTimestamp - getNowSeconds() / intervalMS
+            (updateTimestamp - getNowSeconds()) / intervalMS
           )} refreshes`
         );
       }

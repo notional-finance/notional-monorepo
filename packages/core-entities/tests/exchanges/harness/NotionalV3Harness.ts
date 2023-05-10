@@ -54,7 +54,7 @@ export class NotionalV3Harness extends PoolTestHarness<fCashMarket> {
   }
 
   async trade(
-    signer: Signer,
+    _signer: Signer,
     tokensIn: TokenBalance,
     tokenInIndex: number,
     tokenOutIndex: number

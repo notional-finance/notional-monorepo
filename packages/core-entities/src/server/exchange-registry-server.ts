@@ -52,7 +52,7 @@ export class ExchangeRegistryServer extends ServerRegistry<PoolDefinition> {
             return Object.assign(obj, { totalSupply: value as TokenBalance });
           } else {
             return Object.assign(obj, {
-              poolParams: Object.assign(obj.poolParams, { value }),
+              poolParams: Object.assign(obj.poolParams, { [k]: value }),
             });
           }
         },
