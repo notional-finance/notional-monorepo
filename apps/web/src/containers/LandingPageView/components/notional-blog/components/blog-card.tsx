@@ -13,14 +13,16 @@ export const BlogCard = ({
   created_at,
 }) => {
   return (
-    <ExternalLink href={url}>
-      <TopImg src={feature_image} alt="Blog post" />
-      <ContentContainer>
-        <Title>{title}</Title>
-        <BodyText>{truncateText(excerpt, 150)}</BodyText>
-        <BlogCardFooter createdAt={created_at} author={authors[0]} />
-      </ContentContainer>
-    </ExternalLink>
+    <HoverContainer>
+      <ExternalLink href={url}>
+        <TopImg src={feature_image} alt="Blog post" />
+        <ContentContainer>
+          <Title>{title}</Title>
+          <BodyText>{truncateText(excerpt, 150)}</BodyText>
+          <BlogCardFooter createdAt={created_at} author={authors[0]} />
+        </ContentContainer>
+      </ExternalLink>
+    </HoverContainer>
   );
 };
 
@@ -40,6 +42,7 @@ const TopImg = styled('img')(
     margin-bottom: -10px;
     z-index: 2;
     position: relative;
+    border-radius: 6px 6px 0px 0px;
     box-shadow: -2px 1px 24px rgba(135, 155, 215, 0.2), 0px 4px 16px rgba(121, 209, 213, 0.4);
 `
 );
@@ -58,6 +61,19 @@ const ContentContainer = styled(Box)(
   ({ theme }) => `
     padding: ${theme.spacing(4)}; 
     background: ${colors.white}; 
+    border-radius: ${theme.shape.borderRadius()};
+    `
+);
+
+const HoverContainer = styled(Box)(
+  ({ theme }) => `
+  transition: all 0.3s ease;
+  &:hover {
+    cursor: pointer;
+    box-shadow: ${theme.shape.shadowLarge(colors.matteGreen)};
+    transition: all 0.3s ease;
+    transform: scale(1.1);
+  }
     `
 );
 

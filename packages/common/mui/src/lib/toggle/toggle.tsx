@@ -80,6 +80,9 @@ const StyledTabs = styled(Tabs, {
   padding: 3px;
   box-shadow: ${theme?.shape.shadowStandard};
   min-height: ${minHeight};
+  transition: background 0.3s ease;
+
+  ${theme?.gradient.hoverTransition('transparent', theme?.palette.info.light)}
 
   .MuiTabs-indicator {
     z-index: 1;

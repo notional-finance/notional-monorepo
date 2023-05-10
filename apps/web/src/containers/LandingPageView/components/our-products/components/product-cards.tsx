@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { useState, ReactNode } from 'react';
 import { TokenIcon, ArrowRightIcon } from '@notional-finance/icons';
 import { Box, styled, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
@@ -25,6 +25,7 @@ export interface ProductCardsProps {
   symbol: string;
   groupedSymbols: string;
   apyTitle: ReactNode;
+  href?: string;
   variableRate?: boolean;
   comingSoon?: boolean;
   loading?: boolean;
@@ -34,10 +35,16 @@ export interface PillProps {
   variableRate: boolean;
   theme: NotionalTheme;
 }
+export interface CardFooterTextProps {
+  hovered: boolean;
+  comingSoon: boolean;
+  theme: NotionalTheme;
+}
 
 export const ProductCards = ({
   title,
   link,
+  href,
   text,
   apy,
   symbol,
@@ -47,9 +54,16 @@ export const ProductCards = ({
   comingSoon,
   loading,
 }: ProductCardsProps) => {
+  const [hovered, setHovered] = useState(false);
   const theme = useTheme();
+
   return (
-    <CardContainer to={link}>
+    <CardContainer
+      to={href ? { pathname: href || '' } : link}
+      target={href ? '_blank' : ''}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
       <CardContent>
         <H3 sx={{ color: colors.white }}>{title}</H3>
         <Pill variableRate={variableRate} theme={theme}>
@@ -103,32 +117,42 @@ export const ProductCards = ({
         )}
       </CardContent>
       <CardFooter>
-        <CardInput
-          sx={{
-            color: comingSoon ? colors.white : colors.neonTurquoise,
-          }}
-        >
+        <CardInput>
           {comingSoon ? (
             <FormattedMessage defaultMessage={'Coming Soon'} />
           ) : (
-            <>
-              <FormattedMessage defaultMessage={'View All Currencies'} />
-              <ArrowRightIcon
-                sx={{
-                  height: theme.spacing(1.75),
-                  width: theme.spacing(1.75),
-                  marginLeft: theme.spacing(2),
-                  marginBottom: '-2px',
-                }}
-              />
-            </>
+            <Box>
+              <CardFooterText
+                comingSoon={comingSoon || false}
+                hovered={hovered}
+                theme={theme}
+              >
+                <FormattedMessage defaultMessage={'View All Currencies'} />
+                <ArrowRightIcon
+                  sx={{
+                    height: theme.spacing(1.75),
+                    width: theme.spacing(1.75),
+                    marginLeft: theme.spacing(2),
+                    marginBottom: '-2px',
+                  }}
+                />
+              </CardFooterText>
+            </Box>
           )}
         </CardInput>
-        <TokenIcon
-          symbol={groupedSymbols}
-          size="medium"
-          style={{ width: 'fit-content' }}
-        />
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <TokenIcon
+            symbol={groupedSymbols}
+            size="medium"
+            style={{ width: '100%' }}
+          />
+        </Box>
       </CardFooter>
     </CardContainer>
   );
@@ -150,7 +174,7 @@ const CardContainer = styled(Link)(
         colors.darkGreen,
         theme.palette.info.light
       )}
-      
+
       &:hover {
         cursor: pointer;
         box-shadow: ${theme.shape.shadowLarge(colors.purpleGrey)};
@@ -237,6 +261,35 @@ const Pill = styled(SectionTitle, {
     padding: ${theme.spacing(1, 1.5)};
     color: ${colors.black};
     letter-spacing: 1px;
+    `
+);
+
+const CardFooterText = styled(Box, {
+  shouldForwardProp: (prop: string) =>
+    prop !== 'comingSoon' && prop !== 'hovered',
+})(
+  ({ comingSoon, hovered, theme }: CardFooterTextProps) => `
+    height: fit-content;
+    width: fit-content;
+    position: relative;
+    color: ${comingSoon ? colors.white : colors.neonTurquoise};
+    ${theme.breakpoints.up(theme.breakpoints.values.sm)} {
+    &::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(to right, ${colors.neonTurquoise}, ${
+    colors.neonTurquoise
+  });
+      transform: ${hovered ? 'scaleX(1)' : 'scaleX(0)'};
+      transform-origin: left;
+      transition: transform 0.3s ease;
+      margin-bottom: -1px;
+    }
+  }
     `
 );
 

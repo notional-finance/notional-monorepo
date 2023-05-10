@@ -14,7 +14,7 @@ export const ImageSlider = () => {
   const settings = {
     dots: false,
     infinite: true,
-    speed: 5000,
+    speed: 3000,
     slidesToShow: 4,
     slidesToScroll: 1,
     autoplay: true,
