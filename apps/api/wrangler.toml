@@ -48,6 +48,8 @@ durable_objects.bindings = [
 
 [env.dev.vars]
 NX_ENV = "dev"
+# This is version that defines the durable object to retreive, increment it to reset
+# the durable object to a clean version
 VERSION = "v3.1"
 KPIS_NAME = "KPIS_DO"
 ACCOUNTS_NAME = "ACCOUNTS_DO"

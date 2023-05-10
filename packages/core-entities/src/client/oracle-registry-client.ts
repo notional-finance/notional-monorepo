@@ -25,6 +25,7 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
   protected adjLists = new Map<Network, AdjList>();
   private _adjListSubscription: Subscription;
 
+  /** Rate equal to one unit in 18 decimal precision with an arbitrary future timestamp */
   private _unitRate$ = of({
     rate: SCALAR_PRECISION,
     timestamp: 2 ** 32,
