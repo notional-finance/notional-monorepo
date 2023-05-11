@@ -1,8 +1,9 @@
 import { tokenBalanceMatchers } from './packages/core-entities/src';
-import { spawn } from 'child_process';
+import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
 import { Contract, ethers, Signer, Wallet } from 'ethers';
 import { ERC20, ERC20ABI } from './packages/contracts/src';
 import fetchMock from 'jest-fetch-mock';
+import { AlchemyUrl, Network } from './packages/util/src';
 
 require('dotenv').config();
 
@@ -14,14 +15,15 @@ expect.extend(tokenBalanceMatchers);
     blockNumber,
     network,
     useTokens = true,
-  }: { blockNumber: number; network: string; useTokens?: boolean },
+  }: { blockNumber: number; network: Network; useTokens?: boolean },
   name: string,
   fn: () => void
 ) => {
   // NOTE: it is unreliable to spawn processes like this because anvil does not find the correct
   // environment variables to set snapshots
-  // const jsonRpcUrl = `https://eth-${network}.alchemyapi.io/v2/${process.env['ALCHEMY_API_KEY']}`;
-  // const forkProc = spawn(
+  const jsonRpcUrl = `${AlchemyUrl[network]}/pq08EwFvymYFPbDReObtP-SFw3bCes8Z`;
+  let forkProc: undefined | ChildProcessWithoutNullStreams;
+  // forkProc = spawn(
   //   'anvil',
   //   [
   //     '--fork-url',
@@ -30,15 +32,22 @@ expect.extend(tokenBalanceMatchers);
   //     blockNumber.toString(),
   //     '--port',
   //     '8546',
+  //     // '--dump-state',
+  //     // '/Users/jwu/code/notional-monorepo/state.json',
+  //     '--load-state',
+  //     '/Users/jwu/code/notional-monorepo/state.json',
   //   ],
   //   {
-  //     cwd: undefined,
+  //     cwd: __dirname,
   //     // TODO: this env is not correct since it is inside the jest environment
-  //     env: process.env,
-  //     shell: true,
+  //     env: {
+  //       HOME: `${__dirname}`,
+  //       PWD: `${__dirname}`,
+  //       ...process.env,
+  //     },
+  //     shell: '/bin/zsh',
   //   }
   // );
-  let forkProc: any | undefined;
 
   const provider = new ethers.providers.JsonRpcProvider(
     'http://127.0.0.1:8546'
@@ -55,28 +64,25 @@ expect.extend(tokenBalanceMatchers);
   describe(name, () => {
     let initialSnapshot: string;
 
-    beforeAll(async () => {
-      await new Promise((r) => setTimeout(r, 750));
+    beforeAll((done) => {
+      if (forkProc) {
+        forkProc.stderr.on('data', (data) => {
+          console.log(`anvil error: ${data}`);
+        });
 
-      const maxRetries = 5;
-      let retries = 0;
-      while (retries < maxRetries) {
-        try {
-          await provider.getBlockNumber();
-
-          (global as any).whales = useTokens
-            ? await setupWhales(signer, provider)
-            : undefined;
-          initialSnapshot = await provider.send('evm_snapshot', []);
-          return;
-        } catch (e) {
-          console.log(e);
-          retries += 1;
-          await new Promise((r) => setTimeout(r, 1000));
-        }
+        forkProc.stdout.on('data', async (data) => {
+          console.log(`anvil: ${data}`);
+          if (data.includes('Listening on')) {
+            initialSnapshot = await provider.send('evm_snapshot', []);
+            done();
+          }
+        });
+      } else {
+        provider.send('evm_snapshot', []).then((i) => {
+          initialSnapshot = i;
+          done();
+        });
       }
-
-      throw Error('Anvil did not startup');
     }, 10000);
 
     fn();

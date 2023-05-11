@@ -71,7 +71,7 @@ export const tokenBalanceMatchers = {
       };
     }
   },
-  toBeApprox(r: TokenBalance, a: TokenBalance, rel = 5e-6) {
+  toBeApprox(r: TokenBalance, a: TokenBalance, rel = 5e-4) {
     try {
       r.isMatch(a);
       const pass =

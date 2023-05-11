@@ -62,16 +62,18 @@ export class NotionalV3Harness extends PoolTestHarness<fCashMarket> {
     if (tokenInIndex === 0) {
       // Depositing cash, getting fCash out. tokenIndexIn refers to prime cash, tokenIndexOut refers
       // to fCash
-      const fCashAmount = await this.notional.getfCashAmountGivenCashAmount(
+      const maturity =
+        this.poolInstance.balances[tokenOutIndex].token.maturity!;
+      const { fCashAmount } = await this.notional.getfCashLendFromDeposit(
         this.poolInstance.poolParams.currencyId,
-        // Convert prime cash to underlying and scale to 8 decimals for this input
-        tokensIn.toUnderlying().scaleTo(8),
-        tokenOutIndex,
-        getNowSeconds()
+        tokensIn.n,
+        maturity,
+        0,
+        getNowSeconds(),
+        false
       );
-      const tokensOut = this.poolInstance.balances[tokenOutIndex]
-        .copy(fCashAmount)
-        .neg();
+      const tokensOut =
+        this.poolInstance.balances[tokenOutIndex].copy(fCashAmount);
 
       // NOTE: fees paid is not returned here
       const feesPaid = this.poolInstance.zeroTokenArray();

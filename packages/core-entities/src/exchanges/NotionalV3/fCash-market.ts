@@ -236,7 +236,10 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
       const feesPaid = this.zeroTokenArray();
       feesPaid[0] = feesPaid[0].copy(fee.n);
 
-      return { feesPaid, tokensOut: underlyingCash };
+      return {
+        feesPaid,
+        tokensOut: underlyingCash.neg().toToken(this.balances[0].token),
+      };
     } else {
       throw Error('One token index in or out must be zero');
     }
@@ -468,12 +471,22 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
     );
 
     const timeToMaturity = this.getTimeToMaturity(marketIndex, nowSeconds);
-    const preFeeCashToAccount = fCashAmount.divInRatePrecision(
-      this.getfCashExchangeRate(preFeeInterestRate, timeToMaturity)
+    const preFeeCashToAccount = totalCashUnderlying.copy(
+      fCashAmount
+        .divInRatePrecision(
+          this.getfCashExchangeRate(preFeeInterestRate, timeToMaturity)
+        )
+        .scaleTo(totalCashUnderlying.decimals)
     );
-    const postFeeCashToAccount = fCashAmount.divInRatePrecision(
-      this.getfCashExchangeRate(postFeeInterestRate, timeToMaturity)
+
+    const postFeeCashToAccount = totalCashUnderlying.copy(
+      fCashAmount
+        .divInRatePrecision(
+          this.getfCashExchangeRate(postFeeInterestRate, timeToMaturity)
+        )
+        .scaleTo(totalCashUnderlying.decimals)
     );
+
     const fee = preFeeCashToAccount.sub(postFeeCashToAccount);
 
     return { fee, underlyingCash: postFeeCashToAccount };
@@ -486,7 +499,7 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
   ) {
     return totalfCash
       .sub(fCashToAccount)
-      .divInRatePrecision(totalCashUnderlying.n.add(totalfCash.n))
+      .divInRatePrecision(totalCashUnderlying.scaleTo(8).add(totalfCash.n))
       .toNumber();
   }
 

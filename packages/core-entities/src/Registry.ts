@@ -88,4 +88,21 @@ export class Registry {
       throw Error('Oracle Registry undefined');
     return Registry._configurations;
   }
+
+  public static onNetworkReady(network: Network, fn: () => void) {
+    Promise.all([
+      new Promise<void>((r) =>
+        Registry.getConfigurationRegistry().onNetworkRegistered(network, r)
+      ),
+      new Promise<void>((r) =>
+        Registry.getTokenRegistry().onNetworkRegistered(network, r)
+      ),
+      new Promise<void>((r) =>
+        Registry.getOracleRegistry().onNetworkRegistered(network, r)
+      ),
+      new Promise<void>((r) =>
+        Registry.getExchangeRegistry().onNetworkRegistered(network, r)
+      ),
+    ]).then(fn);
+  }
 }

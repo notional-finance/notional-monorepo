@@ -252,4 +252,20 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
       )
     ).mul(RATE_PRECISION);
   }
+
+  exchangeToInterestRate(
+    exchangeRate: BigNumber,
+    maturity: number,
+    currentTime = getNowSeconds()
+  ) {
+    if (maturity <= currentTime) return 0;
+
+    const timeToMaturity = maturity - currentTime
+    // interest rate = ln(exchangeRate) * SECONDS_IN_YEAR / timeToMaturity
+    const annualRate =
+      ((Math.log(exchangeRate.toNumber() / RATE_PRECISION) * SECONDS_IN_YEAR) /
+        timeToMaturity) *
+      RATE_PRECISION;
+    return Math.trunc(annualRate);
+  }
 }

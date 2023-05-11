@@ -1,5 +1,5 @@
 import { Registry } from '../../src/registry';
-import { Network } from '@notional-finance/util';
+import { Network, RATE_PRECISION } from '@notional-finance/util';
 import { PoolTestHarness, TestConfig } from './harness';
 import httpserver from 'http-server';
 import { BaseLiquidityPool } from 'packages/core-entities/src/exchanges';
@@ -8,7 +8,7 @@ const server = httpserver.createServer({
   root: `${__dirname}/../clients/__snapshots__`,
 });
 
-process.env['FAKE_TIME'] = '1683741880';
+process.env['FAKE_TIME'] = '1683775701';
 
 describe('Pool Tests', () => {
   // Start and stop cache server
@@ -28,63 +28,104 @@ describe('Pool Tests', () => {
   });
 
   describe.withFork(
-    { blockNumber: 89337451, network: Network.ArbitrumOne },
+    { blockNumber: 89464974, network: Network.ArbitrumOne },
     'Arbitrum Pool Tests',
     () => {
       describe.each(TestConfig[Network.ArbitrumOne])(
         'Acceptance',
         ({ address, Harness }) => {
           let harness: PoolTestHarness<BaseLiquidityPool<unknown>>;
-          const tokenIndexes: number[] = [0, 1, 2, 3, 4];
+          const tokenMatrix: number[][] = [
+            [0, 1, 0.1e9],
+            [0, 1, 0.01e9],
+            [0, 1, 0.001e9],
+            [0, 2, 0.1e9],
+            [0, 2, 0.01e9],
+            [0, 2, 0.001e9],
+            [1, 0, 0.1e9],
+            [1, 0, 0.01e9],
+            [1, 0, 0.001e9],
+            [1, 2, 0.1e9],
+            [1, 2, 0.01e9],
+            [1, 2, 0.001e9],
+            [2, 0, 0.1e9],
+            [2, 0, 0.01e9],
+            [2, 0, 0.001e9],
+            [2, 1, 0.1e9],
+            [2, 1, 0.01e9],
+            [2, 1, 0.001e9],
+          ];
 
           beforeAll((done) => {
-            Registry.getExchangeRegistry().onSubjectKeyReady(
-              Network.ArbitrumOne,
-              address,
-              () => {
-                harness = new Harness(Network.ArbitrumOne, address, provider);
-                done();
-              }
-            );
+            Registry.onNetworkReady(Network.ArbitrumOne, () => {
+              Registry.getExchangeRegistry().onSubjectKeyReady(
+                Network.ArbitrumOne,
+                address,
+                () => {
+                  harness = new Harness(Network.ArbitrumOne, address, provider);
+                  done();
+                }
+              );
+            });
           });
 
           it.todo('calculates single side entry and exit');
 
-          //it.each(tokenIndexes)('calculates trades', async (tokenIndex) => {
-          it('calculates trades', async () => {
-            const tokenIndex = 0;
-            if (tokenIndex >= harness.poolInstance.balances.length) return;
+          it.each(tokenMatrix)(
+            `[Trade] for ${address} where token in=%i, token out=%i, size=%f`,
+            async (tokenIn, tokenOut, utilization) => {
+              if (tokenIn >= harness.poolInstance.balances.length) return;
+              if (tokenOut >= harness.poolInstance.balances.length) return;
 
-            try {
-              const tokensIn =
-                harness.poolInstance.balances[tokenIndex].mulInRatePrecision(
-                  0.01e9
-                );
+              try {
+                const tokensIn =
+                  harness.poolInstance.balances[tokenIn].mulInRatePrecision(
+                    utilization
+                  );
 
-              const actual = await harness.trade(
-                signer,
-                tokensIn,
-                tokenIndex,
-                1 - tokenIndex
-              );
-              console.log(
-                'actual',
-                tokensIn.toDisplayStringWithSymbol(8),
-                actual.tokensOut.toDisplayStringWithSymbol(8)
-              );
-              const { tokensOut, feesPaid: _feesPaid } =
-                harness.poolInstance.calculateTokenTrade(
+                const actual = await harness.trade(
+                  signer,
                   tokensIn,
-                  tokenIndex,
-                  1 - tokenIndex
+                  tokenIn,
+                  tokenOut
                 );
-              console.log('calculated', tokensOut.toDisplayStringWithSymbol(8));
-              expect(tokensOut).toBeApprox(actual.tokensOut);
-            } catch (e) {
-              if ((e as Error).name === 'UnimplementedPoolMethod') return;
-              throw e;
+                const { tokensOut, feesPaid: _feesPaid } =
+                  harness.poolInstance.calculateTokenTrade(
+                    tokensIn,
+                    tokenIn,
+                    tokenOut
+                  );
+                // console.log(
+                //   'actual',
+                //   tokensIn.toDisplayStringWithSymbol(8),
+                //   actual.tokensOut.toDisplayStringWithSymbol(8)
+                // );
+                // console.log(
+                //   'calculated',
+                //   tokensOut.toDisplayStringWithSymbol(8)
+                // );
+                // const oracles = Registry.getOracleRegistry();
+                // console.log(
+                //   'interest rate actual',
+                //   oracles.exchangeToInterestRate(
+                //     tokensIn.n.mul(RATE_PRECISION).div(actual.tokensOut.n),
+                //     actual.tokensOut.token.maturity!
+                //   ) / -RATE_PRECISION
+                // );
+                // console.log(
+                //   'interest rate calculated',
+                //   oracles.exchangeToInterestRate(
+                //     tokensIn.n.mul(RATE_PRECISION).div(tokensOut.n),
+                //     actual.tokensOut.token.maturity!
+                //   ) / -RATE_PRECISION
+                // );
+                expect(tokensOut).toBeApprox(actual.tokensOut);
+              } catch (e) {
+                if ((e as Error).name === 'UnimplementedPoolMethod') return;
+                throw e;
+              }
             }
-          });
+          );
 
           it.todo('calculates balanced entry and exit');
           it.todo('calculates unbalanced entry and exit');

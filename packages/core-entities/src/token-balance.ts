@@ -65,6 +65,10 @@ export class TokenBalance {
     return BigNumber.from(10).pow(this.token.decimals);
   }
 
+  get decimals() {
+    return this.token.decimals;
+  }
+
   /** TokenBalance objects with the same typeKey can be added together */
   get typeKey() {
     return utils.id([this.token.id, this.token.network].join(':'));
