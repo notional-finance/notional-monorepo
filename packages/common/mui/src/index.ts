@@ -29,7 +29,6 @@ export * from './lib/input-label/input-label';
 export * from './lib/interactive-area-chart/interactive-area-chart';
 export * from './lib/hooks/use-window-dimensions/use-window-dimensions';
 export * from './lib/labeled-text/labeled-text';
-export * from './lib/loadable/loadable';
 export * from './lib/maturity-card/maturity-card';
 export * from './lib/maturities/maturities';
 export * from './lib/mini-button/mini-button';
