@@ -1,7 +1,7 @@
-import { Box, useTheme } from '@mui/material'
-import { Paragraph } from '@notional-finance/mui'
+import { Box, useTheme } from '@mui/material';
+import { FeatureLoader, Paragraph } from '@notional-finance/mui';
 
-const TermsView = () => {
+export const TermsView = () => {
   const terms = `NOTIONAL TERMS OF SERVICE
 Last Updated: December 5, 2020
 Welcome to Notional!  These terms of service, together with any documents and additional terms they expressly incorporate by reference (collectively, these “Terms”), are entered into between Swapnet Inc (“Notional,” “we,” “us” and “our”) and you or the company or other legal entity you represent (“you” or “your”), and constitutes a binding legal agreement.  By accessing or using our Services (defined below), you accept and agree to be bound by and to comply with these Terms, including the mandatory arbitration provision in Section 12. If you do not agree to these Terms, you must not access or use our Services.
@@ -181,14 +181,24 @@ The interpretation and enforcement of these Terms, and any dispute related to th
 Any right or remedy of Notional set forth in these Terms is in addition to, and not in lieu of, any other right or remedy whether described in these Terms, under Applicable Law, at law or in equity. Our failure or delay in exercising any right, power, or privilege under these Terms shall not operate as a waiver thereof. The invalidity or unenforceability of any of these Terms shall not affect the validity or enforceability of any other of these Terms, all of which shall remain in full force and effect. We will have no responsibility or liability for any failure or delay in performance of the Portal or any of the Services, or any loss or damage that you may incur, due to any circumstance or event beyond our control, including without limitation any flood, extraordinary weather conditions, earthquake, or other act of God, fire, war, insurrection, riot, labor dispute, accident, action of government, communications, power failure, or equipment or software malfunction. You may not assign or transfer any right to use the Portal or the Services, or any of your rights or obligations under these Terms, without our express prior written consent, including by operation of law or in connection with any change of control. We may assign or transfer any or all of our rights or obligations under these Terms, in whole or in part, without notice or obtaining your consent or approval. Headings of sections are for convenience only and shall not be used to limit or construe such sections. These Terms contain the entire agreement, and supersede all prior and contemporaneous understandings between the parties regarding the Portal and the Services. In the event of any conflict between these Terms and any other agreement you may have with us, these Terms will control unless the other agreement specifically identifies these Terms and declares that the other agreement supersedes these Terms.`
     .split('\n')
     .map((i) => {
-      return <p>{i}</p>
-    })
-  const theme = useTheme()
+      return <p>{i}</p>;
+    });
+  const theme = useTheme();
   return (
-    <Box sx={{ padding: { xs: theme.spacing(8, 4), md: theme.spacing(8, 12), lg: theme.spacing(12, 20) } }}>
-      <Paragraph>{terms}</Paragraph>
-    </Box>
-  )
-}
+    <FeatureLoader featureLoaded={terms.length > 0}>
+      <Box
+        sx={{
+          padding: {
+            xs: theme.spacing(8, 4),
+            md: theme.spacing(8, 12),
+            lg: theme.spacing(12, 20),
+          },
+        }}
+      >
+        <Paragraph>{terms}</Paragraph>
+      </Box>
+    </FeatureLoader>
+  );
+};
 
-export default TermsView
+export default TermsView;

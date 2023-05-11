@@ -21,6 +21,7 @@ export * from './lib/dropdown-button/dropdown-button';
 export * from './lib/error-message/error-message';
 export * from './lib/discord-button-gradient/discord-button-gradient';
 export * from './lib/faq/faq';
+export * from './lib/feature-loader/feature-loader';
 export * from './lib/hooks';
 export * from './lib/info-tooltip/info-tooltip';
 export * from './lib/input/input';

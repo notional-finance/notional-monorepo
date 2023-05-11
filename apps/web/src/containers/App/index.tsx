@@ -19,24 +19,23 @@ import { initializeNetwork } from '@notional-finance/notionable';
 import { TrackingConsent } from '@notional-finance/shared-web';
 import { ServerError } from '../../containers/server-error/server-error';
 import { useNotionalTheme } from '@notional-finance/styles';
-// Lazy Loaded Views
-import AboutUsView from '@notional-finance/about-us-feature-shell/Loadable';
-import StakeView from '@notional-finance/stake-feature-shell/Loadable';
+import { AboutUsView } from '@notional-finance/about-us-feature-shell';
+import { StakeView } from '@notional-finance/stake-feature-shell';
 import LendCardView from '@notional-finance/lend-feature-shell/lend-card-view';
-import LendCurrencyView from '@notional-finance/lend-feature-shell/Loadable';
-import PortfolioView from '@notional-finance/portfolio-feature-shell/Loadable';
+import { LendFeatureShell } from '@notional-finance/lend-feature-shell';
+import { PortfolioFeatureShell } from '@notional-finance/portfolio-feature-shell';
 import BorrowCardView from '@notional-finance/borrow-feature-shell/borrow-card-view';
-import BorrowCurrencyView from '@notional-finance/borrow-feature-shell/Loadable';
-import LiquidityCurrencyView from '@notional-finance/liquidity-feature-shell/Loadable';
-import TreasuryView from '@notional-finance/treasury-feature-shell/Loadable';
+import { BorrowFeatureShell } from '@notional-finance/borrow-feature-shell';
+import { LiquidityCurrencyView } from '@notional-finance/liquidity-feature-shell';
+import { TreasuryView } from '@notional-finance/treasury-feature-shell';
 import {
   VaultActionProvider,
-  AllVaultsLoadable,
+  AllStrategyView,
 } from '@notional-finance/vault-feature-shell';
-import AirdropView from '../../containers/AirdropView/Loadable';
-import TermsView from '../../containers/TermsView/Loadable';
-import PrivacyView from '../../containers/PrivacyView/Loadable';
-import LandingPageView from '../../containers/LandingPageView/Loadable';
+import { AirdropView } from '../../containers/AirdropView';
+import { TermsView } from '../../containers/TermsView';
+import { PrivacyView } from '../../containers/PrivacyView';
+import { LandingPageView } from '../../containers/LandingPageView';
 import { ProvideLiquidityCards } from '@notional-finance/liquidity-feature-shell';
 const applicationId = process.env['NX_DD_APP_ID'] as string;
 const clientToken = process.env['NX_DD_API_KEY'] as string;
@@ -111,12 +110,12 @@ export const App = () => {
                 <AppLayoutRoute
                   path="/borrow/:currency/:collateral"
                   routeKey={routeKey}
-                  component={BorrowCurrencyView}
+                  component={BorrowFeatureShell}
                 />
                 <AppLayoutRoute path="/borrow" component={BorrowCardView} />
                 <AppLayoutRoute
                   path="/lend/:currency"
-                  component={LendCurrencyView}
+                  component={LendFeatureShell}
                 />
                 <AppLayoutRoute path="/lend" component={LendCardView} />
                 <AppLayoutRoute
@@ -146,18 +145,21 @@ export const App = () => {
                   path="/vaults/:vaultAddress"
                   component={VaultActionProvider}
                 />
-                <AppLayoutRoute path="/vaults" component={AllVaultsLoadable} />
+                <AppLayoutRoute path="/vaults" component={AllStrategyView} />
                 <AppLayoutRoute path="/terms" component={TermsView} />
                 <AppLayoutRoute path="/privacy" component={PrivacyView} />
                 <AppLayoutRoute
                   path="/portfolio/:category/:sideDrawerKey"
-                  component={PortfolioView}
+                  component={PortfolioFeatureShell}
                 />
                 <AppLayoutRoute
                   path="/portfolio/:category/"
-                  component={PortfolioView}
+                  component={PortfolioFeatureShell}
                 />
-                <AppLayoutRoute path="/portfolio" component={PortfolioView} />
+                <AppLayoutRoute
+                  path="/portfolio"
+                  component={PortfolioFeatureShell}
+                />
                 <AppLayoutRoute path="/treasury" component={TreasuryView} />
                 <AppLayoutRoute path="/error" component={ServerError} />
                 <LandingPageLayoutRoute path="/about" component={AboutUsView} />

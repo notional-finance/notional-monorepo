@@ -1,7 +1,7 @@
 import { Box, styled, useTheme } from '@mui/material';
 import { useAccount } from '@notional-finance/notionable-hooks';
 import { useParams } from 'react-router-dom';
-import { ButtonBar, SideDrawer, PageLoading } from '@notional-finance/mui';
+import { ButtonBar, SideDrawer, FeatureLoader } from '@notional-finance/mui';
 import { usePortfolioButtonBar, usePortfolioSideDrawers } from './hooks';
 import { SideNav, PortfolioMobileNav, ClaimNoteButton } from './components';
 import {
@@ -13,7 +13,6 @@ import {
   PortfolioMoneyMarket,
   PortfolioTransactionHistory,
 } from './containers';
-import { useNotional } from '@notional-finance/notionable-hooks';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import {
   PORTFOLIO_ACTIONS,
@@ -28,7 +27,6 @@ export interface PortfolioParams {
 export const PortfolioFeatureShell = () => {
   const theme = useTheme();
   const params = useParams<PortfolioParams>();
-  const { loaded } = useNotional();
   const { clearSideDrawer } = useSideDrawerManager();
   const { SideDrawerComponent, openDrawer } = usePortfolioSideDrawers();
   const buttonData = usePortfolioButtonBar();
@@ -41,61 +39,55 @@ export const PortfolioFeatureShell = () => {
   };
 
   return (
-    <PortfolioContainer>
-      {loaded ? (
-        <>
-          <SideDrawer
-            callback={handleDrawer}
-            openDrawer={openDrawer}
-            zIndex={1202}
-            marginTop="80px"
-          >
-            {SideDrawerComponent && <SideDrawerComponent />}
-          </SideDrawer>
-          <PortfolioSidebar>
-            <SideNav />
-          </PortfolioSidebar>
-          <PortfolioMainContent>
-            {accountConnected &&
-              params.category !== PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS && (
-                <Box sx={{ justifyContent: 'flex-end', display: 'flex' }}>
-                  <ButtonBar
-                    buttonOptions={buttonData}
-                    sx={{
-                      marginBottom: theme.spacing(1),
-                      height: theme.spacing(5),
-                    }}
-                  />
-                  <ClaimNoteButton />
-                </Box>
-              )}
-            {(params.category === PORTFOLIO_CATEGORIES.OVERVIEW ||
-              params.category === undefined) && <PortfolioOverview />}
-            {params.category === PORTFOLIO_CATEGORIES.LENDS && (
-              <PortfolioLends />
+    <FeatureLoader>
+      <PortfolioContainer>
+        <SideDrawer
+          callback={handleDrawer}
+          openDrawer={openDrawer}
+          zIndex={1202}
+          marginTop="80px"
+        >
+          {SideDrawerComponent && <SideDrawerComponent />}
+        </SideDrawer>
+        <PortfolioSidebar>
+          <SideNav />
+        </PortfolioSidebar>
+        <PortfolioMainContent>
+          {accountConnected &&
+            params.category !== PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS && (
+              <Box sx={{ justifyContent: 'flex-end', display: 'flex' }}>
+                <ButtonBar
+                  buttonOptions={buttonData}
+                  sx={{
+                    marginBottom: theme.spacing(1),
+                    height: theme.spacing(5),
+                  }}
+                />
+                <ClaimNoteButton />
+              </Box>
             )}
-            {params.category === PORTFOLIO_CATEGORIES.BORROWS && (
-              <PortfolioBorrows />
-            )}
-            {params.category === PORTFOLIO_CATEGORIES.LIQUIDITY && (
-              <PortfolioLiquidity />
-            )}
-            {params.category === PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS && (
-              <PortfolioVaults />
-            )}
-            {params.category === PORTFOLIO_CATEGORIES.MONEY_MARKET && (
-              <PortfolioMoneyMarket />
-            )}
-            {params.category === PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY && (
-              <PortfolioTransactionHistory />
-            )}
-          </PortfolioMainContent>
-          <PortfolioMobileNav />
-        </>
-      ) : (
-        <PageLoading />
-      )}
-    </PortfolioContainer>
+          {(params.category === PORTFOLIO_CATEGORIES.OVERVIEW ||
+            params.category === undefined) && <PortfolioOverview />}
+          {params.category === PORTFOLIO_CATEGORIES.LENDS && <PortfolioLends />}
+          {params.category === PORTFOLIO_CATEGORIES.BORROWS && (
+            <PortfolioBorrows />
+          )}
+          {params.category === PORTFOLIO_CATEGORIES.LIQUIDITY && (
+            <PortfolioLiquidity />
+          )}
+          {params.category === PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS && (
+            <PortfolioVaults />
+          )}
+          {params.category === PORTFOLIO_CATEGORIES.MONEY_MARKET && (
+            <PortfolioMoneyMarket />
+          )}
+          {params.category === PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY && (
+            <PortfolioTransactionHistory />
+          )}
+        </PortfolioMainContent>
+        <PortfolioMobileNav />
+      </PortfolioContainer>
+    </FeatureLoader>
   );
 };
 

@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom';
 import BorrowSidebar from './borrow-sidebar/borrow-sidebar';
-import { SideBarLayout } from '@notional-finance/mui';
+import { SideBarLayout, FeatureLoader } from '@notional-finance/mui';
 import { TradeActionSummary } from '@notional-finance/trade';
 import { NOTIONAL_CATEGORIES } from '@notional-finance/shared-config';
 import { updateBorrowState } from './store/borrow-store';
@@ -27,24 +27,26 @@ export const BorrowFeatureShell = () => {
   }, [selectedToken]);
 
   return (
-    <SideBarLayout
-      showTransactionConfirmation={showTransactionConfirmation}
-      sideBar={<BorrowSidebar />}
-      mainContent={
-        <TradeActionSummary
-          markets={markets}
-          selectedToken={selectedToken}
-          selectedMarketKey={selectedMarketKey}
-          tradedRate={tradedRate}
-          onSelectMarketKey={(selectedMarketKey) => {
-            updateBorrowState({ selectedMarketKey });
-          }}
-          tradeAction={NOTIONAL_CATEGORIES.BORROW}
-          fCashAmount={fCashAmount}
-          interestAmount={interestAmount}
-        />
-      }
-    />
+    <FeatureLoader featureLoaded={markets.length > 0}>
+      <SideBarLayout
+        showTransactionConfirmation={showTransactionConfirmation}
+        sideBar={<BorrowSidebar />}
+        mainContent={
+          <TradeActionSummary
+            markets={markets}
+            selectedToken={selectedToken}
+            selectedMarketKey={selectedMarketKey}
+            tradedRate={tradedRate}
+            onSelectMarketKey={(selectedMarketKey) => {
+              updateBorrowState({ selectedMarketKey });
+            }}
+            tradeAction={NOTIONAL_CATEGORIES.BORROW}
+            fCashAmount={fCashAmount}
+            interestAmount={interestAmount}
+          />
+        }
+      />
+    </FeatureLoader>
   );
 };
 

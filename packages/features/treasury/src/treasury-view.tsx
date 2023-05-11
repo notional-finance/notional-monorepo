@@ -14,6 +14,7 @@ import {
   LabeledText,
   MiniButton,
   SideBarLayout,
+  FeatureLoader,
 } from '@notional-finance/mui';
 import { BigNumber } from 'ethers';
 import { useTreasuryReservesTable } from './lib/use-treasury-reserves';
@@ -290,7 +291,11 @@ export const TreasuryView = () => {
     </Container>
   );
 
-  return <SideBarLayout mainContent={mainContent} sideBar={<div></div>} />;
+  return (
+    <FeatureLoader>
+      <SideBarLayout mainContent={mainContent} sideBar={<div></div>} />
+    </FeatureLoader>
+  );
 };
 
 const Container = styled(Box)`

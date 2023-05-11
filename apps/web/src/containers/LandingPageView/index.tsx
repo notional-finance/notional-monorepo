@@ -15,19 +15,18 @@ import { useNotionalTheme, colors } from '@notional-finance/styles';
 import { Header, LaunchAppButton } from '@notional-finance/shared-web';
 import { EmailCaptureSection } from '@notional-finance/shared-web';
 import { LandingFooter } from '@notional-finance/shared-web';
-import { useNotional } from '@notional-finance/notionable-hooks';
+import { FeatureLoader } from '@notional-finance/mui';
 
 export const LandingPageView = () => {
   const theme = useNotionalTheme(THEME_VARIANTS.DARK, 'landing');
   const lightTheme = useNotionalTheme(THEME_VARIANTS.LIGHT);
-  const { loaded } = useNotional();
   const handleAppLaunch = () => {
     trackEvent('LAUNCH_APP');
   };
 
   return (
     <ThemeProvider theme={theme}>
-      {loaded && (
+      <FeatureLoader backgroundColor={colors.black}>
         <>
           <Header>
             <LaunchAppButton onLaunch={handleAppLaunch} />
@@ -52,7 +51,7 @@ export const LandingPageView = () => {
             </ThemeProvider>
           </Box>
         </>
-      )}
+      </FeatureLoader>
     </ThemeProvider>
   );
 };
