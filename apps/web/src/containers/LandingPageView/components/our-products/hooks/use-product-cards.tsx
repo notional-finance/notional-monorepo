@@ -2,6 +2,8 @@ import { FormattedMessage } from 'react-intl';
 import { useVaultMaxRate } from './use-vault-max-rate';
 import { useProvideLiquidityMaxRate } from './use-provide-liquidity-max-rate';
 import { useLendBorrowRates } from './use-lend-borrow-rates';
+import { colors } from '@notional-finance/styles';
+import { Box } from '@mui/material';
 
 export const useProductCards = () => {
   const { maxVaultRateData, vaultDataloading } = useVaultMaxRate();
@@ -48,10 +50,18 @@ export const useProductCards = () => {
     {
       title: <FormattedMessage defaultMessage={'Variable Rate Lending'} />,
       link: '',
+      href: 'https://blog.notional.finance/introducing-notional-v3/',
       text: (
         <FormattedMessage
           defaultMessage={`Earn passive interest. Withdraw anytime.
-          Read more about Notional V3 on the blog`}
+          <span>Read more about Notional V3 on the blog</span>`}
+          values={{
+            span: (chunk: React.ReactNode) => (
+              <Box sx={{ color: colors.neonTurquoise }} component="span">
+                {chunk}
+              </Box>
+            ),
+          }}
         />
       ),
       apy: '0% APY',
@@ -97,9 +107,18 @@ export const useProductCards = () => {
     {
       title: <FormattedMessage defaultMessage={'Variable Borrow'} />,
       link: '',
+      href: 'https://blog.notional.finance/introducing-notional-v3/',
       text: (
         <FormattedMessage
-          defaultMessage={'Choose a term and get a guaranteed interest rate.'}
+          defaultMessage={`Keep your options open. Pay a variable interest rate and close out your debt whenever you want for no penalty.
+          <span>Read more about Notional V3 on the blog.</span>`}
+          values={{
+            span: (chunk: React.ReactNode) => (
+              <Box sx={{ color: colors.neonTurquoise }} component="span">
+                {chunk}
+              </Box>
+            ),
+          }}
         />
       ),
       apy: '6.89% APY',

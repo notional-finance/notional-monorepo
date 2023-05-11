@@ -12,7 +12,7 @@ export const OurProducts = () => {
   const theme = useTheme();
 
   return (
-    <Box sx={{ zIndex: 3, position: 'relative', background: colors.white }}>
+    <Box sx={{ zIndex: 3, position: 'relative', background: colors.iceWhite }}>
       <Container>
         <TitleContainer>
           <Box id="title-text">
