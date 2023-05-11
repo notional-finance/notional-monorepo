@@ -62,8 +62,7 @@ const BackgroundContainer = styled(Box)(
   background: ${colors.iceWhite};
   ${theme.breakpoints.down('md')} {
     height: ${theme.spacing(10)};
-  }
-    `
+  }`
 );
 
 const InnerContainer = styled(Box)(
@@ -75,9 +74,7 @@ const InnerContainer = styled(Box)(
   padding-bottom: ${theme.spacing(15)};
   ${theme.breakpoints.down('md')} {
     display: none;
-  }
-
-`
+  }`
 );
 
 const LottieContainer = styled(Box)(
@@ -89,8 +86,7 @@ const LottieContainer = styled(Box)(
   #lottie-player {
     width: ${theme.spacing(74)};
     padding-top: ${theme.spacing(19.375)};
-  }
-    `
+  }`
 );
 
 export default HowItWorks;
