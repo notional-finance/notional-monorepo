@@ -155,7 +155,9 @@ export abstract class BaseRegistry<T> {
             );
           })
         )
-        .subscribe((d) => this._updateNetworkObservables(d))
+        .subscribe((d) => {
+          this._updateNetworkObservables(d);
+        })
     );
 
     this._interval.set(network, newInterval);

@@ -34,7 +34,7 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
     } else {
       // Get the current oracle configuration from the subjects
       const values = Array.from(
-        this.getLatestFromAllSubjects(network).entries()
+        this.getLatestFromAllSubjects(network, 0).entries()
       );
 
       results = {
