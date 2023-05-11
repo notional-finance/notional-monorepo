@@ -1,21 +1,18 @@
 import {
-  ObservableResource,
   useObservable,
   useObservableCallback,
   useObservableState,
-  useObservableSuspense,
   useSubscription,
 } from 'observable-hooks';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useLocation, useParams } from 'react-router';
-import { EMPTY, of, Observable, scan, switchMap } from 'rxjs';
+import { EMPTY, Observable, scan, switchMap } from 'rxjs';
 import { QueryParamConfigMap, useQueryParams } from 'use-query-params';
 
 export interface ObservableContext<T> {
   updateState: (args: Partial<T>) => void;
   state$: Observable<T>;
   state: T;
-  _state?: T;
 }
 
 export function createObservableContext<T>(
@@ -45,9 +42,6 @@ export function useObservableContext<T extends Record<string, unknown>>(
   const params = useParams<Record<string, string>>();
   const { pathname } = useLocation();
   const [query, setQuery] = useQueryParams(queryParamConfig);
-  const [resource, setResource] = useState<
-    ObservableResource<T, T> | undefined
-  >();
 
   // Creates an observable state object that can be updated
   const [updateState, state$] = useObservableCallback<
@@ -63,11 +57,6 @@ export function useObservableContext<T extends Record<string, unknown>>(
     (args) => args[0]
   );
   const state = useObservableState(state$, initialState);
-
-  useEffect(() => {
-    console.log('observable state$ change');
-    setResource(new ObservableResource(state$));
-  }, [state$]);
 
   // Loads managers and has them start listening to state. As each manager emits a value
   // it will be individually updated to state
@@ -108,9 +97,5 @@ export function useObservableContext<T extends Record<string, unknown>>(
     }
   }, [query, state, updateState, setQuery]);
 
-  const _state = useObservableSuspense(
-    resource || new ObservableResource(of(initialState))
-  );
-
-  return { updateState, state$, state, _state };
+  return { updateState, state$, state };
 }

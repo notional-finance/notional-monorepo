@@ -1,7 +1,6 @@
 import { useEffect, useCallback } from 'react';
 import { defineMessage, FormattedMessage } from 'react-intl';
 import {
-  // PageLoading,
   Maturities,
   ActionSidebar,
   useCurrencyInputRef,

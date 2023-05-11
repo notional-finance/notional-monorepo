@@ -14,7 +14,7 @@ export interface VaultParams {
 }
 
 export const VaultView = () => {
-  const { updateState, _state, state } = useContext(VaultActionContext);
+  const { updateState, state } = useContext(VaultActionContext);
   const { vaultAddress } = useParams<VaultParams>();
   const txnData = useVaultTransaction();
   const showTransactionConfirmation = txnData ? true : false;
