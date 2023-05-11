@@ -3,6 +3,7 @@ import {
   AssetType,
   encodeERC1155Id,
   getNowSeconds,
+  INTERNAL_TOKEN_DECIMALS,
   Network,
   NotionalAddress,
   RATE_PRECISION,
@@ -345,19 +346,28 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
     );
 
     if (netUnderlyingToAccount.isNegative()) {
-      fCash_0 = netUnderlyingToAccount.neg();
-      fCash_1 = netUnderlyingToAccount
-        .mulInRatePrecision(currentfCashExchangeRate)
-        .neg();
+      fCash_0 = totalfCash.copy(netUnderlyingToAccount.neg().scaleTo(8));
+      fCash_1 = totalfCash.copy(
+        netUnderlyingToAccount
+          .mulInRatePrecision(currentfCashExchangeRate)
+          .neg()
+          .scaleTo(INTERNAL_TOKEN_DECIMALS)
+      );
     } else {
-      fCash_0 = netUnderlyingToAccount
-        .mulInRatePrecision(currentfCashExchangeRate)
-        .neg();
-      fCash_1 = netUnderlyingToAccount
-        .mulInRatePrecision(
-          this.getfCashExchangeRate(irParams.maxRate, timeToMaturity)
-        )
-        .neg();
+      fCash_0 = totalfCash.copy(
+        netUnderlyingToAccount
+          .mulInRatePrecision(currentfCashExchangeRate)
+          .neg()
+          .scaleTo(INTERNAL_TOKEN_DECIMALS)
+      );
+      fCash_1 = totalfCash.copy(
+        netUnderlyingToAccount
+          .mulInRatePrecision(
+            this.getfCashExchangeRate(irParams.maxRate, timeToMaturity)
+          )
+          .neg()
+          .scaleTo(INTERNAL_TOKEN_DECIMALS)
+      );
     }
 
     let diff_0 = this._calculateDiff(
@@ -408,7 +418,9 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
 
     return fCashToAccount.add(
       fCashToAccount.copy(
-        netUnderlyingToAccount.mulInRatePrecision(exchangeRate).n
+        netUnderlyingToAccount
+          .mulInRatePrecision(exchangeRate)
+          .scaleTo(INTERNAL_TOKEN_DECIMALS)
       )
     );
   }
@@ -606,7 +618,7 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
 
       const totalValueRedeemedPrime = primeCash.add(
         netfCash
-          .reduce((p, f) => f.toUnderlying(), this.getZeroUnderlying())
+          .reduce((_, f) => f.toUnderlying(), this.getZeroUnderlying())
           .toToken(primeCash.token)
       );
       // Redemption fee is the difference between the total value redeemed and the oracle value

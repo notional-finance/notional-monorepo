@@ -1,20 +1,20 @@
+/*
 import { BigNumber, Signer, ethers, Contract } from 'ethers';
 import {
   BalancerPool,
   BalancerStablePoolABI,
   BalancerVault,
   BalancerVaultABI,
-  ERC20,
-  ERC20ABI,
 } from '@notional-finance/contracts';
-import { getNowSeconds } from '@notional-finance/util';
-import { Network, TokenBalance } from '../../../src';
-import { aggregate } from '@notional-finance/multicall';
+import { getNowSeconds, Network } from '@notional-finance/util';
 
 import { PoolTestHarness } from './PoolTestHarness';
-import { MetaStablePool } from '../../../src/exchanges';
+import { BaseLiquidityPool } from '../../../src/exchanges';
+import { TokenBalance } from '../../../src/token-balance';
 
-export class BalancerPoolHarness extends PoolTestHarness {
+export class BalancerPoolHarness<
+  T extends BaseLiquidityPool<unknown>
+> extends PoolTestHarness<T> {
   public JoinKind = {
     EXACT_TOKENS_IN_FOR_BPT_OUT: {
       kind: 1,
@@ -57,39 +57,26 @@ export class BalancerPoolHarness extends PoolTestHarness {
     GivenOut: 1,
   };
 
-  public static override async makePoolHarness(
-    network: Network,
-    poolAddress: string
-  ) {
-    const callData = MetaStablePool.getInitData(network, poolAddress).map((c) =>
-      Object.assign(c, { key: `${poolAddress}.${c.key}` })
-    );
-    const { results } = await aggregate(callData, provider);
-    return new BalancerPoolHarness(
-      results[`${poolAddress}.poolId`] as string,
-      new Contract(
-        poolAddress,
-        BalancerStablePoolABI,
-        provider
-      ) as BalancerPool,
-      new Contract(
-        results[`${poolAddress}.vaultAddress`] as string,
-        BalancerVaultABI,
-        provider
-      ) as BalancerVault,
-      (results[`${poolAddress}.balances`] as TokenBalance[]).map(
-        (b) => new Contract(b.token.address, ERC20ABI, provider) as ERC20
-      )
-    );
-  }
+  public vault: BalancerVault;
+  public pool: BalancerPool;
 
   constructor(
-    public poolId: string,
-    public balancerPool: BalancerPool,
-    public balancerVault: BalancerVault,
-    public tokens: ERC20[]
+    network: Network,
+    poolAddress: string,
+    provider: ethers.providers.JsonRpcProvider
   ) {
-    super();
+    super(network, poolAddress, provider);
+
+    this.pool = new Contract(
+      poolAddress,
+      BalancerStablePoolABI,
+      provider
+    ) as BalancerPool;
+    this.vault = new Contract(
+      this.poolInstance.poolParams['vault'] as string,
+      BalancerVaultABI,
+      provider
+    ) as BalancerVault;
   }
 
   protected parseFeeFromEvents(events?: ethers.Event[]) {
@@ -105,9 +92,9 @@ export class BalancerPoolHarness extends PoolTestHarness {
   public async singleSideEntry(
     signer: Signer,
     entryTokenIndex: number,
-    entryTokenAmount: BigNumber
+    entryTokenAmount: TokenBalance
   ) {
-    const tokensIn = Array(this.tokens.length).fill(BigNumber.from(0));
+    const tokensIn = this.poolInstance.zeroTokenArray();
     tokensIn[entryTokenIndex] = entryTokenAmount;
 
     return this.multiTokenEntry(signer, tokensIn);
@@ -116,7 +103,7 @@ export class BalancerPoolHarness extends PoolTestHarness {
   public async singleSideExit(
     signer: Signer,
     exitTokenIndex: number,
-    lpTokenAmount: BigNumber
+    lpTokenAmount: TokenBalance
   ) {
     const address = await signer.getAddress();
     const userData = ethers.utils.defaultAbiCoder.encode(
@@ -128,7 +115,6 @@ export class BalancerPoolHarness extends PoolTestHarness {
       ]
     );
 
-    const balanceBefore = await this.tokens[exitTokenIndex].balanceOf(address);
     const rcpt = await (
       await this.balancerVault
         .connect(signer)
@@ -139,7 +125,6 @@ export class BalancerPoolHarness extends PoolTestHarness {
           toInternalBalance: false,
         })
     ).wait();
-    const balanceAfter = await this.tokens[exitTokenIndex].balanceOf(address);
 
     const feesPaid: BigNumber[] =
       this.parseFeeFromEvents(rcpt.events) ||
@@ -263,3 +248,4 @@ export class BalancerPoolHarness extends PoolTestHarness {
     };
   }
 }
+*/

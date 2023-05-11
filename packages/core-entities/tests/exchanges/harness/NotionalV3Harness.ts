@@ -69,8 +69,9 @@ export class NotionalV3Harness extends PoolTestHarness<fCashMarket> {
         tokenOutIndex,
         getNowSeconds()
       );
-      const tokensOut =
-        this.poolInstance.balances[tokenOutIndex].copy(fCashAmount);
+      const tokensOut = this.poolInstance.balances[tokenOutIndex]
+        .copy(fCashAmount)
+        .neg();
 
       // NOTE: fees paid is not returned here
       const feesPaid = this.poolInstance.zeroTokenArray();

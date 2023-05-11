@@ -1,6 +1,7 @@
 import { BigNumber, ethers } from 'ethers';
 
 export const INTERNAL_TOKEN_PRECISION = 1e8;
+export const INTERNAL_TOKEN_DECIMALS = 8;
 export const RATE_PRECISION = 1e9;
 export const SCALAR_PRECISION = BigNumber.from(10).pow(18);
 export const SCALAR_DECIMALS = 18;
