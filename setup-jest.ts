@@ -4,9 +4,11 @@ import { Contract, ethers, Signer, Wallet } from 'ethers';
 import { ERC20, ERC20ABI } from './packages/contracts/src';
 import fetchMock from 'jest-fetch-mock';
 import { AlchemyUrl, Network } from './packages/util/src';
+import fs from 'fs';
 
 require('dotenv').config();
 
+const runSetup = true;
 const WHALES: Record<Network, string[][]> = {
   // Format: [token, whale address]
   [Network.ArbitrumOne]: [
@@ -38,7 +40,6 @@ expect.extend(tokenBalanceMatchers);
   {
     blockNumber,
     network,
-    useTokens = true,
   }: { blockNumber: number; network: Network; useTokens?: boolean },
   name: string,
   fn: () => void
@@ -56,10 +57,6 @@ expect.extend(tokenBalanceMatchers);
   //     blockNumber.toString(),
   //     '--port',
   //     '8546',
-  //     // '--dump-state',
-  //     // '/Users/jwu/code/notional-monorepo/state.json',
-  //     '--load-state',
-  //     '/Users/jwu/code/notional-monorepo/state.json',
   //   ],
   //   {
   //     cwd: __dirname,
@@ -67,6 +64,7 @@ expect.extend(tokenBalanceMatchers);
   //     env: {
   //       HOME: `${__dirname}`,
   //       PWD: `${__dirname}`,
+  //       // RUST_LOG: 'trace',
   //       ...process.env,
   //     },
   //     shell: '/bin/zsh',
@@ -97,17 +95,25 @@ expect.extend(tokenBalanceMatchers);
         forkProc.stdout.on('data', async (data) => {
           console.log(`anvil: ${data}`);
           if (data.includes('Listening on')) {
-            await setupWhales(signer, provider, WHALES[network]);
+            const state = fs
+              .readFileSync(`${__dirname}/anvil_state.json`)
+              .toString('utf8');
+            await provider.send('anvil_loadState', [state]);
             initialSnapshot = await provider.send('evm_snapshot', []);
             done();
           }
         });
-      } else {
+      } else if (runSetup) {
         setupWhales(signer, provider, WHALES[network]).then(() => {
           provider.send('evm_snapshot', []).then((i) => {
             initialSnapshot = i;
             done();
           });
+        });
+      } else {
+        provider.send('evm_snapshot', []).then((i) => {
+          initialSnapshot = i;
+          done();
         });
       }
     }, 30_000);
@@ -116,12 +122,22 @@ expect.extend(tokenBalanceMatchers);
 
     // Reset to snapshot
     afterEach(async () => {
-      await provider.send('evm_revert', [initialSnapshot]);
+      const revert = await provider.send('evm_revert', [initialSnapshot]);
+      if (!revert) throw Error('Unsuccessful revert');
+      initialSnapshot = await provider.send('evm_snapshot', []);
     });
 
-    afterAll(() => {
+    afterAll((done) => {
       // Cleanup anvil process
-      if (forkProc) forkProc.kill();
+      if (forkProc) {
+        forkProc.kill();
+        done();
+      } else {
+        provider.send('anvil_dumpState', []).then((s) => {
+          fs.writeFileSync(`${__dirname}/anvil_state.json`, s);
+          done();
+        });
+      }
     });
   });
 };
