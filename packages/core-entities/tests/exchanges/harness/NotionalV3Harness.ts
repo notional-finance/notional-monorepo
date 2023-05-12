@@ -10,14 +10,6 @@ import { TokenBalance } from '../../../src/token-balance';
 import { PoolTestHarness, UnimplementedPoolMethod } from './PoolTestHarness';
 
 export class NotionalV3Harness extends PoolTestHarness<fCashMarket> {
-  // public static async override buildPoolHarness<fCashMarket extends BaseLiquidityPool<unknown>>(
-  //   network: Network,
-  //   poolAddress: string,
-  //   provider: ethers.providers.JsonRpcProvider
-  // ): Promise<PoolTestHarness<fCashMarket>> {
-  //   return new NotionalV3Harness(network, poolAddress, provider);
-  // }
-
   public notional: NotionalV3;
 
   constructor(

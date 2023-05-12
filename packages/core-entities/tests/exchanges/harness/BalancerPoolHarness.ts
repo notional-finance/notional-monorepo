@@ -1,20 +1,24 @@
-/*
 import { BigNumber, Signer, ethers, Contract } from 'ethers';
 import {
   BalancerPool,
   BalancerStablePoolABI,
   BalancerVault,
   BalancerVaultABI,
+  ERC20,
+  ERC20ABI,
 } from '@notional-finance/contracts';
 import { getNowSeconds, Network } from '@notional-finance/util';
-
 import { PoolTestHarness } from './PoolTestHarness';
-import { BaseLiquidityPool } from '../../../src/exchanges';
+import {
+  MetaStablePool,
+  ThreeTokenComposableStablePool,
+  TwoTokenComposableStablePool,
+} from '../../../src/exchanges';
 import { TokenBalance } from '../../../src/token-balance';
 
-export class BalancerPoolHarness<
-  T extends BaseLiquidityPool<unknown>
-> extends PoolTestHarness<T> {
+export class BalancerPoolHarness extends PoolTestHarness<
+  MetaStablePool | TwoTokenComposableStablePool | ThreeTokenComposableStablePool
+> {
   public JoinKind = {
     EXACT_TOKENS_IN_FOR_BPT_OUT: {
       kind: 1,
@@ -57,8 +61,8 @@ export class BalancerPoolHarness<
     GivenOut: 1,
   };
 
-  public vault: BalancerVault;
-  public pool: BalancerPool;
+  public balancerVault: BalancerVault;
+  public balancerPool: BalancerPool;
 
   constructor(
     network: Network,
@@ -67,16 +71,22 @@ export class BalancerPoolHarness<
   ) {
     super(network, poolAddress, provider);
 
-    this.pool = new Contract(
+    this.balancerPool = new Contract(
       poolAddress,
       BalancerStablePoolABI,
       provider
     ) as BalancerPool;
-    this.vault = new Contract(
-      this.poolInstance.poolParams['vault'] as string,
+    this.balancerVault = new Contract(
+      '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
       BalancerVaultABI,
       provider
     ) as BalancerVault;
+  }
+
+  public tokens() {
+    return this.poolInstance.balances.map((t) => {
+      return new Contract(t.token.address, ERC20ABI, signer) as ERC20;
+    });
   }
 
   protected parseFeeFromEvents(events?: ethers.Event[]) {
@@ -115,25 +125,26 @@ export class BalancerPoolHarness<
       ]
     );
 
-    const rcpt = await (
-      await this.balancerVault
-        .connect(signer)
-        .exitPool(this.poolId, address, address, {
-          assets: this.tokens.map((_) => _.address),
-          minAmountsOut: Array(this.tokens.length).fill(0),
-          userData,
-          toInternalBalance: false,
-        })
-    ).wait();
+    const balanceBefore = await this.balanceOf(signer);
+    await this.balancerVault
+      .connect(signer)
+      .exitPool(this.poolInstance.poolParams.poolId, address, address, {
+        assets: this.poolInstance.balances.map((_) => _.token.address),
+        minAmountsOut: Array(this.poolInstance.balances.length).fill(0),
+        userData,
+        toInternalBalance: false,
+      });
+    const balanceAfter = await this.balanceOf(signer);
 
-    const feesPaid: BigNumber[] =
-      this.parseFeeFromEvents(rcpt.events) ||
-      Array(this.tokens.length).fill(BigNumber.from(0));
+    const feesPaid = this.poolInstance.zeroTokenArray();
 
-    return { tokensOut: balanceAfter.sub(balanceBefore), feesPaid };
+    return {
+      tokensOut: balanceAfter.sub(balanceBefore),
+      feesPaid,
+    };
   }
 
-  public async multiTokenEntry(signer: Signer, tokensIn: BigNumber[]) {
+  public async multiTokenEntry(signer: Signer, tokensIn: TokenBalance[]) {
     const address = await signer.getAddress();
 
     const userData = ethers.utils.defaultAbiCoder.encode(
@@ -141,36 +152,35 @@ export class BalancerPoolHarness<
       [this.JoinKind.EXACT_TOKENS_IN_FOR_BPT_OUT.kind, tokensIn, 0]
     );
 
-    for (const t of this.tokens) {
-      await t
-        .connect(signer)
-        .approve(this.balancerVault.address, ethers.constants.MaxUint256);
+    for (const t of this.poolInstance.balances) {
+      const erc20 = new Contract(t.token.address, ERC20ABI, signer) as ERC20;
+      await erc20.approve(
+        this.balancerVault.address,
+        ethers.constants.MaxUint256
+      );
     }
 
-    const balanceBefore = await this.balancerPool.balanceOf(address);
-    const rcpt = await (
-      await this.balancerVault
-        .connect(signer)
-        .joinPool(this.poolId, address, address, {
-          assets: this.tokens.map((_) => _.address),
-          maxAmountsIn: tokensIn,
-          userData,
-          fromInternalBalance: false,
-        })
-    ).wait();
-    const balanceAfter = await this.balancerPool.balanceOf(address);
+    const balanceBefore = await this.balanceOf(signer);
+    await this.balancerVault
+      .connect(signer)
+      .joinPool(this.poolInstance.poolParams.poolId, address, address, {
+        assets: this.tokens().map((_) => _.address),
+        maxAmountsIn: tokensIn.map((_) => _.n),
+        userData,
+        fromInternalBalance: false,
+      });
+    const balanceAfter = await this.balanceOf(signer);
 
-    const feesPaid: BigNumber[] =
-      this.parseFeeFromEvents(rcpt.events) ||
-      Array(this.tokens.length).fill(BigNumber.from(0));
-
-    return { lpTokens: balanceAfter.sub(balanceBefore), feesPaid };
+    return {
+      lpTokens: balanceAfter.sub(balanceBefore),
+      feesPaid: this.poolInstance.zeroTokenArray(),
+    };
   }
 
   public async multiTokenExit(
     signer: Signer,
-    lpTokenAmount: BigNumber,
-    minTokensOut?: BigNumber[]
+    lpTokenAmount: TokenBalance,
+    minTokensOut?: TokenBalance[]
   ) {
     const address = await signer.getAddress();
     const userData = ethers.utils.defaultAbiCoder.encode(
@@ -179,73 +189,72 @@ export class BalancerPoolHarness<
     );
 
     const balancesBefore = await Promise.all(
-      this.tokens.map((t) => t.balanceOf(address))
+      this.tokens().map((t) => t.balanceOf(address))
     );
-    const rcpt = await (
-      await this.balancerVault
-        .connect(signer)
-        .exitPool(this.poolId, address, address, {
-          assets: this.tokens.map((_) => _.address),
-          minAmountsOut: minTokensOut || Array(this.tokens.length).fill(0),
-          userData,
-          toInternalBalance: false,
-        })
-    ).wait();
+    await this.balancerVault
+      .connect(signer)
+      .exitPool(this.poolInstance.poolParams.poolId, address, address, {
+        assets: this.tokens().map((_) => _.address),
+        minAmountsOut: minTokensOut || Array(this.tokens.length).fill(0),
+        userData,
+        toInternalBalance: false,
+      });
     const balancesAfter = await Promise.all(
-      this.tokens.map((t) => t.balanceOf(address))
+      this.tokens().map((t) => t.balanceOf(address))
     );
 
-    const feesPaid: BigNumber[] =
-      this.parseFeeFromEvents(rcpt.events) ||
-      Array(this.tokens.length).fill(BigNumber.from(0));
+    const feesPaid = this.poolInstance.zeroTokenArray();
 
     return {
-      tokensOut: balancesAfter.map((b, i) => b.sub(balancesBefore[i])),
+      tokensOut: balancesAfter
+        .map((b, i) => b.sub(balancesBefore[i]))
+        .map((b, i) => this.poolInstance.balances[i].copy(b)),
       feesPaid,
     };
   }
 
   public async trade(
     signer: Signer,
-    tokensIn: BigNumber,
+    tokensIn: TokenBalance,
     tokensInIndex: number,
     tokensOutIndex: number
   ) {
     const address = await signer.getAddress();
-    await this.tokens[tokensInIndex]
-      .connect(signer)
+    await this.tokens()
+      [tokensInIndex].connect(signer)
       .approve(this.balancerVault.address, ethers.constants.MaxUint256);
 
-    const balanceBefore = await this.tokens[tokensOutIndex].balanceOf(address);
-    const _rcpt = await (
-      await this.balancerVault.connect(signer).swap(
-        {
-          poolId: this.poolId,
-          kind: this.SwapKind.GivenIn,
-          assetIn: this.tokens[tokensInIndex].address,
-          assetOut: this.tokens[tokensOutIndex].address,
-          amount: tokensIn,
-          userData: '0x',
-        },
-        {
-          sender: address,
-          fromInternalBalance: false,
-          recipient: address,
-          toInternalBalance: false,
-        },
-        0,
-        getNowSeconds() + 1000
-      )
-    ).wait();
-    const balanceAfter = await this.tokens[tokensOutIndex].balanceOf(address);
+    const balanceBefore = await this.tokens()[tokensOutIndex].balanceOf(
+      address
+    );
+    await this.balancerVault.connect(signer).swap(
+      {
+        poolId: this.poolInstance.poolParams.poolId,
+        kind: this.SwapKind.GivenIn,
+        assetIn: this.tokens()[tokensInIndex].address,
+        assetOut: this.tokens()[tokensOutIndex].address,
+        amount: tokensIn.n,
+        userData: '0x',
+      },
+      {
+        sender: address,
+        fromInternalBalance: false,
+        recipient: address,
+        toInternalBalance: false,
+      },
+      0,
+      getNowSeconds() + 1000
+    );
+    const balanceAfter = await this.tokens()[tokensOutIndex].balanceOf(address);
 
     // TODO: grab these from events
-    const feesPaid = Array(this.tokens.length).fill(BigNumber.from(0));
+    const feesPaid = this.poolInstance.zeroTokenArray();
 
     return {
-      tokensOut: balanceAfter.sub(balanceBefore),
+      tokensOut: this.poolInstance.balances[tokensOutIndex].copy(
+        balanceAfter.sub(balanceBefore)
+      ),
       feesPaid,
     };
   }
 }
-*/
