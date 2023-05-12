@@ -16,7 +16,7 @@ import {
 } from '../../../src/exchanges';
 import { TokenBalance } from '../../../src/token-balance';
 
-export class BalancerPoolHarness extends PoolTestHarness<
+export class BalancerV2Harness extends PoolTestHarness<
   MetaStablePool | TwoTokenComposableStablePool | ThreeTokenComposableStablePool
 > {
   public JoinKind = {
