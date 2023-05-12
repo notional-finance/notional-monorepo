@@ -8,13 +8,13 @@ export interface PageLoadingProps extends BoxProps {
 
 export function PageLoading({ sx = {}, type }: PageLoadingProps) {
   const sxOverrides = {
-    ...sx,
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
     height: '100%',
     width: '100%',
     py: 10,
+    ...sx,
   };
   return (
     <Box sx={sxOverrides}>

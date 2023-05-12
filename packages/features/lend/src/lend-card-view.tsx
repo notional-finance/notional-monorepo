@@ -1,7 +1,7 @@
 import { useAllMarkets } from '@notional-finance/notionable-hooks';
 import { LEND_BORROW, THEME_VARIANTS } from '@notional-finance/shared-config';
 import { CardContainer } from '@notional-finance/shared-web';
-import { CurrencyFixed } from '@notional-finance/mui';
+import { CurrencyFixed, FeatureLoader } from '@notional-finance/mui';
 import { ThemeProvider } from '@mui/material';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { defineMessage, FormattedMessage } from 'react-intl';
@@ -29,34 +29,36 @@ export function LendCardView() {
 
   return (
     <ThemeProvider theme={themeLanding}>
-      <CardContainer
-        heading={heading}
-        subtitle={subtitle}
-        linkText={docsText}
-        docsLink="https://docs.notional.finance/notional-v2/what-you-can-do/fixed-rate-lending"
-      >
-        {cardData.map(({ symbol, maxRate, allRates }, index) => {
-          const route = `/${LEND_BORROW.LEND}/${symbol}`;
-          return (
-            <CurrencyFixed
-              key={index}
-              symbol={symbol}
-              rate={maxRate}
-              allRates={allRates}
-              route={route}
-              apyTagline={<FormattedMessage defaultMessage={'AS HIGH AS'} />}
-              buttonText={
-                <FormattedMessage
-                  defaultMessage="Lend {symbol}"
-                  values={{
-                    symbol,
-                  }}
-                />
-              }
-            />
-          );
-        })}
-      </CardContainer>
+      <FeatureLoader featureLoaded={cardData?.length > 0}>
+        <CardContainer
+          heading={heading}
+          subtitle={subtitle}
+          linkText={docsText}
+          docsLink="https://docs.notional.finance/notional-v2/what-you-can-do/fixed-rate-lending"
+        >
+          {cardData.map(({ symbol, maxRate, allRates }, index) => {
+            const route = `/${LEND_BORROW.LEND}/${symbol}`;
+            return (
+              <CurrencyFixed
+                key={index}
+                symbol={symbol}
+                rate={maxRate}
+                allRates={allRates}
+                route={route}
+                apyTagline={<FormattedMessage defaultMessage={'AS HIGH AS'} />}
+                buttonText={
+                  <FormattedMessage
+                    defaultMessage="Lend {symbol}"
+                    values={{
+                      symbol,
+                    }}
+                  />
+                }
+              />
+            );
+          })}
+        </CardContainer>
+      </FeatureLoader>
     </ThemeProvider>
   );
 }

@@ -1,1 +1,1 @@
-export * from './lend-feature-shell';
+export { LendFeatureShell } from './lend-feature-shell';

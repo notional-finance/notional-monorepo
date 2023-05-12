@@ -10,6 +10,7 @@ import {
 } from '@notional-finance/shared-web';
 import { useNotionalTheme } from '@notional-finance/styles';
 import MeetTheTeam from './MeetTheTeam';
+import { FeatureLoader } from '@notional-finance/mui';
 
 export const AboutUsView = () => {
   const theme = useNotionalTheme(THEME_VARIANTS.LIGHT);
@@ -23,21 +24,25 @@ export const AboutUsView = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <Header>
-        <LaunchAppButton onLaunch={handleAppLaunch} />
-      </Header>
-      <Box
-        sx={{
-          backgroundColor: theme.palette.background.default,
-          marginTop: theme.spacing(-10),
-          height: '100%',
-        }}
-      >
-        <AboutNotional />
-        <MeetTheTeam />
-        <EmailCaptureSection />
-        <LandingFooter />
-      </Box>
+      <FeatureLoader>
+        <>
+          <Header>
+            <LaunchAppButton onLaunch={handleAppLaunch} />
+          </Header>
+          <Box
+            sx={{
+              backgroundColor: theme.palette.background.default,
+              marginTop: theme.spacing(-10),
+              height: '100%',
+            }}
+          >
+            <AboutNotional />
+            <MeetTheTeam />
+            <EmailCaptureSection />
+            <LandingFooter />
+          </Box>
+        </>
+      </FeatureLoader>
     </ThemeProvider>
   );
 };

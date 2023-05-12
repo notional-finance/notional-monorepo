@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { styled, Box } from '@mui/material';
-import { SideBarLayout } from '@notional-finance/mui';
+import { SideBarLayout, FeatureLoader } from '@notional-finance/mui';
 import { useParams } from 'react-router-dom';
 import { trimRouterMatchToPath } from '@notional-finance/helpers';
 import { THEME_VARIANTS } from '@notional-finance/shared-config';
@@ -45,20 +45,24 @@ export const LiquidityCurrencyView = () => {
     }
   }, [symbol]);
 
+  const featureLoaded = bgImg ? true : false;
+
   return (
-    <>
-      <LiquidityCurrencyBackground
-        src={bgImg}
-        alt="provide liquidity background"
-      />
-      <Container>
-        <SideBarLayout
-          showTransactionConfirmation={showTransactionConfirmation}
-          sideBar={<LiquiditySidebar />}
-          mainContent={<LiquiditySummary />}
+    <FeatureLoader featureLoaded={featureLoaded}>
+      <div>
+        <LiquidityCurrencyBackground
+          src={bgImg}
+          alt="provide liquidity background"
         />
-      </Container>
-    </>
+        <Container>
+          <SideBarLayout
+            showTransactionConfirmation={showTransactionConfirmation}
+            sideBar={<LiquiditySidebar />}
+            mainContent={<LiquiditySummary />}
+          />
+        </Container>
+      </div>
+    </FeatureLoader>
   );
 };
 

@@ -1,50 +1,36 @@
-import { useParams } from 'react-router-dom';
-import LendSidebar from './lend-sidebar/lend-sidebar';
-import { SideBarLayout } from '@notional-finance/mui';
-import { TradeActionSummary } from '@notional-finance/trade';
 import { useEffect } from 'react';
-import { updateLendState } from './store/lend-store';
-import { useLendTransaction } from './store/use-lend-transaction';
+import { FeatureLoader } from '@notional-finance/mui';
+import { LendSideBarLayout } from './lend-side-bar-layout';
+import { useParams } from 'react-router-dom';
+import { useNotional } from '@notional-finance/notionable-hooks';
 import { useLend } from './store/use-lend';
-import { NOTIONAL_CATEGORIES } from '@notional-finance/shared-config';
+import { updateLendState } from './store/lend-store';
 
 export const LendFeatureShell = () => {
   const { currency } = useParams<Record<string, string>>();
-  const txnData = useLendTransaction();
-  const showTransactionConfirmation = txnData ? true : false;
-  const {
-    markets,
-    selectedToken,
-    selectedMarketKey,
-    tradedRate,
-    fCashAmount,
-    interestAmount,
-  } = useLend();
-
   useEffect(() => {
     if (currency)
       updateLendState({ selectedToken: currency, selectedMarketKey: '' });
   }, [currency]);
 
+  const { system } = useNotional();
+  const { markets, maturityData, availableCurrencies, selectedToken } =
+    useLend();
+
+  const featureLoaded =
+    system &&
+    currency &&
+    selectedToken &&
+    markets.length > 0 &&
+    maturityData.length > 0 &&
+    availableCurrencies.length > 0
+      ? true
+      : false;
+
   return (
-    <SideBarLayout
-      showTransactionConfirmation={showTransactionConfirmation}
-      sideBar={<LendSidebar />}
-      mainContent={
-        <TradeActionSummary
-          markets={markets}
-          selectedToken={selectedToken}
-          selectedMarketKey={selectedMarketKey}
-          tradedRate={tradedRate}
-          onSelectMarketKey={(marketKey: string | null) => {
-            updateLendState({ selectedMarketKey: marketKey });
-          }}
-          tradeAction={NOTIONAL_CATEGORIES.LEND}
-          fCashAmount={fCashAmount}
-          interestAmount={interestAmount}
-        />
-      }
-    />
+    <FeatureLoader featureLoaded={featureLoaded}>
+      <LendSideBarLayout />
+    </FeatureLoader>
   );
 };
 

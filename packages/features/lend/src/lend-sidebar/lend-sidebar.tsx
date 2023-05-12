@@ -1,7 +1,6 @@
 import { useEffect, useCallback } from 'react';
 import { defineMessage, FormattedMessage } from 'react-intl';
 import {
-  PageLoading,
   Maturities,
   ActionSidebar,
   useCurrencyInputRef,
@@ -44,41 +43,6 @@ export const LendSidebar = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const currencyInputHandler =
-    availableCurrencies.length && selectedToken ? (
-      <LendBorrowInput
-        ref={inputRef}
-        inputRef={inputRef}
-        availableTokens={availableCurrencies}
-        selectedToken={selectedToken}
-        isRemoveAsset={false}
-        cashOrfCash={'Cash'}
-        lendOrBorrow={LEND_BORROW.LEND}
-        selectedMarketKey={selectedMarketKey}
-        onChange={({
-          selectedToken: newToken,
-          inputAmount,
-          hasError,
-          netfCashAmount,
-        }) => {
-          if (newToken !== selectedToken) {
-            history.push(`/${LEND_BORROW.LEND}/${newToken}`);
-          }
-          updateLendState({
-            inputAmount,
-            hasError,
-            fCashAmount: netfCashAmount,
-          });
-        }}
-        inputLabel={defineMessage({
-          defaultMessage: '2. How much do you want to lend?',
-          description: 'input label',
-        })}
-      />
-    ) : (
-      <PageLoading />
-    );
-
   return txnData ? (
     <TransactionConfirmation
       heading={
@@ -116,7 +80,35 @@ export const LendSidebar = () => {
           description: 'input label',
         })}
       />
-      {currencyInputHandler}
+      <LendBorrowInput
+        ref={inputRef}
+        inputRef={inputRef}
+        availableTokens={availableCurrencies}
+        selectedToken={selectedToken}
+        isRemoveAsset={false}
+        cashOrfCash={'Cash'}
+        lendOrBorrow={LEND_BORROW.LEND}
+        selectedMarketKey={selectedMarketKey}
+        onChange={({
+          selectedToken: newToken,
+          inputAmount,
+          hasError,
+          netfCashAmount,
+        }) => {
+          if (newToken !== selectedToken) {
+            history.push(`/${LEND_BORROW.LEND}/${newToken}`);
+          }
+          updateLendState({
+            inputAmount,
+            hasError,
+            fCashAmount: netfCashAmount,
+          });
+        }}
+        inputLabel={defineMessage({
+          defaultMessage: '2. How much do you want to lend?',
+          description: 'input label',
+        })}
+      />
       <LendBalanceInfo setInputAmount={setCurrencyInput} />
       <TokenApprovalView />
     </ActionSidebar>

@@ -1,4 +1,4 @@
-import { SideBarLayout } from '@notional-finance/mui';
+import { FeatureLoader, SideBarLayout } from '@notional-finance/mui';
 import { useQueryParams } from '@notional-finance/utils';
 import { MainContent } from './main-content/main-content';
 import { useLocation } from 'react-router-dom';
@@ -24,11 +24,13 @@ export const StakeView = () => {
   }
 
   return (
-    <SideBarLayout
-      mainContent={<MainContent />}
-      sideBar={sidebarContent}
-      showTransactionConfirmation={confirmRoute}
-    />
+    <FeatureLoader>
+      <SideBarLayout
+        mainContent={<MainContent />}
+        sideBar={sidebarContent}
+        showTransactionConfirmation={confirmRoute}
+      />
+    </FeatureLoader>
   );
 };
 

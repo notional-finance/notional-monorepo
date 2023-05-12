@@ -1,2 +1,2 @@
-export { default as VaultLoadable } from './vault-view/Loadable';
-export { default as AllVaultsLoadable } from './all-strategies-view/Loadable';
+export { VaultActionProvider } from './vault-view/vault-action-provider';
+export * from './all-strategies-view/all-strategies-view';

@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { PageLoading, SideBarLayout } from '@notional-finance/mui';
+import { SideBarLayout, FeatureLoader } from '@notional-finance/mui';
 import { useContext } from 'react';
 import { VAULT_ACTIONS } from '@notional-finance/shared-config';
 import { useVaultTransaction } from '../hooks/use-vault-transaction';
@@ -14,23 +14,31 @@ export interface VaultParams {
 }
 
 export const VaultView = () => {
-  const { updateState } = useContext(VaultActionContext);
+  const { updateState, state } = useContext(VaultActionContext);
   const { vaultAddress } = useParams<VaultParams>();
   const txnData = useVaultTransaction();
   const showTransactionConfirmation = txnData ? true : false;
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
     if (vaultAddress) updateState({ vaultAddress });
   }, [vaultAddress, updateState]);
 
-  return vaultAddress ? (
-    <SideBarLayout
-      showTransactionConfirmation={showTransactionConfirmation}
-      sideBar={<VaultActionSideDrawer />}
-      mainContent={<VaultSummary />}
-    />
-  ) : (
-    <PageLoading />
+  const featureLoaded = state?.returnDrivers ? true : false;
+
+  return (
+    <div>
+      <FeatureLoader featureLoaded={featureLoaded}>
+        <SideBarLayout
+          showTransactionConfirmation={showTransactionConfirmation}
+          sideBar={<VaultActionSideDrawer />}
+          mainContent={<VaultSummary />}
+        />
+      </FeatureLoader>
+    </div>
   );
 };
 
