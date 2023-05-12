@@ -17,6 +17,7 @@ import {
 import { BigNumber, Contract } from 'ethers';
 import { TokenBalance } from '../../token-balance';
 import BaseLiquidityPool from '../base-liquidity-pool';
+import { ExchangeRate } from '../../definitions';
 
 interface fCashMarketParams {
   perMarketCash: TokenBalance[];
@@ -245,6 +246,23 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
     }
   }
 
+  public override getBalanceArrayOracleValue(
+    balances: TokenBalance[],
+    primaryTokenIndex: number,
+    oraclePrices?: ExchangeRate[]
+  ): TokenBalance {
+    // Account for the nToken's net fcash balances
+    const netBalances = balances.map((b, i) => {
+      return i === 0 ? b : b.add(this.poolParams.nTokenFCash[i - 1]);
+    });
+
+    return super.getBalanceArrayOracleValue(
+      netBalances,
+      primaryTokenIndex,
+      oraclePrices
+    );
+  }
+
   /**
    * Calculates the amount of nTokens minted given a prime cash deposit
    * @param tokensIn Must always be a balance of prime cash
@@ -254,8 +272,10 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
     lpTokens: TokenBalance;
     feesPaid: TokenBalance[];
   } {
-    // TokensIn must be len 1 and equal to token balance[0]
-    if (tokensIn.length != 1) throw Error('Tokens in must be prime cash');
+    // Only tokensIn[0] can be specified
+    tokensIn.forEach((v, i) => {
+      if (i > 0 && !v.isZero()) throw Error('Tokens in must be prime cash');
+    });
     tokensIn[0].isMatch(this.balances[0]);
 
     // Should use the oracle to fetch the nToken PV

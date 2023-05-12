@@ -1,5 +1,4 @@
 import { BigNumber } from 'ethers';
-
 export enum AssetType {
   FCASH_ASSET_TYPE = 1,
   VAULT_CASH_ASSET_TYPE = 9,
@@ -8,7 +7,26 @@ export enum AssetType {
   LEGACY_NTOKEN_ASSET_TYPE = 12,
 }
 
+export function convertToGenericfCashId(id: string) {
+  // Required length for fCash ids
+  if (isERC1155Id(id)) {
+    const { assetType, currencyId, maturity, isfCashDebt } =
+      decodeERC1155Id(id);
+    if (assetType === AssetType.FCASH_ASSET_TYPE && isfCashDebt) {
+      return encodeERC1155Id(currencyId, maturity, assetType, false);
+    }
+  }
+
+  return id;
+}
+
+export function isERC1155Id(id: string) {
+  return id.length == 66 && id.startsWith('0x');
+}
+
 export function decodeERC1155Id(_id: string) {
+  if (!isERC1155Id(_id)) throw Error('Invalid ERC1155 ID');
+
   // Slice off the 0x prefix
   const id = _id.startsWith('0x') ? _id.slice(2) : _id;
   // Slice the last byte of the string

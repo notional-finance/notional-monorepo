@@ -35,6 +35,17 @@ describe('Pool Tests', () => {
         'Acceptance',
         ({ address, Harness }) => {
           let harness: PoolTestHarness<BaseLiquidityPool<unknown>>;
+          const singleTokenMatrix: number[][] = [
+            [0, 0.1e9],
+            [0, 0.01e9],
+            [0, 0.001e9],
+            [1, 0.1e9],
+            [1, 0.01e9],
+            [1, 0.001e9],
+            [2, 0.1e9],
+            [2, 0.01e9],
+            [2, 0.001e9],
+          ];
           const tokenMatrix: number[][] = [
             [0, 1, 0.1e9],
             [0, 1, 0.01e9],
@@ -69,7 +80,33 @@ describe('Pool Tests', () => {
             });
           });
 
-          it.todo('calculates single side entry and exit');
+          it.only.each(singleTokenMatrix)(
+            `[LP Entry] for ${address} where token in=%i, size=%f`,
+            async (tokenIn, utilization) => {
+              if (tokenIn >= harness.poolInstance.balances.length) return;
+              try {
+                const tokensIn =
+                  harness.poolInstance.balances[tokenIn].mulInRatePrecision(
+                    utilization
+                  );
+
+                const actual = await harness.singleSideEntry(
+                  signer,
+                  tokenIn,
+                  tokensIn
+                );
+                const inputs = harness.poolInstance.zeroTokenArray();
+                inputs[tokenIn] = tokensIn;
+                const { lpTokens } =
+                  harness.poolInstance.getLPTokensGivenTokens(inputs);
+
+                expect(lpTokens).toBeApprox(actual.lpTokens);
+              } catch (e) {
+                if ((e as Error).name === 'UnimplementedPoolMethod') return;
+                throw e;
+              }
+            }
+          );
 
           it.each(tokenMatrix)(
             `[Trade] for ${address} where token in=%i, token out=%i, size=%f`,
