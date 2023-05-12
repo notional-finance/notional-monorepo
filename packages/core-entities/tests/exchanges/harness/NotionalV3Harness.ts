@@ -4,7 +4,7 @@ import {
   Network,
   NotionalAddress,
 } from '@notional-finance/util';
-import { Signer, Contract, ethers } from 'ethers';
+import { Signer, Contract, ethers, BigNumber } from 'ethers';
 import { fCashMarket } from '../../../src/exchanges/NotionalV3/fCash-market';
 import { TokenBalance } from '../../../src/token-balance';
 import { PoolTestHarness, UnimplementedPoolMethod } from './PoolTestHarness';
@@ -40,13 +40,10 @@ export class NotionalV3Harness extends PoolTestHarness<fCashMarket> {
   ): Promise<{ lpTokens: TokenBalance; feesPaid: TokenBalance[] }> {
     if (entryTokenIndex !== 0) throw new UnimplementedPoolMethod();
 
-    // TODO: entry token amount is specified in prime cash but here it should
-    // be specified in underlying
     const minted = await this.notional.calculateNTokensToMint(
       this.poolInstance.poolParams.currencyId,
       entryTokenAmount.toUnderlying().n
     );
-
     const lpTokens = this.poolInstance.totalSupply.copy(minted);
     const feesPaid = this.poolInstance.zeroTokenArray();
 
@@ -100,25 +97,80 @@ export class NotionalV3Harness extends PoolTestHarness<fCashMarket> {
     }
   }
 
-  singleSideExit(
-    _signer: Signer,
+  async singleSideExit(
+    signer: Signer,
     exitTokenIndex: number,
-    _lpTokenAmount: TokenBalance
+    lpTokenAmount: TokenBalance
   ): Promise<{ tokensOut: TokenBalance; feesPaid: TokenBalance[] }> {
     if (exitTokenIndex !== 0) throw new UnimplementedPoolMethod();
+    const account = await signer.getAddress();
+    const { cashBalance: cashBefore } = await this.notional.getAccountBalance(
+      this.poolInstance.poolParams.currencyId,
+      account
+    );
+    await this.notional
+      .connect(signer)
+      .nTokenRedeem(
+        account,
+        this.poolInstance.poolParams.currencyId,
+        lpTokenAmount.n,
+        true,
+        false
+      );
+    const { cashBalance: cashAfter } = await this.notional.getAccountBalance(
+      this.poolInstance.poolParams.currencyId,
+      account
+    );
 
-    // TODO: need to have some redeem ntoken validation method
-    throw new UnimplementedPoolMethod();
+    return {
+      tokensOut: this.poolInstance.balances[0].copy(cashAfter.sub(cashBefore)),
+      feesPaid: this.poolInstance.zeroTokenArray(),
+    };
   }
 
-  multiTokenExit(
-    _signer: Signer,
-    _lpTokenAmount: TokenBalance,
+  async multiTokenExit(
+    signer: Signer,
+    lpTokenAmount: TokenBalance,
     _minTokensOut?: TokenBalance[] | undefined
   ): Promise<{ tokensOut: TokenBalance[]; feesPaid: TokenBalance[] }> {
-    // TODO: need to have some redeem ntoken validation method, but this one
-    // requires that residuals exist
-    throw new UnimplementedPoolMethod();
+    const account = await signer.getAddress();
+    const { cashBalance: cashBefore } = await this.notional.getAccountBalance(
+      this.poolInstance.poolParams.currencyId,
+      account
+    );
+    await this.notional
+      .connect(signer)
+      .nTokenRedeem(
+        account,
+        this.poolInstance.poolParams.currencyId,
+        lpTokenAmount.n,
+        false,
+        true
+      );
+    const { cashBalance: cashAfter } = await this.notional.getAccountBalance(
+      this.poolInstance.poolParams.currencyId,
+      account
+    );
+
+    const fCashBalances = (
+      await Promise.all(
+        this.poolInstance.poolParams.nTokenFCash.map((v) =>
+          this.notional.balanceOf(account, BigNumber.from(v.tokenId))
+        )
+      )
+    ).map((b, i) => {
+      return this.poolInstance.poolParams.nTokenFCash[i].copy(b);
+    });
+
+    const tokensOut = [
+      this.poolInstance.balances[0].copy(cashAfter.sub(cashBefore)),
+      ...fCashBalances,
+    ];
+
+    return {
+      tokensOut,
+      feesPaid: this.poolInstance.zeroTokenArray(),
+    };
   }
   multiTokenEntry(
     _signer: Signer,

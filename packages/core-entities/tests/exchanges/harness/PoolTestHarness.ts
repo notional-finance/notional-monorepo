@@ -1,8 +1,9 @@
 import { TokenBalance } from '../../../src/token-balance';
 import { Network } from '@notional-finance/util';
-import { Signer, ethers } from 'ethers';
+import { Signer, ethers, Contract } from 'ethers';
 import { BaseLiquidityPool } from '../../../src/exchanges';
 import { Registry } from '../../../src/registry';
+import { ERC20, ERC20ABI } from '@notional-finance/contracts';
 
 export class UnimplementedPoolMethod extends Error {
   constructor() {
@@ -62,4 +63,10 @@ export abstract class PoolTestHarness<T extends BaseLiquidityPool<unknown>> {
     tokenInIndex: number,
     tokenOutIndex: number
   ): Promise<{ tokensOut: TokenBalance; feesPaid: TokenBalance[] }>;
+
+  async balanceOf(signer: Signer): Promise<TokenBalance> {
+    const erc20 = new Contract(this.poolAddress, ERC20ABI, provider) as ERC20;
+    const b = await erc20.balanceOf(await signer.getAddress());
+    return this.poolInstance.oneLPToken().copy(b);
+  }
 }

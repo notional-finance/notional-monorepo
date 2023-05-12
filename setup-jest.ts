@@ -7,6 +7,30 @@ import { AlchemyUrl, Network } from './packages/util/src';
 
 require('dotenv').config();
 
+const WHALES: Record<Network, string[][]> = {
+  // Format: [token, whale address]
+  [Network.ArbitrumOne]: [
+    // nUSDC
+    [
+      '0x0F13fb925eDC3E1FE947209010d9c0E072986ADc',
+      '0xd74e7325dfab7d7d1ecbf22e6e6874061c50f243',
+    ],
+  ],
+  [Network.Mainnet]: [
+    // WETH
+    [
+      '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+      '0x2F0b23f53734252Bda2277357e97e1517d6B042A',
+    ],
+    // wstETH
+    [
+      '0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0',
+      '0x67c89126fb7E793a2FaC54e0C4bD8baA53395767',
+    ],
+  ],
+  [Network.All]: [],
+};
+
 fetchMock.enableMocks();
 expect.extend(tokenBalanceMatchers);
 
@@ -73,17 +97,20 @@ expect.extend(tokenBalanceMatchers);
         forkProc.stdout.on('data', async (data) => {
           console.log(`anvil: ${data}`);
           if (data.includes('Listening on')) {
+            await setupWhales(signer, provider, WHALES[network]);
             initialSnapshot = await provider.send('evm_snapshot', []);
             done();
           }
         });
       } else {
-        provider.send('evm_snapshot', []).then((i) => {
-          initialSnapshot = i;
-          done();
+        setupWhales(signer, provider, WHALES[network]).then(() => {
+          provider.send('evm_snapshot', []).then((i) => {
+            initialSnapshot = i;
+            done();
+          });
         });
       }
-    }, 10000);
+    }, 30_000);
 
     fn();
 
@@ -101,17 +128,9 @@ expect.extend(tokenBalanceMatchers);
 
 async function setupWhales(
   signer: Signer,
-  provider: ethers.providers.JsonRpcProvider
+  provider: ethers.providers.JsonRpcProvider,
+  whales: string[][]
 ) {
-  // prettier-ignore
-  // [token, whale address]
-  const whales = [
-    // WETH
-    ['0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', '0x2F0b23f53734252Bda2277357e97e1517d6B042A'],
-    // wstETH
-    ['0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0', '0x67c89126fb7E793a2FaC54e0C4bD8baA53395767'],
-  ];
-
   const signerAddress = await signer.getAddress();
   for (let [token, account] of whales) {
     await provider.send('anvil_impersonateAccount', [account]);

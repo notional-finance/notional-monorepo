@@ -1,4 +1,3 @@
-import { BigNumber } from 'ethers';
 import { doBinarySearch } from './math/binary-search';
 import { AbstractLiquidityPool } from './abstract-liquidity-pool';
 import { ExchangeRate, TokenBalance } from '..';
@@ -156,18 +155,22 @@ export default abstract class BaseLiquidityPool<
   } {
     // Balancer has an odd fee calculation method on single sided joins so this is
     // not the equivalent of join + swap
-    if (singleSidedEntryTokenIndex) {
-      const amountIn = this.getLPTokenSpotValue(singleSidedEntryTokenIndex);
+    if (singleSidedEntryTokenIndex !== undefined) {
+      const amountIn = this.getLPTokenOracleValue(
+        this.oneLPToken(),
+        singleSidedEntryTokenIndex
+      );
       const lpToAmountInEstimate = amountIn
         .divInRatePrecision(this.oneLPToken().precision)
         .toNumber();
 
       const calculationFunction = (lpToPrimaryRatio: number) => {
-        const tokensIn = Array(this.balances.length).fill(BigNumber.from(0));
+        const tokensIn = this.zeroTokenArray();
         const primaryTokensIn =
-          lpTokensRequired.mulInRatePrecision(lpToPrimaryRatio);
+          lpTokensRequired.mulInRatePrecision(lpToPrimaryRatio).n;
+        tokensIn[singleSidedEntryTokenIndex] =
+          tokensIn[singleSidedEntryTokenIndex].copy(primaryTokensIn);
 
-        tokensIn[singleSidedEntryTokenIndex] = primaryTokensIn;
         const { lpTokens, feesPaid } = this.getLPTokensGivenTokens(tokensIn);
 
         return {
@@ -203,7 +206,7 @@ export default abstract class BaseLiquidityPool<
     const singleSidedExitTokenIndex =
       nonZeroIndexes.length === 1 ? nonZeroIndexes[0] : undefined;
 
-    if (singleSidedExitTokenIndex) {
+    if (singleSidedExitTokenIndex !== undefined) {
       // In a single sided exit, do a binary search for the amount of LP tokens required
       // to exit the pool
       const amountOutRequired = tokensOut[singleSidedExitTokenIndex];
