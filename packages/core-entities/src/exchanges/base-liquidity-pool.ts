@@ -1,8 +1,8 @@
-import { BigNumber } from 'ethers';
 import { doBinarySearch } from './math/binary-search';
 import { AbstractLiquidityPool } from './abstract-liquidity-pool';
 import { ExchangeRate, TokenBalance } from '..';
-import { Network, RATE_PRECISION } from '@notional-finance/util';
+import { Network, RATE_DECIMALS, RATE_PRECISION } from '@notional-finance/util';
+import { BigNumber } from 'ethers';
 
 export default abstract class BaseLiquidityPool<
   P
@@ -156,18 +156,22 @@ export default abstract class BaseLiquidityPool<
   } {
     // Balancer has an odd fee calculation method on single sided joins so this is
     // not the equivalent of join + swap
-    if (singleSidedEntryTokenIndex) {
-      const amountIn = this.getLPTokenSpotValue(singleSidedEntryTokenIndex);
+    if (singleSidedEntryTokenIndex !== undefined) {
+      const amountIn = this.getLPTokenOracleValue(
+        this.oneLPToken(),
+        singleSidedEntryTokenIndex
+      );
       const lpToAmountInEstimate = amountIn
         .divInRatePrecision(this.oneLPToken().precision)
         .toNumber();
 
       const calculationFunction = (lpToPrimaryRatio: number) => {
-        const tokensIn = Array(this.balances.length).fill(BigNumber.from(0));
+        const tokensIn = this.zeroTokenArray();
         const primaryTokensIn =
-          lpTokensRequired.mulInRatePrecision(lpToPrimaryRatio);
+          lpTokensRequired.mulInRatePrecision(lpToPrimaryRatio).n;
+        tokensIn[singleSidedEntryTokenIndex] =
+          tokensIn[singleSidedEntryTokenIndex].copy(primaryTokensIn);
 
-        tokensIn[singleSidedEntryTokenIndex] = primaryTokensIn;
         const { lpTokens, feesPaid } = this.getLPTokensGivenTokens(tokensIn);
 
         return {
@@ -203,7 +207,7 @@ export default abstract class BaseLiquidityPool<
     const singleSidedExitTokenIndex =
       nonZeroIndexes.length === 1 ? nonZeroIndexes[0] : undefined;
 
-    if (singleSidedExitTokenIndex) {
+    if (singleSidedExitTokenIndex !== undefined) {
       // In a single sided exit, do a binary search for the amount of LP tokens required
       // to exit the pool
       const amountOutRequired = tokensOut[singleSidedExitTokenIndex];
@@ -212,7 +216,9 @@ export default abstract class BaseLiquidityPool<
         .toNumber();
 
       const calculationFunction = (lpToAmountRatio: number) => {
-        const lpTokens = amountOutRequired.mulInRatePrecision(lpToAmountRatio);
+        const lpTokens = this.oneLPToken().copy(
+          amountOutRequired.mulInRatePrecision(lpToAmountRatio).n
+        );
 
         // Passing in single sided exit token index forces the exit to be in
         // the given token index
@@ -246,18 +252,27 @@ export default abstract class BaseLiquidityPool<
         [0, -1]
       );
 
-      const totalValueOutRequired = this.getBalanceArraySpotValue(
+      // Value of all the tokens taken out of the pool
+      const totalValueOutRequired = this.getBalanceArrayOracleValue(
         tokensOut,
         largestTokenIndex
       );
 
-      const lpToTotalOutEstimate = totalValueOutRequired
-        .ratioWith(this.getLPTokenSpotValue(largestTokenIndex))
-        .toNumber();
+      // Get the ratio of the value taken out to the value of a single LP token, this
+      // dictates the starting estimate for how many LP tokens need to be withdrawn
+      const initialLPEstimate = this.oneLPToken().scale(
+        totalValueOutRequired.scaleTo(this.totalSupply.decimals),
+        this.getLPTokenOracleValue(this.oneLPToken(), largestTokenIndex)
+      );
 
-      const calculationFunction = (lpToAmountRatio: number) => {
-        const lpTokens =
-          totalValueOutRequired.mulInRatePrecision(lpToAmountRatio);
+      /** Start Calculation Function **/
+      const calculationFunction = (lpTokensInRatePrecision: number) => {
+        // LP to Amount Ratio = totalValueOutRequired / oneLPTokenOracleValue
+        const lpTokens = this.oneLPToken().copy(
+          BigNumber.from(lpTokensInRatePrecision)
+            .mul(this.totalSupply.precision)
+            .div(RATE_PRECISION)
+        );
 
         const { tokensOut: tokensOutTemp, feesPaid: _feesPaid } =
           this.getTokensOutGivenLPTokens(lpTokens);
@@ -290,7 +305,7 @@ export default abstract class BaseLiquidityPool<
           return tokenDiff;
         });
 
-        let valueOfTokensOut = this.getBalanceArraySpotValue(
+        let valueOfTokensOut = this.getBalanceArrayOracleValue(
           tokensOut,
           largestTokenIndex
         );
@@ -299,7 +314,7 @@ export default abstract class BaseLiquidityPool<
           // If the diff from target has negative values, then we have undershot
           // the required amount. There should be no positive values if there are
           // negative values. Calculate an adjustment to the valuation here.
-          const undershotAdjustment = this.getBalanceArraySpotValue(
+          const undershotAdjustment = this.getBalanceArrayOracleValue(
             diffFromTarget.map((_) => _.neg()),
             largestTokenIndex
           );
@@ -314,9 +329,10 @@ export default abstract class BaseLiquidityPool<
           value: { lpTokens, feesPaid },
         };
       };
+      /** End Calculation Function **/
 
       return doBinarySearch(
-        lpToTotalOutEstimate,
+        initialLPEstimate.scaleTo(RATE_DECIMALS).toNumber(),
         RATE_PRECISION,
         calculationFunction
       );

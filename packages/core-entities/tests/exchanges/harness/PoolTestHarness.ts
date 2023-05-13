@@ -1,41 +1,72 @@
-import { Network } from '../../../src';
-import { BigNumber, Signer } from 'ethers';
+import { TokenBalance } from '../../../src/token-balance';
+import { Network } from '@notional-finance/util';
+import { Signer, ethers, Contract } from 'ethers';
+import { BaseLiquidityPool } from '../../../src/exchanges';
+import { Registry } from '../../../src/registry';
+import { ERC20, ERC20ABI } from '@notional-finance/contracts';
 
-export abstract class PoolTestHarness {
-  public static async makePoolHarness(
+export class UnimplementedPoolMethod extends Error {
+  constructor() {
+    super('Unimplemented');
+    this.name = this.constructor.name;
+  }
+}
+
+export abstract class PoolTestHarness<T extends BaseLiquidityPool<unknown>> {
+  public static async buildPoolHarness<P extends BaseLiquidityPool<unknown>>(
     _network: Network,
-    _poolAddress: string
-  ): Promise<PoolTestHarness> {
+    _poolAddress: string,
+    _provider: ethers.providers.JsonRpcProvider
+  ): Promise<PoolTestHarness<P>> {
     throw Error('Unimplemented');
+  }
+
+  public poolInstance: T;
+
+  constructor(
+    public network: Network,
+    public poolAddress: string,
+    public provider: ethers.providers.JsonRpcProvider
+  ) {
+    this.poolInstance = Registry.getExchangeRegistry().getPoolInstance<T>(
+      network,
+      poolAddress
+    );
   }
 
   public abstract singleSideEntry(
     signer: Signer,
     entryTokenIndex: number,
-    entryTokenAmount: BigNumber
-  ): Promise<{ lpTokens: BigNumber; feesPaid: BigNumber[] }>;
+    entryTokenAmount: TokenBalance
+  ): Promise<{ lpTokens: TokenBalance; feesPaid: TokenBalance[] }>;
 
   public abstract singleSideExit(
     signer: Signer,
     exitTokenIndex: number,
-    lpTokenAmount: BigNumber
-  ): Promise<{ tokensOut: BigNumber; feesPaid: BigNumber[] }>;
+    lpTokenAmount: TokenBalance
+  ): Promise<{ tokensOut: TokenBalance; feesPaid: TokenBalance[] }>;
 
   public abstract multiTokenEntry(
     signer: Signer,
-    tokensIn: BigNumber[]
-  ): Promise<{ lpTokens: BigNumber; feesPaid: BigNumber[] }>;
+    tokensIn: TokenBalance[]
+  ): Promise<{ lpTokens: TokenBalance; feesPaid: TokenBalance[] }>;
 
   public abstract multiTokenExit(
     signer: Signer,
-    lpTokenAmount: BigNumber,
-    minTokensOut?: BigNumber[]
-  ): Promise<{ tokensOut: BigNumber[]; feesPaid: BigNumber[] }>;
+    lpTokenAmount: TokenBalance,
+    minTokensOut?: TokenBalance[]
+  ): Promise<{ tokensOut: TokenBalance[]; feesPaid: TokenBalance[] }>;
 
   public abstract trade(
     signer: Signer,
-    tokensIn: BigNumber,
-    tokensInIndex: number,
-    tokensOutIndex: number
-  ): Promise<{ tokensOut: BigNumber; feesPaid: BigNumber[] }>;
+    tokensIn: TokenBalance,
+    tokenInIndex: number,
+    tokenOutIndex: number
+  ): Promise<{ tokensOut: TokenBalance; feesPaid: TokenBalance[] }>;
+
+  async balanceOf(signer: Signer): Promise<TokenBalance> {
+    const erc20 = new Contract(this.poolAddress, ERC20ABI, provider) as ERC20;
+    const b = await erc20.balanceOf(await signer.getAddress());
+    return this.poolInstance.oneLPToken().copy(b);
+  }
 }

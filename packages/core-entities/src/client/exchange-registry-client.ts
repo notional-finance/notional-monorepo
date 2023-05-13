@@ -1,39 +1,41 @@
-import { Network } from '@notional-finance/util';
+import { filterEmpty, Network } from '@notional-finance/util';
 import { map } from 'rxjs';
-import { PoolClasses, PoolConstructor } from '../exchanges';
+import { BaseLiquidityPool, PoolClasses, PoolConstructor } from '../exchanges';
 import { PoolDefinition } from '..';
-import { ClientRegistry } from '../registry/client-registry';
+import { ClientRegistry } from './client-registry';
 import { Routes } from '../server';
 
 export class ExchangeRegistryClient extends ClientRegistry<PoolDefinition> {
   protected cachePath = Routes.Exchanges;
 
-  public subscribePoolInstance(network: Network, address: string) {
+  public subscribePoolInstance<T extends BaseLiquidityPool<unknown>>(
+    network: Network,
+    address: string
+  ) {
     return this.subscribeSubject(network, address)?.pipe(
-      map((pool) => this._buildPool(network, pool))
+      filterEmpty(),
+      map((pool) => this._buildPool<T>(network, pool))
     );
   }
 
-  public getPoolInstance(network: Network, address: string) {
+  public getPoolInstance<T extends BaseLiquidityPool<unknown>>(
+    network: Network,
+    address: string
+  ) {
     const pool = this.getLatestFromSubject(network, address);
-    return this._buildPool(network, pool);
+    if (!pool) throw Error(`Pool ${address} on ${network} not found`);
+    return this._buildPool<T>(network, pool);
   }
 
-  private _buildPool(
-    network: Network,
-    pool: PoolDefinition | null | undefined
-  ) {
-    if (pool && pool.latestPoolData) {
-      const PoolClass = PoolClasses[pool.PoolClass] as PoolConstructor;
+  private _buildPool<T>(network: Network, pool: PoolDefinition) {
+    if (!pool.latestPoolData) throw Error(`Pool data not defined for ${pool}`);
+    const PoolClass = PoolClasses[pool.PoolClass] as PoolConstructor;
 
-      return new PoolClass(
-        network,
-        pool.latestPoolData.balances,
-        pool.latestPoolData.totalSupply,
-        pool.latestPoolData.poolParams
-      );
-    }
-
-    return null;
+    return new PoolClass(
+      network,
+      pool.latestPoolData.balances,
+      pool.latestPoolData.totalSupply,
+      pool.latestPoolData.poolParams
+    ) as T;
   }
 }

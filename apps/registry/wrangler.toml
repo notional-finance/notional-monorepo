@@ -41,7 +41,7 @@ name = "registry-dev"
 NX_ENV = 'dev'
 # This is version that defines the durable object to retreive, increment it to reset
 # the durable object to a clean version
-VERSION = 'v3.1'
+VERSION = 'v3'
 SUPPORTED_NETWORKS = [ 'arbitrum' ]
 
 [env.dev.durable_objects]

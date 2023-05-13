@@ -5,7 +5,7 @@ import { Registry } from '../../src';
 import httpserver from 'http-server';
 
 const serveLocal = true;
-const apiHostname = 'https://data-dev.notional.finance';
+const apiHostname = 'http://localhost:8787';
 const cacheHostname = 'http://localhost:9999';
 const server = httpserver.createServer({
   root: `${__dirname}/__snapshots__`,
@@ -57,7 +57,19 @@ describe('Snapshot', () => {
   });
 
   // No exchanges listed yet
-  it.todo('[Exchanges]');
+  it('[Exchanges]', (done) => {
+    const exchanges = Registry.getExchangeRegistry();
+    exchanges.onSubjectKeyReady(
+      Network.ArbitrumOne,
+      '0x06D45ef1f8b3C37b0de66f156B11F10b4837619A',
+      () => {
+        expect(
+          exchanges.getLatestFromAllSubjects(Network.ArbitrumOne)
+        ).toMatchSnapshot();
+        done();
+      }
+    );
+  });
 
   it('[Tokens]', (done) => {
     const config = Registry.getTokenRegistry();

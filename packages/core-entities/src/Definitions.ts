@@ -1,8 +1,10 @@
 import { BigNumber } from 'ethers';
 import { PoolClasses } from './exchanges';
-import { TokenInterface, TokenType, OracleType } from './.graphclient';
 import { TokenBalance } from './token-balance';
 import { Network } from '@notional-finance/util';
+import { BehaviorSubject } from 'rxjs';
+// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
+import { TokenInterface, TokenType, OracleType } from './.graphclient';
 
 export interface TokenDefinition {
   /** Defines the ERC1155 or ERC721 id of the token, if it exists */
@@ -76,3 +78,12 @@ export interface PoolDefinition {
   /** A list of tokens to register directly on the client before initializing the pool data */
   registerTokens: TokenDefinition[];
 }
+
+export interface CacheSchema<T> {
+  values: Array<[string, T | null]>;
+  network: Network;
+  lastUpdateTimestamp: number;
+  lastUpdateBlock: number;
+}
+
+export type SubjectMap<T> = Map<string, BehaviorSubject<T | null>>;

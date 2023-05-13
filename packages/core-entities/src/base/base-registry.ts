@@ -10,7 +10,7 @@ import {
   timeout,
   timer,
 } from 'rxjs';
-import { CacheSchema, SubjectMap } from '.';
+import { CacheSchema, SubjectMap } from '../definitions';
 
 interface SubjectKey {
   network: Network;
@@ -155,7 +155,9 @@ export abstract class BaseRegistry<T> {
             );
           })
         )
-        .subscribe((d) => this._updateNetworkObservables(d))
+        .subscribe((d) => {
+          this._updateNetworkObservables(d);
+        })
     );
 
     this._interval.set(network, newInterval);
@@ -179,8 +181,18 @@ export abstract class BaseRegistry<T> {
     return this.lastUpdateTimestamp.get(network)?.asObservable();
   }
 
-  public subscribeNetworkRegistered() {
-    return this.networkRegistered.asObservable().pipe(filterEmpty());
+  public isNetworkRegistered(network: Network) {
+    return this.networkSubjects.has(network);
+  }
+
+  public onNetworkRegistered(network: Network, fn: () => void) {
+    if (this.isNetworkRegistered(network)) {
+      fn();
+    } else {
+      this.networkRegistered.asObservable().subscribe((n) => {
+        if (n === network) fn();
+      });
+    }
   }
 
   /** Returns a subscription to when keys are updated */
@@ -197,9 +209,7 @@ export abstract class BaseRegistry<T> {
     return Array.from(this._getNetworkSubjects(network).keys());
   }
 
-  /**
-   * Returns true if a key has already been registered
-   */
+  /** Returns true if a key has already been registered */
   public isKeyRegistered(network: Network, key: string) {
     return this.networkSubjects.get(network)?.has(key) === true;
   }
@@ -258,7 +268,7 @@ export abstract class BaseRegistry<T> {
       if (nextRefreshTime < getNowSeconds()) {
         throw Error(
           `${key} on ${network} has missed ${Math.floor(
-            updateTimestamp - getNowSeconds() / intervalMS
+            (updateTimestamp - getNowSeconds()) / intervalMS
           )} refreshes`
         );
       }

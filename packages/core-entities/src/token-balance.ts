@@ -1,4 +1,5 @@
 import {
+  convertToGenericfCashId,
   Network,
   RATE_PRECISION,
   SCALAR_PRECISION,
@@ -15,7 +16,9 @@ export class TokenBalance {
     public n: BigNumber,
     public tokenId: string,
     public network: Network
-  ) {}
+  ) {
+    this.tokenId = convertToGenericfCashId(tokenId);
+  }
 
   static from(n: BigNumberish, token: TokenDefinition) {
     return new TokenBalance(BigNumber.from(n), token.id, token.network);
@@ -63,6 +66,10 @@ export class TokenBalance {
   /** The token's decimals raised to a power of 10 */
   get precision() {
     return BigNumber.from(10).pow(this.token.decimals);
+  }
+
+  get decimals() {
+    return this.token.decimals;
   }
 
   /** TokenBalance objects with the same typeKey can be added together */

@@ -10,7 +10,7 @@ import {
 import { BigNumber, utils } from 'ethers';
 import { combineLatest, map, of, Subscription, withLatestFrom } from 'rxjs';
 import { ExchangeRate, OracleDefinition } from '../definitions';
-import { ClientRegistry } from '../registry/client-registry';
+import { ClientRegistry } from './client-registry';
 import { Routes } from '../server';
 
 interface Node {
@@ -135,16 +135,11 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
           ) {
             const { maturity } = decodeERC1155Id(r.quote);
             const exchangeRate = this.interestToExchangeRate(
-              r.latestRate.rate,
+              node.inverted ? r.latestRate.rate : r.latestRate.rate.mul(-1),
               maturity
             );
 
-            return node.inverted
-              ? this.invertRate({
-                  ...r.latestRate,
-                  rate: exchangeRate,
-                })
-              : { ...r.latestRate, rate: exchangeRate };
+            return { ...r.latestRate, rate: exchangeRate };
           }
 
           if (r && node.inverted) {
@@ -251,5 +246,21 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
         ) * RATE_PRECISION
       )
     ).mul(RATE_PRECISION);
+  }
+
+  exchangeToInterestRate(
+    exchangeRate: BigNumber,
+    maturity: number,
+    currentTime = getNowSeconds()
+  ) {
+    if (maturity <= currentTime) return 0;
+
+    const timeToMaturity = maturity - currentTime;
+    // interest rate = ln(exchangeRate) * SECONDS_IN_YEAR / timeToMaturity
+    const annualRate =
+      ((Math.log(exchangeRate.toNumber() / RATE_PRECISION) * SECONDS_IN_YEAR) /
+        timeToMaturity) *
+      RATE_PRECISION;
+    return Math.trunc(annualRate);
   }
 }

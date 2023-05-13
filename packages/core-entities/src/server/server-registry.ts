@@ -4,8 +4,8 @@ import {
   getProviderFromNetwork,
   Network,
 } from '@notional-finance/util';
-import { CacheSchema } from '../registry/index';
-import { BaseRegistry } from '../registry/base-registry';
+import { CacheSchema } from '../definitions';
+import { BaseRegistry } from '../base';
 import { TypedDocumentNode } from '@graphql-typed-document-node/core';
 
 export type TypedDocumentReturnType<T> = T extends TypedDocumentNode<
@@ -53,13 +53,13 @@ export abstract class ServerRegistry<T> extends BaseRegistry<T> {
     };
   }
 
-  protected async _fetchUsingGraph<R>(
+  protected async _fetchUsingGraph<R, V>(
     network: Network,
-    query: TypedDocumentNode<R, any>,
+    query: TypedDocumentNode<R, V>,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     transform: (r: R) => Record<string, T>,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    variables?: any
+    variables?: V
   ): Promise<CacheSchema<T>> {
     // NOTE: in order for this to deploy with cloudflare workers, the import statement
     // has to be deferred until here.

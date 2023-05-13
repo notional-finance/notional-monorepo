@@ -1,10 +1,10 @@
 import { Network } from '@notional-finance/util';
 import crossFetch from 'cross-fetch';
 import { BigNumber } from 'ethers';
-import { CacheSchema } from '.';
+import { CacheSchema } from '../definitions';
 import FixedPoint from '../exchanges/BalancerV2/fixed-point';
 import { TokenBalance } from '../token-balance';
-import { BaseRegistry } from './base-registry';
+import { BaseRegistry } from '../base/base-registry';
 
 const USE_CROSS_FETCH =
   process.env['NX_USE_CROSS_FETCH'] || process.env['NODE_ENV'] == 'test';

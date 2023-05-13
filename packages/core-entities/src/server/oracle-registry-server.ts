@@ -11,8 +11,7 @@ import {
   ZERO_ADDRESS,
 } from '@notional-finance/util';
 import { BigNumber, Contract } from 'ethers';
-import { OracleDefinition } from '..';
-import { CacheSchema } from '../registry/index';
+import { OracleDefinition, CacheSchema } from '..';
 import { loadGraphClientDeferred, ServerRegistry } from './server-registry';
 
 export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
@@ -28,14 +27,15 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
     if (
       intervalNum %
         (this.CONFIG_REFRESH_SECONDS / this.INTERVAL_REFRESH_SECONDS) ==
-      0
+        0 ||
+      this.isNetworkRegistered(network) === false
     ) {
       // Trigger a refresh of the oracle configuration, this will happen when intervalNum == 0 as well
       results = await this._queryAllOracles(network, this.NUM_HISTORICAL_RATES);
     } else {
       // Get the current oracle configuration from the subjects
       const values = Array.from(
-        this.getLatestFromAllSubjects(network).entries()
+        this.getLatestFromAllSubjects(network, 0).entries()
       );
 
       results = {

@@ -1,14 +1,29 @@
-import BaseLiquidityPool from '../BaseLiquidityPool';
 import { AggregateCall } from '@notional-finance/multicall';
-import { TokenBalance } from '../../tokens/TokenBalance';
-import { getNowSeconds, Network } from '@notional-finance/util';
-import { Notional, NotionalABI } from '@notional-finance/contracts';
-import { Contract } from 'ethers';
+import {
+  AssetType,
+  encodeERC1155Id,
+  getNowSeconds,
+  INTERNAL_TOKEN_DECIMALS,
+  Network,
+  NotionalAddress,
+  RATE_PRECISION,
+  SECONDS_IN_YEAR,
+} from '@notional-finance/util';
+import {
+  NotionalV3,
+  NTokenERC20ABI,
+  NotionalV3ABI,
+} from '@notional-finance/contracts';
+import { BigNumber, Contract } from 'ethers';
+import { TokenBalance } from '../../token-balance';
+import BaseLiquidityPool from '../base-liquidity-pool';
 
 interface fCashMarketParams {
   perMarketCash: TokenBalance[];
+  perMarketfCash: TokenBalance[];
   nTokenFCash: TokenBalance[];
   nTokenCash: TokenBalance;
+  currencyId: number;
   interestRateCurve: InterestRateParameters[];
 }
 
@@ -27,7 +42,7 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
   /**
    * fCash markets are modeled as multiple token AMM.
    * this.balance[0] is the total cash held by the nToken
-   * this.balance[1+] are the fCash balances held by the nToken.
+   * this.balance[1+] are the net fCash balances held by the nToken.
    *
    * @param _network
    * @param _poolAddress this is the nToken address
@@ -36,8 +51,8 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
     network: Network,
     poolAddress: string
   ): AggregateCall[] {
-    const notional = new Contract(getNotional(network), NotionalABI);
-    const nToken = new Contract(poolAddress, nTokenABI);
+    const notional = new Contract(NotionalAddress[network], NotionalV3ABI);
+    const nToken = new Contract(poolAddress, NTokenERC20ABI);
 
     return [
       {
@@ -47,15 +62,16 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
         key: 'nTokenFCash',
         args: [poolAddress],
         transform: (
-          r: Awaited<ReturnType<Notional['functions']['getNTokenPortfolio']>>
+          r: Awaited<ReturnType<NotionalV3['functions']['getNTokenPortfolio']>>
         ) => {
           return r.netfCashAssets.map((a) => {
-            const token = TokenRegistry.getTokenByID(
-              network,
-              a.assetType.toString()
+            const fCashId = encodeERC1155Id(
+              a.currencyId,
+              a.maturity.toNumber(),
+              a.assetType.toNumber(),
+              a.notional.isNegative()
             );
-            if (!token) throw Error(`fCash asset not found in registry`);
-            return TokenBalance.from(a.notional, token);
+            return TokenBalance.toJSON(a.notional, fCashId, network);
           });
         },
       },
@@ -66,44 +82,32 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
         key: 'currencyId',
       },
       {
-        stage: 1,
-        target: notional,
-        method: 'getActiveMarkets',
-        key: ['perMarketCash', 'balances'],
-        args: (r) => [r[`${poolAddress}.currencyId`]],
-        transform: (
-          r: Awaited<ReturnType<Notional['functions']['getActiveMarkets']>>,
-          aggregateResults: Record<string, unknown>
-        ) => {
-          const token = TokenRegistry.getTokenByAddress(
-            network,
-            aggregateResults['pCashAddress']
-          );
-          if (!token) throw Error(`pCash asset not found in registry`);
-
-          const perMarketCash = r[0].map((m) => {
-            return TokenBalance.from(m.totalAssetCash, token);
-          });
-          const balances = r[0].map((m) => {
-            const token = TokenRegistry.getTokenByID(network, todo);
-            if (!token) throw Error(`fCash asset not found in registry`);
-
-            return TokenBalance.from(m.totalfCash, token);
-          });
-
-          return { perMarketCash, balances };
-        },
+        stage: 0,
+        target: nToken,
+        method: 'totalSupply',
+        key: 'totalSupply',
+        transform: (r: BigNumber) =>
+          TokenBalance.toJSON(r, poolAddress, network),
       },
       {
         stage: 1,
         target: notional,
-        method: 'getNTokenAccount',
+        method: 'pCashAddress',
+        args: (r) => [r[`${poolAddress}.currencyId`]],
+        key: 'pCashAddress',
+      },
+      {
+        stage: 1,
+        target: notional,
+        method: 'getInterestRateCurve',
         key: 'interestRateCurve',
         args: (r) => [r[`${poolAddress}.currencyId`]],
         transform: (
-          r: Awaited<ReturnType<Notional['functions']['getInterestRateCurve']>>
+          r: Awaited<
+            ReturnType<NotionalV3['functions']['getInterestRateCurve']>
+          >
         ) => {
-          r.activeInterestRateCurve.map((c) => {
+          return r.activeInterestRateCurve.map((c) => {
             return {
               kinkUtilization1: c.kinkUtilization1.toNumber(),
               kinkUtilization2: c.kinkUtilization2.toNumber(),
@@ -117,7 +121,87 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
           });
         },
       },
+      {
+        stage: 2,
+        target: notional,
+        method: 'getNTokenAccount',
+        key: 'nTokenCash',
+        args: [poolAddress],
+        transform: (
+          r: Awaited<ReturnType<NotionalV3['functions']['getNTokenAccount']>>,
+          aggregateResults: Record<string, unknown>
+        ) => {
+          const pCashAddress = aggregateResults[
+            `${poolAddress}.pCashAddress`
+          ] as string;
+          return TokenBalance.toJSON(r.cashBalance, pCashAddress, network);
+        },
+      },
+      {
+        stage: 2,
+        target: notional,
+        method: 'getActiveMarkets',
+        key: ['perMarketCash', 'balances'],
+        args: (r) => [r[`${poolAddress}.currencyId`]],
+        transform: (
+          r: Awaited<
+            ReturnType<NotionalV3['functions']['getActiveMarkets']>
+          >[0],
+          aggregateResults: Record<string, unknown>
+        ) => {
+          const pCashAddress = aggregateResults[
+            `${poolAddress}.pCashAddress`
+          ] as string;
+          const currencyId = aggregateResults[
+            `${poolAddress}.currencyId`
+          ] as number;
+
+          const perMarketCash = r.map((m) =>
+            TokenBalance.toJSON(m.totalPrimeCash, pCashAddress, network)
+          );
+
+          const balances = r.map((m) => {
+            const fCashId = encodeERC1155Id(
+              currencyId,
+              m.maturity.toNumber(),
+              AssetType.FCASH_ASSET_TYPE,
+              false
+            );
+            return TokenBalance.toJSON(m.totalfCash, fCashId, network);
+          });
+
+          return {
+            [`${poolAddress}.perMarketCash`]: perMarketCash,
+            [`${poolAddress}.balances`]: balances,
+          };
+        },
+      },
     ];
+  }
+
+  constructor(
+    _network: Network,
+    _balances: TokenBalance[],
+    _totalSupply: TokenBalance,
+    poolParams: fCashMarketParams
+  ) {
+    // Prepend the total cash balances as the token zero for the nToken
+    const totalCash = poolParams.perMarketCash
+      .reduce((p, c) => p.add(c))
+      .add(poolParams.nTokenCash);
+    poolParams.perMarketfCash = _balances;
+
+    // Account for the nToken's net fcash balances
+    const netBalances = _balances.map((b) => {
+      const negfCash = poolParams.nTokenFCash.find(
+        (t) => t.typeKey === b.typeKey
+      );
+      if (!negfCash) throw Error('matching fCash balance not found');
+      return b.add(negfCash);
+    });
+
+    const balances = [totalCash, ...netBalances];
+    super(_network, balances, _totalSupply, poolParams);
   }
 
   /**
@@ -164,7 +248,10 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
       const feesPaid = this.zeroTokenArray();
       feesPaid[0] = feesPaid[0].copy(fee.n);
 
-      return { feesPaid, tokensOut: underlyingCash };
+      return {
+        feesPaid,
+        tokensOut: underlyingCash.neg().toToken(this.balances[0].token),
+      };
     } else {
       throw Error('One token index in or out must be zero');
     }
@@ -179,8 +266,10 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
     lpTokens: TokenBalance;
     feesPaid: TokenBalance[];
   } {
-    // TokensIn must be len 1 and equal to token balance[0]
-    if (tokensIn.length != 1) throw Error('Tokens in must be prime cash');
+    // Only tokensIn[0] can be specified
+    tokensIn.forEach((v, i) => {
+      if (i > 0 && !v.isZero()) throw Error('Tokens in must be prime cash');
+    });
     tokensIn[0].isMatch(this.balances[0]);
 
     // Should use the oracle to fetch the nToken PV
@@ -194,6 +283,12 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
     };
   }
 
+  /**
+   * Simulates an nToken redemption. If doing a single sided exit (only single sided exit to pCash is allowed), then
+   * will simulate selling residuals.
+   * @param lpTokens amount of ntokens to redeem
+   * @param singleSidedExitTokenIndex if set to zero then will simulate selling net fCash positions during exit
+   */
   public getTokensOutGivenLPTokens(
     lpTokens: TokenBalance,
     singleSidedExitTokenIndex?: number
@@ -203,21 +298,26 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
   } {
     if (singleSidedExitTokenIndex == 0) {
       // Simulate selling fCash
-      const { primeCash, netfCash } = this.getProportionalHoldings(
-        lpTokens,
-        false
-      );
+      const {
+        primeCash,
+        netfCash,
+        postRedeemMarketCash,
+        postRedeemMarketfCash,
+      } = this.getProportionalHoldings(lpTokens, false);
 
       // Simulates selling netfCash positions
       const { totalFees, netUnderlyingCash } = netfCash.reduce(
         ({ totalFees, netUnderlyingCash }, fCash, i) => {
           const { fee, underlyingCash } = this.getCashGivenfCashAmount(
             i + 1,
-            fCash
+            fCash.neg(),
+            undefined,
+            postRedeemMarketCash,
+            postRedeemMarketfCash
           );
           return {
             totalFees: totalFees.add(fee),
-            netUnderlyingCash: netUnderlyingCash.add(underlyingCash),
+            netUnderlyingCash: netUnderlyingCash.add(underlyingCash.neg()),
           };
         },
         {
@@ -248,15 +348,24 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
     }
   }
 
+  /***********************************************************************/
+  /*                  fCash Interest Curve Calculations                  */
+  /***********************************************************************/
+
+  /**
+   * Calculates the amount of fCash given a prime cash amount
+   *
+   * @param cashAmount a token balance in prime cash denomination
+   * @param balanceOverrides if provided, must be denominated in net fCash
+   */
   public getfCashGivenCashAmount(
     marketIndex: number,
     cashAmount: TokenBalance,
     balanceOverrides?: TokenBalance[],
     nowSeconds = getNowSeconds()
   ) {
-    const balances = balanceOverrides || this._balances;
+    const totalfCash = this._getTotalfCash(marketIndex, balanceOverrides);
     const irParams = this.getIRParams(marketIndex);
-    const totalfCash = balances[marketIndex];
     const totalCashUnderlying = this.getMarketCashUnderlying(marketIndex);
     const timeToMaturity = this.getTimeToMaturity(marketIndex, nowSeconds);
     const netUnderlyingToAccount = cashAmount.toUnderlying();
@@ -274,19 +383,28 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
     );
 
     if (netUnderlyingToAccount.isNegative()) {
-      fCash_0 = netUnderlyingToAccount.neg();
-      fCash_1 = netUnderlyingToAccount
-        .mulInRatePrecision(currentfCashExchangeRate)
-        .neg();
+      fCash_0 = totalfCash.copy(netUnderlyingToAccount.neg().scaleTo(8));
+      fCash_1 = totalfCash.copy(
+        netUnderlyingToAccount
+          .mulInRatePrecision(currentfCashExchangeRate)
+          .neg()
+          .scaleTo(INTERNAL_TOKEN_DECIMALS)
+      );
     } else {
-      fCash_0 = netUnderlyingToAccount
-        .mulInRatePrecision(currentfCashExchangeRate)
-        .neg();
-      fCash_1 = netUnderlyingToAccount
-        .mulInRatePrecision(
-          this.getfCashExchangeRate(irParams.maxRate, timeToMaturity)
-        )
-        .neg();
+      fCash_0 = totalfCash.copy(
+        netUnderlyingToAccount
+          .mulInRatePrecision(currentfCashExchangeRate)
+          .neg()
+          .scaleTo(INTERNAL_TOKEN_DECIMALS)
+      );
+      fCash_1 = totalfCash.copy(
+        netUnderlyingToAccount
+          .mulInRatePrecision(
+            this.getfCashExchangeRate(irParams.maxRate, timeToMaturity)
+          )
+          .neg()
+          .scaleTo(INTERNAL_TOKEN_DECIMALS)
+      );
     }
 
     let diff_0 = this._calculateDiff(
@@ -337,7 +455,9 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
 
     return fCashToAccount.add(
       fCashToAccount.copy(
-        netUnderlyingToAccount.mulInRatePrecision(exchangeRate).n
+        netUnderlyingToAccount
+          .mulInRatePrecision(exchangeRate)
+          .scaleTo(INTERNAL_TOKEN_DECIMALS)
       )
     );
   }
@@ -365,15 +485,21 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
     marketIndex: number,
     fCashAmount: TokenBalance,
     balanceOverrides?: TokenBalance[],
+    cashBalanceOverride?: TokenBalance[],
+    fCashBalanceOverride?: TokenBalance[],
     nowSeconds = getNowSeconds()
   ) {
-    // NOTE: this only overrides the fCash balances
-    const balances = balanceOverrides || this.balances;
-    const totalCashUnderlying = this.getMarketCashUnderlying(marketIndex);
+    const totalfCash = fCashBalanceOverride
+      ? fCashBalanceOverride[marketIndex - 1]
+      : this._getTotalfCash(marketIndex, balanceOverrides);
+    const totalCashUnderlying = this.getMarketCashUnderlying(
+      marketIndex,
+      cashBalanceOverride
+    );
 
     const utilization = this.getfCashUtilization(
       fCashAmount,
-      balances[marketIndex],
+      totalfCash,
       totalCashUnderlying
     );
 
@@ -385,12 +511,22 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
     );
 
     const timeToMaturity = this.getTimeToMaturity(marketIndex, nowSeconds);
-    const preFeeCashToAccount = fCashAmount.divInRatePrecision(
-      this.getfCashExchangeRate(preFeeInterestRate, timeToMaturity)
+    const preFeeCashToAccount = totalCashUnderlying.copy(
+      fCashAmount
+        .divInRatePrecision(
+          this.getfCashExchangeRate(preFeeInterestRate, timeToMaturity)
+        )
+        .scaleTo(totalCashUnderlying.decimals)
     );
-    const postFeeCashToAccount = fCashAmount.divInRatePrecision(
-      this.getfCashExchangeRate(postFeeInterestRate, timeToMaturity)
+
+    const postFeeCashToAccount = totalCashUnderlying.copy(
+      fCashAmount
+        .divInRatePrecision(
+          this.getfCashExchangeRate(postFeeInterestRate, timeToMaturity)
+        )
+        .scaleTo(totalCashUnderlying.decimals)
     );
+
     const fee = preFeeCashToAccount.sub(postFeeCashToAccount);
 
     return { fee, underlyingCash: postFeeCashToAccount };
@@ -403,7 +539,7 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
   ) {
     return totalfCash
       .sub(fCashToAccount)
-      .divInRatePrecision(totalCashUnderlying.n.add(totalfCash.n))
+      .divInRatePrecision(totalCashUnderlying.scaleTo(8).add(totalfCash.n))
       .toNumber();
   }
 
@@ -467,8 +603,13 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
     return this.poolParams.interestRateCurve[marketIndex - 1];
   }
 
-  public getMarketCashUnderlying(marketIndex: number) {
-    return this.poolParams.perMarketCash[marketIndex - 1].toUnderlying();
+  public getMarketCashUnderlying(
+    marketIndex: number,
+    marketCashBalanceOverride?: TokenBalance[]
+  ) {
+    return (marketCashBalanceOverride || this.poolParams.perMarketCash)[
+      marketIndex - 1
+    ].toUnderlying();
   }
 
   public getTimeToMaturity(marketIndex: number, nowSeconds = getNowSeconds()) {
@@ -481,63 +622,80 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
     lpTokens: TokenBalance,
     acceptIdiosyncratic: boolean
   ) {
-    const netfCashHoldings = this.getNetfCashHoldings();
     const totalPrimeCash = this.balances[0];
-    const ifCashHoldings = netfCashHoldings.filter(this.isIdiosyncratic);
+    const ifCashHoldings = this.balances.filter((f) => this.isIdiosyncratic(f));
 
     if (ifCashHoldings.length === 0 || acceptIdiosyncratic) {
       // If there are no ifCash assets or the account will accept them, then return the
       // proportional holdings of all the fCash assets
+      const [primeCash, ...netfCash] = this.getLPTokenClaims(lpTokens);
+      const postRedeemMarketCash = this.poolParams.perMarketCash.map((c) => {
+        return c.sub(c.scale(lpTokens, this.totalSupply));
+      });
+      const postRedeemMarketfCash = this.poolParams.perMarketfCash.map((c) => {
+        return c.sub(c.scale(lpTokens, this.totalSupply));
+      });
+
       return {
-        primeCash: totalPrimeCash.scale(lpTokens, this.totalSupply),
-        netfCash: netfCashHoldings.map((f) =>
-          f.scale(lpTokens, this.totalSupply)
-        ),
+        primeCash,
+        netfCash,
         redemptionFee: this.getZeroUnderlying(),
+        postRedeemMarketCash,
+        postRedeemMarketfCash,
       };
     } else {
       // Get the value of ifCash holdings in risk adjusted present value.
-      const totalMarketUnderlyingCash = this.poolParams.perMarketCash
-        .reduce((acc, c) => acc.add(c), totalPrimeCash.copy(0))
-        .toUnderlying();
-      const totalUnderlyingValueInMarkets = netfCashHoldings
-        .reduce((acc, f) => acc.add(f.toUnderlying()), this.getZeroUnderlying())
-        .add(totalMarketUnderlyingCash);
-
-      const ifCashRiskAdjustedPV = ifCashHoldings.reduce(
-        (acc, i) => acc.add(i.toRiskAdjustedUnderlying()),
-        this.getZeroUnderlying()
+      const totalMarketPrimeCash = this.poolParams.perMarketCash.reduce(
+        (acc, c) => acc.add(c),
+        totalPrimeCash.copy(0)
       );
 
+      const totalPrimeValueInMarkets = this.balances
+        .reduce((acc, f) => acc.add(f.toUnderlying()), this.getZeroUnderlying())
+        .toToken(totalMarketPrimeCash.token)
+        .add(totalMarketPrimeCash);
+
+      const ifCashRiskAdjustedPV = ifCashHoldings
+        .reduce(
+          (acc, i) => acc.add(i.toRiskAdjustedUnderlying()),
+          this.getZeroUnderlying()
+        )
+        .toToken(totalMarketPrimeCash.token);
+
       const totalPortfolioValue =
-        totalUnderlyingValueInMarkets.add(ifCashRiskAdjustedPV);
+        totalPrimeValueInMarkets.add(ifCashRiskAdjustedPV);
 
       // Get share of tokens and net fCash based on a scaleFactor:
       //  (totalPortfolioValue * lpTokens) / (totalUnderlyingValueInMarkets * totalSupply)
       const numerator = totalPortfolioValue.n.mul(lpTokens.n);
-      const denominator = totalUnderlyingValueInMarkets.n.mul(
-        this.totalSupply.n
-      );
+      const denominator = totalPrimeValueInMarkets.n.mul(this.totalSupply.n);
 
       const nTokenCashShare = this.poolParams.nTokenCash.scale(
         lpTokens,
         this.totalSupply
       );
 
-      const primeCash = totalMarketUnderlyingCash
+      const primeCash = totalMarketPrimeCash
         .scale(numerator, denominator)
-        .toToken(this.balances[0].token)
         .add(nTokenCashShare);
 
-      const netfCash = netfCashHoldings
+      const postRedeemMarketCash = this.poolParams.perMarketCash.map((c) => {
+        return c.sub(c.scale(numerator, denominator));
+      });
+      const postRedeemMarketfCash = this.poolParams.perMarketfCash.map((c) => {
+        return c.sub(c.scale(numerator, denominator));
+      });
+
+      const netfCash = this.balances
         .filter((f) => !this.isIdiosyncratic(f))
         .map((f) => f.scale(numerator, denominator));
 
       const totalValueRedeemedPrime = primeCash.add(
         netfCash
-          .reduce((p, f) => f.toUnderlying(), this.getZeroUnderlying())
+          .reduce((_, f) => f.toUnderlying(), this.getZeroUnderlying())
           .toToken(primeCash.token)
       );
+
       // Redemption fee is the difference between the total value redeemed and the oracle value
       const redemptionFee = this.getLPTokenOracleValue(lpTokens, 0)
         .sub(totalValueRedeemedPrime)
@@ -547,15 +705,28 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
         primeCash,
         netfCash,
         redemptionFee,
+        postRedeemMarketCash,
+        postRedeemMarketfCash,
       };
     }
   }
 
-  public getNetfCashHoldings() {
-    return this.poolParams.nTokenFCash.map((f) => {
-      const marketfCash = this.balances.find((t) => t.typeKey === f.typeKey);
-      return marketfCash ? f.add(marketfCash) : f;
-    });
+  private _getTotalfCash(
+    marketIndex: number,
+    balanceOverrides?: TokenBalance[]
+  ) {
+    if (balanceOverrides) {
+      // Balance overrides is a different netfCash amount, so to get the total market fcash
+      // we need to subtract the nToken fcash
+      const netfCash = this.poolParams.nTokenFCash.find(
+        (t) => t.typeKey === balanceOverrides[marketIndex].typeKey
+      );
+      if (!netfCash) throw Error('net fcash not found');
+
+      return balanceOverrides[marketIndex].sub(netfCash);
+    } else {
+      return this.poolParams.perMarketfCash[marketIndex - 1];
+    }
   }
 
   public isIdiosyncratic(fCash: TokenBalance) {

@@ -1,7 +1,7 @@
 import { BigNumber, utils } from 'ethers';
 import { TokenBalance } from '../token-balance';
 import { TokenDefinition } from '../definitions';
-import { ClientRegistry } from '../registry/client-registry';
+import { ClientRegistry } from './client-registry';
 import { Network } from '@notional-finance/util';
 import { Routes } from '../server';
 
@@ -30,7 +30,7 @@ export class TokenRegistryClient extends ClientRegistry<TokenDefinition> {
    */
   public getTokenByAddress(network: Network, address: string) {
     const tokens = this.getAllTokens(network).filter(
-      (t) => t.address === address
+      (t) => t.address.toLowerCase() === address.toLowerCase()
     );
 
     if (tokens.length > 1) throw Error(`Multiple tokens found for ${address}`);
@@ -39,7 +39,7 @@ export class TokenRegistryClient extends ClientRegistry<TokenDefinition> {
   }
 
   public getTokenByID(network: Network, id: string) {
-    const token = this.getLatestFromSubject(network, id);
+    const token = this.getLatestFromSubject(network, id.toLowerCase());
     if (!token) throw Error(`${id} not found on ${network}`);
     return token;
   }

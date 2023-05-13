@@ -50,7 +50,7 @@ export class Registry {
     // reviving data from the cache host it will attempt to find these token definitions
     const tokenRegistry = Registry.getTokenRegistry();
     defaultPools[network].forEach((pool) =>
-      pool.registerTokens.forEach(tokenRegistry.registerToken)
+      pool.registerTokens.forEach((t) => tokenRegistry.registerToken(t))
     );
 
     Registry.getExchangeRegistry().startRefreshInterval(
@@ -87,5 +87,22 @@ export class Registry {
     if (Registry._configurations == undefined)
       throw Error('Oracle Registry undefined');
     return Registry._configurations;
+  }
+
+  public static onNetworkReady(network: Network, fn: () => void) {
+    Promise.all([
+      new Promise<void>((r) =>
+        Registry.getConfigurationRegistry().onNetworkRegistered(network, r)
+      ),
+      new Promise<void>((r) =>
+        Registry.getTokenRegistry().onNetworkRegistered(network, r)
+      ),
+      new Promise<void>((r) =>
+        Registry.getOracleRegistry().onNetworkRegistered(network, r)
+      ),
+      new Promise<void>((r) =>
+        Registry.getExchangeRegistry().onNetworkRegistered(network, r)
+      ),
+    ]).then(fn);
   }
 }

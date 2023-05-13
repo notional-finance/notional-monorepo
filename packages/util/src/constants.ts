@@ -1,7 +1,9 @@
 import { BigNumber, ethers } from 'ethers';
 
 export const INTERNAL_TOKEN_PRECISION = 1e8;
+export const INTERNAL_TOKEN_DECIMALS = 8;
 export const RATE_PRECISION = 1e9;
+export const RATE_DECIMALS = 9;
 export const SCALAR_PRECISION = BigNumber.from(10).pow(18);
 export const SCALAR_DECIMALS = 18;
 export const ZERO_ADDRESS = ethers.constants.AddressZero;
@@ -36,4 +38,10 @@ export const AlchemyUrl: Record<Network, string> = {
   [Network.All]: '',
   [Network.Mainnet]: 'https://eth-mainnet.g.alchemy.com/v2',
   [Network.ArbitrumOne]: 'https://arb-mainnet.g.alchemy.com/v2',
+};
+
+export const NotionalAddress: Record<Network, string> = {
+  [Network.All]: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
+  [Network.Mainnet]: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
+  [Network.ArbitrumOne]: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
 };

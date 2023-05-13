@@ -33,7 +33,8 @@ export abstract class AbstractLiquidityPool {
   /**
    * Given a number of tokens to add to the pool, return the amount of lp tokens
    * received. Accounts for imbalanced pool entries.
-   * @param tokensIn
+   * @param tokensIn all balances must be specified in tokens in, for single sided entry
+   * all other balances should be set to zero
    * @returns the amount of lpTokens minted
    * @returns fees paid in each corresponding token balance
    */
