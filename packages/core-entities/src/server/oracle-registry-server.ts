@@ -27,7 +27,8 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
     if (
       intervalNum %
         (this.CONFIG_REFRESH_SECONDS / this.INTERVAL_REFRESH_SECONDS) ==
-      0
+        0 ||
+      this.isNetworkRegistered(network) === false
     ) {
       // Trigger a refresh of the oracle configuration, this will happen when intervalNum == 0 as well
       results = await this._queryAllOracles(network, this.NUM_HISTORICAL_RATES);

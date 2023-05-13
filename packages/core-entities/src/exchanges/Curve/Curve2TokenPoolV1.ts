@@ -1,5 +1,5 @@
 import { CurvePoolV1ABI } from '@notional-finance/contracts';
-import { AggregateCall } from '@notional-finance/multicall';
+import { AggregateCall, NO_OP } from '@notional-finance/multicall';
 import { Network } from '@notional-finance/util';
 import { BigNumber, Contract } from 'ethers';
 import { TokenBalance } from '../../token-balance';
@@ -14,10 +14,11 @@ export interface Curve2TokenPoolV1Params {
   fee: BigNumber;
 }
 
-export default class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPoolV1Params> {
+export class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPoolV1Params> {
   public static readonly N_COINS = BigNumber.from(2);
   public static readonly A_PRECISION = BigNumber.from(100);
   public static readonly FEE_DENOMINATOR = BigNumber.from(10).pow(10);
+  public static readonly IS_SELF_LP_TOKEN: boolean = false;
 
   public static override getInitData(
     network: Network,
@@ -26,18 +27,12 @@ export default class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPool
     const pool = new Contract(poolAddress, CurvePoolV1ABI);
     const commonCalls = getCommonCurveAggregateCall(network, poolAddress, pool);
 
-    return commonCalls.concat([
+    const calls = commonCalls.concat([
       {
         stage: 0,
         target: pool,
         method: 'A_precise',
         key: 'A',
-      },
-      {
-        stage: 0,
-        target: pool,
-        method: 'lp_token',
-        key: 'lpTokenAddress',
       },
       {
         stage: 0,
@@ -60,6 +55,25 @@ export default class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPool
         key: 'adminFee',
       },
     ]);
+
+    if (this.IS_SELF_LP_TOKEN) {
+      calls.push({
+        stage: 0,
+        target: NO_OP,
+        method: NO_OP,
+        key: 'lpTokenAddress',
+        transform: () => poolAddress,
+      });
+    } else {
+      calls.push({
+        stage: 0,
+        target: pool,
+        method: 'lp_token',
+        key: 'lpTokenAddress',
+      });
+    }
+
+    return calls;
   }
 
   public override getLPTokensGivenTokens(tokensIn: TokenBalance[]) {
@@ -377,4 +391,12 @@ export default class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPool
       feesPaid: feesPaid,
     };
   }
+}
+
+/**
+ * Variant of the Curve2TokenPoolV1 where the lp_token call is not defined because the token pool itself
+ * is also the LP token contract.
+ */
+export class Curve2TokenPoolV1_SelfLPToken extends Curve2TokenPoolV1 {
+  public static override readonly IS_SELF_LP_TOKEN: boolean = true;
 }

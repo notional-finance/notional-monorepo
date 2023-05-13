@@ -1,6 +1,6 @@
 import { Contract, providers } from 'ethers';
 import { Multicall2, Multicall2ABI } from '@notional-finance/contracts';
-import { AggregateCall } from './types';
+import { AggregateCall, NO_OP } from './types';
 
 const MULTICALL3 = '0xcA11bde05977b3631167028862bE2a173976CA11';
 
@@ -16,6 +16,14 @@ async function executeStage<T>(
   const aggregateCall = calls
     .filter((c) => c.target !== undefined)
     .map((c) => {
+      // Short circuit NO_OP calls
+      if (c.target === NO_OP) {
+        return {
+          ...c,
+          contract: undefined,
+        };
+      }
+
       const contract =
         typeof c.target === 'function' ? c.target(aggregateResults) : c.target;
       const args =
@@ -36,34 +44,54 @@ ${e}`);
 
   let returnData: string[];
   try {
-    ({ returnData } = await multicall.callStatic.aggregate(aggregateCall));
+    ({ returnData } = await multicall.callStatic.aggregate(
+      aggregateCall.filter((c) => c.target !== NO_OP) as Multicall2.CallStruct[]
+    ));
   } catch (e) {
     throw new Error(`
 Error executing Multicall: ${aggregateCall}
 ${e}`);
   }
 
-  const results = returnData.reduce((obj, r, i) => {
-    const { key, method, transform, contract } = aggregateCall[i];
-    let decoded = contract.interface.decodeFunctionResult(method, r);
-    // For single return values, decodeFunctionResult still returns an
-    // array which we eliminate here for simplicity
-    if (decoded.length === 1) [decoded] = decoded;
+  const results = aggregateCall.reduce(
+    (obj, { key, method, transform, contract, target }) => {
+      let result: unknown;
 
-    // eslint-disable-next-line no-param-reassign
-    const values = transform ? transform(decoded, obj) : decoded;
-    if (Array.isArray(key)) {
-      (key as string[]).forEach(
-        (k) =>
-          ((obj as Record<string, unknown>)[k] = (
-            values as Record<string, unknown>
-          )[k])
-      );
-    } else {
-      (obj as Record<string, unknown>)[key] = values;
-    }
-    return obj;
-  }, aggregateResults);
+      // If the target is a NO_OP then the value must be fetched from the transform
+      if (target === NO_OP) {
+        if (transform === undefined)
+          throw Error('Undefined transform for NO_OP');
+        result = transform(undefined, obj);
+      } else {
+        // Otherwise we get the first element from the array
+        const [r, ...tmp] = returnData;
+        returnData = tmp;
+        if (r === undefined || contract === undefined)
+          throw Error(
+            `Decode result error, ${r}, ${key}, ${method}, ${target}`
+          );
+        const decoded = contract.interface.decodeFunctionResult(method, r);
+        // For single return values, decodeFunctionResult still returns an
+        // array which we eliminate here for simplicity
+        result = decoded.length === 1 ? decoded[0] : decoded;
+      }
+
+      // eslint-disable-next-line no-param-reassign
+      const values = transform ? transform(result, obj) : result;
+      if (Array.isArray(key)) {
+        (key as string[]).forEach(
+          (k) =>
+            ((obj as Record<string, unknown>)[k] = (
+              values as Record<string, unknown>
+            )[k])
+        );
+      } else {
+        (obj as Record<string, unknown>)[key] = values;
+      }
+      return obj;
+    },
+    aggregateResults
+  );
 
   return { results };
 }

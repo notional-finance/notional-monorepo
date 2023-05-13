@@ -1,7 +1,10 @@
 import MetaStablePool from './BalancerV2/meta-stable-pool';
 import WeightedPool from './BalancerV2/weighted-pool';
 import BaseLiquidityPool from './base-liquidity-pool';
-import Curve2TokenPoolV1 from './Curve/Curve2TokenPoolV1';
+import {
+  Curve2TokenPoolV1,
+  Curve2TokenPoolV1_SelfLPToken,
+} from './Curve/Curve2TokenPoolV1';
 import Curve2TokenPoolV2 from './Curve/Curve2TokenPoolV2';
 import {
   TwoTokenComposableStablePool,
@@ -28,6 +31,9 @@ const PoolClasses: Record<
   fCashMarket: fCashMarket,
   TwoTokenComposableStablePool: TwoTokenComposableStablePool,
   ThreeTokenComposableStablePool: ThreeTokenComposableStablePool,
+  Curve2TokenPoolV1: Curve2TokenPoolV1,
+  Curve2TokenPoolV1_SelfLPToken: Curve2TokenPoolV1_SelfLPToken,
+  Curve2TokenPoolV2: Curve2TokenPoolV2,
 };
 
 export {

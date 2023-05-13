@@ -59,7 +59,7 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
     },
     {
       address: '0xC9B8a3FDECB9D5b218d02555a8Baf332E5B740d5',
-      PoolClass: 'Curve2TokenPoolV1',
+      PoolClass: 'Curve2TokenPoolV1_SelfLPToken',
       registerTokens: [
         // FRAX / USDC v1 pool
         {
@@ -76,7 +76,7 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
     },
     {
       address: '0x7f90122BF0700F9E7e1F688fe926940E8839F353',
-      PoolClass: 'Curve2TokenPoolV1',
+      PoolClass: 'Curve2TokenPoolV1_SelfLPToken',
       registerTokens: [
         // USDT / USDC v1 pool
         {
@@ -105,7 +105,7 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
     {
       // NOTE: the pool address here is different from the lp token address
       address: '0x6eB2dc694eB516B16Dc9FBc678C60052BbdD7d80',
-      PoolClass: 'Curve2TokenPoolV2',
+      PoolClass: 'Curve2TokenPoolV1',
       registerTokens: [
         // ETH / wstETH Pool
         {
