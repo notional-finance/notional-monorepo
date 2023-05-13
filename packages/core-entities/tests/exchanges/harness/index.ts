@@ -1,12 +1,10 @@
 import { Network } from '@notional-finance/util';
 import { NotionalV3Harness } from './NotionalV3Harness';
+import { BalancerV2Harness } from './BalancerV2Harness';
 import { PoolTestHarness } from './PoolTestHarness';
 import { ethers } from 'ethers';
-import { BalancerV2Harness } from './BalancerV2Harness';
 
 export { PoolTestHarness } from './PoolTestHarness';
-export { NotionalV3Harness } from './NotionalV3Harness';
-// export { BalancerPoolHarness } from './BalancerPoolHarness';
 
 export const TestConfig: Record<
   Network,
@@ -17,8 +15,8 @@ export const TestConfig: Record<
     {
       // stETH/ETH Balancer MetaStablePool
       address: '0x32296969ef14eb0c6d29669c550d4a0449130230',
-      Harness: BalancerV2Harness
-    }
+      Harness: BalancerV2Harness,
+    },
   ],
   [Network.ArbitrumOne]: [
     {

@@ -8,7 +8,7 @@ export function doBinarySearch<T>(
     breakLoop: boolean;
     value: T;
   },
-  requiredPrecision = 50 * BASIS_POINT,
+  requiredPrecision = 10 * BASIS_POINT,
   loopAdjustment = (m: number, d: number) => Math.floor(m + d / 2),
   maxIter = 25
 ) {

@@ -57,6 +57,80 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
       PoolClass: 'fCashMarket',
       registerTokens: [],
     },
+    {
+      address: '0xC9B8a3FDECB9D5b218d02555a8Baf332E5B740d5',
+      PoolClass: 'Curve2TokenPoolV1',
+      registerTokens: [
+        // FRAX / USDC v1 pool
+        {
+          id: '0xC9B8a3FDECB9D5b218d02555a8Baf332E5B740d5',
+          address: '0xC9B8a3FDECB9D5b218d02555a8Baf332E5B740d5',
+          network: Network.ArbitrumOne,
+          symbol: 'FRAXBP-f',
+          name: 'Curve.fi Factory Plain Pool: FRAXBP',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+      ],
+    },
+    {
+      address: '0x7f90122BF0700F9E7e1F688fe926940E8839F353',
+      PoolClass: 'Curve2TokenPoolV1',
+      registerTokens: [
+        // USDT / USDC v1 pool
+        {
+          id: '0x7f90122BF0700F9E7e1F688fe926940E8839F353',
+          address: '0x7f90122BF0700F9E7e1F688fe926940E8839F353',
+          network: Network.ArbitrumOne,
+          symbol: '2CRV',
+          name: 'Curve.fi USDC/USDT',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+        // Register USDT
+        {
+          id: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
+          address: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
+          network: Network.ArbitrumOne,
+          symbol: 'USDT',
+          name: 'Tether USD',
+          decimals: 6,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+      ],
+    },
+    {
+      // NOTE: the pool address here is different from the lp token address
+      address: '0x6eB2dc694eB516B16Dc9FBc678C60052BbdD7d80',
+      PoolClass: 'Curve2TokenPoolV2',
+      registerTokens: [
+        // ETH / wstETH Pool
+        {
+          id: '0xDbcD16e622c95AcB2650b38eC799f76BFC557a0b',
+          address: '0xDbcD16e622c95AcB2650b38eC799f76BFC557a0b',
+          network: Network.ArbitrumOne,
+          symbol: 'wstETHCRV',
+          name: 'Curve.fi ETH/wstETH',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+        // Register ALT_ETH
+        {
+          id: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+          address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+          network: Network.ArbitrumOne,
+          symbol: 'ETH',
+          name: 'Ether',
+          decimals: 18,
+          tokenInterface: 'ERC20', // TODO: change this to Ether interface
+          tokenType: 'Underlying',
+        },
+      ],
+    },
   ],
   [Network.All]: [],
 };

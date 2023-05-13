@@ -75,7 +75,7 @@ const acceptanceSuite = ({
   });
 
   it.each(lpEntryMatrix)(
-    `[LP Entry] for ${address} where token in=%i, size=%f`,
+    `[LP Single Sided Entry] for ${address} where token in=%i, size=%f`,
     async (tokenIn, utilization) => {
       if (tokenIn >= harness.poolInstance.balances.length) return;
       try {
@@ -105,8 +105,10 @@ const acceptanceSuite = ({
     }
   );
 
+  // todo: balanced entry
+
   it.each([0.5, 0.01])(
-    `[LP Balanced Exit] for ${address} where token out=%i, balanceShare=%f`,
+    `[LP Balanced Exit] for ${address} where balanceShare=%f`,
     async (balanceShare) => {
       try {
         const totalBalance = await harness.balanceOf(signer);
@@ -122,6 +124,11 @@ const acceptanceSuite = ({
         tokensOut.forEach((c, i) => {
           expect(c).toBeApprox(actual.tokensOut[i]);
         });
+
+        // Test inverse calculation here
+        const { lpTokens } =
+          harness.poolInstance.getLPTokensRequiredForTokens(tokensOut);
+        expect(lpTokens).toBeApprox(balanceOut, 0.001);
       } catch (e) {
         if ((e as Error).name === 'UnimplementedPoolMethod') return;
         throw e;
@@ -152,6 +159,10 @@ const acceptanceSuite = ({
         );
 
         expect(tokensOut[tokenOut]).toBeApprox(actual.tokensOut);
+
+        const { lpTokens } =
+          harness.poolInstance.getLPTokensRequiredForTokens(tokensOut);
+        expect(lpTokens).toBeApprox(balanceOut, 0.001);
       } catch (e) {
         if ((e as Error).name === 'UnimplementedPoolMethod') return;
         throw e;

@@ -50,7 +50,7 @@ export class Registry {
     // reviving data from the cache host it will attempt to find these token definitions
     const tokenRegistry = Registry.getTokenRegistry();
     defaultPools[network].forEach((pool) =>
-      pool.registerTokens.forEach(tokenRegistry.registerToken)
+      pool.registerTokens.forEach((t) => tokenRegistry.registerToken(t))
     );
 
     Registry.getExchangeRegistry().startRefreshInterval(
