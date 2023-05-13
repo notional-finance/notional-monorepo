@@ -5,7 +5,7 @@ import { Registry } from '../../src';
 import httpserver from 'http-server';
 
 const serveLocal = true;
-const apiHostname = 'https://data-dev.notional.finance';
+const apiHostname = 'http://localhost:8787';
 const cacheHostname = 'http://localhost:9999';
 const server = httpserver.createServer({
   root: `${__dirname}/__snapshots__`,

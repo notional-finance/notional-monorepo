@@ -5,7 +5,7 @@ Map {
   "arbitrum" => Object {
     "_meta": Object {
       "block": Object {
-        "number": 87803897,
+        "number": 90412844,
       },
     },
     "currencyConfigurations": Array [
@@ -700,13 +700,13 @@ Map {
             "_isTokenBalance": true,
             "hex": "-0x228101",
             "network": "arbitrum",
-            "tokenId": "0x00000000000000000000000000000000000000000000000100050064938f0001",
+            "tokenId": "0x00000000000000000000000000000000000000000000000000050064938f0001",
           },
           Object {
             "_isTokenBalance": true,
             "hex": "-0x228101",
             "network": "arbitrum",
-            "tokenId": "0x000000000000000000000000000000000000000000000001000500650a360001",
+            "tokenId": "0x000000000000000000000000000000000000000000000000000500650a360001",
           },
         ],
         "pCashAddress": "0xbC323E3564Fb498E55CDc83a3Ea6bB1AF8402D6B",
@@ -1546,12 +1546,12 @@ Map {
     ],
     "id": "0x0000000000000000000000000000000000000000:0x00000000000000000000000000000000000000000000000000010064938f0001:fCashOracleRate",
     "latestRate": Object {
-      "blockNumber": 87796365,
+      "blockNumber": 90412406,
       "rate": Object {
         "hex": "0x3b9aca00",
         "type": "BigNumber",
       },
-      "timestamp": 1683351902,
+      "timestamp": 1684016825,
     },
     "network": "arbitrum",
     "oracleAddress": "0x1344a36a1b56144c3bc62e7757377d288fde0369",
@@ -2365,12 +2365,12 @@ Map {
     ],
     "id": "0x0000000000000000000000000000000000000000:0x00000000000000000000000000000000000000000000000000010064938f0001:fCashSpotRate",
     "latestRate": Object {
-      "blockNumber": 87796365,
+      "blockNumber": 90412406,
       "rate": Object {
         "hex": "0x02b2df3c",
         "type": "BigNumber",
       },
-      "timestamp": 1683351902,
+      "timestamp": 1684016825,
     },
     "network": "arbitrum",
     "oracleAddress": "0x1344a36a1b56144c3bc62e7757377d288fde0369",
@@ -3184,12 +3184,12 @@ Map {
     ],
     "id": "0x0000000000000000000000000000000000000000:0x000000000000000000000000000000000000000000000000000100650a360001:fCashOracleRate",
     "latestRate": Object {
-      "blockNumber": 87796365,
+      "blockNumber": 90412406,
       "rate": Object {
         "hex": "0x3b9aca00",
         "type": "BigNumber",
       },
-      "timestamp": 1683351902,
+      "timestamp": 1684016825,
     },
     "network": "arbitrum",
     "oracleAddress": "0x1344a36a1b56144c3bc62e7757377d288fde0369",
@@ -4003,12 +4003,12 @@ Map {
     ],
     "id": "0x0000000000000000000000000000000000000000:0x000000000000000000000000000000000000000000000000000100650a360001:fCashSpotRate",
     "latestRate": Object {
-      "blockNumber": 87796365,
+      "blockNumber": 90412406,
       "rate": Object {
         "hex": "0x02aecedd",
         "type": "BigNumber",
       },
-      "timestamp": 1683351902,
+      "timestamp": 1684016825,
     },
     "network": "arbitrum",
     "oracleAddress": "0x1344a36a1b56144c3bc62e7757377d288fde0369",
@@ -4822,12 +4822,12 @@ Map {
     ],
     "id": "0x0000000000000000000000000000000000000000:0x00000000000000000000000000000000000000000000000100010064938f0001:fCashOracleRate",
     "latestRate": Object {
-      "blockNumber": 87796365,
+      "blockNumber": 90412406,
       "rate": Object {
         "hex": "0x3b9aca00",
         "type": "BigNumber",
       },
-      "timestamp": 1683351902,
+      "timestamp": 1684016825,
     },
     "network": "arbitrum",
     "oracleAddress": "0x1344a36a1b56144c3bc62e7757377d288fde0369",
@@ -5641,12 +5641,12 @@ Map {
     ],
     "id": "0x0000000000000000000000000000000000000000:0x00000000000000000000000000000000000000000000000100010064938f0001:fCashSpotRate",
     "latestRate": Object {
-      "blockNumber": 87796365,
+      "blockNumber": 90412406,
       "rate": Object {
         "hex": "0x02b2df3c",
         "type": "BigNumber",
       },
-      "timestamp": 1683351902,
+      "timestamp": 1684016825,
     },
     "network": "arbitrum",
     "oracleAddress": "0x1344a36a1b56144c3bc62e7757377d288fde0369",
@@ -6460,12 +6460,12 @@ Map {
     ],
     "id": "0x0000000000000000000000000000000000000000:0x000000000000000000000000000000000000000000000001000100650a360001:fCashOracleRate",
     "latestRate": Object {
-      "blockNumber": 87796365,
+      "blockNumber": 90412406,
       "rate": Object {
         "hex": "0x3b9aca00",
         "type": "BigNumber",
       },
-      "timestamp": 1683351902,
+      "timestamp": 1684016825,
     },
     "network": "arbitrum",
     "oracleAddress": "0x1344a36a1b56144c3bc62e7757377d288fde0369",
@@ -7279,12 +7279,12 @@ Map {
     ],
     "id": "0x0000000000000000000000000000000000000000:0x000000000000000000000000000000000000000000000001000100650a360001:fCashSpotRate",
     "latestRate": Object {
-      "blockNumber": 87796365,
+      "blockNumber": 90412406,
       "rate": Object {
         "hex": "0x02aecedd",
         "type": "BigNumber",
       },
-      "timestamp": 1683351902,
+      "timestamp": 1684016825,
     },
     "network": "arbitrum",
     "oracleAddress": "0x1344a36a1b56144c3bc62e7757377d288fde0369",
@@ -8116,12 +8116,12 @@ Map {
     ],
     "id": "0x0000000000000000000000000000000000000000:0x17fc002b466eec40dae837fc4be5c67993ddbd6f:Chainlink",
     "latestRate": Object {
-      "blockNumber": 89464109,
+      "blockNumber": 90412900,
       "rate": Object {
-        "hex": "0x01f15904acb7dc",
+        "hex": "0x01f8e3b94c49c6",
         "type": "BigNumber",
       },
-      "timestamp": 1683775480,
+      "timestamp": 1684016964,
     },
     "network": "arbitrum",
     "oracleAddress": "0x93ba04b97f7fcd535a7460fecb2a9a9bb88b6dde",
@@ -8935,12 +8935,12 @@ Map {
     ],
     "id": "0x0000000000000000000000000000000000000000:0x18b0fc5a233acf1586da7c199ca9e3f486305a29:nTokenToUnderlyingExchangeRate",
     "latestRate": Object {
-      "blockNumber": 87796365,
+      "blockNumber": 90412406,
       "rate": Object {
         "hex": "0x3b9aca00",
         "type": "BigNumber",
       },
-      "timestamp": 1683351902,
+      "timestamp": 1684016825,
     },
     "network": "arbitrum",
     "oracleAddress": "0x1344a36a1b56144c3bc62e7757377d288fde0369",
@@ -9754,12 +9754,12 @@ Map {
     ],
     "id": "0x0000000000000000000000000000000000000000:0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f:Chainlink",
     "latestRate": Object {
-      "blockNumber": 89464109,
+      "blockNumber": 90412900,
       "rate": Object {
-        "hex": "0xd08923f8ddcf9f84",
+        "hex": "0xcf365751a075085c",
         "type": "BigNumber",
       },
-      "timestamp": 1683775480,
+      "timestamp": 1684016964,
     },
     "network": "arbitrum",
     "oracleAddress": "0x69e7f686d192413a2e5f7b193dc9648a31f0037b",
@@ -10573,12 +10573,12 @@ Map {
     ],
     "id": "0x0000000000000000000000000000000000000000:0x5979d7b546e38e414f7e9822514be443a4800529:Chainlink",
     "latestRate": Object {
-      "blockNumber": 89464109,
+      "blockNumber": 90412900,
       "rate": Object {
-        "hex": "0x0f96a3edfa1f7edf",
+        "hex": "0x0f957037a3319505",
         "type": "BigNumber",
       },
-      "timestamp": 1683775480,
+      "timestamp": 1684016964,
     },
     "network": "arbitrum",
     "oracleAddress": "0x8910333436c7fd1fea39e8aef3264471755772f8",
@@ -11494,12 +11494,12 @@ Map {
     ],
     "id": "0x0000000000000000000000000000000000000000:0xda10009cbd5d07dd0cecc66161fc93d7c9000da1:Chainlink",
     "latestRate": Object {
-      "blockNumber": 89464109,
+      "blockNumber": 90412900,
       "rate": Object {
-        "hex": "0x01f1e64f726e77",
+        "hex": "0x01f9622a9adc90",
         "type": "BigNumber",
       },
-      "timestamp": 1683775480,
+      "timestamp": 1684016964,
     },
     "network": "arbitrum",
     "oracleAddress": "0x6716464ea8ffed30158c92cdae464669bd896af8",
@@ -12313,12 +12313,12 @@ Map {
     ],
     "id": "0x0000000000000000000000000000000000000000:0xff970a61a04b1ca14834a43f5de4533ebddb5cc8:Chainlink",
     "latestRate": Object {
-      "blockNumber": 89464109,
+      "blockNumber": 90412900,
       "rate": Object {
-        "hex": "0x01f1ee575d5f03",
+        "hex": "0x01f963fa4aa8e5",
         "type": "BigNumber",
       },
-      "timestamp": 1683775480,
+      "timestamp": 1684016964,
     },
     "network": "arbitrum",
     "oracleAddress": "0x58c2867df2284fd2915da041602aa0ab5a9699b1",
@@ -13132,12 +13132,12 @@ Map {
     ],
     "id": "0x17fc002b466eec40dae837fc4be5c67993ddbd6f:0x00000000000000000000000000000000000000000000000000060064938f0001:fCashOracleRate",
     "latestRate": Object {
-      "blockNumber": 87796365,
+      "blockNumber": 90412406,
       "rate": Object {
         "hex": "0x3b9aca00",
         "type": "BigNumber",
       },
-      "timestamp": 1683351902,
+      "timestamp": 1684016825,
     },
     "network": "arbitrum",
     "oracleAddress": "0x1344a36a1b56144c3bc62e7757377d288fde0369",
@@ -13951,12 +13951,12 @@ Map {
     ],
     "id": "0x17fc002b466eec40dae837fc4be5c67993ddbd6f:0x00000000000000000000000000000000000000000000000000060064938f0001:fCashSpotRate",
     "latestRate": Object {
-      "blockNumber": 87796365,
+      "blockNumber": 90412406,
       "rate": Object {
         "hex": "0x027759c9",
         "type": "BigNumber",
       },
-      "timestamp": 1683351902,
+      "timestamp": 1684016825,
     },
     "network": "arbitrum",
     "oracleAddress": "0x1344a36a1b56144c3bc62e7757377d288fde0369",
@@ -14770,12 +14770,12 @@ Map {
     ],
     "id": "0x17fc002b466eec40dae837fc4be5c67993ddbd6f:0x000000000000000000000000000000000000000000000000000600650a360001:fCashOracleRate",
     "latestRate": Object {
-      "blockNumber": 87796365,
+      "blockNumber": 90412406,
       "rate": Object {
         "hex": "0x3b9aca00",
         "type": "BigNumber",
       },
-      "timestamp": 1683351902,
+      "timestamp": 1684016825,
     },
     "network": "arbitrum",
     "oracleAddress": "0x1344a36a1b56144c3bc62e7757377d288fde0369",
@@ -15589,12 +15589,12 @@ Map {
     ],
     "id": "0x17fc002b466eec40dae837fc4be5c67993ddbd6f:0x000000000000000000000000000000000000000000000000000600650a360001:fCashSpotRate",
     "latestRate": Object {
-      "blockNumber": 87796365,
+      "blockNumber": 90412406,
       "rate": Object {
         "hex": "0x0272feb8",
         "type": "BigNumber",
       },
-      "timestamp": 1683351902,
+      "timestamp": 1684016825,
     },
     "network": "arbitrum",
     "oracleAddress": "0x1344a36a1b56144c3bc62e7757377d288fde0369",
@@ -16408,12 +16408,12 @@ Map {
     ],
     "id": "0x17fc002b466eec40dae837fc4be5c67993ddbd6f:0x00000000000000000000000000000000000000000000000100060064938f0001:fCashOracleRate",
     "latestRate": Object {
-      "blockNumber": 87796365,
+      "blockNumber": 90412406,
       "rate": Object {
         "hex": "0x3b9aca00",
         "type": "BigNumber",
       },
-      "timestamp": 1683351902,
+      "timestamp": 1684016825,
     },
     "network": "arbitrum",
     "oracleAddress": "0x1344a36a1b56144c3bc62e7757377d288fde0369",
@@ -17227,12 +17227,12 @@ Map {
     ],
     "id": "0x17fc002b466eec40dae837fc4be5c67993ddbd6f:0x00000000000000000000000000000000000000000000000100060064938f0001:fCashSpotRate",
     "latestRate": Object {
-      "blockNumber": 87796365,
+      "blockNumber": 90412406,
       "rate": Object {
         "hex": "0x027759c9",
         "type": "BigNumber",
       },
-      "timestamp": 1683351902,
+      "timestamp": 1684016825,
     },
     "network": "arbitrum",
     "oracleAddress": "0x1344a36a1b56144c3bc62e7757377d288fde0369",
@@ -18046,12 +18046,12 @@ Map {
     ],
     "id": "0x17fc002b466eec40dae837fc4be5c67993ddbd6f:0x000000000000000000000000000000000000000000000001000600650a360001:fCashOracleRate",
     "latestRate": Object {
-      "blockNumber": 87796365,
+      "blockNumber": 90412406,
       "rate": Object {
         "hex": "0x3b9aca00",
         "type": "BigNumber",
       },
-      "timestamp": 1683351902,
+      "timestamp": 1684016825,
     },
     "network": "arbitrum",
     "oracleAddress": "0x1344a36a1b56144c3bc62e7757377d288fde0369",
@@ -18865,12 +18865,12 @@ Map {
     ],
     "id": "0x17fc002b466eec40dae837fc4be5c67993ddbd6f:0x000000000000000000000000000000000000000000000001000600650a360001:fCashSpotRate",
     "latestRate": Object {
-      "blockNumber": 87796365,
+      "blockNumber": 90412406,
       "rate": Object {
         "hex": "0x0272feb8",
         "type": "BigNumber",
       },
-      "timestamp": 1683351902,
+      "timestamp": 1684016825,
     },
     "network": "arbitrum",
     "oracleAddress": "0x1344a36a1b56144c3bc62e7757377d288fde0369",
@@ -19770,12 +19770,12 @@ Map {
     ],
     "id": "0x17fc002b466eec40dae837fc4be5c67993ddbd6f:0x69633657acfb930d5a97a2662dd32ef1ac8a2f57:nTokenToUnderlyingExchangeRate",
     "latestRate": Object {
-      "blockNumber": 87796365,
+      "blockNumber": 90412406,
       "rate": Object {
-        "hex": "0x3b9cc453",
+        "hex": "0x3ba3d5d1",
         "type": "BigNumber",
       },
-      "timestamp": 1683351902,
+      "timestamp": 1684016825,
     },
     "network": "arbitrum",
     "oracleAddress": "0x1344a36a1b56144c3bc62e7757377d288fde0369",
@@ -20589,12 +20589,12 @@ Map {
     ],
     "id": "0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f:0x00000000000000000000000000000000000000000000000000040064938f0001:fCashOracleRate",
     "latestRate": Object {
-      "blockNumber": 87796365,
+      "blockNumber": 90412406,
       "rate": Object {
         "hex": "0x3b9aca00",
         "type": "BigNumber",
       },
-      "timestamp": 1683351902,
+      "timestamp": 1684016825,
     },
     "network": "arbitrum",
     "oracleAddress": "0x1344a36a1b56144c3bc62e7757377d288fde0369",
@@ -21408,12 +21408,12 @@ Map {
     ],
     "id": "0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f:0x00000000000000000000000000000000000000000000000000040064938f0001:fCashSpotRate",
     "latestRate": Object {
-      "blockNumber": 87796365,
+      "blockNumber": 90412406,
       "rate": Object {
         "hex": "0x019ce5cb",
         "type": "BigNumber",
       },
-      "timestamp": 1683351902,
+      "timestamp": 1684016825,
     },
     "network": "arbitrum",
     "oracleAddress": "0x1344a36a1b56144c3bc62e7757377d288fde0369",
@@ -22227,12 +22227,12 @@ Map {
     ],
     "id": "0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f:0x000000000000000000000000000000000000000000000000000400650a360001:fCashOracleRate",
     "latestRate": Object {
-      "blockNumber": 87796365,
+      "blockNumber": 90412406,
       "rate": Object {
         "hex": "0x3b9aca00",
         "type": "BigNumber",
       },
-      "timestamp": 1683351902,
+      "timestamp": 1684016825,
     },
     "network": "arbitrum",
     "oracleAddress": "0x1344a36a1b56144c3bc62e7757377d288fde0369",
@@ -23046,12 +23046,12 @@ Map {
     ],
     "id": "0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f:0x000000000000000000000000000000000000000000000000000400650a360001:fCashSpotRate",
     "latestRate": Object {
-      "blockNumber": 87796365,
+      "blockNumber": 90412406,
       "rate": Object {
         "hex": "0x019fe0bb",
         "type": "BigNumber",
       },
-      "timestamp": 1683351902,
+      "timestamp": 1684016825,
     },
     "network": "arbitrum",
     "oracleAddress": "0x1344a36a1b56144c3bc62e7757377d288fde0369",
@@ -23865,12 +23865,12 @@ Map {
     ],
     "id": "0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f:0x00000000000000000000000000000000000000000000000100040064938f0001:fCashOracleRate",
     "latestRate": Object {
-      "blockNumber": 87796365,
+      "blockNumber": 90412406,
       "rate": Object {
         "hex": "0x3b9aca00",
         "type": "BigNumber",
       },
-      "timestamp": 1683351902,
+      "timestamp": 1684016825,
     },
     "network": "arbitrum",
     "oracleAddress": "0x1344a36a1b56144c3bc62e7757377d288fde0369",
@@ -24684,12 +24684,12 @@ Map {
     ],
     "id": "0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f:0x00000000000000000000000000000000000000000000000100040064938f0001:fCashSpotRate",
     "latestRate": Object {
-      "blockNumber": 87796365,
+      "blockNumber": 90412406,
       "rate": Object {
         "hex": "0x019ce5cb",
         "type": "BigNumber",
       },
-      "timestamp": 1683351902,
+      "timestamp": 1684016825,
     },
     "network": "arbitrum",
     "oracleAddress": "0x1344a36a1b56144c3bc62e7757377d288fde0369",
@@ -25503,12 +25503,12 @@ Map {
     ],
     "id": "0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f:0x000000000000000000000000000000000000000000000001000400650a360001:fCashOracleRate",
     "latestRate": Object {
-      "blockNumber": 87796365,
+      "blockNumber": 90412406,
       "rate": Object {
         "hex": "0x3b9aca00",
         "type": "BigNumber",
       },
-      "timestamp": 1683351902,
+      "timestamp": 1684016825,
     },
     "network": "arbitrum",
     "oracleAddress": "0x1344a36a1b56144c3bc62e7757377d288fde0369",
@@ -26322,12 +26322,12 @@ Map {
     ],
     "id": "0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f:0x000000000000000000000000000000000000000000000001000400650a360001:fCashSpotRate",
     "latestRate": Object {
-      "blockNumber": 87796365,
+      "blockNumber": 90412406,
       "rate": Object {
         "hex": "0x019fe0bb",
         "type": "BigNumber",
       },
-      "timestamp": 1683351902,
+      "timestamp": 1684016825,
     },
     "network": "arbitrum",
     "oracleAddress": "0x1344a36a1b56144c3bc62e7757377d288fde0369",
@@ -27141,12 +27141,12 @@ Map {
     ],
     "id": "0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f:0x52602a1075645845a303f86b2bd0b7e7227f99d6:nTokenToUnderlyingExchangeRate",
     "latestRate": Object {
-      "blockNumber": 87796365,
+      "blockNumber": 90412406,
       "rate": Object {
         "hex": "0x3b9aca00",
         "type": "BigNumber",
       },
-      "timestamp": 1683351902,
+      "timestamp": 1684016825,
     },
     "network": "arbitrum",
     "oracleAddress": "0x1344a36a1b56144c3bc62e7757377d288fde0369",
@@ -28030,12 +28030,12 @@ Map {
     ],
     "id": "0x5979d7b546e38e414f7e9822514be443a4800529:0x00000000000000000000000000000000000000000000000000050064938f0001:fCashOracleRate",
     "latestRate": Object {
-      "blockNumber": 87796365,
+      "blockNumber": 90412406,
       "rate": Object {
         "hex": "0x3b9aca00",
         "type": "BigNumber",
       },
-      "timestamp": 1683351902,
+      "timestamp": 1684016825,
     },
     "network": "arbitrum",
     "oracleAddress": "0x1344a36a1b56144c3bc62e7757377d288fde0369",
@@ -28849,12 +28849,12 @@ Map {
     ],
     "id": "0x5979d7b546e38e414f7e9822514be443a4800529:0x00000000000000000000000000000000000000000000000000050064938f0001:fCashSpotRate",
     "latestRate": Object {
-      "blockNumber": 87796365,
+      "blockNumber": 90412406,
       "rate": Object {
         "hex": "0xce72e5",
         "type": "BigNumber",
       },
-      "timestamp": 1683351902,
+      "timestamp": 1684016825,
     },
     "network": "arbitrum",
     "oracleAddress": "0x1344a36a1b56144c3bc62e7757377d288fde0369",
@@ -29668,12 +29668,12 @@ Map {
     ],
     "id": "0x5979d7b546e38e414f7e9822514be443a4800529:0x000000000000000000000000000000000000000000000000000500650a360001:fCashOracleRate",
     "latestRate": Object {
-      "blockNumber": 87796365,
+      "blockNumber": 90412406,
       "rate": Object {
         "hex": "0x3b9aca00",
         "type": "BigNumber",
       },
-      "timestamp": 1683351902,
+      "timestamp": 1684016825,
     },
     "network": "arbitrum",
     "oracleAddress": "0x1344a36a1b56144c3bc62e7757377d288fde0369",
@@ -30487,12 +30487,12 @@ Map {
     ],
     "id": "0x5979d7b546e38e414f7e9822514be443a4800529:0x000000000000000000000000000000000000000000000000000500650a360001:fCashSpotRate",
     "latestRate": Object {
-      "blockNumber": 87796365,
+      "blockNumber": 90412406,
       "rate": Object {
         "hex": "0xd1f88d",
         "type": "BigNumber",
       },
-      "timestamp": 1683351902,
+      "timestamp": 1684016825,
     },
     "network": "arbitrum",
     "oracleAddress": "0x1344a36a1b56144c3bc62e7757377d288fde0369",
@@ -31306,12 +31306,12 @@ Map {
     ],
     "id": "0x5979d7b546e38e414f7e9822514be443a4800529:0x00000000000000000000000000000000000000000000000100050064938f0001:fCashOracleRate",
     "latestRate": Object {
-      "blockNumber": 87796365,
+      "blockNumber": 90412406,
       "rate": Object {
         "hex": "0x3b9aca00",
         "type": "BigNumber",
       },
-      "timestamp": 1683351902,
+      "timestamp": 1684016825,
     },
     "network": "arbitrum",
     "oracleAddress": "0x1344a36a1b56144c3bc62e7757377d288fde0369",
@@ -32125,12 +32125,12 @@ Map {
     ],
     "id": "0x5979d7b546e38e414f7e9822514be443a4800529:0x00000000000000000000000000000000000000000000000100050064938f0001:fCashSpotRate",
     "latestRate": Object {
-      "blockNumber": 87796365,
+      "blockNumber": 90412406,
       "rate": Object {
         "hex": "0xce72e5",
         "type": "BigNumber",
       },
-      "timestamp": 1683351902,
+      "timestamp": 1684016825,
     },
     "network": "arbitrum",
     "oracleAddress": "0x1344a36a1b56144c3bc62e7757377d288fde0369",
@@ -32944,12 +32944,12 @@ Map {
     ],
     "id": "0x5979d7b546e38e414f7e9822514be443a4800529:0x000000000000000000000000000000000000000000000001000500650a360001:fCashOracleRate",
     "latestRate": Object {
-      "blockNumber": 87796365,
+      "blockNumber": 90412406,
       "rate": Object {
         "hex": "0x3b9aca00",
         "type": "BigNumber",
       },
-      "timestamp": 1683351902,
+      "timestamp": 1684016825,
     },
     "network": "arbitrum",
     "oracleAddress": "0x1344a36a1b56144c3bc62e7757377d288fde0369",
@@ -33763,12 +33763,12 @@ Map {
     ],
     "id": "0x5979d7b546e38e414f7e9822514be443a4800529:0x000000000000000000000000000000000000000000000001000500650a360001:fCashSpotRate",
     "latestRate": Object {
-      "blockNumber": 87796365,
+      "blockNumber": 90412406,
       "rate": Object {
         "hex": "0xd1f88d",
         "type": "BigNumber",
       },
-      "timestamp": 1683351902,
+      "timestamp": 1684016825,
     },
     "network": "arbitrum",
     "oracleAddress": "0x1344a36a1b56144c3bc62e7757377d288fde0369",
@@ -34582,12 +34582,12 @@ Map {
     ],
     "id": "0x5979d7b546e38e414f7e9822514be443a4800529:0x06d45ef1f8b3c37b0de66f156b11f10b4837619a:nTokenToUnderlyingExchangeRate",
     "latestRate": Object {
-      "blockNumber": 87796365,
+      "blockNumber": 90412406,
       "rate": Object {
         "hex": "0x3b9ac922",
         "type": "BigNumber",
       },
-      "timestamp": 1683351902,
+      "timestamp": 1684016825,
     },
     "network": "arbitrum",
     "oracleAddress": "0x1344a36a1b56144c3bc62e7757377d288fde0369",
@@ -35503,12 +35503,12 @@ Map {
     ],
     "id": "0xda10009cbd5d07dd0cecc66161fc93d7c9000da1:0x00000000000000000000000000000000000000000000000000020064938f0001:fCashOracleRate",
     "latestRate": Object {
-      "blockNumber": 87796365,
+      "blockNumber": 90412406,
       "rate": Object {
         "hex": "0x3b9aca00",
         "type": "BigNumber",
       },
-      "timestamp": 1683351902,
+      "timestamp": 1684016825,
     },
     "network": "arbitrum",
     "oracleAddress": "0x1344a36a1b56144c3bc62e7757377d288fde0369",
@@ -36322,12 +36322,12 @@ Map {
     ],
     "id": "0xda10009cbd5d07dd0cecc66161fc93d7c9000da1:0x00000000000000000000000000000000000000000000000000020064938f0001:fCashSpotRate",
     "latestRate": Object {
-      "blockNumber": 87796365,
+      "blockNumber": 90412406,
       "rate": Object {
         "hex": "0x027759c9",
         "type": "BigNumber",
       },
-      "timestamp": 1683351902,
+      "timestamp": 1684016825,
     },
     "network": "arbitrum",
     "oracleAddress": "0x1344a36a1b56144c3bc62e7757377d288fde0369",
@@ -37141,12 +37141,12 @@ Map {
     ],
     "id": "0xda10009cbd5d07dd0cecc66161fc93d7c9000da1:0x000000000000000000000000000000000000000000000000000200650a360001:fCashOracleRate",
     "latestRate": Object {
-      "blockNumber": 87796365,
+      "blockNumber": 90412406,
       "rate": Object {
         "hex": "0x3b9aca00",
         "type": "BigNumber",
       },
-      "timestamp": 1683351902,
+      "timestamp": 1684016825,
     },
     "network": "arbitrum",
     "oracleAddress": "0x1344a36a1b56144c3bc62e7757377d288fde0369",
@@ -37960,12 +37960,12 @@ Map {
     ],
     "id": "0xda10009cbd5d07dd0cecc66161fc93d7c9000da1:0x000000000000000000000000000000000000000000000000000200650a360001:fCashSpotRate",
     "latestRate": Object {
-      "blockNumber": 87796365,
+      "blockNumber": 90412406,
       "rate": Object {
         "hex": "0x0272feb8",
         "type": "BigNumber",
       },
-      "timestamp": 1683351902,
+      "timestamp": 1684016825,
     },
     "network": "arbitrum",
     "oracleAddress": "0x1344a36a1b56144c3bc62e7757377d288fde0369",
@@ -38779,12 +38779,12 @@ Map {
     ],
     "id": "0xda10009cbd5d07dd0cecc66161fc93d7c9000da1:0x00000000000000000000000000000000000000000000000100020064938f0001:fCashOracleRate",
     "latestRate": Object {
-      "blockNumber": 87796365,
+      "blockNumber": 90412406,
       "rate": Object {
         "hex": "0x3b9aca00",
         "type": "BigNumber",
       },
-      "timestamp": 1683351902,
+      "timestamp": 1684016825,
     },
     "network": "arbitrum",
     "oracleAddress": "0x1344a36a1b56144c3bc62e7757377d288fde0369",
@@ -39598,12 +39598,12 @@ Map {
     ],
     "id": "0xda10009cbd5d07dd0cecc66161fc93d7c9000da1:0x00000000000000000000000000000000000000000000000100020064938f0001:fCashSpotRate",
     "latestRate": Object {
-      "blockNumber": 87796365,
+      "blockNumber": 90412406,
       "rate": Object {
         "hex": "0x027759c9",
         "type": "BigNumber",
       },
-      "timestamp": 1683351902,
+      "timestamp": 1684016825,
     },
     "network": "arbitrum",
     "oracleAddress": "0x1344a36a1b56144c3bc62e7757377d288fde0369",
@@ -40417,12 +40417,12 @@ Map {
     ],
     "id": "0xda10009cbd5d07dd0cecc66161fc93d7c9000da1:0x000000000000000000000000000000000000000000000001000200650a360001:fCashOracleRate",
     "latestRate": Object {
-      "blockNumber": 87796365,
+      "blockNumber": 90412406,
       "rate": Object {
         "hex": "0x3b9aca00",
         "type": "BigNumber",
       },
-      "timestamp": 1683351902,
+      "timestamp": 1684016825,
     },
     "network": "arbitrum",
     "oracleAddress": "0x1344a36a1b56144c3bc62e7757377d288fde0369",
@@ -41236,12 +41236,12 @@ Map {
     ],
     "id": "0xda10009cbd5d07dd0cecc66161fc93d7c9000da1:0x000000000000000000000000000000000000000000000001000200650a360001:fCashSpotRate",
     "latestRate": Object {
-      "blockNumber": 87796365,
+      "blockNumber": 90412406,
       "rate": Object {
         "hex": "0x0272feb8",
         "type": "BigNumber",
       },
-      "timestamp": 1683351902,
+      "timestamp": 1684016825,
     },
     "network": "arbitrum",
     "oracleAddress": "0x1344a36a1b56144c3bc62e7757377d288fde0369",
@@ -42090,12 +42090,12 @@ Map {
     ],
     "id": "0xda10009cbd5d07dd0cecc66161fc93d7c9000da1:0x2c42940a06a3f78b3cb7fc62b5fc7de404c9216f:nTokenToUnderlyingExchangeRate",
     "latestRate": Object {
-      "blockNumber": 87796365,
+      "blockNumber": 90412406,
       "rate": Object {
         "hex": "0x3b9ac9ff",
         "type": "BigNumber",
       },
-      "timestamp": 1683351902,
+      "timestamp": 1684016825,
     },
     "network": "arbitrum",
     "oracleAddress": "0x1344a36a1b56144c3bc62e7757377d288fde0369",
@@ -42944,12 +42944,12 @@ Map {
     ],
     "id": "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8:0x00000000000000000000000000000000000000000000000000030064938f0001:fCashOracleRate",
     "latestRate": Object {
-      "blockNumber": 87796365,
+      "blockNumber": 90412406,
       "rate": Object {
         "hex": "0x3b9aca00",
         "type": "BigNumber",
       },
-      "timestamp": 1683351902,
+      "timestamp": 1684016825,
     },
     "network": "arbitrum",
     "oracleAddress": "0x1344a36a1b56144c3bc62e7757377d288fde0369",
@@ -43763,12 +43763,12 @@ Map {
     ],
     "id": "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8:0x00000000000000000000000000000000000000000000000000030064938f0001:fCashSpotRate",
     "latestRate": Object {
-      "blockNumber": 87796365,
+      "blockNumber": 90412406,
       "rate": Object {
         "hex": "0x08c6fb7d",
         "type": "BigNumber",
       },
-      "timestamp": 1683351902,
+      "timestamp": 1684016825,
     },
     "network": "arbitrum",
     "oracleAddress": "0x1344a36a1b56144c3bc62e7757377d288fde0369",
@@ -44582,12 +44582,12 @@ Map {
     ],
     "id": "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8:0x000000000000000000000000000000000000000000000000000300650a360001:fCashOracleRate",
     "latestRate": Object {
-      "blockNumber": 87796365,
+      "blockNumber": 90412406,
       "rate": Object {
         "hex": "0x3b9aca00",
         "type": "BigNumber",
       },
-      "timestamp": 1683351902,
+      "timestamp": 1684016825,
     },
     "network": "arbitrum",
     "oracleAddress": "0x1344a36a1b56144c3bc62e7757377d288fde0369",
@@ -45401,12 +45401,12 @@ Map {
     ],
     "id": "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8:0x000000000000000000000000000000000000000000000000000300650a360001:fCashSpotRate",
     "latestRate": Object {
-      "blockNumber": 87796365,
+      "blockNumber": 90412406,
       "rate": Object {
         "hex": "0x0272feb8",
         "type": "BigNumber",
       },
-      "timestamp": 1683351902,
+      "timestamp": 1684016825,
     },
     "network": "arbitrum",
     "oracleAddress": "0x1344a36a1b56144c3bc62e7757377d288fde0369",
@@ -46220,12 +46220,12 @@ Map {
     ],
     "id": "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8:0x00000000000000000000000000000000000000000000000100030064938f0001:fCashOracleRate",
     "latestRate": Object {
-      "blockNumber": 87796365,
+      "blockNumber": 90412406,
       "rate": Object {
         "hex": "0x3b9aca00",
         "type": "BigNumber",
       },
-      "timestamp": 1683351902,
+      "timestamp": 1684016825,
     },
     "network": "arbitrum",
     "oracleAddress": "0x1344a36a1b56144c3bc62e7757377d288fde0369",
@@ -47039,12 +47039,12 @@ Map {
     ],
     "id": "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8:0x00000000000000000000000000000000000000000000000100030064938f0001:fCashSpotRate",
     "latestRate": Object {
-      "blockNumber": 87796365,
+      "blockNumber": 90412406,
       "rate": Object {
         "hex": "0x08c6fb7d",
         "type": "BigNumber",
       },
-      "timestamp": 1683351902,
+      "timestamp": 1684016825,
     },
     "network": "arbitrum",
     "oracleAddress": "0x1344a36a1b56144c3bc62e7757377d288fde0369",
@@ -47858,12 +47858,12 @@ Map {
     ],
     "id": "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8:0x000000000000000000000000000000000000000000000001000300650a360001:fCashOracleRate",
     "latestRate": Object {
-      "blockNumber": 87796365,
+      "blockNumber": 90412406,
       "rate": Object {
         "hex": "0x3b9aca00",
         "type": "BigNumber",
       },
-      "timestamp": 1683351902,
+      "timestamp": 1684016825,
     },
     "network": "arbitrum",
     "oracleAddress": "0x1344a36a1b56144c3bc62e7757377d288fde0369",
@@ -48677,12 +48677,12 @@ Map {
     ],
     "id": "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8:0x000000000000000000000000000000000000000000000001000300650a360001:fCashSpotRate",
     "latestRate": Object {
-      "blockNumber": 87796365,
+      "blockNumber": 90412406,
       "rate": Object {
         "hex": "0x0272feb8",
         "type": "BigNumber",
       },
-      "timestamp": 1683351902,
+      "timestamp": 1684016825,
     },
     "network": "arbitrum",
     "oracleAddress": "0x1344a36a1b56144c3bc62e7757377d288fde0369",
@@ -49496,12 +49496,12 @@ Map {
     ],
     "id": "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8:0x0f13fb925edc3e1fe947209010d9c0e072986adc:nTokenToUnderlyingExchangeRate",
     "latestRate": Object {
-      "blockNumber": 87796365,
+      "blockNumber": 90412406,
       "rate": Object {
-        "hex": "0x3ba7ded2",
+        "hex": "0x3bbb96d2",
         "type": "BigNumber",
       },
-      "timestamp": 1683351902,
+      "timestamp": 1684016825,
     },
     "network": "arbitrum",
     "oracleAddress": "0x1344a36a1b56144c3bc62e7757377d288fde0369",
@@ -49599,6 +49599,56 @@ Map {
 
 exports[`Snapshot [Tokens] 1`] = `
 Map {
+  "0xC9B8a3FDECB9D5b218d02555a8Baf332E5B740d5" => Object {
+    "address": "0xC9B8a3FDECB9D5b218d02555a8Baf332E5B740d5",
+    "decimals": 18,
+    "id": "0xC9B8a3FDECB9D5b218d02555a8Baf332E5B740d5",
+    "name": "Curve.fi Factory Plain Pool: FRAXBP",
+    "network": "arbitrum",
+    "symbol": "FRAXBP-f",
+    "tokenInterface": "ERC20",
+    "tokenType": "Underlying",
+  },
+  "0x7f90122BF0700F9E7e1F688fe926940E8839F353" => Object {
+    "address": "0x7f90122BF0700F9E7e1F688fe926940E8839F353",
+    "decimals": 18,
+    "id": "0x7f90122BF0700F9E7e1F688fe926940E8839F353",
+    "name": "Curve.fi USDC/USDT",
+    "network": "arbitrum",
+    "symbol": "2CRV",
+    "tokenInterface": "ERC20",
+    "tokenType": "Underlying",
+  },
+  "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9" => Object {
+    "address": "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
+    "decimals": 6,
+    "id": "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
+    "name": "Tether USD",
+    "network": "arbitrum",
+    "symbol": "USDT",
+    "tokenInterface": "ERC20",
+    "tokenType": "Underlying",
+  },
+  "0xDbcD16e622c95AcB2650b38eC799f76BFC557a0b" => Object {
+    "address": "0xDbcD16e622c95AcB2650b38eC799f76BFC557a0b",
+    "decimals": 18,
+    "id": "0xDbcD16e622c95AcB2650b38eC799f76BFC557a0b",
+    "name": "Curve.fi ETH/wstETH",
+    "network": "arbitrum",
+    "symbol": "wstETHCRV",
+    "tokenInterface": "ERC20",
+    "tokenType": "Underlying",
+  },
+  "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE" => Object {
+    "address": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+    "decimals": 18,
+    "id": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+    "name": "Ether",
+    "network": "arbitrum",
+    "symbol": "ETH",
+    "tokenInterface": "ERC20",
+    "tokenType": "Underlying",
+  },
   "0x0000000000000000000000000000000000000000" => Object {
     "address": "0x0000000000000000000000000000000000000000",
     "decimals": 18,
