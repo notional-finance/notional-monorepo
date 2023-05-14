@@ -9,7 +9,7 @@ import {
 } from '@notional-finance/util';
 import { BigNumber, utils } from 'ethers';
 import { combineLatest, map, of, Subscription, withLatestFrom } from 'rxjs';
-import { ExchangeRate, OracleDefinition } from '../definitions';
+import { ExchangeRate, OracleDefinition } from '..';
 import { ClientRegistry } from './client-registry';
 import { Routes } from '../server';
 

@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { TokenDefinition } from '../definitions';
+import { TokenDefinition } from '..';
 
 const assignDefaults = (
   obj: Record<string, Partial<TokenDefinition>>,

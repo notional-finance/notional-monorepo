@@ -1,4 +1,4 @@
 export * from './token-balance';
-export * from './definitions';
-export * from './matchers';
-export * from './registry';
+export * from './Definitions';
+export * from './Matchers';
+export * from './Registry';

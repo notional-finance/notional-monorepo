@@ -4,7 +4,7 @@ import {
   getProviderFromNetwork,
   Network,
 } from '@notional-finance/util';
-import { CacheSchema } from '../definitions';
+import { CacheSchema } from '..';
 import { BaseRegistry } from '../base';
 import { TypedDocumentNode } from '@graphql-typed-document-node/core';
 
