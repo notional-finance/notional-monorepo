@@ -10,11 +10,12 @@ export const Servers = {
   OracleRegistryServer: OracleRegistryServer,
   TokenRegistryServer: TokenRegistryServer,
 };
+
 export type ServerRegistryConstructor<T> = new () => ServerRegistry<T>;
 export enum Routes {
   Configuration = 'configuration',
   Tokens = 'tokens',
   Oracles = 'oracles',
   Exchanges = 'exchanges',
+  Accounts = 'accounts',
 }
-
