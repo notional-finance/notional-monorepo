@@ -2,6 +2,7 @@
   "$schema": "./node_modules/nx/schemas/workspace-schema.json",
   "version": 2,
   "projects": {
+    "accounts": "apps/accounts",
     "api": "apps/api",
     "blockchain-monitor": "apps/blockchain-monitor",
     "common-icons": "packages/common/icons",
@@ -21,6 +22,7 @@
     "features-vault": "packages/features/vault",
     "geoip": "apps/geoip",
     "graph-client": "packages/graph-client",
+    "liquidation-bot": "apps/liquidation-bot",
     "logging": "packages/logging",
     "monitors": "packages/monitors",
     "multicall": "packages/multicall",
