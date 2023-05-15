@@ -3,14 +3,18 @@ import {
   NotionalV3,
   NotionalV3ABI,
 } from '@notional-finance/contracts';
+import { AggregateCall, NO_OP } from '@notional-finance/multicall';
 import {
   encodefCashId,
   getProviderFromNetwork,
+  MAX_APPROVAL,
   Network,
   NotionalAddress,
   PRIME_CASH_VAULT_MATURITY,
+  ZERO_ADDRESS,
 } from '@notional-finance/util';
 import { BigNumber, Contract } from 'ethers';
+import { take } from 'rxjs';
 import { AccountDefinition, CacheSchema, Registry, TokenBalance } from '..';
 import { Routes } from '../server';
 import { fetchUsingMulticall } from '../server/server-registry';
@@ -68,6 +72,22 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
     return this.subscribeSubject(network, account);
   }
 
+  /** Triggers a manual refresh of the active account and provides an optional callback on refresh complete */
+  public refreshActiveAccount(
+    network: Network,
+    onRefresh?: (a: AccountDefinition | null) => void
+  ) {
+    if (this.activeAccount === undefined) throw Error('No active account');
+
+    if (onRefresh) {
+      this.subscribeAccount(network, this.activeAccount)
+        ?.pipe(take(1))
+        .subscribe(onRefresh);
+    }
+
+    this._triggerRefresh(network, 0);
+  }
+
   /** Switches the actively listened account to the newly registered one on the specified network*/
   public onAccountReady(
     network: Network,
@@ -89,7 +109,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
 
       // Kick off a refresh of the accounts if in single account mode and we are
       // changing the account
-      this._refresh(network);
+      this._triggerRefresh(network, 0);
     }
   }
 
@@ -127,34 +147,60 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
       .filter((t) => t.currencyId !== undefined && t.tokenType === 'Underlying')
       .map((t) => t.address);
 
-    const walletCalls = walletTokensToTrack.flatMap((address) => {
-      const def = tokens.getTokenByAddress(network, address);
-      return [
-        {
-          stage: 0,
-          target: new Contract(address, ERC20ABI, provider),
-          method: 'balanceOf',
-          args: [activeAccount],
-          key: `${address}.balance`,
-          transform: (b: BigNumber) => {
-            return TokenBalance.from(b, def);
-          },
-        },
-        {
-          stage: 0,
-          target: new Contract(address, ERC20ABI, provider),
-          method: 'allowance',
-          args: [activeAccount, notional.address],
-          key: `${address}.allowance`,
-          transform: (b: BigNumber) => {
-            return TokenBalance.from(b, def);
-          },
-        },
-      ];
-    });
+    const walletCalls = walletTokensToTrack.flatMap<AggregateCall>(
+      (address) => {
+        const def = tokens.getTokenByAddress(network, address);
+        if (def.address === ZERO_ADDRESS) {
+          return [
+            // {
+            //   stage: 0,
+            //   target: new VoidSigner(address, provider),
+            //   method: 'balance',
+            //   args: [],
+            //   key: `${address}.balance`,
+            //   transform: (b: BigNumber) => {
+            //     return TokenBalance.from(b, def);
+            //   },
+            // },
+            {
+              stage: 0,
+              target: NO_OP,
+              method: NO_OP,
+              key: `${address}.allowance`,
+              transform: () => {
+                return TokenBalance.from(MAX_APPROVAL, def);
+              },
+            },
+          ];
+        } else {
+          return [
+            {
+              stage: 0,
+              target: new Contract(address, ERC20ABI, provider),
+              method: 'balanceOf',
+              args: [activeAccount],
+              key: `${address}.balance`,
+              transform: (b: BigNumber) => {
+                return TokenBalance.from(b, def);
+              },
+            },
+            {
+              stage: 0,
+              target: new Contract(address, ERC20ABI, provider),
+              method: 'allowance',
+              args: [activeAccount, notional.address],
+              key: `${address}.allowance`,
+              transform: (b: BigNumber) => {
+                return TokenBalance.from(b, def);
+              },
+            },
+          ];
+        }
+      }
+    );
 
     const vaultCalls =
-      config.getAllListedVaults(network)?.flatMap((v) => {
+      config.getAllListedVaults(network)?.flatMap<AggregateCall>((v) => {
         return [
           {
             stage: 0,
@@ -329,7 +375,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
     return fetchUsingMulticall<AccountDefinition>(network, calls, [
       (results: Record<string, TokenBalance | TokenBalance[]>) => {
         return {
-          activeAccount: {
+          [activeAccount]: {
             address: activeAccount,
             network,
             balances: Object.keys(results)

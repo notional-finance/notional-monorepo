@@ -21,6 +21,7 @@ export class Registry {
   public static DEFAULT_CONFIGURATION_REFRESH = 20 * ONE_MINUTE_MS;
   public static DEFAULT_EXCHANGE_REFRESH = 10 * ONE_SECOND_MS;
   public static DEFAULT_ORACLE_REFRESH = 10 * ONE_SECOND_MS;
+  public static DEFAULT_ACCOUNT_REFRESH = ONE_MINUTE_MS;
 
   static initialize(cacheHostname: string, fetchMode: AccountFetchMode) {
     Registry._self = new Registry(cacheHostname, fetchMode);
@@ -67,9 +68,9 @@ export class Registry {
       Registry.DEFAULT_EXCHANGE_REFRESH
     );
 
-    Registry.getExchangeRegistry().startRefreshInterval(
+    Registry.getAccountRegistry().startRefreshInterval(
       network,
-      Registry.DEFAULT_EXCHANGE_REFRESH
+      Registry.DEFAULT_ACCOUNT_REFRESH
     );
   }
 
@@ -78,6 +79,7 @@ export class Registry {
     Registry.getExchangeRegistry().stopRefresh(network);
     Registry.getOracleRegistry().stopRefresh(network);
     Registry.getConfigurationRegistry().stopRefresh(network);
+    Registry.getAccountRegistry().stopRefresh(network);
   }
 
   public static getTokenRegistry() {
