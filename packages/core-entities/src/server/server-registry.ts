@@ -36,7 +36,8 @@ export async function loadGraphClientDeferred() {
 export async function fetchUsingMulticall<T>(
   network: Network,
   calls: AggregateCall<T>[],
-  transforms: ((r: Record<string, T>) => Record<string, T>)[]
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  transforms: ((r: Record<string, any>) => Record<string, T>)[]
 ): Promise<CacheSchema<T>> {
   const { block, results } = await aggregate<T>(
     calls,

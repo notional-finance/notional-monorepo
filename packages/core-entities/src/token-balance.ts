@@ -23,6 +23,16 @@ export class TokenBalance {
     return new TokenBalance(BigNumber.from(n), token.id, token.network);
   }
 
+  static fromID(n: BigNumberish, id: string, network: Network) {
+    const token = Registry.getTokenRegistry().getTokenByID(network, id);
+    return new TokenBalance(BigNumber.from(n), token.id, token.network);
+  }
+
+  static fromSymbol(n: BigNumberish, symbol: string, network: Network) {
+    const token = Registry.getTokenRegistry().getTokenBySymbol(network, symbol);
+    return new TokenBalance(BigNumber.from(n), token.id, token.network);
+  }
+
   static zero(token: TokenDefinition) {
     return new TokenBalance(BigNumber.from(0), token.id, token.network);
   }

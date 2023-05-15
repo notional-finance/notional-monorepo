@@ -3,12 +3,12 @@ import {
   NotionalV3,
   NotionalV3ABI,
 } from '@notional-finance/contracts';
-import { AggregateCall } from '@notional-finance/multicall';
 import {
+  encodefCashId,
   getProviderFromNetwork,
   Network,
   NotionalAddress,
-  unique,
+  PRIME_CASH_VAULT_MATURITY,
 } from '@notional-finance/util';
 import { BigNumber, Contract } from 'ethers';
 import { AccountDefinition, CacheSchema, Registry, TokenBalance } from '..';
@@ -34,6 +34,8 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
 
   protected get cachePath() {
     if (this.fetchMode === AccountFetchMode.SINGLE_ACCOUNT_DIRECT) {
+      // In single account mode, will only fetch the active account from the cache to get any
+      // vault account positions
       return `${Routes.Accounts}/${this.activeAccount}`;
     } else {
       return Routes.Accounts;
@@ -118,18 +120,14 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
       };
     }
     const activeAccount = this.activeAccount;
-
-    const [_, cachedAccount] = (await super._refresh(network)).values.find(
-      ([acct, _]) => acct === activeAccount
-    ) || [undefined, null];
-
     const tokens = Registry.getTokenRegistry();
+    const config = Registry.getConfigurationRegistry();
     const walletTokensToTrack = tokens
       .getAllTokens(network)
       .filter((t) => t.currencyId !== undefined && t.tokenType === 'Underlying')
       .map((t) => t.address);
 
-    const calls: AggregateCall[] = walletTokensToTrack.flatMap((address) => {
+    const walletCalls = walletTokensToTrack.flatMap((address) => {
       const def = tokens.getTokenByAddress(network, address);
       return [
         {
@@ -155,45 +153,217 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
       ];
     });
 
-    const vaultCalls = (
-      unique(
-        cachedAccount?.balances
-          .filter((v) => v.token.vaultAddress !== undefined)
-          .map((v) => v.token.vaultAddress) || []
-      ) as string[]
-    ).flatMap((v) => {
-      return [
-        {
-          stage: 0,
-          target: notional,
-          method: 'getVaultAccountWithFeeAccrual',
-          args: [this.activeAccount, v],
-          key: `${v}.vaultAccount`,
-          // todo: do some transforms in here
-        },
-        {
-          stage: 0,
-          target: notional,
-          method: 'getVaultAccountSecondaryDebt',
-          args: [this.activeAccount, v],
-          key: `${v}.vaultSecondaryBorrow`,
-          // todo: do some transforms in here
-        },
-      ];
-    });
+    const vaultCalls =
+      config.getAllListedVaults(network)?.flatMap((v) => {
+        return [
+          {
+            stage: 0,
+            target: notional,
+            method: 'getVaultAccountWithFeeAccrual',
+            args: [this.activeAccount, v.vaultAddress],
+            key: `${v}.balance`,
+            transform: (
+              r: Awaited<
+                ReturnType<NotionalV3['getVaultAccountWithFeeAccrual']>
+              >
+            ) => {
+              const maturity = r[0].maturity.toNumber();
+              if (maturity === 0) return [];
+              const {
+                vaultShareID,
+                primaryDebtID,
+                primaryCashID,
+                primaryTokenId,
+              } = config.getVaultIDs(network, v.vaultAddress, maturity);
+              const balances = [
+                TokenBalance.fromID(r[0].vaultShares, vaultShareID, network),
+                this._parseVaultDebtBalance(
+                  primaryDebtID,
+                  primaryTokenId,
+                  r[0].accountDebtUnderlying,
+                  maturity,
+                  network
+                ),
+              ];
 
-    calls.push(...vaultCalls);
-    calls.push({
-      target: notional,
-      method: 'getAccount',
-      args: [this.activeAccount],
-      key: 'account',
-      // todo: do some transforms in here
-    });
+              if (!r[0].tempCashBalance.isZero()) {
+                balances.push(
+                  TokenBalance.fromID(
+                    r[0].tempCashBalance,
+                    primaryCashID,
+                    network
+                  )
+                );
+              }
 
-    return fetchUsingMulticall<AccountDefinition>(network, calls, (results) => {
-      // todo: final transforms here...
-      return results;
-    });
+              return balances;
+            },
+          },
+          {
+            stage: 0,
+            target: notional,
+            method: 'getVaultAccountSecondaryDebt',
+            args: [this.activeAccount, v.vaultAddress],
+            key: `${v}.balance2`,
+            transform: (
+              r: Awaited<ReturnType<NotionalV3['getVaultAccountSecondaryDebt']>>
+            ) => {
+              const maturity = r.maturity.toNumber();
+              if (maturity === 0) return [];
+              const {
+                secondaryOneCashID,
+                secondaryOneDebtID,
+                secondaryOneTokenId,
+                secondaryTwoCashID,
+                secondaryTwoDebtID,
+                secondaryTwoTokenId,
+              } = config.getVaultIDs(network, v.vaultAddress, maturity);
+
+              const secondaries = [];
+
+              if (
+                secondaryOneDebtID &&
+                secondaryOneTokenId &&
+                !r.accountSecondaryDebt[0].isZero()
+              ) {
+                secondaries.push(
+                  this._parseVaultDebtBalance(
+                    secondaryOneDebtID,
+                    secondaryOneTokenId,
+                    r.accountSecondaryDebt[0],
+                    maturity,
+                    network
+                  )
+                );
+              }
+
+              if (
+                secondaryTwoDebtID &&
+                secondaryTwoTokenId &&
+                !r.accountSecondaryDebt[1].isZero()
+              ) {
+                secondaries.push(
+                  this._parseVaultDebtBalance(
+                    secondaryTwoDebtID,
+                    secondaryTwoTokenId,
+                    r.accountSecondaryDebt[1],
+                    maturity,
+                    network
+                  )
+                );
+              }
+
+              if (
+                secondaryOneCashID &&
+                !r.accountSecondaryCashHeld[0].isZero()
+              ) {
+                secondaries.push(
+                  TokenBalance.fromID(
+                    r.accountSecondaryCashHeld[0],
+                    secondaryOneCashID,
+                    network
+                  )
+                );
+              }
+
+              if (
+                secondaryTwoCashID &&
+                !r.accountSecondaryCashHeld[1].isZero()
+              ) {
+                secondaries.push(
+                  TokenBalance.fromID(
+                    r.accountSecondaryCashHeld[1],
+                    secondaryTwoCashID,
+                    network
+                  )
+                );
+              }
+
+              return secondaries;
+            },
+          },
+        ];
+      }) || [];
+
+    const calls = [
+      ...walletCalls,
+      ...vaultCalls,
+      {
+        target: notional,
+        method: 'getAccount',
+        args: [this.activeAccount],
+        key: `${notional.address}.balance`,
+        transform: (r: Awaited<ReturnType<NotionalV3['getAccount']>>) => {
+          const accountBalances = r.accountBalances.flatMap((b) => {
+            const balances = [];
+            if (b.cashBalance.gt(0)) {
+              const pCash = tokens.getPrimeCash(network, b.currencyId);
+              balances.push(TokenBalance.from(b.cashBalance, pCash));
+            } else if (b.cashBalance.lt(0)) {
+              const pCash = tokens.getPrimeCash(network, b.currencyId);
+              const pDebt = tokens.getPrimeDebt(network, b.currencyId);
+              balances.push(
+                TokenBalance.from(b.cashBalance, pCash).toToken(pDebt)
+              );
+            }
+
+            if (b.nTokenBalance.gt(0)) {
+              const nToken = tokens.getNToken(network, b.currencyId);
+              balances.push(TokenBalance.from(b.nTokenBalance, nToken));
+            }
+
+            return balances;
+          });
+
+          const portfolioBalances = r.portfolio.map((a) => {
+            const fCashId = encodefCashId(a.currencyId, a.maturity.toNumber());
+            return TokenBalance.fromID(a.notional, fCashId, network);
+          });
+
+          return accountBalances.concat(portfolioBalances);
+        },
+      },
+    ];
+
+    // TODO: still need to fetch transactions
+    return fetchUsingMulticall<AccountDefinition>(network, calls, [
+      (results: Record<string, TokenBalance | TokenBalance[]>) => {
+        return {
+          activeAccount: {
+            address: activeAccount,
+            network,
+            balances: Object.keys(results)
+              .filter((k) => k.includes('.balance'))
+              .flatMap((k) => results[k]),
+            allowances: Object.keys(results)
+              .filter((k) => k.includes('.allowance'))
+              .map((k) => {
+                return {
+                  spender: notional.address,
+                  amount: results[k] as TokenBalance,
+                };
+              }),
+          },
+        };
+      },
+    ]);
+  }
+
+  private _parseVaultDebtBalance(
+    debtID: string,
+    underlyingID: string,
+    balance: BigNumber,
+    maturity: number,
+    network: Network
+  ) {
+    if (maturity === PRIME_CASH_VAULT_MATURITY) {
+      // In in the prime vault maturity, convert from underlying back to prime debt denomination
+      const tokens = Registry.getTokenRegistry();
+      return TokenBalance.fromID(balance, underlyingID, network).toToken(
+        tokens.getTokenByID(network, debtID)
+      );
+    }
+
+    return TokenBalance.fromID(balance, debtID, network);
   }
 }
