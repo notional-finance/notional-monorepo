@@ -3,6 +3,7 @@ import fs from 'fs';
 import crossFetch from 'cross-fetch';
 import { Registry } from '../../src';
 import httpserver from 'http-server';
+import { AccountFetchMode } from '../../src/client/account-registry-client';
 
 const serveLocal = true;
 const apiHostname = 'http://localhost:8787';
@@ -13,7 +14,10 @@ const server = httpserver.createServer({
 
 describe('Snapshot', () => {
   beforeAll(async () => {
-    Registry.initialize(serveLocal ? cacheHostname : apiHostname);
+    Registry.initialize(
+      serveLocal ? cacheHostname : apiHostname,
+      AccountFetchMode.SINGLE_ACCOUNT_DIRECT
+    );
 
     if (serveLocal) {
       await new Promise<void>((resolve) => {

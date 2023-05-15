@@ -1,4 +1,4 @@
-import { Registry } from '../../src/registry';
+import { Registry, AccountFetchMode } from '../../src';
 import { Network, RATE_PRECISION } from '@notional-finance/util';
 import { PoolHarnessConstructor, PoolTestHarness, TestConfig } from './harness';
 import httpserver from 'http-server';
@@ -222,7 +222,10 @@ const acceptanceSuite = ({
 describe('Pool Tests', () => {
   // Start and stop cache server
   beforeAll(async () => {
-    Registry.initialize('http://localhost:9999');
+    Registry.initialize(
+      'http://localhost:9999',
+      AccountFetchMode.SINGLE_ACCOUNT_DIRECT
+    );
     await new Promise<void>((resolve) => {
       server.listen(9999, () => {
         resolve();
