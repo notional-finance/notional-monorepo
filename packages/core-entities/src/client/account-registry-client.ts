@@ -3,7 +3,11 @@ import {
   NotionalV3,
   NotionalV3ABI,
 } from '@notional-finance/contracts';
-import { AggregateCall, NO_OP } from '@notional-finance/multicall';
+import {
+  AggregateCall,
+  NO_OP,
+  getMulticall,
+} from '@notional-finance/multicall';
 import {
   encodefCashId,
   getProviderFromNetwork,
@@ -152,16 +156,16 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
         const def = tokens.getTokenByAddress(network, address);
         if (def.address === ZERO_ADDRESS) {
           return [
-            // {
-            //   stage: 0,
-            //   target: new VoidSigner(address, provider),
-            //   method: 'balance',
-            //   args: [],
-            //   key: `${address}.balance`,
-            //   transform: (b: BigNumber) => {
-            //     return TokenBalance.from(b, def);
-            //   },
-            // },
+            {
+              stage: 0,
+              target: getMulticall(provider),
+              method: 'getEthBalance',
+              args: [activeAccount],
+              key: `${address}.balance`,
+              transform: (b: BigNumber) => {
+                return TokenBalance.from(b, def);
+              },
+            },
             {
               stage: 0,
               target: NO_OP,

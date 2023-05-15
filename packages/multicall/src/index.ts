@@ -1,4 +1,4 @@
-import { aggregate } from './Multicall';
-export { aggregate };
+import { aggregate, getMulticall } from './Multicall';
+export { aggregate, getMulticall };
 export default { aggregate };
 export * from './types';
