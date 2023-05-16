@@ -23,6 +23,53 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
     return vaultConfig;
   }
 
+  getValidVaultCurrencies(network: Network, vaultAddress: string) {
+    const vaultConfig = this.getVaultConfig(network, vaultAddress);
+    const tokens = Registry.getTokenRegistry();
+    const primaryCurrencyId = tokens.getTokenByID(
+      network,
+      vaultConfig.primaryBorrowCurrency.id
+    ).currencyId;
+    if (!primaryCurrencyId) throw Error('unknown borrow currency id');
+
+    let secondaryOneTokenId = undefined;
+    let secondaryTwoTokenId = undefined;
+    let secondaryOneID = undefined;
+    let secondaryTwoID = undefined;
+    if (vaultConfig.secondaryBorrowCurrencies) {
+      if (vaultConfig.secondaryBorrowCurrencies.length > 0) {
+        secondaryOneTokenId = vaultConfig.secondaryBorrowCurrencies[0].id;
+        secondaryOneID = tokens.getTokenByID(
+          network,
+          secondaryOneTokenId
+        ).currencyId;
+        if (!secondaryOneID) throw Error('unknown borrow currency id');
+      }
+
+      if (vaultConfig.secondaryBorrowCurrencies.length > 1) {
+        secondaryTwoTokenId = vaultConfig.secondaryBorrowCurrencies[1].id;
+        secondaryTwoID = tokens.getTokenByID(
+          network,
+          secondaryTwoTokenId
+        ).currencyId;
+        if (!secondaryTwoID) throw Error('unknown borrow currency id');
+      }
+    }
+
+    return {
+      validCurrencyIds: [primaryCurrencyId, secondaryOneID, secondaryTwoID] as [
+        number,
+        number | undefined,
+        number | undefined
+      ],
+      validTokenIds: [
+        vaultConfig.primaryBorrowCurrency.id,
+        secondaryOneTokenId,
+        secondaryTwoTokenId,
+      ] as [string, string | undefined, string | undefined],
+    };
+  }
+
   private _vaultDebtAndCashIds(
     currencyId: number,
     vaultAddress: string,
@@ -49,14 +96,10 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
 
   getVaultIDs(network: Network, vaultAddress: string, maturity: number) {
     if (maturity === 0) throw Error('Invalid maturity');
-    const tokens = Registry.getTokenRegistry();
-    const vaultConfig = this.getVaultConfig(network, vaultAddress);
-
-    const primaryCurrencyId = tokens.getTokenByID(
-      network,
-      vaultConfig.primaryBorrowCurrency.id
-    ).currencyId;
-    if (!primaryCurrencyId) throw Error('unknown borrow currency id');
+    const {
+      validCurrencyIds: [primaryCurrencyId, secondaryOneID, secondaryTwoID],
+      validTokenIds: [primaryTokenId, secondaryOneTokenId, secondaryTwoTokenId],
+    } = this.getValidVaultCurrencies(network, vaultAddress);
 
     const vaultShareID = encodeERC1155Id(
       primaryCurrencyId,
@@ -72,35 +115,17 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
     let secondaryTwoCashID = undefined;
     let secondaryOneDebtID = undefined;
     let secondaryTwoDebtID = undefined;
-    let secondaryOneTokenId = undefined;
-    let secondaryTwoTokenId = undefined;
 
-    if (vaultConfig.secondaryBorrowCurrencies) {
-      if (vaultConfig.secondaryBorrowCurrencies.length > 0) {
-        // First secondary
-        secondaryOneTokenId = vaultConfig.secondaryBorrowCurrencies[0].id;
-        const secondaryOneID = tokens.getTokenByID(
-          network,
-          secondaryOneTokenId
-        ).currencyId;
-        if (!secondaryOneID) throw Error('unknown borrow currency id');
+    if (secondaryOneID) {
+      // First secondary
+      ({ debtID: secondaryOneDebtID, cashID: secondaryOneCashID } =
+        this._vaultDebtAndCashIds(secondaryOneID, vaultAddress, maturity));
+    }
 
-        ({ debtID: secondaryOneDebtID, cashID: secondaryOneCashID } =
-          this._vaultDebtAndCashIds(secondaryOneID, vaultAddress, maturity));
-      }
-
-      if (vaultConfig.secondaryBorrowCurrencies.length == 2) {
-        // Two secondaries
-        secondaryTwoTokenId = vaultConfig.secondaryBorrowCurrencies[1].id;
-        const secondaryTwoID = tokens.getTokenByID(
-          network,
-          secondaryTwoTokenId
-        ).currencyId;
-        if (!secondaryTwoID) throw Error('unknown borrow currency id');
-
-        ({ debtID: secondaryTwoDebtID, cashID: secondaryTwoCashID } =
-          this._vaultDebtAndCashIds(secondaryTwoID, vaultAddress, maturity));
-      }
+    if (secondaryTwoID) {
+      // Two secondaries
+      ({ debtID: secondaryTwoDebtID, cashID: secondaryTwoCashID } =
+        this._vaultDebtAndCashIds(secondaryTwoID, vaultAddress, maturity));
     }
 
     return {
@@ -111,7 +136,7 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
       secondaryTwoDebtID,
       secondaryOneCashID,
       secondaryTwoCashID,
-      primaryTokenId: vaultConfig.primaryBorrowCurrency.id,
+      primaryTokenId,
       secondaryOneTokenId,
       secondaryTwoTokenId,
     };

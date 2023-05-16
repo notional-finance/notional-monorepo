@@ -370,4 +370,9 @@ export class TokenBalance {
     throw Error('Unimplemented');
     return this;
   }
+
+  toTokenViaExchange(_token: TokenDefinition) {
+    throw Error('unimplemented');
+    return this;
+  }
 }
