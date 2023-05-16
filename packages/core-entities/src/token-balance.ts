@@ -1,8 +1,10 @@
 import {
+  ALT_ETH,
   convertToGenericfCashId,
   Network,
   RATE_PRECISION,
   SCALAR_PRECISION,
+  ZERO_ADDRESS,
 } from '@notional-finance/util';
 import { BigNumber, BigNumberish, utils } from 'ethers';
 import { Registry, ExchangeRate, TokenDefinition, RiskAdjustment } from '.';
@@ -17,6 +19,8 @@ export class TokenBalance {
     public network: Network
   ) {
     this.tokenId = convertToGenericfCashId(tokenId);
+    // Rewrite alt eth address to zero address
+    if (this.tokenId === ALT_ETH) this.tokenId = ZERO_ADDRESS;
   }
 
   static from(n: BigNumberish, token: TokenDefinition) {

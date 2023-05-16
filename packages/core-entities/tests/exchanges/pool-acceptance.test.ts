@@ -1,14 +1,7 @@
 import { Registry, AccountFetchMode } from '../../src';
 import { Network, RATE_PRECISION } from '@notional-finance/util';
 import { PoolHarnessConstructor, PoolTestHarness, TestConfig } from './harness';
-import httpserver from 'http-server';
 import { BaseLiquidityPool } from '../../src/exchanges';
-
-const server = httpserver.createServer({
-  root: `${__dirname}/../clients/__snapshots__`,
-});
-
-process.env['FAKE_TIME'] = '1683775701';
 
 const acceptanceSuite = ({
   address,
@@ -219,43 +212,25 @@ const acceptanceSuite = ({
   it.todo('calculates unbalanced entry and exit');
 };
 
-describe('Pool Tests', () => {
-  // Start and stop cache server
-  beforeAll(async () => {
-    Registry.initialize(
-      'http://localhost:9999',
-      AccountFetchMode.SINGLE_ACCOUNT_DIRECT
+describe.withForkAndRegistry(
+  {
+    network: Network.ArbitrumOne,
+    fetchMode: AccountFetchMode.SINGLE_ACCOUNT_DIRECT,
+  },
+  'Arbitrum Pool Tests',
+  () => {
+    describe.each(TestConfig[Network.ArbitrumOne])(
+      'Acceptance',
+      acceptanceSuite
     );
-    await new Promise<void>((resolve) => {
-      server.listen(9999, () => {
-        resolve();
-      });
-    });
-    Registry.startRefresh(Network.ArbitrumOne);
-  });
+  }
+);
 
-  afterAll(() => {
-    Registry.stopRefresh(Network.ArbitrumOne);
-    server.close();
-  });
-
-  describe.withFork(
-    { blockNumber: 89464974, network: Network.ArbitrumOne },
-    'Arbitrum Pool Tests',
-    () => {
-      describe.each(TestConfig[Network.ArbitrumOne])(
-        'Acceptance',
-        acceptanceSuite
-      );
-    }
-  );
-
-  // NOTE: there is no registry data for this yet so it does not work
-  // describe.withFork(
-  //   { blockNumber: 16605421, network: Network.Mainnet },
-  //   'Mainnet Pool Tests',
-  //   () => {
-  //     describe.each(TestConfig[Network.Mainnet])('Acceptance', acceptanceSuite);
-  //   }
-  // );
-});
+// NOTE: there is no registry data for this yet so it does not work
+// describe.withFork(
+//   { blockNumber: 16605421, network: Network.Mainnet },
+//   'Mainnet Pool Tests',
+//   () => {
+//     describe.each(TestConfig[Network.Mainnet])('Acceptance', acceptanceSuite);
+//   }
+// );

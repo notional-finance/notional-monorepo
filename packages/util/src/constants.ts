@@ -23,6 +23,7 @@ export const SECONDS_IN_YEAR = SECONDS_IN_QUARTER * 4;
 export const SECONDS_IN_YEAR_ACTUAL = 31536000;
 export const PRIME_CASH_VAULT_MATURITY = 2 ** 40 - 1;
 export const MAX_APPROVAL = ethers.constants.MaxUint256;
+export const ALT_ETH = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
 
 export enum Network {
   All = 'all',

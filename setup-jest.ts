@@ -8,7 +8,6 @@ import { AlchemyUrl, Network } from './packages/util/src';
 import fs from 'fs';
 import { Server } from 'node:http';
 import { AccountFetchMode } from '@notional-finance/core-entities/src/client/account-registry-client';
-import { timestamp } from 'rxjs';
 
 require('dotenv').config();
 
