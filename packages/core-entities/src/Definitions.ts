@@ -147,3 +147,5 @@ export interface CacheSchema<T> {
 }
 
 export type SubjectMap<T> = Map<string, BehaviorSubject<T | null>>;
+
+export type RiskAdjustment = 'None' | 'Asset' | 'Debt';

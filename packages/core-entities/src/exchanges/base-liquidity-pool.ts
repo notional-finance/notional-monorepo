@@ -57,6 +57,7 @@ export default abstract class BaseLiquidityPool<
             ? b
             : b.toToken(
                 primaryToken,
+                'None', // No Risk adjustment here
                 oraclePrices ? oraclePrices[i] : undefined
               )
         )

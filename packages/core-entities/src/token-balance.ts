@@ -5,7 +5,7 @@ import {
   SCALAR_PRECISION,
 } from '@notional-finance/util';
 import { BigNumber, BigNumberish, utils } from 'ethers';
-import { Registry, ExchangeRate, TokenDefinition } from '.';
+import { Registry, ExchangeRate, TokenDefinition, RiskAdjustment } from '.';
 
 export type SerializedTokenBalance = ReturnType<TokenBalance['toJSON']>;
 
@@ -93,6 +93,16 @@ export class TokenBalance {
   /** TokenBalance objects with the same hash key have the same value */
   get hashKey() {
     return utils.id([this.typeKey, this.n.toString()].join(':'));
+  }
+
+  get underlying() {
+    if (this.token.tokenType == 'Underlying') return this.token;
+    if (!this.token.underlying)
+      throw Error(`No underlying defined for ${this.token.symbol}`);
+    return Registry.getTokenRegistry().getTokenByID(
+      this.token.network,
+      this.token.underlying
+    );
   }
 
   /** Returns a JSON serializable version of the object */
@@ -332,7 +342,11 @@ export class TokenBalance {
    * @param discount a discount or buffer scaled to a 100, used for haircuts and buffers
    * @returns a new token balance object
    */
-  toToken(token: TokenDefinition, exchangeRate?: ExchangeRate | null) {
+  toToken(
+    token: TokenDefinition,
+    riskAdjustment: RiskAdjustment = 'None',
+    exchangeRate?: ExchangeRate | null
+  ) {
     if (!exchangeRate) {
       const oracleRegistry = Registry.getOracleRegistry();
       // Fetch the latest exchange rate
@@ -341,7 +355,11 @@ export class TokenBalance {
         token.id,
         this.token.network
       );
-      exchangeRate = oracleRegistry.getLatestFromPath(this.token.network, path);
+      exchangeRate = oracleRegistry.getLatestFromPath(
+        this.token.network,
+        path,
+        riskAdjustment
+      );
     }
 
     if (!exchangeRate) throw Error('No Exchange Rate');
@@ -354,21 +372,16 @@ export class TokenBalance {
   }
 
   toUnderlying() {
-    if (this.token.tokenType == 'Underlying') return this;
-    if (!this.token.underlying)
-      throw Error(`No underlying defined for ${this.token.symbol}`);
-    const underlying = Registry.getTokenRegistry().getTokenByID(
-      this.token.network,
-      this.token.underlying
-    );
-
+    if (this.token.tokenType === 'Underlying') return this;
     // Does the exchange rate conversion and decimal scaling
-    return this.toToken(underlying);
+    return this.toToken(this.underlying);
   }
 
   toRiskAdjustedUnderlying() {
-    throw Error('Unimplemented');
-    return this;
+    return this.toToken(
+      this.underlying,
+      this.n.isNegative() ? 'Debt' : 'Asset'
+    );
   }
 
   toTokenViaExchange(_token: TokenDefinition) {

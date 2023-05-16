@@ -1,10 +1,18 @@
 import { ClientRegistry } from './client-registry';
+import { OracleDefinition, RiskAdjustment } from '..';
 import { Routes } from '../server';
 import { AllConfigurationQuery } from '../server/configuration-server';
-import { AssetType, encodeERC1155Id, Network } from '@notional-finance/util';
+import {
+  AssetType,
+  encodeERC1155Id,
+  Network,
+  PERCENTAGE_BASIS,
+  RATE_PRECISION,
+} from '@notional-finance/util';
 import { Registry } from '../Registry';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { Maybe } from '../.graphclient';
+import { BigNumber } from 'ethers';
 
 export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
   protected cachePath = Routes.Configuration;
@@ -157,6 +165,71 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
 
   getDebtBuffer(network: Network, currencyId: number) {
     return this._assertDefined(this.getConfig(network, currencyId).debtBuffer);
+  }
+
+  getInterestRiskAdjustment(
+    oracle: OracleDefinition,
+    inverted: boolean,
+    riskAdjusted: RiskAdjustment
+  ) {
+    if (oracle.oracleType !== 'fCashOracleRate' || riskAdjusted === 'None') {
+      return {
+        interestAdjustment: 0,
+        maxDiscountFactor: RATE_PRECISION,
+        oracleRateLimit: undefined,
+      };
+    }
+
+    const token = Registry.getTokenRegistry().getTokenByID(
+      oracle.network,
+      inverted ? oracle.base : oracle.quote
+    );
+    if (!token.currencyId) throw Error('Invalid quote currency');
+    const config = this.getConfig(oracle.network, token.currencyId);
+
+    if (riskAdjusted === 'Asset') {
+      return {
+        interestAdjustment: this._assertDefined(config.fCashHaircutBasisPoints),
+        maxDiscountFactor: this._assertDefined(config.fCashMaxDiscountFactor),
+        oracleRateLimit: BigNumber.from(
+          this._assertDefined(config.fCashMaxOracleRate)
+        ),
+      };
+    } else {
+      return {
+        interestAdjustment: this._assertDefined(
+          config.fCashDebtBufferBasisPoints
+        ),
+        maxDiscountFactor: RATE_PRECISION,
+        oracleRateLimit: BigNumber.from(
+          this._assertDefined(config.fCashMinOracleRate)
+        ),
+      };
+    }
+  }
+
+  getExchangeRiskAdjustment(
+    oracle: OracleDefinition,
+    inverted: boolean,
+    riskAdjusted: RiskAdjustment
+  ) {
+    if (riskAdjusted === 'None') return PERCENTAGE_BASIS;
+    const token = Registry.getTokenRegistry().getTokenByID(
+      oracle.network,
+      inverted ? oracle.base : oracle.quote
+    );
+    if (!token.currencyId) throw Error('Invalid quote currency');
+    const config = this.getConfig(oracle.network, token.currencyId);
+
+    if (oracle.oracleType === 'Chainlink' && riskAdjusted === 'Debt') {
+      return this._assertDefined(config.debtBuffer);
+    } else if (oracle.oracleType === 'Chainlink' && riskAdjusted === 'Asset') {
+      return this._assertDefined(config.collateralHaircut);
+    } else if (oracle.oracleType === 'nTokenToUnderlyingExchangeRate') {
+      return this._assertDefined(config.pvHaircutPercentage);
+    } else {
+      return PERCENTAGE_BASIS;
+    }
   }
 
   private _assertDefined<T>(v: Maybe<T> | undefined): T {

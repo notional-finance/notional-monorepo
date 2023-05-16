@@ -9,7 +9,7 @@ import {
 } from '@notional-finance/util';
 import { BigNumber, utils } from 'ethers';
 import { combineLatest, map, of, Subscription, withLatestFrom } from 'rxjs';
-import { ExchangeRate, OracleDefinition } from '..';
+import { ExchangeRate, OracleDefinition, Registry, RiskAdjustment } from '..';
 import { ClientRegistry } from './client-registry';
 import { Routes } from '../server';
 
@@ -46,7 +46,8 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
           const oracle = this.getLatestFromSubject(network, key, 0);
           if (!oracle) throw Error('Oracle undefined');
 
-          // TODO: fcash rates there are two versions...
+          // TODO: fcash rates there are three versions:
+          // spot rate, oracle rate, settlement rate
           const quoteToBase =
             networkList.get(oracle.quote) || new Map<string, Node>();
           quoteToBase.set(oracle.base, {
@@ -112,10 +113,15 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
   }
 
   /** Returns an array of observables from a path */
-  protected getObservablesFromPath(network: Network, path: string[]) {
+  protected getObservablesFromPath(
+    network: Network,
+    path: string[],
+    riskAdjusted: RiskAdjustment
+  ) {
     const subjects = this._getNetworkSubjects(network);
     const adjList = this.adjLists.get(network);
     if (!adjList) throw Error(`Adjacency list not found for ${network}`);
+    const config = Registry.getConfigurationRegistry();
 
     return path.map((id, i) => {
       if (i == 0) return this._unitRate$;
@@ -127,59 +133,72 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
       if (!observable) throw Error(`Update Subject for ${node.id} not found`);
 
       return observable.pipe(
-        map((r: OracleDefinition | null) => {
+        map((o: OracleDefinition | null) => {
+          if (!o) return null;
+          // TODO: need to handle settlement here....
+
           // fCash rates are interest rates so convert them to exchange rates in SCALAR_PRECISION here
           if (
-            r?.oracleType === 'fCashOracleRate' ||
-            r?.oracleType === 'fCashSpotRate'
+            o.oracleType === 'fCashOracleRate' ||
+            o.oracleType === 'fCashSpotRate'
           ) {
-            const { maturity } = decodeERC1155Id(r.quote);
+            // Adjustment is set to identity values if riskAdjusted is set to None.
+            const { interestAdjustment, maxDiscountFactor, oracleRateLimit } =
+              config.getInterestRiskAdjustment(o, node.inverted, riskAdjusted);
+
+            const { maturity } = decodeERC1155Id(o.quote);
+            let rate = o.latestRate.rate.add(interestAdjustment);
+
+            // Apply oracle min or max limits after adjustments
+            if (oracleRateLimit && riskAdjusted === 'Asset') {
+              rate = rate.gt(oracleRateLimit) ? oracleRateLimit : rate;
+            } else if (oracleRateLimit && riskAdjusted === 'Debt') {
+              rate = rate.lt(oracleRateLimit) ? oracleRateLimit : rate;
+            }
+
             const exchangeRate = this.interestToExchangeRate(
-              node.inverted ? r.latestRate.rate : r.latestRate.rate.mul(-1),
+              node.inverted ? rate : rate.mul(-1),
               maturity
             );
 
-            return { ...r.latestRate, rate: exchangeRate };
-          }
+            if (exchangeRate.gt(maxDiscountFactor)) {
+              return {
+                ...o.latestRate,
+                // Scale the discount factor up to 18 decimals
+                rate: BigNumber.from(maxDiscountFactor).mul(RATE_PRECISION),
+              };
+            } else {
+              return { ...o.latestRate, rate: exchangeRate };
+            }
+          } else {
+            const haircutOrBuffer = config.getExchangeRiskAdjustment(
+              o,
+              node.inverted,
+              riskAdjusted
+            );
 
-          if (r && node.inverted) {
-            // Invert and scale to 18 decimals:
-            // (r.decimals * 2 + 18 - r.decimals) = r.decimals + 18
-            const num = BigNumber.from(10).pow(r.decimals + 18);
-            return {
-              ...r.latestRate,
-              rate: num.div(r.latestRate.rate),
+            const scaled = this.scaleTo(o, 18);
+            const adjusted = {
+              ...scaled,
+              rate: scaled.rate.mul(haircutOrBuffer).div(100),
             };
-          } else if (r?.decimals && r.decimals < 18) {
-            // Scale to 18 decimals:
-            // mul 10 ^ (18 - r.decimals)
-            return {
-              ...r.latestRate,
-              rate: r.latestRate.rate.mul(
-                BigNumber.from(10).pow(18 - r.decimals)
-              ),
-            };
-          } else if (r?.decimals && r?.decimals > 18) {
-            // Scale to 18 decimals:
-            return {
-              ...r.latestRate,
-              rate: r.latestRate.rate.div(
-                BigNumber.from(10).pow(r.decimals - 18)
-              ),
-            };
+            return node.inverted ? this.invertRate(adjusted) : adjusted;
           }
-
-          return r?.latestRate;
         })
       );
     });
   }
 
-  public getLatestFromPath(
+  getLatestFromPath(
     network: Network,
-    path: string[]
+    path: string[],
+    riskAdjusted: RiskAdjustment = 'None'
   ): ExchangeRate | null {
-    const observables = this.getObservablesFromPath(network, path);
+    const observables = this.getObservablesFromPath(
+      network,
+      path,
+      riskAdjusted
+    );
     let latestRate: ExchangeRate | null = null;
 
     of(1)
@@ -194,14 +213,22 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
     return latestRate;
   }
 
-  public subscribeToPath(network: Network, oraclePath: string[]) {
-    const observables = this.getObservablesFromPath(network, oraclePath);
+  subscribeToPath(
+    network: Network,
+    oraclePath: string[],
+    riskAdjusted: RiskAdjustment = 'None'
+  ) {
+    const observables = this.getObservablesFromPath(
+      network,
+      oraclePath,
+      riskAdjusted
+    );
     return combineLatest(observables).pipe(
       map((rates) => this.combineRates(rates))
     );
   }
 
-  private combineRates(rates: (ExchangeRate | undefined)[]) {
+  combineRates(rates: (ExchangeRate | null)[]) {
     if (rates.length === 0) return null;
 
     const rate = rates.reduce(
@@ -213,6 +240,29 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
     const blockNumber = Math.min(...rates.map((r) => r?.blockNumber || 0));
 
     return rate ? { rate, timestamp, blockNumber } : null;
+  }
+
+  scaleTo(o: OracleDefinition, decimals = 18) {
+    if (o.decimals < decimals) {
+      // Scale to 18 decimals:
+      // mul 10 ^ (18 - r.decimals)
+      return {
+        ...o.latestRate,
+        rate: o.latestRate.rate.mul(
+          BigNumber.from(10).pow(decimals - o.decimals)
+        ),
+      };
+    } else if (o.decimals > decimals) {
+      // Scale to 18 decimals:
+      return {
+        ...o.latestRate,
+        rate: o.latestRate.rate.div(
+          BigNumber.from(10).pow(o.decimals - decimals)
+        ),
+      };
+    } else {
+      return o.latestRate;
+    }
   }
 
   invertRate(rate: ExchangeRate) {
