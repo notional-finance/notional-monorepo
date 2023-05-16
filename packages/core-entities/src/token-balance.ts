@@ -64,6 +64,10 @@ export class TokenBalance {
     };
   }
 
+  get isVaultToken() {
+    return this.token.vaultAddress !== undefined;
+  }
+
   get token() {
     return Registry.getTokenRegistry().getTokenByID(this.network, this.tokenId);
   }

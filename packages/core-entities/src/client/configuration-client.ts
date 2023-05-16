@@ -3,6 +3,8 @@ import { Routes } from '../server';
 import { AllConfigurationQuery } from '../server/configuration-server';
 import { AssetType, encodeERC1155Id, Network } from '@notional-finance/util';
 import { Registry } from '../Registry';
+// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
+import { Maybe } from '../.graphclient';
 
 export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
   protected cachePath = Routes.Configuration;
@@ -117,5 +119,23 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
 
   getAllListedCurrencies(network: Network) {
     return this.getLatestFromSubject(network, network)?.currencyConfigurations;
+  }
+
+  getConfig(network: Network, currencyId: number) {
+    const config = this.getLatestFromSubject(
+      network,
+      network
+    )?.currencyConfigurations.find((c) => c.id === `${currencyId}`);
+    if (!config) throw Error(`Currency Config ${currencyId} Not Found`);
+    return config;
+  }
+
+  getDebtBuffer(network: Network, currencyId: number) {
+    return this._assertDefined(this.getConfig(network, currencyId).debtBuffer);
+  }
+
+  private _assertDefined<T>(v: Maybe<T> | undefined): T {
+    if (v === undefined || v === null) throw Error(`Undefined Value`);
+    return v as T;
   }
 }

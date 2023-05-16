@@ -31,4 +31,5 @@ export type PoolHarnessConstructor = new (
   network: Network,
   poolAddress: string,
   provider: ethers.providers.JsonRpcProvider
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 ) => PoolTestHarness<any>;
