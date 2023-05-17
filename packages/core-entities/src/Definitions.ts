@@ -57,8 +57,6 @@ export interface OracleDefinition {
   decimals: number;
   /** Most current exchange rate for this oracle */
   latestRate: ExchangeRate;
-  /** Array of historical exchange rates for this oracle */
-  historicalRates: ExchangeRate[];
 }
 
 export interface ExchangeRate {

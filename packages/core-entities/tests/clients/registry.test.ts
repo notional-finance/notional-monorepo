@@ -1,32 +1,6 @@
 import { Network, ZERO_ADDRESS } from '@notional-finance/util';
 import { Registry, AccountFetchMode } from '../../src';
 
-/*
-const serveLocal = true;
-const apiHostname = 'http://localhost:8787';
-const cacheHostname = 'http://localhost:9999';
-const c = await crossFetch(
-  Registry.getConfigurationRegistry().cacheURL(Network.ArbitrumOne)
-).then((r) => r.text());
-
-const t = await crossFetch(
-  Registry.getTokenRegistry().cacheURL(Network.ArbitrumOne)
-).then((r) => r.text());
-
-const e = await crossFetch(
-  Registry.getExchangeRegistry().cacheURL(Network.ArbitrumOne)
-).then((r) => r.text());
-
-const o = await crossFetch(
-  Registry.getOracleRegistry().cacheURL(Network.ArbitrumOne)
-).then((r) => r.text());
-
-fs.writeFileSync(`${__dirname}/__snapshots__/configuration`, c);
-fs.writeFileSync(`${__dirname}/__snapshots__/tokens`, t);
-fs.writeFileSync(`${__dirname}/__snapshots__/exchanges`, e);
-fs.writeFileSync(`${__dirname}/__snapshots__/oracles`, o);
-*/
-
 describe.withRegistry(
   {
     network: Network.ArbitrumOne,
