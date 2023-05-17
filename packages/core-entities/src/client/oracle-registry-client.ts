@@ -6,18 +6,29 @@ import {
   getNowSeconds,
   RATE_PRECISION,
   SECONDS_IN_YEAR,
+  ZERO_ADDRESS,
 } from '@notional-finance/util';
 import { BigNumber, utils } from 'ethers';
-import { combineLatest, map, of, Subscription, withLatestFrom } from 'rxjs';
+import {
+  combineLatest,
+  map,
+  Observable,
+  of,
+  Subscription,
+  withLatestFrom,
+} from 'rxjs';
 import { ExchangeRate, OracleDefinition, Registry, RiskAdjustment } from '..';
 import { ClientRegistry } from './client-registry';
 import { Routes } from '../server';
+// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
+import { OracleType } from '../.graphclient';
 
 interface Node {
   id: string;
   inverted: boolean;
 }
 type AdjList = Map<string, Map<string, Node>>;
+const UNIT_RATE = 'UNIT_RATE';
 
 export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
   protected cachePath = Routes.Oracles;
@@ -26,11 +37,36 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
   private _adjListSubscription: Subscription;
 
   /** Rate equal to one unit in 18 decimal precision with an arbitrary future timestamp */
-  private _unitRate$ = of({
-    rate: SCALAR_PRECISION,
-    timestamp: 2 ** 32,
-    blockNumber: 2 ** 32,
-  });
+  private _getUnitRate(
+    network: Network,
+    baseId: string
+  ): Observable<OracleDefinition> {
+    const token = Registry.getTokenRegistry().getTokenByID(network, baseId);
+    let oracleType: OracleType;
+    if (
+      token.tokenType === 'Underlying' ||
+      token.tokenType == 'nToken' ||
+      token.tokenType == 'fCash'
+    )
+      oracleType = 'Chainlink';
+    else throw Error('Unknown unit rate type');
+
+    return of({
+      id: UNIT_RATE,
+      base: baseId,
+      quote: baseId,
+      network,
+      oracleType,
+      decimals: 18,
+      oracleAddress: ZERO_ADDRESS,
+      latestRate: {
+        rate: SCALAR_PRECISION,
+        timestamp: 2 ** 32,
+        blockNumber: 2 ** 32,
+      },
+      historicalRates: [],
+    } as OracleDefinition);
+  }
 
   constructor(cacheHostname: string) {
     super(cacheHostname);
@@ -82,7 +118,8 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
   public findPath(base: string, quote: string, network: Network) {
     const adjList = this.adjLists.get(network);
     if (!adjList) throw Error(`Adjacency list not found for ${network}`);
-    if (base === quote) throw Error(`Invalid exchange rate ${base}/${quote}`);
+    // Will return a unit oracle rate so that risk adjustments still work
+    if (base === quote) return [base];
 
     let path = [base];
     const queue = [path];
@@ -123,14 +160,21 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
     if (!adjList) throw Error(`Adjacency list not found for ${network}`);
     const config = Registry.getConfigurationRegistry();
 
-    return path.map((id, i) => {
-      if (i == 0) return this._unitRate$;
+    return path.map((token, i) => {
+      let observable: Observable<OracleDefinition | null>;
+      let node: Node;
+      if (i === 0) {
+        observable = this._getUnitRate(network, token);
+        node = { id: UNIT_RATE, inverted: false };
+      } else {
+        const n = adjList.get(token)?.get(path[i - 1]);
+        if (!n) throw Error(`${token} node is not found`);
+        node = n;
 
-      const node = adjList.get(id)?.get(path[i - 1]);
-      if (!node) throw Error(`${id} node is not found`);
-
-      const observable = subjects.get(node.id)?.asObservable();
-      if (!observable) throw Error(`Update Subject for ${node.id} not found`);
+        const o = subjects.get(node.id)?.asObservable();
+        if (!o) throw Error(`Update Subject for ${node.id} not found`);
+        observable = o;
+      }
 
       return observable.pipe(
         map((o: OracleDefinition | null) => {
@@ -146,6 +190,7 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
             const { interestAdjustment, maxDiscountFactor, oracleRateLimit } =
               config.getInterestRiskAdjustment(o, node.inverted, riskAdjusted);
 
+            // The fcash asset is always the quote asset in the oracle
             const { maturity } = decodeERC1155Id(o.quote);
             let rate = o.latestRate.rate.add(interestAdjustment);
 
@@ -180,7 +225,7 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
             const scaled = this.scaleTo(o, 18);
             const adjusted = {
               ...scaled,
-              rate: scaled.rate.mul(haircutOrBuffer).div(100),
+              rate: scaled.rate.mul(100).div(haircutOrBuffer),
             };
             return node.inverted ? this.invertRate(adjusted) : adjusted;
           }

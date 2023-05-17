@@ -7,6 +7,7 @@ import {
   ZERO_ADDRESS,
 } from '@notional-finance/util';
 import { BigNumber, BigNumberish, utils } from 'ethers';
+import { parseUnits } from 'ethers/lib/utils';
 import { Registry, ExchangeRate, TokenDefinition, RiskAdjustment } from '.';
 
 export type SerializedTokenBalance = ReturnType<TokenBalance['toJSON']>;
@@ -21,6 +22,11 @@ export class TokenBalance {
     this.tokenId = convertToGenericfCashId(tokenId);
     // Rewrite alt eth address to zero address
     if (this.tokenId === ALT_ETH) this.tokenId = ZERO_ADDRESS;
+  }
+
+  static fromFloat(n: number, token: TokenDefinition) {
+    const bn = parseUnits(n.toString(), token.decimals);
+    return new TokenBalance(bn, token.id, token.network);
   }
 
   static from(n: BigNumberish, token: TokenDefinition) {
