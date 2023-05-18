@@ -3,6 +3,7 @@ import {
   TokenBalance,
   TokenDefinition,
 } from '@notional-finance/core-entities';
+import { PERCENTAGE_BASIS } from '@notional-finance/util';
 import { BaseRiskProfile } from './base-risk';
 import { SymbolOrID } from './types';
 
@@ -60,10 +61,22 @@ export class AccountRiskProfile extends BaseRiskProfile {
   }
 
   healthFactor() {
-    const debts = this.totalDebtRiskAdjusted();
+    const debts = this.totalDebt();
     if (debts.isZero()) return null;
 
-    return this._toPercent(this.totalAssetsRiskAdjusted(), debts);
+    return (
+      this._toPercent(this.freeCollateral(), this.netWorth()) / PERCENTAGE_BASIS
+    );
+  }
+
+  maxLoanToValue() {
+    const ltv = this.loanToValue();
+    const assets = this.totalAssetsRiskAdjusted();
+    if (assets.isZero()) return 0
+
+    const riskAdjustedLTV = this._toPercent(this.totalDebtRiskAdjusted(), assets);
+
+    return ltv / riskAdjustedLTV;
   }
 
   /** Total value of all assets with a risk adjustment */
@@ -180,7 +193,8 @@ export class AccountRiskProfile extends BaseRiskProfile {
     );
 
     if (
-      maxExchangeRateDecrease.isNegative() &&
+      (maxExchangeRateDecrease.isNegative() ||
+        maxExchangeRateDecrease.isZero()) &&
       collateralDenominatedFC.isPositive()
     ) {
       // If the max exchange rate decrease is negative then there is no possible liquidation price, this can
