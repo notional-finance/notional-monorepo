@@ -25,5 +25,5 @@ export interface RiskFactors {
 export interface RiskFactorLimit<F extends keyof RiskFactors> {
   riskFactor: F;
   limit: NonNullable<ReturnType<RiskFactors[F]>>;
-  args: Parameters<RiskFactors[F]>;
+  args?: Parameters<RiskFactors[F]>;
 }

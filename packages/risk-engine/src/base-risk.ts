@@ -204,10 +204,11 @@ export abstract class BaseRiskProfile implements RiskFactors {
     if (riskFactor == 'netWorth' || riskFactor == 'freeCollateral') {
       const _value = value as TokenBalance;
       const _limit = limit as TokenBalance;
+      // A good estimate for this is limit - value
       return {
         value,
         satisfied: _limit.lte(_value),
-        multiple: _limit.ratioWith(_value).toNumber(),
+        multiple: _limit.sub(_value).scaleTo(RATE_DECIMALS).toNumber(),
       };
     } else if (riskFactor === 'loanToValue') {
       const _value = value as number;
@@ -278,29 +279,26 @@ export abstract class BaseRiskProfile implements RiskFactors {
 
   private _search<F extends keyof RiskFactors>(
     collateral: TokenDefinition,
-    riskFactorLimit: RiskFactorLimit<F>,
-    isWithdraw: boolean
+    riskFactorLimit: RiskFactorLimit<F>
   ) {
     const { multiple } = this.checkRiskFactorLimit(riskFactorLimit);
 
     const calculationFunction = (collateralUnits: number) => {
-      let value =
+      const value =
         TokenBalance.unit(collateral).mulInRatePrecision(collateralUnits);
-      if (isWithdraw) value = value.neg();
 
       // Create a new account profile with the simulated collateral added
       const profile = this.simulate([value]);
-      const { satisfied, multiple } =
-        profile.checkRiskFactorLimit(riskFactorLimit);
+      const { multiple } = profile.checkRiskFactorLimit(riskFactorLimit);
 
       return {
-        actualMultiple: multiple,
-        breakLoop: satisfied,
+        actualMultiple: -multiple,
+        breakLoop: false,
         value,
       };
     };
 
-    return doBinarySearch(multiple, RATE_PRECISION, calculationFunction);
+    return doBinarySearch(multiple, 0, calculationFunction);
   }
 
   /**
@@ -315,7 +313,7 @@ export abstract class BaseRiskProfile implements RiskFactors {
     collateral: TokenDefinition,
     riskFactorLimit: RiskFactorLimit<F>
   ) {
-    return this._search(collateral, riskFactorLimit, false);
+    return this._search(collateral, riskFactorLimit);
   }
 
   /**
@@ -328,7 +326,7 @@ export abstract class BaseRiskProfile implements RiskFactors {
     collateral: TokenDefinition,
     riskFactorLimit: RiskFactorLimit<F>
   ) {
-    return this._search(collateral, riskFactorLimit, true);
+    return this._search(collateral, riskFactorLimit);
   }
 
   /**
