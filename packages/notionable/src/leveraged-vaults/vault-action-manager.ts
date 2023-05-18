@@ -19,6 +19,7 @@ export const loadVaultActionManager = (
   state$: Observable<VaultActionState>
 ): Observable<Partial<VaultActionState>> => {
   const vaultAddress$ = state$.pipe(map((s) => s.vaultAddress));
+  // NOTE* the sideDrawerKey used here is coming from the url query params
   const defaultVaultAction$ = state$.pipe(map((s) => s.vaultAction || s['sideDrawerKey'])) as Observable<VAULT_ACTIONS>;
 
   // Returns initial vault action values, runs whenever the account or vault address
