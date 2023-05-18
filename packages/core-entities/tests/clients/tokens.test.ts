@@ -2,13 +2,19 @@ import {
   AssetType,
   encodeERC1155Id,
   Network,
+  SECONDS_IN_QUARTER,
   ZERO_ADDRESS,
 } from '@notional-finance/util';
-import { AccountFetchMode, Registry, TokenBalance } from '../../src';
+import {
+  AccountFetchMode,
+  Registry,
+  TokenBalance,
+  TokenDefinition,
+} from '../../src';
 import { OracleRegistryClient, TokenRegistryClient } from '../../src/client';
 import { BigNumber } from 'ethers';
 
-const ETH_PRICE = 1827.14;
+const ETH_PRICE = 1798.536;
 describe.withRegistry(
   {
     network: Network.ArbitrumOne,
@@ -122,8 +128,8 @@ describe.withRegistry(
         expect(
           eth
             .toToken(tokens.getTokenBySymbol(Network.ArbitrumOne, 'USDC'))
-            .toDisplayStringWithSymbol()
-        ).toBe('1,827.140 USDC');
+            .toFloat()
+        ).toBeCloseTo(ETH_PRICE);
       });
 
       it('can convert prime cash to underlying tokens', () => {
@@ -140,34 +146,34 @@ describe.withRegistry(
     });
 
     describe('Exchange Rates', () => {
-      it('[FORWARD] can find a path from usdc => eth', () => {
+      it('[FORWARD] can find a path from eth => usdc', () => {
         const eth = tokens.getTokenBySymbol(Network.ArbitrumOne, 'ETH')!;
         const usdc = tokens.getTokenBySymbol(Network.ArbitrumOne, 'USDC')!;
         const path = oracles.findPath(eth.id, usdc.id, Network.ArbitrumOne);
         expect(path).toEqual([eth.id, usdc.id]);
         const value = oracles.getLatestFromPath(Network.ArbitrumOne, path);
-        expect(oracles.formatNumber(oracles.invertRate(value!))).toBeCloseTo(
-          ETH_PRICE
-        );
+        expect(oracles.formatNumber(value!)).toBeCloseTo(ETH_PRICE);
       });
 
-      it('[REVERSE] can find a path from eth => usdc', () => {
+      it('[REVERSE] can find a path from usdc => eth', () => {
         const eth = tokens.getTokenBySymbol(Network.ArbitrumOne, 'ETH')!;
         const usdc = tokens.getTokenBySymbol(Network.ArbitrumOne, 'USDC')!;
         const path = oracles.findPath(usdc.id, eth.id, Network.ArbitrumOne);
         expect(path).toEqual([usdc.id, eth.id]);
 
         const value = oracles.getLatestFromPath(Network.ArbitrumOne, path);
-        expect(oracles.formatNumber(value!)).toBeCloseTo(ETH_PRICE);
+        expect(oracles.formatNumber(oracles.invertRate(value!))).toBeCloseTo(
+          ETH_PRICE
+        );
       });
 
       it('[MULTIHOP] can find a path from wsteth => wbtc', () => {
         const wsteth = tokens.getTokenBySymbol(Network.ArbitrumOne, 'wstETH')!;
         const wbtc = tokens.getTokenBySymbol(Network.ArbitrumOne, 'WBTC')!;
-        const path = oracles.findPath(wsteth.id, wbtc.id, Network.ArbitrumOne);
+        const path = oracles.findPath(wbtc.id, wsteth.id, Network.ArbitrumOne);
 
         const value = oracles.getLatestFromPath(Network.ArbitrumOne, path);
-        expect(oracles.formatNumber(value!)).toBeCloseTo(13.345);
+        expect(oracles.formatNumber(value!)).toBeCloseTo(13.253);
       });
 
       it('[MULTIHOP] can find a path from fusdc => fdai', () => {
@@ -183,6 +189,77 @@ describe.withRegistry(
 
         const value = oracles.getLatestFromPath(Network.ArbitrumOne, path);
         expect(oracles.formatNumber(value!)).toBeCloseTo(0.999);
+      });
+    });
+
+    describe('Risk Adjusted', () => {
+      let ETH: TokenDefinition;
+      let USDC: TokenDefinition;
+      let FRAX: TokenDefinition;
+      beforeAll(() => {
+        ETH = tokens.getTokenBySymbol(Network.ArbitrumOne, 'ETH');
+        USDC = tokens.getTokenBySymbol(Network.ArbitrumOne, 'USDC');
+        FRAX = tokens.getTokenBySymbol(Network.ArbitrumOne, 'FRAX');
+      });
+
+      it('ETH Asset', () => {
+        const eth = TokenBalance.fromFloat(1, ETH);
+        const riskAdjusted = eth.toRiskAdjustedUnderlying();
+        expect(riskAdjusted.toDisplayStringWithSymbol(3)).toBe(`0.810 ETH`);
+      });
+
+      it('ETH Debt', () => {
+        const eth = TokenBalance.fromFloat(-1, ETH);
+        const riskAdjusted = eth.toRiskAdjustedUnderlying();
+        expect(riskAdjusted.toDisplayStringWithSymbol(3)).toBe(`-1.240 ETH`);
+      });
+
+      it('Neg USDC to ETH', () => {
+        const riskAdjusted = TokenBalance.fromFloat(-ETH_PRICE, USDC)
+          .toRiskAdjustedUnderlying()
+          .toToken(ETH);
+        expect(riskAdjusted.toDisplayStringWithSymbol(3)).toBe(`-1.090 ETH`);
+      });
+
+      it('Pos USDC to ETH', () => {
+        const riskAdjusted = TokenBalance.fromFloat(ETH_PRICE, USDC)
+          .toRiskAdjustedUnderlying()
+          .toToken(ETH);
+        expect(riskAdjusted.toDisplayStringWithSymbol(3)).toBe(`0.920 ETH`);
+      });
+
+      it('Pos FRAX to ETH', () => {
+        const riskAdjusted = TokenBalance.fromFloat(ETH_PRICE, FRAX)
+          .toRiskAdjustedUnderlying()
+          .toToken(ETH);
+        expect(riskAdjusted.toDisplayStringWithSymbol(3)).toBe(`0.000 ETH`);
+      });
+
+      it('Neg fUSDC to USDC', () => {
+        const fusdc = tokens.getTokenByID(
+          Network.ArbitrumOne,
+          encodeERC1155Id(3, 1695168000, AssetType.FCASH_ASSET_TYPE)
+        );
+        const usdc = TokenBalance.fromFloat(-1, fusdc);
+        const riskAdjusted = usdc.toRiskAdjustedUnderlying();
+        expect(riskAdjusted.toFloat()).toBeCloseTo(-1.09);
+      });
+
+      it('Pos fUSDC to USDC', () => {
+        const fusdc = tokens.getTokenByID(
+          Network.ArbitrumOne,
+          encodeERC1155Id(3, 1695168000, AssetType.FCASH_ASSET_TYPE)
+        );
+        const usdc = TokenBalance.unit(fusdc);
+        const riskAdjusted = usdc.toRiskAdjustedUnderlying();
+        expect(riskAdjusted.toFloat()).toBeCloseTo(0.9016);
+      });
+
+      it('nUSDC to USDC', () => {
+        const nUSDC = tokens.getTokenBySymbol(Network.ArbitrumOne, 'nUSDC');
+        const usdc = TokenBalance.unit(nUSDC);
+        const riskAdjusted = usdc.toRiskAdjustedUnderlying();
+        expect(riskAdjusted.toFloat()).toBeCloseTo(0.83);
       });
     });
   }

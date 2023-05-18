@@ -7,7 +7,7 @@ import {
   ZERO_ADDRESS,
 } from '@notional-finance/util';
 import { BigNumber, BigNumberish, utils } from 'ethers';
-import { parseUnits } from 'ethers/lib/utils';
+import { formatUnits, parseUnits } from 'ethers/lib/utils';
 import { Registry, ExchangeRate, TokenDefinition, RiskAdjustment } from '.';
 
 export type SerializedTokenBalance = ReturnType<TokenBalance['toJSON']>;
@@ -360,6 +360,7 @@ export class TokenBalance {
     if (!exchangeRate) {
       const oracleRegistry = Registry.getOracleRegistry();
       // Fetch the latest exchange rate
+      // TODO: if doing settlement then then token id needs to be the actual fCash (not generic fcash id)
       const path = oracleRegistry.findPath(
         this.token.id,
         token.id,
@@ -375,7 +376,7 @@ export class TokenBalance {
     if (!exchangeRate) throw Error('No Exchange Rate');
     return new TokenBalance(
       // All exchange rates from the registry are in scalar precision
-      this.scale(SCALAR_PRECISION, exchangeRate.rate).scaleTo(token.decimals),
+      this.scale(exchangeRate.rate, SCALAR_PRECISION).scaleTo(token.decimals),
       token.id,
       token.network
     );

@@ -20,8 +20,6 @@ import {
 import { ExchangeRate, OracleDefinition, Registry, RiskAdjustment } from '..';
 import { ClientRegistry } from './client-registry';
 import { Routes } from '../server';
-// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
-import { OracleType } from '../.graphclient';
 
 interface Node {
   id: string;
@@ -41,22 +39,12 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
     network: Network,
     baseId: string
   ): Observable<OracleDefinition> {
-    const token = Registry.getTokenRegistry().getTokenByID(network, baseId);
-    let oracleType: OracleType;
-    if (
-      token.tokenType === 'Underlying' ||
-      token.tokenType == 'nToken' ||
-      token.tokenType == 'fCash'
-    )
-      oracleType = 'Chainlink';
-    else throw Error('Unknown unit rate type');
-
     return of({
       id: UNIT_RATE,
       base: baseId,
       quote: baseId,
       network,
-      oracleType,
+      oracleType: 'Chainlink',
       decimals: 18,
       oracleAddress: ZERO_ADDRESS,
       latestRate: {
@@ -82,20 +70,19 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
           const oracle = this.getLatestFromSubject(network, key, 0);
           if (!oracle) throw Error('Oracle undefined');
 
-          // TODO: fcash rates there are three versions:
-          // spot rate, oracle rate, settlement rate
+          // TODO: if fCash, allow the settlement rate to override the oracle rate
           const quoteToBase =
             networkList.get(oracle.quote) || new Map<string, Node>();
           quoteToBase.set(oracle.base, {
             id: oracle.id,
-            inverted: false,
+            inverted: true,
           });
 
           const baseToQuote =
             networkList.get(oracle.base) || new Map<string, Node>();
           baseToQuote.set(oracle.quote, {
             id: oracle.id,
-            inverted: true,
+            inverted: false,
           });
 
           networkList.set(oracle.quote, quoteToBase);
@@ -195,7 +182,10 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
             let rate = o.latestRate.rate.add(interestAdjustment);
 
             // Apply oracle min or max limits after adjustments
-            if (oracleRateLimit && riskAdjusted === 'Asset') {
+            if (rate.lt(0)) {
+              // Always floor rates at zero
+              rate = BigNumber.from(0);
+            } else if (oracleRateLimit && riskAdjusted === 'Asset') {
               rate = rate.gt(oracleRateLimit) ? oracleRateLimit : rate;
             } else if (oracleRateLimit && riskAdjusted === 'Debt') {
               rate = rate.lt(oracleRateLimit) ? oracleRateLimit : rate;
@@ -222,12 +212,18 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
               riskAdjusted
             );
 
-            const scaled = this.scaleTo(o, 18);
+            const scaled = node.inverted
+              ? this.invertRate(this.scaleTo(o, 18))
+              : this.scaleTo(o, 18);
+
             const adjusted = {
               ...scaled,
-              rate: scaled.rate.mul(100).div(haircutOrBuffer),
+              rate: node.inverted
+                ? scaled.rate.mul(100).div(haircutOrBuffer)
+                : scaled.rate.mul(haircutOrBuffer).div(100),
             };
-            return node.inverted ? this.invertRate(adjusted) : adjusted;
+
+            return adjusted;
           }
         })
       );

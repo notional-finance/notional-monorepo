@@ -189,7 +189,9 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
 
     if (riskAdjusted === 'Asset') {
       return {
-        interestAdjustment: this._assertDefined(config.fCashHaircutBasisPoints),
+        interestAdjustment: -this._assertDefined(
+          config.fCashHaircutBasisPoints
+        ),
         maxDiscountFactor: this._assertDefined(config.fCashMaxDiscountFactor),
         oracleRateLimit: BigNumber.from(
           this._assertDefined(config.fCashMaxOracleRate)
