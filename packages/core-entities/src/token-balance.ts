@@ -7,7 +7,7 @@ import {
   ZERO_ADDRESS,
 } from '@notional-finance/util';
 import { BigNumber, BigNumberish, utils } from 'ethers';
-import { formatUnits, parseUnits } from 'ethers/lib/utils';
+import { parseUnits } from 'ethers/lib/utils';
 import { Registry, ExchangeRate, TokenDefinition, RiskAdjustment } from '.';
 
 export type SerializedTokenBalance = ReturnType<TokenBalance['toJSON']>;
@@ -76,6 +76,12 @@ export class TokenBalance {
 
   get isVaultToken() {
     return this.token.vaultAddress !== undefined;
+  }
+
+  get currencyId() {
+    const id = this.token.currencyId;
+    if (!id) throw Error('Currency ID undefined');
+    return id;
   }
 
   get token() {

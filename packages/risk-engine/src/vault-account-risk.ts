@@ -196,4 +196,14 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
   healthFactor(): number | null {
     throw new Error('Method not implemented.');
   }
+
+  leverageRatio() {
+    const collateralRatio = this.collateralRatio();
+    if (collateralRatio) {
+      return (RATE_PRECISION * RATE_PRECISION) / collateralRatio;
+    } else {
+      return null;
+    }
+  }
+
 }

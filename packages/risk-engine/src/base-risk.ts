@@ -8,6 +8,7 @@ import {
   RATE_PRECISION,
   unique,
   doBinarySearch,
+  PERCENTAGE_BASIS,
 } from '@notional-finance/util';
 import { RiskFactorLimit, RiskFactors, SymbolOrID } from './types';
 
@@ -38,17 +39,17 @@ export abstract class BaseRiskProfile implements RiskFactors {
 
   /** Takes a set of token balances to create a new risk profile */
   constructor(balances: TokenBalance[], public defaultSymbol: SymbolOrID) {
-    if (balances.length === 0) {
+    this.balances = BaseRiskProfile.merge(balances);
+
+    if (this.balances.length === 0) {
       // Allow this to pass but none of the methods will really return any values
       this.network = Network.All;
     } else {
-      const network = unique(balances.map((b) => b.network));
+      const network = unique(this.balances.map((b) => b.network));
       if (network.length > 1)
         throw Error('All balances must be on same network');
       this.network = network[0];
     }
-
-    this.balances = BaseRiskProfile.merge(balances);
   }
 
   /** All currency ids represented in the account */
@@ -68,6 +69,10 @@ export abstract class BaseRiskProfile implements RiskFactors {
         return tokens.getUnderlying(this.network, id).symbol;
       })
     ) as string[];
+  }
+
+  toString() {
+    this.balances.map((b) => b.toDisplayStringWithSymbol(8)).join('\n');
   }
 
   /** Returns a token definition of the given symbol or currency id */
@@ -110,6 +115,12 @@ export abstract class BaseRiskProfile implements RiskFactors {
 
   /****** Summary Factors ******/
 
+  protected _toPercent(n: TokenBalance, d: TokenBalance) {
+    return (
+      (n.ratioWith(d).abs().toNumber() * PERCENTAGE_BASIS) / RATE_PRECISION
+    );
+  }
+
   /** Total value without risk adjustments */
   totalAssets(denominated = this.defaultSymbol) {
     return this._totalValue(this.assets, this.denom(denominated));
@@ -129,23 +140,14 @@ export abstract class BaseRiskProfile implements RiskFactors {
   }
 
   netWorth() {
-    return this.totalAssets().sub(this.totalDebt());
+    return this.totalAssets().add(this.totalDebt());
   }
 
   loanToValue() {
     const assets = this.totalAssets();
     if (assets.isZero()) return 0;
 
-    return this.totalDebt().ratioWith(assets).abs().toNumber() / RATE_PRECISION;
-  }
-
-  leverageRatio() {
-    const collateralRatio = this.collateralRatio();
-    if (collateralRatio) {
-      return (RATE_PRECISION * RATE_PRECISION) / collateralRatio;
-    } else {
-      return null;
-    }
+    return this._toPercent(this.totalDebt(), assets);
   }
 
   liquidationPrice(debt: TokenDefinition, collateral: TokenDefinition) {
@@ -373,6 +375,7 @@ export abstract class BaseRiskProfile implements RiskFactors {
   /** Abstract Risk Factor Implementations **/
   abstract freeCollateral(): TokenBalance;
   abstract collateralRatio(): number | null;
+  abstract leverageRatio(): number | null;
   abstract healthFactor(): number | null;
   abstract collateralLiquidationThreshold(
     collateral: TokenDefinition

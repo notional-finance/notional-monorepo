@@ -3,7 +3,6 @@ import {
   TokenBalance,
   TokenDefinition,
 } from '@notional-finance/core-entities';
-import { RATE_PRECISION } from '@notional-finance/util';
 import { BaseRiskProfile } from './base-risk';
 import { SymbolOrID } from './types';
 
@@ -22,13 +21,25 @@ export class AccountRiskProfile extends BaseRiskProfile {
 
   /** Takes a set of token balances to create a new account risk profile */
   constructor(_balances: TokenBalance[]) {
-    const balances = _balances.filter(
-      (t) =>
-        // Exclude these token types from the account risk profile
-        t.token.vaultAddress === undefined &&
-        t.token.tokenType !== 'Underlying' &&
-        t.token.tokenType !== 'Fiat'
-    );
+    const balances = _balances
+      .map((t) => {
+        if (t.token.tokenType === 'Underlying') {
+          const pCash = Registry.getTokenRegistry().getPrimeCash(
+            t.token.network,
+            t.currencyId
+          );
+          return t.toToken(pCash);
+        } else {
+          return t;
+        }
+      })
+      .filter(
+        (t) =>
+          // Exclude these token types from the account risk profile
+          t.token.vaultAddress === undefined &&
+          t.token.tokenType !== 'Underlying' &&
+          t.token.tokenType !== 'Fiat'
+      );
 
     super(balances, 'ETH');
   }
@@ -45,19 +56,14 @@ export class AccountRiskProfile extends BaseRiskProfile {
     const debts = this.totalDebt();
     if (debts.isZero()) return null;
 
-    return (
-      this.totalAssets().ratioWith(debts).abs().toNumber() / RATE_PRECISION
-    );
+    return this._toPercent(this.totalAssets(), debts);
   }
 
   healthFactor() {
     const debts = this.totalDebtRiskAdjusted();
     if (debts.isZero()) return null;
 
-    return (
-      this.totalAssetsRiskAdjusted().ratioWith(debts).abs().toNumber() /
-      RATE_PRECISION
-    );
+    return this._toPercent(this.totalAssetsRiskAdjusted(), debts);
   }
 
   /** Total value of all assets with a risk adjustment */
@@ -150,7 +156,11 @@ export class AccountRiskProfile extends BaseRiskProfile {
   }
 
   freeCollateral() {
-    return this.totalAssetsRiskAdjusted().sub(this.totalDebtRiskAdjusted());
+    return this.totalAssetsRiskAdjusted().add(this.totalDebtRiskAdjusted());
+  }
+
+  leverageRatio(): number | null {
+    throw Error('Unimplemented');
   }
 
   /***** RISK THRESHOLD *******/
