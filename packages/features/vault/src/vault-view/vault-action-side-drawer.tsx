@@ -40,7 +40,8 @@ const slideTransition: Record<TransitionStatus, SxProps> = {
 export const VaultActionSideDrawer = () => {
   const theme = useTheme();
   const history = useHistory();
-  const { vaultAddress: vaultAddressInURL } = useParams<VaultParams>();
+  const { vaultAddress: vaultAddressInURL, sideDrawerKey } =
+    useParams<VaultParams>();
   const { accountConnected: connected } = useAccount();
   const { SideDrawerComponent, openDrawer } = useVaultSideDrawers();
   const { clearSideDrawer } = useSideDrawerManager();
@@ -58,6 +59,12 @@ export const VaultActionSideDrawer = () => {
     history.push(`/vaults/${vaultAddressInState}`);
     updateState({ vaultAction: undefined });
   };
+
+  useEffect(() => {
+    updateState({
+      vaultAction: sideDrawerKey,
+    });
+  }, [updateState, sideDrawerKey]);
 
   const manageVaultActive = !openDrawer ? true : false;
   const sideDrawerActive = SideDrawerComponent && openDrawer ? true : false;

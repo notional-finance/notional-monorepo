@@ -23,12 +23,14 @@ interface InitVaultActionDependencies {
   vaultAddress: string;
   account: Account | null;
   vaultPerformance: Map<string, VaultPerformance>;
+  defaultVaultAction: VAULT_ACTIONS;
 }
 
 export function getInitVaultAction({
   system,
   account,
   vaultAddress,
+  defaultVaultAction,
   activeVaultMarkets,
   vaultPerformance,
 }: InitVaultActionDependencies) {
@@ -104,7 +106,7 @@ export function getInitVaultAction({
   // condition requires setting the leverage ratio as well.
   let leverageRatio: number | undefined = undefined;
   const vaultAction =
-    eligibleActions.length === 1 ? eligibleActions[0] : undefined;
+    eligibleActions.length === 1 ? eligibleActions[0] : defaultVaultAction;
   if (vaultAction) {
     ({ leverageRatio } = getDefaultLeverageRatio({
       vaultAction,

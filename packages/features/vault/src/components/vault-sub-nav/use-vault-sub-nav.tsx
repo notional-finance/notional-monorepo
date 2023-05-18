@@ -14,11 +14,6 @@ export const useVaultSubNav = () => {
       key: VAULT_SUB_NAV_ACTIONS.MARKET_RETURNS,
       anchor: VAULT_SUB_NAV_ACTIONS.MARKET_RETURNS,
     },
-    // {
-    //   label: 'Yield Drivers',
-    //   key: VAULT_SUB_NAV_ACTIONS.YIELD_DRIVERS,
-    //   anchor: VAULT_SUB_NAV_ACTIONS.YIELD_DRIVERS,
-    // },
     {
       label: <FormattedMessage defaultMessage={'Strategy Details'} />,
       key: VAULT_SUB_NAV_ACTIONS.STRATEGY_DETAILS,
@@ -27,6 +22,7 @@ export const useVaultSubNav = () => {
     {
       label: <FormattedMessage defaultMessage={'Back to top'} />,
       key: VAULT_SUB_NAV_ACTIONS.BACK_TO_TOP,
+      anchor: VAULT_SUB_NAV_ACTIONS.OVERVIEW,
       callback: () => scroll.scrollToTop(),
     },
     {

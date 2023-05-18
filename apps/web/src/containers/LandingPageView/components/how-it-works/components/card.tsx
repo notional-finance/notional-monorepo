@@ -185,7 +185,8 @@ const CustomSectionTitle = styled(SectionTitle, {
 );
 
 const SectionTitleContainer = styled(Box, {
-  shouldForwardProp: (prop: string) => prop !== 'cardSet',
+  shouldForwardProp: (prop: string) =>
+    prop !== 'cardSet' && prop !== 'parentIndex',
 })(
   ({ cardSet, parentIndex }: CustomSectionTitleProps) => `
   ${
