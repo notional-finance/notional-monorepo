@@ -23,6 +23,16 @@ export abstract class BaseRiskProfile implements RiskFactors {
     map: Map<string, TokenBalance> = new Map<string, TokenBalance>()
   ) => {
     return tokens.reduce((m, t) => {
+      if (t.token.tokenType === 'PrimeDebt') {
+        // Rewrite all prime debt to prime cash, this only applies to AccountRiskProfile, not
+        // VaultAccountRiskProfile
+        const pCash = Registry.getTokenRegistry().getPrimeCash(
+          t.network,
+          t.currencyId
+        );
+        t = t.toToken(pCash);
+      }
+
       const match = m.get(t.typeKey);
       if (match) {
         m.set(match.typeKey, match.add(t));
@@ -397,10 +407,36 @@ export abstract class BaseRiskProfile implements RiskFactors {
     return doBinarySearch(multiple, 0, calculationFunction);
   }
 
-  // allLiquidationPrices() {
-  //   // get all collateral ids + underlying
-  //   // get all debt ids + underlying
-  // }
+  allLiquidationPrices() {
+    // get all collateral ids + underlying
+    const collateral = this.assets
+      .map((a) => a.token)
+      .concat(unique(this.assets.map((a) => a.underlying)))
+      // Prefer to show underlying over prime cash
+      .filter((c) => c.tokenType !== 'PrimeCash');
+
+    // get all debt ids + underlying
+    const debt = this.debts
+      .map((a) => a.token)
+      .concat(unique(this.debts.map((a) => a.underlying)))
+      // Prefer to show underlying over prime cash
+      .filter((c) => c.tokenType !== 'PrimeCash');
+
+    return collateral
+      .flatMap((c) => {
+        const collateralThreshold = this.collateralLiquidationThreshold(c);
+        return debt
+          .filter((d) => d.id !== c.id)
+          .map((d) => {
+            return {
+              collateral: c,
+              debt: d,
+              liquidationPrice: collateralThreshold?.toToken(d) || null,
+            };
+          });
+      })
+      .filter(({ liquidationPrice }) => liquidationPrice !== null);
+  }
 
   /** Abstract Risk Factor Implementations **/
   abstract freeCollateral(): TokenBalance;

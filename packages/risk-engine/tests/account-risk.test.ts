@@ -65,6 +65,20 @@ describe.withForkAndRegistry(
           },
         ],
       },
+      {
+        name: 'Net Prime Cash',
+        balances: [
+          [-5, 'pdEther'],
+          [10, 'pEther'],
+        ],
+        expected: [
+          { factor: 'netWorth', expected: [5, 'ETH'] },
+          { factor: 'freeCollateral', expected: [4.05, 'ETH'] },
+          { factor: 'loanToValue', expected: 0 },
+          { factor: 'collateralRatio', expected: null },
+          { factor: 'healthFactor', expected: null },
+        ],
+      },
       // TODO: test net local
     ];
 
@@ -292,6 +306,31 @@ describe.withForkAndRegistry(
       expect(
         p.simulate([deposit]).collateralLiquidationThreshold(ETH)
       ).toBeApprox(limit, 1);
+    });
+
+    it('All Liquidation Prices', () => {
+      const tokens = Registry.getTokenRegistry();
+      const ETH = tokens.getTokenBySymbol(Network.ArbitrumOne, 'ETH');
+      const BTC = tokens.getTokenBySymbol(Network.ArbitrumOne, 'WBTC');
+      const USDC = tokens.getTokenBySymbol(Network.ArbitrumOne, 'USDC');
+      const FRAX = tokens.getTokenBySymbol(Network.ArbitrumOne, 'FRAX');
+      const p = AccountRiskProfile.from([
+        TokenBalance.fromFloat(1, ETH),
+        TokenBalance.fromFloat(0.01, BTC),
+        TokenBalance.fromFloat(-1200, USDC),
+        TokenBalance.fromFloat(-100, FRAX),
+      ]);
+
+      const prices = p.allLiquidationPrices();
+      const pairs = prices.map(({ collateral, debt }) => [
+        collateral.symbol,
+        debt.symbol,
+      ]);
+
+      expect(pairs).toEqual([
+        ['ETH', 'USDC'],
+        ['ETH', 'FRAX'],
+      ]);
     });
   }
 );
