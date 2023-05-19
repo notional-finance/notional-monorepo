@@ -196,7 +196,10 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
               maturity
             );
 
-            if (exchangeRate.gt(maxDiscountFactor)) {
+            if (
+              exchangeRate.gt(maxDiscountFactor) &&
+              riskAdjusted === 'Asset'
+            ) {
               return {
                 ...o.latestRate,
                 // Scale the discount factor up to 18 decimals

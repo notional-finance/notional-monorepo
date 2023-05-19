@@ -107,7 +107,8 @@ export class NotionalV3Harness extends PoolTestHarness<fCashMarket> {
         this.poolInstance.poolParams.currencyId,
         lpTokenAmount.n,
         true,
-        false
+        false,
+        { gasLimit: 2_500_000 }
       );
     const { cashBalance: cashAfter } = await this.notional.getAccountBalance(
       this.poolInstance.poolParams.currencyId,
@@ -137,7 +138,8 @@ export class NotionalV3Harness extends PoolTestHarness<fCashMarket> {
         this.poolInstance.poolParams.currencyId,
         lpTokenAmount.n,
         false,
-        true
+        true,
+        { gasLimit: 2_500_000 }
       );
     const { cashBalance: cashAfter } = await this.notional.getAccountBalance(
       this.poolInstance.poolParams.currencyId,
