@@ -41,14 +41,17 @@ export function getProvider(networkId: number) {
   }
 }
 
+export function getProviderURLFromNetwork(network: Network) {
+  return `${AlchemyUrl[network]}/pq08EwFvymYFPbDReObtP-SFw3bCes8Z`;
+}
+
 export function getProviderFromNetwork(
   network: Network,
   skipFetchSetup = false
 ) {
   if (skipFetchSetup) {
-    const providerUrl = `${AlchemyUrl[network]}/pq08EwFvymYFPbDReObtP-SFw3bCes8Z`;
     return new ethers.providers.JsonRpcBatchProvider({
-      url: providerUrl,
+      url: getProviderURLFromNetwork(network),
       skipFetchSetup: true,
     });
   }
