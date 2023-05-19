@@ -1,7 +1,14 @@
+import { useNotionalContext } from '@notional-finance/notionable-hooks';
+import { getNetworkFromId } from '@notional-finance/util';
 import { useConnectWallet } from '@web3-onboard/react';
+import { BigNumber } from 'ethers';
 import { useCallback, useEffect } from 'react';
 
 export const useConnect = () => {
+  const {
+    notional: { selectedNetwork },
+    updateNotional,
+  } = useNotionalContext();
   const [
     { wallet },
     connect,
@@ -13,7 +20,9 @@ export const useConnect = () => {
   const currentLabel = wallet?.label;
   // The first account and chain are considered "selected" by the UI
   const selectedAddress = wallet?.accounts[0].address;
-  const selectedChain = wallet?.chains[0].id;
+  const selectedChain = wallet?.chains[0].id
+    ? getNetworkFromId(BigNumber.from(wallet.chains[0].id).toNumber())
+    : undefined;
 
   const connectWallet = useCallback(
     (walletLabel?: string) => {
@@ -31,14 +40,28 @@ export const useConnect = () => {
   // Listens for wallet changes and sets the primary wallet as well as sends the
   // addresses to the Notional global state
   useEffect(() => {
-    console.log('wallet has changed');
-    console.log(selectedAddress);
-    console.log(selectedChain);
-    if (wallet && selectedAddress) setPrimaryWallet(wallet, selectedAddress);
+    if (!selectedAddress) {
+      updateNotional({ wallet: undefined });
+    } else if (wallet && selectedAddress) {
+      setPrimaryWallet(wallet, selectedAddress);
 
-    // const hasNetworkError = notionalState.currentNetwork != wallet?.chains[0];
-    // updateNotionalState({ walletNetwork: address$, hasNetworkError: true });
-  }, [wallet, selectedAddress, selectedChain, setPrimaryWallet]);
+      updateNotional({
+        wallet: {
+          selectedChain,
+          selectedAddress,
+          hasSelectedChainError:
+            selectedNetwork !== undefined && selectedChain !== selectedNetwork,
+        },
+      });
+    }
+  }, [
+    wallet,
+    selectedAddress,
+    selectedChain,
+    selectedNetwork,
+    setPrimaryWallet,
+    updateNotional,
+  ]);
 
   return {
     connectWallet,

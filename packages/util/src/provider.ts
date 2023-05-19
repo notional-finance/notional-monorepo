@@ -1,3 +1,4 @@
+import { getNetwork } from '@ethersproject/providers';
 import { ethers } from 'ethers';
 import { AlchemyUrl, Network, NetworkId } from './constants';
 
@@ -61,4 +62,9 @@ export function getProviderFromNetwork(
   );
   provider.send = ethers.providers.JsonRpcBatchProvider.prototype.send;
   return provider;
+}
+
+export function getNetworkFromId(id: number) {
+  const keys = Object.keys(NetworkId) as Network[]
+  return keys.find((k: keyof typeof NetworkId) => NetworkId[k] === id);
 }
