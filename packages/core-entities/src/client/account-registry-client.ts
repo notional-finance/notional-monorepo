@@ -259,7 +259,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
               r: Awaited<ReturnType<NotionalV3['getVaultAccountSecondaryDebt']>>
             ) => {
               const maturity = r.maturity.toNumber();
-              if (maturity === 0) return [];
+              if (maturity === 0) return [] as TokenBalance[];
               const {
                 secondaryOneCashID,
                 secondaryOneDebtID,
@@ -269,7 +269,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
                 secondaryTwoTokenId,
               } = config.getVaultIDs(network, v.vaultAddress, maturity);
 
-              const secondaries = [];
+              const secondaries: TokenBalance[] = [];
 
               if (
                 secondaryOneDebtID &&
@@ -345,7 +345,8 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
         key: `${notional.address}.balance`,
         transform: (r: Awaited<ReturnType<NotionalV3['getAccount']>>) => {
           const accountBalances = r.accountBalances.flatMap((b) => {
-            const balances = [];
+            const balances: TokenBalance[] = [];
+
             if (b.cashBalance.gt(0)) {
               const pCash = tokens.getPrimeCash(network, b.currencyId);
               balances.push(TokenBalance.from(b.cashBalance, pCash));
