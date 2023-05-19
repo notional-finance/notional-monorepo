@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [0.1.8](https://github.com/notional-finance/notional-monorepo/compare/util-0.1.7...util-0.1.8) (2023-05-19)
+
+
+### Features
+
+* risk engine ([#165](https://github.com/notional-finance/notional-monorepo/issues/165)) ([0b35de4](https://github.com/notional-finance/notional-monorepo/commit/0b35de4f92bd6de30f6f882a7adc9f252a32e838))
+
 ## [0.1.7](https://github.com/notional-finance/notional-monorepo/compare/util-0.1.6...util-0.1.7) (2023-05-13)
 
 
