@@ -24,6 +24,8 @@ export class Registry {
   public static DEFAULT_ACCOUNT_REFRESH = ONE_MINUTE_MS;
 
   static initialize(cacheHostname: string, fetchMode: AccountFetchMode) {
+    if (Registry._self) return;
+
     Registry._self = new Registry(cacheHostname, fetchMode);
   }
 

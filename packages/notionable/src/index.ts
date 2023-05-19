@@ -30,3 +30,5 @@ export * from './chains';
 export * from './utils';
 
 export * from './notionable.config';
+export * from './global/global-state';
+export * from './global/global-manager';

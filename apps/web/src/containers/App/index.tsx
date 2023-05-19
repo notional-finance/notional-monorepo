@@ -1,3 +1,13 @@
+import {
+  useNotional,
+  NotionalContext,
+  useObservableContext,
+} from '@notional-finance/notionable-hooks';
+import {
+  initialGlobalState,
+  initializeNetwork,
+  loadGlobalManager,
+} from '@notional-finance/notionable';
 import { Web3OnboardProvider } from '@web3-onboard/react';
 import { useCallback, useEffect, useState } from 'react';
 import { datadogRum } from '@datadog/browser-rum';
@@ -15,8 +25,6 @@ import RouteContainer from './components/RouteContainer';
 import AppLayoutRoute from './layouts/AppLayoutRoute';
 import LandingPageLayoutRoute from './layouts/LandingPageLayoutRoute';
 import { useUserSettingsState } from '@notional-finance/user-settings-manager';
-import { useNotional } from '@notional-finance/notionable-hooks';
-import { initializeNetwork } from '@notional-finance/notionable';
 import { TrackingConsent } from '@notional-finance/shared-web';
 import { ServerError } from '../../containers/server-error/server-error';
 import { useNotionalTheme } from '@notional-finance/styles';
@@ -100,86 +108,97 @@ export const App = () => {
     if (pendingChainId !== -1) initializeNotional(pendingChainId);
   }, [pendingChainId, initializeNotional]);
 
+  const globalState = useObservableContext(
+    initialGlobalState,
+    {},
+    loadGlobalManager
+  );
+
   return (
     <ThemeProvider theme={notionalTheme}>
-      <Web3OnboardProvider web3Onboard={OnboardContext}>
-        <CssBaseline />
-        <BrowserRouter>
-          <QueryParamProvider adapter={ReactRouter5Adapter}>
-            <CompatRouter>
-              <RouteContainer onRouteChange={setRouteKey}>
-                <Switch>
-                  <AppLayoutRoute path="/airdrop" component={AirdropView} />
-                  <AppLayoutRoute
-                    path="/borrow/:currency/:collateral"
-                    routeKey={routeKey}
-                    component={BorrowFeatureShell}
-                  />
-                  <AppLayoutRoute path="/borrow" component={BorrowCardView} />
-                  <AppLayoutRoute
-                    path="/lend/:currency"
-                    component={LendFeatureShell}
-                  />
-                  <AppLayoutRoute path="/lend" component={LendCardView} />
-                  <AppLayoutRoute
-                    path="/provide/:currency"
-                    routeKey={routeKey}
-                    component={LiquidityCurrencyView}
-                  />
-                  <AppLayoutRoute
-                    path="/provide"
-                    component={ProvideLiquidityCards}
-                  />
-                  <AppLayoutRoute
-                    path="/stake/:ethOrWeth"
-                    component={StakeView}
-                  />
-                  <AppLayoutRoute path="/stake" component={StakeView} />
-                  <AppLayoutRoute
-                    path="/unstake/:unstakePath"
-                    component={StakeView}
-                  />
-                  <AppLayoutRoute path="/unstake" component={StakeView} />
-                  <AppLayoutRoute
-                    path="/vaults/:vaultAddress/:sideDrawerKey"
-                    component={VaultActionProvider}
-                  />
-                  <AppLayoutRoute
-                    path="/vaults/:vaultAddress"
-                    component={VaultActionProvider}
-                  />
-                  <AppLayoutRoute path="/vaults" component={AllStrategyView} />
-                  <AppLayoutRoute path="/terms" component={TermsView} />
-                  <AppLayoutRoute path="/privacy" component={PrivacyView} />
-                  <AppLayoutRoute
-                    path="/portfolio/:category/:sideDrawerKey"
-                    component={PortfolioFeatureShell}
-                  />
-                  <AppLayoutRoute
-                    path="/portfolio/:category/"
-                    component={PortfolioFeatureShell}
-                  />
-                  <AppLayoutRoute
-                    path="/portfolio"
-                    component={PortfolioFeatureShell}
-                  />
-                  <AppLayoutRoute path="/treasury" component={TreasuryView} />
-                  <AppLayoutRoute path="/error" component={ServerError} />
-                  <LandingPageLayoutRoute
-                    path="/about"
-                    component={AboutUsView}
-                  />
-                  <LandingPageLayoutRoute
-                    path="/"
-                    component={LandingPageView}
-                  />
-                </Switch>
-                <TrackingConsent />
-              </RouteContainer>
-            </CompatRouter>
-          </QueryParamProvider>
-        </BrowserRouter>
-      </Web3OnboardProvider>
+      <NotionalContext.Provider value={globalState}>
+        <Web3OnboardProvider web3Onboard={OnboardContext}>
+          <CssBaseline />
+          <BrowserRouter>
+            <QueryParamProvider adapter={ReactRouter5Adapter}>
+              <CompatRouter>
+                <RouteContainer onRouteChange={setRouteKey}>
+                  <Switch>
+                    <AppLayoutRoute path="/airdrop" component={AirdropView} />
+                    <AppLayoutRoute
+                      path="/borrow/:currency/:collateral"
+                      routeKey={routeKey}
+                      component={BorrowFeatureShell}
+                    />
+                    <AppLayoutRoute path="/borrow" component={BorrowCardView} />
+                    <AppLayoutRoute
+                      path="/lend/:currency"
+                      component={LendFeatureShell}
+                    />
+                    <AppLayoutRoute path="/lend" component={LendCardView} />
+                    <AppLayoutRoute
+                      path="/provide/:currency"
+                      routeKey={routeKey}
+                      component={LiquidityCurrencyView}
+                    />
+                    <AppLayoutRoute
+                      path="/provide"
+                      component={ProvideLiquidityCards}
+                    />
+                    <AppLayoutRoute
+                      path="/stake/:ethOrWeth"
+                      component={StakeView}
+                    />
+                    <AppLayoutRoute path="/stake" component={StakeView} />
+                    <AppLayoutRoute
+                      path="/unstake/:unstakePath"
+                      component={StakeView}
+                    />
+                    <AppLayoutRoute path="/unstake" component={StakeView} />
+                    <AppLayoutRoute
+                      path="/vaults/:vaultAddress/:sideDrawerKey"
+                      component={VaultActionProvider}
+                    />
+                    <AppLayoutRoute
+                      path="/vaults/:vaultAddress"
+                      component={VaultActionProvider}
+                    />
+                    <AppLayoutRoute
+                      path="/vaults"
+                      component={AllStrategyView}
+                    />
+                    <AppLayoutRoute path="/terms" component={TermsView} />
+                    <AppLayoutRoute path="/privacy" component={PrivacyView} />
+                    <AppLayoutRoute
+                      path="/portfolio/:category/:sideDrawerKey"
+                      component={PortfolioFeatureShell}
+                    />
+                    <AppLayoutRoute
+                      path="/portfolio/:category/"
+                      component={PortfolioFeatureShell}
+                    />
+                    <AppLayoutRoute
+                      path="/portfolio"
+                      component={PortfolioFeatureShell}
+                    />
+                    <AppLayoutRoute path="/treasury" component={TreasuryView} />
+                    <AppLayoutRoute path="/error" component={ServerError} />
+                    <LandingPageLayoutRoute
+                      path="/about"
+                      component={AboutUsView}
+                    />
+                    <LandingPageLayoutRoute
+                      path="/"
+                      component={LandingPageView}
+                    />
+                  </Switch>
+                  <TrackingConsent />
+                </RouteContainer>
+              </CompatRouter>
+            </QueryParamProvider>
+          </BrowserRouter>
+        </Web3OnboardProvider>
+      </NotionalContext.Provider>
     </ThemeProvider>
   );
 };
