@@ -1,9 +1,11 @@
 import { BigNumber, utils } from 'ethers';
 import { TokenBalance } from '../token-balance';
-import { TokenDefinition } from '../definitions';
+import { TokenDefinition } from '..';
 import { ClientRegistry } from './client-registry';
 import { Network } from '@notional-finance/util';
 import { Routes } from '../server';
+// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
+import { TokenType } from '../.graphclient';
 
 export class TokenRegistryClient extends ClientRegistry<TokenDefinition> {
   protected cachePath = Routes.Tokens;
@@ -42,6 +44,39 @@ export class TokenRegistryClient extends ClientRegistry<TokenDefinition> {
     const token = this.getLatestFromSubject(network, id.toLowerCase());
     if (!token) throw Error(`${id} not found on ${network}`);
     return token;
+  }
+
+  public getTokensByCurrencyId(
+    network: Network,
+    currencyId: number,
+    tokenType?: TokenType
+  ) {
+    const tokens = this.getAllTokens(network).filter(
+      (t) =>
+        t.currencyId === currencyId &&
+        (tokenType === undefined || t.tokenType === tokenType)
+    );
+
+    if (tokenType && tokens.length === 0)
+      throw Error(`${tokenType} for ${currencyId} not found`);
+
+    return tokens;
+  }
+
+  public getPrimeCash(network: Network, currencyId: number) {
+    return this.getTokensByCurrencyId(network, currencyId, 'PrimeCash')[0];
+  }
+
+  public getPrimeDebt(network: Network, currencyId: number) {
+    return this.getTokensByCurrencyId(network, currencyId, 'PrimeDebt')[0];
+  }
+
+  public getNToken(network: Network, currencyId: number) {
+    return this.getTokensByCurrencyId(network, currencyId, 'nToken')[0];
+  }
+
+  public getUnderlying(network: Network, currencyId: number) {
+    return this.getTokensByCurrencyId(network, currencyId, 'Underlying')[0];
   }
 
   /** Allows various tokens to be registered externally on the client */

@@ -4,7 +4,7 @@ import {
   getProviderFromNetwork,
   Network,
 } from '@notional-finance/util';
-import { CacheSchema } from '../definitions';
+import { CacheSchema } from '..';
 import { BaseRegistry } from '../base';
 import { TypedDocumentNode } from '@graphql-typed-document-node/core';
 
@@ -33,24 +33,56 @@ export async function loadGraphClientDeferred() {
   };
 }
 
+export async function fetchUsingMulticall<T>(
+  network: Network,
+  calls: AggregateCall<T>[],
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  transforms: ((r: Record<string, any>) => Record<string, T>)[]
+): Promise<CacheSchema<T>> {
+  const { block, results } = await aggregate<T>(
+    calls,
+    getProviderFromNetwork(network)
+  );
+  const finalResults = transforms.reduce((r, t) => t(r), results);
+
+  return {
+    values: Object.entries(finalResults),
+    network,
+    lastUpdateTimestamp: block.timestamp,
+    lastUpdateBlock: block.number,
+  };
+}
+
+export async function fetchUsingGraph<T, R, V>(
+  network: Network,
+  query: TypedDocumentNode<R, V>,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  transform: (r: R) => Record<string, T>,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  variables?: V
+): Promise<CacheSchema<T>> {
+  // NOTE: in order for this to deploy with cloudflare workers, the import statement
+  // has to be deferred until here.
+  const { execute } = await loadGraphClientDeferred();
+  const data = await execute(query, variables, { chainName: network });
+  const finalResults = transform(data['data']);
+  const blockNumber = data['data']._meta?.block.number || 0;
+
+  return {
+    values: Object.entries(finalResults),
+    network,
+    lastUpdateTimestamp: getNowSeconds(),
+    lastUpdateBlock: blockNumber,
+  };
+}
+
 export abstract class ServerRegistry<T> extends BaseRegistry<T> {
   protected async _fetchUsingMulticall(
     network: Network,
     calls: AggregateCall<T>[],
     transforms: ((r: Record<string, T>) => Record<string, T>)[]
   ): Promise<CacheSchema<T>> {
-    const { block, results } = await aggregate<T>(
-      calls,
-      this.getProvider(network)
-    );
-    const finalResults = transforms.reduce((r, t) => t(r), results);
-
-    return {
-      values: Object.entries(finalResults),
-      network,
-      lastUpdateTimestamp: block.timestamp,
-      lastUpdateBlock: block.number,
-    };
+    return fetchUsingMulticall<T>(network, calls, transforms);
   }
 
   protected async _fetchUsingGraph<R, V>(
@@ -61,19 +93,7 @@ export abstract class ServerRegistry<T> extends BaseRegistry<T> {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     variables?: V
   ): Promise<CacheSchema<T>> {
-    // NOTE: in order for this to deploy with cloudflare workers, the import statement
-    // has to be deferred until here.
-    const { execute } = await loadGraphClientDeferred();
-    const data = await execute(query, variables, { chainName: network });
-    const finalResults = transform(data['data']);
-    const blockNumber = data['data']._meta?.block.number || 0;
-
-    return {
-      values: Object.entries(finalResults),
-      network,
-      lastUpdateTimestamp: getNowSeconds(),
-      lastUpdateBlock: blockNumber,
-    };
+    return fetchUsingGraph<T, R, V>(network, query, transform, variables);
   }
 
   protected getProvider(network: Network) {

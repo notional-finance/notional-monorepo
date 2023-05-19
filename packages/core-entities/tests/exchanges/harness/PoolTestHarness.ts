@@ -1,8 +1,7 @@
-import { TokenBalance } from '../../../src/token-balance';
 import { Network } from '@notional-finance/util';
 import { Signer, ethers, Contract } from 'ethers';
 import { BaseLiquidityPool } from '../../../src/exchanges';
-import { Registry } from '../../../src/registry';
+import { Registry, TokenBalance } from '../../../src';
 import { ERC20, ERC20ABI } from '@notional-finance/contracts';
 
 export class UnimplementedPoolMethod extends Error {

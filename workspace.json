@@ -26,6 +26,7 @@
     "multicall": "packages/multicall",
     "notionable": "packages/notionable",
     "registry": "apps/registry",
+    "risk-engine": "packages/risk-engine",
     "sdk": "packages/sdk",
     "shared-assets": "packages/shared/assets",
     "shared-config": "packages/shared/config",

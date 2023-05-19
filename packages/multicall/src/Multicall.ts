@@ -4,7 +4,7 @@ import { AggregateCall, NO_OP } from './types';
 
 const MULTICALL3 = '0xcA11bde05977b3631167028862bE2a173976CA11';
 
-async function getMulticall(provider: providers.Provider) {
+export function getMulticall(provider: providers.Provider) {
   return new Contract(MULTICALL3, Multicall2ABI, provider) as Multicall2;
 }
 
@@ -113,7 +113,7 @@ export async function aggregate<T = unknown>(
   provider: providers.Provider,
   _multicall?: Multicall2
 ) {
-  const multicall = _multicall || (await getMulticall(provider));
+  const multicall = _multicall || getMulticall(provider);
   const stages = getStages(calls);
   let results = {} as Record<string, T>;
 

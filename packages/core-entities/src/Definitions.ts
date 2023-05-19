@@ -4,7 +4,13 @@ import { TokenBalance } from './token-balance';
 import { Network } from '@notional-finance/util';
 import { BehaviorSubject } from 'rxjs';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
-import { TokenInterface, TokenType, OracleType } from './.graphclient';
+import {
+  TokenInterface,
+  TokenType,
+  OracleType,
+  TransferType,
+  SystemAccount,
+} from './.graphclient';
 
 export interface TokenDefinition {
   /** Defines the ERC1155 or ERC721 id of the token, if it exists */
@@ -31,6 +37,8 @@ export interface TokenDefinition {
   vaultAddress?: string;
   /** Only true for fCash assets */
   isFCashDebt?: boolean;
+  /** Currency ID for notional listed tokens */
+  currencyId?: number;
 }
 
 export interface OracleDefinition {
@@ -49,8 +57,6 @@ export interface OracleDefinition {
   decimals: number;
   /** Most current exchange rate for this oracle */
   latestRate: ExchangeRate;
-  /** Array of historical exchange rates for this oracle */
-  historicalRates: ExchangeRate[];
 }
 
 export interface ExchangeRate {
@@ -79,6 +85,58 @@ export interface PoolDefinition {
   registerTokens: TokenDefinition[];
 }
 
+/** Account Definition Hierarchy **/
+
+export interface AccountDefinition {
+  /** Address of the account */
+  address: string;
+  /** Network this account definition is associated with */
+  network: Network;
+  /** Balances may include external wallet balances */
+  balances: TokenBalance[];
+  /** Any transactions that have included transfers to this account */
+  transactions?: Transaction[];
+  /** Specific allowances tracked for user interface purposes */
+  allowances?: Allowance[];
+}
+
+/** ERC20 allowances tracked for UI purposes */
+export interface Allowance {
+  spender: string;
+  amount: TokenBalance;
+}
+
+/** A single blockchain transaction, multiple accounts may be involved in a single transaction */
+export interface Transaction {
+  transactionHash: string;
+  blockNumber: number;
+  timestamp: number;
+  /** Transfer bundles are logical groupings of individual transfers */
+  bundles: TransferBundle[];
+}
+
+/** A logical grouping of transfers */
+export interface TransferBundle {
+  id: string;
+  startLogIndex: number;
+  endLogIndex: number;
+  transfers: Transfer[];
+}
+
+/** Transfer of a single asset */
+export interface Transfer {
+  id: string;
+  logIndex: number;
+  token: TokenDefinition;
+  transferType: TransferType;
+  from: string;
+  fromSystemAccount: SystemAccount;
+  to: string;
+  toSystemAccount: SystemAccount;
+  value: TokenBalance;
+  valueInUnderlying: TokenBalance;
+}
+
 export interface CacheSchema<T> {
   values: Array<[string, T | null]>;
   network: Network;
@@ -87,3 +145,5 @@ export interface CacheSchema<T> {
 }
 
 export type SubjectMap<T> = Map<string, BehaviorSubject<T | null>>;
+
+export type RiskAdjustment = 'None' | 'Asset' | 'Debt';

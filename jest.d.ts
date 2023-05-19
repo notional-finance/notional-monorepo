@@ -1,7 +1,9 @@
 /// <reference types="jest" />
 
 import { TokenBalance } from '@notional-finance/token-balance';
+import { Network } from '@notional-finance/util';
 import { Signer } from 'ethers';
+import { AccountFetchMode } from 'packages/core-entities/src/client/account-registry-client';
 
 export {};
 
@@ -14,9 +16,23 @@ declare global {
       withFork: (
         chainConfig: {
           blockNumber: number;
-          network: string;
+          network: Network;
           useTokens?: boolean;
         },
+        name: string,
+        fn: () => void
+      ) => void;
+      withRegistry: (
+        config: {
+          snapshotPath?: string;
+          fetchMode: AccountFetchMode;
+          network: Network;
+        },
+        name: string,
+        fn: (blockNumber: number, blockTime: number) => void
+      ) => void;
+      withForkAndRegistry: (
+        config: { network: Network; fetchMode: AccountFetchMode },
         name: string,
         fn: () => void
       ) => void;

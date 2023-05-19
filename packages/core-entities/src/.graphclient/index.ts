@@ -6079,14 +6079,12 @@ export type AllConfigurationQuery = { currencyConfigurations: Array<(
     & { primaryBorrowCurrency: Pick<Token, 'id'>, secondaryBorrowCurrencies?: Maybe<Array<Pick<Token, 'id'>>> }
   )>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
 
-export type AllOraclesQueryVariables = Exact<{
-  numHistoricalRates?: InputMaybe<Scalars['Int']>;
-}>;
+export type AllOraclesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type AllOraclesQuery = { oracles: Array<(
     Pick<Oracle, 'id' | 'lastUpdateBlockNumber' | 'lastUpdateTimestamp' | 'decimals' | 'oracleAddress' | 'oracleType' | 'mustInvert' | 'latestRate'>
-    & { base: Pick<Token, 'id'>, quote: Pick<Token, 'id'>, historicalRates?: Maybe<Array<Pick<ExchangeRate, 'blockNumber' | 'timestamp' | 'rate'>>> }
+    & { base: Pick<Token, 'id'>, quote: Pick<Token, 'id'> }
   )>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
 
 export type AllTokensQueryVariables = Exact<{ [key: string]: never; }>;
@@ -6214,9 +6212,9 @@ export const AllConfigurationDocument = gql`
 }
     ` as unknown as DocumentNode<AllConfigurationQuery, AllConfigurationQueryVariables>;
 export const AllOraclesDocument = gql`
-    query AllOracles($numHistoricalRates: Int) {
+    query AllOracles {
   oracles(
-    where: {oracleType_not_in: [PrimeCashToUnderlyingOracleInterestRate, PrimeCashToMoneyMarketExchangeRate, PrimeDebtToMoneyMarketExchangeRate, MoneyMarketToUnderlyingExchangeRate, MoneyMarketToUnderlyingOracleInterestRate]}
+    where: {oracleType_not_in: [PrimeCashToUnderlyingOracleInterestRate, PrimeCashToMoneyMarketExchangeRate, PrimeDebtToMoneyMarketExchangeRate, MoneyMarketToUnderlyingExchangeRate, MoneyMarketToUnderlyingOracleInterestRate, fCashSpotRate]}
   ) {
     id
     lastUpdateBlockNumber
@@ -6232,11 +6230,6 @@ export const AllOraclesDocument = gql`
     oracleType
     mustInvert
     latestRate
-    historicalRates(first: $numHistoricalRates) {
-      blockNumber
-      timestamp
-      rate
-    }
   }
   _meta {
     block {

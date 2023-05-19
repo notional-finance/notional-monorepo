@@ -1,12 +1,14 @@
 import {
+  ALT_ETH,
   convertToGenericfCashId,
   Network,
   RATE_PRECISION,
   SCALAR_PRECISION,
+  ZERO_ADDRESS,
 } from '@notional-finance/util';
 import { BigNumber, BigNumberish, utils } from 'ethers';
-import { ExchangeRate, TokenDefinition } from './definitions';
-import { Registry } from './registry';
+import { parseUnits } from 'ethers/lib/utils';
+import { Registry, ExchangeRate, TokenDefinition, RiskAdjustment } from '.';
 
 export type SerializedTokenBalance = ReturnType<TokenBalance['toJSON']>;
 
@@ -18,9 +20,26 @@ export class TokenBalance {
     public network: Network
   ) {
     this.tokenId = convertToGenericfCashId(tokenId);
+    // Rewrite alt eth address to zero address
+    if (this.tokenId === ALT_ETH) this.tokenId = ZERO_ADDRESS;
+  }
+
+  static fromFloat(n: number, token: TokenDefinition) {
+    const bn = parseUnits(n.toString(), token.decimals);
+    return new TokenBalance(bn, token.id, token.network);
   }
 
   static from(n: BigNumberish, token: TokenDefinition) {
+    return new TokenBalance(BigNumber.from(n), token.id, token.network);
+  }
+
+  static fromID(n: BigNumberish, id: string, network: Network) {
+    const token = Registry.getTokenRegistry().getTokenByID(network, id);
+    return new TokenBalance(BigNumber.from(n), token.id, token.network);
+  }
+
+  static fromSymbol(n: BigNumberish, symbol: string, network: Network) {
+    const token = Registry.getTokenRegistry().getTokenBySymbol(network, symbol);
     return new TokenBalance(BigNumber.from(n), token.id, token.network);
   }
 
@@ -55,6 +74,16 @@ export class TokenBalance {
     };
   }
 
+  get isVaultToken() {
+    return this.token.vaultAddress !== undefined;
+  }
+
+  get currencyId() {
+    const id = this.token.currencyId;
+    if (!id) throw Error('Currency ID undefined');
+    return id;
+  }
+
   get token() {
     return Registry.getTokenRegistry().getTokenByID(this.network, this.tokenId);
   }
@@ -80,6 +109,16 @@ export class TokenBalance {
   /** TokenBalance objects with the same hash key have the same value */
   get hashKey() {
     return utils.id([this.typeKey, this.n.toString()].join(':'));
+  }
+
+  get underlying() {
+    if (this.token.tokenType == 'Underlying') return this.token;
+    if (!this.token.underlying)
+      throw Error(`No underlying defined for ${this.token.symbol}`);
+    return Registry.getTokenRegistry().getTokenByID(
+      this.token.network,
+      this.token.underlying
+    );
   }
 
   /** Returns a JSON serializable version of the object */
@@ -319,42 +358,51 @@ export class TokenBalance {
    * @param discount a discount or buffer scaled to a 100, used for haircuts and buffers
    * @returns a new token balance object
    */
-  toToken(token: TokenDefinition, exchangeRate?: ExchangeRate | null) {
+  toToken(
+    token: TokenDefinition,
+    riskAdjustment: RiskAdjustment = 'None',
+    exchangeRate?: ExchangeRate | null
+  ) {
     if (!exchangeRate) {
       const oracleRegistry = Registry.getOracleRegistry();
       // Fetch the latest exchange rate
+      // TODO: if doing settlement then then token id needs to be the actual fCash (not generic fcash id)
       const path = oracleRegistry.findPath(
         this.token.id,
         token.id,
         this.token.network
       );
-      exchangeRate = oracleRegistry.getLatestFromPath(this.token.network, path);
+      exchangeRate = oracleRegistry.getLatestFromPath(
+        this.token.network,
+        path,
+        riskAdjustment
+      );
     }
 
     if (!exchangeRate) throw Error('No Exchange Rate');
     return new TokenBalance(
       // All exchange rates from the registry are in scalar precision
-      this.scale(SCALAR_PRECISION, exchangeRate.rate).scaleTo(token.decimals),
+      this.scale(exchangeRate.rate, SCALAR_PRECISION).scaleTo(token.decimals),
       token.id,
       token.network
     );
   }
 
   toUnderlying() {
-    if (this.token.tokenType == 'Underlying') return this;
-    if (!this.token.underlying)
-      throw Error(`No underlying defined for ${this.token.symbol}`);
-    const underlying = Registry.getTokenRegistry().getTokenByID(
-      this.token.network,
-      this.token.underlying
-    );
-
+    if (this.token.tokenType === 'Underlying') return this;
     // Does the exchange rate conversion and decimal scaling
-    return this.toToken(underlying);
+    return this.toToken(this.underlying);
   }
 
   toRiskAdjustedUnderlying() {
-    throw Error('Unimplemented');
+    return this.toToken(
+      this.underlying,
+      this.n.isNegative() ? 'Debt' : 'Asset'
+    );
+  }
+
+  toTokenViaExchange(_token: TokenDefinition) {
+    throw Error('unimplemented');
     return this;
   }
 }

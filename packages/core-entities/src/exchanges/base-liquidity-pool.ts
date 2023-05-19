@@ -1,7 +1,11 @@
-import { doBinarySearch } from './math/binary-search';
 import { AbstractLiquidityPool } from './abstract-liquidity-pool';
 import { ExchangeRate, TokenBalance } from '..';
-import { Network, RATE_DECIMALS, RATE_PRECISION } from '@notional-finance/util';
+import {
+  Network,
+  RATE_DECIMALS,
+  RATE_PRECISION,
+  doBinarySearch,
+} from '@notional-finance/util';
 import { BigNumber } from 'ethers';
 
 export default abstract class BaseLiquidityPool<
@@ -53,6 +57,7 @@ export default abstract class BaseLiquidityPool<
             ? b
             : b.toToken(
                 primaryToken,
+                'None', // No Risk adjustment here
                 oraclePrices ? oraclePrices[i] : undefined
               )
         )

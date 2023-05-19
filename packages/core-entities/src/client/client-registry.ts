@@ -1,7 +1,7 @@
 import { Network } from '@notional-finance/util';
 import crossFetch from 'cross-fetch';
 import { BigNumber } from 'ethers';
-import { CacheSchema } from '../definitions';
+import { CacheSchema } from '..';
 import FixedPoint from '../exchanges/BalancerV2/fixed-point';
 import { TokenBalance } from '../token-balance';
 import { BaseRegistry } from '../base/base-registry';

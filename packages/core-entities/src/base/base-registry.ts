@@ -5,12 +5,13 @@ import {
   filter,
   from,
   Observable,
+  of,
   Subscription,
   take,
   timeout,
   timer,
 } from 'rxjs';
-import { CacheSchema, SubjectMap } from '../definitions';
+import { CacheSchema, SubjectMap } from '..';
 
 interface SubjectKey {
   network: Network;
@@ -136,6 +137,22 @@ export abstract class BaseRegistry<T> {
     this._intervalSubscription.get(network)?.unsubscribe();
     this._interval.delete(network);
     this._intervalMS.delete(network);
+  }
+
+  protected _triggerRefresh(network: Network, intervalNum: number) {
+    const intervalMS = this._intervalMS.get(network) || 0;
+
+    of(intervalNum)
+      .pipe(
+        exhaustMap((intervalNum) => {
+          return from(this._refresh(network, intervalNum)).pipe(
+            timeout(intervalMS / 2)
+          );
+        })
+      )
+      .subscribe((d) => {
+        this._updateNetworkObservables(d);
+      });
   }
 
   /** Starts refreshes on the network at the specified interval */

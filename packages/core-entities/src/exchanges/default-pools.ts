@@ -1,5 +1,5 @@
-import { Network } from '@notional-finance/util';
-import { PoolDefinition } from '../definitions';
+import { ALT_ETH, Network } from '@notional-finance/util';
+import { PoolDefinition } from '..';
 
 const defaultPools: Record<Network, PoolDefinition[]> = {
   [Network.Mainnet]: [
@@ -120,11 +120,11 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
         },
         // Register ALT_ETH
         {
-          id: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
-          address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
+          id: ALT_ETH,
+          address: ALT_ETH,
           network: Network.ArbitrumOne,
-          symbol: 'ETH',
-          name: 'Ether',
+          symbol: 'ETH [Alt]',
+          name: 'Ether [Alternate]',
           decimals: 18,
           tokenInterface: 'ERC20', // TODO: change this to Ether interface
           tokenType: 'Underlying',

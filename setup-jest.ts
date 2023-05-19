@@ -1,10 +1,13 @@
-import { tokenBalanceMatchers } from './packages/core-entities/src';
+import { Registry, tokenBalanceMatchers } from './packages/core-entities/src';
 import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
 import { Contract, ethers, Signer, Wallet } from 'ethers';
 import { ERC20, ERC20ABI } from './packages/contracts/src';
 import fetchMock from 'jest-fetch-mock';
+import httpserver from 'http-server';
 import { AlchemyUrl, Network } from './packages/util/src';
 import fs from 'fs';
+import { Server } from 'node:http';
+import { AccountFetchMode } from '@notional-finance/core-entities/src/client/account-registry-client';
 
 require('dotenv').config();
 
@@ -170,3 +173,78 @@ async function setupWhales(
     whales.map(([token, account]) => [token, provider.getSigner(account)])
   );
 }
+
+(describe as any).withRegistry = (
+  {
+    snapshotPath = `${__dirname}/packages/core-entities/tests/clients/__snapshots__`,
+    network,
+    fetchMode,
+  }: { snapshotPath: string; network: Network; fetchMode: AccountFetchMode },
+  name: string,
+  fn: (blockNumber: number, blockTime: number) => void
+) => {
+  let server: Server;
+
+  describe(name, () => {
+    // Start and stop cache server
+    let blockNumber = 0;
+    let blockTime = 0;
+
+    beforeAll(async () => {
+      server = httpserver.createServer({
+        root: snapshotPath,
+      });
+
+      Registry.initialize('http://localhost:9999', fetchMode);
+      await new Promise<void>((resolve) => {
+        server.listen(9999, () => {
+          resolve();
+        });
+      });
+      Registry.startRefresh(network);
+
+      // Set the appropriate fake time
+      await new Promise<void>((resolve) => {
+        Registry.onNetworkReady(network, () => {
+          blockTime =
+            Registry.getConfigurationRegistry().getLastUpdateTimestamp(network);
+          blockNumber =
+            Registry.getConfigurationRegistry().getLastUpdateBlock(network);
+          process.env['FAKE_TIME'] = `${blockTime}`;
+          console.log(
+            `Registry at block ${blockNumber} with timestamp ${blockTime}`
+          );
+          resolve();
+        });
+      });
+    });
+
+    fn(blockNumber, blockTime);
+
+    afterAll(() => {
+      Registry.stopRefresh(network);
+      server.close();
+    });
+  });
+};
+
+(describe as any).withForkAndRegistry = (
+  { network, fetchMode }: { network: Network; fetchMode: AccountFetchMode },
+  name: string,
+  fn: () => void
+) => {
+  (describe as any).withRegistry(
+    { network, fetchMode },
+    'With Registry',
+    (blockNumber: number) => {
+      (describe as any).withFork(
+        {
+          blockNumber,
+          network,
+        },
+        name,
+        fn
+      );
+    }
+  );
+};

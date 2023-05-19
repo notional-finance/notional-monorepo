@@ -2,12 +2,15 @@ import {
   IAggregatorABI,
   IAggregator,
   IStrategyVaultABI,
+  NotionalV3ABI,
+  Notional,
 } from '@notional-finance/contracts';
 import { aggregate, AggregateCall } from '@notional-finance/multicall';
 import {
   decodeERC1155Id,
   INTERNAL_TOKEN_PRECISION,
   Network,
+  NotionalAddress,
   ZERO_ADDRESS,
 } from '@notional-finance/util';
 import { BigNumber, Contract } from 'ethers';
@@ -15,7 +18,6 @@ import { OracleDefinition, CacheSchema } from '..';
 import { loadGraphClientDeferred, ServerRegistry } from './server-registry';
 
 export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
-  public NUM_HISTORICAL_RATES = 25;
   // Interval refreshes only update the latest rates
   public INTERVAL_REFRESH_SECONDS = 10;
   // Configuration refreshes every hour and updates all information
@@ -31,7 +33,7 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
       this.isNetworkRegistered(network) === false
     ) {
       // Trigger a refresh of the oracle configuration, this will happen when intervalNum == 0 as well
-      results = await this._queryAllOracles(network, this.NUM_HISTORICAL_RATES);
+      results = await this._queryAllOracles(network);
     } else {
       // Get the current oracle configuration from the subjects
       const values = Array.from(
@@ -50,41 +52,28 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
     return this._updateLatestRates(results);
   }
 
-  private async _queryAllOracles(network: Network, numHistoricalRates: number) {
+  private async _queryAllOracles(network: Network) {
     const { AllOraclesDocument } = await loadGraphClientDeferred();
-    return this._fetchUsingGraph(
-      network,
-      AllOraclesDocument,
-      (r) => {
-        return r.oracles.reduce((obj, v) => {
-          obj[v.id] = {
-            id: v.id,
-            oracleAddress: v.oracleAddress as string,
-            network,
-            oracleType: v.oracleType,
-            base: v.base.id,
-            quote: v.quote.id,
-            decimals: v.decimals,
-            latestRate: {
-              rate: BigNumber.from(v.latestRate),
-              timestamp: v.lastUpdateTimestamp,
-              blockNumber: v.lastUpdateBlockNumber,
-            },
-            historicalRates:
-              v.historicalRates?.map((h) => {
-                return {
-                  rate: BigNumber.from(h.rate),
-                  timestamp: h.timestamp,
-                  blockNumber: h.blockNumber,
-                };
-              }) || [],
-          };
+    return this._fetchUsingGraph(network, AllOraclesDocument, (r) => {
+      return r.oracles.reduce((obj, v) => {
+        obj[v.id] = {
+          id: v.id,
+          oracleAddress: v.oracleAddress as string,
+          network,
+          oracleType: v.oracleType,
+          base: v.base.id,
+          quote: v.quote.id,
+          decimals: v.decimals,
+          latestRate: {
+            rate: BigNumber.from(v.latestRate),
+            timestamp: v.lastUpdateTimestamp,
+            blockNumber: v.lastUpdateBlockNumber,
+          },
+        };
 
-          return obj;
-        }, {} as Record<string, OracleDefinition>);
-      },
-      { numHistoricalRates }
-    );
+        return obj;
+      }, {} as Record<string, OracleDefinition>);
+    });
   }
 
   /**
@@ -164,6 +153,21 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
             ),
             method: 'convertStrategyToUnderlying',
             args: [oracle.oracleAddress, INTERNAL_TOKEN_PRECISION, maturity],
+          };
+        } else if (oracle?.oracleType === 'fCashOracleRate') {
+          const { maturity, currencyId } = decodeERC1155Id(oracle.quote);
+          const notional = NotionalAddress[oracle.network];
+          return {
+            key: id,
+            target: new Contract(notional, NotionalV3ABI, provider),
+            method: 'getActiveMarkets',
+            args: [currencyId],
+            transform: (
+              r: Awaited<ReturnType<Notional['getActiveMarkets']>>
+            ) => {
+              return r.find((m) => m.maturity.toNumber() === maturity)
+                ?.oracleRate;
+            },
           };
         } else {
           return null;
