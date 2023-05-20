@@ -36,7 +36,6 @@ import {
 import { Contracts } from '.';
 
 /* Endpoints */
-import kovanAddresses from './config/kovan.json';
 import goerliAddresses from './config/goerli.json';
 import mainnetAddresses from './config/mainnet.json';
 import graphEndpoints from './config/graph.json';
@@ -56,6 +55,8 @@ interface Addresses {
 }
 
 const baseCacheUrl = process.env['NX_SYSTEM_CACHE_URL'];
+const subgraphApiKey = process.env['NX_SUBGRAPH_API_KEY'];
+
 /**
  * Provides an abstraction layer for interacting with Notional contracts.
  */
@@ -119,28 +120,30 @@ export default class Notional extends TransactionBuilder {
       case 1:
         return {
           addresses: mainnetAddresses,
-          graphEndpoint: graphEndpoints['mainnet:http'],
+          graphEndpoint: graphEndpoints['mainnet:http'].replace(
+            '[apiKey]',
+            subgraphApiKey || ''
+          ),
           pollInterval: Number(graphEndpoints['mainnet:poll']),
           cacheUrl: `${baseCacheUrl}/v2/mainnet`,
         };
       case 5:
         return {
           addresses: goerliAddresses,
-          graphEndpoint: graphEndpoints['goerli:http'],
+          graphEndpoint: graphEndpoints['goerli:http'].replace(
+            '[apiKey]',
+            subgraphApiKey || ''
+          ),
           pollInterval: Number(graphEndpoints['goerli:poll']),
           cacheUrl: `${baseCacheUrl}/v2/goerli`,
-        };
-      case 42:
-        return {
-          addresses: kovanAddresses,
-          graphEndpoint: graphEndpoints['kovan:http'],
-          pollInterval: Number(graphEndpoints['kovan:poll']),
-          cacheUrl: `${baseCacheUrl}/v2/kovan`,
         };
       case 1337:
         return {
           addresses: mainnetAddresses,
-          graphEndpoint: graphEndpoints['mainnet:http'],
+          graphEndpoint: graphEndpoints['mainnet:http'].replace(
+            '[apiKey]',
+            subgraphApiKey || ''
+          ),
           pollInterval: Number(graphEndpoints['local:poll']),
           cacheUrl: `${baseCacheUrl}/v2/local`,
         };
@@ -163,7 +166,6 @@ export default class Notional extends TransactionBuilder {
   ) {
     const { addresses, graphEndpoint, pollInterval, cacheUrl } =
       this.getChainConfig(chainId);
-
     const signer = new VoidSigner(ethers.constants.AddressZero, provider);
     const contracts = Notional.getContracts(addresses, signer);
     const graphClient = new GraphClient(
