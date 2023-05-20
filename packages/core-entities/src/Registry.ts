@@ -84,6 +84,16 @@ export class Registry {
     Registry.getAccountRegistry().stopRefresh(network);
   }
 
+  public static isRefreshRunning(network: Network) {
+    return (
+      Registry.getTokenRegistry().isRefreshRunning(network) &&
+      Registry.getExchangeRegistry().isRefreshRunning(network) &&
+      Registry.getOracleRegistry().isRefreshRunning(network) &&
+      Registry.getConfigurationRegistry().isRefreshRunning(network) &&
+      Registry.getAccountRegistry().isRefreshRunning(network)
+    );
+  }
+
   public static getTokenRegistry() {
     if (Registry._tokens == undefined) throw Error('Token Registry undefined');
     return Registry._tokens;

@@ -6,7 +6,9 @@ import { ClientRegistry } from './client-registry';
 import { Routes } from '../server';
 
 export class ExchangeRegistryClient extends ClientRegistry<PoolDefinition> {
-  protected cachePath = Routes.Exchanges;
+  protected cachePath() {
+    return Routes.Exchanges;
+  }
 
   public subscribePoolInstance<T extends BaseLiquidityPool<unknown>>(
     network: Network,

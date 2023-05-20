@@ -38,6 +38,7 @@ import { TermsView } from '../../containers/TermsView';
 import { PrivacyView } from '../../containers/PrivacyView';
 import { LandingPageView } from '../../containers/LandingPageView';
 import { ProvideLiquidityCards } from '@notional-finance/liquidity-feature-shell';
+import { getDefaultNetworkFromHostname } from '@notional-finance/util';
 
 export const App = () => {
   const { pendingChainId, initializeNotional } = useNotional();
@@ -65,10 +66,20 @@ export const App = () => {
   }, [pendingChainId, initializeNotional]);
 
   const globalState = useObservableContext(
-    initialGlobalState,
+    {
+      ...initialGlobalState,
+    },
     {},
     loadGlobalManager
   );
+
+  // Run as a useEffect here so that the observable "sees" the initial change
+  const { updateState } = globalState;
+  useEffect(() => {
+    updateState({
+      selectedNetwork: getDefaultNetworkFromHostname(window.location.hostname),
+    });
+  }, [updateState]);
 
   return (
     <NotionalContext.Provider value={globalState}>

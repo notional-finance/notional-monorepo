@@ -1,4 +1,4 @@
-import { Network } from '@notional-finance/util';
+import { filterEmpty, Network } from '@notional-finance/util';
 import { Observable, merge, pairwise, filter, switchMap } from 'rxjs';
 import { GlobalState } from './global-state';
 import { onSelectedNetworkChange } from './logic';
@@ -15,7 +15,8 @@ export const loadGlobalManager = (
         cur.selectedNetwork as Network,
         prev.selectedNetwork
       );
-    })
+    }),
+    filterEmpty()
   );
 
   return merge(onSelectedNetworkChange$);

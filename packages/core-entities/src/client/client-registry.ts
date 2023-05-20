@@ -10,14 +10,14 @@ const USE_CROSS_FETCH =
   process.env['NX_USE_CROSS_FETCH'] || process.env['NODE_ENV'] == 'test';
 
 export abstract class ClientRegistry<T> extends BaseRegistry<T> {
-  protected abstract cachePath: string;
+  protected abstract cachePath(): string;
 
   constructor(public cacheHostname: string) {
     super();
   }
 
   public cacheURL(network: Network) {
-    return `${this.cacheHostname}/${this.cachePath}?network=${network}`;
+    return `${this.cacheHostname}/${this.cachePath()}?network=${network}`;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

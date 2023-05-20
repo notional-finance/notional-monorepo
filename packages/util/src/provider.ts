@@ -67,3 +67,10 @@ export function getNetworkFromId(id: number) {
   const keys = Object.keys(NetworkId) as Network[];
   return keys.find((k: keyof typeof NetworkId) => NetworkId[k] === id);
 }
+
+export function getDefaultNetworkFromHostname(hostname: string) {
+  switch (hostname) {
+    default:
+      return Network.ArbitrumOne;
+  }
+}

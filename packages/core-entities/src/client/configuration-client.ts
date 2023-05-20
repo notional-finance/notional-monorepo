@@ -15,7 +15,9 @@ import { Maybe } from '../.graphclient';
 import { BigNumber } from 'ethers';
 
 export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
-  protected cachePath = Routes.Configuration;
+  protected cachePath() {
+    return Routes.Configuration;
+  }
 
   getAllListedVaults(network: Network) {
     return this.getLatestFromSubject(network, network)?.vaultConfigurations;

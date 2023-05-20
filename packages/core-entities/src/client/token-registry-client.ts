@@ -8,7 +8,9 @@ import { Routes } from '../server';
 import { TokenType } from '../.graphclient';
 
 export class TokenRegistryClient extends ClientRegistry<TokenDefinition> {
-  protected cachePath = Routes.Tokens;
+  protected cachePath() {
+    return Routes.Tokens;
+  }
 
   public getAllTokens(network: Network) {
     return Array.from(this.getLatestFromAllSubjects(network).values());

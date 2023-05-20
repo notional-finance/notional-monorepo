@@ -40,7 +40,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
     super(cacheHostname);
   }
 
-  protected get cachePath() {
+  protected cachePath() {
     if (this.fetchMode === AccountFetchMode.SINGLE_ACCOUNT_DIRECT) {
       // In single account mode, will only fetch the active account from the cache to get any
       // vault account positions
