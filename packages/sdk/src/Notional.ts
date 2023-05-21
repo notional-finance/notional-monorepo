@@ -116,6 +116,8 @@ export default class Notional extends TransactionBuilder {
   }
 
   public static getChainConfig(chainId: number) {
+    console.log('get chain config: ', subgraphApiKey);
+
     switch (chainId) {
       case 1:
         return {
