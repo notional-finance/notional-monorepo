@@ -115,6 +115,7 @@ export default class Notional extends TransactionBuilder {
     };
   }
 
+  /** Returns the chain config */
   public static getChainConfig(chainId: number) {
     switch (chainId) {
       case 1:
