@@ -9,6 +9,8 @@ import { useLocation, useParams } from 'react-router';
 import { EMPTY, Observable, scan, switchMap } from 'rxjs';
 import { QueryParamConfigMap, useQueryParams } from 'use-query-params';
 
+const DEBUG = process.env['NODE_ENV'] === 'development';
+
 export interface ObservableContext<T> {
   updateState: (args: Partial<T>) => void;
   state$: Observable<T>;
@@ -51,7 +53,10 @@ export function useObservableContext<T extends Record<string, unknown>>(
   >(
     (state$) =>
       state$.pipe(
-        scan((state, update) => ({ ...state, ...update }), initialState)
+        scan((state, update) => {
+          if (DEBUG) console.log('update:', update, 'state: ', state);
+          return { ...state, ...update };
+        }, initialState)
       ),
     // Transforms the list of args into a single arg which is Partial<T>
     (args) => args[0]

@@ -18,7 +18,7 @@ import {
   ZERO_ADDRESS,
 } from '@notional-finance/util';
 import { BigNumber, Contract } from 'ethers';
-import { take } from 'rxjs';
+import { BehaviorSubject, filter, lastValueFrom, take, takeUntil } from 'rxjs';
 import { AccountDefinition, CacheSchema, Registry, TokenBalance } from '..';
 import { Routes } from '../server';
 import { fetchUsingMulticall } from '../server/server-registry';
@@ -34,7 +34,7 @@ export enum AccountFetchMode {
 }
 
 export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
-  protected _activeAccount: string | undefined;
+  protected _activeAccount = new BehaviorSubject<string | null>(null);
 
   constructor(cacheHostname: string, public fetchMode: AccountFetchMode) {
     super(cacheHostname);
@@ -53,7 +53,11 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
   get activeAccount() {
     if (this.fetchMode !== AccountFetchMode.SINGLE_ACCOUNT_DIRECT)
       throw Error('Must be in single account mode');
-    return this._activeAccount;
+    return this._activeAccount.getValue();
+  }
+
+  get activeAccount$() {
+    return this._activeAccount.asObservable();
   }
 
   public getAccount(network: Network, account: string) {
@@ -67,29 +71,34 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
   }
 
   public subscribeAccount(network: Network, account: string) {
-    if (
-      this.fetchMode === AccountFetchMode.SINGLE_ACCOUNT_DIRECT &&
-      account !== this.activeAccount
-    )
-      throw Error('Can only fetch active account');
+    const sub = this.subscribeSubject(network, account);
+    if (!sub) throw Error(`Account ${account} on ${network} not found`);
 
-    return this.subscribeSubject(network, account);
+    if (this.fetchMode === AccountFetchMode.SINGLE_ACCOUNT_DIRECT) {
+      if (account !== this.activeAccount)
+        throw Error('Can only fetch active account');
+
+      // Take the values from the subscription until the active account changes
+      return sub.pipe(
+        takeUntil(this.activeAccount$.pipe(filter((a) => a !== account)))
+      );
+    }
+
+    return sub;
   }
 
   /** Triggers a manual refresh of the active account and provides an optional callback on refresh complete */
-  public refreshActiveAccount(
-    network: Network,
-    onRefresh?: (a: AccountDefinition | null) => void
-  ) {
-    if (this.activeAccount === undefined) throw Error('No active account');
+  public refreshActiveAccount(network: Network) {
+    if (this.activeAccount === null) throw Error('No active account');
 
-    if (onRefresh) {
-      this.subscribeAccount(network, this.activeAccount)
-        ?.pipe(take(1))
-        .subscribe(onRefresh);
-    }
+    // Returns a promise for the  value from the manual refresh
+    const p = lastValueFrom(
+      this.subscribeAccount(network, this.activeAccount).pipe(take(1))
+    );
 
     this._triggerRefresh(network, 0);
+
+    return p;
   }
 
   /** Switches the actively listened account to the newly registered one on the specified network*/
@@ -102,14 +111,14 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
 
     if (
       this.fetchMode === AccountFetchMode.SINGLE_ACCOUNT_DIRECT &&
-      this._activeAccount !== account
+      this.activeAccount !== account
     ) {
       // NOTE: deletes the previously active account from the network subjects
-      // registry, this does not emit an event currently
-      if (this._activeAccount)
-        this.networkSubjects.get(network)?.delete(this._activeAccount);
+      // registry
+      if (this.activeAccount)
+        this.networkSubjects.get(network)?.delete(this.activeAccount);
 
-      this._activeAccount = account;
+      this._activeAccount.next(account);
 
       // Kick off a refresh of the accounts if in single account mode and we are
       // changing the account
@@ -135,7 +144,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
       provider
     ) as NotionalV3;
 
-    if (this.activeAccount === undefined) {
+    if (this.activeAccount === null) {
       return {
         values: [],
         network,
