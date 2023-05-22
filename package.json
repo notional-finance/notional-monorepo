@@ -23,6 +23,7 @@
     "@tryghost/content-api": "^1.5.13",
     "@typeform/embed-react": "^1.16.0",
     "@types/recharts": "^1.8.24",
+    "@web3-onboard/react": "^2.8.2",
     "abi-decoder": "^2.4.0",
     "axios": "^0.27.2",
     "bnc-sdk": "^4.3.0",

@@ -7524,6 +7524,15 @@
     ethers "5.5.4"
     joi "17.9.1"
 
+"@web3-onboard/common@^2.3.2":
+  version "2.3.2"
+  resolved "https://registry.yarnpkg.com/@web3-onboard/common/-/common-2.3.2.tgz#bf2868e3a093a20a1390eea596e82922c2af8cd8"
+  integrity sha512-BmMc7MhqrpWD3RxJ2IWppF7AKRRFdaUrcIUvUa3/MNV6IrwFoHcg9eTsFPlF0cUqJip+oQz0XGCqdlVgcSLAcQ==
+  dependencies:
+    bignumber.js "^9.1.0"
+    ethers "5.5.4"
+    joi "17.9.1"
+
 "@web3-onboard/core@^2.16.2":
   version "2.16.2"
   resolved "https://registry.yarnpkg.com/@web3-onboard/core/-/core-2.16.2.tgz#49b46d539e54d170e445065ff4017d8a53c90835"
@@ -7531,6 +7540,25 @@
   dependencies:
     "@unstoppabledomains/resolution" "^8.0"
     "@web3-onboard/common" "^2.3.1"
+    bignumber.js "^9.0.0"
+    bnc-sdk "^4.6.7"
+    bowser "^2.11.0"
+    ethers "5.5.3"
+    eventemitter3 "^4.0.7"
+    joi "17.9.1"
+    lodash.merge "^4.6.2"
+    lodash.partition "^4.6.0"
+    nanoid "^4.0.0"
+    rxjs "^7.5.5"
+    svelte "^3.49.0"
+    svelte-i18n "^3.3.13"
+
+"@web3-onboard/core@^2.18.0":
+  version "2.18.0"
+  resolved "https://registry.yarnpkg.com/@web3-onboard/core/-/core-2.18.0.tgz#2da396cadd977c4ec4ac3903e587a114be8778d7"
+  integrity sha512-IbKCsf9Ks9a30UzNgF+EQ2slbZ50li464ySmYLEQqIZKSjItfpwuDa/CBTs12YB+AD4HwElMkEB2/S418nMIAw==
+  dependencies:
+    "@web3-onboard/common" "^2.3.2"
     bignumber.js "^9.0.0"
     bnc-sdk "^4.6.7"
     bowser "^2.11.0"
@@ -7583,6 +7611,15 @@
     "@walletconnect/client" "^1.7.1"
     "@web3-onboard/common" "^2.3.1"
     rxjs "^7.5.2"
+
+"@web3-onboard/react@^2.8.2":
+  version "2.8.2"
+  resolved "https://registry.yarnpkg.com/@web3-onboard/react/-/react-2.8.2.tgz#ed90160959aad1f62440e21cdbe9bb2fdf948132"
+  integrity sha512-wif7Zqx5Uw+DolgA0ZcCZRSNxdgxS0CuOWEvWvR1D9C98146xSffRq4IKhSm8hyNs8Hrkk5QJ9DUc2Uoz7OLNA==
+  dependencies:
+    "@web3-onboard/common" "^2.3.2"
+    "@web3-onboard/core" "^2.18.0"
+    use-sync-external-store "1.0.0"
 
 "@web3-onboard/trezor@^2.3.5":
   version "2.3.5"
@@ -20282,6 +20319,11 @@ use-query-params@^2.1.1:
   integrity sha512-evg64srKaILvKyRQ1zpXvekTC7rktAT7OAekU7x6naHrOMqLHtq0MHR/PtKIQAP4d7HrkYNVOS8exHhiWy7m3A==
   dependencies:
     serialize-query-params "^2.0.2"
+
+use-sync-external-store@1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/use-sync-external-store/-/use-sync-external-store-1.0.0.tgz#d98f4a9c2e73d0f958e7e2d2c2bfb5f618cbd8fd"
+  integrity sha512-AFVsxg5GkFg8GDcxnl+Z0lMAz9rE8DGJCc28qnBuQF7lac57B5smLcT37aXpXIIPz75rW4g3eXHPjhHwdGskOw==
 
 use-sync-external-store@1.2.0:
   version "1.2.0"

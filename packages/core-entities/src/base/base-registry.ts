@@ -304,4 +304,8 @@ export abstract class BaseRegistry<T> {
       return map;
     }, new Map<string, T>());
   }
+
+  public isRefreshRunning(network: Network) {
+    return this._intervalSubscription.has(network)
+  }
 }

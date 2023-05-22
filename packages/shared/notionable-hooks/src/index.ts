@@ -17,6 +17,7 @@ export * from './error/use-notional-error';
 export * from './market/use-market';
 
 export * from './notional/use-notional';
+export * from './notional/NotionalContext';
 
 export * from './onboard/use-onboard';
 

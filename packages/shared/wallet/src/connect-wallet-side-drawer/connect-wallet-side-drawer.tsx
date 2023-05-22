@@ -6,13 +6,14 @@ import { FormattedMessage } from 'react-intl';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { trackEvent } from '@notional-finance/helpers';
 import { ViewAsAccount } from '../view-as-account/view-as-account';
-import { connectWallet } from '@notional-finance/notionable';
 import { useWalletSideDrawer } from '../hooks';
 import { useEffect } from 'react';
 import { H4 } from '@notional-finance/mui';
+import { useConnect } from '../hooks/use-connect';
 
 export const ConnectWalletSideDrawer = () => {
   const theme = useTheme();
+  const { connectWallet } = useConnect();
   const { modules, connected } = useOnboard();
   const { currentSideDrawerKey } = useWalletSideDrawer();
   const { clearWalletSideDrawer } = useSideDrawerManager();

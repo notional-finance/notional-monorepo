@@ -6,12 +6,12 @@ import {
   notionalState$,
   chains,
 } from '@notional-finance/notionable';
+import { useContext } from 'react';
+import { NotionalContext } from './NotionalContext';
 
 export function useNotional() {
-  const { notional, loaded, connectedChain, pendingChainId } = useObservableState(
-    notionalState$,
-    initialNotionalState
-  );
+  const { notional, loaded, connectedChain, pendingChainId } =
+    useObservableState(notionalState$, initialNotionalState);
 
   function getConnectedChain() {
     return chains.find((chain) => parseInt(chain.id) === connectedChain);
@@ -41,6 +41,13 @@ export function useLastUpdateBlockNumber() {
 export function useCurrentETHPrice() {
   const { system } = useNotional();
   return system
-    ? `$${TypedBigNumber.fromBalance(1e8, 'ETH', true).toCUR('USD').toDisplayString(2)}`
+    ? `$${TypedBigNumber.fromBalance(1e8, 'ETH', true)
+        .toCUR('USD')
+        .toDisplayString(2)}`
     : undefined;
+}
+
+export function useNotionalContext() {
+  const { state, updateState } = useContext(NotionalContext);
+  return { notional: state, updateNotional: updateState };
 }

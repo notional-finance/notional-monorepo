@@ -24,6 +24,8 @@ export class Registry {
   public static DEFAULT_ACCOUNT_REFRESH = ONE_MINUTE_MS;
 
   static initialize(cacheHostname: string, fetchMode: AccountFetchMode) {
+    if (Registry._self) return;
+
     Registry._self = new Registry(cacheHostname, fetchMode);
   }
 
@@ -80,6 +82,16 @@ export class Registry {
     Registry.getOracleRegistry().stopRefresh(network);
     Registry.getConfigurationRegistry().stopRefresh(network);
     Registry.getAccountRegistry().stopRefresh(network);
+  }
+
+  public static isRefreshRunning(network: Network) {
+    return (
+      Registry.getTokenRegistry().isRefreshRunning(network) &&
+      Registry.getExchangeRegistry().isRefreshRunning(network) &&
+      Registry.getOracleRegistry().isRefreshRunning(network) &&
+      Registry.getConfigurationRegistry().isRefreshRunning(network) &&
+      Registry.getAccountRegistry().isRefreshRunning(network)
+    );
   }
 
   public static getTokenRegistry() {

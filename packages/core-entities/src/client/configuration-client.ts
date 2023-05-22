@@ -15,7 +15,9 @@ import { Maybe } from '../.graphclient';
 import { BigNumber } from 'ethers';
 
 export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
-  protected cachePath = Routes.Configuration;
+  protected cachePath() {
+    return Routes.Configuration;
+  }
 
   getAllListedVaults(network: Network) {
     return this.getLatestFromSubject(network, network)?.vaultConfigurations;
@@ -40,10 +42,10 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
     ).currencyId;
     if (!primaryCurrencyId) throw Error('unknown borrow currency id');
 
-    let secondaryOneTokenId = undefined;
-    let secondaryTwoTokenId = undefined;
-    let secondaryOneID = undefined;
-    let secondaryTwoID = undefined;
+    let secondaryOneTokenId: string | undefined;
+    let secondaryTwoTokenId: string | undefined;
+    let secondaryOneID: number | undefined;
+    let secondaryTwoID: number | undefined;
     if (vaultConfig.secondaryBorrowCurrencies) {
       if (vaultConfig.secondaryBorrowCurrencies.length > 0) {
         secondaryOneTokenId = vaultConfig.secondaryBorrowCurrencies[0].id;
@@ -119,10 +121,10 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
     const { debtID: primaryDebtID, cashID: primaryCashID } =
       this._vaultDebtAndCashIds(primaryCurrencyId, vaultAddress, maturity);
 
-    let secondaryOneCashID = undefined;
-    let secondaryTwoCashID = undefined;
-    let secondaryOneDebtID = undefined;
-    let secondaryTwoDebtID = undefined;
+    let secondaryOneCashID: string | undefined;
+    let secondaryTwoCashID: string | undefined;
+    let secondaryOneDebtID: string | undefined;
+    let secondaryTwoDebtID: string | undefined;
 
     if (secondaryOneID) {
       // First secondary
