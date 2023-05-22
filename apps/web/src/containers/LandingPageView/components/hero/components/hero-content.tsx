@@ -16,7 +16,7 @@ export const HeroContent = () => {
       </H1>
       <Body sx={{ marginTop: theme.spacing(3), maxWidth: theme.spacing(68) }}>
         <FormattedMessage
-          defaultMessage={`Lend, borrow, and earn leveraged yield with DeFi's only fixed and variable rate lending protocol.`}
+          defaultMessage={`Lend, borrow, and earn leveraged yield with DeFi's leading fixed rate lending protocol.`}
         />
       </Body>
       <ButtonContainer>
