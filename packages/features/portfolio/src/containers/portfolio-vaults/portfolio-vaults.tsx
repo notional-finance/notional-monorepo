@@ -19,6 +19,8 @@ export const PortfolioVaults = () => {
     return <EmptyPortfolio />;
   }
 
+  console.log({ vaultRiskData });
+
   return (
     <Box>
       <DataTable

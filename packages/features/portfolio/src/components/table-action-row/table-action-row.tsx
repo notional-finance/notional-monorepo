@@ -20,7 +20,6 @@ export const TableActionRow = ({ row }) => {
 
   return (
     <MainContainer>
-      <RemindMe futureDate={rawMaturity} />
       <Box sx={{ display: 'flex', width: '100%' }}>
         {removeAssetRoute && actionLabel && (
           <ActionRowButton
@@ -70,6 +69,7 @@ export const TableActionRow = ({ row }) => {
           </>
         )}
       </Box>
+      <RemindMe futureDate={rawMaturity} />
     </MainContainer>
   );
 };
