@@ -23,8 +23,6 @@ export * from './onboard/use-onboard';
 
 export * from './wallet/use-wallet';
 
-export * from './blocknative/blocknative-manager';
-
 export * from './leveraged-vaults/use-vault';
 export * from './leveraged-vaults/use-base-vault';
 export * from './leveraged-vaults/use-vault-account';
