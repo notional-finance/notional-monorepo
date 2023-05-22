@@ -22,6 +22,7 @@
     "features-vault": "packages/features/vault",
     "geoip": "apps/geoip",
     "graph-client": "packages/graph-client",
+    "liquidation-bot": "apps/liquidation-bot",
     "logging": "packages/logging",
     "monitors": "packages/monitors",
     "multicall": "packages/multicall",

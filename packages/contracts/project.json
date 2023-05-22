@@ -26,7 +26,7 @@
     "typechain": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "rm -Rf packages/contracts/src/types && yarn typechain --target=ethers-v5 --out-dir=packages/contracts/src/types packages/contracts/src/**/*.json"
+        "command": "yarn typechain --target=ethers-v5 --out-dir=packages/contracts/src/types packages/contracts/src/**/*.json"
       }
     },
     "version": {
