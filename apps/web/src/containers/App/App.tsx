@@ -39,10 +39,71 @@ import { PrivacyView } from '../../containers/PrivacyView';
 import { LandingPageView } from '../../containers/LandingPageView';
 import { ProvideLiquidityCards } from '@notional-finance/liquidity-feature-shell';
 import { getDefaultNetworkFromHostname } from '@notional-finance/util';
+import { useConnect } from '@notional-finance/wallet/hooks/use-connect';
+
+const AllRoutes = () => {
+  const [routeKey, setRouteKey] = useState('');
+  // Have this hook here to ensure that all children routes will see updates if the onboard
+  // context changes (there is a useEffect hook inside here listening for changes in the
+  // onboard context)
+  useConnect();
+
+  return (
+    <CompatRouter>
+      <RouteContainer onRouteChange={setRouteKey}>
+        <Switch>
+          <AppLayoutRoute path="/airdrop" component={AirdropView} />
+          <AppLayoutRoute
+            path="/borrow/:currency/:collateral"
+            routeKey={routeKey}
+            component={BorrowFeatureShell}
+          />
+          <AppLayoutRoute path="/borrow" component={BorrowCardView} />
+          <AppLayoutRoute path="/lend/:currency" component={LendFeatureShell} />
+          <AppLayoutRoute path="/lend" component={LendCardView} />
+          <AppLayoutRoute
+            path="/provide/:currency"
+            routeKey={routeKey}
+            component={LiquidityCurrencyView}
+          />
+          <AppLayoutRoute path="/provide" component={ProvideLiquidityCards} />
+          <AppLayoutRoute path="/stake/:ethOrWeth" component={StakeView} />
+          <AppLayoutRoute path="/stake" component={StakeView} />
+          <AppLayoutRoute path="/unstake/:unstakePath" component={StakeView} />
+          <AppLayoutRoute path="/unstake" component={StakeView} />
+          <AppLayoutRoute
+            path="/vaults/:vaultAddress/:sideDrawerKey"
+            component={VaultActionProvider}
+          />
+          <AppLayoutRoute
+            path="/vaults/:vaultAddress"
+            component={VaultActionProvider}
+          />
+          <AppLayoutRoute path="/vaults" component={AllStrategyView} />
+          <AppLayoutRoute path="/terms" component={TermsView} />
+          <AppLayoutRoute path="/privacy" component={PrivacyView} />
+          <AppLayoutRoute
+            path="/portfolio/:category/:sideDrawerKey"
+            component={PortfolioFeatureShell}
+          />
+          <AppLayoutRoute
+            path="/portfolio/:category/"
+            component={PortfolioFeatureShell}
+          />
+          <AppLayoutRoute path="/portfolio" component={PortfolioFeatureShell} />
+          <AppLayoutRoute path="/treasury" component={TreasuryView} />
+          <AppLayoutRoute path="/error" component={ServerError} />
+          <LandingPageLayoutRoute path="/about" component={AboutUsView} />
+          <LandingPageLayoutRoute path="/" component={LandingPageView} />
+        </Switch>
+        <TrackingConsent />
+      </RouteContainer>
+    </CompatRouter>
+  );
+};
 
 export const App = () => {
   const { pendingChainId, initializeNotional } = useNotional();
-  const [routeKey, setRouteKey] = useState('');
   const initApplication = useCallback(async () => {
     try {
       await initializeNetwork({ container: '#onboard' });
@@ -84,68 +145,7 @@ export const App = () => {
   return (
     <NotionalContext.Provider value={globalState}>
       <Web3OnboardProvider web3Onboard={OnboardContext}>
-        <CompatRouter>
-          <RouteContainer onRouteChange={setRouteKey}>
-            <Switch>
-              <AppLayoutRoute path="/airdrop" component={AirdropView} />
-              <AppLayoutRoute
-                path="/borrow/:currency/:collateral"
-                routeKey={routeKey}
-                component={BorrowFeatureShell}
-              />
-              <AppLayoutRoute path="/borrow" component={BorrowCardView} />
-              <AppLayoutRoute
-                path="/lend/:currency"
-                component={LendFeatureShell}
-              />
-              <AppLayoutRoute path="/lend" component={LendCardView} />
-              <AppLayoutRoute
-                path="/provide/:currency"
-                routeKey={routeKey}
-                component={LiquidityCurrencyView}
-              />
-              <AppLayoutRoute
-                path="/provide"
-                component={ProvideLiquidityCards}
-              />
-              <AppLayoutRoute path="/stake/:ethOrWeth" component={StakeView} />
-              <AppLayoutRoute path="/stake" component={StakeView} />
-              <AppLayoutRoute
-                path="/unstake/:unstakePath"
-                component={StakeView}
-              />
-              <AppLayoutRoute path="/unstake" component={StakeView} />
-              <AppLayoutRoute
-                path="/vaults/:vaultAddress/:sideDrawerKey"
-                component={VaultActionProvider}
-              />
-              <AppLayoutRoute
-                path="/vaults/:vaultAddress"
-                component={VaultActionProvider}
-              />
-              <AppLayoutRoute path="/vaults" component={AllStrategyView} />
-              <AppLayoutRoute path="/terms" component={TermsView} />
-              <AppLayoutRoute path="/privacy" component={PrivacyView} />
-              <AppLayoutRoute
-                path="/portfolio/:category/:sideDrawerKey"
-                component={PortfolioFeatureShell}
-              />
-              <AppLayoutRoute
-                path="/portfolio/:category/"
-                component={PortfolioFeatureShell}
-              />
-              <AppLayoutRoute
-                path="/portfolio"
-                component={PortfolioFeatureShell}
-              />
-              <AppLayoutRoute path="/treasury" component={TreasuryView} />
-              <AppLayoutRoute path="/error" component={ServerError} />
-              <LandingPageLayoutRoute path="/about" component={AboutUsView} />
-              <LandingPageLayoutRoute path="/" component={LandingPageView} />
-            </Switch>
-            <TrackingConsent />
-          </RouteContainer>
-        </CompatRouter>
+        <AllRoutes />
       </Web3OnboardProvider>
     </NotionalContext.Provider>
   );
