@@ -1,9 +1,9 @@
-import { DexId, LiquidationType, Trade, TradeData } from './types';
-import Config from './config';
-import { utils, constants, Contract, BigNumber } from 'ethers';
-import { Currency, TradeType } from '@notional-finance/sdk';
+import { LiquidationType, TradeData } from './types';
+import { utils, constants, Contract } from 'ethers';
+import { Currency } from '@notional-finance/sdk';
 
 export default class Liquidation {
+  public static readonly ETH_CURRENCY_ID = 1;
   public static readonly LOCAL_CURRENCY_PARAMS = 'tuple(address,uint16,uint96)';
   public static readonly TRADE_PARAMS =
     'tuple(uint8,address,address,uint256,uint256,uint256,bytes)';
@@ -34,7 +34,7 @@ export default class Liquidation {
     this.hasTransferFee = localCurrency.hasTransferFee;
     this.localCurrency = localCurrency;
 
-    if (localCurrency.id === Config.ETHER_CURRENCY_ID) {
+    if (localCurrency.id === Liquidation.ETH_CURRENCY_ID) {
       this.localUnderlyingAddress = wethAddress;
     } else {
       if (localCurrency.underlyingContract) {
@@ -47,7 +47,7 @@ export default class Liquidation {
     if (collateralCurrency) {
       this.collateralCurrencyId = collateralCurrency.id;
 
-      if (collateralCurrency.id === Config.ETHER_CURRENCY_ID) {
+      if (collateralCurrency.id === Liquidation.ETH_CURRENCY_ID) {
         this.collateralUnderlyingAddress = wethAddress;
         this.collateralUnderlyingSymbol = 'WETH';
       } else {
@@ -320,11 +320,11 @@ export default class Liquidation {
       : this.collateralCurrencyId;
   }
 
-  public getLiquidatorAddress(network: string): string {
+  /*public getLiquidatorAddress(network: string): string {
     return this.residuals
       ? Config.getManualLiquidatorAddress(network, this.getResidualCurrencyId())
       : Config.getFlashLiquidatorAddress(network);
-  }
+  }*/
 
   public toString(): string {
     return `type=${this.type} localCurrencyId=${this.localCurrency.id} collateralCurrencyId=${this.collateralCurrencyId} residuals=${this.residuals}`;

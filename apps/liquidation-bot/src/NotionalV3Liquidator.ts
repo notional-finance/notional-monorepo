@@ -1,11 +1,8 @@
 import { AggregateCall, aggregate } from '@notional-finance/sdk/data/Multicall';
-import { FlashLiquidatorABI, NotionalABI } from '@notional-finance/contracts';
+import { FlashLiquidatorABI, NotionalV3ABI } from '@notional-finance/contracts';
 import { ethers, BigNumber, Contract } from 'ethers';
 import {
   RiskyAccount,
-  RiskyAccountData,
-  AccountBalance,
-  AccountLiquidation,
   CurrencyOverride,
   IGasOracle,
   FlashLiquidation,
@@ -45,9 +42,6 @@ class ArbitrumGasOracle implements IGasOracle {
 export default class NotionalV3Liquidator {
   public static readonly INTERNAL_PRECISION = ethers.utils.parseUnits('1', 8);
   public static readonly ETH_PRECISION = ethers.utils.parseEther('1');
-  public static readonly UNMASK_FLAGS = BigNumber.from(
-    '0x3fff00000000000000000000000000000000'
-  );
 
   private liquidationHelper: LiquidationHelper;
   private profitCalculator: ProfitCalculator;
@@ -66,7 +60,7 @@ export default class NotionalV3Liquidator {
     );
     this.notionalContract = new ethers.Contract(
       this.settings.notionalAddress,
-      NotionalABI,
+      NotionalV3ABI,
       this.provider
     );
     this.liquidationHelper = new LiquidationHelper(
@@ -94,39 +88,13 @@ export default class NotionalV3Liquidator {
     );
   }
 
-  private async getRiskyAccountData(
-    addrs: string[]
-  ): Promise<RiskyAccountData[]> {
-    const { results } = await aggregate(
-      this.getAccountDataCalls(addrs),
-      this.provider
-    );
-
-    return addrs.map((addr) => {
-      const balances: AccountBalance[] = this.settings.currencies.map((c) => ({
-        currencyId: c.id,
-        cashBalance: results[`${addr}:${c.id}:balance`][0] as BigNumber,
-        nTokenBalance: results[`${addr}:${c.id}:balance`][1] as BigNumber,
-      }));
-
-      return {
-        balances: balances,
-        portfolio: results[`${addr}:portfolio`].map((v) => ({
-          currencyId: v[0].toNumber(),
-          maturity: v[1].toNumber(),
-          notional: v[3],
-        })),
-      };
-    });
-  }
-
   private toExternal(input: BigNumber, externalPrecision: BigNumber) {
     return input
       .mul(externalPrecision)
       .div(NotionalV3Liquidator.INTERNAL_PRECISION);
   }
 
-  private getFreeCollateralCalls(addrs: string[]): AggregateCall[] {
+  private getAccountDataCalls(addrs: string[]): AggregateCall[] {
     const calls = [];
     addrs.forEach((addr) => {
       calls.push({
@@ -136,45 +104,22 @@ export default class NotionalV3Liquidator {
         args: [addr],
         key: `${addr}:collateral`,
       });
-      calls.push({
-        stage: 0,
-        target: this.notionalContract,
-        method: 'getAccountContext',
-        args: [addr],
-        key: `${addr}:context`,
-      });
-    });
-
-    return calls;
-  }
-
-  private getAccountDataCalls(addrs: string[]): AggregateCall[] {
-    const calls = [];
-    addrs.forEach((addr) => {
-      this.settings.currencies.forEach((c) => {
-        calls.push({
-          stage: 0,
-          target: this.notionalContract,
-          method: 'getAccountBalance',
-          args: [c.id, addr],
-          key: `${addr}:${c.id}:balance`,
-        });
-      });
 
       calls.push({
         stage: 0,
         target: this.notionalContract,
-        method: 'getAccountPortfolio',
+        method: 'getAccount',
         args: [addr],
-        key: `${addr}:portfolio`,
+        key: `${addr}:account`,
       });
     });
+
     return calls;
   }
 
   public async getRiskyAccounts(addrs: string[]): Promise<RiskyAccount[]> {
     const { results } = await aggregate(
-      this.getFreeCollateralCalls(addrs),
+      this.getAccountDataCalls(addrs),
       this.provider
     );
 
@@ -194,30 +139,34 @@ export default class NotionalV3Liquidator {
           ).gt(this.settings.dustThreshold)
       );
 
-    // Fetch account data
-    const accountData = await this.getRiskyAccountData(
-      accounts.map((a) => a.id)
-    );
-
     return accounts.map((a, i) => {
       const netUnderlyingAvailable = new Map<number, BigNumber>();
-      const currencyFlags = BigNumber.from(results[`${a.id}:context`][4]);
-      let mask = NotionalV3Liquidator.UNMASK_FLAGS;
-      let shift = 128;
+      const balances = results[`${a.id}:account`][1].filter((b) => b[0] !== 0);
+      const portfolio = results[`${a.id}:account`][2];
 
-      results[`${a.id}:collateral`][1].forEach((v: BigNumber) => {
-        if (!v.isZero()) {
-          const currencyId = currencyFlags.and(mask).shr(shift);
-          netUnderlyingAvailable.set(currencyId.toNumber(), v);
-          mask = mask.shr(16);
-          shift -= 16;
-        }
+      balances.forEach((b, i) => {
+        const currencyId = b[0] as number;
+        netUnderlyingAvailable.set(
+          currencyId,
+          results[`${a.id}:collateral`][1][i]
+        );
       });
 
       return {
         id: a.id,
         ethFreeCollateral: a.ethFreeCollateral,
-        data: accountData[i],
+        data: {
+          balances: balances.map((b) => ({
+            currencyId: b[0] as number,
+            cashBalance: b[1] as BigNumber,
+            nTokenBalance: b[2] as BigNumber,
+          })),
+          portfolio: portfolio.map((v) => ({
+            currencyId: v[0] as number,
+            maturity: v[1].toNumber(),
+            notional: v[3],
+          })),
+        },
         netUnderlyingAvailable: netUnderlyingAvailable,
       };
     });
