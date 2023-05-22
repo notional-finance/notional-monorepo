@@ -11,11 +11,13 @@ export interface GlobalState extends Record<string, unknown> {
     hasSelectedChainError: boolean;
   };
   selectedNetwork?: Network;
+  isNetworkPending: boolean;
   isNetworkReady: boolean;
   cacheHostname: string;
 }
 
 export const initialGlobalState: GlobalState = {
   isNetworkReady: false,
+  isNetworkPending: false,
   cacheHostname: CACHE_HOSTNAME,
 };
