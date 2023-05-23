@@ -27,7 +27,7 @@ export const LiquidityCurrencyView = () => {
   const { themeVariant } = useUserSettingsState();
   const liquidityState = useObservableContext(
     initialLiquidityState,
-    { currency: { encode: (s) => s, decode: (s) => s } },
+    {},
     loadLiquidityManager
   );
 
