@@ -50,9 +50,11 @@ export class TokenRegistryClient extends ClientRegistry<TokenDefinition> {
 
   public getTokensByCurrencyId(
     network: Network,
-    currencyId: number,
+    currencyId?: number,
     tokenType?: TokenType
   ) {
+    if (currencyId === undefined) throw Error('Unknown currency id');
+
     const tokens = this.getAllTokens(network).filter(
       (t) =>
         t.currencyId === currencyId &&
@@ -65,19 +67,19 @@ export class TokenRegistryClient extends ClientRegistry<TokenDefinition> {
     return tokens;
   }
 
-  public getPrimeCash(network: Network, currencyId: number) {
+  public getPrimeCash(network: Network, currencyId?: number) {
     return this.getTokensByCurrencyId(network, currencyId, 'PrimeCash')[0];
   }
 
-  public getPrimeDebt(network: Network, currencyId: number) {
+  public getPrimeDebt(network: Network, currencyId?: number) {
     return this.getTokensByCurrencyId(network, currencyId, 'PrimeDebt')[0];
   }
 
-  public getNToken(network: Network, currencyId: number) {
+  public getNToken(network: Network, currencyId?: number) {
     return this.getTokensByCurrencyId(network, currencyId, 'nToken')[0];
   }
 
-  public getUnderlying(network: Network, currencyId: number) {
+  public getUnderlying(network: Network, currencyId?: number) {
     return this.getTokensByCurrencyId(network, currencyId, 'Underlying')[0];
   }
 

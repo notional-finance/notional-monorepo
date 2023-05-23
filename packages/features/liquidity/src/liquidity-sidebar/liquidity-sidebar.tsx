@@ -4,6 +4,7 @@ import {
   TradeActionButton,
   TokenApprovalView,
   WalletDepositInput,
+  TradePropertiesGrid,
 } from '@notional-finance/trade';
 import {
   PageLoading,
@@ -16,7 +17,7 @@ import { LiquidityContext } from '../store/liquidity-context';
 
 export const LiquiditySidebar = () => {
   const {
-    state: { availableTokens, currency, canSubmit, txnData },
+    state: { availableTokens, currency, canSubmit, txnData, tradeProperties },
     updateState,
   } = useContext(LiquidityContext);
   const { pathname, search } = useLocation();
@@ -86,7 +87,7 @@ export const LiquiditySidebar = () => {
       ) : (
         <PageLoading />
       )}
-      {/* <TradePropertiesGrid showBackground data={tradeProperties} /> */}
+      <TradePropertiesGrid showBackground data={tradeProperties || {}} />
       <TokenApprovalView />
     </ActionSidebar>
   );
