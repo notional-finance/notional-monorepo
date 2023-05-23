@@ -1,16 +1,20 @@
-import { useEffect } from 'react';
 import { styled, Box } from '@mui/material';
 import { SideBarLayout, FeatureLoader } from '@notional-finance/mui';
-import { useParams } from 'react-router-dom';
-import { trimRouterMatchToPath } from '@notional-finance/helpers';
 import { THEME_VARIANTS } from '@notional-finance/shared-config';
-import backgroundImgDark from '@notional-finance/assets/images/provide-liquidity-bg-alt.png';
-import backgroundImgLight from '@notional-finance/assets/images/provide-liquidity-light-bg.png';
 import { useLiquidityTransaction } from './store/use-liquidity-transaction';
 import { useUserSettingsState } from '@notional-finance/user-settings-manager';
 import { LiquiditySummary } from './liquidity-summary/liquidity-summary';
 import { LiquiditySidebar } from './liquidity-sidebar/liquidity-sidebar';
-import { updateLiquidityState } from './store/liquidity-store';
+import { useObservableContext } from '@notional-finance/notionable-hooks';
+import {
+  initialLiquidityState,
+  LiquidityContext,
+} from './store/liquidity-context';
+import { loadLiquidityManager } from './store/liquidity-manager';
+// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
+import backgroundImgDark from '@notional-finance/assets/images/provide-liquidity-bg-alt.png';
+// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
+import backgroundImgLight from '@notional-finance/assets/images/provide-liquidity-light-bg.png';
 
 const LiquidityCurrencyBackground = styled('img')(
   ({ theme }) => `
@@ -30,39 +34,42 @@ const LiquidityCurrencyBackground = styled('img')(
 
 export const LiquidityCurrencyView = () => {
   const { themeVariant } = useUserSettingsState();
+  const liquidityState = useObservableContext(
+    initialLiquidityState,
+    { currency: { encode: (s) => s, decode: (s) => s } },
+    loadLiquidityManager
+  );
+
+  const {
+    state: { isReady },
+  } = liquidityState;
+
   const txnData = useLiquidityTransaction();
   const showTransactionConfirmation = txnData ? true : false;
   const bgImg =
     themeVariant === THEME_VARIANTS.LIGHT
       ? backgroundImgLight
       : backgroundImgDark;
-  const { currency } = useParams<Record<string, string>>();
-  const symbol = trimRouterMatchToPath(currency);
-
-  useEffect(() => {
-    if (symbol) {
-      updateLiquidityState({ selectedToken: symbol });
-    }
-  }, [symbol]);
-
-  const featureLoaded = bgImg ? true : false;
+  const featureLoaded = !!bgImg && isReady;
 
   return (
-    <FeatureLoader featureLoaded={featureLoaded}>
-      <div>
-        <LiquidityCurrencyBackground
-          src={bgImg}
-          alt="provide liquidity background"
-        />
-        <Container>
-          <SideBarLayout
-            showTransactionConfirmation={showTransactionConfirmation}
-            sideBar={<LiquiditySidebar />}
-            mainContent={<LiquiditySummary />}
+    <LiquidityContext.Provider value={liquidityState}>
+      <FeatureLoader featureLoaded={featureLoaded}>
+        <div>
+          <LiquidityCurrencyBackground
+            src={bgImg}
+            alt="provide liquidity background"
           />
-        </Container>
-      </div>
-    </FeatureLoader>
+          <Container>
+            <SideBarLayout
+              showTransactionConfirmation={showTransactionConfirmation}
+              sideBar={<LiquiditySidebar />}
+              mainContent={<LiquiditySummary />}
+            />
+          </Container>
+        </div>
+      </FeatureLoader>
+    </LiquidityContext.Provider>
   );
 };
 

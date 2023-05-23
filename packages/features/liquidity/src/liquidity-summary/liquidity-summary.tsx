@@ -11,17 +11,19 @@ import { NOTIONAL_CATEGORIES } from '@notional-finance/shared-config';
 import { MobileTradeActionSummary } from '@notional-finance/trade';
 import { LiquidityFaq } from './liquidity-faq';
 import { FormattedMessage } from 'react-intl';
-import { useLiquidity } from '../store/use-liquidity';
+import { useContext } from 'react';
+import { LiquidityContext } from '../store/liquidity-context';
 
 export const LiquiditySummary = () => {
   const theme = useTheme();
-  const { nTokenSymbol, loading, totalYield, blendedYield, incentiveYield } =
-    useLiquidity();
+  const {
+    state: { nTokenSymbol, isReady, totalYield, blendedYield, incentiveYield },
+  } = useContext(LiquidityContext);
 
   return (
     <>
       <TradeSummaryContainer>
-        {loading ? (
+        {!isReady ? (
           <PageLoading></PageLoading>
         ) : (
           <>
@@ -83,6 +85,7 @@ export const LiquiditySummary = () => {
           <LiquidityFaq />
         </Box>
       </TradeSummaryContainer>
+      {/* @matthew-garrett can we put this entire thing inside the isReady container? */}
       <MobileTradeActionSummary
         tradeAction={NOTIONAL_CATEGORIES.PROVIDE_LIQUIDITY}
         selectedToken={nTokenSymbol || ''}
