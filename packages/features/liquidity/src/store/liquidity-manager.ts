@@ -7,7 +7,7 @@ import {
 import { TypedBigNumber } from '@notional-finance/sdk';
 import { TradePropertyKeys } from '@notional-finance/trade';
 import { filterEmpty } from '@notional-finance/util';
-import { combineLatest, map, merge, Observable, pairwise, tap } from 'rxjs';
+import { combineLatest, map, merge, Observable, pairwise } from 'rxjs';
 import { initialLiquidityState, LiquidityState } from './liquidity-context';
 
 export const loadLiquidityManager = (
@@ -90,7 +90,6 @@ export const loadLiquidityManager = (
     mapWithDistinctInputs(
       ({ inputAmount, nToken, underlying }) => {
         try {
-          console.log('in map with inputs', inputAmount, nToken, underlying);
           const tokens = Registry.getTokenRegistry();
           const exchanges = Registry.getExchangeRegistry();
           const depositBalance = tokens
@@ -110,11 +109,14 @@ export const loadLiquidityManager = (
           tokensIn[0] = depositBalance;
           const { lpTokens: nTokensMinted } =
             nTokenPool.getLPTokensGivenTokens(tokensIn);
+
+          // TODO: convert the trade properties to use a generic type interface
           const tradeProperties = {
             [TradePropertyKeys.nTokensMinted]:
               nTokensMinted as unknown as TypedBigNumber,
           };
 
+          // TODO: calculate all the transaction properties
           return { canSubmit: true, tradeProperties };
         } catch (e) {
           console.log('error', e);
