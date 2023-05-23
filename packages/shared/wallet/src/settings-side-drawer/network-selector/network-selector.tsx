@@ -5,8 +5,8 @@ import { Chain } from '@web3-onboard/common';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { NotionalTheme } from '@notional-finance/styles';
 import { CircleIcon } from '@notional-finance/icons';
-import { useTheme, Box, styled, ListItemIcon, Typography } from '@mui/material';
-import { H4 } from '@notional-finance/mui';
+import { useTheme, Box, styled, ListItemIcon } from '@mui/material';
+import { H4, LabelValue } from '@notional-finance/mui';
 import { useNetworkSelector } from './use-network-selector';
 
 /* eslint-disable-next-line */
@@ -110,7 +110,7 @@ const NetworkWrapper = styled(Box)(
   `
 );
 
-const Title = styled(Typography)(
+const Title = styled(LabelValue)(
   ({ theme }) => `
   margin-bottom: ${theme.spacing(2.5)};
   font-weight: 700;

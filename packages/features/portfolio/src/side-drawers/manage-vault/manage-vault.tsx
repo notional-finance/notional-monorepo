@@ -8,12 +8,14 @@ import {
 } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
 import { useManageVault } from './use-manage-vault';
+import { useHistory } from 'react-router-dom';
 import { useQueryParams } from '@notional-finance/utils';
 import { useVault } from '@notional-finance/notionable-hooks';
 import { messages } from '../messages';
 
 export const ManageVault = () => {
   const theme = useTheme();
+  const history = useHistory();
   const { vaultAddress } = useQueryParams();
   const { reduceLeverageOptions, manageVaultOptions } = useManageVault();
   const { vaultName } = useVault(vaultAddress);
@@ -37,11 +39,13 @@ export const ManageVault = () => {
             <FormattedMessage defaultMessage={'Reduce leverage'} />
           </Title>
           {reduceLeverageOptions.map(({ label, link }, index) => (
-            <H4 fontWeight="regular" to={link} key={index}>
-              <SideDrawerButton sx={{ padding: theme.spacing(2.5) }}>
-                {label}
-              </SideDrawerButton>
-            </H4>
+            <SideDrawerButton
+              key={index}
+              sx={{ padding: theme.spacing(2.5) }}
+              onClick={() => history.push(link)}
+            >
+              <H4>{label}</H4>
+            </SideDrawerButton>
           ))}
           <Box
             component={'hr'}
@@ -53,11 +57,13 @@ export const ManageVault = () => {
         </>
       )}
       {manageVaultOptions.map(({ label, link }, index) => (
-        <H4 fontWeight="regular" to={link} key={index}>
-          <SideDrawerButton sx={{ padding: theme.spacing(2.5) }}>
-            {label}
-          </SideDrawerButton>
-        </H4>
+        <SideDrawerButton
+          key={index}
+          sx={{ padding: theme.spacing(2.5) }}
+          onClick={() => history.push(link)}
+        >
+          <H4>{label}</H4>
+        </SideDrawerButton>
       ))}
     </Box>
   );

@@ -177,4 +177,24 @@ export const messages: Record<PORTFOLIO_ACTIONS, PortfolioMessages> = {
       description: '',
     },
   }),
+  [PORTFOLIO_ACTIONS.MANAGE_BORROW]: defineMessages({
+    heading: {
+      defaultMessage: 'Roll or Convert Borrow to Variable',
+      description: '',
+    },
+    helptext: {
+      defaultMessage: 'Manage your positions.',
+      description: '',
+    },
+  }),
+  [PORTFOLIO_ACTIONS.MANAGE_LEND]: defineMessages({
+    heading: {
+      defaultMessage: 'Roll or Convert Lend to Variable',
+      description: '',
+    },
+    helptext: {
+      defaultMessage: 'Manage your positions.',
+      description: '',
+    },
+  }),
 };

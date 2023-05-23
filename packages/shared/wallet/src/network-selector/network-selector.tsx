@@ -5,6 +5,7 @@ import { Chain } from '@web3-onboard/common';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { NotionalTheme } from '@notional-finance/styles';
 import { ArrowIcon, CircleIcon } from '@notional-finance/icons';
+import { LabelValue } from '@notional-finance/mui';
 import {
   useTheme,
   Box,
@@ -12,7 +13,6 @@ import {
   styled,
   ListItemIcon,
   Popover,
-  Typography,
 } from '@mui/material';
 import { useNetworkSelector } from './use-network-selector';
 
@@ -79,12 +79,12 @@ const TextWrapper = styled('div')(
 `
 );
 
-const Title = styled(Typography)(
+const Title = styled(LabelValue)(
   ({ theme }) => `
   margin: 30px auto;
   width: 380px;
   font-weight: 700;
-  color: ${theme.palette.primary.dark};
+  color: ${theme.palette.borders.accentDefault};
   ${theme.breakpoints.down('sm')} {
     width: auto;
   }

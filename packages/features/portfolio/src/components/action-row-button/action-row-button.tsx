@@ -1,4 +1,4 @@
-import { Box, styled, SxProps, useTheme } from '@mui/material';
+import { Box, SxProps, useTheme } from '@mui/material';
 import { InfoTooltip, Button } from '@notional-finance/mui';
 import { FormattedMessage, MessageDescriptor } from 'react-intl';
 import { Label } from '../../types';
@@ -36,24 +36,15 @@ export const ActionRowButton = ({
         )}
       </Label>
       {route && (
-        <ActionButton variant="contained" to={route}>
+        <Button variant="contained" to={route} size="large">
           <FormattedMessage {...label} />
-        </ActionButton>
+        </Button>
       )}
       {callBack && (
-        <ActionButton variant="contained" onClick={callBack}>
+        <Button variant="contained" onClick={callBack} size="large">
           <FormattedMessage {...label} />
-        </ActionButton>
+        </Button>
       )}
     </Box>
   );
 };
-
-const ActionButton = styled(Button)(
-  ({ theme }) => `
-  padding: ${theme.spacing(2.5)} ${theme.spacing(8)};
-  @media (max-width: ${theme.breakpoints.values.lg}px) {
-    padding: ${theme.spacing(2.5)};
-  }
-`
-);

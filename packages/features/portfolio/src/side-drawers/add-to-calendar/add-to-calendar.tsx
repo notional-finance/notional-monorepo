@@ -1,7 +1,12 @@
-import { Typography, Box, styled, useTheme } from '@mui/material';
+import { Box, styled, useTheme } from '@mui/material';
 import { useQueryParams } from '@notional-finance/utils';
 import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
-import { ExternalLink, SideDrawerButton, H4 } from '@notional-finance/mui';
+import {
+  ExternalLink,
+  SideDrawerButton,
+  H4,
+  LabelValue,
+} from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
 import { messages } from '../messages';
 import { useAddToCalendar } from './use-add-to-calendar';
@@ -58,11 +63,11 @@ export const AddToCalendar = () => {
   );
 };
 
-const Title = styled(Typography)(
+const Title = styled(LabelValue)(
   ({ theme }) => `
   margin-bottom: ${theme.spacing(2.5)};
   font-weight: 700;
-  color: ${theme.palette.primary.dark};
+  color: ${theme.palette.borders.accentDefault};
   text-transform: uppercase;
   `
 );
