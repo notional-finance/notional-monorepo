@@ -37,6 +37,10 @@ export default abstract class BaseLiquidityPool<
     return this.totalSupply.copy(this.totalSupply.precision);
   }
 
+  public totalValueLocked(primaryTokenIndex: number) {
+    return this.getBalanceArrayOracleValue(this.balances, primaryTokenIndex);
+  }
+
   /**
    * Returns the value of tokens given the oracle price in the primary token index
    * @param balances balances in each constituent token
@@ -137,10 +141,11 @@ export default abstract class BaseLiquidityPool<
    */
   public getLPTokenClaims(
     lpTokens: TokenBalance,
-    balancesOverride?: TokenBalance[]
+    balancesOverride?: TokenBalance[],
+    totalSupplyOverride?: TokenBalance
   ): TokenBalance[] {
     return (balancesOverride || this.balances).map((b) =>
-      b.scale(lpTokens, this.totalSupply)
+      b.scale(lpTokens, totalSupplyOverride || this.totalSupply)
     );
   }
 

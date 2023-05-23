@@ -228,7 +228,17 @@ abstract class ComposableStablePool extends BaseLiquidityPool<ComposableStablePo
       }
     );
 
-    return { lpTokens, feesPaid };
+    const lpClaims = super.getLPTokenClaims(
+      lpTokens,
+      this.balances.map((b, i) =>
+        b.add(
+          this.convertLinearBPTToUnderlying(linearBPTTokensIn[i].linearBPT, i)
+        )
+      ),
+      this.totalSupply.add(lpTokens)
+    );
+
+    return { lpTokens, feesPaid, lpClaims };
   }
 
   /**

@@ -41,6 +41,7 @@ export abstract class AbstractLiquidityPool {
   public abstract getLPTokensGivenTokens(tokensIn: TokenBalance[]): {
     lpTokens: TokenBalance;
     feesPaid: TokenBalance[];
+    lpClaims: TokenBalance[];
   };
 
   /**

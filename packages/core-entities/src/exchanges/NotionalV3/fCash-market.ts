@@ -265,6 +265,7 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
   public getLPTokensGivenTokens(tokensIn: TokenBalance[]): {
     lpTokens: TokenBalance;
     feesPaid: TokenBalance[];
+    lpClaims: TokenBalance[];
   } {
     // Only tokensIn[0] can be specified
     tokensIn.forEach((v, i) => {
@@ -275,11 +276,14 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
     // Should use the oracle to fetch the nToken PV
     const lpTokenValue = this.getBalanceArrayOracleValue(this.balances, 0);
     const lpTokens = this.totalSupply.scale(tokensIn[0], lpTokenValue);
+    // NOTE: this is not correct in the face of deleverage ntoken
+    const lpClaims = this.getLPTokenClaims(lpTokens);
 
     return {
       // No fees paid on minting
       feesPaid: this.zeroTokenArray(),
       lpTokens,
+      lpClaims,
     };
   }
 

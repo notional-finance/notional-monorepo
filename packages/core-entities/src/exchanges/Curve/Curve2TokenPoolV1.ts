@@ -129,9 +129,16 @@ export class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPoolV1Params
       mintAmount = D1; // Take the dust if there was any
     }
 
+    const lpTokens = this.totalSupply.copy(mintAmount);
+    const lpClaims = this.getLPTokenClaims(
+      lpTokens,
+      new_balances,
+      this.totalSupply.add(lpTokens)
+    );
     return {
-      lpTokens: this.totalSupply.copy(mintAmount),
+      lpTokens,
       feesPaid: fees.map((b, i) => this.balances[i].copy(b)),
+      lpClaims,
     };
   }
 
