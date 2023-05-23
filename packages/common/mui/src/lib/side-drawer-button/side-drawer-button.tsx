@@ -1,4 +1,5 @@
-import { styled, Box, useTheme, SxProps } from '@mui/material';
+import { styled, Box, useTheme, SxProps, alpha } from '@mui/material';
+import { colors } from '@notional-finance/styles';
 
 /* eslint-disable-next-line */
 export interface SideDrawerButtonProps {
@@ -36,10 +37,7 @@ const Button = styled(Box)(
   align-items: center;
   transition: all .3s ease;
   &:hover {
-    background: ${theme.palette.primary.light};
-    h4 {
-      color: ${theme.palette.common.white};
-    }
+    background: ${alpha(colors.aqua, 0.5)};
   }
   `
 );
