@@ -12,8 +12,14 @@ import { Currency } from '@notional-finance/sdk';
 import LiquidationHelper from './LiquidationHelper';
 import ProfitCalculator from './ProfitCalculator';
 import AaveFlashLoanProvider from './lenders/AaveFlashLender';
+import {
+  DDEventAlertType,
+  DDEventKey,
+  submitEvent,
+} from '@notional-finance/logging';
 
 export type LiquidatorSettings = {
+  network: string;
   flashLiquidatorAddress: string;
   flashLiquidatorOwner: string;
   flashLenderAddress: string;
@@ -206,13 +212,24 @@ export default class NotionalV3Liquidator {
       to: this.settings.flashLenderAddress,
       data: encodedTransaction,
     });
-    console.log(`payload=${payload}`);
-    fetch(this.settings.txRelayUrl + '/v1/calls/0', {
+    await fetch(this.settings.txRelayUrl + '/v1/calls/0', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: payload,
+    });
+
+    await submitEvent({
+      aggregation_key: DDEventKey.AccountLiquidated,
+      alert_type: DDEventAlertType.info,
+      title: `Account liquidated`,
+      tags: [
+        `account:${flashLiq.accountLiq.accountId}`,
+        `network:${this.settings.network}`,
+        `event:account_liquidated`,
+      ],
+      text: `Liquidated account ${flashLiq.accountLiq.accountId}`,
     });
   }
 }

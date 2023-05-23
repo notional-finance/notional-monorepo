@@ -50,11 +50,10 @@ export default class ProfitCalculator {
     }
 
     const fetchUrl = zeroExUrl + '?' + queryParams;
-
-    console.log(fetchUrl);
-
     const resp = await fetch(fetchUrl);
-    return await resp.json();
+    const data = await resp.json();
+
+    return data;
   }
 
   public async getFlashLiquidation(
@@ -129,7 +128,6 @@ export default class ProfitCalculator {
         dexId: DexId.ZERO_EX,
         useDynamicSlippage: false,
         dynamicSlippageLimit: BigNumber.from(0),
-        //        dynamicSlippageLimit: BigNumber.from('0xFFFFFFFF'),
       };
     }
 
@@ -198,7 +196,7 @@ export default class ProfitCalculator {
                 this.settings.zeroExUrl,
                 flashLiq.flashBorrowAsset,
                 flashLiq.accountLiq.liquidation.getLocalUnderlyingAddress(),
-                collateralProfit,
+                flashAssetProfit,
                 true
               )
             ).buyAmount

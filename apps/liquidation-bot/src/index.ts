@@ -1,10 +1,21 @@
-import { Network, getProviderFromNetwork } from '@notional-finance/util';
+import {
+  Network,
+  getNowSeconds,
+  getProviderFromNetwork,
+} from '@notional-finance/util';
 import { BigNumber } from 'ethers';
+import {
+  DDSeries,
+  initEventLogger,
+  initMetricLogger,
+  submitMetrics,
+} from '@notional-finance/logging';
 import NotionalV3Liquidator from './NotionalV3Liquidator';
 import * as tokens from './config/tokens.json';
 import * as currencies from './config/currencies.json';
 import * as overrides from './config/overrides.json';
 import { ERC20__factory } from '@notional-finance/contracts';
+import { MetricNames } from './types';
 
 export interface Env {
   ACCOUNT_SERVICE_URL: string;
@@ -30,12 +41,20 @@ export interface Env {
 }
 
 const run = async (env: Env) => {
+  initMetricLogger({
+    apiKey: env.DD_API_KEY,
+  });
+  initEventLogger({
+    apiKey: env.DD_API_KEY,
+  });
+
   const resp = await fetch(env.ACCOUNT_SERVICE_URL);
   const data = (await resp.json()) as any;
   const addrs = data['default'].map((a) => a.id);
 
   const provider = getProviderFromNetwork(Network[env.NETWORK], true);
   const liq = new NotionalV3Liquidator(provider, {
+    network: env.NETWORK,
     flashLiquidatorAddress: env.FLASH_LIQUIDATOR_CONTRACT,
     flashLiquidatorOwner: env.FLASH_LIQUIDATOR_OWNER,
     flashLenderAddress: env.FLASH_LENDER_ADDRESS,
@@ -72,6 +91,16 @@ const run = async (env: Env) => {
   });
 
   const riskyAccounts = await liq.getRiskyAccounts(addrs);
+  const ddSeries = {
+    series: [],
+  };
+
+  ddSeries.series.push({
+    name: MetricNames.NUM_RISKY_ACCOUNTS,
+    value: riskyAccounts.length,
+    tags: [`network:${env.NETWORK}`],
+    timestamp: getNowSeconds(),
+  });
 
   for (let i = 0; i < riskyAccounts.length; i++) {
     const riskyAccount = riskyAccounts[i];
@@ -82,6 +111,8 @@ const run = async (env: Env) => {
       await liq.liquidateAccount(possibleLiqs[0]);
     }
   }
+
+  await submitMetrics(ddSeries);
 };
 
 export default {

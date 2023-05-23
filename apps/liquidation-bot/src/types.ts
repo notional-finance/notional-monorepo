@@ -10,6 +10,11 @@ export interface IFlashLoanProvider {
   encodeTransaction(liq: FlashLiquidation): Promise<string>;
 }
 
+export class MetricNames {
+  public static readonly NUM_RISKY_ACCOUNTS =
+    'liquidator_bot.num_risky_accounts';
+}
+
 export enum LiquidationType {
   LOCAL_CURRENCY,
   COLLATERAL_CURRENCY,
