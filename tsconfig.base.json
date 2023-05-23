@@ -98,6 +98,7 @@
       "@notional-finance/styles/*": ["packages/common/styles/src/*"],
       "@notional-finance/trade": ["packages/shared/trade/src/index.ts"],
       "@notional-finance/trade/*": ["packages/shared/trade/src/*"],
+      "@notional-finance/transaction": ["packages/transaction/src/index.ts"],
       "@notional-finance/treasury-feature-shell": [
         "packages/features/treasury/src/index.ts"
       ],
