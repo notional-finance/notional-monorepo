@@ -22,7 +22,6 @@ export const VaultActionRow = ({ row }: VaultActionRowProps) => {
   const { maturity, routes } = row.original.actionRow;
   return (
     <MainContainer>
-      <RemindMe futureDate={maturity} />
       <Box sx={{ display: 'flex', width: '100%' }}>
         {routes.manageVault && (
           <ActionRowButton
@@ -45,6 +44,7 @@ export const VaultActionRow = ({ row }: VaultActionRowProps) => {
           />
         )}
       </Box>
+      <RemindMe futureDate={maturity} />
     </MainContainer>
   );
 };

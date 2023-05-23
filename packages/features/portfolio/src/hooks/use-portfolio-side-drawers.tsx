@@ -11,10 +11,10 @@ import {
   RedeemNToken,
   RepayBorrow,
   RepayCash,
-  RollMaturity,
   Withdraw,
   WithdrawLend,
   ManageVault,
+  ManageMaturities,
 } from '../side-drawers';
 
 export const usePortfolioSideDrawers = () => {
@@ -23,7 +23,6 @@ export const usePortfolioSideDrawers = () => {
   const drawers = {
     [PORTFOLIO_ACTIONS.REPAY_BORROW]: RepayBorrow,
     [PORTFOLIO_ACTIONS.WITHDRAW_LEND]: WithdrawLend,
-    [PORTFOLIO_ACTIONS.ROLL_MATURITY]: RollMaturity,
     [PORTFOLIO_ACTIONS.REPAY_CASH_DEBT]: RepayCash,
     [PORTFOLIO_ACTIONS.REPAY_IFCASH_BORROW]: RepayCash,
     [PORTFOLIO_ACTIONS.REDEEM_NTOKEN]: RedeemNToken,
@@ -36,6 +35,8 @@ export const usePortfolioSideDrawers = () => {
     [PORTFOLIO_ACTIONS.DELEVERAGE]: RedeemNToken,
     [PORTFOLIO_ACTIONS.ADD_TO_CALENDAR]: AddToCalendar,
     [PORTFOLIO_ACTIONS.MANAGE_VAULT]: ManageVault,
+    [PORTFOLIO_ACTIONS.MANAGE_LEND]: ManageMaturities,
+    [PORTFOLIO_ACTIONS.MANAGE_BORROW]: ManageMaturities,
   };
 
   const SideDrawerComponent =

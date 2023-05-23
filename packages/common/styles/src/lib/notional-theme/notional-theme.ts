@@ -636,7 +636,7 @@ const getThemeData = (themeVariant: PaletteMode, pageLayout?: NotionalPageLayout
         main: colors.orange,
       },
       info: {
-        light: alpha(colors.neonTurquoise, 0.15),
+        light: alpha(colors.aqua, 0.15),
         main:
           themeVariant === THEME_VARIANTS.LIGHT
             ? colors.neonTurquoise

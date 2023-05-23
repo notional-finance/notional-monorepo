@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Box, Typography, styled } from '@mui/material';
-import { H4, ToggleSwitch } from '@notional-finance/mui';
+import { Box, styled } from '@mui/material';
+import { H4, ToggleSwitch, LabelValue } from '@notional-finance/mui';
 import { Link } from 'react-router-dom';
 import {
   getFromLocalStorage,
@@ -77,7 +77,7 @@ const CustomLink = styled(H4)(
   `
 );
 
-const Title = styled(Typography)(
+const Title = styled(LabelValue)(
   ({ theme }) => `
   margin-bottom: ${theme.spacing(2.5)};
   font-weight: 700;
