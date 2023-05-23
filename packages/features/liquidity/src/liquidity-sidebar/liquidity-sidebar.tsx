@@ -4,7 +4,6 @@ import {
   TradeActionButton,
   TokenApprovalView,
   WalletDepositInput,
-  TradePropertiesGrid,
 } from '@notional-finance/trade';
 import {
   PageLoading,
@@ -13,11 +12,17 @@ import {
 } from '@notional-finance/mui';
 import { useHistory, useLocation } from 'react-router-dom';
 import { defineMessage, FormattedMessage } from 'react-intl';
-import { LiquidityContext } from '../store/liquidity-context';
+import { LiquidityContext } from '../liquidity-action';
 
 export const LiquiditySidebar = () => {
   const {
-    state: { availableTokens, currency, canSubmit, txnData, tradeProperties },
+    state: {
+      availableTokens,
+      currency,
+      canSubmit,
+      buildTransactionCall,
+      confirm,
+    },
     updateState,
   } = useContext(LiquidityContext);
   const { pathname, search } = useLocation();
@@ -32,7 +37,7 @@ export const LiquiditySidebar = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return txnData ? (
+  return confirm && buildTransactionCall ? (
     <TransactionConfirmation
       heading={
         <FormattedMessage
@@ -41,8 +46,8 @@ export const LiquiditySidebar = () => {
         />
       }
       onCancel={() => history.push(pathname)}
-      transactionProperties={txnData.transactionProperties}
-      buildTransactionCall={txnData.buildTransactionCall}
+      transactionProperties={{}}
+      buildTransactionCall={buildTransactionCall}
     />
   ) : (
     <ActionSidebar
@@ -87,7 +92,7 @@ export const LiquiditySidebar = () => {
       ) : (
         <PageLoading />
       )}
-      <TradePropertiesGrid showBackground data={tradeProperties || {}} />
+      {/* <TradePropertiesGrid showBackground data={tradeProperties || {}} /> */}
       <TokenApprovalView />
     </ActionSidebar>
   );

@@ -1,6 +1,5 @@
-import { TokenDefinition } from '@notional-finance/core-entities';
-import { createObservableContext } from '@notional-finance/notionable-hooks';
-import { TradeProperties, TransactionData } from '@notional-finance/trade';
+import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
+import { TransactionFunction } from '../types';
 
 interface UserInputs {
   // This is set on load via a URL parameter
@@ -19,10 +18,10 @@ interface SelectedData {
 }
 
 interface TransactionState {
-  tradeProperties?: TradeProperties;
   canSubmit: boolean;
   confirm: boolean;
-  txnData?: TransactionData;
+  nTokensMinted?: TokenBalance;
+  buildTransactionCall?: TransactionFunction;
 }
 
 export interface LiquidityState
@@ -42,8 +41,3 @@ export const initialLiquidityState = {
   canSubmit: false,
   confirm: false,
 };
-
-export const LiquidityContext = createObservableContext<LiquidityState>(
-  'liquidity-context',
-  initialLiquidityState
-);

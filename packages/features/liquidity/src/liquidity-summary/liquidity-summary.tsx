@@ -12,7 +12,7 @@ import { MobileTradeActionSummary } from '@notional-finance/trade';
 import { LiquidityFaq } from './liquidity-faq';
 import { FormattedMessage } from 'react-intl';
 import { useContext } from 'react';
-import { LiquidityContext } from '../store/liquidity-context';
+import { LiquidityContext } from '../liquidity-action';
 
 export const LiquiditySummary = () => {
   const theme = useTheme();

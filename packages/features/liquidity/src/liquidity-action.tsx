@@ -1,35 +1,26 @@
 import { styled, Box } from '@mui/material';
 import { SideBarLayout, FeatureLoader } from '@notional-finance/mui';
 import { THEME_VARIANTS } from '@notional-finance/shared-config';
-import { useLiquidityTransaction } from './store/use-liquidity-transaction';
 import { useUserSettingsState } from '@notional-finance/user-settings-manager';
 import { LiquiditySummary } from './liquidity-summary/liquidity-summary';
 import { LiquiditySidebar } from './liquidity-sidebar/liquidity-sidebar';
-import { useObservableContext } from '@notional-finance/notionable-hooks';
+import {
+  createObservableContext,
+  useObservableContext,
+} from '@notional-finance/notionable-hooks';
 import {
   initialLiquidityState,
-  LiquidityContext,
-} from './store/liquidity-context';
-import { loadLiquidityManager } from './store/liquidity-manager';
+  LiquidityState,
+  loadLiquidityManager,
+} from '@notional-finance/notionable';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import backgroundImgDark from '@notional-finance/assets/images/provide-liquidity-bg-alt.png';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import backgroundImgLight from '@notional-finance/assets/images/provide-liquidity-light-bg.png';
 
-const LiquidityCurrencyBackground = styled('img')(
-  ({ theme }) => `
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  width: 100%;
-  height: 100%;
-  z-index: -1;
-  ${theme.breakpoints.down('sm')} {
-    display: none;
-  }
-`
+export const LiquidityContext = createObservableContext<LiquidityState>(
+  'liquidity-context',
+  initialLiquidityState
 );
 
 export const LiquidityCurrencyView = () => {
@@ -41,11 +32,9 @@ export const LiquidityCurrencyView = () => {
   );
 
   const {
-    state: { isReady },
+    state: { isReady, confirm },
   } = liquidityState;
 
-  const txnData = useLiquidityTransaction();
-  const showTransactionConfirmation = txnData ? true : false;
   const bgImg =
     themeVariant === THEME_VARIANTS.LIGHT
       ? backgroundImgLight
@@ -62,7 +51,7 @@ export const LiquidityCurrencyView = () => {
           />
           <Container>
             <SideBarLayout
-              showTransactionConfirmation={showTransactionConfirmation}
+              showTransactionConfirmation={confirm}
               sideBar={<LiquiditySidebar />}
               mainContent={<LiquiditySummary />}
             />
@@ -80,6 +69,22 @@ const Container = styled(Box)(
       min-height: 0px;
     }
     `
+);
+
+const LiquidityCurrencyBackground = styled('img')(
+  ({ theme }) => `
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  ${theme.breakpoints.down('sm')} {
+    display: none;
+  }
+`
 );
 
 export default LiquidityCurrencyView;

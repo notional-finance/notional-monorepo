@@ -1,4 +1,4 @@
-import { MaturityData } from '../types';
+import { MaturityData, TransactionFunction } from '../types';
 import {
   GenericBaseVault,
   TypedBigNumber,
@@ -7,14 +7,6 @@ import {
 } from '@notional-finance/sdk';
 import { Market } from '@notional-finance/sdk/src/system';
 import { VAULT_ACTIONS } from '@notional-finance/shared-config';
-import { PopulatedTransaction } from 'ethers';
-
-// @todo resolve this circular dependency by getting rid of notionable from shared-trade
-interface TransactionFunction {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  transactionFn: (...args: any) => Promise<PopulatedTransaction>;
-  transactionArgs: unknown[];
-}
 
 export enum NoEligibleMarketsReason {
   IsIdiosyncratic,
