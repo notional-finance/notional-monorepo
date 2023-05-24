@@ -7,7 +7,7 @@ interface UserInputs {
   inputAmount?: string;
   hasError: boolean;
   nTokenSymbol?: string;
-  nToken?: TokenDefinition;
+  selectedNToken?: TokenDefinition;
   underlying?: TokenDefinition;
 }
 
@@ -15,6 +15,18 @@ interface SelectedData {
   blendedYield?: number;
   totalYield?: number;
   incentiveYield?: number;
+  totalValueLocked?: TokenBalance;
+  returnDrivers?: {
+    token: TokenDefinition;
+    value: TokenBalance;
+    apy: number;
+  }[];
+  poolComposition?: {
+    token: TokenDefinition;
+    totalPrimeCash: TokenBalance;
+    totalfCash: TokenBalance;
+    utilization: number;
+  }[];
 }
 
 interface TransactionState {

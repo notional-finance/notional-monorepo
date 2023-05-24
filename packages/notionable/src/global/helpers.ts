@@ -4,7 +4,7 @@ import {
   TokenDefinition,
 } from '@notional-finance/core-entities';
 import { filterEmpty } from '@notional-finance/util';
-import { map, mergeMap, Observable, of, pairwise } from 'rxjs';
+import { map, Observable, of, pairwise, switchMap } from 'rxjs';
 import { GlobalState } from './global-state';
 
 export function resetOnNetworkChange<T>(
@@ -47,7 +47,7 @@ export function selectedCashGroup(
   nToken$: Observable<TokenDefinition | undefined>
 ) {
   return nToken$.pipe(
-    mergeMap((n) => {
+    switchMap((n) => {
       return n
         ? Registry.getExchangeRegistry().subscribePoolInstance<fCashMarket>(
             n.network,

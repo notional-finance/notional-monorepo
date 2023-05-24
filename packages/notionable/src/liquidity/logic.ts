@@ -27,11 +27,9 @@ export function getAllNTokens(selectedNetwork: Network) {
 export function getSelectedNToken({
   selectedNetwork,
   currency,
-  nTokenPool,
 }: {
   selectedNetwork: Network;
   currency: string;
-  nTokenPool?: fCashMarket;
 }) {
   const tokens = Registry.getTokenRegistry();
 
@@ -43,6 +41,14 @@ export function getSelectedNToken({
     underlying.currencyId
   );
 
+  return {
+    nTokenSymbol: selectedNToken.symbol,
+    selectedNToken,
+    underlying,
+  };
+}
+
+export function getNTokenData(nTokenPool: fCashMarket) {
   const totalValueLocked = nTokenPool?.totalValueLocked(0).toUnderlying();
   const returnDrivers = nTokenPool?.balances.map((b) => {
     const value = b.toUnderlying();
@@ -63,7 +69,7 @@ export function getSelectedNToken({
     );
 
     return {
-      maturity: t.token.maturity,
+      token: t.token,
       totalPrimeCash,
       totalfCash,
       utilization,
@@ -72,10 +78,8 @@ export function getSelectedNToken({
 
   // TODO: historical tvl, apy, ntoken price
   // TODO: token yields
+
   return {
-    nTokenSymbol: selectedNToken.symbol,
-    selectedNToken,
-    underlying,
     totalValueLocked,
     returnDrivers,
     poolComposition,

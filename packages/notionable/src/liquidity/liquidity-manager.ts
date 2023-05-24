@@ -1,6 +1,12 @@
 import { GlobalState } from '../global/global-state';
 import { filterEmpty } from '@notional-finance/util';
-import { combineLatest, map, merge, Observable } from 'rxjs';
+import {
+  combineLatest,
+  distinctUntilChanged,
+  map,
+  merge,
+  Observable,
+} from 'rxjs';
 import { initialLiquidityState, LiquidityState } from './liquidity-store';
 import { mapWithDistinctInputs, requireKeysDefined } from '../utils';
 import {
@@ -13,6 +19,7 @@ import {
   getAllNTokens,
   getMintNTokenTxn,
   getNTokenClaims,
+  getNTokenData,
   getSelectedNToken,
 } from './logic';
 
@@ -23,7 +30,12 @@ export const loadLiquidityManager = (
   const onNetworkChange$ = resetOnNetworkChange(global$, initialLiquidityState);
   const selectedNetwork$ = selectedNetwork(global$);
   const account$ = selectedAccount(global$);
-  const nTokenPool$ = selectedCashGroup(state$.pipe(map((s) => s.nToken)));
+  const nTokenPool$ = selectedCashGroup(
+    state$.pipe(
+      map((s) => s.selectedNToken),
+      distinctUntilChanged()
+    )
+  );
 
   const onPageLoad$ = combineLatest([state$, selectedNetwork$]).pipe(
     map(([{ isReady }, selectedNetwork]) =>
@@ -32,19 +44,19 @@ export const loadLiquidityManager = (
     filterEmpty()
   );
 
-  const onTokenSelect$ = combineLatest([
-    state$,
-    selectedNetwork$,
-    nTokenPool$,
-  ]).pipe(
-    map(([s, selectedNetwork, nTokenPool]) => ({
+  const onTokenSelect$ = combineLatest([state$, selectedNetwork$]).pipe(
+    map(([s, selectedNetwork]) => ({
       currency: s.currency,
       selectedNetwork,
-      nTokenPool,
     })),
     requireKeysDefined('currency', 'selectedNetwork'),
     mapWithDistinctInputs(getSelectedNToken, 'currency'),
     filterEmpty()
+  );
+
+  const onPoolDataChange$ = nTokenPool$.pipe(
+    filterEmpty(),
+    map((nTokenPool) => getNTokenData(nTokenPool))
   );
 
   const onInputChange$ = combineLatest([state$, nTokenPool$]).pipe(
@@ -69,6 +81,7 @@ export const loadLiquidityManager = (
     onPageLoad$,
     onTokenSelect$,
     onInputChange$,
-    onTxnBuild$
+    onTxnBuild$,
+    onPoolDataChange$
   );
 };
