@@ -8,7 +8,7 @@ import {
 } from '@notional-finance/notionable';
 import { useContext } from 'react';
 import { NotionalContext } from './NotionalContext';
-import { switchMap, startWith, tap } from 'rxjs';
+import { switchMap, startWith } from 'rxjs';
 
 export function useNotional() {
   const { notional, loaded, connectedChain, pendingChainId } =

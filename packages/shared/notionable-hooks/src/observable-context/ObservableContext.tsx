@@ -5,20 +5,11 @@ import {
   useObservableState,
   useSubscription,
 } from 'observable-hooks';
-import React, { useContext, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useLocation, useParams } from 'react-router';
-import {
-  EMPTY,
-  Observable,
-  concat,
-  of,
-  scan,
-  switchMap,
-  map,
-  mergeMap,
-} from 'rxjs';
+import { EMPTY, Observable, scan, switchMap } from 'rxjs';
 import { QueryParamConfigMap, useQueryParams } from 'use-query-params';
-import { NotionalContext } from '../notional/NotionalContext';
+import { useNotionalContext } from '../notional/use-notional';
 
 const DEBUG = process.env['NODE_ENV'] === 'development';
 
@@ -57,19 +48,7 @@ export function useObservableContext<T extends Record<string, unknown>>(
   const params = useParams<Record<string, string>>();
   const { pathname } = useLocation();
   const [query, setQuery] = useQueryParams(queryParamConfig);
-  const { state$: globalState$$, state: globalState } =
-    useContext(NotionalContext);
-
-  // Mimics a "behavior subject" for the global state to ensure that we always get an
-  // initial emit of the latest global state
-  const globalState$ = useObservable(
-    (o$) =>
-      o$.pipe(
-        map(([gs, gs$]) => concat(of(gs), gs$)),
-        mergeMap((g) => g)
-      ),
-    [globalState, globalState$$]
-  );
+  const { globalState$ } = useNotionalContext();
 
   // Creates an observable state object that can be updated
   const [updateState, state$] = useObservableCallback<
