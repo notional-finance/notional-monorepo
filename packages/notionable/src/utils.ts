@@ -8,7 +8,6 @@ import {
   filter,
   OperatorFunction,
   Observable,
-  merge,
   distinctUntilChanged,
   pipe,
 } from 'rxjs';
@@ -52,24 +51,6 @@ export function requireKeysDefined<T, K extends keyof T>(...keys: K[]) {
     // NOTE: this unknown conversion is required because Typescript does not
     // properly parse RequiredKeys as equivalent to T (which it is)
   }) as unknown as OperatorFunction<T, RequiredKeys<T, typeof keys[number]>>;
-}
-
-// Converts an object of observables to emitting partial state updates for a store
-export function mergeEmitKeys<T>(observables: {
-  [P in keyof T]?: Observable<T[P]>;
-}) {
-  const keys = Object.keys(observables) as [keyof T];
-  const keyedObservables = keys
-    .map((k) => {
-      return observables[k]?.pipe(
-        map((v) => {
-          return { [k]: v };
-        })
-      );
-    })
-    .filter((o) => o !== undefined);
-
-  return merge(...(keyedObservables as NonNullable<typeof keyedObservables>));
 }
 
 function isHashable(o: any): o is Hashable {

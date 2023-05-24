@@ -1,3 +1,4 @@
+import { GlobalState } from '@notional-finance/notionable';
 import {
   useObservable,
   useObservableCallback,
@@ -8,6 +9,7 @@ import React, { useEffect } from 'react';
 import { useLocation, useParams } from 'react-router';
 import { EMPTY, Observable, scan, switchMap } from 'rxjs';
 import { QueryParamConfigMap, useQueryParams } from 'use-query-params';
+import { useNotionalContext } from '../notional/use-notional';
 
 const DEBUG = process.env['NODE_ENV'] === 'development';
 
@@ -38,12 +40,15 @@ export function createObservableContext<T>(
 export function useObservableContext<T extends Record<string, unknown>>(
   initialState: T,
   queryParamConfig: QueryParamConfigMap,
-  loadManagers: (state$: Observable<T>) => Observable<Partial<T>> = () =>
-    EMPTY as Observable<Partial<T>>
+  loadManagers: (
+    state$: Observable<T>,
+    global$: Observable<GlobalState>
+  ) => Observable<Partial<T>> = () => EMPTY as Observable<Partial<T>>
 ) {
   const params = useParams<Record<string, string>>();
   const { pathname } = useLocation();
   const [query, setQuery] = useQueryParams(queryParamConfig);
+  const { globalState$ } = useNotionalContext();
 
   // Creates an observable state object that can be updated
   const [updateState, state$] = useObservableCallback<
@@ -67,8 +72,10 @@ export function useObservableContext<T extends Record<string, unknown>>(
   // it will be individually updated to state
   useSubscription(
     useObservable(
-      (s$) => s$.pipe(switchMap(([s]) => loadManagers(s))),
-      [state$]
+      (o$) => {
+        return o$.pipe(switchMap(([s, g]) => loadManagers(s, g)));
+      },
+      [state$, globalState$]
     ),
     updateState
   );

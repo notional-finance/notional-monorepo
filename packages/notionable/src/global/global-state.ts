@@ -1,4 +1,3 @@
-import { AccountDefinition } from '@notional-finance/core-entities';
 import { Network } from '@notional-finance/util';
 
 // Set this as the runtime default
@@ -25,7 +24,6 @@ interface AccountState {
   isAccountPending: boolean;
   isAccountReady: boolean;
   selectedAccount?: string;
-  account?: AccountDefinition;
 }
 
 export interface GlobalState

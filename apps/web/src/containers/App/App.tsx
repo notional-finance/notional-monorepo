@@ -1,12 +1,8 @@
-import {
-  initializeNetwork,
-  initialGlobalState,
-  loadGlobalManager,
-} from '@notional-finance/notionable';
+import { initializeNetwork } from '@notional-finance/notionable';
 import {
   NotionalContext,
+  useGlobalContext,
   useNotional,
-  useObservableContext,
 } from '@notional-finance/notionable-hooks';
 import { TrackingConsent } from '@notional-finance/shared-web';
 import { Web3OnboardProvider } from '@web3-onboard/react';
@@ -103,6 +99,7 @@ const AllRoutes = () => {
 };
 
 export const App = () => {
+  /**** LEGACY INIT APPLICATION HERE */
   const { pendingChainId, initializeNotional } = useNotional();
   const initApplication = useCallback(async () => {
     try {
@@ -125,14 +122,9 @@ export const App = () => {
   useEffect(() => {
     if (pendingChainId !== -1) initializeNotional(pendingChainId);
   }, [pendingChainId, initializeNotional]);
+  /**** LEGACY INIT APPLICATION ENDS HERE */
 
-  const globalState = useObservableContext(
-    {
-      ...initialGlobalState,
-    },
-    {},
-    loadGlobalManager
-  );
+  const globalState = useGlobalContext();
 
   // Run as a useEffect here so that the observable "sees" the initial change
   const { updateState } = globalState;

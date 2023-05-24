@@ -1,16 +1,5 @@
-import { Registry } from '@notional-finance/core-entities';
 import { filterEmpty, Network } from '@notional-finance/util';
-import {
-  Observable,
-  merge,
-  pairwise,
-  filter,
-  switchMap,
-  map,
-  mergeMap,
-  EMPTY,
-  withLatestFrom,
-} from 'rxjs';
+import { Observable, merge, pairwise, filter, switchMap, map } from 'rxjs';
 import { GlobalState } from './global-state';
 import {
   disconnectAccount,
@@ -104,31 +93,11 @@ export const loadGlobalManager = (
     )
   );
 
-  // Subscribes to changes from onAccountPending and starts a subscription that emits
-  // whenever the internal registry data is updated
-  const onAccountReady$ = onAccountPending$.pipe(
-    withLatestFrom(state$),
-    mergeMap(([{ isAccountReady }, { selectedAccount, selectedNetwork }]) => {
-      if (isAccountReady && selectedAccount && selectedNetwork) {
-        // This will unsubscribe if the active account changes
-        return Registry.getAccountRegistry().subscribeAccount(
-          selectedNetwork,
-          selectedAccount
-        );
-      } else {
-        return EMPTY;
-      }
-    }, 1),
-    filterEmpty(),
-    map((account) => ({ account }))
-  );
-
   return merge(
     onSelectedNetworkChange$,
     onNetworkPending$,
     onWalletConnect$,
     onWalletDisconnect$,
-    onAccountPending$,
-    onAccountReady$
+    onAccountPending$
   );
 };

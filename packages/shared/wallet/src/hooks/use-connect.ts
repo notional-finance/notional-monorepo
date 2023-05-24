@@ -6,7 +6,7 @@ import { useCallback, useEffect } from 'react';
 
 export const useConnect = () => {
   const {
-    notional: { selectedNetwork },
+    globalState: { selectedNetwork },
     updateNotional,
   } = useNotionalContext();
   const [

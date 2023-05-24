@@ -94,7 +94,13 @@ export default class WeightedPool extends BaseLiquidityPool<PoolParams> {
         FixedPoint.ONE.n
       );
 
-      return { lpTokens, feesPaid };
+      const lpClaims = this.getLPTokenClaims(
+        lpTokens,
+        this.balances.map((b, i) => b.add(tokensIn[i])),
+        this.totalSupply.add(lpTokens)
+      );
+
+      return { lpTokens, feesPaid, lpClaims };
     }
 
     throw Error('Insufficient liquidity');

@@ -23,7 +23,7 @@ export const LiquidityFaq = () => {
         defaultMessage:
           'nTokens earn returns in many ways: trading fees on every lend and borrow, fCash interest, underlying money market interest as a passive lender on Compound or Aave, and NOTE <a1>incentives</a1> from the community. The first three sources of return are incorporated in the “Variable Rate” APY.',
         values: {
-          a1: (msg: any) => (
+          a1: (msg: React.ReactNode) => (
             <ExternalLink
               accent
               href="https://docs.notional.finance/notional-v2/governance/the-note"

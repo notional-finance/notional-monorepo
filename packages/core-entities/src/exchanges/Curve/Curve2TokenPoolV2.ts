@@ -292,9 +292,17 @@ export default class Curve2TokenPoolV2 extends BaseLiquidityPool<Curve2TokenPool
       d_token = d_token.sub(d_token_fee);
     }
 
+    const lpTokens = this.totalSupply.copy(d_token);
+    const lpClaims = this.getLPTokenClaims(
+      lpTokens,
+      amountsp,
+      this.totalSupply.add(lpTokens)
+    );
+
     return {
-      lpTokens: this.totalSupply.copy(d_token),
+      lpTokens,
       feesPaid: this.zeroTokenArray(),
+      lpClaims,
     };
   }
 
