@@ -1,5 +1,5 @@
 import { TypedBigNumber } from '@notional-finance/sdk';
-import { useObservableState } from 'observable-hooks';
+import { useObservable, useObservableState } from 'observable-hooks';
 import {
   initializeNotional,
   initialNotionalState,
@@ -8,6 +8,7 @@ import {
 } from '@notional-finance/notionable';
 import { useContext } from 'react';
 import { NotionalContext } from './NotionalContext';
+import { switchMap, startWith, tap } from 'rxjs';
 
 export function useNotional() {
   const { notional, loaded, connectedChain, pendingChainId } =
@@ -48,6 +49,13 @@ export function useCurrentETHPrice() {
 }
 
 export function useNotionalContext() {
-  const { state, updateState } = useContext(NotionalContext);
-  return { notional: state, updateNotional: updateState };
+  const { state, state$, updateState } = useContext(NotionalContext);
+
+  // Ensures that only listeners receive the initial global state
+  const globalState$ = useObservable(
+    (o$) => o$.pipe(switchMap(([g]) => g.pipe(startWith(state)))),
+    [state$]
+  );
+
+  return { globalState: state, updateNotional: updateState, globalState$ };
 }

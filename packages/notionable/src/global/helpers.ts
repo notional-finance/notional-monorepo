@@ -37,3 +37,18 @@ export function selectedAccount(global$: Observable<GlobalState>) {
     filterEmpty()
   );
 }
+
+export function selectedCashGroup(
+  nToken$: Observable<TokenDefinition | undefined>
+) {
+  return nToken$.pipe(
+    mergeMap((n) => {
+      return n
+        ? Registry.getExchangeRegistry().subscribePoolInstance<fCashMarket>(
+            n.network,
+            n.address
+          ) || of(undefined)
+        : of(undefined);
+    })
+  );
+}

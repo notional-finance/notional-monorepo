@@ -9,7 +9,7 @@ import {
   useObservableState,
   useSubscription,
 } from 'observable-hooks';
-import { scan, mergeMap } from 'rxjs';
+import { scan, switchMap } from 'rxjs';
 import { createObservableContext } from '../observable-context/ObservableContext';
 
 const DEBUG = process.env['NODE_ENV'] === 'development';
@@ -29,7 +29,7 @@ export function useGlobalContext() {
     (state$) =>
       state$.pipe(
         scan((state, update) => {
-          if (DEBUG) console.log('update:', update, 'state: ', state);
+          if (DEBUG) console.log('[GLOBAL] update:', update, 'state: ', state);
           return { ...state, ...update };
         }, initialGlobalState)
       ),
@@ -42,7 +42,7 @@ export function useGlobalContext() {
   // it will be individually updated to state
   useSubscription(
     useObservable(
-      (s$) => s$.pipe(mergeMap(([s]) => loadGlobalManager(s))),
+      (s$) => s$.pipe(switchMap(([s]) => loadGlobalManager(s))),
       [state$]
     ),
     updateState

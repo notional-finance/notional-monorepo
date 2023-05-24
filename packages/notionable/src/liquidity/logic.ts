@@ -1,9 +1,11 @@
 import { Registry, TokenDefinition } from '@notional-finance/core-entities';
 import { depositAndMintNToken } from '@notional-finance/transaction';
 import { Network } from '@notional-finance/util';
+import { fCashMarket } from '@notional-finance/core-entities';
+import { convertRateToFloat } from '@notional-finance/helpers';
 
 export function getAllNTokens(selectedNetwork: Network) {
-  // Returns all the available tokens when the network is ready
+  // TODO: all tokens should be an observable input
   const allTokens = Registry.getTokenRegistry().getAllTokens(selectedNetwork);
   const availableNTokens = allTokens.filter((t) => t.tokenType === 'nToken');
   const availableDepositTokens = availableNTokens.map((n) => {
@@ -25,49 +27,83 @@ export function getAllNTokens(selectedNetwork: Network) {
 export function getSelectedNToken({
   selectedNetwork,
   currency,
+  nTokenPool,
 }: {
   selectedNetwork: Network;
   currency: string;
+  nTokenPool?: fCashMarket;
 }) {
   const tokens = Registry.getTokenRegistry();
 
   const underlying = tokens.getTokenBySymbol(selectedNetwork, currency);
   if (!underlying.currencyId) return undefined;
 
-  const nToken = tokens.getNToken(selectedNetwork, underlying.currencyId);
+  const selectedNToken = tokens.getNToken(
+    selectedNetwork,
+    underlying.currencyId
+  );
 
-  // TODO: return other selected data here...
-  return { nTokenSymbol: nToken.symbol, nToken, underlying };
+  const totalValueLocked = nTokenPool?.totalValueLocked(0).toUnderlying();
+  const returnDrivers = nTokenPool?.balances.map((b) => {
+    const value = b.toUnderlying();
+    const apy = 0; // TODO: maybe some way to get currenty apy from a balance obj?
+    return { token: b.token, value, apy };
+  });
+
+  const poolComposition = nTokenPool?.balances.slice(1).map((t, i) => {
+    const totalPrimeCash =
+      nTokenPool.poolParams.perMarketCash[i].toUnderlying();
+    const totalfCash = nTokenPool.poolParams.perMarketfCash[i];
+    const utilization = convertRateToFloat(
+      nTokenPool.getfCashUtilization(
+        totalfCash.copy(0),
+        totalfCash,
+        totalPrimeCash
+      )
+    );
+
+    return {
+      maturity: t.token.maturity,
+      totalPrimeCash,
+      totalfCash,
+      utilization,
+    };
+  });
+
+  // TODO: historical tvl, apy, ntoken price
+  // TODO: token yields
+  return {
+    nTokenSymbol: selectedNToken.symbol,
+    selectedNToken,
+    underlying,
+    totalValueLocked,
+    returnDrivers,
+    poolComposition,
+  };
 }
 
 export function getNTokenClaims({
   inputAmount,
-  nToken,
   underlying,
+  nTokenPool,
 }: {
   inputAmount: string;
-  nToken: TokenDefinition;
   underlying: TokenDefinition;
+  nTokenPool: fCashMarket;
 }) {
   try {
     const tokens = Registry.getTokenRegistry();
-    const exchanges = Registry.getExchangeRegistry();
     const depositBalance = tokens
       .parseInputToTokenBalance(inputAmount, underlying.id, underlying.network)
       .toToken(tokens.getPrimeCash(underlying.network, underlying.currencyId));
-    const nTokenPool = exchanges.getPoolInstance(
-      nToken.network,
-      nToken.address
-    );
+
     const tokensIn = nTokenPool.zeroTokenArray();
     tokensIn[0] = depositBalance;
 
-    // TODO: return lp claims
-    const { lpTokens: nTokensMinted } =
+    const { lpTokens: nTokensMinted, lpClaims: nTokenClaims } =
       nTokenPool.getLPTokensGivenTokens(tokensIn);
 
-    // TODO: calculate all the transaction properties
-    return { canSubmit: true, nTokensMinted };
+    return { canSubmit: true, nTokensMinted, nTokenClaims };
   } catch (e) {
     console.log('error', e);
     return { hasError: true, canSubmit: false };

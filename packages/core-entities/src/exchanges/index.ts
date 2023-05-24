@@ -42,6 +42,7 @@ export {
   BaseLiquidityPool,
   TwoTokenComposableStablePool,
   ThreeTokenComposableStablePool,
+  fCashMarket,
   PoolClasses,
   PoolConstructor,
   Curve2TokenPoolV1,
