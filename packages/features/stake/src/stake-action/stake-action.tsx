@@ -51,9 +51,10 @@ export const StakeAction = () => {
           inputRef={noteInputRef}
           availableTokens={['NOTE']}
           selectedToken={'NOTE'}
-          onChange={({ inputAmount, hasError }) => {
+          onChange={({ inputAmount: _inputAmount, hasError }) => {
+            throw Error('Unimplemented');
             updateStakeState({
-              noteAmount: inputAmount,
+              noteAmount: undefined,
               noteHasError: hasError,
             });
           }}
@@ -72,10 +73,11 @@ export const StakeAction = () => {
             if (selectedToken !== ethOrWeth) {
               history.push(`/stake/${selectedToken}`);
             }
+            throw Error('Unimplemented');
 
             updateStakeState({
               ethOrWethSelected: selectedToken || undefined,
-              ethInputAmount: inputAmount,
+              ethInputAmount: undefined,
               ethHasError: hasError,
               useOptimumETH: inputAmount !== undefined,
             });
