@@ -1,18 +1,34 @@
-import { useNotional, useWalletBalanceInputCheck } from '@notional-finance/notionable-hooks';
+import { Registry } from '@notional-finance/core-entities';
+import {
+  useSelectedNetwork,
+  useWalletBalanceInputCheck,
+} from '@notional-finance/notionable-hooks';
+import { useState } from 'react';
 import { MessageDescriptor } from 'react-intl';
 import { tradeErrors } from '../tradeErrors';
 
-export function useWalletDeposit(selectedToken: string, inputString: string) {
-  const { notional } = useNotional();
-  const isInternal = selectedToken === 'NOTE' ? true : false;
+export function useWalletDeposit(selectedToken: string) {
+  const tokens = Registry.getTokenRegistry();
+  const [inputString, setInputString] = useState<string>('');
+  const selectedNetwork = useSelectedNetwork();
 
   const inputAmount =
-    inputString && notional
-      ? notional.parseInput(inputString, selectedToken, isInternal)
+    inputString !== ''
+      ? tokens.parseInputToTokenBalance(
+          inputString,
+          selectedToken,
+          selectedNetwork
+        )
       : undefined;
 
-  const { maxBalanceString, maxBalance, insufficientBalance, insufficientAllowance } =
-    useWalletBalanceInputCheck(selectedToken, inputAmount);
+  const token = tokens.getTokenBySymbol(selectedNetwork, selectedToken);
+
+  const {
+    maxBalanceString,
+    maxBalance,
+    insufficientBalance,
+    insufficientAllowance,
+  } = useWalletBalanceInputCheck(inputAmount);
 
   let errorMsg: MessageDescriptor | undefined;
   // Check that this is strictly true, when undefined it means the wallet data is
@@ -28,5 +44,7 @@ export function useWalletDeposit(selectedToken: string, inputString: string) {
     maxBalance,
     maxBalanceString,
     errorMsg,
+    decimalPlaces: token.decimals,
+    setInputString,
   };
 }

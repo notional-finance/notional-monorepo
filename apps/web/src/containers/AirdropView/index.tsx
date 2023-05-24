@@ -1,13 +1,13 @@
 import { Box, styled, TextField, useTheme } from '@mui/material';
 import { Button, H1, FeatureLoader } from '@notional-finance/mui';
-import { useWallet } from '@notional-finance/notionable-hooks';
+import { useAccountReady } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
 import { updateAirdropState } from './airdrop-store';
 import { useAirdrop } from './use-airdrop';
 
 export const AirdropView = () => {
   const theme = useTheme();
-  const { walletConnected } = useWallet();
+  const walletConnected = useAccountReady();
   const { userClaimAmount, errorMsg, claimAirdrop, address } = useAirdrop();
 
   if (!walletConnected) {
