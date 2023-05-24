@@ -1,6 +1,5 @@
 import { AccountData } from '@notional-finance/sdk';
 import { useObservableState } from 'observable-hooks';
-import { useCurrencyData } from '../currency/use-currency';
 import {
   accountState$,
   initialAccountState,
@@ -8,8 +7,12 @@ import {
 } from '@notional-finance/notionable';
 import { truncateAddress } from '@notional-finance/helpers';
 import { Registry } from '@notional-finance/core-entities';
-import { useNotionalContext } from '../notional/use-notional';
+import {
+  useNotionalContext,
+  useSelectedNetwork,
+} from '../notional/use-notional';
 import { EMPTY } from 'rxjs';
+import { useCurrencyData } from '../currency/use-currency';
 
 export function useAccount() {
   const {
@@ -45,7 +48,6 @@ export function useAccount() {
     lastUpdateTime,
   };
 }
-
 export function useAccountCashBalance(
   selectedToken: string | undefined | null
 ) {
@@ -91,4 +93,20 @@ export function useAccountReady() {
     globalState: { isAccountReady },
   } = useNotionalContext();
   return isAccountReady;
+}
+
+export function useBalance(selectedToken: string) {
+  const { account } = useAccountDefinition();
+  return account?.balances.find((t) => t.token.symbol === selectedToken);
+}
+
+export function usePrimeCashBalance(selectedToken: string | undefined | null) {
+  const selectedNetwork = useSelectedNetwork();
+  const tokens = Registry.getTokenRegistry();
+  const token = selectedToken
+    ? tokens.getTokenBySymbol(selectedNetwork, selectedToken)
+    : undefined;
+  const primeCash = tokens.getPrimeCash(selectedNetwork, token?.currencyId);
+
+  return useBalance(primeCash.symbol);
 }

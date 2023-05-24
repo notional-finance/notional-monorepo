@@ -3,7 +3,6 @@ import {
   useMarkets,
   useMaturityData,
   useSelectedMarket,
-  useTokenData,
 } from '@notional-finance/notionable-hooks';
 import { useObservableState } from 'observable-hooks';
 import { useEffect } from 'react';
@@ -11,13 +10,22 @@ import { initialLendState, lendState$, updateLendState } from './lend-store';
 
 export function useLend() {
   const { tradableCurrencySymbols: availableCurrencies } = useCurrency();
-  const { selectedMarketKey, selectedToken, hasError, inputAmount, fCashAmount } =
-    useObservableState(lendState$, initialLendState);
+  const {
+    selectedMarketKey,
+    selectedToken,
+    hasError,
+    inputAmount,
+    fCashAmount,
+  } = useObservableState(lendState$, initialLendState);
   const markets = useMarkets(selectedToken);
   const selectedMarket = useSelectedMarket(selectedMarketKey);
-  const { enabled } = useTokenData(selectedToken);
   const inputAmountUnderlying = inputAmount?.toUnderlying(true);
-  const maturityData = useMaturityData(selectedToken, inputAmountUnderlying?.neg());
+  const maturityData = useMaturityData(
+    selectedToken,
+    inputAmountUnderlying?.neg()
+  );
+  // TODO: fix this...
+  const enabled = true;
 
   const tradedRate =
     inputAmountUnderlying?.isPositive() && fCashAmount
@@ -25,7 +33,9 @@ export function useLend() {
       : undefined;
 
   const interestAmountTBN =
-    fCashAmount && inputAmountUnderlying ? fCashAmount.sub(inputAmountUnderlying) : undefined;
+    fCashAmount && inputAmountUnderlying
+      ? fCashAmount.sub(inputAmountUnderlying)
+      : undefined;
 
   useEffect(() => {
     updateLendState({ inputAmount: undefined });

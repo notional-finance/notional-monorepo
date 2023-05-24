@@ -1,27 +1,12 @@
-import { Registry } from '@notional-finance/core-entities';
-import {
-  useSelectedNetwork,
-  useWalletBalanceInputCheck,
-} from '@notional-finance/notionable-hooks';
+import { useWalletBalanceInputCheck } from '@notional-finance/notionable-hooks';
 import { useState } from 'react';
 import { MessageDescriptor } from 'react-intl';
+import { useInputAmount } from '../common';
 import { tradeErrors } from '../tradeErrors';
 
 export function useWalletDeposit(selectedToken: string) {
-  const tokens = Registry.getTokenRegistry();
   const [inputString, setInputString] = useState<string>('');
-  const selectedNetwork = useSelectedNetwork();
-
-  const inputAmount =
-    inputString !== ''
-      ? tokens.parseInputToTokenBalance(
-          inputString,
-          selectedToken,
-          selectedNetwork
-        )
-      : undefined;
-
-  const token = tokens.getTokenBySymbol(selectedNetwork, selectedToken);
+  const { token, inputAmount } = useInputAmount(inputString, selectedToken);
 
   const {
     maxBalanceString,

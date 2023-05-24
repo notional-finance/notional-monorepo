@@ -8,17 +8,19 @@ import {
   marketState$,
   MaturityData,
 } from '@notional-finance/notionable';
-
+import { useSelectedNetwork } from '../notional/use-notional';
+import { fCashMarket, Registry } from '@notional-finance/core-entities';
+import { EMPTY } from 'rxjs';
 
 interface AllRates {
-  rate: string,
-  maturity: string,
+  rate: string;
+  maturity: string;
 }
 interface CardData {
-  symbol: string,
-  minRate: number,
-  maxRate: number,
-  allRates: AllRates[],
+  symbol: string;
+  minRate: number;
+  maxRate: number;
+  allRates: AllRates[];
 }
 
 export const useAllMarkets = () => {
@@ -33,7 +35,7 @@ export const useAllMarkets = () => {
     return orderedCurrencyIds.map((i) => {
       try {
         const { orderedMarkets } = currencyMarkets.get(i)!;
-  
+
         return orderedMarkets.reduce((maxRate: number, m) => {
           const rate = m.marketAnnualizedRate();
           if (maxRate === 0) return rate;
@@ -44,15 +46,15 @@ export const useAllMarkets = () => {
       } catch {
         return 0;
       }
-    })
-  }
+    });
+  };
 
   const getCardData = (): CardData[] => {
     return orderedCurrencyIds.map((id, index) => {
       const { symbol, underlyingSymbol } = currencyMarkets.get(id)!;
       const { orderedMarkets } = currencyMarkets.get(id)!;
-      const minRates = getMaxOrMinRates(false)
-      const maxRates = getMaxOrMinRates(true)
+      const minRates = getMaxOrMinRates(false);
+      const maxRates = getMaxOrMinRates(true);
 
       return {
         symbol: underlyingSymbol || symbol,
@@ -60,12 +62,13 @@ export const useAllMarkets = () => {
         maxRate: maxRates.length > index ? maxRates[index] : 0,
         allRates: orderedMarkets.map((data) => {
           return {
-          rate: Market.formatInterestRate(data.marketAnnualizedRate(), 2), maturity: formatMaturity(data.maturity)}
-        })
-      }
+            rate: Market.formatInterestRate(data.marketAnnualizedRate(), 2),
+            maturity: formatMaturity(data.maturity),
+          };
+        }),
+      };
     });
-  }
-
+  };
 
   const unwrappedCurrencies = orderedCurrencyIds.map((i) => {
     const { symbol, underlyingSymbol } = currencyMarkets.get(i)!;
@@ -76,7 +79,6 @@ export const useAllMarkets = () => {
     const { symbol } = currencyMarkets.get(i)!;
     return symbol;
   });
-
 
   return {
     orderedCurrencyIds,
@@ -137,4 +139,19 @@ export const useMaturityData = (
       cashAmount: underlyingAmount,
     };
   });
+};
+
+export const useFCashMarket = (currencyId?: number) => {
+  const selectedNetwork = useSelectedNetwork();
+  const nToken = Registry.getTokenRegistry().getNToken(
+    selectedNetwork,
+    currencyId
+  );
+  const fCashMarket$ =
+    Registry.getExchangeRegistry().subscribePoolInstance<fCashMarket>(
+      selectedNetwork,
+      nToken.address
+    );
+
+  return useObservableState<fCashMarket>(fCashMarket$ || EMPTY);
 };

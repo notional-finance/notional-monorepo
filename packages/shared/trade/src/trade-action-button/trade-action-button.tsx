@@ -102,7 +102,7 @@ export function TradeActionButton({
       onClick={accountConnected ? _onSubmit : () => handleConnectWallet()}
     >
       <FormattedMessage
-        {...(accountConnected
+        {...(connected
           ? buttonTextWalletConnected
           : buttonTextWalletNotConnected)}
       />
