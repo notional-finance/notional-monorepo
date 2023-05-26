@@ -2,7 +2,6 @@ import {
   AssetType,
   encodeERC1155Id,
   Network,
-  SECONDS_IN_QUARTER,
   ZERO_ADDRESS,
 } from '@notional-finance/util';
 import {

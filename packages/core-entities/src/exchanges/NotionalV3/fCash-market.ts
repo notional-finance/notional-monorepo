@@ -236,7 +236,7 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
       );
 
       const feesPaid = this.zeroTokenArray();
-      feesPaid[0] = feesPaid[0].copy(fee.n);
+      feesPaid[0] = fee.toPrimeCash();
 
       return { feesPaid, tokensOut: fCashAmount };
     } else if (tokenIndexOut == 0) {
@@ -247,7 +247,7 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
         balanceOverrides
       );
       const feesPaid = this.zeroTokenArray();
-      feesPaid[0] = feesPaid[0].copy(fee.n);
+      feesPaid[0] = fee.toPrimeCash();
 
       return {
         feesPaid,

@@ -19,7 +19,7 @@ import {
  */
 function exchangeToLocalPrime(
   balance: TokenBalance | undefined,
-  pool: fCashMarket,
+  pool: fCashMarket | undefined,
   outToken: TokenDefinition
 ) {
   if (balance === undefined) {
@@ -41,6 +41,7 @@ function exchangeToLocalPrime(
       fees: balance.toPrimeCash().copy(0),
     };
   } else if (token.tokenType === 'nToken' && balance.isNegative()) {
+    if (!pool) throw Error('Pool is undefined');
     // Redeem nTokens
     const { tokensOut, feesPaid } = pool.getTokensOutGivenLPTokens(
       balance.neg(),
@@ -52,6 +53,7 @@ function exchangeToLocalPrime(
       fees: feesPaid[0],
     };
   } else if (token.tokenType === 'nToken' && balance.isPositive()) {
+    if (!pool) throw Error('Pool is undefined');
     // Mint nTokens
     const { tokensIn, feesPaid } = pool.getTokensRequiredForLPTokens(
       balance,
@@ -63,11 +65,12 @@ function exchangeToLocalPrime(
       fees: feesPaid[0],
     };
   } else if (token.tokenType === 'fCash') {
-    // Buy or Sell fCash to prime cash
-    const { tokensOut, feesPaid } = pool.calculateTokenTrade(balance, 0);
+    if (!pool) throw Error('Pool is undefined');
+    // Buy or Sell fCash to prime cash, take the opposite of the incoming balance
+    const { tokensOut, feesPaid } = pool.calculateTokenTrade(balance.neg(), 0);
 
     return {
-      localPrime: tokensOut.toToken(outToken),
+      localPrime: tokensOut.toToken(outToken).abs(),
       fees: feesPaid[0],
     };
   }
@@ -78,7 +81,7 @@ function exchangeToLocalPrime(
 export function calculateCollateral(
   collateral: TokenDefinition,
   collateralPool: fCashMarket,
-  debtPool: fCashMarket,
+  debtPool?: fCashMarket,
   depositBalance?: TokenBalance,
   debtBalance?: TokenBalance
 ) {
@@ -198,8 +201,8 @@ export function calculateDebt(
 
 export function calculateDeposit(
   depositUnderlying: TokenDefinition,
-  collateralPool: fCashMarket,
-  debtPool: fCashMarket,
+  collateralPool?: fCashMarket,
+  debtPool?: fCashMarket,
   debtBalance?: TokenBalance,
   collateralBalance?: TokenBalance
 ) {
@@ -306,16 +309,16 @@ export function calculateDebtCollateralGivenDepositRiskLimit(
   ]);
 
   // TODO: these values are given spot rates, not including slippage...
-  const { debtRepaid, collateralSold } =
-    riskProfile.getDeleverageMaintainRiskFactor(
+  const { netDebt, netCollateral } =
+    riskProfile.getDebtAndCollateralMaintainRiskFactor(
       debt,
       collateral,
       riskFactorLimit
     );
 
   return {
-    collateralBalance: debtRepaid,
-    debtBalance: collateralSold,
+    collateralBalance: netCollateral,
+    debtBalance: netDebt,
     debtFee: undefined,
     collateralFee: undefined,
   };
