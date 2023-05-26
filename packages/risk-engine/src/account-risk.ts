@@ -84,7 +84,7 @@ export class AccountRiskProfile extends BaseRiskProfile {
 
   /** Total value of all assets with a risk adjustment */
   totalAssetsRiskAdjusted(denominated = this.defaultSymbol) {
-    return this._totalRiskAdjusted(this.assets, this.denom(denominated));
+    return this._totalRiskAdjusted(this.collateral, this.denom(denominated));
   }
 
   /** Total debt with risk adjustments */
@@ -95,7 +95,7 @@ export class AccountRiskProfile extends BaseRiskProfile {
   /** Total value of assets in the specified currency */
   totalCurrencyAssets(currencyId: number, denominated = this.defaultSymbol) {
     return this._totalValue(
-      this.assets.filter((t) => t.token.currencyId === currencyId),
+      this.collateral.filter((t) => t.token.currencyId === currencyId),
       this.denom(denominated)
     );
   }
@@ -106,7 +106,7 @@ export class AccountRiskProfile extends BaseRiskProfile {
     denominated = this.defaultSymbol
   ) {
     return this._totalRiskAdjusted(
-      this.assets.filter((t) => t.token.currencyId === currencyId),
+      this.collateral.filter((t) => t.token.currencyId === currencyId),
       this.denom(denominated)
     );
   }
@@ -253,7 +253,7 @@ export class AccountRiskProfile extends BaseRiskProfile {
       collateralRatio: this.collateralRatio(),
       healthFactor: this.healthFactor(),
       liquidationPrice: this.getAllLiquidationPrices(),
-      collateralLiquidationThreshold: this.assets.map((a) =>
+      collateralLiquidationThreshold: this.collateral.map((a) =>
         this.collateralLiquidationThreshold(a.token)
       ),
     };

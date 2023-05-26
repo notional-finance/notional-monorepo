@@ -58,6 +58,7 @@ export const loadTradeManager = (
     onPriorRisk$,
     onDepositInput$,
     onCollateralInput$,
-    onDebtInput$
+    onDebtInput$,
+    onCurrentRisk$
   );
 };

@@ -116,7 +116,7 @@ export abstract class BaseRiskProfile implements RiskFactors {
       .reduce(BaseRiskProfile._sum, TokenBalance.zero(d));
   }
 
-  get assets() {
+  get collateral() {
     return this.balances.filter((t) => this.isAsset(t));
   }
 
@@ -134,7 +134,7 @@ export abstract class BaseRiskProfile implements RiskFactors {
 
   /** Total value without risk adjustments */
   totalAssets(denominated = this.defaultSymbol) {
-    return this._totalValue(this.assets, this.denom(denominated));
+    return this._totalValue(this.collateral, this.denom(denominated));
   }
 
   /** Total debt without risk adjustments */
@@ -409,9 +409,9 @@ export abstract class BaseRiskProfile implements RiskFactors {
 
   getAllLiquidationPrices() {
     // get all collateral ids + underlying
-    const collateral = this.assets
+    const collateral = this.collateral
       .map((a) => a.token)
-      .concat(unique(this.assets.map((a) => a.underlying)))
+      .concat(unique(this.collateral.map((a) => a.underlying)))
       // Prefer to show underlying over prime cash
       .filter((c) => c.tokenType !== 'PrimeCash');
 
