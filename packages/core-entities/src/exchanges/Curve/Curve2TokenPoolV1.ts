@@ -361,10 +361,11 @@ export class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPoolV1Params
 
   public calculateTokenTrade(
     tokensIn: TokenBalance,
-    tokenIndexIn: number,
     tokenIndexOut: number,
     _balanceOverrides?: TokenBalance[]
   ) {
+    const tokenIndexIn = this.getTokenIndex(tokensIn.token);
+
     const adminBalances = [
       this.poolParams.adminBalance_0,
       this.poolParams.adminBalance_1,

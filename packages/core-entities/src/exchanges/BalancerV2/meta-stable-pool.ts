@@ -153,13 +153,13 @@ export default class MetaStablePool extends BaseLiquidityPool<MetaStablePoolPara
 
   public calculateTokenTrade(
     tokensIn: TokenBalance,
-    tokenIndexIn: number,
     tokenIndexOut: number,
     balanceOverrides?: TokenBalance[]
   ): {
     tokensOut: TokenBalance;
     feesPaid: TokenBalance[];
   } {
+    const tokenIndexIn = this.getTokenIndex(tokensIn.token);
     const balances = this.getScaledBalances(balanceOverrides);
 
     const invariant = this.calculateInvariant(

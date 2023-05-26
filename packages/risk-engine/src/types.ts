@@ -3,6 +3,8 @@ import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
 /** Denomination can be either a specific currency id or symbol */
 export type SymbolOrID = string | number;
 
+export type RiskFactorKeys = keyof RiskFactors;
+
 export interface RiskFactors {
   // Absolute values
   netWorth: () => TokenBalance;
@@ -22,7 +24,7 @@ export interface RiskFactors {
   ) => TokenBalance | null;
 }
 
-export interface RiskFactorLimit<F extends keyof RiskFactors> {
+export interface RiskFactorLimit<F extends RiskFactorKeys> {
   riskFactor: F;
   limit: NonNullable<ReturnType<RiskFactors[F]>>;
   args?: Parameters<RiskFactors[F]>;

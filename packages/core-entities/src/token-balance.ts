@@ -24,7 +24,7 @@ export class TokenBalance {
     if (this.tokenId === ALT_ETH) this.tokenId = ZERO_ADDRESS;
   }
 
-  static fromFloat(n: number, token: TokenDefinition) {
+  static fromFloat(n: number | string, token: TokenDefinition) {
     const bn = parseUnits(n.toString(), token.decimals);
     return new TokenBalance(bn, token.id, token.network);
   }
@@ -392,6 +392,17 @@ export class TokenBalance {
     if (this.token.tokenType === 'Underlying') return this;
     // Does the exchange rate conversion and decimal scaling
     return this.toToken(this.underlying);
+  }
+
+  toPrimeCash() {
+    if (this.token.tokenType === 'PrimeCash') return this;
+    const primeCash = Registry.getTokenRegistry().getPrimeCash(
+      this.network,
+      this.currencyId
+    );
+
+    // Does the exchange rate conversion and decimal scaling
+    return this.toToken(primeCash);
   }
 
   toRiskAdjustedUnderlying() {

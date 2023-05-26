@@ -214,13 +214,14 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
    */
   public calculateTokenTrade(
     tokensIn: TokenBalance,
-    tokenIndexIn: number,
     tokenIndexOut: number,
     balanceOverrides?: TokenBalance[]
   ): {
     tokensOut: TokenBalance;
     feesPaid: TokenBalance[];
   } {
+    const tokenIndexIn = this.getTokenIndex(tokensIn.token);
+
     if (tokenIndexIn == 0) {
       // Depositing cash, receiving positive fCash
       const fCashAmount = this.getfCashGivenCashAmount(

@@ -33,9 +33,6 @@ export function useLendBorrowInput(
     errorMsg = tradeErrors.selectMaturityToCompleteTrade;
   }
 
-  const tokenIndexIn = fCashMarket?.balances.findIndex(
-    (t) => t.tokenId === inputAmount?.tokenId
-  );
   const tokenIndexOut =
     inputAmount?.token.tokenType === 'PrimeCash' ? marketIndex : 0;
 
@@ -44,17 +41,10 @@ export function useLendBorrowInput(
   let netCashAmount: TokenBalance | undefined;
   let netfCashAmount: TokenBalance | undefined;
   let fee: TokenBalance | undefined;
-  if (
-    fCashMarket &&
-    inputAmount &&
-    !inputAmount.isZero() &&
-    tokenIndexIn &&
-    tokenIndexOut
-  ) {
+  if (fCashMarket && inputAmount && !inputAmount.isZero() && tokenIndexOut) {
     try {
       const { tokensOut, feesPaid } = fCashMarket.calculateTokenTrade(
         inputAmount,
-        tokenIndexIn,
         tokenIndexOut
       );
 

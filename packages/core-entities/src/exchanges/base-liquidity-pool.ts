@@ -1,5 +1,5 @@
 import { AbstractLiquidityPool } from './abstract-liquidity-pool';
-import { ExchangeRate, TokenBalance } from '..';
+import { ExchangeRate, TokenBalance, TokenDefinition } from '..';
 import {
   Network,
   RATE_DECIMALS,
@@ -124,7 +124,6 @@ export default abstract class BaseLiquidityPool<
         if (i === primaryTokenIndex) return b;
         const { tokensOut } = this.calculateTokenTrade(
           b.copy(1),
-          i,
           primaryTokenIndex,
           balanceOverrides
         );
@@ -302,7 +301,7 @@ export default abstract class BaseLiquidityPool<
 
             // Trade the the balance to recover the negative amount
             const { tokensOut: tokensTraded, feesPaid: feesFromTrade } =
-              this.calculateTokenTrade(diffs[positiveIndex], positiveIndex, i);
+              this.calculateTokenTrade(diffs[positiveIndex], i);
             tokenDiff = tokenDiff.add(tokensTraded);
 
             // Modifies the token diff array in place
@@ -358,11 +357,7 @@ export default abstract class BaseLiquidityPool<
       .map((_, i) => {
         // Percentage of the sold token index
         const tokensIn = this.balances[tokenIndexIn].scale(i, 100);
-        const { tokensOut } = this.calculateTokenTrade(
-          tokensIn,
-          tokenIndexIn,
-          tokenIndexOut
-        );
+        const { tokensOut } = this.calculateTokenTrade(tokensIn, tokenIndexOut);
 
         const newBalances = Array.from(this.balances);
         newBalances[tokenIndexIn] = newBalances[tokenIndexIn].sub(tokensIn);
@@ -378,7 +373,6 @@ export default abstract class BaseLiquidityPool<
           this.balances[tokenIndexIn].copy(
             this.balances[tokenIndexIn].precision
           ),
-          tokenIndexIn,
           tokenIndexOut,
           newBalances
         );
@@ -392,5 +386,11 @@ export default abstract class BaseLiquidityPool<
         ({ priceLevelIndex }, i, arr) =>
           i === 0 || arr[i - 1].priceLevelIndex !== priceLevelIndex
       );
+  }
+
+  public getTokenIndex(token: TokenDefinition) {
+    const index = this.balances.findIndex((t) => t.token.id === token.id);
+    if (index < 0) throw Error('Invalid token for pool');
+    return index;
   }
 }
