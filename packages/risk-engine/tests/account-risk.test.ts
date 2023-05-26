@@ -200,16 +200,39 @@ describe.withForkAndRegistry(
       ]);
 
       const limit = TokenBalance.fromFloat(0.3, ETH);
-      const { debtRepaid, collateralSold } = p.getDeleverageMaintainRiskFactor(
-        ETH,
-        USDC,
-        {
+      const { netDebt, netCollateral } =
+        p.getDebtAndCollateralMaintainRiskFactor(ETH, USDC, {
           riskFactor: 'netWorth',
           limit,
-        }
-      );
+        });
+      expect(netDebt.isPositive()).toBe(true);
+      expect(netCollateral.isNegative()).toBe(true);
 
-      expect(p.simulate([debtRepaid, collateralSold]).netWorth()).toBeApprox(
+      expect(p.simulate([netDebt, netCollateral]).netWorth()).toBeApprox(
+        limit,
+        0.01
+      );
+    });
+
+    it('Leverage Maintain Factor [NW]', () => {
+      const tokens = Registry.getTokenRegistry();
+      const ETH = tokens.getTokenBySymbol(Network.ArbitrumOne, 'ETH');
+      const USDC = tokens.getTokenBySymbol(Network.ArbitrumOne, 'USDC');
+      const p = AccountRiskProfile.from([
+        TokenBalance.fromFloat(1, ETH),
+        TokenBalance.fromFloat(-1200, USDC),
+      ]);
+
+      const limit = TokenBalance.fromFloat(0.37, ETH);
+      const { netDebt, netCollateral } =
+        p.getDebtAndCollateralMaintainRiskFactor(ETH, USDC, {
+          riskFactor: 'netWorth',
+          limit,
+        });
+      expect(netDebt.isNegative()).toBe(true);
+      expect(netCollateral.isPositive()).toBe(true);
+
+      expect(p.simulate([netDebt, netCollateral]).netWorth()).toBeApprox(
         limit,
         0.01
       );
@@ -321,7 +344,7 @@ describe.withForkAndRegistry(
         TokenBalance.fromFloat(-100, FRAX),
       ]);
 
-      const prices = p.allLiquidationPrices();
+      const prices = p.getAllLiquidationPrices();
       const pairs = prices.map(({ collateral, debt }) => [
         collateral.symbol,
         debt.symbol,
@@ -331,6 +354,21 @@ describe.withForkAndRegistry(
         ['ETH', 'USDC'],
         ['ETH', 'FRAX'],
       ]);
+    });
+
+    it('All Risk Factors', () => {
+      const tokens = Registry.getTokenRegistry();
+      const ETH = tokens.getTokenBySymbol(Network.ArbitrumOne, 'ETH');
+      const BTC = tokens.getTokenBySymbol(Network.ArbitrumOne, 'WBTC');
+      const USDC = tokens.getTokenBySymbol(Network.ArbitrumOne, 'USDC');
+      const FRAX = tokens.getTokenBySymbol(Network.ArbitrumOne, 'FRAX');
+      const p = AccountRiskProfile.from([
+        TokenBalance.fromFloat(1, ETH),
+        TokenBalance.fromFloat(0.01, BTC),
+        TokenBalance.fromFloat(-1200, USDC),
+        TokenBalance.fromFloat(-100, FRAX),
+      ]);
+      expect(p.getAllRiskFactors()).toBeDefined();
     });
   }
 );

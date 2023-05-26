@@ -72,9 +72,12 @@ export class AccountRiskProfile extends BaseRiskProfile {
   maxLoanToValue() {
     const ltv = this.loanToValue();
     const assets = this.totalAssetsRiskAdjusted();
-    if (assets.isZero()) return 0
+    if (assets.isZero()) return 0;
 
-    const riskAdjustedLTV = this._toPercent(this.totalDebtRiskAdjusted(), assets);
+    const riskAdjustedLTV = this._toPercent(
+      this.totalDebtRiskAdjusted(),
+      assets
+    );
 
     return ltv / riskAdjustedLTV;
   }
@@ -239,6 +242,20 @@ export class AccountRiskProfile extends BaseRiskProfile {
       usedBorrowCapacity,
       additionalBorrowCapacity,
       totalBorrowCapacity: usedBorrowCapacity.add(additionalBorrowCapacity),
+    };
+  }
+
+  getAllRiskFactors() {
+    return {
+      netWorth: this.netWorth(),
+      freeCollateral: this.freeCollateral(),
+      loanToValue: this.loanToValue(),
+      collateralRatio: this.collateralRatio(),
+      healthFactor: this.healthFactor(),
+      liquidationPrice: this.getAllLiquidationPrices(),
+      collateralLiquidationThreshold: this.assets.map((a) =>
+        this.collateralLiquidationThreshold(a.token)
+      ),
     };
   }
 }

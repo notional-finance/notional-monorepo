@@ -375,7 +375,7 @@ export abstract class BaseRiskProfile implements RiskFactors {
    * @param collateral
    * @param riskFactorLimit
    */
-  getDeleverageMaintainRiskFactor<F extends keyof RiskFactors>(
+  getDebtAndCollateralMaintainRiskFactor<F extends keyof RiskFactors>(
     debt: TokenDefinition,
     collateral: TokenDefinition,
     riskFactorLimit: RiskFactorLimit<F>
@@ -384,14 +384,14 @@ export abstract class BaseRiskProfile implements RiskFactors {
     const { multiple } = this.checkRiskFactorLimit(riskFactorLimit, debt);
 
     const calculationFunction = (multiple: number) => {
-      const debtRepaid = TokenBalance.unit(collateral)
+      const netDebt = TokenBalance.unit(collateral)
         .mulInRatePrecision(multiple)
         .neg();
-      const collateralSold =
+      const netCollateral =
         TokenBalance.unit(debt).mulInRatePrecision(multiple);
 
       // Create a new account profile with the simulated collateral added
-      const profile = this.simulate([debtRepaid, collateralSold]);
+      const profile = this.simulate([netDebt, netCollateral]);
       const { multiple: actualMultiple } = profile.checkRiskFactorLimit(
         riskFactorLimit,
         debt
@@ -400,14 +400,14 @@ export abstract class BaseRiskProfile implements RiskFactors {
       return {
         actualMultiple,
         breakLoop: false,
-        value: { debtRepaid, collateralSold },
+        value: { netDebt, netCollateral },
       };
     };
 
     return doBinarySearch(multiple, 0, calculationFunction);
   }
 
-  allLiquidationPrices() {
+  getAllLiquidationPrices() {
     // get all collateral ids + underlying
     const collateral = this.assets
       .map((a) => a.token)
