@@ -3,7 +3,7 @@ import {
   DepositActionType,
   getBalanceAction,
   populateNotionalTxnAndGas,
-} from './common';
+} from '../common';
 
 export function depositAndMintNToken(
   account: string,

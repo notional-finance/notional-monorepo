@@ -50,15 +50,15 @@ const AllRoutes = () => {
         <Switch>
           <AppLayoutRoute path="/airdrop" component={AirdropView} />
           <AppLayoutRoute
-            path="/borrow/:currency/:collateral"
+            path="/borrow/:underlying/:collateral"
             routeKey={routeKey}
             component={BorrowFeatureShell}
           />
           <AppLayoutRoute path="/borrow" component={BorrowCardView} />
-          <AppLayoutRoute path="/lend/:currency" component={LendFeatureShell} />
+          <AppLayoutRoute path="/lend/:underlying" component={LendFeatureShell} />
           <AppLayoutRoute path="/lend" component={LendCardView} />
           <AppLayoutRoute
-            path="/provide/:currency"
+            path="/provide/:underlying"
             routeKey={routeKey}
             component={LiquidityCurrencyView}
           />
