@@ -143,8 +143,8 @@ export function calculateCollateral(
 
 export function calculateDebt(
   debt: TokenDefinition,
-  collateralPool: fCashMarket,
   debtPool: fCashMarket,
+  collateralPool?: fCashMarket,
   depositBalance?: TokenBalance,
   collateralBalance?: TokenBalance
 ) {
@@ -185,12 +185,12 @@ export function calculateDebt(
     };
   } else if (debt.tokenType === 'fCash') {
     const { tokensOut, feesPaid } = debtPool.calculateTokenTrade(
-      totalDebtPrime,
+      totalDebtPrime.neg(),
       debtPool.getTokenIndex(debt)
     );
 
     return {
-      debtBalance: tokensOut,
+      debtBalance: tokensOut.neg(),
       debtFee: feesPaid[0],
       collateralFee,
     };

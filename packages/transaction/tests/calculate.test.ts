@@ -7,7 +7,11 @@ import {
 } from '@notional-finance/core-entities/src';
 import { RiskFactorLimit } from '@notional-finance/risk-engine';
 import { Network } from '@notional-finance/util';
-import { calculateCollateral, calculateDeposit } from '../src/calculate';
+import {
+  calculateCollateral,
+  calculateDebt,
+  calculateDeposit,
+} from '../src/calculate';
 
 describe.withForkAndRegistry(
   {
@@ -25,12 +29,12 @@ describe.withForkAndRegistry(
     const ethDebtTypes = [
       'nETH',
       'pdEther',
-      'fETH:fixed@1695168000',
+      'fETH:fixed@1687392000',
       undefined,
     ];
     const usdcDebtTypes = [
       'nUSDC',
-      'pdUSDC',
+      'pdUSD Coin',
       'fUSDC:fixed@1695168000',
       undefined,
     ];
@@ -82,7 +86,7 @@ describe.withForkAndRegistry(
         : undefined;
     };
 
-    it.only.each(
+    it.each(
       ethCollateralTypes
         .filter((c) => c !== undefined)
         .map((collateral) => ({ deposit: 'ETH', collateral }))
@@ -125,28 +129,95 @@ describe.withForkAndRegistry(
       }
     );
 
-    // it.each(
-    //   ethCollateralTypes
-    //     .filter((c) => c !== undefined)
-    //     .flatMap((collateral) => {
-    //       return ethDebtTypes
-    //         .concat(usdcDebtTypes)
-    //         .filter((d) => d !== undefined && d !== collateral)
-    //         .map((debt) => {
-    //           return { collateral, debt };
-    //         });
-    //     })
-    // )('Collateral [$collateral] <=> Debt [$debt]', ({ collateral, debt }) => {
-    //   console.log(collateral, debt);
-    // });
+    it.each(
+      ethCollateralTypes
+        .filter((c) => c !== undefined)
+        .flatMap((collateral) => {
+          return ethDebtTypes
+            .concat(usdcDebtTypes)
+            .filter((d) => d !== undefined && d !== collateral)
+            .map((debt) => {
+              return { collateral, debt };
+            });
+        })
+    )('Collateral [$collateral] <=> Debt [$debt]', ({ collateral, debt }) => {
+      const collateralToken = getToken(collateral)!;
+      const debtToken = getToken(debt)!;
+      const debtPool = getPool(debtToken)!;
+      const collateralPool = getPool(collateralToken)!;
+      const debtInput =
+        debtToken.currencyId === 1
+          ? TokenBalance.fromFloat(-0.05, debtToken)
+          : TokenBalance.fromFloat(-1, debtToken);
 
-    // it.each(
-    //   ethDebtTypes
-    //     .filter((c) => c !== undefined)
-    //     .map((debt) => ({ deposit: 'ETH', debt }))
-    // )('Withdraw [$deposit] <=> Debt [$debt]', ({ deposit, debt }) => {
-    //   console.log(deposit, debt);
-    // });
+      const {
+        collateralBalance,
+        collateralFee: cf1,
+        debtFee: df1,
+      } = calculateCollateral(
+        collateralToken,
+        collateralPool,
+        debtPool,
+        undefined,
+        debtInput
+      );
+
+      const {
+        debtBalance,
+        collateralFee: cf2,
+        debtFee: df2,
+      } = calculateDebt(
+        debtToken,
+        debtPool,
+        collateralPool,
+        undefined,
+        collateralBalance
+      );
+
+      expect(df1).toBeApprox(df2);
+      expect(cf1).toBeApprox(cf2);
+      expect(debtBalance.neg()).toBeApprox(debtInput, 0.001, 5e-4, 1e-6);
+    });
+
+    it.each(
+      ethDebtTypes
+        .filter((c) => c !== undefined)
+        .map((debt) => ({ deposit: 'ETH', debt }))
+    )('Withdraw [$deposit] <=> Debt [$debt]', ({ deposit, debt }) => {
+      const depositUnderlying = getToken(deposit)!;
+      const debtToken = getToken(debt)!;
+      const debtPool = getPool(debtToken)!;
+      const depositInput = TokenBalance.fromFloat(-0.05, depositUnderlying);
+
+      const {
+        debtBalance,
+        collateralFee: cf1,
+        debtFee: df1,
+      } = calculateDebt(
+        debtToken,
+        debtPool,
+        undefined,
+        depositInput,
+        undefined
+      );
+
+      const {
+        depositBalance,
+        collateralFee: cf2,
+        debtFee: df2,
+      } = calculateDeposit(
+        depositUnderlying,
+        undefined,
+        debtPool,
+        debtBalance,
+        undefined
+      );
+
+      expect(df1).toBeApprox(df2);
+      expect(cf1).toBe(undefined);
+      expect(cf2).toBe(undefined);
+      expect(depositBalance).toBeApprox(depositInput);
+    });
 
     // it.each(tokens.filter(({ deposit }) => deposit !== undefined))(
     //   'Deposit [$deposit] given Collateral [$collateral] + Debt [$debt]',
