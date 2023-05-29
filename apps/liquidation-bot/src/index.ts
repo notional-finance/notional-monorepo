@@ -20,6 +20,7 @@ import { MetricNames } from './types';
 export interface Env {
   ACCOUNT_SERVICE_URL: string;
   ZERO_EX_SWAP_URL: string;
+  ZERO_EX_API_KEY: string;
   NETWORK: string;
   FLASH_LIQUIDATOR_CONTRACT: string;
   FLASH_LIQUIDATOR_OWNER: string;
@@ -84,6 +85,7 @@ const run = async (env: Env) => {
     overrides: overrides.arbitrum,
     tokens: new Map<string, string>(Object.entries(tokens.arbitrum)),
     zeroExUrl: env.ZERO_EX_SWAP_URL,
+    zeroExApiKey: env.ZERO_EX_API_KEY,
     exactInSlippageLimit: BigNumber.from(env.EXACT_IN_SLIPPAGE_LIMIT),
     exactOutSlippageLimit: BigNumber.from(env.EXACT_OUT_SLIPPAGE_LIMIT),
     gasCostBuffer: BigNumber.from(env.GAS_COST_BUFFER),

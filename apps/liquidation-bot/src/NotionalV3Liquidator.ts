@@ -31,6 +31,7 @@ export type LiquidatorSettings = {
   currencies: Currency[];
   tokens: Map<string, string>;
   zeroExUrl: string;
+  zeroExApiKey: string;
   overrides: CurrencyOverride[];
   exactInSlippageLimit: BigNumber; // Precision = 1000
   exactOutSlippageLimit: BigNumber; // Precision = 1000
@@ -84,6 +85,7 @@ export default class NotionalV3Liquidator {
       {
         liquidatorContract: this.liquidatorContract,
         zeroExUrl: settings.zeroExUrl,
+        zeroExApiKey: settings.zeroExApiKey,
         overrides: settings.overrides,
         liquidatorOwner: settings.flashLiquidatorOwner,
         exactInSlippageLimit: settings.exactInSlippageLimit,

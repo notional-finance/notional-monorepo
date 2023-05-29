@@ -16,6 +16,7 @@ import { FlashLiquidator__factory } from '@notional-finance/contracts';
 export type ProfitCalculatorSettings = {
   liquidatorContract: Contract;
   zeroExUrl: string;
+  zeroExApiKey: string;
   overrides: CurrencyOverride[];
   liquidatorOwner: string;
   exactInSlippageLimit: BigNumber; // Precision = 1000
@@ -50,7 +51,11 @@ export default class ProfitCalculator {
     }
 
     const fetchUrl = zeroExUrl + '?' + queryParams;
-    const resp = await fetch(fetchUrl);
+    const resp = await fetch(fetchUrl, {
+      headers: {
+        '0x-api-key': this.settings.zeroExApiKey,
+      },
+    });
     const data = await resp.json();
 
     return data;
