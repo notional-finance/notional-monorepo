@@ -238,9 +238,9 @@ export abstract class BaseRiskProfile implements RiskFactors {
           .scaleTo(RATE_DECIMALS)
           .toNumber();
       } else {
-        multiple = this.totalAssets()
-          .mulInRatePrecision(limitInRP)
-          .sub(this.totalDebt().neg())
+        multiple = this.totalDebt()
+          .neg()
+          .sub(this.totalAssets().mulInRatePrecision(limitInRP))
           .scaleTo(RATE_DECIMALS)
           .toNumber();
       }
@@ -270,8 +270,8 @@ export abstract class BaseRiskProfile implements RiskFactors {
           .toNumber();
       } else {
         multiple = this.totalDebt()
-          .mulInRatePrecision(limitInRP)
           .neg()
+          .mulInRatePrecision(limitInRP)
           .sub(this.totalAssets())
           .divInRatePrecision(limitInRP)
           .scaleTo(RATE_DECIMALS)

@@ -75,7 +75,10 @@ export class TokenBalance {
   }
 
   get isVaultToken() {
-    return this.token.vaultAddress !== undefined;
+    return (
+      this.token.vaultAddress !== undefined &&
+      this.token.vaultAddress !== ZERO_ADDRESS
+    );
   }
 
   get currencyId() {

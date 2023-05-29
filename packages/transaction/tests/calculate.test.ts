@@ -11,6 +11,8 @@ import {
   calculateCollateral,
   calculateDebt,
   calculateDeposit,
+  calculateDepositCollateralGivenDebtRiskLimit,
+  calculateDepositDebtGivenCollateralRiskLimit,
 } from '../src/calculate';
 
 describe.withForkAndRegistry(
@@ -63,9 +65,9 @@ describe.withForkAndRegistry(
           collateral !== undefined && debt !== undefined && collateral !== debt
       );
 
-    const _riskFactorLimit: RiskFactorLimit<'loanToValue'> = {
+    const riskFactorLimit: RiskFactorLimit<'loanToValue'> = {
       riskFactor: 'loanToValue',
-      limit: 100,
+      limit: 50,
     };
 
     const getToken = (s: string | undefined) => {
@@ -176,7 +178,7 @@ describe.withForkAndRegistry(
 
       expect(df1).toBeApprox(df2);
       expect(cf1).toBeApprox(cf2);
-      expect(debtBalance.neg()).toBeApprox(debtInput, 0.001, 5e-4, 1e-6);
+      expect(debtBalance).toBeApprox(debtInput, 0.001, 5e-4, 1e-6);
     });
 
     it.each(
@@ -219,40 +221,187 @@ describe.withForkAndRegistry(
       expect(depositBalance).toBeApprox(depositInput);
     });
 
-    // it.each(tokens.filter(({ deposit }) => deposit !== undefined))(
-    //   'Deposit [$deposit] given Collateral [$collateral] + Debt [$debt]',
-    //   ({ deposit, collateral, debt }) => {
-    //     console.log(deposit, collateral, debt);
-    //   }
-    // );
+    it.each(tokens.filter(({ deposit }) => deposit !== undefined))(
+      'Deposit [$deposit], Collateral [$collateral], Debt [$debt]',
+      ({ deposit, collateral, debt }) => {
+        const depositUnderlying = getToken(deposit)!;
+        const debtToken = getToken(debt)!;
+        const debtPool = getPool(debtToken)!;
+        const collateralToken = getToken(collateral)!;
+        const collateralPool = getPool(collateralToken)!;
 
-    // it.each(tokens)(
-    //   'Collateral [$collateral] given Deposit [$deposit] + Debt [$debt]',
-    //   ({ deposit, collateral, debt }) => {
-    //     console.log(deposit, collateral, debt);
-    //   }
-    // );
+        const debtInput =
+          debtToken.currencyId === 1
+            ? TokenBalance.fromFloat(-0.05, debtToken)
+            : TokenBalance.fromFloat(-1, debtToken);
+        const collateralInput = TokenBalance.fromFloat(0.05, collateralToken);
 
-    // it.each(tokens)(
-    //   'Debt [$debt] given Deposit [$deposit] + Collateral [$collateral]',
-    //   ({ deposit, collateral, debt }) => {
-    //     console.log(deposit, collateral, debt);
-    //   }
-    // );
+        const {
+          depositBalance,
+          collateralFee: cf1,
+          debtFee: df1,
+        } = calculateDeposit(
+          depositUnderlying,
+          collateralPool,
+          debtPool,
+          debtInput,
+          collateralInput
+        );
 
-    // it.each(tokens.filter(({ deposit }) => deposit !== undefined))(
-    //   'Deposit [$deposit] + Debt [$debt] given Collateral [$collateral] + Risk Limit',
-    //   ({ deposit, collateral, debt }) => {
-    //     console.log(deposit, collateral, debt);
-    //   }
-    // );
+        const {
+          debtBalance,
+          collateralFee: cf2,
+          debtFee: df2,
+        } = calculateDebt(
+          debtToken,
+          debtPool,
+          collateralPool,
+          depositBalance,
+          collateralInput
+        );
 
-    // it.each(tokens)(
-    //   'Deposit [$deposit] + Collateral [$collateral] given Debt [$debt] + Risk Limit',
-    //   ({ deposit, collateral, debt }) => {
-    //     console.log(deposit, collateral, debt);
-    //   }
-    // );
+        const {
+          collateralBalance,
+          collateralFee: cf3,
+          debtFee: df3,
+        } = calculateCollateral(
+          collateralToken,
+          collateralPool,
+          debtPool,
+          depositBalance,
+          debtInput
+        );
+
+        expect(cf1).toBeApprox(cf2);
+        expect(cf2).toBeApprox(cf3);
+        expect(df1).toBeApprox(df2);
+        expect(df2).toBeApprox(df3);
+        expect(debtBalance).toBeApprox(debtInput);
+        expect(collateralBalance).toBeApprox(collateralInput);
+      }
+    );
+
+    it.each(
+      tokens.filter(({ deposit }) => deposit !== undefined)
+      // .filter(
+      //   ({ collateral, debt }) =>
+      //     debt?.includes('fUSDC') || debt?.includes('nUSDC')
+      // )
+    )(
+      'Deposit [$deposit] + Debt [$debt] given Collateral [$collateral] + Risk Limit',
+      ({ deposit, collateral, debt }) => {
+        const depositUnderlying = getToken(deposit)!;
+        const debtToken = getToken(debt)!;
+        const debtPool = getPool(debtToken)!;
+        const collateralToken = getToken(collateral)!;
+        const collateralPool = getPool(collateralToken)!;
+
+        const collateralInput = TokenBalance.fromFloat(0.05, collateralToken);
+        const {
+          depositBalance: deposit1,
+          debtBalance: debt1,
+          debtFee: df1,
+          collateralFee: cf1,
+        } = calculateDepositDebtGivenCollateralRiskLimit(
+          debtToken,
+          depositUnderlying,
+          debtPool,
+          collateralPool,
+          collateralInput,
+          [],
+          riskFactorLimit
+        );
+
+        const {
+          depositBalance: deposit2,
+          collateralFee: cf2,
+          debtFee: df2,
+        } = calculateDeposit(
+          depositUnderlying,
+          collateralPool,
+          debtPool,
+          debt1,
+          collateralInput
+        );
+
+        const {
+          debtBalance: debt2,
+          collateralFee: cf3,
+          debtFee: df3,
+        } = calculateDebt(
+          debtToken,
+          debtPool,
+          collateralPool,
+          deposit1,
+          collateralInput
+        );
+
+        expect(cf1).toBeApprox(cf2);
+        expect(cf2).toBeApprox(cf3);
+        expect(df1).toBeApprox(df2);
+        expect(df2).toBeApprox(df3);
+        expect(deposit1).toBeApprox(deposit2);
+        expect(debt1).toBeApprox(debt2);
+      }
+    );
+
+    it.each(tokens.filter(({ deposit }) => deposit !== undefined))(
+      'Deposit [$deposit] + Collateral [$collateral] given Debt [$debt] + Risk Limit',
+      ({ deposit, collateral, debt }) => {
+        const depositUnderlying = getToken(deposit)!;
+        const debtToken = getToken(debt)!;
+        const debtPool = getPool(debtToken)!;
+        const collateralToken = getToken(collateral)!;
+        const collateralPool = getPool(collateralToken)!;
+
+        const debtInput = TokenBalance.fromFloat(-0.05, debtToken);
+        const {
+          depositBalance: deposit1,
+          collateralBalance: collateral1,
+          debtFee: df1,
+          collateralFee: cf1,
+        } = calculateDepositCollateralGivenDebtRiskLimit(
+          collateralToken,
+          depositUnderlying,
+          collateralPool,
+          debtPool,
+          debtInput,
+          [],
+          riskFactorLimit
+        );
+
+        const {
+          depositBalance: deposit2,
+          collateralFee: cf2,
+          debtFee: df2,
+        } = calculateDeposit(
+          depositUnderlying,
+          collateralPool,
+          debtPool,
+          debtInput,
+          collateral1
+        );
+
+        const {
+          collateralBalance: collateral2,
+          collateralFee: cf3,
+          debtFee: df3,
+        } = calculateCollateral(
+          collateralToken,
+          collateralPool,
+          debtPool,
+          deposit1,
+          debtInput
+        );
+
+        expect(cf1).toBeApprox(cf2);
+        expect(cf2).toBeApprox(cf3);
+        expect(df1).toBeApprox(df2);
+        expect(df2).toBeApprox(df3);
+        expect(deposit1).toBeApprox(deposit2);
+        expect(collateral1).toBeApprox(collateral2);
+      }
+    );
 
     // it.each(tokens)(
     //   'Debt [$debt] + Collateral [$collateral] given Deposit [$deposit] + Risk Limit',

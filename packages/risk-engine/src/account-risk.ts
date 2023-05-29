@@ -3,7 +3,7 @@ import {
   TokenBalance,
   TokenDefinition,
 } from '@notional-finance/core-entities';
-import { PERCENTAGE_BASIS } from '@notional-finance/util';
+import { PERCENTAGE_BASIS, ZERO_ADDRESS } from '@notional-finance/util';
 import { BaseRiskProfile } from './base-risk';
 import { SymbolOrID } from './types';
 
@@ -23,21 +23,10 @@ export class AccountRiskProfile extends BaseRiskProfile {
   /** Takes a set of token balances to create a new account risk profile */
   constructor(_balances: TokenBalance[]) {
     const balances = _balances
-      .map((t) => {
-        if (t.token.tokenType === 'Underlying') {
-          const pCash = Registry.getTokenRegistry().getPrimeCash(
-            t.token.network,
-            t.currencyId
-          );
-          return t.toToken(pCash);
-        } else {
-          return t;
-        }
-      })
+      .map((t) => (t.token.tokenType === 'Underlying' ? t.toPrimeCash() : t))
       .filter(
         (t) =>
-          // Exclude these token types from the account risk profile
-          t.token.vaultAddress === undefined &&
+          !t.isVaultToken &&
           t.token.tokenType !== 'Underlying' &&
           t.token.tokenType !== 'Fiat'
       );

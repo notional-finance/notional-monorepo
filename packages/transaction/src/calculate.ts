@@ -167,7 +167,7 @@ export function calculateDebt(
 
   if (debt.tokenType === 'PrimeDebt') {
     return {
-      debtBalance: totalDebtPrime.toToken(debt),
+      debtBalance: totalDebtPrime.toToken(debt).neg(),
       debtFee: totalDebtPrime.copy(0),
       collateralFee,
     };
@@ -179,7 +179,8 @@ export function calculateDebt(
       debtPool.getLPTokensRequiredForTokens(tokensOut);
 
     return {
-      debtBalance: lpTokens,
+      // Signifies redemption required
+      debtBalance: lpTokens.neg(),
       debtFee: feesPaid[0],
       collateralFee,
     };
@@ -190,7 +191,7 @@ export function calculateDebt(
     );
 
     return {
-      debtBalance: tokensOut.neg(),
+      debtBalance: tokensOut,
       debtFee: feesPaid[0],
       collateralFee,
     };
@@ -230,10 +231,10 @@ export function calculateDeposit(
 export function calculateDepositDebtGivenCollateralRiskLimit(
   debt: TokenDefinition,
   depositUnderlying: TokenDefinition,
-  collateralPool: fCashMarket,
   debtPool: fCashMarket,
+  collateralPool: fCashMarket | undefined,
   collateralBalance: TokenBalance,
-  account: AccountDefinition,
+  balances: TokenBalance[],
   riskFactorLimit: RiskFactorLimit<RiskFactorKeys>
 ) {
   const depositPrime = Registry.getTokenRegistry().getPrimeCash(
@@ -243,13 +244,13 @@ export function calculateDepositDebtGivenCollateralRiskLimit(
 
   const { debtBalance, debtFee, collateralFee } = calculateDebt(
     debt,
-    collateralPool,
     debtPool,
+    collateralPool,
     undefined, // Deposit balance is undefined
     collateralBalance
   );
 
-  const riskProfile = AccountRiskProfile.simulate(account.balances, [
+  const riskProfile = AccountRiskProfile.simulate(balances, [
     collateralBalance,
     debtBalance,
   ]);
@@ -267,7 +268,7 @@ export function calculateDepositCollateralGivenDebtRiskLimit(
   collateralPool: fCashMarket,
   debtPool: fCashMarket,
   debtBalance: TokenBalance,
-  account: AccountDefinition,
+  balances: TokenBalance[],
   riskFactorLimit: RiskFactorLimit<RiskFactorKeys>
 ) {
   const depositPrime = Registry.getTokenRegistry().getPrimeCash(
@@ -283,7 +284,7 @@ export function calculateDepositCollateralGivenDebtRiskLimit(
     debtBalance
   );
 
-  const riskProfile = AccountRiskProfile.simulate(account.balances, [
+  const riskProfile = AccountRiskProfile.simulate(balances, [
     collateralBalance,
     debtBalance,
   ]);
@@ -301,12 +302,10 @@ export function calculateDebtCollateralGivenDepositRiskLimit(
   _collateralPool: fCashMarket,
   _debtPool: fCashMarket,
   depositBalance: TokenBalance,
-  account: AccountDefinition,
+  balances: TokenBalance[],
   riskFactorLimit: RiskFactorLimit<RiskFactorKeys>
 ) {
-  const riskProfile = AccountRiskProfile.simulate(account.balances, [
-    depositBalance,
-  ]);
+  const riskProfile = AccountRiskProfile.simulate(balances, [depositBalance]);
 
   // TODO: these values are given spot rates, not including slippage...
   const { netDebt, netCollateral } =
