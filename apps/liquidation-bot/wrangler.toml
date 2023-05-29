@@ -13,7 +13,6 @@ name = "liquidation-bot-dev"
 ACCOUNT_SERVICE_URL = "https://accounts-dev.notional-finance.workers.dev/"
 ZERO_EX_SWAP_URL = 'https://arbitrum.api.0x.org/swap/v1/quote'
 NETWORK = 'ArbitrumOne'
-NETWORK = 'ArbitrumOne'
 FLASH_LIQUIDATOR_CONTRACT = '0xd754329B32e3221C4Abe05b7C1a56989CA7578E3'
 FLASH_LIQUIDATOR_OWNER = '0xE6FB62c2218fd9e3c948f0549A2959B509a293C8'
 FLASH_LENDER_ADDRESS = '0x794a61358D6845594F94dc1DB02A252b5b4814aD'
