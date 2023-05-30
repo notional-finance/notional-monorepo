@@ -11,12 +11,11 @@ export function ViewAsAccount() {
   const [address, setAddress] = useState<string>('');
   const [error, setError] = useState<boolean>(false);
   const { clearWalletSideDrawer } = useSideDrawerManager();
-  const { globalState, updateNotional } = useNotionalContext();
+  const { updateNotional } = useNotionalContext();
 
   const handleClick = () => {
     if (ethers.utils.isAddress(address)) {
       updateNotional({
-        ...globalState,
         wallet: {
           selectedAddress: address,
           isReadOnlyAddress: true,
