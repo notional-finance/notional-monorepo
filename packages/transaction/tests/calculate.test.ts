@@ -406,10 +406,6 @@ describe.withForkAndRegistry(
           // Exclude this case because they offset each other exactly
           !(debt?.includes('pdEther') && collateral?.includes('pEther'))
       )
-      // .filter(
-      //   ({ debt, collateral }) =>
-      //     !(debt?.includes('USD') || collateral?.includes('fETH'))
-      // )
     )(
       'Debt [$debt] + Collateral [$collateral] given Deposit [$deposit] + Risk Limit',
       ({ deposit, collateral, debt }) => {
@@ -419,11 +415,19 @@ describe.withForkAndRegistry(
         const collateralToken = getToken(collateral)!;
         const collateralPool = getPool(collateralToken)!;
 
-        const depositInput =
-          deposit === undefined
-            ? TokenBalance.fromFloat(0, depositUnderlying)
-            : TokenBalance.fromFloat(0.05, depositUnderlying);
-        const riskFactorLimit = LTV;
+        let depositInput: TokenBalance;
+        const balances: TokenBalance[] = [];
+
+        if (deposit === undefined) {
+          depositInput = TokenBalance.fromFloat(0, depositUnderlying);
+          balances.push(TokenBalance.fromFloat(0.005, depositUnderlying));
+        } else {
+          depositInput = TokenBalance.fromFloat(0.005, depositUnderlying);
+        }
+        const riskFactorLimit: RiskFactorLimit<'loanToValue'> = {
+          riskFactor: 'loanToValue',
+          limit: debtToken.currencyId === 1 ? 40 : 10,
+        };
 
         const {
           debtBalance: debt1,
@@ -436,7 +440,7 @@ describe.withForkAndRegistry(
           collateralPool,
           debtPool,
           depositInput,
-          [],
+          balances,
           riskFactorLimit
         );
 

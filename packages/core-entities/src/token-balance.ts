@@ -286,7 +286,7 @@ export class TokenBalance {
    * @returns an integer as an unformatted string
    */
   toString() {
-    return this.n.toString();
+    return this.toDisplayStringWithSymbol(8);
   }
 
   /**
