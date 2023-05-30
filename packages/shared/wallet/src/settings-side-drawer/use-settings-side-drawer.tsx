@@ -13,7 +13,7 @@ import {
   EnabledCurrenciesButton,
 } from './enabled-currencies/enabled-currencies';
 import { DarkModeToggle } from './dark-mode-toggle/dark-mode-toggle';
-import { useAccount } from '@notional-finance/notionable-hooks';
+import { useConnect } from '../hooks/use-connect';
 import { FormattedMessage } from 'react-intl';
 import { ReactNode } from 'react';
 
@@ -27,7 +27,7 @@ export interface SettingsItem {
 }
 
 export const useSettingsSideDrawer = () => {
-  const { truncatedAddress } = useAccount();
+  const { truncatedAddress } = useConnect();
 
   const walletAction = truncatedAddress
     ? {

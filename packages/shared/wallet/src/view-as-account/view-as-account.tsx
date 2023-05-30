@@ -2,20 +2,26 @@ import React, { useState } from 'react';
 import { ethers } from 'ethers';
 import { Box, useTheme, styled } from '@mui/material';
 import { Input, Button } from '@notional-finance/mui';
-import { useAccount } from '@notional-finance/notionable-hooks';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
+import { useNotionalContext } from '@notional-finance/notionable-hooks';
 import { defineMessage, FormattedMessage } from 'react-intl';
 
 export function ViewAsAccount() {
   const theme = useTheme();
   const [address, setAddress] = useState<string>('');
   const [error, setError] = useState<boolean>(false);
-  const { setReadOnlyAddress } = useAccount();
   const { clearWalletSideDrawer } = useSideDrawerManager();
+  const { updateNotional } = useNotionalContext();
 
   const handleClick = () => {
     if (ethers.utils.isAddress(address)) {
-      setReadOnlyAddress(address);
+      updateNotional({
+        wallet: {
+          selectedAddress: address,
+          isReadOnlyAddress: true,
+          hasSelectedChainError: false,
+        },
+      });
       clearWalletSideDrawer();
     } else {
       setError(true);
