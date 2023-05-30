@@ -220,8 +220,10 @@ export default abstract class BaseLiquidityPool<
       // In a single sided exit, do a binary search for the amount of LP tokens required
       // to exit the pool
       const amountOutRequired = tokensOut[singleSidedExitTokenIndex];
-      const lpToAmountOutEstimate = amountOutRequired
-        .ratioWith(this.getLPTokenSpotValue(singleSidedExitTokenIndex))
+      const lpToAmountOutEstimate = this.getLPTokenSpotValue(
+        singleSidedExitTokenIndex
+      )
+        .scaleTo(RATE_DECIMALS)
         .toNumber();
 
       const calculationFunction = (lpToAmountRatio: number) => {
@@ -258,7 +260,7 @@ export default abstract class BaseLiquidityPool<
           prevValue < tokensOut[i].toFloat()
             ? [tokensOut[i].toFloat(), i]
             : [prevValue, prevIndex],
-        [0, -1]
+        [0, 0]
       );
 
       // Value of all the tokens taken out of the pool

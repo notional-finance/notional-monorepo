@@ -1,5 +1,4 @@
 import {
-  AccountDefinition,
   fCashMarket,
   Registry,
   TokenBalance,
@@ -10,6 +9,7 @@ import {
   RiskFactorKeys,
   RiskFactorLimit,
 } from '@notional-finance/risk-engine';
+import { BASIS_POINT, RATE_PRECISION } from '@notional-finance/util';
 
 /**
  * Converts a balance to an out token by exchange to local prime cash and the via the given pool
@@ -108,7 +108,13 @@ export function calculateCollateral(
   // Total collateral required in prime cash
   const totalCollateralPrime = localDepositPrime.add(localDebtPrime);
 
-  if (collateral.tokenType === 'PrimeCash') {
+  if (totalCollateralPrime.isZero()) {
+    return {
+      collateralBalance: TokenBalance.zero(collateral),
+      debtFee,
+      collateralFee: totalCollateralPrime.copy(0),
+    };
+  } else if (collateral.tokenType === 'PrimeCash') {
     return {
       collateralBalance: totalCollateralPrime,
       debtFee,
@@ -165,7 +171,13 @@ export function calculateDebt(
   // Total debt required in prime cash
   const totalDebtPrime = localDepositPrime.add(localCollateralPrime);
 
-  if (debt.tokenType === 'PrimeDebt') {
+  if (totalDebtPrime.isZero()) {
+    return {
+      debtBalance: TokenBalance.zero(debt),
+      debtFee: totalDebtPrime.copy(0),
+      collateralFee,
+    };
+  } else if (debt.tokenType === 'PrimeDebt') {
     return {
       debtBalance: totalDebtPrime.toToken(debt).neg(),
       debtFee: totalDebtPrime.copy(0),
@@ -299,15 +311,21 @@ export function calculateDepositCollateralGivenDebtRiskLimit(
 export function calculateDebtCollateralGivenDepositRiskLimit(
   collateral: TokenDefinition,
   debt: TokenDefinition,
-  _collateralPool: fCashMarket,
-  _debtPool: fCashMarket,
-  depositBalance: TokenBalance,
+  collateralPool: fCashMarket,
+  debtPool: fCashMarket,
+  depositBalance: TokenBalance | undefined,
   balances: TokenBalance[],
-  riskFactorLimit: RiskFactorLimit<RiskFactorKeys>
+  riskFactorLimit: RiskFactorLimit<RiskFactorKeys>,
+  maxCollateralSlippage = 25 * BASIS_POINT,
+  maxDebtSlippage = 25 * BASIS_POINT
 ) {
-  const riskProfile = AccountRiskProfile.simulate(balances, [depositBalance]);
+  const riskProfile = AccountRiskProfile.simulate(
+    balances,
+    depositBalance ? [depositBalance] : []
+  );
 
-  // TODO: these values are given spot rates, not including slippage...
+  // NOTE: this calculation is done at spot rates, does not include slippage. Perhaps
+  // we should allow manual slippage de-weighting here...
   const { netDebt, netCollateral } =
     riskProfile.getDebtAndCollateralMaintainRiskFactor(
       debt,
@@ -315,10 +333,43 @@ export function calculateDebtCollateralGivenDepositRiskLimit(
       riskFactorLimit
     );
 
+  // Maybe we can calculate the net debt and net collateral using the pools
+  // and check how much slippage is incurred and then set a lower bound limit
+  // on that here while getting the fees...
+  const netCollateralPrimeAtSpot = netCollateral.toPrimeCash();
+  const { localPrime: localCollateralPrime, fees: collateralFee } =
+    exchangeToLocalPrime(
+      netCollateral,
+      collateralPool,
+      netCollateralPrimeAtSpot.token
+    );
+
+  const netDebtPrimeAtSpot = netDebt.toPrimeCash();
+  const { localPrime: localDebtPrime, fees: debtFee } = exchangeToLocalPrime(
+    netDebt,
+    debtPool,
+    netDebtPrimeAtSpot.token
+  );
+
+  if (
+    maxCollateralSlippage <
+    netCollateralPrimeAtSpot.ratioWith(localCollateralPrime).toNumber() -
+      RATE_PRECISION
+  ) {
+    throw Error('Above max collateral slippage');
+  }
+
+  if (
+    maxDebtSlippage <
+    localDebtPrime.ratioWith(netDebtPrimeAtSpot).toNumber() - RATE_PRECISION
+  ) {
+    throw Error('Above max debt slippage');
+  }
+
   return {
     collateralBalance: netCollateral,
     debtBalance: netDebt,
-    debtFee: undefined,
-    collateralFee: undefined,
+    debtFee: debtFee,
+    collateralFee,
   };
 }

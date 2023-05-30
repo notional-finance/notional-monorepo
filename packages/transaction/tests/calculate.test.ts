@@ -10,6 +10,7 @@ import { Network } from '@notional-finance/util';
 import {
   calculateCollateral,
   calculateDebt,
+  calculateDebtCollateralGivenDepositRiskLimit,
   calculateDeposit,
   calculateDepositCollateralGivenDebtRiskLimit,
   calculateDepositDebtGivenCollateralRiskLimit,
@@ -65,7 +66,7 @@ describe.withForkAndRegistry(
           collateral !== undefined && debt !== undefined && collateral !== debt
       );
 
-    const riskFactorLimit: RiskFactorLimit<'loanToValue'> = {
+    const LTV: RiskFactorLimit<'loanToValue'> = {
       riskFactor: 'loanToValue',
       limit: 50,
     };
@@ -295,8 +296,9 @@ describe.withForkAndRegistry(
         const debtPool = getPool(debtToken)!;
         const collateralToken = getToken(collateral)!;
         const collateralPool = getPool(collateralToken)!;
-
+        const riskFactorLimit = LTV;
         const collateralInput = TokenBalance.fromFloat(0.05, collateralToken);
+
         const {
           depositBalance: deposit1,
           debtBalance: debt1,
@@ -353,8 +355,9 @@ describe.withForkAndRegistry(
         const debtPool = getPool(debtToken)!;
         const collateralToken = getToken(collateral)!;
         const collateralPool = getPool(collateralToken)!;
-
+        const riskFactorLimit = LTV;
         const debtInput = TokenBalance.fromFloat(-0.05, debtToken);
+
         const {
           depositBalance: deposit1,
           collateralBalance: collateral1,
@@ -403,11 +406,76 @@ describe.withForkAndRegistry(
       }
     );
 
-    // it.each(tokens)(
-    //   'Debt [$debt] + Collateral [$collateral] given Deposit [$deposit] + Risk Limit',
-    //   ({ deposit, collateral, debt }) => {
-    //     console.log(deposit, collateral, debt);
-    //   }
-    // );
+    it.each(
+      tokens.filter(
+        ({ debt, collateral }) =>
+          // Exclude this case because they offset each other exactly
+          !(debt?.includes('pdEther') && collateral?.includes('pEther'))
+      )
+      // .filter(
+      //   ({ debt, collateral }) =>
+      //     !(debt?.includes('USD') || collateral?.includes('fETH'))
+      // )
+    )(
+      'Debt [$debt] + Collateral [$collateral] given Deposit [$deposit] + Risk Limit',
+      ({ deposit, collateral, debt }) => {
+        const depositUnderlying = getToken('ETH')!;
+        const debtToken = getToken(debt)!;
+        const debtPool = getPool(debtToken)!;
+        const collateralToken = getToken(collateral)!;
+        const collateralPool = getPool(collateralToken)!;
+
+        const depositInput =
+          deposit === undefined
+            ? TokenBalance.fromFloat(0, depositUnderlying)
+            : TokenBalance.fromFloat(0.05, depositUnderlying);
+        const riskFactorLimit = LTV;
+
+        const {
+          debtBalance: debt1,
+          collateralBalance: collateral1,
+          debtFee: df1,
+          collateralFee: cf1,
+        } = calculateDebtCollateralGivenDepositRiskLimit(
+          collateralToken,
+          debtToken,
+          collateralPool,
+          debtPool,
+          depositInput,
+          [],
+          riskFactorLimit
+        );
+
+        const {
+          debtBalance: debt2,
+          collateralFee: cf2,
+          debtFee: df2,
+        } = calculateDebt(
+          debtToken,
+          debtPool,
+          collateralPool,
+          depositInput,
+          collateral1
+        );
+
+        const {
+          collateralBalance: collateral2,
+          collateralFee: cf3,
+          debtFee: df3,
+        } = calculateCollateral(
+          collateralToken,
+          collateralPool,
+          debtPool,
+          depositInput,
+          debt1
+        );
+        expect(cf1).toBeApprox(cf2);
+        expect(cf2).toBeApprox(cf3);
+        expect(df1).toBeApprox(df2);
+        expect(df2).toBeApprox(df3);
+        expect(debt1).toBeApprox(debt2);
+        expect(collateral1).toBeApprox(collateral2);
+      }
+    );
   }
 );
