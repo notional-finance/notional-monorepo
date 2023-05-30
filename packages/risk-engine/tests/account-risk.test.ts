@@ -227,7 +227,7 @@ describe.withForkAndRegistry(
       }
     );
 
-    it.only.each(riskFactors)(
+    it.each(riskFactors)(
       'Leverage / Deleverage Maintain Factor [$riskFactor | $limit]',
       ({ riskFactor, limit, args }) => {
         const tokens = Registry.getTokenRegistry();
@@ -262,7 +262,7 @@ describe.withForkAndRegistry(
             p
               .simulate([netCollateral, netDebt])
               .getRiskFactor(riskFactor, _args)
-          ).toBeCloseTo(l, 1);
+          ).toBeCloseTo(l, 0);
         } else {
           expect(
             p

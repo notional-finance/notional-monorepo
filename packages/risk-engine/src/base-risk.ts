@@ -200,13 +200,13 @@ export abstract class BaseRiskProfile implements RiskFactors {
 
   checkRiskFactorLimit<F extends keyof RiskFactors>(
     { riskFactor, args, limit }: RiskFactorLimit<F>,
-    local: TokenDefinition
+    localUnderlyingId: string
   ): {
     value: ReturnType<RiskFactors[F]>;
     multiple: number;
   } {
     const value = this.getRiskFactor(riskFactor, args);
-    const netLocal = this.netCollateralAvailable(local.id);
+    const netLocal = this.netCollateralAvailable(localUnderlyingId);
     // NOTE: multiples should move the risk factor closer towards limit == value, so
     // if the limit is satisfied the next iteration of the loop will move closer towards
     // the limit. If the limit is satisfied by lte then the limit should be the denominator
@@ -319,7 +319,14 @@ export abstract class BaseRiskProfile implements RiskFactors {
     riskFactorLimit: RiskFactorLimit<F>,
     local: TokenDefinition
   ) {
-    const { multiple } = this.checkRiskFactorLimit(riskFactorLimit, local);
+    const localUnderlyingId =
+      local.tokenType === 'Underlying' ? local.id : local.underlying;
+    if (localUnderlyingId === undefined)
+      throw Error('undefined local underlying');
+    const { multiple } = this.checkRiskFactorLimit(
+      riskFactorLimit,
+      localUnderlyingId
+    );
 
     const calculationFunction = (collateralUnits: number) => {
       const value =
@@ -327,7 +334,10 @@ export abstract class BaseRiskProfile implements RiskFactors {
 
       // Create a new account profile with the simulated collateral added
       const profile = this.simulate([value]);
-      const { multiple } = profile.checkRiskFactorLimit(riskFactorLimit, local);
+      const { multiple } = profile.checkRiskFactorLimit(
+        riskFactorLimit,
+        localUnderlyingId
+      );
 
       return {
         // Negation is required here due to how the loop adjustment works
@@ -381,20 +391,40 @@ export abstract class BaseRiskProfile implements RiskFactors {
     riskFactorLimit: RiskFactorLimit<F>
   ) {
     // Uses the debt as the local currency
-    const { multiple } = this.checkRiskFactorLimit(riskFactorLimit, debt);
+    const localUnderlyingId =
+      debt.tokenType === 'Underlying' ? debt.id : debt.underlying;
+    if (localUnderlyingId === undefined)
+      throw Error('undefined local underlying');
+    const { multiple } = this.checkRiskFactorLimit(
+      riskFactorLimit,
+      localUnderlyingId
+    );
 
     const calculationFunction = (multiple: number) => {
-      const netDebt = TokenBalance.unit(collateral)
-        .mulInRatePrecision(multiple)
-        .neg();
-      const netCollateral =
-        TokenBalance.unit(debt).mulInRatePrecision(multiple);
+      let netDebt: TokenBalance;
+      if (
+        riskFactorLimit.riskFactor === 'freeCollateral' ||
+        riskFactorLimit.riskFactor === 'netWorth'
+      ) {
+        netDebt = TokenBalance.fromFloat(
+          multiple / RATE_PRECISION,
+          this.denom(this.defaultSymbol)
+        )
+          .toToken(debt)
+          .neg();
+      } else {
+        netDebt = TokenBalance.unit(debt).mulInRatePrecision(multiple).neg();
+      }
+      // If netDebt is decreasing, netCollateral will also decrease because it will be sold
+      // to repay debt. If netDebt is increasing, netCollateral will also increase because borrowed
+      // cash will be used to buy collateral.
+      const netCollateral = netDebt.toToken(collateral);
 
       // Create a new account profile with the simulated collateral added
       const profile = this.simulate([netDebt, netCollateral]);
       const { multiple: actualMultiple } = profile.checkRiskFactorLimit(
         riskFactorLimit,
-        debt
+        localUnderlyingId
       );
 
       return {
