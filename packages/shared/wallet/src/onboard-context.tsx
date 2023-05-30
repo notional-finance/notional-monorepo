@@ -5,6 +5,11 @@ import gnosisModule from '@web3-onboard/gnosis';
 import ledgerModule from '@web3-onboard/ledger';
 import trezorModule from '@web3-onboard/trezor';
 import coinbaseModule from '@web3-onboard/coinbase';
+import MetaMask from './images/meta-mask.svg';
+import WalletConnect from './images/wallet-connect.svg';
+import Ledger from './images/ledger.svg';
+import Trezor from './images/trezor.svg';
+import CoinbaseWallet from './images/coinbase-wallet.svg';
 import {
   getProviderURLFromNetwork,
   Network,
@@ -17,6 +22,29 @@ const chains = [
     token: 'ETH',
     label: 'Arbitrum One',
     rpcUrl: getProviderURLFromNetwork(Network.All),
+  },
+];
+
+export const modules = [
+  {
+    label: 'MetaMask',
+    icon: MetaMask,
+  },
+  {
+    label: 'WalletConnect',
+    icon: WalletConnect,
+  },
+  {
+    label: 'Ledger',
+    icon: Ledger,
+  },
+  {
+    label: 'Trezor',
+    icon: Trezor,
+  },
+  {
+    label: 'Coinbase Wallet',
+    icon: CoinbaseWallet,
   },
 ];
 

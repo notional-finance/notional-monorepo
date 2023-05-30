@@ -10,6 +10,7 @@ interface OnboardState {
     selectedChain?: Network;
     selectedAddress: string;
     hasSelectedChainError: boolean;
+    isReadOnlyAddress?: boolean;
   };
 }
 
