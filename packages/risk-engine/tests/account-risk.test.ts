@@ -5,7 +5,7 @@ import {
 } from '@notional-finance/core-entities';
 import { Network } from '@notional-finance/util';
 import { AccountRiskProfile } from '../src/account-risk';
-import { RiskFactors } from '../src/types';
+import { RiskFactorKeys, RiskFactorLimit, RiskFactors } from '../src/types';
 
 interface Profile {
   name: string;
@@ -82,6 +82,55 @@ describe.withForkAndRegistry(
       // TODO: test net local
     ];
 
+    const riskFactors: {
+      riskFactor: RiskFactorKeys;
+      limit: number | [number, string];
+      args?: [string];
+    }[] = [
+      {
+        riskFactor: 'loanToValue',
+        limit: 60,
+      },
+      {
+        riskFactor: 'loanToValue',
+        limit: 70,
+      },
+      {
+        riskFactor: 'collateralRatio',
+        limit: 140,
+      },
+      {
+        riskFactor: 'collateralRatio',
+        limit: 160,
+      },
+      {
+        riskFactor: 'netWorth',
+        limit: [0.31, 'ETH'],
+      },
+      {
+        riskFactor: 'netWorth',
+        limit: [0.37, 'ETH'],
+      },
+      {
+        riskFactor: 'freeCollateral',
+        limit: [0.01, 'ETH'],
+      },
+      {
+        riskFactor: 'freeCollateral',
+        limit: [0.1, 'ETH'],
+      },
+      {
+        riskFactor: 'collateralLiquidationThreshold',
+        args: ['ETH'],
+        limit: [0.88, 'ETH'],
+      },
+      {
+        riskFactor: 'collateralLiquidationThreshold',
+        args: ['ETH'],
+        limit: [0.91, 'ETH'],
+      },
+    ];
+
     it.each(profiles)('Risk Factors: $name', ({ name, balances, expected }) => {
       const tokens = Registry.getTokenRegistry();
       const p = AccountRiskProfile.from(
@@ -136,200 +185,93 @@ describe.withForkAndRegistry(
       });
     });
 
-    it('Deposit Maintain Factor [FC]', () => {
-      const tokens = Registry.getTokenRegistry();
-      const ETH = tokens.getTokenBySymbol(Network.ArbitrumOne, 'ETH');
-      const USDC = tokens.getTokenBySymbol(Network.ArbitrumOne, 'USDC');
-      const p = AccountRiskProfile.from([
-        TokenBalance.fromFloat(1, ETH),
-        TokenBalance.fromFloat(-1200, USDC),
-      ]);
+    it.each(riskFactors)(
+      'Deposit / Withdraw Maintain Factor [$riskFactor | $limit]',
+      ({ riskFactor, limit, args }) => {
+        const tokens = Registry.getTokenRegistry();
+        const ETH = tokens.getTokenBySymbol(Network.ArbitrumOne, 'ETH');
+        const USDC = tokens.getTokenBySymbol(Network.ArbitrumOne, 'USDC');
+        const p = AccountRiskProfile.from([
+          TokenBalance.fromFloat(1, ETH),
+          TokenBalance.fromFloat(-1200, USDC),
+        ]);
 
-      const limit = TokenBalance.fromFloat(0.1, ETH);
-      const deposit = p.getDepositRequiredToMaintainRiskFactor(ETH, {
-        riskFactor: 'freeCollateral',
-        limit,
-      });
+        const l =
+          typeof limit === 'number'
+            ? limit
+            : TokenBalance.fromFloat(
+                limit[0],
+                tokens.getTokenBySymbol(Network.ArbitrumOne, limit[1])
+              );
 
-      expect(p.simulate([deposit]).freeCollateral()).toBeApprox(limit, 0.01);
-    });
-
-    it('Deposit Maintain Factor [NW]', () => {
-      const tokens = Registry.getTokenRegistry();
-      const ETH = tokens.getTokenBySymbol(Network.ArbitrumOne, 'ETH');
-      const USDC = tokens.getTokenBySymbol(Network.ArbitrumOne, 'USDC');
-      const p = AccountRiskProfile.from([
-        TokenBalance.fromFloat(1, ETH),
-        TokenBalance.fromFloat(-1200, USDC),
-      ]);
-
-      const limit = TokenBalance.fromFloat(0.4, ETH);
-      const deposit = p.getDepositRequiredToMaintainRiskFactor(ETH, {
-        riskFactor: 'netWorth',
-        limit,
-      });
-
-      expect(p.simulate([deposit]).netWorth()).toBeApprox(limit, 0.01);
-    });
-
-    it('Withdraw Maintain Factor [NW]', () => {
-      const tokens = Registry.getTokenRegistry();
-      const ETH = tokens.getTokenBySymbol(Network.ArbitrumOne, 'ETH');
-      const USDC = tokens.getTokenBySymbol(Network.ArbitrumOne, 'USDC');
-      const p = AccountRiskProfile.from([
-        TokenBalance.fromFloat(1, ETH),
-        TokenBalance.fromFloat(-1200, USDC),
-      ]);
-
-      const limit = TokenBalance.fromFloat(0.2, ETH);
-      const withdraw = p.getWithdrawRequiredToMaintainRiskFactor(ETH, {
-        riskFactor: 'netWorth',
-        limit,
-      });
-
-      expect(p.simulate([withdraw]).netWorth()).toBeApprox(limit, 0.01);
-    });
-
-    it('Deleverage Maintain Factor [NW]', () => {
-      const tokens = Registry.getTokenRegistry();
-      const ETH = tokens.getTokenBySymbol(Network.ArbitrumOne, 'ETH');
-      const USDC = tokens.getTokenBySymbol(Network.ArbitrumOne, 'USDC');
-      const p = AccountRiskProfile.from([
-        TokenBalance.fromFloat(1, ETH),
-        TokenBalance.fromFloat(-1200, USDC),
-      ]);
-
-      const limit = TokenBalance.fromFloat(0.3, ETH);
-      const { netDebt, netCollateral } =
-        p.getDebtAndCollateralMaintainRiskFactor(ETH, USDC, {
-          riskFactor: 'netWorth',
-          limit,
+        const _args = (
+          args
+            ? args.map((s) => tokens.getTokenBySymbol(Network.ArbitrumOne, s))
+            : undefined
+        ) as RiskFactorLimit<RiskFactorKeys>['args'];
+        const deposit = p.getDepositRequiredToMaintainRiskFactor(ETH, {
+          riskFactor,
+          limit: l,
+          args: _args,
         });
-      expect(netDebt.isPositive()).toBe(true);
-      expect(netCollateral.isNegative()).toBe(true);
 
-      expect(p.simulate([netDebt, netCollateral]).netWorth()).toBeApprox(
-        limit,
-        0.01
-      );
-    });
+        if (typeof limit === 'number') {
+          expect(
+            p.simulate([deposit]).getRiskFactor(riskFactor, _args)
+          ).toBeCloseTo(l, 1);
+        } else {
+          expect(
+            p.simulate([deposit]).getRiskFactor(riskFactor, _args)
+          ).toBeApprox(l, 0.01);
+        }
+      }
+    );
 
-    it('Leverage Maintain Factor [NW]', () => {
-      const tokens = Registry.getTokenRegistry();
-      const ETH = tokens.getTokenBySymbol(Network.ArbitrumOne, 'ETH');
-      const USDC = tokens.getTokenBySymbol(Network.ArbitrumOne, 'USDC');
-      const p = AccountRiskProfile.from([
-        TokenBalance.fromFloat(1, ETH),
-        TokenBalance.fromFloat(-1200, USDC),
-      ]);
+    it.only.each(riskFactors)(
+      'Leverage / Deleverage Maintain Factor [$riskFactor | $limit]',
+      ({ riskFactor, limit, args }) => {
+        const tokens = Registry.getTokenRegistry();
+        const ETH = tokens.getTokenBySymbol(Network.ArbitrumOne, 'ETH');
+        const USDC = tokens.getTokenBySymbol(Network.ArbitrumOne, 'USDC');
+        const p = AccountRiskProfile.from([
+          TokenBalance.fromFloat(1, ETH),
+          TokenBalance.fromFloat(-1200, USDC),
+        ]);
+        const l =
+          typeof limit === 'number'
+            ? limit
+            : TokenBalance.fromFloat(
+                limit[0],
+                tokens.getTokenBySymbol(Network.ArbitrumOne, limit[1])
+              );
 
-      const limit = TokenBalance.fromFloat(0.37, ETH);
-      const { netDebt, netCollateral } =
-        p.getDebtAndCollateralMaintainRiskFactor(ETH, USDC, {
-          riskFactor: 'netWorth',
-          limit,
-        });
-      expect(netDebt.isNegative()).toBe(true);
-      expect(netCollateral.isPositive()).toBe(true);
+        const _args = (
+          args
+            ? args.map((s) => tokens.getTokenBySymbol(Network.ArbitrumOne, s))
+            : undefined
+        ) as RiskFactorLimit<RiskFactorKeys>['args'];
+        const { netCollateral, netDebt } =
+          p.getDebtAndCollateralMaintainRiskFactor(ETH, USDC, {
+            riskFactor,
+            limit: l,
+            args: _args,
+          });
 
-      expect(p.simulate([netDebt, netCollateral]).netWorth()).toBeApprox(
-        limit,
-        0.01
-      );
-    });
-
-    it('Deposit Maintain Factor [LTV]', () => {
-      const tokens = Registry.getTokenRegistry();
-      const ETH = tokens.getTokenBySymbol(Network.ArbitrumOne, 'ETH');
-      const USDC = tokens.getTokenBySymbol(Network.ArbitrumOne, 'USDC');
-      const p = AccountRiskProfile.from([
-        TokenBalance.fromFloat(1, ETH),
-        TokenBalance.fromFloat(-1200, USDC),
-      ]);
-
-      const limit = 60;
-      const deposit = p.getDepositRequiredToMaintainRiskFactor(ETH, {
-        riskFactor: 'loanToValue',
-        limit,
-      });
-
-      expect(p.simulate([deposit]).loanToValue()).toBeCloseTo(limit, 1);
-    });
-
-    it('Withdraw Maintain Factor [LTV]', () => {
-      const tokens = Registry.getTokenRegistry();
-      const ETH = tokens.getTokenBySymbol(Network.ArbitrumOne, 'ETH');
-      const USDC = tokens.getTokenBySymbol(Network.ArbitrumOne, 'USDC');
-      const p = AccountRiskProfile.from([
-        TokenBalance.fromFloat(1, ETH),
-        TokenBalance.fromFloat(-1200, USDC),
-      ]);
-
-      const limit = 70;
-      const deposit = p.getWithdrawRequiredToMaintainRiskFactor(ETH, {
-        riskFactor: 'loanToValue',
-        limit,
-      });
-
-      expect(p.simulate([deposit]).loanToValue()).toBeCloseTo(limit, 1);
-    });
-
-    it('Deposit Maintain Factor [CR]', () => {
-      const tokens = Registry.getTokenRegistry();
-      const ETH = tokens.getTokenBySymbol(Network.ArbitrumOne, 'ETH');
-      const USDC = tokens.getTokenBySymbol(Network.ArbitrumOne, 'USDC');
-      const p = AccountRiskProfile.from([
-        TokenBalance.fromFloat(1, ETH),
-        TokenBalance.fromFloat(-1200, USDC),
-      ]);
-
-      const limit = 160;
-      const deposit = p.getDepositRequiredToMaintainRiskFactor(ETH, {
-        riskFactor: 'collateralRatio',
-        limit,
-      });
-
-      expect(p.simulate([deposit]).collateralRatio()).toBeCloseTo(limit, 1);
-    });
-
-    it('Withdraw Maintain Factor [CR]', () => {
-      const tokens = Registry.getTokenRegistry();
-      const ETH = tokens.getTokenBySymbol(Network.ArbitrumOne, 'ETH');
-      const USDC = tokens.getTokenBySymbol(Network.ArbitrumOne, 'USDC');
-      const p = AccountRiskProfile.from([
-        TokenBalance.fromFloat(1, ETH),
-        TokenBalance.fromFloat(-1200, USDC),
-      ]);
-
-      const limit = 150;
-      const deposit = p.getDepositRequiredToMaintainRiskFactor(ETH, {
-        riskFactor: 'collateralRatio',
-        limit,
-      });
-
-      expect(p.simulate([deposit]).collateralRatio()).toBeCloseTo(limit, 1);
-    });
-
-    it('Withdraw Maintain Factor [CLT]', () => {
-      const tokens = Registry.getTokenRegistry();
-      const ETH = tokens.getTokenBySymbol(Network.ArbitrumOne, 'ETH');
-      const USDC = tokens.getTokenBySymbol(Network.ArbitrumOne, 'USDC');
-      const p = AccountRiskProfile.from([
-        TokenBalance.fromFloat(1, ETH),
-        TokenBalance.fromFloat(-1200, USDC),
-      ]);
-
-      const limit = TokenBalance.fromFloat(0.91, ETH);
-      const deposit = p.getWithdrawRequiredToMaintainRiskFactor(ETH, {
-        riskFactor: 'collateralLiquidationThreshold',
-        args: [ETH],
-        limit,
-      });
-
-      expect(
-        p.simulate([deposit]).collateralLiquidationThreshold(ETH)
-      ).toBeApprox(limit, 1);
-    });
+        if (typeof limit === 'number') {
+          expect(
+            p
+              .simulate([netCollateral, netDebt])
+              .getRiskFactor(riskFactor, _args)
+          ).toBeCloseTo(l, 1);
+        } else {
+          expect(
+            p
+              .simulate([netCollateral, netDebt])
+              .getRiskFactor(riskFactor, _args)
+          ).toBeApprox(l, 0.01);
+        }
+      }
+    );
 
     it('All Liquidation Prices', () => {
       const tokens = Registry.getTokenRegistry();
