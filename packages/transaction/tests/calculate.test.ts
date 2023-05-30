@@ -235,7 +235,7 @@ describe.withForkAndRegistry(
           debtToken.currencyId === 1
             ? TokenBalance.fromFloat(-0.05, debtToken)
             : TokenBalance.fromFloat(-1, debtToken);
-        const collateralInput = TokenBalance.fromFloat(0.05, collateralToken);
+        const collateralInput = TokenBalance.fromFloat(0.005, collateralToken);
 
         const {
           depositBalance,
@@ -282,13 +282,7 @@ describe.withForkAndRegistry(
       }
     );
 
-    it.each(
-      tokens.filter(({ deposit }) => deposit !== undefined)
-      // .filter(
-      //   ({ collateral, debt }) =>
-      //     debt?.includes('fUSDC') || debt?.includes('nUSDC')
-      // )
-    )(
+    it.each(tokens.filter(({ deposit }) => deposit !== undefined))(
       'Deposit [$deposit] + Debt [$debt] given Collateral [$collateral] + Risk Limit',
       ({ deposit, collateral, debt }) => {
         const depositUnderlying = getToken(deposit)!;
@@ -297,7 +291,7 @@ describe.withForkAndRegistry(
         const collateralToken = getToken(collateral)!;
         const collateralPool = getPool(collateralToken)!;
         const riskFactorLimit = LTV;
-        const collateralInput = TokenBalance.fromFloat(0.05, collateralToken);
+        const collateralInput = TokenBalance.fromFloat(0.005, collateralToken);
 
         const {
           depositBalance: deposit1,
