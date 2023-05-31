@@ -123,7 +123,12 @@ export default {
     env: Env,
     ctx: ExecutionContext
   ): Promise<Response> {
-    await run(env);
+    try {
+      await run(env);
+    } catch (e) {
+      console.error(e);
+      console.trace();
+    }
 
     const response = new Response('OK', { status: 200 });
     return response;
@@ -133,6 +138,11 @@ export default {
     env: Env,
     ctx: ExecutionContext
   ): Promise<void> {
-    await run(env);
+    try {
+      await run(env);
+    } catch (e) {
+      console.error(e);
+      console.trace();
+    }
   },
 };
