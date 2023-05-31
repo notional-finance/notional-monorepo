@@ -2,6 +2,7 @@ import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
 import {
   AccountRiskProfile,
   RiskFactorKeys,
+  RiskFactorLimit,
 } from '@notional-finance/risk-engine';
 import { TransactionFunction } from '../types';
 
@@ -50,12 +51,20 @@ interface TokenInputs {
   /** Deposit token definition, always in underlying */
   deposit?: TokenDefinition;
 
+  /** Parsed from selected risk factors */
+  riskFactorLimit?: RiskFactorLimit<RiskFactorKeys>;
   /** Calculated deposit balance, always in underlying */
   depositBalance?: TokenBalance;
   /** Calculated deposit balance, always in `collateral` token denomination */
   collateralBalance?: TokenBalance;
   /** Calculated deposit balance, always in `debt` token denomination */
   debtBalance?: TokenBalance;
+  /** Calculated fee for creating collateral balance, always in prime cash token denomination */
+  collateralFee?: TokenBalance;
+  /** Calculated fee for creating debt balance, always in prime cash token denomination */
+  debtFee?: TokenBalance;
+  /** Error message from calculation */
+  calculateError?: string;
 }
 
 interface TransactionState {

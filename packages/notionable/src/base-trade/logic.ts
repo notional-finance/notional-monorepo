@@ -5,7 +5,15 @@ import {
   TokenBalance,
   TokenDefinition,
 } from '@notional-finance/core-entities';
-import { AccountRiskProfile } from '@notional-finance/risk-engine';
+import {
+  AccountRiskProfile,
+  RiskFactorKeys,
+  RiskFactorLimit,
+} from '@notional-finance/risk-engine';
+import {
+  CalculationFn,
+  CalculationFnParams,
+} from '@notional-finance/transaction';
 import { filterEmpty } from '@notional-finance/util';
 import {
   combineLatest,
@@ -19,6 +27,7 @@ import {
   withLatestFrom,
 } from 'rxjs';
 import { GlobalState } from '../global/global-state';
+import { TransactionConfig } from './base-trade-manager';
 import { BaseTradeState, InputAmount } from './base-trade-store';
 
 type Category = 'Collateral' | 'Debt' | 'Deposit';
@@ -191,17 +200,6 @@ export function selectedPool(
   );
 }
 
-export function priorAccountRisk(
-  account$: Observable<AccountDefinition | null>
-) {
-  return account$.pipe(
-    filterEmpty(),
-    map(({ balances }) => ({
-      priorAccountRisk: AccountRiskProfile.from(balances).getAllRiskFactors(),
-    }))
-  );
-}
-
 export function parseBalance(
   category: Category,
   state$: Observable<BaseTradeState>
@@ -244,5 +242,175 @@ export function parseBalance(
         collateralBalance: TokenBalance | undefined;
       };
     })
+  );
+}
+
+export function parseRiskFactorLimit(
+  state$: Observable<BaseTradeState>,
+  selectedNetwork$: ReturnType<typeof selectedNetwork>
+) {
+  return combineLatest([state$, selectedNetwork$]).pipe(
+    map(
+      ([
+        { selectedRiskFactor, selectedRiskLimit, selectedRiskArgs },
+        network,
+      ]) => {
+        let riskFactorLimit: RiskFactorLimit<RiskFactorKeys> | undefined;
+        const tokens = Registry.getTokenRegistry();
+        if (
+          selectedRiskFactor === 'liquidationPrice' &&
+          selectedRiskLimit &&
+          selectedRiskLimit.symbol !== undefined &&
+          selectedRiskArgs?.debt !== undefined
+        ) {
+          riskFactorLimit = {
+            riskFactor: selectedRiskFactor,
+            limit: TokenBalance.fromFloat(
+              selectedRiskLimit.value,
+              tokens.getTokenBySymbol(network, selectedRiskLimit.symbol)
+            ),
+            args: [
+              tokens.getTokenBySymbol(network, selectedRiskArgs.collateral),
+              tokens.getTokenBySymbol(network, selectedRiskArgs.debt),
+            ],
+          };
+        } else if (
+          selectedRiskFactor === 'collateralLiquidationThreshold' &&
+          selectedRiskLimit &&
+          selectedRiskArgs
+        ) {
+          riskFactorLimit = {
+            riskFactor: selectedRiskFactor,
+            limit: TokenBalance.fromFloat(
+              selectedRiskLimit.value,
+              tokens.getTokenBySymbol(network, selectedRiskArgs.collateral)
+            ),
+            args: [
+              tokens.getTokenBySymbol(network, selectedRiskArgs.collateral),
+            ],
+          };
+        } else if (
+          (selectedRiskFactor === 'freeCollateral' ||
+            selectedRiskFactor === 'netWorth') &&
+          selectedRiskLimit
+        ) {
+          riskFactorLimit = {
+            riskFactor: selectedRiskFactor,
+            limit: TokenBalance.fromFloat(
+              selectedRiskLimit.value,
+              tokens.getTokenBySymbol(network, 'ETH')
+            ),
+          };
+        } else if (selectedRiskFactor && selectedRiskLimit) {
+          riskFactorLimit = {
+            riskFactor: selectedRiskFactor,
+            limit: selectedRiskLimit.value,
+          };
+        }
+
+        return { riskFactorLimit };
+      }
+    )
+  );
+}
+
+export function calculate<F extends CalculationFn>(
+  state$: Observable<BaseTradeState>,
+  debtPool$: ReturnType<typeof selectedPool>,
+  collateralPool$: ReturnType<typeof selectedPool>,
+  account$: Observable<AccountDefinition | null>,
+  { calculationFn, requiredArgs }: TransactionConfig<F>
+) {
+  return combineLatest([state$, debtPool$, collateralPool$, account$]).pipe(
+    map(([s, debtPool, collateralPool, a]) => {
+      // Map all the state into the required inputs
+      const inputs = requiredArgs.reduce((args, r) => {
+        switch (r) {
+          case 'collateralPool':
+            return Object.assign(args, { collateralPool });
+          case 'debtPool':
+            return Object.assign(args, { debtPool });
+          case 'balances':
+            return Object.assign(args, { balances: a?.balances });
+          case 'riskFactorLimit':
+          case 'collateral':
+          case 'depositBalance':
+          case 'debtBalance':
+          case 'debt':
+          case 'collateralBalance':
+          case 'depositUnderlying':
+          case 'maxCollateralSlippage':
+          case 'maxDebtSlippage':
+            return Object.assign(args, { r: s[r] });
+          default:
+            return args;
+        }
+      }, {} as Record<CalculationFnParams, unknown>);
+
+      return {
+        inputs,
+        // Check that all required inputs are satisfied
+        canSubmit: requiredArgs.every((r) => inputs[r] !== undefined),
+      };
+    }),
+    map(({ inputs, canSubmit }) => {
+      let calculateError: string | undefined;
+      if (canSubmit) {
+        try {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const outputs = calculationFn(inputs as any);
+
+          return {
+            canSubmit,
+            calculateError,
+            ...outputs,
+          };
+        } catch (e) {
+          console.error(e);
+          calculateError = (e as Error).toString();
+        }
+      }
+
+      return { canSubmit: false, calculateError };
+    })
+  );
+}
+
+export function priorAccountRisk(
+  account$: Observable<AccountDefinition | null>
+) {
+  return account$.pipe(
+    filterEmpty(),
+    map(({ balances }) => ({
+      priorAccountRisk: AccountRiskProfile.from(balances).getAllRiskFactors(),
+    }))
+  );
+}
+
+export function postAccountRisk(
+  state$: Observable<BaseTradeState>,
+  account$: Observable<AccountDefinition | null>
+) {
+  return combineLatest([account$, state$]).pipe(
+    map(
+      ([
+        account,
+        { canSubmit, depositBalance, collateralBalance, debtBalance },
+      ]) => {
+        if (canSubmit && account) {
+          const profile = AccountRiskProfile.simulate(
+            account.balances,
+            [depositBalance, collateralBalance, debtBalance].filter(
+              (b) => b !== undefined
+            ) as TokenBalance[]
+          );
+
+          return { postAccountRisk: profile.getAllRiskFactors() };
+        }
+
+        return undefined;
+      }
+    ),
+    filterEmpty()
   );
 }

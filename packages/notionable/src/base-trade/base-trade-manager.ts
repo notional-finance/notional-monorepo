@@ -1,5 +1,9 @@
 import { TokenDefinition } from '@notional-finance/core-entities';
-import { map, merge, Observable } from 'rxjs';
+import {
+  CalculationFn,
+  CalculationFnParams,
+} from '@notional-finance/transaction';
+import { merge, Observable } from 'rxjs';
 import { GlobalState } from '../global/global-state';
 import { BaseTradeState, initialBaseTradeState } from './base-trade-store';
 import {
@@ -11,24 +15,31 @@ import {
   initState,
   priorAccountRisk,
   parseBalance,
+  parseRiskFactorLimit,
+  calculate,
+  postAccountRisk,
 } from './logic';
 
-export const loadTradeManager = (
+export interface TransactionConfig<F extends CalculationFn> {
+  calculationFn: F;
+  requiredArgs: CalculationFnParams[];
+}
+
+export function loadTradeManager<F extends CalculationFn>(
   state$: Observable<BaseTradeState>,
   global$: Observable<GlobalState>,
-  canSubmit: (s: BaseTradeState) => boolean,
+  transactionConfig: TransactionConfig<F>,
   tokenFilters?: {
     depositFilter?: (t: TokenDefinition) => boolean;
     collateralFilter?: (t: TokenDefinition) => boolean;
     debtFilter?: (t: TokenDefinition) => boolean;
   }
-): Observable<Partial<BaseTradeState>> => {
+): Observable<Partial<BaseTradeState>> {
   // Shared Observables
   const network$ = selectedNetwork(global$);
   const account$ = selectedAccount(global$);
   const debtPool$ = selectedPool('Debt', state$, network$);
   const collateralPool$ = selectedPool('Collateral', state$, network$);
-  const canSubmit$ = state$.pipe(map((s) => ({ canSubmit: canSubmit(s) })));
 
   // Emitted State Changes
   return merge(
@@ -40,8 +51,10 @@ export const loadTradeManager = (
     selectedToken('Collateral', state$, network$),
     parseBalance('Collateral', state$),
     selectedToken('Debt', state$, network$),
-    parseBalance('Debt', state$)
+    parseBalance('Debt', state$),
+    parseRiskFactorLimit(state$, network$),
+    calculate(state$, debtPool$, collateralPool$, account$, transactionConfig),
+    postAccountRisk(state$, account$)
+    // buildTransactionCall(state$)
   );
-  // $ = emitTransactionCall(state$, onCanSubmit$);
-  // $ = emitAccountRisk(state$, network$, onTransaction$);
-};
+}
