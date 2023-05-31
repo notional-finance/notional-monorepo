@@ -5,14 +5,19 @@ import { UnstakeStart } from './unstake-start';
 import { UnstakeRedeem } from './unstake-redeem';
 import { UnstakeCoolDown } from './unstake-cooldown';
 import { useUnstakeAction } from './use-unstake-action';
-import { useAccount, useOnboard } from '@notional-finance/notionable-hooks';
+import {
+  useAccount,
+  useNotionalContext,
+} from '@notional-finance/notionable-hooks';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { FormattedMessage } from 'react-intl';
 import { messages } from '../messages';
 
 export const UnstakeAction = () => {
   const { account } = useAccount();
-  const { connected } = useOnboard();
+  const {
+    globalState: { isAccountReady },
+  } = useNotionalContext();
   const { maxSNoteAmount, isInCoolDown, isInRedeemWindow } = useUnstakeAction();
   const { setWalletSideDrawer } = useSideDrawerManager();
 
@@ -33,8 +38,8 @@ export const UnstakeAction = () => {
 
   return (
     <Box sx={{ minHeight: '505px' }}>
-      {connected && !account && <PageLoading />}
-      {connected && account && unstakeStage}
+      {isAccountReady && !account && <PageLoading />}
+      {isAccountReady && account && unstakeStage}
       {!account && (
         <Button
           variant="outlined"

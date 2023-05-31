@@ -1,3 +1,4 @@
+<<<<<<< feature/updates-network-selectors:packages/shared/wallet/src/hooks/use-network-selector.ts
 import { useOnboard, useNotional } from '@notional-finance/notionable-hooks';
 import {
   chains,
@@ -5,11 +6,12 @@ import {
   switchNetwork,
 } from '@notional-finance/notionable';
 import { Network } from '@notional-finance/util';
+=======
+import { CHAIN_NAMES } from '@notional-finance/shared-config';
+>>>>>>> build: removes use onboard hook:packages/shared/wallet/src/network-selector/use-network-selector.ts
 import { defineMessages } from 'react-intl';
 
 export function useNetworkSelector() {
-  const { connected, chain } = useOnboard();
-  const { getConnectedChain } = useNotional();
   const labels = defineMessages({
     [Network.ArbitrumOne]: {
       defaultMessage: 'Arbitrum',
@@ -21,12 +23,6 @@ export function useNetworkSelector() {
   });
 
   return {
-    connected,
-    chain,
-    supportedChains: chains,
-    switchNetwork,
     labels,
-    chainEntities,
-    getConnectedChain,
   };
 }

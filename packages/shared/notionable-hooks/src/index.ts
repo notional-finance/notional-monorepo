@@ -18,9 +18,6 @@ export * from './market/use-market';
 
 export * from './notional/use-notional';
 export * from './notional/NotionalContext';
-
-export * from './onboard/use-onboard';
-
 export * from './wallet/use-wallet';
 
 export * from './leveraged-vaults/use-vault';
