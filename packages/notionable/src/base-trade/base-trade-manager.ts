@@ -25,7 +25,7 @@ export interface TransactionConfig<F extends CalculationFn> {
   requiredArgs: CalculationFnParams[];
 }
 
-export function loadTradeManager<F extends CalculationFn>(
+export function loadBaseTradeManager<F extends CalculationFn>(
   state$: Observable<BaseTradeState>,
   global$: Observable<GlobalState>,
   transactionConfig: TransactionConfig<F>,

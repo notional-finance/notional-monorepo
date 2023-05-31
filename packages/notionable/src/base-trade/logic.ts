@@ -119,6 +119,7 @@ export function initState(
         );
 
       return {
+        isReady: true,
         availableCollateralTokens,
         availableDebtTokens,
         availableDepositTokens,

@@ -20,7 +20,6 @@ import {
   filter,
 } from 'rxjs';
 
-import { signer$ as onboardSigner$ } from '../onboard/onboard-store';
 import {
   BalanceSummary,
   AssetSummary,
@@ -64,7 +63,7 @@ export function setReadOnlyAddress(readOnlyAddress?: string) {
   _voidSigner.next(readOnlyAddress);
 }
 
-const _signer$ = merge(onboardSigner$, voidSigner$).pipe(
+const _signer$ = merge(of(undefined), voidSigner$).pipe(
   withLatestFrom(isReadOnly$),
   map(([signer, isReadOnly]) => {
     if (typeof signer === 'string') {
