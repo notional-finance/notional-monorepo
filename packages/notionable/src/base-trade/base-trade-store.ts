@@ -1,198 +1,87 @@
 import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
-import { RiskFactorKeys, RiskFactorLimit } from '@notional-finance/risk-engine';
+import {
+  AccountRiskProfile,
+  RiskFactorKeys,
+} from '@notional-finance/risk-engine';
 import { TransactionFunction } from '../types';
 
-/// How much to deposit or withdraw
-/// How much collateral i want [Buy Prime Cash, Buy nTokens, Buy fCash]
-/// How much (if any) I want to debt [Sell Prime Cash, Sell fCash, Sell nTokens]
-/// Specify your risk tolerance
-///  - leverage ratio?
-///  - liquidation price?
-///  - max collateral ratio
-///  - max ltv
-/*
- *        - Calculate Deposit given Asset
- *        - Calculate Asset given Deposit
- *        - Calculate Borrow given Asset
- *        - Calculate Asset given Borrow
- *        - Calculate Neg Deposit given Borrow
- *        - Calculate Borrow given Neg Deposit
- *
- *        - Calculate Deposit given Asset + Borrow
- *        - Calculate Asset given Deposit + Borrow
- *        - Calculate Borrow given Deposit + Asset
- *
- *        - Calculate Deposit + Borrow given Asset + Risk Limit
- *        - Calculate Deposit + Asset given Borrow + Risk Limit
- *        - Calculate Borrow + Asset given Deposit + Risk Limit
- */
-
-/**
- * [Local Currency]
- * - Lend Variable
- * - Lend Variable with Fixed Borrow (Fixed to Variable Swap)
- * - Lend Fixed
- *      [Deposit: Underlying, Asset: fCash | Prime Cash, Borrow: fCash | Undefined]
- *
- * - Borrow Variable with Lend Variable (Variable to Fixed Swap)
- * - Borrow Fixed with Lend Fixed (Roll Maturity if Same Maturity, Carry Trade if Not)
- *      [Deposit: Underlying | Undefined, Asset: fCash, Borrow: fCash | Prime Debt]
- *
- * - Borrow Fixed (Deleverage Variable to Fixed Swap)
- * - Borrow Variable (Withdraw)
- *      [Deposit: Neg Underlying | Undefined, Asset: Prime Cash, Borrow: Prime Debt | fCash]
- *
- * - Mint nToken
- * - Mint nToken with Borrow Variable (nToken Leverage)
- * - Mint nToken with Borrow Fixed (nToken Leverage)
- *      [Deposit[U]: Underlying | Undefined, Asset[U/T]: nToken, Borrow[U/T]: Prime Debt | fCash | Undefined]
- *
- * - Redeem nToken with Lend Variable (nToken Deleverage)
- * - Redeem nToken with Lend Fixed (nToken Deleverage)
- * - Redeem nToken with Lend Fixed (Deleverage Cross Currency nToken)
- *      [Deposit: Undefined, Asset[U/T]: Prime Cash | fCash, Borrow[U/T]: Neg nToken]
- *
- * - Borrow Fixed with Lend Variable
- * - Borrow Fixed with Lend Fixed
- * - Borrow Fixed with nToken Mint
- *      [Deposit[U]: Underlying | Undefined, Asset[U/T]: Prime Cash | fCash | nToken, Borrow[U/T]: fCash]
- */
-
-/**
- * [loading state => onPageLoad]
- *   - isReady
- *   - availableTokens: all underlying tokens as a string
- *   - availableUnderlying: all underlying token definitions
- *   - availablefCash: all non-idiosyncratic fCash definitions
- *   - availableNTokens: all nToken token definitions
- *
- * [onAssetMarketChange]
- * - collateral market pool data
- *
- * [onBorrowMarketChange]
- * - debt market pool data
- *
- * User Inputs:
- * [via updateState]
- * - selectedAssetUnderlying
- * - collateral currency: will be fCash, nToken or Prime Cash
- *
- * [via updateState]
- * - selectedBorrowUnderlying
- * - debt currency: if same as collateral currency, then is local currency leverage
- *
- * [via updateState or onInputChange]
- * - underlying deposit amount: this is the amount to deposit during minting of the collateral, may be
- *   the total amount or partial
- * - collateral input amount: may be calculated or direct input, total amount of collateral currency to mint
- * - debt input amount: may be calculated or direct input, total amount of fCash or cash to debt
- *    - if this is debt variable, will be denominated in negative cash
- *
- * [prior account risk => onAccountChange]
- *   - prior risk exposure
- *   - prior risk factor values
- *
- * [transaction state => onCanSubmit which is passed in]
- *   - confirm
- *   - buildTransactionCall
- *   - account balances after
- *   - current risk exposure
- *   - current risk factor values
- */
-
+/** Input amount directly from the frontend */
 interface InputAmount {
   amount: string;
   inUnderlying: boolean;
 }
 
+/** Inputs set by the user interface, all of these are denominated in primitive values */
 interface UserInputs {
-  // This is set on load via a URL parameter
+  /** Set on load via a URL path parameter */
   underlying?: string;
+  /** Symbol of the selected collateral token, if any */
   selectedCollateralToken?: string;
+  /** Symbol of the selected debt token, if any */
   selectedDebtToken?: string;
+  /** Input amount of any deposits, must be denominated in underlying */
   depositInputAmount?: InputAmount;
+  /** Collateral input amount, can be denominated in underlying */
   collateralInputAmount?: InputAmount;
+  /** Collateral input amount, can be denominated in underlying */
   debtInputAmount?: InputAmount;
-  riskFactorLimit?: RiskFactorLimit<RiskFactorKeys>;
+  /** User selected risk factor */
+  selectedRiskFactor?: RiskFactorKeys;
+  /** User selected risk limit */
+  selectedRiskLimit?: {
+    value: number;
+    symbol?: string;
+  };
+  /** User selected risk arg, used for liquidation prices */
+  selectedRiskArgs?: {
+    collateral: string;
+    debt?: string;
+  };
 }
 
-// These are calculated by lookup against the registry
+/** Calculated values based on token inputs */
 interface TokenInputs {
-  collateralToken?: TokenDefinition;
-  debtToken?: TokenDefinition;
+  /** Collateral token definition */
+  collateral?: TokenDefinition;
+  /** Debt token definition */
+  debt?: TokenDefinition;
+  /** Deposit token definition, always in underlying */
+  depositUnderlying?: TokenDefinition;
+  /** Defined if inputs are in underlying */
   underlyingCollateralToken?: TokenDefinition;
+  /** Defined if inputs are in underlying */
   underlyingDebtToken?: TokenDefinition;
+  /** Used to find the collateral pool */
   collateralNToken?: TokenDefinition;
+  /** Used to find the debt pool */
   debtNToken?: TokenDefinition;
 
-  // These are calculated internally
+  /** Calculated deposit balance, always in underlying */
   depositBalance?: TokenBalance;
+  /** Calculated deposit balance, always in `collateral` token denomination */
   collateralBalance?: TokenBalance;
+  /** Calculated deposit balance, always in `debt` token denomination */
   debtBalance?: TokenBalance;
 }
 
-export interface CashGroupData {
-  totalValueLocked: TokenBalance;
-  nTokenFactors: {
-    totalYield: number;
-    blendedYield: number;
-    incentiveYield: number;
-    tradingFeeYield: number;
-    totalSupply: TokenBalance;
-    nTokenPrice: TokenBalance;
-    nTokenHolders: number;
-    returnDrivers: {
-      token: TokenDefinition;
-      value: TokenBalance;
-      apy: number;
-    }[];
-  };
-  fCashFactors: {
-    marketIndex: number;
-    maturity: number;
-    spotRate: number;
-    tradedRate: number;
-    totalDebtOutstanding: TokenBalance;
-    token: TokenDefinition;
-    totalPrimeCash: TokenBalance;
-    totalfCash: TokenBalance;
-    utilization: number;
-  }[];
-  primeCashFactors: {
-    totalLent: TokenBalance;
-    oraclePrice: TokenBalance;
-    supplyYield: number;
-    debtRate: number;
-    lendingPremium: number;
-    utilization: number;
-    // interestRateParameters: {};
-    // primeCashHoldings: {};
-  }[];
-  historical: {
-    fCashRates: [];
-    nTokenYield: [];
-    nTokenPrice: [];
-    totalValueLocked: [];
-    poolActivity: [];
-  };
-}
-
-interface AccountRisk {
-  riskExposure: string[];
-  riskFactor: Record<RiskFactorKeys, number | TokenBalance>;
-}
-
 interface TransactionState {
+  /** True if the form is completed and able to be submitted */
   canSubmit: boolean;
+  /** True if the form is in the confirmation state */
   confirm: boolean;
-  accountBalancesAfter?: TokenBalance[];
+  /** Transaction call information for the confirmation page */
   buildTransactionCall?: TransactionFunction;
 }
 
 interface InitState {
+  /** True if the page is ready to be displayed */
   isReady: boolean;
+  /** A list of tokens that can be deposited */
+  availableDepositTokens?: TokenDefinition[];
+  /** A list of collateral tokens that can be selected */
   availableCollateralTokens?: TokenDefinition[];
-  availableAssetTokens?: TokenDefinition[];
+  /** A list of debt tokens that can be selected */
+  availableDebtTokens?: TokenDefinition[];
 }
 
 export interface BaseTradeState
@@ -201,10 +90,10 @@ export interface BaseTradeState
     UserInputs,
     TokenInputs,
     TransactionState {
-  collateralData?: CashGroupData;
-  debtData?: CashGroupData;
-  priorAccountRisk?: AccountRisk;
-  currentAccountRisk?: AccountRisk;
+  /** Account risk factors prior to any changes to the account */
+  priorAccountRisk?: ReturnType<AccountRiskProfile['getAllRiskFactors']>;
+  /** Account risk factors after changes applied to the account */
+  postAccountRisk?: ReturnType<AccountRiskProfile['getAllRiskFactors']>;
 }
 
 export const initialBaseTradeState: BaseTradeState = {

@@ -78,6 +78,19 @@ function exchangeToLocalPrime(
   throw Error('Unknown token type');
 }
 
+/**
+ * Calculates how much collateral will be generated from a debt balance and a deposit. Either debt or
+ * deposit or both must be defined. Redeeming nTokens is defined as a "debt balance"
+ *
+ * @param collateral collateral token to mint
+ * @param collateralPool corresponding pool for the collateral token
+ * @param debtPool corresponding for the debt pool, can be empty if debt balance is undefined
+ * @param depositBalance amount to deposit
+ * @param debtBalance amount of debt to create
+ * @returns collateralBalance amount of collateral to mint
+ * @returns debtFee fees associated with debt
+ * @returns collateralFee fees associated with collateral
+ */
 export function calculateCollateral(
   collateral: TokenDefinition,
   collateralPool: fCashMarket,
@@ -147,6 +160,20 @@ export function calculateCollateral(
   throw Error('Unknown token type');
 }
 
+/**
+ *
+ * Calculates how much debt will be generated from a collateral balance and a deposit. Either collateral or
+ * deposit balance or both must be defined.
+ *
+ * @param debt debt token to mint
+ * @param debtPool corresponding for the debt pool, can be empty if debt balance is undefined
+ * @param collateralPool corresponding pool for the collateral token
+ * @param depositBalance amount to deposit
+ * @param collateralBalance amount of collateral to mint
+ * @returns debtBalance amount of debt to mint
+ * @returns debtFee fees associated with debt
+ * @returns collateralFee fees associated with collateral
+ */
 export function calculateDebt(
   debt: TokenDefinition,
   debtPool: fCashMarket,
@@ -212,6 +239,10 @@ export function calculateDebt(
   throw Error('Unknown token type');
 }
 
+/**
+ * Calculates amount to deposit based on debt and collateral inputs. The outputs are denominated
+ * in underlying.
+ */
 export function calculateDeposit(
   depositUnderlying: TokenDefinition,
   collateralPool?: fCashMarket,
@@ -240,6 +271,18 @@ export function calculateDeposit(
   };
 }
 
+/**
+ * Calculates how much deposit and debt will be required given a collateral balance and a risk limit
+ * that the account wants to maintain.
+ *
+ * @param debt debt denomination
+ * @param depositUnderlying deposit denomination
+ * @param debtPool required input
+ * @param collateralPool required when collateral is fCash or nTokens
+ * @param collateralBalance amount of collateral deposit
+ * @param balances the account's existing balances
+ * @param riskFactorLimit a risk factor limit to adhere to
+ */
 export function calculateDepositDebtGivenCollateralRiskLimit(
   debt: TokenDefinition,
   depositUnderlying: TokenDefinition,
@@ -274,6 +317,10 @@ export function calculateDepositDebtGivenCollateralRiskLimit(
   return { depositBalance, debtBalance, debtFee, collateralFee };
 }
 
+/**
+ * Calculates how much deposit and collateral will be required given a debt balance and a risk limit
+ * that the account wants to maintain.
+ */
 export function calculateDepositCollateralGivenDebtRiskLimit(
   collateral: TokenDefinition,
   depositUnderlying: TokenDefinition,
@@ -308,6 +355,10 @@ export function calculateDepositCollateralGivenDebtRiskLimit(
   return { depositBalance, collateralBalance, debtFee, collateralFee };
 }
 
+/**
+ * Calculates how much debt and collateral will be required given a deposit balance and a risk limit
+ * that the account wants to maintain. Can be used to simulate leveraging up or deleveraging.
+ */
 export function calculateDebtCollateralGivenDepositRiskLimit(
   collateral: TokenDefinition,
   debt: TokenDefinition,

@@ -3,7 +3,7 @@ import {
   TokenBalance,
   TokenDefinition,
 } from '@notional-finance/core-entities';
-import { PERCENTAGE_BASIS, ZERO_ADDRESS } from '@notional-finance/util';
+import { PERCENTAGE_BASIS } from '@notional-finance/util';
 import { BaseRiskProfile } from './base-risk';
 import { SymbolOrID } from './types';
 
