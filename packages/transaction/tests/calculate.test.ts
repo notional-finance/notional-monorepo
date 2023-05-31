@@ -105,25 +105,25 @@ describe.withForkAndRegistry(
           collateralBalance,
           collateralFee: cf1,
           debtFee: df1,
-        } = calculateCollateral(
-          collateralToken,
+        } = calculateCollateral({
+          collateral: collateralToken,
           collateralPool,
-          undefined,
-          depositInput,
-          undefined
-        );
+          debtPool: undefined,
+          depositBalance: depositInput,
+          debtBalance: undefined,
+        });
 
         const {
           depositBalance,
           collateralFee: cf2,
           debtFee: df2,
-        } = calculateDeposit(
+        } = calculateDeposit({
           depositUnderlying,
           collateralPool,
-          undefined,
-          undefined,
-          collateralBalance
-        );
+          debtPool: undefined,
+          debtBalance: undefined,
+          collateralBalance,
+        });
 
         expect(cf1).toBeApprox(cf2);
         expect(df1).toBe(undefined);
@@ -157,25 +157,25 @@ describe.withForkAndRegistry(
         collateralBalance,
         collateralFee: cf1,
         debtFee: df1,
-      } = calculateCollateral(
-        collateralToken,
+      } = calculateCollateral({
+        collateral: collateralToken,
         collateralPool,
         debtPool,
-        undefined,
-        debtInput
-      );
+        depositBalance: undefined,
+        debtBalance: debtInput,
+      });
 
       const {
         debtBalance,
         collateralFee: cf2,
         debtFee: df2,
-      } = calculateDebt(
-        debtToken,
+      } = calculateDebt({
+        debt: debtToken,
         debtPool,
         collateralPool,
-        undefined,
-        collateralBalance
-      );
+        depositBalance: undefined,
+        collateralBalance,
+      });
 
       expect(df1).toBeApprox(df2);
       expect(cf1).toBeApprox(cf2);
@@ -196,25 +196,25 @@ describe.withForkAndRegistry(
         debtBalance,
         collateralFee: cf1,
         debtFee: df1,
-      } = calculateDebt(
-        debtToken,
+      } = calculateDebt({
+        debt: debtToken,
         debtPool,
-        undefined,
-        depositInput,
-        undefined
-      );
+        collateralPool: undefined,
+        depositBalance: depositInput,
+        collateralBalance: undefined,
+      });
 
       const {
         depositBalance,
         collateralFee: cf2,
         debtFee: df2,
-      } = calculateDeposit(
+      } = calculateDeposit({
         depositUnderlying,
-        undefined,
+        collateralPool: undefined,
         debtPool,
         debtBalance,
-        undefined
-      );
+        collateralBalance: undefined,
+      });
 
       expect(df1).toBeApprox(df2);
       expect(cf1).toBe(undefined);
@@ -241,37 +241,37 @@ describe.withForkAndRegistry(
           depositBalance,
           collateralFee: cf1,
           debtFee: df1,
-        } = calculateDeposit(
+        } = calculateDeposit({
           depositUnderlying,
           collateralPool,
           debtPool,
-          debtInput,
-          collateralInput
-        );
+          debtBalance: debtInput,
+          collateralBalance: collateralInput,
+        });
 
         const {
           debtBalance,
           collateralFee: cf2,
           debtFee: df2,
-        } = calculateDebt(
-          debtToken,
+        } = calculateDebt({
+          debt: debtToken,
           debtPool,
           collateralPool,
           depositBalance,
-          collateralInput
-        );
+          collateralBalance: collateralInput,
+        });
 
         const {
           collateralBalance,
           collateralFee: cf3,
           debtFee: df3,
-        } = calculateCollateral(
-          collateralToken,
+        } = calculateCollateral({
+          collateral: collateralToken,
           collateralPool,
           debtPool,
           depositBalance,
-          debtInput
-        );
+          debtBalance: debtInput,
+        });
 
         expect(cf1).toBeApprox(cf2);
         expect(cf2).toBeApprox(cf3);
@@ -298,39 +298,39 @@ describe.withForkAndRegistry(
           debtBalance: debt1,
           debtFee: df1,
           collateralFee: cf1,
-        } = calculateDepositDebtGivenCollateralRiskLimit(
-          debtToken,
+        } = calculateDepositDebtGivenCollateralRiskLimit({
+          debt: debtToken,
           depositUnderlying,
           debtPool,
           collateralPool,
-          collateralInput,
-          [],
-          riskFactorLimit
-        );
+          collateralBalance: collateralInput,
+          balances: [],
+          riskFactorLimit,
+        });
 
         const {
           depositBalance: deposit2,
           collateralFee: cf2,
           debtFee: df2,
-        } = calculateDeposit(
+        } = calculateDeposit({
           depositUnderlying,
           collateralPool,
           debtPool,
-          debt1,
-          collateralInput
-        );
+          debtBalance: debt1,
+          collateralBalance: collateralInput,
+        });
 
         const {
           debtBalance: debt2,
           collateralFee: cf3,
           debtFee: df3,
-        } = calculateDebt(
-          debtToken,
+        } = calculateDebt({
+          debt: debtToken,
           debtPool,
           collateralPool,
-          deposit1,
-          collateralInput
-        );
+          depositBalance: deposit1,
+          collateralBalance: collateralInput,
+        });
 
         expect(cf1).toBeApprox(cf2);
         expect(cf2).toBeApprox(cf3);
@@ -357,39 +357,39 @@ describe.withForkAndRegistry(
           collateralBalance: collateral1,
           debtFee: df1,
           collateralFee: cf1,
-        } = calculateDepositCollateralGivenDebtRiskLimit(
-          collateralToken,
+        } = calculateDepositCollateralGivenDebtRiskLimit({
+          collateral: collateralToken,
           depositUnderlying,
           collateralPool,
           debtPool,
-          debtInput,
-          [],
-          riskFactorLimit
-        );
+          debtBalance: debtInput,
+          balances: [],
+          riskFactorLimit,
+        });
 
         const {
           depositBalance: deposit2,
           collateralFee: cf2,
           debtFee: df2,
-        } = calculateDeposit(
+        } = calculateDeposit({
           depositUnderlying,
           collateralPool,
           debtPool,
-          debtInput,
-          collateral1
-        );
+          debtBalance: debtInput,
+          collateralBalance: collateral1,
+        });
 
         const {
           collateralBalance: collateral2,
           collateralFee: cf3,
           debtFee: df3,
-        } = calculateCollateral(
-          collateralToken,
+        } = calculateCollateral({
+          collateral: collateralToken,
           collateralPool,
           debtPool,
-          deposit1,
-          debtInput
-        );
+          depositBalance: deposit1,
+          debtBalance: debtInput,
+        });
 
         expect(cf1).toBeApprox(cf2);
         expect(cf2).toBeApprox(cf3);
@@ -434,39 +434,39 @@ describe.withForkAndRegistry(
           collateralBalance: collateral1,
           debtFee: df1,
           collateralFee: cf1,
-        } = calculateDebtCollateralGivenDepositRiskLimit(
-          collateralToken,
-          debtToken,
+        } = calculateDebtCollateralGivenDepositRiskLimit({
+          collateral: collateralToken,
+          debt: debtToken,
           collateralPool,
           debtPool,
-          depositInput,
+          depositBalance: depositInput,
           balances,
-          riskFactorLimit
-        );
+          riskFactorLimit,
+        });
 
         const {
           debtBalance: debt2,
           collateralFee: cf2,
           debtFee: df2,
-        } = calculateDebt(
-          debtToken,
+        } = calculateDebt({
+          debt: debtToken,
           debtPool,
           collateralPool,
-          depositInput,
-          collateral1
-        );
+          depositBalance: depositInput,
+          collateralBalance: collateral1,
+        });
 
         const {
           collateralBalance: collateral2,
           collateralFee: cf3,
           debtFee: df3,
-        } = calculateCollateral(
-          collateralToken,
+        } = calculateCollateral({
+          collateral: collateralToken,
           collateralPool,
           debtPool,
-          depositInput,
-          debt1
-        );
+          depositBalance: depositInput,
+          debtBalance: debt1,
+        });
         expect(cf1).toBeApprox(cf2);
         expect(cf2).toBeApprox(cf3);
         expect(df1).toBeApprox(df2);
