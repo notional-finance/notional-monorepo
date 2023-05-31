@@ -6,7 +6,7 @@ import {
 import { TransactionFunction } from '../types';
 
 /** Input amount directly from the frontend */
-interface InputAmount {
+export interface InputAmount {
   amount: string;
   inUnderlying: boolean;
 }
@@ -15,6 +15,8 @@ interface InputAmount {
 interface UserInputs {
   /** Set on load via a URL path parameter */
   underlying?: string;
+  /** Symbol of the selected deposit token, if any */
+  selectedDepositToken?: string;
   /** Symbol of the selected collateral token, if any */
   selectedCollateralToken?: string;
   /** Symbol of the selected debt token, if any */
@@ -46,15 +48,7 @@ interface TokenInputs {
   /** Debt token definition */
   debt?: TokenDefinition;
   /** Deposit token definition, always in underlying */
-  depositUnderlying?: TokenDefinition;
-  /** Defined if inputs are in underlying */
-  underlyingCollateralToken?: TokenDefinition;
-  /** Defined if inputs are in underlying */
-  underlyingDebtToken?: TokenDefinition;
-  /** Used to find the collateral pool */
-  collateralNToken?: TokenDefinition;
-  /** Used to find the debt pool */
-  debtNToken?: TokenDefinition;
+  deposit?: TokenDefinition;
 
   /** Calculated deposit balance, always in underlying */
   depositBalance?: TokenBalance;

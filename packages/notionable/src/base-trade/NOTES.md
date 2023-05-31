@@ -1,5 +1,21 @@
 
 ```
+export function emitPoolData(
+  category: Category,
+  pool$: ReturnType<typeof selectedPool>
+) {
+  return pool$.pipe(
+    filterEmpty(),
+    map((_p): CashGroupData => {
+      // TODO: fill this out
+      return {} as CashGroupData;
+    }),
+    map((d) =>
+      category === 'Collateral' ? { collateralData: d } : { debtData: d }
+    )
+  );
+}
+
 export interface CashGroupData {
   totalValueLocked: TokenBalance;
   nTokenFactors: {

@@ -10,6 +10,8 @@ import {
   doBinarySearch,
   PERCENTAGE_BASIS,
   RATE_DECIMALS,
+  getNowSeconds,
+  PRIME_CASH_VAULT_MATURITY,
 } from '@notional-finance/util';
 import { RiskFactorLimit, RiskFactors, SymbolOrID } from './types';
 
@@ -461,11 +463,56 @@ export abstract class BaseRiskProfile implements RiskFactors {
             return {
               collateral: c,
               debt: d,
+              riskExposure: this.getRiskExposureType(c, d, collateralThreshold),
               liquidationPrice: collateralThreshold?.toToken(d) || null,
             };
           });
       })
       .filter(({ liquidationPrice }) => liquidationPrice !== null);
+  }
+
+  getRiskExposureType(
+    collateral: TokenDefinition,
+    debt: TokenDefinition,
+    collateralThreshold: TokenBalance | null
+  ) {
+    if (
+      collateral.tokenType === 'fCash' &&
+      (collateral.maturity || 0) < getNowSeconds() &&
+      debt.tokenType === 'PrimeDebt'
+    ) {
+      // Matured fCash with prime debt in the same currency must be settled
+      return { isCrossCurrency: false, isPrimeDebt: true, risk: 'Settlement' };
+    } else if (
+      collateral.tokenType === 'PrimeCash' &&
+      debt.tokenType === 'fCash' &&
+      (debt.maturity || 0) < getNowSeconds()
+    ) {
+      // Matured fCash with prime debt in the same currency must be settled
+      return { isCrossCurrency: false, isPrimeDebt: false, risk: 'Settlement' };
+    } else if (
+      collateral.currencyId === debt.currencyId &&
+      collateralThreshold
+    ) {
+      // All local currency risks
+      return {
+        isCrossCurrency: false,
+        isPrimeDebt: false,
+        risk: collateral.tokenType,
+      };
+    } else if (collateralThreshold) {
+      return {
+        isCrossCurrency: true,
+        isPrimeDebt:
+          debt.tokenType === 'PrimeDebt' ||
+          (debt.tokenType === 'VaultDebt' &&
+            debt.maturity === PRIME_CASH_VAULT_MATURITY &&
+            collateralThreshold),
+        risk: collateral.tokenType,
+      };
+    }
+
+    return undefined;
   }
 
   /** Abstract Risk Factor Implementations **/

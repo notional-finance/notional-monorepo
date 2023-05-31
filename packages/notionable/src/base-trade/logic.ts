@@ -16,9 +16,10 @@ import {
   of,
   pairwise,
   switchMap,
+  withLatestFrom,
 } from 'rxjs';
 import { GlobalState } from '../global/global-state';
-import { BaseTradeState, CashGroupData } from './base-trade-store';
+import { BaseTradeState, InputAmount } from './base-trade-store';
 
 type Category = 'Collateral' | 'Debt' | 'Deposit';
 
@@ -74,18 +75,19 @@ export function selectedAccount(global$: Observable<GlobalState>) {
 export function initState(
   state$: Observable<BaseTradeState>,
   selectedNetwork$: ReturnType<typeof selectedNetwork>,
-  collateralTokenFilter: (t: TokenDefinition) => boolean = () => true,
-  debtTokenFilter: (t: TokenDefinition) => boolean = () => true
+  tokenFilters?: {
+    depositFilter?: (t: TokenDefinition) => boolean;
+    collateralFilter?: (t: TokenDefinition) => boolean;
+    debtFilter?: (t: TokenDefinition) => boolean;
+  }
 ) {
   return combineLatest([state$, selectedNetwork$]).pipe(
     // TODO: can add a switchMap here that emits whenever the token registry updates on
     // last timestamp so that we can get long running token updates...
     filter(([{ isReady }, selectedNetwork]) => !isReady && !!selectedNetwork),
     map(([_, selectedNetwork]) => {
-      const listedTokens = Registry.getTokenRegistry()
-        .getAllTokens(selectedNetwork)
-        // Filter to those with currency ids
-        .filter((t) => !!t.currencyId);
+      const listedTokens =
+        Registry.getTokenRegistry().getAllTokens(selectedNetwork);
 
       const availableCollateralTokens = listedTokens
         .filter(
@@ -94,28 +96,36 @@ export function initState(
             t.tokenType === 'nToken' ||
             t.tokenType === 'fCash'
         )
-        .filter(collateralTokenFilter);
+        .filter(tokenFilters?.collateralFilter || (() => true));
 
       const availableDebtTokens = listedTokens
         .filter((t) => t.tokenType === 'PrimeDebt' || t.tokenType === 'fCash')
-        .filter(debtTokenFilter);
+        .filter(tokenFilters?.debtFilter || (() => true));
 
-      return { availableCollateralTokens, availableDebtTokens };
+      const availableDepositTokens = listedTokens
+        .filter((t) => t.tokenType === 'Underlying')
+        .filter(
+          // Using this default filter allows the sNOTE UI to work
+          tokenFilters?.depositFilter || ((t) => t.currencyId !== undefined)
+        );
+
+      return {
+        availableCollateralTokens,
+        availableDebtTokens,
+        availableDepositTokens,
+      };
     })
   );
 }
 
-export function selectedTokens(
+export function selectedToken(
   category: Category,
   state$: Observable<BaseTradeState>,
   selectedNetwork$: ReturnType<typeof selectedNetwork>
 ) {
   return combineLatest([state$, selectedNetwork$]).pipe(
     map(([s, selectedNetwork]) => ({
-      selectedToken:
-        category === 'Collateral'
-          ? s.selectedCollateralToken
-          : s.selectedDebtToken,
+      selectedToken: s[`available${category}Token`] as string,
       selectedNetwork,
     })),
     distinctUntilChanged(
@@ -125,76 +135,70 @@ export function selectedTokens(
     ),
     map(({ selectedToken, selectedNetwork }) => {
       let token: TokenDefinition | undefined;
-      let underlying: TokenDefinition | undefined;
-      let nToken: TokenDefinition | undefined;
 
       if (selectedToken && selectedNetwork) {
-        const tokens = Registry.getTokenRegistry();
-        token = tokens.getTokenBySymbol(selectedNetwork, selectedToken);
-        underlying = tokens.getUnderlying(selectedNetwork, token.currencyId);
         try {
-          nToken = tokens.getNToken(selectedNetwork, token.currencyId);
+          const tokens = Registry.getTokenRegistry();
+          token = tokens.getTokenBySymbol(selectedNetwork, selectedToken);
         } catch {
           // NOTE: some tokens may not have nTokens listed, if so then this will
           // remain undefined
+          console.error(
+            `Token ${selectedToken} not found on network ${selectedNetwork}`
+          );
         }
       }
 
-      return category === 'Collateral'
-        ? {
-            collateralToken: token,
-            underlyingCollateralToken: underlying,
-            collateralNToken: nToken,
-          }
-        : {
-            debtToken: token,
-            underlyingDebtToken: underlying,
-            debtNToken: nToken,
-          };
+      return {
+        [category.toLowerCase()]: token,
+      } as {
+        collateral: TokenDefinition | undefined;
+        debt: TokenDefinition | undefined;
+        deposit: TokenDefinition | undefined;
+      };
     })
   );
 }
 
 export function selectedPool(
   category: Category,
-  state$: Observable<BaseTradeState>
+  state$: Observable<BaseTradeState>,
+  selectedNetwork$: ReturnType<typeof selectedNetwork>
 ) {
   return state$.pipe(
-    map((s) => (category === 'Collateral' ? s.collateralNToken : s.debtNToken)),
+    map((s) => s[category.toLowerCase()] as TokenDefinition | undefined),
+    distinctUntilChanged((p, c) => p?.id !== c?.id),
     filterEmpty(),
-    switchMap((n) => {
-      return n
-        ? Registry.getExchangeRegistry().subscribePoolInstance<fCashMarket>(
-            n.network,
-            n.address
+    withLatestFrom(selectedNetwork$),
+    switchMap(([t, network]) => {
+      try {
+        const nToken = Registry.getTokenRegistry().getNToken(
+          network,
+          t.currencyId
+        );
+
+        return (
+          Registry.getExchangeRegistry().subscribePoolInstance<fCashMarket>(
+            network,
+            nToken.address
           ) || of(undefined)
-        : of(undefined);
+        );
+      } catch {
+        // Some currencies do not have nTokens
+        return of(undefined);
+      }
     })
   );
 }
 
-export function emitPoolData(
-  category: Category,
-  pool$: ReturnType<typeof selectedPool>
-) {
-  return pool$.pipe(
-    filterEmpty(),
-    map((_p): CashGroupData => {
-      // TODO: fill this out
-      return {} as CashGroupData;
-    }),
-    map((d) =>
-      category === 'Collateral' ? { collateralData: d } : { debtData: d }
-    )
-  );
-}
-
-export function emitAccountRisk(
+export function priorAccountRisk(
   account$: Observable<AccountDefinition | null>
 ) {
   return account$.pipe(
     filterEmpty(),
-    map(({ balances }) => AccountRiskProfile.from(balances).getAllRiskFactors())
+    map(({ balances }) => ({
+      priorAccountRisk: AccountRiskProfile.from(balances).getAllRiskFactors(),
+    }))
   );
 }
 
@@ -203,56 +207,42 @@ export function parseBalance(
   state$: Observable<BaseTradeState>
 ) {
   return state$.pipe(
-    map((s) => {
-      switch (category) {
-        case 'Deposit':
-          return {
-            inputAmount: s.depositInputAmount,
-            token: s.underlyingCollateralToken,
-            underlying: s.underlyingCollateralToken,
-          };
-        case 'Collateral':
-          return {
-            inputAmount: s.collateralInputAmount,
-            token: s.collateralToken,
-            underlying: s.underlyingCollateralToken,
-          };
-        case 'Debt':
-          return {
-            inputAmount: s.debtInputAmount,
-            token: s.debtToken,
-            underlying: s.underlyingDebtToken,
-          };
-      }
-    }),
+    map((s) => ({
+      token: s[category.toLowerCase()] as TokenDefinition | undefined,
+      inputAmount: s[`${category.toLowerCase()}InputAmount`] as InputAmount,
+    })),
     distinctUntilChanged(
       (p, c) =>
-        p?.underlying?.id !== c?.underlying?.id ||
         p?.token?.id !== c?.token?.id ||
         p?.inputAmount?.inUnderlying !== c?.inputAmount?.inUnderlying ||
         p?.inputAmount?.amount !== p?.inputAmount?.amount
     ),
-    map(({ inputAmount, token, underlying }) => {
+    map(({ inputAmount, token }) => {
+      if (inputAmount === undefined || token === undefined) return undefined;
       if (inputAmount?.inUnderlying === false && category === 'Deposit')
         throw Error('Deposits must be in underlying');
-      if (inputAmount?.inUnderlying && underlying)
-        return TokenBalance.fromFloat(inputAmount.amount, underlying);
-      else if (inputAmount?.inUnderlying == false && token)
-        return TokenBalance.fromFloat(inputAmount.amount, token);
-      else return undefined;
+
+      try {
+        if (inputAmount.inUnderlying) {
+          const underlying = Registry.getTokenRegistry().getUnderlying(
+            token.network,
+            token.currencyId
+          );
+          return TokenBalance.fromFloat(inputAmount.amount, underlying);
+        } else {
+          return TokenBalance.fromFloat(inputAmount.amount, token);
+        }
+      } catch (e) {
+        console.error(e);
+        return undefined;
+      }
     }),
     map((b) => {
-      switch (category) {
-        case 'Deposit':
-          // NOTE: this is always in underlying
-          return { depositBalance: b };
-        case 'Collateral':
-          // NOTE: this may be in underlying or collateral token
-          return { collateralBalance: b };
-        case 'Debt':
-          // NOTE: this may be in underlying or debt token
-          return { debtBalance: b };
-      }
+      return { [`${category.toLowerCase()}Balance`]: b } as {
+        depositBalance: TokenBalance | undefined;
+        debtBalance: TokenBalance | undefined;
+        collateralBalance: TokenBalance | undefined;
+      };
     })
   );
 }

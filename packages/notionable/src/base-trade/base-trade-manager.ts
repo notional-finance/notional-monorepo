@@ -7,10 +7,9 @@ import {
   selectedAccount,
   selectedPool,
   selectedNetwork,
-  selectedTokens,
+  selectedToken,
   initState,
-  emitPoolData,
-  emitAccountRisk,
+  priorAccountRisk,
   parseBalance,
 } from './logic';
 
@@ -18,47 +17,31 @@ export const loadTradeManager = (
   state$: Observable<BaseTradeState>,
   global$: Observable<GlobalState>,
   canSubmit: (s: BaseTradeState) => boolean,
-  collateralFilter?: (t: TokenDefinition) => boolean,
-  debtFilter?: (t: TokenDefinition) => boolean
+  tokenFilters?: {
+    depositFilter?: (t: TokenDefinition) => boolean;
+    collateralFilter?: (t: TokenDefinition) => boolean;
+    debtFilter?: (t: TokenDefinition) => boolean;
+  }
 ): Observable<Partial<BaseTradeState>> => {
-  // Shared Variables
+  // Shared Observables
   const network$ = selectedNetwork(global$);
   const account$ = selectedAccount(global$);
-  const debtPool$ = selectedPool('Debt', state$);
-  const collateralPool$ = selectedPool('Collateral', state$);
+  const debtPool$ = selectedPool('Debt', state$, network$);
+  const collateralPool$ = selectedPool('Collateral', state$, network$);
+  const canSubmit$ = state$.pipe(map((s) => ({ canSubmit: canSubmit(s) })));
 
   // Emitted State Changes
-  const onNetworkChange$ = resetOnNetworkChange(global$, initialBaseTradeState);
-  const onInitState$ = initState(
-    state$,
-    network$,
-    collateralFilter,
-    debtFilter
-  );
-  const onDebtToken$ = selectedTokens('Debt', state$, network$);
-  const onCollateralToken$ = selectedTokens('Collateral', state$, network$);
-  const onDebtPoolData$ = emitPoolData('Debt', debtPool$);
-  const onCollateralPoolData$ = emitPoolData('Collateral', collateralPool$);
-  const onPriorRisk$ = emitAccountRisk(account$);
-  const onDepositInput$ = parseBalance('Deposit', state$);
-  const onCollateralInput$ = parseBalance('Collateral', state$);
-  const onDebtInput$ = parseBalance('Debt', state$);
-  const onCanSubmit$ = state$.pipe(map((s) => ({ canSubmit: canSubmit(s) })));
-  const onTransaction$ = emitTransactionCall(state$, onCanSubmit$);
-  const onCurrentRisk$ = emitAccountRisk(state$, network$, onTransaction$);
-
   return merge(
-    onNetworkChange$,
-    onInitState$,
-    onDebtToken$,
-    onCollateralToken$,
-    onDebtPoolData$,
-    onCollateralPoolData$,
-    onCanSubmit$,
-    onPriorRisk$,
-    onDepositInput$,
-    onCollateralInput$,
-    onDebtInput$,
-    onCurrentRisk$
+    resetOnNetworkChange(global$, initialBaseTradeState),
+    initState(state$, network$, tokenFilters),
+    priorAccountRisk(account$),
+    selectedToken('Deposit', state$, network$),
+    parseBalance('Deposit', state$),
+    selectedToken('Collateral', state$, network$),
+    parseBalance('Collateral', state$),
+    selectedToken('Debt', state$, network$),
+    parseBalance('Debt', state$)
   );
+  // $ = emitTransactionCall(state$, onCanSubmit$);
+  // $ = emitAccountRisk(state$, network$, onTransaction$);
 };
