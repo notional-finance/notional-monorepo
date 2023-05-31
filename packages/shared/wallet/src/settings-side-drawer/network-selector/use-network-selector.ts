@@ -11,6 +11,9 @@ export function useNetworkSelector() {
   const { connected, chain } = useOnboard();
   const { getConnectedChain } = useNotional();
   const labels = defineMessages({
+    [CHAIN_NAMES.ARBITRUM]: {
+      defaultMessage: 'Arbitrum',
+    },
     [CHAIN_NAMES.GOERLI]: {
       defaultMessage: 'Goerli',
     },

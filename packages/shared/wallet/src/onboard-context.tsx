@@ -16,12 +16,18 @@ import {
   NetworkId,
 } from '@notional-finance/util';
 
-const chains = [
+export const chains = [
   {
     id: `0x${NetworkId[Network.ArbitrumOne].toString(16)}`,
     token: 'ETH',
-    label: 'Arbitrum One',
-    rpcUrl: getProviderURLFromNetwork(Network.All),
+    label: 'Arbitrum',
+    rpcUrl: getProviderURLFromNetwork(Network.ArbitrumOne),
+  },
+  {
+    id: `0x${NetworkId[Network.Mainnet].toString(16)}`,
+    token: 'ETH',
+    label: 'Mainnet',
+    rpcUrl: getProviderURLFromNetwork(Network.Mainnet),
   },
 ];
 

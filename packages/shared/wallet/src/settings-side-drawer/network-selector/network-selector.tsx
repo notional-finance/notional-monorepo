@@ -1,4 +1,3 @@
-import React from 'react';
 import { TokenIcon } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
 import { Chain } from '@web3-onboard/common';
@@ -6,8 +5,11 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { NotionalTheme } from '@notional-finance/styles';
 import { CircleIcon } from '@notional-finance/icons';
 import { useTheme, Box, styled, ListItemIcon, Typography } from '@mui/material';
+import { Network } from '@notional-finance/util';
+import { chains } from '../../onboard-context';
 import { H4 } from '@notional-finance/mui';
 import { useNetworkSelector } from './use-network-selector';
+import { useNotionalContext } from '@notional-finance/notionable-hooks';
 
 /* eslint-disable-next-line */
 export interface NetworkSelectorProps {
@@ -21,9 +23,6 @@ export interface NetworkButtonProps {
 
 export const NetworkSelectorButton = () => {
   const theme = useTheme();
-  const { getConnectedChain } = useNetworkSelector();
-  const { chainEntities } = useNetworkSelector();
-  const chain = getConnectedChain();
 
   return (
     <Box
@@ -33,23 +32,29 @@ export const NetworkSelectorButton = () => {
         justifyContent: 'center',
       }}
     >
-      <TokenIcon symbol="eth" size="medium" />
-      <Box sx={{ marginLeft: theme.spacing(1) }}>
-        {chain?.id && chainEntities[chain.id] && chainEntities[chain.id].label}
-      </Box>
+      <TokenIcon symbol={'arb'} size="medium" />
+      <Box sx={{ marginLeft: theme.spacing(1) }}>{chains[0].label}</Box>
     </Box>
   );
 };
 
 export function NetworkSelector() {
   const theme = useTheme();
-  const { switchNetwork, supportedChains, getConnectedChain, labels } =
-    useNetworkSelector();
-  const chain = getConnectedChain();
+  const { updateNotional, globalState } = useNotionalContext();
+  const { labels } = useNetworkSelector();
 
   const handleClick = async (chain?: Chain) => {
     if (chain) {
-      switchNetwork(parseInt(chain.id));
+      const currentChain =
+        chain.label === 'Arbitrum One' ? Network.ArbitrumOne : Network.Mainnet;
+      updateNotional({
+        wallet: {
+          selectedChain: currentChain,
+          selectedAddress: globalState.wallet?.selectedAddress || '',
+          isReadOnlyAddress: globalState.wallet?.isReadOnlyAddress,
+          hasSelectedChainError: false,
+        },
+      });
     }
   };
 
@@ -58,17 +63,22 @@ export function NetworkSelector() {
       <Title>
         <FormattedMessage defaultMessage={'NETWORK'} />
       </Title>
-      {supportedChains.map((data: Chain) => {
+      {chains.map((data: Chain) => {
         const label = data.label ? labels[data.label] : '';
         return (
           <NetworkButton
             key={data.id}
-            onClick={() => handleClick(data)}
-            active={chain?.id === data.id}
+            onClick={
+              data.id === chains[0].id ? () => handleClick(data) : undefined
+            }
+            active={data?.id === chains[0].id}
             theme={theme}
           >
             <ListItemIcon sx={{ marginRight: '0px' }}>
-              <TokenIcon symbol="eth" size="large" />
+              <TokenIcon
+                symbol={data.id === chains[0].id ? 'arb' : 'eth'}
+                size="large"
+              />
             </ListItemIcon>
             <H4 sx={{ flex: 1, alignItems: 'center', display: 'flex' }}>
               <FormattedMessage {...label} />
@@ -80,7 +90,7 @@ export function NetworkSelector() {
                 alignItems: 'center',
               }}
             >
-              {chain?.id === data.id ? (
+              {chains[0].id === data.id ? (
                 <CheckCircleIcon sx={{ fill: theme.palette.primary.main }} />
               ) : (
                 <CircleIcon
@@ -130,9 +140,9 @@ const NetworkButton = styled(Box, {
     active ? theme.palette.primary.main : theme.palette.borders.paper
   };
   margin: ${theme.spacing(1)} 0px;
-  cursor: pointer;
+  cursor: ${active ? 'pointer' : 'not-allowed'};
   background: ${
-    active ? theme.palette.info.light : theme.palette.background.paper
+    active ? theme.palette.info.light : theme.palette.borders.default
   };
   color: ${theme.palette.primary.dark};
   font-weight: 500;

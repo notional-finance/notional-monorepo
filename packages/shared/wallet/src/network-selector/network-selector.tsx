@@ -5,6 +5,7 @@ import { Chain } from '@web3-onboard/common';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { NotionalTheme } from '@notional-finance/styles';
 import { ArrowIcon, CircleIcon } from '@notional-finance/icons';
+import { chains } from '../onboard-context';
 import {
   useTheme,
   Box,
@@ -14,6 +15,8 @@ import {
   Popover,
   Typography,
 } from '@mui/material';
+import { useNotionalContext } from '@notional-finance/notionable-hooks';
+import { Network } from '@notional-finance/util';
 import { useNetworkSelector } from './use-network-selector';
 
 /* eslint-disable-next-line */
@@ -24,6 +27,129 @@ export interface NetworkSelectorProps {
 export interface NetworkButtonProps {
   active?: boolean;
   theme: NotionalTheme;
+}
+
+export function NetworkSelector() {
+  const theme = useTheme();
+  const { labels } = useNetworkSelector();
+  const { updateNotional, globalState } = useNotionalContext();
+  const [anchorEl, setAnchorEl] = useState<any>(null);
+  const open = Boolean(anchorEl);
+
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = async (chain?: Chain) => {
+    if (chain) {
+      const currentChain =
+        chain.label === 'Arbitrum One' ? Network.ArbitrumOne : Network.Mainnet;
+      updateNotional({
+        wallet: {
+          selectedChain: currentChain,
+          selectedAddress: globalState.wallet?.selectedAddress || '',
+          isReadOnlyAddress: globalState.wallet?.isReadOnlyAddress,
+          hasSelectedChainError: false,
+        },
+      });
+    }
+    setAnchorEl(null);
+  };
+
+  return (
+    <NetworkSelectorWrapper>
+      <DropdownButton
+        id="basic-button"
+        aria-controls={open ? 'basic-menu' : undefined}
+        aria-haspopup="true"
+        variant="outlined"
+        aria-expanded={open ? 'true' : undefined}
+        onClick={handleClick}
+        startIcon={<TokenIcon symbol="arb" size="medium" />}
+        endIcon={<ArrowIcon sx={{ transform: 'rotate(-180deg)' }} />}
+      >
+        <TextWrapper theme={theme}>{chains[0].label}</TextWrapper>
+      </DropdownButton>
+      <Popover
+        id="basic-menu"
+        open={open}
+        anchorEl={anchorEl}
+        onClose={() => handleClose()}
+        transitionDuration={{ exit: 0, enter: 200 }}
+        sx={{
+          marginTop: '10px',
+          '.MuiPopover-paper': {
+            boxShadow: theme.shape.shadowLarge(),
+            width: {
+              xs: '100%',
+              sm: '100%',
+              md: 'auto',
+              lg: 'auto',
+              xl: 'auto',
+            },
+          },
+        }}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+      >
+        <NetworkInnerWrapper>
+          <Title>
+            <FormattedMessage defaultMessage={'NETWORK'} />
+          </Title>
+          {chains.map((data: Chain) => {
+            const label = data.label ? labels[data.label] : '';
+            return (
+              <NetworkButton
+                key={data.id}
+                onClick={
+                  data.id === chains[0].id ? () => handleClose(data) : undefined
+                }
+                active={data?.id === chains[0].id}
+                theme={theme}
+              >
+                <ListItemIcon sx={{ marginRight: '0px' }}>
+                  <TokenIcon
+                    symbol={data.id === chains[0].id ? 'arb' : 'eth'}
+                    size="large"
+                  />
+                </ListItemIcon>
+                <Box sx={{ flex: 1, alignItems: 'center', display: 'flex' }}>
+                  <FormattedMessage {...label} />
+                </Box>
+                <Box
+                  sx={{
+                    justifyContent: 'flex-end',
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}
+                >
+                  {chains[0].id === data.id ? (
+                    <CheckCircleIcon
+                      sx={{ fill: theme.palette.primary.main }}
+                    />
+                  ) : (
+                    <CircleIcon
+                      sx={{
+                        stroke: theme.palette.borders.accentPaper,
+                        width: theme.spacing(2.5),
+                        height: theme.spacing(2.5),
+                      }}
+                    />
+                  )}
+                </Box>
+              </NetworkButton>
+            );
+          })}
+        </NetworkInnerWrapper>
+      </Popover>
+    </NetworkSelectorWrapper>
+  );
 }
 
 const NetworkSelectorWrapper = styled(Box)(
@@ -102,9 +228,9 @@ const NetworkButton = styled(Box, {
     active ? theme.palette.primary.main : theme.palette.borders.accentPaper
   };
   margin: 15px auto;
-  cursor: pointer;
+  cursor: ${active ? 'pointer' : 'not-allowed'};
   background: ${
-    active ? theme.palette.info.light : theme.palette.background.paper
+    active ? theme.palette.info.light : theme.palette.borders.default
   };
   color: ${theme.palette.primary.dark};
   font-weight: 500;
@@ -114,124 +240,5 @@ const NetworkButton = styled(Box, {
   }
   `
 );
-
-export function NetworkSelector() {
-  const theme = useTheme();
-  const {
-    switchNetwork,
-    supportedChains,
-    chainEntities,
-    getConnectedChain,
-    labels,
-  } = useNetworkSelector();
-  const chain = getConnectedChain();
-  const [anchorEl, setAnchorEl] = useState<any>(null);
-  const open = Boolean(anchorEl);
-
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = async (chain?: Chain) => {
-    if (chain) {
-      switchNetwork(parseInt(chain.id));
-    }
-    setAnchorEl(null);
-  };
-
-  return (
-    <NetworkSelectorWrapper>
-      <DropdownButton
-        id="basic-button"
-        aria-controls={open ? 'basic-menu' : undefined}
-        aria-haspopup="true"
-        variant="outlined"
-        aria-expanded={open ? 'true' : undefined}
-        onClick={handleClick}
-        startIcon={<TokenIcon symbol="eth" size="medium" />}
-        endIcon={<ArrowIcon sx={{ transform: 'rotate(-180deg)' }} />}
-      >
-        <TextWrapper theme={theme}>
-          {chain?.id &&
-            chainEntities[chain.id] &&
-            chainEntities[chain.id].label}
-        </TextWrapper>
-      </DropdownButton>
-      <Popover
-        id="basic-menu"
-        open={open}
-        anchorEl={anchorEl}
-        onClose={() => handleClose()}
-        transitionDuration={{ exit: 0, enter: 200 }}
-        sx={{
-          marginTop: '10px',
-          '.MuiPopover-paper': {
-            boxShadow: theme.shape.shadowLarge(),
-            width: {
-              xs: '100%',
-              sm: '100%',
-              md: 'auto',
-              lg: 'auto',
-              xl: 'auto',
-            },
-          },
-        }}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'right',
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'right',
-        }}
-      >
-        <NetworkInnerWrapper>
-          <Title>
-            <FormattedMessage defaultMessage={'NETWORK'} />
-          </Title>
-          {supportedChains.map((data: Chain) => {
-            const label = data.label ? labels[data.label] : '';
-            return (
-              <NetworkButton
-                key={data.id}
-                onClick={() => handleClose(data)}
-                active={chain?.id === data.id}
-                theme={theme}
-              >
-                <ListItemIcon sx={{ marginRight: '0px' }}>
-                  <TokenIcon symbol="eth" size="large" />
-                </ListItemIcon>
-                <Box sx={{ flex: 1, alignItems: 'center', display: 'flex' }}>
-                  <FormattedMessage {...label} />
-                </Box>
-                <Box
-                  sx={{
-                    justifyContent: 'flex-end',
-                    display: 'flex',
-                    alignItems: 'center',
-                  }}
-                >
-                  {chain?.id === data.id ? (
-                    <CheckCircleIcon
-                      sx={{ fill: theme.palette.primary.main }}
-                    />
-                  ) : (
-                    <CircleIcon
-                      sx={{
-                        stroke: theme.palette.borders.accentPaper,
-                        width: theme.spacing(2.5),
-                        height: theme.spacing(2.5),
-                      }}
-                    />
-                  )}
-                </Box>
-              </NetworkButton>
-            );
-          })}
-        </NetworkInnerWrapper>
-      </Popover>
-    </NetworkSelectorWrapper>
-  );
-}
 
 export default NetworkSelector;

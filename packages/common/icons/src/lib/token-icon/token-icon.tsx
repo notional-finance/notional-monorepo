@@ -1,5 +1,6 @@
 import unknown from '../../assets/icons/currencies/currency-unknown.svg';
 import wbtc from '../../assets/icons/currencies/currency-wbtc.svg';
+import arb from '../../assets/icons/currencies/arbitrum.svg';
 import eth from '../../assets/icons/currencies/currency-eth.svg';
 import usdc from '../../assets/icons/currencies/currency-usdc.svg';
 import dai from '../../assets/icons/currencies/currency-dai.svg';
@@ -172,6 +173,11 @@ export const TokenImageList: TokenImageMap = {
     name: 'eth-dai-usdc',
     img: ETH_DAI_USDC,
     alt: ' ETH_DAI_USDC',
+  },
+  arb: {
+    name: 'arb',
+    img: arb,
+    alt: 'arb',
   },
   unknown: {
     name: 'unknown',
