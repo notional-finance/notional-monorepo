@@ -134,18 +134,20 @@ export function selectedToken(
   selectedNetwork$: ReturnType<typeof selectedNetwork>
 ) {
   return combineLatest([state$, selectedNetwork$]).pipe(
-    map(([s, selectedNetwork]) => ({
-      selectedToken: s[`available${category}Token`] as string,
-      selectedNetwork,
-    })),
-    distinctUntilChanged(
-      (p, c) =>
-        p.selectedToken !== c.selectedToken ||
-        p.selectedNetwork !== c.selectedNetwork
-    ),
+    pairwise(),
+    map(([[prevS, prevN], [curS, selectedNetwork]]) => {
+      const selectedToken = curS[`selected${category}Token`] as string;
+      return {
+        hasChanged:
+          (prevS[`selected${category}Token`] as string) !== selectedToken ||
+          prevN !== selectedNetwork,
+        selectedToken,
+        selectedNetwork,
+      };
+    }),
+    filter(({ hasChanged }) => hasChanged),
     map(({ selectedToken, selectedNetwork }) => {
       let token: TokenDefinition | undefined;
-
       if (selectedToken && selectedNetwork) {
         try {
           const tokens = Registry.getTokenRegistry();

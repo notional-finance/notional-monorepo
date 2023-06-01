@@ -1,4 +1,8 @@
-import { AccountFetchMode } from '@notional-finance/core-entities';
+import {
+  AccountFetchMode,
+  Registry,
+  TokenDefinition,
+} from '@notional-finance/core-entities';
 import {
   BaseTradeState,
   GlobalState,
@@ -10,6 +14,7 @@ import {
 import { Network } from '@notional-finance/util';
 import { calculateCollateral } from '@notional-finance/transaction';
 import { getSequencer } from './test-utils.spec';
+import { withLatestFrom } from 'rxjs';
 
 describe.withForkAndRegistry(
   {
@@ -18,30 +23,33 @@ describe.withForkAndRegistry(
   },
   'Base Trade Manager',
   () => {
-    const {
-      updateState,
-      _state$: state$,
-      _store: stateStore,
-    } = makeStore<BaseTradeState>(initialBaseTradeState);
-    const {
-      updateState: updateGlobal,
-      _state$: global$,
-      _store: globalStore,
-    } = makeStore<GlobalState>(initialGlobalState);
+    const { updateState, _state$: state$ } = makeStore<BaseTradeState>(
+      initialBaseTradeState
+    );
+    const { updateState: updateGlobal, _state$: global$ } =
+      makeStore<GlobalState>(initialGlobalState);
 
-    const baseTradeUpdates = loadBaseTradeManager(state$, global$, {
-      calculationFn: calculateCollateral,
-      requiredArgs: ['depositBalance', 'collateralPool'],
-    });
-
-    const testSequence = getSequencer(updateState, baseTradeUpdates);
+    const baseTradeUpdates = loadBaseTradeManager(
+      state$,
+      global$,
+      {
+        calculationFn: calculateCollateral,
+        requiredArgs: ['depositBalance', 'collateralPool'],
+      },
+      {
+        debtFilter: (t: TokenDefinition) => t.currencyId === 3,
+        collateralFilter: (t: TokenDefinition) => t.currencyId === 3,
+        depositFilter: (t: TokenDefinition) =>
+          t.currencyId === 3 && t.tokenType === 'Underlying',
+      }
+    );
 
     it('it sets initial tokens on ready', (done) => {
       baseTradeUpdates.subscribe((s) => {
         if (s.isReady) {
-          expect(s.availableCollateralTokens?.length).toBeGreaterThan(5);
-          expect(s.availableDebtTokens?.length).toBeGreaterThan(5);
-          expect(s.availableDepositTokens?.length).toBeGreaterThan(5);
+          expect(s.availableCollateralTokens?.length).toBeGreaterThan(0);
+          expect(s.availableDebtTokens?.length).toBeGreaterThan(0);
+          expect(s.availableDepositTokens?.length).toBeGreaterThan(0);
           done();
         }
       });
@@ -51,9 +59,113 @@ describe.withForkAndRegistry(
         isNetworkReady: true,
       });
     });
-    // it('it returns prior account risk', () => {});
-    // it('it sets selected tokens and balances', () => {});
-    // it('it sets can submit once all required inputs are available', () => {});
-    // it('it calculates account risk when the account is available', () => {});
+
+    it('it resets to initial state on network change', (done) => {
+      let isReady = false;
+      baseTradeUpdates.pipe(withLatestFrom(global$)).subscribe(([s, g]) => {
+        if (s.isReady) {
+          isReady = true;
+        }
+
+        if (isReady && s.isReady === false) {
+          // isReady is cleared to false on network switch
+          expect(g.selectedNetwork).toBe(Network.Mainnet);
+          done();
+        }
+      });
+
+      updateGlobal({
+        selectedNetwork: Network.ArbitrumOne,
+        isNetworkReady: true,
+      });
+
+      updateGlobal({
+        selectedNetwork: Network.Mainnet,
+        isNetworkReady: false,
+      });
+    });
+
+    it('it returns prior account risk', (done) => {
+      updateGlobal({
+        selectedNetwork: Network.ArbitrumOne,
+        isNetworkReady: true,
+      });
+
+      Registry.getAccountRegistry().onAccountReady(
+        Network.ArbitrumOne,
+        '0xd74e7325dfab7d7d1ecbf22e6e6874061c50f243',
+        () => {
+          updateGlobal({
+            selectedAccount: '0xd74e7325dfab7d7d1ecbf22e6e6874061c50f243',
+            isAccountReady: true,
+            isAccountPending: false,
+          });
+
+          baseTradeUpdates.pipe(withLatestFrom(global$)).subscribe(([s, g]) => {
+            if (s.priorAccountRisk !== undefined) {
+              expect(g.selectedAccount).toBeDefined();
+              expect(g.isAccountReady).toBeTruthy();
+              done();
+            }
+          });
+        }
+      );
+    });
+
+    describe('Test Sequences', () => {
+      const testSequence = getSequencer(updateState, baseTradeUpdates);
+      // const testSequence = getSequencer(updateState, baseTradeUpdates);
+      baseTradeUpdates.subscribe((s) => {
+        console.log('IN STATE EMIT', s);
+        updateState(s);
+      });
+
+      beforeAll((done) => {
+        state$.subscribe((s) => {
+          if (s.isReady) done();
+        });
+
+        updateGlobal({
+          selectedNetwork: Network.ArbitrumOne,
+          isNetworkReady: true,
+        });
+      });
+
+      it.only('it sets selected tokens and balances', async () => {
+        testSequence([
+          [
+            { selectedCollateralToken: 'nUSDC' },
+            (s) => {
+              expect(s.collateral?.symbol).toBe('nUSDC');
+            },
+          ],
+          [
+            { selectedDepositToken: 'USDC' },
+            (s) => {
+              expect(s.deposit?.symbol).toBe('USDC');
+            },
+          ],
+          // [
+          //   { depositInputAmount: { amount: '5', inUnderlying: true } },
+          //   (s) => {
+          //     expect(s.depositBalance?.toDisplayStringWithSymbol(1)).toEqual(
+          //       '5.0 USDC'
+          //     );
+          //   },
+          // ],
+        ]);
+      });
+
+      it('it sets can submit once all required inputs are available', (done) => {
+        baseTradeUpdates.subscribe((s) => {
+          console.log('in updates', s);
+          if (s.selectedCollateralToken === 'nUSDC') done();
+        });
+
+        updateState({ selectedCollateralToken: 'nUSDC' });
+      });
+
+      // it('it calculates account risk when the account is available', () => {});
+    });
   }
 );
