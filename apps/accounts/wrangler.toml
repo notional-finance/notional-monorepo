@@ -6,6 +6,10 @@ node_compat = true
 minify = true
 usage_model = "bundled"
 
+[[migrations]]
+tag = "v1"
+new_classes = ["AccountCache"]
+
 [env.local]
 durable_objects.bindings = [
   { name = "ACCOUNT_CACHE", class_name = "AccountCache" },
