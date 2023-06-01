@@ -18,7 +18,7 @@ import { ERC20__factory } from '@notional-finance/contracts';
 import { MetricNames } from './types';
 
 export interface Env {
-  ACCOUNT_SERVICE_URL: string;
+  ACCOUNT_CACHE: DurableObjectNamespace;
   ZERO_EX_SWAP_URL: string;
   ZERO_EX_API_KEY: string;
   NETWORK: string;
@@ -49,7 +49,9 @@ const run = async (env: Env) => {
     apiKey: env.DD_API_KEY,
   });
 
-  const resp = await fetch(env.ACCOUNT_SERVICE_URL);
+  const id = env.ACCOUNT_CACHE.idFromName('ACCOUNT_CACHE');
+  const stub = env.ACCOUNT_CACHE.get(id);
+  const resp = await stub.fetch('');
   const data = (await resp.json()) as any;
   const addrs = data['default'].map((a) => a.id);
 

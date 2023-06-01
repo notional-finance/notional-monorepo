@@ -30,8 +30,8 @@ export class AccountCache {
         this.state.storage.put('accounts', JSON.stringify(accounts));
         return new Response('OK', { status: 200, statusText: 'OK' });
     }
-    const cachedAccounts = await this.state.storage.get('accounts');
-    return new Response(JSON.stringify(cachedAccounts), {
+    const cachedAccounts = await this.state.storage.get<string>('accounts');
+    return new Response(cachedAccounts, {
       status: 200,
       statusText: 'OK',
     });
