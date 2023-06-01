@@ -65,7 +65,7 @@ const run = async (env: Env) => {
     apiKey: env.DD_API_KEY,
   });
 
-  const id = env.ACCOUNT_CACHE.idFromName('ACCOUNT_CACHE');
+  const id = env.ACCOUNT_CACHE.idFromString('3c6064469a224e10a88c9229cebf5073');
   const stub = env.ACCOUNT_CACHE.get(id);
   const resp = await stub.fetch('/');
   const data = (await resp.json()) as any;
