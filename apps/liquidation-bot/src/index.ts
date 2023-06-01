@@ -71,7 +71,7 @@ const run = async (env: Env) => {
   //const resp = await stub.fetch('/');
   //const data = (await resp.json()) as any;
   //const addrs = data['default'].map((a) => a.id);
-  const addrs = accounts;
+  const addrs = accounts.map((a) => a.id);
 
   const provider = getProviderFromNetwork(Network[env.NETWORK], true);
   const liq = new NotionalV3Liquidator(provider, {
