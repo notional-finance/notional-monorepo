@@ -16,6 +16,7 @@ import * as currencies from './config/currencies.json';
 import * as overrides from './config/overrides.json';
 import { ERC20__factory } from '@notional-finance/contracts';
 import { MetricNames } from './types';
+import * as accounts from './accounts.json';
 
 export interface Env {
   ACCOUNT_CACHE: DurableObjectNamespace;
@@ -65,11 +66,12 @@ const run = async (env: Env) => {
     apiKey: env.DD_API_KEY,
   });
 
-  const id = env.ACCOUNT_CACHE.idFromString('3c6064469a224e10a88c9229cebf5073');
-  const stub = env.ACCOUNT_CACHE.get(id);
-  const resp = await stub.fetch('/');
-  const data = (await resp.json()) as any;
-  const addrs = data['default'].map((a) => a.id);
+  //const id = env.ACCOUNT_CACHE.idFromString('3c6064469a224e10a88c9229cebf5073');
+  //const stub = env.ACCOUNT_CACHE.get(id);
+  //const resp = await stub.fetch('/');
+  //const data = (await resp.json()) as any;
+  //const addrs = data['default'].map((a) => a.id);
+  const addrs = accounts;
 
   const provider = getProviderFromNetwork(Network[env.NETWORK], true);
   const liq = new NotionalV3Liquidator(provider, {
