@@ -13,14 +13,29 @@ import * as accounts from './accounts.json';
  */
 
 export interface Env {
-  // Example binding to KV. Learn more at https://developers.cloudflare.com/workers/runtime-apis/kv/
-  // MY_KV_NAMESPACE: KVNamespace;
-  //
-  // Example binding to Durable Object. Learn more at https://developers.cloudflare.com/workers/runtime-apis/durable-objects/
-  // MY_DURABLE_OBJECT: DurableObjectNamespace;
-  //
-  // Example binding to R2. Learn more at https://developers.cloudflare.com/workers/runtime-apis/r2/
-  // MY_BUCKET: R2Bucket;
+  ACCOUNT_CACHE: DurableObjectNamespace;
+}
+
+export class AccountCache {
+  state: DurableObjectState;
+
+  constructor(state: DurableObjectState) {
+    this.state = state;
+  }
+
+  async fetch(request: Request) {
+    const url = new URL(request.url);
+    switch (url.pathname) {
+      case '/refresh':
+        this.state.storage.put('accounts', JSON.stringify(accounts));
+        return new Response('OK', { status: 200, statusText: 'OK' });
+    }
+    const cachedAccounts = await this.state.storage.get('accounts');
+    return new Response(JSON.stringify(cachedAccounts), {
+      status: 200,
+      statusText: 'OK',
+    });
+  }
 }
 
 export default {
@@ -29,11 +44,19 @@ export default {
     env: Env,
     ctx: ExecutionContext
   ): Promise<Response> {
-    return new Response(JSON.stringify(accounts), {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    const id = env.ACCOUNT_CACHE.idFromName('ACCOUNT_CACHE');
+    const stub = env.ACCOUNT_CACHE.get(id);
+
+    return await stub.fetch(request);
+  },
+  async scheduled(
+    controller: ScheduledController,
+    env: Env,
+    ctx: ExecutionContext
+  ): Promise<void> {
+    const id = env.ACCOUNT_CACHE.idFromName('ACCOUNT_CACHE');
+    const stub = env.ACCOUNT_CACHE.get(id);
+
+    await stub.fetch('/refresh');
   },
 };
