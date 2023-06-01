@@ -41,6 +41,22 @@ export interface Env {
   PROFIT_THRESHOLD: string;
 }
 
+export class AccountCache {
+  state: DurableObjectState;
+
+  constructor(state: DurableObjectState) {
+    this.state = state;
+  }
+
+  async fetch(request: Request) {
+    const cachedAccounts = await this.state.storage.get<string>('accounts');
+    return new Response(cachedAccounts, {
+      status: 200,
+      statusText: 'OK',
+    });
+  }
+}
+
 const run = async (env: Env) => {
   initMetricLogger({
     apiKey: env.DD_API_KEY,
