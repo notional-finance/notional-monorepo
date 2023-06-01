@@ -13,8 +13,8 @@ durable_objects.bindings = [
 
 [env.dev]
 name = "accounts-dev"
-bindings = [
-  { name = "ACCOUNT_CACHE", class_name = "AccountCache", script_name = "accounts-dev" }
+durable_objects.bindings = [
+  { name = "ACCOUNT_CACHE", class_name = "AccountCache" }
 ]
 
 [env.beta]
