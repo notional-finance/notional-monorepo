@@ -208,18 +208,35 @@ export function parseBalance(
   state$: Observable<BaseTradeState>
 ) {
   return state$.pipe(
-    map((s) => ({
-      token: s[category.toLowerCase()] as TokenDefinition | undefined,
-      inputAmount: s[`${category.toLowerCase()}InputAmount`] as InputAmount,
-    })),
-    distinctUntilChanged(
-      (p, c) =>
-        p?.token?.id !== c?.token?.id ||
-        p?.inputAmount?.inUnderlying !== c?.inputAmount?.inUnderlying ||
-        p?.inputAmount?.amount !== p?.inputAmount?.amount
-    ),
+    pairwise(),
+    map(([p, s]) => {
+      const prevToken = p[category.toLowerCase()] as
+        | TokenDefinition
+        | undefined;
+      const prevInputAmount = p[
+        `${category.toLowerCase()}InputAmount`
+      ] as InputAmount;
+      const token = s[category.toLowerCase()] as TokenDefinition | undefined;
+      const inputAmount = s[
+        `${category.toLowerCase()}InputAmount`
+      ] as InputAmount;
+      return {
+        hasChanged:
+          prevToken?.id !== token?.id ||
+          prevInputAmount?.inUnderlying !== inputAmount?.inUnderlying ||
+          prevInputAmount?.amount !== inputAmount?.amount,
+        token,
+        inputAmount,
+      };
+    }),
+    filter(({ hasChanged }) => hasChanged),
     map(({ inputAmount, token }) => {
-      if (inputAmount === undefined || token === undefined) return undefined;
+      const key = `${category.toLowerCase()}Balance`;
+
+      if (inputAmount === undefined || token === undefined) {
+        return { [key]: undefined };
+      }
+
       if (inputAmount?.inUnderlying === false && category === 'Deposit')
         throw Error('Deposits must be in underlying');
 
@@ -229,23 +246,22 @@ export function parseBalance(
             token.network,
             token.currencyId
           );
-          return TokenBalance.fromFloat(inputAmount.amount, underlying);
+          return {
+            [key]: TokenBalance.fromFloat(inputAmount.amount, underlying),
+          };
         } else {
-          return TokenBalance.fromFloat(inputAmount.amount, token);
+          return { [key]: TokenBalance.fromFloat(inputAmount.amount, token) };
         }
       } catch (e) {
         console.error(e);
-        return undefined;
+        return { [key]: undefined };
       }
-    }),
-    map((b) => {
-      return { [`${category.toLowerCase()}Balance`]: b } as {
-        depositBalance: TokenBalance | undefined;
-        debtBalance: TokenBalance | undefined;
-        collateralBalance: TokenBalance | undefined;
-      };
     })
-  );
+  ) as Observable<{
+    depositBalance: TokenBalance | undefined;
+    collateralBalance: TokenBalance | undefined;
+    debtBalance: TokenBalance | undefined;
+  }>;
 }
 
 export function parseRiskFactorLimit(

@@ -114,7 +114,6 @@ describe.withForkAndRegistry(
 
     describe('Test Sequences', () => {
       const testSequence = getSequencer(updateState, baseTradeUpdates);
-      // const testSequence = getSequencer(updateState, baseTradeUpdates);
       baseTradeUpdates.subscribe((s) => {
         console.log('IN STATE EMIT', s);
         updateState(s);
@@ -145,14 +144,36 @@ describe.withForkAndRegistry(
               expect(s.deposit?.symbol).toBe('USDC');
             },
           ],
-          // [
-          //   { depositInputAmount: { amount: '5', inUnderlying: true } },
-          //   (s) => {
-          //     expect(s.depositBalance?.toDisplayStringWithSymbol(1)).toEqual(
-          //       '5.0 USDC'
-          //     );
-          //   },
-          // ],
+          [
+            { depositInputAmount: { amount: '5', inUnderlying: true } },
+            (s) => {
+              expect(s.depositBalance?.toDisplayStringWithSymbol(1)).toEqual(
+                '5.0 USDC'
+              );
+            },
+          ],
+          [
+            { depositInputAmount: { amount: '10', inUnderlying: true } },
+            (s) => {
+              expect(s.depositBalance?.toDisplayStringWithSymbol(1)).toEqual(
+                '10.0 USDC'
+              );
+            },
+          ],
+          [
+            { depositInputAmount: undefined },
+            (s) => {
+              expect(s.depositBalance).toBeUndefined();
+            },
+          ],
+          [
+            { depositInputAmount: { amount: '10', inUnderlying: true } },
+            (s) => {
+              expect(s.depositBalance?.toDisplayStringWithSymbol(1)).toEqual(
+                '10.0 USDC'
+              );
+            },
+          ],
         ]);
       });
 
