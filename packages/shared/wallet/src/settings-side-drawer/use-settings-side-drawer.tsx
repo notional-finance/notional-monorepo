@@ -6,7 +6,7 @@ import { Privacy } from './privacy/privacy';
 import { Language, LanguageButton } from './language/language';
 import {
   NetworkSelector,
-  NetworkSelectorButton,
+  NetworkSettingsButton,
 } from './network-selector/network-selector';
 import {
   EnabledCurrencies,
@@ -74,7 +74,7 @@ export const useSettingsSideDrawer = () => {
         />
       ),
       ViewComponent: NetworkSelector,
-      CustomButton: NetworkSelectorButton,
+      CustomButton: NetworkSettingsButton,
       buttonText: '',
     },
     {

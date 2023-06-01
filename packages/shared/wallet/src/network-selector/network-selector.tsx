@@ -17,22 +17,66 @@ import {
 } from '@mui/material';
 import { useNotionalContext } from '@notional-finance/notionable-hooks';
 import { Network } from '@notional-finance/util';
-import { useNetworkSelector } from './use-network-selector';
-
-/* eslint-disable-next-line */
-export interface NetworkSelectorProps {
-  networkData?: Chain;
-}
+import { useNetworkSelector } from '../hooks/use-network-selector';
 
 export interface NetworkButtonProps {
   active?: boolean;
   theme: NotionalTheme;
 }
+export interface NetworkSelectorButtonProps {
+  data: Chain;
+  handleClick: (data: Chain) => void;
+}
+
+export const NetworkSelectorButton = ({
+  data,
+  handleClick,
+}: NetworkSelectorButtonProps) => {
+  const theme = useTheme();
+  const { labels } = useNetworkSelector();
+  const label = data.label ? labels[data.label] : '';
+  return (
+    <NetworkButton
+      key={data.id}
+      onClick={data.id === chains[0].id ? () => handleClick(data) : undefined}
+      active={data?.id === chains[0].id}
+      theme={theme}
+    >
+      <ListItemIcon sx={{ marginRight: '0px' }}>
+        <TokenIcon
+          symbol={data.id === chains[0].id ? 'arb' : 'eth'}
+          size="large"
+        />
+      </ListItemIcon>
+      <Box sx={{ flex: 1, alignItems: 'center', display: 'flex' }}>
+        <FormattedMessage {...label} />
+      </Box>
+      <Box
+        sx={{
+          justifyContent: 'flex-end',
+          display: 'flex',
+          alignItems: 'center',
+        }}
+      >
+        {chains[0].id === data.id ? (
+          <CheckCircleIcon sx={{ fill: theme.palette.primary.main }} />
+        ) : (
+          <CircleIcon
+            sx={{
+              stroke: theme.palette.borders.accentPaper,
+              width: theme.spacing(2.5),
+              height: theme.spacing(2.5),
+            }}
+          />
+        )}
+      </Box>
+    </NetworkButton>
+  );
+};
 
 export function NetworkSelector() {
   const theme = useTheme();
-  const { labels } = useNetworkSelector();
-  const { updateNotional, globalState } = useNotionalContext();
+  const { updateNotional } = useNotionalContext();
   const [anchorEl, setAnchorEl] = useState<any>(null);
   const open = Boolean(anchorEl);
 
@@ -42,16 +86,8 @@ export function NetworkSelector() {
 
   const handleClose = async (chain?: Chain) => {
     if (chain) {
-      const currentChain =
-        chain.label === 'Arbitrum One' ? Network.ArbitrumOne : Network.Mainnet;
-      updateNotional({
-        wallet: {
-          selectedChain: currentChain,
-          selectedAddress: globalState.wallet?.selectedAddress || '',
-          isReadOnlyAddress: globalState.wallet?.isReadOnlyAddress,
-          hasSelectedChainError: false,
-        },
-      });
+      const currentChain = chain.label as Network;
+      updateNotional({ selectedNetwork: currentChain });
     }
     setAnchorEl(null);
   };
@@ -102,50 +138,11 @@ export function NetworkSelector() {
           <Title>
             <FormattedMessage defaultMessage={'NETWORK'} />
           </Title>
-          {chains.map((data: Chain) => {
-            const label = data.label ? labels[data.label] : '';
-            return (
-              <NetworkButton
-                key={data.id}
-                onClick={
-                  data.id === chains[0].id ? () => handleClose(data) : undefined
-                }
-                active={data?.id === chains[0].id}
-                theme={theme}
-              >
-                <ListItemIcon sx={{ marginRight: '0px' }}>
-                  <TokenIcon
-                    symbol={data.id === chains[0].id ? 'arb' : 'eth'}
-                    size="large"
-                  />
-                </ListItemIcon>
-                <Box sx={{ flex: 1, alignItems: 'center', display: 'flex' }}>
-                  <FormattedMessage {...label} />
-                </Box>
-                <Box
-                  sx={{
-                    justifyContent: 'flex-end',
-                    display: 'flex',
-                    alignItems: 'center',
-                  }}
-                >
-                  {chains[0].id === data.id ? (
-                    <CheckCircleIcon
-                      sx={{ fill: theme.palette.primary.main }}
-                    />
-                  ) : (
-                    <CircleIcon
-                      sx={{
-                        stroke: theme.palette.borders.accentPaper,
-                        width: theme.spacing(2.5),
-                        height: theme.spacing(2.5),
-                      }}
-                    />
-                  )}
-                </Box>
-              </NetworkButton>
-            );
-          })}
+          <Box sx={{ width: '380px', margin: 'auto' }}>
+            {chains.map((data: Chain) => (
+              <NetworkSelectorButton data={data} handleClick={handleClose} />
+            ))}
+          </Box>
         </NetworkInnerWrapper>
       </Popover>
     </NetworkSelectorWrapper>
@@ -221,7 +218,7 @@ const NetworkButton = styled(Box, {
   shouldForwardProp: (prop: string) => prop !== 'active',
 })(
   ({ theme, active }: NetworkButtonProps) => `
-  width: 380px;
+  width: 100%;
   padding: 15px 10px;
   border-radius: ${theme.shape.borderRadius()};
   border: 1px solid ${

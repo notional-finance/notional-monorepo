@@ -4,20 +4,18 @@ import {
   chainEntities,
   switchNetwork,
 } from '@notional-finance/notionable';
-import { CHAIN_NAMES } from '@notional-finance/shared-config';
+import { Network } from '@notional-finance/util';
 import { defineMessages } from 'react-intl';
 
 export function useNetworkSelector() {
   const { connected, chain } = useOnboard();
   const { getConnectedChain } = useNotional();
   const labels = defineMessages({
-    [CHAIN_NAMES.ARBITRUM]: {
+    [Network.ArbitrumOne]: {
       defaultMessage: 'Arbitrum',
     },
-    [CHAIN_NAMES.GOERLI]: {
-      defaultMessage: 'Goerli',
-    },
-    [CHAIN_NAMES.MAINNET]: {
+
+    [Network.Mainnet]: {
       defaultMessage: 'Mainnet',
     },
   });
