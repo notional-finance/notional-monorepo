@@ -67,7 +67,7 @@ const run = async (env: Env) => {
 
   const id = env.ACCOUNT_CACHE.idFromName('ACCOUNT_CACHE');
   const stub = env.ACCOUNT_CACHE.get(id);
-  const resp = await stub.fetch('');
+  const resp = await stub.fetch('/');
   const data = (await resp.json()) as any;
   const addrs = data['default'].map((a) => a.id);
 
