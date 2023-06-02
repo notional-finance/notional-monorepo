@@ -2,7 +2,10 @@ import { defineMessage, FormattedMessage, MessageDescriptor } from 'react-intl';
 import { NotionalTheme } from '@notional-finance/styles';
 import { useTheme, styled } from '@mui/material';
 import { Button } from '@notional-finance/mui';
-import { useAccount, useOnboard } from '@notional-finance/notionable-hooks';
+import {
+  useAccount,
+  useNotionalContext,
+} from '@notional-finance/notionable-hooks';
 import { SETTINGS_SIDE_DRAWERS } from '@notional-finance/shared-config';
 import {
   useSideDrawerState,
@@ -54,7 +57,9 @@ export function TradeActionButton({
 }: TradeActionButtonProps) {
   const theme = useTheme();
   const { accountConnected } = useAccount();
-  const { connected } = useOnboard();
+  const {
+    globalState: { isAccountReady },
+  } = useNotionalContext();
   const { sideDrawerOpen } = useSideDrawerState();
   const { setWalletSideDrawer, clearWalletSideDrawer } = useSideDrawerManager();
   const { pathname } = useLocation();
@@ -92,8 +97,8 @@ export function TradeActionButton({
       width={width}
       margin={margin}
       variant={buttonVariant || 'contained'}
-      disabled={!canSubmit && connected}
-      canSubmit={canSubmit || !connected}
+      disabled={!canSubmit && isAccountReady}
+      canSubmit={canSubmit || !isAccountReady}
       onClick={accountConnected ? _onSubmit : () => handleConnectWallet()}
     >
       <FormattedMessage
