@@ -4,7 +4,23 @@ import {
   RiskFactorKeys,
   RiskFactorLimit,
 } from '@notional-finance/risk-engine';
+import {
+  calculateCollateral,
+  calculateDebtCollateralGivenDepositRiskLimit,
+  CalculationFn,
+  CalculationFnParams,
+} from '@notional-finance/transaction';
 import { TransactionFunction } from '../types';
+
+export interface TransactionConfig {
+  calculationFn: CalculationFn;
+  requiredArgs: CalculationFnParams[];
+  tokenFilters?: {
+    depositFilter?: (t: TokenDefinition) => boolean;
+    collateralFilter?: (t: TokenDefinition) => boolean;
+    debtFilter?: (t: TokenDefinition) => boolean;
+  };
+}
 
 /** Input amount directly from the frontend */
 export interface InputAmount {
@@ -106,4 +122,48 @@ export const initialBaseTradeState: BaseTradeState = {
   hasError: false,
   canSubmit: false,
   confirm: false,
+};
+
+export const TradeConfiguration: Record<string, TransactionConfig> = {
+  LendVariable: {
+    calculationFn: calculateCollateral,
+    requiredArgs: ['collateral', 'depositBalance'],
+    tokenFilters: {
+      collateralFilter: (t: TokenDefinition) => t.tokenType === 'PrimeCash',
+      debtFilter: () => false,
+    },
+  },
+  LendFixed: {
+    calculationFn: calculateCollateral,
+    requiredArgs: ['collateral', 'depositBalance', 'collateralPool'],
+    tokenFilters: {
+      collateralFilter: (t: TokenDefinition) => t.tokenType === 'fCash',
+      debtFilter: () => false,
+    },
+  },
+  VariableToFixedSwap: {
+    calculationFn: calculateDebtCollateralGivenDepositRiskLimit,
+    requiredArgs: [
+      'collateral',
+      'debt',
+      'collateralPool',
+      'debtPool',
+      'depositBalance',
+      'balances',
+      'riskFactorLimit',
+    ],
+    tokenFilters: {
+      // TODO: need to filter local currency and account specific
+      collateralFilter: (t: TokenDefinition) => t.tokenType === 'fCash',
+      debtFilter: (t: TokenDefinition) => t.tokenType === 'PrimeDebt',
+    },
+  },
+  MintNToken: {
+    calculationFn: calculateCollateral,
+    requiredArgs: ['collateral', 'depositBalance', 'collateralPool'],
+    tokenFilters: {
+      collateralFilter: (t: TokenDefinition) => t.tokenType === 'nToken',
+      debtFilter: () => false,
+    },
+  },
 };

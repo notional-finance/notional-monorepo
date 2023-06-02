@@ -1,11 +1,10 @@
-import { TokenDefinition } from '@notional-finance/core-entities';
-import {
-  CalculationFn,
-  CalculationFnParams,
-} from '@notional-finance/transaction';
 import { merge, Observable } from 'rxjs';
 import { GlobalState } from '../global/global-state';
-import { BaseTradeState, initialBaseTradeState } from './base-trade-store';
+import {
+  BaseTradeState,
+  initialBaseTradeState,
+  TransactionConfig,
+} from './base-trade-store';
 import {
   resetOnNetworkChange,
   selectedAccount,
@@ -20,20 +19,10 @@ import {
   postAccountRisk,
 } from './logic';
 
-export interface TransactionConfig<F extends CalculationFn> {
-  calculationFn: F;
-  requiredArgs: CalculationFnParams[];
-}
-
-export function loadBaseTradeManager<F extends CalculationFn>(
+export function loadBaseTradeManager(
   state$: Observable<BaseTradeState>,
   global$: Observable<GlobalState>,
-  transactionConfig: TransactionConfig<F>,
-  tokenFilters?: {
-    depositFilter?: (t: TokenDefinition) => boolean;
-    collateralFilter?: (t: TokenDefinition) => boolean;
-    debtFilter?: (t: TokenDefinition) => boolean;
-  }
+  config: TransactionConfig
 ): Observable<Partial<BaseTradeState>> {
   // Shared Observables
   const network$ = selectedNetwork(global$);
@@ -44,7 +33,7 @@ export function loadBaseTradeManager<F extends CalculationFn>(
   // Emitted State Changes
   return merge(
     resetOnNetworkChange(global$, initialBaseTradeState),
-    initState(state$, network$, tokenFilters),
+    initState(state$, network$, config.tokenFilters),
     priorAccountRisk(account$),
     selectedToken('Deposit', state$, network$),
     parseBalance('Deposit', state$),
@@ -53,7 +42,7 @@ export function loadBaseTradeManager<F extends CalculationFn>(
     selectedToken('Debt', state$, network$),
     parseBalance('Debt', state$),
     parseRiskFactorLimit(state$, network$),
-    calculate(state$, debtPool$, collateralPool$, account$, transactionConfig),
+    calculate(state$, debtPool$, collateralPool$, account$, config),
     postAccountRisk(state$, account$)
     // buildTransactionCall(state$)
   );

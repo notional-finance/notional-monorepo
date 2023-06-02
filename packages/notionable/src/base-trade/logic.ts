@@ -10,10 +10,7 @@ import {
   RiskFactorKeys,
   RiskFactorLimit,
 } from '@notional-finance/risk-engine';
-import {
-  CalculationFn,
-  CalculationFnParams,
-} from '@notional-finance/transaction';
+import { CalculationFnParams } from '@notional-finance/transaction';
 import { filterEmpty } from '@notional-finance/util';
 import {
   combineLatest,
@@ -29,8 +26,11 @@ import {
 } from 'rxjs';
 import { GlobalState } from '../global/global-state';
 import { isHashable } from '../utils';
-import { TransactionConfig } from './base-trade-manager';
-import { BaseTradeState, InputAmount } from './base-trade-store';
+import {
+  BaseTradeState,
+  InputAmount,
+  TransactionConfig,
+} from './base-trade-store';
 
 type Category = 'Collateral' | 'Debt' | 'Deposit';
 
@@ -101,6 +101,7 @@ export function initState(
       const listedTokens =
         Registry.getTokenRegistry().getAllTokens(selectedNetwork);
 
+      // TODO: add account into here to do specific token filters and state
       const availableCollateralTokens = listedTokens
         .filter(
           (t) =>
@@ -357,12 +358,12 @@ export function parseRiskFactorLimit(
   );
 }
 
-export function calculate<F extends CalculationFn>(
+export function calculate(
   state$: Observable<BaseTradeState>,
   debtPool$: ReturnType<typeof selectedPool>,
   collateralPool$: ReturnType<typeof selectedPool>,
   account$: Observable<AccountDefinition | null>,
-  { calculationFn, requiredArgs }: TransactionConfig<F>
+  { calculationFn, requiredArgs }: TransactionConfig
 ) {
   return combineLatest([state$, debtPool$, collateralPool$, account$]).pipe(
     pairwise(),

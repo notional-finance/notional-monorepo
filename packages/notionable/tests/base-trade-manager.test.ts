@@ -1,8 +1,4 @@
-import {
-  AccountFetchMode,
-  Registry,
-  TokenDefinition,
-} from '@notional-finance/core-entities';
+import { AccountFetchMode, Registry } from '@notional-finance/core-entities';
 import {
   BaseTradeState,
   GlobalState,
@@ -10,9 +6,9 @@ import {
   initialGlobalState,
   loadBaseTradeManager,
   makeStore,
+  TradeConfiguration,
 } from '../src';
 import { Network } from '@notional-finance/util';
-import { calculateCollateral } from '@notional-finance/transaction';
 import { getSequencer } from './test-utils.spec';
 import { withLatestFrom } from 'rxjs';
 
@@ -32,16 +28,7 @@ describe.withForkAndRegistry(
     const baseTradeUpdates = loadBaseTradeManager(
       state$,
       global$,
-      {
-        calculationFn: calculateCollateral,
-        requiredArgs: ['collateral', 'depositBalance', 'collateralPool'],
-      },
-      {
-        debtFilter: (t: TokenDefinition) => t.currencyId === 3,
-        collateralFilter: (t: TokenDefinition) => t.currencyId === 3,
-        depositFilter: (t: TokenDefinition) =>
-          t.currencyId === 3 && t.tokenType === 'Underlying',
-      }
+      TradeConfiguration['MintNToken']
     );
 
     it('it sets initial tokens on ready', (done) => {
