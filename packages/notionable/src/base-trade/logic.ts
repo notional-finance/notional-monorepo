@@ -23,11 +23,13 @@ import {
   Observable,
   of,
   pairwise,
+  tap,
   startWith,
   switchMap,
   withLatestFrom,
 } from 'rxjs';
 import { GlobalState } from '../global/global-state';
+import { isHashable } from '../utils';
 import { TransactionConfig } from './base-trade-manager';
 import { BaseTradeState, InputAmount } from './base-trade-store';
 
@@ -136,6 +138,7 @@ export function selectedToken(
   selectedNetwork$: ReturnType<typeof selectedNetwork>
 ) {
   return combineLatest([state$, selectedNetwork$]).pipe(
+    // NOTE: distinct until changed does not work with this for some reason
     pairwise(),
     map(([[prevS, prevN], [curS, selectedNetwork]]) => {
       const selectedToken = curS[`selected${category}Token`] as string;
@@ -211,6 +214,7 @@ export function parseBalance(
   state$: Observable<BaseTradeState>
 ) {
   return state$.pipe(
+    // NOTE: distinct until changed does not work with this for some reason
     pairwise(),
     map(([p, s]) => {
       const prevToken = p[category.toLowerCase()] as
@@ -363,34 +367,70 @@ export function calculate<F extends CalculationFn>(
       a,
     })),
     map(({ prevCanSubmit, s, debtPool, collateralPool, a }) => {
-      const inputs = requiredArgs.reduce((args, r) => {
-        switch (r) {
-          case 'collateralPool':
-            return Object.assign(args, { collateralPool });
-          case 'debtPool':
-            return Object.assign(args, { debtPool });
-          case 'balances':
-            return Object.assign(args, { balances: a?.balances });
-          case 'riskFactorLimit':
-          case 'collateral':
-          case 'depositBalance':
-          case 'debtBalance':
-          case 'debt':
-          case 'collateralBalance':
-          case 'depositUnderlying':
-          case 'maxCollateralSlippage':
-          case 'maxDebtSlippage':
-            return Object.assign(args, { [r]: s[r] });
-          default:
-            return args;
-        }
-      }, {} as Record<CalculationFnParams, unknown>);
+      const [inputs, keys] = requiredArgs.reduce(
+        ([inputs, keys], r) => {
+          switch (r) {
+            case 'collateralPool':
+              return [
+                Object.assign(inputs, { collateralPool }),
+                [...keys, collateralPool?.hashKey || ''],
+              ];
+            case 'debtPool':
+              return [
+                Object.assign(inputs, { debtPool }),
+                [...keys, debtPool?.hashKey || ''],
+              ];
+            case 'balances':
+              return [
+                Object.assign(inputs, { balances: a?.balances }),
+                [...keys, ...(a?.balances.map((b) => b.hashKey) || [])],
+              ];
+            case 'collateral':
+            case 'debt':
+            case 'depositUnderlying':
+              return [
+                Object.assign(inputs, { [r]: s[r] }),
+                [...keys, (s[r] as TokenDefinition | undefined)?.id || ''],
+              ];
+            case 'depositBalance':
+            case 'debtBalance':
+            case 'collateralBalance':
+              return [
+                Object.assign(inputs, { [r]: s[r] }),
+                [...keys, (s[r] as TokenBalance | undefined)?.hashKey || ''],
+              ];
+            case 'riskFactorLimit': {
+              const risk = s[r] as RiskFactorLimit<RiskFactorKeys> | undefined;
+              return [
+                Object.assign(inputs, { [r]: risk }),
+                [
+                  ...keys,
+                  `${risk?.riskFactor}:${
+                    isHashable(risk?.limit)
+                      ? risk?.limit.hashKey
+                      : risk?.limit.toString()
+                  }:${risk?.args?.map((t) => t.id).join(':')}`,
+                ],
+              ];
+            }
+            case 'maxCollateralSlippage':
+            case 'maxDebtSlippage':
+              return [
+                Object.assign(inputs, { [r]: s[r] }),
+                [...keys, (s[r] as number | undefined)?.toString() || ''],
+              ];
+            default:
+              return [inputs, keys];
+          }
+        },
+        [{} as Record<CalculationFnParams, unknown>, [] as string[]]
+      );
 
-      // TODO: need to generate a hashkey of the inputs so that we know
-      // when to recalculate...
+      console.log('DUMP STATE', s.depositInputAmount, s.depositBalance);
       return {
         prevCanSubmit,
         inputs,
+        keys: keys.join('|'),
         // Check that all required inputs are satisfied
         canSubmit: requiredArgs.every((r) => inputs[r] !== undefined),
       };
@@ -398,7 +438,7 @@ export function calculate<F extends CalculationFn>(
     filter(
       ({ prevCanSubmit, canSubmit }) =>
         // Don't emit if we still cannot submit
-        !(prevCanSubmit === false && canSubmit === false)
+        prevCanSubmit !== canSubmit
     ),
     map(({ inputs, canSubmit }) => {
       let calculateError: string | undefined;
@@ -418,7 +458,8 @@ export function calculate<F extends CalculationFn>(
       }
 
       return { canSubmit: false, calculateError };
-    })
+    }),
+    tap((e) => console.log('calculate emit', e))
   );
 }
 

@@ -163,20 +163,33 @@ describe.withForkAndRegistry(
               expect(s.depositBalance?.toDisplayStringWithSymbol(1)).toEqual(
                 '10.0 USDC'
               );
+              expect(s.canSubmit).toBeTruthy();
+              expect(s.collateralBalance?.toUnderlying().toFloat()).toBeApprox(
+                s.depositBalance
+              );
+              expect(s.collateralFee?.toFloat()).toBe(0);
             },
           ],
           [
             { depositInputAmount: undefined },
             (s) => {
               expect(s.depositBalance).toBeUndefined();
+              expect(s.canSubmit).toBe(false);
+              expect(s.collateralBalance).toBeUndefined();
+              expect(s.collateralFee).toBeUndefined();
             },
           ],
           [
-            { depositInputAmount: { amount: '10', inUnderlying: true } },
+            { depositInputAmount: { amount: '15', inUnderlying: true } },
             (s) => {
               expect(s.depositBalance?.toDisplayStringWithSymbol(1)).toEqual(
-                '10.0 USDC'
+                '15.0 USDC'
               );
+              expect(s.canSubmit).toBeTruthy();
+              expect(s.collateralBalance?.toUnderlying()).toBeApprox(
+                s.depositBalance
+              );
+              expect(s.collateralFee?.toFloat()).toBe(0);
             },
           ],
         ]);
