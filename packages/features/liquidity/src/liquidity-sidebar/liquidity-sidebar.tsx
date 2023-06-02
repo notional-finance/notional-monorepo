@@ -17,8 +17,8 @@ import { LiquidityContext } from '../liquidity-action';
 export const LiquiditySidebar = () => {
   const {
     state: {
-      availableTokens,
-      currency,
+      availableDepositTokens,
+      selectedDepositToken,
       canSubmit,
       buildTransactionCall,
       confirm,
@@ -64,24 +64,23 @@ export const LiquiditySidebar = () => {
       CustomActionButton={TradeActionButton}
       canSubmit={canSubmit}
     >
-      {availableTokens && currency ? (
+      {availableDepositTokens && selectedDepositToken ? (
         <WalletDepositInput
           ref={currencyInputRef}
           inputRef={currencyInputRef}
-          availableTokens={availableTokens}
-          selectedToken={currency}
+          availableTokens={availableDepositTokens.map((t) => t.symbol)}
+          selectedToken={selectedDepositToken}
           onChange={({
             selectedToken: newSelectedToken,
             inputAmount,
             hasError,
           }) => {
             // Will update the route and the parent component will update the store
-            if (newSelectedToken !== currency)
+            if (newSelectedToken !== selectedDepositToken)
               history.push(`/provide/${newSelectedToken}`);
 
             updateState({
-              inputAmount: inputAmount?.toExactString(),
-              hasError,
+              depositBalance: !hasError ? inputAmount : undefined,
             });
           }}
           inputLabel={defineMessage({

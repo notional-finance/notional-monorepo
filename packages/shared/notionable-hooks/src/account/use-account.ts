@@ -72,12 +72,12 @@ export function useAccountWithdrawableTokens() {
 
 export function useAccountDefinition() {
   const {
-    globalState: { selectedNetwork, selectedAccount },
+    globalState: { selectedNetwork, selectedAccount, isAccountReady },
   } = useNotionalContext();
   const registry = Registry.getAccountRegistry();
 
   const account$ =
-    selectedNetwork && selectedAccount
+    selectedNetwork && selectedAccount && isAccountReady
       ? registry.subscribeAccount(selectedNetwork, selectedAccount)
       : undefined;
   const account = useObservableState(account$ || EMPTY) || undefined;
@@ -95,7 +95,7 @@ export function useAccountReady() {
   return isAccountReady;
 }
 
-export function useBalance(selectedToken: string) {
+export function useBalance(selectedToken?: string) {
   const { account } = useAccountDefinition();
   return account?.balances.find((t) => t.token.symbol === selectedToken);
 }
@@ -103,10 +103,13 @@ export function useBalance(selectedToken: string) {
 export function usePrimeCashBalance(selectedToken: string | undefined | null) {
   const selectedNetwork = useSelectedNetwork();
   const tokens = Registry.getTokenRegistry();
-  const token = selectedToken
-    ? tokens.getTokenBySymbol(selectedNetwork, selectedToken)
+  const token =
+    selectedToken && selectedNetwork
+      ? tokens.getTokenBySymbol(selectedNetwork, selectedToken)
+      : undefined;
+  const primeCash = selectedNetwork
+    ? tokens.getPrimeCash(selectedNetwork, token?.currencyId)
     : undefined;
-  const primeCash = tokens.getPrimeCash(selectedNetwork, token?.currencyId);
 
-  return useBalance(primeCash.symbol);
+  return useBalance(primeCash?.symbol);
 }

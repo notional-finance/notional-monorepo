@@ -59,7 +59,6 @@ export function useSelectedNetwork() {
   const {
     globalState: { selectedNetwork, isNetworkReady },
   } = useNotionalContext();
-  if (!selectedNetwork || !isNetworkReady) throw Error('No network selected');
 
-  return selectedNetwork;
+  return isNetworkReady ? selectedNetwork : undefined;
 }

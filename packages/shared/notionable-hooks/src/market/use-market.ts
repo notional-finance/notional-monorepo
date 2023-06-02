@@ -143,15 +143,16 @@ export const useMaturityData = (
 
 export const useFCashMarket = (currencyId?: number) => {
   const selectedNetwork = useSelectedNetwork();
-  const nToken = Registry.getTokenRegistry().getNToken(
-    selectedNetwork,
-    currencyId
-  );
+  const nToken = selectedNetwork
+    ? Registry.getTokenRegistry().getNToken(selectedNetwork, currencyId)
+    : undefined;
   const fCashMarket$ =
-    Registry.getExchangeRegistry().subscribePoolInstance<fCashMarket>(
-      selectedNetwork,
-      nToken.address
-    );
+    selectedNetwork && nToken
+      ? Registry.getExchangeRegistry().subscribePoolInstance<fCashMarket>(
+          selectedNetwork,
+          nToken.address
+        )
+      : undefined;
 
   return useObservableState<fCashMarket>(fCashMarket$ || EMPTY);
 };

@@ -29,7 +29,7 @@ export function useWalletDeposit(selectedToken: string) {
     maxBalance,
     maxBalanceString,
     errorMsg,
-    decimalPlaces: token.decimals,
+    decimalPlaces: token?.decimals || 8,
     setInputString,
   };
 }

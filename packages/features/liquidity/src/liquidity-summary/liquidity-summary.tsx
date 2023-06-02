@@ -17,8 +17,12 @@ import { LiquidityContext } from '../liquidity-action';
 export const LiquiditySummary = () => {
   const theme = useTheme();
   const {
-    state: { nTokenSymbol, isReady, totalYield, blendedYield, incentiveYield },
+    state: { collateral, isReady },
   } = useContext(LiquidityContext);
+
+  const totalYield = 0;
+  const blendedYield = 0;
+  const incentiveYield = 0;
 
   return (
     <>
@@ -29,12 +33,12 @@ export const LiquiditySummary = () => {
           <>
             <Box sx={{ marginLeft: theme.spacing(2) }}>
               <TradeActionHeader
-                token={nTokenSymbol || ''}
+                token={collateral?.symbol || ''}
                 actionText={<FormattedMessage defaultMessage={'Mint'} />}
               />
 
               <TradeActionTitle
-                value={totalYield}
+                value={0}
                 valueSuffix="%"
                 title={<FormattedMessage defaultMessage="Total APY" />}
               />
@@ -88,7 +92,7 @@ export const LiquiditySummary = () => {
       {/* @matthew-garrett can we put this entire thing inside the isReady container? */}
       <MobileTradeActionSummary
         tradeAction={NOTIONAL_CATEGORIES.PROVIDE_LIQUIDITY}
-        selectedToken={nTokenSymbol || ''}
+        selectedToken={collateral?.symbol || ''}
         dataPointOne={blendedYield}
         dataPointOneSuffix="% APY"
         dataPointTwo={incentiveYield}

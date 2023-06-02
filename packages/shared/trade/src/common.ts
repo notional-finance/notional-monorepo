@@ -3,6 +3,8 @@ import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 
 export function useInputAmount(inputString: string, selectedToken: string) {
   const selectedNetwork = useSelectedNetwork();
+  if (!selectedNetwork) return { inputAmount: undefined, token: undefined };
+
   const tokens = Registry.getTokenRegistry();
   const token = tokens.getTokenBySymbol(selectedNetwork, selectedToken);
 

@@ -55,10 +55,13 @@ const AllRoutes = () => {
             component={BorrowFeatureShell}
           />
           <AppLayoutRoute path="/borrow" component={BorrowCardView} />
-          <AppLayoutRoute path="/lend/:underlying" component={LendFeatureShell} />
+          <AppLayoutRoute
+            path="/lend/:underlying"
+            component={LendFeatureShell}
+          />
           <AppLayoutRoute path="/lend" component={LendCardView} />
           <AppLayoutRoute
-            path="/provide/:underlying"
+            path="/provide/:selectedDepositToken"
             routeKey={routeKey}
             component={LiquidityCurrencyView}
           />
@@ -103,7 +106,7 @@ export const App = () => {
   const { pendingChainId, initializeNotional } = useNotional();
   const initApplication = useCallback(async () => {
     try {
-      await initializeNetwork({ container: '#onboard' });
+      await initializeNetwork();
     } catch (error) {
       reportError({
         name: 'Unable to Init Onboard',
