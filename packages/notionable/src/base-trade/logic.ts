@@ -86,22 +86,26 @@ export function selectedAccount(global$: Observable<GlobalState>) {
 
 export function initState(
   state$: Observable<BaseTradeState>,
-  selectedNetwork$: ReturnType<typeof selectedNetwork>,
-  tokenFilters?: {
-    depositFilter?: (t: TokenDefinition) => boolean;
-    collateralFilter?: (t: TokenDefinition) => boolean;
-    debtFilter?: (t: TokenDefinition) => boolean;
-  }
+  selectedNetwork$: ReturnType<typeof selectedNetwork>
 ) {
   return combineLatest([state$, selectedNetwork$]).pipe(
-    // TODO: can add a switchMap here that emits whenever the token registry updates on
-    // last timestamp so that we can get long running token updates...
     filter(([{ isReady }, selectedNetwork]) => !isReady && !!selectedNetwork),
-    map(([_, selectedNetwork]) => {
+    map(() => ({ isReady: true }))
+  );
+}
+
+export function availableTokens(
+  state$: Observable<BaseTradeState>,
+  selectedNetwork$: ReturnType<typeof selectedNetwork>,
+  account$: ReturnType<typeof selectedAccount>,
+  { collateralFilter, depositFilter, debtFilter }: TransactionConfig
+) {
+  return combineLatest([state$, selectedNetwork$, account$]).pipe(
+    filter(([{ isReady }]) => isReady),
+    map(([s, selectedNetwork, account]) => {
       const listedTokens =
         Registry.getTokenRegistry().getAllTokens(selectedNetwork);
 
-      // TODO: add account into here to do specific token filters and state
       const availableCollateralTokens = listedTokens
         .filter(
           (t) =>
@@ -109,26 +113,49 @@ export function initState(
             t.tokenType === 'nToken' ||
             t.tokenType === 'fCash'
         )
-        .filter(tokenFilters?.collateralFilter || (() => true));
+        .filter((t) =>
+          collateralFilter ? collateralFilter(t, account, s) : true
+        );
 
       const availableDebtTokens = listedTokens
         .filter((t) => t.tokenType === 'PrimeDebt' || t.tokenType === 'fCash')
-        .filter(tokenFilters?.debtFilter || (() => true));
+        .filter((t) => (debtFilter ? debtFilter(t, account, s) : true));
 
       const availableDepositTokens = listedTokens
         .filter((t) => t.tokenType === 'Underlying')
-        .filter(
-          // Using this default filter allows the sNOTE UI to work
-          tokenFilters?.depositFilter || ((t) => t.currencyId !== undefined)
-        );
+        .filter((t) => (depositFilter ? depositFilter(t, account, s) : true));
 
-      return {
-        isReady: true,
-        availableCollateralTokens,
-        availableDebtTokens,
-        availableDepositTokens,
-      };
-    })
+      const hasChanged =
+        availableCollateralTokens.map((t) => t.id).join(':') !==
+          s.availableCollateralTokens?.map((t) => t.id).join(':') ||
+        availableDebtTokens.map((t) => t.id).join(':') !==
+          s.availableDebtTokens?.map((t) => t.id).join(':') ||
+        availableDepositTokens.map((t) => t.id).join(':') !==
+          s.availableDepositTokens?.map((t) => t.id).join(':');
+
+      return hasChanged
+        ? {
+            availableCollateralTokens,
+            availableDebtTokens,
+            availableDepositTokens,
+
+            // Set the default values if only one is available
+            selectedDepositToken:
+              availableDepositTokens.length === 1
+                ? availableDepositTokens[0].symbol
+                : s.selectedDepositToken,
+            selectedDebtToken:
+              availableDebtTokens.length === 1
+                ? availableDebtTokens[0].symbol
+                : s.selectedDebtToken,
+            selectedCollateralToken:
+              availableCollateralTokens.length === 1
+                ? availableCollateralTokens[0].symbol
+                : s.selectedCollateralToken,
+          }
+        : undefined;
+    }),
+    filterEmpty()
   );
 }
 
@@ -498,6 +525,13 @@ export function postAccountRisk(
   account$: Observable<AccountDefinition | null>
 ) {
   return combineLatest([account$, state$]).pipe(
+    distinctUntilChanged(
+      ([, p], [, c]) =>
+        p.canSubmit === c.canSubmit &&
+        p.depositBalance?.hashKey === c.depositBalance?.hashKey &&
+        p.collateralBalance?.hashKey === c.collateralBalance?.hashKey &&
+        p.debtBalance?.hashKey === c.debtBalance?.hashKey
+    ),
     map(
       ([
         account,

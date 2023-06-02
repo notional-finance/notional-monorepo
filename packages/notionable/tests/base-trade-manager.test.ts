@@ -104,8 +104,12 @@ describe.withForkAndRegistry(
       });
 
       beforeAll((done) => {
+        let isDone = false;
         state$.subscribe((s) => {
-          if (s.isReady) done();
+          if (s.isReady && !isDone) {
+            isDone = true;
+            done();
+          }
         });
 
         updateGlobal({

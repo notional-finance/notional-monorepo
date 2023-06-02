@@ -17,6 +17,7 @@ import {
   parseRiskFactorLimit,
   calculate,
   postAccountRisk,
+  availableTokens,
 } from './logic';
 
 export function createBaseTradeManager(
@@ -38,7 +39,8 @@ export function createBaseTradeManager(
     // Emitted State Changes
     return merge(
       resetOnNetworkChange(global$, initialBaseTradeState),
-      initState(state$, network$, config.tokenFilters),
+      initState(state$, network$),
+      availableTokens(state$, network$, account$, config),
       priorAccountRisk(account$),
       selectedToken('Deposit', state$, network$),
       parseBalance('Deposit', state$),
