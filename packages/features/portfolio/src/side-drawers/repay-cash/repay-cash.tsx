@@ -39,8 +39,9 @@ export const RepayCash = () => {
         inputRef={inputRef}
         availableTokens={availableTokens}
         selectedToken={selectedToken}
-        onChange={({ selectedToken, inputAmount, hasError }) => {
-          updateRepayCashState({ selectedToken, inputAmount, hasError });
+        onChange={({ selectedToken, hasError }) => {
+          // TODO: need to add input amount
+          updateRepayCashState({ selectedToken, hasError });
         }}
         maxValueOverride={defaultRepaymentAmount}
         inputLabel={messages[sideDrawerKey]['inputLabel']}

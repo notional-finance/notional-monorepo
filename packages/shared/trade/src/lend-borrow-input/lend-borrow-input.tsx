@@ -1,32 +1,38 @@
 import React from 'react';
-import { TokenBalance } from '@notional-finance/core-entities';
+import { LEND_BORROW } from '@notional-finance/shared-config';
 import {
   CurrencyInput,
   CurrencyInputHandle,
   CurrencyInputStyleProps,
   InputLabel,
 } from '@notional-finance/mui';
-import { useEffect } from 'react';
+import { TypedBigNumber } from '@notional-finance/sdk';
+import { INTERNAL_TOKEN_DECIMAL_PLACES } from '@notional-finance/sdk/src/config/constants';
+import { useEffect, useState } from 'react';
 import { FormattedMessage, MessageDescriptor } from 'react-intl';
 import { useLendBorrowInput } from './use-lend-borrow-input';
 import { Box } from '@mui/material';
-import { INTERNAL_TOKEN_DECIMALS } from '@notional-finance/util';
+
+export type CashOrFCash = 'Cash' | 'fCash';
 
 interface LendBorrowChange {
   selectedToken: string | null;
-  inputAmount: TokenBalance | undefined;
+  inputAmount: TypedBigNumber | undefined;
   hasError: boolean;
-  netCashAmount: TokenBalance | undefined;
-  netfCashAmount: TokenBalance | undefined;
-  maxBalance: TokenBalance | undefined;
-  fee: TokenBalance | undefined;
+  netCashAmount: TypedBigNumber | undefined;
+  netfCashAmount: TypedBigNumber | undefined;
+  maxAmount: TypedBigNumber | undefined;
 }
 
 interface LendBorrowInputProps {
   availableTokens: string[];
   selectedToken: string;
+  cashOrfCash: CashOrFCash;
+  lendOrBorrow: LEND_BORROW;
+  isRemoveAsset: boolean;
   selectedMarketKey: string | null;
   onChange: (change: LendBorrowChange) => void;
+  selectedAssetKey?: string;
   errorMsgOverride?: MessageDescriptor | null;
   warningMsg?: React.ReactNode;
   style?: CurrencyInputStyleProps;
@@ -42,8 +48,12 @@ export const LendBorrowInput = React.forwardRef<
     {
       availableTokens,
       selectedToken,
+      cashOrfCash,
+      lendOrBorrow,
+      isRemoveAsset,
       selectedMarketKey,
       onChange,
+      selectedAssetKey,
       errorMsgOverride,
       warningMsg,
       style,
@@ -52,16 +62,23 @@ export const LendBorrowInput = React.forwardRef<
     },
     ref
   ) => {
+    const [inputString, setInputString] = useState<string>('');
     const {
       inputAmount,
       errorMsg,
       netCashAmount,
       netfCashAmount,
-      maxBalance,
-      maxBalanceString,
-      fee,
-      setInputString,
-    } = useLendBorrowInput(selectedToken, selectedMarketKey);
+      maxAmount,
+      maxAmountString,
+    } = useLendBorrowInput(
+      selectedToken,
+      cashOrfCash,
+      lendOrBorrow,
+      isRemoveAsset,
+      selectedMarketKey,
+      inputString,
+      selectedAssetKey
+    );
     const error = errorMsgOverride === undefined ? errorMsg : errorMsgOverride;
 
     // Updates parent using typed big numbers
@@ -72,18 +89,16 @@ export const LendBorrowInput = React.forwardRef<
         hasError: !!error,
         netCashAmount,
         netfCashAmount,
-        maxBalance,
-        fee,
+        maxAmount,
       });
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [
       inputAmount?.hashKey,
       selectedToken,
       error,
-      maxBalance?.hashKey,
+      maxAmount?.hashKey,
       netCashAmount?.hashKey,
       netfCashAmount?.hashKey,
-      fee?.hashKey,
     ]);
 
     return (
@@ -92,8 +107,8 @@ export const LendBorrowInput = React.forwardRef<
         <CurrencyInput
           ref={ref}
           placeholder="0.00000000"
-          decimals={INTERNAL_TOKEN_DECIMALS}
-          maxValue={maxBalanceString}
+          decimals={INTERNAL_TOKEN_DECIMAL_PLACES}
+          maxValue={maxAmountString}
           onInputChange={(input) => setInputString(input)}
           errorMsg={error && <FormattedMessage {...error} />}
           warningMsg={warningMsg}
@@ -108,8 +123,7 @@ export const LendBorrowInput = React.forwardRef<
               hasError: false,
               netCashAmount: undefined,
               netfCashAmount: undefined,
-              maxBalance,
-              fee,
+              maxAmount,
             });
           }}
           style={style}

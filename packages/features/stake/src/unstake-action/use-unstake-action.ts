@@ -7,7 +7,7 @@ export const useUnstakeAction = () => {
   const accountCoolDown = useObservableState(accountCoolDown$);
   const sNoteAmount = useObservableState(sNoteAmount$);
   const insufficientBalance = true;
-  const maxSNoteAmount = undefined;
+  const maxSNoteAmount = sNoteAmount?.copy(0);
   // const { insufficientBalance, maxBalance: maxSNoteAmount } =
   //   useWalletBalanceInputCheck(sNoteAmount);
 

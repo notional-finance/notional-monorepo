@@ -24,8 +24,7 @@ export function useLend() {
     selectedToken,
     inputAmountUnderlying?.neg()
   );
-  // TODO: fix this...
-  const enabled = true;
+  const enabled = false;
 
   const tradedRate =
     inputAmountUnderlying?.isPositive() && fCashAmount

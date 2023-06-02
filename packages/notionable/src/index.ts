@@ -19,9 +19,6 @@ export * from './network/network-manager';
 export * from './notional/notional-manager';
 export * from './notional/notional-store';
 
-// export * from './onboard/onboard-manager';
-// export * from './onboard/onboard-store';
-
 export * from './wallet/wallet-manager';
 export * from './wallet/wallet-store';
 

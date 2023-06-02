@@ -1,6 +1,9 @@
 import { TypedBigNumber } from '@notional-finance/sdk';
 import { useObservableState } from 'observable-hooks';
-import { useCurrencyData } from '@notional-finance/notionable-hooks';
+import {
+  useAccountCashBalance,
+  useCurrencyData,
+} from '@notional-finance/notionable-hooks';
 import { lendState$, initialLendState } from './lend-store';
 
 export const useBalanceInfo = () => {
@@ -11,25 +14,8 @@ export const useBalanceInfo = () => {
     isUnderlying,
     assetSymbol,
   } = useCurrencyData(selectedToken);
-
-  return {
-    cashBalanceString: '',
-    usedWalletBalance: selectedToken
-      ? TypedBigNumber.fromBalance(0, selectedToken, true)
-      : undefined,
-    usedAccountBalance: selectedToken
-      ? TypedBigNumber.fromBalance(0, selectedToken, true)
-      : undefined,
-    hasCashBalance: false,
-    fillDefaultCashBalance: false,
-  };
-
-  /*
-  const { tokens } = useWallet();
   const _accountBalance = useAccountCashBalance(selectedToken);
-  const _walletBalance = tokens
-    .get(selectedToken)
-    ?.balance.toInternalPrecision();
+  const _walletBalance = _accountBalance?.copy(0);
 
   const hasAllData =
     selectedToken &&
@@ -89,5 +75,4 @@ export const useBalanceInfo = () => {
       fillDefaultCashBalance: false,
     };
   }
-  */
 };

@@ -1,65 +1,116 @@
+import { LEND_BORROW } from '@notional-finance/shared-config';
 import {
-  useFCashMarket,
-  useWalletBalanceInputCheck,
+  useSelectedMarket,
+  useNotional,
+  useAccount,
+  useCurrencyData,
+  useAccountCashBalance,
 } from '@notional-finance/notionable-hooks';
+import { Asset, AssetType, TypedBigNumber } from '@notional-finance/sdk';
+import { CashOrFCash } from './lend-borrow-input';
 import { tradeErrors } from '../tradeErrors';
-import { useInputAmount } from '../common';
-import { TokenBalance } from '@notional-finance/core-entities';
-import { Market } from '@notional-finance/sdk/system';
-import { useState } from 'react';
+import { MessageDescriptor } from 'react-intl';
 
 export function useLendBorrowInput(
   selectedToken: string,
-  selectedMarketKey: string | null
+  cashOrfCash: CashOrFCash,
+  lendOrBorrow: LEND_BORROW,
+  isRemoveAsset: boolean,
+  selectedMarketKey: string | null,
+  inputString: string,
+  selectedAssetKey?: string
 ) {
-  const [inputString, setInputString] = useState<string>('');
-  const { inputAmount, token } = useInputAmount(inputString, selectedToken);
-  const fCashMarket = useFCashMarket(token.currencyId);
-  const marketIndex = selectedMarketKey
-    ? Market.parseMarketIndex(selectedMarketKey)
-    : undefined;
+  const { notional } = useNotional();
+  const { accountDataCopy, assetSummary } = useAccount();
+  const selectedMarket = useSelectedMarket(selectedMarketKey);
+  const { isUnderlying } = useCurrencyData(selectedToken);
+  const accountCashBalance = useAccountCashBalance(selectedToken);
+  const walletBalance = accountCashBalance?.copy(0);
 
-  // TODO: do we add these together for max balance?
-  // const walletBalance = useBalance(selectedToken);
-  // const accountCashBalance = usePrimeCashBalance(selectedToken);
-  const { maxBalanceString, maxBalance, insufficientBalance } =
-    useWalletBalanceInputCheck(inputAmount);
-
-  let errorMsg = insufficientBalance
-    ? tradeErrors.insufficientBalance
-    : undefined;
-
-  if (inputAmount?.token.tokenType === 'PrimeCash' && !marketIndex) {
-    errorMsg = tradeErrors.selectMaturityToCompleteTrade;
-  }
-
-  const tokenIndexOut =
-    inputAmount?.token.tokenType === 'PrimeCash' ? marketIndex : 0;
+  const inputAmount =
+    inputString && notional
+      ? notional.parseInput(inputString, selectedToken, true)
+      : undefined;
+  let errorMsg: MessageDescriptor | undefined;
+  let netCashAmount: TypedBigNumber | undefined;
+  let netfCashAmount: TypedBigNumber | undefined;
+  let maxAmount: TypedBigNumber | undefined;
 
   // If we have a selected market then we can update the cash and fCash sides
   // of the trade. If not, show the error.
-  let netCashAmount: TokenBalance | undefined;
-  let netfCashAmount: TokenBalance | undefined;
-  let fee: TokenBalance | undefined;
-  if (fCashMarket && inputAmount && !inputAmount.isZero() && tokenIndexOut) {
+  if (selectedMarket && inputAmount) {
     try {
-      const { tokensOut, feesPaid } = fCashMarket.calculateTokenTrade(
-        inputAmount,
-        tokenIndexOut
-      );
-
-      if (tokensOut.isZero()) {
-        errorMsg = tradeErrors.insufficientLiquidity;
-      } else {
-        fee = feesPaid[0];
+      if (cashOrfCash === 'Cash') {
         netCashAmount =
-          tokensOut.token.tokenType === 'PrimeCash' ? tokensOut : inputAmount;
+          lendOrBorrow === LEND_BORROW.LEND
+            ? inputAmount.toUnderlying(true).neg()
+            : inputAmount;
         netfCashAmount =
-          tokensOut.token.tokenType === 'fCash' ? tokensOut : inputAmount;
+          selectedMarket.getfCashAmountGivenCashAmount(netCashAmount);
+      } else {
+        // fCash Input
+        netfCashAmount =
+          lendOrBorrow === LEND_BORROW.BORROW ? inputAmount.neg() : inputAmount;
+        ({ netCashToAccount: netCashAmount } =
+          selectedMarket.getCashAmountGivenfCashAmount(netfCashAmount));
       }
     } catch (e) {
       errorMsg = tradeErrors.insufficientLiquidity;
     }
+  }
+
+  if (isRemoveAsset) {
+    let matchingAsset: Asset | undefined;
+    if (selectedAssetKey) {
+      matchingAsset = assetSummary.get(selectedAssetKey)?.fCash;
+    } else {
+      matchingAsset = accountDataCopy.portfolio.find(
+        (a) =>
+          a.maturity === selectedMarket?.maturity &&
+          a.currencyId === selectedMarket.currencyId &&
+          a.assetType === AssetType.fCash
+      );
+    }
+    const assetMax = matchingAsset?.notional.abs();
+
+    if (cashOrfCash === 'fCash') {
+      // If removing an asset, cannot exceed the max fCash amount. We only allow maxAmount
+      // input on fCash inputs since cash inputs are not precise
+      maxAmount = assetMax;
+    }
+
+    if (assetMax && netfCashAmount && netfCashAmount.abs().gt(assetMax)) {
+      errorMsg = tradeErrors.insufficientBalance;
+    }
+  } else if (lendOrBorrow === LEND_BORROW.LEND) {
+    let maxCashInput: TypedBigNumber | undefined = undefined;
+    if (accountCashBalance && walletBalance) {
+      maxCashInput = walletBalance.add(
+        isUnderlying
+          ? accountCashBalance.toUnderlying(true)
+          : accountCashBalance
+      );
+    } else if (accountCashBalance) {
+      maxCashInput = isUnderlying
+        ? accountCashBalance.toUnderlying(true)
+        : accountCashBalance;
+    } else if (walletBalance) {
+      maxCashInput = walletBalance;
+    }
+
+    if (cashOrfCash === 'Cash') {
+      // We don't allow max fCash input on lending because it will change as market data
+      // changes and time passes.
+      maxAmount = maxCashInput;
+    }
+
+    if (maxAmount && inputAmount && inputAmount.abs().gt(maxAmount)) {
+      errorMsg = tradeErrors.insufficientBalance;
+    }
+  }
+
+  if (!errorMsg && inputAmount && !selectedMarket) {
+    errorMsg = tradeErrors.selectMaturityToCompleteTrade;
   }
 
   return {
@@ -68,9 +119,7 @@ export function useLendBorrowInput(
     errorMsg,
     netCashAmount,
     netfCashAmount,
-    maxBalance,
-    maxBalanceString,
-    fee,
-    setInputString,
+    maxAmount,
+    maxAmountString: maxAmount?.toExactString(),
   };
 }
