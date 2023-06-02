@@ -34,7 +34,7 @@ describe.withForkAndRegistry(
       global$,
       {
         calculationFn: calculateCollateral,
-        requiredArgs: ['depositBalance', 'collateralPool'],
+        requiredArgs: ['collateral', 'depositBalance', 'collateralPool'],
       },
       {
         debtFilter: (t: TokenDefinition) => t.currencyId === 3,
@@ -150,6 +150,11 @@ describe.withForkAndRegistry(
               expect(s.depositBalance?.toDisplayStringWithSymbol(1)).toEqual(
                 '5.0 USDC'
               );
+              expect(s.canSubmit).toBeTruthy();
+              expect(s.collateralBalance?.toUnderlying()).toBeApprox(
+                s.depositBalance
+              );
+              expect(s.collateralFee?.toFloat()).toBe(0);
             },
           ],
           [
@@ -177,16 +182,8 @@ describe.withForkAndRegistry(
         ]);
       });
 
-      it('it sets can submit once all required inputs are available', (done) => {
-        baseTradeUpdates.subscribe((s) => {
-          console.log('in updates', s);
-          if (s.selectedCollateralToken === 'nUSDC') done();
-        });
-
-        updateState({ selectedCollateralToken: 'nUSDC' });
-      });
-
       // it('it calculates account risk when the account is available', () => {});
+      // it('it parses risk factors', () => {});
     });
   }
 );

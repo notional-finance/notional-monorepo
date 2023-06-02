@@ -6,7 +6,7 @@ import {
   RATE_PRECISION,
   doBinarySearch,
 } from '@notional-finance/util';
-import { BigNumber } from 'ethers';
+import { BigNumber, utils } from 'ethers';
 
 export default abstract class BaseLiquidityPool<
   P
@@ -39,6 +39,16 @@ export default abstract class BaseLiquidityPool<
 
   public totalValueLocked(primaryTokenIndex: number) {
     return this.getBalanceArrayOracleValue(this.balances, primaryTokenIndex);
+  }
+
+  get hashKey() {
+    return utils.id(
+      [
+        this._network,
+        ...this.balances.map((b) => b.hashKey),
+        this._totalSupply.hashKey,
+      ].join(':')
+    );
   }
 
   /**

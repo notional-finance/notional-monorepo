@@ -23,6 +23,7 @@ import {
   Observable,
   of,
   pairwise,
+  startWith,
   switchMap,
   withLatestFrom,
 } from 'rxjs';
@@ -69,15 +70,16 @@ export function selectedAccount(global$: Observable<GlobalState>) {
     filterEmpty(),
     distinctUntilChanged(
       (prev, cur) =>
-        prev.selectedNetwork !== cur.selectedNetwork ||
-        prev.selectedAccount !== cur.selectedAccount
+        prev.selectedNetwork === cur.selectedNetwork ||
+        prev.selectedAccount === cur.selectedAccount
     ),
     switchMap(({ selectedNetwork, selectedAccount }) =>
       Registry.getAccountRegistry().subscribeAccount(
         selectedNetwork,
         selectedAccount
       )
-    )
+    ),
+    startWith(null)
   );
 }
 
@@ -179,7 +181,7 @@ export function selectedPool(
 ) {
   return state$.pipe(
     map((s) => s[category.toLowerCase()] as TokenDefinition | undefined),
-    distinctUntilChanged((p, c) => p?.id !== c?.id),
+    distinctUntilChanged((p, c) => p?.id === c?.id),
     filterEmpty(),
     withLatestFrom(selectedNetwork$),
     switchMap(([t, network]) => {
@@ -199,7 +201,8 @@ export function selectedPool(
         // Some currencies do not have nTokens
         return of(undefined);
       }
-    })
+    }),
+    startWith(undefined)
   );
 }
 
@@ -269,6 +272,15 @@ export function parseRiskFactorLimit(
   selectedNetwork$: ReturnType<typeof selectedNetwork>
 ) {
   return combineLatest([state$, selectedNetwork$]).pipe(
+    distinctUntilChanged(
+      ([p, prevNetwork], [c, selectedNetwork]) =>
+        prevNetwork === selectedNetwork ||
+        p.selectedRiskFactor === c.selectedRiskFactor ||
+        p.selectedRiskLimit?.value === c.selectedRiskLimit?.value ||
+        p.selectedRiskLimit?.symbol === c.selectedRiskLimit?.symbol ||
+        p.selectedRiskArgs?.collateral === c.selectedRiskArgs?.collateral ||
+        p.selectedRiskArgs?.debt === c.selectedRiskArgs?.debt
+    ),
     map(
       ([
         { selectedRiskFactor, selectedRiskLimit, selectedRiskArgs },
@@ -327,9 +339,10 @@ export function parseRiskFactorLimit(
           };
         }
 
-        return { riskFactorLimit };
+        return riskFactorLimit ? { riskFactorLimit } : undefined;
       }
-    )
+    ),
+    filterEmpty()
   );
 }
 
@@ -341,8 +354,15 @@ export function calculate<F extends CalculationFn>(
   { calculationFn, requiredArgs }: TransactionConfig<F>
 ) {
   return combineLatest([state$, debtPool$, collateralPool$, account$]).pipe(
-    map(([s, debtPool, collateralPool, a]) => {
-      // Map all the state into the required inputs
+    pairwise(),
+    map(([[p], [s, debtPool, collateralPool, a]]) => ({
+      prevCanSubmit: p.canSubmit,
+      s,
+      debtPool,
+      collateralPool,
+      a,
+    })),
+    map(({ prevCanSubmit, s, debtPool, collateralPool, a }) => {
       const inputs = requiredArgs.reduce((args, r) => {
         switch (r) {
           case 'collateralPool':
@@ -360,18 +380,26 @@ export function calculate<F extends CalculationFn>(
           case 'depositUnderlying':
           case 'maxCollateralSlippage':
           case 'maxDebtSlippage':
-            return Object.assign(args, { r: s[r] });
+            return Object.assign(args, { [r]: s[r] });
           default:
             return args;
         }
       }, {} as Record<CalculationFnParams, unknown>);
 
+      // TODO: need to generate a hashkey of the inputs so that we know
+      // when to recalculate...
       return {
+        prevCanSubmit,
         inputs,
         // Check that all required inputs are satisfied
         canSubmit: requiredArgs.every((r) => inputs[r] !== undefined),
       };
     }),
+    filter(
+      ({ prevCanSubmit, canSubmit }) =>
+        // Don't emit if we still cannot submit
+        !(prevCanSubmit === false && canSubmit === false)
+    ),
     map(({ inputs, canSubmit }) => {
       let calculateError: string | undefined;
       if (canSubmit) {
@@ -385,7 +413,6 @@ export function calculate<F extends CalculationFn>(
             ...outputs,
           };
         } catch (e) {
-          console.error(e);
           calculateError = (e as Error).toString();
         }
       }

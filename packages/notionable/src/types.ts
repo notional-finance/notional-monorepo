@@ -134,6 +134,11 @@ export interface MaturityData {
 export interface Hashable {
   hashKey: string;
 }
+
+export interface ID {
+  id: string;
+}
+
 export interface NotionalError extends Error {
   msgId?: string;
   code?: number;
