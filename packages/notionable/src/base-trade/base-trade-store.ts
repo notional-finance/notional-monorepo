@@ -70,6 +70,8 @@ interface TokenInputs {
 interface TransactionState {
   /** True if the form is completed and able to be submitted */
   canSubmit: boolean;
+  /** Contains a unique key for each set of calculation inputs */
+  calculateInputKeys?: string;
   /** True if the form is in the confirmation state */
   confirm: boolean;
   /** Transaction call information for the confirmation page */

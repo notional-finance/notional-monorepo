@@ -23,7 +23,6 @@ import {
   Observable,
   of,
   pairwise,
-  tap,
   startWith,
   switchMap,
   withLatestFrom,
@@ -360,87 +359,98 @@ export function calculate<F extends CalculationFn>(
   return combineLatest([state$, debtPool$, collateralPool$, account$]).pipe(
     pairwise(),
     map(([[p], [s, debtPool, collateralPool, a]]) => ({
+      prevCalculateInputKeys: p.calculateInputKeys,
       prevCanSubmit: p.canSubmit,
       s,
       debtPool,
       collateralPool,
       a,
     })),
-    map(({ prevCanSubmit, s, debtPool, collateralPool, a }) => {
-      const [inputs, keys] = requiredArgs.reduce(
-        ([inputs, keys], r) => {
-          switch (r) {
-            case 'collateralPool':
-              return [
-                Object.assign(inputs, { collateralPool }),
-                [...keys, collateralPool?.hashKey || ''],
-              ];
-            case 'debtPool':
-              return [
-                Object.assign(inputs, { debtPool }),
-                [...keys, debtPool?.hashKey || ''],
-              ];
-            case 'balances':
-              return [
-                Object.assign(inputs, { balances: a?.balances }),
-                [...keys, ...(a?.balances.map((b) => b.hashKey) || [])],
-              ];
-            case 'collateral':
-            case 'debt':
-            case 'depositUnderlying':
-              return [
-                Object.assign(inputs, { [r]: s[r] }),
-                [...keys, (s[r] as TokenDefinition | undefined)?.id || ''],
-              ];
-            case 'depositBalance':
-            case 'debtBalance':
-            case 'collateralBalance':
-              return [
-                Object.assign(inputs, { [r]: s[r] }),
-                [...keys, (s[r] as TokenBalance | undefined)?.hashKey || ''],
-              ];
-            case 'riskFactorLimit': {
-              const risk = s[r] as RiskFactorLimit<RiskFactorKeys> | undefined;
-              return [
-                Object.assign(inputs, { [r]: risk }),
-                [
-                  ...keys,
-                  `${risk?.riskFactor}:${
-                    isHashable(risk?.limit)
-                      ? risk?.limit.hashKey
-                      : risk?.limit.toString()
-                  }:${risk?.args?.map((t) => t.id).join(':')}`,
-                ],
-              ];
-            }
-            case 'maxCollateralSlippage':
-            case 'maxDebtSlippage':
-              return [
-                Object.assign(inputs, { [r]: s[r] }),
-                [...keys, (s[r] as number | undefined)?.toString() || ''],
-              ];
-            default:
-              return [inputs, keys];
-          }
-        },
-        [{} as Record<CalculationFnParams, unknown>, [] as string[]]
-      );
-
-      console.log('DUMP STATE', s.depositInputAmount, s.depositBalance);
-      return {
+    map(
+      ({
         prevCanSubmit,
-        inputs,
-        keys: keys.join('|'),
+        prevCalculateInputKeys,
+        s,
+        debtPool,
+        collateralPool,
+        a,
+      }) => {
+        const [inputs, keys] = requiredArgs.reduce(
+          ([inputs, keys], r) => {
+            switch (r) {
+              case 'collateralPool':
+                return [
+                  Object.assign(inputs, { collateralPool }),
+                  [...keys, collateralPool?.hashKey || ''],
+                ];
+              case 'debtPool':
+                return [
+                  Object.assign(inputs, { debtPool }),
+                  [...keys, debtPool?.hashKey || ''],
+                ];
+              case 'balances':
+                return [
+                  Object.assign(inputs, { balances: a?.balances }),
+                  [...keys, ...(a?.balances.map((b) => b.hashKey) || [])],
+                ];
+              case 'collateral':
+              case 'debt':
+              case 'depositUnderlying':
+                return [
+                  Object.assign(inputs, { [r]: s[r] }),
+                  [...keys, (s[r] as TokenDefinition | undefined)?.id || ''],
+                ];
+              case 'depositBalance':
+              case 'debtBalance':
+              case 'collateralBalance':
+                return [
+                  Object.assign(inputs, { [r]: s[r] }),
+                  [...keys, (s[r] as TokenBalance | undefined)?.hashKey || ''],
+                ];
+              case 'riskFactorLimit': {
+                const risk = s[r] as
+                  | RiskFactorLimit<RiskFactorKeys>
+                  | undefined;
+                return [
+                  Object.assign(inputs, { [r]: risk }),
+                  [
+                    ...keys,
+                    `${risk?.riskFactor}:${
+                      isHashable(risk?.limit)
+                        ? risk?.limit.hashKey
+                        : risk?.limit.toString()
+                    }:${risk?.args?.map((t) => t.id).join(':')}`,
+                  ],
+                ];
+              }
+              case 'maxCollateralSlippage':
+              case 'maxDebtSlippage':
+                return [
+                  Object.assign(inputs, { [r]: s[r] }),
+                  [...keys, (s[r] as number | undefined)?.toString() || ''],
+                ];
+              default:
+                return [inputs, keys];
+            }
+          },
+          [{} as Record<CalculationFnParams, unknown>, [] as string[]]
+        );
+
         // Check that all required inputs are satisfied
-        canSubmit: requiredArgs.every((r) => inputs[r] !== undefined),
-      };
-    }),
-    filter(
-      ({ prevCanSubmit, canSubmit }) =>
-        // Don't emit if we still cannot submit
-        prevCanSubmit !== canSubmit
+        const canSubmit = requiredArgs.every((r) => inputs[r] !== undefined);
+        const calculateInputKeys = keys.join('|');
+        return prevCanSubmit !== canSubmit ||
+          prevCalculateInputKeys !== calculateInputKeys
+          ? {
+              inputs,
+              canSubmit,
+              calculateInputKeys,
+            }
+          : undefined;
+      }
     ),
-    map(({ inputs, canSubmit }) => {
+    filterEmpty(),
+    map(({ inputs, canSubmit, calculateInputKeys }) => {
       let calculateError: string | undefined;
       if (canSubmit) {
         try {
@@ -449,6 +459,7 @@ export function calculate<F extends CalculationFn>(
 
           return {
             canSubmit,
+            calculateInputKeys,
             calculateError,
             ...outputs,
           };
@@ -457,9 +468,8 @@ export function calculate<F extends CalculationFn>(
         }
       }
 
-      return { canSubmit: false, calculateError };
-    }),
-    tap((e) => console.log('calculate emit', e))
+      return { canSubmit: false, calculateError, calculateInputKeys };
+    })
   );
 }
 

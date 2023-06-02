@@ -115,7 +115,6 @@ describe.withForkAndRegistry(
     describe('Test Sequences', () => {
       const testSequence = getSequencer(updateState, baseTradeUpdates);
       baseTradeUpdates.subscribe((s) => {
-        console.log('IN STATE EMIT', s);
         updateState(s);
       });
 
@@ -130,7 +129,7 @@ describe.withForkAndRegistry(
         });
       });
 
-      it.only('it sets selected tokens and balances', async () => {
+      it('it sets selected tokens and balances', async () => {
         testSequence([
           [
             { selectedCollateralToken: 'nUSDC' },
@@ -164,7 +163,7 @@ describe.withForkAndRegistry(
                 '10.0 USDC'
               );
               expect(s.canSubmit).toBeTruthy();
-              expect(s.collateralBalance?.toUnderlying().toFloat()).toBeApprox(
+              expect(s.collateralBalance?.toUnderlying()).toBeApprox(
                 s.depositBalance
               );
               expect(s.collateralFee?.toFloat()).toBe(0);
@@ -195,8 +194,21 @@ describe.withForkAndRegistry(
         ]);
       });
 
+      it.only('it parses risk factors', () => {
+        testSequence([
+          [
+            {
+              selectedRiskFactor: 'loanToValue',
+              selectedRiskLimit: { value: 60 },
+            },
+            (s) => {
+              console.log(s.riskFactorLimit);
+            },
+          ],
+        ]);
+      });
+
       // it('it calculates account risk when the account is available', () => {});
-      // it('it parses risk factors', () => {});
     });
   }
 );
