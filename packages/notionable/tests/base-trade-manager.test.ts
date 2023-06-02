@@ -4,7 +4,7 @@ import {
   GlobalState,
   initialBaseTradeState,
   initialGlobalState,
-  loadBaseTradeManager,
+  createBaseTradeManager,
   makeStore,
   TradeConfiguration,
 } from '../src';
@@ -25,11 +25,9 @@ describe.withForkAndRegistry(
     const { updateState: updateGlobal, _state$: global$ } =
       makeStore<GlobalState>(initialGlobalState);
 
-    const baseTradeUpdates = loadBaseTradeManager(
-      state$,
-      global$,
+    const baseTradeUpdates = createBaseTradeManager(
       TradeConfiguration['MintNToken']
-    );
+    )(state$, global$);
 
     it('it sets initial tokens on ready', (done) => {
       baseTradeUpdates.subscribe((s) => {

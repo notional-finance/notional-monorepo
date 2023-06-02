@@ -25,3 +25,4 @@ export * from './leveraged-vaults/use-base-vault';
 export * from './leveraged-vaults/use-vault-account';
 
 export * from './observable-context/ObservableContext';
+export * from './observable-context/BaseTradeContext';

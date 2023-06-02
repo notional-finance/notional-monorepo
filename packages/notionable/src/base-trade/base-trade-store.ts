@@ -167,3 +167,5 @@ export const TradeConfiguration: Record<string, TransactionConfig> = {
     },
   },
 };
+
+export type TradeType = keyof typeof TradeConfiguration;
