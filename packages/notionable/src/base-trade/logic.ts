@@ -71,7 +71,7 @@ export function selectedAccount(global$: Observable<GlobalState>) {
     filterEmpty(),
     distinctUntilChanged(
       (prev, cur) =>
-        prev.selectedNetwork === cur.selectedNetwork ||
+        prev.selectedNetwork === cur.selectedNetwork &&
         prev.selectedAccount === cur.selectedAccount
     ),
     switchMap(({ selectedNetwork, selectedAccount }) =>
@@ -275,18 +275,24 @@ export function parseRiskFactorLimit(
   selectedNetwork$: ReturnType<typeof selectedNetwork>
 ) {
   return combineLatest([state$, selectedNetwork$]).pipe(
-    distinctUntilChanged(
-      ([p, prevNetwork], [c, selectedNetwork]) =>
-        prevNetwork === selectedNetwork ||
-        p.selectedRiskFactor === c.selectedRiskFactor ||
-        p.selectedRiskLimit?.value === c.selectedRiskLimit?.value ||
-        p.selectedRiskLimit?.symbol === c.selectedRiskLimit?.symbol ||
-        p.selectedRiskArgs?.collateral === c.selectedRiskArgs?.collateral ||
+    distinctUntilChanged(([p, prevNetwork], [c, selectedNetwork]) => {
+      return (
+        prevNetwork === selectedNetwork &&
+        p.selectedRiskFactor === c.selectedRiskFactor &&
+        p.selectedRiskLimit?.value === c.selectedRiskLimit?.value &&
+        p.selectedRiskLimit?.symbol === c.selectedRiskLimit?.symbol &&
+        p.selectedRiskArgs?.collateral === c.selectedRiskArgs?.collateral &&
         p.selectedRiskArgs?.debt === c.selectedRiskArgs?.debt
-    ),
+      );
+    }),
     map(
       ([
-        { selectedRiskFactor, selectedRiskLimit, selectedRiskArgs },
+        {
+          selectedRiskFactor,
+          selectedRiskLimit,
+          selectedRiskArgs,
+          riskFactorLimit: prevRiskFactorLimit,
+        },
         network,
       ]) => {
         let riskFactorLimit: RiskFactorLimit<RiskFactorKeys> | undefined;
@@ -342,7 +348,9 @@ export function parseRiskFactorLimit(
           };
         }
 
-        return riskFactorLimit ? { riskFactorLimit } : undefined;
+        return riskFactorLimit || prevRiskFactorLimit
+          ? { riskFactorLimit }
+          : undefined;
       }
     ),
     filterEmpty()

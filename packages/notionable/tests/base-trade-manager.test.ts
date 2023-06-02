@@ -129,7 +129,7 @@ describe.withForkAndRegistry(
         });
       });
 
-      it('it sets selected tokens and balances', async () => {
+      it.only('it sets selected tokens and balances', async () => {
         testSequence([
           [
             { selectedCollateralToken: 'nUSDC' },
@@ -202,13 +202,12 @@ describe.withForkAndRegistry(
               selectedRiskLimit: { value: 60 },
             },
             (s) => {
-              console.log(s.riskFactorLimit);
+              expect(s.riskFactorLimit?.riskFactor).toBe('loanToValue');
+              expect(s.riskFactorLimit?.limit).toBe(60);
             },
           ],
         ]);
       });
-
-      // it('it calculates account risk when the account is available', () => {});
     });
   }
 );
