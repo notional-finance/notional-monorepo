@@ -7,6 +7,7 @@ import {
   TradeActionTitle,
   TradeSummaryContainer,
   AreaChart,
+  BarChart,
   TABLE_VARIANTS,
 } from '@notional-finance/mui';
 import { VAULT_SUB_NAV_ACTIONS } from '@notional-finance/shared-config';
@@ -132,6 +133,7 @@ export const VaultSummary = () => {
                 areaHeaderData={areaHeaderData}
                 chartToolTipData={chartToolTipData}
               />
+              <BarChart areaHeaderData={areaHeaderData} />
             </Box>
             <Box
               sx={{ marginTop: theme.spacing(2) }}

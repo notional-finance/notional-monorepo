@@ -1,6 +1,7 @@
 export * from './lib/action-sidebar/action-sidebar';
 export * from './lib/action-sidebar-buttons/action-sidebar-buttons';
 export * from './lib/area-chart/area-chart';
+export * from './lib/bar-chart/bar-chart';
 export * from './lib/app-bar/app-bar';
 export * from './lib/box-display/box-display';
 export * from './lib/button/button';
