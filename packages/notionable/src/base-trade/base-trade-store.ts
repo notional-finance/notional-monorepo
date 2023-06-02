@@ -161,9 +161,13 @@ export const TradeConfiguration: Record<string, TransactionConfig> = {
     debtFilter: (t: TokenDefinition) => t.tokenType === 'PrimeDebt',
   },
   MintNToken: {
+    // Uses deposit input
     calculationFn: calculateCollateral,
     requiredArgs: ['collateral', 'depositBalance', 'collateralPool'],
-    collateralFilter: (t: TokenDefinition) => t.tokenType === 'nToken',
+    depositFilter: (t, _a, _s) => !!t.currencyId,
+    collateralFilter: (t, _a, s) =>
+      t.tokenType === 'nToken' &&
+      (s.deposit?.currencyId ? t.currencyId === s.deposit.currencyId : true),
     debtFilter: () => false,
   },
 };

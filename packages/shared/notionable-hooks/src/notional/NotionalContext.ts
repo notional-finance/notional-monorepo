@@ -9,7 +9,7 @@ import {
   useObservableState,
   useSubscription,
 } from 'observable-hooks';
-import { scan, switchMap } from 'rxjs';
+import { scan, switchMap, tap } from 'rxjs';
 import { createObservableContext } from '../observable-context/ObservableContext';
 
 const DEBUG = process.env['NODE_ENV'] === 'development';
@@ -28,21 +28,27 @@ export function useGlobalContext() {
   >(
     (state$) =>
       state$.pipe(
-        scan((state, update) => {
-          if (DEBUG) console.log('[GLOBAL] update:', update, 'state: ', state);
-          return { ...state, ...update };
-        }, initialGlobalState)
+        scan((state, update) => ({ ...state, ...update }), initialGlobalState)
       ),
     // Transforms the list of args into a single arg which is Partial<T>
     (args) => args[0]
   );
   const state = useObservableState(state$, initialGlobalState);
+  useSubscription(state$, (s) => {
+    if (DEBUG) console.log('[GLOBAL] STATE', s);
+  });
 
   // Loads managers and has them start listening to state. As each manager emits a value
   // it will be individually updated to state
   useSubscription(
     useObservable(
-      (s$) => s$.pipe(switchMap(([s]) => loadGlobalManager(s))),
+      (s$) =>
+        s$.pipe(
+          switchMap(([s]) => loadGlobalManager(s)),
+          tap((s) => {
+            if (DEBUG) console.log('[GLOBAL] UPDATE:', s);
+          })
+        ),
       [state$]
     ),
     updateState

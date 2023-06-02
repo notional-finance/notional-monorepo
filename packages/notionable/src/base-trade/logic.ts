@@ -169,10 +169,12 @@ export function selectedToken(
     pairwise(),
     map(([[prevS, prevN], [curS, selectedNetwork]]) => {
       const selectedToken = curS[`selected${category}Token`] as string;
+      const token = curS[category.toLowerCase()] as TokenDefinition | undefined;
       return {
         hasChanged:
           (prevS[`selected${category}Token`] as string) !== selectedToken ||
-          prevN !== selectedNetwork,
+          prevN !== selectedNetwork ||
+          (!!selectedToken && token === undefined),
         selectedToken,
         selectedNetwork,
       };

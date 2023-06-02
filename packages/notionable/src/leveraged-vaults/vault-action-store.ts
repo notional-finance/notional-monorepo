@@ -108,6 +108,9 @@ export interface VaultActionState
   netCapacityChange?: TypedBigNumber;
 
   error?: VaultError;
+  isReady: boolean;
 }
 
-export const initialVaultActionState: VaultActionState = {};
+export const initialVaultActionState: VaultActionState = {
+  isReady: true,
+};

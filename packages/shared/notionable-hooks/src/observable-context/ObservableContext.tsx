@@ -7,7 +7,7 @@ import {
 } from 'observable-hooks';
 import React, { useEffect } from 'react';
 import { useLocation, useParams } from 'react-router';
-import { EMPTY, Observable, scan, switchMap } from 'rxjs';
+import { EMPTY, Observable, scan, switchMap, tap } from 'rxjs';
 import { QueryParamConfigMap, useQueryParams } from 'use-query-params';
 import { useNotionalContext } from '../notional/use-notional';
 
@@ -37,7 +37,11 @@ export function createObservableContext<T>(
   return context;
 }
 
-export function useObservableContext<T extends Record<string, unknown>>(
+interface ContextState extends Record<string, unknown> {
+  isReady: boolean;
+}
+
+export function useObservableContext<T extends ContextState>(
   initialState: T,
   queryParamConfig: QueryParamConfigMap,
   loadManagers: (
@@ -58,14 +62,15 @@ export function useObservableContext<T extends Record<string, unknown>>(
   >(
     (state$) =>
       state$.pipe(
-        scan((state, update) => {
-          if (DEBUG) console.log('update:', update, 'state: ', state);
-          return { ...state, ...update };
-        }, initialState)
+        scan((state, update) => ({ ...state, ...update }), initialState)
       ),
     // Transforms the list of args into a single arg which is Partial<T>
     (args) => args[0]
   );
+
+  useSubscription(state$, (s) => {
+    if (DEBUG) console.log('STATE', s);
+  });
   const state = useObservableState(state$, initialState);
 
   // Loads managers and has them start listening to state. As each manager emits a value
@@ -73,7 +78,12 @@ export function useObservableContext<T extends Record<string, unknown>>(
   useSubscription(
     useObservable(
       (o$) => {
-        return o$.pipe(switchMap(([s, g]) => loadManagers(s, g)));
+        return o$.pipe(
+          switchMap(([s, g]) => loadManagers(s, g)),
+          tap((s) => {
+            if (DEBUG) console.log('CALCULATED UPDATE', s);
+          })
+        );
       },
       [state$, globalState$]
     ),
@@ -83,11 +93,11 @@ export function useObservableContext<T extends Record<string, unknown>>(
   useEffect(() => {
     // If any of the route params change then we will update state to initial and set the params,
     // this prevents any "residual" state from going between paths
-    updateState({ ...initialState, ...params });
+    if (state.isReady) updateState(params as T);
     // NOTE: only run updates on pathname changes, since params is an object
     // it will always be marked as changed.
     // eslint-disable-next-line
-  }, [pathname]);
+  }, [pathname, state.isReady]);
 
   useEffect(() => {
     const updates = Object.keys(query).reduce((u, k) => {

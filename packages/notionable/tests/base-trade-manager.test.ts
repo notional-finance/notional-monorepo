@@ -121,15 +121,11 @@ describe.withForkAndRegistry(
       it.only('it sets selected tokens and balances', async () => {
         testSequence([
           [
-            { selectedCollateralToken: 'nUSDC' },
-            (s) => {
-              expect(s.collateral?.symbol).toBe('nUSDC');
-            },
-          ],
-          [
             { selectedDepositToken: 'USDC' },
             (s) => {
               expect(s.deposit?.symbol).toBe('USDC');
+              expect(s.availableCollateralTokens?.length).toBe(1);
+              expect(s.selectedCollateralToken).toBe('nUSDC');
             },
           ],
           [
