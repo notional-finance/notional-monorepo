@@ -129,7 +129,7 @@ export const useMaturityData = (
     }
 
     return {
-      marketKey: m.marketKey,
+      fCashId: m.marketKey,
       tradeRate: tradeRate ? convertRateToFloat(tradeRate) : undefined,
       tradeRateString:
         tradeRate !== undefined ? Market.formatInterestRate(tradeRate) : '',

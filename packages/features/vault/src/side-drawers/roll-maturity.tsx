@@ -41,10 +41,10 @@ export const RollMaturity = () => {
     <VaultSideDrawer>
       <Maturities
         maturityData={borrowMarketData || []}
-        onSelect={(marketKey: string | null) => {
+        onSelect={(marketKey: string | undefined) => {
           updateState({ selectedMarketKey: marketKey || '' });
         }}
-        currentMarketKey={selectedMarketKey || ''}
+        selectedfCashId={selectedMarketKey || ''}
         inputLabel={messages[VAULT_ACTIONS.ROLL_POSITION].maturity}
       />
       {primaryBorrowSymbol && (

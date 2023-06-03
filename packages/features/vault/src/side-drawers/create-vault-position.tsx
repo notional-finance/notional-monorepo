@@ -86,10 +86,10 @@ export const CreateVaultPosition = () => {
         <VaultSideDrawer>
           <Maturities
             maturityData={borrowMarketData || []}
-            onSelect={(marketKey: string | null) => {
+            onSelect={(marketKey) => {
               updateState({ selectedMarketKey: marketKey || '' });
             }}
-            currentMarketKey={selectedMarketKey || ''}
+            selectedfCashId={selectedMarketKey || ''}
             inputLabel={messages[VAULT_ACTIONS.CREATE_VAULT_POSITION].maturity}
           />
           <WalletDepositInput

@@ -49,7 +49,7 @@ export const TableActionRow = ({ row }) => {
               {maturityData.map((data: MaturityData) => (
                 <CustomButton
                   variant="contained"
-                  key={data.marketKey}
+                  key={data.fCashId}
                   sx={{
                     marginRight: '20px',
                     padding: '9px 20px',

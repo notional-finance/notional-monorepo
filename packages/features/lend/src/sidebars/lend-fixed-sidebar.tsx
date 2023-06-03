@@ -1,14 +1,11 @@
 import { useEffect, useCallback, useContext } from 'react';
 import { defineMessage, FormattedMessage } from 'react-intl';
-import {
-  Maturities,
-  ActionSidebar,
-  useCurrencyInputRef,
-} from '@notional-finance/mui';
+import { ActionSidebar, useCurrencyInputRef } from '@notional-finance/mui';
 import {
   TransactionConfirmation,
   TradeActionButton,
   DepositInput,
+  MaturitySelect,
 } from '@notional-finance/trade';
 import { useHistory, useLocation } from 'react-router-dom';
 import { LEND_BORROW } from '@notional-finance/shared-config';
@@ -69,18 +66,14 @@ export const LendFixedSidebar = () => {
           description: 'input label',
         })}
       />
-      <Maturities
-        maturityData={[]}
-        onSelect={(_marketKey: string | null) => {
-          // updateLendState({ selectedMarketKey: marketKey });
-        }}
-        currentMarketKey={null}
+      <MaturitySelect
+        context={LendFixedContext}
+        category={'Collateral'}
         inputLabel={defineMessage({
           defaultMessage: '2. Select a maturity & fix your rate',
           description: 'input label',
         })}
       />
-      {/* <LendBalanceInfo setInputAmount={setCurrencyInput} /> */}
     </ActionSidebar>
   );
 };

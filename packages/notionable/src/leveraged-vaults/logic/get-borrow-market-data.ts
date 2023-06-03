@@ -77,13 +77,13 @@ export function getBorrowMarketData({
       borrowMarketData,
       fCashBorrowAmount: borrowMarketData[0].fCashAmount,
       currentBorrowRate: borrowMarketData[0].tradeRate,
-      selectedMarketKey: borrowMarketData[0].marketKey,
+      selectedMarketKey: borrowMarketData[0].fCashId,
       cashBorrowed: borrowMarketData[0].cashBorrowed,
       transactionCosts: borrowMarketData[0].assessedFee,
     };
   } else {
     const selectedMaturity = borrowMarketData.find(
-      (m) => m.marketKey === selectedMarketKey
+      (m) => m.fCashId === selectedMarketKey
     );
     return {
       borrowMarketData,
@@ -117,7 +117,7 @@ function calculateMaturityData(
   }
 
   return {
-    marketKey: market.marketKey,
+    fCashId: market.marketKey,
     tradeRate: tradeRate !== null ? convertRateToFloat(tradeRate) : undefined,
     tradeRateString: tradeRate ? Market.formatInterestRate(tradeRate) : '',
     maturity: market.maturity,
