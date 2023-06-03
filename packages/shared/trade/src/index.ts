@@ -14,3 +14,4 @@ export * from './trade-properties/index';
 export * from './trade-properties/trade-properties-grid';
 export * from './trade-properties/trade-property';
 export * from './tradeErrors';
+export * from './deposit-input/deposit-input';

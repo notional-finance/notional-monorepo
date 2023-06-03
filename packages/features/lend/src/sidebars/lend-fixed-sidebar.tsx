@@ -8,8 +8,7 @@ import {
 import {
   TransactionConfirmation,
   TradeActionButton,
-  TokenApprovalView,
-  WalletDepositInput,
+  DepositInput,
 } from '@notional-finance/trade';
 import { useHistory, useLocation } from 'react-router-dom';
 import { LEND_BORROW } from '@notional-finance/shared-config';
@@ -17,14 +16,7 @@ import { LendFixedContext } from '../lend-fixed';
 
 export const LendFixedSidebar = () => {
   const {
-    state: {
-      availableDepositTokens,
-      selectedDepositToken,
-      canSubmit,
-      buildTransactionCall,
-      confirm,
-    },
-    updateState,
+    state: { canSubmit, buildTransactionCall, confirm },
   } = useContext(LendFixedContext);
   const history = useHistory();
   const { pathname, search } = useLocation();
@@ -67,31 +59,16 @@ export const LendFixedSidebar = () => {
       CustomActionButton={TradeActionButton}
       canSubmit={canSubmit}
     >
-      {availableDepositTokens && selectedDepositToken && (
-        <WalletDepositInput
-          ref={currencyInputRef}
-          inputRef={currencyInputRef}
-          availableTokens={availableDepositTokens.map((t) => t.symbol)}
-          selectedToken={selectedDepositToken}
-          onChange={({
-            selectedToken: newSelectedToken,
-            inputAmount,
-            hasError,
-          }) => {
-            // Will update the route and the parent component will update the store
-            if (newSelectedToken !== selectedDepositToken)
-              history.push(`/${LEND_BORROW.LEND}/${newSelectedToken}`);
-
-            updateState({
-              depositBalance: !hasError ? inputAmount : undefined,
-            });
-          }}
-          inputLabel={defineMessage({
-            defaultMessage: '1. How much do you want to lend?',
-            description: 'input label',
-          })}
-        />
-      )}
+      <DepositInput
+        ref={currencyInputRef}
+        inputRef={currencyInputRef}
+        context={LendFixedContext}
+        newRoute={(newToken) => `/${LEND_BORROW.LEND}/${newToken}`}
+        inputLabel={defineMessage({
+          defaultMessage: '1. How much do you want to lend?',
+          description: 'input label',
+        })}
+      />
       <Maturities
         maturityData={[]}
         onSelect={(_marketKey: string | null) => {
@@ -104,7 +81,6 @@ export const LendFixedSidebar = () => {
         })}
       />
       {/* <LendBalanceInfo setInputAmount={setCurrencyInput} /> */}
-      <TokenApprovalView symbol={selectedDepositToken} />
     </ActionSidebar>
   );
 };

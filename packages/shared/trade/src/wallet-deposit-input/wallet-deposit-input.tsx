@@ -9,6 +9,9 @@ import { FormattedMessage, MessageDescriptor } from 'react-intl';
 import { useWalletDeposit } from './use-wallet-deposit';
 import { TokenBalance } from '@notional-finance/core-entities';
 
+// TODO: in the future, we may be able to replace all the props with just taking a
+// context object
+
 export interface WalletDepositChange {
   selectedToken: string | null;
   inputAmount: TokenBalance | undefined;

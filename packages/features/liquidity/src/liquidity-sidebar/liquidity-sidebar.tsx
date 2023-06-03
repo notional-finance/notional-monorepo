@@ -2,28 +2,16 @@ import { useCallback, useContext, useEffect } from 'react';
 import {
   TransactionConfirmation,
   TradeActionButton,
-  TokenApprovalView,
-  WalletDepositInput,
+  DepositInput,
 } from '@notional-finance/trade';
-import {
-  PageLoading,
-  ActionSidebar,
-  useCurrencyInputRef,
-} from '@notional-finance/mui';
+import { ActionSidebar, useCurrencyInputRef } from '@notional-finance/mui';
 import { useHistory, useLocation } from 'react-router-dom';
 import { defineMessage, FormattedMessage } from 'react-intl';
 import { LiquidityContext } from '../liquidity-action';
 
 export const LiquiditySidebar = () => {
   const {
-    state: {
-      availableDepositTokens,
-      selectedDepositToken,
-      canSubmit,
-      buildTransactionCall,
-      confirm,
-    },
-    updateState,
+    state: { canSubmit, buildTransactionCall, confirm },
   } = useContext(LiquidityContext);
   const { pathname, search } = useLocation();
   const history = useHistory();
@@ -68,35 +56,17 @@ export const LiquiditySidebar = () => {
       CustomActionButton={TradeActionButton}
       canSubmit={canSubmit}
     >
-      {availableDepositTokens && selectedDepositToken ? (
-        <WalletDepositInput
-          ref={currencyInputRef}
-          inputRef={currencyInputRef}
-          availableTokens={availableDepositTokens.map((t) => t.symbol)}
-          selectedToken={selectedDepositToken}
-          onChange={({
-            selectedToken: newSelectedToken,
-            inputAmount,
-            hasError,
-          }) => {
-            // Will update the route and the parent component will update the store
-            if (newSelectedToken !== selectedDepositToken)
-              history.push(`/provide/${newSelectedToken}`);
-
-            updateState({
-              depositBalance: !hasError ? inputAmount : undefined,
-            });
-          }}
-          inputLabel={defineMessage({
-            defaultMessage: '1. How much liquidity do you want to provide?',
-            description: 'input label',
-          })}
-        />
-      ) : (
-        <PageLoading />
-      )}
+      <DepositInput
+        ref={currencyInputRef}
+        inputRef={currencyInputRef}
+        context={LiquidityContext}
+        newRoute={(newToken) => `/provide/${newToken}`}
+        inputLabel={defineMessage({
+          defaultMessage: '1. How much liquidity do you want to provide?',
+          description: 'input label',
+        })}
+      />
       {/* <TradePropertiesGrid showBackground data={tradeProperties || {}} /> */}
-      <TokenApprovalView symbol={selectedDepositToken} />
     </ActionSidebar>
   );
 };
