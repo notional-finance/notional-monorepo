@@ -50,56 +50,6 @@ function offsettingBalance(
   }
 }
 
-function leveragedTrade(
-  collateral: 'nToken' | 'fCash' | 'PrimeCash',
-  debt: 'nToken' | 'fCash' | 'PrimeDebt'
-): TransactionConfig {
-  return {
-    calculationFn: calculateDebtCollateralGivenDepositRiskLimit,
-    requiredArgs: [
-      'collateral',
-      'debt',
-      'collateralPool',
-      'debtPool',
-      'depositBalance',
-      'balances',
-      'riskFactorLimit',
-    ],
-    collateralFilter: (t, _, s) =>
-      t.tokenType === collateral && onlySameCurrency(t, s.deposit),
-    debtFilter: (t, _, s) =>
-      t.tokenType === debt && onlySameCurrency(t, s.deposit),
-  };
-}
-
-function deleverageTrade(
-  collateral: 'fCash' | 'PrimeCash',
-  debt: 'nToken' | 'fCash' | 'PrimeDebt'
-): TransactionConfig {
-  return {
-    calculationFn: calculateDebtCollateralGivenDepositRiskLimit,
-    requiredArgs: [
-      'collateral',
-      'debt',
-      'collateralPool',
-      'debtPool',
-      'depositBalance',
-      'balances',
-      'riskFactorLimit',
-    ],
-    // In a deleverage trade a deposit should be set to zero
-    depositFilter: () => false,
-    collateralFilter: (t, a, s) =>
-      t.tokenType === collateral &&
-      onlySameCurrency(t, s.debt) &&
-      offsettingBalance(t, a),
-    debtFilter: (t, a, s) =>
-      t.tokenType === debt &&
-      onlySameCurrency(t, s.collateral) &&
-      offsettingBalance(t, a),
-  };
-}
-
 export const TradeConfiguration: Record<string, TransactionConfig> = {
   /** Normal Transaction Actions */
   LendVariable: {
@@ -116,6 +66,7 @@ export const TradeConfiguration: Record<string, TransactionConfig> = {
     collateralFilter: (t, _, s) =>
       t.tokenType === 'fCash' && onlySameCurrency(t, s.deposit),
     debtFilter: () => false,
+    calculateCollateralOptions: true,
   },
   MintNToken: {
     calculationFn: calculateCollateral,
@@ -138,8 +89,9 @@ export const TradeConfiguration: Record<string, TransactionConfig> = {
       'riskFactorLimit',
     ],
     collateralFilter: (t, _a, s) =>
-      s?.debt?.tokenType === 'fCash'
-        ? // Exclude the matching fCash asset
+      // Limit collateral options to the deposit currency
+      onlySameCurrency(t, s.deposit) && s?.debt?.tokenType === 'fCash'
+        ? // Exclude the matching fCash asset as the debt
           !(
             t.tokenType === 'fCash' &&
             t.currencyId === s.debt.currencyId &&
@@ -148,26 +100,99 @@ export const TradeConfiguration: Record<string, TransactionConfig> = {
         : true,
     debtFilter: (t, _a, s) =>
       s?.collateral?.tokenType === 'fCash'
-        ? // Exclude the matching fCash asset
+        ? // Exclude the matching fCash asset as the collateral
           !(
             t.tokenType === 'fCash' &&
             t.currencyId === s.collateral.currencyId &&
             t.maturity === s.collateral.maturity
           )
         : true,
+    calculateCollateralOptions: true,
+    calculateDebtOptions: true,
   },
 
   /** Leveraged Yield Actions */
-  LendFixedWithVariableLeverage: leveragedTrade('fCash', 'PrimeDebt'),
-  LendVariableWithFixedLeverage: leveragedTrade('PrimeCash', 'fCash'),
-  MintNTokenWithVariableLeverage: leveragedTrade('nToken', 'PrimeDebt'),
-  MintNTokenWithFixedLeverage: leveragedTrade('nToken', 'fCash'),
+  LeveragedLend: {
+    calculationFn: calculateDebtCollateralGivenDepositRiskLimit,
+    requiredArgs: [
+      'collateral',
+      'debt',
+      'collateralPool',
+      'debtPool',
+      'depositBalance',
+      'balances',
+      'riskFactorLimit',
+    ],
+    collateralFilter: (t, _, s) =>
+      t.tokenType !== 'nToken' && onlySameCurrency(t, s.deposit),
+    debtFilter: (t, _, s) =>
+      t.tokenType !== 'nToken' && onlySameCurrency(t, s.deposit),
+    calculateCollateralOptions: true,
+    calculateDebtOptions: true,
+  },
+  LeveragedNToken: {
+    calculationFn: calculateDebtCollateralGivenDepositRiskLimit,
+    requiredArgs: [
+      'collateral',
+      'debt',
+      'collateralPool',
+      'debtPool',
+      'depositBalance',
+      'balances',
+      'riskFactorLimit',
+    ],
+    collateralFilter: (t, _, s) =>
+      t.tokenType === 'nToken' && onlySameCurrency(t, s.deposit),
+    debtFilter: (t, _, s) =>
+      t.tokenType !== 'nToken' && onlySameCurrency(t, s.deposit),
+    calculateDebtOptions: true,
+  },
 
   /** Deleverage Yield Actions */
-  DeleverageFixedLendWithVariableDebt: deleverageTrade('PrimeCash', 'fCash'),
-  DeleverageVariableLendWithFixedDebt: deleverageTrade('fCash', 'PrimeDebt'),
-  DeleverageNTokenWithVariableDebt: deleverageTrade('PrimeCash', 'nToken'),
-  DeleverageNTokenWithFixedDebt: deleverageTrade('fCash', 'nToken'),
+  DeleverageLend: {
+    calculationFn: calculateDebtCollateralGivenDepositRiskLimit,
+    requiredArgs: [
+      'collateral',
+      'debt',
+      'collateralPool',
+      'debtPool',
+      'depositBalance',
+      'balances',
+      'riskFactorLimit',
+    ],
+    // In a deleverage trade a deposit should be set to zero
+    depositFilter: () => false,
+    collateralFilter: (t, a, s) =>
+      t.tokenType !== 'nToken' &&
+      onlySameCurrency(t, s.debt) &&
+      offsettingBalance(t, a),
+    debtFilter: (t, a, s) =>
+      t.tokenType !== 'nToken' &&
+      onlySameCurrency(t, s.collateral) &&
+      offsettingBalance(t, a),
+  },
+  DeleverageNToken: {
+    calculationFn: calculateDebtCollateralGivenDepositRiskLimit,
+    requiredArgs: [
+      'collateral',
+      'debt',
+      'collateralPool',
+      'debtPool',
+      'depositBalance',
+      'balances',
+      'riskFactorLimit',
+    ],
+    // In a deleverage trade a deposit should be set to zero
+    depositFilter: () => false,
+    collateralFilter: (t, a, s) =>
+      t.tokenType !== 'nToken' &&
+      onlySameCurrency(t, s.debt) &&
+      offsettingBalance(t, a),
+    debtFilter: (t, a, s) =>
+      t.tokenType === 'nToken' &&
+      onlySameCurrency(t, s.collateral) &&
+      offsettingBalance(t, a),
+  },
 
   /** Portfolio Actions **/
   RepayFixedDebt: {
@@ -250,12 +275,15 @@ export const TradeConfiguration: Record<string, TransactionConfig> = {
     calculationFn: calculateCollateral,
     requiredArgs: ['collateral', 'collateralPool', 'debtPool', 'debtBalance'],
     depositFilter: () => false,
-    debtFilter: (t, a) => t.tokenType === 'fCash' && offsettingBalance(t, a),
+    debtFilter: (t, a) =>
+      (t.tokenType === 'fCash' || t.tokenType === 'PrimeCash') &&
+      offsettingBalance(t, a),
     collateralFilter: (t, _, s) =>
       // Selecting Prime Cash will roll to variable
       (t.tokenType === 'fCash' || t.tokenType === 'PrimeCash') &&
       onlySameCurrency(t, s.debt) &&
       t.maturity !== s.debt?.maturity,
+    calculateCollateralOptions: true,
   },
   RollFixedDebt: {
     // User will input amount of debt fcash to repay (i.e. collateral balance) and we calculate new fcash debt
@@ -263,11 +291,13 @@ export const TradeConfiguration: Record<string, TransactionConfig> = {
     requiredArgs: ['debt', 'collateralPool', 'debtPool', 'collateralBalance'],
     depositFilter: () => false,
     collateralFilter: (t, a) =>
-      t.tokenType === 'fCash' && offsettingBalance(t, a),
+      (t.tokenType === 'fCash' || t.tokenType === 'PrimeCash') &&
+      offsettingBalance(t, a),
     debtFilter: (t, _, s) =>
       (t.tokenType === 'fCash' || t.tokenType === 'PrimeDebt') &&
       onlySameCurrency(t, s.collateral) &&
       t.maturity !== s.collateral?.maturity,
+    calculateDebtOptions: true,
   },
 };
 

@@ -7,6 +7,7 @@ import {
   createBaseTradeManager,
   makeStore,
   TradeConfiguration,
+  TradeType,
 } from '../src';
 import { Network } from '@notional-finance/util';
 import { getSequencer } from './test-utils.spec';
@@ -19,7 +20,7 @@ describe.withForkAndRegistry(
   },
   'Base Trade Manager',
   () => {
-    const { updateState, _state$: state$ } = makeStore<BaseTradeState>(
+    const { _state$: state$ } = makeStore<BaseTradeState>(
       initialBaseTradeState
     );
     const { updateState: updateGlobal, _state$: global$ } =
@@ -97,29 +98,42 @@ describe.withForkAndRegistry(
       );
     });
 
-    describe('Test Sequences', () => {
-      const testSequence = getSequencer(updateState, baseTradeUpdates);
-      baseTradeUpdates.subscribe((s) => {
-        updateState(s);
-      });
+    describe.only('Test Sequences', () => {
+      const startTest = (trade: TradeType) => {
+        const { updateState, _state$: state$ } = makeStore<BaseTradeState>(
+          initialBaseTradeState
+        );
+        const { updateState: updateGlobal, _state$: global$ } =
+          makeStore<GlobalState>(initialGlobalState);
 
-      beforeAll((done) => {
+        const baseTradeUpdates = createBaseTradeManager(
+          TradeConfiguration[trade]
+        )(state$, global$);
+        const testSequence = getSequencer(updateState, baseTradeUpdates);
+
+        baseTradeUpdates.subscribe((s) => {
+          updateState(s);
+        });
         let isDone = false;
-        state$.subscribe((s) => {
-          if (s.isReady && !isDone) {
-            isDone = true;
-            done();
-          }
+        const promise = new Promise<typeof testSequence>((resolve) => {
+          state$.subscribe((s) => {
+            if (s.isReady && !isDone) {
+              isDone = true;
+              resolve(testSequence);
+            }
+          });
         });
 
         updateGlobal({
           selectedNetwork: Network.ArbitrumOne,
           isNetworkReady: true,
         });
-      });
 
-      it.only('it sets selected tokens and balances', async () => {
-        testSequence([
+        return promise;
+      };
+
+      it('it sets selected tokens and balances', async () => {
+        (await startTest('MintNToken'))([
           [
             { selectedDepositToken: 'USDC' },
             (s) => {
@@ -179,8 +193,8 @@ describe.withForkAndRegistry(
         ]);
       });
 
-      it.only('it parses risk factors', () => {
-        testSequence([
+      it('it parses risk factors', async () => {
+        (await startTest('MintNToken'))([
           [
             {
               selectedRiskFactor: 'loanToValue',
@@ -189,6 +203,28 @@ describe.withForkAndRegistry(
             (s) => {
               expect(s.riskFactorLimit?.riskFactor).toBe('loanToValue');
               expect(s.riskFactorLimit?.limit).toBe(60);
+            },
+          ],
+        ]);
+      });
+
+      it('it calculates alternative token options', async () => {
+        (await startTest('LendFixed'))([
+          [
+            { selectedDepositToken: 'USDC' },
+            (s) => {
+              expect(s.availableCollateralTokens?.length).toBe(2);
+              expect(s.collateralOptions).toBeUndefined();
+            },
+          ],
+          [
+            {
+              depositInputAmount: { amount: '5', inUnderlying: true },
+            },
+            (s) => {
+              expect(s.collateralOptions?.filter((t) => t != null).length).toBe(
+                2
+              );
             },
           ],
         ]);

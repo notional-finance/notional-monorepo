@@ -27,6 +27,8 @@ export interface TransactionConfig {
   depositFilter?: FilterFunc;
   collateralFilter?: FilterFunc;
   debtFilter?: FilterFunc;
+  calculateDebtOptions?: boolean;
+  calculateCollateralOptions?: boolean;
 }
 
 /** Input amount directly from the frontend */
@@ -88,6 +90,10 @@ interface TokenInputs {
   debtFee?: TokenBalance;
   /** Error message from calculation */
   calculateError?: string;
+  /** Alternative debt options given if all the inputs are satisfied */
+  debtOptions?: (TokenBalance | null)[];
+  /** Alternative collateral options given if all the inputs are satisfied */
+  collateralOptions?: (TokenBalance | null)[];
 }
 
 interface TransactionState {

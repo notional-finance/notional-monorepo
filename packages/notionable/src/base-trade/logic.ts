@@ -11,7 +11,7 @@ import {
   RiskFactorLimit,
 } from '@notional-finance/risk-engine';
 import { CalculationFnParams } from '@notional-finance/transaction';
-import { filterEmpty, getNowSeconds } from '@notional-finance/util';
+import { filterEmpty, getNowSeconds, unique } from '@notional-finance/util';
 import {
   combineLatest,
   distinctUntilChanged,
@@ -224,15 +224,29 @@ export function selectedPool(
   selectedNetwork$: ReturnType<typeof selectedNetwork>
 ) {
   return state$.pipe(
-    map((s) => s[category.toLowerCase()] as TokenDefinition | undefined),
-    distinctUntilChanged((p, c) => p?.id === c?.id),
+    map((s) => {
+      const selectedToken = s[category.toLowerCase()] as
+        | TokenDefinition
+        | undefined;
+      const availableTokens = unique(
+        (s[`available${category}Tokens`] as TokenDefinition[] | undefined)?.map(
+          (t) => t.currencyId
+        ) || []
+      );
+      if (selectedToken) return selectedToken.currencyId;
+      // If all the available tokens are in the same currency id, then the pool can also
+      // be selected
+      if (availableTokens.length === 1) return availableTokens[0];
+      return undefined;
+    }),
+    distinctUntilChanged(),
     filterEmpty(),
     withLatestFrom(selectedNetwork$),
-    switchMap(([t, network]) => {
+    switchMap(([currencyId, network]) => {
       try {
         const nToken = Registry.getTokenRegistry().getNToken(
           network,
-          t.currencyId
+          currencyId
         );
 
         return (
@@ -404,7 +418,12 @@ export function calculate(
   debtPool$: ReturnType<typeof selectedPool>,
   collateralPool$: ReturnType<typeof selectedPool>,
   account$: Observable<AccountDefinition | null>,
-  { calculationFn, requiredArgs }: TransactionConfig
+  {
+    calculationFn,
+    requiredArgs,
+    calculateCollateralOptions,
+    calculateDebtOptions,
+  }: TransactionConfig
 ) {
   return combineLatest([state$, debtPool$, collateralPool$, account$]).pipe(
     pairwise(),
@@ -486,39 +505,97 @@ export function calculate(
           [{} as Record<CalculationFnParams, unknown>, [] as string[]]
         );
 
-        // Check that all required inputs are satisfied
-        const canSubmit = requiredArgs.every((r) => inputs[r] !== undefined);
+        const inputsSatisfied = requiredArgs.every(
+          (r) => inputs[r] !== undefined
+        );
         const calculateInputKeys = keys.join('|');
-        return prevCanSubmit !== canSubmit ||
+        return prevCanSubmit !== inputsSatisfied ||
           prevCalculateInputKeys !== calculateInputKeys
           ? {
               inputs,
-              canSubmit,
+              inputsSatisfied,
               calculateInputKeys,
+              // If we can submit at this point, show the alternative options
+              collateralTokens: calculateCollateralOptions
+                ? s.availableCollateralTokens
+                : undefined,
+              debtTokens: calculateDebtOptions
+                ? s.availableDebtTokens
+                : undefined,
             }
           : undefined;
       }
     ),
     filterEmpty(),
-    map(({ inputs, canSubmit, calculateInputKeys }) => {
+    map((u) => {
+      const { inputsSatisfied, inputs } = u;
       let calculateError: string | undefined;
-      if (canSubmit) {
+      if (inputsSatisfied) {
         try {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const outputs = calculationFn(inputs as any);
 
           return {
-            canSubmit,
-            calculateInputKeys,
-            calculateError,
+            ...u,
             ...outputs,
+            calculateError,
+            canSubmit: true,
           };
         } catch (e) {
           calculateError = (e as Error).toString();
         }
       }
 
-      return { canSubmit: false, calculateError, calculateInputKeys };
+      return { ...u, canSubmit: false, calculateError };
+    }),
+    map(({ inputs, collateralTokens, debtTokens, ...u }) => {
+      let collateralOptions: (TokenBalance | null)[] | undefined;
+      let debtOptions: (TokenBalance | null)[] | undefined;
+
+      if (calculateCollateralOptions) {
+        const satisfied = requiredArgs
+          .filter((c) => c !== 'collateral')
+          .every((r) => inputs[r] !== undefined);
+
+        collateralOptions = satisfied
+          ? collateralTokens?.map((c) => {
+              const i = { ...inputs, collateral: c };
+              try {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const { collateralBalance } = calculationFn(i as any) as {
+                  collateralBalance: TokenBalance;
+                };
+                return collateralBalance;
+              } catch (e) {
+                console.error(e);
+                return null;
+              }
+            })
+          : undefined;
+      }
+
+      if (calculateDebtOptions) {
+        const satisfied = requiredArgs
+          .filter((c) => c !== 'debt')
+          .every((r) => inputs[r] !== undefined);
+
+        debtOptions = satisfied
+          ? debtTokens?.map((d) => {
+              const i = { ...inputs, debt: d };
+              try {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const { debtBalance } = calculationFn(i as any) as {
+                  debtBalance: TokenBalance;
+                };
+                return debtBalance;
+              } catch {
+                return null;
+              }
+            })
+          : undefined;
+      }
+
+      return { ...u, collateralOptions, debtOptions };
     })
   );
 }
