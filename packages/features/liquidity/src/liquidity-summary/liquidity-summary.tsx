@@ -28,7 +28,7 @@ export const LiquiditySummary = () => {
     <>
       <TradeSummaryContainer>
         {!isReady ? (
-          <PageLoading></PageLoading>
+          <PageLoading />
         ) : (
           <>
             <Box sx={{ marginLeft: theme.spacing(2) }}>

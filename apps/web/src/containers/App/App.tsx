@@ -19,7 +19,7 @@ import { OnboardContext } from '@notional-finance/wallet';
 import { AboutUsView } from '@notional-finance/about-us-feature-shell';
 import { StakeView } from '@notional-finance/stake-feature-shell';
 import LendCardView from '@notional-finance/lend-feature-shell/lend-card-view';
-import { LendFeatureShell } from '@notional-finance/lend-feature-shell';
+import { LendFixed } from '@notional-finance/lend-feature-shell';
 import { PortfolioFeatureShell } from '@notional-finance/portfolio-feature-shell';
 import BorrowCardView from '@notional-finance/borrow-feature-shell/borrow-card-view';
 import { BorrowFeatureShell } from '@notional-finance/borrow-feature-shell';
@@ -50,14 +50,14 @@ const AllRoutes = () => {
         <Switch>
           <AppLayoutRoute path="/airdrop" component={AirdropView} />
           <AppLayoutRoute
-            path="/borrow/:underlying/:collateral"
+            path="/borrow/:selectedDepositToken/:selectedCollateralToken"
             routeKey={routeKey}
             component={BorrowFeatureShell}
           />
           <AppLayoutRoute path="/borrow" component={BorrowCardView} />
           <AppLayoutRoute
-            path="/lend/:underlying"
-            component={LendFeatureShell}
+            path="/lend/:selectedDepositToken"
+            component={LendFixed}
           />
           <AppLayoutRoute path="/lend" component={LendCardView} />
           <AppLayoutRoute

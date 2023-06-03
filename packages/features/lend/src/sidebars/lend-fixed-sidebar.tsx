@@ -1,20 +1,21 @@
-import { useCallback, useContext, useEffect } from 'react';
+import { useEffect, useCallback, useContext } from 'react';
+import { defineMessage, FormattedMessage } from 'react-intl';
+import {
+  Maturities,
+  ActionSidebar,
+  useCurrencyInputRef,
+} from '@notional-finance/mui';
 import {
   TransactionConfirmation,
   TradeActionButton,
   TokenApprovalView,
   WalletDepositInput,
 } from '@notional-finance/trade';
-import {
-  PageLoading,
-  ActionSidebar,
-  useCurrencyInputRef,
-} from '@notional-finance/mui';
 import { useHistory, useLocation } from 'react-router-dom';
-import { defineMessage, FormattedMessage } from 'react-intl';
-import { LiquidityContext } from '../liquidity-action';
+import { LEND_BORROW } from '@notional-finance/shared-config';
+import { LendFixedContext } from '../lend-fixed';
 
-export const LiquiditySidebar = () => {
+export const LendFixedSidebar = () => {
   const {
     state: {
       availableDepositTokens,
@@ -24,9 +25,9 @@ export const LiquiditySidebar = () => {
       confirm,
     },
     updateState,
-  } = useContext(LiquidityContext);
-  const { pathname, search } = useLocation();
+  } = useContext(LendFixedContext);
   const history = useHistory();
+  const { pathname, search } = useLocation();
   const { currencyInputRef } = useCurrencyInputRef();
 
   const handleTxnCancel = useCallback(() => {
@@ -35,8 +36,7 @@ export const LiquiditySidebar = () => {
 
   useEffect(() => {
     if (search.includes('confirm=true')) {
-      // TODO: Clears the confirmation on load...
-      history.push(pathname);
+      handleTxnCancel();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -45,7 +45,7 @@ export const LiquiditySidebar = () => {
     <TransactionConfirmation
       heading={
         <FormattedMessage
-          defaultMessage={'Provide Liquidity'}
+          defaultMessage="Lend Order"
           description="section heading"
         />
       }
@@ -56,19 +56,18 @@ export const LiquiditySidebar = () => {
   ) : (
     <ActionSidebar
       heading={defineMessage({
-        defaultMessage: 'Provide Liquidity',
+        defaultMessage: 'Lend With Confidence',
         description: 'section heading',
       })}
       helptext={defineMessage({
         defaultMessage:
-          'You will receive nTokens in return for providing liquidity to all markets at once. nTokens earn yield from cToken supply rates, trading fees, and fCash interest. nToken holders also earn NOTE incentives.',
+          'Lock in a fixed interest rate today.  Fixed rates guarantee your APY.',
         description: 'helptext',
       })}
-      hideTextOnMobile
       CustomActionButton={TradeActionButton}
       canSubmit={canSubmit}
     >
-      {availableDepositTokens && selectedDepositToken ? (
+      {availableDepositTokens && selectedDepositToken && (
         <WalletDepositInput
           ref={currencyInputRef}
           inputRef={currencyInputRef}
@@ -81,24 +80,33 @@ export const LiquiditySidebar = () => {
           }) => {
             // Will update the route and the parent component will update the store
             if (newSelectedToken !== selectedDepositToken)
-              history.push(`/provide/${newSelectedToken}`);
+              history.push(`/${LEND_BORROW.LEND}/${newSelectedToken}`);
 
             updateState({
               depositBalance: !hasError ? inputAmount : undefined,
             });
           }}
           inputLabel={defineMessage({
-            defaultMessage: '1. How much liquidity do you want to provide?',
+            defaultMessage: '1. How much do you want to lend?',
             description: 'input label',
           })}
         />
-      ) : (
-        <PageLoading />
       )}
-      {/* <TradePropertiesGrid showBackground data={tradeProperties || {}} /> */}
+      <Maturities
+        maturityData={[]}
+        onSelect={(_marketKey: string | null) => {
+          // updateLendState({ selectedMarketKey: marketKey });
+        }}
+        currentMarketKey={null}
+        inputLabel={defineMessage({
+          defaultMessage: '2. Select a maturity & fix your rate',
+          description: 'input label',
+        })}
+      />
+      {/* <LendBalanceInfo setInputAmount={setCurrencyInput} /> */}
       <TokenApprovalView symbol={selectedDepositToken} />
     </ActionSidebar>
   );
 };
 
-export default LiquiditySidebar;
+export default LendFixedSidebar;
