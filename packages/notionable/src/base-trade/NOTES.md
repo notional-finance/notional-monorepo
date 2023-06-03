@@ -113,6 +113,7 @@ export interface CashGroupData {
  * - Redeem nToken with Lend Fixed (Deleverage Cross Currency nToken)
  *      [Deposit: Undefined, Asset[U/T]: Prime Cash | fCash, Borrow[U/T]: Neg nToken]
  *
+ *   [Cross Currency]
  * - Borrow Fixed with Lend Variable
  * - Borrow Fixed with Lend Fixed
  * - Borrow Fixed with nToken Mint

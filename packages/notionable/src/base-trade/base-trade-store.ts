@@ -9,12 +9,11 @@ import {
   RiskFactorLimit,
 } from '@notional-finance/risk-engine';
 import {
-  calculateCollateral,
-  calculateDebtCollateralGivenDepositRiskLimit,
   CalculationFn,
   CalculationFnParams,
 } from '@notional-finance/transaction';
 import { TransactionFunction } from '../types';
+export { TradeConfiguration, TradeType } from './trade-config';
 
 export type FilterFunc = (
   t: TokenDefinition,
@@ -131,45 +130,3 @@ export const initialBaseTradeState: BaseTradeState = {
   canSubmit: false,
   confirm: false,
 };
-
-export const TradeConfiguration: Record<string, TransactionConfig> = {
-  LendVariable: {
-    calculationFn: calculateCollateral,
-    requiredArgs: ['collateral', 'depositBalance'],
-    collateralFilter: (t: TokenDefinition) => t.tokenType === 'PrimeCash',
-    debtFilter: () => false,
-  },
-  LendFixed: {
-    calculationFn: calculateCollateral,
-    requiredArgs: ['collateral', 'depositBalance', 'collateralPool'],
-    collateralFilter: (t: TokenDefinition) => t.tokenType === 'fCash',
-    debtFilter: () => false,
-  },
-  VariableToFixedSwap: {
-    calculationFn: calculateDebtCollateralGivenDepositRiskLimit,
-    requiredArgs: [
-      'collateral',
-      'debt',
-      'collateralPool',
-      'debtPool',
-      'depositBalance',
-      'balances',
-      'riskFactorLimit',
-    ],
-    // TODO: need to filter local currency and account specific
-    collateralFilter: (t: TokenDefinition) => t.tokenType === 'fCash',
-    debtFilter: (t: TokenDefinition) => t.tokenType === 'PrimeDebt',
-  },
-  MintNToken: {
-    // Uses deposit input
-    calculationFn: calculateCollateral,
-    requiredArgs: ['collateral', 'depositBalance', 'collateralPool'],
-    depositFilter: (t, _a, _s) => !!t.currencyId,
-    collateralFilter: (t, _a, s) =>
-      t.tokenType === 'nToken' &&
-      (s.deposit?.currencyId ? t.currencyId === s.deposit.currencyId : true),
-    debtFilter: () => false,
-  },
-};
-
-export type TradeType = keyof typeof TradeConfiguration;

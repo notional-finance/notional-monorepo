@@ -11,7 +11,7 @@ import {
   RiskFactorLimit,
 } from '@notional-finance/risk-engine';
 import { CalculationFnParams } from '@notional-finance/transaction';
-import { filterEmpty } from '@notional-finance/util';
+import { filterEmpty, getNowSeconds } from '@notional-finance/util';
 import {
   combineLatest,
   distinctUntilChanged,
@@ -111,19 +111,31 @@ export function availableTokens(
           (t) =>
             t.tokenType === 'PrimeCash' ||
             t.tokenType === 'nToken' ||
-            t.tokenType === 'fCash'
+            (t.tokenType === 'fCash' &&
+              t.isFCashDebt === false &&
+              (t.maturity || 0) > getNowSeconds())
         )
         .filter((t) =>
           collateralFilter ? collateralFilter(t, account, s) : true
         );
 
       const availableDebtTokens = listedTokens
-        .filter((t) => t.tokenType === 'PrimeDebt' || t.tokenType === 'fCash')
+        .filter(
+          (t) =>
+            t.tokenType === 'PrimeDebt' ||
+            (t.tokenType === 'fCash' &&
+              t.isFCashDebt === true &&
+              (t.maturity || 0) > getNowSeconds())
+        )
         .filter((t) => (debtFilter ? debtFilter(t, account, s) : true));
 
       const availableDepositTokens = listedTokens
         .filter((t) => t.tokenType === 'Underlying')
-        .filter((t) => (depositFilter ? depositFilter(t, account, s) : true));
+        // By default we only allow tokens with a currency id specified (i.e. they are listed
+        // on Notional)
+        .filter((t) =>
+          depositFilter ? depositFilter(t, account, s) : !!t.currencyId
+        );
 
       const hasChanged =
         availableCollateralTokens.map((t) => t.id).join(':') !==
