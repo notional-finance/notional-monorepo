@@ -11,6 +11,7 @@ import {
 import { useSelectedNetwork } from '../notional/use-notional';
 import { fCashMarket, Registry } from '@notional-finance/core-entities';
 import { EMPTY } from 'rxjs';
+import { useMemo } from 'react';
 
 interface AllRates {
   rate: string;
@@ -143,16 +144,25 @@ export const useMaturityData = (
 
 export const useFCashMarket = (currencyId?: number) => {
   const selectedNetwork = useSelectedNetwork();
-  const nToken = selectedNetwork
-    ? Registry.getTokenRegistry().getNToken(selectedNetwork, currencyId)
-    : undefined;
-  const fCashMarket$ =
-    selectedNetwork && nToken
+
+  const nToken = useMemo(() => {
+    try {
+      return selectedNetwork
+        ? Registry.getTokenRegistry().getNToken(selectedNetwork, currencyId)
+        : undefined;
+    } catch {
+      return undefined;
+    }
+  }, [selectedNetwork, currencyId]);
+
+  const fCashMarket$ = useMemo(() => {
+    return selectedNetwork && nToken
       ? Registry.getExchangeRegistry().subscribePoolInstance<fCashMarket>(
           selectedNetwork,
           nToken.address
         )
       : undefined;
+  }, [selectedNetwork, nToken]);
 
   return useObservableState<fCashMarket>(fCashMarket$ || EMPTY);
 };
