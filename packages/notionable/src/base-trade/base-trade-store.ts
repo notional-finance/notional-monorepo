@@ -97,6 +97,7 @@ interface TokenInputs {
 }
 
 interface TransactionState {
+  inputsSatisfied: boolean;
   /** True if the form is completed and able to be submitted */
   canSubmit: boolean;
   /** Contains a unique key for each set of calculation inputs */
@@ -135,4 +136,5 @@ export const initialBaseTradeState: BaseTradeState = {
   hasError: false,
   canSubmit: false,
   confirm: false,
+  inputsSatisfied: false,
 };

@@ -429,7 +429,7 @@ export function calculate(
     pairwise(),
     map(([[p], [s, debtPool, collateralPool, a]]) => ({
       prevCalculateInputKeys: p.calculateInputKeys,
-      prevCanSubmit: p.canSubmit,
+      prevInputsSatisfied: p.inputsSatisfied,
       s,
       debtPool,
       collateralPool,
@@ -437,7 +437,7 @@ export function calculate(
     })),
     map(
       ({
-        prevCanSubmit,
+        prevInputsSatisfied,
         prevCalculateInputKeys,
         s,
         debtPool,
@@ -509,7 +509,7 @@ export function calculate(
           (r) => inputs[r] !== undefined
         );
         const calculateInputKeys = keys.join('|');
-        return prevCanSubmit !== inputsSatisfied ||
+        return prevInputsSatisfied !== inputsSatisfied ||
           prevCalculateInputKeys !== calculateInputKeys
           ? {
               inputs,
