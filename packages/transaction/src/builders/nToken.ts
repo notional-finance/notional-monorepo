@@ -1,93 +1,103 @@
-import { TokenBalance } from '@notional-finance/core-entities';
 import {
   DepositActionType,
   getBalanceAction,
+  getETHValue,
   populateNotionalTxnAndGas,
+  PopulateTransactionInputs,
 } from '../common';
 
-export function depositAndMintNToken(
-  account: string,
-  depositAmount: TokenBalance
-) {
-  return populateNotionalTxnAndGas(
-    depositAmount.token.network,
-    account,
-    'batchBalanceAction',
+export function MintNToken({
+  address,
+  network,
+  depositBalance,
+}: PopulateTransactionInputs) {
+  if (!depositBalance) throw Error('depositBalance required');
+  if (
+    !depositBalance.isPositive() ||
+    depositBalance.token.tokenType !== 'Underlying'
+  )
+    throw Error('Invalid deposit balance');
+
+  return populateNotionalTxnAndGas(network, address, 'batchBalanceAction', [
+    address,
     [
-      account,
-      [
-        getBalanceAction(
-          DepositActionType.DepositUnderlyingAndMintNToken,
-          depositAmount,
-          // no deposits or redeems here
-          false,
-          false
-        ),
-      ],
-    ]
-  );
+      getBalanceAction(
+        DepositActionType.DepositUnderlyingAndMintNToken,
+        depositBalance,
+        // no deposits or redeems here
+        false,
+        undefined,
+        false
+      ),
+    ],
+    getETHValue(depositBalance),
+  ]);
 }
 
-export function convertCashToNToken(account: string, cashAmount: TokenBalance) {
-  return populateNotionalTxnAndGas(
-    cashAmount.token.network,
-    account,
-    'batchBalanceAction',
+export function ConvertCashToNToken({
+  address,
+  network,
+  debtBalance,
+}: PopulateTransactionInputs) {
+  if (!debtBalance) throw Error('debtBalance required');
+  // Debt balance should be in positive prime cash
+  if (!debtBalance.isPositive() || debtBalance.token.tokenType !== 'PrimeCash')
+    throw Error('Invalid debtBalance');
+
+  return populateNotionalTxnAndGas(network, address, 'batchBalanceAction', [
+    address,
     [
-      account,
-      [
-        getBalanceAction(
-          DepositActionType.ConvertCashToNToken,
-          cashAmount,
-          // no deposits or redeems here
-          false,
-          false
-        ),
-      ],
-    ]
-  );
+      getBalanceAction(
+        DepositActionType.ConvertCashToNToken,
+        debtBalance,
+        // no deposits or redeems here
+        false,
+        undefined,
+        false
+      ),
+    ],
+  ]);
 }
 
-export function redeemNToken(
-  account: string,
-  nTokensToRedeem: TokenBalance,
-  withdrawEntireCashBalance = true,
-  redeemToWETH = false
-) {
-  return populateNotionalTxnAndGas(
-    nTokensToRedeem.token.network,
-    account,
-    'batchBalanceAction',
+export function RedeemAndWithdrawNToken({
+  address,
+  network,
+  debtBalance,
+  redeemToWETH,
+}: PopulateTransactionInputs) {
+  if (!debtBalance) throw Error('debtBalance required');
+  if (!debtBalance.isPositive() || debtBalance.token.tokenType !== 'nToken')
+    throw Error('Invalid debtBalance');
+
+  return populateNotionalTxnAndGas(network, address, 'batchBalanceAction', [
+    address,
     [
-      account,
-      [
-        getBalanceAction(
-          DepositActionType.RedeemNToken,
-          nTokensToRedeem,
-          withdrawEntireCashBalance,
-          redeemToWETH
-        ),
-      ],
-    ]
-  );
+      getBalanceAction(
+        DepositActionType.RedeemNToken,
+        debtBalance,
+        // TODO: manage cash balances here
+        true, // withdraw entire cash balance
+        undefined,
+        redeemToWETH
+      ),
+    ],
+  ]);
 }
 
-export function redeemNTokenToCash(
-  account: string,
-  nTokensToRedeem: TokenBalance,
-  sellTokenAssets: boolean,
-  acceptResiduals: boolean
-) {
-  return populateNotionalTxnAndGas(
-    nTokensToRedeem.token.network,
-    account,
-    'nTokenRedeem',
-    [
-      account,
-      nTokensToRedeem.currencyId,
-      nTokensToRedeem.n,
-      sellTokenAssets,
-      acceptResiduals,
-    ]
-  );
+export function RedeemToPortfolioNToken({
+  address,
+  network,
+  debtBalance,
+}: PopulateTransactionInputs) {
+  if (!debtBalance) throw Error('debtBalance required');
+  if (!debtBalance.isPositive() || debtBalance.token.tokenType !== 'nToken')
+    throw Error('Invalid debtBalance');
+
+  return populateNotionalTxnAndGas(network, address, 'nTokenRedeem', [
+    address,
+    debtBalance.currencyId,
+    debtBalance.n,
+    true, // sell assets
+    true, // accept residuals
+  ]);
 }
