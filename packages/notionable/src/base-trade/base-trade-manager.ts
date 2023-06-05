@@ -18,6 +18,7 @@ import {
   calculate,
   postAccountRisk,
   availableTokens,
+  buildTransaction,
 } from './logic';
 
 export function createBaseTradeManager(
@@ -50,8 +51,8 @@ export function createBaseTradeManager(
       parseBalance('Debt', state$),
       parseRiskFactorLimit(state$, network$),
       calculate(state$, debtPool$, collateralPool$, account$, config),
-      postAccountRisk(state$, account$)
-      // buildTransactionCall(state$)
+      postAccountRisk(state$, account$),
+      buildTransaction(state$, account$, config)
     );
   };
 }

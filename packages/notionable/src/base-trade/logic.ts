@@ -10,12 +10,23 @@ import {
   RiskFactorKeys,
   RiskFactorLimit,
 } from '@notional-finance/risk-engine';
-import { CalculationFnParams } from '@notional-finance/transaction';
-import { filterEmpty, getNowSeconds, unique } from '@notional-finance/util';
+import {
+  CalculationFnParams,
+  simulatePopulatedTxn,
+} from '@notional-finance/transaction';
+import {
+  filterEmpty,
+  getNetworkFromId,
+  getNowSeconds,
+  unique,
+} from '@notional-finance/util';
 import {
   combineLatest,
   distinctUntilChanged,
+  distinctUntilKeyChanged,
+  EMPTY,
   filter,
+  from,
   map,
   Observable,
   of,
@@ -642,6 +653,45 @@ export function postAccountRisk(
         return undefined;
       }
     ),
+    filterEmpty()
+  );
+}
+
+export function buildTransaction(
+  state$: Observable<BaseTradeState>,
+  account$: ReturnType<typeof selectedAccount>,
+  { transactionBuilder }: TransactionConfig
+) {
+  return combineLatest([state$, account$]).pipe(
+    (filter(([state]) => state.canSubmit && state.confirm),
+    distinctUntilKeyChanged('calculateInputKeys'),
+    switchMap(([s, a]) => {
+      if (a) {
+        return from(
+          transactionBuilder({
+            ...s,
+            accountBalances: a.balances || [],
+            address: a.address,
+            network: a.network,
+          })
+        ).pipe(
+          // TODO: this might throw an error here
+          switchMap((p) => {
+            if (!p.chainId) throw Error('Chain ID undefined');
+            const network = getNetworkFromId(p.chainId);
+            if (!network) throw Error('Chain ID undefined');
+
+            return from(simulatePopulatedTxn(network, p)).pipe(
+              // TODO: this might throw an error here
+              map((r) => {
+                return { buildTransactionCall: p, simulatedResults: r };
+              })
+            );
+          })
+        );
+      }
+      return EMPTY;
+    })),
     filterEmpty()
   );
 }
