@@ -5,9 +5,10 @@ import {
   getBalanceAndTradeAction,
   getBatchLend,
   getETHValue,
+  hasExistingCashBalance,
   populateNotionalTxnAndGas,
   PopulateTransactionInputs,
-} from '../common';
+} from './common';
 
 export function LendFixed({
   address,
@@ -15,12 +16,18 @@ export function LendFixed({
   collateralBalance,
   depositBalance,
   redeemToWETH,
+  accountBalances,
 }: PopulateTransactionInputs) {
   if (!collateralBalance) throw Error('Collateral balance undefined');
 
   if (collateralBalance.underlying.symbol === 'ETH') {
     if (depositBalance?.token.symbol !== 'ETH')
       throw Error('Must specify ETH depositBalance');
+
+    const { withdrawEntireCashBalance } = hasExistingCashBalance(
+      collateralBalance,
+      accountBalances
+    );
 
     return populateNotionalTxnAndGas(
       network,
@@ -32,8 +39,7 @@ export function LendFixed({
           getBalanceAndTradeAction(
             DepositActionType.DepositUnderlying,
             depositBalance,
-            // TODO: manage withdraw amounts here if there are cash balances...
-            true,
+            withdrawEntireCashBalance,
             undefined,
             redeemToWETH,
             [collateralBalance]
@@ -72,9 +78,19 @@ export function BorrowWithCollateral({
   depositBalance,
   debtBalance,
   redeemToWETH,
+  accountBalances,
 }: PopulateTransactionInputs) {
   if (!collateralBalance || !depositBalance || !debtBalance)
     throw Error('All balances must be defined');
+
+  const { cashBalance: collateralCash } = hasExistingCashBalance(
+    collateralBalance,
+    accountBalances
+  );
+
+  // NOTE: this returns the direct FX'd prime cash amount which is probably wrong....
+  const { withdrawAmountInternalPrecision, withdrawEntireCashBalance } =
+    hasExistingCashBalance(debtBalance, accountBalances);
 
   return populateNotionalTxnAndGas(
     network,
@@ -88,8 +104,11 @@ export function BorrowWithCollateral({
             ? DepositActionType.DepositUnderlyingAndMintNToken
             : DepositActionType.DepositUnderlying,
           depositBalance,
-          // TODO: manage withdraw balances here
-          true,
+          // If the account has collateral cash or is depositing prime cash collateral, then
+          // do not withdraw cash balances. Otherwise, withdraw residuals.
+          collateralCash || collateralBalance.token.tokenType === 'PrimeCash'
+            ? false
+            : true,
           undefined,
           redeemToWETH,
           collateralBalance.token.tokenType === 'fCash'
@@ -99,12 +118,8 @@ export function BorrowWithCollateral({
         getBalanceAndTradeAction(
           DepositActionType.None,
           TokenBalance.zero(debtBalance.underlying),
-          // TODO: manage withdraw balances here
-          false,
-          // NOTE: withdraw amount is specified in prime cash
-          debtBalance.token.tokenType === 'PrimeDebt'
-            ? debtBalance.toPrimeCash()
-            : undefined,
+          withdrawEntireCashBalance,
+          withdrawAmountInternalPrecision,
           redeemToWETH,
           debtBalance.token.tokenType === 'fCash' ? [debtBalance] : []
         ),
@@ -120,34 +135,44 @@ export function RepayDebt({
   collateralBalance,
   depositBalance,
   redeemToWETH,
+  accountBalances,
 }: PopulateTransactionInputs) {
   if (!collateralBalance || !depositBalance)
     throw Error('Collateral and deposit balances must be defined');
 
-  return collateralBalance.token.tokenType === 'fCash'
-    ? LendFixed({
-        address,
-        network,
-        collateralBalance,
-        depositBalance,
-        redeemToWETH,
-      })
-    : populateNotionalTxnAndGas(network, address, 'batchBalanceAction', [
-        address,
-        [
-          getBalanceAction(
-            DepositActionType.DepositUnderlying,
-            depositBalance,
-            // NOTE: Withdraw entire cash balance to clear the debt to zero,
-            // this is always true when repaying debt otherwise should use lend
-            // variable instead.
-            true,
-            undefined,
-            redeemToWETH
-          ),
-        ],
-        getETHValue(depositBalance),
-      ]);
+  if (collateralBalance.token.tokenType === 'fCash') {
+    return LendFixed({
+      address,
+      network,
+      collateralBalance,
+      depositBalance,
+      redeemToWETH,
+      accountBalances,
+    });
+  } else {
+    const { cashBalance } = hasExistingCashBalance(
+      depositBalance,
+      accountBalances
+    );
+    if (!cashBalance?.isNegative()) throw Error('Must have cash debt to repay');
+
+    return populateNotionalTxnAndGas(network, address, 'batchBalanceAction', [
+      address,
+      [
+        getBalanceAction(
+          DepositActionType.DepositUnderlying,
+          depositBalance,
+          // NOTE: Withdraw entire cash balance to clear the debt to zero,
+          // this is always true when repaying debt otherwise should use lend
+          // variable instead.
+          true,
+          undefined,
+          redeemToWETH
+        ),
+      ],
+      getETHValue(depositBalance),
+    ]);
+  }
 }
 
 export function WithdrawLend({
@@ -156,9 +181,13 @@ export function WithdrawLend({
   debtBalance,
   depositBalance,
   redeemToWETH,
+  accountBalances,
 }: PopulateTransactionInputs) {
   if (!debtBalance || !depositBalance)
     throw Error('Collateral and deposit balances must be defined');
+
+  const { withdrawAmountInternalPrecision, withdrawEntireCashBalance } =
+    hasExistingCashBalance(debtBalance, accountBalances);
 
   return debtBalance.token.tokenType === 'fCash'
     ? populateNotionalTxnAndGas(
@@ -171,10 +200,8 @@ export function WithdrawLend({
             getBalanceAndTradeAction(
               DepositActionType.None,
               TokenBalance.zero(debtBalance.underlying),
-              // TODO: manage cash balances here, want to withdraw down to dust
-              // balances
-              false,
-              depositBalance.neg(),
+              withdrawEntireCashBalance,
+              withdrawAmountInternalPrecision,
               redeemToWETH,
               [debtBalance]
             ),

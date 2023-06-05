@@ -4,7 +4,7 @@ import {
   getBalanceAndTradeAction,
   DepositActionType,
   getETHValue,
-} from '../common';
+} from './common';
 
 export function LeveragedOrDeleverageLend({
   address,
@@ -27,8 +27,8 @@ export function LeveragedOrDeleverageLend({
           DepositActionType.DepositUnderlying,
           depositBalance,
           false,
-          false,
           undefined, // No Withdraws
+          false,
           [collateralBalance, debtBalance].filter(
             (t) => t.token.tokenType === 'fCash'
           )

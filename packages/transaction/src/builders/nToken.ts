@@ -2,9 +2,10 @@ import {
   DepositActionType,
   getBalanceAction,
   getETHValue,
+  hasExistingCashBalance,
   populateNotionalTxnAndGas,
   PopulateTransactionInputs,
-} from '../common';
+} from './common';
 
 export function MintNToken({
   address,
@@ -64,10 +65,15 @@ export function RedeemAndWithdrawNToken({
   network,
   debtBalance,
   redeemToWETH,
+  accountBalances,
 }: PopulateTransactionInputs) {
   if (!debtBalance) throw Error('debtBalance required');
   if (!debtBalance.isPositive() || debtBalance.token.tokenType !== 'nToken')
     throw Error('Invalid debtBalance');
+
+  // TODO: these values do not include slippage.
+  const { withdrawEntireCashBalance, withdrawAmountInternalPrecision } =
+    hasExistingCashBalance(debtBalance, accountBalances);
 
   return populateNotionalTxnAndGas(network, address, 'batchBalanceAction', [
     address,
@@ -75,9 +81,8 @@ export function RedeemAndWithdrawNToken({
       getBalanceAction(
         DepositActionType.RedeemNToken,
         debtBalance,
-        // TODO: manage cash balances here
-        true, // withdraw entire cash balance
-        undefined,
+        withdrawEntireCashBalance,
+        withdrawAmountInternalPrecision,
         redeemToWETH
       ),
     ],

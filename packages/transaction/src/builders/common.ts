@@ -50,6 +50,40 @@ export interface PopulateTransactionInputs {
   debtBalance?: TokenBalance;
   collateralBalance?: TokenBalance;
   redeemToWETH: boolean;
+  accountBalances: TokenBalance[];
+}
+
+export function hasExistingCashBalance(
+  tokenBalance: TokenBalance,
+  balances: TokenBalance[]
+) {
+  const cashBalance = balances.find(
+    (b) =>
+      (b.token.tokenType === 'PrimeCash' ||
+        b.token.tokenType === 'PrimeDebt') &&
+      b.token.currencyId === tokenBalance.currencyId
+  );
+
+  const withdrawEntireCashBalance = cashBalance ? false : true;
+  const withdrawAmountInternalPrecision =
+    cashBalance?.token.tokenType === 'PrimeCash'
+      ? // If there is a prime cash balance, withdraw the deposit balance (which is
+        // the withdraw amount here)
+        tokenBalance.toPrimeCash().neg()
+      : tokenBalance?.token.tokenType === 'PrimeDebt'
+      ? // If there is a prime debt balance, then withdraw the net amount after repayment
+        tokenBalance.toPrimeCash().neg().add(tokenBalance.toPrimeCash())
+      : undefined;
+
+  return {
+    cashBalance,
+    withdrawEntireCashBalance,
+    // Floor this value at zero
+    withdrawAmountInternalPrecision:
+      withdrawAmountInternalPrecision?.isNegative()
+        ? withdrawAmountInternalPrecision.copy(0)
+        : withdrawAmountInternalPrecision,
+  };
 }
 
 export async function populateTxnAndGas(

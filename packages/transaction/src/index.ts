@@ -1,3 +1,5 @@
+import { PopulatedTransaction } from 'ethers';
+import { PopulateTransactionInputs } from './builders/common';
 import {
   calculateCollateral,
   calculateDebt,
@@ -7,9 +9,9 @@ import {
   calculateDepositDebtGivenCollateralRiskLimit,
 } from './calculate';
 
-export * from './builders/nToken';
+export * from './builders';
 export * from './calculate';
-export { simulatePopulatedTxn } from './common';
+export { simulatePopulatedTxn } from './builders/common';
 
 export type CalculationFn =
   | typeof calculateCollateral
@@ -30,3 +32,7 @@ export type CalculationFnParams =
   | ParamKeys<typeof calculateDebtCollateralGivenDepositRiskLimit>
   | ParamKeys<typeof calculateDepositCollateralGivenDebtRiskLimit>
   | ParamKeys<typeof calculateDepositDebtGivenCollateralRiskLimit>;
+
+export type TransactionBuilder = (
+  t: PopulateTransactionInputs
+) => Promise<PopulatedTransaction>;
