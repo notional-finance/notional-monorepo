@@ -1,33 +1,25 @@
-import { useContext, useEffect } from 'react';
+import { useCallback, useContext, useEffect } from 'react';
 import {
   TransactionConfirmation,
   TradeActionButton,
-  TokenApprovalView,
-  WalletDepositInput,
+  DepositInput,
 } from '@notional-finance/trade';
-import {
-  PageLoading,
-  ActionSidebar,
-  useCurrencyInputRef,
-} from '@notional-finance/mui';
+import { ActionSidebar, useCurrencyInputRef } from '@notional-finance/mui';
 import { useHistory, useLocation } from 'react-router-dom';
 import { defineMessage, FormattedMessage } from 'react-intl';
 import { LiquidityContext } from '../liquidity-action';
 
 export const LiquiditySidebar = () => {
   const {
-    state: {
-      availableTokens,
-      currency,
-      canSubmit,
-      buildTransactionCall,
-      confirm,
-    },
-    updateState,
+    state: { canSubmit, buildTransactionCall, confirm },
   } = useContext(LiquidityContext);
   const { pathname, search } = useLocation();
   const history = useHistory();
   const { currencyInputRef } = useCurrencyInputRef();
+
+  const handleTxnCancel = useCallback(() => {
+    history.push(pathname);
+  }, [history, pathname]);
 
   useEffect(() => {
     if (search.includes('confirm=true')) {
@@ -45,7 +37,7 @@ export const LiquiditySidebar = () => {
           description="section heading"
         />
       }
-      onCancel={() => history.push(pathname)}
+      onCancel={handleTxnCancel}
       transactionProperties={{}}
       buildTransactionCall={buildTransactionCall}
     />
@@ -64,36 +56,17 @@ export const LiquiditySidebar = () => {
       CustomActionButton={TradeActionButton}
       canSubmit={canSubmit}
     >
-      {availableTokens && currency ? (
-        <WalletDepositInput
-          ref={currencyInputRef}
-          inputRef={currencyInputRef}
-          availableTokens={availableTokens}
-          selectedToken={currency}
-          onChange={({
-            selectedToken: newSelectedToken,
-            inputAmount,
-            hasError,
-          }) => {
-            // Will update the route and the parent component will update the store
-            if (newSelectedToken !== currency)
-              history.push(`/provide/${newSelectedToken}`);
-
-            updateState({
-              inputAmount: inputAmount?.toExactString(),
-              hasError,
-            });
-          }}
-          inputLabel={defineMessage({
-            defaultMessage: '1. How much liquidity do you want to provide?',
-            description: 'input label',
-          })}
-        />
-      ) : (
-        <PageLoading />
-      )}
+      <DepositInput
+        ref={currencyInputRef}
+        inputRef={currencyInputRef}
+        context={LiquidityContext}
+        newRoute={(newToken) => `/provide/${newToken}`}
+        inputLabel={defineMessage({
+          defaultMessage: '1. How much liquidity do you want to provide?',
+          description: 'input label',
+        })}
+      />
       {/* <TradePropertiesGrid showBackground data={tradeProperties || {}} /> */}
-      <TokenApprovalView />
     </ActionSidebar>
   );
 };

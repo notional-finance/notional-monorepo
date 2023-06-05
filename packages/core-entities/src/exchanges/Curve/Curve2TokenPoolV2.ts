@@ -483,10 +483,11 @@ export default class Curve2TokenPoolV2 extends BaseLiquidityPool<Curve2TokenPool
 
   public calculateTokenTrade(
     tokensIn: TokenBalance,
-    tokenIndexIn: number,
     tokenIndexOut: number,
     _balanceOverrides?: TokenBalance[]
   ) {
+    const tokenIndexIn = this.getTokenIndex(tokensIn.token);
+
     const A_gamma = [this.poolParams.A, this.poolParams.gamma];
     let xp = [...(_balanceOverrides || this.balances)];
     let dy = BigNumber.from(0);

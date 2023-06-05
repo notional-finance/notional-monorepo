@@ -6,15 +6,15 @@ import { MessageDescriptor } from 'react-intl';
 
 export interface MaturitiesProps {
   maturityData: MaturityData[];
-  currentMarketKey: string | null;
-  onSelect: (marketKey: string | null) => void;
+  selectedfCashId: string | undefined;
+  onSelect: (selectedId: string | undefined) => void;
   inputLabel?: MessageDescriptor;
 }
 
 export function Maturities({
   maturityData,
   onSelect,
-  currentMarketKey,
+  selectedfCashId,
   inputLabel,
 }: MaturitiesProps) {
   const theme = useTheme();
@@ -27,10 +27,15 @@ export function Maturities({
             <MaturityCard
               key={`maturity-${index}`}
               maturityData={data}
-              selected={currentMarketKey && currentMarketKey === data.marketKey ? true : false}
+              selected={
+                selectedfCashId && selectedfCashId === data.fCashId
+                  ? true
+                  : false
+              }
               onSelect={(key) => {
-                const selectedMarketKey = key && key !== currentMarketKey ? key : null;
-                onSelect(selectedMarketKey);
+                const selected =
+                  key && key !== selectedfCashId ? key : undefined;
+                onSelect(selected);
               }}
               isFirstChild={index === 0}
               isLastChild={index === maturityData.length - 1}

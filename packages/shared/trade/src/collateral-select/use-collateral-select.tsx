@@ -126,13 +126,13 @@ export function useCollateralSelect(
       // the borrow market (if set)
       .filter(
         (m) =>
-          m.tradeRate !== undefined && m.marketKey !== selectedBorrowMarketKey
+          m.tradeRate !== undefined && m.fCashId !== selectedBorrowMarketKey
       )
       .forEach((m) => {
         const cashGroup = system.getCashGroup(currencyId);
         const market = system
           .getMarkets(currencyId)
-          .find((_m) => _m.marketKey === m.marketKey);
+          .find((_m) => _m.marketKey === m.fCashId);
         const fCashPV = m.fCashAmount
           ? cashGroup.getfCashPresentValueUnderlyingInternal(
               m.maturity,
@@ -157,7 +157,7 @@ export function useCollateralSelect(
           apy: m.tradeRate || 0,
           apySuffix: 'Fixed APY',
           collateralValue: collateralValue?.toFloat() || 0,
-          marketKey: m.marketKey,
+          marketKey: m.fCashId,
           optionType: CollateralActionType.LEND_FCASH,
           minLendSlippage,
           fCashAmount: m.fCashAmount,
@@ -216,7 +216,9 @@ export function useCollateralSelect(
       <FormattedMessage
         {...{
           ...tradeErrors.negativeCashWarningOnDeposit,
-          values: { cashBalance: cashBalance.neg().toDisplayStringWithSymbol() },
+          values: {
+            cashBalance: cashBalance.neg().toDisplayStringWithSymbol(),
+          },
         }}
       />
     );

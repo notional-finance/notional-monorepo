@@ -164,10 +164,10 @@ export default class WeightedPool extends BaseLiquidityPool<PoolParams> {
 
   public calculateTokenTrade(
     tokensIn: TokenBalance,
-    tokenIndexIn: number,
     tokenIndexOut: number,
     balanceOverrides?: TokenBalance[]
   ) {
+    const tokenIndexIn = this.getTokenIndex(tokensIn.token);
     const balanceIn = FixedPoint.from(
       (balanceOverrides || this.balances)[tokenIndexIn].scaleTo(18)
     );

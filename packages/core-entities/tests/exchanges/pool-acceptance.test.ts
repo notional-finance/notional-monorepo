@@ -176,7 +176,7 @@ const acceptanceSuite = ({
 
         const actual = await harness.trade(signer, tokensIn, tokenIn, tokenOut);
         const { tokensOut, feesPaid: _feesPaid } =
-          harness.poolInstance.calculateTokenTrade(tokensIn, tokenIn, tokenOut);
+          harness.poolInstance.calculateTokenTrade(tokensIn, tokenOut);
         // console.log(
         //   'actual',
         //   tokensIn.toDisplayStringWithSymbol(8),

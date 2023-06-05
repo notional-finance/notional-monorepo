@@ -6,6 +6,7 @@ import {
   INTERNAL_TOKEN_DECIMALS,
   Network,
   NotionalAddress,
+  RATE_DECIMALS,
   RATE_PRECISION,
   SECONDS_IN_YEAR,
 } from '@notional-finance/util';
@@ -214,13 +215,14 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
    */
   public calculateTokenTrade(
     tokensIn: TokenBalance,
-    tokenIndexIn: number,
     tokenIndexOut: number,
     balanceOverrides?: TokenBalance[]
   ): {
     tokensOut: TokenBalance;
     feesPaid: TokenBalance[];
   } {
+    const tokenIndexIn = this.getTokenIndex(tokensIn.token);
+
     if (tokenIndexIn == 0) {
       // Depositing cash, receiving positive fCash
       const fCashAmount = this.getfCashGivenCashAmount(
@@ -235,7 +237,7 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
       );
 
       const feesPaid = this.zeroTokenArray();
-      feesPaid[0] = feesPaid[0].copy(fee.n);
+      feesPaid[0] = fee.toPrimeCash();
 
       return { feesPaid, tokensOut: fCashAmount };
     } else if (tokenIndexOut == 0) {
@@ -246,7 +248,7 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
         balanceOverrides
       );
       const feesPaid = this.zeroTokenArray();
-      feesPaid[0] = feesPaid[0].copy(fee.n);
+      feesPaid[0] = fee.toPrimeCash();
 
       return {
         feesPaid,
@@ -739,5 +741,65 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
 
   public getZeroUnderlying() {
     return this.balances[0].toUnderlying().copy(0);
+  }
+
+  public getSpotInterestRates() {
+    return this.poolParams.perMarketCash.map((c, i) => {
+      const utilization = this.getfCashUtilization(
+        this.poolParams.perMarketfCash[i].copy(0),
+        this.poolParams.perMarketfCash[i],
+        c.toUnderlying()
+      );
+      return this.getInterestRate(i + 1, utilization);
+    });
+  }
+
+  public getMarketIndex(maturity?: number) {
+    const index = this.balances.findIndex((t) => t.token.maturity === maturity);
+    if (index === -1) throw Error('Market index not found');
+    return index;
+  }
+
+  public getImpliedInterestRate(
+    cash: TokenBalance,
+    fCash: TokenBalance,
+    blockTime = getNowSeconds()
+  ) {
+    if (cash.isZero()) return undefined;
+
+    const exchangeRate = fCash
+      .divInRatePrecision(cash.toUnderlying().scaleTo(RATE_DECIMALS))
+      .scaleTo(RATE_DECIMALS)
+      .abs()
+      .toNumber();
+    const timeToMaturity = (fCash.token.maturity || 0) - blockTime;
+
+    // ln(exchangeRate) * SECONDS_IN_YEAR / timeToMaturity
+    return Math.trunc(
+      ((Math.log(exchangeRate / RATE_PRECISION) * SECONDS_IN_YEAR) /
+        timeToMaturity) *
+        RATE_PRECISION
+    );
+  }
+
+  public tenor(marketIndex: number): string {
+    switch (marketIndex) {
+      case 1:
+        return '3 Month';
+      case 2:
+        return '6 Month';
+      case 3:
+        return '1 Year';
+      case 4:
+        return '2 Year';
+      case 5:
+        return '5 Year';
+      case 6:
+        return '10 Year';
+      case 7:
+        return '20 Year';
+      default:
+        return 'Unknown';
+    }
   }
 }

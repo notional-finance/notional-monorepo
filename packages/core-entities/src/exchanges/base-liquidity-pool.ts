@@ -1,12 +1,12 @@
 import { AbstractLiquidityPool } from './abstract-liquidity-pool';
-import { ExchangeRate, TokenBalance } from '..';
+import { ExchangeRate, TokenBalance, TokenDefinition } from '..';
 import {
   Network,
   RATE_DECIMALS,
   RATE_PRECISION,
   doBinarySearch,
 } from '@notional-finance/util';
-import { BigNumber } from 'ethers';
+import { BigNumber, utils } from 'ethers';
 
 export default abstract class BaseLiquidityPool<
   P
@@ -39,6 +39,16 @@ export default abstract class BaseLiquidityPool<
 
   public totalValueLocked(primaryTokenIndex: number) {
     return this.getBalanceArrayOracleValue(this.balances, primaryTokenIndex);
+  }
+
+  get hashKey() {
+    return utils.id(
+      [
+        this._network,
+        ...this.balances.map((b) => b.hashKey),
+        this._totalSupply.hashKey,
+      ].join(':')
+    );
   }
 
   /**
@@ -124,7 +134,6 @@ export default abstract class BaseLiquidityPool<
         if (i === primaryTokenIndex) return b;
         const { tokensOut } = this.calculateTokenTrade(
           b.copy(1),
-          i,
           primaryTokenIndex,
           balanceOverrides
         );
@@ -221,8 +230,10 @@ export default abstract class BaseLiquidityPool<
       // In a single sided exit, do a binary search for the amount of LP tokens required
       // to exit the pool
       const amountOutRequired = tokensOut[singleSidedExitTokenIndex];
-      const lpToAmountOutEstimate = amountOutRequired
-        .ratioWith(this.getLPTokenSpotValue(singleSidedExitTokenIndex))
+      const lpToAmountOutEstimate = this.getLPTokenSpotValue(
+        singleSidedExitTokenIndex
+      )
+        .scaleTo(RATE_DECIMALS)
         .toNumber();
 
       const calculationFunction = (lpToAmountRatio: number) => {
@@ -259,7 +270,7 @@ export default abstract class BaseLiquidityPool<
           prevValue < tokensOut[i].toFloat()
             ? [tokensOut[i].toFloat(), i]
             : [prevValue, prevIndex],
-        [0, -1]
+        [0, 0]
       );
 
       // Value of all the tokens taken out of the pool
@@ -302,7 +313,7 @@ export default abstract class BaseLiquidityPool<
 
             // Trade the the balance to recover the negative amount
             const { tokensOut: tokensTraded, feesPaid: feesFromTrade } =
-              this.calculateTokenTrade(diffs[positiveIndex], positiveIndex, i);
+              this.calculateTokenTrade(diffs[positiveIndex], i);
             tokenDiff = tokenDiff.add(tokensTraded);
 
             // Modifies the token diff array in place
@@ -358,11 +369,7 @@ export default abstract class BaseLiquidityPool<
       .map((_, i) => {
         // Percentage of the sold token index
         const tokensIn = this.balances[tokenIndexIn].scale(i, 100);
-        const { tokensOut } = this.calculateTokenTrade(
-          tokensIn,
-          tokenIndexIn,
-          tokenIndexOut
-        );
+        const { tokensOut } = this.calculateTokenTrade(tokensIn, tokenIndexOut);
 
         const newBalances = Array.from(this.balances);
         newBalances[tokenIndexIn] = newBalances[tokenIndexIn].sub(tokensIn);
@@ -378,7 +385,6 @@ export default abstract class BaseLiquidityPool<
           this.balances[tokenIndexIn].copy(
             this.balances[tokenIndexIn].precision
           ),
-          tokenIndexIn,
           tokenIndexOut,
           newBalances
         );
@@ -392,5 +398,11 @@ export default abstract class BaseLiquidityPool<
         ({ priceLevelIndex }, i, arr) =>
           i === 0 || arr[i - 1].priceLevelIndex !== priceLevelIndex
       );
+  }
+
+  public getTokenIndex(token: TokenDefinition) {
+    const index = this.balances.findIndex((t) => t.token.id === token.id);
+    if (index < 0) throw Error('Invalid token for pool');
+    return index;
   }
 }

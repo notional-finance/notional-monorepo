@@ -286,16 +286,15 @@ abstract class ComposableStablePool extends BaseLiquidityPool<ComposableStablePo
 
   /**
    * @param tokensIn represents underlying balances
-   * @param tokenIndexIn index of token in
    * @param tokenIndexOut  index of token out
    * @param balanceOverrides represents overrides in underlying balance terms
    */
   public calculateTokenTrade(
     tokensIn: TokenBalance,
-    tokenIndexIn: number,
     tokenIndexOut: number,
     _balanceOverrides?: TokenBalance[]
   ) {
+    const tokenIndexIn = this.getTokenIndex(tokensIn.token);
     const scaledAmountIn = FixedPoint.from(tokensIn.n).mulDown(
       this.poolParams.linearPoolMainScalingFactors[tokenIndexIn]
     );
@@ -320,7 +319,6 @@ abstract class ComposableStablePool extends BaseLiquidityPool<ComposableStablePo
     const { tokensOut: linearBPTOut, feesPaid: linearBPTFees } =
       this.baseMetaStablePool.calculateTokenTrade(
         linearBPTIn,
-        tokenIndexIn,
         tokenIndexOut,
         balanceOverrides
       );

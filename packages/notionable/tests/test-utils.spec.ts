@@ -61,7 +61,7 @@ export function getTestScheduler<T extends Record<string, unknown>>() {
         (expectedValue as ExpectFn<T>)(
           actual[index]?.notification.value,
           index,
-          actual.reduce((p, c) => {
+          actual.slice(0, index).reduce((p, c) => {
             return { ...c.notification.value, ...p };
           }, {} as Partial<T>),
           actual.map((f) => f.notification.value)
@@ -90,7 +90,7 @@ export function runSequence<T extends Record<string, unknown>>(
   _actions: Actions<T>
 ) {
   const scheduler = getTestScheduler<T>();
-  scheduler.run(({ cold, expectObservable }) => {
+  scheduler.run(({ expectObservable, hot }) => {
     // Extracts actions
     const actions = _actions.map((a) => (Array.isArray(a) ? a[0] : a));
     // Extracts expecters
@@ -102,7 +102,7 @@ export function runSequence<T extends Record<string, unknown>>(
       .map((_, i) => alphanumeric[i]);
 
     // Executes the action sequence on test run and updates state each time
-    cold(
+    hot(
       marbleSeq.join(''),
       Object.fromEntries(marbleSeq.map((m, i) => [m, actions[i]]))
     ).subscribe(updateState);

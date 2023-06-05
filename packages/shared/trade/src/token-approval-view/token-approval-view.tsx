@@ -1,7 +1,7 @@
 import { TokenApproval } from '@notional-finance/mui';
 import { Box } from '@mui/material';
 import { useParams } from 'react-router-dom';
-import { useWallet } from '@notional-finance/notionable-hooks';
+import { useAccountReady } from '@notional-finance/notionable-hooks';
 import { useTokenApproval } from './use-token-approval';
 
 interface TokenApprovalViewProps {
@@ -9,7 +9,7 @@ interface TokenApprovalViewProps {
 }
 
 export const TokenApprovalView = ({ symbol }: TokenApprovalViewProps) => {
-  const { walletConnected } = useWallet();
+  const walletConnected = useAccountReady();
   const { currency } = useParams<Record<string, string>>();
   const { tokenStatus, enableToken } = useTokenApproval(symbol || currency);
 

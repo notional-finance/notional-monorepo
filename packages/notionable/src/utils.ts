@@ -11,7 +11,7 @@ import {
   distinctUntilChanged,
   pipe,
 } from 'rxjs';
-import { Hashable } from './types';
+import { Hashable, ID } from './types';
 
 export function makeStore<StateType>(initialState: StateType) {
   const _store = new BehaviorSubject(initialState);
@@ -53,13 +53,19 @@ export function requireKeysDefined<T, K extends keyof T>(...keys: K[]) {
   }) as unknown as OperatorFunction<T, RequiredKeys<T, typeof keys[number]>>;
 }
 
-function isHashable(o: any): o is Hashable {
+export function isHashable(o: unknown): o is Hashable {
   return !!o && typeof o === 'object' && 'hashKey' in o;
 }
 
-function compareWithHashable(prev: any, cur: any) {
+export function isID(o: unknown): o is ID {
+  return !!o && typeof o === 'object' && 'id' in o;
+}
+
+function compareWithHashable(prev: unknown, cur: unknown) {
   if (isHashable(prev) && isHashable(cur)) {
     return prev.hashKey === cur.hashKey;
+  } else if (isID(prev) && isID(cur)) {
+    return prev.id === cur.id;
   } else {
     return Object.is(prev, cur);
   }

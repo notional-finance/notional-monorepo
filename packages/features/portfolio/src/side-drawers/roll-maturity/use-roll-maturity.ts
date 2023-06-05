@@ -45,7 +45,7 @@ export function useRollMaturity(assetKey: string | undefined) {
       : [];
   const maturityData = rollFactors.map(({ tradeRate, market }) => {
     return {
-      marketKey: market.marketKey,
+      fCashId: market.marketKey,
       maturity: market.maturity,
       tradeRate: tradeRate ? convertRateToFloat(tradeRate) : undefined,
       tradeRateString: tradeRate ? Market.formatInterestRate(tradeRate) : '',

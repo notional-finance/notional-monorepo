@@ -29,11 +29,6 @@ export function useNotional() {
   };
 }
 
-export function useContracts() {
-  const { notional } = useNotional();
-  return notional?.contracts;
-}
-
 export function useLastUpdateBlockNumber() {
   const { system } = useNotional();
   return system?.lastUpdateBlockNumber;
@@ -58,4 +53,12 @@ export function useNotionalContext() {
   );
 
   return { globalState: state, updateNotional: updateState, globalState$ };
+}
+
+export function useSelectedNetwork() {
+  const {
+    globalState: { selectedNetwork, isNetworkReady },
+  } = useNotionalContext();
+
+  return isNetworkReady ? selectedNetwork : undefined;
 }

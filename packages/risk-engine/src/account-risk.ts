@@ -23,21 +23,10 @@ export class AccountRiskProfile extends BaseRiskProfile {
   /** Takes a set of token balances to create a new account risk profile */
   constructor(_balances: TokenBalance[]) {
     const balances = _balances
-      .map((t) => {
-        if (t.token.tokenType === 'Underlying') {
-          const pCash = Registry.getTokenRegistry().getPrimeCash(
-            t.token.network,
-            t.currencyId
-          );
-          return t.toToken(pCash);
-        } else {
-          return t;
-        }
-      })
+      .map((t) => (t.token.tokenType === 'Underlying' ? t.toPrimeCash() : t))
       .filter(
         (t) =>
-          // Exclude these token types from the account risk profile
-          t.token.vaultAddress === undefined &&
+          !t.isVaultToken &&
           t.token.tokenType !== 'Underlying' &&
           t.token.tokenType !== 'Fiat'
       );
@@ -72,16 +61,19 @@ export class AccountRiskProfile extends BaseRiskProfile {
   maxLoanToValue() {
     const ltv = this.loanToValue();
     const assets = this.totalAssetsRiskAdjusted();
-    if (assets.isZero()) return 0
+    if (assets.isZero()) return 0;
 
-    const riskAdjustedLTV = this._toPercent(this.totalDebtRiskAdjusted(), assets);
+    const riskAdjustedLTV = this._toPercent(
+      this.totalDebtRiskAdjusted(),
+      assets
+    );
 
     return ltv / riskAdjustedLTV;
   }
 
   /** Total value of all assets with a risk adjustment */
   totalAssetsRiskAdjusted(denominated = this.defaultSymbol) {
-    return this._totalRiskAdjusted(this.assets, this.denom(denominated));
+    return this._totalRiskAdjusted(this.collateral, this.denom(denominated));
   }
 
   /** Total debt with risk adjustments */
@@ -92,7 +84,7 @@ export class AccountRiskProfile extends BaseRiskProfile {
   /** Total value of assets in the specified currency */
   totalCurrencyAssets(currencyId: number, denominated = this.defaultSymbol) {
     return this._totalValue(
-      this.assets.filter((t) => t.token.currencyId === currencyId),
+      this.collateral.filter((t) => t.token.currencyId === currencyId),
       this.denom(denominated)
     );
   }
@@ -103,7 +95,7 @@ export class AccountRiskProfile extends BaseRiskProfile {
     denominated = this.defaultSymbol
   ) {
     return this._totalRiskAdjusted(
-      this.assets.filter((t) => t.token.currencyId === currencyId),
+      this.collateral.filter((t) => t.token.currencyId === currencyId),
       this.denom(denominated)
     );
   }
@@ -239,6 +231,20 @@ export class AccountRiskProfile extends BaseRiskProfile {
       usedBorrowCapacity,
       additionalBorrowCapacity,
       totalBorrowCapacity: usedBorrowCapacity.add(additionalBorrowCapacity),
+    };
+  }
+
+  getAllRiskFactors() {
+    return {
+      netWorth: this.netWorth(),
+      freeCollateral: this.freeCollateral(),
+      loanToValue: this.loanToValue(),
+      collateralRatio: this.collateralRatio(),
+      healthFactor: this.healthFactor(),
+      liquidationPrice: this.getAllLiquidationPrices(),
+      collateralLiquidationThreshold: this.collateral.map((a) =>
+        this.collateralLiquidationThreshold(a.token)
+      ),
     };
   }
 }

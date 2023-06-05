@@ -1,1 +1,1 @@
-export { LendFeatureShell } from './lend-feature-shell';
+export { LendFixed } from './lend-fixed';

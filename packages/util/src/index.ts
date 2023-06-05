@@ -8,3 +8,4 @@ export * from './constants';
 export * from './array-helpers';
 export * from './rxjs-helpers';
 export * from './binary-search';
+export * from './format';

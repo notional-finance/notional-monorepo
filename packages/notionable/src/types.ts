@@ -121,7 +121,7 @@ export interface CalculateTradedRatesResult {
 }
 
 export interface MaturityData {
-  marketKey: string;
+  fCashId: string;
   tradeRate: number | undefined;
   maturity: number;
   hasLiquidity: boolean;
@@ -134,6 +134,11 @@ export interface MaturityData {
 export interface Hashable {
   hashKey: string;
 }
+
+export interface ID {
+  id: string;
+}
+
 export interface NotionalError extends Error {
   msgId?: string;
   code?: number;

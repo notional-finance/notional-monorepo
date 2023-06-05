@@ -1,6 +1,10 @@
 import { useContext, useEffect } from 'react';
 import { TokenApprovalView, WalletDepositInput } from '@notional-finance/trade';
-import { SliderInput, useCurrencyInputRef, useSliderInputRef } from '@notional-finance/mui';
+import {
+  SliderInput,
+  useCurrencyInputRef,
+  useSliderInputRef,
+} from '@notional-finance/mui';
 import { VAULT_ACTIONS } from '@notional-finance/shared-config';
 import { VaultSideDrawer } from '../components/vault-side-drawer';
 import { VaultActionContext } from '../vault-view/vault-action-provider';
@@ -20,7 +24,7 @@ export const IncreaseVaultPosition = () => {
     },
   } = useContext(VaultActionContext);
   const { sliderInputRef, setSliderInput } = useSliderInputRef();
-  const { currencyInputRef } = useCurrencyInputRef()
+  const { currencyInputRef } = useCurrencyInputRef();
   useEffect(() => {
     if (leverageRatio) {
       setSliderInput(leverageRatio / RATE_PRECISION);
@@ -38,9 +42,10 @@ export const IncreaseVaultPosition = () => {
           inputRef={currencyInputRef}
           availableTokens={[primaryBorrowSymbol]}
           selectedToken={primaryBorrowSymbol}
-          onChange={({ inputAmount, hasError }) => {
+          onChange={({ inputAmount: _inputAmount, hasError }) => {
+            throw Error('Unimplemented');
             updateState({
-              depositAmount: inputAmount,
+              depositAmount: undefined,
               hasError,
             });
           }}

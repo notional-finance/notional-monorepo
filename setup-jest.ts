@@ -137,7 +137,7 @@ expect.extend(tokenBalanceMatchers);
         done();
       } else {
         provider.send('anvil_dumpState', []).then((s) => {
-          fs.writeFileSync(`${__dirname}/anvil_state.json`, s);
+          // fs.writeFileSync(`${__dirname}/anvil_state.json`, s);
           done();
         });
       }

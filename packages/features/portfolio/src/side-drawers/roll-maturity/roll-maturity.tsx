@@ -25,7 +25,7 @@ export const RollMaturity = () => {
     partialRoll,
     updateRollMaturityState,
   } = useRollMaturity(assetKey);
-  const { currencyInputRef } = useCurrencyInputRef()
+  const { currencyInputRef } = useCurrencyInputRef();
 
   useEffect(() => {
     updateRollMaturityState({ selectedMarketKey: marketKey });
@@ -55,7 +55,7 @@ export const RollMaturity = () => {
     >
       <Maturities
         maturityData={maturityData}
-        currentMarketKey={selectedMarketKey}
+        selectedfCashId={selectedMarketKey}
         onSelect={(newMarketKey) => {
           updateRollMaturityState({ selectedMarketKey: newMarketKey || '' });
         }}

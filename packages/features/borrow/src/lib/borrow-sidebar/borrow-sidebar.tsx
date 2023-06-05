@@ -61,7 +61,7 @@ export const BorrowSidebar = () => {
       onSelect={(selectedMarketKey) => {
         updateBorrowState({ selectedMarketKey });
       }}
-      currentMarketKey={selectedMarketKey}
+      selectedfCashId={selectedMarketKey || undefined}
       inputLabel={defineMessage({
         defaultMessage: '1. Select a maturity & fix your rate',
         description: 'input label',

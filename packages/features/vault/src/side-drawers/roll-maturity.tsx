@@ -27,7 +27,7 @@ export const RollMaturity = () => {
     },
   } = useContext(VaultActionContext);
   const { sliderInputRef, setSliderInput } = useSliderInputRef();
-  const { currencyInputRef } = useCurrencyInputRef()
+  const { currencyInputRef } = useCurrencyInputRef();
   useEffect(() => {
     if (leverageRatio) {
       setSliderInput(leverageRatio / RATE_PRECISION);
@@ -41,10 +41,10 @@ export const RollMaturity = () => {
     <VaultSideDrawer>
       <Maturities
         maturityData={borrowMarketData || []}
-        onSelect={(marketKey: string | null) => {
+        onSelect={(marketKey: string | undefined) => {
           updateState({ selectedMarketKey: marketKey || '' });
         }}
-        currentMarketKey={selectedMarketKey || ''}
+        selectedfCashId={selectedMarketKey || ''}
         inputLabel={messages[VAULT_ACTIONS.ROLL_POSITION].maturity}
       />
       {primaryBorrowSymbol && (
@@ -53,9 +53,10 @@ export const RollMaturity = () => {
           inputRef={currencyInputRef}
           availableTokens={[primaryBorrowSymbol]}
           selectedToken={primaryBorrowSymbol}
-          onChange={({ inputAmount, hasError }) => {
+          onChange={({ inputAmount: _inputAmount, hasError }) => {
+            throw Error('Unimplemented');
             updateState({
-              depositAmount: inputAmount,
+              depositAmount: undefined,
               hasError,
             });
           }}
