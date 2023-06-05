@@ -4,6 +4,13 @@
   "sourceRoot": "packages/transaction/src",
   "projectType": "library",
   "targets": {
+    "build-graph": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "graphclient build --dir packages/transaction/src"
+      },
+      "cwd": "packages/transaction"
+    },
     "build": {
       "executor": "@nrwl/js:tsc",
       "outputs": ["{options.outputPath}"],

@@ -1,0 +1,18 @@
+query Transfer {
+    transfers(first: 1) {
+        id
+        blockNumber
+        timestamp
+        transactionHash { id }
+        logIndex
+        from { id }
+        to { id }
+        transferType
+        fromSystemAccount
+        toSystemAccount
+        value
+        token { id }
+        tokenType
+        maturity
+    }
+}

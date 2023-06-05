@@ -129,21 +129,6 @@ export async function populateNotionalTxnAndGas<
   );
 }
 
-export async function simulatePopulatedTxn(
-  network: Network,
-  populateTxn: PopulatedTransaction
-) {
-  const provider = getProviderFromNetwork(network);
-  return provider.send('alchemy_simulateAssetChanges', [
-    {
-      from: populateTxn.from,
-      to: populateTxn.to,
-      value: populateTxn.value,
-      data: populateTxn.data,
-    },
-  ]);
-}
-
 export function getBatchLend(
   lendAmounts: TokenBalance[],
   slippageFactor?: number

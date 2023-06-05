@@ -11,7 +11,7 @@ import {
 
 export * from './builders';
 export * from './calculate';
-export { simulatePopulatedTxn } from './builders/common';
+export { simulatePopulatedTxn } from './parser';
 
 export type CalculationFn =
   | typeof calculateCollateral
