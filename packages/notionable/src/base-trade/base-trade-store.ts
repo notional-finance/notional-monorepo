@@ -109,6 +109,8 @@ interface TransactionState {
   confirm: boolean;
   /** Transaction call information for the confirmation page */
   populatedTransaction?: PopulatedTransaction;
+  /** Error creating transaction */
+  transactionError?: string;
   /** Results from simulated transaction call */
   simulatedResults?: Record<string, unknown>[];
 }

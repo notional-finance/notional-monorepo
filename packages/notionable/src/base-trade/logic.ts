@@ -21,6 +21,7 @@ import {
   unique,
 } from '@notional-finance/util';
 import {
+  catchError,
   combineLatest,
   distinctUntilChanged,
   distinctUntilKeyChanged,
@@ -675,18 +676,31 @@ export function buildTransaction(
             network: a.network,
           })
         ).pipe(
-          // TODO: this might throw an error here
           switchMap((p) => {
             if (!p.chainId) throw Error('Chain ID undefined');
             const network = getNetworkFromId(p.chainId);
             if (!network) throw Error('Chain ID undefined');
 
             return from(simulatePopulatedTxn(network, p)).pipe(
-              // TODO: this might throw an error here
               map((r) => {
-                return { buildTransactionCall: p, simulatedResults: r };
+                return { populatedTransaction: p, simulatedResults: r };
+              }),
+              catchError((e) => {
+                console.error('Simulation error', e);
+                return of({
+                  populatedTransaction: p,
+                  simulatedResults: undefined,
+                });
               })
             );
+          }),
+          catchError((e) => {
+            console.error('Transaction Builder Error', e);
+            return of({
+              populatedTransaction: undefined,
+              simulatedResults: undefined,
+              transactionError: e.toString(),
+            });
           })
         );
       }
