@@ -1,4 +1,8 @@
-import { CurvePoolV1ABI } from '@notional-finance/contracts';
+import {
+  CurvePoolV1ABI,
+  CurvePoolV1WithOracleABI,
+  IAggregatorABI,
+} from '@notional-finance/contracts';
 import { AggregateCall, NO_OP } from '@notional-finance/multicall';
 import { Network } from '@notional-finance/util';
 import { BigNumber, Contract } from 'ethers';
@@ -12,20 +16,28 @@ export interface Curve2TokenPoolV1Params {
   adminBalance_1: BigNumber;
   adminFee: BigNumber;
   fee: BigNumber;
+  oracleRate: BigNumber;
 }
 
 export class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPoolV1Params> {
   public static readonly N_COINS = BigNumber.from(2);
+  public static readonly PRECISION = BigNumber.from(10).pow(18);
   public static readonly A_PRECISION = BigNumber.from(100);
   public static readonly FEE_DENOMINATOR = BigNumber.from(10).pow(10);
   public static readonly IS_SELF_LP_TOKEN: boolean = false;
+  public static readonly HAS_ORACLE: boolean = false;
 
   public static override getInitData(
     network: Network,
     poolAddress: string
   ): AggregateCall[] {
-    const pool = new Contract(poolAddress, CurvePoolV1ABI);
+    const pool = new Contract(
+      poolAddress,
+      this.HAS_ORACLE ? CurvePoolV1WithOracleABI : CurvePoolV1ABI
+    );
     const commonCalls = getCommonCurveAggregateCall(network, poolAddress, pool);
+
+    console.log('getInitData');
 
     const calls = commonCalls.concat([
       {
@@ -73,7 +85,47 @@ export class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPoolV1Params
       });
     }
 
+    if (this.HAS_ORACLE) {
+      calls.push({
+        stage: 0,
+        target: pool,
+        method: 'oracle',
+        key: 'oracleAddress',
+        args: [],
+      });
+
+      calls.push({
+        stage: 1,
+        target: (r) =>
+          new Contract(
+            r[`${poolAddress}.oracleAddress`] as string,
+            IAggregatorABI
+          ),
+        method: 'latestAnswer',
+        key: 'oracleRate',
+      });
+    }
+
     return calls;
+  }
+
+  private _stored_rates() {
+    return [Curve2TokenPoolV1.PRECISION, this.poolParams.oracleRate];
+  }
+
+  private _get_D_mem(
+    rates: BigNumber[],
+    _balances: TokenBalance[],
+    amp: BigNumber
+  ) {
+    const result = rates.map((r) => BigNumber.from(0));
+    for (let i = 0; i < Curve2TokenPoolV1.N_COINS.toNumber(); i++) {
+      result[i] = rates[i].mul(_balances[i].n).div(Curve2TokenPoolV1.PRECISION);
+    }
+    return this._get_D(
+      _balances.map((b, i) => _balances[i].copy(result[i])),
+      amp
+    );
   }
 
   public override getLPTokensGivenTokens(tokensIn: TokenBalance[]) {
@@ -86,7 +138,12 @@ export class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPoolV1Params
       b.copy(b.n.sub(admin_balances[i]))
     );
 
-    const D0 = this._get_D(old_balances, amp);
+    let D0 = BigNumber.from(0);
+    if (Curve2TokenPoolV1.HAS_ORACLE) {
+      D0 = this._get_D_mem(this._stored_rates(), old_balances, amp);
+    } else {
+      D0 = this._get_D(old_balances, amp);
+    }
 
     const token_supply = this.totalSupply;
     const new_balances = old_balances.map((b, i) => {
@@ -94,7 +151,12 @@ export class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPoolV1Params
     });
 
     // # Invariant after change
-    const D1 = this._get_D(new_balances, amp);
+    let D1 = BigNumber.from(0);
+    if (Curve2TokenPoolV1.HAS_ORACLE) {
+      D0 = this._get_D_mem(this._stored_rates(), new_balances, amp);
+    } else {
+      D1 = this._get_D(new_balances, amp);
+    }
 
     // We need to recalculate the invariant accounting for fees
     // to calculate fair user's share
@@ -407,4 +469,8 @@ export class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPoolV1Params
  */
 export class Curve2TokenPoolV1_SelfLPToken extends Curve2TokenPoolV1 {
   public static override readonly IS_SELF_LP_TOKEN: boolean = true;
+}
+
+export class Curve2TokenPoolV1_HasOracle extends Curve2TokenPoolV1 {
+  public static override readonly HAS_ORACLE: boolean = true;
 }

@@ -64,7 +64,11 @@ export abstract class PoolTestHarness<T extends BaseLiquidityPool<unknown>> {
   ): Promise<{ tokensOut: TokenBalance; feesPaid: TokenBalance[] }>;
 
   async balanceOf(signer: Signer): Promise<TokenBalance> {
-    const erc20 = new Contract(this.poolAddress, ERC20ABI, provider) as ERC20;
+    const erc20 = new Contract(
+      this.poolInstance.oneLPToken().token.address,
+      ERC20ABI,
+      provider
+    ) as ERC20;
     const b = await erc20.balanceOf(await signer.getAddress());
     return this.poolInstance.oneLPToken().copy(b);
   }

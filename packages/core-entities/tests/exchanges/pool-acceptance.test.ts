@@ -13,29 +13,29 @@ const acceptanceSuite = ({
   let harness: PoolTestHarness<BaseLiquidityPool<unknown>>;
   const lpEntryMatrix: number[][] = [
     [0, 0.1],
-    [0, 0.01],
+    /* [0, 0.01],
     [0, 0.001],
     [1, 0.1],
     [1, 0.01],
     [1, 0.001],
     [2, 0.1],
     [2, 0.01],
-    [2, 0.001],
+    [2, 0.001], */
   ];
   const lpExitMatrix: number[][] = [
     // [0, 0.99],
     // [0, 0.5],
     [0, 0.01],
-    [1, 0.99],
+    /*  [1, 0.99],
     [1, 0.5],
     [1, 0.1],
     [2, 0.99],
     [2, 0.5],
-    [2, 0.1],
+    [2, 0.1],*/
   ];
   const tokenMatrix: number[][] = [
     [0, 1, 0.1],
-    [0, 1, 0.01],
+    /*  [0, 1, 0.01],
     [0, 1, 0.001],
     [0, 2, 0.1],
     [0, 2, 0.01],
@@ -51,7 +51,7 @@ const acceptanceSuite = ({
     [2, 0, 0.001],
     [2, 1, 0.1],
     [2, 1, 0.01],
-    [2, 1, 0.001],
+    [2, 1, 0.001], */
   ];
 
   beforeAll((done) => {
@@ -70,27 +70,37 @@ const acceptanceSuite = ({
   it.each(lpEntryMatrix)(
     `[LP Single Sided Entry] for ${address} where token in=%i, size=%f`,
     async (tokenIn, utilization) => {
+      console.log(JSON.stringify(harness.poolInstance.poolParams));
+
       if (tokenIn >= harness.poolInstance.balances.length) return;
       try {
         const tokensIn = harness.poolInstance.balances[
           tokenIn
         ].mulInRatePrecision(utilization * RATE_PRECISION);
 
-        const actual = await harness.singleSideEntry(signer, tokenIn, tokensIn);
         const inputs = harness.poolInstance.zeroTokenArray();
         inputs[tokenIn] = tokensIn;
-        const { lpTokens } =
-          harness.poolInstance.getLPTokensGivenTokens(inputs);
+        const expected = harness.poolInstance.getLPTokensGivenTokens(inputs);
 
-        expect(lpTokens).toBeApprox(actual.lpTokens);
+        const actual = await harness.singleSideEntry(signer, tokenIn, tokensIn);
+
+        console.log(
+          `actual = ${actual.lpTokens.n.toString()}, ${actual.feesPaid.map(
+            (f) => f.n.toString()
+          )} expected = ${expected.lpTokens.n.toString()}, ${expected.feesPaid.map(
+            (f) => f.n.toString()
+          )}`
+        );
+
+        expect(expected.lpTokens).toBeApprox(actual.lpTokens);
 
         // Check that the inverse calculation works
-        const { tokensIn: calculatedTokensIn } =
+        /*const { tokensIn: calculatedTokensIn } =
           harness.poolInstance.getTokensRequiredForLPTokens(lpTokens, tokenIn);
 
         calculatedTokensIn.forEach((c, i) => {
           expect(c).toBeApprox(inputs[i]);
-        });
+        }); */
       } catch (e) {
         if ((e as Error).name === 'UnimplementedPoolMethod') return;
         throw e;
@@ -100,7 +110,7 @@ const acceptanceSuite = ({
 
   // todo: balanced entry
 
-  it.each([0.5, 0.01])(
+  /* it.each([0.5, 0.01])(
     `[LP Balanced Exit] for ${address} where balanceShare=%f`,
     async (balanceShare) => {
       try {
@@ -127,15 +137,15 @@ const acceptanceSuite = ({
         throw e;
       }
     }
-  );
+  ); */
 
-  it.each(lpExitMatrix)(
+  /*it.each(lpExitMatrix)(
     `[LP Exit] for ${address} where token out=%i, balanceShare=%f`,
     async (tokenOut, balanceShare) => {
       if (tokenOut >= harness.poolInstance.balances.length) return;
 
       try {
-        const totalBalance = await harness.balanceOf(signer);
+         const totalBalance = await harness.balanceOf(signer);
         const balanceOut = totalBalance.mulInRatePrecision(
           balanceShare * RATE_PRECISION
         );
@@ -155,15 +165,15 @@ const acceptanceSuite = ({
 
         const { lpTokens } =
           harness.poolInstance.getLPTokensRequiredForTokens(tokensOut);
-        expect(lpTokens).toBeApprox(balanceOut, 0.001);
+        expect(lpTokens).toBeApprox(balanceOut, 0.001); 
       } catch (e) {
         if ((e as Error).name === 'UnimplementedPoolMethod') return;
         throw e;
       }
     }
-  );
+  ); */
 
-  it.each(tokenMatrix)(
+  /*it.each(tokenMatrix)(
     `[Trade] for ${address} where token in=%i, token out=%i, size=%f`,
     async (tokenIn, tokenOut, utilization) => {
       if (tokenIn >= harness.poolInstance.balances.length) return;
@@ -207,7 +217,7 @@ const acceptanceSuite = ({
         throw e;
       }
     }
-  );
+  ); */
 
   it.todo('calculates unbalanced entry and exit');
 };

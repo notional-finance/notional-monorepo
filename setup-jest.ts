@@ -20,6 +20,11 @@ const WHALES: Record<Network, string[][]> = {
       '0x0F13fb925eDC3E1FE947209010d9c0E072986ADc',
       '0xd74e7325dfab7d7d1ecbf22e6e6874061c50f243',
     ],
+    // wstETH
+    [
+      '0x5979D7b546E38E414F7E9822514be443A4800529',
+      '0xd090d2c8475c5ebdd1434a48897d81b9aaa20594',
+    ],
   ],
   [Network.Mainnet]: [
     // WETH

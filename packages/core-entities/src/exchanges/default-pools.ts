@@ -105,7 +105,7 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
     {
       // NOTE: the pool address here is different from the lp token address
       address: '0x6eB2dc694eB516B16Dc9FBc678C60052BbdD7d80',
-      PoolClass: 'Curve2TokenPoolV1',
+      PoolClass: 'Curve2TokenPoolV1_HasOracle',
       registerTokens: [
         // ETH / wstETH Pool
         {
