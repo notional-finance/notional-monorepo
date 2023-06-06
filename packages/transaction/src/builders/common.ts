@@ -11,6 +11,7 @@ import {
   getProviderFromNetwork,
   Network,
   NotionalAddress,
+  RATE_PRECISION,
   unique,
 } from '@notional-finance/util';
 import {
@@ -91,17 +92,17 @@ export async function populateTxnAndGas(
   msgSender: string,
   methodName: string,
   methodArgs: unknown[],
-  gasBufferPercent = 5
+  _gasBufferPercent = 5
 ) {
   const c = contract.connect(msgSender);
   // TODO: where do you get the revert reason here?
-  const [txn, gasLimit]: [PopulatedTransaction, BigNumber] = await Promise.all([
+  const [txn]: [PopulatedTransaction] = await Promise.all([
     c.populateTransaction[methodName].apply(c, methodArgs),
-    c.estimateGas[methodName].apply(c, methodArgs),
+    // c.estimateGas[methodName].apply(c, methodArgs),
   ]);
 
   // Add 5% to the estimated gas limit to reduce the risk of out of gas errors
-  txn.gasLimit = gasLimit.add(gasLimit.mul(gasBufferPercent).div(100));
+  // txn.gasLimit = gasLimit.add(gasLimit.mul(gasBufferPercent).div(100));
   return txn;
 }
 
@@ -193,19 +194,15 @@ export function encodeTrades(
   );
 
   return {
-    trades: amounts.map((b) => {
+    trades: amounts.map((fCash) => {
       // 0 == LEND, 1 == BORROW
-      const tradeActionType = b.isPositive() ? 0 : 1;
-      const marketIndex = pool.getMarketIndex(b.token.maturity);
-      const spotRate = pool.getSpotInterestRates()[marketIndex - 1];
-      const slippage = Math.max(
-        b.isPositive() ? spotRate - slippageFactor : spotRate + slippageFactor,
-        0
-      );
+      const tradeActionType = fCash.isPositive() ? 0 : 1;
+      const marketIndex = pool.getMarketIndex(fCash.token.maturity);
+      const slippage = pool.getSlippageRate(fCash, slippageFactor);
 
       return ethers.utils.solidityPack(
         ['uint8', 'uint8', 'uint88', 'uint32', 'uint120'],
-        [tradeActionType, marketIndex, b.n, slippage, BigNumber.from(0)]
+        [tradeActionType, marketIndex, fCash.n, slippage, BigNumber.from(0)]
       );
     }),
     currencyId,

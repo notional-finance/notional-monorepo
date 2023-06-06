@@ -43,8 +43,6 @@ function decodeSystemAccount(address: string, network: Network): SystemAccount {
     return 'FeeReserve';
   } else if (address === SETTLEMENT_RESERVE) {
     return 'SettlementReserve';
-  } else if (address === ZERO_ADDRESS) {
-    return 'ZeroAddress';
   } else if (address === NotionalAddress[network]) {
     return 'Notional';
   }
