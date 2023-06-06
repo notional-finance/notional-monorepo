@@ -61,6 +61,8 @@ export interface Transaction {
   startLogIndex: number;
   endLogIndex: number;
   marker?: Marker;
+  bundles: Bundle[];
+  transfers: Transfer[];
 }
 
 // Token Type

@@ -95,7 +95,7 @@ function convert(
             transferType: decodeTransferType(from, to),
             fromSystemAccount: decodeSystemAccount(from, network, token),
             toSystemAccount: decodeSystemAccount(to, network, token),
-            value: TokenBalance.from(args['value'] as string, token),
+            value: TokenBalance.from(args['amount'] as string, token),
             token,
             tokenType: token.tokenType,
             maturity: token.maturity,
@@ -147,8 +147,9 @@ function convert(
         } else if (Markers.includes(name)) {
           markers.push({ name: name, logIndex: l.logIndex });
         }
-      } catch {
+      } catch (e) {
         // If parsing fails that is ok, don't return anything
+        console.error(e);
       }
       return { transfers, markers };
     },
@@ -167,7 +168,7 @@ function computeBundles(transfers: Transfer[]) {
   transfers.forEach((_, i) => {
     nextStartIndex = scanTransferBundle(
       nextStartIndex,
-      transfers.slice(0, i),
+      transfers.slice(0, i + 1),
       bundles
     );
   });

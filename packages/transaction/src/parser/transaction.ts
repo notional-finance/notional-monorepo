@@ -271,6 +271,7 @@ function scanBundles(startIndex: number, bundles: Bundle[], markers: Marker[]) {
 
     const { startLogIndex } = bundles[startMatch];
     const { endLogIndex } = bundles[endIndex];
+    const matchedBundles = bundles.slice(startMatch, endIndex + 1);
 
     return {
       matched: {
@@ -278,6 +279,8 @@ function scanBundles(startIndex: number, bundles: Bundle[], markers: Marker[]) {
         startLogIndex,
         endLogIndex,
         marker,
+        bundles: matchedBundles,
+        transfers: matchedBundles.flatMap((b) => b.transfers),
       },
       nextStartIndex: endIndex + 1,
     };

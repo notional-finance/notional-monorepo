@@ -36,23 +36,23 @@ describe.withForkAndRegistry(
     });
 
     it('LendVariable', async () => {
-      console.log((await signer.getBalance()).toString());
-      console.log((await signer.getAddress()).toString());
+      const depositBalance = TokenBalance.fromFloat(0.01, ETH);
       const txn = await LendVariable({
         ...defaultInputs,
-        depositBalance: TokenBalance.fromFloat(0.01, ETH),
+        depositBalance,
       });
       const resp = await signer.sendTransaction(txn);
       const rcpt = await resp.wait();
-      const { transfers, bundles, transaction } = parseTransactionLogs(
+      const {
+        transaction: [t],
+      } = parseTransactionLogs(
         Network.ArbitrumOne,
         rcpt.blockNumber,
         rcpt.logs
       );
-
-      console.log(transfers);
-      console.log(bundles);
-      console.log(transaction);
+      expect(t?.name).toBe('Account Action');
+      expect(t?.bundles[0].bundleName).toBe('Deposit');
+      expect(t?.transfers[0].value).toEqTB(depositBalance.toPrimeCash());
     });
   }
 );
