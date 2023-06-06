@@ -1,17 +1,14 @@
 import { NotionalV3ABI } from '@notional-finance/contracts';
-import {
-  Registry,
-  TokenBalance,
-  TokenDefinition,
-} from '@notional-finance/core-entities';
+import { Registry, TokenBalance } from '@notional-finance/core-entities';
 import {
   FEE_RESERVE,
   Network,
   NotionalAddress,
+  padToHex256,
   SETTLEMENT_RESERVE,
   ZERO_ADDRESS,
 } from '@notional-finance/util';
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import { Bundle, Marker, Transfer } from '.';
 import { SystemAccount, TransferType } from '../.graphclient';
 import { BundleCriteria } from './bundle';
@@ -41,11 +38,7 @@ function decodeTransferType(from: string, to: string): TransferType {
   }
 }
 
-function decodeSystemAccount(
-  address: string,
-  network: Network,
-  token?: TokenDefinition
-): SystemAccount {
+function decodeSystemAccount(address: string, network: Network): SystemAccount {
   if (address === FEE_RESERVE) {
     return 'FeeReserve';
   } else if (address === SETTLEMENT_RESERVE) {
@@ -54,17 +47,30 @@ function decodeSystemAccount(
     return 'ZeroAddress';
   } else if (address === NotionalAddress[network]) {
     return 'Notional';
-  } else if (
-    token?.tokenType === 'PrimeCash' ||
-    token?.tokenType === 'PrimeDebt' ||
-    token?.tokenType === 'nToken'
-  ) {
-    return token.tokenType;
-  } else if (token?.vaultAddress !== undefined) {
-    return 'Vault';
-  } else if (token?.symbol !== 'NOTE') {
-    return 'NOTE';
-  } else {
+  }
+
+  try {
+    const token = Registry.getTokenRegistry().getTokenByAddress(
+      network,
+      address
+    );
+    if (
+      token.tokenType === 'PrimeCash' ||
+      token.tokenType === 'PrimeDebt' ||
+      token.tokenType === 'nToken'
+    ) {
+      return token.tokenType;
+    } else if (
+      token.vaultAddress !== undefined &&
+      token.vaultAddress !== ZERO_ADDRESS
+    ) {
+      return 'Vault';
+    } else if (token.symbol === 'NOTE') {
+      return 'NOTE';
+    }
+
+    return 'None';
+  } catch {
     return 'None';
   }
 }
@@ -93,8 +99,8 @@ function convert(
             to,
             timestamp,
             transferType: decodeTransferType(from, to),
-            fromSystemAccount: decodeSystemAccount(from, network, token),
-            toSystemAccount: decodeSystemAccount(to, network, token),
+            fromSystemAccount: decodeSystemAccount(from, network),
+            toSystemAccount: decodeSystemAccount(to, network),
             value: TokenBalance.from(args['amount'] as string, token),
             token,
             tokenType: token.tokenType,
@@ -105,8 +111,9 @@ function convert(
           const to = args['to'] as string;
           const token = Registry.getTokenRegistry().getTokenByID(
             network,
-            args['id'] as string
+            padToHex256(args['id'] as BigNumber)
           );
+          const value = TokenBalance.from(args[4] as BigNumber, token);
 
           transfers.push({
             logIndex: l.logIndex,
@@ -114,9 +121,9 @@ function convert(
             to,
             timestamp,
             transferType: decodeTransferType(from, to),
-            fromSystemAccount: decodeSystemAccount(from, network, token),
-            toSystemAccount: decodeSystemAccount(to, network, token),
-            value: TokenBalance.from(args['value'] as string, token),
+            fromSystemAccount: decodeSystemAccount(from, network),
+            toSystemAccount: decodeSystemAccount(to, network),
+            value: token.isFCashDebt ? value.neg() : value,
             token,
             tokenType: token.tokenType,
             maturity: token.maturity,
@@ -124,21 +131,25 @@ function convert(
         } else if (name === 'TransferBatch') {
           const from = args['from'] as string;
           const to = args['to'] as string;
-          const ids = args['ids'] as string[];
-          const values = args['values'] as unknown as string[];
+          const ids = args['ids'] as BigNumber[];
+          const values = args[4] as BigNumber[];
 
           ids.forEach((id, i) => {
-            const token = Registry.getTokenRegistry().getTokenByID(network, id);
+            const token = Registry.getTokenRegistry().getTokenByID(
+              network,
+              padToHex256(id)
+            );
 
+            const value = TokenBalance.from(values[i], token);
             transfers.push({
               logIndex: l.logIndex,
               from,
               to,
               timestamp,
               transferType: decodeTransferType(from, to),
-              fromSystemAccount: decodeSystemAccount(from, network, token),
-              toSystemAccount: decodeSystemAccount(to, network, token),
-              value: TokenBalance.from(values[i], token),
+              fromSystemAccount: decodeSystemAccount(from, network),
+              toSystemAccount: decodeSystemAccount(to, network),
+              value: token.isFCashDebt ? value.neg() : value,
               token,
               tokenType: token.tokenType,
               maturity: token.maturity,

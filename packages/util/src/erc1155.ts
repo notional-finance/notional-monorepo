@@ -106,6 +106,6 @@ export function encodefCashId(
   );
 }
 
-function padToHex256(bn: BigNumber) {
+export function padToHex256(bn: BigNumber) {
   return `0x${bn.toHexString().slice(2).padStart(64, '0')}`.toLowerCase();
 }
