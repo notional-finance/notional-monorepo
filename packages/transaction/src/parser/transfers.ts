@@ -1,7 +1,165 @@
-import { Bundle, Transfer } from '.';
+import { NotionalV3ABI } from '@notional-finance/contracts';
+import {
+  Registry,
+  TokenBalance,
+  TokenDefinition,
+} from '@notional-finance/core-entities';
+import {
+  FEE_RESERVE,
+  Network,
+  NotionalAddress,
+  SETTLEMENT_RESERVE,
+  ZERO_ADDRESS,
+} from '@notional-finance/util';
+import { ethers } from 'ethers';
+import { Bundle, Marker, Transfer } from '.';
+import { SystemAccount, TransferType } from '../.graphclient';
 import { BundleCriteria } from './bundle';
+import { computeTransactionType, Markers } from './transaction';
 
-export function computeBundles(transfers: Transfer[]) {
+const NotionalV3Interface = new ethers.utils.Interface(NotionalV3ABI);
+
+export function parseTransactionLogs(
+  network: Network,
+  timestamp: number,
+  logs: ethers.providers.Log[]
+) {
+  const { transfers, markers } = convert(network, timestamp, logs);
+  const bundles = computeBundles(transfers);
+  const transaction = computeTransactionType(bundles, markers);
+
+  return { transfers, bundles, transaction };
+}
+
+function decodeTransferType(from: string, to: string): TransferType {
+  if (from == ZERO_ADDRESS) {
+    return 'Mint';
+  } else if (to == ZERO_ADDRESS) {
+    return 'Burn';
+  } else {
+    return 'Transfer';
+  }
+}
+
+function decodeSystemAccount(
+  address: string,
+  network: Network,
+  token?: TokenDefinition
+): SystemAccount {
+  if (address === FEE_RESERVE) {
+    return 'FeeReserve';
+  } else if (address === SETTLEMENT_RESERVE) {
+    return 'SettlementReserve';
+  } else if (address === ZERO_ADDRESS) {
+    return 'ZeroAddress';
+  } else if (address === NotionalAddress[network]) {
+    return 'Notional';
+  } else if (
+    token?.tokenType === 'PrimeCash' ||
+    token?.tokenType === 'PrimeDebt' ||
+    token?.tokenType === 'nToken'
+  ) {
+    return token.tokenType;
+  } else if (token?.vaultAddress !== undefined) {
+    return 'Vault';
+  } else if (token?.symbol !== 'NOTE') {
+    return 'NOTE';
+  } else {
+    return 'None';
+  }
+}
+
+function convert(
+  network: Network,
+  timestamp: number,
+  logs: ethers.providers.Log[]
+) {
+  return logs.reduce(
+    ({ transfers, markers }, l) => {
+      try {
+        const { name, args } = NotionalV3Interface.parseLog(l);
+        if (name === 'Transfer') {
+          const from = args['from'] as string;
+          const to = args['to'] as string;
+          // NOTE: if this throws an error the transfer will remain unparsed
+          const token = Registry.getTokenRegistry().getTokenByAddress(
+            network,
+            l.address
+          );
+
+          transfers.push({
+            logIndex: l.logIndex,
+            from,
+            to,
+            timestamp,
+            transferType: decodeTransferType(from, to),
+            fromSystemAccount: decodeSystemAccount(from, network, token),
+            toSystemAccount: decodeSystemAccount(to, network, token),
+            value: TokenBalance.from(args['value'] as string, token),
+            token,
+            tokenType: token.tokenType,
+            maturity: token.maturity,
+          });
+        } else if (name === 'TransferSingle') {
+          const from = args['from'] as string;
+          const to = args['to'] as string;
+          const token = Registry.getTokenRegistry().getTokenByID(
+            network,
+            args['id'] as string
+          );
+
+          transfers.push({
+            logIndex: l.logIndex,
+            from,
+            to,
+            timestamp,
+            transferType: decodeTransferType(from, to),
+            fromSystemAccount: decodeSystemAccount(from, network, token),
+            toSystemAccount: decodeSystemAccount(to, network, token),
+            value: TokenBalance.from(args['value'] as string, token),
+            token,
+            tokenType: token.tokenType,
+            maturity: token.maturity,
+          });
+        } else if (name === 'TransferBatch') {
+          const from = args['from'] as string;
+          const to = args['to'] as string;
+          const ids = args['ids'] as string[];
+          const values = args['values'] as unknown as string[];
+
+          ids.forEach((id, i) => {
+            const token = Registry.getTokenRegistry().getTokenByID(network, id);
+
+            transfers.push({
+              logIndex: l.logIndex,
+              from,
+              to,
+              timestamp,
+              transferType: decodeTransferType(from, to),
+              fromSystemAccount: decodeSystemAccount(from, network, token),
+              toSystemAccount: decodeSystemAccount(to, network, token),
+              value: TokenBalance.from(values[i], token),
+              token,
+              tokenType: token.tokenType,
+              maturity: token.maturity,
+            });
+          });
+        } else if (Markers.includes(name)) {
+          markers.push({ name: name, logIndex: l.logIndex });
+        }
+      } catch {
+        // If parsing fails that is ok, don't return anything
+      }
+      return { transfers, markers };
+    },
+    {
+      transfers: [] as Transfer[],
+      markers: [] as Marker[],
+    }
+  );
+}
+
+function computeBundles(transfers: Transfer[]) {
   const bundles: Bundle[] = [];
 
   // Scan unbundled transfers

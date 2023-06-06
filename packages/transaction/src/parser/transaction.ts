@@ -1,4 +1,4 @@
-import { Bundle } from '.';
+import { Bundle, Marker, Transaction } from '.';
 
 interface TypeMatcher {
   name: string;
@@ -11,17 +11,7 @@ interface MatcherPattern {
   expression: string[];
 }
 
-interface Marker {
-  logIndex: number;
-  name: string;
-}
-
-interface Transaction {
-  name: string;
-  startLogIndex: number;
-  endLogIndex: number;
-  marker?: Marker;
-}
+export const Markers = ['AccountContextUpdate'];
 
 const TransactionMatchers: TypeMatcher[] = [
   {

@@ -1,5 +1,6 @@
+import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
 import { getProviderFromNetwork, Network } from '@notional-finance/util';
-import { BigNumber, PopulatedTransaction } from 'ethers';
+import { PopulatedTransaction } from 'ethers';
 import {
   Transfer as _TransferType,
   TransferBundle,
@@ -25,9 +26,21 @@ interface AlchemyResponse {
 export interface Transfer
   extends Omit<
     _TransferType,
-    'id' | 'blockNumber' | 'transactionHash' | 'operator' | 'valueInUnderlying'
+    | 'id'
+    | 'blockNumber'
+    | 'transactionHash'
+    | 'operator'
+    | 'valueInUnderlying'
+    | 'from'
+    | 'to'
+    | 'underlying'
+    | 'token'
   > {
-  value: BigNumber;
+  from: string;
+  to: string;
+  value: TokenBalance;
+  token: TokenDefinition;
+  underlying?: string;
 }
 
 export interface Bundle
@@ -36,6 +49,18 @@ export interface Bundle
     'id' | 'blockNumber' | 'timestamp' | 'transactionHash' | 'transfers'
   > {
   transfers: Transfer[];
+}
+
+export interface Marker {
+  logIndex: number;
+  name: string;
+}
+
+export interface Transaction {
+  name: string;
+  startLogIndex: number;
+  endLogIndex: number;
+  marker?: Marker;
 }
 
 // Token Type

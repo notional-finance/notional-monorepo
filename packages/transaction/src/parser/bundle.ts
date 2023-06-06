@@ -1,5 +1,4 @@
 import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
-import { BigNumber } from 'ethers';
 import {
   Transfer,
   Burn,
@@ -160,8 +159,8 @@ const ntoken_purchase_negative_residual = (w: Transfer[]): boolean => {
     w[4].transferType == Burn &&
     w[4].fromSystemAccount == nToken
   ) && (
-    w[2].value == w[3].value &&
-    w[3].value == w[4].value.mul(-1)
+    w[2].value.eq(w[3].value) &&
+    w[3].value.eq(w[4].value.neg())
   )
 }
 
@@ -549,7 +548,7 @@ const vault_lend_at_zero = (w: Transfer[]): boolean => {
     w[3].fromSystemAccount == SettlementReserve &&
     w[3].toSystemAccount == Vault &&
     w[3].tokenType == fCash &&
-    BigNumber.from(w[3].value).gt(0)
+    w[3].value.isPositive()
   )
 }
 
@@ -811,6 +810,7 @@ BundleCriteria.push(new Criteria("Transfer Incentive", 1, transfer_incentive));
 BundleCriteria.push(new Criteria("Vault Entry Transfer", 1, vault_entry_transfer, 1));
 // This is a secondary vault entry transfer
 BundleCriteria.push(new Criteria("Vault Entry Transfer", 2, vault_entry_transfer, 1, false, false, 1));
+BundleCriteria.push(new Criteria("Vault Secondary Deposit", 2, vault_secondary_deposit, undefined, false, false, 1));
 BundleCriteria.push(
   new Criteria("nToken Purchase Negative Residual", 4, ntoken_purchase_negative_residual, 1)
 );
