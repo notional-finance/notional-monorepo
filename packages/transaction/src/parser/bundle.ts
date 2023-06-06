@@ -1,4 +1,7 @@
+import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
+import { BigNumber } from 'ethers';
 import {
+  Transfer,
   Burn,
   fCash,
   FeeReserve,
@@ -9,15 +12,13 @@ import {
   nToken,
   PrimeCash,
   PrimeDebt,
-  PRIME_CASH_VAULT_MATURITY,
   SettlementReserve,
-  Transfer as _Transfer,
+  _Transfer,
   Vault,
   VaultCash,
   VaultDebt,
   VaultShare,
-} from "./constants";
-
+} from ".";
 
 class Criteria {
   bundleName: string;
@@ -52,7 +53,7 @@ const deposit = (w: Transfer[]): boolean => {
     return (
       w[0].transferType == Mint &&
       w[0].tokenType == PrimeCash &&
-      w[0].to != FeeReserve
+      w[0].toSystemAccount != FeeReserve
     )
   } else {
     return !( // not
@@ -79,7 +80,7 @@ const withdraw = (w: Transfer[]): boolean => {
     return (
       w[0].transferType == Burn &&
       w[0].tokenType == PrimeCash &&
-      w[0].to == None
+      w[0].toSystemAccount == None
     )
   } else {
     return !( // not
@@ -160,7 +161,7 @@ const ntoken_purchase_negative_residual = (w: Transfer[]): boolean => {
     w[4].fromSystemAccount == nToken
   ) && (
     w[2].value == w[3].value &&
-    w[3].value == w[4].value.neg()
+    w[3].value == w[4].value.mul(-1)
   )
 }
 
@@ -213,7 +214,7 @@ const settle_fcash = (w: Transfer[]): boolean => {
     w[0].tokenType == fCash &&
     w[0].fromSystemAccount != nToken &&
     w[0].fromSystemAccount != Vault &&
-    (w[0].get("maturity") != null && w[0].maturity <= w[0].timestamp)
+    (!!w[0].maturity && w[0].maturity <= w[0].timestamp)
   )
 }
 
@@ -222,7 +223,7 @@ const settle_fcash_ntoken = (w: Transfer[]): boolean => {
     w[0].transferType == Burn &&
     w[0].tokenType == fCash &&
     w[0].fromSystemAccount == nToken &&
-    (w[0].get("maturity") != null && w[0].maturity <= w[0].timestamp)
+    (!!w[0].maturity && w[0].maturity <= w[0].timestamp)
   )
 }
 
@@ -231,7 +232,7 @@ const settle_fcash_vault = (w: Transfer[]): boolean => {
     w[0].transferType == Burn &&
     w[0].tokenType == fCash &&
     w[0].fromSystemAccount == Vault &&
-    (w[0].get("maturity") != null && w[0].maturity <= w[0].timestamp)
+    (!!w[0].maturity && w[0].maturity <= w[0].timestamp)
   )
 }
 
@@ -548,7 +549,7 @@ const vault_lend_at_zero = (w: Transfer[]): boolean => {
     w[3].fromSystemAccount == SettlementReserve &&
     w[3].toSystemAccount == Vault &&
     w[3].tokenType == fCash &&
-    w[3].value.gt(BigInt.fromI32(0))
+    BigNumber.from(w[3].value).gt(0)
   )
 }
 
@@ -556,11 +557,11 @@ const vault_settle = (w: Transfer[]): boolean => {
   return (
     w[0].transferType == Burn &&
     w[0].tokenType == VaultDebt &&
-    w[0].maturity <= w[0].timestamp
+    (w[0].maturity || 0) <= w[0].timestamp
   ) && (
     w[1].transferType == Burn &&
     w[1].tokenType == VaultShare &&
-    w[1].maturity <= w[1].timestamp
+    (w[1].maturity || 0) <= w[1].timestamp
   ) && (
     w[2].transferType == Mint &&
     w[2].tokenType == VaultDebt &&
@@ -726,7 +727,7 @@ const vault_secondary_settle = (w: Transfer[]): boolean => {
   return (
     w[0].transferType == Burn &&
     w[0].tokenType == VaultDebt &&
-    w[0].maturity <= w[0].timestamp
+    (w[0].maturity || 0) <= w[0].timestamp
   ) && (
     w[1].transferType == Mint &&
     w[1].tokenType == VaultDebt &&
