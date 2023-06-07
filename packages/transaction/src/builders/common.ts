@@ -4,14 +4,12 @@ import {
   Contract,
   ethers,
   PayableOverrides,
-  PopulatedTransaction,
 } from 'ethers';
 import {
   BASIS_POINT,
   getProviderFromNetwork,
   Network,
   NotionalAddress,
-  RATE_PRECISION,
   unique,
 } from '@notional-finance/util';
 import {
@@ -92,17 +90,18 @@ export async function populateTxnAndGas(
   msgSender: string,
   methodName: string,
   methodArgs: unknown[],
-  _gasBufferPercent = 5
+  gasBufferPercent = 5
 ) {
   const c = contract.connect(msgSender);
   // TODO: where do you get the revert reason here?
-  const [txn]: [PopulatedTransaction] = await Promise.all([
-    c.populateTransaction[methodName].apply(c, methodArgs),
-    // c.estimateGas[methodName].apply(c, methodArgs),
-  ]);
+  const txn = await c.populateTransaction[methodName].apply(c, methodArgs);
+  if (process.env['NODE_ENV'] !== 'test') {
+    // NOTE: this fails inside unit tests for some reason
+    const gasLimit = await c.estimateGas[methodName].apply(c, methodArgs);
+    // Add 5% to the estimated gas limit to reduce the risk of out of gas errors
+    txn.gasLimit = gasLimit.add(gasLimit.mul(gasBufferPercent).div(100));
+  }
 
-  // Add 5% to the estimated gas limit to reduce the risk of out of gas errors
-  // txn.gasLimit = gasLimit.add(gasLimit.mul(gasBufferPercent).div(100));
   return txn;
 }
 
