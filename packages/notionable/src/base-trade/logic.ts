@@ -12,6 +12,7 @@ import {
 } from '@notional-finance/risk-engine';
 import {
   CalculationFnParams,
+  parseTransactionLogs,
   simulatePopulatedTxn,
 } from '@notional-finance/transaction';
 import {
@@ -682,8 +683,19 @@ export function buildTransaction(
             if (!network) throw Error('Chain ID undefined');
 
             return from(simulatePopulatedTxn(network, p)).pipe(
-              map((r) => {
-                return { populatedTransaction: p, simulatedResults: r };
+              map(({ calls, logs }) => {
+                // NOTE: we may need to rate limit this somehow....
+                const simulatedLogs = parseTransactionLogs(
+                  network,
+                  getNowSeconds(),
+                  logs
+                );
+
+                return {
+                  populatedTransaction: p,
+                  simulatedLogs,
+                  simulatedCalls: calls,
+                };
               }),
               catchError((e) => {
                 console.error('Simulation error', e);

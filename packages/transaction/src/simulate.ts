@@ -55,7 +55,7 @@ enum DebugCallType {
 /**
  * Debug call trace in a {@link SimulateExecutionResponse}.
  */
-interface SimulationCallTrace
+export interface SimulationCallTrace
   extends Omit<DebugCallTrace, 'revertReason' | 'calls'> {
   /** The type of call. */
   type: DebugCallType;

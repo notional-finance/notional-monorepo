@@ -240,7 +240,7 @@ const TransactionMatchers: TypeMatcher[] = [
   },
 ];
 
-export function computeTransactionType(bundles: Bundle[], markers: Marker[]) {
+export function parseTransactionType(bundles: Bundle[], markers: Marker[]) {
   const transactions: Transaction[] = [];
   let nextStartIndex = 0;
 

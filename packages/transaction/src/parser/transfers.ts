@@ -12,7 +12,7 @@ import { BigNumber, ethers } from 'ethers';
 import { Bundle, Marker, Transfer } from '.';
 import { SystemAccount, TransferType } from '../.graphclient';
 import { BundleCriteria } from './bundle';
-import { computeTransactionType, Markers } from './transaction';
+import { parseTransactionType, Markers } from './transaction';
 
 const NotionalV3Interface = new ethers.utils.Interface(NotionalV3ABI);
 
@@ -21,9 +21,9 @@ export function parseTransactionLogs(
   timestamp: number,
   logs: ethers.providers.Log[]
 ) {
-  const { transfers, markers } = convert(network, timestamp, logs);
-  const bundles = computeBundles(transfers);
-  const transaction = computeTransactionType(bundles, markers);
+  const { transfers, markers } = parseLogs(network, timestamp, logs);
+  const bundles = parseBundles(transfers);
+  const transaction = parseTransactionType(bundles, markers);
 
   return { transfers, bundles, transaction };
 }
@@ -73,7 +73,7 @@ function decodeSystemAccount(address: string, network: Network): SystemAccount {
   }
 }
 
-function convert(
+function parseLogs(
   network: Network,
   timestamp: number,
   logs: ethers.providers.Log[]
@@ -169,7 +169,7 @@ function convert(
   );
 }
 
-function computeBundles(transfers: Transfer[]) {
+function parseBundles(transfers: Transfer[]) {
   const bundles: Bundle[] = [];
 
   // Scan unbundled transfers

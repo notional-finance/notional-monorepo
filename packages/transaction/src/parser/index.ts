@@ -3,6 +3,12 @@ import {
   Transfer as _TransferType,
   TransferBundle,
 } from '../.graphclient/index';
+import { parseTransactionLogs } from './transfers';
+
+export { parseTransactionLogs } from './transfers';
+export { parseTransactionType } from './transaction';
+
+export type ParsedLogs = ReturnType<typeof parseTransactionLogs>;
 
 export interface Transfer
   extends Omit<
