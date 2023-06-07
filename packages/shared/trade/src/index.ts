@@ -2,6 +2,7 @@ export * from './trade-action-summary/trade-action-summary';
 export * from './trade-action-summary/mobile-trade-action-summary';
 export * from './trade-action-button/trade-action-button';
 export * from './transaction-confirmation/transaction-confirmation';
+export * from './transaction-confirmation/confirmation2';
 export * from './trade-action-summary/trade-action-summary';
 export * from './token-approval-view/token-approval-view';
 export * from './token-approval-view/use-token-approval';

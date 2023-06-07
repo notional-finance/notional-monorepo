@@ -698,6 +698,7 @@ export function buildTransaction(
                 };
               }),
               catchError((e) => {
+                // TODO: this should log to datadog
                 console.error('Simulation error', e);
                 return of({
                   populatedTransaction: p,
@@ -707,6 +708,7 @@ export function buildTransaction(
             );
           }),
           catchError((e) => {
+            // TODO: this should log to datadog
             console.error('Transaction Builder Error', e);
             return of({
               populatedTransaction: undefined,

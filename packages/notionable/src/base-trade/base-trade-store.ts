@@ -16,7 +16,8 @@ import {
   TransactionBuilder,
 } from '@notional-finance/transaction';
 import { PopulatedTransaction } from 'ethers';
-export { TradeConfiguration, TradeType } from './trade-config';
+export { TradeConfiguration } from './trade-config';
+export type { TradeType } from './trade-config';
 
 export type FilterFunc = (
   t: TokenDefinition,

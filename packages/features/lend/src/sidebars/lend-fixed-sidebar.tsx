@@ -2,10 +2,10 @@ import { useEffect, useCallback, useContext } from 'react';
 import { defineMessage, FormattedMessage } from 'react-intl';
 import { ActionSidebar, useCurrencyInputRef } from '@notional-finance/mui';
 import {
-  TransactionConfirmation,
   TradeActionButton,
   DepositInput,
   MaturitySelect,
+  Confirmation2,
 } from '@notional-finance/trade';
 import { useHistory, useLocation } from 'react-router-dom';
 import { LEND_BORROW } from '@notional-finance/shared-config';
@@ -31,7 +31,7 @@ export const LendFixedSidebar = () => {
   }, []);
 
   return confirm && buildTransactionCall ? (
-    <TransactionConfirmation
+    <Confirmation2
       heading={
         <FormattedMessage
           defaultMessage="Lend Order"
@@ -39,8 +39,7 @@ export const LendFixedSidebar = () => {
         />
       }
       onCancel={handleTxnCancel}
-      transactionProperties={{}}
-      buildTransactionCall={buildTransactionCall}
+      context={LendFixedContext}
     />
   ) : (
     <ActionSidebar

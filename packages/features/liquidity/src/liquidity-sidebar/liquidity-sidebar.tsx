@@ -1,8 +1,8 @@
 import { useCallback, useContext, useEffect } from 'react';
 import {
-  TransactionConfirmation,
   TradeActionButton,
   DepositInput,
+  Confirmation2,
 } from '@notional-finance/trade';
 import { ActionSidebar, useCurrencyInputRef } from '@notional-finance/mui';
 import { useHistory, useLocation } from 'react-router-dom';
@@ -30,7 +30,7 @@ export const LiquiditySidebar = () => {
   }, []);
 
   return confirm && buildTransactionCall ? (
-    <TransactionConfirmation
+    <Confirmation2
       heading={
         <FormattedMessage
           defaultMessage={'Provide Liquidity'}
@@ -38,8 +38,7 @@ export const LiquiditySidebar = () => {
         />
       }
       onCancel={handleTxnCancel}
-      transactionProperties={{}}
-      buildTransactionCall={buildTransactionCall}
+      context={LiquidityContext}
     />
   ) : (
     <ActionSidebar

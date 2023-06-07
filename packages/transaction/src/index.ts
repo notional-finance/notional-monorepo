@@ -11,15 +11,10 @@ import {
 
 export * from './builders';
 export * from './calculate';
-export { simulatePopulatedTxn, SimulationCallTrace } from './simulate';
-export {
-  parseTransactionLogs,
-  parseTransactionType,
-  Transaction,
-  Bundle,
-  Transfer,
-  ParsedLogs,
-} from './parser';
+export { simulatePopulatedTxn } from './simulate';
+export type { SimulationCallTrace } from './simulate';
+export { parseTransactionLogs, parseTransactionType } from './parser';
+export type { Transaction, Bundle, Transfer, ParsedLogs } from './parser';
 
 export type CalculationFn =
   | typeof calculateCollateral
