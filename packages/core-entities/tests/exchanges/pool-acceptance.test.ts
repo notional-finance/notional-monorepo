@@ -2,6 +2,7 @@ import { Registry, AccountFetchMode } from '../../src';
 import { Network, RATE_PRECISION } from '@notional-finance/util';
 import { PoolHarnessConstructor, PoolTestHarness, TestConfig } from './harness';
 import { BaseLiquidityPool } from '../../src/exchanges';
+import { CurveV1Harness } from './harness/CurveV1Harness';
 
 const acceptanceSuite = ({
   address,
@@ -70,37 +71,29 @@ const acceptanceSuite = ({
   it.each(lpEntryMatrix)(
     `[LP Single Sided Entry] for ${address} where token in=%i, size=%f`,
     async (tokenIn, utilization) => {
-      console.log(JSON.stringify(harness.poolInstance.poolParams));
-
       if (tokenIn >= harness.poolInstance.balances.length) return;
       try {
         const tokensIn = harness.poolInstance.balances[
           tokenIn
         ].mulInRatePrecision(utilization * RATE_PRECISION);
 
+        const actual = await harness.singleSideEntry(signer, tokenIn, tokensIn);
         const inputs = harness.poolInstance.zeroTokenArray();
         inputs[tokenIn] = tokensIn;
         const expected = harness.poolInstance.getLPTokensGivenTokens(inputs);
 
-        const actual = await harness.singleSideEntry(signer, tokenIn, tokensIn);
-
-        console.log(
-          `actual = ${actual.lpTokens.n.toString()}, ${actual.feesPaid.map(
-            (f) => f.n.toString()
-          )} expected = ${expected.lpTokens.n.toString()}, ${expected.feesPaid.map(
-            (f) => f.n.toString()
-          )}`
-        );
-
         expect(expected.lpTokens).toBeApprox(actual.lpTokens);
 
         // Check that the inverse calculation works
-        /*const { tokensIn: calculatedTokensIn } =
-          harness.poolInstance.getTokensRequiredForLPTokens(lpTokens, tokenIn);
+        const { tokensIn: calculatedTokensIn } =
+          harness.poolInstance.getTokensRequiredForLPTokens(
+            actual.lpTokens,
+            tokenIn
+          );
 
         calculatedTokensIn.forEach((c, i) => {
           expect(c).toBeApprox(inputs[i]);
-        }); */
+        });
       } catch (e) {
         if ((e as Error).name === 'UnimplementedPoolMethod') return;
         throw e;

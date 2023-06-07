@@ -87,12 +87,6 @@ export class CurveV1Harness extends PoolTestHarness<Curve2TokenPoolV1> {
       });
     const balanceAfter = await this.balanceOf(signer);
 
-    console.log(
-      `multiTokenEntry: ${
-        tokensIn[0].token.address
-      }, ${balanceBefore.n.toString()}, ${balanceAfter.n.toString()}, ${tokensIn[0].n.toString()}, ${tokensIn[1].n.toString()}`
-    );
-
     return {
       lpTokens: balanceAfter.sub(balanceBefore),
       feesPaid: this.poolInstance.zeroTokenArray(),
