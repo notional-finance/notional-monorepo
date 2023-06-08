@@ -7,8 +7,8 @@ import {
   IGasOracle,
   FlashLiquidation,
   IFlashLoanProvider,
+  Currency,
 } from './types';
-import { Currency } from '@notional-finance/sdk';
 import LiquidationHelper from './LiquidationHelper';
 import ProfitCalculator from './ProfitCalculator';
 import AaveFlashLoanProvider from './lenders/AaveFlashLender';

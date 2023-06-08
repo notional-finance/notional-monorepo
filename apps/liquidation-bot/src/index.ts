@@ -116,11 +116,6 @@ const run = async (env: Env) => {
     currencies: currencies.arbitrum.map((c) => {
       return {
         id: c.id,
-        assetName: c.name,
-        assetSymbol: c.symbol,
-        assetDecimals: BigNumber.from(10).pow(c.decimals),
-        assetDecimalPlaces: c.decimals,
-        assetContract: ERC20__factory.connect(c.address, provider),
         tokenType: c.type,
         hasTransferFee: c.hasTransferFee,
         underlyingName: c.name,
@@ -128,7 +123,6 @@ const run = async (env: Env) => {
         underlyingDecimals: BigNumber.from(10).pow(c.decimals),
         underlyingDecimalPlaces: c.decimals,
         underlyingContract: ERC20__factory.connect(c.address, provider),
-        nTokenSymbol: c.nTokenSymbol,
       };
     }),
     overrides: overrides.arbitrum,

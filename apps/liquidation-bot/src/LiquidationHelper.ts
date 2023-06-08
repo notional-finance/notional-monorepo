@@ -3,11 +3,11 @@ import {
   RiskyAccount,
   RiskyAccountData,
   Asset,
+  Currency,
 } from './types';
 import Liquidation from './liquidation';
-import { CashGroup } from '@notional-finance/sdk/system';
 import { BigNumber } from 'ethers';
-import { Currency } from '@notional-finance/sdk';
+import { getNowSeconds } from '@notional-finance/util';
 
 type FcashPortfolio = {
   positiveFcash: Map<number, FcashPosition>;
@@ -19,6 +19,10 @@ type FcashPortfolio = {
 type FcashPosition = {
   maturities: number[];
 };
+
+export const SECONDS_IN_DAY = 86400;
+export const SECONDS_IN_QUARTER = 90 * SECONDS_IN_DAY;
+export const SECONDS_IN_YEAR = SECONDS_IN_QUARTER * 4;
 
 export default class LiquidationHelper {
   constructor(public wethAddress: string, public currencies: Currency[]) {}
@@ -65,6 +69,41 @@ export default class LiquidationHelper {
     return liqs;
   }
 
+  private getMarketIndexForMaturity(
+    maturity: number,
+    blockTime = getNowSeconds()
+  ) {
+    for (let i = 1; i <= 7; i += 1) {
+      if (maturity === this.getMaturityForMarketIndex(i, blockTime)) return i;
+    }
+
+    throw new Error('Maturity does not correspond to market index');
+  }
+
+  private getTimeReference(timestamp = getNowSeconds()) {
+    return timestamp - (timestamp % SECONDS_IN_QUARTER);
+  }
+
+  private getMaturityForMarketIndex(
+    marketIndex: number,
+    blockTime = getNowSeconds()
+  ) {
+    const tRef = this.getTimeReference(blockTime);
+    return tRef + this.getMarketMaturityLengthSeconds(marketIndex);
+  }
+
+  private getMarketMaturityLengthSeconds(marketIndex: number) {
+    if (marketIndex === 1) return SECONDS_IN_QUARTER;
+    if (marketIndex === 2) return 2 * SECONDS_IN_QUARTER;
+    if (marketIndex === 3) return SECONDS_IN_YEAR;
+    if (marketIndex === 4) return 2 * SECONDS_IN_YEAR;
+    if (marketIndex === 5) return 5 * SECONDS_IN_YEAR;
+    if (marketIndex === 6) return 10 * SECONDS_IN_YEAR;
+    if (marketIndex === 7) return 20 * SECONDS_IN_YEAR;
+
+    return 0;
+  }
+
   private getFcashPortfolio(assets: Asset[]): FcashPortfolio {
     const negativeFcash = new Map<number, FcashPosition>();
     const negativeIfcash = new Map<number, FcashPosition>();
@@ -75,7 +114,7 @@ export default class LiquidationHelper {
       let ifcash = false;
       try {
         // Look for idiosyncratic fcash
-        CashGroup.getMarketIndexForMaturity(a.maturity);
+        this.getMarketIndexForMaturity(a.maturity);
       } catch (e) {
         ifcash = true;
       }

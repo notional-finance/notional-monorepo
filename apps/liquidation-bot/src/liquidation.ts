@@ -1,6 +1,5 @@
-import { LiquidationType, TradeData } from './types';
+import { LiquidationType, TradeData, Currency } from './types';
 import { utils, constants, Contract } from 'ethers';
-import { Currency } from '@notional-finance/sdk';
 
 export default class Liquidation {
   public static readonly ETH_CURRENCY_ID = 1;
