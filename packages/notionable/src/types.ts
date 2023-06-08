@@ -127,6 +127,7 @@ export interface MaturityData {
   hasLiquidity: boolean;
   tradeRateString: string;
   rollMaturityRoute?: string;
+  route?: string;
   fCashAmount?: TypedBigNumber;
   cashAmount?: TypedBigNumber;
 }

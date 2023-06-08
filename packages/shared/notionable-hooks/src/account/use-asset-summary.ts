@@ -44,7 +44,7 @@ export function useAssetSummary(borrowOrLend: LEND_BORROW) {
             fCashId: market.marketKey,
             maturity: market.maturity,
             tradeRateString: tradeRate
-              ? `${Market.formatInterestRate(tradeRate)} APR`
+              ? `${Market.formatInterestRate(tradeRate)} Fixed APY`
               : 'Partial Roll',
             tradeRate: tradeRate ? convertRateToFloat(tradeRate) : undefined,
             hasLiquidity: market.hasLiquidity,

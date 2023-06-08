@@ -1,6 +1,7 @@
 import { useTheme, Box, styled } from '@mui/material';
 import { ArrowIcon } from '@notional-finance/icons';
 import { SETTINGS_SIDE_DRAWERS } from '@notional-finance/shared-config';
+import { LabelValue } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { trackEvent } from '@notional-finance/helpers';
@@ -105,12 +106,12 @@ const WalletButton = styled(Box)(
   `
 );
 
-const Title = styled(Box)(
+const Title = styled(LabelValue)(
   ({ theme }) => `
   margin-bottom: ${theme.spacing(2.5)};
   margin-top: ${theme.spacing(3)};
   font-weight: 700;
-  color: ${theme.palette.primary.dark};
+  color: ${theme.palette.borders.accentDefault};
   display: flex;
   text-transform: uppercase;
   `

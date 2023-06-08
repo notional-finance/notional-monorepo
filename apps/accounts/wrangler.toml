@@ -1,0 +1,28 @@
+main = "./src/index.ts"
+compatibility_date = "2022-11-11"
+
+workers_dev = true
+node_compat = true
+minify = true
+usage_model = "bundled"
+
+[[migrations]]
+tag = "v1"
+new_classes = ["AccountCache"]
+
+[env.local]
+durable_objects.bindings = [
+  { name = "ACCOUNT_CACHE", class_name = "AccountCache" },
+]
+
+[env.dev]
+name = "accounts-dev"
+durable_objects.bindings = [
+  { name = "ACCOUNT_CACHE", class_name = "AccountCache" }
+]
+
+[env.beta]
+name = "accounts-beta"
+
+[env.prod]
+name = "accounts"

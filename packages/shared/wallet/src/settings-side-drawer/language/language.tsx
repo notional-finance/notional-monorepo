@@ -1,5 +1,5 @@
-import { Box, Typography, styled, useTheme } from '@mui/material';
-import { H4 } from '@notional-finance/mui';
+import { Box, styled, useTheme } from '@mui/material';
+import { H4, LabelValue } from '@notional-finance/mui';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import {
   setInLocalStorage,
@@ -142,7 +142,7 @@ const WalletButton = styled(Box, {
   `
 );
 
-const Title = styled(Typography)(
+const Title = styled(LabelValue)(
   ({ theme }) => `
   margin-bottom: ${theme.spacing(2.5)};
   font-weight: 700;

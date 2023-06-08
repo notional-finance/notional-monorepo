@@ -2,11 +2,12 @@ import { TokenIcon } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
 import { Chain } from '@web3-onboard/common';
 import { NotionalTheme } from '@notional-finance/styles';
-import { useTheme, Box, styled, Typography } from '@mui/material';
+import { useTheme, Box, styled } from '@mui/material';
 import { Network } from '@notional-finance/util';
 import { chains } from '../../onboard-context';
 import { useNotionalContext } from '@notional-finance/notionable-hooks';
 import { NetworkSelectorButton } from '../../network-selector/network-selector';
+import { LabelValue } from '@notional-finance/mui';
 
 /* eslint-disable-next-line */
 export interface NetworkSelectorProps {
@@ -68,7 +69,7 @@ const NetworkWrapper = styled(Box)(
   `
 );
 
-const Title = styled(Typography)(
+const Title = styled(LabelValue)(
   ({ theme }) => `
   margin-bottom: ${theme.spacing(2.5)};
   font-weight: 700;

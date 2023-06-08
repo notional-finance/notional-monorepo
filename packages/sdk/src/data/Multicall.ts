@@ -7,6 +7,7 @@ const MULTICALL2 = {
   rinkeby: '0x5ba1e12693dc8f9c48aad8770482f4739beed696',
   goerli: '0x5ba1e12693dc8f9c48aad8770482f4739beed696',
   ropsten: '0x5ba1e12693dc8f9c48aad8770482f4739beed696',
+  arbitrum: '0x842eC2c7D803033Edf55E478F461FC547Bc54EB2',
 };
 
 export interface AggregateCall {

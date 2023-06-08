@@ -10,7 +10,7 @@ import {
   LargeInputTextEmphasized,
   SideDrawerButton,
 } from '@notional-finance/mui';
-import { useParams } from 'react-router-dom';
+import { useParams, useHistory } from 'react-router-dom';
 import { FormattedMessage } from 'react-intl';
 import { useManageVault } from './use-manage-vault';
 import { formatMaturity } from '@notional-finance/helpers';
@@ -22,6 +22,7 @@ import { VaultDetailsTable } from '../../components/vault-details-table';
 export const ManageVault = () => {
   const theme = useTheme();
   const { vaultAddress, sideDrawerKey } = useParams<VaultParams>();
+  const history = useHistory();
   const {
     updateState,
     state: { eligibleActions, updatedVaultAccount, vaultConfig, vaultAccount },
@@ -43,6 +44,13 @@ export const ManageVault = () => {
       vaultAction: sideDrawerKey,
     });
   }, [updateState, sideDrawerKey]);
+
+  const handleClick = (key: VAULT_ACTIONS) => {
+    history.push(manageVaultActions[key].link);
+    updateState({
+      vaultAction: key,
+    });
+  };
 
   return (
     <Box>
@@ -106,19 +114,12 @@ export const ManageVault = () => {
                     }}
                   ></Divider>
                 )}
-                <H4
-                  fontWeight="regular"
-                  to={manageVaultActions[key].link}
-                  onClick={() =>
-                    updateState({
-                      vaultAction: key,
-                    })
-                  }
+                <SideDrawerButton
+                  sx={{ padding: theme.spacing(2.5) }}
+                  onClick={() => handleClick(key)}
                 >
-                  <SideDrawerButton sx={{ padding: theme.spacing(2.5) }}>
-                    {manageVaultActions[key].label}
-                  </SideDrawerButton>
-                </H4>
+                  <H4>{manageVaultActions[key].label}</H4>
+                </SideDrawerButton>
               </Box>
             ))}
           </Box>
@@ -133,6 +134,7 @@ const Title = styled(LabelValue)(
   margin-bottom: ${theme.spacing(2.5)};
   margin-top: ${theme.spacing(5)};
   color: ${theme.palette.borders.accentDefault};
+  font-weight: 700;
   text-transform: uppercase;
   `
 );

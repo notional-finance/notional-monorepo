@@ -1,6 +1,7 @@
 export * from './add-to-calendar/add-to-calendar';
 export * from './deposit-collateral/deposit-collateral';
 export * from './manage-vault/manage-vault';
+export * from './manage-maturities/manage-maturities';
 export * from './redeem-ntoken/redeem-ntoken';
 export * from './repay-borrow/repay-borrow';
 export * from './repay-cash/repay-cash';

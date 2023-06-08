@@ -2,6 +2,15 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [0.2.4](https://github.com/notional-finance/notional-monorepo/compare/contracts-0.2.3...contracts-0.2.4) (2023-06-06)
+
+## [0.2.3](https://github.com/notional-finance/notional-monorepo/compare/contracts-0.2.2...contracts-0.2.3) (2023-05-26)
+
+
+### Features
+
+* fCash exchange ([#163](https://github.com/notional-finance/notional-monorepo/issues/163)) ([f881912](https://github.com/notional-finance/notional-monorepo/commit/f8819120411183c3a660c1d3d27819d5f81f0522))
+
 ## [0.2.2](https://github.com/notional-finance/notional-monorepo/compare/contracts-0.2.1...contracts-0.2.2) (2023-01-20)
 
 

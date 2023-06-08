@@ -1,4 +1,5 @@
 export { default as AssetRateAggregatorABI } from './AssetRateAggregator.json';
+export { default as AaveFlashLenderABI } from './AaveFlashLender.json';
 export { default as BalancerBoostedPoolABI } from './BalancerBoostedPool.json';
 export { default as BalancerLinearPoolABI } from './BalancerLinearPool.json';
 export { default as BalancerPoolABI } from './BalancerPool.json';
@@ -9,6 +10,7 @@ export { default as CurvePoolV1ABI } from './CurvePoolV1.json';
 export { default as CurvePoolV2ABI } from './CurvePoolV2.json';
 export { default as ERC20ABI } from './ERC20.json';
 export { default as ExchangeV3ABI } from './ExchangeV3.json';
+export { default as FlashLiquidatorABI } from './FlashLiquidator.json';
 export { default as GovernorABI } from './Governor.json';
 export { default as IAggregatorABI } from './IAggregator.json';
 export { default as MetaStable2TokenAuraVaultABI } from './MetaStable2TokenAuraVault.json';

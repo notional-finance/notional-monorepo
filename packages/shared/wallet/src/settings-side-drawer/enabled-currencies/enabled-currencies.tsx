@@ -1,6 +1,6 @@
-import { Box, Typography, styled, useTheme, Grid } from '@mui/material';
+import { Box, styled, useTheme, Grid } from '@mui/material';
 import { tokenApprovalState$ } from '@notional-finance/trade';
-import { ProgressIndicator } from '@notional-finance/mui';
+import { ProgressIndicator, LabelValue } from '@notional-finance/mui';
 import {
   useAccountReady,
   useCurrency,
@@ -127,7 +127,7 @@ export const EnabledCurrencies = () => {
   );
 };
 
-const Title = styled(Typography)(
+const Title = styled(LabelValue)(
   ({ theme }) => `
   width: 100%;
   margin-bottom: ${theme.spacing(2.5)};

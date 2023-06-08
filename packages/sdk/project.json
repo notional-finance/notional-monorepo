@@ -34,9 +34,7 @@
       "executor": "@nrwl/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/packages/sdk"],
       "options": {
-        "testMatch": [
-          "<rootDir>/tests/integration/balancer-boosted-vault.test.ts"
-        ],
+        "testMatch": ["<rootDir>/tests/integration/system.test.ts"],
         "jestConfig": "packages/sdk/jest.config.ts",
         "passWithNoTests": true,
         "testTimeout": 50000

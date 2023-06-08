@@ -1,0 +1,64 @@
+{
+  "arbitrum": [
+    {
+      "id": 1,
+      "name": "ETH",
+      "symbol": "ETH",
+      "decimals": 18,
+      "address": "0x0000000000000000000000000000000000000000",
+      "hasTransferFee": false,
+      "type": "",
+      "nTokenSymbol": "nETH"
+    },
+    {
+      "id": 2,
+      "name": "DAI",
+      "symbol": "DAI",
+      "decimals": 18,
+      "address": "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1",
+      "hasTransferFee": false,
+      "type": "",
+      "nTokenSymbol": "nETH"
+    },
+    {
+      "id": 3,
+      "name": "USDC",
+      "symbol": "USDC",
+      "decimals": 6,
+      "address": "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8",
+      "hasTransferFee": false,
+      "type": "",
+      "nTokenSymbol": "nETH"
+    },
+    {
+      "id": 4,
+      "name": "WBTC",
+      "symbol": "WBTC",
+      "decimals": 8,
+      "address": "0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f",
+      "hasTransferFee": false,
+      "type": "",
+      "nTokenSymbol": "nETH"
+    },
+    {
+      "id": 5,
+      "name": "wstETH",
+      "symbol": "wstETH",
+      "decimals": 18,
+      "address": "0x5979D7b546E38E414F7E9822514be443A4800529",
+      "hasTransferFee": false,
+      "type": "",
+      "nTokenSymbol": "nETH"
+    },
+    {
+      "id": 6,
+      "name": "FRAX",
+      "symbol": "FRAX",
+      "decimals": 18,
+      "address": "0x17FC002b466eEc40DaE837Fc4bE5c67993ddBd6F",
+      "hasTransferFee": false,
+      "type": "",
+      "nTokenSymbol": "nETH"
+    }
+  ]
+}

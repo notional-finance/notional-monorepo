@@ -2,6 +2,20 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [0.4.6](https://github.com/notional-finance/notional-monorepo/compare/sdk-0.4.5...sdk-0.4.6) (2023-06-06)
+
+## [0.4.5](https://github.com/notional-finance/notional-monorepo/compare/sdk-0.4.4...sdk-0.4.5) (2023-05-26)
+
+
+### Bug Fixes
+
+* moving The Graph endpoint from hosted to decentralized ([#111](https://github.com/notional-finance/notional-monorepo/issues/111)) ([f2553e4](https://github.com/notional-finance/notional-monorepo/commit/f2553e41fea96ac3a97361a1b163a545340c36fd))
+
+
+### Reverts
+
+* Revert "build: bumping sdk logging (#169)" (#170) ([0446dbc](https://github.com/notional-finance/notional-monorepo/commit/0446dbc0929ffdec40f51c4401492d884721acee)), closes [#169](https://github.com/notional-finance/notional-monorepo/issues/169) [#170](https://github.com/notional-finance/notional-monorepo/issues/170)
+
 ## [0.4.4](https://github.com/notional-finance/notional-monorepo/compare/sdk-0.4.3...sdk-0.4.4) (2023-04-22)
 
 ## [0.4.3](https://github.com/notional-finance/notional-monorepo/compare/sdk-0.4.2...sdk-0.4.3) (2023-04-19)

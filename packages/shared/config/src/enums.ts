@@ -48,6 +48,8 @@ export enum PORTFOLIO_ACTIONS {
   GET_NOTIFIED = 'get-notified',
   REMIND_ME = 'remind-me',
   MANAGE_VAULT = 'manage-vault',
+  MANAGE_BORROW = 'manage-borrow',
+  MANAGE_LEND = 'manage-lend',
 }
 
 export enum WITHDRAW_TYPE {
