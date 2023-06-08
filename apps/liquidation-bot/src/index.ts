@@ -150,18 +150,20 @@ const run = async (env: Env) => {
     timestamp: getNowSeconds(),
   });
 
-  const riskyAccount = riskyAccounts[0];
+  if (riskyAccounts.length > 0) {
+    const riskyAccount = riskyAccounts[0];
 
-  const possibleLiqs = await liq.getPossibleLiquidations(riskyAccount);
+    const possibleLiqs = await liq.getPossibleLiquidations(riskyAccount);
 
-  console.log(
-    `possibleLiqs=${possibleLiqs.map((liq) =>
-      liq.accountLiq.liquidation.toString()
-    )}`
-  );
+    console.log(
+      `possibleLiqs=${possibleLiqs.map((liq) =>
+        liq.accountLiq.liquidation.toString()
+      )}`
+    );
 
-  if (possibleLiqs.length > 0) {
-    await liq.liquidateAccount(possibleLiqs[0]);
+    if (possibleLiqs.length > 0) {
+      await liq.liquidateAccount(possibleLiqs[0]);
+    }
   }
 
   await submitMetrics(ddSeries);
