@@ -11,8 +11,6 @@ import {
 import {
   CalculationFn,
   CalculationFnParams,
-  ParsedLogs,
-  SimulationCallTrace,
   TransactionBuilder,
 } from '@notional-finance/transaction';
 import { PopulatedTransaction } from 'ethers';
@@ -114,10 +112,6 @@ interface TransactionState {
   populatedTransaction?: PopulatedTransaction;
   /** Error creating transaction */
   transactionError?: string;
-  /** Logs from simulated transaction call */
-  simulatedLogs?: ParsedLogs;
-  /** Results from simulated transaction call */
-  simulatedCalls?: SimulationCallTrace[];
 }
 
 interface InitState {

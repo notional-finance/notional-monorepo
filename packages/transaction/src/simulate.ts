@@ -1,10 +1,12 @@
 import {
+  getNowSeconds,
   getProviderFromNetwork,
   Network,
   padToHex256,
   stripHexLeadingZero,
 } from '@notional-finance/util';
 import { ethers, PopulatedTransaction } from 'ethers';
+import { parseTransactionLogs } from './parser';
 
 // Types taken from: https://github.com/alchemyplatform/alchemy-sdk-js/blob/main/src/types/types.ts#L2051
 
@@ -159,5 +161,7 @@ export async function simulatePopulatedTxn(
     removed: false,
   }));
 
-  return { calls, logs };
+  const simulatedLogs = parseTransactionLogs(network, getNowSeconds(), logs);
+
+  return { simulatedCalls: calls, simulatedLogs, rawLogs: logs };
 }

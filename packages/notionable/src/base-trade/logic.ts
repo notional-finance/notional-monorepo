@@ -10,11 +10,7 @@ import {
   RiskFactorKeys,
   RiskFactorLimit,
 } from '@notional-finance/risk-engine';
-import {
-  CalculationFnParams,
-  parseTransactionLogs,
-  simulatePopulatedTxn,
-} from '@notional-finance/transaction';
+import { CalculationFnParams } from '@notional-finance/transaction';
 import { filterEmpty, getNowSeconds, unique } from '@notional-finance/util';
 import {
   catchError,
@@ -656,7 +652,6 @@ export function postAccountRisk(
 export function buildTransaction(
   state$: Observable<BaseTradeState>,
   account$: ReturnType<typeof selectedAccount>,
-  network$: ReturnType<typeof selectedNetwork>,
   { transactionBuilder }: TransactionConfig
 ) {
   return combineLatest([state$, account$]).pipe(
@@ -674,33 +669,7 @@ export function buildTransaction(
             network: a.network,
           })
         ).pipe(
-          withLatestFrom(network$),
-          switchMap(([p, network]) => {
-            return from(simulatePopulatedTxn(network, p)).pipe(
-              map(({ calls, logs }) => {
-                // NOTE: we may need to rate limit this somehow....
-                const simulatedLogs = parseTransactionLogs(
-                  network,
-                  getNowSeconds(),
-                  logs
-                );
-
-                return {
-                  populatedTransaction: p,
-                  simulatedLogs,
-                  simulatedCalls: calls,
-                };
-              }),
-              catchError((e) => {
-                // TODO: this should log to datadog
-                console.error('Simulation error', e);
-                return of({
-                  populatedTransaction: p,
-                  simulatedResults: undefined,
-                });
-              })
-            );
-          }),
+          map((p) => ({ populatedTransaction: p })),
           catchError((e) => {
             // TODO: this should log to datadog
             console.error('Transaction Builder Error', e);
