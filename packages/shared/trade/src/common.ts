@@ -11,7 +11,7 @@ export function useInputAmount(inputString: string, selectedToken?: string) {
 
   return {
     inputAmount:
-      inputString !== ''
+      inputString !== '' && inputString !== '.'
         ? tokens.parseInputToTokenBalance(
             inputString,
             selectedToken,

@@ -1,4 +1,9 @@
-import { getProviderFromNetwork, Network, padToHex256 } from '@notional-finance/util';
+import {
+  getProviderFromNetwork,
+  Network,
+  padToHex256,
+  stripHexLeadingZero,
+} from '@notional-finance/util';
 import { ethers, PopulatedTransaction } from 'ethers';
 
 // Types taken from: https://github.com/alchemyplatform/alchemy-sdk-js/blob/main/src/types/types.ts#L2051
@@ -133,7 +138,9 @@ export async function simulatePopulatedTxn(
         {
           from: populateTxn.from,
           to: populateTxn.to,
-          value: populateTxn.value?.toHexString() || '0x0',
+          value: populateTxn.value
+            ? stripHexLeadingZero(populateTxn.value)
+            : '0x0',
           data: populateTxn.data,
         },
       ]

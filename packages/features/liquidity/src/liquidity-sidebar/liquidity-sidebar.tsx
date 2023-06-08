@@ -5,23 +5,21 @@ import {
   Confirmation2,
 } from '@notional-finance/trade';
 import { ActionSidebar, useCurrencyInputRef } from '@notional-finance/mui';
-import { useHistory, useLocation } from 'react-router-dom';
 import { defineMessage, FormattedMessage } from 'react-intl';
 import { LiquidityContext } from '../liquidity-action';
 
 export const LiquiditySidebar = () => {
   const {
-    state: { canSubmit, buildTransactionCall, confirm },
+    state: { canSubmit, populatedTransaction, confirm },
+    updateState,
   } = useContext(LiquidityContext);
-  const { pathname } = useLocation();
-  const history = useHistory();
   const { currencyInputRef } = useCurrencyInputRef();
 
   const handleTxnCancel = useCallback(() => {
-    history.push(pathname);
-  }, [history, pathname]);
+    updateState({ confirm: false });
+  }, [updateState]);
 
-  return confirm && buildTransactionCall ? (
+  return confirm && populatedTransaction ? (
     <Confirmation2
       heading={
         <FormattedMessage

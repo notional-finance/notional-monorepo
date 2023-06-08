@@ -95,9 +95,8 @@ export function useObservableContext<T extends ContextState>(
     // this prevents any "residual" state from going between paths
     if (state.isReady) updateState(params as T);
     // NOTE: only run updates on pathname changes, since params is an object
-    // it will always be marked as changed.
     // eslint-disable-next-line
-  }, [pathname, state.isReady]);
+  }, [pathname, state.isReady, updateState]);
 
   useEffect(() => {
     const updates = Object.keys(query).reduce((u, k) => {
