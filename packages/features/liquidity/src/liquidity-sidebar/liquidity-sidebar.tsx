@@ -1,45 +1,28 @@
-import { useCallback, useContext, useEffect } from 'react';
+import { useContext } from 'react';
 import {
-  TransactionConfirmation,
   TradeActionButton,
   DepositInput,
+  Confirmation2,
 } from '@notional-finance/trade';
 import { ActionSidebar, useCurrencyInputRef } from '@notional-finance/mui';
-import { useHistory, useLocation } from 'react-router-dom';
 import { defineMessage, FormattedMessage } from 'react-intl';
 import { LiquidityContext } from '../liquidity-action';
 
 export const LiquiditySidebar = () => {
   const {
-    state: { canSubmit, buildTransactionCall, confirm },
+    state: { canSubmit, populatedTransaction, confirm },
   } = useContext(LiquidityContext);
-  const { pathname, search } = useLocation();
-  const history = useHistory();
   const { currencyInputRef } = useCurrencyInputRef();
 
-  const handleTxnCancel = useCallback(() => {
-    history.push(pathname);
-  }, [history, pathname]);
-
-  useEffect(() => {
-    if (search.includes('confirm=true')) {
-      // TODO: Clears the confirmation on load...
-      history.push(pathname);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  return confirm && buildTransactionCall ? (
-    <TransactionConfirmation
+  return confirm && populatedTransaction ? (
+    <Confirmation2
       heading={
         <FormattedMessage
           defaultMessage={'Provide Liquidity'}
           description="section heading"
         />
       }
-      onCancel={handleTxnCancel}
-      transactionProperties={{}}
-      buildTransactionCall={buildTransactionCall}
+      context={LiquidityContext}
     />
   ) : (
     <ActionSidebar

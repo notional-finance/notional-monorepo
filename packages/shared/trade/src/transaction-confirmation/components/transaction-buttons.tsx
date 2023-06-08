@@ -23,6 +23,7 @@ export interface TransactionButtonsProps {
   onCancel: MouseEventHandler<HTMLButtonElement>;
   isLoaded: boolean;
   onReturnToForm?: MouseEventHandler<HTMLButtonElement>;
+  isReadyOnlyAddress?: boolean;
 }
 
 export const TransactionButtons = ({
@@ -31,6 +32,7 @@ export const TransactionButtons = ({
   onCancel,
   onReturnToForm,
   isLoaded,
+  isReadyOnlyAddress
 }: TransactionButtonsProps) => {
   const theme = useTheme();
   switch (transactionStatus) {
@@ -65,7 +67,7 @@ export const TransactionButtons = ({
             size="large"
             sx={{ width: '48%' }}
             onClick={onSubmit}
-            disabled={!isLoaded}
+            disabled={isReadyOnlyAddress || !isLoaded}
           >
             {!isLoaded && (
               <Spinner>

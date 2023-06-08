@@ -62,6 +62,7 @@ export function useObservableContext<T extends ContextState>(
   >(
     (state$) =>
       state$.pipe(
+        // NOTE: closure usage here is not safe...
         scan((state, update) => ({ ...state, ...update }), initialState)
       ),
     // Transforms the list of args into a single arg which is Partial<T>
@@ -79,13 +80,13 @@ export function useObservableContext<T extends ContextState>(
     useObservable(
       (o$) => {
         return o$.pipe(
-          switchMap(([s, g]) => loadManagers(s, g)),
+          switchMap(([s, g, load]) => load(s, g)),
           tap((s) => {
             if (DEBUG) console.log('CALCULATED UPDATE', s);
           })
         );
       },
-      [state$, globalState$]
+      [state$, globalState$, loadManagers]
     ),
     updateState
   );
@@ -95,9 +96,8 @@ export function useObservableContext<T extends ContextState>(
     // this prevents any "residual" state from going between paths
     if (state.isReady) updateState(params as T);
     // NOTE: only run updates on pathname changes, since params is an object
-    // it will always be marked as changed.
     // eslint-disable-next-line
-  }, [pathname, state.isReady]);
+  }, [pathname, state.isReady, updateState]);
 
   useEffect(() => {
     const updates = Object.keys(query).reduce((u, k) => {

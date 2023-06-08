@@ -13,9 +13,12 @@ import {
 import { CalculationFnParams } from '@notional-finance/transaction';
 import { filterEmpty, getNowSeconds, unique } from '@notional-finance/util';
 import {
+  catchError,
   combineLatest,
   distinctUntilChanged,
+  EMPTY,
   filter,
+  from,
   map,
   Observable,
   of,
@@ -642,6 +645,44 @@ export function postAccountRisk(
         return undefined;
       }
     ),
+    filterEmpty()
+  );
+}
+
+export function buildTransaction(
+  state$: Observable<BaseTradeState>,
+  account$: ReturnType<typeof selectedAccount>,
+  { transactionBuilder }: TransactionConfig
+) {
+  return combineLatest([state$, account$]).pipe(
+    filter(([state]) => state.canSubmit && state.confirm),
+    distinctUntilChanged(
+      ([p], [c]) => p.calculateInputKeys === c.calculateInputKeys
+    ),
+    switchMap(([s, a]) => {
+      if (a) {
+        return from(
+          transactionBuilder({
+            ...s,
+            accountBalances: a.balances || [],
+            address: a.address,
+            network: a.network,
+          })
+        ).pipe(
+          map((p) => ({ populatedTransaction: p })),
+          catchError((e) => {
+            // TODO: this should log to datadog
+            console.error('Transaction Builder Error', e);
+            return of({
+              populatedTransaction: undefined,
+              simulatedResults: undefined,
+              transactionError: e.toString(),
+            });
+          })
+        );
+      }
+      return EMPTY;
+    }),
     filterEmpty()
   );
 }

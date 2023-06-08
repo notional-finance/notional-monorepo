@@ -140,7 +140,11 @@ export function NetworkSelector() {
           </Title>
           <Box sx={{ width: '380px', margin: 'auto' }}>
             {chains.map((data: Chain) => (
-              <NetworkSelectorButton data={data} handleClick={handleClose} />
+              <NetworkSelectorButton
+                key={data.id}
+                data={data}
+                handleClick={handleClose}
+              />
             ))}
           </Box>
         </NetworkInnerWrapper>

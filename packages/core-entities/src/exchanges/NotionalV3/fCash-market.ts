@@ -754,6 +754,22 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
     });
   }
 
+  public getSlippageRate(fCash: TokenBalance, slippageFactor: number) {
+    const { underlyingCash } = this.getCashGivenfCashAmount(
+      this.getMarketIndex(fCash.token.maturity),
+      fCash
+    );
+    const impliedRate = this.getImpliedInterestRate(underlyingCash, fCash);
+    if (!impliedRate) throw Error('Trade failed');
+
+    return Math.max(
+      fCash.isPositive()
+        ? impliedRate - slippageFactor
+        : impliedRate + slippageFactor,
+      0
+    );
+  }
+
   public getMarketIndex(maturity?: number) {
     const index = this.balances.findIndex((t) => t.token.maturity === maturity);
     if (index === -1) throw Error('Market index not found');

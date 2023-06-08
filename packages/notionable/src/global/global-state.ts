@@ -1,4 +1,9 @@
+import {
+  TransactionReceipt,
+  TransactionResponse,
+} from '@ethersproject/providers';
 import { Network } from '@notional-finance/util';
+import { Signer } from 'ethers';
 
 // Set this as the runtime default
 const CACHE_HOSTNAME =
@@ -7,6 +12,7 @@ const CACHE_HOSTNAME =
 interface OnboardState {
   // These properties are only used to store the onboard state
   wallet?: {
+    signer?: Signer;
     selectedChain?: Network;
     selectedAddress: string;
     hasSelectedChainError: boolean;
@@ -27,11 +33,17 @@ interface AccountState {
   selectedAccount?: string;
 }
 
+interface TransactionState {
+  sentTransactions: Record<string, TransactionResponse>;
+  completedTransactions: Record<string, TransactionReceipt>;
+}
+
 export interface GlobalState
   extends Record<string, unknown>,
     NetworkState,
     AccountState,
-    OnboardState {}
+    OnboardState,
+    TransactionState {}
 
 export const initialGlobalState: GlobalState = {
   isNetworkReady: false,
@@ -39,4 +51,6 @@ export const initialGlobalState: GlobalState = {
   cacheHostname: CACHE_HOSTNAME,
   isAccountPending: false,
   isAccountReady: false,
+  sentTransactions: {},
+  completedTransactions: {}, 
 };

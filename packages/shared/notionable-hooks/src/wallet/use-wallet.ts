@@ -1,4 +1,4 @@
-import { TokenBalance } from '@notional-finance/core-entities';
+import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
 import { useAccountDefinition } from '../account/use-account';
 
 export function useWalletAllowances() {
@@ -13,28 +13,24 @@ export function useWalletAllowances() {
 }
 
 export function useWalletBalanceInputCheck(
+  token: TokenDefinition | undefined,
   inputAmount: TokenBalance | undefined
 ) {
   const { account } = useAccountDefinition();
-  if (!account || !inputAmount) {
-    return {
-      maxBalanceString: undefined,
-      maxBalance: undefined,
-      insufficientBalance: false,
-      insufficientAllowance: false,
-    };
-  }
+  const maxBalance = token
+    ? account?.balances.find((t) => t.token.id === token?.id) ||
+      TokenBalance.zero(token)
+    : undefined;
 
-  const maxBalance =
-    account.balances.find((t) => t.token.id === inputAmount.tokenId) ||
-    inputAmount.copy(0);
+  const allowance = token
+    ? account?.allowances?.find((a) => a.amount.tokenId === token?.id)
+        ?.amount || TokenBalance.zero(token)
+    : undefined;
 
-  const allowance =
-    account.allowances?.find((a) => a.amount.tokenId === inputAmount.tokenId)
-      ?.amount || inputAmount.copy(0);
-
-  const insufficientBalance = maxBalance.lt(inputAmount);
-  const insufficientAllowance = allowance.lt(inputAmount);
+  const insufficientBalance =
+    inputAmount && maxBalance ? maxBalance.lt(inputAmount) : false;
+  const insufficientAllowance =
+    inputAmount && maxBalance ? allowance?.lt(inputAmount) : false;
 
   return {
     maxBalanceString: maxBalance?.toExactString(),

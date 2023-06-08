@@ -2,14 +2,11 @@ import { useNotionalContext } from '@notional-finance/notionable-hooks';
 import { truncateAddress } from '@notional-finance/helpers';
 import { getNetworkFromId } from '@notional-finance/util';
 import { useConnectWallet } from '@web3-onboard/react';
-import { BigNumber } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import { useCallback, useEffect } from 'react';
 
 export const useConnect = () => {
-  const {
-    globalState,
-    updateNotional,
-  } = useNotionalContext();
+  const { globalState, updateNotional } = useNotionalContext();
   const [
     { wallet, connecting },
     connect,
@@ -22,11 +19,12 @@ export const useConnect = () => {
   const { selectedNetwork } = globalState;
   const currentLabel = wallet?.label;
   const icon = wallet?.icon;
-  
+
   // The first account and chain are considered "selected" by the UI
-  const selectedAddress = globalState?.wallet?.selectedAddress || wallet?.accounts[0].address;
+  const selectedAddress =
+    globalState?.wallet?.selectedAddress || wallet?.accounts[0].address;
   const isReadOnlyAddress = globalState?.wallet?.isReadOnlyAddress;
-  
+
   const truncatedAddress = selectedAddress
     ? truncateAddress(selectedAddress)
     : '';
@@ -56,8 +54,12 @@ export const useConnect = () => {
       updateNotional({ wallet: undefined });
     } else if (wallet && selectedAddress && !isReadOnlyAddress) {
       setPrimaryWallet(wallet, selectedAddress);
+      const provider = new ethers.providers.Web3Provider(wallet.provider);
+      const signer = provider.getSigner();
+
       updateNotional({
         wallet: {
+          signer,
           selectedChain,
           selectedAddress,
           isReadOnlyAddress: false,
@@ -73,9 +75,8 @@ export const useConnect = () => {
     selectedNetwork,
     setPrimaryWallet,
     updateNotional,
-    isReadOnlyAddress
+    isReadOnlyAddress,
   ]);
-
 
   return {
     connecting,

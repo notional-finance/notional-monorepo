@@ -17,6 +17,7 @@ export function ViewAsAccount() {
     if (ethers.utils.isAddress(address)) {
       updateNotional({
         wallet: {
+          signer: undefined,
           selectedAddress: address,
           isReadOnlyAddress: true,
           hasSelectedChainError: false,

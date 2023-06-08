@@ -11,9 +11,11 @@ import {
 import {
   CalculationFn,
   CalculationFnParams,
+  TransactionBuilder,
 } from '@notional-finance/transaction';
-import { TransactionFunction } from '../types';
-export { TradeConfiguration, TradeType } from './trade-config';
+import { PopulatedTransaction } from 'ethers';
+export { TradeConfiguration } from './trade-config';
+export type { TradeType } from './trade-config';
 
 export type FilterFunc = (
   t: TokenDefinition,
@@ -29,6 +31,7 @@ export interface TransactionConfig {
   debtFilter?: FilterFunc;
   calculateDebtOptions?: boolean;
   calculateCollateralOptions?: boolean;
+  transactionBuilder: TransactionBuilder;
 }
 
 /** Input amount directly from the frontend */
@@ -65,6 +68,7 @@ interface UserInputs {
     collateral: string;
     debt?: string;
   };
+  redeemToWETH: boolean;
 }
 
 /** Calculated values based on token inputs */
@@ -105,7 +109,9 @@ interface TransactionState {
   /** True if the form is in the confirmation state */
   confirm: boolean;
   /** Transaction call information for the confirmation page */
-  buildTransactionCall?: TransactionFunction;
+  populatedTransaction?: PopulatedTransaction;
+  /** Error creating transaction */
+  transactionError?: string;
 }
 
 interface InitState {
@@ -137,4 +143,5 @@ export const initialBaseTradeState: BaseTradeState = {
   canSubmit: false,
   confirm: false,
   inputsSatisfied: false,
+  redeemToWETH: false,
 };

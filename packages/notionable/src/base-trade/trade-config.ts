@@ -3,10 +3,22 @@ import {
   TokenDefinition,
 } from '@notional-finance/core-entities';
 import {
+  BorrowWithCollateral,
   calculateCollateral,
   calculateDebt,
   calculateDebtCollateralGivenDepositRiskLimit,
   calculateDeposit,
+  DeleverageNToken,
+  LendFixed,
+  LendVariable,
+  LeveragedNToken,
+  LeveragedOrDeleverageLend,
+  MintNToken,
+  RedeemAndWithdrawNToken,
+  RedeemToPortfolioNToken,
+  RepayDebt,
+  RollLendOrDebt,
+  WithdrawLend,
 } from '@notional-finance/transaction';
 import { TransactionConfig } from './base-trade-store';
 
@@ -67,6 +79,7 @@ export const TradeConfiguration: Record<string, TransactionConfig> = {
     collateralFilter: (t, _, s) =>
       t.tokenType === 'PrimeCash' && onlySameCurrency(t, s.deposit),
     debtFilter: () => false,
+    transactionBuilder: LendVariable,
   },
   /**
    * Inputs:
@@ -81,6 +94,7 @@ export const TradeConfiguration: Record<string, TransactionConfig> = {
       t.tokenType === 'fCash' && onlySameCurrency(t, s.deposit),
     debtFilter: () => false,
     calculateCollateralOptions: true,
+    transactionBuilder: LendFixed,
   },
   /**
    * Inputs:
@@ -94,6 +108,7 @@ export const TradeConfiguration: Record<string, TransactionConfig> = {
     collateralFilter: (t, _a, s) =>
       t.tokenType === 'nToken' && onlySameCurrency(t, s.deposit),
     debtFilter: () => false,
+    transactionBuilder: MintNToken,
   },
 
   /**
@@ -145,6 +160,7 @@ export const TradeConfiguration: Record<string, TransactionConfig> = {
         : true,
     calculateCollateralOptions: true,
     calculateDebtOptions: true,
+    transactionBuilder: BorrowWithCollateral,
   },
 
   /***** Leveraged Yield Actions ******/
@@ -178,6 +194,7 @@ export const TradeConfiguration: Record<string, TransactionConfig> = {
       t.tokenType !== 'nToken' && onlySameCurrency(t, s.deposit),
     calculateCollateralOptions: true,
     calculateDebtOptions: true,
+    transactionBuilder: LeveragedOrDeleverageLend,
   },
 
   /**
@@ -207,6 +224,7 @@ export const TradeConfiguration: Record<string, TransactionConfig> = {
     debtFilter: (t, _, s) =>
       t.tokenType !== 'nToken' && onlySameCurrency(t, s.deposit),
     calculateDebtOptions: true,
+    transactionBuilder: LeveragedNToken,
   },
 
   /** Deleverage Yield Actions */
@@ -243,6 +261,7 @@ export const TradeConfiguration: Record<string, TransactionConfig> = {
       t.tokenType !== 'nToken' &&
       onlySameCurrency(t, s.collateral) &&
       offsettingBalance(t, a),
+    transactionBuilder: LeveragedOrDeleverageLend,
   },
 
   /**
@@ -277,6 +296,7 @@ export const TradeConfiguration: Record<string, TransactionConfig> = {
       t.tokenType === 'nToken' &&
       onlySameCurrency(t, s.collateral) &&
       offsettingBalance(t, a),
+    transactionBuilder: DeleverageNToken,
   },
 
   /****** Portfolio Actions ******/
@@ -304,6 +324,7 @@ export const TradeConfiguration: Record<string, TransactionConfig> = {
       (t.tokenType === 'fCash' || t.tokenType === 'PrimeCash') &&
       offsettingBalance(t, a),
     debtFilter: () => false,
+    transactionBuilder: RepayDebt,
   },
 
   /**
@@ -328,6 +349,7 @@ export const TradeConfiguration: Record<string, TransactionConfig> = {
       // Find the matching nToken balance
       t.tokenType === 'nToken' && offsettingBalance(t, a),
     collateralFilter: () => false,
+    transactionBuilder: RedeemAndWithdrawNToken,
   },
   /**
    * Inputs:
@@ -351,6 +373,7 @@ export const TradeConfiguration: Record<string, TransactionConfig> = {
       // Find the matching nToken balance
       t.tokenType === 'nToken' && offsettingBalance(t, a),
     depositFilter: () => false,
+    transactionBuilder: RedeemToPortfolioNToken,
   },
 
   /**
@@ -362,8 +385,7 @@ export const TradeConfiguration: Record<string, TransactionConfig> = {
    * debtBalance: (i.e. amount of prime cash to redeem)
    *
    * NOTE: this probably does not work as configured...
-   */
-  WithdrawCash: {
+  WithdrawCashAndNToken: {
     // TODO: does this actually work? We need to test going from positive to negative
     // balances here...
     // TODO: also does not support redeem and withdraw from nToken
@@ -375,11 +397,12 @@ export const TradeConfiguration: Record<string, TransactionConfig> = {
       t.tokenType === 'PrimeDebt' && offsettingBalance(t, a),
     collateralFilter: () => false,
   },
+   */
 
   /**
    * Input:
-   * selectedDebtToken (i.e. fCash to sell)
-   * debtBalance (i.e. amount of fCash to sell)
+   * selectedDebtToken (i.e. fCash or Prime Cash)
+   * debtBalance (i.e. amount of fCash or Prime Cash)
    *
    * Output:
    * depositBalance (i.e. amount of cash to withdraw)
@@ -391,21 +414,22 @@ export const TradeConfiguration: Record<string, TransactionConfig> = {
     depositFilter: (t, _, s) => onlySameCurrency(t, s.debt),
     debtFilter: (t, a) =>
       // Matured fCash will not be in the list of available tokens
-      t.tokenType === 'fCash' && offsettingBalance(t, a),
+      (t.tokenType === 'fCash' || t.tokenType === 'PrimeDebt') &&
+      offsettingBalance(t, a),
     collateralFilter: () => false,
+    transactionBuilder: WithdrawLend,
   },
 
   /**
    * Input:
-   * selectedCollateralToken (i.e. new fCash asset to hold)
-   * selectedDebtToken (i.e. existing fCash asset held)
-   * debtBalance (i.e. part of fCash asset to sell)
+   * selectedCollateralToken (i.e. new fCash or PrimeCash asset to hold)
+   * selectedDebtToken (i.e. existing fCash or PrimeCash asset held)
+   * debtBalance (i.e. part of fCash or PrimeCash asset to sell)
    *
    * Output:
-   * collateralBalance (i.e. new fCash asset amount held)
+   * collateralBalance (i.e. new fCash or PrimeCash asset amount held)
    */
-  RollFixedLend: {
-    // User will input amount of lend fcash to sell (i.e. debt balance) and we calculate new collateral
+  RollLend: {
     calculationFn: calculateCollateral,
     requiredArgs: ['collateral', 'collateralPool', 'debtPool', 'debtBalance'],
     depositFilter: () => false,
@@ -418,6 +442,7 @@ export const TradeConfiguration: Record<string, TransactionConfig> = {
       onlySameCurrency(t, s.debt) &&
       t.maturity !== s.debt?.maturity,
     calculateCollateralOptions: true,
+    transactionBuilder: RollLendOrDebt,
   },
 
   /**
@@ -429,7 +454,7 @@ export const TradeConfiguration: Record<string, TransactionConfig> = {
    * Output:
    * debtBalance (i.e. new debt amount held)
    */
-  RollFixedDebt: {
+  RollDebt: {
     // User will input amount of debt fcash to repay (i.e. collateral balance) and we calculate new fcash debt
     calculationFn: calculateDebt,
     requiredArgs: ['debt', 'collateralPool', 'debtPool', 'collateralBalance'],
@@ -442,6 +467,7 @@ export const TradeConfiguration: Record<string, TransactionConfig> = {
       onlySameCurrency(t, s.collateral) &&
       t.maturity !== s.collateral?.maturity,
     calculateDebtOptions: true,
+    transactionBuilder: RollLendOrDebt,
   },
 };
 
