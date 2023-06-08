@@ -15,17 +15,11 @@ import {
   parseTransactionLogs,
   simulatePopulatedTxn,
 } from '@notional-finance/transaction';
-import {
-  filterEmpty,
-  getNetworkFromId,
-  getNowSeconds,
-  unique,
-} from '@notional-finance/util';
+import { filterEmpty, getNowSeconds, unique } from '@notional-finance/util';
 import {
   catchError,
   combineLatest,
   distinctUntilChanged,
-  distinctUntilKeyChanged,
   EMPTY,
   filter,
   from,
@@ -662,11 +656,14 @@ export function postAccountRisk(
 export function buildTransaction(
   state$: Observable<BaseTradeState>,
   account$: ReturnType<typeof selectedAccount>,
+  network$: ReturnType<typeof selectedNetwork>,
   { transactionBuilder }: TransactionConfig
 ) {
   return combineLatest([state$, account$]).pipe(
-    (filter(([state]) => state.canSubmit && state.confirm),
-    distinctUntilKeyChanged('calculateInputKeys'),
+    filter(([state]) => state.canSubmit && state.confirm),
+    distinctUntilChanged(
+      ([p], [c]) => p.calculateInputKeys === c.calculateInputKeys
+    ),
     switchMap(([s, a]) => {
       if (a) {
         return from(
@@ -677,11 +674,8 @@ export function buildTransaction(
             network: a.network,
           })
         ).pipe(
-          switchMap((p) => {
-            if (!p.chainId) throw Error('Chain ID undefined');
-            const network = getNetworkFromId(p.chainId);
-            if (!network) throw Error('Chain ID undefined');
-
+          withLatestFrom(network$),
+          switchMap(([p, network]) => {
             return from(simulatePopulatedTxn(network, p)).pipe(
               map(({ calls, logs }) => {
                 // NOTE: we may need to rate limit this somehow....
@@ -719,7 +713,7 @@ export function buildTransaction(
         );
       }
       return EMPTY;
-    })),
+    }),
     filterEmpty()
   );
 }

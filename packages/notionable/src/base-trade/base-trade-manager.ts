@@ -52,7 +52,7 @@ export function createBaseTradeManager(
       parseRiskFactorLimit(state$, network$),
       calculate(state$, debtPool$, collateralPool$, account$, config),
       postAccountRisk(state$, account$),
-      buildTransaction(state$, account$, config)
+      buildTransaction(state$, account$, network$, config)
     );
   };
 }

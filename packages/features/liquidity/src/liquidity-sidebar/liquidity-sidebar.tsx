@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect } from 'react';
+import { useCallback, useContext } from 'react';
 import {
   TradeActionButton,
   DepositInput,
@@ -13,21 +13,13 @@ export const LiquiditySidebar = () => {
   const {
     state: { canSubmit, buildTransactionCall, confirm },
   } = useContext(LiquidityContext);
-  const { pathname, search } = useLocation();
+  const { pathname } = useLocation();
   const history = useHistory();
   const { currencyInputRef } = useCurrencyInputRef();
 
   const handleTxnCancel = useCallback(() => {
     history.push(pathname);
   }, [history, pathname]);
-
-  useEffect(() => {
-    if (search.includes('confirm=true')) {
-      // TODO: Clears the confirmation on load...
-      history.push(pathname);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   return confirm && buildTransactionCall ? (
     <Confirmation2

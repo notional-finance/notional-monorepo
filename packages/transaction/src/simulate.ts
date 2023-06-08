@@ -1,4 +1,4 @@
-import { getProviderFromNetwork, Network } from '@notional-finance/util';
+import { getProviderFromNetwork, Network, padToHex256 } from '@notional-finance/util';
 import { ethers, PopulatedTransaction } from 'ethers';
 
 // Types taken from: https://github.com/alchemyplatform/alchemy-sdk-js/blob/main/src/types/types.ts#L2051
@@ -123,22 +123,26 @@ export async function simulatePopulatedTxn(
   populateTxn: PopulatedTransaction
 ) {
   const provider = getProviderFromNetwork(network);
-  const { calls, logs: _logs } = (await provider.send(
-    'alchemy_simulateExecution',
-    [
-      {
-        from: populateTxn.from,
-        to: populateTxn.to,
-        value: populateTxn.value,
-        data: populateTxn.data,
-      },
-    ]
-  )) as SimulateExecutionResponse;
+
+  const { calls, logs: _logs } =
+    // Must use the non-batched send method here
+    (await ethers.providers.JsonRpcProvider.prototype.send.call(
+      provider,
+      'alchemy_simulateExecution',
+      [
+        {
+          from: populateTxn.from,
+          to: populateTxn.to,
+          value: populateTxn.value?.toHexString() || '0x0',
+          data: populateTxn.data,
+        },
+      ]
+    )) as SimulateExecutionResponse;
 
   const logs: ethers.providers.Log[] = _logs.map((s, i) => ({
     address: s.address,
     data: s.data,
-    topics: s.topics,
+    topics: s.topics.map((t) => padToHex256(t)),
     logIndex: i,
     // Values below here are unknown
     blockNumber: 0,
