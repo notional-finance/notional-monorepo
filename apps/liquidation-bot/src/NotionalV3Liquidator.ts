@@ -226,7 +226,7 @@ export default class NotionalV3Liquidator {
       to: this.settings.flashLenderAddress,
       data: encodedTransaction,
     });
-    const resp = await fetch(this.settings.txRelayUrl + '/v1/calls/0', {
+    const resp = await fetch(this.settings.txRelayUrl + '/v1/txes/0', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
