@@ -100,8 +100,6 @@ async function executeStage<T extends Record<string, any>>(
   return { blockNum: blockNumber.toNumber(), results };
 }
 
-function decodeResult() {}
-
 export async function aggregate<T extends Record<string, any>>(
   calls: AggregateCall[],
   provider: providers.Provider,

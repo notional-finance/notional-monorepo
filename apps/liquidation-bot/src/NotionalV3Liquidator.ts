@@ -226,6 +226,7 @@ export default class NotionalV3Liquidator {
       to: this.settings.flashLenderAddress,
       data: encodedTransaction,
     });
+
     const resp = await fetch(this.settings.txRelayUrl + '/v1/txes/0', {
       method: 'POST',
       headers: {
@@ -234,8 +235,7 @@ export default class NotionalV3Liquidator {
       },
       body: payload,
     });
-
-    console.log(resp.status);
+    console.log(JSON.stringify(resp));
 
     await submitEvent({
       aggregation_key: DDEventKey.AccountLiquidated,
