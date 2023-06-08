@@ -13,7 +13,7 @@ export function useWalletDeposit(selectedToken: string) {
     maxBalance,
     insufficientBalance,
     insufficientAllowance,
-  } = useWalletBalanceInputCheck(inputAmount);
+  } = useWalletBalanceInputCheck(token, inputAmount);
 
   let errorMsg: MessageDescriptor | undefined;
   // Check that this is strictly true, when undefined it means the wallet data is

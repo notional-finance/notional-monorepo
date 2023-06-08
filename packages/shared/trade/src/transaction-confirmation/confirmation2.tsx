@@ -29,7 +29,7 @@ import {
 export interface ConfirmationProps {
   heading: React.ReactNode;
   context: BaseTradeContext;
-  onCancel: () => void;
+  onCancel?: () => void;
   onReturnToForm?: () => void;
   showDrawer?: boolean;
 }
@@ -44,10 +44,16 @@ export const Confirmation2 = ({
   const theme = useTheme();
   const {
     state: { populatedTransaction, transactionError },
+    updateState,
   } = useContext(context);
   const selectedNetwork = useSelectedNetwork();
   const { pathname } = useLocation();
   const { isReadOnlyAddress, submitTransaction } = useSubmitTransaction();
+  const onTxnCancel = useCallback(
+    () => updateState({ confirm: false }),
+    [updateState]
+  );
+
   const [transactionStatus, setTransactionStatus] = useState<TransactionStatus>(
     TransactionStatus.NONE
   );
@@ -130,7 +136,7 @@ export const Confirmation2 = ({
       <TransactionButtons
         transactionStatus={transactionStatus}
         onSubmit={onSubmit}
-        onCancel={onCancel}
+        onCancel={onCancel || onTxnCancel}
         onReturnToForm={onReturnToForm}
         isReadyOnlyAddress={isReadOnlyAddress}
         isLoaded={

@@ -1,4 +1,4 @@
-import { useCallback, useContext } from 'react';
+import { useContext } from 'react';
 import {
   TradeActionButton,
   DepositInput,
@@ -11,13 +11,8 @@ import { LiquidityContext } from '../liquidity-action';
 export const LiquiditySidebar = () => {
   const {
     state: { canSubmit, populatedTransaction, confirm },
-    updateState,
   } = useContext(LiquidityContext);
   const { currencyInputRef } = useCurrencyInputRef();
-
-  const handleTxnCancel = useCallback(() => {
-    updateState({ confirm: false });
-  }, [updateState]);
 
   return confirm && populatedTransaction ? (
     <Confirmation2
@@ -27,7 +22,6 @@ export const LiquiditySidebar = () => {
           description="section heading"
         />
       }
-      onCancel={handleTxnCancel}
       context={LiquidityContext}
     />
   ) : (
