@@ -71,7 +71,7 @@ export default class NotionalV3Liquidator {
       this.provider
     );
     this.liquidationHelper = new LiquidationHelper(
-      settings.tokens['WETH'],
+      settings.tokens.get('WETH'),
       settings.currencies
     );
     this.flashLoanProvider = new AaveFlashLoanProvider(
@@ -96,8 +96,11 @@ export default class NotionalV3Liquidator {
     );
   }
 
-  private toExternal(input: BigNumber, externalPrecision: BigNumber) {
-    return input
+  private toExternal(input: any, externalPrecision: BigNumber) {
+    if (!input.success) {
+      return BigNumber.from(0);
+    }
+    return input.value
       .mul(externalPrecision)
       .div(NotionalV3Liquidator.INTERNAL_PRECISION);
   }
@@ -144,7 +147,7 @@ export default class NotionalV3Liquidator {
           this.toExternal(
             a.ethFreeCollateral.abs(),
             NotionalV3Liquidator.ETH_PRECISION
-          ).gt(this.settings.dustThreshold)
+          ).gte(this.settings.dustThreshold)
       );
 
     return accounts.map((a, i) => {
@@ -184,24 +187,33 @@ export default class NotionalV3Liquidator {
     ra: RiskyAccount
   ): Promise<FlashLiquidation[]> {
     const liquidations = this.liquidationHelper.getPossibleLiquidations(ra);
+
     const calls = liquidations.map((liq) =>
       liq.getFlashLoanAmountCall(this.notionalContract, ra.id)
     );
 
-    const { results } = await aggregate(calls, this.provider);
+    const { results } = await aggregate(calls, this.provider, false);
 
     return await this.profitCalculator.sortByProfitability(
       liquidations
-        .map((liq, i) => ({
-          accountId: ra.id,
-          liquidation: liq,
-          flashLoanAmount: this.toExternal(
-            results[`${ra.id}:${liq.getLiquidationType()}:loanAmount`],
+        .map((liq, i) => {
+          const flashLoanAmount = this.toExternal(
+            results[
+              `${ra.id}:${liq.getLiquidationType()}:${
+                liq.getLocalCurrency().id
+              }:${liq.getCollateralCurrencyId()}:loanAmount`
+            ],
             liq.getLocalCurrency().underlyingDecimals
-          )
-            .mul(this.settings.flashLoanBuffer)
-            .div(1000),
-        }))
+          );
+
+          return {
+            accountId: ra.id,
+            liquidation: liq,
+            flashLoanAmount: flashLoanAmount
+              .mul(this.settings.flashLoanBuffer)
+              .div(1000),
+          };
+        })
         .filter((liq) => !liq.flashLoanAmount.isZero())
     );
   }
@@ -214,13 +226,16 @@ export default class NotionalV3Liquidator {
       to: this.settings.flashLenderAddress,
       data: encodedTransaction,
     });
-    await fetch(this.settings.txRelayUrl + '/v1/calls/0', {
+    const resp = await fetch(this.settings.txRelayUrl + '/v1/calls/0', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'X-Auth-Token': this.settings.txRelayAuthToken,
       },
       body: payload,
     });
+
+    console.log(resp.status);
 
     await submitEvent({
       aggregation_key: DDEventKey.AccountLiquidated,

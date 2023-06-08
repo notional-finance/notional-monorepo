@@ -1,4 +1,4 @@
-import { Contract, providers, utils } from 'ethers';
+import { Contract, providers, utils, BigNumber } from 'ethers';
 import { Multicall2, Multicall2ABI } from '@notional-finance/contracts';
 
 const MULTICALL2 = {
@@ -29,7 +29,8 @@ export interface AggregateCall {
 async function executeStage<T extends Record<string, any>>(
   calls: AggregateCall[],
   aggregateResults: T,
-  multicall: Multicall2
+  multicall: Multicall2,
+  requireSuccess: boolean
 ) {
   const aggregateCall = calls.map((c) => {
     const contract =
@@ -45,29 +46,66 @@ async function executeStage<T extends Record<string, any>>(
     };
   });
 
-  const { blockNumber, returnData } = await multicall.callStatic.aggregate(
-    aggregateCall
-  );
+  let blockNumber: BigNumber;
+  let returnData: Multicall2.ResultStructOutput[];
+
+  if (requireSuccess) {
+    const result = await multicall.callStatic.aggregate(aggregateCall);
+    blockNumber = result.blockNumber;
+    returnData = result.returnData.map(
+      (d) =>
+        ({
+          success: true,
+          returnData: d,
+        } as Multicall2.ResultStructOutput)
+    );
+  } else {
+    const result = await multicall.callStatic.tryBlockAndAggregate(
+      false,
+      aggregateCall
+    );
+    blockNumber = result.blockNumber;
+    returnData = result.returnData;
+  }
+
   const results = returnData.reduce((obj, r, i) => {
     const { key, method, transform, contract } = aggregateCall[i];
-    let decoded = contract.interface.decodeFunctionResult(method, r);
+
+    if (!requireSuccess && !r.success) {
+      (obj[key] as Record<string, any>) = {
+        success: false,
+        value: null,
+      };
+      return obj;
+    }
+
+    let decoded = contract.interface.decodeFunctionResult(method, r.returnData);
     // For single return values, decodeFunctionResult still returns an
     // array which we eliminate here for simplicity
     if (decoded.length === 1) [decoded] = decoded;
 
+    const value = transform ? transform(decoded, obj) : decoded;
+
     // eslint-disable-next-line no-param-reassign
-    (obj[key] as Record<string, any>) = transform
-      ? transform(decoded, obj)
-      : decoded;
+    (obj[key] as Record<string, any>) = requireSuccess
+      ? value
+      : {
+          success: true,
+          value: value,
+        };
+
     return obj;
   }, aggregateResults);
 
   return { blockNum: blockNumber.toNumber(), results };
 }
 
+function decodeResult() {}
+
 export async function aggregate<T extends Record<string, any>>(
   calls: AggregateCall[],
   provider: providers.Provider,
+  requireSuccess: boolean = true,
   _multicall?: Multicall2
 ) {
   let multicall: Multicall2;
@@ -100,7 +138,8 @@ export async function aggregate<T extends Record<string, any>>(
     const { blockNum, results } = await executeStage<T>(
       groupedStages.get(s)!,
       aggregateResults,
-      multicall
+      multicall,
+      requireSuccess
     );
     aggregateResults = results;
     blockNumber = blockNum;

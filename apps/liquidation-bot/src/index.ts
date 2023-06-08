@@ -16,7 +16,6 @@ import * as currencies from './config/currencies.json';
 import * as overrides from './config/overrides.json';
 import { ERC20__factory } from '@notional-finance/contracts';
 import { MetricNames } from './types';
-import * as accounts from './accounts.json';
 
 export interface Env {
   ACCOUNT_CACHE: DurableObjectNamespace;
@@ -148,6 +147,9 @@ const run = async (env: Env) => {
   });
 
   const riskyAccounts = await liq.getRiskyAccounts(addrs);
+
+  console.log(`numRiskyAccounts = ${riskyAccounts.length}`);
+
   const ddSeries = {
     series: [],
   };
@@ -159,14 +161,18 @@ const run = async (env: Env) => {
     timestamp: getNowSeconds(),
   });
 
-  for (let i = 0; i < riskyAccounts.length; i++) {
-    const riskyAccount = riskyAccounts[i];
+  const riskyAccount = riskyAccounts[0];
 
-    const possibleLiqs = await liq.getPossibleLiquidations(riskyAccount);
+  const possibleLiqs = await liq.getPossibleLiquidations(riskyAccount);
 
-    if (possibleLiqs.length > 0) {
-      await liq.liquidateAccount(possibleLiqs[0]);
-    }
+  console.log(
+    `possibleLiqs=${possibleLiqs.map((liq) =>
+      liq.accountLiq.liquidation.toString()
+    )}`
+  );
+
+  if (possibleLiqs.length > 0) {
+    await liq.liquidateAccount(possibleLiqs[0]);
   }
 
   await submitMetrics(ddSeries);
