@@ -16,14 +16,14 @@ const acceptanceSuite = ({
   let harness: PoolTestHarness<BaseLiquidityPool<unknown>>;
   const lpEntryMatrix: number[][] = [
     [0, 0.1],
-    /* [0, 0.01],
+    [0, 0.01],
     [0, 0.001],
     [1, 0.1],
     [1, 0.01],
     [1, 0.001],
     [2, 0.1],
     [2, 0.01],
-    [2, 0.001], */
+    [2, 0.001],
   ];
   const lpExitMatrix: number[][] = [
     // [0, 0.99],
@@ -146,7 +146,7 @@ const acceptanceSuite = ({
           balanceShare * RATE_PRECISION
         );
 
-        /*const actual = await harness.singleSideExit(
+        const actual = await harness.singleSideExit(
           signer,
           tokenOut,
           balanceOut
@@ -157,13 +157,9 @@ const acceptanceSuite = ({
           tokenOut
         );
 
-        expect(tokensOut[tokenOut]).toBeApprox(actual.tokensOut);
-
         const { lpTokens } =
           harness.poolInstance.getLPTokensRequiredForTokens(tokensOut);
         expect(lpTokens).toBeApprox(balanceOut, 0.001);
-
-        */
       } catch (e) {
         if ((e as Error).name === 'UnimplementedPoolMethod') return;
         throw e;
@@ -182,7 +178,7 @@ const acceptanceSuite = ({
           tokenIn
         ].mulInRatePrecision(utilization * RATE_PRECISION);
 
-        /*const actual = await harness.trade(signer, tokensIn, tokenIn, tokenOut);
+        const actual = await harness.trade(signer, tokensIn, tokenIn, tokenOut);
         const { tokensOut, feesPaid: _feesPaid } =
           harness.poolInstance.calculateTokenTrade(tokensIn, tokenOut);
         // console.log(
@@ -209,7 +205,7 @@ const acceptanceSuite = ({
         //     actual.tokensOut.token.maturity!
         //   ) / -RATE_PRECISION
         // );
-        //expect(tokensOut).toBeApprox(actual.tokensOut);
+        expect(tokensOut).toBeApprox(actual.tokensOut);
       } catch (e) {
         if ((e as Error).name === 'UnimplementedPoolMethod') return;
         throw e;

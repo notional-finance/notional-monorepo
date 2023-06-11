@@ -49,13 +49,13 @@ export class CurveV1Harness extends PoolTestHarness<Curve2TokenPoolV1> {
     exitTokenIndex: number,
     lpTokenAmount: TokenBalance
   ) {
-    const balanceBefore = await this.balanceOf(signer);
+    const balanceBefore = await this.balanceOfToken(exitTokenIndex, signer);
     await this.curvePool
       .connect(signer)
       .remove_liquidity_one_coin(lpTokenAmount.n, exitTokenIndex, 0, {
         gasLimit: 2_500_000,
       });
-    const balanceAfter = await this.balanceOf(signer);
+    const balanceAfter = await this.balanceOfToken(exitTokenIndex, signer);
 
     const feesPaid = this.poolInstance.zeroTokenArray();
     return {
@@ -102,7 +102,6 @@ export class CurveV1Harness extends PoolTestHarness<Curve2TokenPoolV1> {
     lpTokenAmount: TokenBalance,
     minTokensOut?: TokenBalance[]
   ) {
-    const address = await signer.getAddress();
     let signerBalance = await signer.getBalance();
 
     const balancesBefore = await Promise.all(
@@ -139,28 +138,33 @@ export class CurveV1Harness extends PoolTestHarness<Curve2TokenPoolV1> {
     tokensInIndex: number,
     tokensOutIndex: number
   ) {
-    const address = await signer.getAddress();
-    await this.tokens()
-      [tokensInIndex].connect(signer)
-      .approve(this.curvePool.address, ethers.constants.MaxUint256);
+    if (tokensIn.token.address !== ZERO_ADDRESS) {
+      await this.tokens()
+        [tokensInIndex].connect(signer)
+        .approve(this.curvePool.address, ethers.constants.MaxUint256);
+    }
 
-    const balanceBefore = await this.tokens()[tokensOutIndex].balanceOf(
-      address
-    );
+    let msgValue = BigNumber.from(0);
+    if (tokensIn.token.address === ZERO_ADDRESS) {
+      msgValue = tokensIn.n;
+    } else if (tokensIn.token.address === ZERO_ADDRESS) {
+      msgValue = tokensIn.n;
+    }
+
+    const balanceBefore = await this.balanceOfToken(tokensOutIndex, signer);
     await this.curvePool
       .connect(signer)
       .exchange(tokensInIndex, tokensOutIndex, tokensIn.n, 0, {
         gasLimit: 2_500_000,
+        value: msgValue,
       });
-    const balanceAfter = await this.tokens()[tokensOutIndex].balanceOf(address);
+    const balanceAfter = await this.balanceOfToken(tokensOutIndex, signer);
 
     // TODO: grab these from events
     const feesPaid = this.poolInstance.zeroTokenArray();
 
     return {
-      tokensOut: this.poolInstance.balances[tokensOutIndex].copy(
-        balanceAfter.sub(balanceBefore)
-      ),
+      tokensOut: balanceAfter.sub(balanceBefore),
       feesPaid,
     };
   }
