@@ -42,6 +42,16 @@ const WHALES: Record<Network, string[][]> = {
       '0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0',
       '0x67c89126fb7E793a2FaC54e0C4bD8baA53395767',
     ],
+    // cbETH
+    [
+      '0xBe9895146f7AF43049ca1c1AE358B0541Ea49704',
+      '0xDAB318da469a6eAd6B558cB1E33Fc63FD3a3e959',
+    ],
+    // cbETH/ETH-f
+    [
+      '0x5b6C539b224014A09B3388e51CaAA8e354c959C8',
+      '0xAd96E10123Fa34a01cf2314C42D75150849C9295',
+    ],
   ],
   [Network.All]: [],
 };

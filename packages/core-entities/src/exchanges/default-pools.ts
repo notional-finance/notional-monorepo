@@ -19,6 +19,22 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
         },
       ],
     },
+    {
+      address: '0x5FAE7E604FC3e24fd43A72867ceBaC94c65b404A',
+      PoolClass: 'Curve2TokenPoolV2',
+      registerTokens: [
+        {
+          id: '0x5b6C539b224014A09B3388e51CaAA8e354c959C8',
+          address: '0x5b6C539b224014A09B3388e51CaAA8e354c959C8',
+          network: Network.Mainnet,
+          symbol: 'cbETH/ETH-f',
+          name: 'Curve.fi Factory Crypto Pool: cbETH/ETH',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+      ],
+    },
   ],
   [Network.ArbitrumOne]: [
     {

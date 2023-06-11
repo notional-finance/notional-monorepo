@@ -2,6 +2,7 @@ import { Network } from '@notional-finance/util';
 import { NotionalV3Harness } from './NotionalV3Harness';
 import { BalancerV2Harness } from './BalancerV2Harness';
 import { CurveV1Harness } from './CurveV1Harness';
+import { CurveV2Harness } from './CurveV2Harness';
 import { PoolTestHarness } from './PoolTestHarness';
 import { ethers } from 'ethers';
 
@@ -18,13 +19,18 @@ export const TestConfig: Record<
       address: '0x32296969ef14eb0c6d29669c550d4a0449130230',
       Harness: BalancerV2Harness,
     },
+    {
+      // Curve.fi Factory Crypto Pool: cbETH/ETH
+      address: '0x5b6C539b224014A09B3388e51CaAA8e354c959C8',
+      Harness: CurveV2Harness,
+    },
   ],
   [Network.ArbitrumOne]: [
-    /* {
+    {
       // nUSDC
       address: '0x0F13fb925eDC3E1FE947209010d9c0E072986ADc',
       Harness: NotionalV3Harness,
-    }, */
+    },
     {
       address: '0x6eB2dc694eB516B16Dc9FBc678C60052BbdD7d80',
       Harness: CurveV1Harness,

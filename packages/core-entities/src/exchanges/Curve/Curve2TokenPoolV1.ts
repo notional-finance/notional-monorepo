@@ -315,17 +315,17 @@ export class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPoolV1Params
     const Ann = A_.mul(Curve2TokenPoolV1.N_COINS);
     let c = D;
     let S_ = BigNumber.from(0);
-    let _x: TokenBalance;
+    let _x = BigNumber.from(0);
     let y_prev = BigNumber.from(0);
 
     for (let _i = 0; _i < Curve2TokenPoolV1.N_COINS.toNumber(); _i++) {
       if (_i != i) {
-        _x = xp[_i];
+        _x = xp[_i].n;
       } else {
         continue;
       }
-      S_ = S_.add(_x.n);
-      c = c.mul(D).div(_x.n.mul(Curve2TokenPoolV1.N_COINS));
+      S_ = S_.add(_x);
+      c = c.mul(D).div(_x.mul(Curve2TokenPoolV1.N_COINS));
     }
     c = c
       .mul(D)
@@ -364,9 +364,9 @@ export class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPoolV1Params
     let y_prev = BigNumber.from(0);
 
     for (let _i = 0; _i < Curve2TokenPoolV1.N_COINS.toNumber(); _i++) {
-      if (_i == i) {
+      if (_i === i) {
         _x = x;
-      } else if (_i != j) {
+      } else if (_i !== j) {
         _x = xp[_i].n;
       } else {
         continue;
@@ -514,8 +514,21 @@ export class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPoolV1Params
       this.poolParams.adminBalance_0,
       this.poolParams.adminBalance_1,
     ];
-    const xp = [...(_balanceOverrides || this.balances)];
-    const x = xp[tokenIndexIn].n.add(tokensIn.n);
+    const xp = [
+      ...(_balanceOverrides ||
+        (this.poolParams.hasOracle
+          ? this._xp(this.balances, this._stored_rates())
+          : this.balances)),
+    ];
+    let dx = tokensIn.n;
+
+    if (this.poolParams.hasOracle) {
+      dx = dx
+        .mul(this._stored_rates()[tokenIndexIn])
+        .div(Curve2TokenPoolV1.PRECISION);
+    }
+
+    let x = xp[tokenIndexIn].n.add(dx);
     const y = this._get_y(tokenIndexIn, tokenIndexOut, x, xp);
     let dy = xp[tokenIndexOut].n.sub(y).sub(1);
     const dy_fee = dy
@@ -524,6 +537,12 @@ export class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPoolV1Params
 
     // Convert all to real units
     dy = dy.sub(dy_fee);
+
+    if (this.poolParams.hasOracle) {
+      dy = dy
+        .mul(Curve2TokenPoolV1.PRECISION)
+        .div(this._stored_rates()[tokenIndexOut]);
+    }
 
     const admin_fee = this.poolParams.adminFee;
     const feesPaid = this.zeroTokenArray();

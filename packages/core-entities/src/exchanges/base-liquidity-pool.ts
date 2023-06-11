@@ -261,6 +261,9 @@ export default abstract class BaseLiquidityPool<
         lpToAmountOutEstimate,
         RATE_PRECISION,
         calculationFunction
+        //BASIS_POINT / 1000,
+        //(m: number, d: number) => Math.floor(m + d * BASIS_POINT * 200),
+        //1000
       );
     } else {
       // In a multi-sided exit, use the total value in primary of tokens to exit as a

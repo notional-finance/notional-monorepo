@@ -138,17 +138,13 @@ export class CurveV1Harness extends PoolTestHarness<Curve2TokenPoolV1> {
     tokensInIndex: number,
     tokensOutIndex: number
   ) {
-    if (tokensIn.token.address !== ZERO_ADDRESS) {
-      await this.tokens()
-        [tokensInIndex].connect(signer)
-        .approve(this.curvePool.address, ethers.constants.MaxUint256);
-    }
-
     let msgValue = BigNumber.from(0);
     if (tokensIn.token.address === ZERO_ADDRESS) {
       msgValue = tokensIn.n;
-    } else if (tokensIn.token.address === ZERO_ADDRESS) {
-      msgValue = tokensIn.n;
+    } else {
+      await this.tokens()
+        [tokensInIndex].connect(signer)
+        .approve(this.curvePool.address, ethers.constants.MaxUint256);
     }
 
     const balanceBefore = await this.balanceOfToken(tokensOutIndex, signer);
