@@ -25,6 +25,11 @@ const WHALES: Record<Network, string[][]> = {
       '0x5979D7b546E38E414F7E9822514be443A4800529',
       '0xd090d2c8475c5ebdd1434a48897d81b9aaa20594',
     ],
+    // Curve.fi ETH/wstETH
+    [
+      '0xDbcD16e622c95AcB2650b38eC799f76BFC557a0b',
+      '0x098EF55011B6B8c99845128114A9D9159777d697',
+    ],
   ],
   [Network.Mainnet]: [
     // WETH

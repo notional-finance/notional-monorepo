@@ -1,4 +1,4 @@
-import { Network } from '@notional-finance/util';
+import { Network, ZERO_ADDRESS } from '@notional-finance/util';
 import { Signer, ethers, Contract } from 'ethers';
 import { BaseLiquidityPool } from '../../../src/exchanges';
 import { Registry, TokenBalance } from '../../../src';
@@ -71,5 +71,21 @@ export abstract class PoolTestHarness<T extends BaseLiquidityPool<unknown>> {
     ) as ERC20;
     const b = await erc20.balanceOf(await signer.getAddress());
     return this.poolInstance.oneLPToken().copy(b);
+  }
+
+  async balanceOfToken(
+    tokenIndex: number,
+    signer: Signer
+  ): Promise<TokenBalance> {
+    const balance = this.poolInstance.balances[tokenIndex];
+    if (balance.token.address === ZERO_ADDRESS) {
+      return balance.copy(await signer.getBalance());
+    }
+    const erc20 = new Contract(
+      balance.token.address,
+      ERC20ABI,
+      provider
+    ) as ERC20;
+    return balance.copy(await erc20.balanceOf(await signer.getAddress()));
   }
 }

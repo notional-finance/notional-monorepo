@@ -1,5 +1,5 @@
 import { BigNumber, Signer, ethers, Contract } from 'ethers';
-import { ZERO_ADDRESS, Network } from '@notional-finance/util';
+import { ZERO_ADDRESS, Network, ALT_ETH } from '@notional-finance/util';
 import {
   CurvePoolV1,
   CurvePoolV1ABI,
@@ -58,7 +58,6 @@ export class CurveV1Harness extends PoolTestHarness<Curve2TokenPoolV1> {
     const balanceAfter = await this.balanceOf(signer);
 
     const feesPaid = this.poolInstance.zeroTokenArray();
-
     return {
       tokensOut: balanceAfter.sub(balanceBefore),
       feesPaid,
@@ -67,8 +66,13 @@ export class CurveV1Harness extends PoolTestHarness<Curve2TokenPoolV1> {
 
   public async multiTokenEntry(signer: Signer, tokensIn: TokenBalance[]) {
     for (const t of this.poolInstance.balances) {
-      const erc20 = new Contract(t.token.address, ERC20ABI, signer) as ERC20;
-      await erc20.approve(this.curvePool.address, ethers.constants.MaxUint256);
+      if (t.token.address !== ZERO_ADDRESS) {
+        const erc20 = new Contract(t.token.address, ERC20ABI, signer) as ERC20;
+        await erc20.approve(
+          this.curvePool.address,
+          ethers.constants.MaxUint256
+        );
+      }
     }
 
     const balanceBefore = await this.balanceOf(signer);
@@ -99,9 +103,10 @@ export class CurveV1Harness extends PoolTestHarness<Curve2TokenPoolV1> {
     minTokensOut?: TokenBalance[]
   ) {
     const address = await signer.getAddress();
+    let signerBalance = await signer.getBalance();
 
     const balancesBefore = await Promise.all(
-      this.tokens().map((t) => t.balanceOf(address))
+      this.tokens().map((_, i) => this.balanceOfToken(i, signer))
     );
     await this.curvePool
       .connect(signer)
@@ -113,16 +118,17 @@ export class CurveV1Harness extends PoolTestHarness<Curve2TokenPoolV1> {
         ],
         { gasLimit: 2_500_000 }
       );
+
+    signerBalance = await signer.getBalance();
+
     const balancesAfter = await Promise.all(
-      this.tokens().map((t) => t.balanceOf(address))
+      this.tokens().map((_, i) => this.balanceOfToken(i, signer))
     );
 
     const feesPaid = this.poolInstance.zeroTokenArray();
 
     return {
-      tokensOut: balancesAfter
-        .map((b, i) => b.sub(balancesBefore[i]))
-        .map((b, i) => this.poolInstance.balances[i].copy(b)),
+      tokensOut: balancesAfter.map((b, i) => b.sub(balancesBefore[i])),
       feesPaid,
     };
   }
