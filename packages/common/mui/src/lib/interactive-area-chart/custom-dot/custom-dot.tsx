@@ -1,5 +1,6 @@
 /* eslint react/prop-types: 0 */
 import React from 'react';
+import { colors } from '@notional-finance/styles';
 import { useTheme } from '@mui/material';
 
 export const CustomDot = (props) => {
@@ -22,9 +23,7 @@ export const CustomDot = (props) => {
         cx={cx}
         cy={cy}
         r="8"
-        fill={
-          isActive ? theme.palette.charts.accent : theme.palette.charts.main
-        }
+        fill={isActive ? colors.neonTurquoise : colors.aqua}
         filter={
           isActive
             ? `drop-shadow(0px 0px 5px ${theme.palette.charts.main})`

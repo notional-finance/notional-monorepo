@@ -6,9 +6,9 @@ import {
   TradeActionHeader,
   TradeActionTitle,
   TradeSummaryContainer,
-  AreaChart,
-  BarChart,
+  DualDisplayChart,
   TABLE_VARIANTS,
+  SingleDisplayChart,
 } from '@notional-finance/mui';
 import { VAULT_SUB_NAV_ACTIONS } from '@notional-finance/shared-config';
 import { useContext } from 'react';
@@ -35,7 +35,7 @@ export const VaultSummary = () => {
   const vaultName = vaultConfig?.name;
 
   const { returnDrivers, headlineApy, vaultAPYTitle } = useHistoricalReturns();
-  const { areaChartData, areaHeaderData, chartToolTipData } =
+  const { areaChartData, areaChartLegendData, chartToolTipData } =
     usePerformanceChart();
 
   const tableColumns = useReturnDrivers();
@@ -128,12 +128,12 @@ export const VaultSummary = () => {
                     : theme.shape.borderStandard,
                 }}
               />
-              <AreaChart
+              <SingleDisplayChart
                 areaChartData={areaChartData}
-                areaHeaderData={areaHeaderData}
+                legendData={areaChartLegendData}
                 chartToolTipData={chartToolTipData}
+                chartType="area"
               />
-              <BarChart areaHeaderData={areaHeaderData} />
             </Box>
             <Box
               sx={{ marginTop: theme.spacing(2) }}

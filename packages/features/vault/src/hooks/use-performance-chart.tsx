@@ -1,13 +1,9 @@
 import { useHistoricalReturns } from './use-historical-returns';
 import { FormattedMessage } from 'react-intl';
 import { useContext } from 'react';
+import { ChartToolTipDataProps } from '@notional-finance/mui';
 import { countUpLeverageRatio } from '@notional-finance/trade';
-import {
-  ChartToolTipDataProps,
-  Label,
-  LabelValue,
-} from '@notional-finance/mui';
-import { Box, useTheme } from '@mui/material';
+import { useTheme } from '@mui/material';
 import {
   formatNumberAsPercent,
   getDateString,
@@ -23,6 +19,8 @@ export const usePerformanceChart = () => {
 
   const chartToolTipData: ChartToolTipDataProps = {
     timestamp: {
+      lineColor: 'transparent',
+      lineType: 'none',
       title: (timestamp) => (
         <FormattedMessage
           {...messages.summary.date}
@@ -32,19 +30,23 @@ export const usePerformanceChart = () => {
     },
 
     area: {
+      lineColor: theme.palette.charts.main,
+      lineType: 'solid',
       title: (area) => (
         <FormattedMessage
           {...messages.summary.performanceLeveragedReturns}
-          values={{ returns: formatNumberAsPercent(area) }}
+          values={{ returns: <span>{formatNumberAsPercent(area)}</span> }}
         />
       ),
     },
 
     line: {
+      lineColor: theme.palette.charts.accent,
+      lineType: 'dashed',
       title: (line) => (
         <FormattedMessage
-          {...messages.summary.performanceStrategyReturns}
-          values={{ returns: formatNumberAsPercent(line) }}
+          {...messages.summary.unleveragedReturns}
+          values={{ returns: <span>{formatNumberAsPercent(line)}</span> }}
         />
       ),
     },
@@ -58,35 +60,28 @@ export const usePerformanceChart = () => {
     };
   });
 
-  const areaHeaderData = {
-    leftHeader: <FormattedMessage defaultMessage={'Performance To Date'} />,
-    legendOne: (
-      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <Label>
-          <FormattedMessage {...messages.summary.leveragedReturns} />
-        </Label>
-        <Box
-          sx={{
-            background: theme.palette.borders.default,
-            borderRadius: theme.shape.borderRadius(),
-            marginLeft: theme.spacing(1),
-            padding: theme.spacing(0.5, 1),
-          }}
-        >
-          {currentBorrowRate && leverageRatio ? (
-            <LabelValue>{countUpLeverageRatio(leverageRatio)}</LabelValue>
-          ) : (
-            <LabelValue sx={{ padding: theme.spacing(0, 2) }}>--</LabelValue>
-          )}
-        </Box>
-      </Box>
-    ),
-    legendTwo: (
-      <Label>
-        <FormattedMessage defaultMessage={'Unleveraged Returns'} />
-      </Label>
-    ),
+  const areaChartLegendData = {
+    textHeader: <FormattedMessage defaultMessage={'Performance To Date'} />,
+    legendOne: {
+      label: <FormattedMessage {...messages.summary.leveragedReturns} />,
+      value:
+        currentBorrowRate && leverageRatio
+          ? countUpLeverageRatio(leverageRatio)
+          : undefined,
+      lineColor: theme.palette.charts.main,
+      lineType: 'solid',
+    },
+    legendTwo: {
+      label: <FormattedMessage defaultMessage={'Unleveraged Returns'} />,
+      value: undefined,
+      lineColor: theme.palette.charts.accent,
+      lineType: 'dashed',
+    },
   };
 
-  return { areaChartData, areaHeaderData, chartToolTipData };
+  return {
+    areaChartData,
+    areaChartLegendData,
+    chartToolTipData,
+  };
 };
