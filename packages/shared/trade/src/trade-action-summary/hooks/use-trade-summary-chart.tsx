@@ -16,7 +16,7 @@ export const useTradeSummaryChart = (markets: Market[]) => {
 
   const chartToolTipData: ChartToolTipDataProps = {
     timestamp: {
-      title: (timestamp) => (
+      formatTitle: (timestamp) => (
         <FormattedMessage
           defaultMessage="{date}"
           values={{ date: getDateString(timestamp) }}
@@ -26,7 +26,7 @@ export const useTradeSummaryChart = (markets: Market[]) => {
     area: {
       lineColor: theme.palette.charts.accent,
       lineType: 'none',
-      title: (area) => (
+      formatTitle: (area) => (
         <span>
           <FormattedMessage
             defaultMessage="Fixed Rate: {rate}"

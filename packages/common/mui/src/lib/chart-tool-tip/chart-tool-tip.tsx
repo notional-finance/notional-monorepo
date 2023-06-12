@@ -6,17 +6,17 @@ export interface ChartToolTipDataProps {
   timestamp?: {
     lineColor?: string;
     lineType?: 'dashed' | 'solid' | 'none';
-    title: (data: number) => string | JSX.Element;
+    formatTitle: (data: number) => string | JSX.Element;
   };
   area?: {
     lineColor?: string;
     lineType?: 'dashed' | 'solid' | 'none';
-    title: (data: number) => string | JSX.Element;
+    formatTitle: (data: number) => string | JSX.Element;
   };
   line?: {
     lineColor?: string;
     lineType?: 'dashed' | 'solid' | 'none';
-    title: (data: number) => string | JSX.Element;
+    formatTitle: (data: number) => string | JSX.Element;
   };
 }
 
@@ -48,7 +48,7 @@ export const ChartToolTip = (props: ChartToolTipProps) => {
               marginBottom: theme.spacing(2),
             }}
           >
-            {chartToolTipData?.timestamp.title(timestamp)}
+            {chartToolTipData?.timestamp.formatTitle(timestamp)}
           </Item>
         )}
         {chartToolTipData?.area && area && (
@@ -66,7 +66,7 @@ export const ChartToolTip = (props: ChartToolTipProps) => {
                   : '',
             }}
           >
-            {chartToolTipData?.area.title(area)}
+            {chartToolTipData?.area.formatTitle(area)}
           </Item>
         )}
         {chartToolTipData?.line && line && (
@@ -84,7 +84,7 @@ export const ChartToolTip = (props: ChartToolTipProps) => {
                   : '',
             }}
           >
-            {chartToolTipData?.line.title(line)}
+            {chartToolTipData?.line.formatTitle(line)}
           </Item>
         )}
       </ToolTipBox>

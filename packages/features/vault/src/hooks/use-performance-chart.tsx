@@ -21,7 +21,7 @@ export const usePerformanceChart = () => {
     timestamp: {
       lineColor: 'transparent',
       lineType: 'none',
-      title: (timestamp) => (
+      formatTitle: (timestamp) => (
         <FormattedMessage
           {...messages.summary.date}
           values={{ date: getDateString(timestamp) }}
@@ -32,7 +32,7 @@ export const usePerformanceChart = () => {
     area: {
       lineColor: theme.palette.charts.main,
       lineType: 'solid',
-      title: (area) => (
+      formatTitle: (area) => (
         <FormattedMessage
           {...messages.summary.performanceLeveragedReturns}
           values={{ returns: <span>{formatNumberAsPercent(area)}</span> }}
@@ -43,7 +43,7 @@ export const usePerformanceChart = () => {
     line: {
       lineColor: theme.palette.charts.accent,
       lineType: 'dashed',
-      title: (line) => (
+      formatTitle: (line) => (
         <FormattedMessage
           {...messages.summary.unleveragedReturns}
           values={{ returns: <span>{formatNumberAsPercent(line)}</span> }}

@@ -6,17 +6,17 @@ export interface BarChartToolTipDataProps {
   dataPointOne?: {
     lineColor: string;
     lineType: 'dashed' | 'solid' | 'none';
-    title: (data: number) => string | JSX.Element;
+    formatTitle: (data: number) => string | JSX.Element;
   };
   dataPointTwo?: {
     lineColor: string;
     lineType: 'dashed' | 'solid' | 'none';
-    title: (data: number) => string | JSX.Element;
+    formatTitle: (data: number) => string | JSX.Element;
   };
   dataPointThree?: {
     lineColor: string;
     lineType: 'dashed' | 'solid' | 'none';
-    title: (data: number) => string | JSX.Element;
+    formatTitle: (data: number) => string | JSX.Element;
   };
 }
 
@@ -38,7 +38,7 @@ export const BarChartToolTip = (props: BarChartToolTipProps) => {
               borderStyle: barChartToolTipData?.dataPointOne.lineType,
             }}
           >
-            {barChartToolTipData?.dataPointOne.title(dataPointOne)}
+            {barChartToolTipData?.dataPointOne.formatTitle(dataPointOne)}
           </Item>
         )}
         {barChartToolTipData?.dataPointTwo && dataPointTwo && (
@@ -48,12 +48,14 @@ export const BarChartToolTip = (props: BarChartToolTipProps) => {
               borderStyle: barChartToolTipData?.dataPointTwo.lineType,
             }}
           >
-            {barChartToolTipData?.dataPointTwo.title(dataPointTwo)}
+            {barChartToolTipData?.dataPointTwo.formatTitle(dataPointTwo)}
           </Item>
         )}
         {barChartToolTipData?.total && total && (
           <Item sx={{ borderColor: 'transparent', borderStyle: 'solid' }}>
-            {barChartToolTipData?.total.title(dataPointOne + dataPointTwo)}
+            {barChartToolTipData?.total.formatTitle(
+              dataPointOne + dataPointTwo
+            )}
           </Item>
         )}
       </ToolTipBox>
