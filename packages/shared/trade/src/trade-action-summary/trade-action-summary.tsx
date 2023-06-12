@@ -61,7 +61,7 @@ export function TradeActionSummary({
 
           <InteractiveAreaChart
             interactiveAreaChartData={marketData}
-            areaHeaderData={areaHeaderData}
+            legendData={areaHeaderData}
             onSelectMarketKey={onSelectMarketKey}
             selectedMarketKey={selectedMarketKey || ''}
             lockSelection={!!confirm}

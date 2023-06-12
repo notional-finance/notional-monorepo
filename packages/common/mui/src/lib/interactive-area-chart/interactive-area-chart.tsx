@@ -5,10 +5,7 @@ import { TradeSummaryBox } from '../trade-summary-box/trade-summary-box';
 import ProgressIndicator from '../progress-indicator/progress-indicator';
 import { ONE_WEEK } from '@notional-finance/shared-config';
 import { CustomDot } from './custom-dot/custom-dot';
-import {
-  AreaChartHeader,
-  AreaHeaderData,
-} from '../area-chart-header/area-chart-header';
+import { ChartHeader, ChartHeaderProps } from '../chart-header/chart-header';
 import { useYAxis, YAxisTick } from './y-axis-tick';
 import { useIntl } from 'react-intl';
 import {
@@ -31,19 +28,18 @@ export interface InteractiveAreaChartData {
   marketKey: string;
 }
 
-interface InteractiveAreaChartProps {
+interface InteractiveAreaChartProps extends ChartHeaderProps {
   interactiveAreaChartData: InteractiveAreaChartData[];
   onSelectMarketKey: (marketKey: string | null) => void;
   lockSelection?: boolean;
   selectedMarketKey?: string;
   chartToolTipData?: ChartToolTipDataProps;
-  areaHeaderData?: AreaHeaderData;
 }
 
 export const InteractiveAreaChart = ({
   interactiveAreaChartData,
   chartToolTipData,
-  areaHeaderData,
+  legendData,
   onSelectMarketKey,
   selectedMarketKey,
   lockSelection,
@@ -91,9 +87,7 @@ export const InteractiveAreaChart = ({
     <TradeSummaryBox sx={{ width: '100%', paddingBottom: theme.spacing(5) }}>
       {interactiveAreaChartData && interactiveAreaChartData?.length > 0 ? (
         <ChartContainer>
-          {areaHeaderData && (
-            <AreaChartHeader areaHeaderData={areaHeaderData} />
-          )}
+          {legendData && <ChartHeader legendData={legendData} />}
           <ResponsiveContainer width="100%" height={300}>
             <ComposedChart
               data={interactiveAreaChartData}

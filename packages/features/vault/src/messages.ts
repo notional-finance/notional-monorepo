@@ -242,17 +242,17 @@ export const messages = {
       defaultMessage: 'Performance to Date',
       description: 'table column heading',
     },
-    date: { defaultMessage: 'Date: {date}', description: 'chart tooltip' },
+    date: { defaultMessage: '{date}', description: 'chart tooltip' },
     performanceStrategyReturns: {
       defaultMessage: 'Strategy Returns: {returns}',
       description: 'chart tooltip',
     },
     performanceLeveragedReturns: {
-      defaultMessage: 'Leveraged Returns: {returns}',
+      defaultMessage: '{returns} Leveraged Returns',
       description: 'chart tooltip',
     },
-    returns: {
-      defaultMessage: 'Unleveraged Returns',
+    unleveragedReturns: {
+      defaultMessage: '{returns} Unleveraged Returns',
       description: 'section heading',
     },
     leveragedReturns: {
@@ -295,6 +295,18 @@ export const messages = {
       defaultMessage:
         'Transaction costs are paid on entry and exit. They include trading fees paid to Notional as well as any other fees incurred from trading on decentralized exchanges.',
       description: 'transaction cost tooltip',
+    },
+    totalAPY: {
+      defaultMessage: '{returns} Total APY',
+      description: 'chart tooltip',
+    },
+    testOne: {
+      defaultMessage: '{returns} NOTE Incentive',
+      description: 'chart tooltip',
+    },
+    testTwo: {
+      defaultMessage: '{returns} Organic APY',
+      description: 'chart tooltip',
     },
   }),
   error: defineMessages({
