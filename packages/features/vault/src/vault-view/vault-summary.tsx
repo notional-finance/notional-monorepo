@@ -6,7 +6,6 @@ import {
   TradeActionHeader,
   TradeActionTitle,
   TradeSummaryContainer,
-  DualDisplayChart,
   TABLE_VARIANTS,
   SingleDisplayChart,
 } from '@notional-finance/mui';
