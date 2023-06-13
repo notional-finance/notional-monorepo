@@ -152,12 +152,6 @@ const run = async (env: Env) => {
 
     const possibleLiqs = await liq.getPossibleLiquidations(riskyAccount);
 
-    console.log(
-      `possibleLiqs=${possibleLiqs.map((liq) =>
-        liq.accountLiq.liquidation.toString()
-      )}`
-    );
-
     if (possibleLiqs.length > 0) {
       await liq.liquidateAccount(possibleLiqs[0]);
     }
