@@ -11,7 +11,7 @@ export function onSelectedNetworkChange(
   // This is a no-op if the registry is already initialized
   Registry.initialize(cacheHostname, AccountFetchMode.SINGLE_ACCOUNT_DIRECT);
   // NOTE: this disables the registry refresh unless the feature flag is set
-  if (FEATURE_FLAG === undefined) return;
+  // if (FEATURE_FLAG === undefined) return;
 
   if (
     previousNetwork === selectedNetwork &&

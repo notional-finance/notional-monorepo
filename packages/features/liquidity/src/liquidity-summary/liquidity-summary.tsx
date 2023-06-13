@@ -89,7 +89,6 @@ export const LiquiditySummary = () => {
           <LiquidityFaq />
         </Box>
       </TradeSummaryContainer>
-      {/* @matthew-garrett can we put this entire thing inside the isReady container? */}
       <MobileTradeActionSummary
         tradeAction={NOTIONAL_CATEGORIES.PROVIDE_LIQUIDITY}
         selectedToken={collateral?.symbol || ''}

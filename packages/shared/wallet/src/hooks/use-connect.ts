@@ -22,7 +22,7 @@ export const useConnect = () => {
 
   // The first account and chain are considered "selected" by the UI
   const selectedAddress =
-    globalState?.wallet?.selectedAddress || wallet?.accounts[0].address;
+  globalState?.wallet?.isReadOnlyAddress ? globalState?.wallet?.selectedAddress : wallet?.accounts[0].address;
   const isReadOnlyAddress = globalState?.wallet?.isReadOnlyAddress;
 
   const truncatedAddress = selectedAddress
@@ -46,6 +46,13 @@ export const useConnect = () => {
     if (currentLabel) disconnect({ label: currentLabel });
     updateNotional({ wallet: undefined });
   }, [disconnect, currentLabel, updateNotional]);
+
+  useEffect(() => {
+    console.log("TESTING", wallet?.accounts, wallet?.accounts.length)
+    if(wallet?.accounts && wallet?.accounts.length > 1){
+      disconnectWallet()
+    }
+  },[wallet, disconnectWallet, currentLabel])
 
   // Listens for wallet changes and sets the primary wallet as well as sends the
   // addresses to the Notional global state
