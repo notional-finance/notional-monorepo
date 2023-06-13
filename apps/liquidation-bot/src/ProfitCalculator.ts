@@ -1,4 +1,4 @@
-import { BigNumber, Contract, ethers } from 'ethers';
+import { BigNumber, Contract } from 'ethers';
 import {
   AccountLiquidation,
   CurrencyOverride,
@@ -38,7 +38,7 @@ export default class ProfitCalculator {
     to: string,
     amount: BigNumber,
     exactIn: boolean
-  ): Promise<any> {
+  ): Promise<unknown> {
     const queryParams = new URLSearchParams({
       sellToken: from,
       buyToken: to,

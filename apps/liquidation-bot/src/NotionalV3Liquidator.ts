@@ -147,7 +147,7 @@ export default class NotionalV3Liquidator {
           ).gt(this.settings.dustThreshold)
       );
 
-    return accounts.map((a, i) => {
+    return accounts.map((a) => {
       const netUnderlyingAvailable = new Map<number, BigNumber>();
       const balances = results[`${a.id}:account`][1].filter((b) => b[0] !== 0);
       const portfolio = results[`${a.id}:account`][2];
@@ -192,7 +192,7 @@ export default class NotionalV3Liquidator {
 
     return await this.profitCalculator.sortByProfitability(
       liquidations
-        .map((liq, i) => ({
+        .map((liq) => ({
           accountId: ra.id,
           liquidation: liq,
           flashLoanAmount: this.toExternal(
