@@ -1,4 +1,5 @@
 import {
+  BaseLiquidityPool,
   fCashMarket,
   Registry,
   TokenBalance,
@@ -467,4 +468,63 @@ export function calculateDebtCollateralGivenDepositRiskLimit({
     debtFee: debtFee,
     collateralFee,
   };
+}
+
+/**
+ * Calculates vault debt and collateral given a risk limit
+ */
+export function calculateVaultDebtCollateralGivenDepositRiskLimit({
+  collateral,
+  debt,
+  collateralPool,
+  debtPool,
+  depositBalance,
+  balances,
+  riskFactorLimit,
+  maxCollateralSlippage = 25 * BASIS_POINT,
+  maxDebtSlippage = 25 * BASIS_POINT,
+}: {
+  collateral: TokenDefinition;
+  debt: TokenDefinition;
+  collateralPool: BaseLiquidityPool<unknown>;
+  debtPool: fCashMarket;
+  depositBalance: TokenBalance | undefined;
+  balances: TokenBalance[];
+  riskFactorLimit: RiskFactorLimit<RiskFactorKeys>;
+  maxCollateralSlippage?: number;
+  maxDebtSlippage?: number;
+}): ReturnType<typeof calculateDebtCollateralGivenDepositRiskLimit> {
+  throw Error('Unimplemented');
+}
+
+export function calculateVaultDebt({
+  debt,
+  debtPool,
+  collateralPool,
+  depositBalance,
+  collateralBalance,
+}: {
+  debt: TokenDefinition;
+  debtPool: fCashMarket;
+  collateralPool: BaseLiquidityPool<unknown>;
+  depositBalance?: TokenBalance;
+  collateralBalance?: TokenBalance;
+}): ReturnType<typeof calculateDebt> {
+  throw Error('Unimplemented');
+}
+
+export function calculateVaultCollateral({
+  collateral,
+  collateralPool,
+  debtPool,
+  depositBalance,
+  debtBalance,
+}: {
+  collateral: TokenDefinition;
+  collateralPool: BaseLiquidityPool<unknown>;
+  debtPool: fCashMarket;
+  depositBalance?: TokenBalance;
+  debtBalance?: TokenBalance;
+}): ReturnType<typeof calculateCollateral> {
+  throw Error('Unimplemented');
 }
