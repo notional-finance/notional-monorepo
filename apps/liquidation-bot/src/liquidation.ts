@@ -1,6 +1,5 @@
-import { LiquidationType, TradeData } from './types';
+import { LiquidationType, TradeData, Currency } from './types';
 import { utils, constants, Contract } from 'ethers';
-import { Currency } from '@notional-finance/sdk';
 
 export default class Liquidation {
   public static readonly ETH_CURRENCY_ID = 1;
@@ -217,6 +216,7 @@ export default class Liquidation {
   }
 
   public getFlashLoanAmountCall(target: Contract, account: string) {
+    // TODO: enable this once we figure out how to deal with nToken residuals
     /*if (
       this.type === LiquidationType.LOCAL_CURRENCY ||
       this.type === LiquidationType.COLLATERAL_CURRENCY
@@ -258,7 +258,7 @@ export default class Liquidation {
           transform: (r) => r[0],
           method: 'calculateLocalCurrencyLiquidation',
           args: [account, this.localCurrency.id, 0],
-          key: `${account}:${this.type}:loanAmount`,
+          key: `${account}:${this.type}:${this.localCurrency.id}:0:loanAmount`,
         };
       }
       case LiquidationType.COLLATERAL_CURRENCY: {
@@ -274,7 +274,7 @@ export default class Liquidation {
             0,
             0,
           ],
-          key: `${account}:${this.type}:loanAmount`,
+          key: `${account}:${this.type}:${this.localCurrency.id}:${this.collateralCurrencyId}:loanAmount`,
         };
       }
       case LiquidationType.LOCAL_FCASH: {
@@ -289,7 +289,7 @@ export default class Liquidation {
             this.maturities,
             this.maturities.map(() => 0),
           ],
-          key: `${account}:${this.type}:loanAmount`,
+          key: `${account}:${this.type}:${this.localCurrency.id}:0:loanAmount`,
         };
       }
       case LiquidationType.CROSS_CURRENCY_FCASH: {
@@ -305,7 +305,7 @@ export default class Liquidation {
             this.maturities,
             this.maturities.map(() => 0),
           ],
-          key: `${account}:${this.type}:loanAmount`,
+          key: `${account}:${this.type}:${this.localCurrency.id}:${this.collateralCurrencyId}:loanAmount`,
         };
       }
     }

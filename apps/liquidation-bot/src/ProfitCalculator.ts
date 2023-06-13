@@ -39,6 +39,10 @@ export default class ProfitCalculator {
     amount: BigNumber,
     exactIn: boolean
   ): Promise<any> {
+    if (!from || !to) {
+      throw Error('Invalid from/to');
+    }
+
     const queryParams = new URLSearchParams({
       sellToken: from,
       buyToken: to,
@@ -56,6 +60,10 @@ export default class ProfitCalculator {
         '0x-api-key': this.settings.zeroExApiKey,
       },
     });
+    if (resp.status !== 200) {
+      throw Error('Bad 0x response');
+    }
+
     const data = await resp.json();
 
     return data;
@@ -149,24 +157,34 @@ export default class ProfitCalculator {
       this.settings.liquidatorContract.address,
       this.settings.liquidatorContract.provider
     );
-    const results = await liquidator.callStatic.flashLoan(
-      flashLiq.flashBorrowAsset,
-      flashLiq.accountLiq.flashLoanAmount,
-      flashLiq.accountLiq.liquidation.encode(
-        flashLiq.accountLiq.accountId,
-        false,
-        flashLiq.preLiquidationTrade,
-        flashLiq.collateralTrade
-      ),
-      flashLiq.accountLiq.liquidation.getLocalUnderlyingAddress(),
-      flashLiq.accountLiq.liquidation.getCollateralUnderlyingAddress(),
-      {
-        from: this.settings.liquidatorOwner,
-      }
-    );
 
-    let totalProfit = results[1]; // Start with local profit
-    const collateralProfit = results[2];
+    let totalProfit = BigNumber.from(0);
+    let flashAssetProfit = BigNumber.from(0);
+    let collateralProfit = BigNumber.from(0);
+    try {
+      const results = await liquidator.callStatic.flashLoan(
+        flashLiq.flashBorrowAsset,
+        flashLiq.accountLiq.flashLoanAmount,
+        flashLiq.accountLiq.liquidation.encode(
+          flashLiq.accountLiq.accountId,
+          false,
+          flashLiq.preLiquidationTrade,
+          flashLiq.collateralTrade
+        ),
+        flashLiq.accountLiq.liquidation.getLocalUnderlyingAddress(),
+        flashLiq.accountLiq.liquidation.getCollateralUnderlyingAddress(),
+        {
+          from: this.settings.liquidatorOwner,
+        }
+      );
+
+      flashAssetProfit = results[0];
+      totalProfit = results[1];
+      collateralProfit = results[2];
+    } catch (e) {
+      console.error(e);
+    }
+
     if (
       flashLiq.accountLiq.liquidation.getCollateralCurrencyId() !== 0 &&
       collateralProfit.gt(0)
@@ -191,7 +209,6 @@ export default class ProfitCalculator {
       flashLiq.flashBorrowAsset !==
       flashLiq.accountLiq.liquidation.getLocalUnderlyingAddress()
     ) {
-      const flashAssetProfit = results[0];
       if (flashAssetProfit.gt(0)) {
         // FX profit denominated to flash loan currency to local currency
         totalProfit = totalProfit.add(
@@ -219,23 +236,32 @@ export default class ProfitCalculator {
     const profits = [];
 
     for (let i = 0; i < liquidations.length; i++) {
-      const liq = liquidations[i];
+      try {
+        const liq = liquidations[i];
 
-      const flashLiq = await this.getFlashLiquidation(liq);
-      const totalProfit = await this.getTotalProfit(flashLiq);
-      const gasAmount = await this.flashLender.estimateGas(flashLiq);
-      const gasPrice = await this.gasOracle.getGasPrice();
-      const gasCost = gasAmount
-        .mul(gasPrice)
-        .mul(this.settings.gasCostBuffer)
-        .div(1000);
-      const netProfit = totalProfit.sub(gasCost);
+        const flashLiq = await this.getFlashLiquidation(liq);
+        const totalProfit = await this.getTotalProfit(flashLiq);
 
-      if (netProfit.gt(this.settings.profitThreshold)) {
-        profits.push({
-          liquidation: flashLiq,
-          estimatedProfit: netProfit,
-        });
+        if (totalProfit.isZero()) {
+          continue;
+        }
+
+        const gasAmount = await this.flashLender.estimateGas(flashLiq);
+        const gasPrice = await this.gasOracle.getGasPrice();
+        const gasCost = gasAmount
+          .mul(gasPrice)
+          .mul(this.settings.gasCostBuffer)
+          .div(1000);
+        const netProfit = totalProfit.sub(gasCost);
+
+        if (netProfit.gt(this.settings.profitThreshold)) {
+          profits.push({
+            liquidation: flashLiq,
+            estimatedProfit: netProfit,
+          });
+        }
+      } catch (e) {
+        console.error(e);
       }
     }
 

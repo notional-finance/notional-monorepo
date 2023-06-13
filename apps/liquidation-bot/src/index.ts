@@ -15,7 +15,6 @@ import * as currencies from './config/currencies.json';
 import * as overrides from './config/overrides.json';
 import { ERC20__factory } from '@notional-finance/contracts';
 import { MetricNames } from './types';
-import * as accounts from './accounts.json';
 
 export interface Env {
   ACCOUNT_CACHE: DurableObjectNamespace;
@@ -100,11 +99,6 @@ const run = async (env: Env) => {
     apiKey: env.DD_API_KEY,
   });
 
-  //const id = env.ACCOUNT_CACHE.idFromString('3c6064469a224e10a88c9229cebf5073');
-  //const stub = env.ACCOUNT_CACHE.get(id);
-  //const resp = await stub.fetch('/');
-  //const data = (await resp.json()) as any;
-  //const addrs = data['default'].map((a) => a.id);
   const addrs = accounts.map((a) => a.id);
 
   const provider = getProviderFromNetwork(Network[env.NETWORK], true);
@@ -121,11 +115,6 @@ const run = async (env: Env) => {
     currencies: currencies.arbitrum.map((c) => {
       return {
         id: c.id,
-        assetName: c.name,
-        assetSymbol: c.symbol,
-        assetDecimals: BigNumber.from(10).pow(c.decimals),
-        assetDecimalPlaces: c.decimals,
-        assetContract: ERC20__factory.connect(c.address, provider),
         tokenType: c.type,
         hasTransferFee: c.hasTransferFee,
         underlyingName: c.name,
@@ -133,7 +122,6 @@ const run = async (env: Env) => {
         underlyingDecimals: BigNumber.from(10).pow(c.decimals),
         underlyingDecimalPlaces: c.decimals,
         underlyingContract: ERC20__factory.connect(c.address, provider),
-        nTokenSymbol: c.nTokenSymbol,
       };
     }),
     overrides: overrides.arbitrum,
@@ -147,6 +135,7 @@ const run = async (env: Env) => {
   });
 
   const riskyAccounts = await liq.getRiskyAccounts(addrs);
+
   const ddSeries = {
     series: [],
   };
@@ -158,8 +147,8 @@ const run = async (env: Env) => {
     timestamp: getNowSeconds(),
   });
 
-  for (let i = 0; i < riskyAccounts.length; i++) {
-    const riskyAccount = riskyAccounts[i];
+  if (riskyAccounts.length > 0) {
+    const riskyAccount = riskyAccounts[0];
 
     const possibleLiqs = await liq.getPossibleLiquidations(riskyAccount);
 

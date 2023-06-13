@@ -1,4 +1,4 @@
-import { BigNumber } from 'ethers';
+import { BigNumber, Contract } from 'ethers';
 import Liquidation from './liquidation';
 
 export interface IGasOracle {
@@ -40,6 +40,17 @@ export enum TradeType {
   EXACT_IN_BATCH,
   EXACT_OUT_BATCH,
 }
+
+export type Currency = {
+  id?: number;
+  tokenType?: string;
+  hasTransferFee?: boolean;
+  underlyingName?: string;
+  underlyingSymbol?: string;
+  underlyingDecimals?: BigNumber;
+  underlyingDecimalPlaces?: number;
+  underlyingContract?: Contract;
+};
 
 export type Trade = {
   tradeType: TradeType;
