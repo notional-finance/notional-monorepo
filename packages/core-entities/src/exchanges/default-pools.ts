@@ -19,6 +19,22 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
         },
       ],
     },
+    {
+      address: '0x5FAE7E604FC3e24fd43A72867ceBaC94c65b404A',
+      PoolClass: 'Curve2TokenPoolV2',
+      registerTokens: [
+        {
+          id: '0x5b6C539b224014A09B3388e51CaAA8e354c959C8',
+          address: '0x5b6C539b224014A09B3388e51CaAA8e354c959C8',
+          network: Network.Mainnet,
+          symbol: 'cbETH/ETH-f',
+          name: 'Curve.fi Factory Crypto Pool: cbETH/ETH',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+      ],
+    },
   ],
   [Network.ArbitrumOne]: [
     {
@@ -105,7 +121,7 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
     {
       // NOTE: the pool address here is different from the lp token address
       address: '0x6eB2dc694eB516B16Dc9FBc678C60052BbdD7d80',
-      PoolClass: 'Curve2TokenPoolV1',
+      PoolClass: 'Curve2TokenPoolV1_HasOracle',
       registerTokens: [
         // ETH / wstETH Pool
         {

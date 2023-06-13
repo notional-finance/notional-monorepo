@@ -1,4 +1,4 @@
-import { BigNumber, Contract, ethers } from 'ethers';
+import { BigNumber, Contract } from 'ethers';
 import {
   AccountLiquidation,
   CurrencyOverride,
