@@ -112,8 +112,6 @@ export class CurveV2Harness extends PoolTestHarness<Curve2TokenPoolV2> {
     lpTokenAmount: TokenBalance,
     minTokensOut?: TokenBalance[]
   ) {
-    let signerBalance = await signer.getBalance();
-
     let useEth = false;
     if (this.poolInstance.balances[0].token.address === ZERO_ADDRESS) {
       useEth = true;
@@ -135,8 +133,6 @@ export class CurveV2Harness extends PoolTestHarness<Curve2TokenPoolV2> {
         useEth,
         { gasLimit: 2_500_000 }
       );
-
-    signerBalance = await signer.getBalance();
 
     const balancesAfter = await Promise.all(
       this.tokens().map((_, i) => this.balanceOfToken(i, signer))

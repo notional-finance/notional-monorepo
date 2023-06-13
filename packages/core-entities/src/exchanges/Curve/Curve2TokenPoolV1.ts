@@ -213,7 +213,7 @@ export class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPoolV1Params
       b.copy(b.n.sub(admin_balances[i]))
     );
 
-    let D0 = this._get_D(old_balances, amp);
+    const D0 = this._get_D(old_balances, amp);
 
     const token_supply = this.totalSupply;
     const new_balances = old_balances.map((b, i) => {
@@ -221,7 +221,7 @@ export class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPoolV1Params
     });
 
     // # Invariant after change
-    let D1 = this._get_D(new_balances, amp);
+    const D1 = this._get_D(new_balances, amp);
 
     // We need to recalculate the invariant accounting for fees
     // to calculate fair user's share
@@ -528,7 +528,7 @@ export class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPoolV1Params
         .div(Curve2TokenPoolV1.PRECISION);
     }
 
-    let x = xp[tokenIndexIn].n.add(dx);
+    const x = xp[tokenIndexIn].n.add(dx);
     const y = this._get_y(tokenIndexIn, tokenIndexOut, x, xp);
     let dy = xp[tokenIndexOut].n.sub(y).sub(1);
     const dy_fee = dy

@@ -5,7 +5,6 @@ import {
 } from '@notional-finance/util';
 import { BigNumber } from 'ethers';
 import {
-  DDSeries,
   initEventLogger,
   initMetricLogger,
   submitMetrics,
@@ -176,7 +175,7 @@ export default {
   async fetch(
     request: Request,
     env: Env,
-    ctx: ExecutionContext
+    _: ExecutionContext
   ): Promise<Response> {
     try {
       await run(env);
@@ -191,7 +190,7 @@ export default {
   async scheduled(
     controller: ScheduledController,
     env: Env,
-    ctx: ExecutionContext
+    _: ExecutionContext
   ): Promise<void> {
     try {
       await run(env);

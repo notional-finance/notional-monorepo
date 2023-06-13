@@ -102,8 +102,6 @@ export class CurveV1Harness extends PoolTestHarness<Curve2TokenPoolV1> {
     lpTokenAmount: TokenBalance,
     minTokensOut?: TokenBalance[]
   ) {
-    let signerBalance = await signer.getBalance();
-
     const balancesBefore = await Promise.all(
       this.tokens().map((_, i) => this.balanceOfToken(i, signer))
     );
@@ -117,8 +115,6 @@ export class CurveV1Harness extends PoolTestHarness<Curve2TokenPoolV1> {
         ],
         { gasLimit: 2_500_000 }
       );
-
-    signerBalance = await signer.getBalance();
 
     const balancesAfter = await Promise.all(
       this.tokens().map((_, i) => this.balanceOfToken(i, signer))
