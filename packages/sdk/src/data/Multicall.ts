@@ -103,7 +103,7 @@ async function executeStage<T extends Record<string, any>>(
 export async function aggregate<T extends Record<string, any>>(
   calls: AggregateCall[],
   provider: providers.Provider,
-  requireSuccess: boolean = true,
+  requireSuccess = true,
   _multicall?: Multicall2
 ) {
   let multicall: Multicall2;
