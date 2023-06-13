@@ -48,7 +48,6 @@ export const useConnect = () => {
   }, [disconnect, currentLabel, updateNotional]);
 
   useEffect(() => {
-    console.log("TESTING", wallet?.accounts, wallet?.accounts.length)
     if(wallet?.accounts && wallet?.accounts.length > 1){
       disconnectWallet()
     }
