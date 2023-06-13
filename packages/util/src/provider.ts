@@ -41,14 +41,17 @@ export function getProvider(networkId: number) {
   }
 }
 
+export function getProviderURLFromNetwork(network: Network) {
+  return `${AlchemyUrl[network]}/pq08EwFvymYFPbDReObtP-SFw3bCes8Z`;
+}
+
 export function getProviderFromNetwork(
   network: Network,
   skipFetchSetup = false
 ) {
   if (skipFetchSetup) {
-    const providerUrl = `${AlchemyUrl[network]}/pq08EwFvymYFPbDReObtP-SFw3bCes8Z`;
     return new ethers.providers.JsonRpcBatchProvider({
-      url: providerUrl,
+      url: getProviderURLFromNetwork(network),
       skipFetchSetup: true,
     });
   }
@@ -58,4 +61,16 @@ export function getProviderFromNetwork(
   );
   provider.send = ethers.providers.JsonRpcBatchProvider.prototype.send;
   return provider;
+}
+
+export function getNetworkFromId(id: number) {
+  const keys = Object.keys(NetworkId) as Network[];
+  return keys.find((k: keyof typeof NetworkId) => NetworkId[k] === id);
+}
+
+export function getDefaultNetworkFromHostname(hostname: string) {
+  switch (hostname) {
+    default:
+      return Network.ArbitrumOne;
+  }
 }

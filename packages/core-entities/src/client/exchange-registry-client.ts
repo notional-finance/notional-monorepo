@@ -4,15 +4,22 @@ import { BaseLiquidityPool, PoolClasses, PoolConstructor } from '../exchanges';
 import { PoolDefinition } from '..';
 import { ClientRegistry } from './client-registry';
 import { Routes } from '../server';
+import { ethers } from 'ethers';
 
 export class ExchangeRegistryClient extends ClientRegistry<PoolDefinition> {
-  protected cachePath = Routes.Exchanges;
+  protected cachePath() {
+    return Routes.Exchanges;
+  }
 
   public subscribePoolInstance<T extends BaseLiquidityPool<unknown>>(
     network: Network,
     address: string
   ) {
-    return this.subscribeSubject(network, address)?.pipe(
+    return this.subscribeSubject(
+      network,
+      // Converts to a checksummed address
+      ethers.utils.getAddress(address)
+    )?.pipe(
       filterEmpty(),
       map((pool) => this._buildPool<T>(network, pool))
     );
@@ -22,7 +29,11 @@ export class ExchangeRegistryClient extends ClientRegistry<PoolDefinition> {
     network: Network,
     address: string
   ) {
-    const pool = this.getLatestFromSubject(network, address);
+    const pool = this.getLatestFromSubject(
+      network,
+      // Converts to a checksummed address
+      ethers.utils.getAddress(address)
+    );
     if (!pool) throw Error(`Pool ${address} on ${network} not found`);
     return this._buildPool<T>(network, pool);
   }

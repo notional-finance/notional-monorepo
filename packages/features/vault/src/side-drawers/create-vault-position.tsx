@@ -45,7 +45,7 @@ export const CreateVaultPosition = () => {
       cashBorrowed,
     },
   } = useContext(VaultActionContext);
-  const { currencyInputRef } = useCurrencyInputRef()
+  const { currencyInputRef } = useCurrencyInputRef();
 
   useEffect(() => {
     updateState({
@@ -86,19 +86,20 @@ export const CreateVaultPosition = () => {
         <VaultSideDrawer>
           <Maturities
             maturityData={borrowMarketData || []}
-            onSelect={(marketKey: string | null) => {
+            onSelect={(marketKey) => {
               updateState({ selectedMarketKey: marketKey || '' });
             }}
-            currentMarketKey={selectedMarketKey || ''}
+            selectedfCashId={selectedMarketKey || ''}
             inputLabel={messages[VAULT_ACTIONS.CREATE_VAULT_POSITION].maturity}
           />
           <WalletDepositInput
-          ref={currencyInputRef}
-          inputRef={currencyInputRef}
+            ref={currencyInputRef}
+            inputRef={currencyInputRef}
             availableTokens={[primaryBorrowSymbol]}
             selectedToken={primaryBorrowSymbol}
-            onChange={({ inputAmount, hasError }) => {
-              updateState({ depositAmount: inputAmount, hasError });
+            onChange={({ inputAmount: _inputAmount, hasError }) => {
+              throw Error('Unimplemented');
+              updateState({ depositAmount: undefined, hasError });
             }}
             inputLabel={
               messages[VAULT_ACTIONS.CREATE_VAULT_POSITION].depositAmount

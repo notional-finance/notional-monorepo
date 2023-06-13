@@ -1,6 +1,7 @@
 import { Box, Grid, useTheme, styled } from '@mui/material';
+// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import iconDisable from '@notional-finance/assets/icons/icon-disable-currency.svg';
-import { useWallet } from '@notional-finance/notionable-hooks';
+import { useAccountReady } from '@notional-finance/notionable-hooks';
 import { NotionalTheme } from '@notional-finance/styles';
 import { TokenIcon, CheckmarkRoundIcon } from '@notional-finance/icons';
 import { useTokenApproval } from '@notional-finance/trade';
@@ -24,7 +25,7 @@ export const CurrencyIcon = ({
   allCurrencies,
   enabled,
 }: CurrencyIconProps) => {
-  const { walletConnected } = useWallet();
+  const walletConnected = useAccountReady();
   const { enableToken } = useTokenApproval(symbol);
   const theme = useTheme() as NotionalTheme;
   const approved = !enabled;

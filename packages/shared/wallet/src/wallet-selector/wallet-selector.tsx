@@ -11,9 +11,9 @@ import {
 import WalletSideDrawer from '../wallet-side-drawer/wallet-side-drawer';
 import { getNotificationsData } from './wallet-selector.service';
 import NetworkSelector from '../network-selector/network-selector';
-import { useOnboard, useAccount } from '@notional-finance/notionable-hooks';
 import { ProgressIndicator, ButtonText, Caption } from '@notional-finance/mui';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
+import { useConnect } from '../hooks/use-connect';
 import { useWalletSideDrawer } from '../hooks';
 import {
   PORTFOLIO_ACTIONS,
@@ -28,8 +28,15 @@ export interface PortfolioParams {
 
 export function WalletSelector() {
   const theme = useTheme();
-  const { connected, icon, label } = useOnboard();
-  const { truncatedAddress, address } = useAccount();
+  const {
+    selectedAddress,
+    truncatedAddress,
+    isReadOnlyAddress,
+    connecting,
+    icon,
+    currentLabel,
+  } = useConnect();
+
   const [notificationsActive, setNotificationsActive] =
     useState<boolean>(false);
   const [showAlert, setShowAlert] = useState<boolean>(false);
@@ -61,8 +68,8 @@ export function WalletSelector() {
   }, [showAlert, setShowAlert]);
 
   const handleCopy = () => {
-    if (address) {
-      navigator.clipboard.writeText(address);
+    if (selectedAddress) {
+      navigator.clipboard.writeText(selectedAddress);
       setShowAlert(true);
     }
   };
@@ -71,13 +78,13 @@ export function WalletSelector() {
     <>
       <OuterContainer>
         <Container>
-          {connected && truncatedAddress && (
+          {!isReadOnlyAddress && truncatedAddress && (
             <>
               {icon && icon.length > 0 && (
                 <IconContainer>
                   <img
-                    src={`data:image/svg+xml;base64,${icon}`}
-                    alt={`${label} wallet icon`}
+                    src={`data:image/svg+xml;utf8,${encodeURIComponent(icon)}`}
+                    alt={`${currentLabel} wallet icon`}
                     height="24px"
                     width="24px"
                   />
@@ -122,7 +129,7 @@ export function WalletSelector() {
             </>
           )}
 
-          {!connected && truncatedAddress && (
+          {isReadOnlyAddress && (
             <ProcessContainer
               onClick={() => handleClick(SETTINGS_SIDE_DRAWERS.CONNECT_WALLET)}
             >
@@ -136,7 +143,7 @@ export function WalletSelector() {
               </ButtonText>
             </ProcessContainer>
           )}
-          {!connected && !truncatedAddress && (
+          {!isReadOnlyAddress && !truncatedAddress && (
             <ProcessContainer
               onClick={() => handleClick(SETTINGS_SIDE_DRAWERS.CONNECT_WALLET)}
             >
@@ -145,7 +152,7 @@ export function WalletSelector() {
               </ButtonText>
             </ProcessContainer>
           )}
-          {connected && !truncatedAddress && (
+          {!isReadOnlyAddress && !truncatedAddress && connecting && (
             <ProcessContainer>
               <ProgressIndicator type="circular" size={18} />
             </ProcessContainer>

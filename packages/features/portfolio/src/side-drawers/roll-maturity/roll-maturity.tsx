@@ -83,7 +83,7 @@ export const RollMaturity = ({ setShowRollMaturity }: RollMaturityProps) => {
       >
         <Maturities
           maturityData={maturityData}
-          currentMarketKey={selectedMarketKey}
+          selectedfCashId={selectedMarketKey}
           onSelect={(newMarketKey) => {
             updateRollMaturityState({ selectedMarketKey: newMarketKey || '' });
           }}

@@ -40,6 +40,7 @@ export const colors = {
   neonTurquoise: '#33F8FF',
   yellow: '#f8ff33',
   greenAccent: '#33ff3a',
+  blueAccent: '#3392FF',
 };
 
 const fontColor = {
@@ -685,9 +686,15 @@ const getThemeData = (themeVariant: PaletteMode, pageLayout?: NotionalPageLayout
         accentPaper: colors.secondaryGrey,
       },
       charts: {
-        main: colors.aqua,
-        dark: colors.matteGreen,
-        accent: colors.neonTurquoise,
+        main: themeVariant === THEME_VARIANTS.LIGHT
+        ? colors.aqua
+        : colors.neonTurquoise,
+        dark: themeVariant === THEME_VARIANTS.LIGHT
+        ? colors.matteGreen
+        : colors.purpleGrey,
+        accent: themeVariant === THEME_VARIANTS.LIGHT
+        ? colors.blueAccent
+        : colors.yellow
       },
     } as PaletteOptions,
     typography: getTypography(themeVariant, pageLayout),

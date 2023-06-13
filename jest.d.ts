@@ -44,7 +44,11 @@ declare global {
       toLtEqTB: (e: TokenBalance) => { pass: boolean; message: string };
       toGtTB: (e: TokenBalance) => { pass: boolean; message: string };
       toGtEqTB: (e: TokenBalance) => { pass: boolean; message: string };
-      toBeApprox: (e: TokenBalance) => { pass: boolean; message: string };
+      toBeApprox: (
+        e: TokenBalance,
+        rel?: number,
+        abs?: number
+      ) => { pass: boolean; message: string };
     }
   }
 }

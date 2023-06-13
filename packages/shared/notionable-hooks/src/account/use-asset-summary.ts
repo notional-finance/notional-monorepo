@@ -41,7 +41,7 @@ export function useAssetSummary(borrowOrLend: LEND_BORROW) {
           const isPartialRoll = !tradeRate;
 
           return {
-            marketKey: market.marketKey,
+            fCashId: market.marketKey,
             maturity: market.maturity,
             tradeRateString: tradeRate
               ? `${Market.formatInterestRate(tradeRate)} Fixed APY`

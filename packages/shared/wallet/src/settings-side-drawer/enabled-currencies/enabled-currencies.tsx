@@ -2,9 +2,9 @@ import { Box, styled, useTheme, Grid } from '@mui/material';
 import { tokenApprovalState$ } from '@notional-finance/trade';
 import { ProgressIndicator, LabelValue } from '@notional-finance/mui';
 import {
-  useWallet,
+  useAccountReady,
   useCurrency,
-  useWalletBalance,
+  useWalletAllowances,
 } from '@notional-finance/notionable-hooks';
 import { useObservableState } from 'observable-hooks';
 import { CurrencyIcon } from '../currency-icon/currency-icon';
@@ -12,8 +12,8 @@ import { FormattedMessage } from 'react-intl';
 
 export const EnabledCurrenciesButton = () => {
   const theme = useTheme();
-  const { walletConnected } = useWallet();
-  const { enabledTokens } = useWalletBalance();
+  const walletConnected = useAccountReady();
+  const { enabledTokens } = useWalletAllowances();
 
   return (
     <Box
@@ -34,8 +34,8 @@ export const EnabledCurrenciesButton = () => {
 export const EnabledCurrencies = () => {
   const theme = useTheme();
   const tokenApprovalState = useObservableState(tokenApprovalState$);
-  const { walletConnected } = useWallet();
-  const { enabledTokens, supportedTokens } = useWalletBalance();
+  const walletConnected = useAccountReady();
+  const { enabledTokens, supportedTokens } = useWalletAllowances();
   const { systemTokenSymbols } = useCurrency();
   const tokenApproval = tokenApprovalState
     ? Object.values(tokenApprovalState)
@@ -97,9 +97,9 @@ export const EnabledCurrencies = () => {
           </Box>
         ) : walletConnected ? (
           supportedTokens.map((c) => {
-            const enabled = (
-              c?.allowance?.isPositive() || c.symbol === 'ETH' ? true : false
-            ) as boolean;
+            const enabled =
+              enabledTokens.find((t) => t.id === c.id) !== undefined;
+
             return (
               <CurrencyIcon
                 key={c.symbol}

@@ -1,4 +1,7 @@
-import React from 'react';
+import {
+  BarChartToolTip,
+  BarChartToolTipDataProps,
+} from './bar-chart-tool-tip/bar-chart-tool-tip';
 import {
   BarChart as RechartsBarChart,
   Bar,
@@ -6,85 +9,171 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
   ResponsiveContainer,
 } from 'recharts';
 
+// NOTE* Left this is an example of how to structure bar chart data
 const data = [
   {
     name: 'Page A',
-    uv: 4000,
-    pv: 2400,
-    tv: 2400,
-    amt: 2400,
+    dataPointOne: 1000,
+    dataPointTwo: 2000,
+    total: 2400,
   },
   {
     name: 'Page B',
-    uv: 3000,
-    pv: 1398,
-    tv: 1398,
-    amt: 2210,
+    dataPointOne: 3000,
+    dataPointTwo: 1398,
+    total: 2210,
   },
   {
     name: 'Page C',
-    uv: 2000,
-    pv: 9800,
-    tv: 9800,
-    amt: 2290,
+    dataPointOne: 3800,
+    dataPointTwo: 1800,
+    total: 2290,
   },
   {
     name: 'Page D',
-    uv: 2780,
-    pv: 3908,
-    tv: 3908,
-    amt: 2000,
+    dataPointOne: 4500,
+    dataPointTwo: 1908,
+    total: 2000,
   },
   {
     name: 'Page E',
-    uv: 1890,
-    pv: 4800,
-    tv: 4800,
-    amt: 2181,
+    dataPointOne: 4890,
+    dataPointTwo: 1800,
+    total: 2181,
   },
   {
     name: 'Page F',
-    uv: 2390,
-    pv: 3800,
-    tv: 3800,
-    amt: 2500,
+    dataPointOne: 4390,
+    dataPointTwo: 1300,
+    total: 2500,
   },
   {
     name: 'Page G',
-    uv: 3490,
-    pv: 4300,
-    tv: 4300,
-    amt: 2100,
+    dataPointOne: 5000,
+    dataPointTwo: 1300,
+    total: 2100,
+  },
+  {
+    name: 'Page H',
+    dataPointOne: 4490,
+    dataPointTwo: 900,
+    total: 2100,
+  },
+  {
+    name: 'Page I',
+    dataPointOne: 4490,
+    dataPointTwo: 1300,
+    total: 2100,
+  },
+  {
+    name: 'Page J',
+    dataPointOne: 4490,
+    dataPointTwo: 1300,
+    total: 2100,
+  },
+  {
+    name: 'Page K',
+    dataPointOne: 4490,
+    dataPointTwo: 1300,
+    total: 2100,
+  },
+  {
+    name: 'Page L',
+    dataPointOne: 4490,
+    dataPointTwo: 1300,
+    total: 2100,
+  },
+  {
+    name: 'Page M',
+    dataPointOne: 4490,
+    dataPointTwo: 1300,
+    total: 2100,
+  },
+  {
+    name: 'Page N',
+    dataPointOne: 5490,
+    dataPointTwo: 1300,
+    total: 2100,
+  },
+  {
+    name: 'Page O',
+    dataPointOne: 4100,
+    dataPointTwo: 1000,
+    total: 2100,
+  },
+  {
+    name: 'Page P',
+    dataPointOne: 3800,
+    dataPointTwo: 800,
+    total: 2100,
+  },
+  {
+    name: 'Page Q',
+    dataPointOne: 4100,
+    dataPointTwo: 900,
+    total: 2100,
+  },
+  {
+    name: 'Page R',
+    dataPointOne: 4000,
+    dataPointTwo: 1100,
+    total: 2100,
   },
 ];
 
-// TODO: Build this out based on portfolio mocks
+export interface BarChartStylesProps {
+  dataSetOne: {
+    lineColor: string;
+    lineType: 'solid' | 'dashed' | 'dotted';
+  };
+  dataSetTwo: {
+    lineColor: string;
+    lineType: 'solid' | 'dashed' | 'dotted';
+  };
+}
 
-export const BarChart = () => {
+export interface BarChartProps {
+  barChartToolTipData?: BarChartToolTipDataProps;
+  barChartStyles?: BarChartStylesProps;
+}
+
+export const BarChart = ({
+  barChartToolTipData,
+  barChartStyles,
+}: BarChartProps) => {
   return (
-    <ResponsiveContainer width="100%" height={300}>
+    <ResponsiveContainer width="100%" height={400}>
       <RechartsBarChart
         height={200}
+        barSize={10}
         data={data}
-        margin={{
-          top: 5,
-          right: 30,
-          left: 20,
-          bottom: 5,
-        }}
+        margin={{ top: 40, right: 10, left: 10, bottom: 20 }}
       >
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="xAxisValue" />
-        <YAxis />
-        <Tooltip />
-        <Legend />
-        <Bar dataKey="pv" fill="#2DE1E8" />
-        <Bar dataKey="uv" fill="#1C4E5C" />
-        <Bar dataKey="tv" fill="#C5B6DD" />
+        <CartesianGrid horizontal={true} vertical={false} />
+        <XAxis axisLine={false} tickLine={false} dataKey="xAxisValue" />
+        <YAxis tickLine={false} axisLine={false} />
+        <Tooltip
+          wrapperStyle={{ outline: 'none' }}
+          content={
+            <BarChartToolTip barChartToolTipData={barChartToolTipData} />
+          }
+          cursor={{ fill: 'transparent' }}
+          position={{ y: 0 }}
+        />
+        <Bar
+          dataKey="dataPointTwo"
+          stackId="a"
+          fill={barChartStyles?.dataSetTwo.lineColor}
+        />
+        <Bar
+          dataKey="dataPointOne"
+          stackId="a"
+          fill={barChartStyles?.dataSetOne.lineColor}
+          radius={[8, 8, 0, 0]}
+        />
       </RechartsBarChart>
     </ResponsiveContainer>
   );

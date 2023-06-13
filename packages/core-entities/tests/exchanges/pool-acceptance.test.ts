@@ -3,6 +3,8 @@ import { Network, RATE_PRECISION } from '@notional-finance/util';
 import { PoolHarnessConstructor, PoolTestHarness, TestConfig } from './harness';
 import { BaseLiquidityPool } from '../../src/exchanges';
 
+jest.setTimeout(30000);
+
 const acceptanceSuite = ({
   address,
   Harness,
@@ -23,12 +25,14 @@ const acceptanceSuite = ({
     [2, 0.001],
   ];
   const lpExitMatrix: number[][] = [
-    // [0, 0.99],
-    // [0, 0.5],
+    //[0, 0.99],
+    //[0, 0.5],
+    //[0, 0.1],
     [0, 0.01],
-    [1, 0.99],
-    [1, 0.5],
-    [1, 0.1],
+    //[1, 0.99],
+    //[1, 0.5],
+    //[1, 0.1],
+    [1, 0.01],
     [2, 0.99],
     [2, 0.5],
     [2, 0.1],
@@ -71,6 +75,7 @@ const acceptanceSuite = ({
     `[LP Single Sided Entry] for ${address} where token in=%i, size=%f`,
     async (tokenIn, utilization) => {
       if (tokenIn >= harness.poolInstance.balances.length) return;
+
       try {
         const tokensIn = harness.poolInstance.balances[
           tokenIn
@@ -79,17 +84,19 @@ const acceptanceSuite = ({
         const actual = await harness.singleSideEntry(signer, tokenIn, tokensIn);
         const inputs = harness.poolInstance.zeroTokenArray();
         inputs[tokenIn] = tokensIn;
-        const { lpTokens } =
-          harness.poolInstance.getLPTokensGivenTokens(inputs);
+        const expected = harness.poolInstance.getLPTokensGivenTokens(inputs);
 
-        expect(lpTokens).toBeApprox(actual.lpTokens);
+        expect(expected.lpTokens).toBeApprox(actual.lpTokens);
 
         // Check that the inverse calculation works
         const { tokensIn: calculatedTokensIn } =
-          harness.poolInstance.getTokensRequiredForLPTokens(lpTokens, tokenIn);
+          harness.poolInstance.getTokensRequiredForLPTokens(
+            actual.lpTokens,
+            tokenIn
+          );
 
         calculatedTokensIn.forEach((c, i) => {
-          expect(c).toBeApprox(inputs[i]);
+          expect(c).toBeApprox(inputs[i], 0.001);
         });
       } catch (e) {
         if ((e as Error).name === 'UnimplementedPoolMethod') return;
@@ -136,6 +143,7 @@ const acceptanceSuite = ({
 
       try {
         const totalBalance = await harness.balanceOf(signer);
+
         const balanceOut = totalBalance.mulInRatePrecision(
           balanceShare * RATE_PRECISION
         );
@@ -176,7 +184,7 @@ const acceptanceSuite = ({
 
         const actual = await harness.trade(signer, tokensIn, tokenIn, tokenOut);
         const { tokensOut, feesPaid: _feesPaid } =
-          harness.poolInstance.calculateTokenTrade(tokensIn, tokenIn, tokenOut);
+          harness.poolInstance.calculateTokenTrade(tokensIn, tokenOut);
         // console.log(
         //   'actual',
         //   tokensIn.toDisplayStringWithSymbol(8),

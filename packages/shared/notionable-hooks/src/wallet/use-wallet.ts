@@ -1,47 +1,36 @@
-import { TypedBigNumber } from '@notional-finance/sdk';
-import { useObservableState } from 'observable-hooks';
-import { initialWalletState, walletState$ } from '@notional-finance/notionable';
+import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
+import { useAccountDefinition } from '../account/use-account';
 
-export function useWallet() {
-  const { tokens, walletConnected, walletHasLoaded } = useObservableState(
-    walletState$,
-    initialWalletState
-  );
+export function useWalletAllowances() {
+  const { account } = useAccountDefinition();
 
-  return {
-    tokens,
-    walletConnected,
-    walletHasLoaded,
-  };
-}
-
-export function useWalletBalance() {
-  const hiddenTokens = ['NOTE', 'WETH', 'sNOTE'];
-  const { tokens } = useWallet();
-
-  const enabledTokens = [...tokens.values()].filter((data) => {
-    return data?.allowance.isPositive();
-  });
-  const supportedTokens = [...tokens.values()].filter((data) => {
-    return !hiddenTokens.includes(data.symbol);
-  });
+  const enabledTokens =
+    account?.allowances
+      ?.filter((a) => a.amount.isPositive())
+      .map((a) => a.amount.token) || [];
+  const supportedTokens = account?.allowances?.map((a) => a.amount.token) || [];
   return { enabledTokens, supportedTokens };
 }
 
 export function useWalletBalanceInputCheck(
-  symbol: string | undefined,
-  inputAmount: TypedBigNumber | undefined
+  token: TokenDefinition | undefined,
+  inputAmount: TokenBalance | undefined
 ) {
-  const { tokens } = useWallet();
-  const maxBalance =
-    symbol && tokens && tokens.has(symbol)
-      ? tokens?.get(symbol)?.balance ?? TypedBigNumber.fromBalance(0, symbol, false)
-      : undefined;
-  const allowance = symbol ? tokens?.get(symbol)?.allowance : undefined;
+  const { account } = useAccountDefinition();
+  const maxBalance = token
+    ? account?.balances.find((t) => t.token.id === token?.id) ||
+      TokenBalance.zero(token)
+    : undefined;
+
+  const allowance = token
+    ? account?.allowances?.find((a) => a.amount.tokenId === token?.id)
+        ?.amount || TokenBalance.zero(token)
+    : undefined;
+
   const insufficientBalance =
-    maxBalance && inputAmount && inputAmount.toExternalPrecision().gt(maxBalance);
+    inputAmount && maxBalance ? maxBalance.lt(inputAmount) : false;
   const insufficientAllowance =
-    allowance && inputAmount && inputAmount.toExternalPrecision().gt(allowance);
+    inputAmount && maxBalance ? allowance?.lt(inputAmount) : false;
 
   return {
     maxBalanceString: maxBalance?.toExactString(),
@@ -49,11 +38,4 @@ export function useWalletBalanceInputCheck(
     insufficientBalance,
     insufficientAllowance,
   };
-}
-
-export function useTokenData(symbol: string) {
-  const { tokens } = useWallet();
-  const tokenData = tokens.get(symbol);
-  const enabled = tokenData?.allowance.isPositive() ?? false;
-  return { tokenData, enabled };
 }

@@ -128,12 +128,13 @@ export const CollateralSelect = ({
         warningMsg={warningMsg}
         onChange={({
           selectedToken: newSelectedToken,
-          inputAmount,
+          inputAmount: _inputAmount,
           hasError,
         }) => {
+          throw Error('Unimplemented');
           if (selectedToken !== newSelectedToken)
             onChange(newSelectedToken, undefined, false, undefined, undefined);
-          updateCollateralSelectState({ inputAmount, hasError });
+          updateCollateralSelectState({ inputAmount: undefined, hasError });
         }}
         inputLabel={inputLabel}
       />

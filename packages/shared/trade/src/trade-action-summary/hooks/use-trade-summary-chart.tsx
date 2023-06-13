@@ -3,6 +3,7 @@ import {
   InteractiveAreaChartData,
   ChartToolTipDataProps,
 } from '@notional-finance/mui';
+import { useTheme } from '@mui/material';
 import {
   formatNumberAsPercent,
   getDateString,
@@ -10,23 +11,28 @@ import {
 import { Market } from '@notional-finance/sdk/src/system';
 
 export const useTradeSummaryChart = (markets: Market[]) => {
+  const theme = useTheme();
   let marketData: InteractiveAreaChartData[] = [];
 
   const chartToolTipData: ChartToolTipDataProps = {
     timestamp: {
-      title: (timestamp) => (
+      formatTitle: (timestamp) => (
         <FormattedMessage
-          defaultMessage="Maturity: {date}"
+          defaultMessage="{date}"
           values={{ date: getDateString(timestamp) }}
         />
       ),
     },
     area: {
-      title: (area) => (
-        <FormattedMessage
-          defaultMessage="Fixed Rate: {rate}"
-          values={{ rate: formatNumberAsPercent(area) }}
-        />
+      lineColor: theme.palette.charts.accent,
+      lineType: 'none',
+      formatTitle: (area) => (
+        <span>
+          <FormattedMessage
+            defaultMessage="Fixed Rate: {rate}"
+            values={{ rate: formatNumberAsPercent(area) }}
+          />
+        </span>
       ),
     },
   };
@@ -44,7 +50,7 @@ export const useTradeSummaryChart = (markets: Market[]) => {
   }
 
   const areaHeaderData = {
-    leftHeader: <FormattedMessage defaultMessage={'Yield Curve'} />,
+    textHeader: <FormattedMessage defaultMessage={'Yield Curve'} />,
     legendOne: undefined,
     legendTwo: undefined,
   };

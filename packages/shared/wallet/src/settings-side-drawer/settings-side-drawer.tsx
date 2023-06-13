@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect, Dispatch, SetStateAction } from 'react';
 import { Box, styled, useTheme, Slide } from '@mui/material';
-import { useOnboard } from '@notional-finance/notionable-hooks';
 import {
   SideBarSubHeader,
   Button,
@@ -13,6 +12,7 @@ import {
   SettingsItem,
   useSettingsSideDrawer,
 } from './use-settings-side-drawer';
+import { useConnect } from '../hooks/use-connect';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { defineMessage, FormattedMessage } from 'react-intl';
 
@@ -30,7 +30,7 @@ export const SettingsSideDrawer = ({
   const theme = useTheme();
   const { accountData, transactionData } = useSettingsSideDrawer();
   const { clearWalletSideDrawer } = useSideDrawerManager();
-  const { label, resetWallet, connected } = useOnboard();
+  const { selectedAddress, disconnectWallet } = useConnect();
   const [settingsItem, setSettingsItem] = useState<SettingsItem | null>(null);
 
   useEffect(() => {
@@ -42,10 +42,9 @@ export const SettingsSideDrawer = ({
   }, []);
 
   const handleDisconnect = () => {
-    if (label) {
-      resetWallet(label);
-      clearWalletSideDrawer();
-    }
+    disconnectWallet();
+    clearWalletSideDrawer();
+    window.location.reload();
   };
 
   const handleClick = (data: SettingsItem | null) => {
@@ -123,7 +122,7 @@ export const SettingsSideDrawer = ({
           </SideDrawerButton>
         ))}
       </Box>
-      {connected && (
+      {selectedAddress && (
         <Box
           sx={{
             textAlign: 'center',

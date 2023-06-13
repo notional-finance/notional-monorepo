@@ -14,7 +14,6 @@ export abstract class AbstractLiquidityPool {
    * Calculates an EXACT_IN_SINGLE trade on the liquidity pool
    *
    * @param tokensIn amount of tokens in
-   * @param tokenIndexIn index of tokens in
    * @param tokenIndexOut index of tokens out
    * @param balanceOverrides overrides default balances for ad hoc analysis
    * @returns tokensOut amount of tokens out
@@ -22,7 +21,6 @@ export abstract class AbstractLiquidityPool {
    */
   public abstract calculateTokenTrade(
     tokensIn: TokenBalance,
-    tokenIndexIn: number,
     tokenIndexOut: number,
     balanceOverrides?: TokenBalance[]
   ): {
@@ -41,6 +39,7 @@ export abstract class AbstractLiquidityPool {
   public abstract getLPTokensGivenTokens(tokensIn: TokenBalance[]): {
     lpTokens: TokenBalance;
     feesPaid: TokenBalance[];
+    lpClaims: TokenBalance[];
   };
 
   /**

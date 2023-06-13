@@ -1,5 +1,4 @@
 import { useTheme, Box, styled } from '@mui/material';
-import { useOnboard } from '@notional-finance/notionable-hooks';
 import { ArrowIcon } from '@notional-finance/icons';
 import { SETTINGS_SIDE_DRAWERS } from '@notional-finance/shared-config';
 import { LabelValue } from '@notional-finance/mui';
@@ -7,25 +6,26 @@ import { FormattedMessage } from 'react-intl';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { trackEvent } from '@notional-finance/helpers';
 import { ViewAsAccount } from '../view-as-account/view-as-account';
-import { connectWallet } from '@notional-finance/notionable';
+import { modules } from '../onboard-context';
 import { useWalletSideDrawer } from '../hooks';
 import { useEffect } from 'react';
 import { H4 } from '@notional-finance/mui';
+import { useConnect } from '../hooks/use-connect';
 
 export const ConnectWalletSideDrawer = () => {
   const theme = useTheme();
-  const { modules, connected } = useOnboard();
+  const { connectWallet, selectedAddress } = useConnect();
   const { currentSideDrawerKey } = useWalletSideDrawer();
   const { clearWalletSideDrawer } = useSideDrawerManager();
 
   useEffect(() => {
     if (
-      connected &&
+      selectedAddress &&
       SETTINGS_SIDE_DRAWERS.CONNECT_WALLET === currentSideDrawerKey
     ) {
       clearWalletSideDrawer();
     }
-  }, [connected, currentSideDrawerKey, clearWalletSideDrawer]);
+  }, [selectedAddress, currentSideDrawerKey, clearWalletSideDrawer]);
 
   const handleConnectWallet = (label: string) => {
     connectWallet(label);
@@ -54,7 +54,7 @@ export const ConnectWalletSideDrawer = () => {
                   }}
                 >
                   <img
-                    src={`data:image/svg+xml;utf8,${encodeURIComponent(icon)}`}
+                    src={icon}
                     style={{ height: '35px', width: '35px' }}
                     alt="wallet icon"
                   />

@@ -150,7 +150,7 @@ export default class NotionalV3Liquidator {
           ).gte(this.settings.dustThreshold)
       );
 
-    return accounts.map((a, i) => {
+    return accounts.map((a) => {
       const netUnderlyingAvailable = new Map<number, BigNumber>();
       const balances = results[`${a.id}:account`][1].filter((b) => b[0] !== 0);
       const portfolio = results[`${a.id}:account`][2];
@@ -187,7 +187,6 @@ export default class NotionalV3Liquidator {
     ra: RiskyAccount
   ): Promise<FlashLiquidation[]> {
     const liquidations = this.liquidationHelper.getPossibleLiquidations(ra);
-
     const calls = liquidations.map((liq) =>
       liq.getFlashLoanAmountCall(this.notionalContract, ra.id)
     );
@@ -196,7 +195,7 @@ export default class NotionalV3Liquidator {
 
     return await this.profitCalculator.sortByProfitability(
       liquidations
-        .map((liq, i) => {
+        .map((liq) => {
           const flashLoanAmount = this.toExternal(
             results[
               `${ra.id}:${liq.getLiquidationType()}:${
@@ -227,7 +226,7 @@ export default class NotionalV3Liquidator {
       data: encodedTransaction,
     });
 
-    const resp = await fetch(this.settings.txRelayUrl + '/v1/txes/0', {
+    await fetch(this.settings.txRelayUrl + '/v1/txes/0', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -235,7 +234,6 @@ export default class NotionalV3Liquidator {
       },
       body: payload,
     });
-    console.log(JSON.stringify(resp));
 
     await submitEvent({
       aggregation_key: DDEventKey.AccountLiquidated,

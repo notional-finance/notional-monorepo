@@ -64,10 +64,7 @@ export default class MetaStablePool extends BaseLiquidityPool<MetaStablePoolPara
       .map((b, i) => b.mulDown(this.poolParams.scalingFactors[i]));
   }
 
-  public getLPTokensGivenTokens(tokensIn: TokenBalance[]): {
-    lpTokens: TokenBalance;
-    feesPaid: TokenBalance[];
-  } {
+  public getLPTokensGivenTokens(tokensIn: TokenBalance[]) {
     const balances = this.getScaledBalances();
     const invariant = this.calculateInvariant(
       this.poolParams.amplificationParameter,
@@ -92,11 +89,18 @@ export default class MetaStablePool extends BaseLiquidityPool<MetaStablePoolPara
       FixedPoint.convert(this.totalSupply),
       this.poolParams.swapFeePercentage,
       invariant
+    ).convertTo(this.totalSupply);
+
+    const lpClaims = this.getLPTokenClaims(
+      lpTokens,
+      balancesWithoutFees.map((b, i) => b.convertTo(this.balances[i])),
+      this.totalSupply.add(lpTokens)
     );
 
     return {
-      lpTokens: lpTokens.convertTo(this.totalSupply),
+      lpTokens,
       feesPaid: feesPaid.map((f, i) => f.convertTo(this.balances[i])),
+      lpClaims,
     };
   }
 
@@ -149,13 +153,13 @@ export default class MetaStablePool extends BaseLiquidityPool<MetaStablePoolPara
 
   public calculateTokenTrade(
     tokensIn: TokenBalance,
-    tokenIndexIn: number,
     tokenIndexOut: number,
     balanceOverrides?: TokenBalance[]
   ): {
     tokensOut: TokenBalance;
     feesPaid: TokenBalance[];
   } {
+    const tokenIndexIn = this.getTokenIndex(tokensIn.token);
     const balances = this.getScaledBalances(balanceOverrides);
 
     const invariant = this.calculateInvariant(

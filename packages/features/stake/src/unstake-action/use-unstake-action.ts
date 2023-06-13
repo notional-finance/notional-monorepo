@@ -1,4 +1,3 @@
-import { useWalletBalanceInputCheck } from '@notional-finance/notionable-hooks';
 import { StakedNote } from '@notional-finance/sdk/src/staking';
 import { tradeErrors } from '@notional-finance/trade';
 import { useObservableState } from 'observable-hooks';
@@ -7,13 +6,15 @@ import { accountCoolDown$, sNoteAmount$ } from './unstake-manager';
 export const useUnstakeAction = () => {
   const accountCoolDown = useObservableState(accountCoolDown$);
   const sNoteAmount = useObservableState(sNoteAmount$);
-  const { insufficientBalance, maxBalance: maxSNoteAmount } = useWalletBalanceInputCheck(
-    'sNOTE',
-    sNoteAmount
-  );
+  const insufficientBalance = true;
+  const maxSNoteAmount = sNoteAmount?.copy(0);
+  // const { insufficientBalance, maxBalance: maxSNoteAmount } =
+  //   useWalletBalanceInputCheck(sNoteAmount);
 
-  const balanceError = insufficientBalance === true ? tradeErrors.insufficientBalance : undefined;
-  const maxRedemptionValue = maxSNoteAmount && StakedNote.getRedemptionValue(maxSNoteAmount);
+  const balanceError =
+    insufficientBalance === true ? tradeErrors.insufficientBalance : undefined;
+  const maxRedemptionValue = undefined;
+  // maxSNoteAmount && StakedNote.getRedemptionValue(maxSNoteAmount);
   const redemptionValue = sNoteAmount
     ? StakedNote.getRedemptionValue(sNoteAmount)
     : maxRedemptionValue;

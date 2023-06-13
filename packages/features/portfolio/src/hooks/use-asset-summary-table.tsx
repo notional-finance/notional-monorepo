@@ -101,7 +101,7 @@ export const useAssetSummaryTable = (borrowOrLend: LEND_BORROW) => {
 
   const formatMaturities = (maturities: MaturityData[]) => {
     return maturities.map((data) => ({
-      marketKey: data.marketKey,
+      marketKey: data.fCashId,
       maturity: formatMaturity(data.maturity),
       tradeRateString: data.tradeRateString,
       rollMaturityRoute: data.rollMaturityRoute,

@@ -1,5 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { BigNumber, BigNumberish, ContractTransaction } from 'ethers';
+import {
+  BigNumber,
+  BigNumberish,
+  ContractTransaction,
+  PopulatedTransaction,
+} from 'ethers';
 import { TradeHistory, TypedBigNumber } from '@notional-finance/sdk';
 import {
   NOTESummary,
@@ -116,7 +121,7 @@ export interface CalculateTradedRatesResult {
 }
 
 export interface MaturityData {
-  marketKey: string;
+  fCashId: string;
   tradeRate: number | undefined;
   maturity: number;
   hasLiquidity: boolean;
@@ -130,7 +135,19 @@ export interface MaturityData {
 export interface Hashable {
   hashKey: string;
 }
+
+export interface ID {
+  id: string;
+}
+
 export interface NotionalError extends Error {
   msgId?: string;
   code?: number;
+}
+
+// @todo resolve this circular dependency by getting rid of notionable from shared-trade
+export interface TransactionFunction {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  transactionFn: (...args: any) => Promise<PopulatedTransaction>;
+  transactionArgs: unknown[];
 }

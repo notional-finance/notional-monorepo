@@ -20,6 +20,16 @@ const WHALES: Record<Network, string[][]> = {
       '0x0F13fb925eDC3E1FE947209010d9c0E072986ADc',
       '0xd74e7325dfab7d7d1ecbf22e6e6874061c50f243',
     ],
+    // wstETH
+    [
+      '0x5979D7b546E38E414F7E9822514be443A4800529',
+      '0xd090d2c8475c5ebdd1434a48897d81b9aaa20594',
+    ],
+    // Curve.fi ETH/wstETH
+    [
+      '0xDbcD16e622c95AcB2650b38eC799f76BFC557a0b',
+      '0x098EF55011B6B8c99845128114A9D9159777d697',
+    ],
   ],
   [Network.Mainnet]: [
     // WETH
@@ -31,6 +41,16 @@ const WHALES: Record<Network, string[][]> = {
     [
       '0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0',
       '0x67c89126fb7E793a2FaC54e0C4bD8baA53395767',
+    ],
+    // cbETH
+    [
+      '0xBe9895146f7AF43049ca1c1AE358B0541Ea49704',
+      '0xDAB318da469a6eAd6B558cB1E33Fc63FD3a3e959',
+    ],
+    // cbETH/ETH-f
+    [
+      '0x5b6C539b224014A09B3388e51CaAA8e354c959C8',
+      '0xAd96E10123Fa34a01cf2314C42D75150849C9295',
     ],
   ],
   [Network.All]: [],
@@ -137,7 +157,7 @@ expect.extend(tokenBalanceMatchers);
         done();
       } else {
         provider.send('anvil_dumpState', []).then((s) => {
-          fs.writeFileSync(`${__dirname}/anvil_state.json`, s);
+          // fs.writeFileSync(`${__dirname}/anvil_state.json`, s);
           done();
         });
       }

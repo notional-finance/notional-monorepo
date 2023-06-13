@@ -29,7 +29,9 @@ type AdjList = Map<string, Map<string, Node>>;
 const UNIT_RATE = 'UNIT_RATE';
 
 export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
-  protected cachePath = Routes.Oracles;
+  protected cachePath() {
+    return Routes.Oracles;
+  }
 
   protected adjLists = new Map<Network, AdjList>();
   private _adjListSubscription: Subscription;

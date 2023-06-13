@@ -3,33 +3,12 @@ import {
   getNetworkIdFromHostname,
 } from '@notional-finance/util';
 import { initializeNotional } from '../notional/notional-manager';
-import {
-  initializeOnboard,
-  connectWallet,
-  setChain,
-} from '../onboard/onboard-manager';
-import { OnboardOptions } from '../types';
 import { chainIds as supportedChainIds, chainEntities } from '../chains';
 
-export async function initializeNetwork({
-  enableAccountCenter = false,
-  container = '#root',
-}: OnboardOptions) {
+export async function initializeNetwork() {
   try {
-    // Initialize onboard
-    await initializeOnboard({
-      enableAccountCenter,
-      container,
-    });
-
-    // attempt to load selectedNetwork from localStorage
-    const wallet = getFromLocalStorage('selectedWallet');
-
     const chainId = getDefaultNetwork();
     await initializeNotional(chainId);
-    if (wallet && typeof wallet === 'string') {
-      await connectWallet(wallet);
-    }
   } catch (e) {
     throw new Error('Failed to initialize network');
   }
@@ -40,10 +19,7 @@ export async function switchNetwork(id: string | number) {
   try {
     const chainSupported = supportedChainIds.includes(chainId);
     if (chainSupported) {
-      const walletConnected = await setChain(chainId);
-      if (!walletConnected) {
-        initializeNotional(chainId);
-      }
+      initializeNotional(chainId);
     } else {
       throw new Error('Unsupported Chain');
     }

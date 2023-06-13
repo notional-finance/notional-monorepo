@@ -1,4 +1,4 @@
-import { RATE_PRECISION } from '@notional-finance/sdk/src/config/constants';
+import { RATE_PRECISION } from '@notional-finance/util';
 import { BigNumber, ethers } from 'ethers';
 
 const allCommas = /,{1}/g;
@@ -16,7 +16,8 @@ export function formatLeverageRatio(ratio: number, digits = 3) {
 }
 
 export function formatNumber(num: string | number, digits = 4) {
-  const cleanedNumber = typeof num === 'string' ? num.replace(allCommas, '') : num;
+  const cleanedNumber =
+    typeof num === 'string' ? num.replace(allCommas, '') : num;
 
   return parseFloat(`${cleanedNumber}`).toLocaleString('en-US', {
     minimumFractionDigits: digits,
@@ -29,11 +30,16 @@ export function formatNumberAsPercent(num: number | string, digits = 2) {
 }
 
 export function formatNumberAsInteger(num: number | string) {
-  const cleanedNumber = typeof num === 'string' ? num.replace(allCommas, '') : num;
+  const cleanedNumber =
+    typeof num === 'string' ? num.replace(allCommas, '') : num;
 
   return parseInt(`${cleanedNumber}`, 10).toLocaleString('en-US');
 }
 
-export function formatBigNumberToDecimals(bigNumber: BigNumber, decimals: number, digits = 4) {
+export function formatBigNumberToDecimals(
+  bigNumber: BigNumber,
+  decimals: number,
+  digits = 4
+) {
   return formatNumber(ethers.utils.formatUnits(bigNumber, decimals), digits);
 }

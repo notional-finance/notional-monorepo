@@ -55,9 +55,6 @@ export default class ProfitCalculator {
     }
 
     const fetchUrl = zeroExUrl + '?' + queryParams;
-
-    console.log(fetchUrl);
-
     const resp = await fetch(fetchUrl, {
       headers: {
         '0x-api-key': this.settings.zeroExApiKey,

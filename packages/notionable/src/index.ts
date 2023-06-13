@@ -19,9 +19,6 @@ export * from './network/network-manager';
 export * from './notional/notional-manager';
 export * from './notional/notional-store';
 
-export * from './onboard/onboard-manager';
-export * from './onboard/onboard-store';
-
 export * from './wallet/wallet-manager';
 export * from './wallet/wallet-store';
 
@@ -30,3 +27,8 @@ export * from './chains';
 export * from './utils';
 
 export * from './notionable.config';
+export * from './global/global-state';
+export * from './global/global-manager';
+
+export * from './base-trade/base-trade-store';
+export * from './base-trade/base-trade-manager';

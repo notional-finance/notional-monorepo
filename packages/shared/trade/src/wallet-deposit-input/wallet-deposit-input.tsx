@@ -1,21 +1,22 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Box } from '@mui/material';
 import {
   CurrencyInput,
   CurrencyInputHandle,
   InputLabel,
 } from '@notional-finance/mui';
-import { useCurrencyData } from '@notional-finance/notionable-hooks';
-import { TypedBigNumber } from '@notional-finance/sdk';
-import { useEffect, useState } from 'react';
 import { FormattedMessage, MessageDescriptor } from 'react-intl';
 import { useWalletDeposit } from './use-wallet-deposit';
+import { TokenBalance } from '@notional-finance/core-entities';
+
+// TODO: in the future, we may be able to replace all the props with just taking a
+// context object
 
 export interface WalletDepositChange {
   selectedToken: string | null;
-  inputAmount: TypedBigNumber | undefined;
+  inputAmount: TokenBalance | undefined;
   hasError: boolean;
-  maxBalance: TypedBigNumber | undefined;
+  maxBalance: TokenBalance | undefined;
 }
 
 interface WalletDepositInputProps {
@@ -51,10 +52,14 @@ export const WalletDepositInput = React.forwardRef<
     },
     ref
   ) => {
-    const [inputString, setInputString] = useState<string>('');
-    const { decimalPlaces } = useCurrencyData(selectedToken);
-    const { inputAmount, maxBalance, maxBalanceString, errorMsg } =
-      useWalletDeposit(selectedToken, inputString);
+    const {
+      inputAmount,
+      maxBalance,
+      maxBalanceString,
+      errorMsg,
+      decimalPlaces,
+      setInputString,
+    } = useWalletDeposit(selectedToken);
     const error = errorMsgOverride || errorMsg;
 
     useEffect(() => {

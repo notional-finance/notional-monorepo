@@ -34,9 +34,9 @@ export const DepositCollateral = () => {
           inputRef={currencyInputRef}
           availableTokens={[primaryBorrowSymbol]}
           selectedToken={primaryBorrowSymbol}
-          onChange={({ inputAmount, hasError }) => {
+          onChange={({ hasError }) => {
             updateState({
-              depositAmount: inputAmount,
+              // depositAmount: inputAmount,
               hasError,
             });
           }}

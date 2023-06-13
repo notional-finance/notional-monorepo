@@ -1,49 +1,28 @@
-import { useEffect } from 'react';
+import { useContext } from 'react';
 import {
-  TransactionConfirmation,
   TradeActionButton,
-  TokenApprovalView,
-  WalletDepositInput,
-  TradePropertiesGrid,
+  DepositInput,
+  Confirmation2,
 } from '@notional-finance/trade';
-import {
-  PageLoading,
-  ActionSidebar,
-  useCurrencyInputRef,
-} from '@notional-finance/mui';
-import { useCurrency } from '@notional-finance/notionable-hooks';
-import { useHistory, useLocation } from 'react-router-dom';
+import { ActionSidebar, useCurrencyInputRef } from '@notional-finance/mui';
 import { defineMessage, FormattedMessage } from 'react-intl';
-import { useLiquidity } from '../store/use-liquidity';
-import { updateLiquidityState } from '../store/liquidity-store';
-import { useLiquidityTransaction } from '../store/use-liquidity-transaction';
+import { LiquidityContext } from '../liquidity-action';
 
 export const LiquiditySidebar = () => {
-  const { selectedToken, tradeProperties, canSubmit } = useLiquidity();
-  const { tradableCurrencySymbols: availableCurrencies } = useCurrency();
-  const { pathname, search } = useLocation();
-  const history = useHistory();
-  const txnData = useLiquidityTransaction();
+  const {
+    state: { canSubmit, populatedTransaction, confirm },
+  } = useContext(LiquidityContext);
   const { currencyInputRef } = useCurrencyInputRef();
 
-  useEffect(() => {
-    if (search.includes('confirm=true')) {
-      history.push(pathname);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  return txnData ? (
-    <TransactionConfirmation
+  return confirm && populatedTransaction ? (
+    <Confirmation2
       heading={
         <FormattedMessage
           defaultMessage={'Provide Liquidity'}
           description="section heading"
         />
       }
-      onCancel={() => history.push(pathname)}
-      transactionProperties={txnData.transactionProperties}
-      buildTransactionCall={txnData.buildTransactionCall}
+      context={LiquidityContext}
     />
   ) : (
     <ActionSidebar
@@ -60,32 +39,17 @@ export const LiquiditySidebar = () => {
       CustomActionButton={TradeActionButton}
       canSubmit={canSubmit}
     >
-      {availableCurrencies.length && selectedToken ? (
-        <WalletDepositInput
-          ref={currencyInputRef}
-          inputRef={currencyInputRef}
-          availableTokens={availableCurrencies}
-          selectedToken={selectedToken}
-          onChange={({
-            selectedToken: newSelectedToken,
-            inputAmount,
-            hasError,
-          }) => {
-            // Will update the route and the parent component will update the store
-            if (newSelectedToken !== selectedToken)
-              history.push(`/provide/${newSelectedToken}`);
-            updateLiquidityState({ inputAmount, hasError });
-          }}
-          inputLabel={defineMessage({
-            defaultMessage: '1. How much liquidity do you want to provide?',
-            description: 'input label',
-          })}
-        />
-      ) : (
-        <PageLoading />
-      )}
-      <TradePropertiesGrid showBackground data={tradeProperties} />
-      <TokenApprovalView />
+      <DepositInput
+        ref={currencyInputRef}
+        inputRef={currencyInputRef}
+        context={LiquidityContext}
+        newRoute={(newToken) => `/provide/${newToken}`}
+        inputLabel={defineMessage({
+          defaultMessage: '1. How much liquidity do you want to provide?',
+          description: 'input label',
+        })}
+      />
+      {/* <TradePropertiesGrid showBackground data={tradeProperties || {}} /> */}
     </ActionSidebar>
   );
 };

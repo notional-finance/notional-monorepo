@@ -8,11 +8,10 @@ import {
   filter,
   OperatorFunction,
   Observable,
-  merge,
   distinctUntilChanged,
   pipe,
 } from 'rxjs';
-import { Hashable } from './types';
+import { Hashable, ID } from './types';
 
 export function makeStore<StateType>(initialState: StateType) {
   const _store = new BehaviorSubject(initialState);
@@ -54,31 +53,19 @@ export function requireKeysDefined<T, K extends keyof T>(...keys: K[]) {
   }) as unknown as OperatorFunction<T, RequiredKeys<T, typeof keys[number]>>;
 }
 
-// Converts an object of observables to emitting partial state updates for a store
-export function mergeEmitKeys<T>(observables: {
-  [P in keyof T]?: Observable<T[P]>;
-}) {
-  const keys = Object.keys(observables) as [keyof T];
-  const keyedObservables = keys
-    .map((k) => {
-      return observables[k]?.pipe(
-        map((v) => {
-          return { [k]: v };
-        })
-      );
-    })
-    .filter((o) => o !== undefined);
-
-  return merge(...(keyedObservables as NonNullable<typeof keyedObservables>));
-}
-
-function isHashable(o: any): o is Hashable {
+export function isHashable(o: unknown): o is Hashable {
   return !!o && typeof o === 'object' && 'hashKey' in o;
 }
 
-function compareWithHashable(prev: any, cur: any) {
+export function isID(o: unknown): o is ID {
+  return !!o && typeof o === 'object' && 'id' in o;
+}
+
+function compareWithHashable(prev: unknown, cur: unknown) {
   if (isHashable(prev) && isHashable(cur)) {
     return prev.hashKey === cur.hashKey;
+  } else if (isID(prev) && isID(cur)) {
+    return prev.id === cur.id;
   } else {
     return Object.is(prev, cur);
   }

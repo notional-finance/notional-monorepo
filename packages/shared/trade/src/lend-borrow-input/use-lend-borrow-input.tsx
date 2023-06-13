@@ -4,7 +4,6 @@ import {
   useNotional,
   useAccount,
   useCurrencyData,
-  useTokenData,
   useAccountCashBalance,
 } from '@notional-finance/notionable-hooks';
 import { Asset, AssetType, TypedBigNumber } from '@notional-finance/sdk';
@@ -25,9 +24,8 @@ export function useLendBorrowInput(
   const { accountDataCopy, assetSummary } = useAccount();
   const selectedMarket = useSelectedMarket(selectedMarketKey);
   const { isUnderlying } = useCurrencyData(selectedToken);
-  const { tokenData } = useTokenData(selectedToken);
-  const walletBalance = tokenData?.balance.toInternalPrecision();
   const accountCashBalance = useAccountCashBalance(selectedToken);
+  const walletBalance = accountCashBalance?.copy(0);
 
   const inputAmount =
     inputString && notional

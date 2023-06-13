@@ -42,7 +42,7 @@ export default {
   async fetch(
     request: Request,
     env: Env,
-    ctx: ExecutionContext
+    _: ExecutionContext
   ): Promise<Response> {
     const id = env.ACCOUNT_CACHE.idFromName('ACCOUNT_CACHE');
     const stub = env.ACCOUNT_CACHE.get(id);
@@ -52,7 +52,7 @@ export default {
   async scheduled(
     controller: ScheduledController,
     env: Env,
-    ctx: ExecutionContext
+    _: ExecutionContext
   ): Promise<void> {
     const id = env.ACCOUNT_CACHE.idFromName('ACCOUNT_CACHE');
     const stub = env.ACCOUNT_CACHE.get(id);

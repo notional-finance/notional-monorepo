@@ -11,28 +11,34 @@ import { NOTIONAL_CATEGORIES } from '@notional-finance/shared-config';
 import { MobileTradeActionSummary } from '@notional-finance/trade';
 import { LiquidityFaq } from './liquidity-faq';
 import { FormattedMessage } from 'react-intl';
-import { useLiquidity } from '../store/use-liquidity';
+import { useContext } from 'react';
+import { LiquidityContext } from '../liquidity-action';
 
 export const LiquiditySummary = () => {
   const theme = useTheme();
-  const { nTokenSymbol, loading, totalYield, blendedYield, incentiveYield } =
-    useLiquidity();
+  const {
+    state: { collateral, isReady },
+  } = useContext(LiquidityContext);
+
+  const totalYield = 0;
+  const blendedYield = 0;
+  const incentiveYield = 0;
 
   return (
     <>
       <TradeSummaryContainer>
-        {loading ? (
-          <PageLoading></PageLoading>
+        {!isReady ? (
+          <PageLoading />
         ) : (
           <>
             <Box sx={{ marginLeft: theme.spacing(2) }}>
               <TradeActionHeader
-                token={nTokenSymbol || ''}
+                token={collateral?.symbol || ''}
                 actionText={<FormattedMessage defaultMessage={'Mint'} />}
               />
 
               <TradeActionTitle
-                value={totalYield}
+                value={0}
                 valueSuffix="%"
                 title={<FormattedMessage defaultMessage="Total APY" />}
               />
@@ -83,9 +89,10 @@ export const LiquiditySummary = () => {
           <LiquidityFaq />
         </Box>
       </TradeSummaryContainer>
+      {/* @matthew-garrett can we put this entire thing inside the isReady container? */}
       <MobileTradeActionSummary
         tradeAction={NOTIONAL_CATEGORIES.PROVIDE_LIQUIDITY}
-        selectedToken={nTokenSymbol || ''}
+        selectedToken={collateral?.symbol || ''}
         dataPointOne={blendedYield}
         dataPointOneSuffix="% APY"
         dataPointTwo={incentiveYield}

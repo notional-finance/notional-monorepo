@@ -4,3 +4,4 @@
 /coverage
 .github
 /packages/contracts/src/types
+/packages/transaction/src/parser/bundle.ts

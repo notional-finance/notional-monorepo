@@ -2,7 +2,7 @@ import { defineMessage, FormattedMessage, MessageDescriptor } from 'react-intl';
 import { NotionalTheme } from '@notional-finance/styles';
 import { useTheme, styled } from '@mui/material';
 import { Button } from '@notional-finance/mui';
-import { useAccount, useOnboard } from '@notional-finance/notionable-hooks';
+import { useAccountReady } from '@notional-finance/notionable-hooks';
 import { SETTINGS_SIDE_DRAWERS } from '@notional-finance/shared-config';
 import {
   useSideDrawerState,
@@ -53,8 +53,7 @@ export function TradeActionButton({
   margin,
 }: TradeActionButtonProps) {
   const theme = useTheme();
-  const { accountConnected } = useAccount();
-  const { connected } = useOnboard();
+  const isAccountReady = useAccountReady();
   const { sideDrawerOpen } = useSideDrawerState();
   const { setWalletSideDrawer, clearWalletSideDrawer } = useSideDrawerManager();
   const { pathname } = useLocation();
@@ -92,12 +91,12 @@ export function TradeActionButton({
       width={width}
       margin={margin}
       variant={buttonVariant || 'contained'}
-      disabled={!canSubmit && connected}
-      canSubmit={canSubmit || !connected}
-      onClick={accountConnected ? _onSubmit : () => handleConnectWallet()}
+      disabled={!canSubmit && isAccountReady}
+      canSubmit={canSubmit || !isAccountReady}
+      onClick={isAccountReady ? _onSubmit : () => handleConnectWallet()}
     >
       <FormattedMessage
-        {...(accountConnected
+        {...(isAccountReady
           ? buttonTextWalletConnected
           : buttonTextWalletNotConnected)}
       />

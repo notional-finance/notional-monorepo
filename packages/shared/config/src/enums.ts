@@ -112,6 +112,7 @@ export enum NAV_DROPDOWN {
 export enum CHAIN_NAMES {
   GOERLI = 'Goerli',
   MAINNET = 'Mainnet',
+  ARBITRUM = 'Arbitrum',
 }
 
 export enum THEME_VARIANTS {
