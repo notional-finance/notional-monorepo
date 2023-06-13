@@ -47,11 +47,11 @@ export const useConnect = () => {
     updateNotional({ wallet: undefined });
   }, [disconnect, currentLabel, updateNotional]);
 
-  useEffect(() => {
+  useEffect(() => { 
     if(wallet?.accounts && wallet?.accounts.length > 1){
       disconnectWallet()
     }
-  },[wallet, disconnectWallet, currentLabel])
+  },[wallet, disconnectWallet])
 
   // Listens for wallet changes and sets the primary wallet as well as sends the
   // addresses to the Notional global state
