@@ -131,7 +131,7 @@ interface InitState {
   availableDebtTokens?: TokenDefinition[];
 }
 
-interface BaseTradeState
+export interface BaseTradeState
   extends Record<string, unknown>,
     InitState,
     UserInputs,

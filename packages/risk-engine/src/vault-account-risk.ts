@@ -10,6 +10,7 @@ import {
   unique,
 } from '@notional-finance/util';
 import { BaseRiskProfile } from './base-risk';
+import { SymbolOrID } from './types';
 
 export class VaultAccountRiskProfile extends BaseRiskProfile {
   static empty(network: Network, vaultAddress: string, maturity: number) {
@@ -38,6 +39,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
 
   public vaultAddress: string;
   public vaultShareDefinition: TokenDefinition;
+  public discountFCash: boolean;
 
   /** Takes a set of token balances to create a new account risk profile */
   constructor(_balances: TokenBalance[]) {
@@ -95,6 +97,10 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
 
     this.vaultShareDefinition = vaultShares.token;
     this.vaultAddress = vaultAddress[0] as string;
+    this.discountFCash = config.getVaultDiscountFCash(
+      vaultShares.network,
+      this.vaultAddress
+    );
   }
 
   get vaultShares() {
@@ -116,7 +122,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
           .find(
             (t) => t.token.currencyId === id && t.token.tokenType == 'VaultDebt'
           )
-          // TODO: this does not work...check disount to pv here..
+          // TODO: this does not work...check discount to pv here as configuration
           ?.toUnderlying() || zeroUnderlying;
 
       const cash =
@@ -197,6 +203,10 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     throw new Error('Method not implemented.');
   }
 
+  netCollateralAvailable(_collateral: SymbolOrID): TokenBalance {
+    throw new Error('Method not implemented.');
+  }
+
   leverageRatio() {
     const collateralRatio = this.collateralRatio();
     if (collateralRatio) {
@@ -205,5 +215,4 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
       return null;
     }
   }
-
 }

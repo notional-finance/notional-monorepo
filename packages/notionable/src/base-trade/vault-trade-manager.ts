@@ -1,9 +1,9 @@
 import { merge, Observable } from 'rxjs';
 import { GlobalState } from '../global/global-state';
 import {
-  BaseTradeState,
   initialBaseTradeState,
   TransactionConfig,
+  VaultTradeState,
 } from './base-trade-store';
 import {
   resetOnNetworkChange,
@@ -19,43 +19,41 @@ import {
   postAccountRisk,
   availableTokens,
   buildTransaction,
+  selectedVaultPool,
 } from './logic';
 
-export function createBaseTradeManager(
+export function createVaultTradeManager(
   config: TransactionConfig
 ): (
-  state$: Observable<BaseTradeState>,
+  state$: Observable<VaultTradeState>,
   global$: Observable<GlobalState>
-) => Observable<Partial<BaseTradeState>> {
+) => Observable<Partial<VaultTradeState>> {
   return (
-    state$: Observable<BaseTradeState>,
+    state$: Observable<VaultTradeState>,
     global$: Observable<GlobalState>
-  ): Observable<Partial<BaseTradeState>> => {
+  ): Observable<Partial<VaultTradeState>> => {
     // Shared Observables
     const network$ = selectedNetwork(global$);
     const account$ = selectedAccount(global$);
     const debtPool$ = selectedPool('Debt', state$, network$);
-    const collateralPool$ = selectedPool('Collateral', state$, network$);
+    const vaultPool$ = selectedVaultPool(state$, network$);
 
-    // Emitted State Changes, these need to be ordered in REVERSE dependency
-    // order. The first method to emit should be listed last so that dependent
-    // observables can create their subscription prior to the upstream observable
-    // emits.
+    // Emitted State Changes
     return merge(
-      buildTransaction(state$, account$, config),
-      postAccountRisk(state$, account$),
-      calculate(state$, debtPool$, collateralPool$, account$, config),
-      parseRiskFactorLimit(state$, network$),
+      resetOnNetworkChange(global$, initialBaseTradeState),
+      initState(state$, network$),
+      availableTokens(state$, network$, account$, config),
+      //priorAccountRisk(account$),
       selectedToken('Deposit', state$, network$),
       parseBalance('Deposit', state$),
       selectedToken('Collateral', state$, network$),
       parseBalance('Collateral', state$),
       selectedToken('Debt', state$, network$),
       parseBalance('Debt', state$),
-      priorAccountRisk(account$),
-      availableTokens(state$, network$, account$, config),
-      initState(state$, network$),
-      resetOnNetworkChange(global$, initialBaseTradeState)
+      parseRiskFactorLimit(state$, network$),
+      //calculate(state$, debtPool$, vaultPool$, account$, config),
+      //postAccountRisk(state$, account$),
+      buildTransaction(state$, account$, config)
     );
   };
 }

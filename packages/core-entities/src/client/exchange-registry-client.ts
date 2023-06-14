@@ -5,10 +5,18 @@ import { PoolDefinition } from '..';
 import { ClientRegistry } from './client-registry';
 import { Routes } from '../server';
 import { ethers } from 'ethers';
+import { vaultPool } from '../exchanges/vault-pool';
 
 export class ExchangeRegistryClient extends ClientRegistry<PoolDefinition> {
   protected cachePath() {
     return Routes.Exchanges;
+  }
+
+  public subscribePoolForVault(network: Network, vaultAddress: string) {
+    const { address: poolAddress } = vaultPool[network][vaultAddress];
+    return poolAddress !== undefined
+      ? this.subscribePoolInstance(network, poolAddress)
+      : undefined;
   }
 
   public subscribePoolInstance<T extends BaseLiquidityPool<unknown>>(

@@ -33,6 +33,7 @@ import {
   BaseTradeState,
   InputAmount,
   TransactionConfig,
+  VaultTradeState,
 } from './base-trade-store';
 
 type Category = 'Collateral' | 'Debt' | 'Deposit';
@@ -224,6 +225,30 @@ export function selectedToken(
         deposit: TokenDefinition | undefined;
       };
     })
+  );
+}
+export function selectedVaultPool(
+  state$: Observable<VaultTradeState>,
+  selectedNetwork$: ReturnType<typeof selectedNetwork>
+) {
+  return state$.pipe(
+    map((s) => s.vaultAddress),
+    distinctUntilChanged(),
+    filterEmpty(),
+    withLatestFrom(selectedNetwork$),
+    switchMap(([vaultAddress, network]) => {
+      try {
+        return (
+          Registry.getExchangeRegistry().subscribePoolForVault(
+            network,
+            vaultAddress
+          ) || of(undefined)
+        );
+      } catch {
+        return of(undefined);
+      }
+    }),
+    startWith(undefined)
   );
 }
 

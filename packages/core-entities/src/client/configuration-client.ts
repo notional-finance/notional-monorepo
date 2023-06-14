@@ -33,6 +33,11 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
     return vaultConfig;
   }
 
+  getVaultDiscountFCash(network: Network, vaultAddress: string) {
+    const config = this.getVaultConfig(network, vaultAddress);
+    return config.discountfCash;
+  }
+
   getValidVaultCurrencies(network: Network, vaultAddress: string) {
     const vaultConfig = this.getVaultConfig(network, vaultAddress);
     const tokens = Registry.getTokenRegistry();
