@@ -105,70 +105,76 @@ export function availableTokens(
 ) {
   return combineLatest([state$, selectedNetwork$, account$]).pipe(
     filter(([{ isReady }]) => isReady),
-    map(([s, selectedNetwork, account]) => {
-      const listedTokens =
-        Registry.getTokenRegistry().getAllTokens(selectedNetwork);
+    switchMap(([s, selectedNetwork, account]) => {
+      return new Promise((resolve) => {
+        Registry.getTokenRegistry().onNetworkRegistered(selectedNetwork, () => {
+          const listedTokens =
+            Registry.getTokenRegistry().getAllTokens(selectedNetwork);
 
-      const availableCollateralTokens = listedTokens
-        .filter(
-          (t) =>
-            t.tokenType === 'PrimeCash' ||
-            t.tokenType === 'nToken' ||
-            (t.tokenType === 'fCash' &&
-              t.isFCashDebt === false &&
-              (t.maturity || 0) > getNowSeconds())
-        )
-        .filter((t) =>
-          collateralFilter ? collateralFilter(t, account, s) : true
-        );
+          const availableCollateralTokens = listedTokens
+            .filter(
+              (t) =>
+                t.tokenType === 'PrimeCash' ||
+                t.tokenType === 'nToken' ||
+                (t.tokenType === 'fCash' &&
+                  t.isFCashDebt === false &&
+                  (t.maturity || 0) > getNowSeconds())
+            )
+            .filter((t) =>
+              collateralFilter ? collateralFilter(t, account, s) : true
+            );
 
-      const availableDebtTokens = listedTokens
-        .filter(
-          (t) =>
-            t.tokenType === 'PrimeDebt' ||
-            (t.tokenType === 'fCash' &&
-              t.isFCashDebt === true &&
-              (t.maturity || 0) > getNowSeconds())
-        )
-        .filter((t) => (debtFilter ? debtFilter(t, account, s) : true));
+          const availableDebtTokens = listedTokens
+            .filter(
+              (t) =>
+                t.tokenType === 'PrimeDebt' ||
+                (t.tokenType === 'fCash' &&
+                  t.isFCashDebt === true &&
+                  (t.maturity || 0) > getNowSeconds())
+            )
+            .filter((t) => (debtFilter ? debtFilter(t, account, s) : true));
 
-      const availableDepositTokens = listedTokens
-        .filter((t) => t.tokenType === 'Underlying')
-        // By default we only allow tokens with a currency id specified (i.e. they are listed
-        // on Notional)
-        .filter((t) =>
-          depositFilter ? depositFilter(t, account, s) : !!t.currencyId
-        );
+          const availableDepositTokens = listedTokens
+            .filter((t) => t.tokenType === 'Underlying')
+            // By default we only allow tokens with a currency id specified (i.e. they are listed
+            // on Notional)
+            .filter((t) =>
+              depositFilter ? depositFilter(t, account, s) : !!t.currencyId
+            );
 
-      const hasChanged =
-        availableCollateralTokens.map((t) => t.id).join(':') !==
-          s.availableCollateralTokens?.map((t) => t.id).join(':') ||
-        availableDebtTokens.map((t) => t.id).join(':') !==
-          s.availableDebtTokens?.map((t) => t.id).join(':') ||
-        availableDepositTokens.map((t) => t.id).join(':') !==
-          s.availableDepositTokens?.map((t) => t.id).join(':');
+          const hasChanged =
+            availableCollateralTokens.map((t) => t.id).join(':') !==
+              s.availableCollateralTokens?.map((t) => t.id).join(':') ||
+            availableDebtTokens.map((t) => t.id).join(':') !==
+              s.availableDebtTokens?.map((t) => t.id).join(':') ||
+            availableDepositTokens.map((t) => t.id).join(':') !==
+              s.availableDepositTokens?.map((t) => t.id).join(':');
 
-      return hasChanged
-        ? {
-            availableCollateralTokens,
-            availableDebtTokens,
-            availableDepositTokens,
+          resolve(
+            hasChanged
+              ? {
+                  availableCollateralTokens,
+                  availableDebtTokens,
+                  availableDepositTokens,
 
-            // Set the default values if only one is available
-            selectedDepositToken:
-              availableDepositTokens.length === 1
-                ? availableDepositTokens[0].symbol
-                : s.selectedDepositToken,
-            selectedDebtToken:
-              availableDebtTokens.length === 1
-                ? availableDebtTokens[0].symbol
-                : s.selectedDebtToken,
-            selectedCollateralToken:
-              availableCollateralTokens.length === 1
-                ? availableCollateralTokens[0].symbol
-                : s.selectedCollateralToken,
-          }
-        : undefined;
+                  // Set the default values if only one is available
+                  selectedDepositToken:
+                    availableDepositTokens.length === 1
+                      ? availableDepositTokens[0].symbol
+                      : s.selectedDepositToken,
+                  selectedDebtToken:
+                    availableDebtTokens.length === 1
+                      ? availableDebtTokens[0].symbol
+                      : s.selectedDebtToken,
+                  selectedCollateralToken:
+                    availableCollateralTokens.length === 1
+                      ? availableCollateralTokens[0].symbol
+                      : s.selectedCollateralToken,
+                }
+              : undefined
+          );
+        });
+      });
     }),
     filterEmpty()
   );
