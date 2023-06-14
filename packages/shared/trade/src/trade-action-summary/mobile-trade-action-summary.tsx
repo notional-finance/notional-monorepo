@@ -2,14 +2,12 @@ import { useEffect } from 'react';
 import { Box, styled, useTheme } from '@mui/material';
 import { NOTIONAL_CATEGORIES } from '@notional-finance/shared-config';
 import {
-  PageLoading,
   H5,
   LargeInputTextEmphasized,
   CountUp,
   H4,
 } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
-import { useNotional } from '@notional-finance/notionable-hooks';
 import { TokenIcon } from '@notional-finance/icons';
 import { messages } from './messages';
 
@@ -37,13 +35,10 @@ export function MobileTradeActionSummary({
   fixedAPY,
 }: MobileTradeActionSummaryProps) {
   const theme = useTheme();
-  const { loaded } = useNotional();
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-
-  if (!loaded || !selectedToken) return <PageLoading />;
 
   return (
     <Container>
