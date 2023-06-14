@@ -94,7 +94,10 @@ export function useObservableContext<T extends ContextState>(
   useEffect(() => {
     // If any of the route params change then we will update state to initial and set the params,
     // this prevents any "residual" state from going between paths
-    if (state.isReady) updateState(params as T);
+    if (state.isReady) {
+      if (DEBUG) console.log('URL UPDATE', params);
+      updateState(params as T);
+    }
     // NOTE: only run updates on pathname changes, since params is an object
     // eslint-disable-next-line
   }, [pathname, state.isReady, updateState]);
