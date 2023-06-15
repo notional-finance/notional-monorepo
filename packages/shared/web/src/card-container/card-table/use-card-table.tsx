@@ -8,7 +8,7 @@ export const useCardTable = () => {
   const { pathname } = useLocation();
 
   switch (pathname) {
-    case '/lend':
+    case '/lend-fixed':
       return [
         {
           key: (
@@ -51,6 +51,61 @@ export const useCardTable = () => {
           value: (
             <HeadingSubtitle>
               <FormattedMessage defaultMessage="Yes" />
+            </HeadingSubtitle>
+          ),
+        },
+        {
+          key: (
+            <HeadingSubtitle>
+              <FormattedMessage defaultMessage="Risk Score" />
+            </HeadingSubtitle>
+          ),
+          value: <RiskScoreIndicator riskLevel="veryLow" />,
+        },
+      ];
+    case '/lend-variable':
+      return [
+        {
+          key: (
+            <HeadingSubtitle>
+              <FormattedMessage defaultMessage="Redeemable Anytime" />
+            </HeadingSubtitle>
+          ),
+          value: <CheckmarkIcon />,
+        },
+        {
+          key: (
+            <HeadingSubtitle>
+              <FormattedMessage defaultMessage="Can Be Collateral" />
+            </HeadingSubtitle>
+          ),
+          value: (
+            <HeadingSubtitle>
+              <FormattedMessage defaultMessage="Yes" />
+            </HeadingSubtitle>
+          ),
+        },
+        {
+          key: (
+            <HeadingSubtitle>
+              <FormattedMessage defaultMessage="NOTE Incentives" />
+            </HeadingSubtitle>
+          ),
+          value: (
+            <HeadingSubtitle>
+              <FormattedMessage defaultMessage="No" />
+            </HeadingSubtitle>
+          ),
+        },
+        {
+          key: (
+            <HeadingSubtitle>
+              <FormattedMessage defaultMessage="Transaction Fees" />
+            </HeadingSubtitle>
+          ),
+          value: (
+            <HeadingSubtitle>
+              <FormattedMessage defaultMessage="No" />
             </HeadingSubtitle>
           ),
         },

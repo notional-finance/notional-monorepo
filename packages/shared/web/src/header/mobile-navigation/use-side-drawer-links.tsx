@@ -170,7 +170,7 @@ export const useSideDrawerLinks = (dataKey: MOBILE_SUB_NAV_ACTIONS) => {
       {
         key: 'lend',
         label: <FormattedMessage defaultMessage={'Lend Fixed'} />,
-        link: '/lend',
+        link: '/lend-fixed',
         iconImg: (
           <BarChartIcon
             className="color-stroke"

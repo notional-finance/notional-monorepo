@@ -111,8 +111,8 @@ export const socialMediaTags = [
 ];
 
 export const siteMapPaths1 = [
-  '/lend/',
-  '/lend/DAI/',
+  '/lend-fixed/',
+  '/lend-fixed/DAI/',
   '/borrow/',
   '/borrow/DAI/',
   '/provide/',

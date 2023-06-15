@@ -3,24 +3,24 @@ import {
   createBaseTradeContext,
   useBaseTradeContext,
 } from '@notional-finance/notionable-hooks';
-import LendSidebar from './sidebars/lend-fixed-sidebar';
+import LendVariableSidebar from '../sidebars/lend-variable-sidebar';
 import { TradeActionSummary } from '@notional-finance/trade';
 import { NOTIONAL_CATEGORIES } from '@notional-finance/shared-config';
 
-export const LendFixedContext = createBaseTradeContext('LendFixed');
+export const LendVariableContext = createBaseTradeContext('LendVariable');
 
-export const LendFixed = () => {
-  const context = useBaseTradeContext('LendFixed');
+export const LendVariable = () => {
+  const context = useBaseTradeContext('LendVariable');
   const {
     state: { isReady, confirm, selectedDepositToken },
   } = context;
 
   return (
-    <LendFixedContext.Provider value={context}>
+    <LendVariableContext.Provider value={context}>
       <FeatureLoader featureLoaded={isReady && !!selectedDepositToken}>
         <SideBarLayout
           showTransactionConfirmation={confirm}
-          sideBar={<LendSidebar />}
+          sideBar={<LendVariableSidebar />}
           mainContent={
             <TradeActionSummary
               markets={[]}
@@ -37,8 +37,8 @@ export const LendFixed = () => {
           }
         />
       </FeatureLoader>
-    </LendFixedContext.Provider>
+    </LendVariableContext.Provider>
   );
 };
 
-export default LendFixed;
+export default LendVariable;

@@ -1,5 +1,5 @@
 import { useAllMarkets } from '@notional-finance/notionable-hooks';
-import { LEND_BORROW, THEME_VARIANTS } from '@notional-finance/shared-config';
+import { PRODUCTS, THEME_VARIANTS } from '@notional-finance/shared-config';
 import { CardContainer } from '@notional-finance/shared-web';
 import { CurrencyFixed, FeatureLoader } from '@notional-finance/mui';
 import { ThemeProvider } from '@mui/material';
@@ -37,7 +37,7 @@ export function LendCardView() {
           docsLink="https://docs.notional.finance/notional-v2/what-you-can-do/fixed-rate-lending"
         >
           {cardData.map(({ symbol, maxRate, allRates }, index) => {
-            const route = `/${LEND_BORROW.LEND}/${symbol}`;
+            const route = `/${PRODUCTS.LEND_FIXED}/${symbol}`;
             return (
               <CurrencyFixed
                 key={index}

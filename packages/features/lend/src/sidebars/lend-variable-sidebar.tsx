@@ -11,7 +11,7 @@ import { useHistory, useLocation } from 'react-router-dom';
 import { LEND_BORROW } from '@notional-finance/shared-config';
 import { LendFixedContext } from '../lend-fixed/lend-fixed';
 
-export const LendFixedSidebar = () => {
+export const LendVariableSidebar = () => {
   const {
     state: { canSubmit, buildTransactionCall, confirm },
   } = useContext(LendFixedContext);
@@ -77,4 +77,4 @@ export const LendFixedSidebar = () => {
   );
 };
 
-export default LendFixedSidebar;
+export default LendVariableSidebar;

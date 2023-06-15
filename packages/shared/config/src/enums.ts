@@ -3,6 +3,12 @@ export enum LEND_BORROW {
   BORROW = 'borrow',
 }
 
+export enum PRODUCTS {
+  LEND_FIXED = 'lend-fixed',
+  LEND_VARIABLE = 'lend-variable',
+  BORROW = 'borrow',
+}
+
 export enum NOTIONAL_CATEGORIES {
   LEND = 'lend',
   BORROW = 'borrow',
