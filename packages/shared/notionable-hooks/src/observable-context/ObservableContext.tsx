@@ -1,13 +1,23 @@
 import { GlobalState } from '@notional-finance/notionable';
 import {
+  pluckFirst,
   useObservable,
   useObservableCallback,
   useObservableState,
   useSubscription,
 } from 'observable-hooks';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import { useLocation, useParams } from 'react-router';
-import { EMPTY, Observable, scan, switchMap, tap, startWith } from 'rxjs';
+import {
+  EMPTY,
+  Observable,
+  scan,
+  switchMap,
+  tap,
+  withLatestFrom,
+  take,
+  concat,
+} from 'rxjs';
 import { QueryParamConfigMap, useQueryParams } from 'use-query-params';
 import { useNotionalContext } from '../notional/use-notional';
 
@@ -53,7 +63,9 @@ export function useObservableContext<T extends ContextState>(
   const { pathname } = useLocation();
   const [query, setQuery] = useQueryParams(queryParamConfig);
   const { globalState$ } = useNotionalContext();
-  const initialStateRef = useRef(initialState);
+  // Converts the initial state into an observable to make it safe in
+  // a closure
+  const initialState$ = useObservable(pluckFirst, [initialState]);
 
   // Creates an observable state object that can be updated
   const [updateState, state$] = useObservableCallback<
@@ -62,12 +74,17 @@ export function useObservableContext<T extends ContextState>(
     [Partial<T>]
   >(
     (state$) =>
-      state$.pipe(
-        scan(
-          (state, update) => ({ ...state, ...update }),
-          initialStateRef.current
-        ),
-        startWith(initialStateRef.current)
+      // Uses concat here to ensure that the initial state emitted is
+      // also closure safe
+      concat(
+        initialState$.pipe(take(1)),
+        state$.pipe(
+          withLatestFrom(initialState$),
+          scan(
+            (state, [update, init]) => ({ ...init, ...state, ...update }),
+            {} as T
+          )
+        )
       ),
     // Transforms the list of args into a single arg which is Partial<T>
     (args) => args[0]

@@ -37,22 +37,25 @@ export function createBaseTradeManager(
     const debtPool$ = selectedPool('Debt', state$, network$);
     const collateralPool$ = selectedPool('Collateral', state$, network$);
 
-    // Emitted State Changes
+    // Emitted State Changes, these need to be ordered in REVERSE dependency
+    // order. The first method to emit should be listed last so that dependent
+    // observables can create their subscription prior to the upstream observable
+    // emits.
     return merge(
-      resetOnNetworkChange(global$, initialBaseTradeState),
-      initState(state$, network$),
-      availableTokens(state$, network$, account$, config),
-      priorAccountRisk(account$),
+      buildTransaction(state$, account$, config),
+      postAccountRisk(state$, account$),
+      calculate(state$, debtPool$, collateralPool$, account$, config),
+      parseRiskFactorLimit(state$, network$),
       selectedToken('Deposit', state$, network$),
       parseBalance('Deposit', state$),
       selectedToken('Collateral', state$, network$),
       parseBalance('Collateral', state$),
       selectedToken('Debt', state$, network$),
       parseBalance('Debt', state$),
-      parseRiskFactorLimit(state$, network$),
-      calculate(state$, debtPool$, collateralPool$, account$, config),
-      postAccountRisk(state$, account$),
-      buildTransaction(state$, account$, config)
+      priorAccountRisk(account$),
+      availableTokens(state$, network$, account$, config),
+      initState(state$, network$),
+      resetOnNetworkChange(global$, initialBaseTradeState)
     );
   };
 }

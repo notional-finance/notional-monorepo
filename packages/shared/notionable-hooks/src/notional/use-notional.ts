@@ -1,5 +1,6 @@
 import { TypedBigNumber } from '@notional-finance/sdk';
 import {
+  pluckFirst,
   useObservable,
   useObservableState,
   useSubscription,
@@ -12,7 +13,7 @@ import {
 } from '@notional-finance/notionable';
 import { useCallback, useContext } from 'react';
 import { NotionalContext } from './NotionalContext';
-import { switchMap, startWith, map } from 'rxjs';
+import { switchMap, map, take, concat } from 'rxjs';
 import { PopulatedTransaction } from 'ethers';
 import { trackEvent } from '@notional-finance/helpers';
 import { filterEmpty } from '@notional-finance/util';
@@ -53,10 +54,11 @@ export function useCurrentETHPrice() {
 
 export function useNotionalContext() {
   const { state, state$, updateState } = useContext(NotionalContext);
+  const initialState$ = useObservable(pluckFirst, [state]);
 
   // Ensures that listeners receive the initial global state
   const globalState$ = useObservable(
-    (o$) => o$.pipe(switchMap(([g]) => g.pipe(startWith(state)))),
+    (s$) => concat(initialState$.pipe(take(1)), s$.pipe(switchMap(([g]) => g))),
     [state$]
   );
 
