@@ -5,9 +5,9 @@ import {
   useObservableState,
   useSubscription,
 } from 'observable-hooks';
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useLocation, useParams } from 'react-router';
-import { EMPTY, Observable, scan, switchMap, tap } from 'rxjs';
+import { EMPTY, Observable, scan, switchMap, tap, startWith } from 'rxjs';
 import { QueryParamConfigMap, useQueryParams } from 'use-query-params';
 import { useNotionalContext } from '../notional/use-notional';
 
@@ -53,6 +53,7 @@ export function useObservableContext<T extends ContextState>(
   const { pathname } = useLocation();
   const [query, setQuery] = useQueryParams(queryParamConfig);
   const { globalState$ } = useNotionalContext();
+  const initialStateRef = useRef(initialState);
 
   // Creates an observable state object that can be updated
   const [updateState, state$] = useObservableCallback<
@@ -62,8 +63,11 @@ export function useObservableContext<T extends ContextState>(
   >(
     (state$) =>
       state$.pipe(
-        // NOTE: closure usage here is not safe...
-        scan((state, update) => ({ ...state, ...update }), initialState)
+        scan(
+          (state, update) => ({ ...state, ...update }),
+          initialStateRef.current
+        ),
+        startWith(initialStateRef.current)
       ),
     // Transforms the list of args into a single arg which is Partial<T>
     (args) => args[0]
