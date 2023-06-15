@@ -282,10 +282,11 @@ export abstract class BaseRegistry<T> {
       const intervalMS = this._intervalMS.get(network);
       if (!intervalMS) throw Error(`${key} on ${network} is not refreshing`);
       const nextRefreshTime = updateTimestamp + intervalMS * checkFreshness;
-      if (nextRefreshTime < getNowSeconds()) {
+      const nowSeconds = getNowSeconds();
+      if (nextRefreshTime < nowSeconds) {
         throw Error(
           `${key} on ${network} has missed ${Math.floor(
-            (updateTimestamp - getNowSeconds()) / intervalMS
+            (updateTimestamp - nowSeconds) / intervalMS
           )} refreshes`
         );
       }
@@ -306,6 +307,6 @@ export abstract class BaseRegistry<T> {
   }
 
   public isRefreshRunning(network: Network) {
-    return this._intervalSubscription.has(network)
+    return this._intervalSubscription.has(network);
   }
 }

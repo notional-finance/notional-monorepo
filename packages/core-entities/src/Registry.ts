@@ -59,16 +59,21 @@ export class Registry {
     );
 
     // Prior to starting the exchange registry, register all the required tokens. When
-    // reviving data from the cache host it will attempt to find these token definitions
+    // reviving data from the cache host it will attempt to find these token definitions.
+    // This has to be done in a callback to prevent race conditions when this registration
+    // triggers the network to become registered prior to the token registry itself completing
+    // its first refresh.
     const tokenRegistry = Registry.getTokenRegistry();
-    defaultPools[network].forEach((pool) =>
-      pool.registerTokens.forEach((t) => tokenRegistry.registerToken(t))
-    );
+    tokenRegistry.onNetworkRegistered(network, () => {
+      defaultPools[network].forEach((pool) =>
+        pool.registerTokens.forEach((t) => tokenRegistry.registerToken(t))
+      );
 
-    Registry.getExchangeRegistry().startRefreshInterval(
-      network,
-      Registry.DEFAULT_EXCHANGE_REFRESH
-    );
+      Registry.getExchangeRegistry().startRefreshInterval(
+        network,
+        Registry.DEFAULT_EXCHANGE_REFRESH
+      );
+    });
 
     Registry.getAccountRegistry().startRefreshInterval(
       network,
