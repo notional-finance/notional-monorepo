@@ -19,6 +19,24 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
     return Routes.Configuration;
   }
 
+  /**
+   * This should only be done for simulations or testing.
+   * @param network
+   * @param update partial update to the configuration
+   */
+  updateVaultConfiguration(
+    network: Network,
+    vaultConfigs: Partial<AllConfigurationQuery['vaultConfigurations'][0]>[]
+  ) {
+    const latest = this.getLatestFromSubject(network, network);
+    if (!latest) throw Error('Can only update after initialization');
+    const newConfig = Object.assign(latest, {
+      vaultConfigurations: vaultConfigs,
+    });
+
+    this._updateSubjectKeyDirect(network, network, newConfig, true);
+  }
+
   getAllListedVaults(network: Network) {
     return this.getLatestFromSubject(network, network)?.vaultConfigurations;
   }
@@ -33,9 +51,10 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
     return vaultConfig;
   }
 
-  getVaultDiscountFCash(network: Network, vaultAddress: string) {
-    const config = this.getVaultConfig(network, vaultAddress);
-    return config.discountfCash;
+  getVaultDiscountfCash(_network: Network, _vaultAddress: string) {
+    // const config = this.getVaultConfig(network, vaultAddress);
+    // return config.discountfCash;
+    return false;
   }
 
   getValidVaultCurrencies(network: Network, vaultAddress: string) {

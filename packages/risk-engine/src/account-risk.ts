@@ -241,7 +241,9 @@ export class AccountRiskProfile extends BaseRiskProfile {
       loanToValue: this.loanToValue(),
       collateralRatio: this.collateralRatio(),
       healthFactor: this.healthFactor(),
-      liquidationPrice: this.getAllLiquidationPrices(),
+      liquidationPrice: this.getAllLiquidationPrices({
+        onlyUnderlyingDebt: false,
+      }),
       collateralLiquidationThreshold: this.collateral.map((a) =>
         this.collateralLiquidationThreshold(a.token)
       ),

@@ -8,6 +8,7 @@ import {
   AccountRiskProfile,
   RiskFactorKeys,
   RiskFactorLimit,
+  VaultAccountRiskProfile,
 } from '@notional-finance/risk-engine';
 import {
   CalculationFn,
@@ -147,9 +148,9 @@ export interface TradeState extends BaseTradeState {
 
 export interface VaultTradeState extends BaseTradeState, VaultState {
   /** Account risk factors prior to any changes to the account */
-  priorAccountRisk?: ReturnType<AccountRiskProfile['getAllRiskFactors']>;
+  priorAccountRisk?: ReturnType<VaultAccountRiskProfile['getAllRiskFactors']>;
   /** Account risk factors after changes applied to the account */
-  postAccountRisk?: ReturnType<AccountRiskProfile['getAllRiskFactors']>;
+  postAccountRisk?: ReturnType<VaultAccountRiskProfile['getAllRiskFactors']>;
 }
 
 export const initialBaseTradeState: BaseTradeState = {

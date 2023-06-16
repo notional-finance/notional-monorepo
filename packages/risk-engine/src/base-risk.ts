@@ -439,7 +439,11 @@ export abstract class BaseRiskProfile implements RiskFactors {
     return doBinarySearch(multiple, 0, calculationFunction);
   }
 
-  getAllLiquidationPrices() {
+  getAllLiquidationPrices({
+    onlyUnderlyingDebt = false,
+  }: {
+    onlyUnderlyingDebt?: boolean;
+  }) {
     // get all collateral ids + underlying
     const collateral = this.collateral
       .map((a) => a.token)
@@ -452,7 +456,10 @@ export abstract class BaseRiskProfile implements RiskFactors {
       .map((a) => a.token)
       .concat(unique(this.debts.map((a) => a.underlying)))
       // Prefer to show underlying over prime cash
-      .filter((c) => c.tokenType !== 'PrimeCash');
+      .filter((c) => c.tokenType !== 'PrimeCash')
+      .filter((c) =>
+        onlyUnderlyingDebt ? c.tokenType === 'Underlying' : true
+      );
 
     return collateral
       .flatMap((c) => {
@@ -464,11 +471,11 @@ export abstract class BaseRiskProfile implements RiskFactors {
               collateral: c,
               debt: d,
               riskExposure: this.getRiskExposureType(c, d, collateralThreshold),
-              liquidationPrice: collateralThreshold?.toToken(d) || null,
+              price: collateralThreshold?.toToken(d) || null,
             };
           });
       })
-      .filter(({ liquidationPrice }) => liquidationPrice !== null);
+      .filter(({ price }) => price !== null);
   }
 
   getRiskExposureType(

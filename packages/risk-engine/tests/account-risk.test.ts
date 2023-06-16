@@ -50,8 +50,8 @@ describe.withForkAndRegistry(
         expected: [
           { factor: 'netWorth', expected: [0.332, 'ETH'] },
           { factor: 'freeCollateral', expected: [0.0827, 'ETH'] },
-          { factor: 'loanToValue', expected: 66.7 },
-          { factor: 'collateralRatio', expected: 149.87 },
+          { factor: 'loanToValue', expected: 67.78 },
+          { factor: 'collateralRatio', expected: 147.53 },
           { factor: 'healthFactor', expected: 0.248 },
           {
             factor: 'collateralLiquidationThreshold',
@@ -286,7 +286,7 @@ describe.withForkAndRegistry(
         TokenBalance.fromFloat(-100, FRAX),
       ]);
 
-      const prices = p.getAllLiquidationPrices();
+      const prices = p.getAllLiquidationPrices({ onlyUnderlyingDebt: false });
       const pairs = prices.map(({ collateral, debt }) => [
         collateral.symbol,
         debt.symbol,

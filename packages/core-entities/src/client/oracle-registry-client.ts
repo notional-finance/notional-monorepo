@@ -359,4 +359,9 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
       RATE_PRECISION;
     return Math.trunc(annualRate);
   }
+
+  /** This should only be done for simulations or testing.  */
+  registerOracle(network: Network, oracle: OracleDefinition) {
+    this._updateSubjectKeyDirect(network, oracle.id, oracle, false);
+  }
 }

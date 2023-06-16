@@ -12,11 +12,11 @@ import {
   selectedNetwork,
   selectedToken,
   initState,
-  priorAccountRisk,
+  priorVaultAccountRisk,
   parseBalance,
   parseRiskFactorLimit,
   calculate,
-  postAccountRisk,
+  postVaultAccountRisk,
   availableTokens,
   buildTransaction,
   selectedVaultPool,
@@ -40,20 +40,20 @@ export function createVaultTradeManager(
 
     // Emitted State Changes
     return merge(
-      resetOnNetworkChange(global$, initialBaseTradeState),
-      initState(state$, network$),
-      availableTokens(state$, network$, account$, config),
-      //priorAccountRisk(account$),
+      buildTransaction(state$, account$, config),
+      postVaultAccountRisk(state$, account$),
+      calculate(state$, debtPool$, vaultPool$, account$, config),
+      parseRiskFactorLimit(state$, network$),
       selectedToken('Deposit', state$, network$),
       parseBalance('Deposit', state$),
       selectedToken('Collateral', state$, network$),
       parseBalance('Collateral', state$),
       selectedToken('Debt', state$, network$),
       parseBalance('Debt', state$),
-      parseRiskFactorLimit(state$, network$),
-      //calculate(state$, debtPool$, vaultPool$, account$, config),
-      //postAccountRisk(state$, account$),
-      buildTransaction(state$, account$, config)
+      priorVaultAccountRisk(state$, account$),
+      availableTokens(state$, network$, account$, config),
+      initState(state$, network$),
+      resetOnNetworkChange(global$, initialBaseTradeState)
     );
   };
 }

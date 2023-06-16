@@ -1,5 +1,6 @@
 import {
   AccountDefinition,
+  BaseLiquidityPool,
   fCashMarket,
   Registry,
   TokenBalance,
@@ -9,6 +10,7 @@ import {
   AccountRiskProfile,
   RiskFactorKeys,
   RiskFactorLimit,
+  VaultAccountRiskProfile,
 } from '@notional-finance/risk-engine';
 import { CalculationFnParams } from '@notional-finance/transaction';
 import { filterEmpty, getNowSeconds, unique } from '@notional-finance/util';
@@ -449,8 +451,8 @@ export function parseRiskFactorLimit(
 
 export function calculate(
   state$: Observable<BaseTradeState>,
-  debtPool$: ReturnType<typeof selectedPool>,
-  collateralPool$: ReturnType<typeof selectedPool>,
+  debtPool$: Observable<BaseLiquidityPool<unknown> | undefined>,
+  collateralPool$: Observable<BaseLiquidityPool<unknown> | undefined>,
   account$: Observable<AccountDefinition | null>,
   {
     calculationFn,
@@ -664,6 +666,66 @@ export function postAccountRisk(
       ]) => {
         if (canSubmit && account) {
           const profile = AccountRiskProfile.simulate(
+            account.balances,
+            [depositBalance, collateralBalance, debtBalance].filter(
+              (b) => b !== undefined
+            ) as TokenBalance[]
+          );
+
+          return { postAccountRisk: profile.getAllRiskFactors() };
+        }
+
+        return undefined;
+      }
+    ),
+    filterEmpty()
+  );
+}
+
+export function priorVaultAccountRisk(
+  state$: Observable<VaultTradeState>,
+  account$: Observable<AccountDefinition | null>
+) {
+  return combineLatest([state$, account$]).pipe(
+    map(([{ vaultAddress }, account]) => ({
+      priorAccountRisk:
+        vaultAddress && account
+          ? VaultAccountRiskProfile.from(
+              vaultAddress,
+              account.balances
+            ).getAllRiskFactors()
+          : undefined,
+    })),
+    filterEmpty()
+  );
+}
+
+export function postVaultAccountRisk(
+  state$: Observable<VaultTradeState>,
+  account$: Observable<AccountDefinition | null>
+) {
+  return combineLatest([account$, state$]).pipe(
+    distinctUntilChanged(
+      ([, p], [, c]) =>
+        p.canSubmit === c.canSubmit &&
+        p.depositBalance?.hashKey === c.depositBalance?.hashKey &&
+        p.collateralBalance?.hashKey === c.collateralBalance?.hashKey &&
+        p.debtBalance?.hashKey === c.debtBalance?.hashKey
+    ),
+    map(
+      ([
+        account,
+        {
+          canSubmit,
+          depositBalance,
+          collateralBalance,
+          debtBalance,
+          vaultAddress,
+        },
+      ]) => {
+        if (canSubmit && account && vaultAddress) {
+          const profile = VaultAccountRiskProfile.simulate(
+            vaultAddress,
             account.balances,
             [depositBalance, collateralBalance, debtBalance].filter(
               (b) => b !== undefined

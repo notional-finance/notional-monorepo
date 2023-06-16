@@ -20,87 +20,62 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
       vaultAddress,
       maturity
     );
-    return new VaultAccountRiskProfile([
+    return new VaultAccountRiskProfile(vaultAddress, [
       TokenBalance.fromID(0, vaultShareID, network),
     ]);
   }
 
-  static from(balances: TokenBalance[]) {
-    return new VaultAccountRiskProfile(balances);
+  static from(vaultAddress: string, balances: TokenBalance[]) {
+    return new VaultAccountRiskProfile(vaultAddress, balances);
   }
 
-  static simulate(from: TokenBalance[], apply: TokenBalance[]) {
-    return new VaultAccountRiskProfile([...from, ...apply]);
+  static simulate(
+    vaultAddress: string,
+    from: TokenBalance[],
+    apply: TokenBalance[]
+  ) {
+    return new VaultAccountRiskProfile(vaultAddress, [...from, ...apply]);
   }
 
   simulate(apply: TokenBalance[]) {
-    return VaultAccountRiskProfile.simulate(this.balances, apply);
+    return VaultAccountRiskProfile.simulate(
+      this.vaultAddress,
+      this.balances,
+      apply
+    );
   }
 
-  public vaultAddress: string;
   public vaultShareDefinition: TokenDefinition;
   public discountFCash: boolean;
 
-  /** Takes a set of token balances to create a new account risk profile */
-  constructor(_balances: TokenBalance[]) {
-    let balances = _balances.filter((t) => t.isVaultToken);
-    const vaultAddress = unique(balances.map((b) => b.token.vaultAddress));
+  /** Takes a set of token balances to create a new vault account risk profile */
+  constructor(public vaultAddress: string, _balances: TokenBalance[]) {
+    const balances = _balances.filter(
+      (t) => t.isVaultToken && t.token.vaultAddress === vaultAddress
+    );
     const network = unique(balances.map((b) => b.token.network));
     const maturity = unique(balances.map((b) => b.token.maturity));
-    const vaultShares = balances.find(
-      (b) => b.token.tokenType === 'VaultShare'
-    );
-    if (!vaultShares) throw Error('Vault Shares undefined');
 
     // If initiating a new vault position, at least the dummy value of zero vault
     // shares in the proper maturity must be passed in.
-    if (vaultAddress.length != 1 || network.length != 1 || maturity.length != 1)
+    if (network.length != 1 || maturity.length != 1)
       throw Error('All balances must be in same vault, network and maturity');
 
-    const config = Registry.getConfigurationRegistry();
-    const nonVaultAssets = VaultAccountRiskProfile.merge(
-      _balances.filter((t) => !t.isVaultToken)
+    const vaultShares = balances.filter(
+      (b) => b.token.tokenType === 'VaultShare'
     );
+    if (vaultShares.length !== 1) throw Error('Vault shares not found');
+    const denom = vaultShares[0].token.underlying;
+    if (!denom) throw Error('Underlying not defined');
 
-    if (nonVaultAssets.length > 0) {
-      // Assert that all non vault assets are in underlying of the borrow currencies used
-      // by the vault. All underlying tokens supplied here will be converted to vault shares.
-      // If debt must be repaid then a positive token balance for the given debt amount should
-      // be applied in the `simulate` method.
-      const { validCurrencyIds } = config.getValidVaultCurrencies(
+    super(balances, denom);
+
+    this.vaultShareDefinition = vaultShares[0].token;
+    this.discountFCash =
+      Registry.getConfigurationRegistry().getVaultDiscountfCash(
         network[0],
-        vaultAddress[0] as string
+        this.vaultAddress
       );
-
-      if (
-        nonVaultAssets.find(
-          (t) =>
-            t.token.tokenType !== 'Underlying' ||
-            !validCurrencyIds.includes(t.token.currencyId)
-        )
-      ) {
-        throw Error('Invalid non vault token');
-      }
-
-      // NOTE: this should convert to a token via the spot rate, accounting for slippage, etc.
-      const mintedVaultShares = nonVaultAssets
-        .map((t) => t.toTokenViaExchange(vaultShares.token))
-        .reduce(
-          VaultAccountRiskProfile._sum,
-          TokenBalance.zero(vaultShares.token)
-        );
-
-      balances = [...balances, mintedVaultShares];
-    }
-
-    super(balances, vaultShares.tokenId);
-
-    this.vaultShareDefinition = vaultShares.token;
-    this.vaultAddress = vaultAddress[0] as string;
-    this.discountFCash = config.getVaultDiscountFCash(
-      vaultShares.network,
-      this.vaultAddress
-    );
   }
 
   get vaultShares() {
@@ -122,7 +97,6 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
           .find(
             (t) => t.token.currencyId === id && t.token.tokenType == 'VaultDebt'
           )
-          // TODO: this does not work...check discount to pv here as configuration
           ?.toUnderlying() || zeroUnderlying;
 
       const cash =
@@ -168,10 +142,10 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
   collateralRatio(): number | null {
     const totalDebt = this.totalDebtRiskAdjusted().neg();
     const totalAssets = this.totalAssetsRiskAdjusted();
-    return (
-      totalAssets.sub(totalDebt).ratioWith(totalDebt).toNumber() /
-      RATE_PRECISION
-    );
+    return totalDebt.isZero()
+      ? null
+      : totalAssets.sub(totalDebt).ratioWith(totalDebt).toNumber() /
+          RATE_PRECISION;
   }
 
   collateralLiquidationThreshold(
@@ -190,9 +164,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
       );
 
     // This is the relative exchange rate decrease of vault shares to liquidation
-    return TokenBalance.unit(this.vaultShareDefinition).sub(
-      oneVaultShareValueAtLiquidation.toToken(this.vaultShareDefinition)
-    );
+    return oneVaultShareValueAtLiquidation.toToken(this.vaultShareDefinition);
   }
 
   freeCollateral(): TokenBalance {
@@ -210,9 +182,22 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
   leverageRatio() {
     const collateralRatio = this.collateralRatio();
     if (collateralRatio) {
-      return (RATE_PRECISION * RATE_PRECISION) / collateralRatio;
+      return 1 / collateralRatio;
     } else {
       return null;
     }
+  }
+
+  getAllRiskFactors() {
+    return {
+      collateralRatio: this.collateralRatio(),
+      liquidationPrice: this.getAllLiquidationPrices({
+        onlyUnderlyingDebt: true,
+      }),
+      leverageRatio: this.leverageRatio(),
+      collateralLiquidationThreshold: this.collateral.map((a) =>
+        this.collateralLiquidationThreshold(a.token)
+      ),
+    };
   }
 }
