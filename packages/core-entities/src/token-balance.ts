@@ -375,7 +375,7 @@ export class TokenBalance {
       // Fetch the latest exchange rate
       // TODO: if doing settlement then then token id needs to be the actual fCash (not generic fcash id)
       const path = oracleRegistry.findPath(
-        this._unwrapToken().token.id,
+        this.unwrapVaultToken().token.id,
         token.id,
         this.token.network
       );
@@ -420,7 +420,7 @@ export class TokenBalance {
   }
 
   /** Does some token id manipulation for exchange rates */
-  private _unwrapToken() {
+  unwrapVaultToken() {
     if (
       this.token.tokenType === 'VaultDebt' &&
       this.token.maturity &&
