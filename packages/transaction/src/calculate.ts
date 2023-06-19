@@ -9,6 +9,7 @@ import {
   AccountRiskProfile,
   RiskFactorKeys,
   RiskFactorLimit,
+  VaultAccountRiskProfile,
 } from '@notional-finance/risk-engine';
 import { BASIS_POINT, RATE_PRECISION } from '@notional-finance/util';
 
@@ -474,6 +475,7 @@ export function calculateDebtCollateralGivenDepositRiskLimit({
  * Calculates vault debt and collateral given a risk limit
  */
 export function calculateVaultDebtCollateralGivenDepositRiskLimit({
+  vaultAddress,
   collateral,
   debt,
   collateralPool,
@@ -484,6 +486,7 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
   maxCollateralSlippage = 25 * BASIS_POINT,
   maxDebtSlippage = 25 * BASIS_POINT,
 }: {
+  vaultAddress: string;
   collateral: TokenDefinition;
   debt: TokenDefinition;
   collateralPool: BaseLiquidityPool<unknown>;
@@ -494,7 +497,60 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
   maxCollateralSlippage?: number;
   maxDebtSlippage?: number;
 }): ReturnType<typeof calculateDebtCollateralGivenDepositRiskLimit> {
-  throw Error('Unimplemented');
+  const riskProfile = VaultAccountRiskProfile.simulate(
+    vaultAddress,
+    balances,
+    depositBalance ? [depositBalance] : []
+  );
+
+  // NOTE: this calculation is done at spot rates, does not include slippage. Perhaps
+  // we should allow manual slippage de-weighting here...
+  const { netDebt, netCollateral } =
+    riskProfile.getDebtAndCollateralMaintainRiskFactor(
+      debt,
+      collateral,
+      riskFactorLimit
+    );
+
+  // Net collateral here is in terms of vault shares...
+  const netCollateralPrimeAtSpot = netCollateral.toPrimeCash();
+  // TODO: convert vault shares 
+
+  const { localPrime: localCollateralPrime, fees: collateralFee } =
+    exchangeToLocalPrime(
+      netCollateral,
+      collateralPool,
+      netCollateralPrimeAtSpot.token
+    );
+
+  const netDebtPrimeAtSpot = netDebt.toPrimeCash();
+  const { localPrime: localDebtPrime, fees: debtFee } = exchangeToLocalPrime(
+    netDebt,
+    debtPool,
+    netDebtPrimeAtSpot.token
+  );
+
+  if (
+    maxCollateralSlippage <
+    netCollateralPrimeAtSpot.ratioWith(localCollateralPrime).toNumber() -
+      RATE_PRECISION
+  ) {
+    throw Error('Above max collateral slippage');
+  }
+
+  if (
+    maxDebtSlippage <
+    localDebtPrime.ratioWith(netDebtPrimeAtSpot).toNumber() - RATE_PRECISION
+  ) {
+    throw Error('Above max debt slippage');
+  }
+
+  return {
+    collateralBalance: netCollateral,
+    debtBalance: netDebt,
+    debtFee: debtFee,
+    collateralFee,
+  };
 }
 
 export function calculateVaultDebt({
