@@ -51,10 +51,9 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
     return vaultConfig;
   }
 
-  getVaultDiscountfCash(_network: Network, _vaultAddress: string) {
-    // const config = this.getVaultConfig(network, vaultAddress);
-    // return config.discountfCash;
-    return false;
+  getVaultDiscountfCash(network: Network, vaultAddress: string) {
+    const config = this.getVaultConfig(network, vaultAddress);
+    return config.discountfCash;
   }
 
   getValidVaultCurrencies(network: Network, vaultAddress: string) {

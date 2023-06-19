@@ -91,6 +91,7 @@ query AllConfiguration {
         onlyVaultRoll
         onlyVaultDeleverage
         onlyVaultSettle
+        discountfCash
         allowsReentrancy
         deleverageDisabled
         maxPrimaryBorrowCapacity
