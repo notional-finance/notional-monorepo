@@ -24,3 +24,4 @@ export { default as SNOTEABI } from './sNOTE.json';
 export { default as TreasuryManagerABI } from './TreasuryManager.json';
 export { default as TradingModuleABI } from './TradingModule.json';
 export { default as IStrategyVaultABI } from './IStrategyVault.json';
+export { default as Curve2TokenConvexVault } from './Curve2TokenConvexVault.json';
