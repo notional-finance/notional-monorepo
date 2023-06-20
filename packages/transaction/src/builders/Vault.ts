@@ -1,11 +1,57 @@
 import { BigNumber, PopulatedTransaction, ethers } from 'ethers';
+import { PopulateTransactionInputs, populateNotionalTxnAndGas } from './common';
+import { BASIS_POINT, PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
 import {
-  PopulateTransactionInputs,
-  getVaultSlippageRate,
-  populateNotionalTxnAndGas,
-} from './common';
-import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
-import { TokenBalance } from '@notional-finance/core-entities';
+  Registry,
+  TokenBalance,
+  fCashMarket,
+} from '@notional-finance/core-entities';
+
+function getVaultSlippageRate(
+  debtBalance: TokenBalance,
+  slippageFactor = 5 * BASIS_POINT
+) {
+  if (debtBalance.token.maturity === PRIME_CASH_VAULT_MATURITY) {
+    return {
+      slippageRate: 0,
+      // NOTE: no fees applied here
+      underlyingOut: debtBalance.toUnderlying(),
+    };
+  }
+
+  const nToken = Registry.getTokenRegistry().getNToken(
+    debtBalance.network,
+    debtBalance.currencyId
+  );
+  const pool = Registry.getExchangeRegistry().getPoolInstance<fCashMarket>(
+    debtBalance.network,
+    nToken.address
+  );
+
+  const slippageRate = pool.getSlippageRate(
+    debtBalance.unwrapVaultToken(),
+    slippageFactor
+  );
+  const { tokensOut } = pool.calculateTokenTrade(debtBalance, 0);
+
+  const underlyingOut = debtBalance.isPositive()
+    ? // If lending, no fees are applied on the vault side
+      tokensOut.toUnderlying()
+    : // If borrowing, fees are applied on the vault side
+      Registry.getConfigurationRegistry()
+        .getVaultBorrowWithFees(
+          debtBalance.network,
+          debtBalance.vaultAddress,
+          debtBalance.maturity,
+          tokensOut
+        )
+        .toUnderlying();
+
+  return {
+    slippageRate,
+    underlyingOut,
+  };
+}
 
 export function EnterVault({
   address,
@@ -22,15 +68,21 @@ export function EnterVault({
     throw Error('Deposit balance, debt balance must be defined');
   const vaultAddress = debtBalance.token.vaultAddress;
 
-  // TODO: calculate vault data in here
   const debtBalanceNum =
     debtBalance.token.maturity === PRIME_CASH_VAULT_MATURITY
       ? debtBalance.toUnderlying().n
       : debtBalance.n;
-  const maxBorrowRate = getVaultSlippageRate(debtBalance);
+  const { slippageRate: maxBorrowRate, underlyingOut } =
+    getVaultSlippageRate(debtBalance);
+  const vaultAdapter = Registry.getVaultRegistry().getVaultAdapter(
+    network,
+    vaultAddress
+  );
+
   const vaultData = vaultAdapter.getDepositParameters(
-    depositBalance,
-    debtBalance
+    address,
+    debtBalance.token.maturity,
+    underlyingOut.add(depositBalance)
   );
 
   return populateNotionalTxnAndGas(network, address, 'enterVault', [
@@ -54,6 +106,7 @@ export function ExitVault({
   if (
     collateralBalance?.token.tokenType !== 'VaultShare' ||
     collateralBalance.token.vaultAddress === undefined ||
+    collateralBalance.token.maturity === undefined ||
     debtBalance?.token.vaultAddress !== collateralBalance.token.vaultAddress ||
     collateralBalance.isNegative()
   )
@@ -76,10 +129,21 @@ export function ExitVault({
   } else {
     debtBalanceNum = debtBalance.n;
   }
-  const minLendRate = getVaultSlippageRate(debtBalance.neg());
+
+  const { slippageRate: minLendRate, underlyingOut } = getVaultSlippageRate(
+    debtBalance.neg()
+  );
+
+  const vaultAdapter = Registry.getVaultRegistry().getVaultAdapter(
+    network,
+    vaultAddress
+  );
+
   const vaultData = vaultAdapter.getRedeemParameters(
+    address,
+    collateralBalance.token.maturity,
     collateralBalance,
-    debtBalance
+    underlyingOut
   );
 
   return populateNotionalTxnAndGas(network, address, 'exitVault', [
@@ -106,7 +170,7 @@ export function RollVault({
     debtBalance.token.maturity === undefined ||
     debtBalance.token.vaultAddress === undefined
   )
-    throw Error('Deposit balance, debt balance and vault data must be defined');
+    throw Error('Deposit balance, debt balance must be defined');
 
   const vaultAddress = debtBalance.token.vaultAddress;
   const currentDebtBalance = accountBalances.find(
@@ -114,18 +178,25 @@ export function RollVault({
       t.token.tokenType === 'VaultDebt' && t.token.vaultAddress === vaultAddress
   );
   if (!currentDebtBalance) throw Error('No current vault debt');
-  const minLendRate = getVaultSlippageRate(currentDebtBalance?.neg());
-  const maxBorrowRate = getVaultSlippageRate(debtBalance);
+  const { slippageRate: minLendRate, underlyingOut: costToRepay } =
+    getVaultSlippageRate(currentDebtBalance?.neg());
+  const { slippageRate: maxBorrowRate, underlyingOut: amountBorrowed } =
+    getVaultSlippageRate(debtBalance);
 
   const debtBalanceNum =
     debtBalance.token.maturity === PRIME_CASH_VAULT_MATURITY
       ? debtBalance.toUnderlying().n
       : debtBalance.n;
 
+  const vaultAdapter = Registry.getVaultRegistry().getVaultAdapter(
+    network,
+    vaultAddress
+  );
+
   const vaultData = vaultAdapter.getDepositParameters(
-    depositBalance,
-    debtBalance,
-    currentDebtBalance
+    address,
+    debtBalance.token.maturity,
+    amountBorrowed.add(depositBalance).sub(costToRepay)
   );
 
   return populateNotionalTxnAndGas(network, address, 'rollVaultPosition', [

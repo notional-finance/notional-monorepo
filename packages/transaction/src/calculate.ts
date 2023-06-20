@@ -1,9 +1,9 @@
 import {
-  BaseLiquidityPool,
   fCashMarket,
   Registry,
   TokenBalance,
   TokenDefinition,
+  VaultAdapter,
 } from '@notional-finance/core-entities';
 import {
   AccountRiskProfile,
@@ -482,7 +482,7 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
   vaultAddress,
   collateral,
   debt,
-  collateralPool,
+  vaultAdapter,
   debtPool,
   depositBalance,
   balances,
@@ -493,7 +493,7 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
   vaultAddress: string;
   collateral: TokenDefinition;
   debt: TokenDefinition;
-  collateralPool: BaseLiquidityPool<unknown>;
+  vaultAdapter: VaultAdapter;
   debtPool: fCashMarket;
   depositBalance: TokenBalance | undefined;
   balances: TokenBalance[];
@@ -518,8 +518,8 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
 
   // netCollateral is in vault shares here, need to determine how much it costs in
   // reality to mint that much collateral and then adjust the debt accordingly.
-  const netVaultSharesPrimeAtSpot = netVaultShares.toPrimeCash();
-  const { netVaultSharesCost, collateralFee } =
+  const netVaultSharesUnderlyingAtSpot = netVaultShares.toUnderlying();
+  const { netUnderlyingForVaultShares, feesPaid } =
     vaultAdapter.getNetVaultSharesCost(netVaultShares);
 
   const netDebtPrimeAtSpot = netDebt.toPrimeCash();
@@ -531,7 +531,9 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
 
   if (
     maxCollateralSlippage <
-    netVaultSharesPrimeAtSpot.ratioWith(netVaultSharesCost).toNumber() -
+    netVaultSharesUnderlyingAtSpot
+      .ratioWith(netUnderlyingForVaultShares)
+      .toNumber() -
       RATE_PRECISION
   ) {
     throw Error('Above max collateral slippage');
@@ -546,28 +548,30 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
 
   return {
     collateralBalance: netVaultShares,
-    debtBalance: netDebt,
+    debtBalance: netDebt, // TODO: need to apply fees here...
     debtFee: debtFee,
-    collateralFee,
+    collateralFee: feesPaid,
   };
 }
 
 export function calculateVaultDebt({
   debt,
   debtPool,
-  collateralPool,
+  vaultAdapter,
   depositBalance,
   collateralBalance,
 }: {
   debt: TokenDefinition;
   debtPool: fCashMarket;
-  collateralPool: BaseLiquidityPool<unknown>;
+  vaultAdapter: VaultAdapter;
   depositBalance: TokenBalance;
   collateralBalance: TokenBalance;
 }): ReturnType<typeof calculateDebt> {
   if (
-    debt.tokenType !== 'VaultDebt' &&
-    collateralBalance.token.tokenType == 'VaultShare' &&
+    debt.tokenType !== 'VaultDebt' ||
+    collateralBalance.token.tokenType !== 'VaultShare' ||
+    debt.vaultAddress === undefined ||
+    debt.maturity === undefined ||
     debt.vaultAddress !== collateralBalance.token.vaultAddress
   )
     throw Error('Invalid inputs');
@@ -576,8 +580,8 @@ export function calculateVaultDebt({
   const totalDebtPrime = depositBalance
     .toPrimeCash()
     .add(collateralBalance.toPrimeCash());
-  // TODO: collateral fee is here
-  const collateralFee = collateralBalance.copy(0);
+  const { feesPaid: collateralFee } =
+    vaultAdapter.getNetVaultSharesCost(collateralBalance);
 
   if (totalDebtPrime.isZero()) {
     return {
@@ -594,9 +598,14 @@ export function calculateVaultDebt({
     };
   } else {
     const fCashToken = TokenBalance.unit(debt).unwrapVaultToken().token;
-    // TODO: need to account for vault fees here...
     const { tokensOut, feesPaid } = debtPool.calculateTokenTrade(
-      totalDebtPrime.neg(),
+      // Returns the total cash required including value fees
+      Registry.getConfigurationRegistry().getVaultBorrowWithFees(
+        debt.network,
+        debt.vaultAddress,
+        debt.maturity,
+        totalDebtPrime.neg()
+      ),
       debtPool.getTokenIndex(fCashToken)
     );
 
@@ -610,17 +619,24 @@ export function calculateVaultDebt({
 
 export function calculateVaultCollateral({
   collateral,
-  collateralPool,
+  vaultAdapter,
   debtPool,
   depositBalance,
   debtBalance,
 }: {
   collateral: TokenDefinition;
-  collateralPool: BaseLiquidityPool<unknown>;
+  vaultAdapter: VaultAdapter;
   debtPool: fCashMarket;
   depositBalance: TokenBalance;
   debtBalance: TokenBalance;
 }): ReturnType<typeof calculateCollateral> {
+  if (
+    debtBalance.token.tokenType !== 'VaultDebt' ||
+    debtBalance.token.vaultAddress === undefined ||
+    debtBalance.token.maturity === undefined
+  )
+    throw Error('Invalid inputs');
+
   const { localPrime: localDebtPrime, fees: debtFee } = exchangeToLocalPrime(
     debtBalance.unwrapVaultToken(),
     debtPool,
@@ -629,16 +645,25 @@ export function calculateVaultCollateral({
 
   const totalVaultShares = depositBalance
     .toPrimeCash()
-    .add(localDebtPrime)
+    .add(
+      Registry.getConfigurationRegistry().getVaultBorrowWithFees(
+        debtBalance.network,
+        debtBalance.token.vaultAddress,
+        debtBalance.token.maturity,
+        localDebtPrime
+      )
+    )
     .toToken(collateral);
 
   // This value accounts for slippage...
-  const { netVaultSharesCost, collateralFee } =
+  const { netUnderlyingForVaultShares, feesPaid } =
     vaultAdapter.getNetVaultSharesCost(totalVaultShares);
 
   return {
-    collateralBalance: netVaultSharesCost,
+    collateralBalance: netUnderlyingForVaultShares.toToken(
+      totalVaultShares.token
+    ),
     debtFee,
-    collateralFee,
+    collateralFee: feesPaid,
   };
 }

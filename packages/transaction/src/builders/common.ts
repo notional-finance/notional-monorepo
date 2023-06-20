@@ -1,16 +1,10 @@
 import { NotionalV3, NotionalV3ABI } from '@notional-finance/contracts';
-import {
-  BigNumber,
-  Contract,
-  ethers,
-  PayableOverrides,
-} from 'ethers';
+import { BigNumber, Contract, ethers, PayableOverrides } from 'ethers';
 import {
   BASIS_POINT,
   getProviderFromNetwork,
   Network,
   NotionalAddress,
-  PRIME_CASH_VAULT_MATURITY,
   unique,
 } from '@notional-finance/util';
 import {
@@ -208,23 +202,6 @@ export function encodeTrades(
     currencyId,
     network,
   };
-}
-
-export function getVaultSlippageRate(
-  debtBalance: TokenBalance,
-  slippageFactor = 5 * BASIS_POINT
-) {
-  if (debtBalance.token.maturity === PRIME_CASH_VAULT_MATURITY) return 0;
-
-  const nToken = Registry.getTokenRegistry().getNToken(
-    debtBalance.network,
-    debtBalance.currencyId
-  );
-  const pool = Registry.getExchangeRegistry().getPoolInstance<fCashMarket>(
-    debtBalance.network,
-    nToken.address
-  );
-  return pool.getSlippageRate(debtBalance.unwrapVaultToken(), slippageFactor);
 }
 
 export function getBalanceAction(
