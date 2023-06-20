@@ -10,19 +10,27 @@ import {
 import { ReactNode, useState, useEffect, useRef } from 'react';
 import AddIcon from '@mui/icons-material/Add';
 import LinkIcon from '@mui/icons-material/Link';
-import { H4 } from '../typography/typography';
+import { Body, H4 } from '../typography/typography';
 
 /* eslint-disable-next-line */
 export interface FaqProps {
   question: ReactNode;
-  answer: ReactNode;
+  questionDescription?: ReactNode;
+  answer?: ReactNode;
+  componentAnswer?: ReactNode;
   slug?: string;
 }
 
 const INITIAL_TIP = 'Copy Link';
 const COPIED_TIP = 'Link Copied';
 
-export function Faq({ question, answer, slug = '' }: FaqProps) {
+export function Faq({
+  question,
+  questionDescription,
+  answer,
+  componentAnswer,
+  slug = '',
+}: FaqProps) {
   const { origin, pathname, hash } = window.location;
   const url = `${origin}${pathname}${slug}`;
   const isActive = hash !== '' && hash === slug;
@@ -113,11 +121,14 @@ export function Faq({ question, answer, slug = '' }: FaqProps) {
         <Box
           sx={{
             width: '100%',
-            display: 'flex',
-            alignItems: 'center',
           }}
         >
           <H4>{question}</H4>
+          {questionDescription && !expanded && (
+            <Body sx={{ marginTop: theme.spacing(2) }}>
+              {questionDescription}
+            </Body>
+          )}
         </Box>
       </AccordionSummary>
       <AccordionDetails
@@ -125,7 +136,8 @@ export function Faq({ question, answer, slug = '' }: FaqProps) {
           padding: '.5rem 1rem 1rem',
         }}
       >
-        <H4 fontWeight="light">{answer}</H4>
+        {componentAnswer && componentAnswer}
+        {answer && <Body>{answer}</Body>}
       </AccordionDetails>
     </Accordion>
   );

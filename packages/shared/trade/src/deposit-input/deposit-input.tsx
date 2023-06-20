@@ -4,7 +4,7 @@ import {
   CurrencyInput,
   CurrencyInputHandle,
   InputLabel,
-  PageLoading,
+  // PageLoading,
 } from '@notional-finance/mui';
 import { FormattedMessage, MessageDescriptor } from 'react-intl';
 import { useDepositInput } from './use-deposit-input';
@@ -48,7 +48,7 @@ export const DepositInput = React.forwardRef<
   }, [updateState, inputAmount?.hashKey]);
 
   // TODO: availableDepositTokens stays undefined sometimes and causes a infinite spinner. We need to figure out why
-  if (!availableDepositTokens || !selectedDepositToken) return <PageLoading />;
+  // if (!availableDepositTokens || !selectedDepositToken) return <PageLoading />;
 
   return (
     <Box>

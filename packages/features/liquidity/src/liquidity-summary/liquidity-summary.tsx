@@ -5,7 +5,7 @@ import {
   TradeActionTitle,
   PageLoading,
   TradeSummaryContainer,
-  H3,
+  H2,
 } from '@notional-finance/mui';
 import { NOTIONAL_CATEGORIES } from '@notional-finance/shared-config';
 import { MobileTradeActionSummary } from '@notional-finance/trade';
@@ -83,9 +83,9 @@ export const LiquiditySummary = () => {
             margin: theme.spacing(12, 2),
           }}
         >
-          <H3 sx={{ marginBottom: theme.spacing(2) }}>
-            <FormattedMessage defaultMessage="nToken FAQ" />
-          </H3>
+          <H2 sx={{ marginBottom: theme.spacing(2) }}>
+            <FormattedMessage defaultMessage="Provide Liquidity FAQ" />
+          </H2>
           <LiquidityFaq />
         </Box>
       </TradeSummaryContainer>
