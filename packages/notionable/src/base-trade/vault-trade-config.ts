@@ -36,8 +36,7 @@ function sameVaultMaturity(
   vaultAddress: string | undefined
 ): boolean {
   const maturity = balances.find(
-    (t) =>
-      t.token.tokenType === 'VaultDebt' && t.token.vaultAddress === vaultAddress
+    (t) => t.tokenType === 'VaultDebt' && t.token.vaultAddress === vaultAddress
   );
   return t.maturity === maturity;
 }

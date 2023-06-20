@@ -61,9 +61,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     if (network.length != 1 || maturity.length != 1)
       throw Error('All balances must be in same vault, network and maturity');
 
-    const vaultShares = balances.filter(
-      (b) => b.token.tokenType === 'VaultShare'
-    );
+    const vaultShares = balances.filter((b) => b.tokenType === 'VaultShare');
     if (vaultShares.length !== 1) throw Error('Vault shares not found');
     const denom = vaultShares[0].token.underlying;
     if (!denom) throw Error('Underlying not defined');
@@ -79,7 +77,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
   }
 
   get vaultShares() {
-    const v = this.balances.find((t) => t.token.tokenType === 'VaultShare');
+    const v = this.balances.find((t) => t.tokenType === 'VaultShare');
     if (!v) throw Error('Vault Shares not found');
     return v;
   }
@@ -94,16 +92,12 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
 
       const debt =
         this.balances
-          .find(
-            (t) => t.token.currencyId === id && t.token.tokenType == 'VaultDebt'
-          )
+          .find((t) => t.token.currencyId === id && t.tokenType == 'VaultDebt')
           ?.toUnderlying() || zeroUnderlying;
 
       const cash =
         this.balances
-          .find(
-            (t) => t.token.currencyId === id && t.token.tokenType == 'VaultCash'
-          )
+          .find((t) => t.token.currencyId === id && t.tokenType == 'VaultCash')
           ?.toUnderlying() || zeroUnderlying;
 
       return debt.add(cash);
@@ -113,9 +107,8 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
   totalAssetsRiskAdjusted(denominated = this.defaultSymbol) {
     const denom = this.denom(denominated);
     const vaultShareValue =
-      this.balances
-        .find((t) => t.token.tokenType === 'VaultShare')
-        ?.toUnderlying() || TokenBalance.zero(denom);
+      this.balances.find((t) => t.tokenType === 'VaultShare')?.toUnderlying() ||
+      TokenBalance.zero(denom);
 
     return this.netCurrencyDebt()
       .map((netDebt) => {

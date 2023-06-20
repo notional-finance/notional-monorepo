@@ -23,12 +23,12 @@ export class AccountRiskProfile extends BaseRiskProfile {
   /** Takes a set of token balances to create a new account risk profile */
   constructor(_balances: TokenBalance[]) {
     const balances = _balances
-      .map((t) => (t.token.tokenType === 'Underlying' ? t.toPrimeCash() : t))
+      .map((t) => (t.tokenType === 'Underlying' ? t.toPrimeCash() : t))
       .filter(
         (t) =>
           !t.isVaultToken &&
-          t.token.tokenType !== 'Underlying' &&
-          t.token.tokenType !== 'Fiat'
+          t.tokenType !== 'Underlying' &&
+          t.tokenType !== 'Fiat'
       );
 
     super(balances, 'ETH');

@@ -25,7 +25,7 @@ export abstract class BaseRiskProfile implements RiskFactors {
     map: Map<string, TokenBalance> = new Map<string, TokenBalance>()
   ) => {
     return tokens.reduce((m, t) => {
-      if (t.token.tokenType === 'PrimeDebt') {
+      if (t.tokenType === 'PrimeDebt') {
         // Rewrite all prime debt to prime cash, this only applies to AccountRiskProfile, not
         // VaultAccountRiskProfile
         const pCash = Registry.getTokenRegistry().getPrimeCash(

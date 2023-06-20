@@ -569,7 +569,7 @@ export function calculateVaultDebt({
 }): ReturnType<typeof calculateDebt> {
   if (
     debt.tokenType !== 'VaultDebt' ||
-    collateralBalance.token.tokenType !== 'VaultShare' ||
+    collateralBalance.tokenType !== 'VaultShare' ||
     debt.vaultAddress === undefined ||
     debt.maturity === undefined ||
     debt.vaultAddress !== collateralBalance.token.vaultAddress
@@ -630,12 +630,7 @@ export function calculateVaultCollateral({
   depositBalance: TokenBalance;
   debtBalance: TokenBalance;
 }): ReturnType<typeof calculateCollateral> {
-  if (
-    debtBalance.token.tokenType !== 'VaultDebt' ||
-    debtBalance.token.vaultAddress === undefined ||
-    debtBalance.token.maturity === undefined
-  )
-    throw Error('Invalid inputs');
+  if (debtBalance.tokenType !== 'VaultDebt') throw Error('Invalid inputs');
 
   const { localPrime: localDebtPrime, fees: debtFee } = exchangeToLocalPrime(
     debtBalance.unwrapVaultToken(),
@@ -648,8 +643,8 @@ export function calculateVaultCollateral({
     .add(
       Registry.getConfigurationRegistry().getVaultBorrowWithFees(
         debtBalance.network,
-        debtBalance.token.vaultAddress,
-        debtBalance.token.maturity,
+        debtBalance.vaultAddress,
+        debtBalance.maturity,
         localDebtPrime
       )
     )

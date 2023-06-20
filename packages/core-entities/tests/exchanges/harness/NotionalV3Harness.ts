@@ -51,8 +51,7 @@ export class NotionalV3Harness extends PoolTestHarness<fCashMarket> {
     if (tokenInIndex === 0) {
       // Depositing cash, getting fCash out. tokenIndexIn refers to prime cash, tokenIndexOut refers
       // to fCash
-      const maturity =
-        this.poolInstance.balances[tokenOutIndex].token.maturity!;
+      const maturity = this.poolInstance.balances[tokenOutIndex].maturity;
       const { fCashAmount } = await this.notional.getfCashLendFromDeposit(
         this.poolInstance.poolParams.currencyId,
         tokensIn.n,
@@ -74,7 +73,7 @@ export class NotionalV3Harness extends PoolTestHarness<fCashMarket> {
         await this.notional.getPrincipalFromfCashBorrow(
           this.poolInstance.poolParams.currencyId,
           tokensIn.n,
-          tokensIn.token.maturity || 0, // This must be defined
+          tokensIn.maturity, // This must be defined
           0,
           getNowSeconds()
         );

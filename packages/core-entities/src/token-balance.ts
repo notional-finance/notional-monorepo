@@ -3,7 +3,6 @@ import {
   AssetType,
   convertToGenericfCashId,
   encodeERC1155Id,
-  INTERNAL_TOKEN_DECIMALS,
   Network,
   PRIME_CASH_VAULT_MATURITY,
   RATE_PRECISION,
@@ -91,6 +90,22 @@ export class TokenBalance {
     return id;
   }
 
+  get vaultAddress() {
+    const v = this.token.vaultAddress;
+    if (!v || v === ZERO_ADDRESS) throw Error('Invalid vault address');
+    return v;
+  }
+
+  get maturity() {
+    const m = this.token.maturity;
+    if (!m) throw Error('Invalid maturity');
+    return m;
+  }
+
+  get tokenType() {
+    return this.token.tokenType;
+  }
+
   get token() {
     return Registry.getTokenRegistry().getTokenByID(this.network, this.tokenId);
   }
@@ -119,7 +134,7 @@ export class TokenBalance {
   }
 
   get underlying() {
-    if (this.token.tokenType == 'Underlying') return this.token;
+    if (this.tokenType == 'Underlying') return this.token;
     if (!this.token.underlying)
       throw Error(`No underlying defined for ${this.token.symbol}`);
     return Registry.getTokenRegistry().getTokenByID(
@@ -396,13 +411,13 @@ export class TokenBalance {
   }
 
   toUnderlying() {
-    if (this.token.tokenType === 'Underlying') return this;
+    if (this.tokenType === 'Underlying') return this;
     // Does the exchange rate conversion and decimal scaling
     return this.toToken(this.underlying);
   }
 
   toPrimeCash() {
-    if (this.token.tokenType === 'PrimeCash') return this;
+    if (this.tokenType === 'PrimeCash') return this;
     const primeCash = Registry.getTokenRegistry().getPrimeCash(
       this.network,
       this.currencyId
@@ -422,7 +437,7 @@ export class TokenBalance {
   /** Does some token id manipulation for exchange rates */
   unwrapVaultToken() {
     if (
-      this.token.tokenType === 'VaultDebt' &&
+      this.tokenType === 'VaultDebt' &&
       this.token.maturity &&
       this.token.maturity !== PRIME_CASH_VAULT_MATURITY
     ) {
@@ -436,7 +451,7 @@ export class TokenBalance {
       );
       return TokenBalance.from(this.n, fCashToken);
     } else if (
-      this.token.tokenType === 'VaultDebt' &&
+      this.tokenType === 'VaultDebt' &&
       this.token.maturity === PRIME_CASH_VAULT_MATURITY
     ) {
       const pDebtToken = Registry.getTokenRegistry().getPrimeDebt(
@@ -444,7 +459,7 @@ export class TokenBalance {
         this.currencyId
       );
       return TokenBalance.from(this.n, pDebtToken);
-    } else if (this.token.tokenType === 'VaultCash') {
+    } else if (this.tokenType === 'VaultCash') {
       const pCashToken = Registry.getTokenRegistry().getPrimeDebt(
         this.network,
         this.currencyId

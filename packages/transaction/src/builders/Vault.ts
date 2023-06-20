@@ -11,7 +11,7 @@ function getVaultSlippageRate(
   debtBalance: TokenBalance,
   slippageFactor = 5 * BASIS_POINT
 ) {
-  if (debtBalance.token.maturity === PRIME_CASH_VAULT_MATURITY) {
+  if (debtBalance.maturity === PRIME_CASH_VAULT_MATURITY) {
     return {
       slippageRate: 0,
       // NOTE: no fees applied here
@@ -59,17 +59,12 @@ export function EnterVault({
   depositBalance,
   debtBalance,
 }: PopulateTransactionInputs): Promise<PopulatedTransaction> {
-  if (
-    !depositBalance ||
-    debtBalance?.token.tokenType !== 'VaultDebt' ||
-    debtBalance.token.maturity === undefined ||
-    debtBalance.token.vaultAddress === undefined
-  )
+  if (!depositBalance || debtBalance?.tokenType !== 'VaultDebt')
     throw Error('Deposit balance, debt balance must be defined');
-  const vaultAddress = debtBalance.token.vaultAddress;
+  const vaultAddress = debtBalance.vaultAddress;
 
   const debtBalanceNum =
-    debtBalance.token.maturity === PRIME_CASH_VAULT_MATURITY
+    debtBalance.maturity === PRIME_CASH_VAULT_MATURITY
       ? debtBalance.toUnderlying().n
       : debtBalance.n;
   const { slippageRate: maxBorrowRate, underlyingOut } =
@@ -81,7 +76,7 @@ export function EnterVault({
 
   const vaultData = vaultAdapter.getDepositParameters(
     address,
-    debtBalance.token.maturity,
+    debtBalance.maturity,
     underlyingOut.add(depositBalance)
   );
 
@@ -89,7 +84,7 @@ export function EnterVault({
     address,
     vaultAddress,
     depositBalance?.n,
-    debtBalance.token.maturity,
+    debtBalance.maturity,
     debtBalanceNum,
     maxBorrowRate,
     vaultData,
@@ -104,18 +99,17 @@ export function ExitVault({
   accountBalances,
 }: PopulateTransactionInputs): Promise<PopulatedTransaction> {
   if (
-    collateralBalance?.token.tokenType !== 'VaultShare' ||
-    collateralBalance.token.vaultAddress === undefined ||
-    collateralBalance.token.maturity === undefined ||
+    collateralBalance?.tokenType !== 'VaultShare' ||
+    debtBalance?.tokenType !== 'VaultDebt' ||
     debtBalance?.token.vaultAddress !== collateralBalance.token.vaultAddress ||
     collateralBalance.isNegative()
   )
     throw Error('Collateral balance, debt balance must be defined');
 
-  const vaultAddress = collateralBalance.token.vaultAddress;
+  const vaultAddress = collateralBalance.vaultAddress;
 
   let debtBalanceNum: BigNumber;
-  if (debtBalance.token.maturity === PRIME_CASH_VAULT_MATURITY) {
+  if (debtBalance.maturity === PRIME_CASH_VAULT_MATURITY) {
     const matchingBalance = accountBalances.find(
       (t) => t.tokenId === debtBalance.tokenId
     );
@@ -141,7 +135,7 @@ export function ExitVault({
 
   const vaultData = vaultAdapter.getRedeemParameters(
     address,
-    collateralBalance.token.maturity,
+    collateralBalance.maturity,
     collateralBalance,
     underlyingOut
   );
@@ -166,16 +160,15 @@ export function RollVault({
 }: PopulateTransactionInputs): Promise<PopulatedTransaction> {
   if (
     !depositBalance ||
-    debtBalance?.token.tokenType !== 'VaultDebt' ||
-    debtBalance.token.maturity === undefined ||
-    debtBalance.token.vaultAddress === undefined
+    debtBalance?.tokenType !== 'VaultDebt' ||
+    debtBalance.maturity === undefined ||
+    debtBalance.vaultAddress === undefined
   )
     throw Error('Deposit balance, debt balance must be defined');
 
-  const vaultAddress = debtBalance.token.vaultAddress;
+  const vaultAddress = debtBalance.vaultAddress;
   const currentDebtBalance = accountBalances.find(
-    (t) =>
-      t.token.tokenType === 'VaultDebt' && t.token.vaultAddress === vaultAddress
+    (t) => t.tokenType === 'VaultDebt' && t.token.vaultAddress === vaultAddress
   );
   if (!currentDebtBalance) throw Error('No current vault debt');
   const { slippageRate: minLendRate, underlyingOut: costToRepay } =
@@ -184,7 +177,7 @@ export function RollVault({
     getVaultSlippageRate(debtBalance);
 
   const debtBalanceNum =
-    debtBalance.token.maturity === PRIME_CASH_VAULT_MATURITY
+    debtBalance.maturity === PRIME_CASH_VAULT_MATURITY
       ? debtBalance.toUnderlying().n
       : debtBalance.n;
 
@@ -195,7 +188,7 @@ export function RollVault({
 
   const vaultData = vaultAdapter.getDepositParameters(
     address,
-    debtBalance.token.maturity,
+    debtBalance.maturity,
     amountBorrowed.add(depositBalance).sub(costToRepay)
   );
 
@@ -203,7 +196,7 @@ export function RollVault({
     address,
     vaultAddress,
     debtBalanceNum,
-    debtBalance.token.maturity,
+    debtBalance.maturity,
     depositBalance?.n || TokenBalance.zero(debtBalance.underlying),
     minLendRate,
     maxBorrowRate,

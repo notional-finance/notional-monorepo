@@ -55,7 +55,7 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
 
   getVaultDiscountfCash(network: Network, vaultAddress: string) {
     const config = this.getVaultConfig(network, vaultAddress);
-    return config.discountfCash;
+    return config.discountfCash || false;
   }
 
   getVaultBorrowWithFees(
