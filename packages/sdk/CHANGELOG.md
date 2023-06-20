@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [0.4.8](https://github.com/notional-finance/notional-monorepo/compare/sdk-0.4.7...sdk-0.4.8) (2023-06-20)
+
+
+### Bug Fixes
+
+* system cache bug ([#192](https://github.com/notional-finance/notional-monorepo/issues/192)) ([48b6acd](https://github.com/notional-finance/notional-monorepo/commit/48b6acd027ed480fd8fa2404fb8a399e5af4fd90))
+
 ## [0.4.7](https://github.com/notional-finance/notional-monorepo/compare/sdk-0.4.6...sdk-0.4.7) (2023-06-20)
 
 
