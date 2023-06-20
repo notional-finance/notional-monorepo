@@ -34,7 +34,7 @@ const supportedChains = [
     network: 'mainnet',
     url: 'https://eth-mainnet.alchemyapi.io/v2',
   },
-  { chainId: 5, network: 'goerli', url: 'https://eth-goerli.alchemyapi.io/v2' },
+  // { chainId: 5, network: 'goerli', url: 'https://eth-goerli.alchemyapi.io/v2' },
 ];
 
 export class SystemCache {
