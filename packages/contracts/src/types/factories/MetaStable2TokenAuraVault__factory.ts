@@ -22,7 +22,7 @@ const _abi = [
         components: [
           {
             internalType: "contract IAuraRewardPool",
-            name: "auraRewardPool",
+            name: "rewardPool",
             type: "address",
           },
           {
@@ -62,8 +62,12 @@ const _abi = [
         name: "params",
         type: "tuple",
       },
+      {
+        internalType: "contract IAuraRewardPool",
+        name: "oldRewardPool_",
+        type: "address",
+      },
     ],
-    name: "constructor",
     stateMutability: "nonpayable",
     type: "constructor",
   },
@@ -165,6 +169,16 @@ const _abi = [
       },
     ],
     name: "SlippageTooHigh",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "StakeFailed",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "UnstakeFailed",
     type: "error",
   },
   {
@@ -356,11 +370,11 @@ const _abi = [
     inputs: [
       {
         internalType: "uint256",
-        name: "bptClaim",
+        name: "poolClaim",
         type: "uint256",
       },
     ],
-    name: "convertBPTClaimToStrategyTokens",
+    name: "convertPoolClaimToStrategyTokens",
     outputs: [
       {
         internalType: "uint256",
@@ -408,11 +422,11 @@ const _abi = [
         type: "uint256",
       },
     ],
-    name: "convertStrategyTokensToBPTClaim",
+    name: "convertStrategyTokensToPoolClaim",
     outputs: [
       {
         internalType: "uint256",
-        name: "bptClaim",
+        name: "poolClaim",
         type: "uint256",
       },
     ],
@@ -430,6 +444,50 @@ const _abi = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "vault",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "liquidator",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "depositAmountExternal",
+        type: "uint256",
+      },
+      {
+        internalType: "bool",
+        name: "transferSharesToLiquidator",
+        type: "bool",
+      },
+      {
+        internalType: "bytes",
+        name: "redeemData",
+        type: "bytes",
+      },
+    ],
+    name: "deleverageAccount",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "profitFromLiquidation",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -474,11 +532,11 @@ const _abi = [
         type: "uint256",
       },
     ],
-    name: "getEmergencySettlementBPTAmount",
+    name: "getEmergencySettlementPoolClaimAmount",
     outputs: [
       {
         internalType: "uint256",
-        name: "bptToSettle",
+        name: "poolClaimToSettle",
         type: "uint256",
       },
     ],
@@ -567,44 +625,56 @@ const _abi = [
           {
             components: [
               {
-                internalType: "address",
-                name: "primaryToken",
-                type: "address",
-              },
-              {
-                internalType: "address",
-                name: "secondaryToken",
-                type: "address",
-              },
-              {
-                internalType: "uint8",
-                name: "primaryIndex",
-                type: "uint8",
-              },
-              {
-                internalType: "uint8",
-                name: "secondaryIndex",
-                type: "uint8",
-              },
-              {
-                internalType: "uint8",
-                name: "primaryDecimals",
-                type: "uint8",
-              },
-              {
-                internalType: "uint8",
-                name: "secondaryDecimals",
-                type: "uint8",
-              },
-              {
-                internalType: "uint256",
-                name: "primaryBalance",
-                type: "uint256",
-              },
-              {
-                internalType: "uint256",
-                name: "secondaryBalance",
-                type: "uint256",
+                components: [
+                  {
+                    internalType: "address",
+                    name: "primaryToken",
+                    type: "address",
+                  },
+                  {
+                    internalType: "address",
+                    name: "secondaryToken",
+                    type: "address",
+                  },
+                  {
+                    internalType: "uint8",
+                    name: "primaryIndex",
+                    type: "uint8",
+                  },
+                  {
+                    internalType: "uint8",
+                    name: "secondaryIndex",
+                    type: "uint8",
+                  },
+                  {
+                    internalType: "uint8",
+                    name: "primaryDecimals",
+                    type: "uint8",
+                  },
+                  {
+                    internalType: "uint8",
+                    name: "secondaryDecimals",
+                    type: "uint8",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "primaryBalance",
+                    type: "uint256",
+                  },
+                  {
+                    internalType: "uint256",
+                    name: "secondaryBalance",
+                    type: "uint256",
+                  },
+                  {
+                    internalType: "contract IERC20",
+                    name: "poolToken",
+                    type: "address",
+                  },
+                ],
+                internalType: "struct TwoTokenPoolContext",
+                name: "basePool",
+                type: "tuple",
               },
               {
                 internalType: "uint256",
@@ -617,24 +687,12 @@ const _abi = [
                 type: "uint256",
               },
               {
-                components: [
-                  {
-                    internalType: "contract IERC20",
-                    name: "pool",
-                    type: "address",
-                  },
-                  {
-                    internalType: "bytes32",
-                    name: "poolId",
-                    type: "bytes32",
-                  },
-                ],
-                internalType: "struct PoolContext",
-                name: "basePool",
-                type: "tuple",
+                internalType: "bytes32",
+                name: "poolId",
+                type: "bytes32",
               },
             ],
-            internalType: "struct TwoTokenPoolContext",
+            internalType: "struct Balancer2TokenPoolContext",
             name: "poolContext",
             type: "tuple",
           },
@@ -659,17 +717,17 @@ const _abi = [
               },
               {
                 internalType: "contract IAuraBooster",
-                name: "auraBooster",
+                name: "booster",
                 type: "address",
               },
               {
                 internalType: "contract IAuraRewardPool",
-                name: "auraRewardPool",
+                name: "rewardPool",
                 type: "address",
               },
               {
                 internalType: "uint256",
-                name: "auraPoolId",
+                name: "poolId",
                 type: "uint256",
               },
               {
@@ -717,13 +775,8 @@ const _abi = [
                     type: "uint32",
                   },
                   {
-                    internalType: "uint32",
-                    name: "maxRewardTradeSlippageLimitPercent",
-                    type: "uint32",
-                  },
-                  {
                     internalType: "uint16",
-                    name: "maxBalancerPoolShare",
+                    name: "maxPoolShare",
                     type: "uint16",
                   },
                   {
@@ -738,7 +791,7 @@ const _abi = [
                   },
                   {
                     internalType: "uint16",
-                    name: "balancerPoolSlippageLimitPercent",
+                    name: "poolSlippageLimitPercent",
                     type: "uint16",
                   },
                 ],
@@ -750,7 +803,7 @@ const _abi = [
                 components: [
                   {
                     internalType: "uint256",
-                    name: "totalBPTHeld",
+                    name: "totalPoolClaim",
                     type: "uint256",
                   },
                   {
@@ -767,6 +820,11 @@ const _abi = [
                 internalType: "struct StrategyVaultState",
                 name: "vaultState",
                 type: "tuple",
+              },
+              {
+                internalType: "uint256",
+                name: "poolClaimPrecision",
+                type: "uint256",
               },
             ],
             internalType: "struct StrategyContext",
@@ -861,13 +919,8 @@ const _abi = [
                 type: "uint32",
               },
               {
-                internalType: "uint32",
-                name: "maxRewardTradeSlippageLimitPercent",
-                type: "uint32",
-              },
-              {
                 internalType: "uint16",
-                name: "maxBalancerPoolShare",
+                name: "maxPoolShare",
                 type: "uint16",
               },
               {
@@ -882,7 +935,7 @@ const _abi = [
               },
               {
                 internalType: "uint16",
-                name: "balancerPoolSlippageLimitPercent",
+                name: "poolSlippageLimitPercent",
                 type: "uint16",
               },
             ],
@@ -897,6 +950,61 @@ const _abi = [
       },
     ],
     name: "initialize",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        components: [
+          {
+            internalType: "uint256",
+            name: "maxUnderlyingSurplus",
+            type: "uint256",
+          },
+          {
+            internalType: "uint32",
+            name: "settlementSlippageLimitPercent",
+            type: "uint32",
+          },
+          {
+            internalType: "uint32",
+            name: "postMaturitySettlementSlippageLimitPercent",
+            type: "uint32",
+          },
+          {
+            internalType: "uint32",
+            name: "emergencySettlementSlippageLimitPercent",
+            type: "uint32",
+          },
+          {
+            internalType: "uint16",
+            name: "maxPoolShare",
+            type: "uint16",
+          },
+          {
+            internalType: "uint16",
+            name: "settlementCoolDownInMinutes",
+            type: "uint16",
+          },
+          {
+            internalType: "uint16",
+            name: "oraclePriceDeviationLimitPercent",
+            type: "uint16",
+          },
+          {
+            internalType: "uint16",
+            name: "poolSlippageLimitPercent",
+            type: "uint16",
+          },
+        ],
+        internalType: "struct StrategyVaultSettings",
+        name: "settings",
+        type: "tuple",
+      },
+    ],
+    name: "migrateAura",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -982,7 +1090,7 @@ const _abi = [
           },
           {
             internalType: "uint256",
-            name: "minBPT",
+            name: "minPoolClaim",
             type: "uint256",
           },
         ],
@@ -1086,13 +1194,8 @@ const _abi = [
             type: "uint32",
           },
           {
-            internalType: "uint32",
-            name: "maxRewardTradeSlippageLimitPercent",
-            type: "uint32",
-          },
-          {
             internalType: "uint16",
-            name: "maxBalancerPoolShare",
+            name: "maxPoolShare",
             type: "uint16",
           },
           {
@@ -1107,7 +1210,7 @@ const _abi = [
           },
           {
             internalType: "uint16",
-            name: "balancerPoolSlippageLimitPercent",
+            name: "poolSlippageLimitPercent",
             type: "uint16",
           },
         ],

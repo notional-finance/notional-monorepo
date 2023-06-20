@@ -51,24 +51,14 @@ export type DeploymentParamsStructOutput = [
 };
 
 export type AuraVaultDeploymentParamsStruct = {
-  auraRewardPool: PromiseOrValue<string>;
+  rewardPool: PromiseOrValue<string>;
   baseParams: DeploymentParamsStruct;
 };
 
 export type AuraVaultDeploymentParamsStructOutput = [
   string,
   DeploymentParamsStructOutput
-] & { auraRewardPool: string; baseParams: DeploymentParamsStructOutput };
-
-export type PoolContextStruct = {
-  pool: PromiseOrValue<string>;
-  poolId: PromiseOrValue<BytesLike>;
-};
-
-export type PoolContextStructOutput = [string, string] & {
-  pool: string;
-  poolId: string;
-};
+] & { rewardPool: string; baseParams: DeploymentParamsStructOutput };
 
 export type TwoTokenPoolContextStruct = {
   primaryToken: PromiseOrValue<string>;
@@ -79,9 +69,7 @@ export type TwoTokenPoolContextStruct = {
   secondaryDecimals: PromiseOrValue<BigNumberish>;
   primaryBalance: PromiseOrValue<BigNumberish>;
   secondaryBalance: PromiseOrValue<BigNumberish>;
-  primaryScaleFactor: PromiseOrValue<BigNumberish>;
-  secondaryScaleFactor: PromiseOrValue<BigNumberish>;
-  basePool: PoolContextStruct;
+  poolToken: PromiseOrValue<string>;
 };
 
 export type TwoTokenPoolContextStructOutput = [
@@ -93,9 +81,7 @@ export type TwoTokenPoolContextStructOutput = [
   number,
   BigNumber,
   BigNumber,
-  BigNumber,
-  BigNumber,
-  PoolContextStructOutput
+  string
 ] & {
   primaryToken: string;
   secondaryToken: string;
@@ -105,9 +91,26 @@ export type TwoTokenPoolContextStructOutput = [
   secondaryDecimals: number;
   primaryBalance: BigNumber;
   secondaryBalance: BigNumber;
+  poolToken: string;
+};
+
+export type Balancer2TokenPoolContextStruct = {
+  basePool: TwoTokenPoolContextStruct;
+  primaryScaleFactor: PromiseOrValue<BigNumberish>;
+  secondaryScaleFactor: PromiseOrValue<BigNumberish>;
+  poolId: PromiseOrValue<BytesLike>;
+};
+
+export type Balancer2TokenPoolContextStructOutput = [
+  TwoTokenPoolContextStructOutput,
+  BigNumber,
+  BigNumber,
+  string
+] & {
+  basePool: TwoTokenPoolContextStructOutput;
   primaryScaleFactor: BigNumber;
   secondaryScaleFactor: BigNumber;
-  basePool: PoolContextStructOutput;
+  poolId: string;
 };
 
 export type StableOracleContextStruct = {
@@ -120,9 +123,9 @@ export type StableOracleContextStructOutput = [BigNumber] & {
 
 export type AuraStakingContextStruct = {
   liquidityGauge: PromiseOrValue<string>;
-  auraBooster: PromiseOrValue<string>;
-  auraRewardPool: PromiseOrValue<string>;
-  auraPoolId: PromiseOrValue<BigNumberish>;
+  booster: PromiseOrValue<string>;
+  rewardPool: PromiseOrValue<string>;
+  poolId: PromiseOrValue<BigNumberish>;
   rewardTokens: PromiseOrValue<string>[];
 };
 
@@ -134,9 +137,9 @@ export type AuraStakingContextStructOutput = [
   string[]
 ] & {
   liquidityGauge: string;
-  auraBooster: string;
-  auraRewardPool: string;
-  auraPoolId: BigNumber;
+  booster: string;
+  rewardPool: string;
+  poolId: BigNumber;
   rewardTokens: string[];
 };
 
@@ -145,16 +148,14 @@ export type StrategyVaultSettingsStruct = {
   settlementSlippageLimitPercent: PromiseOrValue<BigNumberish>;
   postMaturitySettlementSlippageLimitPercent: PromiseOrValue<BigNumberish>;
   emergencySettlementSlippageLimitPercent: PromiseOrValue<BigNumberish>;
-  maxRewardTradeSlippageLimitPercent: PromiseOrValue<BigNumberish>;
-  maxBalancerPoolShare: PromiseOrValue<BigNumberish>;
+  maxPoolShare: PromiseOrValue<BigNumberish>;
   settlementCoolDownInMinutes: PromiseOrValue<BigNumberish>;
   oraclePriceDeviationLimitPercent: PromiseOrValue<BigNumberish>;
-  balancerPoolSlippageLimitPercent: PromiseOrValue<BigNumberish>;
+  poolSlippageLimitPercent: PromiseOrValue<BigNumberish>;
 };
 
 export type StrategyVaultSettingsStructOutput = [
   BigNumber,
-  number,
   number,
   number,
   number,
@@ -167,21 +168,20 @@ export type StrategyVaultSettingsStructOutput = [
   settlementSlippageLimitPercent: number;
   postMaturitySettlementSlippageLimitPercent: number;
   emergencySettlementSlippageLimitPercent: number;
-  maxRewardTradeSlippageLimitPercent: number;
-  maxBalancerPoolShare: number;
+  maxPoolShare: number;
   settlementCoolDownInMinutes: number;
   oraclePriceDeviationLimitPercent: number;
-  balancerPoolSlippageLimitPercent: number;
+  poolSlippageLimitPercent: number;
 };
 
 export type StrategyVaultStateStruct = {
-  totalBPTHeld: PromiseOrValue<BigNumberish>;
+  totalPoolClaim: PromiseOrValue<BigNumberish>;
   totalStrategyTokenGlobal: PromiseOrValue<BigNumberish>;
   lastSettlementTimestamp: PromiseOrValue<BigNumberish>;
 };
 
 export type StrategyVaultStateStructOutput = [BigNumber, BigNumber, number] & {
-  totalBPTHeld: BigNumber;
+  totalPoolClaim: BigNumber;
   totalStrategyTokenGlobal: BigNumber;
   lastSettlementTimestamp: number;
 };
@@ -191,34 +191,37 @@ export type StrategyContextStruct = {
   tradingModule: PromiseOrValue<string>;
   vaultSettings: StrategyVaultSettingsStruct;
   vaultState: StrategyVaultStateStruct;
+  poolClaimPrecision: PromiseOrValue<BigNumberish>;
 };
 
 export type StrategyContextStructOutput = [
   number,
   string,
   StrategyVaultSettingsStructOutput,
-  StrategyVaultStateStructOutput
+  StrategyVaultStateStructOutput,
+  BigNumber
 ] & {
   settlementPeriodInSeconds: number;
   tradingModule: string;
   vaultSettings: StrategyVaultSettingsStructOutput;
   vaultState: StrategyVaultStateStructOutput;
+  poolClaimPrecision: BigNumber;
 };
 
 export type MetaStable2TokenAuraStrategyContextStruct = {
-  poolContext: TwoTokenPoolContextStruct;
+  poolContext: Balancer2TokenPoolContextStruct;
   oracleContext: StableOracleContextStruct;
   stakingContext: AuraStakingContextStruct;
   baseStrategy: StrategyContextStruct;
 };
 
 export type MetaStable2TokenAuraStrategyContextStructOutput = [
-  TwoTokenPoolContextStructOutput,
+  Balancer2TokenPoolContextStructOutput,
   StableOracleContextStructOutput,
   AuraStakingContextStructOutput,
   StrategyContextStructOutput
 ] & {
-  poolContext: TwoTokenPoolContextStructOutput;
+  poolContext: Balancer2TokenPoolContextStructOutput;
   oracleContext: StableOracleContextStructOutput;
   stakingContext: AuraStakingContextStructOutput;
   baseStrategy: StrategyContextStructOutput;
@@ -242,12 +245,12 @@ export type InitParamsStructOutput = [
 
 export type ReinvestRewardParamsStruct = {
   tradeData: PromiseOrValue<BytesLike>;
-  minBPT: PromiseOrValue<BigNumberish>;
+  minPoolClaim: PromiseOrValue<BigNumberish>;
 };
 
 export type ReinvestRewardParamsStructOutput = [string, BigNumber] & {
   tradeData: string;
-  minBPT: BigNumber;
+  minPoolClaim: BigNumber;
 };
 
 export declare namespace IStrategyVault {
@@ -277,19 +280,21 @@ export interface MetaStable2TokenAuraVaultInterface extends utils.Interface {
     "NOTIONAL()": FunctionFragment;
     "TRADING_MODULE()": FunctionFragment;
     "claimRewardTokens()": FunctionFragment;
-    "convertBPTClaimToStrategyTokens(uint256)": FunctionFragment;
+    "convertPoolClaimToStrategyTokens(uint256)": FunctionFragment;
     "convertStrategyToUnderlying(address,uint256,uint256)": FunctionFragment;
-    "convertStrategyTokensToBPTClaim(uint256)": FunctionFragment;
+    "convertStrategyTokensToPoolClaim(uint256)": FunctionFragment;
     "decimals()": FunctionFragment;
+    "deleverageAccount(address,address,address,uint256,bool,bytes)": FunctionFragment;
     "depositFromNotional(address,uint256,uint256,bytes)": FunctionFragment;
-    "getEmergencySettlementBPTAmount(uint256)": FunctionFragment;
+    "getEmergencySettlementPoolClaimAmount(uint256)": FunctionFragment;
     "getRoleAdmin(bytes32)": FunctionFragment;
     "getRoles()": FunctionFragment;
     "getSpotPrice(uint256)": FunctionFragment;
     "getStrategyContext()": FunctionFragment;
     "grantRole(bytes32,address)": FunctionFragment;
     "hasRole(bytes32,address)": FunctionFragment;
-    "initialize((string,uint16,(uint256,uint32,uint32,uint32,uint32,uint16,uint16,uint16,uint16)))": FunctionFragment;
+    "initialize((string,uint16,(uint256,uint32,uint32,uint32,uint16,uint16,uint16,uint16)))": FunctionFragment;
+    "migrateAura((uint256,uint32,uint32,uint32,uint16,uint16,uint16,uint16))": FunctionFragment;
     "name()": FunctionFragment;
     "proxiableUUID()": FunctionFragment;
     "redeemFromNotional(address,address,uint256,uint256,uint256,bytes)": FunctionFragment;
@@ -297,7 +302,7 @@ export interface MetaStable2TokenAuraVaultInterface extends utils.Interface {
     "renounceRole(bytes32,address)": FunctionFragment;
     "repaySecondaryBorrowCallback(address,uint256,bytes)": FunctionFragment;
     "revokeRole(bytes32,address)": FunctionFragment;
-    "setStrategyVaultSettings((uint256,uint32,uint32,uint32,uint32,uint16,uint16,uint16,uint16))": FunctionFragment;
+    "setStrategyVaultSettings((uint256,uint32,uint32,uint32,uint16,uint16,uint16,uint16))": FunctionFragment;
     "settleVaultEmergency(uint256,bytes)": FunctionFragment;
     "settleVaultNormal(uint256,uint256,bytes)": FunctionFragment;
     "settleVaultPostMaturity(uint256,uint256,bytes)": FunctionFragment;
@@ -313,12 +318,13 @@ export interface MetaStable2TokenAuraVaultInterface extends utils.Interface {
       | "NOTIONAL"
       | "TRADING_MODULE"
       | "claimRewardTokens"
-      | "convertBPTClaimToStrategyTokens"
+      | "convertPoolClaimToStrategyTokens"
       | "convertStrategyToUnderlying"
-      | "convertStrategyTokensToBPTClaim"
+      | "convertStrategyTokensToPoolClaim"
       | "decimals"
+      | "deleverageAccount"
       | "depositFromNotional"
-      | "getEmergencySettlementBPTAmount"
+      | "getEmergencySettlementPoolClaimAmount"
       | "getRoleAdmin"
       | "getRoles"
       | "getSpotPrice"
@@ -326,6 +332,7 @@ export interface MetaStable2TokenAuraVaultInterface extends utils.Interface {
       | "grantRole"
       | "hasRole"
       | "initialize"
+      | "migrateAura"
       | "name"
       | "proxiableUUID"
       | "redeemFromNotional"
@@ -357,7 +364,7 @@ export interface MetaStable2TokenAuraVaultInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "convertBPTClaimToStrategyTokens",
+    functionFragment: "convertPoolClaimToStrategyTokens",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
@@ -369,10 +376,21 @@ export interface MetaStable2TokenAuraVaultInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "convertStrategyTokensToBPTClaim",
+    functionFragment: "convertStrategyTokensToPoolClaim",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "deleverageAccount",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<boolean>,
+      PromiseOrValue<BytesLike>
+    ]
+  ): string;
   encodeFunctionData(
     functionFragment: "depositFromNotional",
     values: [
@@ -383,7 +401,7 @@ export interface MetaStable2TokenAuraVaultInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "getEmergencySettlementBPTAmount",
+    functionFragment: "getEmergencySettlementPoolClaimAmount",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
@@ -410,6 +428,10 @@ export interface MetaStable2TokenAuraVaultInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "initialize",
     values: [InitParamsStruct]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "migrateAura",
+    values: [StrategyVaultSettingsStruct]
   ): string;
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
   encodeFunctionData(
@@ -499,7 +521,7 @@ export interface MetaStable2TokenAuraVaultInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "convertBPTClaimToStrategyTokens",
+    functionFragment: "convertPoolClaimToStrategyTokens",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -507,16 +529,20 @@ export interface MetaStable2TokenAuraVaultInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "convertStrategyTokensToBPTClaim",
+    functionFragment: "convertStrategyTokensToPoolClaim",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "deleverageAccount",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "depositFromNotional",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getEmergencySettlementBPTAmount",
+    functionFragment: "getEmergencySettlementPoolClaimAmount",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -535,6 +561,10 @@ export interface MetaStable2TokenAuraVaultInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "grantRole", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "hasRole", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "migrateAura",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "proxiableUUID",
@@ -712,8 +742,8 @@ export interface MetaStable2TokenAuraVault extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    convertBPTClaimToStrategyTokens(
-      bptClaim: PromiseOrValue<BigNumberish>,
+    convertPoolClaimToStrategyTokens(
+      poolClaim: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[BigNumber] & { strategyTokenAmount: BigNumber }>;
 
@@ -724,12 +754,22 @@ export interface MetaStable2TokenAuraVault extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber] & { underlyingValue: BigNumber }>;
 
-    convertStrategyTokensToBPTClaim(
+    convertStrategyTokensToPoolClaim(
       strategyTokenAmount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<[BigNumber] & { bptClaim: BigNumber }>;
+    ): Promise<[BigNumber] & { poolClaim: BigNumber }>;
 
     decimals(overrides?: CallOverrides): Promise<[number]>;
+
+    deleverageAccount(
+      account: PromiseOrValue<string>,
+      vault: PromiseOrValue<string>,
+      liquidator: PromiseOrValue<string>,
+      depositAmountExternal: PromiseOrValue<BigNumberish>,
+      transferSharesToLiquidator: PromiseOrValue<boolean>,
+      redeemData: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     depositFromNotional(
       account: PromiseOrValue<string>,
@@ -739,10 +779,10 @@ export interface MetaStable2TokenAuraVault extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    getEmergencySettlementBPTAmount(
+    getEmergencySettlementPoolClaimAmount(
       maturity: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<[BigNumber] & { bptToSettle: BigNumber }>;
+    ): Promise<[BigNumber] & { poolClaimToSettle: BigNumber }>;
 
     getRoleAdmin(
       role: PromiseOrValue<BytesLike>,
@@ -776,6 +816,11 @@ export interface MetaStable2TokenAuraVault extends BaseContract {
 
     initialize(
       params: InitParamsStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    migrateAura(
+      settings: StrategyVaultSettingsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -871,8 +916,8 @@ export interface MetaStable2TokenAuraVault extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  convertBPTClaimToStrategyTokens(
-    bptClaim: PromiseOrValue<BigNumberish>,
+  convertPoolClaimToStrategyTokens(
+    poolClaim: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
@@ -883,12 +928,22 @@ export interface MetaStable2TokenAuraVault extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  convertStrategyTokensToBPTClaim(
+  convertStrategyTokensToPoolClaim(
     strategyTokenAmount: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
   decimals(overrides?: CallOverrides): Promise<number>;
+
+  deleverageAccount(
+    account: PromiseOrValue<string>,
+    vault: PromiseOrValue<string>,
+    liquidator: PromiseOrValue<string>,
+    depositAmountExternal: PromiseOrValue<BigNumberish>,
+    transferSharesToLiquidator: PromiseOrValue<boolean>,
+    redeemData: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   depositFromNotional(
     account: PromiseOrValue<string>,
@@ -898,7 +953,7 @@ export interface MetaStable2TokenAuraVault extends BaseContract {
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  getEmergencySettlementBPTAmount(
+  getEmergencySettlementPoolClaimAmount(
     maturity: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
@@ -935,6 +990,11 @@ export interface MetaStable2TokenAuraVault extends BaseContract {
 
   initialize(
     params: InitParamsStruct,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  migrateAura(
+    settings: StrategyVaultSettingsStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1028,8 +1088,8 @@ export interface MetaStable2TokenAuraVault extends BaseContract {
 
     claimRewardTokens(overrides?: CallOverrides): Promise<BigNumber[]>;
 
-    convertBPTClaimToStrategyTokens(
-      bptClaim: PromiseOrValue<BigNumberish>,
+    convertPoolClaimToStrategyTokens(
+      poolClaim: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -1040,12 +1100,22 @@ export interface MetaStable2TokenAuraVault extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    convertStrategyTokensToBPTClaim(
+    convertStrategyTokensToPoolClaim(
       strategyTokenAmount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     decimals(overrides?: CallOverrides): Promise<number>;
+
+    deleverageAccount(
+      account: PromiseOrValue<string>,
+      vault: PromiseOrValue<string>,
+      liquidator: PromiseOrValue<string>,
+      depositAmountExternal: PromiseOrValue<BigNumberish>,
+      transferSharesToLiquidator: PromiseOrValue<boolean>,
+      redeemData: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     depositFromNotional(
       account: PromiseOrValue<string>,
@@ -1055,7 +1125,7 @@ export interface MetaStable2TokenAuraVault extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    getEmergencySettlementBPTAmount(
+    getEmergencySettlementPoolClaimAmount(
       maturity: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -1092,6 +1162,11 @@ export interface MetaStable2TokenAuraVault extends BaseContract {
 
     initialize(
       params: InitParamsStruct,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    migrateAura(
+      settings: StrategyVaultSettingsStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1249,8 +1324,8 @@ export interface MetaStable2TokenAuraVault extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    convertBPTClaimToStrategyTokens(
-      bptClaim: PromiseOrValue<BigNumberish>,
+    convertPoolClaimToStrategyTokens(
+      poolClaim: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -1261,12 +1336,22 @@ export interface MetaStable2TokenAuraVault extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    convertStrategyTokensToBPTClaim(
+    convertStrategyTokensToPoolClaim(
       strategyTokenAmount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     decimals(overrides?: CallOverrides): Promise<BigNumber>;
+
+    deleverageAccount(
+      account: PromiseOrValue<string>,
+      vault: PromiseOrValue<string>,
+      liquidator: PromiseOrValue<string>,
+      depositAmountExternal: PromiseOrValue<BigNumberish>,
+      transferSharesToLiquidator: PromiseOrValue<boolean>,
+      redeemData: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     depositFromNotional(
       account: PromiseOrValue<string>,
@@ -1276,7 +1361,7 @@ export interface MetaStable2TokenAuraVault extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    getEmergencySettlementBPTAmount(
+    getEmergencySettlementPoolClaimAmount(
       maturity: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -1309,6 +1394,11 @@ export interface MetaStable2TokenAuraVault extends BaseContract {
 
     initialize(
       params: InitParamsStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    migrateAura(
+      settings: StrategyVaultSettingsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1407,8 +1497,8 @@ export interface MetaStable2TokenAuraVault extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    convertBPTClaimToStrategyTokens(
-      bptClaim: PromiseOrValue<BigNumberish>,
+    convertPoolClaimToStrategyTokens(
+      poolClaim: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -1419,12 +1509,22 @@ export interface MetaStable2TokenAuraVault extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    convertStrategyTokensToBPTClaim(
+    convertStrategyTokensToPoolClaim(
       strategyTokenAmount: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     decimals(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    deleverageAccount(
+      account: PromiseOrValue<string>,
+      vault: PromiseOrValue<string>,
+      liquidator: PromiseOrValue<string>,
+      depositAmountExternal: PromiseOrValue<BigNumberish>,
+      transferSharesToLiquidator: PromiseOrValue<boolean>,
+      redeemData: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
 
     depositFromNotional(
       account: PromiseOrValue<string>,
@@ -1434,7 +1534,7 @@ export interface MetaStable2TokenAuraVault extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    getEmergencySettlementBPTAmount(
+    getEmergencySettlementPoolClaimAmount(
       maturity: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -1469,6 +1569,11 @@ export interface MetaStable2TokenAuraVault extends BaseContract {
 
     initialize(
       params: InitParamsStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    migrateAura(
+      settings: StrategyVaultSettingsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
