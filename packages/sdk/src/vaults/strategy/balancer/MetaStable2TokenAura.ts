@@ -89,7 +89,9 @@ export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitPar
           totalStrategyTokensGlobal: FixedPoint.from(
             r.baseStrategy.vaultState.totalStrategyTokenGlobal
           ),
-          totalBPTHeld: FixedPoint.from(r.baseStrategy.vaultState.totalBPTHeld),
+          totalBPTHeld: FixedPoint.from(
+            r.baseStrategy.vaultState.totalPoolClaim
+          ),
         }),
       },
       {
@@ -110,29 +112,29 @@ export default class MetaStable2TokenAura extends BaseBalancerStablePool<InitPar
         ) => {
           const balances = [
             FixedPoint.from(
-              r.poolContext.primaryIndex === 0
-                ? r.poolContext.primaryBalance
-                : r.poolContext.secondaryBalance
+              r.poolContext.basePool.primaryIndex === 0
+                ? r.poolContext.basePool.primaryBalance
+                : r.poolContext.basePool.secondaryBalance
             ),
             FixedPoint.from(
-              r.poolContext.primaryIndex === 1
-                ? r.poolContext.primaryBalance
-                : r.poolContext.secondaryBalance
+              r.poolContext.basePool.primaryIndex === 1
+                ? r.poolContext.basePool.primaryBalance
+                : r.poolContext.basePool.secondaryBalance
             ),
           ];
           return {
-            poolAddress: r.poolContext.basePool.pool,
-            poolId: r.poolContext.basePool.poolId,
-            primaryTokenIndex: r.poolContext.primaryIndex,
-            primaryToken: r.poolContext.primaryToken,
-            secondaryToken: r.poolContext.secondaryToken,
-            tokenOutIndex: r.poolContext.secondaryIndex,
+            poolAddress: r.poolContext.basePool.poolToken,
+            poolId: r.poolContext.poolId,
+            primaryTokenIndex: r.poolContext.basePool.primaryIndex,
+            primaryToken: r.poolContext.basePool.primaryToken,
+            secondaryToken: r.poolContext.basePool.secondaryToken,
+            tokenOutIndex: r.poolContext.basePool.secondaryIndex,
             balances,
             totalStrategyTokensGlobal: FixedPoint.from(
               r.baseStrategy.vaultState.totalStrategyTokenGlobal
             ),
             totalBPTHeld: FixedPoint.from(
-              r.baseStrategy.vaultState.totalBPTHeld
+              r.baseStrategy.vaultState.totalPoolClaim
             ),
           };
         },
