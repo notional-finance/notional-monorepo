@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [0.2.5](https://github.com/notional-finance/notional-monorepo/compare/contracts-0.2.4...contracts-0.2.5) (2023-06-20)
+
+
+### Bug Fixes
+
+* update vault abi ([#191](https://github.com/notional-finance/notional-monorepo/issues/191)) ([c71f7a0](https://github.com/notional-finance/notional-monorepo/commit/c71f7a03073671c6ff7c3e90d02712bb8863056e))
+
 ## [0.2.4](https://github.com/notional-finance/notional-monorepo/compare/contracts-0.2.3...contracts-0.2.4) (2023-06-06)
 
 ## [0.2.3](https://github.com/notional-finance/notional-monorepo/compare/contracts-0.2.2...contracts-0.2.3) (2023-05-26)
