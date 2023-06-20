@@ -1,4 +1,4 @@
-import { merge, Observable } from 'rxjs';
+import { EMPTY, merge, Observable } from 'rxjs';
 import { GlobalState } from '../global/global-state';
 import {
   initialBaseTradeState,
@@ -19,7 +19,7 @@ import {
   postVaultAccountRisk,
   availableTokens,
   buildTransaction,
-  selectedVaultPool,
+  selectedVaultAdapter,
 } from './logic';
 
 export function createVaultTradeManager(
@@ -36,13 +36,13 @@ export function createVaultTradeManager(
     const network$ = selectedNetwork(global$);
     const account$ = selectedAccount(global$);
     const debtPool$ = selectedPool('Debt', state$, network$);
-    const vaultPool$ = selectedVaultPool(state$, network$);
+    const vaultAdapter$ = selectedVaultAdapter(state$, network$);
 
     // Emitted State Changes
     return merge(
       buildTransaction(state$, account$, config),
       postVaultAccountRisk(state$, account$),
-      calculate(state$, debtPool$, vaultPool$, account$, config),
+      calculate(state$, debtPool$, EMPTY, vaultAdapter$, account$, config),
       parseRiskFactorLimit(state$, network$),
       selectedToken('Deposit', state$, network$),
       parseBalance('Deposit', state$),

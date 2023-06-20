@@ -4,6 +4,8 @@ import { SingleSidedLP, SingleSidedLPParams } from './SingleSidedLP';
 export { SingleSidedLP, SingleSidedLPParams };
 
 export abstract class VaultAdapter {
+  abstract hashKey: string;
+
   abstract getNetVaultSharesCost(netVaultShares: TokenBalance): {
     netUnderlyingForVaultShares: TokenBalance;
     feesPaid: TokenBalance;

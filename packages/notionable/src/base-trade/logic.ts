@@ -5,6 +5,7 @@ import {
   Registry,
   TokenBalance,
   TokenDefinition,
+  VaultAdapter,
 } from '@notional-finance/core-entities';
 import {
   AccountRiskProfile,
@@ -229,7 +230,7 @@ export function selectedToken(
     })
   );
 }
-export function selectedVaultPool(
+export function selectedVaultAdapter(
   state$: Observable<VaultTradeState>,
   selectedNetwork$: ReturnType<typeof selectedNetwork>
 ) {
@@ -241,7 +242,7 @@ export function selectedVaultPool(
     switchMap(([vaultAddress, network]) => {
       try {
         return (
-          Registry.getExchangeRegistry().subscribePoolForVault(
+          Registry.getVaultRegistry().subscribeVaultAdapter(
             network,
             vaultAddress
           ) || of(undefined)
@@ -453,6 +454,7 @@ export function calculate(
   state$: Observable<BaseTradeState>,
   debtPool$: Observable<BaseLiquidityPool<unknown> | undefined>,
   collateralPool$: Observable<BaseLiquidityPool<unknown> | undefined>,
+  vaultAdapter$: Observable<VaultAdapter | undefined>,
   account$: Observable<AccountDefinition | null>,
   {
     calculationFn,
@@ -461,15 +463,22 @@ export function calculate(
     calculateDebtOptions,
   }: TransactionConfig
 ) {
-  return combineLatest([state$, debtPool$, collateralPool$, account$]).pipe(
+  return combineLatest([
+    state$,
+    debtPool$,
+    collateralPool$,
+    account$,
+    vaultAdapter$,
+  ]).pipe(
     pairwise(),
-    map(([[p], [s, debtPool, collateralPool, a]]) => ({
+    map(([[p], [s, debtPool, collateralPool, a, vaultAdapter]]) => ({
       prevCalculateInputKeys: p.calculateInputKeys,
       prevInputsSatisfied: p.inputsSatisfied,
       s,
       debtPool,
       collateralPool,
       a,
+      vaultAdapter,
     })),
     map(
       ({
@@ -479,6 +488,7 @@ export function calculate(
         debtPool,
         collateralPool,
         a,
+        vaultAdapter,
       }) => {
         const [inputs, keys] = requiredArgs.reduce(
           ([inputs, keys], r) => {
@@ -487,6 +497,11 @@ export function calculate(
                 return [
                   Object.assign(inputs, { collateralPool }),
                   [...keys, collateralPool?.hashKey || ''],
+                ];
+              case 'vaultAdapter':
+                return [
+                  Object.assign(inputs, { vaultAdapter }),
+                  [...keys, vaultAdapter?.hashKey || ''],
                 ];
               case 'debtPool':
                 return [

@@ -33,11 +33,20 @@ export class SingleSidedLP extends VaultAdapter {
     this.secondaryTradeParams = p.secondaryTradeParams;
   }
 
+  get hashKey() {
+    return [
+      this.pool.hashKey,
+      this.totalLPTokens.hashKey,
+      this.totalVaultShares.toHexString(),
+      this.singleSidedTokenIndex.toString(),
+    ].join(':');
+  }
+
   getVaultSharesToLPTokens(vaultShares: TokenBalance) {
     return this.totalLPTokens.scale(vaultShares.n, this.totalVaultShares);
   }
 
-  override getNetVaultSharesCost(netVaultShares: TokenBalance): {
+  getNetVaultSharesCost(netVaultShares: TokenBalance): {
     netUnderlyingForVaultShares: TokenBalance;
     feesPaid: TokenBalance;
   } {
@@ -73,7 +82,7 @@ export class SingleSidedLP extends VaultAdapter {
     }
   }
 
-  override getDepositParameters(
+  getDepositParameters(
     _account: string,
     _maturity: number,
     totalDeposit: TokenBalance,
@@ -97,7 +106,7 @@ export class SingleSidedLP extends VaultAdapter {
     );
   }
 
-  override getRedeemParameters(
+  getRedeemParameters(
     _account: string,
     _maturity: number,
     vaultSharesToRedeem: TokenBalance,
