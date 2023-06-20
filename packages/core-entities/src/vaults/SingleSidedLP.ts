@@ -14,7 +14,7 @@ export interface SingleSidedLPParams {
   secondaryTradeParams: string;
 }
 
-export class SingleSidedLP extends VaultAdapter {
+export class SingleSidedLP implements VaultAdapter {
   // We should make a method that just returns all of these...
   public pool: BaseLiquidityPool<unknown>; // hardcoded probably?
   public singleSidedTokenIndex: number;
@@ -24,8 +24,6 @@ export class SingleSidedLP extends VaultAdapter {
   public secondaryTradeParams: string;
 
   constructor(network: Network, p: SingleSidedLPParams) {
-    super();
-
     this.pool = Registry.getExchangeRegistry().getPoolInstance(network, p.pool);
     this.singleSidedTokenIndex = p.singleSidedTokenIndex;
     this.totalLPTokens = p.totalLPTokens;
