@@ -9,6 +9,10 @@ import {
   calculateVaultDebt,
   calculateVaultDebtCollateralGivenDepositRiskLimit,
 } from '@notional-finance/transaction';
+import {
+  getMarketIndexForMaturity,
+  isIdiosyncratic,
+} from '@notional-finance/util';
 
 function eligibleDebtToken(
   t: TokenDefinition,
@@ -17,7 +21,10 @@ function eligibleDebtToken(
   return (
     (t.tokenType === 'fCash' || t.tokenType === 'PrimeDebt') &&
     isPrimaryCurrency(t, vaultConfig) &&
-    t.marketIndex <= (vaultConfig?.maxBorrowMarketIndex || 0)
+    !!t.maturity &&
+    !isIdiosyncratic(t.maturity) &&
+    getMarketIndexForMaturity(t.maturity) <=
+      (vaultConfig?.maxBorrowMarketIndex || 0)
   );
 }
 
@@ -63,7 +70,7 @@ export const VaultTradeConfiguration: Record<string, TransactionConfig> = {
       'balances',
       'riskFactorLimit',
     ],
-    collateralFilter: (t, _, s) =>
+    collateralFilter: (t, _, s: VaultTradeState) =>
       t.tokenType === 'VaultShare' && t.vaultAddress === s.vaultAddress,
     debtFilter: (t, _, s: VaultTradeState) =>
       eligibleDebtToken(t, s.vaultConfig),
@@ -92,7 +99,7 @@ export const VaultTradeConfiguration: Record<string, TransactionConfig> = {
       'balances',
       'riskFactorLimit',
     ],
-    collateralFilter: (t, _, s) =>
+    collateralFilter: (t, _, s: VaultTradeState) =>
       t.tokenType === 'VaultShare' && t.vaultAddress === s.vaultAddress,
     debtFilter: (t, a, s: VaultTradeState) =>
       eligibleDebtToken(t, s.vaultConfig) &&
@@ -113,7 +120,7 @@ export const VaultTradeConfiguration: Record<string, TransactionConfig> = {
   DepositVaultCollateral: {
     calculationFn: calculateVaultCollateral,
     requiredArgs: ['collateral', 'depositBalance', 'collateralPool'],
-    collateralFilter: (t, _, s) =>
+    collateralFilter: (t, _, s: VaultTradeState) =>
       t.tokenType === 'VaultShare' && t.vaultAddress === s.vaultAddress,
     debtFilter: () => false,
     depositFilter: (t, _, s: VaultTradeState) =>
@@ -140,7 +147,7 @@ export const VaultTradeConfiguration: Record<string, TransactionConfig> = {
       'collateralBalance',
       'debtPool',
     ],
-    collateralFilter: (t, _, s) =>
+    collateralFilter: (t, _, s: VaultTradeState) =>
       t.tokenType === 'VaultShare' && t.vaultAddress === s.vaultAddress,
     debtFilter: (t, a, s: VaultTradeState) =>
       eligibleDebtToken(t, s.vaultConfig) &&
@@ -170,7 +177,7 @@ export const VaultTradeConfiguration: Record<string, TransactionConfig> = {
       'balances',
       'riskFactorLimit',
     ],
-    collateralFilter: (t, _, s) =>
+    collateralFilter: (t, _, s: VaultTradeState) =>
       t.tokenType === 'VaultShare' && t.vaultAddress === s.vaultAddress,
     debtFilter: (t, a, s: VaultTradeState) =>
       eligibleDebtToken(t, s.vaultConfig) &&

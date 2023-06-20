@@ -22,7 +22,7 @@ export type { TradeType } from './trade-config';
 export type FilterFunc = (
   t: TokenDefinition,
   a: AccountDefinition | null,
-  s: TradeState | VaultTradeState
+  s: BaseTradeState
 ) => boolean;
 
 export interface TransactionConfig {
