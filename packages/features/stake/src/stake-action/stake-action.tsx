@@ -72,12 +72,11 @@ export const StakeAction = () => {
             if (selectedToken !== ethOrWeth) {
               history.push(`/stake/${selectedToken}`);
             }
-
             updateStakeState({
               ethOrWethSelected: selectedToken || undefined,
               ethInputAmount: inputAmount,
               ethHasError: hasError,
-              useOptimumETH: inputAmount !== undefined,
+              useOptimumETH: inputAmount?.isZero() ? true : false,
             });
           }}
         />
