@@ -8,6 +8,7 @@ import {
   AccountFetchMode,
   AccountRegistryClient,
 } from './client/account-registry-client';
+import { VaultRegistryClient } from './client/vault-registry-client';
 
 export class Registry {
   protected static _self?: Registry;
@@ -15,11 +16,13 @@ export class Registry {
   protected static _exchanges?: ExchangeRegistryClient;
   protected static _oracles?: OracleRegistryClient;
   protected static _configurations?: ConfigurationClient;
+  protected static _vaults?: VaultRegistryClient;
   protected static _accounts?: AccountRegistryClient;
 
   public static DEFAULT_TOKEN_REFRESH = 20 * ONE_MINUTE_MS;
   public static DEFAULT_CONFIGURATION_REFRESH = 20 * ONE_MINUTE_MS;
   public static DEFAULT_EXCHANGE_REFRESH = 10 * ONE_SECOND_MS;
+  public static DEFAULT_VAULT_REFRESH = 10 * ONE_SECOND_MS;
   public static DEFAULT_ORACLE_REFRESH = 10 * ONE_SECOND_MS;
   public static DEFAULT_ACCOUNT_REFRESH = ONE_MINUTE_MS;
 
@@ -37,6 +40,7 @@ export class Registry {
     Registry._oracles = new OracleRegistryClient(_cacheHostname);
     Registry._configurations = new ConfigurationClient(_cacheHostname);
     Registry._exchanges = new ExchangeRegistryClient(_cacheHostname);
+    Registry._vaults = new VaultRegistryClient(_cacheHostname);
     Registry._accounts = new AccountRegistryClient(_cacheHostname, fetchMode);
   }
 
@@ -73,6 +77,11 @@ export class Registry {
         network,
         Registry.DEFAULT_EXCHANGE_REFRESH
       );
+
+      Registry.getVaultRegistry().startRefreshInterval(
+        network,
+        Registry.DEFAULT_VAULT_REFRESH
+      );
     });
 
     Registry.getAccountRegistry().startRefreshInterval(
@@ -87,6 +96,7 @@ export class Registry {
     Registry.getOracleRegistry().stopRefresh(network);
     Registry.getConfigurationRegistry().stopRefresh(network);
     Registry.getAccountRegistry().stopRefresh(network);
+    Registry.getVaultRegistry().stopRefresh(network);
   }
 
   public static isRefreshRunning(network: Network) {
@@ -95,13 +105,19 @@ export class Registry {
       Registry.getExchangeRegistry().isRefreshRunning(network) &&
       Registry.getOracleRegistry().isRefreshRunning(network) &&
       Registry.getConfigurationRegistry().isRefreshRunning(network) &&
-      Registry.getAccountRegistry().isRefreshRunning(network)
+      Registry.getAccountRegistry().isRefreshRunning(network) &&
+      Registry.getVaultRegistry().isRefreshRunning(network)
     );
   }
 
   public static getTokenRegistry() {
     if (Registry._tokens == undefined) throw Error('Token Registry undefined');
     return Registry._tokens;
+  }
+
+  public static getVaultRegistry() {
+    if (Registry._vaults == undefined) throw Error('Vault Registry undefined');
+    return Registry._vaults;
   }
 
   public static getExchangeRegistry() {
@@ -141,6 +157,9 @@ export class Registry {
       ),
       new Promise<void>((r) =>
         Registry.getExchangeRegistry().onNetworkRegistered(network, r)
+      ),
+      new Promise<void>((r) =>
+        Registry.getVaultRegistry().onNetworkRegistered(network, r)
       ),
       new Promise<void>((r) => {
         const accounts = Registry.getAccountRegistry();

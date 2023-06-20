@@ -1,13 +1,15 @@
 import { ClientRegistry } from './client-registry';
-import { OracleDefinition, RiskAdjustment } from '..';
+import { OracleDefinition, RiskAdjustment, TokenBalance } from '..';
 import { Routes } from '../server';
 import { AllConfigurationQuery } from '../server/configuration-server';
 import {
   AssetType,
   encodeERC1155Id,
+  getNowSeconds,
   Network,
   PERCENTAGE_BASIS,
   RATE_PRECISION,
+  SECONDS_IN_YEAR,
 } from '@notional-finance/util';
 import { Registry } from '../Registry';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
@@ -54,6 +56,23 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
   getVaultDiscountfCash(network: Network, vaultAddress: string) {
     const config = this.getVaultConfig(network, vaultAddress);
     return config.discountfCash;
+  }
+
+  getVaultBorrowWithFees(
+    network: Network,
+    vaultAddress: string,
+    maturity: number,
+    cashBorrowed: TokenBalance,
+    blockTime = getNowSeconds()
+  ) {
+    const annualizedFeeRate = this.getVaultConfig(
+      network,
+      vaultAddress
+    ).feeRateBasisPoints;
+    const feeRate = Math.floor(
+      annualizedFeeRate * ((maturity - blockTime) / SECONDS_IN_YEAR)
+    );
+    return cashBorrowed.scale(feeRate, RATE_PRECISION);
   }
 
   getValidVaultCurrencies(network: Network, vaultAddress: string) {
