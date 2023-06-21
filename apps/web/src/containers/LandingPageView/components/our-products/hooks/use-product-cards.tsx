@@ -18,7 +18,7 @@ export const useProductCards = () => {
   const earnYieldData = [
     {
       title: <FormattedMessage defaultMessage={'Fixed Rate Lending'} />,
-      link: '/lend',
+      link: '/lend-fixed',
       text: (
         <FormattedMessage
           defaultMessage={'Choose a term and get a guaranteed interest rate.'}

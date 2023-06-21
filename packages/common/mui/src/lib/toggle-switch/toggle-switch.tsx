@@ -1,5 +1,5 @@
 import React, { ChangeEvent } from 'react';
-import Switch from '@mui/material/Switch';
+import { Switch } from '@mui/material';
 import { Box, styled, SxProps } from '@mui/material';
 import { Label } from '../typography/typography';
 
@@ -10,8 +10,15 @@ export interface ToggleSwitchProps {
   sx?: SxProps;
 }
 
-export const ToggleSwitch = ({ isChecked, onToggle, label, sx }: ToggleSwitchProps) => {
-  const handleToggle = ({ target: { checked } }: ChangeEvent<HTMLInputElement>) => {
+export const ToggleSwitch = ({
+  isChecked,
+  onToggle,
+  label,
+  sx,
+}: ToggleSwitchProps) => {
+  const handleToggle = ({
+    target: { checked },
+  }: ChangeEvent<HTMLInputElement>) => {
     onToggle(checked);
   };
 
@@ -44,28 +51,30 @@ const StyledSwitch = styled(Box)(
   }
 
   .toggle-switch-thumb {
-    background-color: ${theme.palette.borders.accentDefault};
-    height: 15px;
-    width: 15px;
+    background-color: ${theme.palette.borders.accentPaper};
+    height: 17px;
+    width: 17px;
   }
 
   .toggle-switch-track {
-    border: 1px solid ${theme.palette.borders.default};
+    border: 1px solid ${theme.palette.borders.accentPaper};
     background: ${theme.palette.common.white};
     opacity: 1;
     margin-top: -4.5px;
-    margin-left: -5px;
+    margin-left: -4.5px;
+    margin-right: -4px;
     border-radius: 20px;
-    height: 18px;
-    width: 70px;
+    height: 20px;
+    width: 40px;
   }
 
   .toggle-switch-checked  .toggle-switch-thumb {
-    background-color: ${theme.palette.common.white};
+    background-color: ${theme.palette.typography.accent};
   }
 
   .toggle-switch-checked + .toggle-switch-track {
-    background-color: ${theme.palette.primary.light ?? theme.palette.error.main} !important;
+    background-color: ${theme.palette.background.paper} !important;
+    border: 1px solid ${theme.palette.typography.accent};
     opacity: 1 !important;
   }
 `

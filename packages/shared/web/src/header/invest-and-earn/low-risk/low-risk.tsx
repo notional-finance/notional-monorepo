@@ -12,7 +12,7 @@ export function LowRisk() {
   const links: SectionLinkProps[] = [
     {
       title: <FormattedMessage defaultMessage={'Fixed Rate Lending'} />,
-      to: '/lend',
+      to: '/lend-fixed',
       icon: (
         <BarChartIcon
           sx={{

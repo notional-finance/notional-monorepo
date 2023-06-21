@@ -47,7 +47,6 @@ export const DepositInput = React.forwardRef<
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [updateState, inputAmount?.hashKey]);
 
-  // TODO: availableDepositTokens stays undefined sometimes and causes a infinite spinner. We need to figure out why
   if (!availableDepositTokens || !selectedDepositToken) return <PageLoading />;
 
   return (

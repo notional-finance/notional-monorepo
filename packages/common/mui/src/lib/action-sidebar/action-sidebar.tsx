@@ -3,6 +3,7 @@ import { Box, Divider, styled, useTheme } from '@mui/material';
 import { Drawer } from '../drawer/drawer';
 import { ActionSidebarButtons } from '../action-sidebar-buttons/action-sidebar-buttons';
 import { FormattedMessage, MessageDescriptor } from 'react-intl';
+import { LeverUpToggle } from '../lever-up-toggle/lever-up-toggle';
 import ToggleSwitch, {
   ToggleSwitchProps,
 } from '../toggle-switch/toggle-switch';
@@ -25,6 +26,8 @@ export interface ActionSidebarProps {
   showActionButtons?: boolean;
   hideTextOnMobile?: boolean;
   advancedToggle?: ToggleSwitchProps;
+  handleLeverUpToggle?: () => void;
+  leveredUp?: boolean;
 }
 export interface ActionSideBarContainerProps {
   hideTextOnMobile: boolean;
@@ -62,6 +65,8 @@ export const ActionSidebar = ({
   advancedToggle,
   showActionButtons = true,
   hideTextOnMobile = true,
+  handleLeverUpToggle,
+  leveredUp,
 }: ActionSidebarProps) => {
   const theme = useTheme();
   const inner = (
@@ -79,6 +84,12 @@ export const ActionSidebar = ({
           >
             <FormattedMessage {...heading} />
           </LargeInputTextEmphasized>
+          {handleLeverUpToggle && leveredUp !== undefined && (
+            <LeverUpToggle
+              leveredUp={leveredUp}
+              handleLeverUpToggle={handleLeverUpToggle}
+            />
+          )}
           <H4
             gutter="default"
             sx={{

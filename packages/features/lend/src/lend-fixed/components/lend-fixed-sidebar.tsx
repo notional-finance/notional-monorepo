@@ -8,8 +8,8 @@ import {
   Confirmation2,
 } from '@notional-finance/trade';
 import { useHistory, useLocation } from 'react-router-dom';
-import { LEND_BORROW } from '@notional-finance/shared-config';
-import { LendFixedContext } from '../lend-fixed';
+import { PRODUCTS } from '@notional-finance/shared-config';
+import { LendFixedContext } from '../../lend-fixed/lend-fixed';
 
 export const LendFixedSidebar = () => {
   const {
@@ -59,7 +59,7 @@ export const LendFixedSidebar = () => {
         ref={currencyInputRef}
         inputRef={currencyInputRef}
         context={LendFixedContext}
-        newRoute={(newToken) => `/${LEND_BORROW.LEND}/${newToken}`}
+        newRoute={(newToken) => `/${PRODUCTS.LEND_FIXED}/${newToken}`}
         inputLabel={defineMessage({
           defaultMessage: '1. How much do you want to lend?',
           description: 'input label',

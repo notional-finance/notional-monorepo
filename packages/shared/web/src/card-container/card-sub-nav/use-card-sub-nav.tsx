@@ -10,7 +10,11 @@ export const useCardSubNav = () => {
   const links: CardSubNavProps[] = [
     {
       title: <FormattedMessage defaultMessage={'Fixed Rate Lending'} />,
-      to: '/lend',
+      to: '/lend-fixed',
+    },
+    {
+      title: <FormattedMessage defaultMessage={'Variable Rate Lending'} />,
+      to: '/lend-variable',
     },
     {
       title: <FormattedMessage defaultMessage={'Leveraged Vaults'} />,

@@ -35,3 +35,5 @@ export const CalculatedRatesTable = ({
     />
   );
 };
+
+export default CalculatedRatesTable;

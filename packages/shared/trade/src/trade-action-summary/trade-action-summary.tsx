@@ -1,4 +1,5 @@
 import { FormattedMessage } from 'react-intl';
+import { ReactNode } from 'react';
 import { NOTIONAL_CATEGORIES } from '@notional-finance/shared-config';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
@@ -7,40 +8,25 @@ import {
   PageLoading,
   TradeSummaryContainer,
   TradeActionTitle,
-  InteractiveAreaChart,
 } from '@notional-finance/mui';
-import { useTradeSummaryChart } from './hooks/use-trade-summary-chart';
-import { TradeActionView } from './trade-action-view';
-import { CalculatedRatesTable } from './calculated-rates-table';
-import { Market } from '@notional-finance/sdk/src/system';
-import { useQueryParams } from '@notional-finance/utils';
-import { MobileTradeActionSummary } from './mobile-trade-action-summary';
+// import { MobileTradeActionSummary } from './mobile-trade-action-summary';
 import { messages } from './messages';
 
 interface TradeActionSummaryProps {
-  markets: Market[];
   selectedToken: string | null;
-  selectedMarketKey: string | null;
-  onSelectMarketKey: (marketKey: string | null) => void;
   tradeAction: NOTIONAL_CATEGORIES;
   tradedRate: number | undefined;
-  fCashAmount: number | undefined;
-  interestAmount: number | undefined;
+  tradeActionTitle: ReactNode;
+  children?: ReactNode | ReactNode[];
 }
 
 export function TradeActionSummary({
-  markets,
   selectedToken,
-  selectedMarketKey,
   tradedRate,
-  onSelectMarketKey,
+  tradeActionTitle,
   tradeAction,
-  fCashAmount,
-  interestAmount,
+  children,
 }: TradeActionSummaryProps) {
-  const { confirm } = useQueryParams();
-  const { marketData, areaHeaderData, chartToolTipData } =
-    useTradeSummaryChart(markets);
   if (!selectedToken) return <PageLoading />;
   const fixedAPY = tradedRate ? (tradedRate * 100) / 1e9 : undefined;
 
@@ -55,39 +41,14 @@ export function TradeActionSummary({
 
           <TradeActionTitle
             value={fixedAPY}
-            title={<FormattedMessage defaultMessage={'Fixed APY'} />}
+            title={tradeActionTitle}
             valueSuffix="%"
           />
-
-          <InteractiveAreaChart
-            interactiveAreaChartData={marketData}
-            legendData={areaHeaderData}
-            onSelectMarketKey={onSelectMarketKey}
-            selectedMarketKey={selectedMarketKey || ''}
-            lockSelection={!!confirm}
-            chartToolTipData={chartToolTipData}
-          />
-
-          <TradeActionView
-            selectedMarketKey={selectedMarketKey}
-            tradeAction={tradeAction}
-            fCashAmount={fCashAmount}
-            interestAmount={interestAmount}
-            selectedToken={selectedToken}
-          />
-
-          {(tradeAction === NOTIONAL_CATEGORIES.BORROW ||
-            tradeAction === NOTIONAL_CATEGORIES.LEND) && (
-            <CalculatedRatesTable
-              selectedMarketKey={selectedMarketKey}
-              selectedToken={selectedToken}
-              tradeAction={tradeAction}
-            />
-          )}
+          {children}
         </div>
       </TradeSummaryContainer>
-
-      <MobileTradeActionSummary
+      {/* TODO: Need to decide on what data we want displayed in the component and rework it based off of that */}
+      {/* <MobileTradeActionSummary
         tradeAction={tradeAction}
         selectedToken={selectedToken}
         dataPointOne={fCashAmount}
@@ -95,7 +56,7 @@ export function TradeActionSummary({
         dataPointTwo={interestAmount}
         dataPointTwoSuffix={` ${selectedToken}`}
         fixedAPY={fixedAPY}
-      />
+      /> */}
     </>
   );
 }

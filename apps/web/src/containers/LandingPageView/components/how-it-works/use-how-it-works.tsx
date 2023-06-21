@@ -48,7 +48,7 @@ export const useHowItWorks = (): HowItWorks => {
           linkText: (
             <FormattedMessage defaultMessage={'View All Fixed Rates'} />
           ),
-          link: '/lend',
+          link: '/lend-fixed',
         },
       ],
     },
