@@ -87,7 +87,7 @@ export const StakedNoteInfoBox = ({
           <LabeledText
             label="NOTE Price"
             value={formattedNotePrice}
-            sx={{ width: '130px', textOverflow: 'ellipsis' }}
+            sx={{ width: theme.spacing(16), textOverflow: 'ellipsis' }}
             labelAbove
           />
         </StyledLabel>
@@ -106,7 +106,7 @@ export const StakedNoteInfoBox = ({
           <LabeledText
             label="Price Impact"
             value={aboveMaxPriceImpactWarning || formattedPriceImpact}
-            sx={{ width: '130px', textOverflow: 'ellipsis' }}
+            sx={{ width: theme.spacing(16), textOverflow: 'ellipsis' }}
             labelAbove
           />
         </StyledLabel>
