@@ -16,7 +16,7 @@ export const initialStakeState = {
   noteHasError: false,
   ethHasError: false,
   ethOrWethSelected: 'ETH',
-  useOptimumETH: true,
+  useOptimumETH: false,
 };
 
 const {

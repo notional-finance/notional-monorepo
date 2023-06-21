@@ -76,7 +76,7 @@ export const StakeAction = () => {
               ethOrWethSelected: selectedToken || undefined,
               ethInputAmount: inputAmount,
               ethHasError: hasError,
-              useOptimumETH: inputAmount?.isZero() ? true : false,
+              useOptimumETH: false,
             });
           }}
         />

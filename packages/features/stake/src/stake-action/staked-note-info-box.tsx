@@ -62,12 +62,14 @@ export const StakedNoteInfoBox = ({
 
   const angledArrowProps = noteModifiedPriceUSD
     ? {
-        visibility: noteModifiedPriceUSD !== noteSpotPriceUSD ? 'visible' : 'hidden',
+        visibility:
+          noteModifiedPriceUSD !== noteSpotPriceUSD ? 'visible' : 'hidden',
         fill:
           noteModifiedPriceUSD > noteSpotPriceUSD
             ? theme.palette.primary.main
             : theme.palette.error.main,
-        transform: noteModifiedPriceUSD > noteSpotPriceUSD ? 'rotate(180deg)' : 'unset',
+        transform:
+          noteModifiedPriceUSD > noteSpotPriceUSD ? 'rotate(180deg)' : 'unset',
       }
     : {
         visibility: 'hidden',
@@ -82,7 +84,12 @@ export const StakedNoteInfoBox = ({
       </Label>
       <StyledLabels>
         <StyledLabel>
-          <LabeledText label="NOTE Price" value={formattedNotePrice} labelAbove />
+          <LabeledText
+            label="NOTE Price"
+            value={formattedNotePrice}
+            sx={{ width: theme.spacing(16), textOverflow: 'ellipsis' }}
+            labelAbove
+          />
         </StyledLabel>
         <StyledLabel>
           <AngledArrowIcon
@@ -99,6 +106,7 @@ export const StakedNoteInfoBox = ({
           <LabeledText
             label="Price Impact"
             value={aboveMaxPriceImpactWarning || formattedPriceImpact}
+            sx={{ width: theme.spacing(16), textOverflow: 'ellipsis' }}
             labelAbove
           />
         </StyledLabel>
