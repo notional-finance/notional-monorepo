@@ -32,13 +32,21 @@ export type DeploymentParamsStruct = {
   primaryBorrowCurrencyId: PromiseOrValue<BigNumberish>;
   pool: PromiseOrValue<string>;
   tradingModule: PromiseOrValue<string>;
+  isSelfLPToken: PromiseOrValue<boolean>;
   settlementPeriodInSeconds: PromiseOrValue<BigNumberish>;
 };
 
-export type DeploymentParamsStructOutput = [number, string, string, number] & {
+export type DeploymentParamsStructOutput = [
+  number,
+  string,
+  string,
+  boolean,
+  number
+] & {
   primaryBorrowCurrencyId: number;
   pool: string;
   tradingModule: string;
+  isSelfLPToken: boolean;
   settlementPeriodInSeconds: number;
 };
 
@@ -85,14 +93,21 @@ export type StrategyVaultSettingsStructOutput = [
 
 export type StrategyVaultStateStruct = {
   totalPoolClaim: PromiseOrValue<BigNumberish>;
-  totalStrategyTokenGlobal: PromiseOrValue<BigNumberish>;
+  totalVaultSharesGlobal: PromiseOrValue<BigNumberish>;
   lastSettlementTimestamp: PromiseOrValue<BigNumberish>;
+  flags: PromiseOrValue<BigNumberish>;
 };
 
-export type StrategyVaultStateStructOutput = [BigNumber, BigNumber, number] & {
+export type StrategyVaultStateStructOutput = [
+  BigNumber,
+  BigNumber,
+  number,
+  number
+] & {
   totalPoolClaim: BigNumber;
-  totalStrategyTokenGlobal: BigNumber;
+  totalVaultSharesGlobal: BigNumber;
   lastSettlementTimestamp: number;
+  flags: number;
 };
 
 export type StrategyContextStruct = {
@@ -101,6 +116,7 @@ export type StrategyContextStruct = {
   vaultSettings: StrategyVaultSettingsStruct;
   vaultState: StrategyVaultStateStruct;
   poolClaimPrecision: PromiseOrValue<BigNumberish>;
+  canUseStaticSlippage: PromiseOrValue<boolean>;
 };
 
 export type StrategyContextStructOutput = [
@@ -108,13 +124,15 @@ export type StrategyContextStructOutput = [
   string,
   StrategyVaultSettingsStructOutput,
   StrategyVaultStateStructOutput,
-  BigNumber
+  BigNumber,
+  boolean
 ] & {
   settlementPeriodInSeconds: number;
   tradingModule: string;
   vaultSettings: StrategyVaultSettingsStructOutput;
   vaultState: StrategyVaultStateStructOutput;
   poolClaimPrecision: BigNumber;
+  canUseStaticSlippage: boolean;
 };
 
 export type TwoTokenPoolContextStruct = {
@@ -154,12 +172,18 @@ export type TwoTokenPoolContextStructOutput = [
 export type Curve2TokenPoolContextStruct = {
   basePool: TwoTokenPoolContextStruct;
   curvePool: PromiseOrValue<string>;
+  isV2: PromiseOrValue<boolean>;
 };
 
 export type Curve2TokenPoolContextStructOutput = [
   TwoTokenPoolContextStructOutput,
-  string
-] & { basePool: TwoTokenPoolContextStructOutput; curvePool: string };
+  string,
+  boolean
+] & {
+  basePool: TwoTokenPoolContextStructOutput;
+  curvePool: string;
+  isV2: boolean;
+};
 
 export type ConvexStakingContextStruct = {
   booster: PromiseOrValue<string>;
@@ -228,9 +252,11 @@ export declare namespace IStrategyVault {
     emergencySettlement: PromiseOrValue<BytesLike>;
     postMaturitySettlement: PromiseOrValue<BytesLike>;
     rewardReinvestment: PromiseOrValue<BytesLike>;
+    staticSlippageTrading: PromiseOrValue<BytesLike>;
   };
 
   export type StrategyVaultRolesStructOutput = [
+    string,
     string,
     string,
     string,
@@ -240,6 +266,7 @@ export declare namespace IStrategyVault {
     emergencySettlement: string;
     postMaturitySettlement: string;
     rewardReinvestment: string;
+    staticSlippageTrading: string;
   };
 }
 
@@ -253,7 +280,7 @@ export interface Curve2TokenConvexVaultInterface extends utils.Interface {
     "convertStrategyToUnderlying(address,uint256,uint256)": FunctionFragment;
     "convertStrategyTokensToPoolClaim(uint256)": FunctionFragment;
     "decimals()": FunctionFragment;
-    "deleverageAccount(address,address,address,uint256,bool,bytes)": FunctionFragment;
+    "deleverageAccount(address,address,address,uint16,int256)": FunctionFragment;
     "depositFromNotional(address,uint256,uint256,bytes)": FunctionFragment;
     "getEmergencySettlementPoolClaimAmount(uint256)": FunctionFragment;
     "getRoleAdmin(bytes32)": FunctionFragment;
@@ -269,11 +296,10 @@ export interface Curve2TokenConvexVaultInterface extends utils.Interface {
     "reinvestReward((bytes,uint256))": FunctionFragment;
     "renounceRole(bytes32,address)": FunctionFragment;
     "repaySecondaryBorrowCallback(address,uint256,bytes)": FunctionFragment;
+    "restoreVault(uint256)": FunctionFragment;
     "revokeRole(bytes32,address)": FunctionFragment;
     "setStrategyVaultSettings((uint256,uint32,uint32,uint32,uint16,uint16,uint16,uint16))": FunctionFragment;
     "settleVaultEmergency(uint256,bytes)": FunctionFragment;
-    "settleVaultNormal(uint256,uint256,bytes)": FunctionFragment;
-    "settleVaultPostMaturity(uint256,uint256,bytes)": FunctionFragment;
     "strategy()": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
     "upgradeTo(address)": FunctionFragment;
@@ -306,11 +332,10 @@ export interface Curve2TokenConvexVaultInterface extends utils.Interface {
       | "reinvestReward"
       | "renounceRole"
       | "repaySecondaryBorrowCallback"
+      | "restoreVault"
       | "revokeRole"
       | "setStrategyVaultSettings"
       | "settleVaultEmergency"
-      | "settleVaultNormal"
-      | "settleVaultPostMaturity"
       | "strategy"
       | "supportsInterface"
       | "upgradeTo"
@@ -354,8 +379,7 @@ export interface Curve2TokenConvexVaultInterface extends utils.Interface {
       PromiseOrValue<string>,
       PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>,
-      PromiseOrValue<boolean>,
-      PromiseOrValue<BytesLike>
+      PromiseOrValue<BigNumberish>
     ]
   ): string;
   encodeFunctionData(
@@ -429,6 +453,10 @@ export interface Curve2TokenConvexVaultInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
+    functionFragment: "restoreVault",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "revokeRole",
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>]
   ): string;
@@ -439,22 +467,6 @@ export interface Curve2TokenConvexVaultInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "settleVaultEmergency",
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "settleVaultNormal",
-    values: [
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BytesLike>
-    ]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "settleVaultPostMaturity",
-    values: [
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BytesLike>
-    ]
   ): string;
   encodeFunctionData(functionFragment: "strategy", values?: undefined): string;
   encodeFunctionData(
@@ -545,6 +557,10 @@ export interface Curve2TokenConvexVaultInterface extends utils.Interface {
     functionFragment: "repaySecondaryBorrowCallback",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "restoreVault",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "revokeRole", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setStrategyVaultSettings",
@@ -552,14 +568,6 @@ export interface Curve2TokenConvexVaultInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "settleVaultEmergency",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "settleVaultNormal",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "settleVaultPostMaturity",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "strategy", data: BytesLike): Result;
@@ -724,10 +732,9 @@ export interface Curve2TokenConvexVault extends BaseContract {
       account: PromiseOrValue<string>,
       vault: PromiseOrValue<string>,
       liquidator: PromiseOrValue<string>,
-      depositAmountExternal: PromiseOrValue<BigNumberish>,
-      transferSharesToLiquidator: PromiseOrValue<boolean>,
-      redeemData: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      currencyIndex: PromiseOrValue<BigNumberish>,
+      depositUnderlyingInternal: PromiseOrValue<BigNumberish>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     depositFromNotional(
@@ -785,7 +792,7 @@ export interface Curve2TokenConvexVault extends BaseContract {
     redeemFromNotional(
       account: PromiseOrValue<string>,
       receiver: PromiseOrValue<string>,
-      strategyTokens: PromiseOrValue<BigNumberish>,
+      vaultShares: PromiseOrValue<BigNumberish>,
       maturity: PromiseOrValue<BigNumberish>,
       underlyingToRepayDebt: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
@@ -810,6 +817,11 @@ export interface Curve2TokenConvexVault extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    restoreVault(
+      minPoolClaim: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     revokeRole(
       role: PromiseOrValue<BytesLike>,
       account: PromiseOrValue<string>,
@@ -823,20 +835,6 @@ export interface Curve2TokenConvexVault extends BaseContract {
 
     settleVaultEmergency(
       maturity: PromiseOrValue<BigNumberish>,
-      data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    settleVaultNormal(
-      maturity: PromiseOrValue<BigNumberish>,
-      strategyTokensToRedeem: PromiseOrValue<BigNumberish>,
-      data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    settleVaultPostMaturity(
-      maturity: PromiseOrValue<BigNumberish>,
-      strategyTokensToRedeem: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -893,10 +891,9 @@ export interface Curve2TokenConvexVault extends BaseContract {
     account: PromiseOrValue<string>,
     vault: PromiseOrValue<string>,
     liquidator: PromiseOrValue<string>,
-    depositAmountExternal: PromiseOrValue<BigNumberish>,
-    transferSharesToLiquidator: PromiseOrValue<boolean>,
-    redeemData: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
+    currencyIndex: PromiseOrValue<BigNumberish>,
+    depositUnderlyingInternal: PromiseOrValue<BigNumberish>,
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   depositFromNotional(
@@ -954,7 +951,7 @@ export interface Curve2TokenConvexVault extends BaseContract {
   redeemFromNotional(
     account: PromiseOrValue<string>,
     receiver: PromiseOrValue<string>,
-    strategyTokens: PromiseOrValue<BigNumberish>,
+    vaultShares: PromiseOrValue<BigNumberish>,
     maturity: PromiseOrValue<BigNumberish>,
     underlyingToRepayDebt: PromiseOrValue<BigNumberish>,
     data: PromiseOrValue<BytesLike>,
@@ -979,6 +976,11 @@ export interface Curve2TokenConvexVault extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  restoreVault(
+    minPoolClaim: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   revokeRole(
     role: PromiseOrValue<BytesLike>,
     account: PromiseOrValue<string>,
@@ -992,20 +994,6 @@ export interface Curve2TokenConvexVault extends BaseContract {
 
   settleVaultEmergency(
     maturity: PromiseOrValue<BigNumberish>,
-    data: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  settleVaultNormal(
-    maturity: PromiseOrValue<BigNumberish>,
-    strategyTokensToRedeem: PromiseOrValue<BigNumberish>,
-    data: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  settleVaultPostMaturity(
-    maturity: PromiseOrValue<BigNumberish>,
-    strategyTokensToRedeem: PromiseOrValue<BigNumberish>,
     data: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -1035,7 +1023,14 @@ export interface Curve2TokenConvexVault extends BaseContract {
 
     TRADING_MODULE(overrides?: CallOverrides): Promise<string>;
 
-    claimRewardTokens(overrides?: CallOverrides): Promise<BigNumber[]>;
+    claimRewardTokens(
+      overrides?: CallOverrides
+    ): Promise<
+      [string[], BigNumber[]] & {
+        rewardTokens: string[];
+        claimedBalances: BigNumber[];
+      }
+    >;
 
     convertPoolClaimToStrategyTokens(
       poolClaim: PromiseOrValue<BigNumberish>,
@@ -1060,11 +1055,15 @@ export interface Curve2TokenConvexVault extends BaseContract {
       account: PromiseOrValue<string>,
       vault: PromiseOrValue<string>,
       liquidator: PromiseOrValue<string>,
-      depositAmountExternal: PromiseOrValue<BigNumberish>,
-      transferSharesToLiquidator: PromiseOrValue<boolean>,
-      redeemData: PromiseOrValue<BytesLike>,
+      currencyIndex: PromiseOrValue<BigNumberish>,
+      depositUnderlyingInternal: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    ): Promise<
+      [BigNumber, BigNumber] & {
+        vaultSharesFromLiquidation: BigNumber;
+        depositAmountPrimeCash: BigNumber;
+      }
+    >;
 
     depositFromNotional(
       account: PromiseOrValue<string>,
@@ -1121,7 +1120,7 @@ export interface Curve2TokenConvexVault extends BaseContract {
     redeemFromNotional(
       account: PromiseOrValue<string>,
       receiver: PromiseOrValue<string>,
-      strategyTokens: PromiseOrValue<BigNumberish>,
+      vaultShares: PromiseOrValue<BigNumberish>,
       maturity: PromiseOrValue<BigNumberish>,
       underlyingToRepayDebt: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
@@ -1146,6 +1145,11 @@ export interface Curve2TokenConvexVault extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string>;
 
+    restoreVault(
+      minPoolClaim: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     revokeRole(
       role: PromiseOrValue<BytesLike>,
       account: PromiseOrValue<string>,
@@ -1159,20 +1163,6 @@ export interface Curve2TokenConvexVault extends BaseContract {
 
     settleVaultEmergency(
       maturity: PromiseOrValue<BigNumberish>,
-      data: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    settleVaultNormal(
-      maturity: PromiseOrValue<BigNumberish>,
-      strategyTokensToRedeem: PromiseOrValue<BigNumberish>,
-      data: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    settleVaultPostMaturity(
-      maturity: PromiseOrValue<BigNumberish>,
-      strategyTokensToRedeem: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -1291,10 +1281,9 @@ export interface Curve2TokenConvexVault extends BaseContract {
       account: PromiseOrValue<string>,
       vault: PromiseOrValue<string>,
       liquidator: PromiseOrValue<string>,
-      depositAmountExternal: PromiseOrValue<BigNumberish>,
-      transferSharesToLiquidator: PromiseOrValue<boolean>,
-      redeemData: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      currencyIndex: PromiseOrValue<BigNumberish>,
+      depositUnderlyingInternal: PromiseOrValue<BigNumberish>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     depositFromNotional(
@@ -1348,7 +1337,7 @@ export interface Curve2TokenConvexVault extends BaseContract {
     redeemFromNotional(
       account: PromiseOrValue<string>,
       receiver: PromiseOrValue<string>,
-      strategyTokens: PromiseOrValue<BigNumberish>,
+      vaultShares: PromiseOrValue<BigNumberish>,
       maturity: PromiseOrValue<BigNumberish>,
       underlyingToRepayDebt: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
@@ -1373,6 +1362,11 @@ export interface Curve2TokenConvexVault extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    restoreVault(
+      minPoolClaim: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     revokeRole(
       role: PromiseOrValue<BytesLike>,
       account: PromiseOrValue<string>,
@@ -1386,20 +1380,6 @@ export interface Curve2TokenConvexVault extends BaseContract {
 
     settleVaultEmergency(
       maturity: PromiseOrValue<BigNumberish>,
-      data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    settleVaultNormal(
-      maturity: PromiseOrValue<BigNumberish>,
-      strategyTokensToRedeem: PromiseOrValue<BigNumberish>,
-      data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    settleVaultPostMaturity(
-      maturity: PromiseOrValue<BigNumberish>,
-      strategyTokensToRedeem: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -1459,10 +1439,9 @@ export interface Curve2TokenConvexVault extends BaseContract {
       account: PromiseOrValue<string>,
       vault: PromiseOrValue<string>,
       liquidator: PromiseOrValue<string>,
-      depositAmountExternal: PromiseOrValue<BigNumberish>,
-      transferSharesToLiquidator: PromiseOrValue<boolean>,
-      redeemData: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
+      currencyIndex: PromiseOrValue<BigNumberish>,
+      depositUnderlyingInternal: PromiseOrValue<BigNumberish>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     depositFromNotional(
@@ -1518,7 +1497,7 @@ export interface Curve2TokenConvexVault extends BaseContract {
     redeemFromNotional(
       account: PromiseOrValue<string>,
       receiver: PromiseOrValue<string>,
-      strategyTokens: PromiseOrValue<BigNumberish>,
+      vaultShares: PromiseOrValue<BigNumberish>,
       maturity: PromiseOrValue<BigNumberish>,
       underlyingToRepayDebt: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
@@ -1543,6 +1522,11 @@ export interface Curve2TokenConvexVault extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    restoreVault(
+      minPoolClaim: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     revokeRole(
       role: PromiseOrValue<BytesLike>,
       account: PromiseOrValue<string>,
@@ -1556,20 +1540,6 @@ export interface Curve2TokenConvexVault extends BaseContract {
 
     settleVaultEmergency(
       maturity: PromiseOrValue<BigNumberish>,
-      data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    settleVaultNormal(
-      maturity: PromiseOrValue<BigNumberish>,
-      strategyTokensToRedeem: PromiseOrValue<BigNumberish>,
-      data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    settleVaultPostMaturity(
-      maturity: PromiseOrValue<BigNumberish>,
-      strategyTokensToRedeem: PromiseOrValue<BigNumberish>,
       data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;

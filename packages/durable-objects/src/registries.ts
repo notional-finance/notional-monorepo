@@ -11,6 +11,7 @@ export interface RegistryDOEnv extends BaseDOEnv {
   CONFIGURATION_REGISTRY_DO: DurableObjectNamespace;
   EXCHANGE_REGISTRY_DO: DurableObjectNamespace;
   ORACLE_REGISTRY_DO: DurableObjectNamespace;
+  VAULT_REGISTRY_DO: DurableObjectNamespace;
 }
 
 export class TokenRegistryDO extends RegistryDO {
@@ -57,6 +58,18 @@ export class OracleRegistryDO extends RegistryDO {
       ONE_MINUTE_MS,
       Routes.Oracles,
       Servers.OracleRegistryServer
+    );
+  }
+}
+
+export class VaultRegistryDO extends RegistryDO {
+  constructor(state: DurableObjectState, env: BaseDOEnv) {
+    super(
+      state,
+      env,
+      ONE_MINUTE_MS,
+      Routes.Vaults,
+      Servers.VaultRegistryServer
     );
   }
 }

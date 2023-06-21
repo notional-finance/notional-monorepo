@@ -32,7 +32,7 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
             );
 
             const totalVaultShares =
-              r.baseStrategy.vaultState.totalStrategyTokenGlobal;
+              r.baseStrategy.vaultState.totalVaultSharesGlobal;
 
             return {
               pool: r.poolContext.curvePool,

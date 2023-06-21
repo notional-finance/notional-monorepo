@@ -21,7 +21,7 @@ const _abi = [
       {
         components: [
           {
-            internalType: "contract IConvexRewardPool",
+            internalType: "address",
             name: "rewardPool",
             type: "address",
           },
@@ -43,6 +43,11 @@ const _abi = [
                 type: "address",
               },
               {
+                internalType: "bool",
+                name: "isSelfLPToken",
+                type: "bool",
+              },
+              {
                 internalType: "uint32",
                 name: "settlementPeriodInSeconds",
                 type: "uint32",
@@ -58,34 +63,12 @@ const _abi = [
         type: "tuple",
       },
     ],
-    name: "constructor",
     stateMutability: "nonpayable",
     type: "constructor",
   },
   {
     inputs: [],
     name: "ERC20Error",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "HasNotMatured",
-    type: "error",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint32",
-        name: "lastSettlementTimestamp",
-        type: "uint32",
-      },
-      {
-        internalType: "uint32",
-        name: "coolDownInMinutes",
-        type: "uint32",
-      },
-    ],
-    name: "InSettlementCoolDown",
     type: "error",
   },
   {
@@ -132,29 +115,24 @@ const _abi = [
     type: "error",
   },
   {
-    inputs: [],
-    name: "NotInSettlementWindow",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "PostMaturitySettlement",
-    type: "error",
-  },
-  {
     inputs: [
       {
         internalType: "uint256",
-        name: "slippage",
+        name: "totalPoolClaim",
         type: "uint256",
       },
       {
-        internalType: "uint32",
-        name: "limit",
-        type: "uint32",
+        internalType: "uint256",
+        name: "poolClaimThreshold",
+        type: "uint256",
       },
     ],
-    name: "SlippageTooHigh",
+    name: "PoolShareTooHigh",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "VaultNotLocked",
     type: "error",
   },
   {
@@ -334,6 +312,11 @@ const _abi = [
     name: "claimRewardTokens",
     outputs: [
       {
+        internalType: "contract IERC20[]",
+        name: "rewardTokens",
+        type: "address[]",
+      },
+      {
         internalType: "uint256[]",
         name: "claimedBalances",
         type: "uint256[]",
@@ -440,30 +423,30 @@ const _abi = [
         type: "address",
       },
       {
-        internalType: "uint256",
-        name: "depositAmountExternal",
-        type: "uint256",
+        internalType: "uint16",
+        name: "currencyIndex",
+        type: "uint16",
       },
       {
-        internalType: "bool",
-        name: "transferSharesToLiquidator",
-        type: "bool",
-      },
-      {
-        internalType: "bytes",
-        name: "redeemData",
-        type: "bytes",
+        internalType: "int256",
+        name: "depositUnderlyingInternal",
+        type: "int256",
       },
     ],
     name: "deleverageAccount",
     outputs: [
       {
         internalType: "uint256",
-        name: "profitFromLiquidation",
+        name: "vaultSharesFromLiquidation",
         type: "uint256",
       },
+      {
+        internalType: "int256",
+        name: "depositAmountPrimeCash",
+        type: "int256",
+      },
     ],
-    stateMutability: "nonpayable",
+    stateMutability: "payable",
     type: "function",
   },
   {
@@ -493,7 +476,7 @@ const _abi = [
     outputs: [
       {
         internalType: "uint256",
-        name: "strategyTokensMinted",
+        name: "vaultSharesMinted",
         type: "uint256",
       },
     ],
@@ -562,6 +545,11 @@ const _abi = [
           {
             internalType: "bytes32",
             name: "rewardReinvestment",
+            type: "bytes32",
+          },
+          {
+            internalType: "bytes32",
+            name: "staticSlippageTrading",
             type: "bytes32",
           },
         ],
@@ -666,12 +654,17 @@ const _abi = [
                   },
                   {
                     internalType: "uint80",
-                    name: "totalStrategyTokenGlobal",
+                    name: "totalVaultSharesGlobal",
                     type: "uint80",
                   },
                   {
                     internalType: "uint32",
                     name: "lastSettlementTimestamp",
+                    type: "uint32",
+                  },
+                  {
+                    internalType: "uint32",
+                    name: "flags",
                     type: "uint32",
                   },
                 ],
@@ -683,6 +676,11 @@ const _abi = [
                 internalType: "uint256",
                 name: "poolClaimPrecision",
                 type: "uint256",
+              },
+              {
+                internalType: "bool",
+                name: "canUseStaticSlippage",
+                type: "bool",
               },
             ],
             internalType: "struct StrategyContext",
@@ -744,9 +742,14 @@ const _abi = [
                 type: "tuple",
               },
               {
-                internalType: "contract ICurvePool",
+                internalType: "address",
                 name: "curvePool",
                 type: "address",
+              },
+              {
+                internalType: "bool",
+                name: "isV2",
+                type: "bool",
               },
             ],
             internalType: "struct Curve2TokenPoolContext",
@@ -756,12 +759,12 @@ const _abi = [
           {
             components: [
               {
-                internalType: "contract IConvexBooster",
+                internalType: "address",
                 name: "booster",
                 type: "address",
               },
               {
-                internalType: "contract IConvexRewardPool",
+                internalType: "address",
                 name: "rewardPool",
                 type: "address",
               },
@@ -943,7 +946,7 @@ const _abi = [
       },
       {
         internalType: "uint256",
-        name: "strategyTokens",
+        name: "vaultShares",
         type: "uint256",
       },
       {
@@ -1048,6 +1051,19 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "uint256",
+        name: "minPoolClaim",
+        type: "uint256",
+      },
+    ],
+    name: "restoreVault",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "bytes32",
         name: "role",
         type: "bytes32",
@@ -1132,52 +1148,6 @@ const _abi = [
       },
     ],
     name: "settleVaultEmergency",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "maturity",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "strategyTokensToRedeem",
-        type: "uint256",
-      },
-      {
-        internalType: "bytes",
-        name: "data",
-        type: "bytes",
-      },
-    ],
-    name: "settleVaultNormal",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "maturity",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "strategyTokensToRedeem",
-        type: "uint256",
-      },
-      {
-        internalType: "bytes",
-        name: "data",
-        type: "bytes",
-      },
-    ],
-    name: "settleVaultPostMaturity",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
