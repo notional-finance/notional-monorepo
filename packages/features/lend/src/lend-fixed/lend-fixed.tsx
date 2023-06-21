@@ -61,7 +61,7 @@ export const LendFixed = () => {
               {selectedDepositToken && (
                 <TradeActionView
                   selectedMarketKey={selectedMarketKey}
-                  tradeAction={NOTIONAL_CATEGORIES.BORROW}
+                  tradeAction={NOTIONAL_CATEGORIES.LEND}
                   selectedToken={selectedDepositToken}
                   fCashAmount={0}
                   interestAmount={0}
@@ -91,7 +91,7 @@ export const LendFixed = () => {
                 <CalculatedRatesTable
                   selectedMarketKey={selectedMarketKey}
                   selectedToken={selectedDepositToken}
-                  tradeAction={NOTIONAL_CATEGORIES.BORROW}
+                  tradeAction={NOTIONAL_CATEGORIES.LEND}
                 />
               )}
               <FaqHeader

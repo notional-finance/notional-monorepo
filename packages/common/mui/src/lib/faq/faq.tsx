@@ -133,7 +133,7 @@ export function Faq({
       </AccordionSummary>
       <AccordionDetails
         sx={{
-          padding: '.5rem 1rem 1rem',
+          padding: theme.spacing(1, 2, 2),
         }}
       >
         {componentAnswer && componentAnswer}

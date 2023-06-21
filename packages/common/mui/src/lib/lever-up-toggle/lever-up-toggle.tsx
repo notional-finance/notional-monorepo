@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { ToggleSwitch } from '../toggle-switch/toggle-switch';
 import { LightningIcon } from '@notional-finance/icons';
-import { Box, styled } from '@mui/material';
+import { Box, styled, useTheme } from '@mui/material';
 import { H4 } from '../typography/typography';
 
 interface LeverUpToggleProps {
@@ -14,6 +14,7 @@ export const LeverUpToggle = ({
   leveredUp,
   handleLeverUpToggle,
 }: LeverUpToggleProps) => {
+  const theme = useTheme();
   const [isChecked, setIsChecked] = useState(leveredUp);
 
   const handleToggle = () => {
@@ -23,14 +24,14 @@ export const LeverUpToggle = ({
 
   return (
     <Container onClick={() => handleToggle()}>
-      <LightningIcon viewBox="0 0 12 16" sx={{ height: '16px' }} />
+      <LightningIcon viewBox="0 0 12 16" sx={{ height: theme.spacing(2) }} />
       <H4 sx={{ textWrap: 'nowrap' }}>
         <FormattedMessage defaultMessage={'Lever Up'} />
       </H4>
       <ToggleSwitch
         isChecked={isChecked}
         onToggle={() => handleToggle()}
-        sx={{ marginRight: '-10px' }}
+        sx={{ marginRight: theme.spacing(-1) }}
       />
     </Container>
   );
