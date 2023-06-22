@@ -8,18 +8,27 @@ import {
 import { lendState$, initialLendState } from './lend-store';
 
 export const useBalanceInfo = () => {
-  const { selectedToken, inputAmount, fillDefaultCashBalance } = useObservableState(
-    lendState$,
-    initialLendState
-  );
-  const { id: currencyId, isUnderlying, assetSymbol } = useCurrencyData(selectedToken);
+  const { selectedToken, inputAmount, fillDefaultCashBalance } =
+    useObservableState(lendState$, initialLendState);
+  const {
+    id: currencyId,
+    isUnderlying,
+    assetSymbol,
+  } = useCurrencyData(selectedToken);
   const { tokens } = useWallet();
   const _accountBalance = useAccountCashBalance(selectedToken);
-  const _walletBalance = tokens.get(selectedToken)?.balance.toInternalPrecision();
+  const _walletBalance = tokens
+    .get(selectedToken)
+    ?.balance.toInternalPrecision();
 
   const hasAllData =
-    selectedToken && currencyId && assetSymbol && _walletBalance && _accountBalance;
-  const inputAmountMismatch = inputAmount && inputAmount?.symbol !== selectedToken;
+    selectedToken &&
+    currencyId &&
+    assetSymbol &&
+    _walletBalance &&
+    _accountBalance;
+  const inputAmountMismatch =
+    inputAmount && inputAmount?.symbol !== selectedToken;
 
   if (hasAllData && !inputAmountMismatch) {
     const ZERO = isUnderlying
@@ -49,7 +58,9 @@ export const useBalanceInfo = () => {
     // cash balance. When there is a negative cash balance it will automatically
     // offset against any deposited amount
     return {
-      cashBalanceString: _accountBalance.isPositive() ? _accountBalance.toExactString() : '',
+      cashBalanceString: _accountBalance.isPositive()
+        ? _accountBalance.toExactString()
+        : '',
       usedWalletBalance,
       usedAccountBalance,
       hasCashBalance: _accountBalance.isPositive(),
@@ -59,7 +70,7 @@ export const useBalanceInfo = () => {
     return {
       cashBalanceString: '',
       usedWalletBalance: selectedToken
-        ? TypedBigNumber.fromBalance(0, selectedToken, true)
+        ? inputAmount || TypedBigNumber.fromBalance(0, selectedToken, true)
         : undefined,
       usedAccountBalance: selectedToken
         ? TypedBigNumber.fromBalance(0, selectedToken, true)

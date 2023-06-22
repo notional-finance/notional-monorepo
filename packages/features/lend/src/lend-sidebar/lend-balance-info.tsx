@@ -1,9 +1,15 @@
 import { useEffect } from 'react';
 import { Box, styled, useTheme } from '@mui/material';
-import { MiniButton } from '@notional-finance/mui';
-import { TradeProperty, TradePropertyKeys } from '@notional-finance/trade';
+import { ErrorMessage, MiniButton } from '@notional-finance/mui';
+import {
+  TradeProperty,
+  TradePropertyKeys,
+  tradeErrors,
+} from '@notional-finance/trade';
 import { FormattedMessage } from 'react-intl';
 import { useBalanceInfo } from '../store/use-balance-info';
+import { useWalletBalanceInputCheck } from '@notional-finance/notionable-hooks';
+import { updateLendState } from '../store/lend-store';
 
 interface LendBalanceInfoProps {
   setInputAmount: (input: string) => void;
@@ -38,11 +44,20 @@ export const LendBalanceInfo = ({ setInputAmount }: LendBalanceInfoProps) => {
     fillDefaultCashBalance,
   } = useBalanceInfo();
 
+  const { insufficientBalance, insufficientAllowance } =
+    useWalletBalanceInputCheck(usedWalletBalance?.symbol, usedWalletBalance);
+
   // Fills the default cash balance once when the page loads or when the
   // token changes
   useEffect(() => {
     if (fillDefaultCashBalance) setInputAmount(cashBalanceString);
   }, [fillDefaultCashBalance, cashBalanceString, setInputAmount]);
+
+  useEffect(() => {
+    if (insufficientAllowance === true || insufficientBalance === true) {
+      updateLendState({ hasError: true });
+    }
+  }, [insufficientAllowance, insufficientBalance]);
 
   return (
     <Box
@@ -56,6 +71,18 @@ export const LendBalanceInfo = ({ setInputAmount }: LendBalanceInfoProps) => {
         },
       }}
     >
+      {insufficientAllowance === true && (
+        <ErrorMessage
+          variant="error"
+          message={<FormattedMessage {...tradeErrors.insufficientAllowance} />}
+        />
+      )}
+      {insufficientBalance === true && (
+        <ErrorMessage
+          variant="error"
+          message={<FormattedMessage {...tradeErrors.insufficientBalance} />}
+        />
+      )}
       {hasCashBalance && (
         <BalanceWrapper>
           <BalanceInfoWrapper>
