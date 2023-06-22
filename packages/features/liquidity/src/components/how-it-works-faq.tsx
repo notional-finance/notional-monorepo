@@ -24,17 +24,9 @@ export const HowItWorksFaq = ({ tokenSymbol }: HowItWorksFaqProps) => {
               borderRadius: theme.shape.borderRadius(),
             }}
           >
-            <BodyText>
+            <BodyText sx={{ marginBottom: '0px' }}>
               <FormattedMessage
-                defaultMessage={`To Lend {tokenSymbol} at a fixed rate, you need to purchase f{tokenSymbol} from one of Notional’s {tokenSymbol} fixed rate liquidity pools.`}
-                values={{
-                  tokenSymbol,
-                }}
-              />
-            </BodyText>
-            <BodyText>
-              <FormattedMessage
-                defaultMessage={`f{tokenSymbol} is a token that is redeemable for the same amount of {tokenSymbol} on its maturity date. For example, 100 f{tokenSymbol} is redeemable for 100 {tokenSymbol} at maturity.`}
+                defaultMessage={`When you provide liquidity, your funds are deposited into the n{tokenSymbol} account and you get n{tokenSymbol} in return. The n{tokenSymbol} account then routes your funds into Notional’s fixed rate liquidity pools so users can lend and borrow at fixed rates.`}
                 values={{
                   tokenSymbol,
                 }}
@@ -43,36 +35,27 @@ export const HowItWorksFaq = ({ tokenSymbol }: HowItWorksFaqProps) => {
             <ImageWrapper>
               <img src={image} alt="graphic" />
             </ImageWrapper>
-
             <BodyText>
               <FormattedMessage
-                defaultMessage={`This allows you to get a fixed rate because you know how much f{tokenSymbol} you’re buying, and so you know exactly how much {tokenSymbol} you will have at maturity.`}
+                defaultMessage={`The n{tokenSymbol} account is like an automated portfolio manager for your fixed rate liquidity. It gives you passive exposure to all active fixed rate liquidity pools and automatically rolls your liquidity forward when any pool matures.`}
                 values={{
                   tokenSymbol,
                 }}
               />
             </BodyText>
-            <BodyText sx={{ marginBottom: theme.spacing(4) }}>
-              <FormattedMessage
-                defaultMessage={`The difference between the amount of f{tokenSymbol} you buy and the amount of {tokenSymbol} you lend is the fixed amount of interest that you will earn between now and maturity.`}
-                values={{
-                  tokenSymbol,
-                }}
-              />
-            </BodyText>
+
             <H5
               sx={{
                 color: theme.palette.typography.main,
                 marginBottom: theme.spacing(2),
+                marginTop: theme.spacing(4),
               }}
             >
-              <FormattedMessage
-                defaultMessage={`What are fixed rate liquidity pools?`}
-              />
+              <FormattedMessage defaultMessage={`Fixed Rate Pools`} />
             </H5>
             <BodyText>
               <FormattedMessage
-                defaultMessage={`Fixed rate liquidity pools are Uniswap-like liquidity pools that allow you to trade between {tokenSymbol} and f{tokenSymbol} using an AMM. Fixed rate liquidity pools provide the liquidity you need to create a fixed rate loan.`}
+                defaultMessage={`Fixed rate pools hold liquidity as a combination of Prime {tokenSymbol} and f{tokenSymbol}. So as an LP, your capital is always earning a combination of Prime {tokenSymbol} yield and f{tokenSymbol} yield.`}
                 values={{
                   tokenSymbol,
                 }}
@@ -80,7 +63,41 @@ export const HowItWorksFaq = ({ tokenSymbol }: HowItWorksFaqProps) => {
             </BodyText>
             <Body>
               <FormattedMessage
-                defaultMessage={`Fixed rate liquidity pools also give you the option to exit early by allowing you to sell your f{tokenSymbol} on the pool before it matures.`}
+                defaultMessage={`Prime {tokenSymbol} is {tokenSymbol} that is being lent at a variable rate on Notional and f{tokenSymbol} represents fixed rate lending positions.`}
+                values={{
+                  tokenSymbol,
+                }}
+              />
+            </Body>
+
+            <H5
+              sx={{
+                color: theme.palette.typography.main,
+                marginBottom: theme.spacing(2),
+                marginTop: theme.spacing(4),
+              }}
+            >
+              <FormattedMessage defaultMessage={`Lending and Borrowing`} />
+            </H5>
+            <BodyText>
+              <FormattedMessage
+                defaultMessage={`By providing liquidity to the fixed rate liquidity pools, n{tokenSymbol} is the counter-party to fixed rate {tokenSymbol} lends and borrows on Notional.`}
+                values={{
+                  tokenSymbol,
+                }}
+              />
+            </BodyText>
+            <Body>
+              <FormattedMessage
+                defaultMessage={`When users lend fixed, n{tokenSymbol} borrows fixed. When users borrow fixed, n{tokenSymbol} lends fixed.`}
+                values={{
+                  tokenSymbol,
+                }}
+              />
+            </Body>
+            <Body>
+              <FormattedMessage
+                defaultMessage={`Lending and borrowing on the fixed rate pools generates fees for LPs and changes the amount of variable rate loans (Prime {tokenSymbol} vs. fixed rate loans (f{tokenSymbol}) they hold.`}
                 values={{
                   tokenSymbol,
                 }}

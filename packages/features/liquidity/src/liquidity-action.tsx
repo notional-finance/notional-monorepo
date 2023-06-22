@@ -2,8 +2,7 @@ import { styled, Box } from '@mui/material';
 import { SideBarLayout, FeatureLoader } from '@notional-finance/mui';
 import { THEME_VARIANTS } from '@notional-finance/shared-config';
 import { useUserSettingsState } from '@notional-finance/user-settings-manager';
-import { LiquiditySummary } from './liquidity-summary/liquidity-summary';
-import { LiquiditySidebar } from './liquidity-sidebar/liquidity-sidebar';
+import { LiquiditySummary, LiquiditySidebar } from './components';
 import {
   createBaseTradeContext,
   useBaseTradeContext,
