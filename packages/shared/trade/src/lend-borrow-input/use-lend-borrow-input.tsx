@@ -6,6 +6,7 @@ import {
   useCurrencyData,
   useTokenData,
   useAccountCashBalance,
+  useWalletBalanceInputCheck,
 } from '@notional-finance/notionable-hooks';
 import { Asset, AssetType, TypedBigNumber } from '@notional-finance/sdk';
 import { CashOrFCash } from './lend-borrow-input';
@@ -28,11 +29,14 @@ export function useLendBorrowInput(
   const { tokenData } = useTokenData(selectedToken);
   const walletBalance = tokenData?.balance.toInternalPrecision();
   const accountCashBalance = useAccountCashBalance(selectedToken);
-
   const inputAmount =
     inputString && notional
       ? notional.parseInput(inputString, selectedToken, true)
       : undefined;
+
+  const { insufficientBalance, insufficientAllowance } =
+    useWalletBalanceInputCheck(selectedToken, inputAmount);
+
   let errorMsg: MessageDescriptor | undefined;
   let netCashAmount: TypedBigNumber | undefined;
   let netfCashAmount: TypedBigNumber | undefined;
@@ -113,6 +117,10 @@ export function useLendBorrowInput(
 
   if (!errorMsg && inputAmount && !selectedMarket) {
     errorMsg = tradeErrors.selectMaturityToCompleteTrade;
+  } else if (insufficientBalance === true) {
+    errorMsg = tradeErrors.insufficientBalance;
+  } else if (insufficientAllowance === true) {
+    errorMsg = tradeErrors.insufficientAllowance;
   }
 
   return {

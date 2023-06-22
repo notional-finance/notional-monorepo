@@ -78,7 +78,11 @@ export const VaultActionSideDrawer = () => {
     // If the vault can settle then we go to the manage vault screen
     (vaultAccount?.isInactive && !vaultAccount?.canSettle())
   ) {
-    drawerEl = <CreateVaultPosition />;
+    drawerEl = (
+      <Box sx={{ marginTop: theme.spacing(6) }}>
+        <CreateVaultPosition />
+      </Box>
+    );
   } else {
     drawerEl = (
       <>
