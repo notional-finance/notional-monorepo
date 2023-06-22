@@ -133,7 +133,7 @@ export default abstract class BaseLiquidityPool<
       .map((b, i) => {
         if (i === primaryTokenIndex) return b;
         const { tokensOut } = this.calculateTokenTrade(
-          b.copy(1),
+          b,
           primaryTokenIndex,
           balanceOverrides
         );
