@@ -2,6 +2,7 @@ import { Registry, tokenBalanceMatchers } from './packages/core-entities/src';
 import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
 import { Contract, ethers, Signer, Wallet } from 'ethers';
 import { ERC20, ERC20ABI } from './packages/contracts/src';
+import crossFetch from 'cross-fetch';
 import fetchMock from 'jest-fetch-mock';
 import httpserver from 'http-server';
 import { AlchemyUrl, Network } from './packages/util/src';
@@ -221,16 +222,21 @@ async function setupWhales(
           resolve();
         });
       });
+      const response = await (
+        await crossFetch(
+          'http://localhost:9999/configuration?network=arbitrum-one'
+        )
+      ).json();
+      blockTime = response['lastUpdateTimestamp'];
+      process.env['FAKE_TIME'] = `${blockTime}`;
+
       Registry.startRefresh(network);
 
       // Set the appropriate fake time
       await new Promise<void>((resolve) => {
         Registry.onNetworkReady(network, () => {
-          blockTime =
-            Registry.getConfigurationRegistry().getLastUpdateTimestamp(network);
           blockNumber =
             Registry.getConfigurationRegistry().getLastUpdateBlock(network);
-          process.env['FAKE_TIME'] = `${blockTime}`;
           console.log(
             `Registry at block ${blockNumber} with timestamp ${blockTime}`
           );
