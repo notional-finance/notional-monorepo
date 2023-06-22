@@ -43,7 +43,7 @@ export function decodeERC1155Id(_id: string) {
       assetType,
       maturity: parseInt(id.slice(52, 62), 16),
       currencyId: parseInt(id.slice(48, 52), 16),
-      vaultAddress: parseInt(id.slice(8, 48), 16),
+      vaultAddress: `0x${id.slice(8, 48)}`,
       isfCashDebt: false,
     };
   }

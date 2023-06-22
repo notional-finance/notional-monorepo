@@ -57,10 +57,6 @@ export class Registry {
       network,
       Registry.DEFAULT_ORACLE_REFRESH
     );
-    Registry.getConfigurationRegistry().startRefreshInterval(
-      network,
-      Registry.DEFAULT_CONFIGURATION_REFRESH
-    );
 
     // Prior to starting the exchange registry, register all the required tokens. When
     // reviving data from the cache host it will attempt to find these token definitions.
@@ -81,6 +77,11 @@ export class Registry {
       Registry.getVaultRegistry().startRefreshInterval(
         network,
         Registry.DEFAULT_VAULT_REFRESH
+      );
+
+      Registry.getConfigurationRegistry().startRefreshInterval(
+        network,
+        Registry.DEFAULT_CONFIGURATION_REFRESH
       );
     });
 
