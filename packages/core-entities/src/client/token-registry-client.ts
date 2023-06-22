@@ -83,6 +83,21 @@ export class TokenRegistryClient extends ClientRegistry<TokenDefinition> {
     return this.getTokensByCurrencyId(network, currencyId, 'Underlying')[0];
   }
 
+  public getVaultShare(
+    network: Network,
+    vaultAddress: string,
+    maturity: number
+  ) {
+    const vaultShare = this.getAllTokens(network).find(
+      (t) =>
+        t.vaultAddress === vaultAddress &&
+        t.maturity === maturity &&
+        t.tokenType === 'VaultShare'
+    );
+    if (!vaultShare) throw Error('Vault Share not found');
+    return vaultShare;
+  }
+
   /** Allows various tokens to be registered externally on the client */
   public registerToken(token: TokenDefinition) {
     // Do not allow re-registration of subject keys

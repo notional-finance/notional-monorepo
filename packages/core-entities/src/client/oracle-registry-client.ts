@@ -360,7 +360,12 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
     return Math.trunc(annualRate);
   }
 
-  /** This should only be done for simulations or testing.  */
+  /**
+   * Used for simulations or testing. Also used to register initial vault share
+   * valuations if no vault shares exist yet.
+   * @param network
+   * @param oracle
+   */
   registerOracle(network: Network, oracle: OracleDefinition) {
     this._updateSubjectKeyDirect(network, oracle.id, oracle, false);
   }

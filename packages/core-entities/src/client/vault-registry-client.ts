@@ -13,7 +13,7 @@ export class VaultRegistryClient extends ClientRegistry<VaultMetadata> {
   getVaultAdapter(network: Network, vaultAddress: string) {
     const params = this.getLatestFromSubject(network, vaultAddress);
     if (!params) throw Error('No vault params found');
-    return new SingleSidedLP(network, params);
+    return new SingleSidedLP(network, vaultAddress, params);
   }
 
   subscribeVaultAdapter(network: Network, vaultAddress: string) {
@@ -23,7 +23,7 @@ export class VaultRegistryClient extends ClientRegistry<VaultMetadata> {
       ethers.utils.getAddress(vaultAddress)
     )?.pipe(
       filterEmpty(),
-      map((p) => new SingleSidedLP(network, p))
+      map((p) => new SingleSidedLP(network, vaultAddress, p))
     );
   }
 }

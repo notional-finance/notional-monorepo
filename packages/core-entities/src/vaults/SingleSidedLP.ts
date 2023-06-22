@@ -1,5 +1,10 @@
-import { BASIS_POINT, RATE_PRECISION, Network } from '@notional-finance/util';
-import { VaultAdapter } from '.';
+import {
+  BASIS_POINT,
+  RATE_PRECISION,
+  Network,
+  getNowSeconds,
+} from '@notional-finance/util';
+import { VaultAdapter } from './VaultAdapter';
 import { BaseLiquidityPool } from '../exchanges';
 import { TokenBalance } from '../token-balance';
 import { defaultAbiCoder } from 'ethers/lib/utils';
@@ -14,7 +19,7 @@ export interface SingleSidedLPParams {
   secondaryTradeParams: string;
 }
 
-export class SingleSidedLP implements VaultAdapter {
+export class SingleSidedLP extends VaultAdapter {
   // We should make a method that just returns all of these...
   public pool: BaseLiquidityPool<unknown>; // hardcoded probably?
   public singleSidedTokenIndex: number;
@@ -23,12 +28,16 @@ export class SingleSidedLP implements VaultAdapter {
   public totalVaultShares: BigNumber;
   public secondaryTradeParams: string;
 
-  constructor(network: Network, p: SingleSidedLPParams) {
+  constructor(network: Network, vaultAddress: string, p: SingleSidedLPParams) {
+    super();
+
     this.pool = Registry.getExchangeRegistry().getPoolInstance(network, p.pool);
     this.singleSidedTokenIndex = p.singleSidedTokenIndex;
     this.totalLPTokens = p.totalLPTokens;
     this.totalVaultShares = p.totalVaultShares;
     this.secondaryTradeParams = p.secondaryTradeParams;
+
+    this._initOracles(network, vaultAddress);
   }
 
   get hashKey() {
@@ -42,6 +51,14 @@ export class SingleSidedLP implements VaultAdapter {
 
   getVaultSharesToLPTokens(vaultShares: TokenBalance) {
     return this.totalLPTokens.scale(vaultShares.n, this.totalVaultShares);
+  }
+
+  getInitialVaultShareValuation(_maturity: number) {
+    return {
+      rate: this.pool.getLPTokenSpotValue(this.singleSidedTokenIndex).n,
+      timestamp: getNowSeconds(),
+      blockNumber: 0,
+    };
   }
 
   getNetVaultSharesCost(netVaultShares: TokenBalance): {
