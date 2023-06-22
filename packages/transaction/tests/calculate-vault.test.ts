@@ -79,7 +79,7 @@ describe.withForkAndRegistry(
         // }
         const riskFactorLimit: RiskFactorLimit<'leverageRatio'> = {
           riskFactor: 'leverageRatio',
-          limit: 4e9,
+          limit: 4,
         };
 
         const {

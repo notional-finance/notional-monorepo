@@ -55,7 +55,10 @@ export class SingleSidedLP extends VaultAdapter {
 
   getInitialVaultShareValuation(_maturity: number) {
     return {
-      rate: this.pool.getLPTokenSpotValue(this.singleSidedTokenIndex).n,
+      rate: this.pool.getLPTokenOracleValue(
+        this.pool.oneLPToken(),
+        this.singleSidedTokenIndex
+      ).n,
       timestamp: getNowSeconds(),
       blockNumber: 0,
     };

@@ -61,14 +61,14 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     if (network.length != 1 || maturity.length != 1)
       throw Error('All balances must be in same vault, network and maturity');
 
-    const vaultShares = balances.filter((b) => b.tokenType === 'VaultShare');
-    if (vaultShares.length !== 1) throw Error('Vault shares not found');
-    const denom = vaultShares[0].token.underlying;
+    const vaultShares = balances.find((b) => b.tokenType === 'VaultShare');
+    if (!vaultShares) throw Error('Vault shares not found');
+    const denom = vaultShares.token.underlying;
     if (!denom) throw Error('Underlying not defined');
 
     super(balances, denom);
 
-    this.vaultShareDefinition = vaultShares[0].token;
+    this.vaultShareDefinition = vaultShares.token;
     this.discountFCash =
       Registry.getConfigurationRegistry().getVaultDiscountfCash(
         network[0],
@@ -169,7 +169,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
   }
 
   netCollateralAvailable(_collateral: SymbolOrID): TokenBalance {
-    throw new Error('Method not implemented.');
+    return this.totalAssetsRiskAdjusted().sub(this.totalDebtRiskAdjusted());
   }
 
   leverageRatio() {

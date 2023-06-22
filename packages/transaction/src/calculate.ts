@@ -504,7 +504,8 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
   const riskProfile = VaultAccountRiskProfile.simulate(
     vaultAddress,
     balances,
-    depositBalance ? [depositBalance] : []
+    // This converts the deposit balance to vault shares at spot
+    depositBalance ? [depositBalance.toToken(collateral)] : []
   );
 
   // NOTE: this calculation is done at spot rates, does not include slippage. Perhaps

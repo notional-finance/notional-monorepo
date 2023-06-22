@@ -259,7 +259,6 @@ export abstract class BaseRiskProfile implements RiskFactors {
       // if withdraw:
       //  limit = asset / (debt - repay)
       //  repay = (limit * debt - asset) / limit
-
       let multiple: number;
       const limitInRP = ((limit as number) * RATE_PRECISION) / 100;
 
@@ -287,7 +286,38 @@ export abstract class BaseRiskProfile implements RiskFactors {
     } else if (riskFactor === 'healthFactor') {
       throw Error('Unimplemented');
     } else if (riskFactor === 'leverageRatio') {
-      throw Error('Unimplemented');
+      // limit = debt / (asset - debt)
+      // if netLocal > 0:
+      //  limit = debt / (asset + deposit - debt)
+      //  deposit = [debt * (1 + limit) - asset * limit] / limit
+      // if netLocal < 0:
+      //  limit = (debt - repay) / (asset - debt - repay)
+      //  repay = [debt * (1 + limit) - limit * asset] / (1 - limit)
+      let multiple: number;
+      const limitInRP = (limit as number) * RATE_PRECISION;
+
+      if (netLocal.isPositive()) {
+        multiple = this.totalDebt()
+          .neg()
+          .mulInRatePrecision(RATE_PRECISION + limitInRP)
+          .sub(this.totalAssets().mulInRatePrecision(limitInRP))
+          .divInRatePrecision(limitInRP)
+          .scaleTo(RATE_DECIMALS)
+          .toNumber();
+      } else {
+        multiple = this.totalDebt()
+          .neg()
+          .mulInRatePrecision(RATE_PRECISION + limitInRP)
+          .sub(this.totalAssets().mulInRatePrecision(limitInRP))
+          .divInRatePrecision(RATE_PRECISION - limitInRP)
+          .scaleTo(RATE_DECIMALS)
+          .toNumber();
+      }
+
+      return {
+        value,
+        multiple,
+      };
     } else if (riskFactor === 'liquidationPrice') {
       const _value = value as TokenBalance | null;
       const _limit = limit as TokenBalance;
