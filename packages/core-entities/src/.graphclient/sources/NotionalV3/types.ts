@@ -19,6 +19,7 @@ export type Scalars = {
   BigDecimal: any;
   BigInt: any;
   Bytes: any;
+  Int8: any;
 };
 
 export type Account = {
@@ -3157,7 +3158,7 @@ export type Token = {
   hasTransferFee: Scalars['Boolean'];
   isfCashDebt: Scalars['Boolean'];
   /** Maturities are only set for some token types */
-  maturity?: Maybe<Scalars['Int']>;
+  maturity?: Maybe<Scalars['BigInt']>;
   /** Vault address is set for vault token types */
   vaultAddress?: Maybe<Scalars['Bytes']>;
   /** Set to the ERC20 address or Notional Proxy for ERC1155 addresses */
@@ -3384,14 +3385,14 @@ export type Token_filter = {
   isfCashDebt_not?: InputMaybe<Scalars['Boolean']>;
   isfCashDebt_in?: InputMaybe<Array<Scalars['Boolean']>>;
   isfCashDebt_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  maturity?: InputMaybe<Scalars['Int']>;
-  maturity_not?: InputMaybe<Scalars['Int']>;
-  maturity_gt?: InputMaybe<Scalars['Int']>;
-  maturity_lt?: InputMaybe<Scalars['Int']>;
-  maturity_gte?: InputMaybe<Scalars['Int']>;
-  maturity_lte?: InputMaybe<Scalars['Int']>;
-  maturity_in?: InputMaybe<Array<Scalars['Int']>>;
-  maturity_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  maturity?: InputMaybe<Scalars['BigInt']>;
+  maturity_not?: InputMaybe<Scalars['BigInt']>;
+  maturity_gt?: InputMaybe<Scalars['BigInt']>;
+  maturity_lt?: InputMaybe<Scalars['BigInt']>;
+  maturity_gte?: InputMaybe<Scalars['BigInt']>;
+  maturity_lte?: InputMaybe<Scalars['BigInt']>;
+  maturity_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  maturity_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   vaultAddress?: InputMaybe<Scalars['Bytes']>;
   vaultAddress_not?: InputMaybe<Scalars['Bytes']>;
   vaultAddress_gt?: InputMaybe<Scalars['Bytes']>;
@@ -3777,7 +3778,7 @@ export type Transfer = {
   tokenType: TokenType;
   underlying: Token;
   /** Only set for some transfer types */
-  maturity?: Maybe<Scalars['Int']>;
+  maturity?: Maybe<Scalars['BigInt']>;
 };
 
 export type TransferBundle = {
@@ -4107,14 +4108,14 @@ export type Transfer_filter = {
   underlying_not_ends_with?: InputMaybe<Scalars['String']>;
   underlying_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   underlying_?: InputMaybe<Token_filter>;
-  maturity?: InputMaybe<Scalars['Int']>;
-  maturity_not?: InputMaybe<Scalars['Int']>;
-  maturity_gt?: InputMaybe<Scalars['Int']>;
-  maturity_lt?: InputMaybe<Scalars['Int']>;
-  maturity_gte?: InputMaybe<Scalars['Int']>;
-  maturity_lte?: InputMaybe<Scalars['Int']>;
-  maturity_in?: InputMaybe<Array<Scalars['Int']>>;
-  maturity_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  maturity?: InputMaybe<Scalars['BigInt']>;
+  maturity_not?: InputMaybe<Scalars['BigInt']>;
+  maturity_gt?: InputMaybe<Scalars['BigInt']>;
+  maturity_lt?: InputMaybe<Scalars['BigInt']>;
+  maturity_gte?: InputMaybe<Scalars['BigInt']>;
+  maturity_lte?: InputMaybe<Scalars['BigInt']>;
+  maturity_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  maturity_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<Transfer_filter>>>;
@@ -4256,6 +4257,8 @@ export type VaultConfiguration = {
   onlyVaultDeleverage: Scalars['Boolean'];
   /** Only the vault can settle */
   onlyVaultSettle: Scalars['Boolean'];
+  /** fCash discounting is enabled on the vault */
+  discountfCash?: Maybe<Scalars['Boolean']>;
   /** Vault is allowed to re-enter Notional */
   allowsReentrancy: Scalars['Boolean'];
   /** Deleveraging is disabled on this vault */
@@ -4481,6 +4484,10 @@ export type VaultConfiguration_filter = {
   onlyVaultSettle_not?: InputMaybe<Scalars['Boolean']>;
   onlyVaultSettle_in?: InputMaybe<Array<Scalars['Boolean']>>;
   onlyVaultSettle_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  discountfCash?: InputMaybe<Scalars['Boolean']>;
+  discountfCash_not?: InputMaybe<Scalars['Boolean']>;
+  discountfCash_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  discountfCash_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
   allowsReentrancy?: InputMaybe<Scalars['Boolean']>;
   allowsReentrancy_not?: InputMaybe<Scalars['Boolean']>;
   allowsReentrancy_in?: InputMaybe<Array<Scalars['Boolean']>>;
@@ -4575,6 +4582,7 @@ export type VaultConfiguration_orderBy =
   | 'onlyVaultRoll'
   | 'onlyVaultDeleverage'
   | 'onlyVaultSettle'
+  | 'discountfCash'
   | 'allowsReentrancy'
   | 'deleverageDisabled'
   | 'maxPrimaryBorrowCapacity'
