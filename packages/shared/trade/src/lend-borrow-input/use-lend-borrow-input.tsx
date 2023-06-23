@@ -28,11 +28,11 @@ export function useLendBorrowInput(
   const { tokenData } = useTokenData(selectedToken);
   const walletBalance = tokenData?.balance.toInternalPrecision();
   const accountCashBalance = useAccountCashBalance(selectedToken);
-
   const inputAmount =
     inputString && notional
       ? notional.parseInput(inputString, selectedToken, true)
       : undefined;
+
   let errorMsg: MessageDescriptor | undefined;
   let netCashAmount: TypedBigNumber | undefined;
   let netfCashAmount: TypedBigNumber | undefined;

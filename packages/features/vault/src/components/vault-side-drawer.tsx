@@ -17,6 +17,8 @@ import { useHistory } from 'react-router';
 import { messages } from '../messages';
 import { useTransactionProperties } from '../hooks/use-transaction-properties';
 import { VaultDetailsTable } from './vault-details-table';
+import { WriteCongress } from './write-congress';
+import { useGeoipBlock } from '../hooks/use-geoip-block';
 
 interface VaultSideDrawerProps {
   children?: React.ReactNode | React.ReactNode[];
@@ -27,6 +29,7 @@ export const VaultSideDrawer = ({
   children,
   advancedToggle,
 }: VaultSideDrawerProps) => {
+  const mustBlockGeo = useGeoipBlock();
   const { confirm } = useQueryParams();
   const history = useHistory();
   const confirmRoute = !!confirm;
@@ -44,7 +47,7 @@ export const VaultSideDrawer = ({
   const transactionData = useTransactionProperties();
   const useVaultData = useVault(vaultAddress);
   const currentVaultAddress = vaultAddress || '';
-  const canSubmit = buildTransactionCall ? true : false;
+  const canSubmit = buildTransactionCall && !mustBlockGeo ? true : false;
 
   const helptextValues = {
     minDepositRequired: useVaultData?.minDepositRequired,
@@ -81,15 +84,21 @@ export const VaultSideDrawer = ({
         ) : (
           <ActionSidebar
             heading={messages[vaultAction].heading}
-            helptext={{
-              ...messages[vaultAction].helptext,
-              values: helptextValues,
-            }}
+            helptext={
+              mustBlockGeo
+                ? { ...messages.error.blockedGeoActionHelptext }
+                : {
+                    ...messages[vaultAction].helptext,
+                    values: helptextValues,
+                  }
+            }
             advancedToggle={advancedToggle}
             showDrawer={false}
             canSubmit={canSubmit}
             cancelRoute={''}
-            CustomActionButton={TradeActionButton}
+            CustomActionButton={
+              mustBlockGeo ? WriteCongress : TradeActionButton
+            }
             hideTextOnMobile={false}
           >
             {children}

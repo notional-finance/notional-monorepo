@@ -20,7 +20,7 @@ export function useLendTransaction() {
     useLend();
   const { usedWalletBalance, usedAccountBalance, hasCashBalance } =
     useBalanceInfo();
-  const { fCashAmount, inputAmount } = useObservableState(
+  const { fCashAmount, inputAmount, hasError } = useObservableState(
     lendState$,
     initialLendState
   );
@@ -38,6 +38,7 @@ export function useLendTransaction() {
     !confirmRoute ||
     !notional ||
     !address ||
+    !hasError ||
     !assetSymbol ||
     !selectedMarket ||
     !isUnderlying ||
