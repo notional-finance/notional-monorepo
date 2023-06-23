@@ -541,8 +541,9 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
   }
 
   if (
+    netDebtPrimeAtSpot.isPositive() &&
     maxDebtSlippage <
-    localDebtPrime.ratioWith(netDebtPrimeAtSpot).toNumber() - RATE_PRECISION
+      localDebtPrime.ratioWith(netDebtPrimeAtSpot).toNumber() - RATE_PRECISION
   ) {
     throw Error('Above max debt slippage');
   }

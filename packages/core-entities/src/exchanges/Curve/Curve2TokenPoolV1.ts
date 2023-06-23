@@ -400,18 +400,23 @@ export class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPoolV1Params
     throw Error('Calculation did not converge');
   }
 
-  private _xp(balances: TokenBalance[], rates: BigNumber[]) {
-    // TODO: make PRECISION configurable
+  private _xp_rates(balances: TokenBalance[], rates: BigNumber[]) {
     return balances.map((b, i) =>
       b.copy(rates[i].mul(b.n).div(Curve2TokenPoolV1.PRECISION))
+    );
+  }
+
+  private _xp_mem(balances: TokenBalance[]) {
+    return balances.map((b, i) =>
+      b.copy(b.n.mul(Curve2TokenPoolV1.PRECISION).div(b.precision))
     );
   }
 
   private _calc_withdraw_one_coin(lpTokens: TokenBalance, i: number) {
     const amp = this.poolParams.A;
     const xp = this.poolParams.hasOracle
-      ? this._xp(this.balances, this._stored_rates())
-      : [...this.balances];
+      ? this._xp_rates(this.balances, this._stored_rates())
+      : [...this._xp_mem(this.balances)];
     const D0 = this._get_D(xp, amp);
     const totalSupply = this.totalSupply;
     const D1 = D0.sub(lpTokens.n.mul(D0).div(totalSupply.n));
@@ -517,8 +522,8 @@ export class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPoolV1Params
     const xp = [
       ...(_balanceOverrides ||
         (this.poolParams.hasOracle
-          ? this._xp(this.balances, this._stored_rates())
-          : this.balances)),
+          ? this._xp_rates(this.balances, this._stored_rates())
+          : this._xp_mem(this.balances))),
     ];
     let dx = tokensIn.n;
 
