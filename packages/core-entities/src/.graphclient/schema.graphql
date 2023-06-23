@@ -1320,6 +1320,12 @@ enum Incentive_orderBy {
   migrationTime
 }
 
+"""
+8 bytes signed integer
+
+"""
+scalar Int8
+
 type InterestRateCurve {
   """ID is the currency id:market index:true if current"""
   id: ID!
@@ -3313,7 +3319,7 @@ type Token {
   hasTransferFee: Boolean!
   isfCashDebt: Boolean!
   """Maturities are only set for some token types"""
-  maturity: Int
+  maturity: BigInt
   """Vault address is set for vault token types"""
   vaultAddress: Bytes
   """Set to the ERC20 address or Notional Proxy for ERC1155 addresses"""
@@ -3515,14 +3521,14 @@ input Token_filter {
   isfCashDebt_not: Boolean
   isfCashDebt_in: [Boolean!]
   isfCashDebt_not_in: [Boolean!]
-  maturity: Int
-  maturity_not: Int
-  maturity_gt: Int
-  maturity_lt: Int
-  maturity_gte: Int
-  maturity_lte: Int
-  maturity_in: [Int!]
-  maturity_not_in: [Int!]
+  maturity: BigInt
+  maturity_not: BigInt
+  maturity_gt: BigInt
+  maturity_lt: BigInt
+  maturity_gte: BigInt
+  maturity_lte: BigInt
+  maturity_in: [BigInt!]
+  maturity_not_in: [BigInt!]
   vaultAddress: Bytes
   vaultAddress_not: Bytes
   vaultAddress_gt: Bytes
@@ -3876,7 +3882,7 @@ type Transfer {
   tokenType: TokenType!
   underlying: Token!
   """Only set for some transfer types"""
-  maturity: Int
+  maturity: BigInt
 }
 
 type TransferBundle {
@@ -4199,14 +4205,14 @@ input Transfer_filter {
   underlying_not_ends_with: String
   underlying_not_ends_with_nocase: String
   underlying_: Token_filter
-  maturity: Int
-  maturity_not: Int
-  maturity_gt: Int
-  maturity_lt: Int
-  maturity_gte: Int
-  maturity_lte: Int
-  maturity_in: [Int!]
-  maturity_not_in: [Int!]
+  maturity: BigInt
+  maturity_not: BigInt
+  maturity_gt: BigInt
+  maturity_lt: BigInt
+  maturity_gte: BigInt
+  maturity_lte: BigInt
+  maturity_in: [BigInt!]
+  maturity_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: BlockChangedFilter
   and: [Transfer_filter]
@@ -4349,6 +4355,8 @@ type VaultConfiguration {
   onlyVaultDeleverage: Boolean!
   """Only the vault can settle"""
   onlyVaultSettle: Boolean!
+  """fCash discounting is enabled on the vault"""
+  discountfCash: Boolean
   """Vault is allowed to re-enter Notional"""
   allowsReentrancy: Boolean!
   """Deleveraging is disabled on this vault"""
@@ -4565,6 +4573,10 @@ input VaultConfiguration_filter {
   onlyVaultSettle_not: Boolean
   onlyVaultSettle_in: [Boolean!]
   onlyVaultSettle_not_in: [Boolean!]
+  discountfCash: Boolean
+  discountfCash_not: Boolean
+  discountfCash_in: [Boolean!]
+  discountfCash_not_in: [Boolean!]
   allowsReentrancy: Boolean
   allowsReentrancy_not: Boolean
   allowsReentrancy_in: [Boolean!]
@@ -4659,6 +4671,7 @@ enum VaultConfiguration_orderBy {
   onlyVaultRoll
   onlyVaultDeleverage
   onlyVaultSettle
+  discountfCash
   allowsReentrancy
   deleverageDisabled
   maxPrimaryBorrowCapacity
