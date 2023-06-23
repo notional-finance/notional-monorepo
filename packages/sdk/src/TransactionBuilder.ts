@@ -16,10 +16,18 @@ export default class TransactionBuilder {
   private async populateTxnAndGas(
     msgSender: string,
     methodName: string,
-    methodArgs: unknown[]
+    methodArgs: unknown[],
+    gasAdjustment = 0
   ) {
     const proxy = System.getSystem().getNotionalProxy();
-    return populateTxnAndGas(proxy, msgSender, methodName, methodArgs);
+    return populateTxnAndGas(
+      proxy,
+      msgSender,
+      methodName,
+      methodArgs,
+      5,
+      gasAdjustment
+    );
   }
 
   public depositCollateralAction(
@@ -613,11 +621,12 @@ export default class TransactionBuilder {
       ],
     };
 
-    return this.populateTxnAndGas(address, 'batchLend', [
+    return this.populateTxnAndGas(
       address,
-      [batchLendAction],
-      overrides,
-    ]);
+      'batchLend',
+      [address, [batchLendAction], overrides],
+      50_000
+    );
   }
 
   /**

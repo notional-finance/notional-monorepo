@@ -7,7 +7,8 @@ export async function populateTxnAndGas(
   msgSender: string,
   methodName: string,
   methodArgs: any[],
-  gasBufferPercent = 5
+  gasBufferPercent = 5,
+  gasAdjustment = 0
 ) {
   const c = contract.connect(msgSender);
   const [txn, gasLimit]: [PopulatedTransaction, BigNumber] = await Promise.all([
@@ -16,7 +17,7 @@ export async function populateTxnAndGas(
   ]);
 
   // Add 5% to the estimated gas limit to reduce the risk of out of gas errors
-  txn.gasLimit = gasLimit.add(gasLimit.mul(gasBufferPercent).div(100));
+  txn.gasLimit = gasLimit.add(gasLimit.mul(gasBufferPercent).div(100)).add(gasAdjustment);
   return txn;
 }
 
