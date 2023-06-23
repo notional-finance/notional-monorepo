@@ -45,16 +45,16 @@ describe.withForkAndRegistry(
         `vsUSDC:${vaultAddress}:open`,
         `vcUSDC:${vaultAddress}:open`,
       ],
-      // [
-      //   `vdUSDC:${vaultAddress}:fixed@1687392000`,
-      //   `vsUSDC:${vaultAddress}:fixed@1687392000`,
-      //   `vcUSDC:${vaultAddress}:fixed@1687392000`,
-      // ],
-      // [
-      //   `vdUSDC:${vaultAddress}:fixed@1695168000`,
-      //   `vsUSDC:${vaultAddress}:fixed@1695168000`,
-      //   `vcUSDC:${vaultAddress}:fixed@1695168000`,
-      // ],
+      [
+        `vdUSDC:${vaultAddress}:fixed@1687392000`,
+        `vsUSDC:${vaultAddress}:fixed@1687392000`,
+        `vcUSDC:${vaultAddress}:fixed@1687392000`,
+      ],
+      [
+        `vdUSDC:${vaultAddress}:fixed@1695168000`,
+        `vsUSDC:${vaultAddress}:fixed@1695168000`,
+        `vcUSDC:${vaultAddress}:fixed@1695168000`,
+      ],
     ];
 
     it.each(vaultTokens)(
@@ -69,17 +69,12 @@ describe.withForkAndRegistry(
           vaultAddress
         );
 
-        const depositInput = TokenBalance.fromFloat(5, depositUnderlying);
+        const depositInput = TokenBalance.fromFloat(3, depositUnderlying);
         const balances: TokenBalance[] = [TokenBalance.zero(collateralToken)];
 
-        // if (deposit === undefined) {
-        //   depositInput = TokenBalance.fromFloat(0, depositUnderlying);
-        //   balances.push(TokenBalance.fromFloat(0.005, depositUnderlying));
-        // } else {
-        // }
         const riskFactorLimit: RiskFactorLimit<'leverageRatio'> = {
           riskFactor: 'leverageRatio',
-          limit: 4,
+          limit: 3,
         };
 
         const {
@@ -110,28 +105,25 @@ describe.withForkAndRegistry(
           collateralBalance: collateral1,
         });
 
-        // const {
-        //   collateralBalance: collateral2,
-        //   collateralFee: cf3,
-        //   debtFee: df3,
-        // } = calculateVaultCollateral({
-        //   collateral: collateralToken,
-        //   vaultAdapter,
-        //   debtPool,
-        //   depositBalance: depositInput,
-        //   debtBalance: debt1,
-        // });
-        // expect(cf1).toBeApprox(cf2);
-        // expect(cf2).toBeApprox(cf3);
-        // expect(df1).toBeApprox(df2);
-        // expect(df2).toBeApprox(df3);
-        // expect(debt1).toBeApprox(debt2);
-        // expect(collateral1).toBeApprox(collateral2);
-
-        console.log(debt1.toDisplayStringWithSymbol(8));
-        console.log(debt2.toDisplayStringWithSymbol(8));
-        console.log(collateral1.toDisplayStringWithSymbol(8));
-        console.log(depositInput.toDisplayStringWithSymbol(8));
+        const {
+          collateralBalance: collateral2,
+          collateralFee: cf3,
+          debtFee: df3,
+        } = calculateVaultCollateral({
+          collateral: collateralToken,
+          vaultAdapter,
+          debtPool,
+          depositBalance: depositInput,
+          debtBalance: debt1,
+        });
+        expect(cf1).toBeApprox(cf2);
+        expect(cf2).toBeApprox(cf3);
+        expect(df1).toBeApprox(df2);
+        expect(df2).toBeApprox(df3);
+        expect(debt1).toBeApprox(debt2);
+        expect(collateral1).toBeApprox(collateral2);
+        expect(debt1.isNegative()).toBe(true);
+        expect(collateral1.isPositive()).toBe(true);
       }
     );
   }

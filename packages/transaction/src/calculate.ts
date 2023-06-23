@@ -73,7 +73,10 @@ function exchangeToLocalPrime(
   } else if (token.tokenType === 'fCash') {
     if (!pool) throw Error('Pool is undefined');
     // Buy or Sell fCash to prime cash, take the opposite of the incoming balance
-    const { tokensOut, feesPaid } = pool.calculateTokenTrade(balance.neg(), 0);
+    const { tokensOut, feesPaid } = pool.calculateTokenTrade(
+      balance.unwrapVaultToken().neg(),
+      0
+    );
 
     return {
       localPrime: tokensOut.toToken(outToken).abs(),
