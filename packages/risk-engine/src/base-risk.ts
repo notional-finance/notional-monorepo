@@ -12,6 +12,7 @@ import {
   RATE_DECIMALS,
   getNowSeconds,
   PRIME_CASH_VAULT_MATURITY,
+  BASIS_POINT,
 } from '@notional-finance/util';
 import { RiskFactorLimit, RiskFactors, SymbolOrID } from './types';
 
@@ -295,8 +296,14 @@ export abstract class BaseRiskProfile implements RiskFactors {
       //  repay = [debt * (1 + limit) - limit * asset] / (1 - limit)
       let multiple: number;
       const limitInRP = (limit as number) * RATE_PRECISION;
-
-      if (netLocal.isPositive()) {
+      if (value === null) {
+        // If there is no leverage, then use the limit as the number of debt
+        // units times the total assets.
+        multiple = this.totalAssets()
+          .mulInRatePrecision(limitInRP)
+          .scaleTo(RATE_DECIMALS)
+          .toNumber();
+      } else if (netLocal.isPositive()) {
         multiple = this.totalDebt()
           .neg()
           .mulInRatePrecision(RATE_PRECISION + limitInRP)
@@ -372,7 +379,7 @@ export abstract class BaseRiskProfile implements RiskFactors {
       );
 
       return {
-        // Negation is required here due to how the loop adjustment works
+        // Negation is required here because the multiple is applied to debt values
         actualMultiple: -multiple,
         breakLoop: false,
         value,
@@ -420,7 +427,8 @@ export abstract class BaseRiskProfile implements RiskFactors {
   getDebtAndCollateralMaintainRiskFactor<F extends keyof RiskFactors>(
     debt: TokenDefinition,
     collateral: TokenDefinition,
-    riskFactorLimit: RiskFactorLimit<F>
+    riskFactorLimit: RiskFactorLimit<F>,
+    requiredPrecision = 25 * BASIS_POINT
   ) {
     // Uses the debt as the local currency
     const localUnderlyingId =
@@ -450,7 +458,7 @@ export abstract class BaseRiskProfile implements RiskFactors {
       // If netDebt is decreasing, netCollateral will also decrease because it will be sold
       // to repay debt. If netDebt is increasing, netCollateral will also increase because borrowed
       // cash will be used to buy collateral.
-      const netCollateral = netDebt.toToken(collateral);
+      const netCollateral = netDebt.toToken(collateral).neg();
 
       // Create a new account profile with the simulated collateral added
       const profile = this.simulate([netDebt, netCollateral]);
@@ -466,7 +474,8 @@ export abstract class BaseRiskProfile implements RiskFactors {
       };
     };
 
-    return doBinarySearch(multiple, 0, calculationFunction);
+    // set the required precision based on the riskLimitType
+    return doBinarySearch(multiple, 0, calculationFunction, requiredPrecision);
   }
 
   getAllLiquidationPrices({
