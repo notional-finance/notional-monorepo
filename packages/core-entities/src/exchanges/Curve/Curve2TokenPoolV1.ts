@@ -407,7 +407,7 @@ export class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPoolV1Params
   }
 
   private _xp_mem(balances: TokenBalance[]) {
-    return balances.map((b, i) =>
+    return balances.map((b) =>
       b.copy(b.n.mul(Curve2TokenPoolV1.PRECISION).div(b.precision))
     );
   }
@@ -563,7 +563,9 @@ export class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPoolV1Params
     }
 
     return {
-      tokensOut: xp[tokenIndexOut].copy(dy),
+      tokensOut: xp[tokenIndexOut].copy(
+        dy.mul(xp[tokenIndexOut].precision).div(Curve2TokenPoolV1.PRECISION)
+      ),
       feesPaid: feesPaid,
     };
   }
