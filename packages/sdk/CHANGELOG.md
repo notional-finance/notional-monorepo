@@ -2,6 +2,13 @@
 
 This file was generated using [@jscutlery/semver](https://github.com/jscutlery/semver).
 
+## [0.4.9](https://github.com/notional-finance/notional-monorepo/compare/sdk-0.4.8...sdk-0.4.9) (2023-06-23)
+
+
+### Bug Fixes
+
+* add temporary gas adjustment to batch lend ([#197](https://github.com/notional-finance/notional-monorepo/issues/197)) ([c46a17c](https://github.com/notional-finance/notional-monorepo/commit/c46a17c6c187ac542092b0c9c301bba45d9a1f2c))
+
 ## [0.4.8](https://github.com/notional-finance/notional-monorepo/compare/sdk-0.4.7...sdk-0.4.8) (2023-06-20)
 
 
