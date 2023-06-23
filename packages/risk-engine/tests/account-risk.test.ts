@@ -45,23 +45,23 @@ describe.withForkAndRegistry(
         name: 'ETH / USDC',
         balances: [
           [1, 'ETH'],
-          [-1200, 'USDC'],
+          [-1280, 'USDC'],
         ],
         expected: [
-          { factor: 'netWorth', expected: [0.332, 'ETH'] },
-          { factor: 'freeCollateral', expected: [0.0827, 'ETH'] },
-          { factor: 'loanToValue', expected: 67.78 },
-          { factor: 'collateralRatio', expected: 147.53 },
-          { factor: 'healthFactor', expected: 0.248 },
+          { factor: 'netWorth', expected: [0.321, 'ETH'] },
+          { factor: 'freeCollateral', expected: [0.0701, 'ETH'] },
+          { factor: 'loanToValue', expected: 67.88 },
+          { factor: 'collateralRatio', expected: 147.31 },
+          { factor: 'healthFactor', expected: 0.218 },
           {
             factor: 'collateralLiquidationThreshold',
             args: ['ETH'],
-            expected: [0.897, 'ETH'],
+            expected: [0.913, 'ETH'],
           },
           {
             factor: 'liquidationPrice',
             args: ['USDC', 'ETH'],
-            expected: [1614.81, 'USDC'],
+            expected: [1722.46, 'USDC'],
           },
         ],
       },
@@ -122,12 +122,12 @@ describe.withForkAndRegistry(
       {
         riskFactor: 'collateralLiquidationThreshold',
         args: ['ETH'],
-        limit: [0.88, 'ETH'],
+        limit: [0.85, 'ETH'],
       },
       {
         riskFactor: 'collateralLiquidationThreshold',
         args: ['ETH'],
-        limit: [0.91, 'ETH'],
+        limit: [0.96, 'ETH'],
       },
     ];
 
