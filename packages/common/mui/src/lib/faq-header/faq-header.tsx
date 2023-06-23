@@ -27,8 +27,9 @@ export function FaqHeader({ title, links }: FaqHeaderProps) {
       >
         {links &&
           links.length > 0 &&
-          links.map(({ href, text }) => (
+          links.map(({ href, text }, index) => (
             <ExternalLink
+              key={index}
               href={href}
               textDecoration
               accent

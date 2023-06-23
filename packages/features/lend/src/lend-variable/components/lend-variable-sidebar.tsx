@@ -23,6 +23,7 @@ export const LendVariableSidebar = () => {
   }, [history, pathname]);
 
   const handleLeverUpToggle = () => {
+    // TODO: hook this up to context
     console.log('handleLeverUpToggle');
   };
 
