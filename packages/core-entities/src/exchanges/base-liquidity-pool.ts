@@ -186,8 +186,13 @@ export default abstract class BaseLiquidityPool<
         const tokensIn = this.zeroTokenArray();
         const primaryTokensIn =
           lpTokensRequired.mulInRatePrecision(lpToPrimaryRatio).n;
-        tokensIn[singleSidedEntryTokenIndex] =
-          tokensIn[singleSidedEntryTokenIndex].copy(primaryTokensIn);
+        tokensIn[singleSidedEntryTokenIndex] = tokensIn[
+          singleSidedEntryTokenIndex
+        ].copy(
+          primaryTokensIn
+            .mul(tokensIn[singleSidedEntryTokenIndex].precision)
+            .div(this.oneLPToken().precision)
+        );
 
         const { lpTokens, feesPaid } = this.getLPTokensGivenTokens(tokensIn);
 
