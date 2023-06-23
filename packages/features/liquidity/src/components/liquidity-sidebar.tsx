@@ -14,6 +14,11 @@ export const LiquiditySidebar = () => {
   } = useContext(LiquidityContext);
   const { currencyInputRef } = useCurrencyInputRef();
 
+  const handleLeverUpToggle = () => {
+    // TODO: hook this up to context
+    console.log('handleLeverUpToggle');
+  };
+
   return confirm && populatedTransaction ? (
     <Confirmation2
       heading={
@@ -38,6 +43,8 @@ export const LiquiditySidebar = () => {
       hideTextOnMobile
       CustomActionButton={TradeActionButton}
       canSubmit={canSubmit}
+      handleLeverUpToggle={handleLeverUpToggle}
+      leveredUp={false}
     >
       <DepositInput
         ref={currencyInputRef}

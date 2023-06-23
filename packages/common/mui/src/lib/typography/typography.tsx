@@ -20,7 +20,10 @@ export interface CustomTypographyProps extends StylesProps {
   // NOTE: This is intentionally a any type. MUI does not provide a clear way to get the type for this
 }
 
-const makeVariant = (variant: TypographyProps['variant']) => {
+const makeVariant = (
+  variant: TypographyProps['variant'],
+  componentOverRide?: string
+) => {
   return ({
     children,
     accent,
@@ -56,7 +59,7 @@ const makeVariant = (variant: TypographyProps['variant']) => {
         color={color}
         variant={variant}
         display={inline ? 'inline' : 'block'}
-        component={component}
+        component={componentOverRide || component}
       >
         {msg ? <FormattedMessage {...msg} /> : children}
       </Typography>
@@ -92,7 +95,7 @@ export const H5 = makeVariant('h5');
 export const TableColumnHeading = makeVariant('h5');
 export const ParagraphTitle = makeVariant('h5');
 export const SideNavText = makeVariant('h5');
-export const Body = makeVariant('body1');
+export const Body = makeVariant('body1', 'div');
 export const Paragraph = makeVariant('body1');
 export const Label = makeVariant('body1');
 export const LabelValue = makeVariant('labelValue');
