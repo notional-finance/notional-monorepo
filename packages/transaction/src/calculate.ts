@@ -35,7 +35,7 @@ function exchangeToLocalPrime(
     };
   }
 
-  const { token } = balance;
+  const { token } = balance.unwrapVaultToken();
   if (
     token.tokenType === 'PrimeDebt' ||
     token.tokenType === 'PrimeCash' ||
@@ -81,7 +81,7 @@ function exchangeToLocalPrime(
     };
   }
 
-  throw Error('Unknown token type');
+  throw Error(`Unknown token type: ${token.tokenType}`);
 }
 
 /**
