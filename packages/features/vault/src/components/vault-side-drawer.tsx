@@ -17,6 +17,7 @@ import { useHistory } from 'react-router';
 import { messages } from '../messages';
 import { useTransactionProperties } from '../hooks/use-transaction-properties';
 import { VaultDetailsTable } from './vault-details-table';
+import { WriteCongress } from './write-congress';
 import { useGeoipBlock } from '../hooks/use-geoip-block';
 
 interface VaultSideDrawerProps {
@@ -83,15 +84,21 @@ export const VaultSideDrawer = ({
         ) : (
           <ActionSidebar
             heading={messages[vaultAction].heading}
-            helptext={{
-              ...messages[vaultAction].helptext,
-              values: helptextValues,
-            }}
+            helptext={
+              mustBlockGeo
+                ? { ...messages.error.blockedGeoActionHelptext }
+                : {
+                    ...messages[vaultAction].helptext,
+                    values: helptextValues,
+                  }
+            }
             advancedToggle={advancedToggle}
             showDrawer={false}
             canSubmit={canSubmit}
             cancelRoute={''}
-            CustomActionButton={TradeActionButton}
+            CustomActionButton={
+              mustBlockGeo ? WriteCongress : TradeActionButton
+            }
             hideTextOnMobile={false}
           >
             {children}
