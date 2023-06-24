@@ -14,6 +14,11 @@ new_classes = [
     "ConfigurationRegistryDO",
     "ExchangeRegistryDO",
     "OracleRegistryDO",
+]
+
+[[migrations]]
+tag = "v2"
+new_classes = [
     "VaultRegistryDO"
 ]
 
