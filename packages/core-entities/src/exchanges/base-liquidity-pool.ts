@@ -133,7 +133,7 @@ export default abstract class BaseLiquidityPool<
       .map((b, i) => {
         if (i === primaryTokenIndex) return b;
         const { tokensOut } = this.calculateTokenTrade(
-          b.copy(1),
+          b,
           primaryTokenIndex,
           balanceOverrides
         );
@@ -173,8 +173,6 @@ export default abstract class BaseLiquidityPool<
     tokensIn: TokenBalance[];
     feesPaid: TokenBalance[];
   } {
-    // Balancer has an odd fee calculation method on single sided joins so this is
-    // not the equivalent of join + swap
     if (singleSidedEntryTokenIndex !== undefined) {
       const amountIn = this.getLPTokenOracleValue(
         this.oneLPToken(),
@@ -188,8 +186,13 @@ export default abstract class BaseLiquidityPool<
         const tokensIn = this.zeroTokenArray();
         const primaryTokensIn =
           lpTokensRequired.mulInRatePrecision(lpToPrimaryRatio).n;
-        tokensIn[singleSidedEntryTokenIndex] =
-          tokensIn[singleSidedEntryTokenIndex].copy(primaryTokensIn);
+        tokensIn[singleSidedEntryTokenIndex] = tokensIn[
+          singleSidedEntryTokenIndex
+        ].copy(
+          primaryTokensIn
+            .mul(tokensIn[singleSidedEntryTokenIndex].precision)
+            .div(this.oneLPToken().precision)
+        );
 
         const { lpTokens, feesPaid } = this.getLPTokensGivenTokens(tokensIn);
 
@@ -237,9 +240,11 @@ export default abstract class BaseLiquidityPool<
         .toNumber();
 
       const calculationFunction = (lpToAmountRatio: number) => {
-        const lpTokens = this.oneLPToken().copy(
+        let lpTokens = this.oneLPToken().copy(
           amountOutRequired.mulInRatePrecision(lpToAmountRatio).n
         );
+        // Don't allow this to go over the total supply
+        if (lpTokens.gt(this.totalSupply)) lpTokens = this.totalSupply;
 
         // Passing in single sided exit token index forces the exit to be in
         // the given token index
@@ -289,11 +294,13 @@ export default abstract class BaseLiquidityPool<
       /** Start Calculation Function **/
       const calculationFunction = (lpTokensInRatePrecision: number) => {
         // LP to Amount Ratio = totalValueOutRequired / oneLPTokenOracleValue
-        const lpTokens = this.oneLPToken().copy(
+        let lpTokens = this.oneLPToken().copy(
           BigNumber.from(lpTokensInRatePrecision)
             .mul(this.totalSupply.precision)
             .div(RATE_PRECISION)
         );
+        // Don't allow this to go over the total supply
+        if (lpTokens.gt(this.totalSupply)) lpTokens = this.totalSupply;
 
         const { tokensOut: tokensOutTemp, feesPaid: _feesPaid } =
           this.getTokensOutGivenLPTokens(lpTokens);
@@ -310,6 +317,7 @@ export default abstract class BaseLiquidityPool<
             // Unable to trade the position away, need to withdraw more
             // liquidity tokens
             if (positiveIndex === -1) return tokenDiff;
+            if (positiveIndex === i) break;
 
             // Trade the the balance to recover the negative amount
             const { tokensOut: tokensTraded, feesPaid: feesFromTrade } =

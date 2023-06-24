@@ -13,7 +13,13 @@ new_classes = [
     "TokenRegistryDO",
     "ConfigurationRegistryDO",
     "ExchangeRegistryDO",
-    "OracleRegistryDO"
+    "OracleRegistryDO",
+]
+
+[[migrations]]
+tag = "v2"
+new_classes = [
+    "VaultRegistryDO"
 ]
 
 [env.local]
@@ -31,6 +37,7 @@ bindings = [
   { name = "CONFIGURATION_REGISTRY_DO", class_name = "ConfigurationRegistryDO" },
   { name = "EXCHANGE_REGISTRY_DO", class_name = "ExchangeRegistryDO" },
   { name = "ORACLE_REGISTRY_DO", class_name = "OracleRegistryDO" },
+  { name = "VAULT_REGISTRY_DO", class_name = "VaultRegistryDO" },
 ]
 
 
@@ -50,6 +57,7 @@ bindings = [
   { name = "CONFIGURATION_REGISTRY_DO", class_name = "ConfigurationRegistryDO" },
   { name = "EXCHANGE_REGISTRY_DO", class_name = "ExchangeRegistryDO" },
   { name = "ORACLE_REGISTRY_DO", class_name = "OracleRegistryDO" },
+  { name = "VAULT_REGISTRY_DO", class_name = "VaultRegistryDO" },
 ]
 
 
@@ -67,4 +75,5 @@ bindings = [
   { name = "CONFIGURATION_REGISTRY_DO", class_name = "ConfigurationRegistryDO" },
   { name = "EXCHANGE_REGISTRY_DO", class_name = "ExchangeRegistryDO" },
   { name = "ORACLE_REGISTRY_DO", class_name = "OracleRegistryDO" },
+  { name = "VAULT_REGISTRY_DO", class_name = "VaultRegistryDO" },
 ]

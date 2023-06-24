@@ -43,6 +43,7 @@ export type Scalars = {
   BigDecimal: any;
   BigInt: any;
   Bytes: any;
+  Int8: any;
 };
 
 export type Account = {
@@ -4280,6 +4281,8 @@ export type VaultConfiguration = {
   onlyVaultDeleverage: Scalars['Boolean'];
   /** Only the vault can settle */
   onlyVaultSettle: Scalars['Boolean'];
+  /** fCash discounting is enabled on the vault */
+  discountfCash?: Maybe<Scalars['Boolean']>;
   /** Vault is allowed to re-enter Notional */
   allowsReentrancy: Scalars['Boolean'];
   /** Deleveraging is disabled on this vault */
@@ -4505,6 +4508,10 @@ export type VaultConfiguration_filter = {
   onlyVaultSettle_not?: InputMaybe<Scalars['Boolean']>;
   onlyVaultSettle_in?: InputMaybe<Array<Scalars['Boolean']>>;
   onlyVaultSettle_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  discountfCash?: InputMaybe<Scalars['Boolean']>;
+  discountfCash_not?: InputMaybe<Scalars['Boolean']>;
+  discountfCash_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  discountfCash_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
   allowsReentrancy?: InputMaybe<Scalars['Boolean']>;
   allowsReentrancy_not?: InputMaybe<Scalars['Boolean']>;
   allowsReentrancy_in?: InputMaybe<Array<Scalars['Boolean']>>;
@@ -4599,6 +4606,7 @@ export type VaultConfiguration_orderBy =
   | 'onlyVaultRoll'
   | 'onlyVaultDeleverage'
   | 'onlyVaultSettle'
+  | 'discountfCash'
   | 'allowsReentrancy'
   | 'deleverageDisabled'
   | 'maxPrimaryBorrowCapacity'
@@ -5281,6 +5289,7 @@ export type ResolversTypes = ResolversObject<{
   Incentive_filter: Incentive_filter;
   Incentive_orderBy: Incentive_orderBy;
   Int: ResolverTypeWrapper<Scalars['Int']>;
+  Int8: ResolverTypeWrapper<Scalars['Int8']>;
   InterestRateCurve: ResolverTypeWrapper<InterestRateCurve>;
   InterestRateCurve_filter: InterestRateCurve_filter;
   InterestRateCurve_orderBy: InterestRateCurve_orderBy;
@@ -5362,6 +5371,7 @@ export type ResolversParentTypes = ResolversObject<{
   Incentive: Incentive;
   Incentive_filter: Incentive_filter;
   Int: Scalars['Int'];
+  Int8: Scalars['Int8'];
   InterestRateCurve: InterestRateCurve;
   InterestRateCurve_filter: InterestRateCurve_filter;
   Oracle: Oracle;
@@ -5534,6 +5544,10 @@ export type IncentiveResolvers<ContextType = MeshContext & { chainName: string }
   migrationTime?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
+
+export interface Int8ScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Int8'], any> {
+  name: 'Int8';
+}
 
 export type InterestRateCurveResolvers<ContextType = MeshContext & { chainName: string }, ParentType extends ResolversParentTypes['InterestRateCurve'] = ResolversParentTypes['InterestRateCurve']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -5812,6 +5826,7 @@ export type VaultConfigurationResolvers<ContextType = MeshContext & { chainName:
   onlyVaultRoll?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   onlyVaultDeleverage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   onlyVaultSettle?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  discountfCash?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   allowsReentrancy?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   deleverageDisabled?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   maxPrimaryBorrowCapacity?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
@@ -5890,6 +5905,7 @@ export type Resolvers<ContextType = MeshContext & { chainName: string }> = Resol
   CurrencyConfiguration?: CurrencyConfigurationResolvers<ContextType>;
   ExchangeRate?: ExchangeRateResolvers<ContextType>;
   Incentive?: IncentiveResolvers<ContextType>;
+  Int8?: GraphQLScalarType;
   InterestRateCurve?: InterestRateCurveResolvers<ContextType>;
   Oracle?: OracleResolvers<ContextType>;
   OracleRegistry?: OracleRegistryResolvers<ContextType>;
@@ -5961,7 +5977,7 @@ const notionalV3Transforms = [];
 const additionalTypeDefs = [] as any[];
 const notionalV3Handler = new GraphqlHandler({
               name: "NotionalV3",
-              config: {"endpoint":"https://api.studio.thegraph.com/query/33671/notional-finance-v3-{context.chainName:arbitrum}/v0.0.66"},
+              config: {"endpoint":"https://api.studio.thegraph.com/query/33671/notional-finance-v3-{context.chainName:arbitrum}/v0.0.70"},
               baseDir,
               cache,
               pubsub,

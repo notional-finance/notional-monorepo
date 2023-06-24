@@ -12,6 +12,7 @@ export {
   ConfigurationRegistryDO,
   ExchangeRegistryDO,
   OracleRegistryDO,
+  VaultRegistryDO,
 } from '@notional-finance/durable-objects';
 
 async function runHealthCheck(ns: DurableObjectNamespace, version: string) {
@@ -27,6 +28,7 @@ export default {
       runHealthCheck(env.CONFIGURATION_REGISTRY_DO, env.VERSION),
       runHealthCheck(env.EXCHANGE_REGISTRY_DO, env.VERSION),
       runHealthCheck(env.ORACLE_REGISTRY_DO, env.VERSION),
+      runHealthCheck(env.VAULT_REGISTRY_DO, env.VERSION),
     ]);
 
     const url = new URL(request.url);
@@ -44,6 +46,9 @@ export default {
       case Routes.Exchanges:
         ns = env.EXCHANGE_REGISTRY_DO;
         break;
+      case Routes.Vaults:
+        ns = env.VAULT_REGISTRY_DO;
+        break;
     }
 
     const stub = ns.get(ns.idFromName(env.VERSION));
@@ -56,6 +61,7 @@ export default {
       runHealthCheck(env.CONFIGURATION_REGISTRY_DO, env.VERSION),
       runHealthCheck(env.EXCHANGE_REGISTRY_DO, env.VERSION),
       runHealthCheck(env.ORACLE_REGISTRY_DO, env.VERSION),
+      runHealthCheck(env.VAULT_REGISTRY_DO, env.VERSION),
     ]);
   },
 };

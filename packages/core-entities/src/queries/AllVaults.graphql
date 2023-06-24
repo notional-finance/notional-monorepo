@@ -1,0 +1,14 @@
+query AllVaults {
+    vaultConfigurations(where: { enabled: true }) {
+        id
+        vaultAddress
+        strategy
+        name
+    }
+
+  _meta {
+    block {
+        number
+    }
+  }
+}

@@ -1,5 +1,6 @@
 import {
   AccountDefinition,
+  ConfigurationClient,
   TokenBalance,
   TokenDefinition,
 } from '@notional-finance/core-entities';
@@ -7,6 +8,7 @@ import {
   AccountRiskProfile,
   RiskFactorKeys,
   RiskFactorLimit,
+  VaultAccountRiskProfile,
 } from '@notional-finance/risk-engine';
 import {
   CalculationFn,
@@ -38,6 +40,11 @@ export interface TransactionConfig {
 export interface InputAmount {
   amount: string;
   inUnderlying: boolean;
+}
+
+interface VaultState {
+  vaultAddress?: string;
+  vaultConfig?: ReturnType<ConfigurationClient['getVaultConfig']>;
 }
 
 /** Inputs set by the user interface, all of these are denominated in primitive values */
@@ -130,11 +137,20 @@ export interface BaseTradeState
     InitState,
     UserInputs,
     TokenInputs,
-    TransactionState {
+    TransactionState {}
+
+export interface TradeState extends BaseTradeState {
   /** Account risk factors prior to any changes to the account */
   priorAccountRisk?: ReturnType<AccountRiskProfile['getAllRiskFactors']>;
   /** Account risk factors after changes applied to the account */
   postAccountRisk?: ReturnType<AccountRiskProfile['getAllRiskFactors']>;
+}
+
+export interface VaultTradeState extends BaseTradeState, VaultState {
+  /** Account risk factors prior to any changes to the account */
+  priorAccountRisk?: ReturnType<VaultAccountRiskProfile['getAllRiskFactors']>;
+  /** Account risk factors after changes applied to the account */
+  postAccountRisk?: ReturnType<VaultAccountRiskProfile['getAllRiskFactors']>;
 }
 
 export const initialBaseTradeState: BaseTradeState = {

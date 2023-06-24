@@ -100,20 +100,18 @@ export function BorrowWithCollateral({
       address,
       [
         getBalanceAndTradeAction(
-          collateralBalance.token.tokenType === 'nToken'
+          collateralBalance.tokenType === 'nToken'
             ? DepositActionType.DepositUnderlyingAndMintNToken
             : DepositActionType.DepositUnderlying,
           depositBalance,
           // If the account has collateral cash or is depositing prime cash collateral, then
           // do not withdraw cash balances. Otherwise, withdraw residuals.
-          collateralCash || collateralBalance.token.tokenType === 'PrimeCash'
+          collateralCash || collateralBalance.tokenType === 'PrimeCash'
             ? false
             : true,
           undefined,
           redeemToWETH,
-          collateralBalance.token.tokenType === 'fCash'
-            ? [collateralBalance]
-            : []
+          collateralBalance.tokenType === 'fCash' ? [collateralBalance] : []
         ),
         getBalanceAndTradeAction(
           DepositActionType.None,
@@ -121,7 +119,7 @@ export function BorrowWithCollateral({
           withdrawEntireCashBalance,
           withdrawAmountInternalPrecision,
           redeemToWETH,
-          debtBalance.token.tokenType === 'fCash' ? [debtBalance] : []
+          debtBalance.tokenType === 'fCash' ? [debtBalance] : []
         ),
       ].sort((a, b) => (a.currencyId as number) - (b.currencyId as number)),
       getETHValue(depositBalance),
@@ -140,7 +138,7 @@ export function RepayDebt({
   if (!collateralBalance || !depositBalance)
     throw Error('Collateral and deposit balances must be defined');
 
-  if (collateralBalance.token.tokenType === 'fCash') {
+  if (collateralBalance.tokenType === 'fCash') {
     return LendFixed({
       address,
       network,
@@ -189,7 +187,7 @@ export function WithdrawLend({
   const { withdrawAmountInternalPrecision, withdrawEntireCashBalance } =
     hasExistingCashBalance(debtBalance, accountBalances);
 
-  return debtBalance.token.tokenType === 'fCash'
+  return debtBalance.tokenType === 'fCash'
     ? populateNotionalTxnAndGas(
         network,
         address,
@@ -245,7 +243,7 @@ export function RollLendOrDebt({
           undefined,
           false,
           [debtBalance, collateralBalance].filter(
-            (t) => t.token.tokenType === 'fCash'
+            (t) => t.tokenType === 'fCash'
           )
         ),
       ],

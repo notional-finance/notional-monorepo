@@ -12,6 +12,7 @@ import {
   RATE_DECIMALS,
   getNowSeconds,
   PRIME_CASH_VAULT_MATURITY,
+  BASIS_POINT,
 } from '@notional-finance/util';
 import { RiskFactorLimit, RiskFactors, SymbolOrID } from './types';
 
@@ -25,7 +26,7 @@ export abstract class BaseRiskProfile implements RiskFactors {
     map: Map<string, TokenBalance> = new Map<string, TokenBalance>()
   ) => {
     return tokens.reduce((m, t) => {
-      if (t.token.tokenType === 'PrimeDebt') {
+      if (t.tokenType === 'PrimeDebt') {
         // Rewrite all prime debt to prime cash, this only applies to AccountRiskProfile, not
         // VaultAccountRiskProfile
         const pCash = Registry.getTokenRegistry().getPrimeCash(
@@ -232,7 +233,9 @@ export abstract class BaseRiskProfile implements RiskFactors {
       // if withdraw:
       //  limit = (debt - repay) / asset
       //  repay = debt - limit * asset
-      if (netLocal.isPositive()) {
+      if ((value as number) <= 0.001) {
+        multiple = limitInRP;
+      } else if (netLocal.isPositive()) {
         multiple = this.totalDebt()
           .neg()
           .sub(this.totalAssets().mulInRatePrecision(limitInRP))
@@ -253,17 +256,18 @@ export abstract class BaseRiskProfile implements RiskFactors {
       };
     } else if (riskFactor === 'collateralRatio') {
       // limit = asset / debt
-      // if deposit:
+      // if netLocal > 0:
       //  limit = (asset + deposit) / debt
       //  deposit = limit * debt - asset
       // if withdraw:
       //  limit = asset / (debt - repay)
       //  repay = (limit * debt - asset) / limit
-
       let multiple: number;
       const limitInRP = ((limit as number) * RATE_PRECISION) / 100;
 
-      if (netLocal.isPositive()) {
+      if (value === null) {
+        multiple = limitInRP;
+      } else if (netLocal.isPositive()) {
         multiple = this.totalDebt()
           .neg()
           .mulInRatePrecision(limitInRP)
@@ -287,7 +291,44 @@ export abstract class BaseRiskProfile implements RiskFactors {
     } else if (riskFactor === 'healthFactor') {
       throw Error('Unimplemented');
     } else if (riskFactor === 'leverageRatio') {
-      throw Error('Unimplemented');
+      // limit = debt / (asset - debt)
+      // if netLocal > 0:
+      //  limit = debt / (asset + deposit - debt)
+      //  deposit = [debt * (1 + limit) - asset * limit] / limit
+      // if netLocal < 0:
+      //  limit = (debt - repay) / (asset - debt - repay)
+      //  repay = [debt * (1 + limit) - limit * asset] / (1 - limit)
+      let multiple: number;
+      const limitInRP = (limit as number) * RATE_PRECISION;
+      if (value === null) {
+        // If there is no leverage, then use the limit as the number of debt
+        // units times the total assets.
+        multiple = this.totalAssets()
+          .mulInRatePrecision(limitInRP)
+          .scaleTo(RATE_DECIMALS)
+          .toNumber();
+      } else if (netLocal.isPositive()) {
+        multiple = this.totalDebt()
+          .neg()
+          .mulInRatePrecision(RATE_PRECISION + limitInRP)
+          .sub(this.totalAssets().mulInRatePrecision(limitInRP))
+          .divInRatePrecision(limitInRP)
+          .scaleTo(RATE_DECIMALS)
+          .toNumber();
+      } else {
+        multiple = this.totalDebt()
+          .neg()
+          .mulInRatePrecision(RATE_PRECISION + limitInRP)
+          .sub(this.totalAssets().mulInRatePrecision(limitInRP))
+          .divInRatePrecision(RATE_PRECISION - limitInRP)
+          .scaleTo(RATE_DECIMALS)
+          .toNumber();
+      }
+
+      return {
+        value,
+        multiple,
+      };
     } else if (riskFactor === 'liquidationPrice') {
       const _value = value as TokenBalance | null;
       const _limit = limit as TokenBalance;
@@ -342,7 +383,7 @@ export abstract class BaseRiskProfile implements RiskFactors {
       );
 
       return {
-        // Negation is required here due to how the loop adjustment works
+        // Negation is required here because the multiple is applied to debt values
         actualMultiple: -multiple,
         breakLoop: false,
         value,
@@ -415,12 +456,22 @@ export abstract class BaseRiskProfile implements RiskFactors {
           .toToken(debt)
           .neg();
       } else {
-        netDebt = TokenBalance.unit(debt).mulInRatePrecision(multiple).neg();
+        // NOTE: this multiple is in "denom" terms. Need to convert it to local underlying
+        // terms before we multiply it to get the debt figure. Use the currency id so that vault
+        // debts convert properly.
+        const defaultToken = this.denom(this.defaultSymbol);
+        netDebt =
+          debt.currencyId === defaultToken.currencyId
+            ? TokenBalance.unit(debt).mulInRatePrecision(multiple).neg()
+            : TokenBalance.unit(defaultToken)
+                .mulInRatePrecision(multiple)
+                .toToken(debt)
+                .neg();
       }
       // If netDebt is decreasing, netCollateral will also decrease because it will be sold
       // to repay debt. If netDebt is increasing, netCollateral will also increase because borrowed
       // cash will be used to buy collateral.
-      const netCollateral = netDebt.toToken(collateral);
+      const netCollateral = netDebt.toToken(collateral).neg();
 
       // Create a new account profile with the simulated collateral added
       const profile = this.simulate([netDebt, netCollateral]);
@@ -436,10 +487,15 @@ export abstract class BaseRiskProfile implements RiskFactors {
       };
     };
 
+    // set the required precision based on the riskLimitType
     return doBinarySearch(multiple, 0, calculationFunction);
   }
 
-  getAllLiquidationPrices() {
+  getAllLiquidationPrices({
+    onlyUnderlyingDebt = false,
+  }: {
+    onlyUnderlyingDebt?: boolean;
+  }) {
     // get all collateral ids + underlying
     const collateral = this.collateral
       .map((a) => a.token)
@@ -452,7 +508,10 @@ export abstract class BaseRiskProfile implements RiskFactors {
       .map((a) => a.token)
       .concat(unique(this.debts.map((a) => a.underlying)))
       // Prefer to show underlying over prime cash
-      .filter((c) => c.tokenType !== 'PrimeCash');
+      .filter((c) => c.tokenType !== 'PrimeCash')
+      .filter((c) =>
+        onlyUnderlyingDebt ? c.tokenType === 'Underlying' : true
+      );
 
     return collateral
       .flatMap((c) => {
@@ -464,11 +523,11 @@ export abstract class BaseRiskProfile implements RiskFactors {
               collateral: c,
               debt: d,
               riskExposure: this.getRiskExposureType(c, d, collateralThreshold),
-              liquidationPrice: collateralThreshold?.toToken(d) || null,
+              price: collateralThreshold?.toToken(d) || null,
             };
           });
       })
-      .filter(({ liquidationPrice }) => liquidationPrice !== null);
+      .filter(({ price }) => price !== null);
   }
 
   getRiskExposureType(

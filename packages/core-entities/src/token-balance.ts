@@ -1,7 +1,10 @@
 import {
   ALT_ETH,
+  AssetType,
   convertToGenericfCashId,
+  encodeERC1155Id,
   Network,
+  PRIME_CASH_VAULT_MATURITY,
   RATE_PRECISION,
   SCALAR_PRECISION,
   ZERO_ADDRESS,
@@ -87,6 +90,22 @@ export class TokenBalance {
     return id;
   }
 
+  get vaultAddress() {
+    const v = this.token.vaultAddress;
+    if (!v || v === ZERO_ADDRESS) throw Error('Invalid vault address');
+    return v;
+  }
+
+  get maturity() {
+    const m = this.token.maturity;
+    if (!m) throw Error('Invalid maturity');
+    return m;
+  }
+
+  get tokenType() {
+    return this.token.tokenType;
+  }
+
   get token() {
     return Registry.getTokenRegistry().getTokenByID(this.network, this.tokenId);
   }
@@ -115,7 +134,7 @@ export class TokenBalance {
   }
 
   get underlying() {
-    if (this.token.tokenType == 'Underlying') return this.token;
+    if (this.tokenType == 'Underlying') return this.token;
     if (!this.token.underlying)
       throw Error(`No underlying defined for ${this.token.symbol}`);
     return Registry.getTokenRegistry().getTokenByID(
@@ -371,7 +390,7 @@ export class TokenBalance {
       // Fetch the latest exchange rate
       // TODO: if doing settlement then then token id needs to be the actual fCash (not generic fcash id)
       const path = oracleRegistry.findPath(
-        this.token.id,
+        this.unwrapVaultToken().token.id,
         token.id,
         this.token.network
       );
@@ -392,13 +411,13 @@ export class TokenBalance {
   }
 
   toUnderlying() {
-    if (this.token.tokenType === 'Underlying') return this;
+    if (this.tokenType === 'Underlying') return this;
     // Does the exchange rate conversion and decimal scaling
     return this.toToken(this.underlying);
   }
 
   toPrimeCash() {
-    if (this.token.tokenType === 'PrimeCash') return this;
+    if (this.tokenType === 'PrimeCash') return this;
     const primeCash = Registry.getTokenRegistry().getPrimeCash(
       this.network,
       this.currencyId
@@ -415,8 +434,39 @@ export class TokenBalance {
     );
   }
 
-  toTokenViaExchange(_token: TokenDefinition) {
-    throw Error('unimplemented');
-    return this;
+  /** Does some token id manipulation for exchange rates */
+  unwrapVaultToken() {
+    if (
+      this.tokenType === 'VaultDebt' &&
+      this.token.maturity &&
+      this.token.maturity !== PRIME_CASH_VAULT_MATURITY
+    ) {
+      const fCashToken = Registry.getTokenRegistry().getTokenByID(
+        this.network,
+        encodeERC1155Id(
+          this.currencyId,
+          this.token.maturity,
+          AssetType.FCASH_ASSET_TYPE
+        )
+      );
+      return TokenBalance.from(this.n, fCashToken);
+    } else if (
+      this.tokenType === 'VaultDebt' &&
+      this.token.maturity === PRIME_CASH_VAULT_MATURITY
+    ) {
+      const pDebtToken = Registry.getTokenRegistry().getPrimeDebt(
+        this.network,
+        this.currencyId
+      );
+      return TokenBalance.from(this.n, pDebtToken);
+    } else if (this.tokenType === 'VaultCash') {
+      const pCashToken = Registry.getTokenRegistry().getPrimeDebt(
+        this.network,
+        this.currencyId
+      );
+      return TokenBalance.from(this.n, pCashToken);
+    } else {
+      return this;
+    }
   }
 }

@@ -20,10 +20,15 @@ async function main() {
     (r) => r.text()
   );
 
+  const v = await crossFetch(`${apiHostname}/vaults?network=arbitrum`).then(
+    (r) => r.text()
+  );
+
   fs.writeFileSync(`${__dirname}/clients/__snapshots__/configuration`, c);
   fs.writeFileSync(`${__dirname}/clients/__snapshots__/tokens`, t);
   fs.writeFileSync(`${__dirname}/clients/__snapshots__/exchanges`, e);
   fs.writeFileSync(`${__dirname}/clients/__snapshots__/oracles`, o);
+  fs.writeFileSync(`${__dirname}/clients/__snapshots__/vaults`, v);
 }
 
 main()

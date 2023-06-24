@@ -25,7 +25,8 @@ durable_objects.bindings = [
   { name = "CONFIGURATION_REGISTRY_DO", class_name = "ConfigurationRegistryDO", script_name = "registry-dev" },
   { name = "EXCHANGE_REGISTRY_DO", class_name = "ExchangeRegistryDO", script_name = "registry-dev" },
   { name = "ORACLE_REGISTRY_DO", class_name = "OracleRegistryDO", script_name = "registry-dev" },
-  { name = "TOKEN_REGISTRY_DO", class_name = "TokenRegistryDO", script_name = "registry-dev" }
+  { name = "TOKEN_REGISTRY_DO", class_name = "TokenRegistryDO", script_name = "registry-dev" },
+  { name = "VAULT_REGISTRY_DO", class_name = "VaultRegistryDO", script_name = "registry-dev" }
 ]
 
 [env.local.vars]
@@ -43,7 +44,8 @@ durable_objects.bindings = [
   { name = "CONFIGURATION_REGISTRY_DO", class_name = "ConfigurationRegistryDO", script_name = "registry-dev" },
   { name = "EXCHANGE_REGISTRY_DO", class_name = "ExchangeRegistryDO", script_name = "registry-dev" },
   { name = "ORACLE_REGISTRY_DO", class_name = "OracleRegistryDO", script_name = "registry-dev" },
-  { name = "TOKEN_REGISTRY_DO", class_name = "TokenRegistryDO", script_name = "registry-dev" }
+  { name = "TOKEN_REGISTRY_DO", class_name = "TokenRegistryDO", script_name = "registry-dev" },
+  { name = "VAULT_REGISTRY_DO", class_name = "VaultRegistryDO", script_name = "registry-dev" }
 ]
 
 [env.dev.vars]
@@ -63,7 +65,8 @@ durable_objects.bindings = [
   { name = "CONFIGURATION_REGISTRY_DO", class_name = "ConfigurationRegistryDO", script_name = "registry-prod" },
   { name = "EXCHANGE_REGISTRY_DO", class_name = "ExchangeRegistryDO", script_name = "registry-prod" },
   { name = "ORACLE_REGISTRY_DO", class_name = "OracleRegistryDO", script_name = "registry-prod" },
-  { name = "TOKEN_REGISTRY_DO", class_name = "TokenRegistryDO", script_name = "registry-prod" }
+  { name = "TOKEN_REGISTRY_DO", class_name = "TokenRegistryDO", script_name = "registry-prod" },
+  { name = "VAULT_REGISTRY_DO", class_name = "VaultRegistryDO", script_name = "registry-prod" }
 ]
 
 [env.prod.vars]

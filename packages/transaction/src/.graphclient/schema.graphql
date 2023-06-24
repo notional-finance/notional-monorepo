@@ -1320,6 +1320,12 @@ enum Incentive_orderBy {
   migrationTime
 }
 
+"""
+8 bytes signed integer
+
+"""
+scalar Int8
+
 type InterestRateCurve {
   """ID is the currency id:market index:true if current"""
   id: ID!
@@ -4349,6 +4355,8 @@ type VaultConfiguration {
   onlyVaultDeleverage: Boolean!
   """Only the vault can settle"""
   onlyVaultSettle: Boolean!
+  """fCash discounting is enabled on the vault"""
+  discountfCash: Boolean
   """Vault is allowed to re-enter Notional"""
   allowsReentrancy: Boolean!
   """Deleveraging is disabled on this vault"""
@@ -4565,6 +4573,10 @@ input VaultConfiguration_filter {
   onlyVaultSettle_not: Boolean
   onlyVaultSettle_in: [Boolean!]
   onlyVaultSettle_not_in: [Boolean!]
+  discountfCash: Boolean
+  discountfCash_not: Boolean
+  discountfCash_in: [Boolean!]
+  discountfCash_not_in: [Boolean!]
   allowsReentrancy: Boolean
   allowsReentrancy_not: Boolean
   allowsReentrancy_in: [Boolean!]
@@ -4659,6 +4671,7 @@ enum VaultConfiguration_orderBy {
   onlyVaultRoll
   onlyVaultDeleverage
   onlyVaultSettle
+  discountfCash
   allowsReentrancy
   deleverageDisabled
   maxPrimaryBorrowCapacity

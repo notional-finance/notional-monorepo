@@ -6046,6 +6046,12 @@ const merger = new(BareMerger as any)({
           return printWithCache(AllTokensDocument);
         },
         location: 'AllTokensDocument.graphql'
+      },{
+        document: AllVaultsDocument,
+        get rawSDL() {
+          return printWithCache(AllVaultsDocument);
+        },
+        location: 'AllVaultsDocument.graphql'
       }
     ];
     },
@@ -6091,7 +6097,7 @@ export type AllConfigurationQuery = { currencyConfigurations: Array<(
     Pick<CurrencyConfiguration, 'id' | 'maxUnderlyingSupply' | 'collateralHaircut' | 'debtBuffer' | 'liquidationDiscount' | 'primeCashRateOracleTimeWindowSeconds' | 'primeCashHoldingsOracle' | 'primeDebtAllowed' | 'fCashRateOracleTimeWindowSeconds' | 'fCashReserveFeeSharePercent' | 'fCashDebtBufferBasisPoints' | 'fCashHaircutBasisPoints' | 'fCashMinOracleRate' | 'fCashMaxOracleRate' | 'fCashMaxDiscountFactor' | 'fCashLiquidationHaircutBasisPoints' | 'fCashLiquidationDebtBufferBasisPoints' | 'treasuryReserveBuffer' | 'primeCashHoldings' | 'rebalancingTargets' | 'rebalancingCooldown' | 'depositShares' | 'leverageThresholds' | 'proportions' | 'incentiveEmissionRate' | 'secondaryIncentiveRewarder' | 'residualPurchaseIncentiveBasisPoints' | 'residualPurchaseTimeBufferSeconds' | 'cashWithholdingBufferBasisPoints' | 'pvHaircutPercentage' | 'liquidationHaircutPercentage'>
     & { underlying?: Maybe<Pick<Token, 'id'>>, pCash?: Maybe<Pick<Token, 'id'>>, pDebt?: Maybe<Pick<Token, 'id'>>, primeCashCurve?: Maybe<Pick<InterestRateCurve, 'kinkUtilization1' | 'kinkUtilization2' | 'kinkRate1' | 'kinkRate2' | 'maxRate' | 'minFeeRate' | 'maxFeeRate' | 'feeRatePercent'>>, fCashActiveCurves?: Maybe<Array<Pick<InterestRateCurve, 'kinkUtilization1' | 'kinkUtilization2' | 'kinkRate1' | 'kinkRate2' | 'maxRate' | 'minFeeRate' | 'maxFeeRate' | 'feeRatePercent'>>>, fCashNextCurves?: Maybe<Array<Pick<InterestRateCurve, 'kinkUtilization1' | 'kinkUtilization2' | 'kinkRate1' | 'kinkRate2' | 'maxRate' | 'minFeeRate' | 'maxFeeRate' | 'feeRatePercent'>>> }
   )>, vaultConfigurations: Array<(
-    Pick<VaultConfiguration, 'id' | 'vaultAddress' | 'strategy' | 'name' | 'minAccountBorrowSize' | 'minCollateralRatioBasisPoints' | 'maxDeleverageCollateralRatioBasisPoints' | 'feeRateBasisPoints' | 'reserveFeeSharePercent' | 'liquidationRatePercent' | 'maxBorrowMarketIndex' | 'maxRequiredAccountCollateralRatioBasisPoints' | 'enabled' | 'allowRollPosition' | 'onlyVaultEntry' | 'onlyVaultExit' | 'onlyVaultRoll' | 'onlyVaultDeleverage' | 'onlyVaultSettle' | 'allowsReentrancy' | 'deleverageDisabled' | 'maxPrimaryBorrowCapacity' | 'totalUsedPrimaryBorrowCapacity' | 'maxSecondaryBorrowCapacity' | 'totalUsedSecondaryBorrowCapacity' | 'minAccountSecondaryBorrow'>
+    Pick<VaultConfiguration, 'id' | 'vaultAddress' | 'strategy' | 'name' | 'minAccountBorrowSize' | 'minCollateralRatioBasisPoints' | 'maxDeleverageCollateralRatioBasisPoints' | 'feeRateBasisPoints' | 'reserveFeeSharePercent' | 'liquidationRatePercent' | 'maxBorrowMarketIndex' | 'maxRequiredAccountCollateralRatioBasisPoints' | 'enabled' | 'allowRollPosition' | 'onlyVaultEntry' | 'onlyVaultExit' | 'onlyVaultRoll' | 'onlyVaultDeleverage' | 'onlyVaultSettle' | 'discountfCash' | 'allowsReentrancy' | 'deleverageDisabled' | 'maxPrimaryBorrowCapacity' | 'totalUsedPrimaryBorrowCapacity' | 'maxSecondaryBorrowCapacity' | 'totalUsedSecondaryBorrowCapacity' | 'minAccountSecondaryBorrow'>
     & { primaryBorrowCurrency: Pick<Token, 'id'>, secondaryBorrowCurrencies?: Maybe<Array<Pick<Token, 'id'>>> }
   )>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
 
@@ -6110,6 +6116,11 @@ export type AllTokensQuery = { tokens: Array<(
     Pick<Token, 'id' | 'tokenType' | 'tokenInterface' | 'currencyId' | 'name' | 'symbol' | 'decimals' | 'totalSupply' | 'hasTransferFee' | 'isfCashDebt' | 'maturity' | 'vaultAddress' | 'tokenAddress'>
     & { underlying?: Maybe<Pick<Token, 'id'>> }
   )>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
+
+export type AllVaultsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type AllVaultsQuery = { vaultConfigurations: Array<Pick<VaultConfiguration, 'id' | 'vaultAddress' | 'strategy' | 'name'>>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
 
 
 export const AllConfigurationDocument = gql`
@@ -6212,6 +6223,7 @@ export const AllConfigurationDocument = gql`
     onlyVaultRoll
     onlyVaultDeleverage
     onlyVaultSettle
+    discountfCash
     allowsReentrancy
     deleverageDisabled
     maxPrimaryBorrowCapacity
@@ -6281,6 +6293,22 @@ export const AllTokensDocument = gql`
   }
 }
     ` as unknown as DocumentNode<AllTokensQuery, AllTokensQueryVariables>;
+export const AllVaultsDocument = gql`
+    query AllVaults {
+  vaultConfigurations(where: {enabled: true}) {
+    id
+    vaultAddress
+    strategy
+    name
+  }
+  _meta {
+    block {
+      number
+    }
+  }
+}
+    ` as unknown as DocumentNode<AllVaultsQuery, AllVaultsQueryVariables>;
+
 
 
 
@@ -6296,6 +6324,9 @@ export function getSdk<C, E>(requester: Requester<C, E>) {
     },
     AllTokens(variables?: AllTokensQueryVariables, options?: C): Promise<AllTokensQuery> {
       return requester<AllTokensQuery, AllTokensQueryVariables>(AllTokensDocument, variables, options) as Promise<AllTokensQuery>;
+    },
+    AllVaults(variables?: AllVaultsQueryVariables, options?: C): Promise<AllVaultsQuery> {
+      return requester<AllVaultsQuery, AllVaultsQueryVariables>(AllVaultsDocument, variables, options) as Promise<AllVaultsQuery>;
     }
   };
 }

@@ -10,6 +10,7 @@ import {
   handleOracles,
   handleTokens,
   handleYields,
+  handleVaults,
 } from './routes';
 
 export {
@@ -20,6 +21,7 @@ export {
   ConfigurationRegistryDO,
   ExchangeRegistryDO,
   OracleRegistryDO,
+  VaultRegistryDO,
 } from '@notional-finance/durable-objects';
 
 const corsHeaders = {
@@ -61,6 +63,7 @@ router.get('/tokens', handleTokens);
 router.get('/configuration', handleConfigurations);
 router.get('/oracles', handleOracles);
 router.get('/exchanges', handleExchanges);
+router.get('/vaults', handleVaults);
 router.post('/newsletter', handleNewsletter);
 
 // Fall through catch for 404 errors

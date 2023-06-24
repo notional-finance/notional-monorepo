@@ -19,6 +19,7 @@ export type Scalars = {
   BigDecimal: any;
   BigInt: any;
   Bytes: any;
+  Int8: any;
 };
 
 export type Account = {
@@ -4256,6 +4257,8 @@ export type VaultConfiguration = {
   onlyVaultDeleverage: Scalars['Boolean'];
   /** Only the vault can settle */
   onlyVaultSettle: Scalars['Boolean'];
+  /** fCash discounting is enabled on the vault */
+  discountfCash?: Maybe<Scalars['Boolean']>;
   /** Vault is allowed to re-enter Notional */
   allowsReentrancy: Scalars['Boolean'];
   /** Deleveraging is disabled on this vault */
@@ -4481,6 +4484,10 @@ export type VaultConfiguration_filter = {
   onlyVaultSettle_not?: InputMaybe<Scalars['Boolean']>;
   onlyVaultSettle_in?: InputMaybe<Array<Scalars['Boolean']>>;
   onlyVaultSettle_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  discountfCash?: InputMaybe<Scalars['Boolean']>;
+  discountfCash_not?: InputMaybe<Scalars['Boolean']>;
+  discountfCash_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  discountfCash_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
   allowsReentrancy?: InputMaybe<Scalars['Boolean']>;
   allowsReentrancy_not?: InputMaybe<Scalars['Boolean']>;
   allowsReentrancy_in?: InputMaybe<Array<Scalars['Boolean']>>;
@@ -4575,6 +4582,7 @@ export type VaultConfiguration_orderBy =
   | 'onlyVaultRoll'
   | 'onlyVaultDeleverage'
   | 'onlyVaultSettle'
+  | 'discountfCash'
   | 'allowsReentrancy'
   | 'deleverageDisabled'
   | 'maxPrimaryBorrowCapacity'

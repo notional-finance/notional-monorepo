@@ -1,22 +1,66 @@
 import { ClientRegistry } from './client-registry';
-import { OracleDefinition, RiskAdjustment } from '..';
+import {
+  OracleDefinition,
+  RiskAdjustment,
+  TokenBalance,
+  TokenDefinition,
+} from '..';
 import { Routes } from '../server';
 import { AllConfigurationQuery } from '../server/configuration-server';
 import {
   AssetType,
+  decodeERC1155Id,
   encodeERC1155Id,
+  getMaturityForMarketIndex,
+  getNowSeconds,
   Network,
+  NotionalAddress,
   PERCENTAGE_BASIS,
+  PRIME_CASH_VAULT_MATURITY,
   RATE_PRECISION,
+  SECONDS_IN_YEAR,
 } from '@notional-finance/util';
 import { Registry } from '../Registry';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
-import { Maybe } from '../.graphclient';
+import { Maybe, TokenType } from '../.graphclient';
 import { BigNumber } from 'ethers';
 
 export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
   protected cachePath() {
     return Routes.Configuration;
+  }
+
+  constructor(cacheHostname: string) {
+    super(cacheHostname);
+
+    // Ensures that all subject keys get registered
+    this.subjectRegistered.asObservable().subscribe((s) => {
+      if (s) {
+        this.subscribeSubject(s.network, s.key)?.subscribe((c) => {
+          c?.vaultConfigurations.forEach((v) => {
+            this.registerAllActiveVaultTokens(s.network, v.vaultAddress);
+          });
+        });
+      }
+    });
+  }
+
+  /**
+   * This should only be done for simulations or testing.
+   * @param network
+   * @param update partial update to the configuration
+   */
+  updateVaultConfiguration(
+    network: Network,
+    vaultConfigs: Partial<AllConfigurationQuery['vaultConfigurations'][0]>[]
+  ) {
+    const latest = this.getLatestFromSubject(network, network);
+    if (!latest) throw Error('Can only update after initialization');
+    const newConfig = Object.assign(latest, {
+      vaultConfigurations: vaultConfigs,
+    });
+
+    this._updateSubjectKeyDirect(network, network, newConfig, true);
   }
 
   getAllListedVaults(network: Network) {
@@ -31,6 +75,36 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
     if (!vaultConfig) throw Error(`Vault Config ${vaultAddress} not found`);
 
     return vaultConfig;
+  }
+
+  getVaultDiscountfCash(network: Network, vaultAddress: string) {
+    const config = this.getVaultConfig(network, vaultAddress);
+    return config.discountfCash || false;
+  }
+
+  getVaultActiveMaturities(network: Network, vaultAddress: string) {
+    const config = this.getVaultConfig(network, vaultAddress);
+    if (!config) throw Error('Vault configuration not found');
+    return [...Array(config.maxBorrowMarketIndex).keys()]
+      .map((i) => getMaturityForMarketIndex(i + 1))
+      .concat(PRIME_CASH_VAULT_MATURITY);
+  }
+
+  getVaultBorrowWithFees(
+    network: Network,
+    vaultAddress: string,
+    maturity: number,
+    cashBorrowed: TokenBalance,
+    blockTime = getNowSeconds()
+  ) {
+    const annualizedFeeRate = this.getVaultConfig(
+      network,
+      vaultAddress
+    ).feeRateBasisPoints;
+    const feeRate = Math.floor(
+      annualizedFeeRate * ((maturity - blockTime) / SECONDS_IN_YEAR)
+    );
+    return cashBorrowed.scale(feeRate, RATE_PRECISION);
   }
 
   getValidVaultCurrencies(network: Network, vaultAddress: string) {
@@ -149,6 +223,129 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
       primaryTokenId,
       secondaryOneTokenId,
       secondaryTwoTokenId,
+    };
+  }
+
+  /**
+   * Ensures that vault tokens are registered with the token registry if they
+   * have not been created yet.
+   * @param network
+   * @param vaultAddress
+   */
+  registerAllActiveVaultTokens(network: Network, vaultAddress: string) {
+    const tokens = Registry.getTokenRegistry();
+
+    this.getVaultActiveMaturities(network, vaultAddress).forEach((maturity) => {
+      const {
+        vaultShareID,
+        primaryDebtID,
+        primaryCashID,
+        secondaryOneDebtID,
+        secondaryTwoDebtID,
+        secondaryOneCashID,
+        secondaryTwoCashID,
+      } = this.getVaultIDs(network, vaultAddress, maturity);
+
+      tokens.registerToken(
+        this._vaultIdToTokenDefinition(vaultShareID, network)
+      );
+      tokens.registerToken(
+        this._vaultIdToTokenDefinition(primaryDebtID, network)
+      );
+      tokens.registerToken(
+        this._vaultIdToTokenDefinition(primaryCashID, network)
+      );
+
+      if (secondaryOneDebtID && secondaryOneCashID) {
+        tokens.registerToken(
+          this._vaultIdToTokenDefinition(secondaryOneDebtID, network)
+        );
+        tokens.registerToken(
+          this._vaultIdToTokenDefinition(secondaryOneCashID, network)
+        );
+      }
+
+      if (secondaryTwoDebtID && secondaryTwoCashID) {
+        tokens.registerToken(
+          this._vaultIdToTokenDefinition(secondaryTwoDebtID, network)
+        );
+        tokens.registerToken(
+          this._vaultIdToTokenDefinition(secondaryTwoCashID, network)
+        );
+      }
+    });
+  }
+
+  private _vaultIdToTokenDefinition(
+    id: string,
+    network: Network
+  ): TokenDefinition {
+    const { assetType, maturity, currencyId, vaultAddress } =
+      decodeERC1155Id(id);
+    if (!vaultAddress) throw Error('Undefined vault address');
+    const underlying = Registry.getTokenRegistry().getUnderlying(
+      network,
+      currencyId
+    );
+
+    const vaultMaturityString =
+      maturity === PRIME_CASH_VAULT_MATURITY
+        ? ' Open Term'
+        : ' Fixed Term @ ' + maturity;
+    const vaultMaturitySymbol =
+      maturity == PRIME_CASH_VAULT_MATURITY ? ':open' : ':fixed@' + maturity;
+
+    let name: string;
+    let symbol: string;
+    let tokenType: TokenType;
+    if (assetType == AssetType.VAULT_SHARE_ASSET_TYPE) {
+      tokenType = 'VaultShare';
+      name =
+        'Vault Shares in ' +
+        underlying.symbol +
+        ' for ' +
+        vaultAddress +
+        vaultMaturityString;
+      symbol =
+        'vs' + underlying.symbol + ':' + vaultAddress + vaultMaturitySymbol;
+    } else if (assetType == AssetType.VAULT_DEBT_ASSET_TYPE) {
+      tokenType = 'VaultDebt';
+      name =
+        'Vault ' +
+        underlying.symbol +
+        ' Debt for ' +
+        vaultAddress +
+        vaultMaturityString;
+      symbol =
+        'vd' + underlying.symbol + ':' + vaultAddress + vaultMaturitySymbol;
+    } else if (assetType == AssetType.VAULT_CASH_ASSET_TYPE) {
+      tokenType = 'VaultCash';
+      name =
+        'Vault ' +
+        underlying.symbol +
+        ' Cash for ' +
+        vaultAddress +
+        vaultMaturityString;
+      symbol =
+        'vc' + underlying.symbol + ':' + vaultAddress + vaultMaturitySymbol;
+    } else {
+      throw Error('Unknown vault token type');
+    }
+
+    return {
+      id,
+      address: NotionalAddress[network],
+      network,
+      name,
+      symbol,
+      decimals: 8,
+      tokenInterface: 'ERC1155',
+      tokenType,
+      underlying: underlying.id,
+      maturity,
+      vaultAddress,
+      isFCashDebt: false,
+      currencyId: underlying.currencyId,
     };
   }
 

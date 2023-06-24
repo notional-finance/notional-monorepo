@@ -30,7 +30,7 @@ export function LeveragedOrDeleverageLend({
           undefined, // No Withdraws
           false,
           [collateralBalance, debtBalance].filter(
-            (t) => t.token.tokenType === 'fCash'
+            (t) => t.tokenType === 'fCash'
           )
         ),
       ],
@@ -50,6 +50,8 @@ export function LeveragedNToken({
     throw Error('All balances must be defined');
 
   // TODO: this requires a second transaction to convert the cash...
+  // TODO: alternatively, we can use ConvertCashToNToken and have a second
+  // transaction for the deposit...
   return populateNotionalTxnAndGas(
     network,
     address,
@@ -63,7 +65,7 @@ export function LeveragedNToken({
           false,
           undefined, // No Withdraws
           false,
-          debtBalance.token.tokenType === 'fCash' ? [debtBalance] : []
+          debtBalance.tokenType === 'fCash' ? [debtBalance] : []
         ),
       ],
       getETHValue(depositBalance),
@@ -93,7 +95,7 @@ export function DeleverageNToken({
           false,
           undefined, // No Withdraws
           false,
-          collateralBalance.token.tokenType === 'fCash' ? [debtBalance] : []
+          collateralBalance.tokenType === 'fCash' ? [debtBalance] : []
         ),
       ],
     ]

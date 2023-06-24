@@ -33,7 +33,7 @@ function offsettingBalance(
   if (t.tokenType === 'fCash' && t.isFCashDebt) {
     return !!account?.balances.find(
       (b) =>
-        b.token.tokenType === 'fCash' &&
+        b.tokenType === 'fCash' &&
         b.token.currencyId === t.currencyId &&
         b.token.maturity === t.maturity &&
         b.isPositive()
@@ -41,18 +41,18 @@ function offsettingBalance(
   } else if (t.tokenType === 'fCash') {
     return !!account?.balances.find(
       (b) =>
-        b.token.tokenType === 'fCash' &&
+        b.tokenType === 'fCash' &&
         b.token.currencyId === t.currencyId &&
         b.token.maturity === t.maturity &&
         b.isNegative()
     );
   } else if (t.tokenType === 'PrimeCash') {
     return !!account?.balances.find(
-      (b) => b.token.tokenType === 'PrimeDebt' && b.currencyId === t.currencyId
+      (b) => b.tokenType === 'PrimeDebt' && b.currencyId === t.currencyId
     );
   } else if (t.tokenType === 'PrimeDebt') {
     return !!account?.balances.find(
-      (b) => b.token.tokenType === 'PrimeCash' && b.currencyId === t.currencyId
+      (b) => b.tokenType === 'PrimeCash' && b.currencyId === t.currencyId
     );
   } else if (t.tokenType === 'nToken') {
     return !!account?.balances.find((b) => b.token.id === t.id);
@@ -341,7 +341,7 @@ export const TradeConfiguration: Record<string, TransactionConfig> = {
     depositFilter: (t, a, s) =>
       !!a?.balances.find(
         (b) =>
-          b.token.tokenType === 'nToken' &&
+          b.tokenType === 'nToken' &&
           b.token.currencyId === t.currencyId &&
           b.isPositive()
       ) && onlySameCurrency(t, s.debt),
@@ -365,7 +365,7 @@ export const TradeConfiguration: Record<string, TransactionConfig> = {
     collateralFilter: (t, a, s) =>
       !!a?.balances.find(
         (b) =>
-          b.token.tokenType === 'nToken' &&
+          b.tokenType === 'nToken' &&
           b.token.currencyId === t.currencyId &&
           b.isPositive()
       ) && onlySameCurrency(t, s.debt),

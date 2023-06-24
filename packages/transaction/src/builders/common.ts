@@ -1,10 +1,5 @@
 import { NotionalV3, NotionalV3ABI } from '@notional-finance/contracts';
-import {
-  BigNumber,
-  Contract,
-  ethers,
-  PayableOverrides,
-} from 'ethers';
+import { BigNumber, Contract, ethers, PayableOverrides } from 'ethers';
 import {
   BASIS_POINT,
   getProviderFromNetwork,
@@ -58,18 +53,17 @@ export function hasExistingCashBalance(
 ) {
   const cashBalance = balances.find(
     (b) =>
-      (b.token.tokenType === 'PrimeCash' ||
-        b.token.tokenType === 'PrimeDebt') &&
+      (b.tokenType === 'PrimeCash' || b.tokenType === 'PrimeDebt') &&
       b.token.currencyId === tokenBalance.currencyId
   );
 
   const withdrawEntireCashBalance = cashBalance ? false : true;
   const withdrawAmountInternalPrecision =
-    cashBalance?.token.tokenType === 'PrimeCash'
+    cashBalance?.tokenType === 'PrimeCash'
       ? // If there is a prime cash balance, withdraw the deposit balance (which is
         // the withdraw amount here)
         tokenBalance.toPrimeCash().neg()
-      : tokenBalance?.token.tokenType === 'PrimeDebt'
+      : tokenBalance?.tokenType === 'PrimeDebt'
       ? // If there is a prime debt balance, then withdraw the net amount after repayment
         tokenBalance.toPrimeCash().neg().add(tokenBalance.toPrimeCash())
       : undefined;
@@ -174,7 +168,7 @@ export function encodeTrades(
   const networks = unique(amounts.map((t) => t.network));
   if (
     // Only accepts fCash
-    !amounts.every((t) => t.token.tokenType === 'fCash') ||
+    !amounts.every((t) => t.tokenType === 'fCash') ||
     // All fCash must be in the same currency id
     currencyIds.length !== 1 ||
     // All fCash must be in the same network
@@ -223,24 +217,24 @@ export function getBalanceAction(
   if (
     (actionType === DepositActionType.DepositUnderlying ||
       actionType === DepositActionType.DepositUnderlyingAndMintNToken) &&
-    amount.token.tokenType !== 'Underlying'
+    amount.tokenType !== 'Underlying'
   ) {
     throw Error('Deposit amount has to be underlying');
   } else if (
     actionType === DepositActionType.ConvertCashToNToken &&
-    amount.token.tokenType !== 'PrimeCash'
+    amount.tokenType !== 'PrimeCash'
   ) {
     throw Error('Deposit amount has to be prime cash');
   } else if (
     actionType === DepositActionType.RedeemNToken &&
-    amount.token.tokenType !== 'nToken'
+    amount.tokenType !== 'nToken'
   ) {
     throw Error('Deposit amount has to be nToken');
   }
 
   if (
     withdrawAmount &&
-    (withdrawAmount.token.tokenType !== 'PrimeCash' ||
+    (withdrawAmount.tokenType !== 'PrimeCash' ||
       withdrawAmount.token.currencyId !== amount.currencyId)
   ) {
     throw Error('Incorrect withdraw amount denomination');

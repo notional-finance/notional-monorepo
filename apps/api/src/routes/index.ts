@@ -36,6 +36,10 @@ const handleExchanges = (request: IRequest, env: APIEnv) => {
   return _handler(request, env.EXCHANGE_REGISTRY_DO, env.VERSION);
 };
 
+const handleVaults = (request: IRequest, env: APIEnv) => {
+  return _handler(request, env.VAULT_REGISTRY_DO, env.VERSION);
+};
+
 export {
   handleKPIs,
   handleGeoIP,
@@ -45,4 +49,5 @@ export {
   handleConfigurations,
   handleOracles,
   handleExchanges,
+  handleVaults,
 };

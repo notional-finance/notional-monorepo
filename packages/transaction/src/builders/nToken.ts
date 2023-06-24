@@ -13,10 +13,7 @@ export function MintNToken({
   depositBalance,
 }: PopulateTransactionInputs) {
   if (!depositBalance) throw Error('depositBalance required');
-  if (
-    !depositBalance.isPositive() ||
-    depositBalance.token.tokenType !== 'Underlying'
-  )
+  if (!depositBalance.isPositive() || depositBalance.tokenType !== 'Underlying')
     throw Error('Invalid deposit balance');
 
   return populateNotionalTxnAndGas(network, address, 'batchBalanceAction', [
@@ -42,7 +39,7 @@ export function ConvertCashToNToken({
 }: PopulateTransactionInputs) {
   if (!debtBalance) throw Error('debtBalance required');
   // Debt balance should be in positive prime cash
-  if (!debtBalance.isPositive() || debtBalance.token.tokenType !== 'PrimeCash')
+  if (!debtBalance.isPositive() || debtBalance.tokenType !== 'PrimeCash')
     throw Error('Invalid debtBalance');
 
   return populateNotionalTxnAndGas(network, address, 'batchBalanceAction', [
@@ -68,7 +65,7 @@ export function RedeemAndWithdrawNToken({
   accountBalances,
 }: PopulateTransactionInputs) {
   if (!debtBalance) throw Error('debtBalance required');
-  if (!debtBalance.isPositive() || debtBalance.token.tokenType !== 'nToken')
+  if (!debtBalance.isPositive() || debtBalance.tokenType !== 'nToken')
     throw Error('Invalid debtBalance');
 
   // TODO: these values do not include slippage.
@@ -95,7 +92,7 @@ export function RedeemToPortfolioNToken({
   debtBalance,
 }: PopulateTransactionInputs) {
   if (!debtBalance) throw Error('debtBalance required');
-  if (!debtBalance.isPositive() || debtBalance.token.tokenType !== 'nToken')
+  if (!debtBalance.isPositive() || debtBalance.tokenType !== 'nToken')
     throw Error('Invalid debtBalance');
 
   return populateNotionalTxnAndGas(network, address, 'nTokenRedeem', [

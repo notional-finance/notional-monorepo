@@ -4,19 +4,19 @@ import { THEME_VARIANTS } from '@notional-finance/shared-config';
 import { useUserSettingsState } from '@notional-finance/user-settings-manager';
 import { LiquiditySummary, LiquiditySidebar } from './components';
 import {
-  createBaseTradeContext,
-  useBaseTradeContext,
+  createTradeContext,
+  useTradeContext,
 } from '@notional-finance/notionable-hooks';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import backgroundImgDark from '@notional-finance/assets/images/provide-liquidity-bg-alt.png';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import backgroundImgLight from '@notional-finance/assets/images/provide-liquidity-light-bg.png';
 
-export const LiquidityContext = createBaseTradeContext('MintNToken');
+export const LiquidityContext = createTradeContext('MintNToken');
 
 export const LiquidityCurrencyView = () => {
   const { themeVariant } = useUserSettingsState();
-  const liquidityState = useBaseTradeContext('MintNToken');
+  const liquidityState = useTradeContext('MintNToken');
 
   const {
     state: { isReady, confirm },

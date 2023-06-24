@@ -16,11 +16,9 @@ describe.withForkAndRegistry(
         '0xd74e7325dfab7d7d1ecbf22e6e6874061c50f243',
         (a) => {
           expect(a.address).toBe('0xd74e7325dfab7d7d1ecbf22e6e6874061c50f243');
-          const nTokens = a.balances.filter(
-            (t) => t.token.tokenType === 'nToken'
-          );
+          const nTokens = a.balances.filter((t) => t.tokenType === 'nToken');
           const underlying = a.balances.filter(
-            (t) => t.token.tokenType === 'Underlying'
+            (t) => t.tokenType === 'Underlying'
           );
           expect(nTokens.length).toBe(6);
           expect(underlying.length).toBe(6);

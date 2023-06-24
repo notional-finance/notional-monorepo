@@ -1,14 +1,17 @@
 import {
   AccountDefinition,
+  BaseLiquidityPool,
   fCashMarket,
   Registry,
   TokenBalance,
   TokenDefinition,
+  VaultAdapter,
 } from '@notional-finance/core-entities';
 import {
   AccountRiskProfile,
   RiskFactorKeys,
   RiskFactorLimit,
+  VaultAccountRiskProfile,
 } from '@notional-finance/risk-engine';
 import { CalculationFnParams } from '@notional-finance/transaction';
 import { filterEmpty, getNowSeconds, unique } from '@notional-finance/util';
@@ -33,6 +36,7 @@ import {
   BaseTradeState,
   InputAmount,
   TransactionConfig,
+  VaultTradeState,
 } from './base-trade-store';
 
 type Category = 'Collateral' | 'Debt' | 'Deposit';
@@ -224,6 +228,30 @@ export function selectedToken(
         deposit: TokenDefinition | undefined;
       };
     })
+  );
+}
+export function selectedVaultAdapter(
+  state$: Observable<VaultTradeState>,
+  selectedNetwork$: ReturnType<typeof selectedNetwork>
+) {
+  return state$.pipe(
+    map((s) => s.vaultAddress),
+    distinctUntilChanged(),
+    filterEmpty(),
+    withLatestFrom(selectedNetwork$),
+    switchMap(([vaultAddress, network]) => {
+      try {
+        return (
+          Registry.getVaultRegistry().subscribeVaultAdapter(
+            network,
+            vaultAddress
+          ) || of(undefined)
+        );
+      } catch {
+        return of(undefined);
+      }
+    }),
+    startWith(undefined)
   );
 }
 
@@ -424,8 +452,9 @@ export function parseRiskFactorLimit(
 
 export function calculate(
   state$: Observable<BaseTradeState>,
-  debtPool$: ReturnType<typeof selectedPool>,
-  collateralPool$: ReturnType<typeof selectedPool>,
+  debtPool$: Observable<BaseLiquidityPool<unknown> | undefined>,
+  collateralPool$: Observable<BaseLiquidityPool<unknown> | undefined>,
+  vaultAdapter$: Observable<VaultAdapter | undefined>,
   account$: Observable<AccountDefinition | null>,
   {
     calculationFn,
@@ -434,15 +463,22 @@ export function calculate(
     calculateDebtOptions,
   }: TransactionConfig
 ) {
-  return combineLatest([state$, debtPool$, collateralPool$, account$]).pipe(
+  return combineLatest([
+    state$,
+    debtPool$,
+    collateralPool$,
+    account$,
+    vaultAdapter$,
+  ]).pipe(
     pairwise(),
-    map(([[p], [s, debtPool, collateralPool, a]]) => ({
+    map(([[p], [s, debtPool, collateralPool, a, vaultAdapter]]) => ({
       prevCalculateInputKeys: p.calculateInputKeys,
       prevInputsSatisfied: p.inputsSatisfied,
       s,
       debtPool,
       collateralPool,
       a,
+      vaultAdapter,
     })),
     map(
       ({
@@ -452,6 +488,7 @@ export function calculate(
         debtPool,
         collateralPool,
         a,
+        vaultAdapter,
       }) => {
         const [inputs, keys] = requiredArgs.reduce(
           ([inputs, keys], r) => {
@@ -460,6 +497,11 @@ export function calculate(
                 return [
                   Object.assign(inputs, { collateralPool }),
                   [...keys, collateralPool?.hashKey || ''],
+                ];
+              case 'vaultAdapter':
+                return [
+                  Object.assign(inputs, { vaultAdapter }),
+                  [...keys, vaultAdapter?.hashKey || ''],
                 ];
               case 'debtPool':
                 return [
@@ -639,6 +681,66 @@ export function postAccountRisk(
       ]) => {
         if (canSubmit && account) {
           const profile = AccountRiskProfile.simulate(
+            account.balances,
+            [depositBalance, collateralBalance, debtBalance].filter(
+              (b) => b !== undefined
+            ) as TokenBalance[]
+          );
+
+          return { postAccountRisk: profile.getAllRiskFactors() };
+        }
+
+        return undefined;
+      }
+    ),
+    filterEmpty()
+  );
+}
+
+export function priorVaultAccountRisk(
+  state$: Observable<VaultTradeState>,
+  account$: Observable<AccountDefinition | null>
+) {
+  return combineLatest([state$, account$]).pipe(
+    map(([{ vaultAddress }, account]) => ({
+      priorAccountRisk:
+        vaultAddress && account
+          ? VaultAccountRiskProfile.from(
+              vaultAddress,
+              account.balances
+            ).getAllRiskFactors()
+          : undefined,
+    })),
+    filterEmpty()
+  );
+}
+
+export function postVaultAccountRisk(
+  state$: Observable<VaultTradeState>,
+  account$: Observable<AccountDefinition | null>
+) {
+  return combineLatest([account$, state$]).pipe(
+    distinctUntilChanged(
+      ([, p], [, c]) =>
+        p.canSubmit === c.canSubmit &&
+        p.depositBalance?.hashKey === c.depositBalance?.hashKey &&
+        p.collateralBalance?.hashKey === c.collateralBalance?.hashKey &&
+        p.debtBalance?.hashKey === c.debtBalance?.hashKey
+    ),
+    map(
+      ([
+        account,
+        {
+          canSubmit,
+          depositBalance,
+          collateralBalance,
+          debtBalance,
+          vaultAddress,
+        },
+      ]) => {
+        if (canSubmit && account && vaultAddress) {
+          const profile = VaultAccountRiskProfile.simulate(
+            vaultAddress,
             account.balances,
             [depositBalance, collateralBalance, debtBalance].filter(
               (b) => b !== undefined

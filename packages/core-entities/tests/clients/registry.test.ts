@@ -56,5 +56,19 @@ describe.withRegistry(
         }
       );
     });
+
+    it('[Vaults]', (done) => {
+      const vaults = Registry.getVaultRegistry();
+      vaults.onSubjectKeyReady(
+        Network.ArbitrumOne,
+        '0xae38f4b960f44d86e798f36a374a1ac3f2d859fa',
+        () => {
+          expect(
+            vaults.getLatestFromAllSubjects(Network.ArbitrumOne, 0)
+          ).toMatchSnapshot();
+          done();
+        }
+      );
+    });
   }
 );

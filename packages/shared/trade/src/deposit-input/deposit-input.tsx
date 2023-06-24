@@ -8,12 +8,12 @@ import {
 } from '@notional-finance/mui';
 import { FormattedMessage, MessageDescriptor } from 'react-intl';
 import { useDepositInput } from './use-deposit-input';
-import { BaseTradeContext } from '@notional-finance/notionable-hooks';
+import { TradeContext } from '@notional-finance/notionable-hooks';
 import { useHistory } from 'react-router';
 import TokenApprovalView from '../token-approval-view/token-approval-view';
 
 interface DepositInputProps {
-  context: BaseTradeContext;
+  context: TradeContext;
   newRoute: (newToken: string | null) => string;
   warningMsg?: React.ReactNode;
   inputLabel?: MessageDescriptor;
