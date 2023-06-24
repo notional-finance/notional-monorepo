@@ -10,7 +10,7 @@ export function doBinarySearch<T>(
   },
   requiredPrecision = 5 * BASIS_POINT,
   loopAdjustment = (m: number, d: number) => Math.floor(m + d / 2),
-  maxIter = 25
+  maxIter = 50
 ) {
   let iters = 0;
   let delta = 0;

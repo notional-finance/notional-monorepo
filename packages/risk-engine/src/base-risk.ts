@@ -233,7 +233,9 @@ export abstract class BaseRiskProfile implements RiskFactors {
       // if withdraw:
       //  limit = (debt - repay) / asset
       //  repay = debt - limit * asset
-      if (netLocal.isPositive()) {
+      if ((value as number) <= 0.001) {
+        multiple = limitInRP;
+      } else if (netLocal.isPositive()) {
         multiple = this.totalDebt()
           .neg()
           .sub(this.totalAssets().mulInRatePrecision(limitInRP))
@@ -254,7 +256,7 @@ export abstract class BaseRiskProfile implements RiskFactors {
       };
     } else if (riskFactor === 'collateralRatio') {
       // limit = asset / debt
-      // if deposit:
+      // if netLocal > 0:
       //  limit = (asset + deposit) / debt
       //  deposit = limit * debt - asset
       // if withdraw:
@@ -263,7 +265,9 @@ export abstract class BaseRiskProfile implements RiskFactors {
       let multiple: number;
       const limitInRP = ((limit as number) * RATE_PRECISION) / 100;
 
-      if (netLocal.isPositive()) {
+      if (value === null) {
+        multiple = limitInRP;
+      } else if (netLocal.isPositive()) {
         multiple = this.totalDebt()
           .neg()
           .mulInRatePrecision(limitInRP)
@@ -427,8 +431,7 @@ export abstract class BaseRiskProfile implements RiskFactors {
   getDebtAndCollateralMaintainRiskFactor<F extends keyof RiskFactors>(
     debt: TokenDefinition,
     collateral: TokenDefinition,
-    riskFactorLimit: RiskFactorLimit<F>,
-    requiredPrecision = 25 * BASIS_POINT
+    riskFactorLimit: RiskFactorLimit<F>
   ) {
     // Uses the debt as the local currency
     const localUnderlyingId =
@@ -453,7 +456,17 @@ export abstract class BaseRiskProfile implements RiskFactors {
           .toToken(debt)
           .neg();
       } else {
-        netDebt = TokenBalance.unit(debt).mulInRatePrecision(multiple).neg();
+        // NOTE: this multiple is in "denom" terms. Need to convert it to local underlying
+        // terms before we multiply it to get the debt figure. Use the currency id so that vault
+        // debts convert properly.
+        const defaultToken = this.denom(this.defaultSymbol);
+        netDebt =
+          debt.currencyId === defaultToken.currencyId
+            ? TokenBalance.unit(debt).mulInRatePrecision(multiple).neg()
+            : TokenBalance.unit(defaultToken)
+                .mulInRatePrecision(multiple)
+                .toToken(debt)
+                .neg();
       }
       // If netDebt is decreasing, netCollateral will also decrease because it will be sold
       // to repay debt. If netDebt is increasing, netCollateral will also increase because borrowed
@@ -475,7 +488,7 @@ export abstract class BaseRiskProfile implements RiskFactors {
     };
 
     // set the required precision based on the riskLimitType
-    return doBinarySearch(multiple, 0, calculationFunction, requiredPrecision);
+    return doBinarySearch(multiple, 0, calculationFunction);
   }
 
   getAllLiquidationPrices({

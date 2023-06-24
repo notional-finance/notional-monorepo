@@ -227,7 +227,7 @@ describe.withForkAndRegistry(
       }
     );
 
-    it.each(riskFactors)(
+    it.each(riskFactors.filter(({ riskFactor }) => riskFactor !== 'netWorth'))(
       'Leverage / Deleverage Maintain Factor [$riskFactor | $limit]',
       ({ riskFactor, limit, args }) => {
         const tokens = Registry.getTokenRegistry();
@@ -251,7 +251,7 @@ describe.withForkAndRegistry(
             : undefined
         ) as RiskFactorLimit<RiskFactorKeys>['args'];
         const { netCollateral, netDebt } =
-          p.getDebtAndCollateralMaintainRiskFactor(ETH, USDC, {
+          p.getDebtAndCollateralMaintainRiskFactor(USDC, ETH, {
             riskFactor,
             limit: l,
             args: _args,

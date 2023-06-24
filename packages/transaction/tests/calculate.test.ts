@@ -282,7 +282,15 @@ describe.withForkAndRegistry(
       }
     );
 
-    it.each(tokens.filter(({ deposit }) => deposit !== undefined))(
+    it.each(
+      tokens
+        .filter(({ deposit }) => deposit !== undefined)
+        .filter(
+          ({ debt, collateral }) =>
+            // Exclude this case because they offset each other exactly
+            !(debt?.includes('pdEther') && collateral?.includes('pEther'))
+        )
+    )(
       'Deposit [$deposit] + Debt [$debt] given Collateral [$collateral] + Risk Limit',
       ({ deposit, collateral, debt }) => {
         const depositUnderlying = getToken(deposit)!;
@@ -341,7 +349,15 @@ describe.withForkAndRegistry(
       }
     );
 
-    it.each(tokens.filter(({ deposit }) => deposit !== undefined))(
+    it.each(
+      tokens
+        .filter(({ deposit }) => deposit !== undefined)
+        .filter(
+          ({ debt, collateral }) =>
+            // Exclude this case because they offset each other exactly
+            !(debt?.includes('pdEther') && collateral?.includes('pEther'))
+        )
+    )(
       'Deposit [$deposit] + Collateral [$collateral] given Debt [$debt] + Risk Limit',
       ({ deposit, collateral, debt }) => {
         const depositUnderlying = getToken(deposit)!;
@@ -473,6 +489,8 @@ describe.withForkAndRegistry(
         expect(df2).toBeApprox(df3);
         expect(debt1).toBeApprox(debt2);
         expect(collateral1).toBeApprox(collateral2);
+        expect(debt1.isNegative()).toBe(true);
+        expect(collateral1.isPositive()).toBe(true);
       }
     );
   }
