@@ -1,6 +1,6 @@
 import {
-  BaseTradeState,
-  createBaseTradeManager,
+  TradeState,
+  createTradeManager,
   initialBaseTradeState,
   TradeConfiguration,
   TradeType,
@@ -13,13 +13,13 @@ import {
   useObservableContext,
 } from './ObservableContext';
 
-export type BaseTradeContext = React.Context<ObservableContext<BaseTradeState>>;
+export type TradeContext = React.Context<ObservableContext<TradeState>>;
 
-export function createBaseTradeContext(trade: TradeType) {
-  return createObservableContext<BaseTradeState>(trade, initialBaseTradeState);
+export function createTradeContext(trade: TradeType) {
+  return createObservableContext<TradeState>(trade, initialBaseTradeState);
 }
 
-export function useBaseTradeContext(trade: TradeType) {
+export function useTradeContext(trade: TradeType) {
   const [query, setQuery] = useQueryParams({
     confirm: {
       encode: (v) => (v === 'true' ? 'true' : null),
@@ -27,14 +27,14 @@ export function useBaseTradeContext(trade: TradeType) {
     },
   });
 
-  const baseTradeManager = useMemo(() => {
-    return createBaseTradeManager(TradeConfiguration[trade]);
+  const tradeManager = useMemo(() => {
+    return createTradeManager(TradeConfiguration[trade]);
   }, [trade]);
 
-  const { updateState, state$, state } = useObservableContext<BaseTradeState>(
+  const { updateState, state$, state } = useObservableContext<TradeState>(
     initialBaseTradeState,
     {},
-    baseTradeManager
+    tradeManager
   );
   const canSubmit = state.canSubmit;
 

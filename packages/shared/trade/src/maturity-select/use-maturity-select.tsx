@@ -1,6 +1,6 @@
 import { convertRateToFloat } from '@notional-finance/helpers';
 import {
-  BaseTradeContext,
+  TradeContext,
   useFCashMarket,
 } from '@notional-finance/notionable-hooks';
 import { formatInterestRate } from '@notional-finance/util';
@@ -8,7 +8,7 @@ import { useCallback, useContext } from 'react';
 
 export const useMaturitySelect = (
   category: 'Collateral' | 'Debt',
-  context: BaseTradeContext
+  context: TradeContext
 ) => {
   const {
     state: {

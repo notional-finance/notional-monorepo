@@ -1,11 +1,5 @@
 // @ts-nocheck
-import {
-  GraphQLResolveInfo,
-  SelectionSetNode,
-  FieldNode,
-  GraphQLScalarType,
-  GraphQLScalarTypeConfig,
-} from 'graphql';
+import { GraphQLResolveInfo, SelectionSetNode, FieldNode, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/core';
 import { gql } from '@graphql-mesh/utils';
 
@@ -13,43 +7,31 @@ import type { GetMeshOptions } from '@graphql-mesh/runtime';
 import type { YamlConfig } from '@graphql-mesh/types';
 import { PubSub } from '@graphql-mesh/utils';
 import { DefaultLogger } from '@graphql-mesh/utils';
-import MeshCache from '@graphql-mesh/cache-localforage';
+import MeshCache from "@graphql-mesh/cache-localforage";
 import { fetch as fetchFn } from '@whatwg-node/fetch';
 
 import { MeshResolvedSource } from '@graphql-mesh/runtime';
 import { MeshTransform, MeshPlugin } from '@graphql-mesh/types';
-import GraphqlHandler from '@graphql-mesh/graphql';
-import BlockTrackingTransform from '@graphprotocol/client-block-tracking';
-import AutoPaginationTransform from '@graphprotocol/client-auto-pagination';
-import BareMerger from '@graphql-mesh/merger-bare';
+import GraphqlHandler from "@graphql-mesh/graphql"
+import BlockTrackingTransform from "@graphprotocol/client-block-tracking";
+import AutoPaginationTransform from "@graphprotocol/client-auto-pagination";
+import BareMerger from "@graphql-mesh/merger-bare";
 import { printWithCache } from '@graphql-mesh/utils';
 import { createMeshHTTPHandler, MeshHTTPHandler } from '@graphql-mesh/http';
-import {
-  getMesh,
-  ExecuteMeshFn,
-  SubscribeMeshFn,
-  MeshContext as BaseMeshContext,
-  MeshInstance,
-} from '@graphql-mesh/runtime';
+import { getMesh, ExecuteMeshFn, SubscribeMeshFn, MeshContext as BaseMeshContext, MeshInstance } from '@graphql-mesh/runtime';
 import { MeshStore, FsStoreStorageAdapter } from '@graphql-mesh/store';
 import { path as pathModule } from '@graphql-mesh/cross-helpers';
 import { ImportFn } from '@graphql-mesh/types';
 import type { NotionalV3Types } from './sources/NotionalV3/types';
-import * as importedModule$0 from './sources/NotionalV3/introspectionSchema';
+import * as importedModule$0 from "./sources/NotionalV3/introspectionSchema";
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
-export type Exact<T extends { [key: string]: unknown }> = {
-  [K in keyof T]: T[K];
-};
-export type MakeOptional<T, K extends keyof T> = Omit<T, K> & {
-  [SubKey in K]?: Maybe<T[SubKey]>;
-};
-export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & {
-  [SubKey in K]: Maybe<T[SubKey]>;
-};
-export type RequireFields<T, K extends keyof T> = Omit<T, K> & {
-  [P in K]-?: NonNullable<T[P]>;
-};
+export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
+export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
+export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
+export type RequireFields<T, K extends keyof T> = Omit<T, K> & { [P in K]-?: NonNullable<T[P]> };
+
+
 
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
@@ -81,6 +63,7 @@ export type Account = {
   transfersTo?: Maybe<Array<Transfer>>;
 };
 
+
 export type AccountbalancesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
@@ -89,6 +72,7 @@ export type AccountbalancesArgs = {
   where?: InputMaybe<Balance_filter>;
 };
 
+
 export type AccounttransfersFromArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
@@ -96,6 +80,7 @@ export type AccounttransfersFromArgs = {
   orderDirection?: InputMaybe<OrderDirection>;
   where?: InputMaybe<Transfer_filter>;
 };
+
 
 export type AccounttransfersToArgs = {
   skip?: InputMaybe<Scalars['Int']>;
@@ -202,6 +187,7 @@ export type ActiveMarket = {
   pCashMarket: PrimeCashMarket;
   fCashMarkets: Array<fCashMarket>;
 };
+
 
 export type ActiveMarketfCashMarketsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
@@ -604,6 +590,7 @@ export type CurrencyConfiguration = {
   liquidationHaircutPercentage?: Maybe<Scalars['Int']>;
 };
 
+
 export type CurrencyConfigurationfCashActiveCurvesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
@@ -611,6 +598,7 @@ export type CurrencyConfigurationfCashActiveCurvesArgs = {
   orderDirection?: InputMaybe<OrderDirection>;
   where?: InputMaybe<InterestRateCurve_filter>;
 };
+
 
 export type CurrencyConfigurationfCashNextCurvesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
@@ -757,9 +745,7 @@ export type CurrencyConfiguration_filter = {
   primeCashRateOracleTimeWindowSeconds_gte?: InputMaybe<Scalars['Int']>;
   primeCashRateOracleTimeWindowSeconds_lte?: InputMaybe<Scalars['Int']>;
   primeCashRateOracleTimeWindowSeconds_in?: InputMaybe<Array<Scalars['Int']>>;
-  primeCashRateOracleTimeWindowSeconds_not_in?: InputMaybe<
-    Array<Scalars['Int']>
-  >;
+  primeCashRateOracleTimeWindowSeconds_not_in?: InputMaybe<Array<Scalars['Int']>>;
   primeCashHoldingsOracle?: InputMaybe<Scalars['Bytes']>;
   primeCashHoldingsOracle_not?: InputMaybe<Scalars['Bytes']>;
   primeCashHoldingsOracle_gt?: InputMaybe<Scalars['Bytes']>;
@@ -866,9 +852,7 @@ export type CurrencyConfiguration_filter = {
   fCashLiquidationDebtBufferBasisPoints_gte?: InputMaybe<Scalars['Int']>;
   fCashLiquidationDebtBufferBasisPoints_lte?: InputMaybe<Scalars['Int']>;
   fCashLiquidationDebtBufferBasisPoints_in?: InputMaybe<Array<Scalars['Int']>>;
-  fCashLiquidationDebtBufferBasisPoints_not_in?: InputMaybe<
-    Array<Scalars['Int']>
-  >;
+  fCashLiquidationDebtBufferBasisPoints_not_in?: InputMaybe<Array<Scalars['Int']>>;
   fCashActiveCurves?: InputMaybe<Array<Scalars['String']>>;
   fCashActiveCurves_not?: InputMaybe<Array<Scalars['String']>>;
   fCashActiveCurves_contains?: InputMaybe<Array<Scalars['String']>>;
@@ -934,9 +918,7 @@ export type CurrencyConfiguration_filter = {
   deprecated_anchorRates_contains?: InputMaybe<Array<Scalars['Int']>>;
   deprecated_anchorRates_contains_nocase?: InputMaybe<Array<Scalars['Int']>>;
   deprecated_anchorRates_not_contains?: InputMaybe<Array<Scalars['Int']>>;
-  deprecated_anchorRates_not_contains_nocase?: InputMaybe<
-    Array<Scalars['Int']>
-  >;
+  deprecated_anchorRates_not_contains_nocase?: InputMaybe<Array<Scalars['Int']>>;
   incentiveEmissionRate?: InputMaybe<Scalars['BigInt']>;
   incentiveEmissionRate_not?: InputMaybe<Scalars['BigInt']>;
   incentiveEmissionRate_gt?: InputMaybe<Scalars['BigInt']>;
@@ -962,9 +944,7 @@ export type CurrencyConfiguration_filter = {
   residualPurchaseIncentiveBasisPoints_gte?: InputMaybe<Scalars['Int']>;
   residualPurchaseIncentiveBasisPoints_lte?: InputMaybe<Scalars['Int']>;
   residualPurchaseIncentiveBasisPoints_in?: InputMaybe<Array<Scalars['Int']>>;
-  residualPurchaseIncentiveBasisPoints_not_in?: InputMaybe<
-    Array<Scalars['Int']>
-  >;
+  residualPurchaseIncentiveBasisPoints_not_in?: InputMaybe<Array<Scalars['Int']>>;
   residualPurchaseTimeBufferSeconds?: InputMaybe<Scalars['Int']>;
   residualPurchaseTimeBufferSeconds_not?: InputMaybe<Scalars['Int']>;
   residualPurchaseTimeBufferSeconds_gt?: InputMaybe<Scalars['Int']>;
@@ -1566,6 +1546,7 @@ export type Oracle = {
   historicalRates?: Maybe<Array<ExchangeRate>>;
 };
 
+
 export type OraclehistoricalRatesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
@@ -1586,6 +1567,7 @@ export type OracleRegistry = {
   listedVaults: Array<Scalars['Bytes']>;
 };
 
+
 export type OracleRegistrychainlinkOraclesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
@@ -1593,6 +1575,7 @@ export type OracleRegistrychainlinkOraclesArgs = {
   orderDirection?: InputMaybe<OrderDirection>;
   where?: InputMaybe<Oracle_filter>;
 };
+
 
 export type OracleRegistryfCashEnabledArgs = {
   skip?: InputMaybe<Scalars['Int']>;
@@ -1875,7 +1858,9 @@ export type Oracle_orderBy =
   | 'historicalRates';
 
 /** Defines the order direction, either ascending or descending */
-export type OrderDirection = 'asc' | 'desc';
+export type OrderDirection =
+  | 'asc'
+  | 'desc';
 
 export type PrimeCashMarket = {
   /** Currency ID */
@@ -1892,6 +1877,7 @@ export type PrimeCashMarket = {
   current: PrimeCashMarketSnapshot;
   snapshots?: Maybe<Array<PrimeCashMarketSnapshot>>;
 };
+
 
 export type PrimeCashMarketsnapshotsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
@@ -2379,11 +2365,13 @@ export type Query = {
   _meta?: Maybe<_Meta_>;
 };
 
+
 export type QuerytokenArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
+
 
 export type QuerytokensArgs = {
   skip?: InputMaybe<Scalars['Int']>;
@@ -2395,11 +2383,13 @@ export type QuerytokensArgs = {
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
+
 export type QuerytransferArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
+
 
 export type QuerytransfersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
@@ -2411,11 +2401,13 @@ export type QuerytransfersArgs = {
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
+
 export type QuerytransferBundleArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
+
 
 export type QuerytransferBundlesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
@@ -2427,11 +2419,13 @@ export type QuerytransferBundlesArgs = {
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
+
 export type QuerytransactionArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
+
 
 export type QuerytransactionsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
@@ -2443,11 +2437,13 @@ export type QuerytransactionsArgs = {
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
+
 export type QueryaccountArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
+
 
 export type QueryaccountsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
@@ -2459,11 +2455,13 @@ export type QueryaccountsArgs = {
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
+
 export type QueryoracleRegistryArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
+
 
 export type QueryoracleRegistriesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
@@ -2475,11 +2473,13 @@ export type QueryoracleRegistriesArgs = {
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
+
 export type QueryoracleArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
+
 
 export type QueryoraclesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
@@ -2491,11 +2491,13 @@ export type QueryoraclesArgs = {
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
+
 export type QueryexchangeRateArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
+
 
 export type QueryexchangeRatesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
@@ -2507,11 +2509,13 @@ export type QueryexchangeRatesArgs = {
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
+
 export type QuerycurrencyConfigurationArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
+
 
 export type QuerycurrencyConfigurationsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
@@ -2523,11 +2527,13 @@ export type QuerycurrencyConfigurationsArgs = {
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
+
 export type QueryinterestRateCurveArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
+
 
 export type QueryinterestRateCurvesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
@@ -2539,11 +2545,13 @@ export type QueryinterestRateCurvesArgs = {
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
+
 export type QueryvaultConfigurationArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
+
 
 export type QueryvaultConfigurationsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
@@ -2555,11 +2563,13 @@ export type QueryvaultConfigurationsArgs = {
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
+
 export type QuerywhitelistedContractArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
+
 
 export type QuerywhitelistedContractsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
@@ -2571,11 +2581,13 @@ export type QuerywhitelistedContractsArgs = {
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
+
 export type QuerybalanceArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
+
 
 export type QuerybalancesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
@@ -2587,11 +2599,13 @@ export type QuerybalancesArgs = {
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
+
 export type QueryactiveMarketArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
+
 
 export type QueryactiveMarketsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
@@ -2603,11 +2617,13 @@ export type QueryactiveMarketsArgs = {
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
+
 export type QueryprimeCashMarketArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
+
 
 export type QueryprimeCashMarketsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
@@ -2619,11 +2635,13 @@ export type QueryprimeCashMarketsArgs = {
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
+
 export type QueryprimeCashMarketSnapshotArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
+
 
 export type QueryprimeCashMarketSnapshotsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
@@ -2635,11 +2653,13 @@ export type QueryprimeCashMarketSnapshotsArgs = {
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
+
 export type QueryfCashMarketArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
+
 
 export type QueryfCashMarketsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
@@ -2651,11 +2671,13 @@ export type QueryfCashMarketsArgs = {
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
+
 export type QueryfCashMarketSnapshotArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
+
 
 export type QueryfCashMarketSnapshotsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
@@ -2667,11 +2689,13 @@ export type QueryfCashMarketSnapshotsArgs = {
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
+
 export type QueryincentiveArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
+
 
 export type QueryincentivesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
@@ -2683,11 +2707,13 @@ export type QueryincentivesArgs = {
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
+
 export type QuerytradingModulePermissionArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
+
 
 export type QuerytradingModulePermissionsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
@@ -2698,6 +2724,7 @@ export type QuerytradingModulePermissionsArgs = {
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
+
 
 export type Query_metaArgs = {
   block?: InputMaybe<Block_height>;
@@ -2748,11 +2775,13 @@ export type Subscription = {
   _meta?: Maybe<_Meta_>;
 };
 
+
 export type SubscriptiontokenArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
+
 
 export type SubscriptiontokensArgs = {
   skip?: InputMaybe<Scalars['Int']>;
@@ -2764,11 +2793,13 @@ export type SubscriptiontokensArgs = {
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
+
 export type SubscriptiontransferArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
+
 
 export type SubscriptiontransfersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
@@ -2780,11 +2811,13 @@ export type SubscriptiontransfersArgs = {
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
+
 export type SubscriptiontransferBundleArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
+
 
 export type SubscriptiontransferBundlesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
@@ -2796,11 +2829,13 @@ export type SubscriptiontransferBundlesArgs = {
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
+
 export type SubscriptiontransactionArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
+
 
 export type SubscriptiontransactionsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
@@ -2812,11 +2847,13 @@ export type SubscriptiontransactionsArgs = {
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
+
 export type SubscriptionaccountArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
+
 
 export type SubscriptionaccountsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
@@ -2828,11 +2865,13 @@ export type SubscriptionaccountsArgs = {
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
+
 export type SubscriptionoracleRegistryArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
+
 
 export type SubscriptionoracleRegistriesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
@@ -2844,11 +2883,13 @@ export type SubscriptionoracleRegistriesArgs = {
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
+
 export type SubscriptionoracleArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
+
 
 export type SubscriptionoraclesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
@@ -2860,11 +2901,13 @@ export type SubscriptionoraclesArgs = {
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
+
 export type SubscriptionexchangeRateArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
+
 
 export type SubscriptionexchangeRatesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
@@ -2876,11 +2919,13 @@ export type SubscriptionexchangeRatesArgs = {
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
+
 export type SubscriptioncurrencyConfigurationArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
+
 
 export type SubscriptioncurrencyConfigurationsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
@@ -2892,11 +2937,13 @@ export type SubscriptioncurrencyConfigurationsArgs = {
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
+
 export type SubscriptioninterestRateCurveArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
+
 
 export type SubscriptioninterestRateCurvesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
@@ -2908,11 +2955,13 @@ export type SubscriptioninterestRateCurvesArgs = {
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
+
 export type SubscriptionvaultConfigurationArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
+
 
 export type SubscriptionvaultConfigurationsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
@@ -2924,11 +2973,13 @@ export type SubscriptionvaultConfigurationsArgs = {
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
+
 export type SubscriptionwhitelistedContractArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
+
 
 export type SubscriptionwhitelistedContractsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
@@ -2940,11 +2991,13 @@ export type SubscriptionwhitelistedContractsArgs = {
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
+
 export type SubscriptionbalanceArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
+
 
 export type SubscriptionbalancesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
@@ -2956,11 +3009,13 @@ export type SubscriptionbalancesArgs = {
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
+
 export type SubscriptionactiveMarketArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
+
 
 export type SubscriptionactiveMarketsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
@@ -2972,11 +3027,13 @@ export type SubscriptionactiveMarketsArgs = {
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
+
 export type SubscriptionprimeCashMarketArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
+
 
 export type SubscriptionprimeCashMarketsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
@@ -2988,11 +3045,13 @@ export type SubscriptionprimeCashMarketsArgs = {
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
+
 export type SubscriptionprimeCashMarketSnapshotArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
+
 
 export type SubscriptionprimeCashMarketSnapshotsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
@@ -3004,11 +3063,13 @@ export type SubscriptionprimeCashMarketSnapshotsArgs = {
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
+
 export type SubscriptionfCashMarketArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
+
 
 export type SubscriptionfCashMarketsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
@@ -3020,11 +3081,13 @@ export type SubscriptionfCashMarketsArgs = {
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
+
 export type SubscriptionfCashMarketSnapshotArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
+
 
 export type SubscriptionfCashMarketSnapshotsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
@@ -3036,11 +3099,13 @@ export type SubscriptionfCashMarketSnapshotsArgs = {
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
+
 export type SubscriptionincentiveArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
+
 
 export type SubscriptionincentivesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
@@ -3052,11 +3117,13 @@ export type SubscriptionincentivesArgs = {
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
+
 export type SubscriptiontradingModulePermissionArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
+
 
 export type SubscriptiontradingModulePermissionsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
@@ -3067,6 +3134,7 @@ export type SubscriptiontradingModulePermissionsArgs = {
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
+
 
 export type Subscription_metaArgs = {
   block?: InputMaybe<Block_height>;
@@ -3125,6 +3193,7 @@ export type Token = {
   activeMarkets?: Maybe<ActiveMarket>;
 };
 
+
 export type TokenbalanceOfArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
@@ -3133,6 +3202,7 @@ export type TokenbalanceOfArgs = {
   where?: InputMaybe<Balance_filter>;
 };
 
+
 export type TokentransfersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
@@ -3140,6 +3210,7 @@ export type TokentransfersArgs = {
   orderDirection?: InputMaybe<OrderDirection>;
   where?: InputMaybe<Transfer_filter>;
 };
+
 
 export type TokenoraclesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
@@ -3596,6 +3667,7 @@ export type Transaction = {
   transferBundles?: Maybe<Array<TransferBundle>>;
 };
 
+
 export type Transaction_transfersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
@@ -3603,6 +3675,7 @@ export type Transaction_transfersArgs = {
   orderDirection?: InputMaybe<OrderDirection>;
   where?: InputMaybe<Transfer_filter>;
 };
+
 
 export type Transaction_transferBundlesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
@@ -3612,6 +3685,7 @@ export type Transaction_transferBundlesArgs = {
   where?: InputMaybe<TransferBundle_filter>;
 };
 
+
 export type TransactiontransfersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
@@ -3619,6 +3693,7 @@ export type TransactiontransfersArgs = {
   orderDirection?: InputMaybe<OrderDirection>;
   where?: InputMaybe<Transfer_filter>;
 };
+
 
 export type TransactiontransferBundlesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
@@ -3742,6 +3817,7 @@ export type TransferBundle = {
   transfers: Array<Transfer>;
 };
 
+
 export type TransferBundletransfersArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
@@ -3860,7 +3936,10 @@ export type TransferBundle_orderBy =
   | 'endLogIndex'
   | 'transfers';
 
-export type TransferType = 'Mint' | 'Burn' | 'Transfer';
+export type TransferType =
+  | 'Mint'
+  | 'Burn'
+  | 'Transfer';
 
 export type Transfer_filter = {
   id?: InputMaybe<Scalars['ID']>;
@@ -4215,6 +4294,7 @@ export type VaultConfiguration = {
   minAccountSecondaryBorrow?: Maybe<Array<Scalars['BigInt']>>;
 };
 
+
 export type VaultConfigurationsecondaryBorrowCurrenciesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
@@ -4351,12 +4431,8 @@ export type VaultConfiguration_filter = {
   maxDeleverageCollateralRatioBasisPoints_lt?: InputMaybe<Scalars['Int']>;
   maxDeleverageCollateralRatioBasisPoints_gte?: InputMaybe<Scalars['Int']>;
   maxDeleverageCollateralRatioBasisPoints_lte?: InputMaybe<Scalars['Int']>;
-  maxDeleverageCollateralRatioBasisPoints_in?: InputMaybe<
-    Array<Scalars['Int']>
-  >;
-  maxDeleverageCollateralRatioBasisPoints_not_in?: InputMaybe<
-    Array<Scalars['Int']>
-  >;
+  maxDeleverageCollateralRatioBasisPoints_in?: InputMaybe<Array<Scalars['Int']>>;
+  maxDeleverageCollateralRatioBasisPoints_not_in?: InputMaybe<Array<Scalars['Int']>>;
   feeRateBasisPoints?: InputMaybe<Scalars['Int']>;
   feeRateBasisPoints_not?: InputMaybe<Scalars['Int']>;
   feeRateBasisPoints_gt?: InputMaybe<Scalars['Int']>;
@@ -4392,13 +4468,9 @@ export type VaultConfiguration_filter = {
   secondaryBorrowCurrencies?: InputMaybe<Array<Scalars['String']>>;
   secondaryBorrowCurrencies_not?: InputMaybe<Array<Scalars['String']>>;
   secondaryBorrowCurrencies_contains?: InputMaybe<Array<Scalars['String']>>;
-  secondaryBorrowCurrencies_contains_nocase?: InputMaybe<
-    Array<Scalars['String']>
-  >;
+  secondaryBorrowCurrencies_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
   secondaryBorrowCurrencies_not_contains?: InputMaybe<Array<Scalars['String']>>;
-  secondaryBorrowCurrencies_not_contains_nocase?: InputMaybe<
-    Array<Scalars['String']>
-  >;
+  secondaryBorrowCurrencies_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
   secondaryBorrowCurrencies_?: InputMaybe<Token_filter>;
   maxRequiredAccountCollateralRatioBasisPoints?: InputMaybe<Scalars['Int']>;
   maxRequiredAccountCollateralRatioBasisPoints_not?: InputMaybe<Scalars['Int']>;
@@ -4406,12 +4478,8 @@ export type VaultConfiguration_filter = {
   maxRequiredAccountCollateralRatioBasisPoints_lt?: InputMaybe<Scalars['Int']>;
   maxRequiredAccountCollateralRatioBasisPoints_gte?: InputMaybe<Scalars['Int']>;
   maxRequiredAccountCollateralRatioBasisPoints_lte?: InputMaybe<Scalars['Int']>;
-  maxRequiredAccountCollateralRatioBasisPoints_in?: InputMaybe<
-    Array<Scalars['Int']>
-  >;
-  maxRequiredAccountCollateralRatioBasisPoints_not_in?: InputMaybe<
-    Array<Scalars['Int']>
-  >;
+  maxRequiredAccountCollateralRatioBasisPoints_in?: InputMaybe<Array<Scalars['Int']>>;
+  maxRequiredAccountCollateralRatioBasisPoints_not_in?: InputMaybe<Array<Scalars['Int']>>;
   enabled?: InputMaybe<Scalars['Boolean']>;
   enabled_not?: InputMaybe<Scalars['Boolean']>;
   enabled_in?: InputMaybe<Array<Scalars['Boolean']>>;
@@ -4471,39 +4539,21 @@ export type VaultConfiguration_filter = {
   maxSecondaryBorrowCapacity?: InputMaybe<Array<Scalars['BigInt']>>;
   maxSecondaryBorrowCapacity_not?: InputMaybe<Array<Scalars['BigInt']>>;
   maxSecondaryBorrowCapacity_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  maxSecondaryBorrowCapacity_contains_nocase?: InputMaybe<
-    Array<Scalars['BigInt']>
-  >;
-  maxSecondaryBorrowCapacity_not_contains?: InputMaybe<
-    Array<Scalars['BigInt']>
-  >;
-  maxSecondaryBorrowCapacity_not_contains_nocase?: InputMaybe<
-    Array<Scalars['BigInt']>
-  >;
+  maxSecondaryBorrowCapacity_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
+  maxSecondaryBorrowCapacity_not_contains?: InputMaybe<Array<Scalars['BigInt']>>;
+  maxSecondaryBorrowCapacity_not_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
   totalUsedSecondaryBorrowCapacity?: InputMaybe<Array<Scalars['BigInt']>>;
   totalUsedSecondaryBorrowCapacity_not?: InputMaybe<Array<Scalars['BigInt']>>;
-  totalUsedSecondaryBorrowCapacity_contains?: InputMaybe<
-    Array<Scalars['BigInt']>
-  >;
-  totalUsedSecondaryBorrowCapacity_contains_nocase?: InputMaybe<
-    Array<Scalars['BigInt']>
-  >;
-  totalUsedSecondaryBorrowCapacity_not_contains?: InputMaybe<
-    Array<Scalars['BigInt']>
-  >;
-  totalUsedSecondaryBorrowCapacity_not_contains_nocase?: InputMaybe<
-    Array<Scalars['BigInt']>
-  >;
+  totalUsedSecondaryBorrowCapacity_contains?: InputMaybe<Array<Scalars['BigInt']>>;
+  totalUsedSecondaryBorrowCapacity_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
+  totalUsedSecondaryBorrowCapacity_not_contains?: InputMaybe<Array<Scalars['BigInt']>>;
+  totalUsedSecondaryBorrowCapacity_not_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
   minAccountSecondaryBorrow?: InputMaybe<Array<Scalars['BigInt']>>;
   minAccountSecondaryBorrow_not?: InputMaybe<Array<Scalars['BigInt']>>;
   minAccountSecondaryBorrow_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  minAccountSecondaryBorrow_contains_nocase?: InputMaybe<
-    Array<Scalars['BigInt']>
-  >;
+  minAccountSecondaryBorrow_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
   minAccountSecondaryBorrow_not_contains?: InputMaybe<Array<Scalars['BigInt']>>;
-  minAccountSecondaryBorrow_not_contains_nocase?: InputMaybe<
-    Array<Scalars['BigInt']>
-  >;
+  minAccountSecondaryBorrow_not_contains_nocase?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<VaultConfiguration_filter>>>;
@@ -4684,6 +4734,7 @@ export type fCashMarket = {
   current: fCashMarketSnapshot;
   snapshots?: Maybe<Array<fCashMarketSnapshot>>;
 };
+
 
 export type fCashMarketsnapshotsArgs = {
   skip?: InputMaybe<Scalars['Int']>;
@@ -4867,12 +4918,8 @@ export type fCashMarketSnapshot_filter = {
   totalfCashDebtOutstandingPresentValue_lt?: InputMaybe<Scalars['BigInt']>;
   totalfCashDebtOutstandingPresentValue_gte?: InputMaybe<Scalars['BigInt']>;
   totalfCashDebtOutstandingPresentValue_lte?: InputMaybe<Scalars['BigInt']>;
-  totalfCashDebtOutstandingPresentValue_in?: InputMaybe<
-    Array<Scalars['BigInt']>
-  >;
-  totalfCashDebtOutstandingPresentValue_not_in?: InputMaybe<
-    Array<Scalars['BigInt']>
-  >;
+  totalfCashDebtOutstandingPresentValue_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  totalfCashDebtOutstandingPresentValue_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<fCashMarketSnapshot_filter>>>;
@@ -5133,6 +5180,7 @@ export type ResolversObject<TObject> = WithIndex<TObject>;
 
 export type ResolverTypeWrapper<T> = Promise<T> | T;
 
+
 export type ResolverWithResolve<TResult, TParent, TContext, TArgs> = {
   resolve: ResolverFn<TResult, TParent, TContext, TArgs>;
 };
@@ -5146,9 +5194,7 @@ export type NewStitchingResolver<TResult, TParent, TContext, TArgs> = {
   selectionSet: string | ((fieldNode: FieldNode) => SelectionSetNode);
   resolve: ResolverFn<TResult, TParent, TContext, TArgs>;
 };
-export type StitchingResolver<TResult, TParent, TContext, TArgs> =
-  | LegacyStitchingResolver<TResult, TParent, TContext, TArgs>
-  | NewStitchingResolver<TResult, TParent, TContext, TArgs>;
+export type StitchingResolver<TResult, TParent, TContext, TArgs> = LegacyStitchingResolver<TResult, TParent, TContext, TArgs> | NewStitchingResolver<TResult, TParent, TContext, TArgs>;
 export type Resolver<TResult, TParent = {}, TContext = {}, TArgs = {}> =
   | ResolverFn<TResult, TParent, TContext, TArgs>
   | ResolverWithResolve<TResult, TParent, TContext, TArgs>
@@ -5175,25 +5221,9 @@ export type SubscriptionResolveFn<TResult, TParent, TContext, TArgs> = (
   info: GraphQLResolveInfo
 ) => TResult | Promise<TResult>;
 
-export interface SubscriptionSubscriberObject<
-  TResult,
-  TKey extends string,
-  TParent,
-  TContext,
-  TArgs
-> {
-  subscribe: SubscriptionSubscribeFn<
-    { [key in TKey]: TResult },
-    TParent,
-    TContext,
-    TArgs
-  >;
-  resolve?: SubscriptionResolveFn<
-    TResult,
-    { [key in TKey]: TResult },
-    TContext,
-    TArgs
-  >;
+export interface SubscriptionSubscriberObject<TResult, TKey extends string, TParent, TContext, TArgs> {
+  subscribe: SubscriptionSubscribeFn<{ [key in TKey]: TResult }, TParent, TContext, TArgs>;
+  resolve?: SubscriptionResolveFn<TResult, { [key in TKey]: TResult }, TContext, TArgs>;
 }
 
 export interface SubscriptionResolverObject<TResult, TParent, TContext, TArgs> {
@@ -5201,26 +5231,12 @@ export interface SubscriptionResolverObject<TResult, TParent, TContext, TArgs> {
   resolve: SubscriptionResolveFn<TResult, any, TContext, TArgs>;
 }
 
-export type SubscriptionObject<
-  TResult,
-  TKey extends string,
-  TParent,
-  TContext,
-  TArgs
-> =
+export type SubscriptionObject<TResult, TKey extends string, TParent, TContext, TArgs> =
   | SubscriptionSubscriberObject<TResult, TKey, TParent, TContext, TArgs>
   | SubscriptionResolverObject<TResult, TParent, TContext, TArgs>;
 
-export type SubscriptionResolver<
-  TResult,
-  TKey extends string,
-  TParent = {},
-  TContext = {},
-  TArgs = {}
-> =
-  | ((
-      ...args: any[]
-    ) => SubscriptionObject<TResult, TKey, TParent, TContext, TArgs>)
+export type SubscriptionResolver<TResult, TKey extends string, TParent = {}, TContext = {}, TArgs = {}> =
+  | ((...args: any[]) => SubscriptionObject<TResult, TKey, TParent, TContext, TArgs>)
   | SubscriptionObject<TResult, TKey, TParent, TContext, TArgs>;
 
 export type TypeResolveFn<TTypes, TParent = {}, TContext = {}> = (
@@ -5229,26 +5245,19 @@ export type TypeResolveFn<TTypes, TParent = {}, TContext = {}> = (
   info: GraphQLResolveInfo
 ) => Maybe<TTypes> | Promise<Maybe<TTypes>>;
 
-export type IsTypeOfResolverFn<T = {}, TContext = {}> = (
-  obj: T,
-  context: TContext,
-  info: GraphQLResolveInfo
-) => boolean | Promise<boolean>;
+export type IsTypeOfResolverFn<T = {}, TContext = {}> = (obj: T, context: TContext, info: GraphQLResolveInfo) => boolean | Promise<boolean>;
 
 export type NextResolverFn<T> = () => Promise<T>;
 
-export type DirectiveResolverFn<
-  TResult = {},
-  TParent = {},
-  TContext = {},
-  TArgs = {}
-> = (
+export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs = {}> = (
   next: NextResolverFn<TResult>,
   parent: TParent,
   args: TArgs,
   context: TContext,
   info: GraphQLResolveInfo
 ) => TResult | Promise<TResult>;
+
+
 
 /** Mapping between all available schema types and the resolvers types */
 export type ResolversTypes = ResolversObject<{
@@ -5398,487 +5407,153 @@ export type ResolversParentTypes = ResolversObject<{
   fCashMarket_filter: fCashMarket_filter;
 }>;
 
-export type entityDirectiveArgs = {};
+export type entityDirectiveArgs = { };
 
-export type entityDirectiveResolver<
-  Result,
-  Parent,
-  ContextType = MeshContext & { chainName: string },
-  Args = entityDirectiveArgs
-> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
+export type entityDirectiveResolver<Result, Parent, ContextType = MeshContext & { chainName: string }, Args = entityDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
 export type subgraphIdDirectiveArgs = {
   id: Scalars['String'];
 };
 
-export type subgraphIdDirectiveResolver<
-  Result,
-  Parent,
-  ContextType = MeshContext & { chainName: string },
-  Args = subgraphIdDirectiveArgs
-> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
+export type subgraphIdDirectiveResolver<Result, Parent, ContextType = MeshContext & { chainName: string }, Args = subgraphIdDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
 export type derivedFromDirectiveArgs = {
   field: Scalars['String'];
 };
 
-export type derivedFromDirectiveResolver<
-  Result,
-  Parent,
-  ContextType = MeshContext & { chainName: string },
-  Args = derivedFromDirectiveArgs
-> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
+export type derivedFromDirectiveResolver<Result, Parent, ContextType = MeshContext & { chainName: string }, Args = derivedFromDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
-export type AccountResolvers<
-  ContextType = MeshContext & { chainName: string },
-  ParentType extends ResolversParentTypes['Account'] = ResolversParentTypes['Account']
-> = ResolversObject<{
+export type AccountResolvers<ContextType = MeshContext & { chainName: string }, ParentType extends ResolversParentTypes['Account'] = ResolversParentTypes['Account']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  firstUpdateBlockNumber?: Resolver<
-    ResolversTypes['Int'],
-    ParentType,
-    ContextType
-  >;
-  firstUpdateTimestamp?: Resolver<
-    ResolversTypes['Int'],
-    ParentType,
-    ContextType
-  >;
-  firstUpdateTransactionHash?: Resolver<
-    ResolversTypes['Bytes'],
-    ParentType,
-    ContextType
-  >;
-  lastUpdateBlockNumber?: Resolver<
-    ResolversTypes['Int'],
-    ParentType,
-    ContextType
-  >;
-  lastUpdateTimestamp?: Resolver<
-    ResolversTypes['Int'],
-    ParentType,
-    ContextType
-  >;
-  lastUpdateTransactionHash?: Resolver<
-    ResolversTypes['Bytes'],
-    ParentType,
-    ContextType
-  >;
-  systemAccountType?: Resolver<
-    ResolversTypes['SystemAccount'],
-    ParentType,
-    ContextType
-  >;
-  balances?: Resolver<
-    Maybe<Array<ResolversTypes['Balance']>>,
-    ParentType,
-    ContextType,
-    RequireFields<AccountbalancesArgs, 'skip' | 'first'>
-  >;
-  transfersFrom?: Resolver<
-    Maybe<Array<ResolversTypes['Transfer']>>,
-    ParentType,
-    ContextType,
-    RequireFields<AccounttransfersFromArgs, 'skip' | 'first'>
-  >;
-  transfersTo?: Resolver<
-    Maybe<Array<ResolversTypes['Transfer']>>,
-    ParentType,
-    ContextType,
-    RequireFields<AccounttransfersToArgs, 'skip' | 'first'>
-  >;
+  firstUpdateBlockNumber?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  firstUpdateTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  firstUpdateTransactionHash?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
+  lastUpdateBlockNumber?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  lastUpdateTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  lastUpdateTransactionHash?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
+  systemAccountType?: Resolver<ResolversTypes['SystemAccount'], ParentType, ContextType>;
+  balances?: Resolver<Maybe<Array<ResolversTypes['Balance']>>, ParentType, ContextType, RequireFields<AccountbalancesArgs, 'skip' | 'first'>>;
+  transfersFrom?: Resolver<Maybe<Array<ResolversTypes['Transfer']>>, ParentType, ContextType, RequireFields<AccounttransfersFromArgs, 'skip' | 'first'>>;
+  transfersTo?: Resolver<Maybe<Array<ResolversTypes['Transfer']>>, ParentType, ContextType, RequireFields<AccounttransfersToArgs, 'skip' | 'first'>>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type ActiveMarketResolvers<
-  ContextType = MeshContext & { chainName: string },
-  ParentType extends ResolversParentTypes['ActiveMarket'] = ResolversParentTypes['ActiveMarket']
-> = ResolversObject<{
+export type ActiveMarketResolvers<ContextType = MeshContext & { chainName: string }, ParentType extends ResolversParentTypes['ActiveMarket'] = ResolversParentTypes['ActiveMarket']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  lastUpdateBlockNumber?: Resolver<
-    ResolversTypes['Int'],
-    ParentType,
-    ContextType
-  >;
-  lastUpdateTimestamp?: Resolver<
-    ResolversTypes['Int'],
-    ParentType,
-    ContextType
-  >;
-  lastUpdateTransaction?: Resolver<
-    Maybe<ResolversTypes['Transaction']>,
-    ParentType,
-    ContextType
-  >;
+  lastUpdateBlockNumber?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  lastUpdateTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  lastUpdateTransaction?: Resolver<Maybe<ResolversTypes['Transaction']>, ParentType, ContextType>;
   underlying?: Resolver<ResolversTypes['Token'], ParentType, ContextType>;
-  pCashMarket?: Resolver<
-    ResolversTypes['PrimeCashMarket'],
-    ParentType,
-    ContextType
-  >;
-  fCashMarkets?: Resolver<
-    Array<ResolversTypes['fCashMarket']>,
-    ParentType,
-    ContextType,
-    RequireFields<ActiveMarketfCashMarketsArgs, 'skip' | 'first'>
-  >;
+  pCashMarket?: Resolver<ResolversTypes['PrimeCashMarket'], ParentType, ContextType>;
+  fCashMarkets?: Resolver<Array<ResolversTypes['fCashMarket']>, ParentType, ContextType, RequireFields<ActiveMarketfCashMarketsArgs, 'skip' | 'first'>>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type BalanceResolvers<
-  ContextType = MeshContext & { chainName: string },
-  ParentType extends ResolversParentTypes['Balance'] = ResolversParentTypes['Balance']
-> = ResolversObject<{
+export type BalanceResolvers<ContextType = MeshContext & { chainName: string }, ParentType extends ResolversParentTypes['Balance'] = ResolversParentTypes['Balance']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   token?: Resolver<ResolversTypes['Token'], ParentType, ContextType>;
   account?: Resolver<ResolversTypes['Account'], ParentType, ContextType>;
-  firstUpdateBlockNumber?: Resolver<
-    ResolversTypes['Int'],
-    ParentType,
-    ContextType
-  >;
-  firstUpdateTimestamp?: Resolver<
-    ResolversTypes['Int'],
-    ParentType,
-    ContextType
-  >;
-  firstUpdateTransactionHash?: Resolver<
-    ResolversTypes['Bytes'],
-    ParentType,
-    ContextType
-  >;
-  lastUpdateBlockNumber?: Resolver<
-    ResolversTypes['Int'],
-    ParentType,
-    ContextType
-  >;
-  lastUpdateTimestamp?: Resolver<
-    ResolversTypes['Int'],
-    ParentType,
-    ContextType
-  >;
-  lastUpdateTransactionHash?: Resolver<
-    ResolversTypes['Bytes'],
-    ParentType,
-    ContextType
-  >;
+  firstUpdateBlockNumber?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  firstUpdateTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  firstUpdateTransactionHash?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
+  lastUpdateBlockNumber?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  lastUpdateTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  lastUpdateTransactionHash?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   balance?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export interface BigDecimalScalarConfig
-  extends GraphQLScalarTypeConfig<ResolversTypes['BigDecimal'], any> {
+export interface BigDecimalScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['BigDecimal'], any> {
   name: 'BigDecimal';
 }
 
-export interface BigIntScalarConfig
-  extends GraphQLScalarTypeConfig<ResolversTypes['BigInt'], any> {
+export interface BigIntScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['BigInt'], any> {
   name: 'BigInt';
 }
 
-export interface BytesScalarConfig
-  extends GraphQLScalarTypeConfig<ResolversTypes['Bytes'], any> {
+export interface BytesScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Bytes'], any> {
   name: 'Bytes';
 }
 
-export type CurrencyConfigurationResolvers<
-  ContextType = MeshContext & { chainName: string },
-  ParentType extends ResolversParentTypes['CurrencyConfiguration'] = ResolversParentTypes['CurrencyConfiguration']
-> = ResolversObject<{
+export type CurrencyConfigurationResolvers<ContextType = MeshContext & { chainName: string }, ParentType extends ResolversParentTypes['CurrencyConfiguration'] = ResolversParentTypes['CurrencyConfiguration']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  lastUpdateBlockNumber?: Resolver<
-    ResolversTypes['Int'],
-    ParentType,
-    ContextType
-  >;
-  lastUpdateTimestamp?: Resolver<
-    ResolversTypes['Int'],
-    ParentType,
-    ContextType
-  >;
-  lastUpdateTransactionHash?: Resolver<
-    ResolversTypes['Bytes'],
-    ParentType,
-    ContextType
-  >;
-  underlying?: Resolver<
-    Maybe<ResolversTypes['Token']>,
-    ParentType,
-    ContextType
-  >;
+  lastUpdateBlockNumber?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  lastUpdateTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  lastUpdateTransactionHash?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
+  underlying?: Resolver<Maybe<ResolversTypes['Token']>, ParentType, ContextType>;
   pCash?: Resolver<Maybe<ResolversTypes['Token']>, ParentType, ContextType>;
   pDebt?: Resolver<Maybe<ResolversTypes['Token']>, ParentType, ContextType>;
-  maxUnderlyingSupply?: Resolver<
-    Maybe<ResolversTypes['BigInt']>,
-    ParentType,
-    ContextType
-  >;
-  collateralHaircut?: Resolver<
-    Maybe<ResolversTypes['Int']>,
-    ParentType,
-    ContextType
-  >;
+  maxUnderlyingSupply?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  collateralHaircut?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   debtBuffer?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
-  liquidationDiscount?: Resolver<
-    Maybe<ResolversTypes['Int']>,
-    ParentType,
-    ContextType
-  >;
-  primeCashRateOracleTimeWindowSeconds?: Resolver<
-    Maybe<ResolversTypes['Int']>,
-    ParentType,
-    ContextType
-  >;
-  primeCashHoldingsOracle?: Resolver<
-    Maybe<ResolversTypes['Bytes']>,
-    ParentType,
-    ContextType
-  >;
-  primeCashCurve?: Resolver<
-    Maybe<ResolversTypes['InterestRateCurve']>,
-    ParentType,
-    ContextType
-  >;
-  primeDebtAllowed?: Resolver<
-    Maybe<ResolversTypes['Boolean']>,
-    ParentType,
-    ContextType
-  >;
-  fCashRateOracleTimeWindowSeconds?: Resolver<
-    Maybe<ResolversTypes['Int']>,
-    ParentType,
-    ContextType
-  >;
-  fCashReserveFeeSharePercent?: Resolver<
-    Maybe<ResolversTypes['Int']>,
-    ParentType,
-    ContextType
-  >;
-  fCashDebtBufferBasisPoints?: Resolver<
-    Maybe<ResolversTypes['Int']>,
-    ParentType,
-    ContextType
-  >;
-  fCashHaircutBasisPoints?: Resolver<
-    Maybe<ResolversTypes['Int']>,
-    ParentType,
-    ContextType
-  >;
-  fCashMinOracleRate?: Resolver<
-    Maybe<ResolversTypes['Int']>,
-    ParentType,
-    ContextType
-  >;
-  fCashMaxOracleRate?: Resolver<
-    Maybe<ResolversTypes['Int']>,
-    ParentType,
-    ContextType
-  >;
-  fCashMaxDiscountFactor?: Resolver<
-    Maybe<ResolversTypes['Int']>,
-    ParentType,
-    ContextType
-  >;
-  fCashLiquidationHaircutBasisPoints?: Resolver<
-    Maybe<ResolversTypes['Int']>,
-    ParentType,
-    ContextType
-  >;
-  fCashLiquidationDebtBufferBasisPoints?: Resolver<
-    Maybe<ResolversTypes['Int']>,
-    ParentType,
-    ContextType
-  >;
-  fCashActiveCurves?: Resolver<
-    Maybe<Array<ResolversTypes['InterestRateCurve']>>,
-    ParentType,
-    ContextType,
-    RequireFields<CurrencyConfigurationfCashActiveCurvesArgs, 'skip' | 'first'>
-  >;
-  fCashNextCurves?: Resolver<
-    Maybe<Array<ResolversTypes['InterestRateCurve']>>,
-    ParentType,
-    ContextType,
-    RequireFields<CurrencyConfigurationfCashNextCurvesArgs, 'skip' | 'first'>
-  >;
-  treasuryReserveBuffer?: Resolver<
-    Maybe<ResolversTypes['BigInt']>,
-    ParentType,
-    ContextType
-  >;
-  primeCashHoldings?: Resolver<
-    Maybe<Array<ResolversTypes['Bytes']>>,
-    ParentType,
-    ContextType
-  >;
-  rebalancingTargets?: Resolver<
-    Maybe<Array<ResolversTypes['Int']>>,
-    ParentType,
-    ContextType
-  >;
-  rebalancingCooldown?: Resolver<
-    Maybe<ResolversTypes['Int']>,
-    ParentType,
-    ContextType
-  >;
-  depositShares?: Resolver<
-    Maybe<Array<ResolversTypes['Int']>>,
-    ParentType,
-    ContextType
-  >;
-  leverageThresholds?: Resolver<
-    Maybe<Array<ResolversTypes['Int']>>,
-    ParentType,
-    ContextType
-  >;
-  proportions?: Resolver<
-    Maybe<Array<ResolversTypes['Int']>>,
-    ParentType,
-    ContextType
-  >;
-  deprecated_anchorRates?: Resolver<
-    Maybe<Array<ResolversTypes['Int']>>,
-    ParentType,
-    ContextType
-  >;
-  incentiveEmissionRate?: Resolver<
-    Maybe<ResolversTypes['BigInt']>,
-    ParentType,
-    ContextType
-  >;
-  secondaryIncentiveRewarder?: Resolver<
-    Maybe<ResolversTypes['Bytes']>,
-    ParentType,
-    ContextType
-  >;
-  residualPurchaseIncentiveBasisPoints?: Resolver<
-    Maybe<ResolversTypes['Int']>,
-    ParentType,
-    ContextType
-  >;
-  residualPurchaseTimeBufferSeconds?: Resolver<
-    Maybe<ResolversTypes['Int']>,
-    ParentType,
-    ContextType
-  >;
-  cashWithholdingBufferBasisPoints?: Resolver<
-    Maybe<ResolversTypes['Int']>,
-    ParentType,
-    ContextType
-  >;
-  pvHaircutPercentage?: Resolver<
-    Maybe<ResolversTypes['Int']>,
-    ParentType,
-    ContextType
-  >;
-  liquidationHaircutPercentage?: Resolver<
-    Maybe<ResolversTypes['Int']>,
-    ParentType,
-    ContextType
-  >;
+  liquidationDiscount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  primeCashRateOracleTimeWindowSeconds?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  primeCashHoldingsOracle?: Resolver<Maybe<ResolversTypes['Bytes']>, ParentType, ContextType>;
+  primeCashCurve?: Resolver<Maybe<ResolversTypes['InterestRateCurve']>, ParentType, ContextType>;
+  primeDebtAllowed?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  fCashRateOracleTimeWindowSeconds?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  fCashReserveFeeSharePercent?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  fCashDebtBufferBasisPoints?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  fCashHaircutBasisPoints?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  fCashMinOracleRate?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  fCashMaxOracleRate?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  fCashMaxDiscountFactor?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  fCashLiquidationHaircutBasisPoints?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  fCashLiquidationDebtBufferBasisPoints?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  fCashActiveCurves?: Resolver<Maybe<Array<ResolversTypes['InterestRateCurve']>>, ParentType, ContextType, RequireFields<CurrencyConfigurationfCashActiveCurvesArgs, 'skip' | 'first'>>;
+  fCashNextCurves?: Resolver<Maybe<Array<ResolversTypes['InterestRateCurve']>>, ParentType, ContextType, RequireFields<CurrencyConfigurationfCashNextCurvesArgs, 'skip' | 'first'>>;
+  treasuryReserveBuffer?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  primeCashHoldings?: Resolver<Maybe<Array<ResolversTypes['Bytes']>>, ParentType, ContextType>;
+  rebalancingTargets?: Resolver<Maybe<Array<ResolversTypes['Int']>>, ParentType, ContextType>;
+  rebalancingCooldown?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  depositShares?: Resolver<Maybe<Array<ResolversTypes['Int']>>, ParentType, ContextType>;
+  leverageThresholds?: Resolver<Maybe<Array<ResolversTypes['Int']>>, ParentType, ContextType>;
+  proportions?: Resolver<Maybe<Array<ResolversTypes['Int']>>, ParentType, ContextType>;
+  deprecated_anchorRates?: Resolver<Maybe<Array<ResolversTypes['Int']>>, ParentType, ContextType>;
+  incentiveEmissionRate?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  secondaryIncentiveRewarder?: Resolver<Maybe<ResolversTypes['Bytes']>, ParentType, ContextType>;
+  residualPurchaseIncentiveBasisPoints?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  residualPurchaseTimeBufferSeconds?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  cashWithholdingBufferBasisPoints?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  pvHaircutPercentage?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  liquidationHaircutPercentage?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type ExchangeRateResolvers<
-  ContextType = MeshContext & { chainName: string },
-  ParentType extends ResolversParentTypes['ExchangeRate'] = ResolversParentTypes['ExchangeRate']
-> = ResolversObject<{
+export type ExchangeRateResolvers<ContextType = MeshContext & { chainName: string }, ParentType extends ResolversParentTypes['ExchangeRate'] = ResolversParentTypes['ExchangeRate']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   blockNumber?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  transaction?: Resolver<
-    Maybe<ResolversTypes['Transaction']>,
-    ParentType,
-    ContextType
-  >;
+  transaction?: Resolver<Maybe<ResolversTypes['Transaction']>, ParentType, ContextType>;
   oracle?: Resolver<ResolversTypes['Oracle'], ParentType, ContextType>;
   rate?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type IncentiveResolvers<
-  ContextType = MeshContext & { chainName: string },
-  ParentType extends ResolversParentTypes['Incentive'] = ResolversParentTypes['Incentive']
-> = ResolversObject<{
+export type IncentiveResolvers<ContextType = MeshContext & { chainName: string }, ParentType extends ResolversParentTypes['Incentive'] = ResolversParentTypes['Incentive']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  lastUpdateBlockNumber?: Resolver<
-    ResolversTypes['Int'],
-    ParentType,
-    ContextType
-  >;
-  lastUpdateTimestamp?: Resolver<
-    ResolversTypes['Int'],
-    ParentType,
-    ContextType
-  >;
-  lastUpdateTransactionHash?: Resolver<
-    ResolversTypes['Bytes'],
-    ParentType,
-    ContextType
-  >;
-  currencyConfiguration?: Resolver<
-    ResolversTypes['CurrencyConfiguration'],
-    ParentType,
-    ContextType
-  >;
-  accumulatedNOTEPerNToken?: Resolver<
-    Maybe<ResolversTypes['BigInt']>,
-    ParentType,
-    ContextType
-  >;
-  deprecated_lastSupplyChangeTime?: Resolver<
-    Maybe<ResolversTypes['BigInt']>,
-    ParentType,
-    ContextType
-  >;
-  deprecated_integralTotalSupply?: Resolver<
-    Maybe<ResolversTypes['BigInt']>,
-    ParentType,
-    ContextType
-  >;
-  migrationEmissionRate?: Resolver<
-    Maybe<ResolversTypes['BigInt']>,
-    ParentType,
-    ContextType
-  >;
-  finalIntegralTotalSupply?: Resolver<
-    Maybe<ResolversTypes['BigInt']>,
-    ParentType,
-    ContextType
-  >;
-  migrationTime?: Resolver<
-    Maybe<ResolversTypes['BigInt']>,
-    ParentType,
-    ContextType
-  >;
+  lastUpdateBlockNumber?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  lastUpdateTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  lastUpdateTransactionHash?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
+  currencyConfiguration?: Resolver<ResolversTypes['CurrencyConfiguration'], ParentType, ContextType>;
+  accumulatedNOTEPerNToken?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  deprecated_lastSupplyChangeTime?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  deprecated_integralTotalSupply?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  migrationEmissionRate?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  finalIntegralTotalSupply?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  migrationTime?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export interface Int8ScalarConfig
-  extends GraphQLScalarTypeConfig<ResolversTypes['Int8'], any> {
+export interface Int8ScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Int8'], any> {
   name: 'Int8';
 }
 
-export type InterestRateCurveResolvers<
-  ContextType = MeshContext & { chainName: string },
-  ParentType extends ResolversParentTypes['InterestRateCurve'] = ResolversParentTypes['InterestRateCurve']
-> = ResolversObject<{
+export type InterestRateCurveResolvers<ContextType = MeshContext & { chainName: string }, ParentType extends ResolversParentTypes['InterestRateCurve'] = ResolversParentTypes['InterestRateCurve']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  lastUpdateBlockNumber?: Resolver<
-    ResolversTypes['Int'],
-    ParentType,
-    ContextType
-  >;
-  lastUpdateTimestamp?: Resolver<
-    ResolversTypes['Int'],
-    ParentType,
-    ContextType
-  >;
-  lastUpdateTransactionHash?: Resolver<
-    ResolversTypes['Bytes'],
-    ParentType,
-    ContextType
-  >;
+  lastUpdateBlockNumber?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  lastUpdateTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  lastUpdateTransactionHash?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   kinkUtilization1?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   kinkUtilization2?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   kinkRate1?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -5890,26 +5565,11 @@ export type InterestRateCurveResolvers<
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type OracleResolvers<
-  ContextType = MeshContext & { chainName: string },
-  ParentType extends ResolversParentTypes['Oracle'] = ResolversParentTypes['Oracle']
-> = ResolversObject<{
+export type OracleResolvers<ContextType = MeshContext & { chainName: string }, ParentType extends ResolversParentTypes['Oracle'] = ResolversParentTypes['Oracle']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  lastUpdateBlockNumber?: Resolver<
-    ResolversTypes['Int'],
-    ParentType,
-    ContextType
-  >;
-  lastUpdateTimestamp?: Resolver<
-    ResolversTypes['Int'],
-    ParentType,
-    ContextType
-  >;
-  lastUpdateTransaction?: Resolver<
-    Maybe<ResolversTypes['Transaction']>,
-    ParentType,
-    ContextType
-  >;
+  lastUpdateBlockNumber?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  lastUpdateTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  lastUpdateTransaction?: Resolver<Maybe<ResolversTypes['Transaction']>, ParentType, ContextType>;
   base?: Resolver<ResolversTypes['Token'], ParentType, ContextType>;
   quote?: Resolver<ResolversTypes['Token'], ParentType, ContextType>;
   decimals?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -5917,963 +5577,210 @@ export type OracleResolvers<
   oracleAddress?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   oracleType?: Resolver<ResolversTypes['OracleType'], ParentType, ContextType>;
   mustInvert?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  latestRate?: Resolver<
-    Maybe<ResolversTypes['BigInt']>,
-    ParentType,
-    ContextType
-  >;
-  historicalRates?: Resolver<
-    Maybe<Array<ResolversTypes['ExchangeRate']>>,
-    ParentType,
-    ContextType,
-    RequireFields<OraclehistoricalRatesArgs, 'skip' | 'first'>
-  >;
+  latestRate?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  historicalRates?: Resolver<Maybe<Array<ResolversTypes['ExchangeRate']>>, ParentType, ContextType, RequireFields<OraclehistoricalRatesArgs, 'skip' | 'first'>>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type OracleRegistryResolvers<
-  ContextType = MeshContext & { chainName: string },
-  ParentType extends ResolversParentTypes['OracleRegistry'] = ResolversParentTypes['OracleRegistry']
-> = ResolversObject<{
+export type OracleRegistryResolvers<ContextType = MeshContext & { chainName: string }, ParentType extends ResolversParentTypes['OracleRegistry'] = ResolversParentTypes['OracleRegistry']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  lastRefreshBlockNumber?: Resolver<
-    ResolversTypes['Int'],
-    ParentType,
-    ContextType
-  >;
-  lastRefreshTimestamp?: Resolver<
-    ResolversTypes['Int'],
-    ParentType,
-    ContextType
-  >;
-  chainlinkOracles?: Resolver<
-    Array<ResolversTypes['Oracle']>,
-    ParentType,
-    ContextType,
-    RequireFields<OracleRegistrychainlinkOraclesArgs, 'skip' | 'first'>
-  >;
-  fCashEnabled?: Resolver<
-    Array<ResolversTypes['Token']>,
-    ParentType,
-    ContextType,
-    RequireFields<OracleRegistryfCashEnabledArgs, 'skip' | 'first'>
-  >;
-  listedVaults?: Resolver<
-    Array<ResolversTypes['Bytes']>,
-    ParentType,
-    ContextType
-  >;
+  lastRefreshBlockNumber?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  lastRefreshTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  chainlinkOracles?: Resolver<Array<ResolversTypes['Oracle']>, ParentType, ContextType, RequireFields<OracleRegistrychainlinkOraclesArgs, 'skip' | 'first'>>;
+  fCashEnabled?: Resolver<Array<ResolversTypes['Token']>, ParentType, ContextType, RequireFields<OracleRegistryfCashEnabledArgs, 'skip' | 'first'>>;
+  listedVaults?: Resolver<Array<ResolversTypes['Bytes']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type PrimeCashMarketResolvers<
-  ContextType = MeshContext & { chainName: string },
-  ParentType extends ResolversParentTypes['PrimeCashMarket'] = ResolversParentTypes['PrimeCashMarket']
-> = ResolversObject<{
+export type PrimeCashMarketResolvers<ContextType = MeshContext & { chainName: string }, ParentType extends ResolversParentTypes['PrimeCashMarket'] = ResolversParentTypes['PrimeCashMarket']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  lastUpdateBlockNumber?: Resolver<
-    ResolversTypes['Int'],
-    ParentType,
-    ContextType
-  >;
-  lastUpdateTimestamp?: Resolver<
-    ResolversTypes['Int'],
-    ParentType,
-    ContextType
-  >;
-  lastUpdateTransaction?: Resolver<
-    Maybe<ResolversTypes['Transaction']>,
-    ParentType,
-    ContextType
-  >;
+  lastUpdateBlockNumber?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  lastUpdateTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  lastUpdateTransaction?: Resolver<Maybe<ResolversTypes['Transaction']>, ParentType, ContextType>;
   underlying?: Resolver<ResolversTypes['Token'], ParentType, ContextType>;
   primeCash?: Resolver<ResolversTypes['Token'], ParentType, ContextType>;
   primeDebt?: Resolver<Maybe<ResolversTypes['Token']>, ParentType, ContextType>;
-  current?: Resolver<
-    ResolversTypes['PrimeCashMarketSnapshot'],
-    ParentType,
-    ContextType
-  >;
-  snapshots?: Resolver<
-    Maybe<Array<ResolversTypes['PrimeCashMarketSnapshot']>>,
-    ParentType,
-    ContextType,
-    RequireFields<PrimeCashMarketsnapshotsArgs, 'skip' | 'first'>
-  >;
+  current?: Resolver<ResolversTypes['PrimeCashMarketSnapshot'], ParentType, ContextType>;
+  snapshots?: Resolver<Maybe<Array<ResolversTypes['PrimeCashMarketSnapshot']>>, ParentType, ContextType, RequireFields<PrimeCashMarketsnapshotsArgs, 'skip' | 'first'>>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type PrimeCashMarketSnapshotResolvers<
-  ContextType = MeshContext & { chainName: string },
-  ParentType extends ResolversParentTypes['PrimeCashMarketSnapshot'] = ResolversParentTypes['PrimeCashMarketSnapshot']
-> = ResolversObject<{
+export type PrimeCashMarketSnapshotResolvers<ContextType = MeshContext & { chainName: string }, ParentType extends ResolversParentTypes['PrimeCashMarketSnapshot'] = ResolversParentTypes['PrimeCashMarketSnapshot']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   blockNumber?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  transaction?: Resolver<
-    Maybe<ResolversTypes['Transaction']>,
-    ParentType,
-    ContextType
-  >;
+  transaction?: Resolver<Maybe<ResolversTypes['Transaction']>, ParentType, ContextType>;
   market?: Resolver<ResolversTypes['PrimeCashMarket'], ParentType, ContextType>;
   totalPrimeCash?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   totalPrimeDebt?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  totalUnderlyingHeld?: Resolver<
-    ResolversTypes['BigInt'],
-    ParentType,
-    ContextType
-  >;
-  totalPrimeCashInUnderlying?: Resolver<
-    Maybe<ResolversTypes['BigInt']>,
-    ParentType,
-    ContextType
-  >;
-  totalPrimeDebtInUnderlying?: Resolver<
-    Maybe<ResolversTypes['BigInt']>,
-    ParentType,
-    ContextType
-  >;
+  totalUnderlyingHeld?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  totalPrimeCashInUnderlying?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  totalPrimeDebtInUnderlying?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   supplyScalar?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   debtScalar?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  underlyingScalar?: Resolver<
-    ResolversTypes['BigInt'],
-    ParentType,
-    ContextType
-  >;
-  supplyInterestRate?: Resolver<
-    Maybe<ResolversTypes['Int']>,
-    ParentType,
-    ContextType
-  >;
-  debtInterestRate?: Resolver<
-    Maybe<ResolversTypes['Int']>,
-    ParentType,
-    ContextType
-  >;
+  underlyingScalar?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  supplyInterestRate?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  debtInterestRate?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type QueryResolvers<
-  ContextType = MeshContext & { chainName: string },
-  ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']
-> = ResolversObject<{
-  token?: Resolver<
-    Maybe<ResolversTypes['Token']>,
-    ParentType,
-    ContextType,
-    RequireFields<QuerytokenArgs, 'id' | 'subgraphError'>
-  >;
-  tokens?: Resolver<
-    Array<ResolversTypes['Token']>,
-    ParentType,
-    ContextType,
-    RequireFields<QuerytokensArgs, 'skip' | 'first' | 'subgraphError'>
-  >;
-  transfer?: Resolver<
-    Maybe<ResolversTypes['Transfer']>,
-    ParentType,
-    ContextType,
-    RequireFields<QuerytransferArgs, 'id' | 'subgraphError'>
-  >;
-  transfers?: Resolver<
-    Array<ResolversTypes['Transfer']>,
-    ParentType,
-    ContextType,
-    RequireFields<QuerytransfersArgs, 'skip' | 'first' | 'subgraphError'>
-  >;
-  transferBundle?: Resolver<
-    Maybe<ResolversTypes['TransferBundle']>,
-    ParentType,
-    ContextType,
-    RequireFields<QuerytransferBundleArgs, 'id' | 'subgraphError'>
-  >;
-  transferBundles?: Resolver<
-    Array<ResolversTypes['TransferBundle']>,
-    ParentType,
-    ContextType,
-    RequireFields<QuerytransferBundlesArgs, 'skip' | 'first' | 'subgraphError'>
-  >;
-  transaction?: Resolver<
-    Maybe<ResolversTypes['Transaction']>,
-    ParentType,
-    ContextType,
-    RequireFields<QuerytransactionArgs, 'id' | 'subgraphError'>
-  >;
-  transactions?: Resolver<
-    Array<ResolversTypes['Transaction']>,
-    ParentType,
-    ContextType,
-    RequireFields<QuerytransactionsArgs, 'skip' | 'first' | 'subgraphError'>
-  >;
-  account?: Resolver<
-    Maybe<ResolversTypes['Account']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryaccountArgs, 'id' | 'subgraphError'>
-  >;
-  accounts?: Resolver<
-    Array<ResolversTypes['Account']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryaccountsArgs, 'skip' | 'first' | 'subgraphError'>
-  >;
-  oracleRegistry?: Resolver<
-    Maybe<ResolversTypes['OracleRegistry']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryoracleRegistryArgs, 'id' | 'subgraphError'>
-  >;
-  oracleRegistries?: Resolver<
-    Array<ResolversTypes['OracleRegistry']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryoracleRegistriesArgs, 'skip' | 'first' | 'subgraphError'>
-  >;
-  oracle?: Resolver<
-    Maybe<ResolversTypes['Oracle']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryoracleArgs, 'id' | 'subgraphError'>
-  >;
-  oracles?: Resolver<
-    Array<ResolversTypes['Oracle']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryoraclesArgs, 'skip' | 'first' | 'subgraphError'>
-  >;
-  exchangeRate?: Resolver<
-    Maybe<ResolversTypes['ExchangeRate']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryexchangeRateArgs, 'id' | 'subgraphError'>
-  >;
-  exchangeRates?: Resolver<
-    Array<ResolversTypes['ExchangeRate']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryexchangeRatesArgs, 'skip' | 'first' | 'subgraphError'>
-  >;
-  currencyConfiguration?: Resolver<
-    Maybe<ResolversTypes['CurrencyConfiguration']>,
-    ParentType,
-    ContextType,
-    RequireFields<QuerycurrencyConfigurationArgs, 'id' | 'subgraphError'>
-  >;
-  currencyConfigurations?: Resolver<
-    Array<ResolversTypes['CurrencyConfiguration']>,
-    ParentType,
-    ContextType,
-    RequireFields<
-      QuerycurrencyConfigurationsArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  interestRateCurve?: Resolver<
-    Maybe<ResolversTypes['InterestRateCurve']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryinterestRateCurveArgs, 'id' | 'subgraphError'>
-  >;
-  interestRateCurves?: Resolver<
-    Array<ResolversTypes['InterestRateCurve']>,
-    ParentType,
-    ContextType,
-    RequireFields<
-      QueryinterestRateCurvesArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  vaultConfiguration?: Resolver<
-    Maybe<ResolversTypes['VaultConfiguration']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryvaultConfigurationArgs, 'id' | 'subgraphError'>
-  >;
-  vaultConfigurations?: Resolver<
-    Array<ResolversTypes['VaultConfiguration']>,
-    ParentType,
-    ContextType,
-    RequireFields<
-      QueryvaultConfigurationsArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  whitelistedContract?: Resolver<
-    Maybe<ResolversTypes['WhitelistedContract']>,
-    ParentType,
-    ContextType,
-    RequireFields<QuerywhitelistedContractArgs, 'id' | 'subgraphError'>
-  >;
-  whitelistedContracts?: Resolver<
-    Array<ResolversTypes['WhitelistedContract']>,
-    ParentType,
-    ContextType,
-    RequireFields<
-      QuerywhitelistedContractsArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  balance?: Resolver<
-    Maybe<ResolversTypes['Balance']>,
-    ParentType,
-    ContextType,
-    RequireFields<QuerybalanceArgs, 'id' | 'subgraphError'>
-  >;
-  balances?: Resolver<
-    Array<ResolversTypes['Balance']>,
-    ParentType,
-    ContextType,
-    RequireFields<QuerybalancesArgs, 'skip' | 'first' | 'subgraphError'>
-  >;
-  activeMarket?: Resolver<
-    Maybe<ResolversTypes['ActiveMarket']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryactiveMarketArgs, 'id' | 'subgraphError'>
-  >;
-  activeMarkets?: Resolver<
-    Array<ResolversTypes['ActiveMarket']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryactiveMarketsArgs, 'skip' | 'first' | 'subgraphError'>
-  >;
-  primeCashMarket?: Resolver<
-    Maybe<ResolversTypes['PrimeCashMarket']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryprimeCashMarketArgs, 'id' | 'subgraphError'>
-  >;
-  primeCashMarkets?: Resolver<
-    Array<ResolversTypes['PrimeCashMarket']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryprimeCashMarketsArgs, 'skip' | 'first' | 'subgraphError'>
-  >;
-  primeCashMarketSnapshot?: Resolver<
-    Maybe<ResolversTypes['PrimeCashMarketSnapshot']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryprimeCashMarketSnapshotArgs, 'id' | 'subgraphError'>
-  >;
-  primeCashMarketSnapshots?: Resolver<
-    Array<ResolversTypes['PrimeCashMarketSnapshot']>,
-    ParentType,
-    ContextType,
-    RequireFields<
-      QueryprimeCashMarketSnapshotsArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  fCashMarket?: Resolver<
-    Maybe<ResolversTypes['fCashMarket']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryfCashMarketArgs, 'id' | 'subgraphError'>
-  >;
-  fCashMarkets?: Resolver<
-    Array<ResolversTypes['fCashMarket']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryfCashMarketsArgs, 'skip' | 'first' | 'subgraphError'>
-  >;
-  fCashMarketSnapshot?: Resolver<
-    Maybe<ResolversTypes['fCashMarketSnapshot']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryfCashMarketSnapshotArgs, 'id' | 'subgraphError'>
-  >;
-  fCashMarketSnapshots?: Resolver<
-    Array<ResolversTypes['fCashMarketSnapshot']>,
-    ParentType,
-    ContextType,
-    RequireFields<
-      QueryfCashMarketSnapshotsArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  incentive?: Resolver<
-    Maybe<ResolversTypes['Incentive']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryincentiveArgs, 'id' | 'subgraphError'>
-  >;
-  incentives?: Resolver<
-    Array<ResolversTypes['Incentive']>,
-    ParentType,
-    ContextType,
-    RequireFields<QueryincentivesArgs, 'skip' | 'first' | 'subgraphError'>
-  >;
-  tradingModulePermission?: Resolver<
-    Maybe<ResolversTypes['TradingModulePermission']>,
-    ParentType,
-    ContextType,
-    RequireFields<QuerytradingModulePermissionArgs, 'id' | 'subgraphError'>
-  >;
-  tradingModulePermissions?: Resolver<
-    Array<ResolversTypes['TradingModulePermission']>,
-    ParentType,
-    ContextType,
-    RequireFields<
-      QuerytradingModulePermissionsArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  _meta?: Resolver<
-    Maybe<ResolversTypes['_Meta_']>,
-    ParentType,
-    ContextType,
-    Partial<Query_metaArgs>
-  >;
+export type QueryResolvers<ContextType = MeshContext & { chainName: string }, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
+  token?: Resolver<Maybe<ResolversTypes['Token']>, ParentType, ContextType, RequireFields<QuerytokenArgs, 'id' | 'subgraphError'>>;
+  tokens?: Resolver<Array<ResolversTypes['Token']>, ParentType, ContextType, RequireFields<QuerytokensArgs, 'skip' | 'first' | 'subgraphError'>>;
+  transfer?: Resolver<Maybe<ResolversTypes['Transfer']>, ParentType, ContextType, RequireFields<QuerytransferArgs, 'id' | 'subgraphError'>>;
+  transfers?: Resolver<Array<ResolversTypes['Transfer']>, ParentType, ContextType, RequireFields<QuerytransfersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  transferBundle?: Resolver<Maybe<ResolversTypes['TransferBundle']>, ParentType, ContextType, RequireFields<QuerytransferBundleArgs, 'id' | 'subgraphError'>>;
+  transferBundles?: Resolver<Array<ResolversTypes['TransferBundle']>, ParentType, ContextType, RequireFields<QuerytransferBundlesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  transaction?: Resolver<Maybe<ResolversTypes['Transaction']>, ParentType, ContextType, RequireFields<QuerytransactionArgs, 'id' | 'subgraphError'>>;
+  transactions?: Resolver<Array<ResolversTypes['Transaction']>, ParentType, ContextType, RequireFields<QuerytransactionsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  account?: Resolver<Maybe<ResolversTypes['Account']>, ParentType, ContextType, RequireFields<QueryaccountArgs, 'id' | 'subgraphError'>>;
+  accounts?: Resolver<Array<ResolversTypes['Account']>, ParentType, ContextType, RequireFields<QueryaccountsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  oracleRegistry?: Resolver<Maybe<ResolversTypes['OracleRegistry']>, ParentType, ContextType, RequireFields<QueryoracleRegistryArgs, 'id' | 'subgraphError'>>;
+  oracleRegistries?: Resolver<Array<ResolversTypes['OracleRegistry']>, ParentType, ContextType, RequireFields<QueryoracleRegistriesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  oracle?: Resolver<Maybe<ResolversTypes['Oracle']>, ParentType, ContextType, RequireFields<QueryoracleArgs, 'id' | 'subgraphError'>>;
+  oracles?: Resolver<Array<ResolversTypes['Oracle']>, ParentType, ContextType, RequireFields<QueryoraclesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  exchangeRate?: Resolver<Maybe<ResolversTypes['ExchangeRate']>, ParentType, ContextType, RequireFields<QueryexchangeRateArgs, 'id' | 'subgraphError'>>;
+  exchangeRates?: Resolver<Array<ResolversTypes['ExchangeRate']>, ParentType, ContextType, RequireFields<QueryexchangeRatesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  currencyConfiguration?: Resolver<Maybe<ResolversTypes['CurrencyConfiguration']>, ParentType, ContextType, RequireFields<QuerycurrencyConfigurationArgs, 'id' | 'subgraphError'>>;
+  currencyConfigurations?: Resolver<Array<ResolversTypes['CurrencyConfiguration']>, ParentType, ContextType, RequireFields<QuerycurrencyConfigurationsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  interestRateCurve?: Resolver<Maybe<ResolversTypes['InterestRateCurve']>, ParentType, ContextType, RequireFields<QueryinterestRateCurveArgs, 'id' | 'subgraphError'>>;
+  interestRateCurves?: Resolver<Array<ResolversTypes['InterestRateCurve']>, ParentType, ContextType, RequireFields<QueryinterestRateCurvesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  vaultConfiguration?: Resolver<Maybe<ResolversTypes['VaultConfiguration']>, ParentType, ContextType, RequireFields<QueryvaultConfigurationArgs, 'id' | 'subgraphError'>>;
+  vaultConfigurations?: Resolver<Array<ResolversTypes['VaultConfiguration']>, ParentType, ContextType, RequireFields<QueryvaultConfigurationsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  whitelistedContract?: Resolver<Maybe<ResolversTypes['WhitelistedContract']>, ParentType, ContextType, RequireFields<QuerywhitelistedContractArgs, 'id' | 'subgraphError'>>;
+  whitelistedContracts?: Resolver<Array<ResolversTypes['WhitelistedContract']>, ParentType, ContextType, RequireFields<QuerywhitelistedContractsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  balance?: Resolver<Maybe<ResolversTypes['Balance']>, ParentType, ContextType, RequireFields<QuerybalanceArgs, 'id' | 'subgraphError'>>;
+  balances?: Resolver<Array<ResolversTypes['Balance']>, ParentType, ContextType, RequireFields<QuerybalancesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  activeMarket?: Resolver<Maybe<ResolversTypes['ActiveMarket']>, ParentType, ContextType, RequireFields<QueryactiveMarketArgs, 'id' | 'subgraphError'>>;
+  activeMarkets?: Resolver<Array<ResolversTypes['ActiveMarket']>, ParentType, ContextType, RequireFields<QueryactiveMarketsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  primeCashMarket?: Resolver<Maybe<ResolversTypes['PrimeCashMarket']>, ParentType, ContextType, RequireFields<QueryprimeCashMarketArgs, 'id' | 'subgraphError'>>;
+  primeCashMarkets?: Resolver<Array<ResolversTypes['PrimeCashMarket']>, ParentType, ContextType, RequireFields<QueryprimeCashMarketsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  primeCashMarketSnapshot?: Resolver<Maybe<ResolversTypes['PrimeCashMarketSnapshot']>, ParentType, ContextType, RequireFields<QueryprimeCashMarketSnapshotArgs, 'id' | 'subgraphError'>>;
+  primeCashMarketSnapshots?: Resolver<Array<ResolversTypes['PrimeCashMarketSnapshot']>, ParentType, ContextType, RequireFields<QueryprimeCashMarketSnapshotsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  fCashMarket?: Resolver<Maybe<ResolversTypes['fCashMarket']>, ParentType, ContextType, RequireFields<QueryfCashMarketArgs, 'id' | 'subgraphError'>>;
+  fCashMarkets?: Resolver<Array<ResolversTypes['fCashMarket']>, ParentType, ContextType, RequireFields<QueryfCashMarketsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  fCashMarketSnapshot?: Resolver<Maybe<ResolversTypes['fCashMarketSnapshot']>, ParentType, ContextType, RequireFields<QueryfCashMarketSnapshotArgs, 'id' | 'subgraphError'>>;
+  fCashMarketSnapshots?: Resolver<Array<ResolversTypes['fCashMarketSnapshot']>, ParentType, ContextType, RequireFields<QueryfCashMarketSnapshotsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  incentive?: Resolver<Maybe<ResolversTypes['Incentive']>, ParentType, ContextType, RequireFields<QueryincentiveArgs, 'id' | 'subgraphError'>>;
+  incentives?: Resolver<Array<ResolversTypes['Incentive']>, ParentType, ContextType, RequireFields<QueryincentivesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  tradingModulePermission?: Resolver<Maybe<ResolversTypes['TradingModulePermission']>, ParentType, ContextType, RequireFields<QuerytradingModulePermissionArgs, 'id' | 'subgraphError'>>;
+  tradingModulePermissions?: Resolver<Array<ResolversTypes['TradingModulePermission']>, ParentType, ContextType, RequireFields<QuerytradingModulePermissionsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  _meta?: Resolver<Maybe<ResolversTypes['_Meta_']>, ParentType, ContextType, Partial<Query_metaArgs>>;
 }>;
 
-export type SubscriptionResolvers<
-  ContextType = MeshContext & { chainName: string },
-  ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']
-> = ResolversObject<{
-  token?: SubscriptionResolver<
-    Maybe<ResolversTypes['Token']>,
-    'token',
-    ParentType,
-    ContextType,
-    RequireFields<SubscriptiontokenArgs, 'id' | 'subgraphError'>
-  >;
-  tokens?: SubscriptionResolver<
-    Array<ResolversTypes['Token']>,
-    'tokens',
-    ParentType,
-    ContextType,
-    RequireFields<SubscriptiontokensArgs, 'skip' | 'first' | 'subgraphError'>
-  >;
-  transfer?: SubscriptionResolver<
-    Maybe<ResolversTypes['Transfer']>,
-    'transfer',
-    ParentType,
-    ContextType,
-    RequireFields<SubscriptiontransferArgs, 'id' | 'subgraphError'>
-  >;
-  transfers?: SubscriptionResolver<
-    Array<ResolversTypes['Transfer']>,
-    'transfers',
-    ParentType,
-    ContextType,
-    RequireFields<SubscriptiontransfersArgs, 'skip' | 'first' | 'subgraphError'>
-  >;
-  transferBundle?: SubscriptionResolver<
-    Maybe<ResolversTypes['TransferBundle']>,
-    'transferBundle',
-    ParentType,
-    ContextType,
-    RequireFields<SubscriptiontransferBundleArgs, 'id' | 'subgraphError'>
-  >;
-  transferBundles?: SubscriptionResolver<
-    Array<ResolversTypes['TransferBundle']>,
-    'transferBundles',
-    ParentType,
-    ContextType,
-    RequireFields<
-      SubscriptiontransferBundlesArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  transaction?: SubscriptionResolver<
-    Maybe<ResolversTypes['Transaction']>,
-    'transaction',
-    ParentType,
-    ContextType,
-    RequireFields<SubscriptiontransactionArgs, 'id' | 'subgraphError'>
-  >;
-  transactions?: SubscriptionResolver<
-    Array<ResolversTypes['Transaction']>,
-    'transactions',
-    ParentType,
-    ContextType,
-    RequireFields<
-      SubscriptiontransactionsArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  account?: SubscriptionResolver<
-    Maybe<ResolversTypes['Account']>,
-    'account',
-    ParentType,
-    ContextType,
-    RequireFields<SubscriptionaccountArgs, 'id' | 'subgraphError'>
-  >;
-  accounts?: SubscriptionResolver<
-    Array<ResolversTypes['Account']>,
-    'accounts',
-    ParentType,
-    ContextType,
-    RequireFields<SubscriptionaccountsArgs, 'skip' | 'first' | 'subgraphError'>
-  >;
-  oracleRegistry?: SubscriptionResolver<
-    Maybe<ResolversTypes['OracleRegistry']>,
-    'oracleRegistry',
-    ParentType,
-    ContextType,
-    RequireFields<SubscriptionoracleRegistryArgs, 'id' | 'subgraphError'>
-  >;
-  oracleRegistries?: SubscriptionResolver<
-    Array<ResolversTypes['OracleRegistry']>,
-    'oracleRegistries',
-    ParentType,
-    ContextType,
-    RequireFields<
-      SubscriptionoracleRegistriesArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  oracle?: SubscriptionResolver<
-    Maybe<ResolversTypes['Oracle']>,
-    'oracle',
-    ParentType,
-    ContextType,
-    RequireFields<SubscriptionoracleArgs, 'id' | 'subgraphError'>
-  >;
-  oracles?: SubscriptionResolver<
-    Array<ResolversTypes['Oracle']>,
-    'oracles',
-    ParentType,
-    ContextType,
-    RequireFields<SubscriptionoraclesArgs, 'skip' | 'first' | 'subgraphError'>
-  >;
-  exchangeRate?: SubscriptionResolver<
-    Maybe<ResolversTypes['ExchangeRate']>,
-    'exchangeRate',
-    ParentType,
-    ContextType,
-    RequireFields<SubscriptionexchangeRateArgs, 'id' | 'subgraphError'>
-  >;
-  exchangeRates?: SubscriptionResolver<
-    Array<ResolversTypes['ExchangeRate']>,
-    'exchangeRates',
-    ParentType,
-    ContextType,
-    RequireFields<
-      SubscriptionexchangeRatesArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  currencyConfiguration?: SubscriptionResolver<
-    Maybe<ResolversTypes['CurrencyConfiguration']>,
-    'currencyConfiguration',
-    ParentType,
-    ContextType,
-    RequireFields<SubscriptioncurrencyConfigurationArgs, 'id' | 'subgraphError'>
-  >;
-  currencyConfigurations?: SubscriptionResolver<
-    Array<ResolversTypes['CurrencyConfiguration']>,
-    'currencyConfigurations',
-    ParentType,
-    ContextType,
-    RequireFields<
-      SubscriptioncurrencyConfigurationsArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  interestRateCurve?: SubscriptionResolver<
-    Maybe<ResolversTypes['InterestRateCurve']>,
-    'interestRateCurve',
-    ParentType,
-    ContextType,
-    RequireFields<SubscriptioninterestRateCurveArgs, 'id' | 'subgraphError'>
-  >;
-  interestRateCurves?: SubscriptionResolver<
-    Array<ResolversTypes['InterestRateCurve']>,
-    'interestRateCurves',
-    ParentType,
-    ContextType,
-    RequireFields<
-      SubscriptioninterestRateCurvesArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  vaultConfiguration?: SubscriptionResolver<
-    Maybe<ResolversTypes['VaultConfiguration']>,
-    'vaultConfiguration',
-    ParentType,
-    ContextType,
-    RequireFields<SubscriptionvaultConfigurationArgs, 'id' | 'subgraphError'>
-  >;
-  vaultConfigurations?: SubscriptionResolver<
-    Array<ResolversTypes['VaultConfiguration']>,
-    'vaultConfigurations',
-    ParentType,
-    ContextType,
-    RequireFields<
-      SubscriptionvaultConfigurationsArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  whitelistedContract?: SubscriptionResolver<
-    Maybe<ResolversTypes['WhitelistedContract']>,
-    'whitelistedContract',
-    ParentType,
-    ContextType,
-    RequireFields<SubscriptionwhitelistedContractArgs, 'id' | 'subgraphError'>
-  >;
-  whitelistedContracts?: SubscriptionResolver<
-    Array<ResolversTypes['WhitelistedContract']>,
-    'whitelistedContracts',
-    ParentType,
-    ContextType,
-    RequireFields<
-      SubscriptionwhitelistedContractsArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  balance?: SubscriptionResolver<
-    Maybe<ResolversTypes['Balance']>,
-    'balance',
-    ParentType,
-    ContextType,
-    RequireFields<SubscriptionbalanceArgs, 'id' | 'subgraphError'>
-  >;
-  balances?: SubscriptionResolver<
-    Array<ResolversTypes['Balance']>,
-    'balances',
-    ParentType,
-    ContextType,
-    RequireFields<SubscriptionbalancesArgs, 'skip' | 'first' | 'subgraphError'>
-  >;
-  activeMarket?: SubscriptionResolver<
-    Maybe<ResolversTypes['ActiveMarket']>,
-    'activeMarket',
-    ParentType,
-    ContextType,
-    RequireFields<SubscriptionactiveMarketArgs, 'id' | 'subgraphError'>
-  >;
-  activeMarkets?: SubscriptionResolver<
-    Array<ResolversTypes['ActiveMarket']>,
-    'activeMarkets',
-    ParentType,
-    ContextType,
-    RequireFields<
-      SubscriptionactiveMarketsArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  primeCashMarket?: SubscriptionResolver<
-    Maybe<ResolversTypes['PrimeCashMarket']>,
-    'primeCashMarket',
-    ParentType,
-    ContextType,
-    RequireFields<SubscriptionprimeCashMarketArgs, 'id' | 'subgraphError'>
-  >;
-  primeCashMarkets?: SubscriptionResolver<
-    Array<ResolversTypes['PrimeCashMarket']>,
-    'primeCashMarkets',
-    ParentType,
-    ContextType,
-    RequireFields<
-      SubscriptionprimeCashMarketsArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  primeCashMarketSnapshot?: SubscriptionResolver<
-    Maybe<ResolversTypes['PrimeCashMarketSnapshot']>,
-    'primeCashMarketSnapshot',
-    ParentType,
-    ContextType,
-    RequireFields<
-      SubscriptionprimeCashMarketSnapshotArgs,
-      'id' | 'subgraphError'
-    >
-  >;
-  primeCashMarketSnapshots?: SubscriptionResolver<
-    Array<ResolversTypes['PrimeCashMarketSnapshot']>,
-    'primeCashMarketSnapshots',
-    ParentType,
-    ContextType,
-    RequireFields<
-      SubscriptionprimeCashMarketSnapshotsArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  fCashMarket?: SubscriptionResolver<
-    Maybe<ResolversTypes['fCashMarket']>,
-    'fCashMarket',
-    ParentType,
-    ContextType,
-    RequireFields<SubscriptionfCashMarketArgs, 'id' | 'subgraphError'>
-  >;
-  fCashMarkets?: SubscriptionResolver<
-    Array<ResolversTypes['fCashMarket']>,
-    'fCashMarkets',
-    ParentType,
-    ContextType,
-    RequireFields<
-      SubscriptionfCashMarketsArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  fCashMarketSnapshot?: SubscriptionResolver<
-    Maybe<ResolversTypes['fCashMarketSnapshot']>,
-    'fCashMarketSnapshot',
-    ParentType,
-    ContextType,
-    RequireFields<SubscriptionfCashMarketSnapshotArgs, 'id' | 'subgraphError'>
-  >;
-  fCashMarketSnapshots?: SubscriptionResolver<
-    Array<ResolversTypes['fCashMarketSnapshot']>,
-    'fCashMarketSnapshots',
-    ParentType,
-    ContextType,
-    RequireFields<
-      SubscriptionfCashMarketSnapshotsArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  incentive?: SubscriptionResolver<
-    Maybe<ResolversTypes['Incentive']>,
-    'incentive',
-    ParentType,
-    ContextType,
-    RequireFields<SubscriptionincentiveArgs, 'id' | 'subgraphError'>
-  >;
-  incentives?: SubscriptionResolver<
-    Array<ResolversTypes['Incentive']>,
-    'incentives',
-    ParentType,
-    ContextType,
-    RequireFields<
-      SubscriptionincentivesArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  tradingModulePermission?: SubscriptionResolver<
-    Maybe<ResolversTypes['TradingModulePermission']>,
-    'tradingModulePermission',
-    ParentType,
-    ContextType,
-    RequireFields<
-      SubscriptiontradingModulePermissionArgs,
-      'id' | 'subgraphError'
-    >
-  >;
-  tradingModulePermissions?: SubscriptionResolver<
-    Array<ResolversTypes['TradingModulePermission']>,
-    'tradingModulePermissions',
-    ParentType,
-    ContextType,
-    RequireFields<
-      SubscriptiontradingModulePermissionsArgs,
-      'skip' | 'first' | 'subgraphError'
-    >
-  >;
-  _meta?: SubscriptionResolver<
-    Maybe<ResolversTypes['_Meta_']>,
-    '_meta',
-    ParentType,
-    ContextType,
-    Partial<Subscription_metaArgs>
-  >;
+export type SubscriptionResolvers<ContextType = MeshContext & { chainName: string }, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = ResolversObject<{
+  token?: SubscriptionResolver<Maybe<ResolversTypes['Token']>, "token", ParentType, ContextType, RequireFields<SubscriptiontokenArgs, 'id' | 'subgraphError'>>;
+  tokens?: SubscriptionResolver<Array<ResolversTypes['Token']>, "tokens", ParentType, ContextType, RequireFields<SubscriptiontokensArgs, 'skip' | 'first' | 'subgraphError'>>;
+  transfer?: SubscriptionResolver<Maybe<ResolversTypes['Transfer']>, "transfer", ParentType, ContextType, RequireFields<SubscriptiontransferArgs, 'id' | 'subgraphError'>>;
+  transfers?: SubscriptionResolver<Array<ResolversTypes['Transfer']>, "transfers", ParentType, ContextType, RequireFields<SubscriptiontransfersArgs, 'skip' | 'first' | 'subgraphError'>>;
+  transferBundle?: SubscriptionResolver<Maybe<ResolversTypes['TransferBundle']>, "transferBundle", ParentType, ContextType, RequireFields<SubscriptiontransferBundleArgs, 'id' | 'subgraphError'>>;
+  transferBundles?: SubscriptionResolver<Array<ResolversTypes['TransferBundle']>, "transferBundles", ParentType, ContextType, RequireFields<SubscriptiontransferBundlesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  transaction?: SubscriptionResolver<Maybe<ResolversTypes['Transaction']>, "transaction", ParentType, ContextType, RequireFields<SubscriptiontransactionArgs, 'id' | 'subgraphError'>>;
+  transactions?: SubscriptionResolver<Array<ResolversTypes['Transaction']>, "transactions", ParentType, ContextType, RequireFields<SubscriptiontransactionsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  account?: SubscriptionResolver<Maybe<ResolversTypes['Account']>, "account", ParentType, ContextType, RequireFields<SubscriptionaccountArgs, 'id' | 'subgraphError'>>;
+  accounts?: SubscriptionResolver<Array<ResolversTypes['Account']>, "accounts", ParentType, ContextType, RequireFields<SubscriptionaccountsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  oracleRegistry?: SubscriptionResolver<Maybe<ResolversTypes['OracleRegistry']>, "oracleRegistry", ParentType, ContextType, RequireFields<SubscriptionoracleRegistryArgs, 'id' | 'subgraphError'>>;
+  oracleRegistries?: SubscriptionResolver<Array<ResolversTypes['OracleRegistry']>, "oracleRegistries", ParentType, ContextType, RequireFields<SubscriptionoracleRegistriesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  oracle?: SubscriptionResolver<Maybe<ResolversTypes['Oracle']>, "oracle", ParentType, ContextType, RequireFields<SubscriptionoracleArgs, 'id' | 'subgraphError'>>;
+  oracles?: SubscriptionResolver<Array<ResolversTypes['Oracle']>, "oracles", ParentType, ContextType, RequireFields<SubscriptionoraclesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  exchangeRate?: SubscriptionResolver<Maybe<ResolversTypes['ExchangeRate']>, "exchangeRate", ParentType, ContextType, RequireFields<SubscriptionexchangeRateArgs, 'id' | 'subgraphError'>>;
+  exchangeRates?: SubscriptionResolver<Array<ResolversTypes['ExchangeRate']>, "exchangeRates", ParentType, ContextType, RequireFields<SubscriptionexchangeRatesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  currencyConfiguration?: SubscriptionResolver<Maybe<ResolversTypes['CurrencyConfiguration']>, "currencyConfiguration", ParentType, ContextType, RequireFields<SubscriptioncurrencyConfigurationArgs, 'id' | 'subgraphError'>>;
+  currencyConfigurations?: SubscriptionResolver<Array<ResolversTypes['CurrencyConfiguration']>, "currencyConfigurations", ParentType, ContextType, RequireFields<SubscriptioncurrencyConfigurationsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  interestRateCurve?: SubscriptionResolver<Maybe<ResolversTypes['InterestRateCurve']>, "interestRateCurve", ParentType, ContextType, RequireFields<SubscriptioninterestRateCurveArgs, 'id' | 'subgraphError'>>;
+  interestRateCurves?: SubscriptionResolver<Array<ResolversTypes['InterestRateCurve']>, "interestRateCurves", ParentType, ContextType, RequireFields<SubscriptioninterestRateCurvesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  vaultConfiguration?: SubscriptionResolver<Maybe<ResolversTypes['VaultConfiguration']>, "vaultConfiguration", ParentType, ContextType, RequireFields<SubscriptionvaultConfigurationArgs, 'id' | 'subgraphError'>>;
+  vaultConfigurations?: SubscriptionResolver<Array<ResolversTypes['VaultConfiguration']>, "vaultConfigurations", ParentType, ContextType, RequireFields<SubscriptionvaultConfigurationsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  whitelistedContract?: SubscriptionResolver<Maybe<ResolversTypes['WhitelistedContract']>, "whitelistedContract", ParentType, ContextType, RequireFields<SubscriptionwhitelistedContractArgs, 'id' | 'subgraphError'>>;
+  whitelistedContracts?: SubscriptionResolver<Array<ResolversTypes['WhitelistedContract']>, "whitelistedContracts", ParentType, ContextType, RequireFields<SubscriptionwhitelistedContractsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  balance?: SubscriptionResolver<Maybe<ResolversTypes['Balance']>, "balance", ParentType, ContextType, RequireFields<SubscriptionbalanceArgs, 'id' | 'subgraphError'>>;
+  balances?: SubscriptionResolver<Array<ResolversTypes['Balance']>, "balances", ParentType, ContextType, RequireFields<SubscriptionbalancesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  activeMarket?: SubscriptionResolver<Maybe<ResolversTypes['ActiveMarket']>, "activeMarket", ParentType, ContextType, RequireFields<SubscriptionactiveMarketArgs, 'id' | 'subgraphError'>>;
+  activeMarkets?: SubscriptionResolver<Array<ResolversTypes['ActiveMarket']>, "activeMarkets", ParentType, ContextType, RequireFields<SubscriptionactiveMarketsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  primeCashMarket?: SubscriptionResolver<Maybe<ResolversTypes['PrimeCashMarket']>, "primeCashMarket", ParentType, ContextType, RequireFields<SubscriptionprimeCashMarketArgs, 'id' | 'subgraphError'>>;
+  primeCashMarkets?: SubscriptionResolver<Array<ResolversTypes['PrimeCashMarket']>, "primeCashMarkets", ParentType, ContextType, RequireFields<SubscriptionprimeCashMarketsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  primeCashMarketSnapshot?: SubscriptionResolver<Maybe<ResolversTypes['PrimeCashMarketSnapshot']>, "primeCashMarketSnapshot", ParentType, ContextType, RequireFields<SubscriptionprimeCashMarketSnapshotArgs, 'id' | 'subgraphError'>>;
+  primeCashMarketSnapshots?: SubscriptionResolver<Array<ResolversTypes['PrimeCashMarketSnapshot']>, "primeCashMarketSnapshots", ParentType, ContextType, RequireFields<SubscriptionprimeCashMarketSnapshotsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  fCashMarket?: SubscriptionResolver<Maybe<ResolversTypes['fCashMarket']>, "fCashMarket", ParentType, ContextType, RequireFields<SubscriptionfCashMarketArgs, 'id' | 'subgraphError'>>;
+  fCashMarkets?: SubscriptionResolver<Array<ResolversTypes['fCashMarket']>, "fCashMarkets", ParentType, ContextType, RequireFields<SubscriptionfCashMarketsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  fCashMarketSnapshot?: SubscriptionResolver<Maybe<ResolversTypes['fCashMarketSnapshot']>, "fCashMarketSnapshot", ParentType, ContextType, RequireFields<SubscriptionfCashMarketSnapshotArgs, 'id' | 'subgraphError'>>;
+  fCashMarketSnapshots?: SubscriptionResolver<Array<ResolversTypes['fCashMarketSnapshot']>, "fCashMarketSnapshots", ParentType, ContextType, RequireFields<SubscriptionfCashMarketSnapshotsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  incentive?: SubscriptionResolver<Maybe<ResolversTypes['Incentive']>, "incentive", ParentType, ContextType, RequireFields<SubscriptionincentiveArgs, 'id' | 'subgraphError'>>;
+  incentives?: SubscriptionResolver<Array<ResolversTypes['Incentive']>, "incentives", ParentType, ContextType, RequireFields<SubscriptionincentivesArgs, 'skip' | 'first' | 'subgraphError'>>;
+  tradingModulePermission?: SubscriptionResolver<Maybe<ResolversTypes['TradingModulePermission']>, "tradingModulePermission", ParentType, ContextType, RequireFields<SubscriptiontradingModulePermissionArgs, 'id' | 'subgraphError'>>;
+  tradingModulePermissions?: SubscriptionResolver<Array<ResolversTypes['TradingModulePermission']>, "tradingModulePermissions", ParentType, ContextType, RequireFields<SubscriptiontradingModulePermissionsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  _meta?: SubscriptionResolver<Maybe<ResolversTypes['_Meta_']>, "_meta", ParentType, ContextType, Partial<Subscription_metaArgs>>;
 }>;
 
-export type TokenResolvers<
-  ContextType = MeshContext & { chainName: string },
-  ParentType extends ResolversParentTypes['Token'] = ResolversParentTypes['Token']
-> = ResolversObject<{
+export type TokenResolvers<ContextType = MeshContext & { chainName: string }, ParentType extends ResolversParentTypes['Token'] = ResolversParentTypes['Token']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  firstUpdateBlockNumber?: Resolver<
-    ResolversTypes['Int'],
-    ParentType,
-    ContextType
-  >;
-  firstUpdateTimestamp?: Resolver<
-    ResolversTypes['Int'],
-    ParentType,
-    ContextType
-  >;
-  firstUpdateTransactionHash?: Resolver<
-    Maybe<ResolversTypes['Bytes']>,
-    ParentType,
-    ContextType
-  >;
-  lastUpdateBlockNumber?: Resolver<
-    ResolversTypes['Int'],
-    ParentType,
-    ContextType
-  >;
-  lastUpdateTimestamp?: Resolver<
-    ResolversTypes['Int'],
-    ParentType,
-    ContextType
-  >;
-  lastUpdateTransactionHash?: Resolver<
-    Maybe<ResolversTypes['Bytes']>,
-    ParentType,
-    ContextType
-  >;
+  firstUpdateBlockNumber?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  firstUpdateTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  firstUpdateTransactionHash?: Resolver<Maybe<ResolversTypes['Bytes']>, ParentType, ContextType>;
+  lastUpdateBlockNumber?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  lastUpdateTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  lastUpdateTransactionHash?: Resolver<Maybe<ResolversTypes['Bytes']>, ParentType, ContextType>;
   tokenType?: Resolver<ResolversTypes['TokenType'], ParentType, ContextType>;
-  tokenInterface?: Resolver<
-    ResolversTypes['TokenInterface'],
-    ParentType,
-    ContextType
-  >;
-  underlying?: Resolver<
-    Maybe<ResolversTypes['Token']>,
-    ParentType,
-    ContextType
-  >;
+  tokenInterface?: Resolver<ResolversTypes['TokenInterface'], ParentType, ContextType>;
+  underlying?: Resolver<Maybe<ResolversTypes['Token']>, ParentType, ContextType>;
   currencyId?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   symbol?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   decimals?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   precision?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  totalSupply?: Resolver<
-    Maybe<ResolversTypes['BigInt']>,
-    ParentType,
-    ContextType
-  >;
+  totalSupply?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   hasTransferFee?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   isfCashDebt?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   maturity?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
-  vaultAddress?: Resolver<
-    Maybe<ResolversTypes['Bytes']>,
-    ParentType,
-    ContextType
-  >;
+  vaultAddress?: Resolver<Maybe<ResolversTypes['Bytes']>, ParentType, ContextType>;
   tokenAddress?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
-  balanceOf?: Resolver<
-    Maybe<Array<ResolversTypes['Balance']>>,
-    ParentType,
-    ContextType,
-    RequireFields<TokenbalanceOfArgs, 'skip' | 'first'>
-  >;
-  transfers?: Resolver<
-    Maybe<Array<ResolversTypes['Transfer']>>,
-    ParentType,
-    ContextType,
-    RequireFields<TokentransfersArgs, 'skip' | 'first'>
-  >;
-  oracles?: Resolver<
-    Maybe<Array<ResolversTypes['Oracle']>>,
-    ParentType,
-    ContextType,
-    RequireFields<TokenoraclesArgs, 'skip' | 'first'>
-  >;
-  activeMarkets?: Resolver<
-    Maybe<ResolversTypes['ActiveMarket']>,
-    ParentType,
-    ContextType
-  >;
+  balanceOf?: Resolver<Maybe<Array<ResolversTypes['Balance']>>, ParentType, ContextType, RequireFields<TokenbalanceOfArgs, 'skip' | 'first'>>;
+  transfers?: Resolver<Maybe<Array<ResolversTypes['Transfer']>>, ParentType, ContextType, RequireFields<TokentransfersArgs, 'skip' | 'first'>>;
+  oracles?: Resolver<Maybe<Array<ResolversTypes['Oracle']>>, ParentType, ContextType, RequireFields<TokenoraclesArgs, 'skip' | 'first'>>;
+  activeMarkets?: Resolver<Maybe<ResolversTypes['ActiveMarket']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type TradingModulePermissionResolvers<
-  ContextType = MeshContext & { chainName: string },
-  ParentType extends ResolversParentTypes['TradingModulePermission'] = ResolversParentTypes['TradingModulePermission']
-> = ResolversObject<{
+export type TradingModulePermissionResolvers<ContextType = MeshContext & { chainName: string }, ParentType extends ResolversParentTypes['TradingModulePermission'] = ResolversParentTypes['TradingModulePermission']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  lastUpdateBlockNumber?: Resolver<
-    ResolversTypes['Int'],
-    ParentType,
-    ContextType
-  >;
-  lastUpdateTimestamp?: Resolver<
-    ResolversTypes['Int'],
-    ParentType,
-    ContextType
-  >;
-  lastUpdateTransactionHash?: Resolver<
-    ResolversTypes['Bytes'],
-    ParentType,
-    ContextType
-  >;
+  lastUpdateBlockNumber?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  lastUpdateTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  lastUpdateTransactionHash?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   sender?: Resolver<ResolversTypes['Account'], ParentType, ContextType>;
   token?: Resolver<ResolversTypes['Token'], ParentType, ContextType>;
-  allowedDexes?: Resolver<
-    Array<ResolversTypes['DEX']>,
-    ParentType,
-    ContextType
-  >;
+  allowedDexes?: Resolver<Array<ResolversTypes['DEX']>, ParentType, ContextType>;
   allowSell?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  allowedTradeTypes?: Resolver<
-    Array<ResolversTypes['TradeType']>,
-    ParentType,
-    ContextType
-  >;
+  allowedTradeTypes?: Resolver<Array<ResolversTypes['TradeType']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type TransactionResolvers<
-  ContextType = MeshContext & { chainName: string },
-  ParentType extends ResolversParentTypes['Transaction'] = ResolversParentTypes['Transaction']
-> = ResolversObject<{
+export type TransactionResolvers<ContextType = MeshContext & { chainName: string }, ParentType extends ResolversParentTypes['Transaction'] = ResolversParentTypes['Transaction']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   blockNumber?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   transactionHash?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
-  _transfers?: Resolver<
-    Array<ResolversTypes['Transfer']>,
-    ParentType,
-    ContextType,
-    RequireFields<Transaction_transfersArgs, 'skip' | 'first'>
-  >;
-  _transferBundles?: Resolver<
-    Array<ResolversTypes['TransferBundle']>,
-    ParentType,
-    ContextType,
-    RequireFields<Transaction_transferBundlesArgs, 'skip' | 'first'>
-  >;
+  _transfers?: Resolver<Array<ResolversTypes['Transfer']>, ParentType, ContextType, RequireFields<Transaction_transfersArgs, 'skip' | 'first'>>;
+  _transferBundles?: Resolver<Array<ResolversTypes['TransferBundle']>, ParentType, ContextType, RequireFields<Transaction_transferBundlesArgs, 'skip' | 'first'>>;
   _nextStartIndex?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  transfers?: Resolver<
-    Maybe<Array<ResolversTypes['Transfer']>>,
-    ParentType,
-    ContextType,
-    RequireFields<TransactiontransfersArgs, 'skip' | 'first'>
-  >;
-  transferBundles?: Resolver<
-    Maybe<Array<ResolversTypes['TransferBundle']>>,
-    ParentType,
-    ContextType,
-    RequireFields<TransactiontransferBundlesArgs, 'skip' | 'first'>
-  >;
+  transfers?: Resolver<Maybe<Array<ResolversTypes['Transfer']>>, ParentType, ContextType, RequireFields<TransactiontransfersArgs, 'skip' | 'first'>>;
+  transferBundles?: Resolver<Maybe<Array<ResolversTypes['TransferBundle']>>, ParentType, ContextType, RequireFields<TransactiontransferBundlesArgs, 'skip' | 'first'>>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type TransferResolvers<
-  ContextType = MeshContext & { chainName: string },
-  ParentType extends ResolversParentTypes['Transfer'] = ResolversParentTypes['Transfer']
-> = ResolversObject<{
+export type TransferResolvers<ContextType = MeshContext & { chainName: string }, ParentType extends ResolversParentTypes['Transfer'] = ResolversParentTypes['Transfer']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   blockNumber?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  transactionHash?: Resolver<
-    ResolversTypes['Transaction'],
-    ParentType,
-    ContextType
-  >;
+  transactionHash?: Resolver<ResolversTypes['Transaction'], ParentType, ContextType>;
   logIndex?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   from?: Resolver<ResolversTypes['Account'], ParentType, ContextType>;
   to?: Resolver<ResolversTypes['Account'], ParentType, ContextType>;
-  operator?: Resolver<
-    Maybe<ResolversTypes['Account']>,
-    ParentType,
-    ContextType
-  >;
-  transferType?: Resolver<
-    ResolversTypes['TransferType'],
-    ParentType,
-    ContextType
-  >;
-  fromSystemAccount?: Resolver<
-    ResolversTypes['SystemAccount'],
-    ParentType,
-    ContextType
-  >;
-  toSystemAccount?: Resolver<
-    ResolversTypes['SystemAccount'],
-    ParentType,
-    ContextType
-  >;
+  operator?: Resolver<Maybe<ResolversTypes['Account']>, ParentType, ContextType>;
+  transferType?: Resolver<ResolversTypes['TransferType'], ParentType, ContextType>;
+  fromSystemAccount?: Resolver<ResolversTypes['SystemAccount'], ParentType, ContextType>;
+  toSystemAccount?: Resolver<ResolversTypes['SystemAccount'], ParentType, ContextType>;
   value?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  valueInUnderlying?: Resolver<
-    Maybe<ResolversTypes['BigInt']>,
-    ParentType,
-    ContextType
-  >;
+  valueInUnderlying?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   token?: Resolver<ResolversTypes['Token'], ParentType, ContextType>;
   tokenType?: Resolver<ResolversTypes['TokenType'], ParentType, ContextType>;
   underlying?: Resolver<ResolversTypes['Token'], ParentType, ContextType>;
@@ -6881,278 +5788,99 @@ export type TransferResolvers<
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type TransferBundleResolvers<
-  ContextType = MeshContext & { chainName: string },
-  ParentType extends ResolversParentTypes['TransferBundle'] = ResolversParentTypes['TransferBundle']
-> = ResolversObject<{
+export type TransferBundleResolvers<ContextType = MeshContext & { chainName: string }, ParentType extends ResolversParentTypes['TransferBundle'] = ResolversParentTypes['TransferBundle']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   blockNumber?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  transactionHash?: Resolver<
-    ResolversTypes['Transaction'],
-    ParentType,
-    ContextType
-  >;
+  transactionHash?: Resolver<ResolversTypes['Transaction'], ParentType, ContextType>;
   bundleName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   startLogIndex?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   endLogIndex?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  transfers?: Resolver<
-    Array<ResolversTypes['Transfer']>,
-    ParentType,
-    ContextType,
-    RequireFields<TransferBundletransfersArgs, 'skip' | 'first'>
-  >;
+  transfers?: Resolver<Array<ResolversTypes['Transfer']>, ParentType, ContextType, RequireFields<TransferBundletransfersArgs, 'skip' | 'first'>>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type VaultConfigurationResolvers<
-  ContextType = MeshContext & { chainName: string },
-  ParentType extends ResolversParentTypes['VaultConfiguration'] = ResolversParentTypes['VaultConfiguration']
-> = ResolversObject<{
+export type VaultConfigurationResolvers<ContextType = MeshContext & { chainName: string }, ParentType extends ResolversParentTypes['VaultConfiguration'] = ResolversParentTypes['VaultConfiguration']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  lastUpdateBlockHash?: Resolver<
-    ResolversTypes['Bytes'],
-    ParentType,
-    ContextType
-  >;
-  lastUpdateBlockNumber?: Resolver<
-    ResolversTypes['Int'],
-    ParentType,
-    ContextType
-  >;
-  lastUpdateTimestamp?: Resolver<
-    ResolversTypes['Int'],
-    ParentType,
-    ContextType
-  >;
-  lastUpdateTransactionHash?: Resolver<
-    ResolversTypes['Bytes'],
-    ParentType,
-    ContextType
-  >;
+  lastUpdateBlockHash?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
+  lastUpdateBlockNumber?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  lastUpdateTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  lastUpdateTransactionHash?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   vaultAddress?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   strategy?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  primaryBorrowCurrency?: Resolver<
-    ResolversTypes['Token'],
-    ParentType,
-    ContextType
-  >;
-  minAccountBorrowSize?: Resolver<
-    ResolversTypes['BigInt'],
-    ParentType,
-    ContextType
-  >;
-  minCollateralRatioBasisPoints?: Resolver<
-    ResolversTypes['Int'],
-    ParentType,
-    ContextType
-  >;
-  maxDeleverageCollateralRatioBasisPoints?: Resolver<
-    ResolversTypes['Int'],
-    ParentType,
-    ContextType
-  >;
+  primaryBorrowCurrency?: Resolver<ResolversTypes['Token'], ParentType, ContextType>;
+  minAccountBorrowSize?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  minCollateralRatioBasisPoints?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  maxDeleverageCollateralRatioBasisPoints?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   feeRateBasisPoints?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  reserveFeeSharePercent?: Resolver<
-    ResolversTypes['Int'],
-    ParentType,
-    ContextType
-  >;
-  liquidationRatePercent?: Resolver<
-    ResolversTypes['Int'],
-    ParentType,
-    ContextType
-  >;
-  maxBorrowMarketIndex?: Resolver<
-    ResolversTypes['Int'],
-    ParentType,
-    ContextType
-  >;
-  secondaryBorrowCurrencies?: Resolver<
-    Maybe<Array<ResolversTypes['Token']>>,
-    ParentType,
-    ContextType,
-    RequireFields<
-      VaultConfigurationsecondaryBorrowCurrenciesArgs,
-      'skip' | 'first'
-    >
-  >;
-  maxRequiredAccountCollateralRatioBasisPoints?: Resolver<
-    Maybe<ResolversTypes['Int']>,
-    ParentType,
-    ContextType
-  >;
+  reserveFeeSharePercent?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  liquidationRatePercent?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  maxBorrowMarketIndex?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  secondaryBorrowCurrencies?: Resolver<Maybe<Array<ResolversTypes['Token']>>, ParentType, ContextType, RequireFields<VaultConfigurationsecondaryBorrowCurrenciesArgs, 'skip' | 'first'>>;
+  maxRequiredAccountCollateralRatioBasisPoints?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   enabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  allowRollPosition?: Resolver<
-    ResolversTypes['Boolean'],
-    ParentType,
-    ContextType
-  >;
+  allowRollPosition?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   onlyVaultEntry?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   onlyVaultExit?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   onlyVaultRoll?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  onlyVaultDeleverage?: Resolver<
-    ResolversTypes['Boolean'],
-    ParentType,
-    ContextType
-  >;
-  onlyVaultSettle?: Resolver<
-    ResolversTypes['Boolean'],
-    ParentType,
-    ContextType
-  >;
-  discountfCash?: Resolver<
-    Maybe<ResolversTypes['Boolean']>,
-    ParentType,
-    ContextType
-  >;
-  allowsReentrancy?: Resolver<
-    ResolversTypes['Boolean'],
-    ParentType,
-    ContextType
-  >;
-  deleverageDisabled?: Resolver<
-    Maybe<ResolversTypes['Boolean']>,
-    ParentType,
-    ContextType
-  >;
-  maxPrimaryBorrowCapacity?: Resolver<
-    ResolversTypes['BigInt'],
-    ParentType,
-    ContextType
-  >;
-  totalUsedPrimaryBorrowCapacity?: Resolver<
-    ResolversTypes['BigInt'],
-    ParentType,
-    ContextType
-  >;
-  maxSecondaryBorrowCapacity?: Resolver<
-    Maybe<Array<ResolversTypes['BigInt']>>,
-    ParentType,
-    ContextType
-  >;
-  totalUsedSecondaryBorrowCapacity?: Resolver<
-    Maybe<Array<ResolversTypes['BigInt']>>,
-    ParentType,
-    ContextType
-  >;
-  minAccountSecondaryBorrow?: Resolver<
-    Maybe<Array<ResolversTypes['BigInt']>>,
-    ParentType,
-    ContextType
-  >;
+  onlyVaultDeleverage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  onlyVaultSettle?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  discountfCash?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  allowsReentrancy?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  deleverageDisabled?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  maxPrimaryBorrowCapacity?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  totalUsedPrimaryBorrowCapacity?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  maxSecondaryBorrowCapacity?: Resolver<Maybe<Array<ResolversTypes['BigInt']>>, ParentType, ContextType>;
+  totalUsedSecondaryBorrowCapacity?: Resolver<Maybe<Array<ResolversTypes['BigInt']>>, ParentType, ContextType>;
+  minAccountSecondaryBorrow?: Resolver<Maybe<Array<ResolversTypes['BigInt']>>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type WhitelistedContractResolvers<
-  ContextType = MeshContext & { chainName: string },
-  ParentType extends ResolversParentTypes['WhitelistedContract'] = ResolversParentTypes['WhitelistedContract']
-> = ResolversObject<{
+export type WhitelistedContractResolvers<ContextType = MeshContext & { chainName: string }, ParentType extends ResolversParentTypes['WhitelistedContract'] = ResolversParentTypes['WhitelistedContract']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  lastUpdateBlockNumber?: Resolver<
-    ResolversTypes['Int'],
-    ParentType,
-    ContextType
-  >;
-  lastUpdateTimestamp?: Resolver<
-    ResolversTypes['Int'],
-    ParentType,
-    ContextType
-  >;
-  lastUpdateTransactionHash?: Resolver<
-    ResolversTypes['Bytes'],
-    ParentType,
-    ContextType
-  >;
-  capability?: Resolver<
-    Array<ResolversTypes['WhitelistedCapability']>,
-    ParentType,
-    ContextType
-  >;
+  lastUpdateBlockNumber?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  lastUpdateTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  lastUpdateTransactionHash?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
+  capability?: Resolver<Array<ResolversTypes['WhitelistedCapability']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type _Block_Resolvers<
-  ContextType = MeshContext & { chainName: string },
-  ParentType extends ResolversParentTypes['_Block_'] = ResolversParentTypes['_Block_']
-> = ResolversObject<{
+export type _Block_Resolvers<ContextType = MeshContext & { chainName: string }, ParentType extends ResolversParentTypes['_Block_'] = ResolversParentTypes['_Block_']> = ResolversObject<{
   hash?: Resolver<Maybe<ResolversTypes['Bytes']>, ParentType, ContextType>;
   number?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   timestamp?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type _Meta_Resolvers<
-  ContextType = MeshContext & { chainName: string },
-  ParentType extends ResolversParentTypes['_Meta_'] = ResolversParentTypes['_Meta_']
-> = ResolversObject<{
+export type _Meta_Resolvers<ContextType = MeshContext & { chainName: string }, ParentType extends ResolversParentTypes['_Meta_'] = ResolversParentTypes['_Meta_']> = ResolversObject<{
   block?: Resolver<ResolversTypes['_Block_'], ParentType, ContextType>;
   deployment?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  hasIndexingErrors?: Resolver<
-    ResolversTypes['Boolean'],
-    ParentType,
-    ContextType
-  >;
+  hasIndexingErrors?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type fCashMarketResolvers<
-  ContextType = MeshContext & { chainName: string },
-  ParentType extends ResolversParentTypes['fCashMarket'] = ResolversParentTypes['fCashMarket']
-> = ResolversObject<{
+export type fCashMarketResolvers<ContextType = MeshContext & { chainName: string }, ParentType extends ResolversParentTypes['fCashMarket'] = ResolversParentTypes['fCashMarket']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  lastUpdateBlockNumber?: Resolver<
-    ResolversTypes['Int'],
-    ParentType,
-    ContextType
-  >;
-  lastUpdateTimestamp?: Resolver<
-    ResolversTypes['Int'],
-    ParentType,
-    ContextType
-  >;
-  lastUpdateTransaction?: Resolver<
-    Maybe<ResolversTypes['Transaction']>,
-    ParentType,
-    ContextType
-  >;
+  lastUpdateBlockNumber?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  lastUpdateTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  lastUpdateTransaction?: Resolver<Maybe<ResolversTypes['Transaction']>, ParentType, ContextType>;
   underlying?: Resolver<ResolversTypes['Token'], ParentType, ContextType>;
   fCash?: Resolver<ResolversTypes['Token'], ParentType, ContextType>;
   maturity?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   settlementDate?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   marketIndex?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  marketMaturityLengthSeconds?: Resolver<
-    ResolversTypes['Int'],
-    ParentType,
-    ContextType
-  >;
-  current?: Resolver<
-    ResolversTypes['fCashMarketSnapshot'],
-    ParentType,
-    ContextType
-  >;
-  snapshots?: Resolver<
-    Maybe<Array<ResolversTypes['fCashMarketSnapshot']>>,
-    ParentType,
-    ContextType,
-    RequireFields<fCashMarketsnapshotsArgs, 'skip' | 'first'>
-  >;
+  marketMaturityLengthSeconds?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  current?: Resolver<ResolversTypes['fCashMarketSnapshot'], ParentType, ContextType>;
+  snapshots?: Resolver<Maybe<Array<ResolversTypes['fCashMarketSnapshot']>>, ParentType, ContextType, RequireFields<fCashMarketsnapshotsArgs, 'skip' | 'first'>>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type fCashMarketSnapshotResolvers<
-  ContextType = MeshContext & { chainName: string },
-  ParentType extends ResolversParentTypes['fCashMarketSnapshot'] = ResolversParentTypes['fCashMarketSnapshot']
-> = ResolversObject<{
+export type fCashMarketSnapshotResolvers<ContextType = MeshContext & { chainName: string }, ParentType extends ResolversParentTypes['fCashMarketSnapshot'] = ResolversParentTypes['fCashMarketSnapshot']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   blockNumber?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  transaction?: Resolver<
-    Maybe<ResolversTypes['Transaction']>,
-    ParentType,
-    ContextType
-  >;
+  transaction?: Resolver<Maybe<ResolversTypes['Transaction']>, ParentType, ContextType>;
   market?: Resolver<ResolversTypes['fCashMarket'], ParentType, ContextType>;
   totalfCash?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   totalPrimeCash?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
@@ -7160,64 +5888,45 @@ export type fCashMarketSnapshotResolvers<
   lastImpliedRate?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   oracleRate?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   previousTradeTime?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  totalPrimeCashInUnderlying?: Resolver<
-    Maybe<ResolversTypes['BigInt']>,
-    ParentType,
-    ContextType
-  >;
-  totalfCashPresentValue?: Resolver<
-    Maybe<ResolversTypes['BigInt']>,
-    ParentType,
-    ContextType
-  >;
-  totalfCashDebtOutstanding?: Resolver<
-    ResolversTypes['BigInt'],
-    ParentType,
-    ContextType
-  >;
-  totalfCashDebtOutstandingPresentValue?: Resolver<
-    Maybe<ResolversTypes['BigInt']>,
-    ParentType,
-    ContextType
-  >;
+  totalPrimeCashInUnderlying?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  totalfCashPresentValue?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  totalfCashDebtOutstanding?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  totalfCashDebtOutstandingPresentValue?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
-export type Resolvers<ContextType = MeshContext & { chainName: string }> =
-  ResolversObject<{
-    Account?: AccountResolvers<ContextType>;
-    ActiveMarket?: ActiveMarketResolvers<ContextType>;
-    Balance?: BalanceResolvers<ContextType>;
-    BigDecimal?: GraphQLScalarType;
-    BigInt?: GraphQLScalarType;
-    Bytes?: GraphQLScalarType;
-    CurrencyConfiguration?: CurrencyConfigurationResolvers<ContextType>;
-    ExchangeRate?: ExchangeRateResolvers<ContextType>;
-    Incentive?: IncentiveResolvers<ContextType>;
-    Int8?: GraphQLScalarType;
-    InterestRateCurve?: InterestRateCurveResolvers<ContextType>;
-    Oracle?: OracleResolvers<ContextType>;
-    OracleRegistry?: OracleRegistryResolvers<ContextType>;
-    PrimeCashMarket?: PrimeCashMarketResolvers<ContextType>;
-    PrimeCashMarketSnapshot?: PrimeCashMarketSnapshotResolvers<ContextType>;
-    Query?: QueryResolvers<ContextType>;
-    Subscription?: SubscriptionResolvers<ContextType>;
-    Token?: TokenResolvers<ContextType>;
-    TradingModulePermission?: TradingModulePermissionResolvers<ContextType>;
-    Transaction?: TransactionResolvers<ContextType>;
-    Transfer?: TransferResolvers<ContextType>;
-    TransferBundle?: TransferBundleResolvers<ContextType>;
-    VaultConfiguration?: VaultConfigurationResolvers<ContextType>;
-    WhitelistedContract?: WhitelistedContractResolvers<ContextType>;
-    _Block_?: _Block_Resolvers<ContextType>;
-    _Meta_?: _Meta_Resolvers<ContextType>;
-    fCashMarket?: fCashMarketResolvers<ContextType>;
-    fCashMarketSnapshot?: fCashMarketSnapshotResolvers<ContextType>;
-  }>;
+export type Resolvers<ContextType = MeshContext & { chainName: string }> = ResolversObject<{
+  Account?: AccountResolvers<ContextType>;
+  ActiveMarket?: ActiveMarketResolvers<ContextType>;
+  Balance?: BalanceResolvers<ContextType>;
+  BigDecimal?: GraphQLScalarType;
+  BigInt?: GraphQLScalarType;
+  Bytes?: GraphQLScalarType;
+  CurrencyConfiguration?: CurrencyConfigurationResolvers<ContextType>;
+  ExchangeRate?: ExchangeRateResolvers<ContextType>;
+  Incentive?: IncentiveResolvers<ContextType>;
+  Int8?: GraphQLScalarType;
+  InterestRateCurve?: InterestRateCurveResolvers<ContextType>;
+  Oracle?: OracleResolvers<ContextType>;
+  OracleRegistry?: OracleRegistryResolvers<ContextType>;
+  PrimeCashMarket?: PrimeCashMarketResolvers<ContextType>;
+  PrimeCashMarketSnapshot?: PrimeCashMarketSnapshotResolvers<ContextType>;
+  Query?: QueryResolvers<ContextType>;
+  Subscription?: SubscriptionResolvers<ContextType>;
+  Token?: TokenResolvers<ContextType>;
+  TradingModulePermission?: TradingModulePermissionResolvers<ContextType>;
+  Transaction?: TransactionResolvers<ContextType>;
+  Transfer?: TransferResolvers<ContextType>;
+  TransferBundle?: TransferBundleResolvers<ContextType>;
+  VaultConfiguration?: VaultConfigurationResolvers<ContextType>;
+  WhitelistedContract?: WhitelistedContractResolvers<ContextType>;
+  _Block_?: _Block_Resolvers<ContextType>;
+  _Meta_?: _Meta_Resolvers<ContextType>;
+  fCashMarket?: fCashMarketResolvers<ContextType>;
+  fCashMarketSnapshot?: fCashMarketSnapshotResolvers<ContextType>;
+}>;
 
-export type DirectiveResolvers<
-  ContextType = MeshContext & { chainName: string }
-> = ResolversObject<{
+export type DirectiveResolvers<ContextType = MeshContext & { chainName: string }> = ResolversObject<{
   entity?: entityDirectiveResolver<any, any, ContextType>;
   subgraphId?: subgraphIdDirectiveResolver<any, any, ContextType>;
   derivedFrom?: derivedFromDirectiveResolver<any, any, ContextType>;
@@ -7225,105 +5934,87 @@ export type DirectiveResolvers<
 
 export type MeshContext = NotionalV3Types.Context & BaseMeshContext;
 
-const baseDir = pathModule.join(
-  typeof __dirname === 'string' ? __dirname : '/',
-  '..'
-);
+
+const baseDir = pathModule.join(typeof __dirname === 'string' ? __dirname : '/', '..');
 
 const importFn: ImportFn = <T>(moduleId: string) => {
-  const relativeModuleId = (
-    pathModule.isAbsolute(moduleId)
-      ? pathModule.relative(baseDir, moduleId)
-      : moduleId
-  )
-    .split('\\')
-    .join('/')
-    .replace(baseDir + '/', '');
-  switch (relativeModuleId) {
-    case '.graphclient/sources/NotionalV3/introspectionSchema':
+  const relativeModuleId = (pathModule.isAbsolute(moduleId) ? pathModule.relative(baseDir, moduleId) : moduleId).split('\\').join('/').replace(baseDir + '/', '');
+  switch(relativeModuleId) {
+    case ".graphclient/sources/NotionalV3/introspectionSchema":
       return Promise.resolve(importedModule$0) as T;
-
+    
     default:
-      return Promise.reject(
-        new Error(`Cannot find module '${relativeModuleId}'.`)
-      );
+      return Promise.reject(new Error(`Cannot find module '${relativeModuleId}'.`));
   }
 };
 
-const rootStore = new MeshStore(
-  '.graphclient',
-  new FsStoreStorageAdapter({
-    cwd: baseDir,
-    importFn,
-    fileType: 'ts',
-  }),
-  {
-    readonly: true,
-    validate: false,
-  }
-);
+const rootStore = new MeshStore('.graphclient', new FsStoreStorageAdapter({
+  cwd: baseDir,
+  importFn,
+  fileType: "ts",
+}), {
+  readonly: true,
+  validate: false
+});
 
-export const rawServeConfig: YamlConfig.Config['serve'] = undefined as any;
+export const rawServeConfig: YamlConfig.Config['serve'] = undefined as any
 export async function getMeshOptions(): Promise<GetMeshOptions> {
-  const pubsub = new PubSub();
-  const sourcesStore = rootStore.child('sources');
-  const logger = new DefaultLogger('GraphClient');
-  const cache = new (MeshCache as any)({
-    ...({} as any),
-    importFn,
-    store: rootStore.child('cache'),
-    pubsub,
-    logger,
-  } as any);
+const pubsub = new PubSub();
+const sourcesStore = rootStore.child('sources');
+const logger = new DefaultLogger("GraphClient");
+const cache = new (MeshCache as any)({
+      ...({} as any),
+      importFn,
+      store: rootStore.child('cache'),
+      pubsub,
+      logger,
+    } as any)
 
-  const sources: MeshResolvedSource[] = [];
-  const transforms: MeshTransform[] = [];
-  const additionalEnvelopPlugins: MeshPlugin<any>[] = [];
-  const notionalV3Transforms = [];
-  const additionalTypeDefs = [] as any[];
-  const notionalV3Handler = new GraphqlHandler({
-    name: 'NotionalV3',
-    config: {
-      endpoint:
-        'https://api.studio.thegraph.com/query/33671/notional-finance-v3-{context.chainName:arbitrum}/v0.0.98',
-    },
-    baseDir,
-    cache,
-    pubsub,
-    store: sourcesStore.child('NotionalV3'),
-    logger: logger.child('NotionalV3'),
-    importFn,
-  });
-  notionalV3Transforms[0] = new BlockTrackingTransform({
-    apiName: 'NotionalV3',
-    config: { validateSchema: false },
-    baseDir,
-    cache,
-    pubsub,
-    importFn,
-    logger,
-  });
-  notionalV3Transforms[1] = new AutoPaginationTransform({
-    apiName: 'NotionalV3',
-    config: { validateSchema: false },
-    baseDir,
-    cache,
-    pubsub,
-    importFn,
-    logger,
-  });
-  sources[0] = {
-    name: 'NotionalV3',
-    handler: notionalV3Handler,
-    transforms: notionalV3Transforms,
-  };
-  const additionalResolvers = [] as any[];
-  const merger = new (BareMerger as any)({
-    cache,
-    pubsub,
-    logger: logger.child('bareMerger'),
-    store: rootStore.child('bareMerger'),
-  });
+const sources: MeshResolvedSource[] = [];
+const transforms: MeshTransform[] = [];
+const additionalEnvelopPlugins: MeshPlugin<any>[] = [];
+const notionalV3Transforms = [];
+const additionalTypeDefs = [] as any[];
+const notionalV3Handler = new GraphqlHandler({
+              name: "NotionalV3",
+              config: {"endpoint":"https://api.studio.thegraph.com/query/33671/notional-finance-v3-{context.chainName:arbitrum}/v0.0.98"},
+              baseDir,
+              cache,
+              pubsub,
+              store: sourcesStore.child("NotionalV3"),
+              logger: logger.child("NotionalV3"),
+              importFn,
+            });
+notionalV3Transforms[0] = new BlockTrackingTransform({
+                  apiName: "NotionalV3",
+                  config: {"validateSchema":false},
+                  baseDir,
+                  cache,
+                  pubsub,
+                  importFn,
+                  logger,
+                });
+notionalV3Transforms[1] = new AutoPaginationTransform({
+                  apiName: "NotionalV3",
+                  config: {"validateSchema":false},
+                  baseDir,
+                  cache,
+                  pubsub,
+                  importFn,
+                  logger,
+                });
+sources[0] = {
+          name: 'NotionalV3',
+          handler: notionalV3Handler,
+          transforms: notionalV3Transforms
+        }
+const additionalResolvers = [] as any[]
+const merger = new(BareMerger as any)({
+        cache,
+        pubsub,
+        logger: logger.child('bareMerger'),
+        store: rootStore.child('bareMerger')
+      })
 
   return {
     sources,
@@ -7337,462 +6028,306 @@ export async function getMeshOptions(): Promise<GetMeshOptions> {
     additionalEnvelopPlugins,
     get documents() {
       return [
-        {
-          document: AllConfigurationDocument,
-          get rawSDL() {
-            return printWithCache(AllConfigurationDocument);
-          },
-          location: 'AllConfigurationDocument.graphql',
+      {
+        document: AllConfigurationDocument,
+        get rawSDL() {
+          return printWithCache(AllConfigurationDocument);
         },
-        {
-          document: AllOraclesDocument,
-          get rawSDL() {
-            return printWithCache(AllOraclesDocument);
-          },
-          location: 'AllOraclesDocument.graphql',
+        location: 'AllConfigurationDocument.graphql'
+      },{
+        document: AllOraclesDocument,
+        get rawSDL() {
+          return printWithCache(AllOraclesDocument);
         },
-        {
-          document: AllTokensDocument,
-          get rawSDL() {
-            return printWithCache(AllTokensDocument);
-          },
-          location: 'AllTokensDocument.graphql',
+        location: 'AllOraclesDocument.graphql'
+      },{
+        document: AllTokensDocument,
+        get rawSDL() {
+          return printWithCache(AllTokensDocument);
         },
-      ];
+        location: 'AllTokensDocument.graphql'
+      },{
+        document: AllVaultsDocument,
+        get rawSDL() {
+          return printWithCache(AllVaultsDocument);
+        },
+        location: 'AllVaultsDocument.graphql'
+      }
+    ];
     },
     fetchFn,
   };
 }
 
-export function createBuiltMeshHTTPHandler<
-  TServerContext = {}
->(): MeshHTTPHandler<TServerContext> {
+export function createBuiltMeshHTTPHandler<TServerContext = {}>(): MeshHTTPHandler<TServerContext> {
   return createMeshHTTPHandler<TServerContext>({
     baseDir,
     getBuiltMesh: getBuiltGraphClient,
     rawServeConfig: undefined,
-  });
+  })
 }
+
 
 let meshInstance$: Promise<MeshInstance> | undefined;
 
 export function getBuiltGraphClient(): Promise<MeshInstance> {
   if (meshInstance$ == null) {
-    meshInstance$ = getMeshOptions()
-      .then((meshOptions) => getMesh(meshOptions))
-      .then((mesh) => {
-        const id = mesh.pubsub.subscribe('destroy', () => {
-          meshInstance$ = undefined;
-          mesh.pubsub.unsubscribe(id);
-        });
-        return mesh;
+    meshInstance$ = getMeshOptions().then(meshOptions => getMesh(meshOptions)).then(mesh => {
+      const id = mesh.pubsub.subscribe('destroy', () => {
+        meshInstance$ = undefined;
+        mesh.pubsub.unsubscribe(id);
       });
+      return mesh;
+    });
   }
   return meshInstance$;
 }
 
-export const execute: ExecuteMeshFn = (...args) =>
-  getBuiltGraphClient().then(({ execute }) => execute(...args));
+export const execute: ExecuteMeshFn = (...args) => getBuiltGraphClient().then(({ execute }) => execute(...args));
 
-export const subscribe: SubscribeMeshFn = (...args) =>
-  getBuiltGraphClient().then(({ subscribe }) => subscribe(...args));
-export function getBuiltGraphSDK<TGlobalContext = any, TOperationContext = any>(
-  globalContext?: TGlobalContext
-) {
-  const sdkRequester$ = getBuiltGraphClient().then(({ sdkRequesterFactory }) =>
-    sdkRequesterFactory(globalContext)
-  );
-  return getSdk<TOperationContext, TGlobalContext>((...args) =>
-    sdkRequester$.then((sdkRequester) => sdkRequester(...args))
-  );
+export const subscribe: SubscribeMeshFn = (...args) => getBuiltGraphClient().then(({ subscribe }) => subscribe(...args));
+export function getBuiltGraphSDK<TGlobalContext = any, TOperationContext = any>(globalContext?: TGlobalContext) {
+  const sdkRequester$ = getBuiltGraphClient().then(({ sdkRequesterFactory }) => sdkRequesterFactory(globalContext));
+  return getSdk<TOperationContext, TGlobalContext>((...args) => sdkRequester$.then(sdkRequester => sdkRequester(...args)));
 }
-export type AllConfigurationQueryVariables = Exact<{ [key: string]: never }>;
+export type AllConfigurationQueryVariables = Exact<{ [key: string]: never; }>;
 
-export type AllConfigurationQuery = {
-  currencyConfigurations: Array<
-    Pick<
-      CurrencyConfiguration,
-      | 'id'
-      | 'maxUnderlyingSupply'
-      | 'collateralHaircut'
-      | 'debtBuffer'
-      | 'liquidationDiscount'
-      | 'primeCashRateOracleTimeWindowSeconds'
-      | 'primeCashHoldingsOracle'
-      | 'primeDebtAllowed'
-      | 'fCashRateOracleTimeWindowSeconds'
-      | 'fCashReserveFeeSharePercent'
-      | 'fCashDebtBufferBasisPoints'
-      | 'fCashHaircutBasisPoints'
-      | 'fCashMinOracleRate'
-      | 'fCashMaxOracleRate'
-      | 'fCashMaxDiscountFactor'
-      | 'fCashLiquidationHaircutBasisPoints'
-      | 'fCashLiquidationDebtBufferBasisPoints'
-      | 'treasuryReserveBuffer'
-      | 'primeCashHoldings'
-      | 'rebalancingTargets'
-      | 'rebalancingCooldown'
-      | 'depositShares'
-      | 'leverageThresholds'
-      | 'proportions'
-      | 'incentiveEmissionRate'
-      | 'secondaryIncentiveRewarder'
-      | 'residualPurchaseIncentiveBasisPoints'
-      | 'residualPurchaseTimeBufferSeconds'
-      | 'cashWithholdingBufferBasisPoints'
-      | 'pvHaircutPercentage'
-      | 'liquidationHaircutPercentage'
-    > & {
-      underlying?: Maybe<Pick<Token, 'id'>>;
-      pCash?: Maybe<Pick<Token, 'id'>>;
-      pDebt?: Maybe<Pick<Token, 'id'>>;
-      primeCashCurve?: Maybe<
-        Pick<
-          InterestRateCurve,
-          | 'kinkUtilization1'
-          | 'kinkUtilization2'
-          | 'kinkRate1'
-          | 'kinkRate2'
-          | 'maxRate'
-          | 'minFeeRate'
-          | 'maxFeeRate'
-          | 'feeRatePercent'
-        >
-      >;
-      fCashActiveCurves?: Maybe<
-        Array<
-          Pick<
-            InterestRateCurve,
-            | 'kinkUtilization1'
-            | 'kinkUtilization2'
-            | 'kinkRate1'
-            | 'kinkRate2'
-            | 'maxRate'
-            | 'minFeeRate'
-            | 'maxFeeRate'
-            | 'feeRatePercent'
-          >
-        >
-      >;
-      fCashNextCurves?: Maybe<
-        Array<
-          Pick<
-            InterestRateCurve,
-            | 'kinkUtilization1'
-            | 'kinkUtilization2'
-            | 'kinkRate1'
-            | 'kinkRate2'
-            | 'maxRate'
-            | 'minFeeRate'
-            | 'maxFeeRate'
-            | 'feeRatePercent'
-          >
-        >
-      >;
-    }
-  >;
-  vaultConfigurations: Array<
-    Pick<
-      VaultConfiguration,
-      | 'id'
-      | 'vaultAddress'
-      | 'strategy'
-      | 'name'
-      | 'minAccountBorrowSize'
-      | 'minCollateralRatioBasisPoints'
-      | 'maxDeleverageCollateralRatioBasisPoints'
-      | 'feeRateBasisPoints'
-      | 'reserveFeeSharePercent'
-      | 'liquidationRatePercent'
-      | 'maxBorrowMarketIndex'
-      | 'maxRequiredAccountCollateralRatioBasisPoints'
-      | 'enabled'
-      | 'allowRollPosition'
-      | 'onlyVaultEntry'
-      | 'onlyVaultExit'
-      | 'onlyVaultRoll'
-      | 'onlyVaultDeleverage'
-      | 'onlyVaultSettle'
-      | 'discountfCash'
-      | 'allowsReentrancy'
-      | 'deleverageDisabled'
-      | 'maxPrimaryBorrowCapacity'
-      | 'totalUsedPrimaryBorrowCapacity'
-      | 'maxSecondaryBorrowCapacity'
-      | 'totalUsedSecondaryBorrowCapacity'
-      | 'minAccountSecondaryBorrow'
-    > & {
-      primaryBorrowCurrency: Pick<Token, 'id'>;
-      secondaryBorrowCurrencies?: Maybe<Array<Pick<Token, 'id'>>>;
-    }
-  >;
-  _meta?: Maybe<{ block: Pick<_Block_, 'number'> }>;
-};
 
-export type AllOraclesQueryVariables = Exact<{ [key: string]: never }>;
+export type AllConfigurationQuery = { currencyConfigurations: Array<(
+    Pick<CurrencyConfiguration, 'id' | 'maxUnderlyingSupply' | 'collateralHaircut' | 'debtBuffer' | 'liquidationDiscount' | 'primeCashRateOracleTimeWindowSeconds' | 'primeCashHoldingsOracle' | 'primeDebtAllowed' | 'fCashRateOracleTimeWindowSeconds' | 'fCashReserveFeeSharePercent' | 'fCashDebtBufferBasisPoints' | 'fCashHaircutBasisPoints' | 'fCashMinOracleRate' | 'fCashMaxOracleRate' | 'fCashMaxDiscountFactor' | 'fCashLiquidationHaircutBasisPoints' | 'fCashLiquidationDebtBufferBasisPoints' | 'treasuryReserveBuffer' | 'primeCashHoldings' | 'rebalancingTargets' | 'rebalancingCooldown' | 'depositShares' | 'leverageThresholds' | 'proportions' | 'incentiveEmissionRate' | 'secondaryIncentiveRewarder' | 'residualPurchaseIncentiveBasisPoints' | 'residualPurchaseTimeBufferSeconds' | 'cashWithholdingBufferBasisPoints' | 'pvHaircutPercentage' | 'liquidationHaircutPercentage'>
+    & { underlying?: Maybe<Pick<Token, 'id'>>, pCash?: Maybe<Pick<Token, 'id'>>, pDebt?: Maybe<Pick<Token, 'id'>>, primeCashCurve?: Maybe<Pick<InterestRateCurve, 'kinkUtilization1' | 'kinkUtilization2' | 'kinkRate1' | 'kinkRate2' | 'maxRate' | 'minFeeRate' | 'maxFeeRate' | 'feeRatePercent'>>, fCashActiveCurves?: Maybe<Array<Pick<InterestRateCurve, 'kinkUtilization1' | 'kinkUtilization2' | 'kinkRate1' | 'kinkRate2' | 'maxRate' | 'minFeeRate' | 'maxFeeRate' | 'feeRatePercent'>>>, fCashNextCurves?: Maybe<Array<Pick<InterestRateCurve, 'kinkUtilization1' | 'kinkUtilization2' | 'kinkRate1' | 'kinkRate2' | 'maxRate' | 'minFeeRate' | 'maxFeeRate' | 'feeRatePercent'>>> }
+  )>, vaultConfigurations: Array<(
+    Pick<VaultConfiguration, 'id' | 'vaultAddress' | 'strategy' | 'name' | 'minAccountBorrowSize' | 'minCollateralRatioBasisPoints' | 'maxDeleverageCollateralRatioBasisPoints' | 'feeRateBasisPoints' | 'reserveFeeSharePercent' | 'liquidationRatePercent' | 'maxBorrowMarketIndex' | 'maxRequiredAccountCollateralRatioBasisPoints' | 'enabled' | 'allowRollPosition' | 'onlyVaultEntry' | 'onlyVaultExit' | 'onlyVaultRoll' | 'onlyVaultDeleverage' | 'onlyVaultSettle' | 'discountfCash' | 'allowsReentrancy' | 'deleverageDisabled' | 'maxPrimaryBorrowCapacity' | 'totalUsedPrimaryBorrowCapacity' | 'maxSecondaryBorrowCapacity' | 'totalUsedSecondaryBorrowCapacity' | 'minAccountSecondaryBorrow'>
+    & { primaryBorrowCurrency: Pick<Token, 'id'>, secondaryBorrowCurrencies?: Maybe<Array<Pick<Token, 'id'>>> }
+  )>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
 
-export type AllOraclesQuery = {
-  oracles: Array<
-    Pick<
-      Oracle,
-      | 'id'
-      | 'lastUpdateBlockNumber'
-      | 'lastUpdateTimestamp'
-      | 'decimals'
-      | 'oracleAddress'
-      | 'oracleType'
-      | 'mustInvert'
-      | 'latestRate'
-    > & { base: Pick<Token, 'id'>; quote: Pick<Token, 'id'> }
-  >;
-  _meta?: Maybe<{ block: Pick<_Block_, 'number'> }>;
-};
+export type AllOraclesQueryVariables = Exact<{ [key: string]: never; }>;
 
-export type AllTokensQueryVariables = Exact<{ [key: string]: never }>;
 
-export type AllTokensQuery = {
-  tokens: Array<
-    Pick<
-      Token,
-      | 'id'
-      | 'tokenType'
-      | 'tokenInterface'
-      | 'currencyId'
-      | 'name'
-      | 'symbol'
-      | 'decimals'
-      | 'totalSupply'
-      | 'hasTransferFee'
-      | 'isfCashDebt'
-      | 'maturity'
-      | 'vaultAddress'
-      | 'tokenAddress'
-    > & { underlying?: Maybe<Pick<Token, 'id'>> }
-  >;
-  _meta?: Maybe<{ block: Pick<_Block_, 'number'> }>;
-};
+export type AllOraclesQuery = { oracles: Array<(
+    Pick<Oracle, 'id' | 'lastUpdateBlockNumber' | 'lastUpdateTimestamp' | 'decimals' | 'oracleAddress' | 'oracleType' | 'mustInvert' | 'latestRate'>
+    & { base: Pick<Token, 'id'>, quote: Pick<Token, 'id'> }
+  )>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
+
+export type AllTokensQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type AllTokensQuery = { tokens: Array<(
+    Pick<Token, 'id' | 'tokenType' | 'tokenInterface' | 'currencyId' | 'name' | 'symbol' | 'decimals' | 'totalSupply' | 'hasTransferFee' | 'isfCashDebt' | 'maturity' | 'vaultAddress' | 'tokenAddress'>
+    & { underlying?: Maybe<Pick<Token, 'id'>> }
+  )>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
+
+export type AllVaultsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type AllVaultsQuery = { vaultConfigurations: Array<Pick<VaultConfiguration, 'id' | 'vaultAddress' | 'strategy' | 'name'>>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
+
 
 export const AllConfigurationDocument = gql`
-  query AllConfiguration {
-    currencyConfigurations {
+    query AllConfiguration {
+  currencyConfigurations {
+    id
+    underlying {
       id
-      underlying {
-        id
-      }
-      pCash {
-        id
-      }
-      pDebt {
-        id
-      }
-      maxUnderlyingSupply
-      collateralHaircut
-      debtBuffer
-      liquidationDiscount
-      primeCashRateOracleTimeWindowSeconds
-      primeCashHoldingsOracle
-      primeCashCurve {
-        kinkUtilization1
-        kinkUtilization2
-        kinkRate1
-        kinkRate2
-        maxRate
-        minFeeRate
-        maxFeeRate
-        feeRatePercent
-      }
-      primeDebtAllowed
-      fCashRateOracleTimeWindowSeconds
-      fCashReserveFeeSharePercent
-      fCashDebtBufferBasisPoints
-      fCashHaircutBasisPoints
-      fCashMinOracleRate
-      fCashMaxOracleRate
-      fCashMaxDiscountFactor
-      fCashLiquidationHaircutBasisPoints
-      fCashLiquidationDebtBufferBasisPoints
-      fCashActiveCurves {
-        kinkUtilization1
-        kinkUtilization2
-        kinkRate1
-        kinkRate2
-        maxRate
-        minFeeRate
-        maxFeeRate
-        feeRatePercent
-      }
-      fCashNextCurves {
-        kinkUtilization1
-        kinkUtilization2
-        kinkRate1
-        kinkRate2
-        maxRate
-        minFeeRate
-        maxFeeRate
-        feeRatePercent
-      }
-      treasuryReserveBuffer
-      primeCashHoldings
-      rebalancingTargets
-      rebalancingCooldown
-      depositShares
-      leverageThresholds
-      proportions
-      incentiveEmissionRate
-      secondaryIncentiveRewarder
-      residualPurchaseIncentiveBasisPoints
-      residualPurchaseTimeBufferSeconds
-      cashWithholdingBufferBasisPoints
-      pvHaircutPercentage
-      liquidationHaircutPercentage
     }
-    vaultConfigurations {
+    pCash {
       id
-      vaultAddress
-      strategy
-      name
-      primaryBorrowCurrency {
-        id
-      }
-      minAccountBorrowSize
-      minCollateralRatioBasisPoints
-      maxDeleverageCollateralRatioBasisPoints
-      feeRateBasisPoints
-      reserveFeeSharePercent
-      liquidationRatePercent
-      maxBorrowMarketIndex
-      secondaryBorrowCurrencies {
-        id
-      }
-      maxRequiredAccountCollateralRatioBasisPoints
-      enabled
-      allowRollPosition
-      onlyVaultEntry
-      onlyVaultExit
-      onlyVaultRoll
-      onlyVaultDeleverage
-      onlyVaultSettle
-      discountfCash
-      allowsReentrancy
-      deleverageDisabled
-      maxPrimaryBorrowCapacity
-      totalUsedPrimaryBorrowCapacity
-      maxSecondaryBorrowCapacity
-      totalUsedSecondaryBorrowCapacity
-      minAccountSecondaryBorrow
     }
-    _meta {
-      block {
-        number
-      }
+    pDebt {
+      id
+    }
+    maxUnderlyingSupply
+    collateralHaircut
+    debtBuffer
+    liquidationDiscount
+    primeCashRateOracleTimeWindowSeconds
+    primeCashHoldingsOracle
+    primeCashCurve {
+      kinkUtilization1
+      kinkUtilization2
+      kinkRate1
+      kinkRate2
+      maxRate
+      minFeeRate
+      maxFeeRate
+      feeRatePercent
+    }
+    primeDebtAllowed
+    fCashRateOracleTimeWindowSeconds
+    fCashReserveFeeSharePercent
+    fCashDebtBufferBasisPoints
+    fCashHaircutBasisPoints
+    fCashMinOracleRate
+    fCashMaxOracleRate
+    fCashMaxDiscountFactor
+    fCashLiquidationHaircutBasisPoints
+    fCashLiquidationDebtBufferBasisPoints
+    fCashActiveCurves {
+      kinkUtilization1
+      kinkUtilization2
+      kinkRate1
+      kinkRate2
+      maxRate
+      minFeeRate
+      maxFeeRate
+      feeRatePercent
+    }
+    fCashNextCurves {
+      kinkUtilization1
+      kinkUtilization2
+      kinkRate1
+      kinkRate2
+      maxRate
+      minFeeRate
+      maxFeeRate
+      feeRatePercent
+    }
+    treasuryReserveBuffer
+    primeCashHoldings
+    rebalancingTargets
+    rebalancingCooldown
+    depositShares
+    leverageThresholds
+    proportions
+    incentiveEmissionRate
+    secondaryIncentiveRewarder
+    residualPurchaseIncentiveBasisPoints
+    residualPurchaseTimeBufferSeconds
+    cashWithholdingBufferBasisPoints
+    pvHaircutPercentage
+    liquidationHaircutPercentage
+  }
+  vaultConfigurations {
+    id
+    vaultAddress
+    strategy
+    name
+    primaryBorrowCurrency {
+      id
+    }
+    minAccountBorrowSize
+    minCollateralRatioBasisPoints
+    maxDeleverageCollateralRatioBasisPoints
+    feeRateBasisPoints
+    reserveFeeSharePercent
+    liquidationRatePercent
+    maxBorrowMarketIndex
+    secondaryBorrowCurrencies {
+      id
+    }
+    maxRequiredAccountCollateralRatioBasisPoints
+    enabled
+    allowRollPosition
+    onlyVaultEntry
+    onlyVaultExit
+    onlyVaultRoll
+    onlyVaultDeleverage
+    onlyVaultSettle
+    discountfCash
+    allowsReentrancy
+    deleverageDisabled
+    maxPrimaryBorrowCapacity
+    totalUsedPrimaryBorrowCapacity
+    maxSecondaryBorrowCapacity
+    totalUsedSecondaryBorrowCapacity
+    minAccountSecondaryBorrow
+  }
+  _meta {
+    block {
+      number
     }
   }
-` as unknown as DocumentNode<
-  AllConfigurationQuery,
-  AllConfigurationQueryVariables
->;
+}
+    ` as unknown as DocumentNode<AllConfigurationQuery, AllConfigurationQueryVariables>;
 export const AllOraclesDocument = gql`
-  query AllOracles {
-    oracles(
-      where: {
-        oracleType_not_in: [
-          PrimeCashToUnderlyingOracleInterestRate
-          PrimeCashToMoneyMarketExchangeRate
-          PrimeDebtToMoneyMarketExchangeRate
-          MoneyMarketToUnderlyingExchangeRate
-          MoneyMarketToUnderlyingOracleInterestRate
-          fCashSpotRate
-        ]
-      }
-    ) {
+    query AllOracles {
+  oracles(
+    where: {oracleType_not_in: [PrimeCashToUnderlyingOracleInterestRate, PrimeCashToMoneyMarketExchangeRate, PrimeDebtToMoneyMarketExchangeRate, MoneyMarketToUnderlyingExchangeRate, MoneyMarketToUnderlyingOracleInterestRate, fCashSpotRate]}
+  ) {
+    id
+    lastUpdateBlockNumber
+    lastUpdateTimestamp
+    base {
       id
-      lastUpdateBlockNumber
-      lastUpdateTimestamp
-      base {
-        id
-      }
-      quote {
-        id
-      }
-      decimals
-      oracleAddress
-      oracleType
-      mustInvert
-      latestRate
     }
-    _meta {
-      block {
-        number
-      }
+    quote {
+      id
+    }
+    decimals
+    oracleAddress
+    oracleType
+    mustInvert
+    latestRate
+  }
+  _meta {
+    block {
+      number
     }
   }
-` as unknown as DocumentNode<AllOraclesQuery, AllOraclesQueryVariables>;
+}
+    ` as unknown as DocumentNode<AllOraclesQuery, AllOraclesQueryVariables>;
 export const AllTokensDocument = gql`
-  query AllTokens {
-    tokens {
+    query AllTokens {
+  tokens {
+    id
+    tokenType
+    tokenInterface
+    underlying {
       id
-      tokenType
-      tokenInterface
-      underlying {
-        id
-      }
-      currencyId
-      name
-      symbol
-      decimals
-      totalSupply
-      hasTransferFee
-      isfCashDebt
-      maturity
-      vaultAddress
-      tokenAddress
     }
-    _meta {
-      block {
-        number
-      }
+    currencyId
+    name
+    symbol
+    decimals
+    totalSupply
+    hasTransferFee
+    isfCashDebt
+    maturity
+    vaultAddress
+    tokenAddress
+  }
+  _meta {
+    block {
+      number
     }
   }
-` as unknown as DocumentNode<AllTokensQuery, AllTokensQueryVariables>;
+}
+    ` as unknown as DocumentNode<AllTokensQuery, AllTokensQueryVariables>;
+export const AllVaultsDocument = gql`
+    query AllVaults {
+  vaultConfigurations(where: {enabled: true}) {
+    id
+    vaultAddress
+    strategy
+    name
+  }
+  _meta {
+    block {
+      number
+    }
+  }
+}
+    ` as unknown as DocumentNode<AllVaultsQuery, AllVaultsQueryVariables>;
 
-export type Requester<C = {}, E = unknown> = <R, V>(
-  doc: DocumentNode,
-  vars?: V,
-  options?: C
-) => Promise<R> | AsyncIterable<R>;
+
+
+
+
+export type Requester<C = {}, E = unknown> = <R, V>(doc: DocumentNode, vars?: V, options?: C) => Promise<R> | AsyncIterable<R>
 export function getSdk<C, E>(requester: Requester<C, E>) {
   return {
-    AllConfiguration(
-      variables?: AllConfigurationQueryVariables,
-      options?: C
-    ): Promise<AllConfigurationQuery> {
-      return requester<AllConfigurationQuery, AllConfigurationQueryVariables>(
-        AllConfigurationDocument,
-        variables,
-        options
-      ) as Promise<AllConfigurationQuery>;
+    AllConfiguration(variables?: AllConfigurationQueryVariables, options?: C): Promise<AllConfigurationQuery> {
+      return requester<AllConfigurationQuery, AllConfigurationQueryVariables>(AllConfigurationDocument, variables, options) as Promise<AllConfigurationQuery>;
     },
-    AllOracles(
-      variables?: AllOraclesQueryVariables,
-      options?: C
-    ): Promise<AllOraclesQuery> {
-      return requester<AllOraclesQuery, AllOraclesQueryVariables>(
-        AllOraclesDocument,
-        variables,
-        options
-      ) as Promise<AllOraclesQuery>;
+    AllOracles(variables?: AllOraclesQueryVariables, options?: C): Promise<AllOraclesQuery> {
+      return requester<AllOraclesQuery, AllOraclesQueryVariables>(AllOraclesDocument, variables, options) as Promise<AllOraclesQuery>;
     },
-    AllTokens(
-      variables?: AllTokensQueryVariables,
-      options?: C
-    ): Promise<AllTokensQuery> {
-      return requester<AllTokensQuery, AllTokensQueryVariables>(
-        AllTokensDocument,
-        variables,
-        options
-      ) as Promise<AllTokensQuery>;
+    AllTokens(variables?: AllTokensQueryVariables, options?: C): Promise<AllTokensQuery> {
+      return requester<AllTokensQuery, AllTokensQueryVariables>(AllTokensDocument, variables, options) as Promise<AllTokensQuery>;
     },
+    AllVaults(variables?: AllVaultsQueryVariables, options?: C): Promise<AllVaultsQuery> {
+      return requester<AllVaultsQuery, AllVaultsQueryVariables>(AllVaultsDocument, variables, options) as Promise<AllVaultsQuery>;
+    }
   };
 }
 export type Sdk = ReturnType<typeof getSdk>;

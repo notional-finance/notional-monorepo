@@ -7,8 +7,8 @@ import {
 } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
 import {
-  createBaseTradeContext,
-  useBaseTradeContext,
+  createTradeContext,
+  useTradeContext,
 } from '@notional-finance/notionable-hooks';
 import { LendFixedSidebar, HowItWorksFaq } from './components';
 import {
@@ -19,10 +19,10 @@ import {
 import { useLendFixedChart, useLendFixedFaq } from './hooks';
 import { NOTIONAL_CATEGORIES } from '@notional-finance/shared-config';
 
-export const LendFixedContext = createBaseTradeContext('LendFixed');
+export const LendFixedContext = createTradeContext('LendFixed');
 
 export const LendFixed = () => {
-  const context = useBaseTradeContext('LendFixed');
+  const context = useTradeContext('LendFixed');
   const { faqHeaderLinks, faqs } = useLendFixedFaq();
   const {
     state: { isReady, confirm, selectedDepositToken },

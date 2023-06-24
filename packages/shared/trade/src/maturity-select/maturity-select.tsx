@@ -1,10 +1,10 @@
 import { Maturities } from '@notional-finance/mui';
-import { BaseTradeContext } from '@notional-finance/notionable-hooks';
+import { TradeContext } from '@notional-finance/notionable-hooks';
 import { MessageDescriptor } from 'react-intl';
 import { useMaturitySelect } from './use-maturity-select';
 
 interface MaturitySelectProps {
-  context: BaseTradeContext;
+  context: TradeContext;
   category: 'Collateral' | 'Debt';
   inputLabel?: MessageDescriptor;
 }

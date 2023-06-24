@@ -6,19 +6,19 @@ import {
 } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
 import {
-  createBaseTradeContext,
-  useBaseTradeContext,
+  createTradeContext,
+  useTradeContext,
 } from '@notional-finance/notionable-hooks';
 import { LendVariableSidebar } from './components';
 import { TradeActionSummary } from '@notional-finance/trade';
 import { NOTIONAL_CATEGORIES } from '@notional-finance/shared-config';
 import { useLendVaraibleFaq } from './hooks/use-lend-variable-faq';
 
-export const LendVariableContext = createBaseTradeContext('LendVariable');
+export const LendVariableContext = createTradeContext('LendVariable');
 
 export const LendVariable = () => {
   const { faqs, faqHeaderLinks } = useLendVaraibleFaq();
-  const context = useBaseTradeContext('LendVariable');
+  const context = useTradeContext('LendVariable');
   const {
     state: { isReady, confirm, selectedDepositToken },
   } = context;
