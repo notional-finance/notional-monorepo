@@ -8,7 +8,7 @@ import { switchMap, tap } from 'rxjs';
 import { createObservableContext } from '../observable-context/ObservableContext';
 import { useObservableReducer } from '../observable-context/use-observable-reducer';
 
-const DEBUG = true; // process.env['NODE_ENV'] === 'development';
+const DEBUG = process.env['NODE_ENV'] === 'development';
 
 export const NotionalContext = createObservableContext<GlobalState>(
   'notional-global-context',

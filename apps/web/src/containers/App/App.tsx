@@ -18,13 +18,19 @@ import { OnboardContext } from '@notional-finance/wallet';
 // Feature shell views
 import { AboutUsView } from '@notional-finance/about-us-feature-shell';
 import { StakeView } from '@notional-finance/stake-feature-shell';
-import LendCardView from '@notional-finance/lend-feature-shell/lend-fixed/lend-card-view';
-import LendVariableCardView from '@notional-finance/lend-feature-shell/lend-variable/lend-variable-card-view';
-import { LendFixed, LendVariable } from '@notional-finance/lend-feature-shell';
+import {
+  LendFixed,
+  LendVariable,
+  LendCardView,
+  LendVariableCardView,
+} from '@notional-finance/lend-feature-shell';
 import { PortfolioFeatureShell } from '@notional-finance/portfolio-feature-shell';
 import BorrowCardView from '@notional-finance/borrow-feature-shell/borrow-card-view';
 import { BorrowFeatureShell } from '@notional-finance/borrow-feature-shell';
-import { LiquidityCurrencyView } from '@notional-finance/liquidity-feature-shell';
+import {
+  LiquidityCurrencyView,
+  ProvideLiquidityCards,
+} from '@notional-finance/liquidity-feature-shell';
 import { TreasuryView } from '@notional-finance/treasury-feature-shell';
 import {
   VaultActionProvider,
@@ -34,7 +40,6 @@ import { AirdropView } from '../../containers/AirdropView';
 import { TermsView } from '../../containers/TermsView';
 import { PrivacyView } from '../../containers/PrivacyView';
 import { LandingPageView } from '../../containers/LandingPageView';
-import { ProvideLiquidityCards } from '@notional-finance/liquidity-feature-shell';
 import { getDefaultNetworkFromHostname } from '@notional-finance/util';
 import { useConnect } from '@notional-finance/wallet/hooks/use-connect';
 
