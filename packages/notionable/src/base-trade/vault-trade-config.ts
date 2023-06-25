@@ -187,3 +187,5 @@ export const VaultTradeConfiguration: Record<string, TransactionConfig> = {
     transactionBuilder: ExitVault,
   },
 };
+
+export type VaultTradeType = keyof typeof VaultTradeConfiguration;

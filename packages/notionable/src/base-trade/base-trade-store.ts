@@ -17,7 +17,9 @@ import {
 } from '@notional-finance/transaction';
 import { PopulatedTransaction } from 'ethers';
 export { TradeConfiguration } from './trade-config';
+export { VaultTradeConfiguration } from './vault-trade-config';
 export type { TradeType } from './trade-config';
+export type { VaultTradeType } from './vault-trade-config';
 
 export type FilterFunc = (
   t: TokenDefinition,
