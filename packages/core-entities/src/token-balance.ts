@@ -3,6 +3,7 @@ import {
   AssetType,
   convertToGenericfCashId,
   encodeERC1155Id,
+  INTERNAL_TOKEN_DECIMALS,
   Network,
   PRIME_CASH_VAULT_MATURITY,
   RATE_PRECISION,
@@ -100,6 +101,10 @@ export class TokenBalance {
     const m = this.token.maturity;
     if (!m) throw Error('Invalid maturity');
     return m;
+  }
+
+  get symbol() {
+    return this.token.symbol;
   }
 
   get tokenType() {
@@ -212,6 +217,10 @@ export class TokenBalance {
   /** Scales to a given number of decimal places */
   scaleTo(decimalPlaces: number) {
     return this.scale(BigNumber.from(10).pow(decimalPlaces), this.precision).n;
+  }
+
+  scaleFromInternal() {
+    return this.scale(this.precision, INTERNAL_TOKEN_DECIMALS);
   }
 
   /** Comparison Methods */

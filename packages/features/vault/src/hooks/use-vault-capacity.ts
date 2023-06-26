@@ -1,9 +1,21 @@
 import { useContext } from 'react';
 import { VaultActionContext } from '../vault-view/vault-action-provider';
+import { Registry } from '@notional-finance/core-entities';
+import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 
 export const useVaultCapacity = () => {
-  const { state } = useContext(VaultActionContext);
-  const { vaultConfig, fCashBorrowAmount, netCapacityChange } = state;
+  const {
+    state: { debtBalance, vaultAddress },
+  } = useContext(VaultActionContext);
+  const network = useSelectedNetwork();
+
+  const vaultCapacity =
+    network && vaultAddress
+      ? Registry.getConfigurationRegistry().getVaultCapacity(
+          network,
+          vaultAddress
+        )
+      : undefined;
 
   let maxVaultCapacity = '';
   let totalCapacityRemaining = '';
@@ -11,21 +23,20 @@ export const useVaultCapacity = () => {
   let capacityWithUserBorrowPercentage: number | undefined = undefined;
   let overCapacityError = false;
   let underMinAccountBorrow = false;
-  const fCashToBorrow = fCashBorrowAmount?.neg();
 
-  if (vaultConfig) {
+  if (vaultCapacity) {
     const {
       minAccountBorrowSize,
       totalUsedPrimaryBorrowCapacity,
       maxPrimaryBorrowCapacity,
-    } = vaultConfig;
+    } = vaultCapacity;
 
-    underMinAccountBorrow = fCashToBorrow
-      ? fCashToBorrow.lt(minAccountBorrowSize)
+    underMinAccountBorrow = debtBalance?.isNegative()
+      ? debtBalance.abs().toUnderlying().lt(minAccountBorrowSize)
       : false;
-    overCapacityError = netCapacityChange
+    overCapacityError = debtBalance
       ? totalUsedPrimaryBorrowCapacity
-          .add(netCapacityChange)
+          .add(debtBalance.toUnderlying())
           .gt(maxPrimaryBorrowCapacity)
       : false;
     maxVaultCapacity = maxPrimaryBorrowCapacity.toDisplayStringWithSymbol(0);
@@ -37,9 +48,9 @@ export const useVaultCapacity = () => {
     capacityUsedPercentage = totalUsedPrimaryBorrowCapacity
       .scale(100, maxPrimaryBorrowCapacity)
       .toNumber();
-    capacityWithUserBorrowPercentage = netCapacityChange
+    capacityWithUserBorrowPercentage = debtBalance
       ? totalUsedPrimaryBorrowCapacity
-          .add(netCapacityChange)
+          .add(debtBalance.toUnderlying())
           .scale(100, maxPrimaryBorrowCapacity)
           .toNumber()
       : undefined;

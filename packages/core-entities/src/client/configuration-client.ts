@@ -107,6 +107,33 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
     return cashBorrowed.scale(feeRate, RATE_PRECISION);
   }
 
+  getVaultCapacity(network: Network, vaultAddress: string) {
+    const {
+      minAccountBorrowSize,
+      totalUsedPrimaryBorrowCapacity,
+      maxPrimaryBorrowCapacity,
+      primaryBorrowCurrency: { id },
+    } = this.getVaultConfig(network, vaultAddress);
+
+    return {
+      minAccountBorrowSize: TokenBalance.fromID(
+        minAccountBorrowSize,
+        id,
+        network
+      ).scaleFromInternal(),
+      totalUsedPrimaryBorrowCapacity: TokenBalance.fromID(
+        totalUsedPrimaryBorrowCapacity,
+        id,
+        network
+      ).scaleFromInternal(),
+      maxPrimaryBorrowCapacity: TokenBalance.fromID(
+        maxPrimaryBorrowCapacity,
+        id,
+        network
+      ).scaleFromInternal(),
+    };
+  }
+
   getValidVaultCurrencies(network: Network, vaultAddress: string) {
     const vaultConfig = this.getVaultConfig(network, vaultAddress);
     const tokens = Registry.getTokenRegistry();
