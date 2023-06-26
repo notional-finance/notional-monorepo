@@ -9,6 +9,7 @@ import {
 import { VaultAccount } from '@notional-finance/sdk/src/vaults';
 import { FormattedMessage } from 'react-intl';
 import { useVaultDetailsTable } from '../hooks/use-vault-details-table';
+import { formatMaturity } from '@notional-finance/helpers';
 
 interface VaultDetailsTableProps {
   vaultAddress: string;
@@ -50,12 +51,9 @@ const TABLE_COLUMNS: DataTableColumn[] = [
 ];
 
 export const VaultDetailsTable = ({
-  vaultAddress,
-  maturity,
-  updatedVaultAccount,
   hideUpdatedColumn,
 }: VaultDetailsTableProps) => {
-  const { tableData } = useVaultDetailsTable(vaultAddress, updatedVaultAccount);
+  const { tableData, maturity } = useVaultDetailsTable();
 
   return (
     <Box>
@@ -72,7 +70,8 @@ export const VaultDetailsTable = ({
             </div>
             {maturity && (
               <div>
-                <FormattedMessage defaultMessage="Maturity:" /> {maturity}
+                <FormattedMessage defaultMessage="Maturity:" />{' '}
+                {formatMaturity(maturity)}
               </div>
             )}
           </Box>

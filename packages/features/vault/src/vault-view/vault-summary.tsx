@@ -22,22 +22,19 @@ import { VaultActionContext } from './vault-action-provider';
 import { useReturnDrivers } from '../hooks/use-return-drivers';
 import { useVaultCapacity } from '../hooks/use-vault-capacity';
 import { usePerformanceChart } from '../hooks/use-performance-chart';
-import { VaultParams } from './vault-view';
-import { useParams } from 'react-router';
 import { messages } from '../messages';
 
 export const VaultSummary = () => {
   const theme = useTheme();
   const { state } = useContext(VaultActionContext);
-  const { vaultAddress, vaultConfig, primaryBorrowSymbol } = state;
-  const { sideDrawerKey } = useParams<VaultParams>();
+  const { vaultAddress, vaultConfig, deposit } = state;
   const vaultName = vaultConfig?.name;
 
   const { returnDrivers, headlineApy, vaultAPYTitle } = useHistoricalReturns();
+  const tableColumns = useReturnDrivers();
   const { areaChartData, areaChartLegendData, chartToolTipData } =
     usePerformanceChart();
 
-  const tableColumns = useReturnDrivers();
   const {
     overCapacityError,
     totalCapacityRemaining,
@@ -46,8 +43,7 @@ export const VaultSummary = () => {
     capacityWithUserBorrowPercentage,
   } = useVaultCapacity();
 
-  if (!vaultName || !primaryBorrowSymbol || !vaultAddress)
-    return <PageLoading />;
+  if (!vaultName || !vaultAddress) return <PageLoading />;
 
   const userCapacityMark = capacityWithUserBorrowPercentage
     ? [
@@ -63,22 +59,20 @@ export const VaultSummary = () => {
 
   return (
     <Box>
-      {sideDrawerKey && (
-        <Box
-          sx={{
-            zIndex: 10,
-            position: 'fixed',
-            maxWidth: '100vw',
-            display: {
-              xs: 'block',
-              sm: 'block',
-              md: 'none',
-            },
-          }}
-        >
-          <MobileVaultSummary />
-        </Box>
-      )}
+      <Box
+        sx={{
+          zIndex: 10,
+          position: 'fixed',
+          maxWidth: '100vw',
+          display: {
+            xs: 'block',
+            sm: 'block',
+            md: 'none',
+          },
+        }}
+      >
+        <MobileVaultSummary />
+      </Box>
       <Box
         sx={{
           display: {
@@ -99,7 +93,7 @@ export const VaultSummary = () => {
           <TradeSummaryContainer>
             <Box id={VAULT_SUB_NAV_ACTIONS.OVERVIEW}>
               <TradeActionHeader
-                token={primaryBorrowSymbol}
+                token={deposit?.symbol || ''}
                 actionText={vaultName}
                 hideTokenName
               />

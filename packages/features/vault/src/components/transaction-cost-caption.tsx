@@ -1,11 +1,11 @@
 import { Box, useTheme } from '@mui/material';
+import { TokenBalance } from '@notional-finance/core-entities';
 import { CountUp, InfoTooltip } from '@notional-finance/mui';
-import { TypedBigNumber } from '@notional-finance/sdk';
 import { FormattedMessage, MessageDescriptor } from 'react-intl';
 
 interface TransactionCostCaptionProps {
   toolTipText: MessageDescriptor;
-  transactionCosts?: TypedBigNumber;
+  transactionCosts?: TokenBalance;
 }
 
 export const TransactionCostCaption = ({
