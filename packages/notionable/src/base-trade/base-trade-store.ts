@@ -143,7 +143,8 @@ export interface BaseTradeState
     InitState,
     UserInputs,
     TokenInputs,
-    TransactionState {}
+    TransactionState,
+    VaultState {}
 
 export interface TradeState extends BaseTradeState {
   /** Account risk factors prior to any changes to the account */
@@ -152,7 +153,7 @@ export interface TradeState extends BaseTradeState {
   postAccountRisk?: ReturnType<AccountRiskProfile['getAllRiskFactors']>;
 }
 
-export interface VaultTradeState extends BaseTradeState, VaultState {
+export interface VaultTradeState extends BaseTradeState {
   /** Account risk factors prior to any changes to the account */
   priorAccountRisk?: ReturnType<VaultAccountRiskProfile['getAllRiskFactors']>;
   /** Account risk factors after changes applied to the account */

@@ -75,6 +75,7 @@ describe.withForkAndRegistry(
         const { result, waitForNextUpdate } = await renderTradeContext(
           'MintNToken'
         );
+
         act(() => {
           result.current.updateState({ selectedDepositToken: 'USDC' });
         });

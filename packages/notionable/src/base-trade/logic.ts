@@ -71,16 +71,64 @@ export function resetOnNetworkChange(
   );
 }
 
-export function resetOnTradeTypeChange(state$: Observable<BaseTradeState>) {
+export function resetOnTradeTypeChange(
+  state$: Observable<BaseTradeState>,
+  isVault = false
+) {
   return state$.pipe(
     filterEmpty(),
     pairwise(),
     map(([prev, cur]) => {
       if (prev.tradeType !== undefined && prev.tradeType !== cur.tradeType) {
-        return { reset: true, tradeType: cur.tradeType };
+        return {
+          reset: true,
+          tradeType: cur.tradeType,
+          vaultAddress: cur.vaultAddress,
+        };
+      } else if (
+        isVault &&
+        prev.vaultAddress !== undefined &&
+        prev.vaultAddress !== cur.vaultAddress
+      ) {
+        return {
+          reset: true,
+          vaultAddress: cur.vaultAddress,
+          tradeType: cur.tradeType,
+        };
       } else {
         return undefined;
       }
+    }),
+    filterEmpty()
+  );
+}
+
+export function initVaultState(
+  state$: Observable<VaultTradeState>,
+  selectedNetwork$: ReturnType<typeof selectedNetwork>
+) {
+  return combineLatest([state$, selectedNetwork$]).pipe(
+    filter(
+      ([{ isReady, tradeType, vaultAddress }, selectedNetwork]) =>
+        !isReady && !!selectedNetwork && !!tradeType && !!vaultAddress
+    ),
+    switchMap(([{ vaultAddress }, selectedNetwork]) => {
+      return new Promise((resolve) => {
+        if (!vaultAddress) resolve(undefined);
+        else {
+          Registry.getConfigurationRegistry().onNetworkRegistered(
+            selectedNetwork,
+            () => {
+              const vaultConfig =
+                Registry.getConfigurationRegistry().getVaultConfig(
+                  selectedNetwork,
+                  vaultAddress
+                );
+              resolve({ isReady: true, vaultConfig });
+            }
+          );
+        }
+      });
     }),
     filterEmpty()
   );
@@ -91,7 +139,10 @@ export function initState(
   selectedNetwork$: ReturnType<typeof selectedNetwork>
 ) {
   return combineLatest([state$, selectedNetwork$]).pipe(
-    filter(([{ isReady }, selectedNetwork]) => !isReady && !!selectedNetwork),
+    filter(
+      ([{ isReady, tradeType }, selectedNetwork]) =>
+        !isReady && !!selectedNetwork && !!tradeType
+    ),
     map(() => ({ isReady: true }))
   );
 }
@@ -117,6 +168,8 @@ export function availableTokens(
               (t) =>
                 t.tokenType === 'PrimeCash' ||
                 t.tokenType === 'nToken' ||
+                (t.tokenType === 'VaultShare' &&
+                  (t.maturity || 0) > getNowSeconds()) ||
                 (t.tokenType === 'fCash' &&
                   t.isFCashDebt === false &&
                   (t.maturity || 0) > getNowSeconds())
@@ -129,6 +182,8 @@ export function availableTokens(
             .filter(
               (t) =>
                 t.tokenType === 'PrimeDebt' ||
+                (t.tokenType === 'VaultDebt' &&
+                  (t.maturity || 0) > getNowSeconds()) ||
                 (t.tokenType === 'fCash' &&
                   t.isFCashDebt === true &&
                   (t.maturity || 0) > getNowSeconds())
@@ -591,15 +646,16 @@ export function priorVaultAccountRisk(
   account$: Observable<AccountDefinition | null>
 ) {
   return combineLatest([state$, account$]).pipe(
-    map(([{ vaultAddress }, account]) => ({
-      priorAccountRisk:
-        vaultAddress && account
-          ? VaultAccountRiskProfile.from(
+    map(([{ vaultAddress }, account]) => {
+      return vaultAddress && account
+        ? {
+            priorAccountRisk: VaultAccountRiskProfile.from(
               vaultAddress,
               account.balances
-            ).getAllRiskFactors()
-          : undefined,
-    })),
+            ).getAllRiskFactors(),
+          }
+        : undefined;
+    }),
     filterEmpty()
   );
 }

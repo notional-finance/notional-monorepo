@@ -3,7 +3,7 @@ import { GlobalState } from '../global/global-state';
 import { VaultTradeState } from './base-trade-store';
 import {
   resetOnNetworkChange,
-  initState,
+  initVaultState,
   priorVaultAccountRisk,
   calculate,
   postVaultAccountRisk,
@@ -39,8 +39,8 @@ export function createVaultTradeManager(
     selectedToken('Debt', state$, network$),
     priorVaultAccountRisk(state$, account$),
     availableTokens(state$, network$, account$),
-    initState(state$, network$),
+    initVaultState(state$, network$),
     resetOnNetworkChange(global$, state$),
-    resetOnTradeTypeChange(state$)
+    resetOnTradeTypeChange(state$, true)
   );
 }
