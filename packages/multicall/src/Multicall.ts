@@ -49,7 +49,13 @@ ${e}`);
     ));
   } catch (e) {
     throw new Error(`
-Error executing Multicall: ${aggregateCall}
+Error executing Multicall: ${aggregateCall.map((c) =>
+      JSON.stringify({
+        address: c.contract?.address,
+        method: c.method,
+        args: c.args,
+      })
+    )}
 ${e}`);
   }
 
