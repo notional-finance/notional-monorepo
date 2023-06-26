@@ -1,16 +1,8 @@
 import { of, merge, Observable } from 'rxjs';
 import { GlobalState } from '../global/global-state';
-import {
-  TradeState,
-  initialBaseTradeState,
-  TransactionConfig,
-} from './base-trade-store';
+import { TradeState, initialBaseTradeState } from './base-trade-store';
 import {
   resetOnNetworkChange,
-  selectedAccount,
-  selectedPool,
-  selectedNetwork,
-  selectedToken,
   initState,
   priorAccountRisk,
   parseBalance,
@@ -20,42 +12,41 @@ import {
   availableTokens,
   buildTransaction,
 } from './logic';
+import {
+  selectedAccount,
+  selectedNetwork,
+  selectedPool,
+  selectedToken,
+} from './selectors';
 
 export function createTradeManager(
-  config: TransactionConfig
-): (
   state$: Observable<TradeState>,
   global$: Observable<GlobalState>
-) => Observable<Partial<TradeState>> {
-  return (
-    state$: Observable<TradeState>,
-    global$: Observable<GlobalState>
-  ): Observable<Partial<TradeState>> => {
-    // Shared Observables
-    const network$ = selectedNetwork(global$);
-    const account$ = selectedAccount(global$);
-    const debtPool$ = selectedPool('Debt', state$, network$);
-    const collateralPool$ = selectedPool('Collateral', state$, network$);
+): Observable<Partial<TradeState>> {
+  // Shared Observables
+  const network$ = selectedNetwork(global$);
+  const account$ = selectedAccount(global$);
+  const debtPool$ = selectedPool('Debt', state$, network$);
+  const collateralPool$ = selectedPool('Collateral', state$, network$);
 
-    // Emitted State Changes, these need to be ordered in REVERSE dependency
-    // order. The first method to emit should be listed last so that dependent
-    // observables can create their subscription prior to the upstream observable
-    // emits.
-    return merge(
-      buildTransaction(state$, account$, config),
-      postAccountRisk(state$, account$),
-      calculate(state$, debtPool$, collateralPool$, of(undefined), account$, config),
-      parseRiskFactorLimit(state$, network$),
-      selectedToken('Deposit', state$, network$),
-      parseBalance('Deposit', state$),
-      selectedToken('Collateral', state$, network$),
-      parseBalance('Collateral', state$),
-      selectedToken('Debt', state$, network$),
-      parseBalance('Debt', state$),
-      priorAccountRisk(account$),
-      availableTokens(state$, network$, account$, config),
-      initState(state$, network$),
-      resetOnNetworkChange(global$, initialBaseTradeState)
-    );
-  };
+  // Emitted State Changes, these need to be ordered in REVERSE dependency
+  // order. The first method to emit should be listed last so that dependent
+  // observables can create their subscription prior to the upstream observable
+  // emits.
+  return merge(
+    buildTransaction(state$, account$),
+    postAccountRisk(state$, account$),
+    calculate(state$, debtPool$, collateralPool$, of(undefined), account$),
+    parseRiskFactorLimit(state$, network$),
+    selectedToken('Deposit', state$, network$),
+    parseBalance('Deposit', state$),
+    selectedToken('Collateral', state$, network$),
+    parseBalance('Collateral', state$),
+    selectedToken('Debt', state$, network$),
+    parseBalance('Debt', state$),
+    priorAccountRisk(account$),
+    availableTokens(state$, network$, account$),
+    initState(state$, network$),
+    resetOnNetworkChange(global$, initialBaseTradeState)
+  );
 }

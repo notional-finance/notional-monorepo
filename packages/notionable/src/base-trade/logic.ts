@@ -1,7 +1,6 @@
 import {
   AccountDefinition,
   BaseLiquidityPool,
-  fCashMarket,
   Registry,
   TokenBalance,
   TokenDefinition,
@@ -14,7 +13,7 @@ import {
   VaultAccountRiskProfile,
 } from '@notional-finance/risk-engine';
 import { CalculationFnParams } from '@notional-finance/transaction';
-import { filterEmpty, getNowSeconds, unique } from '@notional-finance/util';
+import { filterEmpty, getNowSeconds } from '@notional-finance/util';
 import {
   catchError,
   combineLatest,
@@ -26,20 +25,30 @@ import {
   Observable,
   of,
   pairwise,
-  startWith,
   switchMap,
-  withLatestFrom,
 } from 'rxjs';
 import { GlobalState } from '../global/global-state';
 import { isHashable } from '../utils';
 import {
   BaseTradeState,
   InputAmount,
-  TransactionConfig,
+  TradeConfiguration,
+  TradeType,
+  VaultTradeConfiguration,
   VaultTradeState,
+  VaultTradeType,
 } from './base-trade-store';
+import { selectedNetwork, selectedAccount, Category } from './selectors';
 
-type Category = 'Collateral' | 'Debt' | 'Deposit';
+function getTradeConfig(tradeType?: TradeType | VaultTradeType) {
+  if (!tradeType) throw Error('Trade type undefined');
+
+  const config =
+    TradeConfiguration[tradeType] || VaultTradeConfiguration[tradeType];
+
+  if (!config) throw Error('Trade configuration not found');
+  return config;
+}
 
 export function resetOnNetworkChange<T>(
   global$: Observable<GlobalState>,
@@ -59,38 +68,6 @@ export function resetOnNetworkChange<T>(
   );
 }
 
-export function selectedNetwork(global$: Observable<GlobalState>) {
-  return global$.pipe(
-    map((g) =>
-      g.isNetworkReady && g.selectedNetwork ? g.selectedNetwork : undefined
-    ),
-    filterEmpty()
-  );
-}
-
-export function selectedAccount(global$: Observable<GlobalState>) {
-  return combineLatest([global$, selectedNetwork(global$)]).pipe(
-    map(([g, selectedNetwork]) =>
-      g.isAccountReady && g.selectedAccount
-        ? { selectedNetwork, selectedAccount: g.selectedAccount }
-        : undefined
-    ),
-    filterEmpty(),
-    distinctUntilChanged(
-      (prev, cur) =>
-        prev.selectedNetwork === cur.selectedNetwork &&
-        prev.selectedAccount === cur.selectedAccount
-    ),
-    switchMap(({ selectedNetwork, selectedAccount }) =>
-      Registry.getAccountRegistry().subscribeAccount(
-        selectedNetwork,
-        selectedAccount
-      )
-    ),
-    startWith(null)
-  );
-}
-
 export function initState(
   state$: Observable<BaseTradeState>,
   selectedNetwork$: ReturnType<typeof selectedNetwork>
@@ -104,13 +81,15 @@ export function initState(
 export function availableTokens(
   state$: Observable<BaseTradeState>,
   selectedNetwork$: ReturnType<typeof selectedNetwork>,
-  account$: ReturnType<typeof selectedAccount>,
-  { collateralFilter, depositFilter, debtFilter }: TransactionConfig
+  account$: ReturnType<typeof selectedAccount>
 ) {
   return combineLatest([state$, selectedNetwork$, account$]).pipe(
     filter(([{ isReady }]) => isReady),
     switchMap(([s, selectedNetwork, account]) => {
       return new Promise((resolve) => {
+        const { collateralFilter, depositFilter, debtFilter } = getTradeConfig(
+          s.tradeType
+        );
         Registry.getTokenRegistry().onNetworkRegistered(selectedNetwork, () => {
           const listedTokens =
             Registry.getTokenRegistry().getAllTokens(selectedNetwork);
@@ -181,123 +160,6 @@ export function availableTokens(
       });
     }),
     filterEmpty()
-  );
-}
-
-export function selectedToken(
-  category: Category,
-  state$: Observable<BaseTradeState>,
-  selectedNetwork$: ReturnType<typeof selectedNetwork>
-) {
-  return combineLatest([state$, selectedNetwork$]).pipe(
-    // NOTE: distinct until changed does not work with this for some reason
-    pairwise(),
-    map(([[prevS, prevN], [curS, selectedNetwork]]) => {
-      const selectedToken = curS[`selected${category}Token`] as string;
-      const token = curS[category.toLowerCase()] as TokenDefinition | undefined;
-      return {
-        hasChanged:
-          (prevS[`selected${category}Token`] as string) !== selectedToken ||
-          prevN !== selectedNetwork ||
-          (!!selectedToken && token === undefined),
-        selectedToken,
-        selectedNetwork,
-      };
-    }),
-    filter(({ hasChanged }) => hasChanged),
-    map(({ selectedToken, selectedNetwork }) => {
-      let token: TokenDefinition | undefined;
-      if (selectedToken && selectedNetwork) {
-        try {
-          const tokens = Registry.getTokenRegistry();
-          token = tokens.getTokenBySymbol(selectedNetwork, selectedToken);
-        } catch {
-          // NOTE: some tokens may not have nTokens listed, if so then this will
-          // remain undefined
-          console.error(
-            `Token ${selectedToken} not found on network ${selectedNetwork}`
-          );
-        }
-      }
-
-      return {
-        [category.toLowerCase()]: token,
-      } as {
-        collateral: TokenDefinition | undefined;
-        debt: TokenDefinition | undefined;
-        deposit: TokenDefinition | undefined;
-      };
-    })
-  );
-}
-export function selectedVaultAdapter(
-  state$: Observable<VaultTradeState>,
-  selectedNetwork$: ReturnType<typeof selectedNetwork>
-) {
-  return state$.pipe(
-    map((s) => s.vaultAddress),
-    distinctUntilChanged(),
-    filterEmpty(),
-    withLatestFrom(selectedNetwork$),
-    switchMap(([vaultAddress, network]) => {
-      try {
-        return (
-          Registry.getVaultRegistry().subscribeVaultAdapter(
-            network,
-            vaultAddress
-          ) || of(undefined)
-        );
-      } catch {
-        return of(undefined);
-      }
-    }),
-    startWith(undefined)
-  );
-}
-
-export function selectedPool(
-  category: Category,
-  state$: Observable<BaseTradeState>,
-  selectedNetwork$: ReturnType<typeof selectedNetwork>
-) {
-  return state$.pipe(
-    map((s) => {
-      const selectedToken = s[category.toLowerCase()] as
-        | TokenDefinition
-        | undefined;
-      const availableTokens = unique(
-        (s[`available${category}Tokens`] as TokenDefinition[] | undefined)?.map(
-          (t) => t.currencyId
-        ) || []
-      );
-      if (selectedToken) return selectedToken.currencyId;
-      // If all the available tokens are in the same currency id, then the pool can also
-      // be selected
-      if (availableTokens.length === 1) return availableTokens[0];
-      return undefined;
-    }),
-    distinctUntilChanged(),
-    filterEmpty(),
-    withLatestFrom(selectedNetwork$),
-    switchMap(([currencyId, network]) => {
-      try {
-        const nToken = Registry.getTokenRegistry().getNToken(
-          network,
-          currencyId
-        );
-
-        return (
-          Registry.getExchangeRegistry().subscribePoolInstance<fCashMarket>(
-            network,
-            nToken.address
-          ) || of(undefined)
-        );
-      } catch {
-        // Some currencies do not have nTokens
-        return of(undefined);
-      }
-    }),
-    startWith(undefined)
   );
 }
 
@@ -455,13 +317,7 @@ export function calculate(
   debtPool$: Observable<BaseLiquidityPool<unknown> | undefined>,
   collateralPool$: Observable<BaseLiquidityPool<unknown> | undefined>,
   vaultAdapter$: Observable<VaultAdapter | undefined>,
-  account$: Observable<AccountDefinition | null>,
-  {
-    calculationFn,
-    requiredArgs,
-    calculateCollateralOptions,
-    calculateDebtOptions,
-  }: TransactionConfig
+  account$: Observable<AccountDefinition | null>
 ) {
   return combineLatest([
     state$,
@@ -490,6 +346,12 @@ export function calculate(
         a,
         vaultAdapter,
       }) => {
+        const {
+          requiredArgs,
+          calculateCollateralOptions,
+          calculateDebtOptions,
+        } = getTradeConfig(s.tradeType);
+
         const [inputs, keys] = requiredArgs.reduce(
           ([inputs, keys], r) => {
             switch (r) {
@@ -573,16 +435,18 @@ export function calculate(
               debtTokens: calculateDebtOptions
                 ? s.availableDebtTokens
                 : undefined,
+              tradeType: s.tradeType,
             }
           : undefined;
       }
     ),
     filterEmpty(),
     map((u) => {
-      const { inputsSatisfied, inputs } = u;
+      const { inputsSatisfied, inputs, tradeType } = u;
       let calculateError: string | undefined;
       if (inputsSatisfied) {
         try {
+          const { calculationFn } = getTradeConfig(tradeType);
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const outputs = calculationFn(inputs as any);
 
@@ -599,7 +463,14 @@ export function calculate(
 
       return { ...u, canSubmit: false, calculateError };
     }),
-    map(({ inputs, collateralTokens, debtTokens, ...u }) => {
+    map(({ inputs, collateralTokens, debtTokens, tradeType, ...u }) => {
+      const {
+        calculationFn,
+        requiredArgs,
+        calculateCollateralOptions,
+        calculateDebtOptions,
+      } = getTradeConfig(tradeType);
+
       let collateralOptions: (TokenBalance | null)[] | undefined;
       let debtOptions: (TokenBalance | null)[] | undefined;
 
@@ -759,8 +630,7 @@ export function postVaultAccountRisk(
 
 export function buildTransaction(
   state$: Observable<BaseTradeState>,
-  account$: ReturnType<typeof selectedAccount>,
-  { transactionBuilder }: TransactionConfig
+  account$: ReturnType<typeof selectedAccount>
 ) {
   return combineLatest([state$, account$]).pipe(
     filter(([state]) => state.canSubmit && state.confirm),
@@ -769,8 +639,9 @@ export function buildTransaction(
     ),
     switchMap(([s, a]) => {
       if (a) {
+        const config = getTradeConfig(s.tradeType);
         return from(
-          transactionBuilder({
+          config.transactionBuilder({
             ...s,
             accountBalances: a.balances || [],
             address: a.address,

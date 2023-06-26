@@ -16,6 +16,8 @@ import {
   TransactionBuilder,
 } from '@notional-finance/transaction';
 import { PopulatedTransaction } from 'ethers';
+import { VaultTradeType } from './vault-trade-config';
+import { TradeType } from './trade-config';
 export { TradeConfiguration } from './trade-config';
 export { VaultTradeConfiguration } from './vault-trade-config';
 export type { TradeType } from './trade-config';
@@ -132,6 +134,8 @@ interface InitState {
   availableCollateralTokens?: TokenDefinition[];
   /** A list of debt tokens that can be selected */
   availableDebtTokens?: TokenDefinition[];
+  /** A key into the trade configuration object */
+  tradeType?: TradeType | VaultTradeType;
 }
 
 export interface BaseTradeState
