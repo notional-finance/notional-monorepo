@@ -48,7 +48,7 @@ function sameVaultMaturity(
   return t.maturity === maturity;
 }
 
-export const VaultTradeConfiguration: Record<string, TransactionConfig> = {
+export const VaultTradeConfiguration = {
   /**
    * Input:
    * depositBalance
@@ -78,7 +78,7 @@ export const VaultTradeConfiguration: Record<string, TransactionConfig> = {
       isPrimaryCurrency(t, s.vaultConfig),
     calculateDebtOptions: true,
     transactionBuilder: EnterVault,
-  },
+  } as TransactionConfig,
   /**
    * Input:
    * depositBalance
@@ -108,7 +108,7 @@ export const VaultTradeConfiguration: Record<string, TransactionConfig> = {
       isPrimaryCurrency(t, s.vaultConfig),
     calculateDebtOptions: true,
     transactionBuilder: EnterVault,
-  },
+  } as TransactionConfig,
 
   /**
    * Input:
@@ -126,7 +126,7 @@ export const VaultTradeConfiguration: Record<string, TransactionConfig> = {
     depositFilter: (t, _, s: VaultTradeState) =>
       isPrimaryCurrency(t, s.vaultConfig),
     transactionBuilder: EnterVault,
-  },
+  } as TransactionConfig,
 
   /**
    * Input:
@@ -155,7 +155,7 @@ export const VaultTradeConfiguration: Record<string, TransactionConfig> = {
     depositFilter: (t, _, s: VaultTradeState) =>
       isPrimaryCurrency(t, s.vaultConfig),
     transactionBuilder: RollVault,
-  },
+  } as TransactionConfig,
 
   /**
    * Input:
@@ -185,7 +185,7 @@ export const VaultTradeConfiguration: Record<string, TransactionConfig> = {
     depositFilter: (t, _, s: VaultTradeState) =>
       isPrimaryCurrency(t, s.vaultConfig),
     transactionBuilder: ExitVault,
-  },
+  } as TransactionConfig,
 };
 
 export type VaultTradeType = keyof typeof VaultTradeConfiguration;

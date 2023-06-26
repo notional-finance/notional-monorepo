@@ -30,14 +30,14 @@ export type FilterFunc = (
 ) => boolean;
 
 export interface TransactionConfig {
-  calculationFn: CalculationFn;
-  requiredArgs: CalculationFnParams[];
-  depositFilter?: FilterFunc;
-  collateralFilter?: FilterFunc;
-  debtFilter?: FilterFunc;
-  calculateDebtOptions?: boolean;
-  calculateCollateralOptions?: boolean;
-  transactionBuilder: TransactionBuilder;
+  readonly calculationFn: CalculationFn;
+  readonly requiredArgs: CalculationFnParams[];
+  readonly depositFilter?: FilterFunc;
+  readonly collateralFilter?: FilterFunc;
+  readonly debtFilter?: FilterFunc;
+  readonly calculateDebtOptions?: boolean;
+  readonly calculateCollateralOptions?: boolean;
+  readonly transactionBuilder: TransactionBuilder;
 }
 
 /** Input amount directly from the frontend */

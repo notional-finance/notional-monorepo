@@ -44,7 +44,8 @@ function getTradeConfig(tradeType?: TradeType | VaultTradeType) {
   if (!tradeType) throw Error('Trade type undefined');
 
   const config =
-    TradeConfiguration[tradeType] || VaultTradeConfiguration[tradeType];
+    TradeConfiguration[tradeType as TradeType] ||
+    VaultTradeConfiguration[tradeType as VaultTradeType];
 
   if (!config) throw Error('Trade configuration not found');
   return config;

@@ -1,5 +1,4 @@
 import {
-  VaultTradeConfiguration,
   VaultTradeState,
   createVaultTradeManager,
   initialBaseTradeState,
@@ -10,7 +9,7 @@ import {
   createObservableContext,
   useObservableContext,
 } from './ObservableContext';
-import { useMemo, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useQueryParams } from 'use-query-params';
 
 export type VaultContext = React.Context<ObservableContext<VaultTradeState>>;
@@ -19,7 +18,7 @@ export function createVaultContext(trade: VaultTradeType) {
   return createObservableContext<VaultTradeState>(trade, initialBaseTradeState);
 }
 
-export function useVaultContext(trade: VaultTradeType) {
+export function useVaultContext() {
   const [query, setQuery] = useQueryParams({
     confirm: {
       encode: (v) => (v === 'true' ? 'true' : null),
@@ -27,14 +26,10 @@ export function useVaultContext(trade: VaultTradeType) {
     },
   });
 
-  const tradeManager = useMemo(() => {
-    return createVaultTradeManager(VaultTradeConfiguration[trade]);
-  }, [trade]);
-
   const { updateState, state$, state } = useObservableContext<VaultTradeState>(
     initialBaseTradeState,
     {},
-    tradeManager
+    createVaultTradeManager
   );
   const canSubmit = state.canSubmit;
 
