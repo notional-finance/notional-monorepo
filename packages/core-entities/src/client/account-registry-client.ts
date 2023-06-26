@@ -218,15 +218,17 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
           {
             stage: 0,
             target: notional,
-            method: 'getVaultAccountWithFeeAccrual',
+            // method: 'getVaultAccountWithFeeAccrual',
+            method: 'getVaultAccount',
             args: [this.activeAccount, v.vaultAddress],
             key: `${v}.balance`,
             transform: (
               r: Awaited<
-                ReturnType<NotionalV3['getVaultAccountWithFeeAccrual']>
+                // ReturnType<NotionalV3['getVaultAccountWithFeeAccrual']>
+                ReturnType<NotionalV3['getVaultAccount']>
               >
             ) => {
-              const maturity = r[0].maturity.toNumber();
+              const maturity = r.maturity.toNumber();
               if (maturity === 0) return [];
               const {
                 vaultShareID,
@@ -235,23 +237,19 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
                 primaryTokenId,
               } = config.getVaultIDs(network, v.vaultAddress, maturity);
               const balances = [
-                TokenBalance.fromID(r[0].vaultShares, vaultShareID, network),
+                TokenBalance.fromID(r.vaultShares, vaultShareID, network),
                 this._parseVaultDebtBalance(
                   primaryDebtID,
                   primaryTokenId,
-                  r[0].accountDebtUnderlying,
+                  r.accountDebtUnderlying,
                   maturity,
                   network
                 ),
               ];
 
-              if (!r[0].tempCashBalance.isZero()) {
+              if (!r.tempCashBalance.isZero()) {
                 balances.push(
-                  TokenBalance.fromID(
-                    r[0].tempCashBalance,
-                    primaryCashID,
-                    network
-                  )
+                  TokenBalance.fromID(r.tempCashBalance, primaryCashID, network)
                 );
               }
 
