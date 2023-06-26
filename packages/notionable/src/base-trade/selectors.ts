@@ -1,6 +1,7 @@
 import {
   Registry,
   TokenDefinition,
+  VaultAdapter,
   fCashMarket,
 } from '@notional-finance/core-entities';
 import { filterEmpty, unique } from '@notional-finance/util';
@@ -103,11 +104,11 @@ export function selectedToken(
 export function selectedVaultAdapter(
   state$: Observable<VaultTradeState>,
   selectedNetwork$: ReturnType<typeof selectedNetwork>
-) {
+): Observable<VaultAdapter | undefined> {
   return state$.pipe(
-    map((s) => s.vaultAddress),
-    distinctUntilChanged(),
+    map((s) => (s.isReady ? s.vaultAddress : undefined)),
     filterEmpty(),
+    distinctUntilChanged(),
     withLatestFrom(selectedNetwork$),
     switchMap(([vaultAddress, network]) => {
       try {

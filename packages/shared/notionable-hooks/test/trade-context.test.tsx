@@ -1,4 +1,7 @@
-import { AccountFetchMode } from '@notional-finance/core-entities';
+import {
+  AccountFetchMode,
+  TokenBalance,
+} from '@notional-finance/core-entities';
 import { useNotionalContext, useTradeContext } from '../src';
 import { Network } from '@notional-finance/util';
 import { renderHook, act } from '@testing-library/react-hooks';
@@ -83,6 +86,18 @@ describe.withForkAndRegistry(
         await waitForNextUpdate();
 
         expect(result.current.state.selectedCollateralToken).toBe('nUSDC');
+
+        act(() => {
+          result.current.updateState({
+            depositBalance: TokenBalance.fromFloat(
+              3,
+              result.current.state.deposit!
+            ),
+          });
+        });
+
+        expect(result.current.state.collateralBalance).toBeDefined();
+        expect(result.current.state.canSubmit).toBe(true);
       });
     });
 

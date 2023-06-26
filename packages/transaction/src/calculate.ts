@@ -482,7 +482,6 @@ export function calculateDebtCollateralGivenDepositRiskLimit({
  * Calculates vault debt and collateral given a risk limit
  */
 export function calculateVaultDebtCollateralGivenDepositRiskLimit({
-  vaultAddress,
   collateral,
   debt,
   vaultAdapter,
@@ -493,20 +492,22 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
   maxCollateralSlippage = 25 * BASIS_POINT,
   maxDebtSlippage = 25 * BASIS_POINT,
 }: {
-  vaultAddress: string;
   collateral: TokenDefinition;
   debt: TokenDefinition;
   vaultAdapter: VaultAdapter;
   debtPool: fCashMarket;
   depositBalance: TokenBalance | undefined;
-  balances: TokenBalance[];
+  balances?: TokenBalance[];
   riskFactorLimit: RiskFactorLimit<RiskFactorKeys>;
   maxCollateralSlippage?: number;
   maxDebtSlippage?: number;
 }): ReturnType<typeof calculateDebtCollateralGivenDepositRiskLimit> {
+  const vaultAddress = collateral.vaultAddress;
+  if (!vaultAddress) throw Error('Vault Address not defined');
+
   const riskProfile = VaultAccountRiskProfile.simulate(
     vaultAddress,
-    balances,
+    balances || [TokenBalance.zero(collateral)],
     // This converts the deposit balance to vault shares at spot
     depositBalance ? [depositBalance.toToken(collateral)] : []
   );

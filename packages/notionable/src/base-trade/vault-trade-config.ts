@@ -69,7 +69,7 @@ export const VaultTradeConfiguration = {
     requiredArgs: [
       'collateral',
       'debt',
-      'collateralPool',
+      'vaultAdapter',
       'debtPool',
       'depositBalance',
       'riskFactorLimit',
@@ -99,7 +99,7 @@ export const VaultTradeConfiguration = {
     requiredArgs: [
       'collateral',
       'debt',
-      'collateralPool',
+      'vaultAdapater',
       'debtPool',
       'depositBalance',
       'balances',
@@ -127,7 +127,7 @@ export const VaultTradeConfiguration = {
    */
   DepositVaultCollateral: {
     calculationFn: calculateVaultCollateral,
-    requiredArgs: ['collateral', 'depositBalance', 'collateralPool'],
+    requiredArgs: ['collateral', 'depositBalance', 'vaultAdapter'],
     collateralFilter: (t, a, s: VaultTradeState) =>
       t.tokenType === 'VaultShare' &&
       t.vaultAddress === s.vaultAddress &&
@@ -153,7 +153,7 @@ export const VaultTradeConfiguration = {
     requiredArgs: [
       'collateral',
       'depositBalance',
-      'collateralPool',
+      'vaultAdapter',
       'collateralBalance',
       'debtPool',
     ],
@@ -183,7 +183,7 @@ export const VaultTradeConfiguration = {
     requiredArgs: [
       'collateral',
       'debt',
-      'collateralPool',
+      'vaultAdapter',
       'debtPool',
       'depositBalance',
       'balances',

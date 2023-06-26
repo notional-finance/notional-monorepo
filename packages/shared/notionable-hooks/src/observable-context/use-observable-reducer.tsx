@@ -7,7 +7,7 @@ import {
 } from 'observable-hooks';
 import { concat, take, withLatestFrom, scan } from 'rxjs';
 
-const DEBUG = true; // process.env['NODE_ENV'] === 'development';
+const DEBUG = process.env['NODE_ENV'] === 'development';
 
 interface Resettable extends Record<string, unknown> {
   reset?: boolean;
