@@ -12,10 +12,6 @@ import {
   updateCurrencyState,
 } from '../currency/currency-store';
 import { initialWalletState, updateWalletState } from '../wallet/wallet-store';
-import {
-  initialVaultState,
-  updateVaultState,
-} from '../leveraged-vaults/vault-store';
 
 let _connectedNetwork = -1;
 
@@ -45,7 +41,6 @@ function destroyNotional() {
   updateCurrencyState(initialCurrencyState);
   updateAccountState({ ...initialAccountState, readOnlyAddress: undefined });
   updateMarketState(initialMarketState);
-  updateVaultState(initialVaultState);
   _connectedNetwork = -1;
   setInLocalStorage('selectedChain', null);
   updateNotionalState({ connectedChain: -1, loaded: false, notional: null });
