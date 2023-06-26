@@ -200,6 +200,28 @@ export const VaultTradeConfiguration = {
       isPrimaryCurrency(t, s.vaultConfig),
     transactionBuilder: ExitVault,
   } as TransactionConfig,
+  WithdrawAndRepayVault: {
+    calculationFn: calculateVaultDebtCollateralGivenDepositRiskLimit,
+    requiredArgs: [
+      'collateral',
+      'debt',
+      'vaultAdapter',
+      'debtPool',
+      'depositBalance',
+      'balances',
+      'riskFactorLimit',
+    ],
+    collateralFilter: (t, _, s: VaultTradeState) =>
+      t.tokenType === 'VaultShare' &&
+      t.vaultAddress === s.vaultAddress &&
+      matchingVaultShare(t, s.debt),
+    debtFilter: (t, a, s: VaultTradeState) =>
+      eligibleDebtToken(t, s.vaultConfig) &&
+      sameVaultMaturity(t, a?.balances, s.vaultAddress),
+    depositFilter: (t, _, s: VaultTradeState) =>
+      isPrimaryCurrency(t, s.vaultConfig),
+    transactionBuilder: ExitVault,
+  } as TransactionConfig,
 };
 
 export type VaultTradeType = keyof typeof VaultTradeConfiguration;
