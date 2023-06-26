@@ -1,16 +1,15 @@
 import { EMPTY, merge, Observable } from 'rxjs';
 import { GlobalState } from '../global/global-state';
-import { initialBaseTradeState, VaultTradeState } from './base-trade-store';
+import { VaultTradeState } from './base-trade-store';
 import {
   resetOnNetworkChange,
   initState,
   priorVaultAccountRisk,
-  parseBalance,
-  parseRiskFactorLimit,
   calculate,
   postVaultAccountRisk,
   availableTokens,
   buildTransaction,
+  resetOnTradeTypeChange,
 } from './logic';
 import {
   selectedAccount,
@@ -35,16 +34,13 @@ export function createVaultTradeManager(
     buildTransaction(state$, account$),
     postVaultAccountRisk(state$, account$),
     calculate(state$, debtPool$, EMPTY, vaultAdapter$, account$),
-    parseRiskFactorLimit(state$, network$),
     selectedToken('Deposit', state$, network$),
-    parseBalance('Deposit', state$),
     selectedToken('Collateral', state$, network$),
-    parseBalance('Collateral', state$),
     selectedToken('Debt', state$, network$),
-    parseBalance('Debt', state$),
     priorVaultAccountRisk(state$, account$),
     availableTokens(state$, network$, account$),
     initState(state$, network$),
-    resetOnNetworkChange(global$, initialBaseTradeState)
+    resetOnNetworkChange(global$, state$),
+    resetOnTradeTypeChange(state$)
   );
 }

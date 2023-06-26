@@ -9,7 +9,14 @@ import { concat, take, withLatestFrom, scan } from 'rxjs';
 
 const DEBUG = true; // process.env['NODE_ENV'] === 'development';
 
-export function useObservableReducer<T>(initialState: T, logPrefix?: string) {
+interface Resettable extends Record<string, unknown> {
+  reset?: boolean;
+}
+
+export function useObservableReducer<T extends Resettable>(
+  initialState: T,
+  logPrefix?: string
+) {
   // Converts the initial state into an observable to make it safe in
   // a closure
   const initialState$ = useObservable(pluckFirst, [initialState]);
@@ -28,7 +35,11 @@ export function useObservableReducer<T>(initialState: T, logPrefix?: string) {
         state$.pipe(
           withLatestFrom(initialState$),
           scan(
-            (state, [update, init]) => ({ ...init, ...state, ...update }),
+            (state, [update, init]) =>
+              // If the flag "reset" is seen then reset the state to the initial state
+              update.reset === true
+                ? { ...init, ...update }
+                : { ...init, ...state, ...update },
             {} as T
           )
         )

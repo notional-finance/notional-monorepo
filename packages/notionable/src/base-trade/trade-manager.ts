@@ -1,16 +1,15 @@
 import { of, merge, Observable } from 'rxjs';
 import { GlobalState } from '../global/global-state';
-import { TradeState, initialBaseTradeState } from './base-trade-store';
+import { TradeState } from './base-trade-store';
 import {
   resetOnNetworkChange,
   initState,
   priorAccountRisk,
-  parseBalance,
-  parseRiskFactorLimit,
   calculate,
   postAccountRisk,
   availableTokens,
   buildTransaction,
+  resetOnTradeTypeChange,
 } from './logic';
 import {
   selectedAccount,
@@ -37,16 +36,13 @@ export function createTradeManager(
     buildTransaction(state$, account$),
     postAccountRisk(state$, account$),
     calculate(state$, debtPool$, collateralPool$, of(undefined), account$),
-    parseRiskFactorLimit(state$, network$),
     selectedToken('Deposit', state$, network$),
-    parseBalance('Deposit', state$),
     selectedToken('Collateral', state$, network$),
-    parseBalance('Collateral', state$),
     selectedToken('Debt', state$, network$),
-    parseBalance('Debt', state$),
     priorAccountRisk(account$),
     availableTokens(state$, network$, account$),
     initState(state$, network$),
-    resetOnNetworkChange(global$, initialBaseTradeState)
+    resetOnNetworkChange(global$, state$),
+    resetOnTradeTypeChange(state$)
   );
 }

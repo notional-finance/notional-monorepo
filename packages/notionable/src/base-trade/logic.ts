@@ -26,6 +26,7 @@ import {
   of,
   pairwise,
   switchMap,
+  withLatestFrom,
 } from 'rxjs';
 import { GlobalState } from '../global/global-state';
 import { isHashable } from '../utils';
@@ -51,16 +52,32 @@ function getTradeConfig(tradeType?: TradeType | VaultTradeType) {
   return config;
 }
 
-export function resetOnNetworkChange<T>(
+export function resetOnNetworkChange(
   global$: Observable<GlobalState>,
-  initialState: T
+  state$: Observable<BaseTradeState>
 ) {
   return global$.pipe(
     filterEmpty(),
     pairwise(),
-    map(([prev, cur]) => {
+    withLatestFrom(state$),
+    map(([[prev, cur], s]) => {
       if (prev.selectedNetwork !== cur.selectedNetwork) {
-        return initialState;
+        return { reset: true, tradeType: s.tradeType };
+      } else {
+        return undefined;
+      }
+    }),
+    filterEmpty()
+  );
+}
+
+export function resetOnTradeTypeChange(state$: Observable<BaseTradeState>) {
+  return state$.pipe(
+    filterEmpty(),
+    pairwise(),
+    map(([prev, cur]) => {
+      if (prev.tradeType !== undefined && prev.tradeType !== cur.tradeType) {
+        return { reset: true, tradeType: cur.tradeType };
       } else {
         return undefined;
       }
