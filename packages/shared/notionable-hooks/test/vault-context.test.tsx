@@ -49,14 +49,21 @@ describe.withForkAndRegistry(
 
     describe('Create Vault Position', () => {
       it('properly filters currencies', async () => {
-        const { result, waitForNextUpdate } = await renderTradeContext(
+        const { result, waitFor } = await renderTradeContext(
           'CreateVaultPosition'
         );
 
-        await waitForNextUpdate();
+        await waitFor(() => {
+          return (
+            result.current.state.availableCollateralTokens !== undefined &&
+            result.current.state.availableDepositTokens !== undefined &&
+            result.current.state.availableDebtTokens !== undefined
+          );
+        });
 
-        console.log(result.current.state);
-        expect(result.current.state.selectedCollateralToken).toBe('nUSDC');
+        expect(result.current.state.selectedDepositToken).toBe('USDC');
+        expect(result.current.state.availableCollateralTokens).toHaveLength(3);
+        expect(result.current.state.availableDebtTokens).toHaveLength(3);
       });
     });
   }

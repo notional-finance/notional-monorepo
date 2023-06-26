@@ -1,4 +1,4 @@
-import { EMPTY, merge, Observable } from 'rxjs';
+import { merge, Observable, of } from 'rxjs';
 import { GlobalState } from '../global/global-state';
 import { VaultTradeState } from './base-trade-store';
 import {
@@ -33,7 +33,7 @@ export function createVaultTradeManager(
   return merge(
     buildTransaction(state$, account$),
     postVaultAccountRisk(state$, account$),
-    calculate(state$, debtPool$, EMPTY, vaultAdapter$, account$),
+    calculate(state$, debtPool$, of(undefined), vaultAdapter$, account$),
     selectedToken('Deposit', state$, network$),
     selectedToken('Collateral', state$, network$),
     selectedToken('Debt', state$, network$),

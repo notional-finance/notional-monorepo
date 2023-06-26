@@ -1,4 +1,8 @@
-import { SECONDS_IN_QUARTER, SECONDS_IN_YEAR } from './constants';
+import {
+  PRIME_CASH_VAULT_MATURITY,
+  SECONDS_IN_QUARTER,
+  SECONDS_IN_YEAR,
+} from './constants';
 
 export function getNowSeconds() {
   const fakeTime = process.env['FAKE_TIME'] || process.env['NX_FAKE_TIME'];
@@ -28,24 +32,21 @@ export function getMarketMaturityLengthSeconds(marketIndex: number) {
 }
 
 export function isIdiosyncratic(maturity: number, blockTime = getNowSeconds()) {
-  try {
-    // If this throws an error then it is idiosyncratic
-    getMarketIndexForMaturity(maturity, blockTime);
-    return false;
-  } catch {
-    return true;
-  }
+  return getMarketIndexForMaturity(maturity, blockTime) === -1;
 }
 
 export function getMarketIndexForMaturity(
   maturity: number,
   blockTime = getNowSeconds()
 ) {
+  if (maturity === PRIME_CASH_VAULT_MATURITY) return 0;
+
   for (let i = 1; i <= 7; i += 1) {
     if (maturity === getMaturityForMarketIndex(i, blockTime)) return i;
   }
 
-  throw new Error('Maturity does not correspond to market index');
+  // Is idiosyncratic
+  return -1;
 }
 
 export function getMaturityForMarketIndex(

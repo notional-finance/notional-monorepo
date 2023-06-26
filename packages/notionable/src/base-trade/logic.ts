@@ -399,6 +399,7 @@ export function calculate(
     account$,
     vaultAdapter$,
   ]).pipe(
+    filter(([s]) => s.isReady),
     pairwise(),
     map(([[p], [s, debtPool, collateralPool, a, vaultAdapter]]) => ({
       prevCalculateInputKeys: p.calculateInputKeys,
