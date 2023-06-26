@@ -85,7 +85,7 @@ const AllRoutes = () => {
           <AppLayoutRoute path="/unstake/:unstakePath" component={StakeView} />
           <AppLayoutRoute path="/unstake" component={StakeView} />
           <AppLayoutRoute
-            path="/vaults/:vaultAddress/:sideDrawerKey"
+            path="/vaults/:vaultAddress/:tradeType"
             component={VaultActionProvider}
           />
           <AppLayoutRoute

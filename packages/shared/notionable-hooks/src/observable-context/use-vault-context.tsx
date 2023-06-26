@@ -2,7 +2,6 @@ import {
   VaultTradeState,
   createVaultTradeManager,
   initialBaseTradeState,
-  VaultTradeType,
 } from '@notional-finance/notionable';
 import {
   ObservableContext,
@@ -14,8 +13,11 @@ import { useQueryParams } from 'use-query-params';
 
 export type VaultContext = React.Context<ObservableContext<VaultTradeState>>;
 
-export function createVaultContext(trade: VaultTradeType) {
-  return createObservableContext<VaultTradeState>(trade, initialBaseTradeState);
+export function createVaultContext() {
+  return createObservableContext<VaultTradeState>(
+    'vault-context',
+    initialBaseTradeState
+  );
 }
 
 export function useVaultContext() {
