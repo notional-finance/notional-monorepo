@@ -1,15 +1,14 @@
-import { useContext, useEffect } from 'react';
-import { Drawer, SideBarSubHeader, PageLoading } from '@notional-finance/mui';
+import { useCallback, useContext, useEffect } from 'react';
+import { Drawer, SideBarSubHeader } from '@notional-finance/mui';
 import { Transition, TransitionStatus } from 'react-transition-group';
 import { Box, SxProps, useTheme } from '@mui/material';
 import { useVaultSideDrawers } from '../hooks';
-import { useAccount } from '@notional-finance/notionable-hooks';
 import { CreateVaultPosition, ManageVault } from '../side-drawers';
 import { VaultActionContext } from '../vault-view/vault-action-provider';
 import { defineMessage } from 'react-intl';
-import { useHistory, useParams } from 'react-router';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
-import { VaultParams } from './vault-view';
+import { useHistory } from 'react-router';
+import { useVaultAccount } from '@notional-finance/notionable-hooks';
 
 const fadeStart = {
   transition: `opacity 150ms ease`,
@@ -40,44 +39,31 @@ const slideTransition: Record<TransitionStatus, SxProps> = {
 export const VaultActionSideDrawer = () => {
   const theme = useTheme();
   const history = useHistory();
-  const { vaultAddress: vaultAddressInURL, sideDrawerKey } =
-    useParams<VaultParams>();
-  const { accountConnected: connected } = useAccount();
   const { SideDrawerComponent, openDrawer } = useVaultSideDrawers();
   const { clearSideDrawer } = useSideDrawerManager();
 
+  // NOTE: what does this do?
   useEffect(() => {
     clearSideDrawer();
   }, [clearSideDrawer]);
 
   const {
-    state: { vaultAddress: vaultAddressInState, vaultAccount },
+    state: { vaultAddress },
     updateState,
   } = useContext(VaultActionContext);
 
-  const handleDrawer = () => {
-    history.push(`/vaults/${vaultAddressInState}`);
-    updateState({ vaultAction: undefined });
-  };
+  const returnToManageVault = useCallback(() => {
+    history.push(`/vaults/${vaultAddress}`);
+    // TODO: this might cause problems
+    updateState({ tradeType: undefined });
+  }, [vaultAddress, history, updateState]);
 
-  useEffect(() => {
-    updateState({
-      vaultAction: sideDrawerKey,
-    });
-  }, [updateState, sideDrawerKey]);
-
+  const { hasVaultPosition } = useVaultAccount(vaultAddress);
   const manageVaultActive = !openDrawer ? true : false;
   const sideDrawerActive = SideDrawerComponent && openDrawer ? true : false;
-  const vaultContextIsLoading = vaultAddressInState !== vaultAddressInURL;
 
   let drawerEl;
-  if (vaultContextIsLoading) {
-    drawerEl = <PageLoading type="notional" />;
-  } else if (
-    !connected ||
-    // If the vault can settle then we go to the manage vault screen
-    (vaultAccount?.isInactive && !vaultAccount?.canSettle())
-  ) {
+  if (!hasVaultPosition) {
     drawerEl = <CreateVaultPosition />;
   } else {
     drawerEl = (
@@ -109,10 +95,9 @@ export const VaultActionSideDrawer = () => {
                   <>
                     <SideBarSubHeader
                       paddingTop="150px"
-                      callback={() => handleDrawer()}
+                      callback={returnToManageVault}
                       titleText={defineMessage({ defaultMessage: 'Manage' })}
                     />
-
                     <SideDrawerComponent />
                   </>
                 )}
