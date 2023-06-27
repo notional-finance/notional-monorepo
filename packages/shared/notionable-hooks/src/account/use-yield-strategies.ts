@@ -1,11 +1,6 @@
 import { BaseVault, TypedBigNumber, VaultFactory } from '@notional-finance/sdk';
 import { useLocation } from 'react-router-dom';
 import { logError } from '@notional-finance/helpers';
-import { useObservableState } from 'observable-hooks';
-import {
-  vaultPerformance$,
-  calculateHeadlineVaultReturns,
-} from '@notional-finance/notionable';
 import { useNotional } from '../notional/use-notional';
 import { useAccount } from './use-account';
 
@@ -35,7 +30,6 @@ export function useYieldStrategies(
   const { system } = useNotional();
   const { pathname: currentPath } = useLocation();
   const { accountDataCopy: accountData, noteSummary } = useAccount();
-  const vaultPerformance = useObservableState(vaultPerformance$);
 
   if (!system) return [];
 
@@ -78,16 +72,10 @@ export function useYieldStrategies(
         }
       }
 
-      const { avgBorrowRate, netCashDeposited } =
-        accountData.getVaultHistoricalFactors(vaultAccount.vaultAddress);
-      const vaultReturns = vaultPerformance?.get(
+      const { netCashDeposited } = accountData.getVaultHistoricalFactors(
         vaultAccount.vaultAddress
-      )?.sevenDayTotalAverage;
-      const apy = calculateHeadlineVaultReturns(
-        vaultReturns,
-        avgBorrowRate,
-        leverageRatio
       );
+      const apy = 0;
 
       // NOTE: debt value is negative
       const netWorth = debtValue ? assetValue.add(debtValue) : assetValue;

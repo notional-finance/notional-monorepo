@@ -121,6 +121,7 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
         id,
         network
       ).scaleFromInternal(),
+      // TODO: this does not include prime debt....
       totalUsedPrimaryBorrowCapacity: TokenBalance.fromID(
         totalUsedPrimaryBorrowCapacity,
         id,
