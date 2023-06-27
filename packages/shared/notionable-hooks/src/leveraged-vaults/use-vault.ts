@@ -90,7 +90,40 @@ export function useVaultProperties(vaultAddress?: string) {
   };
 }
 
-export function getMinDepositRequiredString(
+export function useAllVaults() {
+  const network = useSelectedNetwork();
+  const config = Registry.getConfigurationRegistry();
+  const listedVaults = network
+    ? config.getAllListedVaults(network)?.map((v) => {
+        const {
+          minAccountBorrowSize,
+          totalUsedPrimaryBorrowCapacity,
+          maxPrimaryBorrowCapacity,
+        } = config.getVaultCapacity(network, v.vaultAddress);
+        const primaryToken = Registry.getTokenRegistry().getTokenByID(
+          network,
+          v.primaryBorrowCurrency.id
+        );
+
+        return {
+          ...v,
+          minAccountBorrowSize,
+          totalUsedPrimaryBorrowCapacity,
+          maxPrimaryBorrowCapacity,
+          minDepositRequired: getMinDepositRequiredString(
+            minAccountBorrowSize,
+            v.maxDeleverageCollateralRatioBasisPoints,
+            v.maxRequiredAccountCollateralRatioBasisPoints as number
+          ),
+          primaryToken,
+        };
+      })
+    : [];
+
+  return listedVaults || [];
+}
+
+function getMinDepositRequiredString(
   minAccountBorrowSize: TokenBalance,
   maxDeleverageCollateralRatioBasisPoints: number,
   maxRequiredAccountCollateralRatioBasisPoints: number

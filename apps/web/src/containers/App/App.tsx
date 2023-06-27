@@ -34,7 +34,7 @@ import {
 import { TreasuryView } from '@notional-finance/treasury-feature-shell';
 import {
   VaultActionProvider,
-  AllStrategyView,
+  VaultCardView,
 } from '@notional-finance/vault-feature-shell';
 import { AirdropView } from '../../containers/AirdropView';
 import { TermsView } from '../../containers/TermsView';
@@ -92,7 +92,7 @@ const AllRoutes = () => {
             path="/vaults/:vaultAddress"
             component={VaultActionProvider}
           />
-          <AppLayoutRoute path="/vaults" component={AllStrategyView} />
+          <AppLayoutRoute path="/vaults" component={VaultCardView} />
           <AppLayoutRoute path="/terms" component={TermsView} />
           <AppLayoutRoute path="/privacy" component={PrivacyView} />
           <AppLayoutRoute
