@@ -1,4 +1,5 @@
 import {
+  BaseTradeState,
   VaultTradeState,
   createVaultTradeManager,
   initialBaseTradeState,
@@ -11,6 +12,7 @@ import {
 import { useEffect } from 'react';
 import { useQueryParams } from 'use-query-params';
 
+export type BaseContext = React.Context<ObservableContext<BaseTradeState>>;
 export type VaultContext = React.Context<ObservableContext<VaultTradeState>>;
 
 export function createVaultContext() {

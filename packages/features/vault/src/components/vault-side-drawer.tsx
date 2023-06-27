@@ -1,22 +1,17 @@
-import { useContext } from 'react';
+import { useContext, useCallback } from 'react';
 import {
   ActionSidebar,
   ToggleSwitchProps,
   ProgressIndicator,
 } from '@notional-finance/mui';
-import { useQueryParams } from '@notional-finance/utils';
-import {
-  TransactionConfirmation,
-  TradeActionButton,
-} from '@notional-finance/trade';
-import { VAULT_ACTIONS } from '@notional-finance/shared-config';
-import { useVault } from '@notional-finance/notionable-hooks';
+import { TradeActionButton, Confirmation2 } from '@notional-finance/trade';
 import { VaultActionContext } from '../vault-view/vault-action-provider';
-import { formatMaturity } from '@notional-finance/helpers';
 import { useHistory } from 'react-router';
 import { messages } from '../messages';
-import { useTransactionProperties } from '../hooks/use-transaction-properties';
 import { VaultDetailsTable } from './vault-details-table';
+import { useVaultProperties } from '@notional-finance/notionable-hooks';
+import { useVaultCapacity } from '../hooks';
+import { VaultTradeType } from '@notional-finance/notionable';
 
 interface VaultSideDrawerProps {
   children?: React.ReactNode | React.ReactNode[];
@@ -27,44 +22,23 @@ export const VaultSideDrawer = ({
   children,
   advancedToggle,
 }: VaultSideDrawerProps) => {
-  const { confirm } = useQueryParams();
   const history = useHistory();
-  const confirmRoute = !!confirm;
   const {
-    updateState,
     state: {
-      vaultAccount,
       vaultAddress,
-      vaultAction,
-      buildTransactionCall,
-      updatedVaultAccount,
-      minBorrowSize,
+      tradeType: _tradeType,
+      canSubmit,
+      confirm,
+      populatedTransaction,
     },
   } = useContext(VaultActionContext);
-  const transactionData = useTransactionProperties();
-  const useVaultData = useVault(vaultAddress);
-  const currentVaultAddress = vaultAddress || '';
-  const canSubmit = buildTransactionCall ? true : false;
+  const { minDepositRequired } = useVaultProperties(vaultAddress);
+  const { minBorrowSize } = useVaultCapacity();
+  const tradeType = _tradeType as VaultTradeType;
 
-  const helptextValues = {
-    minDepositRequired: useVaultData?.minDepositRequired,
-    minBorrowSize,
-  };
-
-  const formattedMaturity = vaultAccount?.maturity
-    ? formatMaturity(vaultAccount?.maturity)
-    : '';
-
-  const handleCancel = () => {
+  const handleCancel = useCallback(() => {
     history.push(`/vaults/${vaultAddress}`);
-    // updateState({ vaultAction: undefined });
-    if (vaultAction === VAULT_ACTIONS.WITHDRAW_VAULT) {
-      updateState({
-        maxWithdraw: false,
-        withdrawAmount: undefined,
-      });
-    }
-  };
+  }, [vaultAddress, history]);
 
   const handleSubmit = () => {
     updateState({ confirm: true });
@@ -72,22 +46,24 @@ export const VaultSideDrawer = ({
 
   return (
     <div>
-      {vaultAction ? (
-        transactionData && confirmRoute ? (
-          <TransactionConfirmation
-            heading={transactionData?.transactionHeader}
+      {tradeType ? (
+        populatedTransaction && confirm ? (
+          <Confirmation2
+            heading={messages[tradeType].heading}
+            context={VaultActionContext}
             onCancel={handleCancel}
-            transactionProperties={transactionData?.transactionProperties}
-            buildTransactionCall={transactionData?.buildTransactionCall}
             showDrawer={false}
             onReturnToForm={handleCancel}
           />
         ) : (
           <ActionSidebar
-            heading={messages[vaultAction].heading}
+            heading={messages[tradeType].heading}
             helptext={{
-              ...messages[vaultAction].helptext,
-              values: helptextValues,
+              ...messages[tradeType].helptext,
+              values: {
+                minDepositRequired,
+                minBorrowSize,
+              },
             }}
             advancedToggle={advancedToggle}
             showDrawer={false}
@@ -98,14 +74,7 @@ export const VaultSideDrawer = ({
             hideTextOnMobile={false}
           >
             {children}
-            {vaultAction !== VAULT_ACTIONS.WITHDRAW_VAULT_POST_MATURITY && (
-              <VaultDetailsTable
-                key={'vault-risk-table'}
-                updatedVaultAccount={updatedVaultAccount}
-                maturity={formattedMaturity}
-                vaultAddress={currentVaultAddress}
-              />
-            )}
+            <VaultDetailsTable key={'vault-risk-table'} />
           </ActionSidebar>
         )
       ) : (

@@ -6,7 +6,7 @@ import {
   Button,
 } from '@notional-finance/mui';
 import {
-  TradeContext,
+  BaseContext,
   usePendingTransaction,
   useSelectedNetwork,
   useSubmitTransaction,
@@ -28,7 +28,7 @@ import {
 
 export interface ConfirmationProps {
   heading: React.ReactNode;
-  context: TradeContext;
+  context: BaseContext;
   onCancel?: () => void;
   onReturnToForm?: () => void;
   showDrawer?: boolean;

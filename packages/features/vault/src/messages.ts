@@ -1,11 +1,8 @@
-import {
-  VAULT_ACTIONS,
-  PORTFOLIO_ACTIONS,
-} from '@notional-finance/shared-config';
+import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
 import { defineMessages } from 'react-intl';
 
 export const messages = {
-  [VAULT_ACTIONS.CREATE_VAULT_POSITION]: defineMessages({
+  CreateVaultPosition: defineMessages({
     heading: {
       defaultMessage: 'Create Vault Position',
       description: 'heading',
@@ -32,7 +29,7 @@ export const messages = {
       description: 'heading',
     },
   }),
-  [VAULT_ACTIONS.INCREASE_POSITION]: defineMessages({
+  IncreaseVaultPosition: defineMessages({
     heading: {
       defaultMessage: 'Increase Vault Position',
       description: 'heading',
@@ -59,7 +56,7 @@ export const messages = {
       description: 'input label',
     },
   }),
-  [VAULT_ACTIONS.WITHDRAW_VAULT]: defineMessages({
+  WithdrawVault: defineMessages({
     heading: { defaultMessage: 'Withdraw', description: '' },
     cta: { defaultMessage: 'Withdraw', description: '' },
     tooltip: {
@@ -85,50 +82,7 @@ export const messages = {
       description: 'error message',
     },
   }),
-  [VAULT_ACTIONS.WITHDRAW_VAULT_POST_MATURITY]: defineMessages({
-    heading: { defaultMessage: 'Withdraw Matured Position', description: '' },
-    helptext: {
-      defaultMessage:
-        'Vault position matured, all profits will be withdrawn to your wallet.',
-      description: '',
-    },
-    reenterVault: { defaultMessage: 'Re-Enter Vault', description: '' },
-  }),
-  /*
-  [VAULT_ACTIONS.DELEVERAGE_VAULT]: defineMessages({
-    heading: { defaultMessage: 'Deleverage Vault', description: 'heading' },
-    helptext: {
-      defaultMessage:
-        'De-risk your vault position by repaying debts and reducing your leverage.',
-      description: 'helptext',
-    },
-    aboveMaxLeverageError: {
-      defaultMessage: 'Must Reduce Leverage Below: {maxLeverage}',
-      description: 'error message',
-    },
-    fullExitInfo: {
-      defaultMessage: 'Below minimum vault requirements. Full exit required.',
-      description: 'info message',
-    },
-    belowMinLeverageError: {
-      defaultMessage: 'Below Minimum Leverage for Vault: {minLeverage}',
-      description: 'error message',
-    },
-  }),
-  [VAULT_ACTIONS.DELEVERAGE_VAULT_DEPOSIT]: defineMessages({
-    heading: { defaultMessage: 'Deposit', description: '' },
-    helptext: {
-      defaultMessage: 'Deposit additional collateral to reduce your leverage.',
-      description: '',
-    },
-    inputLabel: {
-      defaultMessage: '1. Enter amount to deposit into vault',
-      description: '',
-    },
-    toggle: { defaultMessage: 'Deposit', description: '' },
-  }),
-  */
-  [VAULT_ACTIONS.WITHDRAW_AND_REPAY_DEBT]: defineMessages({
+  WithdrawAndRepayVault: defineMessages({
     heading: {
       defaultMessage: 'Repay Debt with Vault Assets',
       description: '',
@@ -166,7 +120,7 @@ export const messages = {
       description: '',
     },
   }),
-  [VAULT_ACTIONS.ROLL_POSITION]: defineMessages({
+  RollVaultPosition: defineMessages({
     heading: {
       defaultMessage: 'Roll Vault Position',
       description: 'heading',
@@ -197,7 +151,7 @@ export const messages = {
       description: 'tab label',
     },
   }),
-  [VAULT_ACTIONS.DEPOSIT_COLLATERAL]: defineMessages({
+  DepositVaultCollateral: defineMessages({
     heading: { defaultMessage: 'Deposit Collateral', description: '' },
     inputLabel: {
       defaultMessage: '1. Enter Deposit Amount',

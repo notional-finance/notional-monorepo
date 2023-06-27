@@ -27,6 +27,7 @@ export const useVaultCapacity = () => {
   let capacityWithUserBorrowPercentage: number | undefined = undefined;
   let overCapacityError = false;
   let underMinAccountBorrow = false;
+  let minBorrowSize: string | undefined = undefined;
 
   const totalAccountDebt =
     debt && debtBalance
@@ -43,6 +44,7 @@ export const useVaultCapacity = () => {
       maxPrimaryBorrowCapacity,
     } = vaultCapacity;
 
+    minBorrowSize = minAccountBorrowSize.toDisplayStringWithSymbol(0);
     underMinAccountBorrow = totalAccountDebt?.isNegative()
       ? totalAccountDebt.abs().toUnderlying().lt(minAccountBorrowSize)
       : false;
@@ -70,6 +72,7 @@ export const useVaultCapacity = () => {
   }
 
   return {
+    minBorrowSize,
     underMinAccountBorrow,
     overCapacityError,
     totalCapacityRemaining,
