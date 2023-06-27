@@ -3,7 +3,7 @@ import {
   AssetType,
   convertToGenericfCashId,
   encodeERC1155Id,
-  INTERNAL_TOKEN_DECIMALS,
+  INTERNAL_TOKEN_PRECISION,
   Network,
   PRIME_CASH_VAULT_MATURITY,
   RATE_PRECISION,
@@ -220,7 +220,7 @@ export class TokenBalance {
   }
 
   scaleFromInternal() {
-    return this.scale(this.precision, INTERNAL_TOKEN_DECIMALS);
+    return this.scale(this.precision, INTERNAL_TOKEN_PRECISION);
   }
 
   /** Comparison Methods */
