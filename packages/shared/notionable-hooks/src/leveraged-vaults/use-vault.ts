@@ -9,8 +9,21 @@ export function useVaultAccount(vaultAddress?: string) {
   const { account } = useAccountDefinition();
   const vaultBalances =
     account?.balances.filter((t) => t.vaultAddress === vaultAddress) || [];
+  const network = useSelectedNetwork();
 
-  return { vaultBalances, hasVaultPosition: vaultBalances.length > 0 };
+  let canRollMaturity = false;
+  if (network && vaultAddress) {
+    canRollMaturity = Registry.getConfigurationRegistry().getVaultConfig(
+      network,
+      vaultAddress
+    ).allowRollPosition;
+  }
+
+  return {
+    vaultBalances,
+    hasVaultPosition: vaultBalances.length > 0,
+    canRollMaturity,
+  };
 }
 
 export function useVaultProperties(vaultAddress?: string) {
