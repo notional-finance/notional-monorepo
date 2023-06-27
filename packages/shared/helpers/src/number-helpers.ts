@@ -12,7 +12,7 @@ export function convertFloatToRate(rate: number) {
 }
 
 export function formatLeverageRatio(ratio: number, digits = 3) {
-  return `${formatNumber(ratio / RATE_PRECISION, digits)}x`;
+  return `${formatNumber(ratio, digits)}x`;
 }
 
 export function formatNumber(num: string | number, digits = 4) {

@@ -13,6 +13,14 @@ import { BaseRiskProfile } from './base-risk';
 import { SymbolOrID } from './types';
 
 export class VaultAccountRiskProfile extends BaseRiskProfile {
+  static collateralToLeverageRatio(collateralRatio: number) {
+    return 1 / collateralRatio;
+  }
+
+  static leverageToCollateralRatio(leverageRatio: number) {
+    return 1 / leverageRatio;
+  }
+
   static empty(network: Network, vaultAddress: string, maturity: number) {
     const config = Registry.getConfigurationRegistry();
     const { vaultShareID } = config.getVaultIDs(
