@@ -191,6 +191,8 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
 
   getAllRiskFactors() {
     return {
+      debts: this.totalDebt(),
+      assets: this.totalAssets(),
       collateralRatio: this.collateralRatio(),
       liquidationPrice: this.getAllLiquidationPrices({
         onlyUnderlyingDebt: true,
