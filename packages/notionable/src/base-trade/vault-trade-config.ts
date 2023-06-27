@@ -172,7 +172,7 @@ export const VaultTradeConfiguration = {
   /**
    * Input:
    * depositBalance (i.e. withdraw amount)
-   * selectedRiskLimit (i.e. new leverage ratio)
+   * selectedRiskLimit (i.e. current leverage ratio)
    *
    * Output:
    * collateralBalance (vault shares sold)
@@ -200,6 +200,16 @@ export const VaultTradeConfiguration = {
       isPrimaryCurrency(t, s.vaultConfig),
     transactionBuilder: ExitVault,
   } as TransactionConfig,
+
+  /**
+   * Input:
+   * depositBalance (i.e. withdraw amount)
+   * selectedRiskLimit (i.e. new leverage ratio)
+   *
+   * Output:
+   * collateralBalance (vault shares sold)
+   * debtBalance (debt repaid)
+   */
   WithdrawAndRepayVault: {
     calculationFn: calculateVaultDebtCollateralGivenDepositRiskLimit,
     requiredArgs: [

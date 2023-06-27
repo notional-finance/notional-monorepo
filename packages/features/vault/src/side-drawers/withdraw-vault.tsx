@@ -1,95 +1,113 @@
 import { Box } from '@mui/material';
 import { useContext, useEffect } from 'react';
-import { useNotional } from '@notional-finance/notionable-hooks';
+import { FormattedMessage } from 'react-intl';
+import { INTERNAL_TOKEN_DECIMALS } from '@notional-finance/util';
 import {
   CurrencyInput,
   InputLabel,
+  PageLoading,
   useCurrencyInputRef,
 } from '@notional-finance/mui';
-import { INTERNAL_TOKEN_DECIMAL_PLACES } from '@notional-finance/sdk/src/config/constants';
 import { VaultActionContext } from '../vault-view/vault-action-provider';
-import { VAULT_ACTIONS } from '@notional-finance/shared-config';
-import { FormattedMessage } from 'react-intl';
 import { VaultSideDrawer } from '../components/vault-side-drawer';
 import { messages } from '../messages';
+import { TokenBalance } from '@notional-finance/core-entities';
 
 export const WithdrawVault = () => {
-  const { notional } = useNotional();
   const { setCurrencyInput, currencyInputRef } = useCurrencyInputRef();
-  const { updateState, state } = useContext(VaultActionContext);
-
   const {
-    primaryBorrowSymbol,
-    updatedVaultAccount,
-    maxWithdrawAmount,
-    withdrawAmount,
-    maxWithdraw,
-  } = state;
-  const isFullRepayment = updatedVaultAccount?.primaryBorrowfCash.isZero();
+    state: {
+      priorAccountRisk,
+      postAccountRisk,
+      deposit,
+      riskFactorLimit,
+      depositBalance,
+    },
+    updateState,
+  } = useContext(VaultActionContext);
+  const primaryBorrowSymbol = deposit?.symbol;
+  const isFullRepayment = postAccountRisk?.leverageRatio === null;
+  const priorLeverageRatio = priorAccountRisk?.leverageRatio || null;
 
   useEffect(() => {
-    if (maxWithdraw && maxWithdrawAmount)
-      setCurrencyInput(maxWithdrawAmount.toExactString());
-  }, [maxWithdraw, maxWithdrawAmount, setCurrencyInput]);
+    // Set the default leverage ratio to the prior account leverage ratio
+    if (!riskFactorLimit && priorLeverageRatio !== null) {
+      updateState({
+        riskFactorLimit: {
+          riskFactor: 'leverageRatio',
+          limit: priorLeverageRatio,
+        },
+      });
+    }
+  }, [riskFactorLimit, priorLeverageRatio, updateState]);
+
+  if (!deposit || !primaryBorrowSymbol || priorLeverageRatio === null)
+    return <PageLoading />;
+
+  // TODO: need to figure out this value...
+  const maxWithdrawAmount = TokenBalance.zero(deposit);
 
   return (
     <VaultSideDrawer>
-      {primaryBorrowSymbol && (
-        <Box>
-          <InputLabel
-            inputLabel={messages[VAULT_ACTIONS.WITHDRAW_VAULT]['inputLabel']}
-          />
-          <CurrencyInput
-            ref={currencyInputRef}
-            placeholder="0.00000000"
-            decimals={INTERNAL_TOKEN_DECIMAL_PLACES}
-            onInputChange={(withdrawAmountString) => {
-              try {
-                updateState({
-                  withdrawAmount: notional?.parseInput(
-                    withdrawAmountString,
-                    primaryBorrowSymbol,
-                    true
-                  ),
-                  maxWithdraw: false,
-                });
-              } catch (e) {
-                updateState({
-                  withdrawAmount: undefined,
-                });
-              }
-            }}
-            onMaxValue={() => {
+      <Box>
+        <InputLabel inputLabel={messages['WithdrawVault']['inputLabel']} />
+        <CurrencyInput
+          ref={currencyInputRef}
+          placeholder="0.00000000"
+          decimals={INTERNAL_TOKEN_DECIMALS}
+          onInputChange={(withdrawAmountString) => {
+            try {
               updateState({
-                maxWithdraw: true,
+                depositBalance: TokenBalance.fromFloat(
+                  withdrawAmountString,
+                  deposit
+                ).neg(),
+                riskFactorLimit: {
+                  riskFactor: 'leverageRatio',
+                  limit: priorLeverageRatio,
+                },
               });
-            }}
-            errorMsg={
-              withdrawAmount &&
-              maxWithdrawAmount &&
-              withdrawAmount.gt(maxWithdrawAmount) ? (
-                <FormattedMessage
-                  {...messages[VAULT_ACTIONS.WITHDRAW_VAULT].aboveMaxWithdraw}
-                  values={{
-                    maxWithdraw: maxWithdrawAmount?.toDisplayStringWithSymbol(),
-                  }}
-                />
-              ) : undefined
+            } catch (e) {
+              updateState({
+                depositBalance: undefined,
+              });
             }
-            captionMsg={
-              isFullRepayment && (
-                <FormattedMessage
-                  {...messages[VAULT_ACTIONS.WITHDRAW_VAULT][
-                    'fullRepaymentInfo'
-                  ]}
-                />
-              )
-            }
-            currencies={[primaryBorrowSymbol]}
-            defaultValue={primaryBorrowSymbol}
-          />
-        </Box>
-      )}
+          }}
+          onMaxValue={() => {
+            // A risk factor of zero means fully withdrawing debt and collateral
+            setCurrencyInput(maxWithdrawAmount.toExactString());
+
+            updateState({
+              depositBalance: maxWithdrawAmount.neg(),
+              riskFactorLimit: {
+                riskFactor: 'leverageRatio',
+                limit: 0,
+              },
+            });
+          }}
+          errorMsg={
+            depositBalance &&
+            maxWithdrawAmount &&
+            depositBalance.gt(maxWithdrawAmount) ? (
+              <FormattedMessage
+                {...messages['WithdrawVault'].aboveMaxWithdraw}
+                values={{
+                  maxWithdraw: maxWithdrawAmount?.toDisplayStringWithSymbol(),
+                }}
+              />
+            ) : undefined
+          }
+          captionMsg={
+            isFullRepayment && (
+              <FormattedMessage
+                {...messages['WithdrawVault']['fullRepaymentInfo']}
+              />
+            )
+          }
+          currencies={[primaryBorrowSymbol]}
+          defaultValue={primaryBorrowSymbol}
+        />
+      </Box>
     </VaultSideDrawer>
   );
 };
