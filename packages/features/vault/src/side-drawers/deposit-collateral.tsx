@@ -1,50 +1,36 @@
 import { useContext } from 'react';
-import { TokenApprovalView, WalletDepositInput } from '@notional-finance/trade';
-import { VAULT_ACTIONS } from '@notional-finance/shared-config';
+import { DepositInput } from '@notional-finance/trade';
 import { VaultSideDrawer } from '../components/vault-side-drawer';
 import { VaultActionContext } from '../vault-view/vault-action-provider';
 import { messages } from '../messages';
 import { useCurrencyInputRef } from '@notional-finance/mui';
+import { useVaultProperties } from '@notional-finance/notionable-hooks';
 
 export const DepositCollateral = () => {
   const {
-    updateState,
-    state: {
-      primaryBorrowSymbol,
-      updatedVaultAccount,
-      minLeverageRatio,
-      baseVault,
-    },
+    state: { postAccountRisk, vaultAddress },
   } = useContext(VaultActionContext);
   const { currencyInputRef } = useCurrencyInputRef();
+  const { minLeverageRatio } = useVaultProperties(vaultAddress);
 
+  // TODO: move this into vault action errors...
   const errorMsg =
-    minLeverageRatio &&
-    updatedVaultAccount &&
-    baseVault &&
-    baseVault.getLeverageRatio(updatedVaultAccount) < minLeverageRatio
-      ? messages[VAULT_ACTIONS.DEPOSIT_COLLATERAL]['belowMinLeverageError']
+    minLeverageRatio !== 0 &&
+    !!postAccountRisk &&
+    postAccountRisk.leverageRatio !== null &&
+    postAccountRisk.leverageRatio < minLeverageRatio
+      ? messages['DepositVaultCollateral']['belowMinLeverageError']
       : undefined;
 
   return (
     <VaultSideDrawer>
-      {primaryBorrowSymbol && (
-        <WalletDepositInput
-          ref={currencyInputRef}
-          inputRef={currencyInputRef}
-          availableTokens={[primaryBorrowSymbol]}
-          selectedToken={primaryBorrowSymbol}
-          onChange={({ hasError }) => {
-            updateState({
-              // depositAmount: inputAmount,
-              hasError,
-            });
-          }}
-          inputLabel={messages[VAULT_ACTIONS.DEPOSIT_COLLATERAL]['inputLabel']}
-          errorMsgOverride={errorMsg}
-        />
-      )}
-      <TokenApprovalView symbol={primaryBorrowSymbol} />
+      <DepositInput
+        ref={currencyInputRef}
+        inputRef={currencyInputRef}
+        context={VaultActionContext}
+        errorMsgOverride={errorMsg}
+        inputLabel={messages['DepositVaultCollateral'].inputLabel}
+      />
     </VaultSideDrawer>
   );
 };

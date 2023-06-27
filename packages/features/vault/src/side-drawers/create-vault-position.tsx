@@ -1,73 +1,23 @@
-import { useEffect, useContext } from 'react';
-import { useParams } from 'react-router-dom';
-import {
-  Maturities,
-  PageLoading,
-  SliderInput,
-  LabelValue,
-  CountUp,
-  useSliderInputRef,
-  useCurrencyInputRef,
-} from '@notional-finance/mui';
+import { useContext } from 'react';
+import { useCurrencyInputRef, PageLoading } from '@notional-finance/mui';
 import { Box, styled, useTheme } from '@mui/material';
-import { RATE_PRECISION } from '@notional-finance/sdk/src/config/constants';
-import { VAULT_ACTIONS } from '@notional-finance/shared-config';
 import { VaultActionContext } from '../vault-view/vault-action-provider';
 import { VaultSideDrawer } from '../components/vault-side-drawer';
-import { useVault } from '@notional-finance/notionable-hooks';
-import { MobileVaultSummary } from '../components';
+import { LeverageSlider, MobileVaultSummary } from '../components';
 import { useVaultActionErrors } from '../hooks';
-import { TokenApprovalView, WalletDepositInput } from '@notional-finance/trade';
+import { DepositInput, MaturitySelect } from '@notional-finance/trade';
 import { messages } from '../messages';
-import { DebtAmountCaption, TransactionCostCaption } from '../components';
-
-interface VaultParams {
-  vaultAddress: string;
-  sideDrawerKey?: VAULT_ACTIONS;
-}
 
 export const CreateVaultPosition = () => {
   const theme = useTheme();
-  const { vaultAddress } = useParams<VaultParams>();
-  const { setSliderInput, sliderInputRef } = useSliderInputRef();
-  const { minBorrowSize, maxLeverageRatio, primaryBorrowSymbol } =
-    useVault(vaultAddress);
-  const { underMinAccountBorrow, inputErrorMsg, leverageRatioError } =
-    useVaultActionErrors();
   const {
-    updateState,
-    state: {
-      selectedMarketKey,
-      borrowMarketData,
-      fCashBorrowAmount,
-      leverageRatio,
-      transactionCosts,
-      cashBorrowed,
-    },
+    state: { deposit },
   } = useContext(VaultActionContext);
   const { currencyInputRef } = useCurrencyInputRef();
-
-  useEffect(() => {
-    updateState({
-      vaultAction: VAULT_ACTIONS.CREATE_VAULT_POSITION,
-    });
-  }, [updateState]);
-
-  useEffect(() => {
-    if (leverageRatio) setSliderInput(leverageRatio / RATE_PRECISION);
-  }, [leverageRatio, setSliderInput]);
+  const { inputErrorMsg } = useVaultActionErrors();
+  const primaryBorrowSymbol = deposit?.symbol;
 
   if (!primaryBorrowSymbol) return <PageLoading />;
-
-  const borrowAmount = (
-    <LabelValue inline error={underMinAccountBorrow}>
-      <CountUp
-        value={fCashBorrowAmount?.abs().toFloat() || 0}
-        suffix={` ${primaryBorrowSymbol}`}
-        decimals={3}
-      />
-    </LabelValue>
-  );
 
   return (
     <>
@@ -84,55 +34,21 @@ export const CreateVaultPosition = () => {
         }}
       >
         <VaultSideDrawer>
-          <Maturities
-            maturityData={borrowMarketData || []}
-            onSelect={(marketKey) => {
-              updateState({ selectedMarketKey: marketKey || '' });
-            }}
-            selectedfCashId={selectedMarketKey || ''}
-            inputLabel={messages[VAULT_ACTIONS.CREATE_VAULT_POSITION].maturity}
-          />
-          <WalletDepositInput
+          <DepositInput
             ref={currencyInputRef}
             inputRef={currencyInputRef}
-            availableTokens={[primaryBorrowSymbol]}
-            selectedToken={primaryBorrowSymbol}
-            onChange={({ inputAmount: _inputAmount, hasError }) => {
-              throw Error('Unimplemented');
-              updateState({ depositAmount: undefined, hasError });
-            }}
-            inputLabel={
-              messages[VAULT_ACTIONS.CREATE_VAULT_POSITION].depositAmount
-            }
+            context={VaultActionContext}
             errorMsgOverride={inputErrorMsg}
+            inputLabel={messages['CreateVaultPosition'].depositAmount}
           />
-          <SliderInput
-            ref={sliderInputRef}
-            min={0}
-            max={maxLeverageRatio / RATE_PRECISION}
-            onChangeCommitted={(leverageRatio) =>
-              updateState({
-                leverageRatio: Math.floor(leverageRatio * RATE_PRECISION),
-              })
-            }
-            errorMsg={
-              leverageRatioError ||
-              (underMinAccountBorrow
-                ? Object.assign(messages.error.underMinBorrow, {
-                    values: { minBorrowSize, borrowAmount },
-                  })
-                : undefined)
-            }
-            rightCaption={<DebtAmountCaption amount={cashBorrowed} />}
-            bottomCaption={
-              <TransactionCostCaption
-                toolTipText={messages.summary.transactionCostToolTip}
-                transactionCosts={transactionCosts}
-              />
-            }
-            inputLabel={messages[VAULT_ACTIONS.CREATE_VAULT_POSITION].leverage}
+          <MaturitySelect
+            context={VaultActionContext}
+            category={'Debt'}
+            inputLabel={messages['CreateVaultPosition'].maturity}
           />
-          <TokenApprovalView symbol={primaryBorrowSymbol} />
+          <LeverageSlider
+            inputLabel={messages['CreateVaultPosition'].leverage}
+          />
         </VaultSideDrawer>
       </Box>
     </>

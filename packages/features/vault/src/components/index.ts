@@ -4,3 +4,5 @@ export * from './write-congress';
 export * from './mobile-vault-summary';
 export * from './debt-amount-caption';
 export * from './transaction-cost-caption';
+export * from './vault-side-drawer';
+export * from './leverage-slider';
