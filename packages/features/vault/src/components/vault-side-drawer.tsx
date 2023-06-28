@@ -31,6 +31,7 @@ export const VaultSideDrawer = ({
       confirm,
       populatedTransaction,
     },
+    updateState,
   } = useContext(VaultActionContext);
   const { minDepositRequired } = useVaultProperties(vaultAddress);
   const { minBorrowSize } = useVaultCapacity();
