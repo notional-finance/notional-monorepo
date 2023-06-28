@@ -2,7 +2,12 @@ import { BigNumber, utils } from 'ethers';
 import { TokenBalance } from '../token-balance';
 import { TokenDefinition } from '..';
 import { ClientRegistry } from './client-registry';
-import { Network } from '@notional-finance/util';
+import {
+  AssetType,
+  Network,
+  PRIME_CASH_VAULT_MATURITY,
+  encodeERC1155Id,
+} from '@notional-finance/util';
 import { Routes } from '../server';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { TokenType } from '../.graphclient';
@@ -96,6 +101,34 @@ export class TokenRegistryClient extends ClientRegistry<TokenDefinition> {
     );
     if (!vaultShare) throw Error('Vault Share not found');
     return vaultShare;
+  }
+
+  public unwrapVaultToken(token: TokenDefinition) {
+    if (!token.currencyId) {
+      return token;
+    } else if (
+      token.tokenType === 'VaultDebt' &&
+      token.maturity &&
+      token.maturity !== PRIME_CASH_VAULT_MATURITY
+    ) {
+      return this.getTokenByID(
+        token.network,
+        encodeERC1155Id(
+          token.currencyId,
+          token.maturity,
+          AssetType.FCASH_ASSET_TYPE
+        )
+      );
+    } else if (
+      token.tokenType === 'VaultDebt' &&
+      token.maturity === PRIME_CASH_VAULT_MATURITY
+    ) {
+      return this.getPrimeDebt(token.network, token.currencyId);
+    } else if (token.tokenType === 'VaultCash') {
+      return this.getPrimeCash(token.network, token.currencyId);
+    } else {
+      return token;
+    }
   }
 
   /** Allows various tokens to be registered externally on the client */

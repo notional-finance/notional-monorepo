@@ -26,7 +26,7 @@ export function useVaultCosts() {
       cashBorrowed = debtBalance.toUnderlying();
     } else {
       const { tokensOut } = fCashMarket.calculateTokenTrade(
-        debtBalance.neg(),
+        debtBalance.unwrapVaultToken().neg(),
         0
       );
       cashBorrowed = config.getVaultBorrowWithFees(

@@ -1,3 +1,4 @@
+import { Registry } from '@notional-finance/core-entities';
 import { convertRateToFloat } from '@notional-finance/helpers';
 import {
   TradeContext,
@@ -34,11 +35,15 @@ export const useMaturitySelect = (
 
   const fCashMarket = useFCashMarket(currencyId);
   const spotRates = fCashMarket?.getSpotInterestRates();
+  const tokenRegistry = Registry.getTokenRegistry();
 
   const maturityData =
     fCashMarket && spotRates && tokens
       ? tokens
-          .filter((t) => t.tokenType === 'fCash' && t.currencyId === currencyId)
+          .filter((_t) => {
+            const t = tokenRegistry.unwrapVaultToken(_t);
+            return t.tokenType === 'fCash' && t.currencyId === currencyId;
+          })
           .sort((t) => t.maturity || 0)
           .map((t, i) => {
             const option = options?.find((_, index) => index === i);
@@ -46,7 +51,7 @@ export const useMaturitySelect = (
             if (depositBalance && option) {
               tradeRate = fCashMarket.getImpliedInterestRate(
                 depositBalance,
-                option
+                option.unwrapVaultToken()
               );
             } else if (option === null) {
               // This signifies an error
