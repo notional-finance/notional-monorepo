@@ -32,7 +32,10 @@ function getVaultSlippageRate(
     debtBalance.unwrapVaultToken(),
     slippageFactor
   );
-  const { tokensOut } = pool.calculateTokenTrade(debtBalance, 0);
+  const { tokensOut } = pool.calculateTokenTrade(
+    debtBalance.neg().unwrapVaultToken(),
+    0
+  );
 
   const underlyingOut = debtBalance.isPositive()
     ? // If lending, no fees are applied on the vault side
@@ -63,10 +66,11 @@ export function EnterVault({
     throw Error('Deposit balance, debt balance must be defined');
   const vaultAddress = debtBalance.vaultAddress;
 
+  // This must be a positive number
   const debtBalanceNum =
     debtBalance.maturity === PRIME_CASH_VAULT_MATURITY
-      ? debtBalance.toUnderlying().n
-      : debtBalance.n;
+      ? debtBalance.toUnderlying().neg().n
+      : debtBalance.neg().n;
   const { slippageRate: maxBorrowRate, underlyingOut } =
     getVaultSlippageRate(debtBalance);
   const vaultAdapter = Registry.getVaultRegistry().getVaultAdapter(

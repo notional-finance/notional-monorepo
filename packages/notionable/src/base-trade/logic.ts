@@ -702,17 +702,21 @@ export function postVaultAccountRisk(
           canSubmit,
           depositBalance,
           collateralBalance,
+          collateral,
           debtBalance,
           vaultAddress,
         },
       ]) => {
-        if (canSubmit && account && vaultAddress) {
+        if (canSubmit && account && vaultAddress && collateral) {
           const profile = VaultAccountRiskProfile.simulate(
             vaultAddress,
             account.balances,
-            [depositBalance, collateralBalance, debtBalance].filter(
-              (b) => b !== undefined
-            ) as TokenBalance[]
+            [
+              // Deposits are converted to vault shares
+              depositBalance?.toToken(collateral),
+              collateralBalance,
+              debtBalance,
+            ].filter((b) => b !== undefined) as TokenBalance[]
           );
 
           return { postAccountRisk: profile.getAllRiskFactors() };
