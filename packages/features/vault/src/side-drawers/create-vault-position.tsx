@@ -5,7 +5,7 @@ import { VaultActionContext } from '../vault-view/vault-action-provider';
 import { VaultSideDrawer } from '../components/vault-side-drawer';
 import { LeverageSlider, MobileVaultSummary } from '../components';
 import { useVaultActionErrors } from '../hooks';
-import { DepositInput, MaturitySelect } from '@notional-finance/trade';
+import { DepositInput, ToggleMaturitySelect } from '@notional-finance/trade';
 import { messages } from '../messages';
 
 export const CreateVaultPosition = () => {
@@ -41,10 +41,9 @@ export const CreateVaultPosition = () => {
             errorMsgOverride={inputErrorMsg}
             inputLabel={messages['CreateVaultPosition'].depositAmount}
           />
-          <MaturitySelect
+          <ToggleMaturitySelect
             context={VaultActionContext}
-            category={'Debt'}
-            inputLabel={messages['CreateVaultPosition'].maturity}
+            fCashInputLabel={messages['CreateVaultPosition'].maturity}
           />
           <LeverageSlider
             inputLabel={messages['CreateVaultPosition'].leverage}

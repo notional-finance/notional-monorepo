@@ -38,6 +38,7 @@ export const useMaturitySelect = (
   const spotRates = fCashMarket?.getSpotInterestRates();
   const tokenRegistry = Registry.getTokenRegistry();
 
+  // TODO: maybe put a use memo in here..
   const maturityData =
     fCashMarket && spotRates && tokens
       ? tokens
