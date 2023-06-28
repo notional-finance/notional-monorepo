@@ -1,11 +1,18 @@
 import { Registry } from '@notional-finance/core-entities';
 import { convertRateToFloat } from '@notional-finance/helpers';
+import { TradeType, VaultTradeType } from '@notional-finance/notionable';
 import {
   TradeContext,
   useFCashMarket,
 } from '@notional-finance/notionable-hooks';
 import { formatInterestRate } from '@notional-finance/util';
 import { useCallback, useContext } from 'react';
+
+const isVaultTrade = (tradeType?: VaultTradeType | TradeType) => {
+  return (
+    tradeType === 'CreateVaultPosition' || tradeType === 'RollVaultPosition'
+  );
+};
 
 export const useMaturitySelect = (
   category: 'Collateral' | 'Debt',
@@ -20,7 +27,7 @@ export const useMaturitySelect = (
       collateralOptions,
       debtOptions,
       deposit,
-      depositBalance,
+      tradeType,
     },
     updateState,
   } = useContext(context);
@@ -46,11 +53,27 @@ export const useMaturitySelect = (
           })
           .sort((t) => t.maturity || 0)
           .map((t, i) => {
-            const option = options?.find((_, index) => index === i);
+            const index = tokens.findIndex((_t) => _t.id === t.id);
+            const option = options ? options[index] : undefined;
             let tradeRate: number | undefined;
-            if (depositBalance && option) {
+            if (option) {
+              let { tokensOut } = fCashMarket.calculateTokenTrade(
+                option.unwrapVaultToken().neg(),
+                0
+              );
+
+              if (isVaultTrade(tradeType)) {
+                ({ cashBorrowed: tokensOut } =
+                  Registry.getConfigurationRegistry().getVaultBorrowWithFees(
+                    option.network,
+                    option.vaultAddress,
+                    option.maturity,
+                    tokensOut.toUnderlying()
+                  ));
+              }
+
               tradeRate = fCashMarket.getImpliedInterestRate(
-                depositBalance,
+                tokensOut,
                 option.unwrapVaultToken()
               );
             } else if (option === null) {

@@ -589,7 +589,8 @@ export function calculate(
                   debtBalance: TokenBalance;
                 };
                 return debtBalance;
-              } catch {
+              } catch (e) {
+                console.error(e);
                 return null;
               }
             })

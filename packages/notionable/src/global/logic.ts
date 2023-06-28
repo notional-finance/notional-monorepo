@@ -1,8 +1,6 @@
 import { Network } from '@notional-finance/util';
 import { AccountFetchMode, Registry } from '@notional-finance/core-entities';
 
-const FEATURE_FLAG = process.env['NX_V3_FEATURE_FLAG'];
-
 export function onSelectedNetworkChange(
   cacheHostname: string,
   selectedNetwork: Network,
