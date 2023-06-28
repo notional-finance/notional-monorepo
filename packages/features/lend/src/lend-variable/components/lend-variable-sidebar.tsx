@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useContext } from 'react';
+import { useContext } from 'react';
 import { defineMessage, FormattedMessage } from 'react-intl';
 import { ActionSidebar, useCurrencyInputRef } from '@notional-finance/mui';
 import {
@@ -6,35 +6,26 @@ import {
   DepositInput,
   Confirmation2,
 } from '@notional-finance/trade';
-import { useHistory, useLocation } from 'react-router-dom';
-import { LEND_BORROW } from '@notional-finance/shared-config';
-import { LendFixedContext } from '../../lend-fixed/lend-fixed';
+import { PRODUCTS } from '@notional-finance/shared-config';
+import { LendVariableContext } from '../../lend-variable/lend-variable';
 
 export const LendVariableSidebar = () => {
   const {
-    state: { canSubmit, buildTransactionCall, confirm },
-  } = useContext(LendFixedContext);
-  const history = useHistory();
-  const { pathname, search } = useLocation();
+    state: { canSubmit, populatedTransaction, confirm },
+    updateState,
+  } = useContext(LendVariableContext);
   const { currencyInputRef } = useCurrencyInputRef();
-
-  const handleTxnCancel = useCallback(() => {
-    history.push(pathname);
-  }, [history, pathname]);
 
   const handleLeverUpToggle = () => {
     // TODO: hook this up to context
     console.log('handleLeverUpToggle');
   };
 
-  useEffect(() => {
-    if (search.includes('confirm=true')) {
-      handleTxnCancel();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const handleSubmit = () => {
+    updateState({ confirm: true });
+  };
 
-  return confirm && buildTransactionCall ? (
+  return confirm && populatedTransaction ? (
     <Confirmation2
       heading={
         <FormattedMessage
@@ -42,8 +33,7 @@ export const LendVariableSidebar = () => {
           description="section heading"
         />
       }
-      onCancel={handleTxnCancel}
-      context={LendFixedContext}
+      context={LendVariableContext}
     />
   ) : (
     <ActionSidebar
@@ -58,14 +48,15 @@ export const LendVariableSidebar = () => {
       })}
       CustomActionButton={TradeActionButton}
       canSubmit={canSubmit}
+      handleSubmit={handleSubmit}
       handleLeverUpToggle={handleLeverUpToggle}
       leveredUp={false}
     >
       <DepositInput
         ref={currencyInputRef}
         inputRef={currencyInputRef}
-        context={LendFixedContext}
-        newRoute={(newToken) => `/${LEND_BORROW.LEND}/${newToken}`}
+        context={LendVariableContext}
+        newRoute={(newToken) => `/${PRODUCTS.LEND_VARIABLE}/${newToken}`}
         inputLabel={defineMessage({
           defaultMessage: '1. How much do you want to lend?',
           description: 'input label',

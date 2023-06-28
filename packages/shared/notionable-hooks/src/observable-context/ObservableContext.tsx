@@ -18,7 +18,6 @@ import {
   take,
   concat,
 } from 'rxjs';
-import { QueryParamConfigMap, useQueryParams } from 'use-query-params';
 import { useNotionalContext } from '../notional/use-notional';
 
 const DEBUG = process.env['NODE_ENV'] === 'development';
@@ -53,7 +52,6 @@ interface ContextState extends Record<string, unknown> {
 
 export function useObservableContext<T extends ContextState>(
   initialState: T,
-  queryParamConfig: QueryParamConfigMap,
   loadManagers: (
     state$: Observable<T>,
     global$: Observable<GlobalState>
@@ -61,8 +59,10 @@ export function useObservableContext<T extends ContextState>(
 ) {
   const params = useParams<Record<string, string>>();
   const { pathname } = useLocation();
-  const [query, setQuery] = useQueryParams(queryParamConfig);
-  const { globalState$ } = useNotionalContext();
+  const {
+    globalState$,
+    globalState: { isNetworkReady },
+  } = useNotionalContext();
   // Converts the initial state into an observable to make it safe in
   // a closure
   const initialState$ = useObservable(pluckFirst, [initialState]);
@@ -115,33 +115,13 @@ export function useObservableContext<T extends ContextState>(
   useEffect(() => {
     // If any of the route params change then we will update state to initial and set the params,
     // this prevents any "residual" state from going between paths
-    if (state.isReady) {
+    if (isNetworkReady) {
       if (DEBUG) console.log('URL UPDATE', params);
       updateState(params as T);
     }
     // NOTE: only run updates on pathname changes, since params is an object
     // eslint-disable-next-line
-  }, [pathname, state.isReady, updateState]);
-
-  useEffect(() => {
-    const updates = Object.keys(query).reduce((u, k) => {
-      const stateVal = k in state ? state[k] : undefined;
-      if (stateVal === undefined && query[k] !== undefined) {
-        // If param is undefined in state, it has param has precedence
-        return { ...u, [k]: query[k] };
-      } else if (k in state && stateVal !== query[k]) {
-        // If state is defined and doesn't match query, then update query
-        // to match state
-        setQuery({ [k]: stateVal });
-      }
-
-      return u;
-    }, {} as Partial<T>);
-
-    if (Object.keys(updates).length !== 0) {
-      updateState(updates);
-    }
-  }, [query, state, updateState, setQuery]);
+  }, [pathname, isNetworkReady, updateState]);
 
   return { updateState, state$, state };
 }

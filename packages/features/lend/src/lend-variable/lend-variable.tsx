@@ -12,16 +12,17 @@ import {
 import { LendVariableSidebar } from './components';
 import { TradeActionSummary } from '@notional-finance/trade';
 import { NOTIONAL_CATEGORIES } from '@notional-finance/shared-config';
-import { useLendVaraibleFaq } from './hooks/use-lend-variable-faq';
+import { useLendVariableFaq } from './hooks/use-lend-variable-faq';
 
 export const LendVariableContext = createTradeContext('LendVariable');
 
 export const LendVariable = () => {
-  const { faqs, faqHeaderLinks } = useLendVaraibleFaq();
   const context = useTradeContext('LendVariable');
   const {
     state: { isReady, confirm, selectedDepositToken },
   } = context;
+
+  const { faqs, faqHeaderLinks } = useLendVariableFaq(selectedDepositToken);
 
   return (
     <LendVariableContext.Provider value={context}>

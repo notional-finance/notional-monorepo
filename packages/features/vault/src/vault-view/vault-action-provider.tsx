@@ -17,7 +17,6 @@ export const VaultActionContext = createObservableContext<VaultActionState>(
 export const VaultActionProvider = () => {
   const value = useObservableContext(
     initialVaultActionState,
-    {},
     loadVaultActionManager
   );
 

@@ -5,6 +5,7 @@ import {
   SideBarLayout,
   InteractiveAreaChart,
 } from '@notional-finance/mui';
+import { Box } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import {
   createTradeContext,
@@ -13,8 +14,8 @@ import {
 import { LendFixedSidebar, HowItWorksFaq } from './components';
 import {
   TradeActionSummary,
-  TradeActionView,
-  CalculatedRatesTable,
+  // TradeActionView,
+  // CalculatedRatesTable,
 } from '@notional-finance/trade';
 import { useLendFixedChart, useLendFixedFaq } from './hooks';
 import { NOTIONAL_CATEGORIES } from '@notional-finance/shared-config';
@@ -58,7 +59,9 @@ export const LendFixed = () => {
                 lockSelection={!!confirm}
                 chartToolTipData={chartToolTipData}
               />
-              {selectedDepositToken && (
+              {/* TODO: Commenting out TradeActionView & CalculatedRatesTable until data is ready */}
+              <Box sx={{ marginTop: '48px' }}></Box>
+              {/* {selectedDepositToken && (
                 <TradeActionView
                   selectedMarketKey={selectedMarketKey}
                   tradeAction={NOTIONAL_CATEGORIES.LEND}
@@ -66,7 +69,7 @@ export const LendFixed = () => {
                   fCashAmount={0}
                   interestAmount={0}
                 />
-              )}
+              )} */}
               {selectedDepositToken && (
                 <Faq
                   question={
@@ -87,13 +90,13 @@ export const LendFixed = () => {
                   }
                 />
               )}
-              {selectedDepositToken && (
+              {/* {selectedDepositToken && (
                 <CalculatedRatesTable
                   selectedMarketKey={selectedMarketKey}
                   selectedToken={selectedDepositToken}
                   tradeAction={NOTIONAL_CATEGORIES.LEND}
                 />
-              )}
+              )} */}
               <FaqHeader
                 title={<FormattedMessage defaultMessage={'Fixed Lend FAQ'} />}
                 links={faqHeaderLinks}

@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useContext } from 'react';
+import { useContext } from 'react';
 import { defineMessage, FormattedMessage } from 'react-intl';
 import { ActionSidebar, useCurrencyInputRef } from '@notional-finance/mui';
 import {
@@ -7,30 +7,21 @@ import {
   MaturitySelect,
   Confirmation2,
 } from '@notional-finance/trade';
-import { useHistory, useLocation } from 'react-router-dom';
 import { PRODUCTS } from '@notional-finance/shared-config';
 import { LendFixedContext } from '../../lend-fixed/lend-fixed';
 
 export const LendFixedSidebar = () => {
   const {
-    state: { canSubmit, buildTransactionCall, confirm },
+    state: { canSubmit, populatedTransaction, confirm },
+    updateState,
   } = useContext(LendFixedContext);
-  const history = useHistory();
-  const { pathname, search } = useLocation();
   const { currencyInputRef } = useCurrencyInputRef();
 
-  const handleTxnCancel = useCallback(() => {
-    history.push(pathname);
-  }, [history, pathname]);
+  const handleSubmit = () => {
+    updateState({ confirm: true });
+  };
 
-  useEffect(() => {
-    if (search.includes('confirm=true')) {
-      handleTxnCancel();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  return confirm && buildTransactionCall ? (
+  return confirm && populatedTransaction ? (
     <Confirmation2
       heading={
         <FormattedMessage
@@ -38,7 +29,6 @@ export const LendFixedSidebar = () => {
           description="section heading"
         />
       }
-      onCancel={handleTxnCancel}
       context={LendFixedContext}
     />
   ) : (
@@ -53,6 +43,7 @@ export const LendFixedSidebar = () => {
         description: 'helptext',
       })}
       CustomActionButton={TradeActionButton}
+      handleSubmit={handleSubmit}
       canSubmit={canSubmit}
     >
       <DepositInput
