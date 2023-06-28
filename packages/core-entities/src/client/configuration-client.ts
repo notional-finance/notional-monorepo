@@ -366,7 +366,7 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
 
     return {
       id,
-      address: NotionalAddress[network],
+      address: NotionalAddress[network].toLowerCase(),
       network,
       name,
       symbol,
@@ -375,7 +375,7 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
       tokenType,
       underlying: underlying.id,
       maturity,
-      vaultAddress,
+      vaultAddress: vaultAddress.toLowerCase(),
       isFCashDebt: false,
       currencyId: underlying.currencyId,
     };

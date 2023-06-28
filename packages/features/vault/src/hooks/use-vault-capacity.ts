@@ -30,7 +30,7 @@ export const useVaultCapacity = () => {
   let minBorrowSize: string | undefined = undefined;
 
   const totalAccountDebt =
-    debt && debtBalance
+    debt && debtBalance && debt.id === debtBalance.tokenId
       ? (
           vaultBalances.find((t) => t.tokenId === debtBalance?.tokenId) ||
           TokenBalance.zero(debt)

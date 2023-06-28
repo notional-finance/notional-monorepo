@@ -71,10 +71,12 @@ export const AreaChart = ({
     return (
       <g transform={`translate(${x},${y})`} cursor={'pointer'}>
         <text x={0} y={0} dy={16} textAnchor="center">
-          {intl.formatDate(value * 1000, {
-            month: 'short',
-            year: 'numeric',
-          })}
+          {typeof value === 'number'
+            ? intl.formatDate(value * 1000, {
+                month: 'short',
+                year: 'numeric',
+              })
+            : ''}
         </text>
       </g>
     );

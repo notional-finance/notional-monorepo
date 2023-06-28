@@ -1,6 +1,5 @@
 import { ArrowIndicatorCellData } from '@notional-finance/mui';
 import { TypedBigNumber } from '@notional-finance/sdk';
-import { RATE_PRECISION } from '@notional-finance/sdk/src/config/constants';
 import {
   convertRateToFloat,
   formatNumberAsPercent,
@@ -33,7 +32,7 @@ export function formatRateAsPercent(n?: number | null, digits = 1) {
 }
 
 export function formatLeverageForRisk(n?: number | null) {
-  return n && n !== null ? `${(n / RATE_PRECISION).toFixed(2)}x` : '-';
+  return n && n !== null ? `${n.toFixed(2)}x` : '-';
 }
 
 export function didIncrease(current?: number | null, updated?: number | null) {
