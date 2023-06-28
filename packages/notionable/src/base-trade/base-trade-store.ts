@@ -16,7 +16,7 @@ import {
   TransactionBuilder,
 } from '@notional-finance/transaction';
 import { PopulatedTransaction } from 'ethers';
-import { VaultTradeType } from './vault-trade-config';
+import { VaultTradeConfiguration, VaultTradeType } from './vault-trade-config';
 import { TradeType } from './trade-config';
 export { TradeConfiguration } from './trade-config';
 export { VaultTradeConfiguration } from './vault-trade-config';
@@ -168,3 +168,8 @@ export const initialBaseTradeState: BaseTradeState = {
   inputsSatisfied: false,
   redeemToWETH: false,
 };
+
+export function isVaultTrade(tradeType?: VaultTradeType | TradeType) {
+  if (!tradeType) return false;
+  return Object.keys(VaultTradeConfiguration).includes(tradeType);
+}

@@ -38,6 +38,7 @@ import {
   VaultTradeConfiguration,
   VaultTradeState,
   VaultTradeType,
+  isVaultTrade,
 } from './base-trade-store';
 import { selectedNetwork, selectedAccount, Category } from './selectors';
 
@@ -578,12 +579,23 @@ export function calculate(
       if (calculateDebtOptions) {
         const satisfied = requiredArgs
           .filter((c) => c !== 'debt')
+          .filter((c) => (isVaultTrade(tradeType) ? c !== 'collateral' : true))
           .every((r) => inputs[r] !== undefined);
 
         debtOptions = satisfied
           ? debtTokens?.map((d) => {
               const i = { ...inputs, debt: d };
               try {
+                if (isVaultTrade(tradeType)) {
+                  // Switch to the matching vault share token for vault trades
+                  if (!d.vaultAddress || !d.maturity)
+                    throw Error('Invalid debt token');
+                  i['collateral'] = Registry.getTokenRegistry().getVaultShare(
+                    d.network,
+                    d.vaultAddress,
+                    d.maturity
+                  );
+                }
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const { debtBalance } = calculationFn(i as any) as {
                   debtBalance: TokenBalance;
@@ -654,14 +666,18 @@ export function priorVaultAccountRisk(
 ) {
   return combineLatest([state$, account$]).pipe(
     map(([{ vaultAddress }, account]) => {
-      return vaultAddress && account
-        ? {
-            priorAccountRisk: VaultAccountRiskProfile.from(
-              vaultAddress,
-              account.balances
-            ).getAllRiskFactors(),
-          }
-        : undefined;
+      if (!vaultAddress || !account) return undefined;
+      const vaultBalances =
+        account.balances.filter((t) => t.token.vaultAddress === vaultAddress) ||
+        [];
+      if (vaultBalances.length === 0) return undefined;
+
+      return {
+        priorAccountRisk: VaultAccountRiskProfile.from(
+          vaultAddress,
+          vaultBalances
+        ).getAllRiskFactors(),
+      };
     }),
     filterEmpty()
   );

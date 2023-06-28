@@ -1,18 +1,12 @@
 import { Registry } from '@notional-finance/core-entities';
 import { convertRateToFloat } from '@notional-finance/helpers';
-import { TradeType, VaultTradeType } from '@notional-finance/notionable';
+import { isVaultTrade } from '@notional-finance/notionable';
 import {
   TradeContext,
   useFCashMarket,
 } from '@notional-finance/notionable-hooks';
 import { formatInterestRate } from '@notional-finance/util';
 import { useCallback, useContext } from 'react';
-
-const isVaultTrade = (tradeType?: VaultTradeType | TradeType) => {
-  return (
-    tradeType === 'CreateVaultPosition' || tradeType === 'RollVaultPosition'
-  );
-};
 
 export const useMaturitySelect = (
   category: 'Collateral' | 'Debt',

@@ -61,7 +61,6 @@ export const VaultActionSideDrawer = () => {
 
   const returnToManageVault = useCallback(() => {
     history.push(`/vaults/${vaultAddress}`);
-    // TODO: this might cause problems
     updateState({ tradeType: undefined });
   }, [vaultAddress, history, updateState]);
 

@@ -8,7 +8,8 @@ import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
 export function useVaultAccount(vaultAddress?: string) {
   const { account } = useAccountDefinition();
   const vaultBalances =
-    account?.balances.filter((t) => t.vaultAddress === vaultAddress) || [];
+    account?.balances.filter((t) => t.token.vaultAddress === vaultAddress) ||
+    [];
   const network = useSelectedNetwork();
 
   let canRollMaturity = false;
