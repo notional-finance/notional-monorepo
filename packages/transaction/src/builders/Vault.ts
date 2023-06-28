@@ -45,7 +45,7 @@ function getVaultSlippageRate(
           debtBalance.maturity,
           tokensOut
         )
-        .toUnderlying();
+        .cashBorrowed.toUnderlying();
 
   return {
     slippageRate,

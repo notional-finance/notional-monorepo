@@ -13,12 +13,7 @@ export function useVaultCosts() {
 
   let transactionCosts: TokenBalance | undefined;
   let cashBorrowed: TokenBalance | undefined;
-
-  if (deposit) {
-    transactionCosts = (
-      debtFee?.toToken(deposit) || TokenBalance.zero(deposit)
-    ).add(collateralFee?.toToken(deposit) || TokenBalance.zero(deposit));
-  }
+  let vaultFee: TokenBalance | undefined;
 
   if (debtBalance && fCashMarket) {
     if (debtBalance.maturity === PRIME_CASH_VAULT_MATURITY) {
@@ -29,13 +24,19 @@ export function useVaultCosts() {
         debtBalance.unwrapVaultToken().neg(),
         0
       );
-      cashBorrowed = config.getVaultBorrowWithFees(
+      ({ cashBorrowed, vaultFee } = config.getVaultBorrowWithFees(
         debtBalance.network,
         debtBalance.vaultAddress,
         debtBalance.maturity,
         tokensOut.toUnderlying()
-      );
+      ));
     }
+  }
+
+  if (deposit) {
+    transactionCosts = (debtFee?.toToken(deposit) || TokenBalance.zero(deposit))
+      .add(collateralFee?.toToken(deposit) || TokenBalance.zero(deposit))
+      .add(vaultFee?.toToken(deposit) || TokenBalance.zero(deposit));
   }
 
   return { transactionCosts, cashBorrowed };

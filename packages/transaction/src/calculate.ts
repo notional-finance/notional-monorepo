@@ -604,14 +604,16 @@ export function calculateVaultDebt({
     };
   } else {
     const fCashToken = TokenBalance.unit(debt).unwrapVaultToken().token;
-    const { tokensOut, feesPaid } = debtPool.calculateTokenTrade(
-      // Returns the total cash required including value fees
+    const { cashBorrowed } =
       Registry.getConfigurationRegistry().getVaultBorrowWithFees(
         debt.network,
         debt.vaultAddress,
         debt.maturity,
         totalDebtPrime.neg()
-      ),
+      );
+    const { tokensOut, feesPaid } = debtPool.calculateTokenTrade(
+      // Returns the total cash required including value fees
+      cashBorrowed,
       debtPool.getTokenIndex(fCashToken)
     );
 
@@ -644,16 +646,16 @@ export function calculateVaultCollateral({
     debtBalance.toPrimeCash().token
   );
 
+  const { cashBorrowed } =
+    Registry.getConfigurationRegistry().getVaultBorrowWithFees(
+      debtBalance.network,
+      debtBalance.vaultAddress,
+      debtBalance.maturity,
+      localDebtPrime
+    );
   const totalVaultShares = depositBalance
     .toPrimeCash()
-    .add(
-      Registry.getConfigurationRegistry().getVaultBorrowWithFees(
-        debtBalance.network,
-        debtBalance.vaultAddress,
-        debtBalance.maturity,
-        localDebtPrime
-      )
-    )
+    .add(cashBorrowed)
     .toToken(collateral);
 
   // This value accounts for slippage...
