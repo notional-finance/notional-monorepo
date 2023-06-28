@@ -12,7 +12,6 @@ import {
   RATE_DECIMALS,
   getNowSeconds,
   PRIME_CASH_VAULT_MATURITY,
-  BASIS_POINT,
 } from '@notional-finance/util';
 import { RiskFactorLimit, RiskFactors, SymbolOrID } from './types';
 

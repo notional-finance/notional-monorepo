@@ -1,11 +1,10 @@
+import { useEffect } from 'react';
 import {
   TradeState,
+  TradeType,
   createTradeManager,
   initialBaseTradeState,
-  TradeConfiguration,
-  TradeType,
 } from '@notional-finance/notionable';
-import { useMemo } from 'react';
 import {
   createObservableContext,
   ObservableContext,
@@ -14,19 +13,19 @@ import {
 
 export type TradeContext = React.Context<ObservableContext<TradeState>>;
 
-export function createTradeContext(trade: TradeType) {
-  return createObservableContext<TradeState>(trade, initialBaseTradeState);
+export function createTradeContext(tradeType: TradeType) {
+  return createObservableContext<TradeState>(tradeType, initialBaseTradeState);
 }
 
-export function useTradeContext(trade: TradeType) {
-  const tradeManager = useMemo(() => {
-    return createTradeManager(TradeConfiguration[trade]);
-  }, [trade]);
-
+export function useTradeContext(tradeType: TradeType) {
   const { updateState, state$, state } = useObservableContext<TradeState>(
     initialBaseTradeState,
-    tradeManager
+    createTradeManager
   );
+
+  useEffect(() => {
+    updateState({ tradeType });
+  }, [updateState, tradeType]);
 
   return { updateState, state$, state };
 }

@@ -13,7 +13,11 @@ export const useVaultDocs = (vaultAddress: string) => {
   const [overviewContent, setOverviewContent] = useState<OverviewContent[]>();
   const [docsLink, setDocsLink] = useState<string>();
   const [financialModelLink, setFinancialModelLink] = useState<string>();
-  const { state: { strategyName } } = useContext(VaultActionContext);
+  const {
+    state: { vaultConfig },
+  } = useContext(VaultActionContext);
+  // TODO: this does not work...
+  const strategyName = vaultConfig?.strategy;
 
   useEffect(() => {
     if (!vaultAddress || !strategyName) return;

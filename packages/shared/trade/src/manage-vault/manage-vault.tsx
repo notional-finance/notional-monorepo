@@ -1,5 +1,4 @@
 import { Box, styled, useTheme } from '@mui/material';
-import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
 import {
   H4,
   LabelValue,
@@ -7,18 +6,17 @@ import {
   SideDrawerButton,
 } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
-import { useManageVault } from './use-manage-vault';
+import {
+  useManageVault,
+  useVaultProperties,
+} from '@notional-finance/notionable-hooks';
 import { useHistory } from 'react-router-dom';
-import { useQueryParams } from '@notional-finance/utils';
-import { useVault } from '@notional-finance/notionable-hooks';
-import { messages } from '../messages';
 
-export const ManageVault = () => {
+export const ManageVault = ({ vaultAddress }: { vaultAddress?: string }) => {
   const theme = useTheme();
   const history = useHistory();
-  const { vaultAddress } = useQueryParams();
   const { reduceLeverageOptions, manageVaultOptions } = useManageVault();
-  const { vaultName } = useVault(vaultAddress);
+  const { vaultName } = useVaultProperties(vaultAddress);
 
   return (
     <Box>
@@ -27,7 +25,7 @@ export const ManageVault = () => {
         sx={{ marginBottom: theme.spacing(5) }}
       >
         <FormattedMessage
-          {...messages[PORTFOLIO_ACTIONS.MANAGE_VAULT].heading}
+          defaultMessage={'Manage {vaultName} Vault'}
           values={{
             vaultName,
           }}

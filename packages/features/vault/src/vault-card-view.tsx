@@ -1,13 +1,13 @@
-import { useStrategies } from './use-strategies';
 import { CardContainer } from '@notional-finance/shared-web';
 import { Vault, FeatureLoader } from '@notional-finance/mui';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { defineMessage, FormattedMessage } from 'react-intl';
 import { useUserSettingsState } from '@notional-finance/user-settings-manager';
 import { ThemeProvider } from '@mui/material';
+import { useVaultCards } from './hooks';
 
-export const AllStrategyView = () => {
-  const allVaults = useStrategies();
+export const VaultCardView = () => {
+  const allVaults = useVaultCards();
   const { themeVariant } = useUserSettingsState();
   const themeLanding = useNotionalTheme(themeVariant, 'landing');
 
@@ -58,5 +58,3 @@ export const AllStrategyView = () => {
     </ThemeProvider>
   );
 };
-
-export default AllStrategyView;

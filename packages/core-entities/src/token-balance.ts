@@ -1,10 +1,8 @@
 import {
   ALT_ETH,
-  AssetType,
   convertToGenericfCashId,
-  encodeERC1155Id,
+  INTERNAL_TOKEN_PRECISION,
   Network,
-  PRIME_CASH_VAULT_MATURITY,
   RATE_PRECISION,
   SCALAR_PRECISION,
   ZERO_ADDRESS,
@@ -100,6 +98,10 @@ export class TokenBalance {
     const m = this.token.maturity;
     if (!m) throw Error('Invalid maturity');
     return m;
+  }
+
+  get symbol() {
+    return this.token.symbol;
   }
 
   get tokenType() {
@@ -212,6 +214,10 @@ export class TokenBalance {
   /** Scales to a given number of decimal places */
   scaleTo(decimalPlaces: number) {
     return this.scale(BigNumber.from(10).pow(decimalPlaces), this.precision).n;
+  }
+
+  scaleFromInternal() {
+    return this.scale(this.precision, INTERNAL_TOKEN_PRECISION);
   }
 
   /** Comparison Methods */
@@ -436,37 +442,7 @@ export class TokenBalance {
 
   /** Does some token id manipulation for exchange rates */
   unwrapVaultToken() {
-    if (
-      this.tokenType === 'VaultDebt' &&
-      this.token.maturity &&
-      this.token.maturity !== PRIME_CASH_VAULT_MATURITY
-    ) {
-      const fCashToken = Registry.getTokenRegistry().getTokenByID(
-        this.network,
-        encodeERC1155Id(
-          this.currencyId,
-          this.token.maturity,
-          AssetType.FCASH_ASSET_TYPE
-        )
-      );
-      return TokenBalance.from(this.n, fCashToken);
-    } else if (
-      this.tokenType === 'VaultDebt' &&
-      this.token.maturity === PRIME_CASH_VAULT_MATURITY
-    ) {
-      const pDebtToken = Registry.getTokenRegistry().getPrimeDebt(
-        this.network,
-        this.currencyId
-      );
-      return TokenBalance.from(this.n, pDebtToken);
-    } else if (this.tokenType === 'VaultCash') {
-      const pCashToken = Registry.getTokenRegistry().getPrimeDebt(
-        this.network,
-        this.currencyId
-      );
-      return TokenBalance.from(this.n, pCashToken);
-    } else {
-      return this;
-    }
+    const newToken = Registry.getTokenRegistry().unwrapVaultToken(this.token);
+    return TokenBalance.from(this.n, newToken);
   }
 }

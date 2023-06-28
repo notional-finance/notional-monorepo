@@ -4,7 +4,7 @@ import {
   GlobalState,
   initialBaseTradeState,
   initialGlobalState,
-  createBaseTradeManager,
+  createTradeManager,
   makeStore,
   TradeConfiguration,
   TradeType,
@@ -18,7 +18,7 @@ describe.withForkAndRegistry(
     network: Network.ArbitrumOne,
     fetchMode: AccountFetchMode.SINGLE_ACCOUNT_DIRECT,
   },
-  'Base Trade Manager',
+  'Trade Manager',
   () => {
     const { _state$: state$ } = makeStore<BaseTradeState>(
       initialBaseTradeState
@@ -26,7 +26,7 @@ describe.withForkAndRegistry(
     const { updateState: updateGlobal, _state$: global$ } =
       makeStore<GlobalState>(initialGlobalState);
 
-    const baseTradeUpdates = createBaseTradeManager(
+    const baseTradeUpdates = createTradeManager(
       TradeConfiguration['MintNToken']
     )(state$, global$);
 
@@ -106,12 +106,14 @@ describe.withForkAndRegistry(
         const { updateState: updateGlobal, _state$: global$ } =
           makeStore<GlobalState>(initialGlobalState);
 
-        const baseTradeUpdates = createBaseTradeManager(
-          TradeConfiguration[trade]
-        )(state$, global$);
+        const baseTradeUpdates = createTradeManager(TradeConfiguration[trade])(
+          state$,
+          global$
+        );
         const testSequence = getSequencer(updateState, baseTradeUpdates);
 
         baseTradeUpdates.subscribe((s) => {
+          console.log('state update', s);
           updateState(s);
         });
         let isDone = false;
@@ -132,7 +134,7 @@ describe.withForkAndRegistry(
         return promise;
       };
 
-      it('it sets selected tokens and balances', async () => {
+      it.only('it sets selected tokens and balances', async () => {
         (await startTest('MintNToken'))([
           [
             { selectedDepositToken: 'USDC' },

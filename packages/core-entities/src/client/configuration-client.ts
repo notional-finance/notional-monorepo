@@ -104,7 +104,39 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
     const feeRate = Math.floor(
       annualizedFeeRate * ((maturity - blockTime) / SECONDS_IN_YEAR)
     );
-    return cashBorrowed.scale(feeRate, RATE_PRECISION);
+    const vaultFee = cashBorrowed.scale(feeRate, RATE_PRECISION);
+    return {
+      cashBorrowed: cashBorrowed.sub(vaultFee),
+      vaultFee,
+    };
+  }
+
+  getVaultCapacity(network: Network, vaultAddress: string) {
+    const {
+      minAccountBorrowSize,
+      totalUsedPrimaryBorrowCapacity,
+      maxPrimaryBorrowCapacity,
+      primaryBorrowCurrency: { id },
+    } = this.getVaultConfig(network, vaultAddress);
+
+    return {
+      minAccountBorrowSize: TokenBalance.fromID(
+        minAccountBorrowSize,
+        id,
+        network
+      ).scaleFromInternal(),
+      // TODO: this does not include prime debt....
+      totalUsedPrimaryBorrowCapacity: TokenBalance.fromID(
+        totalUsedPrimaryBorrowCapacity,
+        id,
+        network
+      ).scaleFromInternal(),
+      maxPrimaryBorrowCapacity: TokenBalance.fromID(
+        maxPrimaryBorrowCapacity,
+        id,
+        network
+      ).scaleFromInternal(),
+    };
   }
 
   getValidVaultCurrencies(network: Network, vaultAddress: string) {
@@ -334,7 +366,7 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
 
     return {
       id,
-      address: NotionalAddress[network],
+      address: NotionalAddress[network].toLowerCase(),
       network,
       name,
       symbol,
@@ -343,7 +375,7 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
       tokenType,
       underlying: underlying.id,
       maturity,
-      vaultAddress,
+      vaultAddress: vaultAddress.toLowerCase(),
       isFCashDebt: false,
       currencyId: underlying.currencyId,
     };

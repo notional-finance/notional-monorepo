@@ -5,7 +5,7 @@ import { ExchangeRate, OracleDefinition } from '../Definitions';
 import { Registry } from '../Registry';
 
 export abstract class VaultAdapter {
-  abstract hashKey: string;
+  abstract get hashKey(): string;
 
   constructor() {
     // NO-OP

@@ -533,7 +533,7 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
         .scaleTo(totalCashUnderlying.decimals)
     );
 
-    const fee = preFeeCashToAccount.sub(postFeeCashToAccount);
+    const fee = preFeeCashToAccount.sub(postFeeCashToAccount).abs();
 
     return { fee, underlyingCash: postFeeCashToAccount };
   }

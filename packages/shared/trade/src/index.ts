@@ -17,7 +17,9 @@ export * from './trade-properties/index';
 export * from './trade-properties/trade-properties-grid';
 export * from './trade-properties/trade-property';
 export * from './tradeErrors';
+export * from './manage-vault/manage-vault';
 
 /** New V3 Components */
 export * from './deposit-input/deposit-input';
 export * from './maturity-select/maturity-select';
+export * from './maturity-select/toggle-maturity-select';

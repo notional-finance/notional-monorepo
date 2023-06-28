@@ -1,10 +1,4 @@
-import { useContext } from 'react';
-import {
-  convertFloatToRate,
-  convertRateToFloat,
-} from '@notional-finance/helpers';
-import { calculateHeadlineVaultReturns } from '@notional-finance/notionable';
-import { VaultActionContext } from '../vault-view/vault-action-provider';
+import { convertRateToFloat } from '@notional-finance/helpers';
 import { messages } from '../messages';
 
 export interface HistoricalReturn {
@@ -21,6 +15,7 @@ export interface ReturnDriver {
 }
 
 export const useHistoricalReturns = () => {
+  /*
   const { state } = useContext(VaultActionContext);
   const {
     leverageRatio,
@@ -95,27 +90,26 @@ export const useHistoricalReturns = () => {
       : undefined
   );
 
+
+  */
+
   // If the account is borrowing fCash then set the expected yield
+  const newVaultReturns = undefined;
+  const priorVaultReturns = undefined;
+  const headlineApy =
+    newVaultReturns !== undefined ? newVaultReturns : priorVaultReturns;
   const vaultAPYTitle =
     newVaultReturns !== undefined
       ? messages.summary.expectedYield
       : messages.summary.currentYield;
 
-  const headlineApy =
-    newVaultReturns !== undefined ? newVaultReturns : priorVaultReturns;
-
   return {
-    returnDrivers: returnDrivers || [],
-    historicalReturns,
-    priorVaultReturns: priorVaultReturns
-      ? convertRateToFloat(priorVaultReturns)
-      : undefined,
-    newVaultReturns: newVaultReturns
-      ? convertRateToFloat(newVaultReturns)
-      : undefined,
-    fCashBorrowAmount,
+    returnDrivers: [] as ReturnDriver[],
+    historicalReturns: [] as HistoricalReturn[],
+    priorVaultReturns: undefined,
+    newVaultReturns,
     headlineApy: headlineApy ? convertRateToFloat(headlineApy) : undefined,
     vaultAPYTitle,
-    currentBorrowRate,
+    currentBorrowRate: 0,
   };
 };

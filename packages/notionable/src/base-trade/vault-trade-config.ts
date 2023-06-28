@@ -19,8 +19,8 @@ function eligibleDebtToken(
   vaultConfig?: ReturnType<ConfigurationClient['getVaultConfig']>
 ) {
   return (
-    (t.tokenType === 'fCash' || t.tokenType === 'PrimeDebt') &&
-    isPrimaryCurrency(t, vaultConfig) &&
+    t.tokenType === 'VaultDebt' &&
+    t.vaultAddress === vaultConfig?.vaultAddress &&
     !!t.maturity &&
     !isIdiosyncratic(t.maturity) &&
     getMarketIndexForMaturity(t.maturity) <=
@@ -32,9 +32,7 @@ function isPrimaryCurrency(
   t: TokenDefinition,
   vaultConfig?: ReturnType<ConfigurationClient['getVaultConfig']>
 ) {
-  return (
-    t.currencyId === parseInt(vaultConfig?.primaryBorrowCurrency.id || '0')
-  );
+  return t.id === vaultConfig?.primaryBorrowCurrency.id;
 }
 
 function sameVaultMaturity(
@@ -48,7 +46,14 @@ function sameVaultMaturity(
   return t.maturity === maturity;
 }
 
-export const VaultTradeConfiguration: Record<string, TransactionConfig> = {
+function matchingVaultShare(
+  t: TokenDefinition,
+  debt?: TokenDefinition
+): boolean {
+  return debt ? debt.maturity === t.maturity : true;
+}
+
+export const VaultTradeConfiguration = {
   /**
    * Input:
    * depositBalance
@@ -64,21 +69,22 @@ export const VaultTradeConfiguration: Record<string, TransactionConfig> = {
     requiredArgs: [
       'collateral',
       'debt',
-      'collateralPool',
+      'vaultAdapter',
       'debtPool',
       'depositBalance',
-      'balances',
       'riskFactorLimit',
     ],
     collateralFilter: (t, _, s: VaultTradeState) =>
-      t.tokenType === 'VaultShare' && t.vaultAddress === s.vaultAddress,
+      t.tokenType === 'VaultShare' &&
+      t.vaultAddress === s.vaultAddress &&
+      matchingVaultShare(t, s.debt),
     debtFilter: (t, _, s: VaultTradeState) =>
       eligibleDebtToken(t, s.vaultConfig),
     depositFilter: (t, _, s: VaultTradeState) =>
       isPrimaryCurrency(t, s.vaultConfig),
     calculateDebtOptions: true,
     transactionBuilder: EnterVault,
-  },
+  } as TransactionConfig,
   /**
    * Input:
    * depositBalance
@@ -93,14 +99,16 @@ export const VaultTradeConfiguration: Record<string, TransactionConfig> = {
     requiredArgs: [
       'collateral',
       'debt',
-      'collateralPool',
+      'vaultAdapter',
       'debtPool',
       'depositBalance',
       'balances',
       'riskFactorLimit',
     ],
     collateralFilter: (t, _, s: VaultTradeState) =>
-      t.tokenType === 'VaultShare' && t.vaultAddress === s.vaultAddress,
+      t.tokenType === 'VaultShare' &&
+      t.vaultAddress === s.vaultAddress &&
+      matchingVaultShare(t, s.debt),
     debtFilter: (t, a, s: VaultTradeState) =>
       eligibleDebtToken(t, s.vaultConfig) &&
       sameVaultMaturity(t, a?.balances, s.vaultAddress),
@@ -108,7 +116,7 @@ export const VaultTradeConfiguration: Record<string, TransactionConfig> = {
       isPrimaryCurrency(t, s.vaultConfig),
     calculateDebtOptions: true,
     transactionBuilder: EnterVault,
-  },
+  } as TransactionConfig,
 
   /**
    * Input:
@@ -119,14 +127,16 @@ export const VaultTradeConfiguration: Record<string, TransactionConfig> = {
    */
   DepositVaultCollateral: {
     calculationFn: calculateVaultCollateral,
-    requiredArgs: ['collateral', 'depositBalance', 'collateralPool'],
-    collateralFilter: (t, _, s: VaultTradeState) =>
-      t.tokenType === 'VaultShare' && t.vaultAddress === s.vaultAddress,
+    requiredArgs: ['collateral', 'depositBalance', 'vaultAdapter'],
+    collateralFilter: (t, a, s: VaultTradeState) =>
+      t.tokenType === 'VaultShare' &&
+      t.vaultAddress === s.vaultAddress &&
+      sameVaultMaturity(t, a?.balances, s.vaultAddress),
     debtFilter: () => false,
     depositFilter: (t, _, s: VaultTradeState) =>
       isPrimaryCurrency(t, s.vaultConfig),
     transactionBuilder: EnterVault,
-  },
+  } as TransactionConfig,
 
   /**
    * Input:
@@ -140,27 +150,23 @@ export const VaultTradeConfiguration: Record<string, TransactionConfig> = {
    */
   RollVaultPosition: {
     calculationFn: calculateVaultDebt,
-    requiredArgs: [
-      'collateral',
-      'depositBalance',
-      'collateralPool',
-      'collateralBalance',
-      'debtPool',
-    ],
+    requiredArgs: ['collateral', 'depositBalance', 'vaultAdapter', 'debtPool'],
     collateralFilter: (t, _, s: VaultTradeState) =>
-      t.tokenType === 'VaultShare' && t.vaultAddress === s.vaultAddress,
+      t.tokenType === 'VaultShare' &&
+      t.vaultAddress === s.vaultAddress &&
+      matchingVaultShare(t, s.debt),
     debtFilter: (t, a, s: VaultTradeState) =>
       eligibleDebtToken(t, s.vaultConfig) &&
       !sameVaultMaturity(t, a?.balances, s.vaultAddress),
     depositFilter: (t, _, s: VaultTradeState) =>
       isPrimaryCurrency(t, s.vaultConfig),
     transactionBuilder: RollVault,
-  },
+  } as TransactionConfig,
 
   /**
    * Input:
    * depositBalance (i.e. withdraw amount)
-   * selectedRiskLimit (i.e. new leverage ratio)
+   * selectedRiskLimit (i.e. current leverage ratio)
    *
    * Output:
    * collateralBalance (vault shares sold)
@@ -171,19 +177,55 @@ export const VaultTradeConfiguration: Record<string, TransactionConfig> = {
     requiredArgs: [
       'collateral',
       'debt',
-      'collateralPool',
+      'vaultAdapter',
       'debtPool',
       'depositBalance',
       'balances',
       'riskFactorLimit',
     ],
     collateralFilter: (t, _, s: VaultTradeState) =>
-      t.tokenType === 'VaultShare' && t.vaultAddress === s.vaultAddress,
+      t.tokenType === 'VaultShare' &&
+      t.vaultAddress === s.vaultAddress &&
+      matchingVaultShare(t, s.debt),
     debtFilter: (t, a, s: VaultTradeState) =>
       eligibleDebtToken(t, s.vaultConfig) &&
       sameVaultMaturity(t, a?.balances, s.vaultAddress),
     depositFilter: (t, _, s: VaultTradeState) =>
       isPrimaryCurrency(t, s.vaultConfig),
     transactionBuilder: ExitVault,
-  },
+  } as TransactionConfig,
+
+  /**
+   * Input:
+   * depositBalance (i.e. withdraw amount)
+   * selectedRiskLimit (i.e. new leverage ratio)
+   *
+   * Output:
+   * collateralBalance (vault shares sold)
+   * debtBalance (debt repaid)
+   */
+  WithdrawAndRepayVault: {
+    calculationFn: calculateVaultDebtCollateralGivenDepositRiskLimit,
+    requiredArgs: [
+      'collateral',
+      'debt',
+      'vaultAdapter',
+      'debtPool',
+      'depositBalance',
+      'balances',
+      'riskFactorLimit',
+    ],
+    collateralFilter: (t, _, s: VaultTradeState) =>
+      t.tokenType === 'VaultShare' &&
+      t.vaultAddress === s.vaultAddress &&
+      matchingVaultShare(t, s.debt),
+    debtFilter: (t, a, s: VaultTradeState) =>
+      eligibleDebtToken(t, s.vaultConfig) &&
+      sameVaultMaturity(t, a?.balances, s.vaultAddress),
+    depositFilter: (t, _, s: VaultTradeState) =>
+      isPrimaryCurrency(t, s.vaultConfig),
+    transactionBuilder: ExitVault,
+  } as TransactionConfig,
 };
+
+export type VaultTradeType = keyof typeof VaultTradeConfiguration;

@@ -1,3 +1,5 @@
+import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
+
 export function getNowSeconds() {
   if (
     (process.env['NODE_ENV'] === 'development' ||
@@ -41,8 +43,9 @@ export function getDateString(
 }
 
 export const formatMaturity = (ts: number) => {
-  if (ts) {
+  if (ts === PRIME_CASH_VAULT_MATURITY) {
+    return 'Open Term';
+  } else {
     return getDateString(ts);
   }
-  return '';
 };

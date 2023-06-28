@@ -1,9 +1,25 @@
 import { useContext } from 'react';
 import { VaultActionContext } from '../vault-view/vault-action-provider';
+import { Registry, TokenBalance } from '@notional-finance/core-entities';
+import {
+  useSelectedNetwork,
+  useVaultAccount,
+} from '@notional-finance/notionable-hooks';
 
 export const useVaultCapacity = () => {
-  const { state } = useContext(VaultActionContext);
-  const { vaultConfig, fCashBorrowAmount, netCapacityChange } = state;
+  const {
+    state: { debtBalance, vaultAddress, debt },
+  } = useContext(VaultActionContext);
+  const network = useSelectedNetwork();
+  const { vaultBalances } = useVaultAccount(vaultAddress);
+
+  const vaultCapacity =
+    network && vaultAddress
+      ? Registry.getConfigurationRegistry().getVaultCapacity(
+          network,
+          vaultAddress
+        )
+      : undefined;
 
   let maxVaultCapacity = '';
   let totalCapacityRemaining = '';
@@ -11,21 +27,31 @@ export const useVaultCapacity = () => {
   let capacityWithUserBorrowPercentage: number | undefined = undefined;
   let overCapacityError = false;
   let underMinAccountBorrow = false;
-  const fCashToBorrow = fCashBorrowAmount?.neg();
+  let minBorrowSize: string | undefined = undefined;
 
-  if (vaultConfig) {
+  const totalAccountDebt =
+    debt && debtBalance && debt.id === debtBalance.tokenId
+      ? (
+          vaultBalances.find((t) => t.tokenId === debtBalance?.tokenId) ||
+          TokenBalance.zero(debt)
+        ).add(debtBalance)
+      : undefined;
+
+  if (vaultCapacity) {
     const {
       minAccountBorrowSize,
       totalUsedPrimaryBorrowCapacity,
       maxPrimaryBorrowCapacity,
-    } = vaultConfig;
+    } = vaultCapacity;
 
-    underMinAccountBorrow = fCashToBorrow
-      ? fCashToBorrow.lt(minAccountBorrowSize)
+    minBorrowSize = minAccountBorrowSize.toDisplayStringWithSymbol(0);
+    underMinAccountBorrow = totalAccountDebt?.isNegative()
+      ? totalAccountDebt.abs().toUnderlying().lt(minAccountBorrowSize)
       : false;
-    overCapacityError = netCapacityChange
+
+    overCapacityError = debtBalance
       ? totalUsedPrimaryBorrowCapacity
-          .add(netCapacityChange)
+          .add(debtBalance.toUnderlying())
           .gt(maxPrimaryBorrowCapacity)
       : false;
     maxVaultCapacity = maxPrimaryBorrowCapacity.toDisplayStringWithSymbol(0);
@@ -37,15 +63,16 @@ export const useVaultCapacity = () => {
     capacityUsedPercentage = totalUsedPrimaryBorrowCapacity
       .scale(100, maxPrimaryBorrowCapacity)
       .toNumber();
-    capacityWithUserBorrowPercentage = netCapacityChange
+    capacityWithUserBorrowPercentage = debtBalance
       ? totalUsedPrimaryBorrowCapacity
-          .add(netCapacityChange)
+          .add(debtBalance.toUnderlying())
           .scale(100, maxPrimaryBorrowCapacity)
           .toNumber()
       : undefined;
   }
 
   return {
+    minBorrowSize,
     underMinAccountBorrow,
     overCapacityError,
     totalCapacityRemaining,

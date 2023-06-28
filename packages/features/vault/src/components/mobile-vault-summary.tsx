@@ -16,7 +16,7 @@ import { FormattedMessage } from 'react-intl';
 export const MobileVaultSummary = () => {
   const theme = useTheme();
   const {
-    state: { primaryBorrowSymbol, vaultConfig },
+    state: { deposit, vaultConfig },
   } = useContext(VaultActionContext);
   const vaultName = vaultConfig?.name;
   const { headlineApy } = useHistoricalReturns();
@@ -35,13 +35,13 @@ export const MobileVaultSummary = () => {
       <Box sx={{ display: 'flex' }}>
         <Box sx={{ flex: 1 }}>
           <H5 sx={{ whiteSpace: 'nowrap' }}>{vaultName}</H5>
-          {primaryBorrowSymbol && (
+          {deposit && (
             <LargeInputTextEmphasized
               sx={{ flex: 1, display: 'flex', alignItems: 'center' }}
             >
-              {primaryBorrowSymbol}
+              {deposit.symbol}
               <TokenIcon
-                symbol={primaryBorrowSymbol}
+                symbol={deposit.symbol}
                 size="large"
                 style={{
                   marginLeft: theme.spacing(2),

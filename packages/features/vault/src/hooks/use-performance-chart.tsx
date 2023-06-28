@@ -14,8 +14,10 @@ import { messages } from '../messages';
 export const usePerformanceChart = () => {
   const theme = useTheme();
   const { historicalReturns, currentBorrowRate } = useHistoricalReturns();
-  const { state } = useContext(VaultActionContext);
-  const { leverageRatio } = state || {};
+  const {
+    state: { postAccountRisk },
+  } = useContext(VaultActionContext);
+  const leverageRatio = postAccountRisk?.leverageRatio;
 
   const chartToolTipData: ChartToolTipDataProps = {
     timestamp: {

@@ -16,8 +16,12 @@ import {
   TransactionBuilder,
 } from '@notional-finance/transaction';
 import { PopulatedTransaction } from 'ethers';
+import { VaultTradeConfiguration, VaultTradeType } from './vault-trade-config';
+import { TradeType } from './trade-config';
 export { TradeConfiguration } from './trade-config';
+export { VaultTradeConfiguration } from './vault-trade-config';
 export type { TradeType } from './trade-config';
+export type { VaultTradeType } from './vault-trade-config';
 
 export type FilterFunc = (
   t: TokenDefinition,
@@ -26,14 +30,14 @@ export type FilterFunc = (
 ) => boolean;
 
 export interface TransactionConfig {
-  calculationFn: CalculationFn;
-  requiredArgs: CalculationFnParams[];
-  depositFilter?: FilterFunc;
-  collateralFilter?: FilterFunc;
-  debtFilter?: FilterFunc;
-  calculateDebtOptions?: boolean;
-  calculateCollateralOptions?: boolean;
-  transactionBuilder: TransactionBuilder;
+  readonly calculationFn: CalculationFn;
+  readonly requiredArgs: CalculationFnParams[];
+  readonly depositFilter?: FilterFunc;
+  readonly collateralFilter?: FilterFunc;
+  readonly debtFilter?: FilterFunc;
+  readonly calculateDebtOptions?: boolean;
+  readonly calculateCollateralOptions?: boolean;
+  readonly transactionBuilder: TransactionBuilder;
 }
 
 /** Input amount directly from the frontend */
@@ -130,6 +134,8 @@ interface InitState {
   availableCollateralTokens?: TokenDefinition[];
   /** A list of debt tokens that can be selected */
   availableDebtTokens?: TokenDefinition[];
+  /** A key into the trade configuration object */
+  tradeType?: TradeType | VaultTradeType;
 }
 
 export interface BaseTradeState
@@ -137,7 +143,8 @@ export interface BaseTradeState
     InitState,
     UserInputs,
     TokenInputs,
-    TransactionState {}
+    TransactionState,
+    VaultState {}
 
 export interface TradeState extends BaseTradeState {
   /** Account risk factors prior to any changes to the account */
@@ -146,7 +153,7 @@ export interface TradeState extends BaseTradeState {
   postAccountRisk?: ReturnType<AccountRiskProfile['getAllRiskFactors']>;
 }
 
-export interface VaultTradeState extends BaseTradeState, VaultState {
+export interface VaultTradeState extends BaseTradeState {
   /** Account risk factors prior to any changes to the account */
   priorAccountRisk?: ReturnType<VaultAccountRiskProfile['getAllRiskFactors']>;
   /** Account risk factors after changes applied to the account */
@@ -161,3 +168,8 @@ export const initialBaseTradeState: BaseTradeState = {
   inputsSatisfied: false,
   redeemToWETH: false,
 };
+
+export function isVaultTrade(tradeType?: VaultTradeType | TradeType) {
+  if (!tradeType) return false;
+  return Object.keys(VaultTradeConfiguration).includes(tradeType);
+}

@@ -1,10 +1,10 @@
 import { Box, useTheme } from '@mui/material';
+import { TokenBalance } from '@notional-finance/core-entities';
 import { CountUp } from '@notional-finance/mui';
-import { TypedBigNumber } from '@notional-finance/sdk';
 import { defineMessage, FormattedMessage } from 'react-intl';
 
 interface DebtAmountCaptionProps {
-  amount?: TypedBigNumber;
+  amount?: TokenBalance;
   repayDebt?: boolean;
 }
 

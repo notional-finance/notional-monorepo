@@ -1,148 +1,104 @@
-import {
-  getNowSeconds,
-  logError,
-  zipByKeyToArray,
-} from '@notional-finance/helpers';
-import {
-  useBaseVault,
-  useVaultAccount,
-} from '@notional-finance/notionable-hooks';
-import {
-  LiquidationThreshold,
-  LiquidationThresholdType,
-} from '@notional-finance/sdk';
-import { VaultAccount } from '@notional-finance/sdk/src/vaults';
+import { useContext } from 'react';
 import {
   didIncrease,
   formatLeverageForRisk,
   formatPercentForRisk,
-  formatRateAsPercent,
   RiskDataTableRow,
 } from '@notional-finance/risk';
 import { useHistoricalReturns } from './use-historical-returns';
+import { VaultActionContext } from '../vault-view/vault-action-provider';
+import { formatMaturity } from '@notional-finance/helpers';
+import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
 
-export function useVaultDetailsTable(
-  vaultAddress: string,
-  updatedVaultAccount?: VaultAccount
-) {
-  const { vaultAccount: currentVaultAccount } = useVaultAccount(vaultAddress);
+export function useVaultDetailsTable() {
   const { priorVaultReturns, newVaultReturns } = useHistoricalReturns();
-  const baseVault = useBaseVault(vaultAddress);
+  const {
+    state: { priorAccountRisk: _priorAccountRisk, postAccountRisk, collateral },
+  } = useContext(VaultActionContext);
 
-  let mergedThresholds: [
-    LiquidationThreshold | undefined,
-    LiquidationThreshold | undefined
-  ][] = [];
-  try {
-    const currentThresholds =
-      currentVaultAccount?.isInactive === false && baseVault
-        ? baseVault.getLiquidationThresholds(
-            currentVaultAccount,
-            getNowSeconds()
-          )
-        : [];
-    const updatedThresholds =
-      updatedVaultAccount?.isInactive === false && baseVault
-        ? baseVault.getLiquidationThresholds(
-            updatedVaultAccount,
-            getNowSeconds()
-          )
-        : [];
-    mergedThresholds = zipByKeyToArray(
-      currentThresholds,
-      updatedThresholds,
-      (t) => t.name
-    );
-  } catch (e) {
-    logError(e as Error, 'use-vault-details-table', 'getLiquidationThresholds');
+  const priorAccountRisk =
+    _priorAccountRisk ||
+    // If there is no prior account risk, but some collateral set then create an
+    // empty vault account profile
+    (collateral && collateral.vaultAddress && collateral.maturity
+      ? VaultAccountRiskProfile.empty(
+          collateral.network,
+          collateral.vaultAddress,
+          collateral.maturity
+        ).getAllRiskFactors()
+      : undefined);
+
+  if (!priorAccountRisk || !collateral?.maturity) {
+    return {
+      tableData: [],
+      maturity: '',
+    };
   }
 
-  const currentLeverage =
-    currentVaultAccount?.hasLeverage && baseVault
-      ? baseVault.getLeverageRatio(currentVaultAccount)
-      : undefined;
+  // These are all in underlying present value in the primary borrow currency
+  const currentAssets = priorAccountRisk.assets;
+  const updatedAssets = postAccountRisk?.assets;
+  const currentDebts = priorAccountRisk.debts;
+  const updatedDebts = postAccountRisk?.debts;
 
-  const updatedLeverage =
-    updatedVaultAccount?.hasLeverage && baseVault
-      ? baseVault.getLeverageRatio(updatedVaultAccount)
-      : undefined;
-
-  const tableData: RiskDataTableRow[] = [];
-
-  if (currentLeverage) {
-    tableData.push({
+  const tableData: RiskDataTableRow[] = [
+    {
+      riskType: {
+        type: 'Assets',
+      },
+      current: currentAssets?.toDisplayStringWithSymbol(2) || '-',
+      updated: {
+        value: updatedAssets?.toDisplayStringWithSymbol(2) || '-',
+        arrowUp:
+          (updatedAssets &&
+            currentAssets &&
+            !currentAssets.isZero() &&
+            updatedAssets.gt(currentAssets)) ||
+          null,
+        checkmark: false,
+        greenOnArrowUp: true,
+        greenOnCheckmark: false,
+      },
+    },
+    {
+      riskType: {
+        type: 'Debts',
+      },
+      current: currentDebts?.neg().toDisplayStringWithSymbol(2) || '-',
+      updated: {
+        value: updatedDebts?.neg().toDisplayStringWithSymbol(2) || '-',
+        // NOTE: debts are negative so greater is lower
+        arrowUp:
+          (updatedDebts &&
+            currentDebts &&
+            !currentDebts.isZero() &&
+            updatedDebts.lt(currentDebts)) ||
+          null,
+        checkmark: false,
+        greenOnArrowUp: true,
+        greenOnCheckmark: false,
+      },
+    },
+    {
       riskType: {
         type: 'Leverage Ratio',
       },
-      current: formatLeverageForRisk(currentLeverage),
+      current: formatLeverageForRisk(priorAccountRisk.leverageRatio),
       updated: {
-        value: formatLeverageForRisk(updatedLeverage),
-        arrowUp: updatedLeverage
-          ? didIncrease(currentLeverage, updatedLeverage)
-          : null,
-        checkmark: updatedLeverage === null,
+        value: formatLeverageForRisk(postAccountRisk?.leverageRatio),
+        arrowUp:
+          postAccountRisk?.leverageRatio !== null
+            ? didIncrease(
+                priorAccountRisk.leverageRatio,
+                postAccountRisk?.leverageRatio
+              )
+            : null,
+        checkmark: postAccountRisk?.leverageRatio === null,
         greenOnArrowUp: false,
         greenOnCheckmark: true,
       },
-    });
-  }
-
-  const updatedAssets =
-    baseVault && updatedVaultAccount
-      ? baseVault.getCashValueOfShares(updatedVaultAccount)
-      : undefined;
-  const currentAssets =
-    baseVault && currentVaultAccount
-      ? baseVault.getCashValueOfShares(currentVaultAccount)
-      : undefined;
-
-  tableData.push({
-    riskType: {
-      type: 'Assets',
     },
-    current: currentAssets?.toUnderlying().toDisplayStringWithSymbol(2) || '-',
-    updated: {
-      value: updatedAssets?.toUnderlying().toDisplayStringWithSymbol(2) || '-',
-      arrowUp:
-        (updatedAssets &&
-          currentAssets &&
-          !currentAssets.isZero() &&
-          updatedAssets.gt(currentAssets)) ||
-        null,
-      checkmark: false,
-      greenOnArrowUp: true,
-      greenOnCheckmark: false,
-    },
-  });
-
-  const updatedDebts =
-    baseVault && updatedVaultAccount
-      ? updatedVaultAccount.primaryBorrowfCash
-      : undefined;
-  const currentDebts =
-    baseVault && currentVaultAccount
-      ? currentVaultAccount.primaryBorrowfCash
-      : undefined;
-
-  tableData.push({
-    riskType: {
-      type: 'Debts',
-    },
-    current: currentDebts?.neg().toDisplayStringWithfCashSymbol(2) || '-',
-    updated: {
-      value: updatedDebts?.neg().toDisplayStringWithfCashSymbol(2) || '-',
-      // NOTE: debts are negative so greater is lower
-      arrowUp:
-        (updatedDebts &&
-          currentDebts &&
-          !currentDebts.isZero() &&
-          updatedDebts.lt(currentDebts)) ||
-        null,
-      checkmark: false,
-      greenOnArrowUp: true,
-      greenOnCheckmark: false,
-    },
-  });
+  ];
 
   if (priorVaultReturns !== undefined && newVaultReturns !== undefined) {
     tableData.push({
@@ -160,39 +116,5 @@ export function useVaultDetailsTable(
     });
   }
 
-  tableData.push(
-    ...mergedThresholds.map(([current, updated]) => {
-      const type: LiquidationThresholdType | undefined =
-        current?.type || updated?.type;
-      const increase =
-        type === LiquidationThresholdType.exchangeRate
-          ? didIncrease(
-              current?.ethExchangeRate?.toFloat(),
-              updated?.ethExchangeRate?.toFloat()
-            )
-          : didIncrease(current?.rate, updated?.rate);
-
-      return {
-        riskType: {
-          type: (current?.name || updated?.name)!,
-        },
-        current:
-          type === LiquidationThresholdType.exchangeRate
-            ? current?.ethExchangeRate?.toDisplayStringWithSymbol() || '-'
-            : formatRateAsPercent(current?.rate),
-        updated: {
-          value:
-            type === LiquidationThresholdType.exchangeRate
-              ? updated?.ethExchangeRate?.toDisplayStringWithSymbol() || '-'
-              : formatRateAsPercent(updated?.rate),
-          arrowUp: current === undefined ? null : increase,
-          checkmark: updated === undefined,
-          greenOnArrowUp: false,
-          greenOnCheckmark: true,
-        },
-      };
-    })
-  );
-
-  return { tableData };
+  return { tableData, maturity: formatMaturity(collateral.maturity) };
 }

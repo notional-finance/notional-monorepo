@@ -61,7 +61,7 @@ function offsettingBalance(
   }
 }
 
-export const TradeConfiguration: Record<string, TransactionConfig> = {
+export const TradeConfiguration = {
   /***** Normal Transaction Actions *****/
 
   /**
@@ -80,7 +80,7 @@ export const TradeConfiguration: Record<string, TransactionConfig> = {
       t.tokenType === 'PrimeCash' && onlySameCurrency(t, s.deposit),
     debtFilter: () => false,
     transactionBuilder: LendVariable,
-  },
+  } as TransactionConfig,
   /**
    * Inputs:
    * selectedDepositToken, depositBalance, selectedCollateralToken
@@ -95,7 +95,7 @@ export const TradeConfiguration: Record<string, TransactionConfig> = {
     debtFilter: () => false,
     calculateCollateralOptions: true,
     transactionBuilder: LendFixed,
-  },
+  } as TransactionConfig,
   /**
    * Inputs:
    * selectedDepositToken, depositBalance
@@ -109,7 +109,7 @@ export const TradeConfiguration: Record<string, TransactionConfig> = {
       t.tokenType === 'nToken' && onlySameCurrency(t, s.deposit),
     debtFilter: () => false,
     transactionBuilder: MintNToken,
-  },
+  } as TransactionConfig,
 
   /**
    * Specify:
@@ -161,7 +161,7 @@ export const TradeConfiguration: Record<string, TransactionConfig> = {
     calculateCollateralOptions: true,
     calculateDebtOptions: true,
     transactionBuilder: BorrowWithCollateral,
-  },
+  } as TransactionConfig,
 
   /***** Leveraged Yield Actions ******/
 
@@ -195,7 +195,7 @@ export const TradeConfiguration: Record<string, TransactionConfig> = {
     calculateCollateralOptions: true,
     calculateDebtOptions: true,
     transactionBuilder: LeveragedOrDeleverageLend,
-  },
+  } as TransactionConfig,
 
   /**
    * Inputs:
@@ -225,7 +225,7 @@ export const TradeConfiguration: Record<string, TransactionConfig> = {
       t.tokenType !== 'nToken' && onlySameCurrency(t, s.deposit),
     calculateDebtOptions: true,
     transactionBuilder: LeveragedNToken,
-  },
+  } as TransactionConfig,
 
   /** Deleverage Yield Actions */
 
@@ -262,7 +262,7 @@ export const TradeConfiguration: Record<string, TransactionConfig> = {
       onlySameCurrency(t, s.collateral) &&
       offsettingBalance(t, a),
     transactionBuilder: LeveragedOrDeleverageLend,
-  },
+  } as TransactionConfig,
 
   /**
    * Inputs:
@@ -297,7 +297,7 @@ export const TradeConfiguration: Record<string, TransactionConfig> = {
       onlySameCurrency(t, s.collateral) &&
       offsettingBalance(t, a),
     transactionBuilder: DeleverageNToken,
-  },
+  } as TransactionConfig,
 
   /****** Portfolio Actions ******/
 
@@ -325,7 +325,7 @@ export const TradeConfiguration: Record<string, TransactionConfig> = {
       offsettingBalance(t, a),
     debtFilter: () => false,
     transactionBuilder: RepayDebt,
-  },
+  } as TransactionConfig,
 
   /**
    * Inputs:
@@ -350,7 +350,7 @@ export const TradeConfiguration: Record<string, TransactionConfig> = {
       t.tokenType === 'nToken' && offsettingBalance(t, a),
     collateralFilter: () => false,
     transactionBuilder: RedeemAndWithdrawNToken,
-  },
+  } as TransactionConfig,
   /**
    * Inputs:
    * selectedDebtToken (nToken)
@@ -374,7 +374,7 @@ export const TradeConfiguration: Record<string, TransactionConfig> = {
       t.tokenType === 'nToken' && offsettingBalance(t, a),
     depositFilter: () => false,
     transactionBuilder: RedeemToPortfolioNToken,
-  },
+  } as TransactionConfig,
 
   /**
    * Input:
@@ -418,7 +418,7 @@ export const TradeConfiguration: Record<string, TransactionConfig> = {
       offsettingBalance(t, a),
     collateralFilter: () => false,
     transactionBuilder: WithdrawLend,
-  },
+  } as TransactionConfig,
 
   /**
    * Input:
@@ -443,7 +443,7 @@ export const TradeConfiguration: Record<string, TransactionConfig> = {
       t.maturity !== s.debt?.maturity,
     calculateCollateralOptions: true,
     transactionBuilder: RollLendOrDebt,
-  },
+  } as TransactionConfig,
 
   /**
    * Input:
@@ -468,7 +468,7 @@ export const TradeConfiguration: Record<string, TransactionConfig> = {
       t.maturity !== s.collateral?.maturity,
     calculateDebtOptions: true,
     transactionBuilder: RollLendOrDebt,
-  },
+  } as TransactionConfig,
 };
 
 export type TradeType = keyof typeof TradeConfiguration;

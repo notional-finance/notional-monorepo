@@ -1,24 +1,10 @@
 import { GlobalState } from '@notional-finance/notionable';
-import {
-  pluckFirst,
-  useObservable,
-  useObservableCallback,
-  useObservableState,
-  useSubscription,
-} from 'observable-hooks';
+import { useObservable, useSubscription } from 'observable-hooks';
 import React, { useEffect } from 'react';
 import { useLocation, useParams } from 'react-router';
-import {
-  EMPTY,
-  Observable,
-  scan,
-  switchMap,
-  tap,
-  withLatestFrom,
-  take,
-  concat,
-} from 'rxjs';
+import { EMPTY, Observable, switchMap, tap } from 'rxjs';
 import { useNotionalContext } from '../notional/use-notional';
+import { useObservableReducer } from './use-observable-reducer';
 
 const DEBUG = process.env['NODE_ENV'] === 'development';
 
@@ -63,37 +49,10 @@ export function useObservableContext<T extends ContextState>(
     globalState$,
     globalState: { isNetworkReady },
   } = useNotionalContext();
-  // Converts the initial state into an observable to make it safe in
-  // a closure
-  const initialState$ = useObservable(pluckFirst, [initialState]);
-
-  // Creates an observable state object that can be updated
-  const [updateState, state$] = useObservableCallback<
-    T,
-    Partial<T>,
-    [Partial<T>]
-  >(
-    (state$) =>
-      // Uses concat here to ensure that the initial state emitted is
-      // also closure safe
-      concat(
-        initialState$.pipe(take(1)),
-        state$.pipe(
-          withLatestFrom(initialState$),
-          scan(
-            (state, [update, init]) => ({ ...init, ...state, ...update }),
-            {} as T
-          )
-        )
-      ),
-    // Transforms the list of args into a single arg which is Partial<T>
-    (args) => args[0]
+  const { updateState, state$, state } = useObservableReducer(
+    initialState,
+    '[STATE]'
   );
-
-  useSubscription(state$, (s) => {
-    if (DEBUG) console.log('STATE', s);
-  });
-  const state = useObservableState(state$, initialState);
 
   // Loads managers and has them start listening to state. As each manager emits a value
   // it will be individually updated to state
@@ -114,7 +73,8 @@ export function useObservableContext<T extends ContextState>(
 
   useEffect(() => {
     // If any of the route params change then we will update state to initial and set the params,
-    // this prevents any "residual" state from going between paths
+    // this prevents any "residual" state from going between paths. Use isNetworkReady here to
+    // prevent race conditions based on when dependencies update.
     if (isNetworkReady) {
       if (DEBUG) console.log('URL UPDATE', params);
       updateState(params as T);

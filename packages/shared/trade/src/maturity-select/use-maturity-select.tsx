@@ -1,4 +1,6 @@
+import { Registry } from '@notional-finance/core-entities';
 import { convertRateToFloat } from '@notional-finance/helpers';
+import { isVaultTrade } from '@notional-finance/notionable';
 import {
   TradeContext,
   useFCashMarket,
@@ -19,7 +21,7 @@ export const useMaturitySelect = (
       collateralOptions,
       debtOptions,
       deposit,
-      depositBalance,
+      tradeType,
     },
     updateState,
   } = useContext(context);
@@ -34,19 +36,40 @@ export const useMaturitySelect = (
 
   const fCashMarket = useFCashMarket(currencyId);
   const spotRates = fCashMarket?.getSpotInterestRates();
+  const tokenRegistry = Registry.getTokenRegistry();
 
+  // TODO: maybe put a use memo in here..
   const maturityData =
     fCashMarket && spotRates && tokens
       ? tokens
-          .filter((t) => t.tokenType === 'fCash' && t.currencyId === currencyId)
+          .filter((_t) => {
+            const t = tokenRegistry.unwrapVaultToken(_t);
+            return t.tokenType === 'fCash' && t.currencyId === currencyId;
+          })
           .sort((t) => t.maturity || 0)
           .map((t, i) => {
-            const option = options?.find((_, index) => index === i);
+            const index = tokens.findIndex((_t) => _t.id === t.id);
+            const option = options ? options[index] : undefined;
             let tradeRate: number | undefined;
-            if (depositBalance && option) {
+            if (option) {
+              let { tokensOut } = fCashMarket.calculateTokenTrade(
+                option.unwrapVaultToken().neg(),
+                0
+              );
+
+              if (isVaultTrade(tradeType)) {
+                ({ cashBorrowed: tokensOut } =
+                  Registry.getConfigurationRegistry().getVaultBorrowWithFees(
+                    option.network,
+                    option.vaultAddress,
+                    option.maturity,
+                    tokensOut.toUnderlying()
+                  ));
+              }
+
               tradeRate = fCashMarket.getImpliedInterestRate(
-                depositBalance,
-                option
+                tokensOut,
+                option.unwrapVaultToken()
               );
             } else if (option === null) {
               // This signifies an error

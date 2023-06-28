@@ -72,11 +72,11 @@ const Container = styled(Box)``;
 
 const StyledTabs = styled(Tabs)(
   ({ theme }) => `
-  border-radius: 20px;
+  border-radius: 100px;
   background-color: ${theme.palette.background.default};
-  max-height: 3rem;
   min-height: unset;
-  margin-top: 2rem;
+  padding: ${theme.spacing(1, 2)};
+  margin-top: ;
   margin-bottom: 2rem;
   box-shadow: ${theme.shape.shadowStandard};
 

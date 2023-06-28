@@ -482,7 +482,6 @@ export function calculateDebtCollateralGivenDepositRiskLimit({
  * Calculates vault debt and collateral given a risk limit
  */
 export function calculateVaultDebtCollateralGivenDepositRiskLimit({
-  vaultAddress,
   collateral,
   debt,
   vaultAdapter,
@@ -493,20 +492,22 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
   maxCollateralSlippage = 25 * BASIS_POINT,
   maxDebtSlippage = 25 * BASIS_POINT,
 }: {
-  vaultAddress: string;
   collateral: TokenDefinition;
   debt: TokenDefinition;
   vaultAdapter: VaultAdapter;
   debtPool: fCashMarket;
   depositBalance: TokenBalance | undefined;
-  balances: TokenBalance[];
+  balances?: TokenBalance[];
   riskFactorLimit: RiskFactorLimit<RiskFactorKeys>;
   maxCollateralSlippage?: number;
   maxDebtSlippage?: number;
 }): ReturnType<typeof calculateDebtCollateralGivenDepositRiskLimit> {
+  const vaultAddress = collateral.vaultAddress;
+  if (!vaultAddress) throw Error('Vault Address not defined');
+
   const riskProfile = VaultAccountRiskProfile.simulate(
     vaultAddress,
-    balances,
+    balances || [TokenBalance.zero(collateral)],
     // This converts the deposit balance to vault shares at spot
     depositBalance ? [depositBalance.toToken(collateral)] : []
   );
@@ -603,14 +604,16 @@ export function calculateVaultDebt({
     };
   } else {
     const fCashToken = TokenBalance.unit(debt).unwrapVaultToken().token;
-    const { tokensOut, feesPaid } = debtPool.calculateTokenTrade(
-      // Returns the total cash required including value fees
+    const { cashBorrowed } =
       Registry.getConfigurationRegistry().getVaultBorrowWithFees(
         debt.network,
         debt.vaultAddress,
         debt.maturity,
         totalDebtPrime.neg()
-      ),
+      );
+    const { tokensOut, feesPaid } = debtPool.calculateTokenTrade(
+      // Returns the total cash required including value fees
+      cashBorrowed,
       debtPool.getTokenIndex(fCashToken)
     );
 
@@ -643,16 +646,16 @@ export function calculateVaultCollateral({
     debtBalance.toPrimeCash().token
   );
 
+  const { cashBorrowed } =
+    Registry.getConfigurationRegistry().getVaultBorrowWithFees(
+      debtBalance.network,
+      debtBalance.vaultAddress,
+      debtBalance.maturity,
+      localDebtPrime
+    );
   const totalVaultShares = depositBalance
     .toPrimeCash()
-    .add(
-      Registry.getConfigurationRegistry().getVaultBorrowWithFees(
-        debtBalance.network,
-        debtBalance.vaultAddress,
-        debtBalance.maturity,
-        localDebtPrime
-      )
-    )
+    .add(cashBorrowed)
     .toToken(collateral);
 
   // This value accounts for slippage...

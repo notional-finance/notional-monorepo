@@ -13,9 +13,9 @@ import {
   RepayCash,
   Withdraw,
   WithdrawLend,
-  ManageVault,
   ManageMaturities,
 } from '../side-drawers';
+import { ManageVault } from '@notional-finance/trade';
 
 export const usePortfolioSideDrawers = () => {
   const { sideDrawerOpen, currentSideDrawerKey } = useSideDrawerState();

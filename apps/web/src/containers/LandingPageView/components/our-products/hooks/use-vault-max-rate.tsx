@@ -1,10 +1,5 @@
-import {
-  headlineApy$,
-  initialVaultState,
-  vaultState$,
-} from '@notional-finance/notionable';
-import { useObservableState } from 'observable-hooks';
 import Market from '@notional-finance/sdk/src/system/Market';
+import { useAllVaults } from '@notional-finance/notionable-hooks';
 
 interface MaxVaultRateData {
   symbol: string;
@@ -17,20 +12,19 @@ interface VaultMaxRate {
 }
 
 export const useVaultMaxRate = (): VaultMaxRate => {
-  const { listedVaults } = useObservableState(vaultState$, initialVaultState);
-  const headlineApy = useObservableState(headlineApy$);
+  const listedVaults = useAllVaults();
   let currentRate = 0;
   let maxVaultRateData = {
     symbol: 'eth',
     maxRate: '0%',
   };
 
-  listedVaults.forEach(({ vaultConfig, underlyingSymbol }) => {
-    const headlineRate = headlineApy?.get(vaultConfig.vaultAddress) || 0;
+  listedVaults.forEach(({ primaryToken }) => {
+    const headlineRate = 0;
     if (headlineRate > currentRate) {
       currentRate = headlineRate;
       maxVaultRateData = {
-        symbol: underlyingSymbol,
+        symbol: primaryToken.symbol,
         maxRate: Market.formatInterestRate(headlineRate, 2),
       };
     }
