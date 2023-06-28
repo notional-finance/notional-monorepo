@@ -51,6 +51,13 @@ export const VaultActionSideDrawer = () => {
     state: { vaultAddress },
     updateState,
   } = useContext(VaultActionContext);
+  const { hasVaultPosition } = useVaultAccount(vaultAddress);
+
+  useEffect(() => {
+    if (!hasVaultPosition) {
+      history.push(`/vaults/${vaultAddress}/CreateVaultPosition`);
+    }
+  }, [hasVaultPosition, history, vaultAddress]);
 
   const returnToManageVault = useCallback(() => {
     history.push(`/vaults/${vaultAddress}`);
@@ -58,7 +65,6 @@ export const VaultActionSideDrawer = () => {
     updateState({ tradeType: undefined });
   }, [vaultAddress, history, updateState]);
 
-  const { hasVaultPosition } = useVaultAccount(vaultAddress);
   const manageVaultActive = !openDrawer ? true : false;
   const sideDrawerActive = SideDrawerComponent && openDrawer ? true : false;
 

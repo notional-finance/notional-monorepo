@@ -158,7 +158,7 @@ export function availableTokens(
   account$: ReturnType<typeof selectedAccount>
 ) {
   return combineLatest([state$, selectedNetwork$, account$]).pipe(
-    filter(([{ isReady }]) => isReady),
+    filter(([{ isReady, tradeType }]) => isReady && !!tradeType),
     switchMap(([s, selectedNetwork, account]) => {
       return new Promise((resolve) => {
         const { collateralFilter, depositFilter, debtFilter } = getTradeConfig(
@@ -404,7 +404,7 @@ export function calculate(
     account$,
     vaultAdapter$,
   ]).pipe(
-    filter(([s]) => s.isReady),
+    filter(([s]) => s.isReady && !!s.tradeType),
     pairwise(),
     map(([[p], [s, debtPool, collateralPool, a, vaultAdapter]]) => ({
       prevCalculateInputKeys: p.calculateInputKeys,
