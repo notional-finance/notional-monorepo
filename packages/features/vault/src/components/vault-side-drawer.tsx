@@ -66,6 +66,10 @@ export const VaultSideDrawer = ({
     }
   };
 
+  const handleSubmit = () => {
+    updateState({ confirm: true });
+  };
+
   return (
     <div>
       {vaultAction ? (
@@ -90,6 +94,7 @@ export const VaultSideDrawer = ({
             canSubmit={canSubmit}
             cancelRoute={''}
             CustomActionButton={TradeActionButton}
+            handleSubmit={handleSubmit}
             hideTextOnMobile={false}
           >
             {children}

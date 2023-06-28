@@ -11,12 +11,17 @@ import { LiquidityContext } from '../liquidity-action';
 export const LiquiditySidebar = () => {
   const {
     state: { canSubmit, populatedTransaction, confirm },
+    updateState,
   } = useContext(LiquidityContext);
   const { currencyInputRef } = useCurrencyInputRef();
 
   const handleLeverUpToggle = () => {
     // TODO: hook this up to context
     console.log('handleLeverUpToggle');
+  };
+
+  const handleSubmit = () => {
+    updateState({ confirm: true });
   };
 
   return confirm && populatedTransaction ? (
@@ -44,6 +49,7 @@ export const LiquiditySidebar = () => {
       CustomActionButton={TradeActionButton}
       canSubmit={canSubmit}
       handleLeverUpToggle={handleLeverUpToggle}
+      handleSubmit={handleSubmit}
       leveredUp={false}
     >
       <DepositInput

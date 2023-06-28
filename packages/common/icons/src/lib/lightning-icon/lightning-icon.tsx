@@ -21,7 +21,7 @@ export function LightningIcon(props: LightningIconProps) {
           y2="16"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#2BCAD0" />
+          <stop stopColor="#2BCAD0" />
           <stop offset="1" stopColor="#8BA4E5" />
         </linearGradient>
       </defs>

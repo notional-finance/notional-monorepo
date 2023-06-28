@@ -8,7 +8,7 @@ interface FaqProps {
   componentAnswer?: ReactNode;
 }
 
-export const useLendVaraibleFaq = () => {
+export const useLendVariableFaq = (tokenSymbol?: string) => {
   // TODO: ADD LINKS
   const faqHeaderLinks = [
     {
@@ -19,7 +19,14 @@ export const useLendVaraibleFaq = () => {
     },
     {
       href: '',
-      text: <FormattedMessage defaultMessage={'Prime USDC Contract'} />,
+      text: (
+        <FormattedMessage
+          defaultMessage={'Prime {tokenSymbol} Contract'}
+          values={{
+            tokenSymbol,
+          }}
+        />
+      ),
     },
     {
       href: '',
@@ -30,14 +37,22 @@ export const useLendVaraibleFaq = () => {
     {
       question: (
         <FormattedMessage
-          defaultMessage={'What are Prime USDC and Prime USDC Debt?'}
+          defaultMessage={
+            'What is Prime {tokenSymbol} and Prime {tokenSymbol} Debt?'
+          }
           description={'faq question'}
+          values={{
+            tokenSymbol,
+          }}
         />
       ),
       answer: (
         <FormattedMessage
-          defaultMessage={`Prime USDC is USDC that is being lent on Notional’s variable rate USDC lending market. Prime USDC debt is USDC that is being borrowed form the variable rate USDC lending market.`}
+          defaultMessage={`Prime {tokenSymbol} is {tokenSymbol} that is being lent on Notional’s variable rate {tokenSymbol} lending market. Prime {tokenSymbol} debt is {tokenSymbol} that is being borrowed form the variable rate {tokenSymbol} lending market.`}
           description={'faq answer'}
+          values={{
+            tokenSymbol,
+          }}
         />
       ),
     },
@@ -58,8 +73,11 @@ export const useLendVaraibleFaq = () => {
     {
       question: (
         <FormattedMessage
-          defaultMessage={'Why is the Prime USDC debt APY so high?'}
+          defaultMessage={'Why is the Prime {tokenSymbol} debt APY so high?'}
           description={'faq question'}
+          values={{
+            tokenSymbol,
+          }}
         />
       ),
       answer: (
@@ -84,4 +102,4 @@ export const useLendVaraibleFaq = () => {
   return { faqs, faqHeaderLinks };
 };
 
-export default useLendVaraibleFaq;
+export default useLendVariableFaq;

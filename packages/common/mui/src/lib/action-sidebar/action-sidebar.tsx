@@ -22,12 +22,13 @@ export interface ActionSidebarProps {
   canSubmit?: boolean;
   cancelRoute?: string;
   onCancelCallback?: () => void;
-  CustomActionButton?: React.ReactNode;
+  CustomActionButton?: React.ElementType;
   showActionButtons?: boolean;
   hideTextOnMobile?: boolean;
   advancedToggle?: ToggleSwitchProps;
   handleLeverUpToggle?: () => void;
   leveredUp?: boolean;
+  handleSubmit?: () => void;
 }
 export interface ActionSideBarContainerProps {
   hideTextOnMobile: boolean;
@@ -67,6 +68,7 @@ export const ActionSidebar = ({
   hideTextOnMobile = true,
   handleLeverUpToggle,
   leveredUp,
+  handleSubmit,
 }: ActionSidebarProps) => {
   const theme = useTheme();
   const inner = (
@@ -131,14 +133,16 @@ export const ActionSidebar = ({
       </ActionSideBarContainer>
       <FormSection hideTextOnMobile={hideTextOnMobile} theme={theme}>
         {children}
-        {showActionButtons && (
+        {showActionButtons && !CustomActionButton && (
           <ActionSidebarButtons
             canSubmit={canSubmit}
             cancelRoute={cancelRoute}
             onCancelCallback={onCancelCallback}
-            CustomActionButton={CustomActionButton}
             sticky
           />
+        )}
+        {handleSubmit && CustomActionButton && (
+          <CustomActionButton onSubmit={handleSubmit} canSubmit={canSubmit} />
         )}
       </FormSection>
     </>

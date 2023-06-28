@@ -1,4 +1,4 @@
-import { EMPTY, merge, Observable } from 'rxjs';
+import { of, merge, Observable } from 'rxjs';
 import { GlobalState } from '../global/global-state';
 import {
   TradeState,
@@ -44,7 +44,7 @@ export function createTradeManager(
     return merge(
       buildTransaction(state$, account$, config),
       postAccountRisk(state$, account$),
-      calculate(state$, debtPool$, collateralPool$, EMPTY, account$, config),
+      calculate(state$, debtPool$, collateralPool$, of(undefined), account$, config),
       parseRiskFactorLimit(state$, network$),
       selectedToken('Deposit', state$, network$),
       parseBalance('Deposit', state$),
