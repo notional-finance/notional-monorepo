@@ -109,22 +109,27 @@ export function initVaultState(
 ) {
   return combineLatest([state$, selectedNetwork$]).pipe(
     filter(
-      ([{ isReady, tradeType, vaultAddress }, selectedNetwork]) =>
-        !isReady && !!selectedNetwork && !!tradeType && !!vaultAddress
+      ([{ isReady, vaultAddress }, selectedNetwork]) =>
+        !isReady && !!selectedNetwork && !!vaultAddress
     ),
     switchMap(([{ vaultAddress }, selectedNetwork]) => {
       return new Promise((resolve) => {
         if (!vaultAddress) resolve(undefined);
         else {
-          Registry.getConfigurationRegistry().onNetworkRegistered(
+          Registry.getVaultRegistry().onNetworkRegistered(
             selectedNetwork,
             () => {
-              const vaultConfig =
-                Registry.getConfigurationRegistry().getVaultConfig(
-                  selectedNetwork,
-                  vaultAddress
-                );
-              resolve({ isReady: true, vaultConfig });
+              return Registry.getConfigurationRegistry().onNetworkRegistered(
+                selectedNetwork,
+                () => {
+                  const vaultConfig =
+                    Registry.getConfigurationRegistry().getVaultConfig(
+                      selectedNetwork,
+                      vaultAddress
+                    );
+                  resolve({ isReady: true, vaultConfig });
+                }
+              );
             }
           );
         }

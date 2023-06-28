@@ -90,7 +90,7 @@ export class TokenRegistryClient extends ClientRegistry<TokenDefinition> {
   ) {
     const vaultShare = this.getAllTokens(network).find(
       (t) =>
-        t.vaultAddress === vaultAddress &&
+        t.vaultAddress?.toLowerCase() === vaultAddress.toLowerCase() &&
         t.maturity === maturity &&
         t.tokenType === 'VaultShare'
     );

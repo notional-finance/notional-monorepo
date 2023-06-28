@@ -37,7 +37,7 @@ export class SingleSidedLP extends VaultAdapter {
     this.totalVaultShares = p.totalVaultShares;
     this.secondaryTradeParams = p.secondaryTradeParams;
 
-    this._initOracles(network, vaultAddress);
+    this._initOracles(network, vaultAddress.toLowerCase());
   }
 
   get hashKey() {

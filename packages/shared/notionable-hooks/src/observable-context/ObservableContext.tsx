@@ -73,7 +73,8 @@ export function useObservableContext<T extends ContextState>(
 
   useEffect(() => {
     // If any of the route params change then we will update state to initial and set the params,
-    // this prevents any "residual" state from going between paths
+    // this prevents any "residual" state from going between paths. Use isNetworkReady here to
+    // prevent race conditions based on when dependencies update.
     if (isNetworkReady) {
       if (DEBUG) console.log('URL UPDATE', params);
       updateState(params as T);
