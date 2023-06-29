@@ -20,34 +20,9 @@ import { loadGraphClientDeferred, ServerRegistry } from './server-registry';
 export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
   // Interval refreshes only update the latest rates
   public INTERVAL_REFRESH_SECONDS = 10;
-  // Configuration refreshes every hour and updates all information
-  public CONFIG_REFRESH_SECONDS = 360;
 
-  protected async _refresh(network: Network, intervalNum: number) {
-    let results: CacheSchema<OracleDefinition>;
-
-    if (
-      intervalNum %
-        (this.CONFIG_REFRESH_SECONDS / this.INTERVAL_REFRESH_SECONDS) ==
-        0 ||
-      this.isNetworkRegistered(network) === false
-    ) {
-      // Trigger a refresh of the oracle configuration, this will happen when intervalNum == 0 as well
-      results = await this._queryAllOracles(network);
-    } else {
-      // Get the current oracle configuration from the subjects
-      const values = Array.from(
-        this.getLatestFromAllSubjects(network, 0).entries()
-      );
-
-      results = {
-        values,
-        network,
-        lastUpdateTimestamp: this.getLastUpdateTimestamp(network),
-        lastUpdateBlock: this.getLastUpdateBlock(network),
-      };
-    }
-
+  protected async _refresh(network: Network, _intervalNum: number) {
+    const results = await this._queryAllOracles(network);
     // Updates the latest rates using the blockchain
     return this._updateLatestRates(results);
   }
