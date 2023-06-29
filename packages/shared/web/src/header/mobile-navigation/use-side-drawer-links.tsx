@@ -166,7 +166,7 @@ export const useSideDrawerLinks = (dataKey: MOBILE_SUB_NAV_ACTIONS) => {
   const theme = useTheme();
 
   const mobileSubNavData = {
-    [MOBILE_SUB_NAV_ACTIONS.INVEST_AND_EARN]: [
+    [MOBILE_SUB_NAV_ACTIONS.EARN_YIELD]: [
       {
         key: 'lend',
         label: <FormattedMessage defaultMessage={'Lend Fixed'} />,

@@ -4,7 +4,7 @@ import { useNotionalTheme } from '@notional-finance/styles';
 import { useUserSettingsState } from '@notional-finance/user-settings-manager';
 import { NAV_DROPDOWN, THEME_VARIANTS } from '@notional-finance/shared-config';
 import { useLocation } from 'react-router-dom';
-import { PieChartIcon } from '@notional-finance/icons';
+import { BarChartIcon } from '@notional-finance/icons';
 import HighYield from '../high-yield/high-yield';
 import LowRisk from '../low-risk/low-risk';
 import { messages } from '../../messages';
@@ -29,7 +29,7 @@ export function InvestAndEarnDropdown() {
   return (
     <DropdownButton
       popupId="invest-and-earn"
-      labelKey={messages[NAV_DROPDOWN.INVEST_AND_EARN]}
+      labelKey={messages[NAV_DROPDOWN.EARN_YIELD]}
       anchorPosition={{ top: 73, left: 0 }}
       activeTab={currentTab ? true : false}
       hideOnClick={false}
@@ -48,7 +48,7 @@ export function InvestAndEarnDropdown() {
         overflow: 'visible',
       }}
       icon={
-        <PieChartIcon
+        <BarChartIcon
           className="pie-chart-icon"
           sx={{ fontSize: '1.125rem', stroke: 'transparent', fill: 'white' }}
         />

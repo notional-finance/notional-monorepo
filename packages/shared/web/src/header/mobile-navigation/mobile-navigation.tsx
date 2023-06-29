@@ -50,7 +50,7 @@ export function MobileNavigation({ ...rest }: TabsProps) {
   }, [currentTab]);
 
   const [sideDrawerDataKey, setSideDrawerDataKey] =
-    useState<MOBILE_SUB_NAV_ACTIONS>(MOBILE_SUB_NAV_ACTIONS.INVEST_AND_EARN);
+    useState<MOBILE_SUB_NAV_ACTIONS>(MOBILE_SUB_NAV_ACTIONS.EARN_YIELD);
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
 
   const handleChange = (event: SyntheticEvent, newValue: string) => {

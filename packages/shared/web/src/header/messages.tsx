@@ -10,9 +10,9 @@ export const messages = defineMessages({
     defaultMessage: 'About',
     description: 'Landing page about header',
   },
-  [NAV_DROPDOWN.INVEST_AND_EARN]: {
-    defaultMessage: 'Invest and Earn',
-    description: 'Landing page invest and earn header',
+  [NAV_DROPDOWN.EARN_YIELD]: {
+    defaultMessage: 'Earn Yield',
+    description: 'Landing page earn yield header',
   },
   [NAV_DROPDOWN.ANALYTICS]: {
     defaultMessage: 'Analytics',

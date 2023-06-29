@@ -1,42 +1,17 @@
 import { useTheme } from '@mui/material';
-import { Section, SectionLinkProps } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
-import { BarChartIcon } from '@notional-finance/icons';
-import { useInvestEarnYields } from '../use-invest-earn-yields';
+import { Section } from '@notional-finance/mui';
+import { useInvestEarnLinks } from '../use-invest-earn-links';
 
 export function LowRisk() {
   const theme = useTheme();
-  const { highestLendRate } = useInvestEarnYields();
-
-  const heading = <FormattedMessage defaultMessage={'Low Risk'} />;
-  const links: SectionLinkProps[] = [
-    {
-      title: <FormattedMessage defaultMessage={'Fixed Rate Lending'} />,
-      to: '/lend-fixed',
-      icon: (
-        <BarChartIcon
-          sx={{
-            fontSize: '1.5rem',
-            fill: theme.palette.common.black,
-          }}
-        />
-      ),
-      description: (
-        <FormattedMessage
-          defaultMessage="Earn up to {rate} APY"
-          values={{
-            rate: highestLendRate,
-          }}
-        />
-      ),
-      external: false,
-    },
-  ];
+  const { lowRiskLinks } = useInvestEarnLinks();
+  const heading = <FormattedMessage defaultMessage={'LOW RISK'} />;
 
   return (
     <Section
       heading={heading}
-      links={links}
+      links={lowRiskLinks}
       sx={{
         padding: '64px',
         paddingTop: '48px',

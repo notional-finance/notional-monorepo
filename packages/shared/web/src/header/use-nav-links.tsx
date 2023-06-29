@@ -6,7 +6,7 @@ import {
   DocsIcon,
   NotionalPlainIcon,
   ResourcesIcon,
-  PieChartIcon,
+  BarChartIcon,
   GearIcon,
 } from '@notional-finance/icons';
 import { MOBILE_SUB_NAV_ACTIONS } from '@notional-finance/shared-config';
@@ -49,11 +49,11 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
 
   const mobileSubNavLinks: INavLink[] = [
     {
-      key: MOBILE_SUB_NAV_ACTIONS.INVEST_AND_EARN,
-      label: <FormattedMessage defaultMessage={'Invest and Earn'} />,
+      key: MOBILE_SUB_NAV_ACTIONS.EARN_YIELD,
+      label: <FormattedMessage defaultMessage={'Earn Yield'} />,
       link: '',
       iconImg: (
-        <PieChartIcon
+        <BarChartIcon
           className="color-stroke"
           sx={{ fontSize: '1.125rem', stroke: '', fill: textColor }}
         />
