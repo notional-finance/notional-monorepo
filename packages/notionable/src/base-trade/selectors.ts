@@ -32,10 +32,16 @@ export function selectedNetwork(global$: Observable<GlobalState>) {
 }
 
 export function selectedAccount(global$: Observable<GlobalState>) {
-  return combineLatest([global$, selectedNetwork(global$)]).pipe(
-    map(([g, selectedNetwork]) =>
-      g.isAccountReady && g.selectedAccount
-        ? { selectedNetwork, selectedAccount: g.selectedAccount }
+  return global$.pipe(
+    map((g) =>
+      g.isAccountReady &&
+      g.selectedAccount &&
+      g.isNetworkReady &&
+      g.selectedNetwork
+        ? {
+            selectedNetwork: g.selectedNetwork,
+            selectedAccount: g.selectedAccount,
+          }
         : undefined
     ),
     filterEmpty(),
