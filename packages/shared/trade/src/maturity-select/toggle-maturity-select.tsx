@@ -21,14 +21,16 @@ interface ToggleMaturitySelectProps {
   fCashInputLabel: MessageDescriptor;
 }
 
-export function ToggleMaturitySelect({
+const VARIABLE = 0;
+const FIXED = 1;
+
+export function VariableFixedMaturityToggle({
   context,
   fCashInputLabel,
 }: ToggleMaturitySelectProps) {
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
   const {
-    state: { availableDebtTokens },
-    updateState,
+    state: { availableDebtTokens, debt },
   } = useContext(context);
 
   const { maturityData, selectedfCashId, onSelect } = useMaturitySelect(
@@ -40,6 +42,7 @@ export function ToggleMaturitySelect({
     (t) =>
       t.tokenType === 'PrimeDebt' || t.maturity === PRIME_CASH_VAULT_MATURITY
   )?.id;
+  const debtId = debt?.id;
 
   const lowestFixedRate = maturityData.reduce(
     (r, m) =>
@@ -50,34 +53,41 @@ export function ToggleMaturitySelect({
   );
 
   useEffect(() => {
-    // TODO: this does not automatically select the correct collateral id
-    if (selectedTabIndex === 0 && primeDebtId) onSelect(primeDebtId);
-  }, [primeDebtId, selectedTabIndex, onSelect]);
+    if (
+      selectedTabIndex === VARIABLE &&
+      primeDebtId &&
+      debtId !== primeDebtId
+    ) {
+      onSelect(primeDebtId);
+    } else if (selectedTabIndex === FIXED && debtId === primeDebtId) {
+      onSelect(undefined);
+    }
+  }, [primeDebtId, selectedTabIndex, onSelect, debtId]);
 
   const VariableRateLabel = (
     <Box>
-      <H4 contrast={selectedTabIndex === 0}>
+      <H4 contrast={selectedTabIndex === VARIABLE}>
         <FormattedMessage defaultMessage={'Variable Rate'} />
       </H4>
-      <LabelValue inline contrast={selectedTabIndex === 0}>
+      <LabelValue inline contrast={selectedTabIndex === VARIABLE}>
         {'2.23%'}
       </LabelValue>
       &nbsp;
-      <Label inline contrast={selectedTabIndex === 0}>
+      <Label inline contrast={selectedTabIndex === VARIABLE}>
         <FormattedMessage defaultMessage={'Current Rate'} />
       </Label>
     </Box>
   );
   const FixedRateLabel = (
     <Box>
-      <H4 contrast={selectedTabIndex === 1}>
+      <H4 contrast={selectedTabIndex === FIXED}>
         <FormattedMessage defaultMessage={'Fixed Rate'} />
       </H4>
-      <Label inline contrast={selectedTabIndex === 1}>
+      <Label inline contrast={selectedTabIndex === FIXED}>
         <FormattedMessage defaultMessage={'As low as'} />
       </Label>
       &nbsp;
-      <LabelValue inline contrast={selectedTabIndex === 1}>
+      <LabelValue inline contrast={selectedTabIndex === FIXED}>
         {lowestFixedRate
           ? formatInterestRate(
               Math.floor((lowestFixedRate / 100) * RATE_PRECISION)
@@ -101,7 +111,6 @@ export function ToggleMaturitySelect({
       selectedTabIndex={selectedTabIndex}
       onChange={(_, v) => {
         setSelectedTabIndex(v as number);
-        if (v === 1) updateState({ selectedDebtToken: undefined });
       }}
     />
   );
