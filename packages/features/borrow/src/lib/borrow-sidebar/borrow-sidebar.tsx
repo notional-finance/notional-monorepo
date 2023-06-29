@@ -20,17 +20,13 @@ import { updateBorrowState } from '../store/borrow-store';
 import { useBorrow } from '../store/use-borrow';
 import { useBorrowTransaction } from '../store/use-borrow-transaction';
 import { BorrowParams } from '../borrow-feature-shell';
-import { useCurrency } from '@notional-finance/notionable-hooks';
 
 export const BorrowSidebar = () => {
   const {
     selectedDepositToken: selectedToken,
     selectedCollateralToken: selectedCollateral,
   } = useParams<BorrowParams>();
-  const {
-    tradableCurrencySymbols: availableCurrencies,
-    // allCurrencySymbols: collateralCurrencies,
-  } = useCurrency();
+  const availableCurrencies = [] as string[];
   const {
     maturityData,
     selectedMarketKey,

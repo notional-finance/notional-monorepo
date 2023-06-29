@@ -18,6 +18,7 @@ interface CardData {
   allRates: AllRates[];
 }
 
+// TODO: deprecate....
 export const useAllMarkets = () => {
   const { currencyMarkets } = useObservableState(
     marketState$,

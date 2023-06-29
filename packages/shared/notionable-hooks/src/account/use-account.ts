@@ -12,7 +12,6 @@ import {
   useSelectedNetwork,
 } from '../notional/use-notional';
 import { EMPTY } from 'rxjs';
-import { useCurrencyData } from '../currency/use-currency';
 import {
   AccountRiskProfile,
   VaultAccountRiskProfile,
@@ -52,18 +51,8 @@ export function useAccount() {
     lastUpdateTime,
   };
 }
-export function useAccountCashBalance(
-  selectedToken: string | undefined | null
-) {
-  const { id: currencyId, isUnderlying } = useCurrencyData(selectedToken);
-  const { accountDataCopy } = useAccount();
-  const _cashAmount = currencyId
-    ? accountDataCopy?.cashBalance(currencyId)
-    : undefined;
-  return isUnderlying ? _cashAmount?.toUnderlying() : _cashAmount;
-}
-
 export function useAccountWithdrawableTokens() {
+  // NOTE: any token with prime debt enabled is always "withdrawable"
   const { balanceSummary } = useAccount();
 
   return Array.from(balanceSummary.values())

@@ -1,4 +1,3 @@
-import { TypedBigNumber } from '@notional-finance/sdk';
 import {
   pluckFirst,
   useObservable,
@@ -18,6 +17,7 @@ import { PopulatedTransaction } from 'ethers';
 import { trackEvent } from '@notional-finance/helpers';
 import { filterEmpty } from '@notional-finance/util';
 import { TransactionReceipt } from '@ethersproject/providers';
+import { Registry, TokenBalance } from '@notional-finance/core-entities';
 
 export function useNotional() {
   const { notional, loaded, connectedChain, pendingChainId } =
@@ -39,17 +39,23 @@ export function useNotional() {
 }
 
 export function useLastUpdateBlockNumber() {
-  const { system } = useNotional();
-  return system?.lastUpdateBlockNumber;
+  const network = useSelectedNetwork();
+  return network
+    ? Registry.getOracleRegistry().getLastUpdateBlock(network)
+    : undefined;
 }
 
 export function useCurrentETHPrice() {
-  const { system } = useNotional();
-  return system
-    ? `$${TypedBigNumber.fromBalance(1e8, 'ETH', true)
-        .toCUR('USD')
-        .toDisplayString(2)}`
-    : undefined;
+  const network = useSelectedNetwork();
+  if (network) {
+    const eth = TokenBalance.unit(
+      Registry.getTokenRegistry().getTokenBySymbol(network, 'ETH')
+    );
+    const usdc = Registry.getTokenRegistry().getTokenBySymbol(network, 'USDC');
+    return eth.toToken(usdc).toDisplayString(2);
+  }
+
+  return undefined;
 }
 
 export function useNotionalContext() {

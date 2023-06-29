@@ -1,8 +1,4 @@
-import {
-  useAccount,
-  useCurrencyData,
-  useNotional,
-} from '@notional-finance/notionable-hooks';
+import { useAccount, useNotional } from '@notional-finance/notionable-hooks';
 import { TypedBigNumber } from '@notional-finance/sdk';
 import { NTokenValue } from '@notional-finance/sdk/src/system';
 import { WITHDRAW_TYPE } from '@notional-finance/shared-config';
@@ -16,7 +12,8 @@ export function useAccountWithdraw(
 ) {
   const { notional } = useNotional();
   const { balanceSummary, accountDataCopy } = useAccount();
-  const { id: currencyId, isUnderlying } = useCurrencyData(selectedToken);
+  const currencyId = 0;
+  const isUnderlying = true;
   const inputAmount =
     inputString && notional
       ? notional.parseInput(inputString, selectedToken, true)

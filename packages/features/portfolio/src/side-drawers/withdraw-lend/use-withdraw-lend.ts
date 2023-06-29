@@ -1,9 +1,4 @@
-import {
-  useAccountCashBalance,
-  useCurrencyData,
-  useNotional,
-  useRiskRatios,
-} from '@notional-finance/notionable-hooks';
+import { useNotional, useRiskRatios } from '@notional-finance/notionable-hooks';
 import { TypedBigNumber } from '@notional-finance/sdk';
 import {
   CashOrFCash,
@@ -49,8 +44,8 @@ export function useWithdrawLend(assetKey: string | undefined) {
     cashOrfCash,
     withdrawToPortfolio,
   } = state;
-  const { isUnderlying } = useCurrencyData(selectedToken);
-  const cashBalance = useAccountCashBalance(selectedToken);
+  const isUnderlying = true;
+  const cashBalance = undefined as TypedBigNumber | undefined;
 
   const {
     market,

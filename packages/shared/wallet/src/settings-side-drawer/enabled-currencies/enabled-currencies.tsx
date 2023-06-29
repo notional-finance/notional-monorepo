@@ -3,7 +3,6 @@ import { tokenApprovalState$ } from '@notional-finance/trade';
 import { ProgressIndicator, LabelValue } from '@notional-finance/mui';
 import {
   useAccountReady,
-  useCurrency,
   useWalletAllowances,
 } from '@notional-finance/notionable-hooks';
 import { useObservableState } from 'observable-hooks';
@@ -36,7 +35,7 @@ export const EnabledCurrencies = () => {
   const tokenApprovalState = useObservableState(tokenApprovalState$);
   const walletConnected = useAccountReady();
   const { enabledTokens, supportedTokens } = useWalletAllowances();
-  const { systemTokenSymbols } = useCurrency();
+  const systemTokenSymbols = supportedTokens.map((t) => t.symbol);
   const tokenApproval = tokenApprovalState
     ? Object.values(tokenApprovalState)
     : [];

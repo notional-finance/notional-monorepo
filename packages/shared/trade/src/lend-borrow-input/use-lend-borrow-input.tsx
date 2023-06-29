@@ -1,10 +1,5 @@
 import { LEND_BORROW } from '@notional-finance/shared-config';
-import {
-  useNotional,
-  useAccount,
-  useCurrencyData,
-  useAccountCashBalance,
-} from '@notional-finance/notionable-hooks';
+import { useNotional, useAccount } from '@notional-finance/notionable-hooks';
 import { Asset, AssetType, TypedBigNumber } from '@notional-finance/sdk';
 import { CashOrFCash } from './lend-borrow-input';
 import { tradeErrors } from '../tradeErrors';
@@ -23,8 +18,8 @@ export function useLendBorrowInput(
   const { notional } = useNotional();
   const { accountDataCopy, assetSummary } = useAccount();
   const selectedMarket = undefined as Market | undefined;
-  const { isUnderlying } = useCurrencyData(selectedToken);
-  const accountCashBalance = useAccountCashBalance(selectedToken);
+  const isUnderlying = true;
+  const accountCashBalance = undefined as TypedBigNumber | undefined;
   const walletBalance = accountCashBalance?.copy(0);
 
   const inputAmount =
