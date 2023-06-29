@@ -26,7 +26,7 @@ export const useInvestEarnLinks = () => {
       icon: (
         <BarChartLateralIcon
           sx={{
-            fontSize: '1.5rem',
+            fontSize: theme.spacing(3),
             fill: theme.palette.common.black,
           }}
         />
@@ -47,7 +47,7 @@ export const useInvestEarnLinks = () => {
       icon: (
         <BarChartIcon
           sx={{
-            fontSize: '1.5rem',
+            fontSize: theme.spacing(3),
             fill: theme.palette.common.black,
           }}
         />
@@ -68,7 +68,7 @@ export const useInvestEarnLinks = () => {
       icon: (
         <PieChartIcon
           sx={{
-            fontSize: '1.5rem',
+            fontSize: theme.spacing(3),
             stroke: 'transparent',
             fill: theme.palette.common.black,
           }}
@@ -90,7 +90,7 @@ export const useInvestEarnLinks = () => {
       icon: (
         <StakeIcon
           sx={{
-            fontSize: '1.5rem',
+            fontSize: theme.spacing(3),
             stroke: theme.palette.common.black,
             fill: 'transparent',
           }}
@@ -112,7 +112,7 @@ export const useInvestEarnLinks = () => {
       icon: (
         <VaultIcon
           sx={{
-            fontSize: '1.5rem',
+            fontSize: theme.spacing(3),
             fill: theme.palette.common.black,
           }}
         />
@@ -133,7 +133,7 @@ export const useInvestEarnLinks = () => {
       icon: (
         <BarCharLightningIcon
           sx={{
-            fontSize: '1.5rem',
+            fontSize: theme.spacing(3),
             fill: theme.palette.common.black,
           }}
         />
@@ -151,7 +151,7 @@ export const useInvestEarnLinks = () => {
       icon: (
         <PieChartIcon
           sx={{
-            fontSize: '1.5rem',
+            fontSize: theme.spacing(3),
             stroke: 'transparent',
             fill: theme.palette.common.black,
           }}
