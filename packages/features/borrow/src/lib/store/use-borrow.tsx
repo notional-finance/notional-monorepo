@@ -1,6 +1,4 @@
 import {
-  useSelectedMarket,
-  useMaturityData,
   useAccount,
   useAccountCashBalance,
 } from '@notional-finance/notionable-hooks';
@@ -9,6 +7,8 @@ import { tradeErrors } from '@notional-finance/trade';
 import { useObservableState } from 'observable-hooks';
 import { FormattedMessage } from 'react-intl';
 import { borrowState$, initialBorrowState } from './borrow-store';
+import { MaturityData } from '@notional-finance/notionable';
+import { Market } from '@notional-finance/sdk/system';
 
 export function useBorrow(selectedToken: string) {
   const { accountDataCopy } = useAccount();
@@ -21,9 +21,9 @@ export function useBorrow(selectedToken: string) {
     collateralAction,
     borrowToPortfolio,
   } = useObservableState(borrowState$, initialBorrowState);
-  const selectedMarket = useSelectedMarket(selectedMarketKey);
+  const selectedMarket = undefined as Market | undefined;
   const inputAmountUnderlying = inputAmount?.toUnderlying(true);
-  const maturityData = useMaturityData(selectedToken, inputAmountUnderlying);
+  const maturityData = [] as MaturityData[];
   const cashBalance = useAccountCashBalance(selectedToken);
 
   const tradedRate =

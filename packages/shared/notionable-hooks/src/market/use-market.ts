@@ -1,13 +1,7 @@
-import { TypedBigNumber } from '@notional-finance/sdk';
 import { Market } from '@notional-finance/sdk/src/system';
-import { convertRateToFloat, formatMaturity } from '@notional-finance/helpers';
+import { formatMaturity } from '@notional-finance/helpers';
 import { useObservableState } from 'observable-hooks';
-import { useCurrencyData } from '../currency/use-currency';
-import {
-  initialMarketState,
-  marketState$,
-  MaturityData,
-} from '@notional-finance/notionable';
+import { initialMarketState, marketState$ } from '@notional-finance/notionable';
 import { useSelectedNetwork } from '../notional/use-notional';
 import { fCashMarket, Registry } from '@notional-finance/core-entities';
 import { EMPTY } from 'rxjs';
@@ -89,57 +83,6 @@ export const useAllMarkets = () => {
     unwrappedCurrencies,
     cTokens,
   };
-};
-
-export const useMarkets = (
-  selectedToken: string | null | undefined
-): Market[] => {
-  const { currencyMarkets } = useAllMarkets();
-  const { id } = useCurrencyData(selectedToken);
-
-  return (id ? currencyMarkets.get(id)?.orderedMarkets : []) || [];
-};
-
-export const useSelectedMarket = (selectedMarketKey: string | null) => {
-  const { currencyMarkets } = useAllMarkets();
-  if (!selectedMarketKey) return undefined;
-
-  // MarketKey is currencyId:marketIndex:maturity
-  const currencyId = Market.parseCurrencyId(selectedMarketKey);
-  return currencyMarkets.get(currencyId)?.markets.get(selectedMarketKey);
-};
-
-export const useMaturityData = (
-  selectedToken: string | null,
-  _underlyingAmount: TypedBigNumber | undefined
-): MaturityData[] => {
-  const markets = useMarkets(selectedToken);
-  const underlyingAmount = _underlyingAmount?.toUnderlying(true);
-
-  return markets.map((m) => {
-    let tradeRate: number | undefined = m.marketAnnualizedRate();
-    let fCashAmount: TypedBigNumber | undefined;
-    if (underlyingAmount) {
-      try {
-        fCashAmount = m.getfCashAmountGivenCashAmount(underlyingAmount);
-        tradeRate = m.interestRate(fCashAmount, underlyingAmount);
-      } catch {
-        // This will disable the card
-        tradeRate = undefined;
-      }
-    }
-
-    return {
-      fCashId: m.marketKey,
-      tradeRate: tradeRate ? convertRateToFloat(tradeRate) : undefined,
-      tradeRateString:
-        tradeRate !== undefined ? Market.formatInterestRate(tradeRate) : '',
-      maturity: m.maturity,
-      hasLiquidity: m.hasLiquidity,
-      fCashAmount,
-      cashAmount: underlyingAmount,
-    };
-  });
 };
 
 export const useFCashMarket = (currencyId?: number) => {
