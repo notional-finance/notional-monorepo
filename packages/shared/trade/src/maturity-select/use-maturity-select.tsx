@@ -97,6 +97,7 @@ export const useMaturitySelect = (
         )?.symbol;
         updateState({ selectedCollateralToken });
       } else if (isVault) {
+        // Selects the matching vault collateral asset when the debt asset is selected
         const selectedDebt = availableDebtTokens?.find(
           (t) => t.id === selectedId
         );

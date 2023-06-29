@@ -53,6 +53,7 @@ function getTradeConfig(tradeType?: TradeType | VaultTradeType) {
   return config;
 }
 
+/** Ensures that tokens are automatically selected or cleared when they change */
 function getSelectedToken(
   availableTokens: TokenDefinition[],
   selectedToken: string | undefined
