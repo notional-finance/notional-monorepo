@@ -36,8 +36,8 @@ export const LeverageSlider = ({
   const borrowAmount = (
     <LabelValue inline error={underMinAccountBorrow}>
       <CountUp
-        value={debtBalance?.abs().toFloat() || 0}
-        suffix={` ${debtBalance?.symbol || ''}`}
+        value={debtBalance?.toUnderlying().abs().toFloat() || 0}
+        suffix={` ${debtBalance?.underlying.symbol || ''}`}
         decimals={3}
       />
     </LabelValue>

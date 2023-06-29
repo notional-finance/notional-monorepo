@@ -37,6 +37,7 @@ export const useMaturitySelect = (
   const fCashMarket = useFCashMarket(currencyId);
   const spotRates = fCashMarket?.getSpotInterestRates();
   const tokenRegistry = Registry.getTokenRegistry();
+  const isVault = isVaultTrade(tradeType);
 
   // TODO: maybe put a use memo in here..
   const maturityData =
@@ -51,13 +52,13 @@ export const useMaturitySelect = (
             const index = tokens.findIndex((_t) => _t.id === t.id);
             const option = options ? options[index] : undefined;
             let tradeRate: number | undefined;
-            if (option) {
+            if (option && !option.isZero()) {
               let { tokensOut } = fCashMarket.calculateTokenTrade(
                 option.unwrapVaultToken().neg(),
                 0
               );
 
-              if (isVaultTrade(tradeType)) {
+              if (isVault) {
                 ({ cashBorrowed: tokensOut } =
                   Registry.getConfigurationRegistry().getVaultBorrowWithFees(
                     option.network,
@@ -95,6 +96,17 @@ export const useMaturitySelect = (
           (t) => t.id === selectedId
         )?.symbol;
         updateState({ selectedCollateralToken });
+      } else if (isVault) {
+        const selectedDebt = availableDebtTokens?.find(
+          (t) => t.id === selectedId
+        );
+        const selectedCollateral = availableCollateralTokens?.find(
+          (t) => t.maturity === selectedDebt?.maturity
+        );
+        updateState({
+          selectedDebtToken: selectedDebt?.symbol,
+          selectedCollateralToken: selectedCollateral?.symbol,
+        });
       } else {
         const selectedDebtToken = availableDebtTokens?.find(
           (t) => t.id === selectedId
@@ -102,7 +114,13 @@ export const useMaturitySelect = (
         updateState({ selectedDebtToken });
       }
     },
-    [availableCollateralTokens, availableDebtTokens, updateState, category]
+    [
+      availableCollateralTokens,
+      availableDebtTokens,
+      updateState,
+      category,
+      isVault,
+    ]
   );
 
   return { maturityData, selectedfCashId: selectedToken?.id, onSelect };

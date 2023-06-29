@@ -6243,6 +6243,7 @@ export const AllOraclesDocument = gql`
     query AllOracles {
   oracles(
     where: {oracleType_not_in: [PrimeCashToUnderlyingOracleInterestRate, PrimeCashToMoneyMarketExchangeRate, PrimeDebtToMoneyMarketExchangeRate, MoneyMarketToUnderlyingExchangeRate, MoneyMarketToUnderlyingOracleInterestRate, fCashSpotRate]}
+    first: 5000
   ) {
     id
     lastUpdateBlockNumber
