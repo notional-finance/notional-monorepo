@@ -36,7 +36,7 @@ export const LendFixed = () => {
 
   return (
     <LendFixedContext.Provider value={context}>
-      <FeatureLoader featureLoaded={isReady && !!selectedDepositToken}>
+      <FeatureLoader featureLoaded={isReady}>
         <SideBarLayout
           showTransactionConfirmation={confirm}
           sideBar={<LendFixedSidebar />}

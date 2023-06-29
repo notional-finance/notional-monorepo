@@ -53,6 +53,16 @@ function getTradeConfig(tradeType?: TradeType | VaultTradeType) {
   return config;
 }
 
+function getSelectedToken(
+  availableTokens: TokenDefinition[],
+  selectedToken: string | undefined
+) {
+  if (availableTokens.length === 1) return availableTokens[0].symbol;
+  if (!availableTokens.find((t) => t.symbol === selectedToken))
+    return undefined;
+  else return selectedToken;
+}
+
 export function resetOnNetworkChange(
   global$: Observable<GlobalState>,
   state$: Observable<BaseTradeState>
@@ -212,6 +222,19 @@ export function availableTokens(
             availableDepositTokens.map((t) => t.id).join(':') !==
               s.availableDepositTokens?.map((t) => t.id).join(':');
 
+          const selectedDepositToken = getSelectedToken(
+            availableDepositTokens,
+            s.selectedDepositToken
+          );
+          const selectedDebtToken = getSelectedToken(
+            availableDebtTokens,
+            s.selectedDebtToken
+          );
+          const selectedCollateralToken = getSelectedToken(
+            availableCollateralTokens,
+            s.selectedCollateralToken
+          );
+
           resolve(
             hasChanged
               ? {
@@ -220,18 +243,9 @@ export function availableTokens(
                   availableDepositTokens,
 
                   // Set the default values if only one is available
-                  selectedDepositToken:
-                    availableDepositTokens.length === 1
-                      ? availableDepositTokens[0].symbol
-                      : s.selectedDepositToken,
-                  selectedDebtToken:
-                    availableDebtTokens.length === 1
-                      ? availableDebtTokens[0].symbol
-                      : s.selectedDebtToken,
-                  selectedCollateralToken:
-                    availableCollateralTokens.length === 1
-                      ? availableCollateralTokens[0].symbol
-                      : s.selectedCollateralToken,
+                  selectedDepositToken,
+                  selectedDebtToken,
+                  selectedCollateralToken,
                 }
               : undefined
           );
