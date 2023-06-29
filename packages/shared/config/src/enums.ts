@@ -17,7 +17,7 @@ export enum NOTIONAL_CATEGORIES {
 }
 
 export enum MOBILE_SUB_NAV_ACTIONS {
-  INVEST_AND_EARN = 'invest-and-earn',
+  EARN_YIELD = 'earn-yield',
   SETTINGS = 'settings',
   NOTIFICATIONS = 'notifications',
   VAULTS = 'vaults',
@@ -111,7 +111,7 @@ export const SIDE_DRAWERS = {
 export enum NAV_DROPDOWN {
   ABOUT = 'About',
   RESOURCES = 'Resources',
-  INVEST_AND_EARN = 'Invest and earn',
+  EARN_YIELD = 'Earn Yield',
   ANALYTICS = 'Analytics',
 }
 

@@ -1,79 +1,17 @@
 import { useTheme } from '@mui/material';
-import { Section, SectionLinkProps } from '@notional-finance/mui';
+import { Section } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
-import { StakeIcon, PieChartIcon, VaultIcon } from '@notional-finance/icons';
-import { useInvestEarnYields } from '../use-invest-earn-yields';
+import { useInvestEarnLinks } from '../use-invest-earn-links';
 
 export function HighYield() {
   const theme = useTheme();
+  const { highYieldLinks } = useInvestEarnLinks();
   const heading = <FormattedMessage defaultMessage={'High Yield'} />;
-  const { highestNTokenRate, highestVaultApy } = useInvestEarnYields();
-
-  const links: SectionLinkProps[] = [
-    {
-      title: <FormattedMessage defaultMessage={'Leveraged Vaults'} />,
-      to: '/vaults',
-      icon: (
-        <VaultIcon
-          sx={{
-            fontSize: '1.5rem',
-            fill: theme.palette.common.black,
-          }}
-        />
-      ),
-      description: (
-        <FormattedMessage
-          defaultMessage={'Leverage DeFi yields and earn up to {rate} APY'}
-          values={{
-            rate: highestVaultApy,
-          }}
-        />
-      ),
-      external: false,
-    },
-    {
-      title: <FormattedMessage defaultMessage={'NOTE Staking'} />,
-      to: '/stake',
-      icon: (
-        <StakeIcon
-          sx={{
-            fontSize: '1.5rem',
-            stroke: theme.palette.common.black,
-            fill: 'transparent',
-          }}
-        />
-      ),
-      description: <FormattedMessage defaultMessage={'Stake NOTE and earn protocol revenues.'} />,
-      external: false,
-    },
-    {
-      title: <FormattedMessage defaultMessage={'Provide Liquidity'} />,
-      to: '/provide',
-      icon: (
-        <PieChartIcon
-          sx={{
-            fontSize: '1.5rem',
-            stroke: 'transparent',
-            fill: theme.palette.common.black,
-          }}
-        />
-      ),
-      description: (
-        <FormattedMessage
-          defaultMessage={'Earn up to {rate} variable APY'}
-          values={{
-            rate: highestNTokenRate,
-          }}
-        />
-      ),
-      external: false,
-    },
-  ];
 
   return (
     <Section
       heading={heading}
-      links={links}
+      links={highYieldLinks}
       sx={{
         padding: '64px',
         paddingTop: '48px',
