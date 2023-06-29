@@ -6,13 +6,17 @@ import {
   setReadOnlyAddress,
 } from '@notional-finance/notionable';
 import { truncateAddress } from '@notional-finance/helpers';
-import { Registry } from '@notional-finance/core-entities';
+import { Registry, TokenBalance } from '@notional-finance/core-entities';
 import {
   useNotionalContext,
   useSelectedNetwork,
 } from '../notional/use-notional';
 import { EMPTY } from 'rxjs';
 import { useCurrencyData } from '../currency/use-currency';
+import {
+  AccountRiskProfile,
+  VaultAccountRiskProfile,
+} from '@notional-finance/risk-engine';
 
 export function useAccount() {
   const {
@@ -112,4 +116,39 @@ export function usePrimeCashBalance(selectedToken: string | undefined | null) {
     : undefined;
 
   return useBalance(primeCash?.symbol);
+}
+
+export function useVaultRiskProfiles() {
+  const { account } = useAccountDefinition();
+
+  // Groups vault positions per vault address
+  const vaultPositions = account?.balances
+    .filter((b) => b.isVaultToken)
+    .reduce((vaults, b) => {
+      const t = vaults.get(b.vaultAddress) || [];
+      t.push(b);
+      vaults.set(b.vaultAddress, t);
+      return vaults;
+    }, new Map<string, TokenBalance[]>());
+
+  const vaultRiskProfiles: VaultAccountRiskProfile[] = [];
+  vaultPositions?.forEach((balances, vaultAddress) => {
+    vaultRiskProfiles.push(
+      VaultAccountRiskProfile.from(vaultAddress, balances)
+    );
+  });
+
+  return vaultRiskProfiles;
+}
+export function usePortfolioRiskProfile() {
+  const { account } = useAccountDefinition();
+
+  return AccountRiskProfile.from(
+    account?.balances.filter(
+      (b) =>
+        !b.isVaultToken &&
+        b.tokenType !== 'Underlying' &&
+        b.tokenType !== 'NOTE'
+    ) || []
+  );
 }
