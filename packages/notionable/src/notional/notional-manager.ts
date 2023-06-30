@@ -6,12 +6,6 @@ import {
   initialAccountState,
   updateAccountState,
 } from '../account/account-store';
-import { updateMarketState, initialMarketState } from '../market/market-store';
-import {
-  initialCurrencyState,
-  updateCurrencyState,
-} from '../currency/currency-store';
-import { initialWalletState, updateWalletState } from '../wallet/wallet-store';
 
 let _connectedNetwork = -1;
 
@@ -37,10 +31,7 @@ export const initializeNotional = async (networkId: number) => {
 };
 
 function destroyNotional() {
-  updateWalletState(initialWalletState);
-  updateCurrencyState(initialCurrencyState);
   updateAccountState({ ...initialAccountState, readOnlyAddress: undefined });
-  updateMarketState(initialMarketState);
   _connectedNetwork = -1;
   setInLocalStorage('selectedChain', null);
   updateNotionalState({ connectedChain: -1, loaded: false, notional: null });

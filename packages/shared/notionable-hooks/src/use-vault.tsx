@@ -2,7 +2,7 @@ import { Registry, TokenBalance } from '@notional-finance/core-entities';
 import { reportNotionalError } from '@notional-finance/notionable';
 import { RATE_PRECISION } from '@notional-finance/util';
 import { useAccountDefinition } from './account/use-account';
-import { useSelectedNetwork } from '../notional/use-notional';
+import { useSelectedNetwork } from './use-notional';
 import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
 import { FormattedMessage } from 'react-intl';
 
