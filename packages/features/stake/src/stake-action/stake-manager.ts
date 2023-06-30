@@ -1,14 +1,18 @@
-import { notional$, tokenBalances$ } from '@notional-finance/notionable';
+import { notional$ } from '@notional-finance/notionable';
 import { TypedBigNumber } from '@notional-finance/sdk';
 import { StakedNote } from '@notional-finance/sdk/src/staking';
-import { map, combineLatest, filter, Observable } from 'rxjs';
+import { map, combineLatest, filter, Observable, of } from 'rxjs';
 import { selectStakeState } from './stake-store';
 
-const noteAmount$ = selectStakeState('noteAmount') as Observable<TypedBigNumber | undefined>;
+const noteAmount$ = selectStakeState('noteAmount') as Observable<
+  TypedBigNumber | undefined
+>;
 const ethInputAmount$ = selectStakeState('ethInputAmount') as Observable<
   TypedBigNumber | undefined
 >;
-const ethOrWethSelected$ = selectStakeState('ethOrWethSelected') as Observable<string>;
+const ethOrWethSelected$ = selectStakeState(
+  'ethOrWethSelected'
+) as Observable<string>;
 const useOptimumETH$ = selectStakeState('useOptimumETH') as Observable<boolean>;
 
 export const ethAmount$ = combineLatest({
@@ -16,12 +20,12 @@ export const ethAmount$ = combineLatest({
   ethOrWeth: ethOrWethSelected$,
   useOptimumETH: useOptimumETH$,
   noteAmount: noteAmount$,
-  tokenBalances: tokenBalances$,
+  tokenBalances: of(undefined),
   notional: notional$,
 }).pipe(
   filter(({ ethOrWeth, notional }) => !!ethOrWeth && !!notional),
   map(({ ethInput, ethOrWeth, useOptimumETH, noteAmount, tokenBalances }) => {
-    const maxETHAmount = tokenBalances.get(ethOrWeth)?.balance;
+    const maxETHAmount = tokenBalances;
 
     if (useOptimumETH) {
       // If using optimum ETH, the eth amount is calculated
@@ -33,7 +37,9 @@ export const ethAmount$ = combineLatest({
         );
 
         // If we have a maxEthValue then us it as an upper bound, otherwise just use the optimal eth
-        return maxETHAmount ? TypedBigNumber.min(optimalETH, maxETHAmount) : optimalETH;
+        return maxETHAmount
+          ? TypedBigNumber.min(optimalETH, maxETHAmount)
+          : optimalETH;
       } else {
         // In this case there is no NOTE amount so clear the eth amount as well
         return undefined;
@@ -46,7 +52,9 @@ export const ethAmount$ = combineLatest({
 );
 
 export const priceImpact$ = combineLatest([noteAmount$, ethAmount$]).pipe(
-  map(([noteAmount, ethAmount]) => calculateNotePriceImpact(noteAmount, ethAmount))
+  map(([noteAmount, ethAmount]) =>
+    calculateNotePriceImpact(noteAmount, ethAmount)
+  )
 );
 
 export function calculateNotePriceImpact(

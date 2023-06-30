@@ -1,11 +1,11 @@
-import { TokenBalance, selectWalletState } from '@notional-finance/notionable';
+import { TokenBalance } from '@notional-finance/notionable';
 import {
   scan,
   distinctUntilChanged,
   BehaviorSubject,
   Subject,
   shareReplay,
-  Observable,
+  of,
 } from 'rxjs';
 
 export type TokenApprovalStatus =
@@ -20,9 +20,11 @@ export interface TokenApprovalState {
   [key: string]: TokenApprovalStatus;
 }
 
-const tokens$ = selectWalletState('tokens') as Observable<Map<string, TokenBalance>>;
+const tokens$ = of(new Map<string, TokenBalance>());
 const initialState: TokenApprovalState = {};
-const _tokenApprovalStoreBS = new BehaviorSubject<TokenApprovalState>(initialState);
+const _tokenApprovalStoreBS = new BehaviorSubject<TokenApprovalState>(
+  initialState
+);
 const _tokenApprovalUpdateSubject = new Subject<TokenApprovalState>();
 
 _tokenApprovalUpdateSubject
@@ -51,7 +53,9 @@ tokens$
         const currTokenAllowance = token?.allowance;
 
         return (
-          !!prevTokenAllowance && !!currTokenAllowance && prevTokenAllowance.eq(currTokenAllowance)
+          !!prevTokenAllowance &&
+          !!currTokenAllowance &&
+          prevTokenAllowance.eq(currTokenAllowance)
         );
       });
     })
@@ -65,4 +69,6 @@ tokens$
   });
 
 // output streams
-export const tokenApprovalState$ = _tokenApprovalStoreBS.asObservable().pipe(shareReplay(1));
+export const tokenApprovalState$ = _tokenApprovalStoreBS
+  .asObservable()
+  .pipe(shareReplay(1));

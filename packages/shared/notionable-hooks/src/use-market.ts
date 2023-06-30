@@ -22,6 +22,7 @@ export function useCurrency() {
       (t) =>
         t.tokenType === 'fCash' &&
         t.maturity &&
+        t.isFCashDebt === false &&
         t.maturity > getNowSeconds() &&
         !isIdiosyncratic(t.maturity)
     );
@@ -57,8 +58,10 @@ export const useAllMarkets = () => {
   const allYields = allTokens
     .filter((t) => t.tokenType !== 'Underlying')
     .map((t) => {
-      const underlying = allTokens.find((t) => t.id === t.underlying);
-      if (!underlying) throw Error('unknown underlying');
+      const underlying = allTokens.find((u) => u.id === t.underlying);
+      if (!underlying) {
+        throw Error('unknown underlying');
+      }
 
       return {
         name: t.name,
@@ -68,7 +71,7 @@ export const useAllMarkets = () => {
         isFixed: t.tokenType === 'fCash',
         // TODO: get data from registry...
         totalApy: 0,
-        tvl: TokenBalance.zero(t).toUnderlying(),
+        tvl: TokenBalance.zero(underlying),
         leverageRatio: t.tokenType === 'VaultShare' ? 5 : undefined,
         noteApy: 0,
       };
