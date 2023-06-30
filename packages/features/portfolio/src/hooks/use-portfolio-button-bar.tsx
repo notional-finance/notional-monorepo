@@ -1,4 +1,7 @@
-import { useAccountWithdrawableTokens } from '@notional-finance/notionable-hooks';
+import {
+  useAccountReady,
+  useAccountWithdrawableTokens,
+} from '@notional-finance/notionable-hooks';
 import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
 import { FormattedMessage } from 'react-intl';
 import { useLocation, useHistory } from 'react-router-dom';
@@ -68,7 +71,7 @@ export const useClaimNote = () => {
 };
 
 export const usePortfolioButtonBar = () => {
-  const { accountSummariesLoaded } = useAccount();
+  const accountReady = useAccountReady();
   const { pathname: currentPath } = useLocation();
   const withdrawableTokens = useAccountWithdrawableTokens();
   const history = useHistory();
@@ -91,5 +94,5 @@ export const usePortfolioButtonBar = () => {
     });
   }
 
-  return !accountSummariesLoaded ? [] : buttonData;
+  return accountReady ? buttonData : [];
 };
