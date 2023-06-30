@@ -99,11 +99,17 @@ export const useAllMarkets = () => {
       allYields.filter((y) => y.tokenType === 'VaultShare')
     ),
     // TODO: how to fetch this?
-    leveragedLend: null,
-    leveragedLiquidity: null,
+    leveragedLend: {
+      underlying: 'ETH',
+      totalApy: 0,
+    } as typeof allYields[0] | null,
+    leveragedLiquidity: {
+      underlying: 'ETH',
+      totalApy: 0,
+    } as typeof allYields[0] | null,
   };
 
-  return { headlineRates, allTokens };
+  return { headlineRates, allYields };
 };
 
 export const useFCashMarket = (currencyId?: number) => {

@@ -1,19 +1,20 @@
 import { FormattedMessage } from 'react-intl';
-import { useVaultMaxRate } from './use-vault-max-rate';
-import { useProvideLiquidityMaxRate } from './use-provide-liquidity-max-rate';
-import { useLendBorrowRates } from './use-lend-borrow-rates';
 import { colors } from '@notional-finance/styles';
 import { Box } from '@mui/material';
+import { useAllMarkets } from '@notional-finance/notionable-hooks';
+import { formatNumberAsPercent } from '@notional-finance/helpers';
 
 export const useProductCards = () => {
-  const { maxVaultRateData, vaultDataloading } = useVaultMaxRate();
-  const { maxRateProvideLiquidityData, provideLiquidityLoading } =
-    useProvideLiquidityMaxRate();
   const {
-    maxFixedLendRateData,
-    minFixedBorrowRateData,
-    lendBorrowFixedLoading,
-  } = useLendBorrowRates();
+    headlineRates: {
+      fCashLend,
+      variableLend,
+      leveragedVaults,
+      liquidity,
+      fCashBorrow,
+      variableBorrow,
+    },
+  } = useAllMarkets();
 
   const earnYieldData = [
     {
@@ -24,11 +25,11 @@ export const useProductCards = () => {
           defaultMessage={'Choose a term and get a guaranteed interest rate.'}
         />
       ),
-      apy: `${maxFixedLendRateData.maxRate} APY`,
-      symbol: maxFixedLendRateData.symbol,
+      apy: `${formatNumberAsPercent(fCashLend?.totalApy || 0)} APY`,
+      symbol: fCashLend?.underlying,
       groupedSymbols: 'eth_dai_usdc_wbtc',
       apyTitle: <FormattedMessage defaultMessage={'as high as'} />,
-      loading: lendBorrowFixedLoading,
+      loading: fCashLend === null,
     },
     {
       title: <FormattedMessage defaultMessage={'Leveraged Vaults'} />,
@@ -40,11 +41,11 @@ export const useProductCards = () => {
           }
         />
       ),
-      apy: `${maxVaultRateData.maxRate} APY`,
-      symbol: maxVaultRateData.symbol,
+      apy: `${formatNumberAsPercent(leveragedVaults?.totalApy || 0)} APY`,
+      symbol: leveragedVaults?.underlying,
       groupedSymbols: 'eth_dai_usdc',
       apyTitle: <FormattedMessage defaultMessage={'as high as'} />,
-      loading: vaultDataloading,
+      loading: leveragedVaults === null,
       variableRate: true,
     },
     {
@@ -64,11 +65,11 @@ export const useProductCards = () => {
           }}
         />
       ),
-      apy: '0% APY',
-      symbol: 'eth',
+      apy: `${formatNumberAsPercent(variableLend?.totalApy || 0)} APY`,
+      symbol: variableLend?.underlying,
       groupedSymbols: 'eth_dai_usdc_wbtc',
       apyTitle: <FormattedMessage defaultMessage={'as high as'} />,
-      loading: false,
+      loading: variableLend === null,
       variableRate: true,
       comingSoon: true,
     },
@@ -80,11 +81,11 @@ export const useProductCards = () => {
           defaultMessage={`Earn NOTE incentives, interest, and trading fees from Notional's liquidity pools.`}
         />
       ),
-      apy: `${maxRateProvideLiquidityData.maxRate} APY`,
-      symbol: maxRateProvideLiquidityData.symbol,
+      apy: `${formatNumberAsPercent(liquidity?.totalApy || 0)} APY`,
+      symbol: liquidity?.underlying,
       groupedSymbols: 'eth_dai_usdc_wbtc',
       apyTitle: <FormattedMessage defaultMessage={'as high as'} />,
-      loading: provideLiquidityLoading,
+      loading: liquidity === null,
       variableRate: true,
     },
   ];
@@ -98,11 +99,11 @@ export const useProductCards = () => {
           defaultMessage={'Choose a term and get a guaranteed interest rate.'}
         />
       ),
-      apy: `${minFixedBorrowRateData.minRate} APY`,
-      symbol: minFixedBorrowRateData.symbol,
+      apy: `${formatNumberAsPercent(fCashBorrow?.totalApy || 0)} APY`,
+      symbol: fCashBorrow?.underlying,
       groupedSymbols: 'eth_dai_usdc_wbtc',
       apyTitle: <FormattedMessage defaultMessage={'as low as'} />,
-      loading: lendBorrowFixedLoading,
+      loading: fCashBorrow === null,
     },
     {
       title: <FormattedMessage defaultMessage={'Variable Borrow'} />,
@@ -121,11 +122,11 @@ export const useProductCards = () => {
           }}
         />
       ),
-      apy: '6.89% APY',
-      symbol: 'eth',
+      apy: `${formatNumberAsPercent(variableBorrow?.totalApy || 0)} APY`,
+      symbol: variableBorrow?.underlying,
       groupedSymbols: 'eth_dai_usdc_wbtc',
       apyTitle: <FormattedMessage defaultMessage={'as low as'} />,
-      loading: false,
+      loading: variableBorrow === null,
       variableRate: true,
       comingSoon: true,
     },
