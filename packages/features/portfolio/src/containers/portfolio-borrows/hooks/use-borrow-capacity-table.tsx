@@ -1,14 +1,7 @@
-import { useBorrowCapacity } from '@notional-finance/notionable-hooks';
 import { IconCell, MultiValueCell, SliderCell } from '@notional-finance/mui';
-import {
-  formatCryptoWithFiat,
-  formatNumberAsPercent,
-} from '@notional-finance/helpers';
 import { FormattedMessage } from 'react-intl';
 
 export const useBorrowCapacityTable = () => {
-  const borrowCapacity = useBorrowCapacity();
-
   const tableColumns: Record<string, any>[] = [
     {
       Header: (
@@ -66,21 +59,5 @@ export const useBorrowCapacityTable = () => {
     },
   ];
 
-  const tableData = borrowCapacity?.map((data) => {
-    const usedBorrowCapacityPercent =
-      (data.usedBorrowCapacity.toFloat() / data.totalBorrowCapacity.toFloat()) *
-      100;
-    return {
-      currency: data.totalBorrowCapacity.symbol,
-      capacityUsed: formatCryptoWithFiat(data.usedBorrowCapacity),
-      totalCapacity: formatCryptoWithFiat(data.totalBorrowCapacity),
-      percentUsed: formatNumberAsPercent(usedBorrowCapacityPercent),
-      borrowCapacity: {
-        value: usedBorrowCapacityPercent,
-        hideThumb: true,
-      },
-    };
-  });
-
-  return { tableData, tableColumns };
+  return { tableData: undefined, tableColumns };
 };

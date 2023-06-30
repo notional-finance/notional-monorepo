@@ -1,7 +1,6 @@
 import {
   useNotional,
   useAccount,
-  useCurrencyData,
   useRiskRatios,
 } from '@notional-finance/notionable-hooks';
 import { AssetType, TypedBigNumber } from '@notional-finance/sdk';
@@ -60,7 +59,11 @@ export function useRedeemNToken(action: PORTFOLIO_ACTIONS) {
     id: currencyId,
     nTokenSymbol,
     assetSymbol,
-  } = useCurrencyData(selectedAsset?.symbol || selectedToken);
+  } = {
+    id: undefined,
+    nTokenSymbol: undefined,
+    assetSymbol: undefined,
+  };
 
   let availableTokens: string[] = [];
   if (isDeleverage && nTokenSymbol) {

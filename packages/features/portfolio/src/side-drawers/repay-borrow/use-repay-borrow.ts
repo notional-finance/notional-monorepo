@@ -1,8 +1,4 @@
-import {
-  useNotional,
-  useCurrencyData,
-  useRiskRatios,
-} from '@notional-finance/notionable-hooks';
+import { useNotional, useRiskRatios } from '@notional-finance/notionable-hooks';
 import { TypedBigNumber } from '@notional-finance/sdk';
 import {
   CashOrFCash,
@@ -45,7 +41,7 @@ export function useRepayBorrow(assetKey: string | undefined) {
     selectedToken,
     cashOrfCash,
   } = state;
-  const { isUnderlying } = useCurrencyData(selectedToken);
+  const isUnderlying = true;
   const {
     market,
     address,

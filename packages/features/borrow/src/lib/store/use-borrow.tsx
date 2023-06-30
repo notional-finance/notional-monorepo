@@ -1,7 +1,4 @@
-import {
-  useAccount,
-  useAccountCashBalance,
-} from '@notional-finance/notionable-hooks';
+import { useAccount } from '@notional-finance/notionable-hooks';
 import { AssetType, TypedBigNumber } from '@notional-finance/sdk';
 import { tradeErrors } from '@notional-finance/trade';
 import { useObservableState } from 'observable-hooks';
@@ -10,7 +7,7 @@ import { borrowState$, initialBorrowState } from './borrow-store';
 import { MaturityData } from '@notional-finance/notionable';
 import { Market } from '@notional-finance/sdk/system';
 
-export function useBorrow(selectedToken: string) {
+export function useBorrow(_selectedToken: string) {
   const { accountDataCopy } = useAccount();
   const {
     selectedMarketKey,
@@ -24,7 +21,7 @@ export function useBorrow(selectedToken: string) {
   const selectedMarket = undefined as Market | undefined;
   const inputAmountUnderlying = inputAmount?.toUnderlying(true);
   const maturityData = [] as MaturityData[];
-  const cashBalance = useAccountCashBalance(selectedToken);
+  const cashBalance = undefined as TypedBigNumber | undefined;
 
   const tradedRate =
     inputAmountUnderlying?.isPositive() && fCashAmount
