@@ -6,7 +6,6 @@ export * from './transaction-confirmation/confirmation2';
 export * from './trade-action-summary/trade-action-summary';
 export * from './token-approval-view/token-approval-view';
 export * from './token-approval-view/use-token-approval';
-export * from './token-approval-view/token-approval.store';
 export * from './wallet-deposit-input/wallet-deposit-input';
 export * from './account-withdraw-input/account-withdraw-input';
 export * from './lend-borrow-input/lend-borrow-input';

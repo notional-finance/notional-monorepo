@@ -1,12 +1,12 @@
 import { styled, Box } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
-import { TransactionStatus } from './transaction-status';
 import transactionSuccessSvg from '../../icons/icon-checkmark.svg';
 import transactionErrorSvg from '../../icons/icon-alert.svg';
 import {
   ProgressIndicator,
   LargeInputTextEmphasized,
 } from '@notional-finance/mui';
+import { TransactionStatus } from '@notional-finance/notionable-hooks';
 
 const Heading = styled(LargeInputTextEmphasized)`
   margin-bottom: 1.25rem;

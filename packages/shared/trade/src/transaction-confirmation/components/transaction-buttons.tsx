@@ -2,7 +2,7 @@ import { MouseEventHandler } from 'react';
 import { styled, Box, useTheme } from '@mui/material';
 import { ProgressIndicator, Button } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
-import { TransactionStatus } from './transaction-status';
+import { TransactionStatus } from '@notional-finance/notionable-hooks';
 
 const ButtonContainer = styled(Box)`
   margin-top: 40px;
@@ -32,7 +32,7 @@ export const TransactionButtons = ({
   onCancel,
   onReturnToForm,
   isLoaded,
-  isReadyOnlyAddress
+  isReadyOnlyAddress,
 }: TransactionButtonsProps) => {
   const theme = useTheme();
   switch (transactionStatus) {

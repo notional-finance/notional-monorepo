@@ -2,8 +2,7 @@ import { styled, Box, useTheme } from '@mui/material';
 import { ExternalLinkIcon } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
 import { getEtherscanLink } from '@notional-finance/helpers';
-import { TransactionStatus } from './transaction-status';
-import { useNotional } from '@notional-finance/notionable-hooks';
+import { TransactionStatus, useNotional } from '@notional-finance/notionable-hooks';
 
 interface PendingTransactionProps {
   hash: string;

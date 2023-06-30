@@ -7,23 +7,20 @@ import {
 } from '@notional-finance/mui';
 import {
   BaseContext,
-  usePendingTransaction,
   useSelectedNetwork,
-  useSubmitTransaction,
+  useTransactionStatus,
 } from '@notional-finance/notionable-hooks';
 import {
   ParsedLogs,
   simulatePopulatedTxn,
   SimulationCallTrace,
 } from '@notional-finance/transaction';
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { useLocation } from 'react-router';
 import {
   PendingTransaction,
   StatusHeading,
   TransactionButtons,
-  TransactionStatus,
 } from './components';
 
 export interface ConfirmationProps {
@@ -47,19 +44,14 @@ export const Confirmation2 = ({
     updateState,
   } = useContext(context);
   const selectedNetwork = useSelectedNetwork();
-  const { pathname } = useLocation();
-  const { isReadOnlyAddress, submitTransaction } = useSubmitTransaction();
   const onTxnCancel = useCallback(
     () => updateState({ confirm: false }),
     [updateState]
   );
 
-  const [transactionStatus, setTransactionStatus] = useState<TransactionStatus>(
-    TransactionStatus.NONE
-  );
-  const [transactionHash, setTransactionHash] = useState<string | undefined>();
-  const { transactionReceipt, reverted } =
-    usePendingTransaction(transactionHash);
+  const { isReadOnlyAddress, transactionStatus, transactionHash, onSubmit } =
+    useTransactionStatus();
+
   const [_calls, setSimulatedCalls] = useState<
     SimulationCallTrace[] | undefined
   >();
@@ -83,26 +75,6 @@ export const Confirmation2 = ({
       setSimulatedLogs(undefined);
     }
   }, [populatedTransaction, selectedNetwork]);
-
-  useEffect(() => {
-    if (reverted) setTransactionHash(TransactionStatus.REVERT);
-    else if (transactionReceipt)
-      setTransactionStatus(TransactionStatus.CONFIRMED);
-  }, [transactionReceipt, reverted]);
-
-  const onSubmit = () => {
-    if (populatedTransaction && transactionError === undefined) {
-      submitTransaction(populatedTransaction, pathname)
-        .then((hash) => {
-          setTransactionStatus(TransactionStatus.PENDING);
-          setTransactionHash(hash);
-        })
-        .catch(() => {
-          // If we see an error here it is most likely due to user rejection
-          setTransactionStatus(TransactionStatus.USER_REJECT);
-        });
-    }
-  };
 
   const inner = (
     <>
@@ -135,7 +107,7 @@ export const Confirmation2 = ({
       <Button onClick={runSimulate}>Simulate</Button>
       <TransactionButtons
         transactionStatus={transactionStatus}
-        onSubmit={onSubmit}
+        onSubmit={() => onSubmit(populatedTransaction)}
         onCancel={onCancel || onTxnCancel}
         onReturnToForm={onReturnToForm}
         isReadyOnlyAddress={isReadOnlyAddress}

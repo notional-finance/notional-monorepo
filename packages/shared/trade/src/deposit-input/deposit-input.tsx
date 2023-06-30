@@ -87,7 +87,7 @@ export const DepositInput = React.forwardRef<
             landingPage: false,
           }}
         />
-        <TokenApprovalView symbol={selectedDepositToken} />
+        <TokenApprovalView symbol={selectedDepositToken} requiredAmount={inputAmount} />
       </Box>
     );
   }

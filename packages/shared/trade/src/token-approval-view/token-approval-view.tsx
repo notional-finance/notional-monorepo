@@ -1,31 +1,46 @@
 import { TokenApproval } from '@notional-finance/mui';
-import { Box } from '@mui/material';
-import { useParams } from 'react-router-dom';
-import { useAccountReady } from '@notional-finance/notionable-hooks';
+import { Box, useTheme } from '@mui/material';
+import {
+  TransactionStatus,
+  useAccountReady,
+} from '@notional-finance/notionable-hooks';
 import { useTokenApproval } from './use-token-approval';
+import { TokenBalance } from '@notional-finance/core-entities';
 
 interface TokenApprovalViewProps {
-  symbol?: string;
+  symbol: string;
+  requiredAmount?: TokenBalance;
 }
 
-export const TokenApprovalView = ({ symbol }: TokenApprovalViewProps) => {
-  const walletConnected = useAccountReady();
-  const { currency } = useParams<Record<string, string>>();
-  const { tokenStatus, enableToken } = useTokenApproval(symbol || currency);
+export const TokenApprovalView = ({
+  symbol,
+  requiredAmount,
+}: TokenApprovalViewProps) => {
+  const theme = useTheme();
+  const isAccountReady = useAccountReady();
+  const { tokenStatus, enableToken, transactionStatus, isSignerConnected } =
+    useTokenApproval(symbol);
+
+  const approvalRequired =
+    isAccountReady &&
+    isSignerConnected &&
+    tokenStatus &&
+    (tokenStatus.amount.isZero() ||
+      (requiredAmount && tokenStatus.amount.lt(requiredAmount)));
 
   return (
     <Box>
-      {!!tokenStatus && tokenStatus !== 'APPROVED' && walletConnected && (
+      {approvalRequired && (
         <TokenApproval
-          symbol={symbol || currency}
-          approved={tokenStatus === 'SUCCESS'}
-          success={tokenStatus === 'SUCCESS'}
-          approvalPending={tokenStatus === 'PENDING'}
-          error={tokenStatus === 'ERROR'}
-          onChange={enableToken}
+          symbol={symbol}
+          approved={!approvalRequired}
+          success={transactionStatus === TransactionStatus.CONFIRMED}
+          approvalPending={transactionStatus === TransactionStatus.PENDING}
+          error={transactionStatus === TransactionStatus.REVERT}
+          onChange={() => enableToken(true)}
           sx={{
-            marginBottom: '1rem',
-            marginTop: '1rem',
+            marginBottom: theme.spacing(2),
+            marginTop: theme.spacing(2),
           }}
         />
       )}
