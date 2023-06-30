@@ -7,11 +7,7 @@ import { usePortfolioButtonBar, usePortfolioSideDrawers } from './hooks';
 import { SideNav, PortfolioMobileNav, ClaimNoteButton } from './components';
 import {
   PortfolioOverview,
-  PortfolioLends,
-  PortfolioBorrows,
-  PortfolioLiquidity,
   PortfolioVaults,
-  PortfolioMoneyMarket,
   PortfolioTransactionHistory,
 } from './containers';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
@@ -73,18 +69,11 @@ export const PortfolioFeatureShell = () => {
             )}
           {(params.category === PORTFOLIO_CATEGORIES.OVERVIEW ||
             params.category === undefined) && <PortfolioOverview />}
-          {params.category === PORTFOLIO_CATEGORIES.LENDS && <PortfolioLends />}
-          {params.category === PORTFOLIO_CATEGORIES.BORROWS && (
-            <PortfolioBorrows />
-          )}
-          {params.category === PORTFOLIO_CATEGORIES.LIQUIDITY && (
-            <PortfolioLiquidity />
+          {params.category === PORTFOLIO_CATEGORIES.HOLDINGS && (
+            <PortfolioVaults />
           )}
           {params.category === PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS && (
             <PortfolioVaults />
-          )}
-          {params.category === PORTFOLIO_CATEGORIES.MONEY_MARKET && (
-            <PortfolioMoneyMarket />
           )}
           {params.category === PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY && (
             <PortfolioTransactionHistory />

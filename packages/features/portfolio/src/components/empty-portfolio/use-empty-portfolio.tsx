@@ -17,7 +17,7 @@ export const useEmptyPortfolio = () => {
   const { setWalletSideDrawer } = useSideDrawerManager();
 
   const emptyData = {
-    [PORTFOLIO_CATEGORIES.BORROWS]: {
+    [PORTFOLIO_CATEGORIES.HOLDINGS]: {
       messages: defineMessages({
         promptText: {
           defaultMessage: 'You currently have no borrows or borrow history',
@@ -30,33 +30,33 @@ export const useEmptyPortfolio = () => {
       }),
       link: '/borrow',
     },
-    [PORTFOLIO_CATEGORIES.LENDS]: {
-      messages: defineMessages({
-        promptText: {
-          defaultMessage: 'You currently have no lends or lend history',
-          description: 'empty lend overview prompt text',
-        },
-        buttonText: {
-          defaultMessage: 'Create New Lend Order',
-          description: 'empty lend overview button text',
-        },
-      }),
-      link: `/lend`,
-    },
-    [PORTFOLIO_CATEGORIES.LIQUIDITY]: {
-      messages: defineMessages({
-        promptText: {
-          defaultMessage:
-            'You currently have no liquidity or liquidity history',
-          description: 'empty liquidity overview prompt text',
-        },
-        buttonText: {
-          defaultMessage: 'Provide Liquidity',
-          description: 'empty liquidity overview button text',
-        },
-      }),
-      link: '/liquidity-variable',
-    },
+    // [PORTFOLIO_CATEGORIES.LENDS]: {
+    //   messages: defineMessages({
+    //     promptText: {
+    //       defaultMessage: 'You currently have no lends or lend history',
+    //       description: 'empty lend overview prompt text',
+    //     },
+    //     buttonText: {
+    //       defaultMessage: 'Create New Lend Order',
+    //       description: 'empty lend overview button text',
+    //     },
+    //   }),
+    //   link: `/lend`,
+    // },
+    // [PORTFOLIO_CATEGORIES.LIQUIDITY]: {
+    //   messages: defineMessages({
+    //     promptText: {
+    //       defaultMessage:
+    //         'You currently have no liquidity or liquidity history',
+    //       description: 'empty liquidity overview prompt text',
+    //     },
+    //     buttonText: {
+    //       defaultMessage: 'Provide Liquidity',
+    //       description: 'empty liquidity overview button text',
+    //     },
+    //   }),
+    //   link: '/liquidity-variable',
+    // },
     [PORTFOLIO_CATEGORIES.OVERVIEW]: {
       messages: defineMessages({
         promptText: {
@@ -92,15 +92,15 @@ export const useEmptyPortfolio = () => {
       }),
       link: '/vaults',
     },
-    [PORTFOLIO_CATEGORIES.MONEY_MARKET]: {
-      messages: defineMessages({
-        promptText: {
-          defaultMessage: 'No idle assets to display',
-          description: 'empty money market overview prompt text',
-        },
-      }),
-      link: '',
-    },
+    // [PORTFOLIO_CATEGORIES.MONEY_MARKET]: {
+    //   messages: defineMessages({
+    //     promptText: {
+    //       defaultMessage: 'No idle assets to display',
+    //       description: 'empty money market overview prompt text',
+    //     },
+    //   }),
+    //   link: '',
+    // },
   } as Record<PORTFOLIO_CATEGORIES, EmptyPortfolioData>;
 
   return category ? emptyData[category] : {};

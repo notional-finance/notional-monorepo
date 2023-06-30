@@ -4,10 +4,7 @@ import {
 } from '@notional-finance/shared-config';
 import {
   BarChartIcon,
-  CoinsIcon,
-  PieChartIcon,
   FourSquareIcon,
-  MoneyMarketIcon,
   StakeIcon,
   VaultIcon,
   HistoryIcon,
@@ -26,35 +23,11 @@ export enum NAV_OPTIONS {
   SET_TWO = 'set_two',
 }
 
-enum OPTION_SET_ONE {
-  OVERVIEW = 'overview',
-  LENDS = 'lends',
-  BORROWS = 'borrows',
-  LIQUIDITY = 'liquidity',
-}
-
-enum OPTION_SET_TWO {
-  TRANSACTION_HISTORY = 'transaction-history',
-  LEVERAGED_VAULTS = 'vaults',
-  STAKED_NOTE = 'staked-note',
-  MONEY_MARKET = 'money-market',
-}
-
 export const usePortfolioMobileNav = () => {
   const theme = useTheme();
   const { category } = useParams<PortfolioParams>();
 
-  const defaultOptionSet = Object.values(OPTION_SET_ONE).includes(
-    category as unknown as OPTION_SET_ONE
-  )
-    ? NAV_OPTIONS.SET_ONE
-    : Object.values(OPTION_SET_TWO).includes(
-        category as unknown as OPTION_SET_TWO
-      )
-    ? NAV_OPTIONS.SET_TWO
-    : null;
-
-  const optionSetOne = [
+  const options = [
     {
       title: <FormattedMessage defaultMessage={'Overview'} />,
       id: PORTFOLIO_CATEGORIES.OVERVIEW,
@@ -72,56 +45,21 @@ export const usePortfolioMobileNav = () => {
       ),
     },
     {
-      title: <FormattedMessage defaultMessage={'Lends'} />,
-      id: PORTFOLIO_CATEGORIES.LENDS,
-      to: `/portfolio/${PORTFOLIO_CATEGORIES.LENDS}`,
+      title: <FormattedMessage defaultMessage={'Holdings'} />,
+      id: PORTFOLIO_CATEGORIES.HOLDINGS,
+      to: `/portfolio/${PORTFOLIO_CATEGORIES.HOLDINGS}`,
       Icon: (
         <BarChartIcon
           sx={{
             width: theme.spacing(2),
             fill:
-              category === PORTFOLIO_CATEGORIES.LENDS
+              category === PORTFOLIO_CATEGORIES.HOLDINGS
                 ? theme.palette.typography.main
                 : theme.palette.typography.light,
           }}
         />
       ),
     },
-    {
-      title: <FormattedMessage defaultMessage={'Borrows'} />,
-      id: PORTFOLIO_CATEGORIES.BORROWS,
-      to: `/portfolio/${PORTFOLIO_CATEGORIES.BORROWS}`,
-      Icon: (
-        <CoinsIcon
-          sx={{
-            width: theme.spacing(2),
-            stroke:
-              category === PORTFOLIO_CATEGORIES.BORROWS
-                ? theme.palette.typography.main
-                : theme.palette.typography.light,
-            fill: 'transparent',
-          }}
-        />
-      ),
-    },
-    {
-      title: <FormattedMessage defaultMessage={'Liquidity'} />,
-      id: PORTFOLIO_CATEGORIES.LIQUIDITY,
-      to: `/portfolio/${PORTFOLIO_CATEGORIES.LIQUIDITY}`,
-      Icon: (
-        <PieChartIcon
-          sx={{
-            width: theme.spacing(2),
-            fill:
-              category === PORTFOLIO_CATEGORIES.LIQUIDITY
-                ? theme.palette.typography.main
-                : theme.palette.typography.light,
-          }}
-        />
-      ),
-    },
-  ];
-  const optionSetTwo = [
     {
       title: <FormattedMessage defaultMessage={'Vaults'} />,
       id: PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS,
@@ -170,25 +108,9 @@ export const usePortfolioMobileNav = () => {
         />
       ),
     },
-    {
-      title: <FormattedMessage defaultMessage={'Assets'} />,
-      id: PORTFOLIO_CATEGORIES.MONEY_MARKET,
-      to: `/portfolio/${PORTFOLIO_CATEGORIES.MONEY_MARKET}`,
-      Icon: (
-        <MoneyMarketIcon
-          sx={{
-            width: theme.spacing(2),
-            fill:
-              category === PORTFOLIO_CATEGORIES.MONEY_MARKET
-                ? theme.palette.typography.main
-                : theme.palette.typography.light,
-          }}
-        />
-      ),
-    },
   ];
 
-  return { optionSetOne, optionSetTwo, defaultOptionSet };
+  return options;
 };
 
 export default usePortfolioMobileNav;

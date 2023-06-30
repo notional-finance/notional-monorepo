@@ -84,13 +84,10 @@ export enum VAULT_ACTIONS {
 
 export enum PORTFOLIO_CATEGORIES {
   OVERVIEW = 'overview',
-  LENDS = 'lends',
-  BORROWS = 'borrows',
-  TRANSACTION_HISTORY = 'transaction-history',
+  HOLDINGS = 'holdings',
   LEVERAGED_VAULTS = 'vaults',
-  LIQUIDITY = 'liquidity',
   STAKED_NOTE = 'staked-note',
-  MONEY_MARKET = 'money-market',
+  TRANSACTION_HISTORY = 'transaction-history',
 }
 
 export enum CARD_CATEGORIES {

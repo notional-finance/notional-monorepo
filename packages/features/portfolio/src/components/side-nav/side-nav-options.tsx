@@ -1,10 +1,9 @@
-import { Box, styled, useTheme, Divider } from '@mui/material';
+import { Box, styled, useTheme } from '@mui/material';
 import { useSideNav } from '../../hooks';
 import { PortfolioParams } from '../../portfolio-feature-shell';
 import { Link, LinkProps, useParams } from 'react-router-dom';
 import { NotionalTheme } from '@notional-finance/styles';
-import { H5, Label, Caption } from '@notional-finance/mui';
-import { FormattedMessage } from 'react-intl';
+import { H5, Caption } from '@notional-finance/mui';
 import { navLabels } from './messages';
 
 interface SideNavItemProps extends LinkProps {
@@ -16,69 +15,39 @@ interface SideNavItemProps extends LinkProps {
 
 export const SideNavOptons = () => {
   const theme = useTheme();
-  const { sideNavOne, sideNavTwo } = useSideNav();
+  const sideNav = useSideNav();
   const { category } = useParams<PortfolioParams>();
 
   return (
-    <>
-      <Box>
-        {sideNavOne.map(({ id, Icon, notifications, to }, index) => {
-          return (
-            <SideNavItem
-              key={id}
-              selected={category === id}
-              firstItem={index === 0}
-              theme={theme}
-              to={to}
-            >
-              <Box sx={{ paddingRight: theme.spacing(3), display: 'flex' }}>
-                {Icon}
+    <Box>
+      {sideNav.map(({ id, Icon, notifications, to }, index) => {
+        return (
+          <SideNavItem
+            key={id}
+            selected={category === id}
+            firstItem={index === 0}
+            theme={theme}
+            to={to}
+          >
+            <Box sx={{ paddingRight: theme.spacing(3), display: 'flex' }}>
+              {Icon}
+            </Box>
+            <TitleWrapper>
+              <H5
+                contrast={category === id}
+                msg={navLabels[id]}
+                sx={{ whiteSpace: 'nowrap' }}
+              />
+              <Box>
+                {notifications > 0 && (
+                  <NotificationNum>{notifications}</NotificationNum>
+                )}
               </Box>
-              <TitleWrapper>
-                <H5
-                  contrast={category === id}
-                  msg={navLabels[id]}
-                  sx={{ whiteSpace: 'nowrap' }}
-                />
-                <Box>
-                  {notifications > 0 && (
-                    <NotificationNum>{notifications}</NotificationNum>
-                  )}
-                </Box>
-              </TitleWrapper>
-            </SideNavItem>
-          );
-        })}
-      </Box>
-      <SideNavDivider />
-      <Box sx={{ marginBottom: theme.spacing(8) }}>
-        <SideNavLabel>
-          <FormattedMessage defaultMessage="Other Yield Strategies" />
-        </SideNavLabel>
-        {sideNavTwo.map(({ id, Icon, notifications, to }) => {
-          return (
-            <SideNavItem
-              key={id}
-              selected={category === id}
-              theme={theme}
-              to={to}
-            >
-              <Box sx={{ paddingRight: theme.spacing(3), display: 'flex' }}>
-                {Icon}
-              </Box>
-              <TitleWrapper>
-                <H5 contrast={category === id} msg={navLabels[id]} />
-                <Box>
-                  {notifications > 0 && (
-                    <NotificationNum>{notifications}</NotificationNum>
-                  )}
-                </Box>
-              </TitleWrapper>
-            </SideNavItem>
-          );
-        })}
-      </Box>
-    </>
+            </TitleWrapper>
+          </SideNavItem>
+        );
+      })}
+    </Box>
   );
 };
 
@@ -102,25 +71,6 @@ const TitleWrapper = styled(Box)(
     align-items: center;
     flex: 1;
     justify-content: space-between;
-  `
-);
-
-const SideNavDivider = styled(Divider)(
-  ({ theme }) => `
-    margin: ${theme.spacing(4, 2, 4, 3)};
-    border-color: ${theme.palette.borders.default};
-    ${theme.breakpoints.down('lg')} {
-      margin: ${theme.spacing(4, 2, 4, 1)};
-    }
-  `
-);
-
-const SideNavLabel = styled(Label)(
-  ({ theme }) => `
-    padding: ${theme.spacing(0, 3)};
-    ${theme.breakpoints.down('lg')} {
-        margin-left: ${theme.spacing(5)};
-      }
   `
 );
 

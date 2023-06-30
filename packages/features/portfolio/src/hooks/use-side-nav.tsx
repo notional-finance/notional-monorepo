@@ -1,37 +1,24 @@
 import { useParams } from 'react-router-dom';
-import {
-  useAssetSummary,
-  useMoneyMarket,
-  useNTokenHoldings,
-  useYieldStrategies,
-} from '@notional-finance/notionable-hooks';
 import { useTheme } from '@mui/material';
-import {
-  LEND_BORROW,
-  PORTFOLIO_CATEGORIES,
-} from '@notional-finance/shared-config';
+import { PORTFOLIO_CATEGORIES } from '@notional-finance/shared-config';
 import {
   BarChartIcon,
-  CoinsIcon,
-  PieChartIcon,
   FourSquareIcon,
-  MoneyMarketIcon,
   StakeIcon,
   VaultIcon,
   HistoryIcon,
 } from '@notional-finance/icons';
 import { PortfolioParams } from '../portfolio-feature-shell';
+import { useVaultRiskProfiles } from '@notional-finance/notionable-hooks';
+import { usePortfolioHoldings } from '.';
 
 export const useSideNav = () => {
   const { category } = useParams<PortfolioParams>();
   const theme = useTheme();
-  const borrowSummary = useAssetSummary(LEND_BORROW.BORROW);
-  const lendSummary = useAssetSummary(LEND_BORROW.LEND);
-  const leveragedVaultPositions = useYieldStrategies(true);
-  const moneyMarket = useMoneyMarket();
-  const nTokenHoldings = useNTokenHoldings();
+  const holdings = usePortfolioHoldings();
+  const vaults = useVaultRiskProfiles();
 
-  const sideNavOne = [
+  const sideNav = [
     {
       Icon: <FourSquareIcon sx={{ width: '17px' }} />,
       id: PORTFOLIO_CATEGORIES.OVERVIEW,
@@ -40,36 +27,10 @@ export const useSideNav = () => {
     },
     {
       Icon: <BarChartIcon sx={{ width: '17px' }} />,
-      id: PORTFOLIO_CATEGORIES.LENDS,
-      to: `/portfolio/${PORTFOLIO_CATEGORIES.LENDS}`,
-      notifications: lendSummary?.length,
+      id: PORTFOLIO_CATEGORIES.HOLDINGS,
+      to: `/portfolio/${PORTFOLIO_CATEGORIES.HOLDINGS}`,
+      notifications: holdings.length,
     },
-    {
-      Icon: (
-        <CoinsIcon
-          sx={{
-            stroke:
-              category === PORTFOLIO_CATEGORIES.BORROWS
-                ? theme.palette.common.white
-                : theme.palette.typography.light,
-            fill: 'transparent',
-            width: '17px',
-          }}
-        />
-      ),
-      id: PORTFOLIO_CATEGORIES.BORROWS,
-      to: `/portfolio/${PORTFOLIO_CATEGORIES.BORROWS}`,
-      notifications: borrowSummary.length,
-    },
-    {
-      Icon: <HistoryIcon sx={{ width: '17px' }} />,
-      id: PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY,
-      to: `/portfolio/${PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY}`,
-      notifications: 0,
-    },
-  ];
-
-  const sideNavTwo = [
     {
       Icon: (
         <VaultIcon
@@ -84,13 +45,7 @@ export const useSideNav = () => {
       ),
       id: PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS,
       to: `/portfolio/${PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS}`,
-      notifications: leveragedVaultPositions.length,
-    },
-    {
-      Icon: <PieChartIcon sx={{ width: '17px' }} />,
-      id: PORTFOLIO_CATEGORIES.LIQUIDITY,
-      to: `/portfolio/${PORTFOLIO_CATEGORIES.LIQUIDITY}`,
-      notifications: nTokenHoldings.length,
+      notifications: vaults.length,
     },
     {
       Icon: (
@@ -107,22 +62,12 @@ export const useSideNav = () => {
       notifications: 0,
     },
     {
-      Icon: (
-        <MoneyMarketIcon
-          sx={{
-            width: '17px',
-            color:
-              category === PORTFOLIO_CATEGORIES.MONEY_MARKET
-                ? theme.palette.common.white
-                : theme.palette.typography.light,
-          }}
-        />
-      ),
-      id: PORTFOLIO_CATEGORIES.MONEY_MARKET,
-      to: `/portfolio/${PORTFOLIO_CATEGORIES.MONEY_MARKET}`,
-      notifications: moneyMarket.length,
+      Icon: <HistoryIcon sx={{ width: '17px' }} />,
+      id: PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY,
+      to: `/portfolio/${PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY}`,
+      notifications: 0,
     },
   ];
 
-  return { sideNavOne, sideNavTwo };
+  return sideNav;
 };
