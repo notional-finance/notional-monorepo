@@ -10,8 +10,8 @@ import { useUserSettingsState } from '@notional-finance/user-settings-manager';
 export function LendVariableCardView() {
   const { themeVariant } = useUserSettingsState();
   const themeLanding = useNotionalTheme(themeVariant, 'landing');
-  // TODO: Hook up actual variable data
-  const { cardData } = useAllMarkets();
+  const { allYields } = useAllMarkets();
+  const cardData = allYields.filter((t) => t.tokenType === 'PrimeCash');
 
   const heading = defineMessage({
     defaultMessage: 'Variable Rate Lending',
@@ -37,19 +37,19 @@ export function LendVariableCardView() {
           linkText={docsText}
           docsLink="https://docs.notional.finance/notional-v2/what-you-can-do/fixed-rate-lending"
         >
-          {cardData.map(({ symbol, maxRate }, index) => {
-            const route = `/${PRODUCTS.LEND_VARIABLE}/${symbol}`;
+          {cardData.map(({ underlying, totalApy }, index) => {
+            const route = `/${PRODUCTS.LEND_VARIABLE}/${underlying}`;
             return (
               <Currency
                 key={index}
-                symbol={symbol}
-                rate={maxRate}
+                symbol={underlying}
+                rate={totalApy}
                 route={route}
                 buttonText={
                   <FormattedMessage
                     defaultMessage="Lend {symbol}"
                     values={{
-                      symbol,
+                      symbol: underlying,
                     }}
                   />
                 }

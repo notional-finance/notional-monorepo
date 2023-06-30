@@ -11,9 +11,9 @@ import {
   CardInput,
   Subtitle,
 } from '../../typography/typography';
-import { Market } from '@notional-finance/sdk/src/system';
 import { FormattedMessage } from 'react-intl';
 import { NotionalTheme, colors } from '@notional-finance/styles';
+import { formatNumberAsPercent } from '@notional-finance/helpers';
 
 interface AllRates {
   rate: string;
@@ -37,7 +37,7 @@ export const CurrencyFixed = (props: CurrencyFixedProps) => {
   const theme = useTheme();
   const { route, symbol, buttonText, rate, allRates, apyTagline } = props;
   const [hovered, setHovered] = useState(false);
-  const formattedRate = Market.formatInterestRate(rate, 2);
+  const formattedRate = formatNumberAsPercent(rate, 2);
 
   return (
     <Link to={route}>

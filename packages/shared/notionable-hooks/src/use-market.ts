@@ -6,7 +6,7 @@ import {
 } from '@notional-finance/core-entities';
 import { EMPTY } from 'rxjs';
 import { useSelectedNetwork } from './use-notional';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { getNowSeconds, isIdiosyncratic } from '@notional-finance/util';
 
 export function useCurrency() {
@@ -58,10 +58,11 @@ export const useAllMarkets = () => {
     .filter((t) => t.tokenType !== 'Underlying')
     .map((t) => {
       const underlying = allTokens.find((t) => t.id === t.underlying);
+      if (!underlying) throw Error('unknown underlying');
 
       return {
         name: t.name,
-        underlying: underlying?.symbol,
+        underlying: underlying.symbol,
         tokenType: t.tokenType,
         maturity: t.maturity,
         isFixed: t.tokenType === 'fCash',
@@ -73,19 +74,19 @@ export const useAllMarkets = () => {
       };
     });
 
-  const getMax = (y: typeof allYields) => {
+  const getMax = useCallback((y: typeof allYields) => {
     return y.reduce(
       (m, t) => (m === null || t.totalApy > m.totalApy ? t : m),
       null as typeof allYields[0] | null
     );
-  };
+  }, []);
 
-  const getMin = (y: typeof allYields) => {
+  const getMin = useCallback((y: typeof allYields) => {
     return y.reduce(
       (m, t) => (m === null || t.totalApy < m.totalApy ? t : m),
       null as typeof allYields[0] | null
     );
-  };
+  }, []);
 
   const headlineRates = {
     liquidity: getMax(allYields.filter((y) => y.tokenType === 'nToken')),
@@ -109,7 +110,7 @@ export const useAllMarkets = () => {
     } as typeof allYields[0] | null,
   };
 
-  return { headlineRates, allYields };
+  return { headlineRates, allYields, getMax, getMin };
 };
 
 export const useFCashMarket = (currencyId?: number) => {

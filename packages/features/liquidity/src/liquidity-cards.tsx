@@ -1,9 +1,10 @@
 import { Box, ThemeProvider, styled } from '@mui/material';
-import { useCurrency, useNotional } from '@notional-finance/notionable-hooks';
+import {
+  useAllMarkets,
+  useSelectedNetwork,
+} from '@notional-finance/notionable-hooks';
 import { useEffect, useState } from 'react';
 import { FormattedMessage, defineMessage } from 'react-intl';
-import { NTokenValue } from '@notional-finance/sdk/src/system';
-import { INTERNAL_TOKEN_PRECISION } from '@notional-finance/sdk/src/config/constants';
 import { useUserSettingsState } from '@notional-finance/user-settings-manager';
 import { CardContainer } from '@notional-finance/shared-web';
 import { useNotionalTheme } from '@notional-finance/styles';
@@ -13,8 +14,8 @@ import {
   HeadingSubtitle,
   FeatureLoader,
 } from '@notional-finance/mui';
-import { TypedBigNumber } from '@notional-finance/sdk';
 import { Link } from 'react-router-dom';
+import { Registry, TokenBalance } from '@notional-finance/core-entities';
 
 const StyledLink = styled(Link)(
   ({ theme }) => `
@@ -29,42 +30,26 @@ const StyledLink = styled(Link)(
 export const ProvideLiquidityCards = () => {
   const { themeVariant } = useUserSettingsState();
   const themeLanding = useNotionalTheme(themeVariant, 'landing');
-  const { tradableCurrencies } = useCurrency();
-  const { notional, loaded } = useNotional();
+  const network = useSelectedNetwork();
+  const { allYields } = useAllMarkets();
   const { height } = useWindowDimensions();
   const [notePriceString, setNotePriceString] = useState('');
+  const cardData = allYields.filter((t) => t.tokenType === 'nToken')
 
   useEffect(() => {
-    if (loaded && notional) {
-      const oneNoteUSD = TypedBigNumber.fromBalance(
-        INTERNAL_TOKEN_PRECISION,
-        'NOTE',
-        true
-      ).toUSD();
+    if (network) {
+      const NOTE = Registry.getTokenRegistry().getTokenBySymbol(
+        network,
+        'NOTE'
+      );
+      const oneNoteUSD = TokenBalance.unit(NOTE).toFiat('USD');
       setNotePriceString(`$${oneNoteUSD.toDisplayString()}`);
     }
-  }, [loaded, notional]);
-
-  const rates = [...tradableCurrencies.values()].map((c) => {
-    try {
-      return NTokenValue.getNTokenBlendedYield(c.id);
-    } catch {
-      return 0;
-    }
-  });
-  const incentiveRates = [...tradableCurrencies.values()].map((c) => {
-    try {
-      return NTokenValue.getNTokenIncentiveYield(c.id);
-    } catch {
-      return 0;
-    }
-  });
-
-  const formattedTradableCurrencies = [...tradableCurrencies.values()];
+  }, [network]);
 
   return (
     <ThemeProvider theme={themeLanding}>
-      <FeatureLoader featureLoaded={formattedTradableCurrencies?.length > 0}>
+      <FeatureLoader featureLoaded={network !== undefined}>
         <Box
           sx={{
             backgroundSize: 'cover',
@@ -90,24 +75,20 @@ export const ProvideLiquidityCards = () => {
               marginBottom: '0px',
             }}
           >
-            {formattedTradableCurrencies.map((c, i) => {
-              const symbol = c.underlyingSymbol || c.assetSymbol;
-              const rate = rates.length > i ? rates[i] : 0;
-              const incentiveRate =
-                incentiveRates.length > i ? incentiveRates[i] : 0;
-              const route = `/provide/${symbol}`;
+            {cardData.map(({ underlying, totalApy, noteApy }, i) => {
+              const route = `/provide/${underlying}`;
               return (
                 <Incentive
                   key={`incentive-${i}`}
-                  symbol={symbol}
-                  rate={rate}
-                  incentiveRate={incentiveRate}
+                  symbol={underlying}
+                  rate={totalApy}
+                  incentiveRate={noteApy}
                   route={route}
                   buttonText={
                     <FormattedMessage
                       defaultMessage="Provide {symbol}"
                       values={{
-                        symbol: symbol,
+                        symbol: underlying,
                       }}
                     />
                   }

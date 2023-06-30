@@ -5,9 +5,9 @@ import { Button } from '../../button/button';
 import { Card } from '../../card/card';
 import { Link } from 'react-router-dom';
 import { H4, CurrencyTitle, SectionTitle } from '../../typography/typography';
-import { Market } from '@notional-finance/sdk/src/system';
 import { FormattedMessage } from 'react-intl';
 import { colors } from '@notional-finance/styles';
+import { formatNumberAsPercent } from '@notional-finance/helpers';
 
 export interface CurrencyProps {
   rate: number;
@@ -19,7 +19,7 @@ export interface CurrencyProps {
 export const Currency = (props: CurrencyProps) => {
   const theme = useTheme();
   const { route, symbol, buttonText, rate } = props;
-  const formattedRate = Market.formatInterestRate(rate, 2);
+  const formattedRate = formatNumberAsPercent(rate, 2);
 
   return (
     <Link to={route}>

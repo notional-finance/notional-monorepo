@@ -440,6 +440,11 @@ export class TokenBalance {
     );
   }
 
+  toFiat(_symbol: string) {
+    // TODO: implement
+    return this;
+  }
+
   /** Does some token id manipulation for exchange rates */
   unwrapVaultToken() {
     const newToken = Registry.getTokenRegistry().unwrapVaultToken(this.token);
