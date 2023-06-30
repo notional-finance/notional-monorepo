@@ -2,7 +2,10 @@ import { styled, Box } from '@mui/material';
 import { SideBarLayout, FeatureLoader } from '@notional-finance/mui';
 import { THEME_VARIANTS } from '@notional-finance/shared-config';
 import { useUserSettingsState } from '@notional-finance/user-settings-manager';
-import { LiquiditySummary, LiquiditySidebar } from './components';
+import {
+  LiquidityLeveragedSummary,
+  LiquidityLeveragedSidebar,
+} from './components';
 import {
   createTradeContext,
   useTradeContext,
@@ -14,7 +17,7 @@ import backgroundImgLight from '@notional-finance/assets/images/provide-liquidit
 
 export const LiquidityContext = createTradeContext('MintNToken');
 
-export const LiquidityCurrencyView = () => {
+export const LiquidityLeveraged = () => {
   const { themeVariant } = useUserSettingsState();
   const liquidityState = useTradeContext('MintNToken');
 
@@ -39,8 +42,8 @@ export const LiquidityCurrencyView = () => {
           <Container>
             <SideBarLayout
               showTransactionConfirmation={confirm}
-              sideBar={<LiquiditySidebar />}
-              mainContent={<LiquiditySummary />}
+              sideBar={<LiquidityLeveragedSidebar />}
+              mainContent={<LiquidityLeveragedSummary />}
             />
           </Container>
         </div>
@@ -74,4 +77,4 @@ const LiquidityCurrencyBackground = styled('img')(
 `
 );
 
-export default LiquidityCurrencyView;
+export default LiquidityLeveraged;

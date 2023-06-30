@@ -28,6 +28,7 @@ export const VaultCardView = () => {
             description: 'docs link',
           })}
           docsLink="https://docs.notional.finance/notional-v2/what-you-can-do/leveraged-vaults"
+          leveraged={true}
         >
           {allVaults?.map((v) => {
             const {

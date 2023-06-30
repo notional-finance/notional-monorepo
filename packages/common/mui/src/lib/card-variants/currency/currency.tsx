@@ -14,12 +14,13 @@ export interface CurrencyProps {
   symbol?: string;
   route: string;
   buttonText: ReactNode;
+  returnTitle: ReactNode;
 }
 
 export const Currency = (props: CurrencyProps) => {
   const theme = useTheme();
-  const { route, symbol, buttonText, rate } = props;
   const formattedRate = formatNumberAsPercent(rate, 2);
+  const { route, symbol, buttonText, rate, returnTitle } = props;
 
   return (
     <Link to={route}>
@@ -37,9 +38,7 @@ export const Currency = (props: CurrencyProps) => {
           >
             {symbol}
           </CurrencyTitle>
-          <SectionTitle textAlign="left">
-            <FormattedMessage defaultMessage={'VARIABLE RATE'} />
-          </SectionTitle>
+          <SectionTitle textAlign="left">{returnTitle}</SectionTitle>
           <H4 textAlign="left" marginBottom={theme.spacing(4)}>
             <FormattedMessage
               defaultMessage="{formattedRate} APY"

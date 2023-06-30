@@ -12,10 +12,10 @@ import { MobileTradeActionSummary } from '@notional-finance/trade';
 import { useLiquidityFaq } from '../hooks';
 import { FormattedMessage } from 'react-intl';
 import { useContext } from 'react';
-import { LiquidityContext } from '../liquidity-action';
+import { LiquidityContext } from '../liquidity-variable';
 import { HowItWorksFaq } from './how-it-works-faq';
 
-export const LiquiditySummary = () => {
+export const LiquidityVariableSummary = () => {
   const theme = useTheme();
   const {
     state: { collateral, selectedDepositToken },
@@ -124,4 +124,4 @@ export const LiquiditySummary = () => {
   );
 };
 
-export default LiquiditySummary;
+export default LiquidityVariableSummary;

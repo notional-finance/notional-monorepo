@@ -118,6 +118,49 @@ export const useCardTable = () => {
           value: <RiskScoreIndicator riskLevel="veryLow" />,
         },
       ];
+    case '/lend-leveraged':
+      return [
+        {
+          key: (
+            <HeadingSubtitle>
+              <FormattedMessage defaultMessage="Redeemable Anytime" />
+            </HeadingSubtitle>
+          ),
+          value: <CheckmarkIcon />,
+        },
+        {
+          key: (
+            <HeadingSubtitle>
+              <FormattedMessage defaultMessage="NOTE Incentives" />
+            </HeadingSubtitle>
+          ),
+          value: (
+            <HeadingSubtitle>
+              <FormattedMessage defaultMessage="No" />
+            </HeadingSubtitle>
+          ),
+        },
+        {
+          key: (
+            <HeadingSubtitle>
+              <FormattedMessage defaultMessage="Transaction Fees" />
+            </HeadingSubtitle>
+          ),
+          value: (
+            <HeadingSubtitle>
+              <FormattedMessage defaultMessage="Yes" />
+            </HeadingSubtitle>
+          ),
+        },
+        {
+          key: (
+            <HeadingSubtitle>
+              <FormattedMessage defaultMessage="Risk Score" />
+            </HeadingSubtitle>
+          ),
+          value: <RiskScoreIndicator riskLevel="high" />,
+        },
+      ];
     case '/vaults':
       return [
         {
@@ -173,7 +216,7 @@ export const useCardTable = () => {
           value: <RiskScoreIndicator riskLevel="high" />,
         },
       ];
-    case '/provide':
+    case '/liquidity-variable':
       return [
         {
           key: (
@@ -226,6 +269,49 @@ export const useCardTable = () => {
             </HeadingSubtitle>
           ),
           value: <RiskScoreIndicator riskLevel="low" />,
+        },
+      ];
+    case '/liquidity-leveraged':
+      return [
+        {
+          key: (
+            <HeadingSubtitle>
+              <FormattedMessage defaultMessage="Redeemable Anytime" />
+            </HeadingSubtitle>
+          ),
+          value: <CheckmarkIcon />,
+        },
+        {
+          key: (
+            <HeadingSubtitle>
+              <FormattedMessage defaultMessage="NOTE Incentives" />
+            </HeadingSubtitle>
+          ),
+          value: (
+            <HeadingSubtitle>
+              <FormattedMessage defaultMessage="No" />
+            </HeadingSubtitle>
+          ),
+        },
+        {
+          key: (
+            <HeadingSubtitle>
+              <FormattedMessage defaultMessage="Transaction Fees" />
+            </HeadingSubtitle>
+          ),
+          value: (
+            <HeadingSubtitle>
+              <FormattedMessage defaultMessage="Yes" />
+            </HeadingSubtitle>
+          ),
+        },
+        {
+          key: (
+            <HeadingSubtitle>
+              <FormattedMessage defaultMessage="Risk Score" />
+            </HeadingSubtitle>
+          ),
+          value: <RiskScoreIndicator riskLevel="high" />,
         },
       ];
     case '/borrow':

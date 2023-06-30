@@ -75,7 +75,7 @@ export const useProductCards = () => {
     },
     {
       title: <FormattedMessage defaultMessage={'Provide Liquidity'} />,
-      link: '/provide',
+      link: '/liquidity-variable',
       text: (
         <FormattedMessage
           defaultMessage={`Earn NOTE incentives, interest, and trading fees from Notional's liquidity pools.`}

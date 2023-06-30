@@ -6,9 +6,9 @@ import {
 } from '@notional-finance/trade';
 import { ActionSidebar, useCurrencyInputRef } from '@notional-finance/mui';
 import { defineMessage, FormattedMessage } from 'react-intl';
-import { LiquidityContext } from '../liquidity-action';
+import { LiquidityContext } from '../liquidity-variable';
 
-export const LiquiditySidebar = () => {
+export const LiquidityVariableSidebar = () => {
   const {
     state: { canSubmit, populatedTransaction, confirm },
     updateState,
@@ -67,4 +67,4 @@ export const LiquiditySidebar = () => {
   );
 };
 
-export default LiquiditySidebar;
+export default LiquidityVariableSidebar;

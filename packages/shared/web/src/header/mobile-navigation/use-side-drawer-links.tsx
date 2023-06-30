@@ -192,7 +192,7 @@ export const useSideDrawerLinks = (dataKey: MOBILE_SUB_NAV_ACTIONS) => {
       {
         key: 'provide-liquidity',
         label: <FormattedMessage defaultMessage={'Provide Liquidity'} />,
-        link: '/provide',
+        link: '/liquidity-variable',
         iconImg: (
           <PieChartIcon
             className="color-stroke"
