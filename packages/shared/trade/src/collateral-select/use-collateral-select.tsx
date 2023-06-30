@@ -1,9 +1,4 @@
-import {
-  useAccountCashBalance,
-  useCurrencyData,
-  useMaturityData,
-  useNotional,
-} from '@notional-finance/notionable-hooks';
+import { useNotional } from '@notional-finance/notionable-hooks';
 import {
   CollateralAction,
   CollateralActionType,
@@ -20,6 +15,7 @@ import { tradeDefaults } from '@notional-finance/shared-config';
 import { useEffect, useMemo } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { tradeErrors } from '../tradeErrors';
+import { MaturityData } from '@notional-finance/notionable';
 
 interface CollateralSelectState {
   selectedCollateral: string;
@@ -58,16 +54,19 @@ export function useCollateralSelect(
     assetSymbol,
     isUnderlying,
     underlyingSymbol,
-  } = useCurrencyData(selectedToken);
+  } = {
+    id: undefined,
+    nTokenSymbol: undefined,
+    assetSymbol: undefined,
+    isUnderlying: true,
+    underlyingSymbol: undefined,
+  };
   const { system } = useNotional();
-  const maturityData = useMaturityData(
-    selectedToken,
-    inputAmount?.toUnderlying(true).neg()
-  );
+  const maturityData = [] as MaturityData[];
   const inputUpToDate =
     inputAmount?.symbol === selectedToken || inputAmount === undefined;
   const collateralOptions: CollateralOption[] = [];
-  const cashBalance = useAccountCashBalance(selectedToken);
+  const cashBalance = undefined as TypedBigNumber | undefined;
 
   if (assetSymbol && inputUpToDate && currencyId && system) {
     let annualSupplyRate = 0;

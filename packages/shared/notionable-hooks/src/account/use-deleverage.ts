@@ -1,7 +1,7 @@
 import { formatMaturity } from '@notional-finance/helpers';
 import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
 import { CashGroup } from '@notional-finance/sdk/src/system';
-import { useNotional } from '../notional/use-notional';
+import { useNotional } from '../use-notional';
 import { useAccount } from './use-account';
 import { useRiskThresholds } from './use-risk-thresholds';
 

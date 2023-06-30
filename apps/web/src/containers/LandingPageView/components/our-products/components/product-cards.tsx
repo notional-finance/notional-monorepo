@@ -22,7 +22,7 @@ export interface ProductCardsProps {
   link: string;
   text: ReactNode;
   apy: string;
-  symbol: string;
+  symbol: string | undefined;
   groupedSymbols: string;
   apyTitle: ReactNode;
   href?: string;
@@ -92,7 +92,7 @@ export const ProductCards = ({
             >
               {apyTitle}
             </SectionTitle>
-            {!loading ? (
+            {!loading && symbol ? (
               <H4
                 sx={{
                   color: colors.white,

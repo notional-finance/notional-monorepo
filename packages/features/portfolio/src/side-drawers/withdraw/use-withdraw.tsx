@@ -2,9 +2,7 @@ import { useEffect } from 'react';
 import {
   useNotional,
   useAccount,
-  useCurrencyData,
   useRiskRatios,
-  useAccountCashBalance,
   useAccountWithdrawableTokens,
 } from '@notional-finance/notionable-hooks';
 import { TypedBigNumber } from '@notional-finance/sdk';
@@ -57,8 +55,12 @@ export function useWithdraw() {
     id: currencyId,
     assetSymbol,
     isUnderlying,
-  } = useCurrencyData(selectedToken);
-  const assetCashBalance = useAccountCashBalance(assetSymbol);
+  } = {
+    id: undefined,
+    assetSymbol: undefined,
+    isUnderlying: true,
+  };
+  const assetCashBalance = undefined as TypedBigNumber | undefined;
   const availableTokens = useAccountWithdrawableTokens();
 
   const canSubmit =

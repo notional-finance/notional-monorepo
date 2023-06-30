@@ -2,12 +2,7 @@ import { TypedBigNumber } from '@notional-finance/sdk';
 import { useFormState } from '@notional-finance/utils';
 import { tradeErrors, TransactionData } from '@notional-finance/trade';
 import { TradePropertyKeys } from '@notional-finance/trade';
-import {
-  useNotional,
-  useAccountCashBalance,
-  useCurrencyData,
-  useAccount,
-} from '@notional-finance/notionable-hooks';
+import { useNotional, useAccount } from '@notional-finance/notionable-hooks';
 import { MessageDescriptor } from 'react-intl';
 
 interface CashToNTokensState {
@@ -33,9 +28,9 @@ export function useConvertCashToNTokensInput(
   inputString: string
 ) {
   const { notional } = useNotional();
-  const maxBalance = useAccountCashBalance(selectedToken);
+  const maxBalance = undefined as TypedBigNumber | undefined;
   const maxValue = maxBalance?.toExactString();
-  const { id } = useCurrencyData(selectedToken);
+  const id = undefined;
 
   const inputAmount =
     inputString && notional

@@ -191,6 +191,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
 
   getAllRiskFactors() {
     return {
+      netWorth: this.netWorth(),
       debts: this.totalDebt(),
       assets: this.totalAssets(),
       collateralRatio: this.collateralRatio(),

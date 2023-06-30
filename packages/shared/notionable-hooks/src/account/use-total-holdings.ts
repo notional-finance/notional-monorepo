@@ -1,4 +1,4 @@
-import { useNotional } from '../notional/use-notional';
+import { useNotional } from '../use-notional';
 import { useAccount } from './use-account';
 
 export function useTotalHoldings() {

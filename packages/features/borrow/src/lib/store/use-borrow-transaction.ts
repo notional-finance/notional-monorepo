@@ -1,22 +1,17 @@
 import { useQueryParams } from '@notional-finance/utils';
 import { tradeDefaults } from '@notional-finance/shared-config';
-import {
-  useNotional,
-  useAccount,
-  useCurrencyData,
-  useSelectedMarket,
-  useAccountCashBalance,
-} from '@notional-finance/notionable-hooks';
+import { useNotional, useAccount } from '@notional-finance/notionable-hooks';
 import { useObservableState } from 'observable-hooks';
 import { borrowState$, initialBorrowState } from './borrow-store';
 import { useBorrow } from './use-borrow';
 import { TradePropertyKeys } from '@notional-finance/trade';
+import { Market } from '@notional-finance/sdk/system';
+import { TypedBigNumber } from '@notional-finance/sdk';
 
 export function useBorrowTransaction(selectedToken: string) {
   const { notional } = useNotional();
   const { address } = useAccount();
-  const { selectedMarketKey, tradedRate, interestAmountTBN } =
-    useBorrow(selectedToken);
+  const { tradedRate, interestAmountTBN } = useBorrow(selectedToken);
   const {
     fCashAmount,
     inputAmount,
@@ -25,11 +20,12 @@ export function useBorrowTransaction(selectedToken: string) {
     collateralSymbol,
     borrowToPortfolio,
   } = useObservableState(borrowState$, initialBorrowState);
-  const { isUnderlying, assetSymbol } = useCurrencyData(selectedToken);
-  const selectedMarket = useSelectedMarket(selectedMarketKey);
+  const assetSymbol = undefined;
+  const isUnderlying = true;
+  const selectedMarket = undefined as Market | undefined;
   const { confirm } = useQueryParams();
   const confirmRoute = !!confirm;
-  const cashBalance = useAccountCashBalance(selectedToken);
+  const cashBalance = undefined as TypedBigNumber | undefined;
 
   if (
     !confirmRoute ||

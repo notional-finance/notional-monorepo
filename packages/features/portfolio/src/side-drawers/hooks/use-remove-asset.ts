@@ -1,4 +1,4 @@
-import { useAccount, useAccountCashBalance } from '@notional-finance/notionable-hooks';
+import { useAccount } from '@notional-finance/notionable-hooks';
 import { AssetType, TypedBigNumber } from '@notional-finance/sdk';
 import { CashOrFCash } from '@notional-finance/trade';
 
@@ -11,7 +11,7 @@ export function useRemoveAsset(
   const { address, accountDataCopy, assetSummary } = useAccount();
   const selectedAsset = assetKey ? assetSummary.get(assetKey) : undefined;
   const defaultSelectedToken = selectedAsset?.underlyingSymbol;
-  const cashBalance = useAccountCashBalance(defaultSelectedToken);
+  const cashBalance = undefined as TypedBigNumber | undefined;
 
   const availableTokens: string[] = [];
   if (cashOrfCash === 'fCash' && selectedAsset) {

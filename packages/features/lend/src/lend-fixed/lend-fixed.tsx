@@ -12,11 +12,7 @@ import {
   useTradeContext,
 } from '@notional-finance/notionable-hooks';
 import { LendFixedSidebar, HowItWorksFaq } from './components';
-import {
-  TradeActionSummary,
-  // TradeActionView,
-  // CalculatedRatesTable,
-} from '@notional-finance/trade';
+import { TradeActionSummary } from '@notional-finance/trade';
 import { useLendFixedChart, useLendFixedFaq } from './hooks';
 import { NOTIONAL_CATEGORIES } from '@notional-finance/shared-config';
 
@@ -59,17 +55,7 @@ export const LendFixed = () => {
                 lockSelection={!!confirm}
                 chartToolTipData={chartToolTipData}
               />
-              {/* TODO: Commenting out TradeActionView & CalculatedRatesTable until data is ready */}
               <Box sx={{ marginTop: '48px' }}></Box>
-              {/* {selectedDepositToken && (
-                <TradeActionView
-                  selectedMarketKey={selectedMarketKey}
-                  tradeAction={NOTIONAL_CATEGORIES.LEND}
-                  selectedToken={selectedDepositToken}
-                  fCashAmount={0}
-                  interestAmount={0}
-                />
-              )} */}
               {selectedDepositToken && (
                 <Faq
                   question={

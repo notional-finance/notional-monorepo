@@ -1,9 +1,7 @@
 import {
   useNotional,
-  useCurrencyData,
   useRiskRatios,
   useAccount,
-  useAccountCashBalance,
 } from '@notional-finance/notionable-hooks';
 import { TypedBigNumber } from '@notional-finance/sdk';
 import { TradePropertyKeys, TransactionData } from '@notional-finance/trade';
@@ -37,13 +35,14 @@ export function useRepayCash(
   const {
     id: currencyId,
     isUnderlying,
-    underlyingSymbol,
     assetSymbol,
-  } = useCurrencyData(selectedToken || defaultSymbol);
-  const availableTokens = [underlyingSymbol, assetSymbol].filter(
-    (s) => !!s
-  ) as string[];
-  const cashBalance = useAccountCashBalance(selectedToken);
+  } = {
+    id: undefined,
+    isUnderlying: true,
+    assetSymbol: undefined,
+  };
+  const availableTokens = [] as string[];
+  const cashBalance = undefined as TypedBigNumber | undefined;
 
   useEffect(() => {
     // This should only run once after initialization or if the route changes

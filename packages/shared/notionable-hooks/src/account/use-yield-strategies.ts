@@ -1,7 +1,7 @@
 import { BaseVault, TypedBigNumber, VaultFactory } from '@notional-finance/sdk';
 import { useLocation } from 'react-router-dom';
 import { logError } from '@notional-finance/helpers';
-import { useNotional } from '../notional/use-notional';
+import { useNotional } from '../use-notional';
 import { useAccount } from './use-account';
 
 interface YieldStrategies {

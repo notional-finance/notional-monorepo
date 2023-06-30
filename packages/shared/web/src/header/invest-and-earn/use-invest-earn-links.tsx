@@ -8,13 +8,22 @@ import {
   StakeIcon,
   VaultIcon,
 } from '@notional-finance/icons';
-import { useInvestEarnYields } from './use-invest-earn-yields';
 import { FormattedMessage } from 'react-intl';
+import { useAllMarkets } from '@notional-finance/notionable-hooks';
+import { formatNumberAsPercent } from '@notional-finance/helpers';
 
 export const useInvestEarnLinks = () => {
   const theme = useTheme();
-  const { highestLendRate, highestNTokenRate, highestVaultApy } =
-    useInvestEarnYields();
+  const {
+    headlineRates: {
+      fCashLend,
+      liquidity,
+      leveragedVaults,
+      variableLend,
+      leveragedLend,
+      leveragedLiquidity,
+    },
+  } = useAllMarkets();
 
   // TODO: Add real leveraged and variable rate data when available.
   // TODO: Add links to leveraged card pages after those are created
@@ -35,7 +44,7 @@ export const useInvestEarnLinks = () => {
         <FormattedMessage
           defaultMessage="Earn up to {rate} APY"
           values={{
-            rate: highestLendRate,
+            rate: formatNumberAsPercent(fCashLend?.totalApy || 0),
           }}
         />
       ),
@@ -56,7 +65,7 @@ export const useInvestEarnLinks = () => {
         <FormattedMessage
           defaultMessage="Earn up to {rate} variable APY"
           values={{
-            rate: '4.15%',
+            rate: formatNumberAsPercent(variableLend?.totalApy || 0),
           }}
         />
       ),
@@ -78,7 +87,7 @@ export const useInvestEarnLinks = () => {
         <FormattedMessage
           defaultMessage={'Earn up to {rate} variable APY'}
           values={{
-            rate: highestNTokenRate,
+            rate: formatNumberAsPercent(liquidity?.totalApy || 0),
           }}
         />
       ),
@@ -121,7 +130,7 @@ export const useInvestEarnLinks = () => {
         <FormattedMessage
           defaultMessage={'Leverage DeFi yields and earn up to {rate} APY'}
           values={{
-            rate: highestVaultApy,
+            rate: formatNumberAsPercent(leveragedVaults?.totalApy || 0),
           }}
         />
       ),
@@ -140,7 +149,10 @@ export const useInvestEarnLinks = () => {
       ),
       description: (
         <FormattedMessage
-          defaultMessage={'Lend with leverage and earn up to 24.60% APY'}
+          defaultMessage={'Lend with leverage and earn up to {rate} APY'}
+          values={{
+            rate: formatNumberAsPercent(leveragedLend?.totalApy || 0),
+          }}
         />
       ),
       external: false,
@@ -159,7 +171,10 @@ export const useInvestEarnLinks = () => {
       ),
       description: (
         <FormattedMessage
-          defaultMessage={'Leverage liquidity and earn up to 22.40% APY'}
+          defaultMessage={'Leverage liquidity and earn up to {rate} APY'}
+          values={{
+            rate: formatNumberAsPercent(leveragedLiquidity?.totalApy || 0),
+          }}
         />
       ),
       external: false,

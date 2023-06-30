@@ -7,18 +7,14 @@ import {
   InteractiveAreaChart,
 } from '@notional-finance/mui';
 import { NOTIONAL_CATEGORIES } from '@notional-finance/shared-config';
-import {
-  TradeActionSummary,
-  TradeActionView,
-  CalculatedRatesTable,
-} from '@notional-finance/trade';
+import { TradeActionSummary } from '@notional-finance/trade';
 import { updateBorrowState } from './store/borrow-store';
 import { useBorrowTransaction } from './store/use-borrow-transaction';
 import { useQueryParams } from '@notional-finance/utils';
 import { useBorrow } from './store/use-borrow';
 import { useEffect } from 'react';
 import { useBorrowChart } from './hooks/use-borrow-chart';
-import { useMarkets } from '@notional-finance/notionable-hooks';
+import { Market } from '@notional-finance/sdk/system';
 
 export interface BorrowParams {
   selectedDepositToken: string;
@@ -28,13 +24,12 @@ export interface BorrowParams {
 export const BorrowFeatureShell = () => {
   const { selectedDepositToken: selectedToken } = useParams<BorrowParams>();
   const { confirm } = useQueryParams();
-  const markets = useMarkets(selectedToken);
+  const markets = [] as Market[];
   const { marketData, areaHeaderData, chartToolTipData } =
     useBorrowChart(markets);
   const txnData = useBorrowTransaction(selectedToken);
   const showTransactionConfirmation = txnData ? true : false;
-  const { selectedMarketKey, tradedRate, fCashAmount, interestAmount } =
-    useBorrow(selectedToken);
+  const { selectedMarketKey, tradedRate } = useBorrow(selectedToken);
 
   useEffect(() => {
     if (selectedToken) updateBorrowState({ selectedMarketKey: null });
@@ -61,18 +56,6 @@ export const BorrowFeatureShell = () => {
               selectedMarketKey={selectedMarketKey || ''}
               lockSelection={!!confirm}
               chartToolTipData={chartToolTipData}
-            />
-            <TradeActionView
-              selectedMarketKey={selectedMarketKey}
-              tradeAction={NOTIONAL_CATEGORIES.BORROW}
-              selectedToken={selectedToken}
-              fCashAmount={fCashAmount}
-              interestAmount={interestAmount}
-            />
-            <CalculatedRatesTable
-              selectedMarketKey={selectedMarketKey}
-              selectedToken={selectedToken}
-              tradeAction={NOTIONAL_CATEGORIES.BORROW}
             />
           </TradeActionSummary>
         }
