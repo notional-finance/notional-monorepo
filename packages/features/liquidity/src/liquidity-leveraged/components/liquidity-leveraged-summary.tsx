@@ -97,7 +97,7 @@ export const LiquidityLeveragedSummary = () => {
         >
           <FaqHeader
             title={
-              <FormattedMessage defaultMessage={'Provide Liquidity FAQ'} />
+              <FormattedMessage defaultMessage={'Leveraged Liquidity FAQ'} />
             }
             links={faqHeaderLinks}
           />

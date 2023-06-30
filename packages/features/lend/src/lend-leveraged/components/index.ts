@@ -1,2 +1,2 @@
 export * from './risks-faq';
-export * from './lend-variable-sidebar';
+export * from './lend-leveraged-sidebar';

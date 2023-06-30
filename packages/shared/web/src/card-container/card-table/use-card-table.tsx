@@ -174,18 +174,6 @@ export const useCardTable = () => {
         {
           key: (
             <HeadingSubtitle>
-              <FormattedMessage defaultMessage="Can Be Collateral" />
-            </HeadingSubtitle>
-          ),
-          value: (
-            <HeadingSubtitle>
-              <FormattedMessage defaultMessage="No" />
-            </HeadingSubtitle>
-          ),
-        },
-        {
-          key: (
-            <HeadingSubtitle>
               <FormattedMessage defaultMessage="NOTE Incentives" />
             </HeadingSubtitle>
           ),

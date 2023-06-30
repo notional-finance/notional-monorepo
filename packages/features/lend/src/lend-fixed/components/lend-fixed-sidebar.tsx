@@ -7,15 +7,21 @@ import {
   MaturitySelect,
   Confirmation2,
 } from '@notional-finance/trade';
+import { useHistory } from 'react-router-dom';
 import { PRODUCTS } from '@notional-finance/shared-config';
 import { LendFixedContext } from '../../lend-fixed/lend-fixed';
 
 export const LendFixedSidebar = () => {
+  const history = useHistory();
   const {
-    state: { canSubmit, populatedTransaction, confirm },
+    state: { canSubmit, populatedTransaction, confirm, selectedDepositToken },
     updateState,
   } = useContext(LendFixedContext);
   const { currencyInputRef } = useCurrencyInputRef();
+
+  const handleLeverUpToggle = () => {
+    history.push(`/lend-leveraged/${selectedDepositToken}`);
+  };
 
   const handleSubmit = () => {
     updateState({ confirm: true });
@@ -34,7 +40,7 @@ export const LendFixedSidebar = () => {
   ) : (
     <ActionSidebar
       heading={defineMessage({
-        defaultMessage: 'Lend With Confidence',
+        defaultMessage: 'Fixed Lend',
         description: 'section heading',
       })}
       helptext={defineMessage({
@@ -45,6 +51,8 @@ export const LendFixedSidebar = () => {
       CustomActionButton={TradeActionButton}
       handleSubmit={handleSubmit}
       canSubmit={canSubmit}
+      handleLeverUpToggle={handleLeverUpToggle}
+      leveredUp={false}
     >
       <DepositInput
         ref={currencyInputRef}

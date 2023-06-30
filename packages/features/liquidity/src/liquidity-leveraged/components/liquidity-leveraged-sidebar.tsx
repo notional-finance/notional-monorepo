@@ -4,20 +4,21 @@ import {
   DepositInput,
   Confirmation2,
 } from '@notional-finance/trade';
+import { useHistory } from 'react-router-dom';
 import { ActionSidebar, useCurrencyInputRef } from '@notional-finance/mui';
 import { defineMessage, FormattedMessage } from 'react-intl';
 import { LiquidityContext } from '../liquidity-leveraged';
 
 export const LiquidityLeveragedSidebar = () => {
+  const history = useHistory();
   const {
-    state: { canSubmit, populatedTransaction, confirm },
+    state: { canSubmit, populatedTransaction, confirm, selectedDepositToken },
     updateState,
   } = useContext(LiquidityContext);
   const { currencyInputRef } = useCurrencyInputRef();
 
   const handleLeverUpToggle = () => {
-    // TODO: hook this up to context
-    console.log('handleLeverUpToggle');
+    history.push(`/liquidity-variable/${selectedDepositToken}`);
   };
 
   const handleSubmit = () => {
@@ -28,7 +29,7 @@ export const LiquidityLeveragedSidebar = () => {
     <Confirmation2
       heading={
         <FormattedMessage
-          defaultMessage={'Provide Liquidity'}
+          defaultMessage={'Leveraged Liquidity'}
           description="section heading"
         />
       }
@@ -37,12 +38,11 @@ export const LiquidityLeveragedSidebar = () => {
   ) : (
     <ActionSidebar
       heading={defineMessage({
-        defaultMessage: 'Provide Liquidity',
+        defaultMessage: 'Leveraged Liquidity',
         description: 'section heading',
       })}
       helptext={defineMessage({
-        defaultMessage:
-          'You will receive nTokens in return for providing liquidity to all markets at once. nTokens earn yield from cToken supply rates, trading fees, and fCash interest. nToken holders also earn NOTE incentives.',
+        defaultMessage: 'TBD',
         description: 'helptext',
       })}
       hideTextOnMobile
@@ -50,7 +50,7 @@ export const LiquidityLeveragedSidebar = () => {
       canSubmit={canSubmit}
       handleLeverUpToggle={handleLeverUpToggle}
       handleSubmit={handleSubmit}
-      leveredUp={false}
+      leveredUp={true}
     >
       <DepositInput
         ref={currencyInputRef}

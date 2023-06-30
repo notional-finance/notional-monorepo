@@ -5,12 +5,7 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { useEffect, useState } from 'react';
 import { FormattedMessage, defineMessage } from 'react-intl';
-<<<<<<< alpha/arbitrum:packages/features/liquidity/src/liquidity-cards.tsx
-=======
-import { NTokenValue } from '@notional-finance/sdk/src/system';
 import { PRODUCTS } from '@notional-finance/shared-config';
-import { INTERNAL_TOKEN_PRECISION } from '@notional-finance/sdk/src/config/constants';
->>>>>>> build: adds routes and initial card pages:packages/features/liquidity/src/liquidity-variable/liquidity-variable-card-view.tsx
 import { useUserSettingsState } from '@notional-finance/user-settings-manager';
 import { CardContainer } from '@notional-finance/shared-web';
 import { useNotionalTheme } from '@notional-finance/styles';
@@ -40,7 +35,7 @@ export const LiquidityVariableCardView = () => {
   const { allYields } = useAllMarkets();
   const { height } = useWindowDimensions();
   const [notePriceString, setNotePriceString] = useState('');
-  const cardData = allYields.filter((t) => t.tokenType === 'nToken')
+  const cardData = allYields.filter((t) => t.tokenType === 'nToken');
 
   useEffect(() => {
     if (network) {
@@ -81,17 +76,8 @@ export const LiquidityVariableCardView = () => {
               marginBottom: '0px',
             }}
           >
-<<<<<<< alpha/arbitrum:packages/features/liquidity/src/liquidity-cards.tsx
             {cardData.map(({ underlying, totalApy, noteApy }, i) => {
-              const route = `/provide/${underlying}`;
-=======
-            {formattedTradableCurrencies.map((c, i) => {
-              const symbol = c.underlyingSymbol || c.assetSymbol;
-              const rate = rates.length > i ? rates[i] : 0;
-              const incentiveRate =
-                incentiveRates.length > i ? incentiveRates[i] : 0;
-              const route = `/${PRODUCTS.LIQUIDITY_VARIABLE}/${symbol}`;
->>>>>>> build: adds routes and initial card pages:packages/features/liquidity/src/liquidity-variable/liquidity-variable-card-view.tsx
+              const route = `/${PRODUCTS.LIQUIDITY_VARIABLE}/${underlying}`;
               return (
                 <Incentive
                   key={`incentive-${i}`}

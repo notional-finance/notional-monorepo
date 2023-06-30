@@ -6,19 +6,20 @@ import {
   DepositInput,
   Confirmation2,
 } from '@notional-finance/trade';
+import { useHistory } from 'react-router-dom';
 import { PRODUCTS } from '@notional-finance/shared-config';
-import { LendVariableContext } from '../../lend-variable/lend-variable';
+import { LendLeveragedContext } from '../../lend-leveraged/lend-leveraged';
 
 export const LendLeveragedSidebar = () => {
+  const history = useHistory();
   const {
-    state: { canSubmit, populatedTransaction, confirm },
+    state: { canSubmit, populatedTransaction, confirm, selectedDepositToken },
     updateState,
-  } = useContext(LendVariableContext);
+  } = useContext(LendLeveragedContext);
   const { currencyInputRef } = useCurrencyInputRef();
 
   const handleLeverUpToggle = () => {
-    // TODO: hook this up to context
-    console.log('handleLeverUpToggle');
+    history.push(`/lend-fixed/${selectedDepositToken}`);
   };
 
   const handleSubmit = () => {
@@ -33,30 +34,29 @@ export const LendLeveragedSidebar = () => {
           description="section heading"
         />
       }
-      context={LendVariableContext}
+      context={LendLeveragedContext}
     />
   ) : (
     <ActionSidebar
       heading={defineMessage({
-        defaultMessage: 'Variable Lending',
+        defaultMessage: 'Leveraged Lending',
         description: 'section heading',
       })}
       helptext={defineMessage({
-        defaultMessage:
-          'Earn passive income with market-leading variable interest rates and full redeemability. Withdraw your cash whenever you need it.',
+        defaultMessage: 'TBD',
         description: 'helptext',
       })}
       CustomActionButton={TradeActionButton}
       canSubmit={canSubmit}
       handleSubmit={handleSubmit}
       handleLeverUpToggle={handleLeverUpToggle}
-      leveredUp={false}
+      leveredUp={true}
     >
       <DepositInput
         ref={currencyInputRef}
         inputRef={currencyInputRef}
-        context={LendVariableContext}
-        newRoute={(newToken) => `/${PRODUCTS.LEND_VARIABLE}/${newToken}`}
+        context={LendLeveragedContext}
+        newRoute={(newToken) => `/${PRODUCTS.LEND_LEVERAGED}/${newToken}`}
         inputLabel={defineMessage({
           defaultMessage: '1. How much do you want to lend?',
           description: 'input label',

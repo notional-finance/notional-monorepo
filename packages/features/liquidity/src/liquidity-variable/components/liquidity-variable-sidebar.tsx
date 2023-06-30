@@ -4,20 +4,21 @@ import {
   DepositInput,
   Confirmation2,
 } from '@notional-finance/trade';
+import { useHistory } from 'react-router-dom';
 import { ActionSidebar, useCurrencyInputRef } from '@notional-finance/mui';
 import { defineMessage, FormattedMessage } from 'react-intl';
 import { LiquidityContext } from '../liquidity-variable';
 
 export const LiquidityVariableSidebar = () => {
+  const history = useHistory();
   const {
-    state: { canSubmit, populatedTransaction, confirm },
+    state: { canSubmit, populatedTransaction, confirm, selectedDepositToken },
     updateState,
   } = useContext(LiquidityContext);
   const { currencyInputRef } = useCurrencyInputRef();
 
   const handleLeverUpToggle = () => {
-    // TODO: hook this up to context
-    console.log('handleLeverUpToggle');
+    history.push(`/liquidity-leveraged/${selectedDepositToken}`);
   };
 
   const handleSubmit = () => {

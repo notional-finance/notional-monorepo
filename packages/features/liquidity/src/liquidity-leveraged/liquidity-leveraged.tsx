@@ -15,6 +15,7 @@ import backgroundImgDark from '@notional-finance/assets/images/provide-liquidity
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import backgroundImgLight from '@notional-finance/assets/images/provide-liquidity-light-bg.png';
 
+// TODO: Update this to use the new context when known
 export const LiquidityContext = createTradeContext('MintNToken');
 
 export const LiquidityLeveraged = () => {

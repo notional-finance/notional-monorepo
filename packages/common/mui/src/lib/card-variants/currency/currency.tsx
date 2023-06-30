@@ -19,8 +19,8 @@ export interface CurrencyProps {
 
 export const Currency = (props: CurrencyProps) => {
   const theme = useTheme();
-  const formattedRate = formatNumberAsPercent(rate, 2);
   const { route, symbol, buttonText, rate, returnTitle } = props;
+  const formattedRate = formatNumberAsPercent(rate, 2);
 
   return (
     <Link to={route}>
