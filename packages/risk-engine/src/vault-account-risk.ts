@@ -84,6 +84,13 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
       );
   }
 
+  get vaultConfig() {
+    return Registry.getConfigurationRegistry().getVaultConfig(
+      this.network,
+      this.vaultAddress
+    );
+  }
+
   get vaultShares() {
     const v = this.balances.find((t) => t.tokenType === 'VaultShare');
     if (!v) throw Error('Vault Shares not found');
