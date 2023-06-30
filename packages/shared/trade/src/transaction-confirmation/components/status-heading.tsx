@@ -30,13 +30,16 @@ export const StatusHeading = ({
   let headingText;
 
   switch (transactionStatus) {
-    case TransactionStatus.PENDING:
+    case TransactionStatus.WAIT_USER_CONFIRM:
       statusIcon = <ProgressIndicator type="notional" width="75" />;
       headingText = (
-        <>
-          <FormattedMessage defaultMessage={'Pending'} />
-          &nbsp;{heading}
-        </>
+        <FormattedMessage defaultMessage={'Confirm Transaction in Wallet'} />
+      );
+      break;
+    case TransactionStatus.SUBMITTED:
+      statusIcon = <ProgressIndicator type="notional" width="75" />;
+      headingText = (
+        <FormattedMessage defaultMessage={'Transaction Submitted.'} />
       );
       break;
     case TransactionStatus.CONFIRMED:
@@ -48,7 +51,7 @@ export const StatusHeading = ({
         />
       );
       headingText = (
-        <FormattedMessage defaultMessage={'Success! Transaction submitted.'} />
+        <FormattedMessage defaultMessage={'Success! Transaction Confirmed.'} />
       );
       break;
     case TransactionStatus.REVERT:

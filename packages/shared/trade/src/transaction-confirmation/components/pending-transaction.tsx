@@ -2,7 +2,10 @@ import { styled, Box, useTheme } from '@mui/material';
 import { ExternalLinkIcon } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
 import { getEtherscanLink } from '@notional-finance/helpers';
-import { TransactionStatus, useNotional } from '@notional-finance/notionable-hooks';
+import {
+  TransactionStatus,
+  useNotional,
+} from '@notional-finance/notionable-hooks';
 
 interface PendingTransactionProps {
   hash: string;
@@ -31,7 +34,13 @@ export const PendingTransaction = ({
   );
 
   switch (transactionStatus) {
-    case TransactionStatus.PENDING:
+    case TransactionStatus.WAIT_USER_CONFIRM:
+      return (
+        <PendingContainer>
+          <FormattedMessage defaultMessage={'Confirm Transaction in Wallet'} />
+        </PendingContainer>
+      );
+    case TransactionStatus.SUBMITTED:
       return (
         <PendingContainer>
           <FormattedMessage defaultMessage={'Transaction Pending'} />: &nbsp;

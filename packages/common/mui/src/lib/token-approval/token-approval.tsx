@@ -1,62 +1,30 @@
 import { Box, CircularProgress, useTheme } from '@mui/material';
 import { TokenIcon } from '@notional-finance/icons';
-import { useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import Switch from '../switch/switch';
 import CheckCircle from '@mui/icons-material/CheckCircle';
 import { Label, LabelValue } from '../typography/typography';
+import { TransactionStatus } from '@notional-finance/notionable-hooks';
 
-/* eslint-disable-next-line */
 export interface TokenApprovalProps {
   symbol: string;
-  success?: boolean;
-  error?: boolean;
-  approved?: boolean;
-  approvalPending?: boolean;
+  transactionStatus: TransactionStatus;
+  approved: boolean;
   sx?: Record<string, string>;
-  onChange: ({
-    symbol,
-    approved,
-  }: {
-    symbol: string;
-    approved: boolean;
-  }) => void;
+  onChange: () => void;
 }
 
 export function TokenApproval({
   symbol,
   onChange,
-  success = false,
-  error = false,
-  approved = false,
-  approvalPending = false,
+  approved,
+  transactionStatus,
   sx = {},
 }: TokenApprovalProps) {
   const theme = useTheme();
-  const [pending, setPending] = useState(false);
-
-  useEffect(() => {
-    if (success) {
-      setPending(false);
-    }
-  }, [success]);
-
-  useEffect(() => {
-    setPending(approvalPending);
-  }, [approvalPending]);
-
-  useEffect(() => {
-    if (error) {
-      setPending(false);
-    }
-  }, [error]);
-
-  const handleChange = ({
-    target: { checked },
-  }: React.ChangeEvent<HTMLInputElement>) => {
-    setPending(true);
-    onChange({ symbol: symbol, approved: checked });
-  };
+  const pending =
+    transactionStatus === TransactionStatus.WAIT_USER_CONFIRM ||
+    transactionStatus === TransactionStatus.SUBMITTED;
 
   return (
     <Box
@@ -80,10 +48,10 @@ export function TokenApproval({
         }}
       >
         <TokenIcon symbol={symbol} size="medium" />
-        {!pending && !success && (
+        {!pending && !approved && (
           <Switch
             checked={approved}
-            onChange={handleChange}
+            onChange={onChange}
             sx={{
               margin: '0 .5rem',
             }}
@@ -98,7 +66,7 @@ export function TokenApproval({
             }}
           />
         )}
-        {!pending && success && (
+        {!pending && transactionStatus === TransactionStatus.CONFIRMED && (
           <CheckCircle
             color="primary"
             sx={{

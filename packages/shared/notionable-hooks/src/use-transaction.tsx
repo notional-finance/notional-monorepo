@@ -16,8 +16,8 @@ export enum TransactionStatus {
   NONE = 'none',
   BUILT = 'built',
   ERROR_BUILDING = 'error-building',
-  USER_REJECT = 'user-reject',
-  PENDING = 'pending',
+  WAIT_USER_CONFIRM = 'wait-user-confirm',
+  SUBMITTED = 'submitted',
   CONFIRMED = 'confirmed',
   REVERT = 'revert',
 }
@@ -122,6 +122,7 @@ export function useTransactionStatus() {
   const { transactionReceipt, reverted } =
     usePendingTransaction(transactionHash);
   const { isReadOnlyAddress, submitTransaction } = useSubmitTransaction();
+  const { pathname } = useLocation();
 
   useEffect(() => {
     if (reverted) setTransactionHash(TransactionStatus.REVERT);
@@ -132,18 +133,20 @@ export function useTransactionStatus() {
   const onSubmit = useCallback(
     (populatedTransaction?: PopulatedTransaction) => {
       if (populatedTransaction) {
+        setTransactionStatus(TransactionStatus.WAIT_USER_CONFIRM);
         submitTransaction(populatedTransaction)
           .then((hash) => {
-            setTransactionStatus(TransactionStatus.PENDING);
+            setTransactionStatus(TransactionStatus.SUBMITTED);
             setTransactionHash(hash);
           })
           .catch(() => {
             // If we see an error here it is most likely due to user rejection
-            setTransactionStatus(TransactionStatus.USER_REJECT);
+            trackEvent('REJECT_TXN', { url: pathname });
+            setTransactionStatus(TransactionStatus.NONE);
           });
       }
     },
-    [submitTransaction]
+    [submitTransaction, pathname]
   );
 
   return {

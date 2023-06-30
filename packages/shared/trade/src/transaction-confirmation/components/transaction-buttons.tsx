@@ -36,7 +36,7 @@ export const TransactionButtons = ({
 }: TransactionButtonsProps) => {
   const theme = useTheme();
   switch (transactionStatus) {
-    case TransactionStatus.PENDING:
+    case TransactionStatus.SUBMITTED:
     case TransactionStatus.CONFIRMED:
     case TransactionStatus.ERROR_BUILDING:
     case TransactionStatus.REVERT:
