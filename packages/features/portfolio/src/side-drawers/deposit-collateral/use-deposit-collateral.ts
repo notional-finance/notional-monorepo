@@ -26,7 +26,7 @@ export function useDepositCollateral() {
   const [state, updateDepositCollateralState] =
     useFormState<DepositCollateralState>(initialDepositCollateralState);
   const { notional } = useNotional();
-  const { allCurrencySymbols: availableTokens } = useCurrency();
+  const { depositTokens } = useCurrency();
   const { hasError, collateralAction, collateralApy, collateralSymbol } = state;
   const { accountDataCopy, address } = useAccount();
   const canSubmit =
@@ -63,7 +63,7 @@ export function useDepositCollateral() {
   }
 
   return {
-    availableTokens,
+    availableTokens: depositTokens.map((t) => t.symbol),
     updatedAccountData: canSubmit ? accountDataCopy : undefined,
     canSubmit,
     transactionData,

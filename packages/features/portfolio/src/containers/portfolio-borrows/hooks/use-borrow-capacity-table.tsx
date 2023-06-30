@@ -59,5 +59,5 @@ export const useBorrowCapacityTable = () => {
     },
   ];
 
-  return { tableData: undefined, tableColumns };
+  return { tableData: [], tableColumns };
 };
