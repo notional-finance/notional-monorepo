@@ -1,5 +1,4 @@
 export * from './account/use-account';
-export * from './account/use-asset-summary';
 export * from './account/use-risk-ratios';
 export * from './account/use-risk-label';
 export * from './account/use-risk-thresholds';
