@@ -5,10 +5,13 @@ import { PopulatedTransaction, ethers } from 'ethers';
 import { styled, Divider, useTheme } from '@mui/material';
 import { Drawer, ExternalLink, HeadingSubtitle } from '@notional-finance/mui';
 import { Account } from '@notional-finance/sdk';
-import { useAccount, useNotional } from '@notional-finance/notionable-hooks';
+import {
+  TransactionStatus,
+  useAccount,
+  useNotional,
+} from '@notional-finance/notionable-hooks';
 import { trackEvent, logError } from '@notional-finance/helpers';
 import { PendingTransaction } from './components/pending-transaction';
-import { TransactionStatus } from './components/transaction-status';
 import { TransactionButtons } from './components/transaction-buttons';
 import { StatusHeading } from './components/status-heading';
 import { TradeProperties } from '../trade-properties';
@@ -131,7 +134,7 @@ export const TransactionConfirmation = ({
         (account as Account)
           .sendTransaction(transactionToSubmit)
           .then((p) => {
-            setTransactionStatus(TransactionStatus.PENDING);
+            setTransactionStatus(TransactionStatus.SUBMITTED);
             setPendingTransaction(p);
             // This sets the pending transaction at a global state for the account refresh listener
             updateAccountState({ pendingTransaction: p });
@@ -142,7 +145,7 @@ export const TransactionConfirmation = ({
           })
           .catch(() => {
             // If we see an error here it is most likely due to user rejection
-            setTransactionStatus(TransactionStatus.USER_REJECT);
+            setTransactionStatus(TransactionStatus.NONE);
           });
       }
     }

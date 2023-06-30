@@ -28,12 +28,12 @@ export const CurrencyIcon = ({
   const walletConnected = useAccountReady();
   const { enableToken } = useTokenApproval(symbol);
   const theme = useTheme() as NotionalTheme;
-  const approved = !enabled;
+  const approve = !enabled;
 
   return (
     <CurrencyContainer
-      onClick={() => enableToken({ symbol: symbol, approved: approved })}
-      onKeyPress={() => enableToken({ symbol: symbol, approved: approved })}
+      onClick={() => enableToken(approve)}
+      onKeyPress={() => enableToken(approve)}
       container
       item
       direction="row"

@@ -14,6 +14,7 @@ export * from './use-notional-error';
 export * from './context/use-trade-context';
 export * from './context/use-vault-context';
 export * from './context/NotionalContext';
+export * from './use-transaction';
 export * from './use-notional';
 export * from './use-market';
 export * from './use-wallet';

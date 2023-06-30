@@ -50,3 +50,5 @@ export const NotionalAddress: Record<Network, string> = {
   [Network.Mainnet]: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
   [Network.ArbitrumOne]: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
 };
+
+export const StakedNoteAddress = '0x38DE42F4BA8a35056b33A746A6b45bE9B1c3B9d2';

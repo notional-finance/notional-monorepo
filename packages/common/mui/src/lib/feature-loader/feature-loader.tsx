@@ -1,7 +1,7 @@
 import { ReactElement } from 'react';
 import { Box } from '@mui/material';
 import { PageLoading } from '../page-loading/page-loading';
-import { useNotional } from '@notional-finance/notionable-hooks';
+import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 
 interface FeatureLoaderProps {
   children: ReactElement<any, any>;
@@ -14,10 +14,10 @@ export const FeatureLoader = ({
   featureLoaded = true,
   backgroundColor,
 }: FeatureLoaderProps) => {
-  const { loaded } = useNotional();
+  const selectedNetwork = useSelectedNetwork()
   return (
     <Box>
-      {loaded && featureLoaded ? (
+      {!!selectedNetwork && featureLoaded ? (
         children
       ) : (
         <PageLoading

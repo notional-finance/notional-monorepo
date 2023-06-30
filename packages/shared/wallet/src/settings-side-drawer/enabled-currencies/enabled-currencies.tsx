@@ -1,11 +1,9 @@
 import { Box, styled, useTheme, Grid } from '@mui/material';
-import { tokenApprovalState$ } from '@notional-finance/trade';
-import { ProgressIndicator, LabelValue } from '@notional-finance/mui';
+import { LabelValue } from '@notional-finance/mui';
 import {
   useAccountReady,
   useWalletAllowances,
 } from '@notional-finance/notionable-hooks';
-import { useObservableState } from 'observable-hooks';
 import { CurrencyIcon } from '../currency-icon/currency-icon';
 import { FormattedMessage } from 'react-intl';
 
@@ -32,17 +30,9 @@ export const EnabledCurrenciesButton = () => {
 
 export const EnabledCurrencies = () => {
   const theme = useTheme();
-  const tokenApprovalState = useObservableState(tokenApprovalState$);
   const walletConnected = useAccountReady();
   const { enabledTokens, supportedTokens } = useWalletAllowances();
   const systemTokenSymbols = supportedTokens.map((t) => t.symbol);
-  const tokenApproval = tokenApprovalState
-    ? Object.values(tokenApprovalState)
-    : [];
-
-  if (tokenApproval.includes('SUCCESS')) {
-    window.location.reload();
-  }
 
   return (
     <WalletSelectorContainer>
@@ -50,17 +40,7 @@ export const EnabledCurrencies = () => {
         <Title>
           <FormattedMessage defaultMessage={'Enabled Currencies'} />
         </Title>
-        {tokenApproval.includes('PENDING') ? (
-          <Box
-            sx={{
-              height: theme.spacing(20),
-              width: '100%',
-              marginTop: theme.spacing(10),
-            }}
-          >
-            <ProgressIndicator type="notional" />
-          </Box>
-        ) : walletConnected ? (
+        {walletConnected ? (
           enabledTokens.map((c) => {
             return (
               <CurrencyIcon
@@ -84,43 +64,31 @@ export const EnabledCurrencies = () => {
         <Title>
           <FormattedMessage defaultMessage={'Supported Currencies'} />
         </Title>
-        {tokenApproval.includes('PENDING') ? (
-          <Box
-            sx={{
-              height: theme.spacing(20),
-              width: '100%',
-              marginTop: theme.spacing(10),
-            }}
-          >
-            <ProgressIndicator type="notional" />
-          </Box>
-        ) : walletConnected ? (
-          supportedTokens.map((c) => {
-            const enabled =
-              enabledTokens.find((t) => t.id === c.id) !== undefined;
+        {walletConnected
+          ? supportedTokens.map((c) => {
+              const enabled =
+                enabledTokens.find((t) => t.id === c.id) !== undefined;
 
-            return (
-              <CurrencyIcon
-                key={c.symbol}
-                symbol={c.symbol}
-                disableOption={false}
-                enabled={enabled}
-                allCurrencies
-              />
-            );
-          })
-        ) : (
-          systemTokenSymbols.map((symbol) => {
-            return (
-              <CurrencyIcon
-                key={symbol}
-                symbol={symbol}
-                disableOption={false}
-                allCurrencies
-              />
-            );
-          })
-        )}
+              return (
+                <CurrencyIcon
+                  key={c.symbol}
+                  symbol={c.symbol}
+                  disableOption={false}
+                  enabled={enabled}
+                  allCurrencies
+                />
+              );
+            })
+          : systemTokenSymbols.map((symbol) => {
+              return (
+                <CurrencyIcon
+                  key={symbol}
+                  symbol={symbol}
+                  disableOption={false}
+                  allCurrencies
+                />
+              );
+            })}
       </StyledGrid>
     </WalletSelectorContainer>
   );
