@@ -5,8 +5,8 @@ import {
 } from '@notional-finance/notionable';
 import { useObservable, useSubscription } from 'observable-hooks';
 import { switchMap, tap } from 'rxjs';
-import { createObservableContext } from '../observable-context/ObservableContext';
-import { useObservableReducer } from '../observable-context/use-observable-reducer';
+import { createObservableContext } from './ObservableContext';
+import { useObservableReducer } from './use-observable-reducer';
 
 const DEBUG = process.env['NODE_ENV'] === 'development';
 

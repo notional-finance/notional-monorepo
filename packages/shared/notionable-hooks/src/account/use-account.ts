@@ -7,10 +7,7 @@ import {
 } from '@notional-finance/notionable';
 import { truncateAddress } from '@notional-finance/helpers';
 import { Registry, TokenBalance } from '@notional-finance/core-entities';
-import {
-  useNotionalContext,
-  useSelectedNetwork,
-} from '../notional/use-notional';
+import { useNotionalContext, useSelectedNetwork } from '../use-notional';
 import { EMPTY } from 'rxjs';
 import {
   AccountRiskProfile,

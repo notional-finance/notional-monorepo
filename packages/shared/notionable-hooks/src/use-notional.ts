@@ -11,7 +11,7 @@ import {
   chains,
 } from '@notional-finance/notionable';
 import { useCallback, useContext } from 'react';
-import { NotionalContext } from './NotionalContext';
+import { NotionalContext } from './context/NotionalContext';
 import { switchMap, map, take, concat } from 'rxjs';
 import { PopulatedTransaction } from 'ethers';
 import { trackEvent } from '@notional-finance/helpers';
@@ -19,6 +19,7 @@ import { filterEmpty } from '@notional-finance/util';
 import { TransactionReceipt } from '@ethersproject/providers';
 import { Registry, TokenBalance } from '@notional-finance/core-entities';
 
+// Deprecate this....
 export function useNotional() {
   const { notional, loaded, connectedChain, pendingChainId } =
     useObservableState(notionalState$, initialNotionalState);

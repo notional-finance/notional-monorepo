@@ -3,7 +3,7 @@ import { useObservable, useSubscription } from 'observable-hooks';
 import React, { useEffect } from 'react';
 import { useLocation, useParams } from 'react-router';
 import { EMPTY, Observable, switchMap, tap } from 'rxjs';
-import { useNotionalContext } from '../notional/use-notional';
+import { useNotionalContext } from '../use-notional';
 import { useObservableReducer } from './use-observable-reducer';
 
 const DEBUG = process.env['NODE_ENV'] === 'development';

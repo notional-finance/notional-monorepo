@@ -12,7 +12,7 @@ import {
   InterestRateRisk,
 } from '@notional-finance/sdk/src/system';
 import { logError } from '@notional-finance/util';
-import { useNotional } from '../notional/use-notional';
+import { useNotional } from '../use-notional';
 import { useAccount } from './use-account';
 
 function hasNTokenCollateral(currencyId: number, accountData: AccountData) {

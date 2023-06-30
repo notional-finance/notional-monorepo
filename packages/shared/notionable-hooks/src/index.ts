@@ -10,18 +10,11 @@ export * from './account/use-transaction-history';
 export * from './account/use-money-market';
 export * from './account/use-yield-strategies';
 
-export * from './currency/use-currency';
-
-export * from './error/use-notional-error';
-
-export * from './market/use-market';
-
-export * from './notional/use-notional';
-export * from './notional/NotionalContext';
-export * from './wallet/use-wallet';
-
-export * from './leveraged-vaults/use-vault';
-export * from './leveraged-vaults/use-manage-vault';
-
-export * from './observable-context/use-trade-context';
-export * from './observable-context/use-vault-context';
+export * from './use-notional-error';
+export * from './context/use-trade-context';
+export * from './context/use-vault-context';
+export * from './context/NotionalContext';
+export * from './use-notional';
+export * from './use-market';
+export * from './use-wallet';
+export * from './use-vault';
