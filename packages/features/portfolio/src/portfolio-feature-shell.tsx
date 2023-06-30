@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Box, styled, useTheme } from '@mui/material';
-import { useAccount } from '@notional-finance/notionable-hooks';
+import { useAccountReady } from '@notional-finance/notionable-hooks';
 import { useParams } from 'react-router-dom';
 import { ButtonBar, SideDrawer, FeatureLoader } from '@notional-finance/mui';
 import { usePortfolioButtonBar, usePortfolioSideDrawers } from './hooks';
@@ -31,7 +31,7 @@ export const PortfolioFeatureShell = () => {
   const { clearSideDrawer } = useSideDrawerManager();
   const { SideDrawerComponent, openDrawer } = usePortfolioSideDrawers();
   const buttonData = usePortfolioButtonBar();
-  const { accountConnected } = useAccount();
+  const accountConnected = useAccountReady();
 
   useEffect(() => {
     window.scrollTo(0, 0);

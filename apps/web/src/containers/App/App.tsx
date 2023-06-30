@@ -1,12 +1,10 @@
-import { initializeNetwork } from '@notional-finance/notionable';
 import {
   NotionalContext,
   useGlobalContext,
-  useNotional,
 } from '@notional-finance/notionable-hooks';
 import { TrackingConsent } from '@notional-finance/shared-web';
 import { Web3OnboardProvider } from '@web3-onboard/react';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Switch } from 'react-router';
 import { CompatRouter } from 'react-router-dom-v5-compat';
 import { ServerError } from '../server-error/server-error';
@@ -116,31 +114,6 @@ const AllRoutes = () => {
 };
 
 export const App = () => {
-  /**** LEGACY INIT APPLICATION HERE */
-  const { pendingChainId, initializeNotional } = useNotional();
-  const initApplication = useCallback(async () => {
-    try {
-      await initializeNetwork();
-    } catch (error) {
-      reportError({
-        name: 'Unable to Init Onboard',
-        message: 'Unable to Init Onboard',
-        msgId: 'notional.error.unableToInitOnboard',
-        code: 500,
-      });
-    }
-  }, []);
-
-  useEffect(() => {
-    initApplication();
-  }, [initApplication]);
-
-  // Re-initializes notional if the pending chain id changes
-  useEffect(() => {
-    if (pendingChainId !== -1) initializeNotional(pendingChainId);
-  }, [pendingChainId, initializeNotional]);
-  /**** LEGACY INIT APPLICATION ENDS HERE */
-
   const globalState = useGlobalContext();
 
   // Run as a useEffect here so that the observable "sees" the initial change
