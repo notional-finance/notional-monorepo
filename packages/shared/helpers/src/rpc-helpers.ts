@@ -1,3 +1,5 @@
+import { Network } from '@notional-finance/util';
+
 export function getNetworkIdFromHostname(hostname: string) {
   if (hostname.endsWith('sad-yonath-181142.netlify.app')) {
     return 1;
@@ -47,11 +49,13 @@ export function getRpcUrl(networkId: number) {
   }
 }
 
-export function getEtherscanLink(txnHash: string, chainId: number) {
-  const name = networkName(chainId);
-  if (name === 'mainnet') {
-    return `https://etherscan.io/tx/${txnHash}`;
+export function getEtherscanLink(txnHash: string, network?: Network) {
+  switch (network) {
+    case Network.Mainnet:
+      return `https://etherscan.io/tx/${txnHash}`;
+    case Network.ArbitrumOne:
+      return `https://arbiscan.io/tx/${txnHash}`;
+    default:
+      return '';
   }
-
-  return `https://${name}.etherscan.io/tx/${txnHash}`;
 }

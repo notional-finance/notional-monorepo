@@ -4,7 +4,7 @@ import { FormattedMessage } from 'react-intl';
 import { getEtherscanLink } from '@notional-finance/helpers';
 import {
   TransactionStatus,
-  useNotional,
+  useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
 
 interface PendingTransactionProps {
@@ -17,10 +17,10 @@ export const PendingTransaction = ({
   transactionStatus,
 }: PendingTransactionProps) => {
   const theme = useTheme();
-  const { connectedChain } = useNotional();
+  const selectedNetwork = useSelectedNetwork()
   const etherscanLink = (
     <StyledLink
-      href={getEtherscanLink(hash, connectedChain)}
+      href={getEtherscanLink(hash, selectedNetwork)}
       target="_blank"
       rel="noreferrer"
       className="etherscan-link"

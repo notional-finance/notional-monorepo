@@ -7,7 +7,7 @@ import {
 } from '@notional-finance/mui';
 import { formatMaturity, getEtherscanLink } from '@notional-finance/helpers';
 import {
-  useNotional,
+  useSelectedNetwork,
   useTransactionHistory,
 } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
@@ -15,7 +15,7 @@ import moment from 'moment';
 
 export const useTransactionHistoryTable = () => {
   const tradeHistory = useTransactionHistory();
-  const { connectedChain } = useNotional();
+  const selectedNetwork = useSelectedNetwork();
 
   const txnHistoryColumns: DataTableColumn[] = [
     {
@@ -99,7 +99,7 @@ export const useTransactionHistoryTable = () => {
         ).format('MM/DD/YY')}`,
         transactionHash: {
           hash: data.transactionHash,
-          href: getEtherscanLink(data.transactionHash, connectedChain),
+          href: getEtherscanLink(data.transactionHash, selectedNetwork),
         },
         maturity: data?.maturity ? formatMaturity(data?.maturity) : '-',
         amount:
