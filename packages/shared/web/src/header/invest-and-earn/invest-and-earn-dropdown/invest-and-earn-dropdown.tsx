@@ -19,7 +19,16 @@ export function InvestAndEarnDropdown() {
       : THEME_VARIANTS.DARK;
 
   const theme = useNotionalTheme(flippedTheme);
-  const tabOptions = ['/vaults', '/stake', '/unstake', '/provide'];
+  const tabOptions = [
+    '/vaults',
+    '/stake',
+    '/unstake',
+    '/liquidity-variable',
+    '/liquidity-leveraged',
+    '/lend-fixed',
+    '/lend-variable',
+    '/lend-leveraged',
+  ];
   const currentTab = tabOptions.find((data) => {
     return pathname.includes(data) && !pathname.includes('portfolio')
       ? true

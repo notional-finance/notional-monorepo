@@ -7,6 +7,7 @@ import { HeadingSubtitle, H1, ExternalLink } from '@notional-finance/mui';
 import { CardSubNav } from './card-sub-nav/card-sub-nav';
 import { CardTable } from './card-table/card-table';
 import { CardMobileNav } from './card-mobile-nav/card-mobile-nav';
+import { LightningIcon } from '@notional-finance/icons';
 
 export interface CardContainerProps {
   heading: MessageDescriptor;
@@ -14,6 +15,7 @@ export interface CardContainerProps {
   linkText: MessageDescriptor;
   docsLink: string;
   children?: React.ReactNode;
+  leveraged?: boolean;
   sx?: SxProps;
 }
 
@@ -23,6 +25,7 @@ export function CardContainer({
   linkText,
   docsLink,
   children,
+  leveraged,
   sx,
 }: CardContainerProps) {
   const theme = useTheme();
@@ -50,6 +53,14 @@ export function CardContainer({
               {/* NOTE: this conditional is temporary until variable borrowing is introduced */}
               {!pathname.includes('borrow') && <CardSubNav />}
               <Title gutter="default">
+                {leveraged && (
+                  <LightningIcon
+                    sx={{
+                      fontSize: '40px',
+                      marginRight: theme.spacing(1),
+                    }}
+                  />
+                )}
                 <FormattedMessage {...heading} />
               </Title>
               <Box
@@ -57,8 +68,8 @@ export function CardContainer({
                   width: {
                     xs: 'auto',
                     sm: 'auto',
-                    md: theme.spacing(62),
-                    lg: theme.spacing(62),
+                    md: theme.spacing(70),
+                    lg: theme.spacing(70),
                   },
                 }}
               >
@@ -100,6 +111,8 @@ const MainContainer = styled(Box)(
 const Title = styled(H1)(
   ({ theme }) => `
   color: ${colors.white};
+  display: flex;
+  align-items: center;
   ${theme.breakpoints.down('sm')} {
     font-size: 36px;
   }

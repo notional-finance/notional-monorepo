@@ -20,16 +20,20 @@ import { AboutUsView } from '@notional-finance/about-us-feature-shell';
 import { StakeView } from '@notional-finance/stake-feature-shell';
 import {
   LendFixed,
+  LendLeveraged,
   LendVariable,
   LendCardView,
   LendVariableCardView,
+  LendLeveragedCardView,
 } from '@notional-finance/lend-feature-shell';
 import { PortfolioFeatureShell } from '@notional-finance/portfolio-feature-shell';
 import BorrowCardView from '@notional-finance/borrow-feature-shell/borrow-card-view';
 import { BorrowFeatureShell } from '@notional-finance/borrow-feature-shell';
 import {
-  LiquidityCurrencyView,
-  ProvideLiquidityCards,
+  LiquidityVariable,
+  LiquidityVariableCardView,
+  LiquidityLeveraged,
+  LiquidityLeveragedCardView,
 } from '@notional-finance/liquidity-feature-shell';
 import { TreasuryView } from '@notional-finance/treasury-feature-shell';
 import {
@@ -65,6 +69,10 @@ const AllRoutes = () => {
             path="/lend-fixed/:selectedDepositToken"
             component={LendFixed}
           />
+          <AppLayoutRoute
+            path="/lend-leveraged/:selectedDepositToken"
+            component={LendLeveraged}
+          />
           <AppLayoutRoute path="/lend-fixed" component={LendCardView} />
           <AppLayoutRoute
             path="/lend-variable/:selectedDepositToken"
@@ -75,11 +83,30 @@ const AllRoutes = () => {
             component={LendVariableCardView}
           />
           <AppLayoutRoute
-            path="/provide/:selectedDepositToken"
-            routeKey={routeKey}
-            component={LiquidityCurrencyView}
+            path="/lend-leveraged"
+            component={LendLeveragedCardView}
           />
-          <AppLayoutRoute path="/provide" component={ProvideLiquidityCards} />
+
+          <AppLayoutRoute
+            path="/liquidity-variable/:selectedDepositToken"
+            routeKey={routeKey}
+            component={LiquidityVariable}
+          />
+          <AppLayoutRoute
+            path="/liquidity-variable"
+            component={LiquidityVariableCardView}
+          />
+
+          <AppLayoutRoute
+            path="/liquidity-leveraged/:selectedDepositToken"
+            routeKey={routeKey}
+            component={LiquidityLeveraged}
+          />
+          <AppLayoutRoute
+            path="/liquidity-leveraged"
+            component={LiquidityLeveragedCardView}
+          />
+
           <AppLayoutRoute path="/stake/:ethOrWeth" component={StakeView} />
           <AppLayoutRoute path="/stake" component={StakeView} />
           <AppLayoutRoute path="/unstake/:unstakePath" component={StakeView} />

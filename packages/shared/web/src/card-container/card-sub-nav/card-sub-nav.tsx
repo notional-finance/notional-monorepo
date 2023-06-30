@@ -1,7 +1,9 @@
-import { styled, Box, useTheme } from '@mui/material';
-import { useLocation } from 'react-router-dom';
+import { styled, Box, useTheme, ThemeProvider } from '@mui/material';
+import { useLocation, useHistory } from 'react-router-dom';
 import { colors, NotionalTheme } from '@notional-finance/styles';
-import { Button } from '@notional-finance/mui';
+import { Button, LeverUpToggle } from '@notional-finance/mui';
+import { THEME_VARIANTS } from '@notional-finance/shared-config';
+import { useNotionalTheme } from '@notional-finance/styles';
 import { useCardSubNav } from './use-card-sub-nav';
 
 interface StyledButtonProps {
@@ -12,22 +14,49 @@ interface StyledButtonProps {
 export const CardSubNav = () => {
   const theme = useTheme();
   const { pathname } = useLocation();
-  const { links } = useCardSubNav();
+  const themeLanding = useNotionalTheme(THEME_VARIANTS.DARK, 'landing');
+  const history = useHistory();
+  const leveredUp =
+    pathname.includes('leveraged') || pathname.includes('vaults');
+  const { links, leveragedLinks } = useCardSubNav();
+
+  const handleLeverUpToggle = () => {
+    leveredUp ? history.push('/lend-fixed') : history.push('/vaults');
+  };
 
   return (
-    <StyledContainer>
-      {links.map(({ title, to }, i) => (
-        <StyledButton
-          key={i}
-          to={to}
-          variant="outlined"
-          active={to === pathname}
-          theme={theme}
-        >
-          {title}
-        </StyledButton>
-      ))}
-    </StyledContainer>
+    <ThemeProvider theme={themeLanding}>
+      <StyledContainer>
+        <LeverUpToggle
+          leveredUp={leveredUp}
+          altBackground={true}
+          handleLeverUpToggle={handleLeverUpToggle}
+        />
+        {leveredUp
+          ? leveragedLinks.map(({ title, to }, i) => (
+              <StyledButton
+                key={i}
+                to={to}
+                variant="outlined"
+                active={to === pathname}
+                theme={theme}
+              >
+                {title}
+              </StyledButton>
+            ))
+          : links.map(({ title, to }, i) => (
+              <StyledButton
+                key={i}
+                to={to}
+                variant="outlined"
+                active={to === pathname}
+                theme={theme}
+              >
+                {title}
+              </StyledButton>
+            ))}
+      </StyledContainer>
+    </ThemeProvider>
   );
 };
 

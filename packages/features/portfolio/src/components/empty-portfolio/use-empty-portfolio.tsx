@@ -55,7 +55,7 @@ export const useEmptyPortfolio = () => {
           description: 'empty liquidity overview button text',
         },
       }),
-      link: '/provide',
+      link: '/liquidity-variable',
     },
     [PORTFOLIO_CATEGORIES.OVERVIEW]: {
       messages: defineMessages({

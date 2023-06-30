@@ -5,6 +5,7 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { useEffect, useState } from 'react';
 import { FormattedMessage, defineMessage } from 'react-intl';
+import { PRODUCTS } from '@notional-finance/shared-config';
 import { useUserSettingsState } from '@notional-finance/user-settings-manager';
 import { CardContainer } from '@notional-finance/shared-web';
 import { useNotionalTheme } from '@notional-finance/styles';
@@ -27,14 +28,14 @@ const StyledLink = styled(Link)(
 `
 );
 
-export const ProvideLiquidityCards = () => {
+export const LiquidityLeveragedCardView = () => {
   const { themeVariant } = useUserSettingsState();
   const themeLanding = useNotionalTheme(themeVariant, 'landing');
   const network = useSelectedNetwork();
   const { allYields } = useAllMarkets();
   const { height } = useWindowDimensions();
   const [notePriceString, setNotePriceString] = useState('');
-  const cardData = allYields.filter((t) => t.tokenType === 'nToken')
+  const cardData = allYields.filter((t) => t.tokenType === 'nToken');
 
   useEffect(() => {
     if (network) {
@@ -59,15 +60,16 @@ export const ProvideLiquidityCards = () => {
         >
           <CardContainer
             heading={defineMessage({
-              defaultMessage: 'Provide Liquidity',
+              defaultMessage: 'Leveraged Liquidity',
               description: 'page heading',
             })}
             subtitle={defineMessage({
-              defaultMessage: `Set it and forget it. Earn passive interest, fees, and NOTE from depositing into Notional's liquidity pools.`,
+              defaultMessage: `Multiple your returns by providing liquidity with leverage. Select your borrow rate and leverage and put on the whole position in one transaction.
+              `,
               description: 'page heading subtitle',
             })}
             linkText={defineMessage({
-              defaultMessage: 'Read provide liquidity docs',
+              defaultMessage: 'Read leveraged liquidity docs',
               description: 'docs link',
             })}
             docsLink="https://docs.notional.finance/notional-v2/what-you-can-do/providing-liquidity"
@@ -76,7 +78,7 @@ export const ProvideLiquidityCards = () => {
             }}
           >
             {cardData.map(({ underlying, totalApy, noteApy }, i) => {
-              const route = `/provide/${underlying}`;
+              const route = `/${PRODUCTS.LIQUIDITY_LEVERAGED}/${underlying}`;
               return (
                 <Incentive
                   key={`incentive-${i}`}
@@ -119,4 +121,4 @@ export const ProvideLiquidityCards = () => {
   );
 };
 
-export default ProvideLiquidityCards;
+export default LiquidityLeveragedCardView;

@@ -1,26 +1,24 @@
 import { useContext } from 'react';
-import { defineMessage, FormattedMessage } from 'react-intl';
-import { ActionSidebar, useCurrencyInputRef } from '@notional-finance/mui';
 import {
   TradeActionButton,
   DepositInput,
-  MaturitySelect,
   Confirmation2,
 } from '@notional-finance/trade';
 import { useHistory } from 'react-router-dom';
-import { PRODUCTS } from '@notional-finance/shared-config';
-import { LendFixedContext } from '../../lend-fixed/lend-fixed';
+import { ActionSidebar, useCurrencyInputRef } from '@notional-finance/mui';
+import { defineMessage, FormattedMessage } from 'react-intl';
+import { LiquidityContext } from '../liquidity-leveraged';
 
-export const LendFixedSidebar = () => {
+export const LiquidityLeveragedSidebar = () => {
   const history = useHistory();
   const {
     state: { canSubmit, populatedTransaction, confirm, selectedDepositToken },
     updateState,
-  } = useContext(LendFixedContext);
+  } = useContext(LiquidityContext);
   const { currencyInputRef } = useCurrencyInputRef();
 
   const handleLeverUpToggle = () => {
-    history.push(`/lend-leveraged/${selectedDepositToken}`);
+    history.push(`/liquidity-variable/${selectedDepositToken}`);
   };
 
   const handleSubmit = () => {
@@ -31,49 +29,42 @@ export const LendFixedSidebar = () => {
     <Confirmation2
       heading={
         <FormattedMessage
-          defaultMessage="Lend Order"
+          defaultMessage={'Leveraged Liquidity'}
           description="section heading"
         />
       }
-      context={LendFixedContext}
+      context={LiquidityContext}
     />
   ) : (
     <ActionSidebar
       heading={defineMessage({
-        defaultMessage: 'Fixed Lend',
+        defaultMessage: 'Leveraged Liquidity',
         description: 'section heading',
       })}
       helptext={defineMessage({
-        defaultMessage:
-          'Lock in a fixed interest rate today.  Fixed rates guarantee your APY.',
+        defaultMessage: 'TBD',
         description: 'helptext',
       })}
+      hideTextOnMobile
       CustomActionButton={TradeActionButton}
-      handleSubmit={handleSubmit}
       canSubmit={canSubmit}
       handleLeverUpToggle={handleLeverUpToggle}
-      leveredUp={false}
+      handleSubmit={handleSubmit}
+      leveredUp={true}
     >
       <DepositInput
         ref={currencyInputRef}
         inputRef={currencyInputRef}
-        context={LendFixedContext}
-        newRoute={(newToken) => `/${PRODUCTS.LEND_FIXED}/${newToken}`}
+        context={LiquidityContext}
+        newRoute={(newToken) => `/provide/${newToken}`}
         inputLabel={defineMessage({
-          defaultMessage: '1. How much do you want to lend?',
+          defaultMessage: '1. How much liquidity do you want to provide?',
           description: 'input label',
         })}
       />
-      <MaturitySelect
-        context={LendFixedContext}
-        category={'Collateral'}
-        inputLabel={defineMessage({
-          defaultMessage: '2. Select a maturity & fix your rate',
-          description: 'input label',
-        })}
-      />
+      {/* <TradePropertiesGrid showBackground data={tradeProperties || {}} /> */}
     </ActionSidebar>
   );
 };
 
-export default LendFixedSidebar;
+export default LiquidityLeveragedSidebar;

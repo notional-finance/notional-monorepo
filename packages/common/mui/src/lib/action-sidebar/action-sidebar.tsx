@@ -89,6 +89,7 @@ export const ActionSidebar = ({
           {handleLeverUpToggle && leveredUp !== undefined && (
             <LeverUpToggle
               leveredUp={leveredUp}
+              altBackground={false}
               handleLeverUpToggle={handleLeverUpToggle}
             />
           )}

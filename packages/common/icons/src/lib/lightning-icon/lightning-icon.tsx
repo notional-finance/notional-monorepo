@@ -5,7 +5,7 @@ export interface LightningIconProps extends SvgIconProps {}
 
 export function LightningIcon(props: LightningIconProps) {
   return (
-    <SvgIcon {...props}>
+    <SvgIcon {...props} viewBox="0 0 12 16">
       <path
         fillRule="evenodd"
         clipRule="evenodd"

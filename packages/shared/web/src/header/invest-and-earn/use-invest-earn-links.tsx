@@ -73,7 +73,7 @@ export const useInvestEarnLinks = () => {
     },
     {
       title: <FormattedMessage defaultMessage={'Provide Liquidity'} />,
-      to: '/provide',
+      to: '/liquidity-variable',
       icon: (
         <PieChartIcon
           sx={{

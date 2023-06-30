@@ -81,7 +81,7 @@ export const useHowItWorks = (): HowItWorks => {
       linkData: [
         {
           linkText: <FormattedMessage defaultMessage={'View Opportunities'} />,
-          link: '/provide',
+          link: '/liquidity-variable',
         },
       ],
     },

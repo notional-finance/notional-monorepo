@@ -20,7 +20,7 @@ export function AnalyticsDropdown() {
       : THEME_VARIANTS.DARK;
 
   const theme = useNotionalTheme(flippedTheme);
-  const tabOptions = ['/vaults', '/stake', '/unstake', '/provide'];
+  const tabOptions = ['/vaults', '/stake', '/unstake', '/liquidity-variable'];
   const currentTab = tabOptions.find((data) => {
     return pathname.includes(data) && !pathname.includes('portfolio')
       ? true

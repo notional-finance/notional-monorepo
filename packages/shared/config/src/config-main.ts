@@ -115,8 +115,8 @@ export const siteMapPaths1 = [
   '/lend-fixed/DAI/',
   '/borrow/',
   '/borrow/DAI/',
-  '/provide/',
-  '/provide/DAI/',
+  '/liquidity-variable/',
+  '/liquidity-variable/DAI/',
   '/terms/',
   '/privacy/',
 ];

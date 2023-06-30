@@ -17,15 +17,26 @@ export const useCardSubNav = () => {
       to: '/lend-variable',
     },
     {
+      title: <FormattedMessage defaultMessage={'Provide Liquidity'} />,
+      to: '/liquidity-variable',
+    },
+  ];
+
+  const leveragedLinks: CardSubNavProps[] = [
+    {
       title: <FormattedMessage defaultMessage={'Leveraged Vaults'} />,
       to: '/vaults',
     },
     {
-      title: <FormattedMessage defaultMessage={'Provide Liquidity'} />,
-      to: '/provide',
+      title: <FormattedMessage defaultMessage={'Leveraged Lending'} />,
+      to: '/lend-leveraged',
+    },
+    {
+      title: <FormattedMessage defaultMessage={'Leveraged Liquidity'} />,
+      to: '/liquidity-leveraged',
     },
   ];
-  return { links };
+  return { links, leveragedLinks };
 };
 
 export default useCardSubNav;
