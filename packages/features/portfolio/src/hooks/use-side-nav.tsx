@@ -10,12 +10,12 @@ import {
 } from '@notional-finance/icons';
 import { PortfolioParams } from '../portfolio-feature-shell';
 import { useVaultRiskProfiles } from '@notional-finance/notionable-hooks';
-import { usePortfolioHoldings } from '.';
+import { usePortfolioHoldings } from '../containers/portfolio-holdings/use-portfolio-holdings';
 
 export const useSideNav = () => {
   const { category } = useParams<PortfolioParams>();
   const theme = useTheme();
-  const holdings = usePortfolioHoldings();
+  const { portfolioHoldingsData } = usePortfolioHoldings();
   const vaults = useVaultRiskProfiles();
 
   const sideNav = [
@@ -29,7 +29,7 @@ export const useSideNav = () => {
       Icon: <BarChartIcon sx={{ width: '17px' }} />,
       id: PORTFOLIO_CATEGORIES.HOLDINGS,
       to: `/portfolio/${PORTFOLIO_CATEGORIES.HOLDINGS}`,
-      notifications: holdings.length,
+      notifications: portfolioHoldingsData.length,
     },
     {
       Icon: (

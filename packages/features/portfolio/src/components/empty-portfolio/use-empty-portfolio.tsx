@@ -20,15 +20,15 @@ export const useEmptyPortfolio = () => {
     [PORTFOLIO_CATEGORIES.HOLDINGS]: {
       messages: defineMessages({
         promptText: {
-          defaultMessage: 'You currently have no borrows or borrow history',
-          description: 'empty borrow overview prompt text',
+          defaultMessage: 'Connect a wallet to see your portfolio',
+          description: 'empty overview prompt text',
         },
         buttonText: {
-          defaultMessage: 'Create New Borrow Order',
-          description: 'empty borrow overview button text',
+          defaultMessage: 'Connect A Wallet',
+          description: 'empty overview button text',
         },
       }),
-      link: '/borrow',
+      callback: () => setWalletSideDrawer(SETTINGS_SIDE_DRAWERS.CONNECT_WALLET),
     },
     // [PORTFOLIO_CATEGORIES.LENDS]: {
     //   messages: defineMessages({

@@ -9,6 +9,7 @@ import {
   PortfolioOverview,
   PortfolioVaults,
   PortfolioTransactionHistory,
+  PortfolioHoldings,
 } from './containers';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import {
@@ -70,7 +71,7 @@ export const PortfolioFeatureShell = () => {
           {(params.category === PORTFOLIO_CATEGORIES.OVERVIEW ||
             params.category === undefined) && <PortfolioOverview />}
           {params.category === PORTFOLIO_CATEGORIES.HOLDINGS && (
-            <PortfolioVaults />
+            <PortfolioHoldings />
           )}
           {params.category === PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS && (
             <PortfolioVaults />
