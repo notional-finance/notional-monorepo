@@ -8,7 +8,7 @@ on:
         default: 'arb'
   push:
     branches:
-      - alpha/arbitrum
+      - build/deploy-web-arb
 jobs:
   deploy:
     runs-on: ubuntu-latest
