@@ -5,16 +5,19 @@ import {
 } from '@notional-finance/mui';
 import { formatValueWithFiat } from '@notional-finance/helpers';
 import {
-  useTotalHoldings,
-  useAccount,
+  useAccountReady,
+  usePortfolioRiskProfile,
+  useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
+import { Registry } from '@notional-finance/core-entities';
 
-export const usePortfolioHoldingsTable = () => {
-  const totalHoldings = useTotalHoldings();
-  const { accountDataCopy, accountSummariesLoaded } = useAccount();
+export const useTotalHoldingsTable = () => {
+  const portfolio = usePortfolioRiskProfile();
+  const network = useSelectedNetwork();
+  const isAccountReady = useAccountReady();
 
-  const portfolioHoldingsColumns: DataTableColumn[] = [
+  const totalHoldingsColumns: DataTableColumn[] = [
     {
       Header: (
         <FormattedMessage
@@ -56,38 +59,41 @@ export const usePortfolioHoldingsTable = () => {
       accessor: 'debts',
       textAlign: 'right',
     },
-    {
-      Header: (
-        <FormattedMessage
-          defaultMessage="Unused Currency"
-          description={'currency header'}
-        />
-      ),
-      Cell: MultiValueCell,
-      accessor: 'unusedCurrency',
-      textAlign: 'right',
-    },
   ];
 
-  const portfolioHoldingsData = Array.from(totalHoldings?.entries() || []).map(
-    ([key, data]) => {
-      const cashBalance = accountDataCopy.cashBalance(key)?.toUnderlying(true);
-      const totalAssets = data.totalAssets;
-      const totalDebts = data.totalDebts;
+  const tokens = Registry.getTokenRegistry();
+  const isReady = network && isAccountReady;
+  const totalHoldingsData = isReady
+    ? portfolio.allCurrencyIds
+        .map((currencyId) => {
+          const underlying = tokens.getUnderlying(network, currencyId);
+          const totalAssets = portfolio.totalCurrencyAssets(
+            currencyId,
+            underlying.symbol
+          );
+          const totalDebts = portfolio.totalCurrencyDebts(
+            currencyId,
+            underlying.symbol
+          );
 
-      return {
-        currency: totalAssets.symbol,
-        netWorth: formatValueWithFiat(totalAssets.sub(totalDebts)),
-        assets: formatValueWithFiat(totalAssets),
-        debts: formatValueWithFiat(totalDebts, true),
-        unusedCurrency: formatValueWithFiat(cashBalance),
-      };
-    }
-  );
+          return {
+            currency: underlying.symbol,
+            netWorth: formatValueWithFiat(totalAssets.sub(totalDebts)),
+            assets: formatValueWithFiat(totalAssets),
+            debts: formatValueWithFiat(totalDebts, true),
+          };
+        })
+        .concat({
+          currency: 'Total',
+          netWorth: formatValueWithFiat(portfolio.netWorth()),
+          assets: formatValueWithFiat(portfolio.totalAssets()),
+          debts: formatValueWithFiat(portfolio.totalDebt()),
+        })
+    : [];
 
   return {
-    tableLoading: !accountSummariesLoaded,
-    portfolioHoldingsColumns,
-    portfolioHoldingsData,
+    totalHoldingsIsLoading: !(network && isAccountReady),
+    totalHoldingsColumns,
+    totalHoldingsData,
   };
 };

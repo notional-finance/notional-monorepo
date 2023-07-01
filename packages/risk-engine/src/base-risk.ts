@@ -51,12 +51,17 @@ export abstract class BaseRiskProfile implements RiskFactors {
   public balances: TokenBalance[];
 
   /** Takes a set of token balances to create a new risk profile */
-  constructor(balances: TokenBalance[], public defaultSymbol: SymbolOrID) {
+  constructor(
+    balances: TokenBalance[],
+    public defaultSymbol: SymbolOrID,
+    _network?: Network
+  ) {
     this.balances = BaseRiskProfile.merge(balances);
 
     if (this.balances.length === 0) {
       // Allow this to pass but none of the methods will really return any values
-      this.network = Network.All;
+      if (!_network) throw Error('network must be defined');
+      this.network = _network;
     } else {
       const network = unique(this.balances.map((b) => b.network));
       if (network.length > 1)

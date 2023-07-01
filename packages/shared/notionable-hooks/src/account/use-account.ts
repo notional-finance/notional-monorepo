@@ -128,13 +128,15 @@ export function useVaultRiskProfiles() {
 }
 export function usePortfolioRiskProfile() {
   const { account } = useAccountDefinition();
+  const network = useSelectedNetwork();
 
-  return AccountRiskProfile.from(
+  return new AccountRiskProfile(
     account?.balances.filter(
       (b) =>
         !b.isVaultToken &&
         b.tokenType !== 'Underlying' &&
         b.tokenType !== 'NOTE'
-    ) || []
+    ) || [],
+    network
   );
 }

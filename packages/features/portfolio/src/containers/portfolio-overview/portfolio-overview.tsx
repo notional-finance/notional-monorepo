@@ -1,13 +1,16 @@
 import { EmptyPortfolio } from '../../components';
 import { useAccountReady } from '@notional-finance/notionable-hooks';
-// import { DataTable } from '@notional-finance/mui';
-// import { FormattedMessage } from 'react-intl';
-// import { usePortfolioHoldingsTable } from './hooks';
+import { DataTable } from '@notional-finance/mui';
+import { FormattedMessage } from 'react-intl';
+import { useTotalHoldingsTable } from './hooks';
+import { Box } from '@mui/material';
 // import { useYieldHoldingsTable } from './hooks/use-yield-holdings-table';
 // import { useRiskOverviewTable } from './hooks/use-risk-overview-table';
 
 export const PortfolioOverview = () => {
   const accountConnected = useAccountReady();
+  const { totalHoldingsColumns, totalHoldingsData, totalHoldingsIsLoading } =
+    useTotalHoldingsTable();
   // const {
   //   priceRiskData,
   //   interestRateRiskData,
@@ -22,7 +25,23 @@ export const PortfolioOverview = () => {
   //   .concat(vaultRiskData);
 
   return accountConnected ? (
-    <EmptyPortfolio />
+    <Box>
+      {totalHoldingsData.length > 0 && (
+        <DataTable
+          data={totalHoldingsData}
+          columns={totalHoldingsColumns}
+          tableLoading={totalHoldingsIsLoading}
+          tableTitle={
+            <div>
+              <FormattedMessage
+                defaultMessage="Portfolio Holdings"
+                description="table title"
+              />
+            </div>
+          }
+        />
+      )}
+    </Box>
   ) : (
     // <>
     //   {/*
@@ -38,21 +57,6 @@ export const PortfolioOverview = () => {
     //         <div>
     //           <FormattedMessage
     //             defaultMessage="Risk Overview"
-    //             description="table title"
-    //           />
-    //         </div>
-    //       }
-    //     />
-    //   )}
-    //   {portfolioHoldingsData.length > 0 && (
-    //     <DataTable
-    //       data={portfolioHoldingsData}
-    //       columns={portfolioHoldingsColumns}
-    //       tableLoading={tableLoading}
-    //       tableTitle={
-    //         <div>
-    //           <FormattedMessage
-    //             defaultMessage="Loan and Liquidity Positions"
     //             description="table title"
     //           />
     //         </div>
