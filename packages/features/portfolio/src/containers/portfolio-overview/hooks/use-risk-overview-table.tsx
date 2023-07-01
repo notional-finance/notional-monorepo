@@ -1,18 +1,18 @@
-import { useTheme } from '@mui/material';
-import { formatLeverageRatio } from '@notional-finance/helpers';
+import { TokenBalance } from '@notional-finance/core-entities';
 import {
   DataTableColumn,
   MultiValueCell,
   MultiValueIconCell,
 } from '@notional-finance/mui';
-import { useRiskThresholds } from '@notional-finance/notionable-hooks';
-import { formatRateAsPercent } from '@notional-finance/risk/helpers/risk-data-helpers';
+import {
+  usePortfolioRiskProfile,
+  useVaultRiskProfiles,
+} from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
 
 export const useRiskOverviewTable = () => {
-  const theme = useTheme();
-  const { interestRateRiskArray, liquidationPrices, vaultRiskThresholds } =
-    useRiskThresholds();
+  const portfolio = usePortfolioRiskProfile();
+  const vaults = useVaultRiskProfiles();
 
   const riskOverviewColumns: DataTableColumn[] = [
     {
@@ -59,143 +59,58 @@ export const useRiskOverviewTable = () => {
     },
   ];
 
-  const priceRiskData = liquidationPrices.map(
-    ({
-      collateralSymbol,
-      debtSymbol,
-      hasNTokenCollateral,
-      hasfCashCollateral,
-      liquidationPrice,
-      currentPrice,
-    }) => {
-      const caption: string[] = [];
-      if (hasNTokenCollateral && collateralSymbol)
-        caption.push(`n${collateralSymbol.toUpperCase()}`);
-      if (hasfCashCollateral && collateralSymbol)
-        caption.push(`f${collateralSymbol.toUpperCase()}`);
+  const liquidationPrices = portfolio
+    .getAllLiquidationPrices({
+      onlyUnderlyingDebt: true,
+    })
+    .filter(({ price }) => price !== null)
+    .map(({ collateral, debt, price }) => {
+      const currentPrice = TokenBalance.unit(collateral).toToken(debt);
 
       return {
         collateral: {
-          symbol: collateralSymbol,
-          label: collateralSymbol,
-          caption: caption.join(', '),
-        },
-        riskFactor: {
-          data: [`${collateralSymbol}/${debtSymbol}`, 'Chainlink Oracle Price'],
-          isNegative: false,
-        },
-        currentPrice: currentPrice?.toDisplayStringWithSymbol(2),
-        liquidationPrice: liquidationPrice?.toDisplayStringWithSymbol(2),
-      };
-    }
-  );
-
-  const interestRateRiskData = interestRateRiskArray.map(
-    ({
-      symbol,
-      hasNTokenCollateral,
-      hasfCashCollateral,
-      currentWeightedAvgInterestRate,
-      lowerLiquidationInterestRate,
-      upperLiquidationInterestRate,
-    }) => {
-      const caption: string[] = [];
-      if (hasNTokenCollateral && symbol)
-        caption.push(`n${symbol.toUpperCase()}`);
-      if (hasfCashCollateral && symbol)
-        caption.push(`f${symbol.toUpperCase()}`);
-
-      let liquidationPrice: string;
-      if (upperLiquidationInterestRate && lowerLiquidationInterestRate) {
-        liquidationPrice = `Below ${formatRateAsPercent(
-          lowerLiquidationInterestRate,
-          3
-        )}, Above ${formatRateAsPercent(upperLiquidationInterestRate, 3)}`;
-      } else if (upperLiquidationInterestRate) {
-        liquidationPrice = `Above ${formatRateAsPercent(
-          upperLiquidationInterestRate,
-          3
-        )}`;
-      } else if (lowerLiquidationInterestRate) {
-        liquidationPrice = `Below ${formatRateAsPercent(
-          lowerLiquidationInterestRate,
-          3
-        )}`;
-      } else {
-        liquidationPrice = '-';
-      }
-
-      return {
-        collateral: {
-          symbol: symbol,
-          label: symbol,
-          caption: caption.join(', '),
-        },
-        riskFactor: {
-          data: [`${symbol} Interest Rates`, 'Notional Interest Rate Oracle'],
-          isNegative: false,
-        },
-        currentPrice: currentWeightedAvgInterestRate
-          ? formatRateAsPercent(currentWeightedAvgInterestRate, 3)
-          : '-',
-        liquidationPrice,
-      };
-    }
-  );
-
-  const vaultRiskData = vaultRiskThresholds.map(
-    ({
-      primaryBorrowSymbol,
-      currentPrice,
-      vaultName,
-      collateralCurrencySymbol,
-      debtCurrencySymbol,
-      ethExchangeRate,
-      leveragePercentage,
-      maxLeverageRatio,
-      leverageRatio,
-    }) => {
-      let trackColor: string | undefined;
-      if (leveragePercentage) {
-        trackColor =
-          leveragePercentage > 90
-            ? theme.palette.error.main
-            : leveragePercentage > 70
-            ? theme.palette.warning.main
-            : undefined;
-      }
-
-      return {
-        collateral: {
-          symbol: primaryBorrowSymbol,
-          label: vaultName,
-          caption: 'Leveraged Vault',
+          symbol: collateral.symbol,
+          label: collateral.symbol,
+          caption: '??',
         },
         riskFactor: {
           data: [
-            `${collateralCurrencySymbol}/${debtCurrencySymbol}`,
+            `${collateral.symbol}/${debt.symbol}`,
             'Chainlink Oracle Price',
           ],
           isNegative: false,
         },
-        // TODO: stETH is not listed as a collateral currency in the system so
-        // we don't have a way to represent this using typed big numbers
-        currentPrice: `${currentPrice?.toDisplayString(4)} stETH`,
-        liquidationPrice: `${ethExchangeRate?.toDisplayString(4)} stETH`,
-        leveragePercentage: {
-          value: leveragePercentage,
-          captionLeft: formatLeverageRatio(leverageRatio || 0, 1),
-          captionRight: `Max: ${formatLeverageRatio(maxLeverageRatio || 0, 1)}`,
-          trackColor,
-        },
+        currentPrice: currentPrice?.toDisplayStringWithSymbol(4),
+        liquidationPrice: price?.toDisplayStringWithSymbol(4),
       };
-    }
-  );
+    });
+
+  const vaultLiquidationPrice = vaults.flatMap((v) => {
+    const symbol = v.defaultSymbol as string;
+    const name = v.vaultConfig.name;
+    return v
+      .getAllLiquidationPrices({ onlyUnderlyingDebt: true })
+      .filter(({ price }) => price !== null)
+      .map(({ collateral, debt, price }) => {
+        const currentPrice = TokenBalance.unit(collateral).toToken(debt);
+        return {
+          collateral: {
+            symbol: symbol,
+            label: name,
+            caption: 'Leveraged Vault',
+          },
+          riskFactor: {
+            data: [`${collateral.symbol}/${symbol}`, 'Chainlink Oracle Price'],
+            isNegative: false,
+          },
+          currentPrice: `${currentPrice?.toDisplayStringWithSymbol(4)}`,
+          liquidationPrice: `${price?.toDisplayString(4)}`,
+        };
+      });
+  });
 
   return {
-    priceRiskData,
-    interestRateRiskData,
-    vaultRiskData,
     riskOverviewColumns,
+    riskOverviewData: liquidationPrices.concat(vaultLiquidationPrice),
   };
 };

@@ -64,32 +64,34 @@ export const useTotalHoldingsTable = () => {
   const tokens = Registry.getTokenRegistry();
   const isReady = network && isAccountReady;
   const totalHoldingsData = isReady
-    ? portfolio.allCurrencyIds
-        .map((currencyId) => {
-          const underlying = tokens.getUnderlying(network, currencyId);
-          const totalAssets = portfolio.totalCurrencyAssets(
-            currencyId,
-            underlying.symbol
-          );
-          const totalDebts = portfolio.totalCurrencyDebts(
-            currencyId,
-            underlying.symbol
-          );
+    ? portfolio.allCurrencyIds.map((currencyId) => {
+        const underlying = tokens.getUnderlying(network, currencyId);
+        const totalAssets = portfolio.totalCurrencyAssets(
+          currencyId,
+          underlying.symbol
+        );
+        const totalDebts = portfolio.totalCurrencyDebts(
+          currencyId,
+          underlying.symbol
+        );
 
-          return {
-            currency: underlying.symbol,
-            netWorth: formatValueWithFiat(totalAssets.sub(totalDebts)),
-            assets: formatValueWithFiat(totalAssets),
-            debts: formatValueWithFiat(totalDebts, true),
-          };
-        })
-        .concat({
-          currency: 'Total',
-          netWorth: formatValueWithFiat(portfolio.netWorth()),
-          assets: formatValueWithFiat(portfolio.totalAssets()),
-          debts: formatValueWithFiat(portfolio.totalDebt()),
-        })
+        return {
+          currency: underlying.symbol,
+          netWorth: formatValueWithFiat(totalAssets.sub(totalDebts)),
+          assets: formatValueWithFiat(totalAssets),
+          debts: formatValueWithFiat(totalDebts, true),
+        };
+      })
     : [];
+
+  if (isReady && portfolio.balances.length > 0) {
+    totalHoldingsData.push({
+      currency: 'Total',
+      netWorth: formatValueWithFiat(portfolio.netWorth()),
+      assets: formatValueWithFiat(portfolio.totalAssets()),
+      debts: formatValueWithFiat(portfolio.totalDebt()),
+    });
+  }
 
   return { totalHoldingsColumns, totalHoldingsData };
 };

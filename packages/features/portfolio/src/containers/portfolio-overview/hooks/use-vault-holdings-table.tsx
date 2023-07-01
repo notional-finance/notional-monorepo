@@ -1,4 +1,4 @@
-import { useTheme } from '@mui/material';
+import { Theme, useTheme } from '@mui/material';
 import {
   DataTableColumn,
   MultiValueCell,
@@ -13,11 +13,31 @@ import {
 } from '@notional-finance/helpers';
 import { FormattedMessage } from 'react-intl';
 import { useVaultRiskProfiles } from '@notional-finance/notionable-hooks';
-import {
-  PRIME_CASH_VAULT_MATURITY,
-  RATE_PRECISION,
-} from '@notional-finance/util';
+import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
 import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
+
+export function getVaultLeveragePercentage(
+  v: VaultAccountRiskProfile,
+  theme: Theme
+) {
+  const maxLeverageRatio = v.maxLeverageRatio;
+  const leverageRatio = v.leverageRatio();
+  const leveragePercentage = leverageRatio
+    ? (leverageRatio * 100) / maxLeverageRatio
+    : null;
+  let trackColor: string | undefined;
+
+  if (leveragePercentage) {
+    trackColor =
+      leveragePercentage > 90
+        ? theme.palette.error.main
+        : leveragePercentage > 70
+        ? theme.palette.warning.main
+        : undefined;
+  }
+
+  return { maxLeverageRatio, leverageRatio, leveragePercentage, trackColor };
+}
 
 export const useVaultHoldingsTable = () => {
   const vaults = useVaultRiskProfiles();
@@ -76,23 +96,8 @@ export const useVaultHoldingsTable = () => {
 
   const vaultHoldingsData = vaults.map((v) => {
     const config = v.vaultConfig;
-    const maxLeverageRatio = VaultAccountRiskProfile.collateralToLeverageRatio(
-      config.minCollateralRatioBasisPoints / RATE_PRECISION
-    );
-    const leverageRatio = v.leverageRatio();
-    const leveragePercentage = leverageRatio
-      ? (leverageRatio * 100) / maxLeverageRatio
-      : null;
-    let trackColor: string | undefined;
-
-    if (leveragePercentage) {
-      trackColor =
-        leveragePercentage > 90
-          ? theme.palette.error.main
-          : leveragePercentage > 70
-          ? theme.palette.warning.main
-          : undefined;
-    }
+    const { leveragePercentage, leverageRatio, maxLeverageRatio, trackColor } =
+      getVaultLeveragePercentage(v, theme);
 
     return {
       strategy: {

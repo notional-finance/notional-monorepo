@@ -95,6 +95,12 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     return this.vaultShares.maturity;
   }
 
+  get maxLeverageRatio() {
+    return VaultAccountRiskProfile.collateralToLeverageRatio(
+      this.vaultConfig.minCollateralRatioBasisPoints / RATE_PRECISION
+    );
+  }
+
   get vaultShares() {
     const v = this.balances.find((t) => t.tokenType === 'VaultShare');
     if (!v) throw Error('Vault Shares not found');
