@@ -221,7 +221,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
             // method: 'getVaultAccountWithFeeAccrual',
             method: 'getVaultAccount',
             args: [this.activeAccount, v.vaultAddress],
-            key: `${v}.balance`,
+            key: `${v.vaultAddress}.balance`,
             transform: (
               r: Awaited<
                 // ReturnType<NotionalV3['getVaultAccountWithFeeAccrual']>
@@ -261,7 +261,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
             target: notional,
             method: 'getVaultAccountSecondaryDebt',
             args: [this.activeAccount, v.vaultAddress],
-            key: `${v}.balance2`,
+            key: `${v.vaultAddress}.balance2`,
             transform: (
               r: Awaited<ReturnType<NotionalV3['getVaultAccountSecondaryDebt']>>
             ) => {
@@ -417,9 +417,11 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
     if (maturity === PRIME_CASH_VAULT_MATURITY) {
       // In in the prime vault maturity, convert from underlying back to prime debt denomination
       const tokens = Registry.getTokenRegistry();
-      return TokenBalance.fromID(balance, underlyingID, network).toToken(
-        tokens.getTokenByID(network, debtID)
+      const vaultDebtToken = tokens.getTokenByID(network, debtID);
+      const pDebt = TokenBalance.fromID(balance, underlyingID, network).toToken(
+        tokens.unwrapVaultToken(vaultDebtToken)
       );
+      return TokenBalance.fromID(pDebt.n, debtID, network);
     }
 
     return TokenBalance.fromID(balance, debtID, network);

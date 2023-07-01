@@ -3,7 +3,7 @@ import {
   TokenBalance,
   TokenDefinition,
 } from '@notional-finance/core-entities';
-import { PERCENTAGE_BASIS } from '@notional-finance/util';
+import { Network, PERCENTAGE_BASIS } from '@notional-finance/util';
 import { BaseRiskProfile } from './base-risk';
 import { SymbolOrID } from './types';
 
@@ -21,7 +21,7 @@ export class AccountRiskProfile extends BaseRiskProfile {
   }
 
   /** Takes a set of token balances to create a new account risk profile */
-  constructor(_balances: TokenBalance[]) {
+  constructor(_balances: TokenBalance[], _network?: Network) {
     const balances = _balances
       .map((t) => (t.tokenType === 'Underlying' ? t.toPrimeCash() : t))
       .filter(
@@ -31,7 +31,7 @@ export class AccountRiskProfile extends BaseRiskProfile {
           t.tokenType !== 'Fiat'
       );
 
-    super(balances, 'ETH');
+    super(balances, 'ETH', _network);
   }
 
   protected _totalRiskAdjusted(b: TokenBalance[], d: TokenDefinition) {

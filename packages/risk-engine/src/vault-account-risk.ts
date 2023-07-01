@@ -84,6 +84,23 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
       );
   }
 
+  get vaultConfig() {
+    return Registry.getConfigurationRegistry().getVaultConfig(
+      this.network,
+      this.vaultAddress
+    );
+  }
+
+  get maturity() {
+    return this.vaultShares.maturity;
+  }
+
+  get maxLeverageRatio() {
+    return VaultAccountRiskProfile.collateralToLeverageRatio(
+      this.vaultConfig.minCollateralRatioBasisPoints / RATE_PRECISION
+    );
+  }
+
   get vaultShares() {
     const v = this.balances.find((t) => t.tokenType === 'VaultShare');
     if (!v) throw Error('Vault Shares not found');

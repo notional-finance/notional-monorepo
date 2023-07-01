@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import {
-  THEME_VARIANTS,
   PORTFOLIO_CATEGORIES,
 } from '@notional-finance/shared-config';
 import { Box, styled, useTheme } from '@mui/material';
@@ -27,13 +26,10 @@ interface CustomLinkProps {
 
 export function PortfolioMobileNav() {
   const theme = useTheme();
-  const { optionSetOne, optionSetTwo, defaultOptionSet } =
-    usePortfolioMobileNav();
+  const options = usePortfolioMobileNav();
   const { category } = useParams<PortfolioParams>();
 
-  const [navOptions, setNavOptions] = useState<NAV_OPTIONS | null>(
-    defaultOptionSet
-  );
+  const [navOptions, setNavOptions] = useState<NAV_OPTIONS | null>(null);
 
   const handleSwipe = (currentOptions: NAV_OPTIONS) => {
     if (currentOptions !== navOptions) {
@@ -52,7 +48,7 @@ export function PortfolioMobileNav() {
     <MobileNavContainer {...handlers}>
       <NavSlider navoptions={navOptions}>
         <Box sx={{ display: 'flex', width: '100vw' }}>
-          {optionSetOne.map(({ title, Icon, to, id }) => (
+          {options.map(({ title, Icon, to, id }) => (
             <NavOption key={id}>
               <CustomLink to={to} id={id} theme={theme} category={category}>
                 <Box>{Icon}</Box>
@@ -72,7 +68,7 @@ export function PortfolioMobileNav() {
             />
           </ArrowContainer>
         </Box>
-        <Box sx={{ display: 'flex', width: '100vw' }}>
+        {/* <Box sx={{ display: 'flex', width: '100vw' }}>
           <ArrowContainer onClick={() => handleSwipe(NAV_OPTIONS.SET_ONE)}>
             <ArrowIcon
               sx={{
@@ -92,7 +88,7 @@ export function PortfolioMobileNav() {
               </CustomLink>
             </NavOption>
           ))}
-        </Box>
+        </Box> */}
       </NavSlider>
     </MobileNavContainer>
   );
