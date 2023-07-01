@@ -91,6 +91,10 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     );
   }
 
+  get maturity() {
+    return this.vaultShares.maturity;
+  }
+
   get vaultShares() {
     const v = this.balances.find((t) => t.tokenType === 'VaultShare');
     if (!v) throw Error('Vault Shares not found');

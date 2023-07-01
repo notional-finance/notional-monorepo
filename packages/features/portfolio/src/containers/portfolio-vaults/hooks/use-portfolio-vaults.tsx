@@ -90,7 +90,6 @@ export const usePortfolioVaults = () => {
 
   const vaultSummaryData = vaults.map((v) => {
     const config = v.vaultConfig;
-    const maturity = v.vaultShares.maturity;
     // TODO: need to fill out this data
     const apy = 0;
     const profit = v.netWorth();
@@ -101,9 +100,10 @@ export const usePortfolioVaults = () => {
         label: config.name,
       },
       maturity: {
+        // TODO: what about prime cash maturity here?
         data: [
-          moment.unix(maturity || 0).format('MMM DD YYYY'),
-          moment.unix(maturity || 0).format('hh:mm A'),
+          moment.unix(v.maturity || 0).format('MMM DD YYYY'),
+          moment.unix(v.maturity || 0).format('hh:mm A'),
         ],
       },
       netWorth: formatCryptoWithFiat(v.netWorth()),
@@ -113,7 +113,7 @@ export const usePortfolioVaults = () => {
       },
       profit: formatCryptoWithFiat(profit),
       actionRow: {
-        maturity: maturity ? moment.unix(maturity).format() : undefined,
+        maturity: v.maturity ? moment.unix(v.maturity).format() : undefined,
         routes: {
           manageVault: `/portfolio/${PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS}/manage-vault/?vaultAddress=${v.vaultAddress}`,
         },

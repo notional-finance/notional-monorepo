@@ -91,9 +91,5 @@ export const useTotalHoldingsTable = () => {
         })
     : [];
 
-  return {
-    totalHoldingsIsLoading: !(network && isAccountReady),
-    totalHoldingsColumns,
-    totalHoldingsData,
-  };
+  return { totalHoldingsColumns, totalHoldingsData };
 };
