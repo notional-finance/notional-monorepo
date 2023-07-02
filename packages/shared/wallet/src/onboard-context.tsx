@@ -1,4 +1,5 @@
 import { init } from '@web3-onboard/react';
+import { OnboardAPI } from '@web3-onboard/core';
 import injectedModule from '@web3-onboard/injected-wallets';
 import walletConnectModule from '@web3-onboard/walletconnect';
 import gnosisModule from '@web3-onboard/gnosis';
@@ -69,7 +70,7 @@ const wallets = [
   coinbaseModule(),
 ];
 
-export const OnboardContext = init({
+export const OnboardContext: OnboardAPI = init({
   wallets,
   chains,
   accountCenter: {

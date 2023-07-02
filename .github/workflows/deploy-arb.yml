@@ -1,4 +1,4 @@
-name: deploy-web
+name: deploy-arbitrum
 on:
   workflow_dispatch:
     inputs:
