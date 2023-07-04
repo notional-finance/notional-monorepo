@@ -1,16 +1,29 @@
 query AllOracles($blockNumber: Int) {
-  oracles(where: { oracleType_not_in: [
+  oracles(where: { oracleType_in: [
+    Chainlink,
+    fCashOracleRate,
+    fCashSettlementRate,
+    PrimeCashToUnderlyingExchangeRate,
+    PrimeDebtToUnderlyingExchangeRate,
+    VaultShareOracleRate,
+    nTokenToUnderlyingExchangeRate,
+    # NOT used in exchange rate path finding algorithm
+    PrimeCashSpotInterestRate,
+    PrimeDebtSpotInterestRate,
+    fCashSpotRate,
     PrimeCashToUnderlyingOracleInterestRate,
-    PrimeCashToMoneyMarketExchangeRate,
-    PrimeDebtToMoneyMarketExchangeRate,
-    MoneyMarketToUnderlyingExchangeRate,
-    fCashSpotRate
   ]}, first: 5000, block: { number: $blockNumber }) {
     id
     lastUpdateBlockNumber
     lastUpdateTimestamp
-    base { id }
-    quote { id }
+    base { 
+      id
+      decimals
+    }
+    quote {
+      id
+      currencyId
+    }
     decimals
     oracleAddress
     oracleType

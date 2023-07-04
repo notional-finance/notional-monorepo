@@ -72,6 +72,16 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
           const oracle = this.getLatestFromSubject(network, key, 0);
           if (!oracle) throw Error('Oracle undefined');
 
+          // Don't add these rates to the adj list
+          if (
+            oracle.oracleType === 'fCashSpotRate' ||
+            oracle.oracleType === 'fCashToUnderlyingExchangeRate' ||
+            oracle.oracleType === 'PrimeCashToUnderlyingOracleInterestRate' ||
+            oracle.oracleType === 'PrimeDebtSpotInterestRate' ||
+            oracle.oracleType === 'PrimeCashSpotInterestRate'
+          )
+            return;
+
           // TODO: if fCash, allow the settlement rate to override the oracle rate
           const quoteToBase =
             networkList.get(oracle.quote) || new Map<string, Node>();
@@ -327,6 +337,18 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
   }
 
   interestToExchangeRate(
+    interestRate: BigNumber,
+    maturity: number,
+    currentTime = getNowSeconds()
+  ) {
+    return OracleRegistryClient.interestToExchangeRate(
+      interestRate,
+      maturity,
+      currentTime
+    );
+  }
+
+  static interestToExchangeRate(
     interestRate: BigNumber,
     maturity: number,
     currentTime = getNowSeconds()

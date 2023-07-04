@@ -29,7 +29,7 @@ minify = false
 [env.local.vars]
 NX_ENV = 'local'
 VERSION = 'v3'
-SUPPORTED_NETWORKS = ['arbitrum']
+SUPPORTED_NETWORKS = ['arbitrum', 'all']
 
 [env.local.durable_objects]
 bindings = [
@@ -49,7 +49,7 @@ NX_ENV = 'dev'
 # This is version that defines the durable object to retreive, increment it to reset
 # the durable object to a clean version
 VERSION = 'v3'
-SUPPORTED_NETWORKS = [ 'arbitrum' ]
+SUPPORTED_NETWORKS = [ 'arbitrum', 'all' ]
 
 [env.dev.durable_objects]
 bindings = [
@@ -67,7 +67,7 @@ name = "registry"
 [env.prod.vars]
 NX_ENV = 'dev'
 VERSION = 'v3'
-SUPPORTED_NETWORKS = [ 'arbitrum' ]
+SUPPORTED_NETWORKS = [ 'arbitrum', 'all' ]
 
 [env.prod.durable_objects]
 bindings = [

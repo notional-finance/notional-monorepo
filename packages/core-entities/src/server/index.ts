@@ -21,4 +21,5 @@ export enum Routes {
   Exchanges = 'exchanges',
   Accounts = 'accounts',
   Vaults = 'vaults',
+  Yields = 'yields',
 }

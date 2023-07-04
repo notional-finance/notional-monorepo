@@ -1,9 +1,7 @@
 import { Registry, TokenBalance } from '@notional-finance/core-entities';
 import { reportNotionalError } from '@notional-finance/notionable';
-import { RATE_PRECISION } from '@notional-finance/util';
 import { useAccountDefinition } from './account/use-account';
 import { useSelectedNetwork } from './use-notional';
-import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
 import { FormattedMessage } from 'react-intl';
 
 export function useVaultAccount(vaultAddress?: string) {
@@ -46,6 +44,8 @@ export function useVaultProperties(vaultAddress?: string) {
         network,
         vaultAddress
       ));
+      ({ minLeverageRatio, defaultLeverageRatio, maxLeverageRatio } =
+        config.getVaultLeverageFactors(network, vaultAddress));
 
       const vaultConfig = config.getVaultConfig(network, vaultAddress);
       // TODO: move these to vault registry
@@ -57,18 +57,6 @@ export function useVaultProperties(vaultAddress?: string) {
           minAccountBorrowSize,
           vaultConfig.maxDeleverageCollateralRatioBasisPoints,
           vaultConfig.maxRequiredAccountCollateralRatioBasisPoints as number
-        );
-
-        minLeverageRatio = VaultAccountRiskProfile.collateralToLeverageRatio(
-          (vaultConfig.maxRequiredAccountCollateralRatioBasisPoints as number) /
-            RATE_PRECISION
-        );
-        defaultLeverageRatio =
-          VaultAccountRiskProfile.collateralToLeverageRatio(
-            vaultConfig.maxDeleverageCollateralRatioBasisPoints / RATE_PRECISION
-          );
-        maxLeverageRatio = VaultAccountRiskProfile.collateralToLeverageRatio(
-          vaultConfig.minCollateralRatioBasisPoints / RATE_PRECISION
         );
       }
     } catch (e) {

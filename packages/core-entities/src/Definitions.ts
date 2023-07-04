@@ -11,6 +11,14 @@ import {
   TransferType,
   SystemAccount,
 } from './.graphclient';
+// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
+export type {
+  TokenInterface,
+  TokenType,
+  OracleType,
+  TransferType,
+  SystemAccount,
+} from './.graphclient';
 
 export interface TokenDefinition {
   /** Defines the ERC1155 or ERC721 id of the token, if it exists */
@@ -42,13 +50,14 @@ export interface TokenDefinition {
 }
 
 export interface OracleDefinition {
+  /** Base Token ID:Quote Token ID:OracleType */
   id: string;
   /** Address of the oracle */
   oracleAddress: string;
   /** Network the address refers to */
   network: Network;
   /** Type of oracle interface */
-  oracleType: OracleType;
+  oracleType: OracleType | 'sNOTE';
   /** Base ID for the oracle, rate is quoted as 1 unit of this token.  */
   base: string;
   /** Quote ID for the oracle, rate is how many tokens 1 unit of base will purchase.  */
@@ -57,6 +66,10 @@ export interface OracleDefinition {
   decimals: number;
   /** Most current exchange rate for this oracle */
   latestRate: ExchangeRate;
+
+  /** Used for server side rate updates */
+  quoteCurrencyId?: number | null;
+  baseDecimals?: number | null;
 }
 
 export interface ExchangeRate {

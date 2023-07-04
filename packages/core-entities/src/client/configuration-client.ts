@@ -4,6 +4,7 @@ import {
   RiskAdjustment,
   TokenBalance,
   TokenDefinition,
+  fCashMarket,
 } from '..';
 import { Routes } from '../server';
 import { AllConfigurationQuery } from '../server/configuration-server';
@@ -13,17 +14,20 @@ import {
   encodeERC1155Id,
   getMaturityForMarketIndex,
   getNowSeconds,
+  INTERNAL_TOKEN_PRECISION,
   Network,
   NotionalAddress,
   PERCENTAGE_BASIS,
   PRIME_CASH_VAULT_MATURITY,
   RATE_PRECISION,
+  SCALAR_PRECISION,
   SECONDS_IN_YEAR,
 } from '@notional-finance/util';
 import { Registry } from '../Registry';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { Maybe, TokenType } from '../.graphclient';
 import { BigNumber } from 'ethers';
+import { OracleRegistryClient } from './oracle-registry-client';
 
 export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
   protected cachePath() {
@@ -463,6 +467,73 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
     } else {
       return PERCENTAGE_BASIS;
     }
+  }
+
+  getVaultLeverageFactors(network: Network, vaultAddress: string) {
+    const vaultConfig = this.getVaultConfig(network, vaultAddress);
+    const minLeverageRatio =
+      RATE_PRECISION /
+      (vaultConfig.maxRequiredAccountCollateralRatioBasisPoints as number);
+    const defaultLeverageRatio =
+      RATE_PRECISION / vaultConfig.maxDeleverageCollateralRatioBasisPoints;
+    const maxLeverageRatio =
+      RATE_PRECISION / vaultConfig.minCollateralRatioBasisPoints;
+
+    return { minLeverageRatio, defaultLeverageRatio, maxLeverageRatio };
+  }
+
+  getNTokenLeverageFactors(nToken: TokenDefinition) {
+    if (!nToken.currencyId) throw Error('Invalid nToken');
+
+    const config = this.getConfig(nToken.network, nToken.currencyId);
+    const nTokenHaircut =
+      (this._assertDefined(config.pvHaircutPercentage) * RATE_PRECISION) / 100;
+
+    return {
+      nTokenHaircut,
+      // TODO: this needs to be set per nToken
+      nTokenMaxDrawdown: Math.floor(0.95 * RATE_PRECISION),
+    };
+  }
+
+  getMinLendRiskAdjustedPV(fCash: TokenDefinition) {
+    if (!fCash.currencyId || !fCash.maturity) throw Error('Invalid fCash');
+    const config = this.getConfig(fCash.network, fCash.currencyId);
+    const nToken = Registry.getTokenRegistry().getNToken(
+      fCash.network,
+      fCash.currencyId
+    );
+    const fCashMarket =
+      Registry.getExchangeRegistry().getPoolInstance<fCashMarket>(
+        fCash.network,
+        nToken.address
+      );
+    const marketIndex = fCashMarket.getMarketIndex(fCash.maturity);
+
+    // Convert this to an exchange rate
+    const maxInterestRate =
+      fCashMarket.poolParams.interestRateCurve[marketIndex - 1].maxRate -
+      this._assertDefined(config.fCashHaircutBasisPoints);
+    const discountRate = OracleRegistryClient.interestToExchangeRate(
+      BigNumber.from(maxInterestRate).mul(-1),
+      fCash.maturity
+    )
+      .mul(INTERNAL_TOKEN_PRECISION)
+      .div(SCALAR_PRECISION);
+
+    return TokenBalance.from(discountRate, fCash);
+  }
+
+  getAnnualizedNOTEIncentives(nToken: TokenDefinition) {
+    if (!nToken.currencyId) throw Error('Invalid nToken');
+    const config = this.getConfig(nToken.network, nToken.currencyId);
+    return TokenBalance.fromSymbol(
+      BigNumber.from(
+        (config.incentiveEmissionRate as string | undefined) || 0
+      ).mul(INTERNAL_TOKEN_PRECISION),
+      'NOTE',
+      nToken.network
+    );
   }
 
   private _assertDefined<T>(v: Maybe<T> | undefined): T {

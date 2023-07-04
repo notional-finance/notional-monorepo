@@ -10,6 +10,7 @@ import {
 import { BigNumber, BigNumberish, utils } from 'ethers';
 import { parseUnits } from 'ethers/lib/utils';
 import { Registry, ExchangeRate, TokenDefinition, RiskAdjustment } from '.';
+import { FiatKeys } from './config/fiat-config';
 
 export type SerializedTokenBalance = ReturnType<TokenBalance['toJSON']>;
 
@@ -390,9 +391,27 @@ export class TokenBalance {
     token: TokenDefinition,
     riskAdjustment: RiskAdjustment = 'None',
     exchangeRate?: ExchangeRate | null
-  ) {
+  ): TokenBalance {
     if (!exchangeRate) {
       const oracleRegistry = Registry.getOracleRegistry();
+
+      if (this.tokenType === 'NOTE' && this.network !== Network.All) {
+        // If converting NOTE to any token denomination, first convert to ETH via
+        // the all network
+        const noteInETH = this.toFiat('ETH');
+        const eth = Registry.getTokenRegistry().getTokenBySymbol(
+          this.network,
+          'ETH'
+        );
+        const ethInCurrentNetwork = TokenBalance.fromFloat(
+          noteInETH.toFloat(),
+          eth
+        );
+        return token.id === eth.id
+          ? ethInCurrentNetwork
+          : ethInCurrentNetwork.toToken(token, riskAdjustment);
+      }
+
       // Fetch the latest exchange rate
       // TODO: if doing settlement then then token id needs to be the actual fCash (not generic fcash id)
       const path = oracleRegistry.findPath(
@@ -440,9 +459,27 @@ export class TokenBalance {
     );
   }
 
-  toFiat(_symbol: string) {
-    // TODO: implement
-    return this;
+  toFiat(symbol: FiatKeys) {
+    const tokens = Registry.getTokenRegistry();
+    const fiatToken = tokens.getTokenBySymbol(Network.All, symbol);
+
+    if (this.tokenType === 'NOTE') {
+      // The NOTE token is a special case which converts directly in the
+      // "All" network since the only price oracle that exists is on mainnet
+      const note = tokens.getTokenBySymbol(Network.All, 'NOTE');
+      const noteInAllNetwork = TokenBalance.from(this.n, note);
+      return noteInAllNetwork.toToken(fiatToken);
+    } else {
+      // Other tokens convert to ETH first and then go via the "All" network
+      // for fiat currency conversions
+      const eth = tokens.getTokenBySymbol(this.network, 'ETH');
+      const valueInETH = this.toToken(eth);
+      const ethInAllNetwork = TokenBalance.fromFloat(
+        valueInETH.toFloat(),
+        tokens.getTokenBySymbol(Network.All, 'ETH')
+      );
+      return ethInAllNetwork.toToken(fiatToken);
+    }
   }
 
   /** Does some token id manipulation for exchange rates */

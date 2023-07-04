@@ -4,31 +4,46 @@ const fs = require('fs');
 async function main() {
   const apiHostname = 'http://localhost:8787';
   await new Promise((resolve) => setTimeout(resolve, 1000));
-  const c = await crossFetch(
-    `${apiHostname}/configuration?network=arbitrum`
-  ).then((r) => r.text());
-
-  const t = await crossFetch(`${apiHostname}/tokens?network=arbitrum`).then(
+  const c = await crossFetch(`${apiHostname}/arbitrum/configuration`).then(
     (r) => r.text()
   );
 
-  const e = await crossFetch(`${apiHostname}/exchanges?network=arbitrum`).then(
-    (r) => r.text()
+  const t = await crossFetch(`${apiHostname}/arbitrum/tokens`).then((r) =>
+    r.text()
   );
 
-  const o = await crossFetch(`${apiHostname}/oracles?network=arbitrum`).then(
-    (r) => r.text()
+  const e = await crossFetch(`${apiHostname}/arbitrum/exchanges`).then((r) =>
+    r.text()
   );
 
-  const v = await crossFetch(`${apiHostname}/vaults?network=arbitrum`).then(
-    (r) => r.text()
+  const o = await crossFetch(`${apiHostname}/arbitrum/oracles`).then((r) =>
+    r.text()
   );
 
-  fs.writeFileSync(`${__dirname}/clients/__snapshots__/configuration`, c);
-  fs.writeFileSync(`${__dirname}/clients/__snapshots__/tokens`, t);
-  fs.writeFileSync(`${__dirname}/clients/__snapshots__/exchanges`, e);
-  fs.writeFileSync(`${__dirname}/clients/__snapshots__/oracles`, o);
-  fs.writeFileSync(`${__dirname}/clients/__snapshots__/vaults`, v);
+  const v = await crossFetch(`${apiHostname}/arbitrum/vaults`).then((r) =>
+    r.text()
+  );
+
+  const allTokens = await crossFetch(`${apiHostname}/all/tokens`).then((r) =>
+    r.text()
+  );
+  const allOracles = await crossFetch(`${apiHostname}/all/oracles`).then((r) =>
+    r.text()
+  );
+
+  fs.writeFileSync(
+    `${__dirname}/clients/__snapshots__/arbitrum/configuration`,
+    c
+  );
+  fs.writeFileSync(`${__dirname}/clients/__snapshots__/arbitrum/tokens`, t);
+  fs.writeFileSync(`${__dirname}/clients/__snapshots__/arbitrum/exchanges`, e);
+  fs.writeFileSync(`${__dirname}/clients/__snapshots__/arbitrum/oracles`, o);
+  fs.writeFileSync(`${__dirname}/clients/__snapshots__/arbitrum/vaults`, v);
+  fs.writeFileSync(`${__dirname}/clients/__snapshots__/all/tokens`, allTokens);
+  fs.writeFileSync(
+    `${__dirname}/clients/__snapshots__/all/oracles`,
+    allOracles
+  );
 }
 
 main()
