@@ -1,7 +1,6 @@
 import * as path from 'path';
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 import express from 'express';
-import axios from 'axios';
 import Knex from 'knex';
 import DataService from './DataService';
 import { Network, getProviderFromNetwork } from '@notional-finance/util';
@@ -20,49 +19,25 @@ const createUnixSocketPool = () => {
   });
 };
 
-export const getRegistryData = async (type, network) => {
-  const baseUrl = process.env.REGISTRY_BASE_URL;
-  const resp = await axios.get(`${baseUrl}/${type}`, {
-    params: {
-      network: network,
-    },
-  });
-  return resp.data.values;
-};
-
-// TODO: fetch from DB
-const networkToId = {
-  mainnet: 1,
-  arbitrum: 2,
-};
-
-// TODO: fetch from DB
-const oracleTypeToId = {
-  Chainlink: 1,
-  VaultShareOracleRate: 2,
-  fCashOracleRate: 3,
-  nTokenToUnderlyingExchangeRate: 4,
-  fCashToUnderlyingExchangeRate: 5,
-  fCashSettlementRate: 6,
-};
-
-const getKeyByValue = (object, value) => {
-  return Object.keys(object).find((key) => object[key] === value);
-};
-
 async function main() {
   if (!process.env.NETWORK) {
     throw Error('Network not defined');
+  }
+  if (!process.env.REGISTRY_BASE_URL) {
+    throw Error('Registry URL not defined');
   }
 
   const db = createUnixSocketPool();
   const provider = getProviderFromNetwork(Network[process.env.NETWORK]);
   const dataService = new DataService(provider, db, {
+    network: Network[process.env.NETWORK],
     // TODO: get from env
     blocksPerSecond: 2.5, // 2.5 blocks per second on arbitrum
     maxProviderRequests: 50,
     interval: 1, // 1 Hour
     frequency: 3600, // Hourly
+    startingBlock: 86540848, // Oldest block in the subgraph
+    registryUrl: process.env.REGISTRY_BASE_URL,
   });
 
   app.get('/', (_, res) => {
@@ -100,21 +75,6 @@ async function main() {
 
   app.get('/sync', async (_, res) => {
     try {
-      //const data = await getRegistryData('oracles', 'arbitrum');
-      /*for (let i = 0; i < data.length; i++) {
-        const value = data[i][1];
-        console.log(
-          `INSERT INTO oracle_data (base, quote, oracle_type, network, timestamp, block_number, decimals, oracle_address, latest_rate)`
-        );
-        console.log(
-          `VALUES ('${value.base}','${value.quote}',${oracleTypeToId[value.oracleType]},${
-            networkToId[value.network]
-          },to_timestamp(${value.latestRate.timestamp}),${value.latestRate.blockNumber},${value.decimals},'${
-            value.oracleAddress
-          }','${JSON.stringify(value.latestRate)}')`
-        );
-      }*/
-      //res.send(JSON.stringify(dataService.sync(dataService.latestTimestamp())));
       res.send(
         JSON.stringify(await dataService.sync(dataService.latestTimestamp()))
       );
@@ -125,21 +85,7 @@ async function main() {
 
   app.get('/data/oracles', async (_, res) => {
     try {
-      const results = await db.select().from('oracle_data');
-      const data = {
-        base: results[0].base,
-        quote: results[0].quote,
-        oracleType: getKeyByValue(oracleTypeToId, results[0].oracle_type),
-        network: getKeyByValue(networkToId, results[0].network),
-        decimals: results[0].decimals,
-        oracleAddress: results[0].oracle_address,
-        series: results.map((r) => ({
-          timestamp: Date.parse(r.timestamp),
-          blockNumber: r.block_number,
-          rate: JSON.parse(r.latest_rate),
-        })),
-      };
-      res.send(JSON.stringify(data));
+      res.send(JSON.stringify(await dataService.query()));
     } catch (e) {
       console.log(e);
     }

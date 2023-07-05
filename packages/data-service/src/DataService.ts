@@ -1,20 +1,81 @@
-import ethers from 'ethers';
+import ethers, { BigNumber } from 'ethers';
 import { Knex } from 'knex';
+import axios from 'axios';
+import { Network } from '@notional-finance/util';
+
+// TODO: fetch from DB
+const networkToId = {
+  mainnet: 1,
+  arbitrum: 2,
+};
+
+// TODO: fetch from DB
+const oracleTypeToId = {
+  Chainlink: 1,
+  VaultShareOracleRate: 2,
+  fCashOracleRate: 3,
+  nTokenToUnderlyingExchangeRate: 4,
+  fCashToUnderlyingExchangeRate: 5,
+  fCashSettlementRate: 6,
+};
 
 export type DataServiceSettings = {
+  network: Network;
   blocksPerSecond: number;
   maxProviderRequests: number;
   interval: number;
   frequency: number; // hourly, daily etc.
+  startingBlock: number;
+  registryUrl: string;
 };
 
 export default class DataService {
+  public static readonly REGISTER_TYPE = 'oracles';
   public static readonly TS_BN_MAPPINGS_TABLE_NAME = 'ts_bn_mappings';
+  public static readonly ORACLE_DATA_TABLE_NAME = 'oracle_data';
   constructor(
     public provider: ethers.providers.Provider,
     public db: Knex,
     public settings: DataServiceSettings
   ) {}
+
+  private getKeyByValue(object, value) {
+    return Object.keys(object).find((key) => object[key] === value);
+  }
+
+  public networkToId(network: Network) {
+    return networkToId[network];
+  }
+
+  public idToNetwork(id: number) {
+    return this.getKeyByValue(networkToId, id);
+  }
+
+  public oracleTypeToId(oracleType: string) {
+    return oracleTypeToId[oracleType];
+  }
+
+  public idToOracleType(id: number) {
+    return this.getKeyByValue(oracleTypeToId, id);
+  }
+
+  /*
+      const results = await db.select().from('oracle_data');
+      const data = {
+        base: results[0].base,
+        quote: results[0].quote,
+        oracleType: getKeyByValue(oracleTypeToId, results[0].oracle_type),
+        network: getKeyByValue(networkToId, results[0].network),
+        decimals: results[0].decimals,
+        oracleAddress: results[0].oracle_address,
+        series: results.map((r) => ({
+          timestamp: Date.parse(r.timestamp),
+          blockNumber: r.block_number,
+          rate: JSON.parse(r.latest_rate),
+        })),
+      };
+      res.send(JSON.stringify(data));
+  */
 
   public latestTimestamp() {
     return this.intervalTimestamp(Date.now() / 1000);
@@ -44,6 +105,7 @@ export default class DataService {
   }
 
   public async sync(ts: number) {
+    ts = this.intervalTimestamp(ts);
     // get blockNumber by timestamp
     const record = await this.db
       .select()
@@ -65,10 +127,52 @@ export default class DataService {
     }
 
     // Get data using block number
+    if (blockNumber < this.settings.startingBlock) {
+      // too old
+      return;
+    }
+
+    const data = await this.getRegistryData(blockNumber);
 
     // Store data in DB
+    const values = data.filter(
+      (d) =>
+        this.oracleTypeToId(d[1].oracleType) && this.networkToId(d[1].network)
+    );
+
+    await this.db
+      .insert(
+        values.map((v) => ({
+          base: v[1].base,
+          quote: v[1].quote,
+          oracle_type: this.oracleTypeToId(v[1].oracleType),
+          network: this.networkToId(v[1].network),
+          timestamp: ts,
+          block_number: blockNumber,
+          decimals: v[1].decimals,
+          oracle_address: v[1].oracleAddress,
+          latest_rate: BigNumber.from(v[1].latestRate.rate.hex).toString(),
+        }))
+      )
+      .into(DataService.ORACLE_DATA_TABLE_NAME)
+      .onConflict(['base', 'quote', 'oracle_type', 'network', 'timestamp'])
+      .ignore();
 
     return blockNumber;
+  }
+
+  private async getRegistryData(blockNumber: number) {
+    const resp = await axios.get(
+      `${this.settings.registryUrl}/${DataService.REGISTER_TYPE}`,
+      {
+        params: {
+          network: this.settings.network,
+          blockNumber: blockNumber,
+        },
+      }
+    );
+
+    return resp.data.values;
   }
 
   public async getBlockNumberByTimestamp(targetTimestamp: number) {
@@ -103,5 +207,9 @@ export default class DataService {
     console.log(`requestsMade=${requestsMade}`);
 
     return block.number;
+  }
+
+  public async query() {
+    return this.db.select().from(DataService.ORACLE_DATA_TABLE_NAME);
   }
 }

@@ -60,9 +60,7 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
         }, {} as Record<string, OracleDefinition>);
       },
       {
-        block: {
-          number: blockNumber,
-        },
+        blockNumber,
       }
     );
   }

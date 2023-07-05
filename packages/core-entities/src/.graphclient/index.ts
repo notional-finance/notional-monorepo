@@ -6102,7 +6102,7 @@ export type AllConfigurationQuery = { currencyConfigurations: Array<(
   )>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
 
 export type AllOraclesQueryVariables = Exact<{
-  block?: InputMaybe<Block_height>;
+  blockNumber?: InputMaybe<Scalars['Int']>;
 }>;
 
 
@@ -6242,11 +6242,11 @@ export const AllConfigurationDocument = gql`
 }
     ` as unknown as DocumentNode<AllConfigurationQuery, AllConfigurationQueryVariables>;
 export const AllOraclesDocument = gql`
-    query AllOracles($block: Block_height) {
+    query AllOracles($blockNumber: Int) {
   oracles(
     where: {oracleType_not_in: [PrimeCashToUnderlyingOracleInterestRate, PrimeCashToMoneyMarketExchangeRate, PrimeDebtToMoneyMarketExchangeRate, MoneyMarketToUnderlyingExchangeRate, MoneyMarketToUnderlyingOracleInterestRate, fCashSpotRate]}
     first: 5000
-    block: $block
+    block: {number: $blockNumber}
   ) {
     id
     lastUpdateBlockNumber

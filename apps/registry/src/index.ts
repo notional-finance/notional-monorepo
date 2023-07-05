@@ -26,7 +26,10 @@ export default {
       console.log(network);
       const blockNumber = parseInt(url.searchParams.get('blockNumber'));
       const server = new Servers.OracleRegistryServer();
-      const oracles = await server.queryAllOracles(Network.ArbitrumOne);
+      const oracles = await server.queryAllOracles(
+        Network.ArbitrumOne,
+        blockNumber
+      );
       const data = await server.updateLatestRates(oracles, blockNumber);
       return new Response(JSON.stringify(data), { status: 200 });
     }
