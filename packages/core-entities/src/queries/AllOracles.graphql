@@ -1,4 +1,4 @@
-query AllOracles {
+query AllOracles($block: Block_height) {
   oracles(where: { oracleType_not_in: [
     PrimeCashToUnderlyingOracleInterestRate,
     PrimeCashToMoneyMarketExchangeRate,
@@ -6,7 +6,7 @@ query AllOracles {
     MoneyMarketToUnderlyingExchangeRate,
     MoneyMarketToUnderlyingOracleInterestRate,
     fCashSpotRate
-  ]}, first: 5000) {
+  ]}, first: 5000, block: $block) {
     id
     lastUpdateBlockNumber
     lastUpdateTimestamp

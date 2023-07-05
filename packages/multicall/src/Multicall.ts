@@ -11,7 +11,8 @@ export function getMulticall(provider: providers.Provider) {
 async function executeStage<T>(
   calls: AggregateCall<T>[],
   aggregateResults: Record<string, T>,
-  multicall: Multicall2
+  multicall: Multicall2,
+  blockNumber?: number
 ) {
   const aggregateCall = calls
     .filter((c) => c.target !== undefined)
@@ -45,7 +46,12 @@ ${e}`);
   let returnData: string[];
   try {
     ({ returnData } = await multicall.callStatic.aggregate(
-      aggregateCall.filter((c) => c.target !== NO_OP) as Multicall2.CallStruct[]
+      aggregateCall.filter(
+        (c) => c.target !== NO_OP
+      ) as Multicall2.CallStruct[],
+      {
+        blockTag: blockNumber,
+      }
     ));
   } catch (e) {
     throw new Error(`
@@ -117,6 +123,7 @@ function getStages<T>(calls: AggregateCall<T>[]) {
 export async function aggregate<T = unknown>(
   calls: AggregateCall<T>[],
   provider: providers.Provider,
+  blockNumber?: number,
   _multicall?: Multicall2
 ) {
   const multicall = _multicall || getMulticall(provider);
@@ -124,12 +131,17 @@ export async function aggregate<T = unknown>(
   let results = {} as Record<string, T>;
 
   for (const calls of stages) {
-    ({ results } = await executeStage<T>(calls, results, multicall));
+    ({ results } = await executeStage<T>(
+      calls,
+      results,
+      multicall,
+      blockNumber
+    ));
   }
 
   // Use latest block here, the returned block number from multicall is not accurate
   // on arbitrum: https://developer.arbitrum.io/time#case-study-multicall
-  const block = await provider.getBlock('latest');
+  const block = await provider.getBlock(blockNumber || 'latest');
 
   return { block, results };
 }

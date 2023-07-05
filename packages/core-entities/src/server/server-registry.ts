@@ -67,6 +67,9 @@ export async function fetchUsingGraph<T, R, V>(
   // has to be deferred until here.
   const { execute } = await loadGraphClientDeferred();
   const data = await execute(query, variables, { chainName: network });
+
+  console.log(JSON.stringify(data));
+
   const finalResults = transform(data['data']);
   const blockNumber = data['data']._meta?.block.number || 0;
 
