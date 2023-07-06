@@ -83,7 +83,7 @@ ${e}`);
 
         if (allowFailure && !r.success) {
           console.warn(
-            `Multicall failed ${contract?.address}#${method}(${args})`
+            `Multicall failed ${blockNumber}, ${contract?.address}#${method}(${args})`
           );
           return obj;
         }
@@ -92,13 +92,26 @@ ${e}`);
           throw Error(
             `Decode result error, ${r}, ${key}, ${method}, ${target}`
           );
-        const decoded = contract.interface.decodeFunctionResult(
-          method,
-          r.returnData
-        );
-        // For single return values, decodeFunctionResult still returns an
-        // array which we eliminate here for simplicity
-        result = decoded.length === 1 ? decoded[0] : decoded;
+
+        try {
+          const decoded = contract.interface.decodeFunctionResult(
+            method,
+            r.returnData
+          );
+          // For single return values, decodeFunctionResult still returns an
+          // array which we eliminate here for simplicity
+          result = decoded.length === 1 ? decoded[0] : decoded;
+        } catch (e) {
+          if (allowFailure) {
+            console.warn(
+              `Decode result error, ${r}, ${key}, ${method}, ${target}`
+            );
+          } else {
+            throw Error(
+              `Decode result error, ${r}, ${key}, ${method}, ${target}`
+            );
+          }
+        }
       }
 
       // eslint-disable-next-line no-param-reassign
