@@ -150,7 +150,7 @@ export async function aggregate<T = unknown>(
   calls: AggregateCall<T>[],
   provider: providers.Provider,
   blockNumber?: number,
-  allowFailure: boolean = false,
+  allowFailure = false,
   _multicall?: Multicall3
 ) {
   const multicall = _multicall || getMulticall(provider);
