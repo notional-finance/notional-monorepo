@@ -1,17 +1,18 @@
 import { Contract, providers } from 'ethers';
-import { Multicall2, Multicall2ABI } from '@notional-finance/contracts';
+import { Multicall3, Multicall3ABI } from '@notional-finance/contracts';
 import { AggregateCall, NO_OP } from './types';
 
 const MULTICALL3 = '0xcA11bde05977b3631167028862bE2a173976CA11';
 
 export function getMulticall(provider: providers.Provider) {
-  return new Contract(MULTICALL3, Multicall2ABI, provider) as Multicall2;
+  return new Contract(MULTICALL3, Multicall3ABI, provider) as Multicall3;
 }
 
 async function executeStage<T>(
   calls: AggregateCall<T>[],
   aggregateResults: Record<string, T>,
-  multicall: Multicall2,
+  multicall: Multicall3,
+  allowFailure: boolean,
   blockNumber?: number
 ) {
   const aggregateCall = calls
@@ -34,6 +35,7 @@ async function executeStage<T>(
           ...c,
           target: contract.address,
           callData: contract.interface.encodeFunctionData(c.method, args),
+          allowFailure: allowFailure,
           contract,
         };
       } catch (e) {
@@ -43,16 +45,16 @@ ${e}`);
       }
     });
 
-  let returnData: string[];
+  let callResults: Multicall3.ResultStructOutput[];
   try {
-    ({ returnData } = await multicall.callStatic.aggregate(
+    callResults = await multicall.callStatic.aggregate3(
       aggregateCall.filter(
         (c) => c.target !== NO_OP
-      ) as Multicall2.CallStruct[],
+      ) as Multicall3.Call3Struct[],
       {
         blockTag: blockNumber,
       }
-    ));
+    );
   } catch (e) {
     throw new Error(`
 Error executing Multicall: ${aggregateCall.map((c) =>
@@ -66,7 +68,7 @@ ${e}`);
   }
 
   const results = aggregateCall.reduce(
-    (obj, { key, method, transform, contract, target }) => {
+    (obj, { key, method, transform, contract, target, args }) => {
       let result: unknown;
 
       // If the target is a NO_OP then the value must be fetched from the transform
@@ -76,13 +78,24 @@ ${e}`);
         result = transform(undefined, obj);
       } else {
         // Otherwise we get the first element from the array
-        const [r, ...tmp] = returnData;
-        returnData = tmp;
-        if (r === undefined || contract === undefined)
+        const [r, ...tmp] = callResults;
+        callResults = tmp;
+
+        if (allowFailure && !r.success) {
+          console.warn(
+            `Multicall failed ${contract?.address}#${method}(${args})`
+          );
+          return obj;
+        }
+
+        if (r.returnData === undefined || contract === undefined)
           throw Error(
             `Decode result error, ${r}, ${key}, ${method}, ${target}`
           );
-        const decoded = contract.interface.decodeFunctionResult(method, r);
+        const decoded = contract.interface.decodeFunctionResult(
+          method,
+          r.returnData
+        );
         // For single return values, decodeFunctionResult still returns an
         // array which we eliminate here for simplicity
         result = decoded.length === 1 ? decoded[0] : decoded;
@@ -124,7 +137,8 @@ export async function aggregate<T = unknown>(
   calls: AggregateCall<T>[],
   provider: providers.Provider,
   blockNumber?: number,
-  _multicall?: Multicall2
+  allowFailure: boolean = false,
+  _multicall?: Multicall3
 ) {
   const multicall = _multicall || getMulticall(provider);
   const stages = getStages(calls);
@@ -135,6 +149,7 @@ export async function aggregate<T = unknown>(
       calls,
       results,
       multicall,
+      allowFailure,
       blockNumber
     ));
   }

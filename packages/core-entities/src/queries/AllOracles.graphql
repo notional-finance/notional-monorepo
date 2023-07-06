@@ -4,7 +4,6 @@ query AllOracles($blockNumber: Int) {
     PrimeCashToMoneyMarketExchangeRate,
     PrimeDebtToMoneyMarketExchangeRate,
     MoneyMarketToUnderlyingExchangeRate,
-    MoneyMarketToUnderlyingOracleInterestRate,
     fCashSpotRate
   ]}, first: 5000, block: { number: $blockNumber }) {
     id

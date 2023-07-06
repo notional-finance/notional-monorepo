@@ -23,11 +23,10 @@ export default {
 
     if (url.searchParams.get('blockNumber') !== '') {
       const network = url.searchParams.get('network') as Network;
-      console.log(network);
       const blockNumber = parseInt(url.searchParams.get('blockNumber'));
       const server = new Servers.OracleRegistryServer();
       const oracles = await server.queryAllOracles(
-        Network.ArbitrumOne,
+        network as Network,
         blockNumber
       );
       const data = await server.updateLatestRates(oracles, blockNumber);

@@ -84,7 +84,8 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
     const { block, results } = await aggregate(
       calls,
       this.getProvider(schema.network),
-      blockNumber
+      blockNumber,
+      true
     );
     const timestamp = block.timestamp;
 
