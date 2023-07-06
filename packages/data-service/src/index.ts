@@ -69,8 +69,12 @@ async function main() {
       res.status(400).send('endTime must be greater than startTime');
       return;
     }
-    await dataService.backfill(startTime, endTime);
-    res.send('OK');
+    try {
+      await dataService.backfill(startTime, endTime);
+      res.send('OK');
+    } catch (e: any) {
+      res.status(500).send(e.toString());
+    }
   });
 
   app.get('/sync', async (_, res) => {
@@ -78,16 +82,16 @@ async function main() {
       res.send(
         JSON.stringify(await dataService.sync(dataService.latestTimestamp()))
       );
-    } catch (e) {
-      console.log(e);
+    } catch (e: any) {
+      res.status(500).send(e.toString());
     }
   });
 
   app.get('/data/oracles', async (_, res) => {
     try {
       res.send(JSON.stringify(await dataService.query()));
-    } catch (e) {
-      console.log(e);
+    } catch (e: any) {
+      res.status(500).send(e.toString());
     }
   });
 

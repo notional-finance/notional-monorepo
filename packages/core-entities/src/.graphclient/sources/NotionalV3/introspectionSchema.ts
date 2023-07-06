@@ -22316,7 +22316,15 @@ const schemaAST = {
           "kind": "EnumValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "MoneyMarketToUnderlyingOracleInterestRate"
+            "value": "PrimeCashSpotInterestRate"
+          },
+          "directives": []
+        },
+        {
+          "kind": "EnumValueDefinition",
+          "name": {
+            "kind": "Name",
+            "value": "PrimeDebtSpotInterestRate"
           },
           "directives": []
         },

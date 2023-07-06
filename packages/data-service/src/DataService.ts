@@ -59,24 +59,6 @@ export default class DataService {
     return this.getKeyByValue(oracleTypeToId, id);
   }
 
-  /*
-      const results = await db.select().from('oracle_data');
-      const data = {
-        base: results[0].base,
-        quote: results[0].quote,
-        oracleType: getKeyByValue(oracleTypeToId, results[0].oracle_type),
-        network: getKeyByValue(networkToId, results[0].network),
-        decimals: results[0].decimals,
-        oracleAddress: results[0].oracle_address,
-        series: results.map((r) => ({
-          timestamp: Date.parse(r.timestamp),
-          blockNumber: r.block_number,
-          rate: JSON.parse(r.latest_rate),
-        })),
-      };
-      res.send(JSON.stringify(data));
-  */
-
   public latestTimestamp() {
     return this.intervalTimestamp(Date.now() / 1000);
   }

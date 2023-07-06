@@ -1561,7 +1561,8 @@ enum OracleType {
   fCashToUnderlyingExchangeRate
   fCashSpotRate
   PrimeCashToUnderlyingOracleInterestRate
-  MoneyMarketToUnderlyingOracleInterestRate
+  PrimeCashSpotInterestRate
+  PrimeDebtSpotInterestRate
   PrimeCashToUnderlyingExchangeRate
   PrimeCashToMoneyMarketExchangeRate
   PrimeDebtToUnderlyingExchangeRate
