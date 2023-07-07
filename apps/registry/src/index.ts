@@ -21,15 +21,12 @@ export default {
   async fetch(request: Request, env: RegistryDOEnv): Promise<Response> {
     const url = new URL(request.url);
 
-    if (url.searchParams.get('blockNumber') !== '') {
+    const blockNumberStr = url.searchParams.get('blockNumber');
+    if (blockNumberStr && blockNumberStr !== '') {
       const network = url.searchParams.get('network') as Network;
-      const blockNumber = parseInt(url.searchParams.get('blockNumber'));
+      const blockNumber = parseInt(blockNumberStr);
       const server = new Servers.OracleRegistryServer();
-      const oracles = await server.queryAllOracles(
-        network as Network,
-        blockNumber
-      );
-      const data = await server.updateLatestRates(oracles, blockNumber);
+      const data = await server.refreshAtBlock(network as Network, blockNumber);
       return new Response(JSON.stringify(data), { status: 200 });
     }
 

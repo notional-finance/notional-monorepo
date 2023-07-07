@@ -1,7 +1,8 @@
 import ethers, { BigNumber } from 'ethers';
 import { Knex } from 'knex';
-import axios from 'axios';
 import { Network } from '@notional-finance/util';
+import { fetch } from 'cross-fetch';
+import { URLSearchParams } from 'url';
 
 // TODO: fetch from DB
 const networkToId = {
@@ -144,17 +145,15 @@ export default class DataService {
   }
 
   private async getRegistryData(blockNumber: number) {
-    const resp = await axios.get(
-      `${this.settings.registryUrl}/${DataService.REGISTER_TYPE}`,
-      {
-        params: {
+    const resp = await fetch(
+      `${this.settings.registryUrl}/${DataService.REGISTER_TYPE}?` +
+        new URLSearchParams({
           network: this.settings.network,
-          blockNumber: blockNumber,
-        },
-      }
+          blockNumber: blockNumber.toString(),
+        })
     );
 
-    return resp.data.values;
+    return (await resp.json()).values;
   }
 
   public async getBlockNumberByTimestamp(targetTimestamp: number) {

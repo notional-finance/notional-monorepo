@@ -21,14 +21,14 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
   // Interval refreshes only update the latest rates
   public INTERVAL_REFRESH_SECONDS = 10;
 
-  protected async _refresh(network: Network, _intervalNum: number) {
-    const results = await this._queryAllOracles(network);
+  protected async _refresh(
+    network: Network,
+    _intervalNum: number,
+    blockNumber?: number
+  ) {
+    const results = await this._queryAllOracles(network, blockNumber);
     // Updates the latest rates using the blockchain
-    return this._updateLatestRates(results);
-  }
-
-  public async queryAllOracles(network: Network, blockNumber?: number) {
-    return this._queryAllOracles(network, blockNumber);
+    return this._updateLatestRates(results, blockNumber);
   }
 
   private async _queryAllOracles(network: Network, blockNumber?: number) {
@@ -63,13 +63,6 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
         blockNumber,
       }
     );
-  }
-
-  public async updateLatestRates(
-    schema: CacheSchema<OracleDefinition>,
-    blockNumber?: number
-  ): Promise<CacheSchema<OracleDefinition>> {
-    return this._updateLatestRates(schema, blockNumber);
   }
 
   /**
