@@ -45,7 +45,6 @@ export abstract class BaseRegistry<T> {
     blockNumber?: number
   ): Promise<CacheSchema<T>>;
 
-  // INSIDE server-registry.ts
   public async refreshAtBlock(
     network: Network,
     blockNumber: number,
