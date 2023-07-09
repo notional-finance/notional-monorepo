@@ -1651,7 +1651,8 @@ export type OracleType =
   | 'fCashToUnderlyingExchangeRate'
   | 'fCashSpotRate'
   | 'PrimeCashToUnderlyingOracleInterestRate'
-  | 'MoneyMarketToUnderlyingOracleInterestRate'
+  | 'PrimeCashSpotInterestRate'
+  | 'PrimeDebtSpotInterestRate'
   | 'PrimeCashToUnderlyingExchangeRate'
   | 'PrimeCashToMoneyMarketExchangeRate'
   | 'PrimeDebtToUnderlyingExchangeRate'
@@ -5977,7 +5978,7 @@ const notionalV3Transforms = [];
 const additionalTypeDefs = [] as any[];
 const notionalV3Handler = new GraphqlHandler({
               name: "NotionalV3",
-              config: {"endpoint":"https://api.studio.thegraph.com/query/33671/notional-finance-v3-{context.chainName:arbitrum}/v0.0.98"},
+              config: {"endpoint":"https://api.studio.thegraph.com/query/33671/notional-finance-v3-{context.chainName:arbitrum}/v0.0.102"},
               baseDir,
               cache,
               pubsub,
@@ -6101,7 +6102,9 @@ export type AllConfigurationQuery = { currencyConfigurations: Array<(
     & { primaryBorrowCurrency: Pick<Token, 'id'>, secondaryBorrowCurrencies?: Maybe<Array<Pick<Token, 'id'>>> }
   )>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
 
-export type AllOraclesQueryVariables = Exact<{ [key: string]: never; }>;
+export type AllOraclesQueryVariables = Exact<{
+  blockNumber?: InputMaybe<Scalars['Int']>;
+}>;
 
 
 export type AllOraclesQuery = { oracles: Array<(
@@ -6240,10 +6243,11 @@ export const AllConfigurationDocument = gql`
 }
     ` as unknown as DocumentNode<AllConfigurationQuery, AllConfigurationQueryVariables>;
 export const AllOraclesDocument = gql`
-    query AllOracles {
+    query AllOracles($blockNumber: Int) {
   oracles(
-    where: {oracleType_not_in: [PrimeCashToUnderlyingOracleInterestRate, PrimeCashToMoneyMarketExchangeRate, PrimeDebtToMoneyMarketExchangeRate, MoneyMarketToUnderlyingExchangeRate, MoneyMarketToUnderlyingOracleInterestRate, fCashSpotRate]}
+    where: {oracleType_not_in: [PrimeCashToUnderlyingOracleInterestRate, PrimeCashToMoneyMarketExchangeRate, PrimeDebtToMoneyMarketExchangeRate, MoneyMarketToUnderlyingExchangeRate, fCashSpotRate]}
     first: 5000
+    block: {number: $blockNumber}
   ) {
     id
     lastUpdateBlockNumber

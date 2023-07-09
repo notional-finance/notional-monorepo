@@ -21,34 +21,48 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
   // Interval refreshes only update the latest rates
   public INTERVAL_REFRESH_SECONDS = 10;
 
-  protected async _refresh(network: Network, _intervalNum: number) {
-    const results = await this._queryAllOracles(network);
+  protected async _refresh(
+    network: Network,
+    _intervalNum: number,
+    blockNumber?: number
+  ) {
+    const results = await this._queryAllOracles(network, blockNumber);
     // Updates the latest rates using the blockchain
-    return this._updateLatestRates(results);
+    return this._updateLatestRates(results, blockNumber);
   }
 
-  private async _queryAllOracles(network: Network) {
+  private async _queryAllOracles(network: Network, blockNumber?: number) {
+    if (!blockNumber) {
+      blockNumber = await this.getProvider(network).getBlockNumber();
+    }
     const { AllOraclesDocument } = await loadGraphClientDeferred();
-    return this._fetchUsingGraph(network, AllOraclesDocument, (r) => {
-      return r.oracles.reduce((obj, v) => {
-        obj[v.id] = {
-          id: v.id,
-          oracleAddress: v.oracleAddress as string,
-          network,
-          oracleType: v.oracleType,
-          base: v.base.id,
-          quote: v.quote.id,
-          decimals: v.decimals,
-          latestRate: {
-            rate: BigNumber.from(v.latestRate),
-            timestamp: v.lastUpdateTimestamp,
-            blockNumber: v.lastUpdateBlockNumber,
-          },
-        };
+    return this._fetchUsingGraph(
+      network,
+      AllOraclesDocument,
+      (r) => {
+        return r.oracles.reduce((obj, v) => {
+          obj[v.id] = {
+            id: v.id,
+            oracleAddress: v.oracleAddress as string,
+            network,
+            oracleType: v.oracleType,
+            base: v.base.id,
+            quote: v.quote.id,
+            decimals: v.decimals,
+            latestRate: {
+              rate: BigNumber.from(v.latestRate),
+              timestamp: v.lastUpdateTimestamp,
+              blockNumber: v.lastUpdateBlockNumber,
+            },
+          };
 
-        return obj;
-      }, {} as Record<string, OracleDefinition>);
-    });
+          return obj;
+        }, {} as Record<string, OracleDefinition>);
+      },
+      {
+        blockNumber,
+      }
+    );
   }
 
   /**
@@ -56,15 +70,17 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
    * overrides the latestRate property in each oracle with newer rates.
    */
   private async _updateLatestRates(
-    schema: CacheSchema<OracleDefinition>
+    schema: CacheSchema<OracleDefinition>,
+    blockNumber?: number
   ): Promise<CacheSchema<OracleDefinition>> {
     const calls = this._getAggregateCalls(schema);
     const { block, results } = await aggregate(
       calls,
-      this.getProvider(schema.network)
+      this.getProvider(schema.network),
+      blockNumber,
+      true
     );
     const timestamp = block.timestamp;
-    const blockNumber = block.number;
 
     return {
       values: schema.values.map(([id, oracle]) => {
@@ -76,7 +92,7 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
               latestRate: {
                 rate: results[id],
                 timestamp,
-                blockNumber,
+                blockNumber: block.number,
               },
             }),
           ];

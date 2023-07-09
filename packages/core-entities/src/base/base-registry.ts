@@ -41,8 +41,18 @@ export abstract class BaseRegistry<T> {
 
   protected abstract _refresh(
     network: Network,
-    intervalNum: number
+    intervalNum: number,
+    blockNumber?: number
   ): Promise<CacheSchema<T>>;
+
+  // INSIDE server-registry.ts
+  public async refreshAtBlock(
+    network: Network,
+    blockNumber: number,
+    intervalNum = 0
+  ) {
+    return await this._refresh(network, intervalNum, blockNumber);
+  }
 
   /** Gets the map of subjects for a given network, checking for existence */
   protected _getNetworkSubjects(network: Network) {

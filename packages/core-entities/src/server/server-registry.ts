@@ -65,6 +65,7 @@ export async function fetchUsingGraph<T, R, V>(
 ): Promise<CacheSchema<T>> {
   // NOTE: in order for this to deploy with cloudflare workers, the import statement
   // has to be deferred until here.
+
   const { execute } = await loadGraphClientDeferred();
   const data = await execute(query, variables, { chainName: network });
   const finalResults = transform(data['data']);

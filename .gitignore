@@ -51,3 +51,8 @@ Thumbs.db
 # hardhat cache directory
 packages/sdk/cache
 services/**/dist
+
+app.yaml
+packages/data-service/**/dist
+packages/data-service/**/lib
+packages/data-service/tsconfig.build.tsbuildinfo
