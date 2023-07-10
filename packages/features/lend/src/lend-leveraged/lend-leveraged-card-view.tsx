@@ -6,6 +6,7 @@ import { ThemeProvider } from '@mui/material';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { defineMessage, FormattedMessage } from 'react-intl';
 import { useUserSettingsState } from '@notional-finance/user-settings-manager';
+import { groupArrayToMap } from '@notional-finance/util';
 import { formatLeverageRatio } from '@notional-finance/helpers';
 
 export function LendLeveragedCardView() {
@@ -13,11 +14,16 @@ export function LendLeveragedCardView() {
   const themeLanding = useNotionalTheme(themeVariant, 'landing');
   const {
     yields: { leveragedLend },
+    getMax,
   } = useAllMarkets();
   const heading = defineMessage({
     defaultMessage: 'Leveraged Lending',
     description: 'page heading',
   });
+
+  const cardData = [
+    ...groupArrayToMap(leveragedLend, (t) => t.underlying.symbol).entries(),
+  ];
 
   const subtitle = defineMessage({
     defaultMessage: `Arbitrage Notional's interest rates by borrowing at a low rate and lending at a higher one with leverage for maximum returns.
@@ -42,20 +48,22 @@ export function LendLeveragedCardView() {
           leveraged={true}
           docsLink="https://docs.notional.finance/notional-v2/what-you-can-do/fixed-rate-lending"
         >
-          {leveragedLend.map(({ underlying, totalAPY, leveraged }, index) => {
-            const route = `/${PRODUCTS.LEND_LEVERAGED}/${underlying}`;
+          {cardData.map(([symbol, yields], index) => {
+            const route = `/${PRODUCTS.LEND_LEVERAGED}/${symbol}`;
+            const maxYield = getMax(yields);
+
             return (
               <Currency
                 key={index}
-                symbol={underlying.symbol}
-                rate={totalAPY}
+                symbol={symbol}
+                rate={maxYield?.totalAPY || 0}
                 route={route}
                 returnTitle={
                   <FormattedMessage
                     defaultMessage="{leverage} Leverage"
                     values={{
                       leverage: formatLeverageRatio(
-                        leveraged?.leverageRatio || 0,
+                        maxYield?.leveraged?.leverageRatio || 0,
                         2
                       ),
                     }}
@@ -66,7 +74,7 @@ export function LendLeveragedCardView() {
                   <FormattedMessage
                     defaultMessage="Lend {underlying}"
                     values={{
-                      underlying: underlying.symbol,
+                      underlying: symbol,
                     }}
                   />
                 }

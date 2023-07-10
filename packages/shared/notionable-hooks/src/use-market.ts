@@ -70,14 +70,18 @@ export const useAllMarkets = () => {
   }, []);
 
   const yields = {
-    liquidity: allYields.filter((y) => y.token.tokenType === 'nToken'),
+    liquidity: allYields.filter(
+      (y) => y.token.tokenType === 'nToken' && y.leveraged === undefined
+    ),
     fCashLend: allYields.filter(
       (y) => y.token.tokenType === 'fCash' && y.leveraged === undefined
     ),
     fCashBorrow: allYields.filter(
       (y) => y.token.tokenType === 'fCash' && y.leveraged === undefined
     ),
-    variableLend: allYields.filter((y) => y.token.tokenType === 'PrimeCash'),
+    variableLend: allYields.filter(
+      (y) => y.token.tokenType === 'PrimeCash' && y.leveraged === undefined
+    ),
     variableBorrow: allYields.filter((y) => y.token.tokenType === 'PrimeDebt'),
     leveragedVaults: allYields.filter(
       (y) => y.token.tokenType === 'VaultShare'

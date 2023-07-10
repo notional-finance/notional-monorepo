@@ -18,6 +18,7 @@ import {
 import { Link } from 'react-router-dom';
 import { Registry, TokenBalance } from '@notional-finance/core-entities';
 import { formatLeverageRatio } from '@notional-finance/helpers';
+import { groupArrayToMap } from '@notional-finance/util';
 
 const StyledLink = styled(Link)(
   ({ theme }) => `
@@ -35,9 +36,16 @@ export const LiquidityLeveragedCardView = () => {
   const network = useSelectedNetwork();
   const {
     yields: { leveragedLiquidity },
+    getMax,
   } = useAllMarkets();
   const { height } = useWindowDimensions();
   const [notePriceString, setNotePriceString] = useState('');
+  const cardData = [
+    ...groupArrayToMap(
+      leveragedLiquidity,
+      (t) => t.underlying.symbol
+    ).entries(),
+  ];
 
   useEffect(() => {
     if (network) {
