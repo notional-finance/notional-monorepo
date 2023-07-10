@@ -1,7 +1,6 @@
 import {
   ActiveBellIcon,
   BellIcon,
-  CoinsIcon,
   PortfolioIcon,
   DocsIcon,
   NotionalPlainIcon,
@@ -31,17 +30,6 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
         <PortfolioIcon
           className="color-fill"
           sx={{ fontSize: '1.125rem', fill: textColor, stroke: 'transparent' }}
-        />
-      ),
-    },
-    {
-      key: 'borrow',
-      label: <FormattedMessage defaultMessage={'Borrow Fixed'} />,
-      link: '/borrow',
-      iconImg: (
-        <CoinsIcon
-          className="color-stroke"
-          sx={{ fontSize: '1.125rem', stroke: textColor, fill: 'transparent' }}
         />
       ),
     },

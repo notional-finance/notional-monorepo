@@ -9,7 +9,8 @@ export enum PRODUCTS {
   LEND_LEVERAGED = 'lend-leveraged',
   LIQUIDITY_VARIABLE = 'liquidity-variable',
   LIQUIDITY_LEVERAGED = 'liquidity-leveraged',
-  BORROW = 'borrow',
+  BORROW_FIXED = 'borrow-fixed',
+  BORROW_VARIABLE = 'borrow-variable',
 }
 
 export enum NOTIONAL_CATEGORIES {
@@ -113,6 +114,7 @@ export enum NAV_DROPDOWN {
   RESOURCES = 'Resources',
   EARN_YIELD = 'Earn Yield',
   ANALYTICS = 'Analytics',
+  BORROW = 'Borrow',
 }
 
 export enum CHAIN_NAMES {

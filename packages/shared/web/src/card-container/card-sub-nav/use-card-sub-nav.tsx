@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
 import { FormattedMessage } from 'react-intl';
+import { useLocation } from 'react-router-dom';
 
 export interface CardSubNavProps {
   to: string;
@@ -7,20 +8,34 @@ export interface CardSubNavProps {
 }
 
 export const useCardSubNav = () => {
-  const links: CardSubNavProps[] = [
-    {
-      title: <FormattedMessage defaultMessage={'Fixed Rate Lending'} />,
-      to: '/lend-fixed',
-    },
-    {
-      title: <FormattedMessage defaultMessage={'Variable Rate Lending'} />,
-      to: '/lend-variable',
-    },
-    {
-      title: <FormattedMessage defaultMessage={'Provide Liquidity'} />,
-      to: '/liquidity-variable',
-    },
-  ];
+  const { pathname } = useLocation();
+  const links: CardSubNavProps[] = pathname.includes('borrow')
+    ? [
+        {
+          title: <FormattedMessage defaultMessage={'Fixed Rate Borrowing'} />,
+          to: '/borrow-fixed',
+        },
+        {
+          title: (
+            <FormattedMessage defaultMessage={'Variable Rate Borrowing'} />
+          ),
+          to: '/borrow-variable',
+        },
+      ]
+    : [
+        {
+          title: <FormattedMessage defaultMessage={'Fixed Rate Lending'} />,
+          to: '/lend-fixed',
+        },
+        {
+          title: <FormattedMessage defaultMessage={'Variable Rate Lending'} />,
+          to: '/lend-variable',
+        },
+        {
+          title: <FormattedMessage defaultMessage={'Provide Liquidity'} />,
+          to: '/liquidity-variable',
+        },
+      ];
 
   const leveragedLinks: CardSubNavProps[] = [
     {

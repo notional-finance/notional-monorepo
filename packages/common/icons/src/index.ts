@@ -10,6 +10,7 @@ export * from './lib/info-icon/info-icon';
 export * from './lib/docs-icon/docs-icon';
 export * from './lib/pie-chart-icon/pie-chart-icon';
 export * from './lib/coins-icon/coins-icon';
+export * from './lib/coins-circle-icon/coins-circle-icon';
 export * from './lib/bar-chart-icon/bar-chart-icon';
 export * from './lib/bar-chart-lateral-icon/bar-chart-lateral-icon';
 export * from './lib/bar-chart-lightning-icon/bar-chart-lightning-icon';

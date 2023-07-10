@@ -1,4 +1,4 @@
-import { LEND_BORROW } from '@notional-finance/shared-config';
+import { PRODUCTS } from '@notional-finance/shared-config';
 import { CardContainer } from '@notional-finance/shared-web';
 import { CurrencyFixed, FeatureLoader } from '@notional-finance/mui';
 import { useAllMarkets } from '@notional-finance/notionable-hooks';
@@ -12,7 +12,7 @@ import {
   formatNumberAsPercent,
 } from '@notional-finance/helpers';
 
-export const BorrowCardView = () => {
+export const BorrowFixedCardView = () => {
   const { themeVariant } = useUserSettingsState();
   const themeLanding = useNotionalTheme(themeVariant, 'landing');
   const { allYields, getMin } = useAllMarkets();
@@ -46,8 +46,8 @@ export const BorrowCardView = () => {
             // Special handling for borrowing ETH, default to collateralized by USDC
             const route =
               symbol === 'ETH'
-                ? `/${LEND_BORROW.BORROW}/${symbol}/USDC`
-                : `/${LEND_BORROW.BORROW}/${symbol}/ETH`;
+                ? `/${PRODUCTS.BORROW_FIXED}/${symbol}/USDC`
+                : `/${PRODUCTS.BORROW_FIXED}/${symbol}/ETH`;
             const minRate = getMin(yields)?.totalApy || 0;
             const allRates = yields
               .sort((a, b) => (a.maturity || 0) - (b.maturity || 0))
@@ -81,4 +81,4 @@ export const BorrowCardView = () => {
   );
 };
 
-export default BorrowCardView;
+export default BorrowFixedCardView;

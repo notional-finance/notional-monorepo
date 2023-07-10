@@ -302,7 +302,7 @@ export const useCardTable = () => {
           value: <RiskScoreIndicator riskLevel="high" />,
         },
       ];
-    case '/borrow':
+    case '/borrow-fixed':
       return [
         {
           key: (

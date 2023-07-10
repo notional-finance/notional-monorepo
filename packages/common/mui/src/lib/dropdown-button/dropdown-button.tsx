@@ -31,6 +31,7 @@ export interface DropdownButtonProps extends ButtonProps {
   customPopOverStyles?: Record<any, any>;
   activeTab?: boolean;
   hideOnClick?: boolean;
+  useStroke?: boolean;
 }
 
 export function DropdownButton({
@@ -46,6 +47,7 @@ export function DropdownButton({
   customPopOverStyles,
   activeTab = false,
   hideOnClick = true,
+  useStroke = false,
   sx,
   ...rest
 }: DropdownButtonProps) {
@@ -55,8 +57,9 @@ export function DropdownButton({
   });
   const theme = useTheme();
   const btnRef = useRef<HTMLButtonElement | null>(null);
-  const textColor = theme.palette.common.black;
   const bindHoverData = hideOnClick ? bindHover(popupState) : null;
+  const svgKey = useStroke ? 'stroke' : 'fill';
+
   return (
     <Box sx={{ minHeight: '100%', display: 'flex' }}>
       <Box
@@ -95,12 +98,17 @@ export function DropdownButton({
             left: 0,
             fontSize: '1rem',
             svg: {
-              fill: popupState.isOpen ? theme.palette.primary.light : textColor,
+              fill: useStroke ? 'transparent' : '',
+              [svgKey]: popupState.isOpen
+                ? theme.palette.primary.light
+                : theme.palette.common.black,
             },
             ':hover': {
               background: 'unset',
             },
-            color: popupState.isOpen ? theme.palette.primary.light : textColor,
+            color: popupState.isOpen
+              ? theme.palette.primary.light
+              : theme.palette.common.black,
             ...sx,
           }}
           {...rest}
