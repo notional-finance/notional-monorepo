@@ -26,3 +26,4 @@ export { default as TreasuryManagerABI } from './TreasuryManager.json';
 export { default as TradingModuleABI } from './TradingModule.json';
 export { default as IStrategyVaultABI } from './IStrategyVault.json';
 export { default as Curve2TokenConvexVaultABI } from './Curve2TokenConvexVault.json';
+export { default as VaultLiquidatorABI } from './VaultLiquidator.json';

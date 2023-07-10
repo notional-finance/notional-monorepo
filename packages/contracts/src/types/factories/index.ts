@@ -27,5 +27,6 @@ export { Notional__factory } from "./Notional__factory";
 export { NotionalV3__factory } from "./NotionalV3__factory";
 export { TradingModule__factory } from "./TradingModule__factory";
 export { TreasuryManager__factory } from "./TreasuryManager__factory";
+export { VaultLiquidator__factory } from "./VaultLiquidator__factory";
 export { NTokenERC20__factory } from "./NTokenERC20__factory";
 export { SNOTE__factory } from "./SNOTE__factory";

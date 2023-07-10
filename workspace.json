@@ -44,6 +44,7 @@
     "system-cache": "apps/system-cache",
     "transaction": "packages/transaction",
     "util": "packages/util",
+    "vault-liquidator": "apps/vault-liquidator",
     "web": "apps/web"
   }
 }

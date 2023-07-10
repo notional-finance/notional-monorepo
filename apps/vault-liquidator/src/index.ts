@@ -1,25 +1,11 @@
-import {
-  Network,
-  getNowSeconds,
-  getProviderFromNetwork,
-} from '@notional-finance/util';
+import { Network, getProviderFromNetwork } from '@notional-finance/util';
 import { BigNumber } from 'ethers';
-import {
-  initEventLogger,
-  initMetricLogger,
-  submitMetrics,
-} from '@notional-finance/logging';
-import NotionalV3Liquidator from './NotionalV3Liquidator';
-import * as tokens from './config/tokens.json';
-import * as currencies from './config/currencies.json';
-import * as overrides from './config/overrides.json';
+import { initEventLogger, initMetricLogger } from '@notional-finance/logging';
 import { ERC20__factory } from '@notional-finance/contracts';
-import { MetricNames } from './types';
+import * as tokens from './config/tokens.json';
+import VaultV3Liquidator from './VaultV3Liquidator';
 
 export interface Env {
-  ACCOUNT_CACHE: DurableObjectNamespace;
-  ZERO_EX_SWAP_URL: string;
-  ZERO_EX_API_KEY: string;
   NETWORK: string;
   FLASH_LIQUIDATOR_CONTRACT: string;
   FLASH_LIQUIDATOR_OWNER: string;
@@ -90,6 +76,11 @@ const accounts = [
   },
 ];
 
+const vaults = [
+  '0xdb08f663e5D765949054785F2eD1b2aa1e9C22Cf',
+  '0xaE38F4B960f44d86e798f36a374a1Ac3f2D859fa',
+];
+
 const run = async (env: Env) => {
   initMetricLogger({
     apiKey: env.DD_API_KEY,
@@ -101,8 +92,9 @@ const run = async (env: Env) => {
   const addrs = accounts.map((a) => a.id);
 
   const provider = getProviderFromNetwork(Network[env.NETWORK], true);
-  const liq = new NotionalV3Liquidator(provider, {
+  const liq = new VaultV3Liquidator(provider, {
     network: env.NETWORK,
+    vaultAddrs: vaults,
     flashLiquidatorAddress: env.FLASH_LIQUIDATOR_CONTRACT,
     flashLiquidatorOwner: env.FLASH_LIQUIDATOR_OWNER,
     flashLenderAddress: env.FLASH_LENDER_ADDRESS,
@@ -111,7 +103,7 @@ const run = async (env: Env) => {
     dustThreshold: BigNumber.from(env.DUST_THRESHOLD),
     txRelayUrl: env.TX_RELAY_URL,
     txRelayAuthToken: env.TX_RELAY_AUTH_TOKEN,
-    currencies: currencies.arbitrum.map((c) => {
+    /*currencies: currencies.arbitrum.map((c) => {
       return {
         id: c.id,
         tokenType: c.type,
@@ -122,41 +114,19 @@ const run = async (env: Env) => {
         underlyingDecimalPlaces: c.decimals,
         underlyingContract: ERC20__factory.connect(c.address, provider),
       };
-    }),
-    overrides: overrides.arbitrum,
+    }),*/
     tokens: new Map<string, string>(Object.entries(tokens.arbitrum)),
-    zeroExUrl: env.ZERO_EX_SWAP_URL,
-    zeroExApiKey: env.ZERO_EX_API_KEY,
-    exactInSlippageLimit: BigNumber.from(env.EXACT_IN_SLIPPAGE_LIMIT),
-    exactOutSlippageLimit: BigNumber.from(env.EXACT_OUT_SLIPPAGE_LIMIT),
     gasCostBuffer: BigNumber.from(env.GAS_COST_BUFFER),
     profitThreshold: BigNumber.from(env.PROFIT_THRESHOLD),
   });
 
   const riskyAccounts = await liq.getRiskyAccounts(addrs);
 
-  const ddSeries = {
-    series: [],
-  };
-
-  ddSeries.series.push({
-    name: MetricNames.NUM_RISKY_ACCOUNTS,
-    value: riskyAccounts.length,
-    tags: [`network:${env.NETWORK}`],
-    timestamp: getNowSeconds(),
-  });
-
   if (riskyAccounts.length > 0) {
     const riskyAccount = riskyAccounts[0];
 
-    const possibleLiqs = await liq.getPossibleLiquidations(riskyAccount);
-
-    if (possibleLiqs.length > 0) {
-      await liq.liquidateAccount(possibleLiqs[0]);
-    }
+    console.log(JSON.stringify(riskyAccount));
   }
-
-  await submitMetrics(ddSeries);
 };
 
 export default {
@@ -175,16 +145,7 @@ export default {
     const response = new Response('OK', { status: 200 });
     return response;
   },
-  async scheduled(
-    controller: ScheduledController,
-    env: Env,
-    _: ExecutionContext
-  ): Promise<void> {
-    try {
-      await run(env);
-    } catch (e) {
-      console.error(e);
-      console.trace();
-    }
+  async scheduled(): Promise<void> {
+    console.log(`Hello World!`);
   },
 };
