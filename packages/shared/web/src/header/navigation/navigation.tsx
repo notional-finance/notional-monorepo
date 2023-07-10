@@ -1,6 +1,7 @@
 import { Tab, Tabs, TabsProps, useTheme } from '@mui/material';
 import { useLocation, useHistory, Link } from 'react-router-dom';
 import { InvestAndEarnDropdown } from '../invest-and-earn/invest-and-earn-dropdown/invest-and-earn-dropdown';
+import { BorrowDropDown } from '../borrow-dropdown/borrow-dropdown';
 import { useState, useEffect } from 'react';
 import { SyntheticEvent } from 'react';
 import { INavLink } from '../nav-link';
@@ -97,6 +98,7 @@ export function Navigation({ navLinks, ...rest }: NavigationProps) {
           />
         ))}
       </Tabs>
+      <BorrowDropDown />
       <InvestAndEarnDropdown />
     </>
   );

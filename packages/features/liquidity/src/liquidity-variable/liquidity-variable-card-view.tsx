@@ -50,7 +50,9 @@ export const LiquidityVariableCardView = () => {
 
   return (
     <ThemeProvider theme={themeLanding}>
-      <FeatureLoader featureLoaded={network !== undefined}>
+      <FeatureLoader
+        featureLoaded={network !== undefined && themeVariant ? true : false}
+      >
         <Box
           sx={{
             backgroundSize: 'cover',

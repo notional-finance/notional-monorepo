@@ -24,28 +24,24 @@ export function LendCardView() {
     ).entries(),
   ];
 
-  const heading = defineMessage({
-    defaultMessage: 'Fixed Rate Lending',
-    description: 'page heading',
-  });
-
-  const subtitle = defineMessage({
-    defaultMessage: `Fix your rate and earn guaranteed returns with peace of mind.`,
-    description: 'page subtitle',
-  });
-
-  const docsText = defineMessage({
-    defaultMessage: 'Read fixed lend docs',
-    description: 'docs link',
-  });
-
   return (
     <ThemeProvider theme={themeLanding}>
-      <FeatureLoader featureLoaded={cardData?.length > 0}>
+      <FeatureLoader
+        featureLoaded={cardData?.length > 0 && themeVariant ? true : false}
+      >
         <CardContainer
-          heading={heading}
-          subtitle={subtitle}
-          linkText={docsText}
+          heading={defineMessage({
+            defaultMessage: 'Fixed Rate Lending',
+            description: 'page heading',
+          })}
+          subtitle={defineMessage({
+            defaultMessage: `Fix your rate and earn guaranteed returns with peace of mind.`,
+            description: 'page subtitle',
+          })}
+          linkText={defineMessage({
+            defaultMessage: 'Read fixed lend docs',
+            description: 'docs link',
+          })}
           docsLink="https://docs.notional.finance/notional-v2/what-you-can-do/fixed-rate-lending"
         >
           {cardData.map(([symbol, yields], index) => {

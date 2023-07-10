@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { FormattedMessage } from 'react-intl';
-import BorrowSidebar from './borrow-sidebar/borrow-sidebar';
+import { BorrowVariableSidebar } from './components';
 import {
   SideBarLayout,
   FeatureLoader,
@@ -8,10 +8,10 @@ import {
 } from '@notional-finance/mui';
 import { NOTIONAL_CATEGORIES } from '@notional-finance/shared-config';
 import { TradeActionSummary } from '@notional-finance/trade';
-import { updateBorrowState } from './store/borrow-store';
-import { useBorrowTransaction } from './store/use-borrow-transaction';
+import { updateBorrowState } from '../store/borrow-store';
+import { useBorrowTransaction } from '../store/use-borrow-transaction';
 import { useQueryParams } from '@notional-finance/utils';
-import { useBorrow } from './store/use-borrow';
+import { useBorrow } from '../store/use-borrow';
 import { useEffect } from 'react';
 import { useBorrowChart } from './hooks/use-borrow-chart';
 import { Market } from '@notional-finance/sdk/system';
@@ -21,7 +21,7 @@ export interface BorrowParams {
   selectedCollateralToken: string;
 }
 
-export const BorrowFeatureShell = () => {
+export const BorrowVariable = () => {
   const { selectedDepositToken: selectedToken } = useParams<BorrowParams>();
   const { confirm } = useQueryParams();
   const markets = [] as Market[];
@@ -39,11 +39,13 @@ export const BorrowFeatureShell = () => {
     <FeatureLoader featureLoaded={markets.length > 0}>
       <SideBarLayout
         showTransactionConfirmation={showTransactionConfirmation}
-        sideBar={<BorrowSidebar />}
+        sideBar={<BorrowVariableSidebar />}
         mainContent={
           <TradeActionSummary
             selectedToken={selectedToken}
-            tradeActionTitle={<FormattedMessage defaultMessage={'Fixed APY'} />}
+            tradeActionTitle={
+              <FormattedMessage defaultMessage={'Variable APY'} />
+            }
             tradedRate={tradedRate}
             tradeAction={NOTIONAL_CATEGORIES.BORROW}
           >
@@ -64,4 +66,4 @@ export const BorrowFeatureShell = () => {
   );
 };
 
-export default BorrowFeatureShell;
+export default BorrowVariable;

@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '../../button/button';
 import { FormattedMessage } from 'react-intl';
 import SliderBasic from '../../slider-basic/slider-basic';
-import { TokenIcon } from '@notional-finance/icons';
+import { TokenIcon, LightningIcon } from '@notional-finance/icons';
 import { colors } from '@notional-finance/styles';
 import {
   H4,
@@ -60,13 +60,19 @@ export const Vault = ({
           <SectionTitle textAlign="left" gutter="default">
             <FormattedMessage defaultMessage="ESTIMATED RETURN" />
           </SectionTitle>
-          <H4
-            textAlign="left"
-            marginBottom={theme.spacing(3)}
-            fontWeight="bold"
-          >
-            {formattedRate}
-          </H4>
+          <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+            <LightningIcon
+              sx={{ height: '1.5em', marginRight: theme.spacing(1) }}
+            />
+            <H4
+              textAlign="left"
+              marginBottom={theme.spacing(3)}
+              fontWeight="bold"
+            >
+              {formattedRate}
+            </H4>
+          </Box>
+
           <SectionTitle textAlign="left" marginBottom={theme.spacing(1)}>
             <FormattedMessage defaultMessage="MINIMUM DEPOSIT" />
           </SectionTitle>

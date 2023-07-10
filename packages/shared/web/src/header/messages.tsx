@@ -18,4 +18,8 @@ export const messages = defineMessages({
     defaultMessage: 'Analytics',
     description: 'Landing page Analytics header',
   },
+  [NAV_DROPDOWN.BORROW]: {
+    defaultMessage: 'Borrow',
+    description: 'Landing page Borrow header',
+  },
 });

@@ -32,6 +32,7 @@ export function Section({
       <H4
         sx={{
           fontWeight: 700,
+          marginBottom: theme.spacing(3),
           color: theme.palette.typography.accent,
           marginLeft: theme.spacing(1),
           textTransform: 'uppercase',

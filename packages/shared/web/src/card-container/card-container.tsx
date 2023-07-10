@@ -1,7 +1,6 @@
 import { styled, Box, useTheme, SxProps } from '@mui/material';
 import { useEffect } from 'react';
 import { FormattedMessage, MessageDescriptor } from 'react-intl';
-import { useLocation } from 'react-router-dom';
 import { colors } from '@notional-finance/styles';
 import { HeadingSubtitle, H1, ExternalLink } from '@notional-finance/mui';
 import { CardSubNav } from './card-sub-nav/card-sub-nav';
@@ -29,7 +28,6 @@ export function CardContainer({
   sx,
 }: CardContainerProps) {
   const theme = useTheme();
-  const { pathname } = useLocation();
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -50,8 +48,7 @@ export function CardContainer({
                 },
               }}
             >
-              {/* NOTE: this conditional is temporary until variable borrowing is introduced */}
-              {!pathname.includes('borrow') && <CardSubNav />}
+              <CardSubNav />
               <Title gutter="default">
                 {leveraged && (
                   <LightningIcon

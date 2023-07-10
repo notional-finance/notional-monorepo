@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { styled, Box, useTheme } from '@mui/material';
-import { TokenIcon } from '@notional-finance/icons';
+import { TokenIcon, LightningIcon } from '@notional-finance/icons';
 import { Button } from '../../button/button';
 import { Card } from '../../card/card';
 import { Link } from 'react-router-dom';
@@ -15,11 +15,12 @@ export interface CurrencyProps {
   route: string;
   buttonText: ReactNode;
   returnTitle: ReactNode;
+  leveraged?: boolean;
 }
 
 export const Currency = (props: CurrencyProps) => {
   const theme = useTheme();
-  const { route, symbol, buttonText, rate, returnTitle } = props;
+  const { route, symbol, buttonText, rate, returnTitle, leveraged } = props;
   const formattedRate = formatNumberAsPercent(rate, 2);
 
   return (
@@ -38,15 +39,24 @@ export const Currency = (props: CurrencyProps) => {
           >
             {symbol}
           </CurrencyTitle>
-          <SectionTitle textAlign="left">{returnTitle}</SectionTitle>
-          <H4 textAlign="left" marginBottom={theme.spacing(4)}>
-            <FormattedMessage
-              defaultMessage="{formattedRate} APY"
-              values={{
-                formattedRate: formattedRate,
-              }}
-            />
-          </H4>
+          <SectionTitle textAlign="left" marginBottom={theme.spacing(1)}>
+            {returnTitle}
+          </SectionTitle>
+          <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+            {leveraged && (
+              <LightningIcon
+                sx={{ height: '1.5em', marginRight: theme.spacing(1) }}
+              />
+            )}
+            <H4 textAlign="left" marginBottom={theme.spacing(4)}>
+              <FormattedMessage
+                defaultMessage="{formattedRate} APY"
+                values={{
+                  formattedRate: formattedRate,
+                }}
+              />
+            </H4>
+          </Box>
         </>
         <Button
           fullWidth

@@ -93,7 +93,7 @@ export const useProductCards = () => {
   const borrowData = [
     {
       title: <FormattedMessage defaultMessage={'Fixed Borrow'} />,
-      link: '/borrow',
+      link: '/borrow-fixed',
       text: (
         <FormattedMessage
           defaultMessage={'Choose a term and get a guaranteed interest rate.'}
@@ -107,7 +107,7 @@ export const useProductCards = () => {
     },
     {
       title: <FormattedMessage defaultMessage={'Variable Borrow'} />,
-      link: '',
+      link: '/borrow-variable',
       href: 'https://blog.notional.finance/introducing-notional-v3/',
       text: (
         <FormattedMessage

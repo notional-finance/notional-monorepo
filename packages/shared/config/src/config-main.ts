@@ -113,8 +113,10 @@ export const socialMediaTags = [
 export const siteMapPaths1 = [
   '/lend-fixed/',
   '/lend-fixed/DAI/',
-  '/borrow/',
-  '/borrow/DAI/',
+  '/borrow-fixed/',
+  '/borrow-fixed/DAI/',
+  '/borrow-variable/',
+  '/borrow-variable/DAI/',
   '/liquidity-variable/',
   '/liquidity-variable/DAI/',
   '/terms/',

@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { useTheme, styled, Box } from '@mui/material';
-import { TokenIcon } from '@notional-finance/icons';
+import { TokenIcon, LightningIcon } from '@notional-finance/icons';
 import { Button } from '../../button/button';
 import { Card } from '../../card/card';
 import { Link } from 'react-router-dom';
@@ -21,6 +21,8 @@ export interface IncentiveVariantProps {
   incentiveRate: number;
   route: string;
   buttonText: ReactNode;
+  titleOne?: ReactNode;
+  leveraged?: boolean;
 }
 
 export const Incentive = ({
@@ -29,6 +31,8 @@ export const Incentive = ({
   incentiveRate,
   route,
   buttonText,
+  titleOne,
+  leveraged,
 }: IncentiveVariantProps) => {
   const theme = useTheme();
 
@@ -58,18 +62,31 @@ export const Incentive = ({
           >
             {symbol}
           </CurrencyTitle>
-          <H4 textAlign="left" marginBottom={theme.spacing(4)}>
-            {formattedTotalRate}
-          </H4>
-          <SectionTitle textAlign="left">
-            <FormattedMessage defaultMessage={'VARIABLE RATE'} />
+          {titleOne && (
+            <SectionTitle textAlign="left" marginBottom={theme.spacing(1)}>
+              {titleOne}
+            </SectionTitle>
+          )}
+          <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+            {leveraged && (
+              <LightningIcon
+                sx={{ height: '1.5em', marginRight: theme.spacing(1) }}
+              />
+            )}
+            <H4 textAlign="left" marginBottom={theme.spacing(4)}>
+              {formattedTotalRate}
+            </H4>
+          </Box>
+
+          <SectionTitle textAlign="left" marginBottom={theme.spacing(1)}>
+            <FormattedMessage defaultMessage={'ORGANIC'} />
           </SectionTitle>
           <CardInput textAlign="left" marginBottom={theme.spacing(3)}>
             {formattedRate}
           </CardInput>
           <SectionTitle textAlign="left" marginBottom={theme.spacing(1)}>
             <PlusIcon width={'9px'} />
-            <FormattedMessage defaultMessage="NOTE INCENTIVE YIELD" />
+            <FormattedMessage defaultMessage="NOTE INCENTIVE" />
           </SectionTitle>
           <CardInput textAlign="left" marginBottom={theme.spacing(3)}>
             {formattedIncentiveRate}

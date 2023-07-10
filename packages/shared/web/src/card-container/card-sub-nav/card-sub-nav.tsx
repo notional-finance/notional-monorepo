@@ -27,11 +27,14 @@ export const CardSubNav = () => {
   return (
     <ThemeProvider theme={themeLanding}>
       <StyledContainer>
-        <LeverUpToggle
-          leveredUp={leveredUp}
-          altBackground={true}
-          handleLeverUpToggle={handleLeverUpToggle}
-        />
+        {!pathname.includes('borrow') && (
+          <LeverUpToggle
+            leveredUp={leveredUp}
+            altBackground={true}
+            handleLeverUpToggle={handleLeverUpToggle}
+          />
+        )}
+
         {leveredUp
           ? leveragedLinks.map(({ title, to }, i) => (
               <StyledButton

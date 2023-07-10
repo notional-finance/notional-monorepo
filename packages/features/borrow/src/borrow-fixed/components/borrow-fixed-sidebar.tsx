@@ -16,12 +16,12 @@ import { RiskSlider, AccountRiskTable } from '@notional-finance/risk';
 import { useHistory, useLocation, useParams } from 'react-router-dom';
 import { LEND_BORROW } from '@notional-finance/shared-config';
 import { defineMessage, FormattedMessage } from 'react-intl';
-import { updateBorrowState } from '../store/borrow-store';
-import { useBorrow } from '../store/use-borrow';
-import { useBorrowTransaction } from '../store/use-borrow-transaction';
-import { BorrowParams } from '../borrow-feature-shell';
+import { updateBorrowState } from '../../store/borrow-store';
+import { useBorrow } from '../../store/use-borrow';
+import { useBorrowTransaction } from '../../store/use-borrow-transaction';
+import { BorrowParams } from '../borrow-fixed';
 
-export const BorrowSidebar = () => {
+export const BorrowFixedSidebar = () => {
   const {
     selectedDepositToken: selectedToken,
     selectedCollateralToken: selectedCollateral,
@@ -177,4 +177,4 @@ export const BorrowSidebar = () => {
   );
 };
 
-export default BorrowSidebar;
+export default BorrowFixedSidebar;

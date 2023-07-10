@@ -50,7 +50,9 @@ export const LiquidityLeveragedCardView = () => {
 
   return (
     <ThemeProvider theme={themeLanding}>
-      <FeatureLoader featureLoaded={network !== undefined}>
+      <FeatureLoader
+        featureLoaded={network !== undefined && themeVariant ? true : false}
+      >
         <Box
           sx={{
             backgroundSize: 'cover',
@@ -76,6 +78,7 @@ export const LiquidityLeveragedCardView = () => {
             sx={{
               marginBottom: '0px',
             }}
+            leveraged={true}
           >
             {cardData.map(({ underlying, totalApy, noteApy }, i) => {
               const route = `/${PRODUCTS.LIQUIDITY_LEVERAGED}/${underlying}`;
@@ -86,6 +89,8 @@ export const LiquidityLeveragedCardView = () => {
                   rate={totalApy}
                   incentiveRate={noteApy}
                   route={route}
+                  // TODO: Add real leverage amount
+                  titleOne={<FormattedMessage defaultMessage="0.6x Leverage" />}
                   buttonText={
                     <FormattedMessage
                       defaultMessage="Provide {symbol}"
@@ -94,6 +99,7 @@ export const LiquidityLeveragedCardView = () => {
                       }}
                     />
                   }
+                  leveraged
                 />
               );
             })}
