@@ -90,42 +90,40 @@ export const LiquidityLeveragedCardView = () => {
             }}
             leveraged={true}
           >
-            {leveragedLiquidity.map(
-              ({ underlying, totalAPY, incentives, leveraged }, i) => {
-                const route = `/${PRODUCTS.LIQUIDITY_LEVERAGED}/${underlying}`;
-                return (
-                  <Incentive
-                    key={`incentive-${i}`}
-                    symbol={underlying.symbol}
-                    rate={totalAPY}
-                    incentiveRate={
-                      incentives?.find(({ tokenId }) => tokenId !== undefined)
-                        ?.incentiveAPY || 0
-                    }
-                    titleOne={
-                      <FormattedMessage
-                        defaultMessage="{leverage} Leverage"
-                        values={{
-                          leverage: formatLeverageRatio(
-                            leveraged?.leverageRatio || 0,
-                            2
-                          ),
-                        }}
-                      />
-                    }
-                    route={route}
-                    buttonText={
-                      <FormattedMessage
-                        defaultMessage="Provide {symbol}"
-                        values={{
-                          symbol: underlying.symbol,
-                        }}
-                      />
-                    }
-                  />
-                );
-              }
-            )}
+            {cardData.map(([symbol, yields], i) => {
+              const route = `/${PRODUCTS.LIQUIDITY_LEVERAGED}/${symbol}`;
+              const maxYield = getMax(yields);
+              return (
+                <Incentive
+                  key={`incentive-${i}`}
+                  symbol={symbol}
+                  rate={maxYield?.totalAPY || 0}
+                  incentiveRate={
+                    maxYield?.incentives?.find(
+                      ({ tokenId }) => tokenId !== undefined
+                    )?.incentiveAPY || 0
+                  }
+                  titleOne={
+                    <FormattedMessage
+                      defaultMessage="{leverage} Leverage"
+                      values={{
+                        leverage: formatLeverageRatio(
+                          maxYield?.leveraged?.leverageRatio || 0,
+                          2
+                        ),
+                      }}
+                    />
+                  }
+                  route={route}
+                  buttonText={
+                    <FormattedMessage
+                      defaultMessage="Provide {symbol}"
+                      values={{ symbol }}
+                    />
+                  }
+                />
+              );
+            })}
           </CardContainer>
           <HeadingSubtitle
             sx={{
