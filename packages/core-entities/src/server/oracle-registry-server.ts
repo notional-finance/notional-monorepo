@@ -20,10 +20,13 @@ import { BigNumber, Contract } from 'ethers';
 import { OracleDefinition, CacheSchema } from '..';
 import { loadGraphClientDeferred, ServerRegistry } from './server-registry';
 import { fiatOracles } from '../config/fiat-config';
+import { TypedDocumentNode } from '@apollo/client/core';
+// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
+import { AllOraclesQuery } from '../.graphclient';
 
 export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
   // Interval refreshes only update the latest rates
-  public INTERVAL_REFRESH_SECONDS = 10;
+  public INTERVAL_REFRESH_SECONDS = 30;
 
   public override hasAllNetwork(): boolean {
     return true;
@@ -47,13 +50,13 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
   }
 
   private async _queryAllOracles(network: Network, blockNumber?: number) {
-    if (!blockNumber) {
-      blockNumber = await this.getProvider(network).getBlockNumber();
-    }
-    const { AllOraclesDocument } = await loadGraphClientDeferred();
+    const { AllOraclesDocument, AllOraclesByBlockDocument } =
+      await loadGraphClientDeferred();
     return this._fetchUsingGraph(
       network,
-      AllOraclesDocument,
+      (blockNumber !== undefined
+        ? AllOraclesByBlockDocument
+        : AllOraclesDocument) as TypedDocumentNode<AllOraclesQuery, unknown>,
       (r) => {
         return r.oracles.reduce((obj, v) => {
           obj[v.id] = {

@@ -6042,6 +6042,12 @@ const merger = new(BareMerger as any)({
         },
         location: 'AllOraclesDocument.graphql'
       },{
+        document: AllOraclesByBlockDocument,
+        get rawSDL() {
+          return printWithCache(AllOraclesByBlockDocument);
+        },
+        location: 'AllOraclesByBlockDocument.graphql'
+      },{
         document: AllTokensDocument,
         get rawSDL() {
           return printWithCache(AllTokensDocument);
@@ -6102,12 +6108,20 @@ export type AllConfigurationQuery = { currencyConfigurations: Array<(
     & { primaryBorrowCurrency: Pick<Token, 'id'>, secondaryBorrowCurrencies?: Maybe<Array<Pick<Token, 'id'>>> }
   )>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
 
-export type AllOraclesQueryVariables = Exact<{
+export type AllOraclesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type AllOraclesQuery = { oracles: Array<(
+    Pick<Oracle, 'id' | 'lastUpdateBlockNumber' | 'lastUpdateTimestamp' | 'decimals' | 'oracleAddress' | 'oracleType' | 'mustInvert' | 'latestRate'>
+    & { base: Pick<Token, 'id' | 'decimals'>, quote: Pick<Token, 'id' | 'currencyId'> }
+  )>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
+
+export type AllOraclesByBlockQueryVariables = Exact<{
   blockNumber?: InputMaybe<Scalars['Int']>;
 }>;
 
 
-export type AllOraclesQuery = { oracles: Array<(
+export type AllOraclesByBlockQuery = { oracles: Array<(
     Pick<Oracle, 'id' | 'lastUpdateBlockNumber' | 'lastUpdateTimestamp' | 'decimals' | 'oracleAddress' | 'oracleType' | 'mustInvert' | 'latestRate'>
     & { base: Pick<Token, 'id' | 'decimals'>, quote: Pick<Token, 'id' | 'currencyId'> }
   )>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
@@ -6243,7 +6257,37 @@ export const AllConfigurationDocument = gql`
 }
     ` as unknown as DocumentNode<AllConfigurationQuery, AllConfigurationQueryVariables>;
 export const AllOraclesDocument = gql`
-    query AllOracles($blockNumber: Int) {
+    query AllOracles {
+  oracles(
+    where: {oracleType_in: [Chainlink, fCashOracleRate, fCashSettlementRate, PrimeCashToUnderlyingExchangeRate, PrimeDebtToUnderlyingExchangeRate, VaultShareOracleRate, nTokenToUnderlyingExchangeRate, PrimeCashSpotInterestRate, PrimeDebtSpotInterestRate, fCashSpotRate, PrimeCashToUnderlyingOracleInterestRate]}
+    first: 5000
+  ) {
+    id
+    lastUpdateBlockNumber
+    lastUpdateTimestamp
+    base {
+      id
+      decimals
+    }
+    quote {
+      id
+      currencyId
+    }
+    decimals
+    oracleAddress
+    oracleType
+    mustInvert
+    latestRate
+  }
+  _meta {
+    block {
+      number
+    }
+  }
+}
+    ` as unknown as DocumentNode<AllOraclesQuery, AllOraclesQueryVariables>;
+export const AllOraclesByBlockDocument = gql`
+    query AllOraclesByBlock($blockNumber: Int) {
   oracles(
     where: {oracleType_in: [Chainlink, fCashOracleRate, fCashSettlementRate, PrimeCashToUnderlyingExchangeRate, PrimeDebtToUnderlyingExchangeRate, VaultShareOracleRate, nTokenToUnderlyingExchangeRate, PrimeCashSpotInterestRate, PrimeDebtSpotInterestRate, fCashSpotRate, PrimeCashToUnderlyingOracleInterestRate]}
     first: 5000
@@ -6272,7 +6316,7 @@ export const AllOraclesDocument = gql`
     }
   }
 }
-    ` as unknown as DocumentNode<AllOraclesQuery, AllOraclesQueryVariables>;
+    ` as unknown as DocumentNode<AllOraclesByBlockQuery, AllOraclesByBlockQueryVariables>;
 export const AllTokensDocument = gql`
     query AllTokens {
   tokens {
@@ -6320,6 +6364,7 @@ export const AllVaultsDocument = gql`
 
 
 
+
 export type Requester<C = {}, E = unknown> = <R, V>(doc: DocumentNode, vars?: V, options?: C) => Promise<R> | AsyncIterable<R>
 export function getSdk<C, E>(requester: Requester<C, E>) {
   return {
@@ -6328,6 +6373,9 @@ export function getSdk<C, E>(requester: Requester<C, E>) {
     },
     AllOracles(variables?: AllOraclesQueryVariables, options?: C): Promise<AllOraclesQuery> {
       return requester<AllOraclesQuery, AllOraclesQueryVariables>(AllOraclesDocument, variables, options) as Promise<AllOraclesQuery>;
+    },
+    AllOraclesByBlock(variables?: AllOraclesByBlockQueryVariables, options?: C): Promise<AllOraclesByBlockQuery> {
+      return requester<AllOraclesByBlockQuery, AllOraclesByBlockQueryVariables>(AllOraclesByBlockDocument, variables, options) as Promise<AllOraclesByBlockQuery>;
     },
     AllTokens(variables?: AllTokensQueryVariables, options?: C): Promise<AllTokensQuery> {
       return requester<AllTokensQuery, AllTokensQueryVariables>(AllTokensDocument, variables, options) as Promise<AllTokensQuery>;
