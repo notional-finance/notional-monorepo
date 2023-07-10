@@ -53,6 +53,6 @@ packages/sdk/cache
 services/**/dist
 
 app.yaml
-packages/data-service/**/dist
-packages/data-service/**/lib
-packages/data-service/tsconfig.build.tsbuildinfo
+gcp/data-service/**/dist
+gcp/data-service/**/lib
+gcp/data-service/tsconfig.build.tsbuildinfo
