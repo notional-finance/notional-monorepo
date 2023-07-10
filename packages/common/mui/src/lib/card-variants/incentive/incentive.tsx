@@ -79,11 +79,7 @@ export const Incentive = ({
           </Box>
 
           <SectionTitle textAlign="left" marginBottom={theme.spacing(1)}>
-            {leveraged ? (
-              <FormattedMessage defaultMessage={'ORGANIC'} />
-            ) : (
-              <FormattedMessage defaultMessage={'INTEREST RATE'} />
-            )}
+            <FormattedMessage defaultMessage={'ORGANIC'} />
           </SectionTitle>
           <CardInput textAlign="left" marginBottom={theme.spacing(3)}>
             {formattedRate}
