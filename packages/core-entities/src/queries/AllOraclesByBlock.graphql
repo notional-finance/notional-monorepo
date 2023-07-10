@@ -1,4 +1,4 @@
-query AllOracles {
+query AllOraclesByBlock($blockNumber: Int) {
   oracles(where: { oracleType_in: [
     Chainlink,
     fCashOracleRate,
@@ -12,7 +12,7 @@ query AllOracles {
     PrimeDebtSpotInterestRate,
     fCashSpotRate,
     PrimeCashToUnderlyingOracleInterestRate,
-  ]}, first: 5000) {
+  ]}, first: 5000, block: { number: $blockNumber }) {
     id
     lastUpdateBlockNumber
     lastUpdateTimestamp

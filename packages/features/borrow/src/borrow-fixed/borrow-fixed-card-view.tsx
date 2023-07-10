@@ -15,13 +15,13 @@ import {
 export const BorrowFixedCardView = () => {
   const { themeVariant } = useUserSettingsState();
   const themeLanding = useNotionalTheme(themeVariant, 'landing');
-  const { allYields, getMin } = useAllMarkets();
+  const {
+    yields: { fCashBorrow },
+    getMin,
+  } = useAllMarkets();
 
   const cardData = [
-    ...groupArrayToMap(
-      allYields.filter((t) => t.tokenType === 'fCash'),
-      (t) => t.underlying
-    ).entries(),
+    ...groupArrayToMap(fCashBorrow, (t) => t.underlying.symbol).entries(),
   ];
 
   return (
@@ -50,12 +50,12 @@ export const BorrowFixedCardView = () => {
               symbol === 'ETH'
                 ? `/${PRODUCTS.BORROW_FIXED}/${symbol}/USDC`
                 : `/${PRODUCTS.BORROW_FIXED}/${symbol}/ETH`;
-            const minRate = getMin(yields)?.totalApy || 0;
+            const minRate = getMin(yields)?.totalAPY || 0;
             const allRates = yields
-              .sort((a, b) => (a.maturity || 0) - (b.maturity || 0))
+              .sort((a, b) => (a.token.maturity || 0) - (b.token.maturity || 0))
               .map((y) => ({
-                maturity: formatMaturity(y.maturity || 0),
-                rate: formatNumberAsPercent(y.totalApy),
+                maturity: formatMaturity(y.token.maturity || 0),
+                rate: formatNumberAsPercent(y.totalAPY),
               }));
 
             return (

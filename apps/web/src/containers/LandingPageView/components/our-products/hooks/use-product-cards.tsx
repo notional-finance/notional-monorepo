@@ -25,8 +25,8 @@ export const useProductCards = () => {
           defaultMessage={'Choose a term and get a guaranteed interest rate.'}
         />
       ),
-      apy: `${formatNumberAsPercent(fCashLend?.totalApy || 0)} APY`,
-      symbol: fCashLend?.underlying,
+      apy: `${formatNumberAsPercent(fCashLend?.totalAPY || 0)} APY`,
+      symbol: fCashLend?.underlying.symbol,
       groupedSymbols: 'eth_dai_usdc_wbtc',
       apyTitle: <FormattedMessage defaultMessage={'as high as'} />,
       loading: fCashLend === null,
@@ -41,8 +41,8 @@ export const useProductCards = () => {
           }
         />
       ),
-      apy: `${formatNumberAsPercent(leveragedVaults?.totalApy || 0)} APY`,
-      symbol: leveragedVaults?.underlying,
+      apy: `${formatNumberAsPercent(leveragedVaults?.totalAPY || 0)} APY`,
+      symbol: leveragedVaults?.underlying.symbol,
       groupedSymbols: 'eth_dai_usdc',
       apyTitle: <FormattedMessage defaultMessage={'as high as'} />,
       loading: leveragedVaults === null,
@@ -65,8 +65,8 @@ export const useProductCards = () => {
           }}
         />
       ),
-      apy: `${formatNumberAsPercent(variableLend?.totalApy || 0)} APY`,
-      symbol: variableLend?.underlying,
+      apy: `${formatNumberAsPercent(variableLend?.totalAPY || 0)} APY`,
+      symbol: variableLend?.underlying.symbol,
       groupedSymbols: 'eth_dai_usdc_wbtc',
       apyTitle: <FormattedMessage defaultMessage={'as high as'} />,
       loading: variableLend === null,
@@ -81,8 +81,8 @@ export const useProductCards = () => {
           defaultMessage={`Earn NOTE incentives, interest, and trading fees from Notional's liquidity pools.`}
         />
       ),
-      apy: `${formatNumberAsPercent(liquidity?.totalApy || 0)} APY`,
-      symbol: liquidity?.underlying,
+      apy: `${formatNumberAsPercent(liquidity?.totalAPY || 0)} APY`,
+      symbol: liquidity?.underlying.symbol,
       groupedSymbols: 'eth_dai_usdc_wbtc',
       apyTitle: <FormattedMessage defaultMessage={'as high as'} />,
       loading: liquidity === null,
@@ -99,8 +99,8 @@ export const useProductCards = () => {
           defaultMessage={'Choose a term and get a guaranteed interest rate.'}
         />
       ),
-      apy: `${formatNumberAsPercent(fCashBorrow?.totalApy || 0)} APY`,
-      symbol: fCashBorrow?.underlying,
+      apy: `${formatNumberAsPercent(fCashBorrow?.totalAPY || 0)} APY`,
+      symbol: fCashBorrow?.underlying.symbol,
       groupedSymbols: 'eth_dai_usdc_wbtc',
       apyTitle: <FormattedMessage defaultMessage={'as low as'} />,
       loading: fCashBorrow === null,
@@ -122,8 +122,8 @@ export const useProductCards = () => {
           }}
         />
       ),
-      apy: `${formatNumberAsPercent(variableBorrow?.totalApy || 0)} APY`,
-      symbol: variableBorrow?.underlying,
+      apy: `${formatNumberAsPercent(variableBorrow?.totalAPY || 0)} APY`,
+      symbol: variableBorrow?.underlying.symbol,
       groupedSymbols: 'eth_dai_usdc_wbtc',
       apyTitle: <FormattedMessage defaultMessage={'as low as'} />,
       loading: variableBorrow === null,

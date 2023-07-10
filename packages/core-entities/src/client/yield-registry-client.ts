@@ -17,6 +17,7 @@ import { SECONDS_IN_YEAR } from '@notional-finance/sdk';
 
 interface YieldData {
   token: TokenDefinition;
+  underlying: TokenDefinition;
   totalAPY: number;
   leveraged?: {
     debtToken: TokenDefinition;
@@ -51,7 +52,9 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
     blockTime = getNowSeconds()
   ): YieldData[] {
     const oracles = Registry.getOracleRegistry();
-    return Registry.getTokenRegistry()
+    const tokens = Registry.getTokenRegistry();
+
+    return tokens
       .getAllTokens(network)
       .filter(
         (t) =>
@@ -60,11 +63,13 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
       )
       .map((t) => {
         const key = `${t.underlying}:${t.id}:${oracleType}`;
-        const o = oracles.getLatestFromSubject(network, key);
+        const o = oracles.getLatestFromSubject(network, key, 0);
         if (!o)
           throw Error(
             `Oracle Not Found: ${t.tokenType} ${t.maturity} ${oracleType}`
           );
+        if (!t.underlying) throw Error(`Token has no underlying`);
+
         const interestAPY =
           (o.latestRate.rate.toNumber() * 100) / RATE_PRECISION;
 
@@ -76,6 +81,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
 
         return {
           token: t,
+          underlying: tokens.getTokenByID(network, t.underlying),
           totalAPY: interestAPY,
           interestAPY,
           nativeTokenAPY,
@@ -128,11 +134,12 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
   getNTokenYield(network: Network): YieldData[] {
     const exchanges = Registry.getExchangeRegistry();
     const config = Registry.getConfigurationRegistry();
+    const tokens = Registry.getTokenRegistry();
     const yields = this.getPrimeCashYield(network).concat(
       this.getfCashYield(network)
     );
 
-    return Registry.getTokenRegistry()
+    return tokens
       .getAllTokens(network)
       .filter((t) => t.tokenType === 'nToken')
       .map((t) => {
@@ -140,6 +147,8 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
           network,
           t.address
         );
+        if (!t.underlying) throw Error('underlying not defined');
+        const underlying = tokens.getTokenByID(network, t.underlying);
 
         // Get total fees from the last week
         const nTokenFeesAnnualized = this.getNTokenFees(
@@ -186,6 +195,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
 
         return {
           token: t,
+          underlying,
           totalAPY: incentiveAPY + feeAPY + interestAPY,
           interestAPY,
           feeAPY,
@@ -214,6 +224,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
   ): YieldData {
     return {
       token: yieldData.token,
+      underlying: yieldData.underlying,
       totalAPY: this.calculateLeveragedAPY(
         yieldData.totalAPY,
         debt.totalAPY,
@@ -332,8 +343,9 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
     const config = Registry.getConfigurationRegistry();
     const fCashYields = this.getfCashYield(network);
     const debtYields = this.getPrimeDebtYield(network).concat(fCashYields);
+    const tokens = Registry.getTokenRegistry();
 
-    return Registry.getTokenRegistry()
+    return tokens
       .getAllTokens(network)
       .filter(
         (v) =>
@@ -351,7 +363,8 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
         );
         if (!debt) throw Error('Matching debt not found');
         if (!v.vaultAddress) throw Error('Vault address not defined');
-        // default leverage ratio
+        if (!v.underlying) throw Error('underlying is not defined');
+        const underlying = tokens.getTokenByID(network, v.underlying);
         const { defaultLeverageRatio } = config.getVaultLeverageFactors(
           network,
           v.vaultAddress
@@ -359,6 +372,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
 
         const vaultShareYield = {
           token: v,
+          underlying,
           totalAPY: 0,
         };
 

@@ -6,17 +6,24 @@ import { ThemeProvider } from '@mui/material';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { defineMessage, FormattedMessage } from 'react-intl';
 import { useUserSettingsState } from '@notional-finance/user-settings-manager';
+import { groupArrayToMap } from '@notional-finance/util';
+import { formatLeverageRatio } from '@notional-finance/helpers';
 
 export function LendLeveragedCardView() {
   const { themeVariant } = useUserSettingsState();
   const themeLanding = useNotionalTheme(themeVariant, 'landing');
-  const { allYields } = useAllMarkets();
-  const cardData = allYields.filter((t) => t.tokenType === 'PrimeCash');
-  // TODO: Hook up actual leveraged data
+  const {
+    yields: { leveragedLend },
+    getMax,
+  } = useAllMarkets();
   const heading = defineMessage({
     defaultMessage: 'Leveraged Lending',
     description: 'page heading',
   });
+
+  const cardData = [
+    ...groupArrayToMap(leveragedLend, (t) => t.underlying.symbol).entries(),
+  ];
 
   const subtitle = defineMessage({
     defaultMessage: `Arbitrage Notional's interest rates by borrowing at a low rate and lending at a higher one with leverage for maximum returns.
@@ -32,7 +39,7 @@ export function LendLeveragedCardView() {
   return (
     <ThemeProvider theme={themeLanding}>
       <FeatureLoader
-        featureLoaded={cardData?.length > 0 && themeVariant ? true : false}
+        featureLoaded={leveragedLend?.length > 0 && themeVariant ? true : false}
       >
         <CardContainer
           heading={heading}
@@ -41,23 +48,33 @@ export function LendLeveragedCardView() {
           leveraged={true}
           docsLink="https://docs.notional.finance/notional-v2/what-you-can-do/fixed-rate-lending"
         >
-          {cardData.map(({ underlying, totalApy }, index) => {
-            const route = `/${PRODUCTS.LEND_LEVERAGED}/${underlying}`;
+          {cardData.map(([symbol, yields], index) => {
+            const route = `/${PRODUCTS.LEND_LEVERAGED}/${symbol}`;
+            const maxYield = getMax(yields);
+
             return (
               <Currency
                 key={index}
-                symbol={underlying}
-                rate={totalApy}
+                symbol={symbol}
+                rate={maxYield?.totalAPY || 0}
                 route={route}
                 returnTitle={
-                  <FormattedMessage defaultMessage="0.6x Leverage" />
+                  <FormattedMessage
+                    defaultMessage="{leverage} Leverage"
+                    values={{
+                      leverage: formatLeverageRatio(
+                        maxYield?.leveraged?.leverageRatio || 0,
+                        2
+                      ),
+                    }}
+                  />
                 }
                 leveraged
                 buttonText={
                   <FormattedMessage
                     defaultMessage="Lend {underlying}"
                     values={{
-                      underlying,
+                      underlying: symbol,
                     }}
                   />
                 }

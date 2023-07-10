@@ -17,6 +17,8 @@ import {
 } from '@notional-finance/mui';
 import { Link } from 'react-router-dom';
 import { Registry, TokenBalance } from '@notional-finance/core-entities';
+import { formatLeverageRatio } from '@notional-finance/helpers';
+import { groupArrayToMap } from '@notional-finance/util';
 
 const StyledLink = styled(Link)(
   ({ theme }) => `
@@ -32,10 +34,18 @@ export const LiquidityLeveragedCardView = () => {
   const { themeVariant } = useUserSettingsState();
   const themeLanding = useNotionalTheme(themeVariant, 'landing');
   const network = useSelectedNetwork();
-  const { allYields } = useAllMarkets();
+  const {
+    yields: { leveragedLiquidity },
+    getMax,
+  } = useAllMarkets();
   const { height } = useWindowDimensions();
   const [notePriceString, setNotePriceString] = useState('');
-  const cardData = allYields.filter((t) => t.tokenType === 'nToken');
+  const cardData = [
+    ...groupArrayToMap(
+      leveragedLiquidity,
+      (t) => t.underlying.symbol
+    ).entries(),
+  ];
 
   useEffect(() => {
     if (network) {
@@ -80,26 +90,37 @@ export const LiquidityLeveragedCardView = () => {
             }}
             leveraged={true}
           >
-            {cardData.map(({ underlying, totalApy, noteApy }, i) => {
-              const route = `/${PRODUCTS.LIQUIDITY_LEVERAGED}/${underlying}`;
+            {cardData.map(([symbol, yields], i) => {
+              const route = `/${PRODUCTS.LIQUIDITY_LEVERAGED}/${symbol}`;
+              const maxYield = getMax(yields);
               return (
                 <Incentive
                   key={`incentive-${i}`}
-                  symbol={underlying}
-                  rate={totalApy}
-                  incentiveRate={noteApy}
-                  route={route}
-                  // TODO: Add real leverage amount
-                  titleOne={<FormattedMessage defaultMessage="0.6x Leverage" />}
-                  buttonText={
+                  symbol={symbol}
+                  rate={maxYield?.totalAPY || 0}
+                  incentiveRate={
+                    maxYield?.incentives?.find(
+                      ({ tokenId }) => tokenId !== undefined
+                    )?.incentiveAPY || 0
+                  }
+                  titleOne={
                     <FormattedMessage
-                      defaultMessage="Provide {symbol}"
+                      defaultMessage="{leverage} Leverage"
                       values={{
-                        symbol: underlying,
+                        leverage: formatLeverageRatio(
+                          maxYield?.leveraged?.leverageRatio || 0,
+                          2
+                        ),
                       }}
                     />
                   }
-                  leveraged
+                  route={route}
+                  buttonText={
+                    <FormattedMessage
+                      defaultMessage="Provide {symbol}"
+                      values={{ symbol }}
+                    />
+                  }
                 />
               );
             })}
