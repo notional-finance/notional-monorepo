@@ -11,12 +11,13 @@ export const BorrowVariableCardView = () => {
   const { themeVariant } = useUserSettingsState();
   const themeLanding = useNotionalTheme(themeVariant, 'landing');
   const { allYields } = useAllMarkets();
-  // TODO: Figure out were to get this data from
-  const cardData = allYields.filter((t) => t.tokenType === 'PrimeCash');
+  const cardData = allYields.filter((t) => t.tokenType === 'PrimeDebt');
 
   return (
     <ThemeProvider theme={themeLanding}>
-      <FeatureLoader featureLoaded={cardData?.length > 0}>
+      <FeatureLoader
+        featureLoaded={cardData?.length > 0 && themeVariant ? true : false}
+      >
         <CardContainer
           heading={defineMessage({
             defaultMessage: 'Variable Rate Borrowing',

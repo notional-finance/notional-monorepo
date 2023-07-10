@@ -13,7 +13,9 @@ export const VaultCardView = () => {
 
   return (
     <ThemeProvider theme={themeLanding}>
-      <FeatureLoader featureLoaded={allVaults?.length > 0}>
+      <FeatureLoader
+        featureLoaded={allVaults?.length > 0 && themeVariant ? true : false}
+      >
         <CardContainer
           heading={defineMessage({
             defaultMessage: 'Leveraged Vaults',

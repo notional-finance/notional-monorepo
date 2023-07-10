@@ -78,7 +78,9 @@ export const CurrencyFixed = (props: CurrencyFixedProps) => {
               ))}
             </Box>
             <Box>
-              <SectionTitle textAlign="left">{apyTagline}</SectionTitle>
+              <SectionTitle textAlign="left" marginBottom={theme.spacing(1)}>
+                {apyTagline}
+              </SectionTitle>
               <H4
                 textAlign="left"
                 fontWeight="bold"

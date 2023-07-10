@@ -26,7 +26,9 @@ export function LendCardView() {
 
   return (
     <ThemeProvider theme={themeLanding}>
-      <FeatureLoader featureLoaded={cardData?.length > 0}>
+      <FeatureLoader
+        featureLoaded={cardData?.length > 0 && themeVariant ? true : false}
+      >
         <CardContainer
           heading={defineMessage({
             defaultMessage: 'Fixed Rate Lending',

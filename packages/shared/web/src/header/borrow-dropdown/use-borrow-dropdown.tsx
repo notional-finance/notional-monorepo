@@ -1,6 +1,6 @@
 import { SectionLinkProps } from '@notional-finance/mui';
 import { useTheme } from '@mui/material';
-import { CoinsIcon } from '@notional-finance/icons';
+import { CoinsIcon, CoinsCircleIcon } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
 import { useAllMarkets } from '@notional-finance/notionable-hooks';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
@@ -38,11 +38,11 @@ export const useBorrowDropDown = () => {
       title: <FormattedMessage defaultMessage={'Variable Rate Borrow'} />,
       to: '/borrow-variable',
       icon: (
-        <CoinsIcon
+        <CoinsCircleIcon
           sx={{
             fontSize: theme.spacing(3),
-            fill: 'transparent',
-            stroke: theme.palette.common.black,
+            fill: theme.palette.common.black,
+            stroke: 'transparent',
           }}
         />
       ),
