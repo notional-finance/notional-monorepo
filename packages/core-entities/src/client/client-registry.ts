@@ -17,7 +17,7 @@ export abstract class ClientRegistry<T> extends BaseRegistry<T> {
   }
 
   public cacheURL(network: Network) {
-    return `${this.cacheHostname}/${this.cachePath()}?network=${network}`;
+    return `${this.cacheHostname}/${network}/${this.cachePath()}`;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

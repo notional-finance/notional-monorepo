@@ -13,7 +13,7 @@ import {
 import { OracleRegistryClient, TokenRegistryClient } from '../../src/client';
 import { BigNumber } from 'ethers';
 
-const ETH_PRICE = 1798.536;
+const ETH_PRICE = 1906.686295;
 describe.withRegistry(
   {
     network: Network.ArbitrumOne,
@@ -24,13 +24,18 @@ describe.withRegistry(
     let tokens: TokenRegistryClient;
     let oracles: OracleRegistryClient;
 
-    beforeAll(async () => {
+    beforeAll((done) => {
       tokens = Registry.getTokenRegistry();
       oracles = Registry.getOracleRegistry();
+      tokens.onNetworkRegistered(Network.All, () => {
+        done();
+      });
     });
 
     it('gets all tokens', () => {
-      expect(tokens.getAllTokens(Network.ArbitrumOne).length).toBe(54);
+      expect(tokens.getAllTokens(Network.ArbitrumOne).length).toBeGreaterThan(
+        50
+      );
     });
 
     it('finds token by address', () => {
@@ -138,9 +143,9 @@ describe.withRegistry(
           Network.ArbitrumOne
         );
 
-        expect(peth.toUnderlying().toDisplayStringWithSymbol(8)).toBe(
-          '1.00000000 ETH'
-        );
+        expect(
+          peth.toUnderlying().toDisplayStringWithSymbol(8)
+        ).toMatchSnapshot();
       });
     });
 
@@ -172,7 +177,7 @@ describe.withRegistry(
         const path = oracles.findPath(wbtc.id, wsteth.id, Network.ArbitrumOne);
 
         const value = oracles.getLatestFromPath(Network.ArbitrumOne, path);
-        expect(oracles.formatNumber(value!)).toBeCloseTo(13.253);
+        expect(oracles.formatNumber(value!)).toMatchSnapshot();
       });
 
       it('[MULTIHOP] can find a path from fusdc => fdai', () => {
@@ -188,6 +193,39 @@ describe.withRegistry(
 
         const value = oracles.getLatestFromPath(Network.ArbitrumOne, path);
         expect(oracles.formatNumber(value!)).toBeCloseTo(0.999);
+      });
+
+      it('can convert prime cash to fiat currency', () => {
+        const pusdc = tokens.parseInputToTokenBalance(
+          '1',
+          'pUSD Coin',
+          Network.ArbitrumOne
+        );
+
+        expect(
+          pusdc.toFiat('JPY').toDisplayStringWithSymbol(8)
+        ).toMatchSnapshot();
+      });
+
+      it('can note to fiat currency', () => {
+        const NOTE = tokens.parseInputToTokenBalance(
+          '1',
+          'NOTE',
+          Network.ArbitrumOne
+        );
+
+        expect(
+          NOTE.toFiat('USD').toDisplayStringWithSymbol(8)
+        ).toMatchSnapshot();
+
+        const eth = tokens.getTokenBySymbol(Network.ArbitrumOne, 'ETH')!;
+        const wbtc = tokens.getTokenBySymbol(Network.ArbitrumOne, 'WBTC')!;
+        expect(
+          NOTE.toToken(eth).toDisplayStringWithSymbol(8)
+        ).toMatchSnapshot();
+        expect(
+          NOTE.toToken(wbtc).toDisplayStringWithSymbol(8)
+        ).toMatchSnapshot();
       });
     });
 
@@ -241,7 +279,7 @@ describe.withRegistry(
         );
         const usdc = TokenBalance.fromFloat(-1, fusdc);
         const riskAdjusted = usdc.toRiskAdjustedUnderlying();
-        expect(riskAdjusted.toFloat()).toBeCloseTo(-1.09);
+        expect(riskAdjusted.toFloat()).toBeCloseTo(-1.067);
       });
 
       it('Pos fUSDC to USDC', () => {

@@ -40,7 +40,7 @@ export default {
     ]);
 
     let ns: DurableObjectNamespace;
-    switch (url.pathname.slice(1)) {
+    switch (url.pathname.split('/')[2]) {
       case Routes.Tokens:
         ns = env.TOKEN_REGISTRY_DO;
         break;

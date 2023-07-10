@@ -104,8 +104,13 @@ export abstract class ServerRegistry<T> extends BaseRegistry<T> {
     return getProviderFromNetwork(network, true);
   }
 
+  public hasAllNetwork() {
+    return false;
+  }
+
   /** Triggers a refresh of the underlying data */
   public async refresh(network: Network, intervalNum: number) {
+    if (!this.hasAllNetwork() && network === Network.All) return;
     this._updateNetworkObservables(await this._refresh(network, intervalNum));
   }
 

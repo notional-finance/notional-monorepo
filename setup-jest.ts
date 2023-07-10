@@ -223,9 +223,7 @@ async function setupWhales(
         });
       });
       const response = await (
-        await crossFetch(
-          'http://localhost:9999/configuration?network=arbitrum-one'
-        )
+        await crossFetch('http://localhost:9999/arbitrum/configuration')
       ).json();
       blockTime = response['lastUpdateTimestamp'];
       process.env['FAKE_TIME'] = `${blockTime}`;
@@ -249,6 +247,7 @@ async function setupWhales(
 
     afterAll(() => {
       Registry.stopRefresh(network);
+      Registry.stopRefresh(Network.All);
       server.close();
     });
   });

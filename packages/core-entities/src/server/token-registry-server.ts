@@ -1,9 +1,23 @@
 import { TokenDefinition } from '..';
+import { fiatTokens } from '../config/fiat-config';
 import { loadGraphClientDeferred, ServerRegistry } from './server-registry';
-import { Network } from '@notional-finance/util';
+import { getNowSeconds, Network } from '@notional-finance/util';
 
 export class TokenRegistryServer extends ServerRegistry<TokenDefinition> {
+  public override hasAllNetwork(): boolean {
+    return true;
+  }
+
   protected async _refresh(network: Network) {
+    if (network === Network.All) {
+      return {
+        values: fiatTokens,
+        network: Network.All,
+        lastUpdateBlock: 0,
+        lastUpdateTimestamp: getNowSeconds(),
+      };
+    }
+
     const { AllTokensDocument } = await loadGraphClientDeferred();
     return this._fetchUsingGraph(network, AllTokensDocument, (r) => {
       return r.tokens.reduce((obj, v) => {

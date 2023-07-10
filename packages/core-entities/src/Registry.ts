@@ -9,6 +9,7 @@ import {
   AccountRegistryClient,
 } from './client/account-registry-client';
 import { VaultRegistryClient } from './client/vault-registry-client';
+import { YieldRegistryClient } from './client/yield-registry-client';
 
 export class Registry {
   protected static _self?: Registry;
@@ -17,6 +18,7 @@ export class Registry {
   protected static _oracles?: OracleRegistryClient;
   protected static _configurations?: ConfigurationClient;
   protected static _vaults?: VaultRegistryClient;
+  protected static _yields?: YieldRegistryClient;
   protected static _accounts?: AccountRegistryClient;
 
   public static DEFAULT_TOKEN_REFRESH = 20 * ONE_MINUTE_MS;
@@ -42,6 +44,17 @@ export class Registry {
     Registry._exchanges = new ExchangeRegistryClient(_cacheHostname);
     Registry._vaults = new VaultRegistryClient(_cacheHostname);
     Registry._accounts = new AccountRegistryClient(_cacheHostname, fetchMode);
+    Registry._yields = new YieldRegistryClient(_cacheHostname);
+
+    // Kicks off Fiat token refreshes
+    Registry._tokens.startRefreshInterval(
+      Network.All,
+      Registry.DEFAULT_TOKEN_REFRESH
+    );
+    Registry._oracles.startRefreshInterval(
+      Network.All,
+      Registry.DEFAULT_ORACLE_REFRESH
+    );
   }
 
   static get cacheHostname() {
@@ -143,6 +156,11 @@ export class Registry {
     if (Registry._accounts == undefined)
       throw Error('Account Registry undefined');
     return Registry._accounts;
+  }
+
+  public static getYieldRegistry() {
+    if (Registry._yields == undefined) throw Error('Yield Registry undefined');
+    return Registry._yields;
   }
 
   public static onNetworkReady(network: Network, fn: () => void) {

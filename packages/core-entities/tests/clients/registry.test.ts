@@ -70,5 +70,22 @@ describe.withRegistry(
         }
       );
     });
+
+    it('[All Tokens]', (done) => {
+      const tokens = Registry.getTokenRegistry();
+      tokens.onSubjectKeyReady(Network.All, 'ETH', () => {
+        expect(tokens.getLatestFromAllSubjects(Network.All)).toMatchSnapshot();
+        done();
+      });
+    });
+
+    it('[All Oracles]', (done) => {
+      const oracles = Registry.getOracleRegistry();
+      oracles.onSubjectKeyReady(Network.All, 'ETH:USD:Chainlink', () => {
+        console.log(oracles.getLatestFromAllSubjects(Network.All));
+        expect(oracles.getLatestFromAllSubjects(Network.All)).toMatchSnapshot();
+        done();
+      });
+    });
   }
 );

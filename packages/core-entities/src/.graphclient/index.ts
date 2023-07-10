@@ -5978,7 +5978,7 @@ const notionalV3Transforms = [];
 const additionalTypeDefs = [] as any[];
 const notionalV3Handler = new GraphqlHandler({
               name: "NotionalV3",
-              config: {"endpoint":"https://api.studio.thegraph.com/query/33671/notional-finance-v3-{context.chainName:arbitrum}/v0.0.102"},
+              config: {"endpoint":"https://api.studio.thegraph.com/query/33671/notional-finance-v3-{context.chainName:arbitrum}/v0.0.103"},
               baseDir,
               cache,
               pubsub,
@@ -6109,7 +6109,7 @@ export type AllOraclesQueryVariables = Exact<{
 
 export type AllOraclesQuery = { oracles: Array<(
     Pick<Oracle, 'id' | 'lastUpdateBlockNumber' | 'lastUpdateTimestamp' | 'decimals' | 'oracleAddress' | 'oracleType' | 'mustInvert' | 'latestRate'>
-    & { base: Pick<Token, 'id'>, quote: Pick<Token, 'id'> }
+    & { base: Pick<Token, 'id' | 'decimals'>, quote: Pick<Token, 'id' | 'currencyId'> }
   )>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
 
 export type AllTokensQueryVariables = Exact<{ [key: string]: never; }>;
@@ -6245,7 +6245,7 @@ export const AllConfigurationDocument = gql`
 export const AllOraclesDocument = gql`
     query AllOracles($blockNumber: Int) {
   oracles(
-    where: {oracleType_not_in: [PrimeCashToUnderlyingOracleInterestRate, PrimeCashToMoneyMarketExchangeRate, PrimeDebtToMoneyMarketExchangeRate, MoneyMarketToUnderlyingExchangeRate, fCashSpotRate]}
+    where: {oracleType_in: [Chainlink, fCashOracleRate, fCashSettlementRate, PrimeCashToUnderlyingExchangeRate, PrimeDebtToUnderlyingExchangeRate, VaultShareOracleRate, nTokenToUnderlyingExchangeRate, PrimeCashSpotInterestRate, PrimeDebtSpotInterestRate, fCashSpotRate, PrimeCashToUnderlyingOracleInterestRate]}
     first: 5000
     block: {number: $blockNumber}
   ) {
@@ -6254,9 +6254,11 @@ export const AllOraclesDocument = gql`
     lastUpdateTimestamp
     base {
       id
+      decimals
     }
     quote {
       id
+      currencyId
     }
     decimals
     oracleAddress

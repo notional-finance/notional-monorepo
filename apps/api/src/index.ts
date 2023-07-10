@@ -57,14 +57,14 @@ const router = Router();
 router.options('*', handleOptions);
 
 router.get('/kpis', handleKPIs);
-router.get('/yields', handleYields);
 router.get('/geoip', handleGeoIP);
-router.get('/tokens', handleTokens);
-router.get('/configuration', handleConfigurations);
-router.get('/oracles', handleOracles);
-router.get('/exchanges', handleExchanges);
-router.get('/vaults', handleVaults);
 router.post('/newsletter', handleNewsletter);
+router.get('/:network/yields', handleYields);
+router.get('/:network/tokens', handleTokens);
+router.get('/:network/configuration', handleConfigurations);
+router.get('/:network/oracles', handleOracles);
+router.get('/:network/exchanges', handleExchanges);
+router.get('/:network/vaults', handleVaults);
 
 // Fall through catch for 404 errors
 router.all('*', () => new Response('Not Found', { status: 404 }));
