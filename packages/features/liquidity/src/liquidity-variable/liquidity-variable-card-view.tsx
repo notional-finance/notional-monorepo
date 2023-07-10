@@ -32,10 +32,11 @@ export const LiquidityVariableCardView = () => {
   const { themeVariant } = useUserSettingsState();
   const themeLanding = useNotionalTheme(themeVariant, 'landing');
   const network = useSelectedNetwork();
-  const { allYields } = useAllMarkets();
+  const {
+    yields: { liquidity },
+  } = useAllMarkets();
   const { height } = useWindowDimensions();
   const [notePriceString, setNotePriceString] = useState('');
-  const cardData = allYields.filter((t) => t.tokenType === 'nToken');
 
   useEffect(() => {
     if (network) {
@@ -78,20 +79,23 @@ export const LiquidityVariableCardView = () => {
               marginBottom: '0px',
             }}
           >
-            {cardData.map(({ underlying, totalApy, noteApy }, i) => {
+            {liquidity.map(({ underlying, totalAPY, incentives }, i) => {
               const route = `/${PRODUCTS.LIQUIDITY_VARIABLE}/${underlying}`;
+              const noteApy =
+                incentives?.find(({ tokenId }) => tokenId !== undefined)
+                  ?.incentiveAPY || 0;
               return (
                 <Incentive
                   key={`incentive-${i}`}
-                  symbol={underlying}
-                  rate={totalApy}
+                  symbol={underlying.symbol}
+                  rate={totalAPY}
                   incentiveRate={noteApy}
                   route={route}
                   buttonText={
                     <FormattedMessage
                       defaultMessage="Provide {symbol}"
                       values={{
-                        symbol: underlying,
+                        symbol: underlying.symbol,
                       }}
                     />
                   }

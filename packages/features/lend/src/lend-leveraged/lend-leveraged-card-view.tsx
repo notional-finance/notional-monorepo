@@ -6,13 +6,14 @@ import { ThemeProvider } from '@mui/material';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { defineMessage, FormattedMessage } from 'react-intl';
 import { useUserSettingsState } from '@notional-finance/user-settings-manager';
+import { formatLeverageRatio } from '@notional-finance/helpers';
 
 export function LendLeveragedCardView() {
   const { themeVariant } = useUserSettingsState();
   const themeLanding = useNotionalTheme(themeVariant, 'landing');
-  const { allYields } = useAllMarkets();
-  const cardData = allYields.filter((t) => t.tokenType === 'PrimeCash');
-  // TODO: Hook up actual leveraged data
+  const {
+    yields: { leveragedLend },
+  } = useAllMarkets();
   const heading = defineMessage({
     defaultMessage: 'Leveraged Lending',
     description: 'page heading',
@@ -32,7 +33,7 @@ export function LendLeveragedCardView() {
   return (
     <ThemeProvider theme={themeLanding}>
       <FeatureLoader
-        featureLoaded={cardData?.length > 0 && themeVariant ? true : false}
+        featureLoaded={leveragedLend?.length > 0 && themeVariant ? true : false}
       >
         <CardContainer
           heading={heading}
@@ -41,23 +42,31 @@ export function LendLeveragedCardView() {
           leveraged={true}
           docsLink="https://docs.notional.finance/notional-v2/what-you-can-do/fixed-rate-lending"
         >
-          {cardData.map(({ underlying, totalApy }, index) => {
+          {leveragedLend.map(({ underlying, totalAPY, leveraged }, index) => {
             const route = `/${PRODUCTS.LEND_LEVERAGED}/${underlying}`;
             return (
               <Currency
                 key={index}
-                symbol={underlying}
-                rate={totalApy}
+                symbol={underlying.symbol}
+                rate={totalAPY}
                 route={route}
                 returnTitle={
-                  <FormattedMessage defaultMessage="0.6x Leverage" />
+                  <FormattedMessage
+                    defaultMessage="{leverage} Leverage"
+                    values={{
+                      leverage: formatLeverageRatio(
+                        leveraged?.leverageRatio || 0,
+                        2
+                      ),
+                    }}
+                  />
                 }
                 leveraged
                 buttonText={
                   <FormattedMessage
                     defaultMessage="Lend {underlying}"
                     values={{
-                      underlying,
+                      underlying: underlying.symbol,
                     }}
                   />
                 }

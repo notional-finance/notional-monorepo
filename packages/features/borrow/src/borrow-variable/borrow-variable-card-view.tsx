@@ -10,13 +10,16 @@ import { ThemeProvider } from '@mui/material';
 export const BorrowVariableCardView = () => {
   const { themeVariant } = useUserSettingsState();
   const themeLanding = useNotionalTheme(themeVariant, 'landing');
-  const { allYields } = useAllMarkets();
-  const cardData = allYields.filter((t) => t.tokenType === 'PrimeDebt');
+  const {
+    yields: { variableBorrow },
+  } = useAllMarkets();
 
   return (
     <ThemeProvider theme={themeLanding}>
       <FeatureLoader
-        featureLoaded={cardData?.length > 0 && themeVariant ? true : false}
+        featureLoaded={
+          variableBorrow?.length > 0 && themeVariant ? true : false
+        }
       >
         <CardContainer
           heading={defineMessage({
@@ -33,26 +36,26 @@ export const BorrowVariableCardView = () => {
           })}
           docsLink="https://docs.notional.finance/notional-v2/what-you-can-do/fixed-rate-borrowing"
         >
-          {cardData.map(({ underlying, totalApy }, index) => {
+          {variableBorrow.map(({ underlying, totalAPY }, index) => {
             // TODO: Is this required for variable?
             // Special handling for borrowing ETH, default to collateralized by USDC
             const route =
-              underlying === 'ETH'
+              underlying.symbol === 'ETH'
                 ? `/${PRODUCTS.BORROW_VARIABLE}/${underlying}/USDC`
                 : `/${PRODUCTS.BORROW_VARIABLE}/${underlying}/ETH`;
 
             return (
               <Currency
                 key={index}
-                symbol={underlying}
-                rate={totalApy}
+                symbol={underlying.symbol}
+                rate={totalAPY}
                 route={route}
                 returnTitle={<FormattedMessage defaultMessage="VARIABLE APY" />}
                 buttonText={
                   <FormattedMessage
                     defaultMessage="Borrow {symbol}"
                     values={{
-                      symbol: underlying,
+                      symbol: underlying.symbol,
                     }}
                   />
                 }

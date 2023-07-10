@@ -44,7 +44,7 @@ export const useInvestEarnLinks = () => {
         <FormattedMessage
           defaultMessage="Earn up to {rate} APY"
           values={{
-            rate: formatNumberAsPercent(fCashLend?.totalApy || 0),
+            rate: formatNumberAsPercent(fCashLend?.totalAPY || 0),
           }}
         />
       ),
@@ -65,7 +65,7 @@ export const useInvestEarnLinks = () => {
         <FormattedMessage
           defaultMessage="Earn up to {rate} variable APY"
           values={{
-            rate: formatNumberAsPercent(variableLend?.totalApy || 0),
+            rate: formatNumberAsPercent(variableLend?.totalAPY || 0),
           }}
         />
       ),
@@ -87,7 +87,7 @@ export const useInvestEarnLinks = () => {
         <FormattedMessage
           defaultMessage={'Earn up to {rate} variable APY'}
           values={{
-            rate: formatNumberAsPercent(liquidity?.totalApy || 0),
+            rate: formatNumberAsPercent(liquidity?.totalAPY || 0),
           }}
         />
       ),
@@ -130,7 +130,7 @@ export const useInvestEarnLinks = () => {
         <FormattedMessage
           defaultMessage={'Leverage DeFi yields and earn up to {rate} APY'}
           values={{
-            rate: formatNumberAsPercent(leveragedVaults?.totalApy || 0),
+            rate: formatNumberAsPercent(leveragedVaults?.totalAPY || 0),
           }}
         />
       ),
@@ -151,7 +151,7 @@ export const useInvestEarnLinks = () => {
         <FormattedMessage
           defaultMessage={'Lend with leverage and earn up to {rate} APY'}
           values={{
-            rate: formatNumberAsPercent(leveragedLend?.totalApy || 0),
+            rate: formatNumberAsPercent(leveragedLend?.totalAPY || 0),
           }}
         />
       ),
@@ -173,7 +173,7 @@ export const useInvestEarnLinks = () => {
         <FormattedMessage
           defaultMessage={'Leverage liquidity and earn up to {rate} APY'}
           values={{
-            rate: formatNumberAsPercent(leveragedLiquidity?.totalApy || 0),
+            rate: formatNumberAsPercent(leveragedLiquidity?.totalAPY || 0),
           }}
         />
       ),

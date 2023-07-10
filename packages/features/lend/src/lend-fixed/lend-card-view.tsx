@@ -15,13 +15,13 @@ import {
 export function LendCardView() {
   const { themeVariant } = useUserSettingsState();
   const themeLanding = useNotionalTheme(themeVariant, 'landing');
-  const { allYields, getMax } = useAllMarkets();
+  const {
+    yields: { fCashLend },
+    getMax,
+  } = useAllMarkets();
 
   const cardData = [
-    ...groupArrayToMap(
-      allYields.filter((t) => t.tokenType === 'fCash'),
-      (t) => t.underlying
-    ).entries(),
+    ...groupArrayToMap(fCashLend, (t) => t.underlying.symbol).entries(),
   ];
 
   return (
@@ -47,12 +47,12 @@ export function LendCardView() {
           {cardData.map(([symbol, yields], index) => {
             const route = `/${PRODUCTS.LEND_FIXED}/${symbol}`;
 
-            const maxRate = getMax(yields)?.totalApy || 0;
+            const maxRate = getMax(yields)?.totalAPY || 0;
             const allRates = yields
-              .sort((a, b) => (a.maturity || 0) - (b.maturity || 0))
+              .sort((a, b) => (a.token.maturity || 0) - (b.token.maturity || 0))
               .map((y) => ({
-                maturity: formatMaturity(y.maturity || 0),
-                rate: formatNumberAsPercent(y.totalApy),
+                maturity: formatMaturity(y.token.maturity || 0),
+                rate: formatNumberAsPercent(y.totalAPY),
               }));
 
             return (
