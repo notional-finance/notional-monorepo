@@ -1,7 +1,6 @@
 import { Network, getProviderFromNetwork } from '@notional-finance/util';
 import { BigNumber } from 'ethers';
 import { initEventLogger, initMetricLogger } from '@notional-finance/logging';
-import { ERC20__factory } from '@notional-finance/contracts';
 import * as tokens from './config/tokens.json';
 import VaultV3Liquidator from './VaultV3Liquidator';
 
@@ -23,6 +22,8 @@ export interface Env {
   EXACT_OUT_SLIPPAGE_LIMIT: string;
   GAS_COST_BUFFER: string;
   PROFIT_THRESHOLD: string;
+  ZERO_EX_SWAP_URL: string;
+  ZERO_EX_API_KEY: string;
 }
 
 const accounts = [
@@ -74,6 +75,9 @@ const accounts = [
   {
     id: '0xd74e7325dfab7d7d1ecbf22e6e6874061c50f243',
   },
+  {
+    id: '0xCece1920D4dBb96BAf88705ce0A6Eb3203ed2eB1',
+  },
 ];
 
 const vaults = [
@@ -103,21 +107,11 @@ const run = async (env: Env) => {
     dustThreshold: BigNumber.from(env.DUST_THRESHOLD),
     txRelayUrl: env.TX_RELAY_URL,
     txRelayAuthToken: env.TX_RELAY_AUTH_TOKEN,
-    /*currencies: currencies.arbitrum.map((c) => {
-      return {
-        id: c.id,
-        tokenType: c.type,
-        hasTransferFee: c.hasTransferFee,
-        underlyingName: c.name,
-        underlyingSymbol: c.symbol,
-        underlyingDecimals: BigNumber.from(10).pow(c.decimals),
-        underlyingDecimalPlaces: c.decimals,
-        underlyingContract: ERC20__factory.connect(c.address, provider),
-      };
-    }),*/
     tokens: new Map<string, string>(Object.entries(tokens.arbitrum)),
     gasCostBuffer: BigNumber.from(env.GAS_COST_BUFFER),
     profitThreshold: BigNumber.from(env.PROFIT_THRESHOLD),
+    zeroExUrl: env.ZERO_EX_SWAP_URL,
+    zeroExApiKey: env.ZERO_EX_API_KEY,
   });
 
   const riskyAccounts = await liq.getRiskyAccounts(addrs);
@@ -125,7 +119,11 @@ const run = async (env: Env) => {
   if (riskyAccounts.length > 0) {
     const riskyAccount = riskyAccounts[0];
 
-    console.log(JSON.stringify(riskyAccount));
+    const accountLiq = await liq.getAccountLiquidation(riskyAccount);
+
+    if (accountLiq) {
+      await liq.liquidateAccount(accountLiq);
+    }
   }
 };
 

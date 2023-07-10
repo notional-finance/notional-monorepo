@@ -10,6 +10,7 @@ usage_model = "bundled"
 name = "vault-liquidator-dev"
 
 [env.dev.vars]
+ZERO_EX_SWAP_URL = 'https://arbitrum.api.0x.org/swap/v1/quote'
 NETWORK = 'ArbitrumOne'
 FLASH_LIQUIDATOR_CONTRACT = '0xd754329B32e3221C4Abe05b7C1a56989CA7578E3'
 FLASH_LIQUIDATOR_OWNER = '0xE6FB62c2218fd9e3c948f0549A2959B509a293C8'
