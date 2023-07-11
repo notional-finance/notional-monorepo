@@ -11,12 +11,12 @@ export interface IconCellProps {
 export const IconCell = ({ cell: { value } }: IconCellProps): JSX.Element => {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
-      {value !== 'Total' && (
+      {value?.toLocaleLowerCase() !== 'total' && (
         <TokenIcon symbol={value || 'unknown'} size="medium" />
       )}
       <TableCell
         style={{
-          marginLeft: value !== 'Total' ? '10px' : '',
+          marginLeft: value?.toLocaleLowerCase() !== 'total' ? '10px' : '',
           lineHeight: 'normal',
           fontWeight: 600,
         }}
