@@ -143,7 +143,16 @@ export default {
     const response = new Response('OK', { status: 200 });
     return response;
   },
-  async scheduled(): Promise<void> {
-    console.log(`Hello World!`);
+  async scheduled(
+    controller: ScheduledController,
+    env: Env,
+    _: ExecutionContext
+  ): Promise<void> {
+    try {
+      await run(env);
+    } catch (e) {
+      console.error(e);
+      console.trace();
+    }
   },
 };

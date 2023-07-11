@@ -285,7 +285,7 @@ export default class VaultV3Liquidator {
       data: encodedTransaction,
     });
 
-    const resp = await fetch(this.settings.txRelayUrl + '/v1/calls/0', {
+    await fetch(this.settings.txRelayUrl + '/v1/txes/0', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -293,7 +293,5 @@ export default class VaultV3Liquidator {
       },
       body: payload,
     });
-
-    console.log(resp);
   }
 }
