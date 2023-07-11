@@ -9,29 +9,16 @@ import {
 import { Registry } from '../Registry';
 import { Routes } from '../server';
 import { ClientRegistry } from './client-registry';
-import { OracleType, TokenDefinition, TokenType } from '../Definitions';
+import {
+  OracleType,
+  TokenDefinition,
+  TokenType,
+  YieldData,
+} from '../Definitions';
 import { fCashMarket } from '../exchanges';
 import { TokenBalance } from '../token-balance';
 import { BigNumber } from 'ethers';
 import { SECONDS_IN_YEAR } from '@notional-finance/sdk';
-
-interface YieldData {
-  token: TokenDefinition;
-  underlying: TokenDefinition;
-  totalAPY: number;
-  leveraged?: {
-    debtToken: TokenDefinition;
-    leverageRatio: number;
-    debtRate: number;
-  };
-  nativeTokenAPY?: number;
-  interestAPY?: number;
-  feeAPY?: number;
-  incentives?: {
-    tokenId: string;
-    incentiveAPY: number;
-  }[];
-}
 
 /**
  * TODO:

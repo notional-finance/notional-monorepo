@@ -160,3 +160,20 @@ export interface CacheSchema<T> {
 export type SubjectMap<T> = Map<string, BehaviorSubject<T | null>>;
 
 export type RiskAdjustment = 'None' | 'Asset' | 'Debt';
+export interface YieldData {
+  token: TokenDefinition;
+  underlying: TokenDefinition;
+  totalAPY: number;
+  leveraged?: {
+    debtToken: TokenDefinition;
+    leverageRatio: number;
+    debtRate: number;
+  };
+  nativeTokenAPY?: number;
+  interestAPY?: number;
+  feeAPY?: number;
+  incentives?: {
+    tokenId: string;
+    incentiveAPY: number;
+  }[];
+}

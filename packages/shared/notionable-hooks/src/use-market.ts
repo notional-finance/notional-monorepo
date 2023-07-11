@@ -1,5 +1,9 @@
 import { useObservableState } from 'observable-hooks';
-import { fCashMarket, Registry } from '@notional-finance/core-entities';
+import {
+  fCashMarket,
+  Registry,
+  YieldData,
+} from '@notional-finance/core-entities';
 import { EMPTY } from 'rxjs';
 import { useSelectedNetwork } from './use-notional';
 import { useCallback, useMemo } from 'react';
@@ -55,17 +59,17 @@ export const useAllMarkets = () => {
     ? Registry.getYieldRegistry().getAllYields(network)
     : [];
 
-  const getMax = useCallback((y: typeof allYields) => {
+  const getMax = useCallback((y: YieldData[]) => {
     return y.reduce(
       (m, t) => (m === null || t.totalAPY > m.totalAPY ? t : m),
-      null as typeof allYields[0] | null
+      null as YieldData | null
     );
   }, []);
 
-  const getMin = useCallback((y: typeof allYields) => {
+  const getMin = useCallback((y: YieldData[]) => {
     return y.reduce(
       (m, t) => (m === null || t.totalAPY < m.totalAPY ? t : m),
-      null as typeof allYields[0] | null
+      null as YieldData | null
     );
   }, []);
 
