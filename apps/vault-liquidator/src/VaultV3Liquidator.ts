@@ -1,11 +1,17 @@
 import { ethers, BigNumber, Contract } from 'ethers';
-import { RiskyAccount } from './types';
+import { RiskyAccount, IGasOracle } from './types';
 import { AggregateCall, aggregate } from '@notional-finance/sdk/data/Multicall';
 import {
+  BaseStrategyVaultABI,
   VaultLiquidatorABI,
   NotionalV3ABI,
   VaultLiquidator__factory,
 } from '@notional-finance/contracts';
+import {
+  DDEventAlertType,
+  DDEventKey,
+  submitEvent,
+} from '@notional-finance/logging';
 
 export type LiquidatorSettings = {
   network: string;
@@ -13,6 +19,7 @@ export type LiquidatorSettings = {
   flashLiquidatorAddress: string;
   flashLiquidatorOwner: string;
   flashLenderAddress: string;
+  slippageLimit: BigNumber;
   notionalAddress: string;
   dustThreshold: BigNumber;
   flashLoanBuffer: BigNumber;
@@ -23,6 +30,7 @@ export type LiquidatorSettings = {
   profitThreshold: BigNumber;
   zeroExUrl: string;
   zeroExApiKey: string;
+  gasOracle: IGasOracle;
 };
 
 export default class VaultV3Liquidator {
@@ -74,6 +82,15 @@ export default class VaultV3Liquidator {
             vaultSharesToLiquidator: r[2],
           }),
         });
+
+        calls.push({
+          stage: 0,
+          target: this.notionalContract,
+          method: 'getVaultAccount',
+          args: [addr, vault],
+          key: `${addr}:${vault}:maturity`,
+          transform: (r) => r[1],
+        });
       });
     });
 
@@ -93,6 +110,7 @@ export default class VaultV3Liquidator {
 
       addrs.forEach((addr) => {
         const accountHealth = results[`${addr}:${vault}:health`];
+        const maturity = results[`${addr}:${vault}:maturity`];
 
         if (
           accountHealth.collateralRatio
@@ -101,6 +119,7 @@ export default class VaultV3Liquidator {
         ) {
           riskyAccounts.push({
             id: addr,
+            maturity: maturity,
             vault: vault,
             collateralRatio: accountHealth.collateralRatio,
             maxLiquidatorDepositUnderlying:
@@ -120,6 +139,12 @@ export default class VaultV3Liquidator {
     ra: RiskyAccount,
     currencyIndex: number
   ): AggregateCall[] {
+    const vaultContract = new ethers.Contract(
+      ra.vault,
+      BaseStrategyVaultABI,
+      this.provider
+    );
+
     return [
       {
         stage: 0,
@@ -139,6 +164,13 @@ export default class VaultV3Liquidator {
           true,
         ],
         key: 'depositAmount',
+      },
+      {
+        stage: 0,
+        target: vaultContract,
+        method: 'convertStrategyToUnderlying',
+        args: [ra.id, ra.vaultSharesToLiquidator[currencyIndex], ra.maturity],
+        key: 'primaryAmount',
       },
     ];
   }
@@ -200,6 +232,9 @@ export default class VaultV3Liquidator {
     const flashLoanAmount = results['depositAmount']
       .mul(this.settings.flashLoanBuffer)
       .div(1000);
+    const minPrimary = results['primaryAmount']
+      .mul(this.settings.slippageLimit)
+      .div(1000);
 
     const callParams = {
       liquidationType: 1,
@@ -214,7 +249,7 @@ export default class VaultV3Liquidator {
             false,
             ethers.utils.defaultAbiCoder.encode(
               ['tuple(uint256,uint256,bytes)'],
-              [[0, 0, []]]
+              [[minPrimary, 0, []]]
             ),
           ],
         ]
@@ -243,8 +278,7 @@ export default class VaultV3Liquidator {
       flashLoanAmount,
       callParams
     );
-    // TODO: use gas oracle for other chains
-    const gasCost = gasAmount.mul(1e9);
+    const gasCost = gasAmount.mul(await this.settings.gasOracle.getGasPrice());
 
     console.log(
       `profit=${BigNumber.from(zeroExResp.buyAmount).sub(gasCost).toString()}`
@@ -256,7 +290,7 @@ export default class VaultV3Liquidator {
     }
 
     return {
-      accouont: ra,
+      account: ra,
       currencyIndex: liqParams.currencyIndex,
       maxUnderlying: liqParams.maxUnderying,
       assetAddress: assetAddress,
@@ -292,6 +326,18 @@ export default class VaultV3Liquidator {
         'X-Auth-Token': this.settings.txRelayAuthToken,
       },
       body: payload,
+    });
+
+    await submitEvent({
+      aggregation_key: DDEventKey.AccountLiquidated,
+      alert_type: DDEventAlertType.info,
+      title: `Account liquidated`,
+      tags: [
+        `account:${accountLiq.account.id}`,
+        `network:${this.settings.network}`,
+        `event:vault_account_liquidated`,
+      ],
+      text: `Liquidated account ${accountLiq.account.id}`,
     });
   }
 }

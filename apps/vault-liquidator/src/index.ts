@@ -1,8 +1,17 @@
-import { Network, getProviderFromNetwork } from '@notional-finance/util';
-import { BigNumber } from 'ethers';
-import { initEventLogger, initMetricLogger } from '@notional-finance/logging';
+import {
+  Network,
+  getNowSeconds,
+  getProviderFromNetwork,
+} from '@notional-finance/util';
+import { BigNumber, ethers } from 'ethers';
+import {
+  initEventLogger,
+  initMetricLogger,
+  submitMetrics,
+} from '@notional-finance/logging';
 import * as tokens from './config/tokens.json';
 import VaultV3Liquidator from './VaultV3Liquidator';
+import { IGasOracle, MetricNames } from './types';
 
 export interface Env {
   NETWORK: string;
@@ -18,8 +27,7 @@ export interface Env {
   DD_APP_KEY: string;
   TX_RELAY_URL: string;
   TX_RELAY_AUTH_TOKEN: string;
-  EXACT_IN_SLIPPAGE_LIMIT: string;
-  EXACT_OUT_SLIPPAGE_LIMIT: string;
+  SLIPPAGE_LIMIT: string;
   GAS_COST_BUFFER: string;
   PROFIT_THRESHOLD: string;
   ZERO_EX_SWAP_URL: string;
@@ -85,6 +93,13 @@ const vaults = [
   '0xaE38F4B960f44d86e798f36a374a1Ac3f2D859fa',
 ];
 
+class ArbitrumGasOracle implements IGasOracle {
+  public async getGasPrice(): Promise<BigNumber> {
+    // 0.1 gwei
+    return ethers.utils.parseUnits('1', 8);
+  }
+}
+
 const run = async (env: Env) => {
   initMetricLogger({
     apiKey: env.DD_API_KEY,
@@ -103,6 +118,7 @@ const run = async (env: Env) => {
     flashLiquidatorOwner: env.FLASH_LIQUIDATOR_OWNER,
     flashLenderAddress: env.FLASH_LENDER_ADDRESS,
     flashLoanBuffer: BigNumber.from(env.FLASH_LOAN_BUFFER),
+    slippageLimit: BigNumber.from(env.SLIPPAGE_LIMIT),
     notionalAddress: env.NOTIONAL_PROXY_CONTRACT,
     dustThreshold: BigNumber.from(env.DUST_THRESHOLD),
     txRelayUrl: env.TX_RELAY_URL,
@@ -112,9 +128,21 @@ const run = async (env: Env) => {
     profitThreshold: BigNumber.from(env.PROFIT_THRESHOLD),
     zeroExUrl: env.ZERO_EX_SWAP_URL,
     zeroExApiKey: env.ZERO_EX_API_KEY,
+    gasOracle: new ArbitrumGasOracle(),
   });
 
   const riskyAccounts = await liq.getRiskyAccounts(addrs);
+
+  const ddSeries = {
+    series: [],
+  };
+
+  ddSeries.series.push({
+    name: MetricNames.NUM_RISKY_ACCOUNTS,
+    value: riskyAccounts.length,
+    tags: [`network:${env.NETWORK}`],
+    timestamp: getNowSeconds(),
+  });
 
   if (riskyAccounts.length > 0) {
     const riskyAccount = riskyAccounts[0];
@@ -125,6 +153,8 @@ const run = async (env: Env) => {
       await liq.liquidateAccount(accountLiq);
     }
   }
+
+  await submitMetrics(ddSeries);
 };
 
 export default {
