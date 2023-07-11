@@ -11,8 +11,18 @@ export interface IconCellProps {
 export const IconCell = ({ cell: { value } }: IconCellProps): JSX.Element => {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
-      <TokenIcon symbol={value || 'unknown'} size="medium" />
-      <TableCell style={{ marginLeft: '10px', lineHeight: 'normal' }}>{value}</TableCell>
+      {value !== 'Total' && (
+        <TokenIcon symbol={value || 'unknown'} size="medium" />
+      )}
+      <TableCell
+        style={{
+          marginLeft: value !== 'Total' ? '10px' : '',
+          lineHeight: 'normal',
+          fontWeight: 600,
+        }}
+      >
+        {value}
+      </TableCell>
     </Box>
   );
 };
