@@ -166,6 +166,7 @@ export interface YieldData {
   token: TokenDefinition;
   underlying: TokenDefinition;
   totalAPY: number;
+  tvl?: TokenBalance;
   leveraged?: {
     debtToken: TokenDefinition;
     leverageRatio: number;

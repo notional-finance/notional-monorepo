@@ -5,6 +5,7 @@ import {
   RATE_PRECISION,
   SECONDS_IN_DAY,
   getNowSeconds,
+  isIdiosyncratic,
 } from '@notional-finance/util';
 import { Registry } from '../Registry';
 import { Routes } from '../server';
@@ -66,9 +67,11 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
           nativeTokenAPY = 0;
         }
 
+        const underlying = tokens.getTokenByID(network, t.underlying);
         return {
           token: t,
-          underlying: tokens.getTokenByID(network, t.underlying),
+          tvl: t.totalSupply?.toUnderlying() || TokenBalance.zero(underlying),
+          underlying,
           totalAPY: interestAPY,
           interestAPY,
           nativeTokenAPY,
@@ -102,9 +105,32 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
   }
 
   getfCashYield(network: Network) {
-    return this._getOracleRate(network, 'fCash', 'fCashSpotRate').filter(
-      (y) => y.token.isFCashDebt === false
-    );
+    const exchanges = Registry.getExchangeRegistry();
+    const tokens = Registry.getTokenRegistry();
+
+    return this._getOracleRate(network, 'fCash', 'fCashSpotRate')
+      .filter(
+        (y) =>
+          y.token.isFCashDebt === false &&
+          !!y.token.maturity &&
+          !isIdiosyncratic(y.token.maturity)
+      )
+      .map((y) => {
+        if (!y.token.maturity) throw Error();
+
+        const nToken = tokens.getNToken(network, y.token.currencyId);
+        const fCashMarket = exchanges.getPoolInstance<fCashMarket>(
+          network,
+          nToken.address
+        );
+        const marketIndex = fCashMarket.getMarketIndex(y.token.maturity);
+        const pCash = fCashMarket.balances[marketIndex];
+        const fCash = fCashMarket.poolParams.perMarketfCash[marketIndex - 1];
+        // Adds the prime cash value in the nToken to the fCash TVL
+        return Object.assign(y, {
+          tvl: fCash.toUnderlying().add(pCash.toUnderlying()),
+        });
+      });
   }
 
   getNTokenFees(
@@ -182,6 +208,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
 
         return {
           token: t,
+          tvl: t.totalSupply?.toUnderlying(),
           underlying,
           totalAPY: incentiveAPY + feeAPY + interestAPY,
           interestAPY,
@@ -212,6 +239,9 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
     return {
       token: yieldData.token,
       underlying: yieldData.underlying,
+      tvl:
+        yieldData.token.totalSupply?.toUnderlying() ||
+        TokenBalance.zero(yieldData.underlying),
       totalAPY: this.calculateLeveragedAPY(
         yieldData.totalAPY,
         debt.totalAPY,
@@ -328,6 +358,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
 
   getLeveragedVaultYield(network: Network) {
     const config = Registry.getConfigurationRegistry();
+    const vaults = Registry.getVaultRegistry();
     const fCashYields = this.getfCashYield(network);
     const debtYields = this.getPrimeDebtYield(network).concat(fCashYields);
     const tokens = Registry.getTokenRegistry();
@@ -351,6 +382,9 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
         if (!debt) throw Error('Matching debt not found');
         if (!v.vaultAddress) throw Error('Vault address not defined');
         if (!v.underlying) throw Error('underlying is not defined');
+        // Ensures that the oracle registry side effect happens here so that we
+        // can properly get the TVL value.
+        vaults.getVaultAdapter(network, v.vaultAddress);
         const underlying = tokens.getTokenByID(network, v.underlying);
         const { defaultLeverageRatio } = config.getVaultLeverageFactors(
           network,
