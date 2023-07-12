@@ -37,6 +37,8 @@ export interface TokenDefinition {
   tokenInterface: TokenInterface;
   /** Defines the token type */
   tokenType: TokenType;
+  /** The total supply value if it is tracked */
+  totalSupply?: TokenBalance;
   /** Link to the underlying token definition, if it exists */
   underlying?: string;
   /** Defines the maturity of the token, if it exists */
