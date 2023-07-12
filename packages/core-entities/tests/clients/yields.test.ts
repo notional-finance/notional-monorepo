@@ -16,10 +16,11 @@ describe.withRegistry(
       y.forEach((y) => {
         expect(y.token.tokenType).toBe('PrimeCash');
         expect(y.totalAPY).toEqual(y.interestAPY);
+        expect(y.tvl).toBeDefined();
       });
     });
 
-    it.skip('fetches prime debt yields', () => {
+    it('fetches prime debt yields', () => {
       const y = Registry.getYieldRegistry().getPrimeDebtYield(
         Network.ArbitrumOne
       );
@@ -27,6 +28,7 @@ describe.withRegistry(
       y.forEach((y) => {
         expect(y.token.tokenType).toBe('PrimeDebt');
         expect(y.totalAPY).toEqual(y.interestAPY);
+        expect(y.tvl).toBeDefined();
       });
     });
 
@@ -38,6 +40,7 @@ describe.withRegistry(
         expect(y.token.tokenType).toBe('fCash');
         expect(y.totalAPY).toEqual(y.interestAPY);
         expect(y.token.maturity! > getNowSeconds()).toBe(true);
+        expect(y.tvl).toBeDefined();
       });
     });
 
@@ -47,6 +50,7 @@ describe.withRegistry(
       y.forEach((y) => {
         expect(y.token.tokenType).toBe('nToken');
         expect(y.totalAPY).toEqual(y.interestAPY);
+        expect(y.tvl).toBeDefined();
       });
     });
 
@@ -85,6 +89,7 @@ describe.withRegistry(
         expect(y.token.tokenType).toBe('VaultShare');
         expect(y.token.underlying).toBe(y.leveraged?.debtToken.underlying);
         expect(y.leveraged?.leverageRatio).toBeGreaterThan(0);
+        expect(y.tvl).toBeDefined();
       });
     });
   }

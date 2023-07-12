@@ -25,9 +25,6 @@ import { TypedDocumentNode } from '@apollo/client/core';
 import { AllOraclesQuery } from '../.graphclient';
 
 export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
-  // Interval refreshes only update the latest rates
-  public INTERVAL_REFRESH_SECONDS = 30;
-
   public override hasAllNetwork(): boolean {
     return true;
   }

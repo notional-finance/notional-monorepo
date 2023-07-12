@@ -73,7 +73,7 @@ describe.withRegistry(
 
     it('[All Tokens]', (done) => {
       const tokens = Registry.getTokenRegistry();
-      tokens.onSubjectKeyReady(Network.All, 'ETH', () => {
+      tokens.onSubjectKeyReady(Network.All, 'eth', () => {
         expect(tokens.getLatestFromAllSubjects(Network.All)).toMatchSnapshot();
         done();
       });
@@ -81,8 +81,7 @@ describe.withRegistry(
 
     it('[All Oracles]', (done) => {
       const oracles = Registry.getOracleRegistry();
-      oracles.onSubjectKeyReady(Network.All, 'ETH:USD:Chainlink', () => {
-        console.log(oracles.getLatestFromAllSubjects(Network.All));
+      oracles.onSubjectKeyReady(Network.All, 'usd:eth:Chainlink', () => {
         expect(oracles.getLatestFromAllSubjects(Network.All)).toMatchSnapshot();
         done();
       });
