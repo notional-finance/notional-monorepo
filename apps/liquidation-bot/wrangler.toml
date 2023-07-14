@@ -10,6 +10,7 @@ usage_model = "bundled"
 name = "liquidation-bot-dev"
 
 [env.dev.vars]
+ACCOUNT_SERVICE_URL = 'https://data-service-dot-monitoring-agents.uc.r.appspot.com/accounts'
 ZERO_EX_SWAP_URL = 'https://arbitrum.api.0x.org/swap/v1/quote'
 NETWORK = 'ArbitrumOne'
 FLASH_LIQUIDATOR_CONTRACT = '0xd754329B32e3221C4Abe05b7C1a56989CA7578E3'
