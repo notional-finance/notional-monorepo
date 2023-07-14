@@ -75,35 +75,78 @@ export const useAllMarkets = () => {
 
   const yields = {
     liquidity: allYields.filter(
-      (y) => y.token.tokenType === 'nToken' && y.leveraged === undefined
-    ),
+      (y) => y.token.tokenType === 'nToken' && y.leveraged === undefined      
+    ).map((y) => {
+      return {
+        ...y,
+       product: 'Provide Liquidity'
+      }
+    }),
     fCashLend: allYields.filter(
       (y) => y.token.tokenType === 'fCash' && y.leveraged === undefined
-    ),
+    ).map((y) => {
+      return {
+        ...y,
+       product: 'Fixed Lend'
+      }
+    }),
     fCashBorrow: allYields.filter(
       (y) => y.token.tokenType === 'fCash' && y.leveraged === undefined
-    ),
+    ).map((y) => {
+      return {
+        ...y,
+       product: 'Fixed Borrow'
+      }
+    }),
     variableLend: allYields.filter(
       (y) => y.token.tokenType === 'PrimeCash' && y.leveraged === undefined
-    ),
-    variableBorrow: allYields.filter((y) => y.token.tokenType === 'PrimeDebt'),
+    ).map((y) => {
+      return {
+        ...y,
+       product: 'Variable Lend'
+      }
+    }),
+    variableBorrow: allYields.filter((y) => y.token.tokenType === 'PrimeDebt').map((y) => {
+      return {
+        ...y,
+       product: 'Variable Borrow'
+      }
+    }),
     leveragedVaults: allYields.filter(
       (y) => y.token.tokenType === 'VaultShare'
-    ),
+    ).map((y) => {
+      return {
+        ...y,
+       product: 'Leveraged Vault'
+      }
+    }),
     leveragedLend: allYields.filter(
       (y) =>
         (y.token.tokenType === 'fCash' || y.token.tokenType === 'PrimeCash') &&
         !!y.leveraged
-    ),
+    ).map((y) => {
+      return {
+        ...y,
+       product: 'Leveraged lend'
+      }
+    }),
     leveragedLiquidity: allYields.filter(
       (y) => y.token.tokenType === 'nToken' && !!y.leveraged
-    ),
+    ).map((y) => {
+      return {
+        ...y,
+       product: 'Leveraged Liquidity'
+      }
+    }),
   };
+
+  const earnYields = [...yields.liquidity, ...yields.fCashLend, ...yields.variableLend, ...yields.leveragedVaults, ...yields.leveragedLend, ...yields.leveragedLiquidity]
+  const borrowYields = [...yields.fCashBorrow, ...yields.variableBorrow]
 
   const headlineRates = {
     liquidity: getMax(yields.liquidity),
     fCashLend: getMax(yields.fCashLend),
-    fCashBorrow: getMin(yields.fCashLend),
+    fCashBorrow: getMin(yields.fCashBorrow),
     variableLend: getMax(yields.variableLend),
     variableBorrow: getMin(yields.variableBorrow),
     leveragedVaults: getMax(yields.leveragedVaults),
@@ -111,7 +154,7 @@ export const useAllMarkets = () => {
     leveragedLiquidity: getMax(yields.leveragedLiquidity),
   };
 
-  return { headlineRates, allYields, yields, getMax, getMin };
+  return { headlineRates, allYields, yields, getMax, getMin, earnYields: earnYields, borrowYields: borrowYields };
 };
 
 export const useFCashMarket = (currencyId?: number) => {

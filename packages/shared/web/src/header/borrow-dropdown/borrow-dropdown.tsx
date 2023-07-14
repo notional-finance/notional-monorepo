@@ -42,7 +42,7 @@ export function BorrowDropDown() {
       customPopOverStyles={{
         left: 0,
         right: 0,
-        marginLeft: '5%',
+        marginLeft: '15%',
         marginRight: 'auto',
         width: theme.spacing(82),
         overflow: 'visible',

@@ -1,4 +1,5 @@
 export * from './lib/analytics-icon/analytics-icon';
+export * from './lib/stack-icon/stack-icon';
 export * from './lib/stake-icon/stake-icon';
 export * from './lib/token-icon/token-icon';
 export * from './lib/token-terminal-icon/token-terminal-icon';

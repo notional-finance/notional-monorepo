@@ -7,6 +7,7 @@ import { formatNumberAsPercent } from '@notional-finance/helpers';
 
 export const useBorrowDropDown = () => {
   const theme = useTheme();
+
   const {
     headlineRates: { fCashLend, variableLend },
   } = useAllMarkets();

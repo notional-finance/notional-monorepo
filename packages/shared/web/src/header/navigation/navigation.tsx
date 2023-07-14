@@ -58,48 +58,98 @@ export function Navigation({ navLinks, ...rest }: NavigationProps) {
           },
         }}
       >
-        {navLinks.map((t) => (
-          <Tab
-            key={t.key}
-            icon={t.iconImg}
-            iconPosition="start"
-            label={t.label}
-            to={t.link}
-            value={t.link}
-            component={Link}
-            sx={{
-              '&.MuiTab-root, .MuiTab-labelIcon': {
-                color: theme.palette.common.black,
-                opacity: 1,
-                textTransform: 'capitalize',
-                fontWeight: 400,
-                fontSize: '1rem',
-                padding: '6px 15px',
-              },
+        <Tab
+          key={navLinks[0].key}
+          icon={navLinks[0].iconImg}
+          iconPosition="start"
+          label={navLinks[0].label}
+          to={navLinks[0].link}
+          value={navLinks[0].link}
+          component={Link}
+          sx={{
+            '&.MuiTab-root, .MuiTab-labelIcon': {
+              color: theme.palette.common.black,
+              opacity: 1,
+              textTransform: 'capitalize',
+              fontWeight: 400,
+              fontSize: '1rem',
+              padding: '6px 15px',
+            },
+            'svg.color-stroke': {
+              stroke: theme.palette.common.black,
+            },
+            'svg.color-fill': {
+              fill: theme.palette.common.black,
+            },
+            '&:hover': {
+              // Some of the icons need to have the stroke color set, others
+              // rely on the fill color being set. Class names are set in the
+              // use-nav-links hook
               'svg.color-stroke': {
-                stroke: theme.palette.common.black,
+                stroke: theme.palette.primary.light,
               },
               'svg.color-fill': {
-                fill: theme.palette.common.black,
+                fill: theme.palette.primary.light,
               },
-              '&:hover': {
-                // Some of the icons need to have the stroke color set, others
-                // rely on the fill color being set. Class names are set in the
-                // use-nav-links hook
-                'svg.color-stroke': {
-                  stroke: theme.palette.primary.light,
-                },
-                'svg.color-fill': {
-                  fill: theme.palette.primary.light,
-                },
-                color: theme.palette.primary.light,
-              },
-            }}
-          />
-        ))}
+              color: theme.palette.primary.light,
+            },
+          }}
+        />
       </Tabs>
-      <BorrowDropDown />
       <InvestAndEarnDropdown />
+      <BorrowDropDown />
+      <Tabs
+        {...rest}
+        value={selectedTab}
+        onChange={handleChange}
+        aria-label="Notional site navigation"
+        sx={{
+          '.MuiTabs-vertical': {},
+          '.MuiTabs-indicator': {
+            height: '4px',
+            background: theme.gradient.landing,
+            transition: 'none',
+          },
+        }}
+      >
+        <Tab
+          key={navLinks[1].key}
+          icon={navLinks[1].iconImg}
+          iconPosition="start"
+          label={navLinks[1].label}
+          to={navLinks[1].link}
+          value={navLinks[1].link}
+          component={Link}
+          sx={{
+            '&.MuiTab-root, .MuiTab-labelIcon': {
+              color: theme.palette.common.black,
+              opacity: 1,
+              textTransform: 'capitalize',
+              fontWeight: 400,
+              fontSize: '1rem',
+              padding: '6px 15px',
+            },
+            'svg.color-stroke': {
+              stroke: theme.palette.common.black,
+            },
+            'svg.color-fill': {
+              fill: theme.palette.common.black,
+            },
+            '&:hover': {
+              // Some of the icons need to have the stroke color set, others
+              // rely on the fill color being set. Class names are set in the
+              // use-nav-links hook
+              'svg.color-stroke': {
+                stroke: theme.palette.primary.light,
+              },
+              'svg.color-fill': {
+                fill: theme.palette.primary.light,
+              },
+              color: theme.palette.primary.light,
+            },
+          }}
+        />
+      </Tabs>
     </>
   );
 }

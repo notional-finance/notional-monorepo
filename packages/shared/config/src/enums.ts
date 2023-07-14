@@ -3,6 +3,11 @@ export enum LEND_BORROW {
   BORROW = 'borrow',
 }
 
+export enum MARKET_TYPE {
+  EARN = 'earn',
+  BORROW = 'borrow',
+}
+
 export enum PRODUCTS {
   LEND_FIXED = 'lend-fixed',
   LEND_VARIABLE = 'lend-variable',

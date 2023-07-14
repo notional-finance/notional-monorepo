@@ -27,4 +27,5 @@ export type DataTableColumn = Column & {
   expandableTable?: boolean;
   textAlign?: string;
   showLinkIcon?: boolean;
+  defaultCanSort?: boolean;
 };

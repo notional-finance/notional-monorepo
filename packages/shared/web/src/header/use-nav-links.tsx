@@ -2,6 +2,7 @@ import {
   ActiveBellIcon,
   BellIcon,
   PortfolioIcon,
+  StackIcon,
   DocsIcon,
   NotionalPlainIcon,
   ResourcesIcon,
@@ -28,6 +29,17 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
       link: '/portfolio/overview',
       iconImg: (
         <PortfolioIcon
+          className="color-fill"
+          sx={{ fontSize: '1.125rem', fill: textColor, stroke: 'transparent' }}
+        />
+      ),
+    },
+    {
+      key: 'markets',
+      label: <FormattedMessage defaultMessage={'Markets'} />,
+      link: '/markets',
+      iconImg: (
+        <StackIcon
           className="color-fill"
           sx={{ fontSize: '1.125rem', fill: textColor, stroke: 'transparent' }}
         />
