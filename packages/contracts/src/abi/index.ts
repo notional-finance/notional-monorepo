@@ -1,6 +1,5 @@
 export { default as AssetRateAggregatorABI } from './AssetRateAggregator.json';
 export { default as AaveFlashLenderABI } from './AaveFlashLender.json';
-export { default as BaseStrategyVaultABI } from './BaseStrategyVault.json';
 export { default as BalancerBoostedPoolABI } from './BalancerBoostedPool.json';
 export { default as BalancerLinearPoolABI } from './BalancerLinearPool.json';
 export { default as BalancerPoolABI } from './BalancerPool.json';

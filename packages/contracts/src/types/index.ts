@@ -8,7 +8,6 @@ export type { BalancerLinearPool } from "./BalancerLinearPool";
 export type { BalancerPool } from "./BalancerPool";
 export type { BalancerStablePool } from "./BalancerStablePool";
 export type { BalancerVault } from "./BalancerVault";
-export type { BaseStrategyVault } from "./BaseStrategyVault";
 export type { Boosted3TokenAuraVault } from "./Boosted3TokenAuraVault";
 export type { Curve2TokenConvexVault } from "./Curve2TokenConvexVault";
 export type { CurvePoolV1 } from "./CurvePoolV1";
@@ -39,7 +38,6 @@ export { BalancerLinearPool__factory } from "./factories/BalancerLinearPool__fac
 export { BalancerPool__factory } from "./factories/BalancerPool__factory";
 export { BalancerStablePool__factory } from "./factories/BalancerStablePool__factory";
 export { BalancerVault__factory } from "./factories/BalancerVault__factory";
-export { BaseStrategyVault__factory } from "./factories/BaseStrategyVault__factory";
 export { Boosted3TokenAuraVault__factory } from "./factories/Boosted3TokenAuraVault__factory";
 export { Curve2TokenConvexVault__factory } from "./factories/Curve2TokenConvexVault__factory";
 export { CurvePoolV1__factory } from "./factories/CurvePoolV1__factory";

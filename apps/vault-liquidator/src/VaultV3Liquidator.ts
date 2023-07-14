@@ -1,8 +1,8 @@
 import { ethers, BigNumber, Contract } from 'ethers';
 import { RiskyAccount, IGasOracle } from './types';
-import { AggregateCall, aggregate } from '@notional-finance/sdk/data/Multicall';
+import { AggregateCall, aggregate } from '@notional-finance/multicall';
 import {
-  BaseStrategyVaultABI,
+  IStrategyVaultABI,
   VaultLiquidatorABI,
   NotionalV3ABI,
   VaultLiquidator__factory,
@@ -106,11 +106,11 @@ export default class VaultV3Liquidator {
     const riskyAccounts = [];
 
     this.settings.vaultAddrs.forEach((vault) => {
-      const vaultConfig = results[`${vault}:vaultConfig`];
+      const vaultConfig = results[`${vault}:vaultConfig`] as any;
 
       addrs.forEach((addr) => {
-        const accountHealth = results[`${addr}:${vault}:health`];
-        const maturity = results[`${addr}:${vault}:maturity`];
+        const accountHealth = results[`${addr}:${vault}:health`] as any;
+        const maturity = results[`${addr}:${vault}:maturity`] as any;
 
         if (
           accountHealth.collateralRatio
@@ -141,7 +141,7 @@ export default class VaultV3Liquidator {
   ): AggregateCall[] {
     const vaultContract = new ethers.Contract(
       ra.vault,
-      BaseStrategyVaultABI,
+      IStrategyVaultABI,
       this.provider
     );
 
@@ -228,11 +228,11 @@ export default class VaultV3Liquidator {
       this.provider
     );
 
-    const assetAddress = results['assetAddress'];
-    const flashLoanAmount = results['depositAmount']
+    const assetAddress = results['assetAddress'] as string;
+    const flashLoanAmount = (results['depositAmount'] as BigNumber)
       .mul(this.settings.flashLoanBuffer)
       .div(1000);
-    const minPrimary = results['primaryAmount']
+    const minPrimary = (results['primaryAmount'] as BigNumber)
       .mul(this.settings.slippageLimit)
       .div(1000);
 
@@ -319,7 +319,7 @@ export default class VaultV3Liquidator {
       data: encodedTransaction,
     });
 
-    await fetch(this.settings.txRelayUrl + '/v1/txes/0', {
+    await fetch(this.settings.txRelayUrl + '/v1/calls/0', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
