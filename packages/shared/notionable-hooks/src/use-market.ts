@@ -5,6 +5,7 @@ import {
   YieldData,
 } from '@notional-finance/core-entities';
 import { EMPTY } from 'rxjs';
+import { PRODUCTS } from '@notional-finance/shared-config';
 import { useSelectedNetwork } from './use-notional';
 import { useCallback, useMemo } from 'react';
 import { getNowSeconds, isIdiosyncratic } from '@notional-finance/util';
@@ -79,7 +80,8 @@ export const useAllMarkets = () => {
     ).map((y) => {
       return {
         ...y,
-       product: 'Provide Liquidity'
+       product: 'Provide Liquidity',
+       link: `${PRODUCTS.LIQUIDITY_VARIABLE}/${y.underlying.symbol}`,
       }
     }),
     fCashLend: allYields.filter(
@@ -87,7 +89,8 @@ export const useAllMarkets = () => {
     ).map((y) => {
       return {
         ...y,
-       product: 'Fixed Lend'
+       product: 'Fixed Lend',
+       link: `${PRODUCTS.LEND_FIXED}/${y.underlying.symbol}`,
       }
     }),
     fCashBorrow: allYields.filter(
@@ -95,7 +98,8 @@ export const useAllMarkets = () => {
     ).map((y) => {
       return {
         ...y,
-       product: 'Fixed Borrow'
+       product: 'Fixed Borrow',
+       link: `${PRODUCTS.BORROW_FIXED}/${y.underlying.symbol}`,
       }
     }),
     variableLend: allYields.filter(
@@ -103,13 +107,15 @@ export const useAllMarkets = () => {
     ).map((y) => {
       return {
         ...y,
-       product: 'Variable Lend'
+       product: 'Variable Lend',
+       link: `${PRODUCTS.LEND_VARIABLE}/${y.underlying.symbol}`,
       }
     }),
     variableBorrow: allYields.filter((y) => y.token.tokenType === 'PrimeDebt').map((y) => {
       return {
         ...y,
-       product: 'Variable Borrow'
+       product: 'Variable Borrow',
+       link: `${PRODUCTS.BORROW_VARIABLE}/${y.underlying.symbol}`,
       }
     }),
     leveragedVaults: allYields.filter(
@@ -117,7 +123,8 @@ export const useAllMarkets = () => {
     ).map((y) => {
       return {
         ...y,
-       product: 'Leveraged Vault'
+       product: 'Leveraged Vault',
+       link: `${PRODUCTS.LEVERAGED_VAULT}/${y.underlying.symbol}`,
       }
     }),
     leveragedLend: allYields.filter(
@@ -127,7 +134,8 @@ export const useAllMarkets = () => {
     ).map((y) => {
       return {
         ...y,
-       product: 'Leveraged lend'
+       product: 'Leveraged lend',
+       link: `${PRODUCTS.LEND_LEVERAGED}/${y.underlying.symbol}`,
       }
     }),
     leveragedLiquidity: allYields.filter(
@@ -135,7 +143,8 @@ export const useAllMarkets = () => {
     ).map((y) => {
       return {
         ...y,
-       product: 'Leveraged Liquidity'
+       product: 'Leveraged Liquidity',
+       link: `${PRODUCTS.LIQUIDITY_LEVERAGED}/${y.underlying.symbol}`,
       }
     }),
   };

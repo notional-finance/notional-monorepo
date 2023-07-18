@@ -12,6 +12,7 @@ export enum PRODUCTS {
   LEND_FIXED = 'lend-fixed',
   LEND_VARIABLE = 'lend-variable',
   LEND_LEVERAGED = 'lend-leveraged',
+  LEVERAGED_VAULT = 'leveraged-vault',
   LIQUIDITY_VARIABLE = 'liquidity-variable',
   LIQUIDITY_LEVERAGED = 'liquidity-leveraged',
   BORROW_FIXED = 'borrow-fixed',

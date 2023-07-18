@@ -80,7 +80,7 @@ export const LiquidityVariableCardView = () => {
             }}
           >
             {liquidity.map(({ underlying, totalAPY, incentives }, i) => {
-              const route = `/${PRODUCTS.LIQUIDITY_VARIABLE}/${underlying}`;
+              const route = `/${PRODUCTS.LIQUIDITY_VARIABLE}/${underlying.symbol}`;
               const noteApy =
                 incentives?.find(({ tokenId }) => tokenId !== undefined)
                   ?.incentiveAPY || 0;

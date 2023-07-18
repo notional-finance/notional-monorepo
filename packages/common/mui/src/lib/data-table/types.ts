@@ -6,6 +6,7 @@ export enum TABLE_VARIANTS {
   MINI = 'mini',
   DEFAULT = 'default',
   TOTAL_ROW = 'total-row',
+  SORTABLE = 'sortable',
 }
 
 export type TabBarPropsType = {
@@ -23,9 +24,12 @@ export type ExpandedRows = {
   [key: string]: boolean;
 };
 
+
 export type DataTableColumn = Column & {
   expandableTable?: boolean;
   textAlign?: string;
   showLinkIcon?: boolean;
   defaultCanSort?: boolean;
+  sortType?: string;
+  displayFormatter?: any; 
 };

@@ -5,7 +5,7 @@ import { DataTableTabBar } from './data-table-tab-bar/data-table-tab-bar';
 import { DataTableHead } from './data-table-head/data-table-head';
 import { DataTableBody } from './data-table-body/data-table-body';
 import { PageLoading } from '../page-loading/page-loading';
-import { useTable, useExpanded } from 'react-table';
+import { useTable, useExpanded, useSortBy } from 'react-table';
 import { FormattedMessage } from 'react-intl';
 import { TableCell } from '../typography/typography';
 import {
@@ -55,6 +55,7 @@ export const DataTable = ({
       data,
       initialState: initialState,
     },
+    useSortBy,
     useExpanded
   );
 

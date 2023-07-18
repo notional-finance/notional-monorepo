@@ -1,13 +1,15 @@
 import {
   IconCell,
+  LinkCell,
   MultiValueCell,
   DataTableColumn,
 } from '@notional-finance/mui';
 import { MARKET_TYPE } from '@notional-finance/shared-config';
+import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
 import {
   formatNumberAsPercent,
   getDateString,
-  // formatLeverageRatio,
+  formatLeverageRatio,
 } from '@notional-finance/helpers';
 import { useAllMarkets } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
@@ -15,7 +17,7 @@ import { FormattedMessage } from 'react-intl';
 export const useMarketsTable = (marketType: MARKET_TYPE) => {
   const { earnYields, borrowYields } = useAllMarkets();
 
-  const marketTableColumns: DataTableColumn[] = [
+  const tableColumns: DataTableColumn[] = [
     {
       Header: (
         <FormattedMessage
@@ -36,7 +38,7 @@ export const useMarketsTable = (marketType: MARKET_TYPE) => {
       ),
       Cell: MultiValueCell,
       accessor: 'product',
-      textAlign: 'right',
+      textAlign: 'left',
     },
     {
       Header: (
@@ -45,10 +47,11 @@ export const useMarketsTable = (marketType: MARKET_TYPE) => {
           description={'Total APY header'}
         />
       ),
+      displayFormatter: formatNumberAsPercent,
       Cell: MultiValueCell,
       accessor: 'totalAPY',
       textAlign: 'right',
-      defaultCanSort: true,
+      sortType: 'basic',
     },
     {
       Header: (
@@ -60,6 +63,7 @@ export const useMarketsTable = (marketType: MARKET_TYPE) => {
       Cell: MultiValueCell,
       accessor: 'totalTVL',
       textAlign: 'right',
+      sortType: 'basic',
     },
     {
       Header: (
@@ -69,8 +73,10 @@ export const useMarketsTable = (marketType: MARKET_TYPE) => {
         />
       ),
       Cell: MultiValueCell,
+      displayFormatter: formatLeverageRatio,
       accessor: 'leverage',
       textAlign: 'right',
+      sortType: 'basic',
     },
     {
       Header: (
@@ -80,6 +86,7 @@ export const useMarketsTable = (marketType: MARKET_TYPE) => {
         />
       ),
       Cell: MultiValueCell,
+      displayFormatter: getDateString,
       accessor: 'maturity',
       textAlign: 'right',
     },
@@ -91,38 +98,67 @@ export const useMarketsTable = (marketType: MARKET_TYPE) => {
         />
       ),
       Cell: MultiValueCell,
+      displayFormatter: formatNumberAsPercent,
       accessor: 'noteAPY',
       textAlign: 'right',
+      sortType: 'basic',
     },
     {
       Header: '',
-      Cell: MultiValueCell,
+      Cell: LinkCell,
       accessor: 'view',
       textAlign: 'right',
     },
   ];
 
   const formatData = (arr) => {
-    return arr.map(({ underlying, token, totalAPY, product, incentives }) => {
-      return {
-        currency: underlying.symbol,
-        product: product,
-        totalAPY: formatNumberAsPercent(totalAPY || 0),
-        // totalAPY: totalAPY,
-        maturity: token.maturity ? getDateString(token.maturity) : ' - ',
-        noteAPY:
-          incentives && incentives.length > 0 && incentives[0]?.incentiveAPY > 0
-            ? incentives[0]?.incentiveAPY
-            : ' - ',
-        view: 'View',
-      };
-    });
+    return arr.map(
+      ({
+        underlying,
+        token,
+        totalAPY,
+        product,
+        incentives,
+        leveraged,
+        tvl,
+        link,
+      }) => {
+        return {
+          currency: underlying.symbol,
+          product: product,
+          // totalAPY: formatNumberAsPercent(totalAPY || 0),
+          totalAPY: totalAPY,
+          maturity:
+            !token.maturity || token.maturity === PRIME_CASH_VAULT_MATURITY
+              ? 0
+              : token.maturity,
+          leverage:
+            leveraged && leveraged.leverageRatio ? leveraged.leverageRatio : 0,
+          // TODO: Find or write a helper formatter for the TVL value
+          totalTVL: tvl ? tvl?.toFiat('USD').toNumber() : 0,
+          noteAPY:
+            incentives &&
+            incentives.length > 0 &&
+            incentives[0]?.incentiveAPY > 0
+              ? incentives[0]?.incentiveAPY
+              : 0,
+          view: link,
+        };
+      }
+    );
   };
 
   const marketTableData =
     marketType === MARKET_TYPE.BORROW
       ? formatData(borrowYields)
       : formatData(earnYields);
+
+  const marketTableColumns =
+    marketType === MARKET_TYPE.BORROW
+      ? tableColumns.filter(
+          ({ accessor }) => accessor !== 'leverage' && accessor !== 'noteAPY'
+        )
+      : tableColumns;
 
   return { marketTableColumns, marketTableData };
 };

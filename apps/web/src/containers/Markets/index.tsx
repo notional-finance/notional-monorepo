@@ -2,14 +2,31 @@ import { useState } from 'react';
 import { styled, Box, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { colors } from '@notional-finance/styles';
-import { FeatureLoader, H1, ButtonBar, DataTable } from '@notional-finance/mui';
+import {
+  FeatureLoader,
+  H1,
+  ButtonBar,
+  DataTable,
+  TABLE_VARIANTS,
+  MultiSelectDropdown,
+} from '@notional-finance/mui';
 import { MARKET_TYPE } from '@notional-finance/shared-config';
 import { useButtonBar, useMarketsTable } from './hooks';
 
 export const Markets = () => {
+  const options = [
+    { id: '1', title: 'option 1' },
+    { id: '2', title: 'option 2' },
+    { id: '3', title: 'option 3' },
+    { id: '4', title: 'option 4' },
+    { id: '5', title: 'option 5' },
+  ];
+
   const [marketType, setMarketType] = useState<MARKET_TYPE>(MARKET_TYPE.EARN);
   const buttonData = useButtonBar(setMarketType, marketType);
   const { marketTableColumns, marketTableData } = useMarketsTable(marketType);
+  const [selected, setSelected] = useState([]);
+
   const theme = useTheme();
 
   return (
@@ -39,7 +56,17 @@ export const Markets = () => {
             marginBottom: '160px',
           }}
         >
-          <DataTable data={marketTableData} columns={marketTableColumns} />
+          <MultiSelectDropdown
+            options={options}
+            selected={selected}
+            setSelected={setSelected}
+            placeHolderText={<FormattedMessage defaultMessage={'Currency'} />}
+          />
+          <DataTable
+            data={marketTableData}
+            columns={marketTableColumns}
+            tableVariant={TABLE_VARIANTS.SORTABLE}
+          />
         </Box>
       </Box>
     </FeatureLoader>
