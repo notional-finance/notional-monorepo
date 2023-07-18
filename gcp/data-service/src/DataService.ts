@@ -1,8 +1,11 @@
 import ethers, { BigNumber } from 'ethers';
 import { Knex } from 'knex';
-import { Network } from '@notional-finance/util';
+import { Network, getProviderFromNetwork } from '@notional-finance/util';
 import { fetch } from 'cross-fetch';
 import { URLSearchParams } from 'url';
+import { buildOperations, defaultConfigDefs } from './config';
+import { MulticallOperation } from './types';
+import { aggregate } from '@notional-finance/multicall';
 
 // TODO: fetch from DB
 const networkToId = {
@@ -87,7 +90,7 @@ export default class DataService {
     await Promise.all(timestamps.map((ts) => this.sync(ts)));
   }
 
-  public async sync(ts: number) {
+  private async getBlockNumberFromTs(ts: number) {
     ts = this.intervalTimestamp(ts);
     // get blockNumber by timestamp
     const record = await this.db
@@ -108,6 +111,12 @@ export default class DataService {
     } else {
       blockNumber = record[0].block_number as number;
     }
+
+    return blockNumber;
+  }
+
+  public async sync(ts: number) {
+    const blockNumber = await this.getBlockNumberFromTs(ts);
 
     // Get data using block number
     if (blockNumber < this.settings.startingBlock) {
@@ -142,6 +151,46 @@ export default class DataService {
       .ignore();
 
     return blockNumber;
+  }
+
+  private async syncFromMulticall(
+    network: Network,
+    blockNumber: number,
+    operations: MulticallOperation[]
+  ) {
+    const calls = operations.map((op) => op.aggregateCall);
+    const results = await aggregate(
+      calls,
+      getProviderFromNetwork(network),
+      blockNumber,
+      true
+    );
+    return Promise.all(
+      operations.map((op) =>
+        op.configDef.dataWriter.write(
+          this.db,
+          op.configDef,
+          results[op.configDef.id]
+        )
+      )
+    );
+  }
+
+  public async sync2(ts: number) {
+    const blockNumber = await this.getBlockNumberFromTs(ts);
+    const operations = buildOperations(
+      defaultConfigDefs,
+      this.settings.network
+    );
+    Promise.all(
+      Array.from(operations.aggregateCalls.keys()).map((network) =>
+        this.syncFromMulticall(
+          network,
+          blockNumber,
+          operations.aggregateCalls[network]
+        )
+      )
+    );
   }
 
   private async getRegistryData(blockNumber: number) {
