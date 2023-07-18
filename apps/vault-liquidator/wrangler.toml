@@ -1,0 +1,30 @@
+main = "./src/index.ts"
+compatibility_date = "2022-11-11"
+
+workers_dev = true
+node_compat = true
+minify = true
+usage_model = "bundled"
+
+[env.dev]
+name = "vault-liquidator-dev"
+
+[env.dev.vars]
+ACCOUNT_SERVICE_URL = 'https://data-service-dot-monitoring-agents.uc.r.appspot.com/accounts'
+ZERO_EX_SWAP_URL = 'https://arbitrum.api.0x.org/swap/v1/quote'
+NETWORK = 'ArbitrumOne'
+FLASH_LIQUIDATOR_CONTRACT = '0xeF8E3aa5c4FcAdE988396F3A4660667255ae836A'
+FLASH_LIQUIDATOR_OWNER = '0xE6FB62c2218fd9e3c948f0549A2959B509a293C8'
+FLASH_LENDER_ADDRESS = '0x794a61358D6845594F94dc1DB02A252b5b4814aD'
+FLASH_LOAN_BUFFER = '1005'
+NOTIONAL_PROXY_CONTRACT = '0x1344A36A1B56144C3Bc62E7757377D288fDE0369'
+GAS_COST_BUFFER = '1000'
+DUST_THRESHOLD = '0'
+PROFIT_THRESHOLD = '0'
+SLIPPAGE_LIMIT = '950'
+
+[env.beta]
+name = "vault-liquidator-beta"
+
+[env.prod]
+name = "vault-liquidator"
