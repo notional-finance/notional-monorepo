@@ -55,4 +55,3 @@ services/**/dist
 app.yaml
 gcp/data-service/**/dist
 gcp/data-service/**/lib
-gcp/data-service/tsconfig.build.tsbuildinfo

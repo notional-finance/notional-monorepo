@@ -1,4 +1,4 @@
-import { AggregateCall, aggregate } from '@notional-finance/sdk/data/Multicall';
+import { AggregateCall, aggregate } from '@notional-finance/multicall';
 import { FlashLiquidatorABI, NotionalV3ABI } from '@notional-finance/contracts';
 import { ethers, BigNumber, Contract } from 'ethers';
 import {
