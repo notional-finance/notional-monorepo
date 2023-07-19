@@ -1,4 +1,3 @@
-import { Market } from '@notional-finance/sdk/src/system';
 import {
   IconCell,
   TxnHashCell,
@@ -14,7 +13,7 @@ import { FormattedMessage } from 'react-intl';
 import moment from 'moment';
 
 export const useTransactionHistoryTable = () => {
-  const tradeHistory = useTransactionHistory();
+  const accountHistory = useTransactionHistory();
   const selectedNetwork = useSelectedNetwork();
 
   const txnHistoryColumns: DataTableColumn[] = [
@@ -88,28 +87,27 @@ export const useTransactionHistoryTable = () => {
     },
   ];
 
-  const txnHistoryData = tradeHistory
-    .sort((x, y) => y.timestampMS - x.timestampMS)
+  const txnHistoryData = accountHistory
+    .sort((x, y) => y.timestamp - x.timestamp)
     .map((data) => {
       return {
-        currency: data.amount.symbol,
-        action: data.txnType,
-        time: `${moment(data.timestampMS).format('hh:mm A')}, ${moment(
-          data.timestampMS
+        currency: data.underlying.symbol,
+        action: data.bundleName,
+        time: `${moment(data.timestamp).format('hh:mm A')}, ${moment(
+          data.timestamp
         ).format('MM/DD/YY')}`,
         transactionHash: {
           hash: data.transactionHash,
           href: getEtherscanLink(data.transactionHash, selectedNetwork),
         },
-        maturity: data?.maturity ? formatMaturity(data?.maturity) : '-',
-        amount:
-          data.amount.symbol !== 'sNOTE'
-            ? {
-                displayValue: data.amount.toDisplayStringWithSymbol(3),
-                isNegative: data.amount.isNegative(),
-              }
-            : '-',
-        rate: data?.rate ? Market.formatInterestRate(data.rate) : '-',
+        maturity: data?.token.maturity
+          ? formatMaturity(data?.token.maturity)
+          : '-',
+        amount: {
+          displayValue: data.tokenAmount.toDisplayStringWithSymbol(3),
+          isNegative: data.tokenAmount.isNegative(),
+        },
+        rate: '-',
       };
     });
 

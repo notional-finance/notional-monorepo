@@ -483,6 +483,10 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
                   network,
                   tokenId
                 ),
+                underlying: Registry.getTokenRegistry().getTokenByID(
+                  network,
+                  underlyingId
+                ),
                 tokenAmount: TokenBalance.fromID(
                   p.tokenAmount,
                   tokenId,

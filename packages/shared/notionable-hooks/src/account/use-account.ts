@@ -87,7 +87,7 @@ export function useBalanceStatements() {
 
 export function useTransactionHistory() {
   const { account } = useAccountDefinition();
-  return account?.accountHistory;
+  return account?.accountHistory || [];
 }
 
 export function useAccountReady() {

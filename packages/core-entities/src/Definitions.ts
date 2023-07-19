@@ -126,6 +126,7 @@ export interface BalanceStatement {
 export interface AccountHistory {
   timestamp: number;
   token: TokenDefinition;
+  underlying: TokenDefinition;
   tokenAmount: TokenBalance;
   bundleName: string;
   transactionHash: string;
