@@ -9,6 +9,7 @@ export * from './lib/history-icon/history-icon';
 export * from './lib/ical-icon/ical-icon';
 export * from './lib/info-icon/info-icon';
 export * from './lib/docs-icon/docs-icon';
+export * from './lib/download-icon/download-icon';
 export * from './lib/pie-chart-icon/pie-chart-icon';
 export * from './lib/coins-icon/coins-icon';
 export * from './lib/coins-circle-icon/coins-circle-icon';

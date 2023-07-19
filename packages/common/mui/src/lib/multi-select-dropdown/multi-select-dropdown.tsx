@@ -18,6 +18,7 @@ interface MultiSelectDropdownProps {
   options: {
     id: string;
     title: string;
+    icon?: ReactNode;
   }[];
   selected: string[];
   setSelected: any;
@@ -40,14 +41,14 @@ export const MultiSelectDropdown = ({
       : setAllSelected(false);
   }, [options, selected, setAllSelected]);
 
-  const toggleOption = ({ id }) => {
+  const toggleOption = ({ title }) => {
     if (allSelected) setAllSelected(false);
     setSelected((prevSelected) => {
       const newArray = [...prevSelected];
-      if (newArray.includes(id)) {
-        return newArray.filter((item) => item != id);
+      if (newArray.includes(title)) {
+        return newArray.filter((item) => item !== title);
       } else {
-        newArray.push(id);
+        newArray.push(title);
         return newArray;
       }
     });
@@ -55,7 +56,7 @@ export const MultiSelectDropdown = ({
 
   const handleSelectAll = () => {
     if (!allSelected) {
-      const formattedOptions = options.map(({ id }) => id);
+      const formattedOptions = options.map(({ title }) => title);
       setSelected(formattedOptions);
       setAllSelected(true);
     } else {
@@ -64,7 +65,9 @@ export const MultiSelectDropdown = ({
     }
   };
 
-  const displayOptions = options.filter(({ id }) => selected.includes(id));
+  const displayOptions = options.filter(({ title }) =>
+    selected.includes(title)
+  );
 
   return (
     <Wrapper
@@ -72,17 +75,21 @@ export const MultiSelectDropdown = ({
       onMouseLeave={() => setIsOpen(false)}
     >
       <SelectDropdown>
-        <FilterIcon
-          sx={{
-            fill: theme.palette.common.black,
-            fontSize: '1.125rem',
-          }}
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <FilterIcon
+            sx={{
+              fill: theme.palette.common.black,
+              fontSize: '1.125rem',
+              marginRight: theme.spacing(1),
+            }}
+          />
+          {displayOptions.length > 0 && <Text>{selected.length} selected</Text>}
+          {displayOptions.length <= 0 && <Text>{placeHolderText}</Text>}
+        </Box>
+        <ChevronDownIcon
+          fillone={theme.palette.typography.accent}
+          filltwo={theme.palette.primary.contrastText}
         />
-        {/* {displayOptions.length > 0 &&
-          displayOptions.map((option) => <Text>{option.title}</Text>)} */}
-        {displayOptions.length > 0 && <Text>{selected.length} selected</Text>}
-        {displayOptions.length <= 0 && <Text>{placeHolderText}</Text>}
-        <ChevronDownIcon />
       </SelectDropdown>
       <DropdownOptions isOpen={isOpen} theme={theme}>
         <DropdownOption>
@@ -97,7 +104,7 @@ export const MultiSelectDropdown = ({
             <Checkbox
               sx={{
                 color: theme.palette.borders.paper,
-                fill: 'white',
+                fill: theme.palette.common.white,
                 '&.Mui-checked': {
                   color: theme.palette.typography.accent,
                 },
@@ -106,19 +113,32 @@ export const MultiSelectDropdown = ({
             />
           </Item>
           {options.map((option) => {
-            const isSelected = selected.includes(option.id);
+            const isSelected = selected.includes(option.title);
             return (
               <Item
-                key={option.id}
+                key={option.title}
                 isSelected={isSelected}
-                onClick={() => toggleOption({ id: option.id })}
+                onClick={() => toggleOption({ title: option.title })}
                 theme={theme}
               >
-                <Text>{option.title}</Text>
+                <Text sx={{ display: 'flex', alignItems: 'center' }}>
+                  {option?.icon && (
+                    <Box
+                      component="span"
+                      sx={{
+                        marginRight: theme.spacing(1),
+                        marginTop: theme.spacing(0.5),
+                      }}
+                    >
+                      {option.icon}
+                    </Box>
+                  )}
+                  <Box component="span">{option.title}</Box>
+                </Text>
                 <Checkbox
                   sx={{
                     color: theme.palette.borders.paper,
-                    fill: 'white',
+                    fill: theme.palette.common.white,
                     '&.Mui-checked': {
                       color: theme.palette.typography.accent,
                     },
@@ -137,13 +157,12 @@ export const MultiSelectDropdown = ({
 const Wrapper = styled(Box)(
   ({ theme }) => `
     cursor: pointer;
-    margin: ${theme.spacing(12.5)} auto;
+    margin-right: ${theme.spacing(3)};
     position: relative;
-    width: ${theme.spacing(25)};
+    width: ${theme.spacing(29)};
     background: ${theme.palette.common.white};
     border-radius: ${theme.shape.borderRadius()};
     border: 1px solid ${theme.palette.typography.accent};
-
   `
 );
 
@@ -160,6 +179,9 @@ const Item = styled('ul', {
     background: ${
       isSelected ? theme.palette.info.light : theme.palette.common.white
     };
+    &:hover {
+      background: ${theme.palette.info.light};
+    }
   `
 );
 

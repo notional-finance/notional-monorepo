@@ -1,5 +1,6 @@
 import { useState, SetStateAction, Dispatch } from 'react';
 import { Table, TableContainer, Paper, useTheme, Box } from '@mui/material';
+import { DataTableFilterBar } from './data-table-filter-bar/data-table-filter-bar';
 import { DataTableTitleBar } from './data-table-title-bar/data-table-title-bar';
 import { DataTableTabBar } from './data-table-tab-bar/data-table-tab-bar';
 import { DataTableHead } from './data-table-head/data-table-head';
@@ -30,6 +31,8 @@ interface DataTableProps {
   initialState?: Record<any, any>;
   setExpandedRows?: Dispatch<SetStateAction<ExpandedRows | null>>;
   tableLoading?: boolean;
+  filterBarData?: any[];
+  marketDataCSVFormatter?: (data: any[]) => any;
 }
 
 export const DataTable = ({
@@ -46,6 +49,8 @@ export const DataTable = ({
   initialState,
   setExpandedRows,
   tableLoading,
+  filterBarData,
+  marketDataCSVFormatter,
 }: DataTableProps) => {
   const theme = useTheme();
   const [viewAllRows, setViewAllRows] = useState<boolean>(!hideExcessRows);
@@ -92,7 +97,11 @@ export const DataTable = ({
           boxShadow: 'none',
           border: theme.shape.borderStandard,
           borderRadius: theme.shape.borderRadius(),
-          overflow: !tableReady ? 'hidden' : 'auto',
+          overflow: !tableReady
+            ? 'hidden'
+            : filterBarData && tableVariant === TABLE_VARIANTS.SORTABLE
+            ? 'visible'
+            : 'auto',
           backgroundColor:
             tableVariant === TABLE_VARIANTS.MINI
               ? theme.palette.background.default
@@ -110,6 +119,16 @@ export const DataTable = ({
           tableVariant={tableVariant}
         />
       )}
+
+      {filterBarData &&
+        filterBarData.length > 0 &&
+        tableVariant === TABLE_VARIANTS.SORTABLE && (
+          <DataTableFilterBar
+            filterBarData={filterBarData}
+            tableData={data}
+            downloadCSVFormatter={marketDataCSVFormatter}
+          />
+        )}
 
       {tabBarProps && <DataTableTabBar tabBarProps={tabBarProps} />}
 

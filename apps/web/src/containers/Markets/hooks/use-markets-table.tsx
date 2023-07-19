@@ -1,7 +1,8 @@
+import { useCallback } from 'react';
 import {
   IconCell,
   LinkCell,
-  MultiValueCell,
+  DisplayCell,
   DataTableColumn,
 } from '@notional-finance/mui';
 import { MARKET_TYPE } from '@notional-finance/shared-config';
@@ -10,11 +11,16 @@ import {
   formatNumberAsPercent,
   getDateString,
   formatLeverageRatio,
+  formatNumberAsAbbr,
 } from '@notional-finance/helpers';
 import { useAllMarkets } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
 
-export const useMarketsTable = (marketType: MARKET_TYPE) => {
+export const useMarketsTable = (
+  marketType: MARKET_TYPE,
+  currencyOptions: string[],
+  productOptions: string[]
+) => {
   const { earnYields, borrowYields } = useAllMarkets();
 
   const tableColumns: DataTableColumn[] = [
@@ -36,7 +42,7 @@ export const useMarketsTable = (marketType: MARKET_TYPE) => {
           description={'Product header'}
         />
       ),
-      Cell: MultiValueCell,
+      Cell: DisplayCell,
       accessor: 'product',
       textAlign: 'left',
     },
@@ -48,7 +54,7 @@ export const useMarketsTable = (marketType: MARKET_TYPE) => {
         />
       ),
       displayFormatter: formatNumberAsPercent,
-      Cell: MultiValueCell,
+      Cell: DisplayCell,
       accessor: 'totalAPY',
       textAlign: 'right',
       sortType: 'basic',
@@ -60,7 +66,8 @@ export const useMarketsTable = (marketType: MARKET_TYPE) => {
           description={'Total TVL header'}
         />
       ),
-      Cell: MultiValueCell,
+      Cell: DisplayCell,
+      displayFormatter: formatNumberAsAbbr,
       accessor: 'totalTVL',
       textAlign: 'right',
       sortType: 'basic',
@@ -72,7 +79,7 @@ export const useMarketsTable = (marketType: MARKET_TYPE) => {
           description={'Leverage header'}
         />
       ),
-      Cell: MultiValueCell,
+      Cell: DisplayCell,
       displayFormatter: formatLeverageRatio,
       accessor: 'leverage',
       textAlign: 'right',
@@ -85,7 +92,7 @@ export const useMarketsTable = (marketType: MARKET_TYPE) => {
           description={'Maturity header'}
         />
       ),
-      Cell: MultiValueCell,
+      Cell: DisplayCell,
       displayFormatter: getDateString,
       accessor: 'maturity',
       textAlign: 'right',
@@ -97,7 +104,7 @@ export const useMarketsTable = (marketType: MARKET_TYPE) => {
           description={'Note APY header'}
         />
       ),
-      Cell: MultiValueCell,
+      Cell: DisplayCell,
       displayFormatter: formatNumberAsPercent,
       accessor: 'noteAPY',
       textAlign: 'right',
@@ -111,8 +118,8 @@ export const useMarketsTable = (marketType: MARKET_TYPE) => {
     },
   ];
 
-  const formatData = (arr) => {
-    return arr.map(
+  const formatMarketData = (allMarketsData) => {
+    return allMarketsData.map(
       ({
         underlying,
         token,
@@ -126,16 +133,15 @@ export const useMarketsTable = (marketType: MARKET_TYPE) => {
         return {
           currency: underlying.symbol,
           product: product,
-          // totalAPY: formatNumberAsPercent(totalAPY || 0),
-          totalAPY: totalAPY,
+          //NOTE: This ensures that 0.00% is displayed instead of "-" in the cell
+          totalAPY: totalAPY === 0 ? 0.00001 : totalAPY,
           maturity:
             !token.maturity || token.maturity === PRIME_CASH_VAULT_MATURITY
               ? 0
               : token.maturity,
           leverage:
             leveraged && leveraged.leverageRatio ? leveraged.leverageRatio : 0,
-          // TODO: Find or write a helper formatter for the TVL value
-          totalTVL: tvl ? tvl?.toFiat('USD').toNumber() : 0,
+          totalTVL: tvl.toFiat('USD').toFloat() || 0,
           noteAPY:
             incentives &&
             incentives.length > 0 &&
@@ -148,10 +154,32 @@ export const useMarketsTable = (marketType: MARKET_TYPE) => {
     );
   };
 
-  const marketTableData =
+  const initialData =
     marketType === MARKET_TYPE.BORROW
-      ? formatData(borrowYields)
-      : formatData(earnYields);
+      ? formatMarketData(borrowYields)
+      : formatMarketData(earnYields);
+
+  const filterMarketData = () => {
+    const filterData = [...currencyOptions, ...productOptions];
+
+    if (filterData.length === 0) return initialData;
+
+    if (productOptions.length > 0 && currencyOptions.length > 0) {
+      return initialData
+        .filter(({ currency }) => filterData.includes(currency))
+        .filter(({ product }) => filterData.includes(product));
+    }
+    if (currencyOptions.length > 0) {
+      return initialData.filter(({ currency }) =>
+        currencyOptions.includes(currency)
+      );
+    }
+    if (productOptions.length > 0) {
+      return initialData.filter(({ product }) =>
+        productOptions.includes(product)
+      );
+    }
+  };
 
   const marketTableColumns =
     marketType === MARKET_TYPE.BORROW
@@ -160,5 +188,22 @@ export const useMarketsTable = (marketType: MARKET_TYPE) => {
         )
       : tableColumns;
 
-  return { marketTableColumns, marketTableData };
+  const marketTableData = filterMarketData();
+
+  const marketDataCSVFormatter = useCallback((data: any[]) => {
+    return data.map(
+      ({ currency, product, totalAPY, totalTVL, leverage, maturity }) => {
+        return {
+          currency,
+          product,
+          totalAPY: totalAPY === 0 ? '' : formatNumberAsPercent(totalAPY),
+          totalTVL: totalTVL === 0 ? '' : formatNumberAsAbbr(totalTVL),
+          leverage: leverage === 0 ? '' : formatLeverageRatio(leverage),
+          maturity: maturity === 0 ? '' : getDateString(maturity),
+        };
+      }
+    );
+  }, []);
+
+  return { marketTableColumns, marketTableData, marketDataCSVFormatter };
 };

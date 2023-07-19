@@ -31,8 +31,6 @@ export const MultiValueCell = ({ cell }): JSX.Element => {
               )}
             </Box>
           ))
-        : value && column.displayFormatter
-        ? column.displayFormatter(parseFloat(value))
         : value}
     </Box>
   );

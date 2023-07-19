@@ -16,7 +16,7 @@ export function useCurrency() {
     const allTokens = network
       ? Registry.getTokenRegistry().getAllTokens(network)
       : [];
-    const depositTokens = allTokens.filter((t) => t.tokenType === 'Underlying');
+    const depositTokens = allTokens.filter((t) => t.tokenType === 'Underlying' && t.currencyId !== undefined);
     const primeCash = allTokens.filter((t) => t.tokenType === 'PrimeCash');
     const primeDebt = allTokens.filter((t) => t.tokenType === 'PrimeDebt');
     const fCash = allTokens.filter(
@@ -134,7 +134,7 @@ export const useAllMarkets = () => {
     ).map((y) => {
       return {
         ...y,
-       product: 'Leveraged lend',
+       product: 'Leveraged Lend',
        link: `${PRODUCTS.LEND_LEVERAGED}/${y.underlying.symbol}`,
       }
     }),

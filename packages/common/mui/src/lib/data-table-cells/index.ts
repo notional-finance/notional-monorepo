@@ -2,6 +2,7 @@ export * from './chevron-cell/chevron-cell';
 export * from './arrow-indicator-cell/arrow-indicator-cell';
 export * from './border-cell/border-cell';
 export * from './date-time-cell/date-time-cell';
+export * from './display-cell/display-cell';
 export * from './expandable-currency-cell/expandable-currency-cell';
 export * from './icon-cell/icon-cell';
 export * from './link-cell/link-cell';

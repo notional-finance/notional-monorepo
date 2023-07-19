@@ -47,7 +47,9 @@ export const DataTableHead = ({
                   : 'none',
                 whiteSpace: 'nowrap',
               }}
-              {...column['getHeaderProps'](column['getSortByToggleProps']())}
+              {...(tableVariant === TABLE_VARIANTS.SORTABLE
+                ? column['getHeaderProps'](column['getSortByToggleProps']())
+                : column['getHeaderProps']())}
             >
               <TableColumnHeading>
                 {column['render']('Header')}
