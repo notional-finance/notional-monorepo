@@ -79,7 +79,7 @@ const withdraw = (w: Transfer[]): boolean => {
     return (
       w[0].transferType == Burn &&
       w[0].tokenType == PrimeCash &&
-      w[0].toSystemAccount == None
+      w[0].fromSystemAccount == None
     )
   } else {
     return !( // not
@@ -88,7 +88,7 @@ const withdraw = (w: Transfer[]): boolean => {
     ) && (
       w[1].transferType == Burn &&
       w[1].tokenType == PrimeCash &&
-      w[1].toSystemAccount == None
+      w[1].fromSystemAccount == None
     )
   }
 }
@@ -171,6 +171,7 @@ const transfer_asset = (w: Transfer[]): boolean => {
     w[0].toSystemAccount == None
   )
 }
+
 const transfer_incentive = (w: Transfer[]): boolean => {
   return (
     w[0].transferType == _Transfer &&
@@ -277,13 +278,13 @@ const repay_prime_cash = (w: Transfer[]): boolean => {
   return (
     w[0].tokenType == PrimeDebt &&
     w[0].transferType == Burn &&
-    w[0].toSystemAccount != SettlementReserve &&
-    w[0].toSystemAccount != Vault
+    w[0].fromSystemAccount != SettlementReserve &&
+    w[0].fromSystemAccount != Vault
   ) && (
     w[1].tokenType == PrimeCash &&
     w[1].transferType == Burn &&
-    w[1].toSystemAccount != SettlementReserve &&
-    w[1].toSystemAccount != Vault
+    w[1].fromSystemAccount != SettlementReserve &&
+    w[1].fromSystemAccount != Vault
   )
 }
 
@@ -291,11 +292,11 @@ const repay_prime_cash_vault = (w: Transfer[]): boolean => {
   return (
     w[0].tokenType == PrimeDebt &&
     w[0].transferType == Burn &&
-    w[0].toSystemAccount == Vault
+    w[0].fromSystemAccount == Vault
   ) && (
     w[1].tokenType == PrimeCash &&
     w[1].transferType == Burn &&
-    w[1].toSystemAccount == Vault
+    w[1].fromSystemAccount == Vault
   )
 }
 
@@ -347,7 +348,7 @@ const repay_fcash = (w: Transfer[]): boolean => {
     w[1].transferType == Burn
   ) && (
     w[0].logIndex == w[1].logIndex &&
-    w[0].toSystemAccount == None
+    w[0].fromSystemAccount == None
   )
 }
 
@@ -360,7 +361,7 @@ const repay_fcash_vault = (w: Transfer[]): boolean => {
     w[1].transferType == Burn
   ) && (
     w[0].logIndex == w[1].logIndex &&
-    w[0].toSystemAccount == Vault
+    w[0].fromSystemAccount == Vault
   )
 }
 
@@ -373,7 +374,7 @@ const ntoken_remove_liquidity = (w: Transfer[]): boolean => {
     w[1].transferType == Burn
   ) && (
     w[0].logIndex == w[1].logIndex &&
-    w[0].toSystemAccount == nToken
+    w[0].fromSystemAccount == nToken
   )
 }
 
@@ -398,6 +399,7 @@ const redeem_ntoken = (w: Transfer[]): boolean => {
     w[1].transferType == Burn
   )
 }
+
 const buy_fcash = (w: Transfer[]): boolean => {
   return (
     w[0].tokenType == PrimeCash &&
@@ -470,6 +472,7 @@ const sell_fcash = (w: Transfer[]): boolean => {
     w[2].toSystemAccount == nToken
   )
 }
+
 const sell_fcash_vault = (w: Transfer[]): boolean => {
   return (
     w[0].tokenType == PrimeCash &&
@@ -588,7 +591,7 @@ const vault_roll = (w: Transfer[]): boolean => {
     w[2].tokenType == VaultDebt &&
     !w[2].value.isZero()
   ) && (
-    w[3].transferType == Burn &&
+    w[3].transferType == Mint &&
     w[3].tokenType == VaultShare &&
     !w[3].value.isZero()
   )
@@ -603,7 +606,7 @@ const vault_entry = (w: Transfer[]): boolean => {
     w[2].transferType == Mint &&
     w[2].tokenType == VaultDebt
   ) && (
-    w[3].transferType == Burn &&
+    w[3].transferType == Mint &&
     w[3].tokenType == VaultShare
   )
 }
@@ -792,7 +795,6 @@ const vault_settle_cash = (w: Transfer[]): boolean => {
     w[1].tokenType == VaultCash &&
     w[1].maturity == PRIME_CASH_VAULT_MATURITY
   )
-
 }
 
 export const BundleCriteria = new Array<Criteria>();
@@ -809,7 +811,7 @@ BundleCriteria.push(new Criteria("Transfer Asset", 1, transfer_asset));
 BundleCriteria.push(new Criteria("Transfer Incentive", 1, transfer_incentive));
 BundleCriteria.push(new Criteria("Vault Entry Transfer", 1, vault_entry_transfer, 1));
 // This is a secondary vault entry transfer
-BundleCriteria.push(new Criteria("Vault Entry Transfer", 2, vault_entry_transfer, 1, false, false, 1));
+BundleCriteria.push(new Criteria("Vault Secondary Entry Transfer", 2, vault_entry_transfer, 1, false, false, 1));
 BundleCriteria.push(new Criteria("Vault Secondary Deposit", 2, vault_secondary_deposit, undefined, false, false, 1));
 BundleCriteria.push(
   new Criteria("nToken Purchase Negative Residual", 4, ntoken_purchase_negative_residual, 1)

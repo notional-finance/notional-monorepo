@@ -25,6 +25,17 @@ describe.withForkAndRegistry(
           expect(
             underlying.find((t) => t.token.symbol === 'ETH')
           ).toBeDefined();
+          expect(a.accountHistory).toBeDefined();
+          expect(
+            a.balanceStatement?.filter(
+              ({ token }) => token.tokenType === 'nToken'
+            ).length
+          ).toBe(6);
+          expect(
+            a.balanceStatement?.filter(
+              ({ token }) => token.tokenType === 'PrimeCash'
+            ).length
+          ).toBe(6);
           done();
         }
       );

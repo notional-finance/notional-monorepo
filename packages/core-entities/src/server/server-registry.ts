@@ -25,6 +25,8 @@ export async function loadGraphClientDeferred() {
     AllVaultsDocument,
     AllOraclesByBlockDocument,
     AllTokensByBlockDocument,
+    AccountTransactionHistoryDocument,
+    AccountBalanceStatementDocument,
     // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
   } = await import('../.graphclient/index');
 
@@ -36,6 +38,8 @@ export async function loadGraphClientDeferred() {
     AllOraclesDocument,
     AllOraclesByBlockDocument,
     AllVaultsDocument,
+    AccountTransactionHistoryDocument,
+    AccountBalanceStatementDocument,
   };
 }
 
@@ -59,21 +63,34 @@ export async function fetchUsingMulticall<T>(
   };
 }
 
-export async function fetchUsingGraph<T, R, V>(
+export async function fetchGraph<T, R, V>(
   network: Network,
   query: TypedDocumentNode<R, V>,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   transform: (r: R) => Record<string, T>,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   variables?: V
-): Promise<CacheSchema<T>> {
+): Promise<{ finalResults: Record<string, T>; blockNumber: number }> {
   // NOTE: in order for this to deploy with cloudflare workers, the import statement
   // has to be deferred until here.
-
   const { execute } = await loadGraphClientDeferred();
   const data = await execute(query, variables, { chainName: network });
   const finalResults = transform(data['data']);
   const blockNumber = data['data']._meta?.block.number || 0;
+
+  return { finalResults, blockNumber };
+}
+
+export async function fetchUsingGraph<T, R, V>(
+  network: Network,
+  query: TypedDocumentNode<R, V>,
+  transform: (r: R) => Record<string, T>,
+  variables?: V
+): Promise<CacheSchema<T>> {
+  const { finalResults, blockNumber } = await fetchGraph(
+    network,
+    query,
+    transform,
+    variables
+  );
 
   return {
     values: Object.entries(finalResults),
@@ -95,9 +112,7 @@ export abstract class ServerRegistry<T> extends BaseRegistry<T> {
   protected async _fetchUsingGraph<R, V>(
     network: Network,
     query: TypedDocumentNode<R, V>,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     transform: (r: R) => Record<string, T>,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     variables?: V
   ): Promise<CacheSchema<T>> {
     return fetchUsingGraph<T, R, V>(network, query, transform, variables);

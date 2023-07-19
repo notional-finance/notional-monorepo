@@ -6,18 +6,23 @@ import {
   DataTableColumn,
   NegativeValueCell,
 } from '@notional-finance/mui';
-import { useVaultRiskProfiles } from '@notional-finance/notionable-hooks';
+import {
+  useBalanceStatements,
+  useVaultRiskProfiles,
+} from '@notional-finance/notionable-hooks';
 import { formatCryptoWithFiat } from '@notional-finance/helpers';
 import moment from 'moment';
 import { FormattedMessage } from 'react-intl';
 import { useEffect, useMemo, useState } from 'react';
 import { formatRateAsPercent } from '@notional-finance/risk/helpers/risk-data-helpers';
 import { PORTFOLIO_CATEGORIES } from '@notional-finance/shared-config';
+import { TokenBalance } from '@notional-finance/core-entities';
 
 export const usePortfolioVaults = () => {
   const [expandedRows, setExpandedRows] = useState<ExpandedRows | null>(null);
   const initialState = expandedRows !== null ? { expanded: expandedRows } : {};
   const vaults = useVaultRiskProfiles();
+  const balanceStatements = useBalanceStatements();
 
   const vaultSummaryColumns: DataTableColumn[] = useMemo(() => {
     return [
@@ -90,9 +95,20 @@ export const usePortfolioVaults = () => {
 
   const vaultSummaryData = vaults.map((v) => {
     const config = v.vaultConfig;
-    // TODO: need to fill out this data
+    const debtPnL = balanceStatements.find(
+      (b) => b.token.id === v.vaultDebt.tokenId
+    );
+    const assetPnL = balanceStatements?.find(
+      (b) => b.token.id === v.vaultShareDefinition.id
+    );
+    const profit = (
+      assetPnL?.totalProfitAndLoss ||
+      TokenBalance.zero(v.denom(v.defaultSymbol))
+    ).sub(
+      debtPnL?.totalProfitAndLoss || TokenBalance.zero(v.denom(v.defaultSymbol))
+    );
+    // TODO: need to fill out the APY calculation
     const apy = 0;
-    const profit = v.netWorth();
 
     return {
       vault: {

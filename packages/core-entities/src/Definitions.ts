@@ -102,6 +102,40 @@ export interface PoolDefinition {
 
 /** Account Definition Hierarchy **/
 
+export interface BalanceStatement {
+  token: TokenDefinition;
+  underlying: TokenDefinition;
+  currentBalance: TokenBalance;
+  adjustedCostBasis: TokenBalance;
+  totalILAndFees: TokenBalance;
+  totalProfitAndLoss: TokenBalance;
+  totalInterestAccrual: TokenBalance;
+  accumulatedCostRealized: TokenBalance;
+
+  historicalSnapshots: {
+    timestamp: number;
+    balance: TokenBalance;
+    adjustedCostBasis: TokenBalance;
+    totalILAndFees: TokenBalance;
+    totalProfitAndLoss: TokenBalance;
+    totalInterestAccrual: TokenBalance;
+    accumulatedCostRealized: TokenBalance;
+  }[];
+}
+
+export interface AccountHistory {
+  timestamp: number;
+  token: TokenDefinition;
+  underlying: TokenDefinition;
+  tokenAmount: TokenBalance;
+  bundleName: string;
+  transactionHash: string;
+  underlyingAmountRealized: TokenBalance;
+  underlyingAmountSpot: TokenBalance;
+  realizedPrice: TokenBalance;
+  spotPrice: TokenBalance;
+}
+
 export interface AccountDefinition {
   /** Address of the account */
   address: string;
@@ -109,8 +143,10 @@ export interface AccountDefinition {
   network: Network;
   /** Balances may include external wallet balances */
   balances: TokenBalance[];
+  /** Current profit and loss on every given balance */
+  balanceStatement?: BalanceStatement[];
   /** Any transactions that have included transfers to this account */
-  transactions?: Transaction[];
+  accountHistory?: AccountHistory[];
   /** Specific allowances tracked for user interface purposes */
   allowances?: Allowance[];
 }
@@ -119,15 +155,6 @@ export interface AccountDefinition {
 export interface Allowance {
   spender: string;
   amount: TokenBalance;
-}
-
-/** A single blockchain transaction, multiple accounts may be involved in a single transaction */
-export interface Transaction {
-  transactionHash: string;
-  blockNumber: number;
-  timestamp: number;
-  /** Transfer bundles are logical groupings of individual transfers */
-  bundles: TransferBundle[];
 }
 
 /** A logical grouping of transfers */

@@ -1,14 +1,21 @@
-import { formatCryptoWithFiat } from '@notional-finance/helpers';
+import {
+  formatCryptoWithFiat,
+  formatNumberAsPercent,
+} from '@notional-finance/helpers';
 import {
   DataTableColumn,
   MultiValueIconCell,
   MultiValueCell,
 } from '@notional-finance/mui';
-import { useAccountDefinition } from '@notional-finance/notionable-hooks';
+import {
+  useAllMarkets,
+  useBalanceStatements,
+} from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
 
 export function usePortfolioHoldings() {
-  const { account } = useAccountDefinition();
+  const balanceStatements = useBalanceStatements();
+  const { allYields } = useAllMarkets();
 
   const portfolioHoldingsColumns: DataTableColumn[] = [
     {
@@ -43,25 +50,30 @@ export function usePortfolioHoldings() {
   ];
 
   const portfolioHoldingsData =
-    account?.balances
+    balanceStatements
       .filter(
         (b) =>
-          !b.isVaultToken &&
-          b.tokenType !== 'Underlying' &&
-          b.tokenType !== 'NOTE'
+          !b.currentBalance.isVaultToken &&
+          b.token.tokenType !== 'Underlying' &&
+          b.token.tokenType !== 'NOTE'
       )
       .map((b) => {
-        // TODO: need to pass this through a txn history filter...
         return {
           asset: {
             symbol: b.underlying.symbol,
             label: b.token.symbol,
-            caption: b.tokenType === 'fCash' ? '?? APY at Maturity' : undefined,
+            caption:
+              b.token.tokenType === 'fCash' ? '?? APY at Maturity' : undefined,
           },
-          marketApy: '??',
-          costBasis: formatCryptoWithFiat(b.toUnderlying().copy(0)),
-          presentValue: formatCryptoWithFiat(b.toUnderlying()),
-          earnings: formatCryptoWithFiat(b.toUnderlying().copy(0)),
+          // TODO: this has a caption for note incentives
+          marketApy: formatNumberAsPercent(
+            allYields.find(
+              (y) => y.token.id === b.token.id && y.leveraged === undefined
+            )?.totalAPY || 0
+          ),
+          costBasis: formatCryptoWithFiat(b.accumulatedCostRealized),
+          presentValue: formatCryptoWithFiat(b.currentBalance.toUnderlying()),
+          earnings: formatCryptoWithFiat(b.totalProfitAndLoss),
         };
       }) || [];
 
