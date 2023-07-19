@@ -104,6 +104,7 @@ export interface PoolDefinition {
 
 export interface BalanceStatement {
   token: TokenDefinition;
+  underlying: TokenDefinition;
   currentBalance: TokenBalance;
   adjustedCostBasis: TokenBalance;
   totalILAndFees: TokenBalance;

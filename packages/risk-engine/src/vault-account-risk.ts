@@ -95,6 +95,19 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     return this.vaultShares.maturity;
   }
 
+  get vaultDebt() {
+    return (
+      this.debts.find((t) => t.tokenType === 'VaultDebt') ||
+      TokenBalance.zero(
+        Registry.getTokenRegistry().getVaultDebt(
+          this.network,
+          this.vaultAddress,
+          this.maturity
+        )
+      )
+    );
+  }
+
   get maxLeverageRatio() {
     return VaultAccountRiskProfile.collateralToLeverageRatio(
       this.vaultConfig.minCollateralRatioBasisPoints / RATE_PRECISION

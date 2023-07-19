@@ -556,6 +556,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
 
                 return {
                   token: tokens.getTokenByID(network, tokenId),
+                  underlying: tokens.getTokenByID(network, underlying.id),
                   currentBalance: currentStatement.balance,
                   adjustedCostBasis: currentStatement.adjustedCostBasis,
                   totalILAndFees: currentStatement.totalILAndFees,
