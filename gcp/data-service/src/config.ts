@@ -7,6 +7,8 @@ import {
   MulticallConfig,
   DataOperations,
   MulticallOperation,
+  TableName,
+  IDataWriter,
 } from './types';
 import { GenericDataWriter } from './DataWriter';
 
@@ -14,19 +16,23 @@ export const SourceContracts = {};
 
 export const defaultConfigDefs: ConfigDefinition[] = [
   {
-    id: '0xcbfa4532d8b2ade2c261d3dd5ef2a2284f792692:rate',
+    id: '0x7c82a23b4c48d796dee36a9ca215b641c6a8709d:getRate',
     sourceType: SourceType.Multicall,
     sourceConfig: {
-      contractAddress: '0xcbfa4532d8b2ade2c261d3dd5ef2a2284f792692',
+      contractAddress: '0x7c82a23b4c48d796dee36a9ca215b641c6a8709d',
       contractABI: BalancerBoostedPoolABI,
       method: 'getRate',
     },
-    dataWriter: new GenericDataWriter(),
+    tableName: TableName.GenericData,
     dataConfig: {
       decimals: 18,
     },
   },
 ];
+
+export const defaultDataWriters: Record<TableName, IDataWriter> = {
+  [TableName.GenericData]: new GenericDataWriter(),
+};
 
 export function buildOperations(
   configDefs: ConfigDefinition[],
@@ -49,7 +55,7 @@ export function buildOperations(
           target: new ethers.Contract(
             configData.contractAddress,
             configData.contractABI,
-            getProviderFromNetwork(cfg.networkOverride || network)
+            getProviderFromNetwork(cfg.networkOverride || network, true)
           ),
           method: configData.method,
           key: cfg.id,

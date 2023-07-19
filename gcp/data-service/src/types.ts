@@ -7,6 +7,10 @@ export enum SourceType {
   Subgraph = 'subgraph',
 }
 
+export enum TableName {
+  GenericData = 'generic_data',
+}
+
 export interface MulticallConfig {
   contractAddress: string;
   contractABI: any;
@@ -26,7 +30,7 @@ export interface ConfigDefinition {
   id: string;
   sourceType: SourceType;
   sourceConfig: MulticallConfig | SubgraphConfig;
-  dataWriter: IDataWriter;
+  tableName: TableName;
   dataConfig: GenericDataConfig;
   networkOverride?: Network;
 }
@@ -40,6 +44,24 @@ export interface DataOperations {
   aggregateCalls: Map<Network, MulticallOperation[]>;
 }
 
+export interface DataWriterConfig {
+  tableName: TableName;
+  dataWriter: IDataWriter;
+}
+
+export interface DataRow {
+  id: string;
+  dataConfig: GenericDataConfig;
+  value: unknown;
+}
+
+export interface DataContext {
+  tableName: string;
+  networkId: number;
+  timestamp: number;
+  blockNumber: number;
+}
+
 export interface IDataWriter {
-  write(db: Knex, configDef: ConfigDefinition, data: unknown): Promise<void>;
+  write(db: Knex, context: DataContext, rows: DataRow[]): Promise<void>;
 }

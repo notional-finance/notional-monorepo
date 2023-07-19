@@ -3,8 +3,12 @@ import { Knex } from 'knex';
 import { Network, getProviderFromNetwork } from '@notional-finance/util';
 import { fetch } from 'cross-fetch';
 import { URLSearchParams } from 'url';
-import { buildOperations, defaultConfigDefs } from './config';
-import { MulticallOperation } from './types';
+import {
+  buildOperations,
+  defaultConfigDefs,
+  defaultDataWriters,
+} from './config';
+import { DataRow, MulticallOperation, TableName } from './types';
 import { aggregate } from '@notional-finance/multicall';
 
 // TODO: fetch from DB
@@ -154,26 +158,27 @@ export default class DataService {
   }
 
   private async syncFromMulticall(
+    dbData: Map<TableName, unknown[]>,
     network: Network,
     blockNumber: number,
     operations: MulticallOperation[]
   ) {
     const calls = operations.map((op) => op.aggregateCall);
-    const results = await aggregate(
+    const response = await aggregate(
       calls,
-      getProviderFromNetwork(network),
+      getProviderFromNetwork(network, true),
       blockNumber,
       true
     );
-    return Promise.all(
-      operations.map((op) =>
-        op.configDef.dataWriter.write(
-          this.db,
-          op.configDef,
-          results[op.configDef.id]
-        )
-      )
-    );
+
+    operations.forEach((op) => {
+      let values = dbData.get(op.configDef.tableName);
+      if (!values) {
+        values = [];
+        dbData.set(op.configDef.tableName, values);
+      }
+      values.push(response.results[op.configDef.id]);
+    });
   }
 
   public async sync2(ts: number) {
@@ -182,14 +187,31 @@ export default class DataService {
       defaultConfigDefs,
       this.settings.network
     );
-    Promise.all(
-      Array.from(operations.aggregateCalls.keys()).map((network) =>
-        this.syncFromMulticall(
+    const dbData = new Map<TableName, DataRow[]>();
+    await Promise.all(
+      Array.from(operations.aggregateCalls.keys()).map((network) => {
+        return this.syncFromMulticall(
+          dbData,
           network,
           blockNumber,
-          operations.aggregateCalls[network]
-        )
-      )
+          operations.aggregateCalls.get(network) || []
+        );
+      })
+    );
+
+    return Promise.all(
+      Array.from(dbData.keys()).map((k) => {
+        defaultDataWriters[k].write(
+          this.db,
+          {
+            tableName: k,
+            networkId: this.networkToId(this.settings.network),
+            timestamp: ts,
+            blockNumber: blockNumber,
+          },
+          dbData.get(k) || []
+        );
+      })
     );
   }
 

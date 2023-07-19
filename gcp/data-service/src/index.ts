@@ -28,7 +28,7 @@ async function main() {
   }
 
   const db = createUnixSocketPool();
-  const provider = getProviderFromNetwork(Network[process.env.NETWORK]);
+  const provider = getProviderFromNetwork(Network[process.env.NETWORK], true);
   const dataService = new DataService(provider, db, {
     network: Network[process.env.NETWORK],
     // TODO: get from env
@@ -81,6 +81,16 @@ async function main() {
     try {
       res.send(
         JSON.stringify(await dataService.sync(dataService.latestTimestamp()))
+      );
+    } catch (e: any) {
+      res.status(500).send(e.toString());
+    }
+  });
+
+  app.get('/sync2', async (_, res) => {
+    try {
+      res.send(
+        JSON.stringify(await dataService.sync2(dataService.latestTimestamp()))
       );
     } catch (e: any) {
       res.status(500).send(e.toString());
