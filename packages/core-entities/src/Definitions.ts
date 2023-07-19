@@ -102,6 +102,38 @@ export interface PoolDefinition {
 
 /** Account Definition Hierarchy **/
 
+export interface BalanceStatement {
+  token: TokenDefinition;
+  currentBalance: TokenBalance;
+  adjustedCostBasis: TokenBalance;
+  totalILAndFees: TokenBalance;
+  totalProfitAndLoss: TokenBalance;
+  totalInterestAccrual: TokenBalance;
+  accumulatedCostRealized: TokenBalance;
+
+  historicalSnapshots: {
+    timestamp: number;
+    balance: TokenBalance;
+    adjustedCostBasis: TokenBalance;
+    totalILAndFees: TokenBalance;
+    totalProfitAndLoss: TokenBalance;
+    totalInterestAccrual: TokenBalance;
+    accumulatedCostRealized: TokenBalance;
+  }[];
+}
+
+export interface AccountHistory {
+  timestamp: number;
+  token: TokenDefinition;
+  tokenAmount: TokenBalance;
+  bundleName: string;
+  transactionHash: string;
+  underlyingAmountRealized: TokenBalance;
+  underlyingAmountSpot: TokenBalance;
+  realizedPrice: TokenBalance;
+  spotPrice: TokenBalance;
+}
+
 export interface AccountDefinition {
   /** Address of the account */
   address: string;
@@ -109,8 +141,10 @@ export interface AccountDefinition {
   network: Network;
   /** Balances may include external wallet balances */
   balances: TokenBalance[];
+  /** Current profit and loss on every given balance */
+  balanceStatement?: BalanceStatement[];
   /** Any transactions that have included transfers to this account */
-  transactions?: Transaction[];
+  accountHistory?: AccountHistory[];
   /** Specific allowances tracked for user interface purposes */
   allowances?: Allowance[];
 }

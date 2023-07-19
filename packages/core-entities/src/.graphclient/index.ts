@@ -6746,6 +6746,12 @@ const merger = new(BareMerger as any)({
     get documents() {
       return [
       {
+        document: AccountBalanceStatementDocument,
+        get rawSDL() {
+          return printWithCache(AccountBalanceStatementDocument);
+        },
+        location: 'AccountBalanceStatementDocument.graphql'
+      },{
         document: AccountTransactionHistoryDocument,
         get rawSDL() {
           return printWithCache(AccountTransactionHistoryDocument);
@@ -6825,6 +6831,19 @@ export function getBuiltGraphSDK<TGlobalContext = any, TOperationContext = any>(
   const sdkRequester$ = getBuiltGraphClient().then(({ sdkRequesterFactory }) => sdkRequesterFactory(globalContext));
   return getSdk<TOperationContext, TGlobalContext>((...args) => sdkRequester$.then(sdkRequester => sdkRequester(...args)));
 }
+export type AccountBalanceStatementQueryVariables = Exact<{
+  accountId: Scalars['ID'];
+}>;
+
+
+export type AccountBalanceStatementQuery = { account?: Maybe<(
+    Pick<Account, 'id'>
+    & { balances?: Maybe<Array<{ token: (
+        Pick<Token, 'id'>
+        & { underlying?: Maybe<Pick<Token, 'id'>> }
+      ), current: Pick<BalanceSnapshot, 'timestamp' | 'blockNumber' | 'currentBalance' | '_accumulatedCostRealized' | 'adjustedCostBasis' | 'currentProfitAndLossAtSnapshot' | 'totalILAndFeesAtSnapshot' | 'totalProfitAndLossAtSnapshot' | 'totalInterestAccrualAtSnapshot'>, snapshots?: Maybe<Array<Pick<BalanceSnapshot, 'timestamp' | 'blockNumber' | 'currentBalance' | '_accumulatedCostRealized' | 'adjustedCostBasis' | 'currentProfitAndLossAtSnapshot' | 'totalILAndFeesAtSnapshot' | 'totalProfitAndLossAtSnapshot' | 'totalInterestAccrualAtSnapshot'>>> }>> }
+  )> };
+
 export type AccountTransactionHistoryQueryVariables = Exact<{
   accountId: Scalars['ID'];
 }>;
@@ -6832,7 +6851,7 @@ export type AccountTransactionHistoryQueryVariables = Exact<{
 
 export type AccountTransactionHistoryQuery = { account?: Maybe<(
     Pick<Account, 'id'>
-    & { balances?: Maybe<Array<{ token: Pick<Token, 'id'>, current: Pick<BalanceSnapshot, 'timestamp' | 'blockNumber' | 'currentBalance' | 'adjustedCostBasis' | 'currentProfitAndLossAtSnapshot' | 'totalILAndFeesAtSnapshot' | 'totalProfitAndLossAtSnapshot' | 'totalInterestAccrualAtSnapshot'>, snapshots?: Maybe<Array<Pick<BalanceSnapshot, 'timestamp' | 'blockNumber' | 'currentBalance' | 'adjustedCostBasis' | 'currentProfitAndLossAtSnapshot' | 'totalILAndFeesAtSnapshot' | 'totalProfitAndLossAtSnapshot' | 'totalInterestAccrualAtSnapshot'>>> }>>, profitLossLineItems?: Maybe<Array<(
+    & { profitLossLineItems?: Maybe<Array<(
       Pick<ProfitLossLineItem, 'timestamp' | 'blockNumber' | 'tokenAmount' | 'underlyingAmountRealized' | 'underlyingAmountSpot' | 'realizedPrice' | 'spotPrice'>
       & { transactionHash: Pick<Transaction, 'id'>, token: Pick<Token, 'id'>, underlyingToken: Pick<Token, 'id'>, bundle: Pick<TransferBundle, 'bundleName'> }
     )>> }
@@ -6891,18 +6910,22 @@ export type AllVaultsQueryVariables = Exact<{ [key: string]: never; }>;
 export type AllVaultsQuery = { vaultConfigurations: Array<Pick<VaultConfiguration, 'id' | 'vaultAddress' | 'strategy' | 'name'>>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
 
 
-export const AccountTransactionHistoryDocument = gql`
-    query AccountTransactionHistory($accountId: ID!) {
+export const AccountBalanceStatementDocument = gql`
+    query AccountBalanceStatement($accountId: ID!) {
   account(id: $accountId) {
     id
     balances {
       token {
         id
+        underlying {
+          id
+        }
       }
       current {
         timestamp
         blockNumber
         currentBalance
+        _accumulatedCostRealized
         adjustedCostBasis
         currentProfitAndLossAtSnapshot
         totalILAndFeesAtSnapshot
@@ -6913,6 +6936,7 @@ export const AccountTransactionHistoryDocument = gql`
         timestamp
         blockNumber
         currentBalance
+        _accumulatedCostRealized
         adjustedCostBasis
         currentProfitAndLossAtSnapshot
         totalILAndFeesAtSnapshot
@@ -6920,6 +6944,13 @@ export const AccountTransactionHistoryDocument = gql`
         totalInterestAccrualAtSnapshot
       }
     }
+  }
+}
+    ` as unknown as DocumentNode<AccountBalanceStatementQuery, AccountBalanceStatementQueryVariables>;
+export const AccountTransactionHistoryDocument = gql`
+    query AccountTransactionHistory($accountId: ID!) {
+  account(id: $accountId) {
+    id
     profitLossLineItems(first: 1000, orderBy: blockNumber, orderDirection: desc) {
       timestamp
       blockNumber
@@ -7200,9 +7231,13 @@ export const AllVaultsDocument = gql`
 
 
 
+
 export type Requester<C = {}, E = unknown> = <R, V>(doc: DocumentNode, vars?: V, options?: C) => Promise<R> | AsyncIterable<R>
 export function getSdk<C, E>(requester: Requester<C, E>) {
   return {
+    AccountBalanceStatement(variables: AccountBalanceStatementQueryVariables, options?: C): Promise<AccountBalanceStatementQuery> {
+      return requester<AccountBalanceStatementQuery, AccountBalanceStatementQueryVariables>(AccountBalanceStatementDocument, variables, options) as Promise<AccountBalanceStatementQuery>;
+    },
     AccountTransactionHistory(variables: AccountTransactionHistoryQueryVariables, options?: C): Promise<AccountTransactionHistoryQuery> {
       return requester<AccountTransactionHistoryQuery, AccountTransactionHistoryQueryVariables>(AccountTransactionHistoryDocument, variables, options) as Promise<AccountTransactionHistoryQuery>;
     },
