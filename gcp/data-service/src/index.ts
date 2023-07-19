@@ -11,6 +11,7 @@ import {
   padToHex256,
 } from '@notional-finance/util';
 import { BigNumber } from 'ethers';
+import { VaultAccount } from './types';
 const port = parseInt(process.env.SERVICE_PORT || '8080');
 const app = express();
 
@@ -118,6 +119,7 @@ async function main() {
   app.post('/events', async (req, res) => {
     try {
       const accountIds: string[] = [];
+      const vaultAccounts: VaultAccount[] = [];
       req.body.events.forEach((event) => {
         const contextUpdated = event.matchReasons.find(
           (reason) => reason.signature === 'AccountContextUpdate(address)'
@@ -134,13 +136,25 @@ async function main() {
         if (transferSingle) {
           const id = BigNumber.from(transferSingle.params.id);
           const params = decodeERC1155Id(padToHex256(id));
-          if (params.assetType === AssetType.VAULT_SHARE_ASSET_TYPE) {
+          if (
+            params.assetType === AssetType.VAULT_SHARE_ASSET_TYPE &&
+            params.vaultAddress
+          ) {
             accountIds.push(transferSingle.params.to);
+            vaultAccounts.push({
+              accountId: transferSingle.params.to,
+              vaultId: params.vaultAddress,
+            });
           }
         }
       });
 
-      await dataService.insertAccounts(accountIds);
+      if (accountIds.length > 0) {
+        await dataService.insertAccounts(accountIds);
+      }
+      if (vaultAccounts.length > 0) {
+        await dataService.insertVaultAccounts(vaultAccounts);
+      }
       res.status(200).send('OK');
     } catch (e: any) {
       res.status(500).send(e.toString());
