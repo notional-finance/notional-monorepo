@@ -1,0 +1,43 @@
+query AccountTransactionHistory($accountId: ID!) {
+  account(id: $accountId) {
+    id
+    balances {
+      token { id }
+      current {
+        timestamp
+        blockNumber
+        currentBalance
+        adjustedCostBasis
+        currentProfitAndLossAtSnapshot
+        totalILAndFeesAtSnapshot
+        totalProfitAndLossAtSnapshot
+        totalInterestAccrualAtSnapshot
+      }
+      snapshots(first: 25, orderBy: blockNumber, orderDirection: desc) {
+        timestamp
+        blockNumber
+      	currentBalance
+        adjustedCostBasis
+        currentProfitAndLossAtSnapshot
+        totalILAndFeesAtSnapshot
+        totalProfitAndLossAtSnapshot
+        totalInterestAccrualAtSnapshot 
+      }
+    }
+    profitLossLineItems(first: 1000, orderBy: blockNumber, orderDirection: desc) {
+      timestamp
+      blockNumber
+      transactionHash { id }
+      token { id }
+      underlyingToken { id }
+      tokenAmount
+      bundle {
+        bundleName
+      }
+      underlyingAmountRealized
+      underlyingAmountSpot
+      realizedPrice
+      spotPrice
+    }
+  }
+}

@@ -121,15 +121,6 @@ export interface Allowance {
   amount: TokenBalance;
 }
 
-/** A single blockchain transaction, multiple accounts may be involved in a single transaction */
-export interface Transaction {
-  transactionHash: string;
-  blockNumber: number;
-  timestamp: number;
-  /** Transfer bundles are logical groupings of individual transfers */
-  bundles: TransferBundle[];
-}
-
 /** A logical grouping of transfers */
 export interface TransferBundle {
   id: string;
