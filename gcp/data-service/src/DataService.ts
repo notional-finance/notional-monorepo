@@ -8,7 +8,12 @@ import {
   defaultConfigDefs,
   defaultDataWriters,
 } from './config';
-import { DataRow, MulticallOperation, TableName } from './types';
+import {
+  DataRow,
+  MulticallConfig,
+  MulticallOperation,
+  TableName,
+} from './types';
 import { aggregate } from '@notional-finance/multicall';
 
 // TODO: fetch from DB
@@ -158,7 +163,7 @@ export default class DataService {
   }
 
   private async syncFromMulticall(
-    dbData: Map<TableName, unknown[]>,
+    dbData: Map<TableName, DataRow[]>,
     network: Network,
     blockNumber: number,
     operations: MulticallOperation[]
@@ -177,7 +182,12 @@ export default class DataService {
         values = [];
         dbData.set(op.configDef.tableName, values);
       }
-      values.push(response.results[op.configDef.id]);
+      values.push({
+        id: op.configDef.id,
+        sourceConfig: op.configDef.sourceConfig as MulticallConfig,
+        dataConfig: op.configDef.dataConfig,
+        value: response.results[op.configDef.id],
+      });
     });
   }
 

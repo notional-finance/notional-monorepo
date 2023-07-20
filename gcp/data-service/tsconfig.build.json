@@ -6,7 +6,7 @@
     "outDir": "lib",
     "strict": true,
     "declaration": true,
-    "incremental": true,
+    "incremental": false,
     "noImplicitAny": false,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
@@ -30,7 +30,6 @@
     "src/**/*.json"
   ],
   "exclude": [
-    "dist",
     "node_modules",
     "test/**",
     "**/*.spec.ts",

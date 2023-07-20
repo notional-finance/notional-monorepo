@@ -51,6 +51,7 @@ export interface DataWriterConfig {
 
 export interface DataRow {
   id: string;
+  sourceConfig: MulticallConfig;
   dataConfig: GenericDataConfig;
   value: unknown;
 }

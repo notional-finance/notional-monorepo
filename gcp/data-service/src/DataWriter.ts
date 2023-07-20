@@ -16,6 +16,8 @@ export class GenericDataWriter implements IDataWriter {
           timestamp: context.timestamp,
           block_number: context.blockNumber,
           decimals: v.dataConfig.decimals,
+          contract_address: v.sourceConfig.contractAddress,
+          method: v.sourceConfig.method,
           latest_rate: BigNumber.from(v.value).toString(),
         }))
       )
