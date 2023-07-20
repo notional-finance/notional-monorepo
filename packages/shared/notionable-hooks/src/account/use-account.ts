@@ -78,6 +78,18 @@ export function useAccountDefinition() {
   };
 }
 
+export function useBalanceStatements() {
+  const { account } = useAccountDefinition();
+  return (
+    account?.balanceStatement?.filter((b) => !b.currentBalance.isZero()) || []
+  );
+}
+
+export function useTransactionHistory() {
+  const { account } = useAccountDefinition();
+  return account?.accountHistory || [];
+}
+
 export function useAccountReady() {
   const {
     globalState: { isAccountReady },

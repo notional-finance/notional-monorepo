@@ -6,7 +6,6 @@
     "outDir": "lib",
     "strict": true,
     "declaration": true,
-    "incremental": false,
     "noImplicitAny": false,
     "noUnusedLocals": true,
     "noUnusedParameters": true,

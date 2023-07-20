@@ -1,0 +1,58 @@
+{
+  "name": "vault-liquidator",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/vault-liquidator/src",
+  "projectType": "application",
+  "targets": {
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          {
+            "command": "wrangler dev --local --var NX_COMMIT_REF:$(git rev-parse HEAD)"
+          }
+        ],
+        "cwd": "apps/vault-liquidator"
+      }
+    },
+    "publish-wrangler-manual": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          {
+            "command": "wrangler publish --env {args.env}  --var NX_COMMIT_REF:$(git rev-parse HEAD)"
+          }
+        ],
+        "cwd": "apps/vault-liquidator"
+      }
+    },
+    "publish-wrangler": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          {
+            "command": "wrangler publish"
+          }
+        ],
+        "cwd": "apps/vault-liquidator"
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/vault-liquidator/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/apps/vault-liquidator"],
+      "options": {
+        "jestConfig": "apps/vault-liquidator/jest.config.ts",
+        "passWithNoTests": true
+      },
+      "dependsOn": ["build"]
+    }
+  },
+  "tags": []
+}

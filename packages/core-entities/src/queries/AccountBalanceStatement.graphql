@@ -1,0 +1,34 @@
+query AccountBalanceStatement($accountId: ID!) {
+  account(id: $accountId) {
+    id
+    balances {
+      token { 
+        id
+        underlying { id }
+      }
+      current {
+        timestamp
+        blockNumber
+        currentBalance
+        _accumulatedCostRealized
+        adjustedCostBasis
+        currentProfitAndLossAtSnapshot
+        totalILAndFeesAtSnapshot
+        totalProfitAndLossAtSnapshot
+        totalInterestAccrualAtSnapshot
+      }
+      snapshots(first: 25, orderBy: blockNumber, orderDirection: desc) {
+        timestamp
+        blockNumber
+        currentBalance
+        _accumulatedCostRealized
+        adjustedCostBasis
+        currentProfitAndLossAtSnapshot
+        totalILAndFeesAtSnapshot
+        totalProfitAndLossAtSnapshot
+        totalInterestAccrualAtSnapshot
+      }
+    }
+  }
+}
+
