@@ -12,9 +12,9 @@ export class GenericDataWriter implements IDataWriter {
       .insert(
         rows.map((v) => ({
           id: v.id,
-          network: context.networkId,
+          network: v.networkId,
           timestamp: context.timestamp,
-          block_number: context.blockNumber,
+          block_number: v.blockNumber,
           decimals: v.dataConfig.decimals,
           contract_address: v.sourceConfig.contractAddress,
           method: v.sourceConfig.method,

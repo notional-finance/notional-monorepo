@@ -52,7 +52,7 @@ ${e}`);
         (c) => c.target !== NO_OP
       ) as Multicall3.Call3Struct[],
       {
-        blockTag: blockNumber,
+        blockTag: blockNumber || 'latest',
       }
     );
   } catch (e) {

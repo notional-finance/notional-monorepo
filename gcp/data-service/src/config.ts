@@ -1,4 +1,4 @@
-import { BalancerBoostedPoolABI } from '@notional-finance/contracts';
+import { BalancerBoostedPoolABI, wstETHABI } from '@notional-finance/contracts';
 import { ethers } from 'ethers';
 import { getProviderFromNetwork, Network } from '@notional-finance/util';
 import {
@@ -15,6 +15,21 @@ import { GenericDataWriter } from './DataWriter';
 export const SourceContracts = {};
 
 export const defaultConfigDefs: ConfigDefinition[] = [
+  {
+    id: '0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0:getStETHByWstETH',
+    sourceType: SourceType.Multicall,
+    sourceConfig: {
+      contractAddress: '0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0',
+      contractABI: wstETHABI,
+      method: 'getStETHByWstETH',
+      args: [ethers.utils.parseEther('1')],
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      decimals: 18,
+    },
+    networkOverride: Network.Mainnet,
+  },
   {
     id: '0x7c82a23b4c48d796dee36a9ca215b641c6a8709d:getRate',
     sourceType: SourceType.Multicall,
@@ -55,10 +70,11 @@ export function buildOperations(
           target: new ethers.Contract(
             configData.contractAddress,
             configData.contractABI,
-            getProviderFromNetwork(cfg.networkOverride || network, true)
+            getProviderFromNetwork(contractNetwork, true)
           ),
           method: configData.method,
           key: cfg.id,
+          args: configData.args,
         },
       });
     } else if (cfg.sourceType === SourceType.Subgraph) {

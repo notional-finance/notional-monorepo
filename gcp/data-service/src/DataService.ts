@@ -34,7 +34,7 @@ const oracleTypeToId = {
 
 export type DataServiceSettings = {
   network: Network;
-  blocksPerSecond: number;
+  blocksPerSecond: Record<string, number>;
   maxProviderRequests: number;
   interval: number;
   frequency: number; // hourly, daily etc.
@@ -99,33 +99,38 @@ export default class DataService {
     await Promise.all(timestamps.map((ts) => this.sync(ts)));
   }
 
-  private async getBlockNumberFromTs(ts: number) {
+  private async getBlockNumberFromTs(network: Network, ts: number) {
     ts = this.intervalTimestamp(ts);
     // get blockNumber by timestamp
     const record = await this.db
       .select()
       .from(DataService.TS_BN_MAPPINGS_TABLE_NAME)
-      .where('timestamp', ts);
+      .where('timestamp', ts)
+      .andWhere('network_id', this.networkToId(network));
     let blockNumber = 0;
     if (record.length === 0) {
-      blockNumber = await this.getBlockNumberByTimestamp(ts);
+      blockNumber = await this.getBlockNumberByTimestamp(network, ts);
       await this.db
         .insert([
           {
             timestamp: ts,
             block_number: blockNumber,
+            network_id: this.networkToId(network),
           },
         ])
         .into(DataService.TS_BN_MAPPINGS_TABLE_NAME);
     } else {
-      blockNumber = record[0].block_number as number;
+      blockNumber = parseInt(record[0].block_number);
     }
 
     return blockNumber;
   }
 
   public async sync(ts: number) {
-    const blockNumber = await this.getBlockNumberFromTs(ts);
+    const blockNumber = await this.getBlockNumberFromTs(
+      this.settings.network,
+      ts
+    );
 
     // Get data using block number
     if (blockNumber < this.settings.startingBlock) {
@@ -165,16 +170,13 @@ export default class DataService {
   private async syncFromMulticall(
     dbData: Map<TableName, DataRow[]>,
     network: Network,
-    blockNumber: number,
+    ts: number,
     operations: MulticallOperation[]
   ) {
+    const blockNumber = await this.getBlockNumberFromTs(network, ts);
+    const provider = getProviderFromNetwork(network, true);
     const calls = operations.map((op) => op.aggregateCall);
-    const response = await aggregate(
-      calls,
-      getProviderFromNetwork(network, true),
-      blockNumber,
-      true
-    );
+    const response = await aggregate(calls, provider, blockNumber, true);
 
     operations.forEach((op) => {
       let values = dbData.get(op.configDef.tableName);
@@ -187,12 +189,13 @@ export default class DataService {
         sourceConfig: op.configDef.sourceConfig as MulticallConfig,
         dataConfig: op.configDef.dataConfig,
         value: response.results[op.configDef.id],
+        networkId: this.networkToId(network),
+        blockNumber: blockNumber,
       });
     });
   }
 
   public async sync2(ts: number) {
-    const blockNumber = await this.getBlockNumberFromTs(ts);
     const operations = buildOperations(
       defaultConfigDefs,
       this.settings.network
@@ -203,7 +206,7 @@ export default class DataService {
         return this.syncFromMulticall(
           dbData,
           network,
-          blockNumber,
+          ts,
           operations.aggregateCalls.get(network) || []
         );
       })
@@ -215,9 +218,7 @@ export default class DataService {
           this.db,
           {
             tableName: k,
-            networkId: this.networkToId(this.settings.network),
             timestamp: ts,
-            blockNumber: blockNumber,
           },
           dbData.get(k) || []
         );
@@ -237,29 +238,52 @@ export default class DataService {
     return (await resp.json()).values;
   }
 
-  public async getBlockNumberByTimestamp(targetTimestamp: number) {
-    let blockNumber = await this.provider.getBlockNumber();
-    let block = await this.provider.getBlock(blockNumber);
+  public async getBlockNumberByTimestamp(
+    network: Network,
+    targetTimestamp: number
+  ) {
+    const provider = getProviderFromNetwork(network, true);
+    let blockNumber = await provider.getBlockNumber();
+    let block = await provider.getBlock(blockNumber);
     let requestsMade = 1;
+    let highBlock;
+    let lowBlock;
 
     while (true) {
       if (requestsMade > this.settings.maxProviderRequests) {
         break;
       }
-      console.log(`blockNumber=${block.number},ts=${block.timestamp}`);
+      if (highBlock && lowBlock) {
+        if (
+          block.timestamp === highBlock.timestamp ||
+          block.timestamp == lowBlock.timestamp
+        ) {
+          const highDelta = highBlock.timestamp - targetTimestamp;
+          const lowDelta = targetTimestamp - lowBlock.timestamp;
+          block = highDelta < lowDelta ? highBlock : lowBlock;
+          break;
+        }
+      }
+      console.log(
+        `blockNumber=${block.number},ts=${block.timestamp},target=${targetTimestamp}`
+      );
       if (block.timestamp > targetTimestamp) {
-        const delta = Math.round(
-          (block.timestamp - targetTimestamp) * this.settings.blocksPerSecond
+        highBlock = block;
+        const delta = Math.ceil(
+          (block.timestamp - targetTimestamp) *
+            this.settings.blocksPerSecond[network.toString()]
         );
         blockNumber -= delta;
-        block = await this.provider.getBlock(blockNumber);
+        block = await provider.getBlock(blockNumber);
         requestsMade++;
       } else if (block.timestamp < targetTimestamp) {
-        const delta = Math.round(
-          (targetTimestamp - block.timestamp) * this.settings.blocksPerSecond
+        lowBlock = block;
+        const delta = Math.ceil(
+          (targetTimestamp - block.timestamp) *
+            this.settings.blocksPerSecond[network.toString()]
         );
         blockNumber += delta;
-        block = await this.provider.getBlock(blockNumber);
+        block = await provider.getBlock(blockNumber);
         requestsMade++;
       } else {
         break;

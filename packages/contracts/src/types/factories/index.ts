@@ -30,3 +30,4 @@ export { TreasuryManager__factory } from "./TreasuryManager__factory";
 export { VaultLiquidator__factory } from "./VaultLiquidator__factory";
 export { NTokenERC20__factory } from "./NTokenERC20__factory";
 export { SNOTE__factory } from "./SNOTE__factory";
+export { WstETH__factory } from "./WstETH__factory";

@@ -32,7 +32,10 @@ async function main() {
   const dataService = new DataService(provider, db, {
     network: Network[process.env.NETWORK],
     // TODO: get from env
-    blocksPerSecond: 2.5, // 2.5 blocks per second on arbitrum
+    blocksPerSecond: {
+      [Network.ArbitrumOne]: 2.5, // 2.5 blocks per second on arbitrum
+      [Network.Mainnet]: 0.083,
+    },
     maxProviderRequests: 50,
     interval: 1, // 1 Hour
     frequency: 3600, // Hourly
@@ -52,10 +55,16 @@ async function main() {
   });
 
   app.get('/time', async (req, res) => {
-    const targetTimestamp = parseInt(
-      (req.query.targetTimestamp as string) || '0'
+    const targetTimestamp = req.query.targetTimestamp
+      ? parseInt(req.query.targetTimestamp as string)
+      : dataService.latestTimestamp();
+    const network = req.query.network
+      ? (req.query.network as Network)
+      : Network.Mainnet;
+    const block = await dataService.getBlockNumberByTimestamp(
+      network,
+      targetTimestamp
     );
-    const block = await dataService.getBlockNumberByTimestamp(targetTimestamp);
     res.send(JSON.stringify(block));
   });
 
@@ -88,13 +97,13 @@ async function main() {
   });
 
   app.get('/sync2', async (_, res) => {
-    try {
-      res.send(
-        JSON.stringify(await dataService.sync2(dataService.latestTimestamp()))
-      );
-    } catch (e: any) {
-      res.status(500).send(e.toString());
-    }
+    //try {
+    res.send(
+      JSON.stringify(await dataService.sync2(dataService.latestTimestamp()))
+    );
+    //} catch (e: any) {
+    //  res.status(500).send(e.toString());
+    // }
   });
 
   app.get('/data/oracles', async (_, res) => {

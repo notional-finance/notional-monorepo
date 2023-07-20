@@ -53,14 +53,14 @@ export interface DataRow {
   id: string;
   sourceConfig: MulticallConfig;
   dataConfig: GenericDataConfig;
+  blockNumber: number;
+  networkId: number;
   value: unknown;
 }
 
 export interface DataContext {
   tableName: string;
-  networkId: number;
   timestamp: number;
-  blockNumber: number;
 }
 
 export interface IDataWriter {
