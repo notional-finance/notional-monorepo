@@ -418,13 +418,13 @@ export function calculateDebtCollateralGivenDepositRiskLimit({
   collateralPool: fCashMarket;
   debtPool: fCashMarket;
   depositBalance: TokenBalance | undefined;
-  balances: TokenBalance[];
+  balances?: TokenBalance[];
   riskFactorLimit: RiskFactorLimit<RiskFactorKeys>;
   maxCollateralSlippage?: number;
   maxDebtSlippage?: number;
 }) {
   const riskProfile = AccountRiskProfile.simulate(
-    balances,
+    balances ? balances : [],
     depositBalance ? [depositBalance] : []
   );
 
