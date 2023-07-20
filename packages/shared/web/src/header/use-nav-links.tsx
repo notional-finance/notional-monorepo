@@ -30,7 +30,11 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
       iconImg: (
         <PortfolioIcon
           className="color-fill"
-          sx={{ fontSize: '1.125rem', fill: textColor, stroke: 'transparent' }}
+          sx={{
+            height: theme.spacing(2.25),
+            fill: textColor,
+            stroke: 'transparent',
+          }}
         />
       ),
     },
@@ -41,7 +45,11 @@ export const useNavLinks = (mobileNav: boolean, theme: NotionalTheme) => {
       iconImg: (
         <StackIcon
           className="color-fill"
-          sx={{ fontSize: '1.125rem', fill: textColor, stroke: 'transparent' }}
+          sx={{
+            height: theme.spacing(2.25),
+            fill: textColor,
+            stroke: 'transparent',
+          }}
         />
       ),
     },

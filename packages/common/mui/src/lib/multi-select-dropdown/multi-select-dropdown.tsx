@@ -79,7 +79,7 @@ export const MultiSelectDropdown = ({
           <FilterIcon
             sx={{
               fill: theme.palette.common.black,
-              fontSize: '1.125rem',
+              height: theme.spacing(2.25),
               marginRight: theme.spacing(1),
             }}
           />

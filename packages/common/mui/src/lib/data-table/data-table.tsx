@@ -76,16 +76,34 @@ export const DataTable = ({
   const expandableTable = CustomRowComponent ? true : false;
 
   /**
-      This table has multiple versions:
+    "Default Data Table": 
+      - If you pass only the required props a plain table with no title bar will be rendered.
 
-    - NOTE* All table variations are affected by the tableVariant prop used only for styling.
+    DATA TABLE VARIANTS =======
 
-    - "Normal Table": If you pass only the required props a plain table with no title will be rendered.
+    DEFAULT: 
+      - Standard styling applies
 
-    - DataTableTitleBar: Requires a tableTitle string. Optionally the tableTitleButtons prop can be passed to render a button bank.
+    MINI: 
+      - Used to display our smallest table. Used in side drawers primarily.
+    
+    TOTAL_ROW: 
+      - Adds a styled total row option
+    
+    SORTABLE: 
+      - Adds the ability for the columns to be sorted. Add ads a up and down arrow to the colum headers
+    
+    DATA TABLE HEADER/TITLE BAR TYPES =======
 
-    - DataTableTabBar: Requires the tabBarProps object and data/columns passed for each differing table. This will render a tabbed table.
-      If the TabComponentVisible and CustomTabComponent props are included any react component can be rendered as the table body.
+    DataTableTitleBar: 
+      - Requires a tableTitle string. Optionally the tableTitleButtons prop can be passed to render a button bank.
+
+    DataTableTabBar: 
+      - Requires the tabBarProps object and data/columns passed for each differing table. This will render a tabbed table.
+      - If the TabComponentVisible and CustomTabComponent props are included any react component can be rendered as the table body.
+
+    DataTableFilterBar: 
+      - Requires filterBarData to function. The filterBarData will automatically populate one or more filter dropdowns depending on need. 
   */
 
   return (
@@ -120,15 +138,13 @@ export const DataTable = ({
         />
       )}
 
-      {filterBarData &&
-        filterBarData.length > 0 &&
-        tableVariant === TABLE_VARIANTS.SORTABLE && (
-          <DataTableFilterBar
-            filterBarData={filterBarData}
-            tableData={data}
-            downloadCSVFormatter={marketDataCSVFormatter}
-          />
-        )}
+      {filterBarData && filterBarData.length > 0 && (
+        <DataTableFilterBar
+          filterBarData={filterBarData}
+          tableData={data}
+          downloadCSVFormatter={marketDataCSVFormatter}
+        />
+      )}
 
       {tabBarProps && <DataTableTabBar tabBarProps={tabBarProps} />}
 
