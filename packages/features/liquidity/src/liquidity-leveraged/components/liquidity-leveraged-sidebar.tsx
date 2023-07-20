@@ -58,7 +58,7 @@ export const LiquidityLeveragedSidebar = () => {
         ref={currencyInputRef}
         inputRef={currencyInputRef}
         context={LiquidityContext}
-        newRoute={(newToken) => `/provide/${newToken}`}
+        newRoute={(newToken) => `/liquidity-leveraged/${newToken}`}
         inputLabel={defineMessage({
           defaultMessage: '1. How much liquidity do you want to provide?',
           description: 'input label',

@@ -24,7 +24,6 @@ interface ToggleMaturitySelectProps {
 const VARIABLE = 0;
 const FIXED = 1;
 
-// TODO: rename this file and make this selector more performant....
 export function VariableFixedMaturityToggle({
   context,
   fCashInputLabel,
