@@ -195,7 +195,13 @@ export function encodeTrades(
 
       return ethers.utils.solidityPack(
         ['uint8', 'uint8', 'uint88', 'uint32', 'uint120'],
-        [tradeActionType, marketIndex, fCash.n, slippage, BigNumber.from(0)]
+        [
+          tradeActionType,
+          marketIndex,
+          fCash.abs().n,
+          slippage,
+          BigNumber.from(0),
+        ]
       );
     }),
     currencyId,
