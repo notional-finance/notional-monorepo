@@ -458,7 +458,9 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
     if (!token.currencyId) throw Error('Invalid quote currency');
     const config = this.getConfig(oracle.network, token.currencyId);
 
-    if (oracle.oracleType === 'Chainlink' && riskAdjusted === 'Debt') {
+    if (oracle.id === 'UNIT_RATE') {
+      return PERCENTAGE_BASIS;
+    } else if (oracle.oracleType === 'Chainlink' && riskAdjusted === 'Debt') {
       return this._assertDefined(config.debtBuffer);
     } else if (oracle.oracleType === 'Chainlink' && riskAdjusted === 'Asset') {
       return this._assertDefined(config.collateralHaircut);

@@ -3,7 +3,11 @@ import {
   TokenBalance,
   TokenDefinition,
 } from '@notional-finance/core-entities';
-import { Network, PERCENTAGE_BASIS } from '@notional-finance/util';
+import {
+  Network,
+  PERCENTAGE_BASIS,
+  RATE_PRECISION,
+} from '@notional-finance/util';
 import { BaseRiskProfile } from './base-risk';
 import { SymbolOrID } from './types';
 
@@ -36,7 +40,7 @@ export class AccountRiskProfile extends BaseRiskProfile {
 
   protected _totalRiskAdjusted(b: TokenBalance[], d: TokenDefinition) {
     return this._totalValue(
-      b.map((t) => t.toRiskAdjustedUnderlying()),
+      b.map((t) => t.toToken(d, t.isNegative() ? 'Debt' : 'Asset')),
       d
     );
   }
@@ -90,24 +94,18 @@ export class AccountRiskProfile extends BaseRiskProfile {
   }
 
   /** Total value of assets in the specified currency with risk adjustments */
-  totalCurrencyAssetsRiskAdjusted(
-    currencyId: number,
-    denominated = this.defaultSymbol
-  ) {
+  totalCurrencyAssetsRiskAdjusted(currencyId: number) {
     return this._totalRiskAdjusted(
       this.collateral.filter((t) => t.token.currencyId === currencyId),
-      this.denom(denominated)
+      Registry.getTokenRegistry().getPrimeCash(this.network, currencyId)
     );
   }
 
   /** Total value of debts in the specified currency with risk adjustments */
-  totalCurrencyDebtsRiskAdjusted(
-    currencyId: number,
-    denominated = this.defaultSymbol
-  ) {
+  totalCurrencyDebtsRiskAdjusted(currencyId: number) {
     return this._totalRiskAdjusted(
       this.debts.filter((t) => t.token.currencyId === currencyId),
-      this.denom(denominated)
+      Registry.getTokenRegistry().getPrimeCash(this.network, currencyId)
     );
   }
 
@@ -130,20 +128,18 @@ export class AccountRiskProfile extends BaseRiskProfile {
   }
 
   /** Returns summary values per currency for the risk profile */
-  perCurrencyFactors(denominated = this.defaultSymbol) {
+  perCurrencyFactors() {
     return this.allCurrencyIds.reduce(
       (m, id) => {
+        const underlying = Registry.getTokenRegistry().getUnderlying(
+          this.network,
+          id
+        ).id;
         m.set(id, {
-          totalAssets: this.totalCurrencyAssets(id, denominated),
-          totalAssetsRiskAdjusted: this.totalCurrencyAssetsRiskAdjusted(
-            id,
-            denominated
-          ),
-          totalDebts: this.totalCurrencyDebts(id, denominated),
-          totalDebtsRiskAdjusted: this.totalCurrencyDebtsRiskAdjusted(
-            id,
-            denominated
-          ),
+          totalAssets: this.totalCurrencyAssets(id, underlying),
+          totalAssetsRiskAdjusted: this.totalCurrencyAssetsRiskAdjusted(id),
+          totalDebts: this.totalCurrencyDebts(id, underlying),
+          totalDebtsRiskAdjusted: this.totalCurrencyDebtsRiskAdjusted(id),
         });
 
         return m;
@@ -161,11 +157,25 @@ export class AccountRiskProfile extends BaseRiskProfile {
   }
 
   freeCollateral() {
-    return this.totalAssetsRiskAdjusted().add(this.totalDebtRiskAdjusted());
+    const denom = this.denom(this.defaultSymbol);
+    return this.allCurrencyIds.reduce((fc, id) => {
+      const netLocal = this.totalCurrencyAssetsRiskAdjusted(id).add(
+        this.totalCurrencyDebtsRiskAdjusted(id)
+      );
+
+      return fc.add(
+        netLocal.toToken(denom, netLocal.isNegative() ? 'Debt' : 'Asset')
+      );
+    }, TokenBalance.zero(denom));
   }
 
   leverageRatio(): number | null {
-    throw Error('Unimplemented');
+    const totalDebt = this.totalDebt().neg();
+    const totalAssets = this.totalAssets();
+    return totalDebt.isZero()
+      ? null
+      : totalDebt.ratioWith(totalAssets.sub(totalDebt)).toNumber() /
+          RATE_PRECISION;
   }
 
   /***** RISK THRESHOLD *******/
@@ -240,6 +250,7 @@ export class AccountRiskProfile extends BaseRiskProfile {
       freeCollateral: this.freeCollateral(),
       loanToValue: this.loanToValue(),
       collateralRatio: this.collateralRatio(),
+      leverageRatio: this.leverageRatio(),
       healthFactor: this.healthFactor(),
       liquidationPrice: this.getAllLiquidationPrices({
         onlyUnderlyingDebt: false,
