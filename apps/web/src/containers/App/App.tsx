@@ -46,6 +46,7 @@ import { AirdropView } from '../../containers/AirdropView';
 import { TermsView } from '../../containers/TermsView';
 import { PrivacyView } from '../../containers/PrivacyView';
 import { LandingPageView } from '../../containers/LandingPageView';
+import { Markets } from '../Markets';
 import { getDefaultNetworkFromHostname } from '@notional-finance/util';
 import { useConnect } from '@notional-finance/wallet/hooks/use-connect';
 
@@ -120,7 +121,6 @@ const AllRoutes = () => {
             path="/liquidity-leveraged"
             component={LiquidityLeveragedCardView}
           />
-
           <AppLayoutRoute path="/stake/:ethOrWeth" component={StakeView} />
           <AppLayoutRoute path="/stake" component={StakeView} />
           <AppLayoutRoute path="/unstake/:unstakePath" component={StakeView} />
@@ -145,6 +145,7 @@ const AllRoutes = () => {
             component={PortfolioFeatureShell}
           />
           <AppLayoutRoute path="/portfolio" component={PortfolioFeatureShell} />
+          <AppLayoutRoute path="/markets" component={Markets} />
           <AppLayoutRoute path="/treasury" component={TreasuryView} />
           <AppLayoutRoute path="/error" component={ServerError} />
           <LandingPageLayoutRoute path="/about" component={AboutUsView} />

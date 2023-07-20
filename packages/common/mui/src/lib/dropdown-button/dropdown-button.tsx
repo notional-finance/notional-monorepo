@@ -122,7 +122,7 @@ export function DropdownButton({
               marginTop: '-4px',
               width: '100%',
               height: '4px',
-              background: theme.gradient.landing,
+              background: theme.palette.typography.accent,
             }}
           ></Box>
         )}

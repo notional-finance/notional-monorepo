@@ -1,6 +1,7 @@
 import { HeaderGroup } from 'react-table';
 import { DataTableColumn, TABLE_VARIANTS } from '../types';
 import { TableCell, TableHead, TableRow, useTheme } from '@mui/material';
+import { UpAndDownIcon } from '@notional-finance/icons';
 import { TableColumnHeading } from '../../typography/typography';
 
 interface DataTableHeadProps {
@@ -46,10 +47,23 @@ export const DataTableHead = ({
                   : 'none',
                 whiteSpace: 'nowrap',
               }}
-              {...column['getHeaderProps']()}
+              {...(tableVariant === TABLE_VARIANTS.SORTABLE
+                ? column['getHeaderProps'](column['getSortByToggleProps']())
+                : column['getHeaderProps']())}
             >
               <TableColumnHeading>
                 {column['render']('Header')}
+                {tableVariant === TABLE_VARIANTS.SORTABLE &&
+                  column['render']('Header') && (
+                    <UpAndDownIcon
+                      sx={{
+                        height: '14px',
+                        position: 'absolute',
+                        top: '50%',
+                        transform: 'translateY(-55%)',
+                      }}
+                    />
+                  )}
               </TableColumnHeading>
             </TableCell>
           ))}

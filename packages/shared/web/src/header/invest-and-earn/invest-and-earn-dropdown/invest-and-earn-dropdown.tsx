@@ -51,7 +51,7 @@ export function InvestAndEarnDropdown() {
       customPopOverStyles={{
         left: 0,
         right: 0,
-        marginLeft: '20%',
+        marginLeft: '5%',
         marginRight: 'auto',
         width: '950px',
         overflow: 'visible',

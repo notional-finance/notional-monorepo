@@ -1,5 +1,9 @@
 import { Box, useTheme } from '@mui/material';
-import { TableCell, SmallTableCell, LargeTableCell } from '../../typography/typography';
+import {
+  TableCell,
+  SmallTableCell,
+  LargeTableCell,
+} from '../../typography/typography';
 
 export const MultiValueCell = ({ cell }): JSX.Element => {
   const theme = useTheme();
@@ -13,7 +17,10 @@ export const MultiValueCell = ({ cell }): JSX.Element => {
         ? value.data.map((displayValue, index) => (
             <Box key={`${column.id}-${row.id}-${index}`}>
               {index === 0 && (
-                <FirstValue error={value.isNegative} sx={{ marginBottom: '0px' }}>
+                <FirstValue
+                  error={value.isNegative}
+                  sx={{ marginBottom: '0px' }}
+                >
                   {displayValue}
                 </FirstValue>
               )}
