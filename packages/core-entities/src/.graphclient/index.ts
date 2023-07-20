@@ -393,6 +393,8 @@ export type BalanceSnapshot = {
   totalILAndFeesAtSnapshot: Scalars['BigInt'];
   /** Portion of the PnL due to interest accrual */
   totalInterestAccrualAtSnapshot: Scalars['BigInt'];
+  /** Implied Fixed Rate for fCash balances */
+  impliedFixedRate?: Maybe<Scalars['BigInt']>;
   /** Cumulative balance used for internal PnL calculations */
   _accumulatedBalance: Scalars['BigInt'];
   /** Cumulative realized cost for internal PnL calculations */
@@ -526,6 +528,14 @@ export type BalanceSnapshot_filter = {
   totalInterestAccrualAtSnapshot_lte?: InputMaybe<Scalars['BigInt']>;
   totalInterestAccrualAtSnapshot_in?: InputMaybe<Array<Scalars['BigInt']>>;
   totalInterestAccrualAtSnapshot_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  impliedFixedRate?: InputMaybe<Scalars['BigInt']>;
+  impliedFixedRate_not?: InputMaybe<Scalars['BigInt']>;
+  impliedFixedRate_gt?: InputMaybe<Scalars['BigInt']>;
+  impliedFixedRate_lt?: InputMaybe<Scalars['BigInt']>;
+  impliedFixedRate_gte?: InputMaybe<Scalars['BigInt']>;
+  impliedFixedRate_lte?: InputMaybe<Scalars['BigInt']>;
+  impliedFixedRate_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  impliedFixedRate_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   _accumulatedBalance?: InputMaybe<Scalars['BigInt']>;
   _accumulatedBalance_not?: InputMaybe<Scalars['BigInt']>;
   _accumulatedBalance_gt?: InputMaybe<Scalars['BigInt']>;
@@ -581,6 +591,7 @@ export type BalanceSnapshot_orderBy =
   | 'totalProfitAndLossAtSnapshot'
   | 'totalILAndFeesAtSnapshot'
   | 'totalInterestAccrualAtSnapshot'
+  | 'impliedFixedRate'
   | '_accumulatedBalance'
   | '_accumulatedCostRealized'
   | '_accumulatedCostAdjustedBasis'
@@ -765,6 +776,7 @@ export type Balance_orderBy =
   | 'current__totalProfitAndLossAtSnapshot'
   | 'current__totalILAndFeesAtSnapshot'
   | 'current__totalInterestAccrualAtSnapshot'
+  | 'current__impliedFixedRate'
   | 'current___accumulatedBalance'
   | 'current___accumulatedCostRealized'
   | 'current___accumulatedCostAdjustedBasis'
@@ -2599,6 +2611,7 @@ export type ProfitLossLineItem = {
   underlyingToken: Token;
   realizedPrice: Scalars['BigInt'];
   spotPrice: Scalars['BigInt'];
+  impliedFixedRate?: Maybe<Scalars['BigInt']>;
 };
 
 export type ProfitLossLineItem_filter = {
@@ -2792,6 +2805,14 @@ export type ProfitLossLineItem_filter = {
   spotPrice_lte?: InputMaybe<Scalars['BigInt']>;
   spotPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
   spotPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  impliedFixedRate?: InputMaybe<Scalars['BigInt']>;
+  impliedFixedRate_not?: InputMaybe<Scalars['BigInt']>;
+  impliedFixedRate_gt?: InputMaybe<Scalars['BigInt']>;
+  impliedFixedRate_lt?: InputMaybe<Scalars['BigInt']>;
+  impliedFixedRate_gte?: InputMaybe<Scalars['BigInt']>;
+  impliedFixedRate_lte?: InputMaybe<Scalars['BigInt']>;
+  impliedFixedRate_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  impliedFixedRate_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<ProfitLossLineItem_filter>>>;
@@ -2825,6 +2846,7 @@ export type ProfitLossLineItem_orderBy =
   | 'balanceSnapshot__totalProfitAndLossAtSnapshot'
   | 'balanceSnapshot__totalILAndFeesAtSnapshot'
   | 'balanceSnapshot__totalInterestAccrualAtSnapshot'
+  | 'balanceSnapshot__impliedFixedRate'
   | 'balanceSnapshot___accumulatedBalance'
   | 'balanceSnapshot___accumulatedCostRealized'
   | 'balanceSnapshot___accumulatedCostAdjustedBasis'
@@ -2883,7 +2905,8 @@ export type ProfitLossLineItem_orderBy =
   | 'underlyingToken__vaultAddress'
   | 'underlyingToken__tokenAddress'
   | 'realizedPrice'
-  | 'spotPrice';
+  | 'spotPrice'
+  | 'impliedFixedRate';
 
 export type Query = {
   token?: Maybe<Token>;
@@ -6144,6 +6167,7 @@ export type BalanceSnapshotResolvers<ContextType = MeshContext & { chainName: st
   totalProfitAndLossAtSnapshot?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   totalILAndFeesAtSnapshot?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   totalInterestAccrualAtSnapshot?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  impliedFixedRate?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   _accumulatedBalance?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   _accumulatedCostRealized?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   _accumulatedCostAdjustedBasis?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
@@ -6327,6 +6351,7 @@ export type ProfitLossLineItemResolvers<ContextType = MeshContext & { chainName:
   underlyingToken?: Resolver<ResolversTypes['Token'], ParentType, ContextType>;
   realizedPrice?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   spotPrice?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  impliedFixedRate?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -6694,7 +6719,7 @@ const notionalV3Transforms = [];
 const additionalTypeDefs = [] as any[];
 const notionalV3Handler = new GraphqlHandler({
               name: "NotionalV3",
-              config: {"endpoint":"https://api.studio.thegraph.com/query/33671/notional-finance-v3-{context.chainName:arbitrum}/v0.0.129"},
+              config: {"endpoint":"https://api.studio.thegraph.com/query/33671/notional-finance-v3-{context.chainName:arbitrum}/v0.0.135"},
               baseDir,
               cache,
               pubsub,

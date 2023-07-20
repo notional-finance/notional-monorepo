@@ -2,7 +2,7 @@ import { DepositInput } from '@notional-finance/trade';
 import { useCurrencyInputRef } from '@notional-finance/mui';
 import { VaultActionContext } from '../vault-view/vault-action-provider';
 import { messages } from '../messages';
-import { LeverageSlider, VaultSideDrawer } from '../components';
+import { VaultLeverageSlider, VaultSideDrawer } from '../components';
 
 export const IncreaseVaultPosition = () => {
   const { currencyInputRef } = useCurrencyInputRef();
@@ -15,7 +15,7 @@ export const IncreaseVaultPosition = () => {
         context={VaultActionContext}
         inputLabel={messages['IncreaseVaultPosition'].inputLabel}
       />
-      <LeverageSlider inputLabel={messages['IncreaseVaultPosition'].leverage} />
+      <VaultLeverageSlider inputLabel={messages['IncreaseVaultPosition'].leverage} />
     </VaultSideDrawer>
   );
 };

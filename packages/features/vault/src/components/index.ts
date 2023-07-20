@@ -6,4 +6,4 @@ export * from './debt-amount-caption';
 export * from './transaction-cost-caption';
 export * from './vault-side-drawer';
 export * from './vault-details-table';
-export * from './leverage-slider';
+export * from './vault-leverage-slider';

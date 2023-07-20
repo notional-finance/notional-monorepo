@@ -3,6 +3,8 @@ import {
   TradeActionButton,
   DepositInput,
   Confirmation2,
+  VariableFixedMaturityToggle,
+  LeverageSlider,
 } from '@notional-finance/trade';
 import { useHistory } from 'react-router-dom';
 import { ActionSidebar, useCurrencyInputRef } from '@notional-finance/mui';
@@ -62,7 +64,22 @@ export const LiquidityLeveragedSidebar = () => {
           description: 'input label',
         })}
       />
-      {/* <TradePropertiesGrid showBackground data={tradeProperties || {}} /> */}
+      <VariableFixedMaturityToggle
+        context={LiquidityContext}
+        fCashInputLabel={defineMessage({
+          defaultMessage: '2. Select your maturity',
+          description: 'input label',
+        })}
+      />
+      <LeverageSlider
+        context={LiquidityContext}
+        maxLeverageRatio={100}
+        defaultLeverageRatio={5}
+        inputLabel={defineMessage({
+          defaultMessage: '3. Specify your leverage ratio',
+          description: 'input label',
+        })}
+      />
     </ActionSidebar>
   );
 };

@@ -15,6 +15,7 @@ export * from './trade-properties/trade-properties-grid';
 export * from './trade-properties/trade-property';
 export * from './tradeErrors';
 export * from './manage-vault/manage-vault';
+export * from './leverage-slider/leverage-slider';
 
 /** New V3 Components */
 export * from './deposit-input/deposit-input';
