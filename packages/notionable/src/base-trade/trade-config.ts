@@ -192,7 +192,8 @@ export const TradeConfiguration = {
     collateralFilter: (t, _, s) =>
       t.tokenType !== 'nToken' && onlySameCurrency(t, s.deposit),
     debtFilter: (t, _, s) =>
-      t.tokenType !== 'nToken' && onlySameCurrency(t, s.deposit),
+      (t.tokenType === 'fCash' || t.tokenType === 'PrimeDebt') &&
+      onlySameCurrency(t, s.deposit),
     calculateCollateralOptions: true,
     calculateDebtOptions: true,
     transactionBuilder: LeveragedOrDeleverageLend,
@@ -224,7 +225,8 @@ export const TradeConfiguration = {
     collateralFilter: (t, _, s) =>
       t.tokenType === 'nToken' && onlySameCurrency(t, s.deposit),
     debtFilter: (t, _, s) =>
-      t.tokenType !== 'nToken' && onlySameCurrency(t, s.deposit),
+      (t.tokenType === 'fCash' || t.tokenType === 'PrimeDebt') &&
+      onlySameCurrency(t, s.deposit),
     calculateDebtOptions: true,
     transactionBuilder: LeveragedNToken,
   } as TransactionConfig,

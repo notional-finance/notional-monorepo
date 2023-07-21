@@ -29,7 +29,13 @@ export const LeverageSlider = ({
   context,
 }: LeverageSliderProps) => {
   const {
-    state: { riskFactorLimit, debtBalance, collateralBalance },
+    state: {
+      riskFactorLimit,
+      debtBalance,
+      collateralBalance,
+      depositBalance,
+      deposit,
+    },
     updateState,
   } = useContext(context);
   const { sliderInputRef, setSliderInput } = useSliderInputRef();
@@ -46,6 +52,13 @@ export const LeverageSlider = ({
       setSliderInput(defaultLeverageRatio);
     }
   }, [riskFactorLimit, defaultLeverageRatio, setSliderInput, updateState]);
+
+  const zeroUnderlying = deposit ? TokenBalance.zero(deposit) : undefined;
+  const totalAssetValue = zeroUnderlying
+    ? (depositBalance?.toUnderlying() || zeroUnderlying).add(
+        collateralBalance?.toUnderlying() || zeroUnderlying
+      )
+    : undefined;
 
   return (
     <SliderInput
@@ -71,9 +84,9 @@ export const LeverageSlider = ({
         debtValue: cashBorrowed
           ? cashBorrowed.toUnderlying().abs().toFloat()
           : debtBalance?.toUnderlying().abs().toFloat(),
-        debtSuffix: ` ${debtBalance?.underlying.symbol || ''}`,
-        assetValue: collateralBalance?.toUnderlying().toFloat(),
-        assetSuffix: ` ${collateralBalance?.underlying.symbol || ''}`,
+        debtSuffix: ` ${zeroUnderlying?.symbol || ''}`,
+        assetValue: totalAssetValue?.toFloat(),
+        assetSuffix: ` ${zeroUnderlying?.symbol || ''}`,
       }}
     />
   );
