@@ -44,7 +44,8 @@ export const LiquidityLeveragedSidebar = () => {
         description: 'section heading',
       })}
       helptext={defineMessage({
-        defaultMessage: 'TBD',
+        defaultMessage:
+          'Multiple your returns by providing liquidity with leverage. Select your borrow rate and leverage and put on the whole position in one transaction.',
         description: 'helptext',
       })}
       hideTextOnMobile
@@ -60,23 +61,17 @@ export const LiquidityLeveragedSidebar = () => {
         context={LiquidityContext}
         newRoute={(newToken) => `/liquidity-leveraged/${newToken}`}
         inputLabel={defineMessage({
-          defaultMessage: '1. How much liquidity do you want to provide?',
+          defaultMessage: '1. Enter deposit amount',
           description: 'input label',
         })}
       />
-      <VariableFixedMaturityToggle
-        context={LiquidityContext}
-        fCashInputLabel={defineMessage({
-          defaultMessage: '2. Select your maturity',
-          description: 'input label',
-        })}
-      />
+      <VariableFixedMaturityToggle context={LiquidityContext} />
       <LeverageSlider
         context={LiquidityContext}
-        maxLeverageRatio={100}
+        maxLeverageRatio={10}
         defaultLeverageRatio={5}
         inputLabel={defineMessage({
-          defaultMessage: '3. Specify your leverage ratio',
+          defaultMessage: '3. Specify your leverage',
           description: 'input label',
         })}
       />

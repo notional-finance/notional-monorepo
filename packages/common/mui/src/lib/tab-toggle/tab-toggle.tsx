@@ -76,8 +76,7 @@ const StyledTabs = styled(Tabs)(
   background-color: ${theme.palette.background.default};
   min-height: unset;
   padding: ${theme.spacing(1, 2)};
-  margin-top: ;
-  margin-bottom: 2rem;
+  margin-bottom: ${theme.spacing(4)};
   box-shadow: ${theme.shape.shadowStandard};
 
   .MuiTabs-indicator {
@@ -100,6 +99,7 @@ const StyledTab = styled(Tab)(
   transition-duration: 0.3s;
   transition-property: color;
   min-height: unset;
+  height: ${theme.spacing(7)};
 
   &.Mui-selected {
     color: ${theme.palette.common.white};

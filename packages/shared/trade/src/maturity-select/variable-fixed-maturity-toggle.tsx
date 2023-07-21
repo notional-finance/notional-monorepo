@@ -1,6 +1,6 @@
 import { Box } from '@mui/material';
 import {
-  H4,
+  InputLabel,
   Label,
   LabelValue,
   Maturities,
@@ -9,7 +9,7 @@ import {
 import { BaseContext } from '@notional-finance/notionable-hooks';
 import { useContext, useEffect, useState } from 'react';
 import { useMaturitySelect } from './use-maturity-select';
-import { FormattedMessage, MessageDescriptor } from 'react-intl';
+import { FormattedMessage, MessageDescriptor, defineMessage } from 'react-intl';
 import {
   PRIME_CASH_VAULT_MATURITY,
   RATE_PRECISION,
@@ -18,7 +18,7 @@ import {
 
 interface ToggleMaturitySelectProps {
   context: BaseContext;
-  fCashInputLabel: MessageDescriptor;
+  fCashInputLabel?: MessageDescriptor;
 }
 
 const VARIABLE = 0;
@@ -26,7 +26,9 @@ const FIXED = 1;
 
 export function VariableFixedMaturityToggle({
   context,
-  fCashInputLabel,
+  fCashInputLabel = defineMessage({
+    defaultMessage: 'Select a maturity for your fixed borrow rate',
+  }),
 }: ToggleMaturitySelectProps) {
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
   const {
@@ -64,30 +66,57 @@ export function VariableFixedMaturityToggle({
     }
   }, [primeDebtId, selectedTabIndex, onSelect, debtId]);
 
+  // NOTE: transition delay matches the delay on the tab switcher so the text
+  // does not flash
+  const inheritTransition = {
+    transitionDelay: 'inherit',
+    transitionDuration: 'inherit',
+    transitionProperty: 'color',
+  };
+
   const VariableRateLabel = (
-    <Box>
-      <H4 contrast={selectedTabIndex === VARIABLE}>
+    <Box sx={inheritTransition}>
+      <LabelValue
+        contrast={selectedTabIndex === VARIABLE}
+        sx={inheritTransition}
+      >
         <FormattedMessage defaultMessage={'Variable Rate'} />
-      </H4>
-      <LabelValue inline contrast={selectedTabIndex === VARIABLE}>
+      </LabelValue>
+      <LabelValue
+        inline
+        contrast={selectedTabIndex === VARIABLE}
+        sx={inheritTransition}
+      >
         {'2.23%'}
       </LabelValue>
       &nbsp;
-      <Label inline contrast={selectedTabIndex === VARIABLE}>
+      <Label
+        inline
+        contrast={selectedTabIndex === VARIABLE}
+        sx={inheritTransition}
+      >
         <FormattedMessage defaultMessage={'Current Rate'} />
       </Label>
     </Box>
   );
   const FixedRateLabel = (
-    <Box>
-      <H4 contrast={selectedTabIndex === FIXED}>
+    <Box sx={inheritTransition}>
+      <LabelValue contrast={selectedTabIndex === FIXED} sx={inheritTransition}>
         <FormattedMessage defaultMessage={'Fixed Rate'} />
-      </H4>
-      <Label inline contrast={selectedTabIndex === FIXED}>
+      </LabelValue>
+      <Label
+        inline
+        contrast={selectedTabIndex === FIXED}
+        sx={inheritTransition}
+      >
         <FormattedMessage defaultMessage={'As low as'} />
       </Label>
       &nbsp;
-      <LabelValue inline contrast={selectedTabIndex === FIXED}>
+      <LabelValue
+        inline
+        contrast={selectedTabIndex === FIXED}
+        sx={inheritTransition}
+      >
         {lowestFixedRate
           ? formatInterestRate(
               Math.floor((lowestFixedRate / 100) * RATE_PRECISION)
@@ -97,21 +126,28 @@ export function VariableFixedMaturityToggle({
     </Box>
   );
   return (
-    <TabToggle
-      tabLabels={[VariableRateLabel, FixedRateLabel]}
-      tabPanels={[
-        <Box />,
-        <Maturities
-          maturityData={maturityData}
-          selectedfCashId={selectedfCashId}
-          onSelect={onSelect}
-          inputLabel={fCashInputLabel}
-        />,
-      ]}
-      selectedTabIndex={selectedTabIndex}
-      onChange={(_, v) => {
-        setSelectedTabIndex(v as number);
-      }}
-    />
+    <Box>
+      <InputLabel
+        inputLabel={defineMessage({
+          defaultMessage: '2. Select variable or fixed borrow',
+        })}
+      />
+      <TabToggle
+        tabLabels={[VariableRateLabel, FixedRateLabel]}
+        tabPanels={[
+          <Box />,
+          <Maturities
+            maturityData={maturityData}
+            selectedfCashId={selectedfCashId}
+            onSelect={onSelect}
+            inputLabel={fCashInputLabel}
+          />,
+        ]}
+        selectedTabIndex={selectedTabIndex}
+        onChange={(_, v) => {
+          setSelectedTabIndex(v as number);
+        }}
+      />
+    </Box>
   );
 }
