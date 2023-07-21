@@ -184,22 +184,22 @@ export default class DataService {
         values = [];
         dbData.set(op.configDef.tableName, values);
       }
+      const sourceConfig = op.configDef.sourceConfig as MulticallConfig;
+      const key = op.aggregateCall.key as string;
       values.push({
-        id: op.configDef.id,
-        sourceConfig: op.configDef.sourceConfig as MulticallConfig,
+        id: key,
         dataConfig: op.configDef.dataConfig,
-        value: response.results[op.configDef.id],
+        value: response.results[key],
         networkId: this.networkToId(network),
         blockNumber: blockNumber,
+        contractAddress: sourceConfig.contractAddress,
+        method: sourceConfig.method,
       });
     });
   }
 
   public async sync2(ts: number) {
-    const operations = buildOperations(
-      defaultConfigDefs,
-      this.settings.network
-    );
+    const operations = buildOperations(defaultConfigDefs);
     const dbData = new Map<TableName, DataRow[]>();
     await Promise.all(
       Array.from(operations.aggregateCalls.keys()).map((network) => {

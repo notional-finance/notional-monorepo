@@ -28,3 +28,5 @@ export { default as IStrategyVaultABI } from './IStrategyVault.json';
 export { default as Curve2TokenConvexVaultABI } from './Curve2TokenConvexVault.json';
 export { default as VaultLiquidatorABI } from './VaultLiquidator.json';
 export { default as wstETHABI } from './wstETH.json';
+export { default as cbETHABI } from './cbETH.json';
+export { default as rETHABI } from './rETH.json';

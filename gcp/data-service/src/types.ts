@@ -16,6 +16,7 @@ export interface MulticallConfig {
   contractABI: any;
   method: string;
   args?: unknown[];
+  outputIndices?: number[];
 }
 
 export interface SubgraphConfig {
@@ -27,12 +28,11 @@ export interface GenericDataConfig {
 }
 
 export interface ConfigDefinition {
-  id: string;
   sourceType: SourceType;
   sourceConfig: MulticallConfig | SubgraphConfig;
   tableName: TableName;
   dataConfig: GenericDataConfig;
-  networkOverride?: Network;
+  network: Network;
 }
 
 export interface MulticallOperation {
@@ -51,10 +51,11 @@ export interface DataWriterConfig {
 
 export interface DataRow {
   id: string;
-  sourceConfig: MulticallConfig;
   dataConfig: GenericDataConfig;
   blockNumber: number;
   networkId: number;
+  contractAddress?: string;
+  method?: string;
   value: unknown;
 }
 
