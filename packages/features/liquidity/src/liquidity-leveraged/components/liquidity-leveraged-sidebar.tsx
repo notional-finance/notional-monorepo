@@ -10,6 +10,7 @@ import { useHistory } from 'react-router-dom';
 import { ActionSidebar, useCurrencyInputRef } from '@notional-finance/mui';
 import { defineMessage, FormattedMessage } from 'react-intl';
 import { LiquidityContext } from '../liquidity-leveraged';
+import { PRODUCTS } from '@notional-finance/shared-config';
 
 export const LiquidityLeveragedSidebar = () => {
   const history = useHistory();
@@ -20,7 +21,7 @@ export const LiquidityLeveragedSidebar = () => {
   const { currencyInputRef } = useCurrencyInputRef();
 
   const handleLeverUpToggle = () => {
-    history.push(`/liquidity-variable/${selectedDepositToken}`);
+    history.push(`/${PRODUCTS.LIQUIDITY_VARIABLE}/${selectedDepositToken}`);
   };
 
   const handleSubmit = () => {
@@ -59,7 +60,7 @@ export const LiquidityLeveragedSidebar = () => {
         ref={currencyInputRef}
         inputRef={currencyInputRef}
         context={LiquidityContext}
-        newRoute={(newToken) => `/liquidity-leveraged/${newToken}`}
+        newRoute={(newToken) => `/${PRODUCTS.LIQUIDITY_LEVERAGED}/${newToken}`}
         inputLabel={defineMessage({
           defaultMessage: '1. Enter deposit amount',
           description: 'input label',
