@@ -2,7 +2,6 @@ import { useContext } from 'react';
 import { CountUp, LabelValue } from '@notional-finance/mui';
 import { MessageDescriptor } from 'react-intl';
 import { messages } from '../messages';
-import { DebtAmountCaption } from './debt-amount-caption';
 import { TransactionCostCaption } from './transaction-cost-caption';
 import { useVaultActionErrors, useVaultCosts } from '../hooks';
 import { VaultActionContext } from '../vault-view/vault-action-provider';
@@ -13,7 +12,6 @@ export const VaultLeverageSlider = ({
   inputLabel,
   sliderError,
   sliderInfo,
-  repayDebt,
 }: {
   inputLabel: MessageDescriptor;
   sliderError?: MessageDescriptor;
@@ -55,9 +53,7 @@ export const VaultLeverageSlider = ({
       defaultLeverageRatio={defaultLeverageRatio}
       infoMsg={sliderInfo}
       errorMsg={errorMsg}
-      rightCaption={
-        <DebtAmountCaption repayDebt={repayDebt} amount={cashBorrowed} />
-      }
+      cashBorrowed={cashBorrowed}
       bottomCaption={
         <TransactionCostCaption
           toolTipText={messages.summary.transactionCostToolTip}
