@@ -12,6 +12,7 @@ export interface MaturityCardProps {
   selected: boolean;
   isFirstChild: boolean;
   isLastChild: boolean;
+  isVariable?: boolean;
 }
 
 export function MaturityCard({
@@ -20,6 +21,7 @@ export function MaturityCard({
   isFirstChild,
   isLastChild,
   onSelect,
+  isVariable,
 }: MaturityCardProps) {
   const theme = useTheme();
   const { tradeRate, hasLiquidity, maturity, fCashId } = maturityData;
@@ -74,7 +76,11 @@ export function MaturityCard({
       }}
     >
       <BodySecondary accent={selected} gutter="tight">
-        {formatMaturity(maturity)}
+        {isVariable ? (
+          <FormattedMessage defaultMessage={'Current Rate'} />
+        ) : (
+          formatMaturity(maturity)
+        )}
       </BodySecondary>
       <LabelValue fontWeight="regular">
         {!hasLiquidity && <FormattedMessage defaultMessage="Not Initialized" />}

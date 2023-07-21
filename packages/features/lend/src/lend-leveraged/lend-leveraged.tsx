@@ -26,7 +26,7 @@ export const LendLeveraged = () => {
 
   return (
     <LendLeveragedContext.Provider value={context}>
-      <FeatureLoader featureLoaded={isReady && !!selectedDepositToken}>
+      <FeatureLoader featureLoaded={isReady}>
         <SideBarLayout
           showTransactionConfirmation={confirm}
           sideBar={<LendLeveragedSidebar />}

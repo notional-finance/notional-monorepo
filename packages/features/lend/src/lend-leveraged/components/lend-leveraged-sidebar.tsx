@@ -6,11 +6,11 @@ import {
   DepositInput,
   Confirmation2,
   LeverageSlider,
-  VariableFixedMaturityToggle,
 } from '@notional-finance/trade';
 import { useHistory } from 'react-router-dom';
 import { PRODUCTS } from '@notional-finance/shared-config';
 import { LendLeveragedContext } from '../../lend-leveraged/lend-leveraged';
+import { LeveragedLendMaturitySelector } from './leveraged-lend-maturity-selector';
 
 export const LendLeveragedSidebar = () => {
   const history = useHistory();
@@ -76,7 +76,7 @@ export const LendLeveragedSidebar = () => {
           description: 'input label',
         })}
       />
-      <VariableFixedMaturityToggle context={LendLeveragedContext} />
+      <LeveragedLendMaturitySelector context={LendLeveragedContext} />
       <LeverageSlider
         context={LendLeveragedContext}
         maxLeverageRatio={10}
