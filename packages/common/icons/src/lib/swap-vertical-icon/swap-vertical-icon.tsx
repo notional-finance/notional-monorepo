@@ -9,8 +9,8 @@ export function SwapVerticalIcon(props: SwapVerticalIconProps) {
       <circle cx="34" cy="34" r="34" fill="white" />
       <g filter="url(#filter0_d_11357_114099)">
         <path
-          fill-rule="evenodd"
-          clip-rule="evenodd"
+          fillRule="evenodd"
+          clipRule="evenodd"
           d="M34 57C46.7025 57 57 46.7026 57 34C57 21.2975 46.7026 11 34 11C21.2975 11 11 21.2974 11 34C11 46.7025 21.2974 57 34 57Z"
           fill="#13BBC2"
         />
@@ -35,9 +35,9 @@ export function SwapVerticalIcon(props: SwapVerticalIconProps) {
           width="52"
           height="52"
           filterUnits="userSpaceOnUse"
-          color-interpolation-filters="sRGB"
+          colorInterpolationFilters="sRGB"
         >
-          <feFlood flood-opacity="0" result="BackgroundImageFix" />
+          <feFlood floodOpacity="0" result="BackgroundImageFix" />
           <feColorMatrix
             in="SourceAlpha"
             type="matrix"

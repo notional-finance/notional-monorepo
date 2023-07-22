@@ -9,7 +9,7 @@ import {
 import { MaturityData } from '@notional-finance/notionable';
 import { BaseContext } from '@notional-finance/notionable-hooks';
 import { useMaturitySelect } from '@notional-finance/trade';
-import { useCallback, useContext, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { FormattedMessage, defineMessage } from 'react-intl';
 
 interface LeveragedLendMaturitySelectorProps {
@@ -58,32 +58,67 @@ export function LeveragedLendMaturitySelector({
   const [isDebtVariable, setDebtVariable] = useState(true);
   const {
     updateState,
-    state: { availableDebtTokens, availableCollateralTokens },
+    state: {
+      availableDebtTokens,
+      availableCollateralTokens,
+      debt,
+      collateral,
+      deposit,
+    },
   } = useContext(context);
+  const primeDebt = availableDebtTokens?.find(
+    (t) => t.tokenType === 'PrimeDebt'
+  );
+  const primeCash = availableCollateralTokens?.find(
+    (t) => t.tokenType === 'PrimeCash'
+  );
+
+  const swapDebtOptions = useCallback(
+    (isDebtVariable: boolean) => {
+      if (isDebtVariable) {
+        updateState({
+          debt: primeDebt,
+          collateral: undefined,
+          debtBalance: undefined,
+          debtFee: undefined,
+          collateralBalance: undefined,
+          collateralFee: undefined,
+        });
+      } else {
+        updateState({
+          collateral: primeCash,
+          debt: undefined,
+          debtBalance: undefined,
+          debtFee: undefined,
+          collateralBalance: undefined,
+          collateralFee: undefined,
+        });
+      }
+    },
+    [primeCash, primeDebt, updateState]
+  );
 
   const handleSwapOptions = useCallback(() => {
-    if (!isDebtVariable) {
-      updateState({
-        selectedDebtToken: availableDebtTokens?.find(
-          (t) => t.tokenType === 'PrimeDebt'
-        )?.symbol,
-        selectedCollateralToken: undefined,
-      });
-    } else {
-      updateState({
-        selectedDebtToken: undefined,
-        selectedCollateralToken: availableCollateralTokens?.find(
-          (t) => t.tokenType === 'PrimeCash'
-        )?.symbol,
-      });
-    }
     setDebtVariable(!isDebtVariable);
+    swapDebtOptions(!isDebtVariable);
+  }, [setDebtVariable, swapDebtOptions, isDebtVariable]);
+
+  useEffect(() => {
+    if (
+      (isDebtVariable && debt?.underlying !== deposit?.id) ||
+      (!isDebtVariable && collateral?.underlying !== deposit?.id)
+    ) {
+      // Resets the page to default
+      setDebtVariable(true);
+      swapDebtOptions(true);
+    }
   }, [
-    setDebtVariable,
     isDebtVariable,
-    availableCollateralTokens,
-    availableDebtTokens,
-    updateState,
+    debt,
+    collateral,
+    deposit,
+    swapDebtOptions,
+    setDebtVariable,
   ]);
 
   const {

@@ -54,11 +54,17 @@ export const LeverageSlider = ({
   }, [riskFactorLimit, defaultLeverageRatio, setSliderInput, updateState]);
 
   const zeroUnderlying = deposit ? TokenBalance.zero(deposit) : undefined;
-  const totalAssetValue = zeroUnderlying
-    ? (depositBalance?.toUnderlying() || zeroUnderlying).add(
+  let totalAssetValue: TokenBalance | undefined = undefined;
+
+  if (zeroUnderlying) {
+    try {
+      totalAssetValue = (depositBalance?.toUnderlying() || zeroUnderlying).add(
         collateralBalance?.toUnderlying() || zeroUnderlying
-      )
-    : undefined;
+      );
+    } catch {
+      // Suppress race condition errors
+    }
+  }
 
   return (
     <SliderInput

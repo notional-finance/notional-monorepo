@@ -73,6 +73,7 @@ export function MaturityCard({
         ':hover': {
           background: `${theme.palette.primary.light}15`,
         },
+        boxShadow: isVariable ? theme.shape.shadowStandard : 'unset',
       }}
     >
       <BodySecondary accent={selected} gutter="tight">
