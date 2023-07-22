@@ -7,14 +7,10 @@ import {
   MaturityCard,
 } from '@notional-finance/mui';
 import { MaturityData } from '@notional-finance/notionable';
-import { BaseContext } from '@notional-finance/notionable-hooks';
 import { useMaturitySelect } from '@notional-finance/trade';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { FormattedMessage, defineMessage } from 'react-intl';
-
-interface LeveragedLendMaturitySelectorProps {
-  context: BaseContext;
-}
+import { LendLeveragedContext } from '../lend-leveraged';
 
 const Container = styled(Box)``;
 const SelectorBox = styled(Box)(
@@ -51,9 +47,7 @@ const VariableMaturityCard = ({ variableRate }: { variableRate: number }) => {
   );
 };
 
-export function LeveragedLendMaturitySelector({
-  context,
-}: LeveragedLendMaturitySelectorProps) {
+export function LeveragedLendMaturitySelector() {
   const theme = useTheme();
   const [isDebtVariable, setDebtVariable] = useState(true);
   const {
@@ -65,7 +59,7 @@ export function LeveragedLendMaturitySelector({
       collateral,
       deposit,
     },
-  } = useContext(context);
+  } = useContext(LendLeveragedContext);
   const primeDebt = availableDebtTokens?.find(
     (t) => t.tokenType === 'PrimeDebt'
   );
@@ -125,13 +119,13 @@ export function LeveragedLendMaturitySelector({
     maturityData: debtMaturityData,
     selectedfCashId: selectedDebtId,
     onSelect: onSelectDebt,
-  } = useMaturitySelect('Debt', context);
+  } = useMaturitySelect('Debt', LendLeveragedContext);
 
   const {
     maturityData: collateralMaturityData,
     selectedfCashId: selectedCollateralId,
     onSelect: onSelectCollateral,
-  } = useMaturitySelect('Collateral', context);
+  } = useMaturitySelect('Collateral', LendLeveragedContext);
 
   return (
     <Container>

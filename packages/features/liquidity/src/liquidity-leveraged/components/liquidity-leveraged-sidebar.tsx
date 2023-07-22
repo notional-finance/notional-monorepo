@@ -9,7 +9,7 @@ import {
 import { useHistory } from 'react-router-dom';
 import { ActionSidebar, useCurrencyInputRef } from '@notional-finance/mui';
 import { defineMessage, FormattedMessage } from 'react-intl';
-import { LiquidityContext } from '../liquidity-leveraged';
+import { LeveragedLiquidityContext } from '../liquidity-leveraged';
 import { PRODUCTS } from '@notional-finance/shared-config';
 
 export const LiquidityLeveragedSidebar = () => {
@@ -17,7 +17,7 @@ export const LiquidityLeveragedSidebar = () => {
   const {
     state: { canSubmit, populatedTransaction, confirm, selectedDepositToken },
     updateState,
-  } = useContext(LiquidityContext);
+  } = useContext(LeveragedLiquidityContext);
   const { currencyInputRef } = useCurrencyInputRef();
 
   const handleLeverUpToggle = () => {
@@ -36,7 +36,7 @@ export const LiquidityLeveragedSidebar = () => {
           description="section heading"
         />
       }
-      context={LiquidityContext}
+      context={LeveragedLiquidityContext}
     />
   ) : (
     <ActionSidebar
@@ -59,18 +59,16 @@ export const LiquidityLeveragedSidebar = () => {
       <DepositInput
         ref={currencyInputRef}
         inputRef={currencyInputRef}
-        context={LiquidityContext}
+        context={LeveragedLiquidityContext}
         newRoute={(newToken) => `/${PRODUCTS.LIQUIDITY_LEVERAGED}/${newToken}`}
         inputLabel={defineMessage({
           defaultMessage: '1. Enter deposit amount',
           description: 'input label',
         })}
       />
-      <VariableFixedMaturityToggle context={LiquidityContext} />
+      <VariableFixedMaturityToggle context={LeveragedLiquidityContext} />
       <LeverageSlider
-        context={LiquidityContext}
-        maxLeverageRatio={10}
-        defaultLeverageRatio={5}
+        context={LeveragedLiquidityContext}
         inputLabel={defineMessage({
           defaultMessage: '3. Specify your leverage',
           description: 'input label',

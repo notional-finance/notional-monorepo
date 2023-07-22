@@ -76,11 +76,9 @@ export const LendLeveragedSidebar = () => {
           description: 'input label',
         })}
       />
-      <LeveragedLendMaturitySelector context={LendLeveragedContext} />
+      <LeveragedLendMaturitySelector />
       <LeverageSlider
         context={LendLeveragedContext}
-        maxLeverageRatio={10}
-        defaultLeverageRatio={5}
         inputLabel={defineMessage({
           defaultMessage: '3. Specify your leverage',
           description: 'input label',
