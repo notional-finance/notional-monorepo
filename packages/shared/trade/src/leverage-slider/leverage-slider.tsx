@@ -1,4 +1,8 @@
-import { SliderInput, useSliderInputRef } from '@notional-finance/mui';
+import {
+  PageLoading,
+  SliderInput,
+  useSliderInputRef,
+} from '@notional-finance/mui';
 import { defineMessage } from 'react-intl';
 import { BaseContext } from '@notional-finance/notionable-hooks';
 import { useContext, useEffect } from 'react';
@@ -6,8 +10,6 @@ import { MessageDescriptor } from 'react-intl';
 import { TokenBalance } from '@notional-finance/core-entities';
 
 interface LeverageSliderProps {
-  defaultLeverageRatio: number;
-  maxLeverageRatio: number;
   context: BaseContext;
   inputLabel: MessageDescriptor;
   cashBorrowed?: TokenBalance;
@@ -19,8 +21,6 @@ interface LeverageSliderProps {
 
 export const LeverageSlider = ({
   inputLabel,
-  maxLeverageRatio,
-  defaultLeverageRatio,
   errorMsg,
   infoMsg,
   cashBorrowed,
@@ -35,6 +35,8 @@ export const LeverageSlider = ({
       collateralBalance,
       depositBalance,
       deposit,
+      maxLeverageRatio,
+      defaultLeverageRatio,
     },
     updateState,
   } = useContext(context);
@@ -42,7 +44,7 @@ export const LeverageSlider = ({
 
   // Sets the initial default leverage ratio
   useEffect(() => {
-    if (!riskFactorLimit) {
+    if (!riskFactorLimit && defaultLeverageRatio !== undefined) {
       updateState({
         riskFactorLimit: {
           riskFactor: 'leverageRatio',
@@ -66,7 +68,7 @@ export const LeverageSlider = ({
     }
   }
 
-  return (
+  return defaultLeverageRatio && maxLeverageRatio ? (
     <SliderInput
       ref={sliderInputRef}
       min={0}
@@ -95,5 +97,7 @@ export const LeverageSlider = ({
         assetSuffix: ` ${zeroUnderlying?.symbol || ''}`,
       }}
     />
+  ) : (
+    <PageLoading />
   );
 };

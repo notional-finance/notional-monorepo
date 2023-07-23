@@ -23,6 +23,7 @@ import { SECONDS_IN_YEAR } from '@notional-finance/sdk';
 
 /**
  * TODO:
+ *  - cache calculations
  *  - add native token apy rate [yield registry]
  *  - add vault share yield [yield registry]
  *  - add nToken fees [yield registry]

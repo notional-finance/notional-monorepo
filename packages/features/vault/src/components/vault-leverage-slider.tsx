@@ -5,7 +5,6 @@ import { messages } from '../messages';
 import { TransactionCostCaption } from './transaction-cost-caption';
 import { useVaultActionErrors, useVaultCosts } from '../hooks';
 import { VaultActionContext } from '../vault-view/vault-action-provider';
-import { useVaultProperties } from '@notional-finance/notionable-hooks';
 import { LeverageSlider } from '@notional-finance/trade';
 
 export const VaultLeverageSlider = ({
@@ -19,10 +18,8 @@ export const VaultLeverageSlider = ({
   repayDebt?: boolean;
 }) => {
   const {
-    state: { debtBalance, vaultAddress },
+    state: { debtBalance },
   } = useContext(VaultActionContext);
-  const { defaultLeverageRatio, maxLeverageRatio } =
-    useVaultProperties(vaultAddress);
   const { underMinAccountBorrow, leverageRatioError, minBorrowSize } =
     useVaultActionErrors();
   const { transactionCosts, cashBorrowed } = useVaultCosts();
@@ -49,8 +46,6 @@ export const VaultLeverageSlider = ({
   return (
     <LeverageSlider
       context={VaultActionContext}
-      maxLeverageRatio={maxLeverageRatio}
-      defaultLeverageRatio={defaultLeverageRatio}
       infoMsg={sliderInfo}
       errorMsg={errorMsg}
       cashBorrowed={cashBorrowed}

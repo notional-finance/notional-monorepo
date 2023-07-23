@@ -109,6 +109,13 @@ interface TokenInputs {
   debtOptions?: (TokenBalance | null)[];
   /** Alternative collateral options given if all the inputs are satisfied */
   collateralOptions?: (TokenBalance | null)[];
+
+  /** Default leverage ratio for the selected debt and collateral */
+  defaultLeverageRatio?: number;
+  /** Minimum allowed leverage ratio (only applies to vaults) */
+  minLeverageRatio?: number;
+  /** Maximum allowed leverage ratio */
+  maxLeverageRatio?: number;
 }
 
 interface TransactionState {
