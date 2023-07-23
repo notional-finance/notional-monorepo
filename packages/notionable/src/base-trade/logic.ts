@@ -781,3 +781,60 @@ export function buildTransaction(
     filterEmpty()
   );
 }
+
+export function defaultLeverageRatio(
+  state$: Observable<BaseTradeState>,
+  selectedNetwork$: ReturnType<typeof selectedNetwork>
+) {
+  return state$.pipe(
+    filter(
+      (s) =>
+        !!s.vaultAddress ||
+        s.tradeType === 'LeveragedLend' ||
+        s.tradeType === 'LeveragedNToken'
+    ),
+    distinctUntilChanged((p, c) => {
+      return (
+        p.deposit?.id === c.deposit?.id &&
+        p.debt?.id === c.debt?.id &&
+        p.collateral?.id === c.collateral?.id &&
+        p.tradeType === c.tradeType
+      );
+    }),
+    withLatestFrom(selectedNetwork$),
+    map(([s, network]) => {
+      if (s.vaultAddress) {
+        // Return from the configuration registry directly
+        return Registry.getConfigurationRegistry().getVaultLeverageFactors(
+          network,
+          s.vaultAddress
+        );
+      }
+
+      if (s.deposit === undefined) return undefined;
+      const options = (
+        s.tradeType === 'LeveragedLend'
+          ? Registry.getYieldRegistry().getLeveragedLendYield(network)
+          : Registry.getYieldRegistry().getLeveragedNTokenYield(network)
+      )
+        .filter((y) => y.underlying.id === s.deposit?.id)
+        .filter((y) => (s.collateral ? y.token.id === s.collateral.id : true))
+        .filter((y) =>
+          s.debt ? y.leveraged?.debtToken.id === s.debt.id : true
+        );
+
+      return {
+        minLeverageRatio: 0,
+        // Return the max of the max leverage ratios...
+        maxLeverageRatio: Math.max(
+          ...options.map((y) => y.leveraged?.maxLeverageRatio || 0)
+        ),
+        // Return the min of the default leverage ratios...
+        defaultLeverageRatio: Math.min(
+          ...options.map((y) => y.leveraged?.leverageRatio || 0)
+        ),
+      };
+    }),
+    filterEmpty()
+  );
+}

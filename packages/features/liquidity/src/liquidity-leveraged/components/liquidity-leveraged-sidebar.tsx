@@ -3,22 +3,25 @@ import {
   TradeActionButton,
   DepositInput,
   Confirmation2,
+  VariableFixedMaturityToggle,
+  LeverageSlider,
 } from '@notional-finance/trade';
 import { useHistory } from 'react-router-dom';
 import { ActionSidebar, useCurrencyInputRef } from '@notional-finance/mui';
 import { defineMessage, FormattedMessage } from 'react-intl';
-import { LiquidityContext } from '../liquidity-leveraged';
+import { LeveragedLiquidityContext } from '../liquidity-leveraged';
+import { PRODUCTS } from '@notional-finance/shared-config';
 
 export const LiquidityLeveragedSidebar = () => {
   const history = useHistory();
   const {
     state: { canSubmit, populatedTransaction, confirm, selectedDepositToken },
     updateState,
-  } = useContext(LiquidityContext);
+  } = useContext(LeveragedLiquidityContext);
   const { currencyInputRef } = useCurrencyInputRef();
 
   const handleLeverUpToggle = () => {
-    history.push(`/liquidity-variable/${selectedDepositToken}`);
+    history.push(`/${PRODUCTS.LIQUIDITY_VARIABLE}/${selectedDepositToken}`);
   };
 
   const handleSubmit = () => {
@@ -33,7 +36,7 @@ export const LiquidityLeveragedSidebar = () => {
           description="section heading"
         />
       }
-      context={LiquidityContext}
+      context={LeveragedLiquidityContext}
     />
   ) : (
     <ActionSidebar
@@ -42,7 +45,8 @@ export const LiquidityLeveragedSidebar = () => {
         description: 'section heading',
       })}
       helptext={defineMessage({
-        defaultMessage: 'TBD',
+        defaultMessage:
+          'Multiple your returns by providing liquidity with leverage. Select your borrow rate and leverage and put on the whole position in one transaction.',
         description: 'helptext',
       })}
       hideTextOnMobile
@@ -55,14 +59,21 @@ export const LiquidityLeveragedSidebar = () => {
       <DepositInput
         ref={currencyInputRef}
         inputRef={currencyInputRef}
-        context={LiquidityContext}
-        newRoute={(newToken) => `/provide/${newToken}`}
+        context={LeveragedLiquidityContext}
+        newRoute={(newToken) => `/${PRODUCTS.LIQUIDITY_LEVERAGED}/${newToken}`}
         inputLabel={defineMessage({
-          defaultMessage: '1. How much liquidity do you want to provide?',
+          defaultMessage: '1. Enter deposit amount',
           description: 'input label',
         })}
       />
-      {/* <TradePropertiesGrid showBackground data={tradeProperties || {}} /> */}
+      <VariableFixedMaturityToggle context={LeveragedLiquidityContext} />
+      <LeverageSlider
+        context={LeveragedLiquidityContext}
+        inputLabel={defineMessage({
+          defaultMessage: '3. Specify your leverage',
+          description: 'input label',
+        })}
+      />
     </ActionSidebar>
   );
 };

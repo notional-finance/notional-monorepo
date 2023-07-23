@@ -3,7 +3,7 @@ import { useCurrencyInputRef, PageLoading } from '@notional-finance/mui';
 import { Box, styled, useTheme } from '@mui/material';
 import { VaultActionContext } from '../vault-view/vault-action-provider';
 import { VaultSideDrawer } from '../components/vault-side-drawer';
-import { LeverageSlider, MobileVaultSummary } from '../components';
+import { VaultLeverageSlider, MobileVaultSummary } from '../components';
 import { useVaultActionErrors } from '../hooks';
 import {
   DepositInput,
@@ -48,7 +48,7 @@ export const CreateVaultPosition = () => {
             context={VaultActionContext}
             fCashInputLabel={messages['CreateVaultPosition'].maturity}
           />
-          <LeverageSlider
+          <VaultLeverageSlider
             inputLabel={messages['CreateVaultPosition'].leverage}
           />
         </VaultSideDrawer>

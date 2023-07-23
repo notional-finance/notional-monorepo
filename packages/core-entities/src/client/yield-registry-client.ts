@@ -23,6 +23,7 @@ import { SECONDS_IN_YEAR } from '@notional-finance/sdk';
 
 /**
  * TODO:
+ *  - cache calculations
  *  - add native token apy rate [yield registry]
  *  - add vault share yield [yield registry]
  *  - add nToken fees [yield registry]
@@ -234,7 +235,8 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
   private _makeLeveraged(
     yieldData: YieldData,
     debt: YieldData,
-    leverageRatio: number
+    leverageRatio: number,
+    maxLeverageRatio: number
   ): YieldData {
     return {
       token: yieldData.token,
@@ -251,6 +253,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
         debtToken: debt.token,
         debtRate: debt.totalAPY,
         leverageRatio,
+        maxLeverageRatio,
       },
       incentives: yieldData.incentives?.map(({ tokenId, incentiveAPY }) => ({
         tokenId,
@@ -295,7 +298,22 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
             .toNumber();
           const leverageRatio = inverted / RATE_PRECISION - 1;
 
-          return this._makeLeveraged(nToken, debt, leverageRatio);
+          // maxLeverageRatio = [(1 - (pvFactor * nTokenHaircut)) ^ -1] - 1
+          const maxFactor = BigNumber.from(RATE_PRECISION)
+            .pow(2)
+            .sub(BigNumber.from(pvFactor).mul(nTokenHaircut));
+          const maxFactorInverted = BigNumber.from(RATE_PRECISION)
+            .pow(3)
+            .div(maxFactor)
+            .toNumber();
+          const maxLeverageRatio = maxFactorInverted / RATE_PRECISION - 1;
+
+          return this._makeLeveraged(
+            nToken,
+            debt,
+            leverageRatio,
+            maxLeverageRatio
+          );
         });
     });
   }
@@ -320,38 +338,61 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
         )
         .map((debt) => {
           let leverageRatio: number;
+          let maxLeverageRatio: number;
+
           if (debt.token.tokenType === 'PrimeDebt') {
             const currentLendPV = TokenBalance.unit(lend.token)
               .toUnderlying()
               .scaleTo(RATE_DECIMALS);
-            const lowestLendPV = config
-              .getMinLendRiskAdjustedPV(lend.token)
-              .scaleTo(RATE_DECIMALS);
+            const { lowestDiscountFactor, maxDiscountFactor } =
+              config.getMinLendRiskAdjustedDiscountFactor(lend.token);
+
+            // (1 - maxDiscountFactor) ^ -1 - 1
+            maxLeverageRatio =
+              BigNumber.from(RATE_PRECISION)
+                .pow(2)
+                .div(BigNumber.from(RATE_PRECISION).sub(maxDiscountFactor))
+                .sub(RATE_PRECISION)
+                .toNumber() / RATE_PRECISION;
 
             // Max fCash Value change
             // (currentLendPV - lowestLendPV) ^ -1 - 1
-            leverageRatio =
+            leverageRatio = Math.min(
               BigNumber.from(RATE_PRECISION)
                 .pow(2)
-                .div(currentLendPV.sub(lowestLendPV))
+                .div(currentLendPV.sub(lowestDiscountFactor))
                 .sub(RATE_PRECISION)
-                .toNumber() / RATE_PRECISION;
+                .toNumber() / RATE_PRECISION,
+              maxLeverageRatio
+            );
           } else {
             const currentDebtPV = TokenBalance.unit(debt.token)
               .toUnderlying()
               .scaleTo(RATE_DECIMALS);
 
+            // Max leverage is theoretically infinity here since maxDebtPV = 1
+            // when borrowing at a zero interest rate. For practical purposes, just
+            // set the max leverage to a constant here.
+            maxLeverageRatio = 100;
+
             // Max fCash Value change
             // (1 - currentDebtPV) ^ -1 - 1
-            leverageRatio =
+            leverageRatio = Math.min(
               BigNumber.from(RATE_PRECISION)
                 .pow(2)
                 .div(BigNumber.from(RATE_PRECISION).sub(currentDebtPV))
                 .sub(RATE_PRECISION)
-                .toNumber() / RATE_PRECISION;
+                .toNumber() / RATE_PRECISION,
+              maxLeverageRatio
+            );
           }
 
-          return this._makeLeveraged(lend, debt, leverageRatio);
+          return this._makeLeveraged(
+            lend,
+            debt,
+            leverageRatio,
+            maxLeverageRatio
+          );
         });
     });
   }
@@ -386,10 +427,8 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
         // can properly get the TVL value.
         vaults.getVaultAdapter(network, v.vaultAddress);
         const underlying = tokens.getTokenByID(network, v.underlying);
-        const { defaultLeverageRatio } = config.getVaultLeverageFactors(
-          network,
-          v.vaultAddress
-        );
+        const { defaultLeverageRatio, maxLeverageRatio } =
+          config.getVaultLeverageFactors(network, v.vaultAddress);
 
         const vaultShareYield = {
           token: v,
@@ -397,7 +436,12 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
           totalAPY: 0,
         };
 
-        return this._makeLeveraged(vaultShareYield, debt, defaultLeverageRatio);
+        return this._makeLeveraged(
+          vaultShareYield,
+          debt,
+          defaultLeverageRatio,
+          maxLeverageRatio
+        );
       });
   }
 

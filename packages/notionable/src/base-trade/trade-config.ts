@@ -185,13 +185,16 @@ export const TradeConfiguration = {
       'collateralPool',
       'debtPool',
       'depositBalance',
-      'balances',
       'riskFactorLimit',
+      // NOTE: balances is not a required input b/c the leverage ratio
+      // used in the risk factor limit is only calculated on a per trade basis
     ],
     collateralFilter: (t, _, s) =>
-      t.tokenType !== 'nToken' && onlySameCurrency(t, s.deposit),
+      (t.tokenType === 'fCash' || t.tokenType === 'PrimeCash') &&
+      onlySameCurrency(t, s.deposit),
     debtFilter: (t, _, s) =>
-      t.tokenType !== 'nToken' && onlySameCurrency(t, s.deposit),
+      (t.tokenType === 'fCash' || t.tokenType === 'PrimeDebt') &&
+      onlySameCurrency(t, s.deposit),
     calculateCollateralOptions: true,
     calculateDebtOptions: true,
     transactionBuilder: LeveragedOrDeleverageLend,
@@ -216,13 +219,15 @@ export const TradeConfiguration = {
       'collateralPool',
       'debtPool',
       'depositBalance',
-      'balances',
       'riskFactorLimit',
+      // NOTE: balances is not a required input b/c the leverage ratio
+      // used in the risk factor limit is only calculated on a per trade basis
     ],
     collateralFilter: (t, _, s) =>
       t.tokenType === 'nToken' && onlySameCurrency(t, s.deposit),
     debtFilter: (t, _, s) =>
-      t.tokenType !== 'nToken' && onlySameCurrency(t, s.deposit),
+      (t.tokenType === 'fCash' || t.tokenType === 'PrimeDebt') &&
+      onlySameCurrency(t, s.deposit),
     calculateDebtOptions: true,
     transactionBuilder: LeveragedNToken,
   } as TransactionConfig,

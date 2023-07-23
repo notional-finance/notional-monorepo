@@ -12,14 +12,14 @@ import { MobileTradeActionSummary } from '@notional-finance/trade';
 import { useLiquidityFaq } from '../hooks';
 import { FormattedMessage } from 'react-intl';
 import { useContext } from 'react';
-import { LiquidityContext } from '../liquidity-leveraged';
+import { LeveragedLiquidityContext } from '../liquidity-leveraged';
 import { HowItWorksFaq } from './how-it-works-faq';
 
 export const LiquidityLeveragedSummary = () => {
   const theme = useTheme();
   const {
     state: { collateral, selectedDepositToken },
-  } = useContext(LiquidityContext);
+  } = useContext(LeveragedLiquidityContext);
   const tokenSymbol = selectedDepositToken || '';
   const { faqs, faqHeaderLinks } = useLiquidityFaq(tokenSymbol);
   const totalYield = 0;

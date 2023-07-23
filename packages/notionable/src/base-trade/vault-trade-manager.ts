@@ -10,6 +10,7 @@ import {
   availableTokens,
   buildTransaction,
   resetOnTradeTypeChange,
+  defaultLeverageRatio,
 } from './logic';
 import {
   selectedAccount,
@@ -34,9 +35,10 @@ export function createVaultTradeManager(
     buildTransaction(state$, account$),
     postVaultAccountRisk(state$, account$),
     calculate(state$, debtPool$, of(undefined), vaultAdapter$, account$),
-    selectedToken('Deposit', state$, network$),
+    defaultLeverageRatio(state$, network$),
     selectedToken('Collateral', state$, network$),
     selectedToken('Debt', state$, network$),
+    selectedToken('Deposit', state$, network$),
     priorVaultAccountRisk(state$, account$),
     availableTokens(state$, network$, account$),
     initVaultState(state$, network$),

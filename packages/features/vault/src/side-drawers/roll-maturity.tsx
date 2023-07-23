@@ -2,7 +2,7 @@ import { DepositInput, MaturitySelect } from '@notional-finance/trade';
 import { useCurrencyInputRef } from '@notional-finance/mui';
 import { VaultActionContext } from '../vault-view/vault-action-provider';
 import { messages } from '../messages';
-import { LeverageSlider, VaultSideDrawer } from '../components';
+import { VaultLeverageSlider, VaultSideDrawer } from '../components';
 
 export const RollMaturity = () => {
   const { currencyInputRef } = useCurrencyInputRef();
@@ -20,7 +20,9 @@ export const RollMaturity = () => {
         context={VaultActionContext}
         inputLabel={messages['RollVaultPosition']['inputLabel']}
       />
-      <LeverageSlider inputLabel={messages['RollVaultPosition'].leverage} />
+      <VaultLeverageSlider
+        inputLabel={messages['RollVaultPosition'].leverage}
+      />
     </VaultSideDrawer>
   );
 };

@@ -1,5 +1,5 @@
 import { useContext, useEffect } from 'react';
-import { LeverageSlider, VaultSideDrawer } from '../components';
+import { VaultLeverageSlider, VaultSideDrawer } from '../components';
 import { messages } from '../messages';
 import { VaultActionContext } from '../vault-view/vault-action-provider';
 import { TokenBalance } from '@notional-finance/core-entities';
@@ -31,7 +31,7 @@ export const WithdrawAndRepayDebt = () => {
 
   return (
     <VaultSideDrawer>
-      <LeverageSlider
+      <VaultLeverageSlider
         repayDebt
         sliderError={sliderError}
         sliderInfo={sliderInfo}

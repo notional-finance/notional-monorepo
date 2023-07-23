@@ -15,12 +15,11 @@ import backgroundImgDark from '@notional-finance/assets/images/provide-liquidity
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import backgroundImgLight from '@notional-finance/assets/images/provide-liquidity-light-bg.png';
 
-// TODO: Update this to use the new context when known
-export const LiquidityContext = createTradeContext('MintNToken');
+export const LeveragedLiquidityContext = createTradeContext('LeveragedNToken');
 
 export const LiquidityLeveraged = () => {
   const { themeVariant } = useUserSettingsState();
-  const liquidityState = useTradeContext('MintNToken');
+  const liquidityState = useTradeContext('LeveragedNToken');
 
   const {
     state: { isReady, confirm },
@@ -33,7 +32,7 @@ export const LiquidityLeveraged = () => {
   const featureLoaded = !!bgImg && isReady;
 
   return (
-    <LiquidityContext.Provider value={liquidityState}>
+    <LeveragedLiquidityContext.Provider value={liquidityState}>
       <FeatureLoader featureLoaded={featureLoaded}>
         <div>
           <LiquidityCurrencyBackground
@@ -49,7 +48,7 @@ export const LiquidityLeveraged = () => {
           </Container>
         </div>
       </FeatureLoader>
-    </LiquidityContext.Provider>
+    </LeveragedLiquidityContext.Provider>
   );
 };
 

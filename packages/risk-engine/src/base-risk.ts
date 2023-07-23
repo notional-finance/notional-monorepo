@@ -492,7 +492,9 @@ export abstract class BaseRiskProfile implements RiskFactors {
     };
 
     // set the required precision based on the riskLimitType
-    return doBinarySearch(multiple, 0, calculationFunction);
+    return doBinarySearch(multiple, 0, calculationFunction, undefined, (m, d) =>
+      m !== 0 ? Math.floor(m + m * (d / m)) : Math.floor(d)
+    );
   }
 
   getAllLiquidationPrices({

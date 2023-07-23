@@ -1,22 +1,16 @@
 import { useContext } from 'react';
-import { CountUp, LabelValue, SliderInput } from '@notional-finance/mui';
-import { useVaultProperties } from '@notional-finance/notionable-hooks';
+import { CountUp, LabelValue } from '@notional-finance/mui';
 import { MessageDescriptor } from 'react-intl';
 import { messages } from '../messages';
-import { DebtAmountCaption } from './debt-amount-caption';
 import { TransactionCostCaption } from './transaction-cost-caption';
-import {
-  useDefaultLeverageRatio,
-  useVaultActionErrors,
-  useVaultCosts,
-} from '../hooks';
+import { useVaultActionErrors, useVaultCosts } from '../hooks';
 import { VaultActionContext } from '../vault-view/vault-action-provider';
+import { LeverageSlider } from '@notional-finance/trade';
 
-export const LeverageSlider = ({
+export const VaultLeverageSlider = ({
   inputLabel,
   sliderError,
   sliderInfo,
-  repayDebt,
 }: {
   inputLabel: MessageDescriptor;
   sliderError?: MessageDescriptor;
@@ -24,11 +18,8 @@ export const LeverageSlider = ({
   repayDebt?: boolean;
 }) => {
   const {
-    updateState,
-    state: { vaultAddress, debtBalance },
+    state: { debtBalance },
   } = useContext(VaultActionContext);
-  const { sliderInputRef } = useDefaultLeverageRatio();
-  const { maxLeverageRatio } = useVaultProperties(vaultAddress);
   const { underMinAccountBorrow, leverageRatioError, minBorrowSize } =
     useVaultActionErrors();
   const { transactionCosts, cashBorrowed } = useVaultCosts();
@@ -43,32 +34,21 @@ export const LeverageSlider = ({
     </LabelValue>
   );
 
-  return (
-    <SliderInput
-      ref={sliderInputRef}
-      min={0}
-      max={maxLeverageRatio}
-      onChangeCommitted={(leverageRatio) =>
-        updateState({
-          riskFactorLimit: {
-            riskFactor: 'leverageRatio',
-            limit: leverageRatio,
-          },
+  const errorMsg =
+    sliderError ||
+    leverageRatioError ||
+    (underMinAccountBorrow
+      ? Object.assign(messages.error.underMinBorrow, {
+          values: { minBorrowSize, borrowAmount },
         })
-      }
+      : undefined);
+
+  return (
+    <LeverageSlider
+      context={VaultActionContext}
       infoMsg={sliderInfo}
-      errorMsg={
-        sliderError ||
-        leverageRatioError ||
-        (underMinAccountBorrow
-          ? Object.assign(messages.error.underMinBorrow, {
-              values: { minBorrowSize, borrowAmount },
-            })
-          : undefined)
-      }
-      rightCaption={
-        <DebtAmountCaption repayDebt={repayDebt} amount={cashBorrowed} />
-      }
+      errorMsg={errorMsg}
+      cashBorrowed={cashBorrowed}
       bottomCaption={
         <TransactionCostCaption
           toolTipText={messages.summary.transactionCostToolTip}

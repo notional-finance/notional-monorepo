@@ -307,6 +307,8 @@ type BalanceSnapshot {
   totalILAndFeesAtSnapshot: BigInt!
   """Portion of the PnL due to interest accrual"""
   totalInterestAccrualAtSnapshot: BigInt!
+  """Implied Fixed Rate for fCash balances"""
+  impliedFixedRate: BigInt
   """Cumulative balance used for internal PnL calculations"""
   _accumulatedBalance: BigInt!
   """Cumulative realized cost for internal PnL calculations"""
@@ -433,6 +435,14 @@ input BalanceSnapshot_filter {
   totalInterestAccrualAtSnapshot_lte: BigInt
   totalInterestAccrualAtSnapshot_in: [BigInt!]
   totalInterestAccrualAtSnapshot_not_in: [BigInt!]
+  impliedFixedRate: BigInt
+  impliedFixedRate_not: BigInt
+  impliedFixedRate_gt: BigInt
+  impliedFixedRate_lt: BigInt
+  impliedFixedRate_gte: BigInt
+  impliedFixedRate_lte: BigInt
+  impliedFixedRate_in: [BigInt!]
+  impliedFixedRate_not_in: [BigInt!]
   _accumulatedBalance: BigInt
   _accumulatedBalance_not: BigInt
   _accumulatedBalance_gt: BigInt
@@ -488,6 +498,7 @@ enum BalanceSnapshot_orderBy {
   totalProfitAndLossAtSnapshot
   totalILAndFeesAtSnapshot
   totalInterestAccrualAtSnapshot
+  impliedFixedRate
   _accumulatedBalance
   _accumulatedCostRealized
   _accumulatedCostAdjustedBasis
@@ -673,6 +684,7 @@ enum Balance_orderBy {
   current__totalProfitAndLossAtSnapshot
   current__totalILAndFeesAtSnapshot
   current__totalInterestAccrualAtSnapshot
+  current__impliedFixedRate
   current___accumulatedBalance
   current___accumulatedCostRealized
   current___accumulatedCostAdjustedBasis
@@ -2481,6 +2493,7 @@ type ProfitLossLineItem {
   underlyingToken: Token!
   realizedPrice: BigInt!
   spotPrice: BigInt!
+  impliedFixedRate: BigInt
 }
 
 input ProfitLossLineItem_filter {
@@ -2674,6 +2687,14 @@ input ProfitLossLineItem_filter {
   spotPrice_lte: BigInt
   spotPrice_in: [BigInt!]
   spotPrice_not_in: [BigInt!]
+  impliedFixedRate: BigInt
+  impliedFixedRate_not: BigInt
+  impliedFixedRate_gt: BigInt
+  impliedFixedRate_lt: BigInt
+  impliedFixedRate_gte: BigInt
+  impliedFixedRate_lte: BigInt
+  impliedFixedRate_in: [BigInt!]
+  impliedFixedRate_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: BlockChangedFilter
   and: [ProfitLossLineItem_filter]
@@ -2707,6 +2728,7 @@ enum ProfitLossLineItem_orderBy {
   balanceSnapshot__totalProfitAndLossAtSnapshot
   balanceSnapshot__totalILAndFeesAtSnapshot
   balanceSnapshot__totalInterestAccrualAtSnapshot
+  balanceSnapshot__impliedFixedRate
   balanceSnapshot___accumulatedBalance
   balanceSnapshot___accumulatedCostRealized
   balanceSnapshot___accumulatedCostAdjustedBasis
@@ -2766,6 +2788,7 @@ enum ProfitLossLineItem_orderBy {
   underlyingToken__tokenAddress
   realizedPrice
   spotPrice
+  impliedFixedRate
 }
 
 type Query {

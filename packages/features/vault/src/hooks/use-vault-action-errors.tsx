@@ -6,7 +6,6 @@ import { MessageDescriptor } from 'react-intl';
 import { VaultActionContext } from '../vault-view/vault-action-provider';
 import { messages } from '../messages';
 import { tradeErrors } from '@notional-finance/trade';
-import { useVaultProperties } from '@notional-finance/notionable-hooks';
 
 export function useVaultActionErrors() {
   const {
@@ -16,13 +15,12 @@ export function useVaultActionErrors() {
       depositBalance,
       debt,
       calculateError,
-      vaultAddress,
+      minLeverageRatio,
+      maxLeverageRatio
     },
   } = useContext(VaultActionContext);
   const { overCapacityError, underMinAccountBorrow, minBorrowSize } =
     useVaultCapacity();
-  const { minLeverageRatio, maxLeverageRatio } =
-    useVaultProperties(vaultAddress);
   const leverageRatio = postAccountRisk?.leverageRatio;
 
   let inputErrorMsg: MessageDescriptor | undefined;
@@ -46,7 +44,7 @@ export function useVaultActionErrors() {
         ),
       },
     } as MessageDescriptor;
-  } else if (leverageRatio && leverageRatio > maxLeverageRatio) {
+  } else if (leverageRatio && maxLeverageRatio && leverageRatio > maxLeverageRatio) {
     leverageRatioError = {
       ...messages.error.aboveMaximumLeverage,
       values: {
