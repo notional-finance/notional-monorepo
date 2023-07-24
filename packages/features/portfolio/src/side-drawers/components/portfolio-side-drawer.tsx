@@ -4,7 +4,6 @@ import {
   TransactionConfirmation,
   TransactionData,
 } from '@notional-finance/trade';
-import { RiskSlider, AccountRiskTable } from '@notional-finance/risk';
 import { useQueryParams } from '@notional-finance/utils';
 import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
 import { useHistory, useLocation, useParams } from 'react-router';
@@ -27,7 +26,6 @@ export const PortfolioSideDrawer = ({
   children,
   canSubmit,
   transactionData,
-  updatedAccountData,
   advancedToggle,
 }: PortfolioSideDrawerProps) => {
   const history = useHistory();
@@ -73,11 +71,6 @@ export const PortfolioSideDrawer = ({
       hideTextOnMobile={false}
     >
       {children}
-      <RiskSlider key={'risk-slider'} updatedAccountData={updatedAccountData} />
-      <AccountRiskTable
-        key={'risk-data-table'}
-        updatedAccountData={updatedAccountData}
-      />
     </ActionSidebar>
   );
 };

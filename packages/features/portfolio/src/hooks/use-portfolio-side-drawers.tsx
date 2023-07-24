@@ -12,7 +12,6 @@ import {
   RepayBorrow,
   RepayCash,
   Withdraw,
-  WithdrawLend,
   ManageMaturities,
 } from '../side-drawers';
 import { ManageVault } from '@notional-finance/trade';
@@ -22,7 +21,6 @@ export const usePortfolioSideDrawers = () => {
 
   const drawers = {
     [PORTFOLIO_ACTIONS.REPAY_BORROW]: RepayBorrow,
-    [PORTFOLIO_ACTIONS.WITHDRAW_LEND]: WithdrawLend,
     [PORTFOLIO_ACTIONS.REPAY_CASH_DEBT]: RepayCash,
     [PORTFOLIO_ACTIONS.REPAY_IFCASH_BORROW]: RepayCash,
     [PORTFOLIO_ACTIONS.REDEEM_NTOKEN]: RedeemNToken,
