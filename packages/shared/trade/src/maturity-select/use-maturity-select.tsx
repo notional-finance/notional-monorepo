@@ -28,7 +28,8 @@ export const useMaturitySelect = (
   const tokens =
     category === 'Collateral' ? availableCollateralTokens : availableDebtTokens;
   const isVault = isVaultTrade(tradeType);
-  const spotMaturityData = useSpotMaturityData(deposit, tokens);
+  // Need to check if deposit is set to resolve some race conditions here
+  const spotMaturityData = useSpotMaturityData(deposit, deposit ? tokens : []);
 
   const maturityData: MaturityData[] =
     options?.map((o) => {

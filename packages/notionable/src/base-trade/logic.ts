@@ -586,7 +586,9 @@ export function calculate(
         collateralOptions = satisfied
           ? collateralTokens?.map((c) => {
               const i = { ...inputs, collateral: c };
-              let interestRate = collateralPool?.getSpotInterestRate(c);
+              let interestRate = collateralPool?.getSpotInterestRate(
+                Registry.getTokenRegistry().unwrapVaultToken(c)
+              );
               try {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const { collateralBalance } = calculationFn(i as any) as {
@@ -635,7 +637,9 @@ export function calculate(
         debtOptions = satisfied
           ? debtTokens?.map((d) => {
               const i = { ...inputs, debt: d };
-              const interestRate = debtPool?.getSpotInterestRate(d);
+              const interestRate = debtPool?.getSpotInterestRate(
+                Registry.getTokenRegistry().unwrapVaultToken(d)
+              );
               try {
                 const isVault = isVaultTrade(tradeType);
                 if (isVault) {

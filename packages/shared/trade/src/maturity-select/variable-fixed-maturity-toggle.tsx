@@ -137,7 +137,9 @@ export function VariableFixedMaturityToggle({
         tabPanels={[
           <Box />,
           <Maturities
-            maturityData={maturityData}
+            maturityData={maturityData.filter(
+              (t) => !!t.maturity && t.maturity < PRIME_CASH_VAULT_MATURITY
+            )}
             selectedfCashId={selectedfCashId}
             onSelect={onSelect}
             inputLabel={fCashInputLabel}
