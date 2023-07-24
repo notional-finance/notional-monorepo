@@ -477,12 +477,21 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
             r.account?.profitLossLineItems?.map((p) => {
               const tokenId = p.token.id;
               const underlyingId = p.underlyingToken.id;
+              const token = Registry.getTokenRegistry().getTokenByID(
+                network,
+                tokenId
+              );
+              const vaultName = token.vaultAddress
+                ? Registry.getConfigurationRegistry().getVaultName(
+                    token.network,
+                    token.vaultAddress
+                  )
+                : undefined;
+
               return {
                 timestamp: p.timestamp,
-                token: Registry.getTokenRegistry().getTokenByID(
-                  network,
-                  tokenId
-                ),
+                token,
+                vaultName,
                 underlying: Registry.getTokenRegistry().getTokenByID(
                   network,
                   underlyingId

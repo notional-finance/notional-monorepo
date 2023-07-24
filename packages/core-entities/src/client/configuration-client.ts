@@ -81,6 +81,10 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
     return vaultConfig;
   }
 
+  getVaultName(network: Network, vaultAddress: string) {
+    return this.getVaultConfig(network, vaultAddress).name;
+  }
+
   getVaultDiscountfCash(network: Network, vaultAddress: string) {
     const config = this.getVaultConfig(network, vaultAddress);
     return config.discountfCash || false;

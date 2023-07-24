@@ -78,10 +78,10 @@ export function formatYieldCaption(y: YieldData) {
       return undefined;
     }
   } else if (y.token.tokenType === 'VaultShare' && y.token.vaultAddress) {
-    return Registry.getConfigurationRegistry().getVaultConfig(
+    return Registry.getConfigurationRegistry().getVaultName(
       y.token.network,
       y.token.vaultAddress
-    ).name;
+    );
   }
 
   return undefined;

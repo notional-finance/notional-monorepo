@@ -134,6 +134,7 @@ export interface AccountHistory {
   underlyingAmountSpot: TokenBalance;
   realizedPrice: TokenBalance;
   spotPrice: TokenBalance;
+  vaultName?: string;
 }
 
 export interface AccountDefinition {
