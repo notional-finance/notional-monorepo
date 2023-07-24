@@ -16,6 +16,7 @@ import {
   Network,
   NotionalAddress,
   PRIME_CASH_VAULT_MATURITY,
+  RATE_PRECISION,
   ZERO_ADDRESS,
 } from '@notional-finance/util';
 import { BigNumber, Contract } from 'ethers';
@@ -462,6 +463,9 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
         underlyingId,
         network
       ),
+      impliedFixedRate: snapshot.impliedFixedRate
+        ? snapshot.impliedFixedRate / RATE_PRECISION
+        : undefined,
     };
   }
 
@@ -523,6 +527,9 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
                   underlyingId,
                   network
                 ),
+                impliedFixedRate: p.impliedFixedRate
+                  ? p.impliedFixedRate / RATE_PRECISION
+                  : undefined,
               };
             }) || [],
         };

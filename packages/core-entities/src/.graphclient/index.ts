@@ -6866,7 +6866,7 @@ export type AccountBalanceStatementQuery = { account?: Maybe<(
     & { balances?: Maybe<Array<{ token: (
         Pick<Token, 'id'>
         & { underlying?: Maybe<Pick<Token, 'id'>> }
-      ), current: Pick<BalanceSnapshot, 'timestamp' | 'blockNumber' | 'currentBalance' | '_accumulatedCostRealized' | 'adjustedCostBasis' | 'currentProfitAndLossAtSnapshot' | 'totalILAndFeesAtSnapshot' | 'totalProfitAndLossAtSnapshot' | 'totalInterestAccrualAtSnapshot'>, snapshots?: Maybe<Array<Pick<BalanceSnapshot, 'timestamp' | 'blockNumber' | 'currentBalance' | '_accumulatedCostRealized' | 'adjustedCostBasis' | 'currentProfitAndLossAtSnapshot' | 'totalILAndFeesAtSnapshot' | 'totalProfitAndLossAtSnapshot' | 'totalInterestAccrualAtSnapshot'>>> }>> }
+      ), current: Pick<BalanceSnapshot, 'timestamp' | 'blockNumber' | 'currentBalance' | '_accumulatedCostRealized' | 'adjustedCostBasis' | 'currentProfitAndLossAtSnapshot' | 'totalILAndFeesAtSnapshot' | 'totalProfitAndLossAtSnapshot' | 'totalInterestAccrualAtSnapshot' | 'impliedFixedRate'>, snapshots?: Maybe<Array<Pick<BalanceSnapshot, 'timestamp' | 'blockNumber' | 'currentBalance' | '_accumulatedCostRealized' | 'adjustedCostBasis' | 'currentProfitAndLossAtSnapshot' | 'totalILAndFeesAtSnapshot' | 'totalProfitAndLossAtSnapshot' | 'totalInterestAccrualAtSnapshot' | 'impliedFixedRate'>>> }>> }
   )> };
 
 export type AccountTransactionHistoryQueryVariables = Exact<{
@@ -6877,7 +6877,7 @@ export type AccountTransactionHistoryQueryVariables = Exact<{
 export type AccountTransactionHistoryQuery = { account?: Maybe<(
     Pick<Account, 'id'>
     & { profitLossLineItems?: Maybe<Array<(
-      Pick<ProfitLossLineItem, 'timestamp' | 'blockNumber' | 'tokenAmount' | 'underlyingAmountRealized' | 'underlyingAmountSpot' | 'realizedPrice' | 'spotPrice'>
+      Pick<ProfitLossLineItem, 'timestamp' | 'blockNumber' | 'tokenAmount' | 'underlyingAmountRealized' | 'underlyingAmountSpot' | 'realizedPrice' | 'spotPrice' | 'impliedFixedRate'>
       & { transactionHash: Pick<Transaction, 'id'>, token: Pick<Token, 'id'>, underlyingToken: Pick<Token, 'id'>, bundle: Pick<TransferBundle, 'bundleName'> }
     )>> }
   )> };
@@ -6956,6 +6956,7 @@ export const AccountBalanceStatementDocument = gql`
         totalILAndFeesAtSnapshot
         totalProfitAndLossAtSnapshot
         totalInterestAccrualAtSnapshot
+        impliedFixedRate
       }
       snapshots(first: 25, orderBy: blockNumber, orderDirection: desc) {
         timestamp
@@ -6967,6 +6968,7 @@ export const AccountBalanceStatementDocument = gql`
         totalILAndFeesAtSnapshot
         totalProfitAndLossAtSnapshot
         totalInterestAccrualAtSnapshot
+        impliedFixedRate
       }
     }
   }
@@ -6996,6 +6998,7 @@ export const AccountTransactionHistoryDocument = gql`
       underlyingAmountSpot
       realizedPrice
       spotPrice
+      impliedFixedRate
     }
   }
 }
