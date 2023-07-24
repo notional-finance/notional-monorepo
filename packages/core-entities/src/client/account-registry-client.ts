@@ -16,6 +16,7 @@ import {
   Network,
   NotionalAddress,
   PRIME_CASH_VAULT_MATURITY,
+  RATE_PRECISION,
   ZERO_ADDRESS,
 } from '@notional-finance/util';
 import { BigNumber, Contract } from 'ethers';
@@ -462,6 +463,9 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
         underlyingId,
         network
       ),
+      impliedFixedRate: snapshot.impliedFixedRate
+        ? snapshot.impliedFixedRate / RATE_PRECISION
+        : undefined,
     };
   }
 
@@ -477,12 +481,21 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
             r.account?.profitLossLineItems?.map((p) => {
               const tokenId = p.token.id;
               const underlyingId = p.underlyingToken.id;
+              const token = Registry.getTokenRegistry().getTokenByID(
+                network,
+                tokenId
+              );
+              const vaultName = token.vaultAddress
+                ? Registry.getConfigurationRegistry().getVaultName(
+                    token.network,
+                    token.vaultAddress
+                  )
+                : undefined;
+
               return {
                 timestamp: p.timestamp,
-                token: Registry.getTokenRegistry().getTokenByID(
-                  network,
-                  tokenId
-                ),
+                token,
+                vaultName,
                 underlying: Registry.getTokenRegistry().getTokenByID(
                   network,
                   underlyingId
@@ -514,6 +527,9 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
                   underlyingId,
                   network
                 ),
+                impliedFixedRate: p.impliedFixedRate
+                  ? p.impliedFixedRate / RATE_PRECISION
+                  : undefined,
               };
             }) || [],
         };

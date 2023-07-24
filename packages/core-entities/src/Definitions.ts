@@ -111,6 +111,7 @@ export interface BalanceStatement {
   totalProfitAndLoss: TokenBalance;
   totalInterestAccrual: TokenBalance;
   accumulatedCostRealized: TokenBalance;
+  impliedFixedRate?: number;
 
   historicalSnapshots: {
     timestamp: number;
@@ -120,6 +121,7 @@ export interface BalanceStatement {
     totalProfitAndLoss: TokenBalance;
     totalInterestAccrual: TokenBalance;
     accumulatedCostRealized: TokenBalance;
+    impliedFixedRate?: number;
   }[];
 }
 
@@ -134,6 +136,8 @@ export interface AccountHistory {
   underlyingAmountSpot: TokenBalance;
   realizedPrice: TokenBalance;
   spotPrice: TokenBalance;
+  vaultName?: string;
+  impliedFixedRate?: number;
 }
 
 export interface AccountDefinition {

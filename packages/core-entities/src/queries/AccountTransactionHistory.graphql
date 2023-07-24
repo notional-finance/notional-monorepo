@@ -15,6 +15,7 @@ query AccountTransactionHistory($accountId: ID!) {
       underlyingAmountSpot
       realizedPrice
       spotPrice
+      impliedFixedRate
     }
   }
 }
