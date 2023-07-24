@@ -1,5 +1,6 @@
 import { AggregateCall } from '@notional-finance/multicall';
 import { Network } from '@notional-finance/util';
+import { DocumentNode } from 'graphql';
 import { Knex } from 'knex';
 
 export enum SourceType {
@@ -11,6 +12,11 @@ export enum TableName {
   GenericData = 'generic_data',
 }
 
+export enum ProtocolName {
+  BalancerV2 = 'BalancerV2',
+  Curve = 'Curve',
+}
+
 export interface MulticallConfig {
   contractAddress: string;
   contractABI: any;
@@ -20,7 +26,11 @@ export interface MulticallConfig {
 }
 
 export interface SubgraphConfig {
+  id: string;
+  protocol: ProtocolName;
   query: string;
+  args?: Record<string, unknown>;
+  transform?: (r: any) => unknown;
 }
 
 export interface GenericDataConfig {
@@ -40,8 +50,15 @@ export interface MulticallOperation {
   aggregateCall: AggregateCall;
 }
 
+export interface SubgraphOperation {
+  configDef: ConfigDefinition;
+  subgraphQuery: DocumentNode;
+  endpoint: string;
+}
+
 export interface DataOperations {
   aggregateCalls: Map<Network, MulticallOperation[]>;
+  subgraphCalls: Map<Network, SubgraphOperation[]>;
 }
 
 export interface DataWriterConfig {
@@ -56,7 +73,7 @@ export interface DataRow {
   networkId: number;
   contractAddress?: string;
   method?: string;
-  value: unknown;
+  value: any;
 }
 
 export interface DataContext {

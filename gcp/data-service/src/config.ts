@@ -15,8 +15,14 @@ import {
   MulticallOperation,
   TableName,
   IDataWriter,
+  SubgraphOperation,
+  SubgraphConfig,
+  ProtocolName,
 } from './types';
 import { GenericDataWriter } from './DataWriter';
+import { readFileSync } from 'fs';
+import { join } from 'path';
+import { gql } from '@apollo/client';
 
 export const SourceContracts = {};
 
@@ -232,9 +238,57 @@ export const defaultConfigDefs: ConfigDefinition[] = [
   // Frax To Usd Oracle
   // Cvx To Usd Oracle
   // Crv To Usd Oracle
+
+  // veBAL total supply
+  // Aura veBAL balance
+  // Total BAL supply
+  // veCRV total supply
+  // Convex veCRV balance
+  // Cvx total supply
+
+  // stETH to WETH exchange rate
+  // WETH balance
+  // wstETH balance
+  // BPT Supply
+  // BPT Supply in Gauge
+  // Aura BPT balance in Gauge
+  // Working Supply
+  // Working Balance
+  // Gauge vote weight
+  // Swap fees
+  {
+    sourceType: SourceType.Subgraph,
+    sourceConfig: {
+      id: '0x32296969ef14eb0c6d29669c550d4a0449130230000200000000000000000080:SwapFee',
+      protocol: ProtocolName.BalancerV2,
+      query: 'BalancerV2SwapFee.graphql',
+      args: {
+        poolId:
+          '0x32296969ef14eb0c6d29669c550d4a0449130230000200000000000000000080',
+      },
+      transform: (r) =>
+        r.poolSnapshots[0].swapFees - r.poolSnapshots[1].swapFees,
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      decimals: 18,
+    },
+    network: Network.Mainnet,
+  },
 ];
 
-export const defaultDataWriters: Record<TableName, IDataWriter> = {
+export const defaultGraphEndpoints: Record<string, Record<string, string>> = {
+  [ProtocolName.BalancerV2]: {
+    [Network.Mainnet]:
+      'https://api.thegraph.com/subgraphs/name/balancer-labs/balancer-v2',
+  },
+  [ProtocolName.Curve]: {
+    [Network.ArbitrumOne]:
+      'https://api.thegraph.com/subgraphs/name/messari/curve-finance-arbitrum',
+  },
+};
+
+export const defaultDataWriters: Record<string, IDataWriter> = {
   [TableName.GenericData]: new GenericDataWriter(),
 };
 
@@ -298,6 +352,7 @@ export function buildOperations(
   configDefs: ConfigDefinition[]
 ): DataOperations {
   const aggregateCalls = new Map<Network, MulticallOperation[]>();
+  const subgraphCalls = new Map<Network, SubgraphOperation[]>();
   configDefs.forEach((cfg) => {
     if (cfg.sourceType === SourceType.Multicall) {
       const configData = cfg.sourceConfig as MulticallConfig;
@@ -323,7 +378,28 @@ export function buildOperations(
         },
       });
     } else if (cfg.sourceType === SourceType.Subgraph) {
-      // TODO: implement this
+      const configData = cfg.sourceConfig as SubgraphConfig;
+      let operations = subgraphCalls.get(cfg.network);
+      if (!operations) {
+        operations = [];
+        subgraphCalls.set(cfg.network, operations);
+      }
+      const endpoint =
+        defaultGraphEndpoints[configData.protocol.toString()][
+          cfg.network.toString()
+        ];
+      if (!endpoint) {
+        throw Error(`subgraph ${endpoint} not found`);
+      }
+      const query = readFileSync(
+        join(__dirname, '../queries', configData.query),
+        'utf-8'
+      );
+      operations.push({
+        configDef: cfg,
+        subgraphQuery: gql(query),
+        endpoint: endpoint,
+      });
     } else {
       throw Error('Invalid source type');
     }
@@ -331,5 +407,6 @@ export function buildOperations(
 
   return {
     aggregateCalls,
+    subgraphCalls,
   };
 }

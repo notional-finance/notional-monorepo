@@ -1,4 +1,3 @@
-import { BigNumber } from 'ethers';
 import { IDataWriter, DataRow, DataContext } from './types';
 import { Knex } from 'knex';
 
@@ -18,7 +17,7 @@ export class GenericDataWriter implements IDataWriter {
           decimals: v.dataConfig.decimals,
           contract_address: v.contractAddress,
           method: v.method,
-          latest_rate: BigNumber.from(v.value).toString(),
+          latest_rate: v.value.toString(),
         }))
       )
       .into(context.tableName)

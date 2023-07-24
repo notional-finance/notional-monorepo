@@ -12,9 +12,12 @@ import {
   DataRow,
   MulticallConfig,
   MulticallOperation,
+  SubgraphConfig,
+  SubgraphOperation,
   TableName,
 } from './types';
 import { aggregate } from '@notional-finance/multicall';
+import { ApolloClient, InMemoryCache } from '@apollo/client';
 
 // TODO: fetch from DB
 const networkToId = {
@@ -198,6 +201,53 @@ export default class DataService {
     });
   }
 
+  private async syncFromSubgraph(
+    dbData: Map<TableName, DataRow[]>,
+    network: Network,
+    ts: number,
+    operations: SubgraphOperation[]
+  ) {
+    const blockNumber = await this.getBlockNumberFromTs(network, ts);
+    const results = await Promise.all(
+      operations.map((op) => {
+        const client = new ApolloClient({
+          uri: op.endpoint,
+          cache: new InMemoryCache(),
+        });
+
+        const sourceConfig = op.configDef.sourceConfig as SubgraphConfig;
+        return client.query({
+          query: op.subgraphQuery,
+          variables: {
+            ts: ts,
+            ...(sourceConfig.args || {}),
+          },
+        });
+      })
+    );
+
+    operations.forEach((op, i) => {
+      const sourceConfig = op.configDef.sourceConfig as SubgraphConfig;
+      let data = results[i].data;
+      if (sourceConfig.transform) {
+        data = sourceConfig.transform(data);
+      }
+
+      let values = dbData.get(op.configDef.tableName);
+      if (!values) {
+        values = [];
+        dbData.set(op.configDef.tableName, values);
+      }
+      values.push({
+        id: sourceConfig.id,
+        dataConfig: { decimals: 0 },
+        blockNumber: blockNumber,
+        networkId: this.networkToId(network),
+        value: data,
+      });
+    });
+  }
+
   public async sync2(ts: number) {
     const operations = buildOperations(defaultConfigDefs);
     const dbData = new Map<TableName, DataRow[]>();
@@ -208,6 +258,17 @@ export default class DataService {
           network,
           ts,
           operations.aggregateCalls.get(network) || []
+        );
+      })
+    );
+
+    await Promise.all(
+      Array.from(operations.subgraphCalls.keys()).map((network) => {
+        return this.syncFromSubgraph(
+          dbData,
+          network,
+          ts,
+          operations.subgraphCalls.get(network) || []
         );
       })
     );
