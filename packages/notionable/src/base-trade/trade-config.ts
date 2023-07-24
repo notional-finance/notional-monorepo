@@ -135,10 +135,11 @@ export const TradeConfiguration = {
    */
   BorrowFixed: {
     calculationFn: calculateDebt,
-    requiredArgs: ['debt', 'depositBalance'],
+    requiredArgs: ['debt', 'depositBalance', 'debtPool'],
     debtFilter: (t, _, s) =>
       t.tokenType === 'fCash' && onlySameCurrency(t, s.deposit),
     collateralFilter: () => false,
+    calculateDebtOptions: true,
     transactionBuilder: BorrowFixed,
   } as TransactionConfig,
 

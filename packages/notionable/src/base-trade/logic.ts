@@ -208,7 +208,7 @@ export function availableTokens(
                 (t.tokenType === 'VaultDebt' &&
                   (t.maturity || 0) > getNowSeconds()) ||
                 (t.tokenType === 'fCash' &&
-                  t.isFCashDebt === true &&
+                  t.isFCashDebt === false && // Always use positive fCash
                   (t.maturity || 0) > getNowSeconds())
             )
             .filter((t) => (debtFilter ? debtFilter(t, account, s) : true));
