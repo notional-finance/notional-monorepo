@@ -364,7 +364,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
         target: notional,
         method: 'getAccount',
         args: [this.activeAccount],
-        key: `${notional.address}.balance`,
+        key: `${notional.address}.account`,
         transform: (r: Awaited<ReturnType<NotionalV3['getAccount']>>) => {
           const accountBalances = r.accountBalances.flatMap((b) => {
             const balances: TokenBalance[] = [];
@@ -393,7 +393,10 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
             return TokenBalance.fromID(a.notional, fCashId, network);
           });
 
-          return accountBalances.concat(portfolioBalances);
+          return {
+            balances: accountBalances.concat(portfolioBalances),
+            allowPrimeBorrow: r.accountContext.allowPrimeBorrow,
+          };
         },
       },
     ];
@@ -412,9 +415,18 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
             network,
             balanceStatement: balanceStatement[activeAccount],
             accountHistory: accountHistory[activeAccount],
-            balances: Object.keys(results)
-              .filter((k) => k.includes('.balance'))
-              .flatMap((k) => results[k]),
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            allowPrimeBorrow: (results[`${notional.address}.account`] as any)[
+              'allowPrimeBorrow'
+            ],
+            balances: Object.keys(results).flatMap((k) =>
+              k.includes('balance')
+                ? results[k]
+                : k.includes('account')
+                ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  ((results[k] as any)['balances'] as TokenBalance[])
+                : []
+            ),
             allowances: Object.keys(results)
               .filter((k) => k.includes('.allowance'))
               .map((k) => {

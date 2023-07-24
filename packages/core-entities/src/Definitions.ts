@@ -147,6 +147,8 @@ export interface AccountDefinition {
   network: Network;
   /** Balances may include external wallet balances */
   balances: TokenBalance[];
+  /** If prime borrows are enabled */
+  allowPrimeBorrow: boolean;
   /** Current profit and loss on every given balance */
   balanceStatement?: BalanceStatement[];
   /** Any transactions that have included transfers to this account */

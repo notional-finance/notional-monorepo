@@ -8,6 +8,7 @@ import {
   TradeActionButton,
   Confirmation2,
   DepositInput,
+  EnablePrimeBorrow,
 } from '@notional-finance/trade';
 import { PRODUCTS } from '@notional-finance/shared-config';
 import { defineMessage, FormattedMessage } from 'react-intl';
@@ -76,7 +77,7 @@ export const BorrowVariableSidebar = () => {
           })}
         />
       )}
-      {/** TODO: add enable prime borrow */}
+      <EnablePrimeBorrow />
     </ActionSidebar>
   );
 };

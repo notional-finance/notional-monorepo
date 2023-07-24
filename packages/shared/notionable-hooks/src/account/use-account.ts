@@ -109,9 +109,10 @@ export function usePrimeCashBalance(selectedToken: string | undefined | null) {
     selectedToken && selectedNetwork
       ? tokens.getTokenBySymbol(selectedNetwork, selectedToken)
       : undefined;
-  const primeCash = selectedNetwork
-    ? tokens.getPrimeCash(selectedNetwork, token?.currencyId)
-    : undefined;
+  const primeCash =
+    selectedNetwork && token?.currencyId
+      ? tokens.getPrimeCash(selectedNetwork, token.currencyId)
+      : undefined;
 
   return useBalance(primeCash?.symbol);
 }
@@ -138,6 +139,7 @@ export function useVaultRiskProfiles() {
 
   return vaultRiskProfiles;
 }
+
 export function usePortfolioRiskProfile() {
   const { account } = useAccountDefinition();
   const network = useSelectedNetwork();
