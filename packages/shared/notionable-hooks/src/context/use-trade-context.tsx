@@ -13,8 +13,8 @@ import {
 
 export type TradeContext = React.Context<ObservableContext<TradeState>>;
 
-export function createTradeContext(tradeType: TradeType) {
-  return createObservableContext<TradeState>(tradeType, initialBaseTradeState);
+export function createTradeContext(displayName: string) {
+  return createObservableContext<TradeState>(displayName, initialBaseTradeState);
 }
 
 export function useTradeContext(tradeType: TradeType) {

@@ -9,6 +9,7 @@ import {
   populateNotionalTxnAndGas,
   PopulateTransactionInputs,
 } from './common';
+import { MintNToken } from './nToken';
 
 export function LendFixed({
   address,
@@ -300,4 +301,16 @@ export function RollLendOrDebt({
       ],
     ]
   );
+}
+
+export async function Deposit(i: PopulateTransactionInputs) {
+  if (i.collateralBalance?.tokenType === 'fCash') {
+    return LendFixed(i);
+  } else if (i.collateralBalance?.tokenType === 'nToken') {
+    return MintNToken(i);
+  } else if (i.collateralBalance?.tokenType === 'PrimeCash') {
+    return LendVariable(i);
+  }
+
+  throw Error('Invalid collateral balance');
 }

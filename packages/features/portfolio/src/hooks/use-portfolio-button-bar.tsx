@@ -80,7 +80,7 @@ export const usePortfolioButtonBar = () => {
     {
       buttonText: <FormattedMessage defaultMessage={'Deposit Collateral'} />,
       callback: () => {
-        history.push(`${currentPath}/${PORTFOLIO_ACTIONS.DEPOSIT}`);
+        history.push(`${currentPath}/${PORTFOLIO_ACTIONS.DEPOSIT}/ETH`);
       },
     },
   ];

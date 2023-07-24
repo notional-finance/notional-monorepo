@@ -10,6 +10,7 @@ import {
   calculateDebtCollateralGivenDepositRiskLimit,
   calculateDeposit,
   DeleverageNToken,
+  Deposit,
   LendFixed,
   LendVariable,
   LeveragedNToken,
@@ -67,12 +68,25 @@ export const TradeConfiguration = {
 
   /**
    * Inputs:
+   * selectedDepositToken, depositBalance, collateral
+   *
+   * Outputs:
+   * collateralBalance (PrimeCash, fCash or nToken)
+   */
+  Deposit: {
+    calculationFn: calculateCollateral,
+    requiredArgs: ['collateral', 'depositBalance'],
+    collateralFilter: (t, _, s) => onlySameCurrency(t, s.deposit),
+    debtFilter: () => false,
+    calculateCollateralOptions: true,
+    transactionBuilder: Deposit,
+  } as TransactionConfig,
+
+  /**
+   * Inputs:
    * selectedDepositToken, depositBalance
    * Outputs:
    * collateralBalance (PrimeCash)
-   *
-   * Notes:
-   * This is also a deposit action
    */
   LendVariable: {
     calculationFn: calculateCollateral,
