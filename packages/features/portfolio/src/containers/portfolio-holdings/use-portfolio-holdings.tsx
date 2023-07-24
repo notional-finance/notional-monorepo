@@ -1,3 +1,4 @@
+import { TokenBalance } from '@notional-finance/core-entities';
 import {
   formatCryptoWithFiat,
   formatNumberAsPercent,
@@ -63,7 +64,9 @@ export function usePortfolioHoldings() {
             symbol: b.underlying.symbol,
             label: b.token.symbol,
             caption:
-              b.token.tokenType === 'fCash' ? '?? APY at Maturity' : undefined,
+              b.token.tokenType === 'fCash' && b.impliedFixedRate !== undefined
+                ? `${formatNumberAsPercent(b.impliedFixedRate)} APY at Maturity`
+                : undefined,
           },
           // TODO: this has a caption for note incentives
           marketApy: formatNumberAsPercent(
@@ -74,6 +77,12 @@ export function usePortfolioHoldings() {
           costBasis: formatCryptoWithFiat(b.accumulatedCostRealized),
           presentValue: formatCryptoWithFiat(b.currentBalance.toUnderlying()),
           earnings: formatCryptoWithFiat(b.totalProfitAndLoss),
+          // TODO: these values are inside the accordion
+          amount: b.currentBalance.toDisplayString(3, true),
+          entryPrice: b.adjustedCostBasis.toDisplayStringWithSymbol(3),
+          currentPrice: TokenBalance.unit(b.token)
+            .toUnderlying()
+            .toDisplayStringWithSymbol(3),
         };
       }) || [];
 
