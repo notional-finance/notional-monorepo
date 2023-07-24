@@ -1,5 +1,9 @@
 import { useContext } from 'react';
-import { ActionSidebar, useCurrencyInputRef } from '@notional-finance/mui';
+import {
+  ActionSidebar,
+  ErrorMessage,
+  useCurrencyInputRef,
+} from '@notional-finance/mui';
 import {
   TradeActionButton,
   Confirmation2,
@@ -8,16 +12,18 @@ import {
 import { PRODUCTS } from '@notional-finance/shared-config';
 import { defineMessage, FormattedMessage } from 'react-intl';
 import { BorrowVariableContext } from '../borrow-variable';
+import { usePrimeCashBalance } from '@notional-finance/notionable-hooks';
 
 export const BorrowVariableSidebar = () => {
   const {
-    state: { canSubmit, populatedTransaction, confirm },
+    state: { canSubmit, populatedTransaction, confirm, selectedDepositToken },
     updateState,
   } = useContext(BorrowVariableContext);
   const { currencyInputRef } = useCurrencyInputRef();
   const handleSubmit = () => {
     updateState({ confirm: true });
   };
+  const cashBalance = usePrimeCashBalance(selectedDepositToken);
 
   return confirm && populatedTransaction ? (
     <Confirmation2
@@ -47,6 +53,7 @@ export const BorrowVariableSidebar = () => {
       <DepositInput
         ref={currencyInputRef}
         inputRef={currencyInputRef}
+        isWithdraw
         context={BorrowVariableContext}
         newRoute={(newToken) => `/${PRODUCTS.BORROW_VARIABLE}/${newToken}`}
         inputLabel={defineMessage({
@@ -54,7 +61,21 @@ export const BorrowVariableSidebar = () => {
           description: 'input label',
         })}
       />
-      {/** TODO: add a warning for withdrawing cash */}
+      {cashBalance?.isPositive() && (
+        <ErrorMessage
+          variant="warning"
+          title={defineMessage({ defaultMessage: 'Existing Cash Balance' })}
+          message={defineMessage({
+            defaultMessage:
+              'Existing positive balance of {balance} will be withdrawn during the borrow.',
+            value: {
+              balance: cashBalance
+                .toUnderlying()
+                .toDisplayStringWithSymbol(2, true),
+            },
+          })}
+        />
+      )}
       {/** TODO: add enable prime borrow */}
     </ActionSidebar>
   );

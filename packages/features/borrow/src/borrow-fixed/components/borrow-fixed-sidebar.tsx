@@ -48,6 +48,7 @@ export const BorrowFixedSidebar = () => {
       <DepositInput
         ref={currencyInputRef}
         inputRef={currencyInputRef}
+        isWithdraw
         context={BorrowFixedContext}
         newRoute={(newToken) => `/${PRODUCTS.BORROW_FIXED}/${newToken}`}
         inputLabel={defineMessage({
