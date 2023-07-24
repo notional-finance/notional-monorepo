@@ -18,17 +18,20 @@ import {
   SubgraphOperation,
   SubgraphConfig,
   ProtocolName,
+  Strategy,
 } from './types';
 import { GenericDataWriter } from './DataWriter';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { gql } from '@apollo/client';
+import { configDefs as wstETH_WETH_poolConfig } from './config/wstETH_WETH_Pool';
 
 export const SourceContracts = {};
 
 export const defaultConfigDefs: ConfigDefinition[] = [
-  // stETH to wstETH ratio
   {
+    strategyId: Strategy.Generic,
+    variable: 'stETH to wstETH ratio',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0',
@@ -42,8 +45,9 @@ export const defaultConfigDefs: ConfigDefinition[] = [
     },
     network: Network.Mainnet,
   },
-  // ETH to cbETH ratio
   {
+    strategyId: Strategy.Generic,
+    variable: 'ETH to cbETH ratio',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0xBe9895146f7AF43049ca1c1AE358B0541Ea49704',
@@ -56,8 +60,9 @@ export const defaultConfigDefs: ConfigDefinition[] = [
     },
     network: Network.Mainnet,
   },
-  // ETH to rETH ratio
   {
+    strategyId: Strategy.Generic,
+    variable: 'ETH to rETH ratio',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0xae78736cd615f374d3085123a210448e74fc6393',
@@ -70,8 +75,9 @@ export const defaultConfigDefs: ConfigDefinition[] = [
     },
     network: Network.Mainnet,
   },
-  // bb-a-Usdc Exchange Rate
   {
+    strategyId: Strategy.Generic,
+    variable: 'bb-a-Usdc Exchange Rate',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0xcbfa4532d8b2ade2c261d3dd5ef2a2284f792692',
@@ -84,8 +90,9 @@ export const defaultConfigDefs: ConfigDefinition[] = [
     },
     network: Network.Mainnet,
   },
-  // bb-a-Usdt Exchange Rate
   {
+    strategyId: Strategy.Generic,
+    variable: 'bb-a-Usdt Exchange Rate',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0xa1697f9af0875b63ddc472d6eebada8c1fab8568',
@@ -98,8 +105,9 @@ export const defaultConfigDefs: ConfigDefinition[] = [
     },
     network: Network.Mainnet,
   },
-  // bb-a-Dai Exchange Rate
   {
+    strategyId: Strategy.Generic,
+    variable: 'bb-a-Dai Exchange Rate',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0x6667c6fa9f2b3fc1cc8d85320b62703d938e4385',
@@ -112,8 +120,9 @@ export const defaultConfigDefs: ConfigDefinition[] = [
     },
     network: Network.Mainnet,
   },
-  // bb-a-Weth Exchange Rate
   {
+    strategyId: Strategy.Generic,
+    variable: 'bb-a-Weth Exchange Rate',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0x60d604890feaa0b5460b28a424407c24fe89374a',
@@ -126,8 +135,9 @@ export const defaultConfigDefs: ConfigDefinition[] = [
     },
     network: Network.Mainnet,
   },
-  // bb-a-Usdc Exchange Rate - Arbitrum
   {
+    strategyId: Strategy.Generic,
+    variable: 'bb-a-Usdc Exchange Rate - Arbitrum',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0x7c82a23b4c48d796dee36a9ca215b641c6a8709d',
@@ -140,8 +150,9 @@ export const defaultConfigDefs: ConfigDefinition[] = [
     },
     network: Network.ArbitrumOne,
   },
-  // bb-a-Usdt Exchange Rate - Arbitrum
   {
+    strategyId: Strategy.Generic,
+    variable: 'bb-a-Usdt Exchange Rate - Arbitrum',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0x4739E50B59B552D490d3FDc60D200977A38510c0',
@@ -154,8 +165,9 @@ export const defaultConfigDefs: ConfigDefinition[] = [
     },
     network: Network.ArbitrumOne,
   },
-  // bb-a-Dai Exchange Rate - Arbitrum
   {
+    strategyId: Strategy.Generic,
+    variable: 'bb-a-Dai Exchange Rate - Arbitrum',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0x9e34631547adcf2f8cefa0f5f223955c7b137571',
@@ -168,8 +180,9 @@ export const defaultConfigDefs: ConfigDefinition[] = [
     },
     network: Network.ArbitrumOne,
   },
-  // bb-a-Weth Exchange Rate - Arbitrum
   {
+    strategyId: Strategy.Generic,
+    variable: 'bb-a-Weth Exchange Rate - Arbitrum',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0xda1cd1711743e57dd57102e9e61b75f3587703da',
@@ -182,8 +195,9 @@ export const defaultConfigDefs: ConfigDefinition[] = [
     },
     network: Network.ArbitrumOne,
   },
-  // Weth To Usdc Exchange Rate
   {
+    strategyId: Strategy.Generic,
+    variable: 'Weth To Usdc Exchange Rate',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0x96646936b91d6b9d7d0c47c496afbf3d6ec7b6f8',
@@ -197,8 +211,9 @@ export const defaultConfigDefs: ConfigDefinition[] = [
     },
     network: Network.Mainnet,
   },
-  // Weth To Bal Exchange Rate
   {
+    strategyId: Strategy.Generic,
+    variable: 'Weth To Bal Exchange Rate',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0x5c6Ee304399DBdB9C8Ef030aB642B10820DB8F56',
@@ -212,8 +227,9 @@ export const defaultConfigDefs: ConfigDefinition[] = [
     },
     network: Network.Mainnet,
   },
-  // Aura To Weth Exchange Rate
   {
+    strategyId: Strategy.Generic,
+    variable: 'Aura To Weth Exchange Rate',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0xc29562b045d80fd77c69bec09541f5c16fe20d9d',
@@ -245,35 +261,26 @@ export const defaultConfigDefs: ConfigDefinition[] = [
   // veCRV total supply
   // Convex veCRV balance
   // Cvx total supply
-
-  // stETH to WETH exchange rate
-  // WETH balance
-  // wstETH balance
-  // BPT Supply
-  // BPT Supply in Gauge
-  // Aura BPT balance in Gauge
-  // Working Supply
-  // Working Balance
-  // Gauge vote weight
-  // Swap fees
+  ...wstETH_WETH_poolConfig,
   {
+    strategyId: Strategy.ArbConvexUSDCFRAX,
+    variable: 'Swap fees',
     sourceType: SourceType.Subgraph,
     sourceConfig: {
-      id: '0x32296969ef14eb0c6d29669c550d4a0449130230000200000000000000000080:SwapFee',
-      protocol: ProtocolName.BalancerV2,
-      query: 'BalancerV2SwapFee.graphql',
+      id: '0xc9b8a3fdecb9d5b218d02555a8baf332e5b740d5:SwapFee',
+      protocol: ProtocolName.Curve,
+      query: 'CurveSwapFee.graphql',
       args: {
-        poolId:
-          '0x32296969ef14eb0c6d29669c550d4a0449130230000200000000000000000080',
+        poolId: '0xc9b8a3fdecb9d5b218d02555a8baf332e5b740d5',
       },
       transform: (r) =>
-        r.poolSnapshots[0].swapFees - r.poolSnapshots[1].swapFees,
+        r.liquidityPoolDailySnapshots[0].dailyProtocolSideRevenueUSD,
     },
     tableName: TableName.GenericData,
     dataConfig: {
-      decimals: 18,
+      decimals: 0,
     },
-    network: Network.Mainnet,
+    network: Network.ArbitrumOne,
   },
 ];
 
@@ -292,19 +299,25 @@ export const defaultDataWriters: Record<string, IDataWriter> = {
   [TableName.GenericData]: new GenericDataWriter(),
 };
 
-export function getOutputName(outputs, indices) {
+export function getOutputName(
+  outputs: ethers.utils.ParamType[],
+  indices: number[]
+) {
   let name = '';
   let current = outputs;
   for (let i = 0; i < indices.length; i++) {
-    if (current.name && current.name !== '') {
+    if (current.length === 0) break;
+
+    const comp = current[indices[i]];
+    if (comp.name && comp.name !== '') {
+      name += comp.name;
+    } else {
       name += i.toString();
-    } else {
-      name += current.name;
     }
-    if (current.components) {
-      current = current.components[indices[i]];
+    if (comp.components && comp.components.length > 0) {
+      current = comp.components;
     } else {
-      current = current[indices[i]];
+      current = [];
     }
   }
 
@@ -312,18 +325,20 @@ export function getOutputName(outputs, indices) {
 }
 
 export function getMulticallParams(config: MulticallConfig) {
+  const abi = new ethers.utils.Interface(config.contractABI);
+
   let key = `${config.contractAddress}:${config.method}`;
   let transform;
-  const method = config.contractABI.find((item) => item.name === config.method);
+  const func = abi.getFunction(config.method);
 
-  if (!method) {
+  if (!func) {
     throw Error(
       `Invalid method ${config.method} on contract ${config.contractAddress}`
     );
   }
 
-  const outputs = method.outputs;
-  if (outputs.length > 1) {
+  const outputs = func.outputs;
+  if (outputs && outputs.length > 1) {
     if (!config.outputIndices) {
       throw Error(
         `Output indices not defined for method ${config.method} on contract ${config.contractAddress}`

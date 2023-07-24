@@ -30,3 +30,5 @@ export { default as VaultLiquidatorABI } from './VaultLiquidator.json';
 export { default as wstETHABI } from './wstETH.json';
 export { default as cbETHABI } from './cbETH.json';
 export { default as rETHABI } from './rETH.json';
+export { default as BalancerGaugeABI } from './BalancerGauge.json';
+export { default as BalancerGaugeControllerABI } from './BalancerGaugeController.json';

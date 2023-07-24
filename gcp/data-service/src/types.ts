@@ -17,6 +17,12 @@ export enum ProtocolName {
   Curve = 'Curve',
 }
 
+export enum Strategy {
+  Generic = 1,
+  EthBalancerWETHwstETH = 2,
+  ArbConvexUSDCFRAX = 14,
+}
+
 export interface MulticallConfig {
   contractAddress: string;
   contractABI: any;
@@ -38,6 +44,8 @@ export interface GenericDataConfig {
 }
 
 export interface ConfigDefinition {
+  strategyId: number;
+  variable: string;
   sourceType: SourceType;
   sourceConfig: MulticallConfig | SubgraphConfig;
   tableName: TableName;
@@ -68,6 +76,8 @@ export interface DataWriterConfig {
 
 export interface DataRow {
   id: string;
+  strategyId: number;
+  variable: string;
   dataConfig: GenericDataConfig;
   blockNumber: number;
   networkId: number;

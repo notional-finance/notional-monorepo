@@ -11,6 +11,8 @@ export class GenericDataWriter implements IDataWriter {
       .insert(
         rows.map((v) => ({
           id: v.id,
+          strategy_id: v.strategyId,
+          variable: v.variable,
           network: v.networkId,
           timestamp: context.timestamp,
           block_number: v.blockNumber,
@@ -21,7 +23,7 @@ export class GenericDataWriter implements IDataWriter {
         }))
       )
       .into(context.tableName)
-      .onConflict(['id', 'network', 'timestamp'])
+      .onConflict(['id', 'strategy_id', 'variable', 'network', 'timestamp'])
       .ignore();
   }
 }

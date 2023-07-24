@@ -97,13 +97,13 @@ async function main() {
   });
 
   app.get('/sync2', async (_, res) => {
-    try {
-      res.send(
-        JSON.stringify(await dataService.sync2(dataService.latestTimestamp()))
-      );
-    } catch (e: any) {
-      res.status(500).send(e.toString());
-    }
+    //    try {
+    res.send(
+      JSON.stringify(await dataService.sync2(dataService.latestTimestamp()))
+    );
+    //  } catch (e: any) {
+    //    res.status(500).send(e.toString());
+    // }
   });
 
   app.get('/data/oracles', async (_, res) => {

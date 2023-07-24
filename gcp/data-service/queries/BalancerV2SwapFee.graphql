@@ -1,16 +1,10 @@
 query BalancerV2SwapFee($poolId: String, $ts: Int) {
   poolSnapshots(
-    first: 2, 
-    orderBy: timestamp, 
-    orderDirection: desc, 
-    where: {
-      timestamp_lt: $ts, 
-      pool_: {
-        id: $poolId
-      }
-    }
-  )
-  {
+    first: 2
+    orderBy: timestamp
+    orderDirection: desc
+    where: {timestamp_lte: $ts, pool_: {id: $poolId}}
+  ) {
     swapFees
   }
 }

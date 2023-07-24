@@ -191,6 +191,8 @@ export default class DataService {
       const key = op.aggregateCall.key as string;
       values.push({
         id: key,
+        strategyId: op.configDef.strategyId,
+        variable: op.configDef.variable,
         dataConfig: op.configDef.dataConfig,
         value: response.results[key],
         networkId: this.networkToId(network),
@@ -240,7 +242,9 @@ export default class DataService {
       }
       values.push({
         id: sourceConfig.id,
-        dataConfig: { decimals: 0 },
+        strategyId: op.configDef.strategyId,
+        variable: op.configDef.variable,
+        dataConfig: op.configDef.dataConfig,
         blockNumber: blockNumber,
         networkId: this.networkToId(network),
         value: data,
