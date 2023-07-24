@@ -1,35 +1,23 @@
-import { Box, CircularProgress, useTheme } from '@mui/material';
-import { TokenIcon } from '@notional-finance/icons';
-import { FormattedMessage } from 'react-intl';
-import Switch from '../switch/switch';
 import CheckCircle from '@mui/icons-material/CheckCircle';
-import { Label, LabelValue } from '../typography/typography';
+import { Box, CircularProgress, useTheme } from '@mui/material';
+import { Label, LabelValue, Switch } from '@notional-finance/mui';
 import { TransactionStatus } from '@notional-finance/notionable-hooks';
+import { FormattedMessage } from 'react-intl';
+import { useEnablePrimeBorrow } from './use-enable-prime-borrow';
 
-export interface TokenApprovalProps {
-  symbol: string;
-  transactionStatus: TransactionStatus;
-  approved: boolean;
-  sx?: Record<string, string>;
-  onChange: () => void;
-}
-
-export function TokenApproval({
-  symbol,
-  onChange,
-  approved,
-  transactionStatus,
-  sx = {},
-}: TokenApprovalProps) {
+export function EnablePrimeBorrow() {
   const theme = useTheme();
+  const { transactionStatus, isPrimeBorrowAllowed, enablePrimeBorrow } =
+    useEnablePrimeBorrow();
+
   const pending =
     transactionStatus === TransactionStatus.WAIT_USER_CONFIRM ||
     transactionStatus === TransactionStatus.SUBMITTED;
 
-  return (
+  // Only show the box if prime borrow is not allowed
+  return isPrimeBorrowAllowed ? null : (
     <Box
       sx={{
-        ...sx,
         display: 'flex',
         flexDirection: 'column',
         backgroundColor: theme.palette.background.default,
@@ -47,11 +35,10 @@ export function TokenApproval({
           alignItems: 'center',
         }}
       >
-        <TokenIcon symbol={symbol} size="medium" />
-        {!pending && !approved && (
+        {!pending && !isPrimeBorrowAllowed && (
           <Switch
-            checked={approved}
-            onChange={onChange}
+            checked={isPrimeBorrowAllowed}
+            onChange={enablePrimeBorrow}
             sx={{
               margin: theme.spacing(0, 1),
             }}
@@ -62,7 +49,7 @@ export function TokenApproval({
             size={24}
             color="primary"
             sx={{
-              margin: theme.spacing(0, 2),
+              margin: theme.spacing(0, 1),
             }}
           />
         )}
@@ -70,40 +57,38 @@ export function TokenApproval({
           <CheckCircle
             color="primary"
             sx={{
-              margin: theme.spacing(0, 2),
+              margin: theme.spacing(0, 1),
             }}
           />
         )}
         <LabelValue
           inline
           sx={{
-            color: approved
+            color: isPrimeBorrowAllowed
               ? theme.palette.typography.main
               : theme.palette.typography.light,
           }}
         >
-          {approved ? (
-            <FormattedMessage defaultMessage="Enabled" />
+          {isPrimeBorrowAllowed ? (
+            <FormattedMessage defaultMessage="Prime Borrow Enabled" />
           ) : (
-            <FormattedMessage defaultMessage="Disabled" />
+            <FormattedMessage defaultMessage="Prime Borrow Disabled" />
           )}
         </LabelValue>
       </Box>
       <Label
         sx={{
           padding: theme.spacing(2, 0),
-          color: approved
+          color: isPrimeBorrowAllowed
             ? theme.palette.typography.main
             : theme.palette.typography.light,
         }}
       >
         <FormattedMessage
-          defaultMessage="Enabling a currency is required for Notional to access funds in your wallet."
+          defaultMessage="Borrowing variable must be enabled for this account on Notional."
           description="enable currency instructions"
         />
       </Label>
     </Box>
   );
 }
-
-export default TokenApproval;

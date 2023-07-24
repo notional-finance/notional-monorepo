@@ -37,19 +37,12 @@ export const BorrowVariableCardView = () => {
           docsLink="https://docs.notional.finance/notional-v2/what-you-can-do/fixed-rate-borrowing"
         >
           {variableBorrow.map(({ underlying, totalAPY }, index) => {
-            // TODO: Is this required for variable?
-            // Special handling for borrowing ETH, default to collateralized by USDC
-            const route =
-              underlying.symbol === 'ETH'
-                ? `/${PRODUCTS.BORROW_VARIABLE}/${underlying}/USDC`
-                : `/${PRODUCTS.BORROW_VARIABLE}/${underlying}/ETH`;
-
             return (
               <Currency
                 key={index}
                 symbol={underlying.symbol}
                 rate={totalAPY}
-                route={route}
+                route={`/${PRODUCTS.BORROW_VARIABLE}/${underlying.symbol}`}
                 returnTitle={<FormattedMessage defaultMessage="VARIABLE APY" />}
                 buttonText={
                   <FormattedMessage

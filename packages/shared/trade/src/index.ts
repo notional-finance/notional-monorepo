@@ -22,3 +22,4 @@ export * from './deposit-input/deposit-input';
 export * from './maturity-select/maturity-select';
 export * from './maturity-select/variable-fixed-maturity-toggle';
 export * from './maturity-select/use-maturity-select';
+export * from './enable-prime-borrow/enable-prime-borrow';

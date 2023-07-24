@@ -5,6 +5,7 @@ import {
   TokenBalance,
   TokenDefinition,
   VaultAdapter,
+  fCashMarket,
 } from '@notional-finance/core-entities';
 import {
   AccountRiskProfile,
@@ -13,7 +14,11 @@ import {
   VaultAccountRiskProfile,
 } from '@notional-finance/risk-engine';
 import { CalculationFnParams } from '@notional-finance/transaction';
-import { filterEmpty, getNowSeconds } from '@notional-finance/util';
+import {
+  RATE_PRECISION,
+  filterEmpty,
+  getNowSeconds,
+} from '@notional-finance/util';
 import {
   catchError,
   combineLatest,
@@ -33,6 +38,7 @@ import { isHashable } from '../utils';
 import {
   BaseTradeState,
   InputAmount,
+  TokenOption,
   TradeConfiguration,
   TradeType,
   VaultTradeConfiguration,
@@ -202,7 +208,7 @@ export function availableTokens(
                 (t.tokenType === 'VaultDebt' &&
                   (t.maturity || 0) > getNowSeconds()) ||
                 (t.tokenType === 'fCash' &&
-                  t.isFCashDebt === true &&
+                  t.isFCashDebt === false && // Always use positive fCash
                   (t.maturity || 0) > getNowSeconds())
             )
             .filter((t) => (debtFilter ? debtFilter(t, account, s) : true));
@@ -566,26 +572,54 @@ export function calculate(
         calculateDebtOptions,
       } = getTradeConfig(tradeType);
 
-      let collateralOptions: (TokenBalance | null)[] | undefined;
-      let debtOptions: (TokenBalance | null)[] | undefined;
+      let collateralOptions: TokenOption[] | undefined;
+      let debtOptions: TokenOption[] | undefined;
 
       if (calculateCollateralOptions) {
         const satisfied = requiredArgs
           .filter((c) => c !== 'collateral')
           .every((r) => inputs[r] !== undefined);
+        const collateralPool = inputs['collateralPool']
+          ? (inputs['collateralPool'] as fCashMarket)
+          : undefined;
 
         collateralOptions = satisfied
           ? collateralTokens?.map((c) => {
               const i = { ...inputs, collateral: c };
+              let interestRate = collateralPool?.getSpotInterestRate(
+                Registry.getTokenRegistry().unwrapVaultToken(c)
+              );
               try {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const { collateralBalance } = calculationFn(i as any) as {
                   collateralBalance: TokenBalance;
                 };
-                return collateralBalance;
+
+                if (
+                  collateralPool &&
+                  collateralBalance.unwrapVaultToken().tokenType === 'fCash'
+                ) {
+                  interestRate =
+                    (collateralPool.getSlippageRate(
+                      collateralBalance.unwrapVaultToken(),
+                      0
+                    ) *
+                      100) /
+                    RATE_PRECISION;
+                }
+
+                return {
+                  token: c,
+                  balance: collateralBalance,
+                  interestRate,
+                };
               } catch (e) {
                 console.error(e);
-                return null;
+                return {
+                  token: c,
+                  interestRate,
+                  error: (e as Error).toString(),
+                };
               }
             })
           : undefined;
@@ -596,12 +630,19 @@ export function calculate(
           .filter((c) => c !== 'debt')
           .filter((c) => (isVaultTrade(tradeType) ? c !== 'collateral' : true))
           .every((r) => inputs[r] !== undefined);
+        const debtPool = inputs['debtPool']
+          ? (inputs['debtPool'] as fCashMarket)
+          : undefined;
 
         debtOptions = satisfied
           ? debtTokens?.map((d) => {
               const i = { ...inputs, debt: d };
+              const interestRate = debtPool?.getSpotInterestRate(
+                Registry.getTokenRegistry().unwrapVaultToken(d)
+              );
               try {
-                if (isVaultTrade(tradeType)) {
+                const isVault = isVaultTrade(tradeType);
+                if (isVault) {
                   // Switch to the matching vault share token for vault trades
                   if (!d.vaultAddress || !d.maturity)
                     throw Error('Invalid debt token');
@@ -611,14 +652,47 @@ export function calculate(
                     d.maturity
                   );
                 }
+
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const { debtBalance } = calculationFn(i as any) as {
                   debtBalance: TokenBalance;
                 };
-                return debtBalance;
+                let interestRate: number | undefined;
+
+                if (
+                  debtPool &&
+                  debtBalance.unwrapVaultToken().tokenType === 'fCash'
+                ) {
+                  // If there is a vault, apply the additional fee rate against the debt
+                  const feeRate =
+                    isVault && d.vaultAddress
+                      ? Registry.getConfigurationRegistry().getVaultConfig(
+                          d.network,
+                          d.vaultAddress
+                        ).feeRateBasisPoints
+                      : 0;
+
+                  interestRate =
+                    (debtPool.getSlippageRate(
+                      debtBalance.unwrapVaultToken(),
+                      feeRate
+                    ) *
+                      100) /
+                    RATE_PRECISION;
+                }
+
+                return {
+                  token: d,
+                  balance: debtBalance,
+                  interestRate,
+                };
               } catch (e) {
                 console.error(e);
-                return null;
+                return {
+                  token: d,
+                  interestRate,
+                  error: (e as Error).toString(),
+                };
               }
             })
           : undefined;

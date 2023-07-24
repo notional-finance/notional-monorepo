@@ -45,11 +45,6 @@ export const BorrowFixedCardView = () => {
           docsLink="https://docs.notional.finance/notional-v2/what-you-can-do/fixed-rate-borrowing"
         >
           {cardData.map(([symbol, yields], index) => {
-            // Special handling for borrowing ETH, default to collateralized by USDC
-            const route =
-              symbol === 'ETH'
-                ? `/${PRODUCTS.BORROW_FIXED}/${symbol}/USDC`
-                : `/${PRODUCTS.BORROW_FIXED}/${symbol}/ETH`;
             const minRate = getMin(yields)?.totalAPY || 0;
             const allRates = yields
               .sort((a, b) => (a.token.maturity || 0) - (b.token.maturity || 0))
@@ -64,7 +59,7 @@ export const BorrowFixedCardView = () => {
                 symbol={symbol}
                 rate={minRate}
                 allRates={allRates}
-                route={route}
+                route={`/${PRODUCTS.BORROW_FIXED}/${symbol}`}
                 apyTagline={<FormattedMessage defaultMessage={'AS LOW AS'} />}
                 buttonText={
                   <FormattedMessage

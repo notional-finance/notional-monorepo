@@ -63,7 +63,7 @@ const AllRoutes = () => {
         <Switch>
           <AppLayoutRoute path="/airdrop" component={AirdropView} />
           <AppLayoutRoute
-            path="/borrow-fixed/:selectedDepositToken/:selectedCollateralToken"
+            path="/borrow-fixed/:selectedDepositToken"
             routeKey={routeKey}
             component={BorrowFixed}
           />
@@ -72,7 +72,7 @@ const AllRoutes = () => {
             component={BorrowFixedCardView}
           />
           <AppLayoutRoute
-            path="/borrow-variable/:selectedDepositToken/:selectedCollateralToken"
+            path="/borrow-variable/:selectedDepositToken"
             routeKey={routeKey}
             component={BorrowVariable}
           />

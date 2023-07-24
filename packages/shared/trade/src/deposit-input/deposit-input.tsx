@@ -19,6 +19,7 @@ interface DepositInputProps {
   inputLabel?: MessageDescriptor;
   errorMsgOverride?: MessageDescriptor;
   inputRef: React.RefObject<CurrencyInputHandle>;
+  isWithdraw?: boolean;
 }
 
 /**
@@ -31,7 +32,15 @@ export const DepositInput = React.forwardRef<
   DepositInputProps
 >(
   (
-    { context, newRoute, warningMsg, inputLabel, inputRef, errorMsgOverride },
+    {
+      context,
+      newRoute,
+      warningMsg,
+      inputLabel,
+      inputRef,
+      errorMsgOverride,
+      isWithdraw,
+    },
     ref
   ) => {
     const history = useHistory();
@@ -45,10 +54,12 @@ export const DepositInput = React.forwardRef<
       errorMsg,
       decimalPlaces,
       setInputString,
-    } = useDepositInput(selectedDepositToken);
+    } = useDepositInput(selectedDepositToken, isWithdraw);
 
     useEffect(() => {
-      updateState({ depositBalance: inputAmount });
+      updateState({
+        depositBalance: isWithdraw ? inputAmount?.neg() : inputAmount,
+      });
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [updateState, inputAmount?.hashKey]);
 
@@ -87,7 +98,10 @@ export const DepositInput = React.forwardRef<
             landingPage: false,
           }}
         />
-        <TokenApprovalView symbol={selectedDepositToken} requiredAmount={inputAmount} />
+        <TokenApprovalView
+          symbol={selectedDepositToken}
+          requiredAmount={inputAmount}
+        />
       </Box>
     );
   }

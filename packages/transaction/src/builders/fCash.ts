@@ -71,6 +71,57 @@ export function LendVariable({
   ]);
 }
 
+export function BorrowVariable({
+  address,
+  network,
+  debtBalance,
+  redeemToWETH,
+}: PopulateTransactionInputs) {
+  if (!debtBalance) throw Error('Deposit balance undefined');
+
+  return populateNotionalTxnAndGas(network, address, 'withdraw', [
+    debtBalance.currencyId,
+    debtBalance?.toPrimeCash().abs().n,
+    redeemToWETH ? false : true,
+  ]);
+}
+
+export function BorrowFixed({
+  address,
+  network,
+  depositBalance,
+  debtBalance,
+  accountBalances,
+  redeemToWETH,
+}: PopulateTransactionInputs) {
+  if (!depositBalance || !debtBalance)
+    throw Error('All balances must be defined');
+
+  // NOTE: this returns the direct FX'd prime cash amount which is probably wrong....
+  const { withdrawAmountInternalPrecision, withdrawEntireCashBalance } =
+    hasExistingCashBalance(debtBalance, accountBalances);
+
+  return populateNotionalTxnAndGas(
+    network,
+    address,
+    'batchBalanceAndTradeAction',
+    [
+      address,
+      [
+        getBalanceAndTradeAction(
+          DepositActionType.None,
+          TokenBalance.zero(debtBalance.underlying),
+          withdrawEntireCashBalance,
+          withdrawAmountInternalPrecision,
+          redeemToWETH,
+          debtBalance.tokenType === 'fCash' ? [debtBalance] : []
+        ),
+      ].sort((a, b) => (a.currencyId as number) - (b.currencyId as number)),
+      getETHValue(depositBalance),
+    ]
+  );
+}
+
 export function BorrowWithCollateral({
   address,
   network,
