@@ -56,7 +56,8 @@ export const PortfolioFeatureShell = () => {
         </PortfolioSidebar>
         <PortfolioMainContent>
           {accountConnected &&
-            params.category !== PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS && (
+            params.category !== PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS &&
+            params.category !== PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY && (
               <Box sx={{ justifyContent: 'flex-end', display: 'flex' }}>
                 <ButtonBar
                   buttonOptions={buttonData}

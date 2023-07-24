@@ -1,10 +1,7 @@
 import { useTheme } from '@mui/material';
-import { styled } from '@mui/material/styles';
 import { TableCell } from '../../typography/typography';
 import { NotionalTheme } from '@notional-finance/styles';
-import outboundLinkIcon from '../../../assets/icons/icon-outbound-link.svg';
-
-const LinkIcon = styled('img')``;
+import { LaunchIcon } from '@notional-finance/icons';
 
 export interface TxnHashCellProps {
   cell: {
@@ -25,17 +22,15 @@ export const TxnHashCell = ({
   const theme = useTheme() as NotionalTheme;
 
   return (
-    <TableCell href={href}>
+    <TableCell href={href} sx={{ color: theme.palette.typography.accent }}>
       {hash.slice(0, 6)}
       ...{hash.slice(hash.length - 4)}
       {showLinkIcon ? (
-        <LinkIcon
+        <LaunchIcon
           sx={{
-            width: theme.spacing(2),
+            marginTop: '5px',
             marginLeft: theme.spacing(1),
           }}
-          src={outboundLinkIcon}
-          alt="outbound link"
         />
       ) : null}
     </TableCell>

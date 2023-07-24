@@ -56,7 +56,7 @@ export const useMarketsTable = (
       displayFormatter: formatNumberAsPercent,
       Cell: DisplayCell,
       accessor: 'totalAPY',
-      textAlign: 'right',
+      textAlign: 'left',
       sortType: 'basic',
     },
     {
