@@ -4,6 +4,7 @@ import express from 'express';
 import Knex from 'knex';
 import DataService from './DataService';
 import { Network, getProviderFromNetwork } from '@notional-finance/util';
+import { BackfillType } from './types';
 const port = parseInt(process.env.SERVICE_PORT || '8080');
 const app = express();
 
@@ -28,11 +29,14 @@ async function main() {
   }
 
   const db = createUnixSocketPool();
-  const provider = getProviderFromNetwork(Network[process.env.NETWORK]);
+  const provider = getProviderFromNetwork(Network[process.env.NETWORK], true);
   const dataService = new DataService(provider, db, {
     network: Network[process.env.NETWORK],
     // TODO: get from env
-    blocksPerSecond: 2.5, // 2.5 blocks per second on arbitrum
+    blocksPerSecond: {
+      [Network.ArbitrumOne]: 2.5, // 2.5 blocks per second on arbitrum
+      [Network.Mainnet]: 0.083,
+    },
     maxProviderRequests: 50,
     interval: 1, // 1 Hour
     frequency: 3600, // Hourly
@@ -52,14 +56,20 @@ async function main() {
   });
 
   app.get('/time', async (req, res) => {
-    const targetTimestamp = parseInt(
-      (req.query.targetTimestamp as string) || '0'
+    const targetTimestamp = req.query.targetTimestamp
+      ? parseInt(req.query.targetTimestamp as string)
+      : dataService.latestTimestamp();
+    const network = req.query.network
+      ? (req.query.network as Network)
+      : Network.Mainnet;
+    const block = await dataService.getBlockNumberByTimestamp(
+      network,
+      targetTimestamp
     );
-    const block = await dataService.getBlockNumberByTimestamp(targetTimestamp);
     res.send(JSON.stringify(block));
   });
 
-  app.get('/backfill', async (req, res) => {
+  app.get('/backfillOracleData', async (req, res) => {
     const startTime = parseInt((req.query.startTime as string) || '0');
     let endTime = Date.now() / 1000;
     if (req.query.endTime) {
@@ -70,17 +80,49 @@ async function main() {
       return;
     }
     try {
-      await dataService.backfill(startTime, endTime);
+      await dataService.backfill(startTime, endTime, BackfillType.OracleData);
       res.send('OK');
     } catch (e: any) {
       res.status(500).send(e.toString());
     }
   });
 
-  app.get('/sync', async (_, res) => {
+  app.get('/backfillGenericData', async (req, res) => {
+    const startTime = parseInt((req.query.startTime as string) || '0');
+    let endTime = Date.now() / 1000;
+    if (req.query.endTime) {
+      endTime = parseInt(req.query.endTime as string);
+    }
+    if (endTime < startTime) {
+      res.status(400).send('endTime must be greater than startTime');
+      return;
+    }
+    try {
+      await dataService.backfill(startTime, endTime, BackfillType.GenericData);
+      res.send('OK');
+    } catch (e: any) {
+      res.status(500).send(e.toString());
+    }
+  });
+
+  app.get('/syncOracleData', async (_, res) => {
     try {
       res.send(
-        JSON.stringify(await dataService.sync(dataService.latestTimestamp()))
+        JSON.stringify(
+          await dataService.syncOracleData(dataService.latestTimestamp())
+        )
+      );
+    } catch (e: any) {
+      res.status(500).send(e.toString());
+    }
+  });
+
+  app.get('/syncGenericData', async (_, res) => {
+    try {
+      res.send(
+        JSON.stringify(
+          await dataService.syncGenericData(dataService.latestTimestamp())
+        )
       );
     } catch (e: any) {
       res.status(500).send(e.toString());

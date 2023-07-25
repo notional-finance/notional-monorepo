@@ -1,8 +1,24 @@
 import ethers, { BigNumber } from 'ethers';
 import { Knex } from 'knex';
-import { Network } from '@notional-finance/util';
+import { Network, getProviderFromNetwork } from '@notional-finance/util';
 import { fetch } from 'cross-fetch';
 import { URLSearchParams } from 'url';
+import {
+  buildOperations,
+  defaultConfigDefs,
+  defaultDataWriters,
+} from './config';
+import {
+  BackfillType,
+  DataRow,
+  MulticallConfig,
+  MulticallOperation,
+  SubgraphConfig,
+  SubgraphOperation,
+  TableName,
+} from './types';
+import { aggregate } from '@notional-finance/multicall';
+import { ApolloClient, InMemoryCache } from '@apollo/client';
 
 // TODO: fetch from DB
 const networkToId = {
@@ -22,7 +38,7 @@ const oracleTypeToId = {
 
 export type DataServiceSettings = {
   network: Network;
-  blocksPerSecond: number;
+  blocksPerSecond: Record<string, number>;
   maxProviderRequests: number;
   interval: number;
   frequency: number; // hourly, daily etc.
@@ -73,7 +89,11 @@ export default class DataService {
     return now.getTime() / 1000;
   }
 
-  public async backfill(startTime: number, endTime: number) {
+  public async backfill(
+    startTime: number,
+    endTime: number,
+    type: BackfillType
+  ) {
     startTime = this.intervalTimestamp(startTime);
     endTime = this.intervalTimestamp(endTime);
     if (startTime === endTime) {
@@ -84,30 +104,47 @@ export default class DataService {
       timestamps.push(startTime);
       startTime += this.settings.interval * this.settings.frequency;
     }
-    await Promise.all(timestamps.map((ts) => this.sync(ts)));
+    if (type === BackfillType.GenericData) {
+      await Promise.all(timestamps.map((ts) => this.syncGenericData(ts)));
+    } else if (type === BackfillType.OracleData) {
+      await Promise.all(timestamps.map((ts) => this.syncOracleData(ts)));
+    } else {
+      throw Error(`Invalid backfill type ${type}`);
+    }
   }
 
-  public async sync(ts: number) {
+  private async getBlockNumberFromTs(network: Network, ts: number) {
     ts = this.intervalTimestamp(ts);
     // get blockNumber by timestamp
     const record = await this.db
       .select()
       .from(DataService.TS_BN_MAPPINGS_TABLE_NAME)
-      .where('timestamp', ts);
+      .where('timestamp', ts)
+      .andWhere('network_id', this.networkToId(network));
     let blockNumber = 0;
     if (record.length === 0) {
-      blockNumber = await this.getBlockNumberByTimestamp(ts);
+      blockNumber = await this.getBlockNumberByTimestamp(network, ts);
       await this.db
         .insert([
           {
             timestamp: ts,
             block_number: blockNumber,
+            network_id: this.networkToId(network),
           },
         ])
         .into(DataService.TS_BN_MAPPINGS_TABLE_NAME);
     } else {
-      blockNumber = record[0].block_number as number;
+      blockNumber = parseInt(record[0].block_number);
     }
+
+    return blockNumber;
+  }
+
+  public async syncOracleData(ts: number) {
+    const blockNumber = await this.getBlockNumberFromTs(
+      this.settings.network,
+      ts
+    );
 
     // Get data using block number
     if (blockNumber < this.settings.startingBlock) {
@@ -144,6 +181,125 @@ export default class DataService {
     return blockNumber;
   }
 
+  private async syncFromMulticall(
+    dbData: Map<TableName, DataRow[]>,
+    network: Network,
+    ts: number,
+    operations: MulticallOperation[]
+  ) {
+    const blockNumber = await this.getBlockNumberFromTs(network, ts);
+    const provider = getProviderFromNetwork(network, true);
+    const calls = operations.map((op) => op.aggregateCall);
+    const response = await aggregate(calls, provider, blockNumber, true);
+
+    operations.forEach((op) => {
+      let values = dbData.get(op.configDef.tableName);
+      if (!values) {
+        values = [];
+        dbData.set(op.configDef.tableName, values);
+      }
+      const sourceConfig = op.configDef.sourceConfig as MulticallConfig;
+      const key = op.aggregateCall.key as string;
+      values.push({
+        strategyId: op.configDef.strategyId,
+        variable: op.configDef.variable,
+        dataConfig: op.configDef.dataConfig,
+        value: response.results[key],
+        networkId: this.networkToId(network),
+        blockNumber: blockNumber,
+        contractAddress: sourceConfig.contractAddress,
+        method: sourceConfig.method,
+      });
+    });
+  }
+
+  private async syncFromSubgraph(
+    dbData: Map<TableName, DataRow[]>,
+    network: Network,
+    ts: number,
+    operations: SubgraphOperation[]
+  ) {
+    const blockNumber = await this.getBlockNumberFromTs(network, ts);
+    const results = await Promise.all(
+      operations.map((op) => {
+        const client = new ApolloClient({
+          uri: op.endpoint,
+          cache: new InMemoryCache(),
+        });
+
+        const sourceConfig = op.configDef.sourceConfig as SubgraphConfig;
+        return client.query({
+          query: op.subgraphQuery,
+          variables: {
+            ts: ts,
+            ...(sourceConfig.args || {}),
+          },
+        });
+      })
+    );
+
+    operations.forEach((op, i) => {
+      const sourceConfig = op.configDef.sourceConfig as SubgraphConfig;
+      let data = results[i].data;
+      if (sourceConfig.transform) {
+        data = sourceConfig.transform(data);
+      }
+
+      let values = dbData.get(op.configDef.tableName);
+      if (!values) {
+        values = [];
+        dbData.set(op.configDef.tableName, values);
+      }
+      values.push({
+        strategyId: op.configDef.strategyId,
+        variable: op.configDef.variable,
+        dataConfig: op.configDef.dataConfig,
+        blockNumber: blockNumber,
+        networkId: this.networkToId(network),
+        value: data,
+      });
+    });
+  }
+
+  public async syncGenericData(ts: number) {
+    const operations = buildOperations(defaultConfigDefs);
+    const dbData = new Map<TableName, DataRow[]>();
+    await Promise.all(
+      Array.from(operations.aggregateCalls.keys()).map((network) => {
+        return this.syncFromMulticall(
+          dbData,
+          network,
+          ts,
+          operations.aggregateCalls.get(network) || []
+        );
+      })
+    );
+
+    await Promise.all(
+      Array.from(operations.subgraphCalls.keys()).map((network) => {
+        return this.syncFromSubgraph(
+          dbData,
+          network,
+          ts,
+          operations.subgraphCalls.get(network) || []
+        );
+      })
+    );
+
+    return Promise.all(
+      Array.from(dbData.keys()).map((k) => {
+        defaultDataWriters[k].write(
+          this.db,
+          {
+            tableName: k,
+            timestamp: ts,
+          },
+          dbData.get(k) || []
+        );
+      })
+    );
+  }
+
   private async getRegistryData(blockNumber: number) {
     const resp = await fetch(
       `${this.settings.registryUrl}/${DataService.REGISTER_TYPE}?` +
@@ -156,29 +312,52 @@ export default class DataService {
     return (await resp.json()).values;
   }
 
-  public async getBlockNumberByTimestamp(targetTimestamp: number) {
-    let blockNumber = await this.provider.getBlockNumber();
-    let block = await this.provider.getBlock(blockNumber);
+  public async getBlockNumberByTimestamp(
+    network: Network,
+    targetTimestamp: number
+  ) {
+    const provider = getProviderFromNetwork(network, true);
+    let blockNumber = await provider.getBlockNumber();
+    let block = await provider.getBlock(blockNumber);
     let requestsMade = 1;
+    let highBlock;
+    let lowBlock;
 
     while (true) {
       if (requestsMade > this.settings.maxProviderRequests) {
         break;
       }
-      console.log(`blockNumber=${block.number},ts=${block.timestamp}`);
+      if (highBlock && lowBlock) {
+        if (
+          block.timestamp === highBlock.timestamp ||
+          block.timestamp == lowBlock.timestamp
+        ) {
+          const highDelta = highBlock.timestamp - targetTimestamp;
+          const lowDelta = targetTimestamp - lowBlock.timestamp;
+          block = highDelta < lowDelta ? highBlock : lowBlock;
+          break;
+        }
+      }
+      console.log(
+        `blockNumber=${block.number},ts=${block.timestamp},target=${targetTimestamp}`
+      );
       if (block.timestamp > targetTimestamp) {
-        const delta = Math.round(
-          (block.timestamp - targetTimestamp) * this.settings.blocksPerSecond
+        highBlock = block;
+        const delta = Math.ceil(
+          (block.timestamp - targetTimestamp) *
+            this.settings.blocksPerSecond[network.toString()]
         );
         blockNumber -= delta;
-        block = await this.provider.getBlock(blockNumber);
+        block = await provider.getBlock(blockNumber);
         requestsMade++;
       } else if (block.timestamp < targetTimestamp) {
-        const delta = Math.round(
-          (targetTimestamp - block.timestamp) * this.settings.blocksPerSecond
+        lowBlock = block;
+        const delta = Math.ceil(
+          (targetTimestamp - block.timestamp) *
+            this.settings.blocksPerSecond[network.toString()]
         );
         blockNumber += delta;
-        block = await this.provider.getBlock(blockNumber);
+        block = await provider.getBlock(blockNumber);
         requestsMade++;
       } else {
         break;
