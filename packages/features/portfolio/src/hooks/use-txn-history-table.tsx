@@ -150,6 +150,7 @@ export const useTxnHistoryTable = (
         ({ vaultName }) => vaultName && filterData.includes(vaultName)
       );
     }
+    return accountHistoryData;
   };
 
   const marketDataCSVFormatter = useCallback((data: any[]) => {
