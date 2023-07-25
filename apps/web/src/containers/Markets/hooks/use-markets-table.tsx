@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import {
-  IconCell,
+  MultiValueIconCell,
   LinkCell,
   DisplayCell,
   DataTableColumn,
@@ -12,6 +12,7 @@ import {
   getDateString,
   formatLeverageRatio,
   formatNumberAsAbbr,
+  formatYieldCaption,
 } from '@notional-finance/helpers';
 import { useAllMarkets } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
@@ -31,7 +32,7 @@ export const useMarketsTable = (
           description={'Currency header'}
         />
       ),
-      Cell: IconCell,
+      Cell: MultiValueIconCell,
       accessor: 'currency',
       textAlign: 'left',
     },
@@ -56,7 +57,7 @@ export const useMarketsTable = (
       displayFormatter: formatNumberAsPercent,
       Cell: DisplayCell,
       accessor: 'totalAPY',
-      textAlign: 'right',
+      textAlign: 'left',
       sortType: 'basic',
     },
     {
@@ -119,8 +120,8 @@ export const useMarketsTable = (
   ];
 
   const formatMarketData = (allMarketsData) => {
-    return allMarketsData.map(
-      ({
+    return allMarketsData.map((data) => {
+      const {
         underlying,
         token,
         totalAPY,
@@ -129,29 +130,33 @@ export const useMarketsTable = (
         leveraged,
         tvl,
         link,
-      }) => {
-        return {
-          currency: underlying.symbol,
-          product: product,
-          //NOTE: This ensures that 0.00% is displayed instead of "-" in the cell
-          totalAPY: totalAPY === 0 ? 0.00001 : totalAPY,
-          maturity:
-            !token.maturity || token.maturity === PRIME_CASH_VAULT_MATURITY
-              ? 0
-              : token.maturity,
-          leverage:
-            leveraged && leveraged.leverageRatio ? leveraged.leverageRatio : 0,
-          totalTVL: tvl.toFiat('USD').toFloat() || 0,
-          noteAPY:
-            incentives &&
-            incentives.length > 0 &&
-            incentives[0]?.incentiveAPY > 0
-              ? incentives[0]?.incentiveAPY
-              : 0,
-          view: link,
-        };
-      }
-    );
+      } = data;
+      return {
+        currency: underlying.symbol,
+        product: product,
+        //NOTE: This ensures that 0.00% is displayed instead of "-" in the cell
+        totalAPY: totalAPY === 0 ? 0.00001 : totalAPY,
+        maturity:
+          !token.maturity || token.maturity === PRIME_CASH_VAULT_MATURITY
+            ? 0
+            : token.maturity,
+        leverage:
+          leveraged && leveraged.leverageRatio ? leveraged.leverageRatio : 0,
+        totalTVL: tvl.toFiat('USD').toFloat() || 0,
+        noteAPY:
+          incentives && incentives.length > 0 && incentives[0]?.incentiveAPY > 0
+            ? incentives[0]?.incentiveAPY
+            : 0,
+        view: link,
+        multiValueCellData: {
+          currency: {
+            symbol: underlying.symbol,
+            label: underlying.symbol,
+            caption: formatYieldCaption(data),
+          },
+        },
+      };
+    });
   };
 
   const initialData =
@@ -194,12 +199,12 @@ export const useMarketsTable = (
     return data.map(
       ({ currency, product, totalAPY, totalTVL, leverage, maturity }) => {
         return {
-          currency,
-          product,
-          totalAPY: totalAPY === 0 ? '' : formatNumberAsPercent(totalAPY),
-          totalTVL: totalTVL === 0 ? '' : formatNumberAsAbbr(totalTVL),
-          leverage: leverage === 0 ? '' : formatLeverageRatio(leverage),
-          maturity: maturity === 0 ? '' : getDateString(maturity),
+          Currency: currency,
+          Product: product,
+          'Total APY': totalAPY === 0 ? '' : formatNumberAsPercent(totalAPY),
+          'Total TVL': totalTVL === 0 ? '' : formatNumberAsAbbr(totalTVL),
+          Leverage: leverage === 0 ? '' : formatLeverageRatio(leverage),
+          Maturity: maturity === 0 ? '' : getDateString(maturity),
         };
       }
     );

@@ -35,7 +35,7 @@ const NonCollapsible = styled(Box)(
   ({ theme }) => `
   position: fixed;
   width: inherit;
-  ${theme.breakpoints.down('lg')} {
+  ${theme.breakpoints.down('xl')} {
     display: none;
   }
 `
@@ -54,7 +54,7 @@ const Collapsible = styled(Box)(
   z-index: 4;
   padding-right: ${theme.spacing(3)};  
   box-shadow: ${open ? '34px 0 50px -2px rgba(20, 42, 74, 0.3)' : 'none'};
-  ${theme.breakpoints.up('lg')} {
+  ${theme.breakpoints.up('xl')} {
     display: none;
   }
 `

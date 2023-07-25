@@ -14,7 +14,9 @@ export const DisplayCell = ({ cell }): JSX.Element => {
       ) : parseFloat(value) === 0 ? (
         '-'
       ) : (
-        value
+        <Box sx={{ color: parseFloat(value) < 0 ? colors.red : '' }}>
+          {value}
+        </Box>
       )}
     </TableCell>
   );

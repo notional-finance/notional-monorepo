@@ -37,7 +37,8 @@ export const Markets = () => {
             <ButtonBar
               buttonOptions={buttonData}
               buttonVariant="outlined"
-              customButtonColor={colors.neonTurquoise}
+              customButtonColor={colors.black}
+              customButtonBGColor={colors.neonTurquoise}
               sx={{
                 background: colors.black,
                 borderRadius: theme.shape.borderRadius(),

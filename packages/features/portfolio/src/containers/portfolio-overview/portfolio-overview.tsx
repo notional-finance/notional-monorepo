@@ -7,16 +7,17 @@ import {
   useTotalHoldingsTable,
   useVaultHoldingsTable,
 } from './hooks';
-import { Box } from '@mui/material';
+import { Box, useTheme } from '@mui/material';
 
 export const PortfolioOverview = () => {
+  const theme = useTheme();
   const accountConnected = useAccountReady();
   const { totalHoldingsColumns, totalHoldingsData } = useTotalHoldingsTable();
   const { vaultHoldingsColumns, vaultHoldingsData } = useVaultHoldingsTable();
   const { riskOverviewData, riskOverviewColumns } = useRiskOverviewTable();
 
   return accountConnected ? (
-    <Box>
+    <Box sx={{ '#data-table-container': { marginBottom: theme.spacing(4) } }}>
       {riskOverviewData.length > 0 && (
         <DataTable
           data={riskOverviewData}

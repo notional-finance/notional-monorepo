@@ -8,6 +8,11 @@ export enum MARKET_TYPE {
   BORROW = 'borrow',
 }
 
+export enum TXN_HISTORY_TYPE {
+  PORTFOLIO_HOLDINGS = 'portfolio-holdings',
+  LEVERAGED_VAULT = 'leveraged-vault',
+}
+
 export enum PRODUCTS {
   LEND_FIXED = 'lend-fixed',
   LEND_VARIABLE = 'lend-variable',
