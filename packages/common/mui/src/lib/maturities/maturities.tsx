@@ -28,7 +28,7 @@ export function Maturities({
               key={`maturity-${index}`}
               maturityData={data}
               selected={
-                selectedfCashId && selectedfCashId === data.fCashId
+                selectedfCashId && selectedfCashId === data.tokenId
                   ? true
                   : false
               }

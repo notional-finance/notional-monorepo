@@ -29,12 +29,12 @@ export const useMaturitySelect = (
     category === 'Collateral' ? availableCollateralTokens : availableDebtTokens;
   const isVault = isVaultTrade(tradeType);
   // Need to check if deposit is set to resolve some race conditions here
-  const spotMaturityData = useSpotMaturityData(deposit, deposit ? tokens : []);
+  const spotMaturityData = useSpotMaturityData(deposit ? tokens : []);
 
   const maturityData: MaturityData[] =
     options?.map((o) => {
       return {
-        fCashId: o.token.id,
+        tokenId: o.token.id,
         tradeRate: o.interestRate,
         maturity: o.token.maturity || 0,
         hasLiquidity: true,

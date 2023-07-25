@@ -223,20 +223,19 @@ export const useFCashMarket = (currencyId?: number) => {
   return useObservableState<fCashMarket>(fCashMarket$ || EMPTY);
 };
 
-export const useSpotMaturityData = (
-  deposit?: TokenDefinition,
-  tokens?: TokenDefinition[]
-) => {
-  const fCashMarket = useFCashMarket(deposit?.currencyId);
-  const registry = Registry.getTokenRegistry();
+export const useSpotMaturityData = (tokens?: TokenDefinition[]) => {
+  const { allYields } = useAllMarkets();
+  const allYieldsNoLeverage = allYields.filter(
+    (y) => y.leveraged === undefined
+  );
+
   return (
     tokens?.map((t) => {
-      const spotRate = fCashMarket?.getSpotInterestRate(
-        registry.unwrapVaultToken(t)
-      );
+      const spotRate =
+        allYieldsNoLeverage.find((y) => y.token.id === t.id)?.totalAPY || 0;
 
       return {
-        fCashId: t.id,
+        tokenId: t.id,
         tradeRate: spotRate,
         maturity: t.maturity || 0,
         hasLiquidity: true,

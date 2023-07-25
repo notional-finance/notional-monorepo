@@ -3,11 +3,7 @@ import { useQueryParams } from '@notional-finance/utils';
 import { Box, useTheme } from '@mui/material';
 import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
 import { defineMessage } from 'react-intl';
-import {
-  Maturities,
-  useCurrencyInputRef,
-  SideBarSubHeader,
-} from '@notional-finance/mui';
+import { useCurrencyInputRef, SideBarSubHeader } from '@notional-finance/mui';
 import { LendBorrowInput } from '@notional-finance/trade';
 import { useRollMaturity } from './use-roll-maturity';
 import { SetStateAction, useEffect, Dispatch } from 'react';
@@ -30,7 +26,6 @@ export const RollMaturity = ({ setShowRollMaturity }: RollMaturityProps) => {
     updatedAccountData,
     transactionData,
     canSubmit,
-    maturityData,
     selectedToken,
     lendOrBorrow,
     selectedMarketKey,
@@ -81,14 +76,14 @@ export const RollMaturity = ({ setShowRollMaturity }: RollMaturityProps) => {
           isChecked: partialRoll,
         }}
       >
-        <Maturities
+        {/* <Maturities
           maturityData={maturityData}
           selectedfCashId={selectedMarketKey}
           onSelect={(newMarketKey) => {
             updateRollMaturityState({ selectedMarketKey: newMarketKey || '' });
           }}
           inputLabel={messages[PORTFOLIO_ACTIONS.ROLL_MATURITY]['inputLabel']}
-        />
+        /> */}
         {partialRoll && selectedToken && (
           <LendBorrowInput
             ref={currencyInputRef}
