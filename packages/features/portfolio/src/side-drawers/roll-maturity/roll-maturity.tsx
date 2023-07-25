@@ -10,6 +10,7 @@ import { SetStateAction, useEffect, Dispatch } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 import { FormattedMessage } from 'react-intl';
 import { messages } from '../messages';
+import { BaseContext } from '@notional-finance/notionable-hooks';
 
 interface RollMaturityProps {
   setShowRollMaturity: Dispatch<SetStateAction<boolean>>;
@@ -60,6 +61,7 @@ export const RollMaturity = ({ setShowRollMaturity }: RollMaturityProps) => {
         titleText={defineMessage({ defaultMessage: 'back' })}
       />
       <PortfolioSideDrawer
+      context={undefined as unknown as BaseContext}
         action={PORTFOLIO_ACTIONS.ROLL_MATURITY}
         canSubmit={canSubmit}
         updatedAccountData={updatedAccountData}

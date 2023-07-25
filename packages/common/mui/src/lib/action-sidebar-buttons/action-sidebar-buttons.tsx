@@ -36,6 +36,7 @@ interface ActionSidebarButtonsProps {
   sticky?: boolean;
   cancelRoute?: string;
   onCancelCallback?: () => void;
+  onSubmit: () => void;
   CustomActionButton?: any;
 }
 
@@ -45,13 +46,10 @@ export const ActionSidebarButtons = ({
   cancelRoute,
   onCancelCallback,
   CustomActionButton,
+  onSubmit,
 }: ActionSidebarButtonsProps) => {
   const theme = useTheme();
-  const { pathname, search } = useLocation();
-  const confirmQueryString = search
-    ? `${search}&confirm=true`
-    : '?confirm=true';
-  const confirmRoute = `${pathname}${confirmQueryString}`;
+  const { pathname } = useLocation();
 
   return (
     <Container sticky={sticky} theme={theme}>
@@ -83,8 +81,10 @@ export const ActionSidebarButtons = ({
               disabled={!canSubmit}
               size="large"
               sx={{ width: '100%' }}
-              onClick={() => trackEvent('SUBMIT_TXN', { url: pathname })}
-              to={confirmRoute}
+              onClick={() => {
+                trackEvent('SUBMIT_TXN', { url: pathname });
+                onSubmit();
+              }}
             >
               <FormattedMessage
                 defaultMessage={'Submit'}

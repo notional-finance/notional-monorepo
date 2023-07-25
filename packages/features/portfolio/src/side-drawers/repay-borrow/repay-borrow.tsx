@@ -12,6 +12,7 @@ import {
 import { useRepayBorrow } from './use-repay-borrow';
 import { messages } from '../messages';
 import { useCurrencyInputRef } from '@notional-finance/mui';
+import { BaseContext } from '@notional-finance/notionable-hooks';
 
 export const RepayBorrow = () => {
   const { assetKey } = useQueryParams();
@@ -30,6 +31,7 @@ export const RepayBorrow = () => {
 
   return (
     <PortfolioSideDrawer
+      context={undefined as unknown as BaseContext}
       action={PORTFOLIO_ACTIONS.REPAY_BORROW}
       canSubmit={canSubmit}
       updatedAccountData={updatedAccountData}

@@ -7,6 +7,7 @@ import {
 import { ConvertCashToNTokensInput } from './convert-cash-to-ntokens-input';
 import { useConvertCashToNTokens } from './use-convert-cash-to-ntokens';
 import { messages } from '../messages';
+import { BaseContext } from '@notional-finance/notionable-hooks';
 
 export const ConvertCashToNTokens = () => {
   const { symbol } = useQueryParams();
@@ -19,6 +20,7 @@ export const ConvertCashToNTokens = () => {
 
   return (
     <PortfolioSideDrawer
+      context={undefined as unknown as BaseContext}
       action={PORTFOLIO_ACTIONS.CONVERT_CASH}
       canSubmit={canSubmit}
       updatedAccountData={updatedAccountData}

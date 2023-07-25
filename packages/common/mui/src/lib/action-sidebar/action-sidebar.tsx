@@ -134,12 +134,13 @@ export const ActionSidebar = ({
       </ActionSideBarContainer>
       <FormSection hideTextOnMobile={hideTextOnMobile} theme={theme}>
         {children}
-        {showActionButtons && !CustomActionButton && (
+        {showActionButtons && !CustomActionButton && handleSubmit && (
           <ActionSidebarButtons
             canSubmit={canSubmit}
             cancelRoute={cancelRoute}
             onCancelCallback={onCancelCallback}
             sticky
+            onSubmit={handleSubmit}
           />
         )}
         {handleSubmit && CustomActionButton && (

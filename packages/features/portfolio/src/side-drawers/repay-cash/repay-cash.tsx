@@ -7,6 +7,7 @@ import { PortfolioParams } from '../../portfolio-feature-shell';
 import { messages } from '../messages';
 import { useEffect, useRef } from 'react';
 import { CurrencyInputHandle } from '@notional-finance/mui';
+import { BaseContext } from '@notional-finance/notionable-hooks';
 
 export const RepayCash = () => {
   const { sideDrawerKey } = useParams<PortfolioParams>();
@@ -29,6 +30,7 @@ export const RepayCash = () => {
 
   return selectedToken && sideDrawerKey ? (
     <PortfolioSideDrawer
+      context={undefined as unknown as BaseContext}
       action={sideDrawerKey}
       canSubmit={canSubmit}
       updatedAccountData={updatedAccountData}

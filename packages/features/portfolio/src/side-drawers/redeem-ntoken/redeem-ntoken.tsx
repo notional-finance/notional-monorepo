@@ -14,6 +14,7 @@ import { PortfolioSideDrawer } from '../components/portfolio-side-drawer';
 import { messages } from '../messages';
 import { useRedeemNToken } from './use-redeem-ntoken';
 import { useCurrencyInputRef } from '@notional-finance/mui';
+import { BaseContext } from '@notional-finance/notionable-hooks';
 
 export const RedeemNToken = () => {
   const history = useHistory();
@@ -40,6 +41,7 @@ export const RedeemNToken = () => {
 
   return (
     <PortfolioSideDrawer
+      context={undefined as unknown as BaseContext}
       action={action}
       updatedAccountData={updatedAccountData}
       transactionData={transactionData}
