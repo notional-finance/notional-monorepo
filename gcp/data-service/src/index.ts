@@ -4,6 +4,7 @@ import express from 'express';
 import Knex from 'knex';
 import DataService from './DataService';
 import { Network, getProviderFromNetwork } from '@notional-finance/util';
+import { BackfillType } from './types';
 const port = parseInt(process.env.SERVICE_PORT || '8080');
 const app = express();
 
@@ -68,7 +69,7 @@ async function main() {
     res.send(JSON.stringify(block));
   });
 
-  app.get('/backfill', async (req, res) => {
+  app.get('/backfillOracleData', async (req, res) => {
     const startTime = parseInt((req.query.startTime as string) || '0');
     let endTime = Date.now() / 1000;
     if (req.query.endTime) {
@@ -79,31 +80,53 @@ async function main() {
       return;
     }
     try {
-      await dataService.backfill(startTime, endTime);
+      await dataService.backfill(startTime, endTime, BackfillType.OracleData);
       res.send('OK');
     } catch (e: any) {
       res.status(500).send(e.toString());
     }
   });
 
-  app.get('/sync', async (_, res) => {
+  app.get('/backfillGenericData', async (req, res) => {
+    const startTime = parseInt((req.query.startTime as string) || '0');
+    let endTime = Date.now() / 1000;
+    if (req.query.endTime) {
+      endTime = parseInt(req.query.endTime as string);
+    }
+    if (endTime < startTime) {
+      res.status(400).send('endTime must be greater than startTime');
+      return;
+    }
+    try {
+      await dataService.backfill(startTime, endTime, BackfillType.GenericData);
+      res.send('OK');
+    } catch (e: any) {
+      res.status(500).send(e.toString());
+    }
+  });
+
+  app.get('/syncOracleData', async (_, res) => {
     try {
       res.send(
-        JSON.stringify(await dataService.sync(dataService.latestTimestamp()))
+        JSON.stringify(
+          await dataService.syncOracleData(dataService.latestTimestamp())
+        )
       );
     } catch (e: any) {
       res.status(500).send(e.toString());
     }
   });
 
-  app.get('/sync2', async (_, res) => {
-    //    try {
-    res.send(
-      JSON.stringify(await dataService.sync2(dataService.latestTimestamp()))
-    );
-    //  } catch (e: any) {
-    //    res.status(500).send(e.toString());
-    // }
+  app.get('/syncGenericData', async (_, res) => {
+    try {
+      res.send(
+        JSON.stringify(
+          await dataService.syncGenericData(dataService.latestTimestamp())
+        )
+      );
+    } catch (e: any) {
+      res.status(500).send(e.toString());
+    }
   });
 
   app.get('/data/oracles', async (_, res) => {

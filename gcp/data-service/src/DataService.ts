@@ -9,6 +9,7 @@ import {
   defaultDataWriters,
 } from './config';
 import {
+  BackfillType,
   DataRow,
   MulticallConfig,
   MulticallOperation,
@@ -88,7 +89,11 @@ export default class DataService {
     return now.getTime() / 1000;
   }
 
-  public async backfill(startTime: number, endTime: number) {
+  public async backfill(
+    startTime: number,
+    endTime: number,
+    type: BackfillType
+  ) {
     startTime = this.intervalTimestamp(startTime);
     endTime = this.intervalTimestamp(endTime);
     if (startTime === endTime) {
@@ -99,7 +104,13 @@ export default class DataService {
       timestamps.push(startTime);
       startTime += this.settings.interval * this.settings.frequency;
     }
-    await Promise.all(timestamps.map((ts) => this.sync(ts)));
+    if (type === BackfillType.GenericData) {
+      await Promise.all(timestamps.map((ts) => this.syncGenericData(ts)));
+    } else if (type === BackfillType.OracleData) {
+      await Promise.all(timestamps.map((ts) => this.syncOracleData(ts)));
+    } else {
+      throw Error(`Invalid backfill type ${type}`);
+    }
   }
 
   private async getBlockNumberFromTs(network: Network, ts: number) {
@@ -129,7 +140,7 @@ export default class DataService {
     return blockNumber;
   }
 
-  public async sync(ts: number) {
+  public async syncOracleData(ts: number) {
     const blockNumber = await this.getBlockNumberFromTs(
       this.settings.network,
       ts
@@ -250,7 +261,7 @@ export default class DataService {
     });
   }
 
-  public async sync2(ts: number) {
+  public async syncGenericData(ts: number) {
     const operations = buildOperations(defaultConfigDefs);
     const dbData = new Map<TableName, DataRow[]>();
     await Promise.all(

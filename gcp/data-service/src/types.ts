@@ -3,6 +3,11 @@ import { Network } from '@notional-finance/util';
 import { DocumentNode } from 'graphql';
 import { Knex } from 'knex';
 
+export enum BackfillType {
+  OracleData = 1,
+  GenericData = 2,
+}
+
 export enum SourceType {
   Multicall = 'multicall',
   Subgraph = 'subgraph',
