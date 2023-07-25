@@ -91,8 +91,8 @@ export const TradeConfiguration = {
    * depositBalance (i.e. amount of cash to withdraw)
    */
   Withdraw: {
-    calculationFn: calculateDeposit,
-    requiredArgs: ['debt', 'debtBalance', 'debtPool'],
+    calculationFn: calculateDebt,
+    requiredArgs: ['debt', 'depositBalance', 'debtPool'],
     depositFilter: (t, _, s) => onlySameCurrency(t, s.debt),
     debtFilter: (t, a) =>
       // Matured fCash will not be in the list of available tokens

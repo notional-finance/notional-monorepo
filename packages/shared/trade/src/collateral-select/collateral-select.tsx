@@ -1,4 +1,4 @@
-import { AssetSelectDropdown, PageLoading } from '@notional-finance/mui';
+import { AssetSelectDropdown } from '@notional-finance/mui';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
 import { useContext, useCallback, useEffect } from 'react';
 import { defineMessage, FormattedMessage, MessageDescriptor } from 'react-intl';
@@ -91,18 +91,14 @@ export const CollateralSelect = ({
     }
   }, [deposit, collateral, updateState]);
 
-  // TODO: this causes a little page flash which is not great, we should
-  // be able to show an empty dropdown select component instead...
-  return options && collateral ? (
+  return (
     <AssetSelectDropdown
       tightMarginTop={tightMarginTop}
-      selectedTokenId={collateral.id}
+      selectedTokenId={collateral?.id}
       inputLabel={inputLabel}
       onSelect={onSelect}
       options={options}
       caption={caption}
     />
-  ) : (
-    <PageLoading />
   );
 };

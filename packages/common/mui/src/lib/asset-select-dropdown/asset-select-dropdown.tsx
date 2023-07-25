@@ -14,9 +14,9 @@ interface AssetSelectDropdownProps {
   inputLabel: MessageDescriptor;
   errorMsg?: MessageDescriptor;
   tightMarginTop?: boolean;
-  selectedTokenId: string;
+  selectedTokenId?: string;
   onSelect: (id: string | null) => void;
-  options: {
+  options?: {
     token: TokenDefinition;
     largeFigure: number;
     largeFigureSuffix: string;
@@ -66,52 +66,74 @@ export const AssetSelectDropdown = ({
 }: AssetSelectDropdownProps) => {
   const theme = useTheme();
   const [hasFocus, setHasFocus] = useState(false);
+  const emptyOption = (
+    <StyledMenuItem key={'null'} value={'EMPTY'}>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          marginRight: 'auto',
+        }}
+      >
+        <TokenIcon size="medium" symbol={'unknown'} />
+        <H4 marginLeft={theme.spacing(2)}>&nbsp;</H4>
+      </Box>
+      <Box textAlign={'right'}>
+        <H4>&nbsp;</H4>
+        <Caption>&nbsp;</Caption>
+      </Box>
+    </StyledMenuItem>
+  );
 
   return (
     <Box marginTop={tightMarginTop ? theme.spacing(-3) : undefined}>
       <InputLabel inputLabel={inputLabel} />
       <SelectDropdown
         buttonComponent={StyledButton}
-        value={selectedTokenId}
+        value={selectedTokenId || null}
         onChange={onSelect}
         onListboxOpen={(isOpen) => setHasFocus(isOpen)}
       >
-        {options.map((o) => {
-          const t = formatTokenType(o.token);
-          const shouldCountUp = !hasFocus && o.token.id === selectedTokenId;
-          const largeFigure = shouldCountUp ? (
-            <CountUp
-              value={o.largeFigure}
-              suffix={o.largeFigureSuffix}
-              decimals={3}
-            />
-          ) : (
-            <span>
-              {o.largeFigure.toFixed(3)}
-              {o.largeFigureSuffix}
-            </span>
-          );
-          const tokenName = `${t.title} ${caption ? t.caption : ''}`.trim()
+        {options
+          ? options.map((o) => {
+              const t = formatTokenType(o.token);
+              const shouldCountUp = !hasFocus && o.token.id === selectedTokenId;
+              const largeFigure = shouldCountUp ? (
+                <CountUp
+                  value={o.largeFigure}
+                  suffix={o.largeFigureSuffix}
+                  decimals={3}
+                />
+              ) : (
+                <span>
+                  {o.largeFigure.toFixed(3)}
+                  {o.largeFigureSuffix}
+                </span>
+              );
+              const tokenName = `${t.title} ${
+                t.caption ? t.caption : ''
+              }`.trim();
 
-          return (
-            <StyledMenuItem key={o.token.id} value={o.token.id}>
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  marginRight: 'auto',
-                }}
-              >
-                <TokenIcon size="medium" symbol={t.icon} />
-                <H4 marginLeft={theme.spacing(2)}>{tokenName}</H4>
-              </Box>
-              <Box textAlign={'right'}>
-                <H4>{largeFigure}</H4>
-                {o.caption ? <Caption>{o.caption}</Caption> : null}
-              </Box>
-            </StyledMenuItem>
-          );
-        })}
+              return (
+                <StyledMenuItem key={o.token.id} value={o.token.id}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      marginRight: 'auto',
+                    }}
+                  >
+                    <TokenIcon size="medium" symbol={t.icon} />
+                    <H4 marginLeft={theme.spacing(2)}>{tokenName}</H4>
+                  </Box>
+                  <Box textAlign={'right'}>
+                    <H4>{largeFigure}</H4>
+                    {o.caption ? <Caption>{o.caption}</Caption> : null}
+                  </Box>
+                </StyledMenuItem>
+              );
+            })
+          : [emptyOption]}
       </SelectDropdown>
       <Paragraph marginTop={theme.spacing(1)}>{caption || '\u00A0'}</Paragraph>
     </Box>

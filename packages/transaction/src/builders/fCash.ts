@@ -321,7 +321,7 @@ export async function Withdraw(i: PopulateTransactionInputs) {
     i.debtBalance?.tokenType === 'PrimeDebt'
   ) {
     return WithdrawLend(i);
-  } else if (i.collateralBalance?.tokenType === 'nToken') {
+  } else if (i.debtBalance?.tokenType === 'nToken') {
     return RedeemAndWithdrawNToken(i);
   }
 

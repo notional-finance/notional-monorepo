@@ -65,7 +65,7 @@ export function RedeemAndWithdrawNToken({
   accountBalances,
 }: PopulateTransactionInputs) {
   if (!debtBalance) throw Error('debtBalance required');
-  if (!debtBalance.isPositive() || debtBalance.tokenType !== 'nToken')
+  if (!debtBalance.isNegative() || debtBalance.tokenType !== 'nToken')
     throw Error('Invalid debtBalance');
 
   // TODO: these values do not include slippage.
@@ -77,7 +77,7 @@ export function RedeemAndWithdrawNToken({
     [
       getBalanceAction(
         DepositActionType.RedeemNToken,
-        debtBalance,
+        debtBalance.abs(),
         withdrawEntireCashBalance,
         withdrawAmountInternalPrecision,
         redeemToWETH
@@ -92,13 +92,13 @@ export function RedeemToPortfolioNToken({
   debtBalance,
 }: PopulateTransactionInputs) {
   if (!debtBalance) throw Error('debtBalance required');
-  if (!debtBalance.isPositive() || debtBalance.tokenType !== 'nToken')
+  if (!debtBalance.isNegative() || debtBalance.tokenType !== 'nToken')
     throw Error('Invalid debtBalance');
 
   return populateNotionalTxnAndGas(network, address, 'nTokenRedeem', [
     address,
     debtBalance.currencyId,
-    debtBalance.n,
+    debtBalance.n.abs(),
     true, // sell assets
     true, // accept residuals
   ]);

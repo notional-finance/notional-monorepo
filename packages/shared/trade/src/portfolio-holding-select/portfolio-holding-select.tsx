@@ -1,4 +1,4 @@
-import { AssetSelectDropdown, PageLoading } from '@notional-finance/mui';
+import { AssetSelectDropdown } from '@notional-finance/mui';
 import { useContext, useCallback, useEffect } from 'react';
 import { MessageDescriptor } from 'react-intl';
 import {
@@ -37,13 +37,12 @@ export const PortfolioHoldingSelect = ({
   const options = account?.balances.filter(filterBalances)?.map((b) => {
     return {
       token: b.token,
+      // TODO: this should show the max withdraw amount
       largeFigure: b.toUnderlying().toFloat(),
       largeFigureSuffix: b.underlying.symbol,
       caption: b.toFiat('USD').toDisplayString(),
     };
   });
-
-  console.log('OPTIONS', options);
 
   const onSelect = useCallback(
     (id: string | null) => {
@@ -63,22 +62,13 @@ export const PortfolioHoldingSelect = ({
     }
   }, [options, selectedToken, updateState, isWithdraw]);
 
-  // useEffect(() => {
-  //   // Clears previously selected collateral on route change
-  //   if (deposit?.currencyId !== selectedToken?.currencyId) {
-  //     updateState(isWithdraw ? { debt: undefined } : { collateral: undefined });
-  //   }
-  // }, [deposit, selectedToken, updateState, isWithdraw]);
-
-  return options && selectedToken ? (
+  return (
     <AssetSelectDropdown
       tightMarginTop={tightMarginTop}
-      selectedTokenId={selectedToken.id}
+      selectedTokenId={selectedToken?.id}
       inputLabel={inputLabel}
       onSelect={onSelect}
       options={options}
     />
-  ) : (
-    <PageLoading />
   );
 };
