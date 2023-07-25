@@ -108,6 +108,7 @@ export const DataTable = ({
 
   return (
     <TableContainer
+      id="data-table-container"
       sx={{
         overflow: 'scroll',
         '&.MuiPaper-root': {
@@ -117,7 +118,7 @@ export const DataTable = ({
           borderRadius: theme.shape.borderRadius(),
           overflow: !tableReady
             ? 'hidden'
-            : filterBarData && tableVariant === TABLE_VARIANTS.SORTABLE
+            : filterBarData && filterBarData.length > 0
             ? 'visible'
             : 'auto',
           backgroundColor:
@@ -190,7 +191,7 @@ export const DataTable = ({
             <TableCell
               sx={{ textAlign: 'center', margin: theme.spacing(4, 0) }}
             >
-              <FormattedMessage defaultMessage="No Data" />
+              <FormattedMessage defaultMessage="No Data Available" />
             </TableCell>
           )}
         </Box>

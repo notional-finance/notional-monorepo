@@ -1,22 +1,43 @@
+import { useCallback } from 'react';
 import {
   MultiValueIconCell,
+  MultiValueCell,
   TxnHashCell,
   DataTableColumn,
+  DateTimeCell,
+  DisplayCell,
 } from '@notional-finance/mui';
-// import { formatMaturity, getEtherscanLink } from '@notional-finance/helpers';
-import { getEtherscanLink } from '@notional-finance/helpers';
+import { Box, useTheme } from '@mui/material';
+import { TXN_HISTORY_TYPE } from '@notional-finance/shared-config';
+import {
+  getEtherscanLink,
+  formatTokenType,
+  formatTokenAmount,
+  getDateString,
+  formatNumber,
+} from '@notional-finance/helpers';
 import {
   useSelectedNetwork,
   useTransactionHistory,
 } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
-import moment from 'moment';
 
-export const useTxnHistoryTable = (currencyOptions: string[]) => {
+export const useTxnHistoryTable = (
+  currencyOptions: string[],
+  assetOrVaultOptions: string[],
+  txnHistoryType: TXN_HISTORY_TYPE
+) => {
   const accountHistory = useTransactionHistory();
   const selectedNetwork = useSelectedNetwork();
 
-  const txnHistoryColumns: DataTableColumn[] = [
+  const VaultNameCell = ({ cell: { value } }) => {
+    const theme = useTheme();
+    return (
+      <Box sx={{ width: theme.spacing(19), textWrap: 'wrap' }}>{value}</Box>
+    );
+  };
+
+  const tableColumns: DataTableColumn[] = [
     {
       Header: (
         <FormattedMessage
@@ -31,10 +52,22 @@ export const useTxnHistoryTable = (currencyOptions: string[]) => {
     {
       Header: (
         <FormattedMessage
+          defaultMessage="Vault Name"
+          description={'Vault Name header'}
+        />
+      ),
+      Cell: VaultNameCell,
+      accessor: 'vaultName',
+      textAlign: 'left',
+    },
+    {
+      Header: (
+        <FormattedMessage
           defaultMessage="Underlying Amount"
           description={'Underlying Amount header'}
         />
       ),
+      Cell: DisplayCell,
       accessor: 'underlyingAmount',
       textAlign: 'left',
     },
@@ -45,6 +78,7 @@ export const useTxnHistoryTable = (currencyOptions: string[]) => {
           description={'Asset Amount header'}
         />
       ),
+      Cell: MultiValueCell,
       accessor: 'assetAmount',
       textAlign: 'left',
     },
@@ -70,6 +104,7 @@ export const useTxnHistoryTable = (currencyOptions: string[]) => {
       Header: (
         <FormattedMessage defaultMessage="Time" description={'Time header'} />
       ),
+      Cell: DateTimeCell,
       accessor: 'time',
       textAlign: 'left',
     },
@@ -87,9 +122,7 @@ export const useTxnHistoryTable = (currencyOptions: string[]) => {
     },
   ];
 
-  console.log({ accountHistory });
-
-  const initialData = accountHistory
+  const allAccountHistoryData = accountHistory
     .sort((x, y) => y.timestamp - x.timestamp)
     .map(
       ({
@@ -101,58 +134,127 @@ export const useTxnHistoryTable = (currencyOptions: string[]) => {
         timestamp,
         transactionHash,
         underlying,
+        impliedFixedRate,
+        vaultName,
       }) => {
+        const assetData = formatTokenType(token);
         return {
           transactionType: {
             label: bundleName,
             symbol: underlying.symbol.toLowerCase(),
           },
+          vaultName: vaultName,
           underlyingAmount: underlyingAmountRealized.toDisplayStringWithSymbol(
             3,
             true
           ),
-          assetAmount: tokenAmount.toDisplayString(3, true),
+          assetAmount: formatTokenAmount(tokenAmount, impliedFixedRate),
           asset: {
-            label: 'test',
-            symbol: token.symbol,
+            label: assetData.title,
+            symbol: assetData.title.toLowerCase(),
+            caption: assetData.caption ? assetData.caption : '',
           },
-          price: realizedPrice.toFloat(),
-          time: `${moment(timestamp).format('hh:mm A')}, ${moment(
-            timestamp
-          ).format('MM/DD/YY')}`,
+          price: formatNumber(realizedPrice.toFloat(), 2),
+          time: timestamp,
           txLink: {
             hash: transactionHash,
             href: getEtherscanLink(transactionHash, selectedNetwork),
           },
+          currency: underlying.symbol,
         };
       }
     );
 
+  const formatTxnHistoryData = () => {
+    const porfolioHoldingsData = allAccountHistoryData.filter(
+      ({ vaultName }) => !vaultName
+    );
+
+    const leveragedVaultsData = allAccountHistoryData.filter(
+      ({ vaultName }) => vaultName
+    );
+
+    return txnHistoryType === TXN_HISTORY_TYPE.PORTFOLIO_HOLDINGS
+      ? porfolioHoldingsData
+      : leveragedVaultsData;
+  };
+
+  const initialData = formatTxnHistoryData();
+
+  const txnHistoryColumns =
+    txnHistoryType === TXN_HISTORY_TYPE.PORTFOLIO_HOLDINGS
+      ? tableColumns.filter(({ accessor }) => accessor !== 'vaultName')
+      : tableColumns;
+
   const filterTxnHistoryData = () => {
-    // const filterData = [...currencyOptions, ...productOptions];
-
-    const filterData = [...currencyOptions];
-
+    const filterData = [...currencyOptions, ...assetOrVaultOptions];
     if (filterData.length === 0) return initialData;
+    if (assetOrVaultOptions.length > 0 && currencyOptions.length > 0) {
+      return txnHistoryType === TXN_HISTORY_TYPE.PORTFOLIO_HOLDINGS
+        ? initialData
+            .filter(({ currency }) => filterData.includes(currency))
+            .filter(({ asset }) => filterData.includes(asset?.label))
+        : initialData
+            .filter(({ currency }) => filterData.includes(currency))
+            .filter(
+              ({ vaultName }) => vaultName && filterData.includes(vaultName)
+            );
+    }
+    if (currencyOptions.length > 0) {
+      return initialData.filter(({ currency }) =>
+        currencyOptions.includes(currency)
+      );
+    }
 
-    // if (productOptions.length > 0 && currencyOptions.length > 0) {
-    //   return initialData
-    //     .filter(({ currency }) => filterData.includes(currency))
-    //     .filter(({ product }) => filterData.includes(product));
-    // }
-    // if (currencyOptions.length > 0) {
-    //   return initialData.filter(({ currency }) =>
-    //     currencyOptions.includes(currency)
-    //   );
-    // }
-    // if (productOptions.length > 0) {
-    //   return initialData.filter(({ product }) =>
-    //     productOptions.includes(product)
-    //   );
-    // }
+    if (
+      assetOrVaultOptions.length > 0 &&
+      txnHistoryType === TXN_HISTORY_TYPE.PORTFOLIO_HOLDINGS
+    ) {
+      return initialData.filter(({ asset }) =>
+        filterData.includes(asset?.label)
+      );
+    }
+    if (
+      assetOrVaultOptions.length > 0 &&
+      txnHistoryType === TXN_HISTORY_TYPE.LEVERAGED_VAULT
+    ) {
+      return initialData.filter(
+        ({ vaultName }) => vaultName && filterData.includes(vaultName)
+      );
+    }
   };
 
   const txnHistoryData = filterTxnHistoryData();
 
-  return { txnHistoryData, txnHistoryColumns };
+  const marketDataCSVFormatter = useCallback((data: any[]) => {
+    return data.map(
+      ({
+        transactionType,
+        vaultName,
+        underlyingAmount,
+        assetAmount,
+        asset,
+        price,
+        time,
+        txLink,
+      }) => {
+        let result = {};
+        result = {
+          'Transaction Type': `${
+            transactionType.label
+          } ${transactionType.symbol.toUpperCase()}`,
+          'Underlying Amount': underlyingAmount,
+          'Asset Amount': assetAmount.data[0],
+          Asset: asset.label,
+          Price: price,
+          Time: getDateString(time, { showTime: true, slashesFormat: true }),
+          'TX Hash': txLink.hash,
+        };
+        vaultName && (result = { 'Vault Name': vaultName, ...result });
+        return result;
+      }
+    );
+  }, []);
+
+  return { txnHistoryData, txnHistoryColumns, marketDataCSVFormatter };
 };

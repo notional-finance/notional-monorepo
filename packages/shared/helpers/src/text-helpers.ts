@@ -45,6 +45,7 @@ export function formatTokenType(token: TokenDefinition): {
             : formatMaturity(token.maturity || 0),
       };
     case 'VaultDebt':
+    case 'VaultCash':
       return formatTokenType(
         Registry.getTokenRegistry().unwrapVaultToken(token)
       );

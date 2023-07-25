@@ -110,7 +110,7 @@ const PortfolioContainer = styled(Box)(
   ${theme.breakpoints.up('xl')} {
     margin: ${theme.spacing(10)} auto;
     gap: ${theme.spacing(8)};
-    max-width: 1440px;
+    max-width: ${theme.breakpoints.values.xl}px;
   };
 `
 );
@@ -118,7 +118,7 @@ const PortfolioContainer = styled(Box)(
 const PortfolioSidebar = styled(Box)(
   ({ theme }) => `
   width: ${theme.spacing(39)};
-  ${theme.breakpoints.down('lg')} {
+  ${theme.breakpoints.down('xl')} {
     width: ${theme.spacing(8)};
     height: 100vh;
   }

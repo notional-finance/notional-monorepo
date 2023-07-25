@@ -1,7 +1,6 @@
 import { ReactNode } from 'react';
 import { Box, ButtonGroup, Button, SxProps } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import { colors } from '@notional-finance/styles';
 import ProgressIndicator from '../progress-indicator/progress-indicator';
 
 /* eslint-disable-next-line */
@@ -16,6 +15,7 @@ interface ButtonBarPropType {
   buttonOptions: ButtonOptionsType[];
   buttonVariant?: 'outlined' | 'contained';
   customButtonColor?: string;
+  customButtonBGColor?: string;
   sx?: SxProps;
 }
 
@@ -23,11 +23,12 @@ export const ButtonBar = ({
   buttonOptions,
   buttonVariant = 'contained',
   customButtonColor,
+  customButtonBGColor,
   sx,
 }: ButtonBarPropType) => {
   const theme = useTheme();
-  const baseButtonColor = customButtonColor
-    ? customButtonColor
+  const baseButtonColor = customButtonBGColor
+    ? customButtonBGColor
     : theme.palette.primary.light;
   return (
     <div>
@@ -51,8 +52,10 @@ export const ButtonBar = ({
                       : baseButtonColor,
                   textTransform: 'capitalize',
                   color:
-                    active && baseButtonColor
-                      ? colors.black
+                    active && customButtonColor
+                      ? customButtonColor
+                      : active && !customButtonColor
+                      ? theme.palette.typography.contrastText
                       : buttonVariant === 'contained'
                       ? theme.palette.typography.contrastText
                       : baseButtonColor,
@@ -62,7 +65,10 @@ export const ButtonBar = ({
                       : 'transparent',
                   borderRadius: theme.shape.borderRadius(),
                   '&:hover': {
-                    background: active ? baseButtonColor : '',
+                    background:
+                      active && buttonVariant === 'outlined'
+                        ? baseButtonColor
+                        : '',
                   },
                 }}
               >

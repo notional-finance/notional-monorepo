@@ -22,7 +22,15 @@ export const TxnHashCell = ({
   const theme = useTheme() as NotionalTheme;
 
   return (
-    <TableCell href={href} sx={{ color: theme.palette.typography.accent }}>
+    <TableCell
+      href={href}
+      sx={{
+        color: theme.palette.typography.accent,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'flex-end',
+      }}
+    >
       {hash.slice(0, 6)}
       ...{hash.slice(hash.length - 4)}
       {showLinkIcon ? (
