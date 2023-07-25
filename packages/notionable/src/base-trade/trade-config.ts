@@ -75,7 +75,7 @@ export const TradeConfiguration = {
    */
   Deposit: {
     calculationFn: calculateCollateral,
-    requiredArgs: ['collateral', 'depositBalance'],
+    requiredArgs: ['collateral', 'depositBalance', 'collateralPool'],
     collateralFilter: (t, _, s) => onlySameCurrency(t, s.deposit),
     debtFilter: () => false,
     calculateCollateralOptions: true,

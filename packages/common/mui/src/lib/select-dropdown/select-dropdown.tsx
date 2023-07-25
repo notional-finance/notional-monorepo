@@ -7,11 +7,10 @@ import { ElementType, useState } from 'react';
 interface SelectDropdownProps {
   children: React.ReactNode[];
   landingPage?: boolean;
-  value: any;
+  value: string | null;
   buttonComponent: ElementType;
   onChange: (value: string | null) => void;
   onListboxOpen?: (isOpen: boolean) => void;
-  popperRef?: any;
 }
 
 const StyledMenu = styled(MenuList)(
@@ -36,12 +35,10 @@ export const SelectDropdown = ({
   onListboxOpen,
   onChange,
   value,
-  popperRef,
 }: SelectDropdownProps) => {
   const theme = useTheme();
   const [isListboxOpen, setListboxOpen] = useState(false);
   const onlyOneInput = children.length === 1;
-  const currentRef = popperRef.current;
 
   const components = {
     root: buttonComponent,
@@ -95,7 +92,6 @@ export const SelectDropdown = ({
       theme,
     },
     popper: {
-      anchorEl: currentRef,
       popperOptions: {
         placement: popperPlacement,
         modifiers: [
@@ -117,7 +113,7 @@ export const SelectDropdown = ({
     },
   };
 
-  return currentRef && !onlyOneInput ? (
+  return !onlyOneInput ? (
     <SelectUnstyled
       value={value}
       slotProps={componentProps}

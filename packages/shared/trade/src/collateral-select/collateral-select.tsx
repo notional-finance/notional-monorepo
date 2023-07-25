@@ -1,6 +1,6 @@
 import { AssetSelectDropdown, PageLoading } from '@notional-finance/mui';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
-import { useContext, useCallback } from 'react';
+import { useContext, useCallback, useEffect } from 'react';
 import { defineMessage, FormattedMessage, MessageDescriptor } from 'react-intl';
 import {
   BaseContext,
@@ -31,18 +31,27 @@ export const CollateralSelect = ({
   const spotRates = useSpotMaturityData(
     deposit ? availableCollateralTokens : []
   );
-  const options = availableCollateralTokens?.map((c) => {
-    return {
-      token: c,
-      largeFigure:
-        collateralOptions?.find((o) => o.token.id === c.id)?.interestRate ||
-        spotRates.find(({ tokenId }) => c.id === tokenId)?.tradeRate ||
-        0,
-      largeFigureSuffix:
-        c.tokenType === 'fCash' ? '% Fixed APY' : '% Variable APY',
-      caption: '70% LTV',
-    };
-  });
+
+  const options = availableCollateralTokens
+    ?.map((c, i) => {
+      return {
+        token: c,
+        largeFigure:
+          collateralOptions?.find((o) => o.token.id === c.id)?.interestRate ||
+          spotRates.find(({ tokenId }) => c.id === tokenId)?.tradeRate ||
+          0,
+        largeFigureSuffix:
+          c.tokenType === 'fCash' ? '% Fixed APY' : '% Variable APY',
+        caption: '70% LTV',
+        sortOrder:
+          c.tokenType === 'PrimeCash'
+            ? 0
+            : c.tokenType === 'nToken'
+            ? 1
+            : i + 99,
+      };
+    })
+    .sort((a, b) => a.sortOrder - b.sortOrder);
 
   const highestApy = Math.max(
     ...(options?.map(({ largeFigure }) => largeFigure) || [0])
@@ -68,6 +77,19 @@ export const CollateralSelect = ({
     },
     [updateState, availableCollateralTokens]
   );
+
+  useEffect(() => {
+    if (!collateral && options && options.length > 0) {
+      updateState({ collateral: options[0].token });
+    }
+  }, [options, collateral, updateState]);
+
+  useEffect(() => {
+    // Clears previously selected collateral on route change
+    if (deposit?.currencyId !== collateral?.currencyId) {
+      updateState({ collateral: undefined });
+    }
+  }, [deposit, collateral, updateState]);
 
   return options && collateral ? (
     <AssetSelectDropdown

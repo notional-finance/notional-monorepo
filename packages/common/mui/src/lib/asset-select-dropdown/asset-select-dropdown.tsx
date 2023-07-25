@@ -2,7 +2,7 @@ import { Box, useTheme, styled, Button } from '@mui/material';
 import OptionUnstyled from '@mui/base/OptionUnstyled';
 import { MessageDescriptor } from 'react-intl';
 import { InputLabel } from '../input-label/input-label';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { SelectDropdown } from '../select-dropdown/select-dropdown';
 import { Caption, H4, Paragraph } from '../typography/typography';
 import { TokenIcon } from '@notional-finance/icons';
@@ -34,9 +34,6 @@ const StyledButton = styled(Button)(
     padding-left: ${theme.spacing(2)};
     border-radius: ${theme.shape.borderRadius()};
     border: ${theme.shape.borderStandard};
-    .symbol {
-      margin-right: auto;
-    }
     .MuiButton-endIcon {
       margin-right: 0px;
     }
@@ -68,14 +65,12 @@ export const AssetSelectDropdown = ({
   caption,
 }: AssetSelectDropdownProps) => {
   const theme = useTheme();
-  const dropDownRef = useRef(null);
   const [hasFocus, setHasFocus] = useState(false);
 
   return (
     <Box marginTop={tightMarginTop ? theme.spacing(-3) : undefined}>
       <InputLabel inputLabel={inputLabel} />
       <SelectDropdown
-        popperRef={dropDownRef}
         buttonComponent={StyledButton}
         value={selectedTokenId}
         onChange={onSelect}
@@ -88,18 +83,24 @@ export const AssetSelectDropdown = ({
             <CountUp
               value={o.largeFigure}
               suffix={o.largeFigureSuffix}
-              decimals={2}
+              decimals={3}
             />
           ) : (
             <span>
-              {o.largeFigure}
+              {o.largeFigure.toFixed(3)}
               {o.largeFigureSuffix}
             </span>
           );
 
           return (
             <StyledMenuItem key={o.token.id} value={o.token.id}>
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  marginRight: 'auto',
+                }}
+              >
                 <TokenIcon size="medium" symbol={token.icon} />
                 <H4 marginLeft={theme.spacing(2)}>{token.title}</H4>
               </Box>
@@ -111,9 +112,6 @@ export const AssetSelectDropdown = ({
           );
         })}
       </SelectDropdown>
-
-      {/* This is where the dropdown will pop up from */}
-      <div ref={dropDownRef} />
       <Paragraph marginTop={theme.spacing(1)}>{caption || '\u00A0'}</Paragraph>
     </Box>
   );
