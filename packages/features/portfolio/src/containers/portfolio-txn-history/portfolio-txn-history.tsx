@@ -5,17 +5,30 @@ import {
   useTxnHistoryTable,
   useTxnHistoryButtonBar,
   useTxnHistoryDropdowns,
+  useTxnHistoryData,
 } from '../../hooks';
 
 export const PortfolioTransactionHistory = () => {
   const [txnHistoryType, setTxnHistoryType] = useState<TXN_HISTORY_TYPE>(
     TXN_HISTORY_TYPE.PORTFOLIO_HOLDINGS
   );
+  const { accountHistoryData, allCurrencyOptions, allAssetOrVaultOptions } =
+    useTxnHistoryData(txnHistoryType);
   const buttonData = useTxnHistoryButtonBar(setTxnHistoryType, txnHistoryType);
   const { dropdownsData, currencyOptions, assetOrVaultOptions } =
-    useTxnHistoryDropdowns(txnHistoryType);
+    useTxnHistoryDropdowns(
+      txnHistoryType,
+      allCurrencyOptions,
+      allAssetOrVaultOptions
+    );
+
   const { txnHistoryData, txnHistoryColumns, marketDataCSVFormatter } =
-    useTxnHistoryTable(currencyOptions, assetOrVaultOptions, txnHistoryType);
+    useTxnHistoryTable(
+      currencyOptions,
+      assetOrVaultOptions,
+      txnHistoryType,
+      accountHistoryData
+    );
 
   return (
     <>
