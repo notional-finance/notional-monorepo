@@ -6,7 +6,7 @@ import { ElementType, useState } from 'react';
 
 interface SelectDropdownProps {
   children: React.ReactNode[];
-  landingPage: boolean;
+  landingPage?: boolean;
   value: any;
   buttonComponent: ElementType;
   onChange: (value: string | null) => void;

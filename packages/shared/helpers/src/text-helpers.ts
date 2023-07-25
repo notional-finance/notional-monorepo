@@ -13,6 +13,7 @@ export function truncateText(text: string, numOfChars: number) {
 /** Used with the transaction history table */
 export function formatTokenType(token: TokenDefinition): {
   title: string;
+  icon: string;
   caption?: string;
 } {
   switch (token.tokenType) {
@@ -20,25 +21,30 @@ export function formatTokenType(token: TokenDefinition): {
     case 'nToken':
       return {
         title: token.symbol,
+        icon: token.symbol,
       };
     case 'PrimeCash':
     case 'PrimeDebt':
       return {
         title: token.name,
+        icon: token.symbol,
       };
     case 'fCash': {
       const underlying = Registry.getTokenRegistry().getUnderlying(
         token.network,
         token.currencyId
       );
+
       return {
         title: `f${underlying.symbol}`,
         caption: formatMaturity(token.maturity || 0),
+        icon: `f${underlying.symbol}`,
       };
     }
     case 'VaultShare':
       return {
         title: 'Vault Shares',
+        icon: token.tokenType,
         caption:
           token.maturity === PRIME_CASH_VAULT_MATURITY
             ? 'Open Term'
@@ -52,6 +58,7 @@ export function formatTokenType(token: TokenDefinition): {
     default:
       return {
         title: token.symbol,
+        icon: token.symbol,
       };
   }
 }

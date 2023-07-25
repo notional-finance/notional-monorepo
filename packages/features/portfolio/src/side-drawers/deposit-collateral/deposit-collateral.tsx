@@ -5,7 +5,7 @@ import {
 import { PortfolioParams } from '../../portfolio-feature-shell';
 import { PortfolioSideDrawer } from '../components/portfolio-side-drawer';
 import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
-import { DepositInput } from '@notional-finance/trade';
+import { CollateralSelect, DepositInput } from '@notional-finance/trade';
 import { useCurrencyInputRef } from '@notional-finance/mui';
 import { messages } from '../messages';
 import { useParams } from 'react-router';
@@ -28,7 +28,11 @@ export const DepositCollateral = () => {
           }
           inputLabel={messages[PORTFOLIO_ACTIONS.DEPOSIT]['inputLabel']}
         />
-        {/* Add collateral selector inside here.... */}
+        <CollateralSelect
+          tightMarginTop
+          context={DepositCollateralContext}
+          inputLabel={messages[PORTFOLIO_ACTIONS.DEPOSIT]['inputLabel']}
+        />
       </PortfolioSideDrawer>
     </DepositCollateralContext.Provider>
   );
