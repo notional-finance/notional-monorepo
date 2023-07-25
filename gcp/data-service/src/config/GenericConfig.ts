@@ -224,22 +224,4 @@ export const configDefs: ConfigDefinition[] = [
     },
     network: Network.Mainnet,
   },
-  // Usdc To Usd Oracle
-  // Usdt To Usd Oracle
-  // Dai To Usd Oracle
-  // Eth To Usd Oracle
-  // Rpl To Usd Oracle
-  // Ldo To Eth Oracle
-  // Ohmv2 To Usd Oracle
-  // Lusd To Usd Oracle
-  // Frax To Usd Oracle
-  // Cvx To Usd Oracle
-  // Crv To Usd Oracle
-
-  // veBAL total supply
-  // Aura veBAL balance
-  // Total BAL supply
-  // veCRV total supply
-  // Convex veCRV balance
-  // Cvx total supply
 ];
