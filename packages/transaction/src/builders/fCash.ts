@@ -9,7 +9,7 @@ import {
   populateNotionalTxnAndGas,
   PopulateTransactionInputs,
 } from './common';
-import { MintNToken } from './nToken';
+import { MintNToken, RedeemAndWithdrawNToken } from './nToken';
 
 export function LendFixed({
   address,
@@ -313,4 +313,17 @@ export async function Deposit(i: PopulateTransactionInputs) {
   }
 
   throw Error('Invalid collateral balance');
+}
+
+export async function Withdraw(i: PopulateTransactionInputs) {
+  if (
+    i.debtBalance?.tokenType === 'fCash' ||
+    i.debtBalance?.tokenType === 'PrimeDebt'
+  ) {
+    return WithdrawLend(i);
+  } else if (i.collateralBalance?.tokenType === 'nToken') {
+    return RedeemAndWithdrawNToken(i);
+  }
+
+  throw Error('Invalid debt balance');
 }

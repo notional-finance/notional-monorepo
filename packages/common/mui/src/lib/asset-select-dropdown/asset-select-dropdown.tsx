@@ -77,7 +77,7 @@ export const AssetSelectDropdown = ({
         onListboxOpen={(isOpen) => setHasFocus(isOpen)}
       >
         {options.map((o) => {
-          const token = formatTokenType(o.token);
+          const t = formatTokenType(o.token);
           const shouldCountUp = !hasFocus && o.token.id === selectedTokenId;
           const largeFigure = shouldCountUp ? (
             <CountUp
@@ -91,6 +91,7 @@ export const AssetSelectDropdown = ({
               {o.largeFigureSuffix}
             </span>
           );
+          const tokenName = `${t.title} ${caption ? t.caption : ''}`.trim()
 
           return (
             <StyledMenuItem key={o.token.id} value={o.token.id}>
@@ -101,8 +102,8 @@ export const AssetSelectDropdown = ({
                   marginRight: 'auto',
                 }}
               >
-                <TokenIcon size="medium" symbol={token.icon} />
-                <H4 marginLeft={theme.spacing(2)}>{token.title}</H4>
+                <TokenIcon size="medium" symbol={t.icon} />
+                <H4 marginLeft={theme.spacing(2)}>{tokenName}</H4>
               </Box>
               <Box textAlign={'right'}>
                 <H4>{largeFigure}</H4>

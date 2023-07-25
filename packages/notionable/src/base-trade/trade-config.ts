@@ -20,7 +20,7 @@ import {
   RedeemToPortfolioNToken,
   RepayDebt,
   RollLendOrDebt,
-  WithdrawLend,
+  Withdraw,
 } from '@notional-finance/transaction';
 import { TransactionConfig } from './base-trade-store';
 
@@ -80,6 +80,28 @@ export const TradeConfiguration = {
     debtFilter: () => false,
     calculateCollateralOptions: true,
     transactionBuilder: Deposit,
+  } as TransactionConfig,
+
+  /**
+   * Input:
+   * selectedDebtToken (fCash, Prime Cash, or nToken)
+   * debtBalance (i.e. amount of fCash or Prime Cash)
+   *
+   * Output:
+   * depositBalance (i.e. amount of cash to withdraw)
+   */
+  Withdraw: {
+    calculationFn: calculateDeposit,
+    requiredArgs: ['debt', 'debtBalance', 'debtPool'],
+    depositFilter: (t, _, s) => onlySameCurrency(t, s.debt),
+    debtFilter: (t, a) =>
+      // Matured fCash will not be in the list of available tokens
+      (t.tokenType === 'fCash' ||
+        t.tokenType === 'PrimeDebt' ||
+        t.tokenType === 'nToken') &&
+      offsettingBalance(t, a),
+    collateralFilter: () => false,
+    transactionBuilder: Withdraw,
   } as TransactionConfig,
 
   /**
@@ -449,27 +471,6 @@ export const TradeConfiguration = {
     collateralFilter: () => false,
   },
    */
-
-  /**
-   * Input:
-   * selectedDebtToken (i.e. fCash or Prime Cash)
-   * debtBalance (i.e. amount of fCash or Prime Cash)
-   *
-   * Output:
-   * depositBalance (i.e. amount of cash to withdraw)
-   */
-  WithdrawLend: {
-    // NOTE: this is the same as borrow fixed with no collateral
-    calculationFn: calculateDeposit,
-    requiredArgs: ['debt', 'debtBalance', 'debtPool'],
-    depositFilter: (t, _, s) => onlySameCurrency(t, s.debt),
-    debtFilter: (t, a) =>
-      // Matured fCash will not be in the list of available tokens
-      (t.tokenType === 'fCash' || t.tokenType === 'PrimeDebt') &&
-      offsettingBalance(t, a),
-    collateralFilter: () => false,
-    transactionBuilder: WithdrawLend,
-  } as TransactionConfig,
 
   /**
    * Input:

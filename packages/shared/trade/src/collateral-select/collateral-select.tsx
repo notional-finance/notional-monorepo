@@ -72,10 +72,10 @@ export const CollateralSelect = ({
 
   const onSelect = useCallback(
     (id: string | null) => {
-      const c = availableCollateralTokens?.find((t) => t.id === id);
-      updateState({ collateral: c });
+      const c = options?.find((t) => t.token.id === id);
+      updateState({ collateral: c?.token });
     },
-    [updateState, availableCollateralTokens]
+    [updateState, options]
   );
 
   useEffect(() => {
@@ -91,6 +91,8 @@ export const CollateralSelect = ({
     }
   }, [deposit, collateral, updateState]);
 
+  // TODO: this causes a little page flash which is not great, we should
+  // be able to show an empty dropdown select component instead...
   return options && collateral ? (
     <AssetSelectDropdown
       tightMarginTop={tightMarginTop}
