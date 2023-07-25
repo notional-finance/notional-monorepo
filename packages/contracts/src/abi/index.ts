@@ -32,3 +32,6 @@ export { default as cbETHABI } from './cbETH.json';
 export { default as rETHABI } from './rETH.json';
 export { default as BalancerGaugeABI } from './BalancerGauge.json';
 export { default as BalancerGaugeControllerABI } from './BalancerGaugeController.json';
+export { default as CurveGaugeABI } from './CurveGauge.json';
+export { default as CurveGaugeControllerABI } from './CurveGaugeController.json';
+export { default as CurvePoolTokenABI } from './CurvePoolToken.json';

@@ -16,16 +16,18 @@ import { GenericDataWriter } from './DataWriter';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { gql } from '@apollo/client';
-import { configDefs as EthBalancerWETHwstETHConfig } from './config/EthBalancerWETHwstETH';
-import { configDefs as ArbConvexUSDCFRAXConfig } from './config/ArbConvexUSDCFRAX';
 import { configDefs as GenericConfig } from './config/GenericConfig';
+import { configDefs as Eth_Balancer_WETH_wstETH_Config } from './config/eth/balancer/WETH_wstETH';
+import { configDefs as Eth_Balancer_AaveV3_Boosted_Config } from './config/eth/balancer/AaveV3_Boosted';
+import { configDefs as Arb_Convex_USDC_FRAX_Config } from './config/arb/convex/USDC_FRAX';
 
 export const SourceContracts = {};
 
 export const defaultConfigDefs: ConfigDefinition[] = [
   ...GenericConfig,
-  ...EthBalancerWETHwstETHConfig,
-  ...ArbConvexUSDCFRAXConfig,
+  ...Eth_Balancer_WETH_wstETH_Config,
+  ...Eth_Balancer_AaveV3_Boosted_Config,
+  ...Arb_Convex_USDC_FRAX_Config,
 ];
 
 export const defaultGraphEndpoints: Record<string, Record<string, string>> = {

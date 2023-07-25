@@ -190,7 +190,6 @@ export default class DataService {
       const sourceConfig = op.configDef.sourceConfig as MulticallConfig;
       const key = op.aggregateCall.key as string;
       values.push({
-        id: key,
         strategyId: op.configDef.strategyId,
         variable: op.configDef.variable,
         dataConfig: op.configDef.dataConfig,
@@ -241,7 +240,6 @@ export default class DataService {
         dbData.set(op.configDef.tableName, values);
       }
       values.push({
-        id: sourceConfig.id,
         strategyId: op.configDef.strategyId,
         variable: op.configDef.variable,
         dataConfig: op.configDef.dataConfig,

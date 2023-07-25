@@ -10,7 +10,6 @@ export class GenericDataWriter implements IDataWriter {
     await db
       .insert(
         rows.map((v) => ({
-          id: v.id,
           strategy_id: v.strategyId,
           variable: v.variable,
           network: v.networkId,
@@ -23,7 +22,7 @@ export class GenericDataWriter implements IDataWriter {
         }))
       )
       .into(context.tableName)
-      .onConflict(['id', 'strategy_id', 'variable', 'network', 'timestamp'])
+      .onConflict(['strategy_id', 'variable', 'network', 'timestamp'])
       .ignore();
   }
 }
