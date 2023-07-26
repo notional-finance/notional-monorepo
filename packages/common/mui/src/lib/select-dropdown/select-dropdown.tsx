@@ -92,6 +92,7 @@ export const SelectDropdown = ({
       theme,
     },
     popper: {
+      // open: true, // NOTE: uncomment this to keep the list box open when debugging
       popperOptions: {
         placement: popperPlacement,
         modifiers: [

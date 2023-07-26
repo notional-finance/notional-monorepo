@@ -24,6 +24,7 @@ export const CollateralSelect = ({
     state: {
       deposit,
       collateral,
+      depositBalance,
       collateralOptions,
       availableCollateralTokens,
     },
@@ -34,15 +35,20 @@ export const CollateralSelect = ({
 
   const options = availableCollateralTokens
     ?.map((c, i) => {
+      const opt = collateralOptions?.find((o) => o.token.id === c.id);
+      // If there is an input but no balance, the trade has failed
+      const disabled = !!depositBalance && opt?.balance === undefined;
+
       return {
         token: c,
-        largeFigure:
-          collateralOptions?.find((o) => o.token.id === c.id)?.interestRate ||
-          spotRates.find(({ tokenId }) => c.id === tokenId)?.tradeRate ||
-          0,
+        largeFigure: disabled
+          ? 0
+          : opt?.interestRate ||
+            spotRates.find(({ tokenId }) => c.id === tokenId)?.tradeRate ||
+            0,
         largeFigureSuffix:
           c.tokenType === 'fCash' ? '% Fixed APY' : '% Variable APY',
-        caption: '70% LTV',
+        disabled,
         sortOrder:
           c.tokenType === 'PrimeCash'
             ? 0

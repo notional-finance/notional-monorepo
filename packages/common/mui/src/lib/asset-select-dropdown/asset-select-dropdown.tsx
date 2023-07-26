@@ -21,6 +21,7 @@ interface AssetSelectDropdownProps {
     largeFigure: number;
     largeFigureSuffix: string;
     caption?: React.ReactNode;
+    disabled?: boolean;
   }[];
   caption?: React.ReactNode;
 }
@@ -34,6 +35,7 @@ const StyledButton = styled(Button)(
     padding-left: ${theme.spacing(2)};
     border-radius: ${theme.shape.borderRadius()};
     border: ${theme.shape.borderStandard};
+    height: ${theme.spacing(7)};
     .MuiButton-endIcon {
       margin-right: 0px;
     }
@@ -48,10 +50,22 @@ const StyledMenuItem = styled(OptionUnstyled)(
   justify-content: space-between;
   line-height: ${theme.typography.body1.lineHeight};
   align-items: center;
+  height: ${theme.spacing(7)};
 
   &:hover {
     background-color: ${theme.palette.background.default};
     cursor: pointer;
+  }
+
+  &.Mui-disabled {
+    h4 {
+      color: ${theme.palette.typography.light};
+    }
+
+    :hover {
+      background-color: ${theme.palette.background.paper};
+      cursor: default;
+    }
   }
 `
 );
@@ -115,7 +129,11 @@ export const AssetSelectDropdown = ({
               }`.trim();
 
               return (
-                <StyledMenuItem key={o.token.id} value={o.token.id}>
+                <StyledMenuItem
+                  key={o.token.id}
+                  value={o.token.id}
+                  disabled={o.disabled}
+                >
                   <Box
                     sx={{
                       display: 'flex',
