@@ -108,3 +108,8 @@ export interface DataContext {
 export interface IDataWriter {
   write(db: Knex, context: DataContext, rows: DataRow[]): Promise<void>;
 }
+
+export interface VaultAccount {
+  accountId: string;
+  vaultId: string;
+}

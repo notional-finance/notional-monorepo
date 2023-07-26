@@ -16,6 +16,7 @@ import {
   SubgraphConfig,
   SubgraphOperation,
   TableName,
+  VaultAccount,
 } from './types';
 import { aggregate } from '@notional-finance/multicall';
 import { ApolloClient, InMemoryCache } from '@apollo/client';
@@ -50,6 +51,9 @@ export default class DataService {
   public static readonly REGISTER_TYPE = 'oracles';
   public static readonly TS_BN_MAPPINGS_TABLE_NAME = 'ts_bn_mappings';
   public static readonly ORACLE_DATA_TABLE_NAME = 'oracle_data';
+  public static readonly ACCOUNTS_TABLE_NAME = 'accounts';
+  public static readonly VAULT_ACCOUNTS_TABLE_NAME = 'vault_accounts';
+
   constructor(
     public provider: ethers.providers.Provider,
     public db: Knex,
@@ -371,5 +375,39 @@ export default class DataService {
 
   public async query() {
     return this.db.select().from(DataService.ORACLE_DATA_TABLE_NAME);
+  }
+
+  public async insertAccounts(accountIds: string[]) {
+    return this.db
+      .insert(
+        accountIds.map((id) => ({
+          account_id: id,
+          network_id: this.networkToId(this.settings.network),
+        }))
+      )
+      .into(DataService.ACCOUNTS_TABLE_NAME)
+      .onConflict(['account_id', 'network_id'])
+      .ignore();
+  }
+
+  public async insertVaultAccounts(vaultAccounts: VaultAccount[]) {
+    return this.db
+      .insert(
+        vaultAccounts.map((va) => ({
+          account_id: va.accountId,
+          vault_id: va.vaultId,
+          network_id: this.networkToId(this.settings.network),
+        }))
+      )
+      .into(DataService.VAULT_ACCOUNTS_TABLE_NAME)
+      .onConflict(['account_id', 'vault_id', 'network_id'])
+      .ignore();
+  }
+
+  public async accounts() {
+    return this.db
+      .select('account_id')
+      .from(DataService.ACCOUNTS_TABLE_NAME)
+      .where('network_id', this.networkToId(this.settings.network));
   }
 }

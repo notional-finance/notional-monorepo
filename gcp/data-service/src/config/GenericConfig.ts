@@ -4,6 +4,8 @@ import {
   cbETHABI,
   rETHABI,
   BalancerStablePoolABI,
+  ERC20ABI,
+  IAggregatorABI,
 } from '@notional-finance/contracts';
 import { ethers } from 'ethers';
 import { Network } from '@notional-finance/util';
@@ -217,6 +219,263 @@ export const configDefs: ConfigDefinition[] = [
       contractABI: BalancerStablePoolABI,
       method: 'getLatest',
       args: [0],
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      decimals: 18,
+    },
+    network: Network.Mainnet,
+  },
+  {
+    strategyId: Strategy.Generic,
+    variable: 'Usdc To Usd Oracle',
+    sourceType: SourceType.Multicall,
+    sourceConfig: {
+      contractAddress: '0x8fffffd4afb6115b954bd326cbe7b4ba576818f6',
+      contractABI: IAggregatorABI,
+      method: 'latestAnswer',
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      decimals: 18,
+    },
+    network: Network.Mainnet,
+  },
+  {
+    strategyId: Strategy.Generic,
+    variable: 'Usdt To Usd Oracle',
+    sourceType: SourceType.Multicall,
+    sourceConfig: {
+      contractAddress: '0x3e7d1eab13ad0104d2750b8863b489d65364e32d',
+      contractABI: IAggregatorABI,
+      method: 'latestAnswer',
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      decimals: 18,
+    },
+    network: Network.Mainnet,
+  },
+  {
+    strategyId: Strategy.Generic,
+    variable: 'Dai To Usd Oracle',
+    sourceType: SourceType.Multicall,
+    sourceConfig: {
+      contractAddress: '0xaed0c38402a5d19df6e4c03f4e2dced6e29c1ee9',
+      contractABI: IAggregatorABI,
+      method: 'latestAnswer',
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      decimals: 18,
+    },
+    network: Network.Mainnet,
+  },
+  {
+    strategyId: Strategy.Generic,
+    variable: 'Eth To Usd Oracle',
+    sourceType: SourceType.Multicall,
+    sourceConfig: {
+      contractAddress: '0x5f4ec3df9cbd43714fe2740f5e3616155c5b8419',
+      contractABI: IAggregatorABI,
+      method: 'latestAnswer',
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      decimals: 18,
+    },
+    network: Network.Mainnet,
+  },
+  {
+    strategyId: Strategy.Generic,
+    variable: 'Rpl To Usd Oracle',
+    sourceType: SourceType.Multicall,
+    sourceConfig: {
+      contractAddress: '0xf0b7159bbfc341cc41e7cb182216f62c6d40533d',
+      contractABI: IAggregatorABI,
+      method: 'latestAnswer',
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      decimals: 18,
+    },
+    network: Network.ArbitrumOne,
+  },
+  {
+    strategyId: Strategy.Generic,
+    variable: 'Ldo To Eth Oracle',
+    sourceType: SourceType.Multicall,
+    sourceConfig: {
+      contractAddress: '0x4e844125952d32acdf339be976c98e22f6f318db',
+      contractABI: IAggregatorABI,
+      method: 'latestAnswer',
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      decimals: 18,
+    },
+    network: Network.Mainnet,
+  },
+  {
+    strategyId: Strategy.Generic,
+    variable: 'Ohmv2 To Usd Oracle',
+    sourceType: SourceType.Multicall,
+    sourceConfig: {
+      contractAddress: '0x761aaebf021f19f198d325d7979965d0c7c9e53b',
+      contractABI: IAggregatorABI,
+      method: 'latestAnswer',
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      decimals: 18,
+    },
+    network: Network.ArbitrumOne,
+  },
+  {
+    strategyId: Strategy.Generic,
+    variable: 'Lusd To Usd Oracle',
+    sourceType: SourceType.Multicall,
+    sourceConfig: {
+      contractAddress: '0x0411d28c94d85a36bc72cb0f875dfa8371d8ffff',
+      contractABI: IAggregatorABI,
+      method: 'latestAnswer',
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      decimals: 18,
+    },
+    network: Network.ArbitrumOne,
+  },
+  {
+    strategyId: Strategy.Generic,
+    variable: 'Frax To Usd Oracle',
+    sourceType: SourceType.Multicall,
+    sourceConfig: {
+      contractAddress: '0xb9e1e3a9feff48998e45fa90847ed4d467e8bcfd',
+      contractABI: IAggregatorABI,
+      method: 'latestAnswer',
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      decimals: 18,
+    },
+    network: Network.Mainnet,
+  },
+  {
+    strategyId: Strategy.Generic,
+    variable: 'Cvx To Usd Oracle',
+    sourceType: SourceType.Multicall,
+    sourceConfig: {
+      contractAddress: '0xd962fc30a72a84ce50161031391756bf2876af5d',
+      contractABI: IAggregatorABI,
+      method: 'latestAnswer',
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      decimals: 18,
+    },
+    network: Network.Mainnet,
+  },
+  {
+    strategyId: Strategy.Generic,
+    variable: 'Crv To Usd Oracle',
+    sourceType: SourceType.Multicall,
+    sourceConfig: {
+      contractAddress: '0xcd627aa160a6fa45eb793d19ef54f5062f20f33f',
+      contractABI: IAggregatorABI,
+      method: 'latestAnswer',
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      decimals: 18,
+    },
+    network: Network.Mainnet,
+  },
+  {
+    strategyId: Strategy.Generic,
+    variable: 'veBAL total supply',
+    sourceType: SourceType.Multicall,
+    sourceConfig: {
+      contractAddress: '0xC128a9954e6c874eA3d62ce62B468bA073093F25',
+      contractABI: ERC20ABI,
+      method: 'totalSupply',
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      decimals: 18,
+    },
+    network: Network.Mainnet,
+  },
+  {
+    strategyId: Strategy.Generic,
+    variable: 'Aura veBAL balance',
+    sourceType: SourceType.Multicall,
+    sourceConfig: {
+      contractAddress: '0xC128a9954e6c874eA3d62ce62B468bA073093F25',
+      contractABI: ERC20ABI,
+      method: 'balanceOf',
+      args: ['0xaf52695e1bb01a16d33d7194c28c42b10e0dbec2'],
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      decimals: 18,
+    },
+    network: Network.Mainnet,
+  },
+  {
+    strategyId: Strategy.Generic,
+    variable: 'Total BAL supply',
+    sourceType: SourceType.Multicall,
+    sourceConfig: {
+      contractAddress: '0xba100000625a3754423978a60c9317c58a424e3D',
+      contractABI: ERC20ABI,
+      method: 'totalSupply',
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      decimals: 18,
+    },
+    network: Network.Mainnet,
+  },
+  {
+    strategyId: Strategy.Generic,
+    variable: 'veCRV total supply',
+    sourceType: SourceType.Multicall,
+    sourceConfig: {
+      contractAddress: '0x5f3b5DfEb7B28CDbD7FAba78963EE202a494e2A2',
+      contractABI: ERC20ABI,
+      method: 'totalSupply',
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      decimals: 18,
+    },
+    network: Network.Mainnet,
+  },
+  {
+    strategyId: Strategy.Generic,
+    variable: 'Convex veCRV balance',
+    sourceType: SourceType.Multicall,
+    sourceConfig: {
+      contractAddress: '0x5f3b5DfEb7B28CDbD7FAba78963EE202a494e2A2',
+      contractABI: ERC20ABI,
+      method: 'balanceOf',
+      args: ['0x989AEb4d175e16225E39E87d0D97A3360524AD80'],
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      decimals: 18,
+    },
+    network: Network.Mainnet,
+  },
+  {
+    strategyId: Strategy.Generic,
+    variable: 'Cvx total supply',
+    sourceType: SourceType.Multicall,
+    sourceConfig: {
+      contractAddress: '0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b',
+      contractABI: ERC20ABI,
+      method: 'totalSupply',
     },
     tableName: TableName.GenericData,
     dataConfig: {

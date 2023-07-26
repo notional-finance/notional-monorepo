@@ -3,8 +3,16 @@ require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 import express from 'express';
 import Knex from 'knex';
 import DataService from './DataService';
-import { Network, getProviderFromNetwork } from '@notional-finance/util';
-import { BackfillType } from './types';
+import {
+  AssetType,
+  Network,
+  decodeERC1155Id,
+  getProviderFromNetwork,
+  padToHex256,
+} from '@notional-finance/util';
+import { BigNumber } from 'ethers';
+import { VaultAccount, BackfillType } from './types';
+
 const port = parseInt(process.env.SERVICE_PORT || '8080');
 const app = express();
 
@@ -43,6 +51,8 @@ async function main() {
     startingBlock: 86540848, // Oldest block in the subgraph
     registryUrl: process.env.REGISTRY_BASE_URL,
   });
+
+  app.use(express.json());
 
   app.get('/', (_, res) => {
     res.send('OK');
@@ -132,6 +142,70 @@ async function main() {
   app.get('/data/oracles', async (_, res) => {
     try {
       res.send(JSON.stringify(await dataService.query()));
+    } catch (e: any) {
+      res.status(500).send(e.toString());
+    }
+  });
+
+  app.post('/accounts', async (req, res) => {
+    try {
+      if (req.body.accountId && req.body.accountId !== '') {
+        await dataService.insertAccounts([req.body.accountId]);
+      }
+      res.status(200).send('OK');
+    } catch (e: any) {
+      res.status(500).send(e.toString());
+    }
+  });
+
+  app.post('/events', async (req, res) => {
+    try {
+      const accountIds: string[] = [];
+      const vaultAccounts: VaultAccount[] = [];
+      req.body.events.forEach((event) => {
+        const contextUpdated = event.matchReasons.find(
+          (reason) => reason.signature === 'AccountContextUpdate(address)'
+        );
+        if (contextUpdated) {
+          accountIds.push(contextUpdated.args[0]);
+          return;
+        }
+        const transferSingle = event.matchReasons.find(
+          (reason) =>
+            reason.signature ===
+            'TransferSingle(address,address,address,uint256,uint256)'
+        );
+        if (transferSingle) {
+          const id = BigNumber.from(transferSingle.params.id);
+          const params = decodeERC1155Id(padToHex256(id));
+          if (
+            params.assetType === AssetType.VAULT_SHARE_ASSET_TYPE &&
+            params.vaultAddress
+          ) {
+            accountIds.push(transferSingle.params.to);
+            vaultAccounts.push({
+              accountId: transferSingle.params.to,
+              vaultId: params.vaultAddress,
+            });
+          }
+        }
+      });
+
+      if (accountIds.length > 0) {
+        await dataService.insertAccounts(accountIds);
+      }
+      if (vaultAccounts.length > 0) {
+        await dataService.insertVaultAccounts(vaultAccounts);
+      }
+      res.status(200).send('OK');
+    } catch (e: any) {
+      res.status(500).send(e.toString());
+    }
+  });
+
+  app.get('/accounts', async (_, res) => {
+    try {
+      res.send(JSON.stringify(await dataService.accounts()));
     } catch (e: any) {
       res.status(500).send(e.toString());
     }
