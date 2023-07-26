@@ -20,6 +20,7 @@ import {
 export interface PortfolioParams {
   category?: PORTFOLIO_CATEGORIES;
   sideDrawerKey?: PORTFOLIO_ACTIONS;
+  selectedToken?: string;
 }
 
 export const PortfolioFeatureShell = () => {

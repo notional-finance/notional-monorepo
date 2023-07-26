@@ -166,7 +166,7 @@ export const SelectConvertAsset = ({ context }: SelectConvertAssetProps) => {
             value: convertFromBalance?.toDisplayStringWithSymbol(3, true),
           },
           {
-            detail: <FormattedMessage defaultMessage={'Amount'} />,
+            detail: <FormattedMessage defaultMessage={'Present Value'} />,
             value: convertFromBalance
               ?.toUnderlying()
               .toDisplayStringWithSymbol(3, true),

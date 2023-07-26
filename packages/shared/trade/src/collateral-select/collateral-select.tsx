@@ -85,10 +85,16 @@ export const CollateralSelect = ({
   );
 
   useEffect(() => {
-    if (!collateral && options && options.length > 0) {
+    if (
+      !collateral &&
+      options &&
+      options.length > 0 &&
+      deposit &&
+      deposit.currencyId === options[0].token.currencyId
+    ) {
       updateState({ collateral: options[0].token });
     }
-  }, [options, collateral, updateState]);
+  }, [options, collateral, updateState, deposit]);
 
   useEffect(() => {
     // Clears previously selected collateral on route change

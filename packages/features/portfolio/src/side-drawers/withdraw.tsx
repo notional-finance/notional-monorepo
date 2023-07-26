@@ -4,8 +4,8 @@ import {
   createTradeContext,
   useTradeContext,
 } from '@notional-finance/notionable-hooks';
+import { PortfolioParams } from '../portfolio-feature-shell';
 import { useCurrencyInputRef } from '@notional-finance/mui';
-import { PortfolioParams } from '@notional-finance/side-drawer';
 import { useParams } from 'react-router';
 import { DepositInput, PortfolioHoldingSelect } from '@notional-finance/trade';
 import { messages } from './messages';

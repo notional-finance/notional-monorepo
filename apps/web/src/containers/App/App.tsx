@@ -137,7 +137,7 @@ const AllRoutes = () => {
           <AppLayoutRoute path="/terms" component={TermsView} />
           <AppLayoutRoute path="/privacy" component={PrivacyView} />
           <AppLayoutRoute
-            path="/portfolio/:category/:sideDrawerKey/:selectedDepositToken"
+            path={`/portfolio/:category/:sideDrawerKey/:selectedToken`}
             component={PortfolioFeatureShell}
           />
           <AppLayoutRoute
