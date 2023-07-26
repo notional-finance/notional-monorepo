@@ -31,9 +31,6 @@ export function useVaultProperties(vaultAddress?: string) {
   let minDepositRequired: string | undefined = undefined;
   let strategyName = '';
   let vaultName: string | undefined = undefined;
-  let minLeverageRatio = 0;
-  let defaultLeverageRatio = 0;
-  let maxLeverageRatio = 0;
 
   const network = useSelectedNetwork();
 
@@ -44,12 +41,9 @@ export function useVaultProperties(vaultAddress?: string) {
         network,
         vaultAddress
       ));
-      ({ minLeverageRatio, defaultLeverageRatio, maxLeverageRatio } =
-        config.getVaultLeverageFactors(network, vaultAddress));
-
       const vaultConfig = config.getVaultConfig(network, vaultAddress);
       // TODO: move these to vault registry
-      vaultName = vaultConfig.name;
+      vaultName = config.getVaultName(network, vaultAddress);
       strategyName = 'SingleSidedLP';
 
       if (vaultConfig) {
@@ -73,9 +67,6 @@ export function useVaultProperties(vaultAddress?: string) {
     vaultName,
     minAccountBorrowSize,
     strategyName,
-    defaultLeverageRatio,
-    maxLeverageRatio,
-    minLeverageRatio,
     minDepositRequired,
   };
 }

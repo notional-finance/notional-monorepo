@@ -80,8 +80,7 @@ export function useObservableContext<T extends ContextState>(
       updateState(params as T);
     }
     // NOTE: only run updates on pathname changes, since params is an object
-    // eslint-disable-next-line
-  }, [pathname, isNetworkReady, updateState]);
+  }, [pathname, isNetworkReady, updateState, params]);
 
   return { updateState, state$, state };
 }

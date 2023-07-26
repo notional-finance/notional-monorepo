@@ -18,6 +18,7 @@ import {
 import { BigNumber, Contract } from 'ethers';
 import { TokenBalance } from '../../token-balance';
 import BaseLiquidityPool from '../base-liquidity-pool';
+import { TokenDefinition } from '../../Definitions';
 
 interface fCashMarketParams {
   perMarketCash: TokenBalance[];
@@ -743,15 +744,24 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
     return this.balances[0].toUnderlying().copy(0);
   }
 
-  public getSpotInterestRates() {
-    return this.poolParams.perMarketCash.map((c, i) => {
+  public getSpotInterestRate(token: TokenDefinition) {
+    // TODO: need to return the proper interest rates here..
+    if (token.tokenType === 'PrimeCash') {
+      return 0;
+    } else if (token.tokenType === 'PrimeDebt') {
+      return 0;
+    } else {
+      const marketIndex = this.getMarketIndex(token.maturity);
       const utilization = this.getfCashUtilization(
-        this.poolParams.perMarketfCash[i].copy(0),
-        this.poolParams.perMarketfCash[i],
-        c.toUnderlying()
+        this.poolParams.perMarketfCash[marketIndex - 1].copy(0),
+        this.poolParams.perMarketfCash[marketIndex - 1],
+        this.poolParams.perMarketCash[marketIndex - 1].toUnderlying()
       );
-      return this.getInterestRate(i + 1, utilization);
-    });
+
+      return (
+        (this.getInterestRate(marketIndex, utilization) * 100) / RATE_PRECISION
+      );
+    }
   }
 
   public getSlippageRate(fCash: TokenBalance, slippageFactor: number) {

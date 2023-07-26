@@ -29,7 +29,6 @@
     "src/**/*.json"
   ],
   "exclude": [
-    "dist",
     "node_modules",
     "test/**",
     "**/*.spec.ts",

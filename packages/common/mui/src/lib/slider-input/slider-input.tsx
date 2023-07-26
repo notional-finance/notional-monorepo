@@ -4,11 +4,12 @@ import { InputLabel } from '../input-label/input-label';
 import { useCallback, useRef, useState } from 'react';
 import SliderBasic from '../slider-basic/slider-basic';
 import { FormattedMessage, MessageDescriptor } from 'react-intl';
-import { Caption } from '../typography/typography';
+import { Caption, LabelValue } from '../typography/typography';
 import ErrorMessage from '../error-message/error-message';
 import React from 'react';
+import CountUp from '../count-up/count-up';
 
-interface SliderInputProps {
+export interface SliderInputProps {
   min: number;
   max: number;
   onChangeCommitted: (value: number) => void;
@@ -19,6 +20,14 @@ interface SliderInputProps {
   inputLabel?: MessageDescriptor;
   rightCaption?: JSX.Element;
   bottomCaption?: JSX.Element;
+  sliderLeverageInfo?: {
+    debtHeading: MessageDescriptor;
+    assetHeading: MessageDescriptor;
+    debtValue?: number;
+    assetValue?: number;
+    debtSuffix?: string;
+    assetSuffix?: string;
+  };
 }
 
 export interface SliderInputHandle {
@@ -29,6 +38,7 @@ const Container = styled(Box)(
   ({ theme }) => `
   border-radius: ${theme.shape.borderRadius()};
   display: flex;
+  height: ${theme.spacing(7)};
 `
 );
 
@@ -45,6 +55,22 @@ const ValueContainer = styled(Box)(
   padding-left: ${theme.spacing(2)};
   padding-right: ${theme.spacing(2)};
   max-width: 25%;
+`
+);
+
+const LeverageInfoContainer = styled(Box)(
+  ({ theme }) => `
+  width: 100%;
+  display: flex;
+  justify-content: space-evenly;
+  padding-top: ${theme.spacing(1)};
+  padding-bottom: ${theme.spacing(1)};
+  text-align: center;
+  background: ${theme.palette.background.default};
+  border-bottom-left-radius: ${theme.shape.borderRadius()};
+  border-bottom-right-radius: ${theme.shape.borderRadius()};
+  border: ${theme.shape.borderStandard};
+  border-top: unset;
 `
 );
 
@@ -94,6 +120,7 @@ export const SliderInput = React.forwardRef<
       inputLabel,
       rightCaption,
       bottomCaption,
+      sliderLeverageInfo,
     },
     ref
   ) => {
@@ -132,6 +159,12 @@ export const SliderInput = React.forwardRef<
             border: `1px solid ${
               hasFocus ? theme.palette.info.main : theme.palette.borders.paper
             }`,
+            borderBottomLeftRadius: sliderLeverageInfo
+              ? 'unset'
+              : theme.shape.borderRadius(),
+            borderBottomRightRadius: sliderLeverageInfo
+              ? 'unset'
+              : theme.shape.borderRadius(),
           }}
         >
           <ValueContainer
@@ -147,6 +180,7 @@ export const SliderInput = React.forwardRef<
               disableUnderline
               endAdornment={'x'}
               onFocus={() => setHasFocus(true)}
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               inputComponent={NumberFormatter as any}
               onBlur={(event) => {
                 try {
@@ -197,6 +231,32 @@ export const SliderInput = React.forwardRef<
             />
           </SliderContainer>
         </Container>
+        {sliderLeverageInfo && (
+          <LeverageInfoContainer>
+            <Box>
+              <Caption>
+                <FormattedMessage {...sliderLeverageInfo.assetHeading} />
+              </Caption>
+              <LabelValue>
+                <CountUp
+                  value={sliderLeverageInfo.assetValue}
+                  suffix={sliderLeverageInfo.assetSuffix}
+                />
+              </LabelValue>
+            </Box>
+            <Box>
+              <Caption>
+                <FormattedMessage {...sliderLeverageInfo.debtHeading} />
+              </Caption>
+              <LabelValue>
+                <CountUp
+                  value={sliderLeverageInfo.debtValue}
+                  suffix={sliderLeverageInfo.debtSuffix}
+                />
+              </LabelValue>
+            </Box>
+          </LeverageInfoContainer>
+        )}
         <Caption sx={{ marginTop: theme.spacing(1.5) }}>
           {bottomCaption}
         </Caption>

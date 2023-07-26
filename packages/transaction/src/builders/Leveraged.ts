@@ -4,7 +4,26 @@ import {
   getBalanceAndTradeAction,
   DepositActionType,
   getETHValue,
+  getBalanceAction,
 } from './common';
+
+export function EnablePrimeBorrow({
+  address,
+  network,
+}: PopulateTransactionInputs) {
+  return populateNotionalTxnAndGas(network, address, 'enablePrimeBorrow', [
+    true,
+  ]);
+}
+
+export function DisablePrimeBorrow({
+  address,
+  network,
+}: PopulateTransactionInputs) {
+  return populateNotionalTxnAndGas(network, address, 'enablePrimeBorrow', [
+    false,
+  ]);
+}
 
 export function LeveragedOrDeleverageLend({
   address,
@@ -42,35 +61,54 @@ export function LeveragedOrDeleverageLend({
 export function LeveragedNToken({
   address,
   network,
-  collateralBalance,
   depositBalance,
   debtBalance,
 }: PopulateTransactionInputs) {
-  if (!collateralBalance || !depositBalance || !debtBalance)
+  if (!depositBalance || !debtBalance)
     throw Error('All balances must be defined');
 
-  // TODO: this requires a second transaction to convert the cash...
-  // TODO: alternatively, we can use ConvertCashToNToken and have a second
-  // transaction for the deposit...
-  return populateNotionalTxnAndGas(
-    network,
-    address,
-    'batchBalanceAndTradeAction',
-    [
+  // TODO: this requires a second transaction to convert the cash:
+  // ConvertCashToNToken
+  if (debtBalance.tokenType === 'fCash') {
+    return populateNotionalTxnAndGas(
+      network,
+      address,
+      'batchBalanceAndTradeAction',
+      [
+        address,
+        [
+          getBalanceAndTradeAction(
+            DepositActionType.DepositUnderlying,
+            depositBalance,
+            false,
+            undefined, // No Withdraws
+            false,
+            debtBalance.tokenType === 'fCash' ? [debtBalance] : []
+          ),
+        ],
+        getETHValue(depositBalance),
+      ]
+    );
+  } else if (
+    debtBalance.tokenType === 'PrimeDebt' &&
+    debtBalance.isNegative()
+  ) {
+    return populateNotionalTxnAndGas(network, address, 'batchBalanceAction', [
       address,
       [
-        getBalanceAndTradeAction(
-          DepositActionType.DepositUnderlyingAndMintNToken,
+        getBalanceAction(
+          DepositActionType.DepositUnderlying,
           depositBalance,
           false,
           undefined, // No Withdraws
-          false,
-          debtBalance.tokenType === 'fCash' ? [debtBalance] : []
+          false
         ),
       ],
       getETHValue(depositBalance),
-    ]
-  );
+    ]);
+  } else {
+    throw Error('Invalid nToken Leverage');
+  }
 }
 
 export function DeleverageNToken({

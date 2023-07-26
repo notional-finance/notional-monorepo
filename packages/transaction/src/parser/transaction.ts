@@ -251,8 +251,12 @@ export function parseTransactionType(bundles: Bundle[], markers: Marker[]) {
       markers
     );
 
-    if (matched) transactions.push(matched);
-    nextStartIndex = _start;
+    if (matched) {
+      transactions.push(matched);
+      nextStartIndex = _start;
+    } else {
+      break;
+    }
   }
 
   return transactions;
@@ -314,7 +318,7 @@ function match(
       if (marker) {
         return { startMatch, endIndex, marker };
       } else {
-        startIndex += 1;
+        startMatch += 1;
       }
     } else {
       return { startMatch, endIndex, marker: undefined };

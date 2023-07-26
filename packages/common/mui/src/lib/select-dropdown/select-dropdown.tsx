@@ -26,7 +26,7 @@ const StyledMenu = styled(MenuList)(
   `
 );
 const StyledPopper = styled(PopperUnstyled)`
-  z-index: 2;
+  z-index: 99;
 `;
 
 export const SelectDropdown = ({

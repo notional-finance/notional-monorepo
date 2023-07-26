@@ -37,6 +37,7 @@ export type Account = {
   /** All historical token transfers linked to this account */
   transfersFrom?: Maybe<Array<Transfer>>;
   transfersTo?: Maybe<Array<Transfer>>;
+  profitLossLineItems?: Maybe<Array<ProfitLossLineItem>>;
 };
 
 
@@ -64,6 +65,15 @@ export type AccounttransfersToArgs = {
   orderBy?: InputMaybe<Transfer_orderBy>;
   orderDirection?: InputMaybe<OrderDirection>;
   where?: InputMaybe<Transfer_filter>;
+};
+
+
+export type AccountprofitLossLineItemsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<ProfitLossLineItem_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<ProfitLossLineItem_filter>;
 };
 
 export type Account_filter = {
@@ -134,6 +144,7 @@ export type Account_filter = {
   balances_?: InputMaybe<Balance_filter>;
   transfersFrom_?: InputMaybe<Transfer_filter>;
   transfersTo_?: InputMaybe<Transfer_filter>;
+  profitLossLineItems_?: InputMaybe<ProfitLossLineItem_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<Account_filter>>>;
@@ -151,7 +162,8 @@ export type Account_orderBy =
   | 'systemAccountType'
   | 'balances'
   | 'transfersFrom'
-  | 'transfersTo';
+  | 'transfersTo'
+  | 'profitLossLineItems';
 
 export type ActiveMarket = {
   /** Currency ID */
@@ -312,7 +324,7 @@ export type ActiveMarket_orderBy =
   | 'fCashMarkets';
 
 export type Balance = {
-  /** Address of Account:ID of Token */
+  /** Account:Token ID */
   id: Scalars['ID'];
   /** Link back to the token */
   token: Token;
@@ -324,8 +336,242 @@ export type Balance = {
   lastUpdateBlockNumber: Scalars['Int'];
   lastUpdateTimestamp: Scalars['Int'];
   lastUpdateTransactionHash: Scalars['Bytes'];
-  balance: Scalars['BigInt'];
+  current: BalanceSnapshot;
+  snapshots?: Maybe<Array<BalanceSnapshot>>;
 };
+
+
+export type BalancesnapshotsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<BalanceSnapshot_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<BalanceSnapshot_filter>;
+};
+
+export type BalanceSnapshot = {
+  /** Address of Account:ID of Token:Block Number */
+  id: Scalars['ID'];
+  blockNumber: Scalars['Int'];
+  timestamp: Scalars['Int'];
+  transaction: Transaction;
+  /** Link to the balance entity for this token */
+  balance: Balance;
+  /** Current balance of the token at this block */
+  currentBalance: Scalars['BigInt'];
+  /** Adjusted cost basis at this snapshot for the token */
+  adjustedCostBasis: Scalars['BigInt'];
+  /** Current profit and loss at the snapshot */
+  currentProfitAndLossAtSnapshot: Scalars['BigInt'];
+  /** Total profit or loss at the snapshot since balance inception */
+  totalProfitAndLossAtSnapshot: Scalars['BigInt'];
+  /** Portion of the PnL due to market movements in price */
+  totalILAndFeesAtSnapshot: Scalars['BigInt'];
+  /** Portion of the PnL due to interest accrual */
+  totalInterestAccrualAtSnapshot: Scalars['BigInt'];
+  /** Implied Fixed Rate for fCash balances */
+  impliedFixedRate?: Maybe<Scalars['BigInt']>;
+  /** Cumulative balance used for internal PnL calculations */
+  _accumulatedBalance: Scalars['BigInt'];
+  /** Cumulative realized cost for internal PnL calculations */
+  _accumulatedCostRealized: Scalars['BigInt'];
+  /** Cumulative realized cost using adjusted cost basis for internal PnL calculations */
+  _accumulatedCostAdjustedBasis: Scalars['BigInt'];
+  profitLossLineItems?: Maybe<Array<ProfitLossLineItem>>;
+};
+
+
+export type BalanceSnapshotprofitLossLineItemsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<ProfitLossLineItem_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<ProfitLossLineItem_filter>;
+};
+
+export type BalanceSnapshot_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  blockNumber?: InputMaybe<Scalars['Int']>;
+  blockNumber_not?: InputMaybe<Scalars['Int']>;
+  blockNumber_gt?: InputMaybe<Scalars['Int']>;
+  blockNumber_lt?: InputMaybe<Scalars['Int']>;
+  blockNumber_gte?: InputMaybe<Scalars['Int']>;
+  blockNumber_lte?: InputMaybe<Scalars['Int']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['Int']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  timestamp?: InputMaybe<Scalars['Int']>;
+  timestamp_not?: InputMaybe<Scalars['Int']>;
+  timestamp_gt?: InputMaybe<Scalars['Int']>;
+  timestamp_lt?: InputMaybe<Scalars['Int']>;
+  timestamp_gte?: InputMaybe<Scalars['Int']>;
+  timestamp_lte?: InputMaybe<Scalars['Int']>;
+  timestamp_in?: InputMaybe<Array<Scalars['Int']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  transaction?: InputMaybe<Scalars['String']>;
+  transaction_not?: InputMaybe<Scalars['String']>;
+  transaction_gt?: InputMaybe<Scalars['String']>;
+  transaction_lt?: InputMaybe<Scalars['String']>;
+  transaction_gte?: InputMaybe<Scalars['String']>;
+  transaction_lte?: InputMaybe<Scalars['String']>;
+  transaction_in?: InputMaybe<Array<Scalars['String']>>;
+  transaction_not_in?: InputMaybe<Array<Scalars['String']>>;
+  transaction_contains?: InputMaybe<Scalars['String']>;
+  transaction_contains_nocase?: InputMaybe<Scalars['String']>;
+  transaction_not_contains?: InputMaybe<Scalars['String']>;
+  transaction_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  transaction_starts_with?: InputMaybe<Scalars['String']>;
+  transaction_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transaction_not_starts_with?: InputMaybe<Scalars['String']>;
+  transaction_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transaction_ends_with?: InputMaybe<Scalars['String']>;
+  transaction_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transaction_not_ends_with?: InputMaybe<Scalars['String']>;
+  transaction_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transaction_?: InputMaybe<Transaction_filter>;
+  balance?: InputMaybe<Scalars['String']>;
+  balance_not?: InputMaybe<Scalars['String']>;
+  balance_gt?: InputMaybe<Scalars['String']>;
+  balance_lt?: InputMaybe<Scalars['String']>;
+  balance_gte?: InputMaybe<Scalars['String']>;
+  balance_lte?: InputMaybe<Scalars['String']>;
+  balance_in?: InputMaybe<Array<Scalars['String']>>;
+  balance_not_in?: InputMaybe<Array<Scalars['String']>>;
+  balance_contains?: InputMaybe<Scalars['String']>;
+  balance_contains_nocase?: InputMaybe<Scalars['String']>;
+  balance_not_contains?: InputMaybe<Scalars['String']>;
+  balance_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  balance_starts_with?: InputMaybe<Scalars['String']>;
+  balance_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  balance_not_starts_with?: InputMaybe<Scalars['String']>;
+  balance_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  balance_ends_with?: InputMaybe<Scalars['String']>;
+  balance_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  balance_not_ends_with?: InputMaybe<Scalars['String']>;
+  balance_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  balance_?: InputMaybe<Balance_filter>;
+  currentBalance?: InputMaybe<Scalars['BigInt']>;
+  currentBalance_not?: InputMaybe<Scalars['BigInt']>;
+  currentBalance_gt?: InputMaybe<Scalars['BigInt']>;
+  currentBalance_lt?: InputMaybe<Scalars['BigInt']>;
+  currentBalance_gte?: InputMaybe<Scalars['BigInt']>;
+  currentBalance_lte?: InputMaybe<Scalars['BigInt']>;
+  currentBalance_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  currentBalance_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  adjustedCostBasis?: InputMaybe<Scalars['BigInt']>;
+  adjustedCostBasis_not?: InputMaybe<Scalars['BigInt']>;
+  adjustedCostBasis_gt?: InputMaybe<Scalars['BigInt']>;
+  adjustedCostBasis_lt?: InputMaybe<Scalars['BigInt']>;
+  adjustedCostBasis_gte?: InputMaybe<Scalars['BigInt']>;
+  adjustedCostBasis_lte?: InputMaybe<Scalars['BigInt']>;
+  adjustedCostBasis_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  adjustedCostBasis_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  currentProfitAndLossAtSnapshot?: InputMaybe<Scalars['BigInt']>;
+  currentProfitAndLossAtSnapshot_not?: InputMaybe<Scalars['BigInt']>;
+  currentProfitAndLossAtSnapshot_gt?: InputMaybe<Scalars['BigInt']>;
+  currentProfitAndLossAtSnapshot_lt?: InputMaybe<Scalars['BigInt']>;
+  currentProfitAndLossAtSnapshot_gte?: InputMaybe<Scalars['BigInt']>;
+  currentProfitAndLossAtSnapshot_lte?: InputMaybe<Scalars['BigInt']>;
+  currentProfitAndLossAtSnapshot_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  currentProfitAndLossAtSnapshot_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  totalProfitAndLossAtSnapshot?: InputMaybe<Scalars['BigInt']>;
+  totalProfitAndLossAtSnapshot_not?: InputMaybe<Scalars['BigInt']>;
+  totalProfitAndLossAtSnapshot_gt?: InputMaybe<Scalars['BigInt']>;
+  totalProfitAndLossAtSnapshot_lt?: InputMaybe<Scalars['BigInt']>;
+  totalProfitAndLossAtSnapshot_gte?: InputMaybe<Scalars['BigInt']>;
+  totalProfitAndLossAtSnapshot_lte?: InputMaybe<Scalars['BigInt']>;
+  totalProfitAndLossAtSnapshot_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  totalProfitAndLossAtSnapshot_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  totalILAndFeesAtSnapshot?: InputMaybe<Scalars['BigInt']>;
+  totalILAndFeesAtSnapshot_not?: InputMaybe<Scalars['BigInt']>;
+  totalILAndFeesAtSnapshot_gt?: InputMaybe<Scalars['BigInt']>;
+  totalILAndFeesAtSnapshot_lt?: InputMaybe<Scalars['BigInt']>;
+  totalILAndFeesAtSnapshot_gte?: InputMaybe<Scalars['BigInt']>;
+  totalILAndFeesAtSnapshot_lte?: InputMaybe<Scalars['BigInt']>;
+  totalILAndFeesAtSnapshot_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  totalILAndFeesAtSnapshot_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  totalInterestAccrualAtSnapshot?: InputMaybe<Scalars['BigInt']>;
+  totalInterestAccrualAtSnapshot_not?: InputMaybe<Scalars['BigInt']>;
+  totalInterestAccrualAtSnapshot_gt?: InputMaybe<Scalars['BigInt']>;
+  totalInterestAccrualAtSnapshot_lt?: InputMaybe<Scalars['BigInt']>;
+  totalInterestAccrualAtSnapshot_gte?: InputMaybe<Scalars['BigInt']>;
+  totalInterestAccrualAtSnapshot_lte?: InputMaybe<Scalars['BigInt']>;
+  totalInterestAccrualAtSnapshot_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  totalInterestAccrualAtSnapshot_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  impliedFixedRate?: InputMaybe<Scalars['BigInt']>;
+  impliedFixedRate_not?: InputMaybe<Scalars['BigInt']>;
+  impliedFixedRate_gt?: InputMaybe<Scalars['BigInt']>;
+  impliedFixedRate_lt?: InputMaybe<Scalars['BigInt']>;
+  impliedFixedRate_gte?: InputMaybe<Scalars['BigInt']>;
+  impliedFixedRate_lte?: InputMaybe<Scalars['BigInt']>;
+  impliedFixedRate_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  impliedFixedRate_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  _accumulatedBalance?: InputMaybe<Scalars['BigInt']>;
+  _accumulatedBalance_not?: InputMaybe<Scalars['BigInt']>;
+  _accumulatedBalance_gt?: InputMaybe<Scalars['BigInt']>;
+  _accumulatedBalance_lt?: InputMaybe<Scalars['BigInt']>;
+  _accumulatedBalance_gte?: InputMaybe<Scalars['BigInt']>;
+  _accumulatedBalance_lte?: InputMaybe<Scalars['BigInt']>;
+  _accumulatedBalance_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  _accumulatedBalance_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  _accumulatedCostRealized?: InputMaybe<Scalars['BigInt']>;
+  _accumulatedCostRealized_not?: InputMaybe<Scalars['BigInt']>;
+  _accumulatedCostRealized_gt?: InputMaybe<Scalars['BigInt']>;
+  _accumulatedCostRealized_lt?: InputMaybe<Scalars['BigInt']>;
+  _accumulatedCostRealized_gte?: InputMaybe<Scalars['BigInt']>;
+  _accumulatedCostRealized_lte?: InputMaybe<Scalars['BigInt']>;
+  _accumulatedCostRealized_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  _accumulatedCostRealized_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  _accumulatedCostAdjustedBasis?: InputMaybe<Scalars['BigInt']>;
+  _accumulatedCostAdjustedBasis_not?: InputMaybe<Scalars['BigInt']>;
+  _accumulatedCostAdjustedBasis_gt?: InputMaybe<Scalars['BigInt']>;
+  _accumulatedCostAdjustedBasis_lt?: InputMaybe<Scalars['BigInt']>;
+  _accumulatedCostAdjustedBasis_gte?: InputMaybe<Scalars['BigInt']>;
+  _accumulatedCostAdjustedBasis_lte?: InputMaybe<Scalars['BigInt']>;
+  _accumulatedCostAdjustedBasis_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  _accumulatedCostAdjustedBasis_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  profitLossLineItems_?: InputMaybe<ProfitLossLineItem_filter>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<BalanceSnapshot_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<BalanceSnapshot_filter>>>;
+};
+
+export type BalanceSnapshot_orderBy =
+  | 'id'
+  | 'blockNumber'
+  | 'timestamp'
+  | 'transaction'
+  | 'transaction__id'
+  | 'transaction__blockNumber'
+  | 'transaction__timestamp'
+  | 'transaction__transactionHash'
+  | 'transaction___nextStartIndex'
+  | 'balance'
+  | 'balance__id'
+  | 'balance__firstUpdateBlockNumber'
+  | 'balance__firstUpdateTimestamp'
+  | 'balance__firstUpdateTransactionHash'
+  | 'balance__lastUpdateBlockNumber'
+  | 'balance__lastUpdateTimestamp'
+  | 'balance__lastUpdateTransactionHash'
+  | 'currentBalance'
+  | 'adjustedCostBasis'
+  | 'currentProfitAndLossAtSnapshot'
+  | 'totalProfitAndLossAtSnapshot'
+  | 'totalILAndFeesAtSnapshot'
+  | 'totalInterestAccrualAtSnapshot'
+  | 'impliedFixedRate'
+  | '_accumulatedBalance'
+  | '_accumulatedCostRealized'
+  | '_accumulatedCostAdjustedBasis'
+  | 'profitLossLineItems';
 
 export type Balance_filter = {
   id?: InputMaybe<Scalars['ID']>;
@@ -430,14 +676,28 @@ export type Balance_filter = {
   lastUpdateTransactionHash_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
   lastUpdateTransactionHash_contains?: InputMaybe<Scalars['Bytes']>;
   lastUpdateTransactionHash_not_contains?: InputMaybe<Scalars['Bytes']>;
-  balance?: InputMaybe<Scalars['BigInt']>;
-  balance_not?: InputMaybe<Scalars['BigInt']>;
-  balance_gt?: InputMaybe<Scalars['BigInt']>;
-  balance_lt?: InputMaybe<Scalars['BigInt']>;
-  balance_gte?: InputMaybe<Scalars['BigInt']>;
-  balance_lte?: InputMaybe<Scalars['BigInt']>;
-  balance_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  balance_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  current?: InputMaybe<Scalars['String']>;
+  current_not?: InputMaybe<Scalars['String']>;
+  current_gt?: InputMaybe<Scalars['String']>;
+  current_lt?: InputMaybe<Scalars['String']>;
+  current_gte?: InputMaybe<Scalars['String']>;
+  current_lte?: InputMaybe<Scalars['String']>;
+  current_in?: InputMaybe<Array<Scalars['String']>>;
+  current_not_in?: InputMaybe<Array<Scalars['String']>>;
+  current_contains?: InputMaybe<Scalars['String']>;
+  current_contains_nocase?: InputMaybe<Scalars['String']>;
+  current_not_contains?: InputMaybe<Scalars['String']>;
+  current_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  current_starts_with?: InputMaybe<Scalars['String']>;
+  current_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  current_not_starts_with?: InputMaybe<Scalars['String']>;
+  current_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  current_ends_with?: InputMaybe<Scalars['String']>;
+  current_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  current_not_ends_with?: InputMaybe<Scalars['String']>;
+  current_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  current_?: InputMaybe<BalanceSnapshot_filter>;
+  snapshots_?: InputMaybe<BalanceSnapshot_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<Balance_filter>>>;
@@ -482,7 +742,21 @@ export type Balance_orderBy =
   | 'lastUpdateBlockNumber'
   | 'lastUpdateTimestamp'
   | 'lastUpdateTransactionHash'
-  | 'balance';
+  | 'current'
+  | 'current__id'
+  | 'current__blockNumber'
+  | 'current__timestamp'
+  | 'current__currentBalance'
+  | 'current__adjustedCostBasis'
+  | 'current__currentProfitAndLossAtSnapshot'
+  | 'current__totalProfitAndLossAtSnapshot'
+  | 'current__totalILAndFeesAtSnapshot'
+  | 'current__totalInterestAccrualAtSnapshot'
+  | 'current__impliedFixedRate'
+  | 'current___accumulatedBalance'
+  | 'current___accumulatedCostRealized'
+  | 'current___accumulatedCostAdjustedBasis'
+  | 'snapshots';
 
 export type BlockChangedFilter = {
   number_gte: Scalars['Int'];
@@ -2297,6 +2571,319 @@ export type PrimeCashMarket_orderBy =
   | 'current__debtInterestRate'
   | 'snapshots';
 
+export type ProfitLossLineItem = {
+  /** Bundle ID:Index */
+  id: Scalars['ID'];
+  blockNumber: Scalars['Int'];
+  timestamp: Scalars['Int'];
+  transactionHash: Transaction;
+  bundle: TransferBundle;
+  balanceSnapshot: BalanceSnapshot;
+  account: Account;
+  tokenAmount: Scalars['BigInt'];
+  token: Token;
+  underlyingAmountRealized: Scalars['BigInt'];
+  underlyingAmountSpot: Scalars['BigInt'];
+  underlyingToken: Token;
+  realizedPrice: Scalars['BigInt'];
+  spotPrice: Scalars['BigInt'];
+  impliedFixedRate?: Maybe<Scalars['BigInt']>;
+};
+
+export type ProfitLossLineItem_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  blockNumber?: InputMaybe<Scalars['Int']>;
+  blockNumber_not?: InputMaybe<Scalars['Int']>;
+  blockNumber_gt?: InputMaybe<Scalars['Int']>;
+  blockNumber_lt?: InputMaybe<Scalars['Int']>;
+  blockNumber_gte?: InputMaybe<Scalars['Int']>;
+  blockNumber_lte?: InputMaybe<Scalars['Int']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['Int']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  timestamp?: InputMaybe<Scalars['Int']>;
+  timestamp_not?: InputMaybe<Scalars['Int']>;
+  timestamp_gt?: InputMaybe<Scalars['Int']>;
+  timestamp_lt?: InputMaybe<Scalars['Int']>;
+  timestamp_gte?: InputMaybe<Scalars['Int']>;
+  timestamp_lte?: InputMaybe<Scalars['Int']>;
+  timestamp_in?: InputMaybe<Array<Scalars['Int']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  transactionHash?: InputMaybe<Scalars['String']>;
+  transactionHash_not?: InputMaybe<Scalars['String']>;
+  transactionHash_gt?: InputMaybe<Scalars['String']>;
+  transactionHash_lt?: InputMaybe<Scalars['String']>;
+  transactionHash_gte?: InputMaybe<Scalars['String']>;
+  transactionHash_lte?: InputMaybe<Scalars['String']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['String']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['String']>>;
+  transactionHash_contains?: InputMaybe<Scalars['String']>;
+  transactionHash_contains_nocase?: InputMaybe<Scalars['String']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['String']>;
+  transactionHash_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  transactionHash_starts_with?: InputMaybe<Scalars['String']>;
+  transactionHash_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transactionHash_not_starts_with?: InputMaybe<Scalars['String']>;
+  transactionHash_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  transactionHash_ends_with?: InputMaybe<Scalars['String']>;
+  transactionHash_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transactionHash_not_ends_with?: InputMaybe<Scalars['String']>;
+  transactionHash_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  transactionHash_?: InputMaybe<Transaction_filter>;
+  bundle?: InputMaybe<Scalars['String']>;
+  bundle_not?: InputMaybe<Scalars['String']>;
+  bundle_gt?: InputMaybe<Scalars['String']>;
+  bundle_lt?: InputMaybe<Scalars['String']>;
+  bundle_gte?: InputMaybe<Scalars['String']>;
+  bundle_lte?: InputMaybe<Scalars['String']>;
+  bundle_in?: InputMaybe<Array<Scalars['String']>>;
+  bundle_not_in?: InputMaybe<Array<Scalars['String']>>;
+  bundle_contains?: InputMaybe<Scalars['String']>;
+  bundle_contains_nocase?: InputMaybe<Scalars['String']>;
+  bundle_not_contains?: InputMaybe<Scalars['String']>;
+  bundle_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  bundle_starts_with?: InputMaybe<Scalars['String']>;
+  bundle_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  bundle_not_starts_with?: InputMaybe<Scalars['String']>;
+  bundle_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  bundle_ends_with?: InputMaybe<Scalars['String']>;
+  bundle_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  bundle_not_ends_with?: InputMaybe<Scalars['String']>;
+  bundle_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  bundle_?: InputMaybe<TransferBundle_filter>;
+  balanceSnapshot?: InputMaybe<Scalars['String']>;
+  balanceSnapshot_not?: InputMaybe<Scalars['String']>;
+  balanceSnapshot_gt?: InputMaybe<Scalars['String']>;
+  balanceSnapshot_lt?: InputMaybe<Scalars['String']>;
+  balanceSnapshot_gte?: InputMaybe<Scalars['String']>;
+  balanceSnapshot_lte?: InputMaybe<Scalars['String']>;
+  balanceSnapshot_in?: InputMaybe<Array<Scalars['String']>>;
+  balanceSnapshot_not_in?: InputMaybe<Array<Scalars['String']>>;
+  balanceSnapshot_contains?: InputMaybe<Scalars['String']>;
+  balanceSnapshot_contains_nocase?: InputMaybe<Scalars['String']>;
+  balanceSnapshot_not_contains?: InputMaybe<Scalars['String']>;
+  balanceSnapshot_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  balanceSnapshot_starts_with?: InputMaybe<Scalars['String']>;
+  balanceSnapshot_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  balanceSnapshot_not_starts_with?: InputMaybe<Scalars['String']>;
+  balanceSnapshot_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  balanceSnapshot_ends_with?: InputMaybe<Scalars['String']>;
+  balanceSnapshot_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  balanceSnapshot_not_ends_with?: InputMaybe<Scalars['String']>;
+  balanceSnapshot_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  balanceSnapshot_?: InputMaybe<BalanceSnapshot_filter>;
+  account?: InputMaybe<Scalars['String']>;
+  account_not?: InputMaybe<Scalars['String']>;
+  account_gt?: InputMaybe<Scalars['String']>;
+  account_lt?: InputMaybe<Scalars['String']>;
+  account_gte?: InputMaybe<Scalars['String']>;
+  account_lte?: InputMaybe<Scalars['String']>;
+  account_in?: InputMaybe<Array<Scalars['String']>>;
+  account_not_in?: InputMaybe<Array<Scalars['String']>>;
+  account_contains?: InputMaybe<Scalars['String']>;
+  account_contains_nocase?: InputMaybe<Scalars['String']>;
+  account_not_contains?: InputMaybe<Scalars['String']>;
+  account_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  account_starts_with?: InputMaybe<Scalars['String']>;
+  account_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  account_not_starts_with?: InputMaybe<Scalars['String']>;
+  account_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  account_ends_with?: InputMaybe<Scalars['String']>;
+  account_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  account_not_ends_with?: InputMaybe<Scalars['String']>;
+  account_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  account_?: InputMaybe<Account_filter>;
+  tokenAmount?: InputMaybe<Scalars['BigInt']>;
+  tokenAmount_not?: InputMaybe<Scalars['BigInt']>;
+  tokenAmount_gt?: InputMaybe<Scalars['BigInt']>;
+  tokenAmount_lt?: InputMaybe<Scalars['BigInt']>;
+  tokenAmount_gte?: InputMaybe<Scalars['BigInt']>;
+  tokenAmount_lte?: InputMaybe<Scalars['BigInt']>;
+  tokenAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  tokenAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  token?: InputMaybe<Scalars['String']>;
+  token_not?: InputMaybe<Scalars['String']>;
+  token_gt?: InputMaybe<Scalars['String']>;
+  token_lt?: InputMaybe<Scalars['String']>;
+  token_gte?: InputMaybe<Scalars['String']>;
+  token_lte?: InputMaybe<Scalars['String']>;
+  token_in?: InputMaybe<Array<Scalars['String']>>;
+  token_not_in?: InputMaybe<Array<Scalars['String']>>;
+  token_contains?: InputMaybe<Scalars['String']>;
+  token_contains_nocase?: InputMaybe<Scalars['String']>;
+  token_not_contains?: InputMaybe<Scalars['String']>;
+  token_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  token_starts_with?: InputMaybe<Scalars['String']>;
+  token_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  token_not_starts_with?: InputMaybe<Scalars['String']>;
+  token_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  token_ends_with?: InputMaybe<Scalars['String']>;
+  token_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  token_not_ends_with?: InputMaybe<Scalars['String']>;
+  token_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  token_?: InputMaybe<Token_filter>;
+  underlyingAmountRealized?: InputMaybe<Scalars['BigInt']>;
+  underlyingAmountRealized_not?: InputMaybe<Scalars['BigInt']>;
+  underlyingAmountRealized_gt?: InputMaybe<Scalars['BigInt']>;
+  underlyingAmountRealized_lt?: InputMaybe<Scalars['BigInt']>;
+  underlyingAmountRealized_gte?: InputMaybe<Scalars['BigInt']>;
+  underlyingAmountRealized_lte?: InputMaybe<Scalars['BigInt']>;
+  underlyingAmountRealized_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  underlyingAmountRealized_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  underlyingAmountSpot?: InputMaybe<Scalars['BigInt']>;
+  underlyingAmountSpot_not?: InputMaybe<Scalars['BigInt']>;
+  underlyingAmountSpot_gt?: InputMaybe<Scalars['BigInt']>;
+  underlyingAmountSpot_lt?: InputMaybe<Scalars['BigInt']>;
+  underlyingAmountSpot_gte?: InputMaybe<Scalars['BigInt']>;
+  underlyingAmountSpot_lte?: InputMaybe<Scalars['BigInt']>;
+  underlyingAmountSpot_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  underlyingAmountSpot_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  underlyingToken?: InputMaybe<Scalars['String']>;
+  underlyingToken_not?: InputMaybe<Scalars['String']>;
+  underlyingToken_gt?: InputMaybe<Scalars['String']>;
+  underlyingToken_lt?: InputMaybe<Scalars['String']>;
+  underlyingToken_gte?: InputMaybe<Scalars['String']>;
+  underlyingToken_lte?: InputMaybe<Scalars['String']>;
+  underlyingToken_in?: InputMaybe<Array<Scalars['String']>>;
+  underlyingToken_not_in?: InputMaybe<Array<Scalars['String']>>;
+  underlyingToken_contains?: InputMaybe<Scalars['String']>;
+  underlyingToken_contains_nocase?: InputMaybe<Scalars['String']>;
+  underlyingToken_not_contains?: InputMaybe<Scalars['String']>;
+  underlyingToken_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  underlyingToken_starts_with?: InputMaybe<Scalars['String']>;
+  underlyingToken_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  underlyingToken_not_starts_with?: InputMaybe<Scalars['String']>;
+  underlyingToken_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  underlyingToken_ends_with?: InputMaybe<Scalars['String']>;
+  underlyingToken_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  underlyingToken_not_ends_with?: InputMaybe<Scalars['String']>;
+  underlyingToken_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  underlyingToken_?: InputMaybe<Token_filter>;
+  realizedPrice?: InputMaybe<Scalars['BigInt']>;
+  realizedPrice_not?: InputMaybe<Scalars['BigInt']>;
+  realizedPrice_gt?: InputMaybe<Scalars['BigInt']>;
+  realizedPrice_lt?: InputMaybe<Scalars['BigInt']>;
+  realizedPrice_gte?: InputMaybe<Scalars['BigInt']>;
+  realizedPrice_lte?: InputMaybe<Scalars['BigInt']>;
+  realizedPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  realizedPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  spotPrice?: InputMaybe<Scalars['BigInt']>;
+  spotPrice_not?: InputMaybe<Scalars['BigInt']>;
+  spotPrice_gt?: InputMaybe<Scalars['BigInt']>;
+  spotPrice_lt?: InputMaybe<Scalars['BigInt']>;
+  spotPrice_gte?: InputMaybe<Scalars['BigInt']>;
+  spotPrice_lte?: InputMaybe<Scalars['BigInt']>;
+  spotPrice_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  spotPrice_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  impliedFixedRate?: InputMaybe<Scalars['BigInt']>;
+  impliedFixedRate_not?: InputMaybe<Scalars['BigInt']>;
+  impliedFixedRate_gt?: InputMaybe<Scalars['BigInt']>;
+  impliedFixedRate_lt?: InputMaybe<Scalars['BigInt']>;
+  impliedFixedRate_gte?: InputMaybe<Scalars['BigInt']>;
+  impliedFixedRate_lte?: InputMaybe<Scalars['BigInt']>;
+  impliedFixedRate_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  impliedFixedRate_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<ProfitLossLineItem_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<ProfitLossLineItem_filter>>>;
+};
+
+export type ProfitLossLineItem_orderBy =
+  | 'id'
+  | 'blockNumber'
+  | 'timestamp'
+  | 'transactionHash'
+  | 'transactionHash__id'
+  | 'transactionHash__blockNumber'
+  | 'transactionHash__timestamp'
+  | 'transactionHash__transactionHash'
+  | 'transactionHash___nextStartIndex'
+  | 'bundle'
+  | 'bundle__id'
+  | 'bundle__blockNumber'
+  | 'bundle__timestamp'
+  | 'bundle__bundleName'
+  | 'bundle__startLogIndex'
+  | 'bundle__endLogIndex'
+  | 'balanceSnapshot'
+  | 'balanceSnapshot__id'
+  | 'balanceSnapshot__blockNumber'
+  | 'balanceSnapshot__timestamp'
+  | 'balanceSnapshot__currentBalance'
+  | 'balanceSnapshot__adjustedCostBasis'
+  | 'balanceSnapshot__currentProfitAndLossAtSnapshot'
+  | 'balanceSnapshot__totalProfitAndLossAtSnapshot'
+  | 'balanceSnapshot__totalILAndFeesAtSnapshot'
+  | 'balanceSnapshot__totalInterestAccrualAtSnapshot'
+  | 'balanceSnapshot__impliedFixedRate'
+  | 'balanceSnapshot___accumulatedBalance'
+  | 'balanceSnapshot___accumulatedCostRealized'
+  | 'balanceSnapshot___accumulatedCostAdjustedBasis'
+  | 'account'
+  | 'account__id'
+  | 'account__firstUpdateBlockNumber'
+  | 'account__firstUpdateTimestamp'
+  | 'account__firstUpdateTransactionHash'
+  | 'account__lastUpdateBlockNumber'
+  | 'account__lastUpdateTimestamp'
+  | 'account__lastUpdateTransactionHash'
+  | 'account__systemAccountType'
+  | 'tokenAmount'
+  | 'token'
+  | 'token__id'
+  | 'token__firstUpdateBlockNumber'
+  | 'token__firstUpdateTimestamp'
+  | 'token__firstUpdateTransactionHash'
+  | 'token__lastUpdateBlockNumber'
+  | 'token__lastUpdateTimestamp'
+  | 'token__lastUpdateTransactionHash'
+  | 'token__tokenType'
+  | 'token__tokenInterface'
+  | 'token__currencyId'
+  | 'token__name'
+  | 'token__symbol'
+  | 'token__decimals'
+  | 'token__precision'
+  | 'token__totalSupply'
+  | 'token__hasTransferFee'
+  | 'token__isfCashDebt'
+  | 'token__maturity'
+  | 'token__vaultAddress'
+  | 'token__tokenAddress'
+  | 'underlyingAmountRealized'
+  | 'underlyingAmountSpot'
+  | 'underlyingToken'
+  | 'underlyingToken__id'
+  | 'underlyingToken__firstUpdateBlockNumber'
+  | 'underlyingToken__firstUpdateTimestamp'
+  | 'underlyingToken__firstUpdateTransactionHash'
+  | 'underlyingToken__lastUpdateBlockNumber'
+  | 'underlyingToken__lastUpdateTimestamp'
+  | 'underlyingToken__lastUpdateTransactionHash'
+  | 'underlyingToken__tokenType'
+  | 'underlyingToken__tokenInterface'
+  | 'underlyingToken__currencyId'
+  | 'underlyingToken__name'
+  | 'underlyingToken__symbol'
+  | 'underlyingToken__decimals'
+  | 'underlyingToken__precision'
+  | 'underlyingToken__totalSupply'
+  | 'underlyingToken__hasTransferFee'
+  | 'underlyingToken__isfCashDebt'
+  | 'underlyingToken__maturity'
+  | 'underlyingToken__vaultAddress'
+  | 'underlyingToken__tokenAddress'
+  | 'realizedPrice'
+  | 'spotPrice'
+  | 'impliedFixedRate';
+
 export type Query = {
   token?: Maybe<Token>;
   tokens: Array<Token>;
@@ -2304,6 +2891,8 @@ export type Query = {
   transfers: Array<Transfer>;
   transferBundle?: Maybe<TransferBundle>;
   transferBundles: Array<TransferBundle>;
+  profitLossLineItem?: Maybe<ProfitLossLineItem>;
+  profitLossLineItems: Array<ProfitLossLineItem>;
   transaction?: Maybe<Transaction>;
   transactions: Array<Transaction>;
   account?: Maybe<Account>;
@@ -2324,6 +2913,8 @@ export type Query = {
   whitelistedContracts: Array<WhitelistedContract>;
   balance?: Maybe<Balance>;
   balances: Array<Balance>;
+  balanceSnapshot?: Maybe<BalanceSnapshot>;
+  balanceSnapshots: Array<BalanceSnapshot>;
   activeMarket?: Maybe<ActiveMarket>;
   activeMarkets: Array<ActiveMarket>;
   primeCashMarket?: Maybe<PrimeCashMarket>;
@@ -2392,6 +2983,24 @@ export type QuerytransferBundlesArgs = {
   orderBy?: InputMaybe<TransferBundle_orderBy>;
   orderDirection?: InputMaybe<OrderDirection>;
   where?: InputMaybe<TransferBundle_filter>;
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type QueryprofitLossLineItemArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type QueryprofitLossLineItemsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<ProfitLossLineItem_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<ProfitLossLineItem_filter>;
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2577,6 +3186,24 @@ export type QuerybalancesArgs = {
 };
 
 
+export type QuerybalanceSnapshotArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type QuerybalanceSnapshotsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<BalanceSnapshot_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<BalanceSnapshot_filter>;
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
 export type QueryactiveMarketArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<Block_height>;
@@ -2714,6 +3341,8 @@ export type Subscription = {
   transfers: Array<Transfer>;
   transferBundle?: Maybe<TransferBundle>;
   transferBundles: Array<TransferBundle>;
+  profitLossLineItem?: Maybe<ProfitLossLineItem>;
+  profitLossLineItems: Array<ProfitLossLineItem>;
   transaction?: Maybe<Transaction>;
   transactions: Array<Transaction>;
   account?: Maybe<Account>;
@@ -2734,6 +3363,8 @@ export type Subscription = {
   whitelistedContracts: Array<WhitelistedContract>;
   balance?: Maybe<Balance>;
   balances: Array<Balance>;
+  balanceSnapshot?: Maybe<BalanceSnapshot>;
+  balanceSnapshots: Array<BalanceSnapshot>;
   activeMarket?: Maybe<ActiveMarket>;
   activeMarkets: Array<ActiveMarket>;
   primeCashMarket?: Maybe<PrimeCashMarket>;
@@ -2802,6 +3433,24 @@ export type SubscriptiontransferBundlesArgs = {
   orderBy?: InputMaybe<TransferBundle_orderBy>;
   orderDirection?: InputMaybe<OrderDirection>;
   where?: InputMaybe<TransferBundle_filter>;
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptionprofitLossLineItemArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptionprofitLossLineItemsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<ProfitLossLineItem_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<ProfitLossLineItem_filter>;
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -2982,6 +3631,24 @@ export type SubscriptionbalancesArgs = {
   orderBy?: InputMaybe<Balance_orderBy>;
   orderDirection?: InputMaybe<OrderDirection>;
   where?: InputMaybe<Balance_filter>;
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptionbalanceSnapshotArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptionbalanceSnapshotsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<BalanceSnapshot_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<BalanceSnapshot_filter>;
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -3792,6 +4459,7 @@ export type TransferBundle = {
   startLogIndex: Scalars['Int'];
   endLogIndex: Scalars['Int'];
   transfers: Array<Transfer>;
+  profitLossLineItems?: Maybe<Array<ProfitLossLineItem>>;
 };
 
 
@@ -3801,6 +4469,15 @@ export type TransferBundletransfersArgs = {
   orderBy?: InputMaybe<Transfer_orderBy>;
   orderDirection?: InputMaybe<OrderDirection>;
   where?: InputMaybe<Transfer_filter>;
+};
+
+
+export type TransferBundleprofitLossLineItemsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<ProfitLossLineItem_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<ProfitLossLineItem_filter>;
 };
 
 export type TransferBundle_filter = {
@@ -3892,6 +4569,7 @@ export type TransferBundle_filter = {
   transfers_not_contains?: InputMaybe<Array<Scalars['String']>>;
   transfers_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
   transfers_?: InputMaybe<Transfer_filter>;
+  profitLossLineItems_?: InputMaybe<ProfitLossLineItem_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<TransferBundle_filter>>>;
@@ -3911,7 +4589,8 @@ export type TransferBundle_orderBy =
   | 'bundleName'
   | 'startLogIndex'
   | 'endLogIndex'
-  | 'transfers';
+  | 'transfers'
+  | 'profitLossLineItems';
 
 export type TransferType =
   | 'Mint'
@@ -5166,6 +5845,10 @@ export type fCashMarket_orderBy =
   /** null **/
   transferBundles: InContextSdkMethod<Query['transferBundles'], QuerytransferBundlesArgs, MeshContext>,
   /** null **/
+  profitLossLineItem: InContextSdkMethod<Query['profitLossLineItem'], QueryprofitLossLineItemArgs, MeshContext>,
+  /** null **/
+  profitLossLineItems: InContextSdkMethod<Query['profitLossLineItems'], QueryprofitLossLineItemsArgs, MeshContext>,
+  /** null **/
   transaction: InContextSdkMethod<Query['transaction'], QuerytransactionArgs, MeshContext>,
   /** null **/
   transactions: InContextSdkMethod<Query['transactions'], QuerytransactionsArgs, MeshContext>,
@@ -5205,6 +5888,10 @@ export type fCashMarket_orderBy =
   balance: InContextSdkMethod<Query['balance'], QuerybalanceArgs, MeshContext>,
   /** null **/
   balances: InContextSdkMethod<Query['balances'], QuerybalancesArgs, MeshContext>,
+  /** null **/
+  balanceSnapshot: InContextSdkMethod<Query['balanceSnapshot'], QuerybalanceSnapshotArgs, MeshContext>,
+  /** null **/
+  balanceSnapshots: InContextSdkMethod<Query['balanceSnapshots'], QuerybalanceSnapshotsArgs, MeshContext>,
   /** null **/
   activeMarket: InContextSdkMethod<Query['activeMarket'], QueryactiveMarketArgs, MeshContext>,
   /** null **/
@@ -5255,6 +5942,10 @@ export type fCashMarket_orderBy =
   /** null **/
   transferBundles: InContextSdkMethod<Subscription['transferBundles'], SubscriptiontransferBundlesArgs, MeshContext>,
   /** null **/
+  profitLossLineItem: InContextSdkMethod<Subscription['profitLossLineItem'], SubscriptionprofitLossLineItemArgs, MeshContext>,
+  /** null **/
+  profitLossLineItems: InContextSdkMethod<Subscription['profitLossLineItems'], SubscriptionprofitLossLineItemsArgs, MeshContext>,
+  /** null **/
   transaction: InContextSdkMethod<Subscription['transaction'], SubscriptiontransactionArgs, MeshContext>,
   /** null **/
   transactions: InContextSdkMethod<Subscription['transactions'], SubscriptiontransactionsArgs, MeshContext>,
@@ -5294,6 +5985,10 @@ export type fCashMarket_orderBy =
   balance: InContextSdkMethod<Subscription['balance'], SubscriptionbalanceArgs, MeshContext>,
   /** null **/
   balances: InContextSdkMethod<Subscription['balances'], SubscriptionbalancesArgs, MeshContext>,
+  /** null **/
+  balanceSnapshot: InContextSdkMethod<Subscription['balanceSnapshot'], SubscriptionbalanceSnapshotArgs, MeshContext>,
+  /** null **/
+  balanceSnapshots: InContextSdkMethod<Subscription['balanceSnapshots'], SubscriptionbalanceSnapshotsArgs, MeshContext>,
   /** null **/
   activeMarket: InContextSdkMethod<Subscription['activeMarket'], SubscriptionactiveMarketArgs, MeshContext>,
   /** null **/

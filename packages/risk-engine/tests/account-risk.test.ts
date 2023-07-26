@@ -48,20 +48,21 @@ describe.withForkAndRegistry(
           [-1280, 'USDC'],
         ],
         expected: [
-          { factor: 'netWorth', expected: [0.321, 'ETH'] },
-          { factor: 'freeCollateral', expected: [0.0701, 'ETH'] },
-          { factor: 'loanToValue', expected: 67.88 },
-          { factor: 'collateralRatio', expected: 147.31 },
-          { factor: 'healthFactor', expected: 0.218 },
+          { factor: 'netWorth', expected: [0.324, 'ETH'] },
+          { factor: 'freeCollateral', expected: [0.263, 'ETH'] },
+          { factor: 'loanToValue', expected: 67.59 },
+          { factor: 'collateralRatio', expected: 147.94 },
+          { factor: 'healthFactor', expected: 0.8122 },
+          { factor: 'leverageRatio', expected: 2.085 },
           {
             factor: 'collateralLiquidationThreshold',
             args: ['ETH'],
-            expected: [0.913, 'ETH'],
+            expected: [0.736, 'ETH'],
           },
           {
             factor: 'liquidationPrice',
             args: ['USDC', 'ETH'],
-            expected: [1722.46, 'USDC'],
+            expected: [1395.2, 'USDC'],
           },
         ],
       },
@@ -79,7 +80,21 @@ describe.withForkAndRegistry(
           { factor: 'healthFactor', expected: null },
         ],
       },
-      // TODO: test net local
+      {
+        name: 'Leveraged nToken',
+        balances: [
+          [-8, 'pdEther'],
+          [10, 'nETH'],
+        ],
+        expected: [
+          { factor: 'netWorth', expected: [1.996, 'ETH'] },
+          { factor: 'freeCollateral', expected: [0.996, 'ETH'] },
+          { factor: 'loanToValue', expected: 80.03 },
+          { factor: 'collateralRatio', expected: 124.94 },
+          { factor: 'healthFactor', expected: 0.499 },
+          { factor: 'leverageRatio', expected: 4.008 },
+        ],
+      },
     ];
 
     const riskFactors: {
@@ -112,22 +127,30 @@ describe.withForkAndRegistry(
         limit: [0.37, 'ETH'],
       },
       {
-        riskFactor: 'freeCollateral',
-        limit: [0.01, 'ETH'],
+        riskFactor: 'leverageRatio',
+        limit: 3,
       },
       {
-        riskFactor: 'freeCollateral',
-        limit: [0.1, 'ETH'],
+        riskFactor: 'leverageRatio',
+        limit: 5,
+      },
+      // {
+      //   riskFactor: 'freeCollateral',
+      //   limit: [0.2, 'ETH'],
+      // },
+      // {
+      //   riskFactor: 'freeCollateral',
+      //   limit: [0.35, 'ETH'],
+      // },
+      {
+        riskFactor: 'collateralLiquidationThreshold',
+        args: ['ETH'],
+        limit: [0.65, 'ETH'],
       },
       {
         riskFactor: 'collateralLiquidationThreshold',
         args: ['ETH'],
         limit: [0.85, 'ETH'],
-      },
-      {
-        riskFactor: 'collateralLiquidationThreshold',
-        args: ['ETH'],
-        limit: [0.96, 'ETH'],
       },
     ];
 
@@ -193,7 +216,7 @@ describe.withForkAndRegistry(
         const USDC = tokens.getTokenBySymbol(Network.ArbitrumOne, 'USDC');
         const p = AccountRiskProfile.from([
           TokenBalance.fromFloat(1, ETH),
-          TokenBalance.fromFloat(-1200, USDC),
+          TokenBalance.fromFloat(-1280, USDC),
         ]);
 
         const l =
@@ -227,7 +250,12 @@ describe.withForkAndRegistry(
       }
     );
 
-    it.each(riskFactors.filter(({ riskFactor }) => riskFactor !== 'netWorth'))(
+    it.each(
+      riskFactors.filter(
+        ({ riskFactor }) =>
+          riskFactor !== 'netWorth' && riskFactor !== 'leverageRatio'
+      )
+    )(
       'Leverage / Deleverage Maintain Factor [$riskFactor | $limit]',
       ({ riskFactor, limit, args }) => {
         const tokens = Registry.getTokenRegistry();
@@ -235,7 +263,7 @@ describe.withForkAndRegistry(
         const USDC = tokens.getTokenBySymbol(Network.ArbitrumOne, 'USDC');
         const p = AccountRiskProfile.from([
           TokenBalance.fromFloat(1, ETH),
-          TokenBalance.fromFloat(-1200, USDC),
+          TokenBalance.fromFloat(-1280, USDC),
         ]);
         const l =
           typeof limit === 'number'
@@ -252,6 +280,54 @@ describe.withForkAndRegistry(
         ) as RiskFactorLimit<RiskFactorKeys>['args'];
         const { netCollateral, netDebt } =
           p.getDebtAndCollateralMaintainRiskFactor(USDC, ETH, {
+            riskFactor,
+            limit: l,
+            args: _args,
+          });
+
+        if (typeof limit === 'number') {
+          expect(
+            p
+              .simulate([netCollateral, netDebt])
+              .getRiskFactor(riskFactor, _args)
+          ).toBeCloseTo(l, 0);
+        } else {
+          expect(
+            p
+              .simulate([netCollateral, netDebt])
+              .getRiskFactor(riskFactor, _args)
+          ).toBeApprox(l, 0.01);
+        }
+      }
+    );
+
+    it.each(
+      riskFactors.filter(({ riskFactor }) => riskFactor === 'leverageRatio')
+    )(
+      'Leverage / Deleverage Maintain Factor Local [$riskFactor | $limit]',
+      ({ riskFactor, limit, args }) => {
+        const tokens = Registry.getTokenRegistry();
+        const ETH = tokens.getTokenBySymbol(Network.ArbitrumOne, 'ETH');
+        const nETH = tokens.getTokenBySymbol(Network.ArbitrumOne, 'nETH');
+        const p = AccountRiskProfile.from([
+          TokenBalance.fromFloat(-8, ETH),
+          TokenBalance.fromFloat(10, nETH),
+        ]);
+        const l =
+          typeof limit === 'number'
+            ? limit
+            : TokenBalance.fromFloat(
+                limit[0],
+                tokens.getTokenBySymbol(Network.ArbitrumOne, limit[1])
+              );
+
+        const _args = (
+          args
+            ? args.map((s) => tokens.getTokenBySymbol(Network.ArbitrumOne, s))
+            : undefined
+        ) as RiskFactorLimit<RiskFactorKeys>['args'];
+        const { netCollateral, netDebt } =
+          p.getDebtAndCollateralMaintainRiskFactor(ETH, nETH, {
             riskFactor,
             limit: l,
             args: _args,

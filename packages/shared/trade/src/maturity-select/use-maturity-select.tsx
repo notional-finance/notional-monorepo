@@ -1,16 +1,14 @@
-import { Registry } from '@notional-finance/core-entities';
-import { convertRateToFloat } from '@notional-finance/helpers';
-import { isVaultTrade } from '@notional-finance/notionable';
+import { MaturityData, isVaultTrade } from '@notional-finance/notionable';
 import {
-  TradeContext,
-  useFCashMarket,
+  BaseContext,
+  useSpotMaturityData,
 } from '@notional-finance/notionable-hooks';
-import { formatInterestRate } from '@notional-finance/util';
+import { RATE_PRECISION, formatInterestRate } from '@notional-finance/util';
 import { useCallback, useContext } from 'react';
 
 export const useMaturitySelect = (
   category: 'Collateral' | 'Debt',
-  context: TradeContext
+  context: BaseContext
 ) => {
   const {
     state: {
@@ -20,74 +18,29 @@ export const useMaturitySelect = (
       debt,
       collateralOptions,
       debtOptions,
-      deposit,
       tradeType,
+      deposit,
     },
     updateState,
   } = useContext(context);
-  const tokens =
-    category === 'Collateral' ? availableCollateralTokens : availableDebtTokens;
   const selectedToken = category === 'Collateral' ? collateral : debt;
   const options = category === 'Collateral' ? collateralOptions : debtOptions;
-  const currencyId =
-    deposit?.currencyId ||
-    selectedToken?.currencyId ||
-    options?.find((_) => !!_)?.currencyId;
-
-  const fCashMarket = useFCashMarket(currencyId);
-  const spotRates = fCashMarket?.getSpotInterestRates();
-  const tokenRegistry = Registry.getTokenRegistry();
+  const tokens =
+    category === 'Collateral' ? availableCollateralTokens : availableDebtTokens;
   const isVault = isVaultTrade(tradeType);
+  // Need to check if deposit is set to resolve some race conditions here
+  const spotMaturityData = useSpotMaturityData(deposit, deposit ? tokens : []);
 
-  // TODO: maybe put a use memo in here..
-  const maturityData =
-    fCashMarket && spotRates && tokens
-      ? tokens
-          .filter((_t) => {
-            const t = tokenRegistry.unwrapVaultToken(_t);
-            return t.tokenType === 'fCash' && t.currencyId === currencyId;
-          })
-          .sort((t) => t.maturity || 0)
-          .map((t, i) => {
-            const index = tokens.findIndex((_t) => _t.id === t.id);
-            const option = options ? options[index] : undefined;
-            let tradeRate: number | undefined;
-            if (option && !option.isZero()) {
-              let { tokensOut } = fCashMarket.calculateTokenTrade(
-                option.unwrapVaultToken().neg(),
-                0
-              );
-
-              if (isVault) {
-                ({ cashBorrowed: tokensOut } =
-                  Registry.getConfigurationRegistry().getVaultBorrowWithFees(
-                    option.network,
-                    option.vaultAddress,
-                    option.maturity,
-                    tokensOut.toUnderlying()
-                  ));
-              }
-
-              tradeRate = fCashMarket.getImpliedInterestRate(
-                tokensOut,
-                option.unwrapVaultToken()
-              );
-            } else if (option === null) {
-              // This signifies an error
-              tradeRate = undefined;
-            } else {
-              tradeRate = spotRates[i];
-            }
-
-            return {
-              fCashId: t.id,
-              tradeRate: tradeRate ? convertRateToFloat(tradeRate) : undefined,
-              maturity: t.maturity || 0,
-              hasLiquidity: true,
-              tradeRateString: tradeRate ? formatInterestRate(tradeRate) : '',
-            };
-          })
-      : [];
+  const maturityData: MaturityData[] =
+    options?.map((o) => {
+      return {
+        fCashId: o.token.id,
+        tradeRate: o.interestRate,
+        maturity: o.token.maturity || 0,
+        hasLiquidity: true,
+        tradeRateString: formatInterestRate(o.interestRate),
+      };
+    }) || spotMaturityData;
 
   const onSelect = useCallback(
     (selectedId: string | undefined) => {
@@ -124,5 +77,9 @@ export const useMaturitySelect = (
     ]
   );
 
-  return { maturityData, selectedfCashId: selectedToken?.id, onSelect };
+  return {
+    maturityData: maturityData.sort((a, b) => a.maturity - b.maturity),
+    selectedfCashId: selectedToken?.id,
+    onSelect,
+  };
 };

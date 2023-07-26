@@ -20,7 +20,9 @@ export const LendFixedSidebar = () => {
   const { currencyInputRef } = useCurrencyInputRef();
 
   const handleLeverUpToggle = () => {
-    history.push(`/lend-leveraged/${selectedDepositToken}`);
+    history.push(`/${PRODUCTS.LEND_LEVERAGED}/${selectedDepositToken}`, {
+      from: PRODUCTS.LEND_FIXED,
+    });
   };
 
   const handleSubmit = () => {

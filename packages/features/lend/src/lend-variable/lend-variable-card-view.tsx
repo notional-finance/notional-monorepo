@@ -41,7 +41,7 @@ export function LendVariableCardView() {
           docsLink="https://docs.notional.finance/notional-v2/what-you-can-do/fixed-rate-lending"
         >
           {variableLend.map(({ underlying, totalAPY }, index) => {
-            const route = `/${PRODUCTS.LEND_VARIABLE}/${underlying}`;
+            const route = `/${PRODUCTS.LEND_VARIABLE}/${underlying.symbol}`;
             return (
               <Currency
                 key={index}

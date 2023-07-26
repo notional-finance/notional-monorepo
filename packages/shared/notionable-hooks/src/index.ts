@@ -2,7 +2,6 @@ export * from './account/use-account';
 export * from './account/use-risk-ratios';
 export * from './account/use-risk-label';
 export * from './account/use-risk-thresholds';
-export * from './account/use-transaction-history';
 
 export * from './use-notional-error';
 export * from './context/use-trade-context';

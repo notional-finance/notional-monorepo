@@ -1,11 +1,12 @@
 import { useState, SetStateAction, Dispatch } from 'react';
 import { Table, TableContainer, Paper, useTheme, Box } from '@mui/material';
+import { DataTableFilterBar } from './data-table-filter-bar/data-table-filter-bar';
 import { DataTableTitleBar } from './data-table-title-bar/data-table-title-bar';
 import { DataTableTabBar } from './data-table-tab-bar/data-table-tab-bar';
 import { DataTableHead } from './data-table-head/data-table-head';
 import { DataTableBody } from './data-table-body/data-table-body';
 import { PageLoading } from '../page-loading/page-loading';
-import { useTable, useExpanded } from 'react-table';
+import { useTable, useExpanded, useSortBy } from 'react-table';
 import { FormattedMessage } from 'react-intl';
 import { TableCell } from '../typography/typography';
 import {
@@ -30,6 +31,8 @@ interface DataTableProps {
   initialState?: Record<any, any>;
   setExpandedRows?: Dispatch<SetStateAction<ExpandedRows | null>>;
   tableLoading?: boolean;
+  filterBarData?: any[];
+  marketDataCSVFormatter?: (data: any[]) => any;
 }
 
 export const DataTable = ({
@@ -46,6 +49,8 @@ export const DataTable = ({
   initialState,
   setExpandedRows,
   tableLoading,
+  filterBarData,
+  marketDataCSVFormatter,
 }: DataTableProps) => {
   const theme = useTheme();
   const [viewAllRows, setViewAllRows] = useState<boolean>(!hideExcessRows);
@@ -55,6 +60,7 @@ export const DataTable = ({
       data,
       initialState: initialState,
     },
+    useSortBy,
     useExpanded
   );
 
@@ -70,20 +76,39 @@ export const DataTable = ({
   const expandableTable = CustomRowComponent ? true : false;
 
   /**
-      This table has multiple versions:
+    "Default Data Table": 
+      - If you pass only the required props a plain table with no title bar will be rendered.
 
-    - NOTE* All table variations are affected by the tableVariant prop used only for styling.
+    DATA TABLE VARIANTS =======
 
-    - "Normal Table": If you pass only the required props a plain table with no title will be rendered.
+    DEFAULT: 
+      - Standard styling applies
 
-    - DataTableTitleBar: Requires a tableTitle string. Optionally the tableTitleButtons prop can be passed to render a button bank.
+    MINI: 
+      - Used to display our smallest table. Used in side drawers primarily.
+    
+    TOTAL_ROW: 
+      - Adds a styled total row option
+    
+    SORTABLE: 
+      - Adds the ability for the columns to be sorted. Add ads a up and down arrow to the colum headers
+    
+    DATA TABLE HEADER/TITLE BAR TYPES =======
 
-    - DataTableTabBar: Requires the tabBarProps object and data/columns passed for each differing table. This will render a tabbed table.
-      If the TabComponentVisible and CustomTabComponent props are included any react component can be rendered as the table body.
+    DataTableTitleBar: 
+      - Requires a tableTitle string. Optionally the tableTitleButtons prop can be passed to render a button bank.
+
+    DataTableTabBar: 
+      - Requires the tabBarProps object and data/columns passed for each differing table. This will render a tabbed table.
+      - If the TabComponentVisible and CustomTabComponent props are included any react component can be rendered as the table body.
+
+    DataTableFilterBar: 
+      - Requires filterBarData to function. The filterBarData will automatically populate one or more filter dropdowns depending on need. 
   */
 
   return (
     <TableContainer
+      id="data-table-container"
       sx={{
         overflow: 'scroll',
         '&.MuiPaper-root': {
@@ -91,7 +116,11 @@ export const DataTable = ({
           boxShadow: 'none',
           border: theme.shape.borderStandard,
           borderRadius: theme.shape.borderRadius(),
-          overflow: !tableReady ? 'hidden' : 'auto',
+          overflow: !tableReady
+            ? 'hidden'
+            : filterBarData && filterBarData.length > 0
+            ? 'visible'
+            : 'auto',
           backgroundColor:
             tableVariant === TABLE_VARIANTS.MINI
               ? theme.palette.background.default
@@ -107,6 +136,14 @@ export const DataTable = ({
           tableTitle={tableTitle}
           tableTitleButtons={tableTitleButtons}
           tableVariant={tableVariant}
+        />
+      )}
+
+      {filterBarData && filterBarData.length > 0 && (
+        <DataTableFilterBar
+          filterBarData={filterBarData}
+          tableData={data}
+          downloadCSVFormatter={marketDataCSVFormatter}
         />
       )}
 
@@ -154,7 +191,7 @@ export const DataTable = ({
             <TableCell
               sx={{ textAlign: 'center', margin: theme.spacing(4, 0) }}
             >
-              <FormattedMessage defaultMessage="No Data" />
+              <FormattedMessage defaultMessage="No Data Available" />
             </TableCell>
           )}
         </Box>

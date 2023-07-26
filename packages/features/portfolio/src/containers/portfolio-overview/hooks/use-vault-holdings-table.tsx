@@ -12,9 +12,13 @@ import {
   formatNumberAsPercent,
 } from '@notional-finance/helpers';
 import { FormattedMessage } from 'react-intl';
-import { useVaultRiskProfiles } from '@notional-finance/notionable-hooks';
+import {
+  useBalanceStatements,
+  useVaultRiskProfiles,
+} from '@notional-finance/notionable-hooks';
 import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
 import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
+import { TokenBalance } from '@notional-finance/core-entities';
 
 export function getVaultLeveragePercentage(
   v: VaultAccountRiskProfile,
@@ -42,6 +46,7 @@ export function getVaultLeveragePercentage(
 export const useVaultHoldingsTable = () => {
   const vaults = useVaultRiskProfiles();
   const theme = useTheme();
+  const balanceStatements = useBalanceStatements();
 
   const vaultHoldingsColumns: DataTableColumn[] = [
     {
@@ -66,19 +71,19 @@ export const useVaultHoldingsTable = () => {
     {
       Header: (
         <FormattedMessage
-          defaultMessage="Earnings"
-          description={'earnings header'}
+          defaultMessage="Profits"
+          description={'profits header'}
         />
       ),
       Cell: MultiValueCell,
-      accessor: 'earnings',
+      accessor: 'profit',
       textAlign: 'right',
     },
     {
       Header: (
         <FormattedMessage defaultMessage="APY" description={'Debts header'} />
       ),
-      accessor: 'apy',
+      accessor: 'totalAPY',
       textAlign: 'right',
     },
     {
@@ -99,6 +104,27 @@ export const useVaultHoldingsTable = () => {
     const { leveragePercentage, leverageRatio, maxLeverageRatio, trackColor } =
       getVaultLeveragePercentage(v, theme);
 
+    const debtPnL = balanceStatements.find(
+      (b) => b.token.id === v.vaultDebt.tokenId
+    );
+    const assetPnL = balanceStatements?.find(
+      (b) => b.token.id === v.vaultShareDefinition.id
+    );
+    const profit = (
+      assetPnL?.totalProfitAndLoss ||
+      TokenBalance.zero(v.denom(v.defaultSymbol))
+    ).sub(
+      debtPnL?.totalProfitAndLoss || TokenBalance.zero(v.denom(v.defaultSymbol))
+    );
+    // TODO: need to fill out the APY calculation
+    const totalAPY = 0;
+    const strategyAPY = 0;
+    const borrowAPY =
+      debtPnL?.impliedFixedRate !== undefined
+        ? formatNumberAsPercent(debtPnL.impliedFixedRate)
+        : // TODO: if this is variable then show the current prime cash borrow rate
+          0;
+
     return {
       strategy: {
         symbol: v.defaultSymbol,
@@ -109,9 +135,8 @@ export const useVaultHoldingsTable = () => {
             : `Maturity: ${formatMaturity(v.maturity)}`,
       },
       netWorth: formatCryptoWithFiat(v.netWorth()),
-      // TODO: fill these out
-      earnings: formatCryptoWithFiat(v.netWorth()),
-      apy: formatNumberAsPercent(0),
+      profit: formatCryptoWithFiat(profit),
+      totalAPY: formatNumberAsPercent(totalAPY),
       leveragePercentage: leveragePercentage
         ? {
             value: leveragePercentage,
@@ -123,6 +148,15 @@ export const useVaultHoldingsTable = () => {
             trackColor,
           }
         : undefined,
+      // TODO: these values are inside the accordion
+      strategyAPY: {
+        displayValue: formatNumberAsPercent(strategyAPY, 3),
+        isNegative: strategyAPY && strategyAPY < 0,
+      },
+      borrowAPY: {
+        displayValue: formatNumberAsPercent(borrowAPY, 3),
+      },
+      leverageRatio: formatLeverageRatio(v.leverageRatio() || 0),
     };
   });
 

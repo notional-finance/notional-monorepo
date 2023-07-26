@@ -201,7 +201,6 @@ export const CurrencyInput = React.forwardRef<
             borderColor: borderColor,
           }}
         />
-
         <CustomSelect
           {...{
             ...props,

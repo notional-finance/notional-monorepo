@@ -10,6 +10,7 @@ import {
   availableTokens,
   buildTransaction,
   resetOnTradeTypeChange,
+  defaultLeverageRatio,
 } from './logic';
 import {
   selectedAccount,
@@ -36,9 +37,10 @@ export function createTradeManager(
     buildTransaction(state$, account$),
     postAccountRisk(state$, account$),
     calculate(state$, debtPool$, collateralPool$, of(undefined), account$),
-    selectedToken('Deposit', state$, network$),
+    defaultLeverageRatio(state$, network$),
     selectedToken('Collateral', state$, network$),
     selectedToken('Debt', state$, network$),
+    selectedToken('Deposit', state$, network$),
     priorAccountRisk(account$),
     availableTokens(state$, network$, account$),
     initState(state$, network$),

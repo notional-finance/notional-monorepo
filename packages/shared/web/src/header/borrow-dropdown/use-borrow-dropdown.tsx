@@ -7,8 +7,9 @@ import { formatNumberAsPercent } from '@notional-finance/helpers';
 
 export const useBorrowDropDown = () => {
   const theme = useTheme();
+
   const {
-    headlineRates: { fCashLend, variableLend },
+    headlineRates: { fCashBorrow, variableBorrow },
   } = useAllMarkets();
 
   const links: SectionLinkProps[] = [
@@ -28,7 +29,7 @@ export const useBorrowDropDown = () => {
         <FormattedMessage
           defaultMessage="Borrow with interest as low as {rate} APY"
           values={{
-            rate: formatNumberAsPercent(fCashLend?.totalAPY || 0),
+            rate: formatNumberAsPercent(fCashBorrow?.totalAPY || 0),
           }}
         />
       ),
@@ -50,7 +51,7 @@ export const useBorrowDropDown = () => {
         <FormattedMessage
           defaultMessage="Borrow with interest as low as {rate} variable APY"
           values={{
-            rate: formatNumberAsPercent(variableLend?.totalAPY || 0),
+            rate: formatNumberAsPercent(variableBorrow?.totalAPY || 0),
           }}
         />
       ),

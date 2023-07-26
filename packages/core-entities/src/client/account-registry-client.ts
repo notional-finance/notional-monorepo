@@ -11,18 +11,33 @@ import {
 import {
   encodefCashId,
   getProviderFromNetwork,
+  INTERNAL_TOKEN_PRECISION,
   MAX_APPROVAL,
   Network,
   NotionalAddress,
   PRIME_CASH_VAULT_MATURITY,
+  RATE_PRECISION,
   ZERO_ADDRESS,
 } from '@notional-finance/util';
 import { BigNumber, Contract } from 'ethers';
 import { BehaviorSubject, filter, lastValueFrom, take, takeUntil } from 'rxjs';
-import { AccountDefinition, CacheSchema, Registry, TokenBalance } from '..';
+import {
+  AccountDefinition,
+  BalanceStatement,
+  CacheSchema,
+  Registry,
+  TokenBalance,
+  AccountHistory,
+} from '..';
 import { Routes } from '../server';
-import { fetchUsingMulticall } from '../server/server-registry';
+import {
+  fetchGraph,
+  fetchUsingMulticall,
+  loadGraphClientDeferred,
+} from '../server/server-registry';
 import { ClientRegistry } from './client-registry';
+// eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
+import { BalanceSnapshot } from '../.graphclient';
 
 export enum AccountFetchMode {
   // Used for the frontend UI, will fetch data for a single account direct from
@@ -349,7 +364,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
         target: notional,
         method: 'getAccount',
         args: [this.activeAccount],
-        key: `${notional.address}.balance`,
+        key: `${notional.address}.account`,
         transform: (r: Awaited<ReturnType<NotionalV3['getAccount']>>) => {
           const accountBalances = r.accountBalances.flatMap((b) => {
             const balances: TokenBalance[] = [];
@@ -378,21 +393,40 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
             return TokenBalance.fromID(a.notional, fCashId, network);
           });
 
-          return accountBalances.concat(portfolioBalances);
+          return {
+            balances: accountBalances.concat(portfolioBalances),
+            allowPrimeBorrow: r.accountContext.allowPrimeBorrow,
+          };
         },
       },
     ];
 
-    // TODO: still need to fetch transactions
+    const { finalResults: balanceStatement } =
+      await this.fetchBalanceStatements(network, activeAccount);
+    const { finalResults: accountHistory } = await this.fetchTransactionHistory(
+      network,
+      activeAccount
+    );
     return fetchUsingMulticall<AccountDefinition>(network, calls, [
       (results: Record<string, TokenBalance | TokenBalance[]>) => {
         return {
           [activeAccount]: {
             address: activeAccount,
             network,
-            balances: Object.keys(results)
-              .filter((k) => k.includes('.balance'))
-              .flatMap((k) => results[k]),
+            balanceStatement: balanceStatement[activeAccount],
+            accountHistory: accountHistory[activeAccount],
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            allowPrimeBorrow: (results[`${notional.address}.account`] as any)[
+              'allowPrimeBorrow'
+            ],
+            balances: Object.keys(results).flatMap((k) =>
+              k.includes('balance')
+                ? results[k]
+                : k.includes('account')
+                ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  ((results[k] as any)['balances'] as TokenBalance[])
+                : []
+            ),
             allowances: Object.keys(results)
               .filter((k) => k.includes('.allowance'))
               .map((k) => {
@@ -405,6 +439,181 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
         };
       },
     ]);
+  }
+
+  private _parseBalanceStatement(
+    tokenId: string,
+    underlyingId: string,
+    snapshot: BalanceSnapshot,
+    network: Network
+  ) {
+    return {
+      timestamp: snapshot.timestamp,
+      balance: TokenBalance.fromID(snapshot.currentBalance, tokenId, network),
+      accumulatedCostRealized: TokenBalance.fromID(
+        snapshot._accumulatedCostRealized,
+        underlyingId,
+        network
+      ),
+      adjustedCostBasis: TokenBalance.fromID(
+        snapshot.adjustedCostBasis,
+        underlyingId,
+        network
+      ),
+      totalILAndFees: TokenBalance.fromID(
+        snapshot.totalILAndFeesAtSnapshot,
+        underlyingId,
+        network
+      ),
+      totalProfitAndLoss: TokenBalance.fromID(
+        snapshot.totalProfitAndLossAtSnapshot,
+        underlyingId,
+        network
+      ),
+      totalInterestAccrual: TokenBalance.fromID(
+        snapshot.totalInterestAccrualAtSnapshot,
+        underlyingId,
+        network
+      ),
+      impliedFixedRate: snapshot.impliedFixedRate
+        ? snapshot.impliedFixedRate / RATE_PRECISION
+        : undefined,
+    };
+  }
+
+  public async fetchTransactionHistory(network: Network, account: string) {
+    const { AccountTransactionHistoryDocument } =
+      await loadGraphClientDeferred();
+    return await fetchGraph(
+      network,
+      AccountTransactionHistoryDocument,
+      (r): Record<string, AccountHistory[]> => {
+        return {
+          [account]:
+            r.account?.profitLossLineItems?.map((p) => {
+              const tokenId = p.token.id;
+              const underlyingId = p.underlyingToken.id;
+              const token = Registry.getTokenRegistry().getTokenByID(
+                network,
+                tokenId
+              );
+              const vaultName = token.vaultAddress
+                ? Registry.getConfigurationRegistry().getVaultName(
+                    token.network,
+                    token.vaultAddress
+                  )
+                : undefined;
+
+              return {
+                timestamp: p.timestamp,
+                token,
+                vaultName,
+                underlying: Registry.getTokenRegistry().getTokenByID(
+                  network,
+                  underlyingId
+                ),
+                tokenAmount: TokenBalance.fromID(
+                  p.tokenAmount,
+                  tokenId,
+                  network
+                ),
+                bundleName: p.bundle.bundleName,
+                transactionHash: p.transactionHash.id,
+                underlyingAmountRealized: TokenBalance.fromID(
+                  p.underlyingAmountRealized,
+                  underlyingId,
+                  network
+                ),
+                underlyingAmountSpot: TokenBalance.fromID(
+                  p.underlyingAmountSpot,
+                  underlyingId,
+                  network
+                ),
+                realizedPrice: TokenBalance.fromID(
+                  p.realizedPrice,
+                  underlyingId,
+                  network
+                ),
+                spotPrice: TokenBalance.fromID(
+                  p.spotPrice,
+                  underlyingId,
+                  network
+                ),
+                impliedFixedRate: p.impliedFixedRate
+                  ? p.impliedFixedRate / RATE_PRECISION
+                  : undefined,
+              };
+            }) || [],
+        };
+      },
+      {
+        accountId: account.toLowerCase(),
+      }
+    );
+  }
+
+  public async fetchBalanceStatements(network: Network, account: string) {
+    const { AccountBalanceStatementDocument } = await loadGraphClientDeferred();
+    return await fetchGraph(
+      network,
+      AccountBalanceStatementDocument,
+      (r): Record<string, BalanceStatement[]> => {
+        return {
+          [account]:
+            r.account?.balances?.map(
+              ({ current, snapshots, token: { id: tokenId, underlying } }) => {
+                const tokens = Registry.getTokenRegistry();
+                if (!underlying) throw Error('Unknown underlying');
+                const currentStatement = this._parseBalanceStatement(
+                  tokenId,
+                  underlying.id,
+                  current as BalanceSnapshot,
+                  network
+                );
+
+                const currentProfitAndLoss = currentStatement.balance
+                  .toUnderlying()
+                  .sub(
+                    currentStatement.adjustedCostBasis.scale(
+                      currentStatement.balance.n,
+                      INTERNAL_TOKEN_PRECISION
+                    )
+                  );
+                const totalProfitAndLoss = currentStatement.balance
+                  .toUnderlying()
+                  .sub(currentStatement.accumulatedCostRealized);
+                const totalInterestAccrual = currentProfitAndLoss.sub(
+                  currentStatement.totalILAndFees
+                );
+
+                return {
+                  token: tokens.getTokenByID(network, tokenId),
+                  underlying: tokens.getTokenByID(network, underlying.id),
+                  currentBalance: currentStatement.balance,
+                  adjustedCostBasis: currentStatement.adjustedCostBasis,
+                  totalILAndFees: currentStatement.totalILAndFees,
+                  totalProfitAndLoss,
+                  totalInterestAccrual,
+                  accumulatedCostRealized:
+                    currentStatement.accumulatedCostRealized,
+                  historicalSnapshots:
+                    snapshots?.map((s) =>
+                      this._parseBalanceStatement(
+                        tokenId,
+                        underlying.id,
+                        s as BalanceSnapshot,
+                        network
+                      )
+                    ) || [],
+                };
+              }
+            ) || [],
+        };
+      },
+      {
+        accountId: account.toLowerCase(),
+      }
+    );
   }
 
   private _parseVaultDebtBalance(

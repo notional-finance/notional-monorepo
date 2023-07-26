@@ -78,6 +78,18 @@ export function useAccountDefinition() {
   };
 }
 
+export function useBalanceStatements() {
+  const { account } = useAccountDefinition();
+  return (
+    account?.balanceStatement?.filter((b) => !b.currentBalance.isZero()) || []
+  );
+}
+
+export function useTransactionHistory() {
+  const { account } = useAccountDefinition();
+  return account?.accountHistory || [];
+}
+
 export function useAccountReady() {
   const {
     globalState: { isAccountReady },
@@ -97,9 +109,10 @@ export function usePrimeCashBalance(selectedToken: string | undefined | null) {
     selectedToken && selectedNetwork
       ? tokens.getTokenBySymbol(selectedNetwork, selectedToken)
       : undefined;
-  const primeCash = selectedNetwork
-    ? tokens.getPrimeCash(selectedNetwork, token?.currencyId)
-    : undefined;
+  const primeCash =
+    selectedNetwork && token?.currencyId
+      ? tokens.getPrimeCash(selectedNetwork, token.currencyId)
+      : undefined;
 
   return useBalance(primeCash?.symbol);
 }
@@ -126,6 +139,7 @@ export function useVaultRiskProfiles() {
 
   return vaultRiskProfiles;
 }
+
 export function usePortfolioRiskProfile() {
   const { account } = useAccountDefinition();
   const network = useSelectedNetwork();

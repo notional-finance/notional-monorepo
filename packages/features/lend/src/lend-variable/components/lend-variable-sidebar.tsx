@@ -8,17 +8,20 @@ import {
 } from '@notional-finance/trade';
 import { PRODUCTS } from '@notional-finance/shared-config';
 import { LendVariableContext } from '../../lend-variable/lend-variable';
+import { useHistory } from 'react-router';
 
 export const LendVariableSidebar = () => {
+  const history = useHistory();
   const {
-    state: { canSubmit, populatedTransaction, confirm },
+    state: { canSubmit, populatedTransaction, confirm, selectedDepositToken },
     updateState,
   } = useContext(LendVariableContext);
   const { currencyInputRef } = useCurrencyInputRef();
 
   const handleLeverUpToggle = () => {
-    // TODO: hook this up to context
-    console.log('handleLeverUpToggle');
+    history.push(`/${PRODUCTS.LEND_LEVERAGED}/${selectedDepositToken}`, {
+      from: PRODUCTS.LEND_VARIABLE,
+    });
   };
 
   const handleSubmit = () => {

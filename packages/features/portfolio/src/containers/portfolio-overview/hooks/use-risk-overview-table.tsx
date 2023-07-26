@@ -66,7 +66,6 @@ export const useRiskOverviewTable = () => {
     .filter(({ price }) => price !== null)
     .map(({ collateral, debt, price }) => {
       const currentPrice = TokenBalance.unit(collateral).toToken(debt);
-
       return {
         collateral: {
           symbol: collateral.symbol,

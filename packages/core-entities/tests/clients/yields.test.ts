@@ -63,6 +63,9 @@ describe.withRegistry(
       y.forEach((y) => {
         expect(y.token.underlying).toBe(y.leveraged?.debtToken.underlying);
         expect(y.leveraged?.leverageRatio).toBeGreaterThan(0);
+        expect(y.leveraged?.leverageRatio).toBeLessThanOrEqual(
+          y.leveraged?.maxLeverageRatio
+        );
       });
     });
 
@@ -76,6 +79,9 @@ describe.withRegistry(
         expect(y.token.tokenType).toBe('nToken');
         expect(y.token.underlying).toBe(y.leveraged?.debtToken.underlying);
         expect(y.leveraged?.leverageRatio).toBeGreaterThan(0);
+        expect(y.leveraged?.leverageRatio).toBeLessThanOrEqual(
+          y.leveraged?.maxLeverageRatio
+        );
       });
     });
 
@@ -89,6 +95,9 @@ describe.withRegistry(
         expect(y.token.tokenType).toBe('VaultShare');
         expect(y.token.underlying).toBe(y.leveraged?.debtToken.underlying);
         expect(y.leveraged?.leverageRatio).toBeGreaterThan(0);
+        expect(y.leveraged?.leverageRatio).toBeLessThanOrEqual(
+          y.leveraged?.maxLeverageRatio
+        );
         expect(y.tvl).toBeDefined();
       });
     });

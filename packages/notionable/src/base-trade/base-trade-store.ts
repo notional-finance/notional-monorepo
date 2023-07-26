@@ -51,6 +51,13 @@ interface VaultState {
   vaultConfig?: ReturnType<ConfigurationClient['getVaultConfig']>;
 }
 
+export interface TokenOption {
+  token: TokenDefinition;
+  balance?: TokenBalance;
+  interestRate?: number;
+  error?: string;
+}
+
 /** Inputs set by the user interface, all of these are denominated in primitive values */
 interface UserInputs {
   /** Set on load via a URL path parameter */
@@ -106,9 +113,16 @@ interface TokenInputs {
   /** Error message from calculation */
   calculateError?: string;
   /** Alternative debt options given if all the inputs are satisfied */
-  debtOptions?: (TokenBalance | null)[];
+  debtOptions?: TokenOption[];
   /** Alternative collateral options given if all the inputs are satisfied */
-  collateralOptions?: (TokenBalance | null)[];
+  collateralOptions?: TokenOption[];
+
+  /** Default leverage ratio for the selected debt and collateral */
+  defaultLeverageRatio?: number;
+  /** Minimum allowed leverage ratio (only applies to vaults) */
+  minLeverageRatio?: number;
+  /** Maximum allowed leverage ratio */
+  maxLeverageRatio?: number;
 }
 
 interface TransactionState {

@@ -5,7 +5,6 @@ export * from './i18n-helpers';
 export * from './number-helpers';
 export * from './provider-helpers';
 export * from './rpc-helpers';
-export * from './style-helpers';
 export * from './table-helpers';
 export * from './storage-helpers';
 export * from './text-helpers';

@@ -33,9 +33,9 @@ export function TokenApproval({
         display: 'flex',
         flexDirection: 'column',
         backgroundColor: theme.palette.background.default,
-        paddingTop: '1rem',
-        paddingLeft: '1rem',
-        paddingRight: '1rem',
+        paddingTop: theme.spacing(2),
+        paddingLeft: theme.spacing(2),
+        paddingRight: theme.spacing(2),
         border: theme.shape.borderStandard,
         borderRadius: theme.shape.borderRadius(),
       }}
@@ -53,7 +53,7 @@ export function TokenApproval({
             checked={approved}
             onChange={onChange}
             sx={{
-              margin: '0 .5rem',
+              margin: theme.spacing(0, 1),
             }}
           />
         )}
@@ -62,7 +62,7 @@ export function TokenApproval({
             size={24}
             color="primary"
             sx={{
-              margin: '0 1rem',
+              margin: theme.spacing(0, 2),
             }}
           />
         )}
@@ -70,7 +70,7 @@ export function TokenApproval({
           <CheckCircle
             color="primary"
             sx={{
-              margin: '0 1rem',
+              margin: theme.spacing(0, 2),
             }}
           />
         )}

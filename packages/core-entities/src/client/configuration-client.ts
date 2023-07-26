@@ -81,6 +81,10 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
     return vaultConfig;
   }
 
+  getVaultName(network: Network, vaultAddress: string) {
+    return this.getVaultConfig(network, vaultAddress).name;
+  }
+
   getVaultDiscountfCash(network: Network, vaultAddress: string) {
     const config = this.getVaultConfig(network, vaultAddress);
     return config.discountfCash || false;
@@ -458,7 +462,9 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
     if (!token.currencyId) throw Error('Invalid quote currency');
     const config = this.getConfig(oracle.network, token.currencyId);
 
-    if (oracle.oracleType === 'Chainlink' && riskAdjusted === 'Debt') {
+    if (oracle.id === 'UNIT_RATE') {
+      return PERCENTAGE_BASIS;
+    } else if (oracle.oracleType === 'Chainlink' && riskAdjusted === 'Debt') {
       return this._assertDefined(config.debtBuffer);
     } else if (oracle.oracleType === 'Chainlink' && riskAdjusted === 'Asset') {
       return this._assertDefined(config.collateralHaircut);
@@ -496,7 +502,7 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
     };
   }
 
-  getMinLendRiskAdjustedPV(fCash: TokenDefinition) {
+  getMinLendRiskAdjustedDiscountFactor(fCash: TokenDefinition) {
     if (!fCash.currencyId || !fCash.maturity) throw Error('Invalid fCash');
     const config = this.getConfig(fCash.network, fCash.currencyId);
     const nToken = Registry.getTokenRegistry().getNToken(
@@ -511,17 +517,29 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
     const marketIndex = fCashMarket.getMarketIndex(fCash.maturity);
 
     // Convert this to an exchange rate
-    const maxInterestRate =
+    const maxMarketInterestRate =
       fCashMarket.poolParams.interestRateCurve[marketIndex - 1].maxRate -
       this._assertDefined(config.fCashHaircutBasisPoints);
+    const maxInterestRate = Math.max(
+      maxMarketInterestRate,
+      this._assertDefined(config.fCashMinOracleRate)
+    );
     const discountRate = OracleRegistryClient.interestToExchangeRate(
       BigNumber.from(maxInterestRate).mul(-1),
       fCash.maturity
     )
-      .mul(INTERNAL_TOKEN_PRECISION)
+      .mul(RATE_PRECISION)
       .div(SCALAR_PRECISION);
 
-    return TokenBalance.from(discountRate, fCash);
+    const lowestDiscountFactor = Math.min(
+      discountRate.toNumber(),
+      this._assertDefined(config.fCashMaxDiscountFactor)
+    );
+
+    return {
+      lowestDiscountFactor,
+      maxDiscountFactor: this._assertDefined(config.fCashMaxDiscountFactor),
+    };
   }
 
   getAnnualizedNOTEIncentives(nToken: TokenDefinition) {
