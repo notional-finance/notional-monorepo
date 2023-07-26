@@ -1,5 +1,5 @@
 import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
-import { PortfolioSideDrawer } from './portfolio-side-drawer';
+import { PortfolioSideDrawer } from './components/portfolio-side-drawer';
 import {
   createTradeContext,
   useTradeContext,
@@ -8,7 +8,7 @@ import { useCurrencyInputRef } from '@notional-finance/mui';
 import { PortfolioParams } from '@notional-finance/side-drawer';
 import { useParams } from 'react-router';
 import { DepositInput, PortfolioHoldingSelect } from '@notional-finance/trade';
-import { messages } from '../messages';
+import { messages } from './messages';
 
 const WithdrawContext = createTradeContext('Withdraw');
 

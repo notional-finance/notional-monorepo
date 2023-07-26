@@ -21,13 +21,13 @@ export const RepayDebt = () => {
     <RepayDebtContext.Provider value={context}>
       <PortfolioSideDrawer
         context={RepayDebtContext}
-        action={PORTFOLIO_ACTIONS.REPAY_BORROW}
+        action={PORTFOLIO_ACTIONS.REPAY_DEBT}
       >
         <PortfolioHoldingSelect
           tightMarginTop
           isWithdraw
           context={RepayDebtContext}
-          inputLabel={messages[PORTFOLIO_ACTIONS.REPAY_BORROW]['inputLabel']}
+          inputLabel={messages[PORTFOLIO_ACTIONS.REPAY_DEBT]['inputLabel']}
           filterBalances={(b) =>
             b.isNegative() &&
             (b.tokenType === 'PrimeDebt' || b.tokenType === 'fCash')
@@ -39,7 +39,7 @@ export const RepayDebt = () => {
           newRoute={(newToken) =>
             `/portfolio/${category}/${sideDrawerKey}/${newToken}`
           }
-          inputLabel={messages[PORTFOLIO_ACTIONS.REPAY_BORROW]['inputLabel']}
+          inputLabel={messages[PORTFOLIO_ACTIONS.REPAY_DEBT]['inputLabel']}
         />
       </PortfolioSideDrawer>
     </RepayDebtContext.Provider>

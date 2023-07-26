@@ -9,6 +9,7 @@ import {
   calculateDebt,
   calculateDebtCollateralGivenDepositRiskLimit,
   calculateDeposit,
+  ConvertAsset,
   DeleverageNToken,
   Deposit,
   LendFixed,
@@ -481,20 +482,27 @@ export const TradeConfiguration = {
    * Output:
    * collateralBalance (i.e. new fCash or PrimeCash asset amount held)
    */
-  RollLend: {
+  ConvertAsset: {
     calculationFn: calculateCollateral,
     requiredArgs: ['collateral', 'collateralPool', 'debtPool', 'debtBalance'],
     depositFilter: () => false,
     debtFilter: (t, a) =>
-      (t.tokenType === 'fCash' || t.tokenType === 'PrimeCash') &&
+      (t.tokenType === 'fCash' ||
+        t.tokenType === 'PrimeCash' || // TODO: is this actually prime debt?
+        t.tokenType === 'nToken') &&
       offsettingBalance(t, a),
     collateralFilter: (t, _, s) =>
       // Selecting Prime Cash will roll to variable
-      (t.tokenType === 'fCash' || t.tokenType === 'PrimeCash') &&
+      (t.tokenType === 'fCash' ||
+        t.tokenType === 'PrimeCash' ||
+        t.tokenType === 'nToken') &&
       onlySameCurrency(t, s.debt) &&
-      t.maturity !== s.debt?.maturity,
+      // Cannot match maturities (if set) or token types
+      (s.debt?.tokenType === 'fCash'
+        ? t.maturity !== s.debt?.maturity
+        : t.tokenType !== s.debt?.tokenType),
     calculateCollateralOptions: true,
-    transactionBuilder: RollLendOrDebt,
+    transactionBuilder: ConvertAsset,
   } as TransactionConfig,
 
   /**
