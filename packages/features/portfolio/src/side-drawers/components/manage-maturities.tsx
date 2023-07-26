@@ -9,11 +9,9 @@ import {
   H4,
   ProgressIndicator,
 } from '@notional-finance/mui';
-import { RollMaturity } from '../roll-maturity/roll-maturity';
 import { LEND_BORROW } from '@notional-finance/shared-config';
 import { FormattedMessage } from 'react-intl';
 import { useLocation, useHistory } from 'react-router-dom';
-import { useManageMaturities } from './use-manage-maturities';
 import { messages } from '../messages';
 
 export const ManageMaturities = () => {

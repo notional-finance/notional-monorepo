@@ -1,5 +1,5 @@
 import { ActionSidebar, ToggleSwitchProps } from '@notional-finance/mui';
-import { Confirmation2, TransactionData } from '@notional-finance/trade';
+import { Confirmation2 } from '@notional-finance/trade';
 import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
 import { useHistory, useLocation, useParams } from 'react-router';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
@@ -14,10 +14,6 @@ interface PortfolioSideDrawerProps {
   children?: React.ReactNode | React.ReactNode[];
   advancedToggle?: ToggleSwitchProps;
   context: BaseContext;
-  // TODO: remove later
-  canSubmit?: boolean;
-  transactionData?: TransactionData;
-  updatedAccountData?: any;
 }
 
 export const PortfolioSideDrawer = ({

@@ -1,5 +1,5 @@
 import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
-import { PortfolioSideDrawer } from '../components/portfolio-side-drawer';
+import { PortfolioSideDrawer } from './portfolio-side-drawer';
 import {
   createTradeContext,
   useTradeContext,

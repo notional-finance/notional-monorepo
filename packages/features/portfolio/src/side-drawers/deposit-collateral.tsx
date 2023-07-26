@@ -2,12 +2,12 @@ import {
   createTradeContext,
   useTradeContext,
 } from '@notional-finance/notionable-hooks';
-import { PortfolioParams } from '../../portfolio-feature-shell';
-import { PortfolioSideDrawer } from '../components/portfolio-side-drawer';
+import { PortfolioParams } from '../portfolio-feature-shell';
+import { PortfolioSideDrawer } from './components/portfolio-side-drawer';
 import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
 import { CollateralSelect, DepositInput } from '@notional-finance/trade';
 import { useCurrencyInputRef } from '@notional-finance/mui';
-import { messages } from '../messages';
+import { messages } from './messages';
 import { useParams } from 'react-router';
 
 const DepositCollateralContext = createTradeContext('DepositCollateral');
