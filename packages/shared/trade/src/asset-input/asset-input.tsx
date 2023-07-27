@@ -7,19 +7,19 @@ import {
   PageLoading,
 } from '@notional-finance/mui';
 import { FormattedMessage, MessageDescriptor } from 'react-intl';
-import { useDepositInput } from './use-deposit-input';
 import { BaseContext } from '@notional-finance/notionable-hooks';
 import { useHistory } from 'react-router';
-import TokenApprovalView from '../token-approval-view/token-approval-view';
+import { INTERNAL_TOKEN_DECIMALS } from '@notional-finance/util';
+import { useAssetInput } from './use-asset-input';
 
-interface DepositInputProps {
+interface AssetInputProps {
   context: BaseContext;
+  debtOrCollateral: 'Debt' | 'Collateral';
   newRoute?: (newToken: string | null) => string;
   warningMsg?: React.ReactNode;
   inputLabel?: MessageDescriptor;
   errorMsgOverride?: MessageDescriptor;
   inputRef: React.RefObject<CurrencyInputHandle>;
-  isWithdraw?: boolean;
 }
 
 /**
@@ -27,9 +27,9 @@ interface DepositInputProps {
  * it will handle proper parsing, balance checks, and max input amounts.
  * Token approvals will be handled by the token-approval-view
  */
-export const DepositInput = React.forwardRef<
+export const AssetInput = React.forwardRef<
   CurrencyInputHandle,
-  DepositInputProps
+  AssetInputProps
 >(
   (
     {
@@ -39,32 +39,43 @@ export const DepositInput = React.forwardRef<
       inputLabel,
       inputRef,
       errorMsgOverride,
-      isWithdraw,
+      debtOrCollateral,
     },
     ref
   ) => {
     const history = useHistory();
     const {
-      state: { selectedDepositToken, availableDepositTokens, calculateError },
+      state: {
+        debt,
+        collateral,
+        availableCollateralTokens,
+        availableDebtTokens,
+        calculateError,
+      },
       updateState,
     } = useContext(context);
-    const {
-      inputAmount,
-      maxBalanceString,
-      errorMsg,
-      decimalPlaces,
-      setInputString,
-    } = useDepositInput(selectedDepositToken, isWithdraw);
+    const selectedToken = debtOrCollateral === 'Debt' ? debt : collateral;
+    // TODO: need to concat selected token into available tokens...
+    let availableTokens =
+      debtOrCollateral === 'Debt'
+        ? availableDebtTokens
+        : availableCollateralTokens;
+    if (availableTokens?.length === 0 && selectedToken)
+      availableTokens = [selectedToken];
+
+    const { inputAmount, maxBalanceString, errorMsg, setInputString } =
+      useAssetInput(selectedToken, debtOrCollateral === 'Debt');
 
     useEffect(() => {
-      updateState({
-        depositBalance: inputAmount,
-      });
+      updateState(
+        debtOrCollateral === 'Debt'
+          ? { debtBalance: inputAmount }
+          : { collateralBalance: inputAmount }
+      );
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [updateState, inputAmount?.hashKey]);
 
-    if (!availableDepositTokens || !selectedDepositToken)
-      return <PageLoading />;
+    if (!availableTokens || !selectedToken) return <PageLoading />;
 
     return (
       <Box>
@@ -72,8 +83,7 @@ export const DepositInput = React.forwardRef<
         <CurrencyInput
           ref={ref}
           placeholder="0.00000000"
-          // Use 18 decimals as a the default, but that should only be temporary during page load
-          decimals={decimalPlaces || 18}
+          decimals={INTERNAL_TOKEN_DECIMALS}
           maxValue={maxBalanceString}
           onInputChange={(input) => setInputString(input)}
           errorMsg={
@@ -86,21 +96,17 @@ export const DepositInput = React.forwardRef<
             )
           }
           warningMsg={warningMsg}
-          currencies={availableDepositTokens?.map((t) => t.symbol) || []}
-          defaultValue={selectedDepositToken}
+          currencies={availableTokens.map((t) => t.symbol)}
+          defaultValue={selectedToken.symbol}
           onSelectChange={(newToken: string | null) => {
             // Always clear the input string when we change tokens
             inputRef.current?.setInputOverride('');
-            if (newToken !== selectedDepositToken && newRoute)
+            if (newToken !== selectedToken.symbol && newRoute)
               history.push(newRoute(newToken));
           }}
           style={{
             landingPage: false,
           }}
-        />
-        <TokenApprovalView
-          symbol={selectedDepositToken}
-          requiredAmount={inputAmount}
         />
       </Box>
     );

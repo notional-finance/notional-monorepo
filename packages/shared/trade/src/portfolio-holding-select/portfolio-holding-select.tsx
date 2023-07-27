@@ -61,7 +61,7 @@ export const PortfolioHoldingSelect = ({
     let selected: TokenDefinition | undefined;
     if (selectedParamToken) {
       selected = options.find(
-        (t) => t.token.symbol === selectedParamToken
+        (t) => t.token.id === selectedParamToken
       )?.token;
     } else {
       selected = options[0].token;

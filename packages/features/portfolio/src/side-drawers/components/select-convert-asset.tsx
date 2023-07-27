@@ -1,11 +1,12 @@
 import { useCallback, useContext, useEffect } from 'react';
-import { Box, Divider, styled, useTheme } from '@mui/material';
+import { Box, styled, useTheme } from '@mui/material';
 import {
   LargeInputTextEmphasized,
   SideDrawerButton,
   ButtonText,
-  H4,
   DataTable,
+  Body,
+  TABLE_VARIANTS,
 } from '@notional-finance/mui';
 import { FormattedMessage, MessageDescriptor } from 'react-intl';
 import { messages } from '../messages';
@@ -21,6 +22,7 @@ import {
 } from '@notional-finance/helpers';
 import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
 import { TokenOption } from '@notional-finance/notionable';
+import { useParams } from 'react-router';
 
 interface SelectConvertAssetProps {
   context: BaseContext;
@@ -50,24 +52,24 @@ export const SelectConvertAsset = ({ context }: SelectConvertAssetProps) => {
   const marketApy = allYields.find(
     (y) => y.leveraged === undefined && y.token.id === convertFromToken?.id
   )?.totalAPY;
+  const { selectedToken: selectedParamToken } = useParams<{
+    selectedToken: string;
+  }>();
 
   // Set the initial balance to the selected token
   useEffect(() => {
-    if (
-      convertFromToken &&
-      (!convertFromBalance ||
-        convertFromBalance.tokenId !== convertFromToken.id)
-    ) {
+    if (!convertFromToken && selectedParamToken) {
       const balance = account?.balances.find(
-        (t) => t.tokenId === convertFromToken.id
+        (t) => t.tokenId === selectedParamToken
       );
+
       updateState(
         tradeType === 'ConvertAsset'
-          ? { debtBalance: balance }
-          : { collateralBalance: balance }
+          ? { debtBalance: balance, debt: balance?.token }
+          : { collateralBalance: balance, collateral: balance?.token }
       );
     }
-  }, [convertFromToken, convertFromBalance, account, updateState, tradeType]);
+  }, [convertFromToken, selectedParamToken, account, updateState, tradeType]);
 
   let heading: MessageDescriptor;
   let fixedHeading: MessageDescriptor;
@@ -110,6 +112,7 @@ export const SelectConvertAsset = ({ context }: SelectConvertAssetProps) => {
           onClick={onSelect}
           sx={{
             cursor: 'pointer',
+            height: theme.spacing(8),
           }}
         >
           <ButtonText sx={{ flex: 1 }}>{text}</ButtonText>
@@ -119,7 +122,7 @@ export const SelectConvertAsset = ({ context }: SelectConvertAssetProps) => {
         </SideDrawerButton>
       );
     },
-    [updateState, tradeType]
+    [updateState, tradeType, theme]
   );
 
   const fixedOptions =
@@ -145,6 +148,7 @@ export const SelectConvertAsset = ({ context }: SelectConvertAssetProps) => {
         <FormattedMessage {...heading} />
       </LargeInputTextEmphasized>
       <DataTable
+        tableVariant={TABLE_VARIANTS.MINI}
         tableTitle={
           <span>{title ? `${title.title} ${title.caption || ''}` : ''}</span>
         }
@@ -178,15 +182,24 @@ export const SelectConvertAsset = ({ context }: SelectConvertAssetProps) => {
         ]}
       />
       {fixedOptions.length > 0 ? (
-        <Box>
-          <H4 msg={fixedHeading} />
+        <Box sx={{ marginTop: theme.spacing(6) }}>
+          <Body
+            msg={fixedHeading}
+            gutter={'default'}
+            uppercase
+            fontWeight="bold"
+          />
           {fixedOptions}
-          <Divider />
         </Box>
       ) : null}
       {variableOptions.length > 0 ? (
-        <Box>
-          <H4 msg={variableHeading} />
+        <Box sx={{ marginTop: theme.spacing(6) }}>
+          <Body
+            msg={variableHeading}
+            gutter={'default'}
+            uppercase
+            fontWeight="bold"
+          />
           {variableOptions}
         </Box>
       ) : null}

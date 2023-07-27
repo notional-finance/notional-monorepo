@@ -23,3 +23,4 @@ export * from './maturity-select/use-maturity-select';
 export * from './enable-prime-borrow/enable-prime-borrow';
 export * from './collateral-select/collateral-select';
 export * from './portfolio-holding-select/portfolio-holding-select';
+export * from './asset-input/asset-input';

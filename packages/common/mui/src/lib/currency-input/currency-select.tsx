@@ -13,6 +13,7 @@ export interface CurrencySelectProps {
   defaultValue?: string;
   onSelectChange?: (value: string | null) => void;
   children?: ReactNode;
+  popperRef?: React.ForwardedRef<unknown>;
 }
 
 const StyledItem = styled(OptionUnstyled)(
@@ -30,21 +31,23 @@ const StyledItem = styled(OptionUnstyled)(
   `
 );
 
-const StyledButton = styled(Button)`
-  min-width: 140px;
-  margin-top: -0.5rem;
-  margin-bottom: -0.5rem;
+const StyledButton = styled(Button)(
+  ({ theme }) => `
+  min-width: ${theme.spacing(18)};
+  margin-top: ${theme.spacing(-1)};
+  margin-bottom: ${theme.spacing(-1)};
   flex-grow: 1;
   align-self: stretch;
-  padding-right: 1rem;
-  padding-left: 1rem;
+  padding-right: ${theme.spacing(2)};
+  padding-left: ${theme.spacing(2)};
   border-top-left-radius: 0px;
   border-bottom-left-radius: 0px;
   .MuiButton-endIcon {
     margin-right: 0px;
     margin-left: auto;
   }
-`;
+`
+);
 
 export function CurrencySelect(props: CurrencySelectProps) {
   const {
@@ -52,11 +55,17 @@ export function CurrencySelect(props: CurrencySelectProps) {
     currencies,
     onSelectChange,
     landingPage = false,
+    popperRef,
   } = props;
   const theme = useTheme() as NotionalTheme;
   const [value, setValue] = useState<string | null>(
     defaultValue || currencies[0]
   );
+
+  const parentWidth =
+    popperRef && popperRef['current']
+      ? popperRef['current']['clientWidth']
+      : undefined;
 
   useEffect(() => {
     // If the default changes and is not undefined then set it as selected
@@ -68,6 +77,7 @@ export function CurrencySelect(props: CurrencySelectProps) {
     <SelectDropdown
       value={value}
       buttonComponent={StyledButton}
+      popperWidth={`${parentWidth}px`}
       landingPage={landingPage}
       onChange={(value: string | null) => {
         setValue(value);
