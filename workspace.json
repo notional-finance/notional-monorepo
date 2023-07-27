@@ -38,7 +38,6 @@
     "shared-side-drawer": "packages/shared/side-drawer",
     "shared-trade": "packages/shared/trade",
     "shared-user-settings-manager": "packages/shared/user-settings-manager",
-    "shared-utils": "packages/shared/utils",
     "shared-wallet": "packages/shared/wallet",
     "shared-web": "packages/shared/web",
     "system-cache": "apps/system-cache",

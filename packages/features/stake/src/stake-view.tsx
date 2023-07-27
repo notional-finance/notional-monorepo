@@ -1,14 +1,14 @@
 import { FeatureLoader, SideBarLayout } from '@notional-finance/mui';
-import { useQueryParams } from '@notional-finance/utils';
 import { MainContent } from './main-content/main-content';
 import { useLocation } from 'react-router-dom';
 import { StakeSidebarView } from './sidebar/sidebar';
 import { ConfirmStakeView } from './stake-action/confirm-stake';
 import { ConfirmUnstakeView } from './unstake-action/confirm-unstake';
+import { useQueryParams } from '@notional-finance/notionable-hooks';
 
 export const StakeView = () => {
-  const { confirm } = useQueryParams();
-  const confirmRoute = !!confirm;
+  const params = useQueryParams();
+  const confirmRoute = !!params.get('confirm');
 
   // Drive the selected tab via the url
   const { pathname } = useLocation();

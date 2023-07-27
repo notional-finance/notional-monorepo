@@ -12,3 +12,4 @@ export * from './use-notional';
 export * from './use-market';
 export * from './use-wallet';
 export * from './use-vault';
+export * from './use-query-params';

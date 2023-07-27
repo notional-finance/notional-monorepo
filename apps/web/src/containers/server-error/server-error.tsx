@@ -4,7 +4,7 @@ import ServerErrorImage from '@notional-finance/assets/images/ServerErrorImage.p
 import ServerErrorImageMobile from '@notional-finance/assets/images/ServerErrorImageMobile.png';
 import { DiscordButtonGradient } from '@notional-finance/mui';
 import { H2, H4 } from '@notional-finance/mui';
-import { useQueryParams } from '@notional-finance/utils';
+import { useQueryParams } from '@notional-finance/notionable-hooks';
 
 const errorMessages = defineMessages({
   '404': {
@@ -19,8 +19,8 @@ const errorMessages = defineMessages({
 
 export const ServerError = () => {
   const theme = useTheme();
-  const { code } = useQueryParams();
-  const errorCode = code || '404';
+  const params = useQueryParams();
+  const errorCode = params.get('code') || '404';
 
   return (
     <Box

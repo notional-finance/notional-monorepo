@@ -109,8 +109,6 @@
         "packages/shared/user-settings-manager/src/index.ts"
       ],
       "@notional-finance/util": ["packages/util/src/index.ts"],
-      "@notional-finance/utils": ["packages/shared/utils/src/index.ts"],
-      "@notional-finance/utils/*": ["packages/shared/utils/src/*"],
       "@notional-finance/vault-feature-shell": [
         "packages/features/vault/src/index.ts"
       ],
