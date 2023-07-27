@@ -184,7 +184,8 @@ export const useVaultHoldingsTable = () => {
       actionRow: {
         maturity: v.maturity ? moment.unix(v.maturity).format() : undefined,
         routes: {
-          manageVault: ``,
+          manage: ``,
+          withdraw: ``,
           txnHistory: `/portfolio/transaction-history?${new URLSearchParams({
             txnHistoryType: TXN_HISTORY_TYPE.LEVERAGED_VAULT,
             vaultAddress: config.vaultAddress,

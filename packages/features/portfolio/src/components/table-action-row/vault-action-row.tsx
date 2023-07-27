@@ -1,16 +1,21 @@
-import { Box, useTheme } from '@mui/material';
+import { Box, useTheme, styled } from '@mui/material';
 import { ActionRowButton } from '../action-row-button/action-row-button';
-import { MainContainer } from './table-action-row';
-import { defineMessages } from 'react-intl';
+import { H5, H4, ButtonBar, ButtonOptionsType } from '@notional-finance/mui';
+import { FormattedMessage, defineMessages } from 'react-intl';
+import { useHistory } from 'react-router-dom';
 
 interface VaultActionRowProps {
   row: {
     original: {
+      borrowAPY: any;
+      strategyAPY: any;
+      leverageRatio: any;
       actionRow: {
         maturity: string;
         routes: {
-          manageVault?: string;
-          txnHistory?: string;
+          manage: string;
+          withdraw: string;
+          txnHistory: string;
         };
       };
     };
@@ -19,24 +24,62 @@ interface VaultActionRowProps {
 
 export const VaultActionRow = ({ row }: VaultActionRowProps) => {
   const theme = useTheme();
-  const { routes } = row.original.actionRow;
+  const history = useHistory();
+  const {
+    borrowAPY,
+    strategyAPY,
+    leverageRatio,
+    actionRow: { routes },
+  } = row.original;
+
+  const buttonData: ButtonOptionsType[] = [
+    {
+      buttonText: <FormattedMessage defaultMessage={'Manage'} />,
+      callback: () => {
+        history.push(routes.manage);
+      },
+    },
+    {
+      buttonText: <FormattedMessage defaultMessage={'Withdraw'} />,
+      callback: () => {
+        history.push(routes.withdraw);
+      },
+    },
+  ];
+
   return (
-    <MainContainer>
-      <Box sx={{ display: 'flex', width: '100%' }}>
-        {routes.manageVault && (
-          <ActionRowButton
-            {...defineMessages({
-              label: {
-                defaultMessage: 'Manage Vault',
-                description: 'button text',
-              },
-            })}
-            route={routes.manageVault}
-            sx={{ marginLeft: theme.spacing(3) }}
-          />
-        )}
+    <Container>
+      <ApyContainer>
+        <Box>
+          <Label>
+            <FormattedMessage defaultMessage={'Borrow APY'} />
+          </Label>
+          <H4>{borrowAPY.displayValue}</H4>
+        </Box>
+        <Box>
+          <Label>
+            <FormattedMessage defaultMessage={'Strategy APY'} />
+          </Label>
+          <H4>{strategyAPY.displayValue}</H4>
+        </Box>
+        <Box>
+          <Label>
+            <FormattedMessage defaultMessage={'Leverage Ratio'} />
+          </Label>
+          <H4>{leverageRatio}</H4>
+        </Box>
+      </ApyContainer>
+      <ButtonContainer>
+        <ButtonBar
+          buttonOptions={buttonData}
+          sx={{
+            height: theme.spacing(5),
+          }}
+        />
         {routes.txnHistory && (
           <ActionRowButton
+            variant="outlined"
+            size="medium"
             {...defineMessages({
               label: {
                 defaultMessage: 'Transaction History',
@@ -47,7 +90,40 @@ export const VaultActionRow = ({ row }: VaultActionRowProps) => {
             sx={{ marginLeft: theme.spacing(3) }}
           />
         )}
-      </Box>
-    </MainContainer>
+      </ButtonContainer>
+    </Container>
   );
 };
+
+const Container = styled(Box)(
+  ({ theme }) => `
+  margin: ${theme.spacing(2.5)};
+  display: flex;
+  justify-content: space-between;
+  height: ${theme.spacing(18)};
+  align-items: center;
+  border: 1px solid ${theme.palette.borders.paper};
+  border-radius: 6px;
+`
+);
+
+const ApyContainer = styled(Box)(
+  ({ theme }) => `
+  display: flex;
+  gap: ${theme.spacing(5)};
+  margin-left: ${theme.spacing(7)};
+  `
+);
+
+const ButtonContainer = styled(Box)(
+  ({ theme }) => `
+  display: flex;
+  margin-right: ${theme.spacing(3)};
+  `
+);
+
+const Label = styled(H5)(
+  ({ theme }) => `
+  margin-bottom: ${theme.spacing(1)};
+  `
+);
