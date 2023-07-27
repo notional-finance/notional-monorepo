@@ -40,7 +40,6 @@
     "shared-user-settings-manager": "packages/shared/user-settings-manager",
     "shared-wallet": "packages/shared/wallet",
     "shared-web": "packages/shared/web",
-    "system-cache": "apps/system-cache",
     "transaction": "packages/transaction",
     "util": "packages/util",
     "vault-liquidator": "apps/vault-liquidator",
