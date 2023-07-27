@@ -1,8 +1,13 @@
 import { useEffect } from 'react';
 import { Box, styled, useTheme } from '@mui/material';
-import { useAccountReady } from '@notional-finance/notionable-hooks';
+import { useNotionalContext } from '@notional-finance/notionable-hooks';
 import { useParams } from 'react-router-dom';
-import { ButtonBar, SideDrawer, FeatureLoader } from '@notional-finance/mui';
+import {
+  ButtonBar,
+  SideDrawer,
+  FeatureLoader,
+  H1,
+} from '@notional-finance/mui';
 import { usePortfolioButtonBar, usePortfolioSideDrawers } from './hooks';
 import { SideNav, PortfolioMobileNav, ClaimNoteButton } from './components';
 import {
@@ -24,11 +29,17 @@ export interface PortfolioParams {
 }
 
 export const PortfolioFeatureShell = () => {
-  const accountConnected = useAccountReady();
-  return (
-    <FeatureLoader featureLoaded={accountConnected}>
+  const {
+    globalState: { isAccountPending, isAccountReady },
+  } = useNotionalContext();
+
+  return isAccountPending || isAccountReady ? (
+    <FeatureLoader featureLoaded={isAccountReady}>
       <Portfolio />
     </FeatureLoader>
+  ) : (
+    // TODO: need to replace this
+    <H1>STATE ZERO</H1>
   );
 };
 
