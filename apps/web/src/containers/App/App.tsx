@@ -7,7 +7,7 @@ import { Web3OnboardProvider } from '@web3-onboard/react';
 import { useEffect, useState } from 'react';
 import { Switch } from 'react-router';
 import { CompatRouter } from 'react-router-dom-v5-compat';
-import { ServerError } from '../server-error/server-error';
+import { ServerError } from '../ServerError/server-error';
 import RouteContainer from './components/RouteContainer';
 import AppLayoutRoute from './layouts/AppLayoutRoute';
 import LandingPageLayoutRoute from './layouts/LandingPageLayoutRoute';

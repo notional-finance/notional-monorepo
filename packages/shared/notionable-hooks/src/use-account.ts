@@ -1,53 +1,12 @@
-import { AccountData } from '@notional-finance/sdk';
 import { useObservableState } from 'observable-hooks';
-import {
-  accountState$,
-  initialAccountState,
-  setReadOnlyAddress,
-} from '@notional-finance/notionable';
-import { truncateAddress } from '@notional-finance/helpers';
 import { Registry, TokenBalance } from '@notional-finance/core-entities';
-import { useNotionalContext, useSelectedNetwork } from '../use-notional';
+import { useNotionalContext, useSelectedNetwork } from './use-notional';
 import { EMPTY } from 'rxjs';
 import {
   AccountRiskProfile,
   VaultAccountRiskProfile,
 } from '@notional-finance/risk-engine';
 
-export function useAccount() {
-  const {
-    account,
-    balanceSummary,
-    assetSummary,
-    noteSummary,
-    accountConnected,
-    isReadOnly,
-    readOnlyAddress,
-    accountSummariesLoaded,
-    lastUpdateTime,
-  } = useObservableState(accountState$, initialAccountState);
-
-  const truncatedAddress = account?.address
-    ? truncateAddress(account?.address)
-    : '';
-
-  return {
-    account,
-    accountDataCopy: AccountData.copyAccountData(account?.accountData),
-    address: account?.address,
-    truncatedAddress: truncatedAddress,
-    accountSummariesLoaded,
-    // account connected returns true when the account has been loaded
-    accountConnected,
-    balanceSummary,
-    assetSummary,
-    noteSummary,
-    isReadOnly,
-    readOnlyAddress,
-    setReadOnlyAddress,
-    lastUpdateTime,
-  };
-}
 export function useAccountWithdrawableTokens() {
   const { account } = useAccountDefinition();
   return (

@@ -9,6 +9,11 @@ import { Signer } from 'ethers';
 const CACHE_HOSTNAME =
   process.env['NX_DATA_URL'] || 'https://data-dev.notional.finance';
 
+export interface NotionalError {
+  code: string;
+  msg: string;
+}
+
 interface OnboardState {
   // These properties are only used to store the onboard state
   wallet?: {
@@ -38,12 +43,17 @@ interface TransactionState {
   completedTransactions: Record<string, TransactionReceipt>;
 }
 
+interface ErrorState {
+  error?: NotionalError;
+}
+
 export interface GlobalState
   extends Record<string, unknown>,
     NetworkState,
     AccountState,
     OnboardState,
-    TransactionState {}
+    TransactionState,
+    ErrorState {}
 
 export const initialGlobalState: GlobalState = {
   isNetworkReady: false,
@@ -52,5 +62,5 @@ export const initialGlobalState: GlobalState = {
   isAccountPending: false,
   isAccountReady: false,
   sentTransactions: {},
-  completedTransactions: {}, 
+  completedTransactions: {},
 };

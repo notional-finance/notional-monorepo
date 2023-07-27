@@ -1,6 +1,6 @@
 import { Registry, TokenBalance } from '@notional-finance/core-entities';
 import { reportNotionalError } from '@notional-finance/notionable';
-import { useAccountDefinition } from './account/use-account';
+import { useAccountDefinition } from './use-account';
 import { useSelectedNetwork } from './use-notional';
 import { FormattedMessage } from 'react-intl';
 

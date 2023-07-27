@@ -1,38 +1,9 @@
-import {
-  pluckFirst,
-  useObservable,
-  useObservableState,
-} from 'observable-hooks';
-import {
-  initializeNotional,
-  initialNotionalState,
-  notionalState$,
-  chains,
-} from '@notional-finance/notionable';
-import { useContext } from 'react';
+import { pluckFirst, useObservable } from 'observable-hooks';
+import { NotionalError } from '@notional-finance/notionable';
+import { useCallback, useContext } from 'react';
 import { NotionalContext } from './context/NotionalContext';
 import { switchMap, take, concat } from 'rxjs';
 import { Registry, TokenBalance } from '@notional-finance/core-entities';
-
-// Deprecate this....
-export function useNotional() {
-  const { notional, loaded, connectedChain, pendingChainId } =
-    useObservableState(notionalState$, initialNotionalState);
-
-  function getConnectedChain() {
-    return chains.find((chain) => parseInt(chain.id) === connectedChain);
-  }
-
-  return {
-    notional,
-    system: notional?.system ?? null,
-    connectedChain,
-    loaded,
-    pendingChainId,
-    initializeNotional,
-    getConnectedChain,
-  };
-}
 
 export function useLastUpdateBlockNumber() {
   const network = useSelectedNetwork();
@@ -73,4 +44,23 @@ export function useSelectedNetwork() {
   } = useNotionalContext();
 
   return isNetworkReady ? selectedNetwork : undefined;
+}
+
+export function useNotionalError() {
+  const {
+    globalState: { error },
+    updateNotional,
+  } = useNotionalContext();
+
+  const reportError = useCallback(
+    (error: NotionalError) => {
+      updateNotional({ error });
+    },
+    [updateNotional]
+  );
+
+  return {
+    error,
+    reportError,
+  };
 }
