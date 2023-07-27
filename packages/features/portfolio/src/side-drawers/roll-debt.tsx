@@ -4,7 +4,7 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { PortfolioSideDrawer } from './components/portfolio-side-drawer';
 import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
-import { DepositInput } from '@notional-finance/trade';
+import { AssetInput } from '@notional-finance/trade';
 import { useCurrencyInputRef } from '@notional-finance/mui';
 import { messages } from './messages';
 import { SelectConvertAsset } from './components/select-convert-asset';
@@ -27,8 +27,10 @@ export const RollDebt = () => {
           action={PORTFOLIO_ACTIONS.ROLL_DEBT}
           context={RollDebtContext}
         >
-          <DepositInput
-            isWithdraw
+          <AssetInput
+            ref={currencyInputRef}
+            prefillMax
+            debtOrCollateral="Collateral"
             context={RollDebtContext}
             inputRef={currencyInputRef}
             inputLabel={messages[PORTFOLIO_ACTIONS.ROLL_DEBT]['inputLabel']}

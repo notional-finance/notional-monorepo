@@ -28,6 +28,8 @@ export const ConvertAsset = () => {
           context={ConvertAssetContext}
         >
           <AssetInput
+            ref={currencyInputRef}
+            prefillMax
             debtOrCollateral="Debt"
             context={ConvertAssetContext}
             inputRef={currencyInputRef}

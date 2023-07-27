@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Box } from '@mui/material';
 import {
   CurrencyInput,
@@ -14,6 +14,7 @@ import { useAssetInput } from './use-asset-input';
 
 interface AssetInputProps {
   context: BaseContext;
+  prefillMax?: boolean;
   debtOrCollateral: 'Debt' | 'Collateral';
   newRoute?: (newToken: string | null) => string;
   warningMsg?: React.ReactNode;
@@ -40,10 +41,12 @@ export const AssetInput = React.forwardRef<
       inputRef,
       errorMsgOverride,
       debtOrCollateral,
+      prefillMax,
     },
     ref
   ) => {
     const history = useHistory();
+    const [hasUserTouched, setHasUserTouched] = useState(false);
     const {
       state: {
         debt,
@@ -55,7 +58,6 @@ export const AssetInput = React.forwardRef<
       updateState,
     } = useContext(context);
     const selectedToken = debtOrCollateral === 'Debt' ? debt : collateral;
-    // TODO: need to concat selected token into available tokens...
     let availableTokens =
       debtOrCollateral === 'Debt'
         ? availableDebtTokens
@@ -63,8 +65,23 @@ export const AssetInput = React.forwardRef<
     if (availableTokens?.length === 0 && selectedToken)
       availableTokens = [selectedToken];
 
-    const { inputAmount, maxBalanceString, errorMsg, setInputString } =
-      useAssetInput(selectedToken, debtOrCollateral === 'Debt');
+    const {
+      inputAmount,
+      maxBalanceString,
+      errorMsg,
+      setInputString,
+    } = useAssetInput(selectedToken, debtOrCollateral === 'Debt');
+
+    useEffect(() => {
+      if (
+        prefillMax &&
+        maxBalanceString &&
+        inputAmount === undefined &&
+        !hasUserTouched
+      ) {
+        inputRef.current?.setInputOverride(maxBalanceString);
+      }
+    }, [inputRef, maxBalanceString, prefillMax, inputAmount, hasUserTouched]);
 
     useEffect(() => {
       updateState(
@@ -85,7 +102,10 @@ export const AssetInput = React.forwardRef<
           placeholder="0.00000000"
           decimals={INTERNAL_TOKEN_DECIMALS}
           maxValue={maxBalanceString}
-          onInputChange={(input) => setInputString(input)}
+          onInputChange={(input) => {
+            setInputString(input);
+            setHasUserTouched(true);
+          }}
           errorMsg={
             errorMsgOverride ? (
               <FormattedMessage {...errorMsgOverride} />
