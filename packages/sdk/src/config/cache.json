@@ -1,4 +1,0 @@
-{
-  "goerli:http": "http://localhost:8787/v2/goerli",
-  "mainnet:http": "http://localhost:8787/v2/mainnet"
-}

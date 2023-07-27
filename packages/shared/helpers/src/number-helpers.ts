@@ -1,5 +1,4 @@
 import { RATE_PRECISION } from '@notional-finance/util';
-import { BigNumber, ethers } from 'ethers';
 
 const allCommas = /,{1}/g;
 
@@ -29,48 +28,37 @@ export function formatNumberAsPercent(num: number | string, digits = 2) {
   return `${formatNumber(num, digits)}%`;
 }
 
-export function formatNumberAsAbbr(num: number, decimalPlaces = 3,  locale = 'en-US') {
-      let suffix = '';
+export function formatNumberAsAbbr(
+  num: number,
+  decimalPlaces = 3,
+  locale = 'en-US'
+) {
+  let suffix = '';
 
-      if (num < 1_000) {
-        suffix = '';
-      } else if (num < 1_000_000) {
-        suffix = 'k';
-        num = num / 1_000;
-      } else if (num < 1_000_000_000) {
-        suffix = 'm';
-        num = num / 1_000_000;
-      } else if (num < 1_000_000_000_000) {
-        suffix = 'b';
-        num = num / 1_000_000_000;
-      } else {
-        throw Error('Abbreviation overflow');
-      }
-
-    const localeString = num.toLocaleString(locale, {
-      minimumFractionDigits: decimalPlaces,
-      maximumFractionDigits: decimalPlaces,
-    });
-
-    // If the return string is -0.00 or some variant, strip the negative
-    if (localeString.match(/-0\.?[0]*$/)) {
-      return localeString.replace('-', '');
-    }
-
-    return `$${localeString}${suffix}`;
+  if (num < 1_000) {
+    suffix = '';
+  } else if (num < 1_000_000) {
+    suffix = 'k';
+    num = num / 1_000;
+  } else if (num < 1_000_000_000) {
+    suffix = 'm';
+    num = num / 1_000_000;
+  } else if (num < 1_000_000_000_000) {
+    suffix = 'b';
+    num = num / 1_000_000_000;
+  } else {
+    throw Error('Abbreviation overflow');
   }
 
-export function formatNumberAsInteger(num: number | string) {
-  const cleanedNumber =
-    typeof num === 'string' ? num.replace(allCommas, '') : num;
+  const localeString = num.toLocaleString(locale, {
+    minimumFractionDigits: decimalPlaces,
+    maximumFractionDigits: decimalPlaces,
+  });
 
-  return parseInt(`${cleanedNumber}`, 10).toLocaleString('en-US');
-}
+  // If the return string is -0.00 or some variant, strip the negative
+  if (localeString.match(/-0\.?[0]*$/)) {
+    return localeString.replace('-', '');
+  }
 
-export function formatBigNumberToDecimals(
-  bigNumber: BigNumber,
-  decimals: number,
-  digits = 4
-) {
-  return formatNumber(ethers.utils.formatUnits(bigNumber, decimals), digits);
+  return `$${localeString}${suffix}`;
 }
