@@ -40,7 +40,7 @@ export const configDefs: ConfigDefinition[] = [
       method: 'getPoolTokenInfo',
       args: [
         '0x32296969ef14eb0c6d29669c550d4a0449130230000200000000000000000080',
-        '0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0',
+        '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
       ],
       outputIndices: [0],
     },
@@ -60,7 +60,7 @@ export const configDefs: ConfigDefinition[] = [
       method: 'getPoolTokenInfo',
       args: [
         '0x32296969ef14eb0c6d29669c550d4a0449130230000200000000000000000080',
-        '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2',
+        '0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0',
       ],
       outputIndices: [0],
     },

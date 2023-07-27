@@ -41,7 +41,7 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
-      decimals: 18,
+      decimals: 6,
     },
     network: Network.ArbitrumOne,
   },
