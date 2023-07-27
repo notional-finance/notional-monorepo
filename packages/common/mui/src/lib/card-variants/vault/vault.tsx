@@ -1,6 +1,5 @@
 import { ReactNode } from 'react';
 import { Box, useTheme, styled } from '@mui/material';
-import Market from '@notional-finance/sdk/src/system/Market';
 import { Card } from '../../card/card';
 import { Link } from 'react-router-dom';
 import { Button } from '../../button/button';
@@ -8,6 +7,7 @@ import { FormattedMessage } from 'react-intl';
 import SliderBasic from '../../slider-basic/slider-basic';
 import { TokenIcon, LightningIcon } from '@notional-finance/icons';
 import { colors } from '@notional-finance/styles';
+import { formatInterestRate } from '@notional-finance/util';
 import {
   H4,
   SmallInput,
@@ -37,7 +37,7 @@ export const Vault = ({
   buttonText,
 }: VaultProps) => {
   const theme = useTheme();
-  const formattedRate = `${Market.formatInterestRate(rate, 2)} APY`;
+  const formattedRate = `${formatInterestRate(rate, 2)} APY`;
   return (
     <Link to={route}>
       <Card height={'auto'}>

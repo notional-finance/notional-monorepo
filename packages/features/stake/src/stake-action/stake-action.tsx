@@ -1,18 +1,15 @@
-import { useHistory, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { Box, styled } from '@mui/material';
 import {
   TokenApprovalView,
   TradeActionButton,
-  WalletDepositInput,
 } from '@notional-finance/trade';
 import { useStakeAction } from './use-stake-action';
 import { updateStakeState } from './stake-store';
 import { useEffect, useRef } from 'react';
-import { messages } from '../messages';
 import { StakedNoteInfoBox } from './staked-note-info-box';
 import {
   CurrencyInputHandle,
-  useCurrencyInputRef,
 } from '@notional-finance/mui';
 
 const Section = styled(Box)`
@@ -21,14 +18,12 @@ const Section = styled(Box)`
 `;
 
 export const StakeAction = () => {
-  const history = useHistory();
   const inputRef = useRef<CurrencyInputHandle>(null);
   const { ethOrWeth: ethOrWethParam } = useParams<Record<string, string>>();
   const {
     ethAmountString,
     ethOrWeth,
     priceImpact,
-    noteError,
     canSubmit,
     noteSpotPriceUSD,
   } = useStakeAction();
@@ -41,12 +36,11 @@ export const StakeAction = () => {
   useEffect(() => {
     if (ethAmountString) inputRef.current?.setInputOverride(ethAmountString);
   }, [inputRef, ethAmountString]);
-  const { currencyInputRef: noteInputRef } = useCurrencyInputRef();
 
   return (
     <Box>
       <Section>
-        <WalletDepositInput
+        {/* <WalletDepositInput
           ref={noteInputRef}
           inputRef={noteInputRef}
           availableTokens={['NOTE']}
@@ -60,10 +54,10 @@ export const StakeAction = () => {
           }}
           errorMsgOverride={noteError}
           inputLabel={messages.stake.inputNOTE}
-        />
+        /> */}
       </Section>
       <Section>
-        <WalletDepositInput
+        {/* <WalletDepositInput
           inputRef={inputRef}
           availableTokens={['ETH', 'WETH']}
           selectedToken={ethOrWeth}
@@ -82,7 +76,7 @@ export const StakeAction = () => {
               useOptimumETH: inputAmount !== undefined,
             });
           }}
-        />
+        /> */}
       </Section>
       <Section>
         <StakedNoteInfoBox

@@ -1,8 +1,8 @@
 import { CountUp } from '@notional-finance/mui';
-import { TypedBigNumber } from '@notional-finance/sdk';
-import { RATE_PRECISION } from '@notional-finance/sdk/src/config/constants';
 import { convertRateToFloat, formatMaturity } from '@notional-finance/helpers';
 import { defineMessage, MessageDescriptor } from 'react-intl';
+import { TokenBalance } from '@notional-finance/core-entities';
+import { RATE_PRECISION } from '@notional-finance/util';
 
 export enum TradePropertyKeys {
   deposit = 'transactionProperties.deposit',
@@ -61,41 +61,41 @@ export type TradeProperties = Partial<{
   [TradePropertyKeys.collateralType]: string;
   [TradePropertyKeys.nTokenShare]: number;
   [TradePropertyKeys.notePrice]: number;
-  [TradePropertyKeys.deposit]: TypedBigNumber;
-  [TradePropertyKeys.fromCashBalance]: TypedBigNumber;
-  [TradePropertyKeys.fromWalletBalance]: TypedBigNumber;
-  [TradePropertyKeys.interestEarned]: TypedBigNumber;
-  [TradePropertyKeys.fCashMinted]: TypedBigNumber;
-  [TradePropertyKeys.amountToWallet]: TypedBigNumber;
-  [TradePropertyKeys.amountToPortfolio]: TypedBigNumber;
-  [TradePropertyKeys.interestDue]: TypedBigNumber;
-  [TradePropertyKeys.collateralDeposit]: TypedBigNumber;
-  [TradePropertyKeys.incentivesMinted]: TypedBigNumber;
-  [TradePropertyKeys.nTokensMinted]: TypedBigNumber;
-  [TradePropertyKeys.nTokensRedeemed]: TypedBigNumber;
-  [TradePropertyKeys.newfCashAmount]: TypedBigNumber;
-  [TradePropertyKeys.costToRepay]: TypedBigNumber;
-  [TradePropertyKeys.assetsSold]: TypedBigNumber;
-  [TradePropertyKeys.debtRepaid]: TypedBigNumber;
-  [TradePropertyKeys.transactionCosts]: TypedBigNumber;
-  [TradePropertyKeys.nTokenRedeemSlippage]: TypedBigNumber;
-  [TradePropertyKeys.noteDeposit]: TypedBigNumber;
-  [TradePropertyKeys.ethDeposit]: TypedBigNumber;
-  [TradePropertyKeys.ethReceived]: TypedBigNumber;
-  [TradePropertyKeys.noteReceived]: TypedBigNumber;
-  [TradePropertyKeys.sNOTERedeemed]: TypedBigNumber;
+  [TradePropertyKeys.deposit]: TokenBalance;
+  [TradePropertyKeys.fromCashBalance]: TokenBalance;
+  [TradePropertyKeys.fromWalletBalance]: TokenBalance;
+  [TradePropertyKeys.interestEarned]: TokenBalance;
+  [TradePropertyKeys.fCashMinted]: TokenBalance;
+  [TradePropertyKeys.amountToWallet]: TokenBalance;
+  [TradePropertyKeys.amountToPortfolio]: TokenBalance;
+  [TradePropertyKeys.interestDue]: TokenBalance;
+  [TradePropertyKeys.collateralDeposit]: TokenBalance;
+  [TradePropertyKeys.incentivesMinted]: TokenBalance;
+  [TradePropertyKeys.nTokensMinted]: TokenBalance;
+  [TradePropertyKeys.nTokensRedeemed]: TokenBalance;
+  [TradePropertyKeys.newfCashAmount]: TokenBalance;
+  [TradePropertyKeys.costToRepay]: TokenBalance;
+  [TradePropertyKeys.assetsSold]: TokenBalance;
+  [TradePropertyKeys.debtRepaid]: TokenBalance;
+  [TradePropertyKeys.transactionCosts]: TokenBalance;
+  [TradePropertyKeys.nTokenRedeemSlippage]: TokenBalance;
+  [TradePropertyKeys.noteDeposit]: TokenBalance;
+  [TradePropertyKeys.ethDeposit]: TokenBalance;
+  [TradePropertyKeys.ethReceived]: TokenBalance;
+  [TradePropertyKeys.noteReceived]: TokenBalance;
+  [TradePropertyKeys.sNOTERedeemed]: TokenBalance;
   [TradePropertyKeys.redeemWindowBegins]: string;
   [TradePropertyKeys.redeemWindowEnds]: string;
-  [TradePropertyKeys.additionalDebt]: TypedBigNumber;
-  [TradePropertyKeys.remainingDebt]: TypedBigNumber;
-  [TradePropertyKeys.remainingAssets]: TypedBigNumber;
-  [TradePropertyKeys.totalAssets]: TypedBigNumber;
+  [TradePropertyKeys.additionalDebt]: TokenBalance;
+  [TradePropertyKeys.remainingDebt]: TokenBalance;
+  [TradePropertyKeys.remainingAssets]: TokenBalance;
+  [TradePropertyKeys.totalAssets]: TokenBalance;
 }>;
 
-const formatDisplayString = (val: TypedBigNumber) =>
+const formatDisplayString = (val: TokenBalance) =>
   val.toDisplayStringWithSymbol(3);
-const formatfCashString = (val: TypedBigNumber) =>
-  val.toDisplayStringWithfCashSymbol(3);
+const formatfCashString = (val: TokenBalance) =>
+  val.toDisplayStringWithSymbol(3);
 const countUpPercentage = (val: number) => (
   <CountUp value={val} suffix="%" decimals={2} />
 );
