@@ -1,5 +1,5 @@
 import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
-import { useAccountDefinition } from './account/use-account';
+import { useAccountDefinition } from './use-account';
 
 export function useWalletAllowances() {
   const { account } = useAccountDefinition();

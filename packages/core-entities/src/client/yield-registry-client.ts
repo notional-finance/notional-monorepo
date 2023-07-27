@@ -4,6 +4,7 @@ import {
   RATE_DECIMALS,
   RATE_PRECISION,
   SECONDS_IN_DAY,
+  SECONDS_IN_YEAR,
   getNowSeconds,
   isIdiosyncratic,
 } from '@notional-finance/util';
@@ -19,7 +20,6 @@ import {
 import { fCashMarket } from '../exchanges';
 import { TokenBalance } from '../token-balance';
 import { BigNumber } from 'ethers';
-import { SECONDS_IN_YEAR } from '@notional-finance/sdk';
 
 /**
  * TODO:

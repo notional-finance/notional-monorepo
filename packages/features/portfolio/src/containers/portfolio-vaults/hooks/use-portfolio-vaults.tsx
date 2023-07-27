@@ -10,11 +10,13 @@ import {
   useBalanceStatements,
   useVaultRiskProfiles,
 } from '@notional-finance/notionable-hooks';
-import { formatCryptoWithFiat } from '@notional-finance/helpers';
+import {
+  formatCryptoWithFiat,
+  formatNumberAsPercent,
+} from '@notional-finance/helpers';
 import moment from 'moment';
 import { FormattedMessage } from 'react-intl';
 import { useEffect, useMemo, useState } from 'react';
-import { formatRateAsPercent } from '@notional-finance/risk/helpers/risk-data-helpers';
 import { PORTFOLIO_CATEGORIES } from '@notional-finance/shared-config';
 import { TokenBalance } from '@notional-finance/core-entities';
 
@@ -124,7 +126,7 @@ export const usePortfolioVaults = () => {
       },
       netWorth: formatCryptoWithFiat(v.netWorth()),
       apy: {
-        displayValue: formatRateAsPercent(apy, 3),
+        displayValue: formatNumberAsPercent(apy, 3),
         isNegative: apy && apy < 0,
       },
       profit: formatCryptoWithFiat(profit),

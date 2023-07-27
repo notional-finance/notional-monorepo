@@ -17,7 +17,7 @@ const RouteContainer = ({ children, onRouteChange }: RouteContainerProps) => {
   useEffect(() => {
     if (error) {
       history.push(
-        `/error?code=${error.code || 500}&msgId=${error.msgId || 'unknown'}`
+        `/error?code=${error.code || 500}&msgId=${error.msg || 'unknown'}`
       );
     }
   }, [error, history]);

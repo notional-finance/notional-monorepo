@@ -497,12 +497,13 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
                 network,
                 tokenId
               );
-              const vaultName = token.vaultAddress
-                ? Registry.getConfigurationRegistry().getVaultName(
-                    token.network,
-                    token.vaultAddress
-                  )
-                : undefined;
+              const vaultName =
+                !!token.vaultAddress && token.vaultAddress !== ZERO_ADDRESS
+                  ? Registry.getConfigurationRegistry().getVaultName(
+                      token.network,
+                      token.vaultAddress
+                    )
+                  : undefined;
 
               return {
                 timestamp: p.timestamp,

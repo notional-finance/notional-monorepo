@@ -1,7 +1,6 @@
 import { Registry, TokenBalance } from '@notional-finance/core-entities';
-import { reportNotionalError } from '@notional-finance/notionable';
-import { useAccountDefinition } from './account/use-account';
-import { useSelectedNetwork } from './use-notional';
+import { useAccountDefinition } from './use-account';
+import { useNotionalError, useSelectedNetwork } from './use-notional';
 import { FormattedMessage } from 'react-intl';
 
 export function useVaultAccount(vaultAddress?: string) {
@@ -33,6 +32,7 @@ export function useVaultProperties(vaultAddress?: string) {
   let vaultName: string | undefined = undefined;
 
   const network = useSelectedNetwork();
+  const { reportError } = useNotionalError();
 
   if (vaultAddress && network) {
     try {
@@ -55,11 +55,7 @@ export function useVaultProperties(vaultAddress?: string) {
       }
     } catch (e) {
       // Throws an error on an unknown vault address
-      reportNotionalError(
-        { ...(e as Error), code: 404 },
-        'notionable-vaults',
-        'useVault'
-      );
+      reportError({ ...(e as Error), code: 404, msg: 'Unknown Vault' });
     }
   }
 

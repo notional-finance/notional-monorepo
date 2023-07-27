@@ -6,6 +6,18 @@ import {
 import { formatMaturity } from './time-helpers';
 import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
 
+export function truncateAddress(
+  address: string,
+  firstCharsNum = 6,
+  lastCharsNum = 4
+) {
+  const truncatedAddress = `${address.slice(
+    0,
+    firstCharsNum
+  )}...${address.slice(address.length - lastCharsNum)}`;
+  return truncatedAddress;
+}
+
 export function truncateText(text: string, numOfChars: number) {
   return text.substring(0, numOfChars).concat('...');
 }

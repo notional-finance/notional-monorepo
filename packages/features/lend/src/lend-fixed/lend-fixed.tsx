@@ -3,7 +3,6 @@ import {
   FaqHeader,
   FeatureLoader,
   SideBarLayout,
-  InteractiveAreaChart,
 } from '@notional-finance/mui';
 import { Box } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
@@ -13,7 +12,7 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { LendFixedSidebar, HowItWorksFaq } from './components';
 import { TradeActionSummary } from '@notional-finance/trade';
-import { useLendFixedChart, useLendFixedFaq } from './hooks';
+import { useLendFixedFaq } from './hooks';
 import { NOTIONAL_CATEGORIES } from '@notional-finance/shared-config';
 
 export const LendFixedContext = createTradeContext('LendFixed');
@@ -24,11 +23,6 @@ export const LendFixed = () => {
   const {
     state: { isReady, confirm, selectedDepositToken },
   } = context;
-  // TODO: Hook up markets and selectedMarketKey data
-  const markets: any[] = [];
-  const selectedMarketKey = null;
-  const { marketData, areaHeaderData, chartToolTipData } =
-    useLendFixedChart(markets);
 
   return (
     <LendFixedContext.Provider value={context}>
@@ -45,16 +39,6 @@ export const LendFixed = () => {
               tradedRate={undefined}
               tradeAction={NOTIONAL_CATEGORIES.LEND}
             >
-              <InteractiveAreaChart
-                interactiveAreaChartData={marketData}
-                legendData={areaHeaderData}
-                onSelectMarketKey={() => {
-                  // updateLendState({ selectedMarketKey });
-                }}
-                selectedMarketKey={selectedMarketKey || ''}
-                lockSelection={!!confirm}
-                chartToolTipData={chartToolTipData}
-              />
               <Box sx={{ marginTop: '48px' }}></Box>
               {selectedDepositToken && (
                 <Faq

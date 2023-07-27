@@ -10,7 +10,7 @@ import { PortfolioParams } from '../../portfolio-feature-shell';
 import { useIntl, FormattedMessage } from 'react-intl';
 import { useParams } from 'react-router-dom';
 
-export function useAddToCalendar(date: string) {
+export function useAddToCalendar(date: string | null) {
   const intl = useIntl();
   const { category } = useParams<PortfolioParams>();
 

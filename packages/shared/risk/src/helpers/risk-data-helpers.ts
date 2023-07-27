@@ -1,9 +1,5 @@
 import { ArrowIndicatorCellData } from '@notional-finance/mui';
-import { TypedBigNumber } from '@notional-finance/sdk';
-import {
-  convertRateToFloat,
-  formatNumberAsPercent,
-} from '@notional-finance/helpers';
+import { formatNumberAsPercent } from '@notional-finance/helpers';
 import { ReactNode } from 'react';
 
 export interface RiskDataTableRow {
@@ -12,23 +8,8 @@ export interface RiskDataTableRow {
   updated: ArrowIndicatorCellData;
 }
 
-export function formatCurrencyForRisk(
-  n?: TypedBigNumber | null,
-  localCurrency = 'USD'
-) {
-  return !n || n.isZero()
-    ? '-'
-    : n.toCUR(localCurrency).toDisplayStringWithSymbol(2);
-}
-
 export function formatPercentForRisk(n?: number | null) {
   return n && n !== null ? formatNumberAsPercent(n, 1) : '-';
-}
-
-export function formatRateAsPercent(n?: number | null, digits = 1) {
-  return n && n !== null
-    ? formatNumberAsPercent(convertRateToFloat(n), digits)
-    : '-';
 }
 
 export function formatLeverageForRisk(n?: number | null) {

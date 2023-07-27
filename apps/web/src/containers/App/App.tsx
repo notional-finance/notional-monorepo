@@ -7,7 +7,7 @@ import { Web3OnboardProvider } from '@web3-onboard/react';
 import { useEffect, useState } from 'react';
 import { Switch } from 'react-router';
 import { CompatRouter } from 'react-router-dom-v5-compat';
-import { ServerError } from '../server-error/server-error';
+import { ServerError } from '../ServerError/server-error';
 import RouteContainer from './components/RouteContainer';
 import AppLayoutRoute from './layouts/AppLayoutRoute';
 import LandingPageLayoutRoute from './layouts/LandingPageLayoutRoute';
@@ -15,7 +15,6 @@ import { OnboardContext } from '@notional-finance/wallet';
 
 // Feature shell views
 import { AboutUsView } from '@notional-finance/about-us-feature-shell';
-import { StakeView } from '@notional-finance/stake-feature-shell';
 import {
   LendFixed,
   LendLeveraged,
@@ -37,12 +36,10 @@ import {
   LiquidityLeveraged,
   LiquidityLeveragedCardView,
 } from '@notional-finance/liquidity-feature-shell';
-import { TreasuryView } from '@notional-finance/treasury-feature-shell';
 import {
   VaultActionProvider,
   VaultCardView,
 } from '@notional-finance/vault-feature-shell';
-import { AirdropView } from '../../containers/AirdropView';
 import { TermsView } from '../../containers/TermsView';
 import { PrivacyView } from '../../containers/PrivacyView';
 import { LandingPageView } from '../../containers/LandingPageView';
@@ -61,7 +58,6 @@ const AllRoutes = () => {
     <CompatRouter>
       <RouteContainer onRouteChange={setRouteKey}>
         <Switch>
-          <AppLayoutRoute path="/airdrop" component={AirdropView} />
           <AppLayoutRoute
             path="/borrow-fixed/:selectedDepositToken"
             routeKey={routeKey}
@@ -121,10 +117,6 @@ const AllRoutes = () => {
             path="/liquidity-leveraged"
             component={LiquidityLeveragedCardView}
           />
-          <AppLayoutRoute path="/stake/:ethOrWeth" component={StakeView} />
-          <AppLayoutRoute path="/stake" component={StakeView} />
-          <AppLayoutRoute path="/unstake/:unstakePath" component={StakeView} />
-          <AppLayoutRoute path="/unstake" component={StakeView} />
           <AppLayoutRoute
             path="/vaults/:vaultAddress/:tradeType"
             component={VaultActionProvider}
@@ -150,9 +142,13 @@ const AllRoutes = () => {
           />
           <AppLayoutRoute path="/portfolio" component={PortfolioFeatureShell} />
           <AppLayoutRoute path="/markets" component={Markets} />
-          <AppLayoutRoute path="/treasury" component={TreasuryView} />
           <AppLayoutRoute path="/error" component={ServerError} />
           <LandingPageLayoutRoute path="/about" component={AboutUsView} />
+          {/* <AppLayoutRoute path="/stake/:ethOrWeth" component={StakeView} />
+          <AppLayoutRoute path="/stake" component={StakeView} />
+          <AppLayoutRoute path="/unstake/:unstakePath" component={StakeView} />
+          <AppLayoutRoute path="/unstake" component={StakeView} />
+          <AppLayoutRoute path="/treasury" component={TreasuryView} /> */}
           <LandingPageLayoutRoute path="/" component={LandingPageView} />
         </Switch>
         <TrackingConsent />

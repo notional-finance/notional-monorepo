@@ -1,5 +1,4 @@
 import { Box, styled, useTheme } from '@mui/material';
-import { useQueryParams } from '@notional-finance/utils';
 import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
 import {
   ExternalLink,
@@ -10,10 +9,12 @@ import {
 import { FormattedMessage } from 'react-intl';
 import { messages } from '../messages';
 import { useAddToCalendar } from './use-add-to-calendar';
+import { useQueryParams } from '@notional-finance/notionable-hooks';
 
 export const AddToCalendar = () => {
   const theme = useTheme();
-  const { date } = useQueryParams();
+  const params = useQueryParams();
+  const date = params.get('date');
   const calData = useAddToCalendar(date);
 
   return (

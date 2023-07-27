@@ -1,15 +1,19 @@
 import { LabeledText } from '@notional-finance/mui';
-import { TypedBigNumber } from '@notional-finance/sdk';
 import { FormattedMessage } from 'react-intl';
 import { PropertyFormatters, PropertyMessages, TradePropertyKeys } from '.';
+import { TokenBalance } from '@notional-finance/core-entities';
 
 interface TradePropertyProps {
   propertyKey: TradePropertyKeys;
-  value?: number | TypedBigNumber | string;
+  value?: number | TokenBalance | string;
   labelAbove?: boolean;
 }
 
-export const TradeProperty = ({ propertyKey, value, labelAbove = false }: TradePropertyProps) => {
+export const TradeProperty = ({
+  propertyKey,
+  value,
+  labelAbove = false,
+}: TradePropertyProps) => {
   if (value) {
     return (
       <LabeledText
