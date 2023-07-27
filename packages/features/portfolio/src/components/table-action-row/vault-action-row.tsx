@@ -97,13 +97,11 @@ export const VaultActionRow = ({ row }: VaultActionRowProps) => {
 
 const Container = styled(Box)(
   ({ theme }) => `
-  margin: ${theme.spacing(2.5)};
   display: flex;
   justify-content: space-between;
   height: ${theme.spacing(18)};
   align-items: center;
-  border: 1px solid ${theme.palette.borders.paper};
-  border-radius: 6px;
+  background: ${theme.palette.background.default};
 `
 );
 

@@ -29,7 +29,12 @@ export const DataTableHead = ({
       }}
     >
       {headerGroups.map((headerGroup: HeaderGroup) => (
-        <TableRow {...headerGroup['getHeaderGroupProps']()}>
+        <TableRow
+          {...headerGroup['getHeaderGroupProps']()}
+          sx={{
+            height: expandableTable ? theme.spacing(4) : '',
+          }}
+        >
           {headerGroup.headers.map((column: DataTableColumn) => (
             <TableCell
               sx={{
@@ -42,6 +47,9 @@ export const DataTableHead = ({
                   ? theme.spacing(1)
                   : theme.spacing(2),
                 textAlign: column['textAlign'] || 'center',
+                borderTop: expandableTable
+                  ? theme.shape.borderStandard
+                  : 'none',
                 borderBottom: expandableTable
                   ? theme.shape.borderStandard
                   : 'none',

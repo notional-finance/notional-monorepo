@@ -138,6 +138,7 @@ export const DataTable = ({
           tableTitle={tableTitle}
           tableTitleButtons={tableTitleButtons}
           tableVariant={tableVariant}
+          expandableTable={expandableTable}
         />
       )}
 

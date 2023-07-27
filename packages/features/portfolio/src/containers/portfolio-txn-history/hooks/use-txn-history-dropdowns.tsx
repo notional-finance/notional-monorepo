@@ -26,7 +26,6 @@ export const useTxnHistoryDropdowns = (
   const clearQueryAndFilters = () => {
     if (queryParams && queryParams.get('vaultAddress')) {
       queryParams.delete('vaultAddress');
-      console.log({ queryParams });
       history.push(`${pathname}?${queryParams.toString()}`);
       setAssetOrVaultOptions([]);
     }
