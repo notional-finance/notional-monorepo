@@ -750,7 +750,7 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
       return 0;
     } else if (token.tokenType === 'PrimeDebt') {
       return 0;
-    } else {
+    } else if (token.tokenType === 'fCash') {
       const marketIndex = this.getMarketIndex(token.maturity);
       const utilization = this.getfCashUtilization(
         this.poolParams.perMarketfCash[marketIndex - 1].copy(0),
@@ -761,6 +761,8 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
       return (
         (this.getInterestRate(marketIndex, utilization) * 100) / RATE_PRECISION
       );
+    } else {
+      return undefined;
     }
   }
 

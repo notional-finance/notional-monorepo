@@ -17,15 +17,17 @@ export function useWalletBalanceInputCheck(
   inputAmount: TokenBalance | undefined
 ) {
   const { account } = useAccountDefinition();
-  const maxBalance = token
-    ? account?.balances.find((t) => t.token.id === token?.id) ||
-      TokenBalance.zero(token)
-    : undefined;
+  const maxBalance =
+    token && account
+      ? account.balances.find((t) => t.token.id === token?.id) ||
+        TokenBalance.zero(token)
+      : undefined;
 
-  const allowance = token
-    ? account?.allowances?.find((a) => a.amount.tokenId === token?.id)
-        ?.amount || TokenBalance.zero(token)
-    : undefined;
+  const allowance =
+    token && account
+      ? account.allowances?.find((a) => a.amount.tokenId === token?.id)
+          ?.amount || TokenBalance.zero(token)
+      : undefined;
 
   const insufficientBalance =
     inputAmount && maxBalance ? maxBalance.lt(inputAmount) : false;

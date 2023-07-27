@@ -6,12 +6,12 @@ import { ElementType, useState } from 'react';
 
 interface SelectDropdownProps {
   children: React.ReactNode[];
-  landingPage: boolean;
-  value: any;
+  landingPage?: boolean;
+  value: string | null;
+  popperWidth?: string;
   buttonComponent: ElementType;
   onChange: (value: string | null) => void;
   onListboxOpen?: (isOpen: boolean) => void;
-  popperRef?: any;
 }
 
 const StyledMenu = styled(MenuList)(
@@ -32,16 +32,15 @@ const StyledPopper = styled(PopperUnstyled)`
 export const SelectDropdown = ({
   children,
   landingPage,
+  popperWidth,
   buttonComponent,
   onListboxOpen,
   onChange,
   value,
-  popperRef,
 }: SelectDropdownProps) => {
   const theme = useTheme();
   const [isListboxOpen, setListboxOpen] = useState(false);
   const onlyOneInput = children.length === 1;
-  const currentRef = popperRef.current;
 
   const components = {
     root: buttonComponent,
@@ -95,9 +94,11 @@ export const SelectDropdown = ({
       theme,
     },
     popper: {
-      anchorEl: currentRef,
+      // open: true, // NOTE: uncomment this to keep the list box open when debugging
       popperOptions: {
         placement: popperPlacement,
+        // If no popper width is set manually, enforce that it matches the width of the
+        // select button component
         modifiers: [
           {
             name: 'sameWidth',
@@ -105,7 +106,7 @@ export const SelectDropdown = ({
             phase: 'beforeWrite',
             requires: ['computeStyles'],
             fn: ({ state }) => {
-              state.styles.popper.width = `${state.rects.reference.width}px`;
+              state.styles.popper.width = popperWidth || `${state.rects.reference.width}px`;
             },
             effect: ({ state }) => {
               state.elements.popper.style.width = `${state.elements.reference.offsetWidth}px`;
@@ -117,7 +118,7 @@ export const SelectDropdown = ({
     },
   };
 
-  return currentRef && !onlyOneInput ? (
+  return !onlyOneInput ? (
     <SelectUnstyled
       value={value}
       slotProps={componentProps}

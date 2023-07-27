@@ -9,7 +9,9 @@ import {
   calculateDebt,
   calculateDebtCollateralGivenDepositRiskLimit,
   calculateDeposit,
+  ConvertAsset,
   DeleverageNToken,
+  Deposit,
   LendFixed,
   LendVariable,
   LeveragedNToken,
@@ -19,7 +21,7 @@ import {
   RedeemToPortfolioNToken,
   RepayDebt,
   RollLendOrDebt,
-  WithdrawLend,
+  Withdraw,
 } from '@notional-finance/transaction';
 import { TransactionConfig } from './base-trade-store';
 
@@ -67,12 +69,47 @@ export const TradeConfiguration = {
 
   /**
    * Inputs:
+   * selectedDepositToken, depositBalance, collateral
+   *
+   * Outputs:
+   * collateralBalance (PrimeCash, fCash or nToken)
+   */
+  Deposit: {
+    calculationFn: calculateCollateral,
+    requiredArgs: ['collateral', 'depositBalance', 'collateralPool'],
+    collateralFilter: (t, _, s) => onlySameCurrency(t, s.deposit),
+    debtFilter: () => false,
+    calculateCollateralOptions: true,
+    transactionBuilder: Deposit,
+  } as TransactionConfig,
+
+  /**
+   * Input:
+   * selectedDebtToken (fCash, Prime Cash, or nToken)
+   * debtBalance (i.e. amount of fCash or Prime Cash)
+   *
+   * Output:
+   * depositBalance (i.e. amount of cash to withdraw)
+   */
+  Withdraw: {
+    calculationFn: calculateDebt,
+    requiredArgs: ['debt', 'depositBalance', 'debtPool'],
+    depositFilter: (t, _, s) => onlySameCurrency(t, s.debt),
+    debtFilter: (t, a) =>
+      // Matured fCash will not be in the list of available tokens
+      (t.tokenType === 'fCash' ||
+        t.tokenType === 'PrimeDebt' ||
+        t.tokenType === 'nToken') &&
+      offsettingBalance(t, a),
+    collateralFilter: () => false,
+    transactionBuilder: Withdraw,
+  } as TransactionConfig,
+
+  /**
+   * Inputs:
    * selectedDepositToken, depositBalance
    * Outputs:
    * collateralBalance (PrimeCash)
-   *
-   * Notes:
-   * This is also a deposit action
    */
   LendVariable: {
     calculationFn: calculateCollateral,
@@ -438,27 +475,6 @@ export const TradeConfiguration = {
 
   /**
    * Input:
-   * selectedDebtToken (i.e. fCash or Prime Cash)
-   * debtBalance (i.e. amount of fCash or Prime Cash)
-   *
-   * Output:
-   * depositBalance (i.e. amount of cash to withdraw)
-   */
-  WithdrawLend: {
-    // NOTE: this is the same as borrow fixed with no collateral
-    calculationFn: calculateDeposit,
-    requiredArgs: ['debt', 'debtBalance', 'debtPool'],
-    depositFilter: (t, _, s) => onlySameCurrency(t, s.debt),
-    debtFilter: (t, a) =>
-      // Matured fCash will not be in the list of available tokens
-      (t.tokenType === 'fCash' || t.tokenType === 'PrimeDebt') &&
-      offsettingBalance(t, a),
-    collateralFilter: () => false,
-    transactionBuilder: WithdrawLend,
-  } as TransactionConfig,
-
-  /**
-   * Input:
    * selectedCollateralToken (i.e. new fCash or PrimeCash asset to hold)
    * selectedDebtToken (i.e. existing fCash or PrimeCash asset held)
    * debtBalance (i.e. part of fCash or PrimeCash asset to sell)
@@ -466,20 +482,27 @@ export const TradeConfiguration = {
    * Output:
    * collateralBalance (i.e. new fCash or PrimeCash asset amount held)
    */
-  RollLend: {
+  ConvertAsset: {
     calculationFn: calculateCollateral,
     requiredArgs: ['collateral', 'collateralPool', 'debtPool', 'debtBalance'],
     depositFilter: () => false,
     debtFilter: (t, a) =>
-      (t.tokenType === 'fCash' || t.tokenType === 'PrimeCash') &&
+      (t.tokenType === 'fCash' ||
+        t.tokenType === 'PrimeCash' || // TODO: is this actually prime debt?
+        t.tokenType === 'nToken') &&
       offsettingBalance(t, a),
     collateralFilter: (t, _, s) =>
       // Selecting Prime Cash will roll to variable
-      (t.tokenType === 'fCash' || t.tokenType === 'PrimeCash') &&
+      (t.tokenType === 'fCash' ||
+        t.tokenType === 'PrimeCash' ||
+        t.tokenType === 'nToken') &&
       onlySameCurrency(t, s.debt) &&
-      t.maturity !== s.debt?.maturity,
+      // Cannot match maturities (if set) or token types
+      (s.debt?.tokenType === 'fCash'
+        ? t.maturity !== s.debt?.maturity
+        : t.tokenType !== s.debt?.tokenType),
     calculateCollateralOptions: true,
-    transactionBuilder: RollLendOrDebt,
+    transactionBuilder: ConvertAsset,
   } as TransactionConfig,
 
   /**

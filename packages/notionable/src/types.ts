@@ -121,7 +121,7 @@ export interface CalculateTradedRatesResult {
 }
 
 export interface MaturityData {
-  fCashId: string;
+  tokenId: string;
   tradeRate: number | undefined;
   maturity: number;
   hasLiquidity: boolean;

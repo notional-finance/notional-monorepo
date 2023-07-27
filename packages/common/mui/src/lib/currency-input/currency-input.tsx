@@ -126,7 +126,7 @@ export const CurrencyInput = React.forwardRef<
 
   const borderColor = getBorderColor();
 
-  const CustomSelect = React.forwardRef((props: CurrencySelectProps, ref) => {
+  const CustomSelect = React.forwardRef<unknown, CurrencySelectProps>((props, ref) => {
     return <CurrencySelect {...{ ...props, popperRef: ref }} />;
   });
 
@@ -176,6 +176,7 @@ export const CurrencyInput = React.forwardRef<
               ? theme.palette.common.white
               : theme.palette.common.black,
           }}
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           inputComponent={NumberFormatter as any}
           inputProps={{ decimals }}
         />

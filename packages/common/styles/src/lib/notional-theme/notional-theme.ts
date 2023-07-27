@@ -407,7 +407,7 @@ function getTypography(themeVariant: PaletteMode, pageLayout?: NotionalPageLayou
       },
     };
   } else {
-    selectedTypography = {    
+    selectedTypography = {
       h1: {
       fontSize: pxToRem(48),
       fontWeight: fontWeight.bold,

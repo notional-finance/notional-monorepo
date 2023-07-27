@@ -20,15 +20,24 @@ import {
 export interface PortfolioParams {
   category?: PORTFOLIO_CATEGORIES;
   sideDrawerKey?: PORTFOLIO_ACTIONS;
+  selectedToken?: string;
 }
 
 export const PortfolioFeatureShell = () => {
+  const accountConnected = useAccountReady();
+  return (
+    <FeatureLoader featureLoaded={accountConnected}>
+      <Portfolio />
+    </FeatureLoader>
+  );
+};
+
+const Portfolio = () => {
   const theme = useTheme();
   const params = useParams<PortfolioParams>();
   const { clearSideDrawer } = useSideDrawerManager();
   const { SideDrawerComponent, openDrawer } = usePortfolioSideDrawers();
   const buttonData = usePortfolioButtonBar();
-  const accountConnected = useAccountReady();
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -41,49 +50,45 @@ export const PortfolioFeatureShell = () => {
   };
 
   return (
-    <FeatureLoader>
-      <PortfolioContainer>
-        <SideDrawer
-          callback={handleDrawer}
-          openDrawer={openDrawer}
-          zIndex={1202}
-          marginTop="80px"
-        >
-          {SideDrawerComponent && <SideDrawerComponent />}
-        </SideDrawer>
-        <PortfolioSidebar>
-          <SideNav />
-        </PortfolioSidebar>
-        <PortfolioMainContent>
-          {accountConnected &&
-            params.category !== PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS &&
-            params.category !== PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY && (
-              <Box sx={{ justifyContent: 'flex-end', display: 'flex' }}>
-                <ButtonBar
-                  buttonOptions={buttonData}
-                  sx={{
-                    marginBottom: theme.spacing(1),
-                    height: theme.spacing(5),
-                  }}
-                />
-                <ClaimNoteButton />
-              </Box>
-            )}
-          {(params.category === PORTFOLIO_CATEGORIES.OVERVIEW ||
-            params.category === undefined) && <PortfolioOverview />}
-          {params.category === PORTFOLIO_CATEGORIES.HOLDINGS && (
-            <PortfolioHoldings />
-          )}
-          {params.category === PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS && (
-            <PortfolioVaults />
-          )}
-          {params.category === PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY && (
-            <PortfolioTransactionHistory />
-          )}
-        </PortfolioMainContent>
-        <PortfolioMobileNav />
-      </PortfolioContainer>
-    </FeatureLoader>
+    <PortfolioContainer>
+      <SideDrawer
+        callback={handleDrawer}
+        openDrawer={openDrawer}
+        zIndex={1202}
+        marginTop="80px"
+      >
+        {SideDrawerComponent && <SideDrawerComponent />}
+      </SideDrawer>
+      <PortfolioSidebar>
+        <SideNav />
+      </PortfolioSidebar>
+      <PortfolioMainContent>
+        {params.category !== PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS && (
+          <Box sx={{ justifyContent: 'flex-end', display: 'flex' }}>
+            <ButtonBar
+              buttonOptions={buttonData}
+              sx={{
+                marginBottom: theme.spacing(1),
+                height: theme.spacing(5),
+              }}
+            />
+            <ClaimNoteButton />
+          </Box>
+        )}
+        {(params.category === PORTFOLIO_CATEGORIES.OVERVIEW ||
+          params.category === undefined) && <PortfolioOverview />}
+        {params.category === PORTFOLIO_CATEGORIES.HOLDINGS && (
+          <PortfolioHoldings />
+        )}
+        {params.category === PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS && (
+          <PortfolioVaults />
+        )}
+        {params.category === PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY && (
+          <PortfolioTransactionHistory />
+        )}
+      </PortfolioMainContent>
+      <PortfolioMobileNav />
+    </PortfolioContainer>
   );
 };
 

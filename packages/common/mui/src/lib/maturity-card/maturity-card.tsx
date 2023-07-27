@@ -24,11 +24,11 @@ export function MaturityCard({
   isVariable,
 }: MaturityCardProps) {
   const theme = useTheme();
-  const { tradeRate, hasLiquidity, maturity, fCashId } = maturityData;
+  const { tradeRate, hasLiquidity, maturity, tokenId } = maturityData;
   const disabled = tradeRate === undefined || !hasLiquidity;
 
   const handleSelect = () => {
-    if (!disabled) onSelect(fCashId);
+    if (!disabled) onSelect(tokenId);
   };
 
   const getBackgroundColor = () => {

@@ -49,15 +49,10 @@ export function useAccount() {
   };
 }
 export function useAccountWithdrawableTokens() {
-  // NOTE: any token with prime debt enabled is always "withdrawable"
-  const { balanceSummary } = useAccount();
-
-  return Array.from(balanceSummary.values())
-    .filter((b) => b.isWithdrawable)
-    .flatMap((b) => {
-      return [b.underlyingSymbol, b.symbol];
-    })
-    .filter((s) => s !== undefined);
+  const { account } = useAccountDefinition();
+  return (
+    account?.balances.filter((t) => t.isPositive() && !t.isVaultToken) || []
+  );
 }
 
 export function useAccountDefinition() {

@@ -3,7 +3,7 @@ import OptionUnstyled from '@mui/base/OptionUnstyled';
 import { NotionalTheme } from '@notional-finance/styles';
 import { Button, useTheme } from '@mui/material';
 import { TokenIcon } from '@notional-finance/icons';
-import { ForwardedRef, ReactNode, useEffect, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { SelectDropdown } from '../select-dropdown/select-dropdown';
 import { H4 } from '../typography/typography';
 
@@ -12,8 +12,8 @@ export interface CurrencySelectProps {
   landingPage?: boolean;
   defaultValue?: string;
   onSelectChange?: (value: string | null) => void;
-  popperRef?: ForwardedRef<unknown>;
   children?: ReactNode;
+  popperRef?: React.ForwardedRef<unknown>;
 }
 
 const StyledItem = styled(OptionUnstyled)(
@@ -31,21 +31,23 @@ const StyledItem = styled(OptionUnstyled)(
   `
 );
 
-const StyledButton = styled(Button)`
-  min-width: 140px;
-  margin-top: -0.5rem;
-  margin-bottom: -0.5rem;
+const StyledButton = styled(Button)(
+  ({ theme }) => `
+  min-width: ${theme.spacing(18)};
+  margin-top: ${theme.spacing(-1)};
+  margin-bottom: ${theme.spacing(-1)};
   flex-grow: 1;
   align-self: stretch;
-  padding-right: 1rem;
-  padding-left: 1rem;
+  padding-right: ${theme.spacing(2)};
+  padding-left: ${theme.spacing(2)};
   border-top-left-radius: 0px;
   border-bottom-left-radius: 0px;
   .MuiButton-endIcon {
     margin-right: 0px;
     margin-left: auto;
   }
-`;
+`
+);
 
 export function CurrencySelect(props: CurrencySelectProps) {
   const {
@@ -60,6 +62,11 @@ export function CurrencySelect(props: CurrencySelectProps) {
     defaultValue || currencies[0]
   );
 
+  const parentWidth =
+    popperRef && popperRef['current']
+      ? popperRef['current']['clientWidth']
+      : undefined;
+
   useEffect(() => {
     // If the default changes and is not undefined then set it as selected
     if (defaultValue && defaultValue !== value) setValue(defaultValue);
@@ -68,9 +75,9 @@ export function CurrencySelect(props: CurrencySelectProps) {
 
   return (
     <SelectDropdown
-      popperRef={popperRef}
       value={value}
       buttonComponent={StyledButton}
+      popperWidth={`${parentWidth}px`}
       landingPage={landingPage}
       onChange={(value: string | null) => {
         setValue(value);

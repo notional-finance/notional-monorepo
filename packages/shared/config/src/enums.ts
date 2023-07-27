@@ -56,15 +56,10 @@ export enum VAULT_SUB_NAV_ACTIONS {
 export enum PORTFOLIO_ACTIONS {
   ADD_TO_CALENDAR = 'add-to-calendar',
   DEPOSIT = 'deposit',
-  REPAY_CASH_DEBT = 'repay-cash-debt',
-  REPAY_IFCASH_BORROW = 'repay-ifcash-borrow',
-  REPAY_BORROW = 'repay-borrow',
+  REPAY_DEBT = 'repay-debt',
+  ROLL_DEBT = 'roll-borrow',
   WITHDRAW = 'withdraw',
-  WITHDRAW_LEND = 'withdraw-lend',
-  ROLL_MATURITY = 'roll-maturity',
-  CONVERT_CASH = 'convert-cash',
-  REDEEM_NTOKEN = 'redeem-ntoken',
-  // TODO: this should route to redeem-ntoken as a component
+  CONVERT_ASSET = 'convert-asset',
   DELEVERAGE = 'deleverage',
   GET_NOTIFIED = 'get-notified',
   REMIND_ME = 'remind-me',

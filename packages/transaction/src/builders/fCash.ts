@@ -9,6 +9,7 @@ import {
   populateNotionalTxnAndGas,
   PopulateTransactionInputs,
 } from './common';
+import { MintNToken, RedeemAndWithdrawNToken, RedeemToPortfolioNToken } from './nToken';
 
 export function LendFixed({
   address,
@@ -300,4 +301,64 @@ export function RollLendOrDebt({
       ],
     ]
   );
+}
+
+export async function Deposit(i: PopulateTransactionInputs) {
+  if (i.collateralBalance?.tokenType === 'fCash') {
+    return LendFixed(i);
+  } else if (i.collateralBalance?.tokenType === 'nToken') {
+    return MintNToken(i);
+  } else if (i.collateralBalance?.tokenType === 'PrimeCash') {
+    return LendVariable(i);
+  }
+
+  throw Error('Invalid collateral balance');
+}
+
+export async function Withdraw(i: PopulateTransactionInputs) {
+  if (
+    i.debtBalance?.tokenType === 'fCash' ||
+    i.debtBalance?.tokenType === 'PrimeDebt'
+  ) {
+    return WithdrawLend(i);
+  } else if (i.debtBalance?.tokenType === 'nToken') {
+    return RedeemAndWithdrawNToken(i);
+  }
+
+  throw Error('Invalid debt balance');
+}
+
+export function ConvertAsset(i: PopulateTransactionInputs) {
+  if (
+    (i.debtBalance?.tokenType === 'fCash' ||
+      i.debtBalance?.tokenType === 'PrimeDebt') &&
+    (i.collateralBalance?.tokenType === 'fCash' ||
+      i.collateralBalance?.tokenType === 'PrimeDebt')
+  ) {
+    return RollLendOrDebt(i);
+  } else if (
+    i.debtBalance?.tokenType === 'nToken' &&
+    i.collateralBalance?.tokenType === 'fCash'
+  ) {
+    // TODO: need redeem to portfolio and lend
+    return RedeemAndWithdrawNToken(i);
+  } else if (
+    i.debtBalance?.tokenType === 'fCash' &&
+    i.collateralBalance?.tokenType === 'nToken'
+  ) {
+    // TODO: need sell fcash and mint nToken
+    return RedeemToPortfolioNToken(i);
+  } else if (
+    i.debtBalance?.tokenType === 'nToken' &&
+    i.collateralBalance?.tokenType === 'PrimeCash'
+  ) {
+    return RedeemToPortfolioNToken(i);
+  } else if (
+    i.debtBalance?.tokenType === 'PrimeDebt' &&
+    i.collateralBalance?.tokenType === 'nToken'
+  ) {
+    return MintNToken(i)
+  }
+
+  throw Error('Invalid debt balance');
 }

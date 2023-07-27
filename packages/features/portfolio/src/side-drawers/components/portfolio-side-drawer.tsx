@@ -1,40 +1,34 @@
 import { ActionSidebar, ToggleSwitchProps } from '@notional-finance/mui';
-import { AccountData } from '@notional-finance/sdk';
-import {
-  TransactionConfirmation,
-  TransactionData,
-} from '@notional-finance/trade';
-import { RiskSlider, AccountRiskTable } from '@notional-finance/risk';
-import { useQueryParams } from '@notional-finance/utils';
+import { Confirmation2 } from '@notional-finance/trade';
 import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
 import { useHistory, useLocation, useParams } from 'react-router';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { PortfolioParams } from '../../portfolio-feature-shell';
 import { messages } from '../messages';
-import { useEffect } from 'react';
+import { useCallback, useContext } from 'react';
+import { BaseContext } from '@notional-finance/notionable-hooks';
+import { FormattedMessage } from 'react-intl';
 
 interface PortfolioSideDrawerProps {
   action: PORTFOLIO_ACTIONS;
-  canSubmit: boolean;
   children?: React.ReactNode | React.ReactNode[];
-  transactionData?: TransactionData;
-  updatedAccountData?: AccountData;
   advancedToggle?: ToggleSwitchProps;
+  context: BaseContext;
 }
 
 export const PortfolioSideDrawer = ({
+  context,
   action,
   children,
-  canSubmit,
-  transactionData,
-  updatedAccountData,
   advancedToggle,
 }: PortfolioSideDrawerProps) => {
+  const {
+    state: { canSubmit, confirm, populatedTransaction },
+    updateState,
+  } = useContext(context);
   const history = useHistory();
   const { search } = useLocation();
   const { category, sideDrawerKey } = useParams<PortfolioParams>();
-  const { confirm } = useQueryParams();
-  const confirmRoute = !!confirm;
 
   // The cancel route should be the current route including all the
   // query strings except for confirm.
@@ -46,21 +40,22 @@ export const PortfolioSideDrawer = ({
   const returnToPortfolio = `/portfolio/${category}`;
   const { clearSideDrawer } = useSideDrawerManager();
 
-  useEffect(() => {
-    if (search.includes('confirm=true')) {
-      history.push(cancelRoute);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const onSubmit = useCallback(() => {
+    updateState({ confirm: true });
+  }, [updateState]);
 
-  return confirmRoute && transactionData ? (
-    <TransactionConfirmation
-      heading={transactionData?.transactionHeader}
-      onCancel={() => history.push(cancelRoute)}
-      transactionProperties={transactionData?.transactionProperties}
-      buildTransactionCall={transactionData?.buildTransactionCall}
+  const onCancel = useCallback(() => {
+    history.push(cancelRoute);
+    updateState({ confirm: false });
+  }, [history, updateState, cancelRoute]);
+
+  return confirm && populatedTransaction ? (
+    <Confirmation2
+      context={context}
+      heading={<FormattedMessage {...messages[action].heading} />}
+      onCancel={onCancel}
       showDrawer={false}
-      onReturnToForm={() => history.push(cancelRoute)}
+      onReturnToForm={() => history.push(returnToPortfolio)}
     />
   ) : (
     <ActionSidebar
@@ -71,13 +66,9 @@ export const PortfolioSideDrawer = ({
       canSubmit={canSubmit}
       onCancelCallback={() => clearSideDrawer(returnToPortfolio)}
       hideTextOnMobile={false}
+      handleSubmit={onSubmit}
     >
       {children}
-      <RiskSlider key={'risk-slider'} updatedAccountData={updatedAccountData} />
-      <AccountRiskTable
-        key={'risk-data-table'}
-        updatedAccountData={updatedAccountData}
-      />
     </ActionSidebar>
   );
 };
