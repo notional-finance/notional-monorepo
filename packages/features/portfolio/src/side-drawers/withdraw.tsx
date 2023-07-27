@@ -36,6 +36,7 @@ export const Withdraw = () => {
           }
         />
         <DepositInput
+          ref={currencyInputRef}
           isWithdraw
           context={WithdrawContext}
           inputRef={currencyInputRef}
