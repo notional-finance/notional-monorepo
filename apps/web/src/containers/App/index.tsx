@@ -17,9 +17,7 @@ const clientToken = process.env['NX_DD_API_KEY'] as string;
 const DD_SITE = process.env['NX_DD_SITE'];
 // COMMIT_REF environment variable is supplied by netlify on deployment
 const version = `${process.env['NX_COMMIT_REF']?.substring(0, 8) || 'local'}`;
-const DD_API_KEY = process.env['NX_DD_API_KEY'] as string;
 const service = 'web-frontend';
-const NX_ENV = process.env['NX_ENV'] as string;
 const { disableErrorReporting } = getFromLocalStorage('privacySettings');
 
 datadogRum.init({

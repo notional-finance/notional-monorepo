@@ -1,12 +1,11 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Box, useTheme, styled } from '@mui/material';
 import { CountUp, ButtonText } from '@notional-finance/mui';
-import { useAccount } from '@notional-finance/notionable-hooks';
 import { NoteWithShadow } from '@notional-finance/icons';
-import { useNotional } from '@notional-finance/notionable-hooks';
 import { NotionalTheme } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import { useClaimNote } from '../../hooks';
+import { useAccountReady } from '@notional-finance/notionable-hooks';
 
 interface ClaimNoteType {
   theme: NotionalTheme;
@@ -15,14 +14,9 @@ interface ClaimNoteType {
 
 export const ClaimNoteButton = () => {
   const theme = useTheme();
-  const { notional } = useNotional();
-  const { account, accountSummariesLoaded } = useAccount();
-  const {
-    userNoteEarnedFloat,
-    userNoteEarnedPerSecond,
-    userNoteEarned,
-    fetchNoteData,
-  } = useClaimNote();
+  const isAccountReady = useAccountReady();
+  const { userNoteEarnedFloat, userNoteEarnedPerSecond, userNoteEarned } =
+    useClaimNote();
   const [noteCountUp, setNoteCountUp] = useState<number>(0);
   const [hover, setHover] = useState(false);
 
@@ -43,23 +37,25 @@ export const ClaimNoteButton = () => {
     return () => clearInterval(interval);
   }, [userNoteEarnedPerSecond]);
 
-  const handleClick = useCallback(async () => {
-    if (account?.address && notional) {
-      const unsignedTxn = await notional.claimIncentives(account.address);
-      const pendingTxn = await account.sendTransaction(unsignedTxn);
-      await pendingTxn.wait();
-      await fetchNoteData();
-    }
-  }, [account, notional, fetchNoteData]);
+  // const handleClick = useCallback(async () => {
+  //   if (account?.address && notional) {
+  //     const unsignedTxn = await notional.claimIncentives(account.address);
+  //     const pendingTxn = await account.sendTransaction(unsignedTxn);
+  //     await pendingTxn.wait();
+  //     await fetchNoteData();
+  //   }
+  // }, [account, notional, fetchNoteData]);
 
   // NOTE: accountSummariesLoaded is used here to ensure that the button is rendered on time with the button-bar
   return (
     <Box>
-      {!userNoteEarned.isZero() && accountSummariesLoaded && (
+      {!userNoteEarned.isZero() && isAccountReady && (
         <Wrapper
           onMouseEnter={() => setHover(true)}
           onMouseLeave={() => setHover(false)}
-          onClick={handleClick}
+          onClick={() => {
+            console.log('click');
+          }}
         >
           <ClaimNoteWrapper hover={hover} theme={theme}>
             <FormattedMessage defaultMessage={'Claim NOTE'} />{' '}

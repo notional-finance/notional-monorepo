@@ -10,7 +10,7 @@ const CACHE_HOSTNAME =
   process.env['NX_DATA_URL'] || 'https://data-dev.notional.finance';
 
 export interface NotionalError {
-  code: string;
+  code: number;
   msg: string;
 }
 
