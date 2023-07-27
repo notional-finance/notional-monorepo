@@ -6,6 +6,7 @@ import {
   DataTableColumn,
   DateTimeCell,
   DisplayCell,
+  SelectedOptions,
 } from '@notional-finance/mui';
 import { Box, useTheme } from '@mui/material';
 import { TXN_HISTORY_TYPE } from '@notional-finance/shared-config';
@@ -13,8 +14,8 @@ import { getDateString } from '@notional-finance/helpers';
 import { FormattedMessage } from 'react-intl';
 
 export const useTxnHistoryTable = (
-  currencyOptions: string[],
-  assetOrVaultOptions: string[],
+  currencyOptions: SelectedOptions[],
+  assetOrVaultOptions: SelectedOptions[],
   txnHistoryType: TXN_HISTORY_TYPE,
   accountHistoryData: any[]
 ) => {
@@ -115,39 +116,45 @@ export const useTxnHistoryTable = (
       ? tableColumns.filter(({ accessor }) => accessor !== 'vaultName')
       : tableColumns;
 
+  const getIds = (options: SelectedOptions[]) => {
+    return options.map(({ id }) => id);
+  };
+
   const filterTxnHistoryData = () => {
-    const filterData = [...currencyOptions, ...assetOrVaultOptions];
+    const currencyIds = getIds(currencyOptions);
+    const assetOrVaultIds = getIds(assetOrVaultOptions);
+    const filterData = [...currencyIds, ...assetOrVaultIds];
+
     if (filterData.length === 0) return accountHistoryData;
-    if (assetOrVaultOptions.length > 0 && currencyOptions.length > 0) {
+
+    if (assetOrVaultIds.length > 0 && currencyIds.length > 0) {
       return txnHistoryType === TXN_HISTORY_TYPE.PORTFOLIO_HOLDINGS
         ? accountHistoryData
             .filter(({ currency }) => filterData.includes(currency))
-            .filter(({ asset }) => filterData.includes(asset?.label))
+            .filter(({ token }) => filterData.includes(token.id))
         : accountHistoryData
             .filter(({ currency }) => filterData.includes(currency))
-            .filter(
-              ({ vaultName }) => vaultName && filterData.includes(vaultName)
-            );
+            .filter(({ token }) => filterData.includes(token.vaultAddress));
     }
-    if (currencyOptions.length > 0) {
+    if (currencyIds.length > 0) {
       return accountHistoryData.filter(({ currency }) =>
-        currencyOptions.includes(currency)
+        currencyIds.includes(currency)
       );
     }
     if (
-      assetOrVaultOptions.length > 0 &&
+      assetOrVaultIds.length > 0 &&
       txnHistoryType === TXN_HISTORY_TYPE.PORTFOLIO_HOLDINGS
     ) {
-      return accountHistoryData.filter(({ asset }) =>
-        filterData.includes(asset?.label)
+      return accountHistoryData.filter(({ token }) =>
+        filterData.includes(token.id)
       );
     }
     if (
-      assetOrVaultOptions.length > 0 &&
+      assetOrVaultIds.length > 0 &&
       txnHistoryType === TXN_HISTORY_TYPE.LEVERAGED_VAULT
     ) {
-      return accountHistoryData.filter(
-        ({ vaultName }) => vaultName && filterData.includes(vaultName)
+      return accountHistoryData.filter(({ token }) =>
+        filterData.includes(token.vaultAddress)
       );
     }
     return accountHistoryData;

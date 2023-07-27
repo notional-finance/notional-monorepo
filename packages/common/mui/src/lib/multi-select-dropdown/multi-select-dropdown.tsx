@@ -5,13 +5,18 @@ import { Checkbox, styled, useTheme, Box } from '@mui/material';
 import { NotionalTheme } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 
-interface TestProps {
+interface DropDownOptionProps {
   isOpen: boolean;
   theme: NotionalTheme;
 }
-interface TestTwoProps {
+interface ItemProps {
   isSelected: boolean;
   theme: NotionalTheme;
+}
+export interface SelectedOptions {
+  id: string;
+  title: string;
+  icon?: ReactNode;
 }
 
 interface MultiSelectDropdownProps {
@@ -20,9 +25,10 @@ interface MultiSelectDropdownProps {
     title: string;
     icon?: ReactNode;
   }[];
-  selected: string[];
+  selected: SelectedOptions[];
   setSelected: any;
   placeHolderText: ReactNode;
+  clearQueryAndFilters?: () => void;
 }
 
 export const MultiSelectDropdown = ({
@@ -30,6 +36,7 @@ export const MultiSelectDropdown = ({
   selected,
   setSelected,
   placeHolderText,
+  clearQueryAndFilters,
 }: MultiSelectDropdownProps) => {
   const theme = useTheme();
   const [isOpen, setIsOpen] = useState(false);
@@ -41,23 +48,23 @@ export const MultiSelectDropdown = ({
       : setAllSelected(false);
   }, [options, selected, setAllSelected]);
 
-  const toggleOption = ({ title }) => {
+  const toggleOption = (option) => {
     if (allSelected) setAllSelected(false);
     setSelected((prevSelected) => {
       const newArray = [...prevSelected];
-      if (newArray.includes(title)) {
-        return newArray.filter((item) => item !== title);
+      if (newArray.find(({ id }) => id === option.id)) {
+        return newArray.filter(({ id }) => id !== option.id);
       } else {
-        newArray.push(title);
+        newArray.push(option);
         return newArray;
       }
     });
+    if (clearQueryAndFilters) clearQueryAndFilters();
   };
 
   const handleSelectAll = () => {
     if (!allSelected) {
-      const formattedOptions = options.map(({ title }) => title);
-      setSelected(formattedOptions);
+      setSelected(options);
       setAllSelected(true);
     } else {
       setAllSelected(false);
@@ -65,8 +72,8 @@ export const MultiSelectDropdown = ({
     }
   };
 
-  const displayOptions = options.filter(({ title }) =>
-    selected.includes(title)
+  const displayOptions = options.filter((option) =>
+    selected.find(({ id }) => id === option.id)
   );
 
   return (
@@ -83,7 +90,11 @@ export const MultiSelectDropdown = ({
               marginRight: theme.spacing(1),
             }}
           />
-          {displayOptions.length > 0 && <Text>{selected.length} selected</Text>}
+          {displayOptions.length > 0 && (
+            <Text>
+              {selected.length} <FormattedMessage defaultMessage={'selected'} />
+            </Text>
+          )}
           {displayOptions.length <= 0 && <Text>{placeHolderText}</Text>}
         </Box>
         <ChevronDownIcon
@@ -113,12 +124,14 @@ export const MultiSelectDropdown = ({
             />
           </Item>
           {options.map((option) => {
-            const isSelected = selected.includes(option.title);
+            const isSelected = selected.find(({ id }) => id === option.id)
+              ? true
+              : false;
             return (
               <Item
-                key={option.title}
+                key={option.id}
                 isSelected={isSelected}
-                onClick={() => toggleOption({ title: option.title })}
+                onClick={() => toggleOption(option)}
                 theme={theme}
               >
                 <Text sx={{ display: 'flex', alignItems: 'center' }}>
@@ -169,7 +182,7 @@ const Wrapper = styled(Box)(
 const Item = styled('ul', {
   shouldForwardProp: (prop: string) => prop !== 'isSelected',
 })(
-  ({ isSelected, theme }: TestTwoProps) => `
+  ({ isSelected, theme }: ItemProps) => `
     padding: 6px 10px;
     padding-right: 0px;
     height: ${theme.spacing(6)};
@@ -202,7 +215,7 @@ const SelectDropdown = styled(Box)(`
 const DropdownOptions = styled('ul', {
   shouldForwardProp: (prop: string) => prop !== 'isOpen',
 })(
-  ({ isOpen, theme }: TestProps) => `
+  ({ isOpen, theme }: DropDownOptionProps) => `
     display: ${isOpen ? 'block' : 'none'};
     position: absolute;
     box-sizing: border-box;

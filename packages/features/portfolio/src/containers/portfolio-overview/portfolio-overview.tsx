@@ -5,15 +5,17 @@ import { FormattedMessage } from 'react-intl';
 import {
   useRiskOverviewTable,
   useTotalHoldingsTable,
-  useVaultHoldingsTable,
+  useOverviewVaultHoldingsColumns,
 } from './hooks';
+import { useVaultHoldingsTable } from '../../hooks';
 import { Box, useTheme } from '@mui/material';
 
 export const PortfolioOverview = () => {
   const theme = useTheme();
   const accountConnected = useAccountReady();
   const { totalHoldingsColumns, totalHoldingsData } = useTotalHoldingsTable();
-  const { vaultHoldingsColumns, vaultHoldingsData } = useVaultHoldingsTable();
+  const { vaultHoldingsData } = useVaultHoldingsTable();
+  const { overviewVaultHoldingsColumns } = useOverviewVaultHoldingsColumns();
   const { riskOverviewData, riskOverviewColumns } = useRiskOverviewTable();
 
   return accountConnected ? (
@@ -49,7 +51,7 @@ export const PortfolioOverview = () => {
       {vaultHoldingsData.length > 0 && (
         <DataTable
           data={vaultHoldingsData}
-          columns={vaultHoldingsColumns}
+          columns={overviewVaultHoldingsColumns}
           tableTitle={
             <div>
               <FormattedMessage

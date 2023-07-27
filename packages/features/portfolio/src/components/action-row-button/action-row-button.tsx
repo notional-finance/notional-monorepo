@@ -30,7 +30,7 @@ export const ActionRowButton = ({
       }}
     >
       <Label>
-        <FormattedMessage {...(heading || label)} />
+        {heading && <FormattedMessage {...heading} />}
         {tooltip && (
           <InfoTooltip toolTipText={tooltip} sx={{ marginLeft: '10px' }} />
         )}

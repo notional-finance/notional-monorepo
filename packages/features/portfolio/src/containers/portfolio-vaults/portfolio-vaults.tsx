@@ -1,28 +1,47 @@
 import { Box } from '@mui/material';
 import { DataTable } from '@notional-finance/mui';
-import { VaultActionRow, EmptyPortfolio } from '../../components';
+import { VaultActionRow } from '../../components';
+import { FormattedMessage } from 'react-intl';
 // import { useRiskOverviewTable } from '../portfolio-overview/hooks/use-risk-overview-table';
-import { usePortfolioVaults } from './hooks/use-portfolio-vaults';
+// import { usePortfolioVaults } from './hooks/use-portfolio-vaults';
+import { useVaultHoldingsTable } from '../../hooks';
 
 export const PortfolioVaults = () => {
-  const {
-    vaultSummaryData,
-    vaultSummaryColumns,
-    initialState,
-    setExpandedRows,
-  } = usePortfolioVaults();
-  // const { vaultRiskData, riskOverviewColumns } = useRiskOverviewTable();
+  // const {
+  //   vaultSummaryData,
+  //   vaultSummaryColumns,
+  //   initialState,
+  //   setExpandedRows,
+  // } = usePortfolioVaults();
 
-  if (vaultSummaryData.length === 0) {
-    return <EmptyPortfolio />;
-  }
+  const {
+    vaultHoldingsColumns,
+    vaultHoldingsData,
+    setExpandedRows,
+    initialState,
+  } = useVaultHoldingsTable();
+
+  console.log({ vaultHoldingsData });
+  console.log({ vaultHoldingsColumns });
+
+  // if (vaultSummaryData.length === 0) {
+  //   return <EmptyPortfolio />;
+  // }
 
   return (
     <Box>
       <DataTable
-        data={vaultSummaryData}
-        columns={vaultSummaryColumns}
+        data={vaultHoldingsData}
+        columns={vaultHoldingsColumns}
         CustomRowComponent={VaultActionRow}
+        tableTitle={
+          <div>
+            <FormattedMessage
+              defaultMessage="Leveraged Vaults"
+              description="table title"
+            />
+          </div>
+        }
         initialState={initialState}
         setExpandedRows={setExpandedRows}
       />

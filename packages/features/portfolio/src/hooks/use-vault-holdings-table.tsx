@@ -1,10 +1,14 @@
+import { useMemo, useEffect, useState } from 'react';
 import { Theme, useTheme } from '@mui/material';
 import {
   DataTableColumn,
   MultiValueCell,
   MultiValueIconCell,
   SliderCell,
+  ExpandedRows,
+  ChevronCell,
 } from '@notional-finance/mui';
+import moment from 'moment';
 import {
   formatCryptoWithFiat,
   formatLeverageRatio,
@@ -16,6 +20,7 @@ import {
   useBalanceStatements,
   useVaultRiskProfiles,
 } from '@notional-finance/notionable-hooks';
+import { TXN_HISTORY_TYPE } from '@notional-finance/shared-config';
 import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
 import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
 import { TokenBalance } from '@notional-finance/core-entities';
@@ -44,60 +49,79 @@ export function getVaultLeveragePercentage(
 }
 
 export const useVaultHoldingsTable = () => {
+  const [expandedRows, setExpandedRows] = useState<ExpandedRows | null>(null);
+  const initialState = expandedRows !== null ? { expanded: expandedRows } : {};
   const vaults = useVaultRiskProfiles();
   const theme = useTheme();
   const balanceStatements = useBalanceStatements();
 
-  const vaultHoldingsColumns: DataTableColumn[] = [
-    {
-      Header: (
-        <FormattedMessage defaultMessage="Vault" description={'vault header'} />
-      ),
-      Cell: MultiValueIconCell,
-      accessor: 'strategy',
-      textAlign: 'left',
-    },
-    {
-      Header: (
-        <FormattedMessage
-          defaultMessage="Net Worth"
-          description={'Net Worth header'}
-        />
-      ),
-      Cell: MultiValueCell,
-      accessor: 'netWorth',
-      textAlign: 'right',
-    },
-    {
-      Header: (
-        <FormattedMessage
-          defaultMessage="Profits"
-          description={'profits header'}
-        />
-      ),
-      Cell: MultiValueCell,
-      accessor: 'profit',
-      textAlign: 'right',
-    },
-    {
-      Header: (
-        <FormattedMessage defaultMessage="APY" description={'Debts header'} />
-      ),
-      accessor: 'totalAPY',
-      textAlign: 'right',
-    },
-    {
-      Header: (
-        <FormattedMessage
-          defaultMessage="Leverage Ratio"
-          description={'currency header'}
-        />
-      ),
-      Cell: SliderCell,
-      accessor: 'leveragePercentage',
-      textAlign: 'right',
-    },
-  ];
+  const vaultHoldingsColumns: DataTableColumn[] = useMemo(() => {
+    return [
+      {
+        Header: (
+          <FormattedMessage
+            defaultMessage="Vault"
+            description={'vault header'}
+          />
+        ),
+        Cell: MultiValueIconCell,
+        accessor: 'strategy',
+        textAlign: 'left',
+        expandableTable: true,
+      },
+      {
+        Header: (
+          <FormattedMessage
+            defaultMessage="Net Worth"
+            description={'Net Worth header'}
+          />
+        ),
+        Cell: MultiValueCell,
+        accessor: 'netWorth',
+        textAlign: 'right',
+        expandableTable: true,
+      },
+      {
+        Header: (
+          <FormattedMessage
+            defaultMessage="Profits"
+            description={'profits header'}
+          />
+        ),
+        Cell: MultiValueCell,
+        accessor: 'profit',
+        textAlign: 'right',
+        expandableTable: true,
+      },
+      {
+        Header: (
+          <FormattedMessage defaultMessage="APY" description={'Debts header'} />
+        ),
+        accessor: 'totalAPY',
+        textAlign: 'right',
+        expandableTable: true,
+      },
+      {
+        Header: (
+          <FormattedMessage
+            defaultMessage="Leverage Ratio"
+            description={'currency header'}
+          />
+        ),
+        Cell: SliderCell,
+        accessor: 'leveragePercentage',
+        textAlign: 'right',
+        expandableTable: true,
+      },
+      {
+        Header: '',
+        Cell: ChevronCell,
+        accessor: 'chevron',
+        textAlign: 'left',
+        expandableTable: true,
+      },
+    ];
+  }, []);
 
   const vaultHoldingsData = vaults.map((v) => {
     const config = v.vaultConfig;
@@ -157,8 +181,39 @@ export const useVaultHoldingsTable = () => {
         displayValue: formatNumberAsPercent(borrowAPY, 3),
       },
       leverageRatio: formatLeverageRatio(v.leverageRatio() || 0),
+      actionRow: {
+        maturity: v.maturity ? moment.unix(v.maturity).format() : undefined,
+        routes: {
+          manageVault: ``,
+          txnHistory: `/portfolio/transaction-history?${new URLSearchParams({
+            txnHistoryType: TXN_HISTORY_TYPE.LEVERAGED_VAULT,
+            vaultAddress: config.vaultAddress,
+          })}`,
+        },
+      },
     };
   });
 
-  return { vaultHoldingsColumns, vaultHoldingsData };
+  useEffect(() => {
+    const formattedExpandedRows = vaultHoldingsColumns.reduce(
+      (accumulator, _value, index) => {
+        return { ...accumulator, [index]: index === 0 ? true : false };
+      },
+      {}
+    );
+
+    if (
+      expandedRows === null &&
+      JSON.stringify(formattedExpandedRows) !== '{}'
+    ) {
+      setExpandedRows(formattedExpandedRows);
+    }
+  }, [vaultHoldingsColumns, expandedRows, setExpandedRows]);
+
+  return {
+    vaultHoldingsColumns,
+    vaultHoldingsData,
+    setExpandedRows,
+    initialState,
+  };
 };

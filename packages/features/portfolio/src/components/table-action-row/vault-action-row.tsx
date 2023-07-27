@@ -1,6 +1,5 @@
 import { Box, useTheme } from '@mui/material';
 import { ActionRowButton } from '../action-row-button/action-row-button';
-import { RemindMe } from '../remind-me/remind-me';
 import { MainContainer } from './table-action-row';
 import { defineMessages } from 'react-intl';
 
@@ -11,6 +10,7 @@ interface VaultActionRowProps {
         maturity: string;
         routes: {
           manageVault?: string;
+          txnHistory?: string;
         };
       };
     };
@@ -19,23 +19,15 @@ interface VaultActionRowProps {
 
 export const VaultActionRow = ({ row }: VaultActionRowProps) => {
   const theme = useTheme();
-  const { maturity, routes } = row.original.actionRow;
+  const { routes } = row.original.actionRow;
   return (
     <MainContainer>
       <Box sx={{ display: 'flex', width: '100%' }}>
         {routes.manageVault && (
           <ActionRowButton
             {...defineMessages({
-              heading: {
-                defaultMessage: 'Manage Vault',
-                description: 'heading',
-              },
               label: {
                 defaultMessage: 'Manage Vault',
-                description: 'button text',
-              },
-              tooltip: {
-                defaultMessage: 'Manage your vault position.',
                 description: 'button text',
               },
             })}
@@ -43,8 +35,19 @@ export const VaultActionRow = ({ row }: VaultActionRowProps) => {
             sx={{ marginLeft: theme.spacing(3) }}
           />
         )}
+        {routes.txnHistory && (
+          <ActionRowButton
+            {...defineMessages({
+              label: {
+                defaultMessage: 'Transaction History',
+                description: 'button text',
+              },
+            })}
+            route={routes.txnHistory}
+            sx={{ marginLeft: theme.spacing(3) }}
+          />
+        )}
       </Box>
-      <RemindMe futureDate={maturity} />
     </MainContainer>
   );
 };

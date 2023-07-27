@@ -32,6 +32,7 @@ interface DataTableProps {
   setExpandedRows?: Dispatch<SetStateAction<ExpandedRows | null>>;
   tableLoading?: boolean;
   filterBarData?: any[];
+  clearQueryAndFilters?: () => void;
   marketDataCSVFormatter?: (data: any[]) => any;
 }
 
@@ -50,6 +51,7 @@ export const DataTable = ({
   setExpandedRows,
   tableLoading,
   filterBarData,
+  clearQueryAndFilters,
   marketDataCSVFormatter,
 }: DataTableProps) => {
   const theme = useTheme();
@@ -143,6 +145,7 @@ export const DataTable = ({
         <DataTableFilterBar
           filterBarData={filterBarData}
           tableData={data}
+          clearQueryAndFilters={clearQueryAndFilters}
           downloadCSVFormatter={marketDataCSVFormatter}
         />
       )}

@@ -9,11 +9,13 @@ import { FormattedMessage } from 'react-intl';
 interface DataTableFilterBarProps {
   filterBarData: any[];
   downloadCSVFormatter?: (data: any[]) => any;
+  clearQueryAndFilters?: () => void;
   tableData?: any[];
 }
 
 export const DataTableFilterBar = ({
   filterBarData,
+  clearQueryAndFilters,
   downloadCSVFormatter,
   tableData,
 }: DataTableFilterBarProps) => {
@@ -21,6 +23,9 @@ export const DataTableFilterBar = ({
   const theme = useTheme();
   const handleFilterReset = () => {
     filterBarData.forEach(({ setSelectedOptions }) => setSelectedOptions([]));
+    if (clearQueryAndFilters) {
+      clearQueryAndFilters();
+    }
   };
 
   const handleCSVClick = () => {
@@ -53,6 +58,7 @@ export const DataTableFilterBar = ({
               key={index}
               options={data}
               selected={selectedOptions}
+              clearQueryAndFilters={clearQueryAndFilters}
               setSelected={setSelectedOptions}
               placeHolderText={placeHolderText}
             />
