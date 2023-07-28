@@ -1,10 +1,7 @@
 import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
 import { defineMessages, MessageDescriptor } from 'react-intl';
 
-interface PortfolioMessages extends Record<string, MessageDescriptor> {
-  heading: MessageDescriptor;
-  helptext: MessageDescriptor;
-}
+type PortfolioMessages = Record<string, MessageDescriptor>;
 
 export const messages: Record<PORTFOLIO_ACTIONS, PortfolioMessages> = {
   [PORTFOLIO_ACTIONS.ADD_TO_CALENDAR]: defineMessages({
@@ -26,22 +23,12 @@ export const messages: Record<PORTFOLIO_ACTIONS, PortfolioMessages> = {
     },
   }),
   [PORTFOLIO_ACTIONS.REPAY_DEBT]: defineMessages({
-    heading: { defaultMessage: 'Repay Debt', description: '' },
-    helptext: {
-      defaultMessage: 'Repay your debt before maturity at the market rate.',
-      description: '',
-    },
     inputLabel: {
       defaultMessage: 'Enter the amount of fCash to repay',
       description: '',
     },
   }),
   [PORTFOLIO_ACTIONS.CONVERT_ASSET]: defineMessages({
-    heading: { defaultMessage: 'Manage Asset', description: '' },
-    helptext: {
-      defaultMessage: 'Repay your cash debt to avoid settlement penalties.',
-      description: '',
-    },
     inputLabel: {
       defaultMessage: 'Enter the amount of cash to repay',
       description: '',
@@ -54,11 +41,6 @@ export const messages: Record<PORTFOLIO_ACTIONS, PortfolioMessages> = {
     },
   }),
   [PORTFOLIO_ACTIONS.ROLL_DEBT]: defineMessages({
-    heading: { defaultMessage: 'Manage Debt', description: '' },
-    helptext: {
-      defaultMessage: 'Manage your debt',
-      description: '',
-    },
     inputLabel: {
       defaultMessage: 'Enter the amount of cash to repay',
       description: '',
@@ -71,12 +53,6 @@ export const messages: Record<PORTFOLIO_ACTIONS, PortfolioMessages> = {
     },
   }),
   [PORTFOLIO_ACTIONS.WITHDRAW]: defineMessages({
-    heading: { defaultMessage: 'Withdraw', description: '' },
-    helptext: {
-      defaultMessage:
-        'Withdraw balances from Notional into the connected wallet.',
-      description: '',
-    },
     inputLabel: {
       defaultMessage: 'Enter the amount to withdraw',
       description: '',

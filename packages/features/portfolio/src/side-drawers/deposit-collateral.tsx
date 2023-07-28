@@ -34,10 +34,7 @@ export const DepositCollateral = () => {
 
   return (
     <DepositCollateralContext.Provider value={context}>
-      <PortfolioSideDrawer
-        action={PORTFOLIO_ACTIONS.DEPOSIT}
-        context={DepositCollateralContext}
-      >
+      <PortfolioSideDrawer context={DepositCollateralContext}>
         <DepositInput
           context={DepositCollateralContext}
           inputRef={currencyInputRef}

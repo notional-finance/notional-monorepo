@@ -23,10 +23,7 @@ export const RollDebt = () => {
       {debt === undefined ? (
         <SelectConvertAsset context={RollDebtContext} />
       ) : (
-        <PortfolioSideDrawer
-          action={PORTFOLIO_ACTIONS.ROLL_DEBT}
-          context={RollDebtContext}
-        >
+        <PortfolioSideDrawer context={RollDebtContext}>
           <AssetInput
             ref={currencyInputRef}
             prefillMax

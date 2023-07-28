@@ -23,10 +23,7 @@ export const ConvertAsset = () => {
       {collateral === undefined ? (
         <SelectConvertAsset context={ConvertAssetContext} />
       ) : (
-        <PortfolioSideDrawer
-          action={PORTFOLIO_ACTIONS.CONVERT_ASSET}
-          context={ConvertAssetContext}
-        >
+        <PortfolioSideDrawer context={ConvertAssetContext}>
           <AssetInput
             ref={currencyInputRef}
             prefillMax

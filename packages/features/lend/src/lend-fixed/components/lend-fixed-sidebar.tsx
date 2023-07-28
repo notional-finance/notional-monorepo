@@ -1,11 +1,10 @@
-import { useContext } from 'react';
-import { defineMessage, FormattedMessage } from 'react-intl';
-import { ActionSidebar, useCurrencyInputRef } from '@notional-finance/mui';
+import { useCallback, useContext } from 'react';
+import { defineMessage } from 'react-intl';
+import { useCurrencyInputRef } from '@notional-finance/mui';
 import {
-  TradeActionButton,
   DepositInput,
   MaturitySelect,
-  Confirmation2,
+  TransactionSidebar,
 } from '@notional-finance/trade';
 import { useHistory } from 'react-router-dom';
 import { PRODUCTS } from '@notional-finance/shared-config';
@@ -14,47 +13,20 @@ import { LendFixedContext } from '../../lend-fixed/lend-fixed';
 export const LendFixedSidebar = () => {
   const history = useHistory();
   const {
-    state: { canSubmit, populatedTransaction, confirm, selectedDepositToken },
-    updateState,
+    state: { selectedDepositToken },
   } = useContext(LendFixedContext);
   const { currencyInputRef } = useCurrencyInputRef();
 
-  const handleLeverUpToggle = () => {
+  const handleLeverUpToggle = useCallback(() => {
     history.push(`/${PRODUCTS.LEND_LEVERAGED}/${selectedDepositToken}`, {
       from: PRODUCTS.LEND_FIXED,
     });
-  };
+  }, [history, selectedDepositToken]);
 
-  const handleSubmit = () => {
-    updateState({ confirm: true });
-  };
-
-  return confirm && populatedTransaction ? (
-    <Confirmation2
-      heading={
-        <FormattedMessage
-          defaultMessage="Lend Order"
-          description="section heading"
-        />
-      }
-      context={LendFixedContext}
-    />
-  ) : (
-    <ActionSidebar
-      heading={defineMessage({
-        defaultMessage: 'Fixed Lend',
-        description: 'section heading',
-      })}
-      helptext={defineMessage({
-        defaultMessage:
-          'Lock in a fixed interest rate today.  Fixed rates guarantee your APY.',
-        description: 'helptext',
-      })}
-      CustomActionButton={TradeActionButton}
-      handleSubmit={handleSubmit}
-      canSubmit={canSubmit}
+  return (
+    <TransactionSidebar
       handleLeverUpToggle={handleLeverUpToggle}
-      leveredUp={false}
+      context={LendFixedContext}
     >
       <DepositInput
         ref={currencyInputRef}
@@ -74,7 +46,7 @@ export const LendFixedSidebar = () => {
           description: 'input label',
         })}
       />
-    </ActionSidebar>
+    </TransactionSidebar>
   );
 };
 

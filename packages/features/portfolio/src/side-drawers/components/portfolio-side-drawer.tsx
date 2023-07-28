@@ -1,16 +1,12 @@
-import { ActionSidebar, ToggleSwitchProps } from '@notional-finance/mui';
-import { Confirmation2 } from '@notional-finance/trade';
-import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
+import { ToggleSwitchProps } from '@notional-finance/mui';
+import { TransactionSidebar } from '@notional-finance/trade';
 import { useHistory, useLocation, useParams } from 'react-router';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { PortfolioParams } from '../../portfolio-feature-shell';
-import { messages } from '../messages';
 import { useCallback, useContext } from 'react';
 import { BaseContext } from '@notional-finance/notionable-hooks';
-import { FormattedMessage } from 'react-intl';
 
 interface PortfolioSideDrawerProps {
-  action: PORTFOLIO_ACTIONS;
   children?: React.ReactNode | React.ReactNode[];
   advancedToggle?: ToggleSwitchProps;
   context: BaseContext;
@@ -18,14 +14,10 @@ interface PortfolioSideDrawerProps {
 
 export const PortfolioSideDrawer = ({
   context,
-  action,
   children,
   advancedToggle,
 }: PortfolioSideDrawerProps) => {
-  const {
-    state: { canSubmit, confirm, populatedTransaction },
-    updateState,
-  } = useContext(context);
+  const { updateState } = useContext(context);
   const history = useHistory();
   const { search } = useLocation();
   const { category, sideDrawerKey } = useParams<PortfolioParams>();
@@ -40,35 +32,29 @@ export const PortfolioSideDrawer = ({
   const returnToPortfolio = `/portfolio/${category}`;
   const { clearSideDrawer } = useSideDrawerManager();
 
-  const onSubmit = useCallback(() => {
-    updateState({ confirm: true });
-  }, [updateState]);
-
-  const onCancel = useCallback(() => {
+  const onConfirmCancel = useCallback(() => {
     history.push(cancelRoute);
     updateState({ confirm: false });
   }, [history, updateState, cancelRoute]);
 
-  return confirm && populatedTransaction ? (
-    <Confirmation2
+  const onReturnToForm = useCallback(() => {
+    history.push(returnToPortfolio);
+  }, [history, returnToPortfolio]);
+
+  const onCancel = useCallback(() => {
+    clearSideDrawer(returnToPortfolio);
+  }, [clearSideDrawer, returnToPortfolio]);
+
+  return (
+    <TransactionSidebar
       context={context}
-      heading={<FormattedMessage {...messages[action].heading} />}
-      onCancel={onCancel}
-      showDrawer={false}
-      onReturnToForm={() => history.push(returnToPortfolio)}
-    />
-  ) : (
-    <ActionSidebar
-      heading={messages[action].heading}
-      helptext={messages[action].helptext}
+      isPortfolio
+      onConfirmCancel={onConfirmCancel}
+      onCancelCallback={onCancel}
+      onReturnToForm={onReturnToForm}
       advancedToggle={advancedToggle}
-      showDrawer={false}
-      canSubmit={canSubmit}
-      onCancelCallback={() => clearSideDrawer(returnToPortfolio)}
-      hideTextOnMobile={false}
-      handleSubmit={onSubmit}
     >
       {children}
-    </ActionSidebar>
+    </TransactionSidebar>
   );
 };

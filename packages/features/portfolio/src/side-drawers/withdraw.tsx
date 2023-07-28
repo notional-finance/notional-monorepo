@@ -19,10 +19,7 @@ export const Withdraw = () => {
 
   return (
     <WithdrawContext.Provider value={context}>
-      <PortfolioSideDrawer
-        action={PORTFOLIO_ACTIONS.WITHDRAW}
-        context={WithdrawContext}
-      >
+      <PortfolioSideDrawer context={WithdrawContext}>
         <PortfolioHoldingSelect
           tightMarginTop
           isWithdraw

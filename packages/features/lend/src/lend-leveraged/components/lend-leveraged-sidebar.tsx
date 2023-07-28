@@ -1,11 +1,10 @@
 import { useCallback, useContext } from 'react';
-import { defineMessage, FormattedMessage } from 'react-intl';
-import { ActionSidebar, useCurrencyInputRef } from '@notional-finance/mui';
+import { defineMessage } from 'react-intl';
+import { useCurrencyInputRef } from '@notional-finance/mui';
 import {
-  TradeActionButton,
   DepositInput,
-  Confirmation2,
   LeverageSlider,
+  TransactionSidebar,
 } from '@notional-finance/trade';
 import { useHistory } from 'react-router-dom';
 import { PRODUCTS } from '@notional-finance/shared-config';
@@ -15,8 +14,7 @@ import { LeveragedLendMaturitySelector } from './leveraged-lend-maturity-selecto
 export const LendLeveragedSidebar = () => {
   const history = useHistory();
   const {
-    state: { canSubmit, populatedTransaction, confirm, selectedDepositToken },
-    updateState,
+    state: { selectedDepositToken },
   } = useContext(LendLeveragedContext);
   const { currencyInputRef } = useCurrencyInputRef();
 
@@ -35,36 +33,11 @@ export const LendLeveragedSidebar = () => {
     }
   }, [history, selectedDepositToken]);
 
-  const handleSubmit = () => {
-    updateState({ confirm: true });
-  };
-
-  return confirm && populatedTransaction ? (
-    <Confirmation2
-      heading={
-        <FormattedMessage
-          defaultMessage="Lend Order"
-          description="section heading"
-        />
-      }
-      context={LendLeveragedContext}
-    />
-  ) : (
-    <ActionSidebar
-      heading={defineMessage({
-        defaultMessage: 'Leveraged Lending',
-        description: 'section heading',
-      })}
-      helptext={defineMessage({
-        defaultMessage:
-          "Arbitrage Notional's interest rates by borrowing at a low rate and lending at a higher one with leverage for maximum returns.",
-        description: 'helptext',
-      })}
-      CustomActionButton={TradeActionButton}
-      canSubmit={canSubmit}
-      handleSubmit={handleSubmit}
+  return (
+    <TransactionSidebar
       handleLeverUpToggle={handleLeverUpToggle}
-      leveredUp={true}
+      context={LendLeveragedContext}
+      leveredUp
     >
       <DepositInput
         ref={currencyInputRef}
@@ -84,7 +57,7 @@ export const LendLeveragedSidebar = () => {
           description: 'input label',
         })}
       />
-    </ActionSidebar>
+    </TransactionSidebar>
   );
 };
 

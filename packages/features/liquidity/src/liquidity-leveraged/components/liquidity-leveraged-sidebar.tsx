@@ -1,60 +1,32 @@
-import { useContext } from 'react';
+import { useCallback, useContext } from 'react';
 import {
-  TradeActionButton,
   DepositInput,
-  Confirmation2,
   VariableFixedMaturityToggle,
   LeverageSlider,
+  TransactionSidebar,
 } from '@notional-finance/trade';
 import { useHistory } from 'react-router-dom';
-import { ActionSidebar, useCurrencyInputRef } from '@notional-finance/mui';
-import { defineMessage, FormattedMessage } from 'react-intl';
+import { useCurrencyInputRef } from '@notional-finance/mui';
+import { defineMessage } from 'react-intl';
 import { LeveragedLiquidityContext } from '../liquidity-leveraged';
 import { PRODUCTS } from '@notional-finance/shared-config';
 
 export const LiquidityLeveragedSidebar = () => {
   const history = useHistory();
   const {
-    state: { canSubmit, populatedTransaction, confirm, selectedDepositToken },
-    updateState,
+    state: { selectedDepositToken },
   } = useContext(LeveragedLiquidityContext);
   const { currencyInputRef } = useCurrencyInputRef();
 
-  const handleLeverUpToggle = () => {
+  const handleLeverUpToggle = useCallback(() => {
     history.push(`/${PRODUCTS.LIQUIDITY_VARIABLE}/${selectedDepositToken}`);
-  };
+  }, [history, selectedDepositToken]);
 
-  const handleSubmit = () => {
-    updateState({ confirm: true });
-  };
-
-  return confirm && populatedTransaction ? (
-    <Confirmation2
-      heading={
-        <FormattedMessage
-          defaultMessage={'Leveraged Liquidity'}
-          description="section heading"
-        />
-      }
+  return (
+    <TransactionSidebar
       context={LeveragedLiquidityContext}
-    />
-  ) : (
-    <ActionSidebar
-      heading={defineMessage({
-        defaultMessage: 'Leveraged Liquidity',
-        description: 'section heading',
-      })}
-      helptext={defineMessage({
-        defaultMessage:
-          'Multiple your returns by providing liquidity with leverage. Select your borrow rate and leverage and put on the whole position in one transaction.',
-        description: 'helptext',
-      })}
-      hideTextOnMobile
-      CustomActionButton={TradeActionButton}
-      canSubmit={canSubmit}
       handleLeverUpToggle={handleLeverUpToggle}
-      handleSubmit={handleSubmit}
-      leveredUp={true}
+      leveredUp
     >
       <DepositInput
         ref={currencyInputRef}
@@ -74,7 +46,7 @@ export const LiquidityLeveragedSidebar = () => {
           description: 'input label',
         })}
       />
-    </ActionSidebar>
+    </TransactionSidebar>
   );
 };
 
