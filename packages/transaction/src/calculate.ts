@@ -221,7 +221,8 @@ export function calculateDebt({
     ? depositBalance.toToken(localPrime)
     : TokenBalance.zero(localPrime);
 
-  // Total debt required in prime cash
+  // Total debt required in prime cash. If deposit < 0 then this will be
+  // a withdraw and totalDebtPrime will be negative.
   const totalDebtPrime = localDepositPrime.add(localCollateralPrime);
   const netRealizedDebtBalance = totalDebtPrime.toUnderlying();
 
@@ -235,7 +236,7 @@ export function calculateDebt({
   } else if (debt.tokenType === 'PrimeDebt') {
     return {
       netRealizedDebtBalance,
-      debtBalance: totalDebtPrime.toToken(debt).neg(),
+      debtBalance: totalDebtPrime.toToken(debt),
       debtFee: totalDebtPrime.copy(0),
       collateralFee,
     };
