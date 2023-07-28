@@ -11,11 +11,12 @@ import {
   formatTokenAmount,
   formatNumber,
 } from '@notional-finance/helpers';
+import { SelectedOptions } from '@notional-finance/mui';
 
 export const useTxnHistoryData = (txnHistoryType: TXN_HISTORY_TYPE) => {
   let accountHistoryData: any[] = [];
-  let assetOrVaultData: any[] = [];
-  let currencyData: any[] = [];
+  let assetOrVaultData: SelectedOptions[] = [];
+  let currencyData: SelectedOptions[] = [];
 
   const accountHistory = useTransactionHistory();
   const selectedNetwork = useSelectedNetwork();
@@ -66,9 +67,9 @@ export const useTxnHistoryData = (txnHistoryType: TXN_HISTORY_TYPE) => {
 
   const removeDuplicateObjects = useCallback((data) => {
     const uniqueObjects = {};
-    const filteredArray = data.filter(({ title }) => {
-      if (!uniqueObjects[title]) {
-        uniqueObjects[title] = true;
+    const filteredArray = data.filter(({ id }) => {
+      if (!uniqueObjects[id]) {
+        uniqueObjects[id] = true;
         return true;
       }
       return false;
@@ -81,16 +82,16 @@ export const useTxnHistoryData = (txnHistoryType: TXN_HISTORY_TYPE) => {
     accountHistoryData = allAccountHistoryData.filter(
       ({ vaultName }) => !vaultName
     );
-    currencyData = accountHistoryData.map(({ currency }, index) => ({
-      id: index.toString(),
+    currencyData = accountHistoryData.map(({ currency }) => ({
+      id: currency,
       title: currency,
       icon: <TokenIcon size="medium" symbol={currency.toLowerCase()} />,
     }));
 
-    assetOrVaultData = accountHistoryData.map(({ token }, index) => {
+    assetOrVaultData = accountHistoryData.map(({ token }) => {
       const tokenData = formatTokenType(token);
       return {
-        id: index.toString(),
+        id: token.id,
         title: tokenData.title,
         icon: (
           <TokenIcon size="medium" symbol={tokenData.title.toLowerCase()} />
@@ -103,13 +104,13 @@ export const useTxnHistoryData = (txnHistoryType: TXN_HISTORY_TYPE) => {
     accountHistoryData = allAccountHistoryData.filter(
       ({ vaultName }) => vaultName
     );
-    currencyData = accountHistoryData.map(({ currency }, index) => ({
-      id: index.toString(),
+    currencyData = accountHistoryData.map(({ currency }) => ({
+      id: currency,
       title: currency,
       icon: <TokenIcon size="medium" symbol={currency.toLowerCase()} />,
     }));
-    assetOrVaultData = accountHistoryData.map(({ vaultName }, index) => ({
-      id: index.toString(),
+    assetOrVaultData = accountHistoryData.map(({ vaultName, token }) => ({
+      id: token.vaultAddress,
       title: vaultName,
     }));
   }

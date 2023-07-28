@@ -28,7 +28,7 @@ export const useMarketTableDropdowns = (marketType) => {
   const products = {
     [MARKET_TYPE.EARN]: [
       {
-        id: '1',
+        id: 'Fixed Lend',
         title: 'Fixed Lend',
         icon: (
           <BarChartLateralIcon
@@ -40,7 +40,7 @@ export const useMarketTableDropdowns = (marketType) => {
         ),
       },
       {
-        id: '2',
+        id: 'Variable Lend',
         title: 'Variable Lend',
         icon: (
           <BarChartIcon
@@ -52,7 +52,7 @@ export const useMarketTableDropdowns = (marketType) => {
         ),
       },
       {
-        id: '3',
+        id: 'Provide Liquidity',
         title: 'Provide Liquidity',
         icon: (
           <PieChartIcon
@@ -65,7 +65,7 @@ export const useMarketTableDropdowns = (marketType) => {
         ),
       },
       {
-        id: '4',
+        id: 'Leveraged Vault',
         title: 'Leveraged Vault',
         icon: (
           <VaultIcon
@@ -77,7 +77,7 @@ export const useMarketTableDropdowns = (marketType) => {
         ),
       },
       {
-        id: '5',
+        id: 'Leveraged Lend',
         title: 'Leveraged Lend',
         icon: (
           <BarCharLightningIcon
@@ -89,7 +89,7 @@ export const useMarketTableDropdowns = (marketType) => {
         ),
       },
       {
-        id: '6',
+        id: 'Leveraged Liquidity',
         title: 'Leveraged Liquidity',
         icon: (
           <PieChartIcon
@@ -104,7 +104,7 @@ export const useMarketTableDropdowns = (marketType) => {
     ],
     [MARKET_TYPE.BORROW]: [
       {
-        id: '1',
+        id: 'Fixed Borrow',
         title: 'Fixed Borrow',
         icon: (
           <CoinsIcon
@@ -117,7 +117,7 @@ export const useMarketTableDropdowns = (marketType) => {
         ),
       },
       {
-        id: '2',
+        id: 'Variable Borrow',
         title: 'Variable Borrow',
         icon: (
           <CoinsCircleIcon
@@ -132,8 +132,8 @@ export const useMarketTableDropdowns = (marketType) => {
     ],
   };
 
-  const dataSetOne = depositTokens.map(({ symbol }, index) => ({
-    id: index.toString(),
+  const dataSetOne = depositTokens.map(({ symbol }) => ({
+    id: symbol,
     title: symbol,
     icon: <TokenIcon size="medium" symbol={symbol.toLocaleLowerCase()} />,
   }));
@@ -142,8 +142,8 @@ export const useMarketTableDropdowns = (marketType) => {
     {
       selectedOptions: currencyOptions,
       setSelectedOptions: setCurrencyOptions,
-      data: dataSetOne,
       placeHolderText: <FormattedMessage defaultMessage={'Currency'} />,
+      data: dataSetOne,
     },
     {
       selectedOptions: productOptions,

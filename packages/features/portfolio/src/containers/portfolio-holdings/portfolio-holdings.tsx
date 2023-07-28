@@ -3,12 +3,18 @@ import { usePortfolioHoldings } from './use-portfolio-holdings';
 import { Box } from '@mui/material';
 import { DataTable } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
-import { EmptyPortfolio } from '../../components';
+import { EmptyPortfolio, TableActionRow } from '../../components';
+import { usePortfolioButtonBar } from '../../hooks';
 
 export const PortfolioHoldings = () => {
   const accountConnected = useAccountReady();
-  const { portfolioHoldingsColumns, portfolioHoldingsData } =
-    usePortfolioHoldings();
+  const buttonData = usePortfolioButtonBar();
+  const {
+    portfolioHoldingsColumns,
+    portfolioHoldingsData,
+    setExpandedRows,
+    initialState,
+  } = usePortfolioHoldings();
 
   return accountConnected ? (
     <Box>
@@ -16,14 +22,16 @@ export const PortfolioHoldings = () => {
         <DataTable
           data={portfolioHoldingsData}
           columns={portfolioHoldingsColumns}
+          CustomRowComponent={TableActionRow}
           tableTitle={
-            <div>
-              <FormattedMessage
-                defaultMessage="Portfolio Holdings"
-                description="table title"
-              />
-            </div>
+            <FormattedMessage
+              defaultMessage="Portfolio Holdings"
+              description="table title"
+            />
           }
+          tableTitleButtons={buttonData}
+          initialState={initialState}
+          setExpandedRows={setExpandedRows}
         />
       )}
     </Box>

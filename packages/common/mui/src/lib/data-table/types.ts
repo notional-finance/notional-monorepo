@@ -16,7 +16,7 @@ export type TabBarPropsType = {
 };
 
 export type TableTitleButtonsType = {
-  buttonText: string;
+  buttonText: string | ReactNode;
   callback: () => void;
 };
 

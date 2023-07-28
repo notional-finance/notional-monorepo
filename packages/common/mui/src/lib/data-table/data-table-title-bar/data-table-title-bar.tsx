@@ -7,12 +7,14 @@ interface DataTableTitleBarProps {
   tableTitle: JSX.Element;
   tableTitleButtons?: TableTitleButtonsType[];
   tableVariant?: TABLE_VARIANTS;
+  expandableTable?: boolean;
 }
 
 export const DataTableTitleBar = ({
   tableTitleButtons,
   tableTitle,
   tableVariant,
+  expandableTable,
 }: DataTableTitleBarProps) => {
   const theme = useTheme();
 
@@ -40,15 +42,17 @@ export const DataTableTitleBar = ({
         <ModuleTitle
           sx={{
             padding: theme.spacing(2),
-            paddingBottom: theme.spacing(1),
-            paddingTop: theme.spacing(3),
+            paddingBottom: expandableTable
+              ? theme.spacing(4)
+              : theme.spacing(1),
+            paddingTop: expandableTable ? theme.spacing(4) : theme.spacing(3),
           }}
         >
           {tableTitle}
         </ModuleTitle>
       )}
       {tableTitleButtons?.length && (
-        <Box sx={{ padding: '25px 17px 7px 17px' }}>
+        <Box sx={{ paddingRight: theme.spacing(2) }}>
           <ButtonBar
             buttonVariant="outlined"
             buttonOptions={tableTitleButtons}

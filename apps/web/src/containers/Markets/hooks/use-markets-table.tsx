@@ -4,6 +4,7 @@ import {
   LinkCell,
   DisplayCell,
   DataTableColumn,
+  SelectedOptions,
 } from '@notional-finance/mui';
 import { MARKET_TYPE } from '@notional-finance/shared-config';
 import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
@@ -19,8 +20,8 @@ import { FormattedMessage } from 'react-intl';
 
 export const useMarketsTable = (
   marketType: MARKET_TYPE,
-  currencyOptions: string[],
-  productOptions: string[]
+  currencyOptions: SelectedOptions[],
+  productOptions: SelectedOptions[]
 ) => {
   const { earnYields, borrowYields } = useAllMarkets();
 
@@ -164,25 +165,29 @@ export const useMarketsTable = (
       ? formatMarketData(borrowYields)
       : formatMarketData(earnYields);
 
+  const getIds = (options: SelectedOptions[]) => {
+    return options.map(({ id }) => id);
+  };
+
   const filterMarketData = () => {
-    const filterData = [...currencyOptions, ...productOptions];
+    const currencyIds = getIds(currencyOptions);
+    const productIds = getIds(productOptions);
+    const filterData = [...currencyIds, ...productIds];
 
     if (filterData.length === 0) return initialData;
 
-    if (productOptions.length > 0 && currencyOptions.length > 0) {
+    if (productIds.length > 0 && currencyIds.length > 0) {
       return initialData
         .filter(({ currency }) => filterData.includes(currency))
         .filter(({ product }) => filterData.includes(product));
     }
-    if (currencyOptions.length > 0) {
+    if (currencyIds.length > 0) {
       return initialData.filter(({ currency }) =>
-        currencyOptions.includes(currency)
+        currencyIds.includes(currency)
       );
     }
-    if (productOptions.length > 0) {
-      return initialData.filter(({ product }) =>
-        productOptions.includes(product)
-      );
+    if (productIds.length > 0) {
+      return initialData.filter(({ product }) => productIds.includes(product));
     }
   };
 

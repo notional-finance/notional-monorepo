@@ -1,14 +1,15 @@
-import { Box, SxProps, useTheme } from '@mui/material';
-import { InfoTooltip, Button } from '@notional-finance/mui';
+import { Box, SxProps } from '@mui/material';
+import { InfoTooltip, Button, Label } from '@notional-finance/mui';
 import { FormattedMessage, MessageDescriptor } from 'react-intl';
-import { Label } from '../../types';
 
 interface ActionRowButtonProps {
   heading?: MessageDescriptor;
   label: MessageDescriptor;
   tooltip?: MessageDescriptor;
   route?: string;
+  variant?: 'contained' | 'outlined' | 'text';
   callBack?: () => void;
+  size?: 'small' | 'medium' | 'large';
   sx?: SxProps;
 }
 
@@ -18,30 +19,33 @@ export const ActionRowButton = ({
   route,
   tooltip,
   callBack,
+  variant = 'contained',
+  size = 'large',
   sx,
 }: ActionRowButtonProps) => {
-  const theme = useTheme();
   return (
     <Box
       sx={{
-        marginBottom: theme.spacing(2.5),
-        marginLeft: theme.spacing(2),
         ...sx,
       }}
     >
-      <Label>
-        <FormattedMessage {...(heading || label)} />
-        {tooltip && (
-          <InfoTooltip toolTipText={tooltip} sx={{ marginLeft: '10px' }} />
-        )}
-      </Label>
+      {heading || tooltip ? (
+        <Label>
+          {heading && <FormattedMessage {...heading} />}
+          {tooltip && (
+            <InfoTooltip toolTipText={tooltip} sx={{ marginLeft: '10px' }} />
+          )}
+        </Label>
+      ) : (
+        ''
+      )}
       {route && (
-        <Button variant="contained" to={route} size="large">
+        <Button variant={variant} to={route} size={size}>
           <FormattedMessage {...label} />
         </Button>
       )}
       {callBack && (
-        <Button variant="contained" onClick={callBack} size="large">
+        <Button variant={variant} onClick={callBack} size={size}>
           <FormattedMessage {...label} />
         </Button>
       )}
