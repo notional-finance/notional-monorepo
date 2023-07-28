@@ -4,7 +4,10 @@ import {
   formatCryptoWithFiat,
   formatNumberAsPercent,
 } from '@notional-finance/helpers';
-import { TXN_HISTORY_TYPE } from '@notional-finance/shared-config';
+import {
+  TXN_HISTORY_TYPE,
+  PORTFOLIO_ACTIONS,
+} from '@notional-finance/shared-config';
 import { useHistory } from 'react-router-dom';
 import { FormattedMessage } from 'react-intl';
 import {
@@ -77,10 +80,12 @@ export function usePortfolioHoldings() {
     balanceStatements
       .filter(
         (b) =>
+          !b.currentBalance.isZero() &&
           !b.currentBalance.isVaultToken &&
           b.token.tokenType !== 'Underlying' &&
           b.token.tokenType !== 'NOTE'
       )
+
       .map((b) => {
         return {
           asset: {
@@ -123,7 +128,11 @@ export function usePortfolioHoldings() {
               {
                 buttonText: <FormattedMessage defaultMessage={'Manage'} />,
                 callback: () => {
-                  history.push('');
+                  history.push(
+                    b.currentBalance.isPositive()
+                      ? `/portfolio/holdings/${PORTFOLIO_ACTIONS.CONVERT_ASSET}/${b.token.id}`
+                      : `/portfolio/holdings/${PORTFOLIO_ACTIONS.ROLL_DEBT}/${b.token.id}`
+                  );
                 },
               },
               b.currentBalance.isPositive()
@@ -132,13 +141,17 @@ export function usePortfolioHoldings() {
                       <FormattedMessage defaultMessage={'Withdraw'} />
                     ),
                     callback: () => {
-                      history.push('');
+                      history.push(
+                        `/portfolio/holdings/${PORTFOLIO_ACTIONS.WITHDRAW}/${b.token.id}`
+                      );
                     },
                   }
                 : {
                     buttonText: <FormattedMessage defaultMessage={'Repay'} />,
                     callback: () => {
-                      history.push('');
+                      history.push(
+                        `/portfolio/holdings/${PORTFOLIO_ACTIONS.REPAY_DEBT}/${b.token.id}`
+                      );
                     },
                   },
             ],
