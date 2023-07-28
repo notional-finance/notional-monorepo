@@ -2,6 +2,7 @@ import {
   Registry,
   TokenBalance,
   TokenDefinition,
+  TokenType,
 } from '@notional-finance/core-entities';
 import {
   Network,
@@ -533,7 +534,16 @@ export abstract class BaseRiskProfile implements RiskFactors {
             };
           });
       })
-      .filter(({ price }) => price !== null);
+      .filter(({ price }) => price !== null) as {
+      collateral: TokenDefinition;
+      debt: TokenDefinition;
+      price: TokenBalance;
+      riskExposure?: {
+        isCrossCurrencyRisk: boolean;
+        isPrimeDebt: boolean;
+        risk: TokenType | 'Settlement';
+      };
+    }[];
   }
 
   getRiskExposureType(
@@ -572,7 +582,7 @@ export abstract class BaseRiskProfile implements RiskFactors {
           debt.tokenType === 'PrimeDebt' ||
           (debt.tokenType === 'VaultDebt' &&
             debt.maturity === PRIME_CASH_VAULT_MATURITY &&
-            collateralThreshold),
+            !!collateralThreshold),
         risk: collateral.tokenType,
       };
     }
