@@ -6,6 +6,7 @@ import {
   FiatKeys,
 } from '@notional-finance/core-entities';
 import {
+  formatLeverageRatio,
   formatNumberAsPercent,
   formatTokenType,
 } from '@notional-finance/helpers';
@@ -255,7 +256,7 @@ function getTradeDetail(
         ],
         { caption }
       ),
-      value: b.toUnderlying().toDisplayString(3, true),
+      value: b.toUnderlying().toDisplayStringWithSymbol(3, true),
     };
   } else if (tokenType === 'PrimeCash') {
     // net asset balances should always be returned in prime cash
@@ -265,20 +266,23 @@ function getTradeDetail(
           typeKey
         ]
       ),
-      value: b.toUnderlying().toDisplayString(3, true),
+      value: b.toUnderlying().toDisplayStringWithSymbol(3, true),
     };
   } else if (tokenType === 'PrimeDebt') {
     // This is for prime cash vault maturities
     return {
       label: intl.formatMessage(TradeSummaryLabels['PrimeDebt'][typeKey]),
-      value: b.toUnderlying().toDisplayString(3, true),
+      value: b.toUnderlying().toDisplayStringWithSymbol(3, true),
     };
   } else if (tokenType === 'VaultShare' || tokenType === 'nToken') {
     return {
-      label: intl.formatMessage(TradeSummaryLabels[tokenType][typeKey], {
-        caption,
-      }),
-      value: b.toUnderlying().toDisplayString(3, true),
+      label: intl.formatMessage(
+        TradeSummaryLabels[tokenType][b.isNegative() ? 'withdraw' : typeKey],
+        {
+          caption,
+        }
+      ),
+      value: b.toUnderlying().toDisplayStringWithSymbol(3, true),
     };
   }
 
@@ -297,15 +301,13 @@ export function useTradeSummary(state: BaseTradeState) {
     canSubmit,
   } = state;
 
-  if (!canSubmit)
+  // TODO: if underlying is not all the same the convert to fiat currency instead
+  const underlying = netAssetBalance?.underlying || netDebtBalance?.underlying;
+  if (!canSubmit || !underlying)
     return {
       summary: undefined,
       total: undefined,
     };
-
-  // TODO: if underlying is not all the same the convert to fiat currency instead
-  const underlying = netAssetBalance?.underlying || netDebtBalance?.underlying;
-  if (!underlying) throw Error('Underlying not defined');
 
   // On leverage or roll, labels are slightly different
   const isLeverageOrRoll = !!debtBalance && !!collateralBalance;
@@ -367,48 +369,55 @@ export function useTradeSummary(state: BaseTradeState) {
       // Asset to repay: this never changes signs
       summary.push(getTradeDetail(collateralBalance, 'Asset', 'none', intl));
 
-      if (netAssetBalance)
+      if (netAssetBalance?.isZero() === false)
         // This only exists if the new debt maturity has fCash in it
         summary.push(getTradeDetail(netAssetBalance, 'Asset', 'none', intl));
       // New borrow balance
-      if (netDebtBalance)
+      if (netDebtBalance?.isZero() === false)
         summary.push(getTradeDetail(netDebtBalance, 'Debt', 'none', intl));
     } else if (tradeType === 'ConvertAsset') {
       // Asset to sell: this sign never changes
       summary.push(getTradeDetail(debtBalance, 'Debt', 'none', intl));
 
-      if (netDebtBalance)
+      if (netDebtBalance?.isZero() === false)
         // This only exists if the debt is being repaid in the new maturity
         summary.push(getTradeDetail(netDebtBalance, 'Debt', 'none', intl));
-      if (netAssetBalance)
+      if (netAssetBalance?.isZero() === false)
         // This is the new asset balance
         summary.push(getTradeDetail(netAssetBalance, 'Asset', 'none', intl));
     }
   } else if (depositBalance?.isPositive()) {
-    if (netDebtBalance)
+    if (netDebtBalance?.isZero() === false)
       summary.push(getTradeDetail(netDebtBalance, 'Debt', 'deposit', intl));
-    if (netAssetBalance)
+    if (netAssetBalance?.isZero() === false)
       summary.push(getTradeDetail(netAssetBalance, 'Asset', 'deposit', intl));
   } else if (depositBalance?.isNegative()) {
-    if (netAssetBalance)
+    if (netAssetBalance?.isZero() === false)
       summary.push(
         getTradeDetail(netAssetBalance.neg(), 'Asset', 'withdraw', intl)
       );
-    if (netDebtBalance)
+    if (netDebtBalance?.isZero() === false)
       summary.push(
         getTradeDetail(netDebtBalance.neg(), 'Debt', 'withdraw', intl)
       );
   } else {
-    throw Error('Could not parse summary');
+    return { summary: undefined, total: undefined };
+  }
+
+  let feeValue = TokenBalance.zero(underlying);
+  if (isLeverageOrRoll) {
+    feeValue = collateralBalance.toUnderlying().add(debtBalance.toUnderlying());
+  } else if (collateralBalance && depositBalance) {
+    feeValue = collateralBalance
+      .toUnderlying()
+      .sub(depositBalance.toUnderlying());
+  } else if (debtBalance && depositBalance) {
+    feeValue = debtBalance.toUnderlying().add(depositBalance?.toUnderlying());
   }
 
   summary.push({
-    label: intl.formatMessage(OrderDetailLabels.fee),
-    // TODO: not sure if this is correct...
-    value: (collateralBalance?.toUnderlying() || TokenBalance.zero(underlying))
-      .sub(depositBalance?.toUnderlying() || TokenBalance.zero(underlying))
-      .add(debtBalance?.toUnderlying() || TokenBalance.zero(underlying))
-      .toDisplayString(3, true),
+    label: intl.formatMessage({ defaultMessage: 'Fees and Slippage' }),
+    value: feeValue.toDisplayStringWithSymbol(3, true),
   });
 
   return { summary, total };
@@ -478,6 +487,7 @@ function getChangeType(
   current: number | undefined | null,
   updated: number | undefined | null
 ) {
+  // TODO: need to show something else here for health factor
   if (!current && updated) return 'increase';
   else if (!updated && current) return 'cleared';
   else if (updated && current)
@@ -523,6 +533,7 @@ function getLiquidationPrices(
         current?.price.toFloat(),
         updated?.price.toFloat()
       ),
+      greenOnArrowUp: false,
     };
   });
 }
@@ -532,12 +543,13 @@ export function usePortfolioLiquidationRisk(state: TradeState) {
   const onlyCurrent = !postAccountRisk;
   const healthFactor = {
     label: 'Health Factor',
-    current: priorAccountRisk?.healthFactor || '-',
-    updated: postAccountRisk?.healthFactor || '-',
+    current: priorAccountRisk?.healthFactor?.toFixed(3) || '-',
+    updated: postAccountRisk?.healthFactor?.toFixed(3) || '-',
     changeType: getChangeType(
       priorAccountRisk?.healthFactor,
       postAccountRisk?.healthFactor
     ),
+    greenOnArrowUp: true,
   };
 
   const mergedLiquidationPrices = getLiquidationPrices(
@@ -547,6 +559,9 @@ export function usePortfolioLiquidationRisk(state: TradeState) {
 
   return {
     onlyCurrent,
+    priorAccountNoRisk:
+      priorAccountRisk === undefined || priorAccountRisk?.healthFactor === null,
+    postAccountNoRisk: postAccountRisk?.healthFactor === null,
     tableData: [healthFactor, ...mergedLiquidationPrices],
   };
 }
@@ -556,12 +571,13 @@ export function useVaultLiquidationRisk(state: VaultTradeState) {
   const onlyCurrent = !postAccountRisk;
   const healthFactor = {
     label: 'Leverage Ratio',
-    current: priorAccountRisk?.leverageRatio || '-',
-    updated: postAccountRisk?.leverageRatio || '-',
+    current: formatLeverageRatio(priorAccountRisk?.leverageRatio || 0),
+    updated: formatLeverageRatio(postAccountRisk?.leverageRatio || 0),
     changeType: getChangeType(
       priorAccountRisk?.leverageRatio,
       postAccountRisk?.leverageRatio
     ),
+    greenOnArrowUp: false,
   };
 
   const mergedLiquidationPrices = getLiquidationPrices(

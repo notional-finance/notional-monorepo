@@ -23,6 +23,7 @@ import {
 import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
 import { TokenOption } from '@notional-finance/notionable';
 import { useParams } from 'react-router';
+import { TransactionHeadings } from '@notional-finance/trade';
 
 interface SelectConvertAssetProps {
   context: BaseContext;
@@ -75,12 +76,12 @@ export const SelectConvertAsset = ({ context }: SelectConvertAssetProps) => {
   let fixedHeading: MessageDescriptor;
   let variableHeading: MessageDescriptor;
   if (tradeType === 'ConvertAsset') {
-    heading = messages[PORTFOLIO_ACTIONS.CONVERT_ASSET]['heading'];
+    heading = TransactionHeadings[tradeType].heading;
     fixedHeading = messages[PORTFOLIO_ACTIONS.CONVERT_ASSET]['fixedHeading'];
     variableHeading =
       messages[PORTFOLIO_ACTIONS.CONVERT_ASSET]['variableHeading'];
   } else {
-    heading = messages[PORTFOLIO_ACTIONS.REPAY_DEBT]['heading'];
+    heading = TransactionHeadings['RollDebt'].heading;
     fixedHeading = messages[PORTFOLIO_ACTIONS.REPAY_DEBT]['fixedHeading'];
     variableHeading = messages[PORTFOLIO_ACTIONS.REPAY_DEBT]['variableHeading'];
   }

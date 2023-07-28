@@ -3,19 +3,21 @@ import {
   PageLoading,
   ToggleSwitchProps,
 } from '@notional-finance/mui';
-import { BaseContext } from '@notional-finance/notionable-hooks';
+import { TradeContext } from '@notional-finance/notionable-hooks';
 import { useCallback, useContext } from 'react';
 import { MessageDescriptor } from 'react-intl';
 import TradeActionButton from '../trade-action-button/trade-action-button';
 import Confirmation2 from '../transaction-confirmation/confirmation2';
-import { TransactionHeadings } from './transaction-headings';
+import { TransactionHeadings } from './components/transaction-headings';
+import { LiquidationRisk } from './components/liquidation-risk';
+import { TradeSummary } from './components/trade-summary';
 
 interface TransactionSidebarProps {
   heading?: MessageDescriptor;
   helptext?: MessageDescriptor;
-  context: BaseContext;
+  context: TradeContext;
   leveredUp?: boolean;
-  children: React.ReactNode | React.ReactNode[];
+  children: React.ReactNode;
   advancedToggle?: ToggleSwitchProps;
   isPortfolio?: boolean;
   handleLeverUpToggle?: () => void;
@@ -35,12 +37,10 @@ export const TransactionSidebar = ({
   isPortfolio,
   onConfirmCancel,
   onReturnToForm,
-  onCancelCallback
+  onCancelCallback,
 }: TransactionSidebarProps) => {
-  const {
-    state: { canSubmit, populatedTransaction, confirm, tradeType },
-    updateState,
-  } = useContext(context);
+  const { state, updateState } = useContext(context);
+  const { canSubmit, populatedTransaction, confirm, tradeType } = state;
 
   const handleSubmit = useCallback(() => {
     updateState({ confirm: true });
@@ -71,6 +71,8 @@ export const TransactionSidebar = ({
       hideTextOnMobile={isPortfolio ? false : true}
     >
       {children}
+      <LiquidationRisk state={state} />
+      <TradeSummary state={state} />
     </ActionSidebar>
   );
 };
