@@ -5,7 +5,7 @@ import {
 import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
 import { FormattedMessage } from 'react-intl';
 import { useLocation, useHistory } from 'react-router-dom';
-import { ButtonOptionsType } from '@notional-finance/mui';
+import { TableTitleButtonsType } from '@notional-finance/mui';
 import { BigNumber } from 'ethers';
 import { useCallback, useEffect, useState } from 'react';
 
@@ -75,7 +75,7 @@ export const usePortfolioButtonBar = () => {
   const withdrawableTokens = useAccountWithdrawableTokens();
   const history = useHistory();
 
-  const buttonData: ButtonOptionsType[] = [
+  const buttonData: TableTitleButtonsType[] = [
     {
       buttonText: <FormattedMessage defaultMessage={'Deposit Collateral'} />,
       callback: () => {

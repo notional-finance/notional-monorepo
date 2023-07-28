@@ -52,7 +52,7 @@ export const DataTableTitleBar = ({
         </ModuleTitle>
       )}
       {tableTitleButtons?.length && (
-        <Box sx={{ padding: '25px 17px 7px 17px' }}>
+        <Box sx={{ paddingRight: theme.spacing(2) }}>
           <ButtonBar
             buttonVariant="outlined"
             buttonOptions={tableTitleButtons}
