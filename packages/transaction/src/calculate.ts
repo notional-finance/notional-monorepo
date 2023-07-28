@@ -135,15 +135,18 @@ export function calculateCollateral({
 
   // Total collateral required in prime cash
   const totalCollateralPrime = localDepositPrime.add(localDebtPrime);
+  const netRealizedCollateralBalance = totalCollateralPrime.toUnderlying();
 
   if (totalCollateralPrime.isZero()) {
     return {
+      netRealizedCollateralBalance,
       collateralBalance: TokenBalance.zero(collateral),
       debtFee,
       collateralFee: totalCollateralPrime.copy(0),
     };
   } else if (collateral.tokenType === 'PrimeCash') {
     return {
+      netRealizedCollateralBalance,
       collateralBalance: totalCollateralPrime,
       debtFee,
       collateralFee: totalCollateralPrime.copy(0),
@@ -155,6 +158,7 @@ export function calculateCollateral({
       collateralPool.getLPTokensGivenTokens(tokensIn);
 
     return {
+      netRealizedCollateralBalance,
       collateralBalance: lpTokens,
       debtFee,
       collateralFee: feesPaid[0],
@@ -166,6 +170,7 @@ export function calculateCollateral({
     );
 
     return {
+      netRealizedCollateralBalance,
       collateralBalance: tokensOut,
       debtFee,
       collateralFee: feesPaid[0],
@@ -218,15 +223,18 @@ export function calculateDebt({
 
   // Total debt required in prime cash
   const totalDebtPrime = localDepositPrime.add(localCollateralPrime);
+  const netRealizedDebtBalance = totalDebtPrime.toUnderlying();
 
   if (totalDebtPrime.isZero()) {
     return {
+      netRealizedDebtBalance,
       debtBalance: TokenBalance.zero(debt),
       debtFee: totalDebtPrime.copy(0),
       collateralFee,
     };
   } else if (debt.tokenType === 'PrimeDebt') {
     return {
+      netRealizedDebtBalance,
       debtBalance: totalDebtPrime.toToken(debt).neg(),
       debtFee: totalDebtPrime.copy(0),
       collateralFee,
@@ -243,6 +251,7 @@ export function calculateDebt({
       debtBalance: lpTokens.neg(),
       debtFee: feesPaid[0],
       collateralFee,
+      netRealizedDebtBalance,
     };
   } else if (debt.tokenType === 'fCash') {
     const { tokensOut, feesPaid } = debtPool.calculateTokenTrade(
@@ -254,6 +263,7 @@ export function calculateDebt({
       debtBalance: tokensOut,
       debtFee: feesPaid[0],
       collateralFee,
+      netRealizedDebtBalance,
     };
   }
 
@@ -332,13 +342,14 @@ export function calculateDepositDebtGivenCollateralRiskLimit({
     depositUnderlying.currencyId
   );
 
-  const { debtBalance, debtFee, collateralFee } = calculateDebt({
-    debt,
-    debtPool,
-    collateralPool,
-    depositBalance: undefined,
-    collateralBalance,
-  });
+  const { debtBalance, debtFee, collateralFee, netRealizedDebtBalance } =
+    calculateDebt({
+      debt,
+      debtPool,
+      collateralPool,
+      depositBalance: undefined,
+      collateralBalance,
+    });
 
   const riskProfile = AccountRiskProfile.simulate(balances, [
     collateralBalance,
@@ -349,7 +360,13 @@ export function calculateDepositDebtGivenCollateralRiskLimit({
     .getWithdrawRequiredToMaintainRiskFactor(depositPrime, riskFactorLimit)
     .toUnderlying();
 
-  return { depositBalance, debtBalance, debtFee, collateralFee };
+  return {
+    depositBalance,
+    debtBalance,
+    debtFee,
+    collateralFee,
+    netRealizedDebtBalance,
+  };
 }
 
 /**
@@ -378,7 +395,12 @@ export function calculateDepositCollateralGivenDebtRiskLimit({
     depositUnderlying.currencyId
   );
 
-  const { collateralBalance, debtFee, collateralFee } = calculateCollateral({
+  const {
+    collateralBalance,
+    debtFee,
+    collateralFee,
+    netRealizedCollateralBalance,
+  } = calculateCollateral({
     collateral,
     collateralPool,
     debtPool,
@@ -395,7 +417,13 @@ export function calculateDepositCollateralGivenDebtRiskLimit({
     .getWithdrawRequiredToMaintainRiskFactor(depositPrime, riskFactorLimit)
     .toUnderlying();
 
-  return { depositBalance, collateralBalance, debtFee, collateralFee };
+  return {
+    depositBalance,
+    collateralBalance,
+    debtFee,
+    collateralFee,
+    netRealizedCollateralBalance,
+  };
 }
 
 /**
@@ -441,7 +469,7 @@ export function calculateDebtCollateralGivenDepositRiskLimit({
   // and check how much slippage is incurred and then set a lower bound limit
   // on that here while getting the fees...
   const netCollateralPrimeAtSpot = netCollateral.toPrimeCash();
-  const { localPrime: localCollateralPrime, fees: collateralFee } =
+  const { localPrime: netRealizedCollateralBalance, fees: collateralFee } =
     exchangeToLocalPrime(
       netCollateral,
       collateralPool,
@@ -449,15 +477,14 @@ export function calculateDebtCollateralGivenDepositRiskLimit({
     );
 
   const netDebtPrimeAtSpot = netDebt.toPrimeCash();
-  const { localPrime: localDebtPrime, fees: debtFee } = exchangeToLocalPrime(
-    netDebt,
-    debtPool,
-    netDebtPrimeAtSpot.token
-  );
+  const { localPrime: netRealizedDebtBalance, fees: debtFee } =
+    exchangeToLocalPrime(netDebt, debtPool, netDebtPrimeAtSpot.token);
 
   if (
     maxCollateralSlippage <
-    netCollateralPrimeAtSpot.ratioWith(localCollateralPrime).toNumber() -
+    netCollateralPrimeAtSpot
+      .ratioWith(netRealizedCollateralBalance)
+      .toNumber() -
       RATE_PRECISION
   ) {
     throw Error('Above max collateral slippage');
@@ -465,7 +492,8 @@ export function calculateDebtCollateralGivenDepositRiskLimit({
 
   if (
     maxDebtSlippage <
-    localDebtPrime.ratioWith(netDebtPrimeAtSpot).toNumber() - RATE_PRECISION
+    netRealizedDebtBalance.ratioWith(netDebtPrimeAtSpot).toNumber() -
+      RATE_PRECISION
   ) {
     throw Error('Above max debt slippage');
   }
@@ -475,6 +503,8 @@ export function calculateDebtCollateralGivenDepositRiskLimit({
     debtBalance: netDebt,
     debtFee: debtFee,
     collateralFee,
+    netRealizedCollateralBalance: netRealizedCollateralBalance.toUnderlying(),
+    netRealizedDebtBalance: netRealizedDebtBalance.toUnderlying(),
   };
 }
 
@@ -524,20 +554,19 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
   // netCollateral is in vault shares here, need to determine how much it costs in
   // reality to mint that much collateral and then adjust the debt accordingly.
   const netVaultSharesUnderlyingAtSpot = netVaultShares.toUnderlying();
-  const { netUnderlyingForVaultShares, feesPaid } =
-    vaultAdapter.getNetVaultSharesCost(netVaultShares);
+  const {
+    netUnderlyingForVaultShares: netRealizedCollateralBalance,
+    feesPaid,
+  } = vaultAdapter.getNetVaultSharesCost(netVaultShares);
 
   const netDebtPrimeAtSpot = netDebt.toPrimeCash();
-  const { localPrime: localDebtPrime, fees: debtFee } = exchangeToLocalPrime(
-    netDebt,
-    debtPool,
-    netDebtPrimeAtSpot.token
-  );
+  const { localPrime: netRealizedDebtBalance, fees: debtFee } =
+    exchangeToLocalPrime(netDebt, debtPool, netDebtPrimeAtSpot.token);
 
   if (
     maxCollateralSlippage <
     netVaultSharesUnderlyingAtSpot
-      .ratioWith(netUnderlyingForVaultShares)
+      .ratioWith(netRealizedCollateralBalance)
       .toNumber() -
       RATE_PRECISION
   ) {
@@ -547,7 +576,8 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
   if (
     netDebtPrimeAtSpot.isPositive() &&
     maxDebtSlippage <
-      localDebtPrime.ratioWith(netDebtPrimeAtSpot).toNumber() - RATE_PRECISION
+      netRealizedDebtBalance.ratioWith(netDebtPrimeAtSpot).toNumber() -
+        RATE_PRECISION
   ) {
     throw Error('Above max debt slippage');
   }
@@ -557,6 +587,8 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
     debtBalance: netDebt, // TODO: need to apply fees here...
     debtFee: debtFee,
     collateralFee: feesPaid,
+    netRealizedDebtBalance: netRealizedDebtBalance.toUnderlying(),
+    netRealizedCollateralBalance,
   };
 }
 
@@ -594,6 +626,7 @@ export function calculateVaultDebt({
       debtBalance: TokenBalance.zero(debt),
       debtFee: totalDebtPrime.copy(0),
       collateralFee,
+      netRealizedDebtBalance: TokenBalance.zero(debt).toUnderlying(),
     };
   } else if (debt.maturity === PRIME_CASH_VAULT_MATURITY) {
     return {
@@ -601,6 +634,7 @@ export function calculateVaultDebt({
       debtBalance: TokenBalance.from(totalDebtPrime.neg().n, debt),
       debtFee: totalDebtPrime.copy(0),
       collateralFee,
+      netRealizedDebtBalance: totalDebtPrime.toUnderlying(),
     };
   } else {
     const fCashToken = TokenBalance.unit(debt).unwrapVaultToken().token;
@@ -621,6 +655,7 @@ export function calculateVaultDebt({
       debtBalance: TokenBalance.from(tokensOut.n, debt),
       debtFee: feesPaid[0],
       collateralFee,
+      netRealizedDebtBalance: cashBorrowed.toUnderlying(),
     };
   }
 }
@@ -668,5 +703,8 @@ export function calculateVaultCollateral({
     ),
     debtFee,
     collateralFee: feesPaid,
+    netRealizedCollateralBalance: depositBalance.add(
+      cashBorrowed.toUnderlying()
+    ),
   };
 }
