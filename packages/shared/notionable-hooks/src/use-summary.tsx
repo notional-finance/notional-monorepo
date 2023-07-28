@@ -408,11 +408,9 @@ export function useTradeSummary(state: BaseTradeState) {
   if (isLeverageOrRoll) {
     feeValue = collateralBalance.toUnderlying().add(debtBalance.toUnderlying());
   } else if (collateralBalance && depositBalance) {
-    feeValue = collateralBalance
-      .toUnderlying()
-      .sub(depositBalance.toUnderlying());
+    feeValue = depositBalance.toUnderlying().sub(collateralBalance.toUnderlying());
   } else if (debtBalance && depositBalance) {
-    feeValue = debtBalance.toUnderlying().add(depositBalance?.toUnderlying());
+    feeValue = depositBalance.toUnderlying().sub(debtBalance.toUnderlying());
   }
 
   summary.push({

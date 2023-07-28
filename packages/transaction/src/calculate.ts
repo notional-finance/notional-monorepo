@@ -260,7 +260,7 @@ export function calculateDebt({
     );
 
     return {
-      debtBalance: tokensOut,
+      debtBalance: tokensOut.neg(),
       debtFee: feesPaid[0],
       collateralFee,
       netRealizedDebtBalance,
