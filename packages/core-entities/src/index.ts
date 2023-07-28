@@ -6,3 +6,4 @@ export { AccountFetchMode } from './client/account-registry-client';
 export * from './exchanges';
 export * from './vaults';
 export { ConfigurationClient } from './client';
+export type { FiatKeys } from './config/fiat-config';

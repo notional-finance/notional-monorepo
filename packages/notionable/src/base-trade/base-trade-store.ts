@@ -137,6 +137,15 @@ interface TransactionState {
   populatedTransaction?: PopulatedTransaction;
   /** Error creating transaction */
   transactionError?: string;
+
+  /** Net amount of assets, when rolling refers to the new asset */
+  netAssetBalance?: TokenBalance;
+  /** Net amount of debts, when rolling refers to the new debt  */
+  netDebtBalance?: TokenBalance;
+  /** Net cost of assets in underlying terms */
+  netRealizedCollateralBalance?: TokenBalance;
+  /** Net cost of debts in underlying terms*/
+  netRealizedDebtBalance?: TokenBalance;
 }
 
 interface InitState {
