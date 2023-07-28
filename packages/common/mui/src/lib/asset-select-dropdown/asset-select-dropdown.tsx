@@ -110,7 +110,7 @@ export const AssetSelectDropdown = ({
       >
         {options
           ? options.map((o) => {
-              const t = formatTokenType(o.token);
+              const { titleWithMaturity, icon } = formatTokenType(o.token);
               const shouldCountUp = !hasFocus && o.token.id === selectedTokenId;
               const largeFigure = shouldCountUp ? (
                 <CountUp
@@ -124,10 +124,6 @@ export const AssetSelectDropdown = ({
                   {o.largeFigureSuffix}
                 </span>
               );
-              const tokenName = `${t.title} ${
-                t.caption ? t.caption : ''
-              }`.trim();
-
               return (
                 <StyledMenuItem
                   key={o.token.id}
@@ -141,8 +137,8 @@ export const AssetSelectDropdown = ({
                       marginRight: 'auto',
                     }}
                   >
-                    <TokenIcon size="medium" symbol={t.icon} />
-                    <H4 marginLeft={theme.spacing(2)}>{tokenName}</H4>
+                    <TokenIcon size="medium" symbol={icon} />
+                    <H4 marginLeft={theme.spacing(2)}>{titleWithMaturity}</H4>
                   </Box>
                   <Box textAlign={'right'}>
                     <H4>{largeFigure}</H4>
