@@ -8,7 +8,6 @@ import {
   ExpandedRows,
   ChevronCell,
 } from '@notional-finance/mui';
-import moment from 'moment';
 import {
   formatCryptoWithFiat,
   formatLeverageRatio,
@@ -24,6 +23,7 @@ import { TXN_HISTORY_TYPE } from '@notional-finance/shared-config';
 import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
 import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
 import { TokenBalance } from '@notional-finance/core-entities';
+import { useHistory } from 'react-router-dom';
 
 export function getVaultLeveragePercentage(
   v: VaultAccountRiskProfile,
@@ -53,6 +53,7 @@ export const useVaultHoldingsTable = () => {
   const initialState = expandedRows !== null ? { expanded: expandedRows } : {};
   const vaults = useVaultRiskProfiles();
   const theme = useTheme();
+  const history = useHistory();
   const balanceStatements = useBalanceStatements();
 
   const vaultHoldingsColumns: DataTableColumn[] = useMemo(() => {
@@ -182,15 +183,38 @@ export const useVaultHoldingsTable = () => {
       },
       leverageRatio: formatLeverageRatio(v.leverageRatio() || 0),
       actionRow: {
-        maturity: v.maturity ? moment.unix(v.maturity).format() : undefined,
-        routes: {
-          manage: ``,
-          withdraw: ``,
-          txnHistory: `/portfolio/transaction-history?${new URLSearchParams({
-            txnHistoryType: TXN_HISTORY_TYPE.LEVERAGED_VAULT,
-            vaultAddress: config.vaultAddress,
-          })}`,
-        },
+        subRowData: [
+          {
+            label: <FormattedMessage defaultMessage={'Borrow APY'} />,
+            value: formatNumberAsPercent(borrowAPY, 3),
+          },
+          {
+            label: <FormattedMessage defaultMessage={'Strategy APY'} />,
+            value: formatNumberAsPercent(strategyAPY, 3),
+          },
+          {
+            label: <FormattedMessage defaultMessage={'Leverage Ratio'} />,
+            value: formatLeverageRatio(v.leverageRatio() || 0),
+          },
+        ],
+        buttonBarData: [
+          {
+            buttonText: <FormattedMessage defaultMessage={'Manage'} />,
+            callback: () => {
+              history.push('/vaults/manage');
+            },
+          },
+          {
+            buttonText: <FormattedMessage defaultMessage={'Withdraw'} />,
+            callback: () => {
+              history.push('');
+            },
+          },
+        ],
+        txnHistory: `/portfolio/transaction-history?${new URLSearchParams({
+          txnHistoryType: TXN_HISTORY_TYPE.LEVERAGED_VAULT,
+          assetOrVaultId: config.vaultAddress,
+        })}`,
       },
     };
   });

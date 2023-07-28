@@ -24,8 +24,8 @@ export const useTxnHistoryDropdowns = (
   // If we want to filter by asset from the query in the future that will need to be added here as well as in the table we are linking from
 
   const clearQueryAndFilters = () => {
-    if (queryParams && queryParams.get('vaultAddress')) {
-      queryParams.delete('vaultAddress');
+    if (queryParams && queryParams.get('assetOrVaultId')) {
+      queryParams.delete('assetOrVaultId');
       history.push(`${pathname}?${queryParams.toString()}`);
       setAssetOrVaultOptions([]);
     }
@@ -38,10 +38,10 @@ export const useTxnHistoryDropdowns = (
 
   useEffect(() => {
     const queryParams = new URLSearchParams(search);
-    if (queryParams && queryParams.get('vaultAddress')) {
-      const vaultAddress = queryParams.get('vaultAddress');
+    if (queryParams && queryParams.get('assetOrVaultId')) {
+      const assetOrVaultId = queryParams.get('assetOrVaultId');
       const urlOption = allAssetOrVaultOptions.find(
-        ({ id }) => id === vaultAddress
+        ({ id }) => id === assetOrVaultId
       );
       if (urlOption && assetOrVaultOptions.length === 0) {
         setAssetOrVaultOptions([urlOption]);

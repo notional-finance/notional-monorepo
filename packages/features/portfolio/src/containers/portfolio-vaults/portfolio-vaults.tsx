@@ -1,5 +1,5 @@
 import { DataTable } from '@notional-finance/mui';
-import { VaultActionRow } from '../../components';
+import { TableActionRow } from '../../components';
 import { FormattedMessage } from 'react-intl';
 import { useVaultHoldingsTable } from '../../hooks';
 
@@ -15,7 +15,7 @@ export const PortfolioVaults = () => {
     <DataTable
       data={vaultHoldingsData}
       columns={vaultHoldingsColumns}
-      CustomRowComponent={VaultActionRow}
+      CustomRowComponent={TableActionRow}
       tableTitle={
         <FormattedMessage
           defaultMessage="Leveraged Vaults"

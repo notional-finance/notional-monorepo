@@ -1,90 +1,96 @@
-import { defineMessage, FormattedMessage } from 'react-intl';
-import { useHistory, useParams } from 'react-router-dom';
-import { Box, styled, Divider } from '@mui/material';
-import { Button, InfoTooltip, Label } from '@notional-finance/mui';
-import { useTableActionRow } from './use-table-action-row';
-import { PortfolioParams } from '../../portfolio-feature-shell';
-import { RemindMe } from '../remind-me/remind-me';
+import { ReactNode } from 'react';
+import { Box, useTheme, styled } from '@mui/material';
 import { ActionRowButton } from '../action-row-button/action-row-button';
+import { H5, H4, ButtonBar, ButtonOptionsType } from '@notional-finance/mui';
+import { defineMessages } from 'react-intl';
 
-export const TableActionRow = ({ row }) => {
-  const history = useHistory();
-  const { category } = useParams<PortfolioParams>();
-  const { actionLabel, toolTip } = useTableActionRow();
-  const { original } = row;
-  const maturityData = original?.rollMaturities;
-  const removeAssetRoute = original?.removeAssetRoute;
-  const rawMaturity = original?.rawMaturity;
-  const buttonText =
-    original?.route === 'manage-lend' ? 'Manage Lend' : 'Manage Borrow';
+interface TableActionRowProps {
+  row: {
+    original: {
+      amount: any;
+      entryPrice: any;
+      currentPrice: any;
+      actionRow: {
+        txnHistory: string;
+        buttonBarData: ButtonOptionsType[];
+        subRowData: {
+          label: ReactNode;
+          value: any;
+        }[];
+      };
+    };
+  };
+}
+
+export const TableActionRow = ({ row }: TableActionRowProps) => {
+  const theme = useTheme();
+  const {
+    actionRow: { txnHistory, buttonBarData, subRowData },
+  } = row.original;
 
   return (
-    <MainContainer>
-      <Box sx={{ display: 'flex', width: '100%' }}>
-        {removeAssetRoute && actionLabel && (
+    <Container>
+      <ApyContainer>
+        {subRowData.map(({ label, value }) => (
+          <Box>
+            <Label>{label}</Label>
+            <H4>{value}</H4>
+          </Box>
+        ))}
+      </ApyContainer>
+      <ButtonContainer>
+        <ButtonBar
+          buttonOptions={buttonBarData}
+          sx={{
+            height: theme.spacing(5),
+          }}
+        />
+        {txnHistory && (
           <ActionRowButton
-            label={actionLabel}
-            tooltip={toolTip}
-            route={`/portfolio/${category}/${removeAssetRoute}`}
+            variant="outlined"
+            size="medium"
+            {...defineMessages({
+              label: {
+                defaultMessage: 'Transaction History',
+                description: 'button text',
+              },
+            })}
+            route={txnHistory}
+            sx={{ marginLeft: theme.spacing(3) }}
           />
         )}
-        {maturityData && maturityData.length > 0 && (
-          <>
-            <CustomDivider orientation="vertical" flexItem>
-              <FormattedMessage defaultMessage={'OR'} />
-            </CustomDivider>
-            <Box sx={{ marginBottom: '20px', flex: 1, whiteSpace: 'nowrap' }}>
-              <Label>
-                <FormattedMessage
-                  defaultMessage={'Roll Or Convert To Variable'}
-                />
-                <InfoTooltip
-                  toolTipText={defineMessage({
-                    defaultMessage:
-                      'Trade your loan to a longer dated maturity at a new fixed interest rate',
-                    description: 'tool tip text',
-                  })}
-                  sx={{ marginLeft: '10px' }}
-                />
-              </Label>
-              <Button
-                variant="contained"
-                size="large"
-                sx={{
-                  marginRight: '20px',
-                }}
-                onClick={() => {
-                  history.push(`/portfolio/${category}/${original.route}`);
-                }}
-              >
-                <Box>{buttonText}</Box>
-              </Button>
-            </Box>
-          </>
-        )}
-      </Box>
-      <RemindMe futureDate={rawMaturity} />
-    </MainContainer>
+      </ButtonContainer>
+    </Container>
   );
 };
 
-const CustomDivider = styled(Divider)(
+const Container = styled(Box)(
   ({ theme }) => `
-  color: ${theme.palette.borders.accentPaper};
-  margin: 0px ${theme.spacing(2)};
-  span {
-    font-size: 12px;
-  }
-`
-);
-
-export const MainContainer = styled(Box)(
-  ({ theme }) => `
-  margin: ${theme.spacing(2.5)};
   display: flex;
-  border: 1px solid ${theme.palette.borders.paper};
-  border-radius: 6px;
+  justify-content: space-between;
+  height: ${theme.spacing(18)};
+  align-items: center;
+  background: ${theme.palette.background.default};
 `
 );
 
-export default TableActionRow;
+const ApyContainer = styled(Box)(
+  ({ theme }) => `
+  display: flex;
+  gap: ${theme.spacing(5)};
+  margin-left: ${theme.spacing(7)};
+  `
+);
+
+const ButtonContainer = styled(Box)(
+  ({ theme }) => `
+  display: flex;
+  margin-right: ${theme.spacing(3)};
+  `
+);
+
+const Label = styled(H5)(
+  ({ theme }) => `
+  margin-bottom: ${theme.spacing(1)};
+  `
+);
