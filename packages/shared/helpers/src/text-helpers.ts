@@ -27,6 +27,7 @@ export function formatTokenType(token: TokenDefinition): {
   title: string;
   icon: string;
   caption?: string;
+  titleWithMaturity: string;
 } {
   switch (token.tokenType) {
     case 'Underlying':
@@ -34,12 +35,14 @@ export function formatTokenType(token: TokenDefinition): {
       return {
         title: token.symbol,
         icon: token.symbol,
+        titleWithMaturity: token.symbol,
       };
     case 'PrimeCash':
     case 'PrimeDebt':
       return {
         title: token.name,
         icon: token.symbol,
+        titleWithMaturity: token.name,
       };
     case 'fCash': {
       const underlying = Registry.getTokenRegistry().getUnderlying(
@@ -51,17 +54,24 @@ export function formatTokenType(token: TokenDefinition): {
         title: `f${underlying.symbol}`,
         caption: formatMaturity(token.maturity || 0),
         icon: `f${underlying.symbol}`,
+        titleWithMaturity: `f${underlying.symbol} ${formatMaturity(
+          token.maturity || 0
+        )}`,
       };
     }
-    case 'VaultShare':
+    case 'VaultShare': {
+      const maturity =
+        token.maturity === PRIME_CASH_VAULT_MATURITY
+          ? 'Open Term'
+          : formatMaturity(token.maturity || 0);
+
       return {
         title: 'Vault Shares',
         icon: token.tokenType,
-        caption:
-          token.maturity === PRIME_CASH_VAULT_MATURITY
-            ? 'Open Term'
-            : formatMaturity(token.maturity || 0),
+        caption: maturity,
+        titleWithMaturity: `Vault Shares ${maturity}`,
       };
+    }
     case 'VaultDebt':
     case 'VaultCash':
       return formatTokenType(
@@ -71,6 +81,7 @@ export function formatTokenType(token: TokenDefinition): {
       return {
         title: token.symbol,
         icon: token.symbol,
+        titleWithMaturity: token.symbol,
       };
   }
 }

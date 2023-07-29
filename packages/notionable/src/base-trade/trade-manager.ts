@@ -11,6 +11,7 @@ import {
   buildTransaction,
   resetOnTradeTypeChange,
   defaultLeverageRatio,
+  tradeSummary,
 } from './logic';
 import {
   selectedAccount,
@@ -35,6 +36,7 @@ export function createTradeManager(
   // emits.
   return merge(
     buildTransaction(state$, account$),
+    tradeSummary(state$, account$),
     postAccountRisk(state$, account$),
     calculate(state$, debtPool$, collateralPool$, of(undefined), account$),
     defaultLeverageRatio(state$, network$),

@@ -2,7 +2,7 @@ import { BigNumber } from 'ethers';
 import { Network } from '@notional-finance/util';
 import { TokenDefinition, OracleDefinition } from '..';
 
-export const FIAT_SYMBOLS = [
+const FIAT_NAMES = [
   'EUR',
   'AUD',
   'CAD',
@@ -19,7 +19,27 @@ export const FIAT_SYMBOLS = [
   'USD',
   'NOTE',
 ] as const;
-export type FiatKeys = typeof FIAT_SYMBOLS[number];
+export type FiatKeys = typeof FIAT_NAMES[number];
+
+export const FiatSymbols: Record<FiatKeys, string> = FIAT_NAMES.filter(
+  (k) => k !== 'NOTE'
+).reduce((o, s) => {
+  if (s === 'ETH') return Object.assign(o, { [s]: 'Ξ' });
+
+  return Object.assign(o, {
+    // Trims the currency symbol
+    [s]: (0)
+      .toLocaleString('en-US', {
+        style: 'currency',
+        currency: s,
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      })
+      .replace(/\d/g, '')
+      .trim(),
+  });
+}, {} as Record<FiatKeys, string>);
+console.log(FiatSymbols);
 
 const assignTokenDefaults = (
   obj: Record<FiatKeys, Partial<TokenDefinition>>,
@@ -87,7 +107,7 @@ const assignOracleDefaults = (
 ) => list.map((o) => Object.assign({}, defaultProps, o) as OracleDefinition);
 
 export const fiatOracles: [string, OracleDefinition][] = assignOracleDefaults(
-  FIAT_SYMBOLS.filter((quote) => quote !== 'USD').map((quote) => {
+  FIAT_NAMES.filter((quote) => quote !== 'USD').map((quote) => {
     if (quote === 'NOTE') {
       return {
         id: 'eth:note:sNOTE',

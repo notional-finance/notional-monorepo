@@ -1,50 +1,18 @@
-import { useContext } from 'react';
-import { ActionSidebar, useCurrencyInputRef } from '@notional-finance/mui';
+import { useCurrencyInputRef } from '@notional-finance/mui';
 import {
-  TradeActionButton,
-  Confirmation2,
   DepositInput,
   MaturitySelect,
+  TransactionSidebar,
 } from '@notional-finance/trade';
 import { PRODUCTS } from '@notional-finance/shared-config';
-import { defineMessage, FormattedMessage } from 'react-intl';
+import { defineMessage } from 'react-intl';
 import { BorrowFixedContext } from '../borrow-fixed';
 
 export const BorrowFixedSidebar = () => {
-  const {
-    state: { canSubmit, populatedTransaction, confirm },
-    updateState,
-  } = useContext(BorrowFixedContext);
   const { currencyInputRef } = useCurrencyInputRef();
-  const handleSubmit = () => {
-    updateState({ confirm: true });
-  };
 
-  return confirm && populatedTransaction ? (
-    <Confirmation2
-      heading={
-        <FormattedMessage
-          defaultMessage="Borrow Order"
-          description="section heading"
-        />
-      }
-      context={BorrowFixedContext}
-    />
-  ) : (
-    <ActionSidebar
-      heading={defineMessage({
-        defaultMessage: 'Borrow Order',
-        description: 'section heading',
-      })}
-      helptext={defineMessage({
-        defaultMessage:
-          'Borrow with confidence, fixed rates lock in what you pay.',
-        description: 'helptext',
-      })}
-      handleSubmit={handleSubmit}
-      CustomActionButton={TradeActionButton}
-      canSubmit={canSubmit}
-    >
+  return (
+    <TransactionSidebar context={BorrowFixedContext}>
       <DepositInput
         ref={currencyInputRef}
         inputRef={currencyInputRef}
@@ -64,7 +32,7 @@ export const BorrowFixedSidebar = () => {
           description: 'input label',
         })}
       />
-    </ActionSidebar>
+    </TransactionSidebar>
   );
 };
 

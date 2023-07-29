@@ -793,6 +793,14 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
     fCash: TokenBalance,
     blockTime = getNowSeconds()
   ) {
+    return fCashMarket.getImpliedInterestRate(cash, fCash, blockTime);
+  }
+
+  public static getImpliedInterestRate(
+    cash: TokenBalance,
+    fCash: TokenBalance,
+    blockTime = getNowSeconds()
+  ) {
     if (cash.isZero()) return undefined;
 
     const exchangeRate = fCash

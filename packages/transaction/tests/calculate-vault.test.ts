@@ -46,14 +46,14 @@ describe.withForkAndRegistry(
         `vcUSDC:${vaultAddress}:open`,
       ],
       [
-        `vdUSDC:${vaultAddress}:fixed@1687392000`,
-        `vsUSDC:${vaultAddress}:fixed@1687392000`,
-        `vcUSDC:${vaultAddress}:fixed@1687392000`,
-      ],
-      [
         `vdUSDC:${vaultAddress}:fixed@1695168000`,
         `vsUSDC:${vaultAddress}:fixed@1695168000`,
         `vcUSDC:${vaultAddress}:fixed@1695168000`,
+      ],
+      [
+        `vdUSDC:${vaultAddress}:fixed@1702944000`,
+        `vsUSDC:${vaultAddress}:fixed@1702944000`,
+        `vcUSDC:${vaultAddress}:fixed@1702944000`,
       ],
     ];
 
@@ -74,7 +74,7 @@ describe.withForkAndRegistry(
 
         const riskFactorLimit: RiskFactorLimit<'leverageRatio'> = {
           riskFactor: 'leverageRatio',
-          limit: 3,
+          limit: 2.5,
         };
 
         const {
@@ -82,8 +82,9 @@ describe.withForkAndRegistry(
           collateralBalance: collateral1,
           debtFee: df1,
           collateralFee: cf1,
+          netRealizedCollateralBalance: nrc1,
+          netRealizedDebtBalance: nrd1,
         } = calculateVaultDebtCollateralGivenDepositRiskLimit({
-          vaultAddress,
           collateral: collateralToken,
           debt: debtToken,
           vaultAdapter,
@@ -97,6 +98,7 @@ describe.withForkAndRegistry(
           debtBalance: debt2,
           collateralFee: cf2,
           debtFee: df2,
+          netRealizedDebtBalance: nrd2,
         } = calculateVaultDebt({
           debt: debtToken,
           debtPool,
@@ -109,6 +111,7 @@ describe.withForkAndRegistry(
           collateralBalance: collateral2,
           collateralFee: cf3,
           debtFee: df3,
+          netRealizedCollateralBalance: nrc2,
         } = calculateVaultCollateral({
           collateral: collateralToken,
           vaultAdapter,
@@ -116,6 +119,20 @@ describe.withForkAndRegistry(
           depositBalance: depositInput,
           debtBalance: debt1,
         });
+
+        expect(nrc1.tokenType).toBe('Underlying');
+        expect(nrd1.tokenType).toBe('Underlying');
+        expect(nrd2.neg().toFloat()).toBeLessThan(
+          debt2.neg().toUnderlying().toFloat()
+        );
+
+        expect(nrc2.toFloat()).toBeGreaterThan(
+          collateral2.toUnderlying().toFloat()
+        );
+
+        expect(nrd1).toBeApprox(nrd2);
+        expect(nrc1).toBeApprox(nrc2);
+
         expect(cf1).toBeApprox(cf2);
         expect(cf2).toBeApprox(cf3);
         expect(df1).toBeApprox(df2);

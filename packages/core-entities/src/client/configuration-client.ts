@@ -105,6 +105,13 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
     cashBorrowed: TokenBalance,
     blockTime = getNowSeconds()
   ) {
+    if (maturity === PRIME_CASH_VAULT_MATURITY) {
+      return {
+        cashBorrowed,
+        vaultFee: cashBorrowed.copy(0),
+      };
+    }
+
     const annualizedFeeRate = this.getVaultConfig(
       network,
       vaultAddress

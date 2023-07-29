@@ -1,27 +1,18 @@
 import { Divider, styled, useTheme } from '@mui/material';
-import {
-  ExternalLink,
-  HeadingSubtitle,
-  Drawer,
-  Button,
-} from '@notional-finance/mui';
+import { ExternalLink, HeadingSubtitle, Drawer } from '@notional-finance/mui';
 import {
   BaseContext,
-  useSelectedNetwork,
   useTransactionStatus,
 } from '@notional-finance/notionable-hooks';
-import {
-  ParsedLogs,
-  simulatePopulatedTxn,
-  SimulationCallTrace,
-} from '@notional-finance/transaction';
-import { useCallback, useContext, useState } from 'react';
+import { useCallback, useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
 import {
   PendingTransaction,
   StatusHeading,
   TransactionButtons,
 } from './components';
+import { OrderDetails } from './components/order-details';
+import { PortfolioCompare } from './components/portfolio-compare';
 
 export interface ConfirmationProps {
   heading: React.ReactNode;
@@ -39,11 +30,13 @@ export const Confirmation2 = ({
   showDrawer = true,
 }: ConfirmationProps) => {
   const theme = useTheme();
-  const {
-    state: { populatedTransaction, transactionError },
-    updateState,
-  } = useContext(context);
-  const selectedNetwork = useSelectedNetwork();
+  const { state, updateState } = useContext(context);
+  const { populatedTransaction, transactionError } = state;
+  // const selectedNetwork = useSelectedNetwork();
+  // const [_calls, setSimulatedCalls] = useState<
+  //   SimulationCallTrace[] | undefined
+  // >();
+  // const [_logs, setSimulatedLogs] = useState<ParsedLogs | undefined>();
   const onTxnCancel = useCallback(
     () => updateState({ confirm: false }),
     [updateState]
@@ -52,29 +45,24 @@ export const Confirmation2 = ({
   const { isReadOnlyAddress, transactionStatus, transactionHash, onSubmit } =
     useTransactionStatus();
 
-  const [_calls, setSimulatedCalls] = useState<
-    SimulationCallTrace[] | undefined
-  >();
-  const [_logs, setSimulatedLogs] = useState<ParsedLogs | undefined>();
+  // const runSimulate = useCallback(async () => {
+  //   if (!selectedNetwork || !populatedTransaction) return;
 
-  const runSimulate = useCallback(async () => {
-    if (!selectedNetwork || !populatedTransaction) return;
-
-    try {
-      const { simulatedCalls, simulatedLogs } = await simulatePopulatedTxn(
-        selectedNetwork,
-        populatedTransaction
-      );
-      setSimulatedCalls(simulatedCalls);
-      setSimulatedLogs(simulatedLogs);
-      console.log(simulatedCalls);
-      console.log(simulatedLogs);
-    } catch (e) {
-      console.error(e);
-      setSimulatedCalls(undefined);
-      setSimulatedLogs(undefined);
-    }
-  }, [populatedTransaction, selectedNetwork]);
+  //   try {
+  //     const { simulatedCalls, simulatedLogs } = await simulatePopulatedTxn(
+  //       selectedNetwork,
+  //       populatedTransaction
+  //     );
+  //     setSimulatedCalls(simulatedCalls);
+  //     setSimulatedLogs(simulatedLogs);
+  //     console.log(simulatedCalls);
+  //     console.log(simulatedLogs);
+  //   } catch (e) {
+  //     console.error(e);
+  //     setSimulatedCalls(undefined);
+  //     setSimulatedLogs(undefined);
+  //   }
+  // }, [populatedTransaction, selectedNetwork]);
 
   const inner = (
     <>
@@ -97,14 +85,15 @@ export const Confirmation2 = ({
           }}
         />
       </TermsOfService>
-      {/* <TradePropertiesGrid data={transactionProperties} /> */}
       {transactionHash && (
         <PendingTransaction
           hash={transactionHash}
           transactionStatus={transactionStatus}
         />
       )}
-      <Button onClick={runSimulate}>Simulate</Button>
+      {/* <Button onClick={runSimulate}>Simulate</Button> */}
+      <OrderDetails state={state} />
+      <PortfolioCompare state={state} />
       <TransactionButtons
         transactionStatus={transactionStatus}
         onSubmit={() => onSubmit(populatedTransaction)}
@@ -123,8 +112,8 @@ export const Confirmation2 = ({
 
 const TermsOfService = styled(HeadingSubtitle)(
   ({ theme }) => `
-  margin-top: 1rem;
-  margin-bottom: 1.5rem;
+  margin-top: ${theme.spacing(2)};
+  margin-bottom: ${theme.spacing(3)};
   color: ${theme.palette.borders.accentPaper};
 `
 );

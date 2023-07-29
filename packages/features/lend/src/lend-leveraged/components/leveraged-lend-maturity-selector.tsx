@@ -140,7 +140,7 @@ export function LeveragedLendMaturitySelector() {
         </H5>
         {isDebtVariable ? (
           <Maturities
-            maturityData={collateralMaturityData}
+            maturityData={collateralMaturityData.filter((m) => m.maturity > 0)}
             selectedfCashId={selectedCollateralId}
             onSelect={onSelectCollateral}
           />
@@ -180,7 +180,7 @@ export function LeveragedLendMaturitySelector() {
           <VariableMaturityCard variableRate={2.23} />
         ) : (
           <Maturities
-            maturityData={debtMaturityData}
+            maturityData={debtMaturityData.filter((m) => m.maturity > 0)}
             selectedfCashId={selectedDebtId}
             onSelect={onSelectDebt}
           />

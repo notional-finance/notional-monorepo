@@ -726,25 +726,23 @@ export function postAccountRisk(
         p.collateralBalance?.hashKey === c.collateralBalance?.hashKey &&
         p.debtBalance?.hashKey === c.debtBalance?.hashKey
     ),
-    map(
-      ([
-        account,
-        { canSubmit, depositBalance, collateralBalance, debtBalance },
-      ]) => {
-        if (canSubmit && account) {
-          const profile = AccountRiskProfile.simulate(
-            account.balances,
-            [depositBalance, collateralBalance, debtBalance].filter(
-              (b) => b !== undefined
-            ) as TokenBalance[]
-          );
+    map(([account, { canSubmit, collateralBalance, debtBalance }]) => {
+      if (canSubmit && account) {
+        const profile = AccountRiskProfile.simulate(
+          account.balances.filter((t) => t.tokenType !== 'Underlying'),
+          [collateralBalance, debtBalance].filter(
+            (b) => b !== undefined
+          ) as TokenBalance[]
+        );
 
-          return { postAccountRisk: profile.getAllRiskFactors() };
-        }
-
-        return undefined;
+        return {
+          postAccountRisk: profile.getAllRiskFactors(),
+          postTradeBalances: profile.balances,
+        };
       }
-    ),
+
+      return undefined;
+    }),
     filterEmpty()
   );
 }
@@ -787,28 +785,21 @@ export function postVaultAccountRisk(
     map(
       ([
         account,
-        {
-          canSubmit,
-          depositBalance,
-          collateralBalance,
-          collateral,
-          debtBalance,
-          vaultAddress,
-        },
+        { canSubmit, collateralBalance, collateral, debtBalance, vaultAddress },
       ]) => {
         if (canSubmit && account && vaultAddress && collateral) {
           const profile = VaultAccountRiskProfile.simulate(
             vaultAddress,
-            account.balances,
-            [
-              // Deposits are converted to vault shares
-              depositBalance?.toToken(collateral),
-              collateralBalance,
-              debtBalance,
-            ].filter((b) => b !== undefined) as TokenBalance[]
+            account.balances.filter((t) => t.tokenType !== 'Underlying'),
+            [collateralBalance, debtBalance].filter(
+              (b) => b !== undefined
+            ) as TokenBalance[]
           );
 
-          return { postAccountRisk: profile.getAllRiskFactors() };
+          return {
+            postAccountRisk: profile.getAllRiskFactors(),
+            postTradeBalances: profile.balances,
+          };
         }
 
         return undefined;
@@ -911,4 +902,71 @@ export function defaultLeverageRatio(
     }),
     filterEmpty()
   );
+}
+
+export function tradeSummary(
+  state$: Observable<BaseTradeState>,
+  account$: Observable<AccountDefinition | null>
+) {
+  return combineLatest([account$, state$]).pipe(
+    distinctUntilChanged(
+      ([, p], [, c]) =>
+        // TODO: what to when can submit is false?
+        p.canSubmit === c.canSubmit &&
+        p.depositBalance?.hashKey === c.depositBalance?.hashKey &&
+        p.collateralBalance?.hashKey === c.collateralBalance?.hashKey &&
+        p.debtBalance?.hashKey === c.debtBalance?.hashKey &&
+        p.tradeType === c.tradeType
+    ),
+    map(
+      ([account, { canSubmit, collateralBalance, debtBalance, tradeType }]) => {
+        if (
+          canSubmit &&
+          account &&
+          !collateralBalance?.isVaultToken &&
+          !debtBalance?.isVaultToken
+        ) {
+          // Skip vault shares and vualt debt
+          return getNetBalances(
+            account.balances,
+            tradeType === 'RollDebt'
+              ? debtBalance
+              : tradeType === 'ConvertAsset'
+              ? collateralBalance
+              : collateralBalance || debtBalance
+          );
+        }
+
+        return undefined;
+      }
+    ),
+    filterEmpty()
+  );
+}
+
+function getNetBalances(
+  accountBalances: TokenBalance[],
+  netChange: TokenBalance | undefined
+) {
+  if (!netChange) return undefined;
+
+  const zero = netChange.copy(0);
+  const start =
+    accountBalances.find((b) => b.tokenId === netChange.tokenId) || zero;
+  const end = start.add(netChange);
+  if ((start.isPositive() && end.isPositive()) || start.eq(end)) {
+    // Only asset changes
+    return { netAssetBalance: netChange, netDebtBalance: zero };
+  } else if (start.lte(zero) && end.isNegative()) {
+    // Only debt changes
+    return { netAssetBalance: zero, netDebtBalance: netChange };
+  } else if (end.lte(zero) && start.gt(zero)) {
+    // Entire start balance has decreased to zero, entire negative balance is created
+    return { netAssetBalance: start.neg(), netDebtBalance: end };
+  } else if (start.lte(zero) && end.gt(zero)) {
+    // Entire start balance has been repaid, entire positive balance is created
+    return { netAssetBalance: end, netDebtBalance: start.neg() };
+  }
+
+  throw Error('unknown balance change');
 }

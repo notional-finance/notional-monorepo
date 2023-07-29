@@ -32,7 +32,7 @@ describe.withForkAndRegistry(
     const ethDebtTypes = [
       'nETH',
       'pdEther',
-      'fETH:fixed@1687392000',
+      'fETH:fixed@1702944000',
       undefined,
     ];
     const usdcDebtTypes = [
@@ -105,6 +105,7 @@ describe.withForkAndRegistry(
           collateralBalance,
           collateralFee: cf1,
           debtFee: df1,
+          netRealizedCollateralBalance,
         } = calculateCollateral({
           collateral: collateralToken,
           collateralPool,
@@ -124,6 +125,17 @@ describe.withForkAndRegistry(
           debtBalance: undefined,
           collateralBalance,
         });
+
+        expect(netRealizedCollateralBalance.tokenType).toBe('Underlying');
+        if (collateralBalance.tokenType === 'fCash') {
+          expect(netRealizedCollateralBalance.toFloat()).toBeGreaterThan(
+            collateralBalance.toUnderlying().toFloat()
+          );
+        } else {
+          expect(netRealizedCollateralBalance).toEqTB(
+            collateralBalance.toUnderlying()
+          );
+        }
 
         expect(cf1).toBeApprox(cf2);
         expect(df1).toBe(undefined);
@@ -196,6 +208,7 @@ describe.withForkAndRegistry(
         debtBalance,
         collateralFee: cf1,
         debtFee: df1,
+        netRealizedDebtBalance,
       } = calculateDebt({
         debt: debtToken,
         debtPool,
@@ -215,6 +228,18 @@ describe.withForkAndRegistry(
         debtBalance,
         collateralBalance: undefined,
       });
+
+      expect(netRealizedDebtBalance.tokenType).toBe('Underlying');
+      if (
+        debtBalance.tokenType === 'fCash' ||
+        debtBalance.tokenType === 'nToken'
+      ) {
+        expect(netRealizedDebtBalance.neg().toFloat()).toBeGreaterThan(
+          debtBalance.toUnderlying().toFloat()
+        );
+      } else {
+        expect(netRealizedDebtBalance.neg()).toEqTB(debtBalance.toUnderlying());
+      }
 
       expect(df1).toBeApprox(df2);
       expect(cf1).toBe(undefined);
@@ -450,6 +475,8 @@ describe.withForkAndRegistry(
           collateralBalance: collateral1,
           debtFee: df1,
           collateralFee: cf1,
+          netRealizedCollateralBalance: nrc1,
+          netRealizedDebtBalance: nrd1,
         } = calculateDebtCollateralGivenDepositRiskLimit({
           collateral: collateralToken,
           debt: debtToken,
@@ -464,6 +491,7 @@ describe.withForkAndRegistry(
           debtBalance: debt2,
           collateralFee: cf2,
           debtFee: df2,
+          netRealizedDebtBalance: nrd2,
         } = calculateDebt({
           debt: debtToken,
           debtPool,
@@ -476,6 +504,7 @@ describe.withForkAndRegistry(
           collateralBalance: collateral2,
           collateralFee: cf3,
           debtFee: df3,
+          netRealizedCollateralBalance: nrc2,
         } = calculateCollateral({
           collateral: collateralToken,
           collateralPool,
@@ -483,6 +512,10 @@ describe.withForkAndRegistry(
           depositBalance: depositInput,
           debtBalance: debt1,
         });
+
+        expect(nrc1).toBeApprox(nrc2);
+        expect(nrd1).toBeApprox(nrd2);
+
         expect(cf1).toBeApprox(cf2);
         expect(cf2).toBeApprox(cf3);
         expect(df1).toBeApprox(df2);

@@ -3,7 +3,7 @@ import {
   BaseContext,
   useSpotMaturityData,
 } from '@notional-finance/notionable-hooks';
-import { RATE_PRECISION, formatInterestRate } from '@notional-finance/util';
+import { formatInterestRate } from '@notional-finance/util';
 import { useCallback, useContext } from 'react';
 
 export const useMaturitySelect = (

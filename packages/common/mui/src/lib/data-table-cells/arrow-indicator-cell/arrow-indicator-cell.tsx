@@ -8,6 +8,7 @@ export interface ArrowIndicatorCellData {
   checkmark: boolean;
   greenOnArrowUp: boolean;
   greenOnCheckmark: boolean;
+  isNegative?: boolean;
 }
 
 interface ArrowIndicatorCellProps {
@@ -22,7 +23,14 @@ export const ArrowIndicatorCell = ({
 }: ArrowIndicatorCellProps): JSX.Element => {
   const {
     column: { textAlign },
-    value: { arrowUp, checkmark, greenOnArrowUp, greenOnCheckmark, value },
+    value: {
+      arrowUp,
+      checkmark,
+      greenOnArrowUp,
+      greenOnCheckmark,
+      value,
+      isNegative,
+    },
   } = cell;
   const { palette, shape, spacing } = useTheme();
   const colorOnUp = greenOnArrowUp ? palette.primary.light : palette.error.main;
@@ -30,10 +38,15 @@ export const ArrowIndicatorCell = ({
     ? palette.error.main
     : palette.primary.light;
   let backgroundColor = palette.info.light;
+  // Don't show background highlight on default
+  if (arrowUp === null) backgroundColor = palette.background.default;
   if (arrowUp === true && greenOnArrowUp === false)
     backgroundColor = palette.error.light;
   if (arrowUp === false && greenOnArrowUp === true)
     backgroundColor = palette.error.light;
+  const valueTextColor = isNegative
+    ? palette.error.main
+    : palette.typography.main;
 
   return (
     <Box
@@ -57,7 +70,7 @@ export const ArrowIndicatorCell = ({
       >
         {arrowUp !== null ? (
           <>
-            <SmallTableCell sx={{ color: palette.typography.main }}>
+            <SmallTableCell sx={{ color: valueTextColor }}>
               {value}
             </SmallTableCell>
             <AngledArrowIcon
@@ -72,7 +85,7 @@ export const ArrowIndicatorCell = ({
           </>
         ) : (
           <>
-            <SmallTableCell sx={{ color: palette.typography.main }}>
+            <SmallTableCell sx={{ color: valueTextColor }}>
               {value}
             </SmallTableCell>
             {checkmark && (

@@ -17,8 +17,6 @@ import {
   LeveragedNToken,
   LeveragedOrDeleverageLend,
   MintNToken,
-  RedeemAndWithdrawNToken,
-  RedeemToPortfolioNToken,
   RepayDebt,
   RollLendOrDebt,
   Withdraw,
@@ -408,7 +406,6 @@ export const TradeConfiguration = {
    *
    * Outputs:
    * depositBalance (cash to withdraw via nToken redeem)
-   */
   RedeemAndWithdrawNToken: {
     calculationFn: calculateDeposit,
     requiredArgs: ['depositUnderlying', 'debtBalance', 'debtPool'],
@@ -425,6 +422,8 @@ export const TradeConfiguration = {
     collateralFilter: () => false,
     transactionBuilder: RedeemAndWithdrawNToken,
   } as TransactionConfig,
+   */
+
   /**
    * Inputs:
    * selectedDebtToken (nToken)
@@ -432,7 +431,6 @@ export const TradeConfiguration = {
    *
    * Outputs:
    * collateralBalance (cash to keep in portfolio via nToken redeem)
-   */
   RedeemToPortfolioNToken: {
     calculationFn: calculateCollateral,
     requiredArgs: ['collateral', 'debtBalance', 'debtPool'],
@@ -449,6 +447,7 @@ export const TradeConfiguration = {
     depositFilter: () => false,
     transactionBuilder: RedeemToPortfolioNToken,
   } as TransactionConfig,
+   */
 
   /**
    * Input:

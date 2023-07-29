@@ -19,10 +19,7 @@ export const RepayDebt = () => {
 
   return (
     <RepayDebtContext.Provider value={context}>
-      <PortfolioSideDrawer
-        context={RepayDebtContext}
-        action={PORTFOLIO_ACTIONS.REPAY_DEBT}
-      >
+      <PortfolioSideDrawer context={RepayDebtContext}>
         <PortfolioHoldingSelect
           tightMarginTop
           isWithdraw

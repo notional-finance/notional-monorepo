@@ -1,56 +1,24 @@
 import { useContext } from 'react';
+import { ErrorMessage, useCurrencyInputRef } from '@notional-finance/mui';
 import {
-  ActionSidebar,
-  ErrorMessage,
-  useCurrencyInputRef,
-} from '@notional-finance/mui';
-import {
-  TradeActionButton,
-  Confirmation2,
   DepositInput,
   EnablePrimeBorrow,
+  TransactionSidebar,
 } from '@notional-finance/trade';
 import { PRODUCTS } from '@notional-finance/shared-config';
-import { defineMessage, FormattedMessage } from 'react-intl';
+import { defineMessage } from 'react-intl';
 import { BorrowVariableContext } from '../borrow-variable';
 import { usePrimeCashBalance } from '@notional-finance/notionable-hooks';
 
 export const BorrowVariableSidebar = () => {
   const {
-    state: { canSubmit, populatedTransaction, confirm, selectedDepositToken },
-    updateState,
+    state: { selectedDepositToken },
   } = useContext(BorrowVariableContext);
   const { currencyInputRef } = useCurrencyInputRef();
-  const handleSubmit = () => {
-    updateState({ confirm: true });
-  };
   const cashBalance = usePrimeCashBalance(selectedDepositToken);
 
-  return confirm && populatedTransaction ? (
-    <Confirmation2
-      heading={
-        <FormattedMessage
-          defaultMessage="Borrow Order"
-          description="section heading"
-        />
-      }
-      context={BorrowVariableContext}
-    />
-  ) : (
-    <ActionSidebar
-      heading={defineMessage({
-        defaultMessage: 'Borrow Order',
-        description: 'section heading',
-      })}
-      helptext={defineMessage({
-        defaultMessage:
-          'Borrow with confidence, fixed rates lock in what you pay.',
-        description: 'helptext',
-      })}
-      CustomActionButton={TradeActionButton}
-      canSubmit={canSubmit}
-      handleSubmit={handleSubmit}
-    >
+  return (
+    <TransactionSidebar context={BorrowVariableContext}>
       <DepositInput
         ref={currencyInputRef}
         inputRef={currencyInputRef}
@@ -78,7 +46,7 @@ export const BorrowVariableSidebar = () => {
         />
       )}
       <EnablePrimeBorrow />
-    </ActionSidebar>
+    </TransactionSidebar>
   );
 };
 
