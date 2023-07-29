@@ -726,25 +726,23 @@ export function postAccountRisk(
         p.collateralBalance?.hashKey === c.collateralBalance?.hashKey &&
         p.debtBalance?.hashKey === c.debtBalance?.hashKey
     ),
-    map(
-      ([
-        account,
-        { canSubmit, depositBalance, collateralBalance, debtBalance },
-      ]) => {
-        if (canSubmit && account) {
-          const profile = AccountRiskProfile.simulate(
-            account.balances,
-            [depositBalance, collateralBalance, debtBalance].filter(
-              (b) => b !== undefined
-            ) as TokenBalance[]
-          );
+    map(([account, { canSubmit, collateralBalance, debtBalance }]) => {
+      if (canSubmit && account) {
+        const profile = AccountRiskProfile.simulate(
+          account.balances.filter((t) => t.tokenType !== 'Underlying'),
+          [collateralBalance, debtBalance].filter(
+            (b) => b !== undefined
+          ) as TokenBalance[]
+        );
 
-          return { postAccountRisk: profile.getAllRiskFactors() };
-        }
-
-        return undefined;
+        return {
+          postAccountRisk: profile.getAllRiskFactors(),
+          postTradeBalances: profile.balances,
+        };
       }
-    ),
+
+      return undefined;
+    }),
     filterEmpty()
   );
 }
@@ -787,28 +785,21 @@ export function postVaultAccountRisk(
     map(
       ([
         account,
-        {
-          canSubmit,
-          depositBalance,
-          collateralBalance,
-          collateral,
-          debtBalance,
-          vaultAddress,
-        },
+        { canSubmit, collateralBalance, collateral, debtBalance, vaultAddress },
       ]) => {
         if (canSubmit && account && vaultAddress && collateral) {
           const profile = VaultAccountRiskProfile.simulate(
             vaultAddress,
-            account.balances,
-            [
-              // Deposits are converted to vault shares
-              depositBalance?.toToken(collateral),
-              collateralBalance,
-              debtBalance,
-            ].filter((b) => b !== undefined) as TokenBalance[]
+            account.balances.filter((t) => t.tokenType !== 'Underlying'),
+            [collateralBalance, debtBalance].filter(
+              (b) => b !== undefined
+            ) as TokenBalance[]
           );
 
-          return { postAccountRisk: profile.getAllRiskFactors() };
+          return {
+            postAccountRisk: profile.getAllRiskFactors(),
+            postTradeBalances: profile.balances,
+          };
         }
 
         return undefined;

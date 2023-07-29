@@ -146,6 +146,12 @@ interface TransactionState {
   netRealizedCollateralBalance?: TokenBalance;
   /** Net cost of debts in underlying terms*/
   netRealizedDebtBalance?: TokenBalance;
+
+  /**
+   * The accounts entire set of balances post trade, for vault trades
+   * this is only the vault related balances.
+   */
+  postTradeBalances?: TokenBalance[];
 }
 
 interface InitState {

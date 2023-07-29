@@ -28,6 +28,15 @@ export const LiquidationRisk = ({ state }: { state: TradeState }) => {
     },
   ];
 
+  if (!onlyCurrent) {
+    columns.push({
+      Header: <FormattedMessage defaultMessage={'Updated'} />,
+      Cell: ArrowIndicatorCell,
+      accessor: 'updated',
+      textAlign: 'right',
+    });
+  }
+
   if (
     (priorAccountNoRisk || !isAccountReady) &&
     (tradeType === 'Deposit' ||
@@ -50,15 +59,6 @@ export const LiquidationRisk = ({ state }: { state: TradeState }) => {
       data={[]}
       columns={columns}
     />;
-  }
-
-  if (!onlyCurrent) {
-    columns.push({
-      Header: <FormattedMessage defaultMessage={'Updated'} />,
-      Cell: ArrowIndicatorCell,
-      accessor: 'updated',
-      textAlign: 'right',
-    });
   }
 
   return (

@@ -165,14 +165,14 @@ export function useOrderDetails(state: BaseTradeState): DetailItem[] {
 
   if (depositBalance?.isPositive()) {
     orderDetails.push({
-      label: OrderDetailLabels.amountToWallet,
+      label: intl.formatMessage(OrderDetailLabels.amountToWallet),
       value: depositBalance.toDisplayStringWithSymbol(3, true),
     });
   }
 
   // NOTE: if sign changes occur, they don't get marked here
   if (debtBalance?.isZero() === false && netRealizedDebtBalance)
-    orderDetails.concat(
+    orderDetails.push(
       ...getOrderDetails(
         debtBalance.unwrapVaultToken(),
         netRealizedDebtBalance,
@@ -183,7 +183,7 @@ export function useOrderDetails(state: BaseTradeState): DetailItem[] {
     );
 
   if (collateralBalance?.isZero() === false && netRealizedCollateralBalance)
-    orderDetails.concat(
+    orderDetails.push(
       ...getOrderDetails(
         collateralBalance.unwrapVaultToken(),
         netRealizedCollateralBalance,
@@ -195,7 +195,7 @@ export function useOrderDetails(state: BaseTradeState): DetailItem[] {
 
   if (depositBalance?.isNegative()) {
     orderDetails.push({
-      label: OrderDetailLabels.amountFromWallet,
+      label: intl.formatMessage(OrderDetailLabels.amountFromWallet),
       value: depositBalance.neg().toDisplayStringWithSymbol(3, true),
     });
   }
@@ -408,7 +408,9 @@ export function useTradeSummary(state: BaseTradeState) {
   if (isLeverageOrRoll) {
     feeValue = collateralBalance.toUnderlying().add(debtBalance.toUnderlying());
   } else if (collateralBalance && depositBalance) {
-    feeValue = depositBalance.toUnderlying().sub(collateralBalance.toUnderlying());
+    feeValue = depositBalance
+      .toUnderlying()
+      .sub(collateralBalance.toUnderlying());
   } else if (debtBalance && depositBalance) {
     feeValue = depositBalance.toUnderlying().sub(debtBalance.toUnderlying());
   }
@@ -427,6 +429,9 @@ interface CompareData {
   current: string;
   updated: string;
   changeType: ChangeType;
+  isCurrentNegative: boolean;
+  isUpdatedNegative: boolean;
+  sortOrder: number;
 }
 
 export function usePortfolioComparison(
@@ -434,51 +439,43 @@ export function usePortfolioComparison(
   fiat: FiatKeys = 'USD'
 ) {
   const { account } = useAccountDefinition();
-  const { collateralBalance, debtBalance } = state;
-  const onlyCurrent = !collateralBalance && !debtBalance;
+  const { postTradeBalances } = state;
+  const priorBalances = account?.balances || [];
 
-  const tableData: CompareData[] | undefined = account?.balances.map((b) => {
-    const { titleWithMaturity } = formatTokenType(b.token);
-    const current = b.toFiat(fiat).toDisplayStringWithSymbol(3, true);
-    if (b.tokenId === collateralBalance?.tokenId) {
-      return {
-        label: titleWithMaturity,
-        current,
-        updated: b
-          .add(collateralBalance)
-          .toFiat(fiat)
-          .toDisplayStringWithSymbol(3, true),
-        changeType: collateralBalance.isZero()
-          ? 'none'
-          : collateralBalance.isPositive()
-          ? 'increase'
-          : 'decrease',
-      };
-    } else if (b.tokenId === debtBalance?.tokenId) {
-      return {
-        label: titleWithMaturity,
-        current,
-        updated: b
-          .add(debtBalance)
-          .toFiat(fiat)
-          .toDisplayStringWithSymbol(3, true),
-        changeType: debtBalance.isZero()
-          ? 'none'
-          : debtBalance.isPositive()
-          ? 'increase'
-          : 'decrease',
-      };
-    } else {
-      return {
-        label: titleWithMaturity,
-        current,
-        updated: current,
-        changeType: 'none',
-      };
-    }
-  });
+  const tableData: CompareData[] | undefined = postTradeBalances
+    ?.filter((t) => t.tokenType !== 'Underlying')
+    .map((b) => {
+      const { titleWithMaturity } = formatTokenType(b.token);
+      const current =
+        priorBalances.find((t) => t.tokenId === b.tokenId) || b.copy(0);
 
-  return { onlyCurrent, tableData };
+      let changeType: string | undefined;
+      if (current.isZero() && b.isZero()) changeType = undefined;
+      else {
+        changeType = current.eq(b)
+          ? 'none'
+          : current.gt(b)
+          ? 'decrease'
+          : 'increase';
+      }
+
+      return {
+        label: titleWithMaturity,
+        current: current.toFiat(fiat).toDisplayStringWithSymbol(3, true),
+        isCurrentNegative: current.isNegative(),
+        updated: b.toFiat(fiat).toDisplayStringWithSymbol(3, true),
+        isUpdatedNegative: b.isNegative(),
+        sortOrder: b.sub(current).toFloat(),
+        changeType,
+      };
+    })
+    .filter(({ changeType }) => changeType !== undefined) as CompareData[];
+
+  return {
+    onlyCurrent: postTradeBalances === undefined,
+    // Sort unchanged rows to the end
+    tableData: tableData?.sort((a, b) => b.sortOrder - a.sortOrder),
+  };
 }
 
 function getChangeType(
