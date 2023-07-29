@@ -237,7 +237,7 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
-      decimals: 18,
+      decimals: 8,
     },
     network: Network.Mainnet,
   },
@@ -252,7 +252,7 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
-      decimals: 18,
+      decimals: 8,
     },
     network: Network.Mainnet,
   },
@@ -267,7 +267,7 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
-      decimals: 18,
+      decimals: 8,
     },
     network: Network.Mainnet,
   },
@@ -282,7 +282,7 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
-      decimals: 18,
+      decimals: 8,
     },
     network: Network.Mainnet,
   },
@@ -297,7 +297,7 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
-      decimals: 18,
+      decimals: 8,
     },
     network: Network.ArbitrumOne,
   },
@@ -327,7 +327,7 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
-      decimals: 18,
+      decimals: 8,
     },
     network: Network.ArbitrumOne,
   },
@@ -342,7 +342,7 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
-      decimals: 18,
+      decimals: 8,
     },
     network: Network.ArbitrumOne,
   },
@@ -357,7 +357,7 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
-      decimals: 18,
+      decimals: 8,
     },
     network: Network.Mainnet,
   },
@@ -372,7 +372,7 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
-      decimals: 18,
+      decimals: 8,
     },
     network: Network.Mainnet,
   },
@@ -387,7 +387,7 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
-      decimals: 18,
+      decimals: 8,
     },
     network: Network.Mainnet,
   },

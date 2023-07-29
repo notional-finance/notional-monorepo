@@ -74,6 +74,13 @@ export function getMulticallParams(config: MulticallConfig) {
   const abi = new ethers.utils.Interface(config.contractABI);
 
   let key = `${config.contractAddress}:${config.method}`;
+
+  if (config.args) {
+    for (let i = 0; i < config.args.length; i++) {
+      key += `:${config.args[i]}`;
+    }
+  }
+
   let transform;
   const func = abi.getFunction(config.method);
 
@@ -97,7 +104,7 @@ export function getMulticallParams(config: MulticallConfig) {
     transform = (r) => {
       let current = r;
       for (let i = 0; i < indices.length; i++) {
-        current = r[indices[i]];
+        current = current[indices[i]];
       }
       return current;
     };
