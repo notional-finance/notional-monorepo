@@ -10,7 +10,7 @@ import {
 import { BigNumber, BigNumberish, utils } from 'ethers';
 import { parseUnits } from 'ethers/lib/utils';
 import { Registry, ExchangeRate, TokenDefinition, RiskAdjustment } from '.';
-import { FiatKeys } from './config/fiat-config';
+import { FiatKeys, FiatSymbols } from './config/fiat-config';
 
 export type SerializedTokenBalance = ReturnType<TokenBalance['toJSON']>;
 
@@ -375,9 +375,15 @@ export class TokenBalance {
    * @returns a string with the specified number of decimal places and a symbol appended
    */
   toDisplayStringWithSymbol(decimalPlaces = 3, abbr = false, locale = 'en-US') {
-    return `${this.toDisplayString(decimalPlaces, abbr, locale)} ${
-      this.token.symbol
-    }`;
+    if (this.tokenType === 'Fiat' && this.symbol !== 'NOTE') {
+      return `${
+        FiatSymbols[this.token.symbol as FiatKeys]
+      }${this.toDisplayString(decimalPlaces, abbr, locale)}`;
+    } else {
+      return `${this.toDisplayString(decimalPlaces, abbr, locale)} ${
+        this.token.symbol
+      }`;
+    }
   }
 
   /**
