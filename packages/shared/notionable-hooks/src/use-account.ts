@@ -1,11 +1,21 @@
 import { useObservableState } from 'observable-hooks';
-import { Registry, TokenBalance } from '@notional-finance/core-entities';
+import {
+  FiatKeys,
+  Registry,
+  TokenBalance,
+} from '@notional-finance/core-entities';
 import { useNotionalContext, useSelectedNetwork } from './use-notional';
 import { EMPTY } from 'rxjs';
 import {
   AccountRiskProfile,
   VaultAccountRiskProfile,
 } from '@notional-finance/risk-engine';
+import {
+  Network,
+  SECONDS_IN_QUARTER,
+  SECONDS_IN_WEEK,
+  getNowSeconds,
+} from '@notional-finance/util';
 
 export function useAccountWithdrawableTokens() {
   const { account } = useAccountDefinition();
@@ -107,4 +117,74 @@ export function usePortfolioRiskProfile() {
     ) || [],
     network
   );
+}
+
+export function useAccountHistoryChart(
+  fiatToken: FiatKeys = 'USD',
+  startTime = getNowSeconds() - SECONDS_IN_QUARTER,
+  endTime = getNowSeconds(),
+  tickSizeInSeconds = SECONDS_IN_WEEK
+) {
+  const { account } = useAccountDefinition();
+
+  const allHistoricalSnapshots =
+    account?.balanceStatement
+      ?.flatMap((b) => b.historicalSnapshots)
+      .sort((a, b) => a.timestamp - b.timestamp) || [];
+
+  const base = Registry.getTokenRegistry().getTokenBySymbol(
+    Network.All,
+    fiatToken
+  );
+
+  // Bucket the start and end time ranges
+  const numBuckets = Math.ceil((endTime - startTime) / tickSizeInSeconds);
+  const buckets = new Array(numBuckets)
+    .map((_, i) => {
+      const start = startTime + i * tickSizeInSeconds;
+      return { start, end: start + tickSizeInSeconds };
+    })
+    .map(({ start, end }) => {
+      const snapshotsAtTime = Array.from(
+        allHistoricalSnapshots
+          .filter(({ timestamp }) => timestamp < end)
+          .reduce((t, s) => {
+            // This will always set the token id key to the latest snapshot value, preserving
+            // the previous snapshot value if there was no update in this time block
+            t.set(s.balance.tokenId, s);
+            return t;
+          }, new Map<string, typeof allHistoricalSnapshots[number]>())
+          .values()
+      );
+
+      const assets = snapshotsAtTime
+        ?.filter(
+          ({ balance }) =>
+            !(
+              balance.unwrapVaultToken().token.isFCashDebt === true ||
+              balance.tokenType === 'PrimeDebt' ||
+              balance.isNegative()
+            )
+        )
+        .reduce((t, b) => {
+          // TODO: switch this to "toFiatAtTimestamp"
+          return t.add(b.balance.toFiat(fiatToken));
+        }, TokenBalance.zero(base));
+
+      const debts = snapshotsAtTime
+        ?.filter(
+          ({ balance }) =>
+            balance.unwrapVaultToken().token.isFCashDebt === true ||
+            balance.tokenType === 'PrimeDebt' ||
+            balance.isNegative()
+        )
+        .reduce((t, b) => {
+          // TODO: switch this to "toFiatAtTimestamp"
+          return t.add(b.balance.toFiat(fiatToken));
+        }, TokenBalance.zero(base));
+
+      return { start, assets, debts };
+    });
+
+  return buckets;
 }
