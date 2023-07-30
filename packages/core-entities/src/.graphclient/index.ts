@@ -6789,6 +6789,12 @@ const merger = new(BareMerger as any)({
         },
         location: 'AllConfigurationDocument.graphql'
       },{
+        document: AllConfigurationByBlockDocument,
+        get rawSDL() {
+          return printWithCache(AllConfigurationByBlockDocument);
+        },
+        location: 'AllConfigurationByBlockDocument.graphql'
+      },{
         document: AllOraclesDocument,
         get rawSDL() {
           return printWithCache(AllOraclesDocument);
@@ -6818,6 +6824,12 @@ const merger = new(BareMerger as any)({
           return printWithCache(AllVaultsDocument);
         },
         location: 'AllVaultsDocument.graphql'
+      },{
+        document: AllVaultsByBlockDocument,
+        get rawSDL() {
+          return printWithCache(AllVaultsByBlockDocument);
+        },
+        location: 'AllVaultsByBlockDocument.graphql'
       }
     ];
     },
@@ -6893,6 +6905,19 @@ export type AllConfigurationQuery = { currencyConfigurations: Array<(
     & { primaryBorrowCurrency: Pick<Token, 'id'>, secondaryBorrowCurrencies?: Maybe<Array<Pick<Token, 'id'>>> }
   )>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
 
+export type AllConfigurationByBlockQueryVariables = Exact<{
+  blockNumber?: InputMaybe<Scalars['Int']>;
+}>;
+
+
+export type AllConfigurationByBlockQuery = { currencyConfigurations: Array<(
+    Pick<CurrencyConfiguration, 'id' | 'maxUnderlyingSupply' | 'collateralHaircut' | 'debtBuffer' | 'liquidationDiscount' | 'primeCashRateOracleTimeWindowSeconds' | 'primeCashHoldingsOracle' | 'primeDebtAllowed' | 'fCashRateOracleTimeWindowSeconds' | 'fCashReserveFeeSharePercent' | 'fCashDebtBufferBasisPoints' | 'fCashHaircutBasisPoints' | 'fCashMinOracleRate' | 'fCashMaxOracleRate' | 'fCashMaxDiscountFactor' | 'fCashLiquidationHaircutBasisPoints' | 'fCashLiquidationDebtBufferBasisPoints' | 'treasuryReserveBuffer' | 'primeCashHoldings' | 'rebalancingTargets' | 'rebalancingCooldown' | 'depositShares' | 'leverageThresholds' | 'proportions' | 'incentiveEmissionRate' | 'secondaryIncentiveRewarder' | 'residualPurchaseIncentiveBasisPoints' | 'residualPurchaseTimeBufferSeconds' | 'cashWithholdingBufferBasisPoints' | 'pvHaircutPercentage' | 'liquidationHaircutPercentage'>
+    & { underlying?: Maybe<Pick<Token, 'id'>>, pCash?: Maybe<Pick<Token, 'id'>>, pDebt?: Maybe<Pick<Token, 'id'>>, primeCashCurve?: Maybe<Pick<InterestRateCurve, 'kinkUtilization1' | 'kinkUtilization2' | 'kinkRate1' | 'kinkRate2' | 'maxRate' | 'minFeeRate' | 'maxFeeRate' | 'feeRatePercent'>>, fCashActiveCurves?: Maybe<Array<Pick<InterestRateCurve, 'kinkUtilization1' | 'kinkUtilization2' | 'kinkRate1' | 'kinkRate2' | 'maxRate' | 'minFeeRate' | 'maxFeeRate' | 'feeRatePercent'>>>, fCashNextCurves?: Maybe<Array<Pick<InterestRateCurve, 'kinkUtilization1' | 'kinkUtilization2' | 'kinkRate1' | 'kinkRate2' | 'maxRate' | 'minFeeRate' | 'maxFeeRate' | 'feeRatePercent'>>> }
+  )>, vaultConfigurations: Array<(
+    Pick<VaultConfiguration, 'id' | 'vaultAddress' | 'strategy' | 'name' | 'minAccountBorrowSize' | 'minCollateralRatioBasisPoints' | 'maxDeleverageCollateralRatioBasisPoints' | 'feeRateBasisPoints' | 'reserveFeeSharePercent' | 'liquidationRatePercent' | 'maxBorrowMarketIndex' | 'maxRequiredAccountCollateralRatioBasisPoints' | 'enabled' | 'allowRollPosition' | 'onlyVaultEntry' | 'onlyVaultExit' | 'onlyVaultRoll' | 'onlyVaultDeleverage' | 'onlyVaultSettle' | 'discountfCash' | 'allowsReentrancy' | 'deleverageDisabled' | 'maxPrimaryBorrowCapacity' | 'totalUsedPrimaryBorrowCapacity' | 'maxSecondaryBorrowCapacity' | 'totalUsedSecondaryBorrowCapacity' | 'minAccountSecondaryBorrow'>
+    & { primaryBorrowCurrency: Pick<Token, 'id'>, secondaryBorrowCurrencies?: Maybe<Array<Pick<Token, 'id'>>> }
+  )>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
+
 export type AllOraclesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -6933,6 +6958,13 @@ export type AllVaultsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type AllVaultsQuery = { vaultConfigurations: Array<Pick<VaultConfiguration, 'id' | 'vaultAddress' | 'strategy' | 'name'>>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
+
+export type AllVaultsByBlockQueryVariables = Exact<{
+  blockNumber?: InputMaybe<Scalars['Int']>;
+}>;
+
+
+export type AllVaultsByBlockQuery = { vaultConfigurations: Array<Pick<VaultConfiguration, 'id' | 'vaultAddress' | 'strategy' | 'name'>>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
 
 
 export const AccountBalanceStatementDocument = gql`
@@ -7119,6 +7151,122 @@ export const AllConfigurationDocument = gql`
   }
 }
     ` as unknown as DocumentNode<AllConfigurationQuery, AllConfigurationQueryVariables>;
+export const AllConfigurationByBlockDocument = gql`
+    query AllConfigurationByBlock($blockNumber: Int) {
+  currencyConfigurations(block: {number: $blockNumber}) {
+    id
+    underlying {
+      id
+    }
+    pCash {
+      id
+    }
+    pDebt {
+      id
+    }
+    maxUnderlyingSupply
+    collateralHaircut
+    debtBuffer
+    liquidationDiscount
+    primeCashRateOracleTimeWindowSeconds
+    primeCashHoldingsOracle
+    primeCashCurve {
+      kinkUtilization1
+      kinkUtilization2
+      kinkRate1
+      kinkRate2
+      maxRate
+      minFeeRate
+      maxFeeRate
+      feeRatePercent
+    }
+    primeDebtAllowed
+    fCashRateOracleTimeWindowSeconds
+    fCashReserveFeeSharePercent
+    fCashDebtBufferBasisPoints
+    fCashHaircutBasisPoints
+    fCashMinOracleRate
+    fCashMaxOracleRate
+    fCashMaxDiscountFactor
+    fCashLiquidationHaircutBasisPoints
+    fCashLiquidationDebtBufferBasisPoints
+    fCashActiveCurves {
+      kinkUtilization1
+      kinkUtilization2
+      kinkRate1
+      kinkRate2
+      maxRate
+      minFeeRate
+      maxFeeRate
+      feeRatePercent
+    }
+    fCashNextCurves {
+      kinkUtilization1
+      kinkUtilization2
+      kinkRate1
+      kinkRate2
+      maxRate
+      minFeeRate
+      maxFeeRate
+      feeRatePercent
+    }
+    treasuryReserveBuffer
+    primeCashHoldings
+    rebalancingTargets
+    rebalancingCooldown
+    depositShares
+    leverageThresholds
+    proportions
+    incentiveEmissionRate
+    secondaryIncentiveRewarder
+    residualPurchaseIncentiveBasisPoints
+    residualPurchaseTimeBufferSeconds
+    cashWithholdingBufferBasisPoints
+    pvHaircutPercentage
+    liquidationHaircutPercentage
+  }
+  vaultConfigurations {
+    id
+    vaultAddress
+    strategy
+    name
+    primaryBorrowCurrency {
+      id
+    }
+    minAccountBorrowSize
+    minCollateralRatioBasisPoints
+    maxDeleverageCollateralRatioBasisPoints
+    feeRateBasisPoints
+    reserveFeeSharePercent
+    liquidationRatePercent
+    maxBorrowMarketIndex
+    secondaryBorrowCurrencies {
+      id
+    }
+    maxRequiredAccountCollateralRatioBasisPoints
+    enabled
+    allowRollPosition
+    onlyVaultEntry
+    onlyVaultExit
+    onlyVaultRoll
+    onlyVaultDeleverage
+    onlyVaultSettle
+    discountfCash
+    allowsReentrancy
+    deleverageDisabled
+    maxPrimaryBorrowCapacity
+    totalUsedPrimaryBorrowCapacity
+    maxSecondaryBorrowCapacity
+    totalUsedSecondaryBorrowCapacity
+    minAccountSecondaryBorrow
+  }
+  _meta {
+    block {
+      number
+    }
+  }
+}
+    ` as unknown as DocumentNode<AllConfigurationByBlockQuery, AllConfigurationByBlockQueryVariables>;
 export const AllOraclesDocument = gql`
     query AllOracles {
   oracles(
@@ -7251,6 +7399,23 @@ export const AllVaultsDocument = gql`
   }
 }
     ` as unknown as DocumentNode<AllVaultsQuery, AllVaultsQueryVariables>;
+export const AllVaultsByBlockDocument = gql`
+    query AllVaultsByBlock($blockNumber: Int) {
+  vaultConfigurations(where: {enabled: true}, block: {number: $blockNumber}) {
+    id
+    vaultAddress
+    strategy
+    name
+  }
+  _meta {
+    block {
+      number
+    }
+  }
+}
+    ` as unknown as DocumentNode<AllVaultsByBlockQuery, AllVaultsByBlockQueryVariables>;
+
+
 
 
 
@@ -7272,6 +7437,9 @@ export function getSdk<C, E>(requester: Requester<C, E>) {
     AllConfiguration(variables?: AllConfigurationQueryVariables, options?: C): Promise<AllConfigurationQuery> {
       return requester<AllConfigurationQuery, AllConfigurationQueryVariables>(AllConfigurationDocument, variables, options) as Promise<AllConfigurationQuery>;
     },
+    AllConfigurationByBlock(variables?: AllConfigurationByBlockQueryVariables, options?: C): Promise<AllConfigurationByBlockQuery> {
+      return requester<AllConfigurationByBlockQuery, AllConfigurationByBlockQueryVariables>(AllConfigurationByBlockDocument, variables, options) as Promise<AllConfigurationByBlockQuery>;
+    },
     AllOracles(variables?: AllOraclesQueryVariables, options?: C): Promise<AllOraclesQuery> {
       return requester<AllOraclesQuery, AllOraclesQueryVariables>(AllOraclesDocument, variables, options) as Promise<AllOraclesQuery>;
     },
@@ -7286,6 +7454,9 @@ export function getSdk<C, E>(requester: Requester<C, E>) {
     },
     AllVaults(variables?: AllVaultsQueryVariables, options?: C): Promise<AllVaultsQuery> {
       return requester<AllVaultsQuery, AllVaultsQueryVariables>(AllVaultsDocument, variables, options) as Promise<AllVaultsQuery>;
+    },
+    AllVaultsByBlock(variables?: AllVaultsByBlockQueryVariables, options?: C): Promise<AllVaultsByBlockQuery> {
+      return requester<AllVaultsByBlockQuery, AllVaultsByBlockQueryVariables>(AllVaultsByBlockDocument, variables, options) as Promise<AllVaultsByBlockQuery>;
     }
   };
 }

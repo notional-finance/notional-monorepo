@@ -23,8 +23,11 @@ export async function loadGraphClientDeferred() {
     AllConfigurationDocument,
     AllOraclesDocument,
     AllVaultsDocument,
-    AllOraclesByBlockDocument,
+
     AllTokensByBlockDocument,
+    AllConfigurationByBlockDocument,
+    AllOraclesByBlockDocument,
+    AllVaultsByBlockDocument,
     AccountTransactionHistoryDocument,
     AccountBalanceStatementDocument,
     // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
