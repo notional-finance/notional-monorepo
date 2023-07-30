@@ -34,7 +34,7 @@ export class Registry {
     Registry._self = new Registry(cacheHostname, fetchMode);
   }
 
-  private constructor(
+  protected constructor(
     protected _cacheHostname: string,
     fetchMode: AccountFetchMode
   ) {
