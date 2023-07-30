@@ -1,3 +1,4 @@
+import { TypedDocumentNode } from '@apollo/client/core';
 import {
   DocumentTypes,
   loadGraphClientDeferred,
@@ -12,10 +13,23 @@ export type AllConfigurationQuery = TypedDocumentReturnType<
 
 export class ConfigurationServer extends ServerRegistry<AllConfigurationQuery> {
   /** Returns the all configuration query type as is, parsing will be done in the client */
-  protected async _refresh(network: Network) {
-    const { AllConfigurationDocument } = await loadGraphClientDeferred();
-    return this._fetchUsingGraph(network, AllConfigurationDocument, (r) => {
-      return { [network]: r };
-    });
+  protected async _refresh(network: Network, blockNumber?: number) {
+    const { AllConfigurationDocument, AllConfigurationByBlockDocument } =
+      await loadGraphClientDeferred();
+    return this._fetchUsingGraph(
+      network,
+      (blockNumber !== undefined
+        ? AllConfigurationDocument
+        : AllConfigurationByBlockDocument) as TypedDocumentNode<
+        AllConfigurationQuery,
+        unknown
+      >,
+      (r) => {
+        return { [network]: r };
+      },
+      {
+        blockNumber,
+      }
+    );
   }
 }

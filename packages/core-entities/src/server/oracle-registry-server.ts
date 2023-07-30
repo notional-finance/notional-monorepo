@@ -29,11 +29,7 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
     return true;
   }
 
-  protected async _refresh(
-    network: Network,
-    _intervalNum: number,
-    blockNumber?: number
-  ) {
+  protected async _refresh(network: Network, blockNumber?: number) {
     if (network === Network.All) {
       return await this._updateLatestRates(
         this._fetchFiatOracles(),

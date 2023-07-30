@@ -23,7 +23,6 @@ export async function loadGraphClientDeferred() {
     AllConfigurationDocument,
     AllOraclesDocument,
     AllVaultsDocument,
-
     AllTokensByBlockDocument,
     AllConfigurationByBlockDocument,
     AllOraclesByBlockDocument,
@@ -36,11 +35,13 @@ export async function loadGraphClientDeferred() {
   return {
     execute,
     AllTokensDocument,
-    AllTokensByBlockDocument,
     AllConfigurationDocument,
     AllOraclesDocument,
-    AllOraclesByBlockDocument,
     AllVaultsDocument,
+    AllTokensByBlockDocument,
+    AllConfigurationByBlockDocument,
+    AllOraclesByBlockDocument,
+    AllVaultsByBlockDocument,
     AccountTransactionHistoryDocument,
     AccountBalanceStatementDocument,
   };
@@ -131,9 +132,9 @@ export abstract class ServerRegistry<T> extends BaseRegistry<T> {
   }
 
   /** Triggers a refresh of the underlying data */
-  public async refresh(network: Network, intervalNum: number) {
+  public async refresh(network: Network) {
     if (!this.hasAllNetwork() && network === Network.All) return;
-    this._updateNetworkObservables(await this._refresh(network, intervalNum));
+    this._updateNetworkObservables(await this._refresh(network));
   }
 
   /** Serializes the data for the given network */

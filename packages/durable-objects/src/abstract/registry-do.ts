@@ -48,11 +48,8 @@ export abstract class RegistryDO extends BaseDO<BaseDOEnv> {
         this.env.SUPPORTED_NETWORKS.map(async (network) => {
           if (network === Network.All && !this.registry.hasAllNetwork()) return;
 
-          const intervalNum =
-            (await this.state.storage.get<number>(`interval/${network}`)) || 0;
-
           // Call refresh on the registry for each network on its specified interval cadence
-          await this.registry.refresh(network, intervalNum);
+          await this.registry.refresh(network);
           // put the serialized data into the correct network storage key
           const data = this.registry.serializeToJSON(network);
           const gz = await new Promise<string>((resolve, reject) => {
@@ -63,11 +60,9 @@ export abstract class RegistryDO extends BaseDO<BaseDOEnv> {
           });
 
           await this.state.storage.put(`${this.serviceName}/${network}`, gz);
-
-          await this.state.storage.put(`interval/${network}`, intervalNum + 1);
           this.logger.log({
             level: 'debug',
-            message: `Completed Refresh for ${network} at interval: ${intervalNum}`,
+            message: `Completed Refresh for ${network}`,
           });
         })
       );

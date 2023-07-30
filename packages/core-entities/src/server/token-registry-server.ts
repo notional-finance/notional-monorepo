@@ -18,11 +18,7 @@ export class TokenRegistryServer extends ServerRegistry<SerializedToken> {
     return true;
   }
 
-  protected async _refresh(
-    network: Network,
-    _intervalNum: number,
-    blockNumber?: number
-  ) {
+  protected async _refresh(network: Network, blockNumber?: number) {
     if (network === Network.All) {
       return {
         values: fiatTokens,

@@ -1,7 +1,10 @@
-import { DurableObjectNamespace } from '@cloudflare/workers-types';
+import {
+  DurableObjectNamespace,
+  Request,
+  Response,
+} from '@cloudflare/workers-types';
 import { RegistryDOEnv } from '@notional-finance/durable-objects';
-import { Routes, Servers } from '@notional-finance/core-entities/src/server';
-import { Network } from '@notional-finance/util';
+import { Routes } from '@notional-finance/core-entities/src/server';
 
 // Exports durable objects so migrations can be run
 export {
@@ -20,15 +23,6 @@ async function runHealthCheck(ns: DurableObjectNamespace, version: string) {
 export default {
   async fetch(request: Request, env: RegistryDOEnv): Promise<Response> {
     const url = new URL(request.url);
-
-    const blockNumberStr = url.searchParams.get('blockNumber');
-    if (blockNumberStr && blockNumberStr !== '') {
-      const network = url.searchParams.get('network') as Network;
-      const blockNumber = parseInt(blockNumberStr);
-      const server = new Servers.OracleRegistryServer();
-      const data = await server.refreshAtBlock(network as Network, blockNumber);
-      return new Response(JSON.stringify(data), { status: 200 });
-    }
 
     // Run a healthcheck against all of the durable objects.
     await Promise.all([

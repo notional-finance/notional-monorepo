@@ -98,6 +98,8 @@ export interface PoolDefinition {
   latestPoolData?: PoolData;
   /** A list of tokens to register directly on the client before initializing the pool data */
   registerTokens: TokenDefinition[];
+  /** If defined, do not query prior to this block number */
+  earliestBlock?: number;
 }
 
 /** Account Definition Hierarchy **/

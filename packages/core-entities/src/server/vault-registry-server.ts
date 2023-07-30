@@ -8,9 +8,14 @@ import { Contract } from 'ethers';
 import { TokenBalance } from '../token-balance';
 
 export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
-  protected async _refresh(network: Network) {
-    const { AllVaultsDocument, execute } = await loadGraphClientDeferred();
-    const data = await execute(AllVaultsDocument, {}, { chainName: network });
+  protected async _refresh(network: Network, blockNumber?: number) {
+    const { AllVaultsDocument, AllVaultsByBlockDocument, execute } =
+      await loadGraphClientDeferred();
+    const data = await execute(
+      blockNumber !== undefined ? AllVaultsDocument : AllVaultsByBlockDocument,
+      { blockNumber },
+      { chainName: network }
+    );
 
     const calls = data['data'].vaultConfigurations.map(
       ({ vaultAddress }: { vaultAddress: string }) => {
@@ -48,7 +53,8 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
 
     const { block, results } = await aggregate(
       calls || [],
-      this.getProvider(network)
+      this.getProvider(network),
+      blockNumber
     );
 
     const values = Object.keys(results).map((k) => {
