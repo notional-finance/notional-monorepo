@@ -8,6 +8,8 @@ import { Network } from '@notional-finance/util';
 import { ServerRegistry } from './server/server-registry';
 import { Servers, Routes } from './server';
 import { ClientRegistry } from './client/client-registry';
+import defaultPools from './exchanges/default-pools';
+import { TokenRegistryClient } from './client';
 
 export class HistoricalRegistry extends Registry {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -52,45 +54,33 @@ export class HistoricalRegistry extends Registry {
     if (!this.servers) throw Error('Servers undefined');
     if (!this.tmpDataDirectory) throw Error('Servers undefined');
 
-    await Promise.all(
-      Object.keys(this.servers).map(async (k) => {
-        if (!this.servers) throw Error('Servers undefined');
-        await this.servers[k].refreshAtBlock(network, blockNumber);
-        // Write this to the temp registry
-        const data = this.servers[k].serializeToJSON(network);
-        fs.writeFileSync(`${this.tmpDataDirectory}/${network}/${k}`, data);
+    // NOTE: refresh needs to run in this particular order.
+    const clients = [
+      [Routes.Tokens, this._tokens],
+      [Routes.Exchanges, this._exchanges],
+      [Routes.Oracles, this._oracles],
+      [Routes.Configuration, this._configurations],
+      [Routes.Vaults, this._vaults],
+    ] as [Routes, ClientRegistry<unknown> | undefined][];
 
-        let client: ClientRegistry<any> | undefined;
-        if (k === Routes.Tokens) {
-          client = this._tokens;
-        } else if (k === Routes.Exchanges) {
-          client = this._exchanges;
-        } else if (k === Routes.Oracles) {
-          client = this._oracles;
-        } else if (k === Routes.Configuration) {
-          client = this._configurations;
-        } else if (k === Routes.Vaults) {
-          client = this._vaults;
-        } else {
-          return;
-        }
+    for (const [route, client] of clients) {
+      await this.servers[route].refreshAtBlock(network, blockNumber);
+      // Write this to the temp registry
+      const data = this.servers[route].serializeToJSON(network);
+      fs.writeFileSync(`${this.tmpDataDirectory}/${network}/${route}`, data);
 
-        if (client) {
-          await new Promise<void>((resolve) => {
-            if (client) client.triggerRefresh(network, 0, resolve);
-          });
-        }
-      })
-    );
-  }
-
-  public static async refreshOverRange(network: Network, blocks: number[]) {
-    const results: any[] = [];
-    for (const block of blocks) {
-      await this.refreshAtBlock(network, block);
-      results.push(...this.getTokenRegistry().getAllSubjectKeys(network));
+      if (client) {
+        await new Promise<void>((resolve) => {
+          client.triggerRefresh(network, 0, resolve);
+          if (route == Routes.Tokens) {
+            defaultPools[network].forEach((pool) =>
+              pool.registerTokens.forEach((t) =>
+                (client as TokenRegistryClient).registerToken(t)
+              )
+            );
+          }
+        });
+      }
     }
-
-    return results;
   }
 }

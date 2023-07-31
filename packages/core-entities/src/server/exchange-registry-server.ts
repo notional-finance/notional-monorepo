@@ -7,11 +7,10 @@ import defaultPools from '../exchanges/default-pools';
 
 export class ExchangeRegistryServer extends ServerRegistry<PoolDefinition> {
   protected async _refresh(network: Network, blockNumber?: number) {
-    const networkPools = defaultPools[network].filter(
-      ({ earliestBlock }) =>
-        earliestBlock !== undefined &&
-        blockNumber !== undefined &&
-        earliestBlock <= blockNumber
+    const networkPools = defaultPools[network].filter(({ earliestBlock }) =>
+      blockNumber !== undefined && earliestBlock !== undefined
+        ? earliestBlock <= blockNumber
+        : true
     );
     const poolKeys = new Map<string, string[]>();
 
