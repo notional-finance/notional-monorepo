@@ -19,8 +19,8 @@ export class ConfigurationServer extends ServerRegistry<AllConfigurationQuery> {
     return this._fetchUsingGraph(
       network,
       (blockNumber !== undefined
-        ? AllConfigurationDocument
-        : AllConfigurationByBlockDocument) as TypedDocumentNode<
+        ? AllConfigurationByBlockDocument
+        : AllConfigurationDocument) as TypedDocumentNode<
         AllConfigurationQuery,
         unknown
       >,

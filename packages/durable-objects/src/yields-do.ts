@@ -1,7 +1,7 @@
 import { DurableObjectState } from '@cloudflare/workers-types';
 import { APIEnv } from '.';
 import { BaseDO } from './abstract';
-import { ONE_MINUTE_MS } from '@notional-finance/util';
+import { Network, ONE_MINUTE_MS } from '@notional-finance/util';
 import { AccountFetchMode, Registry } from '@notional-finance/core-entities';
 
 export class YieldRegistryDO extends BaseDO<APIEnv> {
@@ -23,11 +23,13 @@ export class YieldRegistryDO extends BaseDO<APIEnv> {
     try {
       Registry.initialize(
         this.env.NX_DATA_URL,
-        AccountFetchMode.BATCH_ACCOUNT_VIA_SERVER
+        AccountFetchMode.SINGLE_ACCOUNT_DIRECT
       );
 
       await Promise.all(
         this.env.SUPPORTED_NETWORKS.map(async (network) => {
+          if (network === Network.All) return;
+
           Registry.startRefresh(network);
           Registry.onNetworkReady(network, async () => {
             const yields = Registry.getYieldRegistry().getAllYields(network);

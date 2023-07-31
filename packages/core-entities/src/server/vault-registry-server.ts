@@ -14,7 +14,7 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
     const { AllVaultsDocument, AllVaultsByBlockDocument, execute } =
       await loadGraphClientDeferred();
     const data = await execute(
-      blockNumber !== undefined ? AllVaultsDocument : AllVaultsByBlockDocument,
+      blockNumber !== undefined ? AllVaultsByBlockDocument : AllVaultsDocument,
       { blockNumber },
       { chainName: network }
     );
