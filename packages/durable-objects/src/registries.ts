@@ -12,6 +12,7 @@ export interface RegistryDOEnv extends BaseDOEnv {
   EXCHANGE_REGISTRY_DO: DurableObjectNamespace;
   ORACLE_REGISTRY_DO: DurableObjectNamespace;
   VAULT_REGISTRY_DO: DurableObjectNamespace;
+  YIELD_REGISTRY_DO: DurableObjectNamespace;
 }
 
 export class TokenRegistryDO extends RegistryDO {

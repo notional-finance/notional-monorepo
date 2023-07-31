@@ -2,7 +2,6 @@ import { DurableObjectState } from '@cloudflare/workers-types';
 import { ServerRegistryConstructor } from '@notional-finance/core-entities/src/server';
 import { BaseDO } from './base-do';
 import { BaseDOEnv } from '.';
-import zlib from 'zlib';
 import { Network } from '@notional-finance/util';
 
 export abstract class RegistryDO extends BaseDO<BaseDOEnv> {
@@ -28,18 +27,7 @@ export abstract class RegistryDO extends BaseDO<BaseDOEnv> {
   }
 
   override async parseData(data: string) {
-    try {
-      const unzipped = await new Promise<string>((resolve, reject) => {
-        zlib.unzip(Buffer.from(data, 'base64'), (err, result) => {
-          if (err) reject(err);
-          resolve(result.toString('utf-8'));
-        });
-      });
-      return JSON.parse(unzipped.toString() || '{}');
-    } catch (e) {
-      console.log(e);
-      return {};
-    }
+    return this.parseGzip(data);
   }
 
   async onRefresh() {
@@ -52,12 +40,7 @@ export abstract class RegistryDO extends BaseDO<BaseDOEnv> {
           await this.registry.refresh(network);
           // put the serialized data into the correct network storage key
           const data = this.registry.serializeToJSON(network);
-          const gz = await new Promise<string>((resolve, reject) => {
-            zlib.gzip(Buffer.from(data, 'utf-8'), (err, result) => {
-              if (err) reject(err);
-              resolve(result.toString('base64'));
-            });
-          });
+          const gz = await this.encodeGzip(data);
 
           await this.state.storage.put(`${this.serviceName}/${network}`, gz);
           this.logger.log({
