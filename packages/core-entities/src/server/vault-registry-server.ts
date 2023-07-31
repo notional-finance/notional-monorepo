@@ -2,8 +2,10 @@ import { ServerRegistry, loadGraphClientDeferred } from './server-registry';
 import { Network, getProviderFromNetwork } from '@notional-finance/util';
 import { aggregate } from '@notional-finance/multicall';
 import { VaultMetadata } from '../vaults';
-import { Curve2TokenConvexVaultABI } from '@notional-finance/contracts/abi';
-import { Curve2TokenConvexVault } from '@notional-finance/contracts';
+import {
+  Curve2TokenConvexVault,
+  Curve2TokenConvexVaultABI,
+} from '@notional-finance/contracts';
 import { Contract } from 'ethers';
 import { TokenBalance } from '../token-balance';
 

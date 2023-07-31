@@ -30,8 +30,11 @@ export class HistoricalRegistry extends Registry {
     });
   }
 
-  protected constructor(_cacheHostname: string, fetchMode: AccountFetchMode) {
-    super(_cacheHostname, fetchMode);
+  static override initialize(
+    cacheHostname: string,
+    fetchMode: AccountFetchMode
+  ) {
+    super.initialize(cacheHostname, fetchMode);
 
     // Create server registries here
     HistoricalRegistry.servers = {
@@ -59,10 +62,10 @@ export class HistoricalRegistry extends Registry {
   }
 
   public static async refreshOverRange(network: Network, blocks: number[]) {
-    const results = [];
+    const results: any[] = [];
     for (const block of blocks) {
       await this.refreshAtBlock(network, block);
-      results.push(this.getExchangeRegistry().getAllSubjectKeys(network));
+      results.push(...this.getExchangeRegistry().getAllSubjectKeys(network));
     }
 
     return results;
