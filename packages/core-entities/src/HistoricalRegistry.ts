@@ -7,6 +7,7 @@ import { AccountFetchMode } from './client/account-registry-client';
 import { Network } from '@notional-finance/util';
 import { ServerRegistry } from './server/server-registry';
 import { Servers, Routes } from './server';
+import { ClientRegistry } from './client/client-registry';
 
 export class HistoricalRegistry extends Registry {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -25,6 +26,7 @@ export class HistoricalRegistry extends Registry {
     // First startup localhost server.
     await new Promise<void>((resolve) => {
       this.server.listen(port, () => {
+        console.log('Server listening on ', port);
         resolve();
       });
     });
@@ -34,7 +36,7 @@ export class HistoricalRegistry extends Registry {
     cacheHostname: string,
     fetchMode: AccountFetchMode
   ) {
-    super.initialize(cacheHostname, fetchMode);
+    super.initialize(cacheHostname, fetchMode, false);
 
     // Create server registries here
     HistoricalRegistry.servers = {
@@ -57,6 +59,27 @@ export class HistoricalRegistry extends Registry {
         // Write this to the temp registry
         const data = this.servers[k].serializeToJSON(network);
         fs.writeFileSync(`${this.tmpDataDirectory}/${network}/${k}`, data);
+
+        let client: ClientRegistry<any> | undefined;
+        if (k === Routes.Tokens) {
+          client = this._tokens;
+        } else if (k === Routes.Exchanges) {
+          client = this._exchanges;
+        } else if (k === Routes.Oracles) {
+          client = this._oracles;
+        } else if (k === Routes.Configuration) {
+          client = this._configurations;
+        } else if (k === Routes.Vaults) {
+          client = this._vaults;
+        } else {
+          return;
+        }
+
+        if (client) {
+          await new Promise<void>((resolve) => {
+            if (client) client.triggerRefresh(network, 0, resolve);
+          });
+        }
       })
     );
   }
@@ -65,7 +88,7 @@ export class HistoricalRegistry extends Registry {
     const results: any[] = [];
     for (const block of blocks) {
       await this.refreshAtBlock(network, block);
-      results.push(...this.getExchangeRegistry().getAllSubjectKeys(network));
+      results.push(...this.getTokenRegistry().getAllSubjectKeys(network));
     }
 
     return results;

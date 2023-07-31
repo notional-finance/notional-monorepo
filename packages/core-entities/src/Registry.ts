@@ -28,15 +28,20 @@ export class Registry {
   public static DEFAULT_ORACLE_REFRESH = 10 * ONE_SECOND_MS;
   public static DEFAULT_ACCOUNT_REFRESH = ONE_MINUTE_MS;
 
-  static initialize(cacheHostname: string, fetchMode: AccountFetchMode) {
+  static initialize(
+    cacheHostname: string,
+    fetchMode: AccountFetchMode,
+    startFiatRefresh = true
+  ) {
     if (Registry._self) return;
 
-    Registry._self = new Registry(cacheHostname, fetchMode);
+    Registry._self = new Registry(cacheHostname, fetchMode, startFiatRefresh);
   }
 
   protected constructor(
     protected _cacheHostname: string,
-    fetchMode: AccountFetchMode
+    fetchMode: AccountFetchMode,
+    startFiatRefresh: boolean
   ) {
     Registry._tokens = new TokenRegistryClient(_cacheHostname);
     Registry._oracles = new OracleRegistryClient(_cacheHostname);
@@ -47,14 +52,16 @@ export class Registry {
     Registry._yields = new YieldRegistryClient(_cacheHostname);
 
     // Kicks off Fiat token refreshes
-    Registry._tokens.startRefreshInterval(
-      Network.All,
-      Registry.DEFAULT_TOKEN_REFRESH
-    );
-    Registry._oracles.startRefreshInterval(
-      Network.All,
-      Registry.DEFAULT_ORACLE_REFRESH
-    );
+    if (startFiatRefresh) {
+      Registry._tokens.startRefreshInterval(
+        Network.All,
+        Registry.DEFAULT_TOKEN_REFRESH
+      );
+      Registry._oracles.startRefreshInterval(
+        Network.All,
+        Registry.DEFAULT_ORACLE_REFRESH
+      );
+    }
   }
 
   static get cacheHostname() {

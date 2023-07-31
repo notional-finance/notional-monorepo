@@ -1,4 +1,9 @@
-import { filterEmpty, getNowSeconds, Network } from '@notional-finance/util';
+import {
+  filterEmpty,
+  getNowSeconds,
+  Network,
+  ONE_SECOND_MS,
+} from '@notional-finance/util';
 import {
   BehaviorSubject,
   exhaustMap,
@@ -139,19 +144,22 @@ export abstract class BaseRegistry<T> {
     this._intervalMS.delete(network);
   }
 
-  protected _triggerRefresh(network: Network, intervalNum: number) {
-    const intervalMS = this._intervalMS.get(network) || 0;
-
+  public triggerRefresh(
+    network: Network,
+    intervalNum: number,
+    onComplete?: () => void
+  ) {
     of(intervalNum)
       .pipe(
         exhaustMap((intervalNum) => {
           return from(this._refresh(network, intervalNum)).pipe(
-            timeout(intervalMS / 2)
+            timeout(ONE_SECOND_MS)
           );
         })
       )
       .subscribe((d) => {
         this._updateNetworkObservables(d);
+        if (onComplete) onComplete();
       });
   }
 
@@ -277,10 +285,10 @@ export abstract class BaseRegistry<T> {
     key: string,
     checkFreshness = 1
   ) {
-    if (checkFreshness > 0) {
+    // Don't check freshness if no interval is set
+    const intervalMS = this._intervalMS.get(network);
+    if (checkFreshness > 0 && intervalMS) {
       const updateTimestamp = this.getLastUpdateTimestamp(network);
-      const intervalMS = this._intervalMS.get(network);
-      if (!intervalMS) throw Error(`${key} on ${network} is not refreshing`);
       const nextRefreshTime = updateTimestamp + intervalMS * checkFreshness;
       const nowSeconds = getNowSeconds();
       if (nextRefreshTime < nowSeconds) {

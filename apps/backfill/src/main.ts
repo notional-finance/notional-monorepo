@@ -5,21 +5,19 @@ import {
 } from '@notional-finance/core-entities';
 
 async function main() {
-  console.log('RUN INIT');
   HistoricalRegistry.initialize(
     'http://localhost:3000',
     AccountFetchMode.BATCH_ACCOUNT_VIA_SERVER
   );
 
-  console.log('START HOST');
-  await HistoricalRegistry.startHost('/tmp/registry', 3000);
-  console.log('END START HOST');
+  await HistoricalRegistry.startHost('apps/backfill/assets', 3000);
+  // await new Promise((resolve) => setTimeout(resolve, 100000));
   const results = await HistoricalRegistry.refreshOverRange(
-    'arbitrum' as Network,
+    Network.ArbitrumOne,
     [116477900, 116477800]
   );
 
-  console.log(results);
+  console.log('RESULTS', results);
 }
 
 main()
