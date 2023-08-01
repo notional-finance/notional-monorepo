@@ -315,6 +315,8 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
       // Simulates selling netfCash positions
       const { totalFees, netUnderlyingCash } = netfCash.reduce(
         ({ totalFees, netUnderlyingCash }, fCash, i) => {
+          if (fCash.isZero()) return { totalFees, netUnderlyingCash };
+
           const { fee, underlyingCash } = this.getCashGivenfCashAmount(
             i + 1,
             fCash.neg(),

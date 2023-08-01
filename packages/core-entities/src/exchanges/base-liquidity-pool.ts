@@ -228,9 +228,12 @@ export default abstract class BaseLiquidityPool<
         .toNumber();
 
       const calculationFunction = (lpAmountInRP: number) => {
-        let lpTokens = this.oneLPToken().mulInRatePrecision(lpAmountInRP);
-        // Don't allow this to go over the total supply
-        if (lpTokens.gt(this.totalSupply)) lpTokens = this.totalSupply;
+        const lpTokens = this.oneLPToken().mulInRatePrecision(lpAmountInRP);
+        /**
+         * NOTE: removed restriction from going over the total supply
+         * Don't allow this to go over the total supply
+         * if (lpTokens.gt(this.totalSupply)) lpTokens = this.totalSupply;
+         */
 
         // Passing in single sided exit token index forces the exit to be in
         // the given token index
@@ -283,11 +286,14 @@ export default abstract class BaseLiquidityPool<
       /** Start Calculation Function **/
       const calculationFunction = (lpTokensInRatePrecision: number) => {
         // LP to Amount Ratio = totalValueOutRequired / oneLPTokenOracleValue
-        let lpTokens = this.oneLPToken().mulInRatePrecision(
+        const lpTokens = this.oneLPToken().mulInRatePrecision(
           lpTokensInRatePrecision
         );
-        // Don't allow this to go over the total supply
-        if (lpTokens.gt(this.totalSupply)) lpTokens = this.totalSupply;
+        /**
+         * NOTE: removed restriction from going over the total supply
+         * Don't allow this to go over the total supply
+         * if (lpTokens.gt(this.totalSupply)) lpTokens = this.totalSupply;
+         */
 
         const { tokensOut: tokensOutTemp, feesPaid: _feesPaid } =
           this.getTokensOutGivenLPTokens(lpTokens);
