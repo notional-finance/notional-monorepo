@@ -365,39 +365,56 @@ export default abstract class BaseLiquidityPool<
     tokenIndexOut: number,
     percentDepthTraded = 80
   ) {
-    return Array(percentDepthTraded)
-      .map((_, i) => {
-        // Percentage of the sold token index
-        const tokensIn = this.balances[tokenIndexIn].scale(i, 100);
-        const { tokensOut } = this.calculateTokenTrade(tokensIn, tokenIndexOut);
+    return (
+      Array(percentDepthTraded)
+        .fill(0)
+        .map((_, i) => {
+          // Percentage of the sold token index
+          try {
+            const tokensIn = this.balances[tokenIndexIn].scale(i, 100);
+            const { tokensOut } = this.calculateTokenTrade(
+              tokensIn,
+              tokenIndexOut
+            );
 
-        const newBalances = Array.from(this.balances);
-        newBalances[tokenIndexIn] = newBalances[tokenIndexIn].sub(tokensIn);
-        newBalances[tokenIndexOut] = newBalances[tokenIndexOut].add(tokensOut);
+            const newBalances = Array.from(this.balances);
+            newBalances[tokenIndexIn] = newBalances[tokenIndexIn].sub(tokensIn);
+            newBalances[tokenIndexOut] =
+              newBalances[tokenIndexOut].add(tokensOut);
 
-        const lpTokenValue = this.getLPTokenSpotValue(
-          tokenIndexOut,
-          newBalances
-        );
+            const lpTokenValue = this.getLPTokenSpotValue(
+              tokenIndexOut,
+              newBalances
+            );
 
-        const { tokensOut: secondaryTokenPrice } = this.calculateTokenTrade(
-          // Calculate the trade of a single unit of the token index in
-          this.balances[tokenIndexIn].copy(
-            this.balances[tokenIndexIn].precision
-          ),
-          tokenIndexOut,
-          newBalances
-        );
+            const { tokensOut: secondaryTokenPrice } = this.calculateTokenTrade(
+              // Calculate the trade of a single unit of the token index in
+              this.balances[tokenIndexIn].copy(
+                this.balances[tokenIndexIn].precision
+              ),
+              tokenIndexOut,
+              newBalances
+            );
 
-        const priceLevelIndex = secondaryTokenPrice.toFloat().toPrecision(2);
+            const priceLevelIndex = secondaryTokenPrice
+              .toFloat()
+              .toPrecision(2);
 
-        return { lpTokenValue, secondaryTokenPrice, priceLevelIndex };
-      })
-      .filter(
-        // Filter out duplicate indexes at the specified level of precision
-        ({ priceLevelIndex }, i, arr) =>
-          i === 0 || arr[i - 1].priceLevelIndex !== priceLevelIndex
-      );
+            return { lpTokenValue, secondaryTokenPrice, priceLevelIndex };
+          } catch {
+            return undefined;
+          }
+        })
+        .filter((x) => x !== undefined) as {
+        lpTokenValue: TokenBalance;
+        secondaryTokenPrice: TokenBalance;
+        priceLevelIndex: string;
+      }[]
+    ).filter(
+      // Filter out duplicate indexes at the specified level of precision
+      ({ priceLevelIndex }, i, arr) =>
+        i === 0 || arr[i - 1].priceLevelIndex !== priceLevelIndex
+    );
   }
 
   public getTokenIndex(token: TokenDefinition) {
