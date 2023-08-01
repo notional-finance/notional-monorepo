@@ -1,19 +1,50 @@
 import { DurableObjectState } from '@cloudflare/workers-types';
 import { APIEnv } from '.';
 import { BaseDO } from './abstract';
+import { Network, ONE_MINUTE_MS } from '@notional-finance/util';
+import { AccountFetchMode, Registry } from '@notional-finance/core-entities';
 
-export class YieldsDO extends BaseDO<APIEnv> {
+export class YieldRegistryDO extends BaseDO<APIEnv> {
   constructor(state: DurableObjectState, env: APIEnv) {
-    super(state, env, 'yields');
+    super(state, env, 'yields', ONE_MINUTE_MS);
   }
 
   getStorageKey(url: URL): string {
-    const network = url.searchParams.get('network');
+    const network = url.pathname.split('/')[1];
     if (!network) throw Error('Network Not Found');
-    return network;
+    return `${this.serviceName}/${network}`;
+  }
+
+  override async parseData(data: string) {
+    return this.parseGzip(data);
   }
 
   async onRefresh() {
-    return;
+    try {
+      Registry.initialize(
+        this.env.NX_DATA_URL,
+        AccountFetchMode.SINGLE_ACCOUNT_DIRECT
+      );
+
+      await Promise.all(
+        this.env.SUPPORTED_NETWORKS.map(async (network) => {
+          if (network === Network.All) return;
+
+          Registry.startRefresh(network);
+          Registry.onNetworkReady(network, async () => {
+            const yields = Registry.getYieldRegistry().getAllYields(network);
+            const gz = await this.encodeGzip(JSON.stringify(yields));
+            await this.state.storage.put(`${this.serviceName}/${network}`, gz);
+            Registry.stopRefresh(network);
+          });
+        })
+      );
+    } catch (error) {
+      console.log(this.serviceName, error);
+      this.logger.log({
+        level: 'error',
+        message: (error as Error).toString(),
+      });
+    }
   }
 }

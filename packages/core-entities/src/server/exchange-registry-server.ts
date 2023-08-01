@@ -6,8 +6,12 @@ import { ServerRegistry } from './server-registry';
 import defaultPools from '../exchanges/default-pools';
 
 export class ExchangeRegistryServer extends ServerRegistry<PoolDefinition> {
-  protected async _refresh(network: Network) {
-    const networkPools = defaultPools[network];
+  protected async _refresh(network: Network, blockNumber?: number) {
+    const networkPools = defaultPools[network].filter(({ earliestBlock }) =>
+      blockNumber !== undefined && earliestBlock !== undefined
+        ? earliestBlock <= blockNumber
+        : true
+    );
     const poolKeys = new Map<string, string[]>();
 
     const calls = networkPools.flatMap(({ PoolClass, address }) => {
@@ -35,7 +39,9 @@ export class ExchangeRegistryServer extends ServerRegistry<PoolDefinition> {
 
     const { block, results } = await aggregate(
       calls,
-      this.getProvider(network)
+      this.getProvider(network),
+      blockNumber,
+      true // allow failure
     );
 
     const values = networkPools.map((pool) => {

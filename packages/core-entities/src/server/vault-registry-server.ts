@@ -2,15 +2,22 @@ import { ServerRegistry, loadGraphClientDeferred } from './server-registry';
 import { Network, getProviderFromNetwork } from '@notional-finance/util';
 import { aggregate } from '@notional-finance/multicall';
 import { VaultMetadata } from '../vaults';
-import { Curve2TokenConvexVaultABI } from '@notional-finance/contracts/abi';
-import { Curve2TokenConvexVault } from '@notional-finance/contracts';
+import {
+  Curve2TokenConvexVault,
+  Curve2TokenConvexVaultABI,
+} from '@notional-finance/contracts';
 import { Contract } from 'ethers';
 import { TokenBalance } from '../token-balance';
 
 export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
-  protected async _refresh(network: Network) {
-    const { AllVaultsDocument, execute } = await loadGraphClientDeferred();
-    const data = await execute(AllVaultsDocument, {}, { chainName: network });
+  protected async _refresh(network: Network, blockNumber?: number) {
+    const { AllVaultsDocument, AllVaultsByBlockDocument, execute } =
+      await loadGraphClientDeferred();
+    const data = await execute(
+      blockNumber !== undefined ? AllVaultsByBlockDocument : AllVaultsDocument,
+      { blockNumber },
+      { chainName: network }
+    );
 
     const calls = data['data'].vaultConfigurations.map(
       ({ vaultAddress }: { vaultAddress: string }) => {
@@ -48,7 +55,8 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
 
     const { block, results } = await aggregate(
       calls || [],
-      this.getProvider(network)
+      this.getProvider(network),
+      blockNumber
     );
 
     const values = Object.keys(results).map((k) => {

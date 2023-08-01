@@ -23,6 +23,12 @@ new_classes = [
     "VaultRegistryDO"
 ]
 
+[[migrations]]
+tag = "v3"
+new_classes = [
+    "YieldRegistryDO"
+]
+
 [env.local]
 name = "registry-local"
 minify = false
@@ -39,6 +45,7 @@ bindings = [
   { name = "EXCHANGE_REGISTRY_DO", class_name = "ExchangeRegistryDO" },
   { name = "ORACLE_REGISTRY_DO", class_name = "OracleRegistryDO" },
   { name = "VAULT_REGISTRY_DO", class_name = "VaultRegistryDO" },
+  { name = "YIELD_REGISTRY_DO", class_name = "YieldRegistryDO" },
 ]
 
 
@@ -59,6 +66,7 @@ bindings = [
   { name = "EXCHANGE_REGISTRY_DO", class_name = "ExchangeRegistryDO" },
   { name = "ORACLE_REGISTRY_DO", class_name = "OracleRegistryDO" },
   { name = "VAULT_REGISTRY_DO", class_name = "VaultRegistryDO" },
+  { name = "YIELD_REGISTRY_DO", class_name = "YieldRegistryDO" },
 ]
 
 
@@ -77,4 +85,5 @@ bindings = [
   { name = "EXCHANGE_REGISTRY_DO", class_name = "ExchangeRegistryDO" },
   { name = "ORACLE_REGISTRY_DO", class_name = "OracleRegistryDO" },
   { name = "VAULT_REGISTRY_DO", class_name = "VaultRegistryDO" },
+  { name = "YIELD_REGISTRY_DO", class_name = "YieldRegistryDO" },
 ]

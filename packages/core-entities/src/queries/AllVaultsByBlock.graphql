@@ -1,0 +1,14 @@
+query AllVaultsByBlock($blockNumber: Int) {
+    vaultConfigurations(where: { enabled: true }, block: { number: $blockNumber }) {
+        id
+        vaultAddress
+        strategy
+        name
+    }
+
+  _meta {
+    block {
+        number
+    }
+  }
+}

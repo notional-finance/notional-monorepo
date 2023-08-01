@@ -23,8 +23,10 @@ export async function loadGraphClientDeferred() {
     AllConfigurationDocument,
     AllOraclesDocument,
     AllVaultsDocument,
-    AllOraclesByBlockDocument,
     AllTokensByBlockDocument,
+    AllConfigurationByBlockDocument,
+    AllOraclesByBlockDocument,
+    AllVaultsByBlockDocument,
     AccountTransactionHistoryDocument,
     AccountBalanceStatementDocument,
     // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
@@ -33,11 +35,13 @@ export async function loadGraphClientDeferred() {
   return {
     execute,
     AllTokensDocument,
-    AllTokensByBlockDocument,
     AllConfigurationDocument,
     AllOraclesDocument,
-    AllOraclesByBlockDocument,
     AllVaultsDocument,
+    AllTokensByBlockDocument,
+    AllConfigurationByBlockDocument,
+    AllOraclesByBlockDocument,
+    AllVaultsByBlockDocument,
     AccountTransactionHistoryDocument,
     AccountBalanceStatementDocument,
   };
@@ -128,9 +132,14 @@ export abstract class ServerRegistry<T> extends BaseRegistry<T> {
   }
 
   /** Triggers a refresh of the underlying data */
-  public async refresh(network: Network, intervalNum: number) {
+  public async refresh(network: Network) {
     if (!this.hasAllNetwork() && network === Network.All) return;
-    this._updateNetworkObservables(await this._refresh(network, intervalNum));
+    this._updateNetworkObservables(await this._refresh(network));
+  }
+
+  public async refreshAtBlock(network: Network, blockNumber: number) {
+    if (!this.hasAllNetwork() && network === Network.All) return;
+    this._updateNetworkObservables(await this._refresh(network, blockNumber));
   }
 
   /** Serializes the data for the given network */

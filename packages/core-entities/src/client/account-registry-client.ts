@@ -111,7 +111,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
       this.subscribeAccount(network, this.activeAccount).pipe(take(1))
     );
 
-    this._triggerRefresh(network, 0);
+    this.triggerRefresh(network, 0);
 
     return p;
   }
@@ -137,7 +137,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
 
       // Kick off a refresh of the accounts if in single account mode and we are
       // changing the account
-      this._triggerRefresh(network, 0);
+      this.triggerRefresh(network, 0);
     }
   }
 

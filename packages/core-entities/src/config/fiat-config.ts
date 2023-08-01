@@ -39,7 +39,6 @@ export const FiatSymbols: Record<FiatKeys, string> = FIAT_NAMES.filter(
       .trim(),
   });
 }, {} as Record<FiatKeys, string>);
-console.log(FiatSymbols);
 
 const assignTokenDefaults = (
   obj: Record<FiatKeys, Partial<TokenDefinition>>,

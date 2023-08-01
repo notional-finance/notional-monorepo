@@ -1,6 +1,7 @@
 import { DurableObjectState } from '@cloudflare/workers-types';
 import { BaseDOEnv } from '.';
 import { Logger } from '@notional-finance/logging';
+import zlib from 'zlib';
 
 export abstract class BaseDO<E extends BaseDOEnv> {
   state: DurableObjectState;
@@ -35,6 +36,30 @@ export abstract class BaseDO<E extends BaseDOEnv> {
 
   abstract getStorageKey(url: URL): string;
   abstract onRefresh(): Promise<void>;
+
+  async encodeGzip(data: string) {
+    return await new Promise<string>((resolve, reject) => {
+      zlib.gzip(Buffer.from(data, 'utf-8'), (err, result) => {
+        if (err) reject(err);
+        resolve(result.toString('base64'));
+      });
+    });
+  }
+
+  async parseGzip(data: string) {
+    try {
+      const unzipped = await new Promise<string>((resolve, reject) => {
+        zlib.unzip(Buffer.from(data, 'base64'), (err, result) => {
+          if (err) reject(err);
+          resolve(result.toString('utf-8'));
+        });
+      });
+      return JSON.parse(unzipped.toString() || '{}');
+    } catch (e) {
+      console.log(e);
+      return {};
+    }
+  }
 
   async parseData(data: any) {
     return data;

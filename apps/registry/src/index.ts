@@ -1,7 +1,10 @@
-import { DurableObjectNamespace } from '@cloudflare/workers-types';
+import {
+  DurableObjectNamespace,
+  Request,
+  Response,
+} from '@cloudflare/workers-types';
 import { RegistryDOEnv } from '@notional-finance/durable-objects';
-import { Routes, Servers } from '@notional-finance/core-entities/src/server';
-import { Network } from '@notional-finance/util';
+import { Routes } from '@notional-finance/core-entities/src/server';
 
 // Exports durable objects so migrations can be run
 export {
@@ -10,6 +13,7 @@ export {
   ExchangeRegistryDO,
   OracleRegistryDO,
   VaultRegistryDO,
+  YieldRegistryDO,
 } from '@notional-finance/durable-objects';
 
 async function runHealthCheck(ns: DurableObjectNamespace, version: string) {
@@ -21,15 +25,6 @@ export default {
   async fetch(request: Request, env: RegistryDOEnv): Promise<Response> {
     const url = new URL(request.url);
 
-    const blockNumberStr = url.searchParams.get('blockNumber');
-    if (blockNumberStr && blockNumberStr !== '') {
-      const network = url.searchParams.get('network') as Network;
-      const blockNumber = parseInt(blockNumberStr);
-      const server = new Servers.OracleRegistryServer();
-      const data = await server.refreshAtBlock(network as Network, blockNumber);
-      return new Response(JSON.stringify(data), { status: 200 });
-    }
-
     // Run a healthcheck against all of the durable objects.
     await Promise.all([
       runHealthCheck(env.TOKEN_REGISTRY_DO, env.VERSION),
@@ -37,6 +32,7 @@ export default {
       runHealthCheck(env.EXCHANGE_REGISTRY_DO, env.VERSION),
       runHealthCheck(env.ORACLE_REGISTRY_DO, env.VERSION),
       runHealthCheck(env.VAULT_REGISTRY_DO, env.VERSION),
+      runHealthCheck(env.YIELD_REGISTRY_DO, env.VERSION),
     ]);
 
     let ns: DurableObjectNamespace;
@@ -56,6 +52,9 @@ export default {
       case Routes.Vaults:
         ns = env.VAULT_REGISTRY_DO;
         break;
+      case Routes.Yields:
+        ns = env.YIELD_REGISTRY_DO;
+        break;
     }
 
     const stub = ns.get(ns.idFromName(env.VERSION));
@@ -69,6 +68,7 @@ export default {
       runHealthCheck(env.EXCHANGE_REGISTRY_DO, env.VERSION),
       runHealthCheck(env.ORACLE_REGISTRY_DO, env.VERSION),
       runHealthCheck(env.VAULT_REGISTRY_DO, env.VERSION),
+      runHealthCheck(env.YIELD_REGISTRY_DO, env.VERSION),
     ]);
   },
 };
