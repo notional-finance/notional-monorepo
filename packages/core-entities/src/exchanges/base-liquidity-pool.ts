@@ -226,7 +226,6 @@ export default abstract class BaseLiquidityPool<
       const lpRequiredInRP = this.getLPTokenSpotValue(singleSidedExitTokenIndex)
         .scaleTo(RATE_DECIMALS)
         .toNumber();
-      console.log('getLPTokensRequiredForTokens - singleSided');
 
       const calculationFunction = (lpAmountInRP: number) => {
         let lpTokens = this.oneLPToken().mulInRatePrecision(lpAmountInRP);
@@ -280,7 +279,6 @@ export default abstract class BaseLiquidityPool<
         )
         .scaleTo(RATE_DECIMALS)
         .toNumber();
-      console.log('getLPTokensRequiredForTokens -dualSided');
 
       /** Start Calculation Function **/
       const calculationFunction = (lpTokensInRatePrecision: number) => {

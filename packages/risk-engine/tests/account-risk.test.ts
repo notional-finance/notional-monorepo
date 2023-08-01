@@ -134,14 +134,18 @@ describe.withForkAndRegistry(
         riskFactor: 'leverageRatio',
         limit: 5,
       },
-      // {
-      //   riskFactor: 'freeCollateral',
-      //   limit: [0.2, 'ETH'],
-      // },
-      // {
-      //   riskFactor: 'freeCollateral',
-      //   limit: [0.35, 'ETH'],
-      // },
+      {
+        riskFactor: 'freeCollateral',
+        limit: [0, 'ETH'],
+      },
+      {
+        riskFactor: 'freeCollateral',
+        limit: [0.2, 'ETH'],
+      },
+      {
+        riskFactor: 'freeCollateral',
+        limit: [0.3, 'ETH'],
+      },
       {
         riskFactor: 'collateralLiquidationThreshold',
         args: ['ETH'],
