@@ -8,11 +8,11 @@ import {
   Network,
   RATE_PRECISION,
   unique,
-  doBinarySearch,
   PERCENTAGE_BASIS,
   RATE_DECIMALS,
   getNowSeconds,
   PRIME_CASH_VAULT_MATURITY,
+  doSecantSearch,
 } from '@notional-finance/util';
 import { RiskFactorLimit, RiskFactors, SymbolOrID } from './types';
 
@@ -389,13 +389,12 @@ export abstract class BaseRiskProfile implements RiskFactors {
 
       return {
         // Negation is required here because the multiple is applied to debt values
-        actualMultiple: -multiple,
-        breakLoop: false,
+        fx: -multiple,
         value,
       };
     };
 
-    return doBinarySearch(multiple, 0, calculationFunction);
+    return doSecantSearch(multiple, multiple * 2, calculationFunction);
   }
 
   /**
@@ -480,22 +479,19 @@ export abstract class BaseRiskProfile implements RiskFactors {
 
       // Create a new account profile with the simulated collateral added
       const profile = this.simulate([netDebt, netCollateral]);
-      const { multiple: actualMultiple } = profile.checkRiskFactorLimit(
+      const { multiple: fx } = profile.checkRiskFactorLimit(
         riskFactorLimit,
         localUnderlyingId
       );
 
       return {
-        actualMultiple,
-        breakLoop: false,
+        fx,
         value: { netDebt, netCollateral },
       };
     };
 
     // set the required precision based on the riskLimitType
-    return doBinarySearch(multiple, 0, calculationFunction, undefined, (m, d) =>
-      m !== 0 ? Math.floor(m + m * (d / m)) : Math.floor(d)
-    );
+    return doSecantSearch(multiple, multiple * 2, calculationFunction);
   }
 
   getAllLiquidationPrices({
