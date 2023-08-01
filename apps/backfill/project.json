@@ -29,11 +29,12 @@
         }
       }
     },
-    "serve": {
+    "run-script": {
       "executor": "@nrwl/js:node",
       "dependsOn": ["build"],
       "options": {
-        "buildTarget": "backfill:build"
+        "buildTarget": "backfill:build",
+        "watch": false
       },
       "configurations": {
         "production": {
