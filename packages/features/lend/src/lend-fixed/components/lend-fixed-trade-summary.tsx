@@ -2,10 +2,17 @@ import { useContext } from 'react';
 import { Box, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { HowItWorksFaq } from './how-it-works-faq';
-import { Faq, FaqHeader, TotalBox } from '@notional-finance/mui';
+import {
+  DataTable,
+  Faq,
+  FaqHeader,
+  TotalBox,
+  InteractiveAreaChart,
+} from '@notional-finance/mui';
 import {
   useLendFixedFaq,
   useTotalsData,
+  useLendFixedChart,
   useFixedLiquidityPoolsTable,
 } from '../hooks';
 import { LendFixedContext } from '../../lend-fixed/lend-fixed';
@@ -20,7 +27,10 @@ export const LendFixedTradeSummary = () => {
     'Collateral',
     LendFixedContext
   );
-  useFixedLiquidityPoolsTable(selectedDepositToken);
+  const { areaChartData, onSelect, legendData, chartToolTipData } =
+    useLendFixedChart();
+  const { tableColumns, tableData } =
+    useFixedLiquidityPoolsTable(selectedDepositToken);
   const { faqHeaderLinks, faqs } = useLendFixedFaq();
   const totalApy = maturityData.find(
     (m) => m.tokenId === selectedfCashId
@@ -34,11 +44,21 @@ export const LendFixedTradeSummary = () => {
       tradedRate={totalApy}
       tradeActionHeader={<FormattedMessage defaultMessage={'Lend'} />}
     >
+      {areaChartData.length > 0 && (
+        <InteractiveAreaChart
+          interactiveAreaChartData={areaChartData}
+          onSelectMarketKey={onSelect}
+          selectedMarketKey={selectedfCashId}
+          legendData={legendData}
+          chartToolTipData={chartToolTipData}
+        />
+      )}
       <Box
         sx={{
           display: 'flex',
           gap: theme.spacing(5),
           marginBottom: theme.spacing(3),
+          marginTop: theme.spacing(3),
         }}
       >
         {totalsData.map(({ title, value }, index) => (
@@ -62,13 +82,15 @@ export const LendFixedTradeSummary = () => {
           }
         />
       )}
-      {/* {selectedDepositToken && (
-          <CalculatedRatesTable
-            selectedMarketKey={selectedMarketKey}
-            selectedToken={selectedDepositToken}
-            tradeAction={NOTIONAL_CATEGORIES.LEND}
-          />
-        )} */}
+      {tableColumns.length > 0 && tableData.length > 0 && (
+        <DataTable
+          data={tableData}
+          columns={tableColumns}
+          tableTitle={
+            <FormattedMessage defaultMessage={'Fixed Rate Liquidity Pools'} />
+          }
+        />
+      )}
       <FaqHeader
         title={<FormattedMessage defaultMessage={'Fixed Lend FAQ'} />}
         links={faqHeaderLinks}

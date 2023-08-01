@@ -39,7 +39,6 @@ export function FaqHeader({ title, links }: FaqHeaderProps) {
               <ExternalLinkIcon
                 sx={{
                   height: '12px',
-                  marginLeft: theme.spacing(0.5),
                   marginRight: theme.spacing(3),
                 }}
               />

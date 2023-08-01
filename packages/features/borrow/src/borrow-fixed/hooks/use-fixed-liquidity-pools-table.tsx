@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { LendFixedContext } from '../../lend-fixed/lend-fixed';
+import { BorrowFixedContext } from '../../borrow-fixed/borrow-fixed';
 import { useFCashMarket } from '@notional-finance/notionable-hooks';
 import { DisplayCell, DataTableColumn } from '@notional-finance/mui';
 import { getNowSeconds } from '@notional-finance/util';
@@ -16,11 +16,10 @@ export const useFixedLiquidityPoolsTable = (
 ) => {
   const {
     state: { deposit },
-  } = useContext(LendFixedContext);
+  } = useContext(BorrowFixedContext);
   const fCashMarket = useFCashMarket(deposit?.currencyId);
   let tableData: any[] = [];
   let tableColumns: DataTableColumn[] | [] = [];
-  const areaChartData: any[] = [];
   if (selectedDepositToken) {
     tableColumns = [
       {
@@ -101,7 +100,7 @@ export const useFixedLiquidityPoolsTable = (
     });
   }
 
-  return { tableColumns, tableData, areaChartData };
+  return { tableColumns, tableData };
 };
 
 export default useFixedLiquidityPoolsTable;

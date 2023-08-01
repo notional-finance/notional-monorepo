@@ -1,1 +1,5 @@
 export * from './use-totals-data'
+export * from './use-fixed-liquidity-pools-table'
+export * from './use-borrow-fixed-chart'
+export * from './use-borrow-fixed-faq'
+export * from './use-how-it-works'
