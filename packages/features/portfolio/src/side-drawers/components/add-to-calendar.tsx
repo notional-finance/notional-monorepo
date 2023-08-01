@@ -21,7 +21,7 @@ export const AddToCalendar = () => {
     <Box>
       <Title>
         <FormattedMessage
-          {...messages[PORTFOLIO_ACTIONS.ADD_TO_CALENDAR].heading}
+          {...messages[PORTFOLIO_ACTIONS.ADD_TO_CALENDAR]['heading']}
         />
       </Title>
       {calData.map(({ label, Icon, href }, index) => (
