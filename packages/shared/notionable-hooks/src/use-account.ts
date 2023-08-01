@@ -83,7 +83,6 @@ export function usePrimeCashBalance(selectedToken: string | undefined | null) {
 
 export function useVaultRiskProfiles() {
   const { account } = useAccountDefinition();
-
   // Groups vault positions per vault address
   const vaultPositions = account?.balances
     .filter((b) => b.isVaultToken)

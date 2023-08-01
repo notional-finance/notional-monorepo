@@ -2,9 +2,14 @@ import { useEffect } from 'react';
 import { Box, styled } from '@mui/material';
 import { useNotionalContext } from '@notional-finance/notionable-hooks';
 import { useParams } from 'react-router-dom';
-import { SideDrawer, FeatureLoader, H1 } from '@notional-finance/mui';
+import { SideDrawer, FeatureLoader } from '@notional-finance/mui';
 import { usePortfolioSideDrawers } from './hooks';
-import { SideNav, PortfolioMobileNav } from './components';
+import {
+  SideNav,
+  PortfolioMobileNav,
+  EmptyPortfolio,
+  EmptyPortfolioOverview,
+} from './components';
 import {
   PortfolioOverview,
   PortfolioVaults,
@@ -24,6 +29,7 @@ export interface PortfolioParams {
 }
 
 export const PortfolioFeatureShell = () => {
+  const params = useParams<PortfolioParams>();
   const {
     globalState: { isAccountPending, isAccountReady },
   } = useNotionalContext();
@@ -34,7 +40,17 @@ export const PortfolioFeatureShell = () => {
     </FeatureLoader>
   ) : (
     // TODO: need to replace this
-    <H1>STATE ZERO</H1>
+    <PortfolioContainer>
+      <PortfolioSidebar>
+        <SideNav />
+      </PortfolioSidebar>
+      {params.category === PORTFOLIO_CATEGORIES.OVERVIEW ||
+      params.category === undefined ? (
+        <EmptyPortfolioOverview />
+      ) : (
+        <EmptyPortfolio />
+      )}
+    </PortfolioContainer>
   );
 };
 
