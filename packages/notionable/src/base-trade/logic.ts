@@ -619,7 +619,7 @@ export function calculate(
                 console.error(e);
                 return {
                   token: c,
-                  interestRate,
+                  interestRate: undefined,
                   error: (e as Error).toString(),
                 };
               }
@@ -639,9 +639,6 @@ export function calculate(
         debtOptions = satisfied
           ? debtTokens?.map((d) => {
               const i = { ...inputs, debt: d };
-              const interestRate = debtPool?.getSpotInterestRate(
-                Registry.getTokenRegistry().unwrapVaultToken(d)
-              );
               try {
                 const isVault = isVaultTrade(tradeType);
                 if (isVault) {
@@ -692,7 +689,7 @@ export function calculate(
                 console.error(e);
                 return {
                   token: d,
-                  interestRate,
+                  interestRate: undefined,
                   error: (e as Error).toString(),
                 };
               }
