@@ -17,6 +17,7 @@ export function TradeActionTitle({
   valueSuffix = '',
 }: TradeActionTitleProps) {
   const theme = useTheme();
+
   return (
     <>
       <Typography
@@ -26,15 +27,29 @@ export function TradeActionTitle({
           color: theme.palette.background.accentDefault,
           textTransform: 'capitalize',
           wordBreak: 'break-all',
-          fontSize: { xs: '2rem', sm: '2rem', md: '3rem', lg: '3rem', xl: '3rem' },
+          fontSize: {
+            xs: '2rem',
+            sm: '2rem',
+            md: '3rem',
+            lg: '3rem',
+            xl: '3rem',
+          },
           fontWeight: 700,
           '&>span': {
-            fontSize: { xs: '2rem', sm: '2rem', md: '3rem', lg: '3rem', xl: '3rem' },
+            fontSize: {
+              xs: '2rem',
+              sm: '2rem',
+              md: '3rem',
+              lg: '3rem',
+              xl: '3rem',
+            },
             fontWeight: 700,
           },
         }}
       >
-        {!!value && !isNaN(value) && <CountUp value={value} suffix={valueSuffix} />}
+        {!!value && !isNaN(value) && (
+          <CountUp value={value} suffix={valueSuffix} />
+        )}
         &nbsp;
         {title}
       </Typography>

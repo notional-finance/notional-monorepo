@@ -1,7 +1,6 @@
 import { FormattedMessage } from 'react-intl';
 import { BorrowVariableSidebar } from './components';
 import { SideBarLayout, FeatureLoader } from '@notional-finance/mui';
-import { NOTIONAL_CATEGORIES } from '@notional-finance/shared-config';
 import { TradeActionSummary } from '@notional-finance/trade';
 import {
   createTradeContext,
@@ -29,7 +28,7 @@ export const BorrowVariable = () => {
               tradeActionTitle={
                 <FormattedMessage defaultMessage={'4.431% Variable APY'} />
               }
-              tradeAction={NOTIONAL_CATEGORIES.BORROW}
+              tradeActionHeader={<FormattedMessage defaultMessage={'Borrow'} />}
             ></TradeActionSummary>
           }
         />

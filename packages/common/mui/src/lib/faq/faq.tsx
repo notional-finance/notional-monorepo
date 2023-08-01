@@ -6,6 +6,7 @@ import {
   IconButton,
   useTheme,
   Tooltip,
+  SxProps,
 } from '@mui/material';
 import { ReactNode, useState, useEffect, useRef } from 'react';
 import AddIcon from '@mui/icons-material/Add';
@@ -19,6 +20,7 @@ export interface FaqProps {
   answer?: ReactNode;
   componentAnswer?: ReactNode;
   slug?: string;
+  sx?: SxProps;
 }
 
 const INITIAL_TIP = 'Copy Link';
@@ -30,6 +32,7 @@ export function Faq({
   answer,
   componentAnswer,
   slug = '',
+  sx,
 }: FaqProps) {
   const { origin, pathname, hash } = window.location;
   const url = `${origin}${pathname}${slug}`;
@@ -71,7 +74,8 @@ export function Faq({
         padding: '1.25rem',
         marginBottom: '1.75rem !important',
         borderRadius: theme.shape.borderRadiusLarge,
-        boxShadow: theme.shape.shadowStandard,
+        border: theme.shape.borderStandard,
+        boxShadow: 'none',
         ':before': {
           display: 'none',
         },
@@ -83,6 +87,7 @@ export function Faq({
           borderBottomLeftRadius: theme.shape.borderRadiusLarge,
           borderBottomRightRadius: theme.shape.borderRadiusLarge,
         },
+        ...sx,
       }}
     >
       <AccordionSummary

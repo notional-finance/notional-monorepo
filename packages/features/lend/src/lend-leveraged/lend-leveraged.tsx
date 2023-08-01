@@ -11,7 +11,6 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { LendLeveragedSidebar } from './components';
 import { TradeActionSummary } from '@notional-finance/trade';
-import { NOTIONAL_CATEGORIES } from '@notional-finance/shared-config';
 import { useLendLeveragedFaq } from './hooks/use-lend-leveraged-faq';
 
 export const LendLeveragedContext = createTradeContext('LeveragedLend');
@@ -37,7 +36,7 @@ export const LendLeveraged = () => {
               tradeActionTitle={
                 <FormattedMessage defaultMessage={'4.431% Leveraged APY'} />
               }
-              tradeAction={NOTIONAL_CATEGORIES.LEND}
+              tradeActionHeader={<FormattedMessage defaultMessage={'Lend'} />}
             >
               <FaqHeader
                 title={

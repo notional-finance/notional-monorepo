@@ -1,6 +1,4 @@
-import { FormattedMessage } from 'react-intl';
 import { ReactNode } from 'react';
-import { NOTIONAL_CATEGORIES } from '@notional-finance/shared-config';
 import {
   TradeActionHeader,
   PageLoading,
@@ -8,13 +6,12 @@ import {
   TradeActionTitle,
 } from '@notional-finance/mui';
 // import { MobileTradeActionSummary } from './mobile-trade-action-summary';
-import { messages } from './messages';
 
 interface TradeActionSummaryProps {
   selectedToken: string | null;
-  tradeAction: NOTIONAL_CATEGORIES;
   tradedRate: number | undefined;
   tradeActionTitle: ReactNode;
+  tradeActionHeader: ReactNode;
   children?: ReactNode | ReactNode[];
 }
 
@@ -22,11 +19,10 @@ export function TradeActionSummary({
   selectedToken,
   tradedRate,
   tradeActionTitle,
-  tradeAction,
+  tradeActionHeader,
   children,
 }: TradeActionSummaryProps) {
   if (!selectedToken) return <PageLoading />;
-  const fixedAPY = tradedRate ? (tradedRate * 100) / 1e9 : undefined;
 
   return (
     <>
@@ -34,11 +30,11 @@ export function TradeActionSummary({
         <div id="trade-action-view-left-content">
           <TradeActionHeader
             token={selectedToken}
-            actionText={<FormattedMessage {...messages[tradeAction].title} />}
+            actionText={tradeActionHeader}
           />
 
           <TradeActionTitle
-            value={fixedAPY}
+            value={tradedRate}
             title={tradeActionTitle}
             valueSuffix="%"
           />

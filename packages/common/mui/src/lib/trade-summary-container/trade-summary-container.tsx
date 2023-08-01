@@ -5,6 +5,7 @@ export const TradeSummaryContainer = styled(Box)(
   max-width: 800px;
   width: 800px;
   padding: 0 16px;
+
   &:last-child {
     margin-bottom: ${theme.spacing(25)};
   }
