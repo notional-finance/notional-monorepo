@@ -68,6 +68,13 @@ export class Registry {
     return Registry._self?._cacheHostname;
   }
 
+  protected static registerDefaultPoolTokens(network: Network) {
+    const tokenRegistry = Registry.getTokenRegistry();
+    defaultPools[network].forEach((pool) =>
+      pool.registerTokens.forEach((t) => tokenRegistry.registerToken(t))
+    );
+  }
+
   public static startRefresh(network: Network) {
     Registry.getTokenRegistry().startRefreshInterval(
       network,
@@ -85,9 +92,7 @@ export class Registry {
     // its first refresh.
     const tokenRegistry = Registry.getTokenRegistry();
     tokenRegistry.onNetworkRegistered(network, () => {
-      defaultPools[network].forEach((pool) =>
-        pool.registerTokens.forEach((t) => tokenRegistry.registerToken(t))
-      );
+      Registry.registerDefaultPoolTokens(network);
 
       Registry.getExchangeRegistry().startRefreshInterval(
         network,

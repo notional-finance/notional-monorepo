@@ -1,9 +1,7 @@
 import { Network } from '@notional-finance/util';
 import fs from 'fs';
-import {
-  HistoricalRegistry,
-  AccountFetchMode,
-} from '@notional-finance/core-entities';
+import { AccountFetchMode } from '@notional-finance/core-entities';
+import { HistoricalRegistry } from './HistoricalRegistry';
 
 const blockRange = [116477900, 116477800];
 const network = Network.ArbitrumOne;

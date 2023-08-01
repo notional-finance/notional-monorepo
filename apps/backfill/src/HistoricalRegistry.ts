@@ -1,15 +1,15 @@
 import httpserver from 'http-server';
 import fs from 'fs';
 import { Server } from 'http';
-
-import { Registry } from './Registry';
-import { AccountFetchMode } from './client/account-registry-client';
 import { Network } from '@notional-finance/util';
-import { ServerRegistry } from './server/server-registry';
-import { Servers, Routes } from './server';
-import { ClientRegistry } from './client/client-registry';
-import defaultPools from './exchanges/default-pools';
-import { TokenRegistryClient } from './client';
+import {
+  Registry,
+  AccountFetchMode,
+  Routes,
+  Servers,
+  ClientRegistry,
+  ServerRegistry,
+} from '@notional-finance/core-entities';
 
 export class HistoricalRegistry extends Registry {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -72,13 +72,8 @@ export class HistoricalRegistry extends Registry {
       if (client) {
         await new Promise<void>((resolve) => {
           client.triggerRefresh(network, 0, resolve);
-          if (route == Routes.Tokens) {
-            defaultPools[network].forEach((pool) =>
-              pool.registerTokens.forEach((t) =>
-                (client as TokenRegistryClient).registerToken(t)
-              )
-            );
-          }
+          if (route == Routes.Tokens)
+            Registry.registerDefaultPoolTokens(network);
         });
       }
     }
