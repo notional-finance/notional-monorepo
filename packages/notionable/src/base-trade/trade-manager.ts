@@ -45,7 +45,7 @@ export function createTradeManager(
     selectedToken('Deposit', state$, network$),
     priorAccountRisk(account$),
     availableTokens(state$, network$, account$),
-    initState(state$, network$),
+    initState(state$, network$, global$),
     resetOnNetworkChange(global$, state$),
     resetOnTradeTypeChange(state$)
   );

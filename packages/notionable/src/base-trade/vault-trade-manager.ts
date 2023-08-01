@@ -41,7 +41,7 @@ export function createVaultTradeManager(
     selectedToken('Deposit', state$, network$),
     priorVaultAccountRisk(state$, account$),
     availableTokens(state$, network$, account$),
-    initVaultState(state$, network$),
+    initVaultState(state$, network$, global$),
     resetOnNetworkChange(global$, state$),
     resetOnTradeTypeChange(state$, true)
   );

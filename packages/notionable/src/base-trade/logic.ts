@@ -123,12 +123,13 @@ export function resetOnTradeTypeChange(
 
 export function initVaultState(
   state$: Observable<VaultTradeState>,
-  selectedNetwork$: ReturnType<typeof selectedNetwork>
+  selectedNetwork$: ReturnType<typeof selectedNetwork>,
+  global$: Observable<GlobalState>
 ) {
-  return combineLatest([state$, selectedNetwork$]).pipe(
+  return combineLatest([state$, selectedNetwork$, global$]).pipe(
     filter(
-      ([{ isReady, vaultAddress }, selectedNetwork]) =>
-        !isReady && !!selectedNetwork && !!vaultAddress
+      ([{ isReady, vaultAddress }, selectedNetwork, { isAccountPending }]) =>
+        !isReady && !!selectedNetwork && !!vaultAddress && !isAccountPending
     ),
     switchMap(([{ vaultAddress }, selectedNetwork]) => {
       return new Promise((resolve) => {
@@ -159,12 +160,13 @@ export function initVaultState(
 
 export function initState(
   state$: Observable<BaseTradeState>,
-  selectedNetwork$: ReturnType<typeof selectedNetwork>
+  selectedNetwork$: ReturnType<typeof selectedNetwork>,
+  global$: Observable<GlobalState>
 ) {
-  return combineLatest([state$, selectedNetwork$]).pipe(
+  return combineLatest([state$, selectedNetwork$, global$]).pipe(
     filter(
-      ([{ isReady, tradeType }, selectedNetwork]) =>
-        !isReady && !!selectedNetwork && !!tradeType
+      ([{ isReady, tradeType }, selectedNetwork, { isAccountPending }]) =>
+        !isReady && !!selectedNetwork && !!tradeType && !isAccountPending
     ),
     map(() => ({ isReady: true }))
   );
