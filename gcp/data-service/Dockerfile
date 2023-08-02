@@ -2,10 +2,11 @@ FROM node:16
 
 WORKDIR /usr/src/app
 
-COPY ./dist/packages/util /usr/dist/packages/util
+COPY ./dist/packages /usr/dist/packages
 COPY package*.json ./
 COPY tsconfig.build.json ./
 COPY ./src ./src
+COPY ./queries ./queries
 
 RUN yarn install
 RUN yarn build
