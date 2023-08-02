@@ -78,13 +78,13 @@ export const useFixedLiquidityPoolsTable = (
     tableData = perMarketfCash.map((data, index) => {
       const interestRate = fCashMarket.getSpotInterestRate(data.token);
       const currentPrice =
-        interestRate !== undefined && interestRate > 0
+        interestRate !== undefined
           ? RATE_PRECISION /
             fCashMarket.getfCashExchangeRate(
               Math.floor((interestRate * RATE_PRECISION) / 100),
               data.maturity || 0 - getNowSeconds()
             )
-          : 1;
+          : '-';
 
       return {
         maturity: getDateString(data.maturity),
@@ -93,7 +93,7 @@ export const useFixedLiquidityPoolsTable = (
           .toDisplayString(3, true),
         valueOfFCash: data.toUnderlying().toDisplayString(3, true),
         price: `${formatNumber(currentPrice)} ${selectedDepositToken}`,
-        interestRate: interestRate || 0,
+        interestRate: interestRate,
       };
     });
   }
