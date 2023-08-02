@@ -7,7 +7,7 @@ import { DataTableHead } from './data-table-head/data-table-head';
 import { DataTableBody } from './data-table-body/data-table-body';
 import { PageLoading } from '../page-loading/page-loading';
 import { useTable, useExpanded, useSortBy } from 'react-table';
-import { FormattedMessage, MessageDescriptor } from 'react-intl';
+import { FormattedMessage, MessageDescriptor, defineMessage } from 'react-intl';
 import { TableCell } from '../typography/typography';
 import {
   DataTableColumn,
@@ -198,9 +198,10 @@ export const DataTable = ({
               sx={{ textAlign: 'center', margin: theme.spacing(4, 0) }}
             >
               <FormattedMessage
-                {...(stateZeroMessage || {
-                  defaultMessage: 'No Data Available',
-                })}
+                {...(stateZeroMessage ||
+                  defineMessage({
+                    defaultMessage: 'No Data Available',
+                  }))}
               />
             </TableCell>
           )}
