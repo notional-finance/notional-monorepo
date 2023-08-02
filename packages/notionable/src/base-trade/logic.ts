@@ -64,10 +64,8 @@ function getSelectedToken(
   availableTokens: TokenDefinition[],
   selectedToken: string | undefined
 ) {
-  if (availableTokens.length === 1) return availableTokens[0].symbol;
-  if (!availableTokens.find((t) => t.symbol === selectedToken))
-    return undefined;
-  else return selectedToken;
+  if (availableTokens.length === 1) return availableTokens[0];
+  return availableTokens.find((t) => t.symbol === selectedToken);
 }
 
 export function resetOnNetworkChange(
@@ -231,15 +229,15 @@ export function availableTokens(
             availableDepositTokens.map((t) => t.id).join(':') !==
               s.availableDepositTokens?.map((t) => t.id).join(':');
 
-          const selectedDepositToken = getSelectedToken(
+          const deposit = getSelectedToken(
             availableDepositTokens,
             s.selectedDepositToken
           );
-          const selectedDebtToken = getSelectedToken(
+          const debt = getSelectedToken(
             availableDebtTokens,
             s.selectedDebtToken
           );
-          const selectedCollateralToken = getSelectedToken(
+          const collateral = getSelectedToken(
             availableCollateralTokens,
             s.selectedCollateralToken
           );
@@ -252,9 +250,10 @@ export function availableTokens(
                   availableDepositTokens,
 
                   // Set the default values if only one is available
-                  selectedDepositToken,
-                  selectedDebtToken,
-                  selectedCollateralToken,
+                  deposit,
+                  debt,
+                  collateral,
+                  selectedDepositToken: deposit?.symbol,
                 }
               : undefined
           );

@@ -16,7 +16,6 @@ import {
   selectedAccount,
   selectedNetwork,
   selectedPool,
-  selectedToken,
   selectedVaultAdapter,
 } from './selectors';
 
@@ -36,9 +35,6 @@ export function createVaultTradeManager(
     postVaultAccountRisk(state$, account$),
     calculate(state$, debtPool$, of(undefined), vaultAdapter$, account$),
     defaultLeverageRatio(state$, network$),
-    selectedToken('Collateral', state$, network$),
-    selectedToken('Debt', state$, network$),
-    selectedToken('Deposit', state$, network$),
     priorVaultAccountRisk(state$, account$),
     availableTokens(state$, network$, account$),
     initVaultState(state$, network$, global$),
