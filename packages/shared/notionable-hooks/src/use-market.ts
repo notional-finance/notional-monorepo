@@ -241,8 +241,9 @@ export const useSpotMaturityData = (
 
   return (
     tokens?.map((t) => {
+      const _t = Registry.getTokenRegistry().unwrapVaultToken(t);
       const spotRate =
-        allYieldsNoLeverage.find((y) => y.token.id === t.id)?.totalAPY || 0;
+        allYieldsNoLeverage.find((y) => y.token.id === _t.id)?.totalAPY || 0;
 
       return {
         token: t,

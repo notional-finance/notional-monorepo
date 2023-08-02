@@ -45,16 +45,20 @@ export function VariableFixedMaturityToggle({
       t.tokenType === 'PrimeDebt' || t.maturity === PRIME_CASH_VAULT_MATURITY
   )?.id;
   const debtId = debt?.id;
+  const fixedMaturities = maturityData.filter(
+    (m) =>
+      m.token.tokenType === 'fCash' ||
+      (m.token.tokenType === 'VaultDebt' &&
+        m.maturity !== PRIME_CASH_VAULT_MATURITY)
+  );
 
-  const lowestFixedRate = maturityData
-    .filter((m) => m.token.tokenType === 'fCash')
-    .reduce(
-      (r, m) =>
-        m.tradeRate !== undefined && (r === undefined || m.tradeRate < r)
-          ? m.tradeRate
-          : r,
-      undefined as number | undefined
-    );
+  const lowestFixedRate = fixedMaturities.reduce(
+    (r, m) =>
+      m.tradeRate !== undefined && (r === undefined || m.tradeRate < r)
+        ? m.tradeRate
+        : r,
+    undefined as number | undefined
+  );
 
   useEffect(() => {
     if (
@@ -132,7 +136,7 @@ export function VariableFixedMaturityToggle({
           contrast={selectedTabIndex === FIXED}
           sx={inheritTransition}
         >
-          &nbsp;
+          <FormattedMessage defaultMessage={'Insufficient Liquidity'} />
         </LabelValue>
       )}
     </Box>
@@ -149,9 +153,7 @@ export function VariableFixedMaturityToggle({
         tabPanels={[
           <Box />,
           <Maturities
-            maturityData={maturityData.filter(
-              (t) => !!t.maturity && t.maturity < PRIME_CASH_VAULT_MATURITY
-            )}
+            maturityData={fixedMaturities}
             selectedfCashId={selectedfCashId}
             onSelect={onSelect}
             inputLabel={fCashInputLabel}

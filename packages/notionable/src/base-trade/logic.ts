@@ -231,15 +231,15 @@ export function availableTokens(
 
           const deposit = getSelectedToken(
             availableDepositTokens,
-            s.selectedDepositToken
+            s.selectedDepositToken || s.deposit?.symbol
           );
           const debt = getSelectedToken(
             availableDebtTokens,
-            s.selectedDebtToken
+            s.selectedDebtToken || s.debt?.symbol
           );
           const collateral = getSelectedToken(
             availableCollateralTokens,
-            s.selectedCollateralToken
+            s.selectedCollateralToken || s.collateral?.symbol
           );
 
           resolve(
