@@ -1,11 +1,10 @@
-import { useContext, useCallback } from 'react';
+import { useCallback } from 'react';
 import {
   ActionSidebar,
   ToggleSwitchProps,
   ProgressIndicator,
 } from '@notional-finance/mui';
 import { TradeActionButton, Confirmation2 } from '@notional-finance/trade';
-import { VaultActionContext } from '../vault-view/vault-action-provider';
 import { useHistory } from 'react-router';
 import { messages } from '../messages';
 import { VaultDetailsTable } from './vault-details-table';
@@ -27,7 +26,7 @@ export const VaultSideDrawer = ({
   advancedToggle,
   context,
 }: VaultSideDrawerProps) => {
-  // const history = useHistory();
+  const history = useHistory();
   const {
     state: {
       vaultAddress,
@@ -42,27 +41,26 @@ export const VaultSideDrawer = ({
   const { minBorrowSize } = useVaultCapacity();
   const tradeType = _tradeType as VaultTradeType;
 
-  // const handleCancel = useCallback(() => {
-  //   history.push(`/vaults/${vaultAddress}`);
-  // }, [vaultAddress, history]);
+  const handleCancel = useCallback(() => {
+    history.push(`/vaults/${vaultAddress}`);
+  }, [vaultAddress, history]);
 
-  const handleSubmit = () => {
+  const handleSubmit = useCallback(() => {
     updateState({ confirm: true });
-  };
+  }, [updateState]);
 
   return (
     <div>
       {tradeType ? (
         populatedTransaction && confirm ? (
-          <>TODO</>
+          <Confirmation2
+            heading={messages[tradeType].heading}
+            context={context}
+            onCancel={handleCancel}
+            showDrawer={false}
+            onReturnToForm={handleCancel}
+          />
         ) : (
-          // <Confirmation2
-          //   heading={messages[tradeType].heading}
-          //   context={context}
-          //   onCancel={handleCancel}
-          //   showDrawer={false}
-          //   onReturnToForm={handleCancel}
-          // />
           <ActionSidebar
             heading={messages[tradeType].heading}
             helptext={{

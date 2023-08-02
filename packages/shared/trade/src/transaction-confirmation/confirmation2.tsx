@@ -1,7 +1,7 @@
 import { Divider, styled, useTheme } from '@mui/material';
 import { ExternalLink, HeadingSubtitle, Drawer } from '@notional-finance/mui';
 import {
-  TradeContext,
+  BaseTradeContext,
   useTransactionStatus,
 } from '@notional-finance/notionable-hooks';
 import { useCallback } from 'react';
@@ -16,7 +16,7 @@ import { PortfolioCompare } from './components/portfolio-compare';
 
 export interface ConfirmationProps {
   heading: React.ReactNode;
-  context: TradeContext;
+  context: BaseTradeContext;
   onCancel?: () => void;
   onReturnToForm?: () => void;
   showDrawer?: boolean;
