@@ -4,11 +4,32 @@ import {
   loadGlobalManager,
 } from '@notional-finance/notionable';
 import { useObservable, useSubscription } from 'observable-hooks';
-import { switchMap, tap } from 'rxjs';
-import { createObservableContext } from './ObservableContext';
+import { EMPTY, switchMap, tap } from 'rxjs';
 import { useObservableReducer } from './use-observable-reducer';
+import React from 'react';
+import { ObservableContext } from './ObservableContext';
 
 const DEBUG = process.env['NODE_ENV'] === 'development';
+
+// NOTE: this function is duplicated here because for some reason the test code
+// does not import it properly
+function createObservableContext<T>(
+  displayName: string,
+  initialState: T,
+  defaultValue = {
+    updateState: () => {
+      return;
+    },
+    state$: EMPTY,
+  }
+) {
+  const context = React.createContext<ObservableContext<T>>({
+    ...defaultValue,
+    state: initialState,
+  });
+  context.displayName = displayName;
+  return context;
+}
 
 export const NotionalContext = createObservableContext<GlobalState>(
   'notional-global-context',

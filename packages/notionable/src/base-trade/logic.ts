@@ -32,12 +32,12 @@ import {
   pairwise,
   switchMap,
   withLatestFrom,
+  bufferCount,
 } from 'rxjs';
 import { GlobalState } from '../global/global-state';
 import { isHashable } from '../utils';
 import {
   BaseTradeState,
-  InputAmount,
   TokenOption,
   TradeConfiguration,
   TradeType,
@@ -46,7 +46,7 @@ import {
   VaultTradeType,
   isVaultTrade,
 } from './base-trade-store';
-import { selectedNetwork, selectedAccount, Category } from './selectors';
+import { selectedNetwork, selectedAccount } from './selectors';
 
 function getTradeConfig(tradeType?: TradeType | VaultTradeType) {
   if (!tradeType) throw Error('Trade type undefined');
@@ -265,155 +265,6 @@ export function availableTokens(
   );
 }
 
-export function parseBalance(
-  category: Category,
-  state$: Observable<BaseTradeState>
-) {
-  return state$.pipe(
-    // NOTE: distinct until changed does not work with this for some reason
-    pairwise(),
-    map(([p, s]) => {
-      const prevToken = p[category.toLowerCase()] as
-        | TokenDefinition
-        | undefined;
-      const prevInputAmount = p[
-        `${category.toLowerCase()}InputAmount`
-      ] as InputAmount;
-      const token = s[category.toLowerCase()] as TokenDefinition | undefined;
-      const inputAmount = s[
-        `${category.toLowerCase()}InputAmount`
-      ] as InputAmount;
-      return {
-        hasChanged:
-          prevToken?.id !== token?.id ||
-          prevInputAmount?.inUnderlying !== inputAmount?.inUnderlying ||
-          prevInputAmount?.amount !== inputAmount?.amount,
-        token,
-        inputAmount,
-      };
-    }),
-    filter(({ hasChanged }) => hasChanged),
-    map(({ inputAmount, token }) => {
-      const key = `${category.toLowerCase()}Balance`;
-
-      if (inputAmount === undefined || token === undefined) {
-        return { [key]: undefined };
-      }
-
-      if (inputAmount?.inUnderlying === false && category === 'Deposit')
-        throw Error('Deposits must be in underlying');
-
-      try {
-        if (inputAmount.inUnderlying) {
-          const underlying = Registry.getTokenRegistry().getUnderlying(
-            token.network,
-            token.currencyId
-          );
-          return {
-            [key]: TokenBalance.fromFloat(inputAmount.amount, underlying),
-          };
-        } else {
-          return { [key]: TokenBalance.fromFloat(inputAmount.amount, token) };
-        }
-      } catch (e) {
-        console.error(e);
-        return { [key]: undefined };
-      }
-    })
-  ) as Observable<{
-    depositBalance: TokenBalance | undefined;
-    collateralBalance: TokenBalance | undefined;
-    debtBalance: TokenBalance | undefined;
-  }>;
-}
-
-export function parseRiskFactorLimit(
-  state$: Observable<BaseTradeState>,
-  selectedNetwork$: ReturnType<typeof selectedNetwork>
-) {
-  return combineLatest([state$, selectedNetwork$]).pipe(
-    distinctUntilChanged(([p, prevNetwork], [c, selectedNetwork]) => {
-      return (
-        prevNetwork === selectedNetwork &&
-        p.selectedRiskFactor === c.selectedRiskFactor &&
-        p.selectedRiskLimit?.value === c.selectedRiskLimit?.value &&
-        p.selectedRiskLimit?.symbol === c.selectedRiskLimit?.symbol &&
-        p.selectedRiskArgs?.collateral === c.selectedRiskArgs?.collateral &&
-        p.selectedRiskArgs?.debt === c.selectedRiskArgs?.debt
-      );
-    }),
-    map(
-      ([
-        {
-          selectedRiskFactor,
-          selectedRiskLimit,
-          selectedRiskArgs,
-          riskFactorLimit: prevRiskFactorLimit,
-        },
-        network,
-      ]) => {
-        let riskFactorLimit: RiskFactorLimit<RiskFactorKeys> | undefined;
-        const tokens = Registry.getTokenRegistry();
-        if (
-          selectedRiskFactor === 'liquidationPrice' &&
-          selectedRiskLimit &&
-          selectedRiskLimit.symbol !== undefined &&
-          selectedRiskArgs?.debt !== undefined
-        ) {
-          riskFactorLimit = {
-            riskFactor: selectedRiskFactor,
-            limit: TokenBalance.fromFloat(
-              selectedRiskLimit.value,
-              tokens.getTokenBySymbol(network, selectedRiskLimit.symbol)
-            ),
-            args: [
-              tokens.getTokenBySymbol(network, selectedRiskArgs.collateral),
-              tokens.getTokenBySymbol(network, selectedRiskArgs.debt),
-            ],
-          };
-        } else if (
-          selectedRiskFactor === 'collateralLiquidationThreshold' &&
-          selectedRiskLimit &&
-          selectedRiskArgs
-        ) {
-          riskFactorLimit = {
-            riskFactor: selectedRiskFactor,
-            limit: TokenBalance.fromFloat(
-              selectedRiskLimit.value,
-              tokens.getTokenBySymbol(network, selectedRiskArgs.collateral)
-            ),
-            args: [
-              tokens.getTokenBySymbol(network, selectedRiskArgs.collateral),
-            ],
-          };
-        } else if (
-          (selectedRiskFactor === 'freeCollateral' ||
-            selectedRiskFactor === 'netWorth') &&
-          selectedRiskLimit
-        ) {
-          riskFactorLimit = {
-            riskFactor: selectedRiskFactor,
-            limit: TokenBalance.fromFloat(
-              selectedRiskLimit.value,
-              tokens.getTokenBySymbol(network, 'ETH')
-            ),
-          };
-        } else if (selectedRiskFactor && selectedRiskLimit) {
-          riskFactorLimit = {
-            riskFactor: selectedRiskFactor,
-            limit: selectedRiskLimit.value,
-          };
-        }
-
-        return riskFactorLimit || prevRiskFactorLimit
-          ? { riskFactorLimit }
-          : undefined;
-      }
-    ),
-    filterEmpty()
-  );
-}
-
 export function calculate(
   state$: Observable<BaseTradeState>,
   debtPool$: Observable<BaseLiquidityPool<unknown> | undefined>,
@@ -429,7 +280,9 @@ export function calculate(
     vaultAdapter$,
   ]).pipe(
     filter(([s]) => s.isReady && !!s.tradeType),
-    pairwise(),
+    // NOTE: use a bufferCount(2) here instead of pairwise to ensure that
+    // we don't get race conditions around duplicate input keys
+    bufferCount(2),
     map(([[p], [s, debtPool, collateralPool, a, vaultAdapter]]) => ({
       prevCalculateInputKeys: p.calculateInputKeys,
       prevInputsSatisfied: p.inputsSatisfied,
@@ -525,6 +378,13 @@ export function calculate(
           (r) => inputs[r] !== undefined
         );
         const calculateInputKeys = keys.join('|');
+        if (prevCalculateInputKeys !== calculateInputKeys) {
+          //           console.log(`
+          // KEYS MISMATCH
+          // ${prevCalculateInputKeys}
+          // ${calculateInputKeys}
+          // `);
+        }
         return prevInputsSatisfied !== inputsSatisfied ||
           prevCalculateInputKeys !== calculateInputKeys
           ? {
