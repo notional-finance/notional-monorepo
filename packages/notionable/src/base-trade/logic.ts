@@ -235,11 +235,11 @@ export function availableTokens(
           );
           const debt = getSelectedToken(
             availableDebtTokens,
-            s.selectedDebtToken || s.debt?.symbol
+            s.debt?.symbol
           );
           const collateral = getSelectedToken(
             availableCollateralTokens,
-            s.selectedCollateralToken || s.collateral?.symbol
+            s.collateral?.symbol
           );
 
           resolve(

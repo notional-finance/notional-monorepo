@@ -61,7 +61,6 @@ export function selectedAccount(global$: Observable<GlobalState>) {
 }
 
 export function selectedToken(
-  category: Category,
   state$: Observable<BaseTradeState>,
   selectedNetwork$: ReturnType<typeof selectedNetwork>
 ) {
@@ -69,11 +68,11 @@ export function selectedToken(
     // NOTE: distinct until changed does not work with this for some reason
     pairwise(),
     map(([[prevS, prevN], [curS, selectedNetwork]]) => {
-      const selectedToken = curS[`selected${category}Token`] as string;
-      const token = curS[category.toLowerCase()] as TokenDefinition | undefined;
+      const selectedToken = curS.selectedDepositToken;
+      const token = curS.deposit;
       return {
         hasChanged:
-          (prevS[`selected${category}Token`] as string) !== selectedToken ||
+          prevS.selectedDepositToken !== selectedToken ||
           prevN !== selectedNetwork ||
           (!!selectedToken && token === undefined),
         selectedToken,
@@ -82,11 +81,11 @@ export function selectedToken(
     }),
     filter(({ hasChanged }) => hasChanged),
     map(({ selectedToken, selectedNetwork }) => {
-      let token: TokenDefinition | undefined;
+      let deposit: TokenDefinition | undefined;
       if (selectedToken && selectedNetwork) {
         try {
           const tokens = Registry.getTokenRegistry();
-          token = tokens.getTokenBySymbol(selectedNetwork, selectedToken);
+          deposit = tokens.getTokenBySymbol(selectedNetwork, selectedToken);
         } catch {
           // NOTE: some tokens may not have nTokens listed, if so then this will
           // remain undefined
@@ -96,13 +95,7 @@ export function selectedToken(
         }
       }
 
-      return {
-        [category.toLowerCase()]: token,
-      } as {
-        collateral: TokenDefinition | undefined;
-        debt: TokenDefinition | undefined;
-        deposit: TokenDefinition | undefined;
-      };
+      return { deposit };
     })
   );
 }
