@@ -46,13 +46,15 @@ export function VariableFixedMaturityToggle({
   )?.id;
   const debtId = debt?.id;
 
-  const lowestFixedRate = maturityData.reduce(
-    (r, m) =>
-      m.tradeRate !== undefined && (r === undefined || m.tradeRate < r)
-        ? m.tradeRate
-        : r,
-    undefined as number | undefined
-  );
+  const lowestFixedRate = maturityData
+    .filter((m) => m.token.tokenType === 'fCash')
+    .reduce(
+      (r, m) =>
+        m.tradeRate !== undefined && (r === undefined || m.tradeRate < r)
+          ? m.tradeRate
+          : r,
+      undefined as number | undefined
+    );
 
   useEffect(() => {
     if (
@@ -104,25 +106,35 @@ export function VariableFixedMaturityToggle({
       <LabelValue contrast={selectedTabIndex === FIXED} sx={inheritTransition}>
         <FormattedMessage defaultMessage={'Fixed Rate'} />
       </LabelValue>
-      <Label
-        inline
-        contrast={selectedTabIndex === FIXED}
-        sx={inheritTransition}
-      >
-        <FormattedMessage defaultMessage={'As low as'} />
-      </Label>
-      &nbsp;
-      <LabelValue
-        inline
-        contrast={selectedTabIndex === FIXED}
-        sx={inheritTransition}
-      >
-        {lowestFixedRate
-          ? formatInterestRate(
+      {lowestFixedRate !== undefined ? (
+        <>
+          <Label
+            inline
+            contrast={selectedTabIndex === FIXED}
+            sx={inheritTransition}
+          >
+            <FormattedMessage defaultMessage={'As low as'} />
+          </Label>
+          &nbsp;
+          <LabelValue
+            inline
+            contrast={selectedTabIndex === FIXED}
+            sx={inheritTransition}
+          >
+            {formatInterestRate(
               Math.floor((lowestFixedRate / 100) * RATE_PRECISION)
-            )
-          : '??'}
-      </LabelValue>
+            )}
+          </LabelValue>
+        </>
+      ) : (
+        <LabelValue
+          inline
+          contrast={selectedTabIndex === FIXED}
+          sx={inheritTransition}
+        >
+          &nbsp;
+        </LabelValue>
+      )}
     </Box>
   );
   return (

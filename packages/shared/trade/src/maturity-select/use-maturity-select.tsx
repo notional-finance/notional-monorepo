@@ -1,6 +1,7 @@
-import { MaturityData, isVaultTrade } from '@notional-finance/notionable';
+import { isVaultTrade } from '@notional-finance/notionable';
 import {
   BaseTradeContext,
+  MaturityData,
   useSpotMaturityData,
 } from '@notional-finance/notionable-hooks';
 import { formatInterestRate } from '@notional-finance/util';
@@ -34,6 +35,7 @@ export const useMaturitySelect = (
   const maturityData: MaturityData[] =
     options?.map((o) => {
       return {
+        token: o.token,
         tokenId: o.token.id,
         tradeRate: o.interestRate,
         maturity: o.token.maturity || 0,

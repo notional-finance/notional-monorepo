@@ -13,8 +13,16 @@ import {
   formatInterestRate,
   getNowSeconds,
   isIdiosyncratic,
-  RATE_PRECISION,
 } from '@notional-finance/util';
+
+export interface MaturityData {
+  token: TokenDefinition;
+  tokenId: string;
+  tradeRate: number | undefined;
+  maturity: number;
+  hasLiquidity: boolean;
+  tradeRateString: string;
+}
 
 export function useCurrency() {
   const network = useSelectedNetwork();
@@ -223,7 +231,9 @@ export const useFCashMarket = (currencyId?: number) => {
   return useObservableState<fCashMarket>(fCashMarket$ || EMPTY);
 };
 
-export const useSpotMaturityData = (tokens?: TokenDefinition[]) => {
+export const useSpotMaturityData = (
+  tokens?: TokenDefinition[]
+): MaturityData[] => {
   const { allYields } = useAllMarkets();
   const allYieldsNoLeverage = allYields.filter(
     (y) => y.leveraged === undefined
@@ -235,6 +245,7 @@ export const useSpotMaturityData = (tokens?: TokenDefinition[]) => {
         allYieldsNoLeverage.find((y) => y.token.id === t.id)?.totalAPY || 0;
 
       return {
+        token: t,
         tokenId: t.id,
         tradeRate: spotRate,
         maturity: t.maturity || 0,

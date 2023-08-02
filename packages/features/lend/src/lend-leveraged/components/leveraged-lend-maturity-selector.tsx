@@ -6,11 +6,10 @@ import {
   Maturities,
   MaturityCard,
 } from '@notional-finance/mui';
-import { MaturityData } from '@notional-finance/notionable';
 import { useMaturitySelect } from '@notional-finance/trade';
 import { useCallback, useEffect, useState } from 'react';
 import { FormattedMessage, defineMessage } from 'react-intl';
-import { BaseTradeContext } from '@notional-finance/notionable-hooks';
+import { BaseTradeContext, MaturityData } from '@notional-finance/notionable-hooks';
 
 const Container = styled(Box)``;
 const SelectorBox = styled(Box)(
