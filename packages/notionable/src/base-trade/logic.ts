@@ -333,7 +333,7 @@ export function calculate(
                 ];
               case 'collateral':
               case 'debt':
-              case 'depositUnderlying':
+              case 'deposit':
                 return [
                   Object.assign(inputs, { [r]: s[r] }),
                   [...keys, (s[r] as TokenDefinition | undefined)?.id || ''],
@@ -400,9 +400,10 @@ export function calculate(
     map((u) => {
       const { inputsSatisfied, inputs, tradeType } = u;
       let calculateError: string | undefined;
+      const { calculationFn, requiredArgs } = getTradeConfig(tradeType);
+
       if (inputsSatisfied) {
         try {
-          const { calculationFn } = getTradeConfig(tradeType);
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const outputs = calculationFn(inputs as any);
 
@@ -417,7 +418,25 @@ export function calculate(
         }
       }
 
-      return { ...u, calculationSuccess: false, calculateError };
+      // NOTE: clear any calculated inputs if the new calculation fails
+      const clearCalculatedInputs = requiredArgs.reduce((o, a) => {
+        if (a === 'collateral') {
+          return Object.assign(o, { collateralBalance: undefined });
+        } else if (a === 'debt') {
+          return Object.assign(o, { debtBalance: undefined });
+        } else if (a === 'deposit') {
+          return Object.assign(o, { depositBalance: undefined });
+        } else {
+          return o;
+        }
+      }, {});
+
+      return {
+        ...u,
+        calculationSuccess: false,
+        calculateError,
+        ...clearCalculatedInputs,
+      };
     }),
     map(({ inputs, collateralTokens, debtTokens, tradeType, ...u }) => {
       const {

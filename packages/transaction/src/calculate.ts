@@ -278,21 +278,21 @@ export function calculateDebt({
  * in underlying.
  */
 export function calculateDeposit({
-  depositUnderlying,
+  deposit,
   collateralPool,
   debtPool,
   debtBalance,
   collateralBalance,
 }: {
-  depositUnderlying: TokenDefinition;
+  deposit: TokenDefinition;
   collateralPool?: fCashMarket;
   debtPool?: fCashMarket;
   debtBalance?: TokenBalance;
   collateralBalance?: TokenBalance;
 }) {
   const localPrime = Registry.getTokenRegistry().getPrimeCash(
-    depositUnderlying.network,
-    depositUnderlying.currencyId
+    deposit.network,
+    deposit.currencyId
   );
 
   const { localPrime: localCollateralPrime, fees: collateralFee } =
@@ -316,7 +316,7 @@ export function calculateDeposit({
  * that the account wants to maintain.
  *
  * @param debt debt denomination
- * @param depositUnderlying deposit denomination
+ * @param deposit deposit denomination
  * @param debtPool required input
  * @param collateralPool required when collateral is fCash or nTokens
  * @param collateralBalance amount of collateral deposit
@@ -325,7 +325,7 @@ export function calculateDeposit({
  */
 export function calculateDepositDebtGivenCollateralRiskLimit({
   debt,
-  depositUnderlying,
+  deposit,
   debtPool,
   collateralPool,
   collateralBalance,
@@ -333,7 +333,7 @@ export function calculateDepositDebtGivenCollateralRiskLimit({
   riskFactorLimit,
 }: {
   debt: TokenDefinition;
-  depositUnderlying: TokenDefinition;
+  deposit: TokenDefinition;
   debtPool: fCashMarket;
   collateralPool: fCashMarket | undefined;
   collateralBalance: TokenBalance;
@@ -341,8 +341,8 @@ export function calculateDepositDebtGivenCollateralRiskLimit({
   riskFactorLimit: RiskFactorLimit<RiskFactorKeys>;
 }) {
   const depositPrime = Registry.getTokenRegistry().getPrimeCash(
-    depositUnderlying.network,
-    depositUnderlying.currencyId
+    deposit.network,
+    deposit.currencyId
   );
 
   const { debtBalance, debtFee, collateralFee, netRealizedDebtBalance } =
@@ -378,7 +378,7 @@ export function calculateDepositDebtGivenCollateralRiskLimit({
  */
 export function calculateDepositCollateralGivenDebtRiskLimit({
   collateral,
-  depositUnderlying,
+  deposit,
   collateralPool,
   debtPool,
   debtBalance,
@@ -386,7 +386,7 @@ export function calculateDepositCollateralGivenDebtRiskLimit({
   riskFactorLimit,
 }: {
   collateral: TokenDefinition;
-  depositUnderlying: TokenDefinition;
+  deposit: TokenDefinition;
   collateralPool: fCashMarket;
   debtPool: fCashMarket;
   debtBalance: TokenBalance;
@@ -394,8 +394,8 @@ export function calculateDepositCollateralGivenDebtRiskLimit({
   riskFactorLimit: RiskFactorLimit<RiskFactorKeys>;
 }) {
   const depositPrime = Registry.getTokenRegistry().getPrimeCash(
-    depositUnderlying.network,
-    depositUnderlying.currencyId
+    deposit.network,
+    deposit.currencyId
   );
 
   const {
