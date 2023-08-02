@@ -1,7 +1,7 @@
 import { styled, Box, useTheme } from '@mui/material';
 import { ExternalLinkIcon } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
-import { getEtherscanLink } from '@notional-finance/helpers';
+import { getEtherscanTransactionLink } from '@notional-finance/util';
 import {
   TransactionStatus,
   useSelectedNetwork,
@@ -17,10 +17,10 @@ export const PendingTransaction = ({
   transactionStatus,
 }: PendingTransactionProps) => {
   const theme = useTheme();
-  const selectedNetwork = useSelectedNetwork()
+  const selectedNetwork = useSelectedNetwork();
   const etherscanLink = (
     <StyledLink
-      href={getEtherscanLink(hash, selectedNetwork)}
+      href={getEtherscanTransactionLink(hash, selectedNetwork)}
       target="_blank"
       rel="noreferrer"
       className="etherscan-link"

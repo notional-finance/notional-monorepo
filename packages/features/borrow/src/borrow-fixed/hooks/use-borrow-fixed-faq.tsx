@@ -4,6 +4,11 @@ import { Box, useTheme } from '@mui/material';
 import { Body } from '@notional-finance/mui';
 import { ExitEarlyFaq } from '../components';
 import { BorrowFixedContext } from '../borrow-fixed';
+import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
+import {
+  getEtherscanAddressLink,
+  NotionalAddress,
+} from '@notional-finance/util';
 
 interface FaqProps {
   question: ReactNode;
@@ -13,28 +18,22 @@ interface FaqProps {
 
 export const useBorrowFixedFaq = () => {
   const theme = useTheme();
+  const selectedNetwork = useSelectedNetwork();
   const {
     state: { selectedDepositToken },
   } = useContext(BorrowFixedContext);
-  // TODO: ADD LINKS
   const faqHeaderLinks = [
     {
-      href: '',
+      href: 'https://docs.notional.finance/notional-v2/product-guides/fixed-rate-borrowing',
       text: <FormattedMessage defaultMessage={'Fixed Borrow Documentation'} />,
     },
     {
-      href: '',
-      text: (
-        <FormattedMessage
-          defaultMessage={`f{selectedDepositToken} Contract`}
-          values={{
-            selectedDepositToken,
-          }}
-        />
-      ),
-    },
-    {
-      href: '',
+      href: selectedNetwork
+        ? getEtherscanAddressLink(
+            NotionalAddress[selectedNetwork],
+            selectedNetwork
+          )
+        : '',
       text: <FormattedMessage defaultMessage={'Notional Contract'} />,
     },
   ];

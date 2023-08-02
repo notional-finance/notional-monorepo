@@ -6,11 +6,11 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { TokenIcon } from '@notional-finance/icons';
 import {
-  getEtherscanLink,
   formatTokenType,
   formatTokenAmount,
   formatNumber,
 } from '@notional-finance/helpers';
+import { getEtherscanTransactionLink } from '@notional-finance/util';
 import { SelectedOptions } from '@notional-finance/mui';
 
 export const useTxnHistoryData = (txnHistoryType: TXN_HISTORY_TYPE) => {
@@ -57,7 +57,7 @@ export const useTxnHistoryData = (txnHistoryType: TXN_HISTORY_TYPE) => {
           time: timestamp,
           txLink: {
             hash: transactionHash,
-            href: getEtherscanLink(transactionHash, selectedNetwork),
+            href: getEtherscanTransactionLink(transactionHash, selectedNetwork),
           },
           currency: underlying.symbol,
           token: token,

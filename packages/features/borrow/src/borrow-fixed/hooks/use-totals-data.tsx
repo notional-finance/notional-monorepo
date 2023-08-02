@@ -11,36 +11,30 @@ export const useTotalsData = (selectedDepositToken: string | undefined) => {
   const {
     yields: { fCashBorrow, liquidity },
   } = data;
-  let tvlData: any = null;
 
-  if (liquidity) {
-    tvlData = liquidity.find(
-      (data) => data.underlying?.symbol === selectedDepositToken
-    );
-  }
-
-  const filteredFCash = fCashBorrow
-
-    .filter(({ underlying }) => underlying?.symbol === selectedDepositToken)
-    .map(({ token }) => token.totalSupply?.toUnderlying());
+  const tvlData = liquidity?.find(
+    (data) => data.underlying?.symbol === selectedDepositToken
+  )?.tvl;
 
   let totalFixedRateDebt;
-  if (filteredFCash && selectedDepositToken && network) {
+  if (selectedDepositToken && network) {
     const zeroUnderlying = TokenBalance.fromSymbol(
       0,
       selectedDepositToken,
       network
     );
-
-    totalFixedRateDebt = filteredFCash?.reduce((sum, balance) => {
-      return balance && sum ? sum?.add(balance) : sum;
-    }, zeroUnderlying);
+    totalFixedRateDebt = fCashBorrow
+      .filter(({ underlying }) => underlying?.symbol === selectedDepositToken)
+      .map(({ token }) => token.totalSupply?.toUnderlying())
+      .reduce((sum, balance) => {
+        return balance && sum ? sum?.add(balance) : sum;
+      }, zeroUnderlying);
   }
 
   return [
     {
       title: <FormattedMessage defaultMessage={'TVL'} />,
-      value: tvlData?.tvl?.toFiat('USD').toDisplayStringWithSymbol() || '-',
+      value: tvlData?.toFiat('USD').toDisplayStringWithSymbol() || '-',
     },
     {
       title: <FormattedMessage defaultMessage={'Total Fixed Rate Debt'} />,

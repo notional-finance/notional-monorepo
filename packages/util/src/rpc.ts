@@ -1,3 +1,5 @@
+import { Network } from './constants';;
+
 export function getNetworkIdFromHostname(hostname: string) {
   switch (hostname) {
     case 'notional.finance':
@@ -45,11 +47,24 @@ export function getRpcUrl(networkId: number) {
   }
 }
 
-export function getEtherscanLink(txnHash: string, chainId: number) {
-  const name = networkName(chainId);
-  if (name === 'mainnet') {
-    return `https://etherscan.io/tx/${txnHash}`;
+export function getEtherscanTransactionLink(txnHash: string, network?: Network) {
+  switch (network) {
+    case Network.Mainnet:
+      return `https://etherscan.io/tx/${txnHash}`;
+    case Network.ArbitrumOne:
+      return `https://arbiscan.io/tx/${txnHash}`;
+    default:
+      return '';
   }
+}
 
-  return `https://${name}.etherscan.io/tx/${txnHash}`;
+export function getEtherscanAddressLink(contractAddress: string, network?: Network) {
+  switch (network) {
+    case Network.Mainnet:
+      return `https://etherscan.io/tx/${contractAddress}`;
+    case Network.ArbitrumOne:
+      return `https://arbiscan.io/tx/${contractAddress}`;
+    default:
+      return '';
+  }
 }

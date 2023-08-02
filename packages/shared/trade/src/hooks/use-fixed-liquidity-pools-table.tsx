@@ -1,6 +1,4 @@
-import { useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { LendFixedContext } from '../../lend-fixed/lend-fixed';
 import { useFCashMarket } from '@notional-finance/notionable-hooks';
 import { DisplayCell, DataTableColumn } from '@notional-finance/mui';
 import { getNowSeconds } from '@notional-finance/util';
@@ -12,12 +10,10 @@ import {
 } from '@notional-finance/helpers';
 
 export const useFixedLiquidityPoolsTable = (
-  selectedDepositToken: string | undefined
+  selectedDepositToken: string | undefined,
+  currencyId: number | undefined
 ) => {
-  const {
-    state: { deposit },
-  } = useContext(LendFixedContext);
-  const fCashMarket = useFCashMarket(deposit?.currencyId);
+  const fCashMarket = useFCashMarket(currencyId);
   let tableData: any[] = [];
   let tableColumns: DataTableColumn[] | [] = [];
   const areaChartData: any[] = [];
@@ -81,13 +77,14 @@ export const useFixedLiquidityPoolsTable = (
 
     tableData = perMarketfCash.map((data, index) => {
       const interestRate = fCashMarket.getSpotInterestRate(data.token);
-      const currentPrice = interestRate
-        ? RATE_PRECISION /
-          fCashMarket.getfCashExchangeRate(
-            Math.floor((interestRate * RATE_PRECISION) / 100),
-            data.maturity || 0 - getNowSeconds()
-          )
-        : 0;
+      const currentPrice =
+        interestRate !== undefined && interestRate > 0
+          ? RATE_PRECISION /
+            fCashMarket.getfCashExchangeRate(
+              Math.floor((interestRate * RATE_PRECISION) / 100),
+              data.maturity || 0 - getNowSeconds()
+            )
+          : 1;
 
       return {
         maturity: getDateString(data.maturity),
@@ -96,7 +93,7 @@ export const useFixedLiquidityPoolsTable = (
           .toDisplayString(3, true),
         valueOfFCash: data.toUnderlying().toDisplayString(3, true),
         price: `${formatNumber(currentPrice)} ${selectedDepositToken}`,
-        interestRate: interestRate,
+        interestRate: interestRate || 0,
       };
     });
   }

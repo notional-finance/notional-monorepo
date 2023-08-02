@@ -38,3 +38,5 @@ export function makeStore<StateType>(initialState: StateType) {
 export function isHashable(o: unknown): o is { hashKey: string } {
   return !!o && typeof o === 'object' && 'hashKey' in o;
 }
+
+

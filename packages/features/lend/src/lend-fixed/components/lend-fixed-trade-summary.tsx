@@ -9,28 +9,31 @@ import {
   TotalBox,
   InteractiveAreaChart,
 } from '@notional-finance/mui';
-import {
-  useLendFixedFaq,
-  useTotalsData,
-  useLendFixedChart,
-  useFixedLiquidityPoolsTable,
-} from '../hooks';
+import { useLendFixedFaq, useTotalsData } from '../hooks';
+
 import { LendFixedContext } from '../../lend-fixed/lend-fixed';
-import { TradeActionSummary, useMaturitySelect } from '@notional-finance/trade';
+import {
+  TradeActionSummary,
+  useMaturitySelect,
+  useInteractiveMaturityChart,
+  useFixedLiquidityPoolsTable,
+} from '@notional-finance/trade';
 
 export const LendFixedTradeSummary = () => {
   const theme = useTheme();
   const {
-    state: { selectedDepositToken },
+    state: { selectedDepositToken, deposit },
   } = useContext(LendFixedContext);
-  const { maturityData, selectedfCashId } = useMaturitySelect(
+  const { maturityData, selectedfCashId, onSelect } = useMaturitySelect(
     'Collateral',
     LendFixedContext
   );
-  const { areaChartData, onSelect, legendData, chartToolTipData } =
-    useLendFixedChart();
-  const { tableColumns, tableData } =
-    useFixedLiquidityPoolsTable(selectedDepositToken);
+  const { areaChartData, legendData, chartToolTipData } =
+    useInteractiveMaturityChart(deposit?.currencyId);
+  const { tableColumns, tableData } = useFixedLiquidityPoolsTable(
+    selectedDepositToken,
+    deposit?.currencyId
+  );
   const { faqHeaderLinks, faqs } = useLendFixedFaq();
   const totalApy = maturityData.find(
     (m) => m.tokenId === selectedfCashId

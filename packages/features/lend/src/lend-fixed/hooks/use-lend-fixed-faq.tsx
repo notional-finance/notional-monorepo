@@ -1,6 +1,11 @@
 import { ReactNode } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { ExitEarlyFaq, RiskFaq } from '../components';
+import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
+import {
+  getEtherscanAddressLink,
+  NotionalAddress,
+} from '@notional-finance/util';
 
 interface FaqProps {
   question: ReactNode;
@@ -9,14 +14,19 @@ interface FaqProps {
 }
 
 export const useLendFixedFaq = () => {
-  // TODO: ADD LINKS
+  const selectedNetwork = useSelectedNetwork();
   const faqHeaderLinks = [
     {
-      href: '',
+      href: 'https://docs.notional.finance/notional-v2/product-guides/fixed-rate-lending',
       text: <FormattedMessage defaultMessage={'Fixed Lending Documentation'} />,
     },
     {
-      href: '',
+      href: selectedNetwork
+        ? getEtherscanAddressLink(
+            NotionalAddress[selectedNetwork],
+            selectedNetwork
+          )
+        : '',
       text: <FormattedMessage defaultMessage={'Notional Contract'} />,
     },
   ];

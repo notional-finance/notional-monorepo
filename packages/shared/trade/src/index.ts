@@ -23,3 +23,6 @@ export * from './tradeErrors';
 export * from './trade-action-button/trade-action-button';
 export * from './transaction-sidebar/transaction-sidebar';
 export * from './transaction-sidebar/components/transaction-headings';
+
+/** New V3 Hooks */
+export * from './hooks';

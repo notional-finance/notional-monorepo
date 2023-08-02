@@ -1,12 +1,7 @@
 import { useContext } from 'react';
 import { Box, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
-import {
-  useTotalsData,
-  useFixedLiquidityPoolsTable,
-  useBorrowFixedChart,
-  useBorrowFixedFaq,
-} from '../hooks';
+import { useTotalsData, useBorrowFixedFaq } from '../hooks';
 import { HowItWorksFaq } from './how-it-works-faq';
 import {
   Faq,
@@ -16,21 +11,28 @@ import {
   InteractiveAreaChart,
 } from '@notional-finance/mui';
 import { BorrowFixedContext } from '../../borrow-fixed/borrow-fixed';
-import { TradeActionSummary, useMaturitySelect } from '@notional-finance/trade';
+import {
+  TradeActionSummary,
+  useMaturitySelect,
+  useInteractiveMaturityChart,
+  useFixedLiquidityPoolsTable,
+} from '@notional-finance/trade';
 
 export const BorrowFixedTradeSummary = () => {
   const theme = useTheme();
   const {
-    state: { selectedDepositToken },
+    state: { selectedDepositToken, deposit },
   } = useContext(BorrowFixedContext);
-  const { maturityData, selectedfCashId } = useMaturitySelect(
+  const { maturityData, selectedfCashId, onSelect } = useMaturitySelect(
     'Debt',
     BorrowFixedContext
   );
-  const { tableColumns, tableData } =
-    useFixedLiquidityPoolsTable(selectedDepositToken);
-  const { areaChartData, onSelect, legendData, chartToolTipData } =
-    useBorrowFixedChart();
+  const { tableColumns, tableData } = useFixedLiquidityPoolsTable(
+    selectedDepositToken,
+    deposit?.currencyId
+  );
+  const { areaChartData, legendData, chartToolTipData } =
+    useInteractiveMaturityChart(deposit?.currencyId);
   const totalApy = maturityData.find(
     (m) => m.tokenId === selectedfCashId
   )?.tradeRate;

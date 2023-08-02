@@ -1,22 +1,15 @@
-import { useContext } from 'react';
 import { useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { ChartToolTipDataProps } from '@notional-finance/mui';
-import { LendFixedContext } from '../../lend-fixed/lend-fixed';
 import { useFCashMarket } from '@notional-finance/notionable-hooks';
 import {
   getDateString,
   formatNumberAsPercent,
 } from '@notional-finance/helpers';
-import { useMaturitySelect } from '@notional-finance/trade';
 
-export const useLendFixedChart = () => {
+export const useInteractiveMaturityChart = (currencyId: number | undefined) => {
   const theme = useTheme();
-  const {
-    state: { deposit },
-  } = useContext(LendFixedContext);
-  const { onSelect } = useMaturitySelect('Collateral', LendFixedContext);
-  const fCashMarket = useFCashMarket(deposit?.currencyId);
+  const fCashMarket = useFCashMarket(currencyId);
   let areaChartData: any[] = [];
 
   if (fCashMarket) {
@@ -59,5 +52,7 @@ export const useLendFixedChart = () => {
     },
   };
 
-  return { areaChartData, onSelect, chartToolTipData, legendData };
+  return { areaChartData, chartToolTipData, legendData };
 };
+
+export default useInteractiveMaturityChart;
