@@ -15,9 +15,9 @@ interface SideNavItemProps extends LinkProps {
 
 export const SideNavOptons = () => {
   const theme = useTheme();
-  const sideNav = useSideNav();
+  const { useOptions } = useSideNav();
   const { category } = useParams<PortfolioParams>();
-
+  const sideNav = useOptions();
   return (
     <Box>
       {sideNav.map(({ id, Icon, notifications, to }, index) => {
