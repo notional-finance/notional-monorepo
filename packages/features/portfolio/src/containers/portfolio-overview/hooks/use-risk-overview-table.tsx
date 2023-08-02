@@ -70,7 +70,6 @@ export const useRiskOverviewTable = () => {
         collateral: {
           symbol: collateral.symbol,
           label: collateral.symbol,
-          caption: '??',
         },
         riskFactor: {
           data: [
@@ -85,7 +84,7 @@ export const useRiskOverviewTable = () => {
     });
 
   const vaultLiquidationPrice = vaults.flatMap((v) => {
-    const symbol = v.defaultSymbol as string;
+    const symbol = v.denom(v.defaultSymbol).symbol;
     const name = v.vaultConfig.name;
     return v
       .getAllLiquidationPrices({ onlyUnderlyingDebt: true })
@@ -99,11 +98,11 @@ export const useRiskOverviewTable = () => {
             caption: 'Leveraged Vault',
           },
           riskFactor: {
-            data: [`${collateral.symbol}/${symbol}`, 'Chainlink Oracle Price'],
+            data: [`Vault Shares/${symbol}`, 'Chainlink Oracle Price'],
             isNegative: false,
           },
           currentPrice: `${currentPrice?.toDisplayStringWithSymbol(4)}`,
-          liquidationPrice: `${price?.toDisplayString(4)}`,
+          liquidationPrice: `${price?.toDisplayStringWithSymbol(4)}`,
         };
       });
   });
