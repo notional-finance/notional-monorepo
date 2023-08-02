@@ -378,13 +378,6 @@ export function calculate(
           (r) => inputs[r] !== undefined
         );
         const calculateInputKeys = keys.join('|');
-        if (prevCalculateInputKeys !== calculateInputKeys) {
-          //           console.log(`
-          // KEYS MISMATCH
-          // ${prevCalculateInputKeys}
-          // ${calculateInputKeys}
-          // `);
-        }
         return prevInputsSatisfied !== inputsSatisfied ||
           prevCalculateInputKeys !== calculateInputKeys
           ? {
@@ -417,14 +410,14 @@ export function calculate(
             ...u,
             ...outputs,
             calculateError,
-            canSubmit: true,
+            calculationSuccess: true,
           };
         } catch (e) {
           calculateError = (e as Error).toString();
         }
       }
 
-      return { ...u, canSubmit: false, calculateError };
+      return { ...u, calculationSuccess: false, calculateError };
     }),
     map(({ inputs, collateralTokens, debtTokens, tradeType, ...u }) => {
       const {
@@ -580,23 +573,31 @@ export function postAccountRisk(
   return combineLatest([account$, state$]).pipe(
     distinctUntilChanged(
       ([, p], [, c]) =>
-        p.canSubmit === c.canSubmit &&
+        p.calculationSuccess === c.calculationSuccess &&
         p.depositBalance?.hashKey === c.depositBalance?.hashKey &&
         p.collateralBalance?.hashKey === c.collateralBalance?.hashKey &&
         p.debtBalance?.hashKey === c.debtBalance?.hashKey
     ),
-    map(([account, { canSubmit, collateralBalance, debtBalance }]) => {
-      if (canSubmit && account) {
+    map(([account, { calculationSuccess, collateralBalance, debtBalance }]) => {
+      if (calculationSuccess && account) {
         const profile = AccountRiskProfile.simulate(
           account.balances.filter((t) => t.tokenType !== 'Underlying'),
           [collateralBalance, debtBalance].filter(
             (b) => b !== undefined
           ) as TokenBalance[]
         );
+        const postAccountRisk = profile.getAllRiskFactors();
 
         return {
-          postAccountRisk: profile.getAllRiskFactors(),
+          postAccountRisk: postAccountRisk,
+          canSubmit: postAccountRisk.freeCollateral.isPositive(),
           postTradeBalances: profile.balances,
+        };
+      } else if (!calculationSuccess) {
+        return {
+          postAccountRisk: undefined,
+          canSubmit: false,
+          postTradeBalances: undefined,
         };
       }
 
@@ -636,7 +637,7 @@ export function postVaultAccountRisk(
   return combineLatest([account$, state$]).pipe(
     distinctUntilChanged(
       ([, p], [, c]) =>
-        p.canSubmit === c.canSubmit &&
+        p.calculationSuccess === c.calculationSuccess &&
         p.depositBalance?.hashKey === c.depositBalance?.hashKey &&
         p.collateralBalance?.hashKey === c.collateralBalance?.hashKey &&
         p.debtBalance?.hashKey === c.debtBalance?.hashKey
@@ -644,9 +645,15 @@ export function postVaultAccountRisk(
     map(
       ([
         account,
-        { canSubmit, collateralBalance, collateral, debtBalance, vaultAddress },
+        {
+          calculationSuccess,
+          collateralBalance,
+          collateral,
+          debtBalance,
+          vaultAddress,
+        },
       ]) => {
-        if (canSubmit && account && vaultAddress && collateral) {
+        if (calculationSuccess && account && vaultAddress && collateral) {
           const profile = VaultAccountRiskProfile.simulate(
             vaultAddress,
             account.balances.filter((t) => t.tokenType !== 'Underlying'),
@@ -654,10 +661,20 @@ export function postVaultAccountRisk(
               (b) => b !== undefined
             ) as TokenBalance[]
           );
+          const postAccountRisk = profile.getAllRiskFactors();
 
           return {
-            postAccountRisk: profile.getAllRiskFactors(),
+            postAccountRisk,
+            canSubmit:
+              postAccountRisk.leverageRatio === null ||
+              postAccountRisk.leverageRatio < profile.maxLeverageRatio,
             postTradeBalances: profile.balances,
+          };
+        } else if (!calculationSuccess) {
+          return {
+            postAccountRisk: undefined,
+            canSubmit: false,
+            postTradeBalances: undefined,
           };
         }
 
