@@ -10,7 +10,6 @@ import {
   InteractiveAreaChart,
 } from '@notional-finance/mui';
 import { useLendFixedFaq, useTotalsData } from '../hooks';
-
 import { LendFixedContext } from '../../lend-fixed/lend-fixed';
 import {
   TradeActionSummary,
@@ -21,12 +20,14 @@ import {
 
 export const LendFixedTradeSummary = () => {
   const theme = useTheme();
+  const context = useContext(LendFixedContext);
   const {
     state: { selectedDepositToken, deposit },
-  } = useContext(LendFixedContext);
+  } = context;
+
   const { maturityData, selectedfCashId, onSelect } = useMaturitySelect(
     'Collateral',
-    LendFixedContext
+    context
   );
   const { areaChartData, legendData, chartToolTipData } =
     useInteractiveMaturityChart(deposit?.currencyId);
