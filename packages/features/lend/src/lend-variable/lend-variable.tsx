@@ -11,7 +11,6 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { LendVariableSidebar } from './components';
 import { TradeActionSummary } from '@notional-finance/trade';
-import { NOTIONAL_CATEGORIES } from '@notional-finance/shared-config';
 import { useLendVariableFaq } from './hooks/use-lend-variable-faq';
 
 export const LendVariableContext = createTradeContext('LendVariable');
@@ -37,7 +36,7 @@ export const LendVariable = () => {
               tradeActionTitle={
                 <FormattedMessage defaultMessage={'4.431% Variable APY'} />
               }
-              tradeAction={NOTIONAL_CATEGORIES.LEND}
+              tradeActionHeader={<FormattedMessage defaultMessage={'Lend'} />}
             >
               <FaqHeader
                 title={

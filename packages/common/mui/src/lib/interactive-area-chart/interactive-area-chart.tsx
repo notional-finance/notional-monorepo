@@ -30,7 +30,7 @@ export interface InteractiveAreaChartData {
 
 interface InteractiveAreaChartProps extends ChartHeaderProps {
   interactiveAreaChartData: InteractiveAreaChartData[];
-  onSelectMarketKey: (marketKey: string | null) => void;
+  onSelectMarketKey: (selectedId: string | undefined) => void;
   lockSelection?: boolean;
   selectedMarketKey?: string;
   chartToolTipData?: ChartToolTipDataProps;
@@ -78,7 +78,7 @@ export const InteractiveAreaChart = ({
         setActiveTimestamp(props.value);
       }
     } else {
-      onSelectMarketKey(null);
+      onSelectMarketKey(undefined);
       setActiveTimestamp(0);
     }
   };

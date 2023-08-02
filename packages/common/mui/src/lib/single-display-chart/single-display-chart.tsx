@@ -6,7 +6,7 @@ import { ChartHeader } from '../chart-header/chart-header';
 
 interface SingleDisplayChartProps extends AreaChartProps, BarChartProps {
   chartType: 'area' | 'bar';
-  legendData: any;
+  legendData?: any;
 }
 
 export const SingleDisplayChart = ({
