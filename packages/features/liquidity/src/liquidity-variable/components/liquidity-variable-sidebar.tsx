@@ -7,9 +7,10 @@ import { LiquidityContext } from '../liquidity-variable';
 
 export const LiquidityVariableSidebar = () => {
   const history = useHistory();
+  const context = useContext(LiquidityContext);
   const {
     state: { selectedDepositToken },
-  } = useContext(LiquidityContext);
+  } = context;
   const { currencyInputRef } = useCurrencyInputRef();
 
   const handleLeverUpToggle = useCallback(() => {
@@ -18,13 +19,13 @@ export const LiquidityVariableSidebar = () => {
 
   return (
     <TransactionSidebar
-      context={LiquidityContext}
+      context={context}
       handleLeverUpToggle={handleLeverUpToggle}
     >
       <DepositInput
         ref={currencyInputRef}
         inputRef={currencyInputRef}
-        context={LiquidityContext}
+        context={context}
         newRoute={(newToken) => `/provide/${newToken}`}
         inputLabel={defineMessage({
           defaultMessage: '1. How much liquidity do you want to provide?',

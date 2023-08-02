@@ -9,20 +9,25 @@ import { VaultActionContext } from '../vault-view/vault-action-provider';
 import { useHistory } from 'react-router';
 import { messages } from '../messages';
 import { VaultDetailsTable } from './vault-details-table';
-import { useVaultProperties } from '@notional-finance/notionable-hooks';
+import {
+  VaultContext,
+  useVaultProperties,
+} from '@notional-finance/notionable-hooks';
 import { useVaultCapacity } from '../hooks';
 import { VaultTradeType } from '@notional-finance/notionable';
 
 interface VaultSideDrawerProps {
   children?: React.ReactNode | React.ReactNode[];
   advancedToggle?: ToggleSwitchProps;
+  context: VaultContext;
 }
 
 export const VaultSideDrawer = ({
   children,
   advancedToggle,
+  context,
 }: VaultSideDrawerProps) => {
-  const history = useHistory();
+  // const history = useHistory();
   const {
     state: {
       vaultAddress,
@@ -32,14 +37,14 @@ export const VaultSideDrawer = ({
       populatedTransaction,
     },
     updateState,
-  } = useContext(VaultActionContext);
+  } = context;
   const { minDepositRequired } = useVaultProperties(vaultAddress);
   const { minBorrowSize } = useVaultCapacity();
   const tradeType = _tradeType as VaultTradeType;
 
-  const handleCancel = useCallback(() => {
-    history.push(`/vaults/${vaultAddress}`);
-  }, [vaultAddress, history]);
+  // const handleCancel = useCallback(() => {
+  //   history.push(`/vaults/${vaultAddress}`);
+  // }, [vaultAddress, history]);
 
   const handleSubmit = () => {
     updateState({ confirm: true });
@@ -49,14 +54,15 @@ export const VaultSideDrawer = ({
     <div>
       {tradeType ? (
         populatedTransaction && confirm ? (
-          <Confirmation2
-            heading={messages[tradeType].heading}
-            context={VaultActionContext}
-            onCancel={handleCancel}
-            showDrawer={false}
-            onReturnToForm={handleCancel}
-          />
+          <>TODO</>
         ) : (
+          // <Confirmation2
+          //   heading={messages[tradeType].heading}
+          //   context={context}
+          //   onCancel={handleCancel}
+          //   showDrawer={false}
+          //   onReturnToForm={handleCancel}
+          // />
           <ActionSidebar
             heading={messages[tradeType].heading}
             helptext={{

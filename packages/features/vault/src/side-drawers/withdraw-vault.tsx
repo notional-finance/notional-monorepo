@@ -15,6 +15,7 @@ import { TokenBalance } from '@notional-finance/core-entities';
 
 export const WithdrawVault = () => {
   const { setCurrencyInput, currencyInputRef } = useCurrencyInputRef();
+  const context = useContext(VaultActionContext);
   const {
     state: {
       priorAccountRisk,
@@ -24,7 +25,7 @@ export const WithdrawVault = () => {
       depositBalance,
     },
     updateState,
-  } = useContext(VaultActionContext);
+  } = context;
   const primaryBorrowSymbol = deposit?.symbol;
   const isFullRepayment = postAccountRisk?.leverageRatio === null;
   const priorLeverageRatio = priorAccountRisk?.leverageRatio || null;
@@ -48,7 +49,7 @@ export const WithdrawVault = () => {
   const maxWithdrawAmount = TokenBalance.zero(deposit);
 
   return (
-    <VaultSideDrawer>
+    <VaultSideDrawer context={context}>
       <Box>
         <InputLabel inputLabel={messages['WithdrawVault']['inputLabel']} />
         <CurrencyInput

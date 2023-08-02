@@ -1,14 +1,14 @@
 import { MaturityData, isVaultTrade } from '@notional-finance/notionable';
 import {
-  BaseContext,
+  BaseTradeContext,
   useSpotMaturityData,
 } from '@notional-finance/notionable-hooks';
 import { formatInterestRate } from '@notional-finance/util';
-import { useCallback, useContext } from 'react';
+import { useCallback } from 'react';
 
 export const useMaturitySelect = (
   category: 'Collateral' | 'Debt',
-  context: BaseContext
+  context: BaseTradeContext
 ) => {
   const {
     state: {
@@ -22,7 +22,7 @@ export const useMaturitySelect = (
       deposit,
     },
     updateState,
-  } = useContext(context);
+  } = context;
   const selectedToken = category === 'Collateral' ? collateral : debt;
   const options = category === 'Collateral' ? collateralOptions : debtOptions;
   const tokens =

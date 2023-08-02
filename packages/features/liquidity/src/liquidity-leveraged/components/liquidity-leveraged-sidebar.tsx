@@ -13,9 +13,8 @@ import { PRODUCTS } from '@notional-finance/shared-config';
 
 export const LiquidityLeveragedSidebar = () => {
   const history = useHistory();
-  const {
-    state: { selectedDepositToken },
-  } = useContext(LeveragedLiquidityContext);
+  const context  = useContext(LeveragedLiquidityContext);
+  const { state: { selectedDepositToken } } = context
   const { currencyInputRef } = useCurrencyInputRef();
 
   const handleLeverUpToggle = useCallback(() => {
@@ -24,23 +23,23 @@ export const LiquidityLeveragedSidebar = () => {
 
   return (
     <TransactionSidebar
-      context={LeveragedLiquidityContext}
+      context={context}
       handleLeverUpToggle={handleLeverUpToggle}
       leveredUp
     >
       <DepositInput
         ref={currencyInputRef}
         inputRef={currencyInputRef}
-        context={LeveragedLiquidityContext}
+        context={context}
         newRoute={(newToken) => `/${PRODUCTS.LIQUIDITY_LEVERAGED}/${newToken}`}
         inputLabel={defineMessage({
           defaultMessage: '1. Enter deposit amount',
           description: 'input label',
         })}
       />
-      <VariableFixedMaturityToggle context={LeveragedLiquidityContext} />
+      <VariableFixedMaturityToggle context={context} />
       <LeverageSlider
-        context={LeveragedLiquidityContext}
+        context={context}
         inputLabel={defineMessage({
           defaultMessage: '3. Specify your leverage',
           description: 'input label',

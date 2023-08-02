@@ -1,10 +1,10 @@
 import { Divider, styled, useTheme } from '@mui/material';
 import { ExternalLink, HeadingSubtitle, Drawer } from '@notional-finance/mui';
 import {
-  BaseContext,
+  TradeContext,
   useTransactionStatus,
 } from '@notional-finance/notionable-hooks';
-import { useCallback, useContext } from 'react';
+import { useCallback } from 'react';
 import { FormattedMessage } from 'react-intl';
 import {
   PendingTransaction,
@@ -16,7 +16,7 @@ import { PortfolioCompare } from './components/portfolio-compare';
 
 export interface ConfirmationProps {
   heading: React.ReactNode;
-  context: BaseContext;
+  context: TradeContext;
   onCancel?: () => void;
   onReturnToForm?: () => void;
   showDrawer?: boolean;
@@ -30,7 +30,7 @@ export const Confirmation2 = ({
   showDrawer = true,
 }: ConfirmationProps) => {
   const theme = useTheme();
-  const { state, updateState } = useContext(context);
+  const { state, updateState } = context;
   const { populatedTransaction, transactionError } = state;
   // const selectedNetwork = useSelectedNetwork();
   // const [_calls, setSimulatedCalls] = useState<

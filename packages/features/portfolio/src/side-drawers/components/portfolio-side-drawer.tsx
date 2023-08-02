@@ -3,13 +3,13 @@ import { TransactionSidebar } from '@notional-finance/trade';
 import { useHistory, useLocation, useParams } from 'react-router';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { PortfolioParams } from '../../portfolio-feature-shell';
-import { useCallback, useContext } from 'react';
-import { BaseContext } from '@notional-finance/notionable-hooks';
+import { useCallback } from 'react';
+import { TradeContext } from '@notional-finance/notionable-hooks';
 
 interface PortfolioSideDrawerProps {
   children?: React.ReactNode | React.ReactNode[];
   advancedToggle?: ToggleSwitchProps;
-  context: BaseContext;
+  context: TradeContext;
 }
 
 export const PortfolioSideDrawer = ({
@@ -17,7 +17,7 @@ export const PortfolioSideDrawer = ({
   children,
   advancedToggle,
 }: PortfolioSideDrawerProps) => {
-  const { updateState } = useContext(context);
+  const { updateState } = context;
   const history = useHistory();
   const { search } = useLocation();
   const { category, sideDrawerKey } = useParams<PortfolioParams>();

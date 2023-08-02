@@ -6,8 +6,8 @@ import {
   Maturities,
   TabToggle,
 } from '@notional-finance/mui';
-import { BaseContext } from '@notional-finance/notionable-hooks';
-import { useContext, useEffect, useState } from 'react';
+import { BaseTradeContext } from '@notional-finance/notionable-hooks';
+import { useEffect, useState } from 'react';
 import { useMaturitySelect } from './use-maturity-select';
 import { FormattedMessage, MessageDescriptor, defineMessage } from 'react-intl';
 import {
@@ -17,7 +17,7 @@ import {
 } from '@notional-finance/util';
 
 interface ToggleMaturitySelectProps {
-  context: BaseContext;
+  context: BaseTradeContext;
   fCashInputLabel?: MessageDescriptor;
 }
 
@@ -33,7 +33,7 @@ export function VariableFixedMaturityToggle({
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
   const {
     state: { availableDebtTokens, debt },
-  } = useContext(context);
+  } = context;
 
   const { maturityData, selectedfCashId, onSelect } = useMaturitySelect(
     'Debt',

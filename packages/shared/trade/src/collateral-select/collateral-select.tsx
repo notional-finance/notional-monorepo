@@ -1,14 +1,14 @@
 import { AssetSelectDropdown } from '@notional-finance/mui';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
-import { useContext, useCallback, useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { defineMessage, FormattedMessage, MessageDescriptor } from 'react-intl';
 import {
-  BaseContext,
+  TradeContext,
   useSpotMaturityData,
 } from '@notional-finance/notionable-hooks';
 
 interface CollateralSelectProps {
-  context: BaseContext;
+  context: TradeContext;
   inputLabel: MessageDescriptor;
   errorMsg?: MessageDescriptor;
   tightMarginTop?: boolean;
@@ -28,7 +28,7 @@ export const CollateralSelect = ({
       collateralOptions,
       availableCollateralTokens,
     },
-  } = useContext(context);
+  } = context;
   const spotRates = useSpotMaturityData(
     deposit ? availableCollateralTokens : []
   );

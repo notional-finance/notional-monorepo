@@ -4,7 +4,7 @@ import {
   ToggleSwitchProps,
 } from '@notional-finance/mui';
 import { TradeContext } from '@notional-finance/notionable-hooks';
-import { useCallback, useContext } from 'react';
+import { useCallback } from 'react';
 import { MessageDescriptor } from 'react-intl';
 import TradeActionButton from '../trade-action-button/trade-action-button';
 import Confirmation2 from '../transaction-confirmation/confirmation2';
@@ -39,7 +39,7 @@ export const TransactionSidebar = ({
   onReturnToForm,
   onCancelCallback,
 }: TransactionSidebarProps) => {
-  const { state, updateState } = useContext(context);
+  const { state, updateState } = context;
   const { canSubmit, populatedTransaction, confirm, tradeType } = state;
 
   const handleSubmit = useCallback(() => {

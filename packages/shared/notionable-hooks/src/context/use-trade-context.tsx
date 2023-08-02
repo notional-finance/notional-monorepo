@@ -7,14 +7,14 @@ import {
 } from '@notional-finance/notionable';
 import {
   createObservableContext,
-  ObservableContext,
   useObservableContext,
 } from './ObservableContext';
 
-export type TradeContext = React.Context<ObservableContext<TradeState>>;
-
 export function createTradeContext(displayName: string) {
-  return createObservableContext<TradeState>(displayName, initialBaseTradeState);
+  return createObservableContext<TradeState>(
+    displayName,
+    initialBaseTradeState
+  );
 }
 
 export function useTradeContext(tradeType: TradeType) {

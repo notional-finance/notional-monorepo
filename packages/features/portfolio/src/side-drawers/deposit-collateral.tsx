@@ -1,7 +1,4 @@
-import {
-  createTradeContext,
-  useTradeContext,
-} from '@notional-finance/notionable-hooks';
+import { useTradeContext } from '@notional-finance/notionable-hooks';
 import { PortfolioParams } from '../portfolio-feature-shell';
 import { PortfolioSideDrawer } from './components/portfolio-side-drawer';
 import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
@@ -10,8 +7,6 @@ import { useCurrencyInputRef } from '@notional-finance/mui';
 import { messages } from './messages';
 import { useParams } from 'react-router';
 import { useEffect } from 'react';
-
-const DepositCollateralContext = createTradeContext('DepositCollateral');
 
 export const DepositCollateral = () => {
   const context = useTradeContext('Deposit');
@@ -33,22 +28,20 @@ export const DepositCollateral = () => {
   }, [selectedToken, updateState, selectedDepositToken]);
 
   return (
-    <DepositCollateralContext.Provider value={context}>
-      <PortfolioSideDrawer context={DepositCollateralContext}>
-        <DepositInput
-          context={DepositCollateralContext}
-          inputRef={currencyInputRef}
-          newRoute={(newToken) =>
-            `/portfolio/${category}/${sideDrawerKey}/${newToken}`
-          }
-          inputLabel={messages[PORTFOLIO_ACTIONS.DEPOSIT]['inputLabel']}
-        />
-        <CollateralSelect
-          tightMarginTop
-          context={DepositCollateralContext}
-          inputLabel={messages[PORTFOLIO_ACTIONS.DEPOSIT]['inputLabel']}
-        />
-      </PortfolioSideDrawer>
-    </DepositCollateralContext.Provider>
+    <PortfolioSideDrawer context={context}>
+      <DepositInput
+        context={context}
+        inputRef={currencyInputRef}
+        newRoute={(newToken) =>
+          `/portfolio/${category}/${sideDrawerKey}/${newToken}`
+        }
+        inputLabel={messages[PORTFOLIO_ACTIONS.DEPOSIT]['inputLabel']}
+      />
+      <CollateralSelect
+        tightMarginTop
+        context={context}
+        inputLabel={messages[PORTFOLIO_ACTIONS.DEPOSIT]['inputLabel']}
+      />
+    </PortfolioSideDrawer>
   );
 };

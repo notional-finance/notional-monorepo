@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box } from '@mui/material';
 import {
   CurrencyInput,
@@ -7,13 +7,13 @@ import {
   PageLoading,
 } from '@notional-finance/mui';
 import { FormattedMessage, MessageDescriptor } from 'react-intl';
-import { BaseContext } from '@notional-finance/notionable-hooks';
 import { useHistory } from 'react-router';
 import { INTERNAL_TOKEN_DECIMALS } from '@notional-finance/util';
 import { useAssetInput } from './use-asset-input';
+import { BaseTradeContext } from '@notional-finance/notionable-hooks';
 
 interface AssetInputProps {
-  context: BaseContext;
+  context: BaseTradeContext;
   prefillMax?: boolean;
   debtOrCollateral: 'Debt' | 'Collateral';
   newRoute?: (newToken: string | null) => string;
@@ -56,7 +56,7 @@ export const AssetInput = React.forwardRef<
         calculateError,
       },
       updateState,
-    } = useContext(context);
+    } = context;
     const selectedToken = debtOrCollateral === 'Debt' ? debt : collateral;
     let availableTokens =
       debtOrCollateral === 'Debt'
@@ -65,12 +65,8 @@ export const AssetInput = React.forwardRef<
     if (availableTokens?.length === 0 && selectedToken)
       availableTokens = [selectedToken];
 
-    const {
-      inputAmount,
-      maxBalanceString,
-      errorMsg,
-      setInputString,
-    } = useAssetInput(selectedToken, debtOrCollateral === 'Debt');
+    const { inputAmount, maxBalanceString, errorMsg, setInputString } =
+      useAssetInput(selectedToken, debtOrCollateral === 'Debt');
 
     useEffect(() => {
       if (

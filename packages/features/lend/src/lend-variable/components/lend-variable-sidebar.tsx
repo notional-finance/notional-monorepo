@@ -8,9 +8,8 @@ import { useHistory } from 'react-router';
 
 export const LendVariableSidebar = () => {
   const history = useHistory();
-  const {
-    state: { selectedDepositToken },
-  } = useContext(LendVariableContext);
+  const context = useContext(LendVariableContext);
+  const { state: { selectedDepositToken } } = context
   const { currencyInputRef } = useCurrencyInputRef();
 
   const handleLeverUpToggle = useCallback(() => {
@@ -22,12 +21,12 @@ export const LendVariableSidebar = () => {
   return (
     <TransactionSidebar
       handleLeverUpToggle={handleLeverUpToggle}
-      context={LendVariableContext}
+      context={context}
     >
       <DepositInput
         ref={currencyInputRef}
         inputRef={currencyInputRef}
-        context={LendVariableContext}
+        context={context}
         newRoute={(newToken) => `/${PRODUCTS.LEND_VARIABLE}/${newToken}`}
         inputLabel={defineMessage({
           defaultMessage: '1. How much do you want to lend?',

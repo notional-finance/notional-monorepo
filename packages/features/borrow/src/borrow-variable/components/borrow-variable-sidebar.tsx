@@ -11,19 +11,18 @@ import { BorrowVariableContext } from '../borrow-variable';
 import { usePrimeCashBalance } from '@notional-finance/notionable-hooks';
 
 export const BorrowVariableSidebar = () => {
-  const {
-    state: { selectedDepositToken },
-  } = useContext(BorrowVariableContext);
+  const context = useContext(BorrowVariableContext);
+  const { state: { selectedDepositToken }} = context
   const { currencyInputRef } = useCurrencyInputRef();
   const cashBalance = usePrimeCashBalance(selectedDepositToken);
 
   return (
-    <TransactionSidebar context={BorrowVariableContext}>
+    <TransactionSidebar context={context}>
       <DepositInput
         ref={currencyInputRef}
         inputRef={currencyInputRef}
         isWithdraw
-        context={BorrowVariableContext}
+        context={context}
         newRoute={(newToken) => `/${PRODUCTS.BORROW_VARIABLE}/${newToken}`}
         inputLabel={defineMessage({
           defaultMessage: '1. How much do you want to borrow?',

@@ -8,9 +8,9 @@ import {
 } from '@notional-finance/mui';
 import { MaturityData } from '@notional-finance/notionable';
 import { useMaturitySelect } from '@notional-finance/trade';
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { FormattedMessage, defineMessage } from 'react-intl';
-import { LendLeveragedContext } from '../lend-leveraged';
+import { BaseTradeContext } from '@notional-finance/notionable-hooks';
 
 const Container = styled(Box)``;
 const SelectorBox = styled(Box)(
@@ -26,28 +26,11 @@ const SelectorBox = styled(Box)(
 const Variable = defineMessage({ defaultMessage: 'Variable' });
 const Fixed = defineMessage({ defaultMessage: 'Fixed' });
 
-const VariableMaturityCard = ({ variableRate }: { variableRate: number }) => {
-  return (
-    <MaturityCard
-      selected
-      isFirstChild
-      isLastChild
-      isVariable
-      onSelect={() => {
-        // no-op
-        return;
-      }}
-      maturityData={
-        {
-          tradeRate: variableRate,
-          hasLiquidity: true,
-        } as MaturityData
-      }
-    />
-  );
-};
-
-export function LeveragedLendMaturitySelector() {
+export function LeveragedLendMaturitySelector({
+  context,
+}: {
+  context: BaseTradeContext;
+}) {
   const theme = useTheme();
   const [isDebtVariable, setDebtVariable] = useState(true);
   const {
@@ -59,7 +42,7 @@ export function LeveragedLendMaturitySelector() {
       collateral,
       deposit,
     },
-  } = useContext(LendLeveragedContext);
+  } = context;
   const primeDebt = availableDebtTokens?.find(
     (t) => t.tokenType === 'PrimeDebt'
   );
@@ -119,13 +102,13 @@ export function LeveragedLendMaturitySelector() {
     maturityData: debtMaturityData,
     selectedfCashId: selectedDebtId,
     onSelect: onSelectDebt,
-  } = useMaturitySelect('Debt', LendLeveragedContext);
+  } = useMaturitySelect('Debt', context);
 
   const {
     maturityData: collateralMaturityData,
     selectedfCashId: selectedCollateralId,
     onSelect: onSelectCollateral,
-  } = useMaturitySelect('Collateral', LendLeveragedContext);
+  } = useMaturitySelect('Collateral', context);
 
   return (
     <Container>
@@ -189,3 +172,24 @@ export function LeveragedLendMaturitySelector() {
     </Container>
   );
 }
+
+const VariableMaturityCard = ({ variableRate }: { variableRate: number }) => {
+  return (
+    <MaturityCard
+      selected
+      isFirstChild
+      isLastChild
+      isVariable
+      onSelect={() => {
+        // no-op
+        return;
+      }}
+      maturityData={
+        {
+          tradeRate: variableRate,
+          hasLiquidity: true,
+        } as MaturityData
+      }
+    />
+  );
+};
