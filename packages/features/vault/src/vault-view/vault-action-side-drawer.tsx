@@ -8,7 +8,6 @@ import { VaultActionContext } from '../vault-view/vault-action-provider';
 import { defineMessage } from 'react-intl';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { useHistory } from 'react-router';
-import { useVaultAccount } from '@notional-finance/notionable-hooks';
 
 const fadeStart = {
   transition: `opacity 150ms ease`,
@@ -48,16 +47,10 @@ export const VaultActionSideDrawer = () => {
   }, [clearSideDrawer]);
 
   const {
-    state: { vaultAddress },
+    state: { vaultAddress, priorAccountRisk },
     updateState,
   } = useContext(VaultActionContext);
-  const { hasVaultPosition } = useVaultAccount(vaultAddress);
-
-  useEffect(() => {
-    if (!hasVaultPosition) {
-      history.push(`/vaults/${vaultAddress}/CreateVaultPosition`);
-    }
-  }, [hasVaultPosition, history, vaultAddress]);
+  const hasVaultPosition = !!priorAccountRisk;
 
   const returnToManageVault = useCallback(() => {
     history.push(`/vaults/${vaultAddress}`);
@@ -72,7 +65,7 @@ export const VaultActionSideDrawer = () => {
     drawerEl = <CreateVaultPosition />;
   } else {
     drawerEl = (
-      <>
+      <Box>
         <Transition in={manageVaultActive} timeout={150}>
           {(state: TransitionStatus) => {
             return (
@@ -110,7 +103,7 @@ export const VaultActionSideDrawer = () => {
             );
           }}
         </Transition>
-      </>
+      </Box>
     );
   }
 

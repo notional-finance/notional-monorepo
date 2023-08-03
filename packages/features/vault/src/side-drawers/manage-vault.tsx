@@ -1,8 +1,11 @@
 import { Box, styled, useTheme } from '@mui/material';
 import { useContext, useEffect } from 'react';
 import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
-import { H4, LargeInputTextEmphasized } from '@notional-finance/mui';
-import { useVaultProperties } from '@notional-finance/notionable-hooks';
+import { H4, LabelValue, LargeInputTextEmphasized, SideDrawerButton } from '@notional-finance/mui';
+import {
+  useManageVault,
+  useVaultProperties,
+} from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
 import { VaultActionContext } from '../vault-view/vault-action-provider';
 import { messages } from '../messages';
@@ -14,6 +17,8 @@ export const ManageVault = () => {
     state: { vaultAddress },
   } = useContext(VaultActionContext);
   const { vaultName } = useVaultProperties(vaultAddress);
+  const { reduceLeverageOptions, manageVaultOptions } =
+    useManageVault(vaultAddress);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -21,39 +26,68 @@ export const ManageVault = () => {
 
   return (
     <Box>
-      {vaultAddress && (
-        <MainWrapper>
-          <TableWrapper>
-            <LargeInputTextEmphasized
-              gutter="default"
-              sx={{ marginBottom: theme.spacing(5) }}
-            >
-              <FormattedMessage
-                {...messages[PORTFOLIO_ACTIONS.MANAGE_VAULT].headingTwo}
-                values={{
-                  vaultName,
-                }}
-              />
-            </LargeInputTextEmphasized>
-            <VaultDetailsTable
-              key={'vault-risk-table'}
-              hideUpdatedColumn={true}
-            />
-            <H4
-              to="/portfolio/vaults"
-              sx={{
-                marginTop: theme.spacing(3),
-                textDecoration: 'underline',
-                color: theme.palette.typography.accent,
+      <MainWrapper>
+        <TableWrapper>
+          <LargeInputTextEmphasized
+            gutter="default"
+            sx={{ marginBottom: theme.spacing(5) }}
+          >
+            <FormattedMessage
+              {...messages[PORTFOLIO_ACTIONS.MANAGE_VAULT].headingTwo}
+              values={{
+                vaultName,
               }}
-            >
-              <FormattedMessage defaultMessage={'View in Portfolio'} />
-            </H4>
-          </TableWrapper>
+            />
+          </LargeInputTextEmphasized>
+          <VaultDetailsTable
+            key={'vault-risk-table'}
+            hideUpdatedColumn={true}
+          />
+          <H4
+            to="/portfolio/vaults"
+            sx={{
+              marginTop: theme.spacing(3),
+              textDecoration: 'underline',
+              color: theme.palette.typography.accent,
+            }}
+          >
+            <FormattedMessage defaultMessage={'View in Portfolio'} />
+          </H4>
+        </TableWrapper>
 
-          <ManageVault />
-        </MainWrapper>
-      )}
+        {reduceLeverageOptions.length > 0 && (
+          <>
+            <Title>
+              <FormattedMessage defaultMessage={'Reduce leverage'} />
+            </Title>
+            {reduceLeverageOptions.map(({ label, link }, index) => (
+              <SideDrawerButton
+                key={index}
+                sx={{ padding: theme.spacing(2.5) }}
+                to={link}
+              >
+                <H4>{label}</H4>
+              </SideDrawerButton>
+            ))}
+            <Box
+              component={'hr'}
+              sx={{
+                margin: theme.spacing(5, 0),
+                border: `1px solid ${theme.palette.borders.default}`,
+              }}
+            />
+          </>
+        )}
+        {manageVaultOptions.map(({ label, link }, index) => (
+          <SideDrawerButton
+            key={index}
+            sx={{ padding: theme.spacing(2.5) }}
+            to={link}
+          >
+            <H4>{label}</H4>
+          </SideDrawerButton>
+        ))}
+      </MainWrapper>
     </Box>
   );
 };
@@ -73,5 +107,15 @@ const MainWrapper = styled(Box)(
     display: flex;
     flex-direction: column-reverse;
   }
+  `
+);
+
+const Title = styled(LabelValue)(
+  ({ theme }) => `
+  margin-bottom: ${theme.spacing(2.5)};
+  margin-top: ${theme.spacing(5)};
+  color: ${theme.palette.borders.accentDefault};
+  font-weight: 700;
+  text-transform: uppercase;
   `
 );
