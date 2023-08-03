@@ -93,6 +93,22 @@ export const configDefs: ConfigDefinition[] = [
   },
   {
     strategyId: Strategy.Arb_Convex_USDC_FRAX,
+    variable: 'Convex LP token balance in Gauge',
+    sourceType: SourceType.Multicall,
+    sourceConfig: {
+      contractAddress: '0x95285Ea6fF14F80A2fD3989a6bAb993Bd6b5fA13',
+      contractABI: CurveGaugeABI,
+      method: 'balanceOf',
+      args: ['0x989AEb4d175e16225E39E87d0D97A3360524AD80'],
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      decimals: 18,
+    },
+    network: Network.ArbitrumOne,
+  },
+  {
+    strategyId: Strategy.Arb_Convex_USDC_FRAX,
     variable: 'Working Supply',
     sourceType: SourceType.Multicall,
     sourceConfig: {

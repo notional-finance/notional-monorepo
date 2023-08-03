@@ -36,6 +36,8 @@ export const defaultGraphEndpoints: Record<string, Record<string, string>> = {
   [ProtocolName.BalancerV2]: {
     [Network.Mainnet]:
       'https://api.thegraph.com/subgraphs/name/balancer-labs/balancer-v2',
+    [Network.ArbitrumOne]:
+      'https://api.thegraph.com/subgraphs/name/balancer-labs/balancer-arbitrum-v2',
   },
   [ProtocolName.Curve]: {
     [Network.ArbitrumOne]:
