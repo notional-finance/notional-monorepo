@@ -6,7 +6,7 @@ import {
 } from '@notional-finance/mui';
 import { BaseTradeState } from '@notional-finance/notionable';
 import { usePortfolioComparison } from '@notional-finance/notionable-hooks';
-import { FormattedMessage, defineMessage } from 'react-intl';
+import { FormattedMessage } from 'react-intl';
 
 export const PortfolioCompare = ({ state }: { state: BaseTradeState }) => {
   const theme = useTheme();
@@ -39,9 +39,9 @@ export const PortfolioCompare = ({ state }: { state: BaseTradeState }) => {
       <DataTable
         tableVariant={TABLE_VARIANTS.MINI}
         tableTitle={<FormattedMessage defaultMessage={'Portfolio Holdings'} />}
-        stateZeroMessage={defineMessage({
-          defaultMessage: 'Your portfolio is empty',
-        })}
+        stateZeroMessage={
+          <FormattedMessage defaultMessage={'Your portfolio is empty'} />
+        }
         data={
           onlyCurrent
             ? tableData || []
