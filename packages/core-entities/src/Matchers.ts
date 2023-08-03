@@ -74,14 +74,18 @@ export const tokenBalanceMatchers = {
   toBeApprox(r: TokenBalance, a: TokenBalance, rel = 5e-4, abs?: number) {
     try {
       r.isMatch(a);
+      const relSize = Math.abs(r.toFloat() * rel);
+      const maxDiff = Math.abs(abs ? Math.max(abs, relSize) : relSize);
       const pass =
         r.toFloat() === a.toFloat() ||
-        Math.abs(r.toFloat() / a.toFloat() - 1) <= rel ||
-        (abs ? Math.abs(r.toFloat() - a.toFloat()) <= abs : true);
+        Math.abs(r.toFloat() - a.toFloat()) <= maxDiff;
+
       return {
         pass,
         message: () =>
-          `expected ${r.toExactString()} +/- ${rel} == ${a.toExactString()}`,
+          `expected ${r.toExactString()} +/- ${maxDiff.toFixed(
+            8
+          )} == ${a.toExactString()}`,
       };
     } catch (e) {
       return {
