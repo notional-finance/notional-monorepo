@@ -8,6 +8,7 @@ import { VaultActionContext } from '../vault-view/vault-action-provider';
 import { defineMessage } from 'react-intl';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { useHistory } from 'react-router';
+import { VaultTradeType } from '@notional-finance/notionable';
 
 const fadeStart = {
   transition: `opacity 150ms ease`,
@@ -38,7 +39,6 @@ const slideTransition: Record<TransitionStatus, SxProps> = {
 export const VaultActionSideDrawer = () => {
   const theme = useTheme();
   const history = useHistory();
-  const { SideDrawerComponent, openDrawer } = useVaultSideDrawers();
   const { clearSideDrawer } = useSideDrawerManager();
 
   // NOTE: what does this do?
@@ -47,10 +47,13 @@ export const VaultActionSideDrawer = () => {
   }, [clearSideDrawer]);
 
   const {
-    state: { vaultAddress, priorAccountRisk },
+    state: { vaultAddress, priorAccountRisk, tradeType },
     updateState,
   } = useContext(VaultActionContext);
   const hasVaultPosition = !!priorAccountRisk;
+  const { SideDrawerComponent, openDrawer } = useVaultSideDrawers(
+    tradeType as VaultTradeType
+  );
 
   const returnToManageVault = useCallback(() => {
     history.push(`/vaults/${vaultAddress}`);
@@ -59,6 +62,8 @@ export const VaultActionSideDrawer = () => {
 
   const manageVaultActive = !openDrawer ? true : false;
   const sideDrawerActive = SideDrawerComponent && openDrawer ? true : false;
+  console.log('manage vault active', manageVaultActive, hasVaultPosition);
+  console.log('side drawer', openDrawer, sideDrawerActive, SideDrawerComponent);
 
   let drawerEl;
   if (!hasVaultPosition) {
@@ -111,15 +116,7 @@ export const VaultActionSideDrawer = () => {
     <Drawer
       size="large"
       sx={{
-        paddingTop: sideDrawerActive
-          ? {
-              xs: theme.spacing(4, 2),
-              sm: theme.spacing(4, 2),
-              md: '0px',
-              lg: '0px',
-              xl: '0px',
-            }
-          : '',
+        paddingTop: sideDrawerActive ? theme.spacing(4, 2) : '',
       }}
     >
       {drawerEl}

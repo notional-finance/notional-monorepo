@@ -1,5 +1,3 @@
-import { useContext } from 'react';
-import { VaultActionContext } from '../vault-view/vault-action-provider';
 import {
   RollMaturity,
   WithdrawVault,
@@ -19,17 +17,10 @@ const drawers: Record<VaultTradeType, React.ComponentType> = {
   WithdrawVault: WithdrawVault,
 };
 
-export const useVaultSideDrawers = () => {
-  // The presence of tradeType is used to determine if the openDrawer
-  // animation should be triggered or not
-  const {
-    state: { vaultAction, tradeType },
-  } = useContext(VaultActionContext);
-
-  const SideDrawerComponent =
-    vaultAction && tradeType && drawers[tradeType as VaultTradeType]
-      ? drawers[tradeType as VaultTradeType]
-      : null;
+export const useVaultSideDrawers = (tradeType?: VaultTradeType) => {
+  const SideDrawerComponent = tradeType
+    ? drawers[tradeType as VaultTradeType]
+    : null;
 
   const openDrawer = SideDrawerComponent && tradeType ? true : false;
 

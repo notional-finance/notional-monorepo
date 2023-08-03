@@ -130,7 +130,7 @@ export function useManageVault(vaultAddress?: string) {
       reduceLeverageOptions: [
         {
           label: <FormattedMessage defaultMessage={'Deposit Collateral'} />,
-          link: `/vaults/${vaultAddress}/DepositCollateral`,
+          link: `/vaults/${vaultAddress}/DepositVaultCollateral`,
           key: 'DepositCollateral',
         },
         {
