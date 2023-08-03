@@ -8,7 +8,6 @@ import { DataTableHead } from './data-table-head/data-table-head';
 import { DataTableBody } from './data-table-body/data-table-body';
 import { PageLoading } from '../page-loading/page-loading';
 import { useTable, useExpanded, useSortBy } from 'react-table';
-import { FormattedMessage, MessageDescriptor, defineMessage } from 'react-intl';
 import { FormattedMessage } from 'react-intl';
 import { TableCell } from '../typography/typography';
 import {
