@@ -627,28 +627,38 @@ export function priorVaultAccountRisk(
   account$: Observable<AccountDefinition | null>
 ) {
   return combineLatest([state$, account$]).pipe(
-    distinctUntilChanged(
-      ([p, prevA], [c, curA]) =>
-        p.vaultAddress === c.vaultAddress && prevA?.address === curA?.address
-    ),
-    map(([{ vaultAddress }, account]) => {
+    distinctUntilChanged(([p, prevA], [c, curA]) => {
+      const mustComputeRisk =
+        !!curA?.balances.filter((t) => t.token.vaultAddress === c.vaultAddress)
+          ?.length && c.priorAccountRisk === undefined;
+      return (
+        p.vaultAddress === c.vaultAddress &&
+        prevA?.address === curA?.address &&
+        !mustComputeRisk
+      );
+    }),
+    map(([{ vaultAddress, tradeType }, account]) => {
       if (!vaultAddress) return undefined;
-      const vaultBalances =
+      const priorVaultBalances =
         account?.balances.filter(
           (t) => t.token.vaultAddress === vaultAddress
         ) || [];
 
       // NOTE: default trade type is determined by the URL route or the presence
       // of a vault account.
-      if (vaultBalances.length === 0) {
-        return { tradeType: 'CreateVaultPosition' as VaultTradeType };
+      if (priorVaultBalances.length === 0) {
+        return {
+          tradeType: 'CreateVaultPosition' as VaultTradeType,
+          priorVaultBalances,
+        };
       } else {
         // If a vault account exists, then the default trade type is not selected
         return {
-          tradeType: undefined,
+          tradeType: tradeType === 'CreateVaultPosition' ? undefined : tradeType,
+          priorVaultBalances,
           priorAccountRisk: VaultAccountRiskProfile.from(
             vaultAddress,
-            vaultBalances
+            priorVaultBalances
           ).getAllRiskFactors(),
         };
       }

@@ -1,29 +1,6 @@
 import { Registry, TokenBalance } from '@notional-finance/core-entities';
-import { useAccountDefinition } from './use-account';
 import { useNotionalError, useSelectedNetwork } from './use-notional';
 import { FormattedMessage } from 'react-intl';
-
-export function useVaultAccount(vaultAddress?: string) {
-  const { account } = useAccountDefinition();
-  const vaultBalances =
-    account?.balances.filter((t) => t.token.vaultAddress === vaultAddress) ||
-    [];
-  const network = useSelectedNetwork();
-
-  let canRollMaturity = false;
-  if (network && vaultAddress) {
-    canRollMaturity = Registry.getConfigurationRegistry().getVaultConfig(
-      network,
-      vaultAddress
-    ).allowRollPosition;
-  }
-
-  return {
-    vaultBalances,
-    hasVaultPosition: vaultBalances.length > 0,
-    canRollMaturity,
-  };
-}
 
 export function useVaultProperties(vaultAddress?: string) {
   let minAccountBorrowSize: TokenBalance | undefined = undefined;
@@ -100,8 +77,19 @@ export function useAllVaults() {
   return listedVaults || [];
 }
 
-export function useManageVault(vaultAddress?: string) {
-  const { hasVaultPosition, canRollMaturity } = useVaultAccount(vaultAddress);
+export function useManageVault(
+  vaultAddress: string | undefined,
+  hasVaultPosition: boolean
+) {
+  const network = useSelectedNetwork();
+
+  let canRollMaturity = false;
+  if (network && vaultAddress) {
+    canRollMaturity = Registry.getConfigurationRegistry().getVaultConfig(
+      network,
+      vaultAddress
+    ).allowRollPosition;
+  }
 
   if (!hasVaultPosition || !vaultAddress) {
     return { reduceLeverageOptions: [], manageVaultOptions: [] };

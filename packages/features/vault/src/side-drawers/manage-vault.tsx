@@ -14,11 +14,11 @@ import { VaultDetailsTable } from '../components';
 export const ManageVault = () => {
   const theme = useTheme();
   const {
-    state: { vaultAddress },
+    state: { vaultAddress, priorAccountRisk },
   } = useContext(VaultActionContext);
   const { vaultName } = useVaultProperties(vaultAddress);
   const { reduceLeverageOptions, manageVaultOptions } =
-    useManageVault(vaultAddress);
+    useManageVault(vaultAddress, !!priorAccountRisk);
 
   useEffect(() => {
     window.scrollTo(0, 0);

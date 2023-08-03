@@ -12,10 +12,19 @@ import { formatMaturity } from '@notional-finance/helpers';
 export function useVaultDetailsTable() {
   const { priorVaultReturns, newVaultReturns } = useHistoricalReturns();
   const {
-    state: { priorAccountRisk, postAccountRisk, collateral },
+    state: {
+      priorAccountRisk,
+      postAccountRisk,
+      priorVaultBalances,
+      collateralBalance,
+    },
   } = useContext(VaultActionContext);
+  const maturity =
+    collateralBalance?.maturity ||
+    priorVaultBalances?.find((t) => t.tokenType === 'VaultShare')?.maturity;
 
-  if (!priorAccountRisk || !collateral?.maturity) {
+  console.log('USE VAULT DETAILS', priorAccountRisk, postAccountRisk);
+  if (!priorAccountRisk || !maturity) {
     return {
       tableData: [],
       maturity: '',
@@ -103,5 +112,8 @@ export function useVaultDetailsTable() {
     });
   }
 
-  return { tableData, maturity: formatMaturity(collateral.maturity) };
+  return {
+    tableData,
+    maturity: formatMaturity(maturity),
+  };
 }

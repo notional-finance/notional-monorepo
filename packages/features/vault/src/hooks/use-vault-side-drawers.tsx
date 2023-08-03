@@ -18,13 +18,7 @@ const drawers: Record<VaultTradeType, React.ComponentType> = {
 };
 
 export const useVaultSideDrawers = (tradeType?: VaultTradeType) => {
-  const SideDrawerComponent = tradeType
-    ? drawers[tradeType as VaultTradeType]
-    : null;
-
-  const openDrawer = SideDrawerComponent && tradeType ? true : false;
-
-  return { SideDrawerComponent, openDrawer };
+  return tradeType ? drawers[tradeType as VaultTradeType] : null;
 };
 
 export default useVaultSideDrawers;

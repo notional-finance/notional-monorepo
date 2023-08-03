@@ -51,7 +51,7 @@ export const VaultActionSideDrawer = () => {
     updateState,
   } = useContext(VaultActionContext);
   const hasVaultPosition = !!priorAccountRisk;
-  const { SideDrawerComponent, openDrawer } = useVaultSideDrawers(
+  const SideDrawerComponent = useVaultSideDrawers(
     tradeType as VaultTradeType
   );
 
@@ -60,10 +60,8 @@ export const VaultActionSideDrawer = () => {
     updateState({ tradeType: undefined });
   }, [vaultAddress, history, updateState]);
 
-  const manageVaultActive = !openDrawer ? true : false;
-  const sideDrawerActive = SideDrawerComponent && openDrawer ? true : false;
-  console.log('manage vault active', manageVaultActive, hasVaultPosition);
-  console.log('side drawer', openDrawer, sideDrawerActive, SideDrawerComponent);
+  const manageVaultActive = SideDrawerComponent === null
+  const sideDrawerActive = !!SideDrawerComponent
 
   let drawerEl;
   if (!hasVaultPosition) {
@@ -94,7 +92,7 @@ export const VaultActionSideDrawer = () => {
                   ...slideTransition[state],
                 }}
               >
-                {sideDrawerActive && SideDrawerComponent !== null && (
+                {sideDrawerActive && (
                   <>
                     <SideBarSubHeader
                       paddingTop="150px"

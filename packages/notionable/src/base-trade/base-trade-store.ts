@@ -160,6 +160,8 @@ export interface VaultTradeState extends BaseTradeState {
   priorAccountRisk?: ReturnType<VaultAccountRiskProfile['getAllRiskFactors']>;
   /** Account risk factors after changes applied to the account */
   postAccountRisk?: ReturnType<VaultAccountRiskProfile['getAllRiskFactors']>;
+  /** All the prior vault balances (if any) */
+  priorVaultBalances?: TokenBalance[]
 }
 
 export const initialBaseTradeState: BaseTradeState = {
