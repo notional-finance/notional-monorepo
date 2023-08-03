@@ -27,7 +27,6 @@
     "shared-config": "packages/shared/config",
     "shared-helpers": "packages/shared/helpers",
     "shared-notionable-hooks": "packages/shared/notionable-hooks",
-    "shared-risk": "packages/shared/risk",
     "shared-side-drawer": "packages/shared/side-drawer",
     "shared-trade": "packages/shared/trade",
     "shared-user-settings-manager": "packages/shared/user-settings-manager",
