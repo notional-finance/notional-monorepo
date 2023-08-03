@@ -611,7 +611,8 @@ export function useVaultLiquidationRisk(state: VaultTradeState) {
     priorAccountNoRisk:
       priorAccountRisk === undefined ||
       priorAccountRisk?.leverageRatio === null,
-    postAccountNoRisk: postAccountRisk?.leverageRatio === null,
+    postAccountNoRisk:
+      postAccountRisk === undefined || postAccountRisk?.leverageRatio === null,
     tableData: [...factors, ...mergedLiquidationPrices],
   };
 }

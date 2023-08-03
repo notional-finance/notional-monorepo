@@ -5,7 +5,7 @@ import {
   TABLE_VARIANTS,
   DataTableColumn,
 } from '@notional-finance/mui';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, defineMessage } from 'react-intl';
 import { useVaultDetailsTable } from '../hooks/use-vault-details-table';
 
 interface VaultDetailsTableProps {
@@ -53,6 +53,9 @@ export const VaultDetailsTable = ({
       <DataTable
         data={tableData}
         columns={hideUpdatedColumn ? TABLE_COLUMNS.slice(0, 2) : TABLE_COLUMNS}
+        stateZeroMessage={defineMessage({
+          defaultMessage: 'Input parameters to see your vault details.',
+        })}
         tableTitle={
           <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
             <div>

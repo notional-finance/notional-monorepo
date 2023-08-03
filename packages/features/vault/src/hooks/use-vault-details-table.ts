@@ -6,7 +6,8 @@ import { useVaultLiquidationRisk } from '@notional-finance/notionable-hooks';
 export function useVaultDetailsTable() {
   const { state } = useContext(VaultActionContext);
   const { priorVaultBalances, collateralBalance } = state;
-  const { tableData } = useVaultLiquidationRisk(state);
+  const { tableData, priorAccountNoRisk, postAccountNoRisk } =
+    useVaultLiquidationRisk(state);
 
   const maturity =
     collateralBalance?.maturity ||
@@ -30,21 +31,24 @@ export function useVaultDetailsTable() {
   // }
 
   return {
-    tableData: tableData.map(
-      ({ label, current, updated, changeType, greenOnArrowUp }) => {
-        return {
-          label,
-          current,
-          updated: {
-            value: updated,
-            arrowUp: changeType === 'increase',
-            checkmark: changeType === 'cleared',
-            greenOnCheckmark: true,
-            greenOnArrowUp,
-          },
-        };
-      }
-    ),
+    tableData:
+      priorAccountNoRisk && postAccountNoRisk
+        ? []
+        : tableData.map(
+            ({ label, current, updated, changeType, greenOnArrowUp }) => {
+              return {
+                label,
+                current,
+                updated: {
+                  value: updated,
+                  arrowUp: changeType === 'increase',
+                  checkmark: changeType === 'cleared',
+                  greenOnCheckmark: true,
+                  greenOnArrowUp,
+                },
+              };
+            }
+          ),
     maturity: maturity ? formatMaturity(maturity) : '',
   };
 }
