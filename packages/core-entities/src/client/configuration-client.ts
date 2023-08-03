@@ -122,9 +122,9 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
     const feeRate = Math.floor(
       annualizedFeeRate * ((maturity - blockTime) / SECONDS_IN_YEAR)
     );
-    const vaultFee = cashBorrowed.toUnderlying().scale(feeRate, RATE_PRECISION);
+    const vaultFee = cashBorrowed.scale(feeRate, RATE_PRECISION);
     return {
-      cashBorrowed: cashBorrowed.toUnderlying().sub(vaultFee),
+      cashBorrowed: cashBorrowed.sub(vaultFee),
       vaultFee,
     };
   }
