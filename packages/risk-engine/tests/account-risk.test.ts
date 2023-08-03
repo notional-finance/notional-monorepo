@@ -98,6 +98,30 @@ describe.withForkAndRegistry(
           { factor: 'collateralRatio', expected: 124.94 },
           { factor: 'healthFactor', expected: 4.638 },
           { factor: 'leverageRatio', expected: 4.008 },
+          {
+            factor: 'collateralLiquidationThreshold',
+            args: ['nETH'],
+            expected: null,
+          },
+          {
+            factor: 'collateralLiquidationThreshold',
+            args: ['ETH'],
+            expected: [0.19, 'ETH'],
+          },
+        ],
+      },
+      {
+        name: 'Leveraged nToken w/ Liquidation Risk',
+        balances: [
+          [-8.5, 'pdEther'],
+          [10, 'nETH'],
+        ],
+        expected: [
+          {
+            factor: 'collateralLiquidationThreshold',
+            args: ['nETH'],
+            expected: [0.9597, 'nETH'],
+          },
         ],
       },
     ];

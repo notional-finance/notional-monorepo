@@ -209,6 +209,21 @@ export class AccountRiskProfile extends BaseRiskProfile {
       )
     );
 
+    if (collateral.tokenType === 'nToken') {
+      const { nTokenMaxDrawdown } =
+        Registry.getConfigurationRegistry().getNTokenLeverageFactors(
+          collateral
+        );
+
+      // This is the minimum price for an nToken
+      if (
+        maxExchangeRateDecrease.lt(
+          TokenBalance.unit(collateral).mulInRatePrecision(nTokenMaxDrawdown)
+        )
+      )
+        return null;
+    }
+
     if (
       (maxExchangeRateDecrease.isNegative() ||
         maxExchangeRateDecrease.isZero()) &&
