@@ -507,11 +507,11 @@ function getLiquidationPrices(
     let debtTitle: string;
     let isCrossCurrency: boolean;
     if (current) {
-      collateralTitle = formatTokenType(current.collateral).titleWithMaturity;
+      collateralTitle = formatTokenType(current.collateral).title;
       debtTitle = formatTokenType(current.debt).titleWithMaturity;
       isCrossCurrency = current.riskExposure?.isCrossCurrencyRisk || false;
     } else if (updated) {
-      collateralTitle = formatTokenType(updated.collateral).titleWithMaturity;
+      collateralTitle = formatTokenType(updated.collateral).title;
       debtTitle = formatTokenType(updated.debt).titleWithMaturity;
       isCrossCurrency = updated.riskExposure?.isCrossCurrencyRisk || false;
     } else {
