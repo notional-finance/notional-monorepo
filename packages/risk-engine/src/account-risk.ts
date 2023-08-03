@@ -54,12 +54,11 @@ export class AccountRiskProfile extends BaseRiskProfile {
   }
 
   healthFactor() {
-    const debts = this.totalDebt();
-    if (debts.isZero()) return null;
-
-    return (
-      this._toPercent(this.freeCollateral(), this.netWorth()) / PERCENTAGE_BASIS
-    );
+    // As defined here: https://docs.notional.finance/notional-v2/borrower-resources/health-factor
+    const factor =
+      this._toPercent(this.freeCollateral(), this.netWorth()) /
+      PERCENTAGE_BASIS;
+    return 1 + factor * 9;
   }
 
   maxLoanToValue() {
@@ -163,9 +162,24 @@ export class AccountRiskProfile extends BaseRiskProfile {
         this.totalCurrencyDebtsRiskAdjusted(id)
       );
 
-      return fc.add(
-        netLocal.toToken(denom, netLocal.isNegative() ? 'Debt' : 'Asset')
-      );
+      let netFC: TokenBalance;
+      if (netLocal.currencyId === denom.currencyId) {
+        // Handle special case when netLocal is in the denom currency
+        const { haircut, buffer } =
+          Registry.getConfigurationRegistry().getCurrencyHaircutAndBuffer(
+            denom
+          );
+        netFC = netLocal
+          .toUnderlying()
+          .scale(netLocal.isPositive() ? haircut : buffer, PERCENTAGE_BASIS);
+      } else {
+        netFC = netLocal.toToken(
+          denom,
+          netLocal.isNegative() ? 'Debt' : 'Asset'
+        );
+      }
+
+      return fc.add(netFC);
     }, TokenBalance.zero(denom));
   }
 
@@ -182,6 +196,7 @@ export class AccountRiskProfile extends BaseRiskProfile {
   collateralLiquidationThreshold(collateral: TokenDefinition) {
     const netCollateralAvailable = this.netCollateralAvailable(collateral.id);
     // If there is no collateral available, then the liquidation price is null
+    if (this.totalDebt().isZero()) return null;
     if (netCollateralAvailable.isZero()) return null;
 
     const collateralDenominatedFC = this.freeCollateral().toToken(collateral);

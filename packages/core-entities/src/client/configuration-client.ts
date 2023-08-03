@@ -458,6 +458,14 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
       };
     }
   }
+  getCurrencyHaircutAndBuffer(token: TokenDefinition) {
+    if (!token.currencyId) throw Error('Invalid token currency');
+    const config = this.getConfig(token.network, token.currencyId);
+    return {
+      haircut: this._assertDefined(config.collateralHaircut),
+      buffer: this._assertDefined(config.debtBuffer),
+    };
+  }
 
   getExchangeRiskAdjustment(
     oracle: OracleDefinition,
