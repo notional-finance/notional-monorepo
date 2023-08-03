@@ -3,7 +3,6 @@ import {
   ArrowIndicatorCell,
   DataTable,
   TABLE_VARIANTS,
-  TextWithIconCell,
   DataTableColumn,
 } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
@@ -18,8 +17,7 @@ const TABLE_COLUMNS: DataTableColumn[] = [
     Header: (
       <FormattedMessage defaultMessage="Detail" description={'Detail header'} />
     ),
-    Cell: TextWithIconCell,
-    accessor: 'riskType',
+    accessor: 'label',
     textAlign: 'left',
   },
   {
@@ -55,6 +53,9 @@ export const VaultDetailsTable = ({
       <DataTable
         data={tableData}
         columns={hideUpdatedColumn ? TABLE_COLUMNS.slice(0, 2) : TABLE_COLUMNS}
+        stateZeroMessage={
+          <FormattedMessage defaultMessage="Input parameters to see your vault details." />
+        }
         tableTitle={
           <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
             <div>

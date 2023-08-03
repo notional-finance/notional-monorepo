@@ -105,6 +105,9 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
     cashBorrowed: TokenBalance,
     blockTime = getNowSeconds()
   ) {
+    if (cashBorrowed.tokenType !== 'PrimeCash')
+      throw Error('Cash must be prime cash');
+
     if (maturity === PRIME_CASH_VAULT_MATURITY) {
       return {
         cashBorrowed,

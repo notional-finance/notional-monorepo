@@ -129,28 +129,20 @@ export function initVaultState(
       ([{ isReady, vaultAddress }, selectedNetwork, { isAccountPending }]) =>
         !isReady && !!selectedNetwork && !!vaultAddress && !isAccountPending
     ),
-    switchMap(([{ vaultAddress }, selectedNetwork]) => {
-      return new Promise((resolve) => {
-        if (!vaultAddress) resolve(undefined);
-        else {
-          Registry.getVaultRegistry().onNetworkRegistered(
-            selectedNetwork,
-            () => {
-              return Registry.getConfigurationRegistry().onNetworkRegistered(
-                selectedNetwork,
-                () => {
-                  const vaultConfig =
-                    Registry.getConfigurationRegistry().getVaultConfig(
-                      selectedNetwork,
-                      vaultAddress
-                    );
-                  resolve({ isReady: true, vaultConfig });
-                }
-              );
-            }
-          );
+    map(([{ vaultAddress }, selectedNetwork]) => {
+      if (!vaultAddress) return undefined;
+      else {
+        try {
+          const vaultConfig =
+            Registry.getConfigurationRegistry().getVaultConfig(
+              selectedNetwork,
+              vaultAddress
+            );
+          return { isReady: true, vaultConfig };
+        } catch {
+          return undefined;
         }
-      });
+      }
     }),
     filterEmpty()
   );
@@ -177,85 +169,85 @@ export function availableTokens(
 ) {
   return combineLatest([state$, selectedNetwork$, account$]).pipe(
     filter(([{ isReady, tradeType }]) => isReady && !!tradeType),
-    switchMap(([s, selectedNetwork, account]) => {
-      return new Promise((resolve) => {
-        const { collateralFilter, depositFilter, debtFilter } = getTradeConfig(
-          s.tradeType
+    map(([s, selectedNetwork, account]) => {
+      const { collateralFilter, depositFilter, debtFilter } = getTradeConfig(
+        s.tradeType
+      );
+      const listedTokens =
+        Registry.getTokenRegistry().getAllTokens(selectedNetwork);
+
+      // NOTE: selectedDepositToken is used via the URL string to set the deposit token, that is
+      // first selected here and then we simulate the newState with this deposit token set before
+      // we apply collateral and debt filters. This reduces race conditions and improves front end
+      // performance.
+      const availableDepositTokens = listedTokens
+        .filter((t) => t.tokenType === 'Underlying')
+        // By default we only allow tokens with a currency id specified (i.e. they are listed
+        // on Notional)
+        .filter((t) =>
+          depositFilter ? depositFilter(t, account, s) : !!t.currencyId
         );
-        Registry.getTokenRegistry().onNetworkRegistered(selectedNetwork, () => {
-          const listedTokens =
-            Registry.getTokenRegistry().getAllTokens(selectedNetwork);
+      const deposit = getSelectedToken(
+        availableDepositTokens,
+        s.selectedDepositToken || s.deposit?.symbol
+      );
+      const newState = Object.assign(s, { deposit });
 
-          const availableCollateralTokens = listedTokens
-            .filter(
-              (t) =>
-                t.tokenType === 'PrimeCash' ||
-                t.tokenType === 'nToken' ||
-                (t.tokenType === 'VaultShare' &&
-                  (t.maturity || 0) > getNowSeconds()) ||
-                (t.tokenType === 'fCash' &&
-                  t.isFCashDebt === false &&
-                  (t.maturity || 0) > getNowSeconds())
-            )
-            .filter((t) =>
-              collateralFilter ? collateralFilter(t, account, s) : true
-            );
+      // Now apply collateral and debt filters against the `newState` object
+      const availableCollateralTokens = listedTokens
+        .filter(
+          (t) =>
+            t.tokenType === 'PrimeCash' ||
+            t.tokenType === 'nToken' ||
+            (t.tokenType === 'VaultShare' &&
+              (t.maturity || 0) > getNowSeconds()) ||
+            (t.tokenType === 'fCash' &&
+              t.isFCashDebt === false &&
+              (t.maturity || 0) > getNowSeconds())
+        )
+        .filter((t) =>
+          collateralFilter ? collateralFilter(t, account, newState) : true
+        );
 
-          const availableDebtTokens = listedTokens
-            .filter(
-              (t) =>
-                t.tokenType === 'PrimeDebt' ||
-                (t.tokenType === 'VaultDebt' &&
-                  (t.maturity || 0) > getNowSeconds()) ||
-                (t.tokenType === 'fCash' &&
-                  t.isFCashDebt === false && // Always use positive fCash
-                  (t.maturity || 0) > getNowSeconds())
-            )
-            .filter((t) => (debtFilter ? debtFilter(t, account, s) : true));
+      const availableDebtTokens = listedTokens
+        .filter(
+          (t) =>
+            t.tokenType === 'PrimeDebt' ||
+            (t.tokenType === 'VaultDebt' &&
+              (t.maturity || 0) > getNowSeconds()) ||
+            (t.tokenType === 'fCash' &&
+              t.isFCashDebt === false && // Always use positive fCash
+              (t.maturity || 0) > getNowSeconds())
+        )
+        .filter((t) => (debtFilter ? debtFilter(t, account, newState) : true));
 
-          const availableDepositTokens = listedTokens
-            .filter((t) => t.tokenType === 'Underlying')
-            // By default we only allow tokens with a currency id specified (i.e. they are listed
-            // on Notional)
-            .filter((t) =>
-              depositFilter ? depositFilter(t, account, s) : !!t.currencyId
-            );
+      const hasChanged =
+        availableCollateralTokens.map((t) => t.id).join(':') !==
+          s.availableCollateralTokens?.map((t) => t.id).join(':') ||
+        availableDebtTokens.map((t) => t.id).join(':') !==
+          s.availableDebtTokens?.map((t) => t.id).join(':') ||
+        availableDepositTokens.map((t) => t.id).join(':') !==
+          s.availableDepositTokens?.map((t) => t.id).join(':');
 
-          const hasChanged =
-            availableCollateralTokens.map((t) => t.id).join(':') !==
-              s.availableCollateralTokens?.map((t) => t.id).join(':') ||
-            availableDebtTokens.map((t) => t.id).join(':') !==
-              s.availableDebtTokens?.map((t) => t.id).join(':') ||
-            availableDepositTokens.map((t) => t.id).join(':') !==
-              s.availableDepositTokens?.map((t) => t.id).join(':');
+      const debt = getSelectedToken(availableDebtTokens, s.debt?.symbol);
+      const collateral = getSelectedToken(
+        availableCollateralTokens,
+        s.collateral?.symbol
+      );
 
-          const deposit = getSelectedToken(
-            availableDepositTokens,
-            s.selectedDepositToken || s.deposit?.symbol
-          );
-          const debt = getSelectedToken(availableDebtTokens, s.debt?.symbol);
-          const collateral = getSelectedToken(
+      return hasChanged
+        ? {
             availableCollateralTokens,
-            s.collateral?.symbol
-          );
+            availableDebtTokens,
+            availableDepositTokens,
 
-          resolve(
-            hasChanged
-              ? {
-                  availableCollateralTokens,
-                  availableDebtTokens,
-                  availableDepositTokens,
-
-                  // Set the default values if only one is available
-                  deposit,
-                  debt,
-                  collateral,
-                  selectedDepositToken: deposit?.symbol,
-                }
-              : undefined
-          );
-        });
-      });
+            // Set the default values if only one is available
+            deposit,
+            debt,
+            collateral,
+            selectedDepositToken: deposit?.symbol,
+          }
+        : undefined;
     }),
     filterEmpty()
   );
@@ -276,9 +268,10 @@ export function calculate(
     vaultAdapter$,
   ]).pipe(
     filter(([s]) => s.isReady && !!s.tradeType),
-    // NOTE: use a bufferCount(2) here instead of pairwise to ensure that
-    // we don't get race conditions around duplicate input keys
-    bufferCount(2),
+    // NOTE: use a bufferCount(2, 1) here instead of pairwise to ensure that
+    // we don't get race conditions around duplicate input keys. The second
+    // parameter ensures that we start a new buffer on every emission
+    bufferCount(2, 1),
     map(([[p], [s, debtPool, collateralPool, a, vaultAdapter]]) => ({
       prevCalculateInputKeys: p.calculateInputKeys,
       prevInputsSatisfied: p.inputsSatisfied,
@@ -654,7 +647,8 @@ export function priorVaultAccountRisk(
       } else {
         // If a vault account exists, then the default trade type is not selected
         return {
-          tradeType: tradeType === 'CreateVaultPosition' ? undefined : tradeType,
+          tradeType:
+            tradeType === 'CreateVaultPosition' ? undefined : tradeType,
           priorVaultBalances,
           priorAccountRisk: VaultAccountRiskProfile.from(
             vaultAddress,
@@ -690,10 +684,10 @@ export function postVaultAccountRisk(
           vaultAddress,
         },
       ]) => {
-        if (calculationSuccess && account && vaultAddress && collateral) {
+        if (calculationSuccess && vaultAddress && collateral) {
           const profile = VaultAccountRiskProfile.simulate(
             vaultAddress,
-            account.balances.filter((t) => t.tokenType !== 'Underlying'),
+            account?.balances.filter((t) => t.tokenType !== 'Underlying') || [],
             [collateralBalance, debtBalance].filter(
               (b) => b !== undefined
             ) as TokenBalance[]
@@ -703,8 +697,9 @@ export function postVaultAccountRisk(
           return {
             postAccountRisk,
             canSubmit:
-              postAccountRisk.leverageRatio === null ||
-              postAccountRisk.leverageRatio < profile.maxLeverageRatio,
+              (postAccountRisk.leverageRatio === null ||
+                postAccountRisk.leverageRatio < profile.maxLeverageRatio) &&
+              account !== null,
             postTradeBalances: profile.balances,
           };
         } else if (!calculationSuccess) {

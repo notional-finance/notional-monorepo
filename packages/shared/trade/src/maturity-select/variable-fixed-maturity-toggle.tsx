@@ -30,7 +30,7 @@ export function VariableFixedMaturityToggle({
     defaultMessage: 'Select a maturity for your fixed borrow rate',
   }),
 }: ToggleMaturitySelectProps) {
-  const [selectedTabIndex, setSelectedTabIndex] = useState(0);
+  const [selectedTabIndex, setSelectedTabIndex] = useState(VARIABLE);
   const {
     state: { availableDebtTokens, debt },
   } = context;
@@ -40,11 +40,6 @@ export function VariableFixedMaturityToggle({
     context
   );
 
-  const primeDebtId = availableDebtTokens?.find(
-    (t) =>
-      t.tokenType === 'PrimeDebt' || t.maturity === PRIME_CASH_VAULT_MATURITY
-  )?.id;
-  const debtId = debt?.id;
   const fixedMaturities = maturityData.filter(
     (m) =>
       m.token.tokenType === 'fCash' ||
@@ -60,6 +55,12 @@ export function VariableFixedMaturityToggle({
     undefined as number | undefined
   );
 
+  /** Handle the toggle selection */
+  const primeDebtId = availableDebtTokens?.find(
+    (t) =>
+      t.tokenType === 'PrimeDebt' || t.maturity === PRIME_CASH_VAULT_MATURITY
+  )?.id;
+  const debtId = debt?.id;
   useEffect(() => {
     if (
       selectedTabIndex === VARIABLE &&

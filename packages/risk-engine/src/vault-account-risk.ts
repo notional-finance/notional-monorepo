@@ -214,6 +214,8 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     const collateralRatio = this.collateralRatio();
     if (collateralRatio) {
       return 1 / collateralRatio;
+    } else if (collateralRatio === 0) {
+      return Infinity;
     } else {
       return null;
     }
