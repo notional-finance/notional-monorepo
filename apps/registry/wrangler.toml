@@ -36,6 +36,7 @@ minify = false
 [env.local.vars]
 NX_ENV = 'local'
 VERSION = 'v3'
+NX_DATA_URL = 'https://data-dev.notional.finance'
 SUPPORTED_NETWORKS = ['arbitrum', 'all']
 
 [env.local.durable_objects]
@@ -57,6 +58,7 @@ NX_ENV = 'dev'
 # This is version that defines the durable object to retreive, increment it to reset
 # the durable object to a clean version
 VERSION = 'v3'
+NX_DATA_URL = 'https://data-dev.notional.finance'
 SUPPORTED_NETWORKS = [ 'arbitrum', 'all' ]
 
 [env.dev.durable_objects]
@@ -76,6 +78,7 @@ name = "registry"
 [env.prod.vars]
 NX_ENV = 'dev'
 VERSION = 'v3'
+NX_DATA_URL = 'https://data.notional.finance'
 SUPPORTED_NETWORKS = [ 'arbitrum', 'all' ]
 
 [env.prod.durable_objects]
