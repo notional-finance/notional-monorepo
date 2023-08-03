@@ -11,7 +11,7 @@ interface Profile {
   name: string;
   balances: [number, string][];
   expected: {
-    factor: keyof RiskFactors;
+    factor: keyof RiskFactors | 'maxWithdraw';
     args?: string[];
     expected: [number, string] | number | null;
   }[];
@@ -26,7 +26,7 @@ describe.withForkAndRegistry(
   () => {
     const profiles: Profile[] = [
       {
-        name: 'One ETH',
+        name: '[LOG] One ETH',
         balances: [[1, 'ETH']],
         expected: [
           { factor: 'netWorth', expected: [1, 'ETH'] },
@@ -39,6 +39,16 @@ describe.withForkAndRegistry(
             args: ['ETH'],
             expected: null,
           },
+          {
+            factor: 'maxWithdraw',
+            args: ['pEther'],
+            expected: [1, 'pEther'],
+          },
+          {
+            factor: 'maxWithdraw',
+            args: ['nETH'],
+            expected: [0, 'nETH'],
+          },
         ],
       },
       // ETH/USD 1,893.67000000
@@ -47,7 +57,7 @@ describe.withForkAndRegistry(
       // ETH w/ Haircut: 0.81
       // Total FC: 0.07
       {
-        name: 'ETH / USDC',
+        name: '[LOG] ETH / USDC',
         balances: [
           [1, 'ETH'],
           [-1280, 'USDC'],
@@ -69,6 +79,16 @@ describe.withForkAndRegistry(
             args: ['USDC', 'ETH'],
             expected: [1744.99, 'USDC'],
           },
+          {
+            factor: 'maxWithdraw',
+            args: ['pEther'],
+            expected: [0.0904, 'pEther'],
+          },
+          {
+            factor: 'maxWithdraw',
+            args: ['pUSD Coin'],
+            expected: [0, 'pUSD Coin'],
+          },
         ],
       },
       {
@@ -83,6 +103,11 @@ describe.withForkAndRegistry(
           { factor: 'loanToValue', expected: 0 },
           { factor: 'collateralRatio', expected: null },
           { factor: 'healthFactor', expected: 8.29 },
+          {
+            factor: 'maxWithdraw',
+            args: ['pEther'],
+            expected: [5, 'pEther'],
+          },
         ],
       },
       {
@@ -108,6 +133,16 @@ describe.withForkAndRegistry(
             args: ['ETH'],
             expected: [0.19, 'ETH'],
           },
+          {
+            factor: 'maxWithdraw',
+            args: ['pEther'],
+            expected: [0, 'pEther'],
+          },
+          {
+            factor: 'maxWithdraw',
+            args: ['nETH'],
+            expected: [1.107, 'nETH'],
+          },
         ],
       },
       {
@@ -121,6 +156,11 @@ describe.withForkAndRegistry(
             factor: 'collateralLiquidationThreshold',
             args: ['nETH'],
             expected: [0.9597, 'nETH'],
+          },
+          {
+            factor: 'maxWithdraw',
+            args: ['nETH'],
+            expected: [0.551, 'nETH'],
           },
         ],
       },
@@ -202,7 +242,11 @@ describe.withForkAndRegistry(
         const _args = args.map((t: string) =>
           tokens.getTokenBySymbol(Network.ArbitrumOne, t)
         );
-        const actual = p.getRiskFactor(factor as keyof RiskFactors, _args);
+        const actual =
+          factor === 'maxWithdraw'
+            ? p.maxWithdraw(_args[0])
+            : p.getRiskFactor(factor as keyof RiskFactors, _args);
+
         const logResults = name.includes('LOG');
         if (Array.isArray(expected)) {
           const e = TokenBalance.fromFloat(

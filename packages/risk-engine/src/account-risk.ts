@@ -290,4 +290,16 @@ export class AccountRiskProfile extends BaseRiskProfile {
       ),
     };
   }
+
+  override maxWithdraw(token: TokenDefinition): TokenBalance {
+    const balance = this.collateral.find((t) => t.token.id === token.id);
+    if (!balance) return TokenBalance.zero(token);
+
+    const maxWithdraw = this.getWithdrawRequiredToMaintainRiskFactor(token, {
+      riskFactor: 'freeCollateral',
+      limit: TokenBalance.zero(this.denom(this.defaultSymbol)),
+    });
+
+    return maxWithdraw.neg().lt(balance) ? maxWithdraw.neg() : balance;
+  }
 }
