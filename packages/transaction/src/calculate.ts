@@ -577,7 +577,7 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
       debt.network,
       vaultAddress,
       debt.maturity,
-      primeCashBorrowedPreVaultFee.toUnderlying()
+      primeCashBorrowedPreVaultFee.toPrimeCash()
     );
 
   if (

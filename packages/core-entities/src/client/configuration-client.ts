@@ -105,6 +105,9 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
     cashBorrowed: TokenBalance,
     blockTime = getNowSeconds()
   ) {
+    if (cashBorrowed.tokenType !== 'PrimeCash')
+      throw Error('Cash must be prime cash');
+
     if (maturity === PRIME_CASH_VAULT_MATURITY) {
       return {
         cashBorrowed,
@@ -119,9 +122,9 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
     const feeRate = Math.floor(
       annualizedFeeRate * ((maturity - blockTime) / SECONDS_IN_YEAR)
     );
-    const vaultFee = cashBorrowed.toUnderlying().scale(feeRate, RATE_PRECISION);
+    const vaultFee = cashBorrowed.scale(feeRate, RATE_PRECISION);
     return {
-      cashBorrowed: cashBorrowed.toUnderlying().sub(vaultFee),
+      cashBorrowed: cashBorrowed.sub(vaultFee),
       vaultFee,
     };
   }

@@ -554,7 +554,7 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
 
   public getInterestRate(marketIndex: number, utilization: number) {
     if (utilization < 0 || RATE_PRECISION < utilization)
-      throw Error('Out of utilization bounds');
+      throw Error('Insufficient Liquidity');
     const irParams = this.getIRParams(marketIndex);
     if (utilization <= irParams.kinkUtilization1) {
       return Math.floor(
