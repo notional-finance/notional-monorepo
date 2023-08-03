@@ -1,7 +1,11 @@
 import { BytesLike } from 'ethers';
 import { TokenBalance } from '../token-balance';
 import { Network } from '@notional-finance/util';
-import { ExchangeRate, OracleDefinition } from '../Definitions';
+import {
+  ExchangeRate,
+  OracleDefinition,
+  TokenDefinition,
+} from '../Definitions';
 import { Registry } from '../Registry';
 
 export abstract class VaultAdapter {
@@ -46,6 +50,14 @@ export abstract class VaultAdapter {
 
   abstract getNetVaultSharesCost(netVaultShares: TokenBalance): {
     netUnderlyingForVaultShares: TokenBalance;
+    feesPaid: TokenBalance;
+  };
+
+  abstract getNetVaultSharesMinted(
+    netUnderlying: TokenBalance,
+    vaultShare: TokenDefinition
+  ): {
+    netVaultSharesForUnderlying: TokenBalance;
     feesPaid: TokenBalance;
   };
 
