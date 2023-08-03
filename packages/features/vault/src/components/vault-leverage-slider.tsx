@@ -2,9 +2,10 @@ import { CountUp, LabelValue } from '@notional-finance/mui';
 import { MessageDescriptor } from 'react-intl';
 import { messages } from '../messages';
 import { TransactionCostCaption } from './transaction-cost-caption';
-import { useVaultActionErrors, useVaultCosts } from '../hooks';
+import { useVaultActionErrors } from '../hooks';
 import { LeverageSlider } from '@notional-finance/trade';
 import { VaultContext } from '@notional-finance/notionable-hooks';
+import { TokenBalance } from '@notional-finance/core-entities';
 
 export const VaultLeverageSlider = ({
   inputLabel,
@@ -19,17 +20,21 @@ export const VaultLeverageSlider = ({
   context: VaultContext;
 }) => {
   const {
-    state: { debtBalance },
+    state: { deposit, debtFee, collateralFee, netRealizedDebtBalance },
   } = context;
   const { underMinAccountBorrow, leverageRatioError, minBorrowSize } =
     useVaultActionErrors();
-  const { transactionCosts, cashBorrowed } = useVaultCosts();
+  const transactionCosts = deposit
+    ? (debtFee?.toToken(deposit) || TokenBalance.zero(deposit)).add(
+        collateralFee?.toToken(deposit) || TokenBalance.zero(deposit)
+      )
+    : undefined;
 
   const borrowAmount = (
     <LabelValue inline error={underMinAccountBorrow}>
       <CountUp
-        value={debtBalance?.toUnderlying().abs().toFloat() || 0}
-        suffix={` ${debtBalance?.underlying.symbol || ''}`}
+        value={netRealizedDebtBalance?.abs().toFloat() || 0}
+        suffix={` ${netRealizedDebtBalance?.symbol || ''}`}
         decimals={3}
       />
     </LabelValue>
@@ -49,7 +54,7 @@ export const VaultLeverageSlider = ({
       context={context}
       infoMsg={sliderInfo}
       errorMsg={errorMsg}
-      cashBorrowed={cashBorrowed}
+      cashBorrowed={netRealizedDebtBalance}
       bottomCaption={
         <TransactionCostCaption
           toolTipText={messages.summary.transactionCostToolTip}

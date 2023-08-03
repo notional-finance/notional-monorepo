@@ -654,7 +654,8 @@ export function priorVaultAccountRisk(
       } else {
         // If a vault account exists, then the default trade type is not selected
         return {
-          tradeType: tradeType === 'CreateVaultPosition' ? undefined : tradeType,
+          tradeType:
+            tradeType === 'CreateVaultPosition' ? undefined : tradeType,
           priorVaultBalances,
           priorAccountRisk: VaultAccountRiskProfile.from(
             vaultAddress,
@@ -690,10 +691,10 @@ export function postVaultAccountRisk(
           vaultAddress,
         },
       ]) => {
-        if (calculationSuccess && account && vaultAddress && collateral) {
+        if (calculationSuccess && vaultAddress && collateral) {
           const profile = VaultAccountRiskProfile.simulate(
             vaultAddress,
-            account.balances.filter((t) => t.tokenType !== 'Underlying'),
+            account?.balances.filter((t) => t.tokenType !== 'Underlying') || [],
             [collateralBalance, debtBalance].filter(
               (b) => b !== undefined
             ) as TokenBalance[]
@@ -703,8 +704,9 @@ export function postVaultAccountRisk(
           return {
             postAccountRisk,
             canSubmit:
-              postAccountRisk.leverageRatio === null ||
-              postAccountRisk.leverageRatio < profile.maxLeverageRatio,
+              (postAccountRisk.leverageRatio === null ||
+                postAccountRisk.leverageRatio < profile.maxLeverageRatio) &&
+              account !== null,
             postTradeBalances: profile.balances,
           };
         } else if (!calculationSuccess) {
