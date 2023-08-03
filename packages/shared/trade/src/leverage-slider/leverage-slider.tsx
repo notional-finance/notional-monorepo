@@ -4,13 +4,13 @@ import {
   useSliderInputRef,
 } from '@notional-finance/mui';
 import { defineMessage } from 'react-intl';
-import { BaseContext } from '@notional-finance/notionable-hooks';
-import { useContext, useEffect } from 'react';
+import { BaseTradeContext } from '@notional-finance/notionable-hooks';
+import { useEffect } from 'react';
 import { MessageDescriptor } from 'react-intl';
 import { TokenBalance } from '@notional-finance/core-entities';
 
 interface LeverageSliderProps {
-  context: BaseContext;
+  context: BaseTradeContext;
   inputLabel: MessageDescriptor;
   cashBorrowed?: TokenBalance;
   errorMsg?: MessageDescriptor;
@@ -39,7 +39,7 @@ export const LeverageSlider = ({
       defaultLeverageRatio,
     },
     updateState,
-  } = useContext(context);
+  } = context;
   const { sliderInputRef, setSliderInput } = useSliderInputRef();
 
   // Sets the initial default leverage ratio

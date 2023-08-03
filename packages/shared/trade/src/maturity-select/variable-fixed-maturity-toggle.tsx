@@ -6,8 +6,8 @@ import {
   Maturities,
   TabToggle,
 } from '@notional-finance/mui';
-import { BaseContext } from '@notional-finance/notionable-hooks';
-import { useContext, useEffect, useState } from 'react';
+import { BaseTradeContext } from '@notional-finance/notionable-hooks';
+import { useEffect, useState } from 'react';
 import { useMaturitySelect } from './use-maturity-select';
 import { FormattedMessage, MessageDescriptor, defineMessage } from 'react-intl';
 import {
@@ -17,7 +17,7 @@ import {
 } from '@notional-finance/util';
 
 interface ToggleMaturitySelectProps {
-  context: BaseContext;
+  context: BaseTradeContext;
   fCashInputLabel?: MessageDescriptor;
 }
 
@@ -33,7 +33,7 @@ export function VariableFixedMaturityToggle({
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
   const {
     state: { availableDebtTokens, debt },
-  } = useContext(context);
+  } = context;
 
   const { maturityData, selectedfCashId, onSelect } = useMaturitySelect(
     'Debt',
@@ -45,8 +45,14 @@ export function VariableFixedMaturityToggle({
       t.tokenType === 'PrimeDebt' || t.maturity === PRIME_CASH_VAULT_MATURITY
   )?.id;
   const debtId = debt?.id;
+  const fixedMaturities = maturityData.filter(
+    (m) =>
+      m.token.tokenType === 'fCash' ||
+      (m.token.tokenType === 'VaultDebt' &&
+        m.maturity !== PRIME_CASH_VAULT_MATURITY)
+  );
 
-  const lowestFixedRate = maturityData.reduce(
+  const lowestFixedRate = fixedMaturities.reduce(
     (r, m) =>
       m.tradeRate !== undefined && (r === undefined || m.tradeRate < r)
         ? m.tradeRate
@@ -104,25 +110,35 @@ export function VariableFixedMaturityToggle({
       <LabelValue contrast={selectedTabIndex === FIXED} sx={inheritTransition}>
         <FormattedMessage defaultMessage={'Fixed Rate'} />
       </LabelValue>
-      <Label
-        inline
-        contrast={selectedTabIndex === FIXED}
-        sx={inheritTransition}
-      >
-        <FormattedMessage defaultMessage={'As low as'} />
-      </Label>
-      &nbsp;
-      <LabelValue
-        inline
-        contrast={selectedTabIndex === FIXED}
-        sx={inheritTransition}
-      >
-        {lowestFixedRate
-          ? formatInterestRate(
+      {lowestFixedRate !== undefined ? (
+        <>
+          <Label
+            inline
+            contrast={selectedTabIndex === FIXED}
+            sx={inheritTransition}
+          >
+            <FormattedMessage defaultMessage={'As low as'} />
+          </Label>
+          &nbsp;
+          <LabelValue
+            inline
+            contrast={selectedTabIndex === FIXED}
+            sx={inheritTransition}
+          >
+            {formatInterestRate(
               Math.floor((lowestFixedRate / 100) * RATE_PRECISION)
-            )
-          : '??'}
-      </LabelValue>
+            )}
+          </LabelValue>
+        </>
+      ) : (
+        <LabelValue
+          inline
+          contrast={selectedTabIndex === FIXED}
+          sx={inheritTransition}
+        >
+          <FormattedMessage defaultMessage={'Insufficient Liquidity'} />
+        </LabelValue>
+      )}
     </Box>
   );
   return (
@@ -137,9 +153,7 @@ export function VariableFixedMaturityToggle({
         tabPanels={[
           <Box />,
           <Maturities
-            maturityData={maturityData.filter(
-              (t) => !!t.maturity && t.maturity < PRIME_CASH_VAULT_MATURITY
-            )}
+            maturityData={fixedMaturities}
             selectedfCashId={selectedfCashId}
             onSelect={onSelect}
             inputLabel={fCashInputLabel}

@@ -7,5 +7,5 @@ export * from './erc1155';
 export * from './constants';
 export * from './array-helpers';
 export * from './rxjs-helpers';
-export * from './binary-search';
+export * from './secant-search';
 export * from './format';

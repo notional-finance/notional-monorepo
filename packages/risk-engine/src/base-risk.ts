@@ -8,11 +8,11 @@ import {
   Network,
   RATE_PRECISION,
   unique,
-  doBinarySearch,
   PERCENTAGE_BASIS,
   RATE_DECIMALS,
   getNowSeconds,
   PRIME_CASH_VAULT_MATURITY,
+  doSecantSearch,
 } from '@notional-finance/util';
 import { RiskFactorLimit, RiskFactors, SymbolOrID } from './types';
 
@@ -140,6 +140,10 @@ export abstract class BaseRiskProfile implements RiskFactors {
     );
   }
 
+  protected _fromPercent(n: number) {
+    return Math.floor((n * RATE_PRECISION) / PERCENTAGE_BASIS);
+  }
+
   /** Total value without risk adjustments */
   totalAssets(denominated = this.defaultSymbol) {
     return this._totalValue(this.collateral, this.denom(denominated));
@@ -206,14 +210,36 @@ export abstract class BaseRiskProfile implements RiskFactors {
     }
   }
 
-  checkRiskFactorLimit<F extends keyof RiskFactors>(
+  protected _getRiskFactorInRP<
+    T extends keyof RiskFactors,
+    R = ReturnType<RiskFactors[T]>
+  >(riskFactor: T, limit: R): number {
+    switch (riskFactor) {
+      case 'netWorth':
+      case 'freeCollateral':
+        return (limit as TokenBalance).scaleTo(RATE_DECIMALS).toNumber();
+      case 'loanToValue':
+      case 'collateralRatio':
+        return this._fromPercent(limit as number);
+      case 'healthFactor':
+      case 'leverageRatio':
+        return Math.floor((limit as number) * RATE_PRECISION);
+      case 'liquidationPrice':
+      case 'collateralLiquidationThreshold':
+        return limit === null
+          ? 0
+          : (limit as TokenBalance).scaleTo(RATE_DECIMALS).toNumber();
+      default:
+        throw Error(`Unknown risk factor ${riskFactor}`);
+    }
+  }
+
+  protected _getInitialEstimate<F extends keyof RiskFactors>(
     { riskFactor, args, limit }: RiskFactorLimit<F>,
     localUnderlyingId: string
-  ): {
-    value: ReturnType<RiskFactors[F]>;
-    multiple: number;
-  } {
+  ): number {
     const value = this.getRiskFactor(riskFactor, args);
+    const riskFactorInRP = this._getRiskFactorInRP(riskFactor, limit);
     const netLocal = this.netCollateralAvailable(localUnderlyingId);
     // NOTE: multiples should move the risk factor closer towards limit == value, so
     // if the limit is satisfied the next iteration of the loop will move closer towards
@@ -223,13 +249,9 @@ export abstract class BaseRiskProfile implements RiskFactors {
       const _value = value as TokenBalance;
       const _limit = limit as TokenBalance;
       // A good estimate for this is limit - value
-      return {
-        value,
-        multiple: _limit.sub(_value).scaleTo(RATE_DECIMALS).toNumber(),
-      };
+      return _limit.sub(_value).scaleTo(RATE_DECIMALS).toNumber();
     } else if (riskFactor === 'loanToValue') {
-      let multiple: number;
-      const limitInRP = ((limit as number) * RATE_PRECISION) / 100;
+      let initialEstimateInRP: number;
 
       // limit = debt / asset
       // if deposit:
@@ -239,26 +261,23 @@ export abstract class BaseRiskProfile implements RiskFactors {
       //  limit = (debt - repay) / asset
       //  repay = debt - limit * asset
       if ((value as number) <= 0.001) {
-        multiple = limitInRP;
+        initialEstimateInRP = riskFactorInRP;
       } else if (netLocal.isPositive()) {
-        multiple = this.totalDebt()
+        initialEstimateInRP = this.totalDebt()
           .neg()
-          .sub(this.totalAssets().mulInRatePrecision(limitInRP))
-          .divInRatePrecision(limitInRP)
+          .sub(this.totalAssets().mulInRatePrecision(riskFactorInRP))
+          .divInRatePrecision(riskFactorInRP)
           .scaleTo(RATE_DECIMALS)
           .toNumber();
       } else {
-        multiple = this.totalDebt()
+        initialEstimateInRP = this.totalDebt()
           .neg()
-          .sub(this.totalAssets().mulInRatePrecision(limitInRP))
+          .sub(this.totalAssets().mulInRatePrecision(riskFactorInRP))
           .scaleTo(RATE_DECIMALS)
           .toNumber();
       }
 
-      return {
-        value,
-        multiple,
-      };
+      return initialEstimateInRP;
     } else if (riskFactor === 'collateralRatio') {
       // limit = asset / debt
       // if netLocal > 0:
@@ -267,32 +286,28 @@ export abstract class BaseRiskProfile implements RiskFactors {
       // if withdraw:
       //  limit = asset / (debt - repay)
       //  repay = (limit * debt - asset) / limit
-      let multiple: number;
-      const limitInRP = ((limit as number) * RATE_PRECISION) / 100;
+      let initialEstimateInRP: number;
 
       if (value === null) {
-        multiple = limitInRP;
+        initialEstimateInRP = riskFactorInRP;
       } else if (netLocal.isPositive()) {
-        multiple = this.totalDebt()
+        initialEstimateInRP = this.totalDebt()
           .neg()
-          .mulInRatePrecision(limitInRP)
+          .mulInRatePrecision(riskFactorInRP)
           .sub(this.totalAssets())
           .scaleTo(RATE_DECIMALS)
           .toNumber();
       } else {
-        multiple = this.totalDebt()
+        initialEstimateInRP = this.totalDebt()
           .neg()
-          .mulInRatePrecision(limitInRP)
+          .mulInRatePrecision(riskFactorInRP)
           .sub(this.totalAssets())
-          .divInRatePrecision(limitInRP)
+          .divInRatePrecision(riskFactorInRP)
           .scaleTo(RATE_DECIMALS)
           .toNumber();
       }
 
-      return {
-        value,
-        multiple,
-      };
+      return initialEstimateInRP;
     } else if (riskFactor === 'healthFactor') {
       throw Error('Unimplemented');
     } else if (riskFactor === 'leverageRatio') {
@@ -303,59 +318,45 @@ export abstract class BaseRiskProfile implements RiskFactors {
       // if netLocal < 0:
       //  limit = (debt - repay) / (asset - debt - repay)
       //  repay = [debt * (1 + limit) - limit * asset] / (1 - limit)
-      let multiple: number;
-      const limitInRP = (limit as number) * RATE_PRECISION;
+      let initialEstimateInRP: number;
       if (value === null) {
         // If there is no leverage, then use the limit as the number of debt
         // units times the total assets.
-        multiple = this.totalAssets()
-          .mulInRatePrecision(limitInRP)
+        initialEstimateInRP = this.totalAssets()
+          .mulInRatePrecision(riskFactorInRP)
           .scaleTo(RATE_DECIMALS)
           .toNumber();
       } else if (netLocal.isPositive()) {
-        multiple = this.totalDebt()
+        initialEstimateInRP = this.totalDebt()
           .neg()
-          .mulInRatePrecision(RATE_PRECISION + limitInRP)
-          .sub(this.totalAssets().mulInRatePrecision(limitInRP))
-          .divInRatePrecision(limitInRP)
+          .mulInRatePrecision(RATE_PRECISION + riskFactorInRP)
+          .sub(this.totalAssets().mulInRatePrecision(riskFactorInRP))
+          .divInRatePrecision(riskFactorInRP)
           .scaleTo(RATE_DECIMALS)
           .toNumber();
       } else {
-        multiple = this.totalDebt()
+        initialEstimateInRP = this.totalDebt()
           .neg()
-          .mulInRatePrecision(RATE_PRECISION + limitInRP)
-          .sub(this.totalAssets().mulInRatePrecision(limitInRP))
-          .divInRatePrecision(RATE_PRECISION - limitInRP)
+          .mulInRatePrecision(RATE_PRECISION + riskFactorInRP)
+          .sub(this.totalAssets().mulInRatePrecision(riskFactorInRP))
+          .divInRatePrecision(RATE_PRECISION - riskFactorInRP)
           .scaleTo(RATE_DECIMALS)
           .toNumber();
       }
 
-      return {
-        value,
-        multiple,
-      };
+      return initialEstimateInRP;
     } else if (riskFactor === 'liquidationPrice') {
       const _value = value as TokenBalance | null;
       const _limit = limit as TokenBalance;
 
-      return {
-        value,
-        multiple:
-          _value === null
-            ? RATE_PRECISION
-            : _limit.ratioWith(_value).toNumber(),
-      };
+      return _value === null
+        ? RATE_PRECISION
+        : _limit.ratioWith(_value).toNumber();
     } else if (riskFactor === 'collateralLiquidationThreshold') {
       const _value = value as TokenBalance | null;
       const _limit = limit as TokenBalance;
 
-      const multiple = _value
-        ? _value.sub(_limit).scaleTo(RATE_DECIMALS).toNumber()
-        : 0;
-      return {
-        value,
-        multiple,
-      };
+      return _value ? _value.sub(_limit).scaleTo(RATE_DECIMALS).toNumber() : 0;
     }
 
     throw Error(`Unknown risk factor ${riskFactor}`);
@@ -371,9 +372,13 @@ export abstract class BaseRiskProfile implements RiskFactors {
       local.tokenType === 'Underlying' ? local.id : local.underlying;
     if (localUnderlyingId === undefined)
       throw Error('undefined local underlying');
-    const { multiple } = this.checkRiskFactorLimit(
+    const initialEstimateInRP = this._getInitialEstimate(
       riskFactorLimit,
       localUnderlyingId
+    );
+    const targetLimitInRP = this._getRiskFactorInRP(
+      riskFactorLimit.riskFactor,
+      riskFactorLimit.limit
     );
 
     const calculationFunction = (collateralUnits: number) => {
@@ -382,20 +387,26 @@ export abstract class BaseRiskProfile implements RiskFactors {
 
       // Create a new account profile with the simulated collateral added
       const profile = this.simulate([value]);
-      const { multiple } = profile.checkRiskFactorLimit(
-        riskFactorLimit,
-        localUnderlyingId
+      const limit = profile.getRiskFactor(
+        riskFactorLimit.riskFactor,
+        riskFactorLimit.args
+      );
+      const limitInRP = this._getRiskFactorInRP(
+        riskFactorLimit.riskFactor,
+        limit
       );
 
       return {
-        // Negation is required here because the multiple is applied to debt values
-        actualMultiple: -multiple,
-        breakLoop: false,
+        fx: targetLimitInRP - limitInRP,
         value,
       };
     };
 
-    return doBinarySearch(multiple, 0, calculationFunction);
+    return doSecantSearch(
+      initialEstimateInRP,
+      initialEstimateInRP * 2,
+      calculationFunction
+    );
   }
 
   /**
@@ -443,36 +454,28 @@ export abstract class BaseRiskProfile implements RiskFactors {
       debt.tokenType === 'Underlying' ? debt.id : debt.underlying;
     if (localUnderlyingId === undefined)
       throw Error('undefined local underlying');
-    const { multiple } = this.checkRiskFactorLimit(
+
+    const initialEstimateInRP = this._getInitialEstimate(
       riskFactorLimit,
       localUnderlyingId
     );
+    const targetLimitInRP = this._getRiskFactorInRP(
+      riskFactorLimit.riskFactor,
+      riskFactorLimit.limit
+    );
 
     const calculationFunction = (multiple: number) => {
-      let netDebt: TokenBalance;
-      if (
-        riskFactorLimit.riskFactor === 'freeCollateral' ||
-        riskFactorLimit.riskFactor === 'netWorth'
-      ) {
-        netDebt = TokenBalance.fromFloat(
-          multiple / RATE_PRECISION,
-          this.denom(this.defaultSymbol)
-        )
-          .toToken(debt)
-          .neg();
-      } else {
-        // NOTE: this multiple is in "denom" terms. Need to convert it to local underlying
-        // terms before we multiply it to get the debt figure. Use the currency id so that vault
-        // debts convert properly.
-        const defaultToken = this.denom(this.defaultSymbol);
-        netDebt =
-          debt.currencyId === defaultToken.currencyId
-            ? TokenBalance.unit(debt).mulInRatePrecision(multiple).neg()
-            : TokenBalance.unit(defaultToken)
-                .mulInRatePrecision(multiple)
-                .toToken(debt)
-                .neg();
-      }
+      // NOTE: this multiple is in "denom" terms. Need to convert it to local underlying
+      // terms before we multiply it to get the debt figure. Use the currency id so that vault
+      // debts convert properly.
+      const defaultToken = this.denom(this.defaultSymbol);
+      const netDebt =
+        debt.currencyId === defaultToken.currencyId
+          ? TokenBalance.unit(debt).mulInRatePrecision(multiple).neg()
+          : TokenBalance.unit(defaultToken)
+              .mulInRatePrecision(multiple)
+              .toToken(debt)
+              .neg();
       // If netDebt is decreasing, netCollateral will also decrease because it will be sold
       // to repay debt. If netDebt is increasing, netCollateral will also increase because borrowed
       // cash will be used to buy collateral.
@@ -480,21 +483,26 @@ export abstract class BaseRiskProfile implements RiskFactors {
 
       // Create a new account profile with the simulated collateral added
       const profile = this.simulate([netDebt, netCollateral]);
-      const { multiple: actualMultiple } = profile.checkRiskFactorLimit(
-        riskFactorLimit,
-        localUnderlyingId
+      const limit = profile.getRiskFactor(
+        riskFactorLimit.riskFactor,
+        riskFactorLimit.args
+      );
+      const limitInRP = this._getRiskFactorInRP(
+        riskFactorLimit.riskFactor,
+        limit
       );
 
       return {
-        actualMultiple,
-        breakLoop: false,
+        fx: targetLimitInRP - limitInRP,
         value: { netDebt, netCollateral },
       };
     };
 
     // set the required precision based on the riskLimitType
-    return doBinarySearch(multiple, 0, calculationFunction, undefined, (m, d) =>
-      m !== 0 ? Math.floor(m + m * (d / m)) : Math.floor(d)
+    return doSecantSearch(
+      initialEstimateInRP,
+      initialEstimateInRP * 2,
+      calculationFunction
     );
   }
 

@@ -153,7 +153,7 @@ export abstract class BaseRegistry<T> {
       .pipe(
         exhaustMap((intervalNum) => {
           return from(this._refresh(network, intervalNum)).pipe(
-            timeout(ONE_SECOND_MS)
+            timeout(3 * ONE_SECOND_MS)
           );
         })
       )

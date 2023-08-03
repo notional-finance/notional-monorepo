@@ -12,12 +12,12 @@ export const messages = {
         'Create a new vault position with a deposit, minimum deposit amount: {minDepositRequired}',
       description: 'helptext',
     },
-    maturity: {
-      defaultMessage: '1. Select a maturity and fixed borrowing rate',
+    depositAmount: {
+      defaultMessage: '1. How much do you want to deposit?',
       description: 'input label',
     },
-    depositAmount: {
-      defaultMessage: '2. How much do you want to deposit?',
+    maturity: {
+      defaultMessage: '2. Select a maturity and fixed borrowing rate',
       description: 'input label',
     },
     leverage: {

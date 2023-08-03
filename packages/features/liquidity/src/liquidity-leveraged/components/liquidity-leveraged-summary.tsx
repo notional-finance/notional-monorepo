@@ -17,9 +17,10 @@ import { HowItWorksFaq } from './how-it-works-faq';
 
 export const LiquidityLeveragedSummary = () => {
   const theme = useTheme();
+  const context = useContext(LeveragedLiquidityContext);
   const {
     state: { collateral, selectedDepositToken },
-  } = useContext(LeveragedLiquidityContext);
+  } = context;
   const tokenSymbol = selectedDepositToken || '';
   const { faqs, faqHeaderLinks } = useLiquidityFaq(tokenSymbol);
   const totalYield = 0;

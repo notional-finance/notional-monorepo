@@ -8,27 +8,23 @@ import {
 import { useHistoricalReturns } from './use-historical-returns';
 import { VaultActionContext } from '../vault-view/vault-action-provider';
 import { formatMaturity } from '@notional-finance/helpers';
-import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
 
 export function useVaultDetailsTable() {
   const { priorVaultReturns, newVaultReturns } = useHistoricalReturns();
   const {
-    state: { priorAccountRisk: _priorAccountRisk, postAccountRisk, collateral },
+    state: {
+      priorAccountRisk,
+      postAccountRisk,
+      priorVaultBalances,
+      collateralBalance,
+    },
   } = useContext(VaultActionContext);
+  const maturity =
+    collateralBalance?.maturity ||
+    priorVaultBalances?.find((t) => t.tokenType === 'VaultShare')?.maturity;
 
-  const priorAccountRisk =
-    _priorAccountRisk ||
-    // If there is no prior account risk, but some collateral set then create an
-    // empty vault account profile
-    (collateral && collateral.vaultAddress && collateral.maturity
-      ? VaultAccountRiskProfile.empty(
-          collateral.network,
-          collateral.vaultAddress,
-          collateral.maturity
-        ).getAllRiskFactors()
-      : undefined);
-
-  if (!priorAccountRisk || !collateral?.maturity) {
+  console.log('USE VAULT DETAILS', priorAccountRisk, postAccountRisk);
+  if (!priorAccountRisk || !maturity) {
     return {
       tableData: [],
       maturity: '',
@@ -116,5 +112,8 @@ export function useVaultDetailsTable() {
     });
   }
 
-  return { tableData, maturity: formatMaturity(collateral.maturity) };
+  return {
+    tableData,
+    maturity: formatMaturity(maturity),
+  };
 }

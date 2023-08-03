@@ -20,12 +20,14 @@ import {
 
 export const BorrowFixedTradeSummary = () => {
   const theme = useTheme();
+  const context = useContext(BorrowFixedContext);
   const {
     state: { selectedDepositToken, deposit },
-  } = useContext(BorrowFixedContext);
+  } = context;
+
   const { maturityData, selectedfCashId, onSelect } = useMaturitySelect(
     'Debt',
-    BorrowFixedContext
+    context
   );
   const { tableColumns, tableData } = useFixedLiquidityPoolsTable(
     selectedDepositToken,

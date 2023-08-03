@@ -1,11 +1,13 @@
 import { styled, Box, useTheme, SxProps, alpha } from '@mui/material';
 import { colors } from '@notional-finance/styles';
+import React from 'react';
+import { Link } from 'react-router-dom';
 
-/* eslint-disable-next-line */
 export interface SideDrawerButtonProps {
-  children: any;
+  children: React.ReactNode;
   onClick?: () => void;
   sx?: SxProps;
+  to?: string;
 }
 
 // NOTE: The text for the button must be wrapped in a H4
@@ -13,9 +15,10 @@ export function SideDrawerButton({
   children,
   sx,
   onClick,
+  to,
 }: SideDrawerButtonProps) {
   const theme = useTheme();
-  return (
+  const btn = (
     <Button
       theme={theme}
       sx={{ cursor: onClick ? 'pointer' : 'normal', ...sx }}
@@ -24,6 +27,8 @@ export function SideDrawerButton({
       {children}
     </Button>
   );
+
+  return to ? <Link to={to}>{btn}</Link> : btn;
 }
 
 const Button = styled(Box)(

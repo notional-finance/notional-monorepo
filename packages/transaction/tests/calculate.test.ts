@@ -230,15 +230,12 @@ describe.withForkAndRegistry(
       });
 
       expect(netRealizedDebtBalance.tokenType).toBe('Underlying');
-      if (
-        debtBalance.tokenType === 'fCash' ||
-        debtBalance.tokenType === 'nToken'
-      ) {
-        expect(netRealizedDebtBalance.neg().toFloat()).toBeGreaterThan(
+      if (debtBalance.tokenType === 'fCash') {
+        expect(netRealizedDebtBalance.toFloat()).toBeGreaterThan(
           debtBalance.toUnderlying().toFloat()
         );
       } else {
-        expect(netRealizedDebtBalance.neg()).toEqTB(debtBalance.toUnderlying());
+        expect(netRealizedDebtBalance).toEqTB(debtBalance.toUnderlying());
       }
 
       expect(df1).toBeApprox(df2);
@@ -465,9 +462,9 @@ describe.withForkAndRegistry(
         } else {
           depositInput = TokenBalance.fromFloat(0.005, depositUnderlying);
         }
-        const riskFactorLimit: RiskFactorLimit<'loanToValue'> = {
-          riskFactor: 'loanToValue',
-          limit: debtToken.currencyId === 1 ? 40 : 10,
+        const riskFactorLimit: RiskFactorLimit<'leverageRatio'> = {
+          riskFactor: 'leverageRatio',
+          limit: debtToken.currencyId === 1 ? 4 : 1.25,
         };
 
         const {

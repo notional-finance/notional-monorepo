@@ -5,10 +5,11 @@ import { VaultActionContext } from '../vault-view/vault-action-provider';
 import { TokenBalance } from '@notional-finance/core-entities';
 
 export const WithdrawAndRepayDebt = () => {
+  const context = useContext(VaultActionContext);
   const {
     state: { calculateError, postAccountRisk, deposit },
     updateState,
-  } = useContext(VaultActionContext);
+  } = context;
 
   useEffect(() => {
     // No withdraws when doing a deleverage action
@@ -30,8 +31,9 @@ export const WithdrawAndRepayDebt = () => {
     : undefined;
 
   return (
-    <VaultSideDrawer>
+    <VaultSideDrawer context={context}>
       <VaultLeverageSlider
+        context={context}
         repayDebt
         sliderError={sliderError}
         sliderInfo={sliderInfo}

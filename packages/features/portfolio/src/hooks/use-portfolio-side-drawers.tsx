@@ -11,7 +11,6 @@ import {
   RollDebt,
   Withdraw,
 } from '../side-drawers';
-import { ManageVault } from '@notional-finance/trade';
 
 export const usePortfolioSideDrawers = () => {
   const { sideDrawerOpen, currentSideDrawerKey } = useSideDrawerState();
@@ -23,9 +22,7 @@ export const usePortfolioSideDrawers = () => {
     [PORTFOLIO_ACTIONS.CONVERT_ASSET]: ConvertAsset,
     [PORTFOLIO_ACTIONS.ROLL_DEBT]: RollDebt,
     [PORTFOLIO_ACTIONS.GET_NOTIFIED]: GetNotified,
-    // TODO: deleverage might need to change
     [PORTFOLIO_ACTIONS.ADD_TO_CALENDAR]: AddToCalendar,
-    [PORTFOLIO_ACTIONS.MANAGE_VAULT]: ManageVault,
   };
 
   const SideDrawerComponent =

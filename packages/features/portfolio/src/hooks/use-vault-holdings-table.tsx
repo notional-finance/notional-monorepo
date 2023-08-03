@@ -173,7 +173,7 @@ export const useVaultHoldingsTable = () => {
             trackColor,
           }
         : undefined,
-      // TODO: these values are inside the accordion
+      // NOTE: these values are inside the accordion
       strategyAPY: {
         displayValue: formatNumberAsPercent(strategyAPY, 3),
         isNegative: strategyAPY && strategyAPY < 0,
@@ -201,13 +201,13 @@ export const useVaultHoldingsTable = () => {
           {
             buttonText: <FormattedMessage defaultMessage={'Manage'} />,
             callback: () => {
-              history.push('/vaults/manage');
+              history.push(`/vaults/${v.vaultAddress}`);
             },
           },
           {
             buttonText: <FormattedMessage defaultMessage={'Withdraw'} />,
             callback: () => {
-              history.push('');
+              history.push(`/vaults/${v.vaultAddress}/WithdrawVault`);
             },
           },
         ],

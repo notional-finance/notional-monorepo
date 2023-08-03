@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Box } from '@mui/material';
 import {
   CurrencyInput,
@@ -8,12 +8,12 @@ import {
 } from '@notional-finance/mui';
 import { FormattedMessage, MessageDescriptor } from 'react-intl';
 import { useDepositInput } from './use-deposit-input';
-import { BaseContext } from '@notional-finance/notionable-hooks';
 import { useHistory } from 'react-router';
 import TokenApprovalView from '../token-approval-view/token-approval-view';
+import { BaseTradeContext } from '@notional-finance/notionable-hooks';
 
 interface DepositInputProps {
-  context: BaseContext;
+  context: BaseTradeContext;
   newRoute?: (newToken: string | null) => string;
   warningMsg?: React.ReactNode;
   inputLabel?: MessageDescriptor;
@@ -47,7 +47,7 @@ export const DepositInput = React.forwardRef<
     const {
       state: { selectedDepositToken, availableDepositTokens, calculateError },
       updateState,
-    } = useContext(context);
+    } = context;
     const {
       inputAmount,
       maxBalanceString,

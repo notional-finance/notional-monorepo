@@ -13,9 +13,10 @@ import { messages } from '../messages';
 
 export const CreateVaultPosition = () => {
   const theme = useTheme();
+  const context = useContext(VaultActionContext);
   const {
     state: { deposit },
-  } = useContext(VaultActionContext);
+  } = context;
   const { currencyInputRef } = useCurrencyInputRef();
   const { inputErrorMsg } = useVaultActionErrors();
   const primaryBorrowSymbol = deposit?.symbol;
@@ -36,19 +37,20 @@ export const CreateVaultPosition = () => {
           },
         }}
       >
-        <VaultSideDrawer>
+        <VaultSideDrawer context={context}>
           <DepositInput
             ref={currencyInputRef}
             inputRef={currencyInputRef}
-            context={VaultActionContext}
+            context={context}
             errorMsgOverride={inputErrorMsg}
             inputLabel={messages['CreateVaultPosition'].depositAmount}
           />
           <VariableFixedMaturityToggle
-            context={VaultActionContext}
+            context={context}
             fCashInputLabel={messages['CreateVaultPosition'].maturity}
           />
           <VaultLeverageSlider
+            context={context}
             inputLabel={messages['CreateVaultPosition'].leverage}
           />
         </VaultSideDrawer>
