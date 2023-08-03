@@ -14,7 +14,7 @@ export const FeatureLoader = ({
   featureLoaded = true,
   backgroundColor,
 }: FeatureLoaderProps) => {
-  const selectedNetwork = useSelectedNetwork()
+  const selectedNetwork = useSelectedNetwork();
   return (
     <Box>
       {!!selectedNetwork && featureLoaded ? (
@@ -24,11 +24,12 @@ export const FeatureLoader = ({
           sx={{
             background: backgroundColor,
             width: '100%',
-            heigh: '100%',
-            minHeight: '100vh',
-            zIndex: 99999,
-            top: '-72px',
+            height: '100vh',
+            zIndex: 5,
             position: 'relative',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
           }}
         />
       )}

@@ -2,6 +2,7 @@ import { Box, styled, useTheme } from '@mui/material';
 import { useSideNav } from '../../hooks';
 import { PortfolioParams } from '../../portfolio-feature-shell';
 import { Link, LinkProps, useParams } from 'react-router-dom';
+import { PORTFOLIO_CATEGORIES } from '@notional-finance/shared-config';
 import { NotionalTheme } from '@notional-finance/styles';
 import { H5, Caption } from '@notional-finance/mui';
 import { navLabels } from './messages';
@@ -16,15 +17,18 @@ interface SideNavItemProps extends LinkProps {
 export const SideNavOptons = () => {
   const theme = useTheme();
   const { useOptions } = useSideNav();
-  const { category } = useParams<PortfolioParams>();
   const sideNav = useOptions();
+  const { category } = useParams<PortfolioParams>();
+
   return (
     <Box>
       {sideNav.map(({ id, Icon, notifications, to }, index) => {
         return (
           <SideNavItem
             key={id}
-            selected={category === id}
+            selected={
+              category ? category === id : id === PORTFOLIO_CATEGORIES.OVERVIEW
+            }
             firstItem={index === 0}
             theme={theme}
             to={to}

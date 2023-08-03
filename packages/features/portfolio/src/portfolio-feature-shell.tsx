@@ -30,32 +30,6 @@ export interface PortfolioParams {
 
 export const PortfolioFeatureShell = () => {
   const params = useParams<PortfolioParams>();
-  const {
-    globalState: { isAccountPending, isAccountReady },
-  } = useNotionalContext();
-
-  return isAccountPending || isAccountReady ? (
-    <FeatureLoader featureLoaded={isAccountReady}>
-      <Portfolio />
-    </FeatureLoader>
-  ) : (
-    // TODO: need to replace this
-    <PortfolioContainer>
-      <PortfolioSidebar>
-        <SideNav />
-      </PortfolioSidebar>
-      {params.category === PORTFOLIO_CATEGORIES.OVERVIEW ||
-      params.category === undefined ? (
-        <EmptyPortfolioOverview />
-      ) : (
-        <EmptyPortfolio />
-      )}
-    </PortfolioContainer>
-  );
-};
-
-const Portfolio = () => {
-  const params = useParams<PortfolioParams>();
   const { clearSideDrawer } = useSideDrawerManager();
   const { SideDrawerComponent, openDrawer } = usePortfolioSideDrawers();
 
@@ -69,33 +43,53 @@ const Portfolio = () => {
     );
   };
 
-  return (
+  const {
+    globalState: { isAccountReady, wallet },
+  } = useNotionalContext();
+
+  return wallet ? (
+    <FeatureLoader featureLoaded={isAccountReady}>
+      <PortfolioContainer>
+        <SideDrawer
+          callback={handleDrawer}
+          openDrawer={openDrawer}
+          zIndex={1202}
+          marginTop="80px"
+        >
+          {SideDrawerComponent && <SideDrawerComponent />}
+        </SideDrawer>
+        <PortfolioSidebar>
+          <SideNav />
+        </PortfolioSidebar>
+        <PortfolioMainContent>
+          {(params.category === PORTFOLIO_CATEGORIES.OVERVIEW ||
+            params.category === undefined) && <PortfolioOverview />}
+          {params.category === PORTFOLIO_CATEGORIES.HOLDINGS && (
+            <PortfolioHoldings />
+          )}
+          {params.category === PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS && (
+            <PortfolioVaults />
+          )}
+          {params.category === PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY && (
+            <PortfolioTransactionHistory />
+          )}
+        </PortfolioMainContent>
+        <PortfolioMobileNav />
+      </PortfolioContainer>
+    </FeatureLoader>
+  ) : (
     <PortfolioContainer>
-      <SideDrawer
-        callback={handleDrawer}
-        openDrawer={openDrawer}
-        zIndex={1202}
-        marginTop="80px"
-      >
-        {SideDrawerComponent && <SideDrawerComponent />}
-      </SideDrawer>
       <PortfolioSidebar>
         <SideNav />
       </PortfolioSidebar>
       <PortfolioMainContent>
-        {(params.category === PORTFOLIO_CATEGORIES.OVERVIEW ||
-          params.category === undefined) && <PortfolioOverview />}
-        {params.category === PORTFOLIO_CATEGORIES.HOLDINGS && (
-          <PortfolioHoldings />
-        )}
-        {params.category === PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS && (
-          <PortfolioVaults />
-        )}
-        {params.category === PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY && (
-          <PortfolioTransactionHistory />
+        {params.category === PORTFOLIO_CATEGORIES.OVERVIEW ||
+        params.category === undefined ? (
+          <EmptyPortfolioOverview walletConnected={false} />
+        ) : (
+          <EmptyPortfolio />
         )}
       </PortfolioMainContent>
-      <PortfolioMobileNav />
     </PortfolioContainer>
   );
 };

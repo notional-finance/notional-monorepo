@@ -55,20 +55,6 @@ export const useSideNav = () => {
         to: `/portfolio/${PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS}`,
         notifications: vaults.length,
       },
-      // {
-      //   Icon: (
-      //     <StakeIcon
-      //       sx={{
-      //         width: '17px',
-      //         stroke: theme.palette.typography.light,
-      //         fill: 'transparent',
-      //       }}
-      //     />
-      //   ),
-      //   id: PORTFOLIO_CATEGORIES.STAKED_NOTE,
-      //   to: `/stake`,
-      //   notifications: 0,
-      // },
       {
         Icon: <HistoryIcon sx={{ width: '17px' }} />,
         id: PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY,
@@ -107,20 +93,6 @@ export const useSideNav = () => {
         to: `/portfolio/${PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS}`,
         notifications: 0,
       },
-      // {
-      //   Icon: (
-      //     <StakeIcon
-      //       sx={{
-      //         width: '17px',
-      //         stroke: theme.palette.typography.light,
-      //         fill: 'transparent',
-      //       }}
-      //     />
-      //   ),
-      //   id: PORTFOLIO_CATEGORIES.STAKED_NOTE,
-      //   to: `/stake`,
-      //   notifications: 0,
-      // },
       {
         Icon: <HistoryIcon sx={{ width: '17px' }} />,
         id: PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY,
