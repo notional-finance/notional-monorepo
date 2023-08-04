@@ -12,9 +12,8 @@ import { LendFixedContext } from '../../lend-fixed/lend-fixed';
 
 export const LendFixedSidebar = () => {
   const history = useHistory();
-  const {
-    state: { selectedDepositToken },
-  } = useContext(LendFixedContext);
+  const context = useContext(LendFixedContext);
+  const { state: { selectedDepositToken } } = context
   const { currencyInputRef } = useCurrencyInputRef();
 
   const handleLeverUpToggle = useCallback(() => {
@@ -26,12 +25,12 @@ export const LendFixedSidebar = () => {
   return (
     <TransactionSidebar
       handleLeverUpToggle={handleLeverUpToggle}
-      context={LendFixedContext}
+      context={context}
     >
       <DepositInput
         ref={currencyInputRef}
         inputRef={currencyInputRef}
-        context={LendFixedContext}
+        context={context}
         newRoute={(newToken) => `/${PRODUCTS.LEND_FIXED}/${newToken}`}
         inputLabel={defineMessage({
           defaultMessage: '1. How much do you want to lend?',
@@ -39,7 +38,7 @@ export const LendFixedSidebar = () => {
         })}
       />
       <MaturitySelect
-        context={LendFixedContext}
+        context={context}
         category={'Collateral'}
         inputLabel={defineMessage({
           defaultMessage: '2. Select a maturity & fix your rate',

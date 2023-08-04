@@ -1,17 +1,13 @@
 import { useContext } from 'react';
 import { VaultActionContext } from '../vault-view/vault-action-provider';
 import { Registry, TokenBalance } from '@notional-finance/core-entities';
-import {
-  useSelectedNetwork,
-  useVaultAccount,
-} from '@notional-finance/notionable-hooks';
+import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 
 export const useVaultCapacity = () => {
   const {
-    state: { debtBalance, vaultAddress, debt },
+    state: { debtBalance, vaultAddress, debt, priorVaultBalances },
   } = useContext(VaultActionContext);
   const network = useSelectedNetwork();
-  const { vaultBalances } = useVaultAccount(vaultAddress);
 
   const vaultCapacity =
     network && vaultAddress
@@ -32,7 +28,7 @@ export const useVaultCapacity = () => {
   const totalAccountDebt =
     debt && debtBalance && debt.id === debtBalance.tokenId
       ? (
-          vaultBalances.find((t) => t.tokenId === debtBalance?.tokenId) ||
+          priorVaultBalances?.find((t) => t.tokenId === debtBalance?.tokenId) ||
           TokenBalance.zero(debt)
         ).add(debtBalance)
       : undefined;

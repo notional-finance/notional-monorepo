@@ -6,7 +6,6 @@ export * from './trade-properties/trade-properties-grid';
 export * from './trade-properties/trade-property';
 
 /** New V3 Components */
-export * from './manage-vault/manage-vault';
 export * from './token-approval-view/token-approval-view';
 export * from './token-approval-view/use-token-approval';
 export * from './transaction-confirmation/confirmation2';

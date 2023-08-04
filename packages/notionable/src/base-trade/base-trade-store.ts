@@ -40,12 +40,6 @@ export interface TransactionConfig {
   readonly transactionBuilder: TransactionBuilder;
 }
 
-/** Input amount directly from the frontend */
-export interface InputAmount {
-  amount: string;
-  inUnderlying: boolean;
-}
-
 interface VaultState {
   vaultAddress?: string;
   vaultConfig?: ReturnType<ConfigurationClient['getVaultConfig']>;
@@ -60,32 +54,8 @@ export interface TokenOption {
 
 /** Inputs set by the user interface, all of these are denominated in primitive values */
 interface UserInputs {
-  /** Set on load via a URL path parameter */
-  underlying?: string;
   /** Symbol of the selected deposit token, if any */
   selectedDepositToken?: string;
-  /** Symbol of the selected collateral token, if any */
-  selectedCollateralToken?: string;
-  /** Symbol of the selected debt token, if any */
-  selectedDebtToken?: string;
-  /** Input amount of any deposits, must be denominated in underlying */
-  depositInputAmount?: InputAmount;
-  /** Collateral input amount, can be denominated in underlying */
-  collateralInputAmount?: InputAmount;
-  /** Collateral input amount, can be denominated in underlying */
-  debtInputAmount?: InputAmount;
-  /** User selected risk factor */
-  selectedRiskFactor?: RiskFactorKeys;
-  /** User selected risk limit */
-  selectedRiskLimit?: {
-    value: number;
-    symbol?: string;
-  };
-  /** User selected risk arg, used for liquidation prices */
-  selectedRiskArgs?: {
-    collateral: string;
-    debt?: string;
-  };
   redeemToWETH: boolean;
 }
 
@@ -126,8 +96,11 @@ interface TokenInputs {
 }
 
 interface TransactionState {
+  /** True if all the required inputs are satisfied */
   inputsSatisfied: boolean;
-  /** True if the form is completed and able to be submitted */
+  /** True if all calculations have been completed */
+  calculationSuccess: boolean;
+  /** True if the calculations are successful and the risk check has completed */
   canSubmit: boolean;
   /** Contains a unique key for each set of calculation inputs */
   calculateInputKeys?: string;
@@ -187,6 +160,8 @@ export interface VaultTradeState extends BaseTradeState {
   priorAccountRisk?: ReturnType<VaultAccountRiskProfile['getAllRiskFactors']>;
   /** Account risk factors after changes applied to the account */
   postAccountRisk?: ReturnType<VaultAccountRiskProfile['getAllRiskFactors']>;
+  /** All the prior vault balances (if any) */
+  priorVaultBalances?: TokenBalance[]
 }
 
 export const initialBaseTradeState: BaseTradeState = {
@@ -196,6 +171,7 @@ export const initialBaseTradeState: BaseTradeState = {
   confirm: false,
   inputsSatisfied: false,
   redeemToWETH: false,
+  calculationSuccess: false,
 };
 
 export function isVaultTrade(tradeType?: VaultTradeType | TradeType) {

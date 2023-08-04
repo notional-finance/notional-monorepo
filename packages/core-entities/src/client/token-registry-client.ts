@@ -108,14 +108,29 @@ export class TokenRegistryClient extends ClientRegistry<TokenDefinition> {
     vaultAddress: string,
     maturity: number
   ) {
-    const vaultShare = this.getAllTokens(network).find(
+    const vaultDebt = this.getAllTokens(network).find(
       (t) =>
         t.vaultAddress?.toLowerCase() === vaultAddress.toLowerCase() &&
         t.maturity === maturity &&
         t.tokenType === 'VaultDebt'
     );
-    if (!vaultShare) throw Error('Vault Share not found');
-    return vaultShare;
+    if (!vaultDebt) throw Error('Vault Debt not found');
+    return vaultDebt;
+  }
+
+  public getVaultCash(
+    network: Network,
+    vaultAddress: string,
+    maturity: number
+  ) {
+    const vaultCash = this.getAllTokens(network).find(
+      (t) =>
+        t.vaultAddress?.toLowerCase() === vaultAddress.toLowerCase() &&
+        t.maturity === maturity &&
+        t.tokenType === 'VaultCash'
+    );
+    if (!vaultCash) throw Error('Vault Cash not found');
+    return vaultCash;
   }
 
   public unwrapVaultToken(token: TokenDefinition) {

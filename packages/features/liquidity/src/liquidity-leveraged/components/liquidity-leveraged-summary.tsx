@@ -1,6 +1,5 @@
 import { Box, useTheme } from '@mui/material';
 import {
-  BoxDisplay,
   TradeActionHeader,
   TradeActionTitle,
   TradeSummaryContainer,
@@ -14,12 +13,14 @@ import { FormattedMessage } from 'react-intl';
 import { useContext } from 'react';
 import { LeveragedLiquidityContext } from '../liquidity-leveraged';
 import { HowItWorksFaq } from './how-it-works-faq';
+import { NTokenPriceExposure } from './ntoken-price-exposure';
 
 export const LiquidityLeveragedSummary = () => {
   const theme = useTheme();
+  const context = useContext(LeveragedLiquidityContext);
   const {
     state: { collateral, selectedDepositToken },
-  } = useContext(LeveragedLiquidityContext);
+  } = context;
   const tokenSymbol = selectedDepositToken || '';
   const { faqs, faqHeaderLinks } = useLiquidityFaq(tokenSymbol);
   const totalYield = 0;
@@ -41,40 +42,8 @@ export const LiquidityLeveragedSummary = () => {
             title={<FormattedMessage defaultMessage="Total APY" />}
           />
         </Box>
-        <Box
-          sx={{
-            marginTop: theme.spacing(5),
-            marginBottom: theme.spacing(5),
-            display: 'flex',
-            justifyContent: 'space-between',
-            gap: theme.spacing(4),
-            width: '100%',
-            flexWrap: {
-              xs: 'wrap',
-              sm: 'wrap',
-              md: 'nowrap',
-              lg: 'nowrap',
-              xl: 'nowrap',
-            },
-          }}
-        >
-          <BoxDisplay
-            title={<FormattedMessage defaultMessage="Variable APY" />}
-            value={blendedYield}
-            symbol={<FormattedMessage defaultMessage="APY" />}
-            nonValueDisplay="0.00%"
-            valueSuffix="%"
-            overrides={{ margin: '0px ' }}
-          />
-
-          <BoxDisplay
-            title={<FormattedMessage defaultMessage="NOTE Incentive Yield" />}
-            value={incentiveYield}
-            symbol={<FormattedMessage defaultMessage="APY" />}
-            nonValueDisplay="0.00%"
-            valueSuffix="%"
-            overrides={{ margin: '0px ' }}
-          />
+        <Box marginBottom={theme.spacing(5)}>
+          <NTokenPriceExposure state={context.state} />
         </Box>
         <Faq
           question={<FormattedMessage defaultMessage={'How it Works'} />}

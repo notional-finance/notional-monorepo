@@ -1,15 +1,15 @@
 import { AssetSelectDropdown } from '@notional-finance/mui';
-import { useContext, useCallback, useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { MessageDescriptor } from 'react-intl';
 import {
-  BaseContext,
+  BaseTradeContext,
   useAccountDefinition,
 } from '@notional-finance/notionable-hooks';
 import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
 import { useParams } from 'react-router';
 
 interface PortfolioHoldingSelectProps {
-  context: BaseContext;
+  context: BaseTradeContext;
   inputLabel: MessageDescriptor;
   isWithdraw?: boolean;
   filterBalances: (
@@ -31,7 +31,7 @@ export const PortfolioHoldingSelect = ({
   const {
     updateState,
     state: { collateral, debt },
-  } = useContext(context);
+  } = context;
   const { account } = useAccountDefinition();
   const selectedToken = isWithdraw ? debt : collateral;
   const { selectedToken: selectedParamToken } = useParams<{
@@ -60,9 +60,7 @@ export const PortfolioHoldingSelect = ({
     if (!options || options.length === 0 || !!selectedToken) return;
     let selected: TokenDefinition | undefined;
     if (selectedParamToken) {
-      selected = options.find(
-        (t) => t.token.id === selectedParamToken
-      )?.token;
+      selected = options.find((t) => t.token.id === selectedParamToken)?.token;
     } else {
       selected = options[0].token;
     }

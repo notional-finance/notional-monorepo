@@ -6,7 +6,7 @@ import { AccountFetchMode, Registry } from '@notional-finance/core-entities';
 
 export class YieldRegistryDO extends BaseDO<APIEnv> {
   constructor(state: DurableObjectState, env: APIEnv) {
-    super(state, env, 'yields', ONE_MINUTE_MS);
+    super(state, env, 'yields', ONE_MINUTE_MS / 4);
   }
 
   getStorageKey(url: URL): string {
@@ -16,6 +16,7 @@ export class YieldRegistryDO extends BaseDO<APIEnv> {
   }
 
   override async parseData(data: string) {
+    console.log(data);
     return this.parseGzip(data);
   }
 
@@ -27,15 +28,31 @@ export class YieldRegistryDO extends BaseDO<APIEnv> {
       );
 
       await Promise.all(
-        this.env.SUPPORTED_NETWORKS.map(async (network) => {
-          if (network === Network.All) return;
+        this.env.SUPPORTED_NETWORKS.map((network) => {
+          if (network === Network.All) return Promise.resolve();
 
-          Registry.startRefresh(network);
-          Registry.onNetworkReady(network, async () => {
-            const yields = Registry.getYieldRegistry().getAllYields(network);
-            const gz = await this.encodeGzip(JSON.stringify(yields));
-            await this.state.storage.put(`${this.serviceName}/${network}`, gz);
-            Registry.stopRefresh(network);
+          return new Promise<void>((resolve) => {
+            Registry.startRefresh(network);
+            setTimeout(() => {
+              console.log('Yield Registry Timeout');
+              resolve();
+            }, 10_000);
+
+            Registry.onNetworkReady(network, () => {
+              const yields = Registry.getYieldRegistry().getAllYields(network);
+
+              this.encodeGzip(JSON.stringify(yields))
+                .then((gz) => {
+                  return this.state.storage.put(
+                    `${this.serviceName}/${network}`,
+                    gz
+                  );
+                })
+                .then(() => {
+                  Registry.stopRefresh(network);
+                  resolve();
+                });
+            });
           });
         })
       );

@@ -1,6 +1,7 @@
 import { AggregateCall } from '@notional-finance/multicall';
 import {
   AssetType,
+  BASIS_POINT,
   encodeERC1155Id,
   getNowSeconds,
   INTERNAL_TOKEN_DECIMALS,
@@ -315,6 +316,8 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
       // Simulates selling netfCash positions
       const { totalFees, netUnderlyingCash } = netfCash.reduce(
         ({ totalFees, netUnderlyingCash }, fCash, i) => {
+          if (fCash.isZero()) return { totalFees, netUnderlyingCash };
+
           const { fee, underlyingCash } = this.getCashGivenfCashAmount(
             i + 1,
             fCash.neg(),
@@ -552,11 +555,11 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
 
   public getInterestRate(marketIndex: number, utilization: number) {
     if (utilization < 0 || RATE_PRECISION < utilization)
-      throw Error('Out of utilization bounds');
+      throw Error('Insufficient Liquidity');
     const irParams = this.getIRParams(marketIndex);
     if (utilization <= irParams.kinkUtilization1) {
       return Math.floor(
-        (utilization * irParams.kinkRate1) / irParams.kinkUtilization2
+        (utilization * irParams.kinkRate1) / irParams.kinkUtilization1
       );
     } else if (utilization <= irParams.kinkUtilization2) {
       return Math.floor(
@@ -604,6 +607,10 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
     const r =
       (interestRate * timeToMaturity) / (RATE_PRECISION * SECONDS_IN_YEAR);
     return Math.floor(Math.exp(r) * RATE_PRECISION);
+  }
+
+  public getfCashPV(interestRate: number, timeToMaturity: number) {
+    return this.getfCashExchangeRate(-interestRate, timeToMaturity);
   }
 
   public getIRParams(marketIndex: number) {
@@ -836,6 +843,130 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
         return '20 Year';
       default:
         return 'Unknown';
+    }
+  }
+
+  public getfCashPriceExposure(
+    fCash: TokenBalance,
+    purchasePrice: TokenBalance,
+    tickSize = 50 * BASIS_POINT,
+    blockTime = getNowSeconds()
+  ) {
+    const marketIndex = this.getMarketIndex(fCash.maturity);
+    const { maxRate } = this.poolParams.interestRateCurve[marketIndex - 1];
+    const timeToMaturity = (fCash.maturity || 0) - blockTime;
+    const unit = TokenBalance.unit(this.getZeroUnderlying().token);
+
+    return Array(Math.ceil(maxRate / tickSize))
+      .fill(0)
+      .map((_, i) => {
+        const interestRate = i * tickSize;
+        const price = unit.mulInRatePrecision(
+          this.getfCashPV(interestRate, timeToMaturity)
+        );
+        const profitLoss = price
+          .sub(purchasePrice)
+          .scale(fCash.n, fCash.precision);
+
+        return {
+          interestRate: (interestRate * 100) / RATE_PRECISION,
+          price,
+          profitLoss,
+        };
+      });
+  }
+
+  public getNTokenPriceExposure(
+    nTokens: TokenBalance,
+    tickSize = 50 * BASIS_POINT,
+    blockTime = getNowSeconds()
+  ) {
+    const maxRate = Math.max(
+      ...this.poolParams.interestRateCurve.map((i) => i.maxRate)
+    );
+    const nTokenPrice = TokenBalance.unit(nTokens.token).toUnderlying();
+
+    return Array(Math.floor(maxRate / tickSize))
+      .fill(0)
+      .map((_, i) => {
+        const interestRate = (i + 1) * tickSize;
+        const netPrice = this._getSimulatedNTokenPriceChange(
+          interestRate,
+          blockTime
+        );
+        const price = nTokenPrice.add(netPrice);
+
+        const profitLoss = price
+          .sub(nTokenPrice)
+          .scale(nTokens.n, nTokens.precision);
+
+        return {
+          interestRate: (interestRate * 100) / RATE_PRECISION,
+          price,
+          profitLoss,
+        };
+      });
+  }
+
+  private _getSimulatedNTokenPriceChange(
+    interestRate: number,
+    blockTime = getNowSeconds()
+  ) {
+    return this.zeroTokenArray()
+      .slice(1)
+      .map((t, i) => {
+        const spotRate = this.getSpotInterestRate(t.token);
+        if (!spotRate) throw Error('Spot Rate undefined');
+        const timeToMaturity = t.maturity - blockTime;
+        const netfCashPV =
+          this.getfCashPV(interestRate, t.maturity - blockTime) -
+          this.getfCashPV(spotRate, timeToMaturity);
+
+        const utilization = this.getUtilization(i + 1, interestRate);
+        // Assume that we trade at 1-1:
+        //  (per market cash in underlying 8 decimals +
+        //  per market fCash) * utilization - perMarketfCash
+        const additionalResiduals = this.poolParams.perMarketCash[i]
+          .toUnderlying()
+          .scaleTo(INTERNAL_TOKEN_DECIMALS)
+          .add(this.poolParams.perMarketfCash[i].n)
+          .mul(utilization)
+          .div(RATE_PRECISION)
+          .sub(this.poolParams.perMarketfCash[i].n);
+
+        const totalResiduals = this.balances[i + 1].add(
+          this.balances[i + 1].copy(additionalResiduals)
+        );
+
+        // This is the the net nToken profit loss in the maturity
+        return totalResiduals.mulInRatePrecision(netfCashPV);
+      })
+      .reduce(
+        (s, pnl) => s.add(s.copy(pnl.n).scaleFromInternal()),
+        this.getZeroUnderlying()
+      );
+  }
+
+  public getUtilization(marketIndex: number, interestRate: number) {
+    const irParams = this.getIRParams(marketIndex);
+    if (interestRate <= irParams.kinkRate1) {
+      return Math.floor(
+        (interestRate * irParams.kinkUtilization1) / irParams.kinkRate1
+      );
+    } else if (interestRate <= irParams.kinkRate2) {
+      return Math.floor(
+        ((interestRate - irParams.kinkRate1) *
+          (irParams.kinkUtilization2 - irParams.kinkUtilization1)) /
+          (irParams.kinkRate2 - irParams.kinkRate1) +
+          irParams.kinkUtilization1
+      );
+    } else {
+      return Math.floor(
+        ((interestRate - irParams.kinkRate2) *
+          (RATE_PRECISION - irParams.kinkUtilization2)) /
+          (irParams.maxRate - irParams.kinkRate2) +
+          irParams.kinkUtilization2
+      );
     }
   }
 }

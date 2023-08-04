@@ -8,7 +8,7 @@ import {
   useAccountReady,
   usePortfolioLiquidationRisk,
 } from '@notional-finance/notionable-hooks';
-import { FormattedMessage, defineMessage } from 'react-intl';
+import { FormattedMessage } from 'react-intl';
 
 export const LiquidationRisk = ({ state }: { state: TradeState }) => {
   const isAccountReady = useAccountReady();
@@ -53,9 +53,11 @@ export const LiquidationRisk = ({ state }: { state: TradeState }) => {
     <DataTable
       tableVariant={TABLE_VARIANTS.MINI}
       tableTitle={<FormattedMessage defaultMessage={'Liquidation Risk'} />}
-      stateZeroMessage={defineMessage({
-        defaultMessage: 'Input parameters to see your liquidation risk.',
-      })}
+      stateZeroMessage={
+        <FormattedMessage
+          defaultMessage={'Input parameters to see your liquidation risk.'}
+        />
+      }
       data={[]}
       columns={columns}
     />;
@@ -65,9 +67,11 @@ export const LiquidationRisk = ({ state }: { state: TradeState }) => {
     <DataTable
       tableVariant={TABLE_VARIANTS.MINI}
       tableTitle={<FormattedMessage defaultMessage={'Liquidation Risk'} />}
-      stateZeroMessage={defineMessage({
-        defaultMessage: 'Input parameters to see your liquidation risk.',
-      })}
+      stateZeroMessage={
+        <FormattedMessage
+          defaultMessage={'Input parameters to see your liquidation risk.'}
+        />
+      }
       data={
         onlyCurrent
           ? tableData

@@ -20,7 +20,7 @@ describe.withForkAndRegistry(
         () => {
           const { globalState, globalState$, updateNotional } =
             useNotionalContext();
-          const { state, state$, updateState } = useTradeContext();
+          const { state, state$, updateState } = useTradeContext(tradeType);
           return {
             state,
             updateState,
@@ -96,6 +96,7 @@ describe.withForkAndRegistry(
           });
         });
 
+        await waitForNextUpdate();
         expect(result.current.state.collateralBalance).toBeDefined();
         expect(result.current.state.canSubmit).toBe(true);
       });
@@ -114,6 +115,19 @@ describe.withForkAndRegistry(
         await waitForNextUpdate();
 
         expect(result.current.state.availableCollateralTokens).toHaveLength(2);
+
+        act(() => {
+          result.current.updateState({
+            collateral: result.current.state.availableCollateralTokens![0],
+            depositBalance: TokenBalance.fromFloat(
+              3,
+              result.current.state.deposit!
+            ),
+          });
+        });
+
+        expect(result.current.state.collateralBalance).toBeDefined();
+        expect(result.current.state.canSubmit).toBe(true);
       });
     });
   }

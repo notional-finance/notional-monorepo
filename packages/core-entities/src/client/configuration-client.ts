@@ -105,6 +105,9 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
     cashBorrowed: TokenBalance,
     blockTime = getNowSeconds()
   ) {
+    if (cashBorrowed.tokenType !== 'PrimeCash')
+      throw Error('Cash must be prime cash');
+
     if (maturity === PRIME_CASH_VAULT_MATURITY) {
       return {
         cashBorrowed,
@@ -454,6 +457,14 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
         ),
       };
     }
+  }
+  getCurrencyHaircutAndBuffer(token: TokenDefinition) {
+    if (!token.currencyId) throw Error('Invalid token currency');
+    const config = this.getConfig(token.network, token.currencyId);
+    return {
+      haircut: this._assertDefined(config.collateralHaircut),
+      buffer: this._assertDefined(config.debtBuffer),
+    };
   }
 
   getExchangeRiskAdjustment(

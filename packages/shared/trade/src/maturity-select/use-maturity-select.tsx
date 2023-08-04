@@ -1,14 +1,15 @@
-import { MaturityData, isVaultTrade } from '@notional-finance/notionable';
+import { isVaultTrade } from '@notional-finance/notionable';
 import {
-  BaseContext,
+  BaseTradeContext,
+  MaturityData,
   useSpotMaturityData,
 } from '@notional-finance/notionable-hooks';
 import { formatInterestRate } from '@notional-finance/util';
-import { useCallback, useContext } from 'react';
+import { useCallback } from 'react';
 
 export const useMaturitySelect = (
   category: 'Collateral' | 'Debt',
-  context: BaseContext
+  context: BaseTradeContext
 ) => {
   const {
     state: {
@@ -22,7 +23,7 @@ export const useMaturitySelect = (
       deposit,
     },
     updateState,
-  } = useContext(context);
+  } = context;
   const selectedToken = category === 'Collateral' ? collateral : debt;
   const options = category === 'Collateral' ? collateralOptions : debtOptions;
   const tokens =
@@ -34,6 +35,7 @@ export const useMaturitySelect = (
   const maturityData: MaturityData[] =
     options?.map((o) => {
       return {
+        token: o.token,
         tokenId: o.token.id,
         tradeRate: o.interestRate,
         maturity: o.token.maturity || 0,
@@ -45,27 +47,20 @@ export const useMaturitySelect = (
   const onSelect = useCallback(
     (selectedId: string | undefined) => {
       if (category === 'Collateral') {
-        const selectedCollateralToken = availableCollateralTokens?.find(
+        const collateral = availableCollateralTokens?.find(
           (t) => t.id === selectedId
-        )?.symbol;
-        updateState({ selectedCollateralToken });
+        );
+        updateState({ collateral });
       } else if (isVault) {
         // Selects the matching vault collateral asset when the debt asset is selected
-        const selectedDebt = availableDebtTokens?.find(
-          (t) => t.id === selectedId
+        const debt = availableDebtTokens?.find((t) => t.id === selectedId);
+        const collateral = availableCollateralTokens?.find(
+          (t) => t.maturity === debt?.maturity
         );
-        const selectedCollateral = availableCollateralTokens?.find(
-          (t) => t.maturity === selectedDebt?.maturity
-        );
-        updateState({
-          selectedDebtToken: selectedDebt?.symbol,
-          selectedCollateralToken: selectedCollateral?.symbol,
-        });
+        updateState({ debt, collateral });
       } else {
-        const selectedDebtToken = availableDebtTokens?.find(
-          (t) => t.id === selectedId
-        )?.symbol;
-        updateState({ selectedDebtToken });
+        const debt = availableDebtTokens?.find((t) => t.id === selectedId);
+        updateState({ debt });
       }
     },
     [

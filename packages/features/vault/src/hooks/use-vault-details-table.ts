@@ -1,120 +1,54 @@
 import { useContext } from 'react';
-import {
-  didIncrease,
-  formatLeverageForRisk,
-  formatPercentForRisk,
-  RiskDataTableRow,
-} from '@notional-finance/risk';
-import { useHistoricalReturns } from './use-historical-returns';
-import { VaultActionContext } from '../vault-view/vault-action-provider';
 import { formatMaturity } from '@notional-finance/helpers';
-import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
+import { VaultActionContext } from '../vault-view/vault-action-provider';
+import { useVaultLiquidationRisk } from '@notional-finance/notionable-hooks';
 
 export function useVaultDetailsTable() {
-  const { priorVaultReturns, newVaultReturns } = useHistoricalReturns();
-  const {
-    state: { priorAccountRisk: _priorAccountRisk, postAccountRisk, collateral },
-  } = useContext(VaultActionContext);
+  const { state } = useContext(VaultActionContext);
+  const { priorVaultBalances, collateralBalance } = state;
+  const { tableData, priorAccountNoRisk, postAccountNoRisk } =
+    useVaultLiquidationRisk(state);
 
-  const priorAccountRisk =
-    _priorAccountRisk ||
-    // If there is no prior account risk, but some collateral set then create an
-    // empty vault account profile
-    (collateral && collateral.vaultAddress && collateral.maturity
-      ? VaultAccountRiskProfile.empty(
-          collateral.network,
-          collateral.vaultAddress,
-          collateral.maturity
-        ).getAllRiskFactors()
-      : undefined);
+  const maturity =
+    collateralBalance?.maturity ||
+    priorVaultBalances?.find((t) => t.tokenType === 'VaultShare')?.maturity;
 
-  if (!priorAccountRisk || !collateral?.maturity) {
-    return {
-      tableData: [],
-      maturity: '',
-    };
-  }
+  // const { priorVaultReturns, newVaultReturns } = useHistoricalReturns();
+  // if (priorVaultReturns !== undefined && newVaultReturns !== undefined) {
+  //   tableData.push({
+  //     riskType: {
+  //       type: 'APY',
+  //     },
+  //     current: formatPercentForRisk(priorVaultReturns),
+  //     updated: {
+  //       value: formatPercentForRisk(newVaultReturns),
+  //       arrowUp: didIncrease(priorVaultReturns, newVaultReturns),
+  //       checkmark: false,
+  //       greenOnArrowUp: true,
+  //       greenOnCheckmark: false,
+  //     },
+  //   });
+  // }
 
-  // These are all in underlying present value in the primary borrow currency
-  const currentAssets = priorAccountRisk.assets;
-  const updatedAssets = postAccountRisk?.assets;
-  const currentDebts = priorAccountRisk.debts;
-  const updatedDebts = postAccountRisk?.debts;
-
-  const tableData: RiskDataTableRow[] = [
-    {
-      riskType: {
-        type: 'Assets',
-      },
-      current: currentAssets?.toDisplayStringWithSymbol(2) || '-',
-      updated: {
-        value: updatedAssets?.toDisplayStringWithSymbol(2) || '-',
-        arrowUp:
-          (updatedAssets &&
-            currentAssets &&
-            !currentAssets.isZero() &&
-            updatedAssets.gt(currentAssets)) ||
-          null,
-        checkmark: false,
-        greenOnArrowUp: true,
-        greenOnCheckmark: false,
-      },
-    },
-    {
-      riskType: {
-        type: 'Debts',
-      },
-      current: currentDebts?.neg().toDisplayStringWithSymbol(2) || '-',
-      updated: {
-        value: updatedDebts?.neg().toDisplayStringWithSymbol(2) || '-',
-        // NOTE: debts are negative so greater is lower
-        arrowUp:
-          (updatedDebts &&
-            currentDebts &&
-            !currentDebts.isZero() &&
-            updatedDebts.lt(currentDebts)) ||
-          null,
-        checkmark: false,
-        greenOnArrowUp: true,
-        greenOnCheckmark: false,
-      },
-    },
-    {
-      riskType: {
-        type: 'Leverage Ratio',
-      },
-      current: formatLeverageForRisk(priorAccountRisk.leverageRatio),
-      updated: {
-        value: formatLeverageForRisk(postAccountRisk?.leverageRatio),
-        arrowUp:
-          postAccountRisk?.leverageRatio !== null
-            ? didIncrease(
-                priorAccountRisk.leverageRatio,
-                postAccountRisk?.leverageRatio
-              )
-            : null,
-        checkmark: postAccountRisk?.leverageRatio === null,
-        greenOnArrowUp: false,
-        greenOnCheckmark: true,
-      },
-    },
-  ];
-
-  if (priorVaultReturns !== undefined && newVaultReturns !== undefined) {
-    tableData.push({
-      riskType: {
-        type: 'APY',
-      },
-      current: formatPercentForRisk(priorVaultReturns),
-      updated: {
-        value: formatPercentForRisk(newVaultReturns),
-        arrowUp: didIncrease(priorVaultReturns, newVaultReturns),
-        checkmark: false,
-        greenOnArrowUp: true,
-        greenOnCheckmark: false,
-      },
-    });
-  }
-
-  return { tableData, maturity: formatMaturity(collateral.maturity) };
+  return {
+    tableData:
+      priorAccountNoRisk && postAccountNoRisk
+        ? []
+        : tableData.map(
+            ({ label, current, updated, changeType, greenOnArrowUp }) => {
+              return {
+                label,
+                current,
+                updated: {
+                  value: updated,
+                  arrowUp: changeType === 'increase',
+                  checkmark: changeType === 'cleared',
+                  greenOnCheckmark: true,
+                  greenOnArrowUp,
+                },
+              };
+            }
+          ),
+    maturity: maturity ? formatMaturity(maturity) : '',
+  };
 }

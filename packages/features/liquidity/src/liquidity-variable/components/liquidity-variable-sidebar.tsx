@@ -4,28 +4,30 @@ import { useHistory } from 'react-router-dom';
 import { useCurrencyInputRef } from '@notional-finance/mui';
 import { defineMessage } from 'react-intl';
 import { LiquidityContext } from '../liquidity-variable';
+import { PRODUCTS } from '@notional-finance/shared-config';
 
 export const LiquidityVariableSidebar = () => {
   const history = useHistory();
+  const context = useContext(LiquidityContext);
   const {
     state: { selectedDepositToken },
-  } = useContext(LiquidityContext);
+  } = context;
   const { currencyInputRef } = useCurrencyInputRef();
 
   const handleLeverUpToggle = useCallback(() => {
-    history.push(`/liquidity-leveraged/${selectedDepositToken}`);
+    history.push(`/${PRODUCTS.LIQUIDITY_VARIABLE}/${selectedDepositToken}`);
   }, [history, selectedDepositToken]);
 
   return (
     <TransactionSidebar
-      context={LiquidityContext}
+      context={context}
       handleLeverUpToggle={handleLeverUpToggle}
     >
       <DepositInput
         ref={currencyInputRef}
         inputRef={currencyInputRef}
-        context={LiquidityContext}
-        newRoute={(newToken) => `/provide/${newToken}`}
+        context={context}
+        newRoute={(newToken) => `/${PRODUCTS.LIQUIDITY_VARIABLE}/${newToken}`}
         inputLabel={defineMessage({
           defaultMessage: '1. How much liquidity do you want to provide?',
           description: 'input label',

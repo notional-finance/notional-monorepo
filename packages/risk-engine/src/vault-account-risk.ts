@@ -5,6 +5,7 @@ import {
 } from '@notional-finance/core-entities';
 import {
   Network,
+  PRIME_CASH_VAULT_MATURITY,
   RATE_DECIMALS,
   RATE_PRECISION,
   unique,
@@ -105,6 +106,26 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
           this.maturity
         )
       )
+    );
+  }
+
+  get vaultCash() {
+    return (
+      this.balances.find((t) => t.tokenType === 'VaultCash') ||
+      TokenBalance.zero(
+        Registry.getTokenRegistry().getVaultCash(
+          this.network,
+          this.vaultAddress,
+          this.maturity
+        )
+      )
+    );
+  }
+
+  get vaultAdapter() {
+    return Registry.getVaultRegistry().getVaultAdapter(
+      this.network,
+      this.vaultAddress
     );
   }
 
@@ -214,6 +235,8 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     const collateralRatio = this.collateralRatio();
     if (collateralRatio) {
       return 1 / collateralRatio;
+    } else if (collateralRatio === 0) {
+      return Infinity;
     } else {
       return null;
     }
@@ -233,5 +256,43 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
         this.collateralLiquidationThreshold(a.token)
       ),
     };
+  }
+
+  override maxWithdraw(
+    token: TokenDefinition = this.vaultShares.token
+  ): TokenBalance {
+    if (token.id !== this.vaultShares.tokenId)
+      throw Error('Must be vault shares');
+
+    let costToRepay: TokenBalance;
+    if (this.vaultDebt.maturity === PRIME_CASH_VAULT_MATURITY) {
+      costToRepay = this.vaultDebt.unwrapVaultToken().toUnderlying();
+    } else {
+      const fCash = Registry.getExchangeRegistry().getfCashMarket(
+        this.network,
+        this.vaultDebt.currencyId
+      );
+
+      const { tokensOut } = fCash.calculateTokenTrade(
+        this.vaultDebt.unwrapVaultToken().neg(),
+        0
+      );
+      costToRepay = tokensOut
+        .sub(this.vaultCash.unwrapVaultToken())
+        .toUnderlying()
+        .neg();
+    }
+
+    // Vault shares burned to repay debt
+    const { netVaultSharesForUnderlying } =
+      this.vaultAdapter.getNetVaultSharesMinted(
+        costToRepay, // this is a negative number
+        this.vaultShares.token
+      );
+
+    // Return this in vault shares terms
+    return this.vaultShares.gt(netVaultSharesForUnderlying)
+      ? this.vaultShares.sub(netVaultSharesForUnderlying)
+      : this.vaultShares.copy(0);
   }
 }

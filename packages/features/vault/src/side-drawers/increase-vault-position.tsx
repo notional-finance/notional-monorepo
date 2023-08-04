@@ -3,19 +3,24 @@ import { useCurrencyInputRef } from '@notional-finance/mui';
 import { VaultActionContext } from '../vault-view/vault-action-provider';
 import { messages } from '../messages';
 import { VaultLeverageSlider, VaultSideDrawer } from '../components';
+import { useContext } from 'react';
 
 export const IncreaseVaultPosition = () => {
   const { currencyInputRef } = useCurrencyInputRef();
+  const context = useContext(VaultActionContext);
 
   return (
-    <VaultSideDrawer>
+    <VaultSideDrawer context={context}>
       <DepositInput
         ref={currencyInputRef}
         inputRef={currencyInputRef}
-        context={VaultActionContext}
+        context={context}
         inputLabel={messages['IncreaseVaultPosition'].inputLabel}
       />
-      <VaultLeverageSlider inputLabel={messages['IncreaseVaultPosition'].leverage} />
+      <VaultLeverageSlider
+        context={context}
+        inputLabel={messages['IncreaseVaultPosition'].leverage}
+      />
     </VaultSideDrawer>
   );
 };

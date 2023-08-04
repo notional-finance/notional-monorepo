@@ -218,6 +218,21 @@ const acceptanceSuite = ({
   );
 
   it.todo('calculates unbalanced entry and exit');
+
+  it.skip('calculates a price risk table', () => {
+    console.log(harness.poolAddress);
+    console.log(
+      harness.poolInstance
+        .getPriceExposureTable(1, 0)
+        .map(({ lpTokenValue, secondaryTokenPrice, priceLevelIndex }) => {
+          return [
+            lpTokenValue.toString(),
+            secondaryTokenPrice.toString(),
+            priceLevelIndex,
+          ];
+        })
+    );
+  });
 };
 
 describe.withForkAndRegistry(

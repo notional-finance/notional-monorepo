@@ -82,7 +82,7 @@ export const useFixedLiquidityPoolsTable = (
           ? RATE_PRECISION /
             fCashMarket.getfCashExchangeRate(
               Math.floor((interestRate * RATE_PRECISION) / 100),
-              data.maturity || 0 - getNowSeconds()
+              (data.maturity || 0) - getNowSeconds()
             )
           : '-';
 

@@ -353,7 +353,7 @@ function getTypography(themeVariant: PaletteMode, pageLayout?: NotionalPageLayou
         marginBottom: pxToMargin(12),
       },
       link: {
-        fontSize: pxToRem(12),
+        fontSize: pxToRem(14),
         fontWeight: fontWeight.medium,
         color: getFontColors(themeVariant).accent,
         textDecoration: 'underline',
@@ -522,7 +522,7 @@ function getTypography(themeVariant: PaletteMode, pageLayout?: NotionalPageLayou
       marginBottom: pxToMargin(24),
     },
     link: {
-      fontSize: pxToRem(12),
+      fontSize: pxToRem(14),
       fontWeight: fontWeight.medium,
       color: getFontColors(themeVariant).accent,
       textDecoration: 'underline',

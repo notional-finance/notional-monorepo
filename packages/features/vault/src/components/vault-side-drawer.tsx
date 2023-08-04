@@ -1,26 +1,30 @@
-import { useContext, useCallback } from 'react';
+import { useCallback } from 'react';
 import {
   ActionSidebar,
   ToggleSwitchProps,
   ProgressIndicator,
 } from '@notional-finance/mui';
 import { TradeActionButton, Confirmation2 } from '@notional-finance/trade';
-import { VaultActionContext } from '../vault-view/vault-action-provider';
 import { useHistory } from 'react-router';
 import { messages } from '../messages';
 import { VaultDetailsTable } from './vault-details-table';
-import { useVaultProperties } from '@notional-finance/notionable-hooks';
+import {
+  VaultContext,
+  useVaultProperties,
+} from '@notional-finance/notionable-hooks';
 import { useVaultCapacity } from '../hooks';
 import { VaultTradeType } from '@notional-finance/notionable';
 
 interface VaultSideDrawerProps {
   children?: React.ReactNode | React.ReactNode[];
   advancedToggle?: ToggleSwitchProps;
+  context: VaultContext;
 }
 
 export const VaultSideDrawer = ({
   children,
   advancedToggle,
+  context,
 }: VaultSideDrawerProps) => {
   const history = useHistory();
   const {
@@ -32,7 +36,7 @@ export const VaultSideDrawer = ({
       populatedTransaction,
     },
     updateState,
-  } = useContext(VaultActionContext);
+  } = context;
   const { minDepositRequired } = useVaultProperties(vaultAddress);
   const { minBorrowSize } = useVaultCapacity();
   const tradeType = _tradeType as VaultTradeType;
@@ -41,9 +45,9 @@ export const VaultSideDrawer = ({
     history.push(`/vaults/${vaultAddress}`);
   }, [vaultAddress, history]);
 
-  const handleSubmit = () => {
+  const handleSubmit = useCallback(() => {
     updateState({ confirm: true });
-  };
+  }, [updateState]);
 
   return (
     <div>
@@ -51,7 +55,7 @@ export const VaultSideDrawer = ({
         populatedTransaction && confirm ? (
           <Confirmation2
             heading={messages[tradeType].heading}
-            context={VaultActionContext}
+            context={context}
             onCancel={handleCancel}
             showDrawer={false}
             onReturnToForm={handleCancel}

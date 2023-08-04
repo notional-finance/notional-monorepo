@@ -40,12 +40,11 @@ export function createTradeManager(
     postAccountRisk(state$, account$),
     calculate(state$, debtPool$, collateralPool$, of(undefined), account$),
     defaultLeverageRatio(state$, network$),
-    selectedToken('Collateral', state$, network$),
-    selectedToken('Debt', state$, network$),
-    selectedToken('Deposit', state$, network$),
+    // NOTE: this is required to read URL based inputs for deposits
+    selectedToken(state$, network$),
     priorAccountRisk(account$),
     availableTokens(state$, network$, account$),
-    initState(state$, network$),
+    initState(state$, network$, global$),
     resetOnNetworkChange(global$, state$),
     resetOnTradeTypeChange(state$)
   );

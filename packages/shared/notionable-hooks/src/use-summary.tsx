@@ -507,11 +507,11 @@ function getLiquidationPrices(
     let debtTitle: string;
     let isCrossCurrency: boolean;
     if (current) {
-      collateralTitle = formatTokenType(current.collateral).titleWithMaturity;
+      collateralTitle = formatTokenType(current.collateral).title;
       debtTitle = formatTokenType(current.debt).titleWithMaturity;
       isCrossCurrency = current.riskExposure?.isCrossCurrencyRisk || false;
     } else if (updated) {
-      collateralTitle = formatTokenType(updated.collateral).titleWithMaturity;
+      collateralTitle = formatTokenType(updated.collateral).title;
       debtTitle = formatTokenType(updated.debt).titleWithMaturity;
       isCrossCurrency = updated.riskExposure?.isCrossCurrencyRisk || false;
     } else {
@@ -522,8 +522,8 @@ function getLiquidationPrices(
       label: `${
         isCrossCurrency ? `${collateralTitle}/${debtTitle}` : collateralTitle
       } Liquidation Price`,
-      current: current?.price.toDisplayString(3, true) || '-',
-      updated: updated?.price.toDisplayString(3, true) || '-',
+      current: current?.price.toDisplayStringWithSymbol(3, true) || '-',
+      updated: updated?.price.toDisplayStringWithSymbol(3, true) || '-',
       changeType: getChangeType(
         current?.price.toFloat(),
         updated?.price.toFloat()
@@ -536,8 +536,9 @@ function getLiquidationPrices(
 export function usePortfolioLiquidationRisk(state: TradeState) {
   const { priorAccountRisk, postAccountRisk } = state;
   const onlyCurrent = !postAccountRisk;
+  const intl = useIntl();
   const healthFactor = {
-    label: 'Health Factor',
+    label: intl.formatMessage({ defaultMessage: 'Health Factor' }),
     current: priorAccountRisk?.healthFactor?.toFixed(3) || '-',
     updated: postAccountRisk?.healthFactor?.toFixed(3) || '-',
     changeType: getChangeType(
@@ -564,16 +565,41 @@ export function usePortfolioLiquidationRisk(state: TradeState) {
 export function useVaultLiquidationRisk(state: VaultTradeState) {
   const { priorAccountRisk, postAccountRisk } = state;
   const onlyCurrent = !postAccountRisk;
-  const healthFactor = {
-    label: 'Leverage Ratio',
-    current: formatLeverageRatio(priorAccountRisk?.leverageRatio || 0),
-    updated: formatLeverageRatio(postAccountRisk?.leverageRatio || 0),
-    changeType: getChangeType(
-      priorAccountRisk?.leverageRatio,
-      postAccountRisk?.leverageRatio
-    ),
-    greenOnArrowUp: false,
-  };
+  const intl = useIntl();
+
+  const factors = [
+    {
+      label: intl.formatMessage({ defaultMessage: 'Assets' }),
+      current: priorAccountRisk?.assets.toDisplayStringWithSymbol(3, true),
+      updated: postAccountRisk?.assets.toDisplayStringWithSymbol(3, true),
+      changeType: getChangeType(
+        priorAccountRisk?.assets.toFloat(),
+        postAccountRisk?.assets.toFloat()
+      ),
+      greenOnArrowUp: true,
+    },
+    {
+      label: intl.formatMessage({ defaultMessage: 'Debts' }),
+      current: priorAccountRisk?.debts.toDisplayStringWithSymbol(3, true),
+      updated: postAccountRisk?.debts.toDisplayStringWithSymbol(3, true),
+      changeType: getChangeType(
+        priorAccountRisk?.assets.toFloat(),
+        postAccountRisk?.assets.toFloat()
+      ),
+      greenOnArrowUp: true,
+    },
+    {
+      label: intl.formatMessage({ defaultMessage: 'Leverage Ratio' }),
+      current: formatLeverageRatio(priorAccountRisk?.leverageRatio || 0),
+      updated: formatLeverageRatio(postAccountRisk?.leverageRatio || 0),
+      changeType: getChangeType(
+        priorAccountRisk?.leverageRatio,
+        postAccountRisk?.leverageRatio
+      ),
+      greenOnArrowUp: false,
+    },
+    // TODO: need to add the APY here
+  ];
 
   const mergedLiquidationPrices = getLiquidationPrices(
     priorAccountRisk?.liquidationPrice || [],
@@ -582,6 +608,11 @@ export function useVaultLiquidationRisk(state: VaultTradeState) {
 
   return {
     onlyCurrent,
-    tableData: [healthFactor, ...mergedLiquidationPrices],
+    priorAccountNoRisk:
+      priorAccountRisk === undefined ||
+      priorAccountRisk?.leverageRatio === null,
+    postAccountNoRisk:
+      postAccountRisk === undefined || postAccountRisk?.leverageRatio === null,
+    tableData: [...factors, ...mergedLiquidationPrices],
   };
 }

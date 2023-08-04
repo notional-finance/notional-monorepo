@@ -4,9 +4,9 @@ import {
   Network,
   RATE_DECIMALS,
   RATE_PRECISION,
-  doBinarySearch,
+  doSecantSearch,
 } from '@notional-finance/util';
-import { BigNumber, utils } from 'ethers';
+import { utils } from 'ethers';
 
 export default abstract class BaseLiquidityPool<
   P
@@ -178,34 +178,24 @@ export default abstract class BaseLiquidityPool<
         this.oneLPToken(),
         singleSidedEntryTokenIndex
       );
-      const lpToAmountInEstimate = amountIn
-        .divInRatePrecision(this.oneLPToken().precision)
-        .toNumber();
 
-      const calculationFunction = (lpToPrimaryRatio: number) => {
+      const calculationFunction = (amountInRP: number) => {
         const tokensIn = this.zeroTokenArray();
-        const primaryTokensIn =
-          lpTokensRequired.mulInRatePrecision(lpToPrimaryRatio).n;
-        tokensIn[singleSidedEntryTokenIndex] = tokensIn[
-          singleSidedEntryTokenIndex
-        ].copy(
-          primaryTokensIn
-            .mul(tokensIn[singleSidedEntryTokenIndex].precision)
-            .div(this.oneLPToken().precision)
-        );
+        tokensIn[singleSidedEntryTokenIndex] = TokenBalance.unit(
+          tokensIn[singleSidedEntryTokenIndex].token
+        ).mulInRatePrecision(amountInRP);
 
         const { lpTokens, feesPaid } = this.getLPTokensGivenTokens(tokensIn);
-
         return {
-          actualMultiple: lpTokens.ratioWith(lpTokensRequired).toNumber(),
-          breakLoop: false,
+          // Difference in required vs minted
+          fx: lpTokens.sub(lpTokensRequired).toFloat() * RATE_PRECISION,
           value: { tokensIn, feesPaid },
         };
       };
 
-      return doBinarySearch(
-        lpToAmountInEstimate,
-        RATE_PRECISION,
+      return doSecantSearch(
+        Math.floor(amountIn.toFloat() * RATE_PRECISION),
+        Math.floor(amountIn.toFloat() * 2 * RATE_PRECISION),
         calculationFunction
       );
     } else {
@@ -233,18 +223,17 @@ export default abstract class BaseLiquidityPool<
       // In a single sided exit, do a binary search for the amount of LP tokens required
       // to exit the pool
       const amountOutRequired = tokensOut[singleSidedExitTokenIndex];
-      const lpToAmountOutEstimate = this.getLPTokenSpotValue(
-        singleSidedExitTokenIndex
-      )
+      const lpRequiredInRP = this.getLPTokenSpotValue(singleSidedExitTokenIndex)
         .scaleTo(RATE_DECIMALS)
         .toNumber();
 
-      const calculationFunction = (lpToAmountRatio: number) => {
-        let lpTokens = this.oneLPToken().copy(
-          amountOutRequired.mulInRatePrecision(lpToAmountRatio).n
-        );
-        // Don't allow this to go over the total supply
-        if (lpTokens.gt(this.totalSupply)) lpTokens = this.totalSupply;
+      const calculationFunction = (lpAmountInRP: number) => {
+        const lpTokens = this.oneLPToken().mulInRatePrecision(lpAmountInRP);
+        /**
+         * NOTE: removed restriction from going over the total supply
+         * Don't allow this to go over the total supply
+         * if (lpTokens.gt(this.totalSupply)) lpTokens = this.totalSupply;
+         */
 
         // Passing in single sided exit token index forces the exit to be in
         // the given token index
@@ -254,17 +243,17 @@ export default abstract class BaseLiquidityPool<
         );
 
         return {
-          actualMultiple: tokensOut[singleSidedExitTokenIndex]
-            .ratioWith(amountOutRequired)
-            .toNumber(),
-          breakLoop: false,
+          fx:
+            tokensOut[singleSidedExitTokenIndex]
+              .sub(amountOutRequired)
+              .toFloat() * RATE_PRECISION,
           value: { lpTokens, feesPaid },
         };
       };
 
-      return doBinarySearch(
-        lpToAmountOutEstimate,
-        RATE_PRECISION,
+      return doSecantSearch(
+        lpRequiredInRP,
+        lpRequiredInRP * 2,
         calculationFunction
       );
     } else {
@@ -286,21 +275,25 @@ export default abstract class BaseLiquidityPool<
 
       // Get the ratio of the value taken out to the value of a single LP token, this
       // dictates the starting estimate for how many LP tokens need to be withdrawn
-      const initialLPEstimate = this.oneLPToken().scale(
-        totalValueOutRequired.scaleTo(this.totalSupply.decimals),
-        this.getLPTokenOracleValue(this.oneLPToken(), largestTokenIndex)
-      );
+      const lpRequiredInRP = this.oneLPToken()
+        .scale(
+          totalValueOutRequired.scaleTo(this.totalSupply.decimals),
+          this.getLPTokenOracleValue(this.oneLPToken(), largestTokenIndex)
+        )
+        .scaleTo(RATE_DECIMALS)
+        .toNumber();
 
       /** Start Calculation Function **/
       const calculationFunction = (lpTokensInRatePrecision: number) => {
         // LP to Amount Ratio = totalValueOutRequired / oneLPTokenOracleValue
-        let lpTokens = this.oneLPToken().copy(
-          BigNumber.from(lpTokensInRatePrecision)
-            .mul(this.totalSupply.precision)
-            .div(RATE_PRECISION)
+        const lpTokens = this.oneLPToken().mulInRatePrecision(
+          lpTokensInRatePrecision
         );
-        // Don't allow this to go over the total supply
-        if (lpTokens.gt(this.totalSupply)) lpTokens = this.totalSupply;
+        /**
+         * NOTE: removed restriction from going over the total supply
+         * Don't allow this to go over the total supply
+         * if (lpTokens.gt(this.totalSupply)) lpTokens = this.totalSupply;
+         */
 
         const { tokensOut: tokensOutTemp, feesPaid: _feesPaid } =
           this.getTokensOutGivenLPTokens(lpTokens);
@@ -351,18 +344,17 @@ export default abstract class BaseLiquidityPool<
         }
 
         return {
-          actualMultiple: valueOfTokensOut
-            .ratioWith(totalValueOutRequired)
-            .toNumber(),
-          breakLoop: false,
+          fx:
+            valueOfTokensOut.sub(totalValueOutRequired).toFloat() *
+            RATE_PRECISION,
           value: { lpTokens, feesPaid },
         };
       };
       /** End Calculation Function **/
 
-      return doBinarySearch(
-        initialLPEstimate.scaleTo(RATE_DECIMALS).toNumber(),
-        RATE_PRECISION,
+      return doSecantSearch(
+        lpRequiredInRP,
+        lpRequiredInRP * 2,
         calculationFunction
       );
     }
@@ -373,39 +365,56 @@ export default abstract class BaseLiquidityPool<
     tokenIndexOut: number,
     percentDepthTraded = 80
   ) {
-    return Array(percentDepthTraded)
-      .map((_, i) => {
-        // Percentage of the sold token index
-        const tokensIn = this.balances[tokenIndexIn].scale(i, 100);
-        const { tokensOut } = this.calculateTokenTrade(tokensIn, tokenIndexOut);
+    return (
+      Array(percentDepthTraded)
+        .fill(0)
+        .map((_, i) => {
+          // Percentage of the sold token index
+          try {
+            const tokensIn = this.balances[tokenIndexIn].scale(i, 100);
+            const { tokensOut } = this.calculateTokenTrade(
+              tokensIn,
+              tokenIndexOut
+            );
 
-        const newBalances = Array.from(this.balances);
-        newBalances[tokenIndexIn] = newBalances[tokenIndexIn].sub(tokensIn);
-        newBalances[tokenIndexOut] = newBalances[tokenIndexOut].add(tokensOut);
+            const newBalances = Array.from(this.balances);
+            newBalances[tokenIndexIn] = newBalances[tokenIndexIn].sub(tokensIn);
+            newBalances[tokenIndexOut] =
+              newBalances[tokenIndexOut].add(tokensOut);
 
-        const lpTokenValue = this.getLPTokenSpotValue(
-          tokenIndexOut,
-          newBalances
-        );
+            const lpTokenValue = this.getLPTokenSpotValue(
+              tokenIndexOut,
+              newBalances
+            );
 
-        const { tokensOut: secondaryTokenPrice } = this.calculateTokenTrade(
-          // Calculate the trade of a single unit of the token index in
-          this.balances[tokenIndexIn].copy(
-            this.balances[tokenIndexIn].precision
-          ),
-          tokenIndexOut,
-          newBalances
-        );
+            const { tokensOut: secondaryTokenPrice } = this.calculateTokenTrade(
+              // Calculate the trade of a single unit of the token index in
+              this.balances[tokenIndexIn].copy(
+                this.balances[tokenIndexIn].precision
+              ),
+              tokenIndexOut,
+              newBalances
+            );
 
-        const priceLevelIndex = secondaryTokenPrice.toFloat().toPrecision(2);
+            const priceLevelIndex = secondaryTokenPrice
+              .toFloat()
+              .toPrecision(2);
 
-        return { lpTokenValue, secondaryTokenPrice, priceLevelIndex };
-      })
-      .filter(
-        // Filter out duplicate indexes at the specified level of precision
-        ({ priceLevelIndex }, i, arr) =>
-          i === 0 || arr[i - 1].priceLevelIndex !== priceLevelIndex
-      );
+            return { lpTokenValue, secondaryTokenPrice, priceLevelIndex };
+          } catch {
+            return undefined;
+          }
+        })
+        .filter((x) => x !== undefined) as {
+        lpTokenValue: TokenBalance;
+        secondaryTokenPrice: TokenBalance;
+        priceLevelIndex: string;
+      }[]
+    ).filter(
+      // Filter out duplicate indexes at the specified level of precision
+      ({ priceLevelIndex }, i, arr) =>
+        i === 0 || arr[i - 1].priceLevelIndex !== priceLevelIndex
+    );
   }
 
   public getTokenIndex(token: TokenDefinition) {

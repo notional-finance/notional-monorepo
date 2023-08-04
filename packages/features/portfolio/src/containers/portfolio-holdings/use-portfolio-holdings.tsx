@@ -3,6 +3,7 @@ import { TokenBalance } from '@notional-finance/core-entities';
 import {
   formatCryptoWithFiat,
   formatNumberAsPercent,
+  formatTokenType,
 } from '@notional-finance/helpers';
 import {
   TXN_HISTORY_TYPE,
@@ -87,10 +88,11 @@ export function usePortfolioHoldings() {
       )
 
       .map((b) => {
+        const { titleWithMaturity } = formatTokenType(b.token);
         return {
           asset: {
             symbol: b.underlying.symbol,
-            label: b.token.symbol,
+            label: titleWithMaturity,
             caption:
               b.token.tokenType === 'fCash' && b.impliedFixedRate !== undefined
                 ? `${formatNumberAsPercent(b.impliedFixedRate)} APY at Maturity`

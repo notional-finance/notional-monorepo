@@ -10,6 +10,7 @@ import { TokenBalance } from '../token-balance';
 import { defaultAbiCoder } from 'ethers/lib/utils';
 import { Registry } from '../Registry';
 import { BigNumber } from 'ethers';
+import { TokenDefinition } from '../Definitions';
 
 export interface SingleSidedLPParams {
   pool: string;
@@ -49,8 +50,18 @@ export class SingleSidedLP extends VaultAdapter {
     ].join(':');
   }
 
-  getVaultSharesToLPTokens(vaultShares: TokenBalance) {
+  private getVaultSharesToLPTokens(vaultShares: TokenBalance) {
     return this.totalLPTokens.scale(vaultShares.n, this.totalVaultShares);
+  }
+
+  private getLPTokensToVaultShares(
+    lpTokens: TokenBalance,
+    vaultShare: TokenDefinition
+  ) {
+    return TokenBalance.from(
+      this.totalVaultShares.mul(lpTokens.n).div(this.totalLPTokens.n),
+      vaultShare
+    );
   }
 
   getInitialVaultShareValuation(_maturity: number) {
@@ -59,6 +70,41 @@ export class SingleSidedLP extends VaultAdapter {
       timestamp: getNowSeconds(),
       blockNumber: 0,
     };
+  }
+
+  getNetVaultSharesMinted(
+    netUnderlying: TokenBalance,
+    vaultShare: TokenDefinition
+  ): {
+    netVaultSharesForUnderlying: TokenBalance;
+    feesPaid: TokenBalance;
+  } {
+    if (netUnderlying.isPositive()) {
+      const tokensIn = this.pool.zeroTokenArray();
+      tokensIn[this.singleSidedTokenIndex] = netUnderlying;
+      const { lpTokens, feesPaid } = this.pool.getLPTokensGivenTokens(tokensIn);
+
+      return {
+        feesPaid: this._sumFeesPaid(feesPaid),
+        netVaultSharesForUnderlying: this.getLPTokensToVaultShares(
+          lpTokens,
+          vaultShare
+        ),
+      };
+    } else {
+      const tokensOut = this.pool.zeroTokenArray();
+      tokensOut[this.singleSidedTokenIndex] = netUnderlying.neg();
+      const { lpTokens, feesPaid } =
+        this.pool.getLPTokensRequiredForTokens(tokensOut);
+
+      return {
+        feesPaid: this._sumFeesPaid(feesPaid),
+        netVaultSharesForUnderlying: this.getLPTokensToVaultShares(
+          lpTokens,
+          vaultShare
+        ),
+      };
+    }
   }
 
   getNetVaultSharesCost(netVaultShares: TokenBalance): {
@@ -71,14 +117,9 @@ export class SingleSidedLP extends VaultAdapter {
         this.singleSidedTokenIndex
       );
 
-      const primaryToken = tokensIn[this.singleSidedTokenIndex].token;
-
       return {
         netUnderlyingForVaultShares: tokensIn[this.singleSidedTokenIndex],
-        feesPaid: feesPaid.reduce(
-          (s, f) => s.add(f.toToken(primaryToken)),
-          TokenBalance.zero(primaryToken)
-        ),
+        feesPaid: this._sumFeesPaid(feesPaid),
       };
     } else {
       const { tokensOut, feesPaid } = this.pool.getTokensOutGivenLPTokens(
@@ -86,15 +127,19 @@ export class SingleSidedLP extends VaultAdapter {
         this.singleSidedTokenIndex
       );
 
-      const primaryToken = tokensOut[this.singleSidedTokenIndex].token;
       return {
         netUnderlyingForVaultShares: tokensOut[this.singleSidedTokenIndex],
-        feesPaid: feesPaid.reduce(
-          (s, f) => s.add(f.toToken(primaryToken)),
-          TokenBalance.zero(primaryToken)
-        ),
+        feesPaid: this._sumFeesPaid(feesPaid),
       };
     }
+  }
+
+  private _sumFeesPaid(feesPaid: TokenBalance[]) {
+    const primaryToken = feesPaid[this.singleSidedTokenIndex].token;
+    return feesPaid.reduce(
+      (s, f) => s.add(f.toToken(primaryToken)),
+      TokenBalance.zero(primaryToken)
+    );
   }
 
   getDepositParameters(

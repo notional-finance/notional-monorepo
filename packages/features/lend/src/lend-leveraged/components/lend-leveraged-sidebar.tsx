@@ -13,9 +13,10 @@ import { LeveragedLendMaturitySelector } from './leveraged-lend-maturity-selecto
 
 export const LendLeveragedSidebar = () => {
   const history = useHistory();
+  const context = useContext(LendLeveragedContext);
   const {
     state: { selectedDepositToken },
-  } = useContext(LendLeveragedContext);
+  } = context;
   const { currencyInputRef } = useCurrencyInputRef();
 
   const handleLeverUpToggle = useCallback(() => {
@@ -36,22 +37,22 @@ export const LendLeveragedSidebar = () => {
   return (
     <TransactionSidebar
       handleLeverUpToggle={handleLeverUpToggle}
-      context={LendLeveragedContext}
+      context={context}
       leveredUp
     >
       <DepositInput
         ref={currencyInputRef}
         inputRef={currencyInputRef}
-        context={LendLeveragedContext}
+        context={context}
         newRoute={(newToken) => `/${PRODUCTS.LEND_LEVERAGED}/${newToken}`}
         inputLabel={defineMessage({
           defaultMessage: '1. Enter deposit amount',
           description: 'input label',
         })}
       />
-      <LeveragedLendMaturitySelector />
+      <LeveragedLendMaturitySelector context={context} />
       <LeverageSlider
-        context={LendLeveragedContext}
+        context={context}
         inputLabel={defineMessage({
           defaultMessage: '3. Specify your leverage',
           description: 'input label',

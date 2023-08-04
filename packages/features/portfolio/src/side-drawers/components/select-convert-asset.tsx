@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { Box, styled, useTheme } from '@mui/material';
 import {
   LargeInputTextEmphasized,
@@ -11,7 +11,7 @@ import {
 import { FormattedMessage, MessageDescriptor } from 'react-intl';
 import { messages } from '../messages';
 import {
-  BaseContext,
+  TradeContext,
   useAccountDefinition,
   useAllMarkets,
 } from '@notional-finance/notionable-hooks';
@@ -26,7 +26,7 @@ import { useParams } from 'react-router';
 import { TransactionHeadings } from '@notional-finance/trade';
 
 interface SelectConvertAssetProps {
-  context: BaseContext;
+  context: TradeContext;
 }
 
 export const SelectConvertAsset = ({ context }: SelectConvertAssetProps) => {
@@ -42,7 +42,7 @@ export const SelectConvertAsset = ({ context }: SelectConvertAssetProps) => {
       collateralBalance,
     },
     updateState,
-  } = useContext(context);
+  } = context;
   const { account } = useAccountDefinition();
   const { allYields } = useAllMarkets();
   const options =

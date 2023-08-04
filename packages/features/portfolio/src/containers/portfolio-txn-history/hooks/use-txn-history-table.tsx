@@ -73,10 +73,7 @@ export const useTxnHistoryTable = (
     },
     {
       Header: (
-        <FormattedMessage
-          defaultMessage="Asset"
-          description={'Asset  header'}
-        />
+        <FormattedMessage defaultMessage="Asset" description={'Asset header'} />
       ),
       Cell: MultiValueIconCell,
       accessor: 'asset',

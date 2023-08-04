@@ -1,3 +1,4 @@
+import { ReactNode } from 'react';
 import { useState, SetStateAction, Dispatch } from 'react';
 import { Table, TableContainer, Paper, useTheme, Box } from '@mui/material';
 import { DataTableFilterBar } from './data-table-filter-bar/data-table-filter-bar';
@@ -7,7 +8,7 @@ import { DataTableHead } from './data-table-head/data-table-head';
 import { DataTableBody } from './data-table-body/data-table-body';
 import { PageLoading } from '../page-loading/page-loading';
 import { useTable, useExpanded, useSortBy } from 'react-table';
-import { FormattedMessage, MessageDescriptor } from 'react-intl';
+import { FormattedMessage } from 'react-intl';
 import { TableCell } from '../typography/typography';
 import {
   DataTableColumn,
@@ -34,7 +35,7 @@ interface DataTableProps {
   filterBarData?: any[];
   clearQueryAndFilters?: () => void;
   marketDataCSVFormatter?: (data: any[]) => any;
-  stateZeroMessage?: MessageDescriptor;
+  stateZeroMessage?: ReactNode;
 }
 
 export const DataTable = ({
@@ -197,11 +198,11 @@ export const DataTable = ({
             <TableCell
               sx={{ textAlign: 'center', margin: theme.spacing(4, 0) }}
             >
-              <FormattedMessage
-                {...(stateZeroMessage || {
-                  defaultMessage: 'No Data Available',
-                })}
-              />
+              {stateZeroMessage ? (
+                stateZeroMessage
+              ) : (
+                <FormattedMessage defaultMessage={'No Data Available'} />
+              )}
             </TableCell>
           )}
         </Box>
