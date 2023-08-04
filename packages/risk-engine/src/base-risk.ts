@@ -446,8 +446,14 @@ export abstract class BaseRiskProfile implements RiskFactors {
    */
   getDebtAndCollateralMaintainRiskFactor<F extends keyof RiskFactors>(
     debt: TokenDefinition,
-    collateral: TokenDefinition,
-    riskFactorLimit: RiskFactorLimit<F>
+    riskFactorLimit: RiskFactorLimit<F>,
+    convertToCollateral: (debtBalance: TokenBalance) => {
+      collateralBalance: TokenBalance;
+      debtFee: TokenBalance;
+      collateralFee: TokenBalance;
+      netRealizedCollateralBalance: TokenBalance;
+      netRealizedDebtBalance: TokenBalance;
+    }
   ) {
     // Uses the debt as the local currency
     const localUnderlyingId =
@@ -464,27 +470,28 @@ export abstract class BaseRiskProfile implements RiskFactors {
       riskFactorLimit.limit
     );
 
-    const calculationFunction = (multiple: number) => {
+    const calculationFunction = (debtUnits: number) => {
       // NOTE: this multiple is in "denom" terms. Need to convert it to local underlying
       // terms before we multiply it to get the debt figure. Use the currency id so that vault
       // debts convert properly.
       const defaultToken = this.denom(this.defaultSymbol);
-      const netDebt =
+      const debtBalance =
         debt.currencyId === defaultToken.currencyId
-          ? TokenBalance.unit(debt).mulInRatePrecision(multiple).neg()
+          ? TokenBalance.unit(debt).mulInRatePrecision(debtUnits).neg()
           : TokenBalance.unit(defaultToken)
-              .mulInRatePrecision(multiple)
+              .mulInRatePrecision(debtUnits)
               .toToken(debt)
               .neg();
-      // If netDebt is decreasing, netCollateral will also decrease because it will be sold
-      // to repay debt. If netDebt is increasing, netCollateral will also increase because borrowed
-      // cash will be used to buy collateral.
 
-      // TODO: need to provide a function to convert debt to collateral at actual rates.
-      const netCollateral = netDebt.toToken(collateral).neg();
+      // If debt is negative, that means that we're raising cash to buy collateral. If debt is
+      // positive then we are paying off debt by selling collateral.
+      const collateralOutputs = convertToCollateral(debtBalance);
 
       // Create a new account profile with the simulated collateral added
-      const profile = this.simulate([netDebt, netCollateral]);
+      const profile = this.simulate([
+        debtBalance,
+        collateralOutputs.collateralBalance,
+      ]);
       const limit = profile.getRiskFactor(
         riskFactorLimit.riskFactor,
         riskFactorLimit.args
@@ -496,7 +503,7 @@ export abstract class BaseRiskProfile implements RiskFactors {
 
       return {
         fx: targetLimitInRP - limitInRP,
-        value: { netDebt, netCollateral },
+        value: { debtBalance, ...collateralOutputs },
       };
     };
 
