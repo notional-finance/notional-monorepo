@@ -40,6 +40,7 @@ import {
   BaseTradeState,
   TokenOption,
   TradeConfiguration,
+  TradeState,
   TradeType,
   VaultTradeConfiguration,
   VaultTradeState,
@@ -564,13 +565,21 @@ export function calculate(
 }
 
 export function priorAccountRisk(
+  state$: Observable<TradeState>,
   account$: Observable<AccountDefinition | null>
 ) {
-  return account$.pipe(
-    filterEmpty(),
-    map(({ balances }) => ({
-      priorAccountRisk: AccountRiskProfile.from(balances).getAllRiskFactors(),
-    }))
+  return combineLatest([state$, account$]).pipe(
+    filter(([s, account]) => !!account && s.priorAccountRisk === undefined),
+    map(([, account]) =>
+      account
+        ? {
+            priorAccountRisk: AccountRiskProfile.from(
+              account.balances
+            ).getAllRiskFactors(),
+          }
+        : undefined
+    ),
+    filterEmpty()
   );
 }
 

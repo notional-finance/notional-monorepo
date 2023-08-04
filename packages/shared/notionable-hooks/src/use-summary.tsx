@@ -165,7 +165,7 @@ export function useOrderDetails(state: BaseTradeState): DetailItem[] {
 
   if (depositBalance?.isPositive()) {
     orderDetails.push({
-      label: intl.formatMessage(OrderDetailLabels.amountToWallet),
+      label: intl.formatMessage(OrderDetailLabels.amountFromWallet),
       value: depositBalance.toDisplayStringWithSymbol(3, true),
     });
   }
@@ -195,7 +195,7 @@ export function useOrderDetails(state: BaseTradeState): DetailItem[] {
 
   if (depositBalance?.isNegative()) {
     orderDetails.push({
-      label: intl.formatMessage(OrderDetailLabels.amountFromWallet),
+      label: intl.formatMessage(OrderDetailLabels.amountToWallet),
       value: depositBalance.neg().toDisplayStringWithSymbol(3, true),
     });
   }
@@ -406,7 +406,10 @@ export function useTradeSummary(state: BaseTradeState) {
 
   let feeValue = TokenBalance.zero(underlying);
   if (isLeverageOrRoll) {
-    feeValue = collateralBalance.toUnderlying().add(debtBalance.toUnderlying());
+    feeValue = collateralBalance
+      .toUnderlying()
+      .sub(depositBalance || TokenBalance.zero(underlying))
+      .add(debtBalance.toUnderlying());
   } else if (collateralBalance && depositBalance) {
     feeValue = depositBalance
       .toUnderlying()
