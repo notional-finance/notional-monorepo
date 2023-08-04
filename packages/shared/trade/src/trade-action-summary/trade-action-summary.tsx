@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import { Box, useTheme } from '@mui/material';
 import {
   TradeActionHeader,
   PageLoading,
@@ -9,6 +10,8 @@ import { BaseTradeState, isVaultTrade } from '@notional-finance/notionable';
 import { TransactionHeadings } from '../transaction-sidebar/components/transaction-headings';
 import { FormattedMessage } from 'react-intl';
 import { useAllMarkets } from '@notional-finance/notionable-hooks';
+import LeverageInfoRow from './components/leverage-info-row';
+import { formatTokenType } from '@notional-finance/helpers';
 
 interface TradeActionSummaryProps {
   state: BaseTradeState;
@@ -19,6 +22,7 @@ export function TradeActionSummary({
   state,
   children,
 }: TradeActionSummaryProps) {
+  const theme = useTheme();
   const {
     tradeType,
     deposit,
@@ -81,19 +85,30 @@ export function TradeActionSummary({
   } else {
     totalAPY = assetAPY !== undefined ? assetAPY : debtAPY;
   }
+  const { title } = collateral ? formatTokenType(collateral) : { title: '' };
 
   if (!headerText || !selectedToken) return <PageLoading />;
 
   return (
     <TradeSummaryContainer>
-      <TradeActionHeader
-        token={selectedToken}
-        hideTokenName={isVault}
-        actionText={
-          isVault ? vaultConfig?.name : <FormattedMessage {...headerText} />
-        }
-      />
-      <TradeActionTitle value={totalAPY} title={apySuffix} valueSuffix="%" />
+      <Box marginBottom={theme.spacing(5)}>
+        <TradeActionHeader
+          token={selectedToken}
+          hideTokenName={isVault}
+          actionText={
+            isVault ? vaultConfig?.name : <FormattedMessage {...headerText} />
+          }
+        />
+        <TradeActionTitle value={totalAPY} title={apySuffix} valueSuffix="%" />
+        {isLeveraged && (
+          <LeverageInfoRow
+            assetSymbol={title}
+            assetAPY={assetAPY}
+            apySpread={apySpread}
+            leverage={leverageRatio}
+          />
+        )}
+      </Box>
       {children}
     </TradeSummaryContainer>
   );

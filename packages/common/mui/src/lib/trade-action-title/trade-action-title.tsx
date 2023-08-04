@@ -14,9 +14,15 @@ export function TradeActionTitle({
   valueSuffix = '',
 }: TradeActionTitleProps) {
   const theme = useTheme();
-
   return (
-    <H1 marginBottom={theme.spacing(5)}>
+    <H1
+      sx={{
+        color:
+          value && value < 0
+            ? theme.palette.error.main
+            : theme.palette.typography.main,
+      }}
+    >
       {value !== undefined ? (
         <CountUp value={value} suffix={valueSuffix} decimals={3} delay={0.3} />
       ) : (
