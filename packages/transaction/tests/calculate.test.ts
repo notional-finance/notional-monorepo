@@ -504,35 +504,26 @@ describe.withForkAndRegistry(
           collateralBalance: netCollateralFromDebt,
         });
 
-        // const {
-        //   collateralBalance: collateral2,
-        //   collateralFee: cf3,
-        //   debtFee: df3,
-        //   netRealizedCollateralBalance: nrc2,
-        // } = calculateCollateral({
-        //   collateral: collateralToken,
-        //   collateralPool,
-        //   debtPool,
-        //   debtBalance: debt1,
-        // });
+        const {
+          collateralBalance: collateral2,
+          collateralFee: cf3,
+          debtFee: df3,
+          netRealizedCollateralBalance: nrc2,
+        } = calculateCollateral({
+          collateral: collateralToken,
+          collateralPool,
+          debtPool,
+          debtBalance: debt1,
+        });
 
-        // expect(nrc1).toBeApprox(nrc2);
-
-        try {
-          expect(nrd1).toBeApprox(nrd2, 5e-4, 1e-5);
-        } catch {
-          console.log(
-            debt1.toString(),
-            debt2.toString(),
-            netCollateralFromDebt.toString()
-          );
-        }
+        expect(nrc1).toBeApprox(nrc2);
+        expect(nrd1).toBeApprox(nrd2, 5e-4, 1e-5);
         expect(cf1).toBeApprox(cf2, 5e-4, 1e-5);
-        // expect(cf2).toBeApprox(cf3);
+        expect(cf2).toBeApprox(cf3);
         expect(df1).toBeApprox(df2, 5e-4, 1e-5);
-        // expect(df2).toBeApprox(df3);
+        expect(df2).toBeApprox(df3);
         expect(debt1).toBeApprox(debt2, 5e-4, 1e-6);
-        // expect(collateral1).toBeApprox(collateral2);
+        expect(collateral1).toBeApprox(collateral2);
         expect(debt1.isNegative()).toBe(true);
         expect(collateral1.isPositive()).toBe(true);
       }
