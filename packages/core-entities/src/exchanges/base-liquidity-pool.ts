@@ -295,10 +295,19 @@ export default abstract class BaseLiquidityPool<
          * if (lpTokens.gt(this.totalSupply)) lpTokens = this.totalSupply;
          */
 
-        const { tokensOut: tokensOutTemp, feesPaid: _feesPaid } =
+        const { tokensOut: tokensOutFromLP, feesPaid: _feesPaid } =
           this.getTokensOutGivenLPTokens(lpTokens);
-        let feesPaid = _feesPaid;
+        const feesPaid = _feesPaid;
 
+        const valueOfTokensOut = this.getBalanceArrayOracleValue(
+          tokensOutFromLP,
+          largestTokenIndex
+        );
+
+        /** 
+         * NOTE: commenting out this code for now. Some implementation is
+         * required for calculating unbalanced exits out of pools.
+         * 
         const diffFromTarget = tokensOutTemp.map((o, i, diffs) => {
           let tokenDiff = o.sub(tokensOut[i]);
           while (tokenDiff.isNegative()) {
@@ -327,11 +336,6 @@ export default abstract class BaseLiquidityPool<
           return tokenDiff;
         });
 
-        let valueOfTokensOut = this.getBalanceArrayOracleValue(
-          tokensOut,
-          largestTokenIndex
-        );
-
         if (diffFromTarget.find((_) => _.isNegative())) {
           // If the diff from target has negative values, then we have undershot
           // the required amount. There should be no positive values if there are
@@ -342,6 +346,7 @@ export default abstract class BaseLiquidityPool<
           );
           valueOfTokensOut = valueOfTokensOut.add(undershotAdjustment);
         }
+        */
 
         return {
           fx:
