@@ -476,10 +476,14 @@ describe.withForkAndRegistry(
           // NOTE: debt and collateral balances are calculated here using oracle rates and
           // do not include slippage
           debtBalance: debt1,
+          // netCollateralFromDebt + netCollateralFromDeposit
           collateralBalance: collateral1,
           debtFee: df1,
+          // fee = feeFromDeposit + feeFromCollateral
           collateralFee: cf1,
+          // (netCollateralFromDebt + netCollateralFromDeposit) w/ slippage
           netRealizedCollateralBalance: nrc1,
+          // netRealizedDebt
           netRealizedDebtBalance: nrd1,
           netCollateralFromDebt,
         } = calculateDebtCollateralGivenDepositRiskLimit({
@@ -505,9 +509,11 @@ describe.withForkAndRegistry(
         });
 
         const {
+          // netCollateralFromDebt
           collateralBalance: collateral2,
           collateralFee: cf3,
           debtFee: df3,
+          // netCollateralFromDebt w/ slippage
           netRealizedCollateralBalance: nrc2,
         } = calculateCollateral({
           collateral: collateralToken,
@@ -516,14 +522,23 @@ describe.withForkAndRegistry(
           debtBalance: debt1,
         });
 
-        expect(nrc1).toBeApprox(nrc2);
-        expect(nrd1).toBeApprox(nrd2, 5e-4, 1e-5);
-        expect(cf1).toBeApprox(cf2, 5e-4, 1e-5);
+        expect(debt1).toBeApprox(debt2);
+        expect(nrd1).toBeApprox(nrd2);
+        expect(df1).toBeApprox(df2);
+        expect(df1).toBeApprox(df3);
+
+        expect(collateral2).toBeApprox(netCollateralFromDebt);
         expect(cf2).toBeApprox(cf3);
-        expect(df1).toBeApprox(df2, 5e-4, 1e-5);
-        expect(df2).toBeApprox(df3);
-        expect(debt1).toBeApprox(debt2, 5e-4, 1e-6);
-        expect(collateral1).toBeApprox(collateral2);
+
+        if (depositInput.isZero()) {
+          expect(nrc1).toBeApprox(nrc2);
+          expect(cf1).toBeApprox(cf2);
+        } else {
+          // This includes the realized cost of the deposit
+          expect(nrc1).toGtTB(nrc2);
+          expect(cf1).toGtEqTB(cf2);
+        }
+
         expect(debt1.isNegative()).toBe(true);
         expect(collateral1.isPositive()).toBe(true);
       }

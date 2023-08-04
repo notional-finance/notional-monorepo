@@ -83,9 +83,9 @@ export const tokenBalanceMatchers = {
       return {
         pass,
         message: () =>
-          `expected ${r.toExactString()} +/- ${maxDiff.toFixed(
+          `expected ${r.toExactString()} ${r.symbol} +/- ${maxDiff.toFixed(
             8
-          )} == ${a.toExactString()}`,
+          )} == ${a.toExactString()} ${a.symbol}`,
       };
     } catch (e) {
       return {
