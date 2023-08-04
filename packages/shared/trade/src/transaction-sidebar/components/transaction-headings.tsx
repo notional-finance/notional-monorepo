@@ -6,6 +6,7 @@ export const TransactionHeadings: Record<
   {
     heading: MessageDescriptor;
     helptext: MessageDescriptor;
+    headerText?: MessageDescriptor;
   }
 > = {
   LendFixed: defineMessages({
@@ -14,6 +15,7 @@ export const TransactionHeadings: Record<
       defaultMessage:
         'Lock in a fixed interest rate today.  Fixed rates guarantee your APY.',
     },
+    headerText: { defaultMessage: 'Lend' },
   }),
   LendVariable: defineMessages({
     heading: { defaultMessage: 'Variable Lending' },
@@ -21,6 +23,7 @@ export const TransactionHeadings: Record<
       defaultMessage:
         'Earn passive income with market-leading variable interest rates and full redeemability. Withdraw your cash whenever you need it.',
     },
+    headerText: { defaultMessage: 'Lend' },
   }),
   LeveragedLend: defineMessages({
     heading: { defaultMessage: 'Leveraged Lending' },
@@ -28,6 +31,7 @@ export const TransactionHeadings: Record<
       defaultMessage:
         "Arbitrage Notional's interest rates by borrowing at a low rate and lending at a higher one with leverage for maximum returns.",
     },
+    headerText: { defaultMessage: 'Lend' },
   }),
   BorrowFixed: defineMessages({
     heading: { defaultMessage: 'Borrow Fixed' },
@@ -35,12 +39,14 @@ export const TransactionHeadings: Record<
       defaultMessage:
         'Borrow with confidence, fixed rates lock in what you pay.',
     },
+    headerText: { defaultMessage: 'Borrow' },
   }),
   BorrowVariable: defineMessages({
     heading: { defaultMessage: 'Borrow Variable' },
     helptext: {
       defaultMessage: 'TBD',
     },
+    headerText: { defaultMessage: 'Borrow' },
   }),
   MintNToken: defineMessages({
     heading: { defaultMessage: 'Provide Liquidity' },
@@ -48,6 +54,7 @@ export const TransactionHeadings: Record<
       defaultMessage:
         'You will receive nTokens in return for providing liquidity to all markets at once. nTokens earn yield from cToken supply rates, trading fees, and fCash interest. nToken holders also earn NOTE incentives.',
     },
+    headerText: { defaultMessage: 'Provide' },
   }),
   LeveragedNToken: defineMessages({
     heading: { defaultMessage: 'Leveraged Liquidity' },
@@ -55,6 +62,7 @@ export const TransactionHeadings: Record<
       defaultMessage:
         'Multiple your returns by providing liquidity with leverage. Select your borrow rate and leverage and put on the whole position in one transaction.',
     },
+    headerText: { defaultMessage: 'Provide' },
   }),
   Deposit: defineMessages({
     heading: { defaultMessage: 'Deposit Collateral' },

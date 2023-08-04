@@ -1,4 +1,3 @@
-import { FormattedMessage } from 'react-intl';
 import { BorrowVariableSidebar } from './components';
 import { SideBarLayout, FeatureLoader } from '@notional-finance/mui';
 import { TradeActionSummary } from '@notional-finance/trade';
@@ -11,9 +10,8 @@ export const BorrowVariableContext = createTradeContext('BorrowVariable');
 
 export const BorrowVariable = () => {
   const context = useTradeContext('BorrowVariable');
-  const {
-    state: { isReady, confirm, selectedDepositToken },
-  } = context;
+  const { state } = context;
+  const { isReady, confirm } = state;
 
   return (
     <BorrowVariableContext.Provider value={context}>
@@ -21,16 +19,7 @@ export const BorrowVariable = () => {
         <SideBarLayout
           showTransactionConfirmation={confirm}
           sideBar={<BorrowVariableSidebar />}
-          mainContent={
-            <TradeActionSummary
-              selectedToken={selectedDepositToken || null}
-              tradedRate={undefined}
-              tradeActionTitle={
-                <FormattedMessage defaultMessage={'4.431% Variable APY'} />
-              }
-              tradeActionHeader={<FormattedMessage defaultMessage={'Borrow'} />}
-            ></TradeActionSummary>
-          }
+          mainContent={<TradeActionSummary state={state} />}
         />
       </FeatureLoader>
     </BorrowVariableContext.Provider>
