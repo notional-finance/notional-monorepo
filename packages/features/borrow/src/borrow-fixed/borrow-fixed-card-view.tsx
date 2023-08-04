@@ -1,9 +1,11 @@
 import { PRODUCTS } from '@notional-finance/shared-config';
 import { CardContainer } from '@notional-finance/shared-web';
 import { CurrencyFixed, FeatureLoader } from '@notional-finance/mui';
-import { useAllMarkets } from '@notional-finance/notionable-hooks';
+import {
+  useAllMarkets,
+  useGlobalContext,
+} from '@notional-finance/notionable-hooks';
 import { useNotionalTheme } from '@notional-finance/styles';
-import { useUserSettingsState } from '@notional-finance/user-settings-manager';
 import { defineMessage, FormattedMessage } from 'react-intl';
 import { ThemeProvider } from '@mui/material';
 import { groupArrayToMap } from '@notional-finance/util';
@@ -13,7 +15,9 @@ import {
 } from '@notional-finance/helpers';
 
 export const BorrowFixedCardView = () => {
-  const { themeVariant } = useUserSettingsState();
+  const {
+    state: { themeVariant },
+  } = useGlobalContext();
   const themeLanding = useNotionalTheme(themeVariant, 'landing');
   const {
     yields: { fCashBorrow },

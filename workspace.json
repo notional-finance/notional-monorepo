@@ -29,7 +29,6 @@
     "shared-notionable-hooks": "packages/shared/notionable-hooks",
     "shared-side-drawer": "packages/shared/side-drawer",
     "shared-trade": "packages/shared/trade",
-    "shared-user-settings-manager": "packages/shared/user-settings-manager",
     "shared-wallet": "packages/shared/wallet",
     "shared-web": "packages/shared/web",
     "transaction": "packages/transaction",

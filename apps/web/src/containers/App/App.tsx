@@ -159,9 +159,9 @@ const AllRoutes = () => {
 
 export const App = () => {
   const globalState = useGlobalContext();
+  const { updateState } = globalState;
 
   // Run as a useEffect here so that the observable "sees" the initial change
-  const { updateState } = globalState;
   useEffect(() => {
     updateState({
       selectedNetwork: getDefaultNetworkFromHostname(window.location.hostname),

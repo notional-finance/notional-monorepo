@@ -1,14 +1,17 @@
 import { useEffect } from 'react';
+import { useGlobalContext } from '@notional-finance/notionable-hooks';
 import { datadogRum } from '@datadog/browser-rum';
 import { initPlausible } from '@notional-finance/helpers';
-import { getFromLocalStorage } from '@notional-finance/helpers';
 import Plausible from 'plausible-tracker';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryParamProvider } from 'use-query-params';
 import { ReactRouter5Adapter } from 'use-query-params/adapters/react-router-5';
-import { useUserSettingsState } from '@notional-finance/user-settings-manager';
+import {
+  getFromLocalStorage,
+  setInLocalStorage,
+} from '@notional-finance/helpers';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { App } from './App';
 
@@ -37,8 +40,20 @@ datadogRum.init({
 });
 
 export const AppShell = () => {
+  const globalState = useGlobalContext();
+  const {
+    state: { themeVariant },
+  } = globalState;
   const { trackPageview } = Plausible();
-  const { themeVariant } = useUserSettingsState();
+  const userSettings = getFromLocalStorage('userSettings');
+
+  if (!userSettings?.themeVariant) {
+    setInLocalStorage('userSettings', {
+      ...userSettings,
+      themeVariant: themeVariant,
+    });
+  }
+
   const notionalTheme = useNotionalTheme(themeVariant);
 
   useEffect(() => {
