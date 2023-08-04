@@ -864,8 +864,8 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
         const price = unit.mulInRatePrecision(
           this.getfCashPV(interestRate, timeToMaturity)
         );
-        const profitLoss = purchasePrice
-          .sub(price)
+        const profitLoss = price
+          .sub(purchasePrice)
           .scale(fCash.n, fCash.precision);
 
         return {
@@ -896,8 +896,8 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
         );
         const price = nTokenPrice.add(netPrice);
 
-        const profitLoss = nTokenPrice
-          .sub(price)
+        const profitLoss = price
+          .sub(nTokenPrice)
           .scale(nTokens.n, nTokens.precision);
 
         return {

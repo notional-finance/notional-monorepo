@@ -5,6 +5,7 @@ import { FormattedMessage } from 'react-intl';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
 
 export const FCashPriceExposure = ({ state }: { state: BaseTradeState }) => {
+  const { deposit } = state;
   const data = useFCashPriceExposure(state).map(
     ({ interestRate, price, profitLoss }) => {
       return {
@@ -21,7 +22,10 @@ export const FCashPriceExposure = ({ state }: { state: BaseTradeState }) => {
   return (
     <DataTable
       tableTitle={
-        <FormattedMessage defaultMessage={'fUSDC/USDC Price Exposure'} />
+        <FormattedMessage
+          defaultMessage={'f{symbol}/{symbol} Price Exposure'}
+          values={{ symbol: deposit?.symbol || '' }}
+        />
       }
       stateZeroMessage={
         <FormattedMessage
