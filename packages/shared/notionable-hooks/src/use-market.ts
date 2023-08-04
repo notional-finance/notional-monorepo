@@ -138,7 +138,7 @@ export const useAllMarkets = () => {
         };
       }),
     leveragedVaults: allYields
-      .filter((y) => y.token.tokenType === 'VaultShare')
+      .filter((y) => y.token.tokenType === 'VaultShare' && !!y.leveraged)
       .map((y) => {
         return {
           ...y,
@@ -200,7 +200,7 @@ export const useAllMarkets = () => {
     getMin,
     earnYields: earnYields,
     borrowYields: borrowYields,
-    nonLeveragedYields
+    nonLeveragedYields,
   };
 };
 

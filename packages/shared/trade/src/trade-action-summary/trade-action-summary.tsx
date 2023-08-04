@@ -87,7 +87,7 @@ export function TradeActionSummary({
   }
   const { title } = collateral ? formatTokenType(collateral) : { title: '' };
 
-  if (!headerText || !selectedToken) return <PageLoading />;
+  if ((!headerText && !vaultConfig) || !selectedToken) return <PageLoading />;
 
   return (
     <TradeSummaryContainer>

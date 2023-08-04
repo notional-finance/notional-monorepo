@@ -411,7 +411,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
           v.tokenType === 'VaultShare' &&
           (v.maturity ? v.maturity > getNowSeconds() : true)
       )
-      .map((v) => {
+      .flatMap((v) => {
         const debt = debtYields.find(
           (d) =>
             d.token.currencyId === v.currencyId &&
@@ -430,18 +430,21 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
         const { defaultLeverageRatio, maxLeverageRatio } =
           config.getVaultLeverageFactors(network, v.vaultAddress);
 
-        const vaultShareYield = {
+        const vaultShareYield: YieldData = {
           token: v,
           underlying,
           totalAPY: 0,
         };
 
-        return this._makeLeveraged(
+        return [
           vaultShareYield,
-          debt,
-          defaultLeverageRatio,
-          maxLeverageRatio
-        );
+          this._makeLeveraged(
+            vaultShareYield,
+            debt,
+            defaultLeverageRatio,
+            maxLeverageRatio
+          ),
+        ];
       });
   }
 
