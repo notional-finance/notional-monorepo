@@ -44,14 +44,14 @@ export const SelectConvertAsset = ({ context }: SelectConvertAssetProps) => {
     updateState,
   } = context;
   const { account } = useAccountDefinition();
-  const { allYields } = useAllMarkets();
+  const { nonLeveragedYields } = useAllMarkets();
   const options =
     tradeType === 'ConvertAsset' ? collateralOptions : debtOptions;
   const convertFromToken = tradeType === 'ConvertAsset' ? debt : collateral;
   const convertFromBalance =
     tradeType === 'ConvertAsset' ? debtBalance : collateralBalance;
-  const marketApy = allYields.find(
-    (y) => y.leveraged === undefined && y.token.id === convertFromToken?.id
+  const marketApy = nonLeveragedYields.find(
+    (y) => y.token.id === convertFromToken?.id
   )?.totalAPY;
   const { selectedToken: selectedParamToken } = useParams<{
     selectedToken: string;

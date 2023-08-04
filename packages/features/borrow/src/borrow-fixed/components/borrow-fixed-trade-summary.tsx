@@ -21,33 +21,21 @@ import {
 export const BorrowFixedTradeSummary = () => {
   const theme = useTheme();
   const context = useContext(BorrowFixedContext);
-  const {
-    state: { selectedDepositToken, deposit },
-  } = context;
+  const { state } = context;
+  const { selectedDepositToken, deposit } = state;
 
-  const { maturityData, selectedfCashId, onSelect } = useMaturitySelect(
-    'Debt',
-    context
-  );
+  const { selectedfCashId, onSelect } = useMaturitySelect('Debt', context);
   const { tableColumns, tableData } = useFixedLiquidityPoolsTable(
     selectedDepositToken,
     deposit?.currencyId
   );
   const { areaChartData, legendData, chartToolTipData } =
     useInteractiveMaturityChart(deposit?.currencyId);
-  const totalApy = maturityData.find(
-    (m) => m.tokenId === selectedfCashId
-  )?.tradeRate;
   const { faqs, faqHeaderLinks } = useBorrowFixedFaq();
   const totalsData = useTotalsData(selectedDepositToken);
 
   return (
-    <TradeActionSummary
-      selectedToken={selectedDepositToken || null}
-      tradeActionTitle={<FormattedMessage defaultMessage={'Fixed APY'} />}
-      tradedRate={totalApy}
-      tradeActionHeader={<FormattedMessage defaultMessage={'Borrow'} />}
-    >
+    <TradeActionSummary state={state}>
       {areaChartData.length > 0 && (
         <InteractiveAreaChart
           interactiveAreaChartData={areaChartData}

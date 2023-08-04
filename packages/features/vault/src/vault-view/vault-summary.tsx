@@ -3,9 +3,6 @@ import {
   DataTable,
   PageLoading,
   SliderDisplay,
-  TradeActionHeader,
-  TradeActionTitle,
-  TradeSummaryContainer,
   TABLE_VARIANTS,
   SingleDisplayChart,
 } from '@notional-finance/mui';
@@ -23,14 +20,15 @@ import { useReturnDrivers } from '../hooks/use-return-drivers';
 import { useVaultCapacity } from '../hooks/use-vault-capacity';
 import { usePerformanceChart } from '../hooks/use-performance-chart';
 import { messages } from '../messages';
+import { TradeActionSummary } from '@notional-finance/trade';
 
 export const VaultSummary = () => {
   const theme = useTheme();
   const { state } = useContext(VaultActionContext);
-  const { vaultAddress, vaultConfig, deposit } = state;
+  const { vaultAddress, vaultConfig } = state;
   const vaultName = vaultConfig?.name;
 
-  const { returnDrivers, headlineApy, vaultAPYTitle } = useHistoricalReturns();
+  const { returnDrivers } = useHistoricalReturns();
   const tableColumns = useReturnDrivers();
   const { areaChartData, areaChartLegendData, chartToolTipData } =
     usePerformanceChart();
@@ -90,18 +88,8 @@ export const VaultSummary = () => {
             marginTop: theme.spacing(6),
           }}
         >
-          <TradeSummaryContainer>
+          <TradeActionSummary state={state}>
             <Box id={VAULT_SUB_NAV_ACTIONS.OVERVIEW}>
-              <TradeActionHeader
-                token={deposit?.symbol || ''}
-                actionText={vaultName}
-                hideTokenName
-              />
-              <TradeActionTitle
-                value={headlineApy}
-                valueSuffix="%"
-                title={<FormattedMessage {...vaultAPYTitle} />}
-              />
               <SliderDisplay
                 min={0}
                 max={100}
@@ -149,7 +137,7 @@ export const VaultSummary = () => {
             <Box id={VAULT_SUB_NAV_ACTIONS.STRATEGY_DETAILS}>
               <VaultDescription vaultAddress={vaultAddress} />
             </Box>
-          </TradeSummaryContainer>
+          </TradeActionSummary>
         </Box>
       </Box>
     </Box>

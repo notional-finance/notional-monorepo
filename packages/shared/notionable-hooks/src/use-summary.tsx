@@ -81,10 +81,7 @@ function getOrderDetails(
       ((fCashMarket.getImpliedInterestRate(realized, b) || 0) * 100) /
       RATE_PRECISION;
   } else {
-    apy =
-      yieldData.find(
-        (y) => y.leveraged === undefined && y.token.id === b.tokenId
-      )?.totalAPY || 0;
+    apy = yieldData.find((y) => y.token.id === b.tokenId)?.totalAPY || 0;
   }
 
   let valueLabel: MessageDescriptor;
@@ -158,7 +155,7 @@ export function useOrderDetails(state: BaseTradeState): DetailItem[] {
     depositBalance,
   } = state;
   const intl = useIntl();
-  const { allYields } = useAllMarkets();
+  const { nonLeveragedYields } = useAllMarkets();
   const orderDetails: DetailItem[] = [];
   // Only show positive values if one of the values is defined
   const isLeverageOrRoll = !!debtBalance && !!collateralBalance;
@@ -178,7 +175,7 @@ export function useOrderDetails(state: BaseTradeState): DetailItem[] {
         netRealizedDebtBalance,
         intl,
         isLeverageOrRoll,
-        allYields
+        nonLeveragedYields
       )
     );
 
@@ -189,7 +186,7 @@ export function useOrderDetails(state: BaseTradeState): DetailItem[] {
         netRealizedCollateralBalance,
         intl,
         isLeverageOrRoll,
-        allYields
+        nonLeveragedYields
       )
     );
 

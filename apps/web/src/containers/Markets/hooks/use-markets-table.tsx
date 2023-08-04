@@ -120,7 +120,7 @@ export const useMarketsTable = (
     },
   ];
 
-  const formatMarketData = (allMarketsData) => {
+  const formatMarketData = (allMarketsData: typeof borrowYields) => {
     return allMarketsData.map((data) => {
       const {
         underlying,
@@ -143,7 +143,7 @@ export const useMarketsTable = (
             : token.maturity,
         leverage:
           leveraged && leveraged.leverageRatio ? leveraged.leverageRatio : 0,
-        totalTVL: tvl.toFiat('USD').toFloat() || 0,
+        totalTVL: tvl?.toFiat('USD').toFloat() || 0,
         noteAPY:
           incentives && incentives.length > 0 && incentives[0]?.incentiveAPY > 0
             ? incentives[0]?.incentiveAPY
@@ -189,6 +189,8 @@ export const useMarketsTable = (
     if (productIds.length > 0) {
       return initialData.filter(({ product }) => productIds.includes(product));
     }
+
+    return [];
   };
 
   const marketTableColumns =

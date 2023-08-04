@@ -18,9 +18,8 @@ export const LendLeveragedContext = createTradeContext('LeveragedLend');
 
 export const LendLeveraged = () => {
   const context = useTradeContext('LeveragedLend');
-  const {
-    state: { isReady, confirm, selectedDepositToken },
-  } = context;
+  const { state } = context
+  const { isReady, confirm, selectedDepositToken } = state
 
   const { faqs, faqHeaderLinks } = useLendLeveragedFaq(selectedDepositToken);
 
@@ -31,15 +30,8 @@ export const LendLeveraged = () => {
           showTransactionConfirmation={confirm}
           sideBar={<LendLeveragedSidebar />}
           mainContent={
-            <TradeActionSummary
-              selectedToken={selectedDepositToken || null}
-              tradedRate={undefined}
-              tradeActionTitle={
-                <FormattedMessage defaultMessage={'4.431% Leveraged APY'} />
-              }
-              tradeActionHeader={<FormattedMessage defaultMessage={'Lend'} />}
-            >
-              <FCashPriceExposure state={context.state} />
+            <TradeActionSummary state={state}>
+              <FCashPriceExposure state={state} />
               <FaqHeader
                 title={
                   <FormattedMessage defaultMessage={'Leveraged Lend FAQ'} />
