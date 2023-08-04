@@ -6,8 +6,8 @@ import {
   THEME_VARIANTS,
   VAULT_SUB_NAV_ACTIONS,
 } from '@notional-finance/shared-config';
+import { useGlobalContext } from '@notional-finance/notionable-hooks';
 import { NotionalTheme, useNotionalTheme } from '@notional-finance/styles';
-import { useUserSettingsState } from '@notional-finance/user-settings-manager';
 import { ExternalLinkIcon } from '@notional-finance/icons';
 import { useVaultSubNav } from './use-vault-sub-nav';
 interface NavItemProps {
@@ -17,7 +17,9 @@ interface NavItemProps {
 
 export const VaultSubNav = () => {
   const theme = useTheme();
-  const { themeVariant } = useUserSettingsState();
+  const {
+    state: { themeVariant },
+  } = useGlobalContext();
   const subNavData = useVaultSubNav();
   const [activeLink, setActiveLink] = useState<
     VAULT_SUB_NAV_ACTIONS | undefined

@@ -3,7 +3,13 @@ import {
   TransactionResponse,
 } from '@ethersproject/providers';
 import { Network } from '@notional-finance/util';
+import { THEME_VARIANTS } from '@notional-finance/shared-config';
+import {
+  getFromLocalStorage,
+} from '@notional-finance/helpers';
 import { Signer } from 'ethers';
+
+const userSettings = getFromLocalStorage('userSettings');
 
 // Set this as the runtime default
 const CACHE_HOSTNAME =
@@ -37,6 +43,9 @@ interface AccountState {
   isAccountReady: boolean;
   selectedAccount?: string;
 }
+interface UserSettingsState {
+  themeVariant: THEME_VARIANTS;
+}
 
 interface TransactionState {
   sentTransactions: Record<string, TransactionResponse>;
@@ -53,6 +62,7 @@ export interface GlobalState
     AccountState,
     OnboardState,
     TransactionState,
+    UserSettingsState,
     ErrorState {}
 
 export const initialGlobalState: GlobalState = {
@@ -63,4 +73,5 @@ export const initialGlobalState: GlobalState = {
   isAccountReady: false,
   sentTransactions: {},
   completedTransactions: {},
+  themeVariant: userSettings?.themeVariant ? userSettings?.themeVariant : THEME_VARIANTS.LIGHT,
 };
