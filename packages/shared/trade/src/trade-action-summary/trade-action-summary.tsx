@@ -1,5 +1,4 @@
 import { ReactNode } from 'react';
-import { Box } from '@mui/material';
 import {
   TradeActionHeader,
   PageLoading,
@@ -9,7 +8,7 @@ import {
 import { BaseTradeState, isVaultTrade } from '@notional-finance/notionable';
 import { TransactionHeadings } from '../transaction-sidebar/components/transaction-headings';
 import { FormattedMessage } from 'react-intl';
-// import { MobileTradeActionSummary } from './mobile-trade-action-summary';
+import { useAllMarkets } from '@notional-finance/notionable-hooks';
 
 interface TradeActionSummaryProps {
   state: BaseTradeState;
@@ -31,6 +30,8 @@ export function TradeActionSummary({
     riskFactorLimit,
   } = state;
   const isVault = isVaultTrade(tradeType);
+  const { nonLeveragedYields } = useAllMarkets();
+
   const messages = tradeType ? TransactionHeadings[tradeType] : undefined;
   const headerText = messages?.headerText;
   const isLeveraged =
@@ -51,12 +52,15 @@ export function TradeActionSummary({
       ? collateral?.symbol
       : deposit?.symbol;
 
-  const assetAPY = collateralOptions?.find(
-    (c) => c.token.id === collateral?.id
-  )?.interestRate;
-  const debtAPY = debtOptions?.find(
-    (d) => d.token.id === debt?.id
-  )?.interestRate;
+  const assetAPY =
+    collateralOptions?.find((c) => c.token.id === collateral?.id)
+      ?.interestRate ||
+    nonLeveragedYields.find((y) => y.token.id === collateral?.id)?.totalAPY;
+
+  const debtAPY =
+    debtOptions?.find((d) => d.token.id === debt?.id)?.interestRate ||
+    nonLeveragedYields.find((y) => y.token.id === debt?.id)?.totalAPY;
+
   const apySpread =
     assetAPY !== undefined && debtAPY !== undefined
       ? assetAPY - debtAPY
@@ -75,39 +79,23 @@ export function TradeActionSummary({
         ? assetAPY + apySpread * leverageRatio
         : undefined;
   } else {
-    totalAPY = assetAPY || debtAPY;
+    totalAPY = assetAPY !== undefined ? assetAPY : debtAPY;
   }
 
   if (!headerText || !selectedToken) return <PageLoading />;
 
   return (
-    <Box>
-      <TradeSummaryContainer>
-        <TradeActionHeader
-          token={selectedToken}
-          hideTokenName={isVault}
-          actionText={
-            isVault ? vaultConfig?.name : <FormattedMessage {...headerText} />
-          }
-        />
-        <TradeActionTitle
-          value={totalAPY}
-          title={<FormattedMessage {...apySuffix} />}
-          valueSuffix="%"
-        />
-        {children}
-      </TradeSummaryContainer>
-      {/* TODO: Need to decide on what data we want displayed in the component and rework it based off of that */}
-      {/* <MobileTradeActionSummary
-        tradeAction={tradeAction}
-        selectedToken={selectedToken}
-        dataPointOne={fCashAmount}
-        dataPointOneSuffix={` ${selectedToken}`}
-        dataPointTwo={interestAmount}
-        dataPointTwoSuffix={` ${selectedToken}`}
-        fixedAPY={fixedAPY}
-      /> */}
-    </Box>
+    <TradeSummaryContainer>
+      <TradeActionHeader
+        token={selectedToken}
+        hideTokenName={isVault}
+        actionText={
+          isVault ? vaultConfig?.name : <FormattedMessage {...headerText} />
+        }
+      />
+      <TradeActionTitle value={totalAPY} title={apySuffix} valueSuffix="%" />
+      {children}
+    </TradeSummaryContainer>
   );
 }
 
