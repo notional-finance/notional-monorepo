@@ -1,8 +1,7 @@
+import { useCallback } from 'react';
 import { Box, styled, Radio, useTheme } from '@mui/material';
-import { H4, LabelValue } from '@notional-finance/mui';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import { CircleIcon, EyeIcon } from '@notional-finance/icons';
-import { NotionalTheme } from '@notional-finance/styles';
+import { LabelValue, SideDrawerActiveButton } from '@notional-finance/mui';
+import { EyeIcon } from '@notional-finance/icons';
 import { useConnect } from '../../hooks/use-connect';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { trackEvent } from '@notional-finance/helpers';
@@ -50,13 +49,15 @@ export const AddressButton = () => {
 export const WalletSwitcher = () => {
   const { selectedAddress, currentLabel, connectWallet } = useConnect();
   const { clearWalletSideDrawer } = useSideDrawerManager();
-  const theme = useTheme();
   const connected = selectedAddress ? true : false;
-  const handleConnect = (label: string) => {
-    connectWallet(label);
-    trackEvent('CONNECT_WALLET', { wallet: label });
-    clearWalletSideDrawer();
-  };
+  const handleConnect = useCallback(
+    (label: string) => {
+      connectWallet(label);
+      trackEvent('CONNECT_WALLET', { wallet: label });
+      clearWalletSideDrawer();
+    },
+    [clearWalletSideDrawer, connectWallet]
+  );
 
   return (
     <WalletSelectorContainer>
@@ -67,83 +68,30 @@ export const WalletSwitcher = () => {
           <FormattedMessage defaultMessage="Connect a Wallet" />
         )}
       </Title>
-      {modules.map(({ label, icon }, index) => (
-        <WalletButton
-          onClick={() => handleConnect(label)}
-          key={index}
-          active={currentLabel === label}
-          theme={theme}
-        >
-          <Box
-            sx={{
-              height: '35px',
-              width: '35px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <img
-              src={icon}
-              style={{ height: '35px', width: '35px' }}
-              alt="wallet icon"
-            />
-          </Box>
-          <H4
-            sx={{ whiteSpace: 'nowrap', marginLeft: theme.spacing(1) }}
-            fontWeight="regular"
-          >
-            {label}
-          </H4>
-          <Box
-            sx={{
-              justifyContent: 'flex-end',
-              display: 'flex',
-              width: '100%',
-            }}
-          >
-            {currentLabel === label ? (
-              <CheckCircleIcon sx={{ fill: theme.palette.primary.main }} />
-            ) : (
-              <CircleIcon
-                sx={{
-                  stroke: theme.palette.borders.accentPaper,
-                  width: theme.spacing(2.5),
-                  height: theme.spacing(2.5),
-                }}
-              />
-            )}
-          </Box>
-        </WalletButton>
-      ))}
+      {modules.map(({ label, icon }, index) => {
+        const image = (
+          <img
+            src={icon}
+            style={{ height: '35px', width: '35px' }}
+            alt="wallet icon"
+          />
+        );
+        return (
+          <SideDrawerActiveButton
+            label={label}
+            Icon={image}
+            dataKey={label}
+            selectedKey={currentLabel}
+            callback={handleConnect}
+            key={index}
+          />
+        );
+      })}
 
       <ViewAsAccount />
     </WalletSelectorContainer>
   );
 };
-
-const WalletButton = styled(Box, {
-  shouldForwardProp: (prop: string) => prop !== 'active',
-})(
-  ({ theme, active }: { active: boolean; theme: NotionalTheme }) => `
-  padding: ${theme.spacing(2.5)};
-  border-radius: ${theme.shape.borderRadius()};
-  border: 1px solid ${
-    active ? theme.palette.primary.main : theme.palette.borders.paper
-  };
-  margin: ${theme.spacing(1)} 0px;
-  cursor: pointer;
-  background: ${active ? theme.palette.info.light : theme.palette.common.white};
-  color: ${theme.palette.primary.dark};
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  &:hover {
-    transition: .5s ease;
-    background: ${theme.palette.info.light};
-  }
-  `
-);
 
 const Title = styled(LabelValue)(
   ({ theme }) => `

@@ -6,8 +6,7 @@ import { useTheme, Box, styled } from '@mui/material';
 import { Network } from '@notional-finance/util';
 import { chains } from '../../onboard-context';
 import { useNotionalContext } from '@notional-finance/notionable-hooks';
-import { NetworkSelectorButton } from '../../network-selector/network-selector';
-import { LabelValue } from '@notional-finance/mui';
+import { LabelValue, SideDrawerActiveButton } from '@notional-finance/mui';
 
 /* eslint-disable-next-line */
 export interface NetworkSelectorProps {
@@ -39,11 +38,9 @@ export const NetworkSettingsButton = () => {
 export function NetworkSelector() {
   const { updateNotional } = useNotionalContext();
 
-  const handleClick = async (chain?: Chain) => {
-    if (chain) {
-      const currentChain = chain.label as Network;
-      updateNotional({ selectedNetwork: currentChain });
-    }
+  const handleClick = async (label) => {
+    const currentChain = label as Network;
+    updateNotional({ selectedNetwork: currentChain });
   };
 
   return (
@@ -51,9 +48,24 @@ export function NetworkSelector() {
       <Title>
         <FormattedMessage defaultMessage={'NETWORK'} />
       </Title>
-      {chains.map((data: Chain) => (
-        <NetworkSelectorButton data={data} handleClick={handleClick} />
-      ))}
+      {chains.map(({ label, id }: Chain) => {
+        const Icon = (
+          <TokenIcon
+            symbol={id === chains[0].id ? 'arb' : 'eth'}
+            size="large"
+          />
+        );
+        return (
+          <SideDrawerActiveButton
+            label={label}
+            Icon={Icon}
+            dataKey={label ? label : ''}
+            callback={handleClick}
+            selectedKey={chains[0].label}
+            disabled={id === chains[1].id}
+          />
+        );
+      })}
     </NetworkWrapper>
   );
 }

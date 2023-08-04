@@ -53,6 +53,7 @@ export * from './lib/slider-risk/slider-risk';
 export * from './lib/side-bar-sub-header/side-bar-sub-header';
 export * from './lib/side-drawer/side-drawer';
 export * from './lib/side-drawer-button/side-drawer-button';
+export * from './lib/side-drawer-active-button/side-drawer-active-button';
 export * from './lib/switch/switch';
 export * from './lib/tab-toggle/tab-toggle';
 export * from './lib/toggle/toggle';

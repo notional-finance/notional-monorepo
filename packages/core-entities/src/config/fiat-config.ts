@@ -2,7 +2,7 @@ import { BigNumber } from 'ethers';
 import { Network } from '@notional-finance/util';
 import { TokenDefinition, OracleDefinition } from '..';
 
-const FIAT_NAMES = [
+export const FIAT_NAMES = [
   'EUR',
   'AUD',
   'CAD',
