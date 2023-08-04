@@ -5,7 +5,10 @@ import {
   TokenBalance,
   TokenDefinition,
 } from '@notional-finance/core-entities/src';
-import { RiskFactorLimit } from '@notional-finance/risk-engine';
+import {
+  AccountRiskProfile,
+  RiskFactorLimit,
+} from '@notional-finance/risk-engine';
 import { Network } from '@notional-finance/util';
 import {
   calculateCollateral,
@@ -443,7 +446,7 @@ describe.withForkAndRegistry(
       }
     );
 
-    it.only.each(
+    it.each(
       tokens.filter(
         ({ debt, collateral }) =>
           // Exclude this case because they offset each other exactly
@@ -476,12 +479,8 @@ describe.withForkAndRegistry(
           // NOTE: debt and collateral balances are calculated here using oracle rates and
           // do not include slippage
           debtBalance: debt1,
+          // netCollateralFromDebt + netCollateralFromDeposit
           collateralBalance: collateral1,
-          debtFee: df1,
-          collateralFee: cf1,
-          netRealizedCollateralBalance: nrc1,
-          netRealizedDebtBalance: nrd1,
-          netCollateralFromDebt,
         } = calculateDebtCollateralGivenDepositRiskLimit({
           collateral: collateralToken,
           debt: debtToken,
@@ -492,40 +491,15 @@ describe.withForkAndRegistry(
           riskFactorLimit,
         });
 
-        const {
-          debtBalance: debt2,
-          collateralFee: cf2,
-          debtFee: df2,
-          netRealizedDebtBalance: nrd2,
-        } = calculateDebt({
-          debt: debtToken,
-          debtPool,
-          collateralPool,
-          collateralBalance: netCollateralFromDebt,
-        });
-
-        const {
-          collateralBalance: collateral2,
-          collateralFee: cf3,
-          debtFee: df3,
-          netRealizedCollateralBalance: nrc2,
-        } = calculateCollateral({
-          collateral: collateralToken,
-          collateralPool,
-          debtPool,
-          debtBalance: debt1,
-        });
-
-        expect(nrc1).toBeApprox(nrc2);
-        expect(nrd1).toBeApprox(nrd2, 5e-4, 1e-5);
-        expect(cf1).toBeApprox(cf2, 5e-4, 1e-5);
-        expect(cf2).toBeApprox(cf3);
-        expect(df1).toBeApprox(df2, 5e-4, 1e-5);
-        expect(df2).toBeApprox(df3);
-        expect(debt1).toBeApprox(debt2, 5e-4, 1e-6);
-        expect(collateral1).toBeApprox(collateral2);
         expect(debt1.isNegative()).toBe(true);
         expect(collateral1.isPositive()).toBe(true);
+
+        expect(
+          AccountRiskProfile.simulate(balances, [
+            collateral1,
+            debt1,
+          ]).leverageRatio()
+        ).toBeCloseTo(riskFactorLimit.limit);
       }
     );
   }

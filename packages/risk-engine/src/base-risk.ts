@@ -236,7 +236,8 @@ export abstract class BaseRiskProfile implements RiskFactors {
 
   protected _getInitialEstimate<F extends keyof RiskFactors>(
     { riskFactor, args, limit }: RiskFactorLimit<F>,
-    localUnderlyingId: string
+    localUnderlyingId: string,
+    estimateScalarInRP: number
   ): number {
     const value = this.getRiskFactor(riskFactor, args);
     const riskFactorInRP = this._getRiskFactorInRP(riskFactor, limit);
@@ -261,7 +262,8 @@ export abstract class BaseRiskProfile implements RiskFactors {
       //  limit = (debt - repay) / asset
       //  repay = debt - limit * asset
       if ((value as number) <= 0.001) {
-        initialEstimateInRP = riskFactorInRP;
+        initialEstimateInRP =
+          (riskFactorInRP * estimateScalarInRP) / RATE_PRECISION;
       } else if (netLocal.isPositive()) {
         initialEstimateInRP = this.totalDebt()
           .neg()
@@ -289,7 +291,8 @@ export abstract class BaseRiskProfile implements RiskFactors {
       let initialEstimateInRP: number;
 
       if (value === null) {
-        initialEstimateInRP = riskFactorInRP;
+        initialEstimateInRP =
+          (riskFactorInRP * estimateScalarInRP) / RATE_PRECISION;
       } else if (netLocal.isPositive()) {
         initialEstimateInRP = this.totalDebt()
           .neg()
@@ -319,7 +322,10 @@ export abstract class BaseRiskProfile implements RiskFactors {
       //  limit = (debt - repay) / (asset - debt - repay)
       //  repay = [debt * (1 + limit) - limit * asset] / (1 - limit)
       let initialEstimateInRP: number;
-      if (value === null) {
+      if (value === null && this.totalAssets().isZero()) {
+        initialEstimateInRP =
+          (riskFactorInRP * estimateScalarInRP) / RATE_PRECISION;
+      } else if (value === null) {
         // If there is no leverage, then use the limit as the number of debt
         // units times the total assets.
         initialEstimateInRP = this.totalAssets()
@@ -374,7 +380,8 @@ export abstract class BaseRiskProfile implements RiskFactors {
       throw Error('undefined local underlying');
     const initialEstimateInRP = this._getInitialEstimate(
       riskFactorLimit,
-      localUnderlyingId
+      localUnderlyingId,
+      RATE_PRECISION // This is not necessary in deposit / withdraw searches...
     );
     const targetLimitInRP = this._getRiskFactorInRP(
       riskFactorLimit.riskFactor,
@@ -446,8 +453,15 @@ export abstract class BaseRiskProfile implements RiskFactors {
    */
   getDebtAndCollateralMaintainRiskFactor<F extends keyof RiskFactors>(
     debt: TokenDefinition,
-    collateral: TokenDefinition,
-    riskFactorLimit: RiskFactorLimit<F>
+    riskFactorLimit: RiskFactorLimit<F>,
+    convertToCollateral: (debtBalance: TokenBalance) => {
+      collateralBalance: TokenBalance;
+      debtFee: TokenBalance;
+      collateralFee: TokenBalance;
+      netRealizedCollateralBalance: TokenBalance;
+      netRealizedDebtBalance: TokenBalance;
+    },
+    estimateScalarInRP: number
   ) {
     // Uses the debt as the local currency
     const localUnderlyingId =
@@ -457,34 +471,35 @@ export abstract class BaseRiskProfile implements RiskFactors {
 
     const initialEstimateInRP = this._getInitialEstimate(
       riskFactorLimit,
-      localUnderlyingId
+      localUnderlyingId,
+      estimateScalarInRP // this is used to set the scale for the debtUnits
     );
+
     const targetLimitInRP = this._getRiskFactorInRP(
       riskFactorLimit.riskFactor,
       riskFactorLimit.limit
     );
 
-    const calculationFunction = (multiple: number) => {
+    const calculationFunction = (debtUnits: number) => {
       // NOTE: this multiple is in "denom" terms. Need to convert it to local underlying
       // terms before we multiply it to get the debt figure. Use the currency id so that vault
       // debts convert properly.
       const defaultToken = this.denom(this.defaultSymbol);
-      const netDebt =
+      const debtBalance =
         debt.currencyId === defaultToken.currencyId
-          ? TokenBalance.unit(debt).mulInRatePrecision(multiple).neg()
+          ? TokenBalance.unit(debt).mulInRatePrecision(debtUnits).neg()
           : TokenBalance.unit(defaultToken)
-              .mulInRatePrecision(multiple)
+              .mulInRatePrecision(debtUnits)
               .toToken(debt)
               .neg();
-      // If netDebt is decreasing, netCollateral will also decrease because it will be sold
-      // to repay debt. If netDebt is increasing, netCollateral will also increase because borrowed
-      // cash will be used to buy collateral.
 
-      // TODO: need to provide a function to convert debt to collateral at actual rates.
-      const netCollateral = netDebt.toToken(collateral).neg();
+      const collateralOutputs = convertToCollateral(debtBalance);
 
       // Create a new account profile with the simulated collateral added
-      const profile = this.simulate([netDebt, netCollateral]);
+      const profile = this.simulate([
+        debtBalance,
+        collateralOutputs.collateralBalance,
+      ]);
       const limit = profile.getRiskFactor(
         riskFactorLimit.riskFactor,
         riskFactorLimit.args
@@ -496,7 +511,7 @@ export abstract class BaseRiskProfile implements RiskFactors {
 
       return {
         fx: targetLimitInRP - limitInRP,
-        value: { netDebt, netCollateral },
+        value: { debtBalance, ...collateralOutputs },
       };
     };
 

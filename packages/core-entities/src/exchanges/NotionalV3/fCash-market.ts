@@ -885,15 +885,17 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
       ...this.poolParams.interestRateCurve.map((i) => i.maxRate)
     );
     const nTokenPrice = TokenBalance.unit(nTokens.token).toUnderlying();
+    const totalSupply = this.totalSupply;
 
     return Array(Math.floor(maxRate / tickSize))
       .fill(0)
       .map((_, i) => {
         const interestRate = (i + 1) * tickSize;
+        // Scale the total residual change by the total supply
         const netPrice = this._getSimulatedNTokenPriceChange(
           interestRate,
           blockTime
-        );
+        ).scale(totalSupply.precision, totalSupply.n);
         const price = nTokenPrice.add(netPrice);
 
         const profitLoss = price

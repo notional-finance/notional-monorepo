@@ -351,8 +351,6 @@ export class TokenBalance {
       } else if (value < 1_000_000_000_000) {
         suffix = 'b';
         value = value / 1_000_000_000;
-      } else {
-        throw Error('Abbreviation overflow');
       }
     }
 

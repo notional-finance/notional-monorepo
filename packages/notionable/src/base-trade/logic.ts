@@ -33,6 +33,7 @@ import {
   switchMap,
   withLatestFrom,
   bufferCount,
+  auditTime,
 } from 'rxjs';
 import { GlobalState } from '../global/global-state';
 import { isHashable } from '../utils';
@@ -40,6 +41,7 @@ import {
   BaseTradeState,
   TokenOption,
   TradeConfiguration,
+  TradeState,
   TradeType,
   VaultTradeConfiguration,
   VaultTradeState,
@@ -272,6 +274,8 @@ export function calculate(
     // we don't get race conditions around duplicate input keys. The second
     // parameter ensures that we start a new buffer on every emission
     bufferCount(2, 1),
+    // Add this here to throttle calculations for the UI a bit.
+    auditTime(100),
     map(([[p], [s, debtPool, collateralPool, a, vaultAdapter]]) => ({
       prevCalculateInputKeys: p.calculateInputKeys,
       prevInputsSatisfied: p.inputsSatisfied,
@@ -564,13 +568,21 @@ export function calculate(
 }
 
 export function priorAccountRisk(
+  state$: Observable<TradeState>,
   account$: Observable<AccountDefinition | null>
 ) {
-  return account$.pipe(
-    filterEmpty(),
-    map(({ balances }) => ({
-      priorAccountRisk: AccountRiskProfile.from(balances).getAllRiskFactors(),
-    }))
+  return combineLatest([state$, account$]).pipe(
+    filter(([s, account]) => !!account && s.priorAccountRisk === undefined),
+    map(([, account]) =>
+      account
+        ? {
+            priorAccountRisk: AccountRiskProfile.from(
+              account.balances
+            ).getAllRiskFactors(),
+          }
+        : undefined
+    ),
+    filterEmpty()
   );
 }
 
