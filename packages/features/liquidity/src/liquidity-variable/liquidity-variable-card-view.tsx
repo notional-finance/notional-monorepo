@@ -106,13 +106,11 @@ export const LiquidityVariableCardView = () => {
             })}
           </CardContainer>
           <HeadingSubtitle
-            sx={
-              {
-                // marginTop: themeLanding.spacing(6),
-                // marginBottom: themeLanding.spacing(10),
-                // marginLeft: themeLanding.spacing(15),
-              }
-            }
+            sx={{
+              marginTop: themeLanding.spacing(6),
+              marginBottom: themeLanding.spacing(10),
+              marginLeft: themeLanding.spacing(15),
+            }}
           >
             <FormattedMessage
               defaultMessage="NOTE incentive yields are calculated using the oracle price from the {sNOTEPool}: {notePriceString} USD"
