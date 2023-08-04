@@ -236,7 +236,8 @@ export abstract class BaseRiskProfile implements RiskFactors {
 
   protected _getInitialEstimate<F extends keyof RiskFactors>(
     { riskFactor, args, limit }: RiskFactorLimit<F>,
-    localUnderlyingId: string
+    localUnderlyingId: string,
+    estimateScalarInRP: number
   ): number {
     const value = this.getRiskFactor(riskFactor, args);
     const riskFactorInRP = this._getRiskFactorInRP(riskFactor, limit);
@@ -261,7 +262,8 @@ export abstract class BaseRiskProfile implements RiskFactors {
       //  limit = (debt - repay) / asset
       //  repay = debt - limit * asset
       if ((value as number) <= 0.001) {
-        initialEstimateInRP = riskFactorInRP;
+        initialEstimateInRP =
+          (riskFactorInRP * estimateScalarInRP) / RATE_PRECISION;
       } else if (netLocal.isPositive()) {
         initialEstimateInRP = this.totalDebt()
           .neg()
@@ -289,7 +291,8 @@ export abstract class BaseRiskProfile implements RiskFactors {
       let initialEstimateInRP: number;
 
       if (value === null) {
-        initialEstimateInRP = riskFactorInRP;
+        initialEstimateInRP =
+          (riskFactorInRP * estimateScalarInRP) / RATE_PRECISION;
       } else if (netLocal.isPositive()) {
         initialEstimateInRP = this.totalDebt()
           .neg()
@@ -319,7 +322,10 @@ export abstract class BaseRiskProfile implements RiskFactors {
       //  limit = (debt - repay) / (asset - debt - repay)
       //  repay = [debt * (1 + limit) - limit * asset] / (1 - limit)
       let initialEstimateInRP: number;
-      if (value === null) {
+      if (value === null && this.totalAssets().isZero()) {
+        initialEstimateInRP =
+          (riskFactorInRP * estimateScalarInRP) / RATE_PRECISION;
+      } else if (value === null) {
         // If there is no leverage, then use the limit as the number of debt
         // units times the total assets.
         initialEstimateInRP = this.totalAssets()
@@ -374,7 +380,8 @@ export abstract class BaseRiskProfile implements RiskFactors {
       throw Error('undefined local underlying');
     const initialEstimateInRP = this._getInitialEstimate(
       riskFactorLimit,
-      localUnderlyingId
+      localUnderlyingId,
+      RATE_PRECISION // This is not necessary in deposit / withdraw searches...
     );
     const targetLimitInRP = this._getRiskFactorInRP(
       riskFactorLimit.riskFactor,
@@ -453,7 +460,8 @@ export abstract class BaseRiskProfile implements RiskFactors {
       collateralFee: TokenBalance;
       netRealizedCollateralBalance: TokenBalance;
       netRealizedDebtBalance: TokenBalance;
-    }
+    },
+    estimateScalarInRP: number
   ) {
     // Uses the debt as the local currency
     const localUnderlyingId =
@@ -463,8 +471,10 @@ export abstract class BaseRiskProfile implements RiskFactors {
 
     const initialEstimateInRP = this._getInitialEstimate(
       riskFactorLimit,
-      localUnderlyingId
+      localUnderlyingId,
+      estimateScalarInRP // this is used to set the scale for the debtUnits
     );
+
     const targetLimitInRP = this._getRiskFactorInRP(
       riskFactorLimit.riskFactor,
       riskFactorLimit.limit
@@ -483,8 +493,6 @@ export abstract class BaseRiskProfile implements RiskFactors {
               .toToken(debt)
               .neg();
 
-      // If debt is negative, that means that we're raising cash to buy collateral. If debt is
-      // positive then we are paying off debt by selling collateral.
       const collateralOutputs = convertToCollateral(debtBalance);
 
       // Create a new account profile with the simulated collateral added

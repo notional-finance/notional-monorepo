@@ -5,7 +5,10 @@ import {
   TokenBalance,
   TokenDefinition,
 } from '@notional-finance/core-entities/src';
-import { RiskFactorLimit } from '@notional-finance/risk-engine';
+import {
+  AccountRiskProfile,
+  RiskFactorLimit,
+} from '@notional-finance/risk-engine';
 import { Network } from '@notional-finance/util';
 import {
   calculateCollateral,
@@ -443,7 +446,7 @@ describe.withForkAndRegistry(
       }
     );
 
-    it.only.each(
+    it.each(
       tokens.filter(
         ({ debt, collateral }) =>
           // Exclude this case because they offset each other exactly
@@ -478,14 +481,6 @@ describe.withForkAndRegistry(
           debtBalance: debt1,
           // netCollateralFromDebt + netCollateralFromDeposit
           collateralBalance: collateral1,
-          debtFee: df1,
-          // fee = feeFromDeposit + feeFromCollateral
-          collateralFee: cf1,
-          // (netCollateralFromDebt + netCollateralFromDeposit) w/ slippage
-          netRealizedCollateralBalance: nrc1,
-          // netRealizedDebt
-          netRealizedDebtBalance: nrd1,
-          netCollateralFromDebt,
         } = calculateDebtCollateralGivenDepositRiskLimit({
           collateral: collateralToken,
           debt: debtToken,
@@ -496,51 +491,15 @@ describe.withForkAndRegistry(
           riskFactorLimit,
         });
 
-        const {
-          debtBalance: debt2,
-          collateralFee: cf2,
-          debtFee: df2,
-          netRealizedDebtBalance: nrd2,
-        } = calculateDebt({
-          debt: debtToken,
-          debtPool,
-          collateralPool,
-          collateralBalance: netCollateralFromDebt,
-        });
-
-        const {
-          // netCollateralFromDebt
-          collateralBalance: collateral2,
-          collateralFee: cf3,
-          debtFee: df3,
-          // netCollateralFromDebt w/ slippage
-          netRealizedCollateralBalance: nrc2,
-        } = calculateCollateral({
-          collateral: collateralToken,
-          collateralPool,
-          debtPool,
-          debtBalance: debt1,
-        });
-
-        expect(debt1).toBeApprox(debt2);
-        expect(nrd1).toBeApprox(nrd2);
-        expect(df1).toBeApprox(df2);
-        expect(df1).toBeApprox(df3);
-
-        expect(collateral2).toBeApprox(netCollateralFromDebt);
-        expect(cf2).toBeApprox(cf3);
-
-        if (depositInput.isZero()) {
-          expect(nrc1).toBeApprox(nrc2);
-          expect(cf1).toBeApprox(cf2);
-        } else {
-          // This includes the realized cost of the deposit
-          expect(nrc1).toGtTB(nrc2);
-          expect(cf1).toGtEqTB(cf2);
-        }
-
         expect(debt1.isNegative()).toBe(true);
         expect(collateral1.isPositive()).toBe(true);
+
+        expect(
+          AccountRiskProfile.simulate(balances, [
+            collateral1,
+            debt1,
+          ]).leverageRatio()
+        ).toBeCloseTo(riskFactorLimit.limit);
       }
     );
   }

@@ -11,7 +11,11 @@ import {
   RiskFactorLimit,
   VaultAccountRiskProfile,
 } from '@notional-finance/risk-engine';
-import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
+import {
+  PRIME_CASH_VAULT_MATURITY,
+  RATE_DECIMALS,
+  RATE_PRECISION,
+} from '@notional-finance/util';
 
 /**
  * Converts a balance to an out token by exchange to local prime cash and the via the given pool
@@ -465,7 +469,8 @@ export function calculateDebtCollateralGivenDepositRiskLimit({
         debtBalance,
         depositBalance,
       });
-    }
+    },
+    depositBalance?.scaleTo(RATE_DECIMALS).toNumber() || RATE_PRECISION
   );
 }
 
@@ -508,7 +513,8 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
         debtBalance,
         depositBalance,
       });
-    }
+    },
+    depositBalance?.scaleTo(RATE_DECIMALS).toNumber() || RATE_PRECISION
   );
 }
 

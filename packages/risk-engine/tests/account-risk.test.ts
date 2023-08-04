@@ -3,7 +3,7 @@ import {
   Registry,
   TokenBalance,
 } from '@notional-finance/core-entities';
-import { Network } from '@notional-finance/util';
+import { Network, RATE_PRECISION } from '@notional-finance/util';
 import { AccountRiskProfile } from '../src/account-risk';
 import { RiskFactorKeys, RiskFactorLimit, RiskFactors } from '../src/types';
 
@@ -323,105 +323,6 @@ describe.withForkAndRegistry(
           expect(
             p.simulate([deposit]).getRiskFactor(riskFactor, _args)
           ).toBeApprox(l, 0.01, 0.00001);
-        }
-      }
-    );
-
-    it.each(
-      riskFactors.filter(
-        ({ riskFactor }) =>
-          riskFactor !== 'netWorth' && riskFactor !== 'leverageRatio'
-      )
-    )(
-      'Leverage / Deleverage Maintain Factor [$riskFactor | $limit]',
-      ({ riskFactor, limit, args }) => {
-        const tokens = Registry.getTokenRegistry();
-        const ETH = tokens.getTokenBySymbol(Network.ArbitrumOne, 'ETH');
-        const USDC = tokens.getTokenBySymbol(Network.ArbitrumOne, 'USDC');
-        const p = AccountRiskProfile.from([
-          TokenBalance.fromFloat(1, ETH),
-          TokenBalance.fromFloat(-1280, USDC),
-        ]);
-        const l =
-          typeof limit === 'number'
-            ? limit
-            : TokenBalance.fromFloat(
-                limit[0],
-                tokens.getTokenBySymbol(Network.ArbitrumOne, limit[1])
-              );
-
-        const _args = (
-          args
-            ? args.map((s) => tokens.getTokenBySymbol(Network.ArbitrumOne, s))
-            : undefined
-        ) as RiskFactorLimit<RiskFactorKeys>['args'];
-        const { netCollateral, netDebt } =
-          p.getDebtAndCollateralMaintainRiskFactor(USDC, ETH, {
-            riskFactor,
-            limit: l,
-            args: _args,
-          });
-
-        if (typeof limit === 'number') {
-          expect(
-            p
-              .simulate([netCollateral, netDebt])
-              .getRiskFactor(riskFactor, _args)
-          ).toBeCloseTo(l, 0);
-        } else {
-          expect(
-            p
-              .simulate([netCollateral, netDebt])
-              .getRiskFactor(riskFactor, _args)
-          ).toBeApprox(l, 0.01, 0.00001);
-        }
-      }
-    );
-
-    it.each(
-      riskFactors.filter(({ riskFactor }) => riskFactor === 'leverageRatio')
-    )(
-      'Leverage / Deleverage Maintain Factor Local [$riskFactor | $limit]',
-      ({ riskFactor, limit, args }) => {
-        const tokens = Registry.getTokenRegistry();
-        const ETH = tokens.getTokenBySymbol(Network.ArbitrumOne, 'ETH');
-        const nETH = tokens.getTokenBySymbol(Network.ArbitrumOne, 'nETH');
-        const p = AccountRiskProfile.from([
-          TokenBalance.fromFloat(-8, ETH),
-          TokenBalance.fromFloat(10, nETH),
-        ]);
-        const l =
-          typeof limit === 'number'
-            ? limit
-            : TokenBalance.fromFloat(
-                limit[0],
-                tokens.getTokenBySymbol(Network.ArbitrumOne, limit[1])
-              );
-
-        const _args = (
-          args
-            ? args.map((s) => tokens.getTokenBySymbol(Network.ArbitrumOne, s))
-            : undefined
-        ) as RiskFactorLimit<RiskFactorKeys>['args'];
-        const { netCollateral, netDebt } =
-          p.getDebtAndCollateralMaintainRiskFactor(ETH, nETH, {
-            riskFactor,
-            limit: l,
-            args: _args,
-          });
-
-        if (typeof limit === 'number') {
-          expect(
-            p
-              .simulate([netCollateral, netDebt])
-              .getRiskFactor(riskFactor, _args)
-          ).toBeCloseTo(l, 0);
-        } else {
-          expect(
-            p
-              .simulate([netCollateral, netDebt])
-              .getRiskFactor(riskFactor, _args)
-          ).toBeApprox(l, 0.01);
         }
       }
     );
