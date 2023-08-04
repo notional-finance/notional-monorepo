@@ -33,7 +33,6 @@ export const LeverageSlider = ({
       riskFactorLimit,
       debtBalance,
       collateralBalance,
-      depositBalance,
       deposit,
       maxLeverageRatio,
       defaultLeverageRatio,
@@ -56,17 +55,6 @@ export const LeverageSlider = ({
   }, [riskFactorLimit, defaultLeverageRatio, setSliderInput, updateState]);
 
   const zeroUnderlying = deposit ? TokenBalance.zero(deposit) : undefined;
-  let totalAssetValue: TokenBalance | undefined = undefined;
-
-  if (zeroUnderlying) {
-    try {
-      totalAssetValue = (depositBalance?.toUnderlying() || zeroUnderlying).add(
-        collateralBalance?.toUnderlying() || zeroUnderlying
-      );
-    } catch {
-      // Suppress race condition errors
-    }
-  }
 
   return defaultLeverageRatio && maxLeverageRatio ? (
     <SliderInput
@@ -93,7 +81,7 @@ export const LeverageSlider = ({
           ? cashBorrowed.toUnderlying().abs().toFloat()
           : debtBalance?.toUnderlying().abs().toFloat(),
         debtSuffix: ` ${zeroUnderlying?.symbol || ''}`,
-        assetValue: totalAssetValue?.toFloat(),
+        assetValue: collateralBalance?.toFloat(),
         assetSuffix: ` ${zeroUnderlying?.symbol || ''}`,
       }}
     />
