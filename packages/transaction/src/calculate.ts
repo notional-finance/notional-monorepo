@@ -454,14 +454,29 @@ export function calculateDebtCollateralGivenDepositRiskLimit({
   maxCollateralSlippage?: number;
   maxDebtSlippage?: number;
 }) {
-  const riskProfile = AccountRiskProfile.simulate(
-    balances ? balances : [],
-    depositBalance ? [depositBalance] : []
-  );
+  let netCollateralFromDeposit: TokenBalance;
+  let depositCollateralFee: TokenBalance;
+
+  if (depositBalance) {
+    ({
+      collateralBalance: netCollateralFromDeposit,
+      collateralFee: depositCollateralFee,
+    } = calculateCollateral({
+      collateral,
+      collateralPool,
+      depositBalance,
+    }));
+  } else {
+    netCollateralFromDeposit = TokenBalance.zero(collateral);
+    depositCollateralFee = netCollateralFromDeposit.toPrimeCash();
+  }
+  const riskProfile = AccountRiskProfile.simulate(balances ? balances : [], [
+    netCollateralFromDeposit,
+  ]);
 
   // NOTE: this calculation is done at spot rates, does not include slippage. Perhaps
   // we should allow manual slippage de-weighting here...
-  const { netDebt, netCollateral } =
+  const { netDebt, netCollateral: netCollateralFromDebt } =
     riskProfile.getDebtAndCollateralMaintainRiskFactor(
       debt,
       collateral,
@@ -471,6 +486,7 @@ export function calculateDebtCollateralGivenDepositRiskLimit({
   // Maybe we can calculate the net debt and net collateral using the pools
   // and check how much slippage is incurred and then set a lower bound limit
   // on that here while getting the fees...
+  const netCollateral = netCollateralFromDebt.add(netCollateralFromDeposit);
   const netCollateralPrimeAtSpot = netCollateral.toPrimeCash();
   const { localPrime: netRealizedCollateralBalance, fees: collateralFee } =
     exchangeToLocalPrime(
@@ -485,18 +501,21 @@ export function calculateDebtCollateralGivenDepositRiskLimit({
 
   if (
     maxCollateralSlippage <
-    netCollateralPrimeAtSpot
-      .ratioWith(netRealizedCollateralBalance)
-      .toNumber() -
-      RATE_PRECISION
+    Math.abs(
+      netCollateralPrimeAtSpot
+        .ratioWith(netRealizedCollateralBalance)
+        .toNumber() - RATE_PRECISION
+    )
   ) {
     throw Error('Above max collateral slippage');
   }
 
   if (
     maxDebtSlippage <
-    netRealizedDebtBalance.ratioWith(netDebtPrimeAtSpot).toNumber() -
-      RATE_PRECISION
+    Math.abs(
+      netRealizedDebtBalance.neg().ratioWith(netDebtPrimeAtSpot).toNumber() -
+        RATE_PRECISION
+    )
   ) {
     throw Error('Above max debt slippage');
   }
@@ -505,9 +524,12 @@ export function calculateDebtCollateralGivenDepositRiskLimit({
     collateralBalance: netCollateral,
     debtBalance: netDebt,
     debtFee: debtFee,
-    collateralFee,
+    collateralFee: collateralFee.add(depositCollateralFee),
     netRealizedCollateralBalance: netRealizedCollateralBalance.toUnderlying(),
-    netRealizedDebtBalance: netRealizedDebtBalance.toUnderlying(),
+    netRealizedDebtBalance: netRealizedDebtBalance.neg().toUnderlying(),
+    netCollateralFromDebt,
+    netCollateralFromDeposit,
+    depositCollateralFee,
   };
 }
 
@@ -582,10 +604,11 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
 
   if (
     maxCollateralSlippage <
-    netVaultSharesUnderlyingAtSpot
-      .ratioWith(netRealizedCollateralBalance)
-      .toNumber() -
-      RATE_PRECISION
+    Math.abs(
+      netVaultSharesUnderlyingAtSpot
+        .ratioWith(netRealizedCollateralBalance)
+        .toNumber() - RATE_PRECISION
+    )
   ) {
     throw Error('Above max collateral slippage');
   }
@@ -593,8 +616,12 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
   if (
     netDebtPrimeAtSpot.isPositive() &&
     maxDebtSlippage <
-      primeCashBorrowedPreVaultFee.ratioWith(netDebtPrimeAtSpot).toNumber() -
-        RATE_PRECISION
+      Math.abs(
+        primeCashBorrowedPreVaultFee
+          .neg()
+          .ratioWith(netDebtPrimeAtSpot)
+          .toNumber() - RATE_PRECISION
+      )
   ) {
     throw Error('Above max debt slippage');
   }
@@ -604,8 +631,11 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
     debtBalance: netDebt,
     debtFee: debtFee.add(vaultFee),
     collateralFee: feesPaid,
-    netRealizedDebtBalance: netRealizedDebtBalance.toUnderlying(),
+    netRealizedDebtBalance: netRealizedDebtBalance.neg().toUnderlying(),
     netRealizedCollateralBalance,
+    netCollateralFromDebt: netVaultSharesFromDebt,
+    netCollateralFromDeposit: netVaultSharesFromDeposit,
+    depositCollateralFee: feesPaid.copy(0),
   };
 }
 

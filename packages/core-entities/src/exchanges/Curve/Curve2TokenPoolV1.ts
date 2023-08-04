@@ -475,15 +475,15 @@ export class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPoolV1Params
         )
       );
 
-      tokensOut[singleSidedExitTokenIndex] =
-        tokensOut[singleSidedExitTokenIndex].copy(dy);
+      const tokenOutPrecision = tokensOut[singleSidedExitTokenIndex].precision;
+      tokensOut[singleSidedExitTokenIndex] = tokensOut[
+        singleSidedExitTokenIndex
+      ].copy(dy.mul(tokenOutPrecision).div(Curve2TokenPoolV1.PRECISION));
     } else {
       const totalSupply = this.totalSupply;
 
       for (let i = 0; i < Curve2TokenPoolV1.N_COINS.toNumber(); i++) {
-        tokensOut[i] = this.balances[i].copy(
-          this.balances[i].n.mul(lpTokens.n).div(totalSupply.n)
-        );
+        tokensOut[i] = this.balances[i].scale(lpTokens, totalSupply);
       }
     }
 

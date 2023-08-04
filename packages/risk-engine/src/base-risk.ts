@@ -479,6 +479,8 @@ export abstract class BaseRiskProfile implements RiskFactors {
       // If netDebt is decreasing, netCollateral will also decrease because it will be sold
       // to repay debt. If netDebt is increasing, netCollateral will also increase because borrowed
       // cash will be used to buy collateral.
+
+      // TODO: need to provide a function to convert debt to collateral at actual rates.
       const netCollateral = netDebt.toToken(collateral).neg();
 
       // Create a new account profile with the simulated collateral added
@@ -597,6 +599,8 @@ export abstract class BaseRiskProfile implements RiskFactors {
 
     return undefined;
   }
+
+  abstract maxWithdraw(token: TokenDefinition): TokenBalance;
 
   /** Abstract Risk Factor Implementations **/
   abstract freeCollateral(): TokenBalance;

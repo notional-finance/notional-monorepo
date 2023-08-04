@@ -11,7 +11,7 @@ interface Profile {
   name: string;
   balances: [number, string][];
   expected: {
-    factor: keyof RiskFactors;
+    factor: keyof RiskFactors | 'maxWithdraw';
     args?: string[];
     expected: [number, string] | number | null;
   }[];
@@ -33,14 +33,29 @@ describe.withForkAndRegistry(
           { factor: 'freeCollateral', expected: [0.81, 'ETH'] },
           { factor: 'loanToValue', expected: 0 },
           { factor: 'collateralRatio', expected: null },
-          { factor: 'healthFactor', expected: null },
+          { factor: 'healthFactor', expected: 8.29 },
           {
             factor: 'collateralLiquidationThreshold',
             args: ['ETH'],
             expected: null,
           },
+          {
+            factor: 'maxWithdraw',
+            args: ['pEther'],
+            expected: [1, 'pEther'],
+          },
+          {
+            factor: 'maxWithdraw',
+            args: ['nETH'],
+            expected: [0, 'nETH'],
+          },
         ],
       },
+      // ETH/USD 1,893.67000000
+      // USDC w/ buffer: 1395.2
+      // USDC in ETH: -0.74
+      // ETH w/ Haircut: 0.81
+      // Total FC: 0.07
       {
         name: 'ETH / USDC',
         balances: [
@@ -49,20 +64,30 @@ describe.withForkAndRegistry(
         ],
         expected: [
           { factor: 'netWorth', expected: [0.324, 'ETH'] },
-          { factor: 'freeCollateral', expected: [0.263, 'ETH'] },
+          { factor: 'freeCollateral', expected: [0.07322, 'ETH'] },
           { factor: 'loanToValue', expected: 67.59 },
           { factor: 'collateralRatio', expected: 147.94 },
-          { factor: 'healthFactor', expected: 0.8122 },
+          { factor: 'healthFactor', expected: 3.033 },
           { factor: 'leverageRatio', expected: 2.085 },
           {
             factor: 'collateralLiquidationThreshold',
             args: ['ETH'],
-            expected: [0.736, 'ETH'],
+            expected: [0.92677, 'ETH'],
           },
           {
             factor: 'liquidationPrice',
             args: ['USDC', 'ETH'],
-            expected: [1395.2, 'USDC'],
+            expected: [1744.99, 'USDC'],
+          },
+          {
+            factor: 'maxWithdraw',
+            args: ['pEther'],
+            expected: [0.0904, 'pEther'],
+          },
+          {
+            factor: 'maxWithdraw',
+            args: ['pUSD Coin'],
+            expected: [0, 'pUSD Coin'],
           },
         ],
       },
@@ -77,7 +102,12 @@ describe.withForkAndRegistry(
           { factor: 'freeCollateral', expected: [4.05, 'ETH'] },
           { factor: 'loanToValue', expected: 0 },
           { factor: 'collateralRatio', expected: null },
-          { factor: 'healthFactor', expected: null },
+          { factor: 'healthFactor', expected: 8.29 },
+          {
+            factor: 'maxWithdraw',
+            args: ['pEther'],
+            expected: [5, 'pEther'],
+          },
         ],
       },
       {
@@ -88,11 +118,50 @@ describe.withForkAndRegistry(
         ],
         expected: [
           { factor: 'netWorth', expected: [1.996, 'ETH'] },
-          { factor: 'freeCollateral', expected: [0.996, 'ETH'] },
+          { factor: 'freeCollateral', expected: [0.8071, 'ETH'] },
           { factor: 'loanToValue', expected: 80.03 },
           { factor: 'collateralRatio', expected: 124.94 },
-          { factor: 'healthFactor', expected: 0.499 },
+          { factor: 'healthFactor', expected: 4.638 },
           { factor: 'leverageRatio', expected: 4.008 },
+          {
+            factor: 'collateralLiquidationThreshold',
+            args: ['nETH'],
+            expected: null,
+          },
+          {
+            factor: 'collateralLiquidationThreshold',
+            args: ['ETH'],
+            expected: [0.19, 'ETH'],
+          },
+          {
+            factor: 'maxWithdraw',
+            args: ['pEther'],
+            expected: [0, 'pEther'],
+          },
+          {
+            factor: 'maxWithdraw',
+            args: ['nETH'],
+            expected: [1.107, 'nETH'],
+          },
+        ],
+      },
+      {
+        name: 'Leveraged nToken w/ Liquidation Risk',
+        balances: [
+          [-8.5, 'pdEther'],
+          [10, 'nETH'],
+        ],
+        expected: [
+          {
+            factor: 'collateralLiquidationThreshold',
+            args: ['nETH'],
+            expected: [0.9597, 'nETH'],
+          },
+          {
+            factor: 'maxWithdraw',
+            args: ['nETH'],
+            expected: [0.551, 'nETH'],
+          },
         ],
       },
     ];
@@ -144,12 +213,12 @@ describe.withForkAndRegistry(
       },
       {
         riskFactor: 'freeCollateral',
-        limit: [0.3, 'ETH'],
+        limit: [0.25, 'ETH'],
       },
       {
         riskFactor: 'collateralLiquidationThreshold',
         args: ['ETH'],
-        limit: [0.65, 'ETH'],
+        limit: [0.75, 'ETH'],
       },
       {
         riskFactor: 'collateralLiquidationThreshold',
@@ -173,7 +242,11 @@ describe.withForkAndRegistry(
         const _args = args.map((t: string) =>
           tokens.getTokenBySymbol(Network.ArbitrumOne, t)
         );
-        const actual = p.getRiskFactor(factor as keyof RiskFactors, _args);
+        const actual =
+          factor === 'maxWithdraw'
+            ? p.maxWithdraw(_args[0])
+            : p.getRiskFactor(factor as keyof RiskFactors, _args);
+
         const logResults = name.includes('LOG');
         if (Array.isArray(expected)) {
           const e = TokenBalance.fromFloat(
@@ -249,7 +322,7 @@ describe.withForkAndRegistry(
         } else {
           expect(
             p.simulate([deposit]).getRiskFactor(riskFactor, _args)
-          ).toBeApprox(l, 0.01);
+          ).toBeApprox(l, 0.01, 0.00001);
         }
       }
     );
@@ -300,7 +373,7 @@ describe.withForkAndRegistry(
             p
               .simulate([netCollateral, netDebt])
               .getRiskFactor(riskFactor, _args)
-          ).toBeApprox(l, 0.01);
+          ).toBeApprox(l, 0.01, 0.00001);
         }
       }
     );

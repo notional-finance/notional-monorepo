@@ -1,7 +1,7 @@
 import { filterEmpty, Network } from '@notional-finance/util';
 import { map } from 'rxjs';
-import { BaseLiquidityPool, PoolClasses, PoolConstructor } from '../exchanges';
-import { PoolDefinition } from '..';
+import { BaseLiquidityPool, fCashMarket, PoolClasses, PoolConstructor } from '../exchanges';
+import { PoolDefinition, Registry } from '..';
 import { ClientRegistry } from './client-registry';
 import { Routes } from '../server';
 import { ethers } from 'ethers';
@@ -36,6 +36,11 @@ export class ExchangeRegistryClient extends ClientRegistry<PoolDefinition> {
     );
     if (!pool) throw Error(`Pool ${address} on ${network} not found`);
     return this._buildPool<T>(network, pool);
+  }
+
+  public getfCashMarket(network: Network, currencyId: number) {
+    const nToken = Registry.getTokenRegistry().getNToken(network, currencyId);
+    return this.getPoolInstance<fCashMarket>(network, nToken.address);
   }
 
   private _buildPool<T>(network: Network, pool: PoolDefinition) {

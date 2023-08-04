@@ -12,6 +12,7 @@ import {
 import { LendLeveragedSidebar } from './components';
 import { TradeActionSummary } from '@notional-finance/trade';
 import { useLendLeveragedFaq } from './hooks/use-lend-leveraged-faq';
+import { FCashPriceExposure } from './components/fcash-price-exposure';
 
 export const LendLeveragedContext = createTradeContext('LeveragedLend');
 
@@ -38,6 +39,7 @@ export const LendLeveraged = () => {
               }
               tradeActionHeader={<FormattedMessage defaultMessage={'Lend'} />}
             >
+              <FCashPriceExposure state={context.state} />
               <FaqHeader
                 title={
                   <FormattedMessage defaultMessage={'Leveraged Lend FAQ'} />

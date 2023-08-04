@@ -84,6 +84,7 @@ describe.withForkAndRegistry(
           collateralFee: cf1,
           netRealizedCollateralBalance: nrc1,
           netRealizedDebtBalance: nrd1,
+          netCollateralFromDebt
         } = calculateVaultDebtCollateralGivenDepositRiskLimit({
           collateral: collateralToken,
           debt: debtToken,
@@ -104,7 +105,7 @@ describe.withForkAndRegistry(
           debtPool,
           vaultAdapter,
           depositBalance: depositInput,
-          collateralBalance: collateral1,
+          collateralBalance: netCollateralFromDebt,
         });
 
         const {
