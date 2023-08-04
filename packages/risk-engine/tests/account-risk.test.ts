@@ -26,7 +26,7 @@ describe.withForkAndRegistry(
   () => {
     const profiles: Profile[] = [
       {
-        name: '[LOG] One ETH',
+        name: 'One ETH',
         balances: [[1, 'ETH']],
         expected: [
           { factor: 'netWorth', expected: [1, 'ETH'] },
@@ -57,7 +57,7 @@ describe.withForkAndRegistry(
       // ETH w/ Haircut: 0.81
       // Total FC: 0.07
       {
-        name: '[LOG] ETH / USDC',
+        name: 'ETH / USDC',
         balances: [
           [1, 'ETH'],
           [-1280, 'USDC'],
