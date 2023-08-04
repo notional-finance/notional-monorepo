@@ -84,10 +84,10 @@ export const TradeConfiguration = {
   /**
    * Input:
    * selectedDebtToken (fCash, Prime Cash, or nToken)
-   * debtBalance (i.e. amount of fCash or Prime Cash)
+   * depositBalance (i.e. amount to wallet)
    *
    * Output:
-   * depositBalance (i.e. amount of cash to withdraw)
+   * debtBalance (i.e. amount of debt)
    */
   Withdraw: {
     calculationFn: calculateDebt,

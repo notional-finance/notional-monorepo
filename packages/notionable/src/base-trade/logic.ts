@@ -214,6 +214,7 @@ export function availableTokens(
       const availableDebtTokens = listedTokens
         .filter(
           (t) =>
+            t.tokenType === 'nToken' ||
             t.tokenType === 'PrimeDebt' ||
             (t.tokenType === 'VaultDebt' &&
               (t.maturity || 0) > getNowSeconds()) ||
@@ -366,6 +367,8 @@ export function calculate(
           },
           [{} as Record<CalculationFnParams, unknown>, [] as string[]]
         );
+
+        // TODO: if maxwithdraw is specified then supress the calculation...
 
         const inputsSatisfied = requiredArgs.every(
           (r) => inputs[r] !== undefined

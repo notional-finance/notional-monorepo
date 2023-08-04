@@ -12,6 +12,7 @@ import { VaultActionContext } from '../vault-view/vault-action-provider';
 import { VaultSideDrawer } from '../components/vault-side-drawer';
 import { messages } from '../messages';
 import { TokenBalance } from '@notional-finance/core-entities';
+import { useVaultRiskProfile } from '@notional-finance/notionable-hooks';
 
 export const WithdrawVault = () => {
   const { setCurrencyInput, currencyInputRef } = useCurrencyInputRef();
@@ -23,12 +24,14 @@ export const WithdrawVault = () => {
       deposit,
       riskFactorLimit,
       depositBalance,
+      vaultAddress,
     },
     updateState,
   } = context;
   const primaryBorrowSymbol = deposit?.symbol;
   const isFullRepayment = postAccountRisk?.leverageRatio === null;
   const priorLeverageRatio = priorAccountRisk?.leverageRatio || null;
+  const profile = useVaultRiskProfile(vaultAddress);
 
   useEffect(() => {
     // Set the default leverage ratio to the prior account leverage ratio
@@ -79,6 +82,7 @@ export const WithdrawVault = () => {
             setCurrencyInput(maxWithdrawAmount.toExactString());
 
             updateState({
+              // TODO: set the collateral balance instead.
               depositBalance: maxWithdrawAmount.neg(),
               riskFactorLimit: {
                 riskFactor: 'leverageRatio',
