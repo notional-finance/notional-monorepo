@@ -46,8 +46,6 @@ export function formatNumberAsAbbr(
   } else if (num < 1_000_000_000_000) {
     suffix = 'b';
     num = num / 1_000_000_000;
-  } else {
-    throw Error('Abbreviation overflow');
   }
 
   const localeString = num.toLocaleString(locale, {

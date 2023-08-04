@@ -418,6 +418,9 @@ export function useTradeSummary(state: BaseTradeState) {
     feeValue = depositBalance.toUnderlying().sub(debtBalance.toUnderlying());
   }
 
+  // TODO: Deposit balances are emitted prior to collateral balances here and
+  // so it causes the fee value to "toggle" a bit as the value changes. Ideally
+  // we move the calculations into the observable so this is hidden
   summary.push({
     label: intl.formatMessage({ defaultMessage: 'Fees and Slippage' }),
     value: feeValue.toDisplayStringWithSymbol(3, true),
@@ -542,8 +545,12 @@ export function usePortfolioLiquidationRisk(state: TradeState) {
   const intl = useIntl();
   const healthFactor = {
     label: intl.formatMessage({ defaultMessage: 'Health Factor' }),
-    current: priorAccountRisk?.healthFactor?.toFixed(3) || '-',
-    updated: postAccountRisk?.healthFactor?.toFixed(3) || '-',
+    current: onlyCurrent
+      ? `${priorAccountRisk?.healthFactor?.toFixed(3) || '-'} / 10`
+      : priorAccountRisk?.healthFactor?.toFixed(3) || '-',
+    updated: onlyCurrent
+      ? undefined
+      : `${postAccountRisk.healthFactor.toFixed(3)} / 10`,
     changeType: getChangeType(
       priorAccountRisk?.healthFactor,
       postAccountRisk?.healthFactor
