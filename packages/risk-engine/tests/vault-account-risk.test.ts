@@ -16,7 +16,7 @@ describe.withForkAndRegistry(
     const vaultAddress = '0xae38f4b960f44d86e798f36a374a1ac3f2d859fa';
     const maturity = 1695168000;
 
-    describe.only('Settled Vault Account', () => {
+    describe('Settled Vault Account', () => {
       const settledMaturity = 1687392000;
       it('converts a settled vault account to prime', () => {
         const config = Registry.getConfigurationRegistry();
@@ -58,13 +58,16 @@ describe.withForkAndRegistry(
           ),
         ]);
 
+        // Vault shares and vault cash convert 1-1
         expect(profile.settledBalances.length).toBe(3);
         expect(profile.vaultShares.maturity).toBe(PRIME_CASH_VAULT_MATURITY);
         expect(profile.vaultShares.toFloat()).toBe(10);
-        expect(profile.vaultDebt.maturity).toBe(PRIME_CASH_VAULT_MATURITY);
-        expect(profile.vaultDebt.toUnderlying().toFloat()).toBe(-8);
         expect(profile.vaultCash.maturity).toBe(PRIME_CASH_VAULT_MATURITY);
-        expect(profile.vaultCash.toUnderlying().toFloat()).toBe(2);
+        expect(profile.vaultCash.toFloat()).toBe(2);
+
+        // This converts at a non 1-1 rate.
+        expect(profile.vaultDebt.maturity).toBe(PRIME_CASH_VAULT_MATURITY);
+        expect(profile.vaultDebt.toUnderlying().toFloat()).toBeLessThan(-8);
       });
     });
 

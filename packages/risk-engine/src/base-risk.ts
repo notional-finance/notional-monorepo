@@ -78,10 +78,8 @@ export abstract class BaseRiskProfile implements RiskFactors {
         b.vaultAddress,
         PRIME_CASH_VAULT_MATURITY
       );
-      return TokenBalance.from(
-        b.unwrapVaultToken().toPrimeCash().n,
-        primeVaultCash
-      );
+      // No conversion required for vault cash. It is always prime cash.
+      return TokenBalance.from(b.unwrapVaultToken().n, primeVaultCash);
     } else if (b.tokenType === 'VaultShare') {
       const adapter = Registry.getVaultRegistry().getVaultAdapter(
         b.network,

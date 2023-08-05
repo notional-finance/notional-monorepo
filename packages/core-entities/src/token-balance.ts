@@ -1,6 +1,9 @@
 import {
   ALT_ETH,
+  AssetType,
   convertToGenericfCashId,
+  encodeERC1155Id,
+  getNowSeconds,
   INTERNAL_TOKEN_PRECISION,
   Network,
   RATE_PRECISION,
@@ -99,6 +102,10 @@ export class TokenBalance {
     const m = this.token.maturity;
     if (!m) throw Error('Invalid maturity');
     return m;
+  }
+
+  get hasMatured() {
+    return this.token.maturity && this.token.maturity < getNowSeconds();
   }
 
   get symbol() {
@@ -417,12 +424,21 @@ export class TokenBalance {
       }
 
       // Fetch the latest exchange rate
-      // TODO: if doing settlement then then token id needs to be the actual fCash (not generic fcash id)
-      const path = oracleRegistry.findPath(
-        this.unwrapVaultToken().token.id,
-        token.id,
-        this.token.network
-      );
+      const unwrapped = this.unwrapVaultToken();
+      const id =
+        unwrapped.tokenType === 'fCash' &&
+        unwrapped.hasMatured &&
+        this.isNegative()
+          ? // Rewrite the fCash to a negative fCash id for settlement so that we convert to PrimeDebt
+            encodeERC1155Id(
+              this.currencyId,
+              this.maturity,
+              AssetType.FCASH_ASSET_TYPE,
+              true
+            )
+          : unwrapped.tokenId;
+
+      const path = oracleRegistry.findPath(id, token.id, this.token.network);
       exchangeRate = oracleRegistry.getLatestFromPath(
         this.token.network,
         path,
