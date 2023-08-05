@@ -50,7 +50,7 @@ export class AccountRiskProfile extends BaseRiskProfile {
     const debts = this.totalDebt();
     if (debts.isZero()) return null;
 
-    return this._toPercent(this.totalAssets(), debts);
+    return this._toPercent(this.totalAssets(), debts.neg());
   }
 
   healthFactor() {

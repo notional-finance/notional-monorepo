@@ -176,9 +176,7 @@ export abstract class BaseRiskProfile implements RiskFactors {
   /****** Summary Factors ******/
 
   protected _toPercent(n: TokenBalance, d: TokenBalance) {
-    return (
-      (n.ratioWith(d).abs().toNumber() * PERCENTAGE_BASIS) / RATE_PRECISION
-    );
+    return (n.ratioWith(d).toNumber() * PERCENTAGE_BASIS) / RATE_PRECISION;
   }
 
   protected _fromPercent(n: number) {
@@ -211,7 +209,7 @@ export abstract class BaseRiskProfile implements RiskFactors {
     const assets = this.totalAssets();
     if (assets.isZero()) return 0;
 
-    return this._toPercent(this.totalDebt(), assets);
+    return this._toPercent(this.totalDebt().neg(), assets);
   }
 
   liquidationPrice(debt: TokenDefinition, collateral: TokenDefinition) {

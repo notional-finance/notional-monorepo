@@ -164,6 +164,17 @@ describe.withForkAndRegistry(
           },
         ],
       },
+      {
+        name: 'Leveraged fCash Spread',
+        balances: [
+          [16, 'fUSDC:fixed@1702944000'],
+          [-14.5, 'pdUSD Coin'],
+        ],
+        expected: [
+          { factor: 'freeCollateral', expected: [-0.00015795, 'ETH'] },
+          { factor: 'healthFactor', expected: -32.96 },
+        ],
+      },
     ];
 
     const riskFactors: {

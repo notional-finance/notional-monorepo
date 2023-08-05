@@ -424,7 +424,7 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
     if (oracle.oracleType !== 'fCashOracleRate' || riskAdjusted === 'None') {
       return {
         interestAdjustment: 0,
-        maxDiscountFactor: RATE_PRECISION,
+        maxDiscountFactor: SCALAR_PRECISION,
         oracleRateLimit: undefined,
       };
     }
@@ -438,10 +438,10 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
 
     if (riskAdjusted === 'Asset') {
       return {
-        interestAdjustment: -this._assertDefined(
-          config.fCashHaircutBasisPoints
-        ),
-        maxDiscountFactor: this._assertDefined(config.fCashMaxDiscountFactor),
+        interestAdjustment: this._assertDefined(config.fCashHaircutBasisPoints),
+        maxDiscountFactor: BigNumber.from(
+          this._assertDefined(config.fCashMaxDiscountFactor)
+        ).mul(RATE_PRECISION),
         oracleRateLimit: BigNumber.from(
           this._assertDefined(config.fCashMaxOracleRate)
         ),
@@ -451,7 +451,7 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
         interestAdjustment: this._assertDefined(
           config.fCashDebtBufferBasisPoints
         ),
-        maxDiscountFactor: RATE_PRECISION,
+        maxDiscountFactor: SCALAR_PRECISION,
         oracleRateLimit: BigNumber.from(
           this._assertDefined(config.fCashMinOracleRate)
         ),

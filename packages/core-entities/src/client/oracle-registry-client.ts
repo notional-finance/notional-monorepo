@@ -192,16 +192,25 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
 
             // The fcash asset is always the quote asset in the oracle
             const { maturity } = decodeERC1155Id(o.quote);
-            let rate = o.latestRate.rate.add(interestAdjustment);
+            let rate = o.latestRate.rate;
 
             // Apply oracle min or max limits after adjustments
             if (rate.lt(0)) {
               // Always floor rates at zero
               rate = BigNumber.from(0);
             } else if (oracleRateLimit && riskAdjusted === 'Asset') {
-              rate = rate.gt(oracleRateLimit) ? oracleRateLimit : rate;
+              const adjustedRate = rate.add(interestAdjustment);
+              rate = adjustedRate.lt(oracleRateLimit)
+                ? oracleRateLimit
+                : adjustedRate;
             } else if (oracleRateLimit && riskAdjusted === 'Debt') {
-              rate = rate.lt(oracleRateLimit) ? oracleRateLimit : rate;
+              const adjustedRate = rate.lt(interestAdjustment)
+                ? BigNumber.from(0)
+                : rate.sub(interestAdjustment);
+
+              rate = adjustedRate.gt(oracleRateLimit)
+                ? oracleRateLimit
+                : adjustedRate;
             }
 
             const exchangeRate = this.interestToExchangeRate(
@@ -216,7 +225,7 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
               return {
                 ...o.latestRate,
                 // Scale the discount factor up to 18 decimals
-                rate: BigNumber.from(maxDiscountFactor).mul(RATE_PRECISION),
+                rate: maxDiscountFactor,
               };
             } else {
               return { ...o.latestRate, rate: exchangeRate };

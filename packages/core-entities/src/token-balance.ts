@@ -472,6 +472,7 @@ export class TokenBalance {
     return this.toToken(primeCash);
   }
 
+  /** Applies local currency risk adjustments only */
   toRiskAdjustedUnderlying() {
     return this.toToken(
       this.underlying,
