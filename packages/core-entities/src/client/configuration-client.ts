@@ -297,36 +297,36 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
       } = this.getVaultIDs(network, vaultAddress, maturity);
 
       tokens.registerToken(
-        this._vaultIdToTokenDefinition(vaultShareID, network)
+        this.vaultIdToTokenDefinition(vaultShareID, network)
       );
       tokens.registerToken(
-        this._vaultIdToTokenDefinition(primaryDebtID, network)
+        this.vaultIdToTokenDefinition(primaryDebtID, network)
       );
       tokens.registerToken(
-        this._vaultIdToTokenDefinition(primaryCashID, network)
+        this.vaultIdToTokenDefinition(primaryCashID, network)
       );
 
       if (secondaryOneDebtID && secondaryOneCashID) {
         tokens.registerToken(
-          this._vaultIdToTokenDefinition(secondaryOneDebtID, network)
+          this.vaultIdToTokenDefinition(secondaryOneDebtID, network)
         );
         tokens.registerToken(
-          this._vaultIdToTokenDefinition(secondaryOneCashID, network)
+          this.vaultIdToTokenDefinition(secondaryOneCashID, network)
         );
       }
 
       if (secondaryTwoDebtID && secondaryTwoCashID) {
         tokens.registerToken(
-          this._vaultIdToTokenDefinition(secondaryTwoDebtID, network)
+          this.vaultIdToTokenDefinition(secondaryTwoDebtID, network)
         );
         tokens.registerToken(
-          this._vaultIdToTokenDefinition(secondaryTwoCashID, network)
+          this.vaultIdToTokenDefinition(secondaryTwoCashID, network)
         );
       }
     });
   }
 
-  private _vaultIdToTokenDefinition(
+  public vaultIdToTokenDefinition(
     id: string,
     network: Network
   ): TokenDefinition {

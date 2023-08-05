@@ -50,6 +50,48 @@ export abstract class BaseRiskProfile implements RiskFactors {
 
   public network: Network;
   public balances: TokenBalance[];
+  public settledBalances: TokenBalance[];
+
+  protected _settle(
+    b: TokenBalance,
+    blockTime = getNowSeconds()
+  ): TokenBalance {
+    if (!b.token.maturity || b.token.maturity > blockTime) return b;
+
+    this.settledBalances.push(b);
+
+    if (b.tokenType === 'fCash') {
+      return b.toPrimeCash();
+    } else if (b.tokenType === 'VaultDebt') {
+      const primeVaultDebt = Registry.getTokenRegistry().getVaultDebt(
+        b.network,
+        b.vaultAddress,
+        PRIME_CASH_VAULT_MATURITY
+      );
+      return TokenBalance.from(
+        b.unwrapVaultToken().toPrimeCash().n,
+        primeVaultDebt
+      );
+    } else if (b.tokenType === 'VaultCash') {
+      const primeVaultCash = Registry.getTokenRegistry().getVaultCash(
+        b.network,
+        b.vaultAddress,
+        PRIME_CASH_VAULT_MATURITY
+      );
+      return TokenBalance.from(
+        b.unwrapVaultToken().toPrimeCash().n,
+        primeVaultCash
+      );
+    } else if (b.tokenType === 'VaultShare') {
+      const adapter = Registry.getVaultRegistry().getVaultAdapter(
+        b.network,
+        b.vaultAddress
+      );
+      return adapter.convertToPrimeVaultShares(b);
+    }
+
+    throw Error('Invalid settle balance');
+  }
 
   /** Takes a set of token balances to create a new risk profile */
   constructor(
@@ -57,7 +99,8 @@ export abstract class BaseRiskProfile implements RiskFactors {
     public defaultSymbol: SymbolOrID,
     _network?: Network
   ) {
-    this.balances = BaseRiskProfile.merge(balances);
+    this.settledBalances = [];
+    this.balances = BaseRiskProfile.merge(balances.map((b) => this._settle(b)));
 
     if (this.balances.length === 0) {
       // Allow this to pass but none of the methods will really return any values

@@ -366,5 +366,32 @@ describe.withForkAndRegistry(
       ]);
       expect(p.getAllRiskFactors()).toBeDefined();
     });
+
+    describe('Settlement', () => {
+      it.only('Settles fCash to Prime Cash', () => {
+        const tokens = Registry.getTokenRegistry();
+        const p = AccountRiskProfile.from([
+          TokenBalance.fromFloat(
+            -1,
+            tokens.getTokenBySymbol(
+              Network.ArbitrumOne,
+              'fETH:fixed@1687392000'
+            )
+          ),
+          TokenBalance.fromFloat(
+            -1,
+            tokens.getTokenBySymbol(
+              Network.ArbitrumOne,
+              'fETH:fixed@1695168000'
+            )
+          ),
+        ]);
+
+        expect(p.settledBalances.length).toBe(1);
+        expect(p.balances.length).toBe(2);
+        expect(p.balances[0].tokenType).toBe('PrimeCash');
+        console.log(p.balances[0].toFloat());
+      });
+    });
   }
 );

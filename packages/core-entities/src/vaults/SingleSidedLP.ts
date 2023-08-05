@@ -3,6 +3,7 @@ import {
   RATE_PRECISION,
   Network,
   getNowSeconds,
+  PRIME_CASH_VAULT_MATURITY,
 } from '@notional-finance/util';
 import { VaultAdapter } from './VaultAdapter';
 import { BaseLiquidityPool } from '../exchanges';
@@ -62,6 +63,16 @@ export class SingleSidedLP extends VaultAdapter {
       this.totalVaultShares.mul(lpTokens.n).div(this.totalLPTokens.n),
       vaultShare
     );
+  }
+
+  convertToPrimeVaultShares(vaultShares: TokenBalance) {
+    // Prime vault shares convert 1-1
+    const token = Registry.getTokenRegistry().getVaultShare(
+      vaultShares.network,
+      vaultShares.vaultAddress,
+      PRIME_CASH_VAULT_MATURITY
+    );
+    return TokenBalance.from(vaultShares.n, token);
   }
 
   getInitialVaultShareValuation(_maturity: number) {
