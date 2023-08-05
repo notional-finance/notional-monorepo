@@ -368,8 +368,6 @@ export function calculate(
           [{} as Record<CalculationFnParams, unknown>, [] as string[]]
         );
 
-        // TODO: if maxwithdraw is specified then supress the calculation...
-
         const inputsSatisfied = requiredArgs.every(
           (r) => inputs[r] !== undefined
         );
@@ -597,7 +595,6 @@ export function postAccountRisk(
     distinctUntilChanged(
       ([, p], [, c]) =>
         p.calculationSuccess === c.calculationSuccess &&
-        p.depositBalance?.hashKey === c.depositBalance?.hashKey &&
         p.collateralBalance?.hashKey === c.collateralBalance?.hashKey &&
         p.debtBalance?.hashKey === c.debtBalance?.hashKey
     ),
@@ -684,7 +681,6 @@ export function postVaultAccountRisk(
     distinctUntilChanged(
       ([, p], [, c]) =>
         p.calculationSuccess === c.calculationSuccess &&
-        p.depositBalance?.hashKey === c.depositBalance?.hashKey &&
         p.collateralBalance?.hashKey === c.collateralBalance?.hashKey &&
         p.debtBalance?.hashKey === c.debtBalance?.hashKey
     ),
@@ -760,6 +756,7 @@ export function buildTransaction(
               populatedTransaction: undefined,
               simulatedResults: undefined,
               transactionError: e.toString(),
+              confirm: false
             });
           })
         );

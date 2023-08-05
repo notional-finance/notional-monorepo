@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { Box } from '@mui/material';
 import {
   CurrencyInput,
@@ -45,23 +45,51 @@ export const DepositInput = React.forwardRef<
   ) => {
     const history = useHistory();
     const {
-      state: { selectedDepositToken, availableDepositTokens, calculateError },
+      state: {
+        selectedDepositToken,
+        availableDepositTokens,
+        calculateError,
+        tradeType,
+        debt,
+      },
       updateState,
     } = context;
     const {
+      maxBalance,
       inputAmount,
       maxBalanceString,
       errorMsg,
       decimalPlaces,
       setInputString,
-    } = useDepositInput(selectedDepositToken, isWithdraw);
+    } = useDepositInput(
+      selectedDepositToken,
+      isWithdraw,
+      tradeType === 'Withdraw' ? debt : undefined
+    );
 
     useEffect(() => {
       updateState({
         depositBalance: inputAmount,
+        maxWithdraw: false,
       });
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [updateState, inputAmount?.hashKey]);
+
+    const onMaxValue = useCallback(() => {
+      if (maxBalance && inputRef.current) {
+        inputRef.current.setInputOverride(
+          maxBalance?.toUnderlying().toExactString(),
+          false
+        );
+
+        updateState({
+          maxWithdraw: true,
+          calculationSuccess: true,
+          depositBalance: undefined,
+          debtBalance: maxBalance.neg(),
+        });
+      }
+    }, [maxBalance, inputRef, updateState]);
 
     if (!availableDepositTokens || !selectedDepositToken)
       return <PageLoading />;
@@ -88,6 +116,7 @@ export const DepositInput = React.forwardRef<
           warningMsg={warningMsg}
           currencies={availableDepositTokens?.map((t) => t.symbol) || []}
           defaultValue={selectedDepositToken}
+          onMaxValue={tradeType === 'Withdraw' ? onMaxValue : undefined}
           onSelectChange={(newToken: string | null) => {
             // Always clear the input string when we change tokens
             inputRef.current?.setInputOverride('');

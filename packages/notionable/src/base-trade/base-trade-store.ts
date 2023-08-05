@@ -57,6 +57,7 @@ interface UserInputs {
   /** Symbol of the selected deposit token, if any */
   selectedDepositToken?: string;
   redeemToWETH: boolean;
+  maxWithdraw: boolean;
 }
 
 /** Calculated values based on token inputs */
@@ -161,7 +162,7 @@ export interface VaultTradeState extends BaseTradeState {
   /** Account risk factors after changes applied to the account */
   postAccountRisk?: ReturnType<VaultAccountRiskProfile['getAllRiskFactors']>;
   /** All the prior vault balances (if any) */
-  priorVaultBalances?: TokenBalance[]
+  priorVaultBalances?: TokenBalance[];
 }
 
 export const initialBaseTradeState: BaseTradeState = {
@@ -172,6 +173,7 @@ export const initialBaseTradeState: BaseTradeState = {
   inputsSatisfied: false,
   redeemToWETH: false,
   calculationSuccess: false,
+  maxWithdraw: false,
 };
 
 export function isVaultTrade(tradeType?: VaultTradeType | TradeType) {

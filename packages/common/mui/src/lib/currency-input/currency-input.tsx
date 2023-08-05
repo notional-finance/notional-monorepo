@@ -26,7 +26,7 @@ export interface CurrencyInputProps extends CurrencySelectProps {
 }
 
 export interface CurrencyInputHandle {
-  setInputOverride: (input: string) => void;
+  setInputOverride: (input: string, emitChange?: boolean) => void;
 }
 
 const NumberFormatter = React.forwardRef<
@@ -64,8 +64,8 @@ export const useCurrencyInputRef = () => {
   const currencyInputRef = useRef<CurrencyInputHandle>(null);
   const isInputRefDefined = !!currencyInputRef.current;
   const setCurrencyInput = useCallback(
-    (input: string) => {
-      currencyInputRef.current?.setInputOverride(input);
+    (input: string, emitChange?: boolean) => {
+      currencyInputRef.current?.setInputOverride(input, emitChange);
     },
     // isInputRefDefined must be in the dependencies otherwise the useCallback will not
     // properly trigger to generate a new function when the input ref becomes defined
@@ -100,9 +100,9 @@ export const CurrencyInput = React.forwardRef<
   // This imperative handle allows parent components to override the input
   // string directly without doing weird useEffect roundabout logic
   React.useImperativeHandle(ref, () => ({
-    setInputOverride: (input: string) => {
+    setInputOverride: (input: string, emitChange = true) => {
       setValue(input);
-      onInputChange(input);
+      if (emitChange) onInputChange(input);
     },
   }));
 

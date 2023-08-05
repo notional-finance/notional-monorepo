@@ -388,7 +388,8 @@ export function useTradeSummary(state: BaseTradeState) {
       summary.push(getTradeDetail(netDebtBalance, 'Debt', 'deposit', intl));
     if (netAssetBalance?.isZero() === false)
       summary.push(getTradeDetail(netAssetBalance, 'Asset', 'deposit', intl));
-  } else if (depositBalance?.isNegative()) {
+  } else if (depositBalance?.isNegative() || depositBalance === undefined) {
+    // NOTE: deposit balance is undefined during max withdraw
     if (netAssetBalance?.isZero() === false)
       summary.push(
         getTradeDetail(netAssetBalance.neg(), 'Asset', 'withdraw', intl)
