@@ -214,7 +214,7 @@ export class TokenBalance {
     return this.scale(RATE_PRECISION, denominator);
   }
 
-  /** Returns a BigNumber ratio with a corresponding token balance */
+  /** Returns a BigNumber ratio in RATE_PRECISION */
   ratioWith(denominator: TokenBalance) {
     return this.scale(RATE_PRECISION, denominator).n;
   }

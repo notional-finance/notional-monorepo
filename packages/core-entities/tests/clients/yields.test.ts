@@ -90,8 +90,8 @@ describe.withRegistry(
         Network.ArbitrumOne
       );
 
-      expect(y.length).toBe(6);
-      y.forEach((y) => {
+      expect(y.length).toBe(12);
+      y.filter((y) => !!y.leveraged).forEach((y) => {
         expect(y.token.tokenType).toBe('VaultShare');
         expect(y.token.underlying).toBe(y.leveraged?.debtToken.underlying);
         expect(y.leveraged?.leverageRatio).toBeGreaterThan(0);

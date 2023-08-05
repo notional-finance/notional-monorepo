@@ -8,7 +8,10 @@ import {
   Registry,
 } from '@notional-finance/core-entities';
 import { RiskFactorLimit, RiskFactorKeys } from '@notional-finance/risk-engine';
-import { CalculationFnParams } from '@notional-finance/transaction';
+import {
+  CalculationFn,
+  CalculationFnParams,
+} from '@notional-finance/transaction';
 import { filterEmpty, RATE_PRECISION } from '@notional-finance/util';
 import {
   Observable,
@@ -19,7 +22,13 @@ import {
   map,
 } from 'rxjs';
 import { isHashable } from '../utils';
-import { BaseTradeState, TokenOption, isVaultTrade } from './base-trade-store';
+import {
+  BaseTradeState,
+  TokenOption,
+  TradeType,
+  VaultTradeType,
+  isVaultTrade,
+} from './base-trade-store';
 import { getTradeConfig } from './logic';
 
 export function calculate(
@@ -209,127 +218,165 @@ export function calculate(
       let collateralOptions: TokenOption[] | undefined;
       let debtOptions: TokenOption[] | undefined;
 
-      if (calculateCollateralOptions) {
-        const satisfied = requiredArgs
+      if (
+        calculateCollateralOptions &&
+        collateralTokens &&
+        requiredArgs
           .filter((c) => c !== 'collateral')
-          .every((r) => inputs[r] !== undefined);
-        const collateralPool = inputs['collateralPool']
-          ? (inputs['collateralPool'] as fCashMarket)
-          : undefined;
-
-        collateralOptions = satisfied
-          ? collateralTokens?.map((c) => {
-              const i = { ...inputs, collateral: c };
-              let interestRate = collateralPool?.getSpotInterestRate(
-                Registry.getTokenRegistry().unwrapVaultToken(c)
-              );
-              try {
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                const { collateralBalance } = calculationFn(i as any) as {
-                  collateralBalance: TokenBalance;
-                };
-
-                if (
-                  collateralPool &&
-                  collateralBalance.unwrapVaultToken().tokenType === 'fCash'
-                ) {
-                  interestRate =
-                    (collateralPool.getSlippageRate(
-                      collateralBalance.unwrapVaultToken(),
-                      0
-                    ) *
-                      100) /
-                    RATE_PRECISION;
-                }
-
-                return {
-                  token: c,
-                  balance: collateralBalance,
-                  interestRate,
-                };
-              } catch (e) {
-                console.error(e);
-                return {
-                  token: c,
-                  interestRate: undefined,
-                  error: (e as Error).toString(),
-                };
-              }
-            })
-          : undefined;
+          .every((r) => inputs[r] !== undefined) &&
+        inputs['collateralPool'] !== undefined
+      ) {
+        collateralOptions = computeCollateralOptions(
+          inputs,
+          calculationFn,
+          collateralTokens,
+          inputs['collateralPool'] as fCashMarket
+        );
       }
 
-      if (calculateDebtOptions) {
-        const satisfied = requiredArgs
+      if (
+        calculateDebtOptions &&
+        debtTokens &&
+        requiredArgs
           .filter((c) => c !== 'debt')
           .filter((c) => (isVaultTrade(tradeType) ? c !== 'collateral' : true))
-          .every((r) => inputs[r] !== undefined);
-        const debtPool = inputs['debtPool']
-          ? (inputs['debtPool'] as fCashMarket)
-          : undefined;
-
-        debtOptions = satisfied
-          ? debtTokens?.map((d) => {
-              const i = { ...inputs, debt: d };
-              try {
-                const isVault = isVaultTrade(tradeType);
-                if (isVault) {
-                  // Switch to the matching vault share token for vault trades
-                  if (!d.vaultAddress || !d.maturity)
-                    throw Error('Invalid debt token');
-                  i['collateral'] = Registry.getTokenRegistry().getVaultShare(
-                    d.network,
-                    d.vaultAddress,
-                    d.maturity
-                  );
-                }
-
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                const { debtBalance } = calculationFn(i as any) as {
-                  debtBalance: TokenBalance;
-                };
-                let interestRate: number | undefined;
-
-                if (
-                  debtPool &&
-                  debtBalance.unwrapVaultToken().tokenType === 'fCash'
-                ) {
-                  // If there is a vault, apply the additional fee rate against the debt
-                  const feeRate =
-                    isVault && d.vaultAddress
-                      ? Registry.getConfigurationRegistry().getVaultConfig(
-                          d.network,
-                          d.vaultAddress
-                        ).feeRateBasisPoints
-                      : 0;
-
-                  interestRate =
-                    (debtPool.getSlippageRate(
-                      debtBalance.unwrapVaultToken(),
-                      feeRate
-                    ) *
-                      100) /
-                    RATE_PRECISION;
-                }
-
-                return {
-                  token: d,
-                  balance: debtBalance,
-                  interestRate,
-                };
-              } catch (e) {
-                console.error(e);
-                return {
-                  token: d,
-                  interestRate: undefined,
-                  error: (e as Error).toString(),
-                };
-              }
-            })
-          : undefined;
+          .every((r) => inputs[r] !== undefined) &&
+        inputs['debtPool'] !== undefined
+      ) {
+        debtOptions = computeDebtOptions(
+          inputs,
+          calculationFn,
+          debtTokens,
+          inputs['debtPool'] as fCashMarket,
+          tradeType
+        );
       }
 
       return { ...u, collateralOptions, debtOptions };
     })
   );
+}
+
+function computeCollateralOptions(
+  inputs: Record<CalculationFnParams, unknown>,
+  calculationFn: CalculationFn,
+  options: TokenDefinition[],
+  fCashMarket: fCashMarket
+): TokenOption[] | undefined {
+  return options.map((c) => {
+    const i = { ...inputs, collateral: c };
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { collateralBalance, netRealizedCollateralBalance } = calculationFn(
+        i as any
+      ) as {
+        collateralBalance: TokenBalance;
+        netRealizedCollateralBalance: TokenBalance;
+      };
+
+      return {
+        token: c,
+        balance: collateralBalance,
+        interestRate: _getTradedInterestRate(
+          netRealizedCollateralBalance,
+          collateralBalance,
+          fCashMarket
+        ),
+      };
+    } catch (e) {
+      console.error(e);
+      return {
+        token: c,
+        interestRate: undefined,
+        error: (e as Error).toString(),
+      };
+    }
+  });
+}
+
+function computeDebtOptions(
+  inputs: Record<CalculationFnParams, unknown>,
+  calculationFn: CalculationFn,
+  options: TokenDefinition[],
+  fCashMarket: fCashMarket,
+  tradeType: TradeType | VaultTradeType | undefined
+) {
+  return options.map((d) => {
+    const i = { ...inputs, debt: d };
+    try {
+      if (isVaultTrade(tradeType)) {
+        // Switch to the matching vault share token for vault trades
+        if (!d.vaultAddress || !d.maturity) throw Error('Invalid debt token');
+        i['collateral'] = Registry.getTokenRegistry().getVaultShare(
+          d.network,
+          d.vaultAddress,
+          d.maturity
+        );
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { debtBalance, netRealizedDebtBalance } = calculationFn(
+        i as any
+      ) as {
+        debtBalance: TokenBalance;
+        netRealizedDebtBalance: TokenBalance;
+      };
+
+      return {
+        token: d,
+        balance: debtBalance,
+        interestRate: _getTradedInterestRate(
+          netRealizedDebtBalance,
+          debtBalance,
+          fCashMarket,
+          tradeType
+        ),
+      };
+    } catch (e) {
+      console.error(e);
+      return {
+        token: d,
+        interestRate: undefined,
+        error: (e as Error).toString(),
+      };
+    }
+  });
+}
+
+function _getTradedInterestRate(
+  realized: TokenBalance,
+  amount: TokenBalance,
+  fCashMarket: fCashMarket,
+  tradeType?: TradeType | VaultTradeType
+) {
+  let interestRate: number | undefined;
+  if (amount.tokenType === 'fCash') {
+    interestRate = fCashMarket.getImpliedInterestRate(realized, amount);
+  } else if (amount.tokenType === 'PrimeCash') {
+    // Increases or decreases the prime supply accordingly
+    const utilization = fCashMarket.getPrimeCashUtilization(amount, undefined);
+    interestRate = fCashMarket.getPrimeSupplyRate(utilization);
+  } else if (
+    amount.tokenType === 'PrimeDebt' &&
+    (tradeType === 'LeveragedLend' || tradeType === 'LeveragedNToken')
+  ) {
+    // If borrowing for leverage it is prime supply + prime debt
+    const utilization = fCashMarket.getPrimeCashUtilization(
+      amount.toPrimeCash().neg(),
+      amount.neg()
+    );
+    interestRate = fCashMarket.getPrimeDebtRate(utilization);
+  } else if (amount.tokenType === 'PrimeDebt') {
+    // If borrowing and withdrawing then it is just prime debt increase. This
+    // includes vault debt
+    const utilization = fCashMarket.getPrimeCashUtilization(
+      undefined,
+      amount.neg()
+    );
+    interestRate = fCashMarket.getPrimeDebtRate(utilization);
+  }
+
+  return interestRate !== undefined
+    ? (interestRate * 100) / RATE_PRECISION
+    : undefined;
 }
