@@ -5,7 +5,6 @@ import {
   resetOnNetworkChange,
   initState,
   priorAccountRisk,
-  calculate,
   postAccountRisk,
   availableTokens,
   buildTransaction,
@@ -19,6 +18,7 @@ import {
   selectedPool,
   selectedToken,
 } from './selectors';
+import { calculate } from './trade-calculation';
 
 export function createTradeManager(
   state$: Observable<TradeState>,

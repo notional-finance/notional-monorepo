@@ -1,6 +1,7 @@
 query AllOracles {
   oracles(where: { oracleType_in: [
     Chainlink,
+    # TODO: can we filter matured fCash oracle rates here?
     fCashOracleRate,
     fCashSettlementRate,
     PrimeCashToUnderlyingExchangeRate,
