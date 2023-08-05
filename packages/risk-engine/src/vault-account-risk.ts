@@ -95,6 +95,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
   }
 
   get vaultDebt() {
+    // TODO: need to accrue debt amount on prime debt
     return (
       this.debts.find((t) => t.tokenType === 'VaultDebt') ||
       TokenBalance.zero(
