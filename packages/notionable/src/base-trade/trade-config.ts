@@ -258,10 +258,14 @@ export const TradeConfiguration = {
     ],
     collateralFilter: (t, _, s) =>
       (t.tokenType === 'fCash' || t.tokenType === 'PrimeCash') &&
-      onlySameCurrency(t, s.deposit),
+      onlySameCurrency(t, s.deposit) &&
+      (s.debt?.tokenType === 'PrimeDebt' ? t.tokenType !== 'PrimeCash' : true),
     debtFilter: (t, _, s) =>
       (t.tokenType === 'fCash' || t.tokenType === 'PrimeDebt') &&
-      onlySameCurrency(t, s.deposit),
+      onlySameCurrency(t, s.deposit) &&
+      (s.collateral?.tokenType === 'PrimeCash'
+        ? t.tokenType !== 'PrimeDebt'
+        : true),
     calculateCollateralOptions: true,
     calculateDebtOptions: true,
     transactionBuilder: LeveragedOrDeleverageLend,

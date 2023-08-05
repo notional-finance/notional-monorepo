@@ -272,9 +272,9 @@ export function postAccountRisk(
         p.debtBalance?.hashKey === c.debtBalance?.hashKey
     ),
     map(([account, { calculationSuccess, collateralBalance, debtBalance }]) => {
-      if (calculationSuccess && account) {
+      if (calculationSuccess && (collateralBalance || debtBalance)) {
         const profile = AccountRiskProfile.simulate(
-          account.balances.filter((t) => t.tokenType !== 'Underlying'),
+          account?.balances.filter((t) => t.tokenType !== 'Underlying') || [],
           [collateralBalance, debtBalance].filter(
             (b) => b !== undefined
           ) as TokenBalance[]
