@@ -10,22 +10,32 @@ export function convertFloatToRate(rate: number) {
   return (rate * RATE_PRECISION) / 100;
 }
 
-export function formatLeverageRatio(ratio: number, digits = 3) {
-  return `${formatNumber(ratio, digits)}x`;
+export function formatLeverageRatio(ratio: number, decimals = 3) {
+  return `${formatNumber(ratio, decimals)}x`;
 }
 
-export function formatNumber(num: string | number, digits = 4) {
+export function formatNumber(num: string | number, decimals = 4) {
   const cleanedNumber =
     typeof num === 'string' ? num.replace(allCommas, '') : num;
 
   return parseFloat(`${cleanedNumber}`).toLocaleString('en-US', {
-    minimumFractionDigits: digits,
-    maximumFractionDigits: digits,
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
   });
 }
 
-export function formatNumberAsPercent(num: number | string, digits = 2) {
-  return `${formatNumber(num, digits)}%`;
+export function formatNumberToDigits(num: string | number, digits = 3) {
+  const cleanedNumber =
+    typeof num === 'string' ? num.replace(allCommas, '') : num;
+
+  return parseFloat(`${cleanedNumber}`).toLocaleString('en-US', {
+    minimumSignificantDigits: digits,
+    maximumSignificantDigits: digits,
+  });
+}
+
+export function formatNumberAsPercent(num: number | string, decimals = 2) {
+  return `${formatNumber(num, decimals)}%`;
 }
 
 export function formatNumberAsAbbr(

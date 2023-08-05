@@ -13,7 +13,7 @@ import {
 } from '../../typography/typography';
 import { FormattedMessage } from 'react-intl';
 import { NotionalTheme, colors } from '@notional-finance/styles';
-import { formatNumberAsPercent } from '@notional-finance/helpers';
+import { formatNumberToDigits } from '@notional-finance/helpers';
 
 interface AllRates {
   rate: string;
@@ -37,7 +37,9 @@ export const CurrencyFixed = (props: CurrencyFixedProps) => {
   const theme = useTheme();
   const { route, symbol, buttonText, rate, allRates, apyTagline } = props;
   const [hovered, setHovered] = useState(false);
-  const formattedRate = formatNumberAsPercent(rate, 2);
+  // NOTE: limits digits to 3 because of the longer APY suffix, higher
+  // apy rates will get cut off.
+  const formattedRate = `${formatNumberToDigits(rate, 3)}%`;
 
   return (
     <Link to={route}>
