@@ -9,7 +9,10 @@ import {
 import { useMaturitySelect } from '@notional-finance/trade';
 import { useCallback, useEffect, useState } from 'react';
 import { FormattedMessage, defineMessage } from 'react-intl';
-import { BaseTradeContext, MaturityData } from '@notional-finance/notionable-hooks';
+import {
+  BaseTradeContext,
+  MaturityData,
+} from '@notional-finance/notionable-hooks';
 
 const Container = styled(Box)``;
 const SelectorBox = styled(Box)(
@@ -109,6 +112,13 @@ export function LeveragedLendMaturitySelector({
     onSelect: onSelectCollateral,
   } = useMaturitySelect('Collateral', context);
 
+  const lendVariableRate = collateralMaturityData.find(
+    (m) => m.maturity === 0
+  )?.tradeRate;
+  const borrowVariableRate = debtMaturityData.find(
+    (m) => m.maturity === 0
+  )?.tradeRate;
+
   return (
     <Container>
       <InputLabel
@@ -127,7 +137,7 @@ export function LeveragedLendMaturitySelector({
             onSelect={onSelectCollateral}
           />
         ) : (
-          <VariableMaturityCard variableRate={2.23} />
+          <VariableMaturityCard variableRate={lendVariableRate} />
         )}
       </SelectorBox>
       <Box
@@ -159,7 +169,7 @@ export function LeveragedLendMaturitySelector({
           <FormattedMessage {...(isDebtVariable ? Variable : Fixed)} />
         </H5>
         {isDebtVariable ? (
-          <VariableMaturityCard variableRate={2.23} />
+          <VariableMaturityCard variableRate={borrowVariableRate} />
         ) : (
           <Maturities
             maturityData={debtMaturityData.filter((m) => m.maturity > 0)}
@@ -172,7 +182,11 @@ export function LeveragedLendMaturitySelector({
   );
 }
 
-const VariableMaturityCard = ({ variableRate }: { variableRate: number }) => {
+const VariableMaturityCard = ({
+  variableRate,
+}: {
+  variableRate: number | undefined;
+}) => {
   return (
     <MaturityCard
       selected
