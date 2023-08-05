@@ -115,12 +115,12 @@ export const AssetSelectDropdown = ({
               const largeFigure = shouldCountUp ? (
                 <CountUp
                   value={o.largeFigure}
-                  suffix={o.largeFigureSuffix}
+                  suffix={` ${o.largeFigureSuffix}`}
                   decimals={3}
                 />
               ) : (
                 <span>
-                  {o.largeFigure.toFixed(3)}
+                  {o.largeFigure.toFixed(3)}&nbsp;
                   {o.largeFigureSuffix}
                 </span>
               );

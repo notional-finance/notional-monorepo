@@ -478,8 +478,8 @@ export class TokenBalance {
       // for fiat currency conversions
       const eth = tokens.getTokenBySymbol(this.network, 'ETH');
       const valueInETH = this.toToken(eth);
-      const ethInAllNetwork = TokenBalance.fromFloat(
-        valueInETH.toFloat(),
+      const ethInAllNetwork = TokenBalance.from(
+        valueInETH.n,
         tokens.getTokenBySymbol(Network.All, 'ETH')
       );
       return ethInAllNetwork.toToken(fiatToken);

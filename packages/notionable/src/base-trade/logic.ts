@@ -214,6 +214,7 @@ export function availableTokens(
       const availableDebtTokens = listedTokens
         .filter(
           (t) =>
+            t.tokenType === 'nToken' ||
             t.tokenType === 'PrimeDebt' ||
             (t.tokenType === 'VaultDebt' &&
               (t.maturity || 0) > getNowSeconds()) ||
@@ -594,7 +595,6 @@ export function postAccountRisk(
     distinctUntilChanged(
       ([, p], [, c]) =>
         p.calculationSuccess === c.calculationSuccess &&
-        p.depositBalance?.hashKey === c.depositBalance?.hashKey &&
         p.collateralBalance?.hashKey === c.collateralBalance?.hashKey &&
         p.debtBalance?.hashKey === c.debtBalance?.hashKey
     ),
@@ -681,7 +681,6 @@ export function postVaultAccountRisk(
     distinctUntilChanged(
       ([, p], [, c]) =>
         p.calculationSuccess === c.calculationSuccess &&
-        p.depositBalance?.hashKey === c.depositBalance?.hashKey &&
         p.collateralBalance?.hashKey === c.collateralBalance?.hashKey &&
         p.debtBalance?.hashKey === c.debtBalance?.hashKey
     ),
@@ -691,12 +690,11 @@ export function postVaultAccountRisk(
         {
           calculationSuccess,
           collateralBalance,
-          collateral,
           debtBalance,
           vaultAddress,
         },
       ]) => {
-        if (calculationSuccess && vaultAddress && collateral) {
+        if (calculationSuccess && vaultAddress && collateralBalance) {
           const profile = VaultAccountRiskProfile.simulate(
             vaultAddress,
             account?.balances.filter((t) => t.tokenType !== 'Underlying') || [],
@@ -757,6 +755,7 @@ export function buildTransaction(
               populatedTransaction: undefined,
               simulatedResults: undefined,
               transactionError: e.toString(),
+              confirm: false
             });
           })
         );

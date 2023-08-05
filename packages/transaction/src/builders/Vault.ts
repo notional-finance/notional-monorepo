@@ -106,7 +106,7 @@ export function ExitVault({
     collateralBalance?.tokenType !== 'VaultShare' ||
     debtBalance?.tokenType !== 'VaultDebt' ||
     debtBalance?.token.vaultAddress !== collateralBalance.token.vaultAddress ||
-    collateralBalance.isNegative()
+    !collateralBalance.isNegative()
   )
     throw Error('Collateral balance, debt balance must be defined');
 
@@ -128,9 +128,15 @@ export function ExitVault({
     debtBalanceNum = debtBalance.n;
   }
 
-  const { slippageRate: minLendRate, underlyingOut } = getVaultSlippageRate(
-    debtBalance.neg()
-  );
+  let minLendRate: number;
+  let underlyingOut: TokenBalance;
+  try {
+    ({ slippageRate: minLendRate, underlyingOut } =
+      getVaultSlippageRate(debtBalance));
+  } catch {
+    minLendRate = 0;
+    underlyingOut = debtBalance.neg().toUnderlying();
+  }
 
   const vaultAdapter = Registry.getVaultRegistry().getVaultAdapter(
     network,
@@ -140,7 +146,7 @@ export function ExitVault({
   const vaultData = vaultAdapter.getRedeemParameters(
     address,
     collateralBalance.maturity,
-    collateralBalance,
+    collateralBalance.neg(),
     underlyingOut
   );
 

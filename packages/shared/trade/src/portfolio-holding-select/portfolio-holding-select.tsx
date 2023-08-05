@@ -1,9 +1,10 @@
 import { AssetSelectDropdown } from '@notional-finance/mui';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { MessageDescriptor } from 'react-intl';
 import {
   BaseTradeContext,
   useAccountDefinition,
+  usePortfolioRiskProfile,
 } from '@notional-finance/notionable-hooks';
 import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
 import { useParams } from 'react-router';
@@ -33,20 +34,23 @@ export const PortfolioHoldingSelect = ({
     state: { collateral, debt },
   } = context;
   const { account } = useAccountDefinition();
+  const profile = usePortfolioRiskProfile();
   const selectedToken = isWithdraw ? debt : collateral;
   const { selectedToken: selectedParamToken } = useParams<{
     selectedToken: string;
   }>();
 
-  const options = account?.balances.filter(filterBalances)?.map((b) => {
-    return {
-      token: b.token,
-      // TODO: this should show the max withdraw amount
-      largeFigure: b.toUnderlying().toFloat(),
-      largeFigureSuffix: b.underlying.symbol,
-      caption: b.toFiat('USD').toDisplayString(),
-    };
-  });
+  const options = useMemo(() => {
+    return account?.balances.filter(filterBalances)?.map((b) => {
+      const maxWithdraw = profile.maxWithdraw(b.token);
+      return {
+        token: b.token,
+        largeFigure: maxWithdraw?.toUnderlying().toFloat() || 0,
+        largeFigureSuffix: b.underlying.symbol,
+        caption: maxWithdraw?.toFiat('USD').toDisplayStringWithSymbol(),
+      };
+    });
+  }, [account, filterBalances, profile]);
 
   const onSelect = useCallback(
     (id: string | null) => {

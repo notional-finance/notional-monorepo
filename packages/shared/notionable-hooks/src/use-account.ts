@@ -81,6 +81,19 @@ export function usePrimeCashBalance(selectedToken: string | undefined | null) {
   return useBalance(primeCash?.symbol);
 }
 
+export function useVaultRiskProfile(vaultAddress?: string) {
+  const { account } = useAccountDefinition();
+  const vaultBalances = account?.balances.filter(
+    (b) => b.token.vaultAddress === vaultAddress
+  );
+
+  if (vaultAddress && vaultBalances?.length) {
+    return VaultAccountRiskProfile.from(vaultAddress, vaultBalances);
+  }
+
+  return undefined;
+}
+
 export function useVaultRiskProfiles() {
   const { account } = useAccountDefinition();
   // Groups vault positions per vault address

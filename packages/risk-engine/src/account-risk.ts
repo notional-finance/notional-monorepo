@@ -295,6 +295,21 @@ export class AccountRiskProfile extends BaseRiskProfile {
     const balance = this.collateral.find((t) => t.token.id === token.id);
     if (!balance) return TokenBalance.zero(token);
 
+    // If the token's value is haircut to zero then we still have to take into
+    // account net local
+    const { haircut } =
+      Registry.getConfigurationRegistry().getCurrencyHaircutAndBuffer(
+        balance.underlying
+      );
+
+    if (haircut === 0) {
+      const netLocal = this.totalCurrencyAssetsRiskAdjusted(balance.currencyId)
+        .add(this.totalCurrencyDebtsRiskAdjusted(balance.currencyId))
+        .toToken(token);
+
+      return netLocal.lt(balance) ? netLocal : balance;
+    }
+
     const maxWithdraw = this.getWithdrawRequiredToMaintainRiskFactor(token, {
       riskFactor: 'freeCollateral',
       limit: TokenBalance.zero(this.denom(this.defaultSymbol)),
