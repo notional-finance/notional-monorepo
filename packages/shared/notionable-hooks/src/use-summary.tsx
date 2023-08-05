@@ -469,7 +469,7 @@ export function usePortfolioComparison(
         isCurrentNegative: current.isNegative(),
         updated: b.toFiat(fiat).toDisplayStringWithSymbol(3, true),
         isUpdatedNegative: b.isNegative(),
-        sortOrder: b.sub(current).toFloat(),
+        sortOrder: b.sub(current).abs().toFloat(),
         changeType,
       };
     })
@@ -526,8 +526,10 @@ function getLiquidationPrices(
       label: `${
         isCrossCurrency ? `${collateralTitle}/${debtTitle}` : debtTitle
       } Liquidation Price`,
-      current: current?.price.toUnderlying().toDisplayStringWithSymbol(3, true) || '-',
-      updated: updated?.price.toUnderlying().toDisplayStringWithSymbol(3, true) || '-',
+      current:
+        current?.price.toUnderlying().toDisplayStringWithSymbol(3, true) || '-',
+      updated:
+        updated?.price.toUnderlying().toDisplayStringWithSymbol(3, true) || '-',
       changeType: getChangeType(
         current?.price.toFloat(),
         updated?.price.toFloat()

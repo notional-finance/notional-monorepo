@@ -9,7 +9,11 @@ import {
   populateNotionalTxnAndGas,
   PopulateTransactionInputs,
 } from './common';
-import { MintNToken, RedeemAndWithdrawNToken, RedeemToPortfolioNToken } from './nToken';
+import {
+  MintNToken,
+  RedeemAndWithdrawNToken,
+  RedeemToPortfolioNToken,
+} from './nToken';
 
 export function LendFixed({
   address,
@@ -118,7 +122,6 @@ export function BorrowFixed({
           debtBalance.tokenType === 'fCash' ? [debtBalance] : []
         ),
       ].sort((a, b) => (a.currencyId as number) - (b.currencyId as number)),
-      getETHValue(depositBalance),
     ]
   );
 }
@@ -357,7 +360,7 @@ export function ConvertAsset(i: PopulateTransactionInputs) {
     i.debtBalance?.tokenType === 'PrimeDebt' &&
     i.collateralBalance?.tokenType === 'nToken'
   ) {
-    return MintNToken(i)
+    return MintNToken(i);
   }
 
   throw Error('Invalid debt balance');
