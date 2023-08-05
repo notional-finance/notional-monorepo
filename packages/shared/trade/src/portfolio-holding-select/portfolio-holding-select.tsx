@@ -42,15 +42,25 @@ export const PortfolioHoldingSelect = ({
 
   const options = useMemo(() => {
     return account?.balances.filter(filterBalances)?.map((b) => {
-      const maxWithdraw = profile.maxWithdraw(b.token);
-      return {
-        token: b.token,
-        largeFigure: maxWithdraw?.toUnderlying().toFloat() || 0,
-        largeFigureSuffix: b.underlying.symbol,
-        caption: maxWithdraw?.toFiat('USD').toDisplayStringWithSymbol(),
-      };
+      if (isWithdraw) {
+        const maxWithdraw = profile.maxWithdraw(b.token);
+        return {
+          token: b.token,
+          largeFigure: maxWithdraw?.toUnderlying().toFloat() || 0,
+          largeFigureSuffix: b.underlying.symbol,
+        };
+      } else {
+        // isRepay
+        const underlying = b.toUnderlying();
+        return {
+          token: b.token,
+          largeFigure: underlying.toFloat() || 0,
+          largeFigureSuffix: b.underlying.symbol,
+          caption: underlying.toFiat('USD').toDisplayStringWithSymbol(),
+        };
+      }
     });
-  }, [account, filterBalances, profile]);
+  }, [account, filterBalances, profile, isWithdraw]);
 
   const onSelect = useCallback(
     (id: string | null) => {

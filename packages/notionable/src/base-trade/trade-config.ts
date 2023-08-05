@@ -58,7 +58,7 @@ function offsettingBalance(
   } else if (t.tokenType === 'nToken') {
     return !!account?.balances.find((b) => b.token.id === t.id);
   } else {
-    throw Error('Unknown offsetting token');
+    return false
   }
 }
 
