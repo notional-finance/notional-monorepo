@@ -84,7 +84,7 @@ export function usePrimeCashBalance(selectedToken: string | undefined | null) {
 export function useVaultRiskProfile(vaultAddress?: string) {
   const { account } = useAccountDefinition();
   const vaultBalances = account?.balances.filter(
-    (b) => b.vaultAddress === vaultAddress
+    (b) => b.token.vaultAddress === vaultAddress
   );
 
   if (vaultAddress && vaultBalances?.length) {

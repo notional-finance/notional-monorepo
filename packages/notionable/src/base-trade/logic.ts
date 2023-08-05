@@ -690,12 +690,11 @@ export function postVaultAccountRisk(
         {
           calculationSuccess,
           collateralBalance,
-          collateral,
           debtBalance,
           vaultAddress,
         },
       ]) => {
-        if (calculationSuccess && vaultAddress && collateral) {
+        if (calculationSuccess && vaultAddress && collateralBalance) {
           const profile = VaultAccountRiskProfile.simulate(
             vaultAddress,
             account?.balances.filter((t) => t.tokenType !== 'Underlying') || [],

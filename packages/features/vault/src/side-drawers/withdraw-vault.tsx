@@ -1,5 +1,5 @@
 import { Box } from '@mui/material';
-import { useContext, useEffect } from 'react';
+import { useCallback, useContext, useEffect, useMemo } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { INTERNAL_TOKEN_DECIMALS } from '@notional-finance/util';
 import {
@@ -33,6 +33,24 @@ export const WithdrawVault = () => {
   const priorLeverageRatio = priorAccountRisk?.leverageRatio || null;
   const profile = useVaultRiskProfile(vaultAddress);
 
+  const maxWithdrawUnderlying = useMemo(() => {
+    return profile?.maxWithdraw().toUnderlying();
+  }, [profile]);
+
+  const onMaxValue = useCallback(() => {
+    if (profile && maxWithdrawUnderlying) {
+      setCurrencyInput(maxWithdrawUnderlying.toExactString(), false);
+
+      updateState({
+        maxWithdraw: true,
+        calculationSuccess: true,
+        depositBalance: undefined,
+        collateralBalance: profile.vaultShares.neg(),
+        debtBalance: profile.vaultDebt.neg(),
+      });
+    }
+  }, [profile, setCurrencyInput, maxWithdrawUnderlying, updateState]);
+
   useEffect(() => {
     // Set the default leverage ratio to the prior account leverage ratio
     if (!riskFactorLimit && priorLeverageRatio !== null) {
@@ -47,9 +65,6 @@ export const WithdrawVault = () => {
 
   if (!deposit || !primaryBorrowSymbol || priorLeverageRatio === null)
     return <PageLoading />;
-
-  // TODO: need to figure out this value...
-  const maxWithdrawAmount = TokenBalance.zero(deposit);
 
   return (
     <VaultSideDrawer context={context}>
@@ -77,27 +92,16 @@ export const WithdrawVault = () => {
               });
             }
           }}
-          onMaxValue={() => {
-            // A risk factor of zero means fully withdrawing debt and collateral
-            setCurrencyInput(maxWithdrawAmount.toExactString());
-
-            updateState({
-              // TODO: set the collateral balance instead.
-              depositBalance: maxWithdrawAmount.neg(),
-              riskFactorLimit: {
-                riskFactor: 'leverageRatio',
-                limit: 0,
-              },
-            });
-          }}
+          onMaxValue={maxWithdrawUnderlying && onMaxValue}
           errorMsg={
             depositBalance &&
-            maxWithdrawAmount &&
-            depositBalance.gt(maxWithdrawAmount) ? (
+            maxWithdrawUnderlying &&
+            depositBalance.abs().gt(maxWithdrawUnderlying) ? (
               <FormattedMessage
                 {...messages['WithdrawVault'].aboveMaxWithdraw}
                 values={{
-                  maxWithdraw: maxWithdrawAmount?.toDisplayStringWithSymbol(),
+                  maxWithdraw:
+                    maxWithdrawUnderlying?.toDisplayStringWithSymbol(),
                 }}
               />
             ) : undefined

@@ -204,6 +204,8 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     // NOTE: this parameter is unused because the returned units is always in vault share denomination
     _collateral: TokenDefinition = this.vaultShareDefinition
   ): TokenBalance | null {
+    if (this.vaultShares.isZero() || this.vaultDebt.isZero()) return null;
+
     // (minCollateralRatio + 1) * debtOutstanding = vaultSharesValue
     const config = Registry.getConfigurationRegistry();
     const vaultConfig = config.getVaultConfig(this.network, this.vaultAddress);
@@ -259,26 +261,37 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
   }
 
   override maxWithdraw(
-    token: TokenDefinition = this.vaultShares.token
+    _token: TokenDefinition = this.vaultShares.token
   ): TokenBalance {
-    if (token.id !== this.vaultShares.tokenId)
-      throw Error('Must be vault shares');
-
-    let costToRepay: TokenBalance;
-    if (this.vaultDebt.maturity === PRIME_CASH_VAULT_MATURITY) {
-      costToRepay = this.vaultDebt.unwrapVaultToken().toUnderlying();
-    } else {
+    let costToRepay: TokenBalance | undefined;
+    if (this.vaultDebt.maturity !== PRIME_CASH_VAULT_MATURITY) {
       const fCash = Registry.getExchangeRegistry().getfCashMarket(
         this.network,
         this.vaultDebt.currencyId
       );
 
-      const { tokensOut } = fCash.calculateTokenTrade(
-        this.vaultDebt.unwrapVaultToken().neg(),
-        0
-      );
-      costToRepay = tokensOut
-        .sub(this.vaultCash.unwrapVaultToken())
+      try {
+        const { tokensOut } = fCash.calculateTokenTrade(
+          this.vaultDebt.unwrapVaultToken(),
+          0
+        );
+
+        costToRepay = tokensOut
+          .add(this.vaultCash.unwrapVaultToken())
+          .toUnderlying()
+          .neg();
+      } catch {
+        costToRepay = undefined;
+      }
+    }
+
+    if (!costToRepay) {
+      // If the trading fails or the debt is in prime debt, repay at a
+      // 1-1 prime cash price
+      costToRepay = this.vaultDebt
+        .unwrapVaultToken()
+        .toPrimeCash()
+        .add(this.vaultCash.unwrapVaultToken())
         .toUnderlying()
         .neg();
     }
