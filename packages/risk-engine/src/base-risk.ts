@@ -50,6 +50,46 @@ export abstract class BaseRiskProfile implements RiskFactors {
 
   public network: Network;
   public balances: TokenBalance[];
+  public settledBalances: TokenBalance[];
+
+  protected _settle(
+    b: TokenBalance,
+    blockTime = getNowSeconds()
+  ): TokenBalance {
+    if (!b.token.maturity || b.token.maturity > blockTime) return b;
+
+    this.settledBalances.push(b);
+
+    if (b.tokenType === 'fCash') {
+      return b.toPrimeCash();
+    } else if (b.tokenType === 'VaultDebt') {
+      const primeVaultDebt = Registry.getTokenRegistry().getVaultDebt(
+        b.network,
+        b.vaultAddress,
+        PRIME_CASH_VAULT_MATURITY
+      );
+      return TokenBalance.from(
+        b.unwrapVaultToken().toPrimeCash().n,
+        primeVaultDebt
+      );
+    } else if (b.tokenType === 'VaultCash') {
+      const primeVaultCash = Registry.getTokenRegistry().getVaultCash(
+        b.network,
+        b.vaultAddress,
+        PRIME_CASH_VAULT_MATURITY
+      );
+      // No conversion required for vault cash. It is always prime cash.
+      return TokenBalance.from(b.unwrapVaultToken().n, primeVaultCash);
+    } else if (b.tokenType === 'VaultShare') {
+      const adapter = Registry.getVaultRegistry().getVaultAdapter(
+        b.network,
+        b.vaultAddress
+      );
+      return adapter.convertToPrimeVaultShares(b);
+    }
+
+    throw Error('Invalid settle balance');
+  }
 
   /** Takes a set of token balances to create a new risk profile */
   constructor(
@@ -57,7 +97,8 @@ export abstract class BaseRiskProfile implements RiskFactors {
     public defaultSymbol: SymbolOrID,
     _network?: Network
   ) {
-    this.balances = BaseRiskProfile.merge(balances);
+    this.settledBalances = [];
+    this.balances = BaseRiskProfile.merge(balances.map((b) => this._settle(b)));
 
     if (this.balances.length === 0) {
       // Allow this to pass but none of the methods will really return any values
@@ -135,9 +176,7 @@ export abstract class BaseRiskProfile implements RiskFactors {
   /****** Summary Factors ******/
 
   protected _toPercent(n: TokenBalance, d: TokenBalance) {
-    return (
-      (n.ratioWith(d).abs().toNumber() * PERCENTAGE_BASIS) / RATE_PRECISION
-    );
+    return (n.ratioWith(d).toNumber() * PERCENTAGE_BASIS) / RATE_PRECISION;
   }
 
   protected _fromPercent(n: number) {
@@ -170,7 +209,7 @@ export abstract class BaseRiskProfile implements RiskFactors {
     const assets = this.totalAssets();
     if (assets.isZero()) return 0;
 
-    return this._toPercent(this.totalDebt(), assets);
+    return this._toPercent(this.totalDebt().neg(), assets);
   }
 
   liquidationPrice(debt: TokenDefinition, collateral: TokenDefinition) {
@@ -196,7 +235,9 @@ export abstract class BaseRiskProfile implements RiskFactors {
       case 'healthFactor':
         return this.healthFactor() as R;
       case 'leverageRatio':
-        return this.leverageRatio() as R;
+        return this.leverageRatio(
+          ...((args || []) as Parameters<RiskFactors['leverageRatio']>)
+        ) as R;
       case 'liquidationPrice':
         return this.liquidationPrice(
           ...(args as Parameters<RiskFactors['liquidationPrice']>)
@@ -242,6 +283,9 @@ export abstract class BaseRiskProfile implements RiskFactors {
     const value = this.getRiskFactor(riskFactor, args);
     const riskFactorInRP = this._getRiskFactorInRP(riskFactor, limit);
     const netLocal = this.netCollateralAvailable(localUnderlyingId);
+    const totalAssets = this.totalAssets(localUnderlyingId);
+    const totalDebt = this.totalDebt(localUnderlyingId);
+
     // NOTE: multiples should move the risk factor closer towards limit == value, so
     // if the limit is satisfied the next iteration of the loop will move closer towards
     // the limit. If the limit is satisfied by lte then the limit should be the denominator
@@ -265,16 +309,16 @@ export abstract class BaseRiskProfile implements RiskFactors {
         initialEstimateInRP =
           (riskFactorInRP * estimateScalarInRP) / RATE_PRECISION;
       } else if (netLocal.isPositive()) {
-        initialEstimateInRP = this.totalDebt()
+        initialEstimateInRP = totalDebt
           .neg()
-          .sub(this.totalAssets().mulInRatePrecision(riskFactorInRP))
+          .sub(totalAssets.mulInRatePrecision(riskFactorInRP))
           .divInRatePrecision(riskFactorInRP)
           .scaleTo(RATE_DECIMALS)
           .toNumber();
       } else {
-        initialEstimateInRP = this.totalDebt()
+        initialEstimateInRP = totalDebt
           .neg()
-          .sub(this.totalAssets().mulInRatePrecision(riskFactorInRP))
+          .sub(totalAssets.mulInRatePrecision(riskFactorInRP))
           .scaleTo(RATE_DECIMALS)
           .toNumber();
       }
@@ -294,17 +338,17 @@ export abstract class BaseRiskProfile implements RiskFactors {
         initialEstimateInRP =
           (riskFactorInRP * estimateScalarInRP) / RATE_PRECISION;
       } else if (netLocal.isPositive()) {
-        initialEstimateInRP = this.totalDebt()
+        initialEstimateInRP = totalDebt
           .neg()
           .mulInRatePrecision(riskFactorInRP)
-          .sub(this.totalAssets())
+          .sub(totalAssets)
           .scaleTo(RATE_DECIMALS)
           .toNumber();
       } else {
-        initialEstimateInRP = this.totalDebt()
+        initialEstimateInRP = totalDebt
           .neg()
           .mulInRatePrecision(riskFactorInRP)
-          .sub(this.totalAssets())
+          .sub(totalAssets)
           .divInRatePrecision(riskFactorInRP)
           .scaleTo(RATE_DECIMALS)
           .toNumber();
@@ -322,29 +366,30 @@ export abstract class BaseRiskProfile implements RiskFactors {
       //  limit = (debt - repay) / (asset - debt - repay)
       //  repay = [debt * (1 + limit) - limit * asset] / (1 - limit)
       let initialEstimateInRP: number;
-      if (value === null && this.totalAssets().isZero()) {
+
+      if (value === null && totalAssets.isZero()) {
         initialEstimateInRP =
           (riskFactorInRP * estimateScalarInRP) / RATE_PRECISION;
       } else if (value === null) {
         // If there is no leverage, then use the limit as the number of debt
         // units times the total assets.
-        initialEstimateInRP = this.totalAssets()
+        initialEstimateInRP = totalAssets
           .mulInRatePrecision(riskFactorInRP)
           .scaleTo(RATE_DECIMALS)
           .toNumber();
       } else if (netLocal.isPositive()) {
-        initialEstimateInRP = this.totalDebt()
+        initialEstimateInRP = totalDebt
           .neg()
           .mulInRatePrecision(RATE_PRECISION + riskFactorInRP)
-          .sub(this.totalAssets().mulInRatePrecision(riskFactorInRP))
+          .sub(totalAssets.mulInRatePrecision(riskFactorInRP))
           .divInRatePrecision(riskFactorInRP)
           .scaleTo(RATE_DECIMALS)
           .toNumber();
       } else {
-        initialEstimateInRP = this.totalDebt()
+        initialEstimateInRP = totalDebt
           .neg()
           .mulInRatePrecision(RATE_PRECISION + riskFactorInRP)
-          .sub(this.totalAssets().mulInRatePrecision(riskFactorInRP))
+          .sub(totalAssets.mulInRatePrecision(riskFactorInRP))
           .divInRatePrecision(RATE_PRECISION - riskFactorInRP)
           .scaleTo(RATE_DECIMALS)
           .toNumber();
@@ -484,12 +529,14 @@ export abstract class BaseRiskProfile implements RiskFactors {
       // NOTE: this multiple is in "denom" terms. Need to convert it to local underlying
       // terms before we multiply it to get the debt figure. Use the currency id so that vault
       // debts convert properly.
-      const defaultToken = this.denom(this.defaultSymbol);
+      const defaultToken = this.denom(localUnderlyingId);
       const debtBalance =
         debt.currencyId === defaultToken.currencyId
-          ? TokenBalance.unit(debt).mulInRatePrecision(debtUnits).neg()
+          ? TokenBalance.unit(debt)
+              .mulInRatePrecision(Math.floor(debtUnits))
+              .neg()
           : TokenBalance.unit(defaultToken)
-              .mulInRatePrecision(debtUnits)
+              .mulInRatePrecision(Math.floor(debtUnits))
               .toToken(debt)
               .neg();
 
@@ -620,7 +667,7 @@ export abstract class BaseRiskProfile implements RiskFactors {
   /** Abstract Risk Factor Implementations **/
   abstract freeCollateral(): TokenBalance;
   abstract collateralRatio(): number | null;
-  abstract leverageRatio(): number | null;
+  abstract leverageRatio(currencyId?: number): number | null;
   abstract healthFactor(): number | null;
   abstract collateralLiquidationThreshold(
     collateral: TokenDefinition

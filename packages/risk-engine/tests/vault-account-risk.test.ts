@@ -16,6 +16,61 @@ describe.withForkAndRegistry(
     const vaultAddress = '0xae38f4b960f44d86e798f36a374a1ac3f2d859fa';
     const maturity = 1695168000;
 
+    describe('Settled Vault Account', () => {
+      const settledMaturity = 1687392000;
+      it('converts a settled vault account to prime', () => {
+        const config = Registry.getConfigurationRegistry();
+        Registry.getTokenRegistry().registerToken(
+          config.vaultIdToTokenDefinition(
+            config.getVaultIDs(
+              Network.ArbitrumOne,
+              vaultAddress,
+              settledMaturity
+            ).primaryCashID,
+            Network.ArbitrumOne
+          )
+        );
+
+        const profile = VaultAccountRiskProfile.from(vaultAddress, [
+          TokenBalance.fromFloat(
+            10,
+            Registry.getTokenRegistry().getVaultShare(
+              Network.ArbitrumOne,
+              vaultAddress,
+              settledMaturity
+            )
+          ),
+          TokenBalance.fromFloat(
+            -8,
+            Registry.getTokenRegistry().getVaultDebt(
+              Network.ArbitrumOne,
+              vaultAddress,
+              settledMaturity
+            )
+          ),
+          TokenBalance.fromFloat(
+            2,
+            Registry.getTokenRegistry().getVaultCash(
+              Network.ArbitrumOne,
+              vaultAddress,
+              settledMaturity
+            )
+          ),
+        ]);
+
+        // Vault shares and vault cash convert 1-1
+        expect(profile.settledBalances.length).toBe(3);
+        expect(profile.vaultShares.maturity).toBe(PRIME_CASH_VAULT_MATURITY);
+        expect(profile.vaultShares.toFloat()).toBe(10);
+        expect(profile.vaultCash.maturity).toBe(PRIME_CASH_VAULT_MATURITY);
+        expect(profile.vaultCash.toFloat()).toBe(2);
+
+        // This converts at a non 1-1 rate.
+        expect(profile.vaultDebt.maturity).toBe(PRIME_CASH_VAULT_MATURITY);
+        expect(profile.vaultDebt.toUnderlying().toFloat()).toBeLessThan(-8);
+      });
+    });
+
     describe('Risk Factors', () => {
       it('calculates empty leverage ratio and collateral ratio', () => {
         const vaultRiskProfile = VaultAccountRiskProfile.empty(
@@ -145,7 +200,7 @@ describe.withForkAndRegistry(
         expect(vaultRiskProfile.maxWithdraw().token.id).toBe(
           vaultRiskProfile.vaultShares.tokenId
         );
-        expect(vaultRiskProfile.maxWithdraw().toFloat()).toBeCloseTo(2.143);
+        expect(vaultRiskProfile.maxWithdraw().toFloat()).toBeCloseTo(2.118);
       });
 
       it('Prime Cash', () => {
@@ -205,7 +260,7 @@ describe.withForkAndRegistry(
         expect(vaultRiskProfile.maxWithdraw().token.id).toBe(
           vaultRiskProfile.vaultShares.tokenId
         );
-        expect(vaultRiskProfile.maxWithdraw().toFloat()).toBeCloseTo(4.135);
+        expect(vaultRiskProfile.maxWithdraw().toFloat()).toBeCloseTo(4.113);
       });
     });
   }

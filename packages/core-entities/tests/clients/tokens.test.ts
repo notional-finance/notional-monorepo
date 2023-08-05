@@ -13,7 +13,7 @@ import {
 import { OracleRegistryClient, TokenRegistryClient } from '../../src/client';
 import { BigNumber } from 'ethers';
 
-const ETH_PRICE = 1906.686295;
+const ETH_PRICE = 1893.67;
 describe.withRegistry(
   {
     network: Network.ArbitrumOne,
@@ -233,42 +233,36 @@ describe.withRegistry(
       let ETH: TokenDefinition;
       let USDC: TokenDefinition;
       let FRAX: TokenDefinition;
+
       beforeAll(() => {
         ETH = tokens.getTokenBySymbol(Network.ArbitrumOne, 'ETH');
         USDC = tokens.getTokenBySymbol(Network.ArbitrumOne, 'USDC');
         FRAX = tokens.getTokenBySymbol(Network.ArbitrumOne, 'FRAX');
       });
 
-      it('ETH Asset', () => {
-        const eth = TokenBalance.fromFloat(1, ETH);
-        const riskAdjusted = eth.toRiskAdjustedUnderlying();
-        expect(riskAdjusted.toDisplayStringWithSymbol(3)).toBe(`0.810 ETH`);
-      });
-
-      it('ETH Debt', () => {
-        const eth = TokenBalance.fromFloat(-1, ETH);
-        const riskAdjusted = eth.toRiskAdjustedUnderlying();
-        expect(riskAdjusted.toDisplayStringWithSymbol(3)).toBe(`-1.240 ETH`);
-      });
+      /** NOTE: ETH risk adjustments must be applied manually */
 
       it('Neg USDC to ETH', () => {
-        const riskAdjusted = TokenBalance.fromFloat(-ETH_PRICE, USDC)
-          .toRiskAdjustedUnderlying()
-          .toToken(ETH);
+        const riskAdjusted = TokenBalance.fromFloat(-ETH_PRICE, USDC).toToken(
+          ETH,
+          'Debt'
+        );
         expect(riskAdjusted.toDisplayStringWithSymbol(3)).toBe(`-1.090 ETH`);
       });
 
       it('Pos USDC to ETH', () => {
-        const riskAdjusted = TokenBalance.fromFloat(ETH_PRICE, USDC)
-          .toRiskAdjustedUnderlying()
-          .toToken(ETH);
+        const riskAdjusted = TokenBalance.fromFloat(ETH_PRICE, USDC).toToken(
+          ETH,
+          'Asset'
+        );
         expect(riskAdjusted.toDisplayStringWithSymbol(3)).toBe(`0.920 ETH`);
       });
 
       it('Pos FRAX to ETH', () => {
-        const riskAdjusted = TokenBalance.fromFloat(ETH_PRICE, FRAX)
-          .toRiskAdjustedUnderlying()
-          .toToken(ETH);
+        const riskAdjusted = TokenBalance.fromFloat(ETH_PRICE, FRAX).toToken(
+          ETH,
+          'Asset'
+        );
         expect(riskAdjusted.toDisplayStringWithSymbol(3)).toBe(`0.000 ETH`);
       });
 
@@ -279,7 +273,9 @@ describe.withRegistry(
         );
         const usdc = TokenBalance.fromFloat(-1, fusdc);
         const riskAdjusted = usdc.toRiskAdjustedUnderlying();
-        expect(riskAdjusted.toFloat()).toBeCloseTo(-1.067);
+        const underlying = usdc.toUnderlying();
+        expect(riskAdjusted).toLtTB(underlying);
+        expect(riskAdjusted.isNegative()).toBe(true);
       });
 
       it('Pos fUSDC to USDC', () => {
@@ -289,14 +285,18 @@ describe.withRegistry(
         );
         const usdc = TokenBalance.unit(fusdc);
         const riskAdjusted = usdc.toRiskAdjustedUnderlying();
-        expect(riskAdjusted.toFloat()).toBeCloseTo(0.9016);
+        const underlying = usdc.toUnderlying();
+        expect(riskAdjusted).toLtTB(underlying);
+        expect(riskAdjusted.isPositive()).toBe(true);
       });
 
       it('nUSDC to USDC', () => {
         const nUSDC = tokens.getTokenBySymbol(Network.ArbitrumOne, 'nUSDC');
         const usdc = TokenBalance.unit(nUSDC);
         const riskAdjusted = usdc.toRiskAdjustedUnderlying();
-        expect(riskAdjusted.toFloat()).toBeCloseTo(0.83);
+        const underlying = usdc.toUnderlying();
+        expect(riskAdjusted).toLtTB(underlying);
+        expect(riskAdjusted.isPositive()).toBe(true);
       });
     });
   }

@@ -48,6 +48,8 @@ export abstract class VaultAdapter {
 
   abstract getInitialVaultShareValuation(maturity: number): ExchangeRate;
 
+  abstract convertToPrimeVaultShares(vaultShares: TokenBalance): TokenBalance;
+
   abstract getNetVaultSharesCost(netVaultShares: TokenBalance): {
     netUnderlyingForVaultShares: TokenBalance;
     feesPaid: TokenBalance;

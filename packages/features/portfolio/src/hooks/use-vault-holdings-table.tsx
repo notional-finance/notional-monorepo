@@ -133,7 +133,7 @@ export const useVaultHoldingsTable = () => {
       (b) => b.token.id === v.vaultDebt.tokenId
     );
     const assetPnL = balanceStatements?.find(
-      (b) => b.token.id === v.vaultShareDefinition.id
+      (b) => b.token.id === v.vaultShares.tokenId
     );
     const profit = (
       assetPnL?.totalProfitAndLoss ||

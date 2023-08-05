@@ -7,9 +7,13 @@ import {
   MaturityCard,
 } from '@notional-finance/mui';
 import { useMaturitySelect } from '@notional-finance/trade';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FormattedMessage, defineMessage } from 'react-intl';
-import { BaseTradeContext, MaturityData } from '@notional-finance/notionable-hooks';
+import {
+  BaseTradeContext,
+  MaturityData,
+  useCurrency,
+} from '@notional-finance/notionable-hooks';
 
 const Container = styled(Box)``;
 const SelectorBox = styled(Box)(
@@ -34,20 +38,21 @@ export function LeveragedLendMaturitySelector({
   const [isDebtVariable, setDebtVariable] = useState(true);
   const {
     updateState,
-    state: {
-      availableDebtTokens,
-      availableCollateralTokens,
-      debt,
-      collateral,
-      deposit,
-    },
+    state: { debt, collateral, deposit },
   } = context;
-  const primeDebt = availableDebtTokens?.find(
-    (t) => t.tokenType === 'PrimeDebt'
-  );
-  const primeCash = availableCollateralTokens?.find(
-    (t) => t.tokenType === 'PrimeCash'
-  );
+  const { primeCash: allPrimeCash, primeDebt: allPrimeDebt } = useCurrency();
+  const { primeDebt, primeCash } = useMemo(() => {
+    const primeDebt = allPrimeDebt.find(
+      (t) => t.currencyId === deposit?.currencyId
+    );
+    const primeCash = allPrimeCash.find(
+      (t) => t.currencyId === deposit?.currencyId
+    );
+    return {
+      primeCash,
+      primeDebt,
+    };
+  }, [allPrimeDebt, allPrimeCash, deposit]);
 
   const swapDebtOptions = useCallback(
     (isDebtVariable: boolean) => {
@@ -109,6 +114,13 @@ export function LeveragedLendMaturitySelector({
     onSelect: onSelectCollateral,
   } = useMaturitySelect('Collateral', context);
 
+  const lendVariableRate = collateralMaturityData.find(
+    (m) => m.maturity === 0
+  )?.tradeRate;
+  const borrowVariableRate = debtMaturityData.find(
+    (m) => m.maturity === 0
+  )?.tradeRate;
+
   return (
     <Container>
       <InputLabel
@@ -127,7 +139,7 @@ export function LeveragedLendMaturitySelector({
             onSelect={onSelectCollateral}
           />
         ) : (
-          <VariableMaturityCard variableRate={2.23} />
+          <VariableMaturityCard variableRate={lendVariableRate} />
         )}
       </SelectorBox>
       <Box
@@ -159,7 +171,7 @@ export function LeveragedLendMaturitySelector({
           <FormattedMessage {...(isDebtVariable ? Variable : Fixed)} />
         </H5>
         {isDebtVariable ? (
-          <VariableMaturityCard variableRate={2.23} />
+          <VariableMaturityCard variableRate={borrowVariableRate} />
         ) : (
           <Maturities
             maturityData={debtMaturityData.filter((m) => m.maturity > 0)}
@@ -172,7 +184,11 @@ export function LeveragedLendMaturitySelector({
   );
 }
 
-const VariableMaturityCard = ({ variableRate }: { variableRate: number }) => {
+const VariableMaturityCard = ({
+  variableRate,
+}: {
+  variableRate: number | undefined;
+}) => {
   return (
     <MaturityCard
       selected

@@ -234,20 +234,22 @@ export const useSpotMaturityData = (
 ): MaturityData[] => {
   const { nonLeveragedYields } = useAllMarkets();
 
-  return (
-    tokens?.map((t) => {
-      const _t = Registry.getTokenRegistry().unwrapVaultToken(t);
-      const spotRate =
-        nonLeveragedYields.find((y) => y.token.id === _t.id)?.totalAPY || 0;
+  return useMemo(() => {
+    return (
+      tokens?.map((t) => {
+        const _t = Registry.getTokenRegistry().unwrapVaultToken(t);
+        const spotRate =
+          nonLeveragedYields.find((y) => y.token.id === _t.id)?.totalAPY || 0;
 
-      return {
-        token: t,
-        tokenId: t.id,
-        tradeRate: spotRate,
-        maturity: t.maturity || 0,
-        hasLiquidity: true,
-        tradeRateString: formatInterestRate(spotRate),
-      };
-    }) || []
-  );
+        return {
+          token: t,
+          tokenId: t.id,
+          tradeRate: spotRate,
+          maturity: t.maturity || 0,
+          hasLiquidity: true,
+          tradeRateString: formatInterestRate(spotRate),
+        };
+      }) || []
+    );
+  }, [tokens, nonLeveragedYields]);
 };

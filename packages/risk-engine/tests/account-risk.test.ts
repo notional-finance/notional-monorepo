@@ -164,6 +164,17 @@ describe.withForkAndRegistry(
           },
         ],
       },
+      {
+        name: 'Leveraged fCash Spread',
+        balances: [
+          [16, 'fUSDC:fixed@1702944000'],
+          [-14.5, 'pdUSD Coin'],
+        ],
+        expected: [
+          { factor: 'freeCollateral', expected: [-0.00015795, 'ETH'] },
+          { factor: 'healthFactor', expected: -32.96 },
+        ],
+      },
     ];
 
     const riskFactors: {
@@ -365,6 +376,51 @@ describe.withForkAndRegistry(
         TokenBalance.fromFloat(-100, FRAX),
       ]);
       expect(p.getAllRiskFactors()).toBeDefined();
+    });
+
+    describe('Settlement', () => {
+      it('Settles Negative fCash to Prime Cash', () => {
+        const tokens = Registry.getTokenRegistry();
+        const p = AccountRiskProfile.from([
+          TokenBalance.fromFloat(
+            -1,
+            tokens.getTokenBySymbol(
+              Network.ArbitrumOne,
+              'fETH:fixed@1687392000'
+            )
+          ),
+          TokenBalance.fromFloat(
+            -1,
+            tokens.getTokenBySymbol(
+              Network.ArbitrumOne,
+              'fETH:fixed@1695168000'
+            )
+          ),
+        ]);
+
+        expect(p.settledBalances.length).toBe(1);
+        expect(p.balances.length).toBe(2);
+        expect(p.balances[0].tokenType).toBe('PrimeCash');
+        expect(p.balances[0].toUnderlying().toFloat()).toBeLessThan(-1);
+      });
+
+      it('Settles Positive fCash to Prime Cash', () => {
+        const tokens = Registry.getTokenRegistry();
+        const p = AccountRiskProfile.from([
+          TokenBalance.fromFloat(
+            1,
+            tokens.getTokenBySymbol(
+              Network.ArbitrumOne,
+              'fETH:fixed@1687392000'
+            )
+          ),
+        ]);
+
+        expect(p.settledBalances.length).toBe(1);
+        expect(p.balances.length).toBe(1);
+        expect(p.balances[0].tokenType).toBe('PrimeCash');
+        expect(p.balances[0].toUnderlying().toFloat()).toBeGreaterThan(1);
+      });
     });
   }
 );

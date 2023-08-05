@@ -5,6 +5,7 @@ import {
   LabelValue,
   Maturities,
   TabToggle,
+  CountUp,
 } from '@notional-finance/mui';
 import { BaseTradeContext } from '@notional-finance/notionable-hooks';
 import { useEffect, useState } from 'react';
@@ -32,7 +33,7 @@ export function VariableFixedMaturityToggle({
 }: ToggleMaturitySelectProps) {
   const [selectedTabIndex, setSelectedTabIndex] = useState(VARIABLE);
   const {
-    state: { availableDebtTokens, debt },
+    state: { debt },
   } = context;
 
   const { maturityData, selectedfCashId, onSelect } = useMaturitySelect(
@@ -56,10 +57,12 @@ export function VariableFixedMaturityToggle({
   );
 
   /** Handle the toggle selection */
-  const primeDebtId = availableDebtTokens?.find(
-    (t) =>
-      t.tokenType === 'PrimeDebt' || t.maturity === PRIME_CASH_VAULT_MATURITY
-  )?.id;
+  const primeDebt = maturityData.find(
+    (m) =>
+      m.token.tokenType === 'PrimeDebt' ||
+      m.maturity === PRIME_CASH_VAULT_MATURITY
+  );
+  const primeDebtId = primeDebt?.tokenId;
   const debtId = debt?.id;
   useEffect(() => {
     if (
@@ -94,7 +97,11 @@ export function VariableFixedMaturityToggle({
         contrast={selectedTabIndex === VARIABLE}
         sx={inheritTransition}
       >
-        {'2.23%'}
+        {primeDebt?.tradeRate ? (
+          <CountUp value={primeDebt?.tradeRate} suffix="%" decimals={2} />
+        ) : (
+          '-'
+        )}
       </LabelValue>
       &nbsp;
       <Label

@@ -11,12 +11,7 @@ import {
 import { Registry } from '../Registry';
 import { Routes } from '../server';
 import { ClientRegistry } from './client-registry';
-import {
-  OracleType,
-  TokenDefinition,
-  TokenType,
-  YieldData,
-} from '../Definitions';
+import { TokenDefinition, TokenType, YieldData } from '../Definitions';
 import { fCashMarket } from '../exchanges';
 import { TokenBalance } from '../token-balance';
 import { BigNumber } from 'ethers';
@@ -34,13 +29,12 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
     return Routes.Yields;
   }
 
-  private _getOracleRate(
+  private _getSpotRate(
     network: Network,
     tokenType: TokenType,
-    oracleType: OracleType,
     blockTime = getNowSeconds()
   ): YieldData[] {
-    const oracles = Registry.getOracleRegistry();
+    const exchanges = Registry.getExchangeRegistry();
     const tokens = Registry.getTokenRegistry();
 
     return tokens
@@ -51,16 +45,11 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
           (t.maturity ? t.maturity > blockTime : true)
       )
       .map((t) => {
-        const key = `${t.underlying}:${t.id}:${oracleType}`;
-        const o = oracles.getLatestFromSubject(network, key, 0);
-        if (!o)
-          throw Error(
-            `Oracle Not Found: ${t.tokenType} ${t.maturity} ${oracleType}`
-          );
+        if (!t.currencyId) throw Error('Missing currency id');
         if (!t.underlying) throw Error(`Token has no underlying`);
-
-        const interestAPY =
-          (o.latestRate.rate.toNumber() * 100) / RATE_PRECISION;
+        const market = exchanges.getfCashMarket(network, t.currencyId);
+        const interestAPY = market.getSpotInterestRate(t) || 0;
+        const underlying = tokens.getTokenByID(network, t.underlying);
 
         let nativeTokenAPY: number | undefined = undefined;
         if (tokenType === 'PrimeCash' || tokenType === 'PrimeDebt') {
@@ -68,7 +57,6 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
           nativeTokenAPY = 0;
         }
 
-        const underlying = tokens.getTokenByID(network, t.underlying);
         return {
           token: t,
           tvl: t.totalSupply?.toUnderlying() || TokenBalance.zero(underlying),
@@ -90,26 +78,18 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
   }
 
   getPrimeCashYield(network: Network) {
-    return this._getOracleRate(
-      network,
-      'PrimeCash',
-      'PrimeCashSpotInterestRate'
-    );
+    return this._getSpotRate(network, 'PrimeCash');
   }
 
   getPrimeDebtYield(network: Network) {
-    return this._getOracleRate(
-      network,
-      'PrimeDebt',
-      'PrimeDebtSpotInterestRate'
-    );
+    return this._getSpotRate(network, 'PrimeDebt');
   }
 
   getfCashYield(network: Network) {
     const exchanges = Registry.getExchangeRegistry();
     const tokens = Registry.getTokenRegistry();
 
-    return this._getOracleRate(network, 'fCash', 'fCashSpotRate')
+    return this._getSpotRate(network, 'fCash')
       .filter(
         (y) =>
           y.token.isFCashDebt === false &&

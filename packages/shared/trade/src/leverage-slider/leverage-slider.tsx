@@ -5,7 +5,7 @@ import {
 } from '@notional-finance/mui';
 import { defineMessage } from 'react-intl';
 import { BaseTradeContext } from '@notional-finance/notionable-hooks';
-import { useEffect } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { MessageDescriptor } from 'react-intl';
 import { TokenBalance } from '@notional-finance/core-entities';
 
@@ -36,10 +36,38 @@ export const LeverageSlider = ({
       deposit,
       maxLeverageRatio,
       defaultLeverageRatio,
+      tradeType,
     },
     updateState,
   } = context;
   const { sliderInputRef, setSliderInput } = useSliderInputRef();
+
+  // Used to set the context for the leverage ratio slider.
+  const args: [number | undefined] | undefined = useMemo(
+    () =>
+      deposit &&
+      (tradeType === 'LeveragedLend' || tradeType === 'LeveragedNToken')
+        ? [deposit.currencyId]
+        : undefined,
+    [deposit, tradeType]
+  );
+
+  const zeroUnderlying = useMemo(() => {
+    return deposit ? TokenBalance.zero(deposit) : undefined;
+  }, [deposit]);
+
+  const onChangeCommitted = useCallback(
+    (leverageRatio: number) => {
+      updateState({
+        riskFactorLimit: {
+          riskFactor: 'leverageRatio',
+          limit: leverageRatio,
+          args,
+        },
+      });
+    },
+    [updateState, args]
+  );
 
   // Sets the initial default leverage ratio
   useEffect(() => {
@@ -54,21 +82,12 @@ export const LeverageSlider = ({
     }
   }, [riskFactorLimit, defaultLeverageRatio, setSliderInput, updateState]);
 
-  const zeroUnderlying = deposit ? TokenBalance.zero(deposit) : undefined;
-
   return defaultLeverageRatio && maxLeverageRatio ? (
     <SliderInput
       ref={sliderInputRef}
       min={0}
       max={maxLeverageRatio}
-      onChangeCommitted={(leverageRatio) =>
-        updateState({
-          riskFactorLimit: {
-            riskFactor: 'leverageRatio',
-            limit: leverageRatio,
-          },
-        })
-      }
+      onChangeCommitted={onChangeCommitted}
       infoMsg={infoMsg}
       errorMsg={errorMsg}
       rightCaption={rightCaption}

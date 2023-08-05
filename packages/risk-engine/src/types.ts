@@ -13,7 +13,7 @@ export interface RiskFactors {
   loanToValue: () => number;
   collateralRatio: () => number | null;
   healthFactor: () => number | null;
-  leverageRatio: () => number | null;
+  leverageRatio: (currencyId?: number) => number | null;
   // Thresholds
   liquidationPrice: (
     debt: TokenDefinition,

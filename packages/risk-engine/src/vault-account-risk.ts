@@ -54,7 +54,6 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     );
   }
 
-  public vaultShareDefinition: TokenDefinition;
   public discountFCash: boolean;
 
   /** Takes a set of token balances to create a new vault account risk profile */
@@ -70,14 +69,13 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     if (network.length != 1 || maturity.length != 1)
       throw Error('All balances must be in same vault, network and maturity');
 
-    const vaultShares = balances.find((b) => b.tokenType === 'VaultShare');
-    if (!vaultShares) throw Error('Vault shares not found');
-    const denom = vaultShares.token.underlying;
+    const denom = balances.find((b) => b.tokenType === 'VaultShare')?.token
+      .underlying;
     if (!denom) throw Error('Underlying not defined');
 
+    // NOTE: this will settle balances inside
     super(balances, denom);
 
-    this.vaultShareDefinition = vaultShares.token;
     this.discountFCash =
       Registry.getConfigurationRegistry().getVaultDiscountfCash(
         network[0],
@@ -97,6 +95,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
   }
 
   get vaultDebt() {
+    // TODO: need to accrue debt amount on prime debt
     return (
       this.debts.find((t) => t.tokenType === 'VaultDebt') ||
       TokenBalance.zero(
@@ -141,7 +140,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     return v;
   }
 
-  netCurrencyDebt() {
+  protected _netCurrencyDebt() {
     return this.allCurrencyIds.map((id) => {
       const underlying = Registry.getTokenRegistry().getUnderlying(
         this.network,
@@ -165,11 +164,9 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
 
   totalAssetsRiskAdjusted(denominated = this.defaultSymbol) {
     const denom = this.denom(denominated);
-    const vaultShareValue =
-      this.balances.find((t) => t.tokenType === 'VaultShare')?.toUnderlying() ||
-      TokenBalance.zero(denom);
+    const vaultShareValue = this.vaultShares.toUnderlying();
 
-    return this.netCurrencyDebt()
+    return this._netCurrencyDebt()
       .map((netDebt) => {
         return netDebt.isPositive()
           ? netDebt.toToken(denom)
@@ -182,7 +179,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
   totalDebtRiskAdjusted(denominated = this.defaultSymbol) {
     const denom = this.denom(denominated);
 
-    return this.netCurrencyDebt()
+    return this._netCurrencyDebt()
       .map((netDebt) => {
         return netDebt.isPositive()
           ? TokenBalance.zero(denom)
@@ -202,7 +199,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
 
   collateralLiquidationThreshold(
     // NOTE: this parameter is unused because the returned units is always in vault share denomination
-    _collateral: TokenDefinition = this.vaultShareDefinition
+    _collateral: TokenDefinition = this.vaultShares.token
   ): TokenBalance | null {
     if (this.vaultShares.isZero() || this.vaultDebt.isZero()) return null;
 
@@ -218,7 +215,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
       );
 
     // This is the relative exchange rate decrease of vault shares to liquidation
-    return oneVaultShareValueAtLiquidation.toToken(this.vaultShareDefinition);
+    return oneVaultShareValueAtLiquidation.toToken(this.vaultShares.token);
   }
 
   freeCollateral(): TokenBalance {
