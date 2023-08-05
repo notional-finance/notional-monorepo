@@ -183,12 +183,23 @@ export class AccountRiskProfile extends BaseRiskProfile {
     }, TokenBalance.zero(denom));
   }
 
-  leverageRatio(): number | null {
-    const totalDebt = this.totalDebt().neg();
-    const totalAssets = this.totalAssets();
+  leverageRatio(currencyId?: number): number | null {
+    let totalAssets: TokenBalance;
+    let totalDebt: TokenBalance;
+    if (currencyId) {
+      // If currencyId is specified, then the leverage ratio
+      // is specific to the denomination currency, without cross
+      // currency haircuts applied.
+      totalAssets = this.totalCurrencyAssetsRiskAdjusted(currencyId);
+      totalDebt = this.totalCurrencyDebtsRiskAdjusted(currencyId);
+    } else {
+      totalDebt = this.totalDebt();
+      totalAssets = this.totalAssets();
+    }
+
     return totalDebt.isZero()
       ? null
-      : totalDebt.ratioWith(totalAssets.sub(totalDebt)).toNumber() /
+      : totalDebt.neg().ratioWith(totalAssets.add(totalDebt)).toNumber() /
           RATE_PRECISION;
   }
 
