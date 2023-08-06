@@ -1,6 +1,6 @@
 import {
+  useAccountDefinition,
   useAccountReady,
-  useAccountWithdrawableTokens,
 } from '@notional-finance/notionable-hooks';
 import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
 import { FormattedMessage } from 'react-intl';
@@ -72,7 +72,9 @@ export const useClaimNote = () => {
 export const usePortfolioButtonBar = () => {
   const accountReady = useAccountReady();
   const { pathname: currentPath } = useLocation();
-  const withdrawableTokens = useAccountWithdrawableTokens();
+  const { account } = useAccountDefinition();
+  const hasWithdrawableTokens = !!account?.balances.find((t) => t.isPositive() && !t.isVaultToken)
+  const hasDebts = !!account?.balances.find((t) => t.isNegative() && !t.isVaultToken)
   const history = useHistory();
 
   const buttonData: TableTitleButtonsType[] = [
@@ -84,11 +86,20 @@ export const usePortfolioButtonBar = () => {
     },
   ];
 
-  if (withdrawableTokens.length > 0) {
+  if (hasWithdrawableTokens) {
     buttonData.push({
       buttonText: <FormattedMessage defaultMessage={'Withdraw'} />,
       callback: () => {
         history.push(`${currentPath}/${PORTFOLIO_ACTIONS.WITHDRAW}`);
+      },
+    });
+  }
+
+  if (hasDebts) {
+    buttonData.push({
+      buttonText: <FormattedMessage defaultMessage={'Deleverage'} />,
+      callback: () => {
+        history.push(`${currentPath}/${PORTFOLIO_ACTIONS.DELEVERAGE}`);
       },
     });
   }

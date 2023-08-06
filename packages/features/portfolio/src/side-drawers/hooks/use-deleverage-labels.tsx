@@ -16,11 +16,8 @@ const ValueString = (inputLabel: MessageDescriptor, b?: TokenBalance) => {
     <Box
       sx={{
         display: 'flex',
-        lineHeight: '1',
-        // NOTE: margin bottom is set to 1 rem to account for removing the line height
-        // of 1.4 and the default gutter size. This is required since the font sizes
-        // are different and therefore the line heights are not the same.
-        marginBottom: '1rem',
+        // NOTE: this is the default gutter for HeadingSubtitle
+        marginBottom: '0.714rem',
         alignItems: 'end',
       }}
     >
@@ -28,7 +25,10 @@ const ValueString = (inputLabel: MessageDescriptor, b?: TokenBalance) => {
       <HeadingSubtitle error={b.isNegative()}>
         &nbsp;{b.toDisplayString(2, true)}&nbsp;{title}&nbsp;
       </HeadingSubtitle>
-      <Label>({b.toFiat('USD').toDisplayStringWithSymbol(3, true)})</Label>
+      {/* Line Height is set manually here to compensate for smaller font size */}
+      <Label sx={{ lineHeight: 1.6 }}>
+        ({b.toFiat('USD').toDisplayStringWithSymbol(3, true)})
+      </Label>
     </Box>
   );
 };
