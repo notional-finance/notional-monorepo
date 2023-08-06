@@ -45,6 +45,7 @@ export interface PopulateTransactionInputs {
   collateralBalance?: TokenBalance;
   redeemToWETH: boolean;
   accountBalances: TokenBalance[];
+  maxWithdraw: boolean;
 }
 
 export function hasExistingCashBalance(
