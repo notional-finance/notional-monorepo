@@ -139,3 +139,11 @@ export function DeleverageNToken({
     ]
   );
 }
+
+export async function Deleverage(i: PopulateTransactionInputs) {
+  if (i.collateralBalance?.tokenType === 'nToken') {
+    return DeleverageNToken(i);
+  } else {
+    return LeveragedOrDeleverageLend(i);
+  }
+}

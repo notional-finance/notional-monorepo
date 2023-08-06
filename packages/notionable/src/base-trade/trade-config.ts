@@ -10,7 +10,7 @@ import {
   calculateDebtCollateralGivenDepositRiskLimit,
   calculateDeposit,
   ConvertAsset,
-  DeleverageNToken,
+  Deleverage,
   Deposit,
   LendFixed,
   LendVariable,
@@ -58,7 +58,7 @@ function offsettingBalance(
   } else if (t.tokenType === 'nToken') {
     return !!account?.balances.find((b) => b.token.id === t.id);
   } else {
-    return false
+    return false;
   }
 }
 
@@ -316,7 +316,7 @@ export const TradeConfiguration = {
    * debtBalance (PrimeDebt, fCash)
    * collateralBalance (PrimeCash, fCash)
    */
-  DeleverageLend: {
+  Deleverage: {
     calculationFn: calculateDebtCollateralGivenDepositRiskLimit,
     requiredArgs: [
       'collateral',
@@ -330,49 +330,10 @@ export const TradeConfiguration = {
     // In a deleverage trade a deposit should be set to zero
     depositFilter: () => false,
     collateralFilter: (t, a, s) =>
-      t.tokenType !== 'nToken' &&
-      onlySameCurrency(t, s.debt) &&
-      offsettingBalance(t, a),
+      onlySameCurrency(t, s.debt) && offsettingBalance(t, a),
     debtFilter: (t, a, s) =>
-      t.tokenType !== 'nToken' &&
-      onlySameCurrency(t, s.collateral) &&
-      offsettingBalance(t, a),
-    transactionBuilder: LeveragedOrDeleverageLend,
-  } as TransactionConfig,
-
-  /**
-   * Inputs:
-   * selectedDebtToken
-   * selectedCollateralToken
-   * riskLimit
-   * set depositBalance = 0
-   *
-   * Outputs:
-   * debtBalance (nToken)
-   * collateralBalance (PrimeCash, fCash)
-   */
-  DeleverageNToken: {
-    calculationFn: calculateDebtCollateralGivenDepositRiskLimit,
-    requiredArgs: [
-      'collateral',
-      'debt',
-      'collateralPool',
-      'debtPool',
-      'depositBalance',
-      'balances',
-      'riskFactorLimit',
-    ],
-    // In a deleverage trade a deposit should be set to zero
-    depositFilter: () => false,
-    collateralFilter: (t, a, s) =>
-      t.tokenType !== 'nToken' &&
-      onlySameCurrency(t, s.debt) &&
-      offsettingBalance(t, a),
-    debtFilter: (t, a, s) =>
-      t.tokenType === 'nToken' &&
-      onlySameCurrency(t, s.collateral) &&
-      offsettingBalance(t, a),
-    transactionBuilder: DeleverageNToken,
+      onlySameCurrency(t, s.collateral) && offsettingBalance(t, a),
+    transactionBuilder: Deleverage,
   } as TransactionConfig,
 
   /****** Portfolio Actions ******/
