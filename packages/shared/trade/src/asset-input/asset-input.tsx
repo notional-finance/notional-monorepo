@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Box } from '@mui/material';
 import {
   CurrencyInput,
@@ -11,6 +11,7 @@ import { useHistory } from 'react-router';
 import { INTERNAL_TOKEN_DECIMALS } from '@notional-finance/util';
 import { useAssetInput } from './use-asset-input';
 import { BaseTradeContext } from '@notional-finance/notionable-hooks';
+import { formatTokenType } from '@notional-finance/helpers';
 
 interface AssetInputProps {
   context: BaseTradeContext;
@@ -19,6 +20,7 @@ interface AssetInputProps {
   newRoute?: (newToken: string | null) => string;
   warningMsg?: React.ReactNode;
   inputLabel?: MessageDescriptor;
+  label?: React.ReactNode;
   errorMsgOverride?: MessageDescriptor;
   inputRef: React.RefObject<CurrencyInputHandle>;
 }
@@ -37,6 +39,8 @@ export const AssetInput = React.forwardRef<
       context,
       newRoute,
       warningMsg,
+      // Manual label override required for deleverage labels
+      label,
       inputLabel,
       inputRef,
       errorMsgOverride,
@@ -88,11 +92,16 @@ export const AssetInput = React.forwardRef<
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [updateState, inputAmount?.hashKey]);
 
-    if (!availableTokens || !selectedToken) return <PageLoading />;
+    const currencies = useMemo(() => {
+      return availableTokens?.map((t) => formatTokenType(t).title) || [];
+    }, [availableTokens]);
 
+    if (!availableTokens) return <PageLoading />;
+
+    // TODO: need to change the dropdown in here...
     return (
       <Box>
-        <InputLabel inputLabel={inputLabel} />
+        {label ? label : <InputLabel inputLabel={inputLabel} />}
         <CurrencyInput
           ref={ref}
           placeholder="0.00000000"
@@ -112,12 +121,14 @@ export const AssetInput = React.forwardRef<
             )
           }
           warningMsg={warningMsg}
-          currencies={availableTokens.map((t) => t.symbol)}
-          defaultValue={selectedToken.symbol}
+          currencies={currencies}
+          defaultValue={
+            selectedToken ? formatTokenType(selectedToken).title : undefined
+          }
           onSelectChange={(newToken: string | null) => {
             // Always clear the input string when we change tokens
             inputRef.current?.setInputOverride('');
-            if (newToken !== selectedToken.symbol && newRoute)
+            if (newToken !== selectedToken?.symbol && newRoute)
               history.push(newRoute(newToken));
           }}
           style={{

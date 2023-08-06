@@ -29,9 +29,10 @@ function onlySameCurrency(t: TokenDefinition, other?: TokenDefinition) {
 
 function offsettingBalance(
   t: TokenDefinition,
-  account: AccountDefinition | null
+  account: AccountDefinition | null,
+  isFCashDebt?: boolean
 ) {
-  if (t.tokenType === 'fCash' && t.isFCashDebt) {
+  if (t.tokenType === 'fCash' && isFCashDebt) {
     return !!account?.balances.find(
       (b) =>
         b.tokenType === 'fCash' &&
@@ -330,9 +331,11 @@ export const TradeConfiguration = {
     // In a deleverage trade a deposit should be set to zero
     depositFilter: () => false,
     collateralFilter: (t, a, s) =>
-      onlySameCurrency(t, s.debt) && offsettingBalance(t, a),
+      t.tokenType !== 'nToken' &&
+      onlySameCurrency(t, s.debt) &&
+      offsettingBalance(t, a, false),
     debtFilter: (t, a, s) =>
-      onlySameCurrency(t, s.collateral) && offsettingBalance(t, a),
+      onlySameCurrency(t, s.collateral) && offsettingBalance(t, a, true),
     transactionBuilder: Deleverage,
   } as TransactionConfig,
 
