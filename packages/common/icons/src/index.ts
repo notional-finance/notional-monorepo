@@ -74,3 +74,11 @@ export * from './lib/note-with-shadow/note-with-shadow';
 export * from './lib/up-and-down-icon/up-and-down-icon';
 export * from './assets/icons/currencies/eth-dai-usdc-wbtc.svg';
 export * from './lib/leverage-header-icons/leverage-header-icons';
+export * from './lib/krw-icon/krw-icon';
+export * from './lib/cny-icon/cny-icon';
+export * from './lib/brl-icon/brl-icon';
+export * from './lib/note-icon/note-icon';
+export * from './lib/eth-icon/eth-icon';
+export * from './lib/sgd-icon/sgd-icon';
+export * from './lib/try-icon/try-icon';
+

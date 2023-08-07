@@ -1,7 +1,10 @@
 import { useCallback } from 'react';
 import { useTheme, Box, styled } from '@mui/material';
 import { LabelValue, SideDrawerActiveButton } from '@notional-finance/mui';
-import { useFiat, useGlobalContext } from '@notional-finance/notionable-hooks';
+import {
+  useFiat,
+  useNotionalContext,
+} from '@notional-finance/notionable-hooks';
 
 import {
   setInLocalStorage,
@@ -38,8 +41,7 @@ export const BaseCurrencyButton = () => {
 };
 
 export const BaseCurrency = () => {
-  const globalState = useGlobalContext();
-  const { updateState } = globalState;
+  const { updateNotional } = useNotionalContext();
   const { allCurrencies } = useBaseCurrency();
   const baseCurrency = useFiat();
   const userSettings = getFromLocalStorage('userSettings');
@@ -48,11 +50,10 @@ export const BaseCurrency = () => {
   const handleConnect = useCallback(
     (key: string) => {
       const selectedCurrency = key as FiatKeys;
+      updateNotional({ baseCurrency: selectedCurrency });
       setInLocalStorage('userSettings', { ...userSettings, baseCurrency: key });
-      updateState({ baseCurrency: selectedCurrency });
-      window.location.reload();
     },
-    [userSettings, updateState]
+    [userSettings, updateNotional]
   );
 
   return (

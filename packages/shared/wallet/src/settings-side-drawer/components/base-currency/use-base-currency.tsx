@@ -1,4 +1,5 @@
-import { styled, Box } from '@mui/material';
+import { useTheme, styled, Box } from '@mui/material';
+import { NotionalTheme } from '@notional-finance/styles';
 import {
   JpyIcon,
   UsdIcon,
@@ -6,11 +7,24 @@ import {
   EurIcon,
   ChfIcon,
   GbpIcon,
+  KrwIcon,
+  CnyIcon,
+  BrlIcon,
+  NoteIcon,
+  EthIcon,
+  SgdIcon,
+  TryIcon,
 } from '@notional-finance/icons';
 import { useFiat } from '@notional-finance/notionable-hooks';
 import { FIAT_NAMES } from '@notional-finance/core-entities/src/config/fiat-config';
 
+interface ImageWrapperProps {
+  active: boolean;
+  theme: NotionalTheme;
+}
+
 export const useBaseCurrency = () => {
+  const theme = useTheme();
   const baseCurrency = useFiat();
   const imgObj = {
     usd: UsdIcon,
@@ -19,6 +33,13 @@ export const useBaseCurrency = () => {
     jpy: JpyIcon,
     chf: ChfIcon,
     gbp: GbpIcon,
+    krw: KrwIcon,
+    cny: CnyIcon,
+    brl: BrlIcon,
+    note: NoteIcon,
+    eth: EthIcon,
+    sgd: SgdIcon,
+    try: TryIcon,
   };
   const allCurrencies = FIAT_NAMES.map((name) => {
     const BaseCurrencyIcon = imgObj[name.toLocaleLowerCase()];
@@ -26,7 +47,7 @@ export const useBaseCurrency = () => {
       label: name,
       key: name,
       Icon: (
-        <ImageWrapper>
+        <ImageWrapper theme={theme} active={baseCurrency === name}>
           {BaseCurrencyIcon && (
             <BaseCurrencyIcon className="base-currency-icon" />
           )}
@@ -42,11 +63,15 @@ export const useBaseCurrency = () => {
   return { allCurrencies, selectedCurrency };
 };
 
-const ImageWrapper = styled(Box)(
-  ({ theme }) => `
-  display: flex;
+const ImageWrapper = styled(Box, {
+  shouldForwardProp: (prop: string) => prop !== 'active',
+})(
+  ({ active, theme }: ImageWrapperProps) => `
+    display: flex;
     svg {
-      fill: ${theme.palette.typography.main};
+      fill: ${
+        active ? theme.palette.typography.accent : theme.palette.primary.dark
+      };
       height: ${theme.spacing(6)};
       width: ${theme.spacing(6)};
     }

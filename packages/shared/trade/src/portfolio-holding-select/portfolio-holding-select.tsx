@@ -58,7 +58,7 @@ export const PortfolioHoldingSelect = ({
           token: b.token,
           largeFigure: underlying.toFloat() || 0,
           largeFigureSuffix: b.underlying.symbol,
-          caption: underlying.toFiat('USD').toDisplayStringWithSymbol(),
+          caption: underlying.toFiat(baseCurrency).toDisplayStringWithSymbol(),
         };
       }
     });
