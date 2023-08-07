@@ -1,18 +1,16 @@
 import {
   AddressButton,
   WalletSwitcher,
-} from './wallet-switcher/wallet-switcher';
-import { Privacy } from './privacy/privacy';
-import { Language, LanguageButton } from './language/language';
-import {
+  Privacy,
+  Language,
+  LanguageButton,
   NetworkSelector,
   NetworkSettingsButton,
-} from './network-selector/network-selector';
-import {
   EnabledCurrencies,
   EnabledCurrenciesButton,
-} from './enabled-currencies/enabled-currencies';
-import { DarkModeToggle } from './dark-mode-toggle/dark-mode-toggle';
+  BaseCurrency,
+  DarkModeToggle,
+} from './components';
 import { useConnect } from '../hooks/use-connect';
 import { FormattedMessage } from 'react-intl';
 import { ReactNode } from 'react';
@@ -153,6 +151,7 @@ export const useSettingsSideDrawer = () => {
           description={'Base Currency option title'}
         />
       ),
+      ViewComponent: BaseCurrency,
       buttonText: '$USD',
     },
   ];

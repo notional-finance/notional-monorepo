@@ -1,42 +1,17 @@
 // import { useCallback } from 'react';
 // import { Box, styled, useTheme } from '@mui/material';
 import { Box, styled } from '@mui/material';
-import { LabelValue } from '@notional-finance/mui';
-// import { LabelValue, SideDrawerActiveButton } from '@notional-finance/mui';
+import { LabelValue, SideDrawerActiveButton } from '@notional-finance/mui';
 // import {
 //   setInLocalStorage,
 //   getFromLocalStorage,
 // } from '@notional-finance/helpers';
 import { FormattedMessage } from 'react-intl';
-// import { useBaseCurrency } from './use-base-currency';
-
-// export const LanguageButton = () => {
-//   const theme = useTheme();
-//   const { language } = getFromLocalStorage('userSettings');
-//   const savedLanguage = language ? language : navigator.language;
-//   const languageOptions = useLanguageOptions();
-//   const langData = languageOptions.find((data) => data.key === savedLanguage);
-//   return (
-//     <Box
-//       sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-//     >
-//       <Box
-//         sx={{
-//           paddingRight: theme.spacing(1),
-//           display: 'flex',
-//           svg: { height: theme.spacing(2.5), width: theme.spacing(2.5) },
-//         }}
-//       >
-//         {langData?.Icon && langData.Icon}
-//       </Box>
-
-//       <FormattedMessage {...messages[savedLanguage]} />
-//     </Box>
-//   );
-// };
+import { useBaseCurrency } from './use-base-currency';
 
 export const BaseCurrency = () => {
-  // const baseCurrencyOptions = useBaseCurrency();
+  const currencyOptions = useBaseCurrency();
+  console.log({ currencyOptions });
   // const defaultKey = userSettings?.language
   //   ? userSettings.language
   //   : navigator.language;
@@ -49,21 +24,25 @@ export const BaseCurrency = () => {
   //   [userSettings]
   // );
 
+  const handleConnect = (key) => {
+    console.log({ key });
+  };
+
   return (
     <WalletSelectorContainer>
       <Title>
         <FormattedMessage defaultMessage="Base Currency" />
       </Title>
-      {/* {languageOptions.map(({ label, Icon, key }, index) => (
+      {currencyOptions.map(({ label, Icon, key }, index) => (
         <SideDrawerActiveButton
           label={label}
           Icon={Icon}
           dataKey={key}
           key={index}
           callback={handleConnect}
-          selectedKey={defaultKey}
+          selectedKey={'USD'}
         />
-      ))} */}
+      ))}
     </WalletSelectorContainer>
   );
 };

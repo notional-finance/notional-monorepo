@@ -4,7 +4,7 @@ import { Chain } from '@web3-onboard/common';
 import { NotionalTheme } from '@notional-finance/styles';
 import { useTheme, Box, styled } from '@mui/material';
 import { Network } from '@notional-finance/util';
-import { chains } from '../../onboard-context';
+import { chains } from '../../../onboard-context';
 import { useNotionalContext } from '@notional-finance/notionable-hooks';
 import { LabelValue, SideDrawerActiveButton } from '@notional-finance/mui';
 

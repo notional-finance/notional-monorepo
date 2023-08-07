@@ -2,11 +2,11 @@ import { useCallback } from 'react';
 import { Box, styled, Radio, useTheme } from '@mui/material';
 import { LabelValue, SideDrawerActiveButton } from '@notional-finance/mui';
 import { EyeIcon } from '@notional-finance/icons';
-import { useConnect } from '../../hooks/use-connect';
+import { useConnect } from '../../../hooks/use-connect';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { trackEvent } from '@notional-finance/helpers';
-import { ViewAsAccount } from '../../view-as-account/view-as-account';
-import { modules } from '../../onboard-context';
+import { ViewAsAccount } from '../../../view-as-account/view-as-account';
+import { modules } from '../../../onboard-context';
 import { FormattedMessage } from 'react-intl';
 
 export const AddressButton = () => {
