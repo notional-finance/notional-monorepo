@@ -7,6 +7,18 @@ export enum AssetType {
   LEGACY_NTOKEN_ASSET_TYPE = 12,
 }
 
+export function convertToSignedfCashId(id: string, isNegative: boolean) {
+  // Required length for fCash ids
+  if (isERC1155Id(id)) {
+    const { assetType, currencyId, maturity } = decodeERC1155Id(id);
+    if (assetType === AssetType.FCASH_ASSET_TYPE) {
+      return encodeERC1155Id(currencyId, maturity, assetType, isNegative);
+    }
+  }
+
+  return id;
+}
+
 export function convertToGenericfCashId(id: string) {
   // Required length for fCash ids
   if (isERC1155Id(id)) {

@@ -21,13 +21,16 @@ import {
 } from '@notional-finance/mui';
 import {
   useFiat,
+  useAccountDefinition,
   useAllMarkets,
   useBalanceStatements,
 } from '@notional-finance/notionable-hooks';
+import { convertToSignedfCashId } from '@notional-finance/util';
 
 export function usePortfolioHoldings() {
   const baseCurrency = useFiat();
   const history = useHistory();
+  const { account } = useAccountDefinition();
   const balanceStatements = useBalanceStatements();
   const [expandedRows, setExpandedRows] = useState<ExpandedRows | null>(null);
   const initialState = expandedRows !== null ? { expanded: expandedRows } : {};
@@ -79,24 +82,29 @@ export function usePortfolioHoldings() {
     ];
   }, []);
 
+  // TODO: switch this to run off of balances...
   const portfolioHoldingsData =
-    balanceStatements
+    account?.balances
       .filter(
         (b) =>
-          !b.currentBalance.isZero() &&
-          !b.currentBalance.isVaultToken &&
+          !b.isZero() &&
+          !b.isVaultToken &&
           b.token.tokenType !== 'Underlying' &&
           b.token.tokenType !== 'NOTE'
       )
       .map((b) => {
         const { titleWithMaturity } = formatTokenType(b.token);
+        const s = balanceStatements.find(
+          (s) =>
+            s.token.id === convertToSignedfCashId(b.tokenId, b.isNegative())
+        );
         return {
           asset: {
             symbol: b.underlying.symbol,
             label: titleWithMaturity,
             caption:
-              b.token.tokenType === 'fCash' && b.impliedFixedRate !== undefined
-                ? `${formatNumberAsPercent(b.impliedFixedRate)} APY at Maturity`
+              b.token.tokenType === 'fCash' && s?.impliedFixedRate !== undefined
+                ? `${formatNumberAsPercent(s.impliedFixedRate)} APY at Maturity`
                 : undefined,
           },
           // TODO: this has a caption for note incentives
@@ -104,26 +112,22 @@ export function usePortfolioHoldings() {
             nonLeveragedYields.find((y) => y.token.id === b.token.id)
               ?.totalAPY || 0
           ),
-          amountPaid: formatCryptoWithFiat(
-            baseCurrency,
-            b.accumulatedCostRealized
-          ),
-          presentValue: formatCryptoWithFiat(
-            baseCurrency,
-            b.currentBalance.toUnderlying()
-          ),
-          earnings: b.totalProfitAndLoss
-            .toFiat(baseCurrency)
-            .toDisplayStringWithSymbol(),
+          amountPaid: s ? formatCryptoWithFiat(s.accumulatedCostRealized) : '-',
+          presentValue: formatCryptoWithFiat(b.toUnderlying()),
+          earnings: s
+            ? s.totalProfitAndLoss.toFiat(baseCurrency).toDisplayStringWithSymbol()
+            : '-',
           actionRow: {
             subRowData: [
               {
                 label: <FormattedMessage defaultMessage={'Amount'} />,
-                value: b.currentBalance.toDisplayString(3, true),
+                value: b.toDisplayString(3, true),
               },
               {
                 label: <FormattedMessage defaultMessage={'Entry Price'} />,
-                value: b.adjustedCostBasis.toDisplayStringWithSymbol(3),
+                value: s
+                  ? s.adjustedCostBasis.toDisplayStringWithSymbol(3)
+                  : '-',
               },
               {
                 label: <FormattedMessage defaultMessage={'Current Price'} />,
@@ -137,13 +141,13 @@ export function usePortfolioHoldings() {
                 buttonText: <FormattedMessage defaultMessage={'Manage'} />,
                 callback: () => {
                   history.push(
-                    b.currentBalance.isPositive()
+                    b.isPositive()
                       ? `/portfolio/holdings/${PORTFOLIO_ACTIONS.CONVERT_ASSET}/${b.token.id}`
                       : `/portfolio/holdings/${PORTFOLIO_ACTIONS.ROLL_DEBT}/${b.token.id}`
                   );
                 },
               },
-              b.currentBalance.isPositive()
+              b.isPositive()
                 ? {
                     buttonText: (
                       <FormattedMessage defaultMessage={'Withdraw'} />
