@@ -4,9 +4,7 @@ import {
 } from '@ethersproject/providers';
 import { Network } from '@notional-finance/util';
 import { THEME_VARIANTS } from '@notional-finance/shared-config';
-import {
-  getFromLocalStorage,
-} from '@notional-finance/helpers';
+import { getFromLocalStorage } from '@notional-finance/helpers';
 import { Signer } from 'ethers';
 
 const userSettings = getFromLocalStorage('userSettings');
@@ -73,5 +71,7 @@ export const initialGlobalState: GlobalState = {
   isAccountReady: false,
   sentTransactions: {},
   completedTransactions: {},
-  themeVariant: userSettings?.themeVariant ? userSettings?.themeVariant : THEME_VARIANTS.LIGHT,
+  themeVariant: userSettings?.themeVariant
+    ? userSettings?.themeVariant
+    : THEME_VARIANTS.LIGHT,
 };

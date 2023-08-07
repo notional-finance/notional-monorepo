@@ -12,6 +12,12 @@ import RouteContainer from './components/RouteContainer';
 import AppLayoutRoute from './layouts/AppLayoutRoute';
 import LandingPageLayoutRoute from './layouts/LandingPageLayoutRoute';
 import { OnboardContext } from '@notional-finance/wallet';
+import { ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+
+import { getDefaultNetworkFromHostname } from '@notional-finance/util';
+import { useConnect } from '@notional-finance/wallet/hooks/use-connect';
+import { useNotionalTheme } from '@notional-finance/styles';
 
 // Feature shell views
 import { AboutUsView } from '@notional-finance/about-us-feature-shell';
@@ -44,8 +50,6 @@ import { TermsView } from '../../containers/TermsView';
 import { PrivacyView } from '../../containers/PrivacyView';
 import { LandingPageView } from '../../containers/LandingPageView';
 import { Markets } from '../Markets';
-import { getDefaultNetworkFromHostname } from '@notional-finance/util';
-import { useConnect } from '@notional-finance/wallet/hooks/use-connect';
 
 const AllRoutes = () => {
   const [routeKey, setRouteKey] = useState('');
@@ -159,7 +163,11 @@ const AllRoutes = () => {
 
 export const App = () => {
   const globalState = useGlobalContext();
-  const { updateState } = globalState;
+  const {
+    updateState,
+    state: { themeVariant },
+  } = globalState;
+  const notionalTheme = useNotionalTheme(themeVariant);
 
   // Run as a useEffect here so that the observable "sees" the initial change
   useEffect(() => {
@@ -169,10 +177,13 @@ export const App = () => {
   }, [updateState]);
 
   return (
-    <NotionalContext.Provider value={globalState}>
-      <Web3OnboardProvider web3Onboard={OnboardContext}>
-        <AllRoutes />
-      </Web3OnboardProvider>
-    </NotionalContext.Provider>
+    <ThemeProvider theme={notionalTheme}>
+      <CssBaseline />
+      <NotionalContext.Provider value={globalState}>
+        <Web3OnboardProvider web3Onboard={OnboardContext}>
+          <AllRoutes />
+        </Web3OnboardProvider>
+      </NotionalContext.Provider>
+    </ThemeProvider>
   );
 };
