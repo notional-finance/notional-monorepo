@@ -10,7 +10,7 @@ import { useMaxRepay } from './hooks/use-max-repay';
 export const RepayDebt = () => {
   const context = useTradeContext('RepayDebt');
   const { category, sideDrawerKey } = useParams<PortfolioParams>();
-  const { currencyInputRef, onMaxValue } = useMaxRepay(context)
+  const { currencyInputRef, onMaxValue } = useMaxRepay(context);
 
   return (
     <PortfolioSideDrawer context={context}>
@@ -23,8 +23,8 @@ export const RepayDebt = () => {
           (b.tokenType === 'PrimeDebt' || b.tokenType === 'fCash')
         }
       />
-      {/* need to do other stuff for max balance */}
       <DepositInput
+        ref={currencyInputRef}
         context={context}
         inputRef={currencyInputRef}
         onMaxValue={onMaxValue}

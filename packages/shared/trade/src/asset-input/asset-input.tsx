@@ -17,7 +17,10 @@ import { TokenBalance } from '@notional-finance/core-entities';
 interface AssetInputProps {
   context: BaseTradeContext;
   prefillMax?: boolean;
-  isDeleverage?: boolean;
+  deleverage?: {
+    isPrimaryInput: boolean;
+    setPrimaryInput: (input: 'Debt' | 'Collateral') => void;
+  };
   debtOrCollateral: 'Debt' | 'Collateral';
   newRoute?: (newToken: string | null) => string;
   warningMsg?: React.ReactNode;
@@ -48,7 +51,7 @@ export const AssetInput = React.forwardRef<
       errorMsgOverride,
       debtOrCollateral,
       prefillMax,
-      isDeleverage,
+      deleverage,
     },
     ref
   ) => {
@@ -61,10 +64,14 @@ export const AssetInput = React.forwardRef<
         availableCollateralTokens,
         availableDebtTokens,
         calculateError,
+        debtBalance,
+        collateralBalance,
       },
       updateState,
     } = context;
     const selectedToken = debtOrCollateral === 'Debt' ? debt : collateral;
+    const computedBalance =
+      debtOrCollateral === 'Debt' ? debtBalance : collateralBalance;
     let availableTokens =
       debtOrCollateral === 'Debt'
         ? availableDebtTokens
@@ -87,8 +94,18 @@ export const AssetInput = React.forwardRef<
     }, [inputRef, maxBalanceString, prefillMax, inputAmount, hasUserTouched]);
 
     const updateBalances = useCallback(
-      (inputAmount?: TokenBalance) => {
-        if (isDeleverage && collateral && debt) {
+      (
+        inputAmount: TokenBalance | undefined,
+        computedBalance: TokenBalance | undefined
+      ) => {
+        if (deleverage?.isPrimaryInput === true && collateral && debt) {
+          // In here, this input is the "primary". Only update the state if the
+          // amounts are actually different or else we get a infinite loop
+          if (
+            (inputAmount === undefined && computedBalance === undefined) ||
+            (inputAmount && computedBalance && inputAmount.eq(computedBalance))
+          )
+            return;
           updateState(
             debtOrCollateral === 'Debt'
               ? {
@@ -100,7 +117,7 @@ export const AssetInput = React.forwardRef<
                   debtBalance: TokenBalance.zero(debt),
                 }
           );
-        } else {
+        } else if (deleverage === undefined) {
           updateState(
             debtOrCollateral === 'Debt'
               ? { debtBalance: inputAmount }
@@ -108,17 +125,45 @@ export const AssetInput = React.forwardRef<
           );
         }
       },
-      [isDeleverage, debtOrCollateral, debt, collateral, updateState]
+      [deleverage, debtOrCollateral, debt, collateral, updateState]
     );
 
     useEffect(() => {
-      updateBalances(inputAmount);
+      updateBalances(inputAmount, computedBalance);
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [updateBalances, inputAmount?.hashKey]);
+    }, [updateBalances, inputAmount?.hashKey, computedBalance?.hashKey]);
+
+    useEffect(() => {
+      // If the input control is no longer the primary, it will just mirror
+      // the computed amount without firing updates.
+      if (deleverage?.isPrimaryInput === false) {
+        setHasUserTouched(false);
+        const newStringValue =
+          computedBalance?.isZero() || computedBalance === undefined
+            ? ''
+            : computedBalance.abs().toExactString();
+
+        if (inputRef.current?.getInputValue() !== newStringValue) {
+          inputRef.current?.setInputOverride(newStringValue, false);
+        }
+      }
+    }, [deleverage, computedBalance, inputRef]);
 
     const currencies = useMemo(() => {
       return availableTokens?.map((t) => formatTokenType(t).title) || [];
     }, [availableTokens]);
+
+    const onInputChange = useCallback(
+      (input: string) => {
+        setInputString(input);
+        setHasUserTouched(true);
+
+        // Signifies that this input control will now "take over" and no longer
+        // mirror the computed balance.
+        if (deleverage) deleverage?.setPrimaryInput(debtOrCollateral);
+      },
+      [deleverage, debtOrCollateral, setInputString]
+    );
 
     if (!availableTokens) return <PageLoading />;
 
@@ -131,10 +176,7 @@ export const AssetInput = React.forwardRef<
           placeholder="0.00000000"
           decimals={INTERNAL_TOKEN_DECIMALS}
           maxValue={maxBalanceString}
-          onInputChange={(input) => {
-            setInputString(input);
-            setHasUserTouched(true);
-          }}
+          onInputChange={onInputChange}
           errorMsg={
             errorMsgOverride ? (
               <FormattedMessage {...errorMsgOverride} />

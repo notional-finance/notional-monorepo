@@ -449,14 +449,14 @@ export function calculateDeleverage({
   collateralBalance: TokenBalance;
   debtBalance: TokenBalance;
 }) {
-  if (!collateralBalance.isZero()) {
+  if (!collateralBalance.isZero() && debtBalance.isZero()) {
     return calculateDebt({
       debt,
       debtPool,
       collateralPool,
       collateralBalance,
     });
-  } else if (!debtBalance.isZero()) {
+  } else if (!debtBalance.isZero() && collateralBalance.isZero()) {
     return calculateCollateral({
       collateral,
       debtPool,
@@ -464,7 +464,8 @@ export function calculateDeleverage({
       debtBalance,
     });
   } else {
-    throw Error('Collateral or Debt must be defined');
+    // NOTE: if both values are defined just return them
+    return { debtBalance, collateralBalance };
   }
 }
 

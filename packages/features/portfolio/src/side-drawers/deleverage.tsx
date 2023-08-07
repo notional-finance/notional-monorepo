@@ -5,10 +5,15 @@ import { PortfolioSideDrawer } from './components/portfolio-side-drawer';
 import { defineMessage } from 'react-intl';
 import { Box, useTheme } from '@mui/material';
 import { useDeleverageLabels } from './hooks/use-deleverage-labels';
+import { useState } from 'react';
 
 export const Deleverage = () => {
   const theme = useTheme();
   const context = useTradeContext('Deleverage');
+  // This defines which input field is "controlling" the other
+  const [primaryInput, setPrimaryInput] = useState<'Debt' | 'Collateral'>(
+    'Collateral'
+  );
   const {
     // setCurrencyInput: setDebtInput,
     currencyInputRef: debtInputRef,
@@ -18,9 +23,6 @@ export const Deleverage = () => {
     currencyInputRef: collateralInputRef,
   } = useCurrencyInputRef();
   const { debtInputLabel, collateralInputLabel } = useDeleverageLabels(context);
-
-  // TODO: need a new calculation method that calls calculateDebt or calculateCollateral
-  // depending on the selected input...
 
   return (
     <PortfolioSideDrawer context={context}>
@@ -42,7 +44,10 @@ export const Deleverage = () => {
             ref={debtInputRef}
             context={context}
             inputRef={debtInputRef}
-            isDeleverage
+            deleverage={{
+              isPrimaryInput: primaryInput === 'Collateral',
+              setPrimaryInput,
+            }}
             // NOTE: this actually refers to debt to repay but internally
             // it is referred to as collateral since it will be decreasing
             debtOrCollateral="Collateral"
@@ -52,7 +57,10 @@ export const Deleverage = () => {
             ref={collateralInputRef}
             context={context}
             inputRef={collateralInputRef}
-            isDeleverage
+            deleverage={{
+              isPrimaryInput: primaryInput === 'Debt',
+              setPrimaryInput,
+            }}
             // NOTE: this actually refers to collateral
             debtOrCollateral="Debt"
             label={collateralInputLabel}

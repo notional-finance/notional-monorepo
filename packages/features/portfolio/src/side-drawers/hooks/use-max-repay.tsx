@@ -19,7 +19,7 @@ export function useMaxRepay(context: BaseTradeContext) {
 
   const onMaxValue = useCallback(() => {
     if (maxRepay) {
-      setCurrencyInput(maxRepay?.toUnderlying().toExactString(), false);
+      setCurrencyInput(maxRepay?.abs().toUnderlying().toExactString(), false);
 
       updateState({
         maxWithdraw: true,

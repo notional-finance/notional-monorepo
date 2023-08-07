@@ -30,6 +30,7 @@ export interface CurrencyInputProps extends CurrencySelectProps {
 
 export interface CurrencyInputHandle {
   setInputOverride: (input: string, emitChange?: boolean) => void;
+  getInputValue: () => string;
 }
 
 const NumberFormatter = React.forwardRef<
@@ -93,7 +94,7 @@ export const CurrencyInput = React.forwardRef<
     onInputChange,
     onMaxValue,
     style,
-    CustomSelect
+    CustomSelect,
   } = props;
   const theme = useTheme() as NotionalTheme;
   const [hasFocus, setHasFocus] = React.useState(false);
@@ -108,6 +109,9 @@ export const CurrencyInput = React.forwardRef<
       setValue(input);
       if (emitChange) onInputChange(input);
     },
+    getInputValue: () => {
+      return value
+    }
   }));
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -130,8 +134,9 @@ export const CurrencyInput = React.forwardRef<
 
   const borderColor = getBorderColor();
 
-  // TODO: allow override the custom select here
-  const SelectDropdown = CustomSelect ? CustomSelect(inputContainerRef) : (
+  const SelectDropdown = CustomSelect ? (
+    CustomSelect(inputContainerRef)
+  ) : (
     <CurrencySelect
       currencies={props.currencies}
       defaultValue={props.defaultValue}
