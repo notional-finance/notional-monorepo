@@ -1,11 +1,13 @@
 import { FormattedMessage } from 'react-intl';
 import { TokenBalance } from '@notional-finance/core-entities';
 import {
+  useFiat,
   useAllMarkets,
   useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
 
 export const useTotalsData = (selectedDepositToken: string | undefined) => {
+  const baseCurrency = useFiat();
   const network = useSelectedNetwork();
   const {
     yields: { fCashLend, liquidity },
@@ -38,12 +40,14 @@ export const useTotalsData = (selectedDepositToken: string | undefined) => {
   return [
     {
       title: <FormattedMessage defaultMessage={'TVL'} />,
-      value: tvlData?.tvl?.toFiat('USD').toDisplayStringWithSymbol() || '-',
+      value:
+        tvlData?.tvl?.toFiat(baseCurrency).toDisplayStringWithSymbol() || '-',
     },
     {
       title: <FormattedMessage defaultMessage={'Total Fixed Rate Debt'} />,
       value:
-        totalFixedRateDebt?.toFiat('USD').toDisplayStringWithSymbol() || '-',
+        totalFixedRateDebt?.toFiat(baseCurrency).toDisplayStringWithSymbol() ||
+        '-',
     },
     {
       title: <FormattedMessage defaultMessage={'Total Fixed Rate Lenders'} />,

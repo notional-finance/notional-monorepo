@@ -1,18 +1,16 @@
 import { PRODUCTS } from '@notional-finance/shared-config';
 import { CardContainer } from '@notional-finance/shared-web';
-import { Currency, FeatureLoader } from '@notional-finance/mui';
 import {
-  useGlobalContext,
+  useThemeVariant,
   useAllMarkets,
 } from '@notional-finance/notionable-hooks';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { defineMessage, FormattedMessage } from 'react-intl';
 import { ThemeProvider } from '@mui/material';
+import { Currency, FeatureLoader } from '@notional-finance/mui';
 
 export const BorrowVariableCardView = () => {
-  const {
-    state: { themeVariant },
-  } = useGlobalContext();
+  const themeVariant = useThemeVariant();
   const themeLanding = useNotionalTheme(themeVariant, 'landing');
   const {
     yields: { variableBorrow },

@@ -9,6 +9,7 @@ import {
   EnabledCurrencies,
   EnabledCurrenciesButton,
   BaseCurrency,
+  BaseCurrencyButton,
   DarkModeToggle,
 } from './components';
 import { useConnect } from '../hooks/use-connect';
@@ -152,7 +153,8 @@ export const useSettingsSideDrawer = () => {
         />
       ),
       ViewComponent: BaseCurrency,
-      buttonText: '$USD',
+      CustomButton: BaseCurrencyButton,
+      buttonText: '',
     },
   ];
 

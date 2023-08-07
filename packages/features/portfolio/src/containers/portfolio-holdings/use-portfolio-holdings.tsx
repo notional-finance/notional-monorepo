@@ -20,11 +20,13 @@ import {
   ChevronCell,
 } from '@notional-finance/mui';
 import {
+  useFiat,
   useAllMarkets,
   useBalanceStatements,
 } from '@notional-finance/notionable-hooks';
 
 export function usePortfolioHoldings() {
+  const baseCurrency = useFiat();
   const history = useHistory();
   const balanceStatements = useBalanceStatements();
   const [expandedRows, setExpandedRows] = useState<ExpandedRows | null>(null);
@@ -102,10 +104,16 @@ export function usePortfolioHoldings() {
             nonLeveragedYields.find((y) => y.token.id === b.token.id)
               ?.totalAPY || 0
           ),
-          amountPaid: formatCryptoWithFiat(b.accumulatedCostRealized),
-          presentValue: formatCryptoWithFiat(b.currentBalance.toUnderlying()),
+          amountPaid: formatCryptoWithFiat(
+            baseCurrency,
+            b.accumulatedCostRealized
+          ),
+          presentValue: formatCryptoWithFiat(
+            baseCurrency,
+            b.currentBalance.toUnderlying()
+          ),
           earnings: b.totalProfitAndLoss
-            .toFiat('USD')
+            .toFiat(baseCurrency)
             .toDisplayStringWithSymbol(),
           actionRow: {
             subRowData: [

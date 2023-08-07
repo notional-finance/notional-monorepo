@@ -15,7 +15,7 @@ import {
   formatNumberAsAbbr,
   formatYieldCaption,
 } from '@notional-finance/helpers';
-import { useAllMarkets } from '@notional-finance/notionable-hooks';
+import { useAllMarkets, useFiat } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
 
 export const useMarketsTable = (
@@ -23,6 +23,7 @@ export const useMarketsTable = (
   currencyOptions: SelectedOptions[],
   productOptions: SelectedOptions[]
 ) => {
+  const baseCurrency = useFiat();
   const { earnYields, borrowYields } = useAllMarkets();
 
   const tableColumns: DataTableColumn[] = [
@@ -143,7 +144,7 @@ export const useMarketsTable = (
             : token.maturity,
         leverage:
           leveraged && leveraged.leverageRatio ? leveraged.leverageRatio : 0,
-        totalTVL: tvl?.toFiat('USD').toFloat() || 0,
+        totalTVL: tvl?.toFiat(baseCurrency).toFloat() || 0,
         noteAPY:
           incentives && incentives.length > 0 && incentives[0]?.incentiveAPY > 0
             ? incentives[0]?.incentiveAPY

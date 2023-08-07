@@ -19,6 +19,7 @@ export const FIAT_NAMES = [
   'USD',
   'NOTE',
 ] as const;
+
 export type FiatKeys = typeof FIAT_NAMES[number];
 
 export const FiatSymbols: Record<FiatKeys, string> = FIAT_NAMES.filter(

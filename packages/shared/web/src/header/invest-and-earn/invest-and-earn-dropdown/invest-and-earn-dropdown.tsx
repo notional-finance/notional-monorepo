@@ -1,7 +1,7 @@
 import { Box, ThemeProvider } from '@mui/material';
 import { DropdownButton } from '@notional-finance/mui';
 import { useNotionalTheme } from '@notional-finance/styles';
-import { useGlobalContext } from '@notional-finance/notionable-hooks';
+import { useThemeVariant } from '@notional-finance/notionable-hooks';
 import { NAV_DROPDOWN, THEME_VARIANTS } from '@notional-finance/shared-config';
 import { useLocation } from 'react-router-dom';
 import { BarChartIcon } from '@notional-finance/icons';
@@ -11,9 +11,7 @@ import { messages } from '../../messages';
 
 export function InvestAndEarnDropdown() {
   const { pathname } = useLocation();
-  const {
-    state: { themeVariant },
-  } = useGlobalContext();
+  const themeVariant = useThemeVariant();
 
   const flippedTheme =
     themeVariant === THEME_VARIANTS.DARK || pathname === '/'

@@ -4,6 +4,7 @@ import {
 } from '@ethersproject/providers';
 import { Network } from '@notional-finance/util';
 import { THEME_VARIANTS } from '@notional-finance/shared-config';
+import { FiatKeys } from '@notional-finance/core-entities/src/config/fiat-config';
 import { getFromLocalStorage } from '@notional-finance/helpers';
 import { Signer } from 'ethers';
 
@@ -43,6 +44,7 @@ interface AccountState {
 }
 interface UserSettingsState {
   themeVariant: THEME_VARIANTS;
+  baseCurrency: FiatKeys;
 }
 
 interface TransactionState {
@@ -71,7 +73,6 @@ export const initialGlobalState: GlobalState = {
   isAccountReady: false,
   sentTransactions: {},
   completedTransactions: {},
-  themeVariant: userSettings?.themeVariant
-    ? userSettings?.themeVariant
-    : THEME_VARIANTS.LIGHT,
+  themeVariant: userSettings?.themeVariant ? userSettings?.themeVariant : THEME_VARIANTS.LIGHT,
+  baseCurrency: userSettings?.baseCurrency ? userSettings?.baseCurrency : 'USD',
 };

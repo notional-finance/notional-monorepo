@@ -1,46 +1,73 @@
-// import { useCallback } from 'react';
-// import { Box, styled, useTheme } from '@mui/material';
-import { Box, styled } from '@mui/material';
+import { useCallback } from 'react';
+import { useTheme, Box, styled } from '@mui/material';
 import { LabelValue, SideDrawerActiveButton } from '@notional-finance/mui';
-// import {
-//   setInLocalStorage,
-//   getFromLocalStorage,
-// } from '@notional-finance/helpers';
+import { useFiat, useGlobalContext } from '@notional-finance/notionable-hooks';
+
+import {
+  setInLocalStorage,
+  getFromLocalStorage,
+} from '@notional-finance/helpers';
 import { FormattedMessage } from 'react-intl';
 import { useBaseCurrency } from './use-base-currency';
+import { FiatKeys } from '@notional-finance/core-entities/src/config/fiat-config';
+
+export const BaseCurrencyButton = () => {
+  const theme = useTheme();
+  const { selectedCurrency } = useBaseCurrency();
+  return (
+    <Box
+      sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+    >
+      <Box
+        sx={{
+          paddingRight: theme.spacing(1),
+          display: 'flex',
+          alignItems: 'center',
+          '.base-currency-icon': {
+            height: theme.spacing(2.5),
+            width: theme.spacing(2.5),
+          },
+        }}
+      >
+        {selectedCurrency?.Icon && selectedCurrency.Icon}
+      </Box>
+
+      {selectedCurrency?.label}
+    </Box>
+  );
+};
 
 export const BaseCurrency = () => {
-  const currencyOptions = useBaseCurrency();
-  console.log({ currencyOptions });
-  // const defaultKey = userSettings?.language
-  //   ? userSettings.language
-  //   : navigator.language;
+  const globalState = useGlobalContext();
+  const { updateState } = globalState;
+  const { allCurrencies } = useBaseCurrency();
+  const baseCurrency = useFiat();
+  const userSettings = getFromLocalStorage('userSettings');
+  const defaultKey = userSettings?.baseCurrency || baseCurrency;
 
-  // const handleConnect = useCallback(
-  //   (key: string) => {
-  //     setInLocalStorage('userSettings', { ...userSettings, language: key });
-  //     window.location.reload();
-  //   },
-  //   [userSettings]
-  // );
-
-  const handleConnect = (key) => {
-    console.log({ key });
-  };
+  const handleConnect = useCallback(
+    (key: string) => {
+      const selectedCurrency = key as FiatKeys;
+      setInLocalStorage('userSettings', { ...userSettings, baseCurrency: key });
+      updateState({ baseCurrency: selectedCurrency });
+      window.location.reload();
+    },
+    [userSettings, updateState]
+  );
 
   return (
     <WalletSelectorContainer>
       <Title>
         <FormattedMessage defaultMessage="Base Currency" />
       </Title>
-      {currencyOptions.map(({ label, Icon, key }, index) => (
+      {allCurrencies.map(({ label, Icon, key }, index) => (
         <SideDrawerActiveButton
           label={label}
           Icon={Icon}
           dataKey={key}
           key={index}
           callback={handleConnect}
-          selectedKey={'USD'}
+          selectedKey={defaultKey}
         />
       ))}
     </WalletSelectorContainer>

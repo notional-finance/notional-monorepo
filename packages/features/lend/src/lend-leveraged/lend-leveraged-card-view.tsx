@@ -1,6 +1,6 @@
 import {
   useAllMarkets,
-  useGlobalContext,
+  useThemeVariant,
 } from '@notional-finance/notionable-hooks';
 import { PRODUCTS } from '@notional-finance/shared-config';
 import { CardContainer } from '@notional-finance/shared-web';
@@ -12,9 +12,7 @@ import { groupArrayToMap } from '@notional-finance/util';
 import { formatLeverageRatio } from '@notional-finance/helpers';
 
 export function LendLeveragedCardView() {
-  const {
-    state: { themeVariant },
-  } = useGlobalContext();
+  const themeVariant = useThemeVariant();
   const themeLanding = useNotionalTheme(themeVariant, 'landing');
   const {
     yields: { leveragedLend },

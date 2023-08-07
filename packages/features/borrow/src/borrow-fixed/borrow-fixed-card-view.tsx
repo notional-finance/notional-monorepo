@@ -3,7 +3,7 @@ import { CardContainer } from '@notional-finance/shared-web';
 import { CurrencyFixed, FeatureLoader } from '@notional-finance/mui';
 import {
   useAllMarkets,
-  useGlobalContext,
+  useThemeVariant,
 } from '@notional-finance/notionable-hooks';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { defineMessage, FormattedMessage } from 'react-intl';
@@ -15,9 +15,7 @@ import {
 } from '@notional-finance/helpers';
 
 export const BorrowFixedCardView = () => {
-  const {
-    state: { themeVariant },
-  } = useGlobalContext();
+  const themeVariant = useThemeVariant();
   const themeLanding = useNotionalTheme(themeVariant, 'landing');
   const {
     yields: { fCashBorrow },
