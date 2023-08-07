@@ -129,7 +129,9 @@ export function calculate(
                       isHashable(risk?.limit)
                         ? risk?.limit.hashKey
                         : risk?.limit.toString()
-                    }:${risk?.args?.map((t) => t.id).join(':')}`,
+                    }:${risk?.args
+                      ?.map((t) => (typeof t === 'number' ? t : t?.id))
+                      .join(':')}`,
                   ],
                 ];
               }
