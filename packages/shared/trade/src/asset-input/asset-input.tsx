@@ -103,7 +103,9 @@ export const AssetInput = React.forwardRef<
           // amounts are actually different or else we get a infinite loop
           if (
             (inputAmount === undefined && computedBalance === undefined) ||
-            (inputAmount && computedBalance && inputAmount.eq(computedBalance))
+            (inputAmount &&
+              computedBalance &&
+              inputAmount.abs().eq(computedBalance.abs()))
           )
             return;
           updateState(
@@ -113,7 +115,7 @@ export const AssetInput = React.forwardRef<
                   collateralBalance: TokenBalance.zero(collateral),
                 }
               : {
-                  collateralBalance: inputAmount,
+                  collateralBalance: inputAmount?.neg(),
                   debtBalance: TokenBalance.zero(debt),
                 }
           );

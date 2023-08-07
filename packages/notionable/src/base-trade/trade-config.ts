@@ -15,8 +15,8 @@ import {
   Deposit,
   LendFixed,
   LendVariable,
+  LeveragedLend,
   LeveragedNToken,
-  LeveragedOrDeleverageLend,
   MintNToken,
   RepayDebt,
   RollLendOrDebt,
@@ -270,7 +270,7 @@ export const TradeConfiguration = {
         : true),
     calculateCollateralOptions: true,
     calculateDebtOptions: true,
-    transactionBuilder: LeveragedOrDeleverageLend,
+    transactionBuilder: LeveragedLend,
   } as TransactionConfig,
 
   /**

@@ -541,16 +541,16 @@ function getNetBalances(
   const start =
     accountBalances.find((b) => b.tokenId === netChange.tokenId) || zero;
   const end = start.add(netChange);
-  if ((start.isPositive() && end.isPositive()) || start.eq(end)) {
+  if (start.eq(end) || (start.gte(zero) && end.gte(zero))) {
     // Only asset changes
     return { netAssetBalance: netChange, netDebtBalance: zero };
-  } else if (start.lte(zero) && end.isNegative()) {
+  } else if (start.lte(zero) && end.lte(zero)) {
     // Only debt changes
     return { netAssetBalance: zero, netDebtBalance: netChange };
-  } else if (end.lte(zero) && start.gt(zero)) {
+  } else if (start.gte(zero) && end.lte(zero)) {
     // Entire start balance has decreased to zero, entire negative balance is created
     return { netAssetBalance: start.neg(), netDebtBalance: end };
-  } else if (start.lte(zero) && end.gt(zero)) {
+  } else if (start.lte(zero) && end.gte(zero)) {
     // Entire start balance has been repaid, entire positive balance is created
     return { netAssetBalance: end, netDebtBalance: start.neg() };
   }
