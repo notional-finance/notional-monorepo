@@ -14,14 +14,8 @@ export const Deleverage = () => {
   const [primaryInput, setPrimaryInput] = useState<'Debt' | 'Collateral'>(
     'Collateral'
   );
-  const {
-    // setCurrencyInput: setDebtInput,
-    currencyInputRef: debtInputRef,
-  } = useCurrencyInputRef();
-  const {
-    //setCurrencyInput: setCollateralInput,
-    currencyInputRef: collateralInputRef,
-  } = useCurrencyInputRef();
+  const { currencyInputRef: debtInputRef } = useCurrencyInputRef();
+  const { currencyInputRef: collateralInputRef } = useCurrencyInputRef();
   const { debtInputLabel, collateralInputLabel } = useDeleverageLabels(context);
 
   return (
