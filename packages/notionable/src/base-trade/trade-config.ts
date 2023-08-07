@@ -8,6 +8,7 @@ import {
   calculateCollateral,
   calculateDebt,
   calculateDebtCollateralGivenDepositRiskLimit,
+  calculateDeleverage,
   calculateDeposit,
   ConvertAsset,
   Deleverage,
@@ -310,23 +311,20 @@ export const TradeConfiguration = {
    * Inputs:
    * selectedDebtToken
    * selectedCollateralToken
-   * riskLimit
-   * set depositBalance = 0
    *
    * Outputs:
    * debtBalance (PrimeDebt, fCash)
    * collateralBalance (PrimeCash, fCash)
    */
   Deleverage: {
-    calculationFn: calculateDebtCollateralGivenDepositRiskLimit,
+    calculationFn: calculateDeleverage,
     requiredArgs: [
       'collateral',
       'debt',
       'collateralPool',
       'debtPool',
-      'depositBalance',
-      'balances',
-      'riskFactorLimit',
+      'collateralBalance',
+      'debtBalance',
     ],
     // In a deleverage trade a deposit should be set to zero
     depositFilter: () => false,

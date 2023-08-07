@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Box } from '@mui/material';
 import {
   CurrencyInput,
@@ -12,10 +12,12 @@ import { INTERNAL_TOKEN_DECIMALS } from '@notional-finance/util';
 import { useAssetInput } from './use-asset-input';
 import { BaseTradeContext } from '@notional-finance/notionable-hooks';
 import { formatTokenType } from '@notional-finance/helpers';
+import { TokenBalance } from '@notional-finance/core-entities';
 
 interface AssetInputProps {
   context: BaseTradeContext;
   prefillMax?: boolean;
+  isDeleverage?: boolean;
   debtOrCollateral: 'Debt' | 'Collateral';
   newRoute?: (newToken: string | null) => string;
   warningMsg?: React.ReactNode;
@@ -46,6 +48,7 @@ export const AssetInput = React.forwardRef<
       errorMsgOverride,
       debtOrCollateral,
       prefillMax,
+      isDeleverage,
     },
     ref
   ) => {
@@ -83,14 +86,35 @@ export const AssetInput = React.forwardRef<
       }
     }, [inputRef, maxBalanceString, prefillMax, inputAmount, hasUserTouched]);
 
+    const updateBalances = useCallback(
+      (inputAmount?: TokenBalance) => {
+        if (isDeleverage && collateral && debt) {
+          updateState(
+            debtOrCollateral === 'Debt'
+              ? {
+                  debtBalance: inputAmount,
+                  collateralBalance: TokenBalance.zero(collateral),
+                }
+              : {
+                  collateralBalance: inputAmount,
+                  debtBalance: TokenBalance.zero(debt),
+                }
+          );
+        } else {
+          updateState(
+            debtOrCollateral === 'Debt'
+              ? { debtBalance: inputAmount }
+              : { collateralBalance: inputAmount }
+          );
+        }
+      },
+      [isDeleverage, debtOrCollateral, debt, collateral, updateState]
+    );
+
     useEffect(() => {
-      updateState(
-        debtOrCollateral === 'Debt'
-          ? { debtBalance: inputAmount }
-          : { collateralBalance: inputAmount }
-      );
+      updateBalances(inputAmount);
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [updateState, inputAmount?.hashKey]);
+    }, [updateBalances, inputAmount?.hashKey]);
 
     const currencies = useMemo(() => {
       return availableTokens?.map((t) => formatTokenType(t).title) || [];
