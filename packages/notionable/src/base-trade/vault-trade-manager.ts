@@ -5,7 +5,6 @@ import {
   resetOnNetworkChange,
   initVaultState,
   priorVaultAccountRisk,
-  calculate,
   postVaultAccountRisk,
   availableTokens,
   buildTransaction,
@@ -18,6 +17,7 @@ import {
   selectedPool,
   selectedVaultAdapter,
 } from './selectors';
+import { calculate } from './trade-calculation';
 
 export function createVaultTradeManager(
   state$: Observable<VaultTradeState>,

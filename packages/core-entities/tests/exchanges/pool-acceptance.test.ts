@@ -105,8 +105,6 @@ const acceptanceSuite = ({
     }
   );
 
-  // todo: balanced entry
-
   it.each([0.5, 0.01])(
     `[LP Balanced Exit] for ${address} where balanceShare=%f`,
     async (balanceShare) => {
@@ -185,30 +183,6 @@ const acceptanceSuite = ({
         const actual = await harness.trade(signer, tokensIn, tokenIn, tokenOut);
         const { tokensOut, feesPaid: _feesPaid } =
           harness.poolInstance.calculateTokenTrade(tokensIn, tokenOut);
-        // console.log(
-        //   'actual',
-        //   tokensIn.toDisplayStringWithSymbol(8),
-        //   actual.tokensOut.toDisplayStringWithSymbol(8)
-        // );
-        // console.log(
-        //   'calculated',
-        //   tokensOut.toDisplayStringWithSymbol(8)
-        // );
-        // const oracles = Registry.getOracleRegistry();
-        // console.log(
-        //   'interest rate actual',
-        //   oracles.exchangeToInterestRate(
-        //     tokensIn.n.mul(RATE_PRECISION).div(actual.tokensOut.n),
-        //     actual.tokensOut.token.maturity!
-        //   ) / -RATE_PRECISION
-        // );
-        // console.log(
-        //   'interest rate calculated',
-        //   oracles.exchangeToInterestRate(
-        //     tokensIn.n.mul(RATE_PRECISION).div(tokensOut.n),
-        //     actual.tokensOut.token.maturity!
-        //   ) / -RATE_PRECISION
-        // );
         expect(tokensOut).toBeApprox(actual.tokensOut);
       } catch (e) {
         if ((e as Error).name === 'UnimplementedPoolMethod') return;
@@ -217,6 +191,7 @@ const acceptanceSuite = ({
     }
   );
 
+  it.todo('calculates balanced entry');
   it.todo('calculates unbalanced entry and exit');
 
   it.skip('calculates a price risk table', () => {

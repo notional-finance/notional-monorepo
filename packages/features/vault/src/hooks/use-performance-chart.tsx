@@ -1,8 +1,7 @@
 import { useHistoricalReturns } from './use-historical-returns';
 import { FormattedMessage } from 'react-intl';
 import { useContext } from 'react';
-import { ChartToolTipDataProps } from '@notional-finance/mui';
-import { countUpLeverageRatio } from '@notional-finance/trade';
+import { ChartToolTipDataProps, CountUp } from '@notional-finance/mui';
 import { useTheme } from '@mui/material';
 import {
   formatNumberAsPercent,
@@ -67,9 +66,9 @@ export const usePerformanceChart = () => {
     legendOne: {
       label: <FormattedMessage {...messages.summary.leveragedReturns} />,
       value:
-        currentBorrowRate && leverageRatio
-          ? countUpLeverageRatio(leverageRatio)
-          : undefined,
+        currentBorrowRate && leverageRatio ? (
+          <CountUp value={leverageRatio} suffix="x" decimals={3} />
+        ) : undefined,
       lineColor: theme.palette.charts.main,
       lineType: 'solid',
     },

@@ -1,6 +1,9 @@
 import {
   ALT_ETH,
+  AssetType,
   convertToGenericfCashId,
+  encodeERC1155Id,
+  getNowSeconds,
   INTERNAL_TOKEN_PRECISION,
   Network,
   RATE_PRECISION,
@@ -99,6 +102,10 @@ export class TokenBalance {
     const m = this.token.maturity;
     if (!m) throw Error('Invalid maturity');
     return m;
+  }
+
+  get hasMatured() {
+    return this.token.maturity && this.token.maturity < getNowSeconds();
   }
 
   get symbol() {
@@ -207,7 +214,7 @@ export class TokenBalance {
     return this.scale(RATE_PRECISION, denominator);
   }
 
-  /** Returns a BigNumber ratio with a corresponding token balance */
+  /** Returns a BigNumber ratio in RATE_PRECISION */
   ratioWith(denominator: TokenBalance) {
     return this.scale(RATE_PRECISION, denominator).n;
   }
@@ -351,8 +358,6 @@ export class TokenBalance {
       } else if (value < 1_000_000_000_000) {
         suffix = 'b';
         value = value / 1_000_000_000;
-      } else {
-        throw Error('Abbreviation overflow');
       }
     }
 
@@ -419,12 +424,21 @@ export class TokenBalance {
       }
 
       // Fetch the latest exchange rate
-      // TODO: if doing settlement then then token id needs to be the actual fCash (not generic fcash id)
-      const path = oracleRegistry.findPath(
-        this.unwrapVaultToken().token.id,
-        token.id,
-        this.token.network
-      );
+      const unwrapped = this.unwrapVaultToken();
+      const id =
+        unwrapped.tokenType === 'fCash' &&
+        unwrapped.hasMatured &&
+        this.isNegative()
+          ? // Rewrite the fCash to a negative fCash id for settlement so that we convert to PrimeDebt
+            encodeERC1155Id(
+              this.currencyId,
+              this.maturity,
+              AssetType.FCASH_ASSET_TYPE,
+              true
+            )
+          : unwrapped.tokenId;
+
+      const path = oracleRegistry.findPath(id, token.id, this.token.network);
       exchangeRate = oracleRegistry.getLatestFromPath(
         this.token.network,
         path,
@@ -458,6 +472,7 @@ export class TokenBalance {
     return this.toToken(primeCash);
   }
 
+  /** Applies local currency risk adjustments only */
   toRiskAdjustedUnderlying() {
     return this.toToken(
       this.underlying,
@@ -480,8 +495,8 @@ export class TokenBalance {
       // for fiat currency conversions
       const eth = tokens.getTokenBySymbol(this.network, 'ETH');
       const valueInETH = this.toToken(eth);
-      const ethInAllNetwork = TokenBalance.fromFloat(
-        valueInETH.toFloat(),
+      const ethInAllNetwork = TokenBalance.from(
+        valueInETH.n,
         tokens.getTokenBySymbol(Network.All, 'ETH')
       );
       return ethInAllNetwork.toToken(fiatToken);

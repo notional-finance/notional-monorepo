@@ -20,6 +20,7 @@ import { BigNumber, Contract } from 'ethers';
 import { TokenBalance } from '../../token-balance';
 import BaseLiquidityPool from '../base-liquidity-pool';
 import { TokenDefinition } from '../../Definitions';
+import { Registry } from '../../Registry';
 
 interface fCashMarketParams {
   perMarketCash: TokenBalance[];
@@ -553,7 +554,7 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
       .toNumber();
   }
 
-  public getInterestRate(marketIndex: number, utilization: number) {
+  protected getInterestRate(marketIndex: number, utilization: number) {
     if (utilization < 0 || RATE_PRECISION < utilization)
       throw Error('Insufficient Liquidity');
     const irParams = this.getIRParams(marketIndex);
@@ -578,7 +579,7 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
     }
   }
 
-  public getPostFeeInterestRate(
+  protected getPostFeeInterestRate(
     marketIndex: number,
     preFeeInterestRate: number,
     isBorrow: boolean
@@ -613,7 +614,16 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
     return this.getfCashExchangeRate(-interestRate, timeToMaturity);
   }
 
-  public getIRParams(marketIndex: number) {
+  protected getIRParams(marketIndex: number) {
+    if (marketIndex === 0) {
+      const primeCashCurve = Registry.getConfigurationRegistry().getConfig(
+        this._network,
+        this.poolParams.currencyId
+      ).primeCashCurve;
+      if (!primeCashCurve) throw Error('Prime Cash Curve not defined');
+      return primeCashCurve;
+    }
+
     return this.poolParams.interestRateCurve[marketIndex - 1];
   }
 
@@ -751,12 +761,51 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
     return this.balances[0].toUnderlying().copy(0);
   }
 
+  public getPrimeCashUtilization(
+    netPrimeSupply?: TokenBalance,
+    netPrimeDebt?: TokenBalance
+  ) {
+    const pCash = Registry.getTokenRegistry().getPrimeCash(
+      this._network,
+      this.poolParams.currencyId
+    );
+    const pDebt = Registry.getTokenRegistry().getPrimeDebt(
+      this._network,
+      this.poolParams.currencyId
+    );
+    const supply = pCash.totalSupply?.add(
+      netPrimeSupply || TokenBalance.zero(pCash)
+    );
+    const debt = pDebt.totalSupply?.add(
+      netPrimeDebt || TokenBalance.zero(pDebt)
+    );
+    if (!supply || !debt) throw Error('Missing prime total supply');
+
+    return debt.ratioWith(supply).toNumber();
+  }
+
+  public getPrimeSupplyRate(utilization: number) {
+    // Prime supply is the pre fee debt interest rate * utilization
+    return (
+      (this.getInterestRate(0, utilization) * utilization) / RATE_PRECISION
+    );
+  }
+
+  public getPrimeDebtRate(utilization: number) {
+    return this.getPostFeeInterestRate(
+      0,
+      this.getInterestRate(0, utilization),
+      true
+    );
+  }
+
   public getSpotInterestRate(token: TokenDefinition) {
-    // TODO: need to return the proper interest rates here..
     if (token.tokenType === 'PrimeCash') {
-      return 0;
+      const utilization = this.getPrimeCashUtilization();
+      return (this.getPrimeSupplyRate(utilization) * 100) / RATE_PRECISION;
     } else if (token.tokenType === 'PrimeDebt') {
-      return 0;
+      const utilization = this.getPrimeCashUtilization();
+      return (this.getPrimeDebtRate(utilization) * 100) / RATE_PRECISION;
     } else if (token.tokenType === 'fCash') {
       const marketIndex = this.getMarketIndex(token.maturity);
       const utilization = this.getfCashUtilization(
@@ -885,15 +934,17 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
       ...this.poolParams.interestRateCurve.map((i) => i.maxRate)
     );
     const nTokenPrice = TokenBalance.unit(nTokens.token).toUnderlying();
+    const totalSupply = this.totalSupply;
 
     return Array(Math.floor(maxRate / tickSize))
       .fill(0)
       .map((_, i) => {
         const interestRate = (i + 1) * tickSize;
+        // Scale the total residual change by the total supply
         const netPrice = this._getSimulatedNTokenPriceChange(
           interestRate,
           blockTime
-        );
+        ).scale(totalSupply.precision, totalSupply.n);
         const price = nTokenPrice.add(netPrice);
 
         const profitLoss = price

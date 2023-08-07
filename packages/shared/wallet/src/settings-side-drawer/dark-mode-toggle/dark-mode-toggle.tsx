@@ -1,9 +1,6 @@
 import { Box } from '@mui/material';
 import { ToggleSwitch } from '@notional-finance/mui';
-import {
-  updateUserSettingsState,
-  useUserSettingsState,
-} from '@notional-finance/user-settings-manager';
+import { useGlobalContext } from '@notional-finance/notionable-hooks';
 import { THEME_VARIANTS } from '@notional-finance/shared-config';
 import {
   setInLocalStorage,
@@ -11,24 +8,35 @@ import {
 } from '@notional-finance/helpers';
 
 export const DarkModeToggle = () => {
-  const { themeVariant } = useUserSettingsState();
+  const globalState = useGlobalContext();
+  const { updateState } = globalState;
   const userSettings = getFromLocalStorage('userSettings');
-  const isChecked = themeVariant === THEME_VARIANTS.DARK;
+  const isChecked =
+    userSettings?.themeVariant &&
+    userSettings?.themeVariant === THEME_VARIANTS.DARK;
 
   const handleChange = () => {
-    if (themeVariant === THEME_VARIANTS.DARK) {
-      updateUserSettingsState({ themeVariant: THEME_VARIANTS.LIGHT });
+    if (
+      userSettings?.themeVariant &&
+      userSettings?.themeVariant === THEME_VARIANTS.DARK
+    ) {
+      updateState({ themeVariant: THEME_VARIANTS.LIGHT });
       setInLocalStorage('userSettings', {
         ...userSettings,
         themeVariant: THEME_VARIANTS.LIGHT,
       });
+      window.location.reload();
     }
-    if (themeVariant === THEME_VARIANTS.LIGHT) {
-      updateUserSettingsState({ themeVariant: THEME_VARIANTS.DARK });
+    if (
+      userSettings?.themeVariant &&
+      userSettings?.themeVariant === THEME_VARIANTS.LIGHT
+    ) {
+      updateState({ themeVariant: THEME_VARIANTS.DARK });
       setInLocalStorage('userSettings', {
         ...userSettings,
         themeVariant: THEME_VARIANTS.DARK,
       });
+      window.location.reload();
     }
   };
 

@@ -29,7 +29,7 @@ export function usePortfolioHoldings() {
   const balanceStatements = useBalanceStatements();
   const [expandedRows, setExpandedRows] = useState<ExpandedRows | null>(null);
   const initialState = expandedRows !== null ? { expanded: expandedRows } : {};
-  const { allYields } = useAllMarkets();
+  const { nonLeveragedYields } = useAllMarkets();
 
   const portfolioHoldingsColumns: DataTableColumn[] = useMemo(() => {
     return [
@@ -100,9 +100,8 @@ export function usePortfolioHoldings() {
           },
           // TODO: this has a caption for note incentives
           marketApy: formatNumberAsPercent(
-            allYields.find(
-              (y) => y.token.id === b.token.id && y.leveraged === undefined
-            )?.totalAPY || 0
+            nonLeveragedYields.find((y) => y.token.id === b.token.id)
+              ?.totalAPY || 0
           ),
           amountPaid: formatCryptoWithFiat(b.accumulatedCostRealized),
           presentValue: formatCryptoWithFiat(b.currentBalance.toUnderlying()),

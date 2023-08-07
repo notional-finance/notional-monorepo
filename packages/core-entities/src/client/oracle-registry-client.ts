@@ -82,7 +82,12 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
           )
             return;
 
-          // TODO: if fCash, allow the settlement rate to override the oracle rate
+          if (oracle.oracleType === 'fCashOracleRate') {
+            // Suppress historical oracle rates
+            const { maturity } = decodeERC1155Id(oracle.quote);
+            if (maturity < getNowSeconds()) return;
+          }
+
           const quoteToBase =
             networkList.get(oracle.quote) || new Map<string, Node>();
           quoteToBase.set(oracle.base, {
@@ -178,29 +183,34 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
       return observable.pipe(
         map((o: OracleDefinition | null) => {
           if (!o) return null;
-          // TODO: need to handle settlement here....
 
           // fCash rates are interest rates so convert them to exchange rates in SCALAR_PRECISION here
-          if (
-            o.oracleType === 'fCashOracleRate' ||
-            o.oracleType === 'fCashSpotRate'
-          ) {
+          if (o.oracleType === 'fCashOracleRate') {
             // Adjustment is set to identity values if riskAdjusted is set to None.
             const { interestAdjustment, maxDiscountFactor, oracleRateLimit } =
               config.getInterestRiskAdjustment(o, node.inverted, riskAdjusted);
 
             // The fcash asset is always the quote asset in the oracle
             const { maturity } = decodeERC1155Id(o.quote);
-            let rate = o.latestRate.rate.add(interestAdjustment);
+            let rate = o.latestRate.rate;
 
             // Apply oracle min or max limits after adjustments
             if (rate.lt(0)) {
               // Always floor rates at zero
               rate = BigNumber.from(0);
             } else if (oracleRateLimit && riskAdjusted === 'Asset') {
-              rate = rate.gt(oracleRateLimit) ? oracleRateLimit : rate;
+              const adjustedRate = rate.add(interestAdjustment);
+              rate = adjustedRate.lt(oracleRateLimit)
+                ? oracleRateLimit
+                : adjustedRate;
             } else if (oracleRateLimit && riskAdjusted === 'Debt') {
-              rate = rate.lt(oracleRateLimit) ? oracleRateLimit : rate;
+              const adjustedRate = rate.lt(interestAdjustment)
+                ? BigNumber.from(0)
+                : rate.sub(interestAdjustment);
+
+              rate = adjustedRate.gt(oracleRateLimit)
+                ? oracleRateLimit
+                : adjustedRate;
             }
 
             const exchangeRate = this.interestToExchangeRate(
@@ -215,7 +225,7 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
               return {
                 ...o.latestRate,
                 // Scale the discount factor up to 18 decimals
-                rate: BigNumber.from(maxDiscountFactor).mul(RATE_PRECISION),
+                rate: maxDiscountFactor,
               };
             } else {
               return { ...o.latestRate, rate: exchangeRate };
@@ -353,7 +363,7 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
     maturity: number,
     currentTime = getNowSeconds()
   ) {
-    if (maturity <= currentTime) return SCALAR_PRECISION;
+    if (maturity < currentTime) throw Error('Matured interest rate');
 
     // exchange rate = e ^ (rt)
     return BigNumber.from(

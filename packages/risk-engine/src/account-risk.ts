@@ -50,7 +50,7 @@ export class AccountRiskProfile extends BaseRiskProfile {
     const debts = this.totalDebt();
     if (debts.isZero()) return null;
 
-    return this._toPercent(this.totalAssets(), debts);
+    return this._toPercent(this.totalAssets(), debts.neg());
   }
 
   healthFactor() {
@@ -183,12 +183,23 @@ export class AccountRiskProfile extends BaseRiskProfile {
     }, TokenBalance.zero(denom));
   }
 
-  leverageRatio(): number | null {
-    const totalDebt = this.totalDebt().neg();
-    const totalAssets = this.totalAssets();
+  leverageRatio(currencyId?: number): number | null {
+    let totalAssets: TokenBalance;
+    let totalDebt: TokenBalance;
+    if (currencyId) {
+      // If currencyId is specified, then the leverage ratio
+      // is specific to the denomination currency, without cross
+      // currency haircuts applied.
+      totalAssets = this.totalCurrencyAssetsRiskAdjusted(currencyId);
+      totalDebt = this.totalCurrencyDebtsRiskAdjusted(currencyId);
+    } else {
+      totalDebt = this.totalDebt();
+      totalAssets = this.totalAssets();
+    }
+
     return totalDebt.isZero()
       ? null
-      : totalDebt.ratioWith(totalAssets.sub(totalDebt)).toNumber() /
+      : totalDebt.neg().ratioWith(totalAssets.add(totalDebt)).toNumber() /
           RATE_PRECISION;
   }
 
@@ -294,6 +305,21 @@ export class AccountRiskProfile extends BaseRiskProfile {
   override maxWithdraw(token: TokenDefinition): TokenBalance {
     const balance = this.collateral.find((t) => t.token.id === token.id);
     if (!balance) return TokenBalance.zero(token);
+
+    // If the token's value is haircut to zero then we still have to take into
+    // account net local
+    const { haircut } =
+      Registry.getConfigurationRegistry().getCurrencyHaircutAndBuffer(
+        balance.underlying
+      );
+
+    if (haircut === 0) {
+      const netLocal = this.totalCurrencyAssetsRiskAdjusted(balance.currencyId)
+        .add(this.totalCurrencyDebtsRiskAdjusted(balance.currencyId))
+        .toToken(token);
+
+      return netLocal.lt(balance) ? netLocal : balance;
+    }
 
     const maxWithdraw = this.getWithdrawRequiredToMaintainRiskFactor(token, {
       riskFactor: 'freeCollateral',

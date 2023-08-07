@@ -25,9 +25,6 @@ export const useInvestEarnLinks = () => {
     },
   } = useAllMarkets();
 
-  // TODO: Add real leveraged and variable rate data when available.
-  // TODO: Add links to leveraged card pages after those are created
-
   const lowRiskLinks: SectionLinkProps[] = [
     {
       title: <FormattedMessage defaultMessage={'Fixed Rate Lending'} />,

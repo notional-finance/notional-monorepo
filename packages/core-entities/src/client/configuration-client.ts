@@ -297,36 +297,36 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
       } = this.getVaultIDs(network, vaultAddress, maturity);
 
       tokens.registerToken(
-        this._vaultIdToTokenDefinition(vaultShareID, network)
+        this.vaultIdToTokenDefinition(vaultShareID, network)
       );
       tokens.registerToken(
-        this._vaultIdToTokenDefinition(primaryDebtID, network)
+        this.vaultIdToTokenDefinition(primaryDebtID, network)
       );
       tokens.registerToken(
-        this._vaultIdToTokenDefinition(primaryCashID, network)
+        this.vaultIdToTokenDefinition(primaryCashID, network)
       );
 
       if (secondaryOneDebtID && secondaryOneCashID) {
         tokens.registerToken(
-          this._vaultIdToTokenDefinition(secondaryOneDebtID, network)
+          this.vaultIdToTokenDefinition(secondaryOneDebtID, network)
         );
         tokens.registerToken(
-          this._vaultIdToTokenDefinition(secondaryOneCashID, network)
+          this.vaultIdToTokenDefinition(secondaryOneCashID, network)
         );
       }
 
       if (secondaryTwoDebtID && secondaryTwoCashID) {
         tokens.registerToken(
-          this._vaultIdToTokenDefinition(secondaryTwoDebtID, network)
+          this.vaultIdToTokenDefinition(secondaryTwoDebtID, network)
         );
         tokens.registerToken(
-          this._vaultIdToTokenDefinition(secondaryTwoCashID, network)
+          this.vaultIdToTokenDefinition(secondaryTwoCashID, network)
         );
       }
     });
   }
 
-  private _vaultIdToTokenDefinition(
+  public vaultIdToTokenDefinition(
     id: string,
     network: Network
   ): TokenDefinition {
@@ -424,7 +424,7 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
     if (oracle.oracleType !== 'fCashOracleRate' || riskAdjusted === 'None') {
       return {
         interestAdjustment: 0,
-        maxDiscountFactor: RATE_PRECISION,
+        maxDiscountFactor: SCALAR_PRECISION,
         oracleRateLimit: undefined,
       };
     }
@@ -438,10 +438,10 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
 
     if (riskAdjusted === 'Asset') {
       return {
-        interestAdjustment: -this._assertDefined(
-          config.fCashHaircutBasisPoints
-        ),
-        maxDiscountFactor: this._assertDefined(config.fCashMaxDiscountFactor),
+        interestAdjustment: this._assertDefined(config.fCashHaircutBasisPoints),
+        maxDiscountFactor: BigNumber.from(
+          this._assertDefined(config.fCashMaxDiscountFactor)
+        ).mul(RATE_PRECISION),
         oracleRateLimit: BigNumber.from(
           this._assertDefined(config.fCashMaxOracleRate)
         ),
@@ -451,7 +451,7 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
         interestAdjustment: this._assertDefined(
           config.fCashDebtBufferBasisPoints
         ),
-        maxDiscountFactor: RATE_PRECISION,
+        maxDiscountFactor: SCALAR_PRECISION,
         oracleRateLimit: BigNumber.from(
           this._assertDefined(config.fCashMinOracleRate)
         ),

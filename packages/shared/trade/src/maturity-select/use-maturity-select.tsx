@@ -5,7 +5,7 @@ import {
   useSpotMaturityData,
 } from '@notional-finance/notionable-hooks';
 import { formatInterestRate } from '@notional-finance/util';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 
 export const useMaturitySelect = (
   category: 'Collateral' | 'Debt',
@@ -32,17 +32,20 @@ export const useMaturitySelect = (
   // Need to check if deposit is set to resolve some race conditions here
   const spotMaturityData = useSpotMaturityData(deposit ? tokens : []);
 
-  const maturityData: MaturityData[] =
-    options?.map((o) => {
-      return {
-        token: o.token,
-        tokenId: o.token.id,
-        tradeRate: o.interestRate,
-        maturity: o.token.maturity || 0,
-        hasLiquidity: true,
-        tradeRateString: formatInterestRate(o.interestRate),
-      };
-    }) || spotMaturityData;
+  const maturityData: MaturityData[] = useMemo(() => {
+    return (
+      options?.map((o) => {
+        return {
+          token: o.token,
+          tokenId: o.token.id,
+          tradeRate: o.interestRate,
+          maturity: o.token.maturity || 0,
+          hasLiquidity: true,
+          tradeRateString: formatInterestRate(o.interestRate),
+        };
+      }) || spotMaturityData
+    );
+  }, [options, spotMaturityData]);
 
   const onSelect = useCallback(
     (selectedId: string | undefined) => {

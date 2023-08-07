@@ -89,12 +89,11 @@ export const useAllMarkets = () => {
       null as YieldData | null
     );
   }, []);
+  const nonLeveragedYields = allYields.filter((y) => y.leveraged === undefined);
 
   const yields = {
-    liquidity: allYields
-      .filter(
-        (y) => y.token.tokenType === 'nToken' && y.leveraged === undefined
-      )
+    liquidity: nonLeveragedYields
+      .filter((y) => y.token.tokenType === 'nToken')
       .map((y) => {
         return {
           ...y,
@@ -102,8 +101,8 @@ export const useAllMarkets = () => {
           link: `${PRODUCTS.LIQUIDITY_VARIABLE}/${y.underlying.symbol}`,
         };
       }),
-    fCashLend: allYields
-      .filter((y) => y.token.tokenType === 'fCash' && y.leveraged === undefined)
+    fCashLend: nonLeveragedYields
+      .filter((y) => y.token.tokenType === 'fCash')
       .map((y) => {
         return {
           ...y,
@@ -111,8 +110,8 @@ export const useAllMarkets = () => {
           link: `${PRODUCTS.LEND_FIXED}/${y.underlying.symbol}`,
         };
       }),
-    fCashBorrow: allYields
-      .filter((y) => y.token.tokenType === 'fCash' && y.leveraged === undefined)
+    fCashBorrow: nonLeveragedYields
+      .filter((y) => y.token.tokenType === 'fCash')
       .map((y) => {
         return {
           ...y,
@@ -120,10 +119,8 @@ export const useAllMarkets = () => {
           link: `${PRODUCTS.BORROW_FIXED}/${y.underlying.symbol}`,
         };
       }),
-    variableLend: allYields
-      .filter(
-        (y) => y.token.tokenType === 'PrimeCash' && y.leveraged === undefined
-      )
+    variableLend: nonLeveragedYields
+      .filter((y) => y.token.tokenType === 'PrimeCash')
       .map((y) => {
         return {
           ...y,
@@ -131,7 +128,7 @@ export const useAllMarkets = () => {
           link: `${PRODUCTS.LEND_VARIABLE}/${y.underlying.symbol}`,
         };
       }),
-    variableBorrow: allYields
+    variableBorrow: nonLeveragedYields
       .filter((y) => y.token.tokenType === 'PrimeDebt')
       .map((y) => {
         return {
@@ -141,7 +138,7 @@ export const useAllMarkets = () => {
         };
       }),
     leveragedVaults: allYields
-      .filter((y) => y.token.tokenType === 'VaultShare')
+      .filter((y) => y.token.tokenType === 'VaultShare' && !!y.leveraged)
       .map((y) => {
         return {
           ...y,
@@ -203,6 +200,7 @@ export const useAllMarkets = () => {
     getMin,
     earnYields: earnYields,
     borrowYields: borrowYields,
+    nonLeveragedYields,
   };
 };
 
@@ -234,25 +232,24 @@ export const useFCashMarket = (currencyId?: number) => {
 export const useSpotMaturityData = (
   tokens?: TokenDefinition[]
 ): MaturityData[] => {
-  const { allYields } = useAllMarkets();
-  const allYieldsNoLeverage = allYields.filter(
-    (y) => y.leveraged === undefined
-  );
+  const { nonLeveragedYields } = useAllMarkets();
 
-  return (
-    tokens?.map((t) => {
-      const _t = Registry.getTokenRegistry().unwrapVaultToken(t);
-      const spotRate =
-        allYieldsNoLeverage.find((y) => y.token.id === _t.id)?.totalAPY || 0;
+  return useMemo(() => {
+    return (
+      tokens?.map((t) => {
+        const _t = Registry.getTokenRegistry().unwrapVaultToken(t);
+        const spotRate =
+          nonLeveragedYields.find((y) => y.token.id === _t.id)?.totalAPY || 0;
 
-      return {
-        token: t,
-        tokenId: t.id,
-        tradeRate: spotRate,
-        maturity: t.maturity || 0,
-        hasLiquidity: true,
-        tradeRateString: formatInterestRate(spotRate),
-      };
-    }) || []
-  );
+        return {
+          token: t,
+          tokenId: t.id,
+          tradeRate: spotRate,
+          maturity: t.maturity || 0,
+          hasLiquidity: true,
+          tradeRateString: formatInterestRate(spotRate),
+        };
+      }) || []
+    );
+  }, [tokens, nonLeveragedYields]);
 };

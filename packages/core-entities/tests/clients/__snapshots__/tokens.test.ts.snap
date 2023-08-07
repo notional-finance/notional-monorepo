@@ -1,13 +1,13 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Token Registry Exchange Rates [MULTIHOP] can find a path from wsteth => wbtc 1`] = `14.211024790658529`;
+exports[`Token Registry Exchange Rates [MULTIHOP] can find a path from wsteth => wbtc 1`] = `14.385425984890318`;
 
-exports[`Token Registry Exchange Rates can convert prime cash to fiat currency 1`] = `"144.64747400 JPY"`;
+exports[`Token Registry Exchange Rates can convert prime cash to fiat currency 1`] = `"¥139.40654500"`;
 
-exports[`Token Registry Exchange Rates can note to fiat currency 1`] = `"0.16707200 USD"`;
+exports[`Token Registry Exchange Rates can note to fiat currency 1`] = `"$0.16036500"`;
 
-exports[`Token Registry Exchange Rates can note to fiat currency 2`] = `"0.00008779 ETH"`;
+exports[`Token Registry Exchange Rates can note to fiat currency 2`] = `"0.00008504 ETH"`;
 
-exports[`Token Registry Exchange Rates can note to fiat currency 3`] = `"0.00000546 WBTC"`;
+exports[`Token Registry Exchange Rates can note to fiat currency 3`] = `"0.00000522 WBTC"`;
 
-exports[`Token Registry Token Balance can convert prime cash to underlying tokens 1`] = `"1.00000089 ETH"`;
+exports[`Token Registry Token Balance can convert prime cash to underlying tokens 1`] = `"1.00000119 ETH"`;

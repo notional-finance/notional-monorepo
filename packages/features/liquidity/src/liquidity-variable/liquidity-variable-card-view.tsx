@@ -1,12 +1,12 @@
 import { Box, ThemeProvider, styled } from '@mui/material';
 import {
   useAllMarkets,
+  useGlobalContext,
   useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
 import { useEffect, useState } from 'react';
 import { FormattedMessage, defineMessage } from 'react-intl';
 import { PRODUCTS } from '@notional-finance/shared-config';
-import { useUserSettingsState } from '@notional-finance/user-settings-manager';
 import { CardContainer } from '@notional-finance/shared-web';
 import { useNotionalTheme } from '@notional-finance/styles';
 import {
@@ -29,7 +29,9 @@ const StyledLink = styled(Link)(
 );
 
 export const LiquidityVariableCardView = () => {
-  const { themeVariant } = useUserSettingsState();
+  const {
+    state: { themeVariant },
+  } = useGlobalContext();
   const themeLanding = useNotionalTheme(themeVariant, 'landing');
   const network = useSelectedNetwork();
   const {

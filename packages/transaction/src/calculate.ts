@@ -12,8 +12,8 @@ import {
   VaultAccountRiskProfile,
 } from '@notional-finance/risk-engine';
 import {
-  BASIS_POINT,
   PRIME_CASH_VAULT_MATURITY,
+  RATE_DECIMALS,
   RATE_PRECISION,
 } from '@notional-finance/util';
 
@@ -136,6 +136,7 @@ export function calculateCollateral({
   // Total collateral required in prime cash
   const totalCollateralPrime = localDepositPrime.add(localDebtPrime);
   const netRealizedCollateralBalance = totalCollateralPrime.toUnderlying();
+  const netRealizedDebtBalance = localDebtPrime.toUnderlying().neg();
 
   if (totalCollateralPrime.isZero()) {
     return {
@@ -143,6 +144,7 @@ export function calculateCollateral({
       collateralBalance: TokenBalance.zero(collateral),
       debtFee,
       collateralFee: totalCollateralPrime.copy(0),
+      netRealizedDebtBalance,
     };
   } else if (collateral.tokenType === 'PrimeCash') {
     return {
@@ -150,6 +152,7 @@ export function calculateCollateral({
       collateralBalance: totalCollateralPrime,
       debtFee,
       collateralFee: totalCollateralPrime.copy(0),
+      netRealizedDebtBalance,
     };
   } else if (collateral.tokenType === 'nToken') {
     const tokensIn = collateralPool.zeroTokenArray();
@@ -162,6 +165,7 @@ export function calculateCollateral({
       collateralBalance: lpTokens,
       debtFee,
       collateralFee: feesPaid[0],
+      netRealizedDebtBalance,
     };
   } else if (collateral.tokenType === 'fCash') {
     const { tokensOut, feesPaid } = collateralPool.calculateTokenTrade(
@@ -174,6 +178,7 @@ export function calculateCollateral({
       collateralBalance: tokensOut,
       debtFee,
       collateralFee: feesPaid[0],
+      netRealizedDebtBalance,
     };
   }
 
@@ -441,8 +446,6 @@ export function calculateDebtCollateralGivenDepositRiskLimit({
   depositBalance,
   balances,
   riskFactorLimit,
-  maxCollateralSlippage = 25 * BASIS_POINT,
-  maxDebtSlippage = 25 * BASIS_POINT,
 }: {
   collateral: TokenDefinition;
   debt: TokenDefinition;
@@ -451,86 +454,24 @@ export function calculateDebtCollateralGivenDepositRiskLimit({
   depositBalance: TokenBalance | undefined;
   balances?: TokenBalance[];
   riskFactorLimit: RiskFactorLimit<RiskFactorKeys>;
-  maxCollateralSlippage?: number;
-  maxDebtSlippage?: number;
 }) {
-  let netCollateralFromDeposit: TokenBalance;
-  let depositCollateralFee: TokenBalance;
-
-  if (depositBalance) {
-    ({
-      collateralBalance: netCollateralFromDeposit,
-      collateralFee: depositCollateralFee,
-    } = calculateCollateral({
-      collateral,
-      collateralPool,
-      depositBalance,
-    }));
-  } else {
-    netCollateralFromDeposit = TokenBalance.zero(collateral);
-    depositCollateralFee = netCollateralFromDeposit.toPrimeCash();
-  }
-  const riskProfile = AccountRiskProfile.simulate(balances ? balances : [], [
-    netCollateralFromDeposit,
-  ]);
-
-  // NOTE: this calculation is done at spot rates, does not include slippage. Perhaps
-  // we should allow manual slippage de-weighting here...
-  const { netDebt, netCollateral: netCollateralFromDebt } =
-    riskProfile.getDebtAndCollateralMaintainRiskFactor(
-      debt,
-      collateral,
-      riskFactorLimit
-    );
-
-  // Maybe we can calculate the net debt and net collateral using the pools
-  // and check how much slippage is incurred and then set a lower bound limit
-  // on that here while getting the fees...
-  const netCollateral = netCollateralFromDebt.add(netCollateralFromDeposit);
-  const netCollateralPrimeAtSpot = netCollateral.toPrimeCash();
-  const { localPrime: netRealizedCollateralBalance, fees: collateralFee } =
-    exchangeToLocalPrime(
-      netCollateral,
-      collateralPool,
-      netCollateralPrimeAtSpot.token
-    );
-
-  const netDebtPrimeAtSpot = netDebt.toPrimeCash();
-  const { localPrime: netRealizedDebtBalance, fees: debtFee } =
-    exchangeToLocalPrime(netDebt, debtPool, netDebtPrimeAtSpot.token);
-
-  if (
-    maxCollateralSlippage <
-    Math.abs(
-      netCollateralPrimeAtSpot
-        .ratioWith(netRealizedCollateralBalance)
-        .toNumber() - RATE_PRECISION
-    )
-  ) {
-    throw Error('Above max collateral slippage');
-  }
-
-  if (
-    maxDebtSlippage <
-    Math.abs(
-      netRealizedDebtBalance.neg().ratioWith(netDebtPrimeAtSpot).toNumber() -
-        RATE_PRECISION
-    )
-  ) {
-    throw Error('Above max debt slippage');
-  }
-
-  return {
-    collateralBalance: netCollateral,
-    debtBalance: netDebt,
-    debtFee: debtFee,
-    collateralFee: collateralFee.add(depositCollateralFee),
-    netRealizedCollateralBalance: netRealizedCollateralBalance.toUnderlying(),
-    netRealizedDebtBalance: netRealizedDebtBalance.neg().toUnderlying(),
-    netCollateralFromDebt,
-    netCollateralFromDeposit,
-    depositCollateralFee,
-  };
+  return new AccountRiskProfile(
+    balances ? balances : [],
+    collateral.network
+  ).getDebtAndCollateralMaintainRiskFactor(
+    debt,
+    riskFactorLimit,
+    (debtBalance: TokenBalance) => {
+      return calculateCollateral({
+        collateral,
+        collateralPool,
+        debtPool,
+        debtBalance,
+        depositBalance,
+      });
+    },
+    depositBalance?.scaleTo(RATE_DECIMALS).toNumber() || RATE_PRECISION
+  );
 }
 
 /**
@@ -544,8 +485,6 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
   depositBalance,
   balances,
   riskFactorLimit,
-  maxCollateralSlippage = 25 * BASIS_POINT,
-  maxDebtSlippage = 25 * BASIS_POINT,
 }: {
   collateral: TokenDefinition;
   debt: TokenDefinition;
@@ -560,83 +499,23 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
   const vaultAddress = collateral.vaultAddress;
   if (!vaultAddress) throw Error('Vault Address not defined');
 
-  const netVaultSharesFromDeposit = depositBalance
-    ? depositBalance.toToken(collateral)
-    : TokenBalance.zero(collateral);
-
-  const riskProfile = VaultAccountRiskProfile.simulate(
+  return VaultAccountRiskProfile.from(
     vaultAddress,
-    balances || [TokenBalance.zero(collateral)],
-    [netVaultSharesFromDeposit]
+    balances || [TokenBalance.zero(collateral)]
+  ).getDebtAndCollateralMaintainRiskFactor(
+    debt,
+    riskFactorLimit,
+    (debtBalance: TokenBalance) => {
+      return calculateVaultCollateral({
+        collateral,
+        vaultAdapter,
+        debtPool,
+        debtBalance,
+        depositBalance,
+      });
+    },
+    depositBalance?.scaleTo(RATE_DECIMALS).toNumber() || RATE_PRECISION
   );
-
-  // NOTE: this calculation is done at spot rates, does not include slippage. Perhaps
-  // we should allow manual slippage de-weighting here...
-  const { netDebt, netCollateral: netVaultSharesFromDebt } =
-    riskProfile.getDebtAndCollateralMaintainRiskFactor(
-      debt,
-      collateral,
-      riskFactorLimit
-    );
-
-  // This is the total net vault shares (from debt + from deposit) valued in
-  // underlying at the current oracle rate.
-  const netVaultShares = netVaultSharesFromDebt.add(netVaultSharesFromDeposit);
-  const netVaultSharesUnderlyingAtSpot = netVaultShares.toUnderlying();
-
-  const {
-    netUnderlyingForVaultShares: netRealizedCollateralBalance,
-    feesPaid,
-  } = vaultAdapter.getNetVaultSharesCost(netVaultShares);
-
-  const netDebtPrimeAtSpot = netDebt.toPrimeCash();
-  const { localPrime: primeCashBorrowedPreVaultFee, fees: debtFee } =
-    exchangeToLocalPrime(netDebt, debtPool, netDebtPrimeAtSpot.token);
-
-  if (!debt.maturity) throw Error('debt maturity undefined');
-  const { cashBorrowed: netRealizedDebtBalance, vaultFee } =
-    Registry.getConfigurationRegistry().getVaultBorrowWithFees(
-      debt.network,
-      vaultAddress,
-      debt.maturity,
-      primeCashBorrowedPreVaultFee.toPrimeCash()
-    );
-
-  if (
-    maxCollateralSlippage <
-    Math.abs(
-      netVaultSharesUnderlyingAtSpot
-        .ratioWith(netRealizedCollateralBalance)
-        .toNumber() - RATE_PRECISION
-    )
-  ) {
-    throw Error('Above max collateral slippage');
-  }
-
-  if (
-    netDebtPrimeAtSpot.isPositive() &&
-    maxDebtSlippage <
-      Math.abs(
-        primeCashBorrowedPreVaultFee
-          .neg()
-          .ratioWith(netDebtPrimeAtSpot)
-          .toNumber() - RATE_PRECISION
-      )
-  ) {
-    throw Error('Above max debt slippage');
-  }
-
-  return {
-    collateralBalance: netVaultShares,
-    debtBalance: netDebt,
-    debtFee: debtFee.add(vaultFee),
-    collateralFee: feesPaid,
-    netRealizedDebtBalance: netRealizedDebtBalance.neg().toUnderlying(),
-    netRealizedCollateralBalance,
-    netCollateralFromDebt: netVaultSharesFromDebt,
-    netCollateralFromDeposit: netVaultSharesFromDeposit,
-    depositCollateralFee: feesPaid.copy(0),
-  };
 }
 
 export function calculateVaultDebt({
@@ -717,8 +596,8 @@ export function calculateVaultCollateral({
   collateral: TokenDefinition;
   vaultAdapter: VaultAdapter;
   debtPool: fCashMarket;
-  depositBalance: TokenBalance;
   debtBalance: TokenBalance;
+  depositBalance?: TokenBalance;
 }): ReturnType<typeof calculateCollateral> {
   if (debtBalance.tokenType !== 'VaultDebt') throw Error('Invalid inputs');
 
@@ -735,23 +614,23 @@ export function calculateVaultCollateral({
       debtBalance.maturity,
       localDebtPrime
     );
-  const totalVaultShares = depositBalance
-    .toPrimeCash()
-    .add(cashBorrowed)
-    .toToken(collateral);
+
+  const netRealizedCollateralBalance = (
+    depositBalance || cashBorrowed.toUnderlying().copy(0)
+  ).add(cashBorrowed.toUnderlying());
 
   // This value accounts for slippage...
-  const { netUnderlyingForVaultShares, feesPaid } =
-    vaultAdapter.getNetVaultSharesCost(totalVaultShares);
+  const { netVaultSharesForUnderlying, feesPaid } =
+    vaultAdapter.getNetVaultSharesMinted(
+      netRealizedCollateralBalance,
+      collateral
+    );
 
   return {
-    collateralBalance: netUnderlyingForVaultShares.toToken(
-      totalVaultShares.token
-    ),
+    collateralBalance: netVaultSharesForUnderlying,
     debtFee: debtFee.add(vaultFee),
     collateralFee: feesPaid,
-    netRealizedCollateralBalance: depositBalance.add(
-      cashBorrowed.toUnderlying()
-    ),
+    netRealizedCollateralBalance,
+    netRealizedDebtBalance: cashBorrowed.neg().toUnderlying(),
   };
 }

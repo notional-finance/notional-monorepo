@@ -86,9 +86,6 @@
       "@notional-finance/trade": ["packages/shared/trade/src/index.ts"],
       "@notional-finance/trade/*": ["packages/shared/trade/src/*"],
       "@notional-finance/transaction": ["packages/transaction/src/index.ts"],
-      "@notional-finance/user-settings-manager": [
-        "packages/shared/user-settings-manager/src/index.ts"
-      ],
       "@notional-finance/util": ["packages/util/src/index.ts"],
       "@notional-finance/vault-feature-shell": [
         "packages/features/vault/src/index.ts"

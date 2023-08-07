@@ -17,9 +17,8 @@ export const LendVariableContext = createTradeContext('LendVariable');
 
 export const LendVariable = () => {
   const context = useTradeContext('LendVariable');
-  const {
-    state: { isReady, confirm, selectedDepositToken },
-  } = context;
+  const { state } = context;
+  const { isReady, confirm, selectedDepositToken } = state;
 
   const { faqs, faqHeaderLinks } = useLendVariableFaq(selectedDepositToken);
 
@@ -30,14 +29,7 @@ export const LendVariable = () => {
           showTransactionConfirmation={confirm}
           sideBar={<LendVariableSidebar />}
           mainContent={
-            <TradeActionSummary
-              selectedToken={selectedDepositToken || null}
-              tradedRate={undefined}
-              tradeActionTitle={
-                <FormattedMessage defaultMessage={'4.431% Variable APY'} />
-              }
-              tradeActionHeader={<FormattedMessage defaultMessage={'Lend'} />}
-            >
+            <TradeActionSummary state={state}>
               <FaqHeader
                 title={
                   <FormattedMessage defaultMessage={'Variable Lend FAQ'} />

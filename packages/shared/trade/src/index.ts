@@ -1,9 +1,5 @@
 export * from './trade-action-summary/trade-action-summary';
 export * from './trade-action-summary/mobile-trade-action-summary';
-export * from './trade-action-summary/trade-action-summary';
-export * from './trade-properties/index';
-export * from './trade-properties/trade-properties-grid';
-export * from './trade-properties/trade-property';
 
 /** New V3 Components */
 export * from './token-approval-view/token-approval-view';

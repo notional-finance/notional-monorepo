@@ -1,7 +1,7 @@
 import { Box, ThemeProvider } from '@mui/material';
 import { DropdownButton, Section } from '@notional-finance/mui';
 import { useNotionalTheme } from '@notional-finance/styles';
-import { useUserSettingsState } from '@notional-finance/user-settings-manager';
+import { useGlobalContext } from '@notional-finance/notionable-hooks';
 import { NAV_DROPDOWN, THEME_VARIANTS } from '@notional-finance/shared-config';
 import { useLocation } from 'react-router-dom';
 import { AnalyticsIcon } from '@notional-finance/icons';
@@ -11,7 +11,9 @@ import { messages } from '../messages';
 
 export function AnalyticsDropdown() {
   const { pathname } = useLocation();
-  const { themeVariant } = useUserSettingsState();
+  const {
+    state: { themeVariant },
+  } = useGlobalContext();
   const { links } = useAnalyticsDropdown();
 
   const flippedTheme =

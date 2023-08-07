@@ -81,10 +81,7 @@ function getOrderDetails(
       ((fCashMarket.getImpliedInterestRate(realized, b) || 0) * 100) /
       RATE_PRECISION;
   } else {
-    apy =
-      yieldData.find(
-        (y) => y.leveraged === undefined && y.token.id === b.tokenId
-      )?.totalAPY || 0;
+    apy = yieldData.find((y) => y.token.id === b.tokenId)?.totalAPY || 0;
   }
 
   let valueLabel: MessageDescriptor;
@@ -158,14 +155,14 @@ export function useOrderDetails(state: BaseTradeState): DetailItem[] {
     depositBalance,
   } = state;
   const intl = useIntl();
-  const { allYields } = useAllMarkets();
+  const { nonLeveragedYields } = useAllMarkets();
   const orderDetails: DetailItem[] = [];
   // Only show positive values if one of the values is defined
   const isLeverageOrRoll = !!debtBalance && !!collateralBalance;
 
   if (depositBalance?.isPositive()) {
     orderDetails.push({
-      label: intl.formatMessage(OrderDetailLabels.amountToWallet),
+      label: intl.formatMessage(OrderDetailLabels.amountFromWallet),
       value: depositBalance.toDisplayStringWithSymbol(3, true),
     });
   }
@@ -178,7 +175,7 @@ export function useOrderDetails(state: BaseTradeState): DetailItem[] {
         netRealizedDebtBalance,
         intl,
         isLeverageOrRoll,
-        allYields
+        nonLeveragedYields
       )
     );
 
@@ -189,13 +186,13 @@ export function useOrderDetails(state: BaseTradeState): DetailItem[] {
         netRealizedCollateralBalance,
         intl,
         isLeverageOrRoll,
-        allYields
+        nonLeveragedYields
       )
     );
 
   if (depositBalance?.isNegative()) {
     orderDetails.push({
-      label: intl.formatMessage(OrderDetailLabels.amountFromWallet),
+      label: intl.formatMessage(OrderDetailLabels.amountToWallet),
       value: depositBalance.neg().toDisplayStringWithSymbol(3, true),
     });
   }
@@ -391,7 +388,8 @@ export function useTradeSummary(state: BaseTradeState) {
       summary.push(getTradeDetail(netDebtBalance, 'Debt', 'deposit', intl));
     if (netAssetBalance?.isZero() === false)
       summary.push(getTradeDetail(netAssetBalance, 'Asset', 'deposit', intl));
-  } else if (depositBalance?.isNegative()) {
+  } else if (depositBalance?.isNegative() || depositBalance === undefined) {
+    // NOTE: deposit balance is undefined during max withdraw
     if (netAssetBalance?.isZero() === false)
       summary.push(
         getTradeDetail(netAssetBalance.neg(), 'Asset', 'withdraw', intl)
@@ -406,7 +404,10 @@ export function useTradeSummary(state: BaseTradeState) {
 
   let feeValue = TokenBalance.zero(underlying);
   if (isLeverageOrRoll) {
-    feeValue = collateralBalance.toUnderlying().add(debtBalance.toUnderlying());
+    feeValue = collateralBalance
+      .toUnderlying()
+      .sub(depositBalance || TokenBalance.zero(underlying))
+      .add(debtBalance.toUnderlying());
   } else if (collateralBalance && depositBalance) {
     feeValue = depositBalance
       .toUnderlying()
@@ -415,6 +416,9 @@ export function useTradeSummary(state: BaseTradeState) {
     feeValue = depositBalance.toUnderlying().sub(debtBalance.toUnderlying());
   }
 
+  // TODO: Deposit balances are emitted prior to collateral balances here and
+  // so it causes the fee value to "toggle" a bit as the value changes. Ideally
+  // we move the calculations into the observable so this is hidden
   summary.push({
     label: intl.formatMessage({ defaultMessage: 'Fees and Slippage' }),
     value: feeValue.toDisplayStringWithSymbol(3, true),
@@ -520,10 +524,10 @@ function getLiquidationPrices(
 
     return {
       label: `${
-        isCrossCurrency ? `${collateralTitle}/${debtTitle}` : collateralTitle
+        isCrossCurrency ? `${collateralTitle}/${debtTitle}` : debtTitle
       } Liquidation Price`,
-      current: current?.price.toDisplayStringWithSymbol(3, true) || '-',
-      updated: updated?.price.toDisplayStringWithSymbol(3, true) || '-',
+      current: current?.price.toUnderlying().toDisplayStringWithSymbol(3, true) || '-',
+      updated: updated?.price.toUnderlying().toDisplayStringWithSymbol(3, true) || '-',
       changeType: getChangeType(
         current?.price.toFloat(),
         updated?.price.toFloat()
@@ -539,8 +543,12 @@ export function usePortfolioLiquidationRisk(state: TradeState) {
   const intl = useIntl();
   const healthFactor = {
     label: intl.formatMessage({ defaultMessage: 'Health Factor' }),
-    current: priorAccountRisk?.healthFactor?.toFixed(3) || '-',
-    updated: postAccountRisk?.healthFactor?.toFixed(3) || '-',
+    current: onlyCurrent
+      ? `${priorAccountRisk?.healthFactor?.toFixed(3) || '-'} / 10`
+      : priorAccountRisk?.healthFactor?.toFixed(3) || '-',
+    updated: onlyCurrent
+      ? undefined
+      : `${postAccountRisk.healthFactor.toFixed(3)} / 10`,
     changeType: getChangeType(
       priorAccountRisk?.healthFactor,
       postAccountRisk?.healthFactor
