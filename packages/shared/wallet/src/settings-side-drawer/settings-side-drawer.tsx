@@ -116,9 +116,14 @@ export const SettingsSideDrawer = ({
             >
               {data.label}
             </H4>
-            <ButtonData>
-              {data?.CustomButton ? <data.CustomButton /> : data.buttonText}
-            </ButtonData>
+            {data.key === 'primeBorrow' && data.CustomButton && (
+              <data.CustomButton />
+            )}
+            {data.key !== 'primeBorrow' && (
+              <ButtonData>
+                {data.CustomButton ? <data.CustomButton /> : data.buttonText}
+              </ButtonData>
+            )}
           </SideDrawerButton>
         ))}
       </Box>

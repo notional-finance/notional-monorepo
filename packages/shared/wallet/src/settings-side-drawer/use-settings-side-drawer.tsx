@@ -15,6 +15,7 @@ import {
 import { useConnect } from '../hooks/use-connect';
 import { FormattedMessage } from 'react-intl';
 import { ReactNode } from 'react';
+import PrimeBorrowToggle from './prime-borrow-toggle/prime-borrow-toggle';
 
 export interface SettingsItem {
   key: string;
@@ -154,6 +155,18 @@ export const useSettingsSideDrawer = () => {
       ),
       ViewComponent: BaseCurrency,
       CustomButton: BaseCurrencyButton,
+      buttonText: '',
+    },
+    {
+      key: 'primeBorrow',
+      active: false,
+      label: (
+        <FormattedMessage
+          defaultMessage="Prime Borrow"
+          description={'Dark Mode option title'}
+        />
+      ),
+      CustomButton: PrimeBorrowToggle,
       buttonText: '',
     },
   ];

@@ -415,13 +415,15 @@ export function buildTransaction(
             network: a.network,
           })
         ).pipe(
-          map((p) => ({ populatedTransaction: p })),
+          map((p) => ({
+            populatedTransaction: p,
+            transactionError: undefined,
+          })),
           catchError((e) => {
             // TODO: this should log to datadog
             console.error('Transaction Builder Error', e);
             return of({
               populatedTransaction: undefined,
-              simulatedResults: undefined,
               transactionError: e.toString(),
               confirm: false,
             });
