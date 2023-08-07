@@ -12,6 +12,7 @@ import {
   Observable,
   of,
   Subscription,
+  switchMap,
   take,
   timeout,
   timer,
@@ -151,7 +152,7 @@ export abstract class BaseRegistry<T> {
   ) {
     of(intervalNum)
       .pipe(
-        exhaustMap((intervalNum) => {
+        switchMap((intervalNum) => {
           return from(this._refresh(network, intervalNum)).pipe(
             timeout(3 * ONE_SECOND_MS)
           );

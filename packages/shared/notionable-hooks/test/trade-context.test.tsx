@@ -59,7 +59,7 @@ describe.withForkAndRegistry(
 
       await waitForNextUpdate();
 
-      expect(result.current.state.selectedCollateralToken).toBe('nUSDC');
+      expect(result.current.state.collateral?.symbol).toBe('nUSDC');
       expect(result.current.state.tradeType).toBe('MintNToken');
 
       act(() => {
@@ -68,7 +68,7 @@ describe.withForkAndRegistry(
 
       await waitForNextUpdate();
 
-      expect(result.current.state.selectedCollateralToken).toBeUndefined();
+      expect(result.current.state.collateral).toBeUndefined();
       expect(result.current.state.selectedDepositToken).toBeUndefined();
       expect(result.current.state.tradeType).toBe('LendFixed');
     });
@@ -85,7 +85,7 @@ describe.withForkAndRegistry(
 
         await waitForNextUpdate();
 
-        expect(result.current.state.selectedCollateralToken).toBe('nUSDC');
+        expect(result.current.state.collateral?.symbol).toBe('nUSDC');
 
         act(() => {
           result.current.updateState({

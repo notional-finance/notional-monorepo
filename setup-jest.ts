@@ -10,6 +10,13 @@ import fs from 'fs';
 import { Server } from 'node:http';
 import { AccountFetchMode } from '@notional-finance/core-entities/src/client/account-registry-client';
 
+/**
+ * NOTE: polyfills jsdom environment
+ * https://stackoverflow.com/questions/68468203/why-am-i-getting-textencoder-is-not-defined-in-jest
+ */
+import { TextEncoder, TextDecoder } from 'util';
+Object.assign(global, { TextDecoder, TextEncoder });
+
 require('dotenv').config();
 
 const runSetup = true;

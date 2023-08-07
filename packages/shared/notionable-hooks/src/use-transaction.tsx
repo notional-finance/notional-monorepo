@@ -2,11 +2,7 @@ import { TransactionReceipt } from '@ethersproject/providers';
 import { trackEvent } from '@notional-finance/helpers';
 import { filterEmpty } from '@notional-finance/util';
 import { PopulatedTransaction } from 'ethers';
-import {
-  useObservable,
-  useSubscription,
-  useObservableState,
-} from 'observable-hooks';
+import { useObservable, useSubscription } from 'observable-hooks';
 import { useCallback, useEffect, useState } from 'react';
 import { map, switchMap } from 'rxjs';
 import { useNotionalContext } from './use-notional';
@@ -71,17 +67,23 @@ function usePendingTransaction(hash?: string) {
     [sentTransactions, hash]
   );
 
-  const updateTxn = (r: TransactionReceipt) => {
-    // Removes the completed transaction hash
-    const { [r.transactionHash]: _, ...newSentTransactions } = sentTransactions;
-    // Updates the global state with the new transaction hash
-    updateNotional({
-      sentTransactions: newSentTransactions,
-      completedTransactions: Object.assign(completedTransactions, {
+  const updateTxn = useCallback(
+    (r: TransactionReceipt) => {
+      // Removes the completed transaction hash
+      const { [r.transactionHash]: _, ...newSentTransactions } =
+        sentTransactions;
+      const newCompletedTransactions = Object.assign(completedTransactions, {
         [r.transactionHash]: r,
-      }),
-    });
-  };
+      });
+
+      // Updates the global state with the new transaction hash
+      updateNotional({
+        sentTransactions: newSentTransactions,
+        completedTransactions: newCompletedTransactions,
+      });
+    },
+    [updateNotional, completedTransactions, sentTransactions]
+  );
 
   // Updates the global state when the receipt completes
   useSubscription(
@@ -101,15 +103,7 @@ function usePendingTransaction(hash?: string) {
   );
 
   // Returns the completed transaction receipt
-  const complete$ = useObservable(
-    (i$) =>
-      i$.pipe(
-        map(([c, h]) => (h ? c[h] : undefined)),
-        filterEmpty()
-      ),
-    [completedTransactions, hash]
-  );
-  const transactionReceipt = useObservableState(complete$);
+  const transactionReceipt = hash ? completedTransactions[hash] : undefined;
 
   return { transactionReceipt, reverted: transactionReceipt?.status === 0 };
 }
