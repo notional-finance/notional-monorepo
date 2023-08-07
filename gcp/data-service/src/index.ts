@@ -67,6 +67,7 @@ async function main() {
     frequency: 3600, // Hourly
     startingBlock: 86540848, // Oldest block in the subgraph
     registryUrl: process.env.REGISTRY_BASE_URL,
+    mergeConflicts: JSON.parse(process.env.MERGE_CONFLICTS || 'false'),
   });
 
   app.use(express.json());
@@ -84,7 +85,7 @@ async function main() {
       );
       const blockNumbers = await Promise.all(
         timestamps.map((ts) =>
-          dataService.getBlockNumberByTimestamp(params.network, ts)
+          dataService.getBlockNumberFromTs(params.network, ts)
         )
       );
       res.send(JSON.stringify(blockNumbers));

@@ -45,6 +45,7 @@ export type DataServiceSettings = {
   frequency: number; // hourly, daily etc.
   startingBlock: number;
   registryUrl: string;
+  mergeConflicts: boolean;
 };
 
 export default class DataService {
@@ -123,14 +124,18 @@ export default class DataService {
     }
   }
 
-  private async getBlockNumberFromTs(network: Network, ts: number) {
+  public async getBlockNumberFromTs(network: Network, ts: number) {
+    const networkId = this.networkToId(network);
+    if (!networkId) {
+      throw Error(`Invalid network ${network}`);
+    }
     ts = this.intervalTimestamp(ts);
     // get blockNumber by timestamp
     const record = await this.db
       .select()
       .from(DataService.TS_BN_MAPPINGS_TABLE_NAME)
       .where('timestamp', ts)
-      .andWhere('network_id', this.networkToId(network));
+      .andWhere('network_id', networkId);
     let blockNumber = 0;
     if (record.length === 0) {
       blockNumber = await this.getBlockNumberByTimestamp(network, ts);
@@ -139,7 +144,7 @@ export default class DataService {
           {
             timestamp: ts,
             block_number: blockNumber,
-            network_id: this.networkToId(network),
+            network_id: networkId,
           },
         ])
         .into(DataService.TS_BN_MAPPINGS_TABLE_NAME);
@@ -170,7 +175,7 @@ export default class DataService {
         this.oracleTypeToId(d[1].oracleType) && this.networkToId(d[1].network)
     );
 
-    await this.db
+    const query = this.db
       .insert(
         values.map((v) => ({
           base: v[1].base,
@@ -185,8 +190,13 @@ export default class DataService {
         }))
       )
       .into(DataService.ORACLE_DATA_TABLE_NAME)
-      .onConflict(['base', 'quote', 'oracle_type', 'network', 'timestamp'])
-      .ignore();
+      .onConflict(['base', 'quote', 'oracle_type', 'network', 'timestamp']);
+
+    if (this.settings.mergeConflicts) {
+      await query.merge();
+    } else {
+      await query.ignore();
+    }
 
     return blockNumber;
   }
@@ -303,6 +313,7 @@ export default class DataService {
           {
             tableName: k,
             timestamp: ts,
+            mergeConflicts: this.settings.mergeConflicts,
           },
           dbData.get(k) || []
         );
@@ -322,7 +333,7 @@ export default class DataService {
     return (await resp.json()).values;
   }
 
-  public async getBlockNumberByTimestamp(
+  private async getBlockNumberByTimestamp(
     network: Network,
     targetTimestamp: number
   ) {
@@ -335,7 +346,7 @@ export default class DataService {
 
     while (true) {
       if (requestsMade > this.settings.maxProviderRequests) {
-        break;
+        throw Error(`Too many requests ${requestsMade}`);
       }
       if (highBlock && lowBlock) {
         if (

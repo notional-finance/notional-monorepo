@@ -103,6 +103,7 @@ export interface DataRow {
 export interface DataContext {
   tableName: string;
   timestamp: number;
+  mergeConflicts: boolean;
 }
 
 export interface IDataWriter {

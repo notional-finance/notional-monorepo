@@ -1,5 +1,4 @@
 import * as path from 'path';
-require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 import { Network, ZERO_ADDRESS } from '@notional-finance/util';
 import fs from 'fs';
 import { AccountFetchMode } from '@notional-finance/core-entities';
@@ -7,7 +6,11 @@ import { HistoricalRegistry } from './HistoricalRegistry';
 import blockRange from './blockRange.json';
 import Knex from 'knex';
 
+/* eslint-disable @typescript-eslint/no-var-requires */
+require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
+
 const network = Network.ArbitrumOne;
+const mergeConflicts = JSON.parse(process.env.MERGE_CONFLICTS || 'false');
 
 const networkToId = {
   mainnet: 1,
@@ -56,7 +59,7 @@ function getYieldData(network: Network, block: number) {
         y.incentives?.length > 0 ? y.incentives[0].incentiveAPY : undefined,
       leverage: y.leveraged?.leverageRatio,
       max_leverage: y.leveraged?.maxLeverageRatio,
-      debt_token: y.leveraged ? y.leveraged.debtToken.id : ZERO_ADDRESS,
+      debt_token: y.leveraged ? y.leveraged.debtToken.id : '',
       debt_rate: y.leveraged?.debtRate,
     };
   });
@@ -103,7 +106,7 @@ async function main() {
     const yieldData = getYieldData(network, block);
     const oracleData = getOracleData(network);
 
-    await db
+    const yieldQuery = db
       .insert(yieldData.flatMap((_) => _))
       .into('yield_data')
       .onConflict([
@@ -112,14 +115,24 @@ async function main() {
         'debt_token',
         'network_id',
         'block_number',
-      ])
-      .ignore();
+      ]);
 
-    await db
+    if (mergeConflicts) {
+      await yieldQuery.merge();
+    } else {
+      await yieldQuery.ignore();
+    }
+
+    const oracleQuery = db
       .insert(oracleData.flatMap((_) => _))
       .into('oracle_data')
-      .onConflict(['base', 'quote', 'oracle_type', 'network', 'timestamp'])
-      .ignore();
+      .onConflict(['base', 'quote', 'oracle_type', 'network', 'timestamp']);
+
+    if (mergeConflicts) {
+      await oracleQuery.merge();
+    } else {
+      await oracleQuery.ignore();
+    }
 
     yieldResults.push(yieldData);
     oracleResults.push(oracleData);
