@@ -93,21 +93,27 @@ export default class DataService {
     return now.getTime() / 1000;
   }
 
-  public async backfill(
-    startTime: number,
-    endTime: number,
-    type: BackfillType
-  ) {
+  public getTimestamps(startTime: number, endTime: number) {
     startTime = this.intervalTimestamp(startTime);
     endTime = this.intervalTimestamp(endTime);
     if (startTime === endTime) {
-      return;
+      return [];
     }
     const timestamps: number[] = [];
     while (startTime < endTime) {
       timestamps.push(startTime);
       startTime += this.settings.interval * this.settings.frequency;
     }
+
+    return timestamps;
+  }
+
+  public async backfill(
+    startTime: number,
+    endTime: number,
+    type: BackfillType
+  ) {
+    const timestamps = this.getTimestamps(startTime, endTime);
     if (type === BackfillType.GenericData) {
       await Promise.all(timestamps.map((ts) => this.syncGenericData(ts)));
     } else if (type === BackfillType.OracleData) {

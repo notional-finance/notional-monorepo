@@ -28,6 +28,23 @@ const createUnixSocketPool = () => {
   });
 };
 
+const parseQueryParams = (q) => {
+  const startTime = parseInt((q.startTime as string) || '0');
+  let endTime = Date.now() / 1000;
+  if (q.endTime) {
+    endTime = parseInt(q.endTime as string);
+  }
+  if (endTime < startTime) {
+    throw Error('endTime must be greater than startTime');
+  }
+  const network = q.network ? (q.network as Network) : Network.Mainnet;
+  return {
+    startTime: startTime,
+    endTime: endTime,
+    network: network,
+  };
+};
+
 async function main() {
   if (!process.env.NETWORK) {
     throw Error('Network not defined');
@@ -58,39 +75,32 @@ async function main() {
     res.send('OK');
   });
 
-  app.get('/block', async (req, res) => {
-    const blockNum = parseInt((req.query.number as string) || '0');
-    console.log(`blockNum=${blockNum}`);
-    const block = await provider.getBlock(blockNum);
-    res.send(JSON.stringify(block));
-  });
-
-  app.get('/time', async (req, res) => {
-    const targetTimestamp = req.query.targetTimestamp
-      ? parseInt(req.query.targetTimestamp as string)
-      : dataService.latestTimestamp();
-    const network = req.query.network
-      ? (req.query.network as Network)
-      : Network.Mainnet;
-    const block = await dataService.getBlockNumberByTimestamp(
-      network,
-      targetTimestamp
-    );
-    res.send(JSON.stringify(block));
+  app.get('/blocks', async (req, res) => {
+    try {
+      const params = parseQueryParams(req.query);
+      const timestamps = dataService.getTimestamps(
+        params.startTime,
+        params.endTime
+      );
+      const blockNumbers = await Promise.all(
+        timestamps.map((ts) =>
+          dataService.getBlockNumberByTimestamp(params.network, ts)
+        )
+      );
+      res.send(JSON.stringify(blockNumbers));
+    } catch (e: any) {
+      res.status(500).send(e.toString());
+    }
   });
 
   app.get('/backfillOracleData', async (req, res) => {
-    const startTime = parseInt((req.query.startTime as string) || '0');
-    let endTime = Date.now() / 1000;
-    if (req.query.endTime) {
-      endTime = parseInt(req.query.endTime as string);
-    }
-    if (endTime < startTime) {
-      res.status(400).send('endTime must be greater than startTime');
-      return;
-    }
     try {
-      await dataService.backfill(startTime, endTime, BackfillType.OracleData);
+      const params = parseQueryParams(req.query);
+      await dataService.backfill(
+        params.startTime,
+        params.endTime,
+        BackfillType.OracleData
+      );
       res.send('OK');
     } catch (e: any) {
       res.status(500).send(e.toString());
@@ -98,17 +108,13 @@ async function main() {
   });
 
   app.get('/backfillGenericData', async (req, res) => {
-    const startTime = parseInt((req.query.startTime as string) || '0');
-    let endTime = Date.now() / 1000;
-    if (req.query.endTime) {
-      endTime = parseInt(req.query.endTime as string);
-    }
-    if (endTime < startTime) {
-      res.status(400).send('endTime must be greater than startTime');
-      return;
-    }
     try {
-      await dataService.backfill(startTime, endTime, BackfillType.GenericData);
+      const params = parseQueryParams(req.query);
+      await dataService.backfill(
+        params.startTime,
+        params.endTime,
+        BackfillType.GenericData
+      );
       res.send('OK');
     } catch (e: any) {
       res.status(500).send(e.toString());

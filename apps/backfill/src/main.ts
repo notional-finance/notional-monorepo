@@ -1,17 +1,51 @@
-import { Network } from '@notional-finance/util';
+import * as path from 'path';
+require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
+import { Network, ZERO_ADDRESS } from '@notional-finance/util';
 import fs from 'fs';
 import { AccountFetchMode } from '@notional-finance/core-entities';
 import { HistoricalRegistry } from './HistoricalRegistry';
+import blockRange from './blockRange.json';
+import Knex from 'knex';
 
-const blockRange = [116477900, 116477800];
 const network = Network.ArbitrumOne;
+
+const networkToId = {
+  mainnet: 1,
+  arbitrum: 2,
+};
+
+const oracleTypeToId = {
+  Chainlink: 1,
+  VaultShareOracleRate: 2,
+  fCashOracleRate: 3,
+  nTokenToUnderlyingExchangeRate: 4,
+  fCashToUnderlyingExchangeRate: 5,
+  fCashSettlementRate: 6,
+  fCashSpotRate: 7,
+  PrimeDebtSpotInterestRate: 8,
+  PrimeDebtToUnderlyingExchangeRate: 9,
+  PrimeCashSpotInterestRate: 10,
+  PrimeCashToUnderlyingExchangeRate: 11,
+};
+
+const createUnixSocketPool = () => {
+  return Knex({
+    client: 'pg',
+    connection: {
+      user: process.env.DB_USER,
+      password: process.env.DB_PASS,
+      database: process.env.DB_NAME,
+      host: process.env.DB_HOST,
+    },
+  });
+};
 
 function getYieldData(network: Network, block: number) {
   const yields = HistoricalRegistry.getYieldRegistry();
   return yields.getAllYields(network).map((y) => {
     return {
       block_number: block,
-      network,
+      network_id: networkToId[network],
       token: y.token.id,
       total_value_locked: y.tvl.toExactString(),
       underlying: y.tvl.tokenId,
@@ -22,7 +56,7 @@ function getYieldData(network: Network, block: number) {
         y.incentives?.length > 0 ? y.incentives[0].incentiveAPY : undefined,
       leverage: y.leveraged?.leverageRatio,
       max_leverage: y.leveraged?.maxLeverageRatio,
-      debt_token: y.leveraged?.debtToken.id,
+      debt_token: y.leveraged ? y.leveraged.debtToken.id : ZERO_ADDRESS,
       debt_rate: y.leveraged?.debtRate,
     };
   });
@@ -33,10 +67,16 @@ function getOracleData(network: Network) {
   const allOracles = oracle.getLatestFromAllSubjects(network, 0);
 
   return Array.from(allOracles.values()).map((o) => {
+    const oracleId = oracleTypeToId[o.oracleType];
+    if (!oracleId) {
+      throw Error(`Unknown oracle ${o.oracleType}`);
+    }
+
     return {
+      base: o.base,
       quote: o.quote,
-      oracle_type: o.oracleType,
-      network,
+      oracle_type: oracleId,
+      network: networkToId[network],
       block_number: o.latestRate.blockNumber,
       timestamp: o.latestRate.timestamp,
       decimals: o.decimals,
@@ -55,18 +95,41 @@ async function main() {
   await HistoricalRegistry.startHost('apps/backfill/assets', 3000);
   const yieldResults: ReturnType<typeof getYieldData>[] = [];
   const oracleResults: ReturnType<typeof getOracleData>[] = [];
+  const db = createUnixSocketPool();
 
   for (const block of blockRange) {
     await HistoricalRegistry.refreshAtBlock(network, block);
     console.log(`Refreshed data at ${block}`);
-    yieldResults.push(getYieldData(network, block));
-    oracleResults.push(getOracleData(network));
+    const yieldData = getYieldData(network, block);
+    const oracleData = getOracleData(network);
+
+    await db
+      .insert(yieldData.flatMap((_) => _))
+      .into('yield_data')
+      .onConflict([
+        'token',
+        'underlying',
+        'debt_token',
+        'network_id',
+        'block_number',
+      ])
+      .ignore();
+
+    await db
+      .insert(oracleData.flatMap((_) => _))
+      .into('oracle_data')
+      .onConflict(['base', 'quote', 'oracle_type', 'network', 'timestamp'])
+      .ignore();
+
+    yieldResults.push(yieldData);
+    oracleResults.push(oracleData);
   }
 
   fs.writeFileSync(
     `apps/backfill/yields.json`,
     JSON.stringify(yieldResults.flatMap((_) => _))
   );
+
   fs.writeFileSync(
     `apps/backfill/oracles.json`,
     JSON.stringify(oracleResults.flatMap((_) => _))
