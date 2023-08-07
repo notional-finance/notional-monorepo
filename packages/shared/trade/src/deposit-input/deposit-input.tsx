@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Box } from '@mui/material';
 import {
   CurrencyInput,
@@ -14,6 +14,7 @@ import { BaseTradeContext } from '@notional-finance/notionable-hooks';
 
 interface DepositInputProps {
   context: BaseTradeContext;
+  onMaxValue?: () => void;
   newRoute?: (newToken: string | null) => string;
   warningMsg?: React.ReactNode;
   inputLabel?: MessageDescriptor;
@@ -35,6 +36,7 @@ export const DepositInput = React.forwardRef<
     {
       context,
       newRoute,
+      onMaxValue,
       warningMsg,
       inputLabel,
       inputRef,
@@ -45,27 +47,16 @@ export const DepositInput = React.forwardRef<
   ) => {
     const history = useHistory();
     const {
-      state: {
-        selectedDepositToken,
-        availableDepositTokens,
-        calculateError,
-        tradeType,
-        debt,
-      },
+      state: { selectedDepositToken, availableDepositTokens, calculateError },
       updateState,
     } = context;
     const {
-      maxBalance,
       inputAmount,
       maxBalanceString,
       errorMsg,
       decimalPlaces,
       setInputString,
-    } = useDepositInput(
-      selectedDepositToken,
-      isWithdraw,
-      tradeType === 'Withdraw' ? debt : undefined
-    );
+    } = useDepositInput(selectedDepositToken, isWithdraw);
 
     useEffect(() => {
       updateState({
@@ -74,22 +65,6 @@ export const DepositInput = React.forwardRef<
       });
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [updateState, inputAmount?.hashKey]);
-
-    const onMaxValue = useCallback(() => {
-      if (maxBalance && inputRef.current) {
-        inputRef.current.setInputOverride(
-          maxBalance?.toUnderlying().toExactString(),
-          false
-        );
-
-        updateState({
-          maxWithdraw: true,
-          calculationSuccess: true,
-          depositBalance: undefined,
-          debtBalance: maxBalance.neg(),
-        });
-      }
-    }, [maxBalance, inputRef, updateState]);
 
     if (!availableDepositTokens || !selectedDepositToken)
       return <PageLoading />;
@@ -102,7 +77,8 @@ export const DepositInput = React.forwardRef<
           placeholder="0.00000000"
           // Use 18 decimals as a the default, but that should only be temporary during page load
           decimals={decimalPlaces || 18}
-          maxValue={maxBalanceString}
+          maxValue={onMaxValue ? undefined : maxBalanceString}
+          onMaxValue={onMaxValue}
           onInputChange={(input) => setInputString(input)}
           errorMsg={
             errorMsgOverride ? (
@@ -116,7 +92,6 @@ export const DepositInput = React.forwardRef<
           warningMsg={warningMsg}
           currencies={availableDepositTokens?.map((t) => t.symbol) || []}
           defaultValue={selectedDepositToken}
-          onMaxValue={tradeType === 'Withdraw' ? onMaxValue : undefined}
           onSelectChange={(newToken: string | null) => {
             // Always clear the input string when we change tokens
             inputRef.current?.setInputOverride('');
@@ -127,10 +102,12 @@ export const DepositInput = React.forwardRef<
             landingPage: false,
           }}
         />
-        <TokenApprovalView
-          symbol={selectedDepositToken}
-          requiredAmount={inputAmount}
-        />
+        {!isWithdraw && (
+          <TokenApprovalView
+            symbol={selectedDepositToken}
+            requiredAmount={inputAmount}
+          />
+        )}
       </Box>
     );
   }

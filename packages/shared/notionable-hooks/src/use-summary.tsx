@@ -205,38 +205,44 @@ const TradeSummaryLabels = {
     deposit: { defaultMessage: 'Deposit and Mint Vault Shares ({caption})' },
     withdraw: { defaultMessage: 'Withdraw Vault Shares ({caption})' },
     none: { defaultMessage: 'Mint Vault Shares ({caption})' },
+    repay: { defaultMessage: 'N/A' },
   }),
   fCashLend: defineMessages({
     deposit: { defaultMessage: 'Deposit and Lend Fixed ({caption})' },
     withdraw: { defaultMessage: 'Withdraw Fixed Lend ({caption})' },
     none: { defaultMessage: 'Lend Fixed ({caption})' },
+    repay: { defaultMessage: 'N/A' },
   }),
   PrimeCash: defineMessages({
     deposit: { defaultMessage: 'Deposit and Lend Variable' },
     withdraw: { defaultMessage: 'Withdraw Variable Lend' },
     none: { defaultMessage: 'Lend Variable' },
+    repay: { defaultMessage: 'N/A' },
   }),
   nToken: defineMessages({
     deposit: { defaultMessage: 'Deposit and Provide Liquidity' },
     withdraw: { defaultMessage: 'Withdraw Liquidity' },
     none: { defaultMessage: 'Provide Liquidity' },
+    repay: { defaultMessage: 'N/A' },
   }),
   fCashDebt: defineMessages({
     deposit: { defaultMessage: 'Deposit and Repay Fixed Debt ({caption})' },
     withdraw: { defaultMessage: 'Borrow Fixed ({caption})' },
     none: { defaultMessage: 'Borrow Fixed ({caption})' },
+    repay: { defaultMessage: 'Repay Fixed ({caption})' },
   }),
   PrimeDebt: defineMessages({
     deposit: { defaultMessage: 'Deposit and Repay Variable Debt' },
     withdraw: { defaultMessage: 'Borrow Variable' },
     none: { defaultMessage: 'Borrow Variable' },
+    repay: { defaultMessage: 'Repay Fixed ({caption})' },
   }),
 };
 
 function getTradeDetail(
   b: TokenBalance,
   assetOrDebt: 'Asset' | 'Debt',
-  typeKey: 'deposit' | 'withdraw' | 'none',
+  typeKey: 'deposit' | 'withdraw' | 'none' | 'repay',
   intl: IntlShape,
   _token?: TokenDefinition
 ) {
@@ -362,6 +368,10 @@ export function useTradeSummary(state: BaseTradeState) {
       summary.push(getTradeDetail(debtBalance, 'Debt', 'deposit', intl));
 
       /** NOTE: net asset and balance changes are used below here **/
+    } else if (tradeType === 'Deleverage') {
+      // In deleverage, the collateral and asset are reversed.
+      summary.push(getTradeDetail(debtBalance, 'Asset', 'none', intl));
+      summary.push(getTradeDetail(collateralBalance, 'Debt', 'repay', intl));
     } else if (tradeType === 'RollDebt') {
       // Asset to repay: this never changes signs
       summary.push(getTradeDetail(collateralBalance, 'Asset', 'none', intl));
@@ -395,9 +405,7 @@ export function useTradeSummary(state: BaseTradeState) {
         getTradeDetail(netAssetBalance.neg(), 'Asset', 'withdraw', intl)
       );
     if (netDebtBalance?.isZero() === false)
-      summary.push(
-        getTradeDetail(netDebtBalance.neg(), 'Debt', 'withdraw', intl)
-      );
+      summary.push(getTradeDetail(netDebtBalance, 'Debt', 'deposit', intl));
   } else {
     return { summary: undefined, total: undefined };
   }
@@ -469,7 +477,7 @@ export function usePortfolioComparison(
         isCurrentNegative: current.isNegative(),
         updated: b.toFiat(fiat).toDisplayStringWithSymbol(3, true),
         isUpdatedNegative: b.isNegative(),
-        sortOrder: b.sub(current).toFloat(),
+        sortOrder: b.sub(current).abs().toFloat(),
         changeType,
       };
     })
@@ -526,8 +534,10 @@ function getLiquidationPrices(
       label: `${
         isCrossCurrency ? `${collateralTitle}/${debtTitle}` : debtTitle
       } Liquidation Price`,
-      current: current?.price.toUnderlying().toDisplayStringWithSymbol(3, true) || '-',
-      updated: updated?.price.toUnderlying().toDisplayStringWithSymbol(3, true) || '-',
+      current:
+        current?.price.toUnderlying().toDisplayStringWithSymbol(3, true) || '-',
+      updated:
+        updated?.price.toUnderlying().toDisplayStringWithSymbol(3, true) || '-',
       changeType: getChangeType(
         current?.price.toFloat(),
         updated?.price.toFloat()

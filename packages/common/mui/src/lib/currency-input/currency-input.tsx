@@ -23,10 +23,14 @@ export interface CurrencyInputProps extends CurrencySelectProps {
   style?: CurrencyInputStyleProps;
   onMaxValue?: () => void;
   ref: React.RefObject<HTMLDivElement>;
+  CustomSelect?: (
+    containerRef?: React.MutableRefObject<unknown>
+  ) => React.ReactNode;
 }
 
 export interface CurrencyInputHandle {
   setInputOverride: (input: string, emitChange?: boolean) => void;
+  getInputValue: () => string;
 }
 
 const NumberFormatter = React.forwardRef<
@@ -90,6 +94,7 @@ export const CurrencyInput = React.forwardRef<
     onInputChange,
     onMaxValue,
     style,
+    CustomSelect,
   } = props;
   const theme = useTheme() as NotionalTheme;
   const [hasFocus, setHasFocus] = React.useState(false);
@@ -104,6 +109,9 @@ export const CurrencyInput = React.forwardRef<
       setValue(input);
       if (emitChange) onInputChange(input);
     },
+    getInputValue: () => {
+      return value
+    }
   }));
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -126,9 +134,16 @@ export const CurrencyInput = React.forwardRef<
 
   const borderColor = getBorderColor();
 
-  const CustomSelect = React.forwardRef<unknown, CurrencySelectProps>((props, ref) => {
-    return <CurrencySelect {...{ ...props, popperRef: ref }} />;
-  });
+  const SelectDropdown = CustomSelect ? (
+    CustomSelect(inputContainerRef)
+  ) : (
+    <CurrencySelect
+      currencies={props.currencies}
+      defaultValue={props.defaultValue}
+      onSelectChange={props.onSelectChange}
+      popperRef={inputContainerRef}
+    />
+  );
 
   return (
     <Container>
@@ -202,13 +217,7 @@ export const CurrencyInput = React.forwardRef<
             borderColor: borderColor,
           }}
         />
-        <CustomSelect
-          {...{
-            ...props,
-            landingPage: style?.landingPage,
-            ref: inputContainerRef,
-          }}
-        />
+        {SelectDropdown}
       </InputContainer>
       <ErrorMessage variant={errorType} message={currentErrorMessage} />
       <Paragraph marginTop={theme.spacing(1)}>

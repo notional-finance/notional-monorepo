@@ -30,7 +30,7 @@ export function useWalletBalanceInputCheck(
       : undefined;
 
   const insufficientBalance =
-    inputAmount && maxBalance ? maxBalance.lt(inputAmount) : false;
+    inputAmount && maxBalance ? maxBalance.abs().lt(inputAmount) : false;
   const insufficientAllowance =
     inputAmount && maxBalance ? allowance?.lt(inputAmount) : false;
 

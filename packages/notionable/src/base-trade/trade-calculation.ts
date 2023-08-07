@@ -77,6 +77,9 @@ export function calculate(
           calculateDebtOptions,
         } = getTradeConfig(s.tradeType);
 
+        // Skip the rest of the trade logic if this is set to true
+        if (s.maxWithdraw) return undefined;
+
         const [inputs, keys] = requiredArgs.reduce(
           ([inputs, keys], r) => {
             switch (r) {

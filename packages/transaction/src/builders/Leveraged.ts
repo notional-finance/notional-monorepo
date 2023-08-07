@@ -1,3 +1,4 @@
+import { TokenBalance } from '@notional-finance/core-entities';
 import {
   PopulateTransactionInputs,
   populateNotionalTxnAndGas,
@@ -25,15 +26,22 @@ export function DisablePrimeBorrow({
   ]);
 }
 
-export function LeveragedOrDeleverageLend({
+export function LeveragedLend({
   address,
   network,
   collateralBalance,
   depositBalance,
   debtBalance,
 }: PopulateTransactionInputs) {
-  if (!collateralBalance || !depositBalance || !debtBalance)
+  if (
+    !(
+      collateralBalance?.isPositive() &&
+      depositBalance?.isPositive() &&
+      debtBalance?.isNegative()
+    )
+  ) {
     throw Error('All balances must be defined');
+  }
 
   return populateNotionalTxnAndGas(
     network,
@@ -54,6 +62,45 @@ export function LeveragedOrDeleverageLend({
         ),
       ],
       getETHValue(depositBalance),
+    ]
+  );
+}
+
+export function DeleverageLend({
+  address,
+  network,
+  collateralBalance,
+  depositBalance,
+  debtBalance,
+}: PopulateTransactionInputs) {
+  if (
+    !(
+      collateralBalance?.isNegative() &&
+      depositBalance !== undefined &&
+      debtBalance?.isPositive()
+    )
+  ) {
+    throw Error('Collateral and Debt must be defined');
+  }
+
+  return populateNotionalTxnAndGas(
+    network,
+    address,
+    'batchBalanceAndTradeAction',
+    [
+      address,
+      [
+        getBalanceAndTradeAction(
+          DepositActionType.None,
+          TokenBalance.zero(collateralBalance.underlying), // no deposits
+          false,
+          undefined, // No Withdraws
+          false,
+          [collateralBalance, debtBalance].filter(
+            (t) => t.tokenType === 'fCash'
+          )
+        ),
+      ],
     ]
   );
 }
@@ -129,13 +176,23 @@ export function DeleverageNToken({
       [
         getBalanceAndTradeAction(
           DepositActionType.RedeemNToken,
-          debtBalance,
+          debtBalance.neg(),
           false,
           undefined, // No Withdraws
           false,
-          collateralBalance.tokenType === 'fCash' ? [debtBalance] : []
+          collateralBalance.tokenType === 'fCash' ? [collateralBalance] : []
         ),
       ],
     ]
   );
+}
+
+export async function Deleverage(i: PopulateTransactionInputs) {
+  if (i.debtBalance?.tokenType === 'nToken') {
+    return DeleverageNToken(i);
+  } else if (i.collateralBalance?.isPositive() && i.debtBalance?.isNegative()) {
+    return LeveragedLend(i);
+  } else {
+    return DeleverageLend(i);
+  }
 }

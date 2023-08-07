@@ -8,14 +8,15 @@ import {
   calculateCollateral,
   calculateDebt,
   calculateDebtCollateralGivenDepositRiskLimit,
+  calculateDeleverage,
   calculateDeposit,
   ConvertAsset,
-  DeleverageNToken,
+  Deleverage,
   Deposit,
   LendFixed,
   LendVariable,
+  LeveragedLend,
   LeveragedNToken,
-  LeveragedOrDeleverageLend,
   MintNToken,
   RepayDebt,
   RollLendOrDebt,
@@ -29,9 +30,10 @@ function onlySameCurrency(t: TokenDefinition, other?: TokenDefinition) {
 
 function offsettingBalance(
   t: TokenDefinition,
-  account: AccountDefinition | null
+  account: AccountDefinition | null,
+  isFCashDebt?: boolean
 ) {
-  if (t.tokenType === 'fCash' && t.isFCashDebt) {
+  if (t.tokenType === 'fCash' && isFCashDebt) {
     return !!account?.balances.find(
       (b) =>
         b.tokenType === 'fCash' &&
@@ -58,7 +60,7 @@ function offsettingBalance(
   } else if (t.tokenType === 'nToken') {
     return !!account?.balances.find((b) => b.token.id === t.id);
   } else {
-    throw Error('Unknown offsetting token');
+    return false;
   }
 }
 
@@ -268,7 +270,7 @@ export const TradeConfiguration = {
         : true),
     calculateCollateralOptions: true,
     calculateDebtOptions: true,
-    transactionBuilder: LeveragedOrDeleverageLend,
+    transactionBuilder: LeveragedLend,
   } as TransactionConfig,
 
   /**
@@ -309,70 +311,30 @@ export const TradeConfiguration = {
    * Inputs:
    * selectedDebtToken
    * selectedCollateralToken
-   * riskLimit
-   * set depositBalance = 0
    *
    * Outputs:
    * debtBalance (PrimeDebt, fCash)
    * collateralBalance (PrimeCash, fCash)
    */
-  DeleverageLend: {
-    calculationFn: calculateDebtCollateralGivenDepositRiskLimit,
+  Deleverage: {
+    calculationFn: calculateDeleverage,
     requiredArgs: [
       'collateral',
       'debt',
       'collateralPool',
       'debtPool',
-      'depositBalance',
-      'balances',
-      'riskFactorLimit',
+      'collateralBalance',
+      'debtBalance',
     ],
     // In a deleverage trade a deposit should be set to zero
     depositFilter: () => false,
     collateralFilter: (t, a, s) =>
       t.tokenType !== 'nToken' &&
       onlySameCurrency(t, s.debt) &&
-      offsettingBalance(t, a),
+      offsettingBalance(t, a, false),
     debtFilter: (t, a, s) =>
-      t.tokenType !== 'nToken' &&
-      onlySameCurrency(t, s.collateral) &&
-      offsettingBalance(t, a),
-    transactionBuilder: LeveragedOrDeleverageLend,
-  } as TransactionConfig,
-
-  /**
-   * Inputs:
-   * selectedDebtToken
-   * selectedCollateralToken
-   * riskLimit
-   * set depositBalance = 0
-   *
-   * Outputs:
-   * debtBalance (nToken)
-   * collateralBalance (PrimeCash, fCash)
-   */
-  DeleverageNToken: {
-    calculationFn: calculateDebtCollateralGivenDepositRiskLimit,
-    requiredArgs: [
-      'collateral',
-      'debt',
-      'collateralPool',
-      'debtPool',
-      'depositBalance',
-      'balances',
-      'riskFactorLimit',
-    ],
-    // In a deleverage trade a deposit should be set to zero
-    depositFilter: () => false,
-    collateralFilter: (t, a, s) =>
-      t.tokenType !== 'nToken' &&
-      onlySameCurrency(t, s.debt) &&
-      offsettingBalance(t, a),
-    debtFilter: (t, a, s) =>
-      t.tokenType === 'nToken' &&
-      onlySameCurrency(t, s.collateral) &&
-      offsettingBalance(t, a),
-    transactionBuilder: DeleverageNToken,
+      onlySameCurrency(t, s.collateral) && offsettingBalance(t, a, true),
+    transactionBuilder: Deleverage,
   } as TransactionConfig,
 
   /****** Portfolio Actions ******/

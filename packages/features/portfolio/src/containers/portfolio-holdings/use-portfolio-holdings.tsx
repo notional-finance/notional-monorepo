@@ -86,7 +86,6 @@ export function usePortfolioHoldings() {
           b.token.tokenType !== 'Underlying' &&
           b.token.tokenType !== 'NOTE'
       )
-
       .map((b) => {
         const { titleWithMaturity } = formatTokenType(b.token);
         return {

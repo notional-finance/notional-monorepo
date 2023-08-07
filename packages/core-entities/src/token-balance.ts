@@ -40,7 +40,14 @@ export class TokenBalance {
 
   static fromID(n: BigNumberish, id: string, network: Network) {
     const token = Registry.getTokenRegistry().getTokenByID(network, id);
-    return new TokenBalance(BigNumber.from(n), token.id, token.network);
+    const _n = BigNumber.from(n);
+    // NOTE: this is used during balance summary where fCash debt is marked
+    // with a positive amount
+    return new TokenBalance(
+      token.isFCashDebt && !_n.isNegative() ? _n.mul(-1) : _n,
+      token.id,
+      token.network
+    );
   }
 
   static fromSymbol(n: BigNumberish, symbol: string, network: Network) {

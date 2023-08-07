@@ -24,6 +24,7 @@ export function useEnablePrimeBorrow() {
         network,
         redeemToWETH: false,
         accountBalances: [],
+        maxWithdraw: false
       });
       onSubmit(await txn);
     }
@@ -36,6 +37,7 @@ export function useEnablePrimeBorrow() {
         network,
         redeemToWETH: false,
         accountBalances: [],
+        maxWithdraw: false
       });
       onSubmit(await txn);
     }

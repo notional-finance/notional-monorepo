@@ -83,13 +83,9 @@ export const TransactionHeadings: Record<
       defaultMessage: 'Repay your debt before maturity at the market rate.',
     },
   }),
-  DeleverageLend: defineMessages({
+  Deleverage: defineMessages({
     heading: { defaultMessage: 'Deleverage' },
     helptext: { defaultMessage: 'Deleverage a lending position' },
-  }),
-  DeleverageNToken: defineMessages({
-    heading: { defaultMessage: 'Deleverage' },
-    helptext: { defaultMessage: 'Deleverage an nToken position' },
   }),
   ConvertAsset: defineMessages({
     heading: { defaultMessage: 'Manage Asset' },

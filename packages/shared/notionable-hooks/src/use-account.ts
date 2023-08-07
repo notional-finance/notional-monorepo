@@ -17,13 +17,6 @@ import {
   getNowSeconds,
 } from '@notional-finance/util';
 
-export function useAccountWithdrawableTokens() {
-  const { account } = useAccountDefinition();
-  return (
-    account?.balances.filter((t) => t.isPositive() && !t.isVaultToken) || []
-  );
-}
-
 export function useAccountDefinition() {
   const {
     globalState: { selectedNetwork, selectedAccount, isAccountReady },

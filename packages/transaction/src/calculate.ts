@@ -434,6 +434,41 @@ export function calculateDepositCollateralGivenDebtRiskLimit({
   };
 }
 
+export function calculateDeleverage({
+  collateral,
+  debt,
+  collateralPool,
+  debtPool,
+  collateralBalance,
+  debtBalance,
+}: {
+  collateral: TokenDefinition;
+  debt: TokenDefinition;
+  collateralPool: fCashMarket;
+  debtPool: fCashMarket;
+  collateralBalance: TokenBalance;
+  debtBalance: TokenBalance;
+}) {
+  if (!collateralBalance.isZero() && debtBalance.isZero()) {
+    return calculateDebt({
+      debt,
+      debtPool,
+      collateralPool,
+      collateralBalance,
+    });
+  } else if (!debtBalance.isZero() && collateralBalance.isZero()) {
+    return calculateCollateral({
+      collateral,
+      debtPool,
+      collateralPool,
+      debtBalance,
+    });
+  } else {
+    // NOTE: if both values are defined just return them
+    return { debtBalance, collateralBalance };
+  }
+}
+
 /**
  * Calculates how much debt and collateral will be required given a deposit balance and a risk limit
  * that the account wants to maintain. Can be used to simulate leveraging up or deleveraging.

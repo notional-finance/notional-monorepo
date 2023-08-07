@@ -9,7 +9,12 @@ import {
   populateNotionalTxnAndGas,
   PopulateTransactionInputs,
 } from './common';
-import { MintNToken, RedeemAndWithdrawNToken, RedeemToPortfolioNToken } from './nToken';
+import {
+  MintNToken,
+  RedeemAndWithdrawNToken,
+  RedeemToPortfolioNToken,
+} from './nToken';
+import { MAX_UINT88 } from '@notional-finance/util';
 
 export function LendFixed({
   address,
@@ -118,7 +123,6 @@ export function BorrowFixed({
           debtBalance.tokenType === 'fCash' ? [debtBalance] : []
         ),
       ].sort((a, b) => (a.currencyId as number) - (b.currencyId as number)),
-      getETHValue(depositBalance),
     ]
   );
 }
@@ -186,6 +190,7 @@ export function RepayDebt({
   depositBalance,
   redeemToWETH,
   accountBalances,
+  maxWithdraw,
 }: PopulateTransactionInputs) {
   if (!collateralBalance || !depositBalance)
     throw Error('Collateral and deposit balances must be defined');
@@ -198,6 +203,7 @@ export function RepayDebt({
       depositBalance,
       redeemToWETH,
       accountBalances,
+      maxWithdraw,
     });
   } else {
     const { cashBalance } = hasExistingCashBalance(
@@ -232,6 +238,7 @@ export function WithdrawLend({
   depositBalance,
   redeemToWETH,
   accountBalances,
+  maxWithdraw,
 }: PopulateTransactionInputs) {
   if (!debtBalance || !depositBalance)
     throw Error('Collateral and deposit balances must be defined');
@@ -260,8 +267,7 @@ export function WithdrawLend({
       )
     : populateNotionalTxnAndGas(network, address, 'withdraw', [
         debtBalance.currencyId,
-        // TODO: we can specify uint88 max here, this may leave some dust....
-        debtBalance.neg().n,
+        maxWithdraw ? MAX_UINT88 : debtBalance.neg().n,
         redeemToWETH,
       ]);
 }
@@ -357,7 +363,7 @@ export function ConvertAsset(i: PopulateTransactionInputs) {
     i.debtBalance?.tokenType === 'PrimeDebt' &&
     i.collateralBalance?.tokenType === 'nToken'
   ) {
-    return MintNToken(i)
+    return MintNToken(i);
   }
 
   throw Error('Invalid debt balance');
