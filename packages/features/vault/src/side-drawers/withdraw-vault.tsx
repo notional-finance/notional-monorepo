@@ -4,6 +4,7 @@ import { FormattedMessage } from 'react-intl';
 import { INTERNAL_TOKEN_DECIMALS } from '@notional-finance/util';
 import {
   CurrencyInput,
+  CurrencySelectOption,
   InputLabel,
   PageLoading,
   useCurrencyInputRef,
@@ -113,7 +114,7 @@ export const WithdrawVault = () => {
               />
             )
           }
-          currencies={[primaryBorrowSymbol]}
+          options={[CurrencySelectOption({ token: primaryBorrowSymbol })]}
           defaultValue={primaryBorrowSymbol}
         />
       </Box>

@@ -113,31 +113,29 @@ export const useDeleverage = (
           );
           const { title, titleWithMaturity } = formatTokenType(t);
 
-          return (
-            <CurrencySelectOption
-              token={titleWithMaturity}
-              value={t.id}
-              rightContent={
-                <>
-                  <H4>
-                    {balance?.toDisplayString(3, true)} {title}
-                  </H4>
-                  {balance ? (
-                    <Caption>
-                      {balance.toFiat('USD').toDisplayStringWithSymbol(3, true)}
-                    </Caption>
-                  ) : null}
-                </>
-              }
-            />
-          );
+          return CurrencySelectOption({
+            token: titleWithMaturity,
+            value: t.id,
+            rightContent: (
+              <>
+                <H4>
+                  {balance?.toDisplayString(3, true)} {title}
+                </H4>
+                {balance ? (
+                  <Caption>
+                    {balance.toFiat('USD').toDisplayStringWithSymbol(3, true)}
+                  </Caption>
+                ) : null}
+              </>
+            ),
+          });
         }) || []
       );
     } else {
       return (
-        availableTokens?.map((t) => (
-          <CurrencySelectOption token={formatTokenType(t).title} />
-        )) || []
+        availableTokens?.map((t) =>
+          CurrencySelectOption({ token: formatTokenType(t).title })
+        ) || []
       );
     }
   }, [availableTokens, deleverage, account?.balances]);

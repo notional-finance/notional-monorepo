@@ -3,6 +3,7 @@ import { Box } from '@mui/material';
 import {
   CurrencyInput,
   CurrencyInputHandle,
+  CurrencySelectOption,
   InputLabel,
   PageLoading,
 } from '@notional-finance/mui';
@@ -90,7 +91,11 @@ export const DepositInput = React.forwardRef<
             )
           }
           warningMsg={warningMsg}
-          currencies={availableDepositTokens?.map((t) => t.symbol) || []}
+          options={
+            availableDepositTokens?.map((t) =>
+              CurrencySelectOption({ token: t.symbol })
+            ) || []
+          }
           defaultValue={selectedDepositToken}
           onSelectChange={(newToken: string | null) => {
             // Always clear the input string when we change tokens

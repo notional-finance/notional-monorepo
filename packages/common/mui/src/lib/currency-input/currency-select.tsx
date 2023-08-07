@@ -1,18 +1,43 @@
 import { styled } from '@mui/material/styles';
 import OptionUnstyled from '@mui/base/OptionUnstyled';
-import { NotionalTheme } from '@notional-finance/styles';
-import { Button, useTheme } from '@mui/material';
+import { Box, Button } from '@mui/material';
 import { TokenIcon } from '@notional-finance/icons';
-import { useEffect, useState } from 'react';
+import { ReactNode, useState } from 'react';
 import { SelectDropdown } from '../select-dropdown/select-dropdown';
 import { H4 } from '../typography/typography';
+import { NotionalTheme } from '@notional-finance/styles';
 
 export interface CurrencySelectProps {
-  currencies: string[];
-  defaultValue?: string;
+  options: ReactNode[];
+  ButtonComponent?: React.ElementType;
+  defaultValue: string | null;
   onSelectChange?: (value: string | null) => void;
   popperRef?: React.ForwardedRef<unknown>;
 }
+
+/**
+ * NOTE: odd behavior in SelectUnstyled requires that this be called
+ * as a regular function, not a JSX component
+ */
+export const CurrencySelectOption = ({
+  token,
+  value,
+  rightContent,
+  theme,
+}: {
+  token: string;
+  theme: NotionalTheme;
+  value?: string;
+  rightContent?: React.ReactNode;
+}) => {
+  return (
+    <StyledItem value={value || token} key={token} theme={theme}>
+      <TokenIcon symbol={token} size="medium" />
+      <H4 marginLeft={theme.spacing(1)}>{token}</H4>
+      {rightContent && <Box textAlign="right">{rightContent}</Box>}
+    </StyledItem>
+  );
+};
 
 const StyledItem = styled(OptionUnstyled)(
   ({ theme }) => `
@@ -47,42 +72,31 @@ const StyledButton = styled(Button)(
 `
 );
 
-export function CurrencySelect(props: CurrencySelectProps) {
-  const { defaultValue, currencies, onSelectChange, popperRef } = props;
-  const theme = useTheme() as NotionalTheme;
-  const [value, setValue] = useState<string | null>(
-    defaultValue || currencies[0]
-  );
+export function CurrencySelect({
+  defaultValue,
+  options,
+  onSelectChange,
+  popperRef,
+  ButtonComponent,
+}: CurrencySelectProps) {
+  const [value, setValue] = useState<string | null>(defaultValue);
 
   const parentWidth =
     popperRef && popperRef['current']
       ? popperRef['current']['clientWidth']
       : undefined;
 
-  useEffect(() => {
-    // If the default changes and is not undefined then set it as selected
-    if (defaultValue && defaultValue !== value) setValue(defaultValue);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [defaultValue]);
-
   return (
     <SelectDropdown
       value={value}
-      buttonComponent={StyledButton}
+      buttonComponent={ButtonComponent || StyledButton}
       popperWidth={`${parentWidth}px`}
       onChange={(value: string | null) => {
         setValue(value);
         if (onSelectChange) onSelectChange(value);
       }}
     >
-      {currencies.map((c) => {
-        return (
-          <StyledItem value={c} key={c} theme={theme}>
-            <TokenIcon symbol={c} size="medium" />
-            <H4 marginLeft={theme.spacing(1)}>{c}</H4>
-          </StyledItem>
-        );
-      })}
+      {options}
     </SelectDropdown>
   );
 }

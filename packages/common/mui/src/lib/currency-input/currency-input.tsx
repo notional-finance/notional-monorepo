@@ -203,10 +203,10 @@ export const CurrencyInput = React.forwardRef<
           }}
         />
         <CurrencySelect
-          currencies={props.currencies}
+          options={props.options}
           defaultValue={props.defaultValue}
           onSelectChange={props.onSelectChange}
-          // ButtonComponent={props.ButtonComponent}
+          ButtonComponent={props.ButtonComponent}
           popperRef={inputContainerRef}
         />
       </InputContainer>

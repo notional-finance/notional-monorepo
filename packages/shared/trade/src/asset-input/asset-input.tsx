@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { Box } from '@mui/material';
 import {
   CurrencyInput,
@@ -12,7 +12,7 @@ import { INTERNAL_TOKEN_DECIMALS } from '@notional-finance/util';
 import { useAssetInput } from './use-asset-input';
 import { BaseTradeContext } from '@notional-finance/notionable-hooks';
 import { formatTokenType } from '@notional-finance/helpers';
-import { TokenBalance } from '@notional-finance/core-entities';
+import { useDeleverage } from './use-deleverage';
 
 interface AssetInputProps {
   context: BaseTradeContext;
@@ -56,7 +56,6 @@ export const AssetInput = React.forwardRef<
     ref
   ) => {
     const history = useHistory();
-    const [hasUserTouched, setHasUserTouched] = useState(false);
     const {
       state: {
         debt,
@@ -81,6 +80,22 @@ export const AssetInput = React.forwardRef<
 
     const { inputAmount, maxBalanceString, errorMsg, setInputString } =
       useAssetInput(selectedToken, debtOrCollateral === 'Debt');
+    const {
+      hasUserTouched,
+      options,
+      updateBalances,
+      setHasUserTouched,
+      updateDeleverageToken,
+    } = useDeleverage(
+      availableTokens,
+      deleverage,
+      inputRef,
+      computedBalance,
+      debt,
+      collateral,
+      debtOrCollateral,
+      updateState
+    );
 
     useEffect(() => {
       if (
@@ -93,67 +108,10 @@ export const AssetInput = React.forwardRef<
       }
     }, [inputRef, maxBalanceString, prefillMax, inputAmount, hasUserTouched]);
 
-    const updateBalances = useCallback(
-      (
-        inputAmount: TokenBalance | undefined,
-        computedBalance: TokenBalance | undefined
-      ) => {
-        if (deleverage?.isPrimaryInput === true && collateral && debt) {
-          // In here, this input is the "primary". Only update the state if the
-          // amounts are actually different or else we get a infinite loop
-          if (
-            (inputAmount === undefined && computedBalance === undefined) ||
-            (inputAmount &&
-              computedBalance &&
-              inputAmount.abs().eq(computedBalance.abs()))
-          )
-            return;
-          updateState(
-            debtOrCollateral === 'Debt'
-              ? {
-                  debtBalance: inputAmount,
-                  collateralBalance: TokenBalance.zero(collateral),
-                }
-              : {
-                  collateralBalance: inputAmount?.neg(),
-                  debtBalance: TokenBalance.zero(debt),
-                }
-          );
-        } else if (deleverage === undefined) {
-          updateState(
-            debtOrCollateral === 'Debt'
-              ? { debtBalance: inputAmount }
-              : { collateralBalance: inputAmount }
-          );
-        }
-      },
-      [deleverage, debtOrCollateral, debt, collateral, updateState]
-    );
-
     useEffect(() => {
       updateBalances(inputAmount, computedBalance);
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [updateBalances, inputAmount?.hashKey, computedBalance?.hashKey]);
-
-    useEffect(() => {
-      // If the input control is no longer the primary, it will just mirror
-      // the computed amount without firing updates.
-      if (deleverage?.isPrimaryInput === false) {
-        setHasUserTouched(false);
-        const newStringValue =
-          computedBalance?.isZero() || computedBalance === undefined
-            ? ''
-            : computedBalance.abs().toExactString();
-
-        if (inputRef.current?.getInputValue() !== newStringValue) {
-          inputRef.current?.setInputOverride(newStringValue, false);
-        }
-      }
-    }, [deleverage, computedBalance, inputRef]);
-
-    const currencies = useMemo(() => {
-      return availableTokens?.map((t) => formatTokenType(t).title) || [];
-    }, [availableTokens]);
 
     const onInputChange = useCallback(
       (input: string) => {
@@ -164,12 +122,11 @@ export const AssetInput = React.forwardRef<
         // mirror the computed balance.
         if (deleverage) deleverage?.setPrimaryInput(debtOrCollateral);
       },
-      [deleverage, debtOrCollateral, setInputString]
+      [deleverage, debtOrCollateral, setInputString, setHasUserTouched]
     );
 
     if (!availableTokens) return <PageLoading />;
 
-    // TODO: need to change the dropdown in here...
     return (
       <Box>
         {label ? label : <InputLabel inputLabel={inputLabel} />}
@@ -189,14 +146,16 @@ export const AssetInput = React.forwardRef<
             )
           }
           warningMsg={warningMsg}
-          currencies={currencies}
+          options={options}
           defaultValue={
-            selectedToken ? formatTokenType(selectedToken).title : undefined
+            selectedToken ? formatTokenType(selectedToken).title : null
           }
           onSelectChange={(newToken: string | null) => {
+            // TODO: trigger different update here for deleverage
             // Always clear the input string when we change tokens
             inputRef.current?.setInputOverride('');
-            if (newToken !== selectedToken?.symbol && newRoute)
+            if (deleverage) updateDeleverageToken(newToken);
+            else if (newToken !== selectedToken?.symbol && newRoute)
               history.push(newRoute(newToken));
           }}
           style={{
