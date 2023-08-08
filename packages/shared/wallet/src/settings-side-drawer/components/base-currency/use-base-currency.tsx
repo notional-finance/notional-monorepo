@@ -16,7 +16,7 @@ import {
   TryIcon,
 } from '@notional-finance/icons';
 import { useFiat } from '@notional-finance/notionable-hooks';
-import { FIAT_NAMES } from '@notional-finance/core-entities/src/config/fiat-config';
+import { FIAT_NAMES } from '@notional-finance/core-entities';
 
 interface ImageWrapperProps {
   active: boolean;

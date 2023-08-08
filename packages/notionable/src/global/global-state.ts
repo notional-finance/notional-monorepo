@@ -4,7 +4,7 @@ import {
 } from '@ethersproject/providers';
 import { Network } from '@notional-finance/util';
 import { THEME_VARIANTS } from '@notional-finance/shared-config';
-import { FiatKeys } from '@notional-finance/core-entities/src/config/fiat-config';
+import { FiatKeys } from '@notional-finance/core-entities';
 import { getFromLocalStorage } from '@notional-finance/helpers';
 import { Signer } from 'ethers';
 

@@ -12,7 +12,7 @@ import {
 } from '@notional-finance/helpers';
 import { FormattedMessage } from 'react-intl';
 import { useBaseCurrency } from './use-base-currency';
-import { FiatKeys } from '@notional-finance/core-entities/src/config/fiat-config';
+import { FiatKeys } from '@notional-finance/core-entities';
 
 export const BaseCurrencyButton = () => {
   const theme = useTheme();
