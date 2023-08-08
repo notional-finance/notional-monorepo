@@ -1,8 +1,8 @@
-import { TokenBalance } from "@notional-finance/core-entities";
+import { FiatKeys, TokenBalance } from "@notional-finance/core-entities";
 import { formatNumberAsPercent } from './number-helpers'
 
 // ===== NOTE: All of these helpers are to be used with the MultiValueCell
-export const formatCryptoWithFiat = (baseCurrency, tbn?: TokenBalance | null) => {
+export const formatCryptoWithFiat = (baseCurrency: FiatKeys, tbn?: TokenBalance | null) => {
   return !tbn || tbn.isZero()
     ? '-'
     : {
@@ -14,7 +14,7 @@ export const formatCryptoWithFiat = (baseCurrency, tbn?: TokenBalance | null) =>
       };
 };
 
-export const formatValueWithFiat = (baseCurrency, tbn?: TokenBalance, isDebt?: boolean) => {
+export const formatValueWithFiat = (baseCurrency: FiatKeys, tbn?: TokenBalance, isDebt?: boolean) => {
   return !tbn || tbn.isZero()
     ? '-'
     : {

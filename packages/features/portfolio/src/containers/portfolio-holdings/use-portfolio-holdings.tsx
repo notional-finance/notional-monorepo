@@ -112,10 +112,14 @@ export function usePortfolioHoldings() {
             nonLeveragedYields.find((y) => y.token.id === b.token.id)
               ?.totalAPY || 0
           ),
-          amountPaid: s ? formatCryptoWithFiat(s.accumulatedCostRealized) : '-',
-          presentValue: formatCryptoWithFiat(b.toUnderlying()),
+          amountPaid: s
+            ? formatCryptoWithFiat(baseCurrency, s.accumulatedCostRealized)
+            : '-',
+          presentValue: formatCryptoWithFiat(baseCurrency, b.toUnderlying()),
           earnings: s
-            ? s.totalProfitAndLoss.toFiat(baseCurrency).toDisplayStringWithSymbol()
+            ? s.totalProfitAndLoss
+                .toFiat(baseCurrency)
+                .toDisplayStringWithSymbol()
             : '-',
           actionRow: {
             subRowData: [

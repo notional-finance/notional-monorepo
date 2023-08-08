@@ -153,9 +153,7 @@ export abstract class BaseRegistry<T> {
     of(intervalNum)
       .pipe(
         switchMap((intervalNum) => {
-          return from(this._refresh(network, intervalNum)).pipe(
-            timeout(3 * ONE_SECOND_MS)
-          );
+          return from(this._refresh(network, intervalNum));
         })
       )
       .subscribe((d) => {
