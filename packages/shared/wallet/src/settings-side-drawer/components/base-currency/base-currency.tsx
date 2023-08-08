@@ -19,7 +19,11 @@ export const BaseCurrencyButton = () => {
   const { selectedCurrency } = useBaseCurrency();
   return (
     <Box
-      sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
     >
       <Box
         sx={{
@@ -90,6 +94,7 @@ const WalletSelectorContainer = styled(Box)(
   font-weight: 700;
   color: ${theme.palette.primary.dark};
   background: ${theme.palette.background.paper};
+  marginBottom: ${theme.spacing(8)},
   `
 );
 

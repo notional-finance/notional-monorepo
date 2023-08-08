@@ -7,7 +7,7 @@ export function EthIcon(props: EthIconProps) {
   return (
     <SvgIcon {...props} viewBox="0 0 14 14">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 46 46">
-        <g clip-path="url(#clip0_11939_97153)">
+        <g clipPath="url(#clip0_11939_97153)">
           <path
             fillRule="evenodd"
             clipRule="evenodd"
