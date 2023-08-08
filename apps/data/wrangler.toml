@@ -17,7 +17,7 @@ durable_objects.bindings = [
 ]
 
 [env.dev.vars]
-DATA_SERVICE_URL = 'https://data-service-dot-monitoring-agents.uc.r.appspot.com/'
+DATA_SERVICE_URL = 'https://data-service-dot-monitoring-agents.uc.r.appspot.com'
 
 [env.beta]
 name = "data-beta"

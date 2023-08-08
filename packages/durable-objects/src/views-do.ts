@@ -1,55 +1,62 @@
 import { DurableObjectState } from '@cloudflare/workers-types';
 import { APIEnv } from '.';
+import { BaseDO } from './abstract';
+import { Network, ONE_MINUTE_MS } from '@notional-finance/util';
 
-export class ViewsDO {
-  state: DurableObjectState;
-  env: APIEnv;
-
+export class ViewsDO extends BaseDO<APIEnv> {
   constructor(state: DurableObjectState, env: APIEnv) {
-    this.state = state;
-    this.env = env;
+    super(state, env, 'views', ONE_MINUTE_MS * 60);
   }
 
-  async fetch(request: Request): Promise<Response> {
-    console.log(request.url);
-    console.log(this.env.DATA_SERVICE_URL);
-    return new Response('Hello world');
+  getStorageKey(url: URL): string {
+    const network = url.pathname.split('/')[1];
+    if (!network) throw Error('Network Not Found');
+    const view = url.pathname.split('/')[2];
+    if (!view) throw Error('View Not Found');
+    return `${this.serviceName}/${network}/${view}`;
   }
 
-  private getStorageKey(network: string, view: string) {
-    return `${network}/${view}}`;
-  }
-
-  async get(request: Request) {
-    try {
-      const { url } = request;
-      const network = new URL(url).searchParams.get('network');
-      if (!network) {
-        return new Response('Network Required', { status: 400 });
+  async fetchView(network: Network, name: string) {
+    const resp = await fetch(
+      `${this.env.DATA_SERVICE_URL}/query?view=${name}`,
+      {
+        headers: {
+          'x-auth-token': this.env.DATA_SERVICE_AUTH_TOKEN,
+        },
       }
-      const view = new URL(url).searchParams.get('view');
-      if (!view) {
-        return new Response('View Required', { status: 400 });
+    );
+    const data = await resp.json();
+    return this.state.storage.put(
+      `${this.serviceName}/${network}/${name}`,
+      JSON.stringify(data)
+    );
+  }
+
+  async fetchViews(network: Network) {
+    const resp = await fetch(
+      `${this.env.DATA_SERVICE_URL}/views?network=arbitrum`,
+      {
+        headers: {
+          'x-auth-token': this.env.DATA_SERVICE_AUTH_TOKEN,
+        },
       }
-      const existingAccounts =
-        (await this.state.storage.get<string[]>(
-          this.getStorageKey(network, view)
-        )) ?? [];
-      const headers = {
-        'content-type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, OPTIONS',
-        'Access-Control-Max-Age': '86400',
-      };
-      return new Response(
-        JSON.stringify({ accounts: existingAccounts, network }),
-        {
-          status: 200,
-          headers,
-        }
-      );
-    } catch (e) {
-      return new Response((e as Error).message, { status: 500 });
-    }
+    );
+    const data = (await resp.json()) as any[];
+    await Promise.all(
+      data.map((v) => {
+        console.log(`Fetch view ${v.view_name}`);
+        return this.fetchView(network, v.view_name);
+      })
+    );
+  }
+
+  async onRefresh() {
+    await Promise.all(
+      this.env.SUPPORTED_NETWORKS.map((network) => {
+        if (network === Network.All) return Promise.resolve();
+
+        return this.fetchViews(network);
+      })
+    );
   }
 }

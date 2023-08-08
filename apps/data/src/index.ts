@@ -1,3 +1,5 @@
+import zlib from 'zlib';
+
 export interface Env {
   VIEWS_DO: DurableObjectNamespace;
   DATA_SERVICE_URL: string;
