@@ -71,6 +71,14 @@ async function main() {
   });
 
   app.use(express.json());
+  app.use(function (req, res, next) {
+    const authToken = req.headers['x-auth-token'];
+    if (!authToken || authToken !== process.env.DATA_SERVICE_AUTH_TOKEN) {
+      res.status(403).send('Invalid auth token');
+      return;
+    }
+    next();
+  });
 
   app.get('/', (_, res) => {
     res.send('OK');
@@ -146,14 +154,6 @@ async function main() {
     }
   });
 
-  app.get('/data/oracles', async (_, res) => {
-    try {
-      res.send(JSON.stringify(await dataService.query()));
-    } catch (e: any) {
-      res.status(500).send(e.toString());
-    }
-  });
-
   app.post('/accounts', async (req, res) => {
     try {
       if (req.body.accountId && req.body.accountId !== '') {
@@ -213,6 +213,27 @@ async function main() {
   app.get('/accounts', async (_, res) => {
     try {
       res.send(JSON.stringify(await dataService.accounts()));
+    } catch (e: any) {
+      res.status(500).send(e.toString());
+    }
+  });
+
+  app.get('/views', async (req, res) => {
+    try {
+      const params = parseQueryParams(req.query);
+      res.send(JSON.stringify(await dataService.views(params.network)));
+    } catch (e: any) {
+      res.status(500).send(e.toString());
+    }
+  });
+
+  app.get('/query', async (req, res) => {
+    try {
+      const view = req.query.view;
+      if (!view) {
+        res.status(400).send('View required');
+      }
+      res.send(JSON.stringify(await dataService.getView(view as string)));
     } catch (e: any) {
       res.status(500).send(e.toString());
     }

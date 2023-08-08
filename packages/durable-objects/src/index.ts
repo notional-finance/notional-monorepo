@@ -18,4 +18,6 @@ export interface APIEnv extends RegistryDOEnv {
   GHOST_ADMIN_KEY: string;
   NX_DD_API_KEY: string;
   NX_DATA_URL: string;
+  DATA_SERVICE_URL: string;
+  DATA_SERVICE_AUTH_TOKEN: string;
 }

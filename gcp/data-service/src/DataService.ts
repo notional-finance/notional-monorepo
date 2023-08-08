@@ -54,6 +54,7 @@ export default class DataService {
   public static readonly ORACLE_DATA_TABLE_NAME = 'oracle_data';
   public static readonly ACCOUNTS_TABLE_NAME = 'accounts';
   public static readonly VAULT_ACCOUNTS_TABLE_NAME = 'vault_accounts';
+  public static readonly WHITELISTED_VIEWS = 'whitelisted_views';
 
   constructor(
     public provider: ethers.providers.Provider,
@@ -390,8 +391,15 @@ export default class DataService {
     return block.number;
   }
 
-  public async query() {
-    return this.db.select().from(DataService.ORACLE_DATA_TABLE_NAME);
+  public async views(network: Network) {
+    return this.db
+      .select()
+      .from(DataService.WHITELISTED_VIEWS)
+      .where('network_id', this.networkToId(network));
+  }
+
+  public async getView(view: string) {
+    return this.db.select().from(view);
   }
 
   public async insertAccounts(accountIds: string[]) {

@@ -414,6 +414,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
           token: v,
           underlying,
           totalAPY: 0,
+          tvl: v.totalSupply?.toUnderlying() || TokenBalance.zero(underlying),
         };
 
         return [

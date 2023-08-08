@@ -1,0 +1,26 @@
+main = "./src/index.ts"
+compatibility_date = "2022-11-11"
+
+workers_dev = true
+node_compat = true
+minify = true
+usage_model = "bundled"
+
+[[migrations]]
+tag = "v1"
+new_classes = ["ViewsDO"]
+
+[env.dev]
+name = "data-dev"
+durable_objects.bindings = [
+  { name = "VIEWS_DO", class_name = "ViewsDO" }
+]
+
+[env.dev.vars]
+DATA_SERVICE_URL = 'https://data-service-dot-monitoring-agents.uc.r.appspot.com/'
+
+[env.beta]
+name = "data-beta"
+
+[env.prod]
+name = "data"
