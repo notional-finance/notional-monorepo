@@ -9,6 +9,7 @@ export * from './context/use-trade-context';
 export * from './context/use-vault-context';
 export * from './context/NotionalContext';
 export * from './use-account';
+export * from './use-user-settings';
 export * from './use-transaction';
 export * from './use-notional';
 export * from './use-market';

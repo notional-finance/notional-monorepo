@@ -1,7 +1,8 @@
 import { Box, ThemeProvider, styled } from '@mui/material';
 import {
+  useFiat,
+  useThemeVariant,
   useAllMarkets,
-  useGlobalContext,
   useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
 import { useEffect, useState } from 'react';
@@ -29,9 +30,8 @@ const StyledLink = styled(Link)(
 );
 
 export const LiquidityVariableCardView = () => {
-  const {
-    state: { themeVariant },
-  } = useGlobalContext();
+  const baseCurrency = useFiat();
+  const themeVariant = useThemeVariant();
   const themeLanding = useNotionalTheme(themeVariant, 'landing');
   const network = useSelectedNetwork();
   const {
@@ -46,7 +46,7 @@ export const LiquidityVariableCardView = () => {
         network,
         'NOTE'
       );
-      const oneNoteUSD = TokenBalance.unit(NOTE).toFiat('USD');
+      const oneNoteUSD = TokenBalance.unit(NOTE).toFiat(baseCurrency);
       setNotePriceString(`$${oneNoteUSD.toDisplayString()}`);
     }
   }, [network]);

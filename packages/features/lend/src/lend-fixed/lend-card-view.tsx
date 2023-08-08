@@ -1,6 +1,6 @@
 import {
   useAllMarkets,
-  useGlobalContext,
+  useThemeVariant,
 } from '@notional-finance/notionable-hooks';
 import { PRODUCTS } from '@notional-finance/shared-config';
 import { CardContainer } from '@notional-finance/shared-web';
@@ -15,9 +15,7 @@ import {
 } from '@notional-finance/helpers';
 
 export function LendCardView() {
-  const {
-    state: { themeVariant },
-  } = useGlobalContext();
+  const themeVariant = useThemeVariant();
   const themeLanding = useNotionalTheme(themeVariant, 'landing');
   const {
     yields: { fCashLend },

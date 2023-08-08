@@ -2,7 +2,7 @@ import { BigNumber } from 'ethers';
 import { Network } from '@notional-finance/util';
 import { TokenDefinition, OracleDefinition } from '..';
 
-const FIAT_NAMES = [
+export const FIAT_NAMES = [
   'EUR',
   'AUD',
   'CAD',
@@ -19,6 +19,7 @@ const FIAT_NAMES = [
   'USD',
   'NOTE',
 ] as const;
+
 export type FiatKeys = typeof FIAT_NAMES[number];
 
 export const FiatSymbols: Record<FiatKeys, string> = FIAT_NAMES.filter(

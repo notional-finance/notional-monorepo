@@ -1,15 +1,13 @@
 import { CardContainer } from '@notional-finance/shared-web';
 import { Vault, FeatureLoader } from '@notional-finance/mui';
 import { useNotionalTheme } from '@notional-finance/styles';
-import { useGlobalContext } from '@notional-finance/notionable-hooks';
+import { useThemeVariant } from '@notional-finance/notionable-hooks';
 import { defineMessage, FormattedMessage } from 'react-intl';
 import { ThemeProvider } from '@mui/material';
 import { useVaultCards } from './hooks';
 
 export const VaultCardView = () => {
-  const {
-    state: { themeVariant },
-  } = useGlobalContext();
+  const themeVariant = useThemeVariant();
   const allVaults = useVaultCards();
   const themeLanding = useNotionalTheme(themeVariant, 'landing');
 

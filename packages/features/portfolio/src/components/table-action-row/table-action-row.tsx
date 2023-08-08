@@ -31,8 +31,8 @@ export const TableActionRow = ({ row }: TableActionRowProps) => {
   return (
     <Container>
       <ApyContainer>
-        {subRowData.map(({ label, value }) => (
-          <Box>
+        {subRowData.map(({ label, value }, index) => (
+          <Box key={index}>
             <Label>{label}</Label>
             <H4>{value}</H4>
           </Box>

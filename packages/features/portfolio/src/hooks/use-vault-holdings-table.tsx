@@ -18,6 +18,7 @@ import { FormattedMessage } from 'react-intl';
 import {
   useBalanceStatements,
   useVaultRiskProfiles,
+  useFiat,
 } from '@notional-finance/notionable-hooks';
 import { TXN_HISTORY_TYPE } from '@notional-finance/shared-config';
 import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
@@ -53,6 +54,7 @@ export const useVaultHoldingsTable = () => {
   const initialState = expandedRows !== null ? { expanded: expandedRows } : {};
   const vaults = useVaultRiskProfiles();
   const theme = useTheme();
+  const baseCurrency = useFiat();
   const history = useHistory();
   const balanceStatements = useBalanceStatements();
 
@@ -159,8 +161,8 @@ export const useVaultHoldingsTable = () => {
             ? 'Open Term'
             : `Maturity: ${formatMaturity(v.maturity)}`,
       },
-      netWorth: formatCryptoWithFiat(v.netWorth()),
-      profit: formatCryptoWithFiat(profit),
+      netWorth: formatCryptoWithFiat(baseCurrency, v.netWorth()),
+      profit: formatCryptoWithFiat(baseCurrency, profit),
       totalAPY: formatNumberAsPercent(totalAPY),
       leveragePercentage: leveragePercentage
         ? {
