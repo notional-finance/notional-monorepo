@@ -16,7 +16,7 @@ export interface CurrencySelectOption {
     largeFigure: number;
     largeFigureSuffix: string;
     shouldCountUp: boolean;
-    caption?: string;
+    caption?: React.ReactNode;
   };
   disabled?: boolean;
 }
@@ -106,7 +106,11 @@ export function CurrencySelect({
  * NOTE: odd behavior in SelectUnstyled requires that this be called
  * as a regular function, not a JSX component
  */
-const formatOption = (option: CurrencySelectOption, theme: NotionalTheme) => {
+export const formatOption = (
+  option: CurrencySelectOption,
+  theme: NotionalTheme,
+  wrapInOption = true
+) => {
   const { icon, titleWithMaturity } = formatTokenType(option.token);
   let rightContent: ReactNode | undefined;
   if (option.content) {
@@ -131,7 +135,16 @@ const formatOption = (option: CurrencySelectOption, theme: NotionalTheme) => {
       </Box>
     );
   }
-  return (
+  const child = (
+    <>
+      <Box sx={{ display: 'flex', marginRight: 'auto' }}>
+        <TokenIcon symbol={icon} size="medium" />
+        <H4 marginLeft={theme.spacing(1)}>{titleWithMaturity}</H4>
+      </Box>
+      {rightContent && <Box textAlign="right">{rightContent}</Box>}
+    </>
+  );
+  return wrapInOption ? (
     <StyledItem
       value={option.token.id}
       key={option.token.id}
@@ -139,13 +152,29 @@ const formatOption = (option: CurrencySelectOption, theme: NotionalTheme) => {
       theme={theme}
       disabled={option.disabled}
     >
-      <Box sx={{ display: 'flex', marginRight: 'auto' }}>
-        <TokenIcon symbol={icon} size="medium" />
-        <H4 marginLeft={theme.spacing(1)}>{titleWithMaturity}</H4>
-      </Box>
-      {rightContent && <Box textAlign="right">{rightContent}</Box>}
+      {child}
     </StyledItem>
+  ) : (
+    child
   );
 };
+
+export const EmptyCurrencySelectOption = (theme: NotionalTheme) => (
+  <StyledItem key={'null'} value={'EMPTY'}>
+    <Box
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        marginRight: 'auto',
+      }}
+    >
+      <TokenIcon size="medium" symbol={'unknown'} />
+      <H4 marginLeft={theme.spacing(2)}>&nbsp;</H4>
+    </Box>
+    <Box textAlign={'right'}>
+      <H4>&nbsp;</H4>
+    </Box>
+  </StyledItem>
+);
 
 export default CurrencySelect;
