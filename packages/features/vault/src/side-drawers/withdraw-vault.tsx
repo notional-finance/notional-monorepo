@@ -113,8 +113,8 @@ export const WithdrawVault = () => {
               />
             )
           }
-          currencies={[primaryBorrowSymbol]}
-          defaultValue={primaryBorrowSymbol}
+          options={deposit ? [{ token: deposit }] : []}
+          defaultValue={deposit?.id || null}
         />
       </Box>
     </VaultSideDrawer>

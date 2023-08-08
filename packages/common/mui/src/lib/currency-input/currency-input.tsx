@@ -23,9 +23,6 @@ export interface CurrencyInputProps extends CurrencySelectProps {
   style?: CurrencyInputStyleProps;
   onMaxValue?: () => void;
   ref: React.RefObject<HTMLDivElement>;
-  CustomSelect?: (
-    containerRef?: React.MutableRefObject<unknown>
-  ) => React.ReactNode;
 }
 
 export interface CurrencyInputHandle {
@@ -94,7 +91,6 @@ export const CurrencyInput = React.forwardRef<
     onInputChange,
     onMaxValue,
     style,
-    CustomSelect,
   } = props;
   const theme = useTheme() as NotionalTheme;
   const [hasFocus, setHasFocus] = React.useState(false);
@@ -110,8 +106,8 @@ export const CurrencyInput = React.forwardRef<
       if (emitChange) onInputChange(input);
     },
     getInputValue: () => {
-      return value
-    }
+      return value;
+    },
   }));
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -133,17 +129,6 @@ export const CurrencyInput = React.forwardRef<
   const errorType = errorMsg ? 'error' : 'warning';
 
   const borderColor = getBorderColor();
-
-  const SelectDropdown = CustomSelect ? (
-    CustomSelect(inputContainerRef)
-  ) : (
-    <CurrencySelect
-      currencies={props.currencies}
-      defaultValue={props.defaultValue}
-      onSelectChange={props.onSelectChange}
-      popperRef={inputContainerRef}
-    />
-  );
 
   return (
     <Container>
@@ -217,7 +202,12 @@ export const CurrencyInput = React.forwardRef<
             borderColor: borderColor,
           }}
         />
-        {SelectDropdown}
+        <CurrencySelect
+          options={props.options}
+          defaultValue={props.defaultValue}
+          onSelectChange={props.onSelectChange}
+          popperRef={inputContainerRef}
+        />
       </InputContainer>
       <ErrorMessage variant={errorType} message={currentErrorMessage} />
       <Paragraph marginTop={theme.spacing(1)}>

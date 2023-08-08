@@ -47,7 +47,12 @@ export const DepositInput = React.forwardRef<
   ) => {
     const history = useHistory();
     const {
-      state: { selectedDepositToken, availableDepositTokens, calculateError },
+      state: {
+        deposit,
+        selectedDepositToken,
+        availableDepositTokens,
+        calculateError,
+      },
       updateState,
     } = context;
     const {
@@ -90,13 +95,26 @@ export const DepositInput = React.forwardRef<
             )
           }
           warningMsg={warningMsg}
-          currencies={availableDepositTokens?.map((t) => t.symbol) || []}
-          defaultValue={selectedDepositToken}
-          onSelectChange={(newToken: string | null) => {
+          options={
+            availableDepositTokens?.map((token) => ({
+              token,
+            })) || []
+          }
+          defaultValue={deposit?.id || null}
+          onSelectChange={(tokenId: string | null) => {
             // Always clear the input string when we change tokens
             inputRef.current?.setInputOverride('');
-            if (newToken !== selectedDepositToken && newRoute)
-              history.push(newRoute(newToken));
+            const newTokenSymbol = availableDepositTokens?.find(
+              (t) => t.id === tokenId
+            )?.symbol;
+
+            if (
+              newTokenSymbol &&
+              newTokenSymbol !== selectedDepositToken &&
+              newRoute
+            ) {
+              history.push(newRoute(newTokenSymbol));
+            }
           }}
           style={{
             landingPage: false,

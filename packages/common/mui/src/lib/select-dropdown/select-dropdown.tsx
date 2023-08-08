@@ -1,5 +1,5 @@
 import { MenuList, PopperPlacementType, styled, useTheme } from '@mui/material';
-import SelectUnstyled from '@mui/base/SelectUnstyled';
+import SelectUnstyled, { SelectOption } from '@mui/base/SelectUnstyled';
 import PopperUnstyled from '@mui/base/PopperUnstyled';
 import { ArrowIcon } from '@notional-finance/icons';
 import { ElementType, useState } from 'react';
@@ -12,6 +12,7 @@ interface SelectDropdownProps {
   buttonComponent: ElementType;
   onChange: (value: string | null) => void;
   onListboxOpen?: (isOpen: boolean) => void;
+  renderValue?: (option: SelectOption<string> | null) => React.ReactNode | undefined;
 }
 
 const StyledMenu = styled(MenuList)(
@@ -36,6 +37,7 @@ export const SelectDropdown = ({
   buttonComponent,
   onListboxOpen,
   onChange,
+  renderValue,
   value,
 }: SelectDropdownProps) => {
   const theme = useTheme();
@@ -106,7 +108,8 @@ export const SelectDropdown = ({
             phase: 'beforeWrite',
             requires: ['computeStyles'],
             fn: ({ state }) => {
-              state.styles.popper.width = popperWidth || `${state.rects.reference.width}px`;
+              state.styles.popper.width =
+                popperWidth || `${state.rects.reference.width}px`;
             },
             effect: ({ state }) => {
               state.elements.popper.style.width = `${state.elements.reference.offsetWidth}px`;
@@ -118,11 +121,13 @@ export const SelectDropdown = ({
     },
   };
 
-  return !onlyOneInput ? (
+  return (
     <SelectUnstyled
+      disabled={onlyOneInput}
       value={value}
       slotProps={componentProps}
       slots={components}
+      renderValue={renderValue}
       onListboxOpenChange={(isOpen: boolean) => {
         setListboxOpen(isOpen);
         if (onListboxOpen) onListboxOpen(isOpen);
@@ -130,15 +135,6 @@ export const SelectDropdown = ({
       onChange={(_, value) => {
         onChange(value);
       }}
-    >
-      {children}
-    </SelectUnstyled>
-  ) : (
-    <SelectUnstyled
-      value={value}
-      disabled={onlyOneInput}
-      slotProps={componentProps}
-      slots={components}
     >
       {children}
     </SelectUnstyled>
