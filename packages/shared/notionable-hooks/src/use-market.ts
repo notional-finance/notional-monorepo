@@ -71,7 +71,6 @@ export function useCurrency() {
 
 export const useAllMarkets = () => {
   const network = useSelectedNetwork();
-  // TODO: rewrite this to be a subscription
   const allYields = network
     ? Registry.getYieldRegistry().getAllYields(network)
     : [];

@@ -27,6 +27,7 @@ export class Registry {
   public static DEFAULT_VAULT_REFRESH = 10 * ONE_SECOND_MS;
   public static DEFAULT_ORACLE_REFRESH = 10 * ONE_SECOND_MS;
   public static DEFAULT_ACCOUNT_REFRESH = ONE_MINUTE_MS;
+  public static DEFAULT_YIELD_REFRESH = 10 * ONE_SECOND_MS;
 
   static initialize(
     cacheHostname: string,
@@ -114,6 +115,14 @@ export class Registry {
       network,
       Registry.DEFAULT_ACCOUNT_REFRESH
     );
+
+    // Only start the yield registry refresh after all the other refreshes begin
+    Registry.onNetworkReady(network, () => {
+      Registry.getYieldRegistry().startRefreshInterval(
+        network,
+        Registry.DEFAULT_YIELD_REFRESH
+      );
+    });
   }
 
   public static stopRefresh(network: Network) {

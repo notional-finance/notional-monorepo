@@ -430,12 +430,31 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
   }
 
   getAllYields(network: Network) {
-    return this.getPrimeCashYield(network)
+    if (!this.isNetworkRegistered(network)) return [];
+
+    return Array.from(this.getLatestFromAllSubjects(network, 0).values());
+  }
+
+  protected override async _refresh(network: Network) {
+    const allYields = this.getPrimeCashYield(network)
       .concat(this.getPrimeDebtYield(network))
       .concat(this.getNTokenYield(network))
       .concat(this.getfCashYield(network))
       .concat(this.getLeveragedLendYield(network))
       .concat(this.getLeveragedNTokenYield(network))
       .concat(this.getLeveragedVaultYield(network));
+
+    return {
+      values: allYields.map(
+        (y) =>
+          [`${y.token.id}:${y.leveraged?.debtToken.id || '-'}`, y] as [
+            string,
+            YieldData
+          ]
+      ),
+      network,
+      lastUpdateTimestamp: getNowSeconds(),
+      lastUpdateBlock: 0,
+    };
   }
 }
