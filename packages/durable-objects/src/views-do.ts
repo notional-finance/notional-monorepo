@@ -34,7 +34,7 @@ export class ViewsDO extends BaseDO<APIEnv> {
 
   async fetchViews(network: Network) {
     const resp = await fetch(
-      `${this.env.DATA_SERVICE_URL}/views?network=arbitrum`,
+      `${this.env.DATA_SERVICE_URL}/views?network=${network}`,
       {
         headers: {
           'x-auth-token': this.env.DATA_SERVICE_AUTH_TOKEN,
@@ -42,12 +42,13 @@ export class ViewsDO extends BaseDO<APIEnv> {
       }
     );
     const data = (await resp.json()) as any[];
-    await Promise.all(
+    console.log(JSON.stringify(data));
+    /*await Promise.all(
       data.map((v) => {
         console.log(`Fetch view ${v.view_name}`);
         return this.fetchView(network, v.view_name);
       })
-    );
+    );*/
   }
 
   async onRefresh() {
