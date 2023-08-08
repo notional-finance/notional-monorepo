@@ -393,6 +393,21 @@ export const configDefs: ConfigDefinition[] = [
   },
   {
     strategyId: Strategy.Generic,
+    variable: 'Arb To Usd Oracle',
+    sourceType: SourceType.Multicall,
+    sourceConfig: {
+      contractAddress: '0xb2a824043730fe05f3da2efafa1cbbe83fa548d6',
+      contractABI: IAggregatorABI,
+      method: 'latestAnswer',
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      decimals: 8,
+    },
+    network: Network.ArbitrumOne,
+  },
+  {
+    strategyId: Strategy.Generic,
     variable: 'veBAL total supply',
     sourceType: SourceType.Multicall,
     sourceConfig: {

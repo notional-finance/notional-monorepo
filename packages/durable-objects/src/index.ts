@@ -7,6 +7,7 @@ export * from './abstract';
 export * from './accounts-do';
 export * from './exchange-rates-do';
 export * from './registries';
+export * from './views-do';
 
 export interface APIEnv extends RegistryDOEnv {
   KPIS_DO: DurableObjectNamespace;
@@ -18,4 +19,6 @@ export interface APIEnv extends RegistryDOEnv {
   GHOST_ADMIN_KEY: string;
   NX_DD_API_KEY: string;
   NX_DATA_URL: string;
+  DATA_SERVICE_URL: string;
+  DATA_SERVICE_AUTH_TOKEN: string;
 }

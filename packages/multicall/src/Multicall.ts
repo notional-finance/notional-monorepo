@@ -64,7 +64,7 @@ Error executing Multicall: ${aggregateCall.map((c) =>
         args: c.args,
       })
     )}
-${e}`);
+${e}, blockNumber=${blockNumber}`);
   }
 
   const results = aggregateCall.reduce(

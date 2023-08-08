@@ -7,7 +7,7 @@ export class GenericDataWriter implements IDataWriter {
     context: DataContext,
     rows: DataRow[]
   ): Promise<void> {
-    await db
+    const query = db
       .insert(
         rows.map((v) => ({
           strategy_id: v.strategyId,
@@ -22,7 +22,12 @@ export class GenericDataWriter implements IDataWriter {
         }))
       )
       .into(context.tableName)
-      .onConflict(['strategy_id', 'variable', 'network', 'timestamp'])
-      .ignore();
+      .onConflict(['strategy_id', 'variable', 'network', 'timestamp']);
+
+    if (context.mergeConflicts) {
+      await query.merge();
+    } else {
+      await query.ignore();
+    }
   }
 }

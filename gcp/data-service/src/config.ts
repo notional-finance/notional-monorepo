@@ -18,6 +18,7 @@ import { join } from 'path';
 import { gql } from '@apollo/client';
 import { configDefs as GenericConfig } from './config/GenericConfig';
 import { configDefs as Eth_Balancer_WETH_wstETH_Config } from './config/eth/balancer/WETH_wstETH';
+import { configDefs as Arb_Balancer_WETH_wstETH_Config } from './config/arb/balancer/WETH_wstETH';
 import { configDefs as Eth_Balancer_AaveV3_Boosted_Config } from './config/eth/balancer/AaveV3_Boosted';
 import { configDefs as Arb_Convex_USDC_FRAX_Config } from './config/arb/convex/USDC_FRAX';
 
@@ -26,6 +27,7 @@ export const SourceContracts = {};
 export const defaultConfigDefs: ConfigDefinition[] = [
   ...GenericConfig,
   ...Eth_Balancer_WETH_wstETH_Config,
+  ...Arb_Balancer_WETH_wstETH_Config,
   ...Eth_Balancer_AaveV3_Boosted_Config,
   ...Arb_Convex_USDC_FRAX_Config,
 ];
@@ -34,6 +36,8 @@ export const defaultGraphEndpoints: Record<string, Record<string, string>> = {
   [ProtocolName.BalancerV2]: {
     [Network.Mainnet]:
       'https://api.thegraph.com/subgraphs/name/balancer-labs/balancer-v2',
+    [Network.ArbitrumOne]:
+      'https://api.thegraph.com/subgraphs/name/balancer-labs/balancer-arbitrum-v2',
   },
   [ProtocolName.Curve]: {
     [Network.ArbitrumOne]:
