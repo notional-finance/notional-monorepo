@@ -206,9 +206,7 @@ export const CurrencyInput = React.forwardRef<
           options={props.options}
           defaultValue={props.defaultValue}
           onSelectChange={props.onSelectChange}
-          ButtonComponent={props.ButtonComponent}
           popperRef={inputContainerRef}
-          renderValue={props.renderValue}
         />
       </InputContainer>
       <ErrorMessage variant={errorType} message={currentErrorMessage} />

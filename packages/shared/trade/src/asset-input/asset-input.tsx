@@ -11,7 +11,6 @@ import { useHistory } from 'react-router';
 import { INTERNAL_TOKEN_DECIMALS } from '@notional-finance/util';
 import { useAssetInput } from './use-asset-input';
 import { BaseTradeContext } from '@notional-finance/notionable-hooks';
-import { formatTokenType } from '@notional-finance/helpers';
 import { useDeleverage } from './use-deleverage';
 
 interface AssetInputProps {
@@ -86,7 +85,6 @@ export const AssetInput = React.forwardRef<
       updateBalances,
       setHasUserTouched,
       updateDeleverageToken,
-      renderDeleverageValue,
     } = useDeleverage(
       availableTokens,
       deleverage,
@@ -148,14 +146,7 @@ export const AssetInput = React.forwardRef<
           }
           warningMsg={warningMsg}
           options={options}
-          renderValue={renderDeleverageValue}
-          defaultValue={
-            selectedToken && deleverage
-              ? selectedToken.id
-              : selectedToken
-              ? formatTokenType(selectedToken).title
-              : null
-          }
+          defaultValue={selectedToken?.id || null}
           onSelectChange={(newToken: string | null) => {
             // TODO: trigger different update here for deleverage
             // Always clear the input string when we change tokens

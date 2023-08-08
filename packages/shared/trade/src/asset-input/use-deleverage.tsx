@@ -1,13 +1,6 @@
-import { Box, useTheme } from '@mui/material';
 import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
 import { formatTokenType } from '@notional-finance/helpers';
-import { TokenIcon } from '@notional-finance/icons';
-import {
-  Caption,
-  CurrencyInputHandle,
-  H4,
-  formatCurrencySelect,
-} from '@notional-finance/mui';
+import { CurrencyInputHandle } from '@notional-finance/mui';
 import { BaseTradeState } from '@notional-finance/notionable';
 import { useAccountDefinition } from '@notional-finance/notionable-hooks';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -27,7 +20,6 @@ export const useDeleverage = (
   debtOrCollateral: 'Debt' | 'Collateral',
   updateState: (args: Partial<BaseTradeState>) => void
 ) => {
-  const theme = useTheme();
   const { account } = useAccountDefinition();
   const [hasUserTouched, setHasUserTouched] = useState(false);
 
@@ -103,20 +95,6 @@ export const useDeleverage = (
     [deleverage, debtOrCollateral, debt, collateral, updateState]
   );
 
-  const renderDeleverageValue = useCallback(
-    (value: string | null) => {
-      const token = availableTokens?.find((t) => t.id === value);
-      const title = token ? formatTokenType(token).title : undefined;
-      return title ? (
-        <Box sx={{ display: 'flex', marginRight: 'auto' }}>
-          <TokenIcon symbol={title} size="medium" />
-          <H4 marginLeft={theme.spacing(1)}>{title}</H4>
-        </Box>
-      ) : undefined;
-    },
-    [availableTokens, theme]
-  );
-
   const options = useMemo(() => {
     if (deleverage) {
       return (
@@ -128,33 +106,27 @@ export const useDeleverage = (
               ? b.tokenType === 'PrimeCash' && t.currencyId === b.currencyId
               : b.tokenId === t.id
           );
-          const { title, titleWithMaturity } = formatTokenType(t);
+          const { title } = formatTokenType(t);
 
-          return formatCurrencySelect(
-            titleWithMaturity,
-            theme,
-            t.id,
-            <>
-              <H4 error={balance?.isNegative()}>
-                {balance?.toDisplayString(3, true)} {title}
-              </H4>
-              {balance ? (
-                <Caption>
-                  {balance.toFiat('USD').toDisplayStringWithSymbol(3, true)}
-                </Caption>
-              ) : null}
-            </>
-          );
+          return {
+            token: t,
+            content: balance
+              ? {
+                  largeFigure: balance.toFloat(),
+                  largeFigureSuffix: title,
+                  shouldCountUp: false,
+                  caption: balance
+                    .toFiat('USD')
+                    .toDisplayStringWithSymbol(3, true),
+                }
+              : undefined,
+          };
         }) || []
       );
     } else {
-      return (
-        availableTokens?.map((t) =>
-          formatCurrencySelect(formatTokenType(t).title, theme)
-        ) || []
-      );
+      return availableTokens?.map((token) => ({ token })) || [];
     }
-  }, [availableTokens, deleverage, account?.balances, theme]);
+  }, [availableTokens, deleverage, account?.balances]);
 
   return {
     options,
@@ -162,6 +134,5 @@ export const useDeleverage = (
     hasUserTouched,
     setHasUserTouched,
     updateDeleverageToken,
-    renderDeleverageValue,
   };
 };

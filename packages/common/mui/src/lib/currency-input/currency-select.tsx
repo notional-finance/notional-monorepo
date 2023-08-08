@@ -1,41 +1,32 @@
 import { styled } from '@mui/material/styles';
 import OptionUnstyled from '@mui/base/OptionUnstyled';
-import { Box, Button } from '@mui/material';
+import { Box, Button, useTheme } from '@mui/material';
 import { TokenIcon } from '@notional-finance/icons';
-import { ReactNode, useEffect, useState } from 'react';
+import React, { ReactNode, useEffect, useState } from 'react';
 import { SelectDropdown } from '../select-dropdown/select-dropdown';
-import { H4 } from '../typography/typography';
+import { Caption, H4 } from '../typography/typography';
 import { NotionalTheme } from '@notional-finance/styles';
+import CountUp from '../count-up/count-up';
+import { TokenDefinition } from '@notional-finance/core-entities';
+import { formatTokenType } from '@notional-finance/helpers';
+
+export interface CurrencySelectOption {
+  token: TokenDefinition;
+  content?: {
+    largeFigure: number;
+    largeFigureSuffix: string;
+    shouldCountUp: boolean;
+    caption?: string;
+  };
+  disabled?: boolean;
+}
 
 export interface CurrencySelectProps {
-  options: ReactNode[];
-  ButtonComponent?: React.ElementType;
+  options: CurrencySelectOption[];
   defaultValue: string | null;
   onSelectChange?: (value: string | null) => void;
   popperRef?: React.ForwardedRef<unknown>;
-  renderValue?: (option: string | null) => React.ReactNode | undefined;
 }
-
-/**
- * NOTE: odd behavior in SelectUnstyled requires that this be called
- * as a regular function, not a JSX component
- */
-export const formatCurrencySelect = (
-  token: string,
-  theme: NotionalTheme,
-  value?: string,
-  rightContent?: React.ReactNode
-) => {
-  return (
-    <StyledItem value={value || token} key={token} theme={theme}>
-      <Box sx={{ display: 'flex', marginRight: 'auto' }}>
-        <TokenIcon symbol={token} size="medium" />
-        <H4 marginLeft={theme.spacing(1)}>{token}</H4>
-      </Box>
-      {rightContent && <Box textAlign="right">{rightContent}</Box>}
-    </StyledItem>
-  );
-};
 
 const StyledItem = styled(OptionUnstyled)(
   ({ theme }) => `
@@ -75,10 +66,9 @@ export function CurrencySelect({
   options,
   onSelectChange,
   popperRef,
-  ButtonComponent,
-  renderValue,
 }: CurrencySelectProps) {
   const [value, setValue] = useState<string | null>(defaultValue);
+  const theme = useTheme();
 
   const parentWidth =
     popperRef && popperRef['current']
@@ -92,17 +82,70 @@ export function CurrencySelect({
   return (
     <SelectDropdown
       value={value}
-      buttonComponent={ButtonComponent || StyledButton}
+      buttonComponent={StyledButton}
       popperWidth={`${parentWidth}px`}
-      renderValue={renderValue}
+      renderValue={(opt) =>
+        opt ? (
+          <Box sx={{ display: 'flex', marginRight: 'auto' }}>
+            <TokenIcon symbol={opt.label as string} size="medium" />
+            <H4 marginLeft={theme.spacing(1)}>{opt.label}</H4>
+          </Box>
+        ) : undefined
+      }
       onChange={(value: string | null) => {
         setValue(value);
         if (onSelectChange) onSelectChange(value);
       }}
     >
-      {options}
+      {options.map((o) => formatOption(o, theme))}
     </SelectDropdown>
   );
 }
+
+/**
+ * NOTE: odd behavior in SelectUnstyled requires that this be called
+ * as a regular function, not a JSX component
+ */
+const formatOption = (option: CurrencySelectOption, theme: NotionalTheme) => {
+  const { icon, titleWithMaturity } = formatTokenType(option.token);
+  let rightContent: ReactNode | undefined;
+  if (option.content) {
+    const c = option.content;
+    // TODO: there is no abbr here anymore.
+    const largeFigure = c.shouldCountUp ? (
+      <CountUp
+        value={c.largeFigure}
+        suffix={` ${c.largeFigureSuffix}`}
+        decimals={3}
+      />
+    ) : (
+      <span>
+        {c.largeFigure.toFixed(3)}&nbsp;
+        {c.largeFigureSuffix}
+      </span>
+    );
+    rightContent = (
+      <Box textAlign={'right'}>
+        <H4 error={c.largeFigure < 0}>{largeFigure}</H4>
+        {c.caption ? <Caption>{c.caption}</Caption> : null}
+      </Box>
+    );
+  }
+  return (
+    <StyledItem
+      value={option.token.id}
+      key={option.token.id}
+      label={icon}
+      theme={theme}
+      disabled={option.disabled}
+    >
+      <Box sx={{ display: 'flex', marginRight: 'auto' }}>
+        <TokenIcon symbol={icon} size="medium" />
+        <H4 marginLeft={theme.spacing(1)}>{titleWithMaturity}</H4>
+      </Box>
+      {rightContent && <Box textAlign="right">{rightContent}</Box>}
+    </StyledItem>
+  );
+};
 
 export default CurrencySelect;

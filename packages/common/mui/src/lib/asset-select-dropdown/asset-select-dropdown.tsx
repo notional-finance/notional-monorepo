@@ -102,6 +102,7 @@ export const AssetSelectDropdown = ({
   return (
     <Box marginTop={tightMarginTop ? theme.spacing(-3) : undefined}>
       <InputLabel inputLabel={inputLabel} />
+      {/* REFACTOR THIS WITH CURRENCY SELECT */}
       <SelectDropdown
         buttonComponent={StyledButton}
         value={selectedTokenId || null}

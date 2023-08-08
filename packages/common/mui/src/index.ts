@@ -16,7 +16,6 @@ export * from './lib/count-up/count-up';
 export * from './lib/countdown-cards/countdown-cards';
 export * from './lib/currency-img/currency-img';
 export * from './lib/currency-input/currency-input';
-export { formatCurrencySelect } from './lib/currency-input/currency-select';
 export * from './lib/data-table/types';
 export * from './lib/data-table/data-table';
 export * from './lib/data-table-cells';

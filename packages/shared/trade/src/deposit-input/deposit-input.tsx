@@ -1,11 +1,10 @@
 import React, { useEffect } from 'react';
-import { Box, useTheme } from '@mui/material';
+import { Box } from '@mui/material';
 import {
   CurrencyInput,
   CurrencyInputHandle,
   InputLabel,
   PageLoading,
-  formatCurrencySelect,
 } from '@notional-finance/mui';
 import { FormattedMessage, MessageDescriptor } from 'react-intl';
 import { useDepositInput } from './use-deposit-input';
@@ -47,9 +46,13 @@ export const DepositInput = React.forwardRef<
     ref
   ) => {
     const history = useHistory();
-    const theme = useTheme();
     const {
-      state: { selectedDepositToken, availableDepositTokens, calculateError },
+      state: {
+        deposit,
+        selectedDepositToken,
+        availableDepositTokens,
+        calculateError,
+      },
       updateState,
     } = context;
     const {
@@ -93,16 +96,25 @@ export const DepositInput = React.forwardRef<
           }
           warningMsg={warningMsg}
           options={
-            availableDepositTokens?.map((t) =>
-              formatCurrencySelect(t.symbol, theme)
-            ) || []
+            availableDepositTokens?.map((token) => ({
+              token,
+            })) || []
           }
-          defaultValue={selectedDepositToken}
-          onSelectChange={(newToken: string | null) => {
+          defaultValue={deposit?.id || null}
+          onSelectChange={(tokenId: string | null) => {
             // Always clear the input string when we change tokens
             inputRef.current?.setInputOverride('');
-            if (newToken !== selectedDepositToken && newRoute)
-              history.push(newRoute(newToken));
+            const newTokenSymbol = availableDepositTokens?.find(
+              (t) => t.id === tokenId
+            )?.symbol;
+
+            if (
+              newTokenSymbol &&
+              newTokenSymbol !== selectedDepositToken &&
+              newRoute
+            ) {
+              history.push(newRoute(newTokenSymbol));
+            }
           }}
           style={{
             landingPage: false,
