@@ -42,13 +42,12 @@ export class ViewsDO extends BaseDO<APIEnv> {
       }
     );
     const data = (await resp.json()) as any[];
-    console.log(JSON.stringify(data));
-    /*await Promise.all(
+    await Promise.all(
       data.map((v) => {
         console.log(`Fetch view ${v.view_name}`);
         return this.fetchView(network, v.view_name);
       })
-    );*/
+    );
   }
 
   async onRefresh() {
