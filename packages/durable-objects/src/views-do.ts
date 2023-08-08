@@ -28,8 +28,12 @@ export class ViewsDO extends BaseDO<APIEnv> {
     const data = await resp.json();
     return this.state.storage.put(
       `${this.serviceName}/${network}/${name}`,
-      JSON.stringify(data)
+      await this.encodeGzip(JSON.stringify(data))
     );
+  }
+
+  override async parseData(data: string) {
+    return this.parseGzip(data);
   }
 
   async fetchViews(network: Network) {
