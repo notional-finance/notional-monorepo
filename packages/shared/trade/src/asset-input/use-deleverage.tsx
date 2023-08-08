@@ -1,6 +1,7 @@
-import { useTheme } from '@mui/material';
+import { Box, useTheme } from '@mui/material';
 import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
 import { formatTokenType } from '@notional-finance/helpers';
+import { TokenIcon } from '@notional-finance/icons';
 import {
   Caption,
   CurrencyInputHandle,
@@ -102,6 +103,20 @@ export const useDeleverage = (
     [deleverage, debtOrCollateral, debt, collateral, updateState]
   );
 
+  const renderDeleverageValue = useCallback(
+    (value: string | null) => {
+      const token = availableTokens?.find((t) => t.id === value);
+      const title = token ? formatTokenType(token).title : undefined;
+      return title ? (
+        <Box sx={{ display: 'flex', marginRight: 'auto' }}>
+          <TokenIcon symbol={title} size="medium" />
+          <H4 marginLeft={theme.spacing(1)}>{title}</H4>
+        </Box>
+      ) : undefined;
+    },
+    [availableTokens, theme]
+  );
+
   const options = useMemo(() => {
     if (deleverage) {
       return (
@@ -147,5 +162,6 @@ export const useDeleverage = (
     hasUserTouched,
     setHasUserTouched,
     updateDeleverageToken,
+    renderDeleverageValue,
   };
 };

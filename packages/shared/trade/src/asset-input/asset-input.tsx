@@ -86,6 +86,7 @@ export const AssetInput = React.forwardRef<
       updateBalances,
       setHasUserTouched,
       updateDeleverageToken,
+      renderDeleverageValue,
     } = useDeleverage(
       availableTokens,
       deleverage,
@@ -147,8 +148,13 @@ export const AssetInput = React.forwardRef<
           }
           warningMsg={warningMsg}
           options={options}
+          renderValue={renderDeleverageValue}
           defaultValue={
-            selectedToken ? formatTokenType(selectedToken).title : null
+            selectedToken && deleverage
+              ? selectedToken.id
+              : selectedToken
+              ? formatTokenType(selectedToken).title
+              : null
           }
           onSelectChange={(newToken: string | null) => {
             // TODO: trigger different update here for deleverage

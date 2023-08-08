@@ -2,7 +2,7 @@ import { styled } from '@mui/material/styles';
 import OptionUnstyled from '@mui/base/OptionUnstyled';
 import { Box, Button } from '@mui/material';
 import { TokenIcon } from '@notional-finance/icons';
-import { ReactNode, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { SelectDropdown } from '../select-dropdown/select-dropdown';
 import { H4 } from '../typography/typography';
 import { NotionalTheme } from '@notional-finance/styles';
@@ -13,6 +13,7 @@ export interface CurrencySelectProps {
   defaultValue: string | null;
   onSelectChange?: (value: string | null) => void;
   popperRef?: React.ForwardedRef<unknown>;
+  renderValue?: (option: string | null) => React.ReactNode | undefined;
 }
 
 /**
@@ -75,6 +76,7 @@ export function CurrencySelect({
   onSelectChange,
   popperRef,
   ButtonComponent,
+  renderValue,
 }: CurrencySelectProps) {
   const [value, setValue] = useState<string | null>(defaultValue);
 
@@ -83,11 +85,16 @@ export function CurrencySelect({
       ? popperRef['current']['clientWidth']
       : undefined;
 
+  useEffect(() => {
+    if (defaultValue && value !== defaultValue) setValue(defaultValue);
+  }, [defaultValue, value]);
+
   return (
     <SelectDropdown
       value={value}
       buttonComponent={ButtonComponent || StyledButton}
       popperWidth={`${parentWidth}px`}
+      renderValue={renderValue}
       onChange={(value: string | null) => {
         setValue(value);
         if (onSelectChange) onSelectChange(value);
