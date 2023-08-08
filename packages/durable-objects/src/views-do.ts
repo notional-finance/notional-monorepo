@@ -1,7 +1,5 @@
 import { DurableObjectState } from '@cloudflare/workers-types';
 import { APIEnv } from '.';
-import { BaseDO } from './abstract';
-import { Network, ONE_MINUTE_MS } from '@notional-finance/util';
 
 export class ViewsDO {
   state: DurableObjectState;
@@ -17,8 +15,6 @@ export class ViewsDO {
     console.log(this.env.DATA_SERVICE_URL);
     return new Response('Hello world');
   }
-
-  async update(request: Request) {}
 
   private getStorageKey(network: string, view: string) {
     return `${network}/${view}}`;

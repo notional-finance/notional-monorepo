@@ -7,6 +7,7 @@ export * from './abstract';
 export * from './accounts-do';
 export * from './exchange-rates-do';
 export * from './registries';
+export * from './views-do';
 
 export interface APIEnv extends RegistryDOEnv {
   KPIS_DO: DurableObjectNamespace;
