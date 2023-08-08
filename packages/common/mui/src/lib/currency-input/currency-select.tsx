@@ -19,21 +19,18 @@ export interface CurrencySelectProps {
  * NOTE: odd behavior in SelectUnstyled requires that this be called
  * as a regular function, not a JSX component
  */
-export const CurrencySelectOption = ({
-  token,
-  value,
-  rightContent,
-  theme,
-}: {
-  token: string;
-  theme: NotionalTheme;
-  value?: string;
-  rightContent?: React.ReactNode;
-}) => {
+export const formatCurrencySelect = (
+  token: string,
+  theme: NotionalTheme,
+  value?: string,
+  rightContent?: React.ReactNode
+) => {
   return (
     <StyledItem value={value || token} key={token} theme={theme}>
-      <TokenIcon symbol={token} size="medium" />
-      <H4 marginLeft={theme.spacing(1)}>{token}</H4>
+      <Box sx={{ display: 'flex', marginRight: 'auto' }}>
+        <TokenIcon symbol={token} size="medium" />
+        <H4 marginLeft={theme.spacing(1)}>{token}</H4>
+      </Box>
       {rightContent && <Box textAlign="right">{rightContent}</Box>}
     </StyledItem>
   );

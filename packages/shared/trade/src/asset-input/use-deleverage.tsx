@@ -1,10 +1,11 @@
+import { useTheme } from '@mui/material';
 import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
 import { formatTokenType } from '@notional-finance/helpers';
 import {
   Caption,
   CurrencyInputHandle,
-  CurrencySelectOption,
   H4,
+  formatCurrencySelect,
 } from '@notional-finance/mui';
 import { BaseTradeState } from '@notional-finance/notionable';
 import { useAccountDefinition } from '@notional-finance/notionable-hooks';
@@ -25,6 +26,7 @@ export const useDeleverage = (
   debtOrCollateral: 'Debt' | 'Collateral',
   updateState: (args: Partial<BaseTradeState>) => void
 ) => {
+  const theme = useTheme();
   const { account } = useAccountDefinition();
   const [hasUserTouched, setHasUserTouched] = useState(false);
 
@@ -113,32 +115,31 @@ export const useDeleverage = (
           );
           const { title, titleWithMaturity } = formatTokenType(t);
 
-          return CurrencySelectOption({
-            token: titleWithMaturity,
-            value: t.id,
-            rightContent: (
-              <>
-                <H4>
-                  {balance?.toDisplayString(3, true)} {title}
-                </H4>
-                {balance ? (
-                  <Caption>
-                    {balance.toFiat('USD').toDisplayStringWithSymbol(3, true)}
-                  </Caption>
-                ) : null}
-              </>
-            ),
-          });
+          return formatCurrencySelect(
+            titleWithMaturity,
+            theme,
+            t.id,
+            <>
+              <H4 error={balance?.isNegative()}>
+                {balance?.toDisplayString(3, true)} {title}
+              </H4>
+              {balance ? (
+                <Caption>
+                  {balance.toFiat('USD').toDisplayStringWithSymbol(3, true)}
+                </Caption>
+              ) : null}
+            </>
+          );
         }) || []
       );
     } else {
       return (
         availableTokens?.map((t) =>
-          CurrencySelectOption({ token: formatTokenType(t).title })
+          formatCurrencySelect(formatTokenType(t).title, theme)
         ) || []
       );
     }
-  }, [availableTokens, deleverage, account?.balances]);
+  }, [availableTokens, deleverage, account?.balances, theme]);
 
   return {
     options,

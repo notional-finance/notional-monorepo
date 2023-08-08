@@ -1,10 +1,10 @@
-import { Box } from '@mui/material';
+import { Box, useTheme } from '@mui/material';
 import { useCallback, useContext, useEffect, useMemo } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { INTERNAL_TOKEN_DECIMALS } from '@notional-finance/util';
 import {
   CurrencyInput,
-  CurrencySelectOption,
+  formatCurrencySelect,
   InputLabel,
   PageLoading,
   useCurrencyInputRef,
@@ -17,6 +17,7 @@ import { useVaultRiskProfile } from '@notional-finance/notionable-hooks';
 
 export const WithdrawVault = () => {
   const { setCurrencyInput, currencyInputRef } = useCurrencyInputRef();
+  const theme = useTheme();
   const context = useContext(VaultActionContext);
   const {
     state: {
@@ -114,7 +115,7 @@ export const WithdrawVault = () => {
               />
             )
           }
-          options={[CurrencySelectOption({ token: primaryBorrowSymbol })]}
+          options={[formatCurrencySelect(primaryBorrowSymbol, theme)]}
           defaultValue={primaryBorrowSymbol}
         />
       </Box>

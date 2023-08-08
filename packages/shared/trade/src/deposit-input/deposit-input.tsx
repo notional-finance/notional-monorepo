@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react';
-import { Box } from '@mui/material';
+import { Box, useTheme } from '@mui/material';
 import {
   CurrencyInput,
   CurrencyInputHandle,
-  CurrencySelectOption,
   InputLabel,
   PageLoading,
+  formatCurrencySelect,
 } from '@notional-finance/mui';
 import { FormattedMessage, MessageDescriptor } from 'react-intl';
 import { useDepositInput } from './use-deposit-input';
@@ -47,6 +47,7 @@ export const DepositInput = React.forwardRef<
     ref
   ) => {
     const history = useHistory();
+    const theme = useTheme();
     const {
       state: { selectedDepositToken, availableDepositTokens, calculateError },
       updateState,
@@ -93,7 +94,7 @@ export const DepositInput = React.forwardRef<
           warningMsg={warningMsg}
           options={
             availableDepositTokens?.map((t) =>
-              CurrencySelectOption({ token: t.symbol })
+              formatCurrencySelect(t.symbol, theme)
             ) || []
           }
           defaultValue={selectedDepositToken}
