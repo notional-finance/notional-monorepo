@@ -388,9 +388,9 @@ export class TokenBalance {
    */
   toDisplayStringWithSymbol(decimalPlaces = 3, abbr = false, locale = 'en-US') {
     if (this.tokenType === 'Fiat' && this.symbol !== 'NOTE') {
-      return `${
+      return `${this.isNegative() ? '-' : ''}${
         FiatSymbols[this.token.symbol as FiatKeys]
-      }${this.toDisplayString(decimalPlaces, abbr, locale)}`;
+      }${this.abs().toDisplayString(decimalPlaces, abbr, locale)}`;
     } else {
       return `${this.toDisplayString(decimalPlaces, abbr, locale)} ${
         this.token.symbol
