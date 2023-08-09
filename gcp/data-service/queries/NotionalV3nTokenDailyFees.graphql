@@ -1,0 +1,15 @@
+query nTokenDailyFees {
+  transfers(
+    where: {toSystemAccount: "FeeReserve", transferType: "Transfer", token_: {currencyId: 1}}
+  ) {
+    valueInUnderlying
+    token {
+      underlying {
+        decimals
+      }
+    }
+  }
+  currencyConfigurations(where: {id: "1"}) {
+    fCashReserveFeeSharePercent
+  }
+}

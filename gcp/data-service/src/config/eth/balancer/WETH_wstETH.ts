@@ -15,8 +15,6 @@ import {
 
 export const configDefs: ConfigDefinition[] = [
   {
-    strategyId: Strategy.Eth_Balancer_WETH_wstETH,
-    variable: 'stETH to WETH exchange rate',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0x32296969ef14eb0c6d29669c550d4a0449130230',
@@ -26,13 +24,13 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
+      strategyId: Strategy.Eth_Balancer_WETH_wstETH,
+      variable: 'stETH to WETH exchange rate',
       decimals: 18,
     },
     network: Network.Mainnet,
   },
   {
-    strategyId: Strategy.Eth_Balancer_WETH_wstETH,
-    variable: 'WETH balance',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
@@ -46,13 +44,13 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
+      strategyId: Strategy.Eth_Balancer_WETH_wstETH,
+      variable: 'WETH balance',
       decimals: 18,
     },
     network: Network.Mainnet,
   },
   {
-    strategyId: Strategy.Eth_Balancer_WETH_wstETH,
-    variable: 'wstETH balance',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
@@ -66,13 +64,13 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
+      strategyId: Strategy.Eth_Balancer_WETH_wstETH,
+      variable: 'wstETH balance',
       decimals: 18,
     },
     network: Network.Mainnet,
   },
   {
-    strategyId: Strategy.Eth_Balancer_WETH_wstETH,
-    variable: 'BPT Supply',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0x32296969ef14eb0c6d29669c550d4a0449130230',
@@ -81,13 +79,13 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
+      strategyId: Strategy.Eth_Balancer_WETH_wstETH,
+      variable: 'BPT Supply',
       decimals: 18,
     },
     network: Network.Mainnet,
   },
   {
-    strategyId: Strategy.Eth_Balancer_WETH_wstETH,
-    variable: 'BPT Supply in Gauge',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0xcD4722B7c24C29e0413BDCd9e51404B4539D14aE',
@@ -96,13 +94,13 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
+      strategyId: Strategy.Eth_Balancer_WETH_wstETH,
+      variable: 'BPT Supply in Gauge',
       decimals: 18,
     },
     network: Network.Mainnet,
   },
   {
-    strategyId: Strategy.Eth_Balancer_WETH_wstETH,
-    variable: 'Aura BPT balance in Gauge',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0xcD4722B7c24C29e0413BDCd9e51404B4539D14aE',
@@ -112,13 +110,13 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
+      strategyId: Strategy.Eth_Balancer_WETH_wstETH,
+      variable: 'Aura BPT balance in Gauge',
       decimals: 18,
     },
     network: Network.Mainnet,
   },
   {
-    strategyId: Strategy.Eth_Balancer_WETH_wstETH,
-    variable: 'Working Supply',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0xcD4722B7c24C29e0413BDCd9e51404B4539D14aE',
@@ -127,13 +125,13 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
+      strategyId: Strategy.Eth_Balancer_WETH_wstETH,
+      variable: 'Working Supply',
       decimals: 18,
     },
     network: Network.Mainnet,
   },
   {
-    strategyId: Strategy.Eth_Balancer_WETH_wstETH,
-    variable: 'Working Balance',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0xcD4722B7c24C29e0413BDCd9e51404B4539D14aE',
@@ -143,13 +141,13 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
+      strategyId: Strategy.Eth_Balancer_WETH_wstETH,
+      variable: 'Working Balance',
       decimals: 18,
     },
     network: Network.Mainnet,
   },
   {
-    strategyId: Strategy.Eth_Balancer_WETH_wstETH,
-    variable: 'Gauge vote weight',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0xC128468b7Ce63eA702C1f104D55A2566b13D3ABD',
@@ -159,13 +157,13 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
+      strategyId: Strategy.Eth_Balancer_WETH_wstETH,
+      variable: 'Gauge vote weight',
       decimals: 18,
     },
     network: Network.Mainnet,
   },
   {
-    strategyId: Strategy.Eth_Balancer_WETH_wstETH,
-    variable: 'Swap fees',
     sourceType: SourceType.Subgraph,
     sourceConfig: {
       protocol: ProtocolName.BalancerV2,
@@ -179,6 +177,8 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
+      strategyId: Strategy.Eth_Balancer_WETH_wstETH,
+      variable: 'Swap fees',
       decimals: 0,
     },
     network: Network.Mainnet,

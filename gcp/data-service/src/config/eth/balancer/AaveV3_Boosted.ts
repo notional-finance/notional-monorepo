@@ -15,8 +15,6 @@ import {
 
 export const configDefs: ConfigDefinition[] = [
   {
-    strategyId: Strategy.Eth_Balancer_AaveV3_Boosted,
-    variable: 'bbaUsdcBalance',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
@@ -30,13 +28,13 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
+      strategyId: Strategy.Eth_Balancer_AaveV3_Boosted,
+      variable: 'bbaUsdcBalance',
       decimals: 18,
     },
     network: Network.Mainnet,
   },
   {
-    strategyId: Strategy.Eth_Balancer_AaveV3_Boosted,
-    variable: 'bbaUsdtBalance',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
@@ -50,13 +48,13 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
+      strategyId: Strategy.Eth_Balancer_AaveV3_Boosted,
+      variable: 'bbaUsdtBalance',
       decimals: 18,
     },
     network: Network.Mainnet,
   },
   {
-    strategyId: Strategy.Eth_Balancer_AaveV3_Boosted,
-    variable: 'bbaDaiBalance',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0xBA12222222228d8Ba445958a75a0704d566BF2C8',
@@ -70,13 +68,13 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
+      strategyId: Strategy.Eth_Balancer_AaveV3_Boosted,
+      variable: 'bbaDaiBalance',
       decimals: 18,
     },
     network: Network.Mainnet,
   },
   {
-    strategyId: Strategy.Eth_Balancer_AaveV3_Boosted,
-    variable: 'BPT Supply',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0xfeBb0bbf162E64fb9D0dfe186E517d84C395f016',
@@ -85,13 +83,13 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
+      strategyId: Strategy.Eth_Balancer_AaveV3_Boosted,
+      variable: 'BPT Supply',
       decimals: 18,
     },
     network: Network.Mainnet,
   },
   {
-    strategyId: Strategy.Eth_Balancer_AaveV3_Boosted,
-    variable: 'BPT Supply in Gauge',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0x0052688295413b32626D226a205b95cDB337DE86',
@@ -100,13 +98,13 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
+      strategyId: Strategy.Eth_Balancer_AaveV3_Boosted,
+      variable: 'BPT Supply in Gauge',
       decimals: 18,
     },
     network: Network.Mainnet,
   },
   {
-    strategyId: Strategy.Eth_Balancer_AaveV3_Boosted,
-    variable: 'Aura BPT balance in Gauge',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0x0052688295413b32626D226a205b95cDB337DE86',
@@ -116,13 +114,13 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
+      strategyId: Strategy.Eth_Balancer_AaveV3_Boosted,
+      variable: 'Aura BPT balance in Gauge',
       decimals: 18,
     },
     network: Network.Mainnet,
   },
   {
-    strategyId: Strategy.Eth_Balancer_AaveV3_Boosted,
-    variable: 'Working Supply',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0x0052688295413b32626D226a205b95cDB337DE86',
@@ -131,13 +129,13 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
+      strategyId: Strategy.Eth_Balancer_AaveV3_Boosted,
+      variable: 'Working Supply',
       decimals: 18,
     },
     network: Network.Mainnet,
   },
   {
-    strategyId: Strategy.Eth_Balancer_AaveV3_Boosted,
-    variable: 'Working Balance',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0x0052688295413b32626D226a205b95cDB337DE86',
@@ -147,13 +145,13 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
+      strategyId: Strategy.Eth_Balancer_AaveV3_Boosted,
+      variable: 'Working Balance',
       decimals: 18,
     },
     network: Network.Mainnet,
   },
   {
-    strategyId: Strategy.Eth_Balancer_AaveV3_Boosted,
-    variable: 'Gauge vote weight',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0xC128468b7Ce63eA702C1f104D55A2566b13D3ABD',
@@ -163,13 +161,13 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
+      strategyId: Strategy.Eth_Balancer_AaveV3_Boosted,
+      variable: 'Gauge vote weight',
       decimals: 18,
     },
     network: Network.Mainnet,
   },
   {
-    strategyId: Strategy.Eth_Balancer_AaveV3_Boosted,
-    variable: 'Swap fees',
     sourceType: SourceType.Subgraph,
     sourceConfig: {
       protocol: ProtocolName.BalancerV2,
@@ -183,6 +181,8 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
+      strategyId: Strategy.Eth_Balancer_AaveV3_Boosted,
+      variable: 'Swap fees',
       decimals: 0,
     },
     network: Network.Mainnet,

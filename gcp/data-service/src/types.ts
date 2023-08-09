@@ -15,9 +15,11 @@ export enum SourceType {
 
 export enum TableName {
   GenericData = 'generic_data',
+  TokenData = 'token_data',
 }
 
 export enum ProtocolName {
+  NotionalV3 = 'NotionalV3',
   BalancerV2 = 'BalancerV2',
   Curve = 'Curve',
 }
@@ -55,16 +57,20 @@ export interface SubgraphConfig {
 }
 
 export interface GenericDataConfig {
+  strategyId: number;
+  variable: string;
+  decimals: number;
+}
+
+export interface TokenDataConfig {
   decimals: number;
 }
 
 export interface ConfigDefinition {
-  strategyId: number;
-  variable: string;
   sourceType: SourceType;
   sourceConfig: MulticallConfig | SubgraphConfig;
   tableName: TableName;
-  dataConfig: GenericDataConfig;
+  dataConfig: GenericDataConfig | TokenDataConfig;
   network: Network;
 }
 
@@ -90,9 +96,7 @@ export interface DataWriterConfig {
 }
 
 export interface DataRow {
-  strategyId: number;
-  variable: string;
-  dataConfig: GenericDataConfig;
+  dataConfig: GenericDataConfig | TokenDataConfig;
   blockNumber: number;
   networkId: number;
   contractAddress?: string;
