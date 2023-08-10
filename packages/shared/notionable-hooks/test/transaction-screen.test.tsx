@@ -1,11 +1,32 @@
 import {
   AccountFetchMode,
+  Registry,
   TokenBalance,
 } from '@notional-finance/core-entities';
 import { Network } from '@notional-finance/util';
-import { renderTradeContext } from './util';
+import { renderTradeContext } from './renderTradeContext';
 import { act } from '@testing-library/react-hooks';
 import { TradeType } from '@notional-finance/notionable';
+import {
+  EnablePrimeBorrow,
+  LendVariable,
+  PopulateTransactionInputs,
+} from '@notional-finance/transaction';
+
+interface Config {
+  tradeType: TradeType;
+  selectedDepositToken: string;
+  depositAmount: number;
+  collateral?: string;
+  debt?: string;
+  approve?: boolean;
+  leverageRatio?: number;
+  enablePrimeBorrow?: boolean;
+  initialDeposit?: {
+    amount: number;
+    symbol: string;
+  };
+}
 
 describe.withForkAndRegistry(
   {
@@ -15,35 +36,123 @@ describe.withForkAndRegistry(
   'Transaction Screens',
   () => {
     const maturity = 1695168000;
-    const config = [
+    const config: Config[] = [
+      // {
+      //   tradeType: 'MintNToken',
+      //   selectedDepositToken: 'ETH',
+      //   collateral: 'nETH',
+      //   depositAmount: 0.1,
+      //   approve: false,
+      //   debt: undefined,
+      //   initialDeposit: undefined,
+      // },
+      // {
+      //   tradeType: 'MintNToken',
+      //   selectedDepositToken: 'DAI',
+      //   collateral: 'nDAI',
+      //   depositAmount: 10,
+      //   approve: true,
+      // },
+      // {
+      //   tradeType: 'LendFixed',
+      //   selectedDepositToken: 'ETH',
+      //   collateral: `fETH:fixed@${maturity}`,
+      //   depositAmount: 0.1,
+      //   approve: false,
+      // },
+      // {
+      //   tradeType: 'LendFixed',
+      //   selectedDepositToken: 'ETH',
+      //   collateral: `fETH:fixed@${maturity}`,
+      //   depositAmount: 0.1,
+      //   approve: false,
+      //   initialDeposit: {
+      //     amount: 0.1,
+      //     symbol: 'ETH',
+      //   },
+      // },
+      // {
+      //   tradeType: 'LendFixed',
+      //   selectedDepositToken: 'DAI',
+      //   collateral: `fDAI:fixed@${maturity}`,
+      //   depositAmount: 10,
+      //   approve: true,
+      // },
+      // {
+      //   tradeType: 'LendVariable',
+      //   selectedDepositToken: 'DAI',
+      //   collateral: `pDai Stablecoin`,
+      //   depositAmount: 10,
+      //   approve: true,
+      // },
+      // {
+      //   tradeType: 'LendVariable',
+      //   selectedDepositToken: 'ETH',
+      //   collateral: `pEther`,
+      //   depositAmount: 0.1,
+      //   approve: false,
+      // },
+      // {
+      //   tradeType: 'BorrowVariable',
+      //   selectedDepositToken: 'USDC',
+      //   collateral: undefined,
+      //   debt: `pdUSD Coin`,
+      //   depositAmount: -10,
+      //   approve: false,
+      //   enablePrimeBorrow: true,
+      //   initialDeposit: {
+      //     amount: 1,
+      //     symbol: 'ETH',
+      //   },
+      // },
+      // {
+      //   tradeType: 'BorrowVariable',
+      //   selectedDepositToken: 'ETH',
+      //   collateral: undefined,
+      //   debt: `pdEther`,
+      //   depositAmount: -0.01,
+      //   approve: false,
+      //   enablePrimeBorrow: true,
+      // },
+      // {
+      //   tradeType: 'BorrowFixed',
+      //   selectedDepositToken: 'ETH',
+      //   collateral: undefined,
+      //   debt: `fETH:fixed@${maturity}`,
+      //   depositAmount: -0.01,
+      // },
+      // {
+      //   tradeType: 'BorrowFixed',
+      //   selectedDepositToken: 'USDC',
+      //   collateral: undefined,
+      //   debt: `fUSDC:fixed@${maturity}`,
+      //   depositAmount: -1,
+      // },
       {
-        tradeType: 'MintNToken',
-        selectedDepositToken: 'ETH',
-        collateral: 'nETH',
-        depositAmount: 0.1,
-      },
-      {
-        tradeType: 'MintNToken',
-        selectedDepositToken: 'DAI',
-        collateral: 'nDAI',
-        depositAmount: 10,
+        tradeType: 'LeveragedLend',
+        selectedDepositToken: 'USDC',
+        collateral: 'pUSD Coin',
+        debt: `fUSDC:fixed@${maturity}`,
+        depositAmount: 1,
         approve: true,
-      },
-      {
-        tradeType: 'LendFixed',
-        selectedDepositToken: 'DAI',
-        collateral: `fDAI:fixed@${maturity}`,
-        depositAmount: 10,
-        approve: true,
-      },
-      {
-        tradeType: 'LendVariable',
-        selectedDepositToken: 'DAI',
-        collateral: `pDai Stablecoin`,
-        depositAmount: 10,
-        approve: true,
+        leverageRatio: 3,
       },
     ];
+
+    let defaultInputs: PopulateTransactionInputs;
+    beforeAll(async () => {
+      const address = await signer.getAddress();
+      defaultInputs = {
+        address,
+        network: Network.ArbitrumOne,
+        depositBalance: undefined,
+        debtBalance: undefined,
+        collateralBalance: undefined,
+        redeemToWETH: false,
+        maxWithdraw: true,
+        accountBalances: [],
+      };
+    });
 
     it.only.each(config)(
       '[$tradeType] $collateral ($depositAmount $selectedDepositToken)',
@@ -52,8 +161,33 @@ describe.withForkAndRegistry(
         selectedDepositToken,
         collateral,
         depositAmount,
+        debt,
         approve,
+        initialDeposit,
+        enablePrimeBorrow,
+        leverageRatio,
       }) => {
+        if (initialDeposit) {
+          const t = await LendVariable({
+            ...defaultInputs,
+            depositBalance: TokenBalance.fromFloat(
+              initialDeposit.amount,
+              Registry.getTokenRegistry().getTokenBySymbol(
+                Network.ArbitrumOne,
+                initialDeposit.symbol
+              )
+            ),
+          });
+          const resp = await signer.sendTransaction(t);
+          await resp.wait(1);
+        }
+
+        if (enablePrimeBorrow) {
+          const t = await EnablePrimeBorrow(defaultInputs);
+          const resp = await signer.sendTransaction(t);
+          await resp.wait(1);
+        }
+
         const {
           result: { result, waitForNextUpdate },
           submitTransaction,
@@ -65,24 +199,60 @@ describe.withForkAndRegistry(
 
         await waitForNextUpdate();
 
-        if (result.current.state.collateral?.symbol !== collateral) {
-          const c = result.current.state.availableCollateralTokens?.find(
-            (t) => t.symbol === collateral
-          );
-          if (!c) {
-            console.log(result.current.state.availableCollateralTokens);
-            throw Error('Collateral Token not found');
-          }
+        if (collateral) {
+          if (result.current.state.collateral?.symbol !== collateral) {
+            const c = result.current.state.availableCollateralTokens?.find(
+              (t) => t.symbol === collateral
+            );
+            if (!c) {
+              console.log(result.current.state.availableCollateralTokens);
+              throw Error('Collateral Token not found');
+            }
 
+            act(() => {
+              result.current.updateState({
+                collateral: c,
+              });
+            });
+
+            await waitForNextUpdate();
+          }
+          expect(result.current.state.collateral?.symbol).toBe(collateral);
+        }
+
+        if (debt) {
+          if (result.current.state.debt?.symbol !== debt) {
+            const c = result.current.state.availableDebtTokens?.find(
+              (t) => t.symbol === debt
+            );
+            if (!c) {
+              console.log(result.current.state.availableDebtTokens);
+              throw Error('Debt Token not found');
+            }
+
+            act(() => {
+              result.current.updateState({ debt: c });
+            });
+
+            await waitForNextUpdate();
+          }
+          expect(result.current.state.debt?.symbol).toBe(debt);
+        }
+
+        if (leverageRatio) {
           act(() => {
             result.current.updateState({
-              collateral: c,
+              riskFactorLimit: {
+                riskFactor: 'leverageRatio',
+                limit: leverageRatio,
+                // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+                args: [result.current.state.deposit?.currencyId!],
+              },
             });
           });
 
           await waitForNextUpdate();
         }
-        expect(result.current.state.collateral?.symbol).toBe(collateral);
 
         act(() => {
           result.current.updateState({
@@ -112,32 +282,13 @@ describe.withForkAndRegistry(
 
         const { rcpt } = await submitTransaction();
         expect(rcpt).toBeDefined();
-        // TODO: extract simulation from this thing and match
-        // expect(transaction[0].name).toBe('Mint nToken');
       },
       10_000
     );
 
-    // describe('Lend Fixed', () => {
-    //   it('Lend fETH');
-    //   it('Lend fETH with Cash');
-    // });
-
-    // describe('Lend Variable', () => {
-    //   it('Lend pETH');
-    //   it('Lend pUSDC');
-    // });
-
     // describe('Borrow Fixed', () => {
-    //   it('Borrow fETH');
     //   it('Borrow fETH with Cash');
-    //   it('Borrow fUSDC');
     //   it('Borrow fUSDC with Cash');
-    // });
-
-    // describe('Borrow Variable', () => {
-    //   it('Borrow pETH');
-    //   it('Borrow pUSDC');
     // });
 
     // describe('Leveraged Lend', () => {

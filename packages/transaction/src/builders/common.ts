@@ -7,11 +7,7 @@ import {
   NotionalAddress,
   unique,
 } from '@notional-finance/util';
-import {
-  fCashMarket,
-  Registry,
-  TokenBalance,
-} from '@notional-finance/core-entities';
+import { Registry, TokenBalance } from '@notional-finance/core-entities';
 import { BalanceActionStruct } from '@notional-finance/contracts/types/NotionalV3';
 import {
   BalanceActionWithTradesStruct,
@@ -181,10 +177,9 @@ export function encodeTrades(
   }
   const currencyId = currencyIds[0];
   const network = networks[0];
-  const nToken = Registry.getTokenRegistry().getNToken(network, currencyId);
-  const pool = Registry.getExchangeRegistry().getPoolInstance<fCashMarket>(
+  const pool = Registry.getExchangeRegistry().getfCashMarket(
     network,
-    nToken.address
+    currencyId
   );
 
   return {

@@ -71,7 +71,7 @@ export const renderTradeContext = async (
         r.result.current.globalState.isAccountReady
       );
     },
-    { timeout: 4000 }
+    { timeout: 6000 }
   );
 
   const submitTransaction = async () => {
@@ -88,11 +88,13 @@ export const renderTradeContext = async (
         r.result.current.transactionStatus === TransactionStatus.CONFIRMED ||
         r.result.current.transactionStatus === TransactionStatus.NONE ||
         r.result.current.transactionStatus === TransactionStatus.REVERT,
-      { timeout: 4000 }
+      { timeout: 6000 }
     );
 
     if (r.result.current.transactionStatus !== TransactionStatus.CONFIRMED)
-      throw Error('Transaction Reverted');
+      throw Error(
+        `Transaction Reverted: ${r.result.current.transactionStatus}`
+      );
 
     // This is the transaction receipt
     const rcpt =

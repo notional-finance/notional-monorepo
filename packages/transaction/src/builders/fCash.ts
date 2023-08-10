@@ -14,7 +14,11 @@ import {
   RedeemAndWithdrawNToken,
   RedeemToPortfolioNToken,
 } from './nToken';
-import { MAX_UINT88 } from '@notional-finance/util';
+import {
+  BASIS_POINT,
+  MAX_UINT88,
+  RATE_PRECISION,
+} from '@notional-finance/util';
 
 export function LendFixed({
   address,
@@ -33,6 +37,19 @@ export function LendFixed({
     const { withdrawEntireCashBalance } = hasExistingCashBalance(
       collateralBalance,
       accountBalances
+    );
+    // De-Rate the fCash balance by a dust amount to ensure that the txn goes
+    // through. fCash gets more expensive as you get closer to maturity. We want
+    // to ensure that the fCash amount defined here is good for a few hours at least.
+    //  exchangeRate = e ^ ((rate * timeToMaturity) / SECONDS_IN_YEAR)
+    //    assuming that the rate does not change:
+    //  exchangeRateRatio = exchangeRateAtSubmit / exchangeRateAtConfirmation
+    //  exchangeRateRatio = e^ [ timeToConfirmation / SECONDS_IN_YEAR ]
+    //  if timeToConfirmation = 4 hours (bad case assumption):
+    //    e ^ -(3600 * 4 / SECONDS_IN_YEAR) ~ 0.9995
+    collateralBalance = collateralBalance.scale(
+      RATE_PRECISION - BASIS_POINT * 5,
+      RATE_PRECISION
     );
 
     return populateNotionalTxnAndGas(

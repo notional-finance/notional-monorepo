@@ -19,6 +19,7 @@ export { simulatePopulatedTxn } from './simulate';
 export type { SimulationCallTrace } from './simulate';
 export { parseTransactionLogs, parseTransactionType } from './parser';
 export type { Transaction, Bundle, Transfer, ParsedLogs } from './parser';
+export type { PopulateTransactionInputs } from './builders/common';
 
 export type CalculationFn =
   | typeof calculateCollateral
