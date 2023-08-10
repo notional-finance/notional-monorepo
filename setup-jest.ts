@@ -38,6 +38,11 @@ const WHALES: Record<Network, string[][]> = {
       '0xDbcD16e622c95AcB2650b38eC799f76BFC557a0b',
       '0x098EF55011B6B8c99845128114A9D9159777d697',
     ],
+    // DAI
+    [
+      '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1',
+      '0x489ee077994b6658eafa855c308275ead8097c4a',
+    ],
   ],
   [Network.Mainnet]: [
     // WETH
