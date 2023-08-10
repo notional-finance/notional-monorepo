@@ -28,6 +28,8 @@ interface Config {
   };
 }
 
+jest.setTimeout(15_000);
+
 describe.withForkAndRegistry(
   {
     network: Network.ArbitrumOne,
@@ -37,105 +39,115 @@ describe.withForkAndRegistry(
   () => {
     const maturity = 1695168000;
     const config: Config[] = [
-      // {
-      //   tradeType: 'MintNToken',
-      //   selectedDepositToken: 'ETH',
-      //   collateral: 'nETH',
-      //   depositAmount: 0.1,
-      //   approve: false,
-      //   debt: undefined,
-      //   initialDeposit: undefined,
-      // },
-      // {
-      //   tradeType: 'MintNToken',
-      //   selectedDepositToken: 'DAI',
-      //   collateral: 'nDAI',
-      //   depositAmount: 10,
-      //   approve: true,
-      // },
-      // {
-      //   tradeType: 'LendFixed',
-      //   selectedDepositToken: 'ETH',
-      //   collateral: `fETH:fixed@${maturity}`,
-      //   depositAmount: 0.1,
-      //   approve: false,
-      // },
-      // {
-      //   tradeType: 'LendFixed',
-      //   selectedDepositToken: 'ETH',
-      //   collateral: `fETH:fixed@${maturity}`,
-      //   depositAmount: 0.1,
-      //   approve: false,
-      //   initialDeposit: {
-      //     amount: 0.1,
-      //     symbol: 'ETH',
-      //   },
-      // },
-      // {
-      //   tradeType: 'LendFixed',
-      //   selectedDepositToken: 'DAI',
-      //   collateral: `fDAI:fixed@${maturity}`,
-      //   depositAmount: 10,
-      //   approve: true,
-      // },
-      // {
-      //   tradeType: 'LendVariable',
-      //   selectedDepositToken: 'DAI',
-      //   collateral: `pDai Stablecoin`,
-      //   depositAmount: 10,
-      //   approve: true,
-      // },
-      // {
-      //   tradeType: 'LendVariable',
-      //   selectedDepositToken: 'ETH',
-      //   collateral: `pEther`,
-      //   depositAmount: 0.1,
-      //   approve: false,
-      // },
-      // {
-      //   tradeType: 'BorrowVariable',
-      //   selectedDepositToken: 'USDC',
-      //   collateral: undefined,
-      //   debt: `pdUSD Coin`,
-      //   depositAmount: -10,
-      //   approve: false,
-      //   enablePrimeBorrow: true,
-      //   initialDeposit: {
-      //     amount: 1,
-      //     symbol: 'ETH',
-      //   },
-      // },
-      // {
-      //   tradeType: 'BorrowVariable',
-      //   selectedDepositToken: 'ETH',
-      //   collateral: undefined,
-      //   debt: `pdEther`,
-      //   depositAmount: -0.01,
-      //   approve: false,
-      //   enablePrimeBorrow: true,
-      // },
-      // {
-      //   tradeType: 'BorrowFixed',
-      //   selectedDepositToken: 'ETH',
-      //   collateral: undefined,
-      //   debt: `fETH:fixed@${maturity}`,
-      //   depositAmount: -0.01,
-      // },
-      // {
-      //   tradeType: 'BorrowFixed',
-      //   selectedDepositToken: 'USDC',
-      //   collateral: undefined,
-      //   debt: `fUSDC:fixed@${maturity}`,
-      //   depositAmount: -1,
-      // },
+      {
+        tradeType: 'MintNToken',
+        selectedDepositToken: 'ETH',
+        collateral: 'nETH',
+        depositAmount: 0.1,
+        approve: false,
+        debt: undefined,
+        initialDeposit: undefined,
+      },
+      {
+        tradeType: 'MintNToken',
+        selectedDepositToken: 'DAI',
+        collateral: 'nDAI',
+        depositAmount: 10,
+        approve: true,
+      },
+      {
+        tradeType: 'LendFixed',
+        selectedDepositToken: 'ETH',
+        collateral: `fETH:fixed@${maturity}`,
+        depositAmount: 0.1,
+        approve: false,
+      },
+      {
+        tradeType: 'LendFixed',
+        selectedDepositToken: 'ETH',
+        collateral: `fETH:fixed@${maturity}`,
+        depositAmount: 0.1,
+        approve: false,
+        initialDeposit: {
+          amount: 0.1,
+          symbol: 'ETH',
+        },
+      },
+      {
+        tradeType: 'LendFixed',
+        selectedDepositToken: 'DAI',
+        collateral: `fDAI:fixed@${maturity}`,
+        depositAmount: 10,
+        approve: true,
+      },
+      {
+        tradeType: 'LendVariable',
+        selectedDepositToken: 'DAI',
+        collateral: `pDai Stablecoin`,
+        depositAmount: 10,
+        approve: true,
+      },
+      {
+        tradeType: 'LendVariable',
+        selectedDepositToken: 'ETH',
+        collateral: `pEther`,
+        depositAmount: 0.1,
+        approve: false,
+      },
+      {
+        tradeType: 'BorrowVariable',
+        selectedDepositToken: 'USDC',
+        collateral: undefined,
+        debt: `pdUSD Coin`,
+        depositAmount: -10,
+        approve: false,
+        enablePrimeBorrow: true,
+        initialDeposit: {
+          amount: 1,
+          symbol: 'ETH',
+        },
+      },
+      {
+        tradeType: 'BorrowVariable',
+        selectedDepositToken: 'ETH',
+        collateral: undefined,
+        debt: `pdEther`,
+        depositAmount: -0.01,
+        approve: false,
+        enablePrimeBorrow: true,
+      },
+      {
+        tradeType: 'BorrowFixed',
+        selectedDepositToken: 'ETH',
+        collateral: undefined,
+        debt: `fETH:fixed@${maturity}`,
+        depositAmount: -0.01,
+      },
+      {
+        tradeType: 'BorrowFixed',
+        selectedDepositToken: 'USDC',
+        collateral: undefined,
+        debt: `fUSDC:fixed@${maturity}`,
+        depositAmount: -1,
+      },
       {
         tradeType: 'LeveragedLend',
-        selectedDepositToken: 'USDC',
-        collateral: 'pUSD Coin',
-        debt: `fUSDC:fixed@${maturity}`,
+        selectedDepositToken: 'DAI',
+        collateral: 'pDai Stablecoin',
+        debt: `fDAI:fixed@${maturity}`,
         depositAmount: 1,
         approve: true,
         leverageRatio: 3,
+      },
+      {
+        tradeType: 'LeveragedLend',
+        selectedDepositToken: 'DAI',
+        debt: 'pdDai Stablecoin',
+        collateral: `fDAI:fixed@${maturity}`,
+        depositAmount: 1,
+        approve: true,
+        leverageRatio: 3,
+        enablePrimeBorrow: true,
       },
     ];
 
@@ -291,14 +303,37 @@ describe.withForkAndRegistry(
     //   it('Borrow fUSDC with Cash');
     // });
 
-    // describe('Leveraged Lend', () => {
-    //   it('Borrow Fixed => Lend Variable');
-    //   it('Borrow Variable => Lend Fixed');
-    // });
-
     // describe('Leveraged Liquidity', () => {
     //   it('Borrow Fixed');
     //   it('Borrow Variable');
+    // });
+
+    // describe('Repay', () => {
+    //   it('Repay Variable');
+    //   it('Repay Fixed');
+    //   it('Roll Fixed => Variable');
+    //   it('Roll Variable => Fixed');
+    // });
+
+    // describe('Convert', () => {
+    //   it('Convert Fixed => Variable');
+    //   it('Convert Fixed => nToken');
+    //   it('Convert Variable => Fixed');
+    //   it('Convert Variable => nToken');
+    //   it('Convert nToken => Fixed');
+    //   it('Convert nToken => Variable');
+    // });
+
+    // describe('Deposit / Withdraw', () => {
+    //   it('Deposit Variable');
+    //   it('Deposit Fixed');
+    //   it('Deposit nToken');
+    //   it('Withdraw Variable');
+    //   it('Withdraw Fixed');
+    //   it('Withdraw nToken');
+    //   it('[MAX] Withdraw Variable');
+    //   it('[MAX] Withdraw Fixed');
+    //   it('[MAX] Withdraw nToken');
     // });
   }
 );
