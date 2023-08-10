@@ -11,6 +11,7 @@ export enum BackfillType {
 export enum SourceType {
   Multicall = 'multicall',
   Subgraph = 'subgraph',
+  Provider = 'provider',
 }
 
 export enum TableName {
@@ -56,6 +57,11 @@ export interface SubgraphConfig {
   transform?: (r: any) => unknown;
 }
 
+export interface ProviderConfig {
+  method: string;
+  args?: unknown[];
+}
+
 export interface GenericDataConfig {
   strategyId: number;
   variable: string;
@@ -68,7 +74,7 @@ export interface TokenDataConfig {
 
 export interface ConfigDefinition {
   sourceType: SourceType;
-  sourceConfig: MulticallConfig | SubgraphConfig;
+  sourceConfig: MulticallConfig | SubgraphConfig | ProviderConfig;
   tableName: TableName;
   dataConfig: GenericDataConfig | TokenDataConfig;
   network: Network;
@@ -85,9 +91,14 @@ export interface SubgraphOperation {
   endpoint: string;
 }
 
+export interface ProviderOperation {
+  configDef: ConfigDefinition;
+}
+
 export interface DataOperations {
   aggregateCalls: Map<Network, MulticallOperation[]>;
   subgraphCalls: Map<Network, SubgraphOperation[]>;
+  providerCalls: Map<Network, ProviderOperation[]>;
 }
 
 export interface DataWriterConfig {

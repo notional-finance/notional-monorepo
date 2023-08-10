@@ -17,6 +17,26 @@ import {
   ProtocolName,
 } from '../types';
 
+const nTokenDailyFeesTransform = (r) => {
+  if (r.transfers.length === 0) return 0;
+  const sum = r.transfers.reduce(
+    (a, v) =>
+      a +
+      parseFloat(
+        ethers.utils.formatUnits(
+          v.valueInUnderlying,
+          v.token.underlying.decimals
+        )
+      ),
+    0
+  );
+  const fCashReserveFeeSharePercent =
+    r.currencyConfigurations[0].fCashReserveFeeSharePercent;
+  return (
+    sum * ((100 - fCashReserveFeeSharePercent) / fCashReserveFeeSharePercent)
+  );
+};
+
 export const configDefs: ConfigDefinition[] = [
   {
     sourceType: SourceType.Multicall,
@@ -509,32 +529,232 @@ export const configDefs: ConfigDefinition[] = [
     sourceConfig: {
       protocol: ProtocolName.NotionalV3,
       query: 'NotionalV3nTokenDailyFees.graphql',
-      transform: (r) => {
-        if (r.transfers.length === 0) return 0;
-        const sum = r.transfers.reduce(
-          (a, v) =>
-            a +
-            parseFloat(
-              ethers.utils.formatUnits(
-                v.valueInUnderlying,
-                v.token.underlying.decimals
-              )
-            ),
-          0
-        );
-        const fCashReserveFeeSharePercent =
-          r.currencyConfigurations[0].fCashReserveFeeSharePercent;
-        return (
-          sum *
-          ((100 - fCashReserveFeeSharePercent) / fCashReserveFeeSharePercent)
-        );
+      args: {
+        currencyId: 1,
       },
+      transform: nTokenDailyFeesTransform,
     },
     tableName: TableName.GenericData,
     dataConfig: {
       strategyId: Strategy.Generic,
-      variable: 'nTokenDailyFees',
+      variable: 'ETH nTokenDailyFees',
       decimals: 0,
+    },
+    network: Network.ArbitrumOne,
+  },
+  {
+    sourceType: SourceType.Subgraph,
+    sourceConfig: {
+      protocol: ProtocolName.NotionalV3,
+      query: 'NotionalV3nTokenDailyFees.graphql',
+      args: {
+        currencyId: 2,
+      },
+      transform: nTokenDailyFeesTransform,
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'DAI nTokenDailyFees',
+      decimals: 0,
+    },
+    network: Network.ArbitrumOne,
+  },
+  {
+    sourceType: SourceType.Subgraph,
+    sourceConfig: {
+      protocol: ProtocolName.NotionalV3,
+      query: 'NotionalV3nTokenDailyFees.graphql',
+      args: {
+        currencyId: 3,
+      },
+      transform: nTokenDailyFeesTransform,
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'USDC nTokenDailyFees',
+      decimals: 0,
+    },
+    network: Network.ArbitrumOne,
+  },
+  {
+    sourceType: SourceType.Subgraph,
+    sourceConfig: {
+      protocol: ProtocolName.NotionalV3,
+      query: 'NotionalV3nTokenDailyFees.graphql',
+      args: {
+        currencyId: 4,
+      },
+      transform: nTokenDailyFeesTransform,
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'WBTC nTokenDailyFees',
+      decimals: 0,
+    },
+    network: Network.ArbitrumOne,
+  },
+  {
+    sourceType: SourceType.Subgraph,
+    sourceConfig: {
+      protocol: ProtocolName.NotionalV3,
+      query: 'NotionalV3nTokenDailyFees.graphql',
+      args: {
+        currencyId: 5,
+      },
+      transform: nTokenDailyFeesTransform,
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'wstETH nTokenDailyFees',
+      decimals: 0,
+    },
+    network: Network.ArbitrumOne,
+  },
+  {
+    sourceType: SourceType.Subgraph,
+    sourceConfig: {
+      protocol: ProtocolName.NotionalV3,
+      query: 'NotionalV3nTokenDailyFees.graphql',
+      args: {
+        currencyId: 6,
+      },
+      transform: nTokenDailyFeesTransform,
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'FRAX nTokenDailyFees',
+      decimals: 0,
+    },
+    network: Network.ArbitrumOne,
+  },
+  {
+    sourceType: SourceType.Provider,
+    sourceConfig: {
+      method: 'getBalance',
+      args: ['0x1344A36A1B56144C3Bc62E7757377D288fDE0369'],
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'ethProxyBalance',
+      decimals: 18,
+    },
+    network: Network.ArbitrumOne,
+  },
+  {
+    sourceType: SourceType.Multicall,
+    sourceConfig: {
+      contractAddress: '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1',
+      contractABI: ERC20ABI,
+      method: 'balanceOf',
+      args: ['0x1344A36A1B56144C3Bc62E7757377D288fDE0369'],
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'daiProxyBalance',
+      decimals: 18,
+    },
+    network: Network.ArbitrumOne,
+  },
+  {
+    sourceType: SourceType.Multicall,
+    sourceConfig: {
+      contractAddress: '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
+      contractABI: ERC20ABI,
+      method: 'balanceOf',
+      args: ['0x1344A36A1B56144C3Bc62E7757377D288fDE0369'],
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'usdcProxyBalance',
+      decimals: 6,
+    },
+    network: Network.ArbitrumOne,
+  },
+  {
+    sourceType: SourceType.Multicall,
+    sourceConfig: {
+      contractAddress: '0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f',
+      contractABI: ERC20ABI,
+      method: 'balanceOf',
+      args: ['0x1344A36A1B56144C3Bc62E7757377D288fDE0369'],
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'wbtcProxyBalance',
+      decimals: 8,
+    },
+    network: Network.ArbitrumOne,
+  },
+  {
+    sourceType: SourceType.Multicall,
+    sourceConfig: {
+      contractAddress: '0x5979D7b546E38E414F7E9822514be443A4800529',
+      contractABI: ERC20ABI,
+      method: 'balanceOf',
+      args: ['0x1344A36A1B56144C3Bc62E7757377D288fDE0369'],
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'wstethProxyBalance',
+      decimals: 18,
+    },
+    network: Network.ArbitrumOne,
+  },
+  {
+    sourceType: SourceType.Multicall,
+    sourceConfig: {
+      contractAddress: '0x17FC002b466eEc40DaE837Fc4bE5c67993ddBd6F',
+      contractABI: ERC20ABI,
+      method: 'balanceOf',
+      args: ['0x1344A36A1B56144C3Bc62E7757377D288fDE0369'],
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'fraxProxyBalance',
+      decimals: 18,
+    },
+    network: Network.ArbitrumOne,
+  },
+  {
+    sourceType: SourceType.Multicall,
+    sourceConfig: {
+      contractAddress: '0xEC70Dcb4A1EFa46b8F2D97C310C9c4790ba5ffA8',
+      contractABI: ERC20ABI,
+      method: 'balanceOf',
+      args: ['0x1344A36A1B56144C3Bc62E7757377D288fDE0369'],
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'rethProxyBalance',
+      decimals: 18,
+    },
+    network: Network.ArbitrumOne,
+  },
+  {
+    sourceType: SourceType.Multicall,
+    sourceConfig: {
+      contractAddress: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
+      contractABI: ERC20ABI,
+      method: 'balanceOf',
+      args: ['0x1344A36A1B56144C3Bc62E7757377D288fDE0369'],
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'usdtProxyBalance',
+      decimals: 6,
     },
     network: Network.ArbitrumOne,
   },

@@ -11,27 +11,26 @@ import {
   SubgraphOperation,
   SubgraphConfig,
   ProtocolName,
+  ProviderOperation,
 } from './types';
 import { GenericDataWriter, TokenBalanceDataWriter } from './DataWriter';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { gql } from '@apollo/client';
 import { configDefs as GenericConfig } from './config/GenericConfig';
-//import { configDefs as Eth_Balancer_WETH_wstETH_Config } from './config/eth/balancer/WETH_wstETH';
-//import { configDefs as Arb_Balancer_WETH_wstETH_Config } from './config/arb/balancer/WETH_wstETH';
-//import { configDefs as Eth_Balancer_AaveV3_Boosted_Config } from './config/eth/balancer/AaveV3_Boosted';
-//import { configDefs as Arb_Convex_USDC_FRAX_Config } from './config/arb/convex/USDC_FRAX';
+import { configDefs as Eth_Balancer_WETH_wstETH_Config } from './config/eth/balancer/WETH_wstETH';
+import { configDefs as Arb_Balancer_WETH_wstETH_Config } from './config/arb/balancer/WETH_wstETH';
+import { configDefs as Eth_Balancer_AaveV3_Boosted_Config } from './config/eth/balancer/AaveV3_Boosted';
+import { configDefs as Arb_Convex_USDC_FRAX_Config } from './config/arb/convex/USDC_FRAX';
 
 export const SourceContracts = {};
 
-/*export const defaultConfigDefs: ConfigDefinition[] = [
+export const defaultConfigDefs: ConfigDefinition[] = [
   ...GenericConfig,
   ...Eth_Balancer_WETH_wstETH_Config,
   ...Arb_Balancer_WETH_wstETH_Config,
   ...Eth_Balancer_AaveV3_Boosted_Config,
   ...Arb_Convex_USDC_FRAX_Config,
-]*/ export const defaultConfigDefs: ConfigDefinition[] = [
-  GenericConfig[GenericConfig.length - 1],
 ];
 
 export const defaultGraphEndpoints: Record<string, Record<string, string>> = {
@@ -132,6 +131,7 @@ export function buildOperations(
 ): DataOperations {
   const aggregateCalls = new Map<Network, MulticallOperation[]>();
   const subgraphCalls = new Map<Network, SubgraphOperation[]>();
+  const providerCalls = new Map<Network, ProviderOperation[]>();
   configDefs.forEach((cfg) => {
     if (cfg.sourceType === SourceType.Multicall) {
       const configData = cfg.sourceConfig as MulticallConfig;
@@ -179,6 +179,15 @@ export function buildOperations(
         subgraphQuery: gql(query),
         endpoint: endpoint,
       });
+    } else if (cfg.sourceType === SourceType.Provider) {
+      let operations = providerCalls.get(cfg.network);
+      if (!operations) {
+        operations = [];
+        providerCalls.set(cfg.network, operations);
+      }
+      operations.push({
+        configDef: cfg,
+      });
     } else {
       throw Error('Invalid source type');
     }
@@ -187,5 +196,6 @@ export function buildOperations(
   return {
     aggregateCalls,
     subgraphCalls,
+    providerCalls,
   };
 }

@@ -1,6 +1,6 @@
-query nTokenDailyFees {
+query nTokenDailyFees($currencyId: Int) {
   transfers(
-    where: {toSystemAccount: "FeeReserve", transferType: "Transfer", token_: {currencyId: 1}}
+    where: {toSystemAccount: "FeeReserve", transferType: "Transfer", token_: {currencyId: $currencyId}}
   ) {
     valueInUnderlying
     token {
@@ -9,7 +9,7 @@ query nTokenDailyFees {
       }
     }
   }
-  currencyConfigurations(where: {id: "1"}) {
+  currencyConfigurations(where: {id: $currencyId}) {
     fCashReserveFeeSharePercent
   }
 }
