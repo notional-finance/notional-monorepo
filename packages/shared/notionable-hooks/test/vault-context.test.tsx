@@ -1,12 +1,11 @@
 import {
   AccountFetchMode,
+  Registry,
   TokenBalance,
 } from '@notional-finance/core-entities';
-import { useNotionalContext, useVaultContext } from '../src';
-import { Network } from '@notional-finance/util';
-import { renderHook, act } from '@testing-library/react-hooks';
-import { Wrapper } from './wrapper';
-import { VaultTradeType } from '@notional-finance/notionable';
+import { Network, PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
+import { renderVaultTradeContext } from './renderTradeContext';
+import { act } from '@testing-library/react-hooks';
 
 describe.withForkAndRegistry(
   {
@@ -15,119 +14,70 @@ describe.withForkAndRegistry(
   },
   'Vault Context',
   () => {
-    const vaultAddress = '0xae38f4b960f44d86e798f36a374a1ac3f2d859fa';
-    const renderTradeContext = async (tradeType: VaultTradeType) => {
-      const r = renderHook(
-        () => {
-          const { globalState, globalState$, updateNotional } =
-            useNotionalContext();
-          const { state, state$, updateState } = useVaultContext();
-          return {
-            state,
-            updateState,
-            state$,
-            globalState,
-            globalState$,
-            updateNotional,
-          };
-        },
-        {
-          wrapper: Wrapper,
-        }
-      );
+    const vaultAddress = '0xdb08f663e5d765949054785f2ed1b2aa1e9c22cf';
 
-      act(() => {
-        r.result.current.updateState({ tradeType, vaultAddress });
-      });
+    describe('Prime Cash', () => {
+      it('Create Position', async () => {
+        const depositAmount = 1;
+        const debtMaturity = PRIME_CASH_VAULT_MATURITY;
+        const approve = true;
 
-      await r.waitFor(() => {
-        return (
-          r.result.current.globalState.isNetworkReady &&
-          r.result.current.state.isReady
-        );
-      });
-
-      return r;
-    };
-
-    describe('Create Vault Position', () => {
-      it('properly filters currencies', async () => {
-        const { result, waitFor, waitForNextUpdate } = await renderTradeContext(
-          'CreateVaultPosition'
+        const {
+          result: { result, waitForNextUpdate },
+          submitTransaction,
+          approveToken,
+        } = await renderVaultTradeContext(
+          'CreateVaultPosition',
+          vaultAddress,
+          signer
         );
 
-        await waitFor(() => {
-          return (
-            result.current.state.availableCollateralTokens !== undefined &&
-            result.current.state.availableDepositTokens !== undefined &&
-            result.current.state.availableDebtTokens !== undefined
-          );
-        });
-
-        expect(result.current.state.selectedDepositToken).toBe('USDC');
-        expect(result.current.state.availableCollateralTokens).toHaveLength(3);
-        expect(result.current.state.availableDebtTokens).toHaveLength(3);
+        expect(result.current.state.selectedDepositToken).toBe('FRAX');
 
         act(() => {
-          // select a debt token
           result.current.updateState({
-            selectedDebtToken:
-              result.current.state.availableDebtTokens![0].symbol,
-          });
-        });
-
-        await waitForNextUpdate();
-
-        // expect debt and collateral to be defined
-        expect(result.current.state.debt).toBeDefined();
-        expect(result.current.state.collateral).toBeDefined();
-        expect(result.current.state.collateral?.maturity).toEqual(
-          result.current.state.debt?.maturity
-        );
-      });
-
-      it('calculates collateral and debt position', async () => {
-        const { result, waitFor, waitForNextUpdate } = await renderTradeContext(
-          'CreateVaultPosition'
-        );
-
-        act(() => {
-          // select a debt token
-          result.current.updateState({
-            selectedDebtToken:
-              result.current.state.availableDebtTokens![0].symbol,
-          });
-        });
-
-        await waitForNextUpdate();
-
-        act(() => {
-          // input a deposit balance
-          result.current.updateState({
-            depositBalance: TokenBalance.fromFloat(
-              3,
-              result.current.state.deposit!
+            debt: Registry.getTokenRegistry().getVaultDebt(
+              Network.ArbitrumOne,
+              vaultAddress,
+              debtMaturity
             ),
             riskFactorLimit: {
               riskFactor: 'leverageRatio',
-              limit: 2,
+              limit: 3,
             },
+            depositBalance: TokenBalance.fromFloat(
+              depositAmount,
+              result.current.state.deposit!
+            ),
           });
         });
 
-        await waitFor(() => {
-          return (
-            !!result.current.state.collateralBalance &&
-            !!result.current.state.debtBalance
-          );
+        await waitForNextUpdate({ timeout: 4000 });
+
+        expect(result.current.state.canSubmit).toBe(true);
+        expect(result.current.state.calculationSuccess).toBe(true);
+
+        if (approve) {
+          await approveToken(result.current.state.deposit!.address);
+        }
+
+        act(() => {
+          result.current.updateState({ confirm: true });
         });
 
-        expect(result.current.state.debtBalance).toBeDefined();
-        expect(result.current.state.collateralBalance).toBeDefined();
-        expect(result.current.state.debtFee).toBeDefined();
-        expect(result.current.state.collateralFee).toBeDefined();
-        expect(result.current.state.canSubmit).toBe(true);
-      });
+        await waitForNextUpdate();
+
+        expect(result.current.state.populatedTransaction).toBeDefined();
+
+        const { rcpt } = await submitTransaction();
+        expect(rcpt).toBeDefined();
+      }, 10_000);
+
+      // it('Deposit Collateral');
+      // it('Increase Position');
+      // it('Roll Position');
+      // it('Withdraw');
+      // it('Deleverage');
     });
   }
 );

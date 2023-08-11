@@ -1,6 +1,10 @@
 import { BigNumber, PopulatedTransaction, ethers } from 'ethers';
 import { PopulateTransactionInputs, populateNotionalTxnAndGas } from './common';
-import { BASIS_POINT, PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
+import {
+  BASIS_POINT,
+  INTERNAL_TOKEN_DECIMALS,
+  PRIME_CASH_VAULT_MATURITY,
+} from '@notional-finance/util';
 import {
   Registry,
   TokenBalance,
@@ -15,7 +19,7 @@ function getVaultSlippageRate(
     return {
       slippageRate: 0,
       // NOTE: no fees applied here
-      underlyingOut: debtBalance.toUnderlying(),
+      underlyingOut: debtBalance.neg().toUnderlying(),
     };
   }
 
@@ -69,7 +73,7 @@ export function EnterVault({
   // This must be a positive number
   const debtBalanceNum =
     debtBalance.maturity === PRIME_CASH_VAULT_MATURITY
-      ? debtBalance.toUnderlying().neg().n
+      ? debtBalance.toUnderlying().neg().scaleTo(INTERNAL_TOKEN_DECIMALS)
       : debtBalance.neg().n;
   const { slippageRate: maxBorrowRate, underlyingOut } =
     getVaultSlippageRate(debtBalance);

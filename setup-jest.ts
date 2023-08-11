@@ -43,6 +43,11 @@ const WHALES: Record<Network, string[][]> = {
       '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1',
       '0x489ee077994b6658eafa855c308275ead8097c4a',
     ],
+    // FRAX
+    [
+      '0x17FC002b466eEc40DaE837Fc4bE5c67993ddBd6F',
+      '0x489ee077994b6658eafa855c308275ead8097c4a',
+    ],
   ],
   [Network.Mainnet]: [
     // WETH
