@@ -20,7 +20,7 @@ export const formatValueWithFiat = (baseCurrency: FiatKeys, tbn?: TokenBalance, 
     ? '-'
     : {
         data: [
-          isDebt || (tbn.isNegative() && !tbn.toDisplayString().includes('-'))
+          isDebt || tbn.isNegative() 
             ? `${tbn.toDisplayString()}`
             : tbn.toDisplayString(),
           tbn.toFiat(baseCurrency).toDisplayStringWithSymbol(0),

@@ -2,8 +2,6 @@ import { ReactNode } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useTheme } from '@mui/material';
 import { Body } from '@notional-finance/mui';
-// import { ExitEarlyFaq } from '../components';
-// import { BorrowVariableContext } from '../borrow-variable';
 import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 import {
   getEtherscanAddressLink,

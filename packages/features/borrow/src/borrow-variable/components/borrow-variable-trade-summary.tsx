@@ -19,12 +19,17 @@ export const BorrowVariableTradeSummary = () => {
   const theme = useTheme();
   const context = useContext(BorrowVariableContext);
   const { state } = context;
-  const { areaChartData, chartToolTipData, legendData, chartInfoBoxData } =
-    useInterestRateUtilizationChart(state.deposit?.currencyId);
+  const {
+    areaChartData,
+    chartToolTipData,
+    legendData,
+    chartInfoBoxData,
+    borrowUtilization,
+  } = useInterestRateUtilizationChart(state.deposit?.currencyId);
 
   const { faqs, faqHeaderLinks } = useBorrowVariableFaq();
   const totalsData = useVariableTotals(state);
-
+  console.log({ borrowUtilization });
   return (
     <TradeActionSummary state={state}>
       <Box
@@ -54,7 +59,7 @@ export const BorrowVariableTradeSummary = () => {
         <SingleDisplayChart
           areaChartData={areaChartData}
           chartToolTipData={chartToolTipData}
-          referenceLineValue={59}
+          referenceLineValue={borrowUtilization}
           legendData={legendData}
           chartType="area"
           xAxisTickFormat="percent"

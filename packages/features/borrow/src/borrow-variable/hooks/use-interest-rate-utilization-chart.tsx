@@ -110,7 +110,13 @@ export const useInterestRateUtilizationChart = (
     },
   };
 
-  return { areaChartData, chartToolTipData, legendData, chartInfoBoxData };
+  return {
+    areaChartData,
+    chartToolTipData,
+    legendData,
+    chartInfoBoxData,
+    borrowUtilization,
+  };
 };
 
 export default useInterestRateUtilizationChart;
