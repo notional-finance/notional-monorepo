@@ -10,15 +10,17 @@ import {
   PopulateTransactionInputs,
 } from './common';
 import {
+  ConvertfCashToNToken,
   MintNToken,
   RedeemAndWithdrawNToken,
   RedeemToPortfolioNToken,
 } from './nToken';
 import {
   BASIS_POINT,
-  MAX_UINT88,
   RATE_PRECISION,
+  MAX_UINT88,
 } from '@notional-finance/util';
+import { DeleverageNToken } from './Leveraged';
 
 export function LendFixed({
   address,
@@ -295,6 +297,11 @@ export function RollLendOrDebt({
 }: PopulateTransactionInputs) {
   if (!collateralBalance || !debtBalance)
     throw Error('Debt and Collateral Balances must be defined');
+  if (
+    (collateralBalance.isNegative() && debtBalance.isNegative()) ||
+    (collateralBalance.isPositive() && debtBalance.isPositive())
+  )
+    throw Error('Debt and Collateral Balances positive and negative signed');
 
   return populateNotionalTxnAndGas(
     network,
@@ -354,21 +361,20 @@ export function ConvertAsset(i: PopulateTransactionInputs) {
     (i.debtBalance?.tokenType === 'fCash' ||
       i.debtBalance?.tokenType === 'PrimeDebt') &&
     (i.collateralBalance?.tokenType === 'fCash' ||
-      i.collateralBalance?.tokenType === 'PrimeDebt')
+      i.collateralBalance?.tokenType === 'PrimeCash')
   ) {
     return RollLendOrDebt(i);
   } else if (
     i.debtBalance?.tokenType === 'nToken' &&
     i.collateralBalance?.tokenType === 'fCash'
   ) {
-    // TODO: need redeem to portfolio and lend
-    return RedeemAndWithdrawNToken(i);
+    // This is the same action as redeeming to portfolio and lending
+    return DeleverageNToken(i);
   } else if (
     i.debtBalance?.tokenType === 'fCash' &&
     i.collateralBalance?.tokenType === 'nToken'
   ) {
-    // TODO: need sell fcash and mint nToken
-    return RedeemToPortfolioNToken(i);
+    return ConvertfCashToNToken(i);
   } else if (
     i.debtBalance?.tokenType === 'nToken' &&
     i.collateralBalance?.tokenType === 'PrimeCash'

@@ -100,7 +100,7 @@ export const TradeConfiguration = {
       (t.tokenType === 'fCash' ||
         t.tokenType === 'PrimeDebt' ||
         t.tokenType === 'nToken') &&
-      offsettingBalance(t, a),
+      offsettingBalance(t, a, true),
     collateralFilter: () => false,
     transactionBuilder: Withdraw,
   } as TransactionConfig,
@@ -301,7 +301,7 @@ export const TradeConfiguration = {
   RepayDebt: {
     // Enter how much debt to repay, will calculate the cost
     calculationFn: calculateDeposit,
-    requiredArgs: ['deposit', 'collateralBalance', 'collateralPool'],
+    requiredArgs: ['collateral', 'depositBalance', 'collateralPool'],
     depositFilter: (t, a, s) =>
       !!a?.balances.find((b) => b.isNegative()) &&
       onlySameCurrency(t, s.collateral),
@@ -330,7 +330,7 @@ export const TradeConfiguration = {
       (t.tokenType === 'fCash' ||
         t.tokenType === 'PrimeCash' || // TODO: is this actually prime debt?
         t.tokenType === 'nToken') &&
-      offsettingBalance(t, a),
+      offsettingBalance(t, a, true),
     collateralFilter: (t, _, s) =>
       // Selecting Prime Cash will roll to variable
       (t.tokenType === 'fCash' ||

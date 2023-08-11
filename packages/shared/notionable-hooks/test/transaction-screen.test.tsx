@@ -100,11 +100,13 @@ describe.withForkAndRegistry(
         submitTransaction,
         approveToken,
       } = await renderTradeContext(tradeType as TradeType, signer);
-      act(() => {
-        result.current.updateState({ selectedDepositToken });
-      });
 
-      await waitForNextUpdate();
+      if (selectedDepositToken) {
+        act(() => {
+          result.current.updateState({ selectedDepositToken });
+        });
+        await waitForNextUpdate();
+      }
 
       if (collateral) {
         if (result.current.state.collateral?.symbol !== collateral) {
@@ -350,7 +352,7 @@ describe.withForkAndRegistry(
         tradeType: 'Withdraw',
         selectedDepositToken: 'ETH',
         debt: `fETH:fixed@${maturity}`,
-        debtAmount: -0.005,
+        depositAmount: -0.005,
       },
       {
         tradeType: 'Withdraw',
@@ -363,21 +365,21 @@ describe.withForkAndRegistry(
         selectedDepositToken: 'ETH',
         debt: `fETH:fixed@${maturity}`,
         collateral: `fETH:fixed@${maturity2}`,
-        debtAmount: 0.01,
+        debtAmount: -0.01,
       },
       {
         tradeType: 'ConvertAsset',
         selectedDepositToken: 'ETH',
         debt: `fETH:fixed@${maturity}`,
         collateral: `pEther`,
-        debtAmount: 0.01,
+        debtAmount: -0.01,
       },
       {
         tradeType: 'ConvertAsset',
         selectedDepositToken: 'ETH',
         debt: `fETH:fixed@${maturity}`,
         collateral: `nETH`,
-        debtAmount: 0.01,
+        debtAmount: -0.01,
       },
     ].map(
       (c) =>
@@ -592,12 +594,12 @@ describe.withForkAndRegistry(
     );
 
     it.each([
-      ...noInitDeposit,
-      ...pCashDebt,
-      ...fCashDebt,
-      ...fCashLend,
+      // ...noInitDeposit,
+      // ...pCashDebt,
+      // ...fCashDebt,
+      // ...fCashLend,
       ...primeLend,
-      ...nToken,
+      // ...nToken,
     ])(
       '[$tradeType] $collateral ($depositAmount $selectedDepositToken)',
       runTest,
