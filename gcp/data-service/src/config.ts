@@ -12,7 +12,7 @@ import {
   SubgraphConfig,
   ProtocolName,
 } from './types';
-import { GenericDataWriter } from './DataWriter';
+import { GenericDataWriter, TokenBalanceDataWriter } from './DataWriter';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { gql } from '@apollo/client';
@@ -33,6 +33,10 @@ export const defaultConfigDefs: ConfigDefinition[] = [
 ];
 
 export const defaultGraphEndpoints: Record<string, Record<string, string>> = {
+  [ProtocolName.NotionalV3]: {
+    [Network.ArbitrumOne]:
+      'https://api.studio.thegraph.com/proxy/33671/notional-finance-v3-arbitrum/v0.0.135',
+  },
   [ProtocolName.BalancerV2]: {
     [Network.Mainnet]:
       'https://api.thegraph.com/subgraphs/name/balancer-labs/balancer-v2',
@@ -47,6 +51,7 @@ export const defaultGraphEndpoints: Record<string, Record<string, string>> = {
 
 export const defaultDataWriters: Record<string, IDataWriter> = {
   [TableName.GenericData]: new GenericDataWriter(),
+  [TableName.TokenData]: new TokenBalanceDataWriter(),
 };
 
 export function getOutputName(

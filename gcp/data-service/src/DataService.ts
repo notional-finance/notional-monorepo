@@ -222,8 +222,6 @@ export default class DataService {
       const sourceConfig = op.configDef.sourceConfig as MulticallConfig;
       const key = op.aggregateCall.key as string;
       values.push({
-        strategyId: op.configDef.strategyId,
-        variable: op.configDef.variable,
         dataConfig: op.configDef.dataConfig,
         value: response.results[key],
         networkId: this.networkToId(network),
@@ -272,8 +270,6 @@ export default class DataService {
         dbData.set(op.configDef.tableName, values);
       }
       values.push({
-        strategyId: op.configDef.strategyId,
-        variable: op.configDef.variable,
         dataConfig: op.configDef.dataConfig,
         blockNumber: blockNumber,
         networkId: this.networkToId(network),
@@ -286,25 +282,25 @@ export default class DataService {
     const operations = buildOperations(defaultConfigDefs);
     const dbData = new Map<TableName, DataRow[]>();
     await Promise.all(
-      Array.from(operations.aggregateCalls.keys()).map((network) => {
-        return this.syncFromMulticall(
+      Array.from(operations.aggregateCalls.keys()).map((network) =>
+        this.syncFromMulticall(
           dbData,
           network,
           ts,
           operations.aggregateCalls.get(network) || []
-        );
-      })
+        )
+      )
     );
 
     await Promise.all(
-      Array.from(operations.subgraphCalls.keys()).map((network) => {
-        return this.syncFromSubgraph(
+      Array.from(operations.subgraphCalls.keys()).map((network) =>
+        this.syncFromSubgraph(
           dbData,
           network,
           ts,
           operations.subgraphCalls.get(network) || []
-        );
-      })
+        )
+      )
     );
 
     return Promise.all(
@@ -399,7 +395,7 @@ export default class DataService {
   }
 
   public async getView(view: string) {
-    return this.db.select().from(view);
+    return this.db.select().from(view).limit(100);
   }
 
   public async insertAccounts(accountIds: string[]) {

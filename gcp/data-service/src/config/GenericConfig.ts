@@ -6,15 +6,40 @@ import {
   BalancerStablePoolABI,
   ERC20ABI,
   IAggregatorABI,
+  Multicall3ABI,
 } from '@notional-finance/contracts';
 import { ethers } from 'ethers';
 import { Network } from '@notional-finance/util';
-import { ConfigDefinition, SourceType, TableName, Strategy } from '../types';
+import {
+  ConfigDefinition,
+  SourceType,
+  TableName,
+  Strategy,
+  ProtocolName,
+} from '../types';
+
+const nTokenDailyFeesTransform = (r) => {
+  if (r.transfers.length === 0) return 0;
+  const sum = r.transfers.reduce(
+    (a, v) =>
+      a +
+      parseFloat(
+        ethers.utils.formatUnits(
+          v.valueInUnderlying,
+          v.token.underlying.decimals
+        )
+      ),
+    0
+  );
+  const fCashReserveFeeSharePercent =
+    r.currencyConfigurations[0].fCashReserveFeeSharePercent;
+  return (
+    sum * ((100 - fCashReserveFeeSharePercent) / fCashReserveFeeSharePercent)
+  );
+};
 
 export const configDefs: ConfigDefinition[] = [
   {
-    strategyId: Strategy.Generic,
-    variable: 'stETH to wstETH ratio',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0',
@@ -24,13 +49,13 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'stETH to wstETH ratio',
       decimals: 18,
     },
     network: Network.Mainnet,
   },
   {
-    strategyId: Strategy.Generic,
-    variable: 'ETH to cbETH ratio',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0xBe9895146f7AF43049ca1c1AE358B0541Ea49704',
@@ -39,13 +64,13 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'ETH to cbETH ratio',
       decimals: 18,
     },
     network: Network.Mainnet,
   },
   {
-    strategyId: Strategy.Generic,
-    variable: 'ETH to rETH ratio',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0xae78736cd615f374d3085123a210448e74fc6393',
@@ -54,13 +79,13 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'ETH to rETH ratio',
       decimals: 18,
     },
     network: Network.Mainnet,
   },
   {
-    strategyId: Strategy.Generic,
-    variable: 'bb-a-Usdc Exchange Rate',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0xcbfa4532d8b2ade2c261d3dd5ef2a2284f792692',
@@ -69,13 +94,13 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'bb-a-Usdc Exchange Rate',
       decimals: 18,
     },
     network: Network.Mainnet,
   },
   {
-    strategyId: Strategy.Generic,
-    variable: 'bb-a-Usdt Exchange Rate',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0xa1697f9af0875b63ddc472d6eebada8c1fab8568',
@@ -84,13 +109,13 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'bb-a-Usdt Exchange Rate',
       decimals: 18,
     },
     network: Network.Mainnet,
   },
   {
-    strategyId: Strategy.Generic,
-    variable: 'bb-a-Dai Exchange Rate',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0x6667c6fa9f2b3fc1cc8d85320b62703d938e4385',
@@ -99,13 +124,13 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'bb-a-Dai Exchange Rate',
       decimals: 18,
     },
     network: Network.Mainnet,
   },
   {
-    strategyId: Strategy.Generic,
-    variable: 'bb-a-Weth Exchange Rate',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0x60d604890feaa0b5460b28a424407c24fe89374a',
@@ -114,13 +139,13 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'bb-a-Weth Exchange Rate',
       decimals: 18,
     },
     network: Network.Mainnet,
   },
   {
-    strategyId: Strategy.Generic,
-    variable: 'bb-a-Usdc Exchange Rate - Arbitrum',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0x7c82a23b4c48d796dee36a9ca215b641c6a8709d',
@@ -129,13 +154,13 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'bb-a-Usdc Exchange Rate - Arbitrum',
       decimals: 18,
     },
     network: Network.ArbitrumOne,
   },
   {
-    strategyId: Strategy.Generic,
-    variable: 'bb-a-Usdt Exchange Rate - Arbitrum',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0x4739E50B59B552D490d3FDc60D200977A38510c0',
@@ -144,13 +169,13 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'bb-a-Usdt Exchange Rate - Arbitrum',
       decimals: 18,
     },
     network: Network.ArbitrumOne,
   },
   {
-    strategyId: Strategy.Generic,
-    variable: 'bb-a-Dai Exchange Rate - Arbitrum',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0x9e34631547adcf2f8cefa0f5f223955c7b137571',
@@ -159,13 +184,13 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'bb-a-Dai Exchange Rate - Arbitrum',
       decimals: 18,
     },
     network: Network.ArbitrumOne,
   },
   {
-    strategyId: Strategy.Generic,
-    variable: 'bb-a-Weth Exchange Rate - Arbitrum',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0xda1cd1711743e57dd57102e9e61b75f3587703da',
@@ -174,13 +199,13 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'bb-a-Weth Exchange Rate - Arbitrum',
       decimals: 18,
     },
     network: Network.ArbitrumOne,
   },
   {
-    strategyId: Strategy.Generic,
-    variable: 'Weth To Usdc Exchange Rate',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0x96646936b91d6b9d7d0c47c496afbf3d6ec7b6f8',
@@ -190,13 +215,13 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'Weth To Usdc Exchange Rate',
       decimals: 18,
     },
     network: Network.Mainnet,
   },
   {
-    strategyId: Strategy.Generic,
-    variable: 'Weth To Bal Exchange Rate',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0x5c6Ee304399DBdB9C8Ef030aB642B10820DB8F56',
@@ -206,13 +231,13 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'Weth To Bal Exchange Rate',
       decimals: 18,
     },
     network: Network.Mainnet,
   },
   {
-    strategyId: Strategy.Generic,
-    variable: 'Aura To Weth Exchange Rate',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0xc29562b045d80fd77c69bec09541f5c16fe20d9d',
@@ -222,13 +247,13 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'Aura To Weth Exchange Rate',
       decimals: 18,
     },
     network: Network.Mainnet,
   },
   {
-    strategyId: Strategy.Generic,
-    variable: 'Usdc To Usd Oracle',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0x8fffffd4afb6115b954bd326cbe7b4ba576818f6',
@@ -237,13 +262,13 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'Usdc To Usd Oracle',
       decimals: 8,
     },
     network: Network.Mainnet,
   },
   {
-    strategyId: Strategy.Generic,
-    variable: 'Usdt To Usd Oracle',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0x3e7d1eab13ad0104d2750b8863b489d65364e32d',
@@ -252,13 +277,13 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'Usdt To Usd Oracle',
       decimals: 8,
     },
     network: Network.Mainnet,
   },
   {
-    strategyId: Strategy.Generic,
-    variable: 'Dai To Usd Oracle',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0xaed0c38402a5d19df6e4c03f4e2dced6e29c1ee9',
@@ -267,13 +292,13 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'Dai To Usd Oracle',
       decimals: 8,
     },
     network: Network.Mainnet,
   },
   {
-    strategyId: Strategy.Generic,
-    variable: 'Eth To Usd Oracle',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0x5f4ec3df9cbd43714fe2740f5e3616155c5b8419',
@@ -282,13 +307,13 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'Eth To Usd Oracle',
       decimals: 8,
     },
     network: Network.Mainnet,
   },
   {
-    strategyId: Strategy.Generic,
-    variable: 'Rpl To Usd Oracle',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0xf0b7159bbfc341cc41e7cb182216f62c6d40533d',
@@ -297,13 +322,13 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'Rpl To Usd Oracle',
       decimals: 8,
     },
     network: Network.ArbitrumOne,
   },
   {
-    strategyId: Strategy.Generic,
-    variable: 'Ldo To Eth Oracle',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0x4e844125952d32acdf339be976c98e22f6f318db',
@@ -312,13 +337,13 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'Ldo To Eth Oracle',
       decimals: 18,
     },
     network: Network.Mainnet,
   },
   {
-    strategyId: Strategy.Generic,
-    variable: 'Ohmv2 To Usd Oracle',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0x761aaebf021f19f198d325d7979965d0c7c9e53b',
@@ -327,13 +352,13 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'Ohmv2 To Usd Oracle',
       decimals: 8,
     },
     network: Network.ArbitrumOne,
   },
   {
-    strategyId: Strategy.Generic,
-    variable: 'Lusd To Usd Oracle',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0x0411d28c94d85a36bc72cb0f875dfa8371d8ffff',
@@ -342,13 +367,13 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'Lusd To Usd Oracle',
       decimals: 8,
     },
     network: Network.ArbitrumOne,
   },
   {
-    strategyId: Strategy.Generic,
-    variable: 'Frax To Usd Oracle',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0xb9e1e3a9feff48998e45fa90847ed4d467e8bcfd',
@@ -357,13 +382,13 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'Frax To Usd Oracle',
       decimals: 8,
     },
     network: Network.Mainnet,
   },
   {
-    strategyId: Strategy.Generic,
-    variable: 'Cvx To Usd Oracle',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0xd962fc30a72a84ce50161031391756bf2876af5d',
@@ -372,13 +397,13 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'Cvx To Usd Oracle',
       decimals: 8,
     },
     network: Network.Mainnet,
   },
   {
-    strategyId: Strategy.Generic,
-    variable: 'Crv To Usd Oracle',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0xcd627aa160a6fa45eb793d19ef54f5062f20f33f',
@@ -387,13 +412,13 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'Crv To Usd Oracle',
       decimals: 8,
     },
     network: Network.Mainnet,
   },
   {
-    strategyId: Strategy.Generic,
-    variable: 'Arb To Usd Oracle',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0xb2a824043730fe05f3da2efafa1cbbe83fa548d6',
@@ -402,13 +427,13 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'Arb To Usd Oracle',
       decimals: 8,
     },
     network: Network.ArbitrumOne,
   },
   {
-    strategyId: Strategy.Generic,
-    variable: 'veBAL total supply',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0xC128a9954e6c874eA3d62ce62B468bA073093F25',
@@ -417,13 +442,13 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'veBAL total supply',
       decimals: 18,
     },
     network: Network.Mainnet,
   },
   {
-    strategyId: Strategy.Generic,
-    variable: 'Aura veBAL balance',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0xC128a9954e6c874eA3d62ce62B468bA073093F25',
@@ -433,13 +458,13 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'Aura veBAL balance',
       decimals: 18,
     },
     network: Network.Mainnet,
   },
   {
-    strategyId: Strategy.Generic,
-    variable: 'Total BAL supply',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0xba100000625a3754423978a60c9317c58a424e3D',
@@ -448,13 +473,13 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'Total BAL supply',
       decimals: 18,
     },
     network: Network.Mainnet,
   },
   {
-    strategyId: Strategy.Generic,
-    variable: 'veCRV total supply',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0x5f3b5DfEb7B28CDbD7FAba78963EE202a494e2A2',
@@ -463,13 +488,13 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'veCRV total supply',
       decimals: 18,
     },
     network: Network.Mainnet,
   },
   {
-    strategyId: Strategy.Generic,
-    variable: 'Convex veCRV balance',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0x5f3b5DfEb7B28CDbD7FAba78963EE202a494e2A2',
@@ -479,13 +504,13 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'Convex veCRV balance',
       decimals: 18,
     },
     network: Network.Mainnet,
   },
   {
-    strategyId: Strategy.Generic,
-    variable: 'Cvx total supply',
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0x4e3fbd56cd56c3e72c1403e103b45db9da5b9d2b',
@@ -494,8 +519,246 @@ export const configDefs: ConfigDefinition[] = [
     },
     tableName: TableName.GenericData,
     dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'Cvx total supply',
       decimals: 18,
     },
     network: Network.Mainnet,
+  },
+  {
+    sourceType: SourceType.Subgraph,
+    sourceConfig: {
+      protocol: ProtocolName.NotionalV3,
+      query: 'NotionalV3nTokenDailyFees.graphql',
+      args: {
+        currencyId: 1,
+      },
+      transform: nTokenDailyFeesTransform,
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'ETH nTokenDailyFees',
+      decimals: 0,
+    },
+    network: Network.ArbitrumOne,
+  },
+  {
+    sourceType: SourceType.Subgraph,
+    sourceConfig: {
+      protocol: ProtocolName.NotionalV3,
+      query: 'NotionalV3nTokenDailyFees.graphql',
+      args: {
+        currencyId: 2,
+      },
+      transform: nTokenDailyFeesTransform,
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'DAI nTokenDailyFees',
+      decimals: 0,
+    },
+    network: Network.ArbitrumOne,
+  },
+  {
+    sourceType: SourceType.Subgraph,
+    sourceConfig: {
+      protocol: ProtocolName.NotionalV3,
+      query: 'NotionalV3nTokenDailyFees.graphql',
+      args: {
+        currencyId: 3,
+      },
+      transform: nTokenDailyFeesTransform,
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'USDC nTokenDailyFees',
+      decimals: 0,
+    },
+    network: Network.ArbitrumOne,
+  },
+  {
+    sourceType: SourceType.Subgraph,
+    sourceConfig: {
+      protocol: ProtocolName.NotionalV3,
+      query: 'NotionalV3nTokenDailyFees.graphql',
+      args: {
+        currencyId: 4,
+      },
+      transform: nTokenDailyFeesTransform,
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'WBTC nTokenDailyFees',
+      decimals: 0,
+    },
+    network: Network.ArbitrumOne,
+  },
+  {
+    sourceType: SourceType.Subgraph,
+    sourceConfig: {
+      protocol: ProtocolName.NotionalV3,
+      query: 'NotionalV3nTokenDailyFees.graphql',
+      args: {
+        currencyId: 5,
+      },
+      transform: nTokenDailyFeesTransform,
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'wstETH nTokenDailyFees',
+      decimals: 0,
+    },
+    network: Network.ArbitrumOne,
+  },
+  {
+    sourceType: SourceType.Subgraph,
+    sourceConfig: {
+      protocol: ProtocolName.NotionalV3,
+      query: 'NotionalV3nTokenDailyFees.graphql',
+      args: {
+        currencyId: 6,
+      },
+      transform: nTokenDailyFeesTransform,
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'FRAX nTokenDailyFees',
+      decimals: 0,
+    },
+    network: Network.ArbitrumOne,
+  },
+  {
+    sourceType: SourceType.Multicall,
+    sourceConfig: {
+      contractAddress: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      contractABI: Multicall3ABI,
+      method: 'getEthBalance',
+      args: ['0x1344A36A1B56144C3Bc62E7757377D288fDE0369'],
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'ethProxyBalance',
+      decimals: 18,
+    },
+    network: Network.ArbitrumOne,
+  },
+  {
+    sourceType: SourceType.Multicall,
+    sourceConfig: {
+      contractAddress: '0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1',
+      contractABI: ERC20ABI,
+      method: 'balanceOf',
+      args: ['0x1344A36A1B56144C3Bc62E7757377D288fDE0369'],
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'daiProxyBalance',
+      decimals: 18,
+    },
+    network: Network.ArbitrumOne,
+  },
+  {
+    sourceType: SourceType.Multicall,
+    sourceConfig: {
+      contractAddress: '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
+      contractABI: ERC20ABI,
+      method: 'balanceOf',
+      args: ['0x1344A36A1B56144C3Bc62E7757377D288fDE0369'],
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'usdcProxyBalance',
+      decimals: 6,
+    },
+    network: Network.ArbitrumOne,
+  },
+  {
+    sourceType: SourceType.Multicall,
+    sourceConfig: {
+      contractAddress: '0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f',
+      contractABI: ERC20ABI,
+      method: 'balanceOf',
+      args: ['0x1344A36A1B56144C3Bc62E7757377D288fDE0369'],
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'wbtcProxyBalance',
+      decimals: 8,
+    },
+    network: Network.ArbitrumOne,
+  },
+  {
+    sourceType: SourceType.Multicall,
+    sourceConfig: {
+      contractAddress: '0x5979D7b546E38E414F7E9822514be443A4800529',
+      contractABI: ERC20ABI,
+      method: 'balanceOf',
+      args: ['0x1344A36A1B56144C3Bc62E7757377D288fDE0369'],
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'wstethProxyBalance',
+      decimals: 18,
+    },
+    network: Network.ArbitrumOne,
+  },
+  {
+    sourceType: SourceType.Multicall,
+    sourceConfig: {
+      contractAddress: '0x17FC002b466eEc40DaE837Fc4bE5c67993ddBd6F',
+      contractABI: ERC20ABI,
+      method: 'balanceOf',
+      args: ['0x1344A36A1B56144C3Bc62E7757377D288fDE0369'],
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'fraxProxyBalance',
+      decimals: 18,
+    },
+    network: Network.ArbitrumOne,
+  },
+  {
+    sourceType: SourceType.Multicall,
+    sourceConfig: {
+      contractAddress: '0xEC70Dcb4A1EFa46b8F2D97C310C9c4790ba5ffA8',
+      contractABI: ERC20ABI,
+      method: 'balanceOf',
+      args: ['0x1344A36A1B56144C3Bc62E7757377D288fDE0369'],
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'rethProxyBalance',
+      decimals: 18,
+    },
+    network: Network.ArbitrumOne,
+  },
+  {
+    sourceType: SourceType.Multicall,
+    sourceConfig: {
+      contractAddress: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
+      contractABI: ERC20ABI,
+      method: 'balanceOf',
+      args: ['0x1344A36A1B56144C3Bc62E7757377D288fDE0369'],
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'usdtProxyBalance',
+      decimals: 6,
+    },
+    network: Network.ArbitrumOne,
   },
 ];
