@@ -1,6 +1,8 @@
-import { BorrowVariableSidebar } from './components';
+import {
+  BorrowVariableSidebar,
+  BorrowVariableTradeSummary,
+} from './components';
 import { SideBarLayout, FeatureLoader } from '@notional-finance/mui';
-import { TradeActionSummary } from '@notional-finance/trade';
 import {
   createTradeContext,
   useTradeContext,
@@ -19,7 +21,7 @@ export const BorrowVariable = () => {
         <SideBarLayout
           showTransactionConfirmation={confirm}
           sideBar={<BorrowVariableSidebar />}
-          mainContent={<TradeActionSummary state={state} />}
+          mainContent={<BorrowVariableTradeSummary />}
         />
       </FeatureLoader>
     </BorrowVariableContext.Provider>

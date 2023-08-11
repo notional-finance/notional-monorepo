@@ -1,6 +1,5 @@
 import { SetStateAction, Dispatch, ReactNode } from 'react';
 import { useTheme } from '@mui/material';
-import { useIntl } from 'react-intl';
 import { getDateString } from '@notional-finance/helpers';
 import { ONE_WEEK } from '@notional-finance/shared-config';
 import {
@@ -9,13 +8,16 @@ import {
   YAxis,
   Tooltip,
   Line,
+  ReferenceLine,
   ComposedChart,
+  CartesianGrid,
   ResponsiveContainer,
 } from 'recharts';
 import {
   ChartToolTip,
   ChartToolTipDataProps,
 } from '../chart-tool-tip/chart-tool-tip';
+import { XAxisTick } from './x-axis-tick/x-axis-tick';
 
 export interface AreaChartData {
   timestamp: number;
@@ -35,21 +37,26 @@ export interface AreaChartStylesProps {
 
 export interface AreaChartProps {
   areaChartData: AreaChartData[];
+  xAxisTickFormat?: 'date' | 'percent';
+  referenceLineValue?: number;
   chartToolTipData?: ChartToolTipDataProps;
   areaChartStyles?: AreaChartStylesProps;
   headerCallBack?: Dispatch<SetStateAction<boolean>>;
   areaChartButtonLabel?: ReactNode;
   barChartButtonLabel?: ReactNode;
+  showCartesianGrid?: boolean;
 }
 
 export const AreaChart = ({
   areaChartData,
+  xAxisTickFormat = 'date',
+  referenceLineValue,
   areaChartStyles,
   chartToolTipData,
+  showCartesianGrid,
 }: AreaChartProps) => {
   const isLine = areaChartData[0]?.line;
   const theme = useTheme();
-  const intl = useIntl();
 
   const xAxisTickHandler = (v: number, i: number) => {
     let result = '';
@@ -61,34 +68,21 @@ export const AreaChart = ({
     return result;
   };
 
-  const CustomTickHandler = (props) => {
-    const {
-      x,
-      y,
-      payload: { value },
-    } = props;
-
-    return (
-      <g transform={`translate(${x},${y})`} cursor={'pointer'}>
-        <text x={0} y={0} dy={16} textAnchor="center">
-          {typeof value === 'number'
-            ? intl.formatDate(value * 1000, {
-                month: 'short',
-                year: 'numeric',
-              })
-            : ''}
-        </text>
-      </g>
-    );
-  };
-
   return (
     <ResponsiveContainer width="100%" height={400}>
       <ComposedChart
         height={200}
         data={areaChartData}
-        margin={{ top: 30, right: 43, left: 20, bottom: 20 }}
+        margin={{ top: 30, right: 20, left: 20, bottom: 20 }}
       >
+        {showCartesianGrid && (
+          <CartesianGrid
+            vertical={false}
+            horizontal
+            height={400}
+            stroke={theme.palette.borders.paper}
+          />
+        )}
         <Tooltip
           wrapperStyle={{ outline: 'none' }}
           content={<ChartToolTip chartToolTipData={chartToolTipData} />}
@@ -96,18 +90,27 @@ export const AreaChart = ({
         />
         <XAxis
           dataKey="timestamp"
+          type={xAxisTickFormat === 'date' ? 'category' : 'number'}
           tickCount={0}
           axisLine={false}
           tickSize={0}
           tickMargin={20}
-          domain={[
-            (dataMin: number) => dataMin - ONE_WEEK,
-            (dataMax: number) => dataMax + ONE_WEEK,
-          ]}
+          domain={
+            xAxisTickFormat === 'date'
+              ? [
+                  (dataMin: number) => dataMin - ONE_WEEK,
+                  (dataMax: number) => dataMax + ONE_WEEK,
+                ]
+              : [(min: number) => min, (max: number) => max]
+          }
           style={{ fill: theme.palette.typography.light }}
           interval={0}
           tickFormatter={isLine ? xAxisTickHandler : undefined}
-          tick={!isLine ? <CustomTickHandler /> : undefined}
+          tick={
+            !isLine ? (
+              <XAxisTick xAxisTickFormat={xAxisTickFormat} />
+            ) : undefined
+          }
           tickLine={false}
         />
         <YAxis
@@ -120,7 +123,7 @@ export const AreaChart = ({
           tickSize={0}
           tickLine={false}
           axisLine={false}
-          style={{ fill: theme.palette.typography.light }}
+          style={{ fill: theme.palette.typography.light, fontSize: '12px' }}
           tickFormatter={(v: number) => `${v.toFixed(2)}%`}
         />
 
@@ -140,9 +143,18 @@ export const AreaChart = ({
             areaChartStyles?.area.lineColor || theme.palette.primary.light
           }
           dot={false}
-          fillOpacity={1}
-          fill="url(#colorPv)"
+          fillOpacity={0.2}
+          fill={areaChartStyles?.area.lineColor || theme.palette.primary.light}
         />
+        {referenceLineValue && (
+          <ReferenceLine
+            x={referenceLineValue}
+            strokeDasharray="5,5"
+            stroke={theme.palette.background.accentPaper}
+            strokeWidth={2}
+          />
+        )}
+
         <defs>
           <linearGradient id="colorPv" x1="0" y1="0" x2="0" y2="1">
             <stop

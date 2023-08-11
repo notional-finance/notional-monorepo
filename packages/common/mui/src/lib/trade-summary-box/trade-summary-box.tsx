@@ -8,7 +8,8 @@ export const TradeSummaryBox = styled(Box)(
   border-radius: ${theme.shape.borderRadius()};
   background: ${theme.palette.common.white};
   margin-top: 16px;
-  padding: 24px;
+  padding: ${theme.spacing(2)};
+  padding-top: ${theme.spacing(3)};
   width: 100%;
 `
 );

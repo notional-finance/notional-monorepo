@@ -1,6 +1,7 @@
 import { ReactNode, SetStateAction, Dispatch } from 'react';
 import { H4 } from '../typography/typography';
 import { Box, styled, useTheme } from '@mui/material';
+import { InfoIcon } from '@notional-finance/icons';
 import { ChartLegendProps, ChartLegend } from './chart-legend/chart-legend';
 
 export interface LegendData {
@@ -14,6 +15,7 @@ export interface ChartHeaderProps {
   legendData?: LegendData;
   areaChartButtonLabel?: ReactNode;
   barChartButtonLabel?: ReactNode;
+  setChartInfoBoxActive?: Dispatch<SetStateAction<boolean | undefined>>;
   headerCallBack?: Dispatch<SetStateAction<boolean>>;
   displayAreaChart?: boolean;
 }
@@ -24,6 +26,7 @@ export const ChartHeader = ({
   areaChartButtonLabel,
   displayAreaChart,
   legendData,
+  setChartInfoBoxActive,
 }: ChartHeaderProps) => {
   const theme = useTheme();
 
@@ -94,6 +97,18 @@ export const ChartHeader = ({
             textAlign={'right'}
           />
         )}
+        {setChartInfoBoxActive && (
+          <InfoIcon
+            onClick={() => setChartInfoBoxActive(true)}
+            fill={theme.palette.primary.light}
+            sx={{
+              marginLeft: theme.spacing(3),
+              cursor: 'pointer',
+              height: theme.spacing(2.5),
+              width: theme.spacing(2.5),
+            }}
+          />
+        )}
       </LegendWrapper>
     </HeadingContainer>
   );
@@ -108,8 +123,9 @@ const HeadingContainer = styled(Box)(
   ({ theme }) => `
   display: flex;
   justify-content: space-between;
-  margin-bottom: ${theme.spacing(3)};
-  margin-left: 18px;
+  margin-bottom: ${theme.spacing(1)};
+  margin-left: ${theme.spacing(2.5)};
+  margin-right: ${theme.spacing(2.5)};
 `
 );
 

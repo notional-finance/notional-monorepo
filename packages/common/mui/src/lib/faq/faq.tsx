@@ -75,7 +75,7 @@ export function Faq({
         marginBottom: '1.75rem !important',
         borderRadius: theme.shape.borderRadiusLarge,
         border: theme.shape.borderStandard,
-        boxShadow: 'none',
+        boxShadow: theme.shape.shadowStandard,
         ':before': {
           display: 'none',
         },

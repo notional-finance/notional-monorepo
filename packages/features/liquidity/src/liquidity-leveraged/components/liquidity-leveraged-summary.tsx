@@ -21,6 +21,7 @@ export const LiquidityLeveragedSummary = () => {
         <NTokenPriceExposure state={state} />
       </Box>
       <Faq
+        sx={{ boxShadow: 'none' }}
         question={<FormattedMessage defaultMessage={'How it Works'} />}
         componentAnswer={<HowItWorksFaq tokenSymbol={tokenSymbol} />}
         questionDescription={
