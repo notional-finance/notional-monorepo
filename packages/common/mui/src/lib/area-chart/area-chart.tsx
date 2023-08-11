@@ -57,7 +57,6 @@ export const AreaChart = ({
 }: AreaChartProps) => {
   const isLine = areaChartData[0]?.line;
   const theme = useTheme();
-  // const { ticks, lines, maxTick } = useYAxis(interactiveAreaChartData);
 
   const xAxisTickHandler = (v: number, i: number) => {
     let result = '';

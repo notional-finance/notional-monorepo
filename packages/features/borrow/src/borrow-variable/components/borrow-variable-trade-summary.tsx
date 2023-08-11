@@ -10,7 +10,6 @@ import {
   Faq,
   FaqHeader,
   TotalBox,
-  // DataTable,
   SingleDisplayChart,
 } from '@notional-finance/mui';
 import { BorrowVariableContext } from '../../borrow-variable/borrow-variable';
