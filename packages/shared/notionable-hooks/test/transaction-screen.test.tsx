@@ -13,6 +13,7 @@ import {
   EnablePrimeBorrow,
   LendFixed,
   LendVariable,
+  LeveragedLend,
   MintNToken,
   PopulateTransactionInputs,
 } from '@notional-finance/transaction';
@@ -165,7 +166,7 @@ describe.withForkAndRegistry(
       }
 
       /*** Set Balance Amounts */
-      if (depositAmount) {
+      if (depositAmount !== undefined) {
         act(() => {
           result.current.updateState({
             depositBalance: TokenBalance.fromFloat(
@@ -175,10 +176,26 @@ describe.withForkAndRegistry(
           });
         });
 
-        await waitForNextUpdate();
+        // This is required for deleverage lend
+        if (depositAmount) await waitForNextUpdate();
       }
 
-      if (collateralAmount) {
+      if (collateralAmount !== undefined && debtAmount !== undefined) {
+        act(() => {
+          result.current.updateState({
+            collateralBalance: TokenBalance.fromFloat(
+              collateralAmount,
+              result.current.state.collateral!
+            ),
+            debtBalance: TokenBalance.fromFloat(
+              debtAmount,
+              result.current.state.debt!
+            ),
+          });
+        });
+
+        await waitForNextUpdate();
+      } else if (collateralAmount !== undefined) {
         act(() => {
           result.current.updateState({
             collateralBalance: TokenBalance.fromFloat(
@@ -189,9 +206,7 @@ describe.withForkAndRegistry(
         });
 
         await waitForNextUpdate();
-      }
-
-      if (debtAmount) {
+      } else if (debtAmount !== undefined) {
         act(() => {
           result.current.updateState({
             debtBalance: TokenBalance.fromFloat(
@@ -593,6 +608,81 @@ describe.withForkAndRegistry(
         }) as Config
     );
 
+    const leveragedLend: Config[] = [
+      {
+        tradeType: 'Deleverage',
+        selectedDepositToken: 'ETH',
+        debt: `fETH:fixed@${maturity}`,
+        depositAmount: 0,
+        debtAmount: -0.01,
+        collateral: `pEther`,
+        collateralAmount: 0,
+        enablePrimeBorrow: true,
+        initialDeposit: (d: PopulateTransactionInputs) => {
+          return LeveragedLend({
+            ...d,
+            depositBalance: TokenBalance.fromFloat(
+              0.01,
+              Registry.getTokenRegistry().getTokenBySymbol(
+                Network.ArbitrumOne,
+                `ETH`
+              )
+            ),
+            collateralBalance: TokenBalance.fromFloat(
+              0.05,
+              Registry.getTokenRegistry().getTokenBySymbol(
+                Network.ArbitrumOne,
+                `fETH:fixed@${maturity}`
+              )
+            ),
+            debtBalance: TokenBalance.fromFloat(
+              -0.04,
+              Registry.getTokenRegistry().getTokenBySymbol(
+                Network.ArbitrumOne,
+                `pdEther`
+              )
+            ),
+          });
+        },
+      },
+      {
+        tradeType: 'Deleverage',
+        selectedDepositToken: 'ETH',
+        depositAmount: 0,
+        debt: `pdEther`,
+        debtAmount: -0.01,
+        collateral: `fETH:fixed@${maturity}`,
+        collateralAmount: 0,
+        enablePrimeBorrow: true,
+        initialDeposit: (d: PopulateTransactionInputs) => {
+          return LeveragedLend({
+            ...d,
+            depositBalance: TokenBalance.fromFloat(
+              0.01,
+              Registry.getTokenRegistry().getTokenBySymbol(
+                Network.ArbitrumOne,
+                `ETH`
+              )
+            ),
+            collateralBalance: TokenBalance.fromFloat(
+              0.05,
+              Registry.getTokenRegistry().getTokenBySymbol(
+                Network.ArbitrumOne,
+                `pEther`
+              )
+            ),
+            debtBalance: TokenBalance.fromFloat(
+              -0.04,
+              Registry.getTokenRegistry().getTokenBySymbol(
+                Network.ArbitrumOne,
+                `fETH:fixed@${maturity}`
+              )
+            ),
+          });
+        },
+      },
+    ];
+
     it.each([
       ...noInitDeposit,
       ...pCashDebt,
@@ -600,6 +690,7 @@ describe.withForkAndRegistry(
       ...fCashLend,
       ...primeLend,
       ...nToken,
+      ...leveragedLend,
     ])(
       '[$tradeType] $collateral ($depositAmount $selectedDepositToken)',
       runTest,
@@ -612,8 +703,6 @@ describe.withForkAndRegistry(
      * Leveraged nToken, Borrow Variable
      * Deleverage nToken, Lend Fixed
      * Deleverage nToken, Lend Variable
-     * Deleverage Lend Fixed => Variable
-     * Deleverage Lend Variable => Fixed
      */
   }
 );

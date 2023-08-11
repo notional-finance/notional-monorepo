@@ -36,7 +36,7 @@ export function LeveragedLend({
   if (
     !(
       collateralBalance?.isPositive() &&
-      depositBalance?.isPositive() &&
+      (depositBalance?.isPositive() || depositBalance?.isZero()) &&
       debtBalance?.isNegative()
     )
   ) {
