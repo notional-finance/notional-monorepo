@@ -11,6 +11,7 @@ import {
   calculateVaultCollateral,
   calculateVaultDebt,
   calculateVaultDebtCollateralGivenDepositRiskLimit,
+  calculateVaultDeposit,
 } from './calculate';
 
 export * from './builders';
@@ -30,6 +31,7 @@ export type CalculationFn =
   | typeof calculateDepositCollateralGivenDebtRiskLimit
   | typeof calculateDepositDebtGivenCollateralRiskLimit
   | typeof calculateVaultDebtCollateralGivenDepositRiskLimit
+  | typeof calculateVaultDeposit
   | typeof calculateVaultDebt
   | typeof calculateVaultCollateral;
 
@@ -46,6 +48,7 @@ export type CalculationFnParams =
   | ParamKeys<typeof calculateDepositCollateralGivenDebtRiskLimit>
   | ParamKeys<typeof calculateDepositDebtGivenCollateralRiskLimit>
   | ParamKeys<typeof calculateVaultDebtCollateralGivenDepositRiskLimit>
+  | ParamKeys<typeof calculateVaultDeposit>
   | ParamKeys<typeof calculateVaultDebt>
   | ParamKeys<typeof calculateVaultCollateral>;
 

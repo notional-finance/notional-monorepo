@@ -332,7 +332,7 @@ function computeDebtOptions(
         balance: debtBalance,
         interestRate: _getTradedInterestRate(
           netRealizedDebtBalance,
-          debtBalance,
+          debtBalance.unwrapVaultToken(),
           fCashMarket,
           tradeType
         ),

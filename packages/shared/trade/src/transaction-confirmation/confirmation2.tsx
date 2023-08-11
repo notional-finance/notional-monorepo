@@ -37,10 +37,9 @@ export const Confirmation2 = ({
   //   SimulationCallTrace[] | undefined
   // >();
   // const [_logs, setSimulatedLogs] = useState<ParsedLogs | undefined>();
-  const onTxnCancel = useCallback(
-    () => updateState({ confirm: false }),
-    [updateState]
-  );
+  const onTxnCancel = useCallback(() => {
+    updateState({ confirm: false });
+  }, [updateState]);
 
   const { isReadOnlyAddress, transactionStatus, transactionHash, onSubmit } =
     useTransactionStatus();

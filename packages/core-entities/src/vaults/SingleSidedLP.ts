@@ -196,11 +196,10 @@ export class SingleSidedLP extends VaultAdapter {
 
     return defaultAbiCoder.encode(
       [
-        'tuple(uint32 minSecondaryLendRate, uint256 minPrimary, uint256 minSecondary, bytes secondaryTradeParams) r',
+        'tuple( uint256 minPrimary, uint256 minSecondary, bytes secondaryTradeParams) r',
       ],
       [
         {
-          minSecondaryLendRate: 0,
           minPrimary: minPrimary.n,
           minSecondary: minSecondary.n,
           secondaryTradeParams: this.secondaryTradeParams,

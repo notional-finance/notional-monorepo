@@ -621,6 +621,27 @@ export function calculateVaultDebt({
   }
 }
 
+export function calculateVaultDeposit({
+  collateral,
+  vaultAdapter,
+  depositBalance,
+}: {
+  collateral: TokenDefinition;
+  vaultAdapter: VaultAdapter;
+  depositBalance: TokenBalance;
+}): ReturnType<typeof calculateCollateral> {
+  const { netVaultSharesForUnderlying, feesPaid } =
+    vaultAdapter.getNetVaultSharesMinted(depositBalance, collateral);
+
+  return {
+    collateralBalance: netVaultSharesForUnderlying,
+    debtFee: depositBalance.toPrimeCash().copy(0),
+    collateralFee: feesPaid,
+    netRealizedCollateralBalance: depositBalance,
+    netRealizedDebtBalance: depositBalance.copy(0),
+  };
+}
+
 export function calculateVaultCollateral({
   collateral,
   vaultAdapter,

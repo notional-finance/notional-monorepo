@@ -628,9 +628,9 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
       // In in the prime vault maturity, convert from underlying back to prime debt denomination
       const tokens = Registry.getTokenRegistry();
       const vaultDebtToken = tokens.getTokenByID(network, debtID);
-      const pDebt = TokenBalance.fromID(balance, underlyingID, network).toToken(
-        tokens.unwrapVaultToken(vaultDebtToken)
-      );
+      const pDebt = TokenBalance.fromID(balance, underlyingID, network)
+        .scaleFromInternal()
+        .toToken(tokens.unwrapVaultToken(vaultDebtToken));
       return TokenBalance.fromID(pDebt.n, debtID, network);
     }
 

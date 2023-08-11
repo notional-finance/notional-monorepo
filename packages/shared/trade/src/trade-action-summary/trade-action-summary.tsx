@@ -9,9 +9,13 @@ import {
 import { BaseTradeState, isVaultTrade } from '@notional-finance/notionable';
 import { TransactionHeadings } from '../transaction-sidebar/components/transaction-headings';
 import { FormattedMessage } from 'react-intl';
-import { useAllMarkets } from '@notional-finance/notionable-hooks';
+import {
+  useAllMarkets,
+  useSelectedNetwork,
+} from '@notional-finance/notionable-hooks';
 import LeverageInfoRow from './components/leverage-info-row';
 import { formatTokenType } from '@notional-finance/helpers';
+import { Registry } from '@notional-finance/core-entities';
 
 interface TradeActionSummaryProps {
   state: BaseTradeState;
@@ -23,6 +27,7 @@ export function TradeActionSummary({
   children,
 }: TradeActionSummaryProps) {
   const theme = useTheme();
+  const network = useSelectedNetwork();
   const {
     tradeType,
     deposit,
@@ -32,8 +37,9 @@ export function TradeActionSummary({
     debtOptions,
     vaultConfig,
     riskFactorLimit,
+    vaultAddress,
   } = state;
-  const isVault = isVaultTrade(tradeType);
+  const isVault = !!vaultAddress;
   const { nonLeveragedYields } = useAllMarkets();
 
   const messages = tradeType ? TransactionHeadings[tradeType] : undefined;
@@ -54,6 +60,16 @@ export function TradeActionSummary({
   const selectedToken =
     tradeType === 'LeveragedNToken' || tradeType === 'MintNToken'
       ? collateral?.symbol
+      : // NOTE: this is required to get the selectedToken on vault screens
+      // if the trade type has not been set yet.
+      isVault &&
+        deposit === undefined &&
+        !!network &&
+        !!vaultConfig?.primaryBorrowCurrency.id
+      ? Registry.getTokenRegistry().getTokenByID(
+          network,
+          vaultConfig.primaryBorrowCurrency.id
+        )?.symbol
       : deposit?.symbol;
 
   const assetAPY =
@@ -87,7 +103,7 @@ export function TradeActionSummary({
   }
   const { title } = collateral ? formatTokenType(collateral) : { title: '' };
 
-  if ((!headerText && !vaultConfig) || !selectedToken) return <PageLoading />;
+  if (!selectedToken) return <PageLoading />;
 
   return (
     <TradeSummaryContainer>

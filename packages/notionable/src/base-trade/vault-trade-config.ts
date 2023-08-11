@@ -2,12 +2,13 @@ import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
 import { TransactionConfig, VaultTradeState } from './base-trade-store';
 import { ConfigurationClient } from '@notional-finance/core-entities';
 import {
+  DepositVault,
   EnterVault,
   ExitVault,
   RollVault,
-  calculateVaultCollateral,
   calculateVaultDebt,
   calculateVaultDebtCollateralGivenDepositRiskLimit,
+  calculateVaultDeposit,
 } from '@notional-finance/transaction';
 import {
   getMarketIndexForMaturity,
@@ -41,8 +42,10 @@ function sameVaultMaturity(
   vaultAddress: string | undefined
 ): boolean {
   const maturity = balances.find(
-    (t) => t.tokenType === 'VaultDebt' && t.token.vaultAddress === vaultAddress
-  );
+    (t) =>
+      (t.tokenType === 'VaultDebt' || t.tokenType === 'VaultShare') &&
+      t.token.vaultAddress === vaultAddress
+  )?.maturity;
   return t.maturity === maturity;
 }
 
@@ -126,7 +129,7 @@ export const VaultTradeConfiguration = {
    * collateralBalance (vault shares)
    */
   DepositVaultCollateral: {
-    calculationFn: calculateVaultCollateral,
+    calculationFn: calculateVaultDeposit,
     requiredArgs: ['collateral', 'depositBalance', 'vaultAdapter'],
     collateralFilter: (t, a, s: VaultTradeState) =>
       t.tokenType === 'VaultShare' &&
@@ -135,7 +138,7 @@ export const VaultTradeConfiguration = {
     debtFilter: () => false,
     depositFilter: (t, _, s: VaultTradeState) =>
       isPrimaryCurrency(t, s.vaultConfig),
-    transactionBuilder: EnterVault,
+    transactionBuilder: DepositVault,
   } as TransactionConfig,
 
   /**

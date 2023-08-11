@@ -60,6 +60,38 @@ function getVaultSlippageRate(
   };
 }
 
+export function DepositVault({
+  address,
+  network,
+  depositBalance,
+  collateralBalance,
+}: PopulateTransactionInputs): Promise<PopulatedTransaction> {
+  if (!depositBalance || !collateralBalance)
+    throw Error('Deposit balance, collateral balance must be defined');
+  const vaultAddress = collateralBalance.vaultAddress;
+
+  const vaultAdapter = Registry.getVaultRegistry().getVaultAdapter(
+    network,
+    vaultAddress
+  );
+
+  const vaultData = vaultAdapter.getDepositParameters(
+    address,
+    collateralBalance.maturity,
+    depositBalance
+  );
+
+  return populateNotionalTxnAndGas(network, address, 'enterVault', [
+    address,
+    vaultAddress,
+    depositBalance?.n,
+    collateralBalance.maturity,
+    0,
+    0,
+    vaultData,
+  ]);
+}
+
 export function EnterVault({
   address,
   network,
