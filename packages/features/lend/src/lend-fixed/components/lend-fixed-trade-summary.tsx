@@ -63,6 +63,7 @@ export const LendFixedTradeSummary = () => {
 
       {selectedDepositToken && (
         <Faq
+          sx={{ boxShadow: 'none' }}
           question={<FormattedMessage defaultMessage={'How it Works'} />}
           componentAnswer={<HowItWorksFaq tokenSymbol={selectedDepositToken} />}
           questionDescription={
@@ -99,7 +100,6 @@ export const LendFixedTradeSummary = () => {
           sx={{
             marginBottom: theme.spacing(2),
             boxShadow: theme.shape.shadowStandard,
-            border: 'none',
           }}
         />
       ))}

@@ -72,7 +72,10 @@ export const SettingsSideDrawer = ({
             onClick={() => handleClick(data)}
             key={data.key}
             sx={{
-              cursor: data.ViewComponent ? 'pointer' : 'normal',
+              cursor:
+                data.ViewComponent || data.key === 'darkMode'
+                  ? 'pointer'
+                  : 'normal',
             }}
           >
             <H4

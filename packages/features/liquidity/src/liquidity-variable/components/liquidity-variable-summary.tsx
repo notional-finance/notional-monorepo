@@ -17,6 +17,7 @@ export const LiquidityVariableSummary = () => {
   return (
     <TradeActionSummary state={state}>
       <Faq
+        sx={{ boxShadow: 'none' }}
         question={<FormattedMessage defaultMessage={'How it Works'} />}
         componentAnswer={<HowItWorksFaq tokenSymbol={tokenSymbol} />}
         questionDescription={

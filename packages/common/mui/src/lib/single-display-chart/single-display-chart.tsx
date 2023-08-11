@@ -1,20 +1,40 @@
-import { Box, styled } from '@mui/material';
+import { useTheme, Box, styled } from '@mui/material';
 import { TradeSummaryBox } from '../trade-summary-box/trade-summary-box';
 import { BarChart, BarChartProps } from '../bar-chart/bar-chart';
 import { AreaChart, AreaChartProps } from '../area-chart/area-chart';
+import {
+  ChartInfoBox,
+  chartInfoBoxDataProps,
+} from '../chart-info-box/chart-info-box';
 import { ChartHeader } from '../chart-header/chart-header';
+import { Body } from '../typography/typography';
+import { ReactNode, useState } from 'react';
 
 interface SingleDisplayChartProps extends AreaChartProps, BarChartProps {
   chartType: 'area' | 'bar';
+  bottomLabel?: ReactNode;
+  referenceLineValue?: number;
+  xAxisTickFormat?: 'date' | 'percent';
   legendData?: any;
+  chartInfoBoxData?: chartInfoBoxDataProps[];
+  showCartesianGrid?: boolean;
 }
 
 export const SingleDisplayChart = ({
   areaChartData,
+  referenceLineValue,
+  chartInfoBoxData,
   legendData,
   chartToolTipData,
   chartType,
+  xAxisTickFormat,
+  showCartesianGrid,
+  bottomLabel,
 }: SingleDisplayChartProps) => {
+  const theme = useTheme();
+  const [chartInfoBoxActive, setChartInfoBoxActive] = useState<
+    boolean | undefined
+  >(undefined);
   const barChartStyles = {
     dataSetOne: {
       lineColor: legendData?.legendTwo?.lineColor,
@@ -40,16 +60,36 @@ export const SingleDisplayChart = ({
   return (
     <TradeSummaryBox sx={{ width: '100%' }}>
       <ChartContainer>
-        {legendData && <ChartHeader legendData={legendData} />}
+        {legendData && (
+          <ChartHeader
+            legendData={legendData}
+            setChartInfoBoxActive={setChartInfoBoxActive}
+          />
+        )}
         {chartType === 'area' && (
           <AreaChart
+            showCartesianGrid={showCartesianGrid}
+            referenceLineValue={referenceLineValue}
+            xAxisTickFormat={xAxisTickFormat}
             areaChartData={areaChartData}
             chartToolTipData={chartToolTipData}
             areaChartStyles={areaChartStyles}
           />
         )}
         {chartType === 'bar' && <BarChart barChartStyles={barChartStyles} />}
+        {bottomLabel && (
+          <Body sx={{ textAlign: 'center', marginTop: theme.spacing(1) }}>
+            {bottomLabel}
+          </Body>
+        )}
       </ChartContainer>
+      {chartInfoBoxData && chartInfoBoxActive !== undefined && (
+        <ChartInfoBox
+          setChartInfoBoxActive={setChartInfoBoxActive}
+          chartInfoBoxActive={chartInfoBoxActive}
+          chartInfoBoxData={chartInfoBoxData}
+        />
+      )}
     </TradeSummaryBox>
   );
 };
@@ -61,6 +101,12 @@ const ChartContainer = styled(Box)(
   font-size: ${theme.typography.body1.fontSize};
   .recharts-area-curve {
     filter: drop-shadow(${theme.shape.chartLineShadow});
+  }
+  .recharts-wrapper .recharts-cartesian-grid-horizontal line:first-child,
+  .recharts-wrapper .recharts-cartesian-grid-horizontal line:last-child,
+  .recharts-wrapper .recharts-cartesian-grid-vertical line:first-child,
+  .recharts-wrapper .recharts-cartesian-grid-vertical line:last-child {
+    stroke-opacity: 0 !important;
   }
 `
 );

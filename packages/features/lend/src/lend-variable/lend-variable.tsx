@@ -1,26 +1,16 @@
-import {
-  FeatureLoader,
-  SideBarLayout,
-  Faq,
-  FaqHeader,
-} from '@notional-finance/mui';
-import { FormattedMessage } from 'react-intl';
+import { FeatureLoader, SideBarLayout } from '@notional-finance/mui';
 import {
   createTradeContext,
   useTradeContext,
 } from '@notional-finance/notionable-hooks';
-import { LendVariableSidebar } from './components';
-import { TradeActionSummary } from '@notional-finance/trade';
-import { useLendVariableFaq } from './hooks/use-lend-variable-faq';
+import { LendVariableSidebar, LendVariableTradeSummary } from './components';
 
 export const LendVariableContext = createTradeContext('LendVariable');
 
 export const LendVariable = () => {
   const context = useTradeContext('LendVariable');
   const { state } = context;
-  const { isReady, confirm, selectedDepositToken } = state;
-
-  const { faqs, faqHeaderLinks } = useLendVariableFaq(selectedDepositToken);
+  const { isReady, confirm } = state;
 
   return (
     <LendVariableContext.Provider value={context}>
@@ -28,24 +18,7 @@ export const LendVariable = () => {
         <SideBarLayout
           showTransactionConfirmation={confirm}
           sideBar={<LendVariableSidebar />}
-          mainContent={
-            <TradeActionSummary state={state}>
-              <FaqHeader
-                title={
-                  <FormattedMessage defaultMessage={'Variable Lend FAQ'} />
-                }
-                links={faqHeaderLinks}
-              />
-              {faqs.map(({ question, answer, componentAnswer }, index) => (
-                <Faq
-                  key={index}
-                  question={question}
-                  answer={answer}
-                  componentAnswer={componentAnswer}
-                />
-              ))}
-            </TradeActionSummary>
-          }
+          mainContent={<LendVariableTradeSummary />}
         />
       </FeatureLoader>
     </LendVariableContext.Provider>

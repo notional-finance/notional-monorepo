@@ -2,6 +2,7 @@ import { ReactNode } from 'react';
 import { Box, useTheme, styled } from '@mui/material';
 import { ActionRowButton } from '../action-row-button/action-row-button';
 import { H5, H4, ButtonBar, ButtonOptionsType } from '@notional-finance/mui';
+import { colors } from '@notional-finance/styles';
 import { defineMessages } from 'react-intl';
 
 interface TableActionRowProps {
@@ -34,7 +35,13 @@ export const TableActionRow = ({ row }: TableActionRowProps) => {
         {subRowData.map(({ label, value }, index) => (
           <Box key={index}>
             <Label>{label}</Label>
-            <H4>{value}</H4>
+            <H4
+              sx={{
+                color: value < 0 || value.includes('-') ? colors.red : '',
+              }}
+            >
+              {value}
+            </H4>
           </Box>
         ))}
       </ApyContainer>

@@ -12,6 +12,7 @@ export * from './lib/button-bar/button-bar';
 export * from './lib/card/card';
 export * from './lib/card-variants';
 export * from './lib/chart-tool-tip/chart-tool-tip';
+export * from './lib/chart-info-box/chart-info-box';
 export * from './lib/count-up/count-up';
 export * from './lib/countdown-cards/countdown-cards';
 export * from './lib/currency-img/currency-img';

@@ -40,11 +40,20 @@ export const ChartToolTip = (props: ChartToolTipProps) => {
         {chartToolTipData?.timestamp && (
           <Item
             sx={{
-              borderColor: 'transparent',
-              borderStyle: 'solid',
-              color: theme.palette.typography.main,
-              paddingLeft: '0px',
-              marginLeft: theme.spacing(0.5),
+              borderColor: chartToolTipData?.timestamp.lineColor
+                ? chartToolTipData?.timestamp.lineColor
+                : 'transparent',
+              borderStyle: chartToolTipData?.timestamp.lineType
+                ? chartToolTipData?.timestamp.lineType
+                : 'solid',
+              paddingLeft:
+                chartToolTipData?.timestamp.lineType === 'none'
+                  ? theme.spacing(0.5)
+                  : '',
+              marginLeft:
+                chartToolTipData?.timestamp.lineType === 'none'
+                  ? theme.spacing(0.5)
+                  : '',
               marginBottom: theme.spacing(2),
             }}
           >
@@ -103,7 +112,9 @@ const Item = styled(H5)(
   padding-left: 8px;
   span {
     color: ${theme.palette.typography.main};
+    margin-right: ${theme.spacing(1)};
   }
+  display: flex;
 `
 );
 
