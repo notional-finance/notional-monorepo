@@ -328,7 +328,7 @@ export const TradeConfiguration = {
     depositFilter: () => false,
     debtFilter: (t, a) =>
       (t.tokenType === 'fCash' ||
-        t.tokenType === 'PrimeCash' || // TODO: is this actually prime debt?
+        t.tokenType === 'PrimeDebt' ||
         t.tokenType === 'nToken') &&
       offsettingBalance(t, a, true),
     collateralFilter: (t, _, s) =>

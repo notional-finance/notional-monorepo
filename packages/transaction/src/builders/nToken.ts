@@ -39,8 +39,7 @@ export function ConvertCashToNToken({
   debtBalance,
 }: PopulateTransactionInputs) {
   if (!debtBalance) throw Error('debtBalance required');
-  // Debt balance should be in positive prime cash
-  if (!debtBalance.isPositive() || debtBalance.tokenType !== 'PrimeCash')
+  if (debtBalance.isPositive() || debtBalance.tokenType !== 'PrimeDebt')
     throw Error('Invalid debtBalance');
 
   return populateNotionalTxnAndGas(network, address, 'batchBalanceAction', [
@@ -48,7 +47,7 @@ export function ConvertCashToNToken({
     [
       getBalanceAction(
         DepositActionType.ConvertCashToNToken,
-        debtBalance,
+        debtBalance.toPrimeCash().neg(),
         // no deposits or redeems here
         false,
         undefined,

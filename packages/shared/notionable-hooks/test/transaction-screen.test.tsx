@@ -412,38 +412,38 @@ describe.withForkAndRegistry(
         tradeType: 'LendFixed',
         selectedDepositToken: 'ETH',
         collateral: `fETH:fixed@${maturity}`,
-        collateralAmount: 0.01,
+        depositAmount: 0.01,
       },
       {
         // Borrow Fixed with Cash
         tradeType: 'BorrowFixed',
         selectedDepositToken: 'ETH',
         debt: `fETH:fixed@${maturity}`,
-        debtAmount: -0.01,
+        depositAmount: -0.01,
       },
       {
         tradeType: 'Withdraw',
         selectedDepositToken: 'ETH',
-        debt: `pEther`,
-        debtAmount: -0.005,
+        debt: `pdEther`,
+        depositAmount: -0.005,
       },
       {
         tradeType: 'Withdraw',
         selectedDepositToken: 'ETH',
-        debt: `pEther`,
+        debt: `pdEther`,
         maxWithdraw: true,
       },
       {
         tradeType: 'ConvertAsset',
-        debt: `pEther`,
+        debt: `pdEther`,
         collateral: `fETH:fixed@${maturity2}`,
-        debtAmount: 0.01,
+        debtAmount: -0.01,
       },
       {
         tradeType: 'ConvertAsset',
-        debt: `pEther`,
+        debt: `pdEther`,
         collateral: `nETH`,
-        debtAmount: 0.01,
+        debtAmount: -0.01,
       },
     ].map(
       (c) =>
@@ -468,7 +468,7 @@ describe.withForkAndRegistry(
         tradeType: 'Withdraw',
         selectedDepositToken: 'ETH',
         debt: `nETH`,
-        debtAmount: -0.005,
+        depositAmount: -0.005,
       },
       {
         tradeType: 'Withdraw',
@@ -480,13 +480,13 @@ describe.withForkAndRegistry(
         tradeType: 'ConvertAsset',
         debt: `nETH`,
         collateral: `fETH:fixed@${maturity2}`,
-        debtAmount: 0.01,
+        debtAmount: -0.01,
       },
       {
         tradeType: 'ConvertAsset',
         debt: `nETH`,
         collateral: `pEther`,
-        debtAmount: 0.01,
+        debtAmount: -0.01,
       },
     ].map(
       (c) =>
@@ -512,7 +512,7 @@ describe.withForkAndRegistry(
         selectedDepositToken: 'ETH',
         collateral: `pEther`,
         enablePrimeBorrow: true,
-        collateralAmount: 0.005,
+        depositAmount: 0.005,
       },
       {
         tradeType: 'RepayDebt',
@@ -594,12 +594,12 @@ describe.withForkAndRegistry(
     );
 
     it.each([
-      // ...noInitDeposit,
-      // ...pCashDebt,
-      // ...fCashDebt,
-      // ...fCashLend,
+      ...noInitDeposit,
+      ...pCashDebt,
+      ...fCashDebt,
+      ...fCashLend,
       ...primeLend,
-      // ...nToken,
+      ...nToken,
     ])(
       '[$tradeType] $collateral ($depositAmount $selectedDepositToken)',
       runTest,

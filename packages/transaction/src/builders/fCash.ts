@@ -1,4 +1,3 @@
-import { TokenBalance } from '@notional-finance/core-entities';
 import {
   DepositActionType,
   getBalanceAction,
@@ -10,6 +9,7 @@ import {
   PopulateTransactionInputs,
 } from './common';
 import {
+  ConvertCashToNToken,
   ConvertfCashToNToken,
   MintNToken,
   RedeemAndWithdrawNToken,
@@ -21,6 +21,7 @@ import {
   MAX_UINT88,
 } from '@notional-finance/util';
 import { DeleverageNToken } from './Leveraged';
+import { TokenBalance } from '@notional-finance/core-entities';
 
 export function LendFixed({
   address,
@@ -384,7 +385,7 @@ export function ConvertAsset(i: PopulateTransactionInputs) {
     i.debtBalance?.tokenType === 'PrimeDebt' &&
     i.collateralBalance?.tokenType === 'nToken'
   ) {
-    return MintNToken(i);
+    return ConvertCashToNToken(i);
   }
 
   throw Error('Invalid debt balance');
