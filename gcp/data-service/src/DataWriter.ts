@@ -29,7 +29,7 @@ export class TokenBalanceDataWriter implements IDataWriter {
         })
       )
       .into(context.tableName)
-      .onConflict(['strategy_id', 'variable', 'network', 'timestamp']);
+      .onConflict(['token_address', 'network', 'timestamp']);
 
     if (context.mergeConflicts) {
       await query.merge();

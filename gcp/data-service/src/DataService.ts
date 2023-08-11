@@ -13,8 +13,6 @@ import {
   DataRow,
   MulticallConfig,
   MulticallOperation,
-  ProviderConfig,
-  ProviderOperation,
   SubgraphConfig,
   SubgraphOperation,
   TableName,
@@ -58,17 +56,11 @@ export default class DataService {
   public static readonly VAULT_ACCOUNTS_TABLE_NAME = 'vault_accounts';
   public static readonly WHITELISTED_VIEWS = 'whitelisted_views';
 
-  private providerFuncs: Record<string, any>;
-
   constructor(
     public provider: ethers.providers.Provider,
     public db: Knex,
     public settings: DataServiceSettings
-  ) {
-    this.providerFuncs = {
-      getBalance: provider.getBalance,
-    };
-  }
+  ) {}
 
   private getKeyByValue(object, value) {
     return Object.keys(object).find((key) => object[key] === value);
@@ -286,50 +278,6 @@ export default class DataService {
     });
   }
 
-  private async syncFromProvider(
-    dbData: Map<TableName, DataRow[]>,
-    network: Network,
-    ts: number,
-    operations: ProviderOperation[]
-  ) {
-    const blockNumber = await this.getBlockNumberFromTs(network, ts);
-    const results = await Promise.all(
-      operations.map((op) => {
-        const sourceConfig = op.configDef.sourceConfig as ProviderConfig;
-        const method = this.providerFuncs[sourceConfig.method];
-
-        if (!method) {
-          throw Error(`Invalid method ${sourceConfig.method}`);
-        }
-
-        const args = sourceConfig.args
-          ? sourceConfig.args.concat(blockNumber)
-          : [blockNumber];
-
-        return method.apply(this.provider, args);
-      })
-    );
-
-    operations.forEach((op, i) => {
-      let data = results[i];
-      if (!data) {
-        return;
-      }
-
-      let values = dbData.get(op.configDef.tableName);
-      if (!values) {
-        values = [];
-        dbData.set(op.configDef.tableName, values);
-      }
-      values.push({
-        dataConfig: op.configDef.dataConfig,
-        blockNumber: blockNumber,
-        networkId: this.networkToId(network),
-        value: data,
-      });
-    });
-  }
-
   public async syncGenericData(ts: number) {
     const operations = buildOperations(defaultConfigDefs);
     const dbData = new Map<TableName, DataRow[]>();
@@ -351,17 +299,6 @@ export default class DataService {
           network,
           ts,
           operations.subgraphCalls.get(network) || []
-        )
-      )
-    );
-
-    await Promise.all(
-      Array.from(operations.providerCalls.keys()).map((network) =>
-        this.syncFromProvider(
-          dbData,
-          network,
-          ts,
-          operations.providerCalls.get(network) || []
         )
       )
     );

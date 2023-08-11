@@ -6,6 +6,7 @@ import {
   BalancerStablePoolABI,
   ERC20ABI,
   IAggregatorABI,
+  Multicall3ABI,
 } from '@notional-finance/contracts';
 import { ethers } from 'ethers';
 import { Network } from '@notional-finance/util';
@@ -633,9 +634,11 @@ export const configDefs: ConfigDefinition[] = [
     network: Network.ArbitrumOne,
   },
   {
-    sourceType: SourceType.Provider,
+    sourceType: SourceType.Multicall,
     sourceConfig: {
-      method: 'getBalance',
+      contractAddress: '0xcA11bde05977b3631167028862bE2a173976CA11',
+      contractABI: Multicall3ABI,
+      method: 'getEthBalance',
       args: ['0x1344A36A1B56144C3Bc62E7757377D288fDE0369'],
     },
     tableName: TableName.GenericData,

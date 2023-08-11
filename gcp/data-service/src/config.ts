@@ -11,7 +11,6 @@ import {
   SubgraphOperation,
   SubgraphConfig,
   ProtocolName,
-  ProviderOperation,
 } from './types';
 import { GenericDataWriter, TokenBalanceDataWriter } from './DataWriter';
 import { readFileSync } from 'fs';
@@ -131,7 +130,6 @@ export function buildOperations(
 ): DataOperations {
   const aggregateCalls = new Map<Network, MulticallOperation[]>();
   const subgraphCalls = new Map<Network, SubgraphOperation[]>();
-  const providerCalls = new Map<Network, ProviderOperation[]>();
   configDefs.forEach((cfg) => {
     if (cfg.sourceType === SourceType.Multicall) {
       const configData = cfg.sourceConfig as MulticallConfig;
@@ -179,15 +177,6 @@ export function buildOperations(
         subgraphQuery: gql(query),
         endpoint: endpoint,
       });
-    } else if (cfg.sourceType === SourceType.Provider) {
-      let operations = providerCalls.get(cfg.network);
-      if (!operations) {
-        operations = [];
-        providerCalls.set(cfg.network, operations);
-      }
-      operations.push({
-        configDef: cfg,
-      });
     } else {
       throw Error('Invalid source type');
     }
@@ -196,6 +185,5 @@ export function buildOperations(
   return {
     aggregateCalls,
     subgraphCalls,
-    providerCalls,
   };
 }
