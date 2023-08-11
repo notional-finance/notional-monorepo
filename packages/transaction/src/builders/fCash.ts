@@ -112,13 +112,11 @@ export function BorrowVariable({
 export function BorrowFixed({
   address,
   network,
-  depositBalance,
   debtBalance,
   accountBalances,
   redeemToWETH,
 }: PopulateTransactionInputs) {
-  if (!depositBalance || !debtBalance)
-    throw Error('All balances must be defined');
+  if (!debtBalance) throw Error('Debt balance must be defined');
 
   // NOTE: this returns the direct FX'd prime cash amount which is probably wrong....
   const { withdrawAmountInternalPrecision, withdrawEntireCashBalance } =

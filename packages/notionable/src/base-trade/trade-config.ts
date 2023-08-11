@@ -180,58 +180,6 @@ export const TradeConfiguration = {
     transactionBuilder: BorrowFixed,
   } as TransactionConfig,
 
-  /**
-   * Specify:
-   * selectedDepositToken
-   * selectedCollateralToken
-   * debtBalance (in Underlying)
-   * depositBalance (for collateral)
-   * riskLimit
-   *
-   * Outputs:
-   * collateralBalance
-   *
-   * Notes:
-   * Need to redesign the borrow flow, there are multiple options here
-  BorrowWithCollateral: {
-    // NOTE: any debt (prime or fixed) can be specified and any collateral is
-    // also accepted:
-    // TODO: this might be multiple different configurations....
-    calculationFn: calculateDebtCollateralGivenDepositRiskLimit,
-    requiredArgs: [
-      'collateral',
-      'debt',
-      'collateralPool',
-      'debtPool',
-      'depositBalance',
-      'balances',
-      'riskFactorLimit',
-    ],
-    collateralFilter: (t, _a, s) =>
-      // Limit collateral options to the deposit currency
-      onlySameCurrency(t, s.deposit) && s?.debt?.tokenType === 'fCash'
-        ? // Exclude the matching fCash asset as the debt
-          !(
-            t.tokenType === 'fCash' &&
-            t.currencyId === s.debt.currencyId &&
-            t.maturity === s.debt.maturity
-          )
-        : true,
-    debtFilter: (t, _a, s) =>
-      s?.collateral?.tokenType === 'fCash'
-        ? // Exclude the matching fCash asset as the collateral
-          !(
-            t.tokenType === 'fCash' &&
-            t.currencyId === s.collateral.currencyId &&
-            t.maturity === s.collateral.maturity
-          )
-        : true,
-    calculateCollateralOptions: true,
-    calculateDebtOptions: true,
-    transactionBuilder: BorrowWithCollateral,
-  } as TransactionConfig,
-   */
-
   /***** Leveraged Yield Actions ******/
 
   /**
@@ -353,7 +301,7 @@ export const TradeConfiguration = {
   RepayDebt: {
     // Enter how much debt to repay, will calculate the cost
     calculationFn: calculateDeposit,
-    requiredArgs: ['depositUnderlying', 'collateralBalance', 'collateralPool'],
+    requiredArgs: ['deposit', 'collateralBalance', 'collateralPool'],
     depositFilter: (t, a, s) =>
       !!a?.balances.find((b) => b.isNegative()) &&
       onlySameCurrency(t, s.collateral),
@@ -364,79 +312,6 @@ export const TradeConfiguration = {
     debtFilter: () => false,
     transactionBuilder: RepayDebt,
   } as TransactionConfig,
-
-  /**
-   * Inputs:
-   * selectedDebtToken (nToken)
-   * debtBalance (nTokens to redeem)
-   *
-   * Outputs:
-   * depositBalance (cash to withdraw via nToken redeem)
-  RedeemAndWithdrawNToken: {
-    calculationFn: calculateDeposit,
-    requiredArgs: ['depositUnderlying', 'debtBalance', 'debtPool'],
-    depositFilter: (t, a, s) =>
-      !!a?.balances.find(
-        (b) =>
-          b.tokenType === 'nToken' &&
-          b.token.currencyId === t.currencyId &&
-          b.isPositive()
-      ) && onlySameCurrency(t, s.debt),
-    debtFilter: (t, a) =>
-      // Find the matching nToken balance
-      t.tokenType === 'nToken' && offsettingBalance(t, a),
-    collateralFilter: () => false,
-    transactionBuilder: RedeemAndWithdrawNToken,
-  } as TransactionConfig,
-   */
-
-  /**
-   * Inputs:
-   * selectedDebtToken (nToken)
-   * debtBalance (nTokens to redeem)
-   *
-   * Outputs:
-   * collateralBalance (cash to keep in portfolio via nToken redeem)
-  RedeemToPortfolioNToken: {
-    calculationFn: calculateCollateral,
-    requiredArgs: ['collateral', 'debtBalance', 'debtPool'],
-    collateralFilter: (t, a, s) =>
-      !!a?.balances.find(
-        (b) =>
-          b.tokenType === 'nToken' &&
-          b.token.currencyId === t.currencyId &&
-          b.isPositive()
-      ) && onlySameCurrency(t, s.debt),
-    debtFilter: (t, a) =>
-      // Find the matching nToken balance
-      t.tokenType === 'nToken' && offsettingBalance(t, a),
-    depositFilter: () => false,
-    transactionBuilder: RedeemToPortfolioNToken,
-  } as TransactionConfig,
-   */
-
-  /**
-   * Input:
-   * selectedDepositToken (i.e. token to withdraw)
-   * depositBalance (i.e. amount to withdraw)
-   *
-   * Output:
-   * debtBalance: (i.e. amount of prime cash to redeem)
-   *
-   * NOTE: this probably does not work as configured...
-  WithdrawCashAndNToken: {
-    // TODO: does this actually work? We need to test going from positive to negative
-    // balances here...
-    // TODO: also does not support redeem and withdraw from nToken
-    calculationFn: calculateDebt,
-    requiredArgs: ['depositUnderlying', 'depositBalance', 'debtPool'],
-    depositFilter: (t, _, s) => onlySameCurrency(t, s.debt),
-    debtFilter: (t, a) =>
-      // Find the matching prime cash amount
-      t.tokenType === 'PrimeDebt' && offsettingBalance(t, a),
-    collateralFilter: () => false,
-  },
-   */
 
   /**
    * Input:
@@ -482,7 +357,13 @@ export const TradeConfiguration = {
   RollDebt: {
     // User will input amount of debt fcash to repay (i.e. collateral balance) and we calculate new fcash debt
     calculationFn: calculateDebt,
-    requiredArgs: ['debt', 'collateralPool', 'debtPool', 'collateralBalance'],
+    requiredArgs: [
+      'debt',
+      'collateralPool',
+      'debtPool',
+      'collateral',
+      'collateralBalance',
+    ],
     depositFilter: () => false,
     collateralFilter: (t, a) =>
       (t.tokenType === 'fCash' || t.tokenType === 'PrimeCash') &&
