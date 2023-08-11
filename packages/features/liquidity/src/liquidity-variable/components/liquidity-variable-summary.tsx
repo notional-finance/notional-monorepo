@@ -1,7 +1,7 @@
 import { Box, useTheme } from '@mui/material';
 import { FaqHeader, Faq } from '@notional-finance/mui';
 import { TradeActionSummary } from '@notional-finance/trade';
-import { useLiquidityFaq } from '../hooks';
+import { useLiquidityFaq, useTotalsData } from '../hooks';
 import { FormattedMessage } from 'react-intl';
 import { useContext } from 'react';
 import { LiquidityContext } from '../liquidity-variable';
@@ -13,6 +13,7 @@ export const LiquidityVariableSummary = () => {
   const { selectedDepositToken } = state;
   const tokenSymbol = selectedDepositToken || '';
   const { faqs, faqHeaderLinks } = useLiquidityFaq(tokenSymbol);
+  useTotalsData();
 
   return (
     <TradeActionSummary state={state}>
