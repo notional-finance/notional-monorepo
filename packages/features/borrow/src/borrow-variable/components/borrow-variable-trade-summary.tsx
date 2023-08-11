@@ -26,10 +26,9 @@ export const BorrowVariableTradeSummary = () => {
     chartInfoBoxData,
     borrowUtilization,
   } = useInterestRateUtilizationChart(state.deposit?.currencyId);
-
   const { faqs, faqHeaderLinks } = useBorrowVariableFaq();
   const totalsData = useVariableTotals(state);
-  console.log({ borrowUtilization });
+
   return (
     <TradeActionSummary state={state}>
       <Box
