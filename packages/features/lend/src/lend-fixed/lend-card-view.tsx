@@ -3,8 +3,8 @@ import {
   useThemeVariant,
 } from '@notional-finance/notionable-hooks';
 import { PRODUCTS } from '@notional-finance/shared-config';
-import { CardContainer } from '@notional-finance/shared-web';
-import { CurrencyFixed, FeatureLoader } from '@notional-finance/mui';
+import { CardContainer, FeatureLoader } from '@notional-finance/shared-web';
+import { CurrencyFixed} from '@notional-finance/mui';
 import { ThemeProvider } from '@mui/material';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { defineMessage, FormattedMessage } from 'react-intl';

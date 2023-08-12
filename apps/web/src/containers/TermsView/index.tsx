@@ -1,5 +1,6 @@
 import { Box, useTheme } from '@mui/material';
-import { FeatureLoader, Paragraph } from '@notional-finance/mui';
+import { Paragraph } from '@notional-finance/mui';
+import { FeatureLoader } from '@notional-finance/shared-web';
 
 export const TermsView = () => {
   const terms = `NOTIONAL TERMS OF SERVICE

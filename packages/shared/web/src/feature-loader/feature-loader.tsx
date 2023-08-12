@@ -1,10 +1,9 @@
-import { ReactElement } from 'react';
 import { Box } from '@mui/material';
-import { PageLoading } from '../page-loading/page-loading';
+import { PageLoading } from '@notional-finance/mui';
 import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 
 interface FeatureLoaderProps {
-  children: ReactElement<any, any>;
+  children: React.ReactNode[] | React.ReactNode;
   featureLoaded?: boolean;
   backgroundColor?: string;
 }

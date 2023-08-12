@@ -1,6 +1,7 @@
 import { useTheme, Box } from '@mui/material';
-import { Paragraph, FeatureLoader } from '@notional-finance/mui';
+import { Paragraph } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
+import { FeatureLoader } from '@notional-finance/shared-web';
 
 export const PrivacyView = () => {
   const theme = useTheme();

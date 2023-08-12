@@ -3,7 +3,6 @@ import { styled, Box, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { colors } from '@notional-finance/styles';
 import {
-  FeatureLoader,
   H1,
   ButtonBar,
   DataTable,
@@ -15,6 +14,7 @@ import {
   useMarketsTable,
   useMarketTableDropdowns,
 } from './hooks';
+import { FeatureLoader } from '@notional-finance/shared-web';
 
 export const Markets = () => {
   const theme = useTheme();

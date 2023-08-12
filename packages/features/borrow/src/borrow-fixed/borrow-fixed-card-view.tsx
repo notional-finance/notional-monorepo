@@ -1,6 +1,6 @@
 import { PRODUCTS } from '@notional-finance/shared-config';
-import { CardContainer } from '@notional-finance/shared-web';
-import { CurrencyFixed, FeatureLoader } from '@notional-finance/mui';
+import { CardContainer, FeatureLoader } from '@notional-finance/shared-web';
+import { CurrencyFixed } from '@notional-finance/mui';
 import {
   useAllMarkets,
   useThemeVariant,

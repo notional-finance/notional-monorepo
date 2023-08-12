@@ -12,10 +12,13 @@ import {
   JoinOurCommunity,
 } from './components';
 import { useNotionalTheme, colors } from '@notional-finance/styles';
-import { Header, LaunchAppButton } from '@notional-finance/shared-web';
-import { EmailCaptureSection } from '@notional-finance/shared-web';
-import { LandingFooter } from '@notional-finance/shared-web';
-import { FeatureLoader } from '@notional-finance/mui';
+import {
+  Header,
+  LaunchAppButton,
+  EmailCaptureSection,
+  LandingFooter,
+  FeatureLoader,
+} from '@notional-finance/shared-web';
 
 export const LandingPageView = () => {
   const theme = useNotionalTheme(THEME_VARIANTS.DARK, 'landing');

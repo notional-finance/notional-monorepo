@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Box, styled } from '@mui/material';
 import { useNotionalContext } from '@notional-finance/notionable-hooks';
 import { useParams } from 'react-router-dom';
-import { SideDrawer, FeatureLoader } from '@notional-finance/mui';
+import { SideDrawer } from '@notional-finance/mui';
 import { usePortfolioSideDrawers } from './hooks';
 import {
   SideNav,
@@ -21,6 +21,7 @@ import {
   PORTFOLIO_ACTIONS,
   PORTFOLIO_CATEGORIES,
 } from '@notional-finance/shared-config';
+import { FeatureLoader } from '@notional-finance/shared-web';
 
 export interface PortfolioParams {
   category?: PORTFOLIO_CATEGORIES;
