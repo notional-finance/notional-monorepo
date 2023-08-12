@@ -2,10 +2,9 @@ import { PortfolioSideDrawer } from './components/portfolio-side-drawer';
 import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
 import { PortfolioHoldingSelect, DepositInput } from '@notional-finance/trade';
 import { messages } from './messages';
-import { useTradeContext } from '@notional-finance/notionable-hooks';
+import { useTradeContext, useMaxRepay } from '@notional-finance/notionable-hooks';
 import { useParams } from 'react-router';
 import { PortfolioParams } from '@notional-finance/side-drawer';
-import { useMaxRepay } from './hooks/use-max-repay';
 
 export const RepayDebt = () => {
   const context = useTradeContext('RepayDebt');
