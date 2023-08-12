@@ -1,4 +1,4 @@
-import { TokenApproval } from '@notional-finance/mui';
+import TokenApproval from './token-approval';
 import { Box, useTheme } from '@mui/material';
 import { useAccountReady } from '@notional-finance/notionable-hooks';
 import { useTokenApproval } from './use-token-approval';

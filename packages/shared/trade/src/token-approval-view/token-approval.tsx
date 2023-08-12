@@ -1,10 +1,9 @@
 import { Box, CircularProgress, useTheme } from '@mui/material';
 import { TokenIcon } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
-import Switch from '../switch/switch';
 import CheckCircle from '@mui/icons-material/CheckCircle';
-import { Label, LabelValue } from '../typography/typography';
 import { TransactionStatus } from '@notional-finance/notionable-hooks';
+import { Label, LabelValue, Switch } from '@notional-finance/mui';
 
 export interface TokenApprovalProps {
   symbol: string;
@@ -14,7 +13,7 @@ export interface TokenApprovalProps {
   onChange: () => void;
 }
 
-export function TokenApproval({
+function TokenApproval({
   symbol,
   onChange,
   approved,
