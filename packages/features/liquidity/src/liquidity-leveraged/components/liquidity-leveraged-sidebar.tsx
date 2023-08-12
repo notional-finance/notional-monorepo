@@ -4,6 +4,7 @@ import {
   VariableFixedMaturityToggle,
   LeverageSlider,
   TransactionSidebar,
+  EnablePrimeBorrow,
 } from '@notional-finance/trade';
 import { useHistory } from 'react-router-dom';
 import { useCurrencyInputRef } from '@notional-finance/mui';
@@ -13,8 +14,10 @@ import { PRODUCTS } from '@notional-finance/shared-config';
 
 export const LiquidityLeveragedSidebar = () => {
   const history = useHistory();
-  const context  = useContext(LeveragedLiquidityContext);
-  const { state: { selectedDepositToken } } = context
+  const context = useContext(LeveragedLiquidityContext);
+  const {
+    state: { selectedDepositToken, debt },
+  } = context;
   const { currencyInputRef } = useCurrencyInputRef();
 
   const handleLeverUpToggle = useCallback(() => {
@@ -45,6 +48,7 @@ export const LiquidityLeveragedSidebar = () => {
           description: 'input label',
         })}
       />
+      {debt?.tokenType === 'PrimeDebt' && <EnablePrimeBorrow />}
     </TransactionSidebar>
   );
 };
