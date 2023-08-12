@@ -360,12 +360,23 @@ export function postVaultAccountRisk(
     map(
       ([
         account,
-        { calculationSuccess, collateralBalance, debtBalance, vaultAddress },
+        {
+          calculationSuccess,
+          collateralBalance,
+          debtBalance,
+          vaultAddress,
+          tradeType,
+        },
       ]) => {
         if (calculationSuccess && vaultAddress && collateralBalance) {
           const profile = VaultAccountRiskProfile.simulate(
             vaultAddress,
-            account?.balances.filter((t) => t.tokenType !== 'Underlying') || [],
+            account?.balances.filter((t) =>
+              // During a roll vault position, new debt and collateral will be specified
+              tradeType === 'RollVaultPosition'
+                ? false
+                : t.vaultAddress === vaultAddress
+            ) || [],
             [collateralBalance, debtBalance].filter(
               (b) => b !== undefined
             ) as TokenBalance[]

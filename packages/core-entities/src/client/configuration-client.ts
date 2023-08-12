@@ -112,6 +112,7 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
       return {
         cashBorrowed,
         vaultFee: cashBorrowed.copy(0),
+        feeRate: RATE_PRECISION
       };
     }
 
@@ -126,6 +127,7 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
     return {
       cashBorrowed: cashBorrowed.sub(vaultFee),
       vaultFee,
+      feeRate,
     };
   }
 

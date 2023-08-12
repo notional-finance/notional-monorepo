@@ -21,6 +21,7 @@ interface DepositInputProps {
   errorMsgOverride?: MessageDescriptor;
   inputRef: React.RefObject<CurrencyInputHandle>;
   isWithdraw?: boolean;
+  useZeroDefault?: boolean;
 }
 
 /**
@@ -42,6 +43,7 @@ export const DepositInput = React.forwardRef<
       inputRef,
       errorMsgOverride,
       isWithdraw,
+      useZeroDefault,
     },
     ref
   ) => {
@@ -61,7 +63,7 @@ export const DepositInput = React.forwardRef<
       errorMsg,
       decimalPlaces,
       setInputString,
-    } = useDepositInput(selectedDepositToken, isWithdraw);
+    } = useDepositInput(selectedDepositToken, isWithdraw, useZeroDefault);
 
     useEffect(() => {
       updateState({

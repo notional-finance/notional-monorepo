@@ -170,7 +170,9 @@ export class SingleSidedLP extends VaultAdapter {
       ['tuple(uint256 minLPTokens, bytes tradeData) d'],
       [
         {
-          minLPTokens: minLPTokens.n,
+          // Floor min lp tokens at zero
+          minLPTokens:
+            minLPTokens.toFloat() > 0.0001 ? minLPTokens.n : BigNumber.from(0),
           tradeData: '0x',
         },
       ]

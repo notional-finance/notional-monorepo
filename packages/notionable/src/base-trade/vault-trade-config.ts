@@ -6,9 +6,9 @@ import {
   EnterVault,
   ExitVault,
   RollVault,
-  calculateVaultDebt,
   calculateVaultDebtCollateralGivenDepositRiskLimit,
   calculateVaultDeposit,
+  calculateVaultRoll,
 } from '@notional-finance/transaction';
 import {
   getMarketIndexForMaturity,
@@ -152,8 +152,14 @@ export const VaultTradeConfiguration = {
    * debtBalance (i.e. new debt amount held)
    */
   RollVaultPosition: {
-    calculationFn: calculateVaultDebt,
-    requiredArgs: ['collateral', 'depositBalance', 'vaultAdapter', 'debtPool'],
+    calculationFn: calculateVaultRoll,
+    requiredArgs: [
+      'debt',
+      'vaultAdapter',
+      'debtPool',
+      'balances',
+      'depositBalance',
+    ],
     collateralFilter: (t, _, s: VaultTradeState) =>
       t.tokenType === 'VaultShare' &&
       t.vaultAddress === s.vaultAddress &&

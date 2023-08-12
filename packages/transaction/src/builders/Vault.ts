@@ -4,6 +4,7 @@ import {
   BASIS_POINT,
   INTERNAL_TOKEN_DECIMALS,
   PRIME_CASH_VAULT_MATURITY,
+  RATE_PRECISION,
 } from '@notional-finance/util';
 import {
   Registry,
@@ -142,7 +143,8 @@ export function ExitVault({
     collateralBalance?.tokenType !== 'VaultShare' ||
     debtBalance?.tokenType !== 'VaultDebt' ||
     debtBalance?.token.vaultAddress !== collateralBalance.token.vaultAddress ||
-    !collateralBalance.isNegative()
+    collateralBalance.isPositive() ||
+    debtBalance.isNegative()
   )
     throw Error('Collateral balance, debt balance must be defined');
 
@@ -224,8 +226,8 @@ export function RollVault({
 
   const debtBalanceNum =
     debtBalance.maturity === PRIME_CASH_VAULT_MATURITY
-      ? debtBalance.toUnderlying().n
-      : debtBalance.n;
+      ? debtBalance.toUnderlying().neg().n
+      : debtBalance.neg().n;
 
   const vaultAdapter = Registry.getVaultRegistry().getVaultAdapter(
     network,
@@ -235,13 +237,14 @@ export function RollVault({
   const vaultData = vaultAdapter.getDepositParameters(
     address,
     debtBalance.maturity,
-    amountBorrowed.add(depositBalance).sub(costToRepay)
+    amountBorrowed.add(depositBalance).add(costToRepay)
   );
 
   return populateNotionalTxnAndGas(network, address, 'rollVaultPosition', [
     address,
     vaultAddress,
-    debtBalanceNum,
+    // Scale up the debt balance slightly to ensure that the transaction goes through
+    debtBalanceNum.mul(RATE_PRECISION + 0.1 * BASIS_POINT).div(RATE_PRECISION),
     debtBalance.maturity,
     depositBalance?.n || TokenBalance.zero(debtBalance.underlying),
     minLendRate,
