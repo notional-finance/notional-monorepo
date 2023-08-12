@@ -113,7 +113,7 @@ export class SingleSidedLP extends VaultAdapter {
         netVaultSharesForUnderlying: this.getLPTokensToVaultShares(
           lpTokens,
           vaultShare
-        ),
+        ).neg(),
       };
     }
   }

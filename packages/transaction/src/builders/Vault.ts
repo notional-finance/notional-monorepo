@@ -161,7 +161,10 @@ export function ExitVault({
     // Clears the entire debt balance using max uint256
     if (matchingBalance.add(debtBalance).isZero())
       debtBalanceNum = ethers.constants.MaxUint256;
-    else debtBalanceNum = debtBalance.toUnderlying().n;
+    else
+      debtBalanceNum = debtBalance
+        .toUnderlying()
+        .scaleTo(INTERNAL_TOKEN_DECIMALS);
   } else {
     debtBalanceNum = debtBalance.n;
   }

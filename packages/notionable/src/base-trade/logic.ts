@@ -375,7 +375,7 @@ export function postVaultAccountRisk(
               // During a roll vault position, new debt and collateral will be specified
               tradeType === 'RollVaultPosition'
                 ? false
-                : t.vaultAddress === vaultAddress
+                : t.isVaultToken && t.vaultAddress === vaultAddress
             ) || [],
             [collateralBalance, debtBalance].filter(
               (b) => b !== undefined
@@ -469,11 +469,25 @@ export function defaultLeverageRatio(
     withLatestFrom(selectedNetwork$),
     map(([s, network]) => {
       if (s.vaultAddress) {
-        // Return from the configuration registry directly
-        return Registry.getConfigurationRegistry().getVaultLeverageFactors(
-          network,
-          s.vaultAddress
-        );
+        const leverageFactors =
+          Registry.getConfigurationRegistry().getVaultLeverageFactors(
+            network,
+            s.vaultAddress
+          );
+        if (s.tradeType === 'CreateVaultPosition') {
+          // Return from the configuration registry directly
+          return leverageFactors;
+        } else if (
+          (s.tradeType === 'IncreaseVaultPosition' ||
+            s.tradeType === 'WithdrawAndRepayVault') &&
+          !!(s as VaultTradeState).priorAccountRisk
+        ) {
+          return {
+            ...leverageFactors,
+            defaultLeverageRatio:
+              (s as VaultTradeState).priorAccountRisk?.leverageRatio || 0,
+          };
+        }
       }
 
       if (s.deposit === undefined) return undefined;

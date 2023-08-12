@@ -755,9 +755,11 @@ export function calculateVaultCollateral({
       localDebtPrime
     );
 
-  const netRealizedCollateralBalance = (
-    depositBalance || cashBorrowed.toUnderlying().copy(0)
-  ).add(cashBorrowed.toUnderlying());
+  const netRealizedCollateralBalance = debtBalance.isNegative()
+    ? (depositBalance || cashBorrowed.toUnderlying().copy(0)).add(
+        cashBorrowed.toUnderlying()
+      )
+    : localDebtPrime.toUnderlying().neg();
 
   // This value accounts for slippage...
   const { netVaultSharesForUnderlying, feesPaid } =
@@ -768,7 +770,9 @@ export function calculateVaultCollateral({
 
   return {
     collateralBalance: netVaultSharesForUnderlying,
-    debtFee: debtFee.add(vaultFee),
+    debtFee: debtFee.add(
+      debtBalance.isNegative() ? vaultFee : vaultFee.copy(0)
+    ),
     collateralFee: feesPaid,
     netRealizedCollateralBalance,
     netRealizedDebtBalance: cashBorrowed.neg().toUnderlying(),
