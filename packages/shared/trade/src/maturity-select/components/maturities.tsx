@@ -1,8 +1,8 @@
-import { MaturityCard } from '../maturity-card/maturity-card';
 import { Box, useTheme } from '@mui/material';
-import { InputLabel } from '../input-label/input-label';
 import { MessageDescriptor } from 'react-intl';
 import { MaturityData } from '@notional-finance/notionable-hooks';
+import { InputLabel } from '@notional-finance/mui';
+import MaturityCard from './maturity-card';
 
 export interface MaturitiesProps {
   maturityData: MaturityData[];

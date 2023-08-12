@@ -35,8 +35,6 @@ export * from './lib/interactive-area-chart/interactive-area-chart';
 export * from './lib/lever-up-toggle/lever-up-toggle';
 export * from './lib/hooks/use-window-dimensions/use-window-dimensions';
 export * from './lib/labeled-text/labeled-text';
-export * from './lib/maturity-card/maturity-card';
-export * from './lib/maturities/maturities';
 export * from './lib/mini-button/mini-button';
 export * from './lib/multi-select-dropdown/multi-select-dropdown';
 export * from './lib/page-loading/page-loading';

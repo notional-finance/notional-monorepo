@@ -3,11 +3,11 @@ import {
   InputLabel,
   Label,
   LabelValue,
-  Maturities,
   TabToggle,
   CountUp,
 } from '@notional-finance/mui';
 import { BaseTradeContext } from '@notional-finance/notionable-hooks';
+import { Maturities } from './components/maturities';
 import { useEffect, useState } from 'react';
 import { useMaturitySelect } from './use-maturity-select';
 import { FormattedMessage, MessageDescriptor, defineMessage } from 'react-intl';

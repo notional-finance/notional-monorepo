@@ -1,12 +1,11 @@
 import { Box, styled, useTheme } from '@mui/material';
 import { SwapVerticalIcon } from '@notional-finance/icons';
+import { H5, InputLabel } from '@notional-finance/mui';
 import {
-  H5,
-  InputLabel,
+  useMaturitySelect,
   Maturities,
   MaturityCard,
-} from '@notional-finance/mui';
-import { useMaturitySelect } from '@notional-finance/trade';
+} from '@notional-finance/trade';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FormattedMessage, defineMessage } from 'react-intl';
 import {

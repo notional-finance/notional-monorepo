@@ -8,6 +8,8 @@ export * from './deposit-input/deposit-input';
 export * from './maturity-select/maturity-select';
 export * from './maturity-select/variable-fixed-maturity-toggle';
 export * from './maturity-select/use-maturity-select';
+export * from './maturity-select/components/maturities';
+export * from './maturity-select/components/maturity-card';
 export * from './enable-prime-borrow/enable-prime-borrow';
 export * from './enable-prime-borrow/use-enable-prime-borrow';
 export * from './collateral-select/collateral-select';

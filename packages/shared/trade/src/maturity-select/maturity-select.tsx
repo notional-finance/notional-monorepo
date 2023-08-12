@@ -1,4 +1,4 @@
-import { Maturities } from '@notional-finance/mui';
+import { Maturities } from './components/maturities';
 import { MessageDescriptor } from 'react-intl';
 import { useMaturitySelect } from './use-maturity-select';
 import { BaseTradeContext } from '@notional-finance/notionable-hooks';
