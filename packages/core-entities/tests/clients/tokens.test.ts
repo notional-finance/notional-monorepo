@@ -139,7 +139,7 @@ describe.withRegistry(
       it('can convert prime cash to underlying tokens', () => {
         const peth = tokens.parseInputToTokenBalance(
           '1',
-          'pEther',
+          'pETH',
           Network.ArbitrumOne
         );
 
@@ -198,7 +198,7 @@ describe.withRegistry(
       it('can convert prime cash to fiat currency', () => {
         const pusdc = tokens.parseInputToTokenBalance(
           '1',
-          'pUSD Coin',
+          'pUSDC',
           Network.ArbitrumOne
         );
 

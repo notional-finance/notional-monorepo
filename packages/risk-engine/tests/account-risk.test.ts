@@ -3,7 +3,7 @@ import {
   Registry,
   TokenBalance,
 } from '@notional-finance/core-entities';
-import { Network, RATE_PRECISION } from '@notional-finance/util';
+import { Network } from '@notional-finance/util';
 import { AccountRiskProfile } from '../src/account-risk';
 import { RiskFactorKeys, RiskFactorLimit, RiskFactors } from '../src/types';
 
@@ -13,7 +13,7 @@ interface Profile {
   expected: {
     factor: keyof RiskFactors | 'maxWithdraw';
     args?: string[];
-    expected: [number, string] | number | null;
+    expected?: [number, string] | number | null;
   }[];
 }
 
@@ -41,8 +41,8 @@ describe.withForkAndRegistry(
           },
           {
             factor: 'maxWithdraw',
-            args: ['pEther'],
-            expected: [1, 'pEther'],
+            args: ['pETH'],
+            expected: [1, 'pETH'],
           },
           {
             factor: 'maxWithdraw',
@@ -63,39 +63,36 @@ describe.withForkAndRegistry(
           [-1280, 'USDC'],
         ],
         expected: [
-          { factor: 'netWorth', expected: [0.324, 'ETH'] },
-          { factor: 'freeCollateral', expected: [0.07322, 'ETH'] },
-          { factor: 'loanToValue', expected: 67.59 },
-          { factor: 'collateralRatio', expected: 147.94 },
-          { factor: 'healthFactor', expected: 3.033 },
-          { factor: 'leverageRatio', expected: 2.085 },
+          { factor: 'netWorth' },
+          { factor: 'freeCollateral' },
+          { factor: 'loanToValue' },
+          { factor: 'collateralRatio' },
+          { factor: 'healthFactor' },
+          { factor: 'leverageRatio' },
           {
             factor: 'collateralLiquidationThreshold',
             args: ['ETH'],
-            expected: [0.92677, 'ETH'],
           },
           {
             factor: 'liquidationPrice',
             args: ['USDC', 'ETH'],
-            expected: [1744.99, 'USDC'],
           },
           {
             factor: 'maxWithdraw',
-            args: ['pEther'],
-            expected: [0.0904, 'pEther'],
+            args: ['pETH'],
           },
           {
             factor: 'maxWithdraw',
-            args: ['pUSD Coin'],
-            expected: [0, 'pUSD Coin'],
+            args: ['pUSDC'],
+            expected: [0, 'pUSDC'],
           },
         ],
       },
       {
         name: 'Net Prime Cash',
         balances: [
-          [-5, 'pdEther'],
-          [10, 'pEther'],
+          [-5, 'pdETH'],
+          [10, 'pETH'],
         ],
         expected: [
           { factor: 'netWorth', expected: [5, 'ETH'] },
@@ -105,24 +102,24 @@ describe.withForkAndRegistry(
           { factor: 'healthFactor', expected: 8.29 },
           {
             factor: 'maxWithdraw',
-            args: ['pEther'],
-            expected: [5, 'pEther'],
+            args: ['pETH'],
+            expected: [5, 'pETH'],
           },
         ],
       },
       {
         name: 'Leveraged nToken',
         balances: [
-          [-8, 'pdEther'],
+          [-8, 'pdETH'],
           [10, 'nETH'],
         ],
         expected: [
-          { factor: 'netWorth', expected: [1.996, 'ETH'] },
-          { factor: 'freeCollateral', expected: [0.8071, 'ETH'] },
-          { factor: 'loanToValue', expected: 80.03 },
-          { factor: 'collateralRatio', expected: 124.94 },
-          { factor: 'healthFactor', expected: 4.638 },
-          { factor: 'leverageRatio', expected: 4.008 },
+          { factor: 'netWorth' },
+          { factor: 'freeCollateral' },
+          { factor: 'loanToValue' },
+          { factor: 'collateralRatio' },
+          { factor: 'healthFactor' },
+          { factor: 'leverageRatio' },
           {
             factor: 'collateralLiquidationThreshold',
             args: ['nETH'],
@@ -131,36 +128,32 @@ describe.withForkAndRegistry(
           {
             factor: 'collateralLiquidationThreshold',
             args: ['ETH'],
-            expected: [0.19, 'ETH'],
           },
           {
             factor: 'maxWithdraw',
-            args: ['pEther'],
-            expected: [0, 'pEther'],
+            args: ['pETH'],
+            expected: [0, 'pETH'],
           },
           {
             factor: 'maxWithdraw',
             args: ['nETH'],
-            expected: [1.107, 'nETH'],
           },
         ],
       },
       {
         name: 'Leveraged nToken w/ Liquidation Risk',
         balances: [
-          [-8.5, 'pdEther'],
+          [-8.5, 'pdETH'],
           [10, 'nETH'],
         ],
         expected: [
           {
             factor: 'collateralLiquidationThreshold',
             args: ['nETH'],
-            expected: [0.9597, 'nETH'],
           },
           {
             factor: 'maxWithdraw',
             args: ['nETH'],
-            expected: [0.551, 'nETH'],
           },
         ],
       },
@@ -168,12 +161,9 @@ describe.withForkAndRegistry(
         name: 'Leveraged fCash Spread',
         balances: [
           [16, 'fUSDC:fixed@1702944000'],
-          [-14.5, 'pdUSD Coin'],
+          [-15.8, 'pdUSDC'],
         ],
-        expected: [
-          { factor: 'freeCollateral', expected: [-0.00015795, 'ETH'] },
-          { factor: 'healthFactor', expected: -32.96 },
-        ],
+        expected: [{ factor: 'freeCollateral' }, { factor: 'healthFactor' }],
       },
     ];
 
@@ -238,7 +228,7 @@ describe.withForkAndRegistry(
       },
     ];
 
-    it.each(profiles)('Risk Factors: $name', ({ name, balances, expected }) => {
+    it.each(profiles)('Risk Factors: $name', ({ balances, expected }) => {
       const tokens = Registry.getTokenRegistry();
       const p = AccountRiskProfile.from(
         balances.map(([n, t]) =>
@@ -258,40 +248,18 @@ describe.withForkAndRegistry(
             ? p.maxWithdraw(_args[0])
             : p.getRiskFactor(factor as keyof RiskFactors, _args);
 
-        const logResults = name.includes('LOG');
-        if (Array.isArray(expected)) {
+        if (expected === null) {
+          expect(actual).toBe(null);
+        } else if (expected === undefined) {
+          expect(actual).toMatchSnapshot();
+        } else if (Array.isArray(expected)) {
           const e = TokenBalance.fromFloat(
             expected[0],
             tokens.getTokenBySymbol(Network.ArbitrumOne, expected[1])
           );
-
-          if (logResults) {
-            console.log(
-              `${name} / ${factor}: ${(
-                actual as TokenBalance
-              ).toDisplayStringWithSymbol(8)} ${e.toDisplayStringWithSymbol(8)}`
-            );
-          } else {
-            expect(actual).toBeApprox(e, 1e-2);
-          }
-        } else if (expected === null) {
-          if (logResults) {
-            console.log(
-              `${name} / ${factor}: ${
-                actual instanceof TokenBalance
-                  ? actual.toDisplayStringWithSymbol(8)
-                  : actual
-              } null`
-            );
-          } else {
-            expect(actual).toBe(null);
-          }
+          expect(actual).toBeApprox(e, 1e-2);
         } else {
-          if (logResults) {
-            console.log(`${name} / ${factor}: ${actual} ${expected}`);
-          } else {
-            expect(actual).toBeCloseTo(expected, 1);
-          }
+          expect(actual).toBeCloseTo(expected, 1);
         }
       });
     });

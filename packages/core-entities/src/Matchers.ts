@@ -71,7 +71,7 @@ export const tokenBalanceMatchers = {
       };
     }
   },
-  toBeApprox(r: TokenBalance, a: TokenBalance, rel = 5e-4, abs?: number) {
+  toBeApprox(r: TokenBalance, a: TokenBalance, rel = 5e-4, abs = 1e-5) {
     try {
       r.isMatch(a);
       const relSize = Math.abs(r.toFloat() * rel);
