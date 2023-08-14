@@ -1811,8 +1811,9 @@ enum OracleType {
   fCashToUnderlyingExchangeRate
   fCashSpotRate
   PrimeCashToUnderlyingOracleInterestRate
-  PrimeCashSpotInterestRate
-  PrimeDebtSpotInterestRate
+  PrimeCashPremiumInterestRate
+  PrimeDebtPremiumInterestRate
+  PrimeCashExternalLendingInterestRate
   PrimeCashToUnderlyingExchangeRate
   PrimeCashToMoneyMarketExchangeRate
   PrimeDebtToUnderlyingExchangeRate
@@ -2065,10 +2066,12 @@ type PrimeCashMarketSnapshot {
   debtScalar: BigInt!
   """Snapshot value of the underlying scalar"""
   underlyingScalar: BigInt!
-  """Spot prime cash interest rate"""
-  supplyInterestRate: Int
-  """Spot prime debt interest rate"""
-  debtInterestRate: Int
+  """Prime cash premium interest rate"""
+  supplyInterestRate: BigInt
+  """Prime debt premium interest rate"""
+  debtInterestRate: BigInt
+  """External lending interest rate"""
+  externalLendingRate: BigInt
 }
 
 input PrimeCashMarketSnapshot_filter {
@@ -2202,22 +2205,30 @@ input PrimeCashMarketSnapshot_filter {
   underlyingScalar_lte: BigInt
   underlyingScalar_in: [BigInt!]
   underlyingScalar_not_in: [BigInt!]
-  supplyInterestRate: Int
-  supplyInterestRate_not: Int
-  supplyInterestRate_gt: Int
-  supplyInterestRate_lt: Int
-  supplyInterestRate_gte: Int
-  supplyInterestRate_lte: Int
-  supplyInterestRate_in: [Int!]
-  supplyInterestRate_not_in: [Int!]
-  debtInterestRate: Int
-  debtInterestRate_not: Int
-  debtInterestRate_gt: Int
-  debtInterestRate_lt: Int
-  debtInterestRate_gte: Int
-  debtInterestRate_lte: Int
-  debtInterestRate_in: [Int!]
-  debtInterestRate_not_in: [Int!]
+  supplyInterestRate: BigInt
+  supplyInterestRate_not: BigInt
+  supplyInterestRate_gt: BigInt
+  supplyInterestRate_lt: BigInt
+  supplyInterestRate_gte: BigInt
+  supplyInterestRate_lte: BigInt
+  supplyInterestRate_in: [BigInt!]
+  supplyInterestRate_not_in: [BigInt!]
+  debtInterestRate: BigInt
+  debtInterestRate_not: BigInt
+  debtInterestRate_gt: BigInt
+  debtInterestRate_lt: BigInt
+  debtInterestRate_gte: BigInt
+  debtInterestRate_lte: BigInt
+  debtInterestRate_in: [BigInt!]
+  debtInterestRate_not_in: [BigInt!]
+  externalLendingRate: BigInt
+  externalLendingRate_not: BigInt
+  externalLendingRate_gt: BigInt
+  externalLendingRate_lt: BigInt
+  externalLendingRate_gte: BigInt
+  externalLendingRate_lte: BigInt
+  externalLendingRate_in: [BigInt!]
+  externalLendingRate_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: BlockChangedFilter
   and: [PrimeCashMarketSnapshot_filter]
@@ -2248,6 +2259,7 @@ enum PrimeCashMarketSnapshot_orderBy {
   underlyingScalar
   supplyInterestRate
   debtInterestRate
+  externalLendingRate
 }
 
 input PrimeCashMarket_filter {
@@ -2474,6 +2486,7 @@ enum PrimeCashMarket_orderBy {
   current__underlyingScalar
   current__supplyInterestRate
   current__debtInterestRate
+  current__externalLendingRate
   snapshots
 }
 
