@@ -1,10 +1,11 @@
 import { Box, styled, useTheme } from '@mui/material';
 import { SwapVerticalIcon } from '@notional-finance/icons';
-import { H5, InputLabel } from '@notional-finance/mui';
+import { ErrorMessage, H5, InputLabel } from '@notional-finance/mui';
 import {
   useMaturitySelect,
   Maturities,
   MaturityCard,
+  tradeErrors,
 } from '@notional-finance/trade';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FormattedMessage, defineMessage } from 'react-intl';
@@ -120,6 +121,10 @@ export function LeveragedLendMaturitySelector({
     (m) => m.maturity === 0
   )?.tradeRate;
 
+  const hasFixedRateLiquidity = isDebtVariable
+    ? !!collateralMaturityData.find((m) => m.tradeRate !== undefined)
+    : debtMaturityData.find((m) => m.tradeRate !== undefined);
+
   return (
     <Container>
       <InputLabel
@@ -179,6 +184,19 @@ export function LeveragedLendMaturitySelector({
           />
         )}
       </SelectorBox>
+      {!hasFixedRateLiquidity && (
+        <ErrorMessage
+          variant="info"
+          title={
+            <FormattedMessage {...tradeErrors.insufficientFixedRateLiquidity} />
+          }
+          message={
+            <FormattedMessage
+              {...tradeErrors.insufficientFixedRateLiquidityMsg}
+            />
+          }
+        />
+      )}
     </Container>
   );
 }

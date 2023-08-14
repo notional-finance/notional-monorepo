@@ -5,6 +5,7 @@ import {
   LabelValue,
   TabToggle,
   CountUp,
+  ErrorMessage,
 } from '@notional-finance/mui';
 import { BaseTradeContext } from '@notional-finance/notionable-hooks';
 import { Maturities } from './components/maturities';
@@ -16,6 +17,7 @@ import {
   RATE_PRECISION,
   formatInterestRate,
 } from '@notional-finance/util';
+import { tradeErrors } from '../tradeErrors';
 
 interface ToggleMaturitySelectProps {
   context: BaseTradeContext;
@@ -160,12 +162,29 @@ export function VariableFixedMaturityToggle({
         tabLabels={[VariableRateLabel, FixedRateLabel]}
         tabPanels={[
           <Box />,
-          <Maturities
-            maturityData={fixedMaturities}
-            selectedfCashId={selectedfCashId}
-            onSelect={onSelect}
-            inputLabel={fCashInputLabel}
-          />,
+          <Box>
+            <Maturities
+              maturityData={fixedMaturities}
+              selectedfCashId={selectedfCashId}
+              onSelect={onSelect}
+              inputLabel={fCashInputLabel}
+            />
+            {lowestFixedRate === undefined && (
+              <ErrorMessage
+                variant="info"
+                title={
+                  <FormattedMessage
+                    {...tradeErrors.insufficientFixedRateLiquidity}
+                  />
+                }
+                message={
+                  <FormattedMessage
+                    {...tradeErrors.insufficientFixedRateLiquidityMsg}
+                  />
+                }
+              />
+            )}
+          </Box>,
         ]}
         selectedTabIndex={selectedTabIndex}
         onChange={(_, v) => {
