@@ -1,6 +1,6 @@
 import { TransactionReceipt } from '@ethersproject/providers';
 import { trackEvent } from '@notional-finance/helpers';
-import { filterEmpty } from '@notional-finance/util';
+import { filterEmpty, logError } from '@notional-finance/util';
 import { PopulatedTransaction } from 'ethers';
 import { useObservable, useSubscription } from 'observable-hooks';
 import { useCallback, useEffect, useState } from 'react';
@@ -133,7 +133,8 @@ export function useTransactionStatus() {
             setTransactionStatus(TransactionStatus.SUBMITTED);
             setTransactionHash(hash);
           })
-          .catch(() => {
+          .catch((e) => {
+            logError(e, 'use-transaction', 'onSubmit');
             // If we see an error here it is most likely due to user rejection
             trackEvent('REJECT_TXN', { url: pathname });
             setTransactionStatus(TransactionStatus.NONE);

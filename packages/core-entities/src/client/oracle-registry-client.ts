@@ -77,8 +77,8 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
             oracle.oracleType === 'fCashSpotRate' ||
             oracle.oracleType === 'fCashToUnderlyingExchangeRate' ||
             oracle.oracleType === 'PrimeCashToUnderlyingOracleInterestRate' ||
-            oracle.oracleType === 'PrimeDebtSpotInterestRate' ||
-            oracle.oracleType === 'PrimeCashSpotInterestRate'
+            oracle.oracleType === 'PrimeCashPremiumInterestRate' ||
+            oracle.oracleType === 'PrimeDebtPremiumInterestRate'
           )
             return;
 

@@ -1,7 +1,6 @@
 import { FormattedMessage } from 'react-intl';
 import { Box, useTheme } from '@mui/material';
-import CountUp from '../count-up/count-up';
-import { LabelValue, BodySecondary } from '../typography/typography';
+import { LabelValue, BodySecondary, CountUp } from '@notional-finance/mui';
 import { formatMaturity } from '@notional-finance/helpers';
 import { MaturityData } from '@notional-finance/notionable-hooks';
 

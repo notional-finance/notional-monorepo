@@ -8,13 +8,12 @@ import {
 import { useEffect, useState } from 'react';
 import { FormattedMessage, defineMessage } from 'react-intl';
 import { PRODUCTS } from '@notional-finance/shared-config';
-import { CardContainer } from '@notional-finance/shared-web';
+import { CardContainer, FeatureLoader } from '@notional-finance/shared-web';
 import { useNotionalTheme } from '@notional-finance/styles';
 import {
   useWindowDimensions,
   Incentive,
   HeadingSubtitle,
-  FeatureLoader,
 } from '@notional-finance/mui';
 import { Link } from 'react-router-dom';
 import { Registry, TokenBalance } from '@notional-finance/core-entities';

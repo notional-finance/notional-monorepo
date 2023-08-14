@@ -11,17 +11,21 @@ export function useVaultActionErrors() {
   const {
     state: {
       canSubmit,
-      postAccountRisk,
       depositBalance,
       debt,
       calculateError,
       minLeverageRatio,
-      maxLeverageRatio
+      maxLeverageRatio,
+      tradeType,
+      riskFactorLimit,
+      debtBalance,
+      priorAccountRisk,
     },
   } = useContext(VaultActionContext);
   const { overCapacityError, underMinAccountBorrow, minBorrowSize } =
     useVaultCapacity();
-  const leverageRatio = postAccountRisk?.leverageRatio;
+  const priorLeverageRatio = priorAccountRisk?.leverageRatio;
+  const selectedLeverageRatio = riskFactorLimit?.limit as number | undefined;
 
   let inputErrorMsg: MessageDescriptor | undefined;
   if (depositBalance && !debt) {
@@ -33,28 +37,55 @@ export function useVaultActionErrors() {
   }
 
   let leverageRatioError: MessageDescriptor | undefined;
-  if (leverageRatio && minLeverageRatio && leverageRatio < minLeverageRatio) {
-    leverageRatioError = {
-      ...messages.error.belowMinimumLeverage,
-      values: {
-        minLeverageRatio: (
-          <LabelValue error inline>
-            {formatLeverageRatio(minLeverageRatio)}
-          </LabelValue>
-        ),
-      },
-    } as MessageDescriptor;
-  } else if (leverageRatio && maxLeverageRatio && leverageRatio > maxLeverageRatio) {
-    leverageRatioError = {
-      ...messages.error.aboveMaximumLeverage,
-      values: {
-        maxLeverageRatio: (
-          <LabelValue error inline>
-            {formatLeverageRatio(maxLeverageRatio)}
-          </LabelValue>
-        ),
-      },
-    } as MessageDescriptor;
+  if (
+    minLeverageRatio !== undefined &&
+    maxLeverageRatio !== undefined &&
+    selectedLeverageRatio !== undefined
+  ) {
+    if (
+      tradeType === 'WithdrawAndRepayVault' &&
+      priorLeverageRatio !== undefined &&
+      priorLeverageRatio !== null &&
+      priorLeverageRatio < selectedLeverageRatio
+    ) {
+      leverageRatioError = {
+        ...messages.error.withdrawAndRepayLeverageDecrease,
+        values: {
+          priorLeverageRatio: (
+            <LabelValue error inline>
+              {formatLeverageRatio(priorLeverageRatio)}
+            </LabelValue>
+          ),
+        },
+      } as MessageDescriptor;
+    } else if (
+      tradeType === 'IncreaseVaultPosition' &&
+      debtBalance?.isPositive()
+    ) {
+      leverageRatioError = messages.error.increasePositionDebtsMustIncrease;
+    } else if (selectedLeverageRatio < minLeverageRatio) {
+      leverageRatioError = {
+        ...messages.error.belowMinimumLeverage,
+        values: {
+          minLeverageRatio: (
+            <LabelValue error inline>
+              {formatLeverageRatio(minLeverageRatio)}
+            </LabelValue>
+          ),
+        },
+      } as MessageDescriptor;
+    } else if (maxLeverageRatio < selectedLeverageRatio) {
+      leverageRatioError = {
+        ...messages.error.aboveMaximumLeverage,
+        values: {
+          maxLeverageRatio: (
+            <LabelValue error inline>
+              {formatLeverageRatio(maxLeverageRatio)}
+            </LabelValue>
+          ),
+        },
+      } as MessageDescriptor;
+    }
   }
 
   return {

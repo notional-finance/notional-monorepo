@@ -14,7 +14,10 @@ export function logError(
   method: string,
   context: Record<string, unknown> = {}
 ) {
-  if (process.env['NODE_ENV'] === 'development') {
+  if (
+    process.env['NODE_ENV'] === 'development' ||
+    process.env['NODE_ENV'] === 'test'
+  ) {
     // Don't log to datadog from local
     /* eslint-disable no-console */
     console.error(`Error at: ${module}#${method}`);

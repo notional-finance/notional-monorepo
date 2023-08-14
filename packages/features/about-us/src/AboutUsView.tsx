@@ -2,15 +2,16 @@ import { useEffect } from 'react';
 import { Box, ThemeProvider } from '@mui/material';
 import AboutNotional from './AboutNotional';
 import { THEME_VARIANTS } from '@notional-finance/shared-config';
-import { Header, LaunchAppButton } from '@notional-finance/shared-web';
-import { trackEvent } from '@notional-finance/helpers';
 import {
+  Header,
+  LaunchAppButton,
+  FeatureLoader,
   EmailCaptureSection,
   LandingFooter,
 } from '@notional-finance/shared-web';
+import { trackEvent } from '@notional-finance/helpers';
 import { useNotionalTheme } from '@notional-finance/styles';
 import MeetTheTeam from './MeetTheTeam';
-import { FeatureLoader } from '@notional-finance/mui';
 
 export const AboutUsView = () => {
   const theme = useNotionalTheme(THEME_VARIANTS.LIGHT);

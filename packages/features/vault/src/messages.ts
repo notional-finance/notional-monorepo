@@ -289,6 +289,15 @@ export const messages = {
       defaultMessage: 'Vault has matured but has not yet settled.',
       description: 'error message',
     },
+    withdrawAndRepayLeverageDecrease: {
+      defaultMessage:
+        'Leverage must decrease below {priorLeverageRatio} during withdraw and repay.',
+      description: 'error message',
+    },
+    increasePositionDebtsMustIncrease: {
+      defaultMessage: 'Cannot decrease borrowing during increase position',
+      description: 'error message',
+    },
     belowMinimumLeverage: {
       defaultMessage:
         'Cannot decrease below leverage ratio: {minLeverageRatio}',

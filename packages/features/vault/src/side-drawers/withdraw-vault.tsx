@@ -1,5 +1,5 @@
 import { Box } from '@mui/material';
-import { useCallback, useContext, useEffect, useMemo } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { INTERNAL_TOKEN_DECIMALS } from '@notional-finance/util';
 import {
@@ -11,8 +11,8 @@ import {
 import { VaultActionContext } from '../vault-view/vault-action-provider';
 import { VaultSideDrawer } from '../components/vault-side-drawer';
 import { messages } from '../messages';
-import { TokenBalance } from '@notional-finance/core-entities';
 import { useVaultRiskProfile } from '@notional-finance/notionable-hooks';
+import { useInputAmount } from '@notional-finance/trade/common';
 
 export const WithdrawVault = () => {
   const { setCurrencyInput, currencyInputRef } = useCurrencyInputRef();
@@ -25,13 +25,24 @@ export const WithdrawVault = () => {
       riskFactorLimit,
       depositBalance,
       vaultAddress,
+      calculateError,
     },
     updateState,
   } = context;
+  const [inputString, setInputString] = useState('');
   const primaryBorrowSymbol = deposit?.symbol;
   const isFullRepayment = postAccountRisk?.leverageRatio === null;
   const priorLeverageRatio = priorAccountRisk?.leverageRatio || null;
   const profile = useVaultRiskProfile(vaultAddress);
+
+  const { inputAmount } = useInputAmount(inputString, primaryBorrowSymbol);
+  useEffect(() => {
+    updateState({
+      depositBalance: inputAmount?.neg(),
+      maxWithdraw: false,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [updateState, inputAmount?.hashKey]);
 
   const maxWithdrawUnderlying = useMemo(() => {
     return profile?.maxWithdraw().toUnderlying();
@@ -45,6 +56,7 @@ export const WithdrawVault = () => {
         maxWithdraw: true,
         calculationSuccess: true,
         depositBalance: undefined,
+        calculateError: undefined,
         collateralBalance: profile.vaultShares.neg(),
         debtBalance: profile.vaultDebt.neg(),
       });
@@ -75,22 +87,7 @@ export const WithdrawVault = () => {
           placeholder="0.00000000"
           decimals={INTERNAL_TOKEN_DECIMALS}
           onInputChange={(withdrawAmountString) => {
-            try {
-              updateState({
-                depositBalance: TokenBalance.fromFloat(
-                  withdrawAmountString,
-                  deposit
-                ).neg(),
-                riskFactorLimit: {
-                  riskFactor: 'leverageRatio',
-                  limit: priorLeverageRatio,
-                },
-              });
-            } catch (e) {
-              updateState({
-                depositBalance: undefined,
-              });
-            }
+            setInputString(withdrawAmountString);
           }}
           onMaxValue={maxWithdrawUnderlying && onMaxValue}
           errorMsg={
@@ -104,7 +101,9 @@ export const WithdrawVault = () => {
                     maxWithdrawUnderlying?.toDisplayStringWithSymbol(),
                 }}
               />
-            ) : undefined
+            ) : (
+              calculateError
+            )
           }
           captionMsg={
             isFullRepayment && (

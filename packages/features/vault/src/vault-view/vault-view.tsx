@@ -1,9 +1,10 @@
 import { useEffect } from 'react';
-import { SideBarLayout, FeatureLoader } from '@notional-finance/mui';
+import { SideBarLayout } from '@notional-finance/mui';
 import { useContext } from 'react';
 import { VaultActionContext } from './vault-action-provider';
 import { VaultActionSideDrawer } from './vault-action-side-drawer';
 import { VaultSummary } from './vault-summary';
+import { FeatureLoader } from '@notional-finance/shared-web';
 
 export const VaultView = () => {
   const {

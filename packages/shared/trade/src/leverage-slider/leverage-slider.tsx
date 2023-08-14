@@ -15,7 +15,6 @@ interface LeverageSliderProps {
   cashBorrowed?: TokenBalance;
   errorMsg?: MessageDescriptor;
   infoMsg?: MessageDescriptor;
-  rightCaption?: JSX.Element;
   bottomCaption?: JSX.Element;
 }
 
@@ -24,7 +23,6 @@ export const LeverageSlider = ({
   errorMsg,
   infoMsg,
   cashBorrowed,
-  rightCaption,
   bottomCaption,
   context,
 }: LeverageSliderProps) => {
@@ -41,6 +39,8 @@ export const LeverageSlider = ({
     updateState,
   } = context;
   const { sliderInputRef, setSliderInput } = useSliderInputRef();
+  // TODO: this needs to be borrow rate
+  const topRightCaption = undefined;
 
   // Used to set the context for the leverage ratio slider.
   const args: [number | undefined] | undefined = useMemo(
@@ -69,18 +69,31 @@ export const LeverageSlider = ({
     [updateState, args]
   );
 
-  // Sets the initial default leverage ratio
+  // Sets the initial default leverage ratio, the default leverage ratio for IncreaseVaultPosition
+  // is equal to the exiting leverage ratio and causes a failure in convergence. So by default
+  // we don't have it propagate a change into the store.
   useEffect(() => {
     if (!riskFactorLimit && defaultLeverageRatio !== undefined) {
-      updateState({
-        riskFactorLimit: {
-          riskFactor: 'leverageRatio',
-          limit: defaultLeverageRatio,
-        },
-      });
-      setSliderInput(defaultLeverageRatio);
+      if (tradeType !== 'IncreaseVaultPosition') {
+        updateState({
+          riskFactorLimit: {
+            riskFactor: 'leverageRatio',
+            limit: defaultLeverageRatio,
+          },
+        });
+      }
+      setSliderInput(
+        defaultLeverageRatio,
+        tradeType !== 'IncreaseVaultPosition'
+      );
     }
-  }, [riskFactorLimit, defaultLeverageRatio, setSliderInput, updateState]);
+  }, [
+    riskFactorLimit,
+    defaultLeverageRatio,
+    setSliderInput,
+    updateState,
+    tradeType,
+  ]);
 
   return defaultLeverageRatio && maxLeverageRatio ? (
     <SliderInput
@@ -90,7 +103,7 @@ export const LeverageSlider = ({
       onChangeCommitted={onChangeCommitted}
       infoMsg={infoMsg}
       errorMsg={errorMsg}
-      rightCaption={rightCaption}
+      topRightCaption={topRightCaption}
       bottomCaption={bottomCaption}
       inputLabel={inputLabel}
       sliderLeverageInfo={{

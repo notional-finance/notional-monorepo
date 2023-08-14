@@ -1,6 +1,11 @@
 import { BigNumber, PopulatedTransaction, ethers } from 'ethers';
 import { PopulateTransactionInputs, populateNotionalTxnAndGas } from './common';
-import { BASIS_POINT, PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
+import {
+  BASIS_POINT,
+  INTERNAL_TOKEN_DECIMALS,
+  PRIME_CASH_VAULT_MATURITY,
+  RATE_PRECISION,
+} from '@notional-finance/util';
 import {
   Registry,
   TokenBalance,
@@ -15,7 +20,7 @@ function getVaultSlippageRate(
     return {
       slippageRate: 0,
       // NOTE: no fees applied here
-      underlyingOut: debtBalance.toUnderlying(),
+      underlyingOut: debtBalance.neg().toUnderlying(),
     };
   }
 
@@ -56,6 +61,38 @@ function getVaultSlippageRate(
   };
 }
 
+export function DepositVault({
+  address,
+  network,
+  depositBalance,
+  collateralBalance,
+}: PopulateTransactionInputs): Promise<PopulatedTransaction> {
+  if (!depositBalance || !collateralBalance)
+    throw Error('Deposit balance, collateral balance must be defined');
+  const vaultAddress = collateralBalance.vaultAddress;
+
+  const vaultAdapter = Registry.getVaultRegistry().getVaultAdapter(
+    network,
+    vaultAddress
+  );
+
+  const vaultData = vaultAdapter.getDepositParameters(
+    address,
+    collateralBalance.maturity,
+    depositBalance
+  );
+
+  return populateNotionalTxnAndGas(network, address, 'enterVault', [
+    address,
+    vaultAddress,
+    depositBalance?.n,
+    collateralBalance.maturity,
+    0,
+    0,
+    vaultData,
+  ]);
+}
+
 export function EnterVault({
   address,
   network,
@@ -69,7 +106,7 @@ export function EnterVault({
   // This must be a positive number
   const debtBalanceNum =
     debtBalance.maturity === PRIME_CASH_VAULT_MATURITY
-      ? debtBalance.toUnderlying().neg().n
+      ? debtBalance.toUnderlying().neg().scaleTo(INTERNAL_TOKEN_DECIMALS)
       : debtBalance.neg().n;
   const { slippageRate: maxBorrowRate, underlyingOut } =
     getVaultSlippageRate(debtBalance);
@@ -106,7 +143,8 @@ export function ExitVault({
     collateralBalance?.tokenType !== 'VaultShare' ||
     debtBalance?.tokenType !== 'VaultDebt' ||
     debtBalance?.token.vaultAddress !== collateralBalance.token.vaultAddress ||
-    !collateralBalance.isNegative()
+    collateralBalance.isPositive() ||
+    debtBalance.isNegative()
   )
     throw Error('Collateral balance, debt balance must be defined');
 
@@ -123,7 +161,10 @@ export function ExitVault({
     // Clears the entire debt balance using max uint256
     if (matchingBalance.add(debtBalance).isZero())
       debtBalanceNum = ethers.constants.MaxUint256;
-    else debtBalanceNum = debtBalance.toUnderlying().n;
+    else
+      debtBalanceNum = debtBalance
+        .toUnderlying()
+        .scaleTo(INTERNAL_TOKEN_DECIMALS);
   } else {
     debtBalanceNum = debtBalance.n;
   }
@@ -188,8 +229,8 @@ export function RollVault({
 
   const debtBalanceNum =
     debtBalance.maturity === PRIME_CASH_VAULT_MATURITY
-      ? debtBalance.toUnderlying().n
-      : debtBalance.n;
+      ? debtBalance.toUnderlying().neg().n
+      : debtBalance.neg().n;
 
   const vaultAdapter = Registry.getVaultRegistry().getVaultAdapter(
     network,
@@ -199,13 +240,14 @@ export function RollVault({
   const vaultData = vaultAdapter.getDepositParameters(
     address,
     debtBalance.maturity,
-    amountBorrowed.add(depositBalance).sub(costToRepay)
+    amountBorrowed.add(depositBalance).add(costToRepay)
   );
 
   return populateNotionalTxnAndGas(network, address, 'rollVaultPosition', [
     address,
     vaultAddress,
-    debtBalanceNum,
+    // Scale up the debt balance slightly to ensure that the transaction goes through
+    debtBalanceNum.mul(RATE_PRECISION + 0.1 * BASIS_POINT).div(RATE_PRECISION),
     debtBalance.maturity,
     depositBalance?.n || TokenBalance.zero(debtBalance.underlying),
     minLendRate,

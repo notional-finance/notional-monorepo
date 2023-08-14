@@ -28,19 +28,14 @@ describe.withForkAndRegistry(
   () => {
     const ethCollateralTypes = [
       'nETH',
-      'pEther',
+      'pETH',
       'fETH:fixed@1695168000',
       undefined,
     ];
-    const ethDebtTypes = [
-      'nETH',
-      'pdEther',
-      'fETH:fixed@1702944000',
-      undefined,
-    ];
+    const ethDebtTypes = ['nETH', 'pdETH', 'fETH:fixed@1702944000', undefined];
     const usdcDebtTypes = [
       'nUSDC',
-      'pdUSD Coin',
+      'pdUSDC',
       'fUSDC:fixed@1695168000',
       undefined,
     ];
@@ -233,7 +228,10 @@ describe.withForkAndRegistry(
       });
 
       expect(netRealizedDebtBalance.tokenType).toBe('Underlying');
-      if (debtBalance.tokenType === 'fCash') {
+      if (
+        debtBalance.tokenType === 'fCash' ||
+        debtBalance.tokenType === 'nToken'
+      ) {
         expect(netRealizedDebtBalance.toFloat()).toBeGreaterThan(
           debtBalance.toUnderlying().toFloat()
         );
@@ -314,7 +312,7 @@ describe.withForkAndRegistry(
         .filter(
           ({ debt, collateral }) =>
             // Exclude this case because they offset each other exactly
-            !(debt?.includes('pdEther') && collateral?.includes('pEther'))
+            !(debt?.includes('pdETH') && collateral?.includes('pETH'))
         )
     )(
       'Deposit [$deposit] + Debt [$debt] given Collateral [$collateral] + Risk Limit',
@@ -385,7 +383,7 @@ describe.withForkAndRegistry(
         .filter(
           ({ debt, collateral }) =>
             // Exclude this case because they offset each other exactly
-            !(debt?.includes('pdEther') && collateral?.includes('pEther'))
+            !(debt?.includes('pdETH') && collateral?.includes('pETH'))
         )
     )(
       'Deposit [$deposit] + Collateral [$collateral] given Debt [$debt] + Risk Limit',
@@ -450,7 +448,7 @@ describe.withForkAndRegistry(
       tokens.filter(
         ({ debt, collateral }) =>
           // Exclude this case because they offset each other exactly
-          !(debt?.includes('pdEther') && collateral?.includes('pEther'))
+          !(debt?.includes('pdETH') && collateral?.includes('pETH'))
       )
     )(
       'Debt [$debt] + Collateral [$collateral] given Deposit [$deposit] + Risk Limit',

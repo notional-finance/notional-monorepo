@@ -55,9 +55,10 @@ export class AccountRiskProfile extends BaseRiskProfile {
 
   healthFactor() {
     // As defined here: https://docs.notional.finance/notional-v2/borrower-resources/health-factor
-    const factor =
-      this._toPercent(this.freeCollateral(), this.netWorth()) /
-      PERCENTAGE_BASIS;
+    const fc = this.freeCollateral();
+    let factor = this._toPercent(fc, this.netWorth()) / PERCENTAGE_BASIS;
+    // NOTE: handles the case when both FC and net worth are negative
+    if (fc.isNegative() && factor > 0) factor = factor * -1;
     return 1 + factor * 9;
   }
 

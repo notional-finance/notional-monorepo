@@ -35,4 +35,24 @@ export const tradeErrors = defineMessages({
     defaultMessage: 'Insufficient Collateral',
     description: 'warning message',
   },
+  insufficientFixedRateLiquidity: {
+    defaultMessage: 'Insufficient Fixed Rate Liquidity',
+    description: 'warning message',
+  },
+  insufficientFixedRateLiquidityMsg: {
+    defaultMessage: 'Reduce leverage or decrease deposit to continue',
+    description: 'warning message',
+  },
+  liquidationRisk: {
+    defaultMessage: 'Liquidation Risk Too High',
+    description: 'warning message',
+  },
+  borrowLiquidationRiskMsg: {
+    defaultMessage: 'Reduce borrow amount to continue',
+    description: 'warning message',
+  },
+  leverageLiquidationRiskMsg: {
+    defaultMessage: 'Reduce leverage or increase deposit to continue',
+    description: 'warning message',
+  },
 });

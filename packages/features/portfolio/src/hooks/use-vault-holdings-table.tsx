@@ -19,6 +19,7 @@ import {
   useBalanceStatements,
   useVaultRiskProfiles,
   useFiat,
+  useAllMarkets,
 } from '@notional-finance/notionable-hooks';
 import { TXN_HISTORY_TYPE } from '@notional-finance/shared-config';
 import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
@@ -55,6 +56,9 @@ export const useVaultHoldingsTable = () => {
   const vaults = useVaultRiskProfiles();
   const theme = useTheme();
   const baseCurrency = useFiat();
+  const {
+    yields: { variableBorrow },
+  } = useAllMarkets();
   const history = useHistory();
   const balanceStatements = useBalanceStatements();
 
@@ -149,8 +153,11 @@ export const useVaultHoldingsTable = () => {
     const borrowAPY =
       debtPnL?.impliedFixedRate !== undefined
         ? formatNumberAsPercent(debtPnL.impliedFixedRate)
-        : // TODO: if this is variable then show the current prime cash borrow rate
-          0;
+        : formatNumberAsPercent(
+            variableBorrow.find(
+              (d) => d.token.id === v.vaultDebt.unwrapVaultToken().tokenId
+            )?.totalAPY || 0
+          );
 
     return {
       strategy: {

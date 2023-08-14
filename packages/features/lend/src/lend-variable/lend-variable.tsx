@@ -1,9 +1,10 @@
-import { FeatureLoader, SideBarLayout } from '@notional-finance/mui';
+import { SideBarLayout } from '@notional-finance/mui';
 import {
   createTradeContext,
   useTradeContext,
 } from '@notional-finance/notionable-hooks';
 import { LendVariableSidebar, LendVariableTradeSummary } from './components';
+import { FeatureLoader } from '@notional-finance/shared-web';
 
 export const LendVariableContext = createTradeContext('LendVariable');
 

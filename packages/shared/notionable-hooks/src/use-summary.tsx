@@ -573,6 +573,7 @@ export function usePortfolioLiquidationRisk(state: TradeState) {
 
   return {
     onlyCurrent,
+    tooRisky: postAccountRisk?.freeCollateral.isNegative() || false,
     priorAccountNoRisk:
       priorAccountRisk === undefined || priorAccountRisk?.healthFactor === null,
     postAccountNoRisk: postAccountRisk?.healthFactor === null,
@@ -626,6 +627,7 @@ export function useVaultLiquidationRisk(state: VaultTradeState) {
 
   return {
     onlyCurrent,
+    tooRisky: postAccountRisk?.aboveMaxLeverageRatio || false,
     priorAccountNoRisk:
       priorAccountRisk === undefined ||
       priorAccountRisk?.leverageRatio === null,

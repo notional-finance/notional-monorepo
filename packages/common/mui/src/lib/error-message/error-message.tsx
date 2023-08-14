@@ -6,9 +6,10 @@ import { NotionalTheme } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 
 interface ErrorMessageProps {
-  variant: 'error' | 'warning';
+  variant: 'error' | 'warning' | 'info';
   title?: ReactNode;
   message?: ReactNode;
+  marginBottom?: boolean;
 }
 
 export interface ErrorContainerProps {
@@ -20,33 +21,38 @@ export const ErrorMessage = ({
   variant,
   title,
   message,
+  marginBottom,
 }: ErrorMessageProps) => {
   const theme = useTheme();
-  const defaultTitle =
-    variant === 'error' ? (
-      <FormattedMessage defaultMessage={'Error'} />
-    ) : (
-      <FormattedMessage defaultMessage={'Warning'} />
-    );
+  let defaultTitle: React.ReactNode;
+  switch (variant) {
+    case 'error':
+      defaultTitle = <FormattedMessage defaultMessage={'Error'} />;
+      break;
+    case 'warning':
+      defaultTitle = <FormattedMessage defaultMessage={'Warning'} />;
+      break;
+    case 'info':
+      defaultTitle = <FormattedMessage defaultMessage={'Info'} />;
+      break;
+  }
 
   return message ? (
-    <ErrorContainer variant={variant} theme={theme}>
-      <AlertIcon
-        sx={{
-          fill:
-            variant === 'error'
-              ? theme.palette.error.main
-              : theme.palette.warning.main,
-        }}
-      />
+    <ErrorContainer
+      variant={variant}
+      theme={theme}
+      sx={{
+        marginTop: marginBottom ? undefined : theme.spacing(3),
+        marginBottom: marginBottom ? theme.spacing(3) : undefined,
+      }}
+    >
+      <AlertIcon sx={{ fill: theme.palette[variant].dark }} />
       <ErrorContent>
         <LabelValue>{title || defaultTitle}</LabelValue>
         <Caption
           sx={{
             maxWidth: theme.spacing(46),
-            whiteSpace: 'nowrap',
             overflow: 'hidden',
-            textOverflow: 'ellipsis',
           }}
         >
           {message}
@@ -69,18 +75,9 @@ const ErrorContainer = styled(Box, {
     width: 100%;
     height: 100%;
     border-radius: ${theme.shape.borderRadius()};
-    border: 1px solid ${
-      variant === 'error'
-        ? theme.palette.error.main
-        : theme.palette.warning.main
-    };
-    margin-top: ${theme.spacing(3)};
+    border: 1px solid ${theme.palette[variant].main};
     padding: ${theme.spacing(1, 1.5)};
-    background: ${
-      variant === 'error'
-        ? theme.palette.error.light
-        : theme.palette.warning.light
-    };
+    background: ${theme.palette[variant].light};
   `
 );
 const ErrorContent = styled(Box)(

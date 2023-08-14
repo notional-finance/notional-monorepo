@@ -6,18 +6,25 @@ import { useState } from 'react';
 import { MessageDescriptor } from 'react-intl';
 import { useInputAmount } from '../common';
 import { tradeErrors } from '../tradeErrors';
+import { TokenBalance } from '@notional-finance/core-entities';
 
 export function useDepositInput(
   selectedDepositToken?: string,
-  isWithdraw?: boolean
+  isWithdraw?: boolean,
+  useZeroDefault?: boolean
 ) {
   const [inputString, setInputString] = useState<string>('');
   const isAccountReady = useAccountReady();
 
-  const { token, inputAmount } = useInputAmount(
+  // eslint-disable-next-line prefer-const
+  let { token, inputAmount } = useInputAmount(
     inputString,
     selectedDepositToken
   );
+
+  if (useZeroDefault && token && inputAmount === undefined) {
+    inputAmount = TokenBalance.zero(token);
+  }
 
   const {
     maxBalanceString,

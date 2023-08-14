@@ -6,7 +6,7 @@ import { useVaultLiquidationRisk } from '@notional-finance/notionable-hooks';
 export function useVaultDetailsTable() {
   const { state } = useContext(VaultActionContext);
   const { priorVaultBalances, collateralBalance } = state;
-  const { tableData, priorAccountNoRisk, postAccountNoRisk } =
+  const { tableData, priorAccountNoRisk, postAccountNoRisk, tooRisky } =
     useVaultLiquidationRisk(state);
 
   const maturity =
@@ -50,5 +50,6 @@ export function useVaultDetailsTable() {
             }
           ),
     maturity: maturity ? formatMaturity(maturity) : '',
+    tooRisky
   };
 }

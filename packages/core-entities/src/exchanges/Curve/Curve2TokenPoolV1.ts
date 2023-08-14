@@ -556,7 +556,7 @@ export class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPoolV1Params
       tokensOut: this.balances[tokenIndexOut].copy(
         dy
           .mul(this.balances[tokenIndexOut].precision)
-          .div(Curve2TokenPoolV1.PRECISION)
+          .div(this.balances[tokenIndexIn].precision)
       ),
       feesPaid: feesPaid,
     };

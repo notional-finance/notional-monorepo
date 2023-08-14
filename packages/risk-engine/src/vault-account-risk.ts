@@ -90,12 +90,18 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     );
   }
 
+  get vaultLeverageFactors() {
+    return Registry.getConfigurationRegistry().getVaultLeverageFactors(
+      this.network,
+      this.vaultAddress
+    );
+  }
+
   get maturity() {
     return this.vaultShares.maturity;
   }
 
   get vaultDebt() {
-    // TODO: need to accrue debt amount on prime debt
     return (
       this.debts.find((t) => t.tokenType === 'VaultDebt') ||
       TokenBalance.zero(
@@ -241,6 +247,13 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     }
   }
 
+  aboveMaxLeverageRatio() {
+    const leverage = this.leverageRatio();
+    return (
+      leverage !== null && leverage > this.vaultLeverageFactors.maxLeverageRatio
+    );
+  }
+
   getAllRiskFactors() {
     return {
       netWorth: this.netWorth(),
@@ -250,6 +263,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
       liquidationPrice: this.getAllLiquidationPrices({
         onlyUnderlyingDebt: true,
       }),
+      aboveMaxLeverageRatio: this.aboveMaxLeverageRatio(),
       leverageRatio: this.leverageRatio(),
       collateralLiquidationThreshold: this.collateral.map((a) =>
         this.collateralLiquidationThreshold(a.token)

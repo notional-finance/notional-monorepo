@@ -8,8 +8,9 @@ query AllOraclesByBlock($blockNumber: Int) {
     VaultShareOracleRate,
     nTokenToUnderlyingExchangeRate,
     # NOT used in exchange rate path finding algorithm
-    PrimeCashSpotInterestRate,
-    PrimeDebtSpotInterestRate,
+    PrimeCashPremiumInterestRate,
+    PrimeDebtPremiumInterestRate,
+    PrimeCashExternalLendingInterestRate,
     fCashSpotRate,
     PrimeCashToUnderlyingOracleInterestRate,
   ]}, first: 5000, block: { number: $blockNumber }) {

@@ -18,7 +18,7 @@ export interface SliderInputProps {
   errorMsg?: MessageDescriptor;
   infoMsg?: MessageDescriptor;
   inputLabel?: MessageDescriptor;
-  rightCaption?: JSX.Element;
+  topRightCaption?: JSX.Element;
   bottomCaption?: JSX.Element;
   sliderLeverageInfo?: {
     debtHeading: MessageDescriptor;
@@ -31,7 +31,7 @@ export interface SliderInputProps {
 }
 
 export interface SliderInputHandle {
-  setInputOverride: (input: number) => void;
+  setInputOverride: (input: number, emitChange?: boolean) => void;
 }
 
 const Container = styled(Box)(
@@ -92,8 +92,8 @@ export const useSliderInputRef = () => {
   const sliderInputRef = useRef<SliderInputHandle>(null);
   const isInputRefDefined = !!sliderInputRef.current;
   const setSliderInput = useCallback(
-    (input: number) => {
-      sliderInputRef.current?.setInputOverride(input);
+    (input: number, emitChange = true) => {
+      sliderInputRef.current?.setInputOverride(input, emitChange);
     },
     // isInputRefDefined must be in the dependencies otherwise the useCallback will not
     // properly trigger to generate a new function when the input ref becomes defined
@@ -118,7 +118,7 @@ export const SliderInput = React.forwardRef<
       errorMsg,
       infoMsg,
       inputLabel,
-      rightCaption,
+      topRightCaption,
       bottomCaption,
       sliderLeverageInfo,
     },
@@ -131,12 +131,12 @@ export const SliderInput = React.forwardRef<
     const isError = !!errorMsg;
 
     React.useImperativeHandle(ref, () => ({
-      setInputOverride: (input: number) => {
+      setInputOverride: (input: number, emitChange = true) => {
         // Only execute change commits greater than the step size
         // otherwise rounding errors will trigger changes
         if (Math.abs(input - value) > displayStep) {
           setValue(input);
-          onChangeCommitted(input);
+          if (emitChange) onChangeCommitted(input);
         }
       },
     }));
@@ -151,7 +151,7 @@ export const SliderInput = React.forwardRef<
           }}
         >
           <InputLabel inputLabel={inputLabel} />
-          <Caption>{rightCaption}</Caption>
+          <Caption>{topRightCaption}</Caption>
         </Box>
 
         <Container

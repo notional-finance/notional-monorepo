@@ -1,9 +1,10 @@
-import { FeatureLoader, SideBarLayout } from '@notional-finance/mui';
+import { SideBarLayout } from '@notional-finance/mui';
 import {
   createTradeContext,
   useTradeContext,
 } from '@notional-finance/notionable-hooks';
 import { LendFixedSidebar, LendFixedTradeSummary } from './components';
+import { FeatureLoader } from '@notional-finance/shared-web';
 
 export const LendFixedContext = createTradeContext('LendFixed');
 export const LendFixed = () => {

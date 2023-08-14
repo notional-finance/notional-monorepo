@@ -8,9 +8,9 @@ import {
   calculateDeposit,
   calculateDepositCollateralGivenDebtRiskLimit,
   calculateDepositDebtGivenCollateralRiskLimit,
-  calculateVaultCollateral,
-  calculateVaultDebt,
   calculateVaultDebtCollateralGivenDepositRiskLimit,
+  calculateVaultDeposit,
+  calculateVaultRoll,
 } from './calculate';
 
 export * from './builders';
@@ -19,6 +19,7 @@ export { simulatePopulatedTxn } from './simulate';
 export type { SimulationCallTrace } from './simulate';
 export { parseTransactionLogs, parseTransactionType } from './parser';
 export type { Transaction, Bundle, Transfer, ParsedLogs } from './parser';
+export type { PopulateTransactionInputs } from './builders/common';
 
 export type CalculationFn =
   | typeof calculateCollateral
@@ -29,8 +30,8 @@ export type CalculationFn =
   | typeof calculateDepositCollateralGivenDebtRiskLimit
   | typeof calculateDepositDebtGivenCollateralRiskLimit
   | typeof calculateVaultDebtCollateralGivenDepositRiskLimit
-  | typeof calculateVaultDebt
-  | typeof calculateVaultCollateral;
+  | typeof calculateVaultDeposit
+  | typeof calculateVaultRoll;
 
 type ParamKeys<F extends CalculationFn> = Parameters<F> extends (infer U)[]
   ? keyof U
@@ -45,8 +46,8 @@ export type CalculationFnParams =
   | ParamKeys<typeof calculateDepositCollateralGivenDebtRiskLimit>
   | ParamKeys<typeof calculateDepositDebtGivenCollateralRiskLimit>
   | ParamKeys<typeof calculateVaultDebtCollateralGivenDepositRiskLimit>
-  | ParamKeys<typeof calculateVaultDebt>
-  | ParamKeys<typeof calculateVaultCollateral>;
+  | ParamKeys<typeof calculateVaultDeposit>
+  | ParamKeys<typeof calculateVaultRoll>;
 
 export type TransactionBuilder = (
   t: PopulateTransactionInputs

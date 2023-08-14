@@ -14,6 +14,7 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { useVaultCapacity } from '../hooks';
 import { VaultTradeType } from '@notional-finance/notionable';
+import { FormattedMessage } from 'react-intl';
 
 interface VaultSideDrawerProps {
   children?: React.ReactNode | React.ReactNode[];
@@ -54,7 +55,7 @@ export const VaultSideDrawer = ({
       {tradeType ? (
         populatedTransaction && confirm ? (
           <Confirmation2
-            heading={messages[tradeType].heading}
+            heading={<FormattedMessage {...messages[tradeType].heading} />}
             context={context}
             onCancel={handleCancel}
             showDrawer={false}

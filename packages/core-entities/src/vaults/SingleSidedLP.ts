@@ -113,7 +113,7 @@ export class SingleSidedLP extends VaultAdapter {
         netVaultSharesForUnderlying: this.getLPTokensToVaultShares(
           lpTokens,
           vaultShare
-        ),
+        ).neg(),
       };
     }
   }
@@ -170,7 +170,9 @@ export class SingleSidedLP extends VaultAdapter {
       ['tuple(uint256 minLPTokens, bytes tradeData) d'],
       [
         {
-          minLPTokens: minLPTokens.n,
+          // Floor min lp tokens at zero
+          minLPTokens:
+            minLPTokens.toFloat() > 0.0001 ? minLPTokens.n : BigNumber.from(0),
           tradeData: '0x',
         },
       ]
@@ -196,11 +198,10 @@ export class SingleSidedLP extends VaultAdapter {
 
     return defaultAbiCoder.encode(
       [
-        'tuple(uint32 minSecondaryLendRate, uint256 minPrimary, uint256 minSecondary, bytes secondaryTradeParams) r',
+        'tuple( uint256 minPrimary, uint256 minSecondary, bytes secondaryTradeParams) r',
       ],
       [
         {
-          minSecondaryLendRate: 0,
           minPrimary: minPrimary.n,
           minSecondary: minSecondary.n,
           secondaryTradeParams: this.secondaryTradeParams,

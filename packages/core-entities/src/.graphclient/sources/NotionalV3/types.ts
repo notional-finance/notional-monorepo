@@ -1901,8 +1901,9 @@ export type OracleType =
   | 'fCashToUnderlyingExchangeRate'
   | 'fCashSpotRate'
   | 'PrimeCashToUnderlyingOracleInterestRate'
-  | 'PrimeCashSpotInterestRate'
-  | 'PrimeDebtSpotInterestRate'
+  | 'PrimeCashPremiumInterestRate'
+  | 'PrimeDebtPremiumInterestRate'
+  | 'PrimeCashExternalLendingInterestRate'
   | 'PrimeCashToUnderlyingExchangeRate'
   | 'PrimeCashToMoneyMarketExchangeRate'
   | 'PrimeDebtToUnderlyingExchangeRate'
@@ -2161,10 +2162,12 @@ export type PrimeCashMarketSnapshot = {
   debtScalar: Scalars['BigInt'];
   /** Snapshot value of the underlying scalar */
   underlyingScalar: Scalars['BigInt'];
-  /** Spot prime cash interest rate */
-  supplyInterestRate?: Maybe<Scalars['Int']>;
-  /** Spot prime debt interest rate */
-  debtInterestRate?: Maybe<Scalars['Int']>;
+  /** Prime cash premium interest rate */
+  supplyInterestRate?: Maybe<Scalars['BigInt']>;
+  /** Prime debt premium interest rate */
+  debtInterestRate?: Maybe<Scalars['BigInt']>;
+  /** External lending interest rate */
+  externalLendingRate?: Maybe<Scalars['BigInt']>;
 };
 
 export type PrimeCashMarketSnapshot_filter = {
@@ -2298,22 +2301,30 @@ export type PrimeCashMarketSnapshot_filter = {
   underlyingScalar_lte?: InputMaybe<Scalars['BigInt']>;
   underlyingScalar_in?: InputMaybe<Array<Scalars['BigInt']>>;
   underlyingScalar_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  supplyInterestRate?: InputMaybe<Scalars['Int']>;
-  supplyInterestRate_not?: InputMaybe<Scalars['Int']>;
-  supplyInterestRate_gt?: InputMaybe<Scalars['Int']>;
-  supplyInterestRate_lt?: InputMaybe<Scalars['Int']>;
-  supplyInterestRate_gte?: InputMaybe<Scalars['Int']>;
-  supplyInterestRate_lte?: InputMaybe<Scalars['Int']>;
-  supplyInterestRate_in?: InputMaybe<Array<Scalars['Int']>>;
-  supplyInterestRate_not_in?: InputMaybe<Array<Scalars['Int']>>;
-  debtInterestRate?: InputMaybe<Scalars['Int']>;
-  debtInterestRate_not?: InputMaybe<Scalars['Int']>;
-  debtInterestRate_gt?: InputMaybe<Scalars['Int']>;
-  debtInterestRate_lt?: InputMaybe<Scalars['Int']>;
-  debtInterestRate_gte?: InputMaybe<Scalars['Int']>;
-  debtInterestRate_lte?: InputMaybe<Scalars['Int']>;
-  debtInterestRate_in?: InputMaybe<Array<Scalars['Int']>>;
-  debtInterestRate_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  supplyInterestRate?: InputMaybe<Scalars['BigInt']>;
+  supplyInterestRate_not?: InputMaybe<Scalars['BigInt']>;
+  supplyInterestRate_gt?: InputMaybe<Scalars['BigInt']>;
+  supplyInterestRate_lt?: InputMaybe<Scalars['BigInt']>;
+  supplyInterestRate_gte?: InputMaybe<Scalars['BigInt']>;
+  supplyInterestRate_lte?: InputMaybe<Scalars['BigInt']>;
+  supplyInterestRate_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  supplyInterestRate_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  debtInterestRate?: InputMaybe<Scalars['BigInt']>;
+  debtInterestRate_not?: InputMaybe<Scalars['BigInt']>;
+  debtInterestRate_gt?: InputMaybe<Scalars['BigInt']>;
+  debtInterestRate_lt?: InputMaybe<Scalars['BigInt']>;
+  debtInterestRate_gte?: InputMaybe<Scalars['BigInt']>;
+  debtInterestRate_lte?: InputMaybe<Scalars['BigInt']>;
+  debtInterestRate_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  debtInterestRate_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  externalLendingRate?: InputMaybe<Scalars['BigInt']>;
+  externalLendingRate_not?: InputMaybe<Scalars['BigInt']>;
+  externalLendingRate_gt?: InputMaybe<Scalars['BigInt']>;
+  externalLendingRate_lt?: InputMaybe<Scalars['BigInt']>;
+  externalLendingRate_gte?: InputMaybe<Scalars['BigInt']>;
+  externalLendingRate_lte?: InputMaybe<Scalars['BigInt']>;
+  externalLendingRate_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  externalLendingRate_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<PrimeCashMarketSnapshot_filter>>>;
@@ -2343,7 +2354,8 @@ export type PrimeCashMarketSnapshot_orderBy =
   | 'debtScalar'
   | 'underlyingScalar'
   | 'supplyInterestRate'
-  | 'debtInterestRate';
+  | 'debtInterestRate'
+  | 'externalLendingRate';
 
 export type PrimeCashMarket_filter = {
   id?: InputMaybe<Scalars['ID']>;
@@ -2569,6 +2581,7 @@ export type PrimeCashMarket_orderBy =
   | 'current__underlyingScalar'
   | 'current__supplyInterestRate'
   | 'current__debtInterestRate'
+  | 'current__externalLendingRate'
   | 'snapshots';
 
 export type ProfitLossLineItem = {

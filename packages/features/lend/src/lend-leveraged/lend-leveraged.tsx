@@ -1,9 +1,4 @@
-import {
-  FeatureLoader,
-  SideBarLayout,
-  Faq,
-  FaqHeader,
-} from '@notional-finance/mui';
+import { SideBarLayout, Faq, FaqHeader } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
 import {
   createTradeContext,
@@ -13,13 +8,14 @@ import { LendLeveragedSidebar } from './components';
 import { TradeActionSummary } from '@notional-finance/trade';
 import { useLendLeveragedFaq } from './hooks/use-lend-leveraged-faq';
 import { FCashPriceExposure } from './components/fcash-price-exposure';
+import { FeatureLoader } from '@notional-finance/shared-web';
 
 export const LendLeveragedContext = createTradeContext('LeveragedLend');
 
 export const LendLeveraged = () => {
   const context = useTradeContext('LeveragedLend');
-  const { state } = context
-  const { isReady, confirm, selectedDepositToken } = state
+  const { state } = context;
+  const { isReady, confirm, selectedDepositToken } = state;
 
   const { faqs, faqHeaderLinks } = useLendLeveragedFaq(selectedDepositToken);
 

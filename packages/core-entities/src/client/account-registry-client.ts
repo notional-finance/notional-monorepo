@@ -233,17 +233,16 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
           {
             stage: 0,
             target: notional,
-            // method: 'getVaultAccountWithFeeAccrual',
-            method: 'getVaultAccount',
+            method: 'getVaultAccountWithFeeAccrual',
             args: [this.activeAccount, v.vaultAddress],
             key: `${v.vaultAddress}.balance`,
             transform: (
               r: Awaited<
-                // ReturnType<NotionalV3['getVaultAccountWithFeeAccrual']>
-                ReturnType<NotionalV3['getVaultAccount']>
+                ReturnType<NotionalV3['getVaultAccountWithFeeAccrual']>
               >
             ) => {
-              const maturity = r.maturity.toNumber();
+              const vaultAccount = r[0];
+              const maturity = vaultAccount.maturity.toNumber();
               if (maturity === 0) return [];
               const {
                 vaultShareID,
@@ -252,19 +251,29 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
                 primaryTokenId,
               } = config.getVaultIDs(network, v.vaultAddress, maturity);
               const balances = [
-                TokenBalance.fromID(r.vaultShares, vaultShareID, network),
+                TokenBalance.fromID(
+                  vaultAccount.vaultShares,
+                  vaultShareID,
+                  network
+                ),
                 this._parseVaultDebtBalance(
                   primaryDebtID,
                   primaryTokenId,
-                  r.accountDebtUnderlying,
+                  vaultAccount.accountDebtUnderlying.add(
+                    r.accruedPrimeVaultFeeInUnderlying
+                  ),
                   maturity,
                   network
                 ),
               ];
 
-              if (!r.tempCashBalance.isZero()) {
+              if (!vaultAccount.tempCashBalance.isZero()) {
                 balances.push(
-                  TokenBalance.fromID(r.tempCashBalance, primaryCashID, network)
+                  TokenBalance.fromID(
+                    vaultAccount.tempCashBalance,
+                    primaryCashID,
+                    network
+                  )
                 );
               }
 
@@ -628,9 +637,9 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
       // In in the prime vault maturity, convert from underlying back to prime debt denomination
       const tokens = Registry.getTokenRegistry();
       const vaultDebtToken = tokens.getTokenByID(network, debtID);
-      const pDebt = TokenBalance.fromID(balance, underlyingID, network).toToken(
-        tokens.unwrapVaultToken(vaultDebtToken)
-      );
+      const pDebt = TokenBalance.fromID(balance, underlyingID, network)
+        .scaleFromInternal()
+        .toToken(tokens.unwrapVaultToken(vaultDebtToken));
       return TokenBalance.fromID(pDebt.n, debtID, network);
     }
 

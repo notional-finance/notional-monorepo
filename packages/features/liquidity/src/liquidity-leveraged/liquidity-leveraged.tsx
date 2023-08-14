@@ -1,4 +1,4 @@
-import { SideBarLayout, FeatureLoader } from '@notional-finance/mui';
+import { SideBarLayout } from '@notional-finance/mui';
 import {
   LiquidityLeveragedSummary,
   LiquidityLeveragedSidebar,
@@ -7,6 +7,7 @@ import {
   createTradeContext,
   useTradeContext,
 } from '@notional-finance/notionable-hooks';
+import { FeatureLoader } from '@notional-finance/shared-web';
 
 export const LeveragedLiquidityContext = createTradeContext('LeveragedNToken');
 

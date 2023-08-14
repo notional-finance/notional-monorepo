@@ -1,6 +1,8 @@
 import { ReactNode } from 'react';
 import { useState, SetStateAction, Dispatch } from 'react';
 import { Table, TableContainer, Paper, useTheme, Box } from '@mui/material';
+import { SxProps } from '@mui/material/styles';
+
 import { DataTableFilterBar } from './data-table-filter-bar/data-table-filter-bar';
 import { DataTableTitleBar } from './data-table-title-bar/data-table-title-bar';
 import { DataTableTabBar } from './data-table-tab-bar/data-table-tab-bar';
@@ -36,6 +38,7 @@ interface DataTableProps {
   clearQueryAndFilters?: () => void;
   marketDataCSVFormatter?: (data: any[]) => any;
   stateZeroMessage?: ReactNode;
+  sx?: SxProps;
 }
 
 export const DataTable = ({
@@ -56,6 +59,7 @@ export const DataTable = ({
   clearQueryAndFilters,
   marketDataCSVFormatter,
   stateZeroMessage,
+  sx,
 }: DataTableProps) => {
   const theme = useTheme();
   const [viewAllRows, setViewAllRows] = useState<boolean>(!hideExcessRows);
@@ -114,26 +118,29 @@ export const DataTable = ({
   return (
     <TableContainer
       id="data-table-container"
-      sx={{
-        overflow: 'scroll',
-        '&.MuiPaper-root': {
-          width: '100%',
-          boxShadow: 'none',
-          border: theme.shape.borderStandard,
-          borderRadius: theme.shape.borderRadius(),
-          overflow: !tableReady
-            ? 'hidden'
-            : filterBarData && filterBarData.length > 0
-            ? 'visible'
-            : 'auto',
-          backgroundColor:
-            tableVariant === TABLE_VARIANTS.MINI
-              ? theme.palette.background.default
-              : theme.palette.background.paper,
-          padding:
-            tableVariant === TABLE_VARIANTS.MINI ? theme.spacing(2) : '1px',
-        },
-      }}
+      sx={
+        {
+          overflow: 'scroll',
+          '&.MuiPaper-root': {
+            width: '100%',
+            boxShadow: 'none',
+            border: theme.shape.borderStandard,
+            borderRadius: theme.shape.borderRadius(),
+            overflow: !tableReady
+              ? 'hidden'
+              : filterBarData && filterBarData.length > 0
+              ? 'visible'
+              : 'auto',
+            backgroundColor:
+              tableVariant === TABLE_VARIANTS.MINI
+                ? theme.palette.background.default
+                : theme.palette.background.paper,
+            padding:
+              tableVariant === TABLE_VARIANTS.MINI ? theme.spacing(2) : '1px',
+            ...sx,
+          },
+        } as SxProps
+      }
       component={Paper}
     >
       {tableTitle && (

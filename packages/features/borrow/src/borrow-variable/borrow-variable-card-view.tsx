@@ -1,5 +1,5 @@
 import { PRODUCTS } from '@notional-finance/shared-config';
-import { CardContainer } from '@notional-finance/shared-web';
+import { CardContainer, FeatureLoader } from '@notional-finance/shared-web';
 import {
   useThemeVariant,
   useAllMarkets,
@@ -7,7 +7,7 @@ import {
 import { useNotionalTheme } from '@notional-finance/styles';
 import { defineMessage, FormattedMessage } from 'react-intl';
 import { ThemeProvider } from '@mui/material';
-import { Currency, FeatureLoader } from '@notional-finance/mui';
+import { Currency } from '@notional-finance/mui';
 
 export const BorrowVariableCardView = () => {
   const themeVariant = useThemeVariant();

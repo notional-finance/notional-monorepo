@@ -1,4 +1,3 @@
-import { TokenBalance } from '@notional-finance/core-entities';
 import {
   DepositActionType,
   getBalanceAction,
@@ -10,11 +9,19 @@ import {
   PopulateTransactionInputs,
 } from './common';
 import {
+  ConvertCashToNToken,
+  ConvertfCashToNToken,
   MintNToken,
   RedeemAndWithdrawNToken,
   RedeemToPortfolioNToken,
 } from './nToken';
-import { MAX_UINT88 } from '@notional-finance/util';
+import {
+  BASIS_POINT,
+  RATE_PRECISION,
+  MAX_UINT88,
+} from '@notional-finance/util';
+import { DeleverageNToken } from './Leveraged';
+import { TokenBalance } from '@notional-finance/core-entities';
 
 export function LendFixed({
   address,
@@ -33,6 +40,19 @@ export function LendFixed({
     const { withdrawEntireCashBalance } = hasExistingCashBalance(
       collateralBalance,
       accountBalances
+    );
+    // De-Rate the fCash balance by a dust amount to ensure that the txn goes
+    // through. fCash gets more expensive as you get closer to maturity. We want
+    // to ensure that the fCash amount defined here is good for a few hours at least.
+    //  exchangeRate = e ^ ((rate * timeToMaturity) / SECONDS_IN_YEAR)
+    //    assuming that the rate does not change:
+    //  exchangeRateRatio = exchangeRateAtSubmit / exchangeRateAtConfirmation
+    //  exchangeRateRatio = e^ [ timeToConfirmation / SECONDS_IN_YEAR ]
+    //  if timeToConfirmation = 4 hours (bad case assumption):
+    //    e ^ -(3600 * 4 / SECONDS_IN_YEAR) ~ 0.9995
+    collateralBalance = collateralBalance.scale(
+      RATE_PRECISION - BASIS_POINT * 5,
+      RATE_PRECISION
     );
 
     return populateNotionalTxnAndGas(
@@ -95,13 +115,11 @@ export function BorrowVariable({
 export function BorrowFixed({
   address,
   network,
-  depositBalance,
   debtBalance,
   accountBalances,
   redeemToWETH,
 }: PopulateTransactionInputs) {
-  if (!depositBalance || !debtBalance)
-    throw Error('All balances must be defined');
+  if (!debtBalance) throw Error('Debt balance must be defined');
 
   // NOTE: this returns the direct FX'd prime cash amount which is probably wrong....
   const { withdrawAmountInternalPrecision, withdrawEntireCashBalance } =
@@ -280,6 +298,11 @@ export function RollLendOrDebt({
 }: PopulateTransactionInputs) {
   if (!collateralBalance || !debtBalance)
     throw Error('Debt and Collateral Balances must be defined');
+  if (
+    (collateralBalance.isNegative() && debtBalance.isNegative()) ||
+    (collateralBalance.isPositive() && debtBalance.isPositive())
+  )
+    throw Error('Debt and Collateral Balances positive and negative signed');
 
   return populateNotionalTxnAndGas(
     network,
@@ -339,21 +362,20 @@ export function ConvertAsset(i: PopulateTransactionInputs) {
     (i.debtBalance?.tokenType === 'fCash' ||
       i.debtBalance?.tokenType === 'PrimeDebt') &&
     (i.collateralBalance?.tokenType === 'fCash' ||
-      i.collateralBalance?.tokenType === 'PrimeDebt')
+      i.collateralBalance?.tokenType === 'PrimeCash')
   ) {
     return RollLendOrDebt(i);
   } else if (
     i.debtBalance?.tokenType === 'nToken' &&
     i.collateralBalance?.tokenType === 'fCash'
   ) {
-    // TODO: need redeem to portfolio and lend
-    return RedeemAndWithdrawNToken(i);
+    // This is the same action as redeeming to portfolio and lending
+    return DeleverageNToken(i);
   } else if (
     i.debtBalance?.tokenType === 'fCash' &&
     i.collateralBalance?.tokenType === 'nToken'
   ) {
-    // TODO: need sell fcash and mint nToken
-    return RedeemToPortfolioNToken(i);
+    return ConvertfCashToNToken(i);
   } else if (
     i.debtBalance?.tokenType === 'nToken' &&
     i.collateralBalance?.tokenType === 'PrimeCash'
@@ -363,7 +385,7 @@ export function ConvertAsset(i: PopulateTransactionInputs) {
     i.debtBalance?.tokenType === 'PrimeDebt' &&
     i.collateralBalance?.tokenType === 'nToken'
   ) {
-    return MintNToken(i);
+    return ConvertCashToNToken(i);
   }
 
   throw Error('Invalid debt balance');

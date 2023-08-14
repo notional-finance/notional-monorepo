@@ -1,5 +1,5 @@
-import { CardContainer } from '@notional-finance/shared-web';
-import { Vault, FeatureLoader } from '@notional-finance/mui';
+import { CardContainer, FeatureLoader } from '@notional-finance/shared-web';
+import { Vault } from '@notional-finance/mui';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { useThemeVariant } from '@notional-finance/notionable-hooks';
 import { defineMessage, FormattedMessage } from 'react-intl';

@@ -13,7 +13,7 @@ import {
 import { OracleRegistryClient, TokenRegistryClient } from '../../src/client';
 import { BigNumber } from 'ethers';
 
-const ETH_PRICE = 1893.67;
+const ETH_PRICE = 1840.282196;
 describe.withRegistry(
   {
     network: Network.ArbitrumOne,
@@ -139,7 +139,7 @@ describe.withRegistry(
       it('can convert prime cash to underlying tokens', () => {
         const peth = tokens.parseInputToTokenBalance(
           '1',
-          'pEther',
+          'pETH',
           Network.ArbitrumOne
         );
 
@@ -198,7 +198,7 @@ describe.withRegistry(
       it('can convert prime cash to fiat currency', () => {
         const pusdc = tokens.parseInputToTokenBalance(
           '1',
-          'pUSD Coin',
+          'pUSDC',
           Network.ArbitrumOne
         );
 

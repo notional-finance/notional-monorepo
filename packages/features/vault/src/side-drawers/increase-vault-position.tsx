@@ -16,6 +16,7 @@ export const IncreaseVaultPosition = () => {
         inputRef={currencyInputRef}
         context={context}
         inputLabel={messages['IncreaseVaultPosition'].inputLabel}
+        useZeroDefault
       />
       <VaultLeverageSlider
         context={context}

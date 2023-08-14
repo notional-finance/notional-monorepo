@@ -34,13 +34,14 @@ export function LeveragedLend({
   debtBalance,
 }: PopulateTransactionInputs) {
   if (
-    !(
-      collateralBalance?.isPositive() &&
-      depositBalance?.isPositive() &&
-      debtBalance?.isNegative()
-    )
+    !(collateralBalance?.isPositive() && debtBalance?.isNegative()) ||
+    collateralBalance?.currencyId !== debtBalance?.currencyId
   ) {
     throw Error('All balances must be defined');
+  }
+
+  if (depositBalance === undefined) {
+    depositBalance = collateralBalance.toUnderlying().copy(0);
   }
 
   return populateNotionalTxnAndGas(
@@ -70,16 +71,9 @@ export function DeleverageLend({
   address,
   network,
   collateralBalance,
-  depositBalance,
   debtBalance,
 }: PopulateTransactionInputs) {
-  if (
-    !(
-      collateralBalance?.isNegative() &&
-      depositBalance !== undefined &&
-      debtBalance?.isPositive()
-    )
-  ) {
+  if (!(collateralBalance?.isNegative() && debtBalance?.isPositive())) {
     throw Error('Collateral and Debt must be defined');
   }
 
