@@ -216,6 +216,13 @@ export default abstract class BaseLiquidityPool<
       (l, t, i) => (t.isZero() ? l : [...l, i]),
       [] as number[]
     );
+    if (nonZeroIndexes.length === 0) {
+      return {
+        lpTokens: this.oneLPToken().copy(0),
+        feesPaid: this.zeroTokenArray(),
+      };
+    }
+
     const singleSidedExitTokenIndex =
       nonZeroIndexes.length === 1 ? nonZeroIndexes[0] : undefined;
 
