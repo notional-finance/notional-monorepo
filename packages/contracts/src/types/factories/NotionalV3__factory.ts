@@ -95,7 +95,7 @@ const _abi = [
       {
         indexed: false,
         internalType: "uint256",
-        name: "underlyingScalar",
+        name: "supplyFactor",
         type: "uint256",
       },
       {
@@ -4346,6 +4346,35 @@ const _abi = [
         type: "uint16",
       },
     ],
+    name: "getPrimeInterestRate",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "annualDebtRatePreFee",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "annualDebtRatePostFee",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "annualSupplyRate",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint16",
+        name: "currencyId",
+        type: "uint16",
+      },
+    ],
     name: "getPrimeInterestRateCurve",
     outputs: [
       {
@@ -4727,7 +4756,17 @@ const _abi = [
     outputs: [
       {
         internalType: "int256",
-        name: "",
+        name: "totalfCashDebt",
+        type: "int256",
+      },
+      {
+        internalType: "int256",
+        name: "fCashDebtHeldInSettlementReserve",
+        type: "int256",
+      },
+      {
+        internalType: "int256",
+        name: "primeCashHeldInSettlementReserve",
         type: "int256",
       },
     ],
@@ -7299,9 +7338,9 @@ const _abi = [
             type: "uint16",
           },
           {
-            internalType: "uint32",
+            internalType: "uint256",
             name: "minAccountBorrowSize",
-            type: "uint32",
+            type: "uint256",
           },
           {
             internalType: "uint16",
@@ -7344,9 +7383,9 @@ const _abi = [
             type: "uint16",
           },
           {
-            internalType: "uint32[2]",
+            internalType: "uint256[2]",
             name: "minAccountSecondaryBorrow",
-            type: "uint32[2]",
+            type: "uint256[2]",
           },
           {
             internalType: "uint8",
@@ -7354,7 +7393,7 @@ const _abi = [
             type: "uint8",
           },
         ],
-        internalType: "struct VaultConfigStorage",
+        internalType: "struct VaultConfigParams",
         name: "vaultConfig",
         type: "tuple",
       },

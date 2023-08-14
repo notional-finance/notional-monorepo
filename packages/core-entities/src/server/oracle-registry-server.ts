@@ -209,23 +209,22 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
             },
           };
         } else if (
-          oracle.oracleType === 'PrimeCashSpotInterestRate' ||
-          oracle.oracleType === 'PrimeDebtSpotInterestRate'
+          oracle.oracleType === 'PrimeCashPremiumInterestRate' ||
+          oracle.oracleType === 'PrimeDebtPremiumInterestRate'
         ) {
-          return null;
-          // return {
-          //   key: id,
-          //   target: notional,
-          //   method: 'getPrimeInterestRate',
-          //   args: [currencyId],
-          //   transform: (
-          //     r: Awaited<ReturnType<NotionalV3['getPrimeInterestRate']>>
-          //   ) => {
-          //     return oracle.oracleType === 'PrimeCashSpotInterestRate'
-          //       ? r.annualSupplyRate
-          //       : r.annualDebtRatePostFee;
-          //   },
-          // };
+          return {
+            key: id,
+            target: notional,
+            method: 'getPrimeInterestRate',
+            args: [oracle.quoteCurrencyId],
+            transform: (
+              r: Awaited<ReturnType<NotionalV3['getPrimeInterestRate']>>
+            ) => {
+              return oracle.oracleType === 'PrimeCashPremiumInterestRate'
+                ? r.annualSupplyRate
+                : r.annualDebtRatePostFee;
+            },
+          };
         } else if (oracle.oracleType === 'nTokenToUnderlyingExchangeRate') {
           return {
             key: id,

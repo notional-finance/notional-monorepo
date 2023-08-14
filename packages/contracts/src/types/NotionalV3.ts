@@ -579,7 +579,7 @@ export type InterestRateCurveSettingsStructOutput = [
   feeRatePercent: number;
 };
 
-export type VaultConfigStorageStruct = {
+export type VaultConfigParamsStruct = {
   flags: PromiseOrValue<BigNumberish>;
   borrowCurrencyId: PromiseOrValue<BigNumberish>;
   minAccountBorrowSize: PromiseOrValue<BigNumberish>;
@@ -601,10 +601,10 @@ export type VaultConfigStorageStruct = {
   excessCashLiquidationBonus: PromiseOrValue<BigNumberish>;
 };
 
-export type VaultConfigStorageStructOutput = [
+export type VaultConfigParamsStructOutput = [
   number,
   number,
-  number,
+  BigNumber,
   number,
   number,
   number,
@@ -613,12 +613,12 @@ export type VaultConfigStorageStructOutput = [
   number,
   [number, number],
   number,
-  [number, number],
+  [BigNumber, BigNumber],
   number
 ] & {
   flags: number;
   borrowCurrencyId: number;
-  minAccountBorrowSize: number;
+  minAccountBorrowSize: BigNumber;
   minCollateralRatioBPS: number;
   feeRate5BPS: number;
   liquidationRate: number;
@@ -627,7 +627,7 @@ export type VaultConfigStorageStructOutput = [
   maxDeleverageCollateralRatioBPS: number;
   secondaryBorrowCurrencies: [number, number];
   maxRequiredAccountCollateralRatioBPS: number;
-  minAccountSecondaryBorrow: [number, number];
+  minAccountSecondaryBorrow: [BigNumber, BigNumber];
   excessCashLiquidationBonus: number;
 };
 
@@ -714,6 +714,7 @@ export interface NotionalV3Interface extends utils.Interface {
     "getPrimeCashHoldingsOracle(uint16)": FunctionFragment;
     "getPrimeFactors(uint16,uint256)": FunctionFragment;
     "getPrimeFactorsStored(uint16)": FunctionFragment;
+    "getPrimeInterestRate(uint16)": FunctionFragment;
     "getPrimeInterestRateCurve(uint16)": FunctionFragment;
     "getPrincipalFromfCashBorrow(uint16,uint256,uint256,uint32,uint256)": FunctionFragment;
     "getRateStorage(uint16)": FunctionFragment;
@@ -806,7 +807,7 @@ export interface NotionalV3Interface extends utils.Interface {
     "updatePrimeCashHoldingsOracle(uint16,address)": FunctionFragment;
     "updateSecondaryBorrowCapacity(address,uint16,uint80)": FunctionFragment;
     "updateTokenCollateralParameters(uint16,uint8,uint8,uint8,uint8,uint8)": FunctionFragment;
-    "updateVault(address,(uint16,uint16,uint32,uint16,uint8,uint8,uint8,uint8,uint16,uint16[2],uint16,uint32[2],uint8),uint80)": FunctionFragment;
+    "updateVault(address,(uint16,uint16,uint256,uint16,uint8,uint8,uint8,uint8,uint16,uint16[2],uint16,uint256[2],uint8),uint80)": FunctionFragment;
     "upgradeBeacon(uint8,address)": FunctionFragment;
     "upgradeTo(address)": FunctionFragment;
     "upgradeToAndCall(address,bytes)": FunctionFragment;
@@ -884,6 +885,7 @@ export interface NotionalV3Interface extends utils.Interface {
       | "getPrimeCashHoldingsOracle"
       | "getPrimeFactors"
       | "getPrimeFactorsStored"
+      | "getPrimeInterestRate"
       | "getPrimeInterestRateCurve"
       | "getPrincipalFromfCashBorrow"
       | "getRateStorage"
@@ -1373,6 +1375,10 @@ export interface NotionalV3Interface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "getPrimeFactorsStored",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getPrimeInterestRate",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
@@ -1931,7 +1937,7 @@ export interface NotionalV3Interface extends utils.Interface {
     functionFragment: "updateVault",
     values: [
       PromiseOrValue<string>,
-      VaultConfigStorageStruct,
+      VaultConfigParamsStruct,
       PromiseOrValue<BigNumberish>
     ]
   ): string;
@@ -2206,6 +2212,10 @@ export interface NotionalV3Interface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "getPrimeFactorsStored",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getPrimeInterestRate",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -2763,7 +2773,7 @@ export type ApprovalForAllEventFilter = TypedEventFilter<ApprovalForAllEvent>;
 
 export interface CurrencyRebalancedEventObject {
   currencyId: number;
-  underlyingScalar: BigNumber;
+  supplyFactor: BigNumber;
   annualizedInterestRate: BigNumber;
 }
 export type CurrencyRebalancedEvent = TypedEvent<
@@ -3918,6 +3928,17 @@ export interface NotionalV3 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[PrimeCashFactorsStructOutput]>;
 
+    getPrimeInterestRate(
+      currencyId: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<
+      [BigNumber, BigNumber, BigNumber] & {
+        annualDebtRatePreFee: BigNumber;
+        annualDebtRatePostFee: BigNumber;
+        annualSupplyRate: BigNumber;
+      }
+    >;
+
     getPrimeInterestRateCurve(
       currencyId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -3997,7 +4018,13 @@ export interface NotionalV3 extends BaseContract {
       currencyId: PromiseOrValue<BigNumberish>,
       maturity: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
+    ): Promise<
+      [BigNumber, BigNumber, BigNumber] & {
+        totalfCashDebt: BigNumber;
+        fCashDebtHeldInSettlementReserve: BigNumber;
+        primeCashHeldInSettlementReserve: BigNumber;
+      }
+    >;
 
     getTreasuryManager(overrides?: CallOverrides): Promise<[string]>;
 
@@ -4575,7 +4602,7 @@ export interface NotionalV3 extends BaseContract {
 
     updateVault(
       vaultAddress: PromiseOrValue<string>,
-      vaultConfig: VaultConfigStorageStruct,
+      vaultConfig: VaultConfigParamsStruct,
       maxPrimaryBorrowCapacity: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -5152,6 +5179,17 @@ export interface NotionalV3 extends BaseContract {
     overrides?: CallOverrides
   ): Promise<PrimeCashFactorsStructOutput>;
 
+  getPrimeInterestRate(
+    currencyId: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<
+    [BigNumber, BigNumber, BigNumber] & {
+      annualDebtRatePreFee: BigNumber;
+      annualDebtRatePostFee: BigNumber;
+      annualSupplyRate: BigNumber;
+    }
+  >;
+
   getPrimeInterestRateCurve(
     currencyId: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
@@ -5231,7 +5269,13 @@ export interface NotionalV3 extends BaseContract {
     currencyId: PromiseOrValue<BigNumberish>,
     maturity: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
-  ): Promise<BigNumber>;
+  ): Promise<
+    [BigNumber, BigNumber, BigNumber] & {
+      totalfCashDebt: BigNumber;
+      fCashDebtHeldInSettlementReserve: BigNumber;
+      primeCashHeldInSettlementReserve: BigNumber;
+    }
+  >;
 
   getTreasuryManager(overrides?: CallOverrides): Promise<string>;
 
@@ -5805,7 +5849,7 @@ export interface NotionalV3 extends BaseContract {
 
   updateVault(
     vaultAddress: PromiseOrValue<string>,
-    vaultConfig: VaultConfigStorageStruct,
+    vaultConfig: VaultConfigParamsStruct,
     maxPrimaryBorrowCapacity: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -6397,6 +6441,17 @@ export interface NotionalV3 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PrimeCashFactorsStructOutput>;
 
+    getPrimeInterestRate(
+      currencyId: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<
+      [BigNumber, BigNumber, BigNumber] & {
+        annualDebtRatePreFee: BigNumber;
+        annualDebtRatePostFee: BigNumber;
+        annualSupplyRate: BigNumber;
+      }
+    >;
+
     getPrimeInterestRateCurve(
       currencyId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -6476,7 +6531,13 @@ export interface NotionalV3 extends BaseContract {
       currencyId: PromiseOrValue<BigNumberish>,
       maturity: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<BigNumber>;
+    ): Promise<
+      [BigNumber, BigNumber, BigNumber] & {
+        totalfCashDebt: BigNumber;
+        fCashDebtHeldInSettlementReserve: BigNumber;
+        primeCashHeldInSettlementReserve: BigNumber;
+      }
+    >;
 
     getTreasuryManager(overrides?: CallOverrides): Promise<string>;
 
@@ -7048,7 +7109,7 @@ export interface NotionalV3 extends BaseContract {
 
     updateVault(
       vaultAddress: PromiseOrValue<string>,
-      vaultConfig: VaultConfigStorageStruct,
+      vaultConfig: VaultConfigParamsStruct,
       maxPrimaryBorrowCapacity: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -7117,12 +7178,12 @@ export interface NotionalV3 extends BaseContract {
 
     "CurrencyRebalanced(uint16,uint256,uint256)"(
       currencyId?: null,
-      underlyingScalar?: null,
+      supplyFactor?: null,
       annualizedInterestRate?: null
     ): CurrencyRebalancedEventFilter;
     CurrencyRebalanced(
       currencyId?: null,
-      underlyingScalar?: null,
+      supplyFactor?: null,
       annualizedInterestRate?: null
     ): CurrencyRebalancedEventFilter;
 
@@ -8020,6 +8081,11 @@ export interface NotionalV3 extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    getPrimeInterestRate(
+      currencyId: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     getPrimeInterestRateCurve(
       currencyId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -8624,7 +8690,7 @@ export interface NotionalV3 extends BaseContract {
 
     updateVault(
       vaultAddress: PromiseOrValue<string>,
-      vaultConfig: VaultConfigStorageStruct,
+      vaultConfig: VaultConfigParamsStruct,
       maxPrimaryBorrowCapacity: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -9084,6 +9150,11 @@ export interface NotionalV3 extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     getPrimeFactorsStored(
+      currencyId: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getPrimeInterestRate(
       currencyId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -9694,7 +9765,7 @@ export interface NotionalV3 extends BaseContract {
 
     updateVault(
       vaultAddress: PromiseOrValue<string>,
-      vaultConfig: VaultConfigStorageStruct,
+      vaultConfig: VaultConfigParamsStruct,
       maxPrimaryBorrowCapacity: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;

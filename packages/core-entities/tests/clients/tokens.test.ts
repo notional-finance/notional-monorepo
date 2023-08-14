@@ -13,7 +13,7 @@ import {
 import { OracleRegistryClient, TokenRegistryClient } from '../../src/client';
 import { BigNumber } from 'ethers';
 
-const ETH_PRICE = 1893.67;
+const ETH_PRICE = 1840.282196;
 describe.withRegistry(
   {
     network: Network.ArbitrumOne,
