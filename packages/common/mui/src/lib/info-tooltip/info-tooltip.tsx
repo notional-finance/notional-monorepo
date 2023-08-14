@@ -23,8 +23,14 @@ export function InfoTooltip({ toolTipText, sx }: InfoTooltipProps) {
 
   return (
     <StyledToolTip arrow title={<Caption msg={toolTipText} />}>
-      <Box component="span" sx={{ width: iconSize, height: iconSize, display: 'flex', ...sx }}>
-        <InfoIcon sx={{ fontSize: iconSize, color: theme.palette.borders.accentPaper }} />
+      <Box
+        component="span"
+        sx={{ width: iconSize, height: iconSize, display: 'flex', ...sx }}
+      >
+        <InfoIcon
+          fill={theme.palette.borders.accentPaper}
+          sx={{ fontSize: iconSize }}
+        />
       </Box>
     </StyledToolTip>
   );

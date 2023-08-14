@@ -32,6 +32,7 @@ export * from './lib/chf-icon/chf-icon';
 export * from './lib/eur-icon/eur-icon';
 export * from './lib/resources-icon/resources-icon';
 export * from './lib/signature-icon/signature-icon';
+export * from './lib/sparkles-icon/sparkles-icon';
 export * from './lib/notional-plain-icon/notional-plain-icon';
 export * from './lib/outlook-cal-icon/outlook-cal-icon';
 export * from './lib/discord-icon/discord-icon';

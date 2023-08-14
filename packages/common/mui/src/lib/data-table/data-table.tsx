@@ -29,6 +29,7 @@ interface DataTableProps {
   tabBarProps?: TabBarPropsType;
   tableTitleButtons?: TableTitleButtonsType[];
   tableTitle?: JSX.Element;
+  tableTitleSubText?: JSX.Element;
   tableVariant?: TABLE_VARIANTS;
   hideExcessRows?: boolean;
   initialState?: Record<any, any>;
@@ -49,6 +50,7 @@ export const DataTable = ({
   TabComponentVisible,
   tabBarProps,
   tableTitle,
+  tableTitleSubText,
   tableVariant,
   hideExcessRows,
   tableTitleButtons,
@@ -146,6 +148,7 @@ export const DataTable = ({
       {tableTitle && (
         <DataTableTitleBar
           tableTitle={tableTitle}
+          tableTitleSubText={tableTitleSubText}
           tableTitleButtons={tableTitleButtons}
           tableVariant={tableVariant}
           expandableTable={expandableTable}
