@@ -43,4 +43,16 @@ export const tradeErrors = defineMessages({
     defaultMessage: 'Reduce leverage or decrease deposit to continue',
     description: 'warning message',
   },
+  liquidationRisk: {
+    defaultMessage: 'Liquidation Risk Too High',
+    description: 'warning message',
+  },
+  borrowLiquidationRiskMsg: {
+    defaultMessage: 'Reduce borrow amount to continue',
+    description: 'warning message',
+  },
+  leverageLiquidationRiskMsg: {
+    defaultMessage: 'Reduce leverage or increase deposit to continue',
+    description: 'warning message',
+  },
 });

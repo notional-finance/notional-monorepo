@@ -1,12 +1,14 @@
-import { Box } from '@mui/material';
+import { Box, useTheme } from '@mui/material';
 import {
   ArrowIndicatorCell,
   DataTable,
   TABLE_VARIANTS,
   DataTableColumn,
+  ErrorMessage,
 } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
 import { useVaultDetailsTable } from '../hooks/use-vault-details-table';
+import { tradeErrors } from '@notional-finance/trade';
 
 interface VaultDetailsTableProps {
   hideUpdatedColumn?: boolean;
@@ -46,11 +48,27 @@ const TABLE_COLUMNS: DataTableColumn[] = [
 export const VaultDetailsTable = ({
   hideUpdatedColumn,
 }: VaultDetailsTableProps) => {
-  const { tableData, maturity } = useVaultDetailsTable();
+  const theme = useTheme();
+  const { tableData, maturity, tooRisky } = useVaultDetailsTable();
 
   return (
     <Box>
+      {tooRisky && !hideUpdatedColumn && (
+        <ErrorMessage
+          variant="error"
+          title={<FormattedMessage {...tradeErrors.liquidationRisk} />}
+          message={
+            <FormattedMessage {...tradeErrors.leverageLiquidationRiskMsg} />
+          }
+          marginBottom
+        />
+      )}
       <DataTable
+        sx={{
+          border: tooRisky
+            ? `1px solid ${theme.palette.error.main}`
+            : theme.shape.borderStandard,
+        }}
         data={tableData}
         columns={hideUpdatedColumn ? TABLE_COLUMNS.slice(0, 2) : TABLE_COLUMNS}
         stateZeroMessage={

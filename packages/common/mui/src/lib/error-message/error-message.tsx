@@ -9,6 +9,7 @@ interface ErrorMessageProps {
   variant: 'error' | 'warning' | 'info';
   title?: ReactNode;
   message?: ReactNode;
+  marginBottom?: boolean;
 }
 
 export interface ErrorContainerProps {
@@ -20,6 +21,7 @@ export const ErrorMessage = ({
   variant,
   title,
   message,
+  marginBottom,
 }: ErrorMessageProps) => {
   const theme = useTheme();
   let defaultTitle: React.ReactNode;
@@ -36,7 +38,14 @@ export const ErrorMessage = ({
   }
 
   return message ? (
-    <ErrorContainer variant={variant} theme={theme}>
+    <ErrorContainer
+      variant={variant}
+      theme={theme}
+      sx={{
+        marginTop: marginBottom ? undefined : theme.spacing(3),
+        marginBottom: marginBottom ? theme.spacing(3) : undefined,
+      }}
+    >
       <AlertIcon sx={{ fill: theme.palette[variant].dark }} />
       <ErrorContent>
         <LabelValue>{title || defaultTitle}</LabelValue>
@@ -58,7 +67,7 @@ export const ErrorMessage = ({
 export default ErrorMessage;
 
 const ErrorContainer = styled(Box, {
-  shouldForwardProp: (prop: string) => prop !== 'variantColor',
+  shouldForwardProp: (prop: string) => prop !== 'variant',
 })(
   ({ variant, theme }: ErrorContainerProps) => `
     display: flex;
@@ -67,7 +76,6 @@ const ErrorContainer = styled(Box, {
     height: 100%;
     border-radius: ${theme.shape.borderRadius()};
     border: 1px solid ${theme.palette[variant].main};
-    margin-top: ${theme.spacing(3)};
     padding: ${theme.spacing(1, 1.5)};
     background: ${theme.palette[variant].light};
   `
