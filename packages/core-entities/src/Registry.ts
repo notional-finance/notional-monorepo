@@ -132,6 +132,7 @@ export class Registry {
     Registry.getConfigurationRegistry().stopRefresh(network);
     Registry.getAccountRegistry().stopRefresh(network);
     Registry.getVaultRegistry().stopRefresh(network);
+    Registry.getYieldRegistry().stopRefresh(network);
   }
 
   public static isRefreshRunning(network: Network) {
@@ -141,7 +142,8 @@ export class Registry {
       Registry.getOracleRegistry().isRefreshRunning(network) &&
       Registry.getConfigurationRegistry().isRefreshRunning(network) &&
       Registry.getAccountRegistry().isRefreshRunning(network) &&
-      Registry.getVaultRegistry().isRefreshRunning(network)
+      Registry.getVaultRegistry().isRefreshRunning(network) &&
+      Registry.getYieldRegistry().isRefreshRunning(network)
     );
   }
 

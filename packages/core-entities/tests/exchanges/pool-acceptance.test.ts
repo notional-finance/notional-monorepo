@@ -77,9 +77,9 @@ const acceptanceSuite = ({
       if (tokenIn >= harness.poolInstance.balances.length) return;
 
       try {
-        const tokensIn = harness.poolInstance.balances[
-          tokenIn
-        ].mulInRatePrecision(utilization * RATE_PRECISION);
+        const tokensIn = harness.poolInstance.balances[tokenIn]
+          .mulInRatePrecision(utilization * RATE_PRECISION)
+          .abs();
 
         const actual = await harness.singleSideEntry(signer, tokenIn, tokensIn);
         const inputs = harness.poolInstance.zeroTokenArray();
@@ -176,9 +176,9 @@ const acceptanceSuite = ({
       if (tokenOut >= harness.poolInstance.balances.length) return;
 
       try {
-        const tokensIn = harness.poolInstance.balances[
-          tokenIn
-        ].mulInRatePrecision(utilization * RATE_PRECISION);
+        const tokensIn = harness.poolInstance.balances[tokenIn]
+          .mulInRatePrecision(utilization * RATE_PRECISION)
+          .abs();
 
         const actual = await harness.trade(signer, tokensIn, tokenIn, tokenOut);
         const { tokensOut, feesPaid: _feesPaid } =

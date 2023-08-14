@@ -1,5 +1,6 @@
 import { NotionalV3, NotionalV3ABI } from '@notional-finance/contracts';
 import {
+  convertToSignedfCashId,
   getNowSeconds,
   Network,
   NotionalAddress,
@@ -147,12 +148,16 @@ export class NotionalV3Harness extends PoolTestHarness<fCashMarket> {
 
     const fCashBalances = (
       await Promise.all(
-        this.poolInstance.poolParams.nTokenFCash.map((v) =>
-          this.notional.balanceOf(account, BigNumber.from(v.tokenId))
-        )
+        this.poolInstance.balances.slice(1).map((v) => {
+          const id = convertToSignedfCashId(v.tokenId, v.isNegative());
+          return this.notional.balanceOf(account, BigNumber.from(id));
+        })
       )
     ).map((b, i) => {
-      return this.poolInstance.poolParams.nTokenFCash[i].copy(b);
+      const num = this.poolInstance.balances[i + 1].isNegative()
+        ? b.mul(-1)
+        : b;
+      return this.poolInstance.poolParams.nTokenFCash[i].copy(num);
     });
 
     const tokensOut = [
