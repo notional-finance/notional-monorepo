@@ -72,7 +72,7 @@ export const renderTradeContext = async (
         r.result.current.globalState.isAccountReady
       );
     },
-    { timeout: 6000 }
+    { timeout: 8000 }
   );
 
   const submitTransaction = async () => {
@@ -89,7 +89,7 @@ export const renderTradeContext = async (
         r.result.current.transactionStatus === TransactionStatus.CONFIRMED ||
         r.result.current.transactionStatus === TransactionStatus.NONE ||
         r.result.current.transactionStatus === TransactionStatus.REVERT,
-      { timeout: 6000 }
+      { timeout: 8000 }
     );
 
     if (r.result.current.transactionStatus !== TransactionStatus.CONFIRMED)
@@ -127,7 +127,7 @@ export const renderTradeContext = async (
 
     await r.waitFor(
       () => r.result.current.approvalStatus === TransactionStatus.CONFIRMED,
-      { timeout: 4000 }
+      { timeout: 8000 }
     );
   };
 
@@ -198,7 +198,7 @@ export const renderVaultTradeContext = async (
         r.result.current.globalState.isAccountReady
       );
     },
-    { timeout: 6000 }
+    { timeout: 8000 }
   );
 
   const submitTransaction = async () => {
@@ -215,7 +215,7 @@ export const renderVaultTradeContext = async (
         r.result.current.transactionStatus === TransactionStatus.CONFIRMED ||
         r.result.current.transactionStatus === TransactionStatus.NONE ||
         r.result.current.transactionStatus === TransactionStatus.REVERT,
-      { timeout: 6000 }
+      { timeout: 8000 }
     );
 
     if (r.result.current.transactionStatus !== TransactionStatus.CONFIRMED)
@@ -253,7 +253,7 @@ export const renderVaultTradeContext = async (
 
     await r.waitFor(
       () => r.result.current.approvalStatus === TransactionStatus.CONFIRMED,
-      { timeout: 4000 }
+      { timeout: 8000 }
     );
   };
 

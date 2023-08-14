@@ -272,21 +272,21 @@ describe.withForkAndRegistry(
       {
         tradeType: 'LendVariable',
         selectedDepositToken: 'DAI',
-        collateral: `pDai Stablecoin`,
+        collateral: `pDAI`,
         depositAmount: 10,
         approve: true,
       },
       {
         tradeType: 'LendVariable',
         selectedDepositToken: 'ETH',
-        collateral: `pEther`,
+        collateral: `pETH`,
         depositAmount: 0.1,
         approve: false,
       },
       {
         tradeType: 'BorrowVariable',
         selectedDepositToken: 'ETH',
-        debt: `pdEther`,
+        debt: `pdETH`,
         depositAmount: -0.01,
         enablePrimeBorrow: true,
       },
@@ -305,7 +305,7 @@ describe.withForkAndRegistry(
       {
         tradeType: 'LeveragedLend',
         selectedDepositToken: 'DAI',
-        collateral: 'pDai Stablecoin',
+        collateral: 'pDAI',
         debt: `fDAI:fixed@${maturity}`,
         depositAmount: 1,
         approve: true,
@@ -314,7 +314,7 @@ describe.withForkAndRegistry(
       {
         tradeType: 'LeveragedLend',
         selectedDepositToken: 'DAI',
-        debt: 'pdDai Stablecoin',
+        debt: 'pdDAI',
         collateral: `fDAI:fixed@${maturity}`,
         depositAmount: 1,
         approve: true,
@@ -324,13 +324,13 @@ describe.withForkAndRegistry(
       {
         tradeType: 'Deposit',
         selectedDepositToken: 'ETH',
-        collateral: `pEther`,
+        collateral: `pETH`,
         depositAmount: 0.1,
       },
       {
         tradeType: 'Deposit',
         selectedDepositToken: 'DAI',
-        collateral: `pDai Stablecoin`,
+        collateral: `pDAI`,
         depositAmount: 10,
         approve: true,
       },
@@ -386,7 +386,7 @@ describe.withForkAndRegistry(
         tradeType: 'ConvertAsset',
         selectedDepositToken: 'ETH',
         debt: `fETH:fixed@${maturity}`,
-        collateral: `pEther`,
+        collateral: `pETH`,
         debtAmount: -0.01,
       },
       {
@@ -439,24 +439,24 @@ describe.withForkAndRegistry(
       {
         tradeType: 'Withdraw',
         selectedDepositToken: 'ETH',
-        debt: `pdEther`,
+        debt: `pdETH`,
         depositAmount: -0.005,
       },
       {
         tradeType: 'Withdraw',
         selectedDepositToken: 'ETH',
-        debt: `pdEther`,
+        debt: `pdETH`,
         maxWithdraw: true,
       },
       {
         tradeType: 'ConvertAsset',
-        debt: `pdEther`,
+        debt: `pdETH`,
         collateral: `fETH:fixed@${maturity2}`,
         debtAmount: -0.01,
       },
       {
         tradeType: 'ConvertAsset',
-        debt: `pdEther`,
+        debt: `pdETH`,
         collateral: `nETH`,
         debtAmount: -0.01,
       },
@@ -500,7 +500,7 @@ describe.withForkAndRegistry(
       {
         tradeType: 'ConvertAsset',
         debt: `nETH`,
-        collateral: `pEther`,
+        collateral: `pETH`,
         debtAmount: -0.01,
       },
     ].map(
@@ -525,21 +525,21 @@ describe.withForkAndRegistry(
       {
         tradeType: 'RepayDebt',
         selectedDepositToken: 'ETH',
-        collateral: `pEther`,
+        collateral: `pETH`,
         enablePrimeBorrow: true,
         depositAmount: 0.005,
       },
       {
         tradeType: 'RepayDebt',
         selectedDepositToken: 'ETH',
-        collateral: `pEther`,
+        collateral: `pETH`,
         enablePrimeBorrow: true,
         maxWithdraw: true,
       },
       {
         tradeType: 'RollDebt',
         selectedDepositToken: 'ETH',
-        collateral: `pEther`,
+        collateral: `pETH`,
         debt: `fETH:fixed@${maturity}`,
         enablePrimeBorrow: true,
         collateralAmount: 0.01,
@@ -554,7 +554,7 @@ describe.withForkAndRegistry(
                 -0.01,
                 Registry.getTokenRegistry().getTokenBySymbol(
                   Network.ArbitrumOne,
-                  `pdEther`
+                  `pdETH`
                 )
               ),
             });
@@ -586,7 +586,7 @@ describe.withForkAndRegistry(
         tradeType: 'RollDebt',
         selectedDepositToken: 'ETH',
         collateral: `fETH:fixed@${maturity}`,
-        debt: `pdEther`,
+        debt: `pdETH`,
         enablePrimeBorrow: true,
         collateralAmount: 0.01,
       },
@@ -615,7 +615,7 @@ describe.withForkAndRegistry(
         debt: `fETH:fixed@${maturity}`,
         depositAmount: 0,
         debtAmount: -0.01,
-        collateral: `pEther`,
+        collateral: `pETH`,
         collateralAmount: 0,
         enablePrimeBorrow: true,
         initialDeposit: (d: PopulateTransactionInputs) => {
@@ -639,7 +639,7 @@ describe.withForkAndRegistry(
               -0.04,
               Registry.getTokenRegistry().getTokenBySymbol(
                 Network.ArbitrumOne,
-                `pdEther`
+                `pdETH`
               )
             ),
           });
@@ -649,7 +649,7 @@ describe.withForkAndRegistry(
         tradeType: 'Deleverage',
         selectedDepositToken: 'ETH',
         depositAmount: 0,
-        debt: `pdEther`,
+        debt: `pdETH`,
         debtAmount: -0.01,
         collateral: `fETH:fixed@${maturity}`,
         collateralAmount: 0,
@@ -668,7 +668,7 @@ describe.withForkAndRegistry(
               0.05,
               Registry.getTokenRegistry().getTokenBySymbol(
                 Network.ArbitrumOne,
-                `pEther`
+                `pETH`
               )
             ),
             debtBalance: TokenBalance.fromFloat(

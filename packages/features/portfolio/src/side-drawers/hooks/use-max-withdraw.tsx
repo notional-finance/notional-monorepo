@@ -1,5 +1,5 @@
 import { useCurrencyInputRef } from '@notional-finance/mui';
-import { BaseTradeContext, usePortfolioRiskProfile } from '.';
+import { BaseTradeContext, usePortfolioRiskProfile } from '@notional-finance/notionable-hooks';
 import { useCallback } from 'react';
 
 export function useMaxWithdraw(context: BaseTradeContext) {

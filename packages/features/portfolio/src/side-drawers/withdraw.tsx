@@ -1,13 +1,11 @@
 import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
 import { PortfolioSideDrawer } from './components/portfolio-side-drawer';
-import {
-  useTradeContext,
-  useMaxWithdraw,
-} from '@notional-finance/notionable-hooks';
+import { useTradeContext } from '@notional-finance/notionable-hooks';
 import { PortfolioParams } from '../portfolio-feature-shell';
 import { useParams } from 'react-router';
 import { DepositInput, PortfolioHoldingSelect } from '@notional-finance/trade';
 import { messages } from './messages';
+import { useMaxWithdraw } from './hooks/use-max-withdraw';
 
 export const Withdraw = () => {
   const context = useTradeContext('Withdraw');

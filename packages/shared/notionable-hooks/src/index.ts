@@ -17,8 +17,6 @@ export * from './use-wallet';
 export * from './use-vault';
 export * from './use-query-params';
 export * from './use-summary';
-export * from './use-max-repay';
-export * from './use-max-withdraw';
 
 export type BaseTradeContext = ObservableContext<BaseTradeState>;
 export type TradeContext = ObservableContext<TradeState>;
