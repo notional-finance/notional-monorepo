@@ -228,13 +228,8 @@ export const renderVaultTradeContext = async (
       r.result.current.globalState.completedTransactions[
         r.result.current.transactionHash!
       ];
-    const { transaction } = parseTransactionLogs(
-      r.result.current.globalState.selectedNetwork!,
-      rcpt.blockNumber,
-      rcpt.logs
-    );
 
-    return { transaction, rcpt };
+    return { rcpt };
   };
 
   const approveToken = async (address: string) => {

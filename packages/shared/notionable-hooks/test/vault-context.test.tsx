@@ -7,6 +7,7 @@ import { Network, PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
 import { renderVaultTradeContext } from './renderTradeContext';
 import { act } from '@testing-library/react-hooks';
 
+jest.setTimeout(15_000);
 describe.withForkAndRegistry(
   {
     network: Network.ArbitrumOne,

@@ -249,7 +249,6 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
 
   aboveMaxLeverageRatio() {
     const leverage = this.leverageRatio();
-    console.log(leverage, this.vaultLeverageFactors.maxLeverageRatio);
     return (
       leverage !== null && leverage > this.vaultLeverageFactors.maxLeverageRatio
     );
