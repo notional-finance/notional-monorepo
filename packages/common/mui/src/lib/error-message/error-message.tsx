@@ -44,9 +44,7 @@ export const ErrorMessage = ({
         <Caption
           sx={{
             maxWidth: theme.spacing(46),
-            whiteSpace: 'nowrap',
             overflow: 'hidden',
-            textOverflow: 'ellipsis',
           }}
         >
           {message}

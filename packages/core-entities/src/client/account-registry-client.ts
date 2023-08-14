@@ -244,9 +244,6 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
               const vaultAccount = r[0];
               const maturity = vaultAccount.maturity.toNumber();
               if (maturity === 0) return [];
-              const accountDebt = r.accruedPrimeVaultFeeInUnderlying.isZero()
-                ? vaultAccount.accountDebtUnderlying
-                : r.accruedPrimeVaultFeeInUnderlying;
               const {
                 vaultShareID,
                 primaryDebtID,
@@ -262,7 +259,9 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
                 this._parseVaultDebtBalance(
                   primaryDebtID,
                   primaryTokenId,
-                  accountDebt,
+                  vaultAccount.accountDebtUnderlying.add(
+                    r.accruedPrimeVaultFeeInUnderlying
+                  ),
                   maturity,
                   network
                 ),

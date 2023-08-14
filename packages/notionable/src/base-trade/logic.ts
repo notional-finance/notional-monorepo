@@ -311,11 +311,12 @@ export function priorVaultAccountRisk(
           ?.length && c.priorAccountRisk === undefined;
       return (
         p.vaultAddress === c.vaultAddress &&
+        p.tradeType === c.tradeType &&
         prevA?.address === curA?.address &&
         !mustComputeRisk
       );
     }),
-    map(([{ vaultAddress, tradeType }, account]) => {
+    map(([{ vaultAddress, tradeType, defaultLeverageRatio }, account]) => {
       if (!vaultAddress) return undefined;
       const priorVaultBalances =
         account?.balances.filter(
@@ -330,15 +331,24 @@ export function priorVaultAccountRisk(
           priorVaultBalances,
         };
       } else {
+        const priorAccountRisk = VaultAccountRiskProfile.from(
+          vaultAddress,
+          priorVaultBalances
+        ).getAllRiskFactors();
+
+        const leverageRatio =
+          tradeType === 'IncreaseVaultPosition' ||
+          tradeType === 'WithdrawAndRepayVault'
+            ? priorAccountRisk.leverageRatio || undefined
+            : defaultLeverageRatio;
+
         // If a vault account exists, then the default trade type is not selected
         return {
           tradeType:
             tradeType === 'CreateVaultPosition' ? undefined : tradeType,
           priorVaultBalances,
-          priorAccountRisk: VaultAccountRiskProfile.from(
-            vaultAddress,
-            priorVaultBalances
-          ).getAllRiskFactors(),
+          priorAccountRisk,
+          defaultLeverageRatio: leverageRatio,
         };
       }
     }),
@@ -478,14 +488,14 @@ export function defaultLeverageRatio(
           // Return from the configuration registry directly
           return leverageFactors;
         } else if (
-          (s.tradeType === 'IncreaseVaultPosition' ||
-            s.tradeType === 'WithdrawAndRepayVault') &&
-          !!(s as VaultTradeState).priorAccountRisk
+          s.tradeType === 'IncreaseVaultPosition' ||
+          s.tradeType === 'WithdrawAndRepayVault'
         ) {
+          // Inside these two trade types, the default leverage ratio is defined
+          // by the prior account risk
           return {
-            ...leverageFactors,
-            defaultLeverageRatio:
-              (s as VaultTradeState).priorAccountRisk?.leverageRatio || 0,
+            minLeverageRatio: leverageFactors.minLeverageRatio,
+            maxLeverageRatio: leverageFactors.maxLeverageRatio,
           };
         }
       }
