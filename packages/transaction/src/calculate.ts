@@ -15,7 +15,6 @@ import {
   PRIME_CASH_VAULT_MATURITY,
   RATE_DECIMALS,
   RATE_PRECISION,
-  SECONDS_IN_YEAR,
 } from '@notional-finance/util';
 
 /**
@@ -535,10 +534,19 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
   const vaultAddress = collateral.vaultAddress;
   if (!vaultAddress) throw Error('Vault Address not defined');
 
-  return VaultAccountRiskProfile.from(
+  let profile = VaultAccountRiskProfile.from(
     vaultAddress,
     balances || [TokenBalance.zero(collateral)]
-  ).getDebtAndCollateralMaintainRiskFactor(
+  );
+
+  if (depositBalance?.isNegative()) {
+    // Apply the withdraw amount to the profile
+    const { netVaultSharesForUnderlying } =
+      vaultAdapter.getNetVaultSharesMinted(depositBalance, collateral);
+    profile = profile.simulate([netVaultSharesForUnderlying]);
+  }
+
+  return profile.getDebtAndCollateralMaintainRiskFactor(
     debt,
     riskFactorLimit,
     (debtBalance: TokenBalance) => {
