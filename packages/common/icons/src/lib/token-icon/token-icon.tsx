@@ -33,6 +33,8 @@ import wbtc_alt from '../../assets/icons/currencies/wBTC-alt.svg';
 import dai_alt from '../../assets/icons/currencies/dai-alt.svg';
 import trading_fees from '../../assets/icons/currencies/trading-fees.svg';
 import ffrax from '../../assets/icons/currencies/fFRAX.svg';
+import nfrax from '../../assets/icons/currencies/nFRAX.svg';
+import frax from '../../assets/icons/currencies/FRAX.svg';
 
 export interface TokenImg {
   name: string;
@@ -190,6 +192,16 @@ export const TokenImageList: TokenImageMap = {
     name: 'ffrax',
     img: ffrax,
     alt: 'ffrax',
+  },
+  nfrax: {
+    name: 'nfrax',
+    img: nfrax,
+    alt: 'nfrax',
+  },
+  frax: {
+    name: 'frax',
+    img: frax,
+    alt: 'frax',
   },
   unknown: {
     name: 'unknown',
