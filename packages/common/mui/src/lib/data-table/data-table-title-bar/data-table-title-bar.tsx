@@ -1,3 +1,4 @@
+import { Dispatch, SetStateAction } from 'react';
 import { Box, useTheme } from '@mui/material';
 import { TableTitleButtonsType, TABLE_VARIANTS } from '../types';
 import { ButtonBar } from '../../button-bar/button-bar';
@@ -10,6 +11,8 @@ interface DataTableTitleBarProps {
   tableTitleButtons?: TableTitleButtonsType[];
   tableVariant?: TABLE_VARIANTS;
   expandableTable?: boolean;
+  setInfoBoxActive?: Dispatch<SetStateAction<boolean | undefined>>;
+  infoBoxActive?: boolean | undefined;
 }
 
 export const DataTableTitleBar = ({
@@ -18,6 +21,7 @@ export const DataTableTitleBar = ({
   expandableTable,
   tableTitleSubText,
   tableTitleButtons,
+  setInfoBoxActive,
 }: DataTableTitleBarProps) => {
   const theme = useTheme();
 
@@ -54,10 +58,16 @@ export const DataTableTitleBar = ({
             }}
           >
             {tableTitle}
-            <InfoIcon
-              fill={theme.palette.primary.light}
-              sx={{ height: '16px' }}
-            />
+            {setInfoBoxActive && (
+              <InfoIcon
+                fill={theme.palette.primary.light}
+                onClick={() => setInfoBoxActive(true)}
+                sx={{
+                  height: theme.spacing(2),
+                  cursor: 'pointer',
+                }}
+              />
+            )}
           </ModuleTitle>
           {tableTitleSubText}
         </Box>

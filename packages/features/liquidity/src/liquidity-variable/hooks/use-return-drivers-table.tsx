@@ -9,15 +9,19 @@ import {
   formatTokenType,
   formatNumberAsPercent,
 } from '@notional-finance/helpers';
+import { useTheme, Box } from '@mui/material';
 import {
   DataTableColumn,
   MultiValueCell,
   MultiValueIconCell,
   DisplayCell,
+  Body,
+  H5,
 } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
 
 export const useReturnDriversTable = () => {
+  const theme = useTheme();
   const {
     state: { deposit, selectedDepositToken },
   } = useContext(LiquidityContext);
@@ -40,7 +44,10 @@ export const useReturnDriversTable = () => {
   };
 
   const formattedFCashData = fCashData?.balances?.map((balance) => {
-    const apy = fCashData.getSpotInterestRate(balance.token) || 0;
+    const apy =
+      fCashData.getSpotInterestRate(balance.token) !== undefined
+        ? fCashData.getSpotInterestRate(balance.token)
+        : 0;
     return {
       asset: {
         symbol: handleTokenType(balance.tokenType),
@@ -56,7 +63,7 @@ export const useReturnDriversTable = () => {
         ],
         isNegative: balance.isNegative(),
       },
-      apy: apy !== 0 ? formatNumberAsPercent(apy) : '-',
+      apy: apy !== undefined ? apy : 0,
     };
   });
 
@@ -66,15 +73,17 @@ export const useReturnDriversTable = () => {
       {
         asset: { symbol: 'trading_fees', label: 'Trading Fees' },
         value: '-',
-        apy: liquidityData?.feeAPY,
+        apy: liquidityData?.feeAPY || 0,
       },
       {
         asset: { symbol: 'note', label: 'NOTE Incentives' },
         value: '-',
         apy:
-          liquidityData && liquidityData?.incentives
-            ? formatNumberAsPercent(liquidityData?.incentives[0].incentiveAPY)
-            : '-',
+          liquidityData &&
+          liquidityData?.incentives &&
+          liquidityData?.incentives.length > 0
+            ? liquidityData?.incentives[0].incentiveAPY
+            : 0,
       },
       {
         asset: { label: 'Total' },
@@ -89,9 +98,7 @@ export const useReturnDriversTable = () => {
           ],
           isNegative: false,
         },
-        apy: liquidityData?.totalAPY
-          ? formatNumberAsPercent(liquidityData?.totalAPY)
-          : '-',
+        apy: liquidityData?.totalAPY ? liquidityData?.totalAPY : 0,
       },
     ]) ||
     [];
@@ -118,12 +125,111 @@ export const useReturnDriversTable = () => {
         <FormattedMessage defaultMessage="Apy" description={'apy header'} />
       ),
       Cell: DisplayCell,
+      displayFormatter: formatNumberAsPercent,
       accessor: 'apy',
       textAlign: 'right',
     },
   ];
 
-  console.log({ formattedFCashData });
+  const infoBoxData = [
+    {
+      TextComponent: (
+        <Box sx={{ marginBottom: theme.spacing(3) }}>
+          <H5
+            sx={{
+              marginBottom: theme.spacing(2),
+              color: theme.palette.typography.main,
+            }}
+          >
+            <FormattedMessage
+              defaultMessage={'How does n{tokenSymbol} earn returns?'}
+              values={{
+                tokenSymbol: selectedDepositToken,
+              }}
+            />
+          </H5>
+          <Body sx={{ marginBottom: theme.spacing(2) }}>
+            <FormattedMessage
+              defaultMessage={
+                'n{tokenSymbol} earns returns from interest accrual on its assets, trading fees, and NOTE incentives.'
+              }
+              values={{
+                tokenSymbol: selectedDepositToken,
+              }}
+            />
+          </Body>
+          <Body sx={{ marginBottom: theme.spacing(2) }}>
+            <FormattedMessage
+              defaultMessage={
+                'n{tokenSymbol} interest accrual comes from variable rate yield on Prime {tokenSymbol} and fixed rate yield on f{tokenSymbol}.'
+              }
+              values={{
+                tokenSymbol: selectedDepositToken,
+              }}
+            />
+          </Body>
+        </Box>
+      ),
+    },
+    {
+      TextComponent: (
+        <Box sx={{ marginBottom: theme.spacing(3) }}>
+          <H5
+            sx={{
+              marginBottom: theme.spacing(2),
+              color: theme.palette.typography.main,
+            }}
+          >
+            <FormattedMessage
+              defaultMessage={'What is Prime {tokenSymbol}?'}
+              values={{
+                tokenSymbol: selectedDepositToken,
+              }}
+            />
+          </H5>
+          <Body>
+            <FormattedMessage
+              defaultMessage={
+                'Prime {tokenSymbol} is {tokenSymbol} that is being lent on Notional’s variable rate lending market.'
+              }
+              values={{
+                tokenSymbol: selectedDepositToken,
+              }}
+            />
+          </Body>
+        </Box>
+      ),
+    },
+    {
+      TextComponent: (
+        <Box sx={{ marginBottom: theme.spacing(3) }}>
+          <H5
+            sx={{
+              marginBottom: theme.spacing(2),
+              color: theme.palette.typography.main,
+            }}
+          >
+            <FormattedMessage
+              defaultMessage={'What is f{tokenSymbol}?'}
+              values={{
+                tokenSymbol: selectedDepositToken,
+              }}
+            />
+          </H5>
+          <Body>
+            <FormattedMessage
+              defaultMessage={
+                'f{tokenSymbol} represents a fixed rate lending position. A positive f{tokenSymbol} balance is a loan and a negative f{tokenSymbol} balance is debt.'
+              }
+              values={{
+                tokenSymbol: selectedDepositToken,
+              }}
+            />
+          </Body>
+        </Box>
+      ),
+    },
+  ];
 
-  return { returnDriversColumns, returnDriversData };
+  return { returnDriversColumns, returnDriversData, infoBoxData };
 };

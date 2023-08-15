@@ -4,7 +4,6 @@ import { colors } from '@notional-finance/styles';
 
 export const DisplayCell = ({ cell }): JSX.Element => {
   const { column, value } = cell;
-
   return (
     <TableCell>
       {value && column.displayFormatter && parseFloat(value) !== 0 ? (

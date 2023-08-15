@@ -1,5 +1,4 @@
-import { ReactNode } from 'react';
-import { useState, SetStateAction, Dispatch } from 'react';
+import { ReactNode, useRef, useState, SetStateAction, Dispatch } from 'react';
 import { Table, TableContainer, Paper, useTheme, Box } from '@mui/material';
 import { SxProps } from '@mui/material/styles';
 
@@ -8,6 +7,10 @@ import { DataTableTitleBar } from './data-table-title-bar/data-table-title-bar';
 import { DataTableTabBar } from './data-table-tab-bar/data-table-tab-bar';
 import { DataTableHead } from './data-table-head/data-table-head';
 import { DataTableBody } from './data-table-body/data-table-body';
+import {
+  DataTableInfoBox,
+  InfoBoxDataProps,
+} from './data-table-info-box/data-table-info-box';
 import { PageLoading } from '../page-loading/page-loading';
 import { useTable, useExpanded, useSortBy } from 'react-table';
 import { FormattedMessage } from 'react-intl';
@@ -39,6 +42,7 @@ interface DataTableProps {
   clearQueryAndFilters?: () => void;
   marketDataCSVFormatter?: (data: any[]) => any;
   stateZeroMessage?: ReactNode;
+  infoBoxData?: InfoBoxDataProps[];
   sx?: SxProps;
 }
 
@@ -61,6 +65,7 @@ export const DataTable = ({
   clearQueryAndFilters,
   marketDataCSVFormatter,
   stateZeroMessage,
+  infoBoxData,
   sx,
 }: DataTableProps) => {
   const theme = useTheme();
@@ -74,7 +79,10 @@ export const DataTable = ({
     useSortBy,
     useExpanded
   );
-
+  const ref = useRef<HTMLDivElement | any>();
+  const [infoBoxActive, setInfoBoxActive] = useState<boolean | undefined>(
+    undefined
+  );
   const filteredRows = rows.filter((data, index) => index < 4);
   const displayedRows = viewAllRows ? rows : filteredRows;
   const viewAllText = viewAllRows ? (
@@ -116,9 +124,12 @@ export const DataTable = ({
     DataTableFilterBar: 
       - Requires filterBarData to function. The filterBarData will automatically populate one or more filter dropdowns depending on need. 
   */
+  const height = ref.current?.clientHeight;
+  const width = ref.current?.clientWidth;
 
   return (
     <TableContainer
+      ref={ref}
       id="data-table-container"
       sx={
         {
@@ -149,12 +160,13 @@ export const DataTable = ({
         <DataTableTitleBar
           tableTitle={tableTitle}
           tableTitleSubText={tableTitleSubText}
+          setInfoBoxActive={setInfoBoxActive}
+          infoBoxActive={infoBoxActive}
           tableTitleButtons={tableTitleButtons}
           tableVariant={tableVariant}
           expandableTable={expandableTable}
         />
       )}
-
       {filterBarData && filterBarData.length > 0 && (
         <DataTableFilterBar
           filterBarData={filterBarData}
@@ -167,7 +179,6 @@ export const DataTable = ({
       {tabBarProps && <DataTableTabBar tabBarProps={tabBarProps} />}
 
       {TabComponentVisible && CustomTabComponent && <CustomTabComponent />}
-
       {tableReady ? (
         <>
           <Table {...getTableProps()}>
@@ -198,6 +209,15 @@ export const DataTable = ({
             >
               {viewAllText}
             </Box>
+          )}
+          {infoBoxActive && infoBoxData && (
+            <DataTableInfoBox
+              infoBoxData={infoBoxData}
+              height={height}
+              width={width}
+              setInfoBoxActive={setInfoBoxActive}
+              infoBoxActive={infoBoxActive}
+            />
           )}
         </>
       ) : (

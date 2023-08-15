@@ -25,7 +25,8 @@ export const LiquidityVariableSummary = () => {
   const tokenSymbol = selectedDepositToken || '';
   const { faqs, faqHeaderLinks } = useLiquidityFaq(tokenSymbol);
   const totalsData = useTotalsData(tokenSymbol);
-  const { returnDriversColumns, returnDriversData } = useReturnDriversTable();
+  const { returnDriversColumns, returnDriversData, infoBoxData } =
+    useReturnDriversTable();
 
   return (
     <TradeActionSummary state={state}>
@@ -63,6 +64,7 @@ export const LiquidityVariableSummary = () => {
             }}
           />
         }
+        infoBoxData={infoBoxData}
         tableTitleSubText={
           <>
             <Body
