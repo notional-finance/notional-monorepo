@@ -11,7 +11,7 @@ interface HowItWorksFaqProps {
 
 export const HowItWorksFaq = ({ tokenSymbol }: HowItWorksFaqProps) => {
   const theme = useTheme();
-  const image = useHowItWorks(tokenSymbol);
+  const BorrowFixedImage = useHowItWorks(tokenSymbol);
   return (
     <div>
       {tokenSymbol && (
@@ -41,7 +41,7 @@ export const HowItWorksFaq = ({ tokenSymbol }: HowItWorksFaqProps) => {
               />
             </BodyText>
             <ImageWrapper>
-              <img src={image} alt="graphic" />
+              <BorrowFixedImage />
             </ImageWrapper>
 
             <BodyText>
@@ -121,9 +121,11 @@ const ImageWrapper = styled(Box)(
   ({ theme }) => `
     margin-bottom: ${theme.spacing(4)};
     margin-top: ${theme.spacing(4)};
-    img {
+    svg {
       width: 100%;
+      height: 100%;
     }
+  
   `
 );
 
