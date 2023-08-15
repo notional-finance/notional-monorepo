@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { AlchemyUrl, Network, NetworkId } from './constants';
+import { AlchemyUrl, IS_TEST_ENV, Network, NetworkId } from './constants';
 
 class AlchemyBatchProvider extends ethers.providers.AlchemyProvider {
   // _pendingBatchAggregator?: NodeJS.Timer;
@@ -49,7 +49,7 @@ export function getProviderFromNetwork(
   network: Network,
   skipFetchSetup = false
 ) {
-  if (process.env['NODE_ENV'] === 'test') return (global as any).provider;
+  if (IS_TEST_ENV) return (global as any).provider;
 
   if (skipFetchSetup) {
     return new ethers.providers.JsonRpcBatchProvider({

@@ -1,5 +1,7 @@
 import { datadogRum } from '@datadog/browser-rum';
 import { useEffect, useState } from 'react';
+import { IS_LOCAL_ENV } from '@notional-finance/util';
+
 // Errors of this type are not logged to data dog to reduce noise
 export class NonLoggedError extends Error {
   constructor(message: string) {
@@ -14,10 +16,7 @@ export function logError(
   method: string,
   context: Record<string, unknown> = {}
 ) {
-  if (
-    process.env['NODE_ENV'] === 'development' ||
-    process.env['NODE_ENV'] === 'test'
-  ) {
+  if (IS_LOCAL_ENV) {
     // Don't log to datadog from local
     /* eslint-disable no-console */
     console.error(`Error at: ${module}#${method}`);

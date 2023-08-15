@@ -6,7 +6,8 @@ import {
   stripHexLeadingZero,
 } from '@notional-finance/util';
 import { ethers, PopulatedTransaction } from 'ethers';
-import { parseTransactionLogs } from './parser';
+import { parseTransfersFromLogs } from './parser/transfers';
+import { AccountDefinition } from '@notional-finance/core-entities';
 
 // Types taken from: https://github.com/alchemyplatform/alchemy-sdk-js/blob/main/src/types/types.ts#L2051
 
@@ -161,7 +162,34 @@ export async function simulatePopulatedTxn(
     removed: false,
   }));
 
-  const simulatedLogs = parseTransactionLogs(network, getNowSeconds(), logs);
+  const simulatedLogs = parseTransfersFromLogs(network, getNowSeconds(), logs);
 
   return { simulatedCalls: calls, simulatedLogs, rawLogs: logs };
+}
+
+export async function applySimulationToAccount(
+  network: Network,
+  populateTxn: PopulatedTransaction,
+  priorAccount: AccountDefinition
+) {
+  const {
+    simulatedLogs: { transfers },
+  } = await simulatePopulatedTxn(network, populateTxn);
+  const balancesAfter = [...priorAccount.balances];
+  transfers
+    .filter(
+      (t) => t.from === priorAccount.address || t.to === priorAccount.address
+    )
+    .forEach((t) => {
+      const i = balancesAfter.findIndex((b) => b.tokenId === t.token.id);
+      if (i < 0) {
+        balancesAfter.push(t.value);
+      } else {
+        balancesAfter[i] = balancesAfter[i].add(
+          t.from === priorAccount.address ? t.value.neg() : t.value
+        );
+      }
+    });
+
+  return balancesAfter;
 }

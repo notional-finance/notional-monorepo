@@ -1,11 +1,10 @@
-import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
+import {
+  IS_LOCAL_ENV,
+  PRIME_CASH_VAULT_MATURITY,
+} from '@notional-finance/util';
 
 export function getNowSeconds() {
-  if (
-    (process.env['NODE_ENV'] === 'development' ||
-      process.env['NODE_ENV'] === 'test') &&
-    process.env['FAKE_TIME']
-  ) {
+  if (IS_LOCAL_ENV && process.env['FAKE_TIME']) {
     return parseInt(process.env['FAKE_TIME'], 10);
   }
 

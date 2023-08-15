@@ -8,7 +8,13 @@ import {
   AccountRiskProfile,
   VaultAccountRiskProfile,
 } from '@notional-finance/risk-engine';
-import { filterEmpty, getNowSeconds } from '@notional-finance/util';
+import {
+  IS_TEST_ENV,
+  filterEmpty,
+  getNowSeconds,
+  logError,
+  zipByKeyToArray,
+} from '@notional-finance/util';
 import {
   catchError,
   combineLatest,
@@ -34,6 +40,7 @@ import {
   VaultTradeType,
 } from './base-trade-store';
 import { selectedNetwork, selectedAccount } from './selectors';
+import { applySimulationToAccount } from '@notional-finance/transaction';
 
 export function getTradeConfig(tradeType?: TradeType | VaultTradeType) {
   if (!tradeType) throw Error('Trade type undefined');
@@ -421,12 +428,9 @@ export function buildTransaction(
   account$: ReturnType<typeof selectedAccount>
 ) {
   return combineLatest([state$, account$]).pipe(
-    filter(([state]) => state.canSubmit && state.confirm),
-    distinctUntilChanged(
-      ([p], [c]) => p.calculateInputKeys === c.calculateInputKeys
-    ),
+    filter(([state]) => state.canSubmit),
     switchMap(([s, a]) => {
-      if (a) {
+      if (a && s.confirm && s.populatedTransaction === undefined) {
         const config = getTradeConfig(s.tradeType);
         return from(
           config.transactionBuilder({
@@ -441,8 +445,7 @@ export function buildTransaction(
             transactionError: undefined,
           })),
           catchError((e) => {
-            // TODO: this should log to datadog
-            console.error('Transaction Builder Error', e);
+            logError(e, 'base-trade#logic', 'buildTransaction', s);
             return of({
               populatedTransaction: undefined,
               transactionError: e.toString(),
@@ -450,7 +453,53 @@ export function buildTransaction(
             });
           })
         );
+      } else if (s.confirm === false && !!s.populatedTransaction) {
+        // Clear the populated transaction if confirmation is cancelled
+        return of({
+          populatedTransaction: undefined,
+          transactionError: undefined,
+        });
       }
+
+      return EMPTY;
+    }),
+    filterEmpty()
+  );
+}
+
+export function simulateTransaction(
+  state$: Observable<BaseTradeState>,
+  account$: ReturnType<typeof selectedAccount>,
+  selectedNetwork$: ReturnType<typeof selectedNetwork>
+) {
+  return combineLatest([state$, account$]).pipe(
+    filter(([state]) => !!state.populatedTransaction && !IS_TEST_ENV),
+    distinctUntilChanged(
+      ([p], [c]) =>
+        p.populatedTransaction?.data === c.populatedTransaction?.data
+    ),
+    withLatestFrom(selectedNetwork$),
+    switchMap(([[{ populatedTransaction, postTradeBalances }, a], network]) => {
+      if (populatedTransaction && a) {
+        return from(
+          applySimulationToAccount(network, populatedTransaction, a)
+        ).pipe(
+          map((balancesAfter) => {
+            return {
+              mismatchedBalances: zipByKeyToArray(
+                balancesAfter,
+                postTradeBalances || [],
+                (t) => t.tokenId
+              )
+                .map(
+                  ([a, b]) => (!!a && !!b ? a.sub(b) : a || b) as TokenBalance
+                )
+                .filter((b) => b.abs().toFloat() > 1e-5),
+            };
+          })
+        );
+      }
+
       return EMPTY;
     }),
     filterEmpty()
@@ -535,7 +584,6 @@ export function tradeSummary(
   return combineLatest([account$, state$]).pipe(
     distinctUntilChanged(
       ([, p], [, c]) =>
-        // TODO: what to when can submit is false?
         p.canSubmit === c.canSubmit &&
         p.depositBalance?.hashKey === c.depositBalance?.hashKey &&
         p.collateralBalance?.hashKey === c.collateralBalance?.hashKey &&

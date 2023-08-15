@@ -11,6 +11,7 @@ import {
   resetOnTradeTypeChange,
   defaultLeverageRatio,
   tradeSummary,
+  simulateTransaction,
 } from './logic';
 import {
   selectedAccount,
@@ -35,6 +36,7 @@ export function createTradeManager(
   // observables can create their subscription prior to the upstream observable
   // emits.
   return merge(
+    simulateTransaction(state$, account$, network$),
     buildTransaction(state$, account$),
     tradeSummary(state$, account$),
     postAccountRisk(state$, account$),

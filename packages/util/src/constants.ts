@@ -27,6 +27,10 @@ export const ALT_ETH = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE';
 export const SETTLEMENT_RESERVE = '0x00000000000000000000000000000000000005e7';
 export const FEE_RESERVE = '0x0000000000000000000000000000000000000FEE';
 export const MAX_UINT88 = BigNumber.from(2).pow(88).sub(1);
+export const IS_LOCAL_ENV =
+  process.env['NODE_ENV'] === 'development' ||
+  process.env['NODE_ENV'] === 'test';
+export const IS_TEST_ENV = process.env['NODE_ENV'] === 'test';
 
 export enum Network {
   All = 'all',

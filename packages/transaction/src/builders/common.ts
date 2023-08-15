@@ -3,6 +3,7 @@ import { BigNumber, Contract, ethers, PayableOverrides } from 'ethers';
 import {
   BASIS_POINT,
   getProviderFromNetwork,
+  IS_TEST_ENV,
   Network,
   NotionalAddress,
   unique,
@@ -86,7 +87,7 @@ export async function populateTxnAndGas(
   const c = contract.connect(msgSender);
   // TODO: where do you get the revert reason here?
   const txn = await c.populateTransaction[methodName].apply(c, methodArgs);
-  if (process.env['NODE_ENV'] !== 'test') {
+  if (!IS_TEST_ENV) {
     // NOTE: this fails inside unit tests for some reason
     const gasLimit = await c.estimateGas[methodName].apply(c, methodArgs);
     // Add 5% to the estimated gas limit to reduce the risk of out of gas errors

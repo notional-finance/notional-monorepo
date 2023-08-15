@@ -126,6 +126,7 @@ interface TransactionState {
    * this is only the vault related balances.
    */
   postTradeBalances?: TokenBalance[];
+  mismatchedBalances?: TokenBalance[];
 }
 
 interface InitState {

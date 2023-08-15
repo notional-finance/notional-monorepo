@@ -21,7 +21,11 @@ export function parseTransactionLogs(
   timestamp: number,
   logs: ethers.providers.Log[]
 ) {
-  const { transfers, markers } = parseLogs(network, timestamp, logs);
+  const { transfers, markers } = parseTransfersFromLogs(
+    network,
+    timestamp,
+    logs
+  );
   const bundles = parseBundles(transfers);
   const transaction = parseTransactionType(bundles, markers);
 
@@ -73,7 +77,7 @@ function decodeSystemAccount(address: string, network: Network): SystemAccount {
   }
 }
 
-function parseLogs(
+export function parseTransfersFromLogs(
   network: Network,
   timestamp: number,
   logs: ethers.providers.Log[]
