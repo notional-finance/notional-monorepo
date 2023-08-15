@@ -20,6 +20,8 @@ export const PortfolioOverview = () => {
     vaultHoldingsData.length === 0 &&
     riskOverviewData.length === 0;
 
+  console.log({ riskOverviewData });
+
   return (
     <Box>
       {!noOverviewData ? (

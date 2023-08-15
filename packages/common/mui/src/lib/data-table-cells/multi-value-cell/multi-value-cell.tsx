@@ -1,4 +1,5 @@
 import { Box, useTheme } from '@mui/material';
+import { colors } from '@notional-finance/styles';
 import {
   TableCell,
   SmallTableCell,
@@ -17,17 +18,28 @@ export const MultiValueCell = ({ cell }): JSX.Element => {
         ? value.data.map((displayValue, index) => (
             <Box key={`${column.id}-${row.id}-${index}`}>
               {index === 0 && (
-                <FirstValue
-                  error={value.isNegative}
-                  sx={{ marginBottom: '0px' }}
-                >
-                  {displayValue}
-                </FirstValue>
+                <Box>
+                  <FirstValue
+                    error={value.isNegative}
+                    sx={{ marginBottom: '0px', width: '100%' }}
+                  >
+                    {displayValue}
+                  </FirstValue>
+                </Box>
               )}
               {index === 1 && (
-                <SecondValue sx={{ color: theme.palette.typography.light }}>
-                  {displayValue}
-                </SecondValue>
+                <Box>
+                  <SecondValue
+                    sx={{
+                      color: value.isNegative
+                        ? colors.red
+                        : theme.palette.typography.light,
+                      width: '100%',
+                    }}
+                  >
+                    {displayValue}
+                  </SecondValue>
+                </Box>
               )}
             </Box>
           ))

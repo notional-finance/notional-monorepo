@@ -40,7 +40,7 @@ export const MultiValueIconCell = ({
 
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
-      <TokenIcon symbol={values.symbol || 'unknown'} size="medium" />
+      {values.symbol && <TokenIcon symbol={values.symbol} size="medium" />}
       <Box marginLeft={theme.spacing(1)}>
         <TableCell gutter="default">{values.label}</TableCell>
         <SmallTableCell>{values.caption || ''}</SmallTableCell>
