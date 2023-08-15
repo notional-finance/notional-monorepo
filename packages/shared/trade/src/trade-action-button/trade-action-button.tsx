@@ -91,8 +91,8 @@ export function TradeActionButton({
       width={width}
       margin={margin}
       variant={buttonVariant || 'contained'}
-      disabled={!canSubmit && isAccountReady}
-      canSubmit={canSubmit || !isAccountReady}
+      disabled={!canSubmit}
+      canSubmit={canSubmit}
       onClick={isAccountReady ? _onSubmit : () => handleConnectWallet()}
     >
       <FormattedMessage

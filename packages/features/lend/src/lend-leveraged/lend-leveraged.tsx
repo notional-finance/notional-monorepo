@@ -16,7 +16,6 @@ export const LendLeveraged = () => {
   const context = useTradeContext('LeveragedLend');
   const { state } = context;
   const { isReady, confirm, selectedDepositToken } = state;
-
   const { faqs, faqHeaderLinks } = useLendLeveragedFaq(selectedDepositToken);
 
   return (
