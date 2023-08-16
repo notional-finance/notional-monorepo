@@ -9,9 +9,9 @@ export class ViewsDO extends BaseDO<APIEnv> {
   }
 
   getStorageKey(url: URL): string {
-    const network = url.pathname.split('/')[1];
+    const network = url.pathname.split('/')[2];
     if (!network) throw Error('Network Not Found');
-    const view = url.pathname.split('/')[2];
+    const view = url.pathname.split('/')[3];
     if (!view) throw Error('View Not Found');
     return `${this.serviceName}/${network}/${view}`;
   }
