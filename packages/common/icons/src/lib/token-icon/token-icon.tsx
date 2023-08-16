@@ -3,7 +3,7 @@ import wbtc from '../../assets/icons/currencies/currency-wbtc.svg';
 import arb from '../../assets/icons/currencies/arbitrum.svg';
 import eth from '../../assets/icons/currencies/currency-eth.svg';
 import peth from '../../assets/icons/currencies/pETH.svg';
-import preth from '../../assets/icons/currencies/prETH.svg';
+import preth from '../../assets/icons/currencies/pRETH.svg';
 import usdc from '../../assets/icons/currencies/currency-usdc.svg';
 import dai from '../../assets/icons/currencies/currency-dai.svg';
 import cwbtc from '../../assets/icons/currencies/currency-cwbtc.svg';
