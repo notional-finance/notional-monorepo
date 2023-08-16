@@ -1,15 +1,40 @@
 import { useTheme } from '@mui/material';
-import { TableCell, LargeTableCell } from '../../typography/typography';
+import {
+  TableCell,
+  LargeTableCell,
+  SmallTableCell,
+} from '../../typography/typography';
 
-export const NegativeValueCell = ({ cell }): JSX.Element => {
+interface NegativeValueCellProps {
+  value: {
+    isNegative?: boolean;
+    displayValueGreen?: boolean;
+    displayValue: string;
+  };
+  column?: {
+    expandableTable?: boolean;
+    smallCell?: boolean;
+  };
+}
+
+export const NegativeValueCell = ({
+  cell,
+}: {
+  cell: NegativeValueCellProps;
+}): JSX.Element => {
   const theme = useTheme();
   const { value, column } = cell;
-  const Cell = column?.expandableTable ? LargeTableCell : TableCell;
+  const Cell = column?.expandableTable
+    ? LargeTableCell
+    : column?.smallCell
+    ? SmallTableCell
+    : TableCell;
   const color = value.isNegative
     ? theme.palette.error.main
     : value.displayValueGreen
     ? theme.palette.typography.accent
-    : '';
+    : theme.palette.typography.main;
+
   return (
     <Cell
       sx={{

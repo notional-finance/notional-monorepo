@@ -46,7 +46,8 @@ export const VaultSideDrawer = ({
 
   const handleCancel = useCallback(() => {
     history.push(`/vaults/${vaultAddress}`);
-  }, [vaultAddress, history]);
+    updateState({ confirm: false });
+  }, [vaultAddress, updateState, history]);
 
   const handleSubmit = useCallback(() => {
     updateState({ confirm: true });

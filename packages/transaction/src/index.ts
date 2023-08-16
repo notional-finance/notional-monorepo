@@ -15,7 +15,7 @@ import {
 
 export * from './builders';
 export * from './calculate';
-export { simulatePopulatedTxn } from './simulate';
+export { simulatePopulatedTxn, applySimulationToAccount } from './simulate';
 export type { SimulationCallTrace } from './simulate';
 export { parseTransactionLogs, parseTransactionType } from './parser';
 export type { Transaction, Bundle, Transfer, ParsedLogs } from './parser';

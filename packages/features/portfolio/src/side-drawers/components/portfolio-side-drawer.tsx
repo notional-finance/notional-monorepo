@@ -1,6 +1,6 @@
 import { ToggleSwitchProps } from '@notional-finance/mui';
 import { TransactionSidebar } from '@notional-finance/trade';
-import { useHistory, useLocation, useParams } from 'react-router';
+import { useHistory, useParams } from 'react-router';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { PortfolioParams } from '../../portfolio-feature-shell';
 import { useCallback } from 'react';
@@ -17,25 +17,11 @@ export const PortfolioSideDrawer = ({
   children,
   advancedToggle,
 }: PortfolioSideDrawerProps) => {
-  const { updateState } = context;
   const history = useHistory();
-  const { search } = useLocation();
-  const { category, sideDrawerKey } = useParams<PortfolioParams>();
+  const { category } = useParams<PortfolioParams>();
 
-  // The cancel route should be the current route including all the
-  // query strings except for confirm.
-  const searchParams = new URLSearchParams(search);
-  searchParams.delete('confirm');
-  const cancelRoute = `/portfolio/${category}/${sideDrawerKey}${
-    searchParams.toString() ? '?' + searchParams.toString() : ''
-  }`;
   const returnToPortfolio = `/portfolio/${category}`;
   const { clearSideDrawer } = useSideDrawerManager();
-
-  const onConfirmCancel = useCallback(() => {
-    history.push(cancelRoute);
-    updateState({ confirm: false });
-  }, [history, updateState, cancelRoute]);
 
   const onReturnToForm = useCallback(() => {
     history.push(returnToPortfolio);
@@ -49,7 +35,6 @@ export const PortfolioSideDrawer = ({
     <TransactionSidebar
       context={context}
       isPortfolio
-      onConfirmCancel={onConfirmCancel}
       onCancelCallback={onCancel}
       onReturnToForm={onReturnToForm}
       advancedToggle={advancedToggle}

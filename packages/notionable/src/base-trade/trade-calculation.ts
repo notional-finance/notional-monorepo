@@ -194,9 +194,9 @@ export function calculate(
 
       // NOTE: clear any calculated inputs if the new calculation fails
       const clearCalculatedInputs = requiredArgs.reduce((o, a) => {
-        if (a === 'collateral') {
+        if (a === 'collateral' && tradeType !== 'RollDebt') {
           return Object.assign(o, { collateralBalance: undefined });
-        } else if (a === 'debt') {
+        } else if (a === 'debt' && tradeType !== 'ConvertAsset') {
           return Object.assign(o, { debtBalance: undefined });
         } else if (a === 'deposit') {
           return Object.assign(o, { depositBalance: undefined });

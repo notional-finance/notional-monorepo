@@ -60,9 +60,10 @@ export const SelectConvertAsset = ({ context }: SelectConvertAssetProps) => {
   // Set the initial balance to the selected token
   useEffect(() => {
     if (!convertFromToken && selectedParamToken) {
-      const balance = account?.balances.find(
+      let balance = account?.balances.find(
         (t) => t.tokenId === selectedParamToken
       );
+      if (balance?.tokenType === 'PrimeDebt') balance = balance.toPrimeCash();
 
       updateState(
         tradeType === 'ConvertAsset'
@@ -70,7 +71,14 @@ export const SelectConvertAsset = ({ context }: SelectConvertAssetProps) => {
           : { collateralBalance: balance, collateral: balance?.token }
       );
     }
-  }, [convertFromToken, selectedParamToken, account, updateState, tradeType]);
+  }, [
+    convertFromToken,
+    convertFromBalance,
+    selectedParamToken,
+    account,
+    updateState,
+    tradeType,
+  ]);
 
   let heading: MessageDescriptor;
   let fixedHeading: MessageDescriptor;
@@ -82,8 +90,8 @@ export const SelectConvertAsset = ({ context }: SelectConvertAssetProps) => {
       messages[PORTFOLIO_ACTIONS.CONVERT_ASSET]['variableHeading'];
   } else {
     heading = TransactionHeadings['RollDebt'].heading;
-    fixedHeading = messages[PORTFOLIO_ACTIONS.REPAY_DEBT]['fixedHeading'];
-    variableHeading = messages[PORTFOLIO_ACTIONS.REPAY_DEBT]['variableHeading'];
+    fixedHeading = messages[PORTFOLIO_ACTIONS.ROLL_DEBT]['fixedHeading'];
+    variableHeading = messages[PORTFOLIO_ACTIONS.ROLL_DEBT]['variableHeading'];
   }
 
   const createTokenOption = useCallback(

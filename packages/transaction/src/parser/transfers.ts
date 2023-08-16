@@ -21,7 +21,11 @@ export function parseTransactionLogs(
   timestamp: number,
   logs: ethers.providers.Log[]
 ) {
-  const { transfers, markers } = parseLogs(network, timestamp, logs);
+  const { transfers, markers } = parseTransfersFromLogs(
+    network,
+    timestamp,
+    logs
+  );
   const bundles = parseBundles(transfers);
   const transaction = parseTransactionType(bundles, markers);
 
@@ -73,18 +77,26 @@ function decodeSystemAccount(address: string, network: Network): SystemAccount {
   }
 }
 
-function parseLogs(
+export function parseTransfersFromLogs(
   network: Network,
   timestamp: number,
   logs: ethers.providers.Log[]
 ) {
   return logs.reduce(
     ({ transfers, markers }, l) => {
+      let name: string;
+      let args: ethers.utils.Result;
       try {
-        const { name, args } = NotionalV3Interface.parseLog(l);
-        if (name === 'Transfer') {
-          const from = args['from'] as string;
-          const to = args['to'] as string;
+        ({ name, args } = NotionalV3Interface.parseLog(l));
+      } catch (e) {
+        // If parsing a single event fails then skip it
+        return { transfers, markers };
+      }
+
+      if (name === 'Transfer') {
+        const from = args['from'] as string;
+        const to = args['to'] as string;
+        try {
           // NOTE: if this throws an error the transfer will remain unparsed
           const token = Registry.getTokenRegistry().getTokenByAddress(
             network,
@@ -104,15 +116,44 @@ function parseLogs(
             tokenType: token.tokenType,
             maturity: token.maturity,
           });
-        } else if (name === 'TransferSingle') {
-          const from = args['from'] as string;
-          const to = args['to'] as string;
+        } catch {
+          return { transfers, markers };
+        }
+      } else if (name === 'TransferSingle') {
+        const from = args['from'] as string;
+        const to = args['to'] as string;
+        const token = Registry.getTokenRegistry().getTokenByID(
+          network,
+          padToHex256(args['id'] as BigNumber)
+        );
+        const value = TokenBalance.from(args[4] as BigNumber, token);
+
+        transfers.push({
+          logIndex: l.logIndex,
+          from,
+          to,
+          timestamp,
+          transferType: decodeTransferType(from, to),
+          fromSystemAccount: decodeSystemAccount(from, network),
+          toSystemAccount: decodeSystemAccount(to, network),
+          value: token.isFCashDebt ? value.neg() : value,
+          token,
+          tokenType: token.tokenType,
+          maturity: token.maturity,
+        });
+      } else if (name === 'TransferBatch') {
+        const from = args['from'] as string;
+        const to = args['to'] as string;
+        const ids = args['ids'] as BigNumber[];
+        const values = args[4] as BigNumber[];
+
+        ids.forEach((id, i) => {
           const token = Registry.getTokenRegistry().getTokenByID(
             network,
-            padToHex256(args['id'] as BigNumber)
+            padToHex256(id)
           );
-          const value = TokenBalance.from(args[4] as BigNumber, token);
 
+          const value = TokenBalance.from(values[i], token);
           transfers.push({
             logIndex: l.logIndex,
             from,
@@ -121,45 +162,16 @@ function parseLogs(
             transferType: decodeTransferType(from, to),
             fromSystemAccount: decodeSystemAccount(from, network),
             toSystemAccount: decodeSystemAccount(to, network),
-            value: token.isFCashDebt ? value.neg() : value,
+            value,
             token,
             tokenType: token.tokenType,
             maturity: token.maturity,
           });
-        } else if (name === 'TransferBatch') {
-          const from = args['from'] as string;
-          const to = args['to'] as string;
-          const ids = args['ids'] as BigNumber[];
-          const values = args[4] as BigNumber[];
-
-          ids.forEach((id, i) => {
-            const token = Registry.getTokenRegistry().getTokenByID(
-              network,
-              padToHex256(id)
-            );
-
-            const value = TokenBalance.from(values[i], token);
-            transfers.push({
-              logIndex: l.logIndex,
-              from,
-              to,
-              timestamp,
-              transferType: decodeTransferType(from, to),
-              fromSystemAccount: decodeSystemAccount(from, network),
-              toSystemAccount: decodeSystemAccount(to, network),
-              value: token.isFCashDebt ? value.neg() : value,
-              token,
-              tokenType: token.tokenType,
-              maturity: token.maturity,
-            });
-          });
-        } else if (Markers.includes(name)) {
-          markers.push({ name: name, logIndex: l.logIndex });
-        }
-      } catch (e) {
-        // If parsing fails that is ok, don't return anything
-        console.error(e);
+        });
+      } else if (Markers.includes(name)) {
+        markers.push({ name: name, logIndex: l.logIndex });
       }
+
       return { transfers, markers };
     },
     {

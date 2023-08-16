@@ -68,7 +68,6 @@ export function RedeemAndWithdrawNToken({
   if (!debtBalance.isNegative() || debtBalance.tokenType !== 'nToken')
     throw Error('Invalid debtBalance');
 
-  // TODO: these values do not include slippage.
   const { withdrawEntireCashBalance, withdrawAmountInternalPrecision } =
     hasExistingCashBalance(debtBalance, accountBalances);
 

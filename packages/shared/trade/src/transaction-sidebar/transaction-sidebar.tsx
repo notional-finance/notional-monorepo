@@ -36,7 +36,6 @@ export const TransactionSidebar = ({
   leveredUp,
   advancedToggle,
   isPortfolio,
-  onConfirmCancel,
   onReturnToForm,
   onCancelCallback,
 }: TransactionSidebarProps) => {
@@ -45,6 +44,10 @@ export const TransactionSidebar = ({
   const isBlocked = useGeoipBlock();
   const handleSubmit = useCallback(() => {
     updateState({ confirm: true });
+  }, [updateState]);
+
+  const onConfirmCancel = useCallback(() => {
+    updateState({ confirm: false });
   }, [updateState]);
 
   if (tradeType === undefined) return <PageLoading />;

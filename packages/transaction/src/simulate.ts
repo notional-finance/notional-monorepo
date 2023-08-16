@@ -6,7 +6,9 @@ import {
   stripHexLeadingZero,
 } from '@notional-finance/util';
 import { ethers, PopulatedTransaction } from 'ethers';
-import { parseTransactionLogs } from './parser';
+import { parseTransfersFromLogs } from './parser/transfers';
+import { AccountDefinition } from '@notional-finance/core-entities';
+import { AccountRiskProfile } from '@notional-finance/risk-engine';
 
 // Types taken from: https://github.com/alchemyplatform/alchemy-sdk-js/blob/main/src/types/types.ts#L2051
 
@@ -161,7 +163,51 @@ export async function simulatePopulatedTxn(
     removed: false,
   }));
 
-  const simulatedLogs = parseTransactionLogs(network, getNowSeconds(), logs);
+  const simulatedLogs = parseTransfersFromLogs(network, getNowSeconds(), logs);
 
   return { simulatedCalls: calls, simulatedLogs, rawLogs: logs };
+}
+
+export async function applySimulationToAccount(
+  network: Network,
+  populateTxn: PopulatedTransaction,
+  priorAccount: AccountDefinition
+) {
+  const {
+    simulatedLogs: { transfers },
+  } = await simulatePopulatedTxn(network, populateTxn);
+  const balancesAfter = [...priorAccount.balances];
+
+  // TODO: this does not include underlying transfers
+  const accountTransfers = transfers.filter(
+    (t) =>
+      t.from.toLowerCase() === priorAccount.address.toLowerCase() ||
+      t.to.toLowerCase() === priorAccount.address.toLowerCase()
+  );
+
+  accountTransfers.forEach((t) => {
+    // NOTE: need to flip the sign on debt values since all transfer signs are positive
+    const value =
+      t.value.tokenType === 'PrimeDebt' ||
+      t.token.isFCashDebt ||
+      t.value.tokenType === 'VaultDebt'
+        ? t.value.neg()
+        : t.value;
+    const netValue =
+      t.from.toLowerCase() === priorAccount.address.toLowerCase()
+        ? value.neg()
+        : value;
+
+    const i = balancesAfter.findIndex((b) => b.tokenId === t.value.tokenId);
+    if (i < 0) {
+      balancesAfter.push(netValue);
+    } else {
+      balancesAfter[i] = balancesAfter[i].add(netValue);
+    }
+  });
+
+  return {
+    balancesAfter: AccountRiskProfile.merge(balancesAfter),
+    accountTransfers,
+  };
 }

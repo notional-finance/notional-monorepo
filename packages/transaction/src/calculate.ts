@@ -23,7 +23,7 @@ import {
  * @returns localPrime which is always in positive outToken denomination
  * @returns fees which is always in the balance prime cash denomination
  */
-function exchangeToLocalPrime(
+export function exchangeToLocalPrime(
   balance: TokenBalance | undefined,
   pool: fCashMarket | undefined,
   outToken: TokenDefinition

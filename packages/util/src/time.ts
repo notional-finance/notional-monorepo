@@ -1,4 +1,5 @@
 import {
+  IS_LOCAL_ENV,
   PRIME_CASH_VAULT_MATURITY,
   SECONDS_IN_QUARTER,
   SECONDS_IN_YEAR,
@@ -6,10 +7,7 @@ import {
 
 export function getNowSeconds() {
   const fakeTime = process.env['FAKE_TIME'] || process.env['NX_FAKE_TIME'];
-  const allowFakeTIme =
-    process.env['NODE_ENV'] === 'development' ||
-    process.env['NODE_ENV'] === 'test';
-  if (allowFakeTIme && fakeTime) {
+  if (IS_LOCAL_ENV && fakeTime) {
     return parseInt(fakeTime, 10);
   }
   return Math.floor(new Date().getTime() / 1000);

@@ -10,6 +10,7 @@ import {
   buildTransaction,
   resetOnTradeTypeChange,
   defaultLeverageRatio,
+  simulateTransaction,
 } from './logic';
 import {
   selectedAccount,
@@ -31,6 +32,7 @@ export function createVaultTradeManager(
 
   // Emitted State Changes
   return merge(
+    simulateTransaction(state$, account$, network$),
     buildTransaction(state$, account$),
     postVaultAccountRisk(state$, account$),
     calculate(state$, debtPool$, of(undefined), vaultAdapter$, account$),

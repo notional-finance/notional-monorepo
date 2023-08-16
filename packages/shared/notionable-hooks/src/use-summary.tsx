@@ -4,6 +4,7 @@ import {
   YieldData,
   fCashMarket,
   FiatKeys,
+  Registry,
 } from '@notional-finance/core-entities';
 import {
   formatLeverageRatio,
@@ -114,9 +115,11 @@ function getOrderDetails(
   return [
     {
       label: intl.formatMessage(valueLabel, { title, caption }),
-      value: isLeverageOrRoll
-        ? b.toDisplayStringWithSymbol(3, true)
-        : b.abs().toDisplayStringWithSymbol(3, true),
+      value: `${
+        isLeverageOrRoll
+          ? b.toDisplayString(3, true)
+          : b.abs().toDisplayString(3, true)
+      } ${title}`,
     },
     {
       label: intl.formatMessage(feeLabel, { title, caption }),
@@ -235,7 +238,7 @@ const TradeSummaryLabels = {
     deposit: { defaultMessage: 'Deposit and Repay Variable Debt' },
     withdraw: { defaultMessage: 'Borrow Variable' },
     none: { defaultMessage: 'Borrow Variable' },
-    repay: { defaultMessage: 'Repay Fixed ({caption})' },
+    repay: { defaultMessage: 'Repay Variable Debt' },
   }),
 };
 
@@ -302,6 +305,7 @@ export function useTradeSummary(state: BaseTradeState) {
     collateralBalance,
     tradeType,
     canSubmit,
+    maxWithdraw,
   } = state;
 
   // TODO: if underlying is not all the same the convert to fiat currency instead
@@ -374,7 +378,7 @@ export function useTradeSummary(state: BaseTradeState) {
       summary.push(getTradeDetail(collateralBalance, 'Debt', 'repay', intl));
     } else if (tradeType === 'RollDebt') {
       // Asset to repay: this never changes signs
-      summary.push(getTradeDetail(collateralBalance, 'Asset', 'none', intl));
+      summary.push(getTradeDetail(collateralBalance, 'Debt', 'repay', intl));
 
       if (netAssetBalance?.isZero() === false)
         // This only exists if the new debt maturity has fCash in it
@@ -396,14 +400,37 @@ export function useTradeSummary(state: BaseTradeState) {
   } else if (depositBalance?.isPositive()) {
     if (netDebtBalance?.isZero() === false)
       summary.push(getTradeDetail(netDebtBalance, 'Debt', 'deposit', intl));
-    if (netAssetBalance?.isZero() === false)
-      summary.push(getTradeDetail(netAssetBalance, 'Asset', 'deposit', intl));
-  } else if (depositBalance?.isNegative() || depositBalance === undefined) {
-    // NOTE: deposit balance is undefined during max withdraw
+    if (netAssetBalance?.isZero() === false) {
+      if (tradeType === 'RepayDebt') {
+        summary.push(getTradeDetail(netAssetBalance, 'Debt', 'deposit', intl));
+      } else {
+        summary.push(getTradeDetail(netAssetBalance, 'Asset', 'deposit', intl));
+      }
+    }
+  } else if (depositBalance?.isNegative()) {
     if (netAssetBalance?.isZero() === false)
       summary.push(
         getTradeDetail(netAssetBalance.neg(), 'Asset', 'withdraw', intl)
       );
+    if (netDebtBalance?.isZero() === false)
+      summary.push(
+        getTradeDetail(
+          netDebtBalance,
+          'Debt',
+          netDebtBalance.isNegative() ? 'withdraw' : 'deposit',
+          intl
+        )
+      );
+  } else if (maxWithdraw && tradeType === 'Withdraw') {
+    if (netDebtBalance?.isZero() === false)
+      summary.push(getTradeDetail(netDebtBalance, 'Asset', 'withdraw', intl));
+    if (netAssetBalance?.isZero() === false)
+      summary.push(
+        getTradeDetail(netAssetBalance.neg(), 'Asset', 'withdraw', intl)
+      );
+  } else if (maxWithdraw && tradeType === 'RepayDebt') {
+    if (netAssetBalance?.isZero() === false)
+      summary.push(getTradeDetail(netAssetBalance, 'Debt', 'deposit', intl));
     if (netDebtBalance?.isZero() === false)
       summary.push(getTradeDetail(netDebtBalance, 'Debt', 'deposit', intl));
   } else {
@@ -452,12 +479,21 @@ export function usePortfolioComparison(
 ) {
   const { account } = useAccountDefinition();
   const { postTradeBalances } = state;
-  const priorBalances = account?.balances || [];
+  const priorBalances = account
+    ? AccountRiskProfile.from(
+        account.balances.filter((t) => t.tokenType !== 'Underlying')
+      ).balances
+    : [];
 
   const tableData: CompareData[] | undefined = postTradeBalances
     ?.filter((t) => t.tokenType !== 'Underlying')
     .map((b) => {
-      const { titleWithMaturity } = formatTokenType(b.token);
+      const { titleWithMaturity } =
+        b.tokenType === 'PrimeCash' && b.isNegative()
+          ? formatTokenType(
+              Registry.getTokenRegistry().getPrimeDebt(b.network, b.currencyId)
+            )
+          : formatTokenType(b.token);
       const current =
         priorBalances.find((t) => t.tokenId === b.tokenId) || b.copy(0);
 

@@ -64,6 +64,7 @@ export const AssetInput = React.forwardRef<
         calculateError,
         debtBalance,
         collateralBalance,
+        tradeType,
       },
       updateState,
     } = context;
@@ -74,11 +75,21 @@ export const AssetInput = React.forwardRef<
       debtOrCollateral === 'Debt'
         ? availableDebtTokens
         : availableCollateralTokens;
-    if (availableTokens?.length === 0 && selectedToken)
+    if (
+      selectedToken &&
+      (availableTokens?.length === 0 ||
+        tradeType === 'ConvertAsset' ||
+        tradeType === 'RollDebt')
+    )
       availableTokens = [selectedToken];
 
     const { inputAmount, maxBalanceString, errorMsg, setInputString } =
-      useAssetInput(selectedToken, debtOrCollateral === 'Debt');
+      useAssetInput(
+        selectedToken,
+        debtOrCollateral === 'Debt',
+        tradeType === 'RollDebt'
+      );
+
     const {
       hasUserTouched,
       options,
