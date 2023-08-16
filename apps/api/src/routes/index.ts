@@ -40,6 +40,10 @@ const handleVaults = (request: IRequest, env: APIEnv) => {
   return _handler(request, env.VAULT_REGISTRY_DO, env.VERSION);
 };
 
+const handleViews = (request: IRequest, env: APIEnv) => {
+  return _handler(request, env.VIEWS_DO, env.VERSION);
+};
+
 export {
   handleKPIs,
   handleGeoIP,
@@ -50,4 +54,5 @@ export {
   handleOracles,
   handleExchanges,
   handleVaults,
+  handleViews,
 };

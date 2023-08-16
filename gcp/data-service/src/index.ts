@@ -38,10 +38,12 @@ const parseQueryParams = (q) => {
     throw Error('endTime must be greater than startTime');
   }
   const network = q.network ? (q.network as Network) : Network.Mainnet;
+  const limit = q.limit ? parseInt(q.limit) : undefined;
   return {
     startTime: startTime,
     endTime: endTime,
     network: network,
+    limit: limit,
   };
 };
 
@@ -229,11 +231,14 @@ async function main() {
 
   app.get('/query', async (req, res) => {
     try {
+      const params = parseQueryParams(req.query);
       const view = req.query.view;
       if (!view) {
         res.status(400).send('View required');
       }
-      res.send(JSON.stringify(await dataService.getView(view as string)));
+      res.send(
+        JSON.stringify(await dataService.getView(view as string, params.limit))
+      );
     } catch (e: any) {
       res.status(500).send(e.toString());
     }
