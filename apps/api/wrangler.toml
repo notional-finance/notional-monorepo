@@ -32,7 +32,7 @@ durable_objects.bindings = [
   { name = "TOKEN_REGISTRY_DO", class_name = "TokenRegistryDO", script_name = "registry-dev" },
   { name = "VAULT_REGISTRY_DO", class_name = "VaultRegistryDO", script_name = "registry-dev" },
   { name = "YIELD_REGISTRY_DO", class_name = "YieldRegistryDO", script_name = "registry-dev" },
-  { name = "VIEWS_DO", class_name = "ViewsDO" }
+  { name = "VIEWS_DO", class_name = "ViewsDO", script_name = "data-dev" }
 ]
 
 [env.local.vars]
@@ -54,7 +54,7 @@ durable_objects.bindings = [
   { name = "TOKEN_REGISTRY_DO", class_name = "TokenRegistryDO", script_name = "registry-dev" },
   { name = "VAULT_REGISTRY_DO", class_name = "VaultRegistryDO", script_name = "registry-dev" },
   { name = "YIELD_REGISTRY_DO", class_name = "YieldRegistryDO", script_name = "registry-dev" },
-  { name = "VIEWS_DO", class_name = "ViewsDO" }
+  { name = "VIEWS_DO", class_name = "ViewsDO", script_name = "data-dev" }
 ]
 
 [env.dev.vars]
@@ -78,7 +78,7 @@ durable_objects.bindings = [
   { name = "TOKEN_REGISTRY_DO", class_name = "TokenRegistryDO", script_name = "registry-prod" },
   { name = "VAULT_REGISTRY_DO", class_name = "VaultRegistryDO", script_name = "registry-prod" },
   { name = "YIELD_REGISTRY_DO", class_name = "YieldRegistryDO", script_name = "registry-dev" },
-  { name = "VIEWS_DO", class_name = "ViewsDO" }
+  { name = "VIEWS_DO", class_name = "ViewsDO", script_name = "data-dev" }
 ]
 
 [env.prod.vars]
