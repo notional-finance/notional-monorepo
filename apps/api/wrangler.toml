@@ -69,7 +69,7 @@ durable_objects.bindings = [
   { name = "ORACLE_REGISTRY_DO", class_name = "OracleRegistryDO", script_name = "registry-prod" },
   { name = "TOKEN_REGISTRY_DO", class_name = "TokenRegistryDO", script_name = "registry-prod" },
   { name = "VAULT_REGISTRY_DO", class_name = "VaultRegistryDO", script_name = "registry-prod" },
-  { name = "YIELD_REGISTRY_DO", class_name = "YieldRegistryDO", script_name = "registry-dev" }
+  { name = "YIELD_REGISTRY_DO", class_name = "YieldRegistryDO", script_name = "registry-dev" },
   { name = "VIEWS_DO", class_name = "ViewsDO" }
 ]
 
