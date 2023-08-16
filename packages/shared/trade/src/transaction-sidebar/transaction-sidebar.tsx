@@ -5,7 +5,8 @@ import {
 } from '@notional-finance/mui';
 import { TradeContext } from '@notional-finance/notionable-hooks';
 import { useCallback } from 'react';
-import { MessageDescriptor } from 'react-intl';
+import { MessageDescriptor, defineMessages } from 'react-intl';
+import { useGeoipBlock } from '@notional-finance/helpers';
 import TradeActionButton from '../trade-action-button/trade-action-button';
 import Confirmation2 from '../transaction-confirmation/confirmation2';
 import { TransactionHeadings } from './components/transaction-headings';
@@ -41,12 +42,19 @@ export const TransactionSidebar = ({
 }: TransactionSidebarProps) => {
   const { state, updateState } = context;
   const { canSubmit, populatedTransaction, confirm, tradeType } = state;
-
+  const isBlocked = useGeoipBlock();
   const handleSubmit = useCallback(() => {
     updateState({ confirm: true });
   }, [updateState]);
 
   if (tradeType === undefined) return <PageLoading />;
+
+  const leverageDisabled = isBlocked && tradeType.includes('Leveraged');
+  const errorMessage = defineMessages({
+    geoErrorHeading: {
+      defaultMessage: 'Leveraged products are not available in the US',
+    },
+  });
 
   return confirm && populatedTransaction ? (
     <Confirmation2
@@ -59,11 +67,15 @@ export const TransactionSidebar = ({
   ) : (
     <ActionSidebar
       heading={heading || TransactionHeadings[tradeType].heading}
-      helptext={helptext || TransactionHeadings[tradeType].helptext}
+      helptext={
+        leverageDisabled
+          ? errorMessage.geoErrorHeading
+          : helptext || TransactionHeadings[tradeType].helptext
+      }
       advancedToggle={advancedToggle}
       CustomActionButton={isPortfolio ? undefined : TradeActionButton}
       handleSubmit={handleSubmit}
-      canSubmit={canSubmit}
+      canSubmit={canSubmit && !leverageDisabled}
       handleLeverUpToggle={handleLeverUpToggle}
       onCancelCallback={onCancelCallback}
       leveredUp={leveredUp || false}

@@ -12,6 +12,7 @@ import {
   VaultContext,
   useVaultProperties,
 } from '@notional-finance/notionable-hooks';
+import { useGeoipBlock } from '@notional-finance/helpers';
 import { useVaultCapacity } from '../hooks';
 import { VaultTradeType } from '@notional-finance/notionable';
 import { FormattedMessage } from 'react-intl';
@@ -27,6 +28,7 @@ export const VaultSideDrawer = ({
   advancedToggle,
   context,
 }: VaultSideDrawerProps) => {
+  const isBlocked = useGeoipBlock();
   const history = useHistory();
   const {
     state: {
@@ -64,16 +66,20 @@ export const VaultSideDrawer = ({
         ) : (
           <ActionSidebar
             heading={messages[tradeType].heading}
-            helptext={{
-              ...messages[tradeType].helptext,
-              values: {
-                minDepositRequired,
-                minBorrowSize,
-              },
-            }}
+            helptext={
+              isBlocked
+                ? messages.error.blockedGeoActionHelptext
+                : {
+                    ...messages[tradeType].helptext,
+                    values: {
+                      minDepositRequired,
+                      minBorrowSize,
+                    },
+                  }
+            }
             advancedToggle={advancedToggle}
             showDrawer={false}
-            canSubmit={canSubmit}
+            canSubmit={canSubmit && !isBlocked}
             cancelRoute={''}
             CustomActionButton={TradeActionButton}
             handleSubmit={handleSubmit}

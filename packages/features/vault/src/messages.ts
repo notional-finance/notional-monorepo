@@ -309,12 +309,8 @@ export const messages = {
     },
     blockedGeoActionHelptext: {
       defaultMessage:
-        'Unfortunately, leveraged vaults are not available to U.S. Persons.',
+      'Leveraged products are not available in the US',
       description: 'error message',
-    },
-    blockedGeoCTA: {
-      defaultMessage: 'Get Clarity for DeFi',
-      description: 'button text',
-    },
+    }
   }),
 };
