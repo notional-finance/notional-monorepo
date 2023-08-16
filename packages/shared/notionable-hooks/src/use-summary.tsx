@@ -238,7 +238,7 @@ const TradeSummaryLabels = {
     deposit: { defaultMessage: 'Deposit and Repay Variable Debt' },
     withdraw: { defaultMessage: 'Borrow Variable' },
     none: { defaultMessage: 'Borrow Variable' },
-    repay: { defaultMessage: 'Repay Fixed ({caption})' },
+    repay: { defaultMessage: 'Repay Variable Debt' },
   }),
 };
 
@@ -378,7 +378,7 @@ export function useTradeSummary(state: BaseTradeState) {
       summary.push(getTradeDetail(collateralBalance, 'Debt', 'repay', intl));
     } else if (tradeType === 'RollDebt') {
       // Asset to repay: this never changes signs
-      summary.push(getTradeDetail(collateralBalance, 'Asset', 'none', intl));
+      summary.push(getTradeDetail(collateralBalance, 'Debt', 'repay', intl));
 
       if (netAssetBalance?.isZero() === false)
         // This only exists if the new debt maturity has fCash in it
