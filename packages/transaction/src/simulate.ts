@@ -186,10 +186,11 @@ export async function applySimulationToAccount(
   );
 
   accountTransfers.forEach((t) => {
-    // NOTE: need to flip the sign on prime debt since all transfers are positive, fCash debt
-    // has its sign flipped inside parseLogs
+    // NOTE: need to flip the sign on debt values since all transfer signs are positive
     const value =
-      t.value.tokenType === 'PrimeDebt' || t.token.isFCashDebt
+      t.value.tokenType === 'PrimeDebt' ||
+      t.token.isFCashDebt ||
+      t.value.tokenType === 'VaultDebt'
         ? t.value.neg()
         : t.value;
     const netValue =

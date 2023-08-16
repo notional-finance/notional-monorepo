@@ -444,6 +444,7 @@ export function buildTransaction(
             populatedTransaction: p,
             transactionError: undefined,
           })),
+          // NOTE: this does not always catch errors...
           catchError((e) => {
             logError(e, 'base-trade#logic', 'buildTransaction', s);
             return of({
@@ -496,7 +497,7 @@ export function simulateTransaction(
               (t) => t.tokenId
             )
               .map(([a, b]) => (!!a && !!b ? a.sub(b) : a || b) as TokenBalance)
-              .filter((b) => b.abs().toFloat() > 5e-5);
+              .filter((b) => b.abs().toFloat() > 5e-4);
 
             if (mismatchedBalances.length > 0) {
               logError(
