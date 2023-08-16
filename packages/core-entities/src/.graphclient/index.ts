@@ -1492,6 +1492,7 @@ export type ExchangeRate_orderBy =
   | 'oracle__oracleType'
   | 'oracle__mustInvert'
   | 'oracle__latestRate'
+  | 'oracle__matured'
   | 'rate';
 
 export type Incentive = {
@@ -1817,6 +1818,7 @@ export type Oracle = {
   oracleType: OracleType;
   mustInvert: Scalars['Boolean'];
   latestRate?: Maybe<Scalars['BigInt']>;
+  matured: Scalars['Boolean'];
   historicalRates?: Maybe<Array<ExchangeRate>>;
 };
 
@@ -2066,6 +2068,10 @@ export type Oracle_filter = {
   latestRate_lte?: InputMaybe<Scalars['BigInt']>;
   latestRate_in?: InputMaybe<Array<Scalars['BigInt']>>;
   latestRate_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  matured?: InputMaybe<Scalars['Boolean']>;
+  matured_not?: InputMaybe<Scalars['Boolean']>;
+  matured_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  matured_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
   historicalRates_?: InputMaybe<ExchangeRate_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
@@ -2131,6 +2137,7 @@ export type Oracle_orderBy =
   | 'oracleType'
   | 'mustInvert'
   | 'latestRate'
+  | 'matured'
   | 'historicalRates';
 
 /** Defines the order direction, either ascending or descending */
@@ -6303,6 +6310,7 @@ export type OracleResolvers<ContextType = MeshContext & { chainName: string }, P
   oracleType?: Resolver<ResolversTypes['OracleType'], ParentType, ContextType>;
   mustInvert?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   latestRate?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  matured?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   historicalRates?: Resolver<Maybe<Array<ResolversTypes['ExchangeRate']>>, ParentType, ContextType, RequireFields<OraclehistoricalRatesArgs, 'skip' | 'first'>>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
@@ -6733,7 +6741,7 @@ const notionalV3Transforms = [];
 const additionalTypeDefs = [] as any[];
 const notionalV3Handler = new GraphqlHandler({
               name: "NotionalV3",
-              config: {"endpoint":"https://api.studio.thegraph.com/query/33671/notional-finance-v3-{context.chainName:arbitrum}/v0.0.138"},
+              config: {"endpoint":"https://api.studio.thegraph.com/query/33671/notional-finance-v3-{context.chainName:arbitrum}/v0.0.139"},
               baseDir,
               cache,
               pubsub,
@@ -7284,7 +7292,7 @@ export const AllConfigurationByBlockDocument = gql`
 export const AllOraclesDocument = gql`
     query AllOracles {
   oracles(
-    where: {oracleType_in: [Chainlink, fCashOracleRate, fCashSettlementRate, PrimeCashToUnderlyingExchangeRate, PrimeDebtToUnderlyingExchangeRate, VaultShareOracleRate, nTokenToUnderlyingExchangeRate, PrimeCashPremiumInterestRate, PrimeDebtPremiumInterestRate, PrimeCashExternalLendingInterestRate, fCashSpotRate, PrimeCashToUnderlyingOracleInterestRate]}
+    where: {oracleType_in: [Chainlink, fCashOracleRate, fCashSettlementRate, PrimeCashToUnderlyingExchangeRate, PrimeDebtToUnderlyingExchangeRate, VaultShareOracleRate, nTokenToUnderlyingExchangeRate, PrimeCashPremiumInterestRate, PrimeDebtPremiumInterestRate, PrimeCashExternalLendingInterestRate, fCashSpotRate, PrimeCashToUnderlyingOracleInterestRate, fCashToUnderlyingExchangeRate], matured: false}
     first: 5000
   ) {
     id
@@ -7314,7 +7322,7 @@ export const AllOraclesDocument = gql`
 export const AllOraclesByBlockDocument = gql`
     query AllOraclesByBlock($blockNumber: Int) {
   oracles(
-    where: {oracleType_in: [Chainlink, fCashOracleRate, fCashSettlementRate, PrimeCashToUnderlyingExchangeRate, PrimeDebtToUnderlyingExchangeRate, VaultShareOracleRate, nTokenToUnderlyingExchangeRate, PrimeCashPremiumInterestRate, PrimeDebtPremiumInterestRate, PrimeCashExternalLendingInterestRate, fCashSpotRate, PrimeCashToUnderlyingOracleInterestRate]}
+    where: {oracleType_in: [Chainlink, fCashOracleRate, fCashSettlementRate, PrimeCashToUnderlyingExchangeRate, PrimeDebtToUnderlyingExchangeRate, VaultShareOracleRate, nTokenToUnderlyingExchangeRate, PrimeCashPremiumInterestRate, PrimeDebtPremiumInterestRate, PrimeCashExternalLendingInterestRate, fCashSpotRate, PrimeCashToUnderlyingOracleInterestRate, fCashToUnderlyingExchangeRate], matured: false}
     first: 5000
     block: {number: $blockNumber}
   ) {

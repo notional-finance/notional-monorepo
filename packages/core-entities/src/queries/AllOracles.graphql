@@ -1,7 +1,6 @@
 query AllOracles {
   oracles(where: { oracleType_in: [
     Chainlink,
-    # TODO: can we filter matured fCash oracle rates here?
     fCashOracleRate,
     fCashSettlementRate,
     PrimeCashToUnderlyingExchangeRate,
@@ -14,7 +13,8 @@ query AllOracles {
     PrimeCashExternalLendingInterestRate,
     fCashSpotRate,
     PrimeCashToUnderlyingOracleInterestRate,
-  ]}, first: 5000) {
+    fCashToUnderlyingExchangeRate
+  ], matured: false}, first: 5000) {
     id
     lastUpdateBlockNumber
     lastUpdateTimestamp

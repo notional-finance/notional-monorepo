@@ -1468,6 +1468,7 @@ export type ExchangeRate_orderBy =
   | 'oracle__oracleType'
   | 'oracle__mustInvert'
   | 'oracle__latestRate'
+  | 'oracle__matured'
   | 'rate';
 
 export type Incentive = {
@@ -1793,6 +1794,7 @@ export type Oracle = {
   oracleType: OracleType;
   mustInvert: Scalars['Boolean'];
   latestRate?: Maybe<Scalars['BigInt']>;
+  matured: Scalars['Boolean'];
   historicalRates?: Maybe<Array<ExchangeRate>>;
 };
 
@@ -2042,6 +2044,10 @@ export type Oracle_filter = {
   latestRate_lte?: InputMaybe<Scalars['BigInt']>;
   latestRate_in?: InputMaybe<Array<Scalars['BigInt']>>;
   latestRate_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  matured?: InputMaybe<Scalars['Boolean']>;
+  matured_not?: InputMaybe<Scalars['Boolean']>;
+  matured_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  matured_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
   historicalRates_?: InputMaybe<ExchangeRate_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
@@ -2107,6 +2113,7 @@ export type Oracle_orderBy =
   | 'oracleType'
   | 'mustInvert'
   | 'latestRate'
+  | 'matured'
   | 'historicalRates';
 
 /** Defines the order direction, either ascending or descending */
