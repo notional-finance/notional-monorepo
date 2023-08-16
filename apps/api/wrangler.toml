@@ -8,14 +8,6 @@ minify = true
 usage_model = "bundled"
 tsconfig = "tsconfig.json"
 
-[[migrations]]
-tag = "v4"
-new_classes = ["KPIsDO"]
-
-[[migrations]]
-tag = "v4"
-new_classes = ["AccountsDO"]
-
 [env.local]
 name = "api-local"
 minify = false
