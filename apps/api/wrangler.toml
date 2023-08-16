@@ -16,6 +16,10 @@ new_classes = ["KPIsDO"]
 tag = "v2"
 new_classes = ["AccountsDO"]
 
+[[migrations]]
+tag = "v3"
+new_classes = ["ViewsDO"]
+
 [env.local]
 name = "api-local"
 minify = false
