@@ -82,7 +82,6 @@ export function usePortfolioHoldings() {
     ];
   }, []);
 
-  // TODO: switch this to run off of balances...
   const portfolioHoldingsData =
     account?.balances
       .filter(
@@ -135,9 +134,9 @@ export function usePortfolioHoldings() {
               },
               {
                 label: <FormattedMessage defaultMessage={'Current Price'} />,
-                value: TokenBalance.unit(b.token)
-                  .toUnderlying()
-                  .toDisplayStringWithSymbol(3),
+                value: `${TokenBalance.unit(b.underlying)
+                  .toToken(b.token)
+                  .toDisplayString(3)} ${b.underlying.symbol}`,
               },
             ],
             buttonBarData: [
