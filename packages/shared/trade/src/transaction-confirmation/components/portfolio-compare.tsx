@@ -2,6 +2,7 @@ import { useTheme, Box } from '@mui/material';
 import {
   ArrowIndicatorCell,
   DataTable,
+  NegativeValueCell,
   TABLE_VARIANTS,
 } from '@notional-finance/mui';
 import { BaseTradeState } from '@notional-finance/notionable';
@@ -22,6 +23,8 @@ export const PortfolioCompare = ({ state }: { state: BaseTradeState }) => {
       Header: <FormattedMessage defaultMessage={'Current'} />,
       accessor: 'current',
       textAlign: 'right',
+      smallCell: true,
+      Cell: NegativeValueCell,
     },
   ];
 
@@ -55,7 +58,10 @@ export const PortfolioCompare = ({ state }: { state: BaseTradeState }) => {
                 }) => {
                   return {
                     label,
-                    current,
+                    current: {
+                      displayValue: current,
+                      isNegative: current.startsWith('-'),
+                    },
                     updated: {
                       value: updated,
                       arrowUp:

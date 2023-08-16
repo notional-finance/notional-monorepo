@@ -4,6 +4,7 @@ import {
   YieldData,
   fCashMarket,
   FiatKeys,
+  Registry,
 } from '@notional-finance/core-entities';
 import {
   formatLeverageRatio,
@@ -114,9 +115,11 @@ function getOrderDetails(
   return [
     {
       label: intl.formatMessage(valueLabel, { title, caption }),
-      value: isLeverageOrRoll
-        ? b.toDisplayStringWithSymbol(3, true)
-        : b.abs().toDisplayStringWithSymbol(3, true),
+      value: `${
+        isLeverageOrRoll
+          ? b.toDisplayString(3, true)
+          : b.abs().toDisplayString(3, true)
+      } ${title}`,
     },
     {
       label: intl.formatMessage(feeLabel, { title, caption }),
@@ -405,7 +408,14 @@ export function useTradeSummary(state: BaseTradeState) {
         getTradeDetail(netAssetBalance.neg(), 'Asset', 'withdraw', intl)
       );
     if (netDebtBalance?.isZero() === false)
-      summary.push(getTradeDetail(netDebtBalance, 'Debt', 'deposit', intl));
+      summary.push(
+        getTradeDetail(
+          netDebtBalance,
+          'Debt',
+          netDebtBalance.isNegative() ? 'withdraw' : 'deposit',
+          intl
+        )
+      );
   } else {
     return { summary: undefined, total: undefined };
   }
@@ -452,12 +462,21 @@ export function usePortfolioComparison(
 ) {
   const { account } = useAccountDefinition();
   const { postTradeBalances } = state;
-  const priorBalances = account?.balances || [];
+  const priorBalances = account
+    ? AccountRiskProfile.from(
+        account.balances.filter((t) => t.tokenType !== 'Underlying')
+      ).balances
+    : [];
 
   const tableData: CompareData[] | undefined = postTradeBalances
     ?.filter((t) => t.tokenType !== 'Underlying')
     .map((b) => {
-      const { titleWithMaturity } = formatTokenType(b.token);
+      const { titleWithMaturity } =
+        b.tokenType === 'PrimeCash' && b.isNegative()
+          ? formatTokenType(
+              Registry.getTokenRegistry().getPrimeDebt(b.network, b.currencyId)
+            )
+          : formatTokenType(b.token);
       const current =
         priorBalances.find((t) => t.tokenId === b.tokenId) || b.copy(0);
 
