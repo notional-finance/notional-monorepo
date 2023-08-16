@@ -15,6 +15,7 @@ interface SingleDisplayChartProps extends AreaChartProps, BarChartProps {
   bottomLabel?: ReactNode;
   referenceLineValue?: number;
   xAxisTickFormat?: 'date' | 'percent';
+  areaLineType?: 'linear' | 'monotone';
   legendData?: any;
   chartInfoBoxData?: chartInfoBoxDataProps[];
   showCartesianGrid?: boolean;
@@ -28,6 +29,7 @@ export const SingleDisplayChart = ({
   chartToolTipData,
   chartType,
   xAxisTickFormat,
+  areaLineType,
   showCartesianGrid,
   bottomLabel,
 }: SingleDisplayChartProps) => {
@@ -74,6 +76,7 @@ export const SingleDisplayChart = ({
             areaChartData={areaChartData}
             chartToolTipData={chartToolTipData}
             areaChartStyles={areaChartStyles}
+            areaLineType={areaLineType}
           />
         )}
         {chartType === 'bar' && <BarChart barChartStyles={barChartStyles} />}

@@ -165,6 +165,7 @@ export const DataTable = ({
           tableTitleButtons={tableTitleButtons}
           tableVariant={tableVariant}
           expandableTable={expandableTable}
+          showInfoIcon={infoBoxData && infoBoxData.length > 0}
         />
       )}
       {filterBarData && filterBarData.length > 0 && (

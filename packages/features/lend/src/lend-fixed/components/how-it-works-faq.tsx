@@ -12,7 +12,7 @@ interface HowItWorksFaqProps {
 export const HowItWorksFaq = ({ tokenSymbol }: HowItWorksFaqProps) => {
   const theme = useTheme();
   const LendFixedImage = useHowItWorks(tokenSymbol);
-  console.log({ LendFixedImage });
+
   return (
     <div>
       {tokenSymbol && (

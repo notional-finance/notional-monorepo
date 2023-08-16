@@ -34,7 +34,6 @@ export const ChartToolTip = (props: ChartToolTipProps) => {
 
   if (active && payload) {
     const { line, area, timestamp } = payload[0].payload;
-
     return (
       <ToolTipBox>
         {chartToolTipData?.timestamp && (
@@ -60,7 +59,7 @@ export const ChartToolTip = (props: ChartToolTipProps) => {
             {chartToolTipData?.timestamp.formatTitle(timestamp)}
           </Item>
         )}
-        {chartToolTipData?.area && area && (
+        {chartToolTipData?.area && (
           <Item
             sx={{
               borderColor: chartToolTipData?.area.lineColor,
