@@ -151,7 +151,7 @@ export function parseTransfersFromLogs(
               transferType: decodeTransferType(from, to),
               fromSystemAccount: decodeSystemAccount(from, network),
               toSystemAccount: decodeSystemAccount(to, network),
-              value: token.isFCashDebt ? value.neg() : value,
+              value,
               token,
               tokenType: token.tokenType,
               maturity: token.maturity,

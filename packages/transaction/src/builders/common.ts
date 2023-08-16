@@ -47,7 +47,8 @@ export interface PopulateTransactionInputs {
 
 export function hasExistingCashBalance(
   tokenBalance: TokenBalance,
-  balances: TokenBalance[]
+  balances: TokenBalance[],
+  depositBalance?: TokenBalance
 ) {
   const cashBalance = balances.find(
     (b) =>
@@ -56,24 +57,14 @@ export function hasExistingCashBalance(
   );
 
   const withdrawEntireCashBalance = cashBalance ? false : true;
-  const withdrawAmountInternalPrecision =
-    cashBalance?.tokenType === 'PrimeCash'
-      ? // If there is a prime cash balance, withdraw the deposit balance (which is
-        // the withdraw amount here)
-        tokenBalance.toPrimeCash().neg()
-      : tokenBalance?.tokenType === 'PrimeDebt'
-      ? // If there is a prime debt balance, then withdraw the net amount after repayment
-        tokenBalance.toPrimeCash().neg().add(tokenBalance.toPrimeCash())
-      : undefined;
+  const withdrawAmountInternalPrecision = withdrawEntireCashBalance
+    ? undefined
+    : depositBalance?.toPrimeCash().neg();
 
   return {
     cashBalance,
     withdrawEntireCashBalance,
-    // Floor this value at zero
-    withdrawAmountInternalPrecision:
-      withdrawAmountInternalPrecision?.isNegative()
-        ? withdrawAmountInternalPrecision.copy(0)
-        : withdrawAmountInternalPrecision,
+    withdrawAmountInternalPrecision,
   };
 }
 

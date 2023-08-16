@@ -117,13 +117,15 @@ export function BorrowFixed({
   network,
   debtBalance,
   accountBalances,
+  depositBalance,
   redeemToWETH,
 }: PopulateTransactionInputs) {
-  if (!debtBalance) throw Error('Debt balance must be defined');
+  if (!debtBalance || !depositBalance)
+    throw Error('Debt balance must be defined');
 
   // NOTE: this returns the direct FX'd prime cash amount which is probably wrong....
-  const { withdrawAmountInternalPrecision, withdrawEntireCashBalance } =
-    hasExistingCashBalance(debtBalance, accountBalances);
+  const { withdrawEntireCashBalance, withdrawAmountInternalPrecision } =
+    hasExistingCashBalance(debtBalance, accountBalances, depositBalance);
 
   return populateNotionalTxnAndGas(
     network,
@@ -163,8 +165,11 @@ export function BorrowWithCollateral({
   );
 
   // NOTE: this returns the direct FX'd prime cash amount which is probably wrong....
-  const { withdrawAmountInternalPrecision, withdrawEntireCashBalance } =
-    hasExistingCashBalance(debtBalance, accountBalances);
+  const { withdrawEntireCashBalance } = hasExistingCashBalance(
+    debtBalance,
+    accountBalances
+  );
+  if (!withdrawEntireCashBalance) throw Error('Unimplemented');
 
   return populateNotionalTxnAndGas(
     network,
@@ -191,7 +196,7 @@ export function BorrowWithCollateral({
           DepositActionType.None,
           TokenBalance.zero(debtBalance.underlying),
           withdrawEntireCashBalance,
-          withdrawAmountInternalPrecision,
+          undefined,
           redeemToWETH,
           debtBalance.tokenType === 'fCash' ? [debtBalance] : []
         ),
@@ -261,8 +266,8 @@ export function WithdrawLend({
   if (!debtBalance || !depositBalance)
     throw Error('Collateral and deposit balances must be defined');
 
-  const { withdrawAmountInternalPrecision, withdrawEntireCashBalance } =
-    hasExistingCashBalance(debtBalance, accountBalances);
+  const { withdrawEntireCashBalance, withdrawAmountInternalPrecision } =
+    hasExistingCashBalance(debtBalance, accountBalances, depositBalance);
 
   return debtBalance.tokenType === 'fCash'
     ? populateNotionalTxnAndGas(

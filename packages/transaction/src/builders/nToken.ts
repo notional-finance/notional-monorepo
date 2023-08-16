@@ -62,13 +62,13 @@ export function RedeemAndWithdrawNToken({
   network,
   debtBalance,
   redeemToWETH,
+  depositBalance,
   accountBalances,
 }: PopulateTransactionInputs) {
-  if (!debtBalance) throw Error('debtBalance required');
+  if (!debtBalance || !depositBalance) throw Error('debtBalance required');
   if (!debtBalance.isNegative() || debtBalance.tokenType !== 'nToken')
     throw Error('Invalid debtBalance');
 
-  // TODO: these values do not include slippage.
   const { withdrawEntireCashBalance, withdrawAmountInternalPrecision } =
     hasExistingCashBalance(debtBalance, accountBalances);
 

@@ -8,6 +8,7 @@ import {
 import { ethers, PopulatedTransaction } from 'ethers';
 import { parseTransfersFromLogs } from './parser/transfers';
 import { AccountDefinition } from '@notional-finance/core-entities';
+import { AccountRiskProfile } from '@notional-finance/risk-engine';
 
 // Types taken from: https://github.com/alchemyplatform/alchemy-sdk-js/blob/main/src/types/types.ts#L2051
 
@@ -176,20 +177,36 @@ export async function applySimulationToAccount(
     simulatedLogs: { transfers },
   } = await simulatePopulatedTxn(network, populateTxn);
   const balancesAfter = [...priorAccount.balances];
-  transfers
-    .filter(
-      (t) => t.from === priorAccount.address || t.to === priorAccount.address
-    )
-    .forEach((t) => {
-      const i = balancesAfter.findIndex((b) => b.tokenId === t.token.id);
-      if (i < 0) {
-        balancesAfter.push(t.value);
-      } else {
-        balancesAfter[i] = balancesAfter[i].add(
-          t.from === priorAccount.address ? t.value.neg() : t.value
-        );
-      }
-    });
 
-  return balancesAfter;
+  // TODO: this does not include underlying transfers
+  const accountTransfers = transfers.filter(
+    (t) =>
+      t.from.toLowerCase() === priorAccount.address.toLowerCase() ||
+      t.to.toLowerCase() === priorAccount.address.toLowerCase()
+  );
+
+  accountTransfers.forEach((t) => {
+    // NOTE: need to flip the sign on prime debt since all transfers are positive, fCash debt
+    // has its sign flipped inside parseLogs
+    const value =
+      t.value.tokenType === 'PrimeDebt' || t.token.isFCashDebt
+        ? t.value.neg()
+        : t.value;
+    const netValue =
+      t.from.toLowerCase() === priorAccount.address.toLowerCase()
+        ? value.neg()
+        : value;
+
+    const i = balancesAfter.findIndex((b) => b.tokenId === t.value.tokenId);
+    if (i < 0) {
+      balancesAfter.push(netValue);
+    } else {
+      balancesAfter[i] = balancesAfter[i].add(netValue);
+    }
+  });
+
+  return {
+    balancesAfter: AccountRiskProfile.merge(balancesAfter),
+    accountTransfers,
+  };
 }

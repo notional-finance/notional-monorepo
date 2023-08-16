@@ -479,23 +479,41 @@ export function simulateTransaction(
         p.populatedTransaction?.data === c.populatedTransaction?.data
     ),
     withLatestFrom(selectedNetwork$),
-    switchMap(([[{ populatedTransaction, postTradeBalances }, a], network]) => {
+    switchMap(([[s, a], network]) => {
+      const { populatedTransaction, postTradeBalances, vaultAddress } = s;
       if (populatedTransaction && a) {
         return from(
           applySimulationToAccount(network, populatedTransaction, a)
         ).pipe(
-          map((balancesAfter) => {
-            return {
-              mismatchedBalances: zipByKeyToArray(
-                balancesAfter,
-                postTradeBalances || [],
-                (t) => t.tokenId
-              )
-                .map(
-                  ([a, b]) => (!!a && !!b ? a.sub(b) : a || b) as TokenBalance
-                )
-                .filter((b) => b.abs().toFloat() > 1e-5),
-            };
+          map(({ balancesAfter }) => {
+            const mismatchedBalances = zipByKeyToArray(
+              balancesAfter.filter((t) =>
+                vaultAddress
+                  ? t.isVaultToken && t.vaultAddress === vaultAddress
+                  : t.tokenType !== 'Underlying' && !t.isVaultToken
+              ),
+              postTradeBalances || [],
+              (t) => t.tokenId
+            )
+              .map(([a, b]) => (!!a && !!b ? a.sub(b) : a || b) as TokenBalance)
+              .filter((b) => b.abs().toFloat() > 5e-5);
+
+            if (mismatchedBalances.length > 0) {
+              logError(
+                Error('Error in transaction simulation'),
+                'base-trade',
+                'simulateTransaction',
+                { ...s, mismatchedBalances }
+              );
+
+              // TODO: figure out what the UI response is here...
+              return {
+                transactionError: 'Error in transaction simulation',
+                populatedTransaction: undefined,
+              };
+            }
+
+            return undefined;
           })
         );
       }
