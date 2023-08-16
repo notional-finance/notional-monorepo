@@ -20,7 +20,7 @@ export function logError(
     /* eslint-disable no-console */
     console.error(`Error at: ${module}#${method}`);
     console.error(error);
-    console.error(context);
+    console.error({ context });
     /* eslint-enable no-console */
   } else {
     if (error instanceof NonLoggedError) return;
