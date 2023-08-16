@@ -32,36 +32,12 @@ export const Confirmation2 = ({
   const theme = useTheme();
   const { state, updateState } = context;
   const { populatedTransaction, transactionError } = state;
-  // const selectedNetwork = useSelectedNetwork();
-  // const [_calls, setSimulatedCalls] = useState<
-  //   SimulationCallTrace[] | undefined
-  // >();
-  // const [_logs, setSimulatedLogs] = useState<ParsedLogs | undefined>();
   const onTxnCancel = useCallback(() => {
     updateState({ confirm: false });
   }, [updateState]);
 
   const { isReadOnlyAddress, transactionStatus, transactionHash, onSubmit } =
     useTransactionStatus();
-
-  // const runSimulate = useCallback(async () => {
-  //   if (!selectedNetwork || !populatedTransaction) return;
-
-  //   try {
-  //     const { simulatedCalls, simulatedLogs } = await simulatePopulatedTxn(
-  //       selectedNetwork,
-  //       populatedTransaction
-  //     );
-  //     setSimulatedCalls(simulatedCalls);
-  //     setSimulatedLogs(simulatedLogs);
-  //     console.log(simulatedCalls);
-  //     console.log(simulatedLogs);
-  //   } catch (e) {
-  //     console.error(e);
-  //     setSimulatedCalls(undefined);
-  //     setSimulatedLogs(undefined);
-  //   }
-  // }, [populatedTransaction, selectedNetwork]);
 
   const inner = (
     <>
@@ -90,7 +66,6 @@ export const Confirmation2 = ({
           transactionStatus={transactionStatus}
         />
       )}
-      {/* <Button onClick={runSimulate}>Simulate</Button> */}
       <OrderDetails state={state} />
       <PortfolioCompare state={state} />
       <TransactionButtons
