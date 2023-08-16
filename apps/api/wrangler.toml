@@ -35,6 +35,7 @@ NX_ENV = "local"
 VERSION = "v2"
 KPIS_NAME = "KPIS_DO"
 ACCOUNTS_NAME = "ACCOUNTS_DO"
+VIEWS_NAME = "VIEWS_DO"
 
 [env.dev]
 name = "api-dev"

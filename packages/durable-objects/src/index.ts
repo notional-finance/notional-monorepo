@@ -22,4 +22,5 @@ export interface APIEnv extends RegistryDOEnv {
   DATA_SERVICE_URL: string;
   DATA_SERVICE_AUTH_TOKEN: string;
   VIEWS_DO: DurableObjectNamespace;
+  VIEWS_NAME: string;
 }

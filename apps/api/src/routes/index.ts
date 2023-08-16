@@ -41,7 +41,7 @@ const handleVaults = (request: IRequest, env: APIEnv) => {
 };
 
 const handleViews = (request: IRequest, env: APIEnv) => {
-  return _handler(request, env.VIEWS_DO, env.VERSION);
+  return _handler(request, env.VIEWS_DO, env.VIEWS_NAME);
 };
 
 export {
