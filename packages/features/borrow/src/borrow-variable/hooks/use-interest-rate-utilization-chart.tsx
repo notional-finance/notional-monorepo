@@ -30,6 +30,10 @@ export const useInterestRateUtilizationChart = (
     if (primeCashCurve) {
       areaChartData = [
         {
+          timestamp: 0.0,
+          area: 0.0,
+        },
+        {
           timestamp: (primeCashCurve.kinkUtilization1 * 100) / RATE_PRECISION,
           area: (primeCashCurve.kinkRate1 * 100) / RATE_PRECISION,
         },

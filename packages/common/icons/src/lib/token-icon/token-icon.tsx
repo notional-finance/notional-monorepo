@@ -2,11 +2,14 @@ import unknown from '../../assets/icons/currencies/currency-unknown.svg';
 import wbtc from '../../assets/icons/currencies/currency-wbtc.svg';
 import arb from '../../assets/icons/currencies/arbitrum.svg';
 import eth from '../../assets/icons/currencies/currency-eth.svg';
+import peth from '../../assets/icons/currencies/pETH.svg';
+import preth from '../../assets/icons/currencies/pRETH.svg';
 import usdc from '../../assets/icons/currencies/currency-usdc.svg';
 import dai from '../../assets/icons/currencies/currency-dai.svg';
 import cwbtc from '../../assets/icons/currencies/currency-cwbtc.svg';
 import ceth from '../../assets/icons/currencies/currency-ceth.svg';
 import cusdc from '../../assets/icons/currencies/currency-cusdc.svg';
+import pusdc from '../../assets/icons/currencies/pUSDC.svg';
 import cdai from '../../assets/icons/currencies/currency-cdai.svg';
 import note from '../../assets/icons/currencies/NOTE-20x20.png';
 import note32px from '../../assets/icons/currencies/NOTE-32x32.png';
@@ -17,10 +20,12 @@ import ndai from '../../assets/icons/currencies/nDAI.png';
 import neth from '../../assets/icons/currencies/nETH.png';
 import nusdc from '../../assets/icons/currencies/nUSDC.png';
 import nwbtc from '../../assets/icons/currencies/nWBTC.png';
+import pwbtc from '../../assets/icons/currencies/pWBTC.svg';
 import weth from '../../assets/icons/currencies/WETH.svg';
 import comp from '../../assets/icons/currencies/COMP.svg';
 import wstETH from '../../assets/icons/currencies/wstETH.svg';
 import fDAI from '../../assets/icons/currencies/fDAI.svg';
+import pDAI from '../../assets/icons/currencies/pDAI.svg';
 import fUSDC from '../../assets/icons/currencies/fUSDC.svg';
 import fWBTC from '../../assets/icons/currencies/fWBTC.svg';
 import fETH from '../../assets/icons/currencies/fETH.svg';
@@ -34,7 +39,12 @@ import dai_alt from '../../assets/icons/currencies/dai-alt.svg';
 import trading_fees from '../../assets/icons/currencies/trading-fees.svg';
 import ffrax from '../../assets/icons/currencies/fFRAX.svg';
 import nfrax from '../../assets/icons/currencies/nFRAX.svg';
+import pfrax from '../../assets/icons/currencies/pFRAX.svg';
 import frax from '../../assets/icons/currencies/FRAX.svg';
+import usdt from '../../assets/icons/currencies/USDT.svg';
+import fusdt from '../../assets/icons/currencies/fUSDT.svg';
+import nusdt from '../../assets/icons/currencies/nUSDT.svg';
+import pusdt from '../../assets/icons/currencies/pUSDT.svg';
 
 export interface TokenImg {
   name: string;
@@ -53,11 +63,26 @@ export const TokenImageList: TokenImageMap = {
     accentBorderImg: wbtc_alt,
     alt: 'Wrapped Bitcoin icon',
   },
+  pwbtc: {
+    name: 'pwbtc',
+    img: pwbtc,
+    alt: 'pwbtc icon',
+  },
   eth: {
     name: 'eth',
     img: eth,
     accentBorderImg: eth_alt,
     alt: 'Ethereum icon',
+  },
+  peth: {
+    name: 'peth',
+    img: peth,
+    alt: 'prime Ethereum icon',
+  },
+  preth: {
+    name: 'preth',
+    img: preth,
+    alt: 'preth icon',
   },
   usdc: {
     name: 'usdc',
@@ -65,11 +90,41 @@ export const TokenImageList: TokenImageMap = {
     accentBorderImg: usdc_alt,
     alt: 'USD Coin icon',
   },
+  pusdc: {
+    name: 'pusdc',
+    img: pusdc,
+    alt: 'pusdc icon',
+  },
+  usdt: {
+    name: 'usdt',
+    img: usdt,
+    alt: 'usdt icon',
+  },
+  fusdt: {
+    name: 'fusdt',
+    img: fusdt,
+    alt: 'fusdt icon',
+  },
+  nusdt: {
+    name: 'nusdt',
+    img: nusdt,
+    alt: 'nusdt icon',
+  },
+  pusdt: {
+    name: 'pusdt',
+    img: pusdt,
+    alt: 'pusdt icon',
+  },
   dai: {
     name: 'dai',
     img: dai,
     accentBorderImg: dai_alt,
     alt: 'DAI Stablecoin icon',
+  },
+  pdai: {
+    name: 'pdai',
+    img: pDAI,
+    alt: 'prime DAI icon',
   },
   cwbtc: {
     name: 'cwbtc',
@@ -191,12 +246,17 @@ export const TokenImageList: TokenImageMap = {
   ffrax: {
     name: 'ffrax',
     img: ffrax,
-    alt: 'ffrax',
+    alt: 'ffrax icon',
   },
   nfrax: {
     name: 'nfrax',
     img: nfrax,
-    alt: 'nfrax',
+    alt: 'nfrax icon',
+  },
+  pfrax: {
+    name: 'pfrax',
+    img: pfrax,
+    alt: 'primt frax icon',
   },
   frax: {
     name: 'frax',

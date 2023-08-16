@@ -65,6 +65,7 @@ export const BorrowVariableTradeSummary = () => {
           bottomLabel={<FormattedMessage defaultMessage={'Utilization'} />}
           chartInfoBoxData={chartInfoBoxData}
           showCartesianGrid
+          areaLineType="linear"
         />
       )}
       <FaqHeader

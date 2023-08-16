@@ -13,6 +13,7 @@ interface DataTableTitleBarProps {
   expandableTable?: boolean;
   setInfoBoxActive?: Dispatch<SetStateAction<boolean | undefined>>;
   infoBoxActive?: boolean | undefined;
+  showInfoIcon?: boolean;
 }
 
 export const DataTableTitleBar = ({
@@ -22,6 +23,7 @@ export const DataTableTitleBar = ({
   tableTitleSubText,
   tableTitleButtons,
   setInfoBoxActive,
+  showInfoIcon = false,
 }: DataTableTitleBarProps) => {
   const theme = useTheme();
 
@@ -58,7 +60,7 @@ export const DataTableTitleBar = ({
             }}
           >
             {tableTitle}
-            {setInfoBoxActive && (
+            {setInfoBoxActive && showInfoIcon && (
               <InfoIcon
                 fill={theme.palette.primary.light}
                 onClick={() => setInfoBoxActive(true)}

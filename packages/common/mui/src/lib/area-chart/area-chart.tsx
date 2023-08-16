@@ -45,6 +45,7 @@ export interface AreaChartProps {
   areaChartButtonLabel?: ReactNode;
   barChartButtonLabel?: ReactNode;
   showCartesianGrid?: boolean;
+  areaLineType?: 'linear' | 'monotone';
 }
 
 export const AreaChart = ({
@@ -54,6 +55,7 @@ export const AreaChart = ({
   areaChartStyles,
   chartToolTipData,
   showCartesianGrid,
+  areaLineType = 'monotone',
 }: AreaChartProps) => {
   const isLine = areaChartData[0]?.line;
   const theme = useTheme();
@@ -137,7 +139,7 @@ export const AreaChart = ({
           fillOpacity={1}
         />
         <Area
-          type="monotone"
+          type={areaLineType}
           dataKey="area"
           stroke={
             areaChartStyles?.area.lineColor || theme.palette.primary.light
