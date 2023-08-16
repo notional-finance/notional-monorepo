@@ -9,7 +9,6 @@ import {
   calculateDebt,
   calculateDebtCollateralGivenDepositRiskLimit,
   calculateDeleverage,
-  calculateDeposit,
   ConvertAsset,
   Deleverage,
   Deposit,
@@ -300,7 +299,7 @@ export const TradeConfiguration = {
    */
   RepayDebt: {
     // Enter how much debt to repay, will calculate the cost
-    calculationFn: calculateDeposit,
+    calculationFn: calculateCollateral,
     requiredArgs: ['collateral', 'depositBalance', 'collateralPool'],
     depositFilter: (t, a, s) =>
       !!a?.balances.find((b) => b.isNegative()) &&

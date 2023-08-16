@@ -14,6 +14,7 @@ import {
   BalanceActionWithTradesStruct,
   BatchLendStruct,
 } from '@notional-finance/contracts/types/Notional';
+import { exchangeToLocalPrime } from '../calculate';
 
 export enum TradeActionType {
   Lend,
@@ -47,8 +48,7 @@ export interface PopulateTransactionInputs {
 
 export function hasExistingCashBalance(
   tokenBalance: TokenBalance,
-  balances: TokenBalance[],
-  depositBalance?: TokenBalance
+  balances: TokenBalance[]
 ) {
   const cashBalance = balances.find(
     (b) =>
@@ -59,7 +59,14 @@ export function hasExistingCashBalance(
   const withdrawEntireCashBalance = cashBalance ? false : true;
   const withdrawAmountInternalPrecision = withdrawEntireCashBalance
     ? undefined
-    : depositBalance?.toPrimeCash().neg();
+    : exchangeToLocalPrime(
+        tokenBalance,
+        Registry.getExchangeRegistry().getfCashMarket(
+          tokenBalance.network,
+          tokenBalance.currencyId
+        ),
+        tokenBalance.toPrimeCash().token
+      ).localPrime;
 
   return {
     cashBalance,

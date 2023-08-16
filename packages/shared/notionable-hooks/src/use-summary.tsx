@@ -305,6 +305,7 @@ export function useTradeSummary(state: BaseTradeState) {
     collateralBalance,
     tradeType,
     canSubmit,
+    maxWithdraw,
   } = state;
 
   // TODO: if underlying is not all the same the convert to fiat currency instead
@@ -399,10 +400,14 @@ export function useTradeSummary(state: BaseTradeState) {
   } else if (depositBalance?.isPositive()) {
     if (netDebtBalance?.isZero() === false)
       summary.push(getTradeDetail(netDebtBalance, 'Debt', 'deposit', intl));
-    if (netAssetBalance?.isZero() === false)
-      summary.push(getTradeDetail(netAssetBalance, 'Asset', 'deposit', intl));
-  } else if (depositBalance?.isNegative() || depositBalance === undefined) {
-    // NOTE: deposit balance is undefined during max withdraw
+    if (netAssetBalance?.isZero() === false) {
+      if (tradeType === 'RepayDebt') {
+        summary.push(getTradeDetail(netAssetBalance, 'Debt', 'deposit', intl));
+      } else {
+        summary.push(getTradeDetail(netAssetBalance, 'Asset', 'deposit', intl));
+      }
+    }
+  } else if (depositBalance?.isNegative()) {
     if (netAssetBalance?.isZero() === false)
       summary.push(
         getTradeDetail(netAssetBalance.neg(), 'Asset', 'withdraw', intl)
@@ -416,6 +421,18 @@ export function useTradeSummary(state: BaseTradeState) {
           intl
         )
       );
+  } else if (maxWithdraw && tradeType === 'Withdraw') {
+    if (netDebtBalance?.isZero() === false)
+      summary.push(getTradeDetail(netDebtBalance, 'Asset', 'withdraw', intl));
+    if (netAssetBalance?.isZero() === false)
+      summary.push(
+        getTradeDetail(netAssetBalance.neg(), 'Asset', 'withdraw', intl)
+      );
+  } else if (maxWithdraw && tradeType === 'RepayDebt') {
+    if (netAssetBalance?.isZero() === false)
+      summary.push(getTradeDetail(netAssetBalance, 'Debt', 'deposit', intl));
+    if (netDebtBalance?.isZero() === false)
+      summary.push(getTradeDetail(netDebtBalance, 'Debt', 'deposit', intl));
   } else {
     return { summary: undefined, total: undefined };
   }
