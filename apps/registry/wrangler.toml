@@ -29,6 +29,12 @@ new_classes = [
     "YieldRegistryDO"
 ]
 
+[[migrations]]
+tag = "v4"
+deleted_classes = [
+    "YieldRegistryDO"
+]
+
 [env.local]
 name = "registry-local"
 minify = false
@@ -45,8 +51,7 @@ bindings = [
   { name = "CONFIGURATION_REGISTRY_DO", class_name = "ConfigurationRegistryDO" },
   { name = "EXCHANGE_REGISTRY_DO", class_name = "ExchangeRegistryDO" },
   { name = "ORACLE_REGISTRY_DO", class_name = "OracleRegistryDO" },
-  { name = "VAULT_REGISTRY_DO", class_name = "VaultRegistryDO" },
-  { name = "YIELD_REGISTRY_DO", class_name = "YieldRegistryDO" },
+  { name = "VAULT_REGISTRY_DO", class_name = "VaultRegistryDO" }
 ]
 
 
@@ -57,7 +62,7 @@ name = "registry-dev"
 NX_ENV = 'dev'
 # This is version that defines the durable object to retreive, increment it to reset
 # the durable object to a clean version
-VERSION = 'v3'
+VERSION = 'v4'
 NX_DATA_URL = 'https://data-dev.notional.finance'
 SUPPORTED_NETWORKS = [ 'arbitrum', 'all' ]
 
@@ -67,8 +72,7 @@ bindings = [
   { name = "CONFIGURATION_REGISTRY_DO", class_name = "ConfigurationRegistryDO" },
   { name = "EXCHANGE_REGISTRY_DO", class_name = "ExchangeRegistryDO" },
   { name = "ORACLE_REGISTRY_DO", class_name = "OracleRegistryDO" },
-  { name = "VAULT_REGISTRY_DO", class_name = "VaultRegistryDO" },
-  { name = "YIELD_REGISTRY_DO", class_name = "YieldRegistryDO" },
+  { name = "VAULT_REGISTRY_DO", class_name = "VaultRegistryDO" }
 ]
 
 
@@ -76,8 +80,8 @@ bindings = [
 name = "registry"
 
 [env.prod.vars]
-NX_ENV = 'dev'
-VERSION = 'v3'
+NX_ENV = 'prod'
+VERSION = 'v4'
 NX_DATA_URL = 'https://data.notional.finance'
 SUPPORTED_NETWORKS = [ 'arbitrum', 'all' ]
 
@@ -88,5 +92,4 @@ bindings = [
   { name = "EXCHANGE_REGISTRY_DO", class_name = "ExchangeRegistryDO" },
   { name = "ORACLE_REGISTRY_DO", class_name = "OracleRegistryDO" },
   { name = "VAULT_REGISTRY_DO", class_name = "VaultRegistryDO" },
-  { name = "YIELD_REGISTRY_DO", class_name = "YieldRegistryDO" },
 ]
