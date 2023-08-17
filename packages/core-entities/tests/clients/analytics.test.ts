@@ -22,10 +22,20 @@ describe('Sync Analytics', () => {
       'https://data-dev.notional.finance',
       AccountFetchMode.SINGLE_ACCOUNT_DIRECT
     );
-    const analytics = Registry.getAnalyticsRegistry();
-    analytics.onNetworkRegistered(Network.ArbitrumOne, () => {
-      console.log(analytics.getAssetVolatility(Network.ArbitrumOne));
+    Registry.startRefresh(Network.ArbitrumOne);
+    Registry.getTokenRegistry().onNetworkRegistered(Network.ArbitrumOne, () => {
+      console.log('DONE');
       done();
     });
+
+    // const analytics = Registry.getAnalyticsRegistry();
+    // analytics.onNetworkRegistered(Network.ArbitrumOne, () => {
+    //   console.log(analytics.getAssetVolatility(Network.ArbitrumOne));
+    //   done();
+    // });
+  });
+
+  afterEach(() => {
+    Registry.stopRefresh(Network.ArbitrumOne);
   });
 });
