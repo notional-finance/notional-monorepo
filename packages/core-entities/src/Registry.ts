@@ -81,10 +81,6 @@ export class Registry {
   }
 
   public static startRefresh(network: Network) {
-    Registry.getAnalyticsRegistry().startRefreshInterval(
-      network,
-      Registry.DEFAULT_ANALYTICS_REFRESH
-    );
     Registry.getTokenRegistry().startRefreshInterval(
       network,
       Registry.DEFAULT_TOKEN_REFRESH
@@ -126,10 +122,17 @@ export class Registry {
 
     // Only start the yield registry refresh after all the other refreshes begin
     Registry.onNetworkReady(network, () => {
-      Registry.getYieldRegistry().startRefreshInterval(
+      Registry.getAnalyticsRegistry().startRefreshInterval(
         network,
-        Registry.DEFAULT_YIELD_REFRESH
+        Registry.DEFAULT_ANALYTICS_REFRESH
       );
+
+      Registry.getAnalyticsRegistry().onNetworkRegistered(network, () => {
+        Registry.getYieldRegistry().startRefreshInterval(
+          network,
+          Registry.DEFAULT_YIELD_REFRESH
+        );
+      });
     });
   }
 
@@ -203,8 +206,8 @@ export class Registry {
   }
 
   public static onNetworkReady(network: Network, fn: () => void) {
-    // NOTE: yield registry is not included in here or it will create a circular
-    // dependency.
+    // NOTE: yield registry and analytics registry is not included in here or
+    // it will create a circular dependency.
     Promise.all([
       new Promise<void>((r) =>
         Registry.getConfigurationRegistry().onNetworkRegistered(network, r)
@@ -220,9 +223,6 @@ export class Registry {
       ),
       new Promise<void>((r) =>
         Registry.getVaultRegistry().onNetworkRegistered(network, r)
-      ),
-      new Promise<void>((r) =>
-        Registry.getAnalyticsRegistry().onNetworkRegistered(network, r)
       ),
       new Promise<void>((r) => {
         const accounts = Registry.getAccountRegistry();

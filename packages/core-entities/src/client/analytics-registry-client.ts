@@ -3,6 +3,7 @@ import {
   Network,
   getNowSeconds,
 } from '@notional-finance/util';
+import { ethers } from 'ethers';
 import { Routes } from '../server';
 import { ClientRegistry } from './client-registry';
 import { map, shareReplay, take, Observable } from 'rxjs';
@@ -139,7 +140,6 @@ export class AnalyticsRegistryClient extends ClientRegistry<AnalyticsData> {
     )?.pipe(
       map((d) => {
         const tokens = Registry.getTokenRegistry();
-        console.log(d);
         return (
           d?.map((p) => {
             const token = tokens.getTokenByID(network, p['token_id'] as string);
@@ -174,6 +174,47 @@ export class AnalyticsRegistryClient extends ClientRegistry<AnalyticsData> {
     );
   }
 
+  subscribeVault(network: Network, vaultAddress: string) {
+    // TODO: remove this text transform
+    const view = `2_${vaultAddress}`;
+    return this.subscribeSubject(network, view)?.pipe(
+      map((d) => {
+        return (
+          d?.map((p) => {
+            return {
+              vaultAddress,
+              timestamp: p['timestamp'] as number,
+              totalAPY: this._convertOrNull(
+                p['total_strategy_apy'],
+                (d) => d * 100
+              ),
+              // TODO: this should be * 100 like the others
+              variableBorrowRate: parseFloat(
+                p['pcashdebt_borrow_rate'] as string
+              ),
+              returnDrivers: Object.keys(p)
+                .filter(
+                  (k) =>
+                    k !== 'timestamp' &&
+                    k !== 'total_strategy_apy' &&
+                    k !== 'pcashdebt_borrow_rate' &&
+                    k !== 'day'
+                )
+                .reduce(
+                  (o, k) =>
+                    Object.assign(o, {
+                      [k]: this._convertOrNull(p[k], (d) => d * 100),
+                    }),
+                  {}
+                ),
+            };
+          }) || []
+        );
+      }),
+      shareReplay(1)
+    );
+  }
+
   getAssetVolatility(network: Network) {
     return this._getLatest(this.subscribeAssetVolatility(network));
   }
@@ -190,9 +231,21 @@ export class AnalyticsRegistryClient extends ClientRegistry<AnalyticsData> {
     return this._getLatest(this.subscribeAssetHistory(network));
   }
 
+  getVault(network: Network, vaultAddress: string) {
+    return this._getLatest(this.subscribeVault(network, vaultAddress));
+  }
+
   protected override async _refresh(network: Network) {
+    const vaultViews =
+      Registry.getConfigurationRegistry()
+        .getAllListedVaults(network)
+        ?.map((c) => {
+          // TODO: remove the 2 prefix and lower case the vault address
+          return `2_${ethers.utils.getAddress(c.vaultAddress)}`;
+        }) || [];
+
     const values = await Promise.all(
-      VIEWS.map((v) =>
+      [...VIEWS, ...vaultViews].map((v) =>
         this._fetch<AnalyticsData>(network, v).then(
           (d) => [v, d] as [string, AnalyticsData]
         )
