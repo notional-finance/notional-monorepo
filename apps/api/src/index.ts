@@ -61,13 +61,13 @@ router.options('*', handleOptions);
 router.get('/kpis', handleKPIs);
 router.get('/geoip', handleGeoIP);
 router.post('/newsletter', handleNewsletter);
+router.get('/:network/views/:view', handleViews);
 router.get('/:network/yields', handleYields);
 router.get('/:network/tokens', handleTokens);
 router.get('/:network/configuration', handleConfigurations);
 router.get('/:network/oracles', handleOracles);
 router.get('/:network/exchanges', handleExchanges);
 router.get('/:network/vaults', handleVaults);
-router.get('/:network/views', handleViews);
 
 // Fall through catch for 404 errors
 router.all('*', () => new Response('Not Found', { status: 404 }));
