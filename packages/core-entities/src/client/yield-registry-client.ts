@@ -4,26 +4,17 @@ import {
   RATE_DECIMALS,
   RATE_PRECISION,
   SECONDS_IN_DAY,
-  SECONDS_IN_YEAR,
   getNowSeconds,
   isIdiosyncratic,
 } from '@notional-finance/util';
 import { Registry } from '../Registry';
 import { Routes } from '../server';
 import { ClientRegistry } from './client-registry';
-import { TokenDefinition, TokenType, YieldData } from '../Definitions';
+import { TokenType, YieldData } from '../Definitions';
 import { fCashMarket } from '../exchanges';
 import { TokenBalance } from '../token-balance';
 import { BigNumber } from 'ethers';
 
-/**
- * TODO:
- *  - cache calculations
- *  - add native token apy rate [yield registry]
- *  - add vault share yield [yield registry]
- *  - add nToken fees [yield registry]
- *  - add historical apy (no calculations necessary...)
- */
 export class YieldRegistryClient extends ClientRegistry<YieldData> {
   protected cachePath() {
     return Routes.Yields;
@@ -114,21 +105,12 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
       });
   }
 
-  getNTokenFees(
-    nToken: TokenDefinition,
-    _fromTimestamp: number,
-    _toTimestamp: number = getNowSeconds()
-  ) {
-    // TODO: fill this out
-    return TokenBalance.zero(nToken)
-      .toPrimeCash()
-      .scale(SECONDS_IN_YEAR, _toTimestamp - _fromTimestamp);
-  }
-
   getNTokenYield(network: Network): YieldData[] {
     const exchanges = Registry.getExchangeRegistry();
     const config = Registry.getConfigurationRegistry();
     const tokens = Registry.getTokenRegistry();
+    const nTokenFees =
+      Registry.getAnalyticsRegistry().getNTokenTradingFees(network);
     const yields = this.getPrimeCashYield(network).concat(
       this.getfCashYield(network)
     );
@@ -144,19 +126,11 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
         if (!t.underlying) throw Error('underlying not defined');
         const underlying = tokens.getTokenByID(network, t.underlying);
 
-        // Get total fees from the last week
-        const nTokenFeesAnnualized = this.getNTokenFees(
-          t,
-          getNowSeconds() - SECONDS_IN_DAY * 7
-        );
         const annualizedNOTEIncentives = config.getAnnualizedNOTEIncentives(t);
         const nTokenTVL = fCashMarket.totalValueLocked(0);
 
         // Total fees over the last week divided by the total value locked
-        const feeAPY = this._convertRatioToYield(
-          nTokenFeesAnnualized,
-          nTokenTVL
-        );
+        const feeAPY = nTokenFees?.find((f) => f.token.id === t.id)?.apy || 0;
         const incentiveAPY = this._convertRatioToYield(
           annualizedNOTEIncentives,
           nTokenTVL
@@ -383,6 +357,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
     const fCashYields = this.getfCashYield(network);
     const debtYields = this.getPrimeDebtYield(network).concat(fCashYields);
     const tokens = Registry.getTokenRegistry();
+    const analytics = Registry.getAnalyticsRegistry();
 
     return tokens
       .getAllTokens(network)
@@ -409,11 +384,22 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
         const underlying = tokens.getTokenByID(network, v.underlying);
         const { defaultLeverageRatio, maxLeverageRatio } =
           config.getVaultLeverageFactors(network, v.vaultAddress);
+        const vaultAPYs = (analytics
+          .getVault(network, v.vaultAddress)
+          ?.filter(
+            ({ timestamp }) => timestamp > getNowSeconds() - 7 * SECONDS_IN_DAY
+          )
+          .map(({ totalAPY }) => totalAPY)
+          .filter((apy) => apy !== null) || []) as number[];
+        const totalAPY =
+          vaultAPYs.length > 0
+            ? vaultAPYs.reduce((t, a) => t + a, 0) / vaultAPYs.length
+            : 0;
 
         const vaultShareYield: YieldData = {
           token: v,
           underlying,
-          totalAPY: 0,
+          totalAPY,
           tvl: v.totalSupply?.toUnderlying() || TokenBalance.zero(underlying),
         };
 

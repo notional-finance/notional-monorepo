@@ -1,12 +1,6 @@
-import {
-  filterEmpty,
-  getNowSeconds,
-  Network,
-  ONE_SECOND_MS,
-} from '@notional-finance/util';
+import { filterEmpty, getNowSeconds, Network } from '@notional-finance/util';
 import {
   BehaviorSubject,
-  exhaustMap,
   filter,
   from,
   Observable,
@@ -171,9 +165,7 @@ export abstract class BaseRegistry<T> {
       network,
       newInterval
         .pipe(
-          // This will block until the previous refresh has completed so that they do not stack up
-          // if there is a long timeout
-          exhaustMap((intervalNum) => {
+          switchMap((intervalNum) => {
             return from(this._refresh(network, intervalNum)).pipe(
               timeout(intervalMS / 2)
             );

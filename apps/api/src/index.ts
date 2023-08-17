@@ -93,7 +93,14 @@ export default {
         });
       })
       .catch((err) => {
-        return new Response(err, { status: 500 });
+        return new Response(err, {
+          status: 500,
+          headers: {
+            // Set default headers if unset
+            ...corsHeaders,
+            'Content-Type': 'application/text',
+          },
+        });
       });
   },
 };

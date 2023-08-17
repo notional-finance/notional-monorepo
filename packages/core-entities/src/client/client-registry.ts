@@ -50,11 +50,17 @@ export abstract class ClientRegistry<T> extends BaseRegistry<T> {
     return value;
   }
 
-  protected async _refresh(network: Network): Promise<CacheSchema<T>> {
+  protected async _fetch<T>(network: Network, urlSuffix?: string): Promise<T> {
     const _fetch = USE_CROSS_FETCH ? crossFetch : fetch;
     const cacheUrl = this.cacheURL(network);
-    const result = await _fetch(cacheUrl);
+    const result = await _fetch(
+      urlSuffix ? `${cacheUrl}/${urlSuffix}` : cacheUrl
+    );
     const body = await result.text();
-    return JSON.parse(body, ClientRegistry.reviver) as CacheSchema<T>;
+    return JSON.parse(body, ClientRegistry.reviver);
+  }
+
+  protected async _refresh(network: Network): Promise<CacheSchema<T>> {
+    return this._fetch(network);
   }
 }

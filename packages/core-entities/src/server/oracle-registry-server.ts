@@ -240,6 +240,28 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
                 .div(BigNumber.from(10).pow(oracle.baseDecimals));
             },
           };
+        } else if (oracle.oracleType === 'fCashToUnderlyingExchangeRate') {
+          const { maturity, currencyId } = decodeERC1155Id(oracle.quote);
+          return {
+            key: id,
+            target: notional,
+            method: 'getPresentfCashValue',
+            args: [
+              currencyId,
+              maturity,
+              INTERNAL_TOKEN_PRECISION,
+              getNowSeconds(),
+              false,
+            ],
+            transform: (
+              r: Awaited<ReturnType<NotionalV3['getPresentfCashValue']>>
+            ) => {
+              if (!oracle.baseDecimals) throw Error('base decimals undefined');
+              return r
+                .mul(BigNumber.from(10).pow(oracle.decimals))
+                .div(BigNumber.from(10).pow(oracle.baseDecimals));
+            },
+          };
         } else if (oracle.oracleType === 'sNOTE') {
           return {
             key: id,

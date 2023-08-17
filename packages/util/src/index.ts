@@ -9,3 +9,4 @@ export * from './array-helpers';
 export * from './rxjs-helpers';
 export * from './secant-search';
 export * from './format';
+export * from './types';

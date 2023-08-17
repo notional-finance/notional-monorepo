@@ -10,6 +10,7 @@ import {
 } from './client/account-registry-client';
 import { VaultRegistryClient } from './client/vault-registry-client';
 import { YieldRegistryClient } from './client/yield-registry-client';
+import { AnalyticsRegistryClient } from './client/analytics-registry-client';
 
 export class Registry {
   protected static _self?: Registry;
@@ -20,6 +21,7 @@ export class Registry {
   protected static _vaults?: VaultRegistryClient;
   protected static _yields?: YieldRegistryClient;
   protected static _accounts?: AccountRegistryClient;
+  protected static _analytics?: AnalyticsRegistryClient;
 
   public static DEFAULT_TOKEN_REFRESH = 20 * ONE_MINUTE_MS;
   public static DEFAULT_CONFIGURATION_REFRESH = 20 * ONE_MINUTE_MS;
@@ -28,6 +30,7 @@ export class Registry {
   public static DEFAULT_ORACLE_REFRESH = 10 * ONE_SECOND_MS;
   public static DEFAULT_ACCOUNT_REFRESH = ONE_MINUTE_MS;
   public static DEFAULT_YIELD_REFRESH = 10 * ONE_SECOND_MS;
+  public static DEFAULT_ANALYTICS_REFRESH = 30 * ONE_MINUTE_MS;
 
   static initialize(
     cacheHostname: string,
@@ -51,6 +54,7 @@ export class Registry {
     Registry._vaults = new VaultRegistryClient(_cacheHostname);
     Registry._accounts = new AccountRegistryClient(_cacheHostname, fetchMode);
     Registry._yields = new YieldRegistryClient(_cacheHostname);
+    Registry._analytics = new AnalyticsRegistryClient(_cacheHostname);
 
     // Kicks off Fiat token refreshes
     if (startFiatRefresh) {
@@ -118,10 +122,17 @@ export class Registry {
 
     // Only start the yield registry refresh after all the other refreshes begin
     Registry.onNetworkReady(network, () => {
-      Registry.getYieldRegistry().startRefreshInterval(
+      Registry.getAnalyticsRegistry().startRefreshInterval(
         network,
-        Registry.DEFAULT_YIELD_REFRESH
+        Registry.DEFAULT_ANALYTICS_REFRESH
       );
+
+      Registry.getAnalyticsRegistry().onNetworkRegistered(network, () => {
+        Registry.getYieldRegistry().startRefreshInterval(
+          network,
+          Registry.DEFAULT_YIELD_REFRESH
+        );
+      });
     });
   }
 
@@ -133,6 +144,7 @@ export class Registry {
     Registry.getAccountRegistry().stopRefresh(network);
     Registry.getVaultRegistry().stopRefresh(network);
     Registry.getYieldRegistry().stopRefresh(network);
+    Registry.getAnalyticsRegistry().stopRefresh(network);
   }
 
   public static isRefreshRunning(network: Network) {
@@ -142,8 +154,7 @@ export class Registry {
       Registry.getOracleRegistry().isRefreshRunning(network) &&
       Registry.getConfigurationRegistry().isRefreshRunning(network) &&
       Registry.getAccountRegistry().isRefreshRunning(network) &&
-      Registry.getVaultRegistry().isRefreshRunning(network) &&
-      Registry.getYieldRegistry().isRefreshRunning(network)
+      Registry.getVaultRegistry().isRefreshRunning(network)
     );
   }
 
@@ -186,7 +197,15 @@ export class Registry {
     return Registry._yields;
   }
 
+  public static getAnalyticsRegistry() {
+    if (Registry._analytics == undefined)
+      throw Error('Analytics Registry undefined');
+    return Registry._analytics;
+  }
+
   public static onNetworkReady(network: Network, fn: () => void) {
+    // NOTE: yield registry and analytics registry is not included in here or
+    // it will create a circular dependency.
     Promise.all([
       new Promise<void>((r) =>
         Registry.getConfigurationRegistry().onNetworkRegistered(network, r)
