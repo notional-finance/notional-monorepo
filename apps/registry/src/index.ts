@@ -13,7 +13,6 @@ export {
   ExchangeRegistryDO,
   OracleRegistryDO,
   VaultRegistryDO,
-  YieldRegistryDO,
 } from '@notional-finance/durable-objects';
 
 async function runHealthCheck(ns: DurableObjectNamespace, version: string) {
@@ -24,16 +23,6 @@ async function runHealthCheck(ns: DurableObjectNamespace, version: string) {
 export default {
   async fetch(request: Request, env: RegistryDOEnv): Promise<Response> {
     const url = new URL(request.url);
-
-    // Run a healthcheck against all of the durable objects.
-    await Promise.all([
-      runHealthCheck(env.TOKEN_REGISTRY_DO, env.VERSION),
-      runHealthCheck(env.CONFIGURATION_REGISTRY_DO, env.VERSION),
-      runHealthCheck(env.EXCHANGE_REGISTRY_DO, env.VERSION),
-      runHealthCheck(env.ORACLE_REGISTRY_DO, env.VERSION),
-      runHealthCheck(env.VAULT_REGISTRY_DO, env.VERSION),
-      runHealthCheck(env.YIELD_REGISTRY_DO, env.VERSION),
-    ]);
 
     let ns: DurableObjectNamespace;
     switch (url.pathname.split('/')[2]) {
@@ -52,9 +41,6 @@ export default {
       case Routes.Vaults:
         ns = env.VAULT_REGISTRY_DO;
         break;
-      case Routes.Yields:
-        ns = env.YIELD_REGISTRY_DO;
-        break;
     }
 
     const stub = ns.get(ns.idFromName(env.VERSION));
@@ -68,7 +54,6 @@ export default {
       runHealthCheck(env.EXCHANGE_REGISTRY_DO, env.VERSION),
       runHealthCheck(env.ORACLE_REGISTRY_DO, env.VERSION),
       runHealthCheck(env.VAULT_REGISTRY_DO, env.VERSION),
-      runHealthCheck(env.YIELD_REGISTRY_DO, env.VERSION),
     ]);
   },
 };
