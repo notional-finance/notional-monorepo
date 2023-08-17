@@ -44,6 +44,7 @@ interface DataTableProps {
   stateZeroMessage?: ReactNode;
   infoBoxData?: InfoBoxDataProps[];
   sx?: SxProps;
+  maxHeight?: any;
 }
 
 export const DataTable = ({
@@ -66,6 +67,7 @@ export const DataTable = ({
   marketDataCSVFormatter,
   stateZeroMessage,
   infoBoxData,
+  maxHeight,
   sx,
 }: DataTableProps) => {
   const theme = useTheme();
@@ -97,6 +99,10 @@ export const DataTable = ({
   /**
     "Default Data Table": 
       - If you pass only the required props a plain table with no title bar will be rendered.
+    
+    NOTE* on maxHeight prop:
+    - when using the max height prop be aware that you may need to pass additional width and marginRight styling props to align the table correctly.
+    - An example of this can be found in useFCashPriceExposureTable
 
     DATA TABLE VARIANTS =======
 
@@ -182,21 +188,49 @@ export const DataTable = ({
       {TabComponentVisible && CustomTabComponent && <CustomTabComponent />}
       {tableReady ? (
         <>
-          <Table {...getTableProps()}>
-            <DataTableHead
-              headerGroups={headerGroups}
-              tableVariant={tableVariant}
-              expandableTable={expandableTable}
-            />
-            <DataTableBody
-              rows={displayedRows}
-              prepareRow={prepareRow}
-              tableVariant={tableVariant}
-              CustomRowComponent={CustomRowComponent}
-              setExpandedRows={setExpandedRows}
-              initialState={initialState}
-            />
-          </Table>
+          {!maxHeight && (
+            <Table {...getTableProps()}>
+              <DataTableHead
+                headerGroups={headerGroups}
+                tableVariant={tableVariant}
+                expandableTable={expandableTable}
+              />
+
+              <DataTableBody
+                rows={displayedRows}
+                prepareRow={prepareRow}
+                tableVariant={tableVariant}
+                CustomRowComponent={CustomRowComponent}
+                setExpandedRows={setExpandedRows}
+                initialState={initialState}
+              />
+            </Table>
+          )}
+          {maxHeight && (
+            <>
+              <div style={{ position: 'sticky', top: 0 }}>
+                <Table {...getTableProps()}>
+                  <DataTableHead
+                    headerGroups={headerGroups}
+                    tableVariant={tableVariant}
+                    expandableTable={expandableTable}
+                  />
+                </Table>
+              </div>
+              <div style={{ maxHeight: maxHeight, overflow: 'auto' }}>
+                <Table {...getTableProps()}>
+                  <DataTableBody
+                    rows={displayedRows}
+                    prepareRow={prepareRow}
+                    tableVariant={tableVariant}
+                    CustomRowComponent={CustomRowComponent}
+                    setExpandedRows={setExpandedRows}
+                    initialState={initialState}
+                  />
+                </Table>
+              </div>
+            </>
+          )}
           {rows.length > 4 && hideExcessRows && (
             <Box
               sx={{

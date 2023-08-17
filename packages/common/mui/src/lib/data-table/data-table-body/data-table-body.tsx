@@ -14,7 +14,6 @@ import {
   SmallTableCell,
   TableCell as TypographyTableCell,
 } from '../../typography/typography';
-import { THEME_VARIANTS } from '@notional-finance/shared-config';
 
 interface StyledTableRowProps extends TableRowProps {
   theme: NotionalTheme;
@@ -156,6 +155,7 @@ export const DataTableBody = ({
                       textAlign: cell['column'].textAlign || 'center',
                       borderBottom: 'none',
                       whiteSpace: 'nowrap',
+                      width: cell['column']['width'] || 'auto',
                     }}
                     {...cell['getCellProps']()}
                   >
