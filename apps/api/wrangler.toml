@@ -8,14 +8,6 @@ minify = true
 usage_model = "bundled"
 tsconfig = "tsconfig.json"
 
-[[migrations]]
-tag = "v1"
-new_classes = ["KPIsDO"]
-
-[[migrations]]
-tag = "v2"
-new_classes = ["AccountsDO"]
-
 [env.local]
 name = "api-local"
 minify = false
@@ -27,7 +19,8 @@ durable_objects.bindings = [
   { name = "ORACLE_REGISTRY_DO", class_name = "OracleRegistryDO", script_name = "registry-dev" },
   { name = "TOKEN_REGISTRY_DO", class_name = "TokenRegistryDO", script_name = "registry-dev" },
   { name = "VAULT_REGISTRY_DO", class_name = "VaultRegistryDO", script_name = "registry-dev" },
-  { name = "YIELD_REGISTRY_DO", class_name = "YieldRegistryDO", script_name = "registry-dev" }
+  { name = "YIELD_REGISTRY_DO", class_name = "YieldRegistryDO", script_name = "registry-dev" },
+  { name = "VIEWS_DO", class_name = "ViewsDO", script_name = "data-dev" }
 ]
 
 [env.local.vars]
@@ -35,6 +28,7 @@ NX_ENV = "local"
 VERSION = "v2"
 KPIS_NAME = "KPIS_DO"
 ACCOUNTS_NAME = "ACCOUNTS_DO"
+VIEWS_NAME = "VIEWS_DO"
 
 [env.dev]
 name = "api-dev"
@@ -47,16 +41,18 @@ durable_objects.bindings = [
   { name = "ORACLE_REGISTRY_DO", class_name = "OracleRegistryDO", script_name = "registry-dev" },
   { name = "TOKEN_REGISTRY_DO", class_name = "TokenRegistryDO", script_name = "registry-dev" },
   { name = "VAULT_REGISTRY_DO", class_name = "VaultRegistryDO", script_name = "registry-dev" },
-  { name = "YIELD_REGISTRY_DO", class_name = "YieldRegistryDO", script_name = "registry-dev" }
+  { name = "YIELD_REGISTRY_DO", class_name = "YieldRegistryDO", script_name = "registry-dev" },
+  { name = "VIEWS_DO", class_name = "ViewsDO", script_name = "data-dev" }
 ]
 
 [env.dev.vars]
 NX_ENV = "dev"
 # This is version that defines the durable object to retreive, increment it to reset
 # the durable object to a clean version
-VERSION = "v3"
+VERSION = "v4"
 KPIS_NAME = "KPIS_DO"
 ACCOUNTS_NAME = "ACCOUNTS_DO"
+VIEWS_NAME = "VIEWS_DO"
 
 [env.prod]
 name = "api"
@@ -69,7 +65,8 @@ durable_objects.bindings = [
   { name = "ORACLE_REGISTRY_DO", class_name = "OracleRegistryDO", script_name = "registry-prod" },
   { name = "TOKEN_REGISTRY_DO", class_name = "TokenRegistryDO", script_name = "registry-prod" },
   { name = "VAULT_REGISTRY_DO", class_name = "VaultRegistryDO", script_name = "registry-prod" },
-  { name = "YIELD_REGISTRY_DO", class_name = "YieldRegistryDO", script_name = "registry-dev" }
+  { name = "YIELD_REGISTRY_DO", class_name = "YieldRegistryDO", script_name = "registry-dev" },
+  { name = "VIEWS_DO", class_name = "ViewsDO", script_name = "data-dev" }
 ]
 
 [env.prod.vars]
@@ -77,3 +74,4 @@ NX_ENV = "prod"
 VERSION = "v2"
 KPIS_NAME = "KPIS_DO"
 ACCOUNTS_NAME = "ACCOUNTS_DO"
+VIEWS_NAME = "VIEWS_DO"

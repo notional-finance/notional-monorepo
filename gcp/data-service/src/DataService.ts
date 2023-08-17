@@ -394,8 +394,12 @@ export default class DataService {
       .where('network_id', this.networkToId(network));
   }
 
-  public async getView(view: string) {
-    return this.db.select().from(view).limit(100);
+  public async getView(view: string, limit?: number) {
+    const select = this.db.select().from(view);
+    if (limit) {
+      return select.limit(limit);
+    }
+    return select;
   }
 
   public async insertAccounts(accountIds: string[]) {

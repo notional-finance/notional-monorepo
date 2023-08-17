@@ -11,6 +11,7 @@ import {
   handleTokens,
   handleYields,
   handleVaults,
+  handleViews,
 } from './routes';
 
 export {
@@ -22,6 +23,7 @@ export {
   ExchangeRegistryDO,
   OracleRegistryDO,
   VaultRegistryDO,
+  ViewsDO,
 } from '@notional-finance/durable-objects';
 
 const corsHeaders = {
@@ -59,6 +61,7 @@ router.options('*', handleOptions);
 router.get('/kpis', handleKPIs);
 router.get('/geoip', handleGeoIP);
 router.post('/newsletter', handleNewsletter);
+router.get('/:network/views/:view', handleViews);
 router.get('/:network/yields', handleYields);
 router.get('/:network/tokens', handleTokens);
 router.get('/:network/configuration', handleConfigurations);
