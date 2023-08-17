@@ -18,7 +18,6 @@ import { BigNumber } from 'ethers';
 
 /**
  * TODO:
- *  - cache calculations
  *  - add native token apy rate [yield registry]
  *  - add vault share yield [yield registry]
  *  - add nToken fees [yield registry]
