@@ -23,16 +23,14 @@ describe('Sync Analytics', () => {
       AccountFetchMode.SINGLE_ACCOUNT_DIRECT
     );
     Registry.startRefresh(Network.ArbitrumOne);
-    Registry.getTokenRegistry().onNetworkRegistered(Network.ArbitrumOne, () => {
-      console.log('DONE');
+    Registry.onNetworkReady(Network.ArbitrumOne, () => {
+      const analytics = Registry.getAnalyticsRegistry();
+      // expect(analytics.getAssetVolatility(Network.ArbitrumOne));
+      // expect(analytics.getHistoricalPrices(Network.ArbitrumOne));
+      // expect(analytics.getNTokenTradingFees(Network.ArbitrumOne));
+      console.log(analytics.getAssetHistory(Network.ArbitrumOne));
       done();
     });
-
-    // const analytics = Registry.getAnalyticsRegistry();
-    // analytics.onNetworkRegistered(Network.ArbitrumOne, () => {
-    //   console.log(analytics.getAssetVolatility(Network.ArbitrumOne));
-    //   done();
-    // });
   });
 
   afterEach(() => {
