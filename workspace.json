@@ -23,6 +23,7 @@
     "multicall": "packages/multicall",
     "notionable": "packages/notionable",
     "registry": "apps/registry",
+    "registry-exchange": "apps/registry-exchange",
     "risk-engine": "packages/risk-engine",
     "shared-assets": "packages/shared/assets",
     "shared-config": "packages/shared/config",
