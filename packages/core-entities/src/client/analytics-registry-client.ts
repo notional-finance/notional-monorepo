@@ -247,7 +247,11 @@ export class AnalyticsRegistryClient extends ClientRegistry<AnalyticsData> {
     const values = await Promise.all(
       [...VIEWS, ...vaultViews].map((v) =>
         this._fetch<AnalyticsData>(network, v).then(
-          (d) => [v, d] as [string, AnalyticsData]
+          (d) =>
+            (Array.isArray(d) ? [v, d] : [v, null]) as [
+              string,
+              AnalyticsData | null
+            ]
         )
       )
     );
