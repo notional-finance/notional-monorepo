@@ -154,9 +154,7 @@ export class Registry {
       Registry.getOracleRegistry().isRefreshRunning(network) &&
       Registry.getConfigurationRegistry().isRefreshRunning(network) &&
       Registry.getAccountRegistry().isRefreshRunning(network) &&
-      Registry.getVaultRegistry().isRefreshRunning(network) &&
-      Registry.getYieldRegistry().isRefreshRunning(network) &&
-      Registry.getAnalyticsRegistry().isRefreshRunning(network)
+      Registry.getVaultRegistry().isRefreshRunning(network)
     );
   }
 

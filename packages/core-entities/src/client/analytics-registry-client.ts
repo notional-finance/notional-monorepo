@@ -176,7 +176,7 @@ export class AnalyticsRegistryClient extends ClientRegistry<AnalyticsData> {
 
   subscribeVault(network: Network, vaultAddress: string) {
     // TODO: remove this text transform
-    const view = `2_${vaultAddress}`;
+    const view = `2_${ethers.utils.getAddress(vaultAddress)}`;
     return this.subscribeSubject(network, view)?.pipe(
       map((d) => {
         return (
