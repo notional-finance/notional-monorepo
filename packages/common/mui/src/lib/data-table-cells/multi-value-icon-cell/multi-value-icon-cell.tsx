@@ -1,6 +1,10 @@
-import { SmallTableCell, TableCell } from '../../typography/typography';
 import { Box, useTheme } from '@mui/material';
 import { TokenIcon } from '@notional-finance/icons';
+import {
+  TableCell,
+  SmallTableCell,
+  LargeTableCell,
+} from '../../typography/typography';
 
 export interface MultiValueIconCellProps {
   cell: {
@@ -28,22 +32,30 @@ export interface MultiValueIconCellProps {
 //   },
 // },
 
-export const MultiValueIconCell = ({
-  cell: { value },
-  row: { original },
-  column: { id },
-}: MultiValueIconCellProps): JSX.Element => {
+export const MultiValueIconCell = (props): JSX.Element => {
   const theme = useTheme();
+  const {
+    cell: { value },
+    row: { original },
+    column,
+  } = props;
+  const FirstValue = column?.expandableTable ? LargeTableCell : TableCell;
+  const SecondValue = column?.expandableTable ? TableCell : SmallTableCell;
+
   const values = original.multiValueCellData
-    ? original.multiValueCellData[id]
+    ? original.multiValueCellData[column.id]
     : value;
 
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
       {values.symbol && <TokenIcon symbol={values.symbol} size="medium" />}
       <Box marginLeft={theme.spacing(1)}>
-        <TableCell gutter="default">{values.label}</TableCell>
-        <SmallTableCell>{values.caption || ''}</SmallTableCell>
+        <FirstValue gutter="default" sx={{ marginBottom: '0px' }}>
+          {values.label}
+        </FirstValue>
+        <SecondValue sx={{ marginBottom: '0px' }}>
+          {values.caption || ''}
+        </SecondValue>
       </Box>
     </Box>
   );
