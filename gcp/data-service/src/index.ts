@@ -237,7 +237,13 @@ async function main() {
         res.status(400).send('View required');
       }
       res.send(
-        JSON.stringify(await dataService.getView(view as string, params.limit))
+        JSON.stringify(
+          await dataService.getView(
+            params.network,
+            view as string,
+            params.limit
+          )
+        )
       );
     } catch (e: any) {
       res.status(500).send(e.toString());

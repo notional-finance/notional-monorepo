@@ -18,7 +18,7 @@ export class ViewsDO extends BaseDO<APIEnv> {
 
   async fetchView(network: Network, name: string) {
     const resp = await fetch(
-      `${this.env.DATA_SERVICE_URL}/query?view=${name}`,
+      `${this.env.DATA_SERVICE_URL}/query?network=${network}&view=${name}`,
       {
         headers: {
           'x-auth-token': this.env.DATA_SERVICE_AUTH_TOKEN,
