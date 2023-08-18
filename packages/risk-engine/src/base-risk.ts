@@ -2,7 +2,6 @@ import {
   Registry,
   TokenBalance,
   TokenDefinition,
-  TokenType,
 } from '@notional-finance/core-entities';
 import {
   Network,
@@ -568,52 +567,17 @@ export abstract class BaseRiskProfile implements RiskFactors {
     );
   }
 
-  getAllLiquidationPrices({
-    onlyUnderlyingDebt = false,
-  }: {
-    onlyUnderlyingDebt?: boolean;
-  }) {
-    // get all collateral ids + underlying
-    const collateral = this.collateral
+  getAllLiquidationPrices() {
+    const assets = this.balances
       .map((a) => a.token)
-      .concat(unique(this.collateral.map((a) => a.underlying)))
+      .concat(unique(this.balances.map((a) => a.underlying)))
       // Prefer to show underlying over prime cash
       .filter((c) => c.tokenType !== 'PrimeCash');
 
-    // get all debt ids + underlying
-    const debt = this.debts
-      .map((a) => a.token)
-      .concat(unique(this.debts.map((a) => a.underlying)))
-      // Prefer to show underlying over prime cash
-      .filter((c) => c.tokenType !== 'PrimeCash')
-      .filter((c) =>
-        onlyUnderlyingDebt ? c.tokenType === 'Underlying' : true
-      );
-
-    return collateral
-      .flatMap((c) => {
-        const collateralThreshold = this.assetLiquidationThreshold(c);
-        return debt
-          .filter((d) => d.id !== c.id)
-          .map((d) => {
-            return {
-              collateral: c,
-              debt: d,
-              riskExposure: this.getRiskExposureType(c, d, collateralThreshold),
-              price: collateralThreshold?.toToken(d) || null,
-            };
-          });
-      })
-      .filter(({ price }) => price !== null) as {
-      collateral: TokenDefinition;
-      debt: TokenDefinition;
-      price: TokenBalance;
-      riskExposure?: {
-        isCrossCurrencyRisk: boolean;
-        isPrimeDebt: boolean;
-        risk: TokenType | 'Settlement';
-      };
-    }[];
+    return assets.map((a) => ({
+      asset: a,
+      threshold: this.assetLiquidationThreshold(a),
+    }));
   }
 
   getRiskExposureType(

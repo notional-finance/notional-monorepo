@@ -214,6 +214,15 @@ export class AccountRiskProfile extends BaseRiskProfile {
     // If there is no collateral available, then the liquidation price is null
     if (this.totalDebt().isZero()) return null;
     if (netCollateralAvailable.isZero()) return null;
+    if (
+      asset.tokenType === 'Underlying' &&
+      netCollateralAvailable.isPositive() &&
+      Registry.getConfigurationRegistry().getCurrencyHaircutAndBuffer(asset)
+        .haircut === 0
+    ) {
+      // No cross currency liquidation price if token is haircut to zero
+      return null;
+    }
 
     const assetDenominatedFC = this.freeCollateral().toToken(asset);
     const unitOfAsset = TokenBalance.unit(asset);
@@ -304,9 +313,7 @@ export class AccountRiskProfile extends BaseRiskProfile {
       collateralRatio: this.collateralRatio(),
       leverageRatio: this.leverageRatio(),
       healthFactor: this.healthFactor(),
-      liquidationPrice: this.getAllLiquidationPrices({
-        onlyUnderlyingDebt: false,
-      }),
+      liquidationPrice: this.getAllLiquidationPrices(),
       assetLiquidationThreshold: this.balances.map((a) =>
         this.assetLiquidationThreshold(a.token)
       ),

@@ -74,6 +74,10 @@ describe.withForkAndRegistry(
             args: ['ETH'],
           },
           {
+            factor: 'assetLiquidationThreshold',
+            args: ['USDC'],
+          },
+          {
             factor: 'liquidationPrice',
             args: ['USDC', 'ETH'],
           },
@@ -163,7 +167,34 @@ describe.withForkAndRegistry(
           [16, 'fUSDC:fixed@1702944000'],
           [-15.8, 'pdUSDC'],
         ],
-        expected: [{ factor: 'freeCollateral' }, { factor: 'healthFactor' }],
+        expected: [
+          { factor: 'freeCollateral' },
+          { factor: 'healthFactor' },
+          {
+            factor: 'assetLiquidationThreshold',
+            args: ['pdUSDC'],
+            expected: null,
+          },
+          {
+            factor: 'assetLiquidationThreshold',
+            args: ['fUSDC:fixed@1702944000'],
+          },
+        ],
+      },
+      {
+        name: 'Zero Haircut Collateral',
+        balances: [
+          [-100, 'pdUSDC'],
+          [110, 'pFRAX'],
+        ],
+        expected: [
+          { factor: 'freeCollateral' },
+          {
+            factor: 'assetLiquidationThreshold',
+            args: ['FRAX'],
+            expected: null,
+          },
+        ],
       },
     ];
 
@@ -319,16 +350,10 @@ describe.withForkAndRegistry(
         TokenBalance.fromFloat(-100, FRAX),
       ]);
 
-      const prices = p.getAllLiquidationPrices({ onlyUnderlyingDebt: false });
-      const pairs = prices.map(({ collateral, debt }) => [
-        collateral.symbol,
-        debt.symbol,
-      ]);
+      const prices = p.getAllLiquidationPrices();
+      const assets = prices.map(({ asset }) => asset.symbol);
 
-      expect(pairs).toEqual([
-        ['ETH', 'USDC'],
-        ['ETH', 'FRAX'],
-      ]);
+      expect(assets).toEqual(['ETH', 'WBTC', 'USDC', 'FRAX']);
     });
 
     it('All Risk Factors', () => {
