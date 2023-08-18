@@ -75,13 +75,6 @@ const LabelAndValue = ({
   );
 };
 
-// const getPriceDistance = (current: TokenBalance, liquidation: TokenBalance) => {
-//   if (current.isZero()) return 0;
-//   return (
-//     (100 * (current.toFloat() - liquidation.toFloat())) / current.toFloat()
-//   );
-// };
-
 export const PortfolioRisk = () => {
   const theme = useTheme();
   const [isExpanded, setExpanded] = useState(false);

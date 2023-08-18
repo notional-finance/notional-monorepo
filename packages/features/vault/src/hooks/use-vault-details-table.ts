@@ -38,7 +38,7 @@ export function useVaultDetailsTable() {
             ({ label, current, updated, changeType, greenOnArrowUp }) => {
               return {
                 label,
-                current,
+                current: current,
                 updated: {
                   value: updated,
                   arrowUp: changeType === 'increase',
@@ -50,6 +50,6 @@ export function useVaultDetailsTable() {
             }
           ),
     maturity: maturity ? formatMaturity(maturity) : '',
-    tooRisky
+    tooRisky,
   };
 }

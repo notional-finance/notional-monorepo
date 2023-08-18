@@ -574,10 +574,19 @@ export abstract class BaseRiskProfile implements RiskFactors {
       // Prefer to show underlying over prime cash
       .filter((c) => c.tokenType !== 'PrimeCash');
 
-    return assets.map((a) => ({
-      asset: a,
-      threshold: this.assetLiquidationThreshold(a),
-    }));
+    return assets
+      .map((a) => {
+        const isDebtThreshold = this.netCollateralAvailable(
+          a.symbol
+        ).isNegative();
+
+        return {
+          asset: a,
+          threshold: this.assetLiquidationThreshold(a),
+          isDebtThreshold,
+        };
+      })
+      .filter(({ threshold }) => threshold !== null);
   }
 
   getRiskExposureType(

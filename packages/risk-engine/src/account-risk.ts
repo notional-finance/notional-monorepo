@@ -314,9 +314,6 @@ export class AccountRiskProfile extends BaseRiskProfile {
       leverageRatio: this.leverageRatio(),
       healthFactor: this.healthFactor(),
       liquidationPrice: this.getAllLiquidationPrices(),
-      assetLiquidationThreshold: this.balances.map((a) =>
-        this.assetLiquidationThreshold(a.token)
-      ),
     };
   }
 

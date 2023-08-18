@@ -260,15 +260,9 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
       debts: this.totalDebt(),
       assets: this.totalAssets(),
       collateralRatio: this.collateralRatio(),
-      liquidationPrice: this.getAllLiquidationPrices({
-        onlyUnderlyingDebt: true,
-      }),
+      liquidationPrice: this.getAllLiquidationPrices(),
       aboveMaxLeverageRatio: this.aboveMaxLeverageRatio(),
       leverageRatio: this.leverageRatio(),
-      // TODO: this also needs to include debt....
-      assetLiquidationThreshold: this.collateral.map((a) =>
-        this.assetLiquidationThreshold(a.token)
-      ),
     };
   }
 
