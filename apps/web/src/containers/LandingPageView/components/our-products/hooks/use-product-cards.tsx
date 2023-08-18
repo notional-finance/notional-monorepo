@@ -10,6 +10,8 @@ export const useProductCards = () => {
       fCashLend,
       variableLend,
       leveragedVaults,
+      leveragedLiquidity,
+      leveragedLend,
       liquidity,
       fCashBorrow,
       variableBorrow,
@@ -30,23 +32,7 @@ export const useProductCards = () => {
       groupedSymbols: 'eth_dai_usdc_wbtc',
       apyTitle: <FormattedMessage defaultMessage={'as high as'} />,
       loading: fCashLend === null,
-    },
-    {
-      title: <FormattedMessage defaultMessage={'Leveraged Vaults'} />,
-      link: '/vaults',
-      text: (
-        <FormattedMessage
-          defaultMessage={
-            'Maximize your returns with leveraged DeFi yield strategies.'
-          }
-        />
-      ),
-      apy: `${formatNumberAsPercent(leveragedVaults?.totalAPY || 0)} APY`,
-      symbol: leveragedVaults?.underlying.symbol,
-      groupedSymbols: 'eth_dai_usdc',
-      apyTitle: <FormattedMessage defaultMessage={'as high as'} />,
-      loading: leveragedVaults === null,
-      variableRate: true,
+      fixedRate: true,
     },
     {
       title: <FormattedMessage defaultMessage={'Variable Rate Lending'} />,
@@ -70,8 +56,6 @@ export const useProductCards = () => {
       groupedSymbols: 'eth_dai_usdc_wbtc',
       apyTitle: <FormattedMessage defaultMessage={'as high as'} />,
       loading: variableLend === null,
-      variableRate: true,
-      comingSoon: true,
     },
     {
       title: <FormattedMessage defaultMessage={'Provide Liquidity'} />,
@@ -86,7 +70,53 @@ export const useProductCards = () => {
       groupedSymbols: 'eth_dai_usdc_wbtc',
       apyTitle: <FormattedMessage defaultMessage={'as high as'} />,
       loading: liquidity === null,
-      variableRate: true,
+    },
+  ];
+
+  const leveragedYieldData = [
+    {
+      title: <FormattedMessage defaultMessage={'Leveraged Vaults'} />,
+      link: '/vaults',
+      text: (
+        <FormattedMessage
+          defaultMessage={
+            'Maximize your returns with leveraged DeFi yield strategies.'
+          }
+        />
+      ),
+      apy: `${formatNumberAsPercent(leveragedVaults?.totalAPY || 0)} APY`,
+      symbol: leveragedVaults?.underlying.symbol,
+      groupedSymbols: 'eth_dai_usdc_wbtc',
+      apyTitle: <FormattedMessage defaultMessage={'as high as'} />,
+      loading: leveragedVaults === null,
+    },
+    {
+      title: <FormattedMessage defaultMessage={'Leveraged Lending'} />,
+      link: '/lend-leveraged',
+      text: (
+        <FormattedMessage
+          defaultMessage={`Arbitrage Notional's interest rates by borrowing from one maturity and lending to another with leverage.`}
+        />
+      ),
+      apy: `${formatNumberAsPercent(leveragedLend?.totalAPY || 0)} APY`,
+      symbol: leveragedLend?.underlying.symbol,
+      groupedSymbols: 'eth_dai_usdc_wbtc',
+      apyTitle: <FormattedMessage defaultMessage={'as high as'} />,
+      loading: leveragedLend === null,
+    },
+    {
+      title: <FormattedMessage defaultMessage={'Leveraged Liquidity'} />,
+      link: '/liquidity-leveraged',
+      text: (
+        <FormattedMessage
+          defaultMessage={`Multiply your yield by providing liquidity with leverage.`}
+        />
+      ),
+      apy: `${formatNumberAsPercent(leveragedLiquidity?.totalAPY || 0)} APY`,
+      symbol: leveragedLiquidity?.underlying.symbol,
+      groupedSymbols: 'eth_dai_usdc_wbtc',
+      apyTitle: <FormattedMessage defaultMessage={'as high as'} />,
+      loading: leveragedLiquidity === null,
     },
   ];
 
@@ -104,6 +134,7 @@ export const useProductCards = () => {
       groupedSymbols: 'eth_dai_usdc_wbtc',
       apyTitle: <FormattedMessage defaultMessage={'as low as'} />,
       loading: fCashBorrow === null,
+      fixedRate: true,
     },
     {
       title: <FormattedMessage defaultMessage={'Variable Borrow'} />,
@@ -111,15 +142,7 @@ export const useProductCards = () => {
       href: 'https://blog.notional.finance/introducing-notional-v3/',
       text: (
         <FormattedMessage
-          defaultMessage={`Keep your options open. Pay a variable interest rate and close out your debt whenever you want for no penalty.
-          <span>Read more about Notional V3 on the blog.</span>`}
-          values={{
-            span: (chunk: React.ReactNode) => (
-              <Box sx={{ color: colors.neonTurquoise }} component="span">
-                {chunk}
-              </Box>
-            ),
-          }}
+          defaultMessage={`Pay a variable interest rate and close out your debt at any time for no penalty.`}
         />
       ),
       apy: `${formatNumberAsPercent(variableBorrow?.totalAPY || 0)} APY`,
@@ -127,11 +150,9 @@ export const useProductCards = () => {
       groupedSymbols: 'eth_dai_usdc_wbtc',
       apyTitle: <FormattedMessage defaultMessage={'as low as'} />,
       loading: variableBorrow === null,
-      variableRate: true,
-      comingSoon: true,
     },
   ];
-  return { earnYieldData, borrowData };
+  return { earnYieldData, borrowData, leveragedYieldData };
 };
 
 export default useProductCards;
