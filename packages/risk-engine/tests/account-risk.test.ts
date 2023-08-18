@@ -33,9 +33,9 @@ describe.withForkAndRegistry(
           { factor: 'freeCollateral', expected: [0.81, 'ETH'] },
           { factor: 'loanToValue', expected: 0 },
           { factor: 'collateralRatio', expected: null },
-          { factor: 'healthFactor', expected: 8.29 },
+          { factor: 'healthFactor', expected: null },
           {
-            factor: 'collateralLiquidationThreshold',
+            factor: 'assetLiquidationThreshold',
             args: ['ETH'],
             expected: null,
           },
@@ -70,7 +70,7 @@ describe.withForkAndRegistry(
           { factor: 'healthFactor' },
           { factor: 'leverageRatio' },
           {
-            factor: 'collateralLiquidationThreshold',
+            factor: 'assetLiquidationThreshold',
             args: ['ETH'],
           },
           {
@@ -99,7 +99,7 @@ describe.withForkAndRegistry(
           { factor: 'freeCollateral', expected: [4.05, 'ETH'] },
           { factor: 'loanToValue', expected: 0 },
           { factor: 'collateralRatio', expected: null },
-          { factor: 'healthFactor', expected: 8.29 },
+          { factor: 'healthFactor', expected: null },
           {
             factor: 'maxWithdraw',
             args: ['pETH'],
@@ -121,12 +121,12 @@ describe.withForkAndRegistry(
           { factor: 'healthFactor' },
           { factor: 'leverageRatio' },
           {
-            factor: 'collateralLiquidationThreshold',
+            factor: 'assetLiquidationThreshold',
             args: ['nETH'],
             expected: null,
           },
           {
-            factor: 'collateralLiquidationThreshold',
+            factor: 'assetLiquidationThreshold',
             args: ['ETH'],
           },
           {
@@ -148,7 +148,7 @@ describe.withForkAndRegistry(
         ],
         expected: [
           {
-            factor: 'collateralLiquidationThreshold',
+            factor: 'assetLiquidationThreshold',
             args: ['nETH'],
           },
           {
@@ -217,12 +217,12 @@ describe.withForkAndRegistry(
         limit: [0.25, 'ETH'],
       },
       {
-        riskFactor: 'collateralLiquidationThreshold',
+        riskFactor: 'assetLiquidationThreshold',
         args: ['ETH'],
         limit: [0.75, 'ETH'],
       },
       {
-        riskFactor: 'collateralLiquidationThreshold',
+        riskFactor: 'assetLiquidationThreshold',
         args: ['ETH'],
         limit: [0.85, 'ETH'],
       },

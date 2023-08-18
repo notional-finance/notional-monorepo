@@ -203,7 +203,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
           RATE_PRECISION;
   }
 
-  collateralLiquidationThreshold(
+  assetLiquidationThreshold(
     // NOTE: this parameter is unused because the returned units is always in vault share denomination
     _collateral: TokenDefinition = this.vaultShares.token
   ): TokenBalance | null {
@@ -265,8 +265,9 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
       }),
       aboveMaxLeverageRatio: this.aboveMaxLeverageRatio(),
       leverageRatio: this.leverageRatio(),
-      collateralLiquidationThreshold: this.collateral.map((a) =>
-        this.collateralLiquidationThreshold(a.token)
+      // TODO: this also needs to include debt....
+      assetLiquidationThreshold: this.collateral.map((a) =>
+        this.assetLiquidationThreshold(a.token)
       ),
     };
   }

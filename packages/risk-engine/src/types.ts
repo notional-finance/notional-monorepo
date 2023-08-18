@@ -19,9 +19,7 @@ export interface RiskFactors {
     debt: TokenDefinition,
     collateral: TokenDefinition
   ) => TokenBalance | null;
-  collateralLiquidationThreshold: (
-    collateral: TokenDefinition
-  ) => TokenBalance | null;
+  assetLiquidationThreshold: (asset: TokenDefinition) => TokenBalance | null;
 }
 
 export interface RiskFactorLimit<F extends RiskFactorKeys> {

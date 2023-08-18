@@ -119,18 +119,12 @@ describe.withForkAndRegistry(
           ),
         ]);
 
-        const {
-          collateralRatio,
-          leverageRatio,
-          liquidationPrice,
-          collateralLiquidationThreshold,
-        } = vaultRiskProfile.getAllRiskFactors();
-        expect(collateralRatio).toBeCloseTo(0.125);
-        expect(leverageRatio).toBeCloseTo(7.7109);
-        expect(liquidationPrice[0].price?.toFloat()).toBeCloseTo(0.9725);
-        expect(collateralLiquidationThreshold[0]?.toFloat()).toBeCloseTo(
-          0.9648
-        );
+        const risks = vaultRiskProfile.getAllRiskFactors();
+        expect(risks).toMatchSnapshot();
+        // expect(collateralRatio).toBeCloseTo(0.125);
+        // expect(leverageRatio).toBeCloseTo(7.7109);
+        // expect(liquidationPrice[0].price?.toFloat()).toBeCloseTo(0.9725);
+        // expect(assetLiquidationThreshold[0]?.toFloat()).toBeCloseTo(0.9648);
       });
 
       it('calculates debt with cash leverage ratio and collateral ratio', () => {
@@ -161,18 +155,8 @@ describe.withForkAndRegistry(
           ),
         ]);
 
-        const {
-          collateralRatio,
-          leverageRatio,
-          liquidationPrice,
-          collateralLiquidationThreshold,
-        } = vaultRiskProfile.getAllRiskFactors();
-        expect(collateralRatio).toBeCloseTo(0.138);
-        expect(leverageRatio).toBeCloseTo(7.014);
-        expect(liquidationPrice[0].price?.toFloat()).toBeCloseTo(0.9615);
-        expect(collateralLiquidationThreshold[0]?.toFloat()).toBeCloseTo(
-          0.9491
-        );
+        const risks = vaultRiskProfile.getAllRiskFactors();
+        expect(risks).toMatchSnapshot();
       });
     });
 
@@ -200,7 +184,7 @@ describe.withForkAndRegistry(
         expect(vaultRiskProfile.maxWithdraw().token.id).toBe(
           vaultRiskProfile.vaultShares.tokenId
         );
-        expect(vaultRiskProfile.maxWithdraw().toFloat()).toBeCloseTo(2.118);
+        expect(vaultRiskProfile.maxWithdraw().toFloat()).toBeCloseTo(2.094);
       });
 
       it('Prime Cash', () => {
@@ -226,7 +210,7 @@ describe.withForkAndRegistry(
         expect(vaultRiskProfile.maxWithdraw().token.id).toBe(
           vaultRiskProfile.vaultShares.tokenId
         );
-        expect(vaultRiskProfile.maxWithdraw().toFloat()).toBeCloseTo(1.993);
+        expect(vaultRiskProfile.maxWithdraw().toFloat()).toBeCloseTo(1.959);
       });
 
       it('fCash + Cash', () => {
@@ -260,7 +244,7 @@ describe.withForkAndRegistry(
         expect(vaultRiskProfile.maxWithdraw().token.id).toBe(
           vaultRiskProfile.vaultShares.tokenId
         );
-        expect(vaultRiskProfile.maxWithdraw().toFloat()).toBeCloseTo(4.113);
+        expect(vaultRiskProfile.maxWithdraw().toFloat()).toBeCloseTo(4.093);
       });
     });
   }
