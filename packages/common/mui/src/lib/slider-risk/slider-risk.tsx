@@ -1,15 +1,10 @@
-import { Box, styled } from '@mui/material';
-import { collateralDefaults } from '@notional-finance/shared-config';
-import { FormattedMessage, MessageDescriptor } from 'react-intl';
+import { Box, styled, useTheme } from '@mui/material';
 import SliderBasic from '../slider-basic/slider-basic';
-import { H2, H4 } from '../typography/typography';
+import { LabelValue } from '../typography/typography';
+import { FormattedMessage } from 'react-intl';
 
 interface SliderRiskProps {
-  riskLevel: MessageDescriptor;
-  loanToValue: number | null;
-  maxLoanToValue: number | null;
-  updatedLoanToValue?: number | null;
-  showInteriorTitle?: boolean;
+  healthFactor: number | null;
 }
 
 const SliderContainer = styled(Box)(
@@ -17,56 +12,49 @@ const SliderContainer = styled(Box)(
   background: ${theme.palette.background.default};
   border: ${theme.shape.borderStandard};
   border-radius: ${theme.shape.borderRadius()};
-  padding: ${theme.spacing(3)};
-  padding-bottom: ${theme.spacing(1)};
-  margin: ${theme.spacing(3)} 0px;
+  padding: ${theme.spacing(0.75, 1, 0.25, 1)};
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 `
 );
 
-export const SliderRisk = ({
-  loanToValue,
-  maxLoanToValue,
-  riskLevel,
-  updatedLoanToValue,
-  showInteriorTitle = false,
-}: SliderRiskProps) => {
-  const marks = updatedLoanToValue
-    ? [{ value: updatedLoanToValue, label: 'Updated' }]
-    : undefined;
-
+export const SliderRisk = ({ healthFactor }: SliderRiskProps) => {
+  const theme = useTheme();
   return (
-    <SliderContainer sx={{ marginBottom: loanToValue === 0 ? '0px' : '' }}>
-      {showInteriorTitle && (
-        <H4>
-          <FormattedMessage defaultMessage="Portfolio Liquidation Risk" />
-        </H4>
-      )}
-      <H2 msg={riskLevel} />
+    <SliderContainer>
       <SliderBasic
-        min={collateralDefaults.minLTV}
-        // NOTE: this is difficult to handle because during local currency conditions
-        // the max LTV returned is less than the actual LTV, while the account can
-        // still go over the max and have positive free collateral
-        max={maxLoanToValue || 100}
-        value={loanToValue || 0}
-        step={0.01}
-        marks={marks}
-        disabled={false}
+        min={0}
+        // NOTE: set this a half step above the max value we actually set so that
+        // the button does not overflow into the container padding
+        max={5.05}
+        value={healthFactor === null || healthFactor > 5 ? 5 : healthFactor}
+        step={0.1}
+        disabled={true}
+        sx={{ marginBottom: '0px' }}
         railGradients={[
           {
-            color: [51, 255, 58], // Green
-            value: 0,
-          },
-          {
-            color: [249, 231, 59], // Yellow
-            value: maxLoanToValue ? maxLoanToValue * 0.7 : 50,
-          },
-          {
             color: [255, 61, 113], // Red
+            value: 10,
+          },
+          {
+            color: [249, 223, 61], // Yellow
+            value: 20,
+          },
+          {
+            color: [52, 223, 58], // Green
             value: 100,
           },
         ]}
       />
+      <LabelValue sx={{ marginLeft: theme.spacing(3) }}>
+        {healthFactor ? (
+          healthFactor.toFixed(2)
+        ) : (
+          <FormattedMessage defaultMessage={'No Risk'} />
+        )}
+      </LabelValue>
     </SliderContainer>
   );
 };
