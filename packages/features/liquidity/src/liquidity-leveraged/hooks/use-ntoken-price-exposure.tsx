@@ -3,8 +3,10 @@ import { NegativeValueCell } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
 import { useFCashMarket } from '@notional-finance/notionable-hooks';
+import { useTheme } from '@mui/material';
 
 export const useNTokenPriceExposure = (state: BaseTradeState) => {
+  const theme = useTheme();
   const { deposit, collateralBalance } = state;
   const fCashMarket = useFCashMarket(deposit?.currencyId);
   const data =
@@ -28,14 +30,14 @@ export const useNTokenPriceExposure = (state: BaseTradeState) => {
       Header: <FormattedMessage defaultMessage="Price" />,
       accessor: 'price',
       textAlign: 'left',
-      width: '254px',
+      width: theme.spacing(31.75),
       marginRight: '10px',
     },
     {
       Header: <FormattedMessage defaultMessage="Avg Interest Rate" />,
       accessor: 'interestRate',
       textAlign: 'right',
-      width: '254px',
+      width: theme.spacing(31.75),
       marginRight: '10px',
     },
     {
@@ -43,7 +45,7 @@ export const useNTokenPriceExposure = (state: BaseTradeState) => {
       Cell: NegativeValueCell,
       accessor: 'profitLoss',
       textAlign: 'right',
-      width: '254px',
+      width: theme.spacing(31.75),
       marginRight: '10px',
     },
   ];

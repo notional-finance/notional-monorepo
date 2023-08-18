@@ -3,8 +3,10 @@ import { useFCashPriceExposure } from '../hooks';
 import { NegativeValueCell } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
+import { useTheme } from '@mui/material';
 
 export const useFCashPriceExposureTable = (state: BaseTradeState) => {
+  const theme = useTheme();
   const fCashPriceExposureData = useFCashPriceExposure(state).map(
     ({ interestRate, price, profitLoss }) => {
       return {
@@ -22,23 +24,23 @@ export const useFCashPriceExposureTable = (state: BaseTradeState) => {
       Header: <FormattedMessage defaultMessage="Price" />,
       accessor: 'price',
       textAlign: 'left',
-      width: '254px',
-      marginRight: '10px',
+      width: theme.spacing(31.75),
+      marginRight: theme.spacing(1.25),
     },
     {
       Header: <FormattedMessage defaultMessage="Interest Rate" />,
       accessor: 'interestRate',
       textAlign: 'right',
-      width: '254px',
-      marginRight: '10px',
+      width: theme.spacing(31.75),
+      marginRight: theme.spacing(1.25),
     },
     {
       Header: <FormattedMessage defaultMessage="Profit / Loss" />,
       Cell: NegativeValueCell,
       accessor: 'profitLoss',
       textAlign: 'right',
-      width: '254px',
-      marginRight: '10px',
+      width: theme.spacing(31.75),
+      marginRight: theme.spacing(1.25),
     },
   ];
 
