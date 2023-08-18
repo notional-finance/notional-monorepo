@@ -6,7 +6,6 @@ import {
   styled,
   useTheme,
 } from '@mui/material';
-import { TokenBalance } from '@notional-finance/core-entities';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
 import { ArrowIcon } from '@notional-finance/icons';
 import {
@@ -76,12 +75,12 @@ const LabelAndValue = ({
   );
 };
 
-const getPriceDistance = (current: TokenBalance, liquidation: TokenBalance) => {
-  if (current.isZero()) return 0;
-  return (
-    (100 * (current.toFloat() - liquidation.toFloat())) / current.toFloat()
-  );
-};
+// const getPriceDistance = (current: TokenBalance, liquidation: TokenBalance) => {
+//   if (current.isZero()) return 0;
+//   return (
+//     (100 * (current.toFloat() - liquidation.toFloat())) / current.toFloat()
+//   );
+// };
 
 export const PortfolioRisk = () => {
   const theme = useTheme();
@@ -90,10 +89,11 @@ export const PortfolioRisk = () => {
   const profile = usePortfolioRiskProfile();
   const baseCurrency = useFiat();
   const loanToValue = profile.loanToValue();
+  const healthFactor = profile.healthFactor();
+  /*
   const liquidationPrices = profile.getAllLiquidationPrices({
     onlyUnderlyingDebt: false,
   });
-  const healthFactor = profile.healthFactor();
   const exchangeRateRisk = liquidationPrices
     .filter(
       ({ riskExposure, debt, collateral, price }) =>
@@ -137,6 +137,7 @@ export const PortfolioRisk = () => {
   const assetPriceRisk = liquidationPrices.filter(
     ({ riskExposure }) => !riskExposure?.isCrossCurrencyRisk
   );
+  */
 
   const hasLiquidationPrices = true;
   // const hasLiquidationPrices =

@@ -34,7 +34,9 @@ export async function onNetworkPending(selectedNetwork: Network) {
   const isNetworkReady = await new Promise<boolean>((resolve) => {
     Registry.startRefresh(selectedNetwork);
     Registry.onNetworkReady(selectedNetwork, () => {
-      resolve(true);
+      Registry.getYieldRegistry().onNetworkRegistered(selectedNetwork, () => {
+        resolve(true);
+      });
     });
   });
   return { isNetworkReady, isNetworkPending: false };
