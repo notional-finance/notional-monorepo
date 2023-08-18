@@ -14,7 +14,6 @@ import {
   SmallTableCell,
   TableCell as TypographyTableCell,
 } from '../../typography/typography';
-import { THEME_VARIANTS } from '@notional-finance/shared-config';
 
 interface StyledTableRowProps extends TableRowProps {
   theme: NotionalTheme;
@@ -156,6 +155,7 @@ export const DataTableBody = ({
                       textAlign: cell['column'].textAlign || 'center',
                       borderBottom: 'none',
                       whiteSpace: 'nowrap',
+                      width: cell['column']['width'] || 'auto',
                     }}
                     {...cell['getCellProps']()}
                   >
@@ -166,7 +166,9 @@ export const DataTableBody = ({
                         {cell['render']('Cell')}
                       </SmallTableCell>
                     ) : (
-                      <TypographyTableCell>
+                      <TypographyTableCell
+                        sx={{ fontSize: CustomRowComponent ? '16px' : '' }}
+                      >
                         {cell['render']('Cell')}
                       </TypographyTableCell>
                     )}
@@ -177,7 +179,11 @@ export const DataTableBody = ({
             {CustomRowComponent && (
               <TableRow key={`sub-row-${i}`}>
                 <TableCell
-                  sx={{ padding: '0px', borderBottom: 'none' }}
+                  sx={{
+                    padding: '0px',
+                    borderBottom: 'none',
+                    fontSize: '16px',
+                  }}
                   colSpan={cells.length}
                 >
                   <Collapse in={isExpanded} sx={{ margin: '0px' }}>

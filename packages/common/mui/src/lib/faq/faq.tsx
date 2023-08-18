@@ -73,7 +73,7 @@ export function Faq({
       sx={{
         padding: '1.25rem',
         marginBottom: '1.75rem !important',
-        borderRadius: theme.shape.borderRadiusLarge,
+        borderRadius: theme.shape.borderRadius(),
         border: theme.shape.borderStandard,
         boxShadow: theme.shape.shadowStandard,
         ':before': {

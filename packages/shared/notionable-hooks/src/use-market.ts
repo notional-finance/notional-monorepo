@@ -178,6 +178,7 @@ export const useAllMarkets = () => {
     ...yields.leveragedLend,
     ...yields.leveragedLiquidity,
   ];
+  
   const borrowYields = [...yields.fCashBorrow, ...yields.variableBorrow];
 
   const headlineRates = {

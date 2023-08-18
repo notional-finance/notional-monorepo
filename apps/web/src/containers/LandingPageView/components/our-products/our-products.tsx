@@ -8,7 +8,7 @@ import { H5, H2, Toggle } from '@notional-finance/mui';
 
 export const OurProducts = () => {
   const [selectedTab, setSelectedTab] = useState<number>(0);
-  const { earnYieldData, borrowData } = useProductCards();
+  const { earnYieldData, borrowData, leveragedYieldData } = useProductCards();
   const theme = useTheme();
 
   return (
@@ -44,15 +44,23 @@ export const OurProducts = () => {
           />
         </TitleContainer>
 
-        <FlexWrapper>
-          {selectedTab === 0
-            ? earnYieldData.map((data, index) => (
-                <ProductCards key={index} {...data} />
-              ))
-            : borrowData.map((data, index) => (
-                <ProductCards key={index} {...data} />
-              ))}
-        </FlexWrapper>
+        {selectedTab === 0 ? (
+          <FlexWrapper>
+            {earnYieldData.map((data, index) => (
+              <ProductCards key={index} {...data} />
+            ))}
+
+            {leveragedYieldData.map((data, index) => (
+              <ProductCards key={index} {...data} isLeveraged />
+            ))}
+          </FlexWrapper>
+        ) : (
+          <FlexWrapper>
+            {borrowData.map((data, index) => (
+              <ProductCards key={index} {...data} />
+            ))}
+          </FlexWrapper>
+        )}
       </Container>
     </Box>
   );
@@ -61,13 +69,13 @@ export const OurProducts = () => {
 const Container = styled(Box)(
   ({ theme }) => `
     z-index: 2;
-    width: ${theme.spacing(150)};
-    height: ${theme.spacing(167)};
+    width: ${theme.spacing(170)};
+    height: ${theme.spacing(147)};
     margin: auto;
     top: -${theme.spacing(4)};
     position: relative;
     background: ${colors.black};
-    padding: ${theme.spacing(17)};
+    padding: ${theme.spacing(7.5)};
     border-radius: ${theme.shape.borderRadiusLarge};
     border: ${theme.shape.borderHighlight};
     box-shadow: 0px 34px 50px -15px rgba(20, 42, 74, 0.3);
@@ -77,6 +85,7 @@ const Container = styled(Box)(
 
     ${theme.breakpoints.down('mdLanding')} {
       width: ${theme.spacing(125)};
+      height: ${theme.spacing(200)};
       padding: ${theme.spacing(6)};
     }
 
@@ -106,6 +115,7 @@ const TitleContainer = styled(Box)(
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin: 0px ${theme.spacing(2.5)};
     ${theme.breakpoints.down('smLanding')} {
       align-items: flex-start;
       flex-direction: column;
@@ -135,8 +145,9 @@ const TitleContainer = styled(Box)(
 const FlexWrapper = styled(Box)(
   ({ theme }) => `
   display: flex;
+  gap: ${theme.spacing(7.5)};
   flex-wrap: wrap;
-  justify-content: space-between;
+  justify-content: center;
     ${theme.breakpoints.down('smLanding')} {
       flex-direction: column;
     }

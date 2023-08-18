@@ -56,7 +56,7 @@ export const DataTableTitleBar = ({
               paddingBottom: expandableTable
                 ? theme.spacing(4)
                 : theme.spacing(1),
-              paddingTop: expandableTable ? theme.spacing(4) : theme.spacing(3),
+              paddingTop: expandableTable ? theme.spacing(4) : theme.spacing(1),
             }}
           >
             {tableTitle}

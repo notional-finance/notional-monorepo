@@ -1,24 +1,40 @@
 import { Box, useTheme } from '@mui/material';
 import { FaqHeader, Faq } from '@notional-finance/mui';
 import { TradeActionSummary } from '@notional-finance/trade';
-import { useLiquidityFaq } from '../hooks';
+import { useLiquidityFaq, useNTokenPriceExposure } from '../hooks';
 import { FormattedMessage } from 'react-intl';
 import { useContext } from 'react';
 import { LeveragedLiquidityContext } from '../liquidity-leveraged';
+import { DataTable } from '@notional-finance/mui';
 import { HowItWorksFaq } from './how-it-works-faq';
-import { NTokenPriceExposure } from './ntoken-price-exposure';
 
 export const LiquidityLeveragedSummary = () => {
   const theme = useTheme();
   const { state } = useContext(LeveragedLiquidityContext);
-  const { selectedDepositToken } = state;
+  const { selectedDepositToken, deposit } = state;
   const tokenSymbol = selectedDepositToken || '';
   const { faqs, faqHeaderLinks } = useLiquidityFaq(tokenSymbol);
+  const { data, columns } = useNTokenPriceExposure(state);
 
   return (
     <TradeActionSummary state={state}>
       <Box marginBottom={theme.spacing(5)}>
-        <NTokenPriceExposure state={state} />
+        <DataTable
+          tableTitle={
+            <FormattedMessage
+              defaultMessage={'n{symbol}/{symbol} Price Exposure'}
+              values={{ symbol: deposit?.symbol || '' }}
+            />
+          }
+          stateZeroMessage={
+            <FormattedMessage
+              defaultMessage={'Fill in inputs to see price exposure'}
+            />
+          }
+          data={data}
+          maxHeight={theme.spacing(40)}
+          columns={columns}
+        />
       </Box>
       <Faq
         sx={{ boxShadow: 'none' }}
