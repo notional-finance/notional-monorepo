@@ -32,4 +32,5 @@ export type DataTableColumn = Column & {
   defaultCanSort?: boolean;
   sortType?: string;
   displayFormatter?: any; 
+  marginRight?: any; 
 };

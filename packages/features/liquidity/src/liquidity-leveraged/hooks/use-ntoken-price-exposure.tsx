@@ -1,5 +1,5 @@
 import { BaseTradeState } from '@notional-finance/notionable';
-import { NegativeValueCell } from '@notional-finance/mui';
+import { NegativeValueCell, DataTableColumn } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
 import { useFCashMarket } from '@notional-finance/notionable-hooks';
@@ -25,7 +25,7 @@ export const useNTokenPriceExposure = (state: BaseTradeState) => {
           })
       : [];
 
-  const columns = [
+  const columns: DataTableColumn[] = [
     {
       Header: <FormattedMessage defaultMessage="Price" />,
       accessor: 'price',
