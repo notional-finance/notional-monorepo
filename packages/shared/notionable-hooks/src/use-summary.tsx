@@ -35,6 +35,7 @@ import {
 } from './use-account';
 import { AccountRiskProfile } from '@notional-finance/risk-engine';
 import { useFiat } from './use-user-settings';
+import { useSelectedNetwork } from './use-notional';
 
 interface DetailItem {
   label: React.ReactNode;
@@ -420,7 +421,7 @@ export function useTradeSummary(state: BaseTradeState) {
     if (netDebtBalance?.isZero() === false)
       summary.push(
         getTradeDetail(
-          netDebtBalance,
+          netDebtBalance.abs(),
           'Debt',
           netDebtBalance.isNegative() ? 'withdraw' : 'deposit',
           intl
@@ -483,10 +484,12 @@ export function usePortfolioComparison(
   fiat: FiatKeys = 'USD'
 ) {
   const { account } = useAccountDefinition();
+  const network = useSelectedNetwork();
   const { postTradeBalances } = state;
   const priorBalances = account
-    ? AccountRiskProfile.from(
-        account.balances.filter((t) => t.tokenType !== 'Underlying')
+    ? new AccountRiskProfile(
+        account.balances.filter((t) => t.tokenType !== 'Underlying'),
+        network
       ).balances
     : [];
 
@@ -576,11 +579,11 @@ function getLiquidationPrices(
           current:
             current?.threshold
               ?.toFiat(fiatToken)
-              .toDisplayStringWithSymbol(3) || '-',
+              .toDisplayStringWithSymbol(3) || 'No Risk',
           updated:
             updated?.threshold
               ?.toFiat(fiatToken)
-              .toDisplayStringWithSymbol(3) || '-',
+              .toDisplayStringWithSymbol(3) || 'No Risk',
           changeType: getChangeType(
             current?.threshold?.toFloat(),
             updated?.threshold?.toFloat()
@@ -607,10 +610,10 @@ function getLiquidationPrices(
           currentPrice,
           current:
             current?.threshold?.toUnderlying().toDisplayStringWithSymbol(3) ||
-            '-',
+            'No Risk',
           updated:
             updated?.threshold?.toUnderlying().toDisplayStringWithSymbol(3) ||
-            '-',
+            'No Risk',
           changeType: getChangeType(
             current?.threshold?.toFloat(),
             updated?.threshold?.toFloat()
@@ -666,8 +669,8 @@ export function usePortfolioLiquidationRisk(state: TradeState) {
   const baseCurrency = useFiat();
   const healthFactor = {
     label: intl.formatMessage({ defaultMessage: 'Health Factor' }),
-    current: priorAccountRisk?.healthFactor?.toFixed(3) || '-',
-    updated: postAccountRisk?.healthFactor?.toFixed(3) || '-',
+    current: priorAccountRisk?.healthFactor?.toFixed(1) || 'No Risk',
+    updated: postAccountRisk?.healthFactor?.toFixed(1) || 'No Risk',
     changeType: getChangeType(
       priorAccountRisk?.healthFactor,
       postAccountRisk?.healthFactor

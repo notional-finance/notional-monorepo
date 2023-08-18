@@ -78,24 +78,26 @@ export const useRiskOverviewTable = () => {
 
   const vaultLiquidationPrice = vaultLiquidation.flatMap(
     ({ vaultName, liquidationPrices }) => {
-      return liquidationPrices.map(({ underlying, currentPrice, current }) => {
-        return {
-          collateral: {
-            symbol: underlying.symbol,
-            label: vaultName,
-            caption: 'Leveraged Vault',
-          },
-          riskFactor: {
-            data: [
-              `Vault Shares/${underlying.symbol}`,
-              'Chainlink Oracle Price',
-            ],
-            isNegative: false,
-          },
-          currentPrice: currentPrice.toDisplayStringWithSymbol(3),
-          liquidationPrice: current,
-        };
-      });
+      return liquidationPrices
+        .filter(({ asset }) => asset.tokenType === 'VaultShare')
+        .map(({ underlying, currentPrice, current }) => {
+          return {
+            collateral: {
+              symbol: underlying.symbol,
+              label: vaultName,
+              caption: 'Leveraged Vault',
+            },
+            riskFactor: {
+              data: [
+                `Vault Shares/${underlying.symbol}`,
+                'Chainlink Oracle Price',
+              ],
+              isNegative: false,
+            },
+            currentPrice: currentPrice.toDisplayStringWithSymbol(3),
+            liquidationPrice: current,
+          };
+        });
     }
   );
 
