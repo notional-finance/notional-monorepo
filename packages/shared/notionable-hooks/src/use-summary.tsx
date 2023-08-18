@@ -589,12 +589,8 @@ export function usePortfolioLiquidationRisk(state: TradeState) {
   const intl = useIntl();
   const healthFactor = {
     label: intl.formatMessage({ defaultMessage: 'Health Factor' }),
-    current: onlyCurrent
-      ? `${priorAccountRisk?.healthFactor?.toFixed(3) || '-'} / 10`
-      : priorAccountRisk?.healthFactor?.toFixed(3) || '-',
-    updated: onlyCurrent
-      ? undefined
-      : `${postAccountRisk.healthFactor.toFixed(3)} / 10`,
+    current: priorAccountRisk?.healthFactor?.toFixed(3) || '-',
+    updated: postAccountRisk?.healthFactor?.toFixed(3) || '-',
     changeType: getChangeType(
       priorAccountRisk?.healthFactor,
       postAccountRisk?.healthFactor

@@ -53,15 +53,6 @@ export class AccountRiskProfile extends BaseRiskProfile {
     return this._toPercent(this.totalAssets(), debts.neg());
   }
 
-  healthFactor() {
-    // As defined here: https://docs.notional.finance/notional-v2/borrower-resources/health-factor
-    const fc = this.freeCollateral();
-    let factor = this._toPercent(fc, this.netWorth()) / PERCENTAGE_BASIS;
-    // NOTE: handles the case when both FC and net worth are negative
-    if (fc.isNegative() && factor > 0) factor = factor * -1;
-    return 1 + factor * 9;
-  }
-
   maxLoanToValue() {
     const ltv = this.loanToValue();
     const assets = this.totalAssetsRiskAdjusted();
@@ -127,43 +118,17 @@ export class AccountRiskProfile extends BaseRiskProfile {
     );
   }
 
-  /** Returns summary values per currency for the risk profile */
-  perCurrencyFactors() {
-    return this.allCurrencyIds.reduce(
-      (m, id) => {
-        const underlying = Registry.getTokenRegistry().getUnderlying(
-          this.network,
-          id
-        ).id;
-        m.set(id, {
-          totalAssets: this.totalCurrencyAssets(id, underlying),
-          totalAssetsRiskAdjusted: this.totalCurrencyAssetsRiskAdjusted(id),
-          totalDebts: this.totalCurrencyDebts(id, underlying),
-          totalDebtsRiskAdjusted: this.totalCurrencyDebtsRiskAdjusted(id),
-        });
-
-        return m;
-      },
-      new Map<
-        number,
-        {
-          totalAssets: TokenBalance;
-          totalAssetsRiskAdjusted: TokenBalance;
-          totalDebts: TokenBalance;
-          totalDebtsRiskAdjusted: TokenBalance;
-        }
-      >()
-    );
-  }
-
-  freeCollateral() {
+  freeCollateralFactors() {
     const denom = this.denom(this.defaultSymbol);
-    return this.allCurrencyIds.reduce((fc, id) => {
-      const netLocal = this.totalCurrencyAssetsRiskAdjusted(id).add(
-        this.totalCurrencyDebtsRiskAdjusted(id)
-      );
 
+    return this.allCurrencyIds.map((currencyId) => {
+      const totalAssetsLocal = this.totalCurrencyAssetsRiskAdjusted(currencyId);
+      const totalDebtsLocal = this.totalCurrencyDebtsRiskAdjusted(currencyId);
+      const netLocal = totalAssetsLocal.add(totalDebtsLocal);
       let netFC: TokenBalance;
+      let totalAssetsETH: TokenBalance;
+      let totalDebtsETH: TokenBalance;
+
       if (netLocal.currencyId === denom.currencyId) {
         // Handle special case when netLocal is in the denom currency
         const { haircut, buffer } =
@@ -173,15 +138,54 @@ export class AccountRiskProfile extends BaseRiskProfile {
         netFC = netLocal
           .toUnderlying()
           .scale(netLocal.isPositive() ? haircut : buffer, PERCENTAGE_BASIS);
+        totalAssetsETH = totalAssetsLocal
+          .toUnderlying()
+          .scale(haircut, PERCENTAGE_BASIS);
+        totalDebtsETH = totalDebtsLocal
+          .toUnderlying()
+          .scale(buffer, PERCENTAGE_BASIS);
       } else {
         netFC = netLocal.toToken(
           denom,
           netLocal.isNegative() ? 'Debt' : 'Asset'
         );
+        totalAssetsETH = totalAssetsLocal.toToken(denom, 'Asset');
+        totalDebtsETH = totalDebtsLocal.toToken(denom, 'Debt');
       }
 
-      return fc.add(netFC);
-    }, TokenBalance.zero(denom));
+      return {
+        currencyId,
+        netFC,
+        totalAssetsETH,
+        totalDebtsETH,
+      };
+    });
+  }
+
+  healthFactor() {
+    // As defined here: https://docs.notional.finance/notional-v2/borrower-resources/health-factor
+    const denom = this.denom(this.defaultSymbol);
+    const factors = this.freeCollateralFactors();
+    const totalAssets = factors.reduce(
+      (t, { totalAssetsETH }) => t.add(totalAssetsETH),
+      TokenBalance.zero(denom)
+    );
+    const totalDebts = factors.reduce(
+      (t, { totalDebtsETH }) => t.add(totalDebtsETH),
+      TokenBalance.zero(denom)
+    );
+    return totalDebts.isZero()
+      ? null
+      : totalAssets.toFloat() / totalDebts.abs().toFloat();
+  }
+
+  freeCollateral() {
+    const denom = this.denom(this.defaultSymbol);
+    const factors = this.freeCollateralFactors();
+    return factors.reduce(
+      (fc, { netFC }) => fc.add(netFC),
+      TokenBalance.zero(denom)
+    );
   }
 
   leverageRatio(currencyId?: number): number | null {
