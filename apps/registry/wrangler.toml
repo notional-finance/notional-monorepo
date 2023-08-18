@@ -35,6 +35,12 @@ deleted_classes = [
     "YieldRegistryDO"
 ]
 
+[[migrations]]
+tag = "v5"
+deleted_classes = [
+    "ExchangeRegistryDO"
+]
+
 [env.local]
 name = "registry-local"
 minify = false
@@ -49,7 +55,6 @@ SUPPORTED_NETWORKS = ['arbitrum', 'all']
 bindings = [
   { name = "TOKEN_REGISTRY_DO", class_name = "TokenRegistryDO" },
   { name = "CONFIGURATION_REGISTRY_DO", class_name = "ConfigurationRegistryDO" },
-  { name = "EXCHANGE_REGISTRY_DO", class_name = "ExchangeRegistryDO" },
   { name = "ORACLE_REGISTRY_DO", class_name = "OracleRegistryDO" },
   { name = "VAULT_REGISTRY_DO", class_name = "VaultRegistryDO" }
 ]
@@ -70,7 +75,6 @@ SUPPORTED_NETWORKS = [ 'arbitrum', 'all' ]
 bindings = [
   { name = "TOKEN_REGISTRY_DO", class_name = "TokenRegistryDO" },
   { name = "CONFIGURATION_REGISTRY_DO", class_name = "ConfigurationRegistryDO" },
-  { name = "EXCHANGE_REGISTRY_DO", class_name = "ExchangeRegistryDO" },
   { name = "ORACLE_REGISTRY_DO", class_name = "OracleRegistryDO" },
   { name = "VAULT_REGISTRY_DO", class_name = "VaultRegistryDO" }
 ]
@@ -89,7 +93,6 @@ SUPPORTED_NETWORKS = [ 'arbitrum', 'all' ]
 bindings = [
   { name = "TOKEN_REGISTRY_DO", class_name = "TokenRegistryDO" },
   { name = "CONFIGURATION_REGISTRY_DO", class_name = "ConfigurationRegistryDO" },
-  { name = "EXCHANGE_REGISTRY_DO", class_name = "ExchangeRegistryDO" },
   { name = "ORACLE_REGISTRY_DO", class_name = "OracleRegistryDO" },
   { name = "VAULT_REGISTRY_DO", class_name = "VaultRegistryDO" },
 ]
