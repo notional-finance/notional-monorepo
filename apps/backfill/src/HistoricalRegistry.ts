@@ -61,13 +61,17 @@ export class HistoricalRegistry extends Registry {
       [Routes.Oracles, this._oracles],
       [Routes.Configuration, this._configurations],
       [Routes.Vaults, this._vaults],
+      [Routes.Yields, this._yields],
     ] as [Routes, ClientRegistry<unknown> | undefined][];
 
     for (const [route, client] of clients) {
-      await this.servers[route].refreshAtBlock(network, blockNumber);
-      // Write this to the temp registry
-      const data = this.servers[route].serializeToJSON(network);
-      fs.writeFileSync(`${this.tmpDataDirectory}/${network}/${route}`, data);
+      const server = this.servers[route];
+      if (server) {
+        await this.servers[route].refreshAtBlock(network, blockNumber);
+        // Write this to the temp registry
+        const data = this.servers[route].serializeToJSON(network);
+        fs.writeFileSync(`${this.tmpDataDirectory}/${network}/${route}`, data);
+      }
 
       if (client) {
         await new Promise<void>((resolve) => {

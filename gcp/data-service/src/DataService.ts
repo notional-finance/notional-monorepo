@@ -1,6 +1,10 @@
 import ethers, { BigNumber } from 'ethers';
 import { Knex } from 'knex';
-import { Network, getProviderFromNetwork } from '@notional-finance/util';
+import {
+  Network,
+  getProviderFromNetwork,
+  ORACLE_TYPE_TO_ID,
+} from '@notional-finance/util';
 import { fetch } from 'cross-fetch';
 import { URLSearchParams } from 'url';
 import {
@@ -25,16 +29,6 @@ import { ApolloClient, InMemoryCache } from '@apollo/client';
 const networkToId = {
   mainnet: 1,
   arbitrum: 2,
-};
-
-// TODO: fetch from DB
-const oracleTypeToId = {
-  Chainlink: 1,
-  VaultShareOracleRate: 2,
-  fCashOracleRate: 3,
-  nTokenToUnderlyingExchangeRate: 4,
-  fCashToUnderlyingExchangeRate: 5,
-  fCashSettlementRate: 6,
 };
 
 export type DataServiceSettings = {
@@ -75,11 +69,11 @@ export default class DataService {
   }
 
   public oracleTypeToId(oracleType: string) {
-    return oracleTypeToId[oracleType];
+    return ORACLE_TYPE_TO_ID[oracleType];
   }
 
   public idToOracleType(id: number) {
-    return this.getKeyByValue(oracleTypeToId, id);
+    return this.getKeyByValue(ORACLE_TYPE_TO_ID, id);
   }
 
   public latestTimestamp() {

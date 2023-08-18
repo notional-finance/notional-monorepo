@@ -57,3 +57,19 @@ export const NotionalAddress: Record<Network, string> = {
 };
 
 export const StakedNoteAddress = '0x38DE42F4BA8a35056b33A746A6b45bE9B1c3B9d2';
+
+export const ORACLE_TYPE_TO_ID = {
+  Chainlink: 1,
+  VaultShareOracleRate: 2,
+  fCashOracleRate: 3,
+  nTokenToUnderlyingExchangeRate: 4,
+  fCashToUnderlyingExchangeRate: 5,
+  fCashSettlementRate: 6,
+  fCashSpotRate: 7,
+  PrimeDebtSpotInterestRate: 8,
+  PrimeDebtToUnderlyingExchangeRate: 9,
+  PrimeCashSpotInterestRate: 10,
+  PrimeCashToUnderlyingExchangeRate: 11,
+  PrimeDebtPremiumInterestRate: 12,
+  PrimeCashPremiumInterestRate: 13,
+};
