@@ -18,7 +18,7 @@ import {
   ProgressIndicator,
 } from '@notional-finance/mui';
 
-export interface TestProps {
+export interface CardStyleProps {
   isLeveraged: boolean;
   theme: NotionalTheme;
 }
@@ -185,7 +185,7 @@ export const ProductCards = ({
 const CardContainer = styled(Link, {
   shouldForwardProp: (prop: string) => prop !== 'isLeveraged',
 })(
-  ({ isLeveraged, theme }: TestProps) => `
+  ({ isLeveraged, theme }: CardStyleProps) => `
       cursor: pointer;
       margin-top: ${theme.spacing(8)};
       min-height: ${theme.spacing(43.125)};
@@ -251,7 +251,7 @@ const CardContent = styled(Box)(
 const CardFooter = styled(Box, {
   shouldForwardProp: (prop: string) => prop !== 'isLeveraged',
 })(
-  ({ isLeveraged, theme }: TestProps) => `
+  ({ isLeveraged, theme }: CardStyleProps) => `
     background: ${
       isLeveraged
         ? 'linear-gradient(180deg, #2BCAD0 0%, #8BA4E5 100%)'
