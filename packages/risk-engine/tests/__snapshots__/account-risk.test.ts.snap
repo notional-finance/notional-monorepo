@@ -22,7 +22,7 @@ exports[`With Registry Account Risk Risk Factors: ETH / USDC 3`] = `69.5545496`;
 
 exports[`With Registry Account Risk Risk Factors: ETH / USDC 4`] = `143.7720471`;
 
-exports[`With Registry Account Risk Risk Factors: ETH / USDC 5`] = `2.532901024`;
+exports[`With Registry Account Risk Risk Factors: ETH / USDC 5`] = `1.0683977734379138`;
 
 exports[`With Registry Account Risk Risk Factors: ETH / USDC 6`] = `2.284563013`;
 
@@ -38,13 +38,22 @@ Object {
 exports[`With Registry Account Risk Risk Factors: ETH / USDC 8`] = `
 Object {
   "_isTokenBalance": true,
-  "hex": "0x68005a77",
+  "hex": "0x106579",
   "network": "arbitrum",
   "tokenId": "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8",
 }
 `;
 
 exports[`With Registry Account Risk Risk Factors: ETH / USDC 9`] = `
+Object {
+  "_isTokenBalance": true,
+  "hex": "0x68005a77",
+  "network": "arbitrum",
+  "tokenId": "0xff970a61a04b1ca14834a43f5de4533ebddb5cc8",
+}
+`;
+
+exports[`With Registry Account Risk Risk Factors: ETH / USDC 10`] = `
 Object {
   "_isTokenBalance": true,
   "hex": "0x61af5c",
@@ -62,7 +71,16 @@ Object {
 }
 `;
 
-exports[`With Registry Account Risk Risk Factors: Leveraged fCash Spread 2`] = `-19.530892295`;
+exports[`With Registry Account Risk Risk Factors: Leveraged fCash Spread 2`] = `0.813708434288799`;
+
+exports[`With Registry Account Risk Risk Factors: Leveraged fCash Spread 3`] = `
+Object {
+  "_isTokenBalance": true,
+  "hex": "0x0632af48",
+  "network": "arbitrum",
+  "tokenId": "0x0000000000000000000000000000000000000000000000000003006580dd0001",
+}
+`;
 
 exports[`With Registry Account Risk Risk Factors: Leveraged nToken 1`] = `
 Object {
@@ -86,7 +104,7 @@ exports[`With Registry Account Risk Risk Factors: Leveraged nToken 3`] = `80.088
 
 exports[`With Registry Account Risk Risk Factors: Leveraged nToken 4`] = `124.8624181`;
 
-exports[`With Registry Account Risk Risk Factors: Leveraged nToken 5`] = `4.6288635760000005`;
+exports[`With Registry Account Risk Risk Factors: Leveraged nToken 5`] = `0.7340701832704267`;
 
 exports[`With Registry Account Risk Risk Factors: Leveraged nToken 6`] = `4.022134911`;
 
@@ -123,5 +141,14 @@ Object {
   "hex": "0x033fd4d5",
   "network": "arbitrum",
   "tokenId": "0x18b0fc5a233acf1586da7c199ca9e3f486305a29",
+}
+`;
+
+exports[`With Registry Account Risk Risk Factors: Zero Haircut Collateral 1`] = `
+Object {
+  "_isTokenBalance": true,
+  "hex": "-0xd542ebab6a7c00",
+  "network": "arbitrum",
+  "tokenId": "0x0000000000000000000000000000000000000000",
 }
 `;

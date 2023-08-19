@@ -2,7 +2,6 @@ import {
   Registry,
   TokenBalance,
   TokenDefinition,
-  TokenType,
 } from '@notional-finance/core-entities';
 import {
   Network,
@@ -213,9 +212,7 @@ export abstract class BaseRiskProfile implements RiskFactors {
   }
 
   liquidationPrice(debt: TokenDefinition, collateral: TokenDefinition) {
-    return (
-      this.collateralLiquidationThreshold(collateral)?.toToken(debt) || null
-    );
+    return this.assetLiquidationThreshold(collateral)?.toToken(debt) || null;
   }
 
   getRiskFactor<
@@ -242,9 +239,9 @@ export abstract class BaseRiskProfile implements RiskFactors {
         return this.liquidationPrice(
           ...(args as Parameters<RiskFactors['liquidationPrice']>)
         ) as R;
-      case 'collateralLiquidationThreshold':
-        return this.collateralLiquidationThreshold(
-          ...(args as Parameters<RiskFactors['collateralLiquidationThreshold']>)
+      case 'assetLiquidationThreshold':
+        return this.assetLiquidationThreshold(
+          ...(args as Parameters<RiskFactors['assetLiquidationThreshold']>)
         ) as R;
       default:
         throw Error(`Unknown risk factor ${riskFactor}`);
@@ -266,7 +263,7 @@ export abstract class BaseRiskProfile implements RiskFactors {
       case 'leverageRatio':
         return Math.floor((limit as number) * RATE_PRECISION);
       case 'liquidationPrice':
-      case 'collateralLiquidationThreshold':
+      case 'assetLiquidationThreshold':
         return limit === null
           ? 0
           : (limit as TokenBalance).scaleTo(RATE_DECIMALS).toNumber();
@@ -403,7 +400,7 @@ export abstract class BaseRiskProfile implements RiskFactors {
       return _value === null
         ? RATE_PRECISION
         : _limit.ratioWith(_value).toNumber();
-    } else if (riskFactor === 'collateralLiquidationThreshold') {
+    } else if (riskFactor === 'assetLiquidationThreshold') {
       const _value = value as TokenBalance | null;
       const _limit = limit as TokenBalance;
 
@@ -570,52 +567,26 @@ export abstract class BaseRiskProfile implements RiskFactors {
     );
   }
 
-  getAllLiquidationPrices({
-    onlyUnderlyingDebt = false,
-  }: {
-    onlyUnderlyingDebt?: boolean;
-  }) {
-    // get all collateral ids + underlying
-    const collateral = this.collateral
+  getAllLiquidationPrices() {
+    const assets = this.balances
       .map((a) => a.token)
-      .concat(unique(this.collateral.map((a) => a.underlying)))
+      .concat(unique(this.balances.map((a) => a.underlying)))
       // Prefer to show underlying over prime cash
       .filter((c) => c.tokenType !== 'PrimeCash');
 
-    // get all debt ids + underlying
-    const debt = this.debts
-      .map((a) => a.token)
-      .concat(unique(this.debts.map((a) => a.underlying)))
-      // Prefer to show underlying over prime cash
-      .filter((c) => c.tokenType !== 'PrimeCash')
-      .filter((c) =>
-        onlyUnderlyingDebt ? c.tokenType === 'Underlying' : true
-      );
+    return assets
+      .map((a) => {
+        const isDebtThreshold = this.netCollateralAvailable(
+          a.symbol
+        ).isNegative();
 
-    return collateral
-      .flatMap((c) => {
-        const collateralThreshold = this.collateralLiquidationThreshold(c);
-        return debt
-          .filter((d) => d.id !== c.id)
-          .map((d) => {
-            return {
-              collateral: c,
-              debt: d,
-              riskExposure: this.getRiskExposureType(c, d, collateralThreshold),
-              price: collateralThreshold?.toToken(d) || null,
-            };
-          });
+        return {
+          asset: a,
+          threshold: this.assetLiquidationThreshold(a),
+          isDebtThreshold,
+        };
       })
-      .filter(({ price }) => price !== null) as {
-      collateral: TokenDefinition;
-      debt: TokenDefinition;
-      price: TokenBalance;
-      riskExposure?: {
-        isCrossCurrencyRisk: boolean;
-        isPrimeDebt: boolean;
-        risk: TokenType | 'Settlement';
-      };
-    }[];
+      .filter(({ threshold }) => threshold !== null);
   }
 
   getRiskExposureType(
@@ -669,8 +640,8 @@ export abstract class BaseRiskProfile implements RiskFactors {
   abstract collateralRatio(): number | null;
   abstract leverageRatio(currencyId?: number): number | null;
   abstract healthFactor(): number | null;
-  abstract collateralLiquidationThreshold(
-    collateral: TokenDefinition
+  abstract assetLiquidationThreshold(
+    asset: TokenDefinition
   ): TokenBalance | null;
   abstract simulate(apply: TokenBalance[]): BaseRiskProfile;
   abstract totalAssetsRiskAdjusted(denominated: SymbolOrID): TokenBalance;

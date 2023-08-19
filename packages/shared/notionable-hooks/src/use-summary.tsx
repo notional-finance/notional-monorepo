@@ -28,8 +28,14 @@ import {
   useIntl,
 } from 'react-intl';
 import { useAllMarkets } from './use-market';
-import { useAccountDefinition } from './use-account';
+import {
+  useAccountDefinition,
+  usePortfolioRiskProfile,
+  useVaultRiskProfiles,
+} from './use-account';
 import { AccountRiskProfile } from '@notional-finance/risk-engine';
+import { useFiat } from './use-user-settings';
+import { useSelectedNetwork } from './use-notional';
 
 interface DetailItem {
   label: React.ReactNode;
@@ -415,7 +421,7 @@ export function useTradeSummary(state: BaseTradeState) {
     if (netDebtBalance?.isZero() === false)
       summary.push(
         getTradeDetail(
-          netDebtBalance,
+          netDebtBalance.abs(),
           'Debt',
           netDebtBalance.isNegative() ? 'withdraw' : 'deposit',
           intl
@@ -478,10 +484,12 @@ export function usePortfolioComparison(
   fiat: FiatKeys = 'USD'
 ) {
   const { account } = useAccountDefinition();
+  const network = useSelectedNetwork();
   const { postTradeBalances } = state;
   const priorBalances = account
-    ? AccountRiskProfile.from(
-        account.balances.filter((t) => t.tokenType !== 'Underlying')
+    ? new AccountRiskProfile(
+        account.balances.filter((t) => t.tokenType !== 'Underlying'),
+        network
       ).balances
     : [];
 
@@ -542,55 +550,127 @@ function getChangeType(
   else return 'none';
 }
 
+function getPriceDistance(
+  current: TokenBalance,
+  liquidation: TokenBalance | null | undefined
+) {
+  if (!liquidation) return null;
+  if (current.isZero()) return 0;
+  return (
+    (100 * (current.toFloat() - liquidation.toFloat())) / current.toFloat()
+  );
+}
+
 function getLiquidationPrices(
   prior: ReturnType<AccountRiskProfile['getAllLiquidationPrices']>,
-  post: ReturnType<AccountRiskProfile['getAllLiquidationPrices']>
+  post: ReturnType<AccountRiskProfile['getAllLiquidationPrices']>,
+  fiatToken: FiatKeys
 ) {
-  return zipByKeyToArray(
-    prior,
-    post,
-    (t) => `${t.debt.id}:${t.collateral.id}`
-  ).map(([current, updated]) => {
-    let collateralTitle: string;
-    let debtTitle: string;
-    let isCrossCurrency: boolean;
-    if (current) {
-      collateralTitle = formatTokenType(current.collateral).title;
-      debtTitle = formatTokenType(current.debt).titleWithMaturity;
-      isCrossCurrency = current.riskExposure?.isCrossCurrencyRisk || false;
-    } else if (updated) {
-      collateralTitle = formatTokenType(updated.collateral).title;
-      debtTitle = formatTokenType(updated.debt).titleWithMaturity;
-      isCrossCurrency = updated.riskExposure?.isCrossCurrencyRisk || false;
-    } else {
-      throw Error('invalid liquidation prices');
+  return zipByKeyToArray(prior, post, (t) => t.asset.id).map(
+    ([current, updated]) => {
+      const asset = (current?.asset || updated?.asset) as TokenDefinition;
+      if (asset.tokenType === 'Underlying') {
+        const currentPrice = TokenBalance.unit(asset).toFiat(fiatToken);
+        return {
+          label: `${asset.symbol} / ${fiatToken} Liquidation Price`,
+          asset,
+          underlying: asset,
+          currentPrice,
+          current:
+            current?.threshold
+              ?.toFiat(fiatToken)
+              .toDisplayStringWithSymbol(3) || 'No Risk',
+          updated:
+            updated?.threshold
+              ?.toFiat(fiatToken)
+              .toDisplayStringWithSymbol(3) || 'No Risk',
+          changeType: getChangeType(
+            current?.threshold?.toFloat(),
+            updated?.threshold?.toFloat()
+          ),
+          currentPriceDistance: getPriceDistance(
+            currentPrice,
+            current?.threshold
+          ),
+          updatedPriceDistance: getPriceDistance(
+            currentPrice,
+            updated?.threshold
+          ),
+          // Debt thresholds improve as they increase
+          greenOnArrowUp: updated?.isDebtThreshold ? true : false,
+          isPriceRisk: true,
+          isAssetRisk: false,
+        };
+      } else {
+        const currentPrice = TokenBalance.unit(asset).toUnderlying();
+        return {
+          label: `${formatTokenType(asset).title} Liquidation Price`,
+          asset,
+          underlying: currentPrice.token,
+          currentPrice,
+          current:
+            current?.threshold?.toUnderlying().toDisplayStringWithSymbol(3) ||
+            'No Risk',
+          updated:
+            updated?.threshold?.toUnderlying().toDisplayStringWithSymbol(3) ||
+            'No Risk',
+          changeType: getChangeType(
+            current?.threshold?.toFloat(),
+            updated?.threshold?.toFloat()
+          ),
+          currentPriceDistance: getPriceDistance(
+            currentPrice,
+            current?.threshold
+          ),
+          updatedPriceDistance: getPriceDistance(
+            currentPrice,
+            updated?.threshold
+          ),
+          // Debt thresholds improve as they increase
+          greenOnArrowUp: updated?.isDebtThreshold ? true : false,
+          isPriceRisk: false,
+          isAssetRisk: true,
+        };
+      }
     }
+  );
+}
 
+export function useCurrentLiquidationPrices() {
+  const portfolioRisk = usePortfolioRiskProfile();
+  const vaults = useVaultRiskProfiles();
+  const baseCurrency = useFiat();
+
+  const portfolioLiquidation = getLiquidationPrices(
+    portfolioRisk.getAllLiquidationPrices() || [],
+    [],
+    baseCurrency
+  );
+
+  const vaultLiquidation = vaults.map((v) => {
     return {
-      label: `${
-        isCrossCurrency ? `${collateralTitle}/${debtTitle}` : debtTitle
-      } Liquidation Price`,
-      current:
-        current?.price.toUnderlying().toDisplayStringWithSymbol(3, true) || '-',
-      updated:
-        updated?.price.toUnderlying().toDisplayStringWithSymbol(3, true) || '-',
-      changeType: getChangeType(
-        current?.price.toFloat(),
-        updated?.price.toFloat()
+      vaultAddress: v.vaultAddress,
+      vaultName: v.vaultConfig.name,
+      liquidationPrices: getLiquidationPrices(
+        v.getAllLiquidationPrices() || [],
+        [],
+        baseCurrency
       ),
-      greenOnArrowUp: false,
     };
   });
+
+  return { portfolioLiquidation, vaultLiquidation };
 }
 
 export function usePortfolioLiquidationRisk(state: TradeState) {
   const { priorAccountRisk, postAccountRisk } = state;
   const onlyCurrent = !postAccountRisk;
   const intl = useIntl();
+  const baseCurrency = useFiat();
   const healthFactor = {
     label: intl.formatMessage({ defaultMessage: 'Health Factor' }),
-    current: priorAccountRisk?.healthFactor?.toFixed(3) || '-',
-    updated: postAccountRisk?.healthFactor?.toFixed(3) || '-',
+    current: priorAccountRisk?.healthFactor?.toFixed(1) || 'No Risk',
+    updated: postAccountRisk?.healthFactor?.toFixed(1) || 'No Risk',
     changeType: getChangeType(
       priorAccountRisk?.healthFactor,
       postAccountRisk?.healthFactor
@@ -600,7 +680,8 @@ export function usePortfolioLiquidationRisk(state: TradeState) {
 
   const mergedLiquidationPrices = getLiquidationPrices(
     priorAccountRisk?.liquidationPrice || [],
-    postAccountRisk?.liquidationPrice || []
+    postAccountRisk?.liquidationPrice || [],
+    baseCurrency
   );
 
   return {
@@ -617,6 +698,7 @@ export function useVaultLiquidationRisk(state: VaultTradeState) {
   const { priorAccountRisk, postAccountRisk } = state;
   const onlyCurrent = !postAccountRisk;
   const intl = useIntl();
+  const baseCurrency = useFiat();
 
   const factors = [
     {
@@ -654,7 +736,8 @@ export function useVaultLiquidationRisk(state: VaultTradeState) {
 
   const mergedLiquidationPrices = getLiquidationPrices(
     priorAccountRisk?.liquidationPrice || [],
-    postAccountRisk?.liquidationPrice || []
+    postAccountRisk?.liquidationPrice || [],
+    baseCurrency
   );
 
   return {

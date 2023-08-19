@@ -6,18 +6,25 @@ import {
   styled,
   useTheme,
 } from '@mui/material';
-import { formatNumberAsPercent } from '@notional-finance/helpers';
+import {
+  formatNumberAsPercent,
+  formatTokenType,
+} from '@notional-finance/helpers';
 import { ArrowIcon } from '@notional-finance/icons';
 import {
+  DataTable,
+  DataTableColumn,
   H4,
   Label,
   LabelValue,
   LinkText,
+  MultiValueIconCell,
   PageLoading,
   SliderRisk,
 } from '@notional-finance/mui';
 import {
   useAccountReady,
+  useCurrentLiquidationPrices,
   useFiat,
   usePortfolioRiskProfile,
 } from '@notional-finance/notionable-hooks';
@@ -75,12 +82,53 @@ const LabelAndValue = ({
   );
 };
 
-// const getPriceDistance = (current: TokenBalance, liquidation: TokenBalance) => {
-//   if (current.isZero()) return 0;
-//   return (
-//     (100 * (current.toFloat() - liquidation.toFloat())) / current.toFloat()
-//   );
-// };
+const LiquidationPriceColumns: DataTableColumn[] = [
+  {
+    Header: (
+      <FormattedMessage
+        defaultMessage="Exchange Rate"
+        description={'column header'}
+      />
+    ),
+    Cell: MultiValueIconCell,
+    accessor: 'exchangeRate',
+    textAlign: 'left',
+  },
+  {
+    Header: (
+      <FormattedMessage
+        defaultMessage="Liquidation Price"
+        description={'column header'}
+      />
+    ),
+    accessor: 'liquidationPrice',
+    textAlign: 'right',
+  },
+  {
+    Header: (
+      <FormattedMessage
+        defaultMessage="Current Price"
+        description={'column header'}
+      />
+    ),
+    accessor: 'currentPrice',
+    textAlign: 'right',
+  },
+  {
+    Header: (
+      <FormattedMessage defaultMessage="24H %" description={'column header'} />
+    ),
+    accessor: 'oneDayChange',
+    textAlign: 'right',
+  },
+  {
+    Header: (
+      <FormattedMessage defaultMessage="7D %" description={'column header'} />
+    ),
+    accessor: 'sevenDayChange',
+    textAlign: 'right',
+  },
+];
 
 export const PortfolioRisk = () => {
   const theme = useTheme();
@@ -90,58 +138,38 @@ export const PortfolioRisk = () => {
   const baseCurrency = useFiat();
   const loanToValue = profile.loanToValue();
   const healthFactor = profile.healthFactor();
-  /*
-  const liquidationPrices = profile.getAllLiquidationPrices({
-    onlyUnderlyingDebt: false,
-  });
-  const exchangeRateRisk = liquidationPrices
-    .filter(
-      ({ riskExposure, debt, collateral, price }) =>
-        riskExposure?.isCrossCurrencyRisk &&
-        debt.tokenType === 'Underlying' &&
-        collateral.tokenType === 'Underlying' &&
-        price !== null
-    )
-    .flatMap(({ collateral, debt, price }) => {
-      const collateralPrice =
-        TokenBalance.unit(collateral).toFiat(baseCurrency);
-      const collateralLiquidationPrice = price.toFiat(baseCurrency);
-      const debtPrice = TokenBalance.unit(debt).toFiat(baseCurrency);
-      const debtLiquidationPrice = price.toFiat(baseCurrency);
+  const { portfolioLiquidation } = useCurrentLiquidationPrices();
+  const exchangeRateRisk = portfolioLiquidation
+    .filter(({ isPriceRisk }) => isPriceRisk)
+    .map(({ asset, currentPrice, current }) => ({
+      exchangeRate: {
+        symbol: asset.symbol,
+        label: `${asset.symbol} / ${baseCurrency}`,
+      },
+      currentPrice: currentPrice.toDisplayStringWithSymbol(3),
+      oneDayChange: 0,
+      sevenDayChange: 0,
+      liquidationPrice: current,
+    }));
 
-      return [
-        {
-          label: `${collateral.symbol} / ${baseCurrency}`,
-          currentPrice: collateralPrice.toDisplayStringWithSymbol(3),
-          dayChange: 0,
-          weekChange: 0,
-          liquidationPrice:
-            collateralLiquidationPrice.toDisplayStringWithSymbol(3),
-          priceDistance: formatNumberAsPercent(
-            getPriceDistance(collateralPrice, collateralLiquidationPrice)
-          ),
+  const assetPriceRisk = portfolioLiquidation
+    .filter(({ isAssetRisk }) => isAssetRisk)
+    .map(({ asset, underlying, currentPrice, current }) => {
+      const { icon, titleWithMaturity } = formatTokenType(asset);
+      return {
+        exchangeRate: {
+          symbol: icon,
+          label: `${titleWithMaturity} / ${underlying.symbol}`,
         },
-        {
-          label: `${debt.symbol} / ${baseCurrency}`,
-          currentPrice: collateralPrice.toDisplayStringWithSymbol(3),
-          dayChange: 0,
-          weekChange: 0,
-          liquidationPrice: debtLiquidationPrice.toDisplayStringWithSymbol(3),
-          priceDistance: formatNumberAsPercent(
-            getPriceDistance(debtPrice, debtLiquidationPrice)
-          ),
-        },
-      ];
+        currentPrice: currentPrice.toDisplayStringWithSymbol(3),
+        oneDayChange: 0,
+        sevenDayChange: 0,
+        liquidationPrice: current,
+      };
     });
 
-  const assetPriceRisk = liquidationPrices.filter(
-    ({ riskExposure }) => !riskExposure?.isCrossCurrencyRisk
-  );
-  */
-
-  const hasLiquidationPrices = true;
-  // const hasLiquidationPrices =
-  //   exchangeRateRisk.length > 0 || assetPriceRisk.length > 0;
+  const hasLiquidationPrices =
+    exchangeRateRisk.length > 0 || assetPriceRisk.length > 0;
 
   if (!isAccountReady) return <PageLoading />;
 
@@ -221,7 +249,29 @@ export const PortfolioRisk = () => {
               msg={defineMessage({ defaultMessage: 'Liquidation Prices' })}
             />
           </LiquidationPriceExpander>
-          <LiquidationPriceTables>TEST</LiquidationPriceTables>
+          <LiquidationPriceTables>
+            {exchangeRateRisk.length > 0 && (
+              <DataTable
+                tableTitle={
+                  <FormattedMessage defaultMessage={'Exchange Rate Risk'} />
+                }
+                columns={LiquidationPriceColumns}
+                data={exchangeRateRisk}
+                sx={{
+                  marginBottom: theme.spacing(3),
+                }}
+              />
+            )}
+            {assetPriceRisk.length > 0 && (
+              <DataTable
+                tableTitle={
+                  <FormattedMessage defaultMessage={'Asset Price Risk'} />
+                }
+                columns={LiquidationPriceColumns}
+                data={assetPriceRisk}
+              />
+            )}
+          </LiquidationPriceTables>
         </Accordion>
       )}
     </Container>

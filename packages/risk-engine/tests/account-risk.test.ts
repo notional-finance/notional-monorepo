@@ -33,9 +33,9 @@ describe.withForkAndRegistry(
           { factor: 'freeCollateral', expected: [0.81, 'ETH'] },
           { factor: 'loanToValue', expected: 0 },
           { factor: 'collateralRatio', expected: null },
-          { factor: 'healthFactor', expected: 8.29 },
+          { factor: 'healthFactor', expected: null },
           {
-            factor: 'collateralLiquidationThreshold',
+            factor: 'assetLiquidationThreshold',
             args: ['ETH'],
             expected: null,
           },
@@ -70,8 +70,12 @@ describe.withForkAndRegistry(
           { factor: 'healthFactor' },
           { factor: 'leverageRatio' },
           {
-            factor: 'collateralLiquidationThreshold',
+            factor: 'assetLiquidationThreshold',
             args: ['ETH'],
+          },
+          {
+            factor: 'assetLiquidationThreshold',
+            args: ['USDC'],
           },
           {
             factor: 'liquidationPrice',
@@ -99,7 +103,7 @@ describe.withForkAndRegistry(
           { factor: 'freeCollateral', expected: [4.05, 'ETH'] },
           { factor: 'loanToValue', expected: 0 },
           { factor: 'collateralRatio', expected: null },
-          { factor: 'healthFactor', expected: 8.29 },
+          { factor: 'healthFactor', expected: null },
           {
             factor: 'maxWithdraw',
             args: ['pETH'],
@@ -121,12 +125,12 @@ describe.withForkAndRegistry(
           { factor: 'healthFactor' },
           { factor: 'leverageRatio' },
           {
-            factor: 'collateralLiquidationThreshold',
+            factor: 'assetLiquidationThreshold',
             args: ['nETH'],
             expected: null,
           },
           {
-            factor: 'collateralLiquidationThreshold',
+            factor: 'assetLiquidationThreshold',
             args: ['ETH'],
           },
           {
@@ -148,7 +152,7 @@ describe.withForkAndRegistry(
         ],
         expected: [
           {
-            factor: 'collateralLiquidationThreshold',
+            factor: 'assetLiquidationThreshold',
             args: ['nETH'],
           },
           {
@@ -163,7 +167,34 @@ describe.withForkAndRegistry(
           [16, 'fUSDC:fixed@1702944000'],
           [-15.8, 'pdUSDC'],
         ],
-        expected: [{ factor: 'freeCollateral' }, { factor: 'healthFactor' }],
+        expected: [
+          { factor: 'freeCollateral' },
+          { factor: 'healthFactor' },
+          {
+            factor: 'assetLiquidationThreshold',
+            args: ['pdUSDC'],
+            expected: null,
+          },
+          {
+            factor: 'assetLiquidationThreshold',
+            args: ['fUSDC:fixed@1702944000'],
+          },
+        ],
+      },
+      {
+        name: 'Zero Haircut Collateral',
+        balances: [
+          [-100, 'pdUSDC'],
+          [110, 'pFRAX'],
+        ],
+        expected: [
+          { factor: 'freeCollateral' },
+          {
+            factor: 'assetLiquidationThreshold',
+            args: ['FRAX'],
+            expected: null,
+          },
+        ],
       },
     ];
 
@@ -217,12 +248,12 @@ describe.withForkAndRegistry(
         limit: [0.25, 'ETH'],
       },
       {
-        riskFactor: 'collateralLiquidationThreshold',
+        riskFactor: 'assetLiquidationThreshold',
         args: ['ETH'],
         limit: [0.75, 'ETH'],
       },
       {
-        riskFactor: 'collateralLiquidationThreshold',
+        riskFactor: 'assetLiquidationThreshold',
         args: ['ETH'],
         limit: [0.85, 'ETH'],
       },
@@ -319,16 +350,10 @@ describe.withForkAndRegistry(
         TokenBalance.fromFloat(-100, FRAX),
       ]);
 
-      const prices = p.getAllLiquidationPrices({ onlyUnderlyingDebt: false });
-      const pairs = prices.map(({ collateral, debt }) => [
-        collateral.symbol,
-        debt.symbol,
-      ]);
+      const prices = p.getAllLiquidationPrices();
+      const assets = prices.map(({ asset }) => asset.symbol);
 
-      expect(pairs).toEqual([
-        ['ETH', 'USDC'],
-        ['ETH', 'FRAX'],
-      ]);
+      expect(assets).toEqual(['ETH', 'WBTC', 'USDC', 'FRAX']);
     });
 
     it('All Risk Factors', () => {

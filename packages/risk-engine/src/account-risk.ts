@@ -209,48 +209,63 @@ export class AccountRiskProfile extends BaseRiskProfile {
   }
 
   /***** RISK THRESHOLD *******/
-  collateralLiquidationThreshold(collateral: TokenDefinition) {
-    const netCollateralAvailable = this.netCollateralAvailable(collateral.id);
+  assetLiquidationThreshold(asset: TokenDefinition) {
+    const netCollateralAvailable = this.netCollateralAvailable(asset.id);
     // If there is no collateral available, then the liquidation price is null
     if (this.totalDebt().isZero()) return null;
     if (netCollateralAvailable.isZero()) return null;
+    if (
+      asset.tokenType === 'Underlying' &&
+      netCollateralAvailable.isPositive() &&
+      Registry.getConfigurationRegistry().getCurrencyHaircutAndBuffer(asset)
+        .haircut === 0
+    ) {
+      // No cross currency liquidation price if token is haircut to zero
+      return null;
+    }
 
-    const collateralDenominatedFC = this.freeCollateral().toToken(collateral);
+    const assetDenominatedFC = this.freeCollateral().toToken(asset);
+    const unitOfAsset = TokenBalance.unit(asset);
 
     // 1 - collateralDenominatedFC / netCollateralAvailable
-    const maxExchangeRateDecrease = TokenBalance.unit(collateral).sub(
-      TokenBalance.unit(collateral).scale(
-        collateralDenominatedFC,
-        netCollateralAvailable
-      )
+    // If netCollateralAvailable < 0 then the exchange rate change will be positive
+    const threshold = unitOfAsset.sub(
+      unitOfAsset.scale(assetDenominatedFC, netCollateralAvailable)
     );
 
-    if (collateral.tokenType === 'nToken') {
+    if (asset.tokenType === 'nToken') {
       const { nTokenMaxDrawdown } =
-        Registry.getConfigurationRegistry().getNTokenLeverageFactors(
-          collateral
-        );
+        Registry.getConfigurationRegistry().getNTokenLeverageFactors(asset);
 
       // This is the minimum price for an nToken
-      if (
-        maxExchangeRateDecrease.lt(
-          TokenBalance.unit(collateral).mulInRatePrecision(nTokenMaxDrawdown)
-        )
-      )
+      if (threshold.lt(unitOfAsset.mulInRatePrecision(nTokenMaxDrawdown)))
         return null;
+    } else if (asset.tokenType === 'fCash') {
+      if (netCollateralAvailable.isPositive()) {
+        const { lowestDiscountFactor } =
+          Registry.getConfigurationRegistry().getMinLendRiskAdjustedDiscountFactor(
+            asset
+          );
+
+        // This is the minimum price for positive fCash
+        if (threshold.lt(unitOfAsset.mulInRatePrecision(lowestDiscountFactor)))
+          return null;
+      } else {
+        // This is the maximum price for fCash debt
+        if (threshold.gt(unitOfAsset)) return null;
+      }
     }
 
     if (
-      (maxExchangeRateDecrease.isNegative() ||
-        maxExchangeRateDecrease.isZero()) &&
-      collateralDenominatedFC.isPositive()
+      (threshold.isNegative() || threshold.isZero()) &&
+      assetDenominatedFC.isPositive()
     ) {
       // If the max exchange rate decrease is negative then there is no possible liquidation price, this can
       // happen if aggregateFC > netUnderlying.
       return null;
     }
 
-    return maxExchangeRateDecrease;
+    return threshold;
   }
 
   borrowCapacity(currencyId: number) {
@@ -298,12 +313,7 @@ export class AccountRiskProfile extends BaseRiskProfile {
       collateralRatio: this.collateralRatio(),
       leverageRatio: this.leverageRatio(),
       healthFactor: this.healthFactor(),
-      liquidationPrice: this.getAllLiquidationPrices({
-        onlyUnderlyingDebt: false,
-      }),
-      collateralLiquidationThreshold: this.collateral.map((a) =>
-        this.collateralLiquidationThreshold(a.token)
-      ),
+      liquidationPrice: this.getAllLiquidationPrices(),
     };
   }
 
