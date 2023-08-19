@@ -258,7 +258,12 @@ export function priorAccountRisk(
       account
         ? {
             priorAccountRisk: AccountRiskProfile.from(
-              account.balances
+              account.balances.filter(
+                (t) =>
+                  t.tokenType !== 'Underlying' &&
+                  t.tokenType !== 'NOTE' &&
+                  !t.isVaultToken
+              )
             ).getAllRiskFactors(),
           }
         : undefined

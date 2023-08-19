@@ -30,6 +30,7 @@ export const FeatureLoader = ({
             alignItems: 'center',
             justifyContent: 'center',
           }}
+          type="notional"
         />
       )}
     </Box>
