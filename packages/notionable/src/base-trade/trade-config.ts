@@ -112,10 +112,11 @@ export const TradeConfiguration = {
    */
   LendVariable: {
     calculationFn: calculateCollateral,
-    requiredArgs: ['collateral', 'depositBalance'],
+    requiredArgs: ['collateral', 'depositBalance', 'collateralPool'],
     collateralFilter: (t, _, s) =>
       t.tokenType === 'PrimeCash' && onlySameCurrency(t, s.deposit),
     debtFilter: () => false,
+    calculateCollateralOptions: true,
     transactionBuilder: LendVariable,
   } as TransactionConfig,
   /**
@@ -156,10 +157,11 @@ export const TradeConfiguration = {
    */
   BorrowVariable: {
     calculationFn: calculateDebt,
-    requiredArgs: ['debt', 'depositBalance'],
+    requiredArgs: ['debt', 'depositBalance', 'debtPool'],
     debtFilter: (t, _, s) =>
       t.tokenType === 'PrimeDebt' && onlySameCurrency(t, s.deposit),
     collateralFilter: () => false,
+    calculateDebtOptions: true,
     transactionBuilder: BorrowVariable,
   } as TransactionConfig,
 
