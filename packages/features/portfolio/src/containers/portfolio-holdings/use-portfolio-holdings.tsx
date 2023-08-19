@@ -134,8 +134,8 @@ export function usePortfolioHoldings() {
               },
               {
                 label: <FormattedMessage defaultMessage={'Current Price'} />,
-                value: `${TokenBalance.unit(b.underlying)
-                  .toToken(b.token)
+                value: `${TokenBalance.unit(b.token)
+                  .toUnderlying()
                   .toDisplayString(3)} ${b.underlying.symbol}`,
               },
             ],
