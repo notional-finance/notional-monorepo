@@ -16,7 +16,6 @@ import {
   zipByKeyToArray,
 } from '@notional-finance/util';
 import {
-  catchError,
   combineLatest,
   distinctUntilChanged,
   EMPTY,
@@ -281,33 +280,41 @@ export function postAccountRisk(
       ([, p], [, c]) =>
         p.calculationSuccess === c.calculationSuccess &&
         p.collateralBalance?.hashKey === c.collateralBalance?.hashKey &&
-        p.debtBalance?.hashKey === c.debtBalance?.hashKey
+        p.debtBalance?.hashKey === c.debtBalance?.hashKey &&
+        p.inputErrors === c.inputErrors
     ),
-    map(([account, { calculationSuccess, collateralBalance, debtBalance }]) => {
-      if (calculationSuccess && (collateralBalance || debtBalance)) {
-        const profile = AccountRiskProfile.simulate(
-          account?.balances.filter((t) => t.tokenType !== 'Underlying') || [],
-          [collateralBalance, debtBalance].filter(
-            (b) => b !== undefined
-          ) as TokenBalance[]
-        );
-        const postAccountRisk = profile.getAllRiskFactors();
+    map(
+      ([
+        account,
+        { calculationSuccess, collateralBalance, debtBalance, inputErrors },
+      ]) => {
+        if (calculationSuccess && (collateralBalance || debtBalance)) {
+          const profile = AccountRiskProfile.simulate(
+            account?.balances.filter((t) => t.tokenType !== 'Underlying') || [],
+            [collateralBalance, debtBalance].filter(
+              (b) => b !== undefined
+            ) as TokenBalance[]
+          );
+          const postAccountRisk = profile.getAllRiskFactors();
 
-        return {
-          postAccountRisk: postAccountRisk,
-          canSubmit: postAccountRisk.freeCollateral.isPositive(),
-          postTradeBalances: profile.balances,
-        };
-      } else if (!calculationSuccess) {
-        return {
-          postAccountRisk: undefined,
-          canSubmit: false,
-          postTradeBalances: undefined,
-        };
+          return {
+            postAccountRisk: postAccountRisk,
+            canSubmit:
+              postAccountRisk.freeCollateral.isPositive() &&
+              inputErrors === false,
+            postTradeBalances: profile.balances,
+          };
+        } else if (!calculationSuccess) {
+          return {
+            postAccountRisk: undefined,
+            canSubmit: false,
+            postTradeBalances: undefined,
+          };
+        }
+
+        return undefined;
       }
-
-      return undefined;
-    }),
+    ),
     filterEmpty()
   );
 }
@@ -377,7 +384,8 @@ export function postVaultAccountRisk(
       ([, p], [, c]) =>
         p.calculationSuccess === c.calculationSuccess &&
         p.collateralBalance?.hashKey === c.collateralBalance?.hashKey &&
-        p.debtBalance?.hashKey === c.debtBalance?.hashKey
+        p.debtBalance?.hashKey === c.debtBalance?.hashKey &&
+        p.inputErrors === c.inputErrors
     ),
     map(
       ([
@@ -388,6 +396,7 @@ export function postVaultAccountRisk(
           debtBalance,
           vaultAddress,
           tradeType,
+          inputErrors,
         },
       ]) => {
         if (calculationSuccess && vaultAddress && collateralBalance) {
@@ -410,7 +419,8 @@ export function postVaultAccountRisk(
             canSubmit:
               (postAccountRisk.leverageRatio === null ||
                 postAccountRisk.leverageRatio < profile.maxLeverageRatio) &&
-              account !== null,
+              account !== null &&
+              inputErrors === false,
             postTradeBalances: profile.balances,
           };
         } else if (!calculationSuccess) {
@@ -438,26 +448,25 @@ export function buildTransaction(
       if (a && s.confirm && s.populatedTransaction === undefined) {
         const config = getTradeConfig(s.tradeType);
         return from(
-          config.transactionBuilder({
-            ...s,
-            accountBalances: a.balances || [],
-            address: a.address,
-            network: a.network,
-          })
-        ).pipe(
-          map((p) => ({
-            populatedTransaction: p,
-            transactionError: undefined,
-          })),
-          // NOTE: this does not always catch errors...
-          catchError((e) => {
-            logError(e, 'base-trade#logic', 'buildTransaction', s);
-            return of({
-              populatedTransaction: undefined,
-              transactionError: e.toString(),
-              confirm: false,
-            });
-          })
+          config
+            .transactionBuilder({
+              ...s,
+              accountBalances: a.balances || [],
+              address: a.address,
+              network: a.network,
+            })
+            .then((p) => ({
+              populatedTransaction: p,
+              transactionError: undefined as string | undefined,
+            }))
+            .catch((e) => {
+              logError(e, 'base-trade#logic', 'buildTransaction', s);
+              return {
+                populatedTransaction: undefined,
+                transactionError: e.toString() as string,
+                confirm: false,
+              };
+            })
         );
       } else if (s.confirm === false && !!s.populatedTransaction) {
         // Clear the populated transaction if confirmation is cancelled
@@ -479,11 +488,11 @@ export function simulateTransaction(
   selectedNetwork$: ReturnType<typeof selectedNetwork>
 ) {
   return combineLatest([state$, account$]).pipe(
-    filter(([state]) => !!state.populatedTransaction && !IS_TEST_ENV),
     distinctUntilChanged(
       ([p], [c]) =>
         p.populatedTransaction?.data === c.populatedTransaction?.data
     ),
+    filter(([state]) => !!state.populatedTransaction && !IS_TEST_ENV),
     withLatestFrom(selectedNetwork$),
     switchMap(([[s, a], network]) => {
       const { populatedTransaction, postTradeBalances, vaultAddress } = s;

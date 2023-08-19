@@ -73,6 +73,12 @@ export const DepositInput = React.forwardRef<
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [updateState, inputAmount?.hashKey]);
 
+    useEffect(() => {
+      updateState({
+        inputErrors: !!errorMsg || !!errorMsgOverride,
+      });
+    }, [updateState, errorMsg, errorMsgOverride]);
+
     if (!availableDepositTokens || !selectedDepositToken)
       return <PageLoading />;
 
