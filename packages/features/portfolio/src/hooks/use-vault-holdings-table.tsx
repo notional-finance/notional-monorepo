@@ -13,6 +13,7 @@ import {
   formatLeverageRatio,
   formatMaturity,
   formatNumberAsPercent,
+  formatTokenType,
 } from '@notional-finance/helpers';
 import { FormattedMessage } from 'react-intl';
 import {
@@ -141,12 +142,10 @@ export const useVaultHoldingsTable = () => {
     const assetPnL = balanceStatements?.find(
       (b) => b.token.id === v.vaultShares.tokenId
     );
+    const denom = v.denom(v.defaultSymbol);
     const profit = (
-      assetPnL?.totalProfitAndLoss ||
-      TokenBalance.zero(v.denom(v.defaultSymbol))
-    ).sub(
-      debtPnL?.totalProfitAndLoss || TokenBalance.zero(v.denom(v.defaultSymbol))
-    );
+      assetPnL?.totalProfitAndLoss || TokenBalance.zero(denom)
+    ).sub(debtPnL?.totalProfitAndLoss || TokenBalance.zero(denom));
     // TODO: need to fill out the APY calculation
     const totalAPY = 0;
     const strategyAPY = 0;
@@ -161,7 +160,7 @@ export const useVaultHoldingsTable = () => {
 
     return {
       strategy: {
-        symbol: v.defaultSymbol,
+        symbol: formatTokenType(denom).icon,
         label: config.name,
         caption:
           v.maturity === PRIME_CASH_VAULT_MATURITY

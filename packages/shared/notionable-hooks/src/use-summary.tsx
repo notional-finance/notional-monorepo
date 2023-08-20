@@ -716,8 +716,8 @@ export function useVaultLiquidationRisk(state: VaultTradeState) {
       current: priorAccountRisk?.debts.toDisplayStringWithSymbol(3, true),
       updated: postAccountRisk?.debts.toDisplayStringWithSymbol(3, true),
       changeType: getChangeType(
-        priorAccountRisk?.assets.toFloat(),
-        postAccountRisk?.assets.toFloat()
+        priorAccountRisk?.debts.toFloat(),
+        postAccountRisk?.debts.toFloat()
       ),
       greenOnArrowUp: true,
     },
@@ -738,7 +738,7 @@ export function useVaultLiquidationRisk(state: VaultTradeState) {
     priorAccountRisk?.liquidationPrice || [],
     postAccountRisk?.liquidationPrice || [],
     baseCurrency
-  );
+  ).filter((p) => p.isPriceRisk);
 
   return {
     onlyCurrent,

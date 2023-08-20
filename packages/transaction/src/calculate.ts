@@ -586,15 +586,29 @@ export function calculateVaultRoll({
   if (!debt.vaultAddress) throw Error('Vault Debt not defined');
   const tokens = Registry.getTokenRegistry();
 
-  const { localPrime: costToRepay, fees: currentDebtFee } =
-    exchangeToLocalPrime(
-      currentDebt.unwrapVaultToken().neg(),
-      Registry.getExchangeRegistry().getfCashMarket(
+  // eslint-disable-next-line prefer-const
+  let { localPrime: costToRepay, fees: currentDebtFee } = exchangeToLocalPrime(
+    currentDebt.unwrapVaultToken().neg(),
+    Registry.getExchangeRegistry().getfCashMarket(
+      currentDebt.network,
+      currentDebt.currencyId
+    ),
+    tokens.getPrimeCash(currentDebt.network, currentDebt.currencyId)
+  );
+
+  if (currentDebt.maturity === PRIME_CASH_VAULT_MATURITY) {
+    // If the current debt is in prime cash there are rounding errors associated
+    // with the cost to repay since the value we have here does not reflect any accrued
+    // interest. TODO: it's not clear why we have to set the scale factor so high here.
+    const annualizedFeeRate =
+      Registry.getConfigurationRegistry().getVaultConfig(
         currentDebt.network,
-        currentDebt.currencyId
-      ),
-      tokens.getPrimeCash(currentDebt.network, currentDebt.currencyId)
-    );
+        currentDebt.vaultAddress
+      ).feeRateBasisPoints;
+    const scaleFactor = RATE_PRECISION + annualizedFeeRate;
+
+    costToRepay = costToRepay.mulInRatePrecision(scaleFactor);
+  }
 
   const netCostToRepay = costToRepay.sub(depositBalance.toPrimeCash());
   if (debt.maturity === PRIME_CASH_VAULT_MATURITY) {

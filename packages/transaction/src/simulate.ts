@@ -142,9 +142,10 @@ export async function simulatePopulatedTxn(
         {
           from: populateTxn.from,
           to: populateTxn.to,
-          value: populateTxn.value
-            ? stripHexLeadingZero(populateTxn.value)
-            : '0x0',
+          value:
+            populateTxn.value && !populateTxn.value.isZero()
+              ? stripHexLeadingZero(populateTxn.value)
+              : '0x0',
           data: populateTxn.data,
         },
       ]

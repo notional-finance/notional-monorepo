@@ -49,7 +49,7 @@ export const VaultDetailsTable = ({
   hideUpdatedColumn,
 }: VaultDetailsTableProps) => {
   const theme = useTheme();
-  const { tableData, maturity, tooRisky } = useVaultDetailsTable();
+  const { tableData, maturity, tooRisky, onlyCurrent } = useVaultDetailsTable();
 
   return (
     <Box>
@@ -70,7 +70,11 @@ export const VaultDetailsTable = ({
             : theme.shape.borderStandard,
         }}
         data={tableData}
-        columns={hideUpdatedColumn ? TABLE_COLUMNS.slice(0, 2) : TABLE_COLUMNS}
+        columns={
+          hideUpdatedColumn || onlyCurrent
+            ? TABLE_COLUMNS.slice(0, 2)
+            : TABLE_COLUMNS
+        }
         stateZeroMessage={
           <FormattedMessage defaultMessage="Input parameters to see your vault details." />
         }

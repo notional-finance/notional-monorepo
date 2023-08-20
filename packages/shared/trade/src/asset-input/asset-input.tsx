@@ -123,6 +123,12 @@ export const AssetInput = React.forwardRef<
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [updateBalances, inputAmount?.hashKey, computedBalance?.hashKey]);
 
+    useEffect(() => {
+      updateState({
+        inputErrors: !!errorMsg || !!errorMsgOverride,
+      });
+    }, [updateState, errorMsg, errorMsgOverride]);
+
     const onInputChange = useCallback(
       (input: string) => {
         setInputString(input);
