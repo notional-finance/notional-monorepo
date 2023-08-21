@@ -44,7 +44,7 @@ export function createTradeManager(
     defaultLeverageRatio(state$, network$),
     // NOTE: this is required to read URL based inputs for deposits
     selectedToken(state$, network$),
-    priorAccountRisk(state$, account$),
+    priorAccountRisk(state$, account$, network$),
     availableTokens(state$, network$, account$),
     initState(state$, network$, global$),
     resetOnNetworkChange(global$, state$),
