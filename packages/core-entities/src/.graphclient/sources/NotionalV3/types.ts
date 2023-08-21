@@ -359,6 +359,8 @@ export type BalanceSnapshot = {
   balance: Balance;
   /** Current balance of the token at this block */
   currentBalance: Scalars['BigInt'];
+  /** Balance before this snapshot */
+  previousBalance: Scalars['BigInt'];
   /** Adjusted cost basis at this snapshot for the token */
   adjustedCostBasis: Scalars['BigInt'];
   /** Current profit and loss at the snapshot */
@@ -464,6 +466,14 @@ export type BalanceSnapshot_filter = {
   currentBalance_lte?: InputMaybe<Scalars['BigInt']>;
   currentBalance_in?: InputMaybe<Array<Scalars['BigInt']>>;
   currentBalance_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  previousBalance?: InputMaybe<Scalars['BigInt']>;
+  previousBalance_not?: InputMaybe<Scalars['BigInt']>;
+  previousBalance_gt?: InputMaybe<Scalars['BigInt']>;
+  previousBalance_lt?: InputMaybe<Scalars['BigInt']>;
+  previousBalance_gte?: InputMaybe<Scalars['BigInt']>;
+  previousBalance_lte?: InputMaybe<Scalars['BigInt']>;
+  previousBalance_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  previousBalance_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   adjustedCostBasis?: InputMaybe<Scalars['BigInt']>;
   adjustedCostBasis_not?: InputMaybe<Scalars['BigInt']>;
   adjustedCostBasis_gt?: InputMaybe<Scalars['BigInt']>;
@@ -562,6 +572,7 @@ export type BalanceSnapshot_orderBy =
   | 'balance__lastUpdateTimestamp'
   | 'balance__lastUpdateTransactionHash'
   | 'currentBalance'
+  | 'previousBalance'
   | 'adjustedCostBasis'
   | 'currentProfitAndLossAtSnapshot'
   | 'totalProfitAndLossAtSnapshot'
@@ -747,6 +758,7 @@ export type Balance_orderBy =
   | 'current__blockNumber'
   | 'current__timestamp'
   | 'current__currentBalance'
+  | 'current__previousBalance'
   | 'current__adjustedCostBasis'
   | 'current__currentProfitAndLossAtSnapshot'
   | 'current__totalProfitAndLossAtSnapshot'
@@ -2608,6 +2620,8 @@ export type ProfitLossLineItem = {
   realizedPrice: Scalars['BigInt'];
   spotPrice: Scalars['BigInt'];
   impliedFixedRate?: Maybe<Scalars['BigInt']>;
+  /** Set to true for line items that do not materially change the balance at the end of the txn */
+  isTransientLineItem: Scalars['Boolean'];
 };
 
 export type ProfitLossLineItem_filter = {
@@ -2809,6 +2823,10 @@ export type ProfitLossLineItem_filter = {
   impliedFixedRate_lte?: InputMaybe<Scalars['BigInt']>;
   impliedFixedRate_in?: InputMaybe<Array<Scalars['BigInt']>>;
   impliedFixedRate_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  isTransientLineItem?: InputMaybe<Scalars['Boolean']>;
+  isTransientLineItem_not?: InputMaybe<Scalars['Boolean']>;
+  isTransientLineItem_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  isTransientLineItem_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<ProfitLossLineItem_filter>>>;
@@ -2837,6 +2855,7 @@ export type ProfitLossLineItem_orderBy =
   | 'balanceSnapshot__blockNumber'
   | 'balanceSnapshot__timestamp'
   | 'balanceSnapshot__currentBalance'
+  | 'balanceSnapshot__previousBalance'
   | 'balanceSnapshot__adjustedCostBasis'
   | 'balanceSnapshot__currentProfitAndLossAtSnapshot'
   | 'balanceSnapshot__totalProfitAndLossAtSnapshot'
@@ -2902,7 +2921,8 @@ export type ProfitLossLineItem_orderBy =
   | 'underlyingToken__tokenAddress'
   | 'realizedPrice'
   | 'spotPrice'
-  | 'impliedFixedRate';
+  | 'impliedFixedRate'
+  | 'isTransientLineItem';
 
 export type Query = {
   token?: Maybe<Token>;

@@ -297,6 +297,8 @@ type BalanceSnapshot {
   balance: Balance!
   """Current balance of the token at this block"""
   currentBalance: BigInt!
+  """Balance before this snapshot"""
+  previousBalance: BigInt!
   """Adjusted cost basis at this snapshot for the token"""
   adjustedCostBasis: BigInt!
   """Current profit and loss at the snapshot"""
@@ -395,6 +397,14 @@ input BalanceSnapshot_filter {
   currentBalance_lte: BigInt
   currentBalance_in: [BigInt!]
   currentBalance_not_in: [BigInt!]
+  previousBalance: BigInt
+  previousBalance_not: BigInt
+  previousBalance_gt: BigInt
+  previousBalance_lt: BigInt
+  previousBalance_gte: BigInt
+  previousBalance_lte: BigInt
+  previousBalance_in: [BigInt!]
+  previousBalance_not_in: [BigInt!]
   adjustedCostBasis: BigInt
   adjustedCostBasis_not: BigInt
   adjustedCostBasis_gt: BigInt
@@ -493,6 +503,7 @@ enum BalanceSnapshot_orderBy {
   balance__lastUpdateTimestamp
   balance__lastUpdateTransactionHash
   currentBalance
+  previousBalance
   adjustedCostBasis
   currentProfitAndLossAtSnapshot
   totalProfitAndLossAtSnapshot
@@ -679,6 +690,7 @@ enum Balance_orderBy {
   current__blockNumber
   current__timestamp
   current__currentBalance
+  current__previousBalance
   current__adjustedCostBasis
   current__currentProfitAndLossAtSnapshot
   current__totalProfitAndLossAtSnapshot
@@ -2514,6 +2526,10 @@ type ProfitLossLineItem {
   realizedPrice: BigInt!
   spotPrice: BigInt!
   impliedFixedRate: BigInt
+  """
+  Set to true for line items that do not materially change the balance at the end of the txn
+  """
+  isTransientLineItem: Boolean!
 }
 
 input ProfitLossLineItem_filter {
@@ -2715,6 +2731,10 @@ input ProfitLossLineItem_filter {
   impliedFixedRate_lte: BigInt
   impliedFixedRate_in: [BigInt!]
   impliedFixedRate_not_in: [BigInt!]
+  isTransientLineItem: Boolean
+  isTransientLineItem_not: Boolean
+  isTransientLineItem_in: [Boolean!]
+  isTransientLineItem_not_in: [Boolean!]
   """Filter for the block changed event."""
   _change_block: BlockChangedFilter
   and: [ProfitLossLineItem_filter]
@@ -2743,6 +2763,7 @@ enum ProfitLossLineItem_orderBy {
   balanceSnapshot__blockNumber
   balanceSnapshot__timestamp
   balanceSnapshot__currentBalance
+  balanceSnapshot__previousBalance
   balanceSnapshot__adjustedCostBasis
   balanceSnapshot__currentProfitAndLossAtSnapshot
   balanceSnapshot__totalProfitAndLossAtSnapshot
@@ -2809,6 +2830,7 @@ enum ProfitLossLineItem_orderBy {
   realizedPrice
   spotPrice
   impliedFixedRate
+  isTransientLineItem
 }
 
 type Query {
