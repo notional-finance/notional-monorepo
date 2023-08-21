@@ -17,7 +17,7 @@ import {
   Strategy,
   ProtocolName,
 } from '../types';
-import { graphQueries } from './graphQueries';
+import { graphQueries } from './../graphQueries';
 
 const nTokenDailyFeesTransform = (r) => {
   if (r.transfers.length === 0) return 0;

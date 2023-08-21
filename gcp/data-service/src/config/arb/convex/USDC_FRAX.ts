@@ -12,7 +12,7 @@ import {
   CurvePoolTokenABI,
   CurvePoolV1ABI,
 } from '@notional-finance/contracts';
-import { graphQueries } from '../../graphQueries';
+import { graphQueries } from '../../../graphQueries';
 
 export const configDefs: ConfigDefinition[] = [
   {

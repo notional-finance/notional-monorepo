@@ -23,7 +23,7 @@ import {
   VaultAccount,
 } from './types';
 import { aggregate } from '@notional-finance/multicall';
-import { ApolloClient, InMemoryCache } from '@apollo/client';
+import { ApolloClient, HttpLink, InMemoryCache } from '@apollo/client';
 
 // TODO: fetch from DB
 const networkToId = {
@@ -239,7 +239,10 @@ export default class DataService {
     const results = await Promise.all(
       operations.map((op) => {
         const client = new ApolloClient({
-          uri: op.endpoint,
+          link: new HttpLink({
+            uri: op.endpoint,
+            fetch,
+          }),
           cache: new InMemoryCache(),
         });
 

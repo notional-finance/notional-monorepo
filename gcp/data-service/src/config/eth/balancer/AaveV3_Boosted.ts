@@ -12,7 +12,7 @@ import {
   ProtocolName,
   Strategy,
 } from '../../../types';
-import { graphQueries } from '../../graphQueries';
+import { graphQueries } from '../../../graphQueries';
 
 export const configDefs: ConfigDefinition[] = [
   {
