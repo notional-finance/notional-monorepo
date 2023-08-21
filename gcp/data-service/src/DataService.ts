@@ -40,6 +40,7 @@ export type DataServiceSettings = {
   startingBlock: number;
   registryUrl: string;
   mergeConflicts: boolean;
+  backfillDelayMs: number;
 };
 
 export default class DataService {
@@ -113,12 +114,21 @@ export default class DataService {
     console.log(
       `backfilling from ${startTime} to ${endTime}, ${timestamps.length} timestamps`
     );
-    if (type === BackfillType.GenericData) {
-      await Promise.all(timestamps.map((ts) => this.syncGenericData(ts)));
-    } else if (type === BackfillType.OracleData) {
-      await Promise.all(timestamps.map((ts) => this.syncOracleData(ts)));
-    } else {
-      throw Error(`Invalid backfill type ${type}`);
+    for (let i = 0; i < timestamps.length; i++) {
+      const ts = timestamps[i];
+      console.log(`backfilling ${ts}`);
+      try {
+        if (type === BackfillType.GenericData) {
+          await this.syncGenericData(ts);
+        } else if (type === BackfillType.OracleData) {
+          await this.syncOracleData(ts);
+        } else {
+          throw Error(`Invalid backfill type ${type}`);
+        }
+      } catch (e: any) {
+        console.error(`Failed to backfill ${ts}, ${e.toString()}`);
+      }
+      await new Promise((r) => setTimeout(r, this.settings.backfillDelayMs));
     }
   }
 

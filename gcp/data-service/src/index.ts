@@ -29,13 +29,20 @@ const createUnixSocketPool = () => {
 };
 
 const parseQueryParams = (q) => {
-  let startTime = Date.now() / 1000;
+  const now = Date.now() / 1000;
+  let startTime = now;
   if (q.startTime) {
     startTime = parseInt(q.startTime as string);
+    if (startTime > now) {
+      startTime = now;
+    }
   }
   let endTime = Date.now() / 1000;
   if (q.endTime) {
     endTime = parseInt(q.endTime as string);
+    if (endTime > now) {
+      endTime = now;
+    }
   }
   if (endTime < startTime) {
     throw Error('endTime must be greater than startTime');
@@ -73,6 +80,7 @@ async function main() {
     startingBlock: 86540848, // Oldest block in the subgraph
     registryUrl: process.env.REGISTRY_BASE_URL,
     mergeConflicts: JSON.parse(process.env.MERGE_CONFLICTS || 'false'),
+    backfillDelayMs: 5000,
   });
 
   app.use(express.json());
