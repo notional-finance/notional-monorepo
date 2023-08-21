@@ -122,14 +122,12 @@ export class Registry {
 
     // Only start the yield registry refresh after all the other refreshes begin
     Registry.onNetworkReady(network, () => {
-      console.log(`Start analytics refresh`);
       Registry.getAnalyticsRegistry().startRefreshInterval(
         network,
         Registry.DEFAULT_ANALYTICS_REFRESH
       );
 
       Registry.getAnalyticsRegistry().onNetworkRegistered(network, () => {
-        console.log(`Start yield refresh`);
         Registry.getYieldRegistry().startRefreshInterval(
           network,
           Registry.DEFAULT_YIELD_REFRESH

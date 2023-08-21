@@ -38,6 +38,19 @@ export default {
     return stub.fetch(request);
   },
   async scheduled(_: ScheduledController, env: Env): Promise<void> {
+    await Promise.all(
+      this.env.SUPPORTED_NETWORKS.map((network) =>
+        fetch(
+          `${env.DATA_SERVICE_URL}/backfillGenericData?network=${network}`,
+          {
+            headers: {
+              'x-auth-token': this.env.DATA_SERVICE_AUTH_TOKEN,
+            },
+          }
+        )
+      )
+    );
+
     // Run a healthcheck against all of the durable objects.
     await Promise.all([runHealthCheck(env.YIELD_REGISTRY_DO, env.VERSION)]);
   },
