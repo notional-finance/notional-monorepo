@@ -12,7 +12,7 @@ new_classes = ["ViewsDO"]
 
 [[migrations]]
 tag = "v2"
-new_classes = ["ViewsDO"]
+new_classes = ["YieldRegistryDO"]
 
 [env.dev]
 name = "data-dev"
