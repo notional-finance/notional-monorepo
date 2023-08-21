@@ -6933,7 +6933,7 @@ export type AccountTransactionHistoryQueryVariables = Exact<{
 export type AccountTransactionHistoryQuery = { account?: Maybe<(
     Pick<Account, 'id'>
     & { profitLossLineItems?: Maybe<Array<(
-      Pick<ProfitLossLineItem, 'timestamp' | 'blockNumber' | 'tokenAmount' | 'underlyingAmountRealized' | 'underlyingAmountSpot' | 'realizedPrice' | 'spotPrice' | 'impliedFixedRate'>
+      Pick<ProfitLossLineItem, 'timestamp' | 'blockNumber' | 'tokenAmount' | 'underlyingAmountRealized' | 'underlyingAmountSpot' | 'realizedPrice' | 'spotPrice' | 'impliedFixedRate' | 'isTransientLineItem'>
       & { transactionHash: Pick<Transaction, 'id'>, token: Pick<Token, 'id'>, underlyingToken: Pick<Token, 'id'>, bundle: Pick<TransferBundle, 'bundleName'> }
     )>> }
   )> };
@@ -7054,12 +7054,7 @@ export const AccountTransactionHistoryDocument = gql`
     query AccountTransactionHistory($accountId: ID!) {
   account(id: $accountId) {
     id
-    profitLossLineItems(
-      where: {isTransientLineItem: false}
-      first: 1000
-      orderBy: blockNumber
-      orderDirection: desc
-    ) {
+    profitLossLineItems(first: 1000, orderBy: blockNumber, orderDirection: desc) {
       timestamp
       blockNumber
       transactionHash {
@@ -7080,6 +7075,7 @@ export const AccountTransactionHistoryDocument = gql`
       realizedPrice
       spotPrice
       impliedFixedRate
+      isTransientLineItem
     }
   }
 }

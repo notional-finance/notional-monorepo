@@ -552,6 +552,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
                 impliedFixedRate: p.impliedFixedRate
                   ? (p.impliedFixedRate * 100) / RATE_PRECISION
                   : undefined,
+                isTransientLineItem: p.isTransientLineItem,
               };
             }) || [],
         };

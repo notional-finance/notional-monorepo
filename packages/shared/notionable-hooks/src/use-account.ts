@@ -89,24 +89,7 @@ export function useVaultRiskProfile(vaultAddress?: string) {
 
 export function useVaultRiskProfiles() {
   const { account } = useAccountDefinition();
-  // Groups vault positions per vault address
-  const vaultPositions = account?.balances
-    .filter((b) => b.isVaultToken)
-    .reduce((vaults, b) => {
-      const t = vaults.get(b.vaultAddress) || [];
-      t.push(b);
-      vaults.set(b.vaultAddress, t);
-      return vaults;
-    }, new Map<string, TokenBalance[]>());
-
-  const vaultRiskProfiles: VaultAccountRiskProfile[] = [];
-  vaultPositions?.forEach((balances, vaultAddress) => {
-    vaultRiskProfiles.push(
-      VaultAccountRiskProfile.from(vaultAddress, balances)
-    );
-  });
-
-  return vaultRiskProfiles;
+  return VaultAccountRiskProfile.getAllRiskProfiles(account?.balances || []);
 }
 
 export function usePortfolioRiskProfile() {
