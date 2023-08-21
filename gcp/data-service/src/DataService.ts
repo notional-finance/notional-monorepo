@@ -110,6 +110,9 @@ export default class DataService {
     type: BackfillType
   ) {
     const timestamps = this.getTimestamps(startTime, endTime);
+    console.log(
+      `backfilling from ${startTime} to ${endTime}, ${timestamps.length} timestamps`
+    );
     if (type === BackfillType.GenericData) {
       await Promise.all(timestamps.map((ts) => this.syncGenericData(ts)));
     } else if (type === BackfillType.OracleData) {

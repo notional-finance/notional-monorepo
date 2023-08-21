@@ -5,6 +5,7 @@ import {
 } from '@cloudflare/workers-types';
 import { RegistryDOEnv } from '@notional-finance/durable-objects';
 import { Routes } from '@notional-finance/core-entities/src/server';
+import { ONE_HOUR_MS } from '@notional-finance/util';
 
 export interface Env extends RegistryDOEnv {
   VIEWS_DO: DurableObjectNamespace;
@@ -38,10 +39,12 @@ export default {
     return stub.fetch(request);
   },
   async scheduled(_: ScheduledController, env: Env): Promise<void> {
+    const endTime = Date.now() / 1000;
+    const startTime = endTime - ONE_HOUR_MS / 1000;
     await Promise.all(
       this.env.SUPPORTED_NETWORKS.map((network) =>
         fetch(
-          `${env.DATA_SERVICE_URL}/backfillGenericData?network=${network}`,
+          `${env.DATA_SERVICE_URL}/backfillGenericData?startTime=${startTime}&endTime=${endTime}&network=${network}`,
           {
             headers: {
               'x-auth-token': this.env.DATA_SERVICE_AUTH_TOKEN,

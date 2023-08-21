@@ -29,7 +29,10 @@ const createUnixSocketPool = () => {
 };
 
 const parseQueryParams = (q) => {
-  const startTime = parseInt((q.startTime as string) || '0');
+  let startTime = Date.now() / 1000;
+  if (q.startTime) {
+    startTime = parseInt(q.startTime as string);
+  }
   let endTime = Date.now() / 1000;
   if (q.endTime) {
     endTime = parseInt(q.endTime as string);
