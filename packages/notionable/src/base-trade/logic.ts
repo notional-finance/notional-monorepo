@@ -249,20 +249,23 @@ export function availableTokens(
 
 export function priorAccountRisk(
   state$: Observable<TradeState>,
-  account$: Observable<AccountDefinition | null>
+  account$: Observable<AccountDefinition | null>,
+  network$: ReturnType<typeof selectedNetwork>
 ) {
   return combineLatest([state$, account$]).pipe(
     filter(([s, account]) => !!account && s.priorAccountRisk === undefined),
-    map(([, account]) =>
+    withLatestFrom(network$),
+    map(([[, account], network]) =>
       account
         ? {
-            priorAccountRisk: AccountRiskProfile.from(
+            priorAccountRisk: new AccountRiskProfile(
               account.balances.filter(
                 (t) =>
                   t.tokenType !== 'Underlying' &&
                   t.tokenType !== 'NOTE' &&
                   !t.isVaultToken
-              )
+              ),
+              network
             ).getAllRiskFactors(),
           }
         : undefined
