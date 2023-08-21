@@ -17,7 +17,7 @@ new_classes = ["ViewsDO"]
 [env.dev]
 name = "data-dev"
 durable_objects.bindings = [
-  { name = "VIEWS_DO", class_name = "ViewsDO" }
+  { name = "VIEWS_DO", class_name = "ViewsDO" },
   { name = "YIELD_REGISTRY_DO", class_name = "YieldRegistryDO" },
 ]
 
