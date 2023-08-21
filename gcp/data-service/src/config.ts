@@ -13,8 +13,6 @@ import {
   ProtocolName,
 } from './types';
 import { GenericDataWriter, TokenBalanceDataWriter } from './DataWriter';
-import { readFileSync } from 'fs';
-import { join } from 'path';
 import { gql } from '@apollo/client';
 import { configDefs as GenericConfig } from './config/GenericConfig';
 import { configDefs as Eth_Balancer_WETH_wstETH_Config } from './config/eth/balancer/WETH_wstETH';
@@ -168,13 +166,9 @@ export function buildOperations(
       if (!endpoint) {
         throw Error(`subgraph ${endpoint} not found`);
       }
-      const query = readFileSync(
-        join(__dirname, '../queries', configData.query),
-        'utf-8'
-      );
       operations.push({
         configDef: cfg,
-        subgraphQuery: gql(query),
+        subgraphQuery: gql(configData.query),
         endpoint: endpoint,
       });
     } else {

@@ -17,6 +17,7 @@ import {
   Strategy,
   ProtocolName,
 } from '../types';
+import { graphQueries } from './graphQueries';
 
 const nTokenDailyFeesTransform = (r) => {
   if (r.transfers.length === 0) return 0;
@@ -529,7 +530,7 @@ export const configDefs: ConfigDefinition[] = [
     sourceType: SourceType.Subgraph,
     sourceConfig: {
       protocol: ProtocolName.NotionalV3,
-      query: 'NotionalV3nTokenDailyFees.graphql',
+      query: graphQueries.NotionalV3nTokenDailyFees,
       args: {
         currencyId: 1,
       },
@@ -547,7 +548,7 @@ export const configDefs: ConfigDefinition[] = [
     sourceType: SourceType.Subgraph,
     sourceConfig: {
       protocol: ProtocolName.NotionalV3,
-      query: 'NotionalV3nTokenDailyFees.graphql',
+      query: graphQueries.NotionalV3nTokenDailyFees,
       args: {
         currencyId: 2,
       },
@@ -565,7 +566,7 @@ export const configDefs: ConfigDefinition[] = [
     sourceType: SourceType.Subgraph,
     sourceConfig: {
       protocol: ProtocolName.NotionalV3,
-      query: 'NotionalV3nTokenDailyFees.graphql',
+      query: graphQueries.NotionalV3nTokenDailyFees,
       args: {
         currencyId: 3,
       },
@@ -583,7 +584,7 @@ export const configDefs: ConfigDefinition[] = [
     sourceType: SourceType.Subgraph,
     sourceConfig: {
       protocol: ProtocolName.NotionalV3,
-      query: 'NotionalV3nTokenDailyFees.graphql',
+      query: graphQueries.NotionalV3nTokenDailyFees,
       args: {
         currencyId: 4,
       },
@@ -601,7 +602,7 @@ export const configDefs: ConfigDefinition[] = [
     sourceType: SourceType.Subgraph,
     sourceConfig: {
       protocol: ProtocolName.NotionalV3,
-      query: 'NotionalV3nTokenDailyFees.graphql',
+      query: graphQueries.NotionalV3nTokenDailyFees,
       args: {
         currencyId: 5,
       },
@@ -619,7 +620,7 @@ export const configDefs: ConfigDefinition[] = [
     sourceType: SourceType.Subgraph,
     sourceConfig: {
       protocol: ProtocolName.NotionalV3,
-      query: 'NotionalV3nTokenDailyFees.graphql',
+      query: graphQueries.NotionalV3nTokenDailyFees,
       args: {
         currencyId: 6,
       },
