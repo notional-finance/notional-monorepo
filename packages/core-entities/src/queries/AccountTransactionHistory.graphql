@@ -1,7 +1,10 @@
 query AccountTransactionHistory($accountId: ID!) {
   account(id: $accountId) {
     id
-    profitLossLineItems(first: 1000, orderBy: blockNumber, orderDirection: desc) {
+    profitLossLineItems(
+      where: { isTransientLineItem: false },
+      first: 1000, orderBy: blockNumber, orderDirection: desc
+    ) {
       timestamp
       blockNumber
       transactionHash { id }
