@@ -36,7 +36,7 @@ export class ViewsDO extends BaseDO<APIEnv> {
     return this.parseGzip(data);
   }
 
-  async fetchViews(network: Network) {
+  async listViews(network: Network) {
     const resp = await fetch(
       `${this.env.DATA_SERVICE_URL}/views?network=${network}`,
       {
@@ -59,7 +59,7 @@ export class ViewsDO extends BaseDO<APIEnv> {
       this.env.SUPPORTED_NETWORKS.map((network) => {
         if (network === Network.All) return Promise.resolve();
 
-        return this.fetchViews(network);
+        return this.listViews(network);
       })
     );
   }
