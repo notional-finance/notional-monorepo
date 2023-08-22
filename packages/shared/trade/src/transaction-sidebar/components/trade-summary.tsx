@@ -1,10 +1,15 @@
-import { DataTable, TABLE_VARIANTS } from '@notional-finance/mui';
+import {
+  DataTable,
+  TABLE_VARIANTS,
+  MultiValueCell,
+} from '@notional-finance/mui';
 import { BaseTradeState } from '@notional-finance/notionable';
 import { useTradeSummary } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
 
 export const TradeSummary = ({ state }: { state: BaseTradeState }) => {
-  const { summary /* total */ } = useTradeSummary(state);
+  const { summary } = useTradeSummary(state);
+
   return (
     <DataTable
       tableVariant={TABLE_VARIANTS.MINI}
@@ -24,6 +29,7 @@ export const TradeSummary = ({ state }: { state: BaseTradeState }) => {
         {
           Header: <FormattedMessage defaultMessage={'Value'} />,
           accessor: 'value',
+          Cell: MultiValueCell,
           textAlign: 'right',
         },
       ]}

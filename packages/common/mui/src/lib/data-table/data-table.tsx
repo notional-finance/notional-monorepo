@@ -1,7 +1,7 @@
 import { ReactNode, useRef, useState, SetStateAction, Dispatch } from 'react';
 import { Table, TableContainer, Paper, useTheme, Box } from '@mui/material';
 import { SxProps } from '@mui/material/styles';
-
+import { ArrowIcon } from '@notional-finance/icons';
 import { DataTableFilterBar } from './data-table-filter-bar/data-table-filter-bar';
 import { DataTableTitleBar } from './data-table-title-bar/data-table-title-bar';
 import { DataTableTabBar } from './data-table-tab-bar/data-table-tab-bar';
@@ -11,6 +11,7 @@ import {
   DataTableInfoBox,
   InfoBoxDataProps,
 } from './data-table-info-box/data-table-info-box';
+
 import { PageLoading } from '../page-loading/page-loading';
 import { useTable, useExpanded, useSortBy } from 'react-table';
 import { FormattedMessage } from 'react-intl';
@@ -37,11 +38,14 @@ interface DataTableProps {
   hideExcessRows?: boolean;
   initialState?: Record<any, any>;
   setExpandedRows?: Dispatch<SetStateAction<ExpandedRows | null>>;
+  setShowHiddenRows?: Dispatch<SetStateAction<boolean>>;
+  showHiddenRows?: boolean;
   tableLoading?: boolean;
   filterBarData?: any[];
   clearQueryAndFilters?: () => void;
   marketDataCSVFormatter?: (data: any[]) => any;
   stateZeroMessage?: ReactNode;
+  hiddenRowMessage?: ReactNode;
   infoBoxData?: InfoBoxDataProps[];
   sx?: SxProps;
   maxHeight?: any;
@@ -66,6 +70,9 @@ export const DataTable = ({
   clearQueryAndFilters,
   marketDataCSVFormatter,
   stateZeroMessage,
+  setShowHiddenRows,
+  hiddenRowMessage,
+  showHiddenRows,
   infoBoxData,
   maxHeight,
   sx,
@@ -271,6 +278,36 @@ export const DataTable = ({
             </TableCell>
           )}
         </Box>
+      )}
+      {setShowHiddenRows && hiddenRowMessage && (
+        <TableCell
+          sx={{
+            textAlign: 'center',
+            background: theme.palette.background.paper,
+            color: theme.palette.primary.light,
+            textDecoration: 'underline',
+            cursor: 'pointer',
+            marginRight: `-${theme.spacing(2)}`,
+            marginLeft: `-${theme.spacing(2)}`,
+            marginTop: theme.spacing(2),
+            marginBottom: `-${theme.spacing(2)}`,
+            padding: theme.spacing(2),
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+          onClick={() => setShowHiddenRows(!showHiddenRows)}
+        >
+          <span>{hiddenRowMessage}</span>
+          <ArrowIcon
+            sx={{
+              color: theme.palette.primary.light,
+              transform: `rotate(${showHiddenRows ? '0' : '180'}deg)`,
+              transition: 'transform .5s ease-in-out',
+              height: theme.spacing(2),
+            }}
+          />
+        </TableCell>
       )}
     </TableContainer>
   );

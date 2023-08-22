@@ -5,6 +5,7 @@ import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { PortfolioParams } from '../../portfolio-feature-shell';
 import { useCallback } from 'react';
 import { TradeContext } from '@notional-finance/notionable-hooks';
+import { Box, useTheme } from '@mui/material';
 
 interface PortfolioSideDrawerProps {
   children?: React.ReactNode | React.ReactNode[];
@@ -18,6 +19,7 @@ export const PortfolioSideDrawer = ({
   advancedToggle,
 }: PortfolioSideDrawerProps) => {
   const history = useHistory();
+  const theme = useTheme();
   const { category } = useParams<PortfolioParams>();
 
   const returnToPortfolio = `/portfolio/${category}`;
@@ -39,7 +41,7 @@ export const PortfolioSideDrawer = ({
       onReturnToForm={onReturnToForm}
       advancedToggle={advancedToggle}
     >
-      {children}
+      <Box sx={{ marginBottom: theme.spacing(6) }}>{children}</Box>
     </TransactionSidebar>
   );
 };
