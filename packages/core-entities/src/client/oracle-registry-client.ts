@@ -167,7 +167,9 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
     riskAdjusted: RiskAdjustment,
     subjectMapOverride?: SubjectMap<OracleDefinition>
   ) {
-    const subjects = subjectMapOverride || this._getNetworkSubjects(network);
+    const subjects = subjectMapOverride
+      ? subjectMapOverride
+      : this._getNetworkSubjects(network);
     const adjList = this.adjLists.get(network);
     if (!adjList) throw Error(`Adjacency list not found for ${network}`);
     const config = Registry.getConfigurationRegistry();
@@ -275,6 +277,13 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
         m.set(o.id, new BehaviorSubject<OracleDefinition | null>(o));
         return m;
       }, new Map<string, BehaviorSubject<OracleDefinition | null>>());
+
+    if (!subjectMap || subjectMap.size === 0)
+      throw Error(
+        `No historical oracles found for ${network} ${new Date(
+          timestamp * 1000
+        ).toDateString()}`
+      );
 
     const observables = this.getObservablesFromPath(
       network,
