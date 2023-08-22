@@ -128,7 +128,6 @@ export const AreaChart = ({
           style={{ fill: theme.palette.typography.light, fontSize: '12px' }}
           tickFormatter={(v: number) => `${v.toFixed(2)}%`}
         />
-
         <Line
           type="monotone"
           dataKey="line"

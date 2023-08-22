@@ -51,7 +51,9 @@ export class AnalyticsRegistryClient extends ClientRegistry<AnalyticsData> {
   }
 
   private _convertOrNull<T>(v: string | number | null, fn: (d: number) => T) {
-    return v === null ? null : fn(v as number);
+    if (v === null) return null;
+    else if (typeof v === 'string') return fn(parseFloat(v));
+    else return fn(v);
   }
 
   subscribeAssetVolatility(network: Network) {
@@ -153,7 +155,7 @@ export class AnalyticsRegistryClient extends ClientRegistry<AnalyticsData> {
             return {
               token,
               timestamp: p['timestamp'] as number,
-              totalAPY: this._convertOrNull(p['total_apy'], (d) => d * 100),
+              totalAPY: this._convertOrNull(p['total_apy'], (d) => d),
               tvlUnderlying: this._convertOrNull(p['tvl_underlying'], (d) =>
                 TokenBalance.fromFloat(d.toFixed(6), underlying)
               ),
