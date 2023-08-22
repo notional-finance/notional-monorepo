@@ -418,7 +418,9 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
   getAllYields(network: Network) {
     if (!this.isNetworkRegistered(network)) return [];
 
-    return Array.from(this.getLatestFromAllSubjects(network, 0).values());
+    return Array.from(this.getLatestFromAllSubjects(network, 0).values()).sort(
+      (a, b) => (a.token.currencyId || 0) - (b.token.currencyId || 0)
+    );
   }
 
   protected override async _refresh(network: Network) {
