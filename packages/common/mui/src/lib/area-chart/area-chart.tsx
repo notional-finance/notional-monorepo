@@ -45,6 +45,7 @@ export interface AreaChartProps {
   areaChartButtonLabel?: ReactNode;
   barChartButtonLabel?: ReactNode;
   showCartesianGrid?: boolean;
+  condenseXAxisTime?: boolean;
   areaLineType?: 'linear' | 'monotone';
 }
 
@@ -55,9 +56,9 @@ export const AreaChart = ({
   areaChartStyles,
   chartToolTipData,
   showCartesianGrid,
+  condenseXAxisTime,
   areaLineType = 'monotone',
 }: AreaChartProps) => {
-  const isLine = areaChartData[0]?.line;
   const theme = useTheme();
 
   const xAxisTickHandler = (v: number, i: number) => {
@@ -107,9 +108,9 @@ export const AreaChart = ({
           }
           style={{ fill: theme.palette.typography.light }}
           interval={0}
-          tickFormatter={isLine ? xAxisTickHandler : undefined}
+          tickFormatter={condenseXAxisTime ? xAxisTickHandler : undefined}
           tick={
-            !isLine ? (
+            !condenseXAxisTime ? (
               <XAxisTick xAxisTickFormat={xAxisTickFormat} />
             ) : undefined
           }

@@ -20,7 +20,7 @@ const VIEWS = [
   'asset_price_volatility',
   'historical_oracle_values',
   'notional_asset_historical_prices',
-  'notional_assets_tvls_and_apys',
+  'notional_assets_apys_and_tvls',
   'nToken_trading_fees_apys',
 ] as const;
 
@@ -140,7 +140,7 @@ export class AnalyticsRegistryClient extends ClientRegistry<AnalyticsData> {
   subscribeAssetHistory(network: Network) {
     return this.subscribeDataSet(
       network,
-      'notional_assets_tvls_and_apys'
+      'notional_assets_apys_and_tvls'
     )?.pipe(
       map((d) => {
         const tokens = Registry.getTokenRegistry();

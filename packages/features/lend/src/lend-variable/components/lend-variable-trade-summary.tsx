@@ -30,6 +30,7 @@ export const LendVariableTradeSummary = () => {
         xAxisTickFormat="date"
         chartType="area"
         showCartesianGrid
+        condenseXAxisTime
         areaLineType="linear"
       />
       <Box

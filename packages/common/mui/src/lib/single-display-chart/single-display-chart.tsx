@@ -31,6 +31,7 @@ export const SingleDisplayChart = ({
   xAxisTickFormat,
   areaLineType,
   showCartesianGrid,
+  condenseXAxisTime,
   bottomLabel,
 }: SingleDisplayChartProps) => {
   const theme = useTheme();
@@ -76,6 +77,7 @@ export const SingleDisplayChart = ({
             areaChartData={areaChartData}
             chartToolTipData={chartToolTipData}
             areaChartStyles={areaChartStyles}
+            condenseXAxisTime={condenseXAxisTime}
             areaLineType={areaLineType}
           />
         )}

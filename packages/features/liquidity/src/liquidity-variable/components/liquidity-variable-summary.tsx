@@ -38,6 +38,7 @@ export const LiquidityVariableSummary = () => {
         xAxisTickFormat="date"
         chartType="area"
         showCartesianGrid
+        condenseXAxisTime
         areaLineType="linear"
       />
       <Box

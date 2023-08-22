@@ -39,6 +39,7 @@ export const BorrowVariableTradeSummary = () => {
         xAxisTickFormat="date"
         chartType="area"
         showCartesianGrid
+        condenseXAxisTime
         areaLineType="linear"
       />
       <Box
