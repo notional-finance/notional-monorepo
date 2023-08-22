@@ -38,6 +38,12 @@ export const PortfolioFeatureShell = () => {
     window.scrollTo(0, 0);
   }, [params.category]);
 
+  useEffect(() => {
+    clearSideDrawer(
+      `/portfolio/${params?.category || PORTFOLIO_CATEGORIES.OVERVIEW}`
+    );
+  }, []);
+
   const handleDrawer = () => {
     clearSideDrawer(
       `/portfolio/${params?.category || PORTFOLIO_CATEGORIES.OVERVIEW}`

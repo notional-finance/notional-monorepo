@@ -40,7 +40,7 @@ const StyledTableRow = styled(TableRow, {
     prop !== 'tableVariant',
 })(
   ({
-    theme: { palette },
+    theme,
     rowSelected,
     expandableTableActive,
     tableVariant,
@@ -48,52 +48,52 @@ const StyledTableRow = styled(TableRow, {
     .MuiTableRow-root, &:nth-of-type(odd) {
       ${
         tableVariant === TABLE_VARIANTS.MINI
-          ? `background: ${palette.background.default};`
+          ? `background: ${theme.palette.background.default};`
           : tableVariant === TABLE_VARIANTS.TOTAL_ROW
-          ? `background: ${palette.background.paper};`
+          ? `background: ${theme.palette.background.paper};`
           : expandableTableActive
-          ? `background: ${palette.background.paper};`
+          ? `background: ${theme.palette.background.paper};`
           : rowSelected
-          ? `background: ${palette.info.light};`
-          : `background: ${palette.background.default};`
+          ? `background: ${theme.palette.info.light};`
+          : `background: ${theme.palette.background.default};`
       }
     };
     .MuiTableRow-root, &:last-of-type {
       ${
         tableVariant === TABLE_VARIANTS.TOTAL_ROW
-          ? `background: ${palette.background.default};`
+          ? `background: ${theme.palette.background.default};`
           : ''
       }   
     }
     cursor: ${expandableTableActive ? 'pointer' : ''};
-    background: ${rowSelected ? palette.info.light : 'transparent'};
+    background: ${rowSelected ? theme.palette.info.light : 'transparent'};
     box-sizing: border-box;
     box-shadow: ${
-      rowSelected ? `0px 0px 6px 0px ${palette.primary.light}` : 'none'
+      rowSelected ? `0px 0px 6px 0px ${theme.palette.primary.light}` : 'none'
     };
     .MuiTableRow-root, td {
       .border-cell {
         height: 100%;
-        padding: ${!expandableTableActive ? '16px' : '0px'};
+        padding: ${!expandableTableActive ? theme.spacing(2) : '0px'};
         border-top: 1px solid ${
-          rowSelected ? palette.primary.light : 'transparent'
+          rowSelected ? theme.palette.primary.light : 'transparent'
         };
         border-bottom: 1px solid ${
-          rowSelected ? palette.primary.light : 'transparent'
+          rowSelected ? theme.palette.primary.light : 'transparent'
         };
       }
     }
     .MuiTableRow-root, td:last-child {
       .border-cell {
         border-right: 1px solid ${
-          rowSelected ? palette.primary.light : 'transparent'
+          rowSelected ? theme.palette.primary.light : 'transparent'
         };
       }
     }
     .MuiTableRow-root, td:first-of-type {
       .border-cell {
         border-left: 1px solid ${
-          rowSelected ? palette.primary.light : 'transparent'
+          rowSelected ? theme.palette.primary.light : 'transparent'
         };
       }
     }
@@ -109,7 +109,6 @@ export const DataTableBody = ({
   initialState,
 }: DataTableBodyProps) => {
   const theme = useTheme() as NotionalTheme;
-
   return (
     <TableBody>
       {rows.map((row, i) => {
@@ -132,6 +131,26 @@ export const DataTableBody = ({
             setExpandedRows(newState);
           }
         };
+
+        const miniTotalRowStyles = row.original.isTotalRow
+          ? {
+              marginLeft: `-${theme.spacing(3)}`,
+              marginRight: `-${theme.spacing(3)}`,
+              marginBottom: `-${theme.spacing(3)}`,
+              borderRadius: theme.shape.borderRadius,
+              padding: theme.spacing(2, 3),
+              height: theme.spacing(6.5),
+              background: theme.palette.background.paper,
+              display: 'flex',
+              alignItems: 'center',
+              fontWeight: 600,
+              fontSize: '14px',
+              '.multi-value-cell': {
+                span: { fontSize: '14px' },
+              },
+            }
+          : {};
+
         return (
           <Fragment key={`row-container-${i}`}>
             <StyledTableRow
@@ -161,13 +180,25 @@ export const DataTableBody = ({
                   >
                     {tableVariant === TABLE_VARIANTS.MINI ? (
                       <SmallTableCell
-                        sx={{ color: theme.palette.typography.main }}
+                        sx={{
+                          color: theme.palette.typography.main,
+                          '.multi-value-cell': {
+                            span: { fontSize: '12px' },
+                          },
+                          ...miniTotalRowStyles,
+                          justifyContent:
+                            cell?.value?.data &&
+                            row.original.isTotalRow &&
+                            'end',
+                        }}
                       >
                         {cell['render']('Cell')}
                       </SmallTableCell>
                     ) : (
                       <TypographyTableCell
-                        sx={{ fontSize: CustomRowComponent ? '16px' : '' }}
+                        sx={{
+                          fontSize: CustomRowComponent ? theme.spacing(2) : '',
+                        }}
                       >
                         {cell['render']('Cell')}
                       </TypographyTableCell>
