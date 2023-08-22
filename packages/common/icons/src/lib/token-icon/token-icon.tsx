@@ -28,6 +28,9 @@ import pwbtc from '../../assets/icons/currencies/pWBTC.svg';
 import weth from '../../assets/icons/currencies/WETH.svg';
 import comp from '../../assets/icons/currencies/COMP.svg';
 import wstETH from '../../assets/icons/currencies/wstETH.svg';
+import pwstETH from '../../assets/icons/currencies/pwstETH.svg';
+import fwstETH from '../../assets/icons/currencies/fwstETH.svg';
+import nwstETH from '../../assets/icons/currencies/nwstETH.svg';
 import wsteth_alt from '../../assets/icons/currencies/wsteth-alt.svg';
 import fDAI from '../../assets/icons/currencies/fDAI.svg';
 import pDAI from '../../assets/icons/currencies/pDAI.svg';
@@ -222,6 +225,21 @@ export const TokenImageList: TokenImageMap = {
     img: wstETH,
     accentBorderImg: wsteth_alt,
     alt: 'Lido Wrapped Staked ETH 2.0',
+  },
+  pwsteth: {
+    name: 'pwsteth',
+    img: pwstETH,
+    alt: 'pwstETH',
+  },
+  fwsteth: {
+    name: 'fwsteth',
+    img: fwstETH,
+    alt: 'fwstETH',
+  },
+  nwsteth: {
+    name: 'nwsteth',
+    img: nwstETH,
+    alt: 'nwstETH',
   },
   fdai: {
     name: 'fdai',
