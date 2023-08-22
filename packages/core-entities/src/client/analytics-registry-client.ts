@@ -3,7 +3,6 @@ import {
   Network,
   getNowSeconds,
 } from '@notional-finance/util';
-import { ethers } from 'ethers';
 import { Routes } from '../server';
 import { ClientRegistry } from './client-registry';
 import { map, shareReplay, take, Observable } from 'rxjs';
@@ -17,6 +16,7 @@ type AnalyticsData = DataPoint[];
 
 const VIEWS = [
   'asset_price_volatility',
+  'historical_oracle_values',
   'notional_asset_historical_prices',
   'notional_assets_tvls_and_apys',
   'nToken_trading_fees_apys',
@@ -175,9 +175,7 @@ export class AnalyticsRegistryClient extends ClientRegistry<AnalyticsData> {
   }
 
   subscribeVault(network: Network, vaultAddress: string) {
-    // TODO: remove this text transform
-    const view = `2_${ethers.utils.getAddress(vaultAddress)}`;
-    return this.subscribeSubject(network, view)?.pipe(
+    return this.subscribeSubject(network, vaultAddress.toLowerCase())?.pipe(
       map((d) => {
         return (
           d?.map((p) => {
@@ -215,6 +213,12 @@ export class AnalyticsRegistryClient extends ClientRegistry<AnalyticsData> {
     );
   }
 
+  // subscribeHistoricalOracles(network: Network, timestamp: number) {
+  //   // TODO: fill this out...
+  //   this.getHistoricalPrices(network)?.map(({ token, }))
+
+  // }
+
   getAssetVolatility(network: Network) {
     return this._getLatest(this.subscribeAssetVolatility(network));
   }
@@ -239,10 +243,7 @@ export class AnalyticsRegistryClient extends ClientRegistry<AnalyticsData> {
     const vaultViews =
       Registry.getConfigurationRegistry()
         .getAllListedVaults(network)
-        ?.map((c) => {
-          // TODO: remove the 2 prefix and lower case the vault address
-          return `2_${ethers.utils.getAddress(c.vaultAddress)}`;
-        }) || [];
+        ?.map((c) => c.vaultAddress.toLowerCase()) || [];
 
     const values = await Promise.all(
       [...VIEWS, ...vaultViews].map((v) =>
