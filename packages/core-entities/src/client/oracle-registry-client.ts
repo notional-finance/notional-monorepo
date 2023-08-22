@@ -10,6 +10,7 @@ import {
 } from '@notional-finance/util';
 import { BigNumber, utils } from 'ethers';
 import {
+  BehaviorSubject,
   combineLatest,
   map,
   Observable,
@@ -17,7 +18,13 @@ import {
   Subscription,
   withLatestFrom,
 } from 'rxjs';
-import { ExchangeRate, OracleDefinition, Registry, RiskAdjustment } from '..';
+import {
+  ExchangeRate,
+  OracleDefinition,
+  Registry,
+  RiskAdjustment,
+  SubjectMap,
+} from '..';
 import { ClientRegistry } from './client-registry';
 import { Routes } from '../server';
 
@@ -157,9 +164,12 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
   protected getObservablesFromPath(
     network: Network,
     path: string[],
-    riskAdjusted: RiskAdjustment
+    riskAdjusted: RiskAdjustment,
+    subjectMapOverride?: SubjectMap<OracleDefinition>
   ) {
-    const subjects = this._getNetworkSubjects(network);
+    const subjects = subjectMapOverride
+      ? subjectMapOverride
+      : this._getNetworkSubjects(network);
     const adjList = this.adjLists.get(network);
     if (!adjList) throw Error(`Adjacency list not found for ${network}`);
     const config = Registry.getConfigurationRegistry();
@@ -253,6 +263,46 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
         })
       );
     });
+  }
+
+  getHistoricalFromPath(
+    network: Network,
+    path: string[],
+    riskAdjusted: RiskAdjustment = 'None',
+    timestamp: number
+  ): ExchangeRate | null {
+    const subjectMap = Registry.getAnalyticsRegistry()
+      .getHistoricalOracles(network, timestamp)
+      ?.reduce((m, o) => {
+        m.set(o.id, new BehaviorSubject<OracleDefinition | null>(o));
+        return m;
+      }, new Map<string, BehaviorSubject<OracleDefinition | null>>());
+
+    if (!subjectMap || subjectMap.size === 0)
+      throw Error(
+        `No historical oracles found for ${network} ${new Date(
+          timestamp * 1000
+        ).toDateString()}`
+      );
+
+    const observables = this.getObservablesFromPath(
+      network,
+      path,
+      riskAdjusted,
+      subjectMap
+    );
+    let latestRate: ExchangeRate | null = null;
+
+    of(1)
+      .pipe(
+        withLatestFrom(...observables),
+        map(([, ...rates]) => this.combineRates(rates))
+      )
+      .forEach((v) => {
+        latestRate = v;
+      });
+
+    return latestRate;
   }
 
   getLatestFromPath(

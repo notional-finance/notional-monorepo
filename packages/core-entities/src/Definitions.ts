@@ -140,6 +140,7 @@ export interface AccountHistory {
   spotPrice: TokenBalance;
   vaultName?: string;
   impliedFixedRate?: number;
+  isTransientLineItem: boolean;
 }
 
 export interface AccountDefinition {

@@ -46,6 +46,26 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     return new VaultAccountRiskProfile(vaultAddress, [...from, ...apply]);
   }
 
+  static getAllRiskProfiles(balances: TokenBalance[]) {
+    const vaultPositions = balances
+      .filter((b) => b.isVaultToken)
+      .reduce((vaults, b) => {
+        const t = vaults.get(b.vaultAddress) || [];
+        t.push(b);
+        vaults.set(b.vaultAddress, t);
+        return vaults;
+      }, new Map<string, TokenBalance[]>());
+
+    const vaultRiskProfiles: VaultAccountRiskProfile[] = [];
+    vaultPositions?.forEach((balances, vaultAddress) => {
+      vaultRiskProfiles.push(
+        VaultAccountRiskProfile.from(vaultAddress, balances)
+      );
+    });
+
+    return vaultRiskProfiles;
+  }
+
   simulate(apply: TokenBalance[]) {
     return VaultAccountRiskProfile.simulate(
       this.vaultAddress,

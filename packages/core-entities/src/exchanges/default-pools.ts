@@ -74,6 +74,18 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
       registerTokens: [],
     },
     {
+      // nRETH
+      address: '0x6F6603F12af215bDba1f55f643e098530DD45B8F',
+      PoolClass: 'fCashMarket',
+      registerTokens: [],
+    },
+    {
+      // nUSDT
+      address: '0x9c0Fbb8caDE7B178b135fD2F1da125a37B27f442',
+      PoolClass: 'fCashMarket',
+      registerTokens: [],
+    },
+    {
       address: '0xC9B8a3FDECB9D5b218d02555a8Baf332E5B740d5',
       PoolClass: 'Curve2TokenPoolV1_SelfLPToken',
       registerTokens: [
