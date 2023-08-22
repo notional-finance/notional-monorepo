@@ -8,6 +8,8 @@ import { ClientRegistry } from './client-registry';
 import { map, shareReplay, take, Observable } from 'rxjs';
 import { Registry } from '../Registry';
 import { TokenBalance } from '../token-balance';
+import { BigNumber } from 'ethers';
+import { OracleDefinition } from '../Definitions';
 
 interface DataPoint {
   [key: string]: number | string | null;
@@ -186,9 +188,9 @@ export class AnalyticsRegistryClient extends ClientRegistry<AnalyticsData> {
                 p['total_strategy_apy'],
                 (d) => d * 100
               ),
-              // TODO: this should be * 100 like the others
-              variableBorrowRate: parseFloat(
-                p['pcashdebt_borrow_rate'] as string
+              variableBorrowRate: this._convertOrNull(
+                p['pcashdebt_borrow_rate'],
+                (d) => d * 100
               ),
               returnDrivers: Object.keys(p)
                 .filter(
@@ -213,14 +215,40 @@ export class AnalyticsRegistryClient extends ClientRegistry<AnalyticsData> {
     );
   }
 
-  // subscribeHistoricalOracles(network: Network, timestamp: number) {
-  //   // TODO: fill this out...
-  //   this.getHistoricalPrices(network)?.map(({ token, }))
-
-  // }
+  subscribeHistoricalOracles(network: Network, timestamp: number) {
+    return this.subscribeDataSet(network, 'historical_oracle_values')?.pipe(
+      map((d) => {
+        return (
+          d
+            ?.filter((p) => p['timestamp'] === timestamp)
+            .map((p) => {
+              return {
+                id: `${p['base']}:${p['quote']}:${p['oracle_type']}`,
+                oracleAddress: p['oracle_address'],
+                network,
+                oracleType: p['oracle_type'],
+                base: p['base'],
+                quote: p['quote'],
+                decimals: p['decimals'],
+                latestRate: {
+                  rate: BigNumber.from(p['latest_rate']),
+                  timestamp,
+                  blockNumber: 0,
+                },
+              } as OracleDefinition;
+            }) || []
+        );
+      }),
+      shareReplay(1)
+    );
+  }
 
   getAssetVolatility(network: Network) {
     return this._getLatest(this.subscribeAssetVolatility(network));
+  }
+
+  getHistoricalOracles(network: Network, timestamp: number) {
+    return this._getLatest(this.subscribeHistoricalOracles(network, timestamp));
   }
 
   getHistoricalPrices(network: Network) {

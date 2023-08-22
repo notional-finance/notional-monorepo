@@ -1,5 +1,5 @@
 import { AbstractLiquidityPool } from './abstract-liquidity-pool';
-import { ExchangeRate, TokenBalance, TokenDefinition } from '..';
+import { TokenBalance, TokenDefinition } from '..';
 import {
   Network,
   RATE_DECIMALS,
@@ -60,8 +60,7 @@ export default abstract class BaseLiquidityPool<
    */
   public getBalanceArrayOracleValue(
     balances: TokenBalance[],
-    primaryTokenIndex: number,
-    oraclePrices?: ExchangeRate[]
+    primaryTokenIndex: number
   ): TokenBalance {
     const primaryToken = balances[primaryTokenIndex].token;
     return (
@@ -71,8 +70,7 @@ export default abstract class BaseLiquidityPool<
             ? b
             : b.toToken(
                 primaryToken,
-                'None', // No Risk adjustment here
-                oraclePrices ? oraclePrices[i] : undefined
+                'None' // No Risk adjustment here
               )
         )
         // Sum all balances in primary valuation
@@ -89,15 +87,10 @@ export default abstract class BaseLiquidityPool<
    */
   public getLPTokenOracleValue(
     lpTokens: TokenBalance,
-    primaryTokenIndex: number,
-    oraclePrices?: ExchangeRate[]
+    primaryTokenIndex: number
   ): TokenBalance {
     const tokensOut = this.getLPTokenClaims(lpTokens);
-    return this.getBalanceArrayOracleValue(
-      tokensOut,
-      primaryTokenIndex,
-      oraclePrices
-    );
+    return this.getBalanceArrayOracleValue(tokensOut, primaryTokenIndex);
   }
 
   /**

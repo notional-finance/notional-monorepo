@@ -1,4 +1,4 @@
-import { AccountDefinition, FiatKeys } from '@notional-finance/core-entities';
+import { AccountDefinition } from '@notional-finance/core-entities';
 import { CashFlow, xirr } from './xirr';
 import {
   AccountRiskProfile,
@@ -6,18 +6,19 @@ import {
 } from '@notional-finance/risk-engine';
 import { getNowSeconds } from '@notional-finance/util';
 
-// output is the IRR
 export function calculateAccountIRR(
   account: AccountDefinition,
-  baseCurrency: FiatKeys
+  timestamp: number
 ) {
-  const portfolioNetWorth = AccountRiskProfile.from(account.balances)
+  const riskProfile = new AccountRiskProfile(account.balances, account.network);
+  const ETH = riskProfile.denom(riskProfile.defaultSymbol);
+  const portfolioNetWorth = riskProfile
     .netWorth()
-    .toFiat(baseCurrency);
+    .toToken(ETH, 'None', timestamp);
   const totalNetWorth = VaultAccountRiskProfile.getAllRiskProfiles(
     account.balances
   )
-    .map((v) => v.netWorth().toFiat(baseCurrency))
+    .map((v) => v.netWorth().toToken(ETH, 'None', timestamp))
     .reduce((p, c) => p.add(c), portfolioNetWorth);
 
   const cashFlows: CashFlow[] = (account.accountHistory || [])
@@ -37,7 +38,7 @@ export function calculateAccountIRR(
           // This should be a positive cash flow
           amount: h.underlyingAmountRealized
             .abs()
-            .toFiat(baseCurrency)
+            .toToken(ETH, 'None', timestamp)
             .toFloat(),
         };
       } else {
@@ -47,7 +48,7 @@ export function calculateAccountIRR(
           amount: h.underlyingAmountRealized
             .abs()
             .neg()
-            .toFiat(baseCurrency)
+            .toToken(ETH, 'None', timestamp)
             .toFloat(),
         };
       }
