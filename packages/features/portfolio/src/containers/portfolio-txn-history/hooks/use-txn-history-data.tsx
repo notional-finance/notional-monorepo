@@ -22,7 +22,7 @@ export const useTxnHistoryData = (txnHistoryType: TXN_HISTORY_TYPE) => {
   const selectedNetwork = useSelectedNetwork();
 
   const allAccountHistoryData = accountHistory
-    ?.sort((x, y) => y.timestamp - x.timestamp)
+    .sort((x, y) => y.timestamp - x.timestamp)
     .map(
       ({
         bundleName,
