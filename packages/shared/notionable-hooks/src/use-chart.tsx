@@ -30,6 +30,7 @@ export function useLeveragedPerformance(
   fixedRate: number | undefined,
   leverageRatio: number | null | undefined
 ) {
+  // TODO: this doesnt work for lend leveraged...
   const network = useSelectedNetwork();
   if (!network || !token) return [];
   const data = Registry.getAnalyticsRegistry().getAssetHistory(network);
@@ -58,5 +59,19 @@ export function useLeveragedPerformance(
             : undefined,
       };
     })
+    .sort((a, b) => a.timestamp - b.timestamp);
+}
+
+export function useAssetPriceHistory(token: TokenDefinition | undefined) {
+  const network = useSelectedNetwork();
+  if (!network || !token) return [];
+  const data = Registry.getAnalyticsRegistry().getAssetHistory(network);
+  const tokenData = data?.filter(({ token: t }) => t.id === token.id) || [];
+
+  return tokenData
+    .map((d) => ({
+      timestamp: d.timestamp,
+      assetPrice: d.assetToUnderlyingExchangeRate?.toFloat() || 0,
+    }))
     .sort((a, b) => a.timestamp - b.timestamp);
 }

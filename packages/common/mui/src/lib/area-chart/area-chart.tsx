@@ -18,6 +18,7 @@ import {
   ChartToolTipDataProps,
 } from '../chart-tool-tip/chart-tool-tip';
 import { XAxisTick } from './x-axis-tick/x-axis-tick';
+import { AxisDomain } from 'recharts/types/util/types';
 
 export interface AreaChartData {
   timestamp: number;
@@ -38,6 +39,8 @@ export interface AreaChartStylesProps {
 export interface AreaChartProps {
   areaChartData: AreaChartData[];
   xAxisTickFormat?: 'date' | 'percent';
+  yAxisTickFormat?: 'percent' | 'number';
+  yAxisDomain?: AxisDomain;
   referenceLineValue?: number;
   chartToolTipData?: ChartToolTipDataProps;
   areaChartStyles?: AreaChartStylesProps;
@@ -52,6 +55,8 @@ export interface AreaChartProps {
 export const AreaChart = ({
   areaChartData,
   xAxisTickFormat = 'date',
+  yAxisTickFormat = 'percent',
+  yAxisDomain,
   referenceLineValue,
   areaChartStyles,
   chartToolTipData,
@@ -119,6 +124,7 @@ export const AreaChart = ({
         <YAxis
           orientation="left"
           yAxisId={0}
+          domain={yAxisDomain}
           padding={{ top: 8 }}
           tickCount={6}
           tickMargin={12}
@@ -127,7 +133,9 @@ export const AreaChart = ({
           tickLine={false}
           axisLine={false}
           style={{ fill: theme.palette.typography.light, fontSize: '12px' }}
-          tickFormatter={(v: number) => `${v.toFixed(2)}%`}
+          tickFormatter={(v: number) =>
+            `${v.toFixed(2)}${yAxisTickFormat === 'percent' ? '%' : ''}`
+          }
         />
         <Line
           type="monotone"

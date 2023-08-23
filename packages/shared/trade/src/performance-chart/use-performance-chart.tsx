@@ -53,7 +53,7 @@ export function usePerformanceChart(state: TradeState | VaultTradeState) {
       lineType: 'solid',
       formatTitle: (area) => (
         <FormattedMessage
-          defaultMessage={'{returns} Leveraged Returns'}
+          defaultMessage={'{returns} Unleveraged Returns'}
           values={{ returns: <span>{formatNumberAsPercent(area)}</span> }}
         />
       ),
@@ -63,7 +63,7 @@ export function usePerformanceChart(state: TradeState | VaultTradeState) {
       lineType: 'dashed',
       formatTitle: (line) => (
         <FormattedMessage
-          defaultMessage={'{returns} Unleveraged Returns'}
+          defaultMessage={'{returns} Leveraged Returns'}
           values={{ returns: <span>{formatNumberAsPercent(line)}</span> }}
         />
       ),
@@ -73,17 +73,17 @@ export function usePerformanceChart(state: TradeState | VaultTradeState) {
   const areaChartLegendData = {
     textHeader: <FormattedMessage defaultMessage={'Performance To Date'} />,
     legendOne: {
-      label: <FormattedMessage defaultMessage={'Leveraged Returns'} />,
-      value: leveragedReturn ? (
-        <CountUp value={leveragedReturn} suffix="%" decimals={3} />
+      label: <FormattedMessage defaultMessage={'Unleveraged Returns'} />,
+      value: strategyReturn ? (
+        <CountUp value={strategyReturn} suffix="%" decimals={3} />
       ) : undefined,
       lineColor: theme.palette.charts.main,
       lineType: 'solid',
     },
     legendTwo: {
-      label: <FormattedMessage defaultMessage={'Unleveraged Returns'} />,
-      value: strategyReturn ? (
-        <CountUp value={strategyReturn} suffix="%" decimals={3} />
+      label: <FormattedMessage defaultMessage={'Leveraged Returns'} />,
+      value: leveragedReturn ? (
+        <CountUp value={leveragedReturn} suffix="%" decimals={3} />
       ) : undefined,
       lineColor: theme.palette.charts.accent,
       lineType: 'dashed',

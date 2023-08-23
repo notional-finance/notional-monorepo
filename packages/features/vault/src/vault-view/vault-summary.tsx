@@ -17,7 +17,11 @@ import { VaultActionContext } from './vault-action-provider';
 import { useReturnDrivers } from '../hooks/use-return-drivers';
 import { useVaultCapacity } from '../hooks/use-vault-capacity';
 import { messages } from '../messages';
-import { PerformanceChart, TradeActionSummary } from '@notional-finance/trade';
+import {
+  LiquidationChart,
+  PerformanceChart,
+  TradeActionSummary,
+} from '@notional-finance/trade';
 
 export const VaultSummary = () => {
   const theme = useTheme();
@@ -104,6 +108,7 @@ export const VaultSummary = () => {
               />
             </Box>
             <PerformanceChart state={state} />
+            <LiquidationChart state={state} />
             <Box id={VAULT_SUB_NAV_ACTIONS.MARKET_RETURNS}>
               <DataTable
                 data={returnDrivers}

@@ -29,6 +29,8 @@ export const SingleDisplayChart = ({
   chartToolTipData,
   chartType,
   xAxisTickFormat,
+  yAxisTickFormat,
+  yAxisDomain,
   areaLineType,
   showCartesianGrid,
   condenseXAxisTime,
@@ -74,6 +76,8 @@ export const SingleDisplayChart = ({
             showCartesianGrid={showCartesianGrid}
             referenceLineValue={referenceLineValue}
             xAxisTickFormat={xAxisTickFormat}
+            yAxisTickFormat={yAxisTickFormat}
+            yAxisDomain={yAxisDomain}
             areaChartData={areaChartData}
             chartToolTipData={chartToolTipData}
             areaChartStyles={areaChartStyles}

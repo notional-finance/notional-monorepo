@@ -11,7 +11,11 @@ import {
   useTradeContext,
 } from '@notional-finance/notionable-hooks';
 import { LendLeveragedSidebar } from './components';
-import { PerformanceChart, TradeActionSummary } from '@notional-finance/trade';
+import {
+  LiquidationChart,
+  PerformanceChart,
+  TradeActionSummary,
+} from '@notional-finance/trade';
 import {
   useLendLeveragedFaq,
   useRatesTable,
@@ -40,6 +44,7 @@ export const LendLeveraged = () => {
           mainContent={
             <TradeActionSummary state={state}>
               <PerformanceChart state={state} />
+              <LiquidationChart state={state} />
               <DataTable
                 maxHeight={theme.spacing(40)}
                 tableTitle={
