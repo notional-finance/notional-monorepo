@@ -20,6 +20,7 @@ import {
   PORTFOLIO_CATEGORIES,
   SETTINGS_SIDE_DRAWERS,
 } from '@notional-finance/shared-config';
+import { useTruncatedAddress } from '@notional-finance/notionable-hooks';
 
 export interface PortfolioParams {
   category?: PORTFOLIO_CATEGORIES;
@@ -28,14 +29,9 @@ export interface PortfolioParams {
 
 export function WalletSelector() {
   const theme = useTheme();
-  const {
-    selectedAddress,
-    truncatedAddress,
-    isReadOnlyAddress,
-    connecting,
-    icon,
-    currentLabel,
-  } = useConnect();
+  const { selectedAddress, isReadOnlyAddress, connecting, icon, currentLabel } =
+    useConnect();
+  const truncatedAddress = useTruncatedAddress();
 
   const [notificationsActive, setNotificationsActive] =
     useState<boolean>(false);

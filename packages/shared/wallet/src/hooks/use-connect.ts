@@ -1,5 +1,4 @@
 import { useNotionalContext } from '@notional-finance/notionable-hooks';
-import { truncateAddress } from '@notional-finance/helpers';
 import { getNetworkFromId } from '@notional-finance/util';
 import { useConnectWallet } from '@web3-onboard/react';
 import { BigNumber, ethers } from 'ethers';
@@ -25,10 +24,6 @@ export const useConnect = () => {
     ? globalState?.wallet?.selectedAddress
     : wallet?.accounts[0].address;
   const isReadOnlyAddress = globalState?.wallet?.isReadOnlyAddress;
-
-  const truncatedAddress = selectedAddress
-    ? truncateAddress(selectedAddress)
-    : '';
 
   const selectedChain = wallet?.chains[0].id
     ? getNetworkFromId(BigNumber.from(wallet.chains[0].id).toNumber())
@@ -91,7 +86,6 @@ export const useConnect = () => {
     connecting,
     isReadOnlyAddress,
     selectedAddress,
-    truncatedAddress,
     connectWallet,
     disconnectWallet,
     currentLabel,
