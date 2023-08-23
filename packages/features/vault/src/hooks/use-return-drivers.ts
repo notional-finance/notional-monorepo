@@ -55,15 +55,7 @@ export const useReturnDrivers = (vaultAddress: string | undefined) => {
               .filter((v) => v !== null) as number[];
 
             return {
-              source: k
-                // TODO: remove all this stuff once the variables are fixed
-                .replace(/_/g, ' ')
-                .replace(
-                  /\w\S*/g,
-                  (txt) =>
-                    txt.charAt(0).toUpperCase() + txt.slice(1).toLowerCase()
-                )
-                .replace(/apy/i, 'APY'),
+              source: k,
               shortAvg:
                 shortValues.length > 0
                   ? formatNumberAsPercent(

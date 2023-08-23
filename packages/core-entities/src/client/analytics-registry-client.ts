@@ -185,26 +185,16 @@ export class AnalyticsRegistryClient extends ClientRegistry<AnalyticsData> {
           d?.map((p) => {
             return {
               vaultAddress,
-              timestamp: p['timestamp'] as number,
+              timestamp: p['Timestamp'] as number,
               totalAPY: this._convertOrNull(
-                p['total_strategy_apy'],
-                (d) => d * 100
-              ),
-              totalAPY7D: this._convertOrNull(
-                p['total_strategy_apy_7d_average'],
-                (d) => d * 100
-              ),
-              variableBorrowRate: this._convertOrNull(
-                p['pcashdebt_borrow_rate'],
+                p['Total Strategy Apy'],
                 (d) => d * 100
               ),
               returnDrivers: Object.keys(p)
                 .filter(
                   (k) =>
-                    k !== 'timestamp' &&
-                    k !== 'total_strategy_apy_7d_average' &&
-                    k !== 'pcashdebt_borrow_rate' &&
-                    k !== 'day'
+                    k !== 'Timestamp' &&
+                    k !== 'Day'
                 )
                 .reduce(
                   (o, k) =>
