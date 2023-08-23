@@ -25,7 +25,6 @@ interface OnboardState {
     signer?: Signer;
     selectedChain?: Network;
     selectedAddress: string;
-    hasSelectedChainError: boolean;
     isReadOnlyAddress?: boolean;
   };
 }
@@ -35,6 +34,7 @@ interface NetworkState {
   isNetworkPending: boolean;
   isNetworkReady: boolean;
   cacheHostname: string;
+  hasSelectedChainError: boolean;
 }
 
 interface AccountState {
@@ -66,6 +66,7 @@ export interface GlobalState
     ErrorState {}
 
 export const initialGlobalState: GlobalState = {
+  hasSelectedChainError: false,
   isNetworkReady: false,
   isNetworkPending: false,
   cacheHostname: CACHE_HOSTNAME,
@@ -73,6 +74,8 @@ export const initialGlobalState: GlobalState = {
   isAccountReady: false,
   sentTransactions: {},
   completedTransactions: {},
-  themeVariant: userSettings?.themeVariant ? userSettings?.themeVariant : THEME_VARIANTS.LIGHT,
+  themeVariant: userSettings?.themeVariant
+    ? userSettings?.themeVariant
+    : THEME_VARIANTS.LIGHT,
   baseCurrency: userSettings?.baseCurrency ? userSettings?.baseCurrency : 'USD',
 };
