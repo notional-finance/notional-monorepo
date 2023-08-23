@@ -113,7 +113,7 @@ export const LeverageSlider = ({
           ? cashBorrowed.toUnderlying().abs().toFloat()
           : debtBalance?.toUnderlying().abs().toFloat(),
         debtSuffix: ` ${zeroUnderlying?.symbol || ''}`,
-        assetValue: collateralBalance?.toFloat(),
+        assetValue: collateralBalance?.toUnderlying().toFloat(),
         assetSuffix: ` ${zeroUnderlying?.symbol || ''}`,
       }}
     />
