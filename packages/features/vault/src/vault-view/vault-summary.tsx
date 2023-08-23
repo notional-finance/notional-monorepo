@@ -13,7 +13,6 @@ import {
   VaultSubNav,
   MobileVaultSummary,
 } from '../components';
-import { useHistoricalReturns } from '../hooks/use-historical-returns';
 import { VaultActionContext } from './vault-action-provider';
 import { useReturnDrivers } from '../hooks/use-return-drivers';
 import { useVaultCapacity } from '../hooks/use-vault-capacity';
@@ -25,9 +24,7 @@ export const VaultSummary = () => {
   const { state } = useContext(VaultActionContext);
   const { vaultAddress, vaultConfig } = state;
   const vaultName = vaultConfig?.name;
-
-  const { returnDrivers } = useHistoricalReturns();
-  const tableColumns = useReturnDrivers();
+  const { tableColumns, returnDrivers } = useReturnDrivers(vaultAddress);
 
   const {
     overCapacityError,

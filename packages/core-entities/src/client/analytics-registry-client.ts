@@ -190,6 +190,10 @@ export class AnalyticsRegistryClient extends ClientRegistry<AnalyticsData> {
                 p['total_strategy_apy'],
                 (d) => d * 100
               ),
+              totalAPY7D: this._convertOrNull(
+                p['total_strategy_apy_7d_average'],
+                (d) => d * 100
+              ),
               variableBorrowRate: this._convertOrNull(
                 p['pcashdebt_borrow_rate'],
                 (d) => d * 100
@@ -198,7 +202,7 @@ export class AnalyticsRegistryClient extends ClientRegistry<AnalyticsData> {
                 .filter(
                   (k) =>
                     k !== 'timestamp' &&
-                    k !== 'total_strategy_apy' &&
+                    k !== 'total_strategy_apy_7d_average' &&
                     k !== 'pcashdebt_borrow_rate' &&
                     k !== 'day'
                 )
@@ -207,7 +211,7 @@ export class AnalyticsRegistryClient extends ClientRegistry<AnalyticsData> {
                     Object.assign(o, {
                       [k]: this._convertOrNull(p[k], (d) => d * 100),
                     }),
-                  {}
+                  {} as Record<string, number | null>
                 ),
             };
           }) || []

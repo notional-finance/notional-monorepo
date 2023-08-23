@@ -6,7 +6,6 @@ import {
   CountUp,
   SliderBasic,
 } from '@notional-finance/mui';
-import { useHistoricalReturns } from '../hooks/use-historical-returns';
 import { useVaultCapacity } from '../hooks/use-vault-capacity';
 import { TokenIcon } from '@notional-finance/icons';
 import { VaultActionContext } from '../vault-view/vault-action-provider';
@@ -19,7 +18,8 @@ export const MobileVaultSummary = () => {
     state: { deposit, vaultConfig },
   } = useContext(VaultActionContext);
   const vaultName = vaultConfig?.name;
-  const { headlineApy } = useHistoricalReturns();
+  // TODO: refactor this to get it from the trade action summary
+  const headlineApy = undefined;
   const { maxVaultCapacity, capacityUsedPercentage } = useVaultCapacity();
 
   return (

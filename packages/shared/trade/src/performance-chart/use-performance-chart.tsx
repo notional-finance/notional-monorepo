@@ -25,14 +25,6 @@ export function usePerformanceChart(state: TradeState | VaultTradeState) {
     currentBorrowRate,
     leverageRatio
   );
-  console.log(
-    'LEVERAGE PERFORMANCE PARAM',
-    collateral,
-    debt,
-    leverageRatio,
-    currentBorrowRate
-  );
-  console.log('LEVERAGE PERFORMANCE DATA', data);
 
   const areaChartData = data.map((d) => ({
     timestamp: d.timestamp,
