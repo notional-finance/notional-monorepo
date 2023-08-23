@@ -4,26 +4,38 @@ import {
   getDateString,
 } from '@notional-finance/helpers';
 import { ChartToolTipDataProps, CountUp } from '@notional-finance/mui';
-import { TradeState, VaultTradeState } from '@notional-finance/notionable';
+import { BaseTradeState } from '@notional-finance/notionable';
 import { useLeveragedPerformance } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
 
-export function usePerformanceChart(state: TradeState | VaultTradeState) {
+export function usePerformanceChart(state: BaseTradeState) {
   const theme = useTheme();
-  const { collateral, debt, debtOptions, postAccountRisk, riskFactorLimit } =
-    state;
+  const {
+    collateral,
+    debt,
+    debtOptions,
+    collateralOptions,
+    riskFactorLimit,
+    tradeType,
+  } = state;
   const currentBorrowRate = debtOptions?.find(
     (t) => t.token.id === debt?.id
   )?.interestRate;
+  const leveragedLendFixedRate =
+    tradeType === 'LeveragedLend' && collateral?.tokenType === 'fCash'
+      ? collateralOptions?.find((t) => t.token.id === collateral?.id)
+          ?.interestRate
+      : undefined;
 
-  const leverageRatio = postAccountRisk
-    ? postAccountRisk.leverageRatio
-    : (riskFactorLimit?.limit as number | undefined);
+  // Always use the specified leverage ratio so that this figure matches
+  // the header
+  const leverageRatio = riskFactorLimit?.limit as number | undefined;
   const data = useLeveragedPerformance(
     collateral,
     debt?.tokenType === 'PrimeDebt',
     currentBorrowRate,
-    leverageRatio
+    leverageRatio,
+    leveragedLendFixedRate
   );
 
   const areaChartData = data.map((d) => ({
@@ -32,10 +44,16 @@ export function usePerformanceChart(state: TradeState | VaultTradeState) {
     area: d.strategyReturn,
   }));
 
-  const { leveragedReturn, strategyReturn } =
-    data.length > 0
-      ? data[data.length - 1]
-      : { leveragedReturn: undefined, strategyReturn: undefined };
+  const currentStrategyReturn =
+    data.length > 0 ? data[data.length - 1].strategyReturn : undefined;
+  const currentLeveragedReturn =
+    currentStrategyReturn !== undefined &&
+    leverageRatio !== null &&
+    leverageRatio !== undefined &&
+    currentBorrowRate !== undefined
+      ? currentStrategyReturn +
+        (currentStrategyReturn - currentBorrowRate) * leverageRatio
+      : undefined;
 
   const chartToolTipData: ChartToolTipDataProps = {
     timestamp: {
@@ -74,16 +92,16 @@ export function usePerformanceChart(state: TradeState | VaultTradeState) {
     textHeader: <FormattedMessage defaultMessage={'Performance To Date'} />,
     legendOne: {
       label: <FormattedMessage defaultMessage={'Unleveraged Returns'} />,
-      value: strategyReturn ? (
-        <CountUp value={strategyReturn} suffix="%" decimals={3} />
+      value: currentStrategyReturn ? (
+        <CountUp value={currentStrategyReturn} suffix="%" decimals={3} />
       ) : undefined,
       lineColor: theme.palette.charts.main,
       lineType: 'solid',
     },
     legendTwo: {
       label: <FormattedMessage defaultMessage={'Leveraged Returns'} />,
-      value: leveragedReturn ? (
-        <CountUp value={leveragedReturn} suffix="%" decimals={3} />
+      value: currentLeveragedReturn ? (
+        <CountUp value={currentLeveragedReturn} suffix="%" decimals={3} />
       ) : undefined,
       lineColor: theme.palette.charts.accent,
       lineType: 'dashed',

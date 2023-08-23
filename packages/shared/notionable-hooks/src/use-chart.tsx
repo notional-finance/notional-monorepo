@@ -27,10 +27,10 @@ export function useTokenHistory(token?: TokenDefinition) {
 export function useLeveragedPerformance(
   token: TokenDefinition | undefined,
   isPrimeBorrow: boolean,
-  fixedRate: number | undefined,
-  leverageRatio: number | null | undefined
+  currentBorrowRate: number | undefined,
+  leverageRatio: number | null | undefined,
+  leveragedLendFixedRate: number | undefined
 ) {
-  // TODO: this doesnt work for lend leveraged...
   const network = useSelectedNetwork();
   if (!network || !token) return [];
   const data = Registry.getAnalyticsRegistry().getAssetHistory(network);
@@ -42,11 +42,11 @@ export function useLeveragedPerformance(
 
   return tokenData
     .map((d) => {
-      const totalAPY = d.totalAPY || 0;
+      const totalAPY = leveragedLendFixedRate || d.totalAPY || 0;
       const borrowRate = isPrimeBorrow
         ? primeBorrow?.find(({ timestamp }) => d.timestamp === timestamp)
             ?.totalAPY || undefined
-        : fixedRate;
+        : currentBorrowRate;
 
       return {
         timestamp: d.timestamp,

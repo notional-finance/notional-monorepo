@@ -1,10 +1,12 @@
 import { useTheme } from '@mui/material';
-import { TokenBalance } from '@notional-finance/core-entities';
+import { Registry, TokenBalance } from '@notional-finance/core-entities';
 import { formatTokenType, getDateString } from '@notional-finance/helpers';
 import { ChartToolTipDataProps, CountUp } from '@notional-finance/mui';
 import { TradeState, VaultTradeState } from '@notional-finance/notionable';
 import { useAssetPriceHistory } from '@notional-finance/notionable-hooks';
+import { RATE_PRECISION } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
+import { AxisDomain } from 'recharts/types/util/types';
 
 export function useLiquidationChart(state: TradeState | VaultTradeState) {
   const theme = useTheme();
@@ -26,6 +28,24 @@ export function useLiquidationChart(state: TradeState | VaultTradeState) {
       line: liquidationPrice?.toFloat(),
     })
   );
+
+  let yAxisDomain: AxisDomain = ['auto', 'auto'];
+  if (token?.tokenType === 'nToken') {
+    const { nTokenMaxDrawdown } =
+      Registry.getConfigurationRegistry().getNTokenLeverageFactors(token);
+    yAxisDomain = [
+      nTokenMaxDrawdown / RATE_PRECISION,
+      (2 * RATE_PRECISION - nTokenMaxDrawdown) / RATE_PRECISION,
+    ];
+  } else if (token?.tokenType === 'fCash') {
+    // This range technically only applies to lending fCash but works as a boundary on the
+    // fCash price anyway
+    const { lowestDiscountFactor } =
+      Registry.getConfigurationRegistry().getMinLendRiskAdjustedDiscountFactor(
+        token
+      );
+    yAxisDomain = [lowestDiscountFactor / RATE_PRECISION, 1];
+  }
 
   const currentPrice =
     deposit && token ? TokenBalance.unit(deposit).toToken(token) : undefined;
@@ -103,5 +123,6 @@ export function useLiquidationChart(state: TradeState | VaultTradeState) {
     areaChartData,
     areaChartLegendData,
     chartToolTipData,
+    yAxisDomain,
   };
 }
