@@ -8,9 +8,11 @@ import { trackEvent } from '@notional-finance/helpers';
 import { ViewAsAccount } from '../../../view-as-account/view-as-account';
 import { modules } from '../../../onboard-context';
 import { FormattedMessage } from 'react-intl';
+import { useTruncatedAddress } from '@notional-finance/notionable-hooks';
 
 export const AddressButton = () => {
-  const { truncatedAddress, isReadOnlyAddress } = useConnect();
+  const { isReadOnlyAddress } = useConnect();
+  const truncatedAddress = useTruncatedAddress();
   const theme = useTheme();
 
   return (

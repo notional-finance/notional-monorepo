@@ -20,7 +20,7 @@ const VIEWS = [
   'asset_price_volatility',
   'historical_oracle_values',
   'notional_asset_historical_prices',
-  'notional_assets_tvls_and_apys',
+  'notional_assets_apys_and_tvls',
   'nToken_trading_fees_apys',
 ] as const;
 
@@ -51,7 +51,9 @@ export class AnalyticsRegistryClient extends ClientRegistry<AnalyticsData> {
   }
 
   private _convertOrNull<T>(v: string | number | null, fn: (d: number) => T) {
-    return v === null ? null : fn(v as number);
+    if (v === null) return null;
+    else if (typeof v === 'string') return fn(parseFloat(v));
+    else return fn(v);
   }
 
   subscribeAssetVolatility(network: Network) {
@@ -138,7 +140,7 @@ export class AnalyticsRegistryClient extends ClientRegistry<AnalyticsData> {
   subscribeAssetHistory(network: Network) {
     return this.subscribeDataSet(
       network,
-      'notional_assets_tvls_and_apys'
+      'notional_assets_apys_and_tvls'
     )?.pipe(
       map((d) => {
         const tokens = Registry.getTokenRegistry();
@@ -153,7 +155,7 @@ export class AnalyticsRegistryClient extends ClientRegistry<AnalyticsData> {
             return {
               token,
               timestamp: p['timestamp'] as number,
-              totalAPY: this._convertOrNull(p['total_apy'], (d) => d * 100),
+              totalAPY: this._convertOrNull(p['total_apy'], (d) => d),
               tvlUnderlying: this._convertOrNull(p['tvl_underlying'], (d) =>
                 TokenBalance.fromFloat(d.toFixed(6), underlying)
               ),
@@ -183,29 +185,23 @@ export class AnalyticsRegistryClient extends ClientRegistry<AnalyticsData> {
           d?.map((p) => {
             return {
               vaultAddress,
-              timestamp: p['timestamp'] as number,
+              timestamp: p['Timestamp'] as number,
               totalAPY: this._convertOrNull(
-                p['total_strategy_apy'],
-                (d) => d * 100
-              ),
-              variableBorrowRate: this._convertOrNull(
-                p['pcashdebt_borrow_rate'],
+                p['Total Strategy Apy'],
                 (d) => d * 100
               ),
               returnDrivers: Object.keys(p)
                 .filter(
                   (k) =>
-                    k !== 'timestamp' &&
-                    k !== 'total_strategy_apy' &&
-                    k !== 'pcashdebt_borrow_rate' &&
-                    k !== 'day'
+                    k !== 'Timestamp' &&
+                    k !== 'Day'
                 )
                 .reduce(
                   (o, k) =>
                     Object.assign(o, {
                       [k]: this._convertOrNull(p[k], (d) => d * 100),
                     }),
-                  {}
+                  {} as Record<string, number | null>
                 ),
             };
           }) || []

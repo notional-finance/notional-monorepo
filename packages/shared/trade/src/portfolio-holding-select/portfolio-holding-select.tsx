@@ -44,9 +44,12 @@ export const PortfolioHoldingSelect = ({
     selectedToken: string;
   }>();
 
+  // NOTE: need to flip prime cash and prime debt for the select box
   const selectedTokenId =
     !isWithdraw && selectedToken?.tokenType === 'PrimeCash'
       ? primeDebt.find((t) => t.currencyId === selectedToken.currencyId)?.id
+      : isWithdraw && selectedToken?.tokenType === 'PrimeDebt'
+      ? primeCash.find((t) => t.currencyId === selectedToken.currencyId)?.id
       : selectedToken?.id;
 
   const options = useMemo(() => {
@@ -85,10 +88,14 @@ export const PortfolioHoldingSelect = ({
       ? options.find((t) => t.token.id === selectedParamToken)
       : options[0];
 
-    // If repaying prime debt we select prime cash as the collateral
     let selected: TokenDefinition | undefined;
+    // NOTE: need to flip prime cash and prime debt for the computation
     if (option?.token.tokenType === 'PrimeDebt' && !isWithdraw) {
       selected = primeCash.find(
+        (t) => t.currencyId === option.token.currencyId
+      );
+    } else if (option?.token.tokenType === 'PrimeCash' && isWithdraw) {
+      selected = primeDebt.find(
         (t) => t.currencyId === option.token.currencyId
       );
     } else {
@@ -103,6 +110,7 @@ export const PortfolioHoldingSelect = ({
     isWithdraw,
     selectedParamToken,
     primeCash,
+    primeDebt,
   ]);
 
   return (

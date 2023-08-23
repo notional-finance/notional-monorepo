@@ -6,6 +6,7 @@ import {
   TotalBox,
   DataTable,
   Body,
+  SingleDisplayChart,
 } from '@notional-finance/mui';
 import { TradeActionSummary } from '@notional-finance/trade';
 import {
@@ -17,19 +18,29 @@ import { FormattedMessage } from 'react-intl';
 import { useContext } from 'react';
 import { LiquidityContext } from '../liquidity-variable';
 import { HowItWorksFaq } from './how-it-works-faq';
+import { useTokenHistory } from '@notional-finance/notionable-hooks';
 
 export const LiquidityVariableSummary = () => {
   const theme = useTheme();
   const { state } = useContext(LiquidityContext);
-  const { selectedDepositToken } = state;
+  const { selectedDepositToken, collateral } = state;
   const tokenSymbol = selectedDepositToken || '';
   const { faqs, faqHeaderLinks } = useLiquidityFaq(tokenSymbol);
   const totalsData = useTotalsData(tokenSymbol);
   const { returnDriversColumns, returnDriversData, infoBoxData } =
     useReturnDriversTable();
+  const { apyData } = useTokenHistory(collateral);
 
   return (
     <TradeActionSummary state={state}>
+      <SingleDisplayChart
+        areaChartData={apyData}
+        xAxisTickFormat="date"
+        chartType="area"
+        showCartesianGrid
+        condenseXAxisTime
+        areaLineType="linear"
+      />
       <Box
         sx={{
           display: 'flex',

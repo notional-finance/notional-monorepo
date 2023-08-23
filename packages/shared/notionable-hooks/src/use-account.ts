@@ -11,7 +11,7 @@ import {
   SECONDS_IN_MONTH,
   getNowSeconds,
 } from '@notional-finance/util';
-import { floorToMidnight } from '@notional-finance/helpers';
+import { floorToMidnight, truncateAddress } from '@notional-finance/helpers';
 
 export function useAccountDefinition() {
   const {
@@ -41,6 +41,15 @@ export function useBalanceStatements() {
 export function useTransactionHistory() {
   const { account } = useAccountDefinition();
   return account?.accountHistory?.filter((h) => !h.isTransientLineItem) || [];
+}
+
+export function useTruncatedAddress() {
+  const {
+    globalState: { selectedAccount, isAccountReady },
+  } = useNotionalContext();
+  return selectedAccount && isAccountReady
+    ? truncateAddress(selectedAccount)
+    : '';
 }
 
 export function useAccountReady() {

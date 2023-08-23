@@ -1,5 +1,4 @@
 import { useNotionalContext } from '@notional-finance/notionable-hooks';
-import { truncateAddress } from '@notional-finance/helpers';
 import { getNetworkFromId } from '@notional-finance/util';
 import { useConnectWallet } from '@web3-onboard/react';
 import { BigNumber, ethers } from 'ethers';
@@ -21,13 +20,10 @@ export const useConnect = () => {
   const icon = wallet?.icon;
 
   // The first account and chain are considered "selected" by the UI
-  const selectedAddress =
-  globalState?.wallet?.isReadOnlyAddress ? globalState?.wallet?.selectedAddress : wallet?.accounts[0].address;
+  const selectedAddress = globalState?.wallet?.isReadOnlyAddress
+    ? globalState?.wallet?.selectedAddress
+    : wallet?.accounts[0].address;
   const isReadOnlyAddress = globalState?.wallet?.isReadOnlyAddress;
-
-  const truncatedAddress = selectedAddress
-    ? truncateAddress(selectedAddress)
-    : '';
 
   const selectedChain = wallet?.chains[0].id
     ? getNetworkFromId(BigNumber.from(wallet.chains[0].id).toNumber())
@@ -47,12 +43,6 @@ export const useConnect = () => {
     updateNotional({ wallet: undefined });
   }, [disconnect, currentLabel, updateNotional]);
 
-  useEffect(() => { 
-    if(wallet?.accounts && wallet?.accounts.length > 1){
-      disconnectWallet()
-    }
-  },[wallet, disconnectWallet])
-
   // Listens for wallet changes and sets the primary wallet as well as sends the
   // addresses to the Notional global state
   useEffect(() => {
@@ -62,17 +52,25 @@ export const useConnect = () => {
       setPrimaryWallet(wallet, selectedAddress);
       const provider = new ethers.providers.Web3Provider(wallet.provider);
       const signer = provider.getSigner();
+      const hasSelectedChainError =
+        selectedNetwork !== undefined && selectedChain !== selectedNetwork;
 
-      updateNotional({
-        wallet: {
-          signer,
-          selectedChain,
-          selectedAddress,
-          isReadOnlyAddress: false,
-          hasSelectedChainError:
-            selectedNetwork !== undefined && selectedChain !== selectedNetwork,
-        },
-      });
+      if (hasSelectedChainError) {
+        updateNotional({
+          hasSelectedChainError,
+          wallet: undefined,
+        });
+      } else {
+        updateNotional({
+          hasSelectedChainError,
+          wallet: {
+            signer,
+            selectedChain,
+            selectedAddress,
+            isReadOnlyAddress: false,
+          },
+        });
+      }
     }
   }, [
     wallet,
@@ -88,7 +86,6 @@ export const useConnect = () => {
     connecting,
     isReadOnlyAddress,
     selectedAddress,
-    truncatedAddress,
     connectWallet,
     disconnectWallet,
     currentLabel,

@@ -59,7 +59,10 @@ export const SelectConvertAsset = ({ context }: SelectConvertAssetProps) => {
 
   // Set the initial balance to the selected token
   useEffect(() => {
-    if (!convertFromToken && selectedParamToken) {
+    if (
+      selectedParamToken &&
+      (convertFromToken === undefined || convertFromBalance === undefined)
+    ) {
       let balance = account?.balances.find(
         (t) => t.tokenId === selectedParamToken
       );
@@ -158,9 +161,7 @@ export const SelectConvertAsset = ({ context }: SelectConvertAssetProps) => {
       </LargeInputTextEmphasized>
       <DataTable
         tableVariant={TABLE_VARIANTS.MINI}
-        tableTitle={
-          <span>{title ? `${title.title} ${title.caption || ''}` : ''}</span>
-        }
+        tableTitle={<span>{title?.titleWithMaturity || ''}</span>}
         columns={[
           {
             Header: <FormattedMessage defaultMessage="Detail" />,
@@ -176,7 +177,9 @@ export const SelectConvertAsset = ({ context }: SelectConvertAssetProps) => {
         data={[
           {
             detail: <FormattedMessage defaultMessage={'Amount'} />,
-            value: convertFromBalance?.toDisplayStringWithSymbol(3, true),
+            value: `${convertFromBalance?.toDisplayString(3, true)} ${
+              title?.title || ''
+            }`,
           },
           {
             detail: <FormattedMessage defaultMessage={'Present Value'} />,

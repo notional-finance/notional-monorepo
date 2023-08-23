@@ -42,6 +42,7 @@ export function TradeActionSummary({
   const isVault = !!vaultAddress;
   const { nonLeveragedYields } = useAllMarkets();
 
+  /** TODO: a lot of the logic below should go into a hook */
   const messages = tradeType ? TransactionHeadings[tradeType] : undefined;
   const headerText = messages?.headerText;
   const isLeveraged =
