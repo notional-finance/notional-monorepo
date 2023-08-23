@@ -1,6 +1,6 @@
 import { Box, useTheme } from '@mui/material';
 import { FaqHeader, Faq } from '@notional-finance/mui';
-import { TradeActionSummary } from '@notional-finance/trade';
+import { PerformanceChart, TradeActionSummary } from '@notional-finance/trade';
 import { useLiquidityFaq, useNTokenPriceExposure } from '../hooks';
 import { FormattedMessage } from 'react-intl';
 import { useContext } from 'react';
@@ -18,6 +18,7 @@ export const LiquidityLeveragedSummary = () => {
 
   return (
     <TradeActionSummary state={state}>
+      <PerformanceChart state={state} />
       <Box marginBottom={theme.spacing(5)}>
         <DataTable
           tableTitle={
