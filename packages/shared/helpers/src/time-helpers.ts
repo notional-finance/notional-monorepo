@@ -1,6 +1,7 @@
 import {
   IS_LOCAL_ENV,
   PRIME_CASH_VAULT_MATURITY,
+  SECONDS_IN_DAY,
 } from '@notional-finance/util';
 
 export function getNowSeconds() {
@@ -47,4 +48,8 @@ export const formatMaturity = (ts: number) => {
   } else {
     return getDateString(ts);
   }
+};
+
+export const floorToMidnight = (ts: number) => {
+  return ts - (ts % SECONDS_IN_DAY);
 };

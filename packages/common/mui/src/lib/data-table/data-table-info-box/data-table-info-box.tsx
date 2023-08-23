@@ -94,7 +94,7 @@ const IconContainer = styled(Box)(
   display: block;
   width: ${theme.spacing(35)};
   height: ${theme.spacing(10)};
-  margin-top: -${theme.spacing(4.5)};
+  margin-top: -${theme.spacing(7)};
   text-align: right;
   background: ${theme.palette.background.paper};
 `

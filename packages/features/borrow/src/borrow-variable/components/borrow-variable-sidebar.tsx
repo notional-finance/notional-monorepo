@@ -4,6 +4,7 @@ import {
   DepositInput,
   EnablePrimeBorrow,
   TransactionSidebar,
+  tradeErrors,
 } from '@notional-finance/trade';
 import { PRODUCTS } from '@notional-finance/shared-config';
 import { defineMessage } from 'react-intl';
@@ -12,9 +13,14 @@ import { usePrimeCashBalance } from '@notional-finance/notionable-hooks';
 
 export const BorrowVariableSidebar = () => {
   const context = useContext(BorrowVariableContext);
-  const { state: { selectedDepositToken }} = context
+  const {
+    state: { selectedDepositToken, debtOptions },
+  } = context;
   const { currencyInputRef } = useCurrencyInputRef();
   const cashBalance = usePrimeCashBalance(selectedDepositToken);
+  const insufficientLiquidity = debtOptions?.find((_) => !!_)?.error
+    ? tradeErrors.insufficientLiquidity
+    : undefined;
 
   return (
     <TransactionSidebar context={context}>
@@ -28,6 +34,7 @@ export const BorrowVariableSidebar = () => {
           defaultMessage: '1. How much do you want to borrow?',
           description: 'input label',
         })}
+        errorMsgOverride={insufficientLiquidity}
       />
       {cashBalance?.isPositive() && (
         <ErrorMessage

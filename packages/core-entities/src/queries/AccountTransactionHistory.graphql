@@ -1,21 +1,22 @@
 query AccountTransactionHistory($accountId: ID!) {
   account(id: $accountId) {
     id
-    profitLossLineItems(first: 1000, orderBy: blockNumber, orderDirection: desc) {
+    profitLossLineItems(
+      first: 1000, orderBy: blockNumber, orderDirection: desc
+    ) {
       timestamp
       blockNumber
       transactionHash { id }
       token { id }
       underlyingToken { id }
       tokenAmount
-      bundle {
-        bundleName
-      }
+      bundle { bundleName }
       underlyingAmountRealized
       underlyingAmountSpot
       realizedPrice
       spotPrice
       impliedFixedRate
+      isTransientLineItem
     }
   }
 }

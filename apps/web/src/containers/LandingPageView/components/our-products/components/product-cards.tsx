@@ -1,20 +1,25 @@
 import { useState, ReactNode } from 'react';
-import { TokenIcon, ArrowRightIcon } from '@notional-finance/icons';
-import { Box, styled, useTheme } from '@mui/material';
+import {
+  TokenIcon,
+  ArrowRightIcon,
+  LightningIcon,
+} from '@notional-finance/icons';
+import { Box, styled } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { colors, NotionalTheme } from '@notional-finance/styles';
+import { useNotionalTheme } from '@notional-finance/styles';
+import { useThemeVariant } from '@notional-finance/notionable-hooks';
 import { Link } from 'react-router-dom';
 import {
   H4,
-  H3,
-  BodySecondary,
+  Subtitle,
   SectionTitle,
   CardInput,
   ProgressIndicator,
 } from '@notional-finance/mui';
 
-export interface PillProps {
-  variableRate: boolean;
+export interface CardStyleProps {
+  isLeveraged: boolean;
   theme: NotionalTheme;
 }
 export interface ProductCardsProps {
@@ -27,8 +32,9 @@ export interface ProductCardsProps {
   apyTitle: ReactNode;
   href?: string;
   variableRate?: boolean;
-  comingSoon?: boolean;
   loading?: boolean;
+  isLeveraged?: boolean;
+  fixedRate?: boolean;
 }
 
 export interface PillProps {
@@ -37,7 +43,7 @@ export interface PillProps {
 }
 export interface CardFooterTextProps {
   hovered: boolean;
-  comingSoon: boolean;
+  isLeveraged: boolean;
   theme: NotionalTheme;
 }
 
@@ -50,12 +56,13 @@ export const ProductCards = ({
   symbol,
   groupedSymbols,
   apyTitle,
-  variableRate = false,
-  comingSoon,
   loading,
+  isLeveraged = false,
+  fixedRate,
 }: ProductCardsProps) => {
   const [hovered, setHovered] = useState(false);
-  const theme = useTheme();
+  const themeVariant = useThemeVariant();
+  const theme = useNotionalTheme(themeVariant, 'landing');
 
   return (
     <CardContainer
@@ -63,39 +70,56 @@ export const ProductCards = ({
       target={href ? '_blank' : ''}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
+      isLeveraged={isLeveraged}
+      theme={theme}
     >
       <CardContent>
-        <H3 sx={{ color: colors.white }}>{title}</H3>
-        <Pill variableRate={variableRate} theme={theme}>
-          {variableRate ? (
-            <FormattedMessage defaultMessage={'variable rate'} />
-          ) : (
-            <FormattedMessage defaultMessage={'fixed rate'} />
-          )}
-        </Pill>
-        <BodySecondary
-          sx={{
-            color: colors.white,
-            marginBottom: theme.spacing(6),
-          }}
-        >
-          {text}
-        </BodySecondary>
-        {!comingSoon && (
-          <>
-            <SectionTitle
+        <Box>
+          <H4
+            sx={{
+              color: colors.white,
+              fontWeight: 600,
+              display: 'flex',
+              alignItems: 'center',
+            }}
+          >
+            {isLeveraged && (
+              <LightningIcon sx={{ marginRight: theme.spacing(1.5) }} />
+            )}
+            {title}
+          </H4>
+
+          <Subtitle
+            sx={{
+              color: colors.greenGrey,
+              marginBottom: theme.spacing(6),
+              marginTop: theme.spacing(1),
+            }}
+          >
+            {text}
+          </Subtitle>
+        </Box>
+        <Box>
+          <SectionTitle
+            sx={{
+              letterSpacing: '1px',
+              color: colors.greenGrey,
+              marginBottom: theme.spacing(1.5),
+            }}
+          >
+            {apyTitle}
+          </SectionTitle>
+          {!loading && symbol ? (
+            <H4
               sx={{
-                letterSpacing: '1px',
-                color: colors.greenGrey,
-                marginBottom: theme.spacing(1.5),
+                color: colors.white,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
               }}
             >
-              {apyTitle}
-            </SectionTitle>
-            {!loading && symbol ? (
-              <H4
+              <Box
                 sx={{
-                  color: colors.white,
                   display: 'flex',
                   alignItems: 'center',
                 }}
@@ -107,38 +131,38 @@ export const ProductCards = ({
                   style={{ marginRight: theme.spacing(1.5) }}
                 />
                 {apy}
-              </H4>
-            ) : (
-              <Box sx={{ width: theme.spacing(6) }}>
-                <ProgressIndicator />
               </Box>
-            )}
-          </>
-        )}
-      </CardContent>
-      <CardFooter>
-        <CardInput>
-          {comingSoon ? (
-            <FormattedMessage defaultMessage={'Coming Soon'} />
+              {fixedRate && (
+                <Pill>
+                  <FormattedMessage defaultMessage={'fixed'} />
+                </Pill>
+              )}
+            </H4>
           ) : (
-            <Box>
-              <CardFooterText
-                comingSoon={comingSoon || false}
-                hovered={hovered}
-                theme={theme}
-              >
-                <FormattedMessage defaultMessage={'View All Currencies'} />
-                <ArrowRightIcon
-                  sx={{
-                    height: theme.spacing(1.75),
-                    width: theme.spacing(1.75),
-                    marginLeft: theme.spacing(2),
-                    marginBottom: '-2px',
-                  }}
-                />
-              </CardFooterText>
+            <Box sx={{ width: theme.spacing(6) }}>
+              <ProgressIndicator />
             </Box>
           )}
+        </Box>
+      </CardContent>
+      <CardFooter isLeveraged={isLeveraged} theme={theme}>
+        <CardInput>
+          <CardFooterText
+            isLeveraged={isLeveraged}
+            hovered={hovered}
+            theme={theme}
+          >
+            <FormattedMessage defaultMessage={'View All Currencies'} />
+            <ArrowRightIcon
+              sx={{
+                height: theme.spacing(1.75),
+                width: theme.spacing(1.75),
+                marginLeft: theme.spacing(2),
+                marginBottom: '-2px',
+              }}
+              fill={isLeveraged ? colors.black : colors.neonTurquoise}
+            />
+          </CardFooterText>
         </CardInput>
         <Box
           sx={{
@@ -158,20 +182,24 @@ export const ProductCards = ({
   );
 };
 
-const CardContainer = styled(Link)(
-  ({ theme }) => `
+const CardContainer = styled(Link, {
+  shouldForwardProp: (prop: string) => prop !== 'isLeveraged',
+})(
+  ({ isLeveraged, theme }: CardStyleProps) => `
       cursor: pointer;
       margin-top: ${theme.spacing(8)};
-      height: ${theme.spacing(53)};
-      width: ${theme.spacing(53)};
-      border: 1px solid ${colors.blueGreen};
+      min-height: ${theme.spacing(43.125)};
+      min-width: ${theme.spacing(45)};
+      height: ${theme.spacing(43.125)};
+      width: ${theme.spacing(45)};
+      border: 1px solid ${isLeveraged ? '#7CABE2' : colors.blueGreen};
       border-radius: ${theme.shape.borderRadius()};
       box-shadow: 0px 34px 50px -15px rgba(51, 248, 255, 0.3);
       transition: all 0.3s ease;
       z-index: 1;
-  
+      
       ${theme.gradient.hoverTransition(
-        colors.darkGreen,
+        !isLeveraged ? colors.darkGreen : '#1A5467',
         theme.palette.info.light
       )}
 
@@ -183,31 +211,22 @@ const CardContainer = styled(Link)(
       }
 
       ${theme.breakpoints.down(theme.breakpoints.values.sm)} {
+        background: ${isLeveraged ? '#1A5467' : colors.black};
         height: 100%;
         width: 100%;
-        background: ${colors.white};
-        border: 1px solid ${colors.purpleGrey};
+        min-height: 100%;
+        min-width: 100%;
         h3 {
           font-size: 1.375rem;
-          color: ${colors.black};
         }
         h4 {
-          color: ${colors.black};
           font-size: 1.5rem;
         }
         p {
-          color: ${colors.darkGrey};
           margin-bottom: ${theme.spacing(3)};
           font-size: 1rem;
         }
         box-shadow: 0px 34px 50px -15px rgba(20, 42, 74, 0.3);
-        &:hover {
-          cursor: pointer;
-          box-shadow: 0px 34px 50px -15px rgba(20, 42, 74, 0.3);
-          transition: none;
-          transform: none;
-        }
-        ${theme.gradient.hoverTransition(colors.white, colors.white)}
       }
     `
 );
@@ -218,22 +237,33 @@ const CardContent = styled(Box)(
       padding: ${theme.spacing(4)};
       position: relative;
       z-index: 2;
+      height: 80%;
+      padding-bottom: ${theme.spacing(2)};
+      display: flex;
+      justify-content: space-between;
+      flex-direction: column;
       ${theme.breakpoints.down(theme.breakpoints.values.sm)} {
         padding: ${theme.spacing(3)};
       }
     `
 );
 
-const CardFooter = styled(Box)(
-  ({ theme }) => `
-    background: ${colors.black};
+const CardFooter = styled(Box, {
+  shouldForwardProp: (prop: string) => prop !== 'isLeveraged',
+})(
+  ({ isLeveraged, theme }: CardStyleProps) => `
+    background: ${
+      isLeveraged
+        ? 'linear-gradient(180deg, #2BCAD0 0%, #8BA4E5 100%)'
+        : colors.black
+    };
     width: 100%;
     height: 20%;
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: ${theme.spacing(0, 4)};
-    border-radius: 0px 0px 6px 6px;
+    border-radius: ${isLeveraged ? '0px 0px 3px 3px' : '0px 0px 6px 6px'};
     border-top: 1px solid ${colors.blueGreen};
     position: relative;
     z-index: 2;
@@ -246,33 +276,16 @@ const CardFooter = styled(Box)(
     `
 );
 
-const Pill = styled(SectionTitle, {
-  shouldForwardProp: (prop: string) => prop !== 'variableRate',
-})(
-  ({ variableRate, theme }: PillProps) => `
-    margin: ${theme.spacing(2, 0)};
-    background: ${
-      variableRate
-        ? 'linear-gradient(89.71deg, #56F9FF 0.22%, #4AAAD3 97.77%)'
-        : colors.aqua
-    };
-    border-radius: 20px;
-    width: fit-content;
-    padding: ${theme.spacing(1, 1.5)};
-    color: ${colors.black};
-    letter-spacing: 1px;
-    `
-);
-
 const CardFooterText = styled(Box, {
   shouldForwardProp: (prop: string) =>
-    prop !== 'comingSoon' && prop !== 'hovered',
+    prop !== 'isLeveraged' && prop !== 'hovered',
 })(
-  ({ comingSoon, hovered, theme }: CardFooterTextProps) => `
+  ({ isLeveraged, hovered, theme }: CardFooterTextProps) => `
     height: fit-content;
     width: fit-content;
     position: relative;
-    color: ${comingSoon ? colors.white : colors.neonTurquoise};
+    color: ${isLeveraged ? colors.black : colors.neonTurquoise};
+    font-size: 1rem;
     ${theme.breakpoints.up(theme.breakpoints.values.sm)} {
     &::after {
       content: '';
@@ -281,15 +294,25 @@ const CardFooterText = styled(Box, {
       bottom: 0;
       width: 100%;
       height: 1px;
-      background: linear-gradient(to right, ${colors.neonTurquoise}, ${
-    colors.neonTurquoise
-  });
+      background: linear-gradient(to right, ${
+        isLeveraged ? colors.black : colors.neonTurquoise
+      }, ${isLeveraged ? colors.black : colors.neonTurquoise});
       transform: ${hovered ? 'scaleX(1)' : 'scaleX(0)'};
       transform-origin: left;
       transition: transform 0.3s ease;
       margin-bottom: -1px;
     }
-  }
+  }`
+);
+
+const Pill = styled(SectionTitle)(
+  `
+    background: ${colors.aqua};
+    border-radius: 20px;
+    width: fit-content;
+    padding: 6px 12px;
+    color: ${colors.black};
+    letter-spacing: 1px;
     `
 );
 

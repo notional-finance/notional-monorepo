@@ -327,7 +327,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
             // Max leverage is theoretically infinity here since maxDebtPV = 1
             // when borrowing at a zero interest rate. For practical purposes, just
             // set the max leverage to a constant here.
-            maxLeverageRatio = 100;
+            maxLeverageRatio = 50;
 
             // Max fCash Value change
             // (1 - currentDebtPV) ^ -1 - 1
@@ -418,7 +418,9 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
   getAllYields(network: Network) {
     //   if (!this.isNetworkRegistered(network)) return [];
 
-    return Array.from(this.getLatestFromAllSubjects(network, 0).values());
+    return Array.from(this.getLatestFromAllSubjects(network, 0).values()).sort(
+      (a, b) => (a.token.currencyId || 0) - (b.token.currencyId || 0)
+    );
   }
 
   protected override async _refresh(network: Network) {

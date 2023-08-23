@@ -37,8 +37,17 @@ export function formatTokenType(token: TokenDefinition): {
         icon: token.symbol,
         titleWithMaturity: token.symbol,
       };
-    case 'PrimeCash':
     case 'PrimeDebt':
+      return {
+        title: token.name,
+        // Prime Debt shares the same icon as Prime Cash
+        icon: Registry.getTokenRegistry().getPrimeCash(
+          token.network,
+          token.currencyId
+        ).symbol,
+        titleWithMaturity: token.name,
+      };
+    case 'PrimeCash':
       return {
         title: token.name,
         icon: token.symbol,

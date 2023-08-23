@@ -46,6 +46,26 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     return new VaultAccountRiskProfile(vaultAddress, [...from, ...apply]);
   }
 
+  static getAllRiskProfiles(balances: TokenBalance[]) {
+    const vaultPositions = balances
+      .filter((b) => b.isVaultToken)
+      .reduce((vaults, b) => {
+        const t = vaults.get(b.vaultAddress) || [];
+        t.push(b);
+        vaults.set(b.vaultAddress, t);
+        return vaults;
+      }, new Map<string, TokenBalance[]>());
+
+    const vaultRiskProfiles: VaultAccountRiskProfile[] = [];
+    vaultPositions?.forEach((balances, vaultAddress) => {
+      vaultRiskProfiles.push(
+        VaultAccountRiskProfile.from(vaultAddress, balances)
+      );
+    });
+
+    return vaultRiskProfiles;
+  }
+
   simulate(apply: TokenBalance[]) {
     return VaultAccountRiskProfile.simulate(
       this.vaultAddress,
@@ -203,7 +223,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
           RATE_PRECISION;
   }
 
-  collateralLiquidationThreshold(
+  assetLiquidationThreshold(
     // NOTE: this parameter is unused because the returned units is always in vault share denomination
     _collateral: TokenDefinition = this.vaultShares.token
   ): TokenBalance | null {
@@ -260,14 +280,9 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
       debts: this.totalDebt(),
       assets: this.totalAssets(),
       collateralRatio: this.collateralRatio(),
-      liquidationPrice: this.getAllLiquidationPrices({
-        onlyUnderlyingDebt: true,
-      }),
+      liquidationPrice: this.getAllLiquidationPrices(),
       aboveMaxLeverageRatio: this.aboveMaxLeverageRatio(),
       leverageRatio: this.leverageRatio(),
-      collateralLiquidationThreshold: this.collateral.map((a) =>
-        this.collateralLiquidationThreshold(a.token)
-      ),
     };
   }
 

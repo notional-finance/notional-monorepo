@@ -3,12 +3,13 @@ import {
   Network,
   getNowSeconds,
 } from '@notional-finance/util';
-import { ethers } from 'ethers';
 import { Routes } from '../server';
 import { ClientRegistry } from './client-registry';
 import { map, shareReplay, take, Observable } from 'rxjs';
 import { Registry } from '../Registry';
 import { TokenBalance } from '../token-balance';
+import { BigNumber } from 'ethers';
+import { OracleDefinition } from '../Definitions';
 
 interface DataPoint {
   [key: string]: number | string | null;
@@ -17,6 +18,7 @@ type AnalyticsData = DataPoint[];
 
 const VIEWS = [
   'asset_price_volatility',
+  'historical_oracle_values',
   'notional_asset_historical_prices',
   'notional_assets_tvls_and_apys',
   'nToken_trading_fees_apys',
@@ -175,9 +177,7 @@ export class AnalyticsRegistryClient extends ClientRegistry<AnalyticsData> {
   }
 
   subscribeVault(network: Network, vaultAddress: string) {
-    // TODO: remove this text transform
-    const view = `2_${ethers.utils.getAddress(vaultAddress)}`;
-    return this.subscribeSubject(network, view)?.pipe(
+    return this.subscribeSubject(network, vaultAddress.toLowerCase())?.pipe(
       map((d) => {
         return (
           d?.map((p) => {
@@ -188,9 +188,9 @@ export class AnalyticsRegistryClient extends ClientRegistry<AnalyticsData> {
                 p['total_strategy_apy'],
                 (d) => d * 100
               ),
-              // TODO: this should be * 100 like the others
-              variableBorrowRate: parseFloat(
-                p['pcashdebt_borrow_rate'] as string
+              variableBorrowRate: this._convertOrNull(
+                p['pcashdebt_borrow_rate'],
+                (d) => d * 100
               ),
               returnDrivers: Object.keys(p)
                 .filter(
@@ -215,8 +215,40 @@ export class AnalyticsRegistryClient extends ClientRegistry<AnalyticsData> {
     );
   }
 
+  subscribeHistoricalOracles(network: Network, timestamp: number) {
+    return this.subscribeDataSet(network, 'historical_oracle_values')?.pipe(
+      map((d) => {
+        return (
+          d
+            ?.filter((p) => p['timestamp'] === timestamp)
+            .map((p) => {
+              return {
+                id: `${p['base']}:${p['quote']}:${p['oracle_type']}`,
+                oracleAddress: p['oracle_address'],
+                network,
+                oracleType: p['oracle_type'],
+                base: p['base'],
+                quote: p['quote'],
+                decimals: p['decimals'],
+                latestRate: {
+                  rate: BigNumber.from(p['latest_rate']),
+                  timestamp,
+                  blockNumber: 0,
+                },
+              } as OracleDefinition;
+            }) || []
+        );
+      }),
+      shareReplay(1)
+    );
+  }
+
   getAssetVolatility(network: Network) {
     return this._getLatest(this.subscribeAssetVolatility(network));
+  }
+
+  getHistoricalOracles(network: Network, timestamp: number) {
+    return this._getLatest(this.subscribeHistoricalOracles(network, timestamp));
   }
 
   getHistoricalPrices(network: Network) {
@@ -239,15 +271,16 @@ export class AnalyticsRegistryClient extends ClientRegistry<AnalyticsData> {
     const vaultViews =
       Registry.getConfigurationRegistry()
         .getAllListedVaults(network)
-        ?.map((c) => {
-          // TODO: remove the 2 prefix and lower case the vault address
-          return `2_${ethers.utils.getAddress(c.vaultAddress)}`;
-        }) || [];
+        ?.map((c) => c.vaultAddress.toLowerCase()) || [];
 
     const values = await Promise.all(
       [...VIEWS, ...vaultViews].map((v) =>
         this._fetch<AnalyticsData>(network, v).then(
-          (d) => [v, d] as [string, AnalyticsData]
+          (d) =>
+            (Array.isArray(d) ? [v, d] : [v, null]) as [
+              string,
+              AnalyticsData | null
+            ]
         )
       )
     );

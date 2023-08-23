@@ -16,7 +16,6 @@ export const DataTableHead = ({
   tableVariant,
 }: DataTableHeadProps) => {
   const theme = useTheme();
-
   return (
     <TableHead
       sx={{
@@ -26,6 +25,7 @@ export const DataTableHead = ({
           tableVariant === TABLE_VARIANTS.TOTAL_ROW
             ? theme.shape.borderStandard
             : '',
+        marginRight: '20px',
       }}
     >
       {headerGroups.map((headerGroup: HeaderGroup) => (
@@ -54,12 +54,15 @@ export const DataTableHead = ({
                   ? theme.shape.borderStandard
                   : 'none',
                 whiteSpace: 'nowrap',
+                width: column['width'] || 'auto',
               }}
               {...(tableVariant === TABLE_VARIANTS.SORTABLE
                 ? column['getHeaderProps'](column['getSortByToggleProps']())
                 : column['getHeaderProps']())}
             >
-              <TableColumnHeading>
+              <TableColumnHeading
+                sx={{ marginRight: column['marginRight'] || '0px' }}
+              >
                 {column['render']('Header')}
                 {tableVariant === TABLE_VARIANTS.SORTABLE &&
                   column['render']('Header') && (

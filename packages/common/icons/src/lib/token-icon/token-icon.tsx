@@ -3,6 +3,10 @@ import wbtc from '../../assets/icons/currencies/currency-wbtc.svg';
 import arb from '../../assets/icons/currencies/arbitrum.svg';
 import eth from '../../assets/icons/currencies/currency-eth.svg';
 import peth from '../../assets/icons/currencies/pETH.svg';
+import reth from '../../assets/icons/currencies/rETH.svg';
+import reth_alt from '../../assets/icons/currencies/reth-alt.svg';
+import nreth from '../../assets/icons/currencies/nRETH.svg';
+import freth from '../../assets/icons/currencies/fRETH.svg';
 import preth from '../../assets/icons/currencies/pRETH.svg';
 import usdc from '../../assets/icons/currencies/currency-usdc.svg';
 import dai from '../../assets/icons/currencies/currency-dai.svg';
@@ -24,6 +28,10 @@ import pwbtc from '../../assets/icons/currencies/pWBTC.svg';
 import weth from '../../assets/icons/currencies/WETH.svg';
 import comp from '../../assets/icons/currencies/COMP.svg';
 import wstETH from '../../assets/icons/currencies/wstETH.svg';
+import pwstETH from '../../assets/icons/currencies/pwstETH.svg';
+import fwstETH from '../../assets/icons/currencies/fwstETH.svg';
+import nwstETH from '../../assets/icons/currencies/nwstETH.svg';
+import wsteth_alt from '../../assets/icons/currencies/wsteth-alt.svg';
 import fDAI from '../../assets/icons/currencies/fDAI.svg';
 import pDAI from '../../assets/icons/currencies/pDAI.svg';
 import fUSDC from '../../assets/icons/currencies/fUSDC.svg';
@@ -41,7 +49,9 @@ import ffrax from '../../assets/icons/currencies/fFRAX.svg';
 import nfrax from '../../assets/icons/currencies/nFRAX.svg';
 import pfrax from '../../assets/icons/currencies/pFRAX.svg';
 import frax from '../../assets/icons/currencies/FRAX.svg';
+import frax_alt from '../../assets/icons/currencies/frax-alt.svg';
 import usdt from '../../assets/icons/currencies/USDT.svg';
+import usdt_alt from '../../assets/icons/currencies/usdt-alt.svg';
 import fusdt from '../../assets/icons/currencies/fUSDT.svg';
 import nusdt from '../../assets/icons/currencies/nUSDT.svg';
 import pusdt from '../../assets/icons/currencies/pUSDT.svg';
@@ -79,10 +89,26 @@ export const TokenImageList: TokenImageMap = {
     img: peth,
     alt: 'prime Ethereum icon',
   },
+  reth: {
+    name: 'reth',
+    img: reth,
+    accentBorderImg: reth_alt,
+    alt: 'reth icon',
+  },
   preth: {
     name: 'preth',
     img: preth,
     alt: 'preth icon',
+  },
+  nreth: {
+    name: 'nreth',
+    img: nreth,
+    alt: 'nreth icon',
+  },
+  freth: {
+    name: 'freth',
+    img: freth,
+    alt: 'freth icon',
   },
   usdc: {
     name: 'usdc',
@@ -98,6 +124,7 @@ export const TokenImageList: TokenImageMap = {
   usdt: {
     name: 'usdt',
     img: usdt,
+    accentBorderImg: usdt_alt,
     alt: 'usdt icon',
   },
   fusdt: {
@@ -196,7 +223,23 @@ export const TokenImageList: TokenImageMap = {
   wsteth: {
     name: 'wsteth',
     img: wstETH,
+    accentBorderImg: wsteth_alt,
     alt: 'Lido Wrapped Staked ETH 2.0',
+  },
+  pwsteth: {
+    name: 'pwsteth',
+    img: pwstETH,
+    alt: 'pwstETH',
+  },
+  fwsteth: {
+    name: 'fwsteth',
+    img: fwstETH,
+    alt: 'fwstETH',
+  },
+  nwsteth: {
+    name: 'nwsteth',
+    img: nwstETH,
+    alt: 'nwstETH',
   },
   fdai: {
     name: 'fdai',
@@ -261,6 +304,7 @@ export const TokenImageList: TokenImageMap = {
   frax: {
     name: 'frax',
     img: frax,
+    accentBorderImg: frax_alt,
     alt: 'frax',
   },
   unknown: {

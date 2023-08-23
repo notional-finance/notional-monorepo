@@ -8,7 +8,7 @@ import { FormattedMessage } from 'react-intl';
 interface ErrorMessageProps {
   variant: 'error' | 'warning' | 'info';
   title?: ReactNode;
-  message?: ReactNode;
+  message?: ReactNode | string;
   marginBottom?: boolean;
 }
 

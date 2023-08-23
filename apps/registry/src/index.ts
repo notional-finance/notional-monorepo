@@ -34,9 +34,6 @@ export default {
       case Routes.Configuration:
         ns = env.CONFIGURATION_REGISTRY_DO;
         break;
-      case Routes.Exchanges:
-        ns = env.EXCHANGE_REGISTRY_DO;
-        break;
       case Routes.Vaults:
         ns = env.VAULT_REGISTRY_DO;
         break;
@@ -50,7 +47,6 @@ export default {
     await Promise.all([
       runHealthCheck(env.TOKEN_REGISTRY_DO, env.VERSION),
       runHealthCheck(env.CONFIGURATION_REGISTRY_DO, env.VERSION),
-      runHealthCheck(env.EXCHANGE_REGISTRY_DO, env.VERSION),
       runHealthCheck(env.ORACLE_REGISTRY_DO, env.VERSION),
       runHealthCheck(env.VAULT_REGISTRY_DO, env.VERSION),
     ]);

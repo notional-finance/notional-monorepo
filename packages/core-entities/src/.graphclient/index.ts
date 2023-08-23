@@ -6763,7 +6763,7 @@ const notionalV3Transforms = [];
 const additionalTypeDefs = [] as any[];
 const notionalV3Handler = new GraphqlHandler({
               name: "NotionalV3",
-              config: {"endpoint":"https://api.studio.thegraph.com/query/33671/notional-finance-v3-{context.chainName:arbitrum}/v0.0.150"},
+              config: {"endpoint":"https://api.studio.thegraph.com/query/33671/notional-finance-v3-{context.chainName:arbitrum}/v0.0.151"},
               baseDir,
               cache,
               pubsub,
@@ -6933,7 +6933,7 @@ export type AccountTransactionHistoryQueryVariables = Exact<{
 export type AccountTransactionHistoryQuery = { account?: Maybe<(
     Pick<Account, 'id'>
     & { profitLossLineItems?: Maybe<Array<(
-      Pick<ProfitLossLineItem, 'timestamp' | 'blockNumber' | 'tokenAmount' | 'underlyingAmountRealized' | 'underlyingAmountSpot' | 'realizedPrice' | 'spotPrice' | 'impliedFixedRate'>
+      Pick<ProfitLossLineItem, 'timestamp' | 'blockNumber' | 'tokenAmount' | 'underlyingAmountRealized' | 'underlyingAmountSpot' | 'realizedPrice' | 'spotPrice' | 'impliedFixedRate' | 'isTransientLineItem'>
       & { transactionHash: Pick<Transaction, 'id'>, token: Pick<Token, 'id'>, underlyingToken: Pick<Token, 'id'>, bundle: Pick<TransferBundle, 'bundleName'> }
     )>> }
   )> };
@@ -7075,6 +7075,7 @@ export const AccountTransactionHistoryDocument = gql`
       realizedPrice
       spotPrice
       impliedFixedRate
+      isTransientLineItem
     }
   }
 }

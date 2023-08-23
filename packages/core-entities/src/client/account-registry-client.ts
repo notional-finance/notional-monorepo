@@ -485,7 +485,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
         network
       ),
       impliedFixedRate: snapshot.impliedFixedRate
-        ? snapshot.impliedFixedRate / RATE_PRECISION
+        ? (snapshot.impliedFixedRate * 100) / RATE_PRECISION
         : undefined,
     };
   }
@@ -550,8 +550,9 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
                   network
                 ),
                 impliedFixedRate: p.impliedFixedRate
-                  ? p.impliedFixedRate / RATE_PRECISION
+                  ? (p.impliedFixedRate * 100) / RATE_PRECISION
                   : undefined,
+                isTransientLineItem: p.isTransientLineItem,
               };
             }) || [],
         };
@@ -591,6 +592,9 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
                   );
                 const totalProfitAndLoss = currentStatement.balance
                   .toUnderlying()
+                  // Use the absolute value here because debt balances are still considered positive
+                  // values inside the PnL calculation
+                  .abs()
                   .sub(currentStatement.accumulatedCostRealized);
                 const totalInterestAccrual = currentProfitAndLoss.sub(
                   currentStatement.totalILAndFees
@@ -602,6 +606,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
                   currentBalance: currentStatement.balance,
                   adjustedCostBasis: currentStatement.adjustedCostBasis,
                   totalILAndFees: currentStatement.totalILAndFees,
+                  impliedFixedRate: currentStatement.impliedFixedRate,
                   totalProfitAndLoss,
                   totalInterestAccrual,
                   accumulatedCostRealized:

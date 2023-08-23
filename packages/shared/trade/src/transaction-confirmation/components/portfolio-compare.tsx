@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useTheme, Box } from '@mui/material';
 import {
   ArrowIndicatorCell,
@@ -11,7 +12,10 @@ import { FormattedMessage } from 'react-intl';
 
 export const PortfolioCompare = ({ state }: { state: BaseTradeState }) => {
   const theme = useTheme();
-  const { onlyCurrent, tableData } = usePortfolioComparison(state);
+  const [showHiddenRows, setShowHiddenRows] = useState(false);
+  const { onlyCurrent, allTableData, filteredTableData } =
+    usePortfolioComparison(state);
+  const tableData = showHiddenRows ? allTableData : filteredTableData;
 
   const columns: any[] = [
     {
@@ -44,6 +48,15 @@ export const PortfolioCompare = ({ state }: { state: BaseTradeState }) => {
         tableTitle={<FormattedMessage defaultMessage={'Portfolio Holdings'} />}
         stateZeroMessage={
           <FormattedMessage defaultMessage={'Your portfolio is empty'} />
+        }
+        showHiddenRows={showHiddenRows}
+        setShowHiddenRows={
+          allTableData.length > filteredTableData.length
+            ? setShowHiddenRows
+            : undefined
+        }
+        hiddenRowMessage={
+          <FormattedMessage defaultMessage={'View Full Portfolio Holdings'} />
         }
         data={
           onlyCurrent

@@ -1,18 +1,18 @@
-import { TokenBalance } from '@notional-finance/core-entities';
 import {
   DataTableColumn,
   MultiValueCell,
   MultiValueIconCell,
 } from '@notional-finance/mui';
 import {
-  usePortfolioRiskProfile,
-  useVaultRiskProfiles,
+  useCurrentLiquidationPrices,
+  useFiat,
 } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
 
 export const useRiskOverviewTable = () => {
-  const portfolio = usePortfolioRiskProfile();
-  const vaults = useVaultRiskProfiles();
+  const { portfolioLiquidation, vaultLiquidation } =
+    useCurrentLiquidationPrices();
+  const baseCurrency = useFiat();
 
   const riskOverviewColumns: DataTableColumn[] = [
     {
@@ -59,53 +59,47 @@ export const useRiskOverviewTable = () => {
     },
   ];
 
-  const liquidationPrices = portfolio
-    .getAllLiquidationPrices({
-      onlyUnderlyingDebt: true,
-    })
-    .filter(({ price }) => price !== null)
-    .map(({ collateral, debt, price }) => {
-      const currentPrice = TokenBalance.unit(collateral).toToken(debt);
+  const liquidationPrices = portfolioLiquidation
+    .filter(({ isPriceRisk }) => isPriceRisk)
+    .map(({ asset, currentPrice, current }) => {
       return {
         collateral: {
-          symbol: collateral.symbol,
-          label: collateral.symbol,
+          symbol: asset.symbol,
+          label: asset.symbol,
         },
         riskFactor: {
-          data: [
-            `${collateral.symbol}/${debt.symbol}`,
-            'Chainlink Oracle Price',
-          ],
+          data: [`${asset.symbol}/${baseCurrency}`, 'Chainlink Oracle Price'],
           isNegative: false,
         },
-        currentPrice: currentPrice?.toDisplayStringWithSymbol(4),
-        liquidationPrice: price?.toDisplayStringWithSymbol(4),
+        currentPrice: currentPrice.toDisplayStringWithSymbol(3),
+        liquidationPrice: current,
       };
     });
 
-  const vaultLiquidationPrice = vaults.flatMap((v) => {
-    const symbol = v.denom(v.defaultSymbol).symbol;
-    const name = v.vaultConfig.name;
-    return v
-      .getAllLiquidationPrices({ onlyUnderlyingDebt: true })
-      .filter(({ price }) => price !== null)
-      .map(({ collateral, debt, price }) => {
-        const currentPrice = TokenBalance.unit(collateral).toToken(debt);
-        return {
-          collateral: {
-            symbol: symbol,
-            label: name,
-            caption: 'Leveraged Vault',
-          },
-          riskFactor: {
-            data: [`Vault Shares/${symbol}`, 'Chainlink Oracle Price'],
-            isNegative: false,
-          },
-          currentPrice: `${currentPrice?.toDisplayStringWithSymbol(4)}`,
-          liquidationPrice: `${price?.toDisplayStringWithSymbol(4)}`,
-        };
-      });
-  });
+  const vaultLiquidationPrice = vaultLiquidation.flatMap(
+    ({ vaultName, liquidationPrices }) => {
+      return liquidationPrices
+        .filter(({ asset }) => asset.tokenType === 'VaultShare')
+        .map(({ underlying, currentPrice, current }) => {
+          return {
+            collateral: {
+              symbol: underlying.symbol,
+              label: vaultName,
+              caption: 'Leveraged Vault',
+            },
+            riskFactor: {
+              data: [
+                `Vault Shares/${underlying.symbol}`,
+                'Chainlink Oracle Price',
+              ],
+              isNegative: false,
+            },
+            currentPrice: currentPrice.toDisplayStringWithSymbol(3),
+            liquidationPrice: current,
+          };
+        });
+    }
+  );
 
   return {
     riskOverviewColumns,

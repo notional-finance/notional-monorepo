@@ -13,7 +13,7 @@ export const MultiValueCell = ({ cell }): JSX.Element => {
   const SecondValue = column?.expandableTable ? TableCell : SmallTableCell;
 
   return (
-    <Box>
+    <Box className="multi-value-cell">
       {value?.data
         ? value.data.map((displayValue, index) => (
             <Box key={`${column.id}-${row.id}-${index}`}>
@@ -21,7 +21,7 @@ export const MultiValueCell = ({ cell }): JSX.Element => {
                 <Box>
                   <FirstValue
                     error={value.isNegative}
-                    sx={{ marginBottom: '0px', width: '100%' }}
+                    sx={{ marginBottom: '0px', width: '100%', fontWeight: 600 }}
                   >
                     {displayValue}
                   </FirstValue>

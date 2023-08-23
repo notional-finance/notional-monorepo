@@ -33,6 +33,7 @@
     "shared-trade": "packages/shared/trade",
     "shared-wallet": "packages/shared/wallet",
     "shared-web": "packages/shared/web",
+    "trading-contest": "packages/trading-contest",
     "transaction": "packages/transaction",
     "util": "packages/util",
     "vault-liquidator": "apps/vault-liquidator",

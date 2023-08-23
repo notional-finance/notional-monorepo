@@ -85,6 +85,9 @@
       "@notional-finance/styles/*": ["packages/common/styles/src/*"],
       "@notional-finance/trade": ["packages/shared/trade/src/index.ts"],
       "@notional-finance/trade/*": ["packages/shared/trade/src/*"],
+      "@notional-finance/trading-contest": [
+        "packages/trading-contest/src/index.ts"
+      ],
       "@notional-finance/transaction": ["packages/transaction/src/index.ts"],
       "@notional-finance/util": ["packages/util/src/index.ts"],
       "@notional-finance/vault-feature-shell": [

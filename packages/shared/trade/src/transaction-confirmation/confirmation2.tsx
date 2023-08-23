@@ -1,7 +1,13 @@
-import { Divider, styled, useTheme } from '@mui/material';
-import { ExternalLink, HeadingSubtitle, Drawer } from '@notional-finance/mui';
+import { Divider, styled, useTheme, Box } from '@mui/material';
+import {
+  ExternalLink,
+  HeadingSubtitle,
+  Drawer,
+  ErrorMessage,
+} from '@notional-finance/mui';
 import {
   BaseTradeContext,
+  TransactionStatus,
   useTransactionStatus,
 } from '@notional-finance/notionable-hooks';
 import { useCallback } from 'react';
@@ -67,6 +73,20 @@ export const Confirmation2 = ({
         />
       )}
       <OrderDetails state={state} />
+      {transactionStatus === TransactionStatus.REVERT && (
+        <Box sx={{ height: theme.spacing(8) }}>
+          <ErrorMessage
+            variant="error"
+            message={
+              transactionError ? (
+                transactionError
+              ) : (
+                <FormattedMessage defaultMessage={'Transaction error'} />
+              )
+            }
+          />
+        </Box>
+      )}
       <PortfolioCompare state={state} />
       <TransactionButtons
         transactionStatus={transactionStatus}

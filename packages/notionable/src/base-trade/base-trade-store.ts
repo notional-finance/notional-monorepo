@@ -58,6 +58,7 @@ interface UserInputs {
   selectedDepositToken?: string;
   redeemToWETH: boolean;
   maxWithdraw: boolean;
+  inputErrors: boolean;
 }
 
 /** Calculated values based on token inputs */
@@ -174,6 +175,7 @@ export const initialBaseTradeState: BaseTradeState = {
   redeemToWETH: false,
   calculationSuccess: false,
   maxWithdraw: false,
+  inputErrors: false,
 };
 
 export function isVaultTrade(tradeType?: VaultTradeType | TradeType) {

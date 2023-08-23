@@ -26,14 +26,12 @@ export class AccountRiskProfile extends BaseRiskProfile {
 
   /** Takes a set of token balances to create a new account risk profile */
   constructor(_balances: TokenBalance[], _network?: Network) {
-    const balances = _balances
-      .map((t) => (t.tokenType === 'Underlying' ? t.toPrimeCash() : t))
-      .filter(
-        (t) =>
-          !t.isVaultToken &&
-          t.tokenType !== 'Underlying' &&
-          t.tokenType !== 'Fiat'
-      );
+    const balances = _balances.filter(
+      (t) =>
+        !t.isVaultToken &&
+        t.tokenType !== 'Underlying' &&
+        t.tokenType !== 'Fiat'
+    );
 
     super(balances, 'ETH', _network);
   }
@@ -51,15 +49,6 @@ export class AccountRiskProfile extends BaseRiskProfile {
     if (debts.isZero()) return null;
 
     return this._toPercent(this.totalAssets(), debts.neg());
-  }
-
-  healthFactor() {
-    // As defined here: https://docs.notional.finance/notional-v2/borrower-resources/health-factor
-    const fc = this.freeCollateral();
-    let factor = this._toPercent(fc, this.netWorth()) / PERCENTAGE_BASIS;
-    // NOTE: handles the case when both FC and net worth are negative
-    if (fc.isNegative() && factor > 0) factor = factor * -1;
-    return 1 + factor * 9;
   }
 
   maxLoanToValue() {
@@ -127,43 +116,17 @@ export class AccountRiskProfile extends BaseRiskProfile {
     );
   }
 
-  /** Returns summary values per currency for the risk profile */
-  perCurrencyFactors() {
-    return this.allCurrencyIds.reduce(
-      (m, id) => {
-        const underlying = Registry.getTokenRegistry().getUnderlying(
-          this.network,
-          id
-        ).id;
-        m.set(id, {
-          totalAssets: this.totalCurrencyAssets(id, underlying),
-          totalAssetsRiskAdjusted: this.totalCurrencyAssetsRiskAdjusted(id),
-          totalDebts: this.totalCurrencyDebts(id, underlying),
-          totalDebtsRiskAdjusted: this.totalCurrencyDebtsRiskAdjusted(id),
-        });
-
-        return m;
-      },
-      new Map<
-        number,
-        {
-          totalAssets: TokenBalance;
-          totalAssetsRiskAdjusted: TokenBalance;
-          totalDebts: TokenBalance;
-          totalDebtsRiskAdjusted: TokenBalance;
-        }
-      >()
-    );
-  }
-
-  freeCollateral() {
+  freeCollateralFactors() {
     const denom = this.denom(this.defaultSymbol);
-    return this.allCurrencyIds.reduce((fc, id) => {
-      const netLocal = this.totalCurrencyAssetsRiskAdjusted(id).add(
-        this.totalCurrencyDebtsRiskAdjusted(id)
-      );
 
+    return this.allCurrencyIds.map((currencyId) => {
+      const totalAssetsLocal = this.totalCurrencyAssetsRiskAdjusted(currencyId);
+      const totalDebtsLocal = this.totalCurrencyDebtsRiskAdjusted(currencyId);
+      const netLocal = totalAssetsLocal.add(totalDebtsLocal);
       let netFC: TokenBalance;
+      let totalAssetsETH: TokenBalance;
+      let totalDebtsETH: TokenBalance;
+
       if (netLocal.currencyId === denom.currencyId) {
         // Handle special case when netLocal is in the denom currency
         const { haircut, buffer } =
@@ -173,15 +136,54 @@ export class AccountRiskProfile extends BaseRiskProfile {
         netFC = netLocal
           .toUnderlying()
           .scale(netLocal.isPositive() ? haircut : buffer, PERCENTAGE_BASIS);
+        totalAssetsETH = totalAssetsLocal
+          .toUnderlying()
+          .scale(haircut, PERCENTAGE_BASIS);
+        totalDebtsETH = totalDebtsLocal
+          .toUnderlying()
+          .scale(buffer, PERCENTAGE_BASIS);
       } else {
         netFC = netLocal.toToken(
           denom,
           netLocal.isNegative() ? 'Debt' : 'Asset'
         );
+        totalAssetsETH = totalAssetsLocal.toToken(denom, 'Asset');
+        totalDebtsETH = totalDebtsLocal.toToken(denom, 'Debt');
       }
 
-      return fc.add(netFC);
-    }, TokenBalance.zero(denom));
+      return {
+        currencyId,
+        netFC,
+        totalAssetsETH,
+        totalDebtsETH,
+      };
+    });
+  }
+
+  healthFactor() {
+    // As defined here: https://docs.notional.finance/notional-v2/borrower-resources/health-factor
+    const denom = this.denom(this.defaultSymbol);
+    const factors = this.freeCollateralFactors();
+    const totalAssets = factors.reduce(
+      (t, { totalAssetsETH }) => t.add(totalAssetsETH),
+      TokenBalance.zero(denom)
+    );
+    const totalDebts = factors.reduce(
+      (t, { totalDebtsETH }) => t.add(totalDebtsETH),
+      TokenBalance.zero(denom)
+    );
+    return totalDebts.isZero()
+      ? null
+      : totalAssets.toFloat() / totalDebts.abs().toFloat();
+  }
+
+  freeCollateral() {
+    const denom = this.denom(this.defaultSymbol);
+    const factors = this.freeCollateralFactors();
+    return factors.reduce(
+      (fc, { netFC }) => fc.add(netFC),
+      TokenBalance.zero(denom)
+    );
   }
 
   leverageRatio(currencyId?: number): number | null {
@@ -205,48 +207,63 @@ export class AccountRiskProfile extends BaseRiskProfile {
   }
 
   /***** RISK THRESHOLD *******/
-  collateralLiquidationThreshold(collateral: TokenDefinition) {
-    const netCollateralAvailable = this.netCollateralAvailable(collateral.id);
+  assetLiquidationThreshold(asset: TokenDefinition) {
+    const netCollateralAvailable = this.netCollateralAvailable(asset.id);
     // If there is no collateral available, then the liquidation price is null
     if (this.totalDebt().isZero()) return null;
     if (netCollateralAvailable.isZero()) return null;
+    if (
+      asset.tokenType === 'Underlying' &&
+      netCollateralAvailable.isPositive() &&
+      Registry.getConfigurationRegistry().getCurrencyHaircutAndBuffer(asset)
+        .haircut === 0
+    ) {
+      // No cross currency liquidation price if token is haircut to zero
+      return null;
+    }
 
-    const collateralDenominatedFC = this.freeCollateral().toToken(collateral);
+    const assetDenominatedFC = this.freeCollateral().toToken(asset);
+    const unitOfAsset = TokenBalance.unit(asset);
 
     // 1 - collateralDenominatedFC / netCollateralAvailable
-    const maxExchangeRateDecrease = TokenBalance.unit(collateral).sub(
-      TokenBalance.unit(collateral).scale(
-        collateralDenominatedFC,
-        netCollateralAvailable
-      )
+    // If netCollateralAvailable < 0 then the exchange rate change will be positive
+    const threshold = unitOfAsset.sub(
+      unitOfAsset.scale(assetDenominatedFC, netCollateralAvailable)
     );
 
-    if (collateral.tokenType === 'nToken') {
+    if (asset.tokenType === 'nToken') {
       const { nTokenMaxDrawdown } =
-        Registry.getConfigurationRegistry().getNTokenLeverageFactors(
-          collateral
-        );
+        Registry.getConfigurationRegistry().getNTokenLeverageFactors(asset);
 
       // This is the minimum price for an nToken
-      if (
-        maxExchangeRateDecrease.lt(
-          TokenBalance.unit(collateral).mulInRatePrecision(nTokenMaxDrawdown)
-        )
-      )
+      if (threshold.lt(unitOfAsset.mulInRatePrecision(nTokenMaxDrawdown)))
         return null;
+    } else if (asset.tokenType === 'fCash') {
+      if (netCollateralAvailable.isPositive()) {
+        const { lowestDiscountFactor } =
+          Registry.getConfigurationRegistry().getMinLendRiskAdjustedDiscountFactor(
+            asset
+          );
+
+        // This is the minimum price for positive fCash
+        if (threshold.lt(unitOfAsset.mulInRatePrecision(lowestDiscountFactor)))
+          return null;
+      } else {
+        // This is the maximum price for fCash debt
+        if (threshold.gt(unitOfAsset)) return null;
+      }
     }
 
     if (
-      (maxExchangeRateDecrease.isNegative() ||
-        maxExchangeRateDecrease.isZero()) &&
-      collateralDenominatedFC.isPositive()
+      (threshold.isNegative() || threshold.isZero()) &&
+      assetDenominatedFC.isPositive()
     ) {
       // If the max exchange rate decrease is negative then there is no possible liquidation price, this can
       // happen if aggregateFC > netUnderlying.
       return null;
     }
 
-    return maxExchangeRateDecrease;
+    return threshold;
   }
 
   borrowCapacity(currencyId: number) {
@@ -294,12 +311,7 @@ export class AccountRiskProfile extends BaseRiskProfile {
       collateralRatio: this.collateralRatio(),
       leverageRatio: this.leverageRatio(),
       healthFactor: this.healthFactor(),
-      liquidationPrice: this.getAllLiquidationPrices({
-        onlyUnderlyingDebt: false,
-      }),
-      collateralLiquidationThreshold: this.collateral.map((a) =>
-        this.collateralLiquidationThreshold(a.token)
-      ),
+      liquidationPrice: this.getAllLiquidationPrices(),
     };
   }
 

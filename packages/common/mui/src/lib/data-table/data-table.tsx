@@ -1,7 +1,7 @@
 import { ReactNode, useRef, useState, SetStateAction, Dispatch } from 'react';
 import { Table, TableContainer, Paper, useTheme, Box } from '@mui/material';
 import { SxProps } from '@mui/material/styles';
-
+import { ArrowIcon } from '@notional-finance/icons';
 import { DataTableFilterBar } from './data-table-filter-bar/data-table-filter-bar';
 import { DataTableTitleBar } from './data-table-title-bar/data-table-title-bar';
 import { DataTableTabBar } from './data-table-tab-bar/data-table-tab-bar';
@@ -11,6 +11,7 @@ import {
   DataTableInfoBox,
   InfoBoxDataProps,
 } from './data-table-info-box/data-table-info-box';
+
 import { PageLoading } from '../page-loading/page-loading';
 import { useTable, useExpanded, useSortBy } from 'react-table';
 import { FormattedMessage } from 'react-intl';
@@ -37,13 +38,17 @@ interface DataTableProps {
   hideExcessRows?: boolean;
   initialState?: Record<any, any>;
   setExpandedRows?: Dispatch<SetStateAction<ExpandedRows | null>>;
+  setShowHiddenRows?: Dispatch<SetStateAction<boolean>>;
+  showHiddenRows?: boolean;
   tableLoading?: boolean;
   filterBarData?: any[];
   clearQueryAndFilters?: () => void;
   marketDataCSVFormatter?: (data: any[]) => any;
   stateZeroMessage?: ReactNode;
+  hiddenRowMessage?: ReactNode;
   infoBoxData?: InfoBoxDataProps[];
   sx?: SxProps;
+  maxHeight?: any;
 }
 
 export const DataTable = ({
@@ -65,7 +70,11 @@ export const DataTable = ({
   clearQueryAndFilters,
   marketDataCSVFormatter,
   stateZeroMessage,
+  setShowHiddenRows,
+  hiddenRowMessage,
+  showHiddenRows,
   infoBoxData,
+  maxHeight,
   sx,
 }: DataTableProps) => {
   const theme = useTheme();
@@ -97,6 +106,10 @@ export const DataTable = ({
   /**
     "Default Data Table": 
       - If you pass only the required props a plain table with no title bar will be rendered.
+    
+    NOTE* on maxHeight prop:
+    - when using the max height prop be aware that you may need to pass additional width and marginRight styling props to align the table correctly.
+    - An example of this can be found in useFCashPriceExposureTable
 
     DATA TABLE VARIANTS =======
 
@@ -182,21 +195,49 @@ export const DataTable = ({
       {TabComponentVisible && CustomTabComponent && <CustomTabComponent />}
       {tableReady ? (
         <>
-          <Table {...getTableProps()}>
-            <DataTableHead
-              headerGroups={headerGroups}
-              tableVariant={tableVariant}
-              expandableTable={expandableTable}
-            />
-            <DataTableBody
-              rows={displayedRows}
-              prepareRow={prepareRow}
-              tableVariant={tableVariant}
-              CustomRowComponent={CustomRowComponent}
-              setExpandedRows={setExpandedRows}
-              initialState={initialState}
-            />
-          </Table>
+          {!maxHeight && (
+            <Table {...getTableProps()}>
+              <DataTableHead
+                headerGroups={headerGroups}
+                tableVariant={tableVariant}
+                expandableTable={expandableTable}
+              />
+
+              <DataTableBody
+                rows={displayedRows}
+                prepareRow={prepareRow}
+                tableVariant={tableVariant}
+                CustomRowComponent={CustomRowComponent}
+                setExpandedRows={setExpandedRows}
+                initialState={initialState}
+              />
+            </Table>
+          )}
+          {maxHeight && (
+            <>
+              <div style={{ position: 'sticky', top: 0 }}>
+                <Table {...getTableProps()}>
+                  <DataTableHead
+                    headerGroups={headerGroups}
+                    tableVariant={tableVariant}
+                    expandableTable={expandableTable}
+                  />
+                </Table>
+              </div>
+              <div style={{ maxHeight: maxHeight, overflow: 'auto' }}>
+                <Table {...getTableProps()}>
+                  <DataTableBody
+                    rows={displayedRows}
+                    prepareRow={prepareRow}
+                    tableVariant={tableVariant}
+                    CustomRowComponent={CustomRowComponent}
+                    setExpandedRows={setExpandedRows}
+                    initialState={initialState}
+                  />
+                </Table>
+              </div>
+            </>
+          )}
           {rows.length > 4 && hideExcessRows && (
             <Box
               sx={{
@@ -237,6 +278,36 @@ export const DataTable = ({
             </TableCell>
           )}
         </Box>
+      )}
+      {setShowHiddenRows && hiddenRowMessage && (
+        <TableCell
+          sx={{
+            textAlign: 'center',
+            background: theme.palette.background.paper,
+            color: theme.palette.primary.light,
+            textDecoration: 'underline',
+            cursor: 'pointer',
+            marginRight: `-${theme.spacing(2)}`,
+            marginLeft: `-${theme.spacing(2)}`,
+            marginTop: theme.spacing(2),
+            marginBottom: `-${theme.spacing(2)}`,
+            padding: theme.spacing(2),
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+          onClick={() => setShowHiddenRows(!showHiddenRows)}
+        >
+          <span>{hiddenRowMessage}</span>
+          <ArrowIcon
+            sx={{
+              color: theme.palette.primary.light,
+              transform: `rotate(${showHiddenRows ? '0' : '180'}deg)`,
+              transition: 'transform .5s ease-in-out',
+              height: theme.spacing(2),
+            }}
+          />
+        </TableCell>
       )}
     </TableContainer>
   );

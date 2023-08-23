@@ -5,8 +5,9 @@ import { PopulatedTransaction } from 'ethers';
 import { useObservable, useSubscription } from 'observable-hooks';
 import { useCallback, useEffect, useState } from 'react';
 import { map, switchMap } from 'rxjs';
-import { useNotionalContext } from './use-notional';
+import { useNotionalContext, useSelectedNetwork } from './use-notional';
 import { useLocation } from 'react-router';
+import { Registry } from '@notional-finance/core-entities';
 
 export enum TransactionStatus {
   NONE = 'none',
@@ -109,6 +110,7 @@ function usePendingTransaction(hash?: string) {
 }
 
 export function useTransactionStatus() {
+  const network = useSelectedNetwork();
   const [transactionStatus, setTransactionStatus] = useState<TransactionStatus>(
     TransactionStatus.NONE
   );
@@ -120,9 +122,11 @@ export function useTransactionStatus() {
 
   useEffect(() => {
     if (reverted) setTransactionHash(TransactionStatus.REVERT);
-    else if (transactionReceipt)
+    else if (transactionReceipt) {
       setTransactionStatus(TransactionStatus.CONFIRMED);
-  }, [transactionReceipt, reverted]);
+      if (network) Registry.getAccountRegistry().refreshActiveAccount(network);
+    }
+  }, [transactionReceipt, reverted, network]);
 
   const onSubmit = useCallback(
     (populatedTransaction?: PopulatedTransaction) => {

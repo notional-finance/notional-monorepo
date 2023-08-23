@@ -50,7 +50,7 @@ export const useTxnHistoryData = (txnHistoryType: TXN_HISTORY_TYPE) => {
           assetAmount: formatTokenAmount(tokenAmount, impliedFixedRate),
           asset: {
             label: assetData.title,
-            symbol: assetData.title.toLowerCase(),
+            symbol: assetData.icon.toLowerCase(),
             caption: assetData.caption ? assetData.caption : '',
           },
           price: formatNumber(realizedPrice.toFloat(), 2),
@@ -93,9 +93,7 @@ export const useTxnHistoryData = (txnHistoryType: TXN_HISTORY_TYPE) => {
       return {
         id: token.id,
         title: tokenData.title,
-        icon: (
-          <TokenIcon size="medium" symbol={tokenData.title.toLowerCase()} />
-        ),
+        icon: <TokenIcon size="medium" symbol={tokenData.icon.toLowerCase()} />,
       };
     });
   }

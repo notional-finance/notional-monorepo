@@ -12,7 +12,7 @@ import {
 } from '@notional-finance/util';
 import { BigNumber, BigNumberish, utils } from 'ethers';
 import { parseUnits } from 'ethers/lib/utils';
-import { Registry, ExchangeRate, TokenDefinition, RiskAdjustment } from '.';
+import { Registry, TokenDefinition, RiskAdjustment } from '.';
 import { FiatKeys, FiatSymbols } from './config/fiat-config';
 
 export type SerializedTokenBalance = ReturnType<TokenBalance['toJSON']>;
@@ -408,50 +408,56 @@ export class TokenBalance {
   toToken(
     token: TokenDefinition,
     riskAdjustment: RiskAdjustment = 'None',
-    exchangeRate?: ExchangeRate | null
+    timestamp?: number
   ): TokenBalance {
-    if (!exchangeRate) {
-      const oracleRegistry = Registry.getOracleRegistry();
+    const oracleRegistry = Registry.getOracleRegistry();
 
-      if (this.tokenType === 'NOTE' && this.network !== Network.All) {
-        // If converting NOTE to any token denomination, first convert to ETH via
-        // the all network
-        const noteInETH = this.toFiat('ETH');
-        const eth = Registry.getTokenRegistry().getTokenBySymbol(
-          this.network,
-          'ETH'
-        );
-        const ethInCurrentNetwork = TokenBalance.fromFloat(
-          noteInETH.toFloat(),
-          eth
-        );
-        return token.id === eth.id
-          ? ethInCurrentNetwork
-          : ethInCurrentNetwork.toToken(token, riskAdjustment);
-      }
-
-      // Fetch the latest exchange rate
-      const unwrapped = this.unwrapVaultToken();
-      const id =
-        unwrapped.tokenType === 'fCash' &&
-        unwrapped.hasMatured &&
-        this.isNegative()
-          ? // Rewrite the fCash to a negative fCash id for settlement so that we convert to PrimeDebt
-            encodeERC1155Id(
-              this.currencyId,
-              this.maturity,
-              AssetType.FCASH_ASSET_TYPE,
-              true
-            )
-          : unwrapped.tokenId;
-
-      const path = oracleRegistry.findPath(id, token.id, this.token.network);
-      exchangeRate = oracleRegistry.getLatestFromPath(
-        this.token.network,
-        path,
-        riskAdjustment
+    if (this.tokenType === 'NOTE' && this.network !== Network.All) {
+      // If converting NOTE to any token denomination, first convert to ETH via
+      // the all network
+      const noteInETH = this.toFiat('ETH');
+      const eth = Registry.getTokenRegistry().getTokenBySymbol(
+        this.network,
+        'ETH'
       );
+      const ethInCurrentNetwork = TokenBalance.fromFloat(
+        noteInETH.toFloat(),
+        eth
+      );
+      return token.id === eth.id
+        ? ethInCurrentNetwork
+        : ethInCurrentNetwork.toToken(token, riskAdjustment);
     }
+
+    // Fetch the latest exchange rate
+    const unwrapped = this.unwrapVaultToken();
+    const id =
+      unwrapped.tokenType === 'fCash' &&
+      unwrapped.hasMatured &&
+      this.isNegative()
+        ? // Rewrite the fCash to a negative fCash id for settlement so that we convert to PrimeDebt
+          encodeERC1155Id(
+            this.currencyId,
+            this.maturity,
+            AssetType.FCASH_ASSET_TYPE,
+            true
+          )
+        : unwrapped.tokenId;
+
+    const path = oracleRegistry.findPath(id, token.id, this.token.network);
+    const exchangeRate =
+      timestamp !== undefined
+        ? oracleRegistry.getHistoricalFromPath(
+            this.token.network,
+            path,
+            riskAdjustment,
+            timestamp
+          )
+        : oracleRegistry.getLatestFromPath(
+            this.token.network,
+            path,
+            riskAdjustment
+          );
 
     if (!exchangeRate) throw Error('No Exchange Rate');
     return new TokenBalance(

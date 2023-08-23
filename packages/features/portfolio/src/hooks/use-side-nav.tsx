@@ -10,22 +10,32 @@ import {
 } from '@notional-finance/icons';
 import { PortfolioParams } from '../portfolio-feature-shell';
 import {
-  useVaultRiskProfiles,
-  useNotionalContext,
+  useAccountReady,
+  useAccountDefinition,
 } from '@notional-finance/notionable-hooks';
-import { usePortfolioHoldings } from '../containers/portfolio-holdings/use-portfolio-holdings';
+import { unique } from '@notional-finance/util';
 
 export const useSideNav = () => {
   const { category } = useParams<PortfolioParams>();
   const theme = useTheme();
-  const {
-    globalState: { isAccountReady },
-  } = useNotionalContext();
+  const isAccountReady = useAccountReady();
+  const { account } = useAccountDefinition();
+  const numHoldings =
+    account?.balances.filter(
+      (t) =>
+        t.tokenType === 'nToken' ||
+        t.tokenType === 'fCash' ||
+        t.tokenType === 'PrimeCash' ||
+        t.tokenType === 'PrimeDebt'
+    ).length || 0;
+  const numVaults =
+    unique(
+      account?.balances
+        .filter((t) => t.isVaultToken)
+        .map((t) => t.vaultAddress) || []
+    ).length || 0;
 
   const useOptionsActive = () => {
-    const { portfolioHoldingsData } = usePortfolioHoldings();
-    const vaults = useVaultRiskProfiles();
-
     return [
       {
         Icon: <FourSquareIcon sx={{ width: '17px' }} />,
@@ -37,7 +47,7 @@ export const useSideNav = () => {
         Icon: <BarChartIcon sx={{ width: '17px' }} />,
         id: PORTFOLIO_CATEGORIES.HOLDINGS,
         to: `/portfolio/${PORTFOLIO_CATEGORIES.HOLDINGS}`,
-        notifications: portfolioHoldingsData.length,
+        notifications: numHoldings,
       },
       {
         Icon: (
@@ -53,7 +63,7 @@ export const useSideNav = () => {
         ),
         id: PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS,
         to: `/portfolio/${PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS}`,
-        notifications: vaults.length,
+        notifications: numVaults,
       },
       {
         Icon: <HistoryIcon sx={{ width: '17px' }} />,
