@@ -1,8 +1,4 @@
-import {
-  DurableObjectNamespace,
-  Request,
-  Response,
-} from '@cloudflare/workers-types';
+import { DurableObjectNamespace, Request } from '@cloudflare/workers-types';
 import { RegistryDOEnv } from '@notional-finance/durable-objects';
 import { Routes } from '@notional-finance/core-entities/src/server';
 import { Network, ONE_HOUR_MS } from '@notional-finance/util';
@@ -29,7 +25,7 @@ async function getOracleData(network: Network, blockNumber: number) {
 }
 
 export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
+  async fetch(request: Request, env: Env) {
     const url = new URL(request.url);
     const network = url.pathname.split('/')[1];
     if (!network) {
@@ -50,7 +46,10 @@ export default {
           network as Network,
           parseInt(blockNumber)
         );
-        return new Response(data);
+        return new Response(data, {
+          status: 200,
+          statusText: 'OK',
+        });
       }
       case Routes.Analytics:
         ns = env.VIEWS_DO;
