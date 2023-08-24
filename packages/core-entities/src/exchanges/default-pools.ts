@@ -159,6 +159,23 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
         },
       ],
     },
+    {
+      address: '0x36bf227d6BaC96e2aB1EbB5492ECec69C691943f',
+      PoolClass: 'MetaStablePool',
+      registerTokens: [
+        // ETH / wstETH Pool
+        {
+          id: '0xDbcD16e622c95AcB2650b38eC799f76BFC557a0b',
+          address: '0xDbcD16e622c95AcB2650b38eC799f76BFC557a0b',
+          network: Network.ArbitrumOne,
+          symbol: 'B-wstETH-WETH-Stable',
+          name: 'Balancer wstETH-WETH Stable Pool',
+          decimals: 18,
+          tokenInterface: 'ERC20',
+          tokenType: 'Underlying',
+        },
+      ],
+    },
   ],
   [Network.All]: [],
 };
