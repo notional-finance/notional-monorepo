@@ -6,6 +6,7 @@ import { WalletSelector } from '@notional-finance/wallet';
 import { Box, styled } from '@mui/material';
 
 const AppLayoutRoute = ({ component: Component, path, routeKey }) => {
+  console.log({ path });
   return (
     <CompatRoute
       path={path}
@@ -13,9 +14,11 @@ const AppLayoutRoute = ({ component: Component, path, routeKey }) => {
       render={(matchProps) => (
         <Box>
           <AppShell>
-            <Header>
-              <WalletSelector />
-            </Header>
+            {!path.includes('contest') && (
+              <Header>
+                <WalletSelector />
+              </Header>
+            )}
 
             <MainContent>
               <Component {...matchProps} />

@@ -49,6 +49,7 @@ import {
 import { TermsView } from '../../containers/TermsView';
 import { PrivacyView } from '../../containers/PrivacyView';
 import { LandingPageView } from '../../containers/LandingPageView';
+import { TradingContest } from '../../containers/TradingContest';
 import { Markets } from '../Markets';
 
 const AllRoutes = () => {
@@ -147,6 +148,7 @@ const AllRoutes = () => {
           <AppLayoutRoute path="/portfolio" component={PortfolioFeatureShell} />
           <AppLayoutRoute path="/markets" component={Markets} />
           <AppLayoutRoute path="/error" component={ServerError} />
+          <AppLayoutRoute path="/contest" component={TradingContest} />
           <LandingPageLayoutRoute path="/about" component={AboutUsView} />
           {/* <AppLayoutRoute path="/stake/:ethOrWeth" component={StakeView} />
           <AppLayoutRoute path="/stake" component={StakeView} />
