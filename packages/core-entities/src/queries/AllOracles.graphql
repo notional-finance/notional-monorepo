@@ -14,7 +14,7 @@ query AllOracles {
     fCashSpotRate,
     PrimeCashToUnderlyingOracleInterestRate,
     fCashToUnderlyingExchangeRate
-  ], matured: false}, first: 5000) {
+  ], matured: false}, first: 1000) {
     id
     lastUpdateBlockNumber
     lastUpdateTimestamp

@@ -24,19 +24,27 @@ export const graphQueries = {
     }
     `,
   NotionalV3nTokenDailyFees: `
-    query nTokenDailyFees($currencyId: Int) {
+    query nTokenDailyFees($currencyId: Int, $ts: Int, $dayStart: Int) {
         transfers(
-        where: {toSystemAccount: "FeeReserve", transferType: "Transfer", token_: {currencyId: $currencyId}}
+          where: {
+            toSystemAccount: "FeeReserve", 
+            transferType: "Transfer", 
+            token_: {
+              currencyId: $currencyId
+            },
+            timestamp_gt: $dayStart, 
+            timestamp_lt: $ts
+          }
         ) {
-        valueInUnderlying
-        token {
-            underlying {
-            decimals
+          valueInUnderlying
+          token {
+              underlying {
+                decimals
             }
-        }
+          }
         }
         currencyConfigurations(where: {id: $currencyId}) {
-        fCashReserveFeeSharePercent
+          fCashReserveFeeSharePercent
         }
     }
     `,

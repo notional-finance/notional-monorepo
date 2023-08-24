@@ -37,7 +37,7 @@ const parseQueryParams = (q) => {
       startTime = now;
     }
   }
-  let endTime = Date.now() / 1000;
+  let endTime = now;
   if (q.endTime) {
     endTime = parseInt(q.endTime as string);
     if (endTime > now) {

@@ -92,6 +92,7 @@ export const configDefs: ConfigDefinition[] = [
       contractAddress: '0xcbfa4532d8b2ade2c261d3dd5ef2a2284f792692',
       contractABI: BalancerBoostedPoolABI,
       method: 'getRate',
+      finalBlock: 17971301,
     },
     tableName: TableName.GenericData,
     dataConfig: {
@@ -107,6 +108,7 @@ export const configDefs: ConfigDefinition[] = [
       contractAddress: '0xa1697f9af0875b63ddc472d6eebada8c1fab8568',
       contractABI: BalancerBoostedPoolABI,
       method: 'getRate',
+      finalBlock: 17971301,
     },
     tableName: TableName.GenericData,
     dataConfig: {
@@ -122,6 +124,7 @@ export const configDefs: ConfigDefinition[] = [
       contractAddress: '0x6667c6fa9f2b3fc1cc8d85320b62703d938e4385',
       contractABI: BalancerBoostedPoolABI,
       method: 'getRate',
+      finalBlock: 17971301,
     },
     tableName: TableName.GenericData,
     dataConfig: {
@@ -137,6 +140,7 @@ export const configDefs: ConfigDefinition[] = [
       contractAddress: '0x60d604890feaa0b5460b28a424407c24fe89374a',
       contractABI: BalancerBoostedPoolABI,
       method: 'getRate',
+      finalBlock: 17971301,
     },
     tableName: TableName.GenericData,
     dataConfig: {
@@ -152,6 +156,7 @@ export const configDefs: ConfigDefinition[] = [
       contractAddress: '0x7c82a23b4c48d796dee36a9ca215b641c6a8709d',
       contractABI: BalancerBoostedPoolABI,
       method: 'getRate',
+      finalBlock: 123907076,
     },
     tableName: TableName.GenericData,
     dataConfig: {
@@ -167,6 +172,7 @@ export const configDefs: ConfigDefinition[] = [
       contractAddress: '0x4739E50B59B552D490d3FDc60D200977A38510c0',
       contractABI: BalancerBoostedPoolABI,
       method: 'getRate',
+      finalBlock: 123907076,
     },
     tableName: TableName.GenericData,
     dataConfig: {
@@ -182,6 +188,7 @@ export const configDefs: ConfigDefinition[] = [
       contractAddress: '0x9e34631547adcf2f8cefa0f5f223955c7b137571',
       contractABI: BalancerBoostedPoolABI,
       method: 'getRate',
+      finalBlock: 123907076,
     },
     tableName: TableName.GenericData,
     dataConfig: {
@@ -197,6 +204,7 @@ export const configDefs: ConfigDefinition[] = [
       contractAddress: '0xda1cd1711743e57dd57102e9e61b75f3587703da',
       contractABI: BalancerBoostedPoolABI,
       method: 'getRate',
+      finalBlock: 123907076,
     },
     tableName: TableName.GenericData,
     dataConfig: {

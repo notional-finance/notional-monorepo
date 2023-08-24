@@ -37,6 +37,8 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
       );
     }
 
+    console.log(`blockNumber=${blockNumber}`);
+
     const results = await this._queryAllOracles(network, blockNumber);
     // Updates the latest rates using the blockchain
     return this._updateLatestRates(results, blockNumber);
@@ -45,6 +47,7 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
   private async _queryAllOracles(network: Network, blockNumber?: number) {
     const { AllOraclesDocument, AllOraclesByBlockDocument } =
       await loadGraphClientDeferred();
+
     return this._fetchUsingGraph(
       network,
       (blockNumber !== undefined
@@ -65,7 +68,7 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
             latestRate: {
               rate: BigNumber.from(v.latestRate),
               timestamp: v.lastUpdateTimestamp,
-              blockNumber: v.lastUpdateBlockNumber,
+              blockNumber: blockNumber || v.lastUpdateBlockNumber,
             },
           };
 

@@ -47,6 +47,8 @@ export interface MulticallConfig {
   method: string;
   args?: unknown[];
   outputIndices?: number[];
+  firstBlock?: number;
+  finalBlock?: number;
 }
 
 export interface SubgraphConfig {
@@ -72,6 +74,10 @@ export interface ConfigDefinition {
   tableName: TableName;
   dataConfig: GenericDataConfig | TokenDataConfig;
   network: Network;
+}
+
+export interface ConfigFilter {
+  include: GenericDataConfig[];
 }
 
 export interface MulticallOperation {
@@ -111,7 +117,7 @@ export interface DataContext {
 }
 
 export interface IDataWriter {
-  write(db: Knex, context: DataContext, rows: DataRow[]): Promise<void>;
+  write(db: Knex, context: DataContext, rows: DataRow[]): Promise<any>;
 }
 
 export interface VaultAccount {

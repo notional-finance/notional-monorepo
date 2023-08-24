@@ -102,6 +102,7 @@ ${e}, blockNumber=${blockNumber}`);
           // array which we eliminate here for simplicity
           result = decoded.length === 1 ? decoded[0] : decoded;
         } catch (e) {
+          console.log(`blockNum=${blockNumber}`);
           if (allowFailure) {
             console.warn(
               `Decode result error, ${r}, ${key}, ${method}, ${target}`

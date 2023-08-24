@@ -4,6 +4,7 @@ import {
   Network,
   getProviderFromNetwork,
   ORACLE_TYPE_TO_ID,
+  ONE_HOUR_MS,
 } from '@notional-finance/util';
 import { fetch } from 'cross-fetch';
 import { URLSearchParams } from 'url';
@@ -217,10 +218,20 @@ export default class DataService {
   ) {
     const blockNumber = await this.getBlockNumberFromTs(network, ts);
     const provider = getProviderFromNetwork(network, true);
-    const calls = operations.map((op) => op.aggregateCall);
+    const filteredOps = operations.filter((op) => {
+      const sourceConfig = op.configDef.sourceConfig as MulticallConfig;
+      if (sourceConfig.firstBlock && sourceConfig.firstBlock < blockNumber) {
+        return false;
+      }
+      if (sourceConfig.finalBlock && blockNumber > sourceConfig.finalBlock) {
+        return false;
+      }
+      return true;
+    });
+    const calls = filteredOps.map((op) => op.aggregateCall);
     const response = await aggregate(calls, provider, blockNumber, true);
 
-    operations.forEach((op) => {
+    filteredOps.forEach((op) => {
       let values = dbData.get(op.configDef.tableName);
       if (!values) {
         values = [];
@@ -261,6 +272,8 @@ export default class DataService {
           query: op.subgraphQuery,
           variables: {
             ts: ts,
+            dayStart: ts - (ONE_HOUR_MS * 24) / 1000,
+            hourStart: ts - ONE_HOUR_MS / 1000,
             ...(sourceConfig.args || {}),
           },
         });

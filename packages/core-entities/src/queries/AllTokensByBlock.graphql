@@ -1,5 +1,5 @@
 query AllTokensByBlock($blockNumber: Int) {
-    tokens(first: 5000, block: { number: $blockNumber }) {
+    tokens(first: 1000, block: { number: $blockNumber }) {
         id
         tokenType
         tokenInterface

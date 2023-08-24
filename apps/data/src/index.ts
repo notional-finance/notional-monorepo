@@ -5,7 +5,8 @@ import {
 } from '@cloudflare/workers-types';
 import { RegistryDOEnv } from '@notional-finance/durable-objects';
 import { Routes } from '@notional-finance/core-entities/src/server';
-import { ONE_HOUR_MS } from '@notional-finance/util';
+import { Network, ONE_HOUR_MS } from '@notional-finance/util';
+import { OracleRegistryServer } from 'packages/core-entities/src/server/oracle-registry-server';
 
 export interface Env extends RegistryDOEnv {
   VIEWS_DO: DurableObjectNamespace;
@@ -21,18 +22,41 @@ async function runHealthCheck(ns: DurableObjectNamespace, version: string) {
   await stub.fetch('http://hostname/healthcheck');
 }
 
+async function getOracleData(network: Network, blockNumber: number) {
+  const server = new OracleRegistryServer();
+  await server.refreshAtBlock(network, blockNumber);
+  return server.serializeToJSON(network);
+}
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
+    const network = url.pathname.split('/')[1];
+    if (!network) {
+      throw Error('Network is required');
+    }
 
     let ns: DurableObjectNamespace;
     switch (url.pathname.split('/')[2]) {
       case Routes.Yields:
         ns = env.YIELD_REGISTRY_DO;
         break;
+      case Routes.Oracles: {
+        const blockNumber = url.pathname.split('/')[3];
+        if (!blockNumber) {
+          throw Error('Block number is required');
+        }
+        const data = await getOracleData(
+          network as Network,
+          parseInt(blockNumber)
+        );
+        return new Response(data);
+      }
       case Routes.Analytics:
         ns = env.VIEWS_DO;
         break;
+      default:
+        throw Error('Bad route');
     }
 
     const stub = ns.get(ns.idFromName(env.VERSION));
@@ -41,7 +65,7 @@ export default {
   async scheduled(_: ScheduledController, env: Env): Promise<void> {
     await fetch(`${env.DATA_SERVICE_URL}/syncGenericData`, {
       headers: {
-        'x-auth-token': this.env.DATA_SERVICE_AUTH_TOKEN,
+        'x-auth-token': env.DATA_SERVICE_AUTH_TOKEN,
       },
     });
 

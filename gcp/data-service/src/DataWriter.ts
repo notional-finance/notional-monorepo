@@ -12,7 +12,7 @@ export class TokenBalanceDataWriter implements IDataWriter {
     db: Knex,
     context: DataContext,
     rows: DataRow[]
-  ): Promise<void> {
+  ): Promise<any> {
     const query = db
       .insert(
         rows.map((v) => {
@@ -24,7 +24,7 @@ export class TokenBalanceDataWriter implements IDataWriter {
             timestamp: context.timestamp,
             block_number: v.blockNumber,
             decimals: dataConfig.decimals,
-            value: v.value.toString(),
+            value: v.value?.toString(),
           };
         })
       )
@@ -32,10 +32,10 @@ export class TokenBalanceDataWriter implements IDataWriter {
       .onConflict(['token_address', 'network', 'timestamp']);
 
     if (context.mergeConflicts) {
-      await query.merge();
-    } else {
-      await query.ignore();
+      return query.merge();
     }
+
+    return query.ignore();
   }
 }
 
@@ -44,7 +44,7 @@ export class GenericDataWriter implements IDataWriter {
     db: Knex,
     context: DataContext,
     rows: DataRow[]
-  ): Promise<void> {
+  ): Promise<any> {
     const query = db
       .insert(
         rows.map((v) => {
@@ -59,7 +59,7 @@ export class GenericDataWriter implements IDataWriter {
             decimals: dataConfig.decimals,
             contract_address: v.contractAddress,
             method: v.method,
-            latest_rate: v.value.toString(),
+            latest_rate: v.value?.toString(),
           };
         })
       )
@@ -67,9 +67,9 @@ export class GenericDataWriter implements IDataWriter {
       .onConflict(['strategy_id', 'variable', 'network', 'timestamp']);
 
     if (context.mergeConflicts) {
-      await query.merge();
-    } else {
-      await query.ignore();
+      return query.merge();
     }
+
+    return query.ignore();
   }
 }
