@@ -23,6 +23,7 @@ export { ExchangeV3__factory } from "./ExchangeV3__factory";
 export { FlashLiquidator__factory } from "./FlashLiquidator__factory";
 export { Governor__factory } from "./Governor__factory";
 export { IAggregator__factory } from "./IAggregator__factory";
+export { ISingleSidedLPStrategyVault__factory } from "./ISingleSidedLPStrategyVault__factory";
 export { IStrategyVault__factory } from "./IStrategyVault__factory";
 export { MetaStable2TokenAuraVault__factory } from "./MetaStable2TokenAuraVault__factory";
 export { Multicall2__factory } from "./Multicall2__factory";

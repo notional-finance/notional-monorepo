@@ -3,8 +3,8 @@ import { Network, getProviderFromNetwork } from '@notional-finance/util';
 import { aggregate } from '@notional-finance/multicall';
 import { VaultMetadata } from '../vaults';
 import {
-  Curve2TokenConvexVault,
-  Curve2TokenConvexVaultABI,
+  ISingleSidedLPStrategyVault,
+  ISingleSidedLPStrategyVaultABI,
 } from '@notional-finance/contracts';
 import { Contract } from 'ethers';
 import { TokenBalance } from '../token-balance';
@@ -24,26 +24,27 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
         return {
           target: new Contract(
             vaultAddress,
-            Curve2TokenConvexVaultABI,
+            ISingleSidedLPStrategyVaultABI,
             getProviderFromNetwork(network)
           ),
-          method: 'getStrategyContext',
+          method: 'getStrategyVaultInfo',
           key: vaultAddress,
           transform: (
-            r: Awaited<ReturnType<Curve2TokenConvexVault['getStrategyContext']>>
+            r: Awaited<
+              ReturnType<ISingleSidedLPStrategyVault['getStrategyVaultInfo']>
+            >
           ) => {
             const totalLPTokens = TokenBalance.toJSON(
-              r.baseStrategy.vaultState.totalPoolClaim,
-              r.poolContext.basePool.poolToken,
+              r.totalLPTokens,
+              r.pool,
               network
             );
 
-            const totalVaultShares =
-              r.baseStrategy.vaultState.totalVaultSharesGlobal;
+            const totalVaultShares = r.totalVaultShares;
 
             return {
-              pool: r.poolContext.curvePool,
-              singleSidedTokenIndex: r.poolContext.basePool.primaryIndex,
+              pool: r.pool,
+              singleSidedTokenIndex: r.singleSidedTokenIndex,
               totalLPTokens,
               totalVaultShares,
               secondaryTradeParams: '0x',
