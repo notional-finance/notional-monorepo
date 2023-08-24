@@ -35,3 +35,4 @@ export { default as BalancerGaugeControllerABI } from './BalancerGaugeController
 export { default as CurveGaugeABI } from './CurveGauge.json';
 export { default as CurveGaugeControllerABI } from './CurveGaugeController.json';
 export { default as CurvePoolTokenABI } from './CurvePoolToken.json';
+export { default as ISingleSidedLPStrategyVaultABI } from './ISingleSidedLPStrategyVault.json';
