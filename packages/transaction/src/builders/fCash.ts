@@ -119,8 +119,7 @@ export function BorrowFixed({
   accountBalances,
   redeemToWETH,
 }: PopulateTransactionInputs) {
-  if (!debtBalance)
-    throw Error('Debt balance must be defined');
+  if (!debtBalance) throw Error('Debt balance must be defined');
 
   // NOTE: this returns the direct FX'd prime cash amount which is probably wrong....
   const { withdrawEntireCashBalance, withdrawAmountInternalPrecision } =
@@ -229,7 +228,7 @@ export function RepayDebt({
     });
   } else {
     const { cashBalance } = hasExistingCashBalance(
-      depositBalance,
+      depositBalance.toPrimeCash(),
       accountBalances
     );
     if (!cashBalance?.isNegative()) throw Error('Must have cash debt to repay');

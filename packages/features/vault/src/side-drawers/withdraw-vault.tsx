@@ -55,7 +55,7 @@ export const WithdrawVault = () => {
       updateState({
         maxWithdraw: true,
         calculationSuccess: true,
-        depositBalance: undefined,
+        depositBalance: maxWithdrawUnderlying.neg(),
         calculateError: undefined,
         collateralBalance: profile.vaultShares.neg(),
         debtBalance: profile.vaultDebt.neg(),

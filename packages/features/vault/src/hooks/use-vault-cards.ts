@@ -1,7 +1,13 @@
-import { useAllVaults } from '@notional-finance/notionable-hooks';
+import {
+  useAllMarkets,
+  useAllVaults,
+} from '@notional-finance/notionable-hooks';
 
 export const useVaultCards = () => {
   const listedVaults = useAllVaults();
+  const {
+    yields: { leveragedVaults },
+  } = useAllMarkets();
   const allVaults = listedVaults.map(
     ({
       vaultAddress,
@@ -11,7 +17,9 @@ export const useVaultCards = () => {
       totalUsedPrimaryBorrowCapacity,
       primaryToken,
     }) => {
-      const headlineRate = 0;
+      const y = leveragedVaults.find(
+        (y) => y.token.vaultAddress === vaultAddress
+      );
       const capacityRemaining = maxPrimaryBorrowCapacity.sub(
         totalUsedPrimaryBorrowCapacity
       );
@@ -23,7 +31,8 @@ export const useVaultCards = () => {
         vaultAddress: vaultAddress,
         minDepositRequired,
         underlyingSymbol: primaryToken.symbol,
-        headlineRate,
+        headlineRate: y?.totalAPY,
+        leverage: `${y?.leveraged?.leverageRatio.toFixed(1)}x`,
         vaultName: name,
         capacityUsedPercentage,
         capacityRemaining: capacityRemaining.toDisplayStringWithSymbol(0),
