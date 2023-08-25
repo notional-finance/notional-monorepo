@@ -7,16 +7,17 @@ import { FormattedMessage } from 'react-intl';
 import SliderBasic from '../../slider-basic/slider-basic';
 import { TokenIcon, LightningIcon } from '@notional-finance/icons';
 import { colors } from '@notional-finance/styles';
-import { formatInterestRate } from '@notional-finance/util';
 import {
   H4,
   SmallInput,
   SectionTitle,
   CurrencyTitle,
 } from '../../typography/typography';
+import { formatNumberAsPercent } from '@notional-finance/helpers';
 
 export interface VaultProps {
   symbol: string;
+  leverage: string;
   vaultName: string;
   rate: number;
   minDepositRequired: string;
@@ -28,6 +29,7 @@ export interface VaultProps {
 
 export const Vault = ({
   vaultName,
+  leverage,
   rate,
   symbol,
   minDepositRequired,
@@ -37,7 +39,7 @@ export const Vault = ({
   buttonText,
 }: VaultProps) => {
   const theme = useTheme();
-  const formattedRate = `${formatInterestRate(rate, 2)} APY`;
+  const formattedRate = `${formatNumberAsPercent(rate, 2)} APY`;
   return (
     <Link to={route}>
       <Card height={'auto'}>
@@ -58,7 +60,7 @@ export const Vault = ({
             {vaultName}
           </SmallInput>
           <SectionTitle textAlign="left" gutter="default">
-            <FormattedMessage defaultMessage="ESTIMATED RETURN" />
+            <FormattedMessage defaultMessage="{leverage} LEVERAGE" values={{ leverage }} />
           </SectionTitle>
           <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
             <LightningIcon

@@ -41,6 +41,7 @@ export const VaultCardView = () => {
               vaultName,
               capacityUsedPercentage,
               capacityRemaining,
+              leverage,
             } = v;
             return (
               <Vault
@@ -48,6 +49,7 @@ export const VaultCardView = () => {
                 vaultName={vaultName}
                 symbol={underlyingSymbol}
                 rate={headlineRate || 0}
+                leverage={leverage}
                 minDepositRequired={minDepositRequired}
                 route={`/vaults/${vaultAddress}`}
                 buttonText={<FormattedMessage defaultMessage="Enter Vault" />}
