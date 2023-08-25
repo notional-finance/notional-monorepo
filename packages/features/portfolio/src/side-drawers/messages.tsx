@@ -30,7 +30,7 @@ export const messages: Record<PORTFOLIO_ACTIONS, PortfolioMessages> = {
   }),
   [PORTFOLIO_ACTIONS.CONVERT_ASSET]: defineMessages({
     inputLabel: {
-      defaultMessage: 'Enter the amount of cash to repay',
+      defaultMessage: 'Enter the amount of asset to convert',
       description: '',
     },
     fixedHeading: {
@@ -42,7 +42,7 @@ export const messages: Record<PORTFOLIO_ACTIONS, PortfolioMessages> = {
   }),
   [PORTFOLIO_ACTIONS.ROLL_DEBT]: defineMessages({
     inputLabel: {
-      defaultMessage: 'Enter the amount of cash to repay',
+      defaultMessage: 'Enter the amount of debt to roll',
       description: '',
     },
     fixedHeading: {

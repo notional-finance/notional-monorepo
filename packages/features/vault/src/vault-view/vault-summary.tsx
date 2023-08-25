@@ -4,7 +4,6 @@ import {
   PageLoading,
   SliderDisplay,
   TABLE_VARIANTS,
-  SingleDisplayChart,
 } from '@notional-finance/mui';
 import { VAULT_SUB_NAV_ACTIONS } from '@notional-finance/shared-config';
 import { useContext } from 'react';
@@ -14,24 +13,22 @@ import {
   VaultSubNav,
   MobileVaultSummary,
 } from '../components';
-import { useHistoricalReturns } from '../hooks/use-historical-returns';
 import { VaultActionContext } from './vault-action-provider';
 import { useReturnDrivers } from '../hooks/use-return-drivers';
 import { useVaultCapacity } from '../hooks/use-vault-capacity';
-import { usePerformanceChart } from '../hooks/use-performance-chart';
 import { messages } from '../messages';
-import { TradeActionSummary } from '@notional-finance/trade';
+import {
+  LiquidationChart,
+  PerformanceChart,
+  TradeActionSummary,
+} from '@notional-finance/trade';
 
 export const VaultSummary = () => {
   const theme = useTheme();
   const { state } = useContext(VaultActionContext);
   const { vaultAddress, vaultConfig } = state;
   const vaultName = vaultConfig?.name;
-
-  const { returnDrivers } = useHistoricalReturns();
-  const tableColumns = useReturnDrivers();
-  const { areaChartData, areaChartLegendData, chartToolTipData } =
-    usePerformanceChart();
+  const { tableColumns, returnDrivers } = useReturnDrivers(vaultAddress);
 
   const {
     overCapacityError,
@@ -109,17 +106,10 @@ export const VaultSummary = () => {
                     : theme.shape.borderStandard,
                 }}
               />
-              <SingleDisplayChart
-                areaChartData={areaChartData}
-                legendData={areaChartLegendData}
-                chartToolTipData={chartToolTipData}
-                chartType="area"
-              />
             </Box>
-            <Box
-              sx={{ marginTop: theme.spacing(2) }}
-              id={VAULT_SUB_NAV_ACTIONS.MARKET_RETURNS}
-            >
+            <PerformanceChart state={state} />
+            <LiquidationChart state={state} />
+            <Box id={VAULT_SUB_NAV_ACTIONS.MARKET_RETURNS}>
               <DataTable
                 data={returnDrivers}
                 columns={tableColumns}

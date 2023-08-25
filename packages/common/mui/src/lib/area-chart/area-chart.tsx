@@ -18,6 +18,7 @@ import {
   ChartToolTipDataProps,
 } from '../chart-tool-tip/chart-tool-tip';
 import { XAxisTick } from './x-axis-tick/x-axis-tick';
+import { AxisDomain } from 'recharts/types/util/types';
 
 export interface AreaChartData {
   timestamp: number;
@@ -38,6 +39,8 @@ export interface AreaChartStylesProps {
 export interface AreaChartProps {
   areaChartData: AreaChartData[];
   xAxisTickFormat?: 'date' | 'percent';
+  yAxisTickFormat?: 'percent' | 'number';
+  yAxisDomain?: AxisDomain;
   referenceLineValue?: number;
   chartToolTipData?: ChartToolTipDataProps;
   areaChartStyles?: AreaChartStylesProps;
@@ -45,19 +48,22 @@ export interface AreaChartProps {
   areaChartButtonLabel?: ReactNode;
   barChartButtonLabel?: ReactNode;
   showCartesianGrid?: boolean;
+  condenseXAxisTime?: boolean;
   areaLineType?: 'linear' | 'monotone';
 }
 
 export const AreaChart = ({
   areaChartData,
   xAxisTickFormat = 'date',
+  yAxisTickFormat = 'percent',
+  yAxisDomain,
   referenceLineValue,
   areaChartStyles,
   chartToolTipData,
   showCartesianGrid,
+  condenseXAxisTime,
   areaLineType = 'monotone',
 }: AreaChartProps) => {
-  const isLine = areaChartData[0]?.line;
   const theme = useTheme();
 
   const xAxisTickHandler = (v: number, i: number) => {
@@ -107,9 +113,9 @@ export const AreaChart = ({
           }
           style={{ fill: theme.palette.typography.light }}
           interval={0}
-          tickFormatter={isLine ? xAxisTickHandler : undefined}
+          tickFormatter={condenseXAxisTime ? xAxisTickHandler : undefined}
           tick={
-            !isLine ? (
+            !condenseXAxisTime ? (
               <XAxisTick xAxisTickFormat={xAxisTickFormat} />
             ) : undefined
           }
@@ -118,6 +124,7 @@ export const AreaChart = ({
         <YAxis
           orientation="left"
           yAxisId={0}
+          domain={yAxisDomain}
           padding={{ top: 8 }}
           tickCount={6}
           tickMargin={12}
@@ -126,9 +133,10 @@ export const AreaChart = ({
           tickLine={false}
           axisLine={false}
           style={{ fill: theme.palette.typography.light, fontSize: '12px' }}
-          tickFormatter={(v: number) => `${v.toFixed(2)}%`}
+          tickFormatter={(v: number) =>
+            `${v.toFixed(2)}${yAxisTickFormat === 'percent' ? '%' : ''}`
+          }
         />
-
         <Line
           type="monotone"
           dataKey="line"

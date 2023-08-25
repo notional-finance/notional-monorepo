@@ -12,10 +12,10 @@ import {
   BaseCurrencyButton,
   DarkModeToggle,
 } from './components';
-import { useConnect } from '../hooks/use-connect';
 import { FormattedMessage } from 'react-intl';
 import { ReactNode } from 'react';
 import PrimeBorrowToggle from './prime-borrow-toggle/prime-borrow-toggle';
+import { useTruncatedAddress } from '@notional-finance/notionable-hooks';
 
 export interface SettingsItem {
   key: string;
@@ -27,8 +27,7 @@ export interface SettingsItem {
 }
 
 export const useSettingsSideDrawer = () => {
-  const { truncatedAddress } = useConnect();
-
+  const truncatedAddress = useTruncatedAddress();
   const walletAction = truncatedAddress
     ? {
         key: 'reset-wallets',

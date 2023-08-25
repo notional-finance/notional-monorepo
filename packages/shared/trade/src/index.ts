@@ -19,5 +19,7 @@ export * from './tradeErrors';
 export * from './trade-action-button/trade-action-button';
 export * from './transaction-sidebar/transaction-sidebar';
 export * from './transaction-sidebar/components/transaction-headings';
+export * from './performance-chart/performance-chart';
+export * from './liquidation-chart/liquidation-chart';
 
 export * from './hooks';

@@ -1,14 +1,23 @@
 import { useCurrencyInputRef } from '@notional-finance/mui';
-import { BaseTradeContext, usePortfolioRiskProfile } from '@notional-finance/notionable-hooks';
+import {
+  BaseTradeContext,
+  useCurrency,
+  usePortfolioRiskProfile,
+} from '@notional-finance/notionable-hooks';
 import { useCallback } from 'react';
 
 export function useMaxWithdraw(context: BaseTradeContext) {
-  const {
-    updateState,
-    state: { debt },
-  } = context;
+  const { updateState, state } = context;
+  const { debt } = state;
   const profile = usePortfolioRiskProfile();
-  const maxWithdraw = debt ? profile.maxWithdraw(debt) : undefined;
+  const { primeCash } = useCurrency();
+  const withdrawToken =
+    debt?.tokenType === 'PrimeDebt'
+      ? primeCash.find((t) => t.currencyId === debt?.currencyId)
+      : debt;
+  const maxWithdraw = withdrawToken
+    ? profile.maxWithdraw(withdrawToken)
+    : undefined;
   const { setCurrencyInput, currencyInputRef } = useCurrencyInputRef();
 
   const onMaxValue = useCallback(() => {
@@ -19,10 +28,13 @@ export function useMaxWithdraw(context: BaseTradeContext) {
         maxWithdraw: true,
         calculationSuccess: true,
         depositBalance: undefined,
-        debtBalance: maxWithdraw.neg(),
+        debtBalance:
+          debt?.tokenType === 'PrimeDebt'
+            ? maxWithdraw.toToken(debt).neg()
+            : maxWithdraw.neg(),
       });
     }
-  }, [maxWithdraw, updateState, setCurrencyInput]);
+  }, [maxWithdraw, updateState, setCurrencyInput, debt]);
 
   return { onMaxValue, currencyInputRef };
 }

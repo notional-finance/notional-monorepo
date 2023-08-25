@@ -630,13 +630,12 @@ export function tradeSummary(
       ([account, { canSubmit, collateralBalance, debtBalance, tradeType }]) => {
         if (
           canSubmit &&
-          account &&
           !collateralBalance?.isVaultToken &&
           !debtBalance?.isVaultToken
         ) {
           // Skip vault shares and vault debt
           return getNetBalances(
-            account.balances,
+            account?.balances || [],
             tradeType === 'RollDebt'
               ? debtBalance
               : tradeType === 'ConvertAsset'

@@ -1,0 +1,77 @@
+import { Registry, TokenDefinition } from '@notional-finance/core-entities';
+import { useSelectedNetwork } from './use-notional';
+
+export function useTokenHistory(token?: TokenDefinition) {
+  const network = useSelectedNetwork();
+  const data =
+    network && token
+      ? Registry.getAnalyticsRegistry()
+          .getAssetHistory(network)
+          ?.filter(({ token: t }) => t.id === token.id)
+      : undefined;
+
+  return {
+    apyData:
+      data?.map(({ timestamp, totalAPY }) => ({
+        timestamp,
+        area: totalAPY || 0,
+      })) || [],
+    tvlData:
+      data?.map(({ timestamp, tvlUSD }) => ({
+        timestamp,
+        line: tvlUSD?.toFloat() || 0,
+      })) || [],
+  };
+}
+
+export function useLeveragedPerformance(
+  token: TokenDefinition | undefined,
+  isPrimeBorrow: boolean,
+  currentBorrowRate: number | undefined,
+  leverageRatio: number | null | undefined,
+  leveragedLendFixedRate: number | undefined
+) {
+  const network = useSelectedNetwork();
+  if (!network || !token) return [];
+  const data = Registry.getAnalyticsRegistry().getAssetHistory(network);
+  const primeBorrow = data?.filter(
+    ({ token: t }) =>
+      t.currencyId === token.currencyId && t.tokenType === 'PrimeDebt'
+  );
+  const tokenData = data?.filter(({ token: t }) => t.id === token.id) || [];
+
+  return tokenData
+    .map((d) => {
+      const totalAPY = leveragedLendFixedRate || d.totalAPY || 0;
+      const borrowRate = isPrimeBorrow
+        ? primeBorrow?.find(({ timestamp }) => d.timestamp === timestamp)
+            ?.totalAPY || undefined
+        : currentBorrowRate;
+
+      return {
+        timestamp: d.timestamp,
+        strategyReturn: totalAPY,
+        leveragedReturn:
+          borrowRate !== undefined &&
+          leverageRatio !== null &&
+          leverageRatio !== undefined
+            ? totalAPY + (totalAPY - borrowRate) * leverageRatio
+            : undefined,
+      };
+    })
+    .sort((a, b) => a.timestamp - b.timestamp);
+}
+
+export function useAssetPriceHistory(token: TokenDefinition | undefined) {
+  const network = useSelectedNetwork();
+  if (!network || !token) return [];
+  const data = Registry.getAnalyticsRegistry().getAssetHistory(network);
+  const tokenData = data?.filter(({ token: t }) => t.id === token.id) || [];
+
+  return tokenData
+    .map((d) => ({
+      timestamp: d.timestamp,
+      assetPrice: d.assetToUnderlyingExchangeRate?.toFloat() || 0,
+    }))
+    .sort((a, b) => a.timestamp - b.timestamp);
+}

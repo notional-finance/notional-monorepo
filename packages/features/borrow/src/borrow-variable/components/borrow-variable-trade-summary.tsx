@@ -14,23 +14,34 @@ import {
 } from '@notional-finance/mui';
 import { BorrowVariableContext } from '../../borrow-variable/borrow-variable';
 import { TradeActionSummary, useVariableTotals } from '@notional-finance/trade';
+import { useTokenHistory } from '@notional-finance/notionable-hooks';
 
 export const BorrowVariableTradeSummary = () => {
   const theme = useTheme();
   const context = useContext(BorrowVariableContext);
   const { state } = context;
+  const { deposit, debt } = state;
   const {
     areaChartData,
     chartToolTipData,
     legendData,
     chartInfoBoxData,
     borrowUtilization,
-  } = useInterestRateUtilizationChart(state.deposit?.currencyId);
+  } = useInterestRateUtilizationChart(deposit?.currencyId);
   const { faqs, faqHeaderLinks } = useBorrowVariableFaq();
   const totalsData = useVariableTotals(state);
+  const { apyData } = useTokenHistory(debt);
 
   return (
     <TradeActionSummary state={state}>
+      <SingleDisplayChart
+        areaChartData={apyData}
+        xAxisTickFormat="date"
+        chartType="area"
+        showCartesianGrid
+        condenseXAxisTime
+        areaLineType="linear"
+      />
       <Box
         sx={{
           display: 'flex',
@@ -43,7 +54,6 @@ export const BorrowVariableTradeSummary = () => {
           <TotalBox title={title} value={value} key={index} />
         ))}
       </Box>
-
       <Faq
         sx={{ boxShadow: 'none' }}
         question={<FormattedMessage defaultMessage={'How it Works'} />}
