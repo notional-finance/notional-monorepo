@@ -15,6 +15,7 @@ import {
   BaseTradeState,
   TradeState,
   VaultTradeState,
+  isVaultTrade,
 } from '@notional-finance/notionable';
 import {
   RATE_DECIMALS,
@@ -33,7 +34,10 @@ import {
   usePortfolioRiskProfile,
   useVaultRiskProfiles,
 } from './use-account';
-import { AccountRiskProfile } from '@notional-finance/risk-engine';
+import {
+  AccountRiskProfile,
+  VaultAccountRiskProfile,
+} from '@notional-finance/risk-engine';
 import { useFiat } from './use-user-settings';
 import { useSelectedNetwork } from './use-notional';
 
@@ -561,12 +565,11 @@ export function usePortfolioComparison(
 ) {
   const { account } = useAccountDefinition();
   const network = useSelectedNetwork();
-  const { postTradeBalances } = state;
+  const { postTradeBalances, tradeType, vaultAddress } = state;
   const priorBalances = account
-    ? new AccountRiskProfile(
-        account.balances.filter((t) => t.tokenType !== 'Underlying'),
-        network
-      ).balances
+    ? isVaultTrade(tradeType) && vaultAddress
+      ? new VaultAccountRiskProfile(vaultAddress, account.balances).balances
+      : new AccountRiskProfile(account.balances, network).balances
     : [];
 
   const tableData: CompareData[] | undefined = postTradeBalances

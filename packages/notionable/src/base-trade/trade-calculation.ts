@@ -46,12 +46,12 @@ export function calculateMaxWithdraw(
     vaultAdapter$,
   ]).pipe(
     bufferCount(2, 1),
+    // Add this here to throttle calculations for the UI a bit.
     auditTime(100),
     filter(
       ([[p], [s]]) =>
         s.isReady && !!s.tradeType && s.maxWithdraw && !p.maxWithdraw
     ),
-    // Add this here to throttle calculations for the UI a bit.
     map(([_, [s, debtPool, collateralPool, a, vaultAdapter]]) => {
       const { requiredArgs } = getTradeConfig(s.tradeType);
 
