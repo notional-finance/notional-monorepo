@@ -187,15 +187,11 @@ export class AnalyticsRegistryClient extends ClientRegistry<AnalyticsData> {
               vaultAddress,
               timestamp: p['Timestamp'] as number,
               totalAPY: this._convertOrNull(
-                p['Total Strategy Apy'],
+                p['Total Strategy APY'],
                 (d) => d * 100
               ),
               returnDrivers: Object.keys(p)
-                .filter(
-                  (k) =>
-                    k !== 'Timestamp' &&
-                    k !== 'Day'
-                )
+                .filter((k) => k !== 'Timestamp' && k !== 'Day')
                 .reduce(
                   (o, k) =>
                     Object.assign(o, {

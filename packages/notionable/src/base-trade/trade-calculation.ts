@@ -31,6 +31,58 @@ import {
 } from './base-trade-store';
 import { getTradeConfig } from './logic';
 
+export function calculateMaxWithdraw(
+  state$: Observable<BaseTradeState>,
+  debtPool$: Observable<BaseLiquidityPool<unknown> | undefined>,
+  collateralPool$: Observable<BaseLiquidityPool<unknown> | undefined>,
+  vaultAdapter$: Observable<VaultAdapter | undefined>,
+  account$: Observable<AccountDefinition | null>
+) {
+  return combineLatest([
+    state$,
+    debtPool$,
+    collateralPool$,
+    account$,
+    vaultAdapter$,
+  ]).pipe(
+    bufferCount(2, 1),
+    // Add this here to throttle calculations for the UI a bit.
+    auditTime(100),
+    filter(
+      ([[p], [s]]) =>
+        s.isReady && !!s.tradeType && s.maxWithdraw && !p.maxWithdraw
+    ),
+    map(([_, [s, debtPool, collateralPool, a, vaultAdapter]]) => {
+      const { requiredArgs } = getTradeConfig(s.tradeType);
+
+      const { inputsSatisfied, inputs } = getRequiredArgs(
+        requiredArgs,
+        s,
+        a,
+        collateralPool,
+        debtPool,
+        vaultAdapter
+      );
+
+      const { netRealizedCollateralBalance, netRealizedDebtBalance } =
+        executeCalculation(inputsSatisfied, s.tradeType, inputs) as {
+          netRealizedDebtBalance: TokenBalance | undefined;
+          netRealizedCollateralBalance: TokenBalance | undefined;
+        };
+
+      if (netRealizedCollateralBalance || netRealizedDebtBalance) {
+        return {
+          netRealizedDebtBalance: netRealizedDebtBalance,
+          netRealizedCollateralBalance: netRealizedCollateralBalance,
+        };
+      } else {
+        return undefined;
+      }
+    }),
+    filterEmpty()
+  );
+}
+
 export function calculate(
   state$: Observable<BaseTradeState>,
   debtPool$: Observable<BaseLiquidityPool<unknown> | undefined>,
@@ -80,77 +132,15 @@ export function calculate(
         // Skip the rest of the trade logic if this is set to true
         if (s.maxWithdraw) return undefined;
 
-        const [inputs, keys] = requiredArgs.reduce(
-          ([inputs, keys], r) => {
-            switch (r) {
-              case 'collateralPool':
-                return [
-                  Object.assign(inputs, { collateralPool }),
-                  [...keys, collateralPool?.hashKey || ''],
-                ];
-              case 'vaultAdapter':
-                return [
-                  Object.assign(inputs, { vaultAdapter }),
-                  [...keys, vaultAdapter?.hashKey || ''],
-                ];
-              case 'debtPool':
-                return [
-                  Object.assign(inputs, { debtPool }),
-                  [...keys, debtPool?.hashKey || ''],
-                ];
-              case 'balances':
-                return [
-                  Object.assign(inputs, { balances: a?.balances }),
-                  [...keys, ...(a?.balances.map((b) => b.hashKey) || [])],
-                ];
-              case 'collateral':
-              case 'debt':
-              case 'deposit':
-                return [
-                  Object.assign(inputs, { [r]: s[r] }),
-                  [...keys, (s[r] as TokenDefinition | undefined)?.id || ''],
-                ];
-              case 'depositBalance':
-              case 'debtBalance':
-              case 'collateralBalance':
-                return [
-                  Object.assign(inputs, { [r]: s[r] }),
-                  [...keys, (s[r] as TokenBalance | undefined)?.hashKey || ''],
-                ];
-              case 'riskFactorLimit': {
-                const risk = s[r] as
-                  | RiskFactorLimit<RiskFactorKeys>
-                  | undefined;
-                return [
-                  Object.assign(inputs, { [r]: risk }),
-                  [
-                    ...keys,
-                    `${risk?.riskFactor}:${
-                      isHashable(risk?.limit)
-                        ? risk?.limit.hashKey
-                        : risk?.limit.toString()
-                    }:${risk?.args
-                      ?.map((t) => (typeof t === 'number' ? t : t?.id))
-                      .join(':')}`,
-                  ],
-                ];
-              }
-              case 'maxCollateralSlippage':
-              case 'maxDebtSlippage':
-                return [
-                  Object.assign(inputs, { [r]: s[r] }),
-                  [...keys, (s[r] as number | undefined)?.toString() || ''],
-                ];
-              default:
-                return [inputs, keys];
-            }
-          },
-          [{} as Record<CalculationFnParams, unknown>, [] as string[]]
+        const { inputsSatisfied, inputs, keys } = getRequiredArgs(
+          requiredArgs,
+          s,
+          a,
+          collateralPool,
+          debtPool,
+          vaultAdapter
         );
 
-        const inputsSatisfied = requiredArgs.every(
-          (r) => inputs[r] !== undefined
-        );
         const calculateInputKeys = keys.join('|');
         return prevInputsSatisfied !== inputsSatisfied ||
           prevCalculateInputKeys !== calculateInputKeys
@@ -173,43 +163,10 @@ export function calculate(
     filterEmpty(),
     map((u) => {
       const { inputsSatisfied, inputs, tradeType } = u;
-      let calculateError: string | undefined;
-      const { calculationFn, requiredArgs } = getTradeConfig(tradeType);
-
-      if (inputsSatisfied) {
-        try {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const outputs = calculationFn(inputs as any);
-
-          return {
-            ...u,
-            ...outputs,
-            calculateError,
-            calculationSuccess: true,
-          };
-        } catch (e) {
-          calculateError = (e as Error).toString();
-        }
-      }
-
-      // NOTE: clear any calculated inputs if the new calculation fails
-      const clearCalculatedInputs = requiredArgs.reduce((o, a) => {
-        if (a === 'collateral' && tradeType !== 'RollDebt') {
-          return Object.assign(o, { collateralBalance: undefined });
-        } else if (a === 'debt' && tradeType !== 'ConvertAsset') {
-          return Object.assign(o, { debtBalance: undefined });
-        } else if (a === 'deposit') {
-          return Object.assign(o, { depositBalance: undefined });
-        } else {
-          return o;
-        }
-      }, {});
 
       return {
         ...u,
-        calculationSuccess: false,
-        calculateError,
-        ...clearCalculatedInputs,
+        ...executeCalculation(inputsSatisfied, tradeType, inputs),
       };
     }),
     map(({ inputs, collateralTokens, debtTokens, tradeType, ...u }) => {
@@ -260,6 +217,131 @@ export function calculate(
       return { ...u, collateralOptions, debtOptions };
     })
   );
+}
+
+function getRequiredArgs(
+  requiredArgs: CalculationFnParams[],
+  s: BaseTradeState,
+  a: AccountDefinition | null,
+  collateralPool: BaseLiquidityPool<unknown> | undefined,
+  debtPool: BaseLiquidityPool<unknown> | undefined,
+  vaultAdapter: VaultAdapter | undefined
+) {
+  const [inputs, keys] = requiredArgs.reduce(
+    ([inputs, keys], r) => {
+      switch (r) {
+        case 'collateralPool':
+          return [
+            Object.assign(inputs, { collateralPool }),
+            [...keys, collateralPool?.hashKey || ''],
+          ];
+        case 'vaultAdapter':
+          return [
+            Object.assign(inputs, { vaultAdapter }),
+            [...keys, vaultAdapter?.hashKey || ''],
+          ];
+        case 'debtPool':
+          return [
+            Object.assign(inputs, { debtPool }),
+            [...keys, debtPool?.hashKey || ''],
+          ];
+        case 'balances':
+          return [
+            Object.assign(inputs, { balances: a?.balances }),
+            [...keys, ...(a?.balances.map((b) => b.hashKey) || [])],
+          ];
+        case 'collateral':
+        case 'debt':
+        case 'deposit':
+          return [
+            Object.assign(inputs, { [r]: s[r] }),
+            [...keys, (s[r] as TokenDefinition | undefined)?.id || ''],
+          ];
+        case 'depositBalance':
+        case 'debtBalance':
+        case 'collateralBalance':
+          return [
+            Object.assign(inputs, { [r]: s[r] }),
+            [...keys, (s[r] as TokenBalance | undefined)?.hashKey || ''],
+          ];
+        case 'riskFactorLimit': {
+          const risk = s[r] as RiskFactorLimit<RiskFactorKeys> | undefined;
+          return [
+            Object.assign(inputs, { [r]: risk }),
+            [
+              ...keys,
+              `${risk?.riskFactor}:${
+                isHashable(risk?.limit)
+                  ? risk?.limit.hashKey
+                  : risk?.limit.toString()
+              }:${risk?.args
+                ?.map((t) => (typeof t === 'number' ? t : t?.id))
+                .join(':')}`,
+            ],
+          ];
+        }
+        case 'maxCollateralSlippage':
+        case 'maxDebtSlippage':
+          return [
+            Object.assign(inputs, { [r]: s[r] }),
+            [...keys, (s[r] as number | undefined)?.toString() || ''],
+          ];
+        default:
+          return [inputs, keys];
+      }
+    },
+    [{} as Record<CalculationFnParams, unknown>, [] as string[]]
+  );
+
+  const inputsSatisfied = requiredArgs.every((r) => inputs[r] !== undefined);
+
+  return {
+    inputsSatisfied,
+    inputs,
+    keys,
+  };
+}
+
+function executeCalculation(
+  inputsSatisfied: boolean,
+  tradeType: TradeType | VaultTradeType | undefined,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  inputs: any
+) {
+  const { calculationFn, requiredArgs } = getTradeConfig(tradeType);
+  let calculateError: string | undefined;
+  if (inputsSatisfied) {
+    try {
+      const outputs = calculationFn(inputs);
+
+      return {
+        ...outputs,
+        calculateError,
+        calculationSuccess: true,
+      };
+    } catch (e) {
+      calculateError = (e as Error).toString();
+    }
+  }
+
+  // NOTE: clear any calculated inputs if the new calculation fails
+  const clearCalculatedInputs = requiredArgs.reduce((o, a) => {
+    if (a === 'collateral' && tradeType !== 'RollDebt') {
+      return Object.assign(o, { collateralBalance: undefined });
+    } else if (a === 'debt' && tradeType !== 'ConvertAsset') {
+      return Object.assign(o, { debtBalance: undefined });
+    } else if (a === 'deposit') {
+      return Object.assign(o, { depositBalance: undefined });
+    } else {
+      return o;
+    }
+  }, {});
+
+  return {
+    calculationSuccess: false,
+    calculateError,
+    ...clearCalculatedInputs,
+  };
 }
 
 function computeCollateralOptions(

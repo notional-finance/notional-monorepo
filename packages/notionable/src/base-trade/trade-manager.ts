@@ -19,7 +19,7 @@ import {
   selectedPool,
   selectedToken,
 } from './selectors';
-import { calculate } from './trade-calculation';
+import { calculate, calculateMaxWithdraw } from './trade-calculation';
 
 export function createTradeManager(
   state$: Observable<TradeState>,
@@ -40,6 +40,13 @@ export function createTradeManager(
     buildTransaction(state$, account$),
     tradeSummary(state$, account$),
     postAccountRisk(state$, account$),
+    calculateMaxWithdraw(
+      state$,
+      debtPool$,
+      collateralPool$,
+      of(undefined),
+      account$
+    ),
     calculate(state$, debtPool$, collateralPool$, of(undefined), account$),
     defaultLeverageRatio(state$, network$),
     // NOTE: this is required to read URL based inputs for deposits

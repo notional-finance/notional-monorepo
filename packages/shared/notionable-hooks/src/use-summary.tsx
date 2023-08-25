@@ -15,6 +15,7 @@ import {
   BaseTradeState,
   TradeState,
   VaultTradeState,
+  isVaultTrade,
 } from '@notional-finance/notionable';
 import {
   RATE_DECIMALS,
@@ -33,7 +34,10 @@ import {
   usePortfolioRiskProfile,
   useVaultRiskProfiles,
 } from './use-account';
-import { AccountRiskProfile } from '@notional-finance/risk-engine';
+import {
+  AccountRiskProfile,
+  VaultAccountRiskProfile,
+} from '@notional-finance/risk-engine';
 import { useFiat } from './use-user-settings';
 import { useSelectedNetwork } from './use-notional';
 
@@ -360,7 +364,6 @@ export function useTradeSummary(state: BaseTradeState) {
     collateralBalance,
     tradeType,
     canSubmit,
-    maxWithdraw,
   } = state;
 
   // TODO: if underlying is not all the same the convert to fiat currency instead
@@ -383,7 +386,7 @@ export function useTradeSummary(state: BaseTradeState) {
             : OrderDetailLabels.amountToWallet
         ),
         value: {
-          isNegative: depositBalance.isNegative(),
+          isNegative: false,
           data: [
             depositBalance
               .abs()
@@ -398,7 +401,6 @@ export function useTradeSummary(state: BaseTradeState) {
         isTotalRow: true,
       }
     : {
-        // TODO: how to determine to and from wallet when zero?
         label: intl.formatMessage(OrderDetailLabels.amountFromWallet),
         value: {
           data: [
@@ -488,27 +490,30 @@ export function useTradeSummary(state: BaseTradeState) {
       summary.push(
         getTradeDetail(netAssetBalance.neg(), 'Asset', 'withdraw', intl)
       );
-    if (netDebtBalance?.isZero() === false)
-      summary.push(
-        getTradeDetail(
-          netDebtBalance.abs(),
-          'Debt',
-          netDebtBalance.isNegative() ? 'withdraw' : 'deposit',
-          intl
-        )
-      );
-  } else if (maxWithdraw && tradeType === 'Withdraw') {
-    if (netDebtBalance?.isZero() === false)
-      summary.push(getTradeDetail(netDebtBalance, 'Asset', 'withdraw', intl));
-    if (netAssetBalance?.isZero() === false)
-      summary.push(
-        getTradeDetail(netAssetBalance.neg(), 'Asset', 'withdraw', intl)
-      );
-  } else if (maxWithdraw && tradeType === 'RepayDebt') {
-    if (netAssetBalance?.isZero() === false)
-      summary.push(getTradeDetail(netAssetBalance, 'Debt', 'deposit', intl));
-    if (netDebtBalance?.isZero() === false)
-      summary.push(getTradeDetail(netDebtBalance, 'Debt', 'deposit', intl));
+    if (netDebtBalance?.isZero() === false) {
+      if (
+        netDebtBalance.tokenType === 'PrimeDebt' &&
+        tradeType === 'Withdraw'
+      ) {
+        summary.push(
+          getTradeDetail(
+            netDebtBalance.toPrimeCash().abs(),
+            'Asset',
+            'withdraw',
+            intl
+          )
+        );
+      } else {
+        summary.push(
+          getTradeDetail(
+            netDebtBalance.abs(),
+            'Debt',
+            netDebtBalance.isNegative() ? 'withdraw' : 'deposit',
+            intl
+          )
+        );
+      }
+    }
   } else {
     return { summary: undefined, total: undefined };
   }
@@ -560,12 +565,11 @@ export function usePortfolioComparison(
 ) {
   const { account } = useAccountDefinition();
   const network = useSelectedNetwork();
-  const { postTradeBalances } = state;
+  const { postTradeBalances, tradeType, vaultAddress } = state;
   const priorBalances = account
-    ? new AccountRiskProfile(
-        account.balances.filter((t) => t.tokenType !== 'Underlying'),
-        network
-      ).balances
+    ? isVaultTrade(tradeType) && vaultAddress
+      ? new VaultAccountRiskProfile(vaultAddress, account.balances).balances
+      : new AccountRiskProfile(account.balances, network).balances
     : [];
 
   const tableData: CompareData[] | undefined = postTradeBalances
@@ -750,8 +754,8 @@ export function usePortfolioLiquidationRisk(state: TradeState) {
   const baseCurrency = useFiat();
   const healthFactor = {
     label: intl.formatMessage({ defaultMessage: 'Health Factor' }),
-    current: priorAccountRisk?.healthFactor?.toFixed(1) || 'No Risk',
-    updated: postAccountRisk?.healthFactor?.toFixed(1) || 'No Risk',
+    current: priorAccountRisk?.healthFactor?.toFixed(2) || 'No Risk',
+    updated: postAccountRisk?.healthFactor?.toFixed(2) || 'No Risk',
     changeType: getChangeType(
       priorAccountRisk?.healthFactor,
       postAccountRisk?.healthFactor
