@@ -7250,7 +7250,7 @@ export const AllConfigurationByBlockDocument = gql`
     pvHaircutPercentage
     liquidationHaircutPercentage
   }
-  vaultConfigurations {
+  vaultConfigurations(where: {enabled: true}, block: {number: $blockNumber}) {
     id
     vaultAddress
     strategy

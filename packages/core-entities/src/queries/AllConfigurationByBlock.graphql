@@ -69,7 +69,7 @@ query AllConfigurationByBlock($blockNumber: Int) {
         liquidationHaircutPercentage
     }
 
-    vaultConfigurations {
+    vaultConfigurations(where: { enabled: true }, block: { number: $blockNumber }) {
         id
         vaultAddress
         strategy

@@ -220,7 +220,7 @@ export default class DataService {
     const provider = getProviderFromNetwork(network, true);
     const filteredOps = operations.filter((op) => {
       const sourceConfig = op.configDef.sourceConfig as MulticallConfig;
-      if (sourceConfig.firstBlock && sourceConfig.firstBlock < blockNumber) {
+      if (sourceConfig.firstBlock && blockNumber < sourceConfig.firstBlock) {
         return false;
       }
       if (sourceConfig.finalBlock && blockNumber > sourceConfig.finalBlock) {
