@@ -2,7 +2,11 @@ import { useTheme } from '@mui/material';
 import { Registry, TokenBalance } from '@notional-finance/core-entities';
 import { formatTokenType, getDateString } from '@notional-finance/helpers';
 import { ChartToolTipDataProps, CountUp } from '@notional-finance/mui';
-import { TradeState, VaultTradeState } from '@notional-finance/notionable';
+import {
+  TradeState,
+  VaultTradeState,
+  isVaultTrade,
+} from '@notional-finance/notionable';
 import { useAssetPriceHistory } from '@notional-finance/notionable-hooks';
 import { RATE_PRECISION } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
@@ -24,7 +28,8 @@ export function useLiquidationChart(state: TradeState | VaultTradeState) {
   const areaChartData = useAssetPriceHistory(token).map(
     ({ timestamp, assetPrice }) => ({
       timestamp,
-      area: assetPrice,
+      // Non vault trades have prices shown at a discount
+      area: isVaultTrade(tradeType) ? assetPrice : 1 / assetPrice,
       line: liquidationPrice?.toFloat(),
     })
   );
@@ -48,7 +53,13 @@ export function useLiquidationChart(state: TradeState | VaultTradeState) {
   }
 
   const currentPrice =
-    deposit && token ? TokenBalance.unit(deposit).toToken(token) : undefined;
+    deposit && token
+      ? isVaultTrade(tradeType)
+        ? // Vault share prices are shown at a premium
+          TokenBalance.unit(token).toToken(deposit)
+        : // Non vault leveraged trades are shown at a discount
+          TokenBalance.unit(deposit).toToken(token)
+      : undefined;
   const pricePair = token
     ? `${formatTokenType(token).title}/${deposit?.symbol}`
     : '';
