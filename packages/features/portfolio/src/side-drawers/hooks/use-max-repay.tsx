@@ -1,5 +1,8 @@
 import { useCurrencyInputRef } from '@notional-finance/mui';
-import { BaseTradeContext, usePortfolioRiskProfile } from '@notional-finance/notionable-hooks';
+import {
+  BaseTradeContext,
+  usePortfolioRiskProfile,
+} from '@notional-finance/notionable-hooks';
 import { useCallback } from 'react';
 
 export function useMaxRepay(context: BaseTradeContext) {
@@ -21,7 +24,7 @@ export function useMaxRepay(context: BaseTradeContext) {
       updateState({
         maxWithdraw: true,
         calculationSuccess: true,
-        depositBalance: undefined,
+        depositBalance: maxRepay.toUnderlying().neg(),
         collateralBalance: maxRepay.neg(),
       });
     }

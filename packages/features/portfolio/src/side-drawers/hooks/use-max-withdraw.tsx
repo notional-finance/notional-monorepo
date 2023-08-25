@@ -27,7 +27,7 @@ export function useMaxWithdraw(context: BaseTradeContext) {
       updateState({
         maxWithdraw: true,
         calculationSuccess: true,
-        depositBalance: undefined,
+        depositBalance: maxWithdraw.toUnderlying().neg(),
         debtBalance:
           debt?.tokenType === 'PrimeDebt'
             ? maxWithdraw.toToken(debt).neg()

@@ -18,7 +18,7 @@ import {
   selectedPool,
   selectedVaultAdapter,
 } from './selectors';
-import { calculate } from './trade-calculation';
+import { calculate, calculateMaxWithdraw } from './trade-calculation';
 
 export function createVaultTradeManager(
   state$: Observable<VaultTradeState>,
@@ -35,6 +35,13 @@ export function createVaultTradeManager(
     simulateTransaction(state$, account$, network$),
     buildTransaction(state$, account$),
     postVaultAccountRisk(state$, account$),
+    calculateMaxWithdraw(
+      state$,
+      debtPool$,
+      of(undefined),
+      vaultAdapter$,
+      account$
+    ),
     calculate(state$, debtPool$, of(undefined), vaultAdapter$, account$),
     defaultLeverageRatio(state$, network$),
     priorVaultAccountRisk(state$, account$),
