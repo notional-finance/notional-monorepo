@@ -65,9 +65,9 @@ const InnerContainer = styled(Box)(
 const Container = styled(Box)(
   ({ theme }) => `
     display: flex;
-    max-width: ${theme.spacing(138)};
+    align-items: center;
+    justify-content: center;
     width: 100%;
-    margin: auto;
     margin-top: ${theme.spacing(5)};
     border: 1px solid ${colors.neonTurquoise};
     `
