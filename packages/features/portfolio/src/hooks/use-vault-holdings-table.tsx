@@ -58,7 +58,7 @@ export const useVaultHoldingsTable = () => {
   const theme = useTheme();
   const baseCurrency = useFiat();
   const {
-    yields: { variableBorrow },
+    yields: { variableBorrow, vaultShares },
   } = useAllMarkets();
   const history = useHistory();
   const balanceStatements = useBalanceStatements();
@@ -142,22 +142,26 @@ export const useVaultHoldingsTable = () => {
     const assetPnL = balanceStatements?.find(
       (b) => b.token.id === v.vaultShares.tokenId
     );
+    const cashPnL = balanceStatements?.find(
+      (b) => b.token.id === v.vaultCash.tokenId
+    );
+
     const denom = v.denom(v.defaultSymbol);
-    const profit = (
-      assetPnL?.totalProfitAndLoss || TokenBalance.zero(denom)
-    ).sub(debtPnL?.totalProfitAndLoss || TokenBalance.zero(denom));
-    // TODO: need to fill out the APY calculation
-    const totalAPY = 0;
-    const strategyAPY = 0;
+    const profit = (assetPnL?.totalProfitAndLoss || TokenBalance.zero(denom))
+      .sub(debtPnL?.totalProfitAndLoss || TokenBalance.zero(denom))
+      .add(cashPnL?.totalProfitAndLoss || TokenBalance.zero(denom));
+    const strategyAPY =
+      vaultShares.find((y) => y.token.vaultAddress === v.vaultAddress)
+        ?.totalAPY || 0;
     const borrowAPY =
       debtPnL?.impliedFixedRate !== undefined
-        ? formatNumberAsPercent(debtPnL.impliedFixedRate)
-        : formatNumberAsPercent(
-            variableBorrow.find(
-              (d) => d.token.id === v.vaultDebt.unwrapVaultToken().tokenId
-            )?.totalAPY || 0
-          );
+        ? debtPnL.impliedFixedRate
+        : variableBorrow.find(
+            (d) => d.token.id === v.vaultDebt.unwrapVaultToken().tokenId
+          )?.totalAPY || 0;
 
+    const totalAPY =
+      strategyAPY + (strategyAPY - borrowAPY) * (leverageRatio || 0);
     return {
       strategy: {
         symbol: formatTokenType(denom).icon,
