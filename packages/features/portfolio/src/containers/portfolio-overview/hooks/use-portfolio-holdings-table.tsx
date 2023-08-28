@@ -81,7 +81,7 @@ export const useTotalHoldingsTable = () => {
           currency: underlying.symbol,
           netWorth: formatValueWithFiat(
             baseCurrency,
-            totalAssets.sub(totalDebts)
+            totalAssets.add(totalDebts)
           ),
           assets: formatValueWithFiat(baseCurrency, totalAssets),
           debts: formatValueWithFiat(baseCurrency, totalDebts, true),
