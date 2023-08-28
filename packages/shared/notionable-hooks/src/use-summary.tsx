@@ -175,7 +175,7 @@ function getOrderDetails(
           realized
             .abs()
             .toUnderlying()
-            .divInRatePrecision(b.abs().toUnderlying().scaleTo(RATE_DECIMALS))
+            .divInRatePrecision(b.abs().scaleTo(RATE_DECIMALS))
             .toDisplayStringWithSymbol(3, true),
         ],
         isNegative: false,
