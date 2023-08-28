@@ -87,7 +87,7 @@ export const AssetInput = React.forwardRef<
       useAssetInput(
         selectedToken,
         debtOrCollateral === 'Debt',
-        tradeType === 'RollDebt'
+        tradeType === 'RollDebt' || tradeType === 'ConvertAsset'
       );
 
     const {

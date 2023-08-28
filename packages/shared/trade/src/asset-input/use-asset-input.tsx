@@ -12,14 +12,18 @@ import { TokenDefinition } from '@notional-finance/core-entities';
 export function useAssetInput(
   selectedToken: TokenDefinition | undefined,
   isDebt: boolean,
-  isRollDebt: boolean
+  isRollOrConvert: boolean
 ) {
   const [inputString, setInputString] = useState<string>('');
   const isAccountReady = useAccountReady();
-  const { primeDebt } = useCurrency();
-  if (isRollDebt && selectedToken?.tokenType === 'PrimeCash') {
+  const { primeDebt, primeCash } = useCurrency();
+  if (isRollOrConvert && selectedToken?.tokenType === 'PrimeCash') {
     // Rewrite this to prime debt
     selectedToken = primeDebt.find(
+      (t) => t.currencyId === selectedToken?.currencyId
+    );
+  } else if (isRollOrConvert && selectedToken?.tokenType === 'PrimeDebt') {
+    selectedToken = primeCash.find(
       (t) => t.currencyId === selectedToken?.currencyId
     );
   }
@@ -42,7 +46,7 @@ export function useAssetInput(
     errorMsg = tradeErrors.insufficientBalance;
   }
 
-  if (isRollDebt && selectedToken?.tokenType === 'PrimeDebt') {
+  if (isRollOrConvert && selectedToken?.tokenType === 'PrimeDebt') {
     inputAmount = inputAmount?.toPrimeCash();
   }
 
