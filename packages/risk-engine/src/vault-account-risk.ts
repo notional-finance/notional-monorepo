@@ -174,17 +174,27 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
       );
       const zeroUnderlying = TokenBalance.zero(underlying);
 
-      const debt =
-        this.balances
-          .find((t) => t.token.currencyId === id && t.tokenType == 'VaultDebt')
-          ?.toUnderlying() || zeroUnderlying;
+      const debt = this.debts.find((_) => _);
+      let debtValue: TokenBalance;
+      if (!debt) {
+        debtValue = zeroUnderlying;
+      } else if (debt.maturity === PRIME_CASH_VAULT_MATURITY) {
+        // Do a direct conversion for prime debt
+        debtValue = debt.toToken(underlying);
+      } else if (this.discountFCash) {
+        // If fCash is discounted then use discounting
+        debtValue = debt.toToken(underlying, 'Debt');
+      } else {
+        // Otherwise convert 1-1 to underlying
+        debtValue = TokenBalance.from(debt.n, underlying).scaleFromInternal();
+      }
 
       const cash =
         this.balances
           .find((t) => t.token.currencyId === id && t.tokenType == 'VaultCash')
           ?.toUnderlying() || zeroUnderlying;
 
-      return debt.add(cash);
+      return debtValue.add(cash);
     });
   }
 
