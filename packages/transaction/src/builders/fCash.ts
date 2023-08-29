@@ -32,15 +32,17 @@ export function LendFixed({
   accountBalances,
 }: PopulateTransactionInputs) {
   if (!collateralBalance) throw Error('Collateral balance undefined');
+  if (!depositBalance) throw Error('Deposit balance undefined');
 
-  if (collateralBalance.underlying.symbol === 'ETH') {
-    if (depositBalance?.token.symbol !== 'ETH')
-      throw Error('Must specify ETH depositBalance');
+  const { withdrawEntireCashBalance, cashBalance } = hasExistingCashBalance(
+    collateralBalance,
+    accountBalances
+  );
 
-    const { withdrawEntireCashBalance } = hasExistingCashBalance(
-      collateralBalance,
-      accountBalances
-    );
+  if (
+    (!!cashBalance && !cashBalance.isZero()) ||
+    collateralBalance.underlying.symbol === 'ETH'
+  ) {
     // De-Rate the fCash balance by a dust amount to ensure that the txn goes
     // through. fCash gets more expensive as you get closer to maturity. We want
     // to ensure that the fCash amount defined here is good for a few hours at least.
@@ -74,12 +76,13 @@ export function LendFixed({
         getETHValue(depositBalance),
       ]
     );
+  } else {
+    // If there is no cash balance then can use a batchLend
+    return populateNotionalTxnAndGas(network, address, 'batchLend', [
+      address,
+      [getBatchLend([collateralBalance])],
+    ]);
   }
-
-  return populateNotionalTxnAndGas(network, address, 'batchLend', [
-    address,
-    [getBatchLend([collateralBalance])],
-  ]);
 }
 
 export function LendVariable({
