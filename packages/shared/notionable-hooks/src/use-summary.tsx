@@ -192,6 +192,7 @@ export function useOrderDetails(state: BaseTradeState): OrderDetails {
     netRealizedDebtBalance,
     netRealizedCollateralBalance,
     depositBalance,
+    tradeType,
   } = state;
   const intl = useIntl();
   const { nonLeveragedYields } = useAllMarkets();
@@ -209,19 +210,29 @@ export function useOrderDetails(state: BaseTradeState): OrderDetails {
     });
   }
 
+  console.log(debtBalance?.toString(), collateralBalance?.toString());
   // NOTE: if sign changes occur, they don't get marked here
-  if (debtBalance?.isZero() === false && netRealizedDebtBalance)
+  if (debtBalance?.isZero() === false && netRealizedDebtBalance) {
+    // Undo withdraw and convert token type here
+    const balance =
+      debtBalance.tokenType === 'PrimeDebt' &&
+      (tradeType === 'ConvertAsset' || tradeType === 'Withdraw')
+        ? debtBalance.toPrimeCash()
+        : debtBalance;
+
     orderDetails.push(
       ...getOrderDetails(
-        debtBalance.unwrapVaultToken(),
+        balance.unwrapVaultToken(),
         netRealizedDebtBalance,
         intl,
         isLeverageOrRoll,
         nonLeveragedYields
       )
     );
+  }
 
-  if (collateralBalance?.isZero() === false && netRealizedCollateralBalance)
+  if (collateralBalance?.isZero() === false && netRealizedCollateralBalance) {
+    // Undo withdraw and convert token type here
     orderDetails.push(
       ...getOrderDetails(
         collateralBalance.unwrapVaultToken(),
@@ -231,6 +242,7 @@ export function useOrderDetails(state: BaseTradeState): OrderDetails {
         nonLeveragedYields
       )
     );
+  }
 
   if (depositBalance?.isNegative()) {
     orderDetails.push({
@@ -466,7 +478,16 @@ export function useTradeSummary(state: BaseTradeState) {
         summary.push(getTradeDetail(netDebtBalance, 'Debt', 'none', intl));
     } else if (tradeType === 'ConvertAsset') {
       // Asset to sell: this sign never changes
-      summary.push(getTradeDetail(debtBalance, 'Debt', 'none', intl));
+      summary.push(
+        getTradeDetail(
+          debtBalance.tokenType === 'PrimeDebt'
+            ? debtBalance.toPrimeCash()
+            : debtBalance,
+          'Asset',
+          'withdraw',
+          intl
+        )
+      );
 
       if (netDebtBalance?.isZero() === false)
         // This only exists if the debt is being repaid in the new maturity

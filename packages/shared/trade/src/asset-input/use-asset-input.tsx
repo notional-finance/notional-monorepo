@@ -17,13 +17,14 @@ export function useAssetInput(
   const [inputString, setInputString] = useState<string>('');
   const isAccountReady = useAccountReady();
   const { primeDebt, primeCash } = useCurrency();
+  let parsedSelectedToken = selectedToken;
   if (isRollOrConvert && selectedToken?.tokenType === 'PrimeCash') {
     // Rewrite this to prime debt
-    selectedToken = primeDebt.find(
+    parsedSelectedToken = primeDebt.find(
       (t) => t.currencyId === selectedToken?.currencyId
     );
   } else if (isRollOrConvert && selectedToken?.tokenType === 'PrimeDebt') {
-    selectedToken = primeCash.find(
+    parsedSelectedToken = primeCash.find(
       (t) => t.currencyId === selectedToken?.currencyId
     );
   }
@@ -31,7 +32,7 @@ export function useAssetInput(
   // eslint-disable-next-line prefer-const
   let { token, inputAmount } = useInputAmount(
     inputString,
-    selectedToken?.symbol
+    parsedSelectedToken?.symbol
   );
 
   const { maxBalance, insufficientBalance } = useWalletBalanceInputCheck(
@@ -46,8 +47,8 @@ export function useAssetInput(
     errorMsg = tradeErrors.insufficientBalance;
   }
 
-  if (isRollOrConvert && selectedToken?.tokenType === 'PrimeDebt') {
-    inputAmount = inputAmount?.toPrimeCash();
+  if (isRollOrConvert && selectedToken) {
+    inputAmount = inputAmount?.toToken(selectedToken);
   }
 
   return {
