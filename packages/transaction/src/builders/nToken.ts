@@ -8,6 +8,15 @@ import {
   PopulateTransactionInputs,
 } from './common';
 
+export function ClaimNOTE({ address, network }: PopulateTransactionInputs) {
+  return populateNotionalTxnAndGas(
+    network,
+    address,
+    'nTokenClaimIncentives',
+    []
+  );
+}
+
 export function MintNToken({
   address,
   network,

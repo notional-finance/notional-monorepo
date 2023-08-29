@@ -1,11 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Box, useTheme, styled } from '@mui/material';
 import { CountUp, ButtonText } from '@notional-finance/mui';
 import { NoteWithShadow } from '@notional-finance/icons';
 import { NotionalTheme } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
-import { useClaimNote } from '../../hooks';
-import { useAccountReady } from '@notional-finance/notionable-hooks';
+import {
+  useAccountDefinition,
+  useAccountReady,
+  useSelectedNetwork,
+  useTransactionStatus,
+} from '@notional-finance/notionable-hooks';
+import { ClaimNOTE } from '@notional-finance/transaction';
 
 interface ClaimNoteType {
   theme: NotionalTheme;
@@ -15,47 +20,57 @@ interface ClaimNoteType {
 export const ClaimNoteButton = () => {
   const theme = useTheme();
   const isAccountReady = useAccountReady();
-  const { userNoteEarnedFloat, userNoteEarnedPerSecond, userNoteEarned } =
-    useClaimNote();
+  const { account } = useAccountDefinition();
+  const network = useSelectedNetwork();
   const [noteCountUp, setNoteCountUp] = useState<number>(0);
+  const { isReadOnlyAddress, onSubmit } = useTransactionStatus();
   const [hover, setHover] = useState(false);
+  const noteClaim = account?.noteClaim;
+  const currentNOTEFloat = account?.noteClaim?.currentNOTE.toFloat();
+  const notePerSecondFloat = account?.noteClaim?.noteAccruedPerSecond.toFloat();
 
   useEffect(() => {
-    if (userNoteEarnedFloat) {
-      setNoteCountUp(userNoteEarnedFloat);
+    if (currentNOTEFloat) setNoteCountUp(currentNOTEFloat);
+
+    if (notePerSecondFloat) {
+      const interval = setInterval(() => {
+        if (notePerSecondFloat > 0) {
+          setNoteCountUp(
+            (noteCountUp) => noteCountUp + 0.1 * notePerSecondFloat
+          );
+        }
+      }, 100);
+      return () => clearInterval(interval);
     }
-  }, [userNoteEarnedFloat]);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (userNoteEarnedPerSecond > 0) {
-        setNoteCountUp(
-          (noteCountUp) => noteCountUp + 0.1 * userNoteEarnedPerSecond
-        );
-      }
-    }, 100);
-    return () => clearInterval(interval);
-  }, [userNoteEarnedPerSecond]);
+    return undefined;
+  }, [currentNOTEFloat, notePerSecondFloat]);
 
-  // const handleClick = useCallback(async () => {
-  //   if (account?.address && notional) {
-  //     const unsignedTxn = await notional.claimIncentives(account.address);
-  //     const pendingTxn = await account.sendTransaction(unsignedTxn);
-  //     await pendingTxn.wait();
-  //     await fetchNoteData();
-  //   }
-  // }, [account, notional, fetchNoteData]);
+  const handleClick = useCallback(async () => {
+    if (isReadOnlyAddress || !account || !network) return;
 
-  // NOTE: accountSummariesLoaded is used here to ensure that the button is rendered on time with the button-bar
+    const txn = ClaimNOTE({
+      address: account.address,
+      network,
+      redeemToWETH: false,
+      accountBalances: [],
+      maxWithdraw: false,
+    });
+    onSubmit(await txn);
+  }, [onSubmit, isReadOnlyAddress, account, network]);
+
   return (
-    <Box>
-      {!userNoteEarned.isZero() && isAccountReady && (
+    <Box
+      sx={{
+        display: 'flex',
+        justifyContent: 'end',
+      }}
+    >
+      {!!noteClaim && isAccountReady && (
         <Wrapper
           onMouseEnter={() => setHover(true)}
           onMouseLeave={() => setHover(false)}
-          onClick={() => {
-            console.log('click');
-          }}
+          onClick={handleClick}
         >
           <ClaimNoteWrapper hover={hover} theme={theme}>
             <FormattedMessage defaultMessage={'Claim NOTE'} />{' '}
@@ -64,7 +79,7 @@ export const ClaimNoteButton = () => {
             <NoteIcon />
             <Box sx={{ paddingLeft: theme.spacing(1) }}>
               {noteCountUp > 0 ? (
-                <CountUp value={noteCountUp} duration={0.1} decimals={3} />
+                <CountUp value={noteCountUp} duration={0.1} decimals={8} />
               ) : (
                 ''
               )}
