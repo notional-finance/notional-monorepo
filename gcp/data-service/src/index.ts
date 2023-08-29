@@ -64,6 +64,9 @@ async function main() {
   if (!process.env.REGISTRY_BASE_URL) {
     throw Error('Registry URL not defined');
   }
+  if (!process.env.DATA_BASE_URL) {
+    throw Error('Data URL not defined');
+  }
 
   const db = createUnixSocketPool();
   const provider = getProviderFromNetwork(Network[process.env.NETWORK], true);
@@ -79,6 +82,7 @@ async function main() {
     frequency: 3600, // Hourly
     startingBlock: 86540848, // Oldest block in the subgraph
     registryUrl: process.env.REGISTRY_BASE_URL,
+    dataUrl: process.env.DATA_BASE_URL,
     mergeConflicts: JSON.parse(process.env.MERGE_CONFLICTS || 'false'),
     backfillDelayMs: 5000,
   });

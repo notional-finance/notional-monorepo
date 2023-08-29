@@ -3,6 +3,7 @@ import { RegistryDOEnv } from '@notional-finance/durable-objects';
 import { Routes } from '@notional-finance/core-entities/src/server';
 import { Network, ONE_HOUR_MS } from '@notional-finance/util';
 import { OracleRegistryServer } from 'packages/core-entities/src/server/oracle-registry-server';
+import { TokenRegistryServer } from 'packages/core-entities/src/server/token-registry-server';
 
 export interface Env extends RegistryDOEnv {
   VIEWS_DO: DurableObjectNamespace;
@@ -20,6 +21,12 @@ async function runHealthCheck(ns: DurableObjectNamespace, version: string) {
 
 async function getOracleData(network: Network, blockNumber: number) {
   const server = new OracleRegistryServer();
+  await server.refreshAtBlock(network, blockNumber);
+  return server.serializeToJSON(network);
+}
+
+async function getTokenData(network: Network, blockNumber: number) {
+  const server = new TokenRegistryServer();
   await server.refreshAtBlock(network, blockNumber);
   return server.serializeToJSON(network);
 }
@@ -51,6 +58,20 @@ export default {
           statusText: 'OK',
         });
       }
+      case Routes.Tokens: {
+        const blockNumber = url.pathname.split('/')[3];
+        if (!blockNumber) {
+          throw Error('Block number is required');
+        }
+        const data = await getTokenData(
+          network as Network,
+          parseInt(blockNumber)
+        );
+        return new Response(data, {
+          status: 200,
+          statusText: 'OK',
+        });
+      }
       case Routes.Analytics:
         ns = env.VIEWS_DO;
         break;
@@ -63,6 +84,12 @@ export default {
   },
   async scheduled(_: ScheduledController, env: Env): Promise<void> {
     await fetch(`${env.DATA_SERVICE_URL}/syncGenericData`, {
+      headers: {
+        'x-auth-token': env.DATA_SERVICE_AUTH_TOKEN,
+      },
+    });
+
+    await fetch(`${env.DATA_SERVICE_URL}/syncOracleData`, {
       headers: {
         'x-auth-token': env.DATA_SERVICE_AUTH_TOKEN,
       },

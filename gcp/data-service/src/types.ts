@@ -24,6 +24,11 @@ export enum ProtocolName {
   Curve = 'Curve',
 }
 
+export enum DataType {
+  ORACLE = 'oracles',
+  TOKEN = 'tokens',
+}
+
 export enum Strategy {
   Generic = 1,
   Eth_Balancer_WETH_wstETH = 2,

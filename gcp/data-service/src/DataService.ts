@@ -7,7 +7,6 @@ import {
   ONE_HOUR_MS,
 } from '@notional-finance/util';
 import { fetch } from 'cross-fetch';
-import { URLSearchParams } from 'url';
 import {
   buildOperations,
   defaultConfigDefs,
@@ -15,6 +14,7 @@ import {
 } from './config';
 import {
   BackfillType,
+  DataType,
   DataRow,
   MulticallConfig,
   MulticallOperation,
@@ -40,12 +40,12 @@ export type DataServiceSettings = {
   frequency: number; // hourly, daily etc.
   startingBlock: number;
   registryUrl: string;
+  dataUrl: string;
   mergeConflicts: boolean;
   backfillDelayMs: number;
 };
 
 export default class DataService {
-  public static readonly REGISTER_TYPE = 'oracles';
   public static readonly TS_BN_MAPPINGS_TABLE_NAME = 'ts_bn_mappings';
   public static readonly ORACLE_DATA_TABLE_NAME = 'oracle_data';
   public static readonly ACCOUNTS_TABLE_NAME = 'accounts';
@@ -165,10 +165,9 @@ export default class DataService {
   }
 
   public async syncOracleData(ts: number) {
-    const blockNumber = await this.getBlockNumberFromTs(
-      this.settings.network,
-      ts
-    );
+    const network = Network.ArbitrumOne;
+
+    const blockNumber = await this.getBlockNumberFromTs(network, ts);
 
     // Get data using block number
     if (blockNumber < this.settings.startingBlock) {
@@ -176,13 +175,7 @@ export default class DataService {
       return;
     }
 
-    const data = await this.getRegistryData(blockNumber);
-
-    // Store data in DB
-    const values = data.filter(
-      (d) =>
-        this.oracleTypeToId(d[1].oracleType) && this.networkToId(d[1].network)
-    );
+    const values = await this.getData(network, blockNumber, DataType.ORACLE);
 
     const query = this.db
       .insert(
@@ -341,13 +334,13 @@ export default class DataService {
     );
   }
 
-  private async getRegistryData(blockNumber: number) {
+  private async getData(
+    network: Network,
+    blockNumber: number,
+    dataType: DataType
+  ) {
     const resp = await fetch(
-      `${this.settings.registryUrl}/${DataService.REGISTER_TYPE}?` +
-        new URLSearchParams({
-          network: this.settings.network,
-          blockNumber: blockNumber.toString(),
-        })
+      `${this.settings.dataUrl}/${network}/${dataType}/${blockNumber}`
     );
 
     return (await resp.json()).values;
