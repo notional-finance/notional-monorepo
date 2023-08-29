@@ -1,11 +1,7 @@
 import { DurableObjectNamespace, Request } from '@cloudflare/workers-types';
 import { RegistryDOEnv } from '@notional-finance/durable-objects';
-import { Routes } from '@notional-finance/core-entities/src/server';
 import { Network, ONE_HOUR_MS } from '@notional-finance/util';
-import { OracleRegistryServer } from 'packages/core-entities/src/server/oracle-registry-server';
-import { TokenRegistryServer } from 'packages/core-entities/src/server/token-registry-server';
-import { ExchangeRegistryServer } from 'packages/core-entities/src/server/exchange-registry-server';
-import { ConfigurationServer } from 'packages/core-entities/src/server/configuration-server';
+import { Servers, Routes } from '@notional-finance/core-entities';
 
 export interface Env extends RegistryDOEnv {
   VIEWS_DO: DurableObjectNamespace;
@@ -22,25 +18,25 @@ async function runHealthCheck(ns: DurableObjectNamespace, version: string) {
 }
 
 async function getOracleData(network: Network, blockNumber: number) {
-  const server = new OracleRegistryServer();
+  const server = new Servers.OracleRegistryServer();
   await server.refreshAtBlock(network, blockNumber);
   return server.serializeToJSON(network);
 }
 
 async function getTokenData(network: Network, blockNumber: number) {
-  const server = new TokenRegistryServer();
+  const server = new Servers.TokenRegistryServer();
   await server.refreshAtBlock(network, blockNumber);
   return server.serializeToJSON(network);
 }
 
 async function getExchangeData(network: Network, blockNumber: number) {
-  const server = new ExchangeRegistryServer();
+  const server = new Servers.ExchangeRegistryServer();
   await server.refreshAtBlock(network, blockNumber);
   return server.serializeToJSON(network);
 }
 
 async function getConfigurationData(network: Network, blockNumber: number) {
-  const server = new ConfigurationServer();
+  const server = new Servers.ConfigurationServer();
   await server.refreshAtBlock(network, blockNumber);
   return server.serializeToJSON(network);
 }
