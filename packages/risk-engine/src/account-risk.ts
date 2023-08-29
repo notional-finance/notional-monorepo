@@ -208,33 +208,44 @@ export class AccountRiskProfile extends BaseRiskProfile {
 
   /***** RISK THRESHOLD *******/
   assetLiquidationThreshold(asset: TokenDefinition) {
-    let netCollateralAvailable = this.netCollateralAvailable(asset.id);
+    let riskAdjustedValue = this.netCollateralAvailable(asset.id);
     // If there is no collateral available, then the liquidation price is null
     if (this.totalDebt().isZero()) return null;
-    if (netCollateralAvailable.isZero()) return null;
+    if (riskAdjustedValue.isZero()) return null;
     const { haircut, buffer } =
       Registry.getConfigurationRegistry().getCurrencyHaircutAndBuffer(asset);
+    let assetDenominatedFC: TokenBalance;
 
     if (asset.tokenType === 'Underlying') {
-      if (netCollateralAvailable.isPositive() && haircut === 0) {
+      if (riskAdjustedValue.isPositive() && haircut === 0) {
         // No cross currency liquidation price if token is haircut to zero
         return null;
       } else {
         // Apply haircut on cross currency risk
-        netCollateralAvailable = netCollateralAvailable.scale(
-          netCollateralAvailable.isPositive() ? haircut : buffer,
+        riskAdjustedValue = riskAdjustedValue.scale(
+          riskAdjustedValue.isPositive() ? haircut : buffer,
           PERCENTAGE_BASIS
         );
+        assetDenominatedFC = this.freeCollateral().toToken(asset);
       }
+    } else {
+      // In this case we're determining asset price risk and the "FC" figure is the
+      // total asset's contribution to the free collateral (i.e. the net collateral
+      // available of the asset's underlying.
+      if (!asset.underlying) throw Error('No underlying found');
+      assetDenominatedFC = this.netCollateralAvailable(asset.underlying);
+      assetDenominatedFC = assetDenominatedFC.scale(
+        assetDenominatedFC.isPositive() ? haircut : buffer,
+        PERCENTAGE_BASIS
+      );
     }
 
-    const assetDenominatedFC = this.freeCollateral().toToken(asset);
     const unitOfAsset = TokenBalance.unit(asset);
 
     // 1 - collateralDenominatedFC / netCollateralAvailable
     // If netCollateralAvailable < 0 then the exchange rate change will be positive
     const threshold = unitOfAsset.sub(
-      unitOfAsset.scale(assetDenominatedFC, netCollateralAvailable)
+      unitOfAsset.scale(assetDenominatedFC, riskAdjustedValue)
     );
 
     if (asset.tokenType === 'nToken') {
@@ -245,7 +256,7 @@ export class AccountRiskProfile extends BaseRiskProfile {
       if (threshold.lt(unitOfAsset.mulInRatePrecision(nTokenMaxDrawdown)))
         return null;
     } else if (asset.tokenType === 'fCash') {
-      if (netCollateralAvailable.isPositive()) {
+      if (riskAdjustedValue.isPositive()) {
         const { lowestDiscountFactor } =
           Registry.getConfigurationRegistry().getMinLendRiskAdjustedDiscountFactor(
             asset
