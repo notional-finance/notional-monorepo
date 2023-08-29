@@ -5,7 +5,6 @@ import {
   TxnHashCell,
   DataTableColumn,
   DateTimeCell,
-  DisplayCell,
   SelectedOptions,
 } from '@notional-finance/mui';
 import { Box, useTheme } from '@mui/material';
@@ -56,9 +55,9 @@ export const useTxnHistoryTable = (
           description={'Underlying Amount header'}
         />
       ),
-      Cell: DisplayCell,
+      Cell: MultiValueCell,
       accessor: 'underlyingAmount',
-      textAlign: 'left',
+      textAlign: 'right',
     },
     {
       Header: (
@@ -69,7 +68,7 @@ export const useTxnHistoryTable = (
       ),
       Cell: MultiValueCell,
       accessor: 'assetAmount',
-      textAlign: 'left',
+      textAlign: 'right',
     },
     {
       Header: (
