@@ -4,6 +4,8 @@ import { Routes } from '@notional-finance/core-entities/src/server';
 import { Network, ONE_HOUR_MS } from '@notional-finance/util';
 import { OracleRegistryServer } from 'packages/core-entities/src/server/oracle-registry-server';
 import { TokenRegistryServer } from 'packages/core-entities/src/server/token-registry-server';
+import { ExchangeRegistryServer } from 'packages/core-entities/src/server/exchange-registry-server';
+import { ConfigurationServer } from 'packages/core-entities/src/server/configuration-server';
 
 export interface Env extends RegistryDOEnv {
   VIEWS_DO: DurableObjectNamespace;
@@ -27,6 +29,18 @@ async function getOracleData(network: Network, blockNumber: number) {
 
 async function getTokenData(network: Network, blockNumber: number) {
   const server = new TokenRegistryServer();
+  await server.refreshAtBlock(network, blockNumber);
+  return server.serializeToJSON(network);
+}
+
+async function getExchangeData(network: Network, blockNumber: number) {
+  const server = new ExchangeRegistryServer();
+  await server.refreshAtBlock(network, blockNumber);
+  return server.serializeToJSON(network);
+}
+
+async function getConfigurationData(network: Network, blockNumber: number) {
+  const server = new ConfigurationServer();
   await server.refreshAtBlock(network, blockNumber);
   return server.serializeToJSON(network);
 }
@@ -64,6 +78,34 @@ export default {
           throw Error('Block number is required');
         }
         const data = await getTokenData(
+          network as Network,
+          parseInt(blockNumber)
+        );
+        return new Response(data, {
+          status: 200,
+          statusText: 'OK',
+        });
+      }
+      case Routes.Exchanges: {
+        const blockNumber = url.pathname.split('/')[3];
+        if (!blockNumber) {
+          throw Error('Block number is required');
+        }
+        const data = await getExchangeData(
+          network as Network,
+          parseInt(blockNumber)
+        );
+        return new Response(data, {
+          status: 200,
+          statusText: 'OK',
+        });
+      }
+      case Routes.Configuration: {
+        const blockNumber = url.pathname.split('/')[3];
+        if (!blockNumber) {
+          throw Error('Block number is required');
+        }
+        const data = await getConfigurationData(
           network as Network,
           parseInt(blockNumber)
         );
