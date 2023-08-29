@@ -12,6 +12,7 @@ import {
   handleYields,
   handleVaults,
   handleViews,
+  handleNFT,
 } from './routes';
 
 export {
@@ -60,6 +61,7 @@ router.options('*', handleOptions);
 
 router.get('/kpis', handleKPIs);
 router.get('/geoip', handleGeoIP);
+router.get('/nft/*', handleNFT);
 router.post('/newsletter', handleNewsletter);
 router.get('/:network/views/:view', handleViews);
 router.get('/:network/yields', handleYields);

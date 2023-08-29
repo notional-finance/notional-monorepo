@@ -6,6 +6,7 @@ import {
 } from '@cloudflare/workers-types';
 import { IRequest } from 'itty-router';
 import { APIEnv } from '@notional-finance/durable-objects';
+import BetaPass from '../assets/BetaPass';
 
 function _handler(request: IRequest, ns: DurableObjectNamespace, name: string) {
   const stub = ns.get(ns.idFromName(name));
@@ -44,6 +45,17 @@ const handleViews = (request: IRequest, env: APIEnv) => {
   return _handler(request, env.VIEWS_DO, env.VIEWS_NAME);
 };
 
+const handleNFT = (_request: IRequest, _env: APIEnv) => {
+  // const url = new URL(request.url);
+  // const [_, address, tokenId] = url.pathname.split('/');
+  const resp = {
+    name: 'Notional ARB Beta',
+    description: 'Notional Arbitrum Beta contest pass.',
+    image: BetaPass,
+  };
+  return new Response(JSON.stringify(resp));
+};
+
 export {
   handleKPIs,
   handleGeoIP,
@@ -55,4 +67,5 @@ export {
   handleExchanges,
   handleVaults,
   handleViews,
+  handleNFT,
 };
