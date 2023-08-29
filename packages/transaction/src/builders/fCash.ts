@@ -288,7 +288,7 @@ export function WithdrawLend({
     : populateNotionalTxnAndGas(network, address, 'withdraw', [
         debtBalance.currencyId,
         maxWithdraw ? MAX_UINT88 : debtBalance.neg().n,
-        redeemToWETH,
+        !redeemToWETH,
       ]);
 }
 

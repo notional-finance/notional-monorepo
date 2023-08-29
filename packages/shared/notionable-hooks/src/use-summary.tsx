@@ -210,7 +210,6 @@ export function useOrderDetails(state: BaseTradeState): OrderDetails {
     });
   }
 
-  console.log(debtBalance?.toString(), collateralBalance?.toString());
   // NOTE: if sign changes occur, they don't get marked here
   if (debtBalance?.isZero() === false && netRealizedDebtBalance) {
     // Undo withdraw and convert token type here
