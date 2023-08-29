@@ -208,18 +208,24 @@ export class AccountRiskProfile extends BaseRiskProfile {
 
   /***** RISK THRESHOLD *******/
   assetLiquidationThreshold(asset: TokenDefinition) {
-    const netCollateralAvailable = this.netCollateralAvailable(asset.id);
+    let netCollateralAvailable = this.netCollateralAvailable(asset.id);
     // If there is no collateral available, then the liquidation price is null
     if (this.totalDebt().isZero()) return null;
     if (netCollateralAvailable.isZero()) return null;
-    if (
-      asset.tokenType === 'Underlying' &&
-      netCollateralAvailable.isPositive() &&
-      Registry.getConfigurationRegistry().getCurrencyHaircutAndBuffer(asset)
-        .haircut === 0
-    ) {
-      // No cross currency liquidation price if token is haircut to zero
-      return null;
+    const { haircut, buffer } =
+      Registry.getConfigurationRegistry().getCurrencyHaircutAndBuffer(asset);
+
+    if (asset.tokenType === 'Underlying') {
+      if (netCollateralAvailable.isPositive() && haircut === 0) {
+        // No cross currency liquidation price if token is haircut to zero
+        return null;
+      } else {
+        // Apply haircut on cross currency risk
+        netCollateralAvailable = netCollateralAvailable.scale(
+          netCollateralAvailable.isPositive() ? haircut : buffer,
+          PERCENTAGE_BASIS
+        );
+      }
     }
 
     const assetDenominatedFC = this.freeCollateral().toToken(asset);
