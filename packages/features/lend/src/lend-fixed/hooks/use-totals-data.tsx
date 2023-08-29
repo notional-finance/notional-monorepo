@@ -12,13 +12,9 @@ export const useTotalsData = (selectedDepositToken: string | undefined) => {
   const {
     yields: { fCashLend, liquidity },
   } = useAllMarkets();
-  let tvlData: any = null;
-
-  if (liquidity) {
-    tvlData = liquidity.find(
-      (data) => data.underlying?.symbol === selectedDepositToken
-    );
-  }
+  const tvlData = liquidity?.find(
+    (data) => data.underlying?.symbol === selectedDepositToken
+  );
 
   const filteredFCash = fCashLend
     .filter(({ underlying }) => underlying?.symbol === selectedDepositToken)

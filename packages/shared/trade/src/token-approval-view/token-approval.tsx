@@ -22,8 +22,8 @@ function TokenApproval({
 }: TokenApprovalProps) {
   const theme = useTheme();
   const pending =
-    transactionStatus === TransactionStatus.WAIT_USER_CONFIRM ||
-    transactionStatus === TransactionStatus.SUBMITTED;
+    transactionStatus !== TransactionStatus.NONE &&
+    transactionStatus !== TransactionStatus.REVERT;
 
   return (
     <Box
@@ -47,46 +47,33 @@ function TokenApproval({
         }}
       >
         <TokenIcon symbol={symbol} size="medium" />
-        {!pending && !approved && (
-          <Switch
-            checked={approved}
-            onChange={onChange}
-            sx={{
-              margin: theme.spacing(0, 1),
-            }}
-          />
+        {approved ? (
+          <>
+            <CheckCircle color="primary" sx={{ margin: theme.spacing(0, 1) }} />
+            <LabelValue inline sx={{ color: theme.palette.typography.main }}>
+              <FormattedMessage defaultMessage="Enabled" />
+            </LabelValue>
+          </>
+        ) : (
+          <>
+            {pending ? (
+              <CircularProgress
+                size={24}
+                color="primary"
+                sx={{ margin: theme.spacing(0, 1) }}
+              />
+            ) : (
+              <Switch
+                checked={false}
+                onChange={onChange}
+                sx={{ margin: theme.spacing(0, 1) }}
+              />
+            )}
+            <LabelValue inline sx={{ color: theme.palette.typography.light }}>
+              <FormattedMessage defaultMessage="Disabled" />
+            </LabelValue>
+          </>
         )}
-        {pending && (
-          <CircularProgress
-            size={24}
-            color="primary"
-            sx={{
-              margin: theme.spacing(0, 2),
-            }}
-          />
-        )}
-        {!pending && transactionStatus === TransactionStatus.CONFIRMED && (
-          <CheckCircle
-            color="primary"
-            sx={{
-              margin: theme.spacing(0, 2),
-            }}
-          />
-        )}
-        <LabelValue
-          inline
-          sx={{
-            color: approved
-              ? theme.palette.typography.main
-              : theme.palette.typography.light,
-          }}
-        >
-          {approved ? (
-            <FormattedMessage defaultMessage="Enabled" />
-          ) : (
-            <FormattedMessage defaultMessage="Disabled" />
-          )}
-        </LabelValue>
       </Box>
       <Label
         sx={{

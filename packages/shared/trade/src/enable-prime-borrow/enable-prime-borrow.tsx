@@ -11,11 +11,12 @@ export function EnablePrimeBorrow() {
     useEnablePrimeBorrow();
 
   const pending =
-    transactionStatus === TransactionStatus.WAIT_USER_CONFIRM ||
-    transactionStatus === TransactionStatus.SUBMITTED;
+    transactionStatus !== TransactionStatus.NONE &&
+    transactionStatus !== TransactionStatus.REVERT;
 
   // Only show the box if prime borrow is not allowed
-  return isPrimeBorrowAllowed ? null : (
+  return !isPrimeBorrowAllowed ||
+    transactionStatus !== TransactionStatus.NONE ? (
     <Box
       sx={{
         display: 'flex',
@@ -35,53 +36,38 @@ export function EnablePrimeBorrow() {
           alignItems: 'center',
         }}
       >
-        {!pending && !isPrimeBorrowAllowed && (
-          <Switch
-            checked={isPrimeBorrowAllowed}
-            onChange={enablePrimeBorrow}
-            sx={{
-              margin: theme.spacing(0, 1),
-            }}
-          />
+        {isPrimeBorrowAllowed ? (
+          <>
+            <CheckCircle color="primary" sx={{ margin: theme.spacing(0, 1) }} />
+            <LabelValue inline sx={{ color: theme.palette.typography.main }}>
+              <FormattedMessage defaultMessage="Prime Borrow Enabled" />
+            </LabelValue>
+          </>
+        ) : (
+          <>
+            {pending ? (
+              <CircularProgress
+                size={24}
+                color="primary"
+                sx={{ margin: theme.spacing(0, 1) }}
+              />
+            ) : (
+              <Switch
+                checked={false}
+                onChange={enablePrimeBorrow}
+                sx={{ margin: theme.spacing(0, 1) }}
+              />
+            )}
+            <LabelValue inline sx={{ color: theme.palette.typography.light }}>
+              <FormattedMessage defaultMessage="Prime Borrow Disabled" />
+            </LabelValue>
+          </>
         )}
-        {pending && (
-          <CircularProgress
-            size={24}
-            color="primary"
-            sx={{
-              margin: theme.spacing(0, 1),
-            }}
-          />
-        )}
-        {!pending && transactionStatus === TransactionStatus.CONFIRMED && (
-          <CheckCircle
-            color="primary"
-            sx={{
-              margin: theme.spacing(0, 1),
-            }}
-          />
-        )}
-        <LabelValue
-          inline
-          sx={{
-            color: isPrimeBorrowAllowed
-              ? theme.palette.typography.main
-              : theme.palette.typography.light,
-          }}
-        >
-          {isPrimeBorrowAllowed ? (
-            <FormattedMessage defaultMessage="Prime Borrow Enabled" />
-          ) : (
-            <FormattedMessage defaultMessage="Prime Borrow Disabled" />
-          )}
-        </LabelValue>
       </Box>
       <Label
         sx={{
           padding: theme.spacing(2, 0),
-          color: isPrimeBorrowAllowed
-            ? theme.palette.typography.main
-            : theme.palette.typography.light,
+          color: theme.palette.typography.light,
         }}
       >
         <FormattedMessage
@@ -90,5 +76,5 @@ export function EnablePrimeBorrow() {
         />
       </Label>
     </Box>
-  );
+  ) : null;
 }

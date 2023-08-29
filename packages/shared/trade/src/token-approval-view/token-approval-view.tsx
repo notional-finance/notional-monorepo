@@ -1,6 +1,9 @@
 import TokenApproval from './token-approval';
 import { Box, useTheme } from '@mui/material';
-import { useAccountReady } from '@notional-finance/notionable-hooks';
+import {
+  TransactionStatus,
+  useAccountReady,
+} from '@notional-finance/notionable-hooks';
 import { useTokenApproval } from './use-token-approval';
 import { TokenBalance } from '@notional-finance/core-entities';
 
@@ -27,7 +30,7 @@ export const TokenApprovalView = ({
 
   return (
     <Box>
-      {approvalRequired && (
+      {(approvalRequired || transactionStatus !== TransactionStatus.NONE) && (
         <TokenApproval
           symbol={symbol}
           approved={!approvalRequired}

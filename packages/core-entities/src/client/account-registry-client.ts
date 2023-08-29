@@ -456,19 +456,24 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
     snapshot: BalanceSnapshot,
     network: Network
   ) {
+    const balance = TokenBalance.fromID(
+      snapshot.currentBalance,
+      tokenId,
+      network
+    );
+    const adjustedCostBasis = TokenBalance.fromID(
+      snapshot.adjustedCostBasis,
+      underlyingId,
+      network
+    );
+    const accumulatedCostRealized = balance
+      .toUnderlying()
+      .scale(adjustedCostBasis, adjustedCostBasis.precision);
     return {
+      balance,
+      adjustedCostBasis,
       timestamp: snapshot.timestamp,
-      balance: TokenBalance.fromID(snapshot.currentBalance, tokenId, network),
-      accumulatedCostRealized: TokenBalance.fromID(
-        snapshot._accumulatedCostRealized,
-        underlyingId,
-        network
-      ),
-      adjustedCostBasis: TokenBalance.fromID(
-        snapshot.adjustedCostBasis,
-        underlyingId,
-        network
-      ),
+      accumulatedCostRealized,
       totalILAndFees: TokenBalance.fromID(
         snapshot.totalILAndFeesAtSnapshot,
         underlyingId,
@@ -514,6 +519,26 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
                     )
                   : undefined;
 
+              let tokenAmount = TokenBalance.fromID(
+                p.tokenAmount,
+                tokenId,
+                network
+              );
+              if (tokenAmount.tokenType === 'PrimeDebt') {
+                tokenAmount = tokenAmount.neg();
+              }
+
+              const underlyingAmountRealized = TokenBalance.fromID(
+                p.underlyingAmountRealized,
+                underlyingId,
+                network
+              );
+              const underlyingAmountSpot = TokenBalance.fromID(
+                p.underlyingAmountSpot,
+                underlyingId,
+                network
+              );
+
               return {
                 timestamp: p.timestamp,
                 token,
@@ -522,23 +547,15 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
                   network,
                   underlyingId
                 ),
-                tokenAmount: TokenBalance.fromID(
-                  p.tokenAmount,
-                  tokenId,
-                  network
-                ),
                 bundleName: p.bundle.bundleName,
                 transactionHash: p.transactionHash.id,
-                underlyingAmountRealized: TokenBalance.fromID(
-                  p.underlyingAmountRealized,
-                  underlyingId,
-                  network
-                ),
-                underlyingAmountSpot: TokenBalance.fromID(
-                  p.underlyingAmountSpot,
-                  underlyingId,
-                  network
-                ),
+                tokenAmount,
+                underlyingAmountRealized: tokenAmount.isNegative()
+                  ? underlyingAmountRealized.neg()
+                  : underlyingAmountRealized,
+                underlyingAmountSpot: tokenAmount.isNegative()
+                  ? underlyingAmountSpot.neg()
+                  : underlyingAmountSpot,
                 realizedPrice: TokenBalance.fromID(
                   p.realizedPrice,
                   underlyingId,

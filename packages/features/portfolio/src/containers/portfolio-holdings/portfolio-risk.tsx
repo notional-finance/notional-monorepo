@@ -226,6 +226,7 @@ export const PortfolioRisk = () => {
           disableGutters
           expanded={isExpanded}
           sx={{
+            boxShadow: 'unset',
             borderBottomLeftRadius: theme.shape.borderRadius(),
             borderBottomRightRadius: theme.shape.borderRadius(),
           }}
@@ -235,6 +236,7 @@ export const PortfolioRisk = () => {
               <ArrowIcon sx={{ color: theme.palette.primary.light }} />
             }
             sx={{
+              borderTop: isExpanded ? theme.shape.borderStandard : 'unset',
               borderBottom: isExpanded ? theme.shape.borderStandard : undefined,
               borderBottomLeftRadius: isExpanded
                 ? undefined
