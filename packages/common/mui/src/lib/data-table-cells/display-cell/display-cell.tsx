@@ -9,7 +9,15 @@ export const DisplayCell = ({ cell }): JSX.Element => {
     <TableCell>
       {value && column.displayFormatter && parseFloat(value) !== 0 ? (
         <Box sx={{ h4: { color: parseFloat(value) < 0 ? colors.red : '' } }}>
-          <FirstValue sx={{ marginBottom: '0px' }}>
+          <FirstValue
+            sx={{
+              marginBottom: '0px',
+              color:
+                parseFloat(value) < 0 || value.toString().includes('-')
+                  ? colors.red
+                  : '',
+            }}
+          >
             {column.displayFormatter(parseFloat(value))}
           </FirstValue>
         </Box>
@@ -20,11 +28,23 @@ export const DisplayCell = ({ cell }): JSX.Element => {
           sx={{
             h4: {
               color:
-                parseFloat(value) < 0 || value.includes('-') ? colors.red : '',
+                parseFloat(value) < 0 || value.toString().includes('-')
+                  ? colors.red
+                  : '',
             },
           }}
         >
-          <FirstValue sx={{ marginBottom: '0px' }}>{value}</FirstValue>
+          <FirstValue
+            sx={{
+              marginBottom: '0px',
+              color:
+                parseFloat(value) < 0 || value.toString().includes('-')
+                  ? colors.red
+                  : '',
+            }}
+          >
+            {value}
+          </FirstValue>
         </Box>
       )}
     </TableCell>

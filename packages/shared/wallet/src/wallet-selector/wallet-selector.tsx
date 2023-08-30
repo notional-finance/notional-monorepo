@@ -12,6 +12,7 @@ import WalletSideDrawer from '../wallet-side-drawer/wallet-side-drawer';
 import { getNotificationsData } from './wallet-selector.service';
 import NetworkSelector from '../network-selector/network-selector';
 import { ProgressIndicator, ButtonText, Caption } from '@notional-finance/mui';
+import { V3BetaIcon } from '@notional-finance/icons';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { useConnect } from '../hooks/use-connect';
 import { useWalletSideDrawer } from '../hooks';
@@ -20,6 +21,7 @@ import {
   PORTFOLIO_CATEGORIES,
   SETTINGS_SIDE_DRAWERS,
 } from '@notional-finance/shared-config';
+import { useHistory } from 'react-router-dom';
 import { useTruncatedAddress } from '@notional-finance/notionable-hooks';
 
 export interface PortfolioParams {
@@ -29,6 +31,7 @@ export interface PortfolioParams {
 
 export function WalletSelector() {
   const theme = useTheme();
+  const history = useHistory();
   const { selectedAddress, isReadOnlyAddress, connecting, icon, currentLabel } =
     useConnect();
   const truncatedAddress = useTruncatedAddress();
@@ -73,6 +76,15 @@ export function WalletSelector() {
   return (
     <>
       <OuterContainer>
+        <V3BetaIcon
+          onClick={() => history.push('/contest')}
+          sx={{
+            height: theme.spacing(6.25),
+            width: theme.spacing(6.25),
+            marginRight: theme.spacing(3),
+            cursor: 'pointer',
+          }}
+        />
         <Container>
           {!isReadOnlyAddress && truncatedAddress && (
             <>

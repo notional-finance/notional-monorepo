@@ -1,7 +1,6 @@
 import { ReactNode } from 'react';
 import { Table, TableContainer, Paper, useTheme, Box } from '@mui/material';
 import { SxProps } from '@mui/material/styles';
-// import { ArrowIcon } from '@notional-finance/icons';
 import { ContestTableTitleBar } from './contest-table-title-bar/contest-table-title-bar';
 import { ContestTableHead } from './contest-table-head/contest-table-head';
 import { ContestTableBody } from './contest-table-body/contest-table-body';
@@ -9,7 +8,6 @@ import { PageLoading } from '../page-loading/page-loading';
 import { useTable, useExpanded, useSortBy } from 'react-table';
 import { FormattedMessage } from 'react-intl';
 import { TableCell } from '../typography/typography';
-import { colors } from '@notional-finance/styles';
 import { ContestTableColumn, CONTEST_TABLE_VARIANTS } from './types';
 
 interface ContestTableProps {
@@ -23,6 +21,7 @@ interface ContestTableProps {
   stateZeroMessage?: ReactNode;
   sx?: SxProps;
   maxHeight?: any;
+  isCurrentUser?: boolean;
 }
 
 export const ContestTable = ({
@@ -35,6 +34,7 @@ export const ContestTable = ({
   stateZeroMessage,
   tableVariant,
   maxHeight,
+  isCurrentUser = false,
   sx,
 }: ContestTableProps) => {
   const theme = useTheme();
@@ -47,28 +47,23 @@ export const ContestTable = ({
     useSortBy,
     useExpanded
   );
-  // const ref = useRef<HTMLDivElement | any>();
   const tableReady = !tableLoading && columns?.length && data?.length;
-
-  // const height = ref.current?.clientHeight;
-  // const width = ref.current?.clientWidth;
+  tableVariant = tableVariant || CONTEST_TABLE_VARIANTS.DEFAULT;
 
   return (
     <TableContainer
-      // ref={ref}
       id="data-table-container"
       sx={
         {
-          overflow: 'scroll',
           '&.MuiPaper-root': {
             width:
               tableVariant === CONTEST_TABLE_VARIANTS.COMPACT
-                ? '380px'
+                ? '363px'
                 : '100%',
             boxShadow: 'none',
-            border: `1px solid ${colors.neonTurquoise}`,
             overflow: !tableReady ? 'hidden' : 'auto',
-            backgroundColor: '#041D2E',
+            overflowX: 'hidden',
+            backgroundColor: 'transparent',
             padding: '1px',
             ...sx,
           },
@@ -78,6 +73,7 @@ export const ContestTable = ({
     >
       {tableTitle && (
         <ContestTableTitleBar
+          tableVariant={tableVariant}
           tableTitle={tableTitle}
           tableTitleSubText={tableTitleSubText}
         />
@@ -89,34 +85,38 @@ export const ContestTable = ({
               {tableVariant === CONTEST_TABLE_VARIANTS.DEFAULT && (
                 <ContestTableHead headerGroups={headerGroups} />
               )}
-              <ContestTableBody rows={rows} prepareRow={prepareRow} />
+              <ContestTableBody
+                rows={rows}
+                prepareRow={prepareRow}
+                isCurrentUser={isCurrentUser}
+              />
             </Table>
           )}
-          {/* {maxHeight && (
+          {maxHeight && (
             <>
-              <div style={{ position: 'sticky', top: 0 }}>
+              <Box
+                component={'div'}
+                sx={{
+                  position: 'sticky',
+                  top: 0,
+                }}
+              >
                 <Table {...getTableProps()}>
-                  <ContestTableHead
-                    headerGroups={headerGroups}
-                    tableVariant={tableVariant}
-                    expandableTable={expandableTable}
-                  />
+                  <ContestTableHead headerGroups={headerGroups} hideOnMobile />
                 </Table>
-              </div>
+              </Box>
               <div style={{ maxHeight: maxHeight, overflow: 'auto' }}>
                 <Table {...getTableProps()}>
+                  <ContestTableHead headerGroups={headerGroups} />
                   <ContestTableBody
-                    rows={displayedRows}
+                    rows={rows}
                     prepareRow={prepareRow}
-                    tableVariant={tableVariant}
-                    CustomRowComponent={CustomRowComponent}
-                    setExpandedRows={setExpandedRows}
-                    initialState={initialState}
+                    isCurrentUser={isCurrentUser}
                   />
                 </Table>
               </div>
             </>
-          )} */}
+          )}
         </>
       ) : (
         <Box>

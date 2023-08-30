@@ -71,6 +71,7 @@ export * from './lib/wave-button-icon/wave-button-icon';
 export * from './lib/active-bell-icon/active-bell-icon';
 export * from './lib/alert-icon/alert-icon';
 export * from './lib/bell-icon/bell-icon';
+export * from './lib/v3-beta-icon/v3-beta-icon';
 export * from './lib/announcement-icon/announcement-icon';
 export * from './lib/plus-icon/plus-icon';
 export * from './lib/note-with-shadow/note-with-shadow';

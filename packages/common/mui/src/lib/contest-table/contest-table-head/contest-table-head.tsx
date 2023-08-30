@@ -5,9 +5,13 @@ import { TableColumnHeading } from '../../typography/typography';
 
 interface ContestTableHeadProps {
   headerGroups: Array<HeaderGroup>;
+  hideOnMobile?: boolean;
 }
 
-export const ContestTableHead = ({ headerGroups }: ContestTableHeadProps) => {
+export const ContestTableHead = ({
+  headerGroups,
+  hideOnMobile,
+}: ContestTableHeadProps) => {
   const theme = useTheme();
   return (
     <TableHead
@@ -16,6 +20,10 @@ export const ContestTableHead = ({ headerGroups }: ContestTableHeadProps) => {
         boxShadow: '',
         borderBottom: '',
         marginRight: '20px',
+        display: !hideOnMobile ? 'none' : 'table-header-group',
+        '@media (max-width: 1152px)': {
+          display: hideOnMobile ? 'none' : 'table-header-group',
+        },
       }}
     >
       {headerGroups.map((headerGroup: HeaderGroup) => (
@@ -30,6 +38,11 @@ export const ContestTableHead = ({ headerGroups }: ContestTableHeadProps) => {
                 borderBottom: 'none',
                 whiteSpace: 'nowrap',
                 width: column['width'] || 'auto',
+                h5: {
+                  fontSize: '12px',
+                  fontFamily: 'Avenir Next',
+                  fontWeight: '500',
+                },
               }}
               {...column['getHeaderProps']()}
             >

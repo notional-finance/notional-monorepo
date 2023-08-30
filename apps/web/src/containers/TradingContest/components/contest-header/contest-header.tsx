@@ -2,44 +2,39 @@ import { Box, styled } from '@mui/material';
 import { colors } from '@notional-finance/styles';
 import { NotionalIcon, ArbitrumIcon } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
+import { useHistory } from 'react-router';
 
 export const ContestHeader = () => {
+  const { push } = useHistory();
   return (
     <Container>
-      <Box
+      <ImgWrapper
+        onClick={() => push('/')}
         sx={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '14px',
           svg: {
+            cursor: 'pointer',
             height: '40px',
             width: '40px',
           },
         }}
       >
         <NotionalIcon />
-      </Box>
-
+      </ImgWrapper>
       <InnerContainer>
         <FormattedMessage
           defaultMessage={'Notional v3 Closed Beta on Arbitrum'}
         />
       </InnerContainer>
-      <Box
+      <ImgWrapper
         sx={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '14px',
           svg: {
-            height: '45px',
-            width: '45px',
+            height: '40px',
+            width: '40px',
           },
         }}
       >
         <ArbitrumIcon />
-      </Box>
+      </ImgWrapper>
     </Container>
   );
 };
@@ -59,6 +54,9 @@ const InnerContainer = styled(Box)(
     font-weight: 600;
     letter-spacing: 10px;
     color: ${colors.white};
+    ${theme.breakpoints.down('md')} {
+      min-width: 100%;
+    }
 `
 );
 
@@ -70,6 +68,24 @@ const Container = styled(Box)(
     width: 100%;
     margin-top: ${theme.spacing(5)};
     border: 1px solid ${colors.neonTurquoise};
+    ${theme.breakpoints.down('md')} {
+      display: block;
+      border: none;
+      margin-top: 0px;
+    }
+    `
+);
+
+const ImgWrapper = styled(Box)(
+  ({ theme }) => `
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px;
+  ${theme.breakpoints.down('md')} {
+    display: none;
+  }
+  ,
     `
 );
 

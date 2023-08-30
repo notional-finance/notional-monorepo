@@ -3,20 +3,19 @@ import { colors } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import Countdown from 'react-countdown';
 import { Button } from '@notional-finance/mui';
+import { ReactNode } from 'react';
 
-// generate a future date for the countdown 6 months from now
+interface ContestCountDownProps {
+  title: ReactNode;
+}
 
-export const ContestCountDown = () => {
+export const ContestCountDown = ({ title }: ContestCountDownProps) => {
   // This is a millisecond timestamp for 5 months from now
   const futureDate = 1703982091000;
   return (
     <Container>
-      <TitleText>
-        <FormattedMessage defaultMessage={'v3 Beta Contest '} />
-      </TitleText>
-      <Box
-        sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}
-      >
+      <TitleText>{title}</TitleText>
+      <ContentContainer>
         <Countdown
           date={futureDate}
           renderer={({ days, hours, minutes, seconds }) => {
@@ -36,8 +35,10 @@ export const ContestCountDown = () => {
         <Button
           size="large"
           variant="outlined"
+          to="/contest-rules"
           sx={{
             width: '358px',
+            border: `1px solid ${colors.neonTurquoise}`,
             ':hover': {
               background: colors.matteGreen,
             },
@@ -46,20 +47,33 @@ export const ContestCountDown = () => {
         >
           <FormattedMessage defaultMessage={'Contest Rules and Prizes'} />
         </Button>
-      </Box>
+      </ContentContainer>
     </Container>
   );
 };
 
 const Container = styled(Box)(
   ({ theme }) => `
-      margin-top: ${theme.spacing(20)};
+      margin-top: ${theme.spacing(6)};
+      `
+);
+
+const ContentContainer = styled(Box)(
+  ({ theme }) => `
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      margin-top: ${theme.spacing(6)};
+      ${theme.breakpoints.down('md')} {
+        flex-direction: column;
+        align-items: center;
+      }
       `
 );
 
 const CountDownContainer = styled(Box)(
   ({ theme }) => `
-    font-family: Avenir Next;
+    font-family: Kunst;
     color: ${colors.white};
     display: flex;
     justify-content: space-between;
@@ -72,6 +86,9 @@ const CountDownContainer = styled(Box)(
     background: rgba(51, 248, 255, 0.10);
     width: 358px;
     height: 51px;
+    ${theme.breakpoints.down('md')} {
+     margin-bottom: ${theme.spacing(3)};
+    }
       `
 );
 
@@ -87,7 +104,11 @@ const TitleText = styled(Box)(
   letter-spacing: 10px;
   text-transform: uppercase;
   margin-bottom: ${theme.spacing(4)};
-
+  ${theme.breakpoints.down('md')} {
+    text-align: center;
+    text-wrap: nowrap;
+    letter-spacing: 10px;
+  }
       `
 );
 

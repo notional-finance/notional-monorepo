@@ -14,4 +14,7 @@ export type ContestTableColumn = Column & {
   sortType?: string;
   displayFormatter?: any; 
   marginRight?: any; 
+  isIDCell?: boolean;
+  padding?: string;
+  display?: string;
 };

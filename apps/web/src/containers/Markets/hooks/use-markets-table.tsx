@@ -45,7 +45,6 @@ export const useMarketsTable = (
           description={'Product header'}
         />
       ),
-      Cell: DisplayCell,
       accessor: 'product',
       textAlign: 'left',
     },

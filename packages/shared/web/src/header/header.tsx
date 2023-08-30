@@ -34,77 +34,81 @@ export function Header({ children }: HeaderProps) {
 
   return (
     <ThemeProvider theme={theme}>
-      <AppBar position="fixed" elevation={0} showBorder={pathname !== '/'}>
-        <Toolbar
-          sx={{
-            '&.MuiToolbar-root': {
-              minHeight: '100%',
-              maxWidth: { xs: '100vw', sm: '100vw', md: '100%' },
-              transition: 'background 0.3s ease-in-out',
-              background: isTop
-                ? 'transparent'
-                : theme.palette.background.default,
-            },
-          }}
-        >
-          <H4 to="/">
-            <NotionalLogo />
-          </H4>
-          <Box
+      {!pathname.includes('contest') ? (
+        <AppBar position="fixed" elevation={0} showBorder={pathname !== '/'}>
+          <Toolbar
             sx={{
-              marginLeft: '60px',
-              flexGrow: 1,
-              height: '100%',
-              display: {
-                xs: 'none',
-                md: 'flex',
+              '&.MuiToolbar-root': {
+                minHeight: '100%',
+                maxWidth: { xs: '100vw', sm: '100vw', md: '100%' },
+                transition: 'background 0.3s ease-in-out',
+                background: isTop
+                  ? 'transparent'
+                  : theme.palette.background.default,
               },
             }}
           >
-            <Navigation navLinks={navLinks} />
-          </Box>
-          <Box
-            sx={{
-              flexGrow: 0,
-              height: '72px',
-              display: {
-                xs: 'none',
-                lg: 'flex',
-              },
-              alignItems: 'center',
-            }}
-          >
-            {pathname === '/' && (
-              <>
-                <AnalyticsDropdown />
-                <ResourcesDropdown />
-              </>
-            )}
-          </Box>
-          <Box
-            sx={{
-              flexGrow: 1,
-              display: { xs: 'flex', md: 'none', lg: 'none' },
-              flexDirection: 'row-reverse',
-            }}
-          >
-            <MobileNavigation />
-          </Box>
-          <Box
-            sx={{
-              flexGrow: 0,
-              display: {
-                xs: 'none',
-                md: 'flex',
-                lg: 'flex',
-              },
-            }}
-          >
-            {children}
-          </Box>
-        </Toolbar>
-        {pathname === '/' && <ScrollIndicator />}
-      </AppBar>
+            <H4 to="/">
+              <NotionalLogo />
+            </H4>
+            <Box
+              sx={{
+                marginLeft: '60px',
+                flexGrow: 1,
+                height: '100%',
+                display: {
+                  xs: 'none',
+                  md: 'flex',
+                },
+              }}
+            >
+              <Navigation navLinks={navLinks} />
+            </Box>
+            <Box
+              sx={{
+                flexGrow: 0,
+                height: '72px',
+                display: {
+                  xs: 'none',
+                  lg: 'flex',
+                },
+                alignItems: 'center',
+              }}
+            >
+              {pathname === '/' && (
+                <>
+                  <AnalyticsDropdown />
+                  <ResourcesDropdown />
+                </>
+              )}
+            </Box>
+            <Box
+              sx={{
+                flexGrow: 1,
+                display: { xs: 'flex', md: 'none', lg: 'none' },
+                flexDirection: 'row-reverse',
+              }}
+            >
+              <MobileNavigation />
+            </Box>
+            <Box
+              sx={{
+                flexGrow: 0,
+                display: {
+                  xs: 'none',
+                  md: 'flex',
+                  lg: 'flex',
+                },
+              }}
+            >
+              {children}
+            </Box>
+          </Toolbar>
+          {pathname === '/' && <ScrollIndicator />}
+        </AppBar>
+      ) : (
+        <Box>{children}</Box>
+      )}
     </ThemeProvider>
   );
 }

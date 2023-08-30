@@ -1,14 +1,21 @@
-import { ContestTableColumn } from '@notional-finance/mui';
+import {
+  ContestTableColumn,
+  customIconCell,
+  idCell,
+} from '@notional-finance/mui';
 
 export const useCompactTables = () => {
   const tableColumns: ContestTableColumn[] = [
     {
       Header: 'test',
       accessor: 'id',
-      textAlign: 'left',
+      Cell: idCell,
+      isIDCell: true,
+      textAlign: 'center',
     },
     {
       Header: 'test',
+      Cell: customIconCell,
       accessor: 'username',
       textAlign: 'left',
     },
@@ -21,82 +28,82 @@ export const useCompactTables = () => {
 
   const tableDataOne = [
     {
-      id: 1,
-      username: 'John Doe',
+      id: '01',
+      username: { text: 'John Doe', dataSet: 'ace' },
       totalAPY: '63.21% APY',
     },
     {
-      id: 2,
-      username: 'Jane Doe',
+      id: '02',
+      username: { text: 'Susan Jones', dataSet: 'ace' },
       totalAPY: '44.17% APY',
     },
     {
-      id: 3,
-      username: 'Peter Smith',
+      id: '03',
+      username: { text: 'Peter Smith', dataSet: 'ace' },
       totalAPY: '98.73% APY',
     },
     {
-      id: 4,
-      username: 'Susan Jones',
+      id: '04',
+      username: { text: 'Susan Jones', dataSet: 'ace' },
       totalAPY: '19.04% APY',
     },
     {
-      id: 5,
-      username: 'Michael Brown',
+      id: '05',
+      username: { text: 'Michael Brown', dataSet: 'ace' },
       totalAPY: '55.38% APY',
     },
   ];
   const tableDataTwo = [
     {
-      id: 1,
-      username: 'John Doe',
+      id: '01',
+      username: { text: 'John Doe', dataSet: 'fatCat' },
       totalAPY: '63.21% APY',
     },
     {
-      id: 2,
-      username: 'Jane Doe',
+      id: '02',
+      username: { text: 'Jane Doe', dataSet: 'fatCat' },
       totalAPY: '44.17% APY',
     },
     {
-      id: 3,
-      username: 'Peter Smith',
+      id: '03',
+      username: { text: 'Peter Smith', dataSet: 'fatCat' },
       totalAPY: '98.73% APY',
     },
     {
-      id: 4,
-      username: 'Susan Jones',
+      id: '04',
+      username: { text: 'Susan Jones', dataSet: 'fatCat' },
       totalAPY: '19.04% APY',
     },
     {
-      id: 5,
-      username: 'Michael Brown',
+      id: '05',
+      username: { text: 'Michael Brown', dataSet: 'fatCat' },
       totalAPY: '55.38% APY',
     },
   ];
   const tableDataThree = [
     {
-      id: 1,
-      username: 'John Doe',
+      id: '01',
+      username: { text: 'John Doe', dataSet: 'sadSack' },
       totalAPY: '63.21% APY',
     },
     {
-      id: 2,
-      username: 'Jane Doe',
+      id: '02',
+      username: { text: 'Jane Doe', dataSet: 'sadSack' },
       totalAPY: '44.17% APY',
     },
     {
-      id: 3,
-      username: 'Peter Smith',
+      id: '03',
+      username: { text: 'Peter Smith', dataSet: 'sadSack' },
       totalAPY: '98.73% APY',
     },
     {
-      id: 4,
-      username: 'Susan Jones',
+      id: '04',
+      username: { text: 'Susan Jones', dataSet: 'sadSack' },
       totalAPY: '19.04% APY',
     },
     {
-      id: 5,
-      username: 'Michael Brown',
+      id: '05',
+      username: { text: 'Michael Brown', dataSet: 'sadSack' },
       totalAPY: '55.38% APY',
     },
   ];

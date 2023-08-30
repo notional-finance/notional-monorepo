@@ -15,25 +15,32 @@ interface StyledTableRowProps extends TableRowProps {
   theme: NotionalTheme;
   rowSelected?: boolean;
   styleLastRow?: boolean;
-  tableVariant?: CONTEST_TABLE_VARIANTS;
+  isCurrentUser?: boolean;
   expandableTableActive?: boolean;
 }
 
 interface ContestTableBodyProps {
   rows: Record<string, any>[];
   prepareRow: any;
-  tableVariant?: CONTEST_TABLE_VARIANTS;
+  isCurrentUser?: boolean;
 }
 
 const StyledTableRow = styled(TableRow, {
-  shouldForwardProp: (prop: string) => prop !== 'rowSelected',
+  shouldForwardProp: (prop: string) =>
+    prop !== 'rowSelected' && prop !== 'isCurrentUser',
 })(
-  ({ theme, rowSelected }: StyledTableRowProps) => `
+  ({ theme, rowSelected, isCurrentUser }: StyledTableRowProps) => `
     background: ${rowSelected ? theme.palette.info.light : 'transparent'};
     box-sizing: border-box;
     box-shadow: ${
       rowSelected ? `0px 0px 6px 0px ${theme.palette.primary.light}` : 'none'
     };
+    .MuiTableRow-root, &:first-of-type {
+      background: ${
+        isCurrentUser ? `rgba(231, 232, 242, 0.25)` : `rgba(51, 248, 255, 0.10)`
+      };
+    };
+
     .MuiTableRow-root, td {
       .border-cell {
         height: 100%;
@@ -59,35 +66,47 @@ const StyledTableRow = styled(TableRow, {
 export const ContestTableBody = ({
   rows,
   prepareRow,
+  isCurrentUser,
 }: ContestTableBodyProps) => {
   const theme = useTheme() as NotionalTheme;
+
   return (
-    <TableBody>
+    <TableBody
+      sx={{
+        border: `1px solid ${colors.neonTurquoise}`,
+        overflow: 'hidden',
+      }}
+    >
       {rows.map((row, i) => {
         prepareRow(row);
         const rowSelected = row['original'].rowSelected;
-        const lastRow = rows[rows.length - 1];
-        const styleLastRow = lastRow['id'] === row['id'];
+
         return (
           <Fragment key={`row-container-${i}`}>
             <StyledTableRow
               theme={theme}
               key={`row-${i}`}
               rowSelected={rowSelected}
-              tableVariant={CONTEST_TABLE_VARIANTS.DEFAULT}
-              styleLastRow={styleLastRow}
+              isCurrentUser={isCurrentUser}
               {...row['getRowProps']()}
             >
               {row['cells'].map((cell: Record<string, any>) => {
                 return (
                   <TableCell
                     sx={{
-                      padding: cell['column'].padding || '16px',
+                      padding: cell['column'].padding || '8px 12px',
                       textAlign: cell['column'].textAlign || 'center',
-                      borderBottom: 'none',
                       whiteSpace: 'nowrap',
                       width: cell['column']['width'] || 'auto',
-                      color: colors.white,
+                      color: isCurrentUser
+                        ? colors.neonTurquoise
+                        : colors.white,
+                      borderRight: cell['column']['isIDCell']
+                        ? `1px solid ${colors.neonTurquoise}`
+                        : 'none',
+                      borderBottom: `1px solid ${colors.neonTurquoise}`,
+
+                      fontSize: '14px',
                     }}
                     {...cell['getCellProps']()}
                   >
