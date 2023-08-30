@@ -77,7 +77,7 @@ export function WalletSelector() {
     <>
       <OuterContainer>
         <V3BetaIcon
-          onClick={() => history.push('/contest')}
+          onClick={() => history.push('/contest-leaderboard')}
           sx={{
             height: theme.spacing(6.25),
             width: theme.spacing(6.25),
