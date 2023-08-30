@@ -1,9 +1,5 @@
 import * as path from 'path';
-import {
-  Network,
-  // ZERO_ADDRESS,
-  ORACLE_TYPE_TO_ID,
-} from '@notional-finance/util';
+import { Network, ORACLE_TYPE_TO_ID } from '@notional-finance/util';
 import fs from 'fs';
 import { AccountFetchMode } from '@notional-finance/core-entities';
 import { HistoricalRegistry } from './HistoricalRegistry';

@@ -354,6 +354,7 @@ export default class DataService {
   }
 
   public async syncYieldData(ts: number) {
+    // TODO: support multiple networks here
     const network = Network.ArbitrumOne;
 
     const blockNumber = await this.getBlockNumberFromTs(network, ts);
@@ -374,10 +375,10 @@ export default class DataService {
 
     const primeCashTvl = await this._getTvl(network, block, 'PrimeCash');
     const fCashTvl = await this._getFCashTvl(network, block);
-    //const yields = primeCashTvl.concat(fCashTvl);
-    ///const nTokenTvl = await this._getNTokenTvl(network, yields);
+    const yields = primeCashTvl.concat(fCashTvl);
+    const nTokenTvl = await this._getNTokenTvl(network, yields);
 
-    const yieldData = primeCashTvl.concat(fCashTvl);
+    const yieldData = primeCashTvl.concat(fCashTvl).concat(nTokenTvl);
 
     if (yieldData.length > 0) {
       const yieldQuery = this.db
