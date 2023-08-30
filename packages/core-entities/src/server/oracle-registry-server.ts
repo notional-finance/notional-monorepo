@@ -37,8 +37,6 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
       );
     }
 
-    console.log(`blockNumber=${blockNumber}`);
-
     const results = await this._queryAllOracles(network, blockNumber);
     // Updates the latest rates using the blockchain
     return this._updateLatestRates(results, blockNumber);
