@@ -19,6 +19,7 @@ export type DocumentTypes = Awaited<ReturnType<typeof loadGraphClientDeferred>>;
 export async function loadGraphClientDeferred() {
   const {
     execute,
+    AllAccountsDocument,
     AllTokensDocument,
     AllConfigurationDocument,
     AllOraclesDocument,
@@ -34,6 +35,7 @@ export async function loadGraphClientDeferred() {
 
   return {
     execute,
+    AllAccountsDocument,
     AllTokensDocument,
     AllConfigurationDocument,
     AllOraclesDocument,

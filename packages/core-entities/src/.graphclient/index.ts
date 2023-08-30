@@ -6807,6 +6807,12 @@ const merger = new(BareMerger as any)({
         },
         location: 'AccountTransactionHistoryDocument.graphql'
       },{
+        document: AllAccountsDocument,
+        get rawSDL() {
+          return printWithCache(AllAccountsDocument);
+        },
+        location: 'AllAccountsDocument.graphql'
+      },{
         document: AllConfigurationDocument,
         get rawSDL() {
           return printWithCache(AllConfigurationDocument);
@@ -6913,6 +6919,20 @@ export type AccountTransactionHistoryQueryVariables = Exact<{
 export type AccountTransactionHistoryQuery = { account?: Maybe<(
     Pick<Account, 'id'>
     & { profitLossLineItems?: Maybe<Array<(
+      Pick<ProfitLossLineItem, 'timestamp' | 'blockNumber' | 'tokenAmount' | 'underlyingAmountRealized' | 'underlyingAmountSpot' | 'realizedPrice' | 'spotPrice' | 'impliedFixedRate' | 'isTransientLineItem'>
+      & { transactionHash: Pick<Transaction, 'id'>, token: Pick<Token, 'id'>, underlyingToken: Pick<Token, 'id'>, bundle: Pick<TransferBundle, 'bundleName'> }
+    )>> }
+  )> };
+
+export type AllAccountsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type AllAccountsQuery = { accounts: Array<(
+    Pick<Account, 'id'>
+    & { balances?: Maybe<Array<{ token: (
+        Pick<Token, 'id'>
+        & { underlying?: Maybe<Pick<Token, 'id'>> }
+      ), current: Pick<BalanceSnapshot, 'timestamp' | 'blockNumber' | 'currentBalance' | '_accumulatedCostRealized' | 'adjustedCostBasis' | 'currentProfitAndLossAtSnapshot' | 'totalILAndFeesAtSnapshot' | 'totalProfitAndLossAtSnapshot' | 'totalInterestAccrualAtSnapshot' | 'impliedFixedRate'>, snapshots?: Maybe<Array<Pick<BalanceSnapshot, 'timestamp' | 'blockNumber' | 'currentBalance' | '_accumulatedCostRealized' | 'adjustedCostBasis' | 'currentProfitAndLossAtSnapshot' | 'totalILAndFeesAtSnapshot' | 'totalProfitAndLossAtSnapshot' | 'totalInterestAccrualAtSnapshot' | 'impliedFixedRate'>>> }>>, profitLossLineItems?: Maybe<Array<(
       Pick<ProfitLossLineItem, 'timestamp' | 'blockNumber' | 'tokenAmount' | 'underlyingAmountRealized' | 'underlyingAmountSpot' | 'realizedPrice' | 'spotPrice' | 'impliedFixedRate' | 'isTransientLineItem'>
       & { transactionHash: Pick<Transaction, 'id'>, token: Pick<Token, 'id'>, underlyingToken: Pick<Token, 'id'>, bundle: Pick<TransferBundle, 'bundleName'> }
     )>> }
@@ -7060,6 +7080,68 @@ export const AccountTransactionHistoryDocument = gql`
   }
 }
     ` as unknown as DocumentNode<AccountTransactionHistoryQuery, AccountTransactionHistoryQueryVariables>;
+export const AllAccountsDocument = gql`
+    query AllAccounts {
+  accounts(first: 1000, where: {systemAccountType: None}) {
+    id
+    balances {
+      token {
+        id
+        underlying {
+          id
+        }
+      }
+      current {
+        timestamp
+        blockNumber
+        currentBalance
+        _accumulatedCostRealized
+        adjustedCostBasis
+        currentProfitAndLossAtSnapshot
+        totalILAndFeesAtSnapshot
+        totalProfitAndLossAtSnapshot
+        totalInterestAccrualAtSnapshot
+        impliedFixedRate
+      }
+      snapshots(first: 25, orderBy: blockNumber, orderDirection: desc) {
+        timestamp
+        blockNumber
+        currentBalance
+        _accumulatedCostRealized
+        adjustedCostBasis
+        currentProfitAndLossAtSnapshot
+        totalILAndFeesAtSnapshot
+        totalProfitAndLossAtSnapshot
+        totalInterestAccrualAtSnapshot
+        impliedFixedRate
+      }
+    }
+    profitLossLineItems(first: 1000, orderBy: blockNumber, orderDirection: desc) {
+      timestamp
+      blockNumber
+      transactionHash {
+        id
+      }
+      token {
+        id
+      }
+      underlyingToken {
+        id
+      }
+      tokenAmount
+      bundle {
+        bundleName
+      }
+      underlyingAmountRealized
+      underlyingAmountSpot
+      realizedPrice
+      spotPrice
+      impliedFixedRate
+      isTransientLineItem
+    }
+  }
+}
+    ` as unknown as DocumentNode<AllAccountsQuery, AllAccountsQueryVariables>;
 export const AllConfigurationDocument = gql`
     query AllConfiguration {
   currencyConfigurations {
@@ -7450,6 +7532,7 @@ export const AllVaultsByBlockDocument = gql`
 
 
 
+
 export type Requester<C = {}, E = unknown> = <R, V>(doc: DocumentNode, vars?: V, options?: C) => Promise<R> | AsyncIterable<R>
 export function getSdk<C, E>(requester: Requester<C, E>) {
   return {
@@ -7458,6 +7541,9 @@ export function getSdk<C, E>(requester: Requester<C, E>) {
     },
     AccountTransactionHistory(variables: AccountTransactionHistoryQueryVariables, options?: C): Promise<AccountTransactionHistoryQuery> {
       return requester<AccountTransactionHistoryQuery, AccountTransactionHistoryQueryVariables>(AccountTransactionHistoryDocument, variables, options) as Promise<AccountTransactionHistoryQuery>;
+    },
+    AllAccounts(variables?: AllAccountsQueryVariables, options?: C): Promise<AllAccountsQuery> {
+      return requester<AllAccountsQuery, AllAccountsQueryVariables>(AllAccountsDocument, variables, options) as Promise<AllAccountsQuery>;
     },
     AllConfiguration(variables?: AllConfigurationQueryVariables, options?: C): Promise<AllConfigurationQuery> {
       return requester<AllConfigurationQuery, AllConfigurationQueryVariables>(AllConfigurationDocument, variables, options) as Promise<AllConfigurationQuery>;
