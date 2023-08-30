@@ -3,13 +3,17 @@ import { Knex } from 'knex';
 import {
   Network,
   getProviderFromNetwork,
+  isIdiosyncratic,
   ORACLE_TYPE_TO_ID,
   ONE_HOUR_MS,
+  RATE_DECIMALS,
+  RATE_PRECISION,
 } from '@notional-finance/util';
 import {
   AccountFetchMode,
   TokenBalance,
   TokenType,
+  fCashMarket,
 } from '@notional-finance/core-entities';
 import { fetch } from 'cross-fetch';
 import {
@@ -220,6 +224,7 @@ export default class DataService {
     tokenType: TokenType
   ) {
     const tokens = HistoricalRegistry.getTokenRegistry();
+    const exchanges = HistoricalRegistry.getExchangeRegistry();
     const allTokens = tokens.getAllTokens(network);
 
     return allTokens
@@ -231,11 +236,119 @@ export default class DataService {
       .map((t) => {
         if (!t.currencyId) throw Error('Missing currency id');
         if (!t.underlying) throw Error(`Token has no underlying`);
+        const market = exchanges.getfCashMarket(network, t.currencyId);
+        const interestAPY = market.getSpotInterestRate(t) || 0;
         const underlying = tokens.getTokenByID(network, t.underlying);
 
         return {
           token: t,
           tvl: t.totalSupply?.toUnderlying() || TokenBalance.zero(underlying),
+          totalAPY: interestAPY,
+          interestAPY,
+        };
+      });
+  }
+
+  private async _getFCashTvl(
+    network: Network,
+    block: ethers.ethers.providers.Block
+  ) {
+    const tokens = HistoricalRegistry.getTokenRegistry();
+    const exchanges = HistoricalRegistry.getExchangeRegistry();
+
+    const fCashData = await this._getTvl(network, block, 'fCash');
+
+    fCashData
+      .filter(
+        (y) =>
+          y.token.isFCashDebt === false &&
+          !!y.token.maturity &&
+          !isIdiosyncratic(y.token.maturity)
+      )
+      .map((y) => {
+        if (!y.token.maturity) throw Error();
+
+        const nToken = tokens.getNToken(network, y.token.currencyId);
+        const fCashMarket = exchanges.getPoolInstance<fCashMarket>(
+          network,
+          nToken.address
+        );
+        const marketIndex = fCashMarket.getMarketIndex(y.token.maturity);
+        const pCash = fCashMarket.balances[marketIndex];
+        const fCash = fCashMarket.poolParams.perMarketfCash[marketIndex - 1];
+        // Adds the prime cash value in the nToken to the fCash TVL
+        return Object.assign(y, {
+          tvl: fCash.toUnderlying().add(pCash.toUnderlying()),
+        });
+      });
+
+    return fCashData;
+  }
+
+  private _convertRatioToYield(num: TokenBalance, denom: TokenBalance) {
+    if (num.isZero()) return 0;
+
+    return (
+      (num.toToken(denom.token).ratioWith(denom).toNumber() * 100) /
+      RATE_PRECISION
+    );
+  }
+
+  public async _getNTokenTvl(network: Network, yields: any) {
+    const exchanges = HistoricalRegistry.getExchangeRegistry();
+    const config = HistoricalRegistry.getConfigurationRegistry();
+    const tokens = HistoricalRegistry.getTokenRegistry();
+
+    return tokens
+      .getAllTokens(network)
+      .filter((t) => t.tokenType === 'nToken')
+      .map((t) => {
+        const fCashMarket = exchanges.getPoolInstance<fCashMarket>(
+          network,
+          t.address
+        );
+        if (!t.underlying) throw Error('underlying not defined');
+        const underlying = tokens.getTokenByID(network, t.underlying);
+
+        const annualizedNOTEIncentives = config.getAnnualizedNOTEIncentives(t);
+        const nTokenTVL = fCashMarket.totalValueLocked(0);
+
+        // Total fees over the last week divided by the total value locked
+        const incentiveAPY = this._convertRatioToYield(
+          annualizedNOTEIncentives,
+          nTokenTVL
+        );
+
+        const { numerator, denominator } = fCashMarket.balances
+          .map((b) => {
+            const underlying = b.toUnderlying();
+            const apy = yields.find((y) => y.token.id === b.tokenId)?.totalAPY;
+            if (apy === undefined) {
+              throw Error(`${b.symbol} yield not found`);
+            }
+
+            // Blended yield is the weighted average of the APYs
+            return {
+              numerator: underlying
+                .mulInRatePrecision(Math.floor(apy * RATE_PRECISION))
+                .scaleTo(RATE_DECIMALS),
+              denominator: underlying.scaleTo(RATE_DECIMALS),
+            };
+          })
+          .reduce(
+            (r, { numerator, denominator }) => ({
+              numerator: r.numerator + numerator.toNumber(),
+              denominator: r.denominator + denominator.toNumber(),
+            }),
+            { numerator: 0, denominator: 0 }
+          );
+        const interestAPY = numerator / denominator;
+
+        return {
+          token: t,
+          tvl: t.totalSupply?.toUnderlying() || TokenBalance.zero(underlying),
+          totalAPY: incentiveAPY + interestAPY,
+          interestAPY,
         };
       });
   }
@@ -260,8 +373,11 @@ export default class DataService {
     const block = await this.provider.getBlock(blockNumber);
 
     const primeCashTvl = await this._getTvl(network, block, 'PrimeCash');
+    const fCashTvl = await this._getFCashTvl(network, block);
+    //const yields = primeCashTvl.concat(fCashTvl);
+    ///const nTokenTvl = await this._getNTokenTvl(network, yields);
 
-    const yieldData = primeCashTvl;
+    const yieldData = primeCashTvl.concat(fCashTvl);
 
     if (yieldData.length > 0) {
       const yieldQuery = this.db
@@ -273,6 +389,8 @@ export default class DataService {
               token: y.token.id,
               total_value_locked: y.tvl.toExactString(),
               underlying: y.tvl.tokenId,
+              total_apy: y.totalAPY,
+              interest_apy: y.interestAPY,
               debt_token: '',
             };
           })
@@ -292,6 +410,8 @@ export default class DataService {
         await yieldQuery.ignore();
       }
     }
+
+    return blockNumber;
   }
 
   private async syncFromMulticall(
