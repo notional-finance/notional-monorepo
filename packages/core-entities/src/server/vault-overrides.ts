@@ -45,11 +45,13 @@ export const vaultOverrides: Record<string, VaultInfoOverride[]> = {
   '0xae38f4b960f44d86e798f36a374a1ac3f2d859fa': [
     {
       getVaultInfo: getCurveVaultInfo,
+      toBlock: 124617290,
     },
   ],
   '0xdb08f663e5d765949054785f2ed1b2aa1e9c22cf': [
     {
       getVaultInfo: getCurveVaultInfo,
+      toBlock: 124617290,
     },
   ],
 };

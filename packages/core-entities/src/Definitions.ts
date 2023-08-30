@@ -1,6 +1,6 @@
 import { BigNumber } from 'ethers';
 import { PoolClasses } from './exchanges';
-import { TokenBalance } from './token-balance';
+import { SerializedTokenBalance, TokenBalance } from './token-balance';
 import { Network } from '@notional-finance/util';
 import { BehaviorSubject } from 'rxjs';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
@@ -162,7 +162,43 @@ export interface AccountDefinition {
   noteClaim?: {
     currentNOTE: TokenBalance;
     noteAccruedPerSecond: TokenBalance;
-  }
+  };
+}
+
+export interface SerializedAccountDefinition {
+  /** Address of the account */
+  address: string;
+  /** Network this account definition is associated with */
+  network: Network;
+  /** Balances may include external wallet balances */
+  balances: SerializedTokenBalance[];
+  /** Current profit and loss on every given balance */
+  balanceStatement: {
+    token: string;
+    underlying: string;
+    currentBalance: SerializedTokenBalance;
+    adjustedCostBasis: SerializedTokenBalance;
+    totalILAndFees: SerializedTokenBalance;
+    totalProfitAndLoss: SerializedTokenBalance;
+    totalInterestAccrual: SerializedTokenBalance;
+    impliedFixedRate?: number;
+  }[];
+
+  /** Any transactions that have included transfers to this account */
+  accountHistory?: {
+    timestamp: number;
+    token: string;
+    underlying: string;
+    tokenAmount: SerializedTokenBalance;
+    bundleName: string;
+    transactionHash: string;
+    underlyingAmountRealized: SerializedTokenBalance;
+    underlyingAmountSpot: SerializedTokenBalance;
+    realizedPrice: SerializedTokenBalance;
+    spotPrice: SerializedTokenBalance;
+    impliedFixedRate?: number;
+    isTransientLineItem: boolean;
+  }[];
 }
 
 /** ERC20 allowances tracked for UI purposes */

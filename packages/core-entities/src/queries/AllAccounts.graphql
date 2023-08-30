@@ -1,0 +1,40 @@
+query AllAccounts {
+    accounts(first: 1000, where: { systemAccountType: None }) {
+        id
+        balances {
+            token { 
+                id
+                underlying { id }
+            }
+            current {
+                timestamp
+                blockNumber
+                currentBalance
+                _accumulatedCostRealized
+                adjustedCostBasis
+                currentProfitAndLossAtSnapshot
+                totalILAndFeesAtSnapshot
+                totalProfitAndLossAtSnapshot
+                totalInterestAccrualAtSnapshot
+                impliedFixedRate
+            }
+        }
+        profitLossLineItems(
+            first: 1000, orderBy: blockNumber, orderDirection: desc
+        ) {
+            timestamp
+            blockNumber
+            transactionHash { id }
+            token { id tokenType }
+            underlyingToken { id }
+            tokenAmount
+            bundle { bundleName }
+            underlyingAmountRealized
+            underlyingAmountSpot
+            realizedPrice
+            spotPrice
+            impliedFixedRate
+            isTransientLineItem
+        }
+    }
+}

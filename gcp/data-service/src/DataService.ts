@@ -274,8 +274,9 @@ export default class DataService {
           nToken.address
         );
         const marketIndex = fCashMarket.getMarketIndex(y.token.maturity);
-        const pCash = fCashMarket.balances[marketIndex];
+        const pCash = fCashMarket.poolParams.perMarketCash[marketIndex - 1];
         const fCash = fCashMarket.poolParams.perMarketfCash[marketIndex - 1];
+
         // Adds the prime cash value in the nToken to the fCash TVL
         return Object.assign(y, {
           tvl: fCash.toUnderlying().add(pCash.toUnderlying()),
@@ -370,6 +371,10 @@ export default class DataService {
       AccountFetchMode.BATCH_ACCOUNT_VIA_SERVER
     );
 
+    await HistoricalRegistry.refreshAtBlock(
+      Network.All,
+      await this.getBlockNumberFromTs(Network.Mainnet, ts)
+    );
     await HistoricalRegistry.refreshAtBlock(network, blockNumber);
     const block = await this.provider.getBlock(blockNumber);
 

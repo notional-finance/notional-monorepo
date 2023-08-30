@@ -61,6 +61,8 @@ export abstract class BaseDO<E extends BaseDOEnv> {
     }
   }
 
+  // TODO: override this to allow data to store into R2
+
   async parseData(data: any) {
     return data;
   }

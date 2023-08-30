@@ -81,11 +81,16 @@ const handleDataDogForward = (request: IRequest, _env: APIEnv) => {
   return new Response('Invalid ddforward param', { status: 500 });
 };
 
+const handlePlausibleForward = (request: IRequest, _env: APIEnv) => {
+  return fetch('https://plausible.io/api/event', request);
+};
+
 export {
   handleKPIs,
   handleGeoIP,
   handleNewsletter,
   handleYields,
+  handleAccounts,
   handleTokens,
   handleConfigurations,
   handleOracles,
@@ -94,4 +99,5 @@ export {
   handleViews,
   handleNFT,
   handleDataDogForward,
+  handlePlausibleForward,
 };
