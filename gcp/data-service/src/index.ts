@@ -6,6 +6,7 @@ import DataService from './DataService';
 import {
   AssetType,
   Network,
+  ONE_HOUR_MS,
   decodeERC1155Id,
   getProviderFromNetwork,
   padToHex256,
@@ -165,7 +166,9 @@ async function main() {
     try {
       res.send(
         JSON.stringify(
-          await dataService.syncOracleData(dataService.latestTimestamp())
+          await dataService.syncOracleData(
+            dataService.latestTimestamp() - ONE_HOUR_MS / 1000
+          )
         )
       );
     } catch (e: any) {
@@ -177,7 +180,9 @@ async function main() {
     try {
       res.send(
         JSON.stringify(
-          await dataService.syncYieldData(dataService.latestTimestamp())
+          await dataService.syncYieldData(
+            dataService.latestTimestamp() - ONE_HOUR_MS / 1000
+          )
         )
       );
     } catch (e: any) {
@@ -189,7 +194,9 @@ async function main() {
     try {
       res.send(
         JSON.stringify(
-          await dataService.syncGenericData(dataService.latestTimestamp())
+          await dataService.syncGenericData(
+            dataService.latestTimestamp() - ONE_HOUR_MS / 1000
+          )
         )
       );
     } catch (e: any) {
