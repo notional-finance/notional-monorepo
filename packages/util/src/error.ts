@@ -24,10 +24,17 @@ export function logError(
     /* eslint-enable no-console */
   } else {
     if (error instanceof NonLoggedError) return;
-    datadogRum.addError(error, {
-      module,
-      method,
-      ...context,
-    });
+    datadogRum.addError(
+      {
+        source: `${module}#${method}`,
+        type: method,
+        message: error.message,
+      },
+      {
+        module,
+        method,
+        ...context,
+      }
+    );
   }
 }

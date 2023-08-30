@@ -1,8 +1,9 @@
 import { MouseEventHandler } from 'react';
 import { styled, Box, useTheme } from '@mui/material';
-import { ProgressIndicator, Button } from '@notional-finance/mui';
+import { Button } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
 import { TransactionStatus } from '@notional-finance/notionable-hooks';
+import { DiscordIcon } from '@notional-finance/icons';
 
 const ButtonContainer = styled(Box)`
   margin-top: 40px;
@@ -11,19 +12,13 @@ const ButtonContainer = styled(Box)`
   width: 100%;
 `;
 
-const Spinner = styled('span')`
-  position: absolute;
-  left: 0px;
-  margin-top: 2px;
-`;
-
 export interface TransactionButtonsProps {
   transactionStatus: TransactionStatus;
   onSubmit: MouseEventHandler<HTMLButtonElement>;
   onCancel: MouseEventHandler<HTMLButtonElement>;
   isLoaded: boolean;
   onReturnToForm?: MouseEventHandler<HTMLButtonElement>;
-  isReadyOnlyAddress?: boolean;
+  isDisabled: boolean;
 }
 
 export const TransactionButtons = ({
@@ -32,14 +27,12 @@ export const TransactionButtons = ({
   onCancel,
   onReturnToForm,
   isLoaded,
-  isReadyOnlyAddress,
+  isDisabled,
 }: TransactionButtonsProps) => {
   const theme = useTheme();
   switch (transactionStatus) {
     case TransactionStatus.SUBMITTED:
     case TransactionStatus.CONFIRMED:
-    case TransactionStatus.ERROR_BUILDING:
-    case TransactionStatus.REVERT:
       return (
         <Button
           variant="outlined"
@@ -49,6 +42,28 @@ export const TransactionButtons = ({
         >
           <FormattedMessage defaultMessage={'Return to Form'} />
         </Button>
+      );
+    case TransactionStatus.ERROR_BUILDING:
+    case TransactionStatus.REVERT:
+      return (
+        <Box>
+          <Button
+            startIcon={<DiscordIcon />}
+            variant="outlined"
+            size="large"
+            href={'https://discord.notional.finance'}
+            sx={{ width: '100%' }}
+          >
+            <FormattedMessage defaultMessage={'Get Help in Discord'} />
+          </Button>
+          <Button
+            onClick={onReturnToForm || onCancel}
+            size="large"
+            sx={{ marginTop: theme.spacing(3), width: '100%' }}
+          >
+            <FormattedMessage defaultMessage={'Return to Form'} />
+          </Button>
+        </Box>
       );
     default:
       return (
@@ -67,13 +82,8 @@ export const TransactionButtons = ({
             size="large"
             sx={{ width: '48%' }}
             onClick={onSubmit}
-            disabled={isReadyOnlyAddress || !isLoaded}
+            disabled={isDisabled || !isLoaded}
           >
-            {!isLoaded && (
-              <Spinner>
-                <ProgressIndicator type="circular" size={18} />
-              </Spinner>
-            )}
             <FormattedMessage defaultMessage={'Submit'} />
           </Button>
         </ButtonContainer>

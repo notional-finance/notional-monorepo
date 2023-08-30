@@ -40,7 +40,7 @@ export const TransactionSidebar = ({
   onCancelCallback,
 }: TransactionSidebarProps) => {
   const { state, updateState } = context;
-  const { canSubmit, populatedTransaction, confirm, tradeType } = state;
+  const { canSubmit, confirm, tradeType } = state;
   const isBlocked = useGeoipBlock();
   const handleSubmit = useCallback(() => {
     updateState({ confirm: true });
@@ -59,7 +59,7 @@ export const TransactionSidebar = ({
     },
   });
 
-  return confirm && populatedTransaction ? (
+  return confirm ? (
     <Confirmation2
       heading={heading}
       context={context}

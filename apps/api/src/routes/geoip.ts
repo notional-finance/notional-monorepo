@@ -9,7 +9,7 @@ import {
   DDEventKey,
   DDEventAlertType,
 } from '@notional-finance/logging';
-import { APIEnv } from '..';
+import { APIEnv } from '@notional-finance/durable-objects';
 
 export async function handleGeoIP(_request: IRequest, env: APIEnv) {
   try {
