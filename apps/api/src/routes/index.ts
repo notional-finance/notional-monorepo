@@ -45,15 +45,21 @@ const handleViews = (request: IRequest, env: APIEnv) => {
   return _handler(request, env.VIEWS_DO, env.VIEWS_NAME);
 };
 
-const handleNFT = (_request: IRequest, _env: APIEnv) => {
-  // const url = new URL(request.url);
-  // const [_, address, tokenId] = url.pathname.split('/');
-  const resp = {
-    name: 'Notional ARB Beta',
-    description: 'Notional Arbitrum Beta contest pass.',
-    image: BetaPass,
-  };
-  return new Response(JSON.stringify(resp));
+const handleNFT = (request: IRequest, _env: APIEnv) => {
+  const url = new URL(request.url);
+  const [_, _nft, address, _tokenId] = url.pathname.split('/');
+  switch (address.toLowerCase()) {
+    case '0x965b3aad78cdab2cc778243b12705ba3b7c5048c':
+      return new Response(
+        JSON.stringify({
+          name: 'Notional ARB Beta',
+          description: 'Notional Arbitrum Beta contest pass.',
+          image: BetaPass,
+        })
+      );
+    default:
+      return new Response('404', { status: 404 });
+  }
 };
 
 export {
