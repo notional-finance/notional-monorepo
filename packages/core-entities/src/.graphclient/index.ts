@@ -6932,9 +6932,9 @@ export type AllAccountsQuery = { accounts: Array<(
     & { balances?: Maybe<Array<{ token: (
         Pick<Token, 'id'>
         & { underlying?: Maybe<Pick<Token, 'id'>> }
-      ), current: Pick<BalanceSnapshot, 'timestamp' | 'blockNumber' | 'currentBalance' | '_accumulatedCostRealized' | 'adjustedCostBasis' | 'currentProfitAndLossAtSnapshot' | 'totalILAndFeesAtSnapshot' | 'totalProfitAndLossAtSnapshot' | 'totalInterestAccrualAtSnapshot' | 'impliedFixedRate'>, snapshots?: Maybe<Array<Pick<BalanceSnapshot, 'timestamp' | 'blockNumber' | 'currentBalance' | '_accumulatedCostRealized' | 'adjustedCostBasis' | 'currentProfitAndLossAtSnapshot' | 'totalILAndFeesAtSnapshot' | 'totalProfitAndLossAtSnapshot' | 'totalInterestAccrualAtSnapshot' | 'impliedFixedRate'>>> }>>, profitLossLineItems?: Maybe<Array<(
+      ), current: Pick<BalanceSnapshot, 'timestamp' | 'blockNumber' | 'currentBalance' | '_accumulatedCostRealized' | 'adjustedCostBasis' | 'currentProfitAndLossAtSnapshot' | 'totalILAndFeesAtSnapshot' | 'totalProfitAndLossAtSnapshot' | 'totalInterestAccrualAtSnapshot' | 'impliedFixedRate'> }>>, profitLossLineItems?: Maybe<Array<(
       Pick<ProfitLossLineItem, 'timestamp' | 'blockNumber' | 'tokenAmount' | 'underlyingAmountRealized' | 'underlyingAmountSpot' | 'realizedPrice' | 'spotPrice' | 'impliedFixedRate' | 'isTransientLineItem'>
-      & { transactionHash: Pick<Transaction, 'id'>, token: Pick<Token, 'id'>, underlyingToken: Pick<Token, 'id'>, bundle: Pick<TransferBundle, 'bundleName'> }
+      & { transactionHash: Pick<Transaction, 'id'>, token: Pick<Token, 'id' | 'tokenType'>, underlyingToken: Pick<Token, 'id'>, bundle: Pick<TransferBundle, 'bundleName'> }
     )>> }
   )> };
 
@@ -7103,18 +7103,6 @@ export const AllAccountsDocument = gql`
         totalInterestAccrualAtSnapshot
         impliedFixedRate
       }
-      snapshots(first: 25, orderBy: blockNumber, orderDirection: desc) {
-        timestamp
-        blockNumber
-        currentBalance
-        _accumulatedCostRealized
-        adjustedCostBasis
-        currentProfitAndLossAtSnapshot
-        totalILAndFeesAtSnapshot
-        totalProfitAndLossAtSnapshot
-        totalInterestAccrualAtSnapshot
-        impliedFixedRate
-      }
     }
     profitLossLineItems(first: 1000, orderBy: blockNumber, orderDirection: desc) {
       timestamp
@@ -7124,6 +7112,7 @@ export const AllAccountsDocument = gql`
       }
       token {
         id
+        tokenType
       }
       underlyingToken {
         id

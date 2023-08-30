@@ -1,10 +1,5 @@
 import { Network, RATE_PRECISION } from '@notional-finance/util';
-import {
-  AccountDefinition,
-  CacheSchema,
-  SerializedAccountDefinition,
-  TokenBalance,
-} from '..';
+import { CacheSchema, SerializedAccountDefinition, TokenBalance } from '..';
 import {
   DocumentTypes,
   ServerRegistry,
@@ -19,14 +14,14 @@ export type AllConfigurationQuery = TypedDocumentReturnType<
   DocumentTypes['AllAccountsDocument']
 >;
 
-export class AccountServer extends ServerRegistry<AccountDefinition> {
+export class AccountServer extends ServerRegistry<SerializedAccountDefinition> {
   /** Returns all the active accounts on the network */
   protected async _refresh(
     network: Network
-  ): Promise<CacheSchema<AccountDefinition>> {
+  ): Promise<CacheSchema<SerializedAccountDefinition>> {
     const { AllAccountsDocument } = await loadGraphClientDeferred();
     return this._fetchUsingGraph(network, AllAccountsDocument, (r) => {
-      return r.accounts.map((a) => {
+      return r.accounts.reduce((o, a) => {
         const acct = {
           address: a.id,
           network,
@@ -49,8 +44,8 @@ export class AccountServer extends ServerRegistry<AccountDefinition> {
           ),
         };
 
-        return [a.id, acct] as [string, SerializedAccountDefinition];
-      });
+        return Object.assign(o, { [a.id]: acct });
+      }, {});
     });
   }
 
