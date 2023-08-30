@@ -4,6 +4,7 @@ import { OracleRegistryServer } from './oracle-registry-server';
 import { ServerRegistry } from './server-registry';
 import { TokenRegistryServer } from './token-registry-server';
 import { VaultRegistryServer } from './vault-registry-server';
+import { AccountRegistryServer } from './account-registry-server';
 
 export const Servers = {
   ConfigurationServer: ConfigurationServer,
@@ -11,6 +12,7 @@ export const Servers = {
   OracleRegistryServer: OracleRegistryServer,
   TokenRegistryServer: TokenRegistryServer,
   VaultRegistryServer: VaultRegistryServer,
+  AccountRegistryServer: AccountRegistryServer,
 };
 
 export type ServerRegistryConstructor<T> = new () => ServerRegistry<T>;

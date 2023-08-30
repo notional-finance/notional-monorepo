@@ -41,13 +41,19 @@ deleted_classes = [
     "ExchangeRegistryDO"
 ]
 
+[[migrations]]
+tag = "v6"
+deleted_classes = [
+    "AccountRegistryDO"
+]
+
 [env.local]
 name = "registry-local"
 minify = false
 
 [env.local.vars]
 NX_ENV = 'local'
-VERSION = 'v3'
+VERSION = 'v6'
 NX_DATA_URL = 'https://data-dev.notional.finance'
 SUPPORTED_NETWORKS = ['arbitrum', 'all']
 
@@ -56,7 +62,8 @@ bindings = [
   { name = "TOKEN_REGISTRY_DO", class_name = "TokenRegistryDO" },
   { name = "CONFIGURATION_REGISTRY_DO", class_name = "ConfigurationRegistryDO" },
   { name = "ORACLE_REGISTRY_DO", class_name = "OracleRegistryDO" },
-  { name = "VAULT_REGISTRY_DO", class_name = "VaultRegistryDO" }
+  { name = "VAULT_REGISTRY_DO", class_name = "VaultRegistryDO" },
+  { name = "ACCOUNT_REGISTRY_DO", class_name = "AccountRegistryDO" }
 ]
 
 
@@ -67,7 +74,7 @@ name = "registry-dev"
 NX_ENV = 'dev'
 # This is version that defines the durable object to retreive, increment it to reset
 # the durable object to a clean version
-VERSION = 'v4'
+VERSION = 'v6'
 NX_DATA_URL = 'https://data-dev.notional.finance'
 SUPPORTED_NETWORKS = [ 'arbitrum', 'all' ]
 
@@ -76,7 +83,8 @@ bindings = [
   { name = "TOKEN_REGISTRY_DO", class_name = "TokenRegistryDO" },
   { name = "CONFIGURATION_REGISTRY_DO", class_name = "ConfigurationRegistryDO" },
   { name = "ORACLE_REGISTRY_DO", class_name = "OracleRegistryDO" },
-  { name = "VAULT_REGISTRY_DO", class_name = "VaultRegistryDO" }
+  { name = "VAULT_REGISTRY_DO", class_name = "VaultRegistryDO" },
+  { name = "ACCOUNT_REGISTRY_DO", class_name = "AccountRegistryDO" }
 ]
 
 
@@ -85,7 +93,7 @@ name = "registry"
 
 [env.prod.vars]
 NX_ENV = 'prod'
-VERSION = 'v4'
+VERSION = 'v6'
 NX_DATA_URL = 'https://data.notional.finance'
 SUPPORTED_NETWORKS = [ 'arbitrum', 'all' ]
 
@@ -95,4 +103,5 @@ bindings = [
   { name = "CONFIGURATION_REGISTRY_DO", class_name = "ConfigurationRegistryDO" },
   { name = "ORACLE_REGISTRY_DO", class_name = "OracleRegistryDO" },
   { name = "VAULT_REGISTRY_DO", class_name = "VaultRegistryDO" },
+  { name = "ACCOUNT_REGISTRY_DO", class_name = "AccountRegistryDO" }
 ]

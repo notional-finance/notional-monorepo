@@ -14,7 +14,7 @@ export type AllConfigurationQuery = TypedDocumentReturnType<
   DocumentTypes['AllAccountsDocument']
 >;
 
-export class AccountServer extends ServerRegistry<SerializedAccountDefinition> {
+export class AccountRegistryServer extends ServerRegistry<SerializedAccountDefinition> {
   /** Returns all the active accounts on the network */
   protected async _refresh(
     network: Network
