@@ -26,9 +26,7 @@ export const formatValueWithFiat = (
     ? '-'
     : {
         data: [
-          isDebt || tbn.isNegative()
-            ? `${tbn.toDisplayString()}`
-            : tbn.toDisplayString(),
+          tbn.toDisplayString(),
           tbn.toFiat(baseCurrency).toDisplayStringWithSymbol(0),
         ],
         isNegative: isDebt || tbn.isNegative(),

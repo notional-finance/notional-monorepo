@@ -47,7 +47,14 @@ export const Confirmation2 = ({
 
   const inner = (
     <>
-      <StatusHeading heading={heading} transactionStatus={transactionStatus} />
+      <StatusHeading
+        heading={heading}
+        transactionStatus={
+          transactionError
+            ? TransactionStatus.ERROR_BUILDING
+            : transactionStatus
+        }
+      />
       <Divider variant="fullWidth" sx={{ background: 'white' }} />
       <TermsOfService theme={theme}>
         <FormattedMessage
@@ -73,30 +80,35 @@ export const Confirmation2 = ({
         />
       )}
       <OrderDetails state={state} />
-      {transactionStatus === TransactionStatus.REVERT && (
-        <Box sx={{ height: theme.spacing(8) }}>
+      {(transactionStatus === TransactionStatus.REVERT || transactionError) && (
+        <Box sx={{ height: theme.spacing(8), marginBottom: theme.spacing(6) }}>
           <ErrorMessage
             variant="error"
+            marginBottom
             message={
               transactionError ? (
                 transactionError
               ) : (
-                <FormattedMessage defaultMessage={'Transaction error'} />
+                <FormattedMessage defaultMessage={'Transaction Reverted'} />
               )
             }
           />
         </Box>
       )}
-      <PortfolioCompare state={state} />
+      {(transactionStatus === TransactionStatus.NONE ||
+        transactionStatus === TransactionStatus.WAIT_USER_CONFIRM) &&
+        transactionError === undefined && <PortfolioCompare state={state} />}
       <TransactionButtons
-        transactionStatus={transactionStatus}
+        transactionStatus={
+          transactionError
+            ? TransactionStatus.ERROR_BUILDING
+            : transactionStatus
+        }
         onSubmit={() => onSubmit(populatedTransaction)}
         onCancel={onCancel || onTxnCancel}
         onReturnToForm={onReturnToForm}
-        isReadyOnlyAddress={isReadOnlyAddress}
-        isLoaded={
-          populatedTransaction !== undefined && transactionError === undefined
-        }
+        isDisabled={isReadOnlyAddress || !!transactionError}
+        isLoaded={populatedTransaction !== undefined}
       />
     </>
   );

@@ -16,7 +16,6 @@ export class YieldRegistryDO extends BaseDO<APIEnv> {
   }
 
   override async parseData(data: string) {
-    console.log(data);
     return this.parseGzip(data);
   }
 

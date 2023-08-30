@@ -10,6 +10,7 @@ import {
 } from '@notional-finance/multicall';
 import {
   encodefCashId,
+  getNowSeconds,
   getProviderFromNetwork,
   INTERNAL_TOKEN_PRECISION,
   MAX_APPROVAL,
@@ -366,6 +367,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
         ];
       }) || [];
 
+    const nowSeconds = getNowSeconds();
     const calls = [
       ...walletCalls,
       ...vaultCalls,
@@ -408,6 +410,28 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
           };
         },
       },
+      {
+        target: notional,
+        method: 'nTokenGetClaimableIncentives',
+        args: [this.activeAccount, nowSeconds],
+        key: `${notional.address}.NOTE`,
+        transform: (
+          r: Awaited<ReturnType<NotionalV3['nTokenGetClaimableIncentives']>>
+        ) => {
+          return TokenBalance.fromID(r, 'NOTE', Network.All);
+        },
+      },
+      {
+        target: notional,
+        method: 'nTokenGetClaimableIncentives',
+        args: [this.activeAccount, getNowSeconds() + 100],
+        key: `${notional.address}.NOTE_plus100`,
+        transform: (
+          r: Awaited<ReturnType<NotionalV3['nTokenGetClaimableIncentives']>>
+        ) => {
+          return TokenBalance.fromID(r, 'NOTE', Network.All);
+        },
+      },
     ];
 
     const { finalResults: balanceStatement } =
@@ -418,6 +442,17 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
     );
     return fetchUsingMulticall<AccountDefinition>(network, calls, [
       (results: Record<string, TokenBalance | TokenBalance[]>) => {
+        const currentNOTE = results[`${notional.address}.NOTE`] as TokenBalance;
+        const notePlus100s = results[
+          `${notional.address}.NOTE_plus100`
+        ] as TokenBalance;
+        const noteClaim = currentNOTE.isPositive()
+          ? {
+              currentNOTE,
+              noteAccruedPerSecond: notePlus100s.sub(currentNOTE).scale(1, 100),
+            }
+          : undefined;
+
         return {
           [activeAccount]: {
             address: activeAccount,
@@ -444,6 +479,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
                   amount: results[k] as TokenBalance,
                 };
               }),
+            noteClaim,
           },
         };
       },
@@ -456,19 +492,24 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
     snapshot: BalanceSnapshot,
     network: Network
   ) {
+    const balance = TokenBalance.fromID(
+      snapshot.currentBalance,
+      tokenId,
+      network
+    );
+    const adjustedCostBasis = TokenBalance.fromID(
+      snapshot.adjustedCostBasis,
+      underlyingId,
+      network
+    );
+    const accumulatedCostRealized = balance
+      .toUnderlying()
+      .scale(adjustedCostBasis, adjustedCostBasis.precision);
     return {
+      balance,
+      adjustedCostBasis,
       timestamp: snapshot.timestamp,
-      balance: TokenBalance.fromID(snapshot.currentBalance, tokenId, network),
-      accumulatedCostRealized: TokenBalance.fromID(
-        snapshot._accumulatedCostRealized,
-        underlyingId,
-        network
-      ),
-      adjustedCostBasis: TokenBalance.fromID(
-        snapshot.adjustedCostBasis,
-        underlyingId,
-        network
-      ),
+      accumulatedCostRealized,
       totalILAndFees: TokenBalance.fromID(
         snapshot.totalILAndFeesAtSnapshot,
         underlyingId,
@@ -514,6 +555,26 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
                     )
                   : undefined;
 
+              let tokenAmount = TokenBalance.fromID(
+                p.tokenAmount,
+                tokenId,
+                network
+              );
+              if (tokenAmount.tokenType === 'PrimeDebt') {
+                tokenAmount = tokenAmount.neg();
+              }
+
+              const underlyingAmountRealized = TokenBalance.fromID(
+                p.underlyingAmountRealized,
+                underlyingId,
+                network
+              );
+              const underlyingAmountSpot = TokenBalance.fromID(
+                p.underlyingAmountSpot,
+                underlyingId,
+                network
+              );
+
               return {
                 timestamp: p.timestamp,
                 token,
@@ -522,23 +583,15 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
                   network,
                   underlyingId
                 ),
-                tokenAmount: TokenBalance.fromID(
-                  p.tokenAmount,
-                  tokenId,
-                  network
-                ),
                 bundleName: p.bundle.bundleName,
                 transactionHash: p.transactionHash.id,
-                underlyingAmountRealized: TokenBalance.fromID(
-                  p.underlyingAmountRealized,
-                  underlyingId,
-                  network
-                ),
-                underlyingAmountSpot: TokenBalance.fromID(
-                  p.underlyingAmountSpot,
-                  underlyingId,
-                  network
-                ),
+                tokenAmount,
+                underlyingAmountRealized: tokenAmount.isNegative()
+                  ? underlyingAmountRealized.neg()
+                  : underlyingAmountRealized,
+                underlyingAmountSpot: tokenAmount.isNegative()
+                  ? underlyingAmountSpot.neg()
+                  : underlyingAmountSpot,
                 realizedPrice: TokenBalance.fromID(
                   p.realizedPrice,
                   underlyingId,

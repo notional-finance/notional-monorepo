@@ -31,13 +31,7 @@ export const VaultSideDrawer = ({
   const isBlocked = useGeoipBlock();
   const history = useHistory();
   const {
-    state: {
-      vaultAddress,
-      tradeType: _tradeType,
-      canSubmit,
-      confirm,
-      populatedTransaction,
-    },
+    state: { vaultAddress, tradeType: _tradeType, canSubmit, confirm },
     updateState,
   } = context;
   const { minDepositRequired } = useVaultProperties(vaultAddress);
@@ -53,46 +47,40 @@ export const VaultSideDrawer = ({
     updateState({ confirm: true });
   }, [updateState]);
 
-  return (
-    <div>
-      {tradeType ? (
-        populatedTransaction && confirm ? (
-          <Confirmation2
-            heading={<FormattedMessage {...messages[tradeType].heading} />}
-            context={context}
-            onCancel={handleCancel}
-            showDrawer={false}
-            onReturnToForm={handleCancel}
-          />
-        ) : (
-          <ActionSidebar
-            heading={messages[tradeType].heading}
-            helptext={
-              isBlocked
-                ? messages.error.blockedGeoActionHelptext
-                : {
-                    ...messages[tradeType].helptext,
-                    values: {
-                      minDepositRequired,
-                      minBorrowSize,
-                    },
-                  }
+  if (!tradeType) return <ProgressIndicator type="notional" />;
+
+  return confirm ? (
+    <Confirmation2
+      heading={<FormattedMessage {...messages[tradeType].heading} />}
+      context={context}
+      onCancel={handleCancel}
+      showDrawer={false}
+      onReturnToForm={handleCancel}
+    />
+  ) : (
+    <ActionSidebar
+      heading={messages[tradeType].heading}
+      helptext={
+        isBlocked
+          ? messages.error.blockedGeoActionHelptext
+          : {
+              ...messages[tradeType].helptext,
+              values: {
+                minDepositRequired,
+                minBorrowSize,
+              },
             }
-            advancedToggle={advancedToggle}
-            showDrawer={false}
-            canSubmit={canSubmit && !isBlocked}
-            cancelRoute={''}
-            CustomActionButton={TradeActionButton}
-            handleSubmit={handleSubmit}
-            hideTextOnMobile={false}
-          >
-            {children}
-            <VaultDetailsTable key={'vault-risk-table'} />
-          </ActionSidebar>
-        )
-      ) : (
-        <ProgressIndicator type="notional" />
-      )}
-    </div>
+      }
+      advancedToggle={advancedToggle}
+      showDrawer={false}
+      canSubmit={canSubmit && !isBlocked}
+      cancelRoute={''}
+      CustomActionButton={TradeActionButton}
+      handleSubmit={handleSubmit}
+      hideTextOnMobile={false}
+    >
+      {children}
+      <VaultDetailsTable key={'vault-risk-table'} />
+    </ActionSidebar>
   );
 };

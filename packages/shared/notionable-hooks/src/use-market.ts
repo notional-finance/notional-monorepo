@@ -136,6 +136,9 @@ export const useAllMarkets = () => {
           link: `${PRODUCTS.BORROW_VARIABLE}/${y.underlying.symbol}`,
         };
       }),
+    vaultShares: nonLeveragedYields.filter(
+      (y) => y.token.tokenType === 'VaultShare'
+    ),
     leveragedVaults: allYields
       .filter((y) => y.token.tokenType === 'VaultShare' && !!y.leveraged)
       .map((y) => {
@@ -178,7 +181,7 @@ export const useAllMarkets = () => {
     ...yields.leveragedLend,
     ...yields.leveragedLiquidity,
   ];
-  
+
   const borrowYields = [...yields.fCashBorrow, ...yields.variableBorrow];
 
   const headlineRates = {

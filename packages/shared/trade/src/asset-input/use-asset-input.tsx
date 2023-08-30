@@ -12,14 +12,19 @@ import { TokenDefinition } from '@notional-finance/core-entities';
 export function useAssetInput(
   selectedToken: TokenDefinition | undefined,
   isDebt: boolean,
-  isRollDebt: boolean
+  isRollOrConvert: boolean
 ) {
   const [inputString, setInputString] = useState<string>('');
   const isAccountReady = useAccountReady();
-  const { primeDebt } = useCurrency();
-  if (isRollDebt && selectedToken?.tokenType === 'PrimeCash') {
+  const { primeDebt, primeCash } = useCurrency();
+  let parsedSelectedToken = selectedToken;
+  if (isRollOrConvert && selectedToken?.tokenType === 'PrimeCash') {
     // Rewrite this to prime debt
-    selectedToken = primeDebt.find(
+    parsedSelectedToken = primeDebt.find(
+      (t) => t.currencyId === selectedToken?.currencyId
+    );
+  } else if (isRollOrConvert && selectedToken?.tokenType === 'PrimeDebt') {
+    parsedSelectedToken = primeCash.find(
       (t) => t.currencyId === selectedToken?.currencyId
     );
   }
@@ -27,7 +32,7 @@ export function useAssetInput(
   // eslint-disable-next-line prefer-const
   let { token, inputAmount } = useInputAmount(
     inputString,
-    selectedToken?.symbol
+    parsedSelectedToken?.symbol
   );
 
   const { maxBalance, insufficientBalance } = useWalletBalanceInputCheck(
@@ -42,8 +47,8 @@ export function useAssetInput(
     errorMsg = tradeErrors.insufficientBalance;
   }
 
-  if (isRollDebt && selectedToken?.tokenType === 'PrimeDebt') {
-    inputAmount = inputAmount?.toPrimeCash();
+  if (isRollOrConvert && selectedToken) {
+    inputAmount = inputAmount?.toToken(selectedToken);
   }
 
   return {

@@ -81,7 +81,7 @@ export const useTotalHoldingsTable = () => {
           currency: underlying.symbol,
           netWorth: formatValueWithFiat(
             baseCurrency,
-            totalAssets.sub(totalDebts)
+            totalAssets.add(totalDebts)
           ),
           assets: formatValueWithFiat(baseCurrency, totalAssets),
           debts: formatValueWithFiat(baseCurrency, totalDebts, true),
@@ -90,11 +90,30 @@ export const useTotalHoldingsTable = () => {
     : [];
 
   if (isReady && portfolio.balances.length > 0) {
+    const netWorth = portfolio.netWorth();
+    const totalAssets = portfolio.totalAssets();
+    const totalDebt = portfolio.totalDebt();
+
     totalHoldingsData.push({
       currency: 'Total',
-      netWorth: formatValueWithFiat(baseCurrency, portfolio.netWorth()),
-      assets: formatValueWithFiat(baseCurrency, portfolio.totalAssets()),
-      debts: formatValueWithFiat(baseCurrency, portfolio.totalDebt()),
+      netWorth: {
+        data: [
+          netWorth.toFiat(baseCurrency).toDisplayStringWithSymbol(3, true),
+        ],
+        isNegative: netWorth.isNegative(),
+      },
+      assets: {
+        data: [
+          totalAssets.toFiat(baseCurrency).toDisplayStringWithSymbol(3, true),
+        ],
+        isNegative: totalAssets.isNegative(),
+      },
+      debts: {
+        data: [
+          totalDebt.toFiat(baseCurrency).toDisplayStringWithSymbol(3, true),
+        ],
+        isNegative: totalDebt.isNegative(),
+      },
     });
   }
 

@@ -9,6 +9,7 @@ import {
   PortfolioMobileNav,
   EmptyPortfolio,
   EmptyPortfolioOverview,
+  ClaimNoteButton,
 } from './components';
 import {
   PortfolioOverview,
@@ -70,6 +71,7 @@ export const PortfolioFeatureShell = () => {
             <SideNav />
           </PortfolioSidebar>
           <PortfolioMainContent>
+            <ClaimNoteButton />
             {(params.category === PORTFOLIO_CATEGORIES.OVERVIEW ||
               params.category === undefined) && <PortfolioOverview />}
             {params.category === PORTFOLIO_CATEGORIES.HOLDINGS && (

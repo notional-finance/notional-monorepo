@@ -12,7 +12,6 @@ import { FormattedMessage, MessageDescriptor } from 'react-intl';
 import { messages } from '../messages';
 import {
   TradeContext,
-  useAccountDefinition,
   useAllMarkets,
 } from '@notional-finance/notionable-hooks';
 import {
@@ -24,6 +23,7 @@ import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
 import { TokenOption } from '@notional-finance/notionable';
 import { useParams } from 'react-router';
 import { TransactionHeadings } from '@notional-finance/trade';
+import { useConvertOptions } from '../hooks/use-convert-options';
 
 interface SelectConvertAssetProps {
   context: TradeContext;
@@ -31,22 +31,11 @@ interface SelectConvertAssetProps {
 
 export const SelectConvertAsset = ({ context }: SelectConvertAssetProps) => {
   const theme = useTheme();
-  const {
-    state: {
-      tradeType,
-      debt,
-      collateral,
-      collateralOptions,
-      debtOptions,
-      debtBalance,
-      collateralBalance,
-    },
-    updateState,
-  } = context;
-  const { account } = useAccountDefinition();
+  const { state, updateState } = context;
+  const { tradeType, debt, collateral, debtBalance, collateralBalance } = state;
   const { nonLeveragedYields } = useAllMarkets();
-  const options =
-    tradeType === 'ConvertAsset' ? collateralOptions : debtOptions;
+  const { options, initialConvertFromBalance: balance } =
+    useConvertOptions(state);
   const convertFromToken = tradeType === 'ConvertAsset' ? debt : collateral;
   const convertFromBalance =
     tradeType === 'ConvertAsset' ? debtBalance : collateralBalance;
@@ -61,13 +50,9 @@ export const SelectConvertAsset = ({ context }: SelectConvertAssetProps) => {
   useEffect(() => {
     if (
       selectedParamToken &&
-      (convertFromToken === undefined || convertFromBalance === undefined)
+      balance &&
+      (convertFromToken === undefined || convertFromBalance === undefined) 
     ) {
-      let balance = account?.balances.find(
-        (t) => t.tokenId === selectedParamToken
-      );
-      if (balance?.tokenType === 'PrimeDebt') balance = balance.toPrimeCash();
-
       updateState(
         tradeType === 'ConvertAsset'
           ? { debtBalance: balance, debt: balance?.token }
@@ -78,7 +63,7 @@ export const SelectConvertAsset = ({ context }: SelectConvertAssetProps) => {
     convertFromToken,
     convertFromBalance,
     selectedParamToken,
-    account,
+    balance,
     updateState,
     tradeType,
   ]);

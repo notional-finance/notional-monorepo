@@ -1643,25 +1643,33 @@
     source-map "^0.6.1"
     webpack-virtual-modules "^0.4.4"
 
-"@datadog/browser-core@4.24.1":
-  version "4.24.1"
-  resolved "https://registry.yarnpkg.com/@datadog/browser-core/-/browser-core-4.24.1.tgz#770e21dd91c35fa1959a55c06e82ac743165262b"
-  integrity sha512-ADrMhFjD75STecEa+vQmuutoyKu6EVSj+EsFzOpqdfit24c7ZnyyydHIpCUtKjXGQdI1WMX0/2Xf/dM4zMCYgA==
+"@datadog/browser-core@4.47.0":
+  version "4.47.0"
+  resolved "https://registry.yarnpkg.com/@datadog/browser-core/-/browser-core-4.47.0.tgz#cc454c05f22839da4d3487b6c4b3c9e1b56e3059"
+  integrity sha512-C3qm4kiT8OoK09UnAed2HTY9ecDaz0n7Qm0m4WwC+lpwOR97oduWdggbvgJgLGdJLleQjqEFHyuB8BEvEQ66BQ==
 
-"@datadog/browser-rum-core@4.24.1":
-  version "4.24.1"
-  resolved "https://registry.yarnpkg.com/@datadog/browser-rum-core/-/browser-rum-core-4.24.1.tgz#dfc793eca5b590b794c9827240ede727ee17b6c8"
-  integrity sha512-yvGMfR99kHCJt2s87uC67B9JQGtvS1fpH08Tx9w7WI5FmrzLFIBeVOVVhORO1/t6m47ZJEa8NJsJnepZ6gQeuw==
+"@datadog/browser-rum-core@4.47.0":
+  version "4.47.0"
+  resolved "https://registry.yarnpkg.com/@datadog/browser-rum-core/-/browser-rum-core-4.47.0.tgz#7b7e84487ae49a992d705f3bee81525516bdde99"
+  integrity sha512-6nOnFPZJ0cYkWV4w7lbtCxVGLiquxw68D1qvwXbMtxZ1q+zroLhPY+lpk7Hd6XN7OT7xmTP2wbTnr0DL5VGwig==
   dependencies:
-    "@datadog/browser-core" "4.24.1"
+    "@datadog/browser-core" "4.47.0"
 
-"@datadog/browser-rum@^4.11.3":
-  version "4.24.1"
-  resolved "https://registry.yarnpkg.com/@datadog/browser-rum/-/browser-rum-4.24.1.tgz#429b8f9b224efc0471178d2a632f3fe1dc3ba4b6"
-  integrity sha512-Zt6LVqpr9Qb2Rer5nvMGHrukWiao12DrLmbO4IQs9CqmykGmejp8TEGaMqQC6dp5krgu8YCifADL4Bvj8/GlDA==
+"@datadog/browser-rum@^4.47.0":
+  version "4.47.0"
+  resolved "https://registry.yarnpkg.com/@datadog/browser-rum/-/browser-rum-4.47.0.tgz#a75542d4f56a433f281b6066babf2608988ee4f6"
+  integrity sha512-+CK8Z7w0fZnCN1oK7S3TQq9LfDmpXDnYxzmHw+11INHHdFhWqmUojpKKi+7+XLMaTOvU83yYBfOBFz2DSWvwew==
   dependencies:
-    "@datadog/browser-core" "4.24.1"
-    "@datadog/browser-rum-core" "4.24.1"
+    "@datadog/browser-core" "4.47.0"
+    "@datadog/browser-rum-core" "4.47.0"
+    "@datadog/browser-worker" "4.47.0"
+
+"@datadog/browser-worker@4.47.0":
+  version "4.47.0"
+  resolved "https://registry.yarnpkg.com/@datadog/browser-worker/-/browser-worker-4.47.0.tgz#9a55cd10961eff8490f14b6629e6d1fd2ca0fea5"
+  integrity sha512-7/jiPXiGYStd40zsQl0U6DBkkoKhFPuWgl5R/k4sKaMdZ3YXwhL3M+js7S7MIGsrNvpoZygEQml+McVYZ2Vmyg==
+  dependencies:
+    "@datadog/browser-core" "4.47.0"
 
 "@datadog/datadog-api-client@^1.6.0":
   version "1.6.0"
@@ -1998,7 +2006,7 @@
     "@ethersproject/properties" "^5.5.0"
     "@ethersproject/strings" "^5.5.0"
 
-"@ethersproject/abi@5.7.0", "@ethersproject/abi@^5.0.1", "@ethersproject/abi@^5.1.2", "@ethersproject/abi@^5.5.0", "@ethersproject/abi@^5.6.3", "@ethersproject/abi@^5.7.0":
+"@ethersproject/abi@5.7.0", "@ethersproject/abi@^5.1.2", "@ethersproject/abi@^5.5.0", "@ethersproject/abi@^5.6.3", "@ethersproject/abi@^5.7.0":
   version "5.7.0"
   resolved "https://registry.yarnpkg.com/@ethersproject/abi/-/abi-5.7.0.tgz#b3f3e045bbbeed1af3947335c247ad625a44e449"
   integrity sha512-351ktp42TiRcYB3H1OP8yajPeAQstMW/yCFokj/AthP9bLHzQFPlOrxOcwYEDkUAICmOHljvN4K39OMTMUa9RA==
@@ -7073,17 +7081,6 @@
     "@typescript-eslint/types" "5.43.0"
     eslint-visitor-keys "^3.3.0"
 
-"@unstoppabledomains/resolution@^8.0":
-  version "8.5.0"
-  resolved "https://registry.yarnpkg.com/@unstoppabledomains/resolution/-/resolution-8.5.0.tgz#7f65146fb3bc69bfae8699c4ed1c61f3d6f0096c"
-  integrity sha512-csqExbiK8F5mRKoHlDZjGuIEuvi63O8PSyhUcGhnTi76Il5fCREAGNVdTiRxagPPYoxCO+Xmf6kThwtmiws1Ow==
-  dependencies:
-    "@ethersproject/abi" "^5.0.1"
-    bn.js "^4.4.0"
-    cross-fetch "^3.1.4"
-    crypto-js "^4.1.1"
-    elliptic "^6.5.4"
-
 "@walletconnect/browser-utils@^1.8.0":
   version "1.8.0"
   resolved "https://registry.yarnpkg.com/@walletconnect/browser-utils/-/browser-utils-1.8.0.tgz#33c10e777aa6be86c713095b5206d63d32df0951"
@@ -7500,41 +7497,21 @@
     ethers "5.5.4"
     joi "17.9.1"
 
-"@web3-onboard/common@^2.3.2":
-  version "2.3.2"
-  resolved "https://registry.yarnpkg.com/@web3-onboard/common/-/common-2.3.2.tgz#bf2868e3a093a20a1390eea596e82922c2af8cd8"
-  integrity sha512-BmMc7MhqrpWD3RxJ2IWppF7AKRRFdaUrcIUvUa3/MNV6IrwFoHcg9eTsFPlF0cUqJip+oQz0XGCqdlVgcSLAcQ==
+"@web3-onboard/common@^2.3.3":
+  version "2.3.3"
+  resolved "https://registry.yarnpkg.com/@web3-onboard/common/-/common-2.3.3.tgz#02096e967dbed272c0637cda955902b96a0fce06"
+  integrity sha512-Ytppszqe77VY8WglRdr/Lfx+HmcZ2hXQEkBA23JaVYmzKvP/mC6j+sjGUD8CgXDpRRxyKoiRj6nz95GRABie6Q==
   dependencies:
     bignumber.js "^9.1.0"
     ethers "5.5.4"
     joi "17.9.1"
 
-"@web3-onboard/core@^2.16.2":
-  version "2.16.2"
-  resolved "https://registry.yarnpkg.com/@web3-onboard/core/-/core-2.16.2.tgz#49b46d539e54d170e445065ff4017d8a53c90835"
-  integrity sha512-ONIMVt35i2kEJclCa9L8Gf2q71nIogtyyvXZTQuxZXvlN1DSECTXir6xuzb9iezd8QuxWBdtZcWzLZnf5KimkQ==
+"@web3-onboard/core@^2.21.0":
+  version "2.21.0"
+  resolved "https://registry.yarnpkg.com/@web3-onboard/core/-/core-2.21.0.tgz#9055a9320f862911453010ba9a430a361c66202c"
+  integrity sha512-owxmSbCILFV0nQA46OGxcRrVdeZGL8SabBXll/PR0GAGsrZBYqNSE608ISd0luPt2Npy+dT8f8xUruFau+k/BA==
   dependencies:
-    "@unstoppabledomains/resolution" "^8.0"
-    "@web3-onboard/common" "^2.3.1"
-    bignumber.js "^9.0.0"
-    bnc-sdk "^4.6.7"
-    bowser "^2.11.0"
-    ethers "5.5.3"
-    eventemitter3 "^4.0.7"
-    joi "17.9.1"
-    lodash.merge "^4.6.2"
-    lodash.partition "^4.6.0"
-    nanoid "^4.0.0"
-    rxjs "^7.5.5"
-    svelte "^3.49.0"
-    svelte-i18n "^3.3.13"
-
-"@web3-onboard/core@^2.18.0":
-  version "2.18.0"
-  resolved "https://registry.yarnpkg.com/@web3-onboard/core/-/core-2.18.0.tgz#2da396cadd977c4ec4ac3903e587a114be8778d7"
-  integrity sha512-IbKCsf9Ks9a30UzNgF+EQ2slbZ50li464ySmYLEQqIZKSjItfpwuDa/CBTs12YB+AD4HwElMkEB2/S418nMIAw==
-  dependencies:
-    "@web3-onboard/common" "^2.3.2"
+    "@web3-onboard/common" "^2.3.3"
     bignumber.js "^9.0.0"
     bnc-sdk "^4.6.7"
     bowser "^2.11.0"
@@ -7588,13 +7565,13 @@
     "@web3-onboard/common" "^2.3.1"
     rxjs "^7.5.2"
 
-"@web3-onboard/react@^2.8.2":
-  version "2.8.2"
-  resolved "https://registry.yarnpkg.com/@web3-onboard/react/-/react-2.8.2.tgz#ed90160959aad1f62440e21cdbe9bb2fdf948132"
-  integrity sha512-wif7Zqx5Uw+DolgA0ZcCZRSNxdgxS0CuOWEvWvR1D9C98146xSffRq4IKhSm8hyNs8Hrkk5QJ9DUc2Uoz7OLNA==
+"@web3-onboard/react@^2.8.11":
+  version "2.8.11"
+  resolved "https://registry.yarnpkg.com/@web3-onboard/react/-/react-2.8.11.tgz#ce364bf11f09933baa609908a6bbff91be6537ca"
+  integrity sha512-wTvDQaIXKxe0xE++iykEzJ2Y9bY4XeJzptE23cgkZBQhlWbJZmVUKDBQrCbkdIM0+5Qq2AZYN6UMNgdoB3myxg==
   dependencies:
-    "@web3-onboard/common" "^2.3.2"
-    "@web3-onboard/core" "^2.18.0"
+    "@web3-onboard/common" "^2.3.3"
+    "@web3-onboard/core" "^2.21.0"
     use-sync-external-store "1.0.0"
 
 "@web3-onboard/trezor@^2.3.5":
@@ -8859,7 +8836,7 @@ bn.js@4.11.8:
   resolved "https://registry.yarnpkg.com/bn.js/-/bn.js-4.11.8.tgz#2cde09eb5ee341f484746bb0309b3253b1b1442f"
   integrity sha512-ItfYfPLkWHUjckQCk8xC+LwxgK8NYcXywGigJgSwOP8Y2iyWT4f2vsZnoOXTTbo+o5yXmIUJ4gn5538SO5S3gA==
 
-bn.js@^4.0.0, bn.js@^4.1.0, bn.js@^4.11.0, bn.js@^4.11.8, bn.js@^4.11.9, bn.js@^4.4.0:
+bn.js@^4.0.0, bn.js@^4.1.0, bn.js@^4.11.0, bn.js@^4.11.8, bn.js@^4.11.9:
   version "4.12.0"
   resolved "https://registry.yarnpkg.com/bn.js/-/bn.js-4.12.0.tgz#775b3f278efbb9718eec7361f483fb36fbbfea88"
   integrity sha512-c98Bf3tPniI+scsdk237ku1Dc3ujXQTSgyiPUDEOe7tRkhrqridvh8klBv0HCEso1OLOYcHuCv/cS6DNxKH+ZA==
@@ -10224,11 +10201,6 @@ crypto-es@^1.2.2:
   version "1.2.7"
   resolved "https://registry.yarnpkg.com/crypto-es/-/crypto-es-1.2.7.tgz#754a6d52319a94fb4eb1f119297f17196b360f88"
   integrity sha512-UUqiVJ2gUuZFmbFsKmud3uuLcNP2+Opt+5ysmljycFCyhA0+T16XJmo1ev/t5kMChMqWh7IEvURNCqsg+SjZGQ==
-
-crypto-js@^4.1.1:
-  version "4.1.1"
-  resolved "https://registry.yarnpkg.com/crypto-js/-/crypto-js-4.1.1.tgz#9e485bcf03521041bd85844786b83fb7619736cf"
-  integrity sha512-o2JlM7ydqd3Qk9CA0L4NL6mTzU2sdx96a+oOfPu8Mkl/PK51vSyoi8/rQ8NknZtk44vq15lmhAj9CIAGwgeWKw==
 
 css-declaration-sorter@^6.3.1:
   version "6.3.1"

@@ -22,6 +22,7 @@ import {
   Withdraw,
 } from '@notional-finance/transaction';
 import { TransactionConfig } from './base-trade-store';
+import { ZERO_ADDRESS } from '@notional-finance/util';
 
 function onlySameCurrency(t: TokenDefinition, other?: TokenDefinition) {
   return other?.currencyId ? t.currencyId === other.currencyId : true;
@@ -76,7 +77,9 @@ export const TradeConfiguration = {
   Deposit: {
     calculationFn: calculateCollateral,
     requiredArgs: ['collateral', 'depositBalance', 'collateralPool'],
-    collateralFilter: (t, _, s) => onlySameCurrency(t, s.deposit),
+    collateralFilter: (t, _, s) =>
+      onlySameCurrency(t, s.deposit) &&
+      (t.vaultAddress === ZERO_ADDRESS || t.vaultAddress === undefined),
     debtFilter: () => false,
     calculateCollateralOptions: true,
     transactionBuilder: Deposit,
