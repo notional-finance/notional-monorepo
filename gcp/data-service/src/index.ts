@@ -163,31 +163,31 @@ async function main() {
   });
 
   app.get('/syncOracleData', async (_, res) => {
-    //  try {
-    res.send(
-      JSON.stringify(
-        await dataService.syncOracleData(
-          dataService.latestTimestamp() - ONE_HOUR_MS / 1000
+    try {
+      res.send(
+        JSON.stringify(
+          await dataService.syncOracleData(
+            dataService.latestTimestamp() - ONE_HOUR_MS / 1000
+          )
         )
-      )
-    );
-    /*   } catch (e: any) {
+      );
+    } catch (e: any) {
       res.status(500).send(e.toString());
-    } */
+    }
   });
 
   app.get('/syncYieldData', async (_, res) => {
-    //try {
-    res.send(
-      JSON.stringify(
-        await dataService.syncYieldData(
-          dataService.latestTimestamp() - ONE_HOUR_MS / 1000
+    try {
+      res.send(
+        JSON.stringify(
+          await dataService.syncYieldData(
+            dataService.latestTimestamp() - ONE_HOUR_MS / 1000
+          )
         )
-      )
-    );
-    /*  } catch (e: any) {
+      );
+    } catch (e: any) {
       res.status(500).send(e.toString());
-    } */
+    }
   });
 
   app.get('/syncGenericData', async (_, res) => {
