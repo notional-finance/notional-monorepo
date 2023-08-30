@@ -6,6 +6,7 @@ import { Knex } from 'knex';
 export enum BackfillType {
   OracleData = 1,
   GenericData = 2,
+  YieldData = 3,
 }
 
 export enum SourceType {
@@ -27,6 +28,8 @@ export enum ProtocolName {
 export enum DataType {
   ORACLE = 'oracles',
   TOKEN = 'tokens',
+  EXCHANGE = 'exchanges',
+  CONFIG = 'configuration',
 }
 
 export enum Strategy {

@@ -6,6 +6,11 @@ import {
   ORACLE_TYPE_TO_ID,
   ONE_HOUR_MS,
 } from '@notional-finance/util';
+import {
+  AccountFetchMode,
+  TokenBalance,
+  TokenType,
+} from '@notional-finance/core-entities';
 import { fetch } from 'cross-fetch';
 import {
   buildOperations,
@@ -25,6 +30,7 @@ import {
 } from './types';
 import { aggregate } from '@notional-finance/multicall';
 import { ApolloClient, HttpLink, InMemoryCache } from '@apollo/client';
+import { HistoricalRegistry } from './HistoricalRegistry';
 
 // TODO: fetch from DB
 const networkToId = {
@@ -33,6 +39,7 @@ const networkToId = {
 };
 
 export type DataServiceSettings = {
+  // TODO: support multiple networks
   network: Network;
   blocksPerSecond: Record<string, number>;
   maxProviderRequests: number;
@@ -123,6 +130,8 @@ export default class DataService {
           await this.syncGenericData(ts);
         } else if (type === BackfillType.OracleData) {
           await this.syncOracleData(ts);
+        } else if (type === BackfillType.YieldData) {
+          await this.syncYieldData(ts);
         } else {
           throw Error(`Invalid backfill type ${type}`);
         }
@@ -177,30 +186,112 @@ export default class DataService {
 
     const values = await this.getData(network, blockNumber, DataType.ORACLE);
 
-    const query = this.db
-      .insert(
-        values.map((v) => ({
-          base: v[1].base,
-          quote: v[1].quote,
-          oracle_type: this.oracleTypeToId(v[1].oracleType),
-          network: this.networkToId(v[1].network),
-          timestamp: ts,
-          block_number: blockNumber,
-          decimals: v[1].decimals,
-          oracle_address: v[1].oracleAddress,
-          latest_rate: BigNumber.from(v[1].latestRate.rate.hex).toString(),
-        }))
-      )
-      .into(DataService.ORACLE_DATA_TABLE_NAME)
-      .onConflict(['base', 'quote', 'oracle_type', 'network', 'timestamp']);
+    if (values.length > 0) {
+      const query = this.db
+        .insert(
+          values.map((v) => ({
+            base: v[1].base,
+            quote: v[1].quote,
+            oracle_type: this.oracleTypeToId(v[1].oracleType),
+            network: this.networkToId(v[1].network),
+            timestamp: ts,
+            block_number: blockNumber,
+            decimals: v[1].decimals,
+            oracle_address: v[1].oracleAddress,
+            latest_rate: BigNumber.from(v[1].latestRate.rate.hex).toString(),
+          }))
+        )
+        .into(DataService.ORACLE_DATA_TABLE_NAME)
+        .onConflict(['base', 'quote', 'oracle_type', 'network', 'timestamp']);
 
-    if (this.settings.mergeConflicts) {
-      await query.merge();
-    } else {
-      await query.ignore();
+      if (this.settings.mergeConflicts) {
+        await query.merge();
+      } else {
+        await query.ignore();
+      }
     }
 
     return blockNumber;
+  }
+
+  private async _getTvl(
+    network: Network,
+    block: ethers.ethers.providers.Block,
+    tokenType: TokenType
+  ) {
+    const tokens = HistoricalRegistry.getTokenRegistry();
+    const allTokens = tokens.getAllTokens(network);
+
+    return allTokens
+      .filter(
+        (t) =>
+          t.tokenType === tokenType &&
+          (t.maturity ? t.maturity > block.timestamp : true)
+      )
+      .map((t) => {
+        if (!t.currencyId) throw Error('Missing currency id');
+        if (!t.underlying) throw Error(`Token has no underlying`);
+        const underlying = tokens.getTokenByID(network, t.underlying);
+
+        return {
+          token: t,
+          tvl: t.totalSupply?.toUnderlying() || TokenBalance.zero(underlying),
+        };
+      });
+  }
+
+  public async syncYieldData(ts: number) {
+    const network = Network.ArbitrumOne;
+
+    const blockNumber = await this.getBlockNumberFromTs(network, ts);
+
+    // Get data using block number
+    if (blockNumber < this.settings.startingBlock) {
+      // too old
+      return;
+    }
+
+    HistoricalRegistry.initialize(
+      'https://data-dev.notional-finance.workers.dev',
+      AccountFetchMode.BATCH_ACCOUNT_VIA_SERVER
+    );
+
+    await HistoricalRegistry.refreshAtBlock(network, blockNumber);
+    const block = await this.provider.getBlock(blockNumber);
+
+    const primeCashTvl = await this._getTvl(network, block, 'PrimeCash');
+
+    const yieldData = primeCashTvl;
+
+    if (yieldData.length > 0) {
+      const yieldQuery = this.db
+        .insert(
+          yieldData.map((y) => {
+            return {
+              block_number: blockNumber,
+              network_id: networkToId[network],
+              token: y.token.id,
+              total_value_locked: y.tvl.toExactString(),
+              underlying: y.tvl.tokenId,
+              debt_token: '',
+            };
+          })
+        )
+        .into('yield_data')
+        .onConflict([
+          'token',
+          'underlying',
+          'debt_token',
+          'network_id',
+          'block_number',
+        ]);
+
+      if (this.settings.mergeConflicts) {
+        await yieldQuery.merge();
+      } else {
+        await yieldQuery.ignore();
+      }
+    }
   }
 
   private async syncFromMulticall(

@@ -133,6 +133,12 @@ export default {
       },
     });
 
+    await fetch(`${env.DATA_SERVICE_URL}/syncYieldData`, {
+      headers: {
+        'x-auth-token': env.DATA_SERVICE_AUTH_TOKEN,
+      },
+    });
+
     // Run a healthcheck against all of the durable objects.
     await Promise.all([runHealthCheck(env.YIELD_REGISTRY_DO, env.VERSION)]);
   },

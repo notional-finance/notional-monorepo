@@ -60,7 +60,10 @@ export abstract class ClientRegistry<T> extends BaseRegistry<T> {
     return JSON.parse(body, ClientRegistry.reviver);
   }
 
-  protected async _refresh(network: Network): Promise<CacheSchema<T>> {
-    return this._fetch(network);
+  protected async _refresh(
+    network: Network,
+    blockNumber?: number
+  ): Promise<CacheSchema<T>> {
+    return this._fetch(network, blockNumber?.toString());
   }
 }

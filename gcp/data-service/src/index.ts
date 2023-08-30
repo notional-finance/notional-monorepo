@@ -133,6 +133,20 @@ async function main() {
     }
   });
 
+  app.get('/backfillYieldData', async (req, res) => {
+    try {
+      const params = parseQueryParams(req.query);
+      await dataService.backfill(
+        params.startTime,
+        params.endTime,
+        BackfillType.YieldData
+      );
+      res.send('OK');
+    } catch (e: any) {
+      res.status(500).send(e.toString());
+    }
+  });
+
   app.get('/backfillGenericData', async (req, res) => {
     try {
       const params = parseQueryParams(req.query);
@@ -152,6 +166,18 @@ async function main() {
       res.send(
         JSON.stringify(
           await dataService.syncOracleData(dataService.latestTimestamp())
+        )
+      );
+    } catch (e: any) {
+      res.status(500).send(e.toString());
+    }
+  });
+
+  app.get('/syncYieldData', async (_, res) => {
+    try {
+      res.send(
+        JSON.stringify(
+          await dataService.syncYieldData(dataService.latestTimestamp())
         )
       );
     } catch (e: any) {
