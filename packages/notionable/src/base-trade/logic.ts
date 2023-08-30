@@ -524,14 +524,14 @@ export function simulateTransaction(
                 { ...s, mismatchedBalances }
               );
 
-              // TODO: figure out what the UI response is here...
               return {
                 transactionError: 'Error in transaction simulation',
-                populatedTransaction: undefined,
               };
             }
 
-            return undefined;
+            return {
+              transactionError: undefined,
+            };
           })
         );
       }
