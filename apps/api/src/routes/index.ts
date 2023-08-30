@@ -48,6 +48,8 @@ const handleViews = (request: IRequest, env: APIEnv) => {
 const handleNFT = (request: IRequest, _env: APIEnv) => {
   const url = new URL(request.url);
   const [_, _nft, address, _tokenId] = url.pathname.split('/');
+  // Additional metadata standards can be found here:
+  // https://docs.opensea.io/docs/metadata-standards
   switch (address.toLowerCase()) {
     case '0x965b3aad78cdab2cc778243b12705ba3b7c5048c':
       return new Response(
