@@ -15,7 +15,6 @@ import {
   handleNFT,
   handleDataDogForward,
   handlePlausibleForward,
-  handleAccounts,
 } from './routes';
 
 export {
@@ -70,7 +69,6 @@ router.post('/plausible', handlePlausibleForward);
 router.post('/newsletter', handleNewsletter);
 router.get('/:network/views/:view', handleViews);
 router.get('/:network/yields', handleYields);
-router.get('/:network/accounts', handleAccounts);
 router.get('/:network/tokens', handleTokens);
 router.get('/:network/configuration', handleConfigurations);
 router.get('/:network/oracles', handleOracles);

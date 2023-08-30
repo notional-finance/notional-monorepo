@@ -21,10 +21,6 @@ const handleYields = (request: IRequest, env: APIEnv) => {
   return _handler(request, env.YIELD_REGISTRY_DO, env.YIELDS_NAME);
 };
 
-const handleAccounts = (request: IRequest, env: APIEnv) => {
-  return _handler(request, env.ACCOUNT_REGISTRY_DO, env.VERSION);
-};
-
 const handleTokens = (request: IRequest, env: APIEnv) => {
   return _handler(request, env.TOKEN_REGISTRY_DO, env.VERSION);
 };
