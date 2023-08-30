@@ -71,7 +71,7 @@ const OpacityBG = styled(Box)(
   background: rgba(4, 29, 46, 0.7);
   border-top: 1px solid ${colors.greenGrey};
   position: relative;
-  margin-top: ${theme.spacing(5)};
+  margin-top: ${theme.spacing(11)};
   z-index: 3;
     `
 );
