@@ -47,7 +47,14 @@ export const Confirmation2 = ({
 
   const inner = (
     <>
-      <StatusHeading heading={heading} transactionStatus={transactionStatus} />
+      <StatusHeading
+        heading={heading}
+        transactionStatus={
+          transactionError
+            ? TransactionStatus.ERROR_BUILDING
+            : transactionStatus
+        }
+      />
       <Divider variant="fullWidth" sx={{ background: 'white' }} />
       <TermsOfService theme={theme}>
         <FormattedMessage
@@ -74,7 +81,7 @@ export const Confirmation2 = ({
       )}
       <OrderDetails state={state} />
       {(transactionStatus === TransactionStatus.REVERT || transactionError) && (
-        <Box sx={{ height: theme.spacing(8), marginBottom: theme.spacing(3) }}>
+        <Box sx={{ height: theme.spacing(8), marginBottom: theme.spacing(6) }}>
           <ErrorMessage
             variant="error"
             marginBottom

@@ -448,7 +448,12 @@ export function buildTransaction(
   return combineLatest([state$, account$]).pipe(
     filter(([state]) => state.canSubmit),
     switchMap(([s, a]) => {
-      if (a && s.confirm && s.populatedTransaction === undefined) {
+      if (
+        a &&
+        s.confirm &&
+        s.populatedTransaction === undefined &&
+        s.transactionError === undefined
+      ) {
         const config = getTradeConfig(s.tradeType);
         return from(
           config
@@ -465,9 +470,7 @@ export function buildTransaction(
             .catch((e) => {
               logError(e, 'base-trade#logic', 'buildTransaction', s);
               return {
-                populatedTransaction: undefined,
-                transactionError: e.toString() as string,
-                confirm: false,
+                transactionError: 'Transaction will revert based on inputs.',
               };
             })
         );
@@ -525,7 +528,8 @@ export function simulateTransaction(
               );
 
               return {
-                transactionError: 'Error in transaction simulation',
+                transactionError:
+                  'Transaction simulation does not match calculated outputs.',
               };
             }
 
