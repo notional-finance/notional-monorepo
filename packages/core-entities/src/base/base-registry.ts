@@ -166,10 +166,8 @@ export abstract class BaseRegistry<T> {
       network,
       newInterval
         .pipe(
-          switchMap((intervalNum) => {
-            return from(this._refresh(network, intervalNum)).pipe(
-              timeout(intervalMS / 2)
-            );
+          switchMap(() => {
+            return from(this._refresh(network)).pipe(timeout(intervalMS / 2));
           })
         )
         .subscribe((d) => {
