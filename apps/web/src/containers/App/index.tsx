@@ -9,10 +9,12 @@ import { getFromLocalStorage } from '@notional-finance/helpers';
 import { App } from './App';
 
 const applicationId = process.env['NX_DD_APP_ID'] as string;
-const clientToken = process.env['NX_DD_API_KEY'] as string;
+const clientToken = process.env['NX_DD_CLIENT_TOKEN'] as string;
 const DD_SITE = process.env['NX_DD_SITE'];
 // COMMIT_REF environment variable is supplied by netlify on deployment
 const version = `${process.env['NX_COMMIT_REF']?.substring(0, 8) || 'local'}`;
+const PROXY_HOST =
+  process.env['NX_DATA_URL'] || 'https://data.notional.finance';
 const service = 'web-frontend';
 const { disableErrorReporting } = getFromLocalStorage('privacySettings');
 
@@ -30,6 +32,7 @@ datadogRum.init({
   version,
   sampleRate: 100,
   trackInteractions: false,
+  proxy: `${PROXY_HOST}/dd-forward`,
 });
 
 export const AppShell = () => {

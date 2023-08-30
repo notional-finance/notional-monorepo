@@ -64,6 +64,23 @@ const handleNFT = (request: IRequest, _env: APIEnv) => {
   }
 };
 
+const handleDataDogForward = (request: IRequest, _env: APIEnv) => {
+  const ddforward = decodeURI((request.query['ddforward'] as string) || '');
+  if (ddforward) {
+    const _request = request as unknown as CFRequest;
+
+    return fetch(`https://browser-intake-datadoghq.com${ddforward}`, {
+      method: 'POST',
+      body: request.body,
+      headers: {
+        'X-Forwarded-For': _request.headers['CF-Connecting-IP'],
+        'Content-Type': 'application/json',
+      },
+    });
+  }
+  return new Response('Invalid ddforward param', { status: 500 });
+};
+
 export {
   handleKPIs,
   handleGeoIP,
@@ -76,4 +93,5 @@ export {
   handleVaults,
   handleViews,
   handleNFT,
+  handleDataDogForward,
 };

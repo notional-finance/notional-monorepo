@@ -13,6 +13,7 @@ import {
   handleVaults,
   handleViews,
   handleNFT,
+  handleDataDogForward,
 } from './routes';
 
 export {
@@ -62,6 +63,7 @@ router.options('*', handleOptions);
 router.get('/kpis', handleKPIs);
 router.get('/geoip', handleGeoIP);
 router.get('/nft/*', handleNFT);
+router.post('/dd-forward', handleDataDogForward);
 router.post('/newsletter', handleNewsletter);
 router.get('/:network/views/:view', handleViews);
 router.get('/:network/yields', handleYields);
