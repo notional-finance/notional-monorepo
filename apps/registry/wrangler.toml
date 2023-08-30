@@ -43,7 +43,7 @@ deleted_classes = [
 
 [[migrations]]
 tag = "v6"
-deleted_classes = [
+new_classes = [
     "AccountRegistryDO"
 ]
 

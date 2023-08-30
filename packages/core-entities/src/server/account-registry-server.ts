@@ -27,7 +27,11 @@ export class AccountRegistryServer extends ServerRegistry<SerializedAccountDefin
           network,
           balances:
             a.balances?.map((b) =>
-              TokenBalance.toJSON(b.current.currentBalance, b.token.id, network)
+              TokenBalance.toJSON(
+                BigNumber.from(b.current.currentBalance),
+                b.token.id,
+                network
+              )
             ) || [],
           balanceStatement: a.balances?.map((b) => {
             if (!b.token.underlying) throw Error('Unknown underlying');
@@ -39,9 +43,10 @@ export class AccountRegistryServer extends ServerRegistry<SerializedAccountDefin
               network
             );
           }),
-          accountHistory: a.profitLossLineItems?.map((p) =>
-            this._parseAccountHistory(p as ProfitLossLineItem, network)
-          ),
+          accountHistory:
+            a.profitLossLineItems?.map((p) =>
+              this._parseAccountHistory(p as ProfitLossLineItem, network)
+            ) || [],
         };
 
         return Object.assign(o, { [a.id]: acct });
@@ -56,12 +61,12 @@ export class AccountRegistryServer extends ServerRegistry<SerializedAccountDefin
     network: Network
   ) {
     const currentBalance = TokenBalance.toJSON(
-      snapshot.currentBalance,
+      BigNumber.from(snapshot.currentBalance),
       tokenId,
       network
     );
     const adjustedCostBasis = TokenBalance.toJSON(
-      snapshot.adjustedCostBasis,
+      BigNumber.from(snapshot.adjustedCostBasis),
       underlyingId,
       network
     );
@@ -71,17 +76,17 @@ export class AccountRegistryServer extends ServerRegistry<SerializedAccountDefin
       currentBalance,
       adjustedCostBasis,
       totalILAndFees: TokenBalance.toJSON(
-        snapshot.totalILAndFeesAtSnapshot,
+        BigNumber.from(snapshot.totalILAndFeesAtSnapshot),
         underlyingId,
         network
       ),
       totalProfitAndLoss: TokenBalance.toJSON(
-        snapshot.totalProfitAndLossAtSnapshot,
+        BigNumber.from(snapshot.totalProfitAndLossAtSnapshot),
         underlyingId,
         network
       ),
       totalInterestAccrual: TokenBalance.toJSON(
-        snapshot.totalInterestAccrualAtSnapshot,
+        BigNumber.from(snapshot.totalInterestAccrualAtSnapshot),
         underlyingId,
         network
       ),
@@ -103,14 +108,14 @@ export class AccountRegistryServer extends ServerRegistry<SerializedAccountDefin
     const underlyingAmountRealized = TokenBalance.toJSON(
       amount.isNegative()
         ? BigNumber.from(p.underlyingAmountRealized).mul(-1)
-        : p.underlyingAmountRealized,
+        : BigNumber.from(p.underlyingAmountRealized),
       underlying,
       network
     );
     const underlyingAmountSpot = TokenBalance.toJSON(
       amount.isNegative()
         ? BigNumber.from(p.underlyingAmountSpot).mul(-1)
-        : p.underlyingAmountSpot,
+        : BigNumber.from(p.underlyingAmountSpot),
       underlying,
       network
     );
@@ -124,8 +129,16 @@ export class AccountRegistryServer extends ServerRegistry<SerializedAccountDefin
       tokenAmount,
       underlyingAmountRealized,
       underlyingAmountSpot,
-      realizedPrice: TokenBalance.toJSON(p.realizedPrice, underlying, network),
-      spotPrice: TokenBalance.toJSON(p.spotPrice, underlying, network),
+      realizedPrice: TokenBalance.toJSON(
+        BigNumber.from(p.realizedPrice),
+        underlying,
+        network
+      ),
+      spotPrice: TokenBalance.toJSON(
+        BigNumber.from(p.spotPrice),
+        underlying,
+        network
+      ),
       impliedFixedRate: p.impliedFixedRate
         ? (p.impliedFixedRate * 100) / RATE_PRECISION
         : undefined,
