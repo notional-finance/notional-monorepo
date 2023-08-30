@@ -99,22 +99,6 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
         const pCash = fCashMarket.poolParams.perMarketCash[marketIndex - 1];
         const fCash = fCashMarket.poolParams.perMarketfCash[marketIndex - 1];
 
-        if (y.token.currencyId === 2) {
-          console.log(`marketIndex=${marketIndex}`);
-          console.log(
-            fCashMarket.balances.map((b, i) => ({
-              index: i,
-              bal: b.toExactString(),
-            }))
-          );
-          console.log(
-            fCashMarket.poolParams.perMarketfCash.map((b, i) => ({
-              index: i,
-              bal: b.toExactString(),
-            }))
-          );
-        }
-
         // Adds the prime cash value in the nToken to the fCash TVL
         return Object.assign(y, {
           tvl: fCash.toUnderlying().add(pCash.toUnderlying()),
