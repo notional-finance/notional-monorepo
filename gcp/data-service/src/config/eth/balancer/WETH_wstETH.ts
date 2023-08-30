@@ -12,6 +12,7 @@ import {
   ProtocolName,
   Strategy,
 } from '../../../types';
+import { graphQueries } from '../../../graphQueries';
 
 export const configDefs: ConfigDefinition[] = [
   {
@@ -167,7 +168,7 @@ export const configDefs: ConfigDefinition[] = [
     sourceType: SourceType.Subgraph,
     sourceConfig: {
       protocol: ProtocolName.BalancerV2,
-      query: 'BalancerV2SwapFee.graphql',
+      query: graphQueries.BalancerV2SwapFee,
       args: {
         poolId:
           '0x32296969ef14eb0c6d29669c550d4a0449130230000200000000000000000080',

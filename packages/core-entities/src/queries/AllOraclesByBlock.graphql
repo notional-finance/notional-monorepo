@@ -14,7 +14,7 @@ query AllOraclesByBlock($blockNumber: Int) {
     fCashSpotRate,
     PrimeCashToUnderlyingOracleInterestRate,
     fCashToUnderlyingExchangeRate
-  ], matured: false}, first: 5000, block: { number: $blockNumber }) {
+  ], matured: false}, first: 1000, block: { number: $blockNumber }) {
     id
     lastUpdateBlockNumber
     lastUpdateTimestamp

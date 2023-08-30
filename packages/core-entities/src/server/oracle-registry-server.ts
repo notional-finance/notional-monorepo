@@ -45,6 +45,7 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
   private async _queryAllOracles(network: Network, blockNumber?: number) {
     const { AllOraclesDocument, AllOraclesByBlockDocument } =
       await loadGraphClientDeferred();
+
     return this._fetchUsingGraph(
       network,
       (blockNumber !== undefined
@@ -65,7 +66,7 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
             latestRate: {
               rate: BigNumber.from(v.latestRate),
               timestamp: v.lastUpdateTimestamp,
-              blockNumber: v.lastUpdateBlockNumber,
+              blockNumber: blockNumber || v.lastUpdateBlockNumber,
             },
           };
 
@@ -86,7 +87,7 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
     schema: CacheSchema<OracleDefinition>,
     blockNumber?: number
   ): Promise<CacheSchema<OracleDefinition>> {
-    const calls = this._getAggregateCalls(schema);
+    const calls = await this._getAggregateCalls(schema, blockNumber);
     const { block, results } = await aggregate(
       calls,
       this.getProvider(schema.network),
@@ -120,10 +121,16 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
   }
 
   /** Returns an array of aggregate calls that will override the latest rates in the oracles */
-  private _getAggregateCalls(
-    results: CacheSchema<OracleDefinition>
-  ): AggregateCall<BigNumber>[] {
+  private async _getAggregateCalls(
+    results: CacheSchema<OracleDefinition>,
+    blockNumber?: number
+  ): Promise<AggregateCall<BigNumber>[]> {
     const provider = this.getProvider(results.network);
+    let ts = getNowSeconds();
+    if (blockNumber) {
+      const block = await provider.getBlock(blockNumber);
+      ts = block.timestamp;
+    }
     const notional = new Contract(
       NotionalAddress[results.network],
       NotionalV3ABI,
@@ -212,19 +219,23 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
           oracle.oracleType === 'PrimeCashPremiumInterestRate' ||
           oracle.oracleType === 'PrimeDebtPremiumInterestRate'
         ) {
-          return {
-            key: id,
-            target: notional,
-            method: 'getPrimeInterestRate',
-            args: [oracle.quoteCurrencyId],
-            transform: (
-              r: Awaited<ReturnType<NotionalV3['getPrimeInterestRate']>>
-            ) => {
-              return oracle.oracleType === 'PrimeCashPremiumInterestRate'
-                ? r.annualSupplyRate
-                : r.annualDebtRatePostFee;
-            },
-          };
+          if (JSON.parse(process.env['HAS_ABI_VERSIONING'] || 'false')) {
+            return {
+              key: id,
+              target: notional,
+              method: 'getPrimeInterestRate',
+              args: [oracle.quoteCurrencyId],
+              transform: (
+                r: Awaited<ReturnType<NotionalV3['getPrimeInterestRate']>>
+              ) => {
+                return oracle.oracleType === 'PrimeCashPremiumInterestRate'
+                  ? r.annualSupplyRate
+                  : r.annualDebtRatePostFee;
+              },
+            };
+          } else {
+            return null;
+          }
         } else if (oracle.oracleType === 'nTokenToUnderlyingExchangeRate') {
           return {
             key: id,
@@ -246,20 +257,13 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
             key: id,
             target: notional,
             method: 'getPresentfCashValue',
-            args: [
-              currencyId,
-              maturity,
-              INTERNAL_TOKEN_PRECISION,
-              getNowSeconds(),
-              false,
-            ],
+            args: [currencyId, maturity, INTERNAL_TOKEN_PRECISION, ts, false],
             transform: (
               r: Awaited<ReturnType<NotionalV3['getPresentfCashValue']>>
             ) => {
-              if (!oracle.baseDecimals) throw Error('base decimals undefined');
               return r
                 .mul(BigNumber.from(10).pow(oracle.decimals))
-                .div(BigNumber.from(10).pow(oracle.baseDecimals));
+                .div(INTERNAL_TOKEN_PRECISION);
             },
           };
         } else if (oracle.oracleType === 'sNOTE') {

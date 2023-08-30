@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { Network, ZERO_ADDRESS } from '@notional-finance/util';
+import { Network, ORACLE_TYPE_TO_ID } from '@notional-finance/util';
 import fs from 'fs';
 import { AccountFetchMode } from '@notional-finance/core-entities';
 import { HistoricalRegistry } from './HistoricalRegistry';
@@ -17,20 +17,6 @@ const networkToId = {
   arbitrum: 2,
 };
 
-const oracleTypeToId = {
-  Chainlink: 1,
-  VaultShareOracleRate: 2,
-  fCashOracleRate: 3,
-  nTokenToUnderlyingExchangeRate: 4,
-  fCashToUnderlyingExchangeRate: 5,
-  fCashSettlementRate: 6,
-  fCashSpotRate: 7,
-  PrimeDebtSpotInterestRate: 8,
-  PrimeDebtToUnderlyingExchangeRate: 9,
-  PrimeCashSpotInterestRate: 10,
-  PrimeCashToUnderlyingExchangeRate: 11,
-};
-
 const createUnixSocketPool = () => {
   return Knex({
     client: 'pg',
@@ -45,7 +31,8 @@ const createUnixSocketPool = () => {
 
 function getYieldData(network: Network, block: number) {
   const yields = HistoricalRegistry.getYieldRegistry();
-  return yields.getAllYields(network).map((y) => {
+  const yieldData = yields.getAllYields(network);
+  return yieldData.map((y) => {
     return {
       block_number: block,
       network_id: networkToId[network],
@@ -70,7 +57,7 @@ function getOracleData(network: Network) {
   const allOracles = oracle.getLatestFromAllSubjects(network, 0);
 
   return Array.from(allOracles.values()).map((o) => {
-    const oracleId = oracleTypeToId[o.oracleType];
+    const oracleId = ORACLE_TYPE_TO_ID[o.oracleType];
     if (!oracleId) {
       throw Error(`Unknown oracle ${o.oracleType}`);
     }
@@ -106,32 +93,38 @@ async function main() {
     const yieldData = getYieldData(network, block);
     const oracleData = getOracleData(network);
 
-    const yieldQuery = db
-      .insert(yieldData.flatMap((_) => _))
-      .into('yield_data')
-      .onConflict([
-        'token',
-        'underlying',
-        'debt_token',
-        'network_id',
-        'block_number',
-      ]);
+    const yieldDataFlat = yieldData.flatMap((_) => _);
+    if (yieldDataFlat.length > 0) {
+      const yieldQuery = db
+        .insert(yieldDataFlat)
+        .into('yield_data')
+        .onConflict([
+          'token',
+          'underlying',
+          'debt_token',
+          'network_id',
+          'block_number',
+        ]);
 
-    if (mergeConflicts) {
-      await yieldQuery.merge();
-    } else {
-      await yieldQuery.ignore();
+      if (mergeConflicts) {
+        await yieldQuery.merge();
+      } else {
+        await yieldQuery.ignore();
+      }
     }
 
-    const oracleQuery = db
-      .insert(oracleData.flatMap((_) => _))
-      .into('oracle_data')
-      .onConflict(['base', 'quote', 'oracle_type', 'network', 'timestamp']);
+    const oracleDataFlat = oracleData.flatMap((_) => _);
+    if (oracleDataFlat.length > 0) {
+      const oracleQuery = db
+        .insert(oracleDataFlat)
+        .into('oracle_data')
+        .onConflict(['base', 'quote', 'oracle_type', 'network', 'timestamp']);
 
-    if (mergeConflicts) {
-      await oracleQuery.merge();
-    } else {
-      await oracleQuery.ignore();
+      if (mergeConflicts) {
+        await oracleQuery.merge();
+      } else {
+        await oracleQuery.ignore();
+      }
     }
 
     yieldResults.push(yieldData);

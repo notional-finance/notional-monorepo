@@ -10,13 +10,23 @@ usage_model = "bundled"
 tag = "v1"
 new_classes = ["ViewsDO"]
 
+[[migrations]]
+tag = "v2"
+new_classes = ["YieldRegistryDO"]
+
 [env.dev]
 name = "data-dev"
 durable_objects.bindings = [
-  { name = "VIEWS_DO", class_name = "ViewsDO" }
+  { name = "VIEWS_DO", class_name = "ViewsDO" },
+  { name = "YIELD_REGISTRY_DO", class_name = "YieldRegistryDO" },
 ]
 
 [env.dev.vars]
+NX_ENV = 'dev'
+# This is version that defines the durable object to retreive, increment it to reset
+# the durable object to a clean version
+VERSION = 'v1'
+NX_DATA_URL = 'https://data-dev.notional.finance'
 DATA_SERVICE_URL = 'https://data-service-dot-monitoring-agents.uc.r.appspot.com'
 SUPPORTED_NETWORKS = ['arbitrum', 'all']
 

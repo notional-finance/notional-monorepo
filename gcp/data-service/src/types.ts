@@ -6,6 +6,7 @@ import { Knex } from 'knex';
 export enum BackfillType {
   OracleData = 1,
   GenericData = 2,
+  YieldData = 3,
 }
 
 export enum SourceType {
@@ -22,6 +23,13 @@ export enum ProtocolName {
   NotionalV3 = 'NotionalV3',
   BalancerV2 = 'BalancerV2',
   Curve = 'Curve',
+}
+
+export enum DataType {
+  ORACLE = 'oracles',
+  TOKEN = 'tokens',
+  EXCHANGE = 'exchanges',
+  CONFIG = 'configuration',
 }
 
 export enum Strategy {
@@ -47,6 +55,8 @@ export interface MulticallConfig {
   method: string;
   args?: unknown[];
   outputIndices?: number[];
+  firstBlock?: number;
+  finalBlock?: number;
 }
 
 export interface SubgraphConfig {
@@ -72,6 +82,10 @@ export interface ConfigDefinition {
   tableName: TableName;
   dataConfig: GenericDataConfig | TokenDataConfig;
   network: Network;
+}
+
+export interface ConfigFilter {
+  include: GenericDataConfig[];
 }
 
 export interface MulticallOperation {
@@ -111,7 +125,7 @@ export interface DataContext {
 }
 
 export interface IDataWriter {
-  write(db: Knex, context: DataContext, rows: DataRow[]): Promise<void>;
+  write(db: Knex, context: DataContext, rows: DataRow[]): Promise<any>;
 }
 
 export interface VaultAccount {

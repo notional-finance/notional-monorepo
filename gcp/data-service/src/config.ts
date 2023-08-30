@@ -11,10 +11,10 @@ import {
   SubgraphOperation,
   SubgraphConfig,
   ProtocolName,
+  ConfigFilter,
+  GenericDataConfig,
 } from './types';
 import { GenericDataWriter, TokenBalanceDataWriter } from './DataWriter';
-import { readFileSync } from 'fs';
-import { join } from 'path';
 import { gql } from '@apollo/client';
 import { configDefs as GenericConfig } from './config/GenericConfig';
 import { configDefs as Eth_Balancer_WETH_wstETH_Config } from './config/eth/balancer/WETH_wstETH';
@@ -35,7 +35,7 @@ export const defaultConfigDefs: ConfigDefinition[] = [
 export const defaultGraphEndpoints: Record<string, Record<string, string>> = {
   [ProtocolName.NotionalV3]: {
     [Network.ArbitrumOne]:
-      'https://api.studio.thegraph.com/proxy/33671/notional-finance-v3-arbitrum/v0.0.138',
+      'https://api.studio.thegraph.com/proxy/33671/notional-finance-v3-arbitrum/v0.0.154',
   },
   [ProtocolName.BalancerV2]: {
     [Network.Mainnet]:
@@ -126,11 +126,34 @@ export function getMulticallParams(config: MulticallConfig) {
 }
 
 export function buildOperations(
-  configDefs: ConfigDefinition[]
+  configDefs: ConfigDefinition[],
+  filter?: ConfigFilter
 ): DataOperations {
+  let filteredDefs: ConfigDefinition[] = [];
+  if (!filter) {
+    filteredDefs = configDefs;
+  } else {
+    filteredDefs = configDefs.filter((cfg) => {
+      if (cfg.tableName === TableName.GenericData) {
+        const dataConfig = cfg.dataConfig as GenericDataConfig;
+        if (
+          filter.include.find(
+            (f) =>
+              dataConfig.strategyId === f.strategyId &&
+              dataConfig.variable === f.variable &&
+              dataConfig.decimals === f.decimals
+          )
+        ) {
+          return true;
+        }
+      }
+      return false;
+    });
+  }
+
   const aggregateCalls = new Map<Network, MulticallOperation[]>();
   const subgraphCalls = new Map<Network, SubgraphOperation[]>();
-  configDefs.forEach((cfg) => {
+  filteredDefs.forEach((cfg) => {
     if (cfg.sourceType === SourceType.Multicall) {
       const configData = cfg.sourceConfig as MulticallConfig;
       const params = getMulticallParams(configData);
@@ -168,13 +191,9 @@ export function buildOperations(
       if (!endpoint) {
         throw Error(`subgraph ${endpoint} not found`);
       }
-      const query = readFileSync(
-        join(__dirname, '../queries', configData.query),
-        'utf-8'
-      );
       operations.push({
         configDef: cfg,
-        subgraphQuery: gql(query),
+        subgraphQuery: gql(configData.query),
         endpoint: endpoint,
       });
     } else {

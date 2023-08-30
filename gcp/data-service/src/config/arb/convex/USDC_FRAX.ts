@@ -12,6 +12,7 @@ import {
   CurvePoolTokenABI,
   CurvePoolV1ABI,
 } from '@notional-finance/contracts';
+import { graphQueries } from '../../../graphQueries';
 
 export const configDefs: ConfigDefinition[] = [
   {
@@ -158,7 +159,7 @@ export const configDefs: ConfigDefinition[] = [
     sourceType: SourceType.Subgraph,
     sourceConfig: {
       protocol: ProtocolName.Curve,
-      query: 'CurveSwapFee.graphql',
+      query: graphQueries.CurveSwapFee,
       args: {
         poolId: '0xc9b8a3fdecb9d5b218d02555a8baf332e5b740d5',
       },

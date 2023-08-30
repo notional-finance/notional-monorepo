@@ -29,10 +29,20 @@ const createUnixSocketPool = () => {
 };
 
 const parseQueryParams = (q) => {
-  const startTime = parseInt((q.startTime as string) || '0');
-  let endTime = Date.now() / 1000;
+  const now = Date.now() / 1000;
+  let startTime = now;
+  if (q.startTime) {
+    startTime = parseInt(q.startTime as string);
+    if (startTime > now) {
+      startTime = now;
+    }
+  }
+  let endTime = now;
   if (q.endTime) {
     endTime = parseInt(q.endTime as string);
+    if (endTime > now) {
+      endTime = now;
+    }
   }
   if (endTime < startTime) {
     throw Error('endTime must be greater than startTime');
@@ -54,6 +64,9 @@ async function main() {
   if (!process.env.REGISTRY_BASE_URL) {
     throw Error('Registry URL not defined');
   }
+  if (!process.env.DATA_BASE_URL) {
+    throw Error('Data URL not defined');
+  }
 
   const db = createUnixSocketPool();
   const provider = getProviderFromNetwork(Network[process.env.NETWORK], true);
@@ -69,7 +82,9 @@ async function main() {
     frequency: 3600, // Hourly
     startingBlock: 86540848, // Oldest block in the subgraph
     registryUrl: process.env.REGISTRY_BASE_URL,
+    dataUrl: process.env.DATA_BASE_URL,
     mergeConflicts: JSON.parse(process.env.MERGE_CONFLICTS || 'false'),
+    backfillDelayMs: 5000,
   });
 
   app.use(express.json());
@@ -118,6 +133,20 @@ async function main() {
     }
   });
 
+  app.get('/backfillYieldData', async (req, res) => {
+    try {
+      const params = parseQueryParams(req.query);
+      await dataService.backfill(
+        params.startTime,
+        params.endTime,
+        BackfillType.YieldData
+      );
+      res.send('OK');
+    } catch (e: any) {
+      res.status(500).send(e.toString());
+    }
+  });
+
   app.get('/backfillGenericData', async (req, res) => {
     try {
       const params = parseQueryParams(req.query);
@@ -137,6 +166,18 @@ async function main() {
       res.send(
         JSON.stringify(
           await dataService.syncOracleData(dataService.latestTimestamp())
+        )
+      );
+    } catch (e: any) {
+      res.status(500).send(e.toString());
+    }
+  });
+
+  app.get('/syncYieldData', async (_, res) => {
+    try {
+      res.send(
+        JSON.stringify(
+          await dataService.syncYieldData(dataService.latestTimestamp())
         )
       );
     } catch (e: any) {
@@ -237,7 +278,13 @@ async function main() {
         res.status(400).send('View required');
       }
       res.send(
-        JSON.stringify(await dataService.getView(view as string, params.limit))
+        JSON.stringify(
+          await dataService.getView(
+            params.network,
+            view as string,
+            params.limit
+          )
+        )
       );
     } catch (e: any) {
       res.status(500).send(e.toString());

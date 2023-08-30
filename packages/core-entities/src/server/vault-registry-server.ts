@@ -8,6 +8,7 @@ import {
 } from '@notional-finance/contracts';
 import { Contract } from 'ethers';
 import { TokenBalance } from '../token-balance';
+import { vaultOverrides } from './vault-overrides';
 
 export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
   protected async _refresh(network: Network, blockNumber?: number) {
@@ -21,6 +22,24 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
 
     const calls = data['data'].vaultConfigurations.map(
       ({ vaultAddress }: { vaultAddress: string }) => {
+        const override = vaultOverrides[vaultAddress];
+        if (override) {
+          const bn = data['data']._meta.block.number as number;
+          const func = override.find((o) => {
+            if (o.fromBlock && (blockNumber || bn) < o.fromBlock) {
+              return false;
+            }
+            if (o.toBlock && (blockNumber || bn) > o.toBlock) {
+              return false;
+            }
+            return true;
+          });
+
+          if (func) {
+            return func.getVaultInfo(network, vaultAddress);
+          }
+        }
+
         return {
           target: new Contract(
             vaultAddress,

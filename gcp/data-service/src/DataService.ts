@@ -1,8 +1,21 @@
 import ethers, { BigNumber } from 'ethers';
 import { Knex } from 'knex';
-import { Network, getProviderFromNetwork } from '@notional-finance/util';
+import {
+  Network,
+  getProviderFromNetwork,
+  isIdiosyncratic,
+  ORACLE_TYPE_TO_ID,
+  ONE_HOUR_MS,
+  RATE_DECIMALS,
+  RATE_PRECISION,
+} from '@notional-finance/util';
+import {
+  AccountFetchMode,
+  TokenBalance,
+  TokenType,
+  fCashMarket,
+} from '@notional-finance/core-entities';
 import { fetch } from 'cross-fetch';
-import { URLSearchParams } from 'url';
 import {
   buildOperations,
   defaultConfigDefs,
@@ -10,6 +23,7 @@ import {
 } from './config';
 import {
   BackfillType,
+  DataType,
   DataRow,
   MulticallConfig,
   MulticallOperation,
@@ -19,7 +33,8 @@ import {
   VaultAccount,
 } from './types';
 import { aggregate } from '@notional-finance/multicall';
-import { ApolloClient, InMemoryCache } from '@apollo/client';
+import { ApolloClient, HttpLink, InMemoryCache } from '@apollo/client';
+import { HistoricalRegistry } from './HistoricalRegistry';
 
 // TODO: fetch from DB
 const networkToId = {
@@ -27,17 +42,8 @@ const networkToId = {
   arbitrum: 2,
 };
 
-// TODO: fetch from DB
-const oracleTypeToId = {
-  Chainlink: 1,
-  VaultShareOracleRate: 2,
-  fCashOracleRate: 3,
-  nTokenToUnderlyingExchangeRate: 4,
-  fCashToUnderlyingExchangeRate: 5,
-  fCashSettlementRate: 6,
-};
-
 export type DataServiceSettings = {
+  // TODO: support multiple networks
   network: Network;
   blocksPerSecond: Record<string, number>;
   maxProviderRequests: number;
@@ -45,11 +51,12 @@ export type DataServiceSettings = {
   frequency: number; // hourly, daily etc.
   startingBlock: number;
   registryUrl: string;
+  dataUrl: string;
   mergeConflicts: boolean;
+  backfillDelayMs: number;
 };
 
 export default class DataService {
-  public static readonly REGISTER_TYPE = 'oracles';
   public static readonly TS_BN_MAPPINGS_TABLE_NAME = 'ts_bn_mappings';
   public static readonly ORACLE_DATA_TABLE_NAME = 'oracle_data';
   public static readonly ACCOUNTS_TABLE_NAME = 'accounts';
@@ -75,11 +82,11 @@ export default class DataService {
   }
 
   public oracleTypeToId(oracleType: string) {
-    return oracleTypeToId[oracleType];
+    return ORACLE_TYPE_TO_ID[oracleType];
   }
 
   public idToOracleType(id: number) {
-    return this.getKeyByValue(oracleTypeToId, id);
+    return this.getKeyByValue(ORACLE_TYPE_TO_ID, id);
   }
 
   public latestTimestamp() {
@@ -116,12 +123,26 @@ export default class DataService {
     type: BackfillType
   ) {
     const timestamps = this.getTimestamps(startTime, endTime);
-    if (type === BackfillType.GenericData) {
-      await Promise.all(timestamps.map((ts) => this.syncGenericData(ts)));
-    } else if (type === BackfillType.OracleData) {
-      await Promise.all(timestamps.map((ts) => this.syncOracleData(ts)));
-    } else {
-      throw Error(`Invalid backfill type ${type}`);
+    console.log(
+      `backfilling from ${startTime} to ${endTime}, ${timestamps.length} timestamps`
+    );
+    for (let i = 0; i < timestamps.length; i++) {
+      const ts = timestamps[i];
+      console.log(`backfilling ${ts}`);
+      try {
+        if (type === BackfillType.GenericData) {
+          await this.syncGenericData(ts);
+        } else if (type === BackfillType.OracleData) {
+          await this.syncOracleData(ts);
+        } else if (type === BackfillType.YieldData) {
+          await this.syncYieldData(ts);
+        } else {
+          throw Error(`Invalid backfill type ${type}`);
+        }
+      } catch (e: any) {
+        console.error(`Failed to backfill ${ts}, ${e.toString()}`);
+      }
+      await new Promise((r) => setTimeout(r, this.settings.backfillDelayMs));
     }
   }
 
@@ -157,10 +178,9 @@ export default class DataService {
   }
 
   public async syncOracleData(ts: number) {
-    const blockNumber = await this.getBlockNumberFromTs(
-      this.settings.network,
-      ts
-    );
+    const network = Network.ArbitrumOne;
+
+    const blockNumber = await this.getBlockNumberFromTs(network, ts);
 
     // Get data using block number
     if (blockNumber < this.settings.startingBlock) {
@@ -168,35 +188,228 @@ export default class DataService {
       return;
     }
 
-    const data = await this.getRegistryData(blockNumber);
+    const values = await this.getData(network, blockNumber, DataType.ORACLE);
 
-    // Store data in DB
-    const values = data.filter(
-      (d) =>
-        this.oracleTypeToId(d[1].oracleType) && this.networkToId(d[1].network)
+    if (values.length > 0) {
+      const query = this.db
+        .insert(
+          values.map((v) => ({
+            base: v[1].base,
+            quote: v[1].quote,
+            oracle_type: this.oracleTypeToId(v[1].oracleType),
+            network: this.networkToId(v[1].network),
+            timestamp: ts,
+            block_number: blockNumber,
+            decimals: v[1].decimals,
+            oracle_address: v[1].oracleAddress,
+            latest_rate: BigNumber.from(v[1].latestRate.rate.hex).toString(),
+          }))
+        )
+        .into(DataService.ORACLE_DATA_TABLE_NAME)
+        .onConflict(['base', 'quote', 'oracle_type', 'network', 'timestamp']);
+
+      if (this.settings.mergeConflicts) {
+        await query.merge();
+      } else {
+        await query.ignore();
+      }
+    }
+
+    return blockNumber;
+  }
+
+  private async _getTvl(
+    network: Network,
+    block: ethers.ethers.providers.Block,
+    tokenType: TokenType
+  ) {
+    const tokens = HistoricalRegistry.getTokenRegistry();
+    const exchanges = HistoricalRegistry.getExchangeRegistry();
+    const allTokens = tokens.getAllTokens(network);
+
+    return allTokens
+      .filter(
+        (t) =>
+          t.tokenType === tokenType &&
+          (t.maturity ? t.maturity > block.timestamp : true)
+      )
+      .map((t) => {
+        if (!t.currencyId) throw Error('Missing currency id');
+        if (!t.underlying) throw Error(`Token has no underlying`);
+        const market = exchanges.getfCashMarket(network, t.currencyId);
+        const interestAPY = market.getSpotInterestRate(t) || 0;
+        const underlying = tokens.getTokenByID(network, t.underlying);
+
+        return {
+          token: t,
+          tvl: t.totalSupply?.toUnderlying() || TokenBalance.zero(underlying),
+          totalAPY: interestAPY,
+          interestAPY,
+        };
+      });
+  }
+
+  private async _getFCashTvl(
+    network: Network,
+    block: ethers.ethers.providers.Block
+  ) {
+    const tokens = HistoricalRegistry.getTokenRegistry();
+    const exchanges = HistoricalRegistry.getExchangeRegistry();
+
+    const fCashData = await this._getTvl(network, block, 'fCash');
+
+    fCashData
+      .filter(
+        (y) =>
+          y.token.isFCashDebt === false &&
+          !!y.token.maturity &&
+          !isIdiosyncratic(y.token.maturity)
+      )
+      .map((y) => {
+        if (!y.token.maturity) throw Error();
+
+        const nToken = tokens.getNToken(network, y.token.currencyId);
+        const fCashMarket = exchanges.getPoolInstance<fCashMarket>(
+          network,
+          nToken.address
+        );
+        const marketIndex = fCashMarket.getMarketIndex(y.token.maturity);
+        const pCash = fCashMarket.balances[marketIndex];
+        const fCash = fCashMarket.poolParams.perMarketfCash[marketIndex - 1];
+        // Adds the prime cash value in the nToken to the fCash TVL
+        return Object.assign(y, {
+          tvl: fCash.toUnderlying().add(pCash.toUnderlying()),
+        });
+      });
+
+    return fCashData;
+  }
+
+  private _convertRatioToYield(num: TokenBalance, denom: TokenBalance) {
+    if (num.isZero()) return 0;
+
+    return (
+      (num.toToken(denom.token).ratioWith(denom).toNumber() * 100) /
+      RATE_PRECISION
+    );
+  }
+
+  public async _getNTokenTvl(network: Network, yields: any) {
+    const exchanges = HistoricalRegistry.getExchangeRegistry();
+    const config = HistoricalRegistry.getConfigurationRegistry();
+    const tokens = HistoricalRegistry.getTokenRegistry();
+
+    return tokens
+      .getAllTokens(network)
+      .filter((t) => t.tokenType === 'nToken')
+      .map((t) => {
+        const fCashMarket = exchanges.getPoolInstance<fCashMarket>(
+          network,
+          t.address
+        );
+        if (!t.underlying) throw Error('underlying not defined');
+        const underlying = tokens.getTokenByID(network, t.underlying);
+
+        const annualizedNOTEIncentives = config.getAnnualizedNOTEIncentives(t);
+        const nTokenTVL = fCashMarket.totalValueLocked(0);
+
+        // Total fees over the last week divided by the total value locked
+        const incentiveAPY = this._convertRatioToYield(
+          annualizedNOTEIncentives,
+          nTokenTVL
+        );
+
+        const { numerator, denominator } = fCashMarket.balances
+          .map((b) => {
+            const underlying = b.toUnderlying();
+            const apy = yields.find((y) => y.token.id === b.tokenId)?.totalAPY;
+            if (apy === undefined) {
+              throw Error(`${b.symbol} yield not found`);
+            }
+
+            // Blended yield is the weighted average of the APYs
+            return {
+              numerator: underlying
+                .mulInRatePrecision(Math.floor(apy * RATE_PRECISION))
+                .scaleTo(RATE_DECIMALS),
+              denominator: underlying.scaleTo(RATE_DECIMALS),
+            };
+          })
+          .reduce(
+            (r, { numerator, denominator }) => ({
+              numerator: r.numerator + numerator.toNumber(),
+              denominator: r.denominator + denominator.toNumber(),
+            }),
+            { numerator: 0, denominator: 0 }
+          );
+        const interestAPY = numerator / denominator;
+
+        return {
+          token: t,
+          tvl: t.totalSupply?.toUnderlying() || TokenBalance.zero(underlying),
+          totalAPY: incentiveAPY + interestAPY,
+          interestAPY,
+        };
+      });
+  }
+
+  public async syncYieldData(ts: number) {
+    // TODO: support multiple networks here
+    const network = Network.ArbitrumOne;
+
+    const blockNumber = await this.getBlockNumberFromTs(network, ts);
+
+    // Get data using block number
+    if (blockNumber < this.settings.startingBlock) {
+      // too old
+      return;
+    }
+
+    HistoricalRegistry.initialize(
+      'https://data-dev.notional-finance.workers.dev',
+      AccountFetchMode.BATCH_ACCOUNT_VIA_SERVER
     );
 
-    const query = this.db
-      .insert(
-        values.map((v) => ({
-          base: v[1].base,
-          quote: v[1].quote,
-          oracle_type: this.oracleTypeToId(v[1].oracleType),
-          network: this.networkToId(v[1].network),
-          timestamp: ts,
-          block_number: blockNumber,
-          decimals: v[1].decimals,
-          oracle_address: v[1].oracleAddress,
-          latest_rate: BigNumber.from(v[1].latestRate.rate.hex).toString(),
-        }))
-      )
-      .into(DataService.ORACLE_DATA_TABLE_NAME)
-      .onConflict(['base', 'quote', 'oracle_type', 'network', 'timestamp']);
+    await HistoricalRegistry.refreshAtBlock(network, blockNumber);
+    const block = await this.provider.getBlock(blockNumber);
 
-    if (this.settings.mergeConflicts) {
-      await query.merge();
-    } else {
-      await query.ignore();
+    const primeCashTvl = await this._getTvl(network, block, 'PrimeCash');
+    const fCashTvl = await this._getFCashTvl(network, block);
+    const yields = primeCashTvl.concat(fCashTvl);
+    const nTokenTvl = await this._getNTokenTvl(network, yields);
+
+    const yieldData = primeCashTvl.concat(fCashTvl).concat(nTokenTvl);
+
+    if (yieldData.length > 0) {
+      const yieldQuery = this.db
+        .insert(
+          yieldData.map((y) => {
+            return {
+              block_number: blockNumber,
+              network_id: networkToId[network],
+              token: y.token.id,
+              total_value_locked: y.tvl.toExactString(),
+              underlying: y.tvl.tokenId,
+              total_apy: y.totalAPY,
+              interest_apy: y.interestAPY,
+              debt_token: '',
+            };
+          })
+        )
+        .into('yield_data')
+        .onConflict([
+          'token',
+          'underlying',
+          'debt_token',
+          'network_id',
+          'block_number',
+        ]);
+
+      if (this.settings.mergeConflicts) {
+        await yieldQuery.merge();
+      } else {
+        await yieldQuery.ignore();
+      }
     }
 
     return blockNumber;
@@ -210,10 +423,20 @@ export default class DataService {
   ) {
     const blockNumber = await this.getBlockNumberFromTs(network, ts);
     const provider = getProviderFromNetwork(network, true);
-    const calls = operations.map((op) => op.aggregateCall);
+    const filteredOps = operations.filter((op) => {
+      const sourceConfig = op.configDef.sourceConfig as MulticallConfig;
+      if (sourceConfig.firstBlock && blockNumber < sourceConfig.firstBlock) {
+        return false;
+      }
+      if (sourceConfig.finalBlock && blockNumber > sourceConfig.finalBlock) {
+        return false;
+      }
+      return true;
+    });
+    const calls = filteredOps.map((op) => op.aggregateCall);
     const response = await aggregate(calls, provider, blockNumber, true);
 
-    operations.forEach((op) => {
+    filteredOps.forEach((op) => {
       let values = dbData.get(op.configDef.tableName);
       if (!values) {
         values = [];
@@ -242,7 +465,10 @@ export default class DataService {
     const results = await Promise.all(
       operations.map((op) => {
         const client = new ApolloClient({
-          uri: op.endpoint,
+          link: new HttpLink({
+            uri: op.endpoint,
+            fetch,
+          }),
           cache: new InMemoryCache(),
         });
 
@@ -251,6 +477,8 @@ export default class DataService {
           query: op.subgraphQuery,
           variables: {
             ts: ts,
+            dayStart: ts - (ONE_HOUR_MS * 24) / 1000,
+            hourStart: ts - ONE_HOUR_MS / 1000,
             ...(sourceConfig.args || {}),
           },
         });
@@ -318,13 +546,13 @@ export default class DataService {
     );
   }
 
-  private async getRegistryData(blockNumber: number) {
+  private async getData(
+    network: Network,
+    blockNumber: number,
+    dataType: DataType
+  ) {
     const resp = await fetch(
-      `${this.settings.registryUrl}/${DataService.REGISTER_TYPE}?` +
-        new URLSearchParams({
-          network: this.settings.network,
-          blockNumber: blockNumber.toString(),
-        })
+      `${this.settings.dataUrl}/${network}/${dataType}/${blockNumber}`
     );
 
     return (await resp.json()).values;
@@ -394,8 +622,10 @@ export default class DataService {
       .where('network_id', this.networkToId(network));
   }
 
-  public async getView(view: string, limit?: number) {
-    const select = this.db.select().from(view);
+  public async getView(network: Network, view: string, limit?: number) {
+    const select = this.db
+      .select()
+      .from(`n${this.networkToId(network)}_${view}`);
     if (limit) {
       return select.limit(limit);
     }

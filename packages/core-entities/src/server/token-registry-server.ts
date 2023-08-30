@@ -30,6 +30,7 @@ export class TokenRegistryServer extends ServerRegistry<SerializedToken> {
 
     const { AllTokensDocument, AllTokensByBlockDocument } =
       await loadGraphClientDeferred();
+
     return this._fetchUsingGraph(
       network,
       (blockNumber !== undefined

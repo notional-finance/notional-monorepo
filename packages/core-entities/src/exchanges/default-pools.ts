@@ -78,12 +78,14 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
       address: '0x6F6603F12af215bDba1f55f643e098530DD45B8F',
       PoolClass: 'fCashMarket',
       registerTokens: [],
+      earliestBlock: 123855493,
     },
     {
       // nUSDT
       address: '0x9c0Fbb8caDE7B178b135fD2F1da125a37B27f442',
       PoolClass: 'fCashMarket',
       registerTokens: [],
+      earliestBlock: 123865068,
     },
     {
       address: '0xC9B8a3FDECB9D5b218d02555a8Baf332E5B740d5',

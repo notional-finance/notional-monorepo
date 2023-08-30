@@ -13,8 +13,6 @@ import { fetch as fetchFn } from '@whatwg-node/fetch';
 import { MeshResolvedSource } from '@graphql-mesh/runtime';
 import { MeshTransform, MeshPlugin } from '@graphql-mesh/types';
 import GraphqlHandler from "@graphql-mesh/graphql"
-import BlockTrackingTransform from "@graphprotocol/client-block-tracking";
-import AutoPaginationTransform from "@graphprotocol/client-auto-pagination";
 import BareMerger from "@graphql-mesh/merger-bare";
 import { printWithCache } from '@graphql-mesh/utils';
 import { createMeshHTTPHandler, MeshHTTPHandler } from '@graphql-mesh/http';
@@ -6771,24 +6769,6 @@ const notionalV3Handler = new GraphqlHandler({
               logger: logger.child("NotionalV3"),
               importFn,
             });
-notionalV3Transforms[0] = new BlockTrackingTransform({
-                  apiName: "NotionalV3",
-                  config: {"validateSchema":false},
-                  baseDir,
-                  cache,
-                  pubsub,
-                  importFn,
-                  logger,
-                });
-notionalV3Transforms[1] = new AutoPaginationTransform({
-                  apiName: "NotionalV3",
-                  config: {"validateSchema":false},
-                  baseDir,
-                  cache,
-                  pubsub,
-                  importFn,
-                  logger,
-                });
 sources[0] = {
           name: 'NotionalV3',
           handler: notionalV3Handler,
@@ -7270,7 +7250,7 @@ export const AllConfigurationByBlockDocument = gql`
     pvHaircutPercentage
     liquidationHaircutPercentage
   }
-  vaultConfigurations {
+  vaultConfigurations(where: {enabled: true}, block: {number: $blockNumber}) {
     id
     vaultAddress
     strategy
@@ -7316,7 +7296,7 @@ export const AllOraclesDocument = gql`
     query AllOracles {
   oracles(
     where: {oracleType_in: [Chainlink, fCashOracleRate, fCashSettlementRate, PrimeCashToUnderlyingExchangeRate, PrimeDebtToUnderlyingExchangeRate, VaultShareOracleRate, nTokenToUnderlyingExchangeRate, PrimeCashPremiumInterestRate, PrimeDebtPremiumInterestRate, PrimeCashExternalLendingInterestRate, fCashSpotRate, PrimeCashToUnderlyingOracleInterestRate, fCashToUnderlyingExchangeRate], matured: false}
-    first: 5000
+    first: 1000
   ) {
     id
     lastUpdateBlockNumber
@@ -7346,7 +7326,7 @@ export const AllOraclesByBlockDocument = gql`
     query AllOraclesByBlock($blockNumber: Int) {
   oracles(
     where: {oracleType_in: [Chainlink, fCashOracleRate, fCashSettlementRate, PrimeCashToUnderlyingExchangeRate, PrimeDebtToUnderlyingExchangeRate, VaultShareOracleRate, nTokenToUnderlyingExchangeRate, PrimeCashPremiumInterestRate, PrimeDebtPremiumInterestRate, PrimeCashExternalLendingInterestRate, fCashSpotRate, PrimeCashToUnderlyingOracleInterestRate, fCashToUnderlyingExchangeRate], matured: false}
-    first: 5000
+    first: 1000
     block: {number: $blockNumber}
   ) {
     id
@@ -7403,7 +7383,7 @@ export const AllTokensDocument = gql`
     ` as unknown as DocumentNode<AllTokensQuery, AllTokensQueryVariables>;
 export const AllTokensByBlockDocument = gql`
     query AllTokensByBlock($blockNumber: Int) {
-  tokens(first: 5000, block: {number: $blockNumber}) {
+  tokens(first: 1000, block: {number: $blockNumber}) {
     id
     tokenType
     tokenInterface
