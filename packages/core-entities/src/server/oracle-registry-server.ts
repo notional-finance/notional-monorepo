@@ -221,21 +221,23 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
           oracle.oracleType === 'PrimeCashPremiumInterestRate' ||
           oracle.oracleType === 'PrimeDebtPremiumInterestRate'
         ) {
-          return null;
-          // TODO: doesn't work currently due to upgraded contracts, re-enable once ABI is versioned
-          /*return {
-            key: id,
-            target: notional,
-            method: 'getPrimeInterestRate',
-            args: [oracle.quoteCurrencyId],
-            transform: (
-              r: Awaited<ReturnType<NotionalV3['getPrimeInterestRate']>>
-            ) => {
-              return oracle.oracleType === 'PrimeCashPremiumInterestRate'
-                ? r.annualSupplyRate
-                : r.annualDebtRatePostFee;
-            },
-          };*/
+          if (JSON.parse(process.env['HAS_ABI_VERSIONING'] || 'false')) {
+            return {
+              key: id,
+              target: notional,
+              method: 'getPrimeInterestRate',
+              args: [oracle.quoteCurrencyId],
+              transform: (
+                r: Awaited<ReturnType<NotionalV3['getPrimeInterestRate']>>
+              ) => {
+                return oracle.oracleType === 'PrimeCashPremiumInterestRate'
+                  ? r.annualSupplyRate
+                  : r.annualDebtRatePostFee;
+              },
+            };
+          } else {
+            return null;
+          }
         } else if (oracle.oracleType === 'nTokenToUnderlyingExchangeRate') {
           return {
             key: id,
