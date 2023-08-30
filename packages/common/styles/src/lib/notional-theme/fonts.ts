@@ -95,4 +95,10 @@ export const NotionalFonts = `
     font-family:"Avenir-Next";
     src:url("/assets/fonts/6383963/1917b96e-b7c6-4640-808c-dbbba691a4da.woff2") format("woff2"),url("/assets/fonts/6383963/844134a2-b67e-4572-9d0d-abe01e9a120e.woff") format("woff");
 }
+@font-face{
+    font-style: normal;
+    font-weight: 400;
+    font-family:"Kunst";
+    src:url("/assets/fonts/5414277578922/Kunst-72Regular.woff2") format("woff2"),url("/assets/fonts/5414277578922/Kunst-72Regular.woff") format("woff");
+}
 `;

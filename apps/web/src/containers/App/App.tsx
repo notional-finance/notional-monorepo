@@ -14,7 +14,7 @@ import LandingPageLayoutRoute from './layouts/LandingPageLayoutRoute';
 import { OnboardContext } from '@notional-finance/wallet';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-
+import { ScrollToTop } from '@notional-finance/mui';
 import { getDefaultNetworkFromHostname } from '@notional-finance/util';
 import { useConnect } from '@notional-finance/wallet/hooks/use-connect';
 import { useNotionalTheme } from '@notional-finance/styles';
@@ -49,6 +49,11 @@ import {
 import { TermsView } from '../../containers/TermsView';
 import { PrivacyView } from '../../containers/PrivacyView';
 import { LandingPageView } from '../../containers/LandingPageView';
+import {
+  ContestHome,
+  ContestRules,
+  ContestLeaderBoard,
+} from '../../containers/TradingContest';
 import { Markets } from '../Markets';
 
 const AllRoutes = () => {
@@ -147,6 +152,12 @@ const AllRoutes = () => {
           <AppLayoutRoute path="/portfolio" component={PortfolioFeatureShell} />
           <AppLayoutRoute path="/markets" component={Markets} />
           <AppLayoutRoute path="/error" component={ServerError} />
+          <AppLayoutRoute path="/contest" component={ContestHome} />
+          <AppLayoutRoute path="/contest-rules" component={ContestRules} />
+          <AppLayoutRoute
+            path="/contest-leaderboard"
+            component={ContestLeaderBoard}
+          />
           <LandingPageLayoutRoute path="/about" component={AboutUsView} />
           {/* <AppLayoutRoute path="/stake/:ethOrWeth" component={StakeView} />
           <AppLayoutRoute path="/stake" component={StakeView} />
@@ -181,6 +192,7 @@ export const App = () => {
       <CssBaseline />
       <NotionalContext.Provider value={globalState}>
         <Web3OnboardProvider web3Onboard={OnboardContext}>
+          <ScrollToTop />
           <AllRoutes />
         </Web3OnboardProvider>
       </NotionalContext.Provider>
