@@ -28,6 +28,7 @@ export { IStrategyVault__factory } from "./IStrategyVault__factory";
 export { MetaStable2TokenAuraVault__factory } from "./MetaStable2TokenAuraVault__factory";
 export { Multicall2__factory } from "./Multicall2__factory";
 export { Multicall3__factory } from "./Multicall3__factory";
+export { NftContract__factory } from "./NftContract__factory";
 export { NoteERC20__factory } from "./NoteERC20__factory";
 export { Notional__factory } from "./Notional__factory";
 export { NotionalV3__factory } from "./NotionalV3__factory";
