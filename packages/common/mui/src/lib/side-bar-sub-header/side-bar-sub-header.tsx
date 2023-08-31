@@ -1,4 +1,4 @@
-import { useTheme, Box, styled } from '@mui/material';
+import { useTheme, Box, styled, SxProps } from '@mui/material';
 import { ArrowIcon } from '@notional-finance/icons';
 import { FormattedMessage, MessageDescriptor } from 'react-intl';
 import { NotionalTheme } from '@notional-finance/styles';
@@ -6,9 +6,10 @@ import { H4 } from '../typography/typography';
 
 /* eslint-disable-next-line */
 export interface SideBarSubHeaderProps {
-  callback: (event?: MouseEvent | KeyboardEvent) => void;
+  callback: () => void;
   titleText?: MessageDescriptor;
   paddingTop?: string;
+  sx?: SxProps;
 }
 
 interface ContainerProps {
@@ -20,10 +21,11 @@ export function SideBarSubHeader({
   callback,
   titleText,
   paddingTop,
+  sx,
 }: SideBarSubHeaderProps) {
   const theme = useTheme();
   return (
-    <Container paddingTop={paddingTop} theme={theme}>
+    <Container paddingTop={paddingTop} theme={theme} sx={{ ...sx }}>
       <ContentWrapper onClick={() => callback()}>
         <ArrowIcon
           sx={{

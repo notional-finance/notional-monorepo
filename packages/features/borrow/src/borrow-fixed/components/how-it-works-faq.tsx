@@ -26,7 +26,7 @@ export const HowItWorksFaq = ({ tokenSymbol }: HowItWorksFaqProps) => {
           >
             <BodyText>
               <FormattedMessage
-                defaultMessage={`To borrow {tokenSymbol} at a fixed rate, you will mint f{tokenSymbol}and swap it on one of Notional’s fixed rate liquidity pools in exchange for {tokenSymbol}.`}
+                defaultMessage={`To borrow {tokenSymbol} at a fixed rate, you will mint f{tokenSymbol} and swap it on one of Notional’s fixed rate liquidity pools in exchange for {tokenSymbol}.`}
                 values={{
                   tokenSymbol,
                 }}
