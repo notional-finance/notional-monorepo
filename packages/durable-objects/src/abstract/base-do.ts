@@ -1,6 +1,6 @@
 import { DurableObjectState } from '@cloudflare/workers-types';
 import { BaseDOEnv } from '.';
-import { Logger } from '@notional-finance/logging';
+import { Logger } from '../logger';
 import zlib from 'zlib';
 
 export abstract class BaseDO<E extends BaseDOEnv> {

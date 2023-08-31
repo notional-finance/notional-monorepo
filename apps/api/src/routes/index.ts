@@ -13,12 +13,13 @@ function _handler(request: IRequest, ns: DurableObjectNamespace, name: string) {
   return stub.fetch(request as unknown as CFRequest);
 }
 
-const handleKPIs = (request: IRequest, env: APIEnv) => {
-  return _handler(request, env.KPIS_DO, env.KPIS_NAME);
+const handleKPIs = (_request: IRequest, _env: APIEnv) => {
+  throw Error('Unimplemented');
+  // return _handler(request, env.KPIS_DO, env.KPIS_NAME);
 };
 
 const handleYields = (request: IRequest, env: APIEnv) => {
-  return _handler(request, env.YIELD_REGISTRY_DO, env.YIELDS_NAME);
+  return _handler(request, env.YIELD_REGISTRY_DO, env.VERSION);
 };
 
 const handleTokens = (request: IRequest, env: APIEnv) => {
@@ -90,7 +91,6 @@ export {
   handleGeoIP,
   handleNewsletter,
   handleYields,
-  handleAccounts,
   handleTokens,
   handleConfigurations,
   handleOracles,

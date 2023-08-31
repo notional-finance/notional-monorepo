@@ -7,11 +7,7 @@ import {
   NotionalV3ABI,
   VaultLiquidator__factory,
 } from '@notional-finance/contracts';
-import {
-  DDEventAlertType,
-  DDEventKey,
-  submitEvent,
-} from '@notional-finance/logging';
+import { Logger } from '@notional-finance/durable-objects';
 
 export type LiquidatorSettings = {
   network: string;
@@ -39,7 +35,8 @@ export default class VaultV3Liquidator {
 
   constructor(
     public provider: ethers.providers.Provider,
-    public settings: LiquidatorSettings
+    public settings: LiquidatorSettings,
+    private logger: Logger
   ) {
     this.liquidatorContract = new ethers.Contract(
       this.settings.flashLiquidatorAddress,
@@ -328,9 +325,9 @@ export default class VaultV3Liquidator {
       body: payload,
     });
 
-    await submitEvent({
-      aggregation_key: DDEventKey.AccountLiquidated,
-      alert_type: DDEventAlertType.info,
+    await this.logger.submitEvent({
+      aggregation_key: 'AccountLiquidated',
+      alert_type: 'info',
       title: `Account liquidated`,
       tags: [
         `account:${accountLiq.account.id}`,

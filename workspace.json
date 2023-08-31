@@ -19,7 +19,6 @@
     "features-portfolio": "packages/features/portfolio",
     "features-vault": "packages/features/vault",
     "liquidation-bot": "apps/liquidation-bot",
-    "logging": "packages/logging",
     "multicall": "packages/multicall",
     "notionable": "packages/notionable",
     "registry": "apps/registry",

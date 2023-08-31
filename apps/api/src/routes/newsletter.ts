@@ -1,12 +1,6 @@
-import {
-  DDEventAlertType,
-  DDEventKey,
-  initEventLogger,
-  submitEvent,
-} from '@notional-finance/logging';
 import { Request as CFRequest } from '@cloudflare/workers-types';
 import { IRequest } from 'itty-router';
-import { APIEnv } from '..';
+import { APIEnv, Logger } from '@notional-finance/durable-objects';
 
 // NOTE: this posts to Netlify because the Cloudflare worker environment is not compatible
 // with jsonwebtoken signing.
@@ -31,10 +25,15 @@ export async function handleNewsletter(_request: IRequest, env: APIEnv) {
       throw Error(await resp.text());
     }
   } catch (err) {
-    initEventLogger({ apiKey: env.NX_DD_API_KEY });
-    submitEvent({
-      aggregation_key: DDEventKey.NewsletterSubmitFailure,
-      alert_type: DDEventAlertType.error,
+    const logger = new Logger({
+      apiKey: env.NX_DD_API_KEY,
+      version: env.NX_COMMIT_REF,
+      env: env.NX_ENV,
+      service: 'newsletter',
+    });
+    logger.submitEvent({
+      aggregation_key: 'NewsletterSubmitFailure',
+      alert_type: 'error',
       title: 'Newsletter Submit Failure',
       tags: ['newsletter', 'api-worker'],
       text: JSON.stringify({ error: err.toString() }),

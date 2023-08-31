@@ -5,7 +5,6 @@ import {
   handleConfigurations,
   handleExchanges,
   handleGeoIP,
-  handleKPIs,
   handleNewsletter,
   handleOracles,
   handleTokens,
@@ -15,6 +14,7 @@ import {
   handleNFT,
   handleDataDogForward,
   handlePlausibleForward,
+  handleKPIs,
 } from './routes';
 
 export {

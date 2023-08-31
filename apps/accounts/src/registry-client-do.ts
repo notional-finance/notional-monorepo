@@ -1,7 +1,7 @@
 import { DurableObjectState } from '@cloudflare/workers-types';
-import { APIEnv, BaseDO } from '../../../packages/durable-objects/src';
 import { Network } from '@notional-finance/util';
 import { AccountFetchMode, Registry } from '@notional-finance/core-entities';
+import { APIEnv, BaseDO } from '@notional-finance/durable-objects';
 
 export class RegistryClientDO extends BaseDO<APIEnv> {
   constructor(state: DurableObjectState, env: APIEnv) {
@@ -31,6 +31,7 @@ export class RegistryClientDO extends BaseDO<APIEnv> {
       );
 
       // Now run all metrics jobs
+      this.checkDataFreshness();
     } catch (error) {
       console.log(this.serviceName, error);
       this.logger.log({
@@ -39,4 +40,6 @@ export class RegistryClientDO extends BaseDO<APIEnv> {
       });
     }
   }
+
+  private checkDataFreshness() {}
 }
