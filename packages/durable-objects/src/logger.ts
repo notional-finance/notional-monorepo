@@ -25,7 +25,14 @@ type DDSeries = {
   series: DDMetric[];
 };
 
-type DDEventKey = 'GeoIPLog' | 'NewsletterSubmitFailure' | 'AccountLiquidated';
+type DDEventKey =
+  | 'GeoIPLog'
+  | 'NewsletterSubmitFailure'
+  | 'AccountLiquidated'
+  | 'TotalSupplyMismatch'
+  | 'TotalSupplyMissing'
+  | 'TotalBorrowCapacityMismatch';
+
 type DDEventAlertType = 'error' | 'warning' | 'info';
 
 type DDEvent = {
@@ -45,7 +52,7 @@ const MessageDefaults = {
 const Endpoints = {
   logs: `https://http-intake.logs.datadoghq.com/api/v2/logs`,
   metrics: `https://api.datadoghq.com/api/v2/series`,
-  events: `https://api.datadoghq.com/api/v2/events`,
+  events: `https://api.datadoghq.com/api/v1/events`,
 };
 
 export class Logger {

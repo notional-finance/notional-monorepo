@@ -112,7 +112,7 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
       return {
         cashBorrowed,
         vaultFee: cashBorrowed.copy(0),
-        feeRate: RATE_PRECISION
+        feeRate: RATE_PRECISION,
       };
     }
 
@@ -138,6 +138,11 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
       maxPrimaryBorrowCapacity,
       primaryBorrowCurrency: { id },
     } = this.getVaultConfig(network, vaultAddress);
+    const primeDebt = Registry.getTokenRegistry().getVaultDebt(
+      network,
+      vaultAddress,
+      PRIME_CASH_VAULT_MATURITY
+    );
 
     return {
       minAccountBorrowSize: TokenBalance.fromID(
@@ -145,12 +150,16 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
         id,
         network
       ).scaleFromInternal(),
-      // TODO: this does not include prime debt....
       totalUsedPrimaryBorrowCapacity: TokenBalance.fromID(
         totalUsedPrimaryBorrowCapacity,
         id,
         network
-      ).scaleFromInternal(),
+      )
+        .scaleFromInternal()
+        .add(
+          primeDebt.totalSupply?.toUnderlying() ||
+            TokenBalance.fromID(0, id, network)
+        ),
       maxPrimaryBorrowCapacity: TokenBalance.fromID(
         maxPrimaryBorrowCapacity,
         id,

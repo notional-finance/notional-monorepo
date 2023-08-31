@@ -13,12 +13,19 @@ new_classes = ["AccountCache"]
 [[migrations]]
 tag = "v2"
 deleted_classes = ["AccountCache"]
+new_classes = ["RegistryClientDO"]
 
 [env.dev]
 name = "accounts-dev"
 
+[env.dev.durable_objects]
+bindings = [
+  { name = "REGISTRY_CLIENT_DO", class_name = "RegistryClientDO" },
+]
+
 [env.dev.vars]
 NX_ENV = 'dev'
+VERSION = 'v1'
 NX_DATA_URL = 'https://data-dev.notional.finance'
 SUPPORTED_NETWORKS = ['arbitrum', 'all']
 

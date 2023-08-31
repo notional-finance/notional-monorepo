@@ -7082,7 +7082,10 @@ export const AccountTransactionHistoryDocument = gql`
     ` as unknown as DocumentNode<AccountTransactionHistoryQuery, AccountTransactionHistoryQueryVariables>;
 export const AllAccountsDocument = gql`
     query AllAccounts {
-  accounts(first: 1000, where: {systemAccountType: None}) {
+  accounts(
+    first: 1000
+    where: {systemAccountType_in: [None, nToken, FeeReserve, SettlementReserve]}
+  ) {
     id
     balances {
       token {
