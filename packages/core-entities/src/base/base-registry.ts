@@ -156,6 +156,12 @@ export abstract class BaseRegistry<T> {
       });
   }
 
+  public async triggerRefreshPromise(network: Network, blockNumber?: number) {
+    return new Promise<void>((resolve) => {
+      this.triggerRefresh(network, resolve, blockNumber);
+    });
+  }
+
   /** Starts refreshes on the network at the specified interval */
   public startRefreshInterval(network: Network, intervalMS: number) {
     this.stopRefresh(network);

@@ -26,16 +26,12 @@ durable_objects.bindings = [
 [env.local.vars]
 NX_ENV = "local"
 VERSION = "v2"
-KPIS_NAME = "KPIS_DO"
-ACCOUNTS_NAME = "ACCOUNTS_DO"
 VIEWS_NAME = "VIEWS_DO"
 
 [env.dev]
 name = "api-dev"
 route = { pattern = "data-dev.notional.finance", custom_domain = true }
 durable_objects.bindings = [
-  { name = "KPIS_DO", class_name = "KPIsDO" },
-  { name = "ACCOUNTS_DO", class_name = "AccountsDO" },
   { name = "CONFIGURATION_REGISTRY_DO", class_name = "ConfigurationRegistryDO", script_name = "registry-dev" },
   { name = "EXCHANGE_REGISTRY_DO", class_name = "ExchangeRegistryDO", script_name = "registry-exchange-dev" },
   { name = "ORACLE_REGISTRY_DO", class_name = "OracleRegistryDO", script_name = "registry-dev" },
@@ -50,16 +46,11 @@ NX_ENV = "dev"
 # This is version that defines the durable object to retreive, increment it to reset
 # the durable object to a clean version
 VERSION = "v4"
-KPIS_NAME = "KPIS_DO"
-ACCOUNTS_NAME = "ACCOUNTS_DO"
-VIEWS_NAME = "VIEWS_DO"
 
 [env.prod]
 name = "api"
 route = { pattern = "data.notional.finance", custom_domain = true }
 durable_objects.bindings = [
-  { name = "KPIS_DO", class_name = "KPIsDO" },
-  { name = "ACCOUNTS_DO", class_name = "AccountsDO" },
   { name = "EXCHANGE_REGISTRY_DO", class_name = "ExchangeRegistryDO", script_name = "registry-exchange-prod" },
   { name = "CONFIGURATION_REGISTRY_DO", class_name = "ConfigurationRegistryDO", script_name = "registry-prod" },
   { name = "ORACLE_REGISTRY_DO", class_name = "OracleRegistryDO", script_name = "registry-prod" },
@@ -72,6 +63,4 @@ durable_objects.bindings = [
 [env.prod.vars]
 NX_ENV = "prod"
 VERSION = "v2"
-KPIS_NAME = "KPIS_DO"
-ACCOUNTS_NAME = "ACCOUNTS_DO"
 VIEWS_NAME = "VIEWS_DO"

@@ -18,9 +18,6 @@ import {
 } from './routes';
 
 export {
-  AccountsDO,
-  KPIsDO,
-  ExchangeRatesDO,
   TokenRegistryDO,
   ConfigurationRegistryDO,
   ExchangeRegistryDO,
