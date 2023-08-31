@@ -124,7 +124,7 @@ export function Header({ children }: HeaderProps) {
               <Box sx={{ paddingLeft: theme.spacing(3) }}>
                 <FormattedMessage
                   defaultMessage={
-                    'Please switch to the Arbitrum network to make a transaction.'
+                    'Please switch your wallet to the Arbitrum network.'
                   }
                 />
               </Box>
