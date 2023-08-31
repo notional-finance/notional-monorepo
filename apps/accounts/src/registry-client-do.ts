@@ -1,5 +1,9 @@
 import { DurableObjectState } from '@cloudflare/workers-types';
-import { Network, getNowSeconds } from '@notional-finance/util';
+import {
+  Network,
+  convertToSignedfCashId,
+  getNowSeconds,
+} from '@notional-finance/util';
 import {
   AccountFetchMode,
   Registry,
@@ -153,9 +157,12 @@ export class RegistryClientDO extends BaseDO<APIEnv> {
         }
 
         const b = _b.unwrapVaultToken();
+        const tokenId = convertToSignedfCashId(b.tokenId, b.isNegative());
         m.set(
-          b.tokenId,
-          (m.get(b.tokenId) || TokenBalance.zero(b.token)).add(b.abs())
+          tokenId,
+          (m.get(tokenId) || TokenBalance.fromID(0, tokenId, network)).add(
+            TokenBalance.fromID(b.abs().n, tokenId, network)
+          )
         );
       });
 
@@ -169,7 +176,7 @@ export class RegistryClientDO extends BaseDO<APIEnv> {
         const computedSupply =
           totalBalances.get(totalSupply.tokenId) || TokenBalance.zero(token);
 
-        if (computedSupply.sub(totalSupply).abs().toFloat() > 1e-6) {
+        if (computedSupply.sub(totalSupply).abs().toFloat() > 1e-4) {
           await this.logger.submitEvent({
             aggregation_key: 'TotalSupplyMismatch',
             alert_type: 'error',
