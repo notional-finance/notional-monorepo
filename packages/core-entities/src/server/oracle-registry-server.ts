@@ -6,6 +6,7 @@ import {
   NotionalV3,
   BalancerPoolABI,
   BalancerPool,
+  ISingleSidedLPStrategyVaultABI,
 } from '@notional-finance/contracts';
 import { aggregate, AggregateCall } from '@notional-finance/multicall';
 import {
@@ -23,6 +24,7 @@ import { fiatOracles } from '../config/fiat-config';
 import { TypedDocumentNode } from '@apollo/client/core';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { AllOraclesQuery } from '../.graphclient';
+import { vaultOverrides } from './vault-overrides';
 
 export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
   public override hasAllNetwork(): boolean {
@@ -130,7 +132,10 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
     if (blockNumber) {
       const block = await provider.getBlock(blockNumber);
       ts = block.timestamp;
+    } else {
+      blockNumber = await provider.getBlockNumber();
     }
+
     const notional = new Contract(
       NotionalAddress[results.network],
       NotionalV3ABI,
@@ -162,15 +167,45 @@ export class OracleRegistryServer extends ServerRegistry<OracleDefinition> {
           };
         } else if (oracle.oracleType === 'VaultShareOracleRate') {
           const { maturity } = decodeERC1155Id(oracle.quote);
+          const override = vaultOverrides[oracle.oracleAddress];
+          if (override) {
+            const entry = override.find((o) => {
+              if (o.fromBlock && blockNumber! < o.fromBlock) {
+                return false;
+              }
+              if (o.toBlock && blockNumber! > o.toBlock) {
+                return false;
+              }
+              return true;
+            });
+
+            if (entry) {
+              return {
+                key: id,
+                target: new Contract(
+                  oracle.oracleAddress,
+                  IStrategyVaultABI,
+                  provider
+                ),
+                method: 'convertStrategyToUnderlying',
+                args: [
+                  oracle.oracleAddress,
+                  INTERNAL_TOKEN_PRECISION,
+                  maturity,
+                ],
+              };
+            }
+          }
+
           return {
             key: id,
             target: new Contract(
               oracle.oracleAddress,
-              IStrategyVaultABI,
+              ISingleSidedLPStrategyVaultABI,
               provider
             ),
-            method: 'convertStrategyToUnderlying',
-            args: [oracle.oracleAddress, INTERNAL_TOKEN_PRECISION, maturity],
+            method: 'getExchangeRate',
+            args: [maturity],
           };
         } else if (
           oracle.oracleType === 'fCashOracleRate' ||
