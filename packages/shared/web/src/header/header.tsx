@@ -9,8 +9,11 @@ import { useNavLinks } from './use-nav-links';
 import MobileNavigation from './mobile-navigation/mobile-navigation';
 import { useLocation } from 'react-router-dom';
 import ResourcesDropdown from './resources/resources-dropdown/resources-dropdown';
+import { useNotionalContext } from '@notional-finance/notionable-hooks';
 import AnalyticsDropdown from './analytics-dropdown/analytics-dropdown';
 import ScrollIndicator from './scroll-indicator/scroll-indicator';
+import { colors } from '@notional-finance/styles';
+import { FormattedMessage } from 'react-intl';
 
 /* eslint-disable-next-line */
 export interface HeaderProps extends AppBarProps {}
@@ -22,6 +25,9 @@ export function Header({ children }: HeaderProps) {
   const { pathname } = useLocation();
   const theme = pathname === '/' ? landingTheme : appTheme;
   const { navLinks } = useNavLinks(false, theme);
+  const {
+    globalState: { hasSelectedChainError },
+  } = useNotionalContext();
 
   window.addEventListener('scroll', () => {
     const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
@@ -104,6 +110,26 @@ export function Header({ children }: HeaderProps) {
               {children}
             </Box>
           </Toolbar>
+          {hasSelectedChainError && (
+            <Box
+              sx={{
+                minWidth: '100%',
+                minHeight: theme.spacing(5),
+                background: colors.orange,
+                display: 'flex',
+                alignItems: 'center',
+                color: colors.black,
+              }}
+            >
+              <Box sx={{ paddingLeft: theme.spacing(3) }}>
+                <FormattedMessage
+                  defaultMessage={
+                    'Please switch your wallet to the Arbitrum network.'
+                  }
+                />
+              </Box>
+            </Box>
+          )}
           {pathname === '/' && <ScrollIndicator />}
         </AppBar>
       ) : (
