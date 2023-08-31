@@ -88,6 +88,31 @@ async function main() {
   const db = createUnixSocketPool();
 
   for (const block of blockRange) {
+    const tsRows = await db
+      .select('timestamp')
+      .from('ts_bn_mappings')
+      .where('network_id', networkToId[network])
+      .andWhere('block_number', block);
+
+    if (tsRows.length === 0 || !tsRows[0].timestamp) {
+      throw Error(`block ${block} not found in ts_bn_mappings`);
+    }
+
+    const ts = parseInt(tsRows[0].timestamp);
+
+    const mainnetBlockRows = await db
+      .select('block_number')
+      .from('ts_bn_mappings')
+      .where('network_id', networkToId[Network.Mainnet])
+      .andWhere('timestamp', ts);
+
+    if (mainnetBlockRows.length === 0 || !mainnetBlockRows[0].block_number) {
+      throw Error(`ts ${ts} not found in ts_bn_mappings`);
+    }
+
+    const mainnetBlock = parseInt(mainnetBlockRows[0].block_number);
+
+    await HistoricalRegistry.refreshAtBlock(Network.All, mainnetBlock);
     await HistoricalRegistry.refreshAtBlock(network, block);
     console.log(`Refreshed data at ${block}`);
     const yieldData = getYieldData(network, block);

@@ -56,17 +56,20 @@ export class HistoricalRegistry extends Registry {
 
     // NOTE: refresh needs to run in this particular order.
     const clients = [
-      [Routes.Tokens, this._tokens],
-      [Routes.Exchanges, this._exchanges],
-      [Routes.Oracles, this._oracles],
-      [Routes.Configuration, this._configurations],
-      [Routes.Vaults, this._vaults],
-      [Routes.Yields, this._yields],
-    ] as [Routes, ClientRegistry<unknown> | undefined][];
+      [Routes.Tokens, this._tokens, true],
+      [Routes.Exchanges, this._exchanges, false],
+      [Routes.Oracles, this._oracles, true],
+      [Routes.Configuration, this._configurations, false],
+      [Routes.Vaults, this._vaults, false],
+      [Routes.Yields, this._yields, false],
+    ] as [Routes, ClientRegistry<unknown> | undefined, boolean][];
 
-    for (const [route, client] of clients) {
+    for (const [route, client, allNetwork] of clients) {
       const server = this.servers[route];
       if (server) {
+        if (network === Network.All && !allNetwork) {
+          continue;
+        }
         await this.servers[route].refreshAtBlock(network, blockNumber);
         // Write this to the temp registry
         const data = this.servers[route].serializeToJSON(network);
@@ -74,8 +77,11 @@ export class HistoricalRegistry extends Registry {
       }
 
       if (client) {
+        if (network === Network.All && !allNetwork) {
+          continue;
+        }
         await new Promise<void>((resolve) => {
-          client.triggerRefresh(network, 0, resolve, blockNumber);
+          client.triggerRefresh(network, 0, resolve);
           if (route == Routes.Tokens)
             Registry.registerDefaultPoolTokens(network);
         });
