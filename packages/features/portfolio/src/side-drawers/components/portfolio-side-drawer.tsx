@@ -25,7 +25,6 @@ export const PortfolioSideDrawer = ({
   const { clearSideDrawer } = useSideDrawerManager();
 
   const onCancel = useCallback(() => {
-    console.log('onCancel');
     clearSideDrawer(returnToPortfolio);
   }, [clearSideDrawer, returnToPortfolio]);
 
