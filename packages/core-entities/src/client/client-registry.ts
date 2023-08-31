@@ -57,6 +57,7 @@ export abstract class ClientRegistry<T> extends BaseRegistry<T> {
       urlSuffix ? `${cacheUrl}/${urlSuffix}` : cacheUrl
     );
     const body = await result.text();
+    if (result.status !== 200) throw Error(`Failed Request: ${body}`);
     return JSON.parse(body, ClientRegistry.reviver);
   }
 

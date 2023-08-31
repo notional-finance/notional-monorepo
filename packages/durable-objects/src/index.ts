@@ -4,7 +4,6 @@ import { RegistryDOEnv } from './registries';
 export * from './yields-do';
 export * from './kpis-do';
 export * from './abstract';
-export * from './accounts-do';
 export * from './exchange-rates-do';
 export * from './registries';
 export * from './views-do';
