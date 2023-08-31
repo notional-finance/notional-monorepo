@@ -21,7 +21,15 @@ export const CardSubNav = () => {
   const { links, leveragedLinks } = useCardSubNav();
 
   const handleLeverUpToggle = () => {
-    leveredUp ? history.push('/lend-fixed') : history.push('/vaults');
+    const routes = {
+      '/lend-fixed': '/lend-leveraged',
+      '/lend-variable': '/lend-leveraged',
+      '/lend-leveraged': '/lend-fixed',
+      '/liquidity-variable': '/liquidity-leveraged',
+      '/liquidity-leveraged': '/liquidity-variable',
+      '/vaults': '/lend-fixed',
+    };
+    history.push(routes[pathname]);
   };
 
   return (

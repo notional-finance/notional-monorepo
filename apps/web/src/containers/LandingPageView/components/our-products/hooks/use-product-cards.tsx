@@ -1,6 +1,4 @@
 import { FormattedMessage } from 'react-intl';
-import { colors } from '@notional-finance/styles';
-import { Box } from '@mui/material';
 import { useAllMarkets } from '@notional-finance/notionable-hooks';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
 
@@ -40,15 +38,7 @@ export const useProductCards = () => {
       href: 'https://blog.notional.finance/introducing-notional-v3/',
       text: (
         <FormattedMessage
-          defaultMessage={`Earn passive interest. Withdraw anytime.
-          <span>Read more about Notional V3 on the blog</span>`}
-          values={{
-            span: (chunk: React.ReactNode) => (
-              <Box sx={{ color: colors.neonTurquoise }} component="span">
-                {chunk}
-              </Box>
-            ),
-          }}
+          defaultMessage={`Earn passive interest. Withdraw anytime.`}
         />
       ),
       apy: `${formatNumberAsPercent(variableLend?.totalAPY || 0)} APY`,

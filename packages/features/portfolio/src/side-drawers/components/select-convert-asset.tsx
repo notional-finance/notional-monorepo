@@ -51,7 +51,7 @@ export const SelectConvertAsset = ({ context }: SelectConvertAssetProps) => {
     if (
       selectedParamToken &&
       balance &&
-      (convertFromToken === undefined || convertFromBalance === undefined) 
+      (convertFromToken === undefined || convertFromBalance === undefined)
     ) {
       updateState(
         tradeType === 'ConvertAsset'

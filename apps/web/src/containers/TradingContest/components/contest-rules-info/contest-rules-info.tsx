@@ -30,11 +30,23 @@ export const ContestRulesInfo = () => {
       </Container>
       <Container>
         <TitleText>
-          <FormattedMessage defaultMessage={'Contest rules'} />
+          <FormattedMessage defaultMessage={'What is Realized APY?'} />
         </TitleText>
         <Text>
           <FormattedMessage
-            defaultMessage={`Realized APY is calculated using the IRR calculation. The realized APY measures how much money you made relative to the money you started with and in what amount of time.`}
+            defaultMessage={`Realized APY is calculated using the <a>IRR calculation.</a> The realized APY measures how much money you made relative to the money you started with and in what amount of time.`}
+            values={{
+              a: (chunk: React.ReactNode) => (
+                <Box
+                  sx={{ color: colors.neonTurquoise }}
+                  href="https://www.investopedia.com/terms/i/irr.asp"
+                  component={'a'}
+                  target="_blank"
+                >
+                  {chunk}
+                </Box>
+              ),
+            }}
           />
         </Text>
         {dataSetTwo.map(({ text }, index) => (

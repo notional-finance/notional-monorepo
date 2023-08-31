@@ -86,9 +86,9 @@ export function WalletSelector() {
           }}
         />
         <Container>
-          {!isReadOnlyAddress && truncatedAddress && (
+          {truncatedAddress && (
             <>
-              {icon && icon.length > 0 && (
+              {icon && icon.length > 0 && !isReadOnlyAddress && (
                 <IconContainer>
                   <img
                     src={`data:image/svg+xml;utf8,${encodeURIComponent(icon)}`}
@@ -96,6 +96,11 @@ export function WalletSelector() {
                     height="24px"
                     width="24px"
                   />
+                </IconContainer>
+              )}
+              {isReadOnlyAddress && (
+                <IconContainer>
+                  <EyeIcon />
                 </IconContainer>
               )}
               <Box
@@ -124,34 +129,20 @@ export function WalletSelector() {
                 <Box onClick={handleCopy}>
                   <ButtonText>{truncatedAddress}</ButtonText>
                 </Box>
-
-                <Box
-                  sx={{ marginLeft: '10px', display: 'flex' }}
-                  onClick={() =>
-                    handleClick(SETTINGS_SIDE_DRAWERS.NOTIFICATIONS)
-                  }
-                >
-                  {notificationsActive ? <ActiveBellIcon /> : <BellIcon />}
-                </Box>
+                {!isReadOnlyAddress && (
+                  <Box
+                    sx={{ marginLeft: '10px', display: 'flex' }}
+                    onClick={() =>
+                      handleClick(SETTINGS_SIDE_DRAWERS.NOTIFICATIONS)
+                    }
+                  >
+                    {notificationsActive ? <ActiveBellIcon /> : <BellIcon />}
+                  </Box>
+                )}
               </Box>
             </>
           )}
-
-          {isReadOnlyAddress && (
-            <ProcessContainer
-              onClick={() => handleClick(SETTINGS_SIDE_DRAWERS.CONNECT_WALLET)}
-            >
-              <IconContainer>
-                <EyeIcon />
-              </IconContainer>
-              <ButtonText
-                sx={{ flex: 1, textAlign: 'center', alignSelf: 'center' }}
-              >
-                {truncatedAddress}
-              </ButtonText>
-            </ProcessContainer>
-          )}
-          {!isReadOnlyAddress && !truncatedAddress && (
+          {!truncatedAddress && (
             <ProcessContainer
               onClick={() => handleClick(SETTINGS_SIDE_DRAWERS.CONNECT_WALLET)}
             >

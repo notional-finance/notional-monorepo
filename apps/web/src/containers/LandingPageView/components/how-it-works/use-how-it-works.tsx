@@ -14,10 +14,8 @@ export interface DataSets {
     itemText: ReactNode;
     icon: string;
   }[];
-  linkData: {
-    linkText: ReactNode;
-    link: string;
-  }[];
+  linkText: ReactNode;
+  link: string;
 }
 
 interface HowItWorks {
@@ -29,6 +27,7 @@ export const useHowItWorks = (): HowItWorks => {
   const leftDataSet = [
     {
       title: <FormattedMessage defaultMessage={'Lend'} />,
+      link: '/lend-fixed',
       bodyText: (
         <FormattedMessage defaultMessage={'Deposit assets to earn interest.'} />
       ),
@@ -43,17 +42,11 @@ export const useHowItWorks = (): HowItWorks => {
         },
       ],
       hoverTitle: <FormattedMessage defaultMessage={'Lending'} />,
-      linkData: [
-        {
-          linkText: (
-            <FormattedMessage defaultMessage={'View All Fixed Rates'} />
-          ),
-          link: '/lend-fixed',
-        },
-      ],
+      linkText: <FormattedMessage defaultMessage={'View All Fixed Rates'} />,
     },
     {
       title: <FormattedMessage defaultMessage={'Liquidity Providers'} />,
+      link: '/liquidity-variable',
       bodyText: (
         <FormattedMessage
           defaultMessage={
@@ -78,17 +71,13 @@ export const useHowItWorks = (): HowItWorks => {
         },
       ],
       hoverTitle: <FormattedMessage defaultMessage={'Provide Liquidity'} />,
-      linkData: [
-        {
-          linkText: <FormattedMessage defaultMessage={'View Opportunities'} />,
-          link: '/liquidity-variable',
-        },
-      ],
+      linkText: <FormattedMessage defaultMessage={'View Opportunities'} />,
     },
   ];
   const rightDataSet = [
     {
       title: <FormattedMessage defaultMessage={'Borrowers'} />,
+      link: '/borrow-fixed',
       bodyText: (
         <FormattedMessage
           defaultMessage={
@@ -107,17 +96,11 @@ export const useHowItWorks = (): HowItWorks => {
         },
       ],
       hoverTitle: <FormattedMessage defaultMessage={'Borrowing'} />,
-      linkData: [
-        {
-          linkText: (
-            <FormattedMessage defaultMessage={'View All Fixed Rates'} />
-          ),
-          link: '/borrow-fixed',
-        },
-      ],
+      linkText: <FormattedMessage defaultMessage={'View All Fixed Rates'} />,
     },
     {
       title: <FormattedMessage defaultMessage={'Leveraged Vault Users'} />,
+      link: '/vaults',
       bodyText: (
         <FormattedMessage
           defaultMessage={
@@ -140,14 +123,7 @@ export const useHowItWorks = (): HowItWorks => {
         },
       ],
       hoverTitle: <FormattedMessage defaultMessage={'Leveraged Vaults'} />,
-      linkData: [
-        {
-          linkText: (
-            <FormattedMessage defaultMessage={'View Available Vaults'} />
-          ),
-          link: '/vaults',
-        },
-      ],
+      linkText: <FormattedMessage defaultMessage={'View Available Vaults'} />,
     },
   ];
 

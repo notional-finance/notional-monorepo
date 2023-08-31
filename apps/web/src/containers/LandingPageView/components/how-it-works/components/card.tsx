@@ -7,7 +7,7 @@ import {
   BodySecondary,
   SectionTitle,
 } from '@notional-finance/mui';
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import { DataSets } from '../use-how-it-works';
 
 export interface CardContainerProps {
@@ -32,10 +32,12 @@ export const Card = ({
   actionItems,
   parentIndex,
   cardSet,
-  linkData,
+  linkText,
+  link,
   hoverTitle,
 }: CardProps) => {
   const theme = useTheme();
+  const history = useHistory();
   const [hovered, setHovered] = useState(false);
 
   return (
@@ -46,6 +48,7 @@ export const Card = ({
       sx={{
         height: parentIndex === 1 ? theme.spacing(34.75) : theme.spacing(30),
       }}
+      onClick={() => history.push(link)}
       onMouseOver={() => setHovered(true)}
       onMouseOut={() => setHovered(false)}
     >
@@ -94,14 +97,12 @@ export const Card = ({
           {hoverTitle}
         </DiagramTitle>
         <Box>
-          {linkData.map(({ linkText, link }, index) => (
-            <CustomLink key={index} to={link}>
-              <Body>
-                {linkText}
-                <ArrowRightIcon sx={{ height: theme.spacing(1.75) }} />
-              </Body>
-            </CustomLink>
-          ))}
+          <CustomLink to={link}>
+            <Body>
+              {linkText}
+              <ArrowRightIcon sx={{ height: theme.spacing(1.75) }} />
+            </Body>
+          </CustomLink>
         </Box>
       </Box>
     </CardContainer>
