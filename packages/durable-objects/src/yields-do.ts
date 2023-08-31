@@ -39,7 +39,7 @@ export class YieldRegistryDO extends BaseDO<APIEnv> {
 
             Registry.onNetworkReady(network, () => {
               const yields = Registry.getYieldRegistry();
-              yields.triggerRefresh(network, 0, () => {
+              yields.triggerRefresh(network, () => {
                 const data = yields.getAllYields(network);
                 this.encodeGzip(JSON.stringify(data))
                   .then((gz) => {

@@ -141,11 +141,10 @@ export abstract class BaseRegistry<T> {
 
   public triggerRefresh(
     network: Network,
-    intervalNum: number,
     onComplete?: () => void,
     blockNumber?: number
   ) {
-    of(intervalNum)
+    of(1)
       .pipe(
         switchMap(() => {
           return from(this._refresh(network, blockNumber));
