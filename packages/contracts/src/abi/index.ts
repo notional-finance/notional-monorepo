@@ -17,6 +17,7 @@ export { default as IAggregatorABI } from './IAggregator.json';
 export { default as MetaStable2TokenAuraVaultABI } from './MetaStable2TokenAuraVault.json';
 export { default as Multicall2ABI } from './Multicall2.json';
 export { default as Multicall3ABI } from './Multicall3.json';
+export { default as NftContractABI } from './NftContract.json';
 export { default as NoteERC20ABI } from './NoteERC20.json';
 export { default as NotionalABI } from './Notional.json';
 export { default as NotionalV3ABI } from './NotionalV3.json';
