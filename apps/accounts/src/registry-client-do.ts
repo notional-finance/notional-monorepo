@@ -59,9 +59,9 @@ export class RegistryClientDO extends BaseDO<Env> {
       // Now run all metrics jobs
       for (const network of this.env.SUPPORTED_NETWORKS) {
         if (network === Network.All) continue;
-        // await this.checkDataFreshness(network);
-        // await this.checkAccountList(network);
-        // await this.checkTotalSupply(network);
+        await this.checkDataFreshness(network);
+        await this.checkAccountList(network);
+        await this.checkTotalSupply(network);
         await this.saveAccountFactors(network);
       }
 

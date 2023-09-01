@@ -10,6 +10,7 @@ import { ExternalLinkIcon } from '@notional-finance/icons';
 import statsImg from '../images/stats_overlay.svg';
 import { FormattedMessage } from 'react-intl';
 import { formatNumber } from '@notional-finance/helpers';
+import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 
 const KPIUrl = process.env['NX_DATA_URL'] || 'https://data.notional.finance';
 
@@ -20,20 +21,18 @@ export const HeroStats = () => {
     totalLoanVolume: string;
     totalAccounts: string;
   } | null>();
+  const network = useSelectedNetwork();
 
   const fetchKPIs = useCallback(async () => {
     try {
-      const response = await fetch(`${KPIUrl}/kpis?network=mainnet`, {
+      const response = await fetch(`${KPIUrl}/${network}/kpis`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
         },
       });
-      const { kpis } = await response.json();
+      const { totalAccounts, totalLoanVolume, totalValueLocked } = await response.json();
       const oneMillion = 1_000_000;
-      const totalAccounts = kpis.accounts.total.overall;
-      const totalLoanVolume = kpis.volume.overall.total;
-      const totalValueLocked = kpis.tvl.total;
       setTopStats({
         totalValueLocked: `$${formatNumber(totalValueLocked / oneMillion, 0)}M`,
         totalLoanVolume: `$${formatNumber(totalLoanVolume / oneMillion, 0)}M`,
@@ -44,7 +43,7 @@ export const HeroStats = () => {
       // If this query fails then the top stats bar won't show
       setTopStats(null);
     }
-  }, []);
+  }, [network]);
 
   useEffect(() => {
     fetchKPIs();

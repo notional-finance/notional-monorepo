@@ -14,7 +14,13 @@ function _handler(request: IRequest, ns: DurableObjectNamespace, name: string) {
 }
 
 const handleKPIs = (_request: IRequest, _env: APIEnv) => {
-  throw Error('Unimplemented');
+  return new Response(
+    JSON.stringify({
+      totalAccounts: 5000,
+      totalLoanVolume: 100_000_000_000,
+      totalValueLocked: 10_000_000_000,
+    })
+  );
   // return _handler(request, env.KPIS_DO, env.KPIS_NAME);
 };
 

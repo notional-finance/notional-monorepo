@@ -59,7 +59,7 @@ const router = Router();
 // Handles preflight options
 router.options('*', handleOptions);
 
-router.get('/kpis', handleKPIs);
+router.get('/:network/kpis', handleKPIs);
 router.get('/geoip', handleGeoIP);
 router.get('/nft/*', handleNFT);
 router.post('/dd-forward', handleDataDogForward);
