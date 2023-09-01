@@ -1,7 +1,5 @@
-import { useEffect } from 'react';
 import { datadogRum } from '@datadog/browser-rum';
 import { initPlausible } from '@notional-finance/helpers';
-import Plausible from 'plausible-tracker';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryParamProvider } from 'use-query-params';
 import { ReactRouter5Adapter } from 'use-query-params/adapters/react-router-5';
@@ -34,15 +32,9 @@ datadogRum.init({
   trackInteractions: false,
   proxy: `${PROXY_HOST}/dd-forward`,
 });
+initPlausible();
 
 export const AppShell = () => {
-  const { trackPageview } = Plausible();
-
-  useEffect(() => {
-    initPlausible();
-    trackPageview();
-  }, [trackPageview]);
-
   return (
     <BrowserRouter>
       <QueryParamProvider adapter={ReactRouter5Adapter}>
