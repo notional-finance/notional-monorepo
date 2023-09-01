@@ -15,6 +15,7 @@ import {
   handleDataDogForward,
   handlePlausibleForward,
   handleKPIs,
+  handleAccounts,
 } from './routes';
 
 export {
@@ -70,6 +71,7 @@ router.get('/:network/tokens', handleTokens);
 router.get('/:network/configuration', handleConfigurations);
 router.get('/:network/oracles', handleOracles);
 router.get('/:network/exchanges', handleExchanges);
+router.get('/:network/accounts', handleAccounts);
 router.get('/:network/vaults', handleVaults);
 
 // Fall through catch for 404 errors

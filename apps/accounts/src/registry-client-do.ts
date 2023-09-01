@@ -151,6 +151,8 @@ export class RegistryClientDO extends BaseDO<Env> {
         ...calculateAccountIRR(account, undefined),
       }));
 
+    // TODO: split the IRR factors against the risk factors
+    // risk factors should be stored in a KV store
     await this.putStorageKey(network, JSON.stringify(allFactors));
   }
 

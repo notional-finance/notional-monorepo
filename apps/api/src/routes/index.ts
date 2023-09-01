@@ -26,6 +26,10 @@ const handleTokens = (request: IRequest, env: APIEnv) => {
   return _handler(request, env.TOKEN_REGISTRY_DO, env.VERSION);
 };
 
+const handleAccounts = (request: IRequest, env: APIEnv) => {
+  return _handler(request, env.ACCOUNTS_REGISTRY_DO, env.VERSION);
+};
+
 const handleConfigurations = (request: IRequest, env: APIEnv) => {
   return _handler(request, env.CONFIGURATION_REGISTRY_DO, env.VERSION);
 };
@@ -95,6 +99,7 @@ export {
   handleConfigurations,
   handleOracles,
   handleExchanges,
+  handleAccounts,
   handleVaults,
   handleViews,
   handleNFT,
