@@ -23,11 +23,11 @@ export const ContestCountDown = ({ title }: ContestCountDownProps) => {
               <CountDownContainer>
                 <Box>{days}</Box>
                 <Box>:</Box>
-                <Box>{hours}</Box>
+                <Box>{hours.toString().padStart(2, '0')}</Box>
                 <Box>:</Box>
-                <Box>{minutes}</Box>
+                <Box>{minutes.toString().padStart(2, '0')}</Box>
                 <Box>:</Box>
-                <Box>{seconds}</Box>
+                <Box>{seconds.toString().padStart(2, '0')}</Box>
               </CountDownContainer>
             );
           }}

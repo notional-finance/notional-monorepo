@@ -24,11 +24,6 @@ EXACT_OUT_SLIPPAGE_LIMIT = '1020'
 GAS_COST_BUFFER = '1000'
 PROFIT_THRESHOLD = '-579531698874532'
 
-[env.dev.durable_objects]
-bindings = [
-  { name = "ACCOUNT_CACHE", class_name = "AccountCache", script_name = "accounts-dev" }
-]
-
 [env.beta]
 name = "liquidation-bot-beta"
 

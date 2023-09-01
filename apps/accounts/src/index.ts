@@ -1,50 +1,32 @@
-import * as accounts from './accounts.json';
+import { Network } from '@notional-finance/util';
+export { RegistryClientDO } from './registry-client-do';
 
 export interface Env {
-  ACCOUNT_CACHE: DurableObjectNamespace;
-}
-
-export class AccountCache {
-  state: DurableObjectState;
-
-  constructor(state: DurableObjectState) {
-    this.state = state;
-  }
-
-  async fetch(request: Request) {
-    const url = new URL(request.url);
-    switch (url.pathname) {
-      case '/refresh':
-        this.state.storage.put('accounts', JSON.stringify(accounts));
-        return new Response('OK', { status: 200, statusText: 'OK' });
-    }
-    const cachedAccounts = await this.state.storage.get<string>('accounts');
-    return new Response(cachedAccounts, {
-      status: 200,
-      statusText: 'OK',
-    });
-  }
+  REGISTRY_CLIENT_DO: DurableObjectNamespace;
+  VERSION: string;
+  NX_ENV: string;
+  NX_DATA_URL: string;
+  NX_COMMIT_REF: string;
+  NX_DD_API_KEY: string;
+  SUPPORTED_NETWORKS: Network[];
+  ACCOUNT_CACHE_R2: R2Bucket;
 }
 
 export default {
-  async fetch(
-    request: Request,
-    env: Env,
-    _: ExecutionContext
-  ): Promise<Response> {
-    const id = env.ACCOUNT_CACHE.idFromName('ACCOUNT_CACHE');
-    const stub = env.ACCOUNT_CACHE.get(id);
-
-    return await stub.fetch(request);
+  async fetch(request: Request, env: Env): Promise<Response> {
+    const stub = env.REGISTRY_CLIENT_DO.get(
+      env.REGISTRY_CLIENT_DO.idFromName(env.VERSION)
+    );
+    return stub.fetch(request);
   },
   async scheduled(
-    controller: ScheduledController,
+    _controller: ScheduledController,
     env: Env,
     _: ExecutionContext
   ): Promise<void> {
-    const id = env.ACCOUNT_CACHE.idFromName('ACCOUNT_CACHE');
-    const stub = env.ACCOUNT_CACHE.get(id);
-
-    await stub.fetch('/refresh');
+    const stub = env.REGISTRY_CLIENT_DO.get(
+      env.REGISTRY_CLIENT_DO.idFromName(env.VERSION)
+    );
+    await stub.fetch('http://hostname/healthcheck');
   },
 };

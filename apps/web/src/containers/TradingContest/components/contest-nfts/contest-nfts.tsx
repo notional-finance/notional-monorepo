@@ -32,7 +32,7 @@ export const ContestNfts = ({ hideButton }: ContestNftsProps) => {
             />
           </svg>
           <NftTitle>
-            <FormattedMessage defaultMessage={'ACE 1st Place'} />
+            <FormattedMessage defaultMessage={'High Roller 1st Place'} />
           </NftTitle>
           <NftSubTitle>$5,000 NOTE</NftSubTitle>
         </NftDisplay>

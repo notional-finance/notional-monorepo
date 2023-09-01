@@ -25,15 +25,9 @@ export class ViewsDO extends BaseDO<APIEnv> {
         },
       }
     );
-    const data = await resp.json();
-    return this.state.storage.put(
-      `${this.serviceName}/${network}/${name}`,
-      await this.encodeGzip(JSON.stringify(data))
-    );
-  }
-
-  override async parseData(data: string) {
-    return this.parseGzip(data);
+    const data = JSON.stringify(await resp.json());
+    const key = `${this.serviceName}/${network}/${name}`;
+    return this.putStorageKey(key, data);
   }
 
   async listViews(network: Network) {

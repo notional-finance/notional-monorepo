@@ -5,7 +5,6 @@ import {
   handleConfigurations,
   handleExchanges,
   handleGeoIP,
-  handleKPIs,
   handleNewsletter,
   handleOracles,
   handleTokens,
@@ -15,12 +14,11 @@ import {
   handleNFT,
   handleDataDogForward,
   handlePlausibleForward,
+  handleKPIs,
+  handleAccounts,
 } from './routes';
 
 export {
-  AccountsDO,
-  KPIsDO,
-  ExchangeRatesDO,
   TokenRegistryDO,
   ConfigurationRegistryDO,
   ExchangeRegistryDO,
@@ -61,11 +59,11 @@ const router = Router();
 // Handles preflight options
 router.options('*', handleOptions);
 
-router.get('/kpis', handleKPIs);
+router.get('/:network/kpis', handleKPIs);
 router.get('/geoip', handleGeoIP);
 router.get('/nft/*', handleNFT);
 router.post('/dd-forward', handleDataDogForward);
-router.post('/plausible', handlePlausibleForward);
+router.post('/plausible/*', handlePlausibleForward);
 router.post('/newsletter', handleNewsletter);
 router.get('/:network/views/:view', handleViews);
 router.get('/:network/yields', handleYields);
@@ -73,6 +71,7 @@ router.get('/:network/tokens', handleTokens);
 router.get('/:network/configuration', handleConfigurations);
 router.get('/:network/oracles', handleOracles);
 router.get('/:network/exchanges', handleExchanges);
+router.get('/:network/accounts', handleAccounts);
 router.get('/:network/vaults', handleVaults);
 
 // Fall through catch for 404 errors

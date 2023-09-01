@@ -13,16 +13,27 @@ function _handler(request: IRequest, ns: DurableObjectNamespace, name: string) {
   return stub.fetch(request as unknown as CFRequest);
 }
 
-const handleKPIs = (request: IRequest, env: APIEnv) => {
-  return _handler(request, env.KPIS_DO, env.KPIS_NAME);
+const handleKPIs = (_request: IRequest, _env: APIEnv) => {
+  return new Response(
+    JSON.stringify({
+      totalAccounts: 5000,
+      totalLoanVolume: 100_000_000_000,
+      totalValueLocked: 10_000_000_000,
+    })
+  );
+  // return _handler(request, env.KPIS_DO, env.KPIS_NAME);
 };
 
 const handleYields = (request: IRequest, env: APIEnv) => {
-  return _handler(request, env.YIELD_REGISTRY_DO, env.YIELDS_NAME);
+  return _handler(request, env.YIELD_REGISTRY_DO, env.VERSION);
 };
 
 const handleTokens = (request: IRequest, env: APIEnv) => {
   return _handler(request, env.TOKEN_REGISTRY_DO, env.VERSION);
+};
+
+const handleAccounts = (request: IRequest, env: APIEnv) => {
+  return _handler(request, env.ACCOUNTS_REGISTRY_DO, env.VERSION);
 };
 
 const handleConfigurations = (request: IRequest, env: APIEnv) => {
@@ -90,11 +101,11 @@ export {
   handleGeoIP,
   handleNewsletter,
   handleYields,
-  handleAccounts,
   handleTokens,
   handleConfigurations,
   handleOracles,
   handleExchanges,
+  handleAccounts,
   handleVaults,
   handleViews,
   handleNFT,

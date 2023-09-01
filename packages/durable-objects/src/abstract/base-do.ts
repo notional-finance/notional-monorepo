@@ -1,6 +1,6 @@
 import { DurableObjectState } from '@cloudflare/workers-types';
 import { BaseDOEnv } from '.';
-import { Logger } from '@notional-finance/logging';
+import { Logger } from '../logger';
 import zlib from 'zlib';
 
 export abstract class BaseDO<E extends BaseDOEnv> {
@@ -61,10 +61,13 @@ export abstract class BaseDO<E extends BaseDOEnv> {
     }
   }
 
-  // TODO: override this to allow data to store into R2
+  async getDataKey(key: string) {
+    return this.state.storage.get(key).then((d) => this.parseGzip(d as string));
+  }
 
-  async parseData(data: any) {
-    return data;
+  async putStorageKey(key: string, data: string) {
+    const gz = await this.encodeGzip(data);
+    await this.state.storage.put(key, gz);
   }
 
   async healthcheck(): Promise<Response> {
@@ -93,9 +96,7 @@ export abstract class BaseDO<E extends BaseDOEnv> {
 
       // Only accept get requests
       if (request.method === 'GET') {
-        const data = await this.parseData(
-          await this.state.storage.get(storageKey)
-        );
+        const data = await this.getDataKey(storageKey);
         return new Response(JSON.stringify(data), {
           status: 200,
           headers: { 'Content-Type': 'application/json' },

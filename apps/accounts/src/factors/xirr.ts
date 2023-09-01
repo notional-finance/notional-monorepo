@@ -1,10 +1,12 @@
-import { ethers, BigNumber } from 'ethers';
 // Taken from: https://github.com/webcarrot/xirr
+
+import { TokenBalance } from '@notional-finance/core-entities';
 
 /* eslint-disable */
 export type CashFlow = {
   readonly amount: number;
   readonly date: Date;
+  readonly balance: TokenBalance;
 };
 
 export type CashFlowNormalized = {
@@ -119,6 +121,4 @@ export const xirr = (
 ): number =>
   calculate(normalize(flows), guessRate, maxEpsilon, maxScans, maxIterations);
 
-export const convertBigNumber = (x: BigNumber) =>
-  Number(ethers.utils.formatUnits(x, 8));
 /* eslint-enable */

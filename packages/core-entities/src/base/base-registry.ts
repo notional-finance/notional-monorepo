@@ -141,11 +141,10 @@ export abstract class BaseRegistry<T> {
 
   public triggerRefresh(
     network: Network,
-    intervalNum: number,
     onComplete?: () => void,
     blockNumber?: number
   ) {
-    of(intervalNum)
+    of(1)
       .pipe(
         switchMap(() => {
           return from(this._refresh(network, blockNumber));
@@ -155,6 +154,12 @@ export abstract class BaseRegistry<T> {
         this._updateNetworkObservables(d);
         if (onComplete) onComplete();
       });
+  }
+
+  public async triggerRefreshPromise(network: Network, blockNumber?: number) {
+    return new Promise<void>((resolve) => {
+      this.triggerRefresh(network, resolve, blockNumber);
+    });
   }
 
   /** Starts refreshes on the network at the specified interval */

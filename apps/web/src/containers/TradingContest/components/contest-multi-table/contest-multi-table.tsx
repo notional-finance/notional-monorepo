@@ -20,7 +20,7 @@ export const ContestMultiTable = () => {
         data={tableDataOne}
         columns={tableColumns}
         tableVariant={CONTEST_TABLE_VARIANTS.COMPACT}
-        tableTitle={<FormattedMessage defaultMessage={'ACE'} />}
+        tableTitle={<FormattedMessage defaultMessage={'HIGH ROLLER'} />}
         tableTitleSubText={
           <FormattedMessage
             defaultMessage={'Highest realized APY with leverage'}

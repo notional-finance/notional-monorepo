@@ -4,14 +4,10 @@ import {
   getProviderFromNetwork,
 } from '@notional-finance/util';
 import { BigNumber, ethers } from 'ethers';
-import {
-  initEventLogger,
-  initMetricLogger,
-  submitMetrics,
-} from '@notional-finance/logging';
 import * as tokens from './config/tokens.json';
 import VaultV3Liquidator from './VaultV3Liquidator';
 import { IGasOracle, MetricNames } from './types';
+import { Logger } from '@notional-finance/durable-objects';
 
 export interface Env {
   ACCOUNT_SERVICE_URL: string;
@@ -35,6 +31,7 @@ export interface Env {
   ZERO_EX_API_KEY: string;
 }
 
+// TODO: this needs to be fetched dynamically
 const vaults = [
   '0xdb08f663e5D765949054785F2eD1b2aa1e9C22Cf',
   '0xaE38F4B960f44d86e798f36a374a1Ac3f2D859fa',
@@ -48,35 +45,39 @@ class ArbitrumGasOracle implements IGasOracle {
 }
 
 const run = async (env: Env) => {
-  initMetricLogger({
+  const logger = new Logger({
     apiKey: env.DD_API_KEY,
-  });
-  initEventLogger({
-    apiKey: env.DD_API_KEY,
+    version: '1',
+    env: env.NETWORK,
+    service: 'vault-liquidator',
   });
 
   const accounts = (await (await fetch(env.ACCOUNT_SERVICE_URL)).json()) as any;
   const addrs = accounts.map((a) => a.id);
   const provider = getProviderFromNetwork(Network[env.NETWORK], true);
-  const liq = new VaultV3Liquidator(provider, {
-    network: env.NETWORK,
-    vaultAddrs: vaults,
-    flashLiquidatorAddress: env.FLASH_LIQUIDATOR_CONTRACT,
-    flashLiquidatorOwner: env.FLASH_LIQUIDATOR_OWNER,
-    flashLenderAddress: env.FLASH_LENDER_ADDRESS,
-    flashLoanBuffer: BigNumber.from(env.FLASH_LOAN_BUFFER),
-    slippageLimit: BigNumber.from(env.SLIPPAGE_LIMIT),
-    notionalAddress: env.NOTIONAL_PROXY_CONTRACT,
-    dustThreshold: BigNumber.from(env.DUST_THRESHOLD),
-    txRelayUrl: env.TX_RELAY_URL,
-    txRelayAuthToken: env.TX_RELAY_AUTH_TOKEN,
-    tokens: new Map<string, string>(Object.entries(tokens.arbitrum)),
-    gasCostBuffer: BigNumber.from(env.GAS_COST_BUFFER),
-    profitThreshold: BigNumber.from(env.PROFIT_THRESHOLD),
-    zeroExUrl: env.ZERO_EX_SWAP_URL,
-    zeroExApiKey: env.ZERO_EX_API_KEY,
-    gasOracle: new ArbitrumGasOracle(),
-  });
+  const liq = new VaultV3Liquidator(
+    provider,
+    {
+      network: env.NETWORK,
+      vaultAddrs: vaults,
+      flashLiquidatorAddress: env.FLASH_LIQUIDATOR_CONTRACT,
+      flashLiquidatorOwner: env.FLASH_LIQUIDATOR_OWNER,
+      flashLenderAddress: env.FLASH_LENDER_ADDRESS,
+      flashLoanBuffer: BigNumber.from(env.FLASH_LOAN_BUFFER),
+      slippageLimit: BigNumber.from(env.SLIPPAGE_LIMIT),
+      notionalAddress: env.NOTIONAL_PROXY_CONTRACT,
+      dustThreshold: BigNumber.from(env.DUST_THRESHOLD),
+      txRelayUrl: env.TX_RELAY_URL,
+      txRelayAuthToken: env.TX_RELAY_AUTH_TOKEN,
+      tokens: new Map<string, string>(Object.entries(tokens.arbitrum)),
+      gasCostBuffer: BigNumber.from(env.GAS_COST_BUFFER),
+      profitThreshold: BigNumber.from(env.PROFIT_THRESHOLD),
+      zeroExUrl: env.ZERO_EX_SWAP_URL,
+      zeroExApiKey: env.ZERO_EX_API_KEY,
+      gasOracle: new ArbitrumGasOracle(),
+    },
+    logger
+  );
 
   const riskyAccounts = await liq.getRiskyAccounts(addrs);
 
@@ -101,7 +102,7 @@ const run = async (env: Env) => {
     }
   }
 
-  await submitMetrics(ddSeries);
+  await logger.submitMetrics(ddSeries);
 };
 
 export default {

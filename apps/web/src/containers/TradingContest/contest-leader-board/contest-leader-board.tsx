@@ -6,11 +6,7 @@ import {
   ContestCountDown,
   ContestBackButton,
 } from '../components';
-import {
-  ContestTable,
-  LinkText,
-  CONTEST_TABLE_VARIANTS,
-} from '@notional-finance/mui';
+import { ContestTable, LinkText } from '@notional-finance/mui';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import { colors } from '@notional-finance/styles';
@@ -23,7 +19,7 @@ export const ContestLeaderBoard = () => {
     leaderBoardColumns,
     currentUserData,
     currentUserColumns,
-    aceData,
+    highRollerData,
     fatCatData,
     sadSackData,
   } = useLeaderBoardTables();
@@ -42,49 +38,59 @@ export const ContestLeaderBoard = () => {
               <ContestCountDown
                 title={<FormattedMessage defaultMessage={'Leaderboard'} />}
               />
-              <TitleText>
-                <FormattedMessage
-                  defaultMessage={'Your {position} Position'}
-                  values={{
-                    position: (
-                      <Box
-                        sx={{
-                          color: colors.neonTurquoise,
-                          margin: theme.spacing(0, 1),
-                        }}
-                      >
-                        ACE
-                      </Box>
-                    ),
-                  }}
-                />
-              </TitleText>
-              <UserTableContainer>
-                <ContestTable
-                  maxHeight={'620px'}
-                  columns={currentUserColumns}
-                  data={currentUserData}
-                  isCurrentUser
-                />
-                <LinkText
-                  to="/portfolio/overview"
-                  sx={{ marginTop: theme.spacing(2) }}
-                >
-                  <FormattedMessage defaultMessage={'View in Portfolio'} />
-                </LinkText>
-              </UserTableContainer>
-
+              {currentUserData.length > 0 && (
+                <UserTableContainer>
+                  <TitleText>
+                    <FormattedMessage
+                      defaultMessage={'Your {position} Position'}
+                      values={{
+                        position: (
+                          <Box
+                            sx={{
+                              color: colors.neonTurquoise,
+                              margin: theme.spacing(0, 1),
+                            }}
+                          >
+                            {currentUserData[0].username?.dataSet ===
+                            'highRoller'
+                              ? 'HIGH ROLLER'
+                              : currentUserData[0].username?.dataSet ===
+                                'fatCat'
+                              ? 'FAT CAT'
+                              : 'SAD SACK'}
+                          </Box>
+                        ),
+                      }}
+                    />
+                  </TitleText>
+                  <ContestTable
+                    maxHeight={'620px'}
+                    columns={currentUserColumns}
+                    data={currentUserData}
+                    isCurrentUser
+                  />
+                  <LinkText
+                    to="/portfolio/overview"
+                    sx={{ marginTop: theme.spacing(2) }}
+                  >
+                    <FormattedMessage defaultMessage={'View in Portfolio'} />
+                  </LinkText>
+                </UserTableContainer>
+              )}
               <TableContainer>
                 <ContestTable
                   maxHeight={'620px'}
-                  tableTitle={<FormattedMessage defaultMessage={'ACE'} />}
+                  tableTitle={
+                    <FormattedMessage defaultMessage={'HIGH ROLLER'} />
+                  }
                   tableTitleSubText={
                     <FormattedMessage
                       defaultMessage={'Highest realized APY with leverage'}
                     />
                   }
                   columns={leaderBoardColumns}
-                  data={aceData}
+                  data={highRollerData}
+                  tableLoading={highRollerData.length === 0}
                 />
               </TableContainer>
               <TableContainer>
@@ -98,6 +104,7 @@ export const ContestLeaderBoard = () => {
                   }
                   columns={leaderBoardColumns}
                   data={fatCatData}
+                  tableLoading={fatCatData.length === 0}
                 />
               </TableContainer>
               <TableContainer
@@ -113,6 +120,7 @@ export const ContestLeaderBoard = () => {
                   }
                   columns={leaderBoardColumns}
                   data={sadSackData}
+                  tableLoading={sadSackData.length === 0}
                 />
               </TableContainer>
             </MainContainer>

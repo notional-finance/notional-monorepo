@@ -158,6 +158,48 @@ export class Registry {
     );
   }
 
+  public static async triggerRefresh(network: Network, blockNumber?: number) {
+    await Promise.all([
+      Registry.getTokenRegistry().triggerRefreshPromise(
+        Network.All,
+        blockNumber
+      ),
+      Registry.getOracleRegistry().triggerRefreshPromise(
+        Network.All,
+        blockNumber
+      ),
+      Registry.getTokenRegistry().triggerRefreshPromise(network, blockNumber),
+      Registry.getOracleRegistry().triggerRefreshPromise(network, blockNumber),
+    ]);
+    Registry.registerDefaultPoolTokens(network);
+
+    await Promise.all([
+      Registry.getExchangeRegistry().triggerRefreshPromise(
+        network,
+        blockNumber
+      ),
+      Registry.getVaultRegistry().triggerRefreshPromise(network, blockNumber),
+      Registry.getConfigurationRegistry().triggerRefreshPromise(
+        network,
+        blockNumber
+      ),
+    ]);
+
+    // These cannot be grouped and have to proceed one at a time
+    await Registry.getAccountRegistry().triggerRefreshPromise(
+      network,
+      blockNumber
+    );
+    await Registry.getAnalyticsRegistry().triggerRefreshPromise(
+      network,
+      blockNumber
+    );
+    await Registry.getYieldRegistry().triggerRefreshPromise(
+      network,
+      blockNumber
+    );
+  }
+
   public static getTokenRegistry() {
     if (Registry._tokens == undefined) throw Error('Token Registry undefined');
     return Registry._tokens;

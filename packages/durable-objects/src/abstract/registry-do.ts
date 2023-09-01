@@ -26,10 +26,6 @@ export abstract class RegistryDO extends BaseDO<BaseDOEnv> {
     return `${this.serviceName}/${network}`;
   }
 
-  override async parseData(data: string) {
-    return this.parseGzip(data);
-  }
-
   async onRefresh() {
     try {
       await Promise.all(
@@ -40,9 +36,9 @@ export abstract class RegistryDO extends BaseDO<BaseDOEnv> {
           await this.registry.refresh(network);
           // put the serialized data into the correct network storage key
           const data = this.registry.serializeToJSON(network);
-          const gz = await this.encodeGzip(data);
+          const key = `${this.serviceName}/${network}`;
+          await this.putStorageKey(key, data);
 
-          await this.state.storage.put(`${this.serviceName}/${network}`, gz);
           this.logger.log({
             level: 'debug',
             message: `Completed Refresh for ${network}`,

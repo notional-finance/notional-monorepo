@@ -33,12 +33,13 @@ import {
 import { Routes } from '../server';
 import {
   fetchGraph,
+  fetchUsingGraph,
   fetchUsingMulticall,
   loadGraphClientDeferred,
 } from '../server/server-registry';
 import { ClientRegistry } from './client-registry';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
-import { BalanceSnapshot } from '../.graphclient';
+import { BalanceSnapshot, ProfitLossLineItem, Token } from '../.graphclient';
 
 export enum AccountFetchMode {
   // Used for the frontend UI, will fetch data for a single account direct from
@@ -112,7 +113,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
       this.subscribeAccount(network, this.activeAccount).pipe(take(1))
     );
 
-    this.triggerRefresh(network, 0);
+    this.triggerRefresh(network);
 
     return p;
   }
@@ -138,7 +139,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
 
       // Kick off a refresh of the accounts if in single account mode and we are
       // changing the account
-      this.triggerRefresh(network, 0);
+      this.triggerRefresh(network);
     }
   }
 
@@ -147,9 +148,11 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
   ): Promise<CacheSchema<AccountDefinition>> {
     if (this.fetchMode === AccountFetchMode.SINGLE_ACCOUNT_DIRECT) {
       return this._fetchSingleAccount(network);
-    } else {
-      return super._refresh(network);
+    } else if (this.fetchMode === AccountFetchMode.BATCH_ACCOUNT_VIA_SERVER) {
+      return this._fetchBatchAccounts(network);
     }
+
+    throw Error('Unknown fetch mode');
   }
 
   private async _fetchSingleAccount(network: Network) {
@@ -486,6 +489,164 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
     ]);
   }
 
+  public async fetchTransactionHistory(network: Network, account: string) {
+    const { AccountTransactionHistoryDocument } =
+      await loadGraphClientDeferred();
+    return await fetchGraph(
+      network,
+      AccountTransactionHistoryDocument,
+      (r): Record<string, AccountHistory[]> => {
+        return {
+          [account]:
+            r.account?.profitLossLineItems?.map((p) => {
+              return this._parseTransactionHistory(
+                p as ProfitLossLineItem,
+                network
+              );
+            }) || [],
+        };
+      },
+      {
+        accountId: account.toLowerCase(),
+      }
+    );
+  }
+
+  public async fetchBalanceStatements(network: Network, account: string) {
+    const { AccountBalanceStatementDocument } = await loadGraphClientDeferred();
+    return await fetchGraph(
+      network,
+      AccountBalanceStatementDocument,
+      (r): Record<string, BalanceStatement[]> => {
+        return {
+          [account]:
+            r.account?.balances?.map(({ current, snapshots, token }) => {
+              if (!token.underlying) throw Error('Unknown underlying');
+              return {
+                ...this._parseCurrentBalanceStatement(
+                  current as BalanceSnapshot,
+                  token as Token,
+                  network
+                ),
+                //start parse current
+                //end  parse current
+                historicalSnapshots:
+                  snapshots?.map((s) =>
+                    this._parseBalanceStatement(
+                      token.id,
+                      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                      token.underlying!.id,
+                      s as BalanceSnapshot,
+                      network
+                    )
+                  ) || [],
+              };
+            }) || [],
+        };
+      },
+      {
+        accountId: account.toLowerCase(),
+      }
+    );
+  }
+
+  private _parseVaultDebtBalance(
+    debtID: string,
+    underlyingID: string,
+    balance: BigNumber,
+    maturity: number,
+    network: Network
+  ) {
+    if (maturity === PRIME_CASH_VAULT_MATURITY) {
+      // In in the prime vault maturity, convert from underlying back to prime debt denomination
+      const tokens = Registry.getTokenRegistry();
+      const vaultDebtToken = tokens.getTokenByID(network, debtID);
+      const pDebt = TokenBalance.fromID(balance, underlyingID, network)
+        .scaleFromInternal()
+        .toToken(tokens.unwrapVaultToken(vaultDebtToken));
+      return TokenBalance.fromID(pDebt.n, debtID, network);
+    }
+
+    return TokenBalance.fromID(balance, debtID, network);
+  }
+
+  private async _fetchBatchAccounts(network: Network) {
+    const { AllAccountsDocument } = await loadGraphClientDeferred();
+    return fetchUsingGraph(network, AllAccountsDocument, (r) => {
+      return r.accounts.reduce((o, a) => {
+        const acct = {
+          address: a.id,
+          network,
+          systemAccountType: a.systemAccountType,
+          balances:
+            a.balances?.map((b) =>
+              TokenBalance.fromID(b.current.currentBalance, b.token.id, network)
+            ) || [],
+          balanceStatement: a.balances?.map((b) =>
+            this._parseCurrentBalanceStatement(
+              b.current as BalanceSnapshot,
+              b.token as Token,
+              network
+            )
+          ),
+          accountHistory:
+            a.profitLossLineItems?.map((p) =>
+              this._parseTransactionHistory(p as ProfitLossLineItem, network)
+            ) || [],
+        } as AccountDefinition;
+
+        return Object.assign(o, { [a.id]: acct });
+      }, {} as Record<string, AccountDefinition>);
+    });
+  }
+
+  private _parseCurrentBalanceStatement(
+    current: BalanceSnapshot,
+    token: Token,
+    network: Network
+  ) {
+    const tokens = Registry.getTokenRegistry();
+    if (!token.underlying) throw Error('Unknown underlying');
+    const tokenId = token.id;
+    const underlying = token.underlying;
+    const currentStatement = this._parseBalanceStatement(
+      tokenId,
+      underlying.id,
+      current as BalanceSnapshot,
+      network
+    );
+
+    const currentProfitAndLoss = currentStatement.balance
+      .toUnderlying()
+      .sub(
+        currentStatement.adjustedCostBasis.scale(
+          currentStatement.balance.n,
+          INTERNAL_TOKEN_PRECISION
+        )
+      );
+    const totalProfitAndLoss = currentStatement.balance
+      .toUnderlying()
+      // Use the absolute value here because debt balances are still considered positive
+      // values inside the PnL calculation
+      .abs()
+      .sub(currentStatement.accumulatedCostRealized);
+    const totalInterestAccrual = currentProfitAndLoss.sub(
+      currentStatement.totalILAndFees
+    );
+
+    return {
+      token: tokens.getTokenByID(network, tokenId),
+      underlying: tokens.getTokenByID(network, underlying.id),
+      currentBalance: currentStatement.balance,
+      adjustedCostBasis: currentStatement.adjustedCostBasis,
+      totalILAndFees: currentStatement.totalILAndFees,
+      impliedFixedRate: currentStatement.impliedFixedRate,
+      totalProfitAndLoss,
+      totalInterestAccrual,
+      accumulatedCostRealized: currentStatement.accumulatedCostRealized,
+    };
+  }
+
   private _parseBalanceStatement(
     tokenId: string,
     underlyingId: string,
@@ -531,176 +692,62 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
     };
   }
 
-  public async fetchTransactionHistory(network: Network, account: string) {
-    const { AccountTransactionHistoryDocument } =
-      await loadGraphClientDeferred();
-    return await fetchGraph(
-      network,
-      AccountTransactionHistoryDocument,
-      (r): Record<string, AccountHistory[]> => {
-        return {
-          [account]:
-            r.account?.profitLossLineItems?.map((p) => {
-              const tokenId = p.token.id;
-              const underlyingId = p.underlyingToken.id;
-              const token = Registry.getTokenRegistry().getTokenByID(
-                network,
-                tokenId
-              );
-              const vaultName =
-                !!token.vaultAddress && token.vaultAddress !== ZERO_ADDRESS
-                  ? Registry.getConfigurationRegistry().getVaultName(
-                      token.network,
-                      token.vaultAddress
-                    )
-                  : undefined;
+  private _parseTransactionHistory(p: ProfitLossLineItem, network: Network) {
+    const tokenId = p.token.id;
+    const underlyingId = p.underlyingToken.id;
+    const token = Registry.getTokenRegistry().getTokenByID(network, tokenId);
+    const vaultName =
+      !!token.vaultAddress && token.vaultAddress !== ZERO_ADDRESS
+        ? Registry.getConfigurationRegistry().getVaultName(
+            token.network,
+            token.vaultAddress
+          )
+        : undefined;
 
-              let tokenAmount = TokenBalance.fromID(
-                p.tokenAmount,
-                tokenId,
-                network
-              );
-              if (tokenAmount.tokenType === 'PrimeDebt') {
-                tokenAmount = tokenAmount.neg();
-              }
-
-              const underlyingAmountRealized = TokenBalance.fromID(
-                p.underlyingAmountRealized,
-                underlyingId,
-                network
-              );
-              const underlyingAmountSpot = TokenBalance.fromID(
-                p.underlyingAmountSpot,
-                underlyingId,
-                network
-              );
-
-              return {
-                timestamp: p.timestamp,
-                token,
-                vaultName,
-                underlying: Registry.getTokenRegistry().getTokenByID(
-                  network,
-                  underlyingId
-                ),
-                bundleName: p.bundle.bundleName,
-                transactionHash: p.transactionHash.id,
-                tokenAmount,
-                underlyingAmountRealized: tokenAmount.isNegative()
-                  ? underlyingAmountRealized.neg()
-                  : underlyingAmountRealized,
-                underlyingAmountSpot: tokenAmount.isNegative()
-                  ? underlyingAmountSpot.neg()
-                  : underlyingAmountSpot,
-                realizedPrice: TokenBalance.fromID(
-                  p.realizedPrice,
-                  underlyingId,
-                  network
-                ),
-                spotPrice: TokenBalance.fromID(
-                  p.spotPrice,
-                  underlyingId,
-                  network
-                ),
-                impliedFixedRate: p.impliedFixedRate
-                  ? (p.impliedFixedRate * 100) / RATE_PRECISION
-                  : undefined,
-                isTransientLineItem: p.isTransientLineItem,
-              };
-            }) || [],
-        };
-      },
-      {
-        accountId: account.toLowerCase(),
-      }
+    let tokenAmount = TokenBalance.fromID(p.tokenAmount, tokenId, network);
+    let underlyingAmountRealized = TokenBalance.fromID(
+      p.underlyingAmountRealized,
+      underlyingId,
+      network
     );
-  }
-
-  public async fetchBalanceStatements(network: Network, account: string) {
-    const { AccountBalanceStatementDocument } = await loadGraphClientDeferred();
-    return await fetchGraph(
-      network,
-      AccountBalanceStatementDocument,
-      (r): Record<string, BalanceStatement[]> => {
-        return {
-          [account]:
-            r.account?.balances?.map(
-              ({ current, snapshots, token: { id: tokenId, underlying } }) => {
-                const tokens = Registry.getTokenRegistry();
-                if (!underlying) throw Error('Unknown underlying');
-                const currentStatement = this._parseBalanceStatement(
-                  tokenId,
-                  underlying.id,
-                  current as BalanceSnapshot,
-                  network
-                );
-
-                const currentProfitAndLoss = currentStatement.balance
-                  .toUnderlying()
-                  .sub(
-                    currentStatement.adjustedCostBasis.scale(
-                      currentStatement.balance.n,
-                      INTERNAL_TOKEN_PRECISION
-                    )
-                  );
-                const totalProfitAndLoss = currentStatement.balance
-                  .toUnderlying()
-                  // Use the absolute value here because debt balances are still considered positive
-                  // values inside the PnL calculation
-                  .abs()
-                  .sub(currentStatement.accumulatedCostRealized);
-                const totalInterestAccrual = currentProfitAndLoss.sub(
-                  currentStatement.totalILAndFees
-                );
-
-                return {
-                  token: tokens.getTokenByID(network, tokenId),
-                  underlying: tokens.getTokenByID(network, underlying.id),
-                  currentBalance: currentStatement.balance,
-                  adjustedCostBasis: currentStatement.adjustedCostBasis,
-                  totalILAndFees: currentStatement.totalILAndFees,
-                  impliedFixedRate: currentStatement.impliedFixedRate,
-                  totalProfitAndLoss,
-                  totalInterestAccrual,
-                  accumulatedCostRealized:
-                    currentStatement.accumulatedCostRealized,
-                  historicalSnapshots:
-                    snapshots?.map((s) =>
-                      this._parseBalanceStatement(
-                        tokenId,
-                        underlying.id,
-                        s as BalanceSnapshot,
-                        network
-                      )
-                    ) || [],
-                };
-              }
-            ) || [],
-        };
-      },
-      {
-        accountId: account.toLowerCase(),
-      }
+    let underlyingAmountSpot = TokenBalance.fromID(
+      p.underlyingAmountSpot,
+      underlyingId,
+      network
     );
-  }
 
-  private _parseVaultDebtBalance(
-    debtID: string,
-    underlyingID: string,
-    balance: BigNumber,
-    maturity: number,
-    network: Network
-  ) {
-    if (maturity === PRIME_CASH_VAULT_MATURITY) {
-      // In in the prime vault maturity, convert from underlying back to prime debt denomination
-      const tokens = Registry.getTokenRegistry();
-      const vaultDebtToken = tokens.getTokenByID(network, debtID);
-      const pDebt = TokenBalance.fromID(balance, underlyingID, network)
-        .scaleFromInternal()
-        .toToken(tokens.unwrapVaultToken(vaultDebtToken));
-      return TokenBalance.fromID(pDebt.n, debtID, network);
+    if (tokenAmount.tokenType === 'PrimeDebt') {
+      tokenAmount = tokenAmount.neg();
+      underlyingAmountRealized = underlyingAmountRealized.neg();
+      underlyingAmountSpot = underlyingAmountSpot.neg();
+    } else if (tokenAmount.tokenType === 'fCash' && token.isFCashDebt) {
+      underlyingAmountRealized = underlyingAmountRealized.neg();
+      underlyingAmountSpot = underlyingAmountSpot.neg();
     }
 
-    return TokenBalance.fromID(balance, debtID, network);
+    return {
+      timestamp: p.timestamp,
+      token,
+      vaultName,
+      underlying: Registry.getTokenRegistry().getTokenByID(
+        network,
+        underlyingId
+      ),
+      bundleName: p.bundle.bundleName,
+      transactionHash: p.transactionHash.id,
+      tokenAmount,
+      underlyingAmountRealized,
+      underlyingAmountSpot,
+      realizedPrice: TokenBalance.fromID(
+        p.realizedPrice,
+        underlyingId,
+        network
+      ),
+      spotPrice: TokenBalance.fromID(p.spotPrice, underlyingId, network),
+      impliedFixedRate: p.impliedFixedRate
+        ? (p.impliedFixedRate * 100) / RATE_PRECISION
+        : undefined,
+      isTransientLineItem: p.isTransientLineItem,
+    };
   }
 }

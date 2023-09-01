@@ -1,6 +1,7 @@
 import { LaunchIcon } from '@notional-finance/icons';
 import { Box } from '@mui/material';
 import { colors } from '@notional-finance/styles';
+import { truncateAddress } from '@notional-finance/helpers';
 
 export const addressCell = ({ cell }) => {
   const { value } = cell;
@@ -24,7 +25,7 @@ export const addressCell = ({ cell }) => {
         },
       }}
     >
-      {value}
+      {value ? truncateAddress(value) : ''}
       <LaunchIcon
         sx={{
           marginTop: '5px',

@@ -88,11 +88,7 @@ describe.withForkAndRegistry(
         const resp = await signer.sendTransaction(t);
         await resp.wait(1);
         await new Promise<void>((r) => {
-          Registry.getAccountRegistry().triggerRefresh(
-            Network.ArbitrumOne,
-            0,
-            r
-          );
+          Registry.getAccountRegistry().triggerRefresh(Network.ArbitrumOne, r);
         });
       }
 

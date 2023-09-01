@@ -1,6 +1,10 @@
 query AllAccounts {
-    accounts(first: 1000, where: { systemAccountType: None }) {
+    accounts(
+        first: 1000,
+        where: { systemAccountType_in: [None, nToken, FeeReserve, SettlementReserve] }
+    ) {
         id
+        systemAccountType
         balances {
             token { 
                 id
