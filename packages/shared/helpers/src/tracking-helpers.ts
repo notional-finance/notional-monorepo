@@ -10,7 +10,6 @@ export function initPlausible() {
     Plausible({
       domain: window.location.hostname,
       apiHost: `${PROXY_HOST}/plausible`,
-      trackLocalhost: true,
     });
   _trackEvent = trackEvent;
 
