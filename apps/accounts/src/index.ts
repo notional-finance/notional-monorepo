@@ -9,7 +9,7 @@ export interface Env {
   NX_COMMIT_REF: string;
   NX_DD_API_KEY: string;
   SUPPORTED_NETWORKS: Network[];
-  ACCOUNTS_CACHE_R2: R2Bucket;
+  ACCOUNT_CACHE_R2: R2Bucket;
 }
 
 export default {
@@ -17,7 +17,6 @@ export default {
     const stub = env.REGISTRY_CLIENT_DO.get(
       env.REGISTRY_CLIENT_DO.idFromName(env.VERSION)
     );
-    await stub.fetch('http://hostname/healthcheck');
     return stub.fetch(request);
   },
   async scheduled(

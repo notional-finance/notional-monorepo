@@ -15,6 +15,9 @@ tag = "v2"
 deleted_classes = ["AccountCache"]
 new_classes = ["RegistryClientDO"]
 
+[triggers]
+crons = [ "*/15 * * * *" ]
+
 [env.dev]
 name = "accounts-dev"
 r2_buckets = [

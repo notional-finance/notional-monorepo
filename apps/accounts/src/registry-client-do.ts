@@ -26,15 +26,14 @@ export class RegistryClientDO extends BaseDO<Env> {
   }
 
   async getDataKey(key: string) {
-    return this.env.ACCOUNTS_CACHE_R2.get(key)
+    return this.env.ACCOUNT_CACHE_R2.get(key)
       .then((d) => d.text())
       .then((d) => this.parseGzip(d));
   }
 
   async putStorageKey(key: string, data: string) {
     const gz = await this.encodeGzip(data);
-    console.log(this.env.ACCOUNTS_CACHE_R2);
-    await this.env.ACCOUNTS_CACHE_R2.put(key, gz);
+    await this.env.ACCOUNT_CACHE_R2.put(key, gz);
   }
 
   async onRefresh(): Promise<void> {

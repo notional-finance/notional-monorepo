@@ -13,7 +13,6 @@ import { MetricNames } from './types';
 import { Logger } from '@notional-finance/durable-objects';
 
 export interface Env {
-  ACCOUNT_CACHE: DurableObjectNamespace;
   ACCOUNT_SERVICE_URL: string;
   ZERO_EX_SWAP_URL: string;
   ZERO_EX_API_KEY: string;
