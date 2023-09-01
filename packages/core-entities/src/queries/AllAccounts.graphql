@@ -4,6 +4,7 @@ query AllAccounts {
         where: { systemAccountType_in: [None, nToken, FeeReserve, SettlementReserve] }
     ) {
         id
+        systemAccountType
         balances {
             token { 
                 id

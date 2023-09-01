@@ -577,6 +577,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
         const acct = {
           address: a.id,
           network,
+          systemAccountType: a.systemAccountType,
           balances:
             a.balances?.map((b) =>
               TokenBalance.fromID(b.current.currentBalance, b.token.id, network)

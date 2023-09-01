@@ -163,6 +163,7 @@ export interface AccountDefinition {
     currentNOTE: TokenBalance;
     noteAccruedPerSecond: TokenBalance;
   };
+  systemAccountType?: SystemAccount;
 }
 
 export interface SerializedAccountDefinition {

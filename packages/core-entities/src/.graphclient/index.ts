@@ -6928,7 +6928,7 @@ export type AllAccountsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type AllAccountsQuery = { accounts: Array<(
-    Pick<Account, 'id'>
+    Pick<Account, 'id' | 'systemAccountType'>
     & { balances?: Maybe<Array<{ token: (
         Pick<Token, 'id'>
         & { underlying?: Maybe<Pick<Token, 'id'>> }
@@ -7087,6 +7087,7 @@ export const AllAccountsDocument = gql`
     where: {systemAccountType_in: [None, nToken, FeeReserve, SettlementReserve]}
   ) {
     id
+    systemAccountType
     balances {
       token {
         id

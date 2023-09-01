@@ -11,6 +11,7 @@ import {
   TokenBalance,
 } from '@notional-finance/core-entities';
 import { APIEnv, BaseDO } from '@notional-finance/durable-objects';
+import { calculateAccountIRR } from './factors/calculations';
 
 export class RegistryClientDO extends BaseDO<APIEnv> {
   constructor(state: DurableObjectState, env: APIEnv) {
@@ -46,9 +47,9 @@ export class RegistryClientDO extends BaseDO<APIEnv> {
       // Now run all metrics jobs
       for (const network of this.env.SUPPORTED_NETWORKS) {
         if (network === Network.All) continue;
-        await this.checkDataFreshness(network);
-        await this.checkAccountList(network);
-        await this.checkTotalSupply(network);
+        // await this.checkDataFreshness(network);
+        // await this.checkAccountList(network);
+        // await this.checkTotalSupply(network);
         await this.saveAccountFactors(network);
       }
 
@@ -128,11 +129,24 @@ export class RegistryClientDO extends BaseDO<APIEnv> {
   }
 
   private async saveAccountFactors(network: Network) {
-    Registry.getAccountRegistry()
-      .getAllSubjectKeys(network)
-      .forEach((_a) => {
-        return;
-      });
+    const accounts = Registry.getAccountRegistry();
+    const allAccounts = accounts.getAllSubjectKeys(network);
+    for (const a of allAccounts) {
+      const account = accounts.getLatestFromSubject(network, a);
+      if (account.systemAccountType !== 'None') continue;
+
+      const { irr, totalNetWorth, netDeposits, earnings } = calculateAccountIRR(
+        account,
+        undefined
+      );
+      console.log(
+        a,
+        irr,
+        totalNetWorth.toString(),
+        netDeposits.toString(),
+        earnings.toString()
+      );
+    }
   }
 
   private async checkTotalSupply(network: Network) {
