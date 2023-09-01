@@ -10,7 +10,9 @@ import { PoolTestHarness } from './PoolTestHarness';
 import { Curve2TokenPoolV1 } from '@notional-finance/core-entities';
 import { TokenBalance } from '../../../src/token-balance';
 
-export class CurveV1Harness extends PoolTestHarness<Curve2TokenPoolV1> {
+export class CurveV1Harness<
+  T extends Curve2TokenPoolV1
+> extends PoolTestHarness<T> {
   public curvePool: CurvePoolV1;
 
   constructor(
@@ -86,7 +88,7 @@ export class CurveV1Harness extends PoolTestHarness<Curve2TokenPoolV1> {
     await this.curvePool
       .connect(signer)
       .add_liquidity([tokensIn[0].n, tokensIn[1].n], 0, {
-        gasLimit: 2_500_000,
+        gasLimit: 5_500_000,
         value: msgValue,
       });
     const balanceAfter = await this.balanceOf(signer);
