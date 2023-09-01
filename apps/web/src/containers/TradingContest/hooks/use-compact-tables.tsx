@@ -3,12 +3,13 @@ import {
   customIconCell,
   idCell,
 } from '@notional-finance/mui';
+import { useLeaderboardData } from './use-leaderboard-data';
 
 export const useCompactTables = () => {
   const tableColumns: ContestTableColumn[] = [
     {
-      Header: 'test',
-      accessor: 'id',
+      Header: '',
+      accessor: 'rank',
       Cell: idCell,
       isIDCell: true,
       textAlign: 'center',
@@ -25,88 +26,10 @@ export const useCompactTables = () => {
       textAlign: 'right',
     },
   ];
-
-  const tableDataOne = [
-    {
-      id: '01',
-      username: { text: 'John Doe', dataSet: 'ace' },
-      totalAPY: '63.21% APY',
-    },
-    {
-      id: '02',
-      username: { text: 'Susan Jones', dataSet: 'ace' },
-      totalAPY: '44.17% APY',
-    },
-    {
-      id: '03',
-      username: { text: 'Peter Smith', dataSet: 'ace' },
-      totalAPY: '98.73% APY',
-    },
-    {
-      id: '04',
-      username: { text: 'Susan Jones', dataSet: 'ace' },
-      totalAPY: '19.04% APY',
-    },
-    {
-      id: '05',
-      username: { text: 'Michael Brown', dataSet: 'ace' },
-      totalAPY: '55.38% APY',
-    },
-  ];
-  const tableDataTwo = [
-    {
-      id: '01',
-      username: { text: 'John Doe', dataSet: 'fatCat' },
-      totalAPY: '63.21% APY',
-    },
-    {
-      id: '02',
-      username: { text: 'Jane Doe', dataSet: 'fatCat' },
-      totalAPY: '44.17% APY',
-    },
-    {
-      id: '03',
-      username: { text: 'Peter Smith', dataSet: 'fatCat' },
-      totalAPY: '98.73% APY',
-    },
-    {
-      id: '04',
-      username: { text: 'Susan Jones', dataSet: 'fatCat' },
-      totalAPY: '19.04% APY',
-    },
-    {
-      id: '05',
-      username: { text: 'Michael Brown', dataSet: 'fatCat' },
-      totalAPY: '55.38% APY',
-    },
-  ];
-  const tableDataThree = [
-    {
-      id: '01',
-      username: { text: 'John Doe', dataSet: 'sadSack' },
-      totalAPY: '63.21% APY',
-    },
-    {
-      id: '02',
-      username: { text: 'Jane Doe', dataSet: 'sadSack' },
-      totalAPY: '44.17% APY',
-    },
-    {
-      id: '03',
-      username: { text: 'Peter Smith', dataSet: 'sadSack' },
-      totalAPY: '98.73% APY',
-    },
-    {
-      id: '04',
-      username: { text: 'Susan Jones', dataSet: 'sadSack' },
-      totalAPY: '19.04% APY',
-    },
-    {
-      id: '05',
-      username: { text: 'Michael Brown', dataSet: 'sadSack' },
-      totalAPY: '55.38% APY',
-    },
-  ];
+  const { highRollerData, sadSackData, fatCatData } = useLeaderboardData();
+  const tableDataOne = highRollerData.filter((_, i) => i < 5);
+  const tableDataTwo = sadSackData.filter((_, i) => i < 5);
+  const tableDataThree = fatCatData.filter((_, i) => i < 5);
 
   return { tableColumns, tableDataOne, tableDataTwo, tableDataThree };
 };

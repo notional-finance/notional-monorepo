@@ -15,10 +15,10 @@ export const ContestRulesInfo = () => {
         </TitleText>
         <Text>
           <FormattedMessage
-            defaultMessage={`The prize category you're competing in depends on the actions you've taken in your account. If you've used leverage, you're competing in the ACE category. 
+            defaultMessage={`The prize category you're competing in depends on the actions you've taken in your account. If you've used leverage, you're competing in the HIGH ROLLER category. 
                             If you haven't used leverage, you'll compete in the FAT CAT category. If you have lost money, you're competing to be the SAD SACK. 
                             Actions you take can cause you to switch which prize category you're in. For example, if you haven't used leverage but then choose to use leverage, you will be competing for the 
-                            ACE instead of the FAT CAT from that point on.`}
+                            HIGH ROLLER instead of the FAT CAT from that point on.`}
           />
         </Text>
         {dataSetOne.map(({ text }, index) => (

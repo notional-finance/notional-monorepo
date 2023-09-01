@@ -1,27 +1,26 @@
 import { Box } from '@mui/material';
-import ace from './assets/ace.svg';
+import highRoller from './assets/high-roller.svg';
 import fatCat from './assets/fat-cat.svg';
 import sadSack from './assets/sad-sack.svg';
 
 export const customIconCell = ({ cell }) => {
-  const {
-    row,
-    value: { text, dataSet },
-  } = cell;
+  const { row, value } = cell;
+  if (!value) return null;
+  const { text, dataSet } = value;
 
   const imgData = {
     fatCat,
     sadSack,
-    ace,
+    highRoller,
   };
 
   return (
-    <Box sx={{ display: 'flex', alignItems: 'baseline' }}>
-      {row.original.id === '01' && (
+    <Box sx={{ display: 'flex', alignItems: 'center', fontSize: '18px' }}>
+      {row.original.rank === '01' && (
         <img
           src={imgData[dataSet]}
           alt="icon"
-          style={{ height: '20px', marginRight: '8px' }}
+          style={{ height: '18px', marginRight: '8px' }}
         />
       )}
       {text}
