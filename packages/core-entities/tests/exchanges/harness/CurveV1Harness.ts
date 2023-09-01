@@ -88,7 +88,7 @@ export class CurveV1Harness<
     await this.curvePool
       .connect(signer)
       .add_liquidity([tokensIn[0].n, tokensIn[1].n], 0, {
-        gasLimit: 5_500_000,
+        gasLimit: 2_500_000,
         value: msgValue,
       });
     const balanceAfter = await this.balanceOf(signer);
