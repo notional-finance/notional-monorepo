@@ -474,6 +474,17 @@ export class TokenBalance {
     return this.toToken(this.underlying);
   }
 
+  toPrimeDebt() {
+    if (this.tokenType === 'PrimeDebt') return this;
+    const primeDebt = Registry.getTokenRegistry().getPrimeDebt(
+      this.network,
+      this.currencyId
+    );
+
+    // Does the exchange rate conversion and decimal scaling
+    return this.toToken(primeDebt);
+  }
+
   toPrimeCash() {
     if (this.tokenType === 'PrimeCash') return this;
     const primeCash = Registry.getTokenRegistry().getPrimeCash(

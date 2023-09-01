@@ -1,6 +1,7 @@
 import { DurableObjectState } from '@cloudflare/workers-types';
 import {
   Network,
+  SETTLEMENT_RESERVE,
   convertToSignedfCashId,
   getNowSeconds,
 } from '@notional-finance/util';
@@ -146,8 +147,11 @@ export class RegistryClientDO extends BaseDO<APIEnv> {
       );
 
     const accounts = Registry.getAccountRegistry();
+    const maturedBalances = new Map<string, TokenBalance>();
     const totalBalances = accounts.getAllSubjectKeys(network).reduce((m, a) => {
       accounts.getLatestFromSubject(network, a).balances.forEach((_b) => {
+        if (_b.isZero()) return m;
+
         if (_b.tokenType === 'VaultDebt') {
           // Accumulate vault debt to check total borrow capacity
           m.set(
@@ -156,34 +160,89 @@ export class RegistryClientDO extends BaseDO<APIEnv> {
           );
         }
 
-        const b = _b.unwrapVaultToken();
+        let b = _b.unwrapVaultToken();
+        // Vault debt is positively signed when returned in this method
+        if (_b.tokenType === 'VaultDebt' && _b.isPositive()) b = b.neg();
+
         const tokenId = convertToSignedfCashId(b.tokenId, b.isNegative());
-        m.set(
-          tokenId,
-          (m.get(tokenId) || TokenBalance.fromID(0, tokenId, network)).add(
-            TokenBalance.fromID(b.abs().n, tokenId, network)
-          )
-        );
+
+        if (b.tokenType === 'fCash' && b.maturity <= getNowSeconds()) {
+          // If the fCash is matured, then don't add to computed total balances. The total
+          // value of settled fCash is already added to prime supply and debt at market
+          // initialization. We check that matured value is equal to the value held in the
+          // settlement reserve.
+          const maturedValue = b.isNegative()
+            ? b.toPrimeDebt()
+            : b.toPrimeCash();
+
+          maturedBalances.set(
+            maturedValue.tokenId,
+            (
+              maturedBalances.get(maturedValue.tokenId) || maturedValue.copy(0)
+            ).add(maturedValue.abs())
+          );
+        } else {
+          m.set(
+            tokenId,
+            (m.get(tokenId) || TokenBalance.fromID(0, tokenId, network)).add(
+              TokenBalance.fromID(b.n, tokenId, network).abs()
+            )
+          );
+        }
       });
 
       return m;
     }, new Map<string, TokenBalance>());
 
+    const settlementReserveBalances = accounts.getLatestFromSubject(
+      network,
+      SETTLEMENT_RESERVE
+    ).balances;
+    const pCashpDebt = tokens.filter(
+      (t) => t.tokenType === 'PrimeCash' || t.tokenType === 'PrimeDebt'
+    );
+
+    for (const token of pCashpDebt) {
+      const computedBalance =
+        maturedBalances.get(token.id) || TokenBalance.zero(token);
+      const reserveBalance =
+        settlementReserveBalances.find((b) => b.tokenId === token.id) ||
+        TokenBalance.zero(token);
+
+      if (computedBalance.sub(reserveBalance.abs()).abs().toFloat() > 1e-4) {
+        await this.logger.submitEvent({
+          aggregation_key: 'SettlementReserveMismatch',
+          alert_type: 'error',
+          title: `SettlementReserve Mismatch: ${token.symbol}`,
+          tags: [network, token.symbol],
+          text: `
+            Settlement Reserve mismatch detected in ${token.symbol}:
+            Settlement Reserve: ${reserveBalance.toString()}
+            Computed Reserve: ${computedBalance.toString()}
+            `,
+        });
+      }
+    }
+
     for (const token of tokens) {
-      const { totalSupply, symbol } = token;
+      const { totalSupply, symbol, isFCashDebt, id } = token;
       if (totalSupply) {
         // All these balances are positive
         const computedSupply =
-          totalBalances.get(totalSupply.tokenId) || TokenBalance.zero(token);
+          totalBalances.get(id) || TokenBalance.zero(token);
 
         if (computedSupply.sub(totalSupply).abs().toFloat() > 1e-4) {
           await this.logger.submitEvent({
             aggregation_key: 'TotalSupplyMismatch',
             alert_type: 'error',
-            title: `Total Supply Mismatch: ${totalSupply.symbol}`,
+            title: `Total Supply Mismatch: ${isFCashDebt ? '-' : ''}${
+              totalSupply.symbol
+            }`,
             tags: [network, totalSupply.symbol],
             text: `
-            Total Supply mismatch detected in ${totalSupply.symbol}:
+            Total Supply mismatch detected in ${isFCashDebt ? '-' : ''}${
+              totalSupply.symbol
+            }:
             Total Supply: ${totalSupply.toString()}
             Computed Total Supply: ${computedSupply.toString()}
             `,

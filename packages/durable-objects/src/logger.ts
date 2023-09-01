@@ -29,6 +29,7 @@ type DDEventKey =
   | 'GeoIPLog'
   | 'NewsletterSubmitFailure'
   | 'AccountLiquidated'
+  | 'SettlementReserveMismatch'
   | 'TotalSupplyMismatch'
   | 'TotalSupplyMissing'
   | 'TotalBorrowCapacityMismatch';
@@ -112,7 +113,7 @@ export class Logger {
 
   async submitEvent(event: DDEvent) {
     try {
-      const body = JSON.stringify(event);
+      const body = JSON.stringify({ ...event, source_type_name: 'cloudflare' });
       const opts = {
         method: 'POST',
         body,
