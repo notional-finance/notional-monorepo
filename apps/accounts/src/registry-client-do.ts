@@ -10,18 +10,31 @@ import {
   Registry,
   TokenBalance,
 } from '@notional-finance/core-entities';
-import { APIEnv, BaseDO } from '@notional-finance/durable-objects';
+import { BaseDO } from '@notional-finance/durable-objects';
 import { calculateAccountIRR } from './factors/calculations';
+import { Env } from '.';
 
-export class RegistryClientDO extends BaseDO<APIEnv> {
-  constructor(state: DurableObjectState, env: APIEnv) {
+export class RegistryClientDO extends BaseDO<Env> {
+  constructor(state: DurableObjectState, env: Env) {
     super(state, env, 'registry-client');
   }
 
   getStorageKey(url: URL): string {
     const network = url.pathname.split('/')[1];
     if (!network) throw Error('Network Not Found');
-    return `${this.serviceName}/${network}`;
+    return `${network}`;
+  }
+
+  async getDataKey(key: string) {
+    return this.env.ACCOUNTS_CACHE_R2.get(key)
+      .then((d) => d.text())
+      .then((d) => this.parseGzip(d));
+  }
+
+  async putStorageKey(key: string, data: string) {
+    const gz = await this.encodeGzip(data);
+    console.log(this.env.ACCOUNTS_CACHE_R2);
+    await this.env.ACCOUNTS_CACHE_R2.put(key, gz);
   }
 
   async onRefresh(): Promise<void> {
@@ -131,22 +144,15 @@ export class RegistryClientDO extends BaseDO<APIEnv> {
   private async saveAccountFactors(network: Network) {
     const accounts = Registry.getAccountRegistry();
     const allAccounts = accounts.getAllSubjectKeys(network);
-    for (const a of allAccounts) {
-      const account = accounts.getLatestFromSubject(network, a);
-      if (account.systemAccountType !== 'None') continue;
+    const allFactors = allAccounts
+      .map((a) => accounts.getLatestFromSubject(network, a))
+      .filter((acct) => acct.systemAccountType === 'None')
+      .map((account) => ({
+        address: account.address,
+        ...calculateAccountIRR(account, undefined),
+      }));
 
-      const { irr, totalNetWorth, netDeposits, earnings } = calculateAccountIRR(
-        account,
-        undefined
-      );
-      console.log(
-        a,
-        irr,
-        totalNetWorth.toString(),
-        netDeposits.toString(),
-        earnings.toString()
-      );
-    }
+    await this.putStorageKey(network, JSON.stringify(allFactors));
   }
 
   private async checkTotalSupply(network: Network) {

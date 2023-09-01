@@ -17,6 +17,9 @@ new_classes = ["RegistryClientDO"]
 
 [env.dev]
 name = "accounts-dev"
+r2_buckets = [
+  { binding = "ACCOUNT_CACHE_R2", bucket_name = "account-cache-r2", preview_bucket_name = "account-cache-r2-dev" },
+]
 
 [env.dev.durable_objects]
 bindings = [
@@ -31,3 +34,6 @@ SUPPORTED_NETWORKS = ['arbitrum', 'all']
 
 [env.prod]
 name = "accounts"
+r2_buckets = [
+  { binding = "ACCOUNT_CACHE_R2", bucket_name = "account-cache-r2" },
+]
