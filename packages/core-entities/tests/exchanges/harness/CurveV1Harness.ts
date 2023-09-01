@@ -10,7 +10,9 @@ import { PoolTestHarness } from './PoolTestHarness';
 import { Curve2TokenPoolV1 } from '@notional-finance/core-entities';
 import { TokenBalance } from '../../../src/token-balance';
 
-export class CurveV1Harness extends PoolTestHarness<Curve2TokenPoolV1> {
+export class CurveV1Harness<
+  T extends Curve2TokenPoolV1
+> extends PoolTestHarness<T> {
   public curvePool: CurvePoolV1;
 
   constructor(

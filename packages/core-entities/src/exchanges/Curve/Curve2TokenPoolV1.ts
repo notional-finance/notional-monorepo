@@ -18,6 +18,7 @@ export interface Curve2TokenPoolV1Params {
   fee: BigNumber;
   oracleRate: BigNumber;
   hasOracle: boolean;
+  includeAdminBalances: boolean;
 }
 
 export class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPoolV1Params> {
@@ -26,6 +27,7 @@ export class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPoolV1Params
   public static readonly A_PRECISION = BigNumber.from(100);
   public static readonly FEE_DENOMINATOR = BigNumber.from(10).pow(10);
   public static readonly IS_SELF_LP_TOKEN: boolean = false;
+  public static readonly INCLUDE_ADMIN_BALANCES: boolean = true;
   public static readonly HAS_ORACLE: boolean = false;
 
   public static override getInitData(
@@ -81,6 +83,24 @@ export class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPoolV1Params
         target: pool,
         method: 'lp_token',
         key: 'lpTokenAddress',
+      });
+    }
+
+    if (this.INCLUDE_ADMIN_BALANCES) {
+      calls.push({
+        stage: 0,
+        target: NO_OP,
+        method: NO_OP,
+        key: 'includeAdminBalances',
+        transform: () => true,
+      });
+    } else {
+      calls.push({
+        stage: 0,
+        target: NO_OP,
+        method: NO_OP,
+        key: 'includeAdminBalances',
+        transform: () => false,
       });
     }
 
@@ -205,9 +225,10 @@ export class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPoolV1Params
       this.poolParams.adminBalance_0,
       this.poolParams.adminBalance_1,
     ];
-    const old_balances = this.balances.map((b, i) =>
-      b.copy(b.n.sub(admin_balances[i]))
-    );
+    const old_balances = this.poolParams.includeAdminBalances
+      ? this.balances.map((b, i) => b.copy(b.n.sub(admin_balances[i])))
+      : [...this.balances];
+
     const D0 = this._get_D(this._xp_mem(old_balances), amp);
     const token_supply = this.totalSupply;
     const new_balances = old_balances.map((b, i) => b.add(tokensIn[i]));
@@ -259,17 +280,28 @@ export class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPoolV1Params
   private _get_D(xp: BigNumber[], amp: BigNumber): BigNumber {
     let Dprev = BigNumber.from(0);
 
-    const S = xp.map((b) => b).reduce((a, b) => a.add(b), BigNumber.from(0));
+    const S = xp.reduce((a, b) => a.add(b), BigNumber.from(0));
 
     if (S.isZero()) return BigNumber.from(0);
 
     let D = S;
     const Ann = amp.mul(Curve2TokenPoolV1.N_COINS);
     for (let i = 0; i < 255; i++) {
-      let D_P = D;
-      for (const _x of xp) {
-        D_P = D_P.mul(D).div(_x.mul(Curve2TokenPoolV1.N_COINS).add(1)); // +1 is to prevent /0
+      let D_P;
+
+      if (this.poolParams.includeAdminBalances) {
+        D_P = D.mul(D)
+          .div(xp[0])
+          .mul(D)
+          .div(xp[1])
+          .div(Curve2TokenPoolV1.N_COINS.pow(2));
+      } else {
+        D_P = D;
+        for (const _x of xp) {
+          D_P = D_P.mul(D).div(_x.mul(Curve2TokenPoolV1.N_COINS).add(1)); // +1 is to prevent /0
+        }
       }
+
       Dprev = D;
       D = Ann.mul(S)
         .div(Curve2TokenPoolV1.A_PRECISION)
@@ -517,6 +549,8 @@ export class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPoolV1Params
       dx = dx
         .mul(this._stored_rates()[tokenIndexIn])
         .div(Curve2TokenPoolV1.PRECISION);
+    } else {
+      dx = dx.mul(Curve2TokenPoolV1.PRECISION).div(tokensIn.precision);
     }
 
     const x = xp[tokenIndexIn].add(dx);
@@ -533,6 +567,10 @@ export class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPoolV1Params
       dy = dy
         .mul(Curve2TokenPoolV1.PRECISION)
         .div(this._stored_rates()[tokenIndexOut]);
+    } else {
+      dy = dy
+        .mul(this.balances[tokenIndexOut].precision)
+        .div(Curve2TokenPoolV1.PRECISION);
     }
 
     const admin_fee = this.poolParams.adminFee;
@@ -553,22 +591,22 @@ export class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPoolV1Params
     }
 
     return {
-      tokensOut: this.balances[tokenIndexOut].copy(
-        dy
-          .mul(this.balances[tokenIndexOut].precision)
-          .div(this.balances[tokenIndexIn].precision)
-      ),
+      tokensOut: this.balances[tokenIndexOut].copy(dy),
       feesPaid: feesPaid,
     };
   }
 }
 
 /**
- * Variant of the Curve2TokenPoolV1 where the lp_token call is not defined because the token pool itself
+ * Variant of the Curve2TokenPoolV1 wCurve2TokenPoolV1 the lp_token call is not defined because the token pool itself
  * is also the LP token contract.
  */
 export class Curve2TokenPoolV1_SelfLPToken extends Curve2TokenPoolV1 {
   public static override readonly IS_SELF_LP_TOKEN: boolean = true;
+}
+
+export class Curve2TokenPoolV1_SelfLPTokenNoAdmin extends Curve2TokenPoolV1_SelfLPToken {
+  public static override readonly INCLUDE_ADMIN_BALANCES: boolean = false;
 }
 
 export class Curve2TokenPoolV1_HasOracle extends Curve2TokenPoolV1 {
