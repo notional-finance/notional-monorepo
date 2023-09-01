@@ -705,20 +705,25 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
         : undefined;
 
     let tokenAmount = TokenBalance.fromID(p.tokenAmount, tokenId, network);
-    if (tokenAmount.tokenType === 'PrimeDebt') {
-      tokenAmount = tokenAmount.neg();
-    }
-
-    const underlyingAmountRealized = TokenBalance.fromID(
+    let underlyingAmountRealized = TokenBalance.fromID(
       p.underlyingAmountRealized,
       underlyingId,
       network
     );
-    const underlyingAmountSpot = TokenBalance.fromID(
+    let underlyingAmountSpot = TokenBalance.fromID(
       p.underlyingAmountSpot,
       underlyingId,
       network
     );
+
+    if (tokenAmount.tokenType === 'PrimeDebt') {
+      tokenAmount = tokenAmount.neg();
+      underlyingAmountRealized = underlyingAmountRealized.neg();
+      underlyingAmountSpot = underlyingAmountSpot.neg();
+    } else if (tokenAmount.tokenType === 'fCash' && token.isFCashDebt) {
+      underlyingAmountRealized = underlyingAmountRealized.neg();
+      underlyingAmountSpot = underlyingAmountSpot.neg();
+    }
 
     return {
       timestamp: p.timestamp,
@@ -731,12 +736,8 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
       bundleName: p.bundle.bundleName,
       transactionHash: p.transactionHash.id,
       tokenAmount,
-      underlyingAmountRealized: tokenAmount.isNegative()
-        ? underlyingAmountRealized.neg()
-        : underlyingAmountRealized,
-      underlyingAmountSpot: tokenAmount.isNegative()
-        ? underlyingAmountSpot.neg()
-        : underlyingAmountSpot,
+      underlyingAmountRealized,
+      underlyingAmountSpot,
       realizedPrice: TokenBalance.fromID(
         p.realizedPrice,
         underlyingId,

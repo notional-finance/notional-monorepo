@@ -18,9 +18,12 @@ export function calculateAccountIRR(
   const portfolioNetWorth = riskProfile
     .netWorth()
     .toToken(ETH, 'None', snapshotTimestamp);
-  const totalNetWorth = VaultAccountRiskProfile.getAllRiskProfiles(
+
+  const allVaultRisk = VaultAccountRiskProfile.getAllRiskProfiles(
     account.balances
-  )
+  );
+
+  const totalNetWorth = allVaultRisk
     .map((v) => v.netWorth().toToken(ETH, 'None', snapshotTimestamp))
     .reduce((p, c) => p.add(c), portfolioNetWorth);
 
@@ -33,19 +36,12 @@ export function calculateAccountIRR(
         h.bundleName === 'Withdraw'
     )
     .map((h) => {
-      let balance: TokenBalance;
-      if (
-        h.bundleName === 'Deposit' ||
-        h.bundleName === 'Deposit and Transfer'
-      ) {
-        balance = h.underlyingAmountRealized
-          .abs()
-          .toToken(ETH, 'None', snapshotTimestamp);
-      } else {
-        balance = h.underlyingAmountRealized
-          .abs()
-          .neg()
-          .toToken(ETH, 'None', snapshotTimestamp);
+      let balance = h.underlyingAmountRealized
+        .toUnderlying()
+        .toToken(ETH, 'None', snapshotTimestamp);
+
+      if (h.bundleName === 'Deposit and Transfer') {
+        balance = balance.neg();
       }
 
       return {
@@ -56,22 +52,27 @@ export function calculateAccountIRR(
       };
     });
 
-  const netDeposits = cashFlows.reduce(
-    (s, { balance }) => s.add(balance),
-    TokenBalance.from(0, ETH)
-  );
+  const netDeposits = cashFlows
+    .reduce((s, { balance }) => s.add(balance), TokenBalance.from(0, ETH))
+    .neg();
+
+  const allFlows = cashFlows.concat({
+    date: new Date(getNowSeconds() * 1000),
+    amount: totalNetWorth.toFloat(),
+    balance: totalNetWorth,
+  });
 
   let irr = 0;
-  try {
-    irr = xirr(
-      cashFlows.concat({
-        date: new Date(getNowSeconds() * 1000),
-        amount: totalNetWorth.toFloat(),
-        balance: totalNetWorth,
-      })
-    );
-  } catch (e) {
-    console.log('IRR Failed', account.address);
+  if (!totalNetWorth.isZero()) {
+    try {
+      irr = xirr(allFlows);
+    } catch (e) {
+      console.log(
+        'IRR Failed',
+        account.address,
+        allFlows.map(({ amount, date }) => [amount, date.getTime() / 1000])
+      );
+    }
   }
 
   return {
@@ -79,5 +80,10 @@ export function calculateAccountIRR(
     totalNetWorth,
     netDeposits,
     earnings: totalNetWorth.sub(netDeposits),
+    portfolioRisk: riskProfile.getAllRiskFactors(),
+    vaultRisk: allVaultRisk.reduce(
+      (a, v) => Object.assign(a, { [v.vaultAddress]: v.getAllRiskFactors() }),
+      {}
+    ),
   };
 }
