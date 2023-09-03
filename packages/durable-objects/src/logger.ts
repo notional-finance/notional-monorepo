@@ -29,6 +29,8 @@ type DDEventKey =
   | 'GeoIPLog'
   | 'NewsletterSubmitFailure'
   | 'AccountLiquidated'
+  | 'AccountListMismatch'
+  | 'VaultAccountListMismatch'
   | 'SettlementReserveMismatch'
   | 'TotalSupplyMismatch'
   | 'TotalSupplyMissing'

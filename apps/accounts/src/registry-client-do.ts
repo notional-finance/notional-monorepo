@@ -135,9 +135,83 @@ export class RegistryClientDO extends BaseDO<Env> {
     });
   }
 
-  private async checkAccountList(_network: Network) {
-    // const accountList = Registry.getAnalyticsRegistry().getAllAccounts(network)
-    // const subgraphAccounts = Registry.getAccountRegistry().getAllSubjectKeys(network)
+  private async checkAccountList(network: Network) {
+    const accountList = await Registry.getAnalyticsRegistry().getView<{
+      account_id: string;
+      vault_id: string | null;
+    }>(network, 'accounts_list');
+    const accountSet = new Set(
+      accountList
+        .filter(({ vault_id }) => vault_id === null)
+        .map(({ account_id }) => account_id.toLowerCase())
+    );
+    const vaultAccountSet = new Set(
+      accountList
+        .filter(({ vault_id }) => vault_id !== null)
+        .map(({ account_id, vault_id }) =>
+          `${account_id}:${vault_id}`.toLowerCase()
+        )
+    );
+
+    const subgraphAccounts = Registry.getAccountRegistry()
+      .getAllSubjectKeys(network)
+      .map((a) =>
+        Registry.getAccountRegistry().getLatestFromSubject(network, a)
+      )
+      .filter((acct) => acct.systemAccountType === 'None');
+    for (const a of subgraphAccounts) {
+      if (accountSet.has(a.address.toLowerCase())) {
+        accountSet.delete(a.address.toLowerCase());
+      } else {
+        await this.logger.submitEvent({
+          aggregation_key: 'AccountListMismatch',
+          alert_type: 'error',
+          title: `Account List Mismatch: ${a.address}`,
+          tags: [network],
+          text: `Account List mismatch detected ${a.address} is not in the account list`,
+        });
+      }
+
+      const vaultKeys = a.balances
+        .filter((b) => b.tokenType === 'VaultShare' && !b.isZero())
+        .map((b) => `${a.address}:${b.vaultAddress}`.toLowerCase());
+      for (const k of vaultKeys) {
+        if (vaultAccountSet.has(k)) vaultAccountSet.delete(k);
+        else {
+          await this.logger.submitEvent({
+            aggregation_key: 'VaultAccountListMismatch',
+            alert_type: 'error',
+            title: `Vault Account List Mismatch: ${k}`,
+            tags: [network],
+            text: `Vault Account List mismatch detected ${k} is not in the account list`,
+          });
+        }
+      }
+    }
+
+    if (accountSet.size > 0) {
+      await this.logger.submitEvent({
+        aggregation_key: 'AccountListMismatch',
+        alert_type: 'error',
+        title: `Account List Mismatch`,
+        tags: [network],
+        text: `Account List mismatch detected : ${[
+          ...accountSet.entries(),
+        ].toString()} is not in the subgraph list`,
+      });
+    }
+
+    if (vaultAccountSet.size > 0) {
+      await this.logger.submitEvent({
+        aggregation_key: 'VaultAccountListMismatch',
+        alert_type: 'error',
+        title: `Vault Account List Mismatch`,
+        tags: [network],
+        text: `Account List mismatch detected : ${[
+          ...vaultAccountSet.entries(),
+        ].toString()} is not in the subgraph list`,
+      });
+    }
   }
 
   private async saveAccountFactors(network: Network) {
