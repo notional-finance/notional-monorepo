@@ -33,7 +33,7 @@ jobs:
         env:
           NX_CONTACT_EMAIL: ${{ secrets.NX_CONTACT_EMAIL }}
           NX_DD_APP_ID: ${{ secrets.NX_DD_APP_ID }}
-          NX_DD_API_KEY: ${{ secrets.NX_DD_API_KEY }}
+          NX_DD_CLIENT_TOKEN: ${{ secrets.NX_DD_CLIENT_TOKEN }}
           NX_DD_BASE_URL: ${{ secrets.NX_DD_BASE_URL }}
           NX_DD_SITE: ${{ secrets.NX_DD_SITE }}
           NX_APP_URL: ${{ secrets.NX_APP_URL }}
