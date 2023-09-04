@@ -20,7 +20,7 @@ export class TokenRegistryDO extends RegistryDO {
     super(
       state,
       env,
-      20 * ONE_MINUTE_MS,
+      2 * ONE_MINUTE_MS,
       Routes.Tokens,
       Servers.TokenRegistryServer
     );
@@ -32,7 +32,7 @@ export class ConfigurationRegistryDO extends RegistryDO {
     super(
       state,
       env,
-      20 * ONE_MINUTE_MS,
+      2 * ONE_MINUTE_MS,
       Routes.Configuration,
       Servers.ConfigurationServer
     );

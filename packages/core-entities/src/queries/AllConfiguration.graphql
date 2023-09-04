@@ -69,7 +69,7 @@ query AllConfiguration {
         liquidationHaircutPercentage
     }
 
-    vaultConfigurations {
+    vaultConfigurations(where: { enabled: true }) {
         id
         vaultAddress
         strategy
@@ -99,6 +99,11 @@ query AllConfiguration {
         maxSecondaryBorrowCapacity
         totalUsedSecondaryBorrowCapacity
         minAccountSecondaryBorrow
+    }
+
+    whitelistedContracts {
+        id
+        capability
     }
 
     _meta {
