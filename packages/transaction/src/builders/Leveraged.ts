@@ -5,7 +5,6 @@ import {
   getBalanceAndTradeAction,
   DepositActionType,
   getETHValue,
-  getBalanceAction,
   populateTxnAndGas,
   hasExistingCashBalance,
 } from './common';
@@ -122,17 +121,14 @@ export function LeveragedNToken({
 
   if (debtBalance.tokenType === 'fCash') {
     const borrowAction = [
-      address,
-      [
-        getBalanceAndTradeAction(
-          DepositActionType.DepositUnderlying,
-          depositBalance,
-          false,
-          undefined, // No Withdraws
-          false,
-          debtBalance.tokenType === 'fCash' ? [debtBalance] : []
-        ),
-      ],
+      getBalanceAndTradeAction(
+        DepositActionType.DepositUnderlying,
+        depositBalance,
+        false,
+        undefined, // No Withdraws
+        false,
+        [debtBalance]
+      ),
     ];
 
     return populateTxnAndGas(adapter, address, 'doLeveragedNToken', [
@@ -147,21 +143,19 @@ export function LeveragedNToken({
     debtBalance.isNegative()
   ) {
     const borrowAction = [
-      address,
-      [
-        getBalanceAction(
-          DepositActionType.DepositUnderlying,
-          depositBalance,
-          false,
-          undefined, // No Withdraws
-          false
-        ),
-      ],
+      getBalanceAndTradeAction(
+        DepositActionType.DepositUnderlying,
+        depositBalance,
+        false,
+        undefined, // No Withdraws
+        false,
+        []
+      ),
     ];
 
     return populateTxnAndGas(adapter, address, 'doLeveragedNToken', [
       borrowAction,
-      collateralBalance.toPrimeCash().neg().n,
+      collateralBalance.toPrimeCash().n,
       getETHValue(depositBalance),
     ]);
   } else {
