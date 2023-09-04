@@ -468,10 +468,10 @@ export class TokenBalance {
     );
   }
 
-  toUnderlying() {
+  toUnderlying(atTimestamp?: number) {
     if (this.tokenType === 'Underlying') return this;
     // Does the exchange rate conversion and decimal scaling
-    return this.toToken(this.underlying);
+    return this.toToken(this.underlying, undefined, atTimestamp);
   }
 
   toPrimeDebt() {
@@ -504,7 +504,7 @@ export class TokenBalance {
     );
   }
 
-  toFiat(symbol: FiatKeys) {
+  toFiat(symbol: FiatKeys, atTimestamp?: number) {
     const tokens = Registry.getTokenRegistry();
     const fiatToken = tokens.getTokenBySymbol(Network.All, symbol);
 
@@ -513,7 +513,7 @@ export class TokenBalance {
       // "All" network since the only price oracle that exists is on mainnet
       const note = tokens.getTokenBySymbol(Network.All, 'NOTE');
       const noteInAllNetwork = TokenBalance.from(this.n, note);
-      return noteInAllNetwork.toToken(fiatToken);
+      return noteInAllNetwork.toToken(fiatToken, undefined, atTimestamp);
     } else {
       // Other tokens convert to ETH first and then go via the "All" network
       // for fiat currency conversions
@@ -523,7 +523,7 @@ export class TokenBalance {
         valueInETH.n,
         tokens.getTokenBySymbol(Network.All, 'ETH')
       );
-      return ethInAllNetwork.toToken(fiatToken);
+      return ethInAllNetwork.toToken(fiatToken, undefined, atTimestamp);
     }
   }
 

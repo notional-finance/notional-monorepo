@@ -1,6 +1,7 @@
 import {
   IS_LOCAL_ENV,
   PRIME_CASH_VAULT_MATURITY,
+  SECONDS_IN_DAY,
   SECONDS_IN_QUARTER,
   SECONDS_IN_YEAR,
 } from './constants';
@@ -11,6 +12,10 @@ export function getNowSeconds() {
     return parseInt(fakeTime, 10);
   }
   return Math.floor(new Date().getTime() / 1000);
+}
+
+export function getMidnightUTC(ts = getNowSeconds()) {
+  return ts - (ts % SECONDS_IN_DAY);
 }
 
 export function getTimeReference(timestamp = getNowSeconds()) {
