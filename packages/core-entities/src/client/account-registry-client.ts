@@ -663,9 +663,10 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
       underlyingId,
       network
     );
-    const accumulatedCostRealized = balance
-      .toUnderlying()
-      .scale(adjustedCostBasis, adjustedCostBasis.precision);
+    const accumulatedCostRealized = adjustedCostBasis.scale(
+      balance,
+      balance.precision
+    );
     return {
       balance,
       adjustedCostBasis,
