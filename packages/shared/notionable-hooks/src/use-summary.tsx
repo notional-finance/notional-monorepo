@@ -34,10 +34,7 @@ import {
   usePortfolioRiskProfile,
   useVaultRiskProfiles,
 } from './use-account';
-import {
-  AccountRiskProfile,
-  VaultAccountRiskProfile,
-} from '@notional-finance/risk-engine';
+import { AccountRiskProfile } from '@notional-finance/risk-engine';
 import { useFiat } from './use-user-settings';
 import { useSelectedNetwork } from './use-notional';
 
@@ -588,7 +585,9 @@ export function usePortfolioComparison(
   const { postTradeBalances, tradeType, vaultAddress } = state;
   const priorBalances = account
     ? isVaultTrade(tradeType) && vaultAddress
-      ? new VaultAccountRiskProfile(vaultAddress, account.balances).balances
+      ? account.balances.filter(
+          (t) => t.isVaultToken && t.vaultAddress === vaultAddress
+        )
       : new AccountRiskProfile(account.balances, network).balances
     : [];
 

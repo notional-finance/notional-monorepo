@@ -10,6 +10,7 @@ import {
 } from '@notional-finance/multicall';
 import {
   encodefCashId,
+  filterEmpty,
   getNowSeconds,
   getProviderFromNetwork,
   INTERNAL_TOKEN_PRECISION,
@@ -97,7 +98,8 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
 
       // Take the values from the subscription until the active account changes
       return sub.pipe(
-        takeUntil(this.activeAccount$.pipe(filter((a) => a !== account)))
+        takeUntil(this.activeAccount$.pipe(filter((a) => a !== account))),
+        filterEmpty()
       );
     }
 
