@@ -27,9 +27,10 @@ export const useCompactTables = () => {
     },
   ];
   const { highRollerData, sadSackData, fatCatData } = useLeaderboardData();
-  const tableDataOne = highRollerData.filter((_, i) => i < 5);
-  const tableDataTwo = sadSackData.filter((_, i) => i < 5);
-  const tableDataThree = fatCatData.filter((_, i) => i < 5);
-
-  return { tableColumns, tableDataOne, tableDataTwo, tableDataThree };
+  return {
+    tableColumns,
+    highRollerData: highRollerData.filter((_, i) => i < 5),
+    sadSackData: sadSackData.filter((_, i) => i < 5),
+    fatCatData: fatCatData.filter((_, i) => i < 5),
+  };
 };
