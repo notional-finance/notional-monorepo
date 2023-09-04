@@ -626,12 +626,6 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
           INTERNAL_TOKEN_PRECISION
         )
       );
-    const totalProfitAndLoss = currentStatement.balance
-      .toUnderlying()
-      // Use the absolute value here because debt balances are still considered positive
-      // values inside the PnL calculation
-      .abs()
-      .sub(currentStatement.accumulatedCostRealized);
     const totalInterestAccrual = currentProfitAndLoss.sub(
       currentStatement.totalILAndFees
     );
@@ -643,7 +637,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
       adjustedCostBasis: currentStatement.adjustedCostBasis,
       totalILAndFees: currentStatement.totalILAndFees,
       impliedFixedRate: currentStatement.impliedFixedRate,
-      totalProfitAndLoss,
+      totalProfitAndLoss: currentProfitAndLoss,
       totalInterestAccrual,
       accumulatedCostRealized: currentStatement.accumulatedCostRealized,
     };

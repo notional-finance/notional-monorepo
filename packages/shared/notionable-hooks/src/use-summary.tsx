@@ -20,6 +20,9 @@ import {
 import {
   RATE_DECIMALS,
   RATE_PRECISION,
+  SECONDS_IN_DAY,
+  getMidnightUTC,
+  logError,
   zipByKeyToArray,
 } from '@notional-finance/util';
 import {
@@ -704,9 +707,34 @@ function getLiquidationPrices(
           greenOnArrowUp: updated?.isDebtThreshold ? true : false,
           isPriceRisk: true,
           isAssetRisk: false,
+          oneDayChange: 0,
+          sevenDayChange: 0,
         };
       } else {
         const currentPrice = TokenBalance.unit(asset).toUnderlying();
+        const tref = getMidnightUTC();
+        let oneDayChange: number | undefined;
+        let sevenDayChange: number | undefined;
+
+        try {
+          const oneDay = TokenBalance.unit(asset).toUnderlying(
+            tref - SECONDS_IN_DAY
+          );
+          const sevenDay = TokenBalance.unit(asset).toUnderlying(
+            tref - 7 * SECONDS_IN_DAY
+          );
+          oneDayChange =
+            ((currentPrice.toFloat() - oneDay.toFloat()) /
+              currentPrice.toFloat()) *
+            100;
+          sevenDayChange =
+            ((currentPrice.toFloat() - sevenDay.toFloat()) /
+              currentPrice.toFloat()) *
+            100;
+        } catch (e) {
+          logError(e as Error, 'getLiquidationPrice', 'calculatePriceChange');
+        }
+
         return {
           label: `${formatTokenType(asset).title} Liquidation Price`,
           asset,
@@ -732,6 +760,8 @@ function getLiquidationPrices(
           ),
           // Debt thresholds improve as they increase
           greenOnArrowUp: updated?.isDebtThreshold ? true : false,
+          oneDayChange,
+          sevenDayChange,
           isPriceRisk: false,
           isAssetRisk: true,
         };

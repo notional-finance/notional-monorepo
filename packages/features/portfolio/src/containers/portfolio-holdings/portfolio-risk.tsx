@@ -141,14 +141,14 @@ export const PortfolioRisk = () => {
   const { portfolioLiquidation } = useCurrentLiquidationPrices();
   const exchangeRateRisk = portfolioLiquidation
     .filter(({ isPriceRisk }) => isPriceRisk)
-    .map(({ asset, currentPrice, current }) => ({
+    .map(({ asset, currentPrice, current, oneDayChange, sevenDayChange }) => ({
       exchangeRate: {
         symbol: asset.symbol,
         label: `${asset.symbol} / ${baseCurrency}`,
       },
       currentPrice: currentPrice.toDisplayStringWithSymbol(3),
-      oneDayChange: 0,
-      sevenDayChange: 0,
+      oneDayChange,
+      sevenDayChange,
       liquidationPrice: current,
     }));
 

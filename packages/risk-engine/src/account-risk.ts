@@ -180,8 +180,8 @@ export class AccountRiskProfile extends BaseRiskProfile {
       // If currencyId is specified, then the leverage ratio
       // is specific to the denomination currency, without cross
       // currency haircuts applied.
-      totalAssets = this.totalCurrencyAssetsRiskAdjusted(currencyId);
-      totalDebt = this.totalCurrencyDebtsRiskAdjusted(currencyId);
+      totalAssets = this.totalCurrencyAssets(currencyId);
+      totalDebt = this.totalCurrencyDebts(currencyId);
     } else {
       totalDebt = this.totalDebt();
       totalAssets = this.totalAssets();
