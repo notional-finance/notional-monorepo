@@ -87,7 +87,9 @@ export const AssetInput = React.forwardRef<
       useAssetInput(
         selectedToken,
         debtOrCollateral === 'Debt',
-        tradeType === 'RollDebt' || tradeType === 'ConvertAsset'
+        tradeType === 'RollDebt' ||
+          tradeType === 'ConvertAsset' ||
+          tradeType === 'Deleverage'
       );
 
     const {
@@ -165,7 +167,6 @@ export const AssetInput = React.forwardRef<
           options={options}
           defaultValue={selectedToken?.id || null}
           onSelectChange={(newToken: string | null) => {
-            // TODO: trigger different update here for deleverage
             // Always clear the input string when we change tokens
             inputRef.current?.setInputOverride('');
             if (deleverage) updateDeleverageToken(newToken);
