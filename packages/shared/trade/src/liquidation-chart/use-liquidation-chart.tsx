@@ -28,8 +28,7 @@ export function useLiquidationChart(state: TradeState | VaultTradeState) {
   const areaChartData = useAssetPriceHistory(token).map(
     ({ timestamp, assetPrice }) => ({
       timestamp,
-      // Non vault trades have prices shown at a discount
-      area: isVaultTrade(tradeType) ? assetPrice : 1 / assetPrice,
+      area: assetPrice,
       line: liquidationPrice?.toFloat(),
     })
   );
@@ -56,9 +55,9 @@ export function useLiquidationChart(state: TradeState | VaultTradeState) {
     deposit && token
       ? isVaultTrade(tradeType)
         ? // Vault share prices are shown at a premium
-          TokenBalance.unit(token).toToken(deposit)
-        : // Non vault leveraged trades are shown at a discount
           TokenBalance.unit(deposit).toToken(token)
+        : // Non vault leveraged trades are shown at a discount
+          TokenBalance.unit(token).toToken(deposit)
       : undefined;
   const pricePair = token
     ? `${formatTokenType(token).title}/${deposit?.symbol}`

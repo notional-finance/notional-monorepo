@@ -7,7 +7,7 @@ on:
         required: true
         default: 'dev'
       workers:
-        description: 'Worker Projects: comma separated list of worker names: <api|registry|system-cache>'
+        description: 'Worker Projects: comma separated list of worker names: <api|registry|accounts|data|registry-exchange|liquidation-bot|vault-liquidator>'
         required: true
         default: ''
   push:

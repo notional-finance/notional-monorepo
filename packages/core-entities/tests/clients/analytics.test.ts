@@ -15,15 +15,16 @@ describe('Sync Analytics', () => {
     );
   }, 8000);
 
-  it('can sync views', () => {
+  it('can sync views', async () => {
     const analytics = Registry.getAnalyticsRegistry();
     // expect(analytics.getAssetVolatility(Network.ArbitrumOne));
     // expect(analytics.getHistoricalPrices(Network.ArbitrumOne));
     // expect(analytics.getNTokenTradingFees(Network.ArbitrumOne)).toBeDefined();
-    console.log(
-      analytics.getHistoricalOracles(Network.ArbitrumOne, 1688342400)
-    );
+    // console.log(
+    //   analytics.getHistoricalOracles(Network.ArbitrumOne, 1688342400)
+    // );
     // console.log(analytics.getAssetHistory(Network.ArbitrumOne));
+    console.log(await analytics.getView(Network.ArbitrumOne, 'accounts_list'));
   });
 
   it('can fetch vaults views', () => {

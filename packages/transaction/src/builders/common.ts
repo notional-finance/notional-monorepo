@@ -147,8 +147,13 @@ export function getBalanceAndTradeAction(
     withdrawAmount,
     redeemToWETH
   );
-  const { trades, currencyId } = encodeTrades(fCash);
-  if (currencyId !== amount.currencyId) throw Error('Mismatched currency ids');
+  let trades: string[] = [];
+  if (fCash.length > 0) {
+    let currencyId: number;
+    ({ trades, currencyId } = encodeTrades(fCash));
+    if (currencyId !== amount.currencyId)
+      throw Error('Mismatched currency ids');
+  }
 
   return {
     ...balanceAction,

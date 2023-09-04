@@ -259,6 +259,10 @@ export class AnalyticsRegistryClient extends ClientRegistry<AnalyticsData> {
     return this._getLatest(this.subscribeVault(network, vaultAddress));
   }
 
+  async getView<T>(network: Network, viewName: string) {
+    return this._fetch<T[]>(network, viewName);
+  }
+
   protected override async _refresh(network: Network) {
     const vaultViews =
       Registry.getConfigurationRegistry()

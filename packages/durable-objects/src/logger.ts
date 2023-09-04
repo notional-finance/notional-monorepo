@@ -1,3 +1,5 @@
+import { Network } from '@notional-finance/util';
+
 type LoggerOptions = {
   service: string;
   version: string;
@@ -14,11 +16,21 @@ type LogMessage = {
   [key: string]: unknown;
 };
 
+export enum MetricType {
+  Unspecified = 0,
+  Count = 1,
+  Rate = 2,
+  Gauge = 3,
+}
+
 type DDMetric = {
-  name: string;
-  value: number;
+  metric: string;
+  points: {
+    value: number;
+    timestamp: number;
+  }[];
+  type: MetricType;
   tags: string[];
-  timestamp: number;
 };
 
 type DDSeries = {
@@ -29,6 +41,8 @@ type DDEventKey =
   | 'GeoIPLog'
   | 'NewsletterSubmitFailure'
   | 'AccountLiquidated'
+  | 'AccountListMismatch'
+  | 'VaultAccountListMismatch'
   | 'SettlementReserveMismatch'
   | 'TotalSupplyMismatch'
   | 'TotalSupplyMissing'
@@ -39,6 +53,8 @@ type DDEventAlertType = 'error' | 'warning' | 'info';
 type DDEvent = {
   aggregation_key: DDEventKey;
   alert_type: DDEventAlertType;
+  host: string;
+  network: Network;
   title: string;
   tags: string[];
   text: string;
@@ -95,7 +111,7 @@ export class Logger {
 
   async submitMetrics(series: DDSeries) {
     try {
-      const body = JSON.stringify({ series });
+      const body = JSON.stringify(series);
       const opts = {
         method: 'POST',
         body,
@@ -113,6 +129,7 @@ export class Logger {
 
   async submitEvent(event: DDEvent) {
     try {
+      event.tags.push(`network:${event.network}`);
       const body = JSON.stringify({ ...event, source_type_name: 'cloudflare' });
       const opts = {
         method: 'POST',

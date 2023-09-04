@@ -5,7 +5,7 @@ import { FormattedMessage } from 'react-intl';
 
 export const ContestMultiTable = () => {
   const theme = useTheme();
-  const { tableColumns, tableDataOne, tableDataTwo, tableDataThree } =
+  const { tableColumns, highRollerData, sadSackData, fatCatData } =
     useCompactTables();
   return (
     <Container
@@ -17,7 +17,7 @@ export const ContestMultiTable = () => {
       }}
     >
       <ContestTable
-        data={tableDataOne}
+        data={highRollerData}
         columns={tableColumns}
         tableVariant={CONTEST_TABLE_VARIANTS.COMPACT}
         tableTitle={<FormattedMessage defaultMessage={'HIGH ROLLER'} />}
@@ -28,7 +28,7 @@ export const ContestMultiTable = () => {
         }
       />
       <ContestTable
-        data={tableDataTwo}
+        data={fatCatData}
         columns={tableColumns}
         tableVariant={CONTEST_TABLE_VARIANTS.COMPACT}
         tableTitle={<FormattedMessage defaultMessage={'FAT CAT'} />}
@@ -39,7 +39,7 @@ export const ContestMultiTable = () => {
         }
       />
       <ContestTable
-        data={tableDataThree}
+        data={sadSackData}
         columns={tableColumns}
         tableVariant={CONTEST_TABLE_VARIANTS.COMPACT}
         tableTitle={<FormattedMessage defaultMessage={'SAD SACK'} />}
