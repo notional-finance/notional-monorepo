@@ -12,7 +12,6 @@ export const FIAT_NAMES = [
   'CNY',
   'KRW',
   'NZD',
-  'BRL',
   'SGD',
   'TRY',
   'ETH',
@@ -75,7 +74,6 @@ export const fiatTokens: [string, TokenDefinition][] = assignTokenDefaults(
     CNY: {},
     KRW: {},
     NZD: {},
-    BRL: {},
     SGD: {},
     TRY: {},
     ETH: {
