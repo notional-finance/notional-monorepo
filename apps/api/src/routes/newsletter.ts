@@ -1,6 +1,7 @@
 import { Request as CFRequest } from '@cloudflare/workers-types';
 import { IRequest } from 'itty-router';
 import { APIEnv, Logger } from '@notional-finance/durable-objects';
+import { Network } from '@notional-finance/util';
 
 // NOTE: this posts to Netlify because the Cloudflare worker environment is not compatible
 // with jsonwebtoken signing.
@@ -32,6 +33,8 @@ export async function handleNewsletter(_request: IRequest, env: APIEnv) {
       service: 'newsletter',
     });
     logger.submitEvent({
+      host: 'cloudflare',
+      network: Network.All,
       aggregation_key: 'NewsletterSubmitFailure',
       alert_type: 'error',
       title: 'Newsletter Submit Failure',
