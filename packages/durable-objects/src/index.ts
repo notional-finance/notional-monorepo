@@ -1,7 +1,7 @@
 import { DurableObjectNamespace } from '@cloudflare/workers-types';
 import { RegistryDOEnv } from './registries';
 
-export { Logger } from './logger';
+export { Logger, MetricType } from './logger';
 export * from './abstract';
 export * from './registries';
 export * from './views-do';

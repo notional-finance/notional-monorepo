@@ -10,7 +10,7 @@ import {
   Registry,
   TokenBalance,
 } from '@notional-finance/core-entities';
-import { BaseDO } from '@notional-finance/durable-objects';
+import { BaseDO, MetricType } from '@notional-finance/durable-objects';
 import { calculateAccountIRR } from './factors/calculations';
 import { Env } from '.';
 
@@ -77,6 +77,8 @@ export class RegistryClientDO extends BaseDO<Env> {
   }
 
   private async checkDataFreshness(network: Network) {
+    const networkTag = `network:${network}`;
+    const timestamp = getNowSeconds();
     const analyticsData = Registry.getAnalyticsRegistry()
       .getAllSubjectKeys(network)
       .map((k) => {
@@ -91,45 +93,86 @@ export class RegistryClientDO extends BaseDO<Env> {
         );
 
         return {
-          name: `registry.lastUpdateTimestamp.analytics.${k}`,
-          value: latestTimestamp,
-          tags: [network],
-          timestamp: getNowSeconds(),
+          metric: `registry.lastUpdateTimestamp`,
+          points: [
+            {
+              value: timestamp - latestTimestamp,
+              timestamp,
+            },
+          ],
+          tags: [networkTag, `registry:analytics`, `view:${k}`],
+          type: MetricType.Gauge,
         };
       });
 
     await this.logger.submitMetrics({
       series: [
         {
-          name: 'registry.lastUpdateTimestamp.tokens',
-          value: Registry.getTokenRegistry().getLastUpdateTimestamp(network),
-          tags: [network],
-          timestamp: getNowSeconds(),
+          metric: 'registry.lastUpdateTimestamp',
+          points: [
+            {
+              value:
+                timestamp -
+                Registry.getTokenRegistry().getLastUpdateTimestamp(network),
+              timestamp,
+            },
+          ],
+          tags: [networkTag, 'registry:tokens'],
+          type: MetricType.Gauge,
         },
         {
-          name: 'registry.lastUpdateTimestamp.oracles',
-          value: Registry.getOracleRegistry().getLastUpdateTimestamp(network),
-          tags: [network],
-          timestamp: getNowSeconds(),
+          metric: 'registry.lastUpdateTimestamp',
+          points: [
+            {
+              value:
+                timestamp -
+                Registry.getOracleRegistry().getLastUpdateTimestamp(network),
+              timestamp,
+            },
+          ],
+          tags: [networkTag, 'registry:oracles'],
+          type: MetricType.Gauge,
         },
         {
-          name: 'registry.lastUpdateTimestamp.vaults',
-          value: Registry.getVaultRegistry().getLastUpdateTimestamp(network),
-          tags: [network],
-          timestamp: getNowSeconds(),
+          metric: 'registry.lastUpdateTimestamp',
+          points: [
+            {
+              value:
+                timestamp -
+                Registry.getVaultRegistry().getLastUpdateTimestamp(network),
+              timestamp,
+            },
+          ],
+          tags: [networkTag, 'registry:vaults'],
+          type: MetricType.Gauge,
         },
         {
-          name: 'registry.lastUpdateTimestamp.exchanges',
-          value: Registry.getExchangeRegistry().getLastUpdateTimestamp(network),
-          tags: [network],
-          timestamp: getNowSeconds(),
+          metric: 'registry.lastUpdateTimestamp',
+          points: [
+            {
+              value:
+                timestamp -
+                Registry.getExchangeRegistry().getLastUpdateTimestamp(network),
+              timestamp,
+            },
+          ],
+          tags: [networkTag, 'registry:exchanges'],
+          type: MetricType.Gauge,
         },
         {
-          name: 'registry.lastUpdateTimestamp.configuration',
-          value:
-            Registry.getConfigurationRegistry().getLastUpdateTimestamp(network),
-          tags: [network],
-          timestamp: getNowSeconds(),
+          metric: 'registry.lastUpdateTimestamp.configuration',
+          points: [
+            {
+              value:
+                timestamp -
+                Registry.getConfigurationRegistry().getLastUpdateTimestamp(
+                  network
+                ),
+              timestamp,
+            },
+          ],
+          tags: [networkTag, 'registry:configuration'],
+          type: MetricType.Gauge,
         },
       ].concat(analyticsData),
     });
@@ -164,10 +207,12 @@ export class RegistryClientDO extends BaseDO<Env> {
         accountSet.delete(a.address.toLowerCase());
       } else {
         await this.logger.submitEvent({
+          host: this.serviceName,
+          network,
           aggregation_key: 'AccountListMismatch',
           alert_type: 'error',
           title: `Account List Mismatch: ${a.address}`,
-          tags: [network],
+          tags: [],
           text: `Account List mismatch detected ${a.address} is not in the account list`,
         });
       }
@@ -179,10 +224,12 @@ export class RegistryClientDO extends BaseDO<Env> {
         if (vaultAccountSet.has(k)) vaultAccountSet.delete(k);
         else {
           await this.logger.submitEvent({
+            host: this.serviceName,
+            network,
             aggregation_key: 'VaultAccountListMismatch',
             alert_type: 'error',
             title: `Vault Account List Mismatch: ${k}`,
-            tags: [network],
+            tags: [],
             text: `Vault Account List mismatch detected ${k} is not in the account list`,
           });
         }
@@ -191,10 +238,12 @@ export class RegistryClientDO extends BaseDO<Env> {
 
     if (accountSet.size > 0) {
       await this.logger.submitEvent({
+        host: this.serviceName,
+        network,
         aggregation_key: 'AccountListMismatch',
         alert_type: 'error',
         title: `Account List Mismatch`,
-        tags: [network],
+        tags: [],
         text: `Account List mismatch detected : ${[
           ...accountSet.entries(),
         ].toString()} is not in the subgraph list`,
@@ -203,10 +252,12 @@ export class RegistryClientDO extends BaseDO<Env> {
 
     if (vaultAccountSet.size > 0) {
       await this.logger.submitEvent({
+        host: this.serviceName,
+        network,
         aggregation_key: 'VaultAccountListMismatch',
         alert_type: 'error',
         title: `Vault Account List Mismatch`,
-        tags: [network],
+        tags: [],
         text: `Account List mismatch detected : ${[
           ...vaultAccountSet.entries(),
         ].toString()} is not in the subgraph list`,
@@ -306,10 +357,12 @@ export class RegistryClientDO extends BaseDO<Env> {
 
       if (computedBalance.sub(reserveBalance.abs()).abs().toFloat() > 1e-4) {
         await this.logger.submitEvent({
+          host: this.serviceName,
+          network,
           aggregation_key: 'SettlementReserveMismatch',
           alert_type: 'error',
           title: `SettlementReserve Mismatch: ${token.symbol}`,
-          tags: [network, token.symbol],
+          tags: [],
           text: `
             Settlement Reserve mismatch detected in ${token.symbol}:
             Settlement Reserve: ${reserveBalance.toString()}
@@ -328,12 +381,14 @@ export class RegistryClientDO extends BaseDO<Env> {
 
         if (computedSupply.sub(totalSupply).abs().toFloat() > 1e-4) {
           await this.logger.submitEvent({
+            host: this.serviceName,
+            network,
             aggregation_key: 'TotalSupplyMismatch',
             alert_type: 'error',
             title: `Total Supply Mismatch: ${isFCashDebt ? '-' : ''}${
               totalSupply.symbol
             }`,
-            tags: [network, totalSupply.symbol],
+            tags: [],
             text: `
             Total Supply mismatch detected in ${isFCashDebt ? '-' : ''}${
               totalSupply.symbol
@@ -345,10 +400,12 @@ export class RegistryClientDO extends BaseDO<Env> {
         }
       } else {
         await this.logger.submitEvent({
+          host: this.serviceName,
+          network,
           aggregation_key: 'TotalSupplyMissing',
           alert_type: 'warning',
           title: `Total Supply Missing: ${symbol}`,
-          tags: [network, symbol],
+          tags: [],
           text: `Total Supply missing for ${symbol}`,
         });
       }
@@ -381,6 +438,8 @@ export class RegistryClientDO extends BaseDO<Env> {
           .toFloat() > 1e-4
       ) {
         await this.logger.submitEvent({
+          host: this.serviceName,
+          network,
           aggregation_key: 'TotalBorrowCapacityMismatch',
           alert_type: 'error',
           title: `Total Borrow Capacity Mismatch: ${v.vaultAddress}`,
