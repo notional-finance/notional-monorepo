@@ -7,6 +7,7 @@ export const useVaultCards = () => {
   const listedVaults = useAllVaults();
   const {
     yields: { leveragedVaults },
+    getMax,
   } = useAllMarkets();
   const allVaults = listedVaults.map(
     ({
@@ -17,8 +18,8 @@ export const useVaultCards = () => {
       totalUsedPrimaryBorrowCapacity,
       primaryToken,
     }) => {
-      const y = leveragedVaults.find(
-        (y) => y.token.vaultAddress === vaultAddress
+      const y = getMax(
+        leveragedVaults.filter((y) => y.token.vaultAddress === vaultAddress)
       );
       const capacityRemaining = maxPrimaryBorrowCapacity.sub(
         totalUsedPrimaryBorrowCapacity
