@@ -6947,7 +6947,7 @@ export type AllConfigurationQuery = { currencyConfigurations: Array<(
   )>, vaultConfigurations: Array<(
     Pick<VaultConfiguration, 'id' | 'vaultAddress' | 'strategy' | 'name' | 'minAccountBorrowSize' | 'minCollateralRatioBasisPoints' | 'maxDeleverageCollateralRatioBasisPoints' | 'feeRateBasisPoints' | 'reserveFeeSharePercent' | 'liquidationRatePercent' | 'maxBorrowMarketIndex' | 'maxRequiredAccountCollateralRatioBasisPoints' | 'enabled' | 'allowRollPosition' | 'onlyVaultEntry' | 'onlyVaultExit' | 'onlyVaultRoll' | 'onlyVaultDeleverage' | 'onlyVaultSettle' | 'discountfCash' | 'allowsReentrancy' | 'deleverageDisabled' | 'maxPrimaryBorrowCapacity' | 'totalUsedPrimaryBorrowCapacity' | 'maxSecondaryBorrowCapacity' | 'totalUsedSecondaryBorrowCapacity' | 'minAccountSecondaryBorrow'>
     & { primaryBorrowCurrency: Pick<Token, 'id'>, secondaryBorrowCurrencies?: Maybe<Array<Pick<Token, 'id'>>> }
-  )>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
+  )>, whitelistedContracts: Array<Pick<WhitelistedContract, 'id' | 'capability'>>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
 
 export type AllConfigurationByBlockQueryVariables = Exact<{
   blockNumber?: InputMaybe<Scalars['Int']>;
@@ -7209,7 +7209,7 @@ export const AllConfigurationDocument = gql`
     pvHaircutPercentage
     liquidationHaircutPercentage
   }
-  vaultConfigurations {
+  vaultConfigurations(where: {enabled: true}) {
     id
     vaultAddress
     strategy
@@ -7243,6 +7243,10 @@ export const AllConfigurationDocument = gql`
     maxSecondaryBorrowCapacity
     totalUsedSecondaryBorrowCapacity
     minAccountSecondaryBorrow
+  }
+  whitelistedContracts {
+    id
+    capability
   }
   _meta {
     block {

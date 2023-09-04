@@ -1,11 +1,12 @@
-import { TokenBalance } from '@notional-finance/core-entities';
+import { Registry, TokenBalance } from '@notional-finance/core-entities';
 import {
   PopulateTransactionInputs,
   populateNotionalTxnAndGas,
   getBalanceAndTradeAction,
   DepositActionType,
   getETHValue,
-  getBalanceAction,
+  populateTxnAndGas,
+  hasExistingCashBalance,
 } from './common';
 
 export function EnablePrimeBorrow({
@@ -104,47 +105,57 @@ export function LeveragedNToken({
   network,
   depositBalance,
   debtBalance,
+  collateralBalance,
+  accountBalances,
 }: PopulateTransactionInputs) {
-  if (!depositBalance || !debtBalance)
+  if (!depositBalance || !debtBalance || !collateralBalance)
     throw Error('All balances must be defined');
 
-  // TODO: this requires a second transaction to convert the cash:
-  // ConvertCashToNToken
+  const adapter =
+    Registry.getConfigurationRegistry().getLeveragedNTokenAdapter(network);
+  const { cashBalance } = hasExistingCashBalance(
+    collateralBalance,
+    accountBalances
+  );
+  const hasCash = !!cashBalance;
+
   if (debtBalance.tokenType === 'fCash') {
-    return populateNotionalTxnAndGas(
-      network,
-      address,
-      'batchBalanceAndTradeAction',
-      [
-        address,
-        [
-          getBalanceAndTradeAction(
-            DepositActionType.DepositUnderlying,
-            depositBalance,
-            false,
-            undefined, // No Withdraws
-            false,
-            debtBalance.tokenType === 'fCash' ? [debtBalance] : []
-          ),
-        ],
-        getETHValue(depositBalance),
-      ]
-    );
+    const borrowAction = [
+      getBalanceAndTradeAction(
+        DepositActionType.DepositUnderlying,
+        depositBalance,
+        false,
+        undefined, // No Withdraws
+        false,
+        [debtBalance]
+      ),
+    ];
+
+    return populateTxnAndGas(adapter, address, 'doLeveragedNToken', [
+      borrowAction,
+      // Use a zero if the account does not have cash to ensure that no dust
+      // is left behind
+      hasCash ? collateralBalance.toPrimeCash().n : 0,
+      getETHValue(depositBalance),
+    ]);
   } else if (
     debtBalance.tokenType === 'PrimeDebt' &&
     debtBalance.isNegative()
   ) {
-    return populateNotionalTxnAndGas(network, address, 'batchBalanceAction', [
-      address,
-      [
-        getBalanceAction(
-          DepositActionType.DepositUnderlying,
-          depositBalance,
-          false,
-          undefined, // No Withdraws
-          false
-        ),
-      ],
+    const borrowAction = [
+      getBalanceAndTradeAction(
+        DepositActionType.DepositUnderlying,
+        depositBalance,
+        false,
+        undefined, // No Withdraws
+        false,
+        []
+      ),
+    ];
+
+    return populateTxnAndGas(adapter, address, 'doLeveragedNToken', [
+      borrowAction,
+      collateralBalance.toPrimeCash().n,
       getETHValue(depositBalance),
     ]);
   } else {

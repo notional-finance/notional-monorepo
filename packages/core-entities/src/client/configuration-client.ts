@@ -14,6 +14,7 @@ import {
   encodeERC1155Id,
   getMaturityForMarketIndex,
   getNowSeconds,
+  getProviderFromNetwork,
   INTERNAL_TOKEN_PRECISION,
   Network,
   NotionalAddress,
@@ -26,8 +27,12 @@ import {
 import { Registry } from '../Registry';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { Maybe, TokenType } from '../.graphclient';
-import { BigNumber } from 'ethers';
+import { BigNumber, Contract } from 'ethers';
 import { OracleRegistryClient } from './oracle-registry-client';
+import {
+  LeveragedNTokenAdapter,
+  LeveragedNTokenAdapterABI,
+} from '@notional-finance/contracts';
 
 export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
   protected cachePath() {
@@ -581,6 +586,21 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
       'NOTE',
       nToken.network
     );
+  }
+
+  getLeveragedNTokenAdapter(network: Network) {
+    const address = this.getLatestFromSubject(
+      network,
+      network
+      // TODO: change this to use name later
+    )?.whitelistedContracts.find((_) => _)?.id;
+    if (!address) throw Error('Leveraged NToken Adapter not found');
+
+    return new Contract(
+      address,
+      LeveragedNTokenAdapterABI,
+      getProviderFromNetwork(network)
+    ) as LeveragedNTokenAdapter;
   }
 
   private _assertDefined<T>(v: Maybe<T> | undefined): T {

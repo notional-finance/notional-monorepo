@@ -179,7 +179,6 @@ export async function applySimulationToAccount(
   } = await simulatePopulatedTxn(network, populateTxn);
   const balancesAfter = [...priorAccount.balances];
 
-  // TODO: this does not include underlying transfers
   const accountTransfers = transfers.filter(
     (t) =>
       t.from.toLowerCase() === priorAccount.address.toLowerCase() ||
