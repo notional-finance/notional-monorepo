@@ -41,7 +41,6 @@ export const VaultActionSideDrawer = () => {
   const history = useHistory();
   const { clearSideDrawer } = useSideDrawerManager();
 
-  // NOTE: what does this do?
   useEffect(() => {
     clearSideDrawer();
   }, [clearSideDrawer]);
@@ -51,17 +50,22 @@ export const VaultActionSideDrawer = () => {
     updateState,
   } = useContext(VaultActionContext);
   const hasVaultPosition = !!priorAccountRisk;
-  const SideDrawerComponent = useVaultSideDrawers(
-    tradeType as VaultTradeType
-  );
+  const SideDrawerComponent = useVaultSideDrawers(tradeType as VaultTradeType);
+
+  useEffect(() => {
+    // Clear any trade types if there is no position
+    if (!hasVaultPosition && tradeType !== 'CreateVaultPosition') {
+      history.push(`/vaults/${vaultAddress}`);
+    }
+  }, [hasVaultPosition, tradeType, history, vaultAddress]);
 
   const returnToManageVault = useCallback(() => {
     history.push(`/vaults/${vaultAddress}`);
-    updateState({ tradeType: undefined });
+    updateState({ tradeType: undefined, confirm: false });
   }, [vaultAddress, history, updateState]);
 
-  const manageVaultActive = SideDrawerComponent === null
-  const sideDrawerActive = !!SideDrawerComponent
+  const manageVaultActive = SideDrawerComponent === null;
+  const sideDrawerActive = !!SideDrawerComponent;
 
   let drawerEl;
   if (!hasVaultPosition) {
