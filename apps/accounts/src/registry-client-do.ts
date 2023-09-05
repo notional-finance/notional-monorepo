@@ -89,7 +89,7 @@ export class RegistryClientDO extends BaseDO<Env> {
               k,
               0
             ) || []
-          ).map((d) => (d['timestamp'] || 0) as number)
+          ).map((d) => (d['timestamp'] || d['Timestamp'] || 0) as number)
         );
 
         return {

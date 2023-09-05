@@ -17,11 +17,10 @@ interface DataPoint {
 type AnalyticsData = DataPoint[];
 
 const VIEWS = [
-  'asset_price_volatility',
   'historical_oracle_values',
   'notional_asset_historical_prices',
   'notional_assets_apys_and_tvls',
-  'nToken_trading_fees_apys',
+  'ntoken_trading_fees_apys',
 ] as const;
 
 type AnalyticsViews = typeof VIEWS[number];
@@ -54,23 +53,6 @@ export class AnalyticsRegistryClient extends ClientRegistry<AnalyticsData> {
     if (v === null) return null;
     else if (typeof v === 'string') return fn(parseFloat(v));
     else return fn(v);
-  }
-
-  subscribeAssetVolatility(network: Network) {
-    return this.subscribeDataSet(network, 'asset_price_volatility')?.pipe(
-      map((d) => {
-        const tokens = Registry.getTokenRegistry();
-        return (
-          d?.map((p) => ({
-            base: tokens.getTokenByID(network, p['base_token_id'] as string),
-            quote: tokens.getTokenByID(network, p['quote_token_id'] as string),
-            oneDay: this._convertOrNull(p['return_1d'], (d) => d * 100),
-            sevenDay: this._convertOrNull(p['return_7d'], (d) => d * 100),
-          })) || []
-        );
-      }),
-      shareReplay(1)
-    );
   }
 
   subscribeHistoricalPrices(network: Network) {
@@ -116,7 +98,7 @@ export class AnalyticsRegistryClient extends ClientRegistry<AnalyticsData> {
   }
 
   subscribeNTokenTradingFees(network: Network) {
-    return this.subscribeDataSet(network, 'nToken_trading_fees_apys')?.pipe(
+    return this.subscribeDataSet(network, 'ntoken_trading_fees_apys')?.pipe(
       map((d) => {
         const tokens = Registry.getTokenRegistry();
         return (
@@ -244,10 +226,6 @@ export class AnalyticsRegistryClient extends ClientRegistry<AnalyticsData> {
       }),
       shareReplay(1)
     );
-  }
-
-  getAssetVolatility(network: Network) {
-    return this._getLatest(this.subscribeAssetVolatility(network));
   }
 
   getHistoricalOracles(network: Network, timestamp: number) {
