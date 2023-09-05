@@ -22,7 +22,6 @@ import {
   RATE_PRECISION,
   SECONDS_IN_DAY,
   getMidnightUTC,
-  logError,
   zipByKeyToArray,
 } from '@notional-finance/util';
 import {
@@ -732,7 +731,7 @@ function getLiquidationPrices(
               currentPrice.toFloat()) *
             100;
         } catch (e) {
-          logError(e as Error, 'getLiquidationPrice', 'calculatePriceChange');
+          // NO-OP
         }
 
         return {

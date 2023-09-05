@@ -5,6 +5,7 @@ import {
   Curve2TokenPoolV1,
   Curve2TokenPoolV1_SelfLPToken,
   Curve2TokenPoolV1_HasOracle,
+  Curve2TokenPoolV1_SelfLPTokenNoAdmin,
 } from './Curve/Curve2TokenPoolV1';
 import Curve2TokenPoolV2 from './Curve/Curve2TokenPoolV2';
 import {
@@ -34,6 +35,7 @@ const PoolClasses: Record<
   ThreeTokenComposableStablePool: ThreeTokenComposableStablePool,
   Curve2TokenPoolV1: Curve2TokenPoolV1,
   Curve2TokenPoolV1_SelfLPToken: Curve2TokenPoolV1_SelfLPToken,
+  Curve2TokenPoolV1_SelfLPTokenNoAdmin: Curve2TokenPoolV1_SelfLPTokenNoAdmin,
   Curve2TokenPoolV1_HasOracle: Curve2TokenPoolV1_HasOracle,
   Curve2TokenPoolV2: Curve2TokenPoolV2,
 };

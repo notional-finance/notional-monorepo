@@ -500,12 +500,14 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
       (r): Record<string, AccountHistory[]> => {
         return {
           [account]:
-            r.account?.profitLossLineItems?.map((p) => {
-              return this._parseTransactionHistory(
-                p as ProfitLossLineItem,
-                network
-              );
-            }) || [],
+            r.account?.profitLossLineItems
+              ?.map((p) => {
+                return this._parseTransactionHistory(
+                  p as ProfitLossLineItem,
+                  network
+                );
+              })
+              .sort((a, b) => b.timestamp - a.timestamp) || [],
         };
       },
       {

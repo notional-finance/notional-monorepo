@@ -4,6 +4,7 @@ import {
   Network,
   getNowSeconds,
   PRIME_CASH_VAULT_MATURITY,
+  INTERNAL_TOKEN_DECIMALS,
 } from '@notional-finance/util';
 import { VaultAdapter } from './VaultAdapter';
 import { BaseLiquidityPool } from '../exchanges';
@@ -207,6 +208,40 @@ export class SingleSidedLP extends VaultAdapter {
           secondaryTradeParams: this.secondaryTradeParams,
         },
       ]
+    );
+  }
+
+  getPriceExposure() {
+    return (
+      this.pool
+        // This is trading towards the single sided token [profit]
+        .getPriceExposureTable(
+          1 - this.singleSidedTokenIndex,
+          this.singleSidedTokenIndex
+        )
+        .map(({ tokenOutPrice, lpTokenValueOut }) => ({
+          price: tokenOutPrice,
+          vaultSharePrice: lpTokenValueOut.scale(
+            this.totalVaultShares,
+            this.totalLPTokens.scaleTo(INTERNAL_TOKEN_DECIMALS)
+          ),
+        }))
+        .reverse()
+        // This is trading away from the single sided token [loss]
+        .concat(
+          this.pool
+            .getPriceExposureTable(
+              this.singleSidedTokenIndex,
+              1 - this.singleSidedTokenIndex
+            )
+            .map(({ tokenInPrice, lpTokenValueIn }) => ({
+              price: tokenInPrice,
+              vaultSharePrice: lpTokenValueIn.scale(
+                this.totalVaultShares,
+                this.totalLPTokens.scaleTo(INTERNAL_TOKEN_DECIMALS)
+              ),
+            }))
+        )
     );
   }
 }

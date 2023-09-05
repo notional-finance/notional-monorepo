@@ -24,7 +24,7 @@ export class TokenBalance {
     public tokenId: string,
     public network: Network
   ) {
-    this.tokenId = convertToGenericfCashId(tokenId);
+    this.tokenId = convertToGenericfCashId(tokenId).toLowerCase();
     // Rewrite alt eth address to zero address
     if (this.tokenId === ALT_ETH) this.tokenId = ZERO_ADDRESS;
   }

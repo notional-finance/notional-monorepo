@@ -368,7 +368,7 @@ export default abstract class BaseLiquidityPool<
   public getPriceExposureTable(
     tokenIndexIn: number,
     tokenIndexOut: number,
-    percentDepthTraded = 80
+    percentDepthTraded = 99
   ) {
     return (
       Array(percentDepthTraded)
@@ -387,12 +387,16 @@ export default abstract class BaseLiquidityPool<
             newBalances[tokenIndexOut] =
               newBalances[tokenIndexOut].add(tokensOut);
 
-            const lpTokenValue = this.getLPTokenSpotValue(
+            const lpTokenValueOut = this.getLPTokenSpotValue(
               tokenIndexOut,
               newBalances
             );
+            const lpTokenValueIn = this.getLPTokenSpotValue(
+              tokenIndexIn,
+              newBalances
+            );
 
-            const { tokensOut: secondaryTokenPrice } = this.calculateTokenTrade(
+            const { tokensOut: tokenOutPrice } = this.calculateTokenTrade(
               // Calculate the trade of a single unit of the token index in
               this.balances[tokenIndexIn].copy(
                 this.balances[tokenIndexIn].precision
@@ -400,19 +404,33 @@ export default abstract class BaseLiquidityPool<
               tokenIndexOut,
               newBalances
             );
+            const { tokensOut: tokenInPrice } = this.calculateTokenTrade(
+              // Calculate the trade of a single unit of the token index in
+              this.balances[tokenIndexOut].copy(
+                this.balances[tokenIndexOut].precision
+              ),
+              tokenIndexIn,
+              newBalances
+            );
 
-            const priceLevelIndex = secondaryTokenPrice
-              .toFloat()
-              .toPrecision(2);
+            const priceLevelIndex = tokenOutPrice.toFloat().toPrecision(3);
 
-            return { lpTokenValue, secondaryTokenPrice, priceLevelIndex };
+            return {
+              lpTokenValueOut,
+              lpTokenValueIn,
+              tokenOutPrice,
+              tokenInPrice,
+              priceLevelIndex,
+            };
           } catch {
             return undefined;
           }
         })
         .filter((x) => x !== undefined) as {
-        lpTokenValue: TokenBalance;
-        secondaryTokenPrice: TokenBalance;
+        lpTokenValueOut: TokenBalance;
+        lpTokenValueIn: TokenBalance;
+        tokenOutPrice: TokenBalance;
+        tokenInPrice: TokenBalance;
         priceLevelIndex: string;
       }[]
     ).filter(

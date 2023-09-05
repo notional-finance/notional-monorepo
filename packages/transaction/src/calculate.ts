@@ -575,15 +575,13 @@ export function calculateVaultRoll({
   balances: TokenBalance[];
 }) {
   // Collateral balance is predefined
-  const collateralBalance = balances.find(
-    (t) => t.tokenType === 'VaultShare' && t.vaultAddress === debt.vaultAddress
-  );
-  const currentDebt = balances.find(
-    (t) => t.tokenType === 'VaultDebt' && t.vaultAddress === debt.vaultAddress
-  );
+  if (!debt.vaultAddress) throw Error('Vault Debt not defined');
+  // Settles balances inside
+  const profile = VaultAccountRiskProfile.from(debt.vaultAddress, balances);
+  const collateralBalance = profile.vaultShares;
+  const currentDebt = profile.vaultDebt;
   if (!collateralBalance) throw Error('Vault Shares not defined');
   if (!currentDebt) throw Error('Vault Debt not defined');
-  if (!debt.vaultAddress) throw Error('Vault Debt not defined');
   const tokens = Registry.getTokenRegistry();
 
   // eslint-disable-next-line prefer-const

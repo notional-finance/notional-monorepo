@@ -11,7 +11,9 @@ import {
   calculateVaultRoll,
 } from '@notional-finance/transaction';
 import {
+  PRIME_CASH_VAULT_MATURITY,
   getMarketIndexForMaturity,
+  getNowSeconds,
   isIdiosyncratic,
 } from '@notional-finance/util';
 
@@ -46,14 +48,20 @@ function sameVaultMaturity(
       (t.tokenType === 'VaultDebt' || t.tokenType === 'VaultShare') &&
       t.token.vaultAddress === vaultAddress
   )?.maturity;
-  return t.maturity === maturity;
+  return maturity && maturity < getNowSeconds()
+    ? t.maturity === PRIME_CASH_VAULT_MATURITY
+    : t.maturity === maturity;
 }
 
 function matchingVaultShare(
   t: TokenDefinition,
   debt?: TokenDefinition
 ): boolean {
-  return debt ? debt.maturity === t.maturity : true;
+  return debt
+    ? debt.maturity && debt.maturity < getNowSeconds()
+      ? PRIME_CASH_VAULT_MATURITY === t.maturity
+      : debt.maturity === t.maturity
+    : true;
 }
 
 export const VaultTradeConfiguration = {
@@ -170,6 +178,7 @@ export const VaultTradeConfiguration = {
     depositFilter: (t, _, s: VaultTradeState) =>
       isPrimaryCurrency(t, s.vaultConfig),
     transactionBuilder: RollVault,
+    calculateDebtOptions: true,
   } as TransactionConfig,
 
   /**
