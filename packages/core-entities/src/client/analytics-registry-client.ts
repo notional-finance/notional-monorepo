@@ -152,10 +152,21 @@ export class AnalyticsRegistryClient extends ClientRegistry<AnalyticsData> {
               p['underlying_token_id'] as string
             );
 
+            let totalAPY = this._convertOrNull(p['total_apy'], (d) => d);
+            const timestamp = p['timestamp'] as number;
+
+            // Vault APYs need to be rewritten via their specific view
+            if (token.tokenType === 'VaultShare' && token.vaultAddress) {
+              const vaultData = this.getVault(network, token.vaultAddress);
+              totalAPY =
+                vaultData?.find((d) => d.timestamp === timestamp)?.totalAPY ||
+                null;
+            }
+
             return {
               token,
-              timestamp: p['timestamp'] as number,
-              totalAPY: this._convertOrNull(p['total_apy'], (d) => d),
+              timestamp,
+              totalAPY,
               tvlUnderlying: this._convertOrNull(p['tvl_underlying'], (d) =>
                 TokenBalance.fromFloat(d.toFixed(6), underlying)
               ),

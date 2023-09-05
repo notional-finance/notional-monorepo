@@ -22,13 +22,23 @@ import {
   PerformanceChart,
   TradeActionSummary,
 } from '@notional-finance/trade';
+import { useVaultPriceExposure } from '../hooks/use-vault-price-exposure';
+import { useVaultExistingFactors } from '../hooks/use-vault-existing-factors';
+import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
 
 export const VaultSummary = () => {
   const theme = useTheme();
   const { state } = useContext(VaultActionContext);
-  const { vaultAddress, vaultConfig } = state;
+  const { vaultAddress, vaultConfig, deposit } = state;
   const vaultName = vaultConfig?.name;
   const { tableColumns, returnDrivers } = useReturnDrivers(vaultAddress);
+  const { data, columns } = useVaultPriceExposure(state);
+  const {
+    vaultShare,
+    assetLiquidationPrice,
+    priorBorrowRate,
+    priorLeverageRatio,
+  } = useVaultExistingFactors();
 
   const {
     overCapacityError,
@@ -107,8 +117,39 @@ export const VaultSummary = () => {
                 }}
               />
             </Box>
-            <PerformanceChart state={state} />
-            <LiquidationChart state={state} />
+            <PerformanceChart
+              state={state}
+              priorVaultFactors={{
+                vaultShare,
+                vaultBorrowRate: priorBorrowRate,
+                leverageRatio: priorLeverageRatio || undefined,
+                isPrimeBorrow:
+                  vaultShare?.maturity === PRIME_CASH_VAULT_MATURITY,
+              }}
+            />
+            <LiquidationChart
+              state={state}
+              vaultCollateral={vaultShare}
+              vaultLiquidationPrice={assetLiquidationPrice}
+            />
+            <Box marginBottom={theme.spacing(5)}>
+              <DataTable
+                tableTitle={
+                  <FormattedMessage
+                    defaultMessage={'Vault Shares/{symbol} Price Exposure'}
+                    values={{ symbol: deposit?.symbol || '' }}
+                  />
+                }
+                stateZeroMessage={
+                  <FormattedMessage
+                    defaultMessage={'Fill in inputs to see price exposure'}
+                  />
+                }
+                data={data}
+                maxHeight={theme.spacing(40)}
+                columns={columns}
+              />
+            </Box>
             <Box id={VAULT_SUB_NAV_ACTIONS.MARKET_RETURNS}>
               <DataTable
                 data={returnDrivers}

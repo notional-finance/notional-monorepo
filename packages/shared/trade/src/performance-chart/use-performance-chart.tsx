@@ -1,4 +1,5 @@
 import { useTheme } from '@mui/material';
+import { TokenDefinition } from '@notional-finance/core-entities';
 import {
   formatNumberAsPercent,
   getDateString,
@@ -8,19 +9,27 @@ import { BaseTradeState } from '@notional-finance/notionable';
 import { useLeveragedPerformance } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
 
-export function usePerformanceChart(state: BaseTradeState) {
+export function usePerformanceChart(
+  state: BaseTradeState,
+  priorVaultFactors?: {
+    vaultShare?: TokenDefinition;
+    isPrimeBorrow: boolean;
+    vaultBorrowRate?: number;
+    leverageRatio?: number;
+  }
+) {
   const theme = useTheme();
-  const {
-    collateral,
-    debt,
-    debtOptions,
-    collateralOptions,
-    riskFactorLimit,
-    tradeType,
-  } = state;
-  const currentBorrowRate = debtOptions?.find(
-    (t) => t.token.id === debt?.id
-  )?.interestRate;
+  const { debt, debtOptions, collateralOptions, riskFactorLimit, tradeType } =
+    state;
+  const currentBorrowRate =
+    debtOptions?.find(
+      (t) => t.token.id === debt?.id
+      // Allow the historical vault borrow rate to be applied here
+    )?.interestRate || priorVaultFactors?.vaultBorrowRate;
+
+  // Allow the vault collateral to override the set collateral for the unset state
+  const collateral = state.collateral || priorVaultFactors?.vaultShare;
+
   const leveragedLendFixedRate =
     tradeType === 'LeveragedLend' && collateral?.tokenType === 'fCash'
       ? collateralOptions?.find((t) => t.token.id === collateral?.id)
@@ -29,10 +38,13 @@ export function usePerformanceChart(state: BaseTradeState) {
 
   // Always use the specified leverage ratio so that this figure matches
   // the header
-  const leverageRatio = riskFactorLimit?.limit as number | undefined;
+  const leverageRatio = (riskFactorLimit?.limit ||
+    priorVaultFactors?.leverageRatio) as number | undefined;
   const data = useLeveragedPerformance(
     collateral,
-    debt?.tokenType === 'PrimeDebt',
+    debt
+      ? debt.tokenType === 'PrimeDebt'
+      : priorVaultFactors?.isPrimeBorrow || false,
     currentBorrowRate,
     leverageRatio,
     leveragedLendFixedRate

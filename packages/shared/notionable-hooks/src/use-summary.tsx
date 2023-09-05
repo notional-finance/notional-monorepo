@@ -18,6 +18,7 @@ import {
   isVaultTrade,
 } from '@notional-finance/notionable';
 import {
+  NonLoggedError,
   RATE_DECIMALS,
   RATE_PRECISION,
   SECONDS_IN_DAY,
@@ -732,7 +733,11 @@ function getLiquidationPrices(
               currentPrice.toFloat()) *
             100;
         } catch (e) {
-          logError(e as Error, 'getLiquidationPrice', 'calculatePriceChange');
+          logError(
+            e as NonLoggedError,
+            'getLiquidationPrice',
+            'calculatePriceChange'
+          );
         }
 
         return {

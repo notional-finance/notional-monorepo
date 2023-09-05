@@ -1,30 +1,39 @@
 import { useTheme } from '@mui/material';
-import { Registry, TokenBalance } from '@notional-finance/core-entities';
+import {
+  Registry,
+  TokenBalance,
+  TokenDefinition,
+} from '@notional-finance/core-entities';
 import { formatTokenType, getDateString } from '@notional-finance/helpers';
 import { ChartToolTipDataProps, CountUp } from '@notional-finance/mui';
-import {
-  TradeState,
-  VaultTradeState,
-  isVaultTrade,
-} from '@notional-finance/notionable';
+import { TradeState, VaultTradeState } from '@notional-finance/notionable';
 import { useAssetPriceHistory } from '@notional-finance/notionable-hooks';
 import { RATE_PRECISION } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
 import { AxisDomain } from 'recharts/types/util/types';
 
-export function useLiquidationChart(state: TradeState | VaultTradeState) {
+export function useLiquidationChart(
+  state: TradeState | VaultTradeState,
+  vaultCollateral?: TokenDefinition,
+  vaultLiquidationPrice?: TokenBalance
+) {
   const theme = useTheme();
-  const { collateral, postAccountRisk, deposit, debt, tradeType } = state;
+  const { collateral, postAccountRisk, debt, tradeType, priorAccountRisk } =
+    state;
   const token =
     tradeType === 'LeveragedLend' && collateral?.tokenType === 'PrimeCash'
       ? debt
-      : collateral;
+      : collateral || vaultCollateral;
 
   const liquidationPrice = postAccountRisk
     ? postAccountRisk.liquidationPrice.find(
         ({ asset }) => asset.id === token?.id
       )?.threshold
-    : undefined;
+    : priorAccountRisk?.liquidationPrice.find(
+        ({ asset }) => asset.id === token?.id
+      )?.threshold || vaultLiquidationPrice;
+  const deposit = state.deposit || liquidationPrice?.underlying;
+
   const areaChartData = useAssetPriceHistory(token).map(
     ({ timestamp, assetPrice }) => ({
       timestamp,
@@ -52,13 +61,7 @@ export function useLiquidationChart(state: TradeState | VaultTradeState) {
   }
 
   const currentPrice =
-    deposit && token
-      ? isVaultTrade(tradeType)
-        ? // Vault share prices are shown at a premium
-          TokenBalance.unit(deposit).toToken(token)
-        : // Non vault leveraged trades are shown at a discount
-          TokenBalance.unit(token).toToken(deposit)
-      : undefined;
+    deposit && token ? TokenBalance.unit(token).toToken(deposit) : undefined;
   const pricePair = token
     ? `${formatTokenType(token).title}/${deposit?.symbol}`
     : '';
