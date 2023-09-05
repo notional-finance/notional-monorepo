@@ -77,4 +77,9 @@ export abstract class VaultAdapter {
     underlyingToRepayDebt: TokenBalance,
     slippageFactor: number
   ): BytesLike;
+
+  abstract getPriceExposure(): {
+    price: TokenBalance;
+    vaultSharePrice: TokenBalance;
+  }[];
 }
