@@ -1,4 +1,5 @@
 import { SvgIcon, SvgIconProps } from '@mui/material';
+import { colors } from '@notional-finance/styles';
 
 /* eslint-disable-next-line */
 export interface V3BetaIconProps extends SvgIconProps {}
@@ -17,8 +18,7 @@ export function V3BetaIcon(props: V3BetaIconProps) {
         fillRule="evenodd"
         clipRule="evenodd"
         d="M40 11.5L20 0L0 11.5V34.5L20 46L40 34.5V11.5Z"
-        fill="#33F8FF"
-        fillOpacity="0.1"
+        fill={colors.matteGreen}
       />
       <path
         fillRule="evenodd"

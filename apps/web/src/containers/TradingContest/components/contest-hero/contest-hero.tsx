@@ -5,8 +5,11 @@ import { Button, ProgressIndicator } from '@notional-finance/mui';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { SETTINGS_SIDE_DRAWERS } from '@notional-finance/shared-config';
 import { useTruncatedAddress } from '@notional-finance/notionable-hooks';
-import { useConnect } from '@notional-finance/wallet/hooks/use-connect';
-import { useNftContract, BETA_ACCESS } from '../../hooks';
+import {
+  useConnect,
+  useNftContract,
+  BETA_ACCESS,
+} from '@notional-finance/wallet/hooks';
 import { ContestNftPass } from '../contest-nft-pass/contest-nft-pass';
 
 export const ContestHero = () => {
