@@ -5,7 +5,7 @@ import { FormattedMessage } from 'react-intl';
 import { ProgressIndicator } from '@notional-finance/mui';
 import betaPassGif from '../../assets/beta-pass.gif';
 import lockImg from '../../assets/lock.svg';
-import { useNftContract, BETA_ACCESS } from '../../hooks';
+import { useNftContract, BETA_ACCESS } from '@notional-finance/wallet/hooks';
 
 export const ContestNftPass = () => {
   const [imgLoaded, setImgLoaded] = useState(false);

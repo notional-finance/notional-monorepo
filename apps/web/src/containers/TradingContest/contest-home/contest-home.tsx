@@ -17,8 +17,19 @@ export const ContestHome = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <Box sx={{ marginTop: '-162px', background: '#041D2E', height: '100%' }}>
-        <FeatureLoader backgroundColor={'#041D2E'}>
+      <FeatureLoader
+        backgroundColor={'#041D2E'}
+        sx={{
+          marginTop: {
+            xs: '-107px',
+            sm: '-107px',
+            md: '-107px',
+            lg: '-125px',
+            xl: '-125px',
+          },
+        }}
+      >
+        <OuterContainer>
           <BgImgContainer>
             <img src={backgroundColors} alt="bg img" />
           </BgImgContainer>
@@ -35,8 +46,8 @@ export const ContestHome = () => {
               <ContestNfts />
             </MainContainer>
           </OpacityBG>
-        </FeatureLoader>
-      </Box>
+        </OuterContainer>
+      </FeatureLoader>
     </ThemeProvider>
   );
 };
@@ -62,7 +73,17 @@ const MainContainer = styled(Box)(
   margin: auto;
   position: relative;
   z-index: 3;
-  margin-top: -10px;
+    `
+);
+
+const OuterContainer = styled(Box)(
+  ({ theme }) => `
+  margin-top: -123px;
+  background: #041D2E; 
+  height: 100%;
+  ${theme.breakpoints.down('md')} {
+    margin-top: -107px; 
+  }
     `
 );
 

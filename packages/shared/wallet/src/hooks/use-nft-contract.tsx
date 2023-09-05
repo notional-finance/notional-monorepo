@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { NftContract, NftContractABI } from '@notional-finance/contracts';
 import { getProviderFromNetwork } from '@notional-finance/util';
 import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
-import { useConnect } from '@notional-finance/wallet/hooks/use-connect';
+import { useConnect } from './use-connect';
 
 export enum BETA_ACCESS {
   PENDING = 'pending',

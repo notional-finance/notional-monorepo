@@ -2,6 +2,9 @@ import { Box, styled, useTheme } from '@mui/material';
 import { colors } from '@notional-finance/styles';
 import { Button } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
+import fatCat from '../../assets/fatCat.png';
+import highRoller from '../../assets/highRoller.png';
+import sadSack from '../../assets/sadSack.png';
 
 interface ContestNftsProps {
   hideButton?: boolean;
@@ -16,63 +19,36 @@ export const ContestNfts = ({ hideButton }: ContestNftsProps) => {
       </TitleText>
       <NftContainer>
         <NftDisplay>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="235"
-            height="289"
-            viewBox="0 0 235 289"
-            fill="none"
-          >
-            <path
-              d="M3 28.1407C3 27.5305 3.21768 26.9403 3.61391 26.4763L22.8907 3.8989C23.3777 3.32849 24.0901 3 24.8402 3H210.16C210.91 3 211.622 3.32849 212.109 3.8989L231.386 26.4763C231.782 26.9403 232 27.5305 232 28.1407V260.86C232 261.47 231.782 262.061 231.386 262.525L212.109 285.102C211.622 285.672 210.91 286.001 210.16 286.001H24.8402C24.0901 286.001 23.3777 285.672 22.8907 285.102L3.61391 262.525C3.21769 262.061 3 261.47 3 260.86V28.1407Z"
-              fill="#33F8FF"
-              fillOpacity="0.25"
-              stroke="#33F8FF"
-              strokeWidth="6"
-            />
-          </svg>
+          <img
+            src={highRoller}
+            alt="high roller"
+            style={{ width: '275px', height: '329px' }}
+          />
+
           <NftTitle>
             <FormattedMessage defaultMessage={'High Roller 1st Place'} />
           </NftTitle>
           <NftSubTitle>$5,000 NOTE</NftSubTitle>
         </NftDisplay>
         <NftDisplay>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="235"
-            height="289"
-            viewBox="0 0 235 289"
-            fill="none"
-          >
-            <path
-              d="M3 28.1407C3 27.5305 3.21768 26.9403 3.61391 26.4763L22.8907 3.8989C23.3777 3.32849 24.0901 3 24.8402 3H210.16C210.91 3 211.622 3.32849 212.109 3.8989L231.386 26.4763C231.782 26.9403 232 27.5305 232 28.1407V260.86C232 261.47 231.782 262.061 231.386 262.525L212.109 285.102C211.622 285.672 210.91 286.001 210.16 286.001H24.8402C24.0901 286.001 23.3777 285.672 22.8907 285.102L3.61391 262.525C3.21769 262.061 3 261.47 3 260.86V28.1407Z"
-              fill="#33F8FF"
-              fillOpacity="0.25"
-              stroke="#33F8FF"
-              strokeWidth="6"
-            />
-          </svg>
+          <img
+            src={fatCat}
+            alt="fat cat"
+            style={{ width: '275px', height: '329px' }}
+          />
+
           <NftTitle>
             <FormattedMessage defaultMessage={'FAT CAT 1st Place'} />
           </NftTitle>
           <NftSubTitle>$5,000 NOTE</NftSubTitle>
         </NftDisplay>
         <NftDisplay>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="235"
-            height="289"
-            viewBox="0 0 235 289"
-            fill="none"
-          >
-            <path
-              d="M3 28.1407C3 27.5305 3.21768 26.9403 3.61391 26.4763L22.8907 3.8989C23.3777 3.32849 24.0901 3 24.8402 3H210.16C210.91 3 211.622 3.32849 212.109 3.8989L231.386 26.4763C231.782 26.9403 232 27.5305 232 28.1407V260.86C232 261.47 231.782 262.061 231.386 262.525L212.109 285.102C211.622 285.672 210.91 286.001 210.16 286.001H24.8402C24.0901 286.001 23.3777 285.672 22.8907 285.102L3.61391 262.525C3.21769 262.061 3 261.47 3 260.86V28.1407Z"
-              fill="#33F8FF"
-              fillOpacity="0.25"
-              stroke="#33F8FF"
-              strokeWidth="6"
-            />
-          </svg>
+          <img
+            src={sadSack}
+            alt="sad sack"
+            style={{ width: '275px', height: '329px' }}
+          />
+
           <NftTitle>
             <FormattedMessage defaultMessage={'SAD SACK 1st Place'} />
           </NftTitle>

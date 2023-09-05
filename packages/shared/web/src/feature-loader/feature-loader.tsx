@@ -1,4 +1,4 @@
-import { Box } from '@mui/material';
+import { Box, SxProps } from '@mui/material';
 import { PageLoading } from '@notional-finance/mui';
 import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 
@@ -6,12 +6,14 @@ interface FeatureLoaderProps {
   children: React.ReactNode[] | React.ReactNode;
   featureLoaded?: boolean;
   backgroundColor?: string;
+  sx?: SxProps;
 }
 
 export const FeatureLoader = ({
   children,
   featureLoaded = true,
   backgroundColor,
+  sx,
 }: FeatureLoaderProps) => {
   const selectedNetwork = useSelectedNetwork();
   return (
@@ -29,6 +31,7 @@ export const FeatureLoader = ({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
+            ...sx,
           }}
           type="notional"
         />
