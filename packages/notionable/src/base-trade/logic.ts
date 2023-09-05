@@ -340,10 +340,15 @@ export function priorVaultAccountRisk(
     }),
     map(([{ vaultAddress, tradeType, defaultLeverageRatio }, account]) => {
       if (!vaultAddress) return undefined;
-      const priorVaultBalances =
+      const balances =
         account?.balances.filter(
           (t) => t.token.vaultAddress === vaultAddress
         ) || [];
+      let priorVaultBalances: TokenBalance[] = [];
+      if (balances.length > 0) {
+        priorVaultBalances = new VaultAccountRiskProfile(vaultAddress, balances)
+          .balances;
+      }
 
       // NOTE: default trade type is determined by the URL route or the presence
       // of a vault account.
@@ -385,6 +390,7 @@ export function postVaultAccountRisk(
   return combineLatest([account$, state$]).pipe(
     distinctUntilChanged(
       ([, p], [, c]) =>
+        p.tradeType === c.tradeType &&
         p.calculationSuccess === c.calculationSuccess &&
         p.collateralBalance?.hashKey === c.collateralBalance?.hashKey &&
         p.debtBalance?.hashKey === c.debtBalance?.hashKey &&
@@ -406,6 +412,7 @@ export function postVaultAccountRisk(
           return {
             postAccountRisk: undefined,
             canSubmit: false,
+            confirm: false,
             postTradeBalances: undefined,
           };
         } else if (calculationSuccess && vaultAddress && collateralBalance) {
@@ -516,8 +523,14 @@ export function simulateTransaction(
               postTradeBalances || [],
               (t) => t.tokenId
             )
-              .map(([a, b]) => (!!a && !!b ? a.sub(b) : a || b) as TokenBalance)
-              .filter((b) => b.abs().toFloat() > 5e-4);
+              .map(([a, b]) =>
+                !!a && !!b
+                  ? Math.abs(a.toFloat() - b.toFloat()) / b.toFloat()
+                  : a
+                  ? a.abs().toFloat()
+                  : (b as TokenBalance).abs().toFloat()
+              )
+              .filter((b) => b > 5e-4);
 
             if (mismatchedBalances.length > 0) {
               logError(

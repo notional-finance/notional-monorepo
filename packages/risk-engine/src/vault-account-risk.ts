@@ -8,7 +8,6 @@ import {
   PRIME_CASH_VAULT_MATURITY,
   RATE_DECIMALS,
   RATE_PRECISION,
-  unique,
 } from '@notional-finance/util';
 import { BaseRiskProfile } from './base-risk';
 import { SymbolOrID } from './types';
@@ -74,20 +73,11 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     );
   }
 
-  public discountFCash: boolean;
-
   /** Takes a set of token balances to create a new vault account risk profile */
   constructor(public vaultAddress: string, _balances: TokenBalance[]) {
     const balances = _balances.filter(
       (t) => t.isVaultToken && t.token.vaultAddress === vaultAddress
     );
-    const network = unique(balances.map((b) => b.token.network));
-    const maturity = unique(balances.map((b) => b.token.maturity));
-
-    // If initiating a new vault position, at least the dummy value of zero vault
-    // shares in the proper maturity must be passed in.
-    if (network.length != 1 || maturity.length != 1)
-      throw Error('All balances must be in same vault, network and maturity');
 
     const denom = balances.find((b) => b.tokenType === 'VaultShare')?.token
       .underlying;
@@ -95,14 +85,14 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
 
     // NOTE: this will settle balances inside
     super(balances, denom);
-
-    this.discountFCash =
-      Registry.getConfigurationRegistry().getVaultDiscountfCash(
-        network[0],
-        this.vaultAddress
-      );
   }
 
+  get discountFCash() {
+    return Registry.getConfigurationRegistry().getVaultDiscountfCash(
+      this.network,
+      this.vaultAddress
+    );
+  }
   get vaultConfig() {
     return Registry.getConfigurationRegistry().getVaultConfig(
       this.network,

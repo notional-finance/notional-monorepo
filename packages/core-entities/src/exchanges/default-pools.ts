@@ -89,7 +89,7 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
     },
     {
       address: '0xC9B8a3FDECB9D5b218d02555a8Baf332E5B740d5',
-      PoolClass: 'Curve2TokenPoolV1_SelfLPToken',
+      PoolClass: 'Curve2TokenPoolV1_SelfLPTokenNoAdmin',
       registerTokens: [
         // FRAX / USDC v1 pool
         {
