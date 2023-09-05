@@ -170,6 +170,7 @@ export const VaultTradeConfiguration = {
     depositFilter: (t, _, s: VaultTradeState) =>
       isPrimaryCurrency(t, s.vaultConfig),
     transactionBuilder: RollVault,
+    calculateDebtOptions: true,
   } as TransactionConfig,
 
   /**

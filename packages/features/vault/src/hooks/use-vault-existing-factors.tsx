@@ -12,7 +12,7 @@ export function useVaultExistingFactors() {
   const {
     yields: { variableBorrow, vaultShares },
   } = useAllMarkets();
-  const { priorVaultBalances, priorAccountRisk } = state;
+  const { priorVaultBalances, priorAccountRisk, postAccountRisk } = state;
 
   const vaultShare = priorVaultBalances?.find(
     (t) => t.tokenType === 'VaultShare'
@@ -33,23 +33,27 @@ export function useVaultExistingFactors() {
         account?.accountHistory?.find((a) => a.token.id === vaultDebt?.tokenId)
           ?.impliedFixedRate;
 
-  const priorLeverageRatio = priorAccountRisk?.leverageRatio;
+  const leverageRatio =
+    postAccountRisk?.leverageRatio ||
+    priorAccountRisk?.leverageRatio ||
+    undefined;
   const strategyAPY = vaultShares.find(
     (y) => y.token.id === vaultShare?.tokenId
   )?.totalAPY;
+
   const totalAPY =
     strategyAPY !== undefined &&
     priorBorrowRate !== undefined &&
-    priorLeverageRatio !== undefined &&
-    priorLeverageRatio !== null
-      ? strategyAPY + (strategyAPY - priorBorrowRate) * priorLeverageRatio
+    leverageRatio !== undefined &&
+    leverageRatio !== null
+      ? strategyAPY + (strategyAPY - priorBorrowRate) * leverageRatio
       : undefined;
 
   return {
     vaultShare: vaultShare?.token,
     assetLiquidationPrice,
     priorBorrowRate,
-    priorLeverageRatio,
+    leverageRatio,
     totalAPY,
   };
 }

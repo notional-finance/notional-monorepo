@@ -15,15 +15,21 @@ import {
 } from '@notional-finance/notionable-hooks';
 import LeverageInfoRow from './components/leverage-info-row';
 import { formatTokenType } from '@notional-finance/helpers';
-import { Registry } from '@notional-finance/core-entities';
+import { Registry, TokenDefinition } from '@notional-finance/core-entities';
 
 interface TradeActionSummaryProps {
   state: BaseTradeState;
+  priorVaultFactors?: {
+    vaultShare?: TokenDefinition;
+    vaultBorrowRate?: number;
+    leverageRatio?: number;
+  };
   children?: ReactNode | ReactNode[];
 }
 
 export function TradeActionSummary({
   state,
+  priorVaultFactors,
   children,
 }: TradeActionSummaryProps) {
   const theme = useTheme();
@@ -31,7 +37,6 @@ export function TradeActionSummary({
   const {
     tradeType,
     deposit,
-    collateral,
     debt,
     collateralOptions,
     debtOptions,
@@ -42,13 +47,14 @@ export function TradeActionSummary({
   const isVault = !!vaultAddress;
   const { nonLeveragedYields } = useAllMarkets();
 
-  /** TODO: a lot of the logic below should go into a hook */
   const messages = tradeType ? TransactionHeadings[tradeType] : undefined;
   const headerText = messages?.headerText;
   const isLeveraged =
     tradeType === 'LeveragedNToken' ||
     tradeType === 'LeveragedLend' ||
-    isVaultTrade(tradeType);
+    isVaultTrade(tradeType) ||
+    priorVaultFactors !== undefined;
+  const collateral = state.collateral || priorVaultFactors?.vaultShare;
 
   const apySuffix = isLeveraged ? (
     <FormattedMessage defaultMessage={'Total APY'} />
@@ -80,7 +86,8 @@ export function TradeActionSummary({
 
   const debtAPY =
     debtOptions?.find((d) => d.token.id === debt?.id)?.interestRate ||
-    nonLeveragedYields.find((y) => y.token.id === debt?.id)?.totalAPY;
+    nonLeveragedYields.find((y) => y.token.id === debt?.id)?.totalAPY ||
+    priorVaultFactors?.vaultBorrowRate;
 
   const apySpread =
     assetAPY !== undefined && debtAPY !== undefined
@@ -89,7 +96,7 @@ export function TradeActionSummary({
   const leverageRatio =
     riskFactorLimit?.riskFactor === 'leverageRatio'
       ? (riskFactorLimit.limit as number)
-      : undefined;
+      : priorVaultFactors?.leverageRatio;
 
   let totalAPY: number | undefined;
   if (isLeveraged) {

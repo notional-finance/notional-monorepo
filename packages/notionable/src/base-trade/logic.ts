@@ -402,7 +402,13 @@ export function postVaultAccountRisk(
           inputErrors,
         },
       ]) => {
-        if (calculationSuccess && vaultAddress && collateralBalance) {
+        if (tradeType === undefined || !calculationSuccess) {
+          return {
+            postAccountRisk: undefined,
+            canSubmit: false,
+            postTradeBalances: undefined,
+          };
+        } else if (calculationSuccess && vaultAddress && collateralBalance) {
           const profile = VaultAccountRiskProfile.simulate(
             vaultAddress,
             account?.balances.filter((t) =>
@@ -425,12 +431,6 @@ export function postVaultAccountRisk(
               account !== null &&
               inputErrors === false,
             postTradeBalances: profile.balances,
-          };
-        } else if (!calculationSuccess) {
-          return {
-            postAccountRisk: undefined,
-            canSubmit: false,
-            postTradeBalances: undefined,
           };
         }
 

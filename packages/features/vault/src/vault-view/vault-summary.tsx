@@ -33,12 +33,8 @@ export const VaultSummary = () => {
   const vaultName = vaultConfig?.name;
   const { tableColumns, returnDrivers } = useReturnDrivers(vaultAddress);
   const { data, columns } = useVaultPriceExposure(state);
-  const {
-    vaultShare,
-    assetLiquidationPrice,
-    priorBorrowRate,
-    priorLeverageRatio,
-  } = useVaultExistingFactors();
+  const { vaultShare, assetLiquidationPrice, priorBorrowRate, leverageRatio } =
+    useVaultExistingFactors();
 
   const {
     overCapacityError,
@@ -95,7 +91,14 @@ export const VaultSummary = () => {
             marginTop: theme.spacing(6),
           }}
         >
-          <TradeActionSummary state={state}>
+          <TradeActionSummary
+            state={state}
+            priorVaultFactors={{
+              vaultShare,
+              vaultBorrowRate: priorBorrowRate,
+              leverageRatio,
+            }}
+          >
             <Box id={VAULT_SUB_NAV_ACTIONS.OVERVIEW}>
               <SliderDisplay
                 min={0}
@@ -122,7 +125,7 @@ export const VaultSummary = () => {
               priorVaultFactors={{
                 vaultShare,
                 vaultBorrowRate: priorBorrowRate,
-                leverageRatio: priorLeverageRatio || undefined,
+                leverageRatio,
                 isPrimeBorrow:
                   vaultShare?.maturity === PRIME_CASH_VAULT_MATURITY,
               }}
