@@ -47,6 +47,7 @@ export function usePortfolioHoldings() {
       },
       {
         Header: <FormattedMessage defaultMessage="Market APY" />,
+        Cell: DisplayCell,
         accessor: 'marketApy',
         textAlign: 'right',
         expandableTable: true,
@@ -92,14 +93,14 @@ export function usePortfolioHoldings() {
           b.token.tokenType !== 'NOTE'
       )
       .map((b) => {
-        const { titleWithMaturity } = formatTokenType(b.token);
+        const { titleWithMaturity, icon } = formatTokenType(b.token);
         const s = balanceStatements.find(
           (s) =>
             s.token.id === convertToSignedfCashId(b.tokenId, b.isNegative())
         );
         return {
           asset: {
-            symbol: b.underlying.symbol,
+            symbol: icon,
             label: titleWithMaturity,
             caption:
               b.token.tokenType === 'fCash' && s?.impliedFixedRate !== undefined
