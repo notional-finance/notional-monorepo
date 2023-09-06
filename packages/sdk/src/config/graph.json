@@ -4,6 +4,6 @@
   "kovan:poll": 5000,
   "goerli:http": "https://api.thegraph.com/subgraphs/name/notional-finance/goerli-v2",
   "goerli:poll": 5000,
-  "mainnet:http": "https://api.thegraph.com/subgraphs/name/notional-finance/mainnet-v2",
+  "mainnet:http": "https://gateway.thegraph.com/api/[apiKey]/subgraphs/id/71WhECGDCsRfgVSdeEg2SVuveBuHa4P44VxebdVaQic5",
   "mainnet:poll": 7000
 }

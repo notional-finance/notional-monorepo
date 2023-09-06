@@ -55,7 +55,7 @@ interface Addresses {
 }
 
 const baseCacheUrl = process.env['NX_SYSTEM_CACHE_URL'];
-const subgraphApiKey = process.env['NX_SUBGRAPH_API_KEY'];
+const SUBGRAPH_API_KEY = process.env['NX_SUBGRAPH_API_KEY'];
 
 /**
  * Provides an abstraction layer for interacting with Notional contracts.
@@ -116,14 +116,14 @@ export default class Notional extends TransactionBuilder {
   }
 
   /** Returns the chain config */
-  public static getChainConfig(chainId: number) {
+  public static getChainConfig(chainId: number, apiKey = SUBGRAPH_API_KEY) {
     switch (chainId) {
       case 1:
         return {
           addresses: mainnetAddresses,
           graphEndpoint: graphEndpoints['mainnet:http'].replace(
             '[apiKey]',
-            subgraphApiKey || ''
+            apiKey || ''
           ),
           pollInterval: Number(graphEndpoints['mainnet:poll']),
           cacheUrl: `${baseCacheUrl}/v2/mainnet`,
@@ -133,7 +133,7 @@ export default class Notional extends TransactionBuilder {
           addresses: goerliAddresses,
           graphEndpoint: graphEndpoints['goerli:http'].replace(
             '[apiKey]',
-            subgraphApiKey || ''
+            apiKey || ''
           ),
           pollInterval: Number(graphEndpoints['goerli:poll']),
           cacheUrl: `${baseCacheUrl}/v2/goerli`,
@@ -143,7 +143,7 @@ export default class Notional extends TransactionBuilder {
           addresses: mainnetAddresses,
           graphEndpoint: graphEndpoints['mainnet:http'].replace(
             '[apiKey]',
-            subgraphApiKey || ''
+            apiKey || ''
           ),
           pollInterval: Number(graphEndpoints['local:poll']),
           cacheUrl: `${baseCacheUrl}/v2/local`,

@@ -21,6 +21,7 @@ export interface Env {
   NX_DD_API_KEY: string;
   NX_DD_APP_ID: string;
   NX_DD_BASE_URL: string;
+  NX_SUBGRAPH_API_KEY: string;
   VERSION: string;
   NX_ENV: string;
   NX_COMMIT_REF: string;
@@ -178,7 +179,8 @@ export class SystemCache {
           provider,
           '',
           true,
-          usdExchangeRates
+          usdExchangeRates,
+          this.env.NX_SUBGRAPH_API_KEY
         );
         await this.storage.put(`${network}:cache:binary`, binary);
         await this.storage.put(`${network}:cache:json`, json);
