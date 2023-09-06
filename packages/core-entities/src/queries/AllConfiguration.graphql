@@ -67,6 +67,11 @@ query AllConfiguration {
         cashWithholdingBufferBasisPoints
         pvHaircutPercentage
         liquidationHaircutPercentage
+
+        incentives {
+            accumulatedNOTEPerNToken
+            lastAccumulatedTime
+        }
     }
 
     vaultConfigurations(where: { enabled: true }) {

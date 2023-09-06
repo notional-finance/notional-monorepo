@@ -579,13 +579,24 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
   getAnnualizedNOTEIncentives(nToken: TokenDefinition) {
     if (!nToken.currencyId) throw Error('Invalid nToken');
     const config = this.getConfig(nToken.network, nToken.currencyId);
-    return TokenBalance.fromSymbol(
+    const incentiveEmissionRate = TokenBalance.fromSymbol(
       BigNumber.from(
         (config.incentiveEmissionRate as string | undefined) || 0
       ).mul(INTERNAL_TOKEN_PRECISION),
       'NOTE',
       nToken.network
     );
+    const lastAccumulatedTime = this._assertDefined(
+      config.lastAccumulatedTime
+    ) as number;
+    // TODO: return this in internal token precision
+    const accumulatedNOTEPerNToken = config.accumulatedNOTEPerNtoken;
+
+    return {
+      incentiveEmissionRate,
+      lastAccumulatedTime,
+      accumulatedNOTEPerNToken,
+    };
   }
 
   getLeveragedNTokenAdapter(network: Network) {

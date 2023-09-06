@@ -18,6 +18,7 @@ import {
 } from 'rxjs';
 import { TradeState, BaseTradeState } from '../base-trade-store';
 import { formatTokenType } from '@notional-finance/helpers';
+import { calculateNTokenIncentives } from '@notional-finance/transaction';
 
 export type AccountRiskSummary = ReturnType<typeof accountRiskSummary>;
 
@@ -71,6 +72,36 @@ export function postAccountRisk(
             : undefined;
 
         const s = accountRiskSummary(prior, post);
+        const noteIncentivesClaimed = post
+          ? post.balances.reduce((note, b) => {
+              if (b.tokenType === 'nToken') {
+                const balanceBefore = account?.balances.find(
+                  (t) => t.tokenId === b.tokenId
+                );
+                const accountIncentiveDebt =
+                  account?.accountIncentiveDebt?.find(
+                    ({ currencyId }) => currencyId === b.currencyId
+                  );
+
+                if (balanceBefore) {
+                  if (!accountIncentiveDebt)
+                    throw Error('Unknown account incentive debt');
+                  return note.add(
+                    calculateNTokenIncentives(
+                      balanceBefore,
+                      accountIncentiveDebt.value
+                    )
+                  );
+                }
+              }
+
+              return note;
+            }, TokenBalance.fromSymbol(0, 'NOTE', post.network))
+          : undefined;
+
+        if (noteIncentivesClaimed?.isPositive())
+          s.postTradeBalances?.push(noteIncentivesClaimed);
+
         return {
           ...s,
           canSubmit:

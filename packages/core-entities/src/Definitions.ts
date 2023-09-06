@@ -143,6 +143,11 @@ export interface AccountHistory {
   isTransientLineItem: boolean;
 }
 
+export interface AccountIncentiveDebt {
+  value: TokenBalance;
+  currencyId: number;
+}
+
 export interface AccountDefinition {
   /** Address of the account */
   address: string;
@@ -154,6 +159,8 @@ export interface AccountDefinition {
   allowPrimeBorrow: boolean;
   /** Stores the last update time for vault positions, used to calculate prime debt fees */
   vaultLastUpdateTime?: Record<string, number>;
+  /** Account incentive debt for nToken incentives */
+  accountIncentiveDebt?: AccountIncentiveDebt[];
   /** Current profit and loss on every given balance */
   balanceStatement?: BalanceStatement[];
   /** Any transactions that have included transfers to this account */
