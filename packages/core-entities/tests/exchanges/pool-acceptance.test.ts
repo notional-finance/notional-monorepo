@@ -120,7 +120,7 @@ const acceptanceSuite = ({
           harness.poolInstance.getTokensOutGivenLPTokens(balanceOut);
 
         tokensOut.forEach((c, i) => {
-          expect(c).toBeApprox(actual.tokensOut[i]);
+          expect(c).toBeApprox(actual.tokensOut[i], 0.001);
         });
 
         // Test inverse calculation here

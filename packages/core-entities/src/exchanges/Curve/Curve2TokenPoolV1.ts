@@ -338,7 +338,7 @@ export class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPoolV1Params
     let y_prev = BigNumber.from(0);
 
     for (let _i = 0; _i < Curve2TokenPoolV1.N_COINS.toNumber(); _i++) {
-      if (_i != i) {
+      if (_i !== i) {
         _x = xp[_i];
       } else {
         continue;
@@ -439,6 +439,7 @@ export class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPoolV1Params
     const D0 = this._get_D(xp, amp);
     const totalSupply = this.totalSupply;
     const D1 = D0.sub(lpTokens.n.mul(D0).div(totalSupply.n));
+
     const new_y = this._get_y_D(amp, i, xp, D1);
 
     const fee = this.poolParams.fee
@@ -446,16 +447,16 @@ export class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPoolV1Params
       .div(
         BigNumber.from(4).mul(Curve2TokenPoolV1.N_COINS.sub(BigNumber.from(1)))
       );
-    const xp_reduced = xp;
+    const xp_reduced = [BigNumber.from(0), BigNumber.from(0)];
     for (let j = 0; j < Curve2TokenPoolV1.N_COINS.toNumber(); j++) {
       let dx_expected = BigNumber.from(0);
       const xp_j = xp[j];
-      if (j == i) {
+      if (j === i) {
         dx_expected = xp_j.mul(D1).div(D0).sub(new_y);
       } else {
         dx_expected = xp_j.sub(xp_j.mul(D1).div(D0));
       }
-      xp_reduced[j] = xp_reduced[j].sub(
+      xp_reduced[j] = xp_j.sub(
         fee.mul(dx_expected).div(Curve2TokenPoolV1.FEE_DENOMINATOR)
       );
     }
@@ -470,6 +471,11 @@ export class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPoolV1Params
       const rate = this._stored_rates()[i];
       dy = dy.mul(Curve2TokenPoolV1.PRECISION).div(rate);
       dy_0 = dy_0.mul(Curve2TokenPoolV1.PRECISION).div(rate);
+    } else {
+      dy = dy.mul(this.balances[i].precision).div(Curve2TokenPoolV1.PRECISION);
+      dy_0 = dy_0
+        .mul(this.balances[i].precision)
+        .div(Curve2TokenPoolV1.PRECISION);
     }
 
     return {
@@ -490,6 +496,7 @@ export class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPoolV1Params
         lpTokens,
         singleSidedExitTokenIndex
       );
+
       const dy = result.dy;
       const dyFee = result.dyFee;
       const adminBalances = [
@@ -500,17 +507,17 @@ export class Curve2TokenPoolV1 extends BaseLiquidityPool<Curve2TokenPoolV1Params
       feesPaid[singleSidedExitTokenIndex] = feesPaid[
         singleSidedExitTokenIndex
       ].copy(
-        adminBalances[singleSidedExitTokenIndex].add(
-          dyFee
-            .mul(this.poolParams.adminFee)
-            .div(Curve2TokenPoolV1.FEE_DENOMINATOR)
-        )
+        this.poolParams.includeAdminBalances
+          ? adminBalances[singleSidedExitTokenIndex].add(
+              dyFee
+                .mul(this.poolParams.adminFee)
+                .div(Curve2TokenPoolV1.FEE_DENOMINATOR)
+            )
+          : dyFee
       );
 
-      const tokenOutPrecision = tokensOut[singleSidedExitTokenIndex].precision;
-      tokensOut[singleSidedExitTokenIndex] = tokensOut[
-        singleSidedExitTokenIndex
-      ].copy(dy.mul(tokenOutPrecision).div(Curve2TokenPoolV1.PRECISION));
+      tokensOut[singleSidedExitTokenIndex] =
+        tokensOut[singleSidedExitTokenIndex].copy(dy);
     } else {
       const totalSupply = this.totalSupply;
 
