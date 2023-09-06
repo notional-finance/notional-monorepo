@@ -1,6 +1,6 @@
 import { DurableObjectNamespace, Request } from '@cloudflare/workers-types';
 import { RegistryDOEnv } from '@notional-finance/durable-objects';
-import { Network, ONE_HOUR_MS } from '@notional-finance/util';
+import { Network } from '@notional-finance/util';
 import { Servers, Routes } from '@notional-finance/core-entities';
 
 export interface Env extends RegistryDOEnv {
@@ -10,12 +10,6 @@ export interface Env extends RegistryDOEnv {
 }
 
 export { ViewsDO } from '@notional-finance/durable-objects';
-export { YieldRegistryDO } from '@notional-finance/durable-objects';
-
-async function runHealthCheck(ns: DurableObjectNamespace, version: string) {
-  const stub = ns.get(ns.idFromName(version));
-  await stub.fetch('http://hostname/healthcheck');
-}
 
 async function getOracleData(network: Network, blockNumber: number) {
   const server = new Servers.OracleRegistryServer();
@@ -51,9 +45,6 @@ export default {
 
     let ns: DurableObjectNamespace;
     switch (url.pathname.split('/')[2]) {
-      case Routes.Yields:
-        ns = env.YIELD_REGISTRY_DO;
-        break;
       case Routes.Oracles: {
         const blockNumber = url.pathname.split('/')[3];
         if (!blockNumber) {
@@ -138,8 +129,5 @@ export default {
         'x-auth-token': env.DATA_SERVICE_AUTH_TOKEN,
       },
     });
-
-    // Run a healthcheck against all of the durable objects.
-    await Promise.all([runHealthCheck(env.YIELD_REGISTRY_DO, env.VERSION)]);
   },
 };
