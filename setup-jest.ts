@@ -53,6 +53,11 @@ const WHALES: Record<Network, string[][]> = {
       '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
       '0xd690a9dfd7e4b02898cdd1a9e50ed1fd7d3d3442',
     ],
+    // Curve.fi USDC/FRAX
+    [
+      '0xC9B8a3FDECB9D5b218d02555a8Baf332E5B740d5',
+      '0xb84f14d736bca08736bfce58ed6c5e3a58cf8191',
+    ],
   ],
   [Network.Mainnet]: [
     // WETH

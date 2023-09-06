@@ -72,4 +72,5 @@ export const ORACLE_TYPE_TO_ID = {
   PrimeCashToUnderlyingExchangeRate: 11,
   PrimeDebtPremiumInterestRate: 12,
   PrimeCashPremiumInterestRate: 13,
+  sNOTE: 14,
 };

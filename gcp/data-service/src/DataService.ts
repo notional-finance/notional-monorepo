@@ -38,6 +38,7 @@ import { HistoricalRegistry } from './HistoricalRegistry';
 
 // TODO: fetch from DB
 const networkToId = {
+  all: 0,
   mainnet: 1,
   arbitrum: 2,
 };
@@ -147,6 +148,10 @@ export default class DataService {
   }
 
   public async getBlockNumberFromTs(network: Network, ts: number) {
+    if (network === Network.All) {
+      network = Network.Mainnet;
+    }
+
     const networkId = this.networkToId(network);
     if (!networkId) {
       throw Error(`Invalid network ${network}`);
@@ -178,44 +183,40 @@ export default class DataService {
   }
 
   public async syncOracleData(ts: number) {
-    const network = Network.ArbitrumOne;
+    const networks = [Network.All, Network.ArbitrumOne];
 
-    const blockNumber = await this.getBlockNumberFromTs(network, ts);
+    for (const network of networks) {
+      const blockNumber = await this.getBlockNumberFromTs(network, ts);
 
-    // Get data using block number
-    if (blockNumber < this.settings.startingBlock) {
-      // too old
-      return;
-    }
+      const values = await this.getData(network, blockNumber, DataType.ORACLE);
 
-    const values = await this.getData(network, blockNumber, DataType.ORACLE);
+      if (values.length > 0) {
+        const query = this.db
+          .insert(
+            values.map((v) => ({
+              base: v[1].base,
+              quote: v[1].quote,
+              oracle_type: this.oracleTypeToId(v[1].oracleType),
+              network: this.networkToId(v[1].network),
+              timestamp: ts,
+              block_number: blockNumber,
+              decimals: v[1].decimals,
+              oracle_address: v[1].oracleAddress,
+              latest_rate: BigNumber.from(v[1].latestRate.rate.hex).toString(),
+            }))
+          )
+          .into(DataService.ORACLE_DATA_TABLE_NAME)
+          .onConflict(['base', 'quote', 'oracle_type', 'network', 'timestamp']);
 
-    if (values.length > 0) {
-      const query = this.db
-        .insert(
-          values.map((v) => ({
-            base: v[1].base,
-            quote: v[1].quote,
-            oracle_type: this.oracleTypeToId(v[1].oracleType),
-            network: this.networkToId(v[1].network),
-            timestamp: ts,
-            block_number: blockNumber,
-            decimals: v[1].decimals,
-            oracle_address: v[1].oracleAddress,
-            latest_rate: BigNumber.from(v[1].latestRate.rate.hex).toString(),
-          }))
-        )
-        .into(DataService.ORACLE_DATA_TABLE_NAME)
-        .onConflict(['base', 'quote', 'oracle_type', 'network', 'timestamp']);
-
-      if (this.settings.mergeConflicts) {
-        await query.merge();
-      } else {
-        await query.ignore();
+        if (this.settings.mergeConflicts) {
+          await query.merge();
+        } else {
+          await query.ignore();
+        }
       }
     }
 
-    return blockNumber;
+    return 'OK';
   }
 
   private async _getTvl(
@@ -375,12 +376,15 @@ export default class DataService {
       Network.All,
       await this.getBlockNumberFromTs(Network.Mainnet, ts)
     );
+
     await HistoricalRegistry.refreshAtBlock(network, blockNumber);
+
     const block = await this.provider.getBlock(blockNumber);
 
     const primeCashTvl = await this._getTvl(network, block, 'PrimeCash');
+    const primeDebtTvl = await this._getTvl(network, block, 'PrimeDebt');
     const fCashTvl = await this._getFCashTvl(network, block);
-    const yields = primeCashTvl.concat(fCashTvl);
+    const yields = primeCashTvl.concat(primeDebtTvl).concat(fCashTvl);
     const nTokenTvl = await this._getNTokenTvl(network, yields);
 
     const yieldData = primeCashTvl.concat(fCashTvl).concat(nTokenTvl);
@@ -637,12 +641,12 @@ export default class DataService {
     return select;
   }
 
-  public async insertAccounts(accountIds: string[]) {
+  public async insertAccounts(network: Network, accountIds: string[]) {
     return this.db
       .insert(
         accountIds.map((id) => ({
           account_id: id,
-          network_id: this.networkToId(this.settings.network),
+          network_id: this.networkToId(network),
         }))
       )
       .into(DataService.ACCOUNTS_TABLE_NAME)
@@ -650,13 +654,16 @@ export default class DataService {
       .ignore();
   }
 
-  public async insertVaultAccounts(vaultAccounts: VaultAccount[]) {
+  public async insertVaultAccounts(
+    network: Network,
+    vaultAccounts: VaultAccount[]
+  ) {
     return this.db
       .insert(
         vaultAccounts.map((va) => ({
           account_id: va.accountId,
           vault_id: va.vaultId,
-          network_id: this.networkToId(this.settings.network),
+          network_id: this.networkToId(network),
         }))
       )
       .into(DataService.VAULT_ACCOUNTS_TABLE_NAME)
