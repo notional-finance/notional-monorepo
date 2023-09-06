@@ -51,8 +51,6 @@ export class ViewsDO extends BaseDO<APIEnv> {
   async onRefresh() {
     await Promise.all(
       this.env.SUPPORTED_NETWORKS.map((network) => {
-        if (network === Network.All) return Promise.resolve();
-
         return this.listViews(network);
       })
     );
