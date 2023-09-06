@@ -34,7 +34,10 @@ export function usePortfolioHoldings() {
   const balanceStatements = useBalanceStatements();
   const [expandedRows, setExpandedRows] = useState<ExpandedRows | null>(null);
   const initialState = expandedRows !== null ? { expanded: expandedRows } : {};
-  const { nonLeveragedYields } = useAllMarkets();
+  const {
+    nonLeveragedYields,
+    yields: { liquidity },
+  } = useAllMarkets();
 
   const portfolioHoldingsColumns: DataTableColumn[] = useMemo(() => {
     return [
@@ -47,7 +50,7 @@ export function usePortfolioHoldings() {
       },
       {
         Header: <FormattedMessage defaultMessage="Market APY" />,
-        Cell: DisplayCell,
+        Cell: MultiValueCell,
         accessor: 'marketApy',
         textAlign: 'right',
         expandableTable: true,
@@ -98,6 +101,19 @@ export function usePortfolioHoldings() {
           (s) =>
             s.token.id === convertToSignedfCashId(b.tokenId, b.isNegative())
         );
+
+        const noteIncentives = liquidity
+          .filter(
+            ({ incentives }) =>
+              incentives?.length && incentives[0].incentiveAPY > 0
+          )
+          .find(({ token }) => token.id === b.tokenId);
+
+        const marketApyData = formatNumberAsPercent(
+          nonLeveragedYields.find((y) => y.token.id === b.token.id)?.totalAPY ||
+            0
+        );
+
         return {
           asset: {
             symbol: icon,
@@ -108,10 +124,23 @@ export function usePortfolioHoldings() {
                 : undefined,
           },
           // TODO: this has a caption for note incentives
-          marketApy: formatNumberAsPercent(
-            nonLeveragedYields.find((y) => y.token.id === b.token.id)
-              ?.totalAPY || 0
-          ),
+          marketApy: {
+            data: [
+              {
+                displayValue: marketApyData,
+                isNegative: marketApyData.includes('-'),
+              },
+              {
+                displayValue:
+                  noteIncentives && noteIncentives.incentives
+                    ? `${formatNumberAsPercent(
+                        noteIncentives.incentives[0].incentiveAPY
+                      )} NOTE`
+                    : '',
+                isNegative: false,
+              },
+            ],
+          },
           amountPaid: s
             ? formatCryptoWithFiat(baseCurrency, s.accumulatedCostRealized)
             : '-',

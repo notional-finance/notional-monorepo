@@ -15,12 +15,12 @@ export const MultiValueCell = ({ cell }): JSX.Element => {
   return (
     <Box className="multi-value-cell">
       {value?.data
-        ? value.data.map((displayValue, index) => (
+        ? value.data.map(({ displayValue, isNegative }, index) => (
             <Box key={`${column.id}-${row.id}-${index}`}>
               {index === 0 && (
                 <Box>
                   <FirstValue
-                    error={value.isNegative}
+                    error={isNegative}
                     sx={{ marginBottom: '0px', width: '100%', fontWeight: 600 }}
                   >
                     {displayValue}
@@ -31,7 +31,7 @@ export const MultiValueCell = ({ cell }): JSX.Element => {
                 <Box>
                   <SecondValue
                     sx={{
-                      color: value.isNegative
+                      color: isNegative
                         ? colors.red
                         : theme.palette.typography.light,
                       width: '100%',

@@ -55,13 +55,18 @@ export const useReturnDriversTable = () => {
       },
       value: {
         data: [
-          balance.toUnderlying().toDisplayString(),
-          balance
-            .toUnderlying()
-            .toFiat(baseCurrency)
-            .toDisplayStringWithSymbol(),
+          {
+            displayValue: balance.toUnderlying().toDisplayString(),
+            isNegative: balance.isNegative(),
+          },
+          {
+            displayValue: balance
+              .toUnderlying()
+              .toFiat(baseCurrency)
+              .toDisplayStringWithSymbol(),
+            isNegative: balance.isNegative(),
+          },
         ],
-        isNegative: balance.isNegative(),
       },
       apy: apy !== undefined ? apy : 0,
     };

@@ -1,21 +1,38 @@
 import { FormattedMessage } from 'react-intl';
-import { useLocation } from 'react-router-dom';
 import { TradeState } from '@notional-finance/notionable';
-import { useFiat, useCurrency } from '@notional-finance/notionable-hooks';
+import {
+  useFiat,
+  useCurrency,
+  useTokenHistory,
+} from '@notional-finance/notionable-hooks';
+import { formatNumberAsPercent } from '@notional-finance/helpers';
 
 export const useVariableTotals = (state: TradeState) => {
-  const { pathname } = useLocation();
-  const isBorrow = pathname.includes('borrow');
+  const isBorrow = state.tradeType === 'BorrowVariable';
   const baseCurrency = useFiat();
   const { primeCash, primeDebt } = useCurrency();
+  const { apyData } = useTokenHistory(state.debt);
 
   const totalLentData = primeCash.find(
-    ({ underlying }) => underlying === state.deposit?.address
+    ({ underlying }) => underlying === state.deposit?.id
   );
 
   const totalBorrowedData = primeDebt.find(
-    ({ underlying }) => underlying === state.deposit?.address
+    ({ underlying }) => underlying === state.deposit?.id
   );
+
+  const getSevenDayAvgApy = () => {
+    const seventhToLastNum = apyData.length - 8;
+    const lastSevenApys = apyData
+      .slice(seventhToLastNum, -1)
+      .map(({ area }) => area);
+
+    const averageApy = lastSevenApys.length
+      ? lastSevenApys.reduce((a, b) => a + b) / lastSevenApys.length
+      : 0;
+
+    return formatNumberAsPercent(averageApy);
+  };
 
   return [
     {
@@ -38,7 +55,7 @@ export const useVariableTotals = (state: TradeState) => {
       ) : (
         <FormattedMessage defaultMessage={'Total Lenders'} />
       ),
-      value: '-',
+      value: isBorrow ? getSevenDayAvgApy() : '-',
     },
   ];
 };
