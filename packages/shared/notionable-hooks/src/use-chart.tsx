@@ -48,9 +48,9 @@ export function useTokenHistory(token?: TokenDefinition) {
     tvlData: fillChartDaily(
       data?.map(({ timestamp, tvlUSD }) => ({
         timestamp,
-        line: tvlUSD?.toFloat() || 0,
+        area: tvlUSD?.toFloat() || 0,
       })) || [],
-      { line: 0 }
+      { area: 0 }
     ),
   };
 }
