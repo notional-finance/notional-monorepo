@@ -518,7 +518,7 @@ export class TokenBalance {
       // Other tokens convert to ETH first and then go via the "All" network
       // for fiat currency conversions
       const eth = tokens.getTokenBySymbol(this.network, 'ETH');
-      const valueInETH = this.toToken(eth);
+      const valueInETH = this.toToken(eth, undefined, atTimestamp);
       const ethInAllNetwork = TokenBalance.from(
         valueInETH.n,
         tokens.getTokenBySymbol(Network.All, 'ETH')

@@ -66,6 +66,10 @@ export class Registry {
         Network.All,
         Registry.DEFAULT_ORACLE_REFRESH
       );
+      Registry._analytics.startRefreshInterval(
+        Network.All,
+        Registry.DEFAULT_ANALYTICS_REFRESH
+      );
     }
   }
 

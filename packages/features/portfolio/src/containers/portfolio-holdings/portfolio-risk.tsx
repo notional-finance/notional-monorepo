@@ -147,26 +147,39 @@ export const PortfolioRisk = () => {
         label: `${asset.symbol} / ${baseCurrency}`,
       },
       currentPrice: currentPrice.toDisplayStringWithSymbol(3),
-      oneDayChange,
-      sevenDayChange,
+      oneDayChange: oneDayChange ? formatNumberAsPercent(oneDayChange) : '',
+      sevenDayChange: sevenDayChange
+        ? formatNumberAsPercent(sevenDayChange)
+        : '',
       liquidationPrice: current,
     }));
 
   const assetPriceRisk = portfolioLiquidation
     .filter(({ isAssetRisk }) => isAssetRisk)
-    .map(({ asset, underlying, currentPrice, current }) => {
-      const { icon, titleWithMaturity } = formatTokenType(asset);
-      return {
-        exchangeRate: {
-          symbol: icon,
-          label: `${titleWithMaturity} / ${underlying.symbol}`,
-        },
-        currentPrice: currentPrice.toDisplayStringWithSymbol(3),
-        oneDayChange: 0,
-        sevenDayChange: 0,
-        liquidationPrice: current,
-      };
-    });
+    .map(
+      ({
+        asset,
+        underlying,
+        currentPrice,
+        current,
+        oneDayChange,
+        sevenDayChange,
+      }) => {
+        const { icon, titleWithMaturity } = formatTokenType(asset);
+        return {
+          exchangeRate: {
+            symbol: icon,
+            label: `${titleWithMaturity} / ${underlying.symbol}`,
+          },
+          currentPrice: currentPrice.toDisplayStringWithSymbol(3),
+          oneDayChange: oneDayChange ? formatNumberAsPercent(oneDayChange) : '',
+          sevenDayChange: sevenDayChange
+            ? formatNumberAsPercent(sevenDayChange)
+            : '',
+          liquidationPrice: current,
+        };
+      }
+    );
 
   const hasLiquidationPrices =
     exchangeRateRisk.length > 0 || assetPriceRisk.length > 0;

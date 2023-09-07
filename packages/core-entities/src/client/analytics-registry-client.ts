@@ -253,13 +253,20 @@ export class AnalyticsRegistryClient extends ClientRegistry<AnalyticsData> {
   }
 
   protected override async _refresh(network: Network) {
-    const vaultViews =
-      Registry.getConfigurationRegistry()
-        .getAllListedVaults(network)
-        ?.map((c) => c.vaultAddress.toLowerCase()) || [];
+    let views: string[];
+    if (network === Network.All) {
+      views = ['historical_oracle_values'];
+    } else {
+      const vaultViews =
+        Registry.getConfigurationRegistry()
+          .getAllListedVaults(network)
+          ?.map((c) => c.vaultAddress.toLowerCase()) || [];
+
+      views = [...VIEWS, ...vaultViews];
+    }
 
     const values = await Promise.all(
-      [...VIEWS, ...vaultViews].map((v) =>
+      views.map((v) =>
         this._fetch<AnalyticsData>(network, v).then(
           (d) =>
             (Array.isArray(d) ? [v, d] : [v, null]) as [
