@@ -526,7 +526,7 @@ export function simulateTransaction(
               .map(([simulated, calculated]) => ({
                 rel:
                   !!simulated && !!calculated && !calculated.isZero()
-                    ? Math.abs(simulated.toFloat() - calculated.toFloat()) /
+                    ? (simulated.toFloat() - calculated.toFloat()) /
                       calculated.toFloat()
                     : simulated
                     ? simulated.abs().toFloat()
@@ -534,7 +534,7 @@ export function simulateTransaction(
                 simulatedBalance: simulated,
                 calculatedBalance: calculated,
               }))
-              .filter(({ rel }) => rel > 5e-4);
+              .filter(({ rel }) => Math.abs(rel) > 5e-4);
 
             if (mismatchedBalances.length > 0) {
               logError(
