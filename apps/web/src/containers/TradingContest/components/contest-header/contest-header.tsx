@@ -2,17 +2,13 @@ import { Box, styled } from '@mui/material';
 import { colors } from '@notional-finance/styles';
 import { NotionalIcon, ArbitrumIcon } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
-import { useHistory } from 'react-router';
 
 export const ContestHeader = () => {
-  const { push } = useHistory();
   return (
     <Container>
       <ImgWrapper
-        onClick={() => push('/')}
         sx={{
           svg: {
-            cursor: 'pointer',
             height: '40px',
             width: '40px',
           },

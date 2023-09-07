@@ -1,8 +1,11 @@
 import { Contract } from 'ethers';
-import { useState } from 'react';
 import { NftContract, NftContractABI } from '@notional-finance/contracts';
 import { getProviderFromNetwork } from '@notional-finance/util';
 import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
+import {
+  getFromLocalStorage,
+  setInLocalStorage,
+} from '@notional-finance/helpers';
 import { useConnect } from './use-connect';
 
 export enum BETA_ACCESS {
@@ -14,9 +17,7 @@ export enum BETA_ACCESS {
 export const useNftContract = () => {
   const selectedNetwork = useSelectedNetwork();
   const { selectedAddress } = useConnect();
-  const [betaAccess, setBetaAccess] = useState<BETA_ACCESS>(
-    BETA_ACCESS.PENDING
-  );
+  const userSettings = getFromLocalStorage('userSettings');
 
   if (selectedNetwork && selectedAddress) {
     const provider = getProviderFromNetwork(selectedNetwork);
@@ -30,16 +31,33 @@ export const useNftContract = () => {
     nft
       .balanceOf(selectedAddress)
       .then((res) => {
-        res.isZero()
-          ? setBetaAccess(BETA_ACCESS.REJECTED)
-          : setBetaAccess(BETA_ACCESS.CONFIRMED);
+        setInLocalStorage('userSettings', {
+          ...userSettings,
+          betaAccess: BETA_ACCESS.PENDING,
+        });
+        return res;
+      })
+      .then((res) => {
+        if (res.isZero()) {
+          setInLocalStorage('userSettings', {
+            ...userSettings,
+            betaAccess: BETA_ACCESS.REJECTED,
+          });
+        } else {
+          setInLocalStorage('userSettings', {
+            ...userSettings,
+            betaAccess: BETA_ACCESS.CONFIRMED,
+          });
+        }
       })
       .catch((error) => {
         console.warn(error);
-        setBetaAccess(BETA_ACCESS.REJECTED);
+        setInLocalStorage('userSettings', {
+          ...userSettings,
+          betaAccess: BETA_ACCESS.REJECTED,
+        });
       });
   }
-  return betaAccess;
 };
 
 export default useNftContract;

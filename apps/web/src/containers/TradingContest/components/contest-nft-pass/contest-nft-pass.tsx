@@ -5,15 +5,16 @@ import { FormattedMessage } from 'react-intl';
 import { ProgressIndicator } from '@notional-finance/mui';
 import betaPass from '../../assets/betaPass.svg';
 import lockImg from '../../assets/lock.svg';
-import { useNftContract, BETA_ACCESS } from '@notional-finance/wallet/hooks';
+import { BETA_ACCESS } from '@notional-finance/wallet/hooks';
+import { getFromLocalStorage } from '@notional-finance/helpers';
 
 export const ContestNftPass = () => {
   const [imgLoaded, setImgLoaded] = useState(false);
-  const betaAccess = useNftContract();
+  const userSettings = getFromLocalStorage('userSettings');
 
   return (
     <Container>
-      {betaAccess !== BETA_ACCESS.CONFIRMED && (
+      {userSettings.betaAccess !== BETA_ACCESS.CONFIRMED && (
         <OverlayContainer>
           <img
             src={lockImg}

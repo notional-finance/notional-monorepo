@@ -14,7 +14,7 @@ import NetworkSelector from '../network-selector/network-selector';
 import { ProgressIndicator, ButtonText, Caption } from '@notional-finance/mui';
 import { V3BetaIcon } from '@notional-finance/icons';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
-import { useConnect, useNftContract, BETA_ACCESS } from '../hooks';
+import { useConnect } from '../hooks';
 import { useWalletSideDrawer } from '../hooks';
 import {
   PORTFOLIO_ACTIONS,
@@ -33,9 +33,7 @@ export function WalletSelector() {
   const theme = useTheme();
   const history = useHistory();
   const { pathname } = useLocation();
-  const betaAccess = useNftContract();
-  const contestPath =
-    betaAccess === BETA_ACCESS.REJECTED ? '/contest' : '/contest-leaderboard';
+
   const { selectedAddress, isReadOnlyAddress, connecting, icon, currentLabel } =
     useConnect();
   const truncatedAddress = useTruncatedAddress();
@@ -81,7 +79,7 @@ export function WalletSelector() {
     <>
       <OuterContainer>
         <V3BetaIcon
-          onClick={() => history.push(contestPath)}
+          onClick={() => history.push('/contest-leaderboard')}
           sx={{
             height: theme.spacing(6.25),
             width: theme.spacing(6.25),
