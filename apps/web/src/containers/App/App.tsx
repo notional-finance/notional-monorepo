@@ -61,7 +61,7 @@ import {
 } from '../../containers/TradingContest';
 import { Markets } from '../Markets';
 
-const RedirectHandler = () => {
+const useContestRedirect = () => {
   const { pathname } = useLocation();
   const history = useHistory();
   const betaAccess = useNftContract();
@@ -83,7 +83,7 @@ const AllRoutes = () => {
   // context changes (there is a useEffect hook inside here listening for changes in the
   // onboard context)
   useConnect();
-  RedirectHandler();
+  useContestRedirect();
 
   return (
     <CompatRouter>
