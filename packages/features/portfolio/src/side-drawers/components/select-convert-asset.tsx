@@ -162,13 +162,17 @@ export const SelectConvertAsset = ({ context }: SelectConvertAssetProps) => {
         data={[
           {
             detail: <FormattedMessage defaultMessage={'Amount'} />,
-            value: `${convertFromBalance?.toDisplayString(3, true)} ${
-              title?.title || ''
-            }`,
+            value: `${(tradeType === 'ConvertAsset'
+              ? convertFromBalance?.abs()
+              : convertFromBalance
+            )?.toDisplayString(3, true)} ${title?.title || ''}`,
           },
           {
             detail: <FormattedMessage defaultMessage={'Present Value'} />,
-            value: convertFromBalance
+            value: (tradeType === 'ConvertAsset'
+              ? convertFromBalance?.abs()
+              : convertFromBalance
+            )
               ?.toUnderlying()
               .toDisplayStringWithSymbol(3, true),
           },
