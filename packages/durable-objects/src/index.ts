@@ -1,4 +1,4 @@
-import { DurableObjectNamespace } from '@cloudflare/workers-types';
+import { DurableObjectNamespace, R2Bucket } from '@cloudflare/workers-types';
 import { RegistryDOEnv } from './registries';
 
 export { Logger, MetricType } from './logger';
@@ -15,4 +15,5 @@ export interface APIEnv extends RegistryDOEnv {
   ACCOUNTS_REGISTRY_DO: DurableObjectNamespace;
   VIEWS_DO: DurableObjectNamespace;
   VIEWS_NAME: string;
+  VIEW_CACHE_R2: R2Bucket;
 }
