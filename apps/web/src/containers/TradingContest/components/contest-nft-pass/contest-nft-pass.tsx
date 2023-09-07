@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { colors } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import { ProgressIndicator } from '@notional-finance/mui';
-import betaPassGif from '../../assets/beta-pass.gif';
+import betaPass from '../../assets/betaPass.svg';
 import lockImg from '../../assets/lock.svg';
 import { useNftContract, BETA_ACCESS } from '@notional-finance/wallet/hooks';
 
@@ -29,7 +29,7 @@ export const ContestNftPass = () => {
         </OverlayContainer>
       )}
       <img
-        src={betaPassGif}
+        src={betaPass}
         alt="beta pass gif"
         onLoad={() => setImgLoaded(true)}
       />

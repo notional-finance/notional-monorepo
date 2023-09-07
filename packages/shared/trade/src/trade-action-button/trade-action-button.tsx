@@ -4,6 +4,7 @@ import { useTheme, styled } from '@mui/material';
 import { Button } from '@notional-finance/mui';
 import { useAccountReady } from '@notional-finance/notionable-hooks';
 import { SETTINGS_SIDE_DRAWERS } from '@notional-finance/shared-config';
+import { useGeoipBlock } from '@notional-finance/helpers';
 import {
   useSideDrawerState,
   useSideDrawerManager,
@@ -53,10 +54,14 @@ export function TradeActionButton({
   margin,
 }: TradeActionButtonProps) {
   const theme = useTheme();
+  const isBlocked = useGeoipBlock();
   const isAccountReady = useAccountReady();
   const { sideDrawerOpen } = useSideDrawerState();
   const { setWalletSideDrawer, clearWalletSideDrawer } = useSideDrawerManager();
   const { pathname } = useLocation();
+  const leverageDisabled =
+    isBlocked &&
+    (pathname.includes('leveraged') || pathname.includes('vaults'));
   const history = useHistory();
   const _onSubmit =
     onSubmit ?? (() => history.push(`${pathname}?confirm=true`));
@@ -95,11 +100,15 @@ export function TradeActionButton({
       canSubmit={canSubmit}
       onClick={isAccountReady ? _onSubmit : () => handleConnectWallet()}
     >
-      <FormattedMessage
-        {...(isAccountReady
-          ? buttonTextWalletConnected
-          : buttonTextWalletNotConnected)}
-      />
+      {leverageDisabled ? (
+        <FormattedMessage defaultMessage={'Not Available for US Persons'} />
+      ) : (
+        <FormattedMessage
+          {...(isAccountReady
+            ? buttonTextWalletConnected
+            : buttonTextWalletNotConnected)}
+        />
+      )}
     </StyledTradeActionButton>
   );
 }

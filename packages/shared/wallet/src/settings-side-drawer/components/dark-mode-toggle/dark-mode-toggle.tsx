@@ -35,6 +35,13 @@ export const DarkModeToggle = () => {
         themeVariant: THEME_VARIANTS.DARK,
       });
     }
+    if (!userSettings?.themeVariant) {
+      updateNotional({ themeVariant: THEME_VARIANTS.DARK });
+      setInLocalStorage('userSettings', {
+        ...userSettings,
+        themeVariant: THEME_VARIANTS.DARK,
+      });
+    }
   };
 
   return (

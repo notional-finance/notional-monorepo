@@ -28,7 +28,7 @@ export const ContestNfts = ({ hideButton }: ContestNftsProps) => {
           <NftTitle>
             <FormattedMessage defaultMessage={'High Roller 1st Place'} />
           </NftTitle>
-          <NftSubTitle>$5,000 NOTE</NftSubTitle>
+          <NftSubTitle>20,000 NOTE</NftSubTitle>
         </NftDisplay>
         <NftDisplay>
           <img
@@ -40,7 +40,7 @@ export const ContestNfts = ({ hideButton }: ContestNftsProps) => {
           <NftTitle>
             <FormattedMessage defaultMessage={'FAT CAT 1st Place'} />
           </NftTitle>
-          <NftSubTitle>$5,000 NOTE</NftSubTitle>
+          <NftSubTitle>7,500 NOTE</NftSubTitle>
         </NftDisplay>
         <NftDisplay>
           <img
@@ -52,7 +52,7 @@ export const ContestNfts = ({ hideButton }: ContestNftsProps) => {
           <NftTitle>
             <FormattedMessage defaultMessage={'SAD SACK 1st Place'} />
           </NftTitle>
-          <NftSubTitle>$5,000 NOTE</NftSubTitle>
+          <NftSubTitle>2,500 NOTE</NftSubTitle>
         </NftDisplay>
       </NftContainer>
       {!hideButton && (

@@ -7,6 +7,7 @@ import { Web3OnboardProvider } from '@web3-onboard/react';
 import { useEffect, useState } from 'react';
 import { Switch } from 'react-router';
 import { CompatRouter } from 'react-router-dom-v5-compat';
+import { useLocation, useHistory } from 'react-router-dom';
 import { ServerError } from '../ServerError/server-error';
 import RouteContainer from './components/RouteContainer';
 import AppLayoutRoute from './layouts/AppLayoutRoute';
@@ -16,11 +17,15 @@ import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ScrollToTop } from '@notional-finance/mui';
 import { getDefaultNetworkFromHostname } from '@notional-finance/util';
-import { useConnect } from '@notional-finance/wallet/hooks/use-connect';
+import {
+  useConnect,
+  BETA_ACCESS,
+  useNftContract,
+} from '@notional-finance/wallet/hooks';
 import { useNotionalTheme } from '@notional-finance/styles';
-
 // Feature shell views
 import { AboutUsView } from '@notional-finance/about-us-feature-shell';
+import { getFromLocalStorage } from '@notional-finance/helpers';
 import {
   LendFixed,
   LendLeveraged,
@@ -56,12 +61,29 @@ import {
 } from '../../containers/TradingContest';
 import { Markets } from '../Markets';
 
+const useContestRedirect = () => {
+  const { pathname } = useLocation();
+  const history = useHistory();
+  const betaAccess = useNftContract();
+  const onboardWallet = getFromLocalStorage('onboard.js:last_connected_wallet');
+
+  useEffect(() => {
+    if (
+      (betaAccess === BETA_ACCESS.REJECTED && !pathname.includes('/contest')) ||
+      (onboardWallet.length === 0 && !pathname.includes('/contest'))
+    ) {
+      history.push('/contest');
+    }
+  }, [pathname, betaAccess, history, onboardWallet]);
+};
+
 const AllRoutes = () => {
   const [routeKey, setRouteKey] = useState('');
   // Have this hook here to ensure that all children routes will see updates if the onboard
   // context changes (there is a useEffect hook inside here listening for changes in the
   // onboard context)
   useConnect();
+  useContestRedirect();
 
   return (
     <CompatRouter>
@@ -174,6 +196,7 @@ const AllRoutes = () => {
 
 export const App = () => {
   const globalState = useGlobalContext();
+
   const {
     updateState,
     state: { themeVariant },

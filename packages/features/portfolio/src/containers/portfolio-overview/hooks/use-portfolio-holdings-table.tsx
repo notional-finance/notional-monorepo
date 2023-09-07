@@ -98,21 +98,33 @@ export const useTotalHoldingsTable = () => {
       currency: 'Total',
       netWorth: {
         data: [
-          netWorth.toFiat(baseCurrency).toDisplayStringWithSymbol(3, true),
+          {
+            displayValue: netWorth
+              .toFiat(baseCurrency)
+              .toDisplayStringWithSymbol(3, true),
+            isNegative: netWorth.isNegative(),
+          },
         ],
-        isNegative: netWorth.isNegative(),
       },
       assets: {
         data: [
-          totalAssets.toFiat(baseCurrency).toDisplayStringWithSymbol(3, true),
+          {
+            displayValue: totalAssets
+              .toFiat(baseCurrency)
+              .toDisplayStringWithSymbol(3, true),
+            isNegative: totalAssets.isNegative(),
+          },
         ],
-        isNegative: totalAssets.isNegative(),
       },
       debts: {
         data: [
-          totalDebt.toFiat(baseCurrency).toDisplayStringWithSymbol(3, true),
+          {
+            displayValue: totalDebt
+              .toFiat(baseCurrency)
+              .toDisplayStringWithSymbol(3, true),
+            isNegative: totalDebt.isNegative(),
+          },
         ],
-        isNegative: totalDebt.isNegative(),
       },
     });
   }

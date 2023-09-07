@@ -34,7 +34,10 @@ export function usePortfolioHoldings() {
   const balanceStatements = useBalanceStatements();
   const [expandedRows, setExpandedRows] = useState<ExpandedRows | null>(null);
   const initialState = expandedRows !== null ? { expanded: expandedRows } : {};
-  const { nonLeveragedYields } = useAllMarkets();
+  const {
+    nonLeveragedYields,
+    yields: { liquidity },
+  } = useAllMarkets();
 
   const portfolioHoldingsColumns: DataTableColumn[] = useMemo(() => {
     return [
@@ -47,6 +50,7 @@ export function usePortfolioHoldings() {
       },
       {
         Header: <FormattedMessage defaultMessage="Market APY" />,
+        Cell: MultiValueCell,
         accessor: 'marketApy',
         textAlign: 'right',
         expandableTable: true,
@@ -92,14 +96,27 @@ export function usePortfolioHoldings() {
           b.token.tokenType !== 'NOTE'
       )
       .map((b) => {
-        const { titleWithMaturity } = formatTokenType(b.token);
+        const { titleWithMaturity, icon } = formatTokenType(b.token);
         const s = balanceStatements.find(
           (s) =>
             s.token.id === convertToSignedfCashId(b.tokenId, b.isNegative())
         );
+
+        const noteIncentives = liquidity
+          .filter(
+            ({ incentives }) =>
+              incentives?.length && incentives[0].incentiveAPY > 0
+          )
+          .find(({ token }) => token.id === b.tokenId);
+
+        const marketApyData = formatNumberAsPercent(
+          nonLeveragedYields.find((y) => y.token.id === b.token.id)?.totalAPY ||
+            0
+        );
+
         return {
           asset: {
-            symbol: b.underlying.symbol,
+            symbol: icon,
             label: titleWithMaturity,
             caption:
               b.token.tokenType === 'fCash' && s?.impliedFixedRate !== undefined
@@ -107,10 +124,23 @@ export function usePortfolioHoldings() {
                 : undefined,
           },
           // TODO: this has a caption for note incentives
-          marketApy: formatNumberAsPercent(
-            nonLeveragedYields.find((y) => y.token.id === b.token.id)
-              ?.totalAPY || 0
-          ),
+          marketApy: {
+            data: [
+              {
+                displayValue: marketApyData,
+                isNegative: marketApyData.includes('-'),
+              },
+              {
+                displayValue:
+                  noteIncentives && noteIncentives.incentives
+                    ? `${formatNumberAsPercent(
+                        noteIncentives.incentives[0].incentiveAPY
+                      )} NOTE`
+                    : '',
+                isNegative: false,
+              },
+            ],
+          },
           amountPaid: s
             ? formatCryptoWithFiat(baseCurrency, s.accumulatedCostRealized)
             : '-',
