@@ -442,7 +442,9 @@ export function postVaultAccountRisk(
                 postAccountRisk.leverageRatio < profile.maxLeverageRatio) &&
               account !== null &&
               inputErrors === false,
-            postTradeBalances: profile.balances,
+            postTradeBalances: profile.balances.concat(
+              profile.settledBalances.map((s) => s.copy(0))
+            ),
           };
         }
 
@@ -525,7 +527,10 @@ export function simulateTransaction(
                   ? t.isVaultToken && t.vaultAddress === vaultAddress
                   : t.tokenType !== 'Underlying' && !t.isVaultToken
               ),
-              postTradeBalances || [],
+              // Exclude vault cash from the balances check since it should always
+              // be cleared anyway
+              postTradeBalances?.filter((t) => t.tokenType !== 'VaultCash') ||
+                [],
               (t) => t.tokenId
             )
               .map(([simulated, calculated]) => ({

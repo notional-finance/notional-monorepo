@@ -11,6 +11,7 @@ import {
   TokenBalance,
   fCashMarket,
 } from '@notional-finance/core-entities';
+import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
 
 function getVaultSlippageRate(
   debtBalance: TokenBalance,
@@ -138,6 +139,7 @@ export function ExitVault({
   collateralBalance,
   debtBalance,
   accountBalances,
+  maxWithdraw,
 }: PopulateTransactionInputs): Promise<PopulatedTransaction> {
   if (
     collateralBalance?.tokenType !== 'VaultShare' ||
@@ -152,14 +154,11 @@ export function ExitVault({
 
   let debtBalanceNum: BigNumber;
   if (debtBalance.maturity === PRIME_CASH_VAULT_MATURITY) {
-    const matchingBalance = accountBalances.find(
-      (t) => t.tokenId === debtBalance.tokenId
-    );
-    // TODO: this might happen during settlement....
-    if (!matchingBalance) throw Error('matching prime debt not found');
+    const vaultDebt = new VaultAccountRiskProfile(vaultAddress, accountBalances)
+      .vaultDebt;
 
     // Clears the entire debt balance using max uint256
-    if (matchingBalance.add(debtBalance).isZero())
+    if (maxWithdraw || vaultDebt.add(debtBalance).isZero())
       debtBalanceNum = ethers.constants.MaxUint256;
     else
       debtBalanceNum = debtBalance
@@ -218,10 +217,8 @@ export function RollVault({
     throw Error('Deposit balance, debt balance must be defined');
 
   const vaultAddress = debtBalance.vaultAddress;
-  const currentDebtBalance = accountBalances.find(
-    (t) => t.tokenType === 'VaultDebt' && t.token.vaultAddress === vaultAddress
-  );
-  if (!currentDebtBalance) throw Error('No current vault debt');
+  const profile = new VaultAccountRiskProfile(vaultAddress, accountBalances);
+  const currentDebtBalance = profile.vaultDebt;
   const { slippageRate: minLendRate, underlyingOut: costToRepay } =
     getVaultSlippageRate(currentDebtBalance?.neg());
   const { slippageRate: maxBorrowRate, underlyingOut: amountBorrowed } =
