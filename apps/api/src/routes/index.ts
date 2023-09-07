@@ -25,7 +25,7 @@ const handleKPIs = (_request: IRequest, _env: APIEnv) => {
 };
 
 const handleYields = (request: IRequest, env: APIEnv) => {
-  return _handler(request, env.YIELD_REGISTRY_DO, env.VERSION);
+  return _handler(request, env.ACCOUNTS_REGISTRY_DO, env.VERSION);
 };
 
 const handleTokens = (request: IRequest, env: APIEnv) => {

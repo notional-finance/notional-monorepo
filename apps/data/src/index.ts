@@ -11,12 +11,6 @@ export interface Env extends RegistryDOEnv {
 
 export { ViewsDO } from '@notional-finance/durable-objects';
 
-export class YieldRegistryDO {
-  async fetch() {
-    return new Response('Not implemented');
-  }
-}
-
 async function getOracleData(network: Network, blockNumber: number) {
   const server = new Servers.OracleRegistryServer();
   await server.refreshAtBlock(network, blockNumber);
