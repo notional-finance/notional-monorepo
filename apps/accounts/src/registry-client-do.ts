@@ -21,9 +21,7 @@ export class RegistryClientDO extends BaseDO<Env> {
   }
 
   getStorageKey(url: URL): string {
-    const network = url.pathname.split('/')[1];
-    if (!network) throw Error('Network Not Found');
-    return `${network}`;
+    return url.pathname.slice(1);
   }
 
   async getDataKey(key: string) {
@@ -64,6 +62,7 @@ export class RegistryClientDO extends BaseDO<Env> {
         await this.checkAccountList(network);
         await this.checkTotalSupply(network);
         await this.saveAccountFactors(network);
+        await this.saveYieldData(network);
       }
 
       return new Response('Ok', { status: 200 });
@@ -279,7 +278,7 @@ export class RegistryClientDO extends BaseDO<Env> {
 
     // TODO: split the IRR factors against the risk factors
     // risk factors should be stored in a KV store
-    await this.putStorageKey(network, JSON.stringify(allFactors));
+    await this.putStorageKey(`${network}/accounts`, JSON.stringify(allFactors));
   }
 
   private async checkTotalSupply(network: Network) {
@@ -461,5 +460,12 @@ export class RegistryClientDO extends BaseDO<Env> {
         });
       }
     }
+  }
+
+  private async saveYieldData(network: Network) {
+    await this.putStorageKey(
+      `${network}/yields`,
+      JSON.stringify(Registry.getYieldRegistry().getAllYields(network))
+    );
   }
 }

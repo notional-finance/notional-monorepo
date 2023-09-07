@@ -15,11 +15,14 @@ new_classes = ["ViewsDO"]
 tag = "v2"
 new_classes = ["YieldRegistryDO"]
 
+[[migrations]]
+tag = "v3"
+deleted_classes = ["YieldRegistryDO"]
+
 [env.dev]
 name = "data-dev"
 durable_objects.bindings = [
-  { name = "VIEWS_DO", class_name = "ViewsDO" },
-  { name = "YIELD_REGISTRY_DO", class_name = "YieldRegistryDO" },
+  { name = "VIEWS_DO", class_name = "ViewsDO" }
 ]
 r2_buckets = [
   { binding = "VIEW_CACHE_R2", bucket_name = "view-cache-r2", preview_bucket_name = "view-cache-r2-dev" },
