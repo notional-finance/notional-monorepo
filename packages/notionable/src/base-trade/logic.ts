@@ -523,14 +523,18 @@ export function simulateTransaction(
               postTradeBalances || [],
               (t) => t.tokenId
             )
-              .map(([a, b]) =>
-                !!a && !!b
-                  ? Math.abs(a.toFloat() - b.toFloat()) / b.toFloat()
-                  : a
-                  ? a.abs().toFloat()
-                  : (b as TokenBalance).abs().toFloat()
-              )
-              .filter((b) => b > 5e-4);
+              .map(([simulated, calculated]) => ({
+                rel:
+                  !!simulated && !!calculated && !calculated.isZero()
+                    ? Math.abs(simulated.toFloat() - calculated.toFloat()) /
+                      calculated.toFloat()
+                    : simulated
+                    ? simulated.abs().toFloat()
+                    : (calculated as TokenBalance).abs().toFloat(),
+                simulatedBalance: simulated,
+                calculatedBalance: calculated,
+              }))
+              .filter(({ rel }) => rel > 5e-4);
 
             if (mismatchedBalances.length > 0) {
               logError(
