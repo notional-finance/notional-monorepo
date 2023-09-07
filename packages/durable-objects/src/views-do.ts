@@ -16,6 +16,17 @@ export class ViewsDO extends BaseDO<APIEnv> {
     return `${this.serviceName}/${network}/${view}`;
   }
 
+  override async getDataKey(key: string) {
+    return this.env.VIEW_CACHE_R2.get(key)
+      .then((d) => d?.text())
+      .then((d) => (d ? this.parseGzip(d) : '{}'));
+  }
+
+  override async putStorageKey(key: string, data: string) {
+    const gz = await this.encodeGzip(data);
+    await this.env.VIEW_CACHE_R2.put(key, gz);
+  }
+
   async fetchView(network: Network, name: string) {
     const resp = await fetch(
       `${this.env.DATA_SERVICE_URL}/query?network=${network}&view=${name}`,
@@ -51,8 +62,6 @@ export class ViewsDO extends BaseDO<APIEnv> {
   async onRefresh() {
     await Promise.all(
       this.env.SUPPORTED_NETWORKS.map((network) => {
-        if (network === Network.All) return Promise.resolve();
-
         return this.listViews(network);
       })
     );
