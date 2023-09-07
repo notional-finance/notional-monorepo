@@ -265,7 +265,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
                 this._parseVaultDebtBalance(
                   primaryDebtID,
                   primaryTokenId,
-                  vaultAccount.accountDebtUnderlying.add(
+                  vaultAccount.accountDebtUnderlying.sub(
                     r.accruedPrimeVaultFeeInUnderlying
                   ),
                   maturity,
