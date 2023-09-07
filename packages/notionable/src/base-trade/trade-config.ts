@@ -28,6 +28,15 @@ function onlySameCurrency(t: TokenDefinition, other?: TokenDefinition) {
   return other?.currencyId ? t.currencyId === other.currencyId : true;
 }
 
+function offsettingDebt(t: TokenDefinition, account: AccountDefinition | null) {
+  return !!account?.balances.find(
+    (b) =>
+      ((b.tokenType === 'fCash' && b.isNegative()) ||
+        b.tokenType === 'PrimeDebt') &&
+      b.token.currencyId === t.currencyId
+  );
+}
+
 function offsettingBalance(
   t: TokenDefinition,
   account: AccountDefinition | null,
@@ -285,7 +294,9 @@ export const TradeConfiguration = {
       onlySameCurrency(t, s.debt) &&
       offsettingBalance(t, a, false),
     debtFilter: (t, a, s) =>
-      onlySameCurrency(t, s.collateral) && offsettingBalance(t, a, true),
+      onlySameCurrency(t, s.collateral) &&
+      offsettingBalance(t, a, true) &&
+      offsettingDebt(t, a),
     transactionBuilder: Deleverage,
   } as TransactionConfig,
 
