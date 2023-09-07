@@ -363,11 +363,16 @@ export function priorVaultAccountRisk(
           priorVaultBalances
         ).getAllRiskFactors();
 
-        const leverageRatio =
-          tradeType === 'IncreaseVaultPosition' ||
-          tradeType === 'WithdrawAndRepayVault'
-            ? priorAccountRisk.leverageRatio || undefined
-            : defaultLeverageRatio;
+        let leverageRatio = defaultLeverageRatio;
+        if (tradeType === 'IncreaseVaultPosition') {
+          leverageRatio = priorAccountRisk.leverageRatio || undefined;
+        } else if (tradeType === 'WithdrawAndRepayVault') {
+          leverageRatio =
+            priorAccountRisk.leverageRatio &&
+            priorAccountRisk.leverageRatio > 0.01
+              ? priorAccountRisk.leverageRatio - 0.01
+              : undefined;
+        }
 
         // If a vault account exists, then the default trade type is not selected
         return {
