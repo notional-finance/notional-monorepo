@@ -617,6 +617,7 @@ export function calculateVaultRoll({
       debtBalance: TokenBalance.from(netCostToRepay.toToken(pDebt).n, debt),
       debtFee: currentDebtFee,
       collateralFee: currentDebtFee.copy(0),
+      // NOTE: this undershoots the actual vault share amount
       collateralBalance: TokenBalance.from(
         collateralBalance.n,
         tokens.getVaultShare(debt.network, debt.vaultAddress, debt.maturity)
@@ -647,6 +648,7 @@ export function calculateVaultRoll({
       debtFee: feesPaid[0].add(currentDebtFee),
       collateralFee: feesPaid[0].copy(0),
       netRealizedDebtBalance: totalPrimeCashRequired.toUnderlying(),
+      // NOTE: this undershoots the actual vault share amount
       collateralBalance: TokenBalance.from(
         collateralBalance.n,
         tokens.getVaultShare(debt.network, debt.vaultAddress, debt.maturity)

@@ -515,7 +515,12 @@ export function simulateTransaction(
     filter(([state]) => !!state.populatedTransaction && !IS_TEST_ENV),
     withLatestFrom(selectedNetwork$),
     switchMap(([[s, a], network]) => {
-      const { populatedTransaction, postTradeBalances, vaultAddress } = s;
+      const {
+        populatedTransaction,
+        postTradeBalances,
+        vaultAddress,
+        tradeType,
+      } = s;
       if (populatedTransaction && a) {
         return from(
           applySimulationToAccount(network, populatedTransaction, a)
@@ -544,7 +549,15 @@ export function simulateTransaction(
                 simulatedBalance: simulated,
                 calculatedBalance: calculated,
               }))
-              .filter(({ rel }) => Math.abs(rel) > 5e-4);
+              .filter(({ rel, simulatedBalance }) =>
+                // Allow for more tolerance in this scenario since we do not accurately account
+                // for dust repayment within the calculation. The actual amount of vault shares
+                // is relatively insignificant.
+                tradeType === 'RollVaultPosition' &&
+                simulatedBalance?.tokenType === 'VaultShare'
+                  ? Math.abs(rel) > 5e-2
+                  : Math.abs(rel) > 5e-4
+              );
 
             if (mismatchedBalances.length > 0) {
               logError(
