@@ -2,8 +2,10 @@ import { useEffect } from 'react';
 import { Contract } from 'ethers';
 import { NftContract, NftContractABI } from '@notional-finance/contracts';
 import { getProviderFromNetwork } from '@notional-finance/util';
-import { useConnect } from './use-connect';
-import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
+import {
+  useSelectedNetwork,
+  useNotionalContext,
+} from '@notional-finance/notionable-hooks';
 import { useHistory, useLocation } from 'react-router-dom';
 import {
   getFromLocalStorage,
@@ -20,8 +22,10 @@ export const useNftContract = () => {
   const selectedNetwork = useSelectedNetwork();
   const history = useHistory();
   const { pathname } = useLocation();
+  const {
+    globalState: { wallet },
+  } = useNotionalContext();
   const userSettings = getFromLocalStorage('userSettings');
-  const { selectedAddress } = useConnect();
   const onboardWallet = getFromLocalStorage('onboard.js:last_connected_wallet');
 
   useEffect(() => {
@@ -46,7 +50,11 @@ export const useNftContract = () => {
     }
   }, [history, userSettings.betaAccess, pathname]);
 
-  if (selectedNetwork && selectedAddress) {
+  if (
+    selectedNetwork &&
+    wallet?.selectedAddress &&
+    wallet?.selectedAddress !== userSettings.currentAddress
+  ) {
     const provider = getProviderFromNetwork(selectedNetwork);
 
     const nft = new Contract(
@@ -56,16 +64,18 @@ export const useNftContract = () => {
     ) as NftContract;
 
     nft
-      .balanceOf(selectedAddress)
+      .balanceOf(wallet?.selectedAddress)
       .then((res) => {
         if (res.isZero()) {
           setInLocalStorage('userSettings', {
             ...userSettings,
             betaAccess: BETA_ACCESS.REJECTED,
+            currentAddress: wallet?.selectedAddress,
           });
         } else {
           setInLocalStorage('userSettings', {
             ...userSettings,
+            currentAddress: wallet?.selectedAddress,
             betaAccess: BETA_ACCESS.CONFIRMED,
           });
         }
@@ -74,6 +84,7 @@ export const useNftContract = () => {
         console.warn(error);
         setInLocalStorage('userSettings', {
           ...userSettings,
+          currentAddress: wallet?.selectedAddress,
           betaAccess: BETA_ACCESS.REJECTED,
         });
       });
