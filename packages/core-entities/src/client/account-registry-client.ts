@@ -193,7 +193,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
               args: [activeAccount],
               key: `${address}.balance`,
               transform: (b: BigNumber) => {
-                return TokenBalance.from(b, def);
+                return { balances: [TokenBalance.from(b, def)] };
               },
             },
             {
@@ -215,7 +215,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
               args: [activeAccount],
               key: `${address}.balance`,
               transform: (b: BigNumber) => {
-                return TokenBalance.from(b, def);
+                return { balances: [TokenBalance.from(b, def)] };
               },
             },
             {
@@ -246,7 +246,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
               vaultAccount: Awaited<ReturnType<NotionalV3['getVaultAccount']>>
             ) => {
               const maturity = vaultAccount.maturity.toNumber();
-              if (maturity === 0) return [];
+              if (maturity === 0) return { balances: [] };
               const {
                 vaultShareID,
                 primaryDebtID,
@@ -281,7 +281,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
               return {
                 balances,
                 vaultLastUpdateTime: {
-                  [v.vaultAddress]: vaultAccount.lastUpdateBlockTime,
+                  [v.vaultAddress]: vaultAccount.lastUpdateBlockTime.toNumber(),
                 },
               };
             },
@@ -296,7 +296,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
               r: Awaited<ReturnType<NotionalV3['getVaultAccountSecondaryDebt']>>
             ) => {
               const maturity = r.maturity.toNumber();
-              if (maturity === 0) return [] as TokenBalance[];
+              if (maturity === 0) return { balances: [] };
               const {
                 secondaryOneCashID,
                 secondaryOneDebtID,

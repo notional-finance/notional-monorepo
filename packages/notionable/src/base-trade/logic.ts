@@ -340,28 +340,19 @@ export function priorVaultAccountRisk(
     }),
     map(([{ vaultAddress, tradeType, defaultLeverageRatio }, account]) => {
       if (!vaultAddress) return undefined;
-      const balances =
-        account?.balances.filter(
-          (t) => t.token.vaultAddress === vaultAddress
-        ) || [];
-      let priorVaultBalances: TokenBalance[] = [];
-      if (balances.length > 0) {
-        priorVaultBalances = new VaultAccountRiskProfile(vaultAddress, balances)
-          .balances;
-      }
+      const vaultProfile = account
+        ? VaultAccountRiskProfile.fromAccount(vaultAddress, account)
+        : undefined;
 
       // NOTE: default trade type is determined by the URL route or the presence
       // of a vault account.
-      if (priorVaultBalances.length === 0) {
+      if (!vaultProfile) {
         return {
           tradeType: 'CreateVaultPosition' as VaultTradeType,
-          priorVaultBalances,
+          priorVaultBalances: [],
         };
       } else {
-        const priorAccountRisk = VaultAccountRiskProfile.from(
-          vaultAddress,
-          priorVaultBalances
-        ).getAllRiskFactors();
+        const priorAccountRisk = vaultProfile.getAllRiskFactors();
 
         let leverageRatio = defaultLeverageRatio;
         if (tradeType === 'IncreaseVaultPosition') {
@@ -378,7 +369,7 @@ export function priorVaultAccountRisk(
         return {
           tradeType:
             tradeType === 'CreateVaultPosition' ? undefined : tradeType,
-          priorVaultBalances,
+          priorVaultBalances: vaultProfile.balances,
           priorAccountRisk,
           defaultLeverageRatio: leverageRatio,
         };
@@ -421,6 +412,9 @@ export function postVaultAccountRisk(
             postTradeBalances: undefined,
           };
         } else if (calculationSuccess && vaultAddress && collateralBalance) {
+          // NOTE: lastUpdateBlockTime is not relevant when calculating post trade balances
+          // because the accrued debt will be factored into the calculation for the final
+          // collateral and debt balance.
           const profile = VaultAccountRiskProfile.simulate(
             vaultAddress,
             account?.balances.filter((t) =>
@@ -474,6 +468,7 @@ export function buildTransaction(
             .transactionBuilder({
               ...s,
               accountBalances: a.balances || [],
+              vaultLastUpdateTime: a.vaultLastUpdateTime || {},
               address: a.address,
               network: a.network,
             })

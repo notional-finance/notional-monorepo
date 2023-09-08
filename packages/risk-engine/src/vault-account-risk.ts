@@ -38,11 +38,16 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     );
   }
 
-  static from(
-    vaultAddress: string,
-    balances: TokenBalance[],
-    lastUpdateBlockTime: number
-  ) {
+  static fromAccount(vaultAddress: string, account: AccountDefinition) {
+    const balances = account.balances.filter(
+      (t) => t.token.vaultAddress === vaultAddress
+    );
+    if (balances.length === 0) return undefined;
+
+    const lastUpdateBlockTime = account.vaultLastUpdateTime
+      ? account.vaultLastUpdateTime[vaultAddress]
+      : 0;
+
     return new VaultAccountRiskProfile(
       vaultAddress,
       balances,
@@ -64,29 +69,12 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
   }
 
   static getAllRiskProfiles(account: AccountDefinition) {
-    const vaultPositions = account.balances
-      .filter((b) => b.isVaultToken)
-      .reduce((vaults, b) => {
-        const t = vaults.get(b.vaultAddress) || [];
-        t.push(b);
-        vaults.set(b.vaultAddress, t);
-        return vaults;
-      }, new Map<string, TokenBalance[]>());
-
-    const vaultRiskProfiles: VaultAccountRiskProfile[] = [];
-    vaultPositions?.forEach((balances, vaultAddress) => {
-      vaultRiskProfiles.push(
-        VaultAccountRiskProfile.from(
-          vaultAddress,
-          balances,
-          account.vaultLastUpdateTime
-            ? account.vaultLastUpdateTime[vaultAddress]
-            : 0
-        )
-      );
-    });
-
-    return vaultRiskProfiles;
+    return Registry.getConfigurationRegistry()
+      .getAllListedVaults(account.network)
+      ?.map(({ vaultAddress }) => {
+        return VaultAccountRiskProfile.fromAccount(vaultAddress, account);
+      })
+      .filter((v) => v !== undefined) as VaultAccountRiskProfile[];
   }
 
   simulate(apply: TokenBalance[]) {
@@ -140,7 +128,10 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
   }
 
   get accruedVaultFees() {
-    if (this.maturity === PRIME_CASH_VAULT_MATURITY) {
+    if (
+      this.maturity === PRIME_CASH_VAULT_MATURITY &&
+      this.lastUpdateBlockTime > 0
+    ) {
       const annualizedFeeRate =
         Registry.getConfigurationRegistry().getVaultConfig(
           this.network,
@@ -151,7 +142,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
         (annualizedFeeRate * timeSinceLastUpdate) / SECONDS_IN_YEAR
       );
 
-      return this.vaultDebt.mulInRatePrecision(feeRate);
+      return this.vaultDebt.neg().mulInRatePrecision(feeRate);
     } else {
       return this.vaultDebt.copy(0);
     }

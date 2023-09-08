@@ -520,12 +520,14 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
   depositBalance,
   balances,
   riskFactorLimit,
+  vaultLastUpdateTime,
 }: {
   collateral: TokenDefinition;
   debt: TokenDefinition;
   vaultAdapter: VaultAdapter;
   debtPool: fCashMarket;
   depositBalance: TokenBalance | undefined;
+  vaultLastUpdateTime?: number;
   balances?: TokenBalance[];
   riskFactorLimit: RiskFactorLimit<RiskFactorKeys>;
   maxCollateralSlippage?: number;
@@ -534,9 +536,10 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
   const vaultAddress = collateral.vaultAddress;
   if (!vaultAddress) throw Error('Vault Address not defined');
 
-  let profile = VaultAccountRiskProfile.from(
+  let profile = new VaultAccountRiskProfile(
     vaultAddress,
-    balances || [TokenBalance.zero(collateral)]
+    balances || [TokenBalance.zero(collateral)],
+    vaultLastUpdateTime || 0
   );
 
   if (depositBalance?.isNegative()) {
@@ -545,11 +548,17 @@ export function calculateVaultDebtCollateralGivenDepositRiskLimit({
       vaultAdapter.getNetVaultSharesMinted(depositBalance, collateral);
     profile = profile.simulate([netVaultSharesForUnderlying]);
   }
+  const accruedVaultFees = profile.accruedVaultFees;
 
   return profile.getDebtAndCollateralMaintainRiskFactor(
     debt,
     riskFactorLimit,
     (debtBalance: TokenBalance) => {
+      // NOTE: any borrowed cash is first net off against the prime debt fees
+      // accrued before the vault collateral is purchased
+      if (debtBalance.maturity === PRIME_CASH_VAULT_MATURITY)
+        debtBalance = debtBalance.add(accruedVaultFees);
+
       return calculateVaultCollateral({
         collateral,
         vaultAdapter,
@@ -567,17 +576,23 @@ export function calculateVaultRoll({
   debtPool,
   depositBalance,
   balances,
+  vaultLastUpdateTime,
 }: {
   debt: TokenDefinition;
   debtPool: fCashMarket;
   vaultAdapter: VaultAdapter;
   depositBalance: TokenBalance;
   balances: TokenBalance[];
+  vaultLastUpdateTime: number;
 }) {
   // Collateral balance is predefined
   if (!debt.vaultAddress) throw Error('Vault Debt not defined');
   // Settles balances inside
-  const profile = VaultAccountRiskProfile.from(debt.vaultAddress, balances);
+  const profile = new VaultAccountRiskProfile(
+    debt.vaultAddress,
+    balances,
+    vaultLastUpdateTime
+  );
   const collateralBalance = profile.vaultShares;
   const currentDebt = profile.vaultDebt;
   if (!collateralBalance) throw Error('Vault Shares not defined');
@@ -594,21 +609,11 @@ export function calculateVaultRoll({
     tokens.getPrimeCash(currentDebt.network, currentDebt.currencyId)
   );
 
-  if (currentDebt.maturity === PRIME_CASH_VAULT_MATURITY) {
-    // If the current debt is in prime cash there are rounding errors associated
-    // with the cost to repay since the value we have here does not reflect any accrued
-    // interest. TODO: it's not clear why we have to set the scale factor so high here.
-    const annualizedFeeRate =
-      Registry.getConfigurationRegistry().getVaultConfig(
-        currentDebt.network,
-        currentDebt.vaultAddress
-      ).feeRateBasisPoints;
-    const scaleFactor = RATE_PRECISION + annualizedFeeRate;
+  const netCostToRepay = costToRepay
+    // Vault fees only accrue for prime debt
+    .add(profile.accruedVaultFees.toPrimeCash())
+    .sub(depositBalance.toPrimeCash());
 
-    costToRepay = costToRepay.mulInRatePrecision(scaleFactor);
-  }
-
-  const netCostToRepay = costToRepay.sub(depositBalance.toPrimeCash());
   if (debt.maturity === PRIME_CASH_VAULT_MATURITY) {
     const pDebt = tokens.getPrimeDebt(debt.network, debt.currencyId);
 

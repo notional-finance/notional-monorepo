@@ -107,7 +107,8 @@ export function EnterVault({
   // This must be a positive number
   const debtBalanceNum =
     debtBalance.maturity === PRIME_CASH_VAULT_MATURITY
-      ? debtBalance.toUnderlying().neg().scaleTo(INTERNAL_TOKEN_DECIMALS)
+      ? // TODO: this needs to include the vault fee
+        debtBalance.toUnderlying().neg().scaleTo(INTERNAL_TOKEN_DECIMALS)
       : debtBalance.neg().n;
   const { slippageRate: maxBorrowRate, underlyingOut } =
     getVaultSlippageRate(debtBalance);
@@ -140,13 +141,15 @@ export function ExitVault({
   debtBalance,
   accountBalances,
   maxWithdraw,
+  vaultLastUpdateTime,
 }: PopulateTransactionInputs): Promise<PopulatedTransaction> {
   if (
     collateralBalance?.tokenType !== 'VaultShare' ||
     debtBalance?.tokenType !== 'VaultDebt' ||
     debtBalance?.token.vaultAddress !== collateralBalance.token.vaultAddress ||
     collateralBalance.isPositive() ||
-    debtBalance.isNegative()
+    debtBalance.isNegative() ||
+    vaultLastUpdateTime === undefined
   )
     throw Error('Collateral balance, debt balance must be defined');
 
@@ -154,8 +157,11 @@ export function ExitVault({
 
   let debtBalanceNum: BigNumber;
   if (debtBalance.maturity === PRIME_CASH_VAULT_MATURITY) {
-    const vaultDebt = new VaultAccountRiskProfile(vaultAddress, accountBalances)
-      .vaultDebt;
+    const vaultDebt = new VaultAccountRiskProfile(
+      vaultAddress,
+      accountBalances,
+      vaultLastUpdateTime[vaultAddress] || 0
+    ).vaultDebt;
 
     // Clears the entire debt balance using max uint256
     if (maxWithdraw || vaultDebt.add(debtBalance).isZero())
@@ -207,18 +213,28 @@ export function RollVault({
   depositBalance,
   debtBalance,
   accountBalances,
+  vaultLastUpdateTime,
 }: PopulateTransactionInputs): Promise<PopulatedTransaction> {
   if (
     !depositBalance ||
     debtBalance?.tokenType !== 'VaultDebt' ||
     debtBalance.maturity === undefined ||
-    debtBalance.vaultAddress === undefined
+    debtBalance.vaultAddress === undefined ||
+    vaultLastUpdateTime === undefined
   )
     throw Error('Deposit balance, debt balance must be defined');
 
   const vaultAddress = debtBalance.vaultAddress;
-  const profile = new VaultAccountRiskProfile(vaultAddress, accountBalances);
-  const currentDebtBalance = profile.vaultDebt;
+  if (vaultLastUpdateTime[vaultAddress] === undefined)
+    throw Error('Vault last update time not found');
+
+  const profile = new VaultAccountRiskProfile(
+    vaultAddress,
+    accountBalances,
+    vaultLastUpdateTime[vaultAddress]
+  );
+
+  const currentDebtBalance = profile.vaultDebt.sub(profile.accruedVaultFees);
   const { slippageRate: minLendRate, underlyingOut: costToRepay } =
     getVaultSlippageRate(currentDebtBalance?.neg());
   const { slippageRate: maxBorrowRate, underlyingOut: amountBorrowed } =

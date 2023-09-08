@@ -19,9 +19,7 @@ export function calculateAccountIRR(
     .netWorth()
     .toToken(ETH, 'None', snapshotTimestamp);
 
-  const allVaultRisk = VaultAccountRiskProfile.getAllRiskProfiles(
-    account.balances
-  );
+  const allVaultRisk = VaultAccountRiskProfile.getAllRiskProfiles(account);
 
   const totalNetWorth = allVaultRisk
     .map((v) => v.netWorth().toToken(ETH, 'None', snapshotTimestamp))

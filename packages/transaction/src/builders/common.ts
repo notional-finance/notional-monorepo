@@ -44,6 +44,7 @@ export interface PopulateTransactionInputs {
   redeemToWETH: boolean;
   accountBalances: TokenBalance[];
   maxWithdraw: boolean;
+  vaultLastUpdateTime?: Record<string, number>;
 }
 
 export function hasExistingCashBalance(
