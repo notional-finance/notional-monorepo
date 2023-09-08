@@ -4,7 +4,6 @@ import { LabelValue, SideDrawerActiveButton } from '@notional-finance/mui';
 import { EyeIcon } from '@notional-finance/icons';
 import { useConnect } from '../../../hooks/use-connect';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
-import { trackEvent } from '@notional-finance/helpers';
 import { ViewAsAccount } from '../../../view-as-account/view-as-account';
 import { modules } from '../../../onboard-context';
 import { FormattedMessage } from 'react-intl';
@@ -55,7 +54,6 @@ export const WalletSwitcher = () => {
   const handleConnect = useCallback(
     (label: string) => {
       connectWallet(label);
-      trackEvent('CONNECT_WALLET', { wallet: label });
       clearWalletSideDrawer();
     },
     [clearWalletSideDrawer, connectWallet]
