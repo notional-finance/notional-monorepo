@@ -162,6 +162,15 @@ export function availableTokens(
 ) {
   return combineLatest([state$, selectedNetwork$, account$]).pipe(
     filter(([{ isReady, tradeType }]) => isReady && !!tradeType),
+    distinctUntilChanged(([p, , pa], [c, , ca]) => {
+      return (
+        pa?.address === ca?.address &&
+        p.deposit?.id === c.deposit?.id &&
+        p.collateral?.id === c.collateral?.id &&
+        p.debt?.id === c.debt?.id &&
+        p.tradeType === c.tradeType
+      );
+    }),
     map(([s, selectedNetwork, account]) => {
       const { collateralFilter, depositFilter, debtFilter } = getTradeConfig(
         s.tradeType
