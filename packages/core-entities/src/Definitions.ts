@@ -152,6 +152,8 @@ export interface AccountDefinition {
   balances: TokenBalance[];
   /** If prime borrows are enabled */
   allowPrimeBorrow: boolean;
+  /** Stores the last update time for vault positions, used to calculate prime debt fees */
+  vaultLastUpdateTime?: Record<string, number>;
   /** Current profit and loss on every given balance */
   balanceStatement?: BalanceStatement[];
   /** Any transactions that have included transfers to this account */
