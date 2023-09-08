@@ -48,17 +48,17 @@ export const useTxnHistoryTable = (
       accessor: 'vaultName',
       textAlign: 'left',
     },
-    // {
-    //   Header: (
-    //     <FormattedMessage
-    //       defaultMessage="Underlying Amount"
-    //       description={'Underlying Amount header'}
-    //     />
-    //   ),
-    //   Cell: MultiValueCell,
-    //   accessor: 'underlyingAmount',
-    //   textAlign: 'right',
-    // },
+    {
+      Header: (
+        <FormattedMessage
+          defaultMessage="Underlying Amount"
+          description={'Underlying Amount header'}
+        />
+      ),
+      Cell: MultiValueCell,
+      accessor: 'underlyingAmount',
+      textAlign: 'right',
+    },
     {
       Header: (
         <FormattedMessage

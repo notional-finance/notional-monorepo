@@ -77,7 +77,6 @@ const AllRoutes = () => {
   useNftContract();
 
   useEffect(() => {
-    console.log({ onboardWallet });
     if (!onboardWallet || onboardWallet.length === 0) {
       setInLocalStorage('userSettings', {
         ...userSettings,

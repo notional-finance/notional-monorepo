@@ -44,8 +44,13 @@ export const useTxnHistoryData = (txnHistoryType: TXN_HISTORY_TYPE) => {
           },
           vaultName: vaultName,
           underlyingAmount: {
-            data: [underlyingAmountRealized.toDisplayStringWithSymbol(3, true)],
-            isNegative: underlyingAmountRealized.isNegative(),
+            data: [
+              {
+                displayValue:
+                  underlyingAmountRealized.toDisplayStringWithSymbol(3, true),
+                isNegative: underlyingAmountRealized.isNegative(),
+              },
+            ],
           },
           assetAmount: formatTokenAmount(tokenAmount, impliedFixedRate),
           asset: {
