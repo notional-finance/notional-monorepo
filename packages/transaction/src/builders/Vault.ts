@@ -7,6 +7,7 @@ import {
   RATE_PRECISION,
 } from '@notional-finance/util';
 import {
+  AccountDefinition,
   Registry,
   TokenBalance,
   fCashMarket,
@@ -99,16 +100,25 @@ export function EnterVault({
   network,
   depositBalance,
   debtBalance,
+  accountBalances,
+  vaultLastUpdateTime,
 }: PopulateTransactionInputs): Promise<PopulatedTransaction> {
   if (!depositBalance || debtBalance?.tokenType !== 'VaultDebt')
     throw Error('Deposit balance, debt balance must be defined');
   const vaultAddress = debtBalance.vaultAddress;
 
+  const profile =
+    accountBalances && vaultLastUpdateTime
+      ? VaultAccountRiskProfile.fromAccount(vaultAddress, {
+          balances: accountBalances,
+          vaultLastUpdateTime,
+        } as AccountDefinition)
+      : undefined;
+
   // This must be a positive number
   const debtBalanceNum =
     debtBalance.maturity === PRIME_CASH_VAULT_MATURITY
-      ? // TODO: this needs to include the vault fee
-        debtBalance.toUnderlying().neg().scaleTo(INTERNAL_TOKEN_DECIMALS)
+      ? debtBalance.toUnderlying().neg().scaleTo(INTERNAL_TOKEN_DECIMALS)
       : debtBalance.neg().n;
   const { slippageRate: maxBorrowRate, underlyingOut } =
     getVaultSlippageRate(debtBalance);
@@ -117,10 +127,15 @@ export function EnterVault({
     vaultAddress
   );
 
+  const totalDeposit = profile
+    ? underlyingOut
+        .sub(profile.accruedVaultFees.toUnderlying())
+        .add(depositBalance)
+    : underlyingOut.add(depositBalance);
   const vaultData = vaultAdapter.getDepositParameters(
     address,
     debtBalance.maturity,
-    underlyingOut.add(depositBalance)
+    totalDeposit
   );
 
   return populateNotionalTxnAndGas(network, address, 'enterVault', [
