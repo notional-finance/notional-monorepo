@@ -1,12 +1,14 @@
+import { useEffect } from 'react';
 import { Contract } from 'ethers';
 import { NftContract, NftContractABI } from '@notional-finance/contracts';
 import { getProviderFromNetwork } from '@notional-finance/util';
+import { useConnect } from './use-connect';
 import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
+import { useHistory, useLocation } from 'react-router-dom';
 import {
   getFromLocalStorage,
   setInLocalStorage,
 } from '@notional-finance/helpers';
-import { useConnect } from './use-connect';
 
 export enum BETA_ACCESS {
   PENDING = 'pending',
@@ -16,8 +18,33 @@ export enum BETA_ACCESS {
 
 export const useNftContract = () => {
   const selectedNetwork = useSelectedNetwork();
-  const { selectedAddress } = useConnect();
+  const history = useHistory();
+  const { pathname } = useLocation();
   const userSettings = getFromLocalStorage('userSettings');
+  const { selectedAddress } = useConnect();
+  const onboardWallet = getFromLocalStorage('onboard.js:last_connected_wallet');
+
+  useEffect(() => {
+    if (!onboardWallet || onboardWallet.length === 0) {
+      setInLocalStorage('userSettings', {
+        ...userSettings,
+        betaAccess: undefined,
+      });
+    }
+  }, [onboardWallet, userSettings]);
+
+  useEffect(() => {
+    if (
+      userSettings.betaAccess === BETA_ACCESS.REJECTED ||
+      userSettings.betaAccess === undefined
+    ) {
+      if (pathname.includes('contest')) {
+        history.push(pathname);
+      } else {
+        history.push('/contest');
+      }
+    }
+  }, [history, userSettings.betaAccess, pathname]);
 
   if (selectedNetwork && selectedAddress) {
     const provider = getProviderFromNetwork(selectedNetwork);
@@ -30,13 +57,6 @@ export const useNftContract = () => {
 
     nft
       .balanceOf(selectedAddress)
-      .then((res) => {
-        setInLocalStorage('userSettings', {
-          ...userSettings,
-          betaAccess: BETA_ACCESS.PENDING,
-        });
-        return res;
-      })
       .then((res) => {
         if (res.isZero()) {
           setInLocalStorage('userSettings', {

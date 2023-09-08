@@ -7,7 +7,6 @@ import { Web3OnboardProvider } from '@web3-onboard/react';
 import { useEffect, useState } from 'react';
 import { Switch } from 'react-router';
 import { CompatRouter } from 'react-router-dom-v5-compat';
-import { useHistory, useLocation } from 'react-router-dom';
 import { ServerError } from '../ServerError/server-error';
 import RouteContainer from './components/RouteContainer';
 import AppLayoutRoute from './layouts/AppLayoutRoute';
@@ -17,18 +16,10 @@ import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ScrollToTop } from '@notional-finance/mui';
 import { getDefaultNetworkFromHostname } from '@notional-finance/util';
-import {
-  useConnect,
-  BETA_ACCESS,
-  useNftContract,
-} from '@notional-finance/wallet/hooks';
+import { useConnect, useNftContract } from '@notional-finance/wallet/hooks';
 import { useNotionalTheme } from '@notional-finance/styles';
 // Feature shell views
 import { AboutUsView } from '@notional-finance/about-us-feature-shell';
-import {
-  getFromLocalStorage,
-  setInLocalStorage,
-} from '@notional-finance/helpers';
 import {
   LendFixed,
   LendLeveraged,
@@ -66,37 +57,11 @@ import { Markets } from '../Markets';
 
 const AllRoutes = () => {
   const [routeKey, setRouteKey] = useState('');
-  const history = useHistory();
-  const { pathname } = useLocation();
-  const userSettings = getFromLocalStorage('userSettings');
-  const onboardWallet = getFromLocalStorage('onboard.js:last_connected_wallet');
   // Have this hook here to ensure that all children routes will see updates if the onboard
   // context changes (there is a useEffect hook inside here listening for changes in the
   // onboard context)
   useConnect();
   useNftContract();
-
-  useEffect(() => {
-    if (!onboardWallet || onboardWallet.length === 0) {
-      setInLocalStorage('userSettings', {
-        ...userSettings,
-        betaAccess: undefined,
-      });
-    }
-  }, [onboardWallet, userSettings]);
-
-  useEffect(() => {
-    if (
-      userSettings.betaAccess === BETA_ACCESS.REJECTED ||
-      userSettings.betaAccess === undefined
-    ) {
-      if (pathname.includes('contest')) {
-        history.push(pathname);
-      } else {
-        history.push('/contest');
-      }
-    }
-  }, [history, userSettings.betaAccess, pathname]);
 
   return (
     <CompatRouter>

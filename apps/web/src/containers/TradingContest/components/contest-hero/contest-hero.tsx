@@ -74,13 +74,7 @@ export const ContestHero = () => {
               {icon &&
                 icon.length > 0 &&
                 userSettings.betaAccess === BETA_ACCESS.REJECTED && (
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      marginTop: theme.spacing(3),
-                    }}
-                  >
+                  <AddressContainer>
                     <IconContainer>
                       <img
                         src={`data:image/svg+xml;utf8,${encodeURIComponent(
@@ -92,7 +86,7 @@ export const ContestHero = () => {
                       />
                     </IconContainer>
                     <Address>{truncatedAddress}</Address>
-                  </Box>
+                  </AddressContainer>
                 )}
               {userSettings.betaAccess === BETA_ACCESS.REJECTED && (
                 <ContestButtonStack
@@ -123,6 +117,17 @@ const ContentContainer = styled(Box)(
     ${theme.breakpoints.down('md')} {
       display: block;
       margin-top: ${theme.spacing(8)};
+    }
+      `
+);
+
+const AddressContainer = styled(Box)(
+  ({ theme }) => `
+    display: flex;
+    align-items: center;
+    margin-top: ${theme.spacing(3)};
+    ${theme.breakpoints.down('md')} {
+      margin-left: ${theme.spacing(2)};
     }
       `
 );
