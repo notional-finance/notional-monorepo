@@ -1,5 +1,5 @@
 import { useThemeVariant } from '@notional-finance/notionable-hooks';
-import { THEME_VARIANTS } from '@notional-finance/shared-config';
+import { THEME_VARIANTS } from '@notional-finance/util';
 import { SvgIcon, SvgIconProps } from '@mui/material';
 
 export type ImageProps = SvgIconProps;

@@ -21,7 +21,7 @@ import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import {
   PORTFOLIO_ACTIONS,
   PORTFOLIO_CATEGORIES,
-} from '@notional-finance/shared-config';
+} from '@notional-finance/util';
 import { FeatureLoader } from '@notional-finance/shared-web';
 
 export interface PortfolioParams {

@@ -8,7 +8,7 @@ import {
   TransactionSidebar,
 } from '@notional-finance/trade';
 import { useHistory } from 'react-router-dom';
-import { PRODUCTS } from '@notional-finance/shared-config';
+import { PRODUCTS } from '@notional-finance/util';
 import { LendLeveragedContext } from '../../lend-leveraged/lend-leveraged';
 import { LeveragedLendMaturitySelector } from './leveraged-lend-maturity-selector';
 

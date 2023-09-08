@@ -5,7 +5,7 @@ import {
   ChineseFlagIcon,
   JapaneseFlagIcon,
 } from '@notional-finance/icons';
-import { LOCALES } from '@notional-finance/shared-config';
+import { LOCALES } from '@notional-finance/util';
 
 export const useLanguageOptions = () => {
   const theme = useTheme();

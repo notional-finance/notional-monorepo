@@ -5,7 +5,7 @@ import SwipeableDrawer from '@mui/material/SwipeableDrawer';
 import { ArrowIcon } from '@notional-finance/icons';
 import MobileSideDrawerResources from '../mobile-side-drawer-resources/mobile-side-drawer-resources';
 import MobileNavTab from '../mobile-nav-tab/mobile-nav-tab';
-import { MOBILE_SUB_NAV_ACTIONS } from '@notional-finance/shared-config';
+import { MOBILE_SUB_NAV_ACTIONS } from '@notional-finance/util';
 import {
   SettingsSideDrawer,
   NotificationsSideDrawer,

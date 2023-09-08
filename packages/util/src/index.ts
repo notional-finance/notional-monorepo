@@ -10,3 +10,4 @@ export * from './rxjs-helpers';
 export * from './secant-search';
 export * from './format';
 export * from './types';
+export * from './enums';

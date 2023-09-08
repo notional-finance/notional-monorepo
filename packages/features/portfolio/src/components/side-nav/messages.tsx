@@ -1,5 +1,5 @@
 import { defineMessages } from 'react-intl';
-import { PORTFOLIO_CATEGORIES } from '@notional-finance/shared-config';
+import { PORTFOLIO_CATEGORIES } from '@notional-finance/util';
 
 export const navLabels = defineMessages({
   [PORTFOLIO_CATEGORIES.OVERVIEW]: {

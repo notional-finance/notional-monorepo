@@ -1,6 +1,6 @@
 import { FormattedMessage } from 'react-intl';
 import { ButtonOptionsType } from '@notional-finance/mui';
-import { MARKET_TYPE } from '@notional-finance/shared-config';
+import { MARKET_TYPE } from '@notional-finance/util';
 
 export const useButtonBar = (setMarketType, marketType) => {
   const buttonData: ButtonOptionsType[] = [

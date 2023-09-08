@@ -1,7 +1,7 @@
 import { Box } from '@mui/material';
 import { ToggleSwitch } from '@notional-finance/mui';
 import { useNotionalContext } from '@notional-finance/notionable-hooks';
-import { THEME_VARIANTS } from '@notional-finance/shared-config';
+import { THEME_VARIANTS } from '@notional-finance/util';
 import {
   setInLocalStorage,
   getFromLocalStorage,

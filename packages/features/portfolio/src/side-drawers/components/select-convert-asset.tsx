@@ -19,7 +19,7 @@ import {
   formatNumberAsPercent,
   formatTokenType,
 } from '@notional-finance/helpers';
-import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
+import { PORTFOLIO_ACTIONS } from '@notional-finance/util';
 import { TokenOption } from '@notional-finance/notionable';
 import { useParams } from 'react-router';
 import { TransactionHeadings } from '@notional-finance/trade';

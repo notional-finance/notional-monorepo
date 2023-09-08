@@ -1,8 +1,5 @@
 import { useState } from 'react';
-import {
-  THEME_VARIANTS,
-  PORTFOLIO_CATEGORIES,
-} from '@notional-finance/shared-config';
+import { THEME_VARIANTS, PORTFOLIO_CATEGORIES } from '@notional-finance/util';
 import { Box, styled, useTheme } from '@mui/material';
 import { MobileNav } from '@notional-finance/mui';
 import { useSwipeable } from 'react-swipeable';

@@ -5,7 +5,7 @@ import logoForDarkBackground from '@notional-finance/assets/images/logos/Notiona
 import { useNotionalTheme } from '@notional-finance/styles';
 import { useLastUpdateBlockNumber } from '@notional-finance/notionable-hooks';
 import { formatNumber, formatNumberAsPercent } from '@notional-finance/helpers';
-import { THEME_VARIANTS } from '@notional-finance/shared-config';
+import { THEME_VARIANTS } from '@notional-finance/util';
 import { useCryptoPriceState } from '../crypto-price-manager/store/use-crypto-price-state';
 import { useCryptoPriceManager } from '../crypto-price-manager/use-crypto-price-manager';
 import {

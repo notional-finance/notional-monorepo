@@ -4,7 +4,7 @@ import { FormattedMessage } from 'react-intl';
 import connectImage from './connect-image.svg';
 import { ProductRateCards } from './product-rate-cards';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
-import { SETTINGS_SIDE_DRAWERS } from '@notional-finance/shared-config';
+import { SETTINGS_SIDE_DRAWERS } from '@notional-finance/util';
 import { useEmptyPortfolioOverview } from './use-empty-portfolio-overview';
 
 interface EmptyPortfolioOverviewProps {

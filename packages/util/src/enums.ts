@@ -1,8 +1,3 @@
-export enum LEND_BORROW {
-  LEND = 'lend',
-  BORROW = 'borrow',
-}
-
 export enum MARKET_TYPE {
   EARN = 'earn',
   BORROW = 'borrow',
@@ -68,27 +63,6 @@ export enum PORTFOLIO_ACTIONS {
   MANAGE_LEND = 'manage-lend',
 }
 
-export enum WITHDRAW_TYPE {
-  ONLY_CASH = 'only-cash',
-  ONLY_NTOKEN = 'only-ntoken',
-  BOTH = 'both',
-  REDEEM_TO_CASH = 'only-redeem',
-}
-
-export enum NTOKEN_ACTIONS {
-  PROVIDE_LIQUIDITY = 'provide',
-}
-
-export enum VAULT_ACTIONS {
-  CREATE_VAULT_POSITION = 'create-vault-position',
-  INCREASE_POSITION = 'increase-position',
-  DEPOSIT_COLLATERAL = 'deposit-collateral',
-  ROLL_POSITION = 'roll-position',
-  WITHDRAW_AND_REPAY_DEBT = 'withdraw-and-repay-debt',
-  WITHDRAW_VAULT = 'withdraw-vault',
-  WITHDRAW_VAULT_POST_MATURITY = 'withdraw-vault-post-maturity',
-}
-
 export enum PORTFOLIO_CATEGORIES {
   OVERVIEW = 'overview',
   HOLDINGS = 'holdings',
@@ -123,12 +97,6 @@ export enum NAV_DROPDOWN {
   BORROW = 'Borrow',
 }
 
-export enum CHAIN_NAMES {
-  GOERLI = 'Goerli',
-  MAINNET = 'Mainnet',
-  ARBITRUM = 'Arbitrum',
-}
-
 export enum THEME_VARIANTS {
   LIGHT = 'light',
   DARK = 'dark',
@@ -139,10 +107,5 @@ export enum LOCALES {
   JA = 'ja',
   ZH_CN = 'zh-CN',
 }
-
-export type TRANSACTION_ACTIONS =
-  | LEND_BORROW
-  | PORTFOLIO_ACTIONS
-  | NTOKEN_ACTIONS;
 
 export type SIDE_DRAWERS_TYPE = SETTINGS_SIDE_DRAWERS | PORTFOLIO_ACTIONS;

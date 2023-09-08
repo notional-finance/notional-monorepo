@@ -3,7 +3,7 @@ import { Box, styled, useTheme } from '@mui/material';
 import { XAxisDateTick } from './x-axis-date-tick/x-axis-date-tick';
 import { TradeSummaryBox } from '../trade-summary-box/trade-summary-box';
 import ProgressIndicator from '../progress-indicator/progress-indicator';
-import { ONE_WEEK } from '@notional-finance/shared-config';
+import { ONE_WEEK } from '@notional-finance/util';
 import { CustomDot } from './custom-dot/custom-dot';
 import { ChartHeader, ChartHeaderProps } from '../chart-header/chart-header';
 import { useYAxis, YAxisTick } from './y-axis-tick';

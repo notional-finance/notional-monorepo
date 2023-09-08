@@ -1,4 +1,4 @@
-import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
+import { PORTFOLIO_ACTIONS } from '@notional-finance/util';
 import { defineMessages, MessageDescriptor } from 'react-intl';
 
 type PortfolioMessages = Record<string, MessageDescriptor>;

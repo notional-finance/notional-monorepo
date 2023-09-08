@@ -1,10 +1,7 @@
 import { Box, styled, useTheme } from '@mui/material';
 import { SideDrawer } from '@notional-finance/mui';
 import { CloseX } from '@notional-finance/icons';
-import {
-  SETTINGS_SIDE_DRAWERS,
-  THEME_VARIANTS,
-} from '@notional-finance/shared-config';
+import { SETTINGS_SIDE_DRAWERS, THEME_VARIANTS } from '@notional-finance/util';
 import { NotionalTheme, useNotionalTheme } from '@notional-finance/styles';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { useWalletSideDrawer } from '../hooks';

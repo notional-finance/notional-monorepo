@@ -6,7 +6,7 @@ import {
   DataTableColumn,
   SelectedOptions,
 } from '@notional-finance/mui';
-import { MARKET_TYPE } from '@notional-finance/shared-config';
+import { MARKET_TYPE } from '@notional-finance/util';
 import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
 import {
   formatNumberAsPercent,

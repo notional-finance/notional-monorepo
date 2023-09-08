@@ -1,6 +1,6 @@
 import { animateScroll as scroll } from 'react-scroll';
 import { FormattedMessage } from 'react-intl';
-import { VAULT_SUB_NAV_ACTIONS } from '@notional-finance/shared-config';
+import { VAULT_SUB_NAV_ACTIONS } from '@notional-finance/util';
 
 export const useVaultSubNav = () => {
   const subNavData = [

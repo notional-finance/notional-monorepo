@@ -1,6 +1,6 @@
 import { useTradeContext } from '@notional-finance/notionable-hooks';
 import { PortfolioSideDrawer } from './components/portfolio-side-drawer';
-import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
+import { PORTFOLIO_ACTIONS } from '@notional-finance/util';
 import { AssetInput, EnablePrimeBorrow } from '@notional-finance/trade';
 import { useCurrencyInputRef, SideBarSubHeader } from '@notional-finance/mui';
 import { messages } from './messages';

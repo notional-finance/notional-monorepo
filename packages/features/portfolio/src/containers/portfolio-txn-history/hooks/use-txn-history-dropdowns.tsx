@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { SelectedOptions } from '@notional-finance/mui';
-import { TXN_HISTORY_TYPE } from '@notional-finance/shared-config';
+import { TXN_HISTORY_TYPE } from '@notional-finance/util';
 import { useLocation, useHistory } from 'react-router-dom';
 
 export const useTxnHistoryDropdowns = (

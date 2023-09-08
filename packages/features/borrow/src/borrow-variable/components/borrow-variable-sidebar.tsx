@@ -6,7 +6,7 @@ import {
   TransactionSidebar,
   tradeErrors,
 } from '@notional-finance/trade';
-import { PRODUCTS } from '@notional-finance/shared-config';
+import { PRODUCTS } from '@notional-finance/util';
 import { FormattedMessage, defineMessage } from 'react-intl';
 import { BorrowVariableContext } from '../borrow-variable';
 import { usePrimeCashBalance } from '@notional-finance/notionable-hooks';

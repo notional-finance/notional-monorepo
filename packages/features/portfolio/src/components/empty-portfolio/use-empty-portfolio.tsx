@@ -4,7 +4,7 @@ import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import {
   PORTFOLIO_CATEGORIES,
   SETTINGS_SIDE_DRAWERS,
-} from '@notional-finance/shared-config';
+} from '@notional-finance/util';
 import { defineMessages, MessageDescriptor } from 'react-intl';
 interface EmptyPortfolioData {
   messages?: { buttonText: MessageDescriptor; promptText: MessageDescriptor };

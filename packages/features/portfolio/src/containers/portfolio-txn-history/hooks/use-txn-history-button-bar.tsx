@@ -1,7 +1,7 @@
 import { FormattedMessage } from 'react-intl';
 import { useLocation, useHistory } from 'react-router-dom';
 import { ButtonOptionsType } from '@notional-finance/mui';
-import { TXN_HISTORY_TYPE } from '@notional-finance/shared-config';
+import { TXN_HISTORY_TYPE } from '@notional-finance/util';
 import { useTransactionHistory } from '@notional-finance/notionable-hooks';
 
 export const useTxnHistoryButtonBar = (setTxnHistoryType, txnHistoryType) => {

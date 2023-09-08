@@ -1,4 +1,4 @@
-import { PORTFOLIO_CATEGORIES } from '@notional-finance/shared-config';
+import { PORTFOLIO_CATEGORIES } from '@notional-finance/util';
 import { Box, styled, useTheme } from '@mui/material';
 import { Caption } from '@notional-finance/mui';
 import { Link, useParams } from 'react-router-dom';

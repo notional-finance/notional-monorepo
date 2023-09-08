@@ -2,7 +2,7 @@ import { Box, styled, useTheme } from '@mui/material';
 import { colors } from '@notional-finance/styles';
 import { Button } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
-import { SETTINGS_SIDE_DRAWERS } from '@notional-finance/shared-config';
+import { SETTINGS_SIDE_DRAWERS } from '@notional-finance/util';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { BETA_ACCESS } from '@notional-finance/wallet/hooks';
 import { getFromLocalStorage } from '@notional-finance/helpers';

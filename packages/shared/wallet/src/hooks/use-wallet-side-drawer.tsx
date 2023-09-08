@@ -1,4 +1,4 @@
-import { SETTINGS_SIDE_DRAWERS } from '@notional-finance/shared-config';
+import { SETTINGS_SIDE_DRAWERS } from '@notional-finance/util';
 import { useSideDrawerState } from '@notional-finance/side-drawer';
 import SettingsSideDrawer from '../settings-side-drawer/settings-side-drawer';
 import NotificationsSideDrawer from '../notifications-side-drawer/notifications-side-drawer';

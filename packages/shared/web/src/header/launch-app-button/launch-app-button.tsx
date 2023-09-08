@@ -1,6 +1,6 @@
 import { Button } from '@mui/material';
 import { useNotionalTheme } from '@notional-finance/styles';
-import { THEME_VARIANTS } from '@notional-finance/shared-config';
+import { THEME_VARIANTS } from '@notional-finance/util';
 import { Link } from 'react-router-dom';
 import { FormattedMessage } from 'react-intl';
 import { LaunchIcon } from '@notional-finance/icons';

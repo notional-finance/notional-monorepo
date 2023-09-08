@@ -1,5 +1,5 @@
 import { Box, ThemeProvider } from '@mui/material';
-import { THEME_VARIANTS } from '@notional-finance/shared-config';
+import { THEME_VARIANTS } from '@notional-finance/util';
 import { trackEvent } from '@notional-finance/helpers';
 import {
   OurBackers,

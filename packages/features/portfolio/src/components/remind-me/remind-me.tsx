@@ -1,7 +1,7 @@
 import { Box, styled, Typography, useTheme } from '@mui/material';
 import { CalAddIcon } from '@notional-finance/icons';
 import { useParams } from 'react-router-dom';
-import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
+import { PORTFOLIO_ACTIONS } from '@notional-finance/util';
 import { Button, CountdownCards } from '@notional-finance/mui';
 import { PortfolioParams } from '../../portfolio-feature-shell';
 import { FormattedMessage } from 'react-intl';

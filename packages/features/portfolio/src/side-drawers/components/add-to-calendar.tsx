@@ -1,5 +1,5 @@
 import { Box, styled, useTheme } from '@mui/material';
-import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
+import { PORTFOLIO_ACTIONS } from '@notional-finance/util';
 import {
   ExternalLink,
   SideDrawerButton,

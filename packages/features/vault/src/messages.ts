@@ -1,4 +1,4 @@
-import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
+import { PORTFOLIO_ACTIONS } from '@notional-finance/util';
 import { defineMessages } from 'react-intl';
 
 export const messages = {
@@ -308,9 +308,8 @@ export const messages = {
       description: 'error message',
     },
     blockedGeoActionHelptext: {
-      defaultMessage:
-      'Leveraged products are not available in the US',
+      defaultMessage: 'Leveraged products are not available in the US',
       description: 'error message',
-    }
+    },
   }),
 };

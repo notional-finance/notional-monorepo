@@ -1,4 +1,4 @@
-import { NAV_DROPDOWN } from '@notional-finance/shared-config';
+import { NAV_DROPDOWN } from '@notional-finance/util';
 import { defineMessages } from 'react-intl';
 
 export const messages = defineMessages({

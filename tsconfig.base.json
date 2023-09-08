@@ -72,9 +72,6 @@
         "packages/features/portfolio/src/*"
       ],
       "@notional-finance/risk-engine": ["packages/risk-engine/src/index.ts"],
-      "@notional-finance/shared-config": [
-        "packages/shared/config/src/index.ts"
-      ],
       "@notional-finance/shared-web": ["packages/shared/web/src/index.ts"],
       "@notional-finance/shared-web/*": ["packages/shared/web/src/*"],
       "@notional-finance/side-drawer": [
