@@ -1,5 +1,5 @@
 import { Box, ThemeProvider } from '@mui/material';
-import { NAV_DROPDOWN, THEME_VARIANTS } from '@notional-finance/shared-config';
+import { NAV_DROPDOWN, THEME_VARIANTS } from '@notional-finance/util';
 import { DropdownButton } from '@notional-finance/mui';
 // import WhatsUp from '../../whats-up/whats-up';
 import ResourceContent from '../resource-content/resource-content';

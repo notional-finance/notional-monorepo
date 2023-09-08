@@ -1,4 +1,4 @@
-import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
+import { PORTFOLIO_ACTIONS } from '@notional-finance/util';
 import { PortfolioSideDrawer } from './components/portfolio-side-drawer';
 import { useTradeContext } from '@notional-finance/notionable-hooks';
 import { PortfolioParams } from '../portfolio-feature-shell';

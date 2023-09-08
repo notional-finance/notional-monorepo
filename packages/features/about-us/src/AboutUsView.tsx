@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { Box, ThemeProvider } from '@mui/material';
 import AboutNotional from './AboutNotional';
-import { THEME_VARIANTS } from '@notional-finance/shared-config';
+import { THEME_VARIANTS } from '@notional-finance/util';
 import {
   Header,
   LaunchAppButton,

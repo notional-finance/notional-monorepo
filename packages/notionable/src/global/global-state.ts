@@ -3,7 +3,7 @@ import {
   TransactionResponse,
 } from '@ethersproject/providers';
 import { Network } from '@notional-finance/util';
-import { THEME_VARIANTS } from '@notional-finance/shared-config';
+import { THEME_VARIANTS } from '@notional-finance/util';
 import { FiatKeys } from '@notional-finance/core-entities';
 import { getFromLocalStorage } from '@notional-finance/helpers';
 import { Signer } from 'ethers';

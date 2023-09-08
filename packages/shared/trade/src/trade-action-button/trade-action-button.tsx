@@ -3,7 +3,7 @@ import { NotionalTheme } from '@notional-finance/styles';
 import { useTheme, styled } from '@mui/material';
 import { Button } from '@notional-finance/mui';
 import { useAccountReady } from '@notional-finance/notionable-hooks';
-import { SETTINGS_SIDE_DRAWERS } from '@notional-finance/shared-config';
+import { SETTINGS_SIDE_DRAWERS } from '@notional-finance/util';
 import { useGeoipBlock } from '@notional-finance/helpers';
 import {
   useSideDrawerState,

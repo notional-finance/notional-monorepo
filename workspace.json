@@ -25,7 +25,6 @@
     "registry-exchange": "apps/registry-exchange",
     "risk-engine": "packages/risk-engine",
     "shared-assets": "packages/shared/assets",
-    "shared-config": "packages/shared/config",
     "shared-helpers": "packages/shared/helpers",
     "shared-notionable-hooks": "packages/shared/notionable-hooks",
     "shared-side-drawer": "packages/shared/side-drawer",

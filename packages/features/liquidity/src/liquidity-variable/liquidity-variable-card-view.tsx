@@ -7,7 +7,7 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { useEffect, useState } from 'react';
 import { FormattedMessage, defineMessage } from 'react-intl';
-import { PRODUCTS } from '@notional-finance/shared-config';
+import { PRODUCTS } from '@notional-finance/util';
 import { CardContainer, FeatureLoader } from '@notional-finance/shared-web';
 import { useNotionalTheme } from '@notional-finance/styles';
 import {

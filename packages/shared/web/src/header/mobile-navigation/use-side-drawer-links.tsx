@@ -15,7 +15,7 @@ import {
   DiscordPlainIcon,
   ResourcesIcon,
 } from '@notional-finance/icons';
-import { MOBILE_SUB_NAV_ACTIONS } from '@notional-finance/shared-config';
+import { MOBILE_SUB_NAV_ACTIONS } from '@notional-finance/util';
 import {
   GitHub,
   Twitter,

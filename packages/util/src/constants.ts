@@ -17,6 +17,7 @@ export const ONE_HOUR_MS = 60 * ONE_MINUTE_MS;
 export const SECONDS_IN_DAY = 86400;
 export const SECONDS_IN_HOUR = 3600;
 export const SECONDS_IN_WEEK = SECONDS_IN_DAY * 6;
+export const ONE_WEEK = SECONDS_IN_DAY * 7;
 export const SECONDS_IN_MONTH = SECONDS_IN_DAY * 30;
 export const SECONDS_IN_QUARTER = 90 * SECONDS_IN_DAY;
 export const SECONDS_IN_YEAR = SECONDS_IN_QUARTER * 4;

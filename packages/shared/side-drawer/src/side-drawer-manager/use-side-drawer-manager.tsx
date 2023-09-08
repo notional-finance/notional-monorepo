@@ -3,7 +3,7 @@ import {
   SIDE_DRAWERS,
   PORTFOLIO_CATEGORIES,
   SIDE_DRAWERS_TYPE,
-} from '@notional-finance/shared-config';
+} from '@notional-finance/util';
 import { useLocation, useHistory, useParams } from 'react-router-dom';
 import { useSideDrawerState } from './store/use-side-drawer-state';
 import { updateSideDrawerState } from './store/side-drawer-store';

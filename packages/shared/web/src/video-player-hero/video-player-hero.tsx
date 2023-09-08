@@ -8,7 +8,7 @@ import { trackEvent } from '@notional-finance/helpers';
 import { HeadingSubtitle, useWindowDimensions } from '@notional-finance/mui';
 import { YouTubePlayer } from 'youtube-player/dist/types';
 import { useNotionalTheme } from '@notional-finance/styles';
-import { THEME_VARIANTS } from '@notional-finance/shared-config';
+import { THEME_VARIANTS } from '@notional-finance/util';
 
 export interface VideoPlayerHeroProps {
   videoId: string;

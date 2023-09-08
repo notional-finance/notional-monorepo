@@ -1,7 +1,7 @@
 import {
   PORTFOLIO_CATEGORIES,
   PORTFOLIO_ACTIONS,
-} from '@notional-finance/shared-config';
+} from '@notional-finance/util';
 import {
   BarChartIcon,
   FourSquareIcon,

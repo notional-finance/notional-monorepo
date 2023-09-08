@@ -4,7 +4,7 @@ import { useHistory } from 'react-router-dom';
 import { useCurrencyInputRef } from '@notional-finance/mui';
 import { defineMessage } from 'react-intl';
 import { LiquidityContext } from '../liquidity-variable';
-import { PRODUCTS } from '@notional-finance/shared-config';
+import { PRODUCTS } from '@notional-finance/util';
 
 export const LiquidityVariableSidebar = () => {
   const history = useHistory();

@@ -8,7 +8,7 @@ import {
   ShapeOptions,
   alpha,
 } from '@mui/material';
-import { THEME_VARIANTS } from '@notional-finance/shared-config';
+import { THEME_VARIANTS } from '@notional-finance/util';
 import { NotionalFonts } from './fonts';
 import { NormalizeCss } from './normalize';
 import React from 'react';

@@ -1,4 +1,4 @@
-import { LOCALES } from '@notional-finance/shared-config';
+import { LOCALES } from '@notional-finance/util';
 import { defineMessages } from 'react-intl';
 
 export const messages = defineMessages({

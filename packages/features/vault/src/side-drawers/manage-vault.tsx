@@ -1,7 +1,12 @@
 import { Box, styled, useTheme } from '@mui/material';
 import { useContext, useEffect } from 'react';
-import { PORTFOLIO_ACTIONS } from '@notional-finance/shared-config';
-import { H4, LabelValue, LargeInputTextEmphasized, SideDrawerButton } from '@notional-finance/mui';
+import { PORTFOLIO_ACTIONS } from '@notional-finance/util';
+import {
+  H4,
+  LabelValue,
+  LargeInputTextEmphasized,
+  SideDrawerButton,
+} from '@notional-finance/mui';
 import {
   useManageVault,
   useVaultProperties,
@@ -17,8 +22,10 @@ export const ManageVault = () => {
     state: { vaultAddress, priorAccountRisk },
   } = useContext(VaultActionContext);
   const { vaultName } = useVaultProperties(vaultAddress);
-  const { reduceLeverageOptions, manageVaultOptions } =
-    useManageVault(vaultAddress, !!priorAccountRisk);
+  const { reduceLeverageOptions, manageVaultOptions } = useManageVault(
+    vaultAddress,
+    !!priorAccountRisk
+  );
 
   useEffect(() => {
     window.scrollTo(0, 0);

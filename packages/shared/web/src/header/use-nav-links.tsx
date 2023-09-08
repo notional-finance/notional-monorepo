@@ -9,7 +9,7 @@ import {
   BarChartIcon,
   GearIcon,
 } from '@notional-finance/icons';
-import { MOBILE_SUB_NAV_ACTIONS } from '@notional-finance/shared-config';
+import { MOBILE_SUB_NAV_ACTIONS } from '@notional-finance/util';
 import { getFromLocalStorage } from '@notional-finance/helpers';
 import { NotionalTheme } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';

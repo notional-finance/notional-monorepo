@@ -1,7 +1,7 @@
 import { SetStateAction, Dispatch, ReactNode } from 'react';
 import { useTheme } from '@mui/material';
 import { getDateString } from '@notional-finance/helpers';
-import { ONE_WEEK } from '@notional-finance/shared-config';
+import { ONE_WEEK } from '@notional-finance/util';
 import {
   Area,
   XAxis,

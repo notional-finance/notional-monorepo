@@ -2,10 +2,7 @@ import { useState } from 'react';
 import { styled, Box, useTheme } from '@mui/material';
 import { Link } from 'react-scroll';
 import { Label, ExternalLink } from '@notional-finance/mui';
-import {
-  THEME_VARIANTS,
-  VAULT_SUB_NAV_ACTIONS,
-} from '@notional-finance/shared-config';
+import { THEME_VARIANTS, VAULT_SUB_NAV_ACTIONS } from '@notional-finance/util';
 import { useThemeVariant } from '@notional-finance/notionable-hooks';
 import { NotionalTheme, useNotionalTheme } from '@notional-finance/styles';
 import { ExternalLinkIcon } from '@notional-finance/icons';

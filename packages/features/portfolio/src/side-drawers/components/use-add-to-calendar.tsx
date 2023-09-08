@@ -1,5 +1,5 @@
 import { google, outlook, office365, ics, CalendarEvent } from 'calendar-link';
-import { PORTFOLIO_CATEGORIES } from '@notional-finance/shared-config';
+import { PORTFOLIO_CATEGORIES } from '@notional-finance/util';
 import {
   GoogleCalIcon,
   OutlookCalIcon,

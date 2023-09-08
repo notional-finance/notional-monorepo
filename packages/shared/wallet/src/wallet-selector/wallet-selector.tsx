@@ -20,7 +20,7 @@ import {
   PORTFOLIO_ACTIONS,
   PORTFOLIO_CATEGORIES,
   SETTINGS_SIDE_DRAWERS,
-} from '@notional-finance/shared-config';
+} from '@notional-finance/util';
 import { useHistory, useLocation } from 'react-router-dom';
 import { useTruncatedAddress } from '@notional-finance/notionable-hooks';
 

@@ -5,10 +5,7 @@ import {
   formatNumberAsPercent,
   formatTokenType,
 } from '@notional-finance/helpers';
-import {
-  TXN_HISTORY_TYPE,
-  PORTFOLIO_ACTIONS,
-} from '@notional-finance/shared-config';
+import { TXN_HISTORY_TYPE, PORTFOLIO_ACTIONS } from '@notional-finance/util';
 import { useHistory } from 'react-router-dom';
 import { FormattedMessage } from 'react-intl';
 import {

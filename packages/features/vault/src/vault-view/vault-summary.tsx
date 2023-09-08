@@ -5,7 +5,7 @@ import {
   SliderDisplay,
   TABLE_VARIANTS,
 } from '@notional-finance/mui';
-import { VAULT_SUB_NAV_ACTIONS } from '@notional-finance/shared-config';
+import { VAULT_SUB_NAV_ACTIONS } from '@notional-finance/util';
 import { useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
 import {

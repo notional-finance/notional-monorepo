@@ -1,4 +1,4 @@
-import { NOTIONAL_CATEGORIES } from '@notional-finance/shared-config';
+import { NOTIONAL_CATEGORIES } from '@notional-finance/util';
 import { defineMessages, MessageDescriptor } from 'react-intl';
 
 interface MessageData {

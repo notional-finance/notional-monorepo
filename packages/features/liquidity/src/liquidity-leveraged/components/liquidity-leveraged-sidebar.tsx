@@ -10,7 +10,7 @@ import { useHistory } from 'react-router-dom';
 import { useCurrencyInputRef } from '@notional-finance/mui';
 import { defineMessage } from 'react-intl';
 import { LeveragedLiquidityContext } from '../liquidity-leveraged';
-import { PRODUCTS } from '@notional-finance/shared-config';
+import { PRODUCTS } from '@notional-finance/util';
 
 export const LiquidityLeveragedSidebar = () => {
   const history = useHistory();

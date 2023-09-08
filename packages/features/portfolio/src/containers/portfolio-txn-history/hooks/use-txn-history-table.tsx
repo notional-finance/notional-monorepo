@@ -8,7 +8,7 @@ import {
   SelectedOptions,
 } from '@notional-finance/mui';
 import { Box, useTheme } from '@mui/material';
-import { TXN_HISTORY_TYPE } from '@notional-finance/shared-config';
+import { TXN_HISTORY_TYPE } from '@notional-finance/util';
 import { getDateString } from '@notional-finance/helpers';
 import { FormattedMessage } from 'react-intl';
 

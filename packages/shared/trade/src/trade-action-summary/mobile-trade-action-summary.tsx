@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Box, styled, useTheme } from '@mui/material';
-import { NOTIONAL_CATEGORIES } from '@notional-finance/shared-config';
+import { NOTIONAL_CATEGORIES } from '@notional-finance/util';
 import {
   H5,
   LargeInputTextEmphasized,

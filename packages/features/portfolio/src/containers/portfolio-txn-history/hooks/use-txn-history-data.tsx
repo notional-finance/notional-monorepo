@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { TXN_HISTORY_TYPE } from '@notional-finance/shared-config';
+import { TXN_HISTORY_TYPE } from '@notional-finance/util';
 import {
   useTransactionHistory,
   useSelectedNetwork,

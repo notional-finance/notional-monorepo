@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { useTheme } from '@mui/material';
-import { PORTFOLIO_CATEGORIES } from '@notional-finance/shared-config';
+import { PORTFOLIO_CATEGORIES } from '@notional-finance/util';
 import {
   BarChartIcon,
   FourSquareIcon,

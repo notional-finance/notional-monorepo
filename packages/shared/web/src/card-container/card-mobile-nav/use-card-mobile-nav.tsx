@@ -1,4 +1,4 @@
-import { CARD_CATEGORIES } from '@notional-finance/shared-config';
+import { CARD_CATEGORIES } from '@notional-finance/util';
 import {
   PieChartIcon,
   CoinsIcon,

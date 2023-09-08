@@ -2,7 +2,7 @@ import { Box, ThemeProvider } from '@mui/material';
 import { DropdownButton } from '@notional-finance/mui';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { useThemeVariant } from '@notional-finance/notionable-hooks';
-import { NAV_DROPDOWN, THEME_VARIANTS } from '@notional-finance/shared-config';
+import { NAV_DROPDOWN, THEME_VARIANTS } from '@notional-finance/util';
 import { BorrowSection } from './borrow-section';
 import { useLocation } from 'react-router-dom';
 import { CoinsIcon } from '@notional-finance/icons';

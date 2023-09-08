@@ -7,13 +7,15 @@ import {
   TransactionSidebar,
 } from '@notional-finance/trade';
 import { useHistory } from 'react-router-dom';
-import { PRODUCTS } from '@notional-finance/shared-config';
+import { PRODUCTS } from '@notional-finance/util';
 import { LendFixedContext } from '../../lend-fixed/lend-fixed';
 
 export const LendFixedSidebar = () => {
   const history = useHistory();
   const context = useContext(LendFixedContext);
-  const { state: { selectedDepositToken } } = context
+  const {
+    state: { selectedDepositToken },
+  } = context;
   const { currencyInputRef } = useCurrencyInputRef();
 
   const handleLeverUpToggle = useCallback(() => {

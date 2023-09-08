@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { DataTable, ButtonBar } from '@notional-finance/mui';
-import { TXN_HISTORY_TYPE } from '@notional-finance/shared-config';
+import { TXN_HISTORY_TYPE } from '@notional-finance/util';
 import { useLocation } from 'react-router-dom';
 import {
   useTxnHistoryTable,

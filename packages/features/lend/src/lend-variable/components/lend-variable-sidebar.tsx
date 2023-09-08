@@ -2,14 +2,16 @@ import { useCallback, useContext } from 'react';
 import { defineMessage } from 'react-intl';
 import { useCurrencyInputRef } from '@notional-finance/mui';
 import { DepositInput, TransactionSidebar } from '@notional-finance/trade';
-import { PRODUCTS } from '@notional-finance/shared-config';
+import { PRODUCTS } from '@notional-finance/util';
 import { LendVariableContext } from '../../lend-variable/lend-variable';
 import { useHistory } from 'react-router';
 
 export const LendVariableSidebar = () => {
   const history = useHistory();
   const context = useContext(LendVariableContext);
-  const { state: { selectedDepositToken } } = context
+  const {
+    state: { selectedDepositToken },
+  } = context;
   const { currencyInputRef } = useCurrencyInputRef();
 
   const handleLeverUpToggle = useCallback(() => {

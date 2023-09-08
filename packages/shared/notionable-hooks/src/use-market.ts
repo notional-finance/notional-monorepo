@@ -6,7 +6,7 @@ import {
   YieldData,
 } from '@notional-finance/core-entities';
 import { EMPTY } from 'rxjs';
-import { PRODUCTS } from '@notional-finance/shared-config';
+import { PRODUCTS } from '@notional-finance/util';
 import { useSelectedNetwork } from './use-notional';
 import { useCallback, useMemo } from 'react';
 import {

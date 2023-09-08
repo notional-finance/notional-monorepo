@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Toolbar, Box, useTheme, ThemeProvider } from '@mui/material';
 import { AppBar, AppBarProps, H4 } from '@notional-finance/mui';
 import { NotionalLogo } from '@notional-finance/styles';
-import { THEME_VARIANTS } from '@notional-finance/shared-config';
+import { THEME_VARIANTS } from '@notional-finance/util';
 import { useNotionalTheme } from '@notional-finance/styles';
 import Navigation from './navigation/navigation';
 import { useNavLinks } from './use-nav-links';

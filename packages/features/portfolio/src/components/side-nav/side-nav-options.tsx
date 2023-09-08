@@ -2,7 +2,7 @@ import { Box, styled, useTheme } from '@mui/material';
 import { useSideNav } from '../../hooks';
 import { PortfolioParams } from '../../portfolio-feature-shell';
 import { Link, LinkProps, useParams } from 'react-router-dom';
-import { PORTFOLIO_CATEGORIES } from '@notional-finance/shared-config';
+import { PORTFOLIO_CATEGORIES } from '@notional-finance/util';
 import { NotionalTheme } from '@notional-finance/styles';
 import { H5, Caption } from '@notional-finance/mui';
 import { navLabels } from './messages';

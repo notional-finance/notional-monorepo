@@ -22,7 +22,7 @@ import {
   useFiat,
   useAllMarkets,
 } from '@notional-finance/notionable-hooks';
-import { TXN_HISTORY_TYPE } from '@notional-finance/shared-config';
+import { TXN_HISTORY_TYPE } from '@notional-finance/util';
 import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
 import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
 import { TokenBalance } from '@notional-finance/core-entities';

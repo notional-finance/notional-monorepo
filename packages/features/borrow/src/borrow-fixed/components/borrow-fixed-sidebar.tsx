@@ -4,14 +4,14 @@ import {
   MaturitySelect,
   TransactionSidebar,
 } from '@notional-finance/trade';
-import { PRODUCTS } from '@notional-finance/shared-config';
+import { PRODUCTS } from '@notional-finance/util';
 import { defineMessage } from 'react-intl';
 import { BorrowFixedContext } from '../borrow-fixed';
 import { useContext } from 'react';
 
 export const BorrowFixedSidebar = () => {
   const { currencyInputRef } = useCurrencyInputRef();
-  const context = useContext(BorrowFixedContext)
+  const context = useContext(BorrowFixedContext);
 
   return (
     <TransactionSidebar context={context}>

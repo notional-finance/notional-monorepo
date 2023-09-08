@@ -1,4 +1,4 @@
-import { PRODUCTS } from '@notional-finance/shared-config';
+import { PRODUCTS } from '@notional-finance/util';
 import { CardContainer, FeatureLoader } from '@notional-finance/shared-web';
 import { CurrencyFixed } from '@notional-finance/mui';
 import {

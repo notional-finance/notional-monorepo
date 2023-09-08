@@ -9,7 +9,7 @@ import {
   CoinsIcon,
   CoinsCircleIcon,
 } from '@notional-finance/icons';
-import { MARKET_TYPE } from '@notional-finance/shared-config';
+import { MARKET_TYPE } from '@notional-finance/util';
 import { TokenIcon } from '@notional-finance/icons';
 import { useCurrency } from '@notional-finance/notionable-hooks';
 import { useTheme } from '@mui/material';
