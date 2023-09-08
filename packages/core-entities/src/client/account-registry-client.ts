@@ -193,7 +193,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
               args: [activeAccount],
               key: `${address}.balance`,
               transform: (b: BigNumber) => {
-                return TokenBalance.from(b, def);
+                return { balances: [TokenBalance.from(b, def)] };
               },
             },
             {
@@ -215,7 +215,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
               args: [activeAccount],
               key: `${address}.balance`,
               transform: (b: BigNumber) => {
-                return TokenBalance.from(b, def);
+                return { balances: [TokenBalance.from(b, def)] };
               },
             },
             {
@@ -239,17 +239,14 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
           {
             stage: 0,
             target: notional,
-            method: 'getVaultAccountWithFeeAccrual',
+            method: 'getVaultAccount',
             args: [this.activeAccount, v.vaultAddress],
             key: `${v.vaultAddress}.balance`,
             transform: (
-              r: Awaited<
-                ReturnType<NotionalV3['getVaultAccountWithFeeAccrual']>
-              >
+              vaultAccount: Awaited<ReturnType<NotionalV3['getVaultAccount']>>
             ) => {
-              const vaultAccount = r[0];
               const maturity = vaultAccount.maturity.toNumber();
-              if (maturity === 0) return [];
+              if (maturity === 0) return { balances: [] };
               const {
                 vaultShareID,
                 primaryDebtID,
@@ -265,9 +262,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
                 this._parseVaultDebtBalance(
                   primaryDebtID,
                   primaryTokenId,
-                  vaultAccount.accountDebtUnderlying.add(
-                    r.accruedPrimeVaultFeeInUnderlying
-                  ),
+                  vaultAccount.accountDebtUnderlying,
                   maturity,
                   network
                 ),
@@ -283,7 +278,12 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
                 );
               }
 
-              return balances;
+              return {
+                balances,
+                vaultLastUpdateTime: {
+                  [v.vaultAddress]: vaultAccount.lastUpdateBlockTime.toNumber(),
+                },
+              };
             },
           },
           {
@@ -296,7 +296,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
               r: Awaited<ReturnType<NotionalV3['getVaultAccountSecondaryDebt']>>
             ) => {
               const maturity = r.maturity.toNumber();
-              if (maturity === 0) return [] as TokenBalance[];
+              if (maturity === 0) return { balances: [] };
               const {
                 secondaryOneCashID,
                 secondaryOneDebtID,
@@ -366,7 +366,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
                 );
               }
 
-              return secondaries;
+              return { balances: secondaries };
             },
           },
         ];
@@ -446,7 +446,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
       activeAccount
     );
     return fetchUsingMulticall<AccountDefinition>(network, calls, [
-      (results: Record<string, TokenBalance | TokenBalance[]>) => {
+      (results: Record<string, unknown>) => {
         const currentNOTE = results[`${notional.address}.NOTE`] as TokenBalance;
         const notePlus100s = results[
           `${notional.address}.NOTE_plus100`
@@ -469,12 +469,22 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
               'allowPrimeBorrow'
             ],
             balances: Object.keys(results).flatMap((k) =>
-              k.includes('balance')
-                ? results[k]
-                : k.includes('account')
+              k.includes('balance') || k.includes('account')
                 ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   ((results[k] as any)['balances'] as TokenBalance[])
                 : []
+            ),
+            vaultLastUpdateTime: Object.keys(results).reduce(
+              (agg, k) =>
+                Object.assign(
+                  agg,
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  ((results[k] as any)['vaultLastUpdateTime'] as Record<
+                    string,
+                    number
+                  >) || {}
+                ),
+              {} as Record<string, number>
             ),
             allowances: Object.keys(results)
               .filter((k) => k.includes('.allowance'))
@@ -651,11 +661,13 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
     snapshot: BalanceSnapshot,
     network: Network
   ) {
-    const balance = TokenBalance.fromID(
+    let balance = TokenBalance.fromID(
       snapshot.currentBalance,
       tokenId,
       network
     );
+    if (balance.tokenType === 'PrimeDebt') balance = balance.neg();
+
     const adjustedCostBasis = TokenBalance.fromID(
       snapshot.adjustedCostBasis,
       underlyingId,

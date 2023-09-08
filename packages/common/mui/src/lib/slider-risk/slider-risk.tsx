@@ -48,7 +48,7 @@ export const SliderRisk = ({ healthFactor }: SliderRiskProps) => {
           },
         ]}
       />
-      <LabelValue sx={{ marginLeft: theme.spacing(3) }}>
+      <LabelValue sx={{ marginLeft: theme.spacing(3), textWrap: 'nowrap' }}>
         {healthFactor ? (
           healthFactor.toFixed(2)
         ) : (

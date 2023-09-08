@@ -76,11 +76,11 @@ export const useDeleverage = (
         updateState(
           debtOrCollateral === 'Debt'
             ? {
-                debtBalance: inputAmount,
+                debtBalance: inputAmount?.neg(),
                 collateralBalance: TokenBalance.zero(collateral),
               }
             : {
-                collateralBalance: inputAmount?.neg(),
+                collateralBalance: inputAmount,
                 debtBalance: TokenBalance.zero(debt),
               }
         );

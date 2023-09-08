@@ -1,4 +1,5 @@
 import {
+  AccountDefinition,
   Registry,
   TokenBalance,
   TokenDefinition,
@@ -8,6 +9,8 @@ import {
   PRIME_CASH_VAULT_MATURITY,
   RATE_DECIMALS,
   RATE_PRECISION,
+  SECONDS_IN_YEAR,
+  getNowSeconds,
 } from '@notional-finance/util';
 import { BaseRiskProfile } from './base-risk';
 import { SymbolOrID } from './types';
@@ -28,41 +31,50 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
       vaultAddress,
       maturity
     );
-    return new VaultAccountRiskProfile(vaultAddress, [
-      TokenBalance.fromID(0, vaultShareID, network),
-    ]);
+    return new VaultAccountRiskProfile(
+      vaultAddress,
+      [TokenBalance.fromID(0, vaultShareID, network)],
+      0
+    );
   }
 
-  static from(vaultAddress: string, balances: TokenBalance[]) {
-    return new VaultAccountRiskProfile(vaultAddress, balances);
+  static fromAccount(vaultAddress: string, account: AccountDefinition) {
+    const balances = account.balances.filter(
+      (t) => t.token.vaultAddress === vaultAddress
+    );
+    if (balances.length === 0) return undefined;
+
+    const lastUpdateBlockTime = account.vaultLastUpdateTime
+      ? account.vaultLastUpdateTime[vaultAddress]
+      : 0;
+
+    return new VaultAccountRiskProfile(
+      vaultAddress,
+      balances,
+      lastUpdateBlockTime
+    );
   }
 
   static simulate(
     vaultAddress: string,
     from: TokenBalance[],
-    apply: TokenBalance[]
+    apply: TokenBalance[],
+    lastUpdateBlockTime = 0
   ) {
-    return new VaultAccountRiskProfile(vaultAddress, [...from, ...apply]);
+    return new VaultAccountRiskProfile(
+      vaultAddress,
+      [...from, ...apply],
+      lastUpdateBlockTime
+    );
   }
 
-  static getAllRiskProfiles(balances: TokenBalance[]) {
-    const vaultPositions = balances
-      .filter((b) => b.isVaultToken)
-      .reduce((vaults, b) => {
-        const t = vaults.get(b.vaultAddress) || [];
-        t.push(b);
-        vaults.set(b.vaultAddress, t);
-        return vaults;
-      }, new Map<string, TokenBalance[]>());
-
-    const vaultRiskProfiles: VaultAccountRiskProfile[] = [];
-    vaultPositions?.forEach((balances, vaultAddress) => {
-      vaultRiskProfiles.push(
-        VaultAccountRiskProfile.from(vaultAddress, balances)
-      );
-    });
-
-    return vaultRiskProfiles;
+  static getAllRiskProfiles(account: AccountDefinition) {
+    return Registry.getConfigurationRegistry()
+      .getAllListedVaults(account.network)
+      ?.map(({ vaultAddress }) => {
+        return VaultAccountRiskProfile.fromAccount(vaultAddress, account);
+      })
+      .filter((v) => v !== undefined) as VaultAccountRiskProfile[];
   }
 
   simulate(apply: TokenBalance[]) {
@@ -74,7 +86,11 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
   }
 
   /** Takes a set of token balances to create a new vault account risk profile */
-  constructor(public vaultAddress: string, _balances: TokenBalance[]) {
+  constructor(
+    public vaultAddress: string,
+    _balances: TokenBalance[],
+    public lastUpdateBlockTime: number
+  ) {
     const balances = _balances.filter(
       (t) => t.isVaultToken && t.token.vaultAddress === vaultAddress
     );
@@ -109,6 +125,27 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
 
   get maturity() {
     return this.vaultShares.maturity;
+  }
+
+  get accruedVaultFees() {
+    if (
+      this.maturity === PRIME_CASH_VAULT_MATURITY &&
+      this.lastUpdateBlockTime > 0
+    ) {
+      const annualizedFeeRate =
+        Registry.getConfigurationRegistry().getVaultConfig(
+          this.network,
+          this.vaultAddress
+        ).feeRateBasisPoints;
+      const timeSinceLastUpdate = getNowSeconds() - this.lastUpdateBlockTime;
+      const feeRate = Math.floor(
+        (annualizedFeeRate * timeSinceLastUpdate) / SECONDS_IN_YEAR
+      );
+
+      return this.vaultDebt.neg().mulInRatePrecision(feeRate);
+    } else {
+      return this.vaultDebt.copy(0);
+    }
   }
 
   get vaultDebt() {

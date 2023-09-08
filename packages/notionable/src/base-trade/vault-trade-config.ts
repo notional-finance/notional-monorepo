@@ -115,6 +115,7 @@ export const VaultTradeConfiguration = {
       'depositBalance',
       'balances',
       'riskFactorLimit',
+      'vaultLastUpdateTime',
     ],
     collateralFilter: (t, _, s: VaultTradeState) =>
       t.tokenType === 'VaultShare' &&
@@ -167,6 +168,7 @@ export const VaultTradeConfiguration = {
       'debtPool',
       'balances',
       'depositBalance',
+      'vaultLastUpdateTime',
     ],
     collateralFilter: (t, _, s: VaultTradeState) =>
       t.tokenType === 'VaultShare' &&
@@ -200,6 +202,7 @@ export const VaultTradeConfiguration = {
       'depositBalance',
       'balances',
       'riskFactorLimit',
+      'vaultLastUpdateTime',
     ],
     collateralFilter: (t, _, s: VaultTradeState) =>
       t.tokenType === 'VaultShare' &&
@@ -232,6 +235,7 @@ export const VaultTradeConfiguration = {
       'depositBalance',
       'balances',
       'riskFactorLimit',
+      'vaultLastUpdateTime',
     ],
     collateralFilter: (t, _, s: VaultTradeState) =>
       t.tokenType === 'VaultShare' &&

@@ -162,6 +162,15 @@ export function availableTokens(
 ) {
   return combineLatest([state$, selectedNetwork$, account$]).pipe(
     filter(([{ isReady, tradeType }]) => isReady && !!tradeType),
+    distinctUntilChanged(([p, , pa], [c, , ca]) => {
+      return (
+        pa?.address === ca?.address &&
+        p.deposit?.id === c.deposit?.id &&
+        p.collateral?.id === c.collateral?.id &&
+        p.debt?.id === c.debt?.id &&
+        p.tradeType === c.tradeType
+      );
+    }),
     map(([s, selectedNetwork, account]) => {
       const { collateralFilter, depositFilter, debtFilter } = getTradeConfig(
         s.tradeType
@@ -340,40 +349,36 @@ export function priorVaultAccountRisk(
     }),
     map(([{ vaultAddress, tradeType, defaultLeverageRatio }, account]) => {
       if (!vaultAddress) return undefined;
-      const balances =
-        account?.balances.filter(
-          (t) => t.token.vaultAddress === vaultAddress
-        ) || [];
-      let priorVaultBalances: TokenBalance[] = [];
-      if (balances.length > 0) {
-        priorVaultBalances = new VaultAccountRiskProfile(vaultAddress, balances)
-          .balances;
-      }
+      const vaultProfile = account
+        ? VaultAccountRiskProfile.fromAccount(vaultAddress, account)
+        : undefined;
 
       // NOTE: default trade type is determined by the URL route or the presence
       // of a vault account.
-      if (priorVaultBalances.length === 0) {
+      if (!vaultProfile) {
         return {
           tradeType: 'CreateVaultPosition' as VaultTradeType,
-          priorVaultBalances,
+          priorVaultBalances: [],
         };
       } else {
-        const priorAccountRisk = VaultAccountRiskProfile.from(
-          vaultAddress,
-          priorVaultBalances
-        ).getAllRiskFactors();
+        const priorAccountRisk = vaultProfile.getAllRiskFactors();
 
-        const leverageRatio =
-          tradeType === 'IncreaseVaultPosition' ||
-          tradeType === 'WithdrawAndRepayVault'
-            ? priorAccountRisk.leverageRatio || undefined
-            : defaultLeverageRatio;
+        let leverageRatio = defaultLeverageRatio;
+        if (tradeType === 'IncreaseVaultPosition') {
+          leverageRatio = priorAccountRisk.leverageRatio || undefined;
+        } else if (tradeType === 'WithdrawAndRepayVault') {
+          leverageRatio =
+            priorAccountRisk.leverageRatio &&
+            priorAccountRisk.leverageRatio > 0.01
+              ? priorAccountRisk.leverageRatio - 0.01
+              : undefined;
+        }
 
         // If a vault account exists, then the default trade type is not selected
         return {
           tradeType:
             tradeType === 'CreateVaultPosition' ? undefined : tradeType,
-          priorVaultBalances,
+          priorVaultBalances: vaultProfile.balances,
           priorAccountRisk,
           defaultLeverageRatio: leverageRatio,
         };
@@ -416,6 +421,9 @@ export function postVaultAccountRisk(
             postTradeBalances: undefined,
           };
         } else if (calculationSuccess && vaultAddress && collateralBalance) {
+          // NOTE: lastUpdateBlockTime is not relevant when calculating post trade balances
+          // because the accrued debt will be factored into the calculation for the final
+          // collateral and debt balance.
           const profile = VaultAccountRiskProfile.simulate(
             vaultAddress,
             account?.balances.filter((t) =>
@@ -437,7 +445,9 @@ export function postVaultAccountRisk(
                 postAccountRisk.leverageRatio < profile.maxLeverageRatio) &&
               account !== null &&
               inputErrors === false,
-            postTradeBalances: profile.balances,
+            postTradeBalances: profile.balances.concat(
+              profile.settledBalances.map((s) => s.copy(0))
+            ),
           };
         }
 
@@ -467,6 +477,7 @@ export function buildTransaction(
             .transactionBuilder({
               ...s,
               accountBalances: a.balances || [],
+              vaultLastUpdateTime: a.vaultLastUpdateTime || {},
               address: a.address,
               network: a.network,
             })
@@ -508,7 +519,12 @@ export function simulateTransaction(
     filter(([state]) => !!state.populatedTransaction && !IS_TEST_ENV),
     withLatestFrom(selectedNetwork$),
     switchMap(([[s, a], network]) => {
-      const { populatedTransaction, postTradeBalances, vaultAddress } = s;
+      const {
+        populatedTransaction,
+        postTradeBalances,
+        vaultAddress,
+        tradeType,
+      } = s;
       if (populatedTransaction && a) {
         return from(
           applySimulationToAccount(network, populatedTransaction, a)
@@ -520,17 +536,32 @@ export function simulateTransaction(
                   ? t.isVaultToken && t.vaultAddress === vaultAddress
                   : t.tokenType !== 'Underlying' && !t.isVaultToken
               ),
-              postTradeBalances || [],
+              // Exclude vault cash from the balances check since it should always
+              // be cleared anyway
+              postTradeBalances?.filter((t) => t.tokenType !== 'VaultCash') ||
+                [],
               (t) => t.tokenId
             )
-              .map(([a, b]) =>
-                !!a && !!b
-                  ? Math.abs(a.toFloat() - b.toFloat()) / b.toFloat()
-                  : a
-                  ? a.abs().toFloat()
-                  : (b as TokenBalance).abs().toFloat()
-              )
-              .filter((b) => b > 5e-4);
+              .map(([simulated, calculated]) => ({
+                rel:
+                  !!simulated && !!calculated && !calculated.isZero()
+                    ? (simulated.toFloat() - calculated.toFloat()) /
+                      calculated.toFloat()
+                    : simulated
+                    ? simulated.abs().toFloat()
+                    : (calculated as TokenBalance).abs().toFloat(),
+                simulatedBalance: simulated,
+                calculatedBalance: calculated,
+              }))
+              .filter(({ rel, simulatedBalance }) =>
+                // Allow for more tolerance in this scenario since we do not accurately account
+                // for dust repayment within the calculation. The actual amount of vault shares
+                // is relatively insignificant.
+                tradeType === 'RollVaultPosition' &&
+                simulatedBalance?.tokenType === 'VaultShare'
+                  ? Math.abs(rel) > 5e-2
+                  : Math.abs(rel) > 5e-4
+              );
 
             if (mismatchedBalances.length > 0) {
               logError(

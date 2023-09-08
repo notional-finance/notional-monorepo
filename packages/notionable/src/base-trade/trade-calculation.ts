@@ -227,6 +227,7 @@ function getRequiredArgs(
   debtPool: BaseLiquidityPool<unknown> | undefined,
   vaultAdapter: VaultAdapter | undefined
 ) {
+  const { vaultAddress } = s;
   const [inputs, keys] = requiredArgs.reduce(
     ([inputs, keys], r) => {
       switch (r) {
@@ -249,6 +250,21 @@ function getRequiredArgs(
           return [
             Object.assign(inputs, { balances: a?.balances }),
             [...keys, ...(a?.balances.map((b) => b.hashKey) || [])],
+          ];
+        case 'vaultLastUpdateTime':
+          return [
+            Object.assign(inputs, {
+              vaultLastUpdateTime:
+                a?.vaultLastUpdateTime && vaultAddress
+                  ? a.vaultLastUpdateTime[vaultAddress]
+                  : undefined,
+            }),
+            [
+              ...keys,
+              ...(a?.vaultLastUpdateTime && vaultAddress
+                ? a.vaultLastUpdateTime[vaultAddress].toString()
+                : ''),
+            ],
           ];
         case 'collateral':
         case 'debt':
@@ -353,8 +369,8 @@ function computeCollateralOptions(
   return options.map((c) => {
     const i = { ...inputs, collateral: c };
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { collateralBalance, netRealizedCollateralBalance } = calculationFn(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         i as any
       ) as {
         collateralBalance: TokenBalance;
@@ -401,8 +417,8 @@ function computeDebtOptions(
         );
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { debtBalance, netRealizedDebtBalance } = calculationFn(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         i as any
       ) as {
         debtBalance: TokenBalance;

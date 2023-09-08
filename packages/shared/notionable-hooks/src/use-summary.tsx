@@ -667,6 +667,37 @@ function getPriceDistance(
   );
 }
 
+function getPriceChange(asset: TokenDefinition, toFiat?: FiatKeys) {
+  const unit = TokenBalance.unit(asset);
+  const currentPrice = toFiat ? unit.toFiat(toFiat) : unit.toUnderlying();
+  const tref = getMidnightUTC();
+
+  try {
+    const oneDay = toFiat
+      ? unit.toFiat(toFiat, tref - SECONDS_IN_DAY)
+      : unit.toUnderlying(tref - SECONDS_IN_DAY);
+    const sevenDay = toFiat
+      ? unit.toFiat(toFiat, tref - 7 * SECONDS_IN_DAY)
+      : unit.toUnderlying(tref - 7 * SECONDS_IN_DAY);
+    return {
+      oneDayChange:
+        ((currentPrice.toFloat() - oneDay.toFloat()) / currentPrice.toFloat()) *
+        100,
+      sevenDayChange:
+        ((currentPrice.toFloat() - sevenDay.toFloat()) /
+          currentPrice.toFloat()) *
+        100,
+      currentPrice,
+    };
+  } catch (e) {
+    return {
+      onDayChange: undefined,
+      sevenDayChange: undefined,
+      currentPrice,
+    };
+  }
+}
+
 function getLiquidationPrices(
   prior: ReturnType<AccountRiskProfile['getAllLiquidationPrices']>,
   post: ReturnType<AccountRiskProfile['getAllLiquidationPrices']>,
@@ -676,7 +707,10 @@ function getLiquidationPrices(
     ([current, updated]) => {
       const asset = (current?.asset || updated?.asset) as TokenDefinition;
       if (asset.tokenType === 'Underlying') {
-        const currentPrice = TokenBalance.unit(asset).toFiat(fiatToken);
+        const { currentPrice, oneDayChange, sevenDayChange } = getPriceChange(
+          asset,
+          fiatToken
+        );
         return {
           label: `${asset.symbol} / ${fiatToken} Liquidation Price`,
           asset,
@@ -706,33 +740,12 @@ function getLiquidationPrices(
           greenOnArrowUp: updated?.isDebtThreshold ? true : false,
           isPriceRisk: true,
           isAssetRisk: false,
-          oneDayChange: 0,
-          sevenDayChange: 0,
+          oneDayChange,
+          sevenDayChange,
         };
       } else {
-        const currentPrice = TokenBalance.unit(asset).toUnderlying();
-        const tref = getMidnightUTC();
-        let oneDayChange: number | undefined;
-        let sevenDayChange: number | undefined;
-
-        try {
-          const oneDay = TokenBalance.unit(asset).toUnderlying(
-            tref - SECONDS_IN_DAY
-          );
-          const sevenDay = TokenBalance.unit(asset).toUnderlying(
-            tref - 7 * SECONDS_IN_DAY
-          );
-          oneDayChange =
-            ((currentPrice.toFloat() - oneDay.toFloat()) /
-              currentPrice.toFloat()) *
-            100;
-          sevenDayChange =
-            ((currentPrice.toFloat() - sevenDay.toFloat()) /
-              currentPrice.toFloat()) *
-            100;
-        } catch (e) {
-          // NO-OP
-        }
+        const { currentPrice, oneDayChange, sevenDayChange } =
+          getPriceChange(asset);
 
         return {
           label: `${formatTokenType(asset).title} Liquidation Price`,
