@@ -34,8 +34,7 @@ export const useProductCards = () => {
     },
     {
       title: <FormattedMessage defaultMessage={'Variable Rate Lending'} />,
-      link: '',
-      href: 'https://blog.notional.finance/introducing-notional-v3/',
+      link: 'lend-variable',
       text: (
         <FormattedMessage
           defaultMessage={`Earn passive interest. Withdraw anytime.`}
@@ -129,7 +128,6 @@ export const useProductCards = () => {
     {
       title: <FormattedMessage defaultMessage={'Variable Borrow'} />,
       link: '/borrow-variable',
-      href: 'https://blog.notional.finance/introducing-notional-v3/',
       text: (
         <FormattedMessage
           defaultMessage={`Pay a variable interest rate and close out your debt at any time for no penalty.`}

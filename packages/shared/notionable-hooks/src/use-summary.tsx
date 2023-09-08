@@ -43,8 +43,10 @@ import { useSelectedNetwork } from './use-notional';
 interface DetailItem {
   label: React.ReactNode;
   value: {
-    data: Array<string | number>;
-    isNegative?: boolean;
+    data: {
+      displayValue?: string;
+      isNegative?: boolean;
+    }[];
   };
   showOnExpand?: boolean;
   isTotalRow?: boolean;
@@ -135,13 +137,15 @@ function getOrderDetails(
       label: intl.formatMessage(valueLabel, { title, caption }),
       value: {
         data: [
-          `${
-            isLeverageOrRoll
-              ? b.toDisplayString(3, true)
-              : b.abs().toDisplayString(3, true)
-          } ${title}`,
+          {
+            displayValue: `${
+              isLeverageOrRoll
+                ? b.toDisplayString(3, true)
+                : b.abs().toDisplayString(3, true)
+            } ${title}`,
+            isNegative: isLeverageOrRoll ? b.isNegative() : false,
+          },
         ],
-        isNegative: isLeverageOrRoll ? b.isNegative() : false,
       },
     },
     {
@@ -149,11 +153,13 @@ function getOrderDetails(
       // Fee: diff between PV and realized cash
       value: {
         data: [
-          realized
-            .abs()
-            .toUnderlying()
-            .sub(b.abs().toUnderlying())
-            .toDisplayStringWithSymbol(3, true),
+          {
+            displayValue: realized
+              .abs()
+              .toUnderlying()
+              .sub(b.abs().toUnderlying())
+              .toDisplayStringWithSymbol(3, true),
+          },
         ],
       },
     },
@@ -161,8 +167,12 @@ function getOrderDetails(
       // APY: for fCash look at implied rate, otherwise look at yield
       label: intl.formatMessage(apyLabel, { title, caption }),
       value: {
-        data: [`${formatNumberAsPercent(apy, 3)}`],
-        isNegative: apy < 0,
+        data: [
+          {
+            displayValue: `${formatNumberAsPercent(apy, 3)}`,
+            isNegative: apy < 0,
+          },
+        ],
       },
       showOnExpand: true,
     },
@@ -171,13 +181,15 @@ function getOrderDetails(
       label: intl.formatMessage(priceLabel, { title, caption }),
       value: {
         data: [
-          realized
-            .abs()
-            .toUnderlying()
-            .divInRatePrecision(b.abs().scaleTo(RATE_DECIMALS))
-            .toDisplayStringWithSymbol(3, true),
+          {
+            displayValue: realized
+              .abs()
+              .toUnderlying()
+              .divInRatePrecision(b.abs().scaleTo(RATE_DECIMALS))
+              .toDisplayStringWithSymbol(3, true),
+            isNegative: false,
+          },
         ],
-        isNegative: false,
       },
       showOnExpand: true,
     },
@@ -203,8 +215,12 @@ export function useOrderDetails(state: BaseTradeState): OrderDetails {
     orderDetails.push({
       label: intl.formatMessage(OrderDetailLabels.amountFromWallet),
       value: {
-        data: [depositBalance.toDisplayStringWithSymbol(3, true)],
-        isNegative: depositBalance.isNegative(),
+        data: [
+          {
+            displayValue: depositBalance.toDisplayStringWithSymbol(3, true),
+            isNegative: depositBalance.isNegative(),
+          },
+        ],
       },
     });
   }
@@ -246,8 +262,14 @@ export function useOrderDetails(state: BaseTradeState): OrderDetails {
     orderDetails.push({
       label: intl.formatMessage(OrderDetailLabels.amountToWallet),
       value: {
-        data: [depositBalance.neg().toDisplayStringWithSymbol(3, true)],
-        isNegative: depositBalance.isNegative(),
+        data: [
+          {
+            displayValue: depositBalance
+              .neg()
+              .toDisplayStringWithSymbol(3, true),
+            isNegative: depositBalance.isNegative(),
+          },
+        ],
       },
     });
   }
@@ -319,8 +341,12 @@ function getTradeDetail(
         { caption }
       ),
       value: {
-        data: [b.toUnderlying().toDisplayStringWithSymbol(3, true)],
-        isNegative: b.toUnderlying().isNegative(),
+        data: [
+          {
+            displayValue: b.toUnderlying().toDisplayStringWithSymbol(3, true),
+            isNegative: b.toUnderlying().isNegative(),
+          },
+        ],
       },
     };
   } else if (tokenType === 'PrimeCash') {
@@ -332,8 +358,12 @@ function getTradeDetail(
         ]
       ),
       value: {
-        data: [b.toUnderlying().toDisplayStringWithSymbol(3, true)],
-        isNegative: b.toUnderlying().isNegative(),
+        data: [
+          {
+            displayValue: b.toUnderlying().toDisplayStringWithSymbol(3, true),
+            isNegative: b.toUnderlying().isNegative(),
+          },
+        ],
       },
     };
   } else if (tokenType === 'PrimeDebt') {
@@ -341,8 +371,12 @@ function getTradeDetail(
     return {
       label: intl.formatMessage(TradeSummaryLabels['PrimeDebt'][typeKey]),
       value: {
-        data: [b.toUnderlying().toDisplayStringWithSymbol(3, true)],
-        isNegative: b.toUnderlying().isNegative(),
+        data: [
+          {
+            displayValue: b.toUnderlying().toDisplayStringWithSymbol(3, true),
+            isNegative: b.toUnderlying().isNegative(),
+          },
+        ],
       },
     };
   } else if (tokenType === 'VaultShare' || tokenType === 'nToken') {
@@ -354,8 +388,12 @@ function getTradeDetail(
         }
       ),
       value: {
-        data: [b.toUnderlying().toDisplayStringWithSymbol(3, true)],
-        isNegative: b.toUnderlying().isNegative(),
+        data: [
+          {
+            displayValue: b.toUnderlying().toDisplayStringWithSymbol(3, true),
+            isNegative: b.toUnderlying().isNegative(),
+          },
+        ],
       },
     };
   }
@@ -396,16 +434,21 @@ export function useTradeSummary(state: BaseTradeState) {
             : OrderDetailLabels.amountToWallet
         ),
         value: {
-          isNegative: false,
           data: [
-            depositBalance
-              .abs()
-              .toUnderlying()
-              .toDisplayStringWithSymbol(3, true),
-            depositBalance
-              .abs()
-              .toFiat(baseCurrency)
-              .toDisplayStringWithSymbol(),
+            {
+              displayValue: depositBalance
+                .abs()
+                .toUnderlying()
+                .toDisplayStringWithSymbol(3, true),
+              isNegative: false,
+            },
+            {
+              displayValue: depositBalance
+                .abs()
+                .toFiat(baseCurrency)
+                .toDisplayStringWithSymbol(),
+              isNegative: false,
+            },
           ],
         },
         isTotalRow: true,
@@ -414,10 +457,19 @@ export function useTradeSummary(state: BaseTradeState) {
         label: intl.formatMessage(OrderDetailLabels.amountFromWallet),
         value: {
           data: [
-            TokenBalance.zero(underlying).toDisplayString(3, true),
-            TokenBalance.zero(underlying)
-              .toFiat(baseCurrency)
-              .toDisplayStringWithSymbol(),
+            {
+              displayValue: TokenBalance.zero(underlying).toDisplayString(
+                3,
+                true
+              ),
+              isNegative: false,
+            },
+            {
+              displayValue: TokenBalance.zero(underlying)
+                .toFiat(baseCurrency)
+                .toDisplayStringWithSymbol(),
+              isNegative: false,
+            },
           ],
         },
         isTotalRow: true,
@@ -557,8 +609,12 @@ export function useTradeSummary(state: BaseTradeState) {
   summary.push({
     label: intl.formatMessage({ defaultMessage: 'Fees and Slippage' }),
     value: {
-      data: [feeValue.toDisplayStringWithSymbol(3, true)],
-      isNegative: feeValue.isNegative(),
+      data: [
+        {
+          displayValue: feeValue.toDisplayStringWithSymbol(3, true),
+          isNegative: feeValue.isNegative(),
+        },
+      ],
     },
   });
 
