@@ -18,20 +18,6 @@ export const PendingTransaction = ({
 }: PendingTransactionProps) => {
   const theme = useTheme();
   const selectedNetwork = useSelectedNetwork();
-  const etherscanLink = (
-    <StyledLink
-      href={getEtherscanTransactionLink(hash, selectedNetwork)}
-      target="_blank"
-      rel="noreferrer"
-      className="etherscan-link"
-    >
-      <FormattedMessage defaultMessage={'View on Etherscan'} />
-      <ExternalLinkIcon
-        sx={{ marginLeft: '0.25rem', height: '1rem', marginTop: '-1px' }}
-        fill={theme.palette.primary.main}
-      />
-    </StyledLink>
-  );
 
   switch (transactionStatus) {
     case TransactionStatus.WAIT_USER_CONFIRM:
@@ -44,14 +30,36 @@ export const PendingTransaction = ({
       return (
         <PendingContainer>
           <FormattedMessage defaultMessage={'Transaction Pending'} />: &nbsp;
-          {etherscanLink}
+          <StyledLink
+            href={getEtherscanTransactionLink(hash, selectedNetwork)}
+            target="_blank"
+            rel="noreferrer"
+            className="etherscan-link"
+          >
+            <FormattedMessage defaultMessage={'View on Etherscan'} />
+            <ExternalLinkIcon
+              sx={{ marginLeft: '0.25rem', height: '1rem', marginTop: '-1px' }}
+              fill={theme.palette.primary.main}
+            />
+          </StyledLink>
         </PendingContainer>
       );
     case TransactionStatus.CONFIRMED:
       return (
         <ConfirmedContainer>
           <FormattedMessage defaultMessage={'Transaction Confirmed'} />: &nbsp;
-          {etherscanLink}
+          <StyledLink
+            href={getEtherscanTransactionLink(hash, selectedNetwork)}
+            target="_blank"
+            rel="noreferrer"
+            className="etherscan-link"
+          >
+            <FormattedMessage defaultMessage={'View on Etherscan'} />
+            <ExternalLinkIcon
+              sx={{ marginLeft: '0.25rem', height: '1rem', marginTop: '-1px' }}
+              fill={theme.palette.primary.main}
+            />
+          </StyledLink>
         </ConfirmedContainer>
       );
     default:

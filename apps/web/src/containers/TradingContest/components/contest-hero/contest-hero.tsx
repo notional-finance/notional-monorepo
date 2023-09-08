@@ -1,134 +1,103 @@
 import { useTheme, Box, styled } from '@mui/material';
 import { colors } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
-import { Button, ProgressIndicator } from '@notional-finance/mui';
-import { useSideDrawerManager } from '@notional-finance/side-drawer';
-import { SETTINGS_SIDE_DRAWERS } from '@notional-finance/shared-config';
+import { ProgressIndicator } from '@notional-finance/mui';
 import { useTruncatedAddress } from '@notional-finance/notionable-hooks';
-import {
-  useConnect,
-  useNftContract,
-  BETA_ACCESS,
-} from '@notional-finance/wallet/hooks';
+import { getFromLocalStorage } from '@notional-finance/helpers';
+import { ContestButtonStack } from '../contest-button-stack/contest-button-stack';
+import { useConnect, BETA_ACCESS } from '@notional-finance/wallet/hooks';
 import { ContestNftPass } from '../contest-nft-pass/contest-nft-pass';
 
 export const ContestHero = () => {
   const theme = useTheme();
-  const { setWalletSideDrawer } = useSideDrawerManager();
   const { icon, currentLabel, selectedAddress } = useConnect();
   const truncatedAddress = useTruncatedAddress();
   const connected = selectedAddress ? true : false;
-  const betaAccess = useNftContract();
+  const userSettings = getFromLocalStorage('userSettings');
 
   return (
     <Container>
       <ContentContainer>
         <ContestNftPass />
-        {connected && betaAccess === BETA_ACCESS.PENDING ? (
-          <TextAndButtonWrapper>
-            <ProgressIndicator />
-          </TextAndButtonWrapper>
-        ) : (
-          <TextAndButtonWrapper>
-            <TitleText>
-              {connected && betaAccess === BETA_ACCESS.REJECTED && (
-                <FormattedMessage
-                  defaultMessage={'Beta Access NFT Not Found'}
-                />
-              )}
-              {!connected && (
+        <TextAndButtonWrapper>
+          {!connected && userSettings.betaAccess !== BETA_ACCESS.REJECTED && (
+            <>
+              <TitleText>
                 <FormattedMessage
                   defaultMessage={
                     'Connect a Wallet with a Beta Access NFT to Enter '
                   }
                 />
-              )}
-              {connected && betaAccess === BETA_ACCESS.CONFIRMED && (
-                <FormattedMessage
-                  defaultMessage={
-                    'Welcome to the V3 Closed Beta Contest on Arbitrum'
+              </TitleText>
+              <ContestButtonStack
+                buttonText={
+                  <FormattedMessage defaultMessage={'Connect Wallet'} />
+                }
+              />
+            </>
+          )}
+
+          {!truncatedAddress && connected ? (
+            <Box
+              sx={{
+                width: '358px',
+                textAlign: 'center',
+                marginTop: theme.spacing(5),
+              }}
+            >
+              <ProgressIndicator />
+            </Box>
+          ) : (
+            <>
+              <TitleText>
+                {userSettings.betaAccess === BETA_ACCESS.CONFIRMED && (
+                  <FormattedMessage
+                    defaultMessage={
+                      'Welcome to the V3 Closed Beta Contest on Arbitrum'
+                    }
+                  />
+                )}
+                {userSettings.betaAccess === BETA_ACCESS.REJECTED && (
+                  <FormattedMessage
+                    defaultMessage={'Beta Access NFT Not Found'}
+                  />
+                )}
+              </TitleText>
+              {userSettings.betaAccess === BETA_ACCESS.CONFIRMED && (
+                <ContestButtonStack
+                  to="/portfolio/overview"
+                  buttonText={
+                    <FormattedMessage defaultMessage={'Launch App'} />
                   }
                 />
               )}
-            </TitleText>
-            {connected && betaAccess === BETA_ACCESS.CONFIRMED && (
-              <ButtonContainer>
-                <Button
-                  size="large"
-                  sx={{
-                    marginBottom: theme.spacing(3),
-                    width: '358px',
-                    fontFamily: 'Avenir Next',
-                  }}
-                  to="/portfolio/overview"
-                >
-                  <FormattedMessage defaultMessage={'Launch App'} />
-                </Button>
-              </ButtonContainer>
-            )}
-            {icon &&
-              icon.length > 0 &&
-              connected &&
-              betaAccess !== BETA_ACCESS.CONFIRMED && (
-                <Box
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    marginTop: theme.spacing(3),
-                  }}
-                >
-                  <IconContainer>
-                    <img
-                      src={`data:image/svg+xml;utf8,${encodeURIComponent(
-                        icon
-                      )}`}
-                      alt={`${currentLabel} wallet icon`}
-                      height="24px"
-                      width="24px"
-                    />
-                  </IconContainer>
-                  <Address>{truncatedAddress}</Address>
-                </Box>
-              )}
-
-            {betaAccess !== BETA_ACCESS.CONFIRMED && (
-              <ButtonContainer>
-                <Button
-                  size="large"
-                  sx={{
-                    marginBottom: theme.spacing(3),
-                    width: '358px',
-                    fontFamily: 'Avenir Next',
-                  }}
-                  onClick={() =>
-                    setWalletSideDrawer(SETTINGS_SIDE_DRAWERS.CONNECT_WALLET)
-                  }
-                >
-                  {connected ? (
+              {icon &&
+                icon.length > 0 &&
+                userSettings.betaAccess === BETA_ACCESS.REJECTED && (
+                  <AddressContainer>
+                    <IconContainer>
+                      <img
+                        src={`data:image/svg+xml;utf8,${encodeURIComponent(
+                          icon
+                        )}`}
+                        alt={`${currentLabel} wallet icon`}
+                        height="24px"
+                        width="24px"
+                      />
+                    </IconContainer>
+                    <Address>{truncatedAddress}</Address>
+                  </AddressContainer>
+                )}
+              {userSettings.betaAccess === BETA_ACCESS.REJECTED && (
+                <ContestButtonStack
+                  buttonText={
                     <FormattedMessage defaultMessage={'Switch Wallets'} />
-                  ) : (
-                    <FormattedMessage defaultMessage={'Connect Wallet'} />
-                  )}
-                </Button>
-                <Button
-                  size="large"
-                  variant="outlined"
-                  href="https://form.jotform.com/232396345681160"
-                  sx={{
-                    width: '358px',
-                    border: `1px solid ${colors.neonTurquoise}`,
-                    ':hover': {
-                      background: colors.matteGreen,
-                    },
-                    fontFamily: 'Avenir Next',
-                  }}
-                >
-                  <FormattedMessage defaultMessage={'Join Waitlist'} />
-                </Button>
-              </ButtonContainer>
-            )}
-          </TextAndButtonWrapper>
-        )}
+                  }
+                />
+              )}
+            </>
+          )}
+        </TextAndButtonWrapper>
       </ContentContainer>
     </Container>
   );
@@ -152,6 +121,17 @@ const ContentContainer = styled(Box)(
       `
 );
 
+const AddressContainer = styled(Box)(
+  ({ theme }) => `
+    display: flex;
+    align-items: center;
+    margin-top: ${theme.spacing(3)};
+    ${theme.breakpoints.down('md')} {
+      margin-left: ${theme.spacing(2)};
+    }
+      `
+);
+
 const IconContainer = styled(Box)(
   ({ theme }) => `
   display: flex;
@@ -170,17 +150,6 @@ const TextAndButtonWrapper = styled(Box)(
   width: ${theme.spacing(75)};
   ${theme.breakpoints.down('md')} {
     width: 100%;
-  }
-  `
-);
-
-const ButtonContainer = styled(Box)(
-  ({ theme }) => `
-  margin-top: ${theme.spacing(5)};
-  display: flex;
-  flex-direction: column;
-  ${theme.breakpoints.down('md')} {
-    align-items: center;
   }
   `
 );

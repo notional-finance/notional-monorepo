@@ -19,6 +19,7 @@ import {
 } from '../chart-tool-tip/chart-tool-tip';
 import { XAxisTick } from './x-axis-tick/x-axis-tick';
 import { AxisDomain } from 'recharts/types/util/types';
+import { useDefaultToolTips } from './use-default-tool-tips';
 
 export interface AreaChartData {
   timestamp: number;
@@ -66,6 +67,8 @@ export const AreaChart = ({
 }: AreaChartProps) => {
   const theme = useTheme();
 
+  const defaultChartToolTipData = useDefaultToolTips();
+
   const xAxisTickHandler = (v: number, i: number) => {
     let result = '';
     if (typeof v === 'number') {
@@ -93,7 +96,13 @@ export const AreaChart = ({
         )}
         <Tooltip
           wrapperStyle={{ outline: 'none' }}
-          content={<ChartToolTip chartToolTipData={chartToolTipData} />}
+          content={
+            <ChartToolTip
+              chartToolTipData={
+                chartToolTipData ? chartToolTipData : defaultChartToolTipData
+              }
+            />
+          }
           position={{ y: 0 }}
         />
         <XAxis

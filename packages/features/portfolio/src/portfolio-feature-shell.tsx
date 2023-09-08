@@ -128,7 +128,7 @@ const PortfolioContainer = styled(Box)(
   ${theme.breakpoints.up('xl')} {
     margin: ${theme.spacing(10)} auto;
     gap: ${theme.spacing(8)};
-    max-width: ${theme.breakpoints.values.xl}px;
+    max-width: ${theme.spacing(196)};
   };
 `
 );

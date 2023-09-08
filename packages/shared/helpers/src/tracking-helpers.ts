@@ -6,7 +6,7 @@ const PROXY_HOST =
 let _trackEvent: ReturnType<typeof Plausible>['trackEvent'];
 
 export function initPlausible() {
-  const { trackEvent, enableAutoOutboundTracking, enableAutoPageviews } =
+  const { trackEvent, enableAutoPageviews } =
     Plausible({
       domain: window.location.hostname,
       apiHost: `${PROXY_HOST}/plausible`,
@@ -14,7 +14,6 @@ export function initPlausible() {
   _trackEvent = trackEvent;
 
   enableAutoPageviews();
-  enableAutoOutboundTracking();
 }
 
 export function trackEvent(category: string, props?: Record<string, any>) {

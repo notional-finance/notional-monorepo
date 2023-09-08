@@ -1,9 +1,14 @@
+import { useEffect } from 'react';
 import { Contract } from 'ethers';
-import { useState } from 'react';
 import { NftContract, NftContractABI } from '@notional-finance/contracts';
 import { getProviderFromNetwork } from '@notional-finance/util';
-import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 import { useConnect } from './use-connect';
+import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
+import { useHistory, useLocation } from 'react-router-dom';
+import {
+  getFromLocalStorage,
+  setInLocalStorage,
+} from '@notional-finance/helpers';
 
 export enum BETA_ACCESS {
   PENDING = 'pending',
@@ -13,10 +18,33 @@ export enum BETA_ACCESS {
 
 export const useNftContract = () => {
   const selectedNetwork = useSelectedNetwork();
+  const history = useHistory();
+  const { pathname } = useLocation();
+  const userSettings = getFromLocalStorage('userSettings');
   const { selectedAddress } = useConnect();
-  const [betaAccess, setBetaAccess] = useState<BETA_ACCESS>(
-    BETA_ACCESS.PENDING
-  );
+  const onboardWallet = getFromLocalStorage('onboard.js:last_connected_wallet');
+
+  useEffect(() => {
+    if (!onboardWallet || onboardWallet.length === 0) {
+      setInLocalStorage('userSettings', {
+        ...userSettings,
+        betaAccess: undefined,
+      });
+    }
+  }, [onboardWallet, userSettings]);
+
+  useEffect(() => {
+    if (
+      userSettings.betaAccess === BETA_ACCESS.REJECTED ||
+      userSettings.betaAccess === undefined
+    ) {
+      if (pathname.includes('contest')) {
+        history.push(pathname);
+      } else {
+        history.push('/contest');
+      }
+    }
+  }, [history, userSettings.betaAccess, pathname]);
 
   if (selectedNetwork && selectedAddress) {
     const provider = getProviderFromNetwork(selectedNetwork);
@@ -30,16 +58,26 @@ export const useNftContract = () => {
     nft
       .balanceOf(selectedAddress)
       .then((res) => {
-        res.isZero()
-          ? setBetaAccess(BETA_ACCESS.REJECTED)
-          : setBetaAccess(BETA_ACCESS.CONFIRMED);
+        if (res.isZero()) {
+          setInLocalStorage('userSettings', {
+            ...userSettings,
+            betaAccess: BETA_ACCESS.REJECTED,
+          });
+        } else {
+          setInLocalStorage('userSettings', {
+            ...userSettings,
+            betaAccess: BETA_ACCESS.CONFIRMED,
+          });
+        }
       })
       .catch((error) => {
         console.warn(error);
-        setBetaAccess(BETA_ACCESS.REJECTED);
+        setInLocalStorage('userSettings', {
+          ...userSettings,
+          betaAccess: BETA_ACCESS.REJECTED,
+        });
       });
   }
-  return betaAccess;
 };
 
 export default useNftContract;
