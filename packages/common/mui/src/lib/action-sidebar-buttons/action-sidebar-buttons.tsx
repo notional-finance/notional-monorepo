@@ -1,9 +1,7 @@
 import { Box, styled, useTheme } from '@mui/material';
 import { Button } from '../button/button';
 import { NotionalTheme } from '@notional-finance/styles';
-import { trackEvent } from '@notional-finance/helpers';
 import { FormattedMessage } from 'react-intl';
-import { useLocation } from 'react-router';
 
 interface ContainerProps {
   theme: NotionalTheme;
@@ -49,7 +47,6 @@ export const ActionSidebarButtons = ({
   onSubmit,
 }: ActionSidebarButtonsProps) => {
   const theme = useTheme();
-  const { pathname } = useLocation();
 
   return (
     <Container sticky={sticky} theme={theme}>
@@ -81,10 +78,7 @@ export const ActionSidebarButtons = ({
               disabled={!canSubmit}
               size="large"
               sx={{ width: '100%' }}
-              onClick={() => {
-                trackEvent('SUBMIT_TXN', { url: pathname });
-                onSubmit();
-              }}
+              onClick={onSubmit}
             >
               <FormattedMessage
                 defaultMessage={'Submit'}

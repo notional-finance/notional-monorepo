@@ -1,4 +1,5 @@
 import { useTheme } from '@mui/material';
+import { trackEvent } from '@notional-finance/helpers';
 
 interface ExternalLinkProps {
   href: string;
@@ -7,7 +8,6 @@ interface ExternalLinkProps {
   textDecoration?: boolean;
   fitContent?: boolean;
   style?: React.CSSProperties;
-  onClick?: () => void;
 }
 
 export const ExternalLink = ({
@@ -17,7 +17,6 @@ export const ExternalLink = ({
   fitContent,
   textDecoration = false,
   style,
-  onClick,
 }: ExternalLinkProps) => {
   const theme = useTheme();
   return (
@@ -32,7 +31,12 @@ export const ExternalLink = ({
       }}
       target="_blank"
       rel="noreferrer"
-      onClick={onClick}
+      onClick={() =>
+        trackEvent('OUTBOUND_LINK', {
+          href,
+          isDocs: href.includes('docs.notional.finance'),
+        })
+      }
     >
       {children}
     </a>

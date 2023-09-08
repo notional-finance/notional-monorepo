@@ -1,3 +1,4 @@
+import { trackEvent } from '@notional-finance/helpers';
 import { useNotionalContext } from '@notional-finance/notionable-hooks';
 import { getNetworkFromId } from '@notional-finance/util';
 import { useConnectWallet } from '@web3-onboard/react';
@@ -33,13 +34,17 @@ export const useConnect = () => {
     (walletLabel?: string) => {
       // No change to wallets, nothing to do here.
       if (!walletLabel || currentLabel === walletLabel) return;
+      trackEvent('CONNECT_WALLET', { wallet: walletLabel });
       connect({ autoSelect: { label: walletLabel, disableModals: true } });
     },
     [connect, currentLabel]
   );
 
   const disconnectWallet = useCallback(() => {
-    if (currentLabel) disconnect({ label: currentLabel });
+    if (currentLabel) {
+      disconnect({ label: currentLabel });
+      trackEvent('DISCONNECT_WALLET', { wallet: currentLabel });
+    }
     updateNotional({ wallet: undefined });
   }, [disconnect, currentLabel, updateNotional]);
 
