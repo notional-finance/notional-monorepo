@@ -9,6 +9,10 @@ import {
   SideDrawerButton,
 } from '@notional-finance/mui';
 import {
+  getFromLocalStorage,
+  setInLocalStorage,
+} from '@notional-finance/helpers';
+import {
   SettingsItem,
   useSettingsSideDrawer,
 } from './use-settings-side-drawer';
@@ -32,6 +36,7 @@ export const SettingsSideDrawer = ({
   const { clearWalletSideDrawer } = useSideDrawerManager();
   const { selectedAddress, disconnectWallet } = useConnect();
   const [settingsItem, setSettingsItem] = useState<SettingsItem | null>(null);
+  const userSettings = getFromLocalStorage('userSettings');
 
   useEffect(() => {
     if (showConnectWallet) {
@@ -44,6 +49,10 @@ export const SettingsSideDrawer = ({
   const handleDisconnect = () => {
     disconnectWallet();
     clearWalletSideDrawer();
+    setInLocalStorage('userSettings', {
+      ...userSettings,
+      currentAddress: null,
+    });
     window.location.reload();
   };
 
