@@ -11,13 +11,10 @@ import {
   resetOnTradeTypeChange,
   defaultLeverageRatio,
   simulateTransaction,
-} from './logic';
-import {
-  selectedAccount,
-  selectedNetwork,
   selectedPool,
   selectedVaultAdapter,
-} from './selectors';
+} from './sagas';
+import { selectedAccount, selectedNetwork } from '../global';
 import { calculate } from './trade-calculation';
 
 export function createVaultTradeManager(

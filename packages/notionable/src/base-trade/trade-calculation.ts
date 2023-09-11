@@ -25,11 +25,23 @@ import { isHashable } from '../utils';
 import {
   BaseTradeState,
   TokenOption,
+  TradeConfiguration,
   TradeType,
+  VaultTradeConfiguration,
   VaultTradeType,
   isVaultTrade,
 } from './base-trade-store';
-import { getTradeConfig } from './logic';
+
+export function getTradeConfig(tradeType?: TradeType | VaultTradeType) {
+  if (!tradeType) throw Error('Trade type undefined');
+
+  const config =
+    TradeConfiguration[tradeType as TradeType] ||
+    VaultTradeConfiguration[tradeType as VaultTradeType];
+
+  if (!config) throw Error('Trade configuration not found');
+  return config;
+}
 
 export function calculateMaxWithdraw(
   state$: Observable<BaseTradeState>,

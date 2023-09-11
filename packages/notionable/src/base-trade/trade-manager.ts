@@ -10,15 +10,11 @@ import {
   buildTransaction,
   resetOnTradeTypeChange,
   defaultLeverageRatio,
-  tradeSummary,
   simulateTransaction,
-} from './logic';
-import {
-  selectedAccount,
-  selectedNetwork,
   selectedPool,
   selectedToken,
-} from './selectors';
+} from './sagas';
+import { selectedAccount, selectedNetwork } from '../global';
 import { calculate, calculateMaxWithdraw } from './trade-calculation';
 
 export function createTradeManager(
@@ -38,7 +34,7 @@ export function createTradeManager(
   return merge(
     simulateTransaction(state$, account$, network$),
     buildTransaction(state$, account$),
-    tradeSummary(state$, account$),
+    // tradeSummary(state$, account$),
     postAccountRisk(state$, account$),
     calculateMaxWithdraw(
       state$,
