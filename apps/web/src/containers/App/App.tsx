@@ -152,20 +152,19 @@ const AllRoutes = () => {
           <AppLayoutRoute path="/portfolio" component={PortfolioFeatureShell} />
           <AppLayoutRoute path="/markets" component={Markets} />
           <AppLayoutRoute path="/error" component={ServerError} />
-
-          <LandingPageLayoutRoute path="/about" component={AboutUsView} />
-          {/* <AppLayoutRoute path="/stake/:ethOrWeth" component={StakeView} />
-                  <AppLayoutRoute path="/stake" component={StakeView} />
-                  <AppLayoutRoute path="/unstake/:unstakePath" component={StakeView} />
-                  <AppLayoutRoute path="/unstake" component={StakeView} />
-                  <AppLayoutRoute path="/treasury" component={TreasuryView} /> */}
-          <LandingPageLayoutRoute path="/" component={LandingPageView} />
           <AppLayoutRoute path="/contest" component={ContestHome} />
           <AppLayoutRoute path="/contest-rules" component={ContestRules} />
           <AppLayoutRoute
             path="/contest-leaderboard"
             component={ContestLeaderBoard}
           />
+          <LandingPageLayoutRoute path="/about" component={AboutUsView} />
+          {/* <AppLayoutRoute path="/stake/:ethOrWeth" component={StakeView} />
+          <AppLayoutRoute path="/stake" component={StakeView} />
+          <AppLayoutRoute path="/unstake/:unstakePath" component={StakeView} />
+          <AppLayoutRoute path="/unstake" component={StakeView} />
+          <AppLayoutRoute path="/treasury" component={TreasuryView} /> */}
+          <LandingPageLayoutRoute path="/" component={LandingPageView} />
         </Switch>
         <TrackingConsent />
       </RouteContainer>
