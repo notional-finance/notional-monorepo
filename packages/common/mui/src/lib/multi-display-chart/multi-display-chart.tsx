@@ -5,9 +5,9 @@ import { TradeSummaryBox } from '../trade-summary-box/trade-summary-box';
 interface MultiDisplayChartProps {
   chartComponents: {
     id: string;
+    title: string;
     Component: any;
   }[];
-  chartOptions?: string[];
 }
 
 // CHART NOTES:
@@ -23,14 +23,14 @@ export const MultiDisplayChart = ({
 }: MultiDisplayChartProps) => {
   const [visibleChart, setVisibleChart] = useState(chartComponents[0].id);
 
+  const currentChart = chartComponents.find(({ id }) => id === visibleChart);
+
   return (
     <TradeSummaryBox sx={{ width: '100%' }}>
-      <Box onClick={() => setVisibleChart()}></Box>
-      <ChartContainer>
-        {chartComponents.map(({ id, Component }) =>
-          id === visibleChart ? Component : null
-        )}
-      </ChartContainer>
+      {chartComponents.map(({ id, title }) => (
+        <Box onClick={() => setVisibleChart(id)}>{title}</Box>
+      ))}
+      <ChartContainer>{currentChart}</ChartContainer>
     </TradeSummaryBox>
   );
 };

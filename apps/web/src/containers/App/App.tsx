@@ -56,7 +56,6 @@ import {
 import { Markets } from '../Markets';
 
 const AllRoutes = () => {
-  const betaAccess = useNftContract();
   const [routeKey, setRouteKey] = useState('');
   // Have this hook here to ensure that all children routes will see updates if the onboard
   // context changes (there is a useEffect hook inside here listening for changes in the
@@ -68,112 +67,99 @@ const AllRoutes = () => {
     <CompatRouter>
       <RouteContainer onRouteChange={setRouteKey}>
         <Switch>
-          {betaAccess === BETA_ACCESS.CONFIRMED && (
-            <>
-              <AppLayoutRoute
-                path="/borrow-fixed/:selectedDepositToken"
-                routeKey={routeKey}
-                component={BorrowFixed}
-              />
-              <AppLayoutRoute
-                path="/borrow-fixed"
-                component={BorrowFixedCardView}
-              />
-              <AppLayoutRoute
-                path="/borrow-variable/:selectedDepositToken"
-                routeKey={routeKey}
-                component={BorrowVariable}
-              />
-              <AppLayoutRoute
-                path="/borrow-variable"
-                component={BorrowVariableCardView}
-              />
-              <AppLayoutRoute
-                path="/lend-fixed/:selectedDepositToken"
-                component={LendFixed}
-              />
-              <AppLayoutRoute
-                path="/lend-leveraged/:selectedDepositToken"
-                component={LendLeveraged}
-              />
-              <AppLayoutRoute path="/lend-fixed" component={LendCardView} />
-              <AppLayoutRoute
-                path="/lend-variable/:selectedDepositToken"
-                component={LendVariable}
-              />
-              <AppLayoutRoute
-                path="/lend-variable"
-                component={LendVariableCardView}
-              />
-              <AppLayoutRoute
-                path="/lend-leveraged"
-                component={LendLeveragedCardView}
-              />
+          <AppLayoutRoute
+            path="/borrow-fixed/:selectedDepositToken"
+            routeKey={routeKey}
+            component={BorrowFixed}
+          />
+          <AppLayoutRoute
+            path="/borrow-fixed"
+            component={BorrowFixedCardView}
+          />
+          <AppLayoutRoute
+            path="/borrow-variable/:selectedDepositToken"
+            routeKey={routeKey}
+            component={BorrowVariable}
+          />
+          <AppLayoutRoute
+            path="/borrow-variable"
+            component={BorrowVariableCardView}
+          />
+          <AppLayoutRoute
+            path="/lend-fixed/:selectedDepositToken"
+            component={LendFixed}
+          />
+          <AppLayoutRoute
+            path="/lend-leveraged/:selectedDepositToken"
+            component={LendLeveraged}
+          />
+          <AppLayoutRoute path="/lend-fixed" component={LendCardView} />
+          <AppLayoutRoute
+            path="/lend-variable/:selectedDepositToken"
+            component={LendVariable}
+          />
+          <AppLayoutRoute
+            path="/lend-variable"
+            component={LendVariableCardView}
+          />
+          <AppLayoutRoute
+            path="/lend-leveraged"
+            component={LendLeveragedCardView}
+          />
 
-              <AppLayoutRoute
-                path="/liquidity-variable/:selectedDepositToken"
-                routeKey={routeKey}
-                component={LiquidityVariable}
-              />
-              <AppLayoutRoute
-                path="/liquidity-variable"
-                component={LiquidityVariableCardView}
-              />
+          <AppLayoutRoute
+            path="/liquidity-variable/:selectedDepositToken"
+            routeKey={routeKey}
+            component={LiquidityVariable}
+          />
+          <AppLayoutRoute
+            path="/liquidity-variable"
+            component={LiquidityVariableCardView}
+          />
 
-              <AppLayoutRoute
-                path="/liquidity-leveraged/:selectedDepositToken"
-                routeKey={routeKey}
-                component={LiquidityLeveraged}
-              />
-              <AppLayoutRoute
-                path="/liquidity-leveraged"
-                component={LiquidityLeveragedCardView}
-              />
-              <AppLayoutRoute
-                path="/vaults/:vaultAddress/:tradeType"
-                component={VaultActionProvider}
-              />
-              <AppLayoutRoute
-                path="/vaults/:vaultAddress"
-                component={VaultActionProvider}
-              />
-              <AppLayoutRoute path="/vaults" component={VaultCardView} />
-              <AppLayoutRoute path="/terms" component={TermsView} />
-              <AppLayoutRoute path="/privacy" component={PrivacyView} />
-              <AppLayoutRoute
-                path={`/portfolio/:category/:sideDrawerKey/:selectedToken`}
-                component={PortfolioFeatureShell}
-              />
-              <AppLayoutRoute
-                path="/portfolio/:category/:sideDrawerKey"
-                component={PortfolioFeatureShell}
-              />
-              <AppLayoutRoute
-                path="/portfolio/:category/"
-                component={PortfolioFeatureShell}
-              />
-              <AppLayoutRoute
-                path="/portfolio"
-                component={PortfolioFeatureShell}
-              />
-              <AppLayoutRoute path="/markets" component={Markets} />
-              <AppLayoutRoute path="/error" component={ServerError} />
+          <AppLayoutRoute
+            path="/liquidity-leveraged/:selectedDepositToken"
+            routeKey={routeKey}
+            component={LiquidityLeveraged}
+          />
+          <AppLayoutRoute
+            path="/liquidity-leveraged"
+            component={LiquidityLeveragedCardView}
+          />
+          <AppLayoutRoute
+            path="/vaults/:vaultAddress/:tradeType"
+            component={VaultActionProvider}
+          />
+          <AppLayoutRoute
+            path="/vaults/:vaultAddress"
+            component={VaultActionProvider}
+          />
+          <AppLayoutRoute path="/vaults" component={VaultCardView} />
+          <AppLayoutRoute path="/terms" component={TermsView} />
+          <AppLayoutRoute path="/privacy" component={PrivacyView} />
+          <AppLayoutRoute
+            path={`/portfolio/:category/:sideDrawerKey/:selectedToken`}
+            component={PortfolioFeatureShell}
+          />
+          <AppLayoutRoute
+            path="/portfolio/:category/:sideDrawerKey"
+            component={PortfolioFeatureShell}
+          />
+          <AppLayoutRoute
+            path="/portfolio/:category/"
+            component={PortfolioFeatureShell}
+          />
+          <AppLayoutRoute path="/portfolio" component={PortfolioFeatureShell} />
+          <AppLayoutRoute path="/markets" component={Markets} />
+          <AppLayoutRoute path="/error" component={ServerError} />
 
-              <LandingPageLayoutRoute path="/about" component={AboutUsView} />
-              {/* <AppLayoutRoute path="/stake/:ethOrWeth" component={StakeView} />
+          <LandingPageLayoutRoute path="/about" component={AboutUsView} />
+          {/* <AppLayoutRoute path="/stake/:ethOrWeth" component={StakeView} />
                   <AppLayoutRoute path="/stake" component={StakeView} />
                   <AppLayoutRoute path="/unstake/:unstakePath" component={StakeView} />
                   <AppLayoutRoute path="/unstake" component={StakeView} />
                   <AppLayoutRoute path="/treasury" component={TreasuryView} /> */}
-              <LandingPageLayoutRoute path="/" component={LandingPageView} />
-              <AppLayoutRoute path="/contest" component={ContestHome} />
-              <AppLayoutRoute path="/contest-rules" component={ContestRules} />
-              <AppLayoutRoute
-                path="/contest-leaderboard"
-                component={ContestLeaderBoard}
-              />
-            </>
-          )}
+          <LandingPageLayoutRoute path="/" component={LandingPageView} />
           <AppLayoutRoute path="/contest" component={ContestHome} />
           <AppLayoutRoute path="/contest-rules" component={ContestRules} />
           <AppLayoutRoute
