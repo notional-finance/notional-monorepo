@@ -4,7 +4,6 @@ import {
   YieldData,
   fCashMarket,
   FiatKeys,
-  Registry,
 } from '@notional-finance/core-entities';
 import {
   formatLeverageRatio,
@@ -15,7 +14,6 @@ import {
   BaseTradeState,
   TradeState,
   VaultTradeState,
-  isVaultTrade,
 } from '@notional-finance/notionable';
 import { RATE_DECIMALS, RATE_PRECISION } from '@notional-finance/util';
 import {
@@ -25,10 +23,7 @@ import {
   useIntl,
 } from 'react-intl';
 import { useAllMarkets } from './use-market';
-import { useAccountDefinition } from './use-account';
-import { AccountRiskProfile } from '@notional-finance/risk-engine';
 import { useFiat } from './use-user-settings';
-import { useSelectedNetwork } from './use-notional';
 
 interface DetailItem {
   label: React.ReactNode;
@@ -613,67 +608,16 @@ export function useTradeSummary(state: BaseTradeState) {
   return { summary, total };
 }
 
-type ChangeType = 'increase' | 'decrease' | 'none' | 'cleared';
-interface CompareData {
-  label: string;
-  current: string;
-  updated: string;
-  changeType: ChangeType;
-  isCurrentNegative: boolean;
-  isUpdatedNegative: boolean;
-  sortOrder: number;
-}
-
 export function usePortfolioComparison(
-  state: BaseTradeState,
+  state: TradeState,
   fiat: FiatKeys = 'USD'
 ) {
-  const { account } = useAccountDefinition();
-  const network = useSelectedNetwork();
-  const { postTradeBalances, tradeType, vaultAddress } = state;
-  const priorBalances = account
-    ? isVaultTrade(tradeType) && vaultAddress
-      ? account.balances.filter(
-          (t) => t.isVaultToken && t.vaultAddress === vaultAddress
-        )
-      : new AccountRiskProfile(account.balances, network).balances
-    : [];
-
-  const tableData: CompareData[] | undefined = postTradeBalances
-    ?.filter((t) => t.tokenType !== 'Underlying')
-    .map((b) => {
-      const { titleWithMaturity } =
-        b.tokenType === 'PrimeCash' && b.isNegative()
-          ? formatTokenType(
-              Registry.getTokenRegistry().getPrimeDebt(b.network, b.currencyId)
-            )
-          : formatTokenType(b.token);
-      const current =
-        priorBalances.find((t) => t.tokenId === b.tokenId) || b.copy(0);
-
-      let changeType: string | undefined;
-      if (current.isZero() && b.isZero()) changeType = undefined;
-      else {
-        changeType = current.eq(b)
-          ? 'none'
-          : current.gt(b)
-          ? 'decrease'
-          : 'increase';
-      }
-
-      return {
-        label: titleWithMaturity,
-        current: current.toFiat(fiat).toDisplayStringWithSymbol(3, true),
-        isCurrentNegative: current.isNegative(),
-        updated: b.toFiat(fiat).toDisplayStringWithSymbol(3, true),
-        isUpdatedNegative: b.isNegative(),
-        sortOrder: b.sub(current).abs().toFloat(),
-        changeType,
-      };
-    })
-    .filter(({ changeType }) => changeType !== undefined) as CompareData[];
-
-  const allTableData = tableData?.sort((a, b) => b.sortOrder - a.sortOrder);
+  const { postTradeBalances, comparePortfolio } = state;
+  const allTableData = comparePortfolio.map((p) => ({
+    ...p,
+    current: p.current.toFiat(fiat).toDisplayStringWithSymbol(3, true),
+    updated: p.updated.toFiat(fiat).toDisplayStringWithSymbol(3, true),
+  }));
   const filteredTableData = allTableData.filter(
     ({ changeType }) => changeType !== 'none'
   );
@@ -687,18 +631,21 @@ export function usePortfolioComparison(
 }
 
 export function usePortfolioLiquidationRisk(state: TradeState) {
-  const { priorAccountRisk, postAccountRisk, accountRiskSummary } = state;
+  const {
+    priorAccountRisk,
+    postAccountRisk,
+    healthFactor: _h,
+    liquidationPrice,
+  } = state;
   const onlyCurrent = !postAccountRisk;
   const intl = useIntl();
   const baseCurrency = useFiat();
-  const healthFactor = accountRiskSummary?.healthFactor
+  const healthFactor = _h
     ? {
-        ...accountRiskSummary.healthFactor,
+        ..._h,
         label: intl.formatMessage({ defaultMessage: 'Health Factor' }),
-        current:
-          accountRiskSummary?.healthFactor?.current?.toFixed(2) || 'No Risk',
-        updated:
-          accountRiskSummary?.healthFactor?.updated?.toFixed(2) || 'No Risk',
+        current: _h?.current?.toFixed(2) || 'No Risk',
+        updated: _h?.updated?.toFixed(2) || 'No Risk',
       }
     : {
         label: intl.formatMessage({ defaultMessage: 'Health Factor' }),
@@ -708,7 +655,7 @@ export function usePortfolioLiquidationRisk(state: TradeState) {
       };
 
   const liquidationPrices =
-    accountRiskSummary?.liquidationPrice.map((p) => {
+    liquidationPrice.map((p) => {
       return {
         ...p,
         label: p.isPriceRisk

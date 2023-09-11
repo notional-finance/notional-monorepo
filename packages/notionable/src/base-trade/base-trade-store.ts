@@ -5,7 +5,6 @@ import {
   TokenDefinition,
 } from '@notional-finance/core-entities';
 import {
-  AccountRiskProfile,
   RiskFactorKeys,
   RiskFactorLimit,
   VaultAccountRiskProfile,
@@ -151,14 +150,7 @@ export interface BaseTradeState
     TransactionState,
     VaultState {}
 
-export interface TradeState extends BaseTradeState {
-  /** Account risk factors prior to any changes to the account */
-  priorAccountRisk?: ReturnType<AccountRiskProfile['getAllRiskFactors']>;
-  /** Account risk factors after changes applied to the account */
-  postAccountRisk?: ReturnType<AccountRiskProfile['getAllRiskFactors']>;
-  /** Account summary */
-  accountRiskSummary?: AccountRiskSummary;
-}
+export interface TradeState extends BaseTradeState, AccountRiskSummary {}
 
 export interface VaultTradeState extends BaseTradeState {
   /** Account risk factors prior to any changes to the account */

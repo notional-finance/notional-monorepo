@@ -17,6 +17,9 @@ import {
   distinctUntilChanged,
 } from 'rxjs';
 import { TradeState, BaseTradeState } from '../base-trade-store';
+import { formatTokenType } from '@notional-finance/helpers';
+
+export type AccountRiskSummary = ReturnType<typeof accountRiskSummary>;
 
 export function priorAccountRisk(
   state$: Observable<TradeState>,
@@ -24,20 +27,14 @@ export function priorAccountRisk(
 ) {
   return combineLatest([state$, account$]).pipe(
     filter(([s, account]) => !!account && s.priorAccountRisk === undefined),
-    map(([, account]) => {
-      if (account) {
-        const priorAccountRisk = new AccountRiskProfile(
-          account.balances
-        ).getAllRiskFactors();
-
-        return {
-          priorAccountRisk,
-          accountRiskSummary: accountRiskSummary(priorAccountRisk, undefined),
-        };
-      } else {
-        return undefined;
-      }
-    }),
+    map(([, account]) =>
+      account
+        ? accountRiskSummary(
+            new AccountRiskProfile(account.balances),
+            undefined
+          )
+        : undefined
+    ),
     filterEmpty()
   );
 }
@@ -60,26 +57,22 @@ export function postAccountRisk(
         { calculationSuccess, collateralBalance, debtBalance, inputErrors },
       ]) => {
         if (calculationSuccess && (collateralBalance || debtBalance)) {
-          const priorAccountRisk = account
+          const prior = account
             ? new AccountRiskProfile(account.balances)
             : undefined;
-          const postAccountRisk = AccountRiskProfile.simulate(
+          const post = AccountRiskProfile.simulate(
             account?.balances || [],
             [collateralBalance, debtBalance].filter(
               (b) => b !== undefined
             ) as TokenBalance[]
           );
-          const riskFactors = postAccountRisk.getAllRiskFactors();
 
+          const s = accountRiskSummary(prior, post);
           return {
-            postAccountRisk: riskFactors,
+            ...s,
             canSubmit:
-              riskFactors.freeCollateral.isPositive() && inputErrors === false,
-            postTradeBalances: postAccountRisk.balances,
-            accountRiskSummary: accountRiskSummary(
-              priorAccountRisk?.getAllRiskFactors(),
-              riskFactors
-            ),
+              s.postAccountRisk?.freeCollateral.isPositive() &&
+              inputErrors === false,
           };
         } else if (!calculationSuccess) {
           return {
@@ -121,22 +114,54 @@ function mergeLiquidationPrices(
   );
 }
 
+function comparePortfolio(prior: TokenBalance[], post: TokenBalance[]) {
+  return zipByKeyToArray(prior, post, (t) => t.tokenId)
+    .map(([_current, _updated]) => {
+      const updated = (_updated || _current?.copy(0)) as TokenBalance;
+      const current = (_current || _updated?.copy(0)) as TokenBalance;
+      const { titleWithMaturity } =
+        updated.tokenType === 'PrimeCash' && current.isNegative()
+          ? formatTokenType(current.toPrimeDebt().token)
+          : formatTokenType(current.token);
+
+      return {
+        label: titleWithMaturity,
+        current: current,
+        isCurrentNegative: current.isNegative(),
+        updated: updated,
+        isUpdatedNegative: updated.isNegative(),
+        sortOrder: updated.sub(current).abs().toFloat(),
+        changeType: getChangeType(current.toFloat(), updated.toFloat()),
+      };
+    })
+    .filter(({ current, updated }) => current.isZero() && updated.isZero())
+    .sort((a, b) => b.sortOrder - a.sortOrder);
+}
+
 function accountRiskSummary(
-  prior: ReturnType<AccountRiskProfile['getAllRiskFactors']> | undefined,
-  post: ReturnType<AccountRiskProfile['getAllRiskFactors']> | undefined
+  prior: AccountRiskProfile | undefined,
+  post: AccountRiskProfile | undefined
 ) {
+  const priorAccountRisk = prior?.getAllRiskFactors();
+  const postAccountRisk = post?.getAllRiskFactors();
+
   return {
+    priorAccountRisk,
+    postAccountRisk,
     healthFactor: {
-      current: prior?.healthFactor,
-      updated: prior?.healthFactor,
-      changeType: getChangeType(prior?.healthFactor, post?.healthFactor),
+      current: priorAccountRisk?.healthFactor,
+      updated: postAccountRisk?.healthFactor,
+      changeType: getChangeType(
+        priorAccountRisk?.healthFactor,
+        postAccountRisk?.healthFactor
+      ),
       greenOnArrowUp: true,
     },
     liquidationPrice: mergeLiquidationPrices(
-      prior?.liquidationPrice || [],
-      post?.liquidationPrice || []
+      priorAccountRisk?.liquidationPrice || [],
+      postAccountRisk?.liquidationPrice || []
     ),
+    comparePortfolio:
+      prior && post ? comparePortfolio(prior.balances, post.balances) : [],
   };
 }
-
-export type AccountRiskSummary = ReturnType<typeof accountRiskSummary>;
