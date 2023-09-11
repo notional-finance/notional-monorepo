@@ -89,9 +89,10 @@ export function postVaultAccountRisk(
         return {
           ...s,
           canSubmit:
-            !!s.postAccountRisk?.leverageRatio &&
-            !!post?.maxLeverageRatio &&
-            s.postAccountRisk.leverageRatio < post.maxLeverageRatio &&
+            (s.postAccountRisk?.leverageRatio === null ||
+              (!!post?.maxLeverageRatio &&
+                !!s?.postAccountRisk?.leverageRatio &&
+                s.postAccountRisk.leverageRatio < post.maxLeverageRatio)) &&
             account !== null &&
             inputErrors === false,
         };
