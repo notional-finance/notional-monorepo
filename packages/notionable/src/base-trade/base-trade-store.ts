@@ -18,6 +18,7 @@ import {
 import { PopulatedTransaction } from 'ethers';
 import { VaultTradeConfiguration, VaultTradeType } from './vault-trade-config';
 import { TradeType } from './trade-config';
+import { AccountRiskSummary } from './sagas';
 export { TradeConfiguration } from './trade-config';
 export { VaultTradeConfiguration } from './vault-trade-config';
 export type { TradeType } from './trade-config';
@@ -155,6 +156,8 @@ export interface TradeState extends BaseTradeState {
   priorAccountRisk?: ReturnType<AccountRiskProfile['getAllRiskFactors']>;
   /** Account risk factors after changes applied to the account */
   postAccountRisk?: ReturnType<AccountRiskProfile['getAllRiskFactors']>;
+  /** Account summary */
+  accountRiskSummary?: AccountRiskSummary;
 }
 
 export interface VaultTradeState extends BaseTradeState {
