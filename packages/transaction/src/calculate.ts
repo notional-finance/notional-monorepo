@@ -822,6 +822,14 @@ export function calculateNTokenIncentives(
     nTokenBalance.token
   );
 
+  if (
+    lastAccumulatedTime === undefined ||
+    accumulatedNOTEPerNToken === undefined ||
+    incentiveEmissionRate.isZero()
+  ) {
+    return incentiveEmissionRate.copy(0);
+  }
+
   // Update the stored accumulatedNOTEPerNToken to present time
   const timeSinceLastAccumulation = blockTime - lastAccumulatedTime;
   if (timeSinceLastAccumulation < 0) throw Error('Invalid accumulation time');
