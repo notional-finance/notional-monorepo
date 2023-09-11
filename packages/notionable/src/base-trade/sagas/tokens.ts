@@ -7,7 +7,11 @@ import {
   filter,
   distinctUntilChanged,
 } from 'rxjs';
-import { BaseTradeState } from '../base-trade-store';
+import {
+  BaseTradeState,
+  TradeState,
+  VaultTradeState,
+} from '../base-trade-store';
 import { selectedAccount, selectedNetwork } from '../../global';
 import { getNowSeconds, filterEmpty } from '@notional-finance/util';
 import { getTradeConfig } from '../trade-calculation';
@@ -64,7 +68,7 @@ export function selectedToken(
 }
 
 export function availableTokens(
-  state$: Observable<BaseTradeState>,
+  state$: Observable<TradeState | VaultTradeState>,
   selectedNetwork$: ReturnType<typeof selectedNetwork>,
   account$: ReturnType<typeof selectedAccount>
 ) {

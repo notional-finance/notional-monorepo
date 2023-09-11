@@ -608,7 +608,7 @@ export function useTradeSummary(state: BaseTradeState) {
 }
 
 export function usePortfolioComparison(
-  state: TradeState,
+  state: TradeState | VaultTradeState,
   fiat: FiatKeys = 'USD'
 ) {
   const { postTradeBalances, comparePortfolio } = state;

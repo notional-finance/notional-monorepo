@@ -19,6 +19,7 @@ import {
 } from './components';
 import { OrderDetails } from './components/order-details';
 import { PortfolioCompare } from './components/portfolio-compare';
+import { TradeState } from '@notional-finance/notionable';
 
 export interface ConfirmationProps {
   heading: React.ReactNode;
@@ -97,7 +98,9 @@ export const Confirmation2 = ({
       )}
       {(transactionStatus === TransactionStatus.NONE ||
         transactionStatus === TransactionStatus.WAIT_USER_CONFIRM) &&
-        transactionError === undefined && <PortfolioCompare state={state} />}
+        transactionError === undefined && (
+          <PortfolioCompare state={state as TradeState} />
+        )}
       <TransactionButtons
         transactionStatus={
           transactionError

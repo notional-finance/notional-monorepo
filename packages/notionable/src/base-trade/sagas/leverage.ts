@@ -10,6 +10,19 @@ import {
 } from 'rxjs';
 import { BaseTradeState } from '../base-trade-store';
 
+/*
+        let leverageRatio = defaultLeverageRatio;
+        if (tradeType === 'IncreaseVaultPosition') {
+          leverageRatio = priorAccountRisk.leverageRatio || undefined;
+        } else if (tradeType === 'WithdrawAndRepayVault') {
+          leverageRatio =
+            priorAccountRisk.leverageRatio &&
+            priorAccountRisk.leverageRatio > 0.01
+              ? priorAccountRisk.leverageRatio - 0.01
+              : undefined;
+        }
+        */
+
 export function defaultLeverageRatio(
   state$: Observable<BaseTradeState>,
   selectedNetwork$: ReturnType<typeof selectedNetwork>

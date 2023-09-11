@@ -22,7 +22,7 @@ export type { VaultTradeType } from './vault-trade-config';
 export type FilterFunc = (
   t: TokenDefinition,
   a: AccountDefinition | null,
-  s: BaseTradeState
+  s: VaultTradeState | TradeState
 ) => boolean;
 
 export interface TransactionConfig {
@@ -117,6 +117,8 @@ interface TransactionState {
   netRealizedCollateralBalance?: TokenBalance;
   /** Net cost of debts in underlying terms*/
   netRealizedDebtBalance?: TokenBalance;
+
+  postTradeBalances?: TokenBalance[];
 }
 
 interface InitState {
@@ -140,11 +142,13 @@ export interface BaseTradeState
     TransactionState,
     VaultState {}
 
-export interface TradeState extends BaseTradeState, AccountRiskSummary {}
+export interface TradeState
+  extends BaseTradeState,
+    Omit<AccountRiskSummary, 'postTradeBalances'> {}
 
 export interface VaultTradeState
   extends BaseTradeState,
-    VaultAccountRiskSummary {}
+    Omit<VaultAccountRiskSummary, 'postTradeBalances'> {}
 
 export const initialBaseTradeState: BaseTradeState = {
   isReady: false,

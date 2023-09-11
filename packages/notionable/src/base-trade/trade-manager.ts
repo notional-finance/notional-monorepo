@@ -16,6 +16,7 @@ import {
 } from './sagas';
 import { selectedAccount, selectedNetwork } from '../global';
 import { calculate, calculateMaxWithdraw } from './trade-calculation';
+import { tradeSummary } from './metadata/account-summary';
 
 export function createTradeManager(
   state$: Observable<TradeState>,
@@ -34,7 +35,7 @@ export function createTradeManager(
   return merge(
     simulateTransaction(state$, account$, network$),
     buildTransaction(state$, account$),
-    // tradeSummary(state$, account$),
+    tradeSummary(state$, account$),
     postAccountRisk(state$, account$),
     calculateMaxWithdraw(
       state$,
@@ -47,7 +48,7 @@ export function createTradeManager(
     defaultLeverageRatio(state$, network$),
     // NOTE: this is required to read URL based inputs for deposits
     selectedToken(state$, network$),
-    priorAccountRisk(state$, account$, network$),
+    priorAccountRisk(state$, account$),
     availableTokens(state$, network$, account$),
     initState(state$, network$, global$),
     resetOnNetworkChange(global$, state$),

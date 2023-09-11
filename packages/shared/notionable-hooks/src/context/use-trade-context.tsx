@@ -13,13 +13,13 @@ import {
 export function createTradeContext(displayName: string) {
   return createObservableContext<TradeState>(
     displayName,
-    initialBaseTradeState
+    initialBaseTradeState as TradeState
   );
 }
 
 export function useTradeContext(tradeType: TradeType) {
   const { updateState, state$, state } = useObservableContext<TradeState>(
-    initialBaseTradeState,
+    initialBaseTradeState as TradeState,
     createTradeManager
   );
 
