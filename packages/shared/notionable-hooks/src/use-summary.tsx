@@ -6,7 +6,6 @@ import {
   FiatKeys,
 } from '@notional-finance/core-entities';
 import {
-  formatLeverageRatio,
   formatNumberAsPercent,
   formatTokenType,
 } from '@notional-finance/helpers';
@@ -630,31 +629,12 @@ export function usePortfolioComparison(
   };
 }
 
-export function usePortfolioLiquidationRisk(state: TradeState) {
-  const {
-    priorAccountRisk,
-    postAccountRisk,
-    healthFactor: _h,
-    liquidationPrice,
-  } = state;
-  const onlyCurrent = !postAccountRisk;
-  const intl = useIntl();
-  const baseCurrency = useFiat();
-  const healthFactor = _h
-    ? {
-        ..._h,
-        label: intl.formatMessage({ defaultMessage: 'Health Factor' }),
-        current: _h?.current?.toFixed(2) || 'No Risk',
-        updated: _h?.updated?.toFixed(2) || 'No Risk',
-      }
-    : {
-        label: intl.formatMessage({ defaultMessage: 'Health Factor' }),
-        current: 'No Risk',
-        changeType: 'none',
-        greenOnArrowUp: true,
-      };
-
-  const liquidationPrices =
+function formatLiquidationPrices(
+  liquidationPrice: TradeState['liquidationPrice'],
+  baseCurrency: FiatKeys,
+  intl: IntlShape
+) {
+  return (
     liquidationPrice.map((p) => {
       return {
         ...p,
@@ -681,7 +661,32 @@ export function usePortfolioLiquidationRisk(state: TradeState) {
             'No Risk'
           : p.updated?.toUnderlying().toDisplayStringWithSymbol(3) || 'No Risk',
       };
-    }) || [];
+    }) || []
+  );
+}
+
+export function usePortfolioLiquidationRisk(state: TradeState) {
+  const {
+    priorAccountRisk,
+    postAccountRisk,
+    healthFactor: _h,
+    liquidationPrice,
+  } = state;
+  const onlyCurrent = !postAccountRisk;
+  const intl = useIntl();
+  const baseCurrency = useFiat();
+  const healthFactor = {
+    ..._h,
+    label: intl.formatMessage({ defaultMessage: 'Health Factor' }),
+    current: _h?.current?.toFixed(2) || 'No Risk',
+    updated: _h?.updated?.toFixed(2) || 'No Risk',
+  };
+
+  const liquidationPrices = formatLiquidationPrices(
+    liquidationPrice,
+    baseCurrency,
+    intl
+  );
 
   return {
     onlyCurrent,
@@ -694,50 +699,32 @@ export function usePortfolioLiquidationRisk(state: TradeState) {
 }
 
 export function useVaultLiquidationRisk(state: VaultTradeState) {
-  const { priorAccountRisk, postAccountRisk } = state;
+  const { priorAccountRisk, postAccountRisk, netWorth, liquidationPrice } =
+    state;
   const onlyCurrent = !postAccountRisk;
   const intl = useIntl();
   const baseCurrency = useFiat();
 
   const factors = [
     {
-      label: intl.formatMessage({ defaultMessage: 'Assets' }),
-      current: priorAccountRisk?.assets.toDisplayStringWithSymbol(3, true),
-      updated: postAccountRisk?.assets.toDisplayStringWithSymbol(3, true),
-      changeType: getChangeType(
-        priorAccountRisk?.assets.toFloat(),
-        postAccountRisk?.assets.toFloat()
-      ),
-      greenOnArrowUp: true,
+      ...netWorth,
+      label: intl.formatMessage({ defaultMessage: 'Net Worth' }),
+      current:
+        netWorth?.current
+          ?.toFiat(baseCurrency)
+          .toDisplayStringWithSymbol(3, true) || '-',
+      updated:
+        netWorth?.updated
+          ?.toFiat(baseCurrency)
+          .toDisplayStringWithSymbol(3, true) || '-',
     },
-    {
-      label: intl.formatMessage({ defaultMessage: 'Debts' }),
-      current: priorAccountRisk?.debts.toDisplayStringWithSymbol(3, true),
-      updated: postAccountRisk?.debts.toDisplayStringWithSymbol(3, true),
-      changeType: getChangeType(
-        priorAccountRisk?.debts.toFloat(),
-        postAccountRisk?.debts.toFloat()
-      ),
-      greenOnArrowUp: true,
-    },
-    {
-      label: intl.formatMessage({ defaultMessage: 'Leverage Ratio' }),
-      current: formatLeverageRatio(priorAccountRisk?.leverageRatio || 0),
-      updated: formatLeverageRatio(postAccountRisk?.leverageRatio || 0),
-      changeType: getChangeType(
-        priorAccountRisk?.leverageRatio,
-        postAccountRisk?.leverageRatio
-      ),
-      greenOnArrowUp: false,
-    },
-    // TODO: need to add the APY here
   ];
 
-  const mergedLiquidationPrices = getLiquidationPrices(
-    priorAccountRisk?.liquidationPrice || [],
-    postAccountRisk?.liquidationPrice || [],
-    baseCurrency
-  ).filter((p) => p.isPriceRisk);
+  const liquidationPrices = formatLiquidationPrices(
+    liquidationPrice.filter((p) => p.isPriceRisk),
+    baseCurrency,
+    intl
+  );
 
   return {
     onlyCurrent,
@@ -747,6 +734,6 @@ export function useVaultLiquidationRisk(state: VaultTradeState) {
       priorAccountRisk?.leverageRatio === null,
     postAccountNoRisk:
       postAccountRisk === undefined || postAccountRisk?.leverageRatio === null,
-    tableData: [...factors, ...mergedLiquidationPrices],
+    tableData: [...factors, ...liquidationPrices],
   };
 }

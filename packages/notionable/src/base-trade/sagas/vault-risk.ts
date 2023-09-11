@@ -3,63 +3,37 @@ import {
   TokenBalance,
 } from '@notional-finance/core-entities';
 import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
-import { filterEmpty } from '@notional-finance/util';
-import { Observable, combineLatest, distinctUntilChanged, map } from 'rxjs';
+import { filterEmpty, getChangeType } from '@notional-finance/util';
+import {
+  Observable,
+  combineLatest,
+  distinctUntilChanged,
+  filter,
+  map,
+} from 'rxjs';
 import { VaultTradeState } from '../base-trade-store';
-import { VaultTradeType } from '../vault-trade-config';
+import { comparePortfolio, mergeLiquidationPrices } from './account-risk';
+
+export type VaultAccountRiskSummary = ReturnType<typeof vaultRiskSummary>;
 
 export function priorVaultAccountRisk(
   state$: Observable<VaultTradeState>,
   account$: Observable<AccountDefinition | null>
 ) {
   return combineLatest([state$, account$]).pipe(
-    distinctUntilChanged(([p, prevA], [c, curA]) => {
-      const mustComputeRisk =
-        !!curA?.balances.filter((t) => t.token.vaultAddress === c.vaultAddress)
-          ?.length && c.priorAccountRisk === undefined;
-      return (
+    distinctUntilChanged(
+      ([p, prevA], [c, curA]) =>
         p.vaultAddress === c.vaultAddress &&
         p.tradeType === c.tradeType &&
-        prevA?.address === curA?.address &&
-        !mustComputeRisk
+        prevA?.address === curA?.address
+    ),
+    filter(([s]) => s.priorAccountRisk === undefined),
+    map(([{ vaultAddress }, account]) => {
+      if (!vaultAddress || !account) return undefined;
+      return vaultRiskSummary(
+        VaultAccountRiskProfile.fromAccount(vaultAddress, account),
+        undefined
       );
-    }),
-    map(([{ vaultAddress, tradeType, defaultLeverageRatio }, account]) => {
-      if (!vaultAddress) return undefined;
-      const vaultProfile = account
-        ? VaultAccountRiskProfile.fromAccount(vaultAddress, account)
-        : undefined;
-
-      // NOTE: default trade type is determined by the URL route or the presence
-      // of a vault account.
-      if (!vaultProfile) {
-        return {
-          tradeType: 'CreateVaultPosition' as VaultTradeType,
-          priorVaultBalances: [],
-        };
-      } else {
-        const priorAccountRisk = vaultProfile.getAllRiskFactors();
-
-        let leverageRatio = defaultLeverageRatio;
-        if (tradeType === 'IncreaseVaultPosition') {
-          leverageRatio = priorAccountRisk.leverageRatio || undefined;
-        } else if (tradeType === 'WithdrawAndRepayVault') {
-          leverageRatio =
-            priorAccountRisk.leverageRatio &&
-            priorAccountRisk.leverageRatio > 0.01
-              ? priorAccountRisk.leverageRatio - 0.01
-              : undefined;
-        }
-
-        // If a vault account exists, then the default trade type is not selected
-        return {
-          tradeType:
-            tradeType === 'CreateVaultPosition' ? undefined : tradeType,
-          priorVaultBalances: vaultProfile.balances,
-          priorAccountRisk,
-          defaultLeverageRatio: leverageRatio,
-        };
-      }
     }),
     filterEmpty()
   );
@@ -90,47 +64,70 @@ export function postVaultAccountRisk(
           inputErrors,
         },
       ]) => {
-        if (tradeType === undefined || !calculationSuccess) {
-          return {
-            postAccountRisk: undefined,
-            canSubmit: false,
-            confirm: false,
-            postTradeBalances: undefined,
-          };
-        } else if (calculationSuccess && vaultAddress && collateralBalance) {
-          // NOTE: lastUpdateBlockTime is not relevant when calculating post trade balances
-          // because the accrued debt will be factored into the calculation for the final
-          // collateral and debt balance.
-          const profile = VaultAccountRiskProfile.simulate(
-            vaultAddress,
-            account?.balances.filter((t) =>
-              // During a roll vault position, new debt and collateral will be specified
-              tradeType === 'RollVaultPosition'
-                ? false
-                : t.isVaultToken && t.vaultAddress === vaultAddress
-            ) || [],
-            [collateralBalance, debtBalance].filter(
-              (b) => b !== undefined
-            ) as TokenBalance[]
-          );
-          const postAccountRisk = profile.getAllRiskFactors();
+        if (!vaultAddress || !account) return undefined;
+        const prior = VaultAccountRiskProfile.fromAccount(
+          vaultAddress,
+          account
+        );
+        const post =
+          calculationSuccess && collateralBalance
+            ? VaultAccountRiskProfile.simulate(
+                vaultAddress,
+                account?.balances.filter((t) =>
+                  // During a roll vault position, new debt and collateral will be specified
+                  tradeType === 'RollVaultPosition'
+                    ? false
+                    : t.isVaultToken && t.vaultAddress === vaultAddress
+                ) || [],
+                [collateralBalance, debtBalance].filter(
+                  (b) => b !== undefined
+                ) as TokenBalance[]
+              )
+            : undefined;
+        const s = vaultRiskSummary(prior, post);
 
-          return {
-            postAccountRisk,
-            canSubmit:
-              (postAccountRisk.leverageRatio === null ||
-                postAccountRisk.leverageRatio < profile.maxLeverageRatio) &&
-              account !== null &&
-              inputErrors === false,
-            postTradeBalances: profile.balances.concat(
-              profile.settledBalances.map((s) => s.copy(0))
-            ),
-          };
-        }
-
-        return undefined;
+        return {
+          ...s,
+          canSubmit:
+            s.postAccountRisk?.leverageRatio &&
+            post?.maxLeverageRatio &&
+            s.postAccountRisk.leverageRatio < post.maxLeverageRatio &&
+            account !== null &&
+            inputErrors === false,
+        };
       }
     ),
     filterEmpty()
   );
+}
+
+function vaultRiskSummary(
+  prior: VaultAccountRiskProfile | undefined,
+  post: VaultAccountRiskProfile | undefined
+) {
+  const priorAccountRisk = prior?.getAllRiskFactors();
+  const postAccountRisk = post?.getAllRiskFactors();
+
+  // TODO: blended apy, total apy
+  return {
+    priorAccountRisk,
+    postAccountRisk,
+    priorVaultBalances: prior?.balances,
+    postTradeBalances: post?.balances,
+    netWorth: {
+      current: priorAccountRisk?.netWorth,
+      updated: postAccountRisk?.netWorth,
+      changeType: getChangeType(
+        priorAccountRisk?.netWorth?.toFloat(),
+        postAccountRisk?.netWorth?.toFloat()
+      ),
+      greenOnArrowUp: true,
+    },
+    liquidationPrice: mergeLiquidationPrices(
+      priorAccountRisk?.liquidationPrice || [],
+      postAccountRisk?.liquidationPrice || []
+    ),
+    comparePortfolio:
+      prior && post ? comparePortfolio(prior.balances, post.balances) : [],
+  };
 }

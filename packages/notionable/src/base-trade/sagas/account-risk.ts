@@ -26,6 +26,7 @@ export function priorAccountRisk(
   account$: Observable<AccountDefinition | null>
 ) {
   return combineLatest([state$, account$]).pipe(
+    distinctUntilChanged(([, p], [, c]) => p?.address === c?.address),
     filter(([s, account]) => !!account && s.priorAccountRisk === undefined),
     map(([, account]) =>
       account
@@ -56,41 +57,34 @@ export function postAccountRisk(
         account,
         { calculationSuccess, collateralBalance, debtBalance, inputErrors },
       ]) => {
-        if (calculationSuccess && (collateralBalance || debtBalance)) {
-          const prior = account
-            ? new AccountRiskProfile(account.balances)
+        const prior = account
+          ? new AccountRiskProfile(account.balances)
+          : undefined;
+        const post =
+          calculationSuccess && (collateralBalance || debtBalance)
+            ? AccountRiskProfile.simulate(
+                account?.balances || [],
+                [collateralBalance, debtBalance].filter(
+                  (b) => b !== undefined
+                ) as TokenBalance[]
+              )
             : undefined;
-          const post = AccountRiskProfile.simulate(
-            account?.balances || [],
-            [collateralBalance, debtBalance].filter(
-              (b) => b !== undefined
-            ) as TokenBalance[]
-          );
 
-          const s = accountRiskSummary(prior, post);
-          return {
-            ...s,
-            canSubmit:
-              s.postAccountRisk?.freeCollateral.isPositive() &&
-              inputErrors === false,
-          };
-        } else if (!calculationSuccess) {
-          return {
-            postAccountRisk: undefined,
-            canSubmit: false,
-            postTradeBalances: undefined,
-            accountRiskSummary: undefined,
-          };
-        }
-
-        return undefined;
+        const s = accountRiskSummary(prior, post);
+        return {
+          ...s,
+          canSubmit:
+            post &&
+            s.postAccountRisk?.freeCollateral.isPositive() &&
+            inputErrors === false,
+        };
       }
     ),
     filterEmpty()
   );
 }
 
-function mergeLiquidationPrices(
+export function mergeLiquidationPrices(
   prior: ReturnType<AccountRiskProfile['getAllLiquidationPrices']>,
   post: ReturnType<AccountRiskProfile['getAllLiquidationPrices']>
 ) {
@@ -114,7 +108,7 @@ function mergeLiquidationPrices(
   );
 }
 
-function comparePortfolio(prior: TokenBalance[], post: TokenBalance[]) {
+export function comparePortfolio(prior: TokenBalance[], post: TokenBalance[]) {
   return zipByKeyToArray(prior, post, (t) => t.tokenId)
     .map(([_current, _updated]) => {
       const updated = (_updated || _current?.copy(0)) as TokenBalance;
@@ -163,5 +157,6 @@ function accountRiskSummary(
     ),
     comparePortfolio:
       prior && post ? comparePortfolio(prior.balances, post.balances) : [],
+    postTradeBalances: post?.balances,
   };
 }

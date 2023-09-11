@@ -4,11 +4,7 @@ import {
   TokenBalance,
   TokenDefinition,
 } from '@notional-finance/core-entities';
-import {
-  RiskFactorKeys,
-  RiskFactorLimit,
-  VaultAccountRiskProfile,
-} from '@notional-finance/risk-engine';
+import { RiskFactorKeys, RiskFactorLimit } from '@notional-finance/risk-engine';
 import {
   CalculationFn,
   CalculationFnParams,
@@ -17,7 +13,7 @@ import {
 import { PopulatedTransaction } from 'ethers';
 import { VaultTradeConfiguration, VaultTradeType } from './vault-trade-config';
 import { TradeType } from './trade-config';
-import { AccountRiskSummary } from './sagas';
+import { AccountRiskSummary, VaultAccountRiskSummary } from './sagas';
 export { TradeConfiguration } from './trade-config';
 export { VaultTradeConfiguration } from './vault-trade-config';
 export type { TradeType } from './trade-config';
@@ -121,12 +117,6 @@ interface TransactionState {
   netRealizedCollateralBalance?: TokenBalance;
   /** Net cost of debts in underlying terms*/
   netRealizedDebtBalance?: TokenBalance;
-
-  /**
-   * The accounts entire set of balances post trade, for vault trades
-   * this is only the vault related balances.
-   */
-  postTradeBalances?: TokenBalance[];
 }
 
 interface InitState {
@@ -152,14 +142,9 @@ export interface BaseTradeState
 
 export interface TradeState extends BaseTradeState, AccountRiskSummary {}
 
-export interface VaultTradeState extends BaseTradeState {
-  /** Account risk factors prior to any changes to the account */
-  priorAccountRisk?: ReturnType<VaultAccountRiskProfile['getAllRiskFactors']>;
-  /** Account risk factors after changes applied to the account */
-  postAccountRisk?: ReturnType<VaultAccountRiskProfile['getAllRiskFactors']>;
-  /** All the prior vault balances (if any) */
-  priorVaultBalances?: TokenBalance[];
-}
+export interface VaultTradeState
+  extends BaseTradeState,
+    VaultAccountRiskSummary {}
 
 export const initialBaseTradeState: BaseTradeState = {
   isReady: false,
