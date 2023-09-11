@@ -6,10 +6,7 @@ import {
   styled,
   useTheme,
 } from '@mui/material';
-import {
-  formatNumberAsPercent,
-  formatTokenType,
-} from '@notional-finance/helpers';
+import { formatNumberAsPercent } from '@notional-finance/helpers';
 import { ArrowIcon } from '@notional-finance/icons';
 import {
   DataTable,
@@ -138,48 +135,7 @@ export const PortfolioRisk = () => {
   const baseCurrency = useFiat();
   const loanToValue = profile.loanToValue();
   const healthFactor = profile.healthFactor();
-  const { portfolioLiquidation } = useCurrentLiquidationPrices();
-  const exchangeRateRisk = portfolioLiquidation
-    .filter(({ isPriceRisk }) => isPriceRisk)
-    .map(({ asset, currentPrice, current, oneDayChange, sevenDayChange }) => ({
-      exchangeRate: {
-        symbol: asset.symbol,
-        label: `${asset.symbol} / ${baseCurrency}`,
-      },
-      currentPrice: currentPrice.toDisplayStringWithSymbol(3),
-      oneDayChange: oneDayChange ? formatNumberAsPercent(oneDayChange) : '',
-      sevenDayChange: sevenDayChange
-        ? formatNumberAsPercent(sevenDayChange)
-        : '',
-      liquidationPrice: current,
-    }));
-
-  const assetPriceRisk = portfolioLiquidation
-    .filter(({ isAssetRisk }) => isAssetRisk)
-    .map(
-      ({
-        asset,
-        underlying,
-        currentPrice,
-        current,
-        oneDayChange,
-        sevenDayChange,
-      }) => {
-        const { icon, titleWithMaturity } = formatTokenType(asset);
-        return {
-          exchangeRate: {
-            symbol: icon,
-            label: `${titleWithMaturity} / ${underlying.symbol}`,
-          },
-          currentPrice: currentPrice.toDisplayStringWithSymbol(3),
-          oneDayChange: oneDayChange ? formatNumberAsPercent(oneDayChange) : '',
-          sevenDayChange: sevenDayChange
-            ? formatNumberAsPercent(sevenDayChange)
-            : '',
-          liquidationPrice: current,
-        };
-      }
-    );
+  const { exchangeRateRisk, assetPriceRisk } = useCurrentLiquidationPrices();
 
   const hasLiquidationPrices =
     exchangeRateRisk.length > 0 || assetPriceRisk.length > 0;
