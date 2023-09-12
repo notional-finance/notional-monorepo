@@ -10,7 +10,9 @@ import {
   Faq,
   FaqHeader,
   TotalBox,
-  SingleDisplayChart,
+  MultiDisplayChart,
+  ChartContainer,
+  AreaChart,
 } from '@notional-finance/mui';
 import { BorrowVariableContext } from '../../borrow-variable/borrow-variable';
 import { TradeActionSummary, useVariableTotals } from '@notional-finance/trade';
@@ -24,7 +26,8 @@ export const BorrowVariableTradeSummary = () => {
   const {
     areaChartData,
     chartToolTipData,
-    legendData,
+    areaChartStyles,
+    chartHeaderData,
     chartInfoBoxData,
     borrowUtilization,
   } = useInterestRateUtilizationChart(deposit?.currencyId);
@@ -34,13 +37,27 @@ export const BorrowVariableTradeSummary = () => {
 
   return (
     <TradeActionSummary state={state}>
-      <SingleDisplayChart
-        areaChartData={apyData}
-        xAxisTickFormat="date"
-        chartType="area"
-        showCartesianGrid
-        condenseXAxisTime
-        areaLineType="linear"
+      <MultiDisplayChart
+        chartComponents={[
+          {
+            id: 'area-chart',
+            title: 'Variable APY',
+            Component: (
+              <ChartContainer>
+                <AreaChart
+                  showCartesianGrid
+                  xAxisTickFormat="date"
+                  areaChartData={apyData}
+                  condenseXAxisTime={true}
+                  areaLineType="linear"
+                />
+              </ChartContainer>
+            ),
+            chartHeaderData: {
+              textHeader: <FormattedMessage defaultMessage={'Variable APY'} />,
+            },
+          },
+        ]}
       />
       <Box
         sx={{
@@ -65,17 +82,30 @@ export const BorrowVariableTradeSummary = () => {
         }
       />
       {areaChartData.length > 0 && (
-        <SingleDisplayChart
-          areaChartData={areaChartData}
-          chartToolTipData={chartToolTipData}
-          referenceLineValue={borrowUtilization}
-          legendData={legendData}
-          chartType="area"
-          xAxisTickFormat="percent"
-          bottomLabel={<FormattedMessage defaultMessage={'Utilization'} />}
-          chartInfoBoxData={chartInfoBoxData}
-          showCartesianGrid
-          areaLineType="linear"
+        <MultiDisplayChart
+          chartComponents={[
+            {
+              id: 'area-chart',
+              title: 'Borrow Utilization',
+              Component: (
+                <ChartContainer>
+                  <AreaChart
+                    showCartesianGrid
+                    areaLineType="linear"
+                    condenseXAxisTime={true}
+                    xAxisTickFormat="percent"
+                    areaChartData={areaChartData}
+                    areaChartStyles={areaChartStyles}
+                    chartToolTipData={chartToolTipData}
+                    referenceLineValue={borrowUtilization}
+                  />
+                </ChartContainer>
+              ),
+              chartHeaderData: chartHeaderData,
+              chartInfoBoxData: chartInfoBoxData,
+              bottomLabel: <FormattedMessage defaultMessage={'Utilization'} />,
+            },
+          ]}
         />
       )}
       <FaqHeader

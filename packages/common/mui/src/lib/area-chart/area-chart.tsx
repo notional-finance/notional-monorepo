@@ -1,6 +1,12 @@
 import { SetStateAction, Dispatch, ReactNode } from 'react';
-import { useTheme } from '@mui/material';
-import { getDateString } from '@notional-finance/helpers';
+import { alpha, Box, useTheme } from '@mui/material';
+import { FormattedMessage } from 'react-intl';
+import {
+  getDateString,
+  formatNumberAsPercent,
+  formatNumberToDigits,
+  formatNumber,
+} from '@notional-finance/helpers';
 import { ONE_WEEK } from '@notional-finance/util';
 import {
   Area,
@@ -40,7 +46,7 @@ export interface AreaChartStylesProps {
 export interface AreaChartProps {
   areaChartData: AreaChartData[];
   xAxisTickFormat?: 'date' | 'percent';
-  yAxisTickFormat?: 'percent' | 'number';
+  yAxisTickFormat?: 'percent' | 'number' | 'fiat';
   yAxisDomain?: AxisDomain;
   referenceLineValue?: number;
   chartToolTipData?: ChartToolTipDataProps;
@@ -50,7 +56,10 @@ export interface AreaChartProps {
   barChartButtonLabel?: ReactNode;
   showCartesianGrid?: boolean;
   condenseXAxisTime?: boolean;
+  isMultiChart?: boolean;
   areaLineType?: 'linear' | 'monotone';
+  emptyStateMessage?: ReactNode;
+  showEmptyState?: boolean;
 }
 
 export const AreaChart = ({
@@ -64,6 +73,9 @@ export const AreaChart = ({
   showCartesianGrid,
   condenseXAxisTime,
   areaLineType = 'monotone',
+  isMultiChart,
+  emptyStateMessage,
+  showEmptyState,
 }: AreaChartProps) => {
   const theme = useTheme();
 
@@ -79,117 +91,178 @@ export const AreaChart = ({
     return result;
   };
 
-  return (
-    <ResponsiveContainer width="100%" height={400}>
-      <ComposedChart
-        height={200}
-        data={areaChartData}
-        margin={{ top: 30, right: 20, left: 20, bottom: 20 }}
-      >
-        {showCartesianGrid && (
-          <CartesianGrid
-            vertical={false}
-            horizontal
-            height={400}
-            stroke={theme.palette.borders.paper}
-          />
-        )}
-        <Tooltip
-          wrapperStyle={{ outline: 'none' }}
-          content={
-            <ChartToolTip
-              chartToolTipData={
-                chartToolTipData ? chartToolTipData : defaultChartToolTipData
-              }
-            />
-          }
-          position={{ y: 0 }}
-        />
-        <XAxis
-          dataKey="timestamp"
-          type={xAxisTickFormat === 'date' ? 'category' : 'number'}
-          tickCount={0}
-          axisLine={false}
-          tickSize={0}
-          tickMargin={20}
-          domain={
-            xAxisTickFormat === 'date'
-              ? [
-                  (dataMin: number) => dataMin - ONE_WEEK,
-                  (dataMax: number) => dataMax + ONE_WEEK,
-                ]
-              : [(min: number) => min, (max: number) => max]
-          }
-          style={{ fill: theme.palette.typography.light }}
-          interval={0}
-          tickFormatter={condenseXAxisTime ? xAxisTickHandler : undefined}
-          tick={
-            !condenseXAxisTime ? (
-              <XAxisTick xAxisTickFormat={xAxisTickFormat} />
-            ) : undefined
-          }
-          tickLine={false}
-        />
-        <YAxis
-          orientation="left"
-          yAxisId={0}
-          domain={yAxisDomain}
-          padding={{ top: 8 }}
-          tickCount={6}
-          tickMargin={12}
-          width={60}
-          tickSize={0}
-          tickLine={false}
-          axisLine={false}
-          style={{ fill: theme.palette.typography.light, fontSize: '12px' }}
-          tickFormatter={(v: number) =>
-            `${v.toFixed(2)}${yAxisTickFormat === 'percent' ? '%' : ''}`
-          }
-        />
-        <Line
-          type="monotone"
-          dataKey="line"
-          strokeWidth={1.5}
-          stroke={areaChartStyles?.line.lineColor || theme.palette.charts.main}
-          strokeDasharray="3 3"
-          dot={false}
-          fillOpacity={1}
-        />
-        <Area
-          type={areaLineType}
-          dataKey="area"
-          stroke={
-            areaChartStyles?.area.lineColor || theme.palette.primary.light
-          }
-          dot={false}
-          fillOpacity={0.2}
-          fill={areaChartStyles?.area.lineColor || theme.palette.primary.light}
-        />
-        {referenceLineValue && (
-          <ReferenceLine
-            x={referenceLineValue}
-            strokeDasharray="5,5"
-            stroke={theme.palette.background.accentPaper}
-            strokeWidth={2}
-          />
-        )}
+  const yAxisTickHandler = (v: number) => {
+    if (yAxisTickFormat === 'percent' && typeof v === 'number') {
+      return formatNumberAsPercent(v);
+    }
+    if (yAxisTickFormat === 'fiat' && typeof v === 'number') {
+      return `$${formatNumberToDigits(v, 2)}`;
+    }
+    if (yAxisTickFormat === 'number' && typeof v === 'number') {
+      return formatNumber(v, 2);
+    }
+    return `${v}`;
+  };
 
-        <defs>
-          <linearGradient id="colorPv" x1="0" y1="0" x2="0" y2="1">
-            <stop
-              offset="5%"
-              stopColor={theme.palette.charts.main}
-              stopOpacity={0.2}
+  return (
+    <Box
+      sx={{
+        width: '100%',
+        padding: isMultiChart ? '0px' : '',
+        paddingBottom: theme.spacing(3),
+        paddingTop: theme.spacing(4),
+        marginTop: theme.spacing(2),
+        border: isMultiChart ? 'none' : '',
+      }}
+    >
+      <ResponsiveContainer
+        width="100%"
+        height={300}
+        className="responsive-container"
+      >
+        <ComposedChart
+          data={areaChartData}
+          margin={{ right: 25, left: 25, bottom: 30 }}
+        >
+          {showCartesianGrid && (
+            <CartesianGrid
+              vertical={false}
+              horizontal
+              height={300}
+              stroke={theme.palette.borders.paper}
             />
-            <stop
-              offset="95%"
-              stopColor={theme.palette.charts.main}
-              stopOpacity={0.1}
+          )}
+          <Tooltip
+            wrapperStyle={{ outline: 'none' }}
+            content={
+              <ChartToolTip
+                chartToolTipData={
+                  chartToolTipData ? chartToolTipData : defaultChartToolTipData
+                }
+              />
+            }
+            position={{ y: 0 }}
+          />
+          <XAxis
+            dataKey="timestamp"
+            type={xAxisTickFormat === 'date' ? 'category' : 'number'}
+            tickCount={0}
+            axisLine={false}
+            tickSize={0}
+            tickMargin={38}
+            domain={
+              xAxisTickFormat === 'date'
+                ? [
+                    (dataMin: number) => dataMin - ONE_WEEK,
+                    (dataMax: number) => dataMax + ONE_WEEK,
+                  ]
+                : [(min: number) => min, (max: number) => max]
+            }
+            style={{
+              fill: theme.palette.typography.light,
+              fontSize: '12px',
+            }}
+            interval={0}
+            tickFormatter={condenseXAxisTime ? xAxisTickHandler : undefined}
+            tick={
+              !condenseXAxisTime ? (
+                <XAxisTick xAxisTickFormat={xAxisTickFormat} />
+              ) : undefined
+            }
+            tickLine={false}
+          />
+          <YAxis
+            orientation="left"
+            yAxisId={0}
+            domain={yAxisDomain}
+            padding={{ top: 8 }}
+            tickCount={6}
+            tickMargin={20}
+            width={60}
+            tickSize={0}
+            tickLine={false}
+            axisLine={false}
+            style={{ fill: theme.palette.typography.light, fontSize: '12px' }}
+            tickFormatter={(v: number) => yAxisTickHandler(v)}
+          />
+          <Line
+            type="monotone"
+            dataKey="line"
+            strokeWidth={1.5}
+            stroke={
+              areaChartStyles?.line.lineColor || theme.palette.charts.main
+            }
+            strokeDasharray="3 3"
+            dot={false}
+            fillOpacity={1}
+          />
+          <Area
+            type={areaLineType}
+            strokeWidth={1.5}
+            dataKey="area"
+            stroke={
+              areaChartStyles?.area.lineColor || theme.palette.primary.light
+            }
+            dot={false}
+            fillOpacity={0.2}
+            fill={
+              areaChartStyles?.area.lineColor || theme.palette.primary.light
+            }
+          />
+          {referenceLineValue && (
+            <ReferenceLine
+              x={referenceLineValue}
+              strokeDasharray="5,5"
+              stroke={theme.palette.background.accentPaper}
+              strokeWidth={2}
             />
-          </linearGradient>
-        </defs>
-      </ComposedChart>
-    </ResponsiveContainer>
+          )}
+
+          <defs>
+            <linearGradient id="colorPv" x1="0" y1="0" x2="0" y2="1">
+              <stop
+                offset="5%"
+                stopColor={theme.palette.charts.main}
+                stopOpacity={0.2}
+              />
+              <stop
+                offset="95%"
+                stopColor={theme.palette.charts.main}
+                stopOpacity={0.1}
+              />
+            </linearGradient>
+          </defs>
+        </ComposedChart>
+      </ResponsiveContainer>
+      {showEmptyState ? (
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            position: 'absolute',
+            width: '716px',
+            height: '463px',
+            marginTop: '-430px',
+          }}
+        >
+          <Box
+            sx={{
+              background: alpha(theme.palette.charts.dark, 0.75),
+              color: theme.palette.typography.contrastText,
+              padding: theme.spacing(3),
+              borderRadius: theme.shape.borderRadius(),
+              width: '200px',
+              textAlign: 'center',
+            }}
+          >
+            {emptyStateMessage || (
+              <FormattedMessage defaultMessage={'Fill in inputs to see data'} />
+            )}
+          </Box>
+        </Box>
+      ) : null}
+    </Box>
   );
 };
 

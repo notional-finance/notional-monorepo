@@ -5,13 +5,14 @@ import {
 import { useTheme } from '@mui/material';
 import { ChartToolTipDataProps } from '../chart-tool-tip/chart-tool-tip';
 import { FormattedMessage } from 'react-intl';
+import { LEGEND_LINE_TYPES } from '../chart-header/chart-header';
 
 export const useDefaultToolTips = () => {
   const theme = useTheme();
   const chartToolTipData: ChartToolTipDataProps = {
     timestamp: {
       lineColor: 'transparent',
-      lineType: 'none',
+      lineType: LEGEND_LINE_TYPES.NONE,
       formatTitle: (timestamp) => (
         <FormattedMessage
           defaultMessage={'{date}'}
@@ -21,7 +22,7 @@ export const useDefaultToolTips = () => {
     },
     area: {
       lineColor: theme.palette.charts.main,
-      lineType: 'solid',
+      lineType: LEGEND_LINE_TYPES.SOLID,
       formatTitle: (area) => (
         <FormattedMessage
           defaultMessage={'{apy} APY'}

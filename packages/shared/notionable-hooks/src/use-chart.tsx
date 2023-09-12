@@ -30,6 +30,7 @@ function fillChartDaily<T extends { timestamp: number }>(
 
 export function useTokenHistory(token?: TokenDefinition) {
   const network = useSelectedNetwork();
+
   const data =
     network && token
       ? Registry.getAnalyticsRegistry()

@@ -21,7 +21,7 @@ export const YAxisTick = (props) => {
         y={lines[index]}
         fill={theme.palette.typography.light}
       >
-        <tspan x="57" dy="0.355em">
+        <tspan x="57" dy="0.355em" style={{ fontSize: '12px' }}>
           {labelText}
         </tspan>
       </text>

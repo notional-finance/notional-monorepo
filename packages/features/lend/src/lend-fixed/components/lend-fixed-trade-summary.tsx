@@ -2,8 +2,18 @@ import { useContext } from 'react';
 import { Box, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { HowItWorksFaq } from './how-it-works-faq';
-import { DataTable, Faq, FaqHeader, TotalBox } from '@notional-finance/mui';
-import { useLendFixedFaq, useTotalsData } from '../hooks';
+import {
+  DataTable,
+  Faq,
+  FaqHeader,
+  TotalBox,
+  MultiDisplayChart,
+} from '@notional-finance/mui';
+import {
+  useLendFixedFaq,
+  useTotalsData,
+  useLendFixedMultiChart,
+} from '../hooks';
 import { LendFixedContext } from '../../lend-fixed/lend-fixed';
 import {
   TradeActionSummary,
@@ -21,9 +31,11 @@ export const LendFixedTradeSummary = () => {
   );
   const { faqHeaderLinks, faqs } = useLendFixedFaq();
   const totalsData = useTotalsData(selectedDepositToken);
+  const multiChartData = useLendFixedMultiChart();
 
   return (
     <TradeActionSummary state={state}>
+      <MultiDisplayChart chartComponents={multiChartData} />
       <Box
         sx={{
           display: 'flex',

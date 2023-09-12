@@ -1,8 +1,13 @@
-import { SingleDisplayChart } from '@notional-finance/mui';
+import {
+  MultiDisplayChart,
+  AreaChart,
+  ChartContainer,
+} from '@notional-finance/mui';
 import { TradeState, VaultTradeState } from '@notional-finance/notionable';
 import { usePerformanceChart } from './use-performance-chart';
 import { Box, useTheme } from '@mui/material';
 import { TokenDefinition } from '@notional-finance/core-entities';
+import { FormattedMessage } from 'react-intl';
 
 export const PerformanceChart = ({
   state,
@@ -17,17 +22,45 @@ export const PerformanceChart = ({
   };
 }) => {
   const theme = useTheme();
-  const { areaChartData, areaChartLegendData, chartToolTipData } =
-    usePerformanceChart(state, priorVaultFactors);
+  const {
+    areaChartData,
+    areaChartStyles,
+    areaChartHeaderData,
+    currentLeveragedReturn,
+    chartToolTipData,
+  } = usePerformanceChart(state, priorVaultFactors);
 
   return (
     <Box marginBottom={theme.spacing(5)}>
-      <SingleDisplayChart
-        areaChartData={areaChartData}
-        legendData={areaChartLegendData}
-        chartToolTipData={chartToolTipData}
-        condenseXAxisTime
-        chartType="area"
+      <MultiDisplayChart
+        chartComponents={[
+          {
+            id: 'area-chart',
+            title: 'Performance To Date',
+            Component: (
+              <ChartContainer>
+                <AreaChart
+                  showEmptyState={
+                    currentLeveragedReturn === undefined ? true : false
+                  }
+                  emptyStateMessage={
+                    <FormattedMessage
+                      defaultMessage={'Fill in inputs to see leveraged returns'}
+                    />
+                  }
+                  showCartesianGrid
+                  xAxisTickFormat="date"
+                  areaChartData={areaChartData}
+                  condenseXAxisTime={true}
+                  areaLineType="linear"
+                  chartToolTipData={chartToolTipData}
+                  areaChartStyles={areaChartStyles}
+                />
+              </ChartContainer>
+            ),
+            chartHeaderData: areaChartHeaderData,
+          },
+        ]}
       />
     </Box>
   );

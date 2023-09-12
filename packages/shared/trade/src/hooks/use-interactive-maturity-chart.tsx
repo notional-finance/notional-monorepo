@@ -1,10 +1,14 @@
 import { useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
-import { ChartToolTipDataProps } from '@notional-finance/mui';
+import {
+  ChartToolTipDataProps,
+  LEGEND_LINE_TYPES,
+} from '@notional-finance/mui';
 import { useFCashMarket } from '@notional-finance/notionable-hooks';
 import {
   getDateString,
   formatNumberAsPercent,
+  formatNumberToDigits,
 } from '@notional-finance/helpers';
 
 export const useInteractiveMaturityChart = (currencyId: number | undefined) => {
@@ -27,11 +31,32 @@ export const useInteractiveMaturityChart = (currencyId: number | undefined) => {
     });
   }
 
-  const legendData = {
+  const chartHeaderData = {
     textHeader: <FormattedMessage defaultMessage={'APY by Maturity'} />,
   };
 
-  const chartToolTipData: ChartToolTipDataProps = {
+  const tvlToolTipData: ChartToolTipDataProps = {
+    timestamp: {
+      formatTitle: (timestamp: any) => (
+        <FormattedMessage
+          defaultMessage="Date: {date}"
+          values={{ date: getDateString(timestamp) }}
+        />
+      ),
+    },
+    area: {
+      lineColor: theme.palette.typography.accent,
+      lineType: LEGEND_LINE_TYPES.SOLID,
+      formatTitle: (area: any) => (
+        <FormattedMessage
+          defaultMessage="TVL: {rate}"
+          values={{ rate: `$${formatNumberToDigits(area)}` }}
+        />
+      ),
+    },
+  };
+
+  const apyToolTipData: ChartToolTipDataProps = {
     timestamp: {
       formatTitle: (timestamp: any) => (
         <FormattedMessage
@@ -42,7 +67,7 @@ export const useInteractiveMaturityChart = (currencyId: number | undefined) => {
     },
     area: {
       lineColor: theme.palette.typography.accent,
-      lineType: 'solid',
+      lineType: LEGEND_LINE_TYPES.SOLID,
       formatTitle: (area: any) => (
         <FormattedMessage
           defaultMessage="Fixed Rate: {rate}"
@@ -52,7 +77,7 @@ export const useInteractiveMaturityChart = (currencyId: number | undefined) => {
     },
   };
 
-  return { areaChartData, chartToolTipData, legendData };
+  return { areaChartData, tvlToolTipData, apyToolTipData, chartHeaderData };
 };
 
 export default useInteractiveMaturityChart;

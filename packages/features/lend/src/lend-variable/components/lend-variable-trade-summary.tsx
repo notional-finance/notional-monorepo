@@ -4,7 +4,9 @@ import { FormattedMessage } from 'react-intl';
 import {
   Faq,
   FaqHeader,
-  SingleDisplayChart,
+  MultiDisplayChart,
+  AreaChart,
+  ChartContainer,
   TotalBox,
 } from '@notional-finance/mui';
 import { useLendVariableFaq } from '../hooks';
@@ -25,13 +27,27 @@ export const LendVariableTradeSummary = () => {
 
   return (
     <TradeActionSummary state={state}>
-      <SingleDisplayChart
-        areaChartData={apyData}
-        xAxisTickFormat="date"
-        chartType="area"
-        showCartesianGrid
-        condenseXAxisTime
-        areaLineType="linear"
+      <MultiDisplayChart
+        chartComponents={[
+          {
+            id: 'area-chart',
+            title: 'Variable APY',
+            Component: (
+              <ChartContainer>
+                <AreaChart
+                  showCartesianGrid
+                  xAxisTickFormat="date"
+                  areaChartData={apyData}
+                  condenseXAxisTime={true}
+                  areaLineType="linear"
+                />
+              </ChartContainer>
+            ),
+            chartHeaderData: {
+              textHeader: <FormattedMessage defaultMessage={'Variable APY'} />,
+            },
+          },
+        ]}
       />
       <Box
         sx={{

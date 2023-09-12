@@ -35,8 +35,8 @@ export const ChartInfoBox = ({
           padding: theme.spacing(4),
           paddingTop: '0px',
           width: theme.spacing(96),
-          height: theme.spacing(55),
-          marginLeft: `-${theme.spacing(2)}`,
+          height: theme.spacing(52),
+          marginLeft: `-${theme.spacing(3)}`,
           ...(chartInfoBoxActive ? mountedStyle : unmountedStyle),
         }}
       >

@@ -39,10 +39,11 @@ interface InteractiveAreaChartProps extends ChartHeaderProps {
 export const InteractiveAreaChart = ({
   interactiveAreaChartData,
   chartToolTipData,
-  legendData,
+  chartHeaderData,
   onSelectMarketKey,
   selectedMarketKey,
   lockSelection,
+  isMultiChart,
 }: InteractiveAreaChartProps) => {
   const intl = useIntl();
   const theme = useTheme();
@@ -84,10 +85,18 @@ export const InteractiveAreaChart = ({
   };
 
   return (
-    <TradeSummaryBox sx={{ width: '100%', paddingBottom: theme.spacing(5) }}>
+    <TradeSummaryBox
+      sx={{
+        width: '100%',
+        padding: isMultiChart ? '0px' : '',
+        paddingBottom: theme.spacing(5),
+        paddingTop: theme.spacing(3),
+        border: isMultiChart ? 'none' : '',
+      }}
+    >
       {interactiveAreaChartData && interactiveAreaChartData?.length > 0 ? (
         <ChartContainer>
-          {legendData && <ChartHeader legendData={legendData} />}
+          {chartHeaderData && <ChartHeader chartHeaderData={chartHeaderData} />}
           <ResponsiveContainer width="100%" height={300}>
             <ComposedChart
               data={interactiveAreaChartData}
@@ -127,7 +136,9 @@ export const InteractiveAreaChart = ({
               <YAxis
                 yAxisId="line"
                 orientation="left"
-                style={{ fill: theme.palette.typography.main }}
+                style={{
+                  fill: theme.palette.typography.light,
+                }}
                 ticks={ticks}
                 tick={<YAxisTick lines={lines} values={ticks} />}
                 unit="%"
