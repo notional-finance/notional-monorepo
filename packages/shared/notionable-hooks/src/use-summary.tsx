@@ -399,7 +399,10 @@ export function useTradeSummary(state: BaseTradeState) {
   } = state;
 
   // TODO: if underlying is not all the same the convert to fiat currency instead
-  const underlying = netAssetBalance?.underlying || netDebtBalance?.underlying;
+  const underlying =
+    netAssetBalance?.underlying ||
+    netDebtBalance?.underlying ||
+    depositBalance?.token;
   if (!canSubmit || !underlying)
     return {
       summary: undefined,
@@ -461,17 +464,19 @@ export function useTradeSummary(state: BaseTradeState) {
 
   const summary: DetailItem[] = [];
   if (isLeverageOrRoll) {
-    if (depositBalance?.isPositive()) {
+    if (depositBalance?.isPositive() || tradeType === 'IncreaseVaultPosition') {
       // Deposit and Mint X
-      summary.push(
-        getTradeDetail(
-          depositBalance,
-          'Asset',
-          'deposit',
-          intl,
-          collateralBalance.token
-        )
-      );
+      if (depositBalance?.isPositive()) {
+        summary.push(
+          getTradeDetail(
+            depositBalance,
+            'Asset',
+            'deposit',
+            intl,
+            collateralBalance.token
+          )
+        );
+      }
       // NOTE: technically net asset changes may occur here inside Leveraged Lend
       // or Leveraged Liquidity but currently they won't show in the trade summary
       // Borrow
@@ -479,22 +484,25 @@ export function useTradeSummary(state: BaseTradeState) {
       // Mint X - deposit
       summary.push(
         getTradeDetail(
-          collateralBalance.toUnderlying().sub(depositBalance),
+          depositBalance
+            ? collateralBalance.toUnderlying().sub(depositBalance)
+            : collateralBalance.toUnderlying(),
           'Asset',
           'none',
           intl,
           collateralBalance.token
         )
       );
-    } else if (depositBalance?.isNegative()) {
-      // NOTE: this is only going to be a withdraw vault transaction
+    } else if (
+      tradeType === 'WithdrawVault' ||
+      tradeType === 'WithdrawAndRepayVault'
+    ) {
       // Sell assets
       summary.push(
         getTradeDetail(collateralBalance.neg(), 'Asset', 'withdraw', intl)
       );
       // Repay debt
-      summary.push(getTradeDetail(debtBalance, 'Debt', 'deposit', intl));
-
+      summary.push(getTradeDetail(debtBalance, 'Debt', 'repay', intl));
       /** NOTE: net asset and balance changes are used below here **/
     } else if (tradeType === 'Deleverage') {
       // In deleverage, the collateral and asset are reversed.
@@ -530,6 +538,9 @@ export function useTradeSummary(state: BaseTradeState) {
         // This is the new asset balance
         summary.push(getTradeDetail(netAssetBalance, 'Asset', 'none', intl));
     }
+  } else if (tradeType === 'DepositVaultCollateral') {
+    if (collateralBalance)
+      summary.push(getTradeDetail(collateralBalance, 'Asset', 'deposit', intl));
   } else if (depositBalance?.isPositive()) {
     if (netDebtBalance?.isZero() === false)
       summary.push(getTradeDetail(netDebtBalance, 'Debt', 'deposit', intl));
