@@ -241,9 +241,9 @@ export const AreaChart = ({
             alignItems: 'center',
             justifyContent: 'center',
             position: 'absolute',
-            width: '716px',
-            height: '463px',
-            marginTop: '-430px',
+            width: theme.spacing(89.5),
+            height: theme.spacing(57.9),
+            marginTop: theme.spacing(53),
           }}
         >
           <Box
@@ -252,7 +252,7 @@ export const AreaChart = ({
               color: theme.palette.typography.contrastText,
               padding: theme.spacing(3),
               borderRadius: theme.shape.borderRadius(),
-              width: '200px',
+              width: theme.spacing(25),
               textAlign: 'center',
             }}
           >

@@ -50,7 +50,7 @@ export const MultiDisplayChart = ({
                 <H4
                   sx={{
                     cursor: 'pointer',
-                    paddingBottom: '8px',
+                    paddingBottom: theme.spacing(1),
                     borderBottom:
                       id === visibleChart
                         ? `2px solid ${theme.palette.charts.main}`
