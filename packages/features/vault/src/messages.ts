@@ -295,7 +295,7 @@ export const messages = {
       description: 'error message',
     },
     increasePositionDebtsMustIncrease: {
-      defaultMessage: 'Cannot decrease borrowing during increase position',
+      defaultMessage: 'Cannot decrease leverage during increase position',
       description: 'error message',
     },
     belowMinimumLeverage: {
