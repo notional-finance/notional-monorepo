@@ -247,6 +247,7 @@ export const VaultTradeConfiguration = {
     depositFilter: (t, _, s: VaultTradeState) =>
       isPrimaryCurrency(t, s.vaultConfig),
     transactionBuilder: ExitVault,
+    calculateDebtOptions: true,
   } as TransactionConfig,
 };
 

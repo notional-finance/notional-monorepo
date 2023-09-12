@@ -1,9 +1,10 @@
 import {
+  CountUp,
   PageLoading,
   SliderInput,
   useSliderInputRef,
 } from '@notional-finance/mui';
-import { defineMessage } from 'react-intl';
+import { FormattedMessage, defineMessage } from 'react-intl';
 import { BaseTradeContext } from '@notional-finance/notionable-hooks';
 import { useCallback, useEffect, useMemo } from 'react';
 import { MessageDescriptor } from 'react-intl';
@@ -35,12 +36,27 @@ export const LeverageSlider = ({
       maxLeverageRatio,
       defaultLeverageRatio,
       tradeType,
+      debtOptions,
+      debt,
     },
     updateState,
   } = context;
   const { sliderInputRef, setSliderInput } = useSliderInputRef();
-  // TODO: this needs to be borrow rate
-  const topRightCaption = undefined;
+  const borrowRate = debtOptions?.find(
+    (o) => o.token.id === debt?.id
+  )?.interestRate;
+  const topRightCaption =
+    borrowRate !== undefined ? (
+      <>
+        <CountUp value={borrowRate} suffix={'%'} decimals={2} />
+        &nbsp;
+        {tradeType === 'WithdrawAndRepayVault' ? (
+          <FormattedMessage defaultMessage={'Repay APY'} />
+        ) : (
+          <FormattedMessage defaultMessage={'Borrow APY'} />
+        )}
+      </>
+    ) : undefined;
 
   // Used to set the context for the leverage ratio slider.
   const args: [number | undefined] | undefined = useMemo(
