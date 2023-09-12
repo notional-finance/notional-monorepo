@@ -1,5 +1,5 @@
 import { useCallback, useEffect } from 'react';
-import { Box, styled, useTheme } from '@mui/material';
+import { Box, useTheme } from '@mui/material';
 import {
   LargeInputTextEmphasized,
   SideDrawerButton,
@@ -7,6 +7,7 @@ import {
   DataTable,
   Body,
   TABLE_VARIANTS,
+  ButtonData,
 } from '@notional-finance/mui';
 import { FormattedMessage, MessageDescriptor } from 'react-intl';
 import { messages } from '../messages';
@@ -207,16 +208,3 @@ export const SelectConvertAsset = ({ context }: SelectConvertAssetProps) => {
     </Box>
   );
 };
-
-const ButtonData = styled(ButtonText)(
-  ({ theme }) => `
-    float: right;
-    border: ${theme.shape.borderStandard};
-    border-color: ${theme.palette.primary.light};
-    background: ${theme.palette.background.paper};
-    padding: ${theme.spacing(1, 2)};
-    border-radius: ${theme.shape.borderRadius()};
-    color: ${theme.palette.common.black};
-    margin-bottom: 0px;
-  `
-);

@@ -2,19 +2,19 @@ import { Box, styled, useTheme } from '@mui/material';
 import { useContext, useEffect } from 'react';
 import { PORTFOLIO_ACTIONS } from '@notional-finance/util';
 import {
+  ButtonData,
+  ButtonText,
   H4,
   LabelValue,
   LargeInputTextEmphasized,
   SideDrawerButton,
 } from '@notional-finance/mui';
-import {
-  useManageVault,
-  useVaultProperties,
-} from '@notional-finance/notionable-hooks';
+import { useVaultProperties } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
 import { VaultActionContext } from '../vault-view/vault-action-provider';
 import { messages } from '../messages';
 import { VaultDetailsTable } from '../components';
+import { useManageVault } from '../hooks/use-manage-vault';
 
 export const ManageVault = () => {
   const theme = useTheme();
@@ -22,10 +22,8 @@ export const ManageVault = () => {
     state: { vaultAddress, priorAccountRisk },
   } = useContext(VaultActionContext);
   const { vaultName } = useVaultProperties(vaultAddress);
-  const { reduceLeverageOptions, manageVaultOptions } = useManageVault(
-    vaultAddress,
-    !!priorAccountRisk
-  );
+  const { reduceLeverageOptions, manageVaultOptions, rollMaturityOptions } =
+    useManageVault(vaultAddress, !!priorAccountRisk);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -61,7 +59,15 @@ export const ManageVault = () => {
             <FormattedMessage defaultMessage={'View in Portfolio'} />
           </H4>
         </TableWrapper>
-
+        {manageVaultOptions.map(({ label, link }, index) => (
+          <SideDrawerButton
+            key={index}
+            sx={{ padding: theme.spacing(2.5) }}
+            to={link}
+          >
+            <ButtonText>{label}</ButtonText>
+          </SideDrawerButton>
+        ))}
         {reduceLeverageOptions.length > 0 && (
           <>
             <Title>
@@ -73,27 +79,28 @@ export const ManageVault = () => {
                 sx={{ padding: theme.spacing(2.5) }}
                 to={link}
               >
-                <H4>{label}</H4>
+                <ButtonText>{label}</ButtonText>
               </SideDrawerButton>
             ))}
-            <Box
-              component={'hr'}
-              sx={{
-                margin: theme.spacing(5, 0),
-                border: `1px solid ${theme.palette.borders.default}`,
-              }}
-            />
           </>
         )}
-        {manageVaultOptions.map(({ label, link }, index) => (
-          <SideDrawerButton
-            key={index}
-            sx={{ padding: theme.spacing(2.5) }}
-            to={link}
-          >
-            <H4>{label}</H4>
-          </SideDrawerButton>
-        ))}
+        {rollMaturityOptions.length > 0 && (
+          <>
+            <Title>
+              <FormattedMessage defaultMessage={'Convert Maturity'} />
+            </Title>
+            {rollMaturityOptions.map(({ label, link, totalAPY }, index) => (
+              <SideDrawerButton
+                key={index}
+                sx={{ padding: theme.spacing(2.5) }}
+                to={link}
+              >
+                <ButtonText sx={{ flex: 1 }}>{label}</ButtonText>
+                <ButtonData>{totalAPY}</ButtonData>
+              </SideDrawerButton>
+            ))}
+          </>
+        )}
       </MainWrapper>
     </Box>
   );

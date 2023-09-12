@@ -1,6 +1,5 @@
 import { Registry, TokenBalance } from '@notional-finance/core-entities';
 import { useNotionalError, useSelectedNetwork } from './use-notional';
-import { FormattedMessage } from 'react-intl';
 
 export function useVaultProperties(vaultAddress?: string) {
   let minAccountBorrowSize: TokenBalance | undefined = undefined;
@@ -75,63 +74,6 @@ export function useAllVaults() {
   });
 
   return listedVaults || [];
-}
-
-export function useManageVault(
-  vaultAddress: string | undefined,
-  hasVaultPosition: boolean
-) {
-  const network = useSelectedNetwork();
-
-  let canRollMaturity = false;
-  if (network && vaultAddress) {
-    canRollMaturity = Registry.getConfigurationRegistry().getVaultConfig(
-      network,
-      vaultAddress
-    ).allowRollPosition;
-  }
-
-  if (!hasVaultPosition || !vaultAddress) {
-    return { reduceLeverageOptions: [], manageVaultOptions: [] };
-  } else {
-    const manageVaultOptions = [
-      {
-        label: <FormattedMessage defaultMessage={'Withdraw'} />,
-        link: `/vaults/${vaultAddress}/WithdrawVault`,
-        key: 'WithdrawVault',
-      },
-      {
-        label: <FormattedMessage defaultMessage={'Increase Vault Position'} />,
-        link: `/vaults/${vaultAddress}/IncreaseVaultPosition`,
-        key: 'IncreaseVaultPosition',
-      },
-    ];
-
-    if (canRollMaturity)
-      manageVaultOptions.push({
-        label: <FormattedMessage defaultMessage={'Roll Vault Position'} />,
-        link: `/vaults/${vaultAddress}/RollVaultPosition`,
-        key: 'RollVaultPosition',
-      });
-
-    return {
-      reduceLeverageOptions: [
-        {
-          label: <FormattedMessage defaultMessage={'Deposit Collateral'} />,
-          link: `/vaults/${vaultAddress}/DepositVaultCollateral`,
-          key: 'DepositCollateral',
-        },
-        {
-          label: (
-            <FormattedMessage defaultMessage={'Repay Debt with Vault Assets'} />
-          ),
-          link: `/vaults/${vaultAddress}/WithdrawAndRepayVault`,
-          key: 'WithdrawAndRepayVault',
-        },
-      ],
-      manageVaultOptions,
-    };
-  }
 }
 
 function getMinDepositRequiredString(
