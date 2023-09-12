@@ -109,7 +109,11 @@ export function TradeActionSummary({
   } else {
     totalAPY = assetAPY !== undefined ? assetAPY : debtAPY;
   }
-  const { title } = collateral ? formatTokenType(collateral) : { title: '' };
+  const { title } = collateral
+    ? formatTokenType(collateral)
+    : isVault
+    ? { title: 'Vault Shares' }
+    : { title: '' };
 
   if (!selectedToken) return <PageLoading />;
 

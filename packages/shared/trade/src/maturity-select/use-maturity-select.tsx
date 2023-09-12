@@ -4,7 +4,6 @@ import {
   MaturityData,
   useSpotMaturityData,
 } from '@notional-finance/notionable-hooks';
-import { formatInterestRate } from '@notional-finance/util';
 import { useCallback, useMemo } from 'react';
 
 export const useMaturitySelect = (
@@ -40,8 +39,6 @@ export const useMaturitySelect = (
           tokenId: o.token.id,
           tradeRate: o.interestRate,
           maturity: o.token.maturity || 0,
-          hasLiquidity: true,
-          tradeRateString: formatInterestRate(o.interestRate),
         };
       }) || spotMaturityData
     );

@@ -120,13 +120,19 @@ export const LeverageSlider = ({
       bottomCaption={bottomCaption}
       inputLabel={inputLabel}
       sliderLeverageInfo={{
-        debtHeading: defineMessage({ defaultMessage: 'Borrow Amount' }),
-        assetHeading: defineMessage({ defaultMessage: 'Asset Amount' }),
+        debtHeading:
+          tradeType === 'WithdrawAndRepayVault'
+            ? defineMessage({ defaultMessage: 'Debt Repaid' })
+            : defineMessage({ defaultMessage: 'Borrow Amount' }),
+        assetHeading:
+          tradeType === 'WithdrawAndRepayVault'
+            ? defineMessage({ defaultMessage: 'Assets Sold' })
+            : defineMessage({ defaultMessage: 'Asset Amount' }),
         debtValue: cashBorrowed
           ? cashBorrowed.toUnderlying().abs().toFloat()
           : debtBalance?.toUnderlying().abs().toFloat(),
         debtSuffix: ` ${zeroUnderlying?.symbol || ''}`,
-        assetValue: collateralBalance?.toUnderlying().toFloat(),
+        assetValue: collateralBalance?.abs().toUnderlying().toFloat(),
         assetSuffix: ` ${zeroUnderlying?.symbol || ''}`,
       }}
     />

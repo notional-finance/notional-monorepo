@@ -10,7 +10,6 @@ import { PRODUCTS } from '@notional-finance/util';
 import { useSelectedNetwork } from './use-notional';
 import { useCallback, useMemo } from 'react';
 import {
-  formatInterestRate,
   getNowSeconds,
   isIdiosyncratic,
 } from '@notional-finance/util';
@@ -20,8 +19,6 @@ export interface MaturityData {
   tokenId: string;
   tradeRate: number | undefined;
   maturity: number;
-  hasLiquidity: boolean;
-  tradeRateString: string;
 }
 
 export function useCurrency() {
@@ -249,8 +246,6 @@ export const useSpotMaturityData = (
           tokenId: t.id,
           tradeRate: spotRate,
           maturity: t.maturity || 0,
-          hasLiquidity: true,
-          tradeRateString: formatInterestRate(spotRate),
         };
       }) || []
     );
