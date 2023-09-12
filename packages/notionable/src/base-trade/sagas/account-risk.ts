@@ -128,7 +128,7 @@ export function comparePortfolio(prior: TokenBalance[], post: TokenBalance[]) {
         changeType: getChangeType(current.toFloat(), updated.toFloat()),
       };
     })
-    .filter(({ current, updated }) => current.isZero() && updated.isZero())
+    .filter(({ current, updated }) => !current.isZero() && !updated.isZero())
     .sort((a, b) => b.sortOrder - a.sortOrder);
 }
 
