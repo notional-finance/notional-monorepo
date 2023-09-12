@@ -144,11 +144,11 @@ export interface BaseTradeState
 
 export interface TradeState
   extends BaseTradeState,
-    Omit<AccountRiskSummary, 'postTradeBalances'> {}
+    Partial<Omit<AccountRiskSummary, 'postTradeBalances'>> {}
 
 export interface VaultTradeState
   extends BaseTradeState,
-    Omit<VaultAccountRiskSummary, 'postTradeBalances'> {}
+    Partial<Omit<VaultAccountRiskSummary, 'postTradeBalances'>> {}
 
 export const initialBaseTradeState: BaseTradeState = {
   isReady: false,

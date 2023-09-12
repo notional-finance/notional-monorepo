@@ -612,7 +612,7 @@ export function usePortfolioComparison(
   fiat: FiatKeys = 'USD'
 ) {
   const { postTradeBalances, comparePortfolio } = state;
-  const allTableData = comparePortfolio.map((p) => ({
+  const allTableData = (comparePortfolio || []).map((p) => ({
     ...p,
     current: p.current.toFiat(fiat).toDisplayStringWithSymbol(3, true),
     updated: p.updated.toFiat(fiat).toDisplayStringWithSymbol(3, true),
@@ -635,7 +635,7 @@ function formatLiquidationPrices(
   intl: IntlShape
 ) {
   return (
-    liquidationPrice.map((p) => {
+    (liquidationPrice || []).map((p) => {
       return {
         ...p,
         label: p.isPriceRisk
@@ -721,7 +721,7 @@ export function useVaultLiquidationRisk(state: VaultTradeState) {
   ];
 
   const liquidationPrices = formatLiquidationPrices(
-    liquidationPrice.filter((p) => p.isPriceRisk),
+    (liquidationPrice || []).filter((p) => p.isPriceRisk),
     baseCurrency,
     intl
   );

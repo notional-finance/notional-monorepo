@@ -230,7 +230,7 @@ export const SliderInput = React.forwardRef<
                 // it will look "jumpy" to the user
                 setTimeout(() => {
                   onChangeCommitted(value);
-                }, 150);
+                }, 100);
               }}
             />
           </SliderContainer>
