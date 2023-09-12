@@ -70,7 +70,7 @@ export const LeverageSlider = ({
   );
 
   // Sets the initial default leverage ratio, the default leverage ratio for IncreaseVaultPosition
-  // is equal to the exiting leverage ratio and causes a failure in convergence. So by default
+  // is equal to the existing leverage ratio and causes a failure in convergence. So by default
   // we don't have it propagate a change into the store.
   useEffect(() => {
     if (!riskFactorLimit && defaultLeverageRatio !== undefined) {
@@ -82,6 +82,7 @@ export const LeverageSlider = ({
           },
         });
       }
+
       setSliderInput(
         defaultLeverageRatio,
         tradeType !== 'IncreaseVaultPosition'
@@ -94,6 +95,18 @@ export const LeverageSlider = ({
     updateState,
     tradeType,
   ]);
+
+  useEffect(() => {
+    // If the component is mounted and the ref does not match the defined limit, set it
+    // to match the store. This happens because the slider initializes to a min value on
+    // component mount.
+    if (
+      !!riskFactorLimit?.limit &&
+      riskFactorLimit.limit !== sliderInputRef.current?.getInputValue()
+    ) {
+      setSliderInput(riskFactorLimit.limit as number, false);
+    }
+  });
 
   return defaultLeverageRatio && maxLeverageRatio ? (
     <SliderInput

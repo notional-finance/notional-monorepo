@@ -32,6 +32,7 @@ export interface SliderInputProps {
 
 export interface SliderInputHandle {
   setInputOverride: (input: number, emitChange?: boolean) => void;
+  getInputValue: () => number;
 }
 
 const Container = styled(Box)(
@@ -139,6 +140,9 @@ export const SliderInput = React.forwardRef<
           if (emitChange) onChangeCommitted(input);
         }
       },
+      getInputValue: () => {
+        return value;
+      },
     }));
 
     return (
@@ -226,7 +230,7 @@ export const SliderInput = React.forwardRef<
                 // it will look "jumpy" to the user
                 setTimeout(() => {
                   onChangeCommitted(value);
-                }, 100);
+                }, 150);
               }}
             />
           </SliderContainer>

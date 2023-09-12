@@ -8,31 +8,16 @@ import {
   withLatestFrom,
   map,
 } from 'rxjs';
-import { BaseTradeState } from '../base-trade-store';
-
-/*
-        let leverageRatio = defaultLeverageRatio;
-        if (tradeType === 'IncreaseVaultPosition') {
-          leverageRatio = priorAccountRisk.leverageRatio || undefined;
-        } else if (tradeType === 'WithdrawAndRepayVault') {
-          leverageRatio =
-            priorAccountRisk.leverageRatio &&
-            priorAccountRisk.leverageRatio > 0.01
-              ? priorAccountRisk.leverageRatio - 0.01
-              : undefined;
-        }
-        */
+import { TradeState, VaultTradeState } from '../base-trade-store';
 
 export function defaultLeverageRatio(
-  state$: Observable<BaseTradeState>,
+  state$: Observable<TradeState>,
   selectedNetwork$: ReturnType<typeof selectedNetwork>
 ) {
   return state$.pipe(
     filter(
       (s) =>
-        !!s.vaultAddress ||
-        s.tradeType === 'LeveragedLend' ||
-        s.tradeType === 'LeveragedNToken'
+        s.tradeType === 'LeveragedLend' || s.tradeType === 'LeveragedNToken'
     ),
     distinctUntilChanged((p, c) => {
       return (
@@ -44,28 +29,6 @@ export function defaultLeverageRatio(
     }),
     withLatestFrom(selectedNetwork$),
     map(([s, network]) => {
-      if (s.vaultAddress) {
-        const leverageFactors =
-          Registry.getConfigurationRegistry().getVaultLeverageFactors(
-            network,
-            s.vaultAddress
-          );
-        if (s.tradeType === 'CreateVaultPosition') {
-          // Return from the configuration registry directly
-          return leverageFactors;
-        } else if (
-          s.tradeType === 'IncreaseVaultPosition' ||
-          s.tradeType === 'WithdrawAndRepayVault'
-        ) {
-          // Inside these two trade types, the default leverage ratio is defined
-          // by the prior account risk
-          return {
-            minLeverageRatio: leverageFactors.minLeverageRatio,
-            maxLeverageRatio: leverageFactors.maxLeverageRatio,
-          };
-        }
-      }
-
       if (s.deposit === undefined) return undefined;
       const options = (
         s.tradeType === 'LeveragedLend'
@@ -89,6 +52,60 @@ export function defaultLeverageRatio(
           ...options.map((y) => y.leveraged?.leverageRatio || 0)
         ),
       };
+    }),
+    filterEmpty()
+  );
+}
+
+export function defaultVaultLeverageRatio(
+  state$: Observable<VaultTradeState>,
+  selectedNetwork$: ReturnType<typeof selectedNetwork>
+) {
+  return state$.pipe(
+    distinctUntilChanged((p, c) => {
+      return (
+        p.vaultAddress === c.vaultAddress &&
+        p.deposit?.id === c.deposit?.id &&
+        p.debt?.id === c.debt?.id &&
+        p.collateral?.id === c.collateral?.id &&
+        p.tradeType === c.tradeType
+      );
+    }),
+    withLatestFrom(selectedNetwork$),
+    map(([s, network]) => {
+      if (s.vaultAddress) {
+        const leverageFactors =
+          Registry.getConfigurationRegistry().getVaultLeverageFactors(
+            network,
+            s.vaultAddress
+          );
+        if (s.tradeType === 'CreateVaultPosition') {
+          // Return from the configuration registry directly
+          return leverageFactors;
+        } else if (s.tradeType === 'IncreaseVaultPosition') {
+          // Inside these two trade types, the default leverage ratio is defined
+          // by the prior account risk
+          return {
+            minLeverageRatio: leverageFactors.minLeverageRatio,
+            defaultLeverageRatio:
+              s.priorAccountRisk?.leverageRatio || undefined,
+            maxLeverageRatio: leverageFactors.maxLeverageRatio,
+          };
+        } else if (s.tradeType === 'WithdrawAndRepayVault') {
+          const leverageRatio =
+            s.priorAccountRisk?.leverageRatio &&
+            s.priorAccountRisk.leverageRatio > 0.01
+              ? s.priorAccountRisk?.leverageRatio - 0.01
+              : undefined;
+          return {
+            minLeverageRatio: leverageFactors.minLeverageRatio,
+            defaultLeverageRatio: leverageRatio,
+            maxLeverageRatio: leverageFactors.maxLeverageRatio,
+          };
+        }
+      }
+
+      return undefined;
     }),
     filterEmpty()
   );
