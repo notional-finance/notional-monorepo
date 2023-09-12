@@ -48,10 +48,20 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
       ? account.vaultLastUpdateTime[vaultAddress]
       : 0;
 
+    const vaultDebt = balances.find(
+      (d) =>
+        d.tokenType === 'VaultDebt' &&
+        d.token.maturity !== PRIME_CASH_VAULT_MATURITY
+    );
+    const lastImpliedFixedRate = (account.accountHistory || []).find(
+      (h) => h.token.id === vaultDebt?.tokenId
+    )?.impliedFixedRate;
+
     return new VaultAccountRiskProfile(
       vaultAddress,
       balances,
-      lastUpdateBlockTime
+      lastUpdateBlockTime,
+      lastImpliedFixedRate
     );
   }
 
@@ -89,7 +99,8 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
   constructor(
     public vaultAddress: string,
     _balances: TokenBalance[],
-    public lastUpdateBlockTime: number
+    public lastUpdateBlockTime: number,
+    public lastImpliedFixedRate?: number
   ) {
     const balances = _balances.filter(
       (t) => t.isVaultToken && t.token.vaultAddress === vaultAddress
@@ -109,6 +120,7 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
       this.vaultAddress
     );
   }
+
   get vaultConfig() {
     return Registry.getConfigurationRegistry().getVaultConfig(
       this.network,

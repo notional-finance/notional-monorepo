@@ -1,9 +1,14 @@
 import {
   AccountDefinition,
+  Registry,
   TokenBalance,
 } from '@notional-finance/core-entities';
 import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
-import { filterEmpty, getChangeType } from '@notional-finance/util';
+import {
+  PRIME_CASH_VAULT_MATURITY,
+  filterEmpty,
+  getChangeType,
+} from '@notional-finance/util';
 import {
   Observable,
   combineLatest,
@@ -30,6 +35,7 @@ export function priorVaultAccountRisk(
       if (!vaultAddress || !account) return undefined;
       return vaultRiskSummary(
         VaultAccountRiskProfile.fromAccount(vaultAddress, account),
+        undefined,
         undefined
       );
     }),
@@ -56,6 +62,7 @@ export function postVaultAccountRisk(
         {
           calculationSuccess,
           collateralBalance,
+          debtOptions,
           debtBalance,
           vaultAddress,
           tradeType,
@@ -69,20 +76,26 @@ export function postVaultAccountRisk(
         );
         const post =
           calculationSuccess && collateralBalance
-            ? VaultAccountRiskProfile.simulate(
-                vaultAddress,
-                account?.balances.filter((t) =>
-                  // During a roll vault position, new debt and collateral will be specified
-                  tradeType === 'RollVaultPosition'
-                    ? false
-                    : t.isVaultToken && t.vaultAddress === vaultAddress
-                ) || [],
-                [collateralBalance, debtBalance].filter(
-                  (b) => b !== undefined
-                ) as TokenBalance[]
-              )
+            ? (tradeType === 'RollVaultPosition' ||
+                tradeType === 'CreateVaultPosition') &&
+              debtBalance
+              ? new VaultAccountRiskProfile(
+                  vaultAddress,
+                  [collateralBalance, debtBalance],
+                  0
+                )
+              : prior?.simulate(
+                  [collateralBalance, debtBalance].filter(
+                    (b) => b !== undefined
+                  ) as TokenBalance[]
+                )
             : undefined;
-        const s = vaultRiskSummary(prior, post);
+        const s = vaultRiskSummary(
+          prior,
+          post,
+          debtOptions?.find((t) => t.token.id === debtBalance?.tokenId)
+            ?.interestRate
+        );
 
         return {
           ...s,
@@ -100,14 +113,77 @@ export function postVaultAccountRisk(
   );
 }
 
+function averageFixedRate(
+  prior: VaultAccountRiskProfile | undefined,
+  post: VaultAccountRiskProfile | undefined,
+  newBorrowRate: number | undefined
+) {
+  if (
+    prior?.maturity === post?.maturity &&
+    newBorrowRate !== undefined &&
+    prior?.lastImpliedFixedRate !== undefined &&
+    post?.vaultDebt !== undefined
+  ) {
+    return (
+      (prior.lastImpliedFixedRate * prior.vaultDebt.toFloat() +
+        (newBorrowRate - prior.lastImpliedFixedRate) *
+          post.vaultDebt.toFloat()) /
+      prior.vaultDebt.toFloat()
+    );
+  } else {
+    return newBorrowRate;
+  }
+}
+
+function leveragedYield(
+  strategyAPY: number | undefined,
+  borrowAPY: number | undefined,
+  leverageRatio: number
+) {
+  if (strategyAPY === undefined || borrowAPY === undefined) return undefined;
+  return strategyAPY + (strategyAPY - borrowAPY) * leverageRatio;
+}
+
 function vaultRiskSummary(
   prior: VaultAccountRiskProfile | undefined,
-  post: VaultAccountRiskProfile | undefined
+  post: VaultAccountRiskProfile | undefined,
+  newBorrowRate: number | undefined
 ) {
   const priorAccountRisk = prior?.getAllRiskFactors();
   const postAccountRisk = post?.getAllRiskFactors();
+  const network = prior?.network || post?.network;
+  const yields = network
+    ? Registry.getYieldRegistry().getAllYields(network)
+    : [];
 
-  // TODO: blended apy, total apy
+  const priorBorrowRate =
+    prior?.maturity === PRIME_CASH_VAULT_MATURITY
+      ? yields.find(
+          (t) =>
+            t.token.tokenType === 'PrimeDebt' &&
+            t.token.currencyId === prior.vaultDebt.currencyId
+        )?.totalAPY
+      : prior?.lastImpliedFixedRate;
+  const postBorrowRate =
+    post?.maturity === PRIME_CASH_VAULT_MATURITY
+      ? newBorrowRate
+      : averageFixedRate(prior, post, newBorrowRate);
+  const vaultSharesAPY = yields.find(
+    (y) =>
+      y.token.tokenType === 'VaultShare' &&
+      y.token.vaultAddress === (prior?.vaultAddress || post?.vaultAddress)
+  )?.totalAPY;
+  const priorAPY = leveragedYield(
+    vaultSharesAPY,
+    priorBorrowRate,
+    priorAccountRisk?.leverageRatio || 0
+  );
+  const postAPY = leveragedYield(
+    vaultSharesAPY,
+    postBorrowRate,
+    postAccountRisk?.leverageRatio || 0
+  );
+
   return {
     priorAccountRisk,
     postAccountRisk,
@@ -120,6 +196,18 @@ function vaultRiskSummary(
         priorAccountRisk?.netWorth?.toFloat(),
         postAccountRisk?.netWorth?.toFloat()
       ),
+      greenOnArrowUp: true,
+    },
+    borrowAPY: {
+      current: priorBorrowRate,
+      updated: postBorrowRate,
+      changeType: getChangeType(priorBorrowRate, postBorrowRate),
+      greenOnArrowUp: false,
+    },
+    totalAPY: {
+      current: priorAPY,
+      updated: postAPY,
+      changeType: getChangeType(priorAPY, postAPY),
       greenOnArrowUp: true,
     },
     liquidationPrice: mergeLiquidationPrices(

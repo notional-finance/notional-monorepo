@@ -13,23 +13,6 @@ export function useVaultDetailsTable() {
     collateralBalance?.maturity ||
     priorVaultBalances?.find((t) => t.tokenType === 'VaultShare')?.maturity;
 
-  // const { priorVaultReturns, newVaultReturns } = useHistoricalReturns();
-  // if (priorVaultReturns !== undefined && newVaultReturns !== undefined) {
-  //   tableData.push({
-  //     riskType: {
-  //       type: 'APY',
-  //     },
-  //     current: formatPercentForRisk(priorVaultReturns),
-  //     updated: {
-  //       value: formatPercentForRisk(newVaultReturns),
-  //       arrowUp: didIncrease(priorVaultReturns, newVaultReturns),
-  //       checkmark: false,
-  //       greenOnArrowUp: true,
-  //       greenOnCheckmark: false,
-  //     },
-  //   });
-  // }
-
   return {
     onlyCurrent,
     tableData:

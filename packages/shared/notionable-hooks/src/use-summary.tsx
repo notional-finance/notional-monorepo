@@ -7,6 +7,7 @@ import {
 } from '@notional-finance/core-entities';
 import {
   formatNumberAsPercent,
+  formatNumberAsPercentWithUndefined,
   formatTokenType,
 } from '@notional-finance/helpers';
 import {
@@ -710,13 +711,25 @@ export function usePortfolioLiquidationRisk(state: TradeState) {
 }
 
 export function useVaultLiquidationRisk(state: VaultTradeState) {
-  const { priorAccountRisk, postAccountRisk, netWorth, liquidationPrice } =
-    state;
+  const {
+    priorAccountRisk,
+    postAccountRisk,
+    netWorth,
+    liquidationPrice,
+    borrowAPY,
+    totalAPY,
+  } = state;
   const onlyCurrent = !postAccountRisk;
   const intl = useIntl();
   const baseCurrency = useFiat();
 
   const factors = [
+    {
+      ...totalAPY,
+      label: intl.formatMessage({ defaultMessage: 'Total APY' }),
+      current: formatNumberAsPercentWithUndefined(totalAPY?.current, '-'),
+      updated: formatNumberAsPercentWithUndefined(totalAPY?.updated, '-'),
+    },
     {
       ...netWorth,
       label: intl.formatMessage({ defaultMessage: 'Net Worth' }),
@@ -728,6 +741,12 @@ export function useVaultLiquidationRisk(state: VaultTradeState) {
         netWorth?.updated
           ?.toFiat(baseCurrency)
           .toDisplayStringWithSymbol(3, true) || '-',
+    },
+    {
+      ...borrowAPY,
+      label: intl.formatMessage({ defaultMessage: 'Borrow APY' }),
+      current: formatNumberAsPercentWithUndefined(borrowAPY?.current, '-'),
+      updated: formatNumberAsPercentWithUndefined(borrowAPY?.updated, '-'),
     },
   ];
 
