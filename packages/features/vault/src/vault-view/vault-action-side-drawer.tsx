@@ -8,6 +8,7 @@ import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { useHistory } from 'react-router';
 import { VaultTradeType } from '@notional-finance/notionable';
 import { ManageVault, VaultDrawers } from '../side-drawers';
+import { CreateVaultPosition } from '../side-drawers/create-vault-position';
 
 const fadeStart = {
   transition: `opacity 150ms ease`,
@@ -62,9 +63,13 @@ export const VaultActionSideDrawer = () => {
     updateState({ tradeType: undefined, confirm: false });
   }, [vaultAddress, history, updateState]);
 
+  const VaultDrawer = tradeType
+    ? VaultDrawers[tradeType as VaultTradeType]
+    : null;
+
   let drawerEl;
   if (!hasVaultPosition) {
-    drawerEl = VaultDrawers['CreateVaultPosition']();
+    drawerEl = <CreateVaultPosition />;
   } else {
     drawerEl = (
       <Box>
@@ -91,14 +96,14 @@ export const VaultActionSideDrawer = () => {
                   ...slideTransition[state],
                 }}
               >
-                {!!tradeType && (
+                {!!tradeType && VaultDrawer && (
                   <>
                     <SideBarSubHeader
                       paddingTop="150px"
                       callback={returnToManageVault}
                       titleText={defineMessage({ defaultMessage: 'Manage' })}
                     />
-                    {VaultDrawers[tradeType as VaultTradeType]}
+                    <VaultDrawer />
                   </>
                 )}
               </Box>

@@ -23,9 +23,7 @@ export function priorVaultAccountRisk(
   return combineLatest([state$, account$]).pipe(
     distinctUntilChanged(
       ([p, prevA], [c, curA]) =>
-        p.vaultAddress === c.vaultAddress &&
-        p.tradeType === c.tradeType &&
-        prevA?.address === curA?.address
+        p.vaultAddress === c.vaultAddress && prevA?.address === curA?.address
     ),
     filter(([s]) => s.priorAccountRisk === undefined),
     map(([{ vaultAddress }, account]) => {

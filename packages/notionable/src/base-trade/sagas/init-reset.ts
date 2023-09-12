@@ -38,7 +38,11 @@ export function resetOnTradeTypeChange(
     filterEmpty(),
     pairwise(),
     map(([prev, cur]) => {
-      if (prev.tradeType !== undefined && prev.tradeType !== cur.tradeType) {
+      if (
+        !isVault &&
+        prev.tradeType !== undefined &&
+        prev.tradeType !== cur.tradeType
+      ) {
         return {
           reset: true,
           tradeType: cur.tradeType,
