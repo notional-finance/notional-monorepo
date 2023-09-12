@@ -58,6 +58,12 @@ export function resetOnTradeTypeChange(
           vaultAddress: cur.vaultAddress,
           tradeType: cur.tradeType,
         };
+      } else if (isVault && prev.tradeType !== cur.tradeType) {
+        return {
+          riskFactorLimit: undefined,
+          postAccountRisk: undefined,
+          postTradeBalances: undefined,
+        };
       } else {
         return undefined;
       }
