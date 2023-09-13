@@ -2,25 +2,31 @@ import { useTheme, Box, styled } from '@mui/material';
 import { colors } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 import { ProgressIndicator } from '@notional-finance/mui';
-import { useTruncatedAddress } from '@notional-finance/notionable-hooks';
-import { getFromLocalStorage } from '@notional-finance/helpers';
+import {
+  useAccountReady,
+  useNotionalContext,
+  useTruncatedAddress,
+} from '@notional-finance/notionable-hooks';
 import { ContestButtonStack } from '../contest-button-stack/contest-button-stack';
-import { useConnect, BETA_ACCESS } from '@notional-finance/wallet/hooks';
+import { useConnect } from '@notional-finance/wallet/hooks';
 import { ContestNftPass } from '../contest-nft-pass/contest-nft-pass';
+import { BETA_ACCESS } from '@notional-finance/notionable';
 
 export const ContestHero = () => {
   const theme = useTheme();
-  const { icon, currentLabel, selectedAddress } = useConnect();
+  const {
+    globalState: { hasContestNFT },
+  } = useNotionalContext();
+  const { icon, currentLabel, connecting } = useConnect();
   const truncatedAddress = useTruncatedAddress();
-  const connected = selectedAddress ? true : false;
-  const userSettings = getFromLocalStorage('userSettings');
+  const connected = useAccountReady();
 
   return (
     <Container>
       <ContentContainer>
         <ContestNftPass />
         <TextAndButtonWrapper>
-          {!connected && userSettings.betaAccess !== BETA_ACCESS.REJECTED && (
+          {!connected && !connecting && (
             <>
               <TitleText>
                 <FormattedMessage
@@ -37,7 +43,7 @@ export const ContestHero = () => {
             </>
           )}
 
-          {!truncatedAddress && connected ? (
+          {connecting ? (
             <Box
               sx={{
                 width: '358px',
@@ -50,20 +56,20 @@ export const ContestHero = () => {
           ) : (
             <>
               <TitleText>
-                {userSettings.betaAccess === BETA_ACCESS.CONFIRMED && (
+                {connected && hasContestNFT === BETA_ACCESS.CONFIRMED && (
                   <FormattedMessage
                     defaultMessage={
                       'Welcome to the V3 Closed Beta Contest on Arbitrum'
                     }
                   />
                 )}
-                {userSettings.betaAccess === BETA_ACCESS.REJECTED && (
+                {connected && hasContestNFT === BETA_ACCESS.REJECTED && (
                   <FormattedMessage
                     defaultMessage={'Beta Access NFT Not Found'}
                   />
                 )}
               </TitleText>
-              {userSettings.betaAccess === BETA_ACCESS.CONFIRMED && (
+              {connected && hasContestNFT === BETA_ACCESS.CONFIRMED && (
                 <ContestButtonStack
                   to="/portfolio/overview"
                   buttonText={
@@ -73,7 +79,8 @@ export const ContestHero = () => {
               )}
               {icon &&
                 icon.length > 0 &&
-                userSettings.betaAccess === BETA_ACCESS.REJECTED && (
+                connected &&
+                hasContestNFT === BETA_ACCESS.REJECTED && (
                   <AddressContainer>
                     <IconContainer>
                       <img
@@ -88,7 +95,7 @@ export const ContestHero = () => {
                     <Address>{truncatedAddress}</Address>
                   </AddressContainer>
                 )}
-              {userSettings.betaAccess === BETA_ACCESS.REJECTED && (
+              {connected && hasContestNFT === BETA_ACCESS.REJECTED && (
                 <ContestButtonStack
                   buttonText={
                     <FormattedMessage defaultMessage={'Switch Wallets'} />

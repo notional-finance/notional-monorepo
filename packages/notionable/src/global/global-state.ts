@@ -10,6 +10,12 @@ import { Signer } from 'ethers';
 
 const userSettings = getFromLocalStorage('userSettings');
 
+export enum BETA_ACCESS {
+  PENDING = 'pending',
+  CONFIRMED = 'confirmed',
+  REJECTED = 'rejected',
+}
+
 // Set this as the runtime default
 const CACHE_HOSTNAME =
   process.env['NX_DATA_URL'] || 'https://data-dev.notional.finance';
@@ -41,6 +47,7 @@ interface AccountState {
   isAccountPending: boolean;
   isAccountReady: boolean;
   selectedAccount?: string;
+  hasContestNFT: BETA_ACCESS;
 }
 interface UserSettingsState {
   themeVariant: THEME_VARIANTS;
@@ -67,6 +74,7 @@ export interface GlobalState
 
 export const initialGlobalState: GlobalState = {
   hasSelectedChainError: false,
+  hasContestNFT: BETA_ACCESS.REJECTED,
   isNetworkReady: false,
   isNetworkPending: false,
   cacheHostname: CACHE_HOSTNAME,

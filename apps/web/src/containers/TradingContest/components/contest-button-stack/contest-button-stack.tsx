@@ -4,9 +4,9 @@ import { Button } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
 import { SETTINGS_SIDE_DRAWERS } from '@notional-finance/util';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
-import { BETA_ACCESS } from '@notional-finance/wallet/hooks';
-import { getFromLocalStorage } from '@notional-finance/helpers';
 import { ReactNode } from 'react';
+import { useNotionalContext } from '@notional-finance/notionable-hooks';
+import { BETA_ACCESS } from '@notional-finance/notionable';
 
 interface ContestButtonStackProps {
   to?: string;
@@ -18,7 +18,7 @@ export const ContestButtonStack = ({
   buttonText,
 }: ContestButtonStackProps) => {
   const theme = useTheme();
-  const userSettings = getFromLocalStorage('userSettings');
+  const { globalState: { hasContestNFT }} = useNotionalContext()
   const { setWalletSideDrawer } = useSideDrawerManager();
 
   return (
@@ -38,7 +38,7 @@ export const ContestButtonStack = ({
       >
         {buttonText}
       </Button>
-      {userSettings.betaAccess !== BETA_ACCESS.CONFIRMED && (
+      {hasContestNFT !== BETA_ACCESS.CONFIRMED && (
         <Button
           size="large"
           variant="outlined"

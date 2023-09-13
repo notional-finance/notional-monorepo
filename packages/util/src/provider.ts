@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { AlchemyUrl, IS_TEST_ENV, Network, NetworkId } from './constants';
+import { AlchemyNFTUrl, AlchemyUrl, IS_TEST_ENV, Network, NetworkId } from './constants';
 
 class AlchemyBatchProvider extends ethers.providers.AlchemyProvider {
   // _pendingBatchAggregator?: NodeJS.Timer;
@@ -41,8 +41,10 @@ export function getProvider(networkId: number) {
   }
 }
 
-export function getProviderURLFromNetwork(network: Network) {
-  return `${AlchemyUrl[network]}/pq08EwFvymYFPbDReObtP-SFw3bCes8Z`;
+export function getProviderURLFromNetwork(network: Network, useNFT = false) {
+  return `${
+    useNFT ? AlchemyNFTUrl[network] : AlchemyUrl[network]
+  }/pq08EwFvymYFPbDReObtP-SFw3bCes8Z`;
 }
 
 export function getProviderFromNetwork(

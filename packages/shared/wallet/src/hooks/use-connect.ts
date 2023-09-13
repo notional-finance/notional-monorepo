@@ -4,6 +4,7 @@ import { getNetworkFromId } from '@notional-finance/util';
 import { useConnectWallet } from '@web3-onboard/react';
 import { BigNumber, ethers } from 'ethers';
 import { useCallback, useEffect } from 'react';
+import useNftContract from './use-nft-contract';
 
 export const useConnect = () => {
   const { globalState, updateNotional } = useNotionalContext();
@@ -86,6 +87,8 @@ export const useConnect = () => {
     updateNotional,
     isReadOnlyAddress,
   ]);
+
+  useNftContract(selectedAddress);
 
   return {
     connecting,
