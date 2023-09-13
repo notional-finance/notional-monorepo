@@ -47,10 +47,10 @@ export type Scalars = {
 export type Account = {
   /** Address of Account */
   id: Scalars['ID'];
-  firstUpdateBlockNumber: Scalars['Int'];
+  firstUpdateBlockNumber: Scalars['BigInt'];
   firstUpdateTimestamp: Scalars['Int'];
   firstUpdateTransactionHash: Scalars['Bytes'];
-  lastUpdateBlockNumber: Scalars['Int'];
+  lastUpdateBlockNumber: Scalars['BigInt'];
   lastUpdateTimestamp: Scalars['Int'];
   lastUpdateTransactionHash: Scalars['Bytes'];
   systemAccountType: SystemAccount;
@@ -107,14 +107,14 @@ export type Account_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  firstUpdateBlockNumber?: InputMaybe<Scalars['Int']>;
-  firstUpdateBlockNumber_not?: InputMaybe<Scalars['Int']>;
-  firstUpdateBlockNumber_gt?: InputMaybe<Scalars['Int']>;
-  firstUpdateBlockNumber_lt?: InputMaybe<Scalars['Int']>;
-  firstUpdateBlockNumber_gte?: InputMaybe<Scalars['Int']>;
-  firstUpdateBlockNumber_lte?: InputMaybe<Scalars['Int']>;
-  firstUpdateBlockNumber_in?: InputMaybe<Array<Scalars['Int']>>;
-  firstUpdateBlockNumber_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  firstUpdateBlockNumber?: InputMaybe<Scalars['BigInt']>;
+  firstUpdateBlockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  firstUpdateBlockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  firstUpdateBlockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  firstUpdateBlockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  firstUpdateBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  firstUpdateBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  firstUpdateBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   firstUpdateTimestamp?: InputMaybe<Scalars['Int']>;
   firstUpdateTimestamp_not?: InputMaybe<Scalars['Int']>;
   firstUpdateTimestamp_gt?: InputMaybe<Scalars['Int']>;
@@ -133,14 +133,14 @@ export type Account_filter = {
   firstUpdateTransactionHash_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
   firstUpdateTransactionHash_contains?: InputMaybe<Scalars['Bytes']>;
   firstUpdateTransactionHash_not_contains?: InputMaybe<Scalars['Bytes']>;
-  lastUpdateBlockNumber?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_not?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_gt?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_lt?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_gte?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_lte?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_in?: InputMaybe<Array<Scalars['Int']>>;
-  lastUpdateBlockNumber_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  lastUpdateBlockNumber?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  lastUpdateBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   lastUpdateTimestamp?: InputMaybe<Scalars['Int']>;
   lastUpdateTimestamp_not?: InputMaybe<Scalars['Int']>;
   lastUpdateTimestamp_gt?: InputMaybe<Scalars['Int']>;
@@ -190,7 +190,7 @@ export type Account_orderBy =
 export type ActiveMarket = {
   /** Currency ID */
   id: Scalars['ID'];
-  lastUpdateBlockNumber: Scalars['Int'];
+  lastUpdateBlockNumber: Scalars['BigInt'];
   lastUpdateTimestamp: Scalars['Int'];
   lastUpdateTransaction?: Maybe<Transaction>;
   underlying: Token;
@@ -216,14 +216,14 @@ export type ActiveMarket_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  lastUpdateBlockNumber?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_not?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_gt?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_lt?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_gte?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_lte?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_in?: InputMaybe<Array<Scalars['Int']>>;
-  lastUpdateBlockNumber_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  lastUpdateBlockNumber?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  lastUpdateBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   lastUpdateTimestamp?: InputMaybe<Scalars['Int']>;
   lastUpdateTimestamp_not?: InputMaybe<Scalars['Int']>;
   lastUpdateTimestamp_gt?: InputMaybe<Scalars['Int']>;
@@ -352,10 +352,10 @@ export type Balance = {
   token: Token;
   /** Address of the account that holds this balance */
   account: Account;
-  firstUpdateBlockNumber: Scalars['Int'];
+  firstUpdateBlockNumber: Scalars['BigInt'];
   firstUpdateTimestamp: Scalars['Int'];
   firstUpdateTransactionHash: Scalars['Bytes'];
-  lastUpdateBlockNumber: Scalars['Int'];
+  lastUpdateBlockNumber: Scalars['BigInt'];
   lastUpdateTimestamp: Scalars['Int'];
   lastUpdateTransactionHash: Scalars['Bytes'];
   current: BalanceSnapshot;
@@ -374,7 +374,7 @@ export type BalancesnapshotsArgs = {
 export type BalanceSnapshot = {
   /** Address of Account:ID of Token:Block Number */
   id: Scalars['ID'];
-  blockNumber: Scalars['Int'];
+  blockNumber: Scalars['BigInt'];
   timestamp: Scalars['Int'];
   transaction: Transaction;
   /** Link to the balance entity for this token */
@@ -422,14 +422,14 @@ export type BalanceSnapshot_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  blockNumber?: InputMaybe<Scalars['Int']>;
-  blockNumber_not?: InputMaybe<Scalars['Int']>;
-  blockNumber_gt?: InputMaybe<Scalars['Int']>;
-  blockNumber_lt?: InputMaybe<Scalars['Int']>;
-  blockNumber_gte?: InputMaybe<Scalars['Int']>;
-  blockNumber_lte?: InputMaybe<Scalars['Int']>;
-  blockNumber_in?: InputMaybe<Array<Scalars['Int']>>;
-  blockNumber_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   timestamp?: InputMaybe<Scalars['Int']>;
   timestamp_not?: InputMaybe<Scalars['Int']>;
   timestamp_gt?: InputMaybe<Scalars['Int']>;
@@ -657,14 +657,14 @@ export type Balance_filter = {
   account_not_ends_with?: InputMaybe<Scalars['String']>;
   account_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   account_?: InputMaybe<Account_filter>;
-  firstUpdateBlockNumber?: InputMaybe<Scalars['Int']>;
-  firstUpdateBlockNumber_not?: InputMaybe<Scalars['Int']>;
-  firstUpdateBlockNumber_gt?: InputMaybe<Scalars['Int']>;
-  firstUpdateBlockNumber_lt?: InputMaybe<Scalars['Int']>;
-  firstUpdateBlockNumber_gte?: InputMaybe<Scalars['Int']>;
-  firstUpdateBlockNumber_lte?: InputMaybe<Scalars['Int']>;
-  firstUpdateBlockNumber_in?: InputMaybe<Array<Scalars['Int']>>;
-  firstUpdateBlockNumber_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  firstUpdateBlockNumber?: InputMaybe<Scalars['BigInt']>;
+  firstUpdateBlockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  firstUpdateBlockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  firstUpdateBlockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  firstUpdateBlockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  firstUpdateBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  firstUpdateBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  firstUpdateBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   firstUpdateTimestamp?: InputMaybe<Scalars['Int']>;
   firstUpdateTimestamp_not?: InputMaybe<Scalars['Int']>;
   firstUpdateTimestamp_gt?: InputMaybe<Scalars['Int']>;
@@ -683,14 +683,14 @@ export type Balance_filter = {
   firstUpdateTransactionHash_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
   firstUpdateTransactionHash_contains?: InputMaybe<Scalars['Bytes']>;
   firstUpdateTransactionHash_not_contains?: InputMaybe<Scalars['Bytes']>;
-  lastUpdateBlockNumber?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_not?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_gt?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_lt?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_gte?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_lte?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_in?: InputMaybe<Array<Scalars['Int']>>;
-  lastUpdateBlockNumber_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  lastUpdateBlockNumber?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  lastUpdateBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   lastUpdateTimestamp?: InputMaybe<Scalars['Int']>;
   lastUpdateTimestamp_not?: InputMaybe<Scalars['Int']>;
   lastUpdateTimestamp_gt?: InputMaybe<Scalars['Int']>;
@@ -805,7 +805,7 @@ export type Block_height = {
 export type CurrencyConfiguration = {
   /** Currency ID */
   id: Scalars['ID'];
-  lastUpdateBlockNumber: Scalars['Int'];
+  lastUpdateBlockNumber: Scalars['BigInt'];
   lastUpdateTimestamp: Scalars['Int'];
   lastUpdateTransactionHash: Scalars['Bytes'];
   underlying?: Maybe<Token>;
@@ -872,6 +872,7 @@ export type CurrencyConfiguration = {
   pvHaircutPercentage?: Maybe<Scalars['Int']>;
   /** Discount on nToken PV given to liquidators */
   liquidationHaircutPercentage?: Maybe<Scalars['Int']>;
+  incentives: Incentive;
 };
 
 
@@ -901,14 +902,14 @@ export type CurrencyConfiguration_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  lastUpdateBlockNumber?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_not?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_gt?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_lt?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_gte?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_lte?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_in?: InputMaybe<Array<Scalars['Int']>>;
-  lastUpdateBlockNumber_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  lastUpdateBlockNumber?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  lastUpdateBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   lastUpdateTimestamp?: InputMaybe<Scalars['Int']>;
   lastUpdateTimestamp_not?: InputMaybe<Scalars['Int']>;
   lastUpdateTimestamp_gt?: InputMaybe<Scalars['Int']>;
@@ -1261,6 +1262,7 @@ export type CurrencyConfiguration_filter = {
   liquidationHaircutPercentage_lte?: InputMaybe<Scalars['Int']>;
   liquidationHaircutPercentage_in?: InputMaybe<Array<Scalars['Int']>>;
   liquidationHaircutPercentage_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  incentives_?: InputMaybe<Incentive_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<CurrencyConfiguration_filter>>>;
@@ -1380,7 +1382,19 @@ export type CurrencyConfiguration_orderBy =
   | 'residualPurchaseTimeBufferSeconds'
   | 'cashWithholdingBufferBasisPoints'
   | 'pvHaircutPercentage'
-  | 'liquidationHaircutPercentage';
+  | 'liquidationHaircutPercentage'
+  | 'incentives'
+  | 'incentives__id'
+  | 'incentives__lastUpdateBlockNumber'
+  | 'incentives__lastUpdateTimestamp'
+  | 'incentives__lastUpdateTransactionHash'
+  | 'incentives__accumulatedNOTEPerNToken'
+  | 'incentives__lastAccumulatedTime'
+  | 'incentives__deprecated_lastSupplyChangeTime'
+  | 'incentives__deprecated_integralTotalSupply'
+  | 'incentives__migrationEmissionRate'
+  | 'incentives__finalIntegralTotalSupply'
+  | 'incentives__migrationTime';
 
 export type DEX =
   | '_UNUSED'
@@ -1394,7 +1408,7 @@ export type DEX =
 export type ExchangeRate = {
   /** External Oracle ID:Block Number:Transaction Hash */
   id: Scalars['ID'];
-  blockNumber: Scalars['Int'];
+  blockNumber: Scalars['BigInt'];
   timestamp: Scalars['Int'];
   transaction?: Maybe<Transaction>;
   oracle: Oracle;
@@ -1410,14 +1424,14 @@ export type ExchangeRate_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  blockNumber?: InputMaybe<Scalars['Int']>;
-  blockNumber_not?: InputMaybe<Scalars['Int']>;
-  blockNumber_gt?: InputMaybe<Scalars['Int']>;
-  blockNumber_lt?: InputMaybe<Scalars['Int']>;
-  blockNumber_gte?: InputMaybe<Scalars['Int']>;
-  blockNumber_lte?: InputMaybe<Scalars['Int']>;
-  blockNumber_in?: InputMaybe<Array<Scalars['Int']>>;
-  blockNumber_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   timestamp?: InputMaybe<Scalars['Int']>;
   timestamp_not?: InputMaybe<Scalars['Int']>;
   timestamp_gt?: InputMaybe<Scalars['Int']>;
@@ -1508,12 +1522,14 @@ export type ExchangeRate_orderBy =
 export type Incentive = {
   /** ID is the currency id */
   id: Scalars['ID'];
-  lastUpdateBlockNumber: Scalars['Int'];
+  lastUpdateBlockNumber: Scalars['BigInt'];
   lastUpdateTimestamp: Scalars['Int'];
   lastUpdateTransactionHash: Scalars['Bytes'];
   currencyConfiguration: CurrencyConfiguration;
   /** Current accumulated NOTE per nToken */
   accumulatedNOTEPerNToken?: Maybe<Scalars['BigInt']>;
+  /** Last accumulation time */
+  lastAccumulatedTime?: Maybe<Scalars['BigInt']>;
   /** Deprecated last supply change time value */
   deprecated_lastSupplyChangeTime?: Maybe<Scalars['BigInt']>;
   /** Deprecated integral total supply value */
@@ -1535,14 +1551,14 @@ export type Incentive_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  lastUpdateBlockNumber?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_not?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_gt?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_lt?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_gte?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_lte?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_in?: InputMaybe<Array<Scalars['Int']>>;
-  lastUpdateBlockNumber_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  lastUpdateBlockNumber?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  lastUpdateBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   lastUpdateTimestamp?: InputMaybe<Scalars['Int']>;
   lastUpdateTimestamp_not?: InputMaybe<Scalars['Int']>;
   lastUpdateTimestamp_gt?: InputMaybe<Scalars['Int']>;
@@ -1590,6 +1606,14 @@ export type Incentive_filter = {
   accumulatedNOTEPerNToken_lte?: InputMaybe<Scalars['BigInt']>;
   accumulatedNOTEPerNToken_in?: InputMaybe<Array<Scalars['BigInt']>>;
   accumulatedNOTEPerNToken_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  lastAccumulatedTime?: InputMaybe<Scalars['BigInt']>;
+  lastAccumulatedTime_not?: InputMaybe<Scalars['BigInt']>;
+  lastAccumulatedTime_gt?: InputMaybe<Scalars['BigInt']>;
+  lastAccumulatedTime_lt?: InputMaybe<Scalars['BigInt']>;
+  lastAccumulatedTime_gte?: InputMaybe<Scalars['BigInt']>;
+  lastAccumulatedTime_lte?: InputMaybe<Scalars['BigInt']>;
+  lastAccumulatedTime_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  lastAccumulatedTime_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   deprecated_lastSupplyChangeTime?: InputMaybe<Scalars['BigInt']>;
   deprecated_lastSupplyChangeTime_not?: InputMaybe<Scalars['BigInt']>;
   deprecated_lastSupplyChangeTime_gt?: InputMaybe<Scalars['BigInt']>;
@@ -1672,6 +1696,7 @@ export type Incentive_orderBy =
   | 'currencyConfiguration__pvHaircutPercentage'
   | 'currencyConfiguration__liquidationHaircutPercentage'
   | 'accumulatedNOTEPerNToken'
+  | 'lastAccumulatedTime'
   | 'deprecated_lastSupplyChangeTime'
   | 'deprecated_integralTotalSupply'
   | 'migrationEmissionRate'
@@ -1681,7 +1706,7 @@ export type Incentive_orderBy =
 export type InterestRateCurve = {
   /** ID is the currency id:market index:true if current */
   id: Scalars['ID'];
-  lastUpdateBlockNumber: Scalars['Int'];
+  lastUpdateBlockNumber: Scalars['BigInt'];
   lastUpdateTimestamp: Scalars['Int'];
   lastUpdateTransactionHash: Scalars['Bytes'];
   kinkUtilization1: Scalars['Int'];
@@ -1703,14 +1728,14 @@ export type InterestRateCurve_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  lastUpdateBlockNumber?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_not?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_gt?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_lt?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_gte?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_lte?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_in?: InputMaybe<Array<Scalars['Int']>>;
-  lastUpdateBlockNumber_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  lastUpdateBlockNumber?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  lastUpdateBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   lastUpdateTimestamp?: InputMaybe<Scalars['Int']>;
   lastUpdateTimestamp_not?: InputMaybe<Scalars['Int']>;
   lastUpdateTimestamp_gt?: InputMaybe<Scalars['Int']>;
@@ -1816,7 +1841,7 @@ export type InterestRateCurve_orderBy =
 export type Oracle = {
   /** Base Token Id:Quote Token Id:Oracle Type */
   id: Scalars['ID'];
-  lastUpdateBlockNumber: Scalars['Int'];
+  lastUpdateBlockNumber: Scalars['BigInt'];
   lastUpdateTimestamp: Scalars['Int'];
   /** Some oracles are updated via block handlers and do not have a txn hash for updates */
   lastUpdateTransaction?: Maybe<Transaction>;
@@ -1844,7 +1869,7 @@ export type OraclehistoricalRatesArgs = {
 export type OracleRegistry = {
   /** ID is hardcoded to zero */
   id: Scalars['ID'];
-  lastRefreshBlockNumber: Scalars['Int'];
+  lastRefreshBlockNumber: Scalars['BigInt'];
   lastRefreshTimestamp: Scalars['Int'];
   chainlinkOracles: Array<Oracle>;
   /** Underlying tokens that have fCash listed */
@@ -1880,14 +1905,14 @@ export type OracleRegistry_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  lastRefreshBlockNumber?: InputMaybe<Scalars['Int']>;
-  lastRefreshBlockNumber_not?: InputMaybe<Scalars['Int']>;
-  lastRefreshBlockNumber_gt?: InputMaybe<Scalars['Int']>;
-  lastRefreshBlockNumber_lt?: InputMaybe<Scalars['Int']>;
-  lastRefreshBlockNumber_gte?: InputMaybe<Scalars['Int']>;
-  lastRefreshBlockNumber_lte?: InputMaybe<Scalars['Int']>;
-  lastRefreshBlockNumber_in?: InputMaybe<Array<Scalars['Int']>>;
-  lastRefreshBlockNumber_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  lastRefreshBlockNumber?: InputMaybe<Scalars['BigInt']>;
+  lastRefreshBlockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  lastRefreshBlockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  lastRefreshBlockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  lastRefreshBlockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  lastRefreshBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  lastRefreshBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  lastRefreshBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   lastRefreshTimestamp?: InputMaybe<Scalars['Int']>;
   lastRefreshTimestamp_not?: InputMaybe<Scalars['Int']>;
   lastRefreshTimestamp_gt?: InputMaybe<Scalars['Int']>;
@@ -1957,14 +1982,14 @@ export type Oracle_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  lastUpdateBlockNumber?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_not?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_gt?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_lt?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_gte?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_lte?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_in?: InputMaybe<Array<Scalars['Int']>>;
-  lastUpdateBlockNumber_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  lastUpdateBlockNumber?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  lastUpdateBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   lastUpdateTimestamp?: InputMaybe<Scalars['Int']>;
   lastUpdateTimestamp_not?: InputMaybe<Scalars['Int']>;
   lastUpdateTimestamp_gt?: InputMaybe<Scalars['Int']>;
@@ -2158,7 +2183,7 @@ export type OrderDirection =
 export type PrimeCashMarket = {
   /** Currency ID */
   id: Scalars['ID'];
-  lastUpdateBlockNumber: Scalars['Int'];
+  lastUpdateBlockNumber: Scalars['BigInt'];
   lastUpdateTimestamp: Scalars['Int'];
   lastUpdateTransaction?: Maybe<Transaction>;
   /** Currency of this market */
@@ -2183,7 +2208,7 @@ export type PrimeCashMarketsnapshotsArgs = {
 export type PrimeCashMarketSnapshot = {
   /** Currency ID:Block Number:Transaction Hash */
   id: Scalars['ID'];
-  blockNumber: Scalars['Int'];
+  blockNumber: Scalars['BigInt'];
   timestamp: Scalars['Int'];
   transaction?: Maybe<Transaction>;
   market: PrimeCashMarket;
@@ -2220,14 +2245,14 @@ export type PrimeCashMarketSnapshot_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  blockNumber?: InputMaybe<Scalars['Int']>;
-  blockNumber_not?: InputMaybe<Scalars['Int']>;
-  blockNumber_gt?: InputMaybe<Scalars['Int']>;
-  blockNumber_lt?: InputMaybe<Scalars['Int']>;
-  blockNumber_gte?: InputMaybe<Scalars['Int']>;
-  blockNumber_lte?: InputMaybe<Scalars['Int']>;
-  blockNumber_in?: InputMaybe<Array<Scalars['Int']>>;
-  blockNumber_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   timestamp?: InputMaybe<Scalars['Int']>;
   timestamp_not?: InputMaybe<Scalars['Int']>;
   timestamp_gt?: InputMaybe<Scalars['Int']>;
@@ -2407,14 +2432,14 @@ export type PrimeCashMarket_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  lastUpdateBlockNumber?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_not?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_gt?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_lt?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_gte?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_lte?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_in?: InputMaybe<Array<Scalars['Int']>>;
-  lastUpdateBlockNumber_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  lastUpdateBlockNumber?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  lastUpdateBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   lastUpdateTimestamp?: InputMaybe<Scalars['Int']>;
   lastUpdateTimestamp_not?: InputMaybe<Scalars['Int']>;
   lastUpdateTimestamp_gt?: InputMaybe<Scalars['Int']>;
@@ -2628,7 +2653,7 @@ export type PrimeCashMarket_orderBy =
 export type ProfitLossLineItem = {
   /** Bundle ID:Index */
   id: Scalars['ID'];
-  blockNumber: Scalars['Int'];
+  blockNumber: Scalars['BigInt'];
   timestamp: Scalars['Int'];
   transactionHash: Transaction;
   bundle: TransferBundle;
@@ -2655,14 +2680,14 @@ export type ProfitLossLineItem_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  blockNumber?: InputMaybe<Scalars['Int']>;
-  blockNumber_not?: InputMaybe<Scalars['Int']>;
-  blockNumber_gt?: InputMaybe<Scalars['Int']>;
-  blockNumber_lt?: InputMaybe<Scalars['Int']>;
-  blockNumber_gte?: InputMaybe<Scalars['Int']>;
-  blockNumber_lte?: InputMaybe<Scalars['Int']>;
-  blockNumber_in?: InputMaybe<Array<Scalars['Int']>>;
-  blockNumber_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   timestamp?: InputMaybe<Scalars['Int']>;
   timestamp_not?: InputMaybe<Scalars['Int']>;
   timestamp_gt?: InputMaybe<Scalars['Int']>;
@@ -2991,6 +3016,8 @@ export type Query = {
   incentives: Array<Incentive>;
   tradingModulePermission?: Maybe<TradingModulePermission>;
   tradingModulePermissions: Array<TradingModulePermission>;
+  reinvestment?: Maybe<Reinvestment>;
+  reinvestments: Array<Reinvestment>;
   /** Access to subgraph metadata */
   _meta?: Maybe<_Meta_>;
 };
@@ -3392,9 +3419,189 @@ export type QuerytradingModulePermissionsArgs = {
 };
 
 
+export type QueryreinvestmentArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type QueryreinvestmentsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<Reinvestment_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<Reinvestment_filter>;
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
 export type Query_metaArgs = {
   block?: InputMaybe<Block_height>;
 };
+
+export type Reinvestment = {
+  /** Vault:TxnHash */
+  id: Scalars['ID'];
+  blockNumber: Scalars['BigInt'];
+  timestamp: Scalars['Int'];
+  transactionHash: Scalars['Bytes'];
+  vault: VaultConfiguration;
+  /** Address of the token sold */
+  rewardTokenSold: Scalars['Bytes'];
+  /** Amount of reward tokens sold */
+  rewardAmountSold: Scalars['BigInt'];
+  /** Amount of LP tokens reinvested */
+  tokensReinvested: Scalars['BigInt'];
+  tokensPerVaultShare?: Maybe<Scalars['BigInt']>;
+  /** Value of the tokens reinvested */
+  underlyingAmountRealized?: Maybe<Scalars['BigInt']>;
+};
+
+export type Reinvestment_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  timestamp?: InputMaybe<Scalars['Int']>;
+  timestamp_not?: InputMaybe<Scalars['Int']>;
+  timestamp_gt?: InputMaybe<Scalars['Int']>;
+  timestamp_lt?: InputMaybe<Scalars['Int']>;
+  timestamp_gte?: InputMaybe<Scalars['Int']>;
+  timestamp_lte?: InputMaybe<Scalars['Int']>;
+  timestamp_in?: InputMaybe<Array<Scalars['Int']>>;
+  timestamp_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  transactionHash?: InputMaybe<Scalars['Bytes']>;
+  transactionHash_not?: InputMaybe<Scalars['Bytes']>;
+  transactionHash_gt?: InputMaybe<Scalars['Bytes']>;
+  transactionHash_lt?: InputMaybe<Scalars['Bytes']>;
+  transactionHash_gte?: InputMaybe<Scalars['Bytes']>;
+  transactionHash_lte?: InputMaybe<Scalars['Bytes']>;
+  transactionHash_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  transactionHash_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  transactionHash_contains?: InputMaybe<Scalars['Bytes']>;
+  transactionHash_not_contains?: InputMaybe<Scalars['Bytes']>;
+  vault?: InputMaybe<Scalars['String']>;
+  vault_not?: InputMaybe<Scalars['String']>;
+  vault_gt?: InputMaybe<Scalars['String']>;
+  vault_lt?: InputMaybe<Scalars['String']>;
+  vault_gte?: InputMaybe<Scalars['String']>;
+  vault_lte?: InputMaybe<Scalars['String']>;
+  vault_in?: InputMaybe<Array<Scalars['String']>>;
+  vault_not_in?: InputMaybe<Array<Scalars['String']>>;
+  vault_contains?: InputMaybe<Scalars['String']>;
+  vault_contains_nocase?: InputMaybe<Scalars['String']>;
+  vault_not_contains?: InputMaybe<Scalars['String']>;
+  vault_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  vault_starts_with?: InputMaybe<Scalars['String']>;
+  vault_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  vault_not_starts_with?: InputMaybe<Scalars['String']>;
+  vault_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  vault_ends_with?: InputMaybe<Scalars['String']>;
+  vault_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  vault_not_ends_with?: InputMaybe<Scalars['String']>;
+  vault_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  vault_?: InputMaybe<VaultConfiguration_filter>;
+  rewardTokenSold?: InputMaybe<Scalars['Bytes']>;
+  rewardTokenSold_not?: InputMaybe<Scalars['Bytes']>;
+  rewardTokenSold_gt?: InputMaybe<Scalars['Bytes']>;
+  rewardTokenSold_lt?: InputMaybe<Scalars['Bytes']>;
+  rewardTokenSold_gte?: InputMaybe<Scalars['Bytes']>;
+  rewardTokenSold_lte?: InputMaybe<Scalars['Bytes']>;
+  rewardTokenSold_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  rewardTokenSold_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  rewardTokenSold_contains?: InputMaybe<Scalars['Bytes']>;
+  rewardTokenSold_not_contains?: InputMaybe<Scalars['Bytes']>;
+  rewardAmountSold?: InputMaybe<Scalars['BigInt']>;
+  rewardAmountSold_not?: InputMaybe<Scalars['BigInt']>;
+  rewardAmountSold_gt?: InputMaybe<Scalars['BigInt']>;
+  rewardAmountSold_lt?: InputMaybe<Scalars['BigInt']>;
+  rewardAmountSold_gte?: InputMaybe<Scalars['BigInt']>;
+  rewardAmountSold_lte?: InputMaybe<Scalars['BigInt']>;
+  rewardAmountSold_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  rewardAmountSold_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  tokensReinvested?: InputMaybe<Scalars['BigInt']>;
+  tokensReinvested_not?: InputMaybe<Scalars['BigInt']>;
+  tokensReinvested_gt?: InputMaybe<Scalars['BigInt']>;
+  tokensReinvested_lt?: InputMaybe<Scalars['BigInt']>;
+  tokensReinvested_gte?: InputMaybe<Scalars['BigInt']>;
+  tokensReinvested_lte?: InputMaybe<Scalars['BigInt']>;
+  tokensReinvested_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  tokensReinvested_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  tokensPerVaultShare?: InputMaybe<Scalars['BigInt']>;
+  tokensPerVaultShare_not?: InputMaybe<Scalars['BigInt']>;
+  tokensPerVaultShare_gt?: InputMaybe<Scalars['BigInt']>;
+  tokensPerVaultShare_lt?: InputMaybe<Scalars['BigInt']>;
+  tokensPerVaultShare_gte?: InputMaybe<Scalars['BigInt']>;
+  tokensPerVaultShare_lte?: InputMaybe<Scalars['BigInt']>;
+  tokensPerVaultShare_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  tokensPerVaultShare_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  underlyingAmountRealized?: InputMaybe<Scalars['BigInt']>;
+  underlyingAmountRealized_not?: InputMaybe<Scalars['BigInt']>;
+  underlyingAmountRealized_gt?: InputMaybe<Scalars['BigInt']>;
+  underlyingAmountRealized_lt?: InputMaybe<Scalars['BigInt']>;
+  underlyingAmountRealized_gte?: InputMaybe<Scalars['BigInt']>;
+  underlyingAmountRealized_lte?: InputMaybe<Scalars['BigInt']>;
+  underlyingAmountRealized_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  underlyingAmountRealized_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<Reinvestment_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<Reinvestment_filter>>>;
+};
+
+export type Reinvestment_orderBy =
+  | 'id'
+  | 'blockNumber'
+  | 'timestamp'
+  | 'transactionHash'
+  | 'vault'
+  | 'vault__id'
+  | 'vault__lastUpdateBlockHash'
+  | 'vault__lastUpdateBlockNumber'
+  | 'vault__lastUpdateTimestamp'
+  | 'vault__lastUpdateTransactionHash'
+  | 'vault__vaultAddress'
+  | 'vault__strategy'
+  | 'vault__name'
+  | 'vault__minAccountBorrowSize'
+  | 'vault__minCollateralRatioBasisPoints'
+  | 'vault__maxDeleverageCollateralRatioBasisPoints'
+  | 'vault__feeRateBasisPoints'
+  | 'vault__reserveFeeSharePercent'
+  | 'vault__liquidationRatePercent'
+  | 'vault__maxBorrowMarketIndex'
+  | 'vault__maxRequiredAccountCollateralRatioBasisPoints'
+  | 'vault__enabled'
+  | 'vault__allowRollPosition'
+  | 'vault__onlyVaultEntry'
+  | 'vault__onlyVaultExit'
+  | 'vault__onlyVaultRoll'
+  | 'vault__onlyVaultDeleverage'
+  | 'vault__onlyVaultSettle'
+  | 'vault__discountfCash'
+  | 'vault__allowsReentrancy'
+  | 'vault__deleverageDisabled'
+  | 'vault__maxPrimaryBorrowCapacity'
+  | 'vault__totalUsedPrimaryBorrowCapacity'
+  | 'rewardTokenSold'
+  | 'rewardAmountSold'
+  | 'tokensReinvested'
+  | 'tokensPerVaultShare'
+  | 'underlyingAmountRealized';
 
 export type Subscription = {
   token?: Maybe<Token>;
@@ -3441,6 +3648,8 @@ export type Subscription = {
   incentives: Array<Incentive>;
   tradingModulePermission?: Maybe<TradingModulePermission>;
   tradingModulePermissions: Array<TradingModulePermission>;
+  reinvestment?: Maybe<Reinvestment>;
+  reinvestments: Array<Reinvestment>;
   /** Access to subgraph metadata */
   _meta?: Maybe<_Meta_>;
 };
@@ -3842,6 +4051,24 @@ export type SubscriptiontradingModulePermissionsArgs = {
 };
 
 
+export type SubscriptionreinvestmentArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptionreinvestmentsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<Reinvestment_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<Reinvestment_filter>;
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
 export type Subscription_metaArgs = {
   block?: InputMaybe<Block_height>;
 };
@@ -3866,10 +4093,10 @@ export type Token = {
    *
    */
   id: Scalars['ID'];
-  firstUpdateBlockNumber: Scalars['Int'];
+  firstUpdateBlockNumber: Scalars['BigInt'];
   firstUpdateTimestamp: Scalars['Int'];
   firstUpdateTransactionHash?: Maybe<Scalars['Bytes']>;
-  lastUpdateBlockNumber: Scalars['Int'];
+  lastUpdateBlockNumber: Scalars['BigInt'];
   lastUpdateTimestamp: Scalars['Int'];
   lastUpdateTransactionHash?: Maybe<Scalars['Bytes']>;
   tokenType: TokenType;
@@ -3954,14 +4181,14 @@ export type Token_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  firstUpdateBlockNumber?: InputMaybe<Scalars['Int']>;
-  firstUpdateBlockNumber_not?: InputMaybe<Scalars['Int']>;
-  firstUpdateBlockNumber_gt?: InputMaybe<Scalars['Int']>;
-  firstUpdateBlockNumber_lt?: InputMaybe<Scalars['Int']>;
-  firstUpdateBlockNumber_gte?: InputMaybe<Scalars['Int']>;
-  firstUpdateBlockNumber_lte?: InputMaybe<Scalars['Int']>;
-  firstUpdateBlockNumber_in?: InputMaybe<Array<Scalars['Int']>>;
-  firstUpdateBlockNumber_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  firstUpdateBlockNumber?: InputMaybe<Scalars['BigInt']>;
+  firstUpdateBlockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  firstUpdateBlockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  firstUpdateBlockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  firstUpdateBlockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  firstUpdateBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  firstUpdateBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  firstUpdateBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   firstUpdateTimestamp?: InputMaybe<Scalars['Int']>;
   firstUpdateTimestamp_not?: InputMaybe<Scalars['Int']>;
   firstUpdateTimestamp_gt?: InputMaybe<Scalars['Int']>;
@@ -3980,14 +4207,14 @@ export type Token_filter = {
   firstUpdateTransactionHash_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
   firstUpdateTransactionHash_contains?: InputMaybe<Scalars['Bytes']>;
   firstUpdateTransactionHash_not_contains?: InputMaybe<Scalars['Bytes']>;
-  lastUpdateBlockNumber?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_not?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_gt?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_lt?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_gte?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_lte?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_in?: InputMaybe<Array<Scalars['Int']>>;
-  lastUpdateBlockNumber_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  lastUpdateBlockNumber?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  lastUpdateBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   lastUpdateTimestamp?: InputMaybe<Scalars['Int']>;
   lastUpdateTimestamp_not?: InputMaybe<Scalars['Int']>;
   lastUpdateTimestamp_gt?: InputMaybe<Scalars['Int']>;
@@ -4211,7 +4438,7 @@ export type TradeType =
 
 export type TradingModulePermission = {
   id: Scalars['ID'];
-  lastUpdateBlockNumber: Scalars['Int'];
+  lastUpdateBlockNumber: Scalars['BigInt'];
   lastUpdateTimestamp: Scalars['Int'];
   lastUpdateTransactionHash: Scalars['Bytes'];
   sender: Account;
@@ -4230,14 +4457,14 @@ export type TradingModulePermission_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  lastUpdateBlockNumber?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_not?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_gt?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_lt?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_gte?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_lte?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_in?: InputMaybe<Array<Scalars['Int']>>;
-  lastUpdateBlockNumber_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  lastUpdateBlockNumber?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  lastUpdateBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   lastUpdateTimestamp?: InputMaybe<Scalars['Int']>;
   lastUpdateTimestamp_not?: InputMaybe<Scalars['Int']>;
   lastUpdateTimestamp_gt?: InputMaybe<Scalars['Int']>;
@@ -4362,7 +4589,7 @@ export type TradingModulePermission_orderBy =
 export type Transaction = {
   /** Transaction Hash */
   id: Scalars['ID'];
-  blockNumber: Scalars['Int'];
+  blockNumber: Scalars['BigInt'];
   timestamp: Scalars['Int'];
   transactionHash: Scalars['Bytes'];
   _transfers: Array<Transfer>;
@@ -4418,14 +4645,14 @@ export type Transaction_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  blockNumber?: InputMaybe<Scalars['Int']>;
-  blockNumber_not?: InputMaybe<Scalars['Int']>;
-  blockNumber_gt?: InputMaybe<Scalars['Int']>;
-  blockNumber_lt?: InputMaybe<Scalars['Int']>;
-  blockNumber_gte?: InputMaybe<Scalars['Int']>;
-  blockNumber_lte?: InputMaybe<Scalars['Int']>;
-  blockNumber_in?: InputMaybe<Array<Scalars['Int']>>;
-  blockNumber_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   timestamp?: InputMaybe<Scalars['Int']>;
   timestamp_not?: InputMaybe<Scalars['Int']>;
   timestamp_gt?: InputMaybe<Scalars['Int']>;
@@ -4488,7 +4715,7 @@ export type Transaction_orderBy =
 export type Transfer = {
   /** Transaction Hash:Log Index */
   id: Scalars['ID'];
-  blockNumber: Scalars['Int'];
+  blockNumber: Scalars['BigInt'];
   timestamp: Scalars['Int'];
   transactionHash: Transaction;
   logIndex: Scalars['Int'];
@@ -4514,7 +4741,7 @@ export type Transfer = {
 export type TransferBundle = {
   /** Transaction Hash:Start Log Index:End Log Index:Bundle Name */
   id: Scalars['ID'];
-  blockNumber: Scalars['Int'];
+  blockNumber: Scalars['BigInt'];
   timestamp: Scalars['Int'];
   transactionHash: Transaction;
   bundleName: Scalars['String'];
@@ -4551,14 +4778,14 @@ export type TransferBundle_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  blockNumber?: InputMaybe<Scalars['Int']>;
-  blockNumber_not?: InputMaybe<Scalars['Int']>;
-  blockNumber_gt?: InputMaybe<Scalars['Int']>;
-  blockNumber_lt?: InputMaybe<Scalars['Int']>;
-  blockNumber_gte?: InputMaybe<Scalars['Int']>;
-  blockNumber_lte?: InputMaybe<Scalars['Int']>;
-  blockNumber_in?: InputMaybe<Array<Scalars['Int']>>;
-  blockNumber_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   timestamp?: InputMaybe<Scalars['Int']>;
   timestamp_not?: InputMaybe<Scalars['Int']>;
   timestamp_gt?: InputMaybe<Scalars['Int']>;
@@ -4668,14 +4895,14 @@ export type Transfer_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  blockNumber?: InputMaybe<Scalars['Int']>;
-  blockNumber_not?: InputMaybe<Scalars['Int']>;
-  blockNumber_gt?: InputMaybe<Scalars['Int']>;
-  blockNumber_lt?: InputMaybe<Scalars['Int']>;
-  blockNumber_gte?: InputMaybe<Scalars['Int']>;
-  blockNumber_lte?: InputMaybe<Scalars['Int']>;
-  blockNumber_in?: InputMaybe<Array<Scalars['Int']>>;
-  blockNumber_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   timestamp?: InputMaybe<Scalars['Int']>;
   timestamp_not?: InputMaybe<Scalars['Int']>;
   timestamp_gt?: InputMaybe<Scalars['Int']>;
@@ -4956,7 +5183,7 @@ export type VaultConfiguration = {
   /** ID is the address of the vault */
   id: Scalars['ID'];
   lastUpdateBlockHash: Scalars['Bytes'];
-  lastUpdateBlockNumber: Scalars['Int'];
+  lastUpdateBlockNumber: Scalars['BigInt'];
   lastUpdateTimestamp: Scalars['Int'];
   lastUpdateTransactionHash: Scalars['Bytes'];
   /** Address of the strategy vault */
@@ -5040,14 +5267,14 @@ export type VaultConfiguration_filter = {
   lastUpdateBlockHash_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
   lastUpdateBlockHash_contains?: InputMaybe<Scalars['Bytes']>;
   lastUpdateBlockHash_not_contains?: InputMaybe<Scalars['Bytes']>;
-  lastUpdateBlockNumber?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_not?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_gt?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_lt?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_gte?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_lte?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_in?: InputMaybe<Array<Scalars['Int']>>;
-  lastUpdateBlockNumber_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  lastUpdateBlockNumber?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  lastUpdateBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   lastUpdateTimestamp?: InputMaybe<Scalars['Int']>;
   lastUpdateTimestamp_not?: InputMaybe<Scalars['Int']>;
   lastUpdateTimestamp_gt?: InputMaybe<Scalars['Int']>;
@@ -5340,10 +5567,11 @@ export type WhitelistedCapability =
 
 export type WhitelistedContract = {
   id: Scalars['ID'];
-  lastUpdateBlockNumber: Scalars['Int'];
+  lastUpdateBlockNumber: Scalars['BigInt'];
   lastUpdateTimestamp: Scalars['Int'];
   lastUpdateTransactionHash: Scalars['Bytes'];
   capability: Array<WhitelistedCapability>;
+  name: Scalars['String'];
 };
 
 export type WhitelistedContract_filter = {
@@ -5355,14 +5583,14 @@ export type WhitelistedContract_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  lastUpdateBlockNumber?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_not?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_gt?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_lt?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_gte?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_lte?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_in?: InputMaybe<Array<Scalars['Int']>>;
-  lastUpdateBlockNumber_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  lastUpdateBlockNumber?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  lastUpdateBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   lastUpdateTimestamp?: InputMaybe<Scalars['Int']>;
   lastUpdateTimestamp_not?: InputMaybe<Scalars['Int']>;
   lastUpdateTimestamp_gt?: InputMaybe<Scalars['Int']>;
@@ -5387,6 +5615,26 @@ export type WhitelistedContract_filter = {
   capability_contains_nocase?: InputMaybe<Array<WhitelistedCapability>>;
   capability_not_contains?: InputMaybe<Array<WhitelistedCapability>>;
   capability_not_contains_nocase?: InputMaybe<Array<WhitelistedCapability>>;
+  name?: InputMaybe<Scalars['String']>;
+  name_not?: InputMaybe<Scalars['String']>;
+  name_gt?: InputMaybe<Scalars['String']>;
+  name_lt?: InputMaybe<Scalars['String']>;
+  name_gte?: InputMaybe<Scalars['String']>;
+  name_lte?: InputMaybe<Scalars['String']>;
+  name_in?: InputMaybe<Array<Scalars['String']>>;
+  name_not_in?: InputMaybe<Array<Scalars['String']>>;
+  name_contains?: InputMaybe<Scalars['String']>;
+  name_contains_nocase?: InputMaybe<Scalars['String']>;
+  name_not_contains?: InputMaybe<Scalars['String']>;
+  name_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  name_starts_with?: InputMaybe<Scalars['String']>;
+  name_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  name_not_starts_with?: InputMaybe<Scalars['String']>;
+  name_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  name_ends_with?: InputMaybe<Scalars['String']>;
+  name_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  name_not_ends_with?: InputMaybe<Scalars['String']>;
+  name_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<WhitelistedContract_filter>>>;
@@ -5398,7 +5646,8 @@ export type WhitelistedContract_orderBy =
   | 'lastUpdateBlockNumber'
   | 'lastUpdateTimestamp'
   | 'lastUpdateTransactionHash'
-  | 'capability';
+  | 'capability'
+  | 'name';
 
 export type _Block_ = {
   /** The hash of the block */
@@ -5434,7 +5683,7 @@ export type _SubgraphErrorPolicy_ =
 export type fCashMarket = {
   /** Currency Id:Settlement Date:Maturity combination */
   id: Scalars['ID'];
-  lastUpdateBlockNumber: Scalars['Int'];
+  lastUpdateBlockNumber: Scalars['BigInt'];
   lastUpdateTimestamp: Scalars['Int'];
   lastUpdateTransaction?: Maybe<Transaction>;
   /** Currency of this market */
@@ -5465,7 +5714,7 @@ export type fCashMarketsnapshotsArgs = {
 export type fCashMarketSnapshot = {
   /** Market ID:Block Number */
   id: Scalars['ID'];
-  blockNumber: Scalars['Int'];
+  blockNumber: Scalars['BigInt'];
   timestamp: Scalars['Int'];
   transaction?: Maybe<Transaction>;
   market: fCashMarket;
@@ -5500,14 +5749,14 @@ export type fCashMarketSnapshot_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  blockNumber?: InputMaybe<Scalars['Int']>;
-  blockNumber_not?: InputMaybe<Scalars['Int']>;
-  blockNumber_gt?: InputMaybe<Scalars['Int']>;
-  blockNumber_lt?: InputMaybe<Scalars['Int']>;
-  blockNumber_gte?: InputMaybe<Scalars['Int']>;
-  blockNumber_lte?: InputMaybe<Scalars['Int']>;
-  blockNumber_in?: InputMaybe<Array<Scalars['Int']>>;
-  blockNumber_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  blockNumber?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  blockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  blockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   timestamp?: InputMaybe<Scalars['Int']>;
   timestamp_not?: InputMaybe<Scalars['Int']>;
   timestamp_gt?: InputMaybe<Scalars['Int']>;
@@ -5682,14 +5931,14 @@ export type fCashMarket_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  lastUpdateBlockNumber?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_not?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_gt?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_lt?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_gte?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_lte?: InputMaybe<Scalars['Int']>;
-  lastUpdateBlockNumber_in?: InputMaybe<Array<Scalars['Int']>>;
-  lastUpdateBlockNumber_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  lastUpdateBlockNumber?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_not?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_gt?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_lt?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_gte?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_lte?: InputMaybe<Scalars['BigInt']>;
+  lastUpdateBlockNumber_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  lastUpdateBlockNumber_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   lastUpdateTimestamp?: InputMaybe<Scalars['Int']>;
   lastUpdateTimestamp_not?: InputMaybe<Scalars['Int']>;
   lastUpdateTimestamp_gt?: InputMaybe<Scalars['Int']>;
@@ -6032,6 +6281,9 @@ export type ResolversTypes = ResolversObject<{
   ProfitLossLineItem_filter: ProfitLossLineItem_filter;
   ProfitLossLineItem_orderBy: ProfitLossLineItem_orderBy;
   Query: ResolverTypeWrapper<{}>;
+  Reinvestment: ResolverTypeWrapper<Reinvestment>;
+  Reinvestment_filter: Reinvestment_filter;
+  Reinvestment_orderBy: Reinvestment_orderBy;
   String: ResolverTypeWrapper<Scalars['String']>;
   Subscription: ResolverTypeWrapper<{}>;
   SystemAccount: SystemAccount;
@@ -6111,6 +6363,8 @@ export type ResolversParentTypes = ResolversObject<{
   ProfitLossLineItem: ProfitLossLineItem;
   ProfitLossLineItem_filter: ProfitLossLineItem_filter;
   Query: {};
+  Reinvestment: Reinvestment;
+  Reinvestment_filter: Reinvestment_filter;
   String: Scalars['String'];
   Subscription: {};
   Token: Token;
@@ -6153,10 +6407,10 @@ export type derivedFromDirectiveResolver<Result, Parent, ContextType = MeshConte
 
 export type AccountResolvers<ContextType = MeshContext & { chainName: string }, ParentType extends ResolversParentTypes['Account'] = ResolversParentTypes['Account']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  firstUpdateBlockNumber?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  firstUpdateBlockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   firstUpdateTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   firstUpdateTransactionHash?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
-  lastUpdateBlockNumber?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  lastUpdateBlockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   lastUpdateTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   lastUpdateTransactionHash?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   systemAccountType?: Resolver<ResolversTypes['SystemAccount'], ParentType, ContextType>;
@@ -6169,7 +6423,7 @@ export type AccountResolvers<ContextType = MeshContext & { chainName: string }, 
 
 export type ActiveMarketResolvers<ContextType = MeshContext & { chainName: string }, ParentType extends ResolversParentTypes['ActiveMarket'] = ResolversParentTypes['ActiveMarket']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  lastUpdateBlockNumber?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  lastUpdateBlockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   lastUpdateTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   lastUpdateTransaction?: Resolver<Maybe<ResolversTypes['Transaction']>, ParentType, ContextType>;
   underlying?: Resolver<ResolversTypes['Token'], ParentType, ContextType>;
@@ -6182,10 +6436,10 @@ export type BalanceResolvers<ContextType = MeshContext & { chainName: string }, 
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   token?: Resolver<ResolversTypes['Token'], ParentType, ContextType>;
   account?: Resolver<ResolversTypes['Account'], ParentType, ContextType>;
-  firstUpdateBlockNumber?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  firstUpdateBlockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   firstUpdateTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   firstUpdateTransactionHash?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
-  lastUpdateBlockNumber?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  lastUpdateBlockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   lastUpdateTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   lastUpdateTransactionHash?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   current?: Resolver<ResolversTypes['BalanceSnapshot'], ParentType, ContextType>;
@@ -6195,7 +6449,7 @@ export type BalanceResolvers<ContextType = MeshContext & { chainName: string }, 
 
 export type BalanceSnapshotResolvers<ContextType = MeshContext & { chainName: string }, ParentType extends ResolversParentTypes['BalanceSnapshot'] = ResolversParentTypes['BalanceSnapshot']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  blockNumber?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  blockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   transaction?: Resolver<ResolversTypes['Transaction'], ParentType, ContextType>;
   balance?: Resolver<ResolversTypes['Balance'], ParentType, ContextType>;
@@ -6228,7 +6482,7 @@ export interface BytesScalarConfig extends GraphQLScalarTypeConfig<ResolversType
 
 export type CurrencyConfigurationResolvers<ContextType = MeshContext & { chainName: string }, ParentType extends ResolversParentTypes['CurrencyConfiguration'] = ResolversParentTypes['CurrencyConfiguration']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  lastUpdateBlockNumber?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  lastUpdateBlockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   lastUpdateTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   lastUpdateTransactionHash?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   underlying?: Resolver<Maybe<ResolversTypes['Token']>, ParentType, ContextType>;
@@ -6268,12 +6522,13 @@ export type CurrencyConfigurationResolvers<ContextType = MeshContext & { chainNa
   cashWithholdingBufferBasisPoints?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   pvHaircutPercentage?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   liquidationHaircutPercentage?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  incentives?: Resolver<ResolversTypes['Incentive'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type ExchangeRateResolvers<ContextType = MeshContext & { chainName: string }, ParentType extends ResolversParentTypes['ExchangeRate'] = ResolversParentTypes['ExchangeRate']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  blockNumber?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  blockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   transaction?: Resolver<Maybe<ResolversTypes['Transaction']>, ParentType, ContextType>;
   oracle?: Resolver<ResolversTypes['Oracle'], ParentType, ContextType>;
@@ -6283,11 +6538,12 @@ export type ExchangeRateResolvers<ContextType = MeshContext & { chainName: strin
 
 export type IncentiveResolvers<ContextType = MeshContext & { chainName: string }, ParentType extends ResolversParentTypes['Incentive'] = ResolversParentTypes['Incentive']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  lastUpdateBlockNumber?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  lastUpdateBlockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   lastUpdateTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   lastUpdateTransactionHash?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   currencyConfiguration?: Resolver<ResolversTypes['CurrencyConfiguration'], ParentType, ContextType>;
   accumulatedNOTEPerNToken?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  lastAccumulatedTime?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   deprecated_lastSupplyChangeTime?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   deprecated_integralTotalSupply?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   migrationEmissionRate?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
@@ -6302,7 +6558,7 @@ export interface Int8ScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes
 
 export type InterestRateCurveResolvers<ContextType = MeshContext & { chainName: string }, ParentType extends ResolversParentTypes['InterestRateCurve'] = ResolversParentTypes['InterestRateCurve']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  lastUpdateBlockNumber?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  lastUpdateBlockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   lastUpdateTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   lastUpdateTransactionHash?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   kinkUtilization1?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -6318,7 +6574,7 @@ export type InterestRateCurveResolvers<ContextType = MeshContext & { chainName: 
 
 export type OracleResolvers<ContextType = MeshContext & { chainName: string }, ParentType extends ResolversParentTypes['Oracle'] = ResolversParentTypes['Oracle']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  lastUpdateBlockNumber?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  lastUpdateBlockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   lastUpdateTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   lastUpdateTransaction?: Resolver<Maybe<ResolversTypes['Transaction']>, ParentType, ContextType>;
   base?: Resolver<ResolversTypes['Token'], ParentType, ContextType>;
@@ -6336,7 +6592,7 @@ export type OracleResolvers<ContextType = MeshContext & { chainName: string }, P
 
 export type OracleRegistryResolvers<ContextType = MeshContext & { chainName: string }, ParentType extends ResolversParentTypes['OracleRegistry'] = ResolversParentTypes['OracleRegistry']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  lastRefreshBlockNumber?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  lastRefreshBlockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   lastRefreshTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   chainlinkOracles?: Resolver<Array<ResolversTypes['Oracle']>, ParentType, ContextType, RequireFields<OracleRegistrychainlinkOraclesArgs, 'skip' | 'first'>>;
   fCashEnabled?: Resolver<Array<ResolversTypes['Token']>, ParentType, ContextType, RequireFields<OracleRegistryfCashEnabledArgs, 'skip' | 'first'>>;
@@ -6346,7 +6602,7 @@ export type OracleRegistryResolvers<ContextType = MeshContext & { chainName: str
 
 export type PrimeCashMarketResolvers<ContextType = MeshContext & { chainName: string }, ParentType extends ResolversParentTypes['PrimeCashMarket'] = ResolversParentTypes['PrimeCashMarket']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  lastUpdateBlockNumber?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  lastUpdateBlockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   lastUpdateTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   lastUpdateTransaction?: Resolver<Maybe<ResolversTypes['Transaction']>, ParentType, ContextType>;
   underlying?: Resolver<ResolversTypes['Token'], ParentType, ContextType>;
@@ -6359,7 +6615,7 @@ export type PrimeCashMarketResolvers<ContextType = MeshContext & { chainName: st
 
 export type PrimeCashMarketSnapshotResolvers<ContextType = MeshContext & { chainName: string }, ParentType extends ResolversParentTypes['PrimeCashMarketSnapshot'] = ResolversParentTypes['PrimeCashMarketSnapshot']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  blockNumber?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  blockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   transaction?: Resolver<Maybe<ResolversTypes['Transaction']>, ParentType, ContextType>;
   market?: Resolver<ResolversTypes['PrimeCashMarket'], ParentType, ContextType>;
@@ -6379,7 +6635,7 @@ export type PrimeCashMarketSnapshotResolvers<ContextType = MeshContext & { chain
 
 export type ProfitLossLineItemResolvers<ContextType = MeshContext & { chainName: string }, ParentType extends ResolversParentTypes['ProfitLossLineItem'] = ResolversParentTypes['ProfitLossLineItem']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  blockNumber?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  blockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   transactionHash?: Resolver<ResolversTypes['Transaction'], ParentType, ContextType>;
   bundle?: Resolver<ResolversTypes['TransferBundle'], ParentType, ContextType>;
@@ -6442,7 +6698,23 @@ export type QueryResolvers<ContextType = MeshContext & { chainName: string }, Pa
   incentives?: Resolver<Array<ResolversTypes['Incentive']>, ParentType, ContextType, RequireFields<QueryincentivesArgs, 'skip' | 'first' | 'subgraphError'>>;
   tradingModulePermission?: Resolver<Maybe<ResolversTypes['TradingModulePermission']>, ParentType, ContextType, RequireFields<QuerytradingModulePermissionArgs, 'id' | 'subgraphError'>>;
   tradingModulePermissions?: Resolver<Array<ResolversTypes['TradingModulePermission']>, ParentType, ContextType, RequireFields<QuerytradingModulePermissionsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  reinvestment?: Resolver<Maybe<ResolversTypes['Reinvestment']>, ParentType, ContextType, RequireFields<QueryreinvestmentArgs, 'id' | 'subgraphError'>>;
+  reinvestments?: Resolver<Array<ResolversTypes['Reinvestment']>, ParentType, ContextType, RequireFields<QueryreinvestmentsArgs, 'skip' | 'first' | 'subgraphError'>>;
   _meta?: Resolver<Maybe<ResolversTypes['_Meta_']>, ParentType, ContextType, Partial<Query_metaArgs>>;
+}>;
+
+export type ReinvestmentResolvers<ContextType = MeshContext & { chainName: string }, ParentType extends ResolversParentTypes['Reinvestment'] = ResolversParentTypes['Reinvestment']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  blockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  transactionHash?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
+  vault?: Resolver<ResolversTypes['VaultConfiguration'], ParentType, ContextType>;
+  rewardTokenSold?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
+  rewardAmountSold?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  tokensReinvested?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  tokensPerVaultShare?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  underlyingAmountRealized?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type SubscriptionResolvers<ContextType = MeshContext & { chainName: string }, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = ResolversObject<{
@@ -6490,15 +6762,17 @@ export type SubscriptionResolvers<ContextType = MeshContext & { chainName: strin
   incentives?: SubscriptionResolver<Array<ResolversTypes['Incentive']>, "incentives", ParentType, ContextType, RequireFields<SubscriptionincentivesArgs, 'skip' | 'first' | 'subgraphError'>>;
   tradingModulePermission?: SubscriptionResolver<Maybe<ResolversTypes['TradingModulePermission']>, "tradingModulePermission", ParentType, ContextType, RequireFields<SubscriptiontradingModulePermissionArgs, 'id' | 'subgraphError'>>;
   tradingModulePermissions?: SubscriptionResolver<Array<ResolversTypes['TradingModulePermission']>, "tradingModulePermissions", ParentType, ContextType, RequireFields<SubscriptiontradingModulePermissionsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  reinvestment?: SubscriptionResolver<Maybe<ResolversTypes['Reinvestment']>, "reinvestment", ParentType, ContextType, RequireFields<SubscriptionreinvestmentArgs, 'id' | 'subgraphError'>>;
+  reinvestments?: SubscriptionResolver<Array<ResolversTypes['Reinvestment']>, "reinvestments", ParentType, ContextType, RequireFields<SubscriptionreinvestmentsArgs, 'skip' | 'first' | 'subgraphError'>>;
   _meta?: SubscriptionResolver<Maybe<ResolversTypes['_Meta_']>, "_meta", ParentType, ContextType, Partial<Subscription_metaArgs>>;
 }>;
 
 export type TokenResolvers<ContextType = MeshContext & { chainName: string }, ParentType extends ResolversParentTypes['Token'] = ResolversParentTypes['Token']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  firstUpdateBlockNumber?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  firstUpdateBlockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   firstUpdateTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   firstUpdateTransactionHash?: Resolver<Maybe<ResolversTypes['Bytes']>, ParentType, ContextType>;
-  lastUpdateBlockNumber?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  lastUpdateBlockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   lastUpdateTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   lastUpdateTransactionHash?: Resolver<Maybe<ResolversTypes['Bytes']>, ParentType, ContextType>;
   tokenType?: Resolver<ResolversTypes['TokenType'], ParentType, ContextType>;
@@ -6524,7 +6798,7 @@ export type TokenResolvers<ContextType = MeshContext & { chainName: string }, Pa
 
 export type TradingModulePermissionResolvers<ContextType = MeshContext & { chainName: string }, ParentType extends ResolversParentTypes['TradingModulePermission'] = ResolversParentTypes['TradingModulePermission']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  lastUpdateBlockNumber?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  lastUpdateBlockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   lastUpdateTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   lastUpdateTransactionHash?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   sender?: Resolver<ResolversTypes['Account'], ParentType, ContextType>;
@@ -6537,7 +6811,7 @@ export type TradingModulePermissionResolvers<ContextType = MeshContext & { chain
 
 export type TransactionResolvers<ContextType = MeshContext & { chainName: string }, ParentType extends ResolversParentTypes['Transaction'] = ResolversParentTypes['Transaction']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  blockNumber?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  blockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   transactionHash?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   _transfers?: Resolver<Array<ResolversTypes['Transfer']>, ParentType, ContextType, RequireFields<Transaction_transfersArgs, 'skip' | 'first'>>;
@@ -6550,7 +6824,7 @@ export type TransactionResolvers<ContextType = MeshContext & { chainName: string
 
 export type TransferResolvers<ContextType = MeshContext & { chainName: string }, ParentType extends ResolversParentTypes['Transfer'] = ResolversParentTypes['Transfer']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  blockNumber?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  blockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   transactionHash?: Resolver<ResolversTypes['Transaction'], ParentType, ContextType>;
   logIndex?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -6571,7 +6845,7 @@ export type TransferResolvers<ContextType = MeshContext & { chainName: string },
 
 export type TransferBundleResolvers<ContextType = MeshContext & { chainName: string }, ParentType extends ResolversParentTypes['TransferBundle'] = ResolversParentTypes['TransferBundle']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  blockNumber?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  blockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   transactionHash?: Resolver<ResolversTypes['Transaction'], ParentType, ContextType>;
   bundleName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -6585,7 +6859,7 @@ export type TransferBundleResolvers<ContextType = MeshContext & { chainName: str
 export type VaultConfigurationResolvers<ContextType = MeshContext & { chainName: string }, ParentType extends ResolversParentTypes['VaultConfiguration'] = ResolversParentTypes['VaultConfiguration']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   lastUpdateBlockHash?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
-  lastUpdateBlockNumber?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  lastUpdateBlockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   lastUpdateTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   lastUpdateTransactionHash?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   vaultAddress?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
@@ -6621,10 +6895,11 @@ export type VaultConfigurationResolvers<ContextType = MeshContext & { chainName:
 
 export type WhitelistedContractResolvers<ContextType = MeshContext & { chainName: string }, ParentType extends ResolversParentTypes['WhitelistedContract'] = ResolversParentTypes['WhitelistedContract']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  lastUpdateBlockNumber?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  lastUpdateBlockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   lastUpdateTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   lastUpdateTransactionHash?: Resolver<ResolversTypes['Bytes'], ParentType, ContextType>;
   capability?: Resolver<Array<ResolversTypes['WhitelistedCapability']>, ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -6644,7 +6919,7 @@ export type _Meta_Resolvers<ContextType = MeshContext & { chainName: string }, P
 
 export type fCashMarketResolvers<ContextType = MeshContext & { chainName: string }, ParentType extends ResolversParentTypes['fCashMarket'] = ResolversParentTypes['fCashMarket']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  lastUpdateBlockNumber?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  lastUpdateBlockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   lastUpdateTimestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   lastUpdateTransaction?: Resolver<Maybe<ResolversTypes['Transaction']>, ParentType, ContextType>;
   underlying?: Resolver<ResolversTypes['Token'], ParentType, ContextType>;
@@ -6660,7 +6935,7 @@ export type fCashMarketResolvers<ContextType = MeshContext & { chainName: string
 
 export type fCashMarketSnapshotResolvers<ContextType = MeshContext & { chainName: string }, ParentType extends ResolversParentTypes['fCashMarketSnapshot'] = ResolversParentTypes['fCashMarketSnapshot']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  blockNumber?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  blockNumber?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   timestamp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   transaction?: Resolver<Maybe<ResolversTypes['Transaction']>, ParentType, ContextType>;
   market?: Resolver<ResolversTypes['fCashMarket'], ParentType, ContextType>;
@@ -6696,6 +6971,7 @@ export type Resolvers<ContextType = MeshContext & { chainName: string }> = Resol
   PrimeCashMarketSnapshot?: PrimeCashMarketSnapshotResolvers<ContextType>;
   ProfitLossLineItem?: ProfitLossLineItemResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
+  Reinvestment?: ReinvestmentResolvers<ContextType>;
   Subscription?: SubscriptionResolvers<ContextType>;
   Token?: TokenResolvers<ContextType>;
   TradingModulePermission?: TradingModulePermissionResolvers<ContextType>;
@@ -6761,7 +7037,7 @@ const notionalV3Transforms = [];
 const additionalTypeDefs = [] as any[];
 const notionalV3Handler = new GraphqlHandler({
               name: "NotionalV3",
-              config: {"endpoint":"https://api.studio.thegraph.com/query/33671/notional-finance-v3-{context.chainName:arbitrum}/v0.0.155"},
+              config: {"endpoint":"https://api.studio.thegraph.com/query/33671/notional-finance-v3-{context.chainName:arbitrum}/v0.0.171"},
               baseDir,
               cache,
               pubsub,
@@ -6943,7 +7219,7 @@ export type AllConfigurationQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type AllConfigurationQuery = { currencyConfigurations: Array<(
     Pick<CurrencyConfiguration, 'id' | 'maxUnderlyingSupply' | 'collateralHaircut' | 'debtBuffer' | 'liquidationDiscount' | 'primeCashRateOracleTimeWindowSeconds' | 'primeCashHoldingsOracle' | 'primeDebtAllowed' | 'fCashRateOracleTimeWindowSeconds' | 'fCashReserveFeeSharePercent' | 'fCashDebtBufferBasisPoints' | 'fCashHaircutBasisPoints' | 'fCashMinOracleRate' | 'fCashMaxOracleRate' | 'fCashMaxDiscountFactor' | 'fCashLiquidationHaircutBasisPoints' | 'fCashLiquidationDebtBufferBasisPoints' | 'treasuryReserveBuffer' | 'primeCashHoldings' | 'rebalancingTargets' | 'rebalancingCooldown' | 'depositShares' | 'leverageThresholds' | 'proportions' | 'incentiveEmissionRate' | 'secondaryIncentiveRewarder' | 'residualPurchaseIncentiveBasisPoints' | 'residualPurchaseTimeBufferSeconds' | 'cashWithholdingBufferBasisPoints' | 'pvHaircutPercentage' | 'liquidationHaircutPercentage'>
-    & { underlying?: Maybe<Pick<Token, 'id'>>, pCash?: Maybe<Pick<Token, 'id'>>, pDebt?: Maybe<Pick<Token, 'id'>>, primeCashCurve?: Maybe<Pick<InterestRateCurve, 'kinkUtilization1' | 'kinkUtilization2' | 'kinkRate1' | 'kinkRate2' | 'maxRate' | 'minFeeRate' | 'maxFeeRate' | 'feeRatePercent'>>, fCashActiveCurves?: Maybe<Array<Pick<InterestRateCurve, 'kinkUtilization1' | 'kinkUtilization2' | 'kinkRate1' | 'kinkRate2' | 'maxRate' | 'minFeeRate' | 'maxFeeRate' | 'feeRatePercent'>>>, fCashNextCurves?: Maybe<Array<Pick<InterestRateCurve, 'kinkUtilization1' | 'kinkUtilization2' | 'kinkRate1' | 'kinkRate2' | 'maxRate' | 'minFeeRate' | 'maxFeeRate' | 'feeRatePercent'>>> }
+    & { underlying?: Maybe<Pick<Token, 'id'>>, pCash?: Maybe<Pick<Token, 'id'>>, pDebt?: Maybe<Pick<Token, 'id'>>, primeCashCurve?: Maybe<Pick<InterestRateCurve, 'kinkUtilization1' | 'kinkUtilization2' | 'kinkRate1' | 'kinkRate2' | 'maxRate' | 'minFeeRate' | 'maxFeeRate' | 'feeRatePercent'>>, fCashActiveCurves?: Maybe<Array<Pick<InterestRateCurve, 'kinkUtilization1' | 'kinkUtilization2' | 'kinkRate1' | 'kinkRate2' | 'maxRate' | 'minFeeRate' | 'maxFeeRate' | 'feeRatePercent'>>>, fCashNextCurves?: Maybe<Array<Pick<InterestRateCurve, 'kinkUtilization1' | 'kinkUtilization2' | 'kinkRate1' | 'kinkRate2' | 'maxRate' | 'minFeeRate' | 'maxFeeRate' | 'feeRatePercent'>>>, incentives: Pick<Incentive, 'accumulatedNOTEPerNToken' | 'lastAccumulatedTime'> }
   )>, vaultConfigurations: Array<(
     Pick<VaultConfiguration, 'id' | 'vaultAddress' | 'strategy' | 'name' | 'minAccountBorrowSize' | 'minCollateralRatioBasisPoints' | 'maxDeleverageCollateralRatioBasisPoints' | 'feeRateBasisPoints' | 'reserveFeeSharePercent' | 'liquidationRatePercent' | 'maxBorrowMarketIndex' | 'maxRequiredAccountCollateralRatioBasisPoints' | 'enabled' | 'allowRollPosition' | 'onlyVaultEntry' | 'onlyVaultExit' | 'onlyVaultRoll' | 'onlyVaultDeleverage' | 'onlyVaultSettle' | 'discountfCash' | 'allowsReentrancy' | 'deleverageDisabled' | 'maxPrimaryBorrowCapacity' | 'totalUsedPrimaryBorrowCapacity' | 'maxSecondaryBorrowCapacity' | 'totalUsedSecondaryBorrowCapacity' | 'minAccountSecondaryBorrow'>
     & { primaryBorrowCurrency: Pick<Token, 'id'>, secondaryBorrowCurrencies?: Maybe<Array<Pick<Token, 'id'>>> }
@@ -7208,6 +7484,10 @@ export const AllConfigurationDocument = gql`
     cashWithholdingBufferBasisPoints
     pvHaircutPercentage
     liquidationHaircutPercentage
+    incentives {
+      accumulatedNOTEPerNToken
+      lastAccumulatedTime
+    }
   }
   vaultConfigurations(where: {enabled: true}) {
     id
@@ -7434,7 +7714,10 @@ export const AllOraclesByBlockDocument = gql`
     ` as unknown as DocumentNode<AllOraclesByBlockQuery, AllOraclesByBlockQueryVariables>;
 export const AllTokensDocument = gql`
     query AllTokens {
-  tokens {
+  tokens(
+    where: {id_not: "0xaf88d065e77c8cc2239327c5edb3a432268e5831"}
+    first: 1000
+  ) {
     id
     tokenType
     tokenInterface

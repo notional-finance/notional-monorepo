@@ -30,6 +30,7 @@ import {
   Registry,
   TokenBalance,
   AccountHistory,
+  AccountIncentiveDebt,
 } from '..';
 import { Routes } from '../server';
 import {
@@ -373,6 +374,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
       }) || [];
 
     const nowSeconds = getNowSeconds();
+    const NOTE = Registry.getTokenRegistry().getTokenBySymbol(network, 'NOTE');
     const calls = [
       ...walletCalls,
       ...vaultCalls,
@@ -382,6 +384,8 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
         args: [this.activeAccount],
         key: `${notional.address}.account`,
         transform: (r: Awaited<ReturnType<NotionalV3['getAccount']>>) => {
+          const accountIncentiveDebt: AccountIncentiveDebt[] = [];
+
           const accountBalances = r.accountBalances.flatMap((b) => {
             const balances: TokenBalance[] = [];
 
@@ -401,6 +405,13 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
               balances.push(TokenBalance.from(b.nTokenBalance, nToken));
             }
 
+            if (b.accountIncentiveDebt.gt(0)) {
+              accountIncentiveDebt.push({
+                value: TokenBalance.from(b.accountIncentiveDebt, NOTE),
+                currencyId: b.currencyId,
+              });
+            }
+
             return balances;
           });
 
@@ -411,6 +422,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
 
           return {
             balances: accountBalances.concat(portfolioBalances),
+            accountIncentiveDebt,
             allowPrimeBorrow: r.accountContext.allowPrimeBorrow,
           };
         },
@@ -474,6 +486,13 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
                   ((results[k] as any)['balances'] as TokenBalance[])
                 : []
             ),
+            accountIncentiveDebt: Object.keys(results).flatMap(
+              (k) =>
+                (k.includes('account')
+                  ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    (results[k] as any)['accountIncentiveDebt']
+                  : []) as AccountIncentiveDebt[]
+            ),
             vaultLastUpdateTime: Object.keys(results).reduce(
               (agg, k) =>
                 Object.assign(
@@ -534,28 +553,28 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
       (r): Record<string, BalanceStatement[]> => {
         return {
           [account]:
-            r.account?.balances?.map(({ current, snapshots, token }) => {
-              if (!token.underlying) throw Error('Unknown underlying');
-              return {
-                ...this._parseCurrentBalanceStatement(
-                  current as BalanceSnapshot,
-                  token as Token,
-                  network
-                ),
-                //start parse current
-                //end  parse current
-                historicalSnapshots:
-                  snapshots?.map((s) =>
-                    this._parseBalanceStatement(
-                      token.id,
-                      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                      token.underlying!.id,
-                      s as BalanceSnapshot,
-                      network
-                    )
-                  ) || [],
-              };
-            }) || [],
+            r.account?.balances
+              ?.filter(({ token }) => !!token.underlying)
+              .map(({ current, snapshots, token }) => {
+                if (!token.underlying) throw Error('Unknown underlying');
+                return {
+                  ...this._parseCurrentBalanceStatement(
+                    current as BalanceSnapshot,
+                    token as Token,
+                    network
+                  ),
+                  historicalSnapshots:
+                    snapshots?.map((s) =>
+                      this._parseBalanceStatement(
+                        token.id,
+                        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                        token.underlying!.id,
+                        s as BalanceSnapshot,
+                        network
+                      )
+                    ) || [],
+                };
+              }) || [],
         };
       },
       {
@@ -596,13 +615,15 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
             a.balances?.map((b) =>
               TokenBalance.fromID(b.current.currentBalance, b.token.id, network)
             ) || [],
-          balanceStatement: a.balances?.map((b) =>
-            this._parseCurrentBalanceStatement(
-              b.current as BalanceSnapshot,
-              b.token as Token,
-              network
-            )
-          ),
+          balanceStatement: a.balances
+            ?.filter((b) => !!b.token.underlying)
+            .map((b) =>
+              this._parseCurrentBalanceStatement(
+                b.current as BalanceSnapshot,
+                b.token as Token,
+                network
+              )
+            ),
           accountHistory:
             a.profitLossLineItems?.map((p) =>
               this._parseTransactionHistory(p as ProfitLossLineItem, network)

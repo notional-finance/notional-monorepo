@@ -3,26 +3,13 @@ import { NotionalError } from '@notional-finance/notionable';
 import { useCallback, useContext } from 'react';
 import { NotionalContext } from './context/NotionalContext';
 import { switchMap, take, concat } from 'rxjs';
-import { Registry, TokenBalance } from '@notional-finance/core-entities';
+import { Registry } from '@notional-finance/core-entities';
 
 export function useLastUpdateBlockNumber() {
   const network = useSelectedNetwork();
   return network
     ? Registry.getOracleRegistry().getLastUpdateBlock(network)
     : undefined;
-}
-
-export function useCurrentETHPrice() {
-  const network = useSelectedNetwork();
-  if (network) {
-    const eth = TokenBalance.unit(
-      Registry.getTokenRegistry().getTokenBySymbol(network, 'ETH')
-    );
-    const usdc = Registry.getTokenRegistry().getTokenBySymbol(network, 'USDC');
-    return eth.toToken(usdc).toDisplayString(2);
-  }
-
-  return undefined;
 }
 
 export function useNotionalContext() {

@@ -4,6 +4,7 @@ import {
   DataTable,
   TABLE_VARIANTS,
   MultiValueCell,
+  Body,
 } from '@notional-finance/mui';
 import { BaseTradeState } from '@notional-finance/notionable';
 import { useOrderDetails } from '@notional-finance/notionable-hooks';
@@ -14,6 +15,9 @@ export const OrderDetails = ({ state }: { state: BaseTradeState }) => {
   const [showHiddenRows, setShowHiddenRows] = useState(false);
   const { orderDetails, filteredOrderDetails } = useOrderDetails(state);
   const tableData = showHiddenRows ? orderDetails : filteredOrderDetails;
+  const noteClaimed = state.postTradeBalances?.find(
+    (t) => t.tokenType === 'NOTE'
+  );
 
   return (
     <Box sx={{ marginBottom: theme.spacing(6) }}>
@@ -40,6 +44,24 @@ export const OrderDetails = ({ state }: { state: BaseTradeState }) => {
           },
         ]}
       />
+      {noteClaimed && (
+        <Body
+          sx={{
+            display: 'inline-flex',
+            marginTop: theme.spacing(2),
+            padding: theme.spacing(0.5, 1.75),
+            color: theme.palette.primary.light,
+            float: 'right',
+            borderRadius: theme.shape.borderRadius(),
+            background: theme.palette.info.light,
+          }}
+        >
+          <FormattedMessage
+            defaultMessage={'+{note} Claimed'}
+            values={{ note: noteClaimed.toDisplayStringWithSymbol(3) }}
+          />
+        </Body>
+      )}
     </Box>
   );
 };

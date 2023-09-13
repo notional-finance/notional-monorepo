@@ -1,6 +1,3 @@
-export * from './crypto-price-manager/use-crypto-price-manager';
-export * from './crypto-price-manager/store/crypto-price-store';
-export * from './crypto-price-manager/store/use-crypto-price-state';
 export * from './tracking-consent/tracking-consent';
 export * from './email-capture-section/email-capture-section';
 export * from './card-container/card-container';

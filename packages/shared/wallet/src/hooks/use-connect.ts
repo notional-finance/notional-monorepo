@@ -4,11 +4,12 @@ import { getNetworkFromId } from '@notional-finance/util';
 import { useConnectWallet } from '@web3-onboard/react';
 import { BigNumber, ethers } from 'ethers';
 import { useCallback, useEffect } from 'react';
+import useNftContract from './use-nft-contract';
 
 export const useConnect = () => {
   const { globalState, updateNotional } = useNotionalContext();
   const [
-    { wallet, connecting },
+    { wallet },
     connect,
     disconnect,
     _updateBalances,
@@ -34,7 +35,6 @@ export const useConnect = () => {
     (walletLabel?: string) => {
       // No change to wallets, nothing to do here.
       if (!walletLabel || currentLabel === walletLabel) return;
-      trackEvent('CONNECT_WALLET', { wallet: walletLabel });
       connect({ autoSelect: { label: walletLabel, disableModals: true } });
     },
     [connect, currentLabel]
@@ -73,6 +73,7 @@ export const useConnect = () => {
             selectedChain,
             selectedAddress,
             isReadOnlyAddress: false,
+            label: wallet.label,
           },
         });
       }
@@ -87,10 +88,10 @@ export const useConnect = () => {
     isReadOnlyAddress,
   ]);
 
+  useNftContract(selectedAddress);
+
   return {
-    connecting,
     isReadOnlyAddress,
-    selectedAddress,
     connectWallet,
     disconnectWallet,
     currentLabel,

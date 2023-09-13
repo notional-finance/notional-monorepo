@@ -16,7 +16,7 @@ import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ScrollToTop } from '@notional-finance/mui';
 import { getDefaultNetworkFromHostname } from '@notional-finance/util';
-import { useConnect, useNftContract } from '@notional-finance/wallet/hooks';
+import { useConnect } from '@notional-finance/wallet/hooks';
 import { useNotionalTheme } from '@notional-finance/styles';
 // Feature shell views
 import { AboutUsView } from '@notional-finance/about-us-feature-shell';
@@ -61,7 +61,6 @@ const AllRoutes = () => {
   // context changes (there is a useEffect hook inside here listening for changes in the
   // onboard context)
   useConnect();
-  useNftContract();
 
   return (
     <CompatRouter>

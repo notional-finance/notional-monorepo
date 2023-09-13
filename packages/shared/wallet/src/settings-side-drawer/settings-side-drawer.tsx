@@ -19,6 +19,7 @@ import {
 import { useConnect } from '../hooks/use-connect';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { defineMessage, FormattedMessage } from 'react-intl';
+import { useAccountReady } from '@notional-finance/notionable-hooks';
 
 /* eslint-disable-next-line */
 export interface SettingsSideDrawerProps {
@@ -34,7 +35,8 @@ export const SettingsSideDrawer = ({
   const theme = useTheme();
   const { accountData, transactionData } = useSettingsSideDrawer();
   const { clearWalletSideDrawer } = useSideDrawerManager();
-  const { selectedAddress, disconnectWallet } = useConnect();
+  const { disconnectWallet } = useConnect();
+  const connected = useAccountReady();
   const [settingsItem, setSettingsItem] = useState<SettingsItem | null>(null);
   const userSettings = getFromLocalStorage('userSettings');
 
@@ -139,7 +141,7 @@ export const SettingsSideDrawer = ({
           </SideDrawerButton>
         ))}
       </Box>
-      {selectedAddress && (
+      {connected && (
         <Box
           sx={{
             textAlign: 'center',

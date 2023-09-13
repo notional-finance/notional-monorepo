@@ -1,12 +1,22 @@
 import { filterEmpty, Network } from '@notional-finance/util';
-import { Observable, merge, pairwise, filter, switchMap, map } from 'rxjs';
-import { GlobalState } from './global-state';
+import {
+  Observable,
+  merge,
+  pairwise,
+  filter,
+  switchMap,
+  map,
+  distinctUntilChanged,
+  tap,
+} from 'rxjs';
+import { BETA_ACCESS, GlobalState } from './global-state';
 import {
   disconnectAccount,
   onAccountPending,
   onNetworkPending,
   onSelectedNetworkChange,
 } from './logic';
+import { trackEvent } from '@notional-finance/helpers';
 
 export const loadGlobalManager = (
   state$: Observable<GlobalState>
@@ -93,11 +103,37 @@ export const loadGlobalManager = (
     )
   );
 
+  const onAccountConnect$ = state$.pipe(
+    distinctUntilChanged((p, c) => p.selectedAccount === c.selectedAccount),
+    tap(({ selectedAccount, wallet }) => {
+      if (selectedAccount) {
+        trackEvent('CONNECT_WALLET', {
+          selectedAccount,
+          wallet: wallet?.label || 'unknown',
+        });
+      }
+    })
+  );
+
+  const onNFTUnlock$ = state$.pipe(
+    distinctUntilChanged((p, c) => p.hasContestNFT === c.hasContestNFT),
+    tap(({ hasContestNFT, selectedAccount, contestTokenId }) => {
+      if (selectedAccount && hasContestNFT === BETA_ACCESS.CONFIRMED) {
+        trackEvent('NFT_UNLOCK', {
+          selectedAccount,
+          contestTokenId: contestTokenId || 'unknown',
+        });
+      }
+    })
+  );
+
   return merge(
     onSelectedNetworkChange$,
     onNetworkPending$,
     onWalletConnect$,
     onWalletDisconnect$,
-    onAccountPending$
+    onAccountPending$,
+    onAccountConnect$,
+    onNFTUnlock$
   );
 };

@@ -22,7 +22,10 @@ import {
   SETTINGS_SIDE_DRAWERS,
 } from '@notional-finance/util';
 import { useHistory, useLocation } from 'react-router-dom';
-import { useTruncatedAddress } from '@notional-finance/notionable-hooks';
+import {
+  useNotionalContext,
+  useTruncatedAddress,
+} from '@notional-finance/notionable-hooks';
 
 export interface PortfolioParams {
   category?: PORTFOLIO_CATEGORIES;
@@ -34,8 +37,10 @@ export function WalletSelector() {
   const history = useHistory();
   const { pathname } = useLocation();
 
-  const { selectedAddress, isReadOnlyAddress, connecting, icon, currentLabel } =
-    useConnect();
+  const { isReadOnlyAddress, icon, currentLabel } = useConnect();
+  const {
+    globalState: { selectedAccount },
+  } = useNotionalContext();
   const truncatedAddress = useTruncatedAddress();
 
   const [notificationsActive, setNotificationsActive] =
@@ -69,8 +74,8 @@ export function WalletSelector() {
   }, [showAlert, setShowAlert]);
 
   const handleCopy = () => {
-    if (selectedAddress) {
-      navigator.clipboard.writeText(selectedAddress);
+    if (selectedAccount) {
+      navigator.clipboard.writeText(selectedAccount);
       setShowAlert(true);
     }
   };
@@ -153,7 +158,7 @@ export function WalletSelector() {
               </ButtonText>
             </ProcessContainer>
           )}
-          {!isReadOnlyAddress && !truncatedAddress && connecting && (
+          {!isReadOnlyAddress && !truncatedAddress && (
             <ProcessContainer>
               <ProgressIndicator type="circular" size={18} />
             </ProcessContainer>

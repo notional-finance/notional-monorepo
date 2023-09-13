@@ -51,6 +51,12 @@ export const AlchemyUrl: Record<Network, string> = {
   [Network.ArbitrumOne]: 'https://arb-mainnet.g.alchemy.com/v2',
 };
 
+export const AlchemyNFTUrl: Record<Network, string> = {
+  [Network.All]: 'https://eth-mainnet.g.alchemy.com/nft/v2',
+  [Network.Mainnet]: 'https://eth-mainnet.g.alchemy.com/nft/v2',
+  [Network.ArbitrumOne]: 'https://arb-mainnet.g.alchemy.com/nft/v2',
+};
+
 export const NotionalAddress: Record<Network, string> = {
   [Network.All]: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',
   [Network.Mainnet]: '0x1344A36A1B56144C3Bc62E7757377D288fDE0369',

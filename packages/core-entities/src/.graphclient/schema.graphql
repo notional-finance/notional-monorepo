@@ -15,10 +15,10 @@ directive @derivedFrom(field: String!) on FIELD_DEFINITION
 type Account {
   """Address of Account"""
   id: ID!
-  firstUpdateBlockNumber: Int!
+  firstUpdateBlockNumber: BigInt!
   firstUpdateTimestamp: Int!
   firstUpdateTransactionHash: Bytes!
-  lastUpdateBlockNumber: Int!
+  lastUpdateBlockNumber: BigInt!
   lastUpdateTimestamp: Int!
   lastUpdateTransactionHash: Bytes!
   systemAccountType: SystemAccount!
@@ -39,14 +39,14 @@ input Account_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
-  firstUpdateBlockNumber: Int
-  firstUpdateBlockNumber_not: Int
-  firstUpdateBlockNumber_gt: Int
-  firstUpdateBlockNumber_lt: Int
-  firstUpdateBlockNumber_gte: Int
-  firstUpdateBlockNumber_lte: Int
-  firstUpdateBlockNumber_in: [Int!]
-  firstUpdateBlockNumber_not_in: [Int!]
+  firstUpdateBlockNumber: BigInt
+  firstUpdateBlockNumber_not: BigInt
+  firstUpdateBlockNumber_gt: BigInt
+  firstUpdateBlockNumber_lt: BigInt
+  firstUpdateBlockNumber_gte: BigInt
+  firstUpdateBlockNumber_lte: BigInt
+  firstUpdateBlockNumber_in: [BigInt!]
+  firstUpdateBlockNumber_not_in: [BigInt!]
   firstUpdateTimestamp: Int
   firstUpdateTimestamp_not: Int
   firstUpdateTimestamp_gt: Int
@@ -65,14 +65,14 @@ input Account_filter {
   firstUpdateTransactionHash_not_in: [Bytes!]
   firstUpdateTransactionHash_contains: Bytes
   firstUpdateTransactionHash_not_contains: Bytes
-  lastUpdateBlockNumber: Int
-  lastUpdateBlockNumber_not: Int
-  lastUpdateBlockNumber_gt: Int
-  lastUpdateBlockNumber_lt: Int
-  lastUpdateBlockNumber_gte: Int
-  lastUpdateBlockNumber_lte: Int
-  lastUpdateBlockNumber_in: [Int!]
-  lastUpdateBlockNumber_not_in: [Int!]
+  lastUpdateBlockNumber: BigInt
+  lastUpdateBlockNumber_not: BigInt
+  lastUpdateBlockNumber_gt: BigInt
+  lastUpdateBlockNumber_lt: BigInt
+  lastUpdateBlockNumber_gte: BigInt
+  lastUpdateBlockNumber_lte: BigInt
+  lastUpdateBlockNumber_in: [BigInt!]
+  lastUpdateBlockNumber_not_in: [BigInt!]
   lastUpdateTimestamp: Int
   lastUpdateTimestamp_not: Int
   lastUpdateTimestamp_gt: Int
@@ -123,7 +123,7 @@ enum Account_orderBy {
 type ActiveMarket {
   """Currency ID"""
   id: ID!
-  lastUpdateBlockNumber: Int!
+  lastUpdateBlockNumber: BigInt!
   lastUpdateTimestamp: Int!
   lastUpdateTransaction: Transaction
   underlying: Token!
@@ -140,14 +140,14 @@ input ActiveMarket_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
-  lastUpdateBlockNumber: Int
-  lastUpdateBlockNumber_not: Int
-  lastUpdateBlockNumber_gt: Int
-  lastUpdateBlockNumber_lt: Int
-  lastUpdateBlockNumber_gte: Int
-  lastUpdateBlockNumber_lte: Int
-  lastUpdateBlockNumber_in: [Int!]
-  lastUpdateBlockNumber_not_in: [Int!]
+  lastUpdateBlockNumber: BigInt
+  lastUpdateBlockNumber_not: BigInt
+  lastUpdateBlockNumber_gt: BigInt
+  lastUpdateBlockNumber_lt: BigInt
+  lastUpdateBlockNumber_gte: BigInt
+  lastUpdateBlockNumber_lte: BigInt
+  lastUpdateBlockNumber_in: [BigInt!]
+  lastUpdateBlockNumber_not_in: [BigInt!]
   lastUpdateTimestamp: Int
   lastUpdateTimestamp_not: Int
   lastUpdateTimestamp_gt: Int
@@ -277,10 +277,10 @@ type Balance {
   token: Token!
   """Address of the account that holds this balance"""
   account: Account!
-  firstUpdateBlockNumber: Int!
+  firstUpdateBlockNumber: BigInt!
   firstUpdateTimestamp: Int!
   firstUpdateTransactionHash: Bytes!
-  lastUpdateBlockNumber: Int!
+  lastUpdateBlockNumber: BigInt!
   lastUpdateTimestamp: Int!
   lastUpdateTransactionHash: Bytes!
   current: BalanceSnapshot!
@@ -290,7 +290,7 @@ type Balance {
 type BalanceSnapshot {
   """Address of Account:ID of Token:Block Number"""
   id: ID!
-  blockNumber: Int!
+  blockNumber: BigInt!
   timestamp: Int!
   transaction: Transaction!
   """Link to the balance entity for this token"""
@@ -331,14 +331,14 @@ input BalanceSnapshot_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
-  blockNumber: Int
-  blockNumber_not: Int
-  blockNumber_gt: Int
-  blockNumber_lt: Int
-  blockNumber_gte: Int
-  blockNumber_lte: Int
-  blockNumber_in: [Int!]
-  blockNumber_not_in: [Int!]
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
   timestamp: Int
   timestamp_not: Int
   timestamp_gt: Int
@@ -567,14 +567,14 @@ input Balance_filter {
   account_not_ends_with: String
   account_not_ends_with_nocase: String
   account_: Account_filter
-  firstUpdateBlockNumber: Int
-  firstUpdateBlockNumber_not: Int
-  firstUpdateBlockNumber_gt: Int
-  firstUpdateBlockNumber_lt: Int
-  firstUpdateBlockNumber_gte: Int
-  firstUpdateBlockNumber_lte: Int
-  firstUpdateBlockNumber_in: [Int!]
-  firstUpdateBlockNumber_not_in: [Int!]
+  firstUpdateBlockNumber: BigInt
+  firstUpdateBlockNumber_not: BigInt
+  firstUpdateBlockNumber_gt: BigInt
+  firstUpdateBlockNumber_lt: BigInt
+  firstUpdateBlockNumber_gte: BigInt
+  firstUpdateBlockNumber_lte: BigInt
+  firstUpdateBlockNumber_in: [BigInt!]
+  firstUpdateBlockNumber_not_in: [BigInt!]
   firstUpdateTimestamp: Int
   firstUpdateTimestamp_not: Int
   firstUpdateTimestamp_gt: Int
@@ -593,14 +593,14 @@ input Balance_filter {
   firstUpdateTransactionHash_not_in: [Bytes!]
   firstUpdateTransactionHash_contains: Bytes
   firstUpdateTransactionHash_not_contains: Bytes
-  lastUpdateBlockNumber: Int
-  lastUpdateBlockNumber_not: Int
-  lastUpdateBlockNumber_gt: Int
-  lastUpdateBlockNumber_lt: Int
-  lastUpdateBlockNumber_gte: Int
-  lastUpdateBlockNumber_lte: Int
-  lastUpdateBlockNumber_in: [Int!]
-  lastUpdateBlockNumber_not_in: [Int!]
+  lastUpdateBlockNumber: BigInt
+  lastUpdateBlockNumber_not: BigInt
+  lastUpdateBlockNumber_gt: BigInt
+  lastUpdateBlockNumber_lt: BigInt
+  lastUpdateBlockNumber_gte: BigInt
+  lastUpdateBlockNumber_lte: BigInt
+  lastUpdateBlockNumber_in: [BigInt!]
+  lastUpdateBlockNumber_not_in: [BigInt!]
   lastUpdateTimestamp: Int
   lastUpdateTimestamp_not: Int
   lastUpdateTimestamp_gt: Int
@@ -722,7 +722,7 @@ scalar Bytes
 type CurrencyConfiguration {
   """Currency ID"""
   id: ID!
-  lastUpdateBlockNumber: Int!
+  lastUpdateBlockNumber: BigInt!
   lastUpdateTimestamp: Int!
   lastUpdateTransactionHash: Bytes!
   underlying: Token
@@ -791,6 +791,7 @@ type CurrencyConfiguration {
   pvHaircutPercentage: Int
   """Discount on nToken PV given to liquidators"""
   liquidationHaircutPercentage: Int
+  incentives: Incentive!
 }
 
 input CurrencyConfiguration_filter {
@@ -802,14 +803,14 @@ input CurrencyConfiguration_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
-  lastUpdateBlockNumber: Int
-  lastUpdateBlockNumber_not: Int
-  lastUpdateBlockNumber_gt: Int
-  lastUpdateBlockNumber_lt: Int
-  lastUpdateBlockNumber_gte: Int
-  lastUpdateBlockNumber_lte: Int
-  lastUpdateBlockNumber_in: [Int!]
-  lastUpdateBlockNumber_not_in: [Int!]
+  lastUpdateBlockNumber: BigInt
+  lastUpdateBlockNumber_not: BigInt
+  lastUpdateBlockNumber_gt: BigInt
+  lastUpdateBlockNumber_lt: BigInt
+  lastUpdateBlockNumber_gte: BigInt
+  lastUpdateBlockNumber_lte: BigInt
+  lastUpdateBlockNumber_in: [BigInt!]
+  lastUpdateBlockNumber_not_in: [BigInt!]
   lastUpdateTimestamp: Int
   lastUpdateTimestamp_not: Int
   lastUpdateTimestamp_gt: Int
@@ -1162,6 +1163,7 @@ input CurrencyConfiguration_filter {
   liquidationHaircutPercentage_lte: Int
   liquidationHaircutPercentage_in: [Int!]
   liquidationHaircutPercentage_not_in: [Int!]
+  incentives_: Incentive_filter
   """Filter for the block changed event."""
   _change_block: BlockChangedFilter
   and: [CurrencyConfiguration_filter]
@@ -1282,6 +1284,18 @@ enum CurrencyConfiguration_orderBy {
   cashWithholdingBufferBasisPoints
   pvHaircutPercentage
   liquidationHaircutPercentage
+  incentives
+  incentives__id
+  incentives__lastUpdateBlockNumber
+  incentives__lastUpdateTimestamp
+  incentives__lastUpdateTransactionHash
+  incentives__accumulatedNOTEPerNToken
+  incentives__lastAccumulatedTime
+  incentives__deprecated_lastSupplyChangeTime
+  incentives__deprecated_integralTotalSupply
+  incentives__migrationEmissionRate
+  incentives__finalIntegralTotalSupply
+  incentives__migrationTime
 }
 
 enum DEX {
@@ -1297,7 +1311,7 @@ enum DEX {
 type ExchangeRate {
   """External Oracle ID:Block Number:Transaction Hash"""
   id: ID!
-  blockNumber: Int!
+  blockNumber: BigInt!
   timestamp: Int!
   transaction: Transaction
   oracle: Oracle!
@@ -1313,14 +1327,14 @@ input ExchangeRate_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
-  blockNumber: Int
-  blockNumber_not: Int
-  blockNumber_gt: Int
-  blockNumber_lt: Int
-  blockNumber_gte: Int
-  blockNumber_lte: Int
-  blockNumber_in: [Int!]
-  blockNumber_not_in: [Int!]
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
   timestamp: Int
   timestamp_not: Int
   timestamp_gt: Int
@@ -1412,12 +1426,14 @@ enum ExchangeRate_orderBy {
 type Incentive {
   """ID is the currency id"""
   id: ID!
-  lastUpdateBlockNumber: Int!
+  lastUpdateBlockNumber: BigInt!
   lastUpdateTimestamp: Int!
   lastUpdateTransactionHash: Bytes!
   currencyConfiguration: CurrencyConfiguration!
   """Current accumulated NOTE per nToken"""
   accumulatedNOTEPerNToken: BigInt
+  """Last accumulation time"""
+  lastAccumulatedTime: BigInt
   """Deprecated last supply change time value"""
   deprecated_lastSupplyChangeTime: BigInt
   """Deprecated integral total supply value"""
@@ -1439,14 +1455,14 @@ input Incentive_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
-  lastUpdateBlockNumber: Int
-  lastUpdateBlockNumber_not: Int
-  lastUpdateBlockNumber_gt: Int
-  lastUpdateBlockNumber_lt: Int
-  lastUpdateBlockNumber_gte: Int
-  lastUpdateBlockNumber_lte: Int
-  lastUpdateBlockNumber_in: [Int!]
-  lastUpdateBlockNumber_not_in: [Int!]
+  lastUpdateBlockNumber: BigInt
+  lastUpdateBlockNumber_not: BigInt
+  lastUpdateBlockNumber_gt: BigInt
+  lastUpdateBlockNumber_lt: BigInt
+  lastUpdateBlockNumber_gte: BigInt
+  lastUpdateBlockNumber_lte: BigInt
+  lastUpdateBlockNumber_in: [BigInt!]
+  lastUpdateBlockNumber_not_in: [BigInt!]
   lastUpdateTimestamp: Int
   lastUpdateTimestamp_not: Int
   lastUpdateTimestamp_gt: Int
@@ -1494,6 +1510,14 @@ input Incentive_filter {
   accumulatedNOTEPerNToken_lte: BigInt
   accumulatedNOTEPerNToken_in: [BigInt!]
   accumulatedNOTEPerNToken_not_in: [BigInt!]
+  lastAccumulatedTime: BigInt
+  lastAccumulatedTime_not: BigInt
+  lastAccumulatedTime_gt: BigInt
+  lastAccumulatedTime_lt: BigInt
+  lastAccumulatedTime_gte: BigInt
+  lastAccumulatedTime_lte: BigInt
+  lastAccumulatedTime_in: [BigInt!]
+  lastAccumulatedTime_not_in: [BigInt!]
   deprecated_lastSupplyChangeTime: BigInt
   deprecated_lastSupplyChangeTime_not: BigInt
   deprecated_lastSupplyChangeTime_gt: BigInt
@@ -1576,6 +1600,7 @@ enum Incentive_orderBy {
   currencyConfiguration__pvHaircutPercentage
   currencyConfiguration__liquidationHaircutPercentage
   accumulatedNOTEPerNToken
+  lastAccumulatedTime
   deprecated_lastSupplyChangeTime
   deprecated_integralTotalSupply
   migrationEmissionRate
@@ -1592,7 +1617,7 @@ scalar Int8
 type InterestRateCurve {
   """ID is the currency id:market index:true if current"""
   id: ID!
-  lastUpdateBlockNumber: Int!
+  lastUpdateBlockNumber: BigInt!
   lastUpdateTimestamp: Int!
   lastUpdateTransactionHash: Bytes!
   kinkUtilization1: Int!
@@ -1614,14 +1639,14 @@ input InterestRateCurve_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
-  lastUpdateBlockNumber: Int
-  lastUpdateBlockNumber_not: Int
-  lastUpdateBlockNumber_gt: Int
-  lastUpdateBlockNumber_lt: Int
-  lastUpdateBlockNumber_gte: Int
-  lastUpdateBlockNumber_lte: Int
-  lastUpdateBlockNumber_in: [Int!]
-  lastUpdateBlockNumber_not_in: [Int!]
+  lastUpdateBlockNumber: BigInt
+  lastUpdateBlockNumber_not: BigInt
+  lastUpdateBlockNumber_gt: BigInt
+  lastUpdateBlockNumber_lt: BigInt
+  lastUpdateBlockNumber_gte: BigInt
+  lastUpdateBlockNumber_lte: BigInt
+  lastUpdateBlockNumber_in: [BigInt!]
+  lastUpdateBlockNumber_not_in: [BigInt!]
   lastUpdateTimestamp: Int
   lastUpdateTimestamp_not: Int
   lastUpdateTimestamp_gt: Int
@@ -1728,7 +1753,7 @@ enum InterestRateCurve_orderBy {
 type Oracle {
   """Base Token Id:Quote Token Id:Oracle Type"""
   id: ID!
-  lastUpdateBlockNumber: Int!
+  lastUpdateBlockNumber: BigInt!
   lastUpdateTimestamp: Int!
   """
   Some oracles are updated via block handlers and do not have a txn hash for updates
@@ -1749,7 +1774,7 @@ type Oracle {
 type OracleRegistry {
   """ID is hardcoded to zero"""
   id: ID!
-  lastRefreshBlockNumber: Int!
+  lastRefreshBlockNumber: BigInt!
   lastRefreshTimestamp: Int!
   chainlinkOracles(skip: Int = 0, first: Int = 100, orderBy: Oracle_orderBy, orderDirection: OrderDirection, where: Oracle_filter): [Oracle!]!
   """Underlying tokens that have fCash listed"""
@@ -1767,14 +1792,14 @@ input OracleRegistry_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
-  lastRefreshBlockNumber: Int
-  lastRefreshBlockNumber_not: Int
-  lastRefreshBlockNumber_gt: Int
-  lastRefreshBlockNumber_lt: Int
-  lastRefreshBlockNumber_gte: Int
-  lastRefreshBlockNumber_lte: Int
-  lastRefreshBlockNumber_in: [Int!]
-  lastRefreshBlockNumber_not_in: [Int!]
+  lastRefreshBlockNumber: BigInt
+  lastRefreshBlockNumber_not: BigInt
+  lastRefreshBlockNumber_gt: BigInt
+  lastRefreshBlockNumber_lt: BigInt
+  lastRefreshBlockNumber_gte: BigInt
+  lastRefreshBlockNumber_lte: BigInt
+  lastRefreshBlockNumber_in: [BigInt!]
+  lastRefreshBlockNumber_not_in: [BigInt!]
   lastRefreshTimestamp: Int
   lastRefreshTimestamp_not: Int
   lastRefreshTimestamp_gt: Int
@@ -1846,14 +1871,14 @@ input Oracle_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
-  lastUpdateBlockNumber: Int
-  lastUpdateBlockNumber_not: Int
-  lastUpdateBlockNumber_gt: Int
-  lastUpdateBlockNumber_lt: Int
-  lastUpdateBlockNumber_gte: Int
-  lastUpdateBlockNumber_lte: Int
-  lastUpdateBlockNumber_in: [Int!]
-  lastUpdateBlockNumber_not_in: [Int!]
+  lastUpdateBlockNumber: BigInt
+  lastUpdateBlockNumber_not: BigInt
+  lastUpdateBlockNumber_gt: BigInt
+  lastUpdateBlockNumber_lt: BigInt
+  lastUpdateBlockNumber_gte: BigInt
+  lastUpdateBlockNumber_lte: BigInt
+  lastUpdateBlockNumber_in: [BigInt!]
+  lastUpdateBlockNumber_not_in: [BigInt!]
   lastUpdateTimestamp: Int
   lastUpdateTimestamp_not: Int
   lastUpdateTimestamp_gt: Int
@@ -2049,7 +2074,7 @@ enum OrderDirection {
 type PrimeCashMarket {
   """Currency ID"""
   id: ID!
-  lastUpdateBlockNumber: Int!
+  lastUpdateBlockNumber: BigInt!
   lastUpdateTimestamp: Int!
   lastUpdateTransaction: Transaction
   """Currency of this market"""
@@ -2065,7 +2090,7 @@ type PrimeCashMarket {
 type PrimeCashMarketSnapshot {
   """Currency ID:Block Number:Transaction Hash"""
   id: ID!
-  blockNumber: Int!
+  blockNumber: BigInt!
   timestamp: Int!
   transaction: Transaction
   market: PrimeCashMarket!
@@ -2102,14 +2127,14 @@ input PrimeCashMarketSnapshot_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
-  blockNumber: Int
-  blockNumber_not: Int
-  blockNumber_gt: Int
-  blockNumber_lt: Int
-  blockNumber_gte: Int
-  blockNumber_lte: Int
-  blockNumber_in: [Int!]
-  blockNumber_not_in: [Int!]
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
   timestamp: Int
   timestamp_not: Int
   timestamp_gt: Int
@@ -2290,14 +2315,14 @@ input PrimeCashMarket_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
-  lastUpdateBlockNumber: Int
-  lastUpdateBlockNumber_not: Int
-  lastUpdateBlockNumber_gt: Int
-  lastUpdateBlockNumber_lt: Int
-  lastUpdateBlockNumber_gte: Int
-  lastUpdateBlockNumber_lte: Int
-  lastUpdateBlockNumber_in: [Int!]
-  lastUpdateBlockNumber_not_in: [Int!]
+  lastUpdateBlockNumber: BigInt
+  lastUpdateBlockNumber_not: BigInt
+  lastUpdateBlockNumber_gt: BigInt
+  lastUpdateBlockNumber_lt: BigInt
+  lastUpdateBlockNumber_gte: BigInt
+  lastUpdateBlockNumber_lte: BigInt
+  lastUpdateBlockNumber_in: [BigInt!]
+  lastUpdateBlockNumber_not_in: [BigInt!]
   lastUpdateTimestamp: Int
   lastUpdateTimestamp_not: Int
   lastUpdateTimestamp_gt: Int
@@ -2512,7 +2537,7 @@ enum PrimeCashMarket_orderBy {
 type ProfitLossLineItem {
   """Bundle ID:Index"""
   id: ID!
-  blockNumber: Int!
+  blockNumber: BigInt!
   timestamp: Int!
   transactionHash: Transaction!
   bundle: TransferBundle!
@@ -2541,14 +2566,14 @@ input ProfitLossLineItem_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
-  blockNumber: Int
-  blockNumber_not: Int
-  blockNumber_gt: Int
-  blockNumber_lt: Int
-  blockNumber_gte: Int
-  blockNumber_lte: Int
-  blockNumber_in: [Int!]
-  blockNumber_not_in: [Int!]
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
   timestamp: Int
   timestamp_not: Int
   timestamp_gt: Int
@@ -3406,8 +3431,197 @@ type Query {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [TradingModulePermission!]!
+  reinvestment(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): Reinvestment
+  reinvestments(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: Reinvestment_orderBy
+    orderDirection: OrderDirection
+    where: Reinvestment_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [Reinvestment!]!
   """Access to subgraph metadata"""
   _meta(block: Block_height): _Meta_
+}
+
+type Reinvestment {
+  """Vault:TxnHash"""
+  id: ID!
+  blockNumber: BigInt!
+  timestamp: Int!
+  transactionHash: Bytes!
+  vault: VaultConfiguration!
+  """Address of the token sold"""
+  rewardTokenSold: Bytes!
+  """Amount of reward tokens sold"""
+  rewardAmountSold: BigInt!
+  """Amount of LP tokens reinvested"""
+  tokensReinvested: BigInt!
+  tokensPerVaultShare: BigInt
+  """Value of the tokens reinvested"""
+  underlyingAmountRealized: BigInt
+}
+
+input Reinvestment_filter {
+  id: ID
+  id_not: ID
+  id_gt: ID
+  id_lt: ID
+  id_gte: ID
+  id_lte: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
+  timestamp: Int
+  timestamp_not: Int
+  timestamp_gt: Int
+  timestamp_lt: Int
+  timestamp_gte: Int
+  timestamp_lte: Int
+  timestamp_in: [Int!]
+  timestamp_not_in: [Int!]
+  transactionHash: Bytes
+  transactionHash_not: Bytes
+  transactionHash_gt: Bytes
+  transactionHash_lt: Bytes
+  transactionHash_gte: Bytes
+  transactionHash_lte: Bytes
+  transactionHash_in: [Bytes!]
+  transactionHash_not_in: [Bytes!]
+  transactionHash_contains: Bytes
+  transactionHash_not_contains: Bytes
+  vault: String
+  vault_not: String
+  vault_gt: String
+  vault_lt: String
+  vault_gte: String
+  vault_lte: String
+  vault_in: [String!]
+  vault_not_in: [String!]
+  vault_contains: String
+  vault_contains_nocase: String
+  vault_not_contains: String
+  vault_not_contains_nocase: String
+  vault_starts_with: String
+  vault_starts_with_nocase: String
+  vault_not_starts_with: String
+  vault_not_starts_with_nocase: String
+  vault_ends_with: String
+  vault_ends_with_nocase: String
+  vault_not_ends_with: String
+  vault_not_ends_with_nocase: String
+  vault_: VaultConfiguration_filter
+  rewardTokenSold: Bytes
+  rewardTokenSold_not: Bytes
+  rewardTokenSold_gt: Bytes
+  rewardTokenSold_lt: Bytes
+  rewardTokenSold_gte: Bytes
+  rewardTokenSold_lte: Bytes
+  rewardTokenSold_in: [Bytes!]
+  rewardTokenSold_not_in: [Bytes!]
+  rewardTokenSold_contains: Bytes
+  rewardTokenSold_not_contains: Bytes
+  rewardAmountSold: BigInt
+  rewardAmountSold_not: BigInt
+  rewardAmountSold_gt: BigInt
+  rewardAmountSold_lt: BigInt
+  rewardAmountSold_gte: BigInt
+  rewardAmountSold_lte: BigInt
+  rewardAmountSold_in: [BigInt!]
+  rewardAmountSold_not_in: [BigInt!]
+  tokensReinvested: BigInt
+  tokensReinvested_not: BigInt
+  tokensReinvested_gt: BigInt
+  tokensReinvested_lt: BigInt
+  tokensReinvested_gte: BigInt
+  tokensReinvested_lte: BigInt
+  tokensReinvested_in: [BigInt!]
+  tokensReinvested_not_in: [BigInt!]
+  tokensPerVaultShare: BigInt
+  tokensPerVaultShare_not: BigInt
+  tokensPerVaultShare_gt: BigInt
+  tokensPerVaultShare_lt: BigInt
+  tokensPerVaultShare_gte: BigInt
+  tokensPerVaultShare_lte: BigInt
+  tokensPerVaultShare_in: [BigInt!]
+  tokensPerVaultShare_not_in: [BigInt!]
+  underlyingAmountRealized: BigInt
+  underlyingAmountRealized_not: BigInt
+  underlyingAmountRealized_gt: BigInt
+  underlyingAmountRealized_lt: BigInt
+  underlyingAmountRealized_gte: BigInt
+  underlyingAmountRealized_lte: BigInt
+  underlyingAmountRealized_in: [BigInt!]
+  underlyingAmountRealized_not_in: [BigInt!]
+  """Filter for the block changed event."""
+  _change_block: BlockChangedFilter
+  and: [Reinvestment_filter]
+  or: [Reinvestment_filter]
+}
+
+enum Reinvestment_orderBy {
+  id
+  blockNumber
+  timestamp
+  transactionHash
+  vault
+  vault__id
+  vault__lastUpdateBlockHash
+  vault__lastUpdateBlockNumber
+  vault__lastUpdateTimestamp
+  vault__lastUpdateTransactionHash
+  vault__vaultAddress
+  vault__strategy
+  vault__name
+  vault__minAccountBorrowSize
+  vault__minCollateralRatioBasisPoints
+  vault__maxDeleverageCollateralRatioBasisPoints
+  vault__feeRateBasisPoints
+  vault__reserveFeeSharePercent
+  vault__liquidationRatePercent
+  vault__maxBorrowMarketIndex
+  vault__maxRequiredAccountCollateralRatioBasisPoints
+  vault__enabled
+  vault__allowRollPosition
+  vault__onlyVaultEntry
+  vault__onlyVaultExit
+  vault__onlyVaultRoll
+  vault__onlyVaultDeleverage
+  vault__onlyVaultSettle
+  vault__discountfCash
+  vault__allowsReentrancy
+  vault__deleverageDisabled
+  vault__maxPrimaryBorrowCapacity
+  vault__totalUsedPrimaryBorrowCapacity
+  rewardTokenSold
+  rewardAmountSold
+  tokensReinvested
+  tokensPerVaultShare
+  underlyingAmountRealized
 }
 
 type Subscription {
@@ -3983,6 +4197,32 @@ type Subscription {
     """
     subgraphError: _SubgraphErrorPolicy_! = deny
   ): [TradingModulePermission!]!
+  reinvestment(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): Reinvestment
+  reinvestments(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: Reinvestment_orderBy
+    orderDirection: OrderDirection
+    where: Reinvestment_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [Reinvestment!]!
   """Access to subgraph metadata"""
   _meta(block: Block_height): _Meta_
 }
@@ -4008,10 +4248,10 @@ type Token {
   
   """
   id: ID!
-  firstUpdateBlockNumber: Int!
+  firstUpdateBlockNumber: BigInt!
   firstUpdateTimestamp: Int!
   firstUpdateTransactionHash: Bytes
-  lastUpdateBlockNumber: Int!
+  lastUpdateBlockNumber: BigInt!
   lastUpdateTimestamp: Int!
   lastUpdateTransactionHash: Bytes
   tokenType: TokenType!
@@ -4071,14 +4311,14 @@ input Token_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
-  firstUpdateBlockNumber: Int
-  firstUpdateBlockNumber_not: Int
-  firstUpdateBlockNumber_gt: Int
-  firstUpdateBlockNumber_lt: Int
-  firstUpdateBlockNumber_gte: Int
-  firstUpdateBlockNumber_lte: Int
-  firstUpdateBlockNumber_in: [Int!]
-  firstUpdateBlockNumber_not_in: [Int!]
+  firstUpdateBlockNumber: BigInt
+  firstUpdateBlockNumber_not: BigInt
+  firstUpdateBlockNumber_gt: BigInt
+  firstUpdateBlockNumber_lt: BigInt
+  firstUpdateBlockNumber_gte: BigInt
+  firstUpdateBlockNumber_lte: BigInt
+  firstUpdateBlockNumber_in: [BigInt!]
+  firstUpdateBlockNumber_not_in: [BigInt!]
   firstUpdateTimestamp: Int
   firstUpdateTimestamp_not: Int
   firstUpdateTimestamp_gt: Int
@@ -4097,14 +4337,14 @@ input Token_filter {
   firstUpdateTransactionHash_not_in: [Bytes!]
   firstUpdateTransactionHash_contains: Bytes
   firstUpdateTransactionHash_not_contains: Bytes
-  lastUpdateBlockNumber: Int
-  lastUpdateBlockNumber_not: Int
-  lastUpdateBlockNumber_gt: Int
-  lastUpdateBlockNumber_lt: Int
-  lastUpdateBlockNumber_gte: Int
-  lastUpdateBlockNumber_lte: Int
-  lastUpdateBlockNumber_in: [Int!]
-  lastUpdateBlockNumber_not_in: [Int!]
+  lastUpdateBlockNumber: BigInt
+  lastUpdateBlockNumber_not: BigInt
+  lastUpdateBlockNumber_gt: BigInt
+  lastUpdateBlockNumber_lt: BigInt
+  lastUpdateBlockNumber_gte: BigInt
+  lastUpdateBlockNumber_lte: BigInt
+  lastUpdateBlockNumber_in: [BigInt!]
+  lastUpdateBlockNumber_not_in: [BigInt!]
   lastUpdateTimestamp: Int
   lastUpdateTimestamp_not: Int
   lastUpdateTimestamp_gt: Int
@@ -4330,7 +4570,7 @@ enum TradeType {
 
 type TradingModulePermission {
   id: ID!
-  lastUpdateBlockNumber: Int!
+  lastUpdateBlockNumber: BigInt!
   lastUpdateTimestamp: Int!
   lastUpdateTransactionHash: Bytes!
   sender: Account!
@@ -4349,14 +4589,14 @@ input TradingModulePermission_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
-  lastUpdateBlockNumber: Int
-  lastUpdateBlockNumber_not: Int
-  lastUpdateBlockNumber_gt: Int
-  lastUpdateBlockNumber_lt: Int
-  lastUpdateBlockNumber_gte: Int
-  lastUpdateBlockNumber_lte: Int
-  lastUpdateBlockNumber_in: [Int!]
-  lastUpdateBlockNumber_not_in: [Int!]
+  lastUpdateBlockNumber: BigInt
+  lastUpdateBlockNumber_not: BigInt
+  lastUpdateBlockNumber_gt: BigInt
+  lastUpdateBlockNumber_lt: BigInt
+  lastUpdateBlockNumber_gte: BigInt
+  lastUpdateBlockNumber_lte: BigInt
+  lastUpdateBlockNumber_in: [BigInt!]
+  lastUpdateBlockNumber_not_in: [BigInt!]
   lastUpdateTimestamp: Int
   lastUpdateTimestamp_not: Int
   lastUpdateTimestamp_gt: Int
@@ -4482,7 +4722,7 @@ enum TradingModulePermission_orderBy {
 type Transaction {
   """Transaction Hash"""
   id: ID!
-  blockNumber: Int!
+  blockNumber: BigInt!
   timestamp: Int!
   transactionHash: Bytes!
   _transfers(skip: Int = 0, first: Int = 100, orderBy: Transfer_orderBy, orderDirection: OrderDirection, where: Transfer_filter): [Transfer!]!
@@ -4502,14 +4742,14 @@ input Transaction_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
-  blockNumber: Int
-  blockNumber_not: Int
-  blockNumber_gt: Int
-  blockNumber_lt: Int
-  blockNumber_gte: Int
-  blockNumber_lte: Int
-  blockNumber_in: [Int!]
-  blockNumber_not_in: [Int!]
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
   timestamp: Int
   timestamp_not: Int
   timestamp_gt: Int
@@ -4573,7 +4813,7 @@ enum Transaction_orderBy {
 type Transfer {
   """Transaction Hash:Log Index"""
   id: ID!
-  blockNumber: Int!
+  blockNumber: BigInt!
   timestamp: Int!
   transactionHash: Transaction!
   logIndex: Int!
@@ -4599,7 +4839,7 @@ type Transfer {
 type TransferBundle {
   """Transaction Hash:Start Log Index:End Log Index:Bundle Name"""
   id: ID!
-  blockNumber: Int!
+  blockNumber: BigInt!
   timestamp: Int!
   transactionHash: Transaction!
   bundleName: String!
@@ -4618,14 +4858,14 @@ input TransferBundle_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
-  blockNumber: Int
-  blockNumber_not: Int
-  blockNumber_gt: Int
-  blockNumber_lt: Int
-  blockNumber_gte: Int
-  blockNumber_lte: Int
-  blockNumber_in: [Int!]
-  blockNumber_not_in: [Int!]
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
   timestamp: Int
   timestamp_not: Int
   timestamp_gt: Int
@@ -4737,14 +4977,14 @@ input Transfer_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
-  blockNumber: Int
-  blockNumber_not: Int
-  blockNumber_gt: Int
-  blockNumber_lt: Int
-  blockNumber_gte: Int
-  blockNumber_lte: Int
-  blockNumber_in: [Int!]
-  blockNumber_not_in: [Int!]
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
   timestamp: Int
   timestamp_not: Int
   timestamp_gt: Int
@@ -5026,7 +5266,7 @@ type VaultConfiguration {
   """ID is the address of the vault"""
   id: ID!
   lastUpdateBlockHash: Bytes!
-  lastUpdateBlockNumber: Int!
+  lastUpdateBlockNumber: BigInt!
   lastUpdateTimestamp: Int!
   lastUpdateTransactionHash: Bytes!
   """Address of the strategy vault"""
@@ -5101,14 +5341,14 @@ input VaultConfiguration_filter {
   lastUpdateBlockHash_not_in: [Bytes!]
   lastUpdateBlockHash_contains: Bytes
   lastUpdateBlockHash_not_contains: Bytes
-  lastUpdateBlockNumber: Int
-  lastUpdateBlockNumber_not: Int
-  lastUpdateBlockNumber_gt: Int
-  lastUpdateBlockNumber_lt: Int
-  lastUpdateBlockNumber_gte: Int
-  lastUpdateBlockNumber_lte: Int
-  lastUpdateBlockNumber_in: [Int!]
-  lastUpdateBlockNumber_not_in: [Int!]
+  lastUpdateBlockNumber: BigInt
+  lastUpdateBlockNumber_not: BigInt
+  lastUpdateBlockNumber_gt: BigInt
+  lastUpdateBlockNumber_lt: BigInt
+  lastUpdateBlockNumber_gte: BigInt
+  lastUpdateBlockNumber_lte: BigInt
+  lastUpdateBlockNumber_in: [BigInt!]
+  lastUpdateBlockNumber_not_in: [BigInt!]
   lastUpdateTimestamp: Int
   lastUpdateTimestamp_not: Int
   lastUpdateTimestamp_gt: Int
@@ -5403,10 +5643,11 @@ enum WhitelistedCapability {
 
 type WhitelistedContract {
   id: ID!
-  lastUpdateBlockNumber: Int!
+  lastUpdateBlockNumber: BigInt!
   lastUpdateTimestamp: Int!
   lastUpdateTransactionHash: Bytes!
   capability: [WhitelistedCapability!]!
+  name: String!
 }
 
 input WhitelistedContract_filter {
@@ -5418,14 +5659,14 @@ input WhitelistedContract_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
-  lastUpdateBlockNumber: Int
-  lastUpdateBlockNumber_not: Int
-  lastUpdateBlockNumber_gt: Int
-  lastUpdateBlockNumber_lt: Int
-  lastUpdateBlockNumber_gte: Int
-  lastUpdateBlockNumber_lte: Int
-  lastUpdateBlockNumber_in: [Int!]
-  lastUpdateBlockNumber_not_in: [Int!]
+  lastUpdateBlockNumber: BigInt
+  lastUpdateBlockNumber_not: BigInt
+  lastUpdateBlockNumber_gt: BigInt
+  lastUpdateBlockNumber_lt: BigInt
+  lastUpdateBlockNumber_gte: BigInt
+  lastUpdateBlockNumber_lte: BigInt
+  lastUpdateBlockNumber_in: [BigInt!]
+  lastUpdateBlockNumber_not_in: [BigInt!]
   lastUpdateTimestamp: Int
   lastUpdateTimestamp_not: Int
   lastUpdateTimestamp_gt: Int
@@ -5450,6 +5691,26 @@ input WhitelistedContract_filter {
   capability_contains_nocase: [WhitelistedCapability!]
   capability_not_contains: [WhitelistedCapability!]
   capability_not_contains_nocase: [WhitelistedCapability!]
+  name: String
+  name_not: String
+  name_gt: String
+  name_lt: String
+  name_gte: String
+  name_lte: String
+  name_in: [String!]
+  name_not_in: [String!]
+  name_contains: String
+  name_contains_nocase: String
+  name_not_contains: String
+  name_not_contains_nocase: String
+  name_starts_with: String
+  name_starts_with_nocase: String
+  name_not_starts_with: String
+  name_not_starts_with_nocase: String
+  name_ends_with: String
+  name_ends_with_nocase: String
+  name_not_ends_with: String
+  name_not_ends_with_nocase: String
   """Filter for the block changed event."""
   _change_block: BlockChangedFilter
   and: [WhitelistedContract_filter]
@@ -5462,6 +5723,7 @@ enum WhitelistedContract_orderBy {
   lastUpdateTimestamp
   lastUpdateTransactionHash
   capability
+  name
 }
 
 type _Block_ {
@@ -5501,7 +5763,7 @@ enum _SubgraphErrorPolicy_ {
 type fCashMarket {
   """Currency Id:Settlement Date:Maturity combination"""
   id: ID!
-  lastUpdateBlockNumber: Int!
+  lastUpdateBlockNumber: BigInt!
   lastUpdateTimestamp: Int!
   lastUpdateTransaction: Transaction
   """Currency of this market"""
@@ -5523,7 +5785,7 @@ type fCashMarket {
 type fCashMarketSnapshot {
   """Market ID:Block Number"""
   id: ID!
-  blockNumber: Int!
+  blockNumber: BigInt!
   timestamp: Int!
   transaction: Transaction
   market: fCashMarket!
@@ -5562,14 +5824,14 @@ input fCashMarketSnapshot_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
-  blockNumber: Int
-  blockNumber_not: Int
-  blockNumber_gt: Int
-  blockNumber_lt: Int
-  blockNumber_gte: Int
-  blockNumber_lte: Int
-  blockNumber_in: [Int!]
-  blockNumber_not_in: [Int!]
+  blockNumber: BigInt
+  blockNumber_not: BigInt
+  blockNumber_gt: BigInt
+  blockNumber_lt: BigInt
+  blockNumber_gte: BigInt
+  blockNumber_lte: BigInt
+  blockNumber_in: [BigInt!]
+  blockNumber_not_in: [BigInt!]
   timestamp: Int
   timestamp_not: Int
   timestamp_gt: Int
@@ -5745,14 +6007,14 @@ input fCashMarket_filter {
   id_lte: ID
   id_in: [ID!]
   id_not_in: [ID!]
-  lastUpdateBlockNumber: Int
-  lastUpdateBlockNumber_not: Int
-  lastUpdateBlockNumber_gt: Int
-  lastUpdateBlockNumber_lt: Int
-  lastUpdateBlockNumber_gte: Int
-  lastUpdateBlockNumber_lte: Int
-  lastUpdateBlockNumber_in: [Int!]
-  lastUpdateBlockNumber_not_in: [Int!]
+  lastUpdateBlockNumber: BigInt
+  lastUpdateBlockNumber_not: BigInt
+  lastUpdateBlockNumber_gt: BigInt
+  lastUpdateBlockNumber_lt: BigInt
+  lastUpdateBlockNumber_gte: BigInt
+  lastUpdateBlockNumber_lte: BigInt
+  lastUpdateBlockNumber_in: [BigInt!]
+  lastUpdateBlockNumber_not_in: [BigInt!]
   lastUpdateTimestamp: Int
   lastUpdateTimestamp_not: Int
   lastUpdateTimestamp_gt: Int

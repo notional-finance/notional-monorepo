@@ -114,33 +114,43 @@ export function calculate(
     // we don't get race conditions around duplicate input keys. The second
     // parameter ensures that we start a new buffer on every emission
     bufferCount(2, 1),
-    map(([[p], [s, debtPool, collateralPool, a, vaultAdapter]]) => {
-      // Need to calculate the previous input keys because the updates lag in
-      // the state emission causing duplicate calculations.
-      const { requiredArgs, calculateCollateralOptions, calculateDebtOptions } =
-        getTradeConfig(s.tradeType);
-      const { inputsSatisfied, keys } = getRequiredArgs(
-        requiredArgs,
-        p,
-        a,
-        collateralPool,
-        debtPool,
-        vaultAdapter
-      );
+    map(
+      ([
+        [p, _debtPool, _collateralPool, _a, _vaultAdapter],
+        [s, debtPool, collateralPool, a, vaultAdapter],
+      ]) => {
+        // Need to calculate the previous input keys because the updates lag in
+        // the state emission causing duplicate calculations.
+        const {
+          requiredArgs,
+          calculateCollateralOptions,
+          calculateDebtOptions,
+        } = getTradeConfig(s.tradeType);
 
-      return {
-        prevCalculateInputKeys: keys.join('|'),
-        prevInputsSatisfied: inputsSatisfied,
-        s,
-        debtPool,
-        collateralPool,
-        a,
-        vaultAdapter,
-        requiredArgs,
-        calculateCollateralOptions,
-        calculateDebtOptions,
-      };
-    }),
+        // NOTE: need to use the same parameters in the previous state
+        const { inputsSatisfied, keys } = getRequiredArgs(
+          requiredArgs,
+          p,
+          _a,
+          _collateralPool,
+          _debtPool,
+          _vaultAdapter
+        );
+
+        return {
+          prevCalculateInputKeys: keys.join('|'),
+          prevInputsSatisfied: inputsSatisfied,
+          s,
+          debtPool,
+          collateralPool,
+          a,
+          vaultAdapter,
+          requiredArgs,
+          calculateCollateralOptions,
+          calculateDebtOptions,
+        };
+      }
+    ),
     map(
       ({
         prevInputsSatisfied,

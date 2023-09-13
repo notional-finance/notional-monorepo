@@ -5,8 +5,8 @@ import { Player } from '@lottiefiles/react-lottie-player';
 import { ProgressIndicator } from '@notional-finance/mui';
 import betaPass from '../../assets/betaPass.svg';
 import betaPassOverlay from '../../assets/beta-pass-overlay.json';
-import { BETA_ACCESS } from '@notional-finance/wallet/hooks';
-import { getFromLocalStorage } from '@notional-finance/helpers';
+import { useNotionalContext } from '@notional-finance/notionable-hooks';
+import { BETA_ACCESS } from '@notional-finance/notionable';
 
 export const ContestNftPass = () => {
   const [imgLoaded, setImgLoaded] = useState(false);
@@ -14,24 +14,23 @@ export const ContestNftPass = () => {
     AnimationItem | undefined
   >();
   const [hideImg, setHideImg] = useState(false);
-  const userSettings = getFromLocalStorage('userSettings');
+  const {
+    globalState: { hasContestNFT },
+  } = useNotionalContext();
 
   useEffect(() => {
     if (lottieInstance !== undefined) {
-      if (userSettings.betaAccess === BETA_ACCESS.CONFIRMED) {
+      if (hasContestNFT === BETA_ACCESS.CONFIRMED) {
         lottieInstance.play();
       }
-      if (
-        userSettings.betaAccess === BETA_ACCESS.REJECTED ||
-        userSettings.betaAccess === undefined
-      ) {
+      if (hasContestNFT === BETA_ACCESS.REJECTED) {
         setHideImg(false);
         if (lottieInstance.isLoaded) {
           lottieInstance.stop();
         }
       }
     }
-  }, [lottieInstance, userSettings]);
+  }, [lottieInstance, hasContestNFT]);
 
   return (
     <Container>
@@ -41,7 +40,7 @@ export const ContestNftPass = () => {
           onEvent={(event) => {
             if (
               event === 'complete' &&
-              userSettings.betaAccess === BETA_ACCESS.CONFIRMED
+              hasContestNFT === BETA_ACCESS.CONFIRMED
             ) {
               setHideImg(true);
             }

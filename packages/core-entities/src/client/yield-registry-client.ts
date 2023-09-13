@@ -127,7 +127,8 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
         if (!t.underlying) throw Error('underlying not defined');
         const underlying = tokens.getTokenByID(network, t.underlying);
 
-        const annualizedNOTEIncentives = config.getAnnualizedNOTEIncentives(t);
+        const { incentiveEmissionRate: annualizedNOTEIncentives } =
+          config.getAnnualizedNOTEIncentives(t);
         const nTokenTVL = fCashMarket.totalValueLocked(0);
 
         // Total fees over the last week divided by the total value locked

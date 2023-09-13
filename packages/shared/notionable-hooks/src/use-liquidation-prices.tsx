@@ -16,6 +16,7 @@ import {
   formatNumberAsPercent,
   formatTokenType,
 } from '@notional-finance/helpers';
+import { useTheme } from '@mui/material';
 
 function usePriceChanges(baseCurrency: FiatKeys) {
   const { allTokens } = useCurrency();
@@ -71,13 +72,19 @@ function parseFiatLiquidationPrice(
   asset: TokenDefinition,
   baseCurrency: FiatKeys,
   threshold: TokenBalance | null,
-  c: ReturnType<typeof usePriceChanges>[number] | undefined
+  c: ReturnType<typeof usePriceChanges>[number] | undefined,
+  secondary: string
 ) {
   return {
     // Used on portfolio screen
     exchangeRate: {
       symbol: asset.symbol,
-      label: `${asset.symbol} / ${baseCurrency}`,
+      label: (
+        <span>
+          {asset.symbol}
+          <span style={{ color: secondary }}>&nbsp;/&nbsp;{baseCurrency}</span>
+        </span>
+      ),
     },
     // Used on overview screen
     collateral: {
@@ -86,8 +93,23 @@ function parseFiatLiquidationPrice(
     },
     // Used on overview screen
     riskFactor: {
-      data: [`${asset.symbol}/${baseCurrency}`, 'Chainlink Oracle Price'],
-      isNegative: false,
+      data: [
+        {
+          displayValue: (
+            <span>
+              {asset.symbol}
+              <span style={{ color: secondary }}>
+                &nbsp;/&nbsp;{baseCurrency}
+              </span>
+            </span>
+          ),
+          isNegative: false,
+        },
+        {
+          displayValue: 'Chainlink Oracle Price',
+          isNegative: false,
+        },
+      ],
     },
     currentPrice: c?.currentFiat.toDisplayStringWithSymbol(3) || '',
     oneDayChange: c?.oneDayFiatChange
@@ -105,7 +127,8 @@ function parseFiatLiquidationPrice(
 function parseUnderlyingLiquidationPrice(
   asset: TokenDefinition,
   threshold: TokenBalance | null,
-  c: ReturnType<typeof usePriceChanges>[number] | undefined
+  c: ReturnType<typeof usePriceChanges>[number] | undefined,
+  secondary: string
 ) {
   const { icon, titleWithMaturity } = formatTokenType(asset);
   const liquidationPrice = threshold
@@ -115,7 +138,14 @@ function parseUnderlyingLiquidationPrice(
     // Used on portfolio screen
     exchangeRate: {
       symbol: icon,
-      label: `${titleWithMaturity} / ${threshold?.underlying.symbol || ''}`,
+      label: (
+        <span>
+          {titleWithMaturity}
+          <span style={{ color: secondary }}>
+            &nbsp;/&nbsp;{threshold?.underlying.symbol || ''}
+          </span>
+        </span>
+      ),
     },
     currentPrice: c?.currentUnderlying.toDisplayStringWithSymbol(3) || '',
     oneDayChange: c?.oneDayUnderlyingChange
@@ -128,12 +158,25 @@ function parseUnderlyingLiquidationPrice(
   };
 }
 
+export function useCurrentETHPrice() {
+  const baseCurrency = useFiat();
+  const priceChange = usePriceChanges(baseCurrency);
+  const ethChange = priceChange.find(({ asset }) => asset.symbol === 'ETH');
+
+  return {
+    ethPrice: ethChange?.currentFiat,
+    oneDayChange: ethChange?.oneDayFiatChange || 0,
+  };
+}
+
 export function useCurrentLiquidationPrices() {
   const portfolio = usePortfolioRiskProfile();
   const vaults = useVaultRiskProfiles();
   const baseCurrency = useFiat();
   const priceChanges = usePriceChanges(baseCurrency);
   const portfolioRisk = portfolio.getAllLiquidationPrices();
+  const theme = useTheme();
+  const secondary = theme.palette.typography.light;
 
   const exchangeRateRisk = portfolioRisk
     .filter((p) => p.asset.tokenType === 'Underlying')
@@ -142,7 +185,8 @@ export function useCurrentLiquidationPrices() {
         asset,
         baseCurrency,
         threshold,
-        priceChanges.find((t) => t.asset.id === asset.id)
+        priceChanges.find((t) => t.asset.id === asset.id),
+        secondary
       );
     });
 
@@ -152,7 +196,8 @@ export function useCurrentLiquidationPrices() {
       return parseUnderlyingLiquidationPrice(
         asset,
         threshold,
-        priceChanges.find((t) => t.asset.id === asset.id)
+        priceChanges.find((t) => t.asset.id === asset.id),
+        secondary
       );
     });
 
@@ -166,7 +211,8 @@ export function useCurrentLiquidationPrices() {
           ...parseUnderlyingLiquidationPrice(
             asset,
             threshold,
-            priceChanges.find((t) => t.asset.id === asset.id)
+            priceChanges.find((t) => t.asset.id === asset.id),
+            secondary
           ),
           collateral: {
             symbol: threshold?.underlying.symbol || '',
@@ -175,10 +221,22 @@ export function useCurrentLiquidationPrices() {
           },
           riskFactor: {
             data: [
-              `Vault Shares/${threshold?.underlying.symbol}`,
-              'Chainlink Oracle Price',
+              {
+                displayValue: (
+                  <span>
+                    Vault Shares
+                    <span style={{ color: secondary }}>
+                      &nbsp;/&nbsp;{threshold?.underlying.symbol || ''}
+                    </span>
+                  </span>
+                ),
+                isNegative: false,
+              },
+              {
+                displayValue: 'Chainlink Oracle Price',
+                isNegative: false,
+              },
             ],
-            isNegative: false,
           },
         })),
     };
