@@ -1,11 +1,12 @@
 import { ReactNode } from 'react';
 import { LabelValue, Caption } from '../../typography/typography';
 import { Box, styled } from '@mui/material';
+import { LEGEND_LINE_TYPES } from '../chart-header';
 
 export interface ChartLegendProps {
   label: ReactNode;
   lineColor?: string;
-  lineType?: 'dashed' | 'solid' | 'none';
+  lineType?: LEGEND_LINE_TYPES;
   textAlign?: string;
   value?: string;
 }

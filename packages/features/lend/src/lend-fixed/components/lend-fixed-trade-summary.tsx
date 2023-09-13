@@ -7,14 +7,16 @@ import {
   Faq,
   FaqHeader,
   TotalBox,
-  InteractiveAreaChart,
+  MultiDisplayChart,
 } from '@notional-finance/mui';
-import { useLendFixedFaq, useTotalsData } from '../hooks';
+import {
+  useLendFixedFaq,
+  useTotalsData,
+  useLendFixedMultiChart,
+} from '../hooks';
 import { LendFixedContext } from '../../lend-fixed/lend-fixed';
 import {
   TradeActionSummary,
-  useMaturitySelect,
-  useInteractiveMaturityChart,
   useFixedLiquidityPoolsTable,
 } from '@notional-finance/trade';
 
@@ -23,31 +25,17 @@ export const LendFixedTradeSummary = () => {
   const context = useContext(LendFixedContext);
   const { state } = context;
   const { selectedDepositToken, deposit } = state;
-
-  const { selectedfCashId, onSelect } = useMaturitySelect(
-    'Collateral',
-    context
-  );
-  const { areaChartData, legendData, chartToolTipData } =
-    useInteractiveMaturityChart(deposit?.currencyId);
   const { tableColumns, tableData } = useFixedLiquidityPoolsTable(
     selectedDepositToken,
     deposit?.currencyId
   );
   const { faqHeaderLinks, faqs } = useLendFixedFaq();
   const totalsData = useTotalsData(selectedDepositToken);
+  const multiChartData = useLendFixedMultiChart();
 
   return (
     <TradeActionSummary state={state}>
-      {areaChartData.length > 0 && (
-        <InteractiveAreaChart
-          interactiveAreaChartData={areaChartData}
-          onSelectMarketKey={onSelect}
-          selectedMarketKey={selectedfCashId}
-          legendData={legendData}
-          chartToolTipData={chartToolTipData}
-        />
-      )}
+      <MultiDisplayChart chartComponents={multiChartData} />
       <Box
         sx={{
           display: 'flex',

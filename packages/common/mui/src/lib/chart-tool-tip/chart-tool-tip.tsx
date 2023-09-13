@@ -1,21 +1,22 @@
 import { useTheme, Box, styled } from '@mui/material';
 import { H5 } from '../typography/typography';
 import { TooltipProps } from 'recharts';
+import { LEGEND_LINE_TYPES } from '../chart-header/chart-header';
 
 export interface ChartToolTipDataProps {
   timestamp?: {
     lineColor?: string;
-    lineType?: 'dashed' | 'solid' | 'none';
+    lineType?: LEGEND_LINE_TYPES;
     formatTitle: (data: number) => string | JSX.Element;
   };
   area?: {
     lineColor?: string;
-    lineType?: 'dashed' | 'solid' | 'none';
+    lineType?: LEGEND_LINE_TYPES;
     formatTitle: (data: number) => string | JSX.Element;
   };
   line?: {
     lineColor?: string;
-    lineType?: 'dashed' | 'solid' | 'none';
+    lineType?: LEGEND_LINE_TYPES;
     formatTitle: (data: number) => string | JSX.Element;
   };
 }
@@ -77,7 +78,7 @@ export const ChartToolTip = (props: ChartToolTipProps) => {
             {chartToolTipData?.area.formatTitle(area)}
           </Item>
         )}
-        {chartToolTipData?.line && line && (
+        {chartToolTipData?.line && (
           <Item
             sx={{
               borderColor: chartToolTipData?.line.lineColor,

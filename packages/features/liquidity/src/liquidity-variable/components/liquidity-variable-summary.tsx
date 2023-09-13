@@ -6,7 +6,9 @@ import {
   TotalBox,
   DataTable,
   Body,
-  SingleDisplayChart,
+  ChartContainer,
+  AreaChart,
+  MultiDisplayChart,
 } from '@notional-finance/mui';
 import { TradeActionSummary } from '@notional-finance/trade';
 import {
@@ -33,13 +35,27 @@ export const LiquidityVariableSummary = () => {
 
   return (
     <TradeActionSummary state={state}>
-      <SingleDisplayChart
-        areaChartData={apyData}
-        xAxisTickFormat="date"
-        chartType="area"
-        showCartesianGrid
-        condenseXAxisTime
-        areaLineType="linear"
+      <MultiDisplayChart
+        chartComponents={[
+          {
+            id: 'area-chart',
+            title: 'Variable APY',
+            Component: (
+              <ChartContainer>
+                <AreaChart
+                  showCartesianGrid
+                  xAxisTickFormat="date"
+                  areaChartData={apyData}
+                  condenseXAxisTime={true}
+                  areaLineType="linear"
+                />
+              </ChartContainer>
+            ),
+            chartHeaderData: {
+              textHeader: <FormattedMessage defaultMessage={'Variable APY'} />,
+            },
+          },
+        ]}
       />
       <Box
         sx={{

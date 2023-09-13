@@ -1,6 +1,12 @@
 import { useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
-import { ChartToolTipDataProps, Body } from '@notional-finance/mui';
+import {
+  ChartToolTipDataProps,
+  Body,
+  ChartHeaderDataProps,
+  AreaChartStylesProps,
+  LEGEND_LINE_TYPES,
+} from '@notional-finance/mui';
 import { RATE_PRECISION } from '@notional-finance/util';
 import {
   useSelectedNetwork,
@@ -74,23 +80,25 @@ export const useInterestRateUtilizationChart = (
     },
   ];
 
-  const legendData = {
+  const chartHeaderData: ChartHeaderDataProps = {
     textHeader: (
       <FormattedMessage defaultMessage={'Prime Borrow Rate | Utilization'} />
     ),
-    legendOne: {
-      label: <FormattedMessage defaultMessage={'Prime Borrow Rate'} />,
-      // TODO: Add correct value here
-      value: '-',
-      lineColor: colors.blueAccent,
-      lineType: 'solid',
-    },
+    legendData: [
+      {
+        label: <FormattedMessage defaultMessage={'Prime Borrow Rate'} />,
+        // TODO: Add correct value here
+        value: '-',
+        lineColor: colors.blueAccent,
+        lineType: LEGEND_LINE_TYPES.SOLID,
+      },
+    ],
   };
 
   const chartToolTipData: ChartToolTipDataProps = {
     timestamp: {
       lineColor: theme.palette.background.accentPaper,
-      lineType: 'dashed',
+      lineType: LEGEND_LINE_TYPES.DASHED,
       formatTitle: () => (
         <FormattedMessage
           defaultMessage="{rate} utilization"
@@ -102,7 +110,7 @@ export const useInterestRateUtilizationChart = (
     },
     area: {
       lineColor: colors.blueAccent,
-      lineType: 'solid',
+      lineType: LEGEND_LINE_TYPES.SOLID,
       formatTitle: (area: any) => (
         <FormattedMessage
           defaultMessage="{rate} Prime Borrow Rate"
@@ -114,10 +122,22 @@ export const useInterestRateUtilizationChart = (
     },
   };
 
+  const areaChartStyles: AreaChartStylesProps = {
+    line: {
+      lineColor: theme.palette.background.accentPaper,
+      lineType: LEGEND_LINE_TYPES.DASHED,
+    },
+    area: {
+      lineColor: colors.blueAccent,
+      lineType: LEGEND_LINE_TYPES.SOLID,
+    },
+  };
+
   return {
     areaChartData,
+    areaChartStyles,
     chartToolTipData,
-    legendData,
+    chartHeaderData,
     chartInfoBoxData,
     borrowUtilization,
   };

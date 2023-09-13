@@ -2,22 +2,34 @@ import { ReactNode, SetStateAction, Dispatch } from 'react';
 import { H4 } from '../typography/typography';
 import { Box, styled, useTheme } from '@mui/material';
 import { InfoIcon } from '@notional-finance/icons';
-import { ChartLegendProps, ChartLegend } from './chart-legend/chart-legend';
+import { ChartLegend } from './chart-legend/chart-legend';
 
-export interface LegendData {
+export enum LEGEND_LINE_TYPES {
+  SOLID = 'solid',
+  DASHED = 'dashed',
+  DOTTED = 'dotted',
+  NONE = 'none',
+}
+
+export interface ChartHeaderDataProps {
   textHeader?: ReactNode;
-  legendOne?: ChartLegendProps;
-  legendTwo?: ChartLegendProps;
-  totalLegend?: ChartLegendProps;
+  legendData?: {
+    label: ReactNode;
+    value?: any | undefined;
+    lineColor?: string;
+    lineType?: LEGEND_LINE_TYPES;
+  }[];
 }
 
 export interface ChartHeaderProps {
-  legendData?: LegendData;
+  chartHeaderData?: ChartHeaderDataProps;
   areaChartButtonLabel?: ReactNode;
   barChartButtonLabel?: ReactNode;
   setChartInfoBoxActive?: Dispatch<SetStateAction<boolean | undefined>>;
   headerCallBack?: Dispatch<SetStateAction<boolean>>;
   displayAreaChart?: boolean;
+  isMultiChart?: boolean;
+  showInfoIcon?: boolean;
 }
 
 export const ChartHeader = ({
@@ -25,15 +37,16 @@ export const ChartHeader = ({
   barChartButtonLabel,
   areaChartButtonLabel,
   displayAreaChart,
-  legendData,
+  chartHeaderData,
+  showInfoIcon,
   setChartInfoBoxActive,
 }: ChartHeaderProps) => {
   const theme = useTheme();
 
   return (
     <HeadingContainer>
-      {legendData?.textHeader && !headerCallBack && (
-        <H4>{legendData.textHeader}</H4>
+      {chartHeaderData?.textHeader && !headerCallBack && (
+        <H4>{chartHeaderData.textHeader}</H4>
       )}
       {headerCallBack && (
         <ButtonWrapper>
@@ -72,32 +85,19 @@ export const ChartHeader = ({
       )}
 
       <LegendWrapper>
-        {legendData?.legendOne && (
-          <ChartLegend
-            value={legendData?.legendOne.value}
-            label={legendData?.legendOne.label}
-            lineColor={legendData?.legendOne.lineColor}
-            lineType={legendData?.legendOne.lineType}
-          />
-        )}
-        {legendData?.legendTwo && (
-          <ChartLegend
-            value={legendData?.legendTwo.value}
-            label={legendData?.legendTwo.label}
-            lineColor={legendData?.legendTwo.lineColor}
-            lineType={legendData?.legendTwo.lineType}
-          />
-        )}
-        {legendData?.totalLegend && (
-          <ChartLegend
-            value={legendData?.totalLegend.value}
-            label={legendData?.totalLegend.label}
-            lineColor={legendData?.totalLegend.lineColor}
-            lineType={legendData?.totalLegend.lineType}
-            textAlign={'right'}
-          />
-        )}
-        {setChartInfoBoxActive && (
+        {chartHeaderData?.legendData &&
+          chartHeaderData?.legendData.length > 0 &&
+          chartHeaderData.legendData.map(
+            ({ value, label, lineColor, lineType }) => (
+              <ChartLegend
+                value={value}
+                label={label}
+                lineColor={lineColor}
+                lineType={lineType}
+              />
+            )
+          )}
+        {setChartInfoBoxActive && showInfoIcon && (
           <InfoIcon
             onClick={() => setChartInfoBoxActive(true)}
             fill={theme.palette.primary.light}
