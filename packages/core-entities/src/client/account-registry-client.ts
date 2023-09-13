@@ -553,28 +553,28 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
       (r): Record<string, BalanceStatement[]> => {
         return {
           [account]:
-            r.account?.balances?.map(({ current, snapshots, token }) => {
-              if (!token.underlying) throw Error('Unknown underlying');
-              return {
-                ...this._parseCurrentBalanceStatement(
-                  current as BalanceSnapshot,
-                  token as Token,
-                  network
-                ),
-                //start parse current
-                //end  parse current
-                historicalSnapshots:
-                  snapshots?.map((s) =>
-                    this._parseBalanceStatement(
-                      token.id,
-                      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                      token.underlying!.id,
-                      s as BalanceSnapshot,
-                      network
-                    )
-                  ) || [],
-              };
-            }) || [],
+            r.account?.balances
+              ?.filter(({ token }) => !!token.underlying)
+              .map(({ current, snapshots, token }) => {
+                if (!token.underlying) throw Error('Unknown underlying');
+                return {
+                  ...this._parseCurrentBalanceStatement(
+                    current as BalanceSnapshot,
+                    token as Token,
+                    network
+                  ),
+                  historicalSnapshots:
+                    snapshots?.map((s) =>
+                      this._parseBalanceStatement(
+                        token.id,
+                        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                        token.underlying!.id,
+                        s as BalanceSnapshot,
+                        network
+                      )
+                    ) || [],
+                };
+              }) || [],
         };
       },
       {
@@ -615,13 +615,15 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
             a.balances?.map((b) =>
               TokenBalance.fromID(b.current.currentBalance, b.token.id, network)
             ) || [],
-          balanceStatement: a.balances?.map((b) =>
-            this._parseCurrentBalanceStatement(
-              b.current as BalanceSnapshot,
-              b.token as Token,
-              network
-            )
-          ),
+          balanceStatement: a.balances
+            ?.filter((b) => !!b.token.underlying)
+            .map((b) =>
+              this._parseCurrentBalanceStatement(
+                b.current as BalanceSnapshot,
+                b.token as Token,
+                network
+              )
+            ),
           accountHistory:
             a.profitLossLineItems?.map((p) =>
               this._parseTransactionHistory(p as ProfitLossLineItem, network)
