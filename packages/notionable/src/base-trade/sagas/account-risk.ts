@@ -61,20 +61,18 @@ export function postAccountRisk(
         const prior = account
           ? new AccountRiskProfile(account.balances)
           : undefined;
+        const newBalances = [collateralBalance, debtBalance].filter(
+          (b) => b !== undefined
+        ) as TokenBalance[];
         const post =
           calculationSuccess && (collateralBalance || debtBalance)
-            ? AccountRiskProfile.simulate(
-                account?.balances || [],
-                [collateralBalance, debtBalance].filter(
-                  (b) => b !== undefined
-                ) as TokenBalance[]
-              )
+            ? AccountRiskProfile.simulate(account?.balances || [], newBalances)
             : undefined;
 
         const s = accountRiskSummary(prior, post);
         const noteIncentivesClaimed = post
-          ? post.balances.reduce((note, b) => {
-              if (b.tokenType === 'nToken') {
+          ? newBalances.reduce((note, b) => {
+              if (b?.tokenType === 'nToken') {
                 const balanceBefore = account?.balances.find(
                   (t) => t.tokenId === b.tokenId
                 );
