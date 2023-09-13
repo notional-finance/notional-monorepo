@@ -17,6 +17,7 @@ import {
   formatTokenType,
 } from '@notional-finance/helpers';
 import { useTheme } from '@mui/material';
+import { NotionalTheme } from '@notional-finance/styles';
 
 function usePriceChanges(baseCurrency: FiatKeys) {
   const { allTokens } = useCurrency();
@@ -176,7 +177,7 @@ export function useCurrentLiquidationPrices() {
   const priceChanges = usePriceChanges(baseCurrency);
   const portfolioRisk = portfolio.getAllLiquidationPrices();
   const theme = useTheme();
-  const secondary = theme.palette.typography.light;
+  const secondary = (theme as NotionalTheme).palette.typography.light;
 
   const exchangeRateRisk = portfolioRisk
     .filter((p) => p.asset.tokenType === 'Underlying')
