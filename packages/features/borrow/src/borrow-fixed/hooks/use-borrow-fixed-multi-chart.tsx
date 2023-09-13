@@ -57,7 +57,7 @@ export const useBorrowFixedMultiChart = () => {
             chartToolTipData={tvlToolTipData}
             condenseXAxisTime={true}
             areaLineType="linear"
-            yAxisTickFormat="fiat"
+            yAxisTickFormat="usd"
           />
         </ChartContainer>
       ),

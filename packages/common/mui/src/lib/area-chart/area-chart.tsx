@@ -46,7 +46,7 @@ export interface AreaChartStylesProps {
 export interface AreaChartProps {
   areaChartData: AreaChartData[];
   xAxisTickFormat?: 'date' | 'percent';
-  yAxisTickFormat?: 'percent' | 'number' | 'fiat';
+  yAxisTickFormat?: 'percent' | 'number' | 'usd';
   yAxisDomain?: AxisDomain;
   referenceLineValue?: number;
   chartToolTipData?: ChartToolTipDataProps;
@@ -95,7 +95,7 @@ export const AreaChart = ({
     if (yAxisTickFormat === 'percent' && typeof v === 'number') {
       return formatNumberAsPercent(v);
     }
-    if (yAxisTickFormat === 'fiat' && typeof v === 'number') {
+    if (yAxisTickFormat === 'usd' && typeof v === 'number') {
       return `$${formatNumberToDigits(v, 2)}`;
     }
     if (yAxisTickFormat === 'number' && typeof v === 'number') {
@@ -242,8 +242,8 @@ export const AreaChart = ({
             justifyContent: 'center',
             position: 'absolute',
             width: theme.spacing(89.5),
-            height: theme.spacing(57.9),
-            marginTop: theme.spacing(53),
+            marginTop: `-${theme.spacing(32)}`,
+            zIndex: 1,
           }}
         >
           <Box

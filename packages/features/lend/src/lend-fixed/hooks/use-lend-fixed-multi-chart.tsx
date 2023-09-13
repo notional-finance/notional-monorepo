@@ -57,7 +57,7 @@ export const useLendFixedMultiChart = () => {
             chartToolTipData={tvlToolTipData}
             condenseXAxisTime={true}
             areaLineType="linear"
-            yAxisTickFormat="fiat"
+            yAxisTickFormat="usd"
           />
         </ChartContainer>
       ),

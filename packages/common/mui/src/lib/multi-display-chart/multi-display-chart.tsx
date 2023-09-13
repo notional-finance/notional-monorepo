@@ -35,7 +35,7 @@ export const MultiDisplayChart = ({
   >(undefined);
 
   return (
-    <TradeSummaryBox sx={{ width: '100%', padding: '24px' }}>
+    <TradeSummaryBox sx={{ width: '100%', padding: theme.spacing(3) }}>
       {chartComponents.length > 1 ? (
         <>
           <Box
