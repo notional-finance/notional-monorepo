@@ -21,6 +21,7 @@ export class HistoricalRegistry extends Registry {
       [Routes.Exchanges, this._exchanges, false],
       [Routes.Oracles, this._oracles, true],
       [Routes.Configuration, this._configurations, false],
+      [Routes.Vaults, this._vaults, false],
     ] as [Routes, ClientRegistry<unknown> | undefined, boolean][];
 
     for (const [route, client, allNetwork] of clients) {
@@ -29,7 +30,7 @@ export class HistoricalRegistry extends Registry {
           continue;
         }
         await new Promise<void>((resolve) => {
-          client.triggerRefresh(network, 0, resolve, blockNumber);
+          client.triggerRefresh(network, resolve, blockNumber);
           if (route == Routes.Tokens)
             Registry.registerDefaultPoolTokens(network);
         });
