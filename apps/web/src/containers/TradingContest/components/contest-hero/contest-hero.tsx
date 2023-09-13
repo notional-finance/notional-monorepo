@@ -15,7 +15,7 @@ import { BETA_ACCESS } from '@notional-finance/notionable';
 export const ContestHero = () => {
   const theme = useTheme();
   const {
-    globalState: { hasContestNFT },
+    globalState: { hasContestNFT, hasSelectedChainError },
   } = useNotionalContext();
   const { icon, currentLabel } = useConnect();
   const truncatedAddress = useTruncatedAddress();
@@ -26,6 +26,13 @@ export const ContestHero = () => {
       <ContentContainer>
         <ContestNftPass />
         <TextAndButtonWrapper>
+          {hasSelectedChainError && (
+            <TitleText>
+              <FormattedMessage
+                defaultMessage={'Switch your wallet to the Arbitrum network'}
+              />
+            </TitleText>
+          )}
           {!icon && !connected && (
             <>
               <TitleText>
@@ -43,7 +50,7 @@ export const ContestHero = () => {
             </>
           )}
 
-          {icon && !connected ? (
+          {icon && !connected && !hasSelectedChainError ? (
             <Box
               sx={{
                 width: '358px',
