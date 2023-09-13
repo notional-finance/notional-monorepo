@@ -7,11 +7,12 @@ import { ViewAsAccount } from '../view-as-account/view-as-account';
 import { modules } from '../onboard-context';
 import { useConnect } from '../hooks/use-connect';
 import { useLocation } from 'react-router-dom';
+import { useAccountReady } from '@notional-finance/notionable-hooks';
 
 export const ConnectWalletSideDrawer = () => {
-  const { connectWallet, selectedAddress, currentLabel } = useConnect();
+  const { connectWallet, currentLabel } = useConnect();
   const { pathname } = useLocation();
-  const connected = selectedAddress ? true : false;
+  const connected = useAccountReady();
   const { clearWalletSideDrawer } = useSideDrawerManager();
 
   const handleConnect = useCallback(

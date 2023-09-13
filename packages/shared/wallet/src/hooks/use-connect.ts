@@ -9,7 +9,7 @@ import useNftContract from './use-nft-contract';
 export const useConnect = () => {
   const { globalState, updateNotional } = useNotionalContext();
   const [
-    { wallet, connecting },
+    { wallet },
     connect,
     disconnect,
     _updateBalances,
@@ -91,9 +91,7 @@ export const useConnect = () => {
   useNftContract(selectedAddress);
 
   return {
-    connecting,
     isReadOnlyAddress,
-    selectedAddress,
     connectWallet,
     disconnectWallet,
     currentLabel,

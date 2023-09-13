@@ -7,7 +7,7 @@ import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { ViewAsAccount } from '../../../view-as-account/view-as-account';
 import { modules } from '../../../onboard-context';
 import { FormattedMessage } from 'react-intl';
-import { useTruncatedAddress } from '@notional-finance/notionable-hooks';
+import { useAccountReady, useTruncatedAddress } from '@notional-finance/notionable-hooks';
 
 export const AddressButton = () => {
   const { isReadOnlyAddress } = useConnect();
@@ -48,9 +48,9 @@ export const AddressButton = () => {
 };
 
 export const WalletSwitcher = () => {
-  const { selectedAddress, currentLabel, connectWallet } = useConnect();
+  const { currentLabel, connectWallet } = useConnect();
   const { clearWalletSideDrawer } = useSideDrawerManager();
-  const connected = selectedAddress ? true : false;
+  const connected = useAccountReady()
   const handleConnect = useCallback(
     (label: string) => {
       connectWallet(label);

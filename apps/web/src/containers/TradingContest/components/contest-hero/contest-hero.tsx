@@ -17,7 +17,7 @@ export const ContestHero = () => {
   const {
     globalState: { hasContestNFT },
   } = useNotionalContext();
-  const { icon, currentLabel, connecting } = useConnect();
+  const { icon, currentLabel } = useConnect();
   const truncatedAddress = useTruncatedAddress();
   const connected = useAccountReady();
 
@@ -26,7 +26,7 @@ export const ContestHero = () => {
       <ContentContainer>
         <ContestNftPass />
         <TextAndButtonWrapper>
-          {!connected && !connecting && (
+          {!icon && !connected && (
             <>
               <TitleText>
                 <FormattedMessage
@@ -43,7 +43,7 @@ export const ContestHero = () => {
             </>
           )}
 
-          {connecting ? (
+          {icon && !connected ? (
             <Box
               sx={{
                 width: '358px',
