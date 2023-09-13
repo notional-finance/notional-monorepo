@@ -86,8 +86,16 @@ function parseFiatLiquidationPrice(
     },
     // Used on overview screen
     riskFactor: {
-      data: [`${asset.symbol}/${baseCurrency}`, 'Chainlink Oracle Price'],
-      isNegative: false,
+      data: [
+        {
+          displayValue: `${asset.symbol}/${baseCurrency}`,
+          isNegative: false,
+        },
+        {
+          displayValue: 'Chainlink Oracle Price',
+          isNegative: false,
+        },
+      ],
     },
     currentPrice: c?.currentFiat.toDisplayStringWithSymbol(3) || '',
     oneDayChange: c?.oneDayFiatChange
@@ -125,6 +133,17 @@ function parseUnderlyingLiquidationPrice(
       ? formatNumberAsPercent(c?.sevenDayUnderlyingChange)
       : '',
     liquidationPrice,
+  };
+}
+
+export function useCurrentETHPrice() {
+  const baseCurrency = useFiat();
+  const priceChange = usePriceChanges(baseCurrency);
+  const ethChange = priceChange.find(({ asset }) => asset.symbol === 'ETH');
+
+  return {
+    ethPrice: ethChange?.currentFiat,
+    oneDayChange: ethChange?.oneDayFiatChange || 0,
   };
 }
 
@@ -175,10 +194,15 @@ export function useCurrentLiquidationPrices() {
           },
           riskFactor: {
             data: [
-              `Vault Shares/${threshold?.underlying.symbol}`,
-              'Chainlink Oracle Price',
+              {
+                displayValue: `Vault Shares/${threshold?.underlying.symbol}`,
+                isNegative: false,
+              },
+              {
+                displayValue: 'Chainlink Oracle Price',
+                isNegative: false,
+              },
             ],
-            isNegative: false,
           },
         })),
     };
