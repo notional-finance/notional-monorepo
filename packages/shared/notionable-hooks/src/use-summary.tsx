@@ -386,7 +386,7 @@ function getTradeDetail(
   throw Error('invalid asset key');
 }
 
-export function useTradeSummary(state: BaseTradeState) {
+export function useTradeSummary(state: VaultTradeState | TradeState) {
   const intl = useIntl();
   const baseCurrency = useFiat();
   const {
@@ -463,9 +463,14 @@ export function useTradeSummary(state: BaseTradeState) {
         isTotalRow: true,
       };
 
+  let feeValue = TokenBalance.zero(underlying);
   const summary: DetailItem[] = [];
   if (isLeverageOrRoll) {
-    if (depositBalance?.isPositive() || tradeType === 'IncreaseVaultPosition') {
+    if (
+      depositBalance?.isPositive() ||
+      tradeType === 'IncreaseVaultPosition' ||
+      tradeType === 'RollVaultPosition'
+    ) {
       // Deposit and Mint X
       if (depositBalance?.isPositive()) {
         summary.push(
@@ -482,6 +487,29 @@ export function useTradeSummary(state: BaseTradeState) {
       // or Leveraged Liquidity but currently they won't show in the trade summary
       // Borrow
       summary.push(getTradeDetail(debtBalance, 'Debt', 'none', intl));
+
+      // NOTE: rolling a vault debt will repay and withdraw all current shares
+      if (tradeType === 'RollVaultPosition') {
+        const { priorVaultBalances } = state as VaultTradeState;
+        if (priorVaultBalances) {
+          const debt = priorVaultBalances.find(
+            (t) => t.tokenType === 'VaultDebt'
+          );
+          const assets = priorVaultBalances.find(
+            (t) => t.tokenType === 'VaultShare'
+          );
+          if (debt) {
+            summary.push(getTradeDetail(debt.neg(), 'Debt', 'repay', intl));
+            feeValue = debt.toUnderlying().sub(debtBalance.toUnderlying());
+          }
+
+          if (assets)
+            summary.push(
+              getTradeDetail(assets.neg(), 'Asset', 'withdraw', intl)
+            );
+        }
+      }
+
       // Mint X - deposit
       summary.push(
         getTradeDetail(
@@ -585,8 +613,11 @@ export function useTradeSummary(state: BaseTradeState) {
     return { summary: undefined, total: undefined };
   }
 
-  let feeValue = TokenBalance.zero(underlying);
-  if (isLeverageOrRoll) {
+  if (tradeType === 'RollVaultPosition') {
+    // No-Op: value is set above
+  } else if (isLeverageOrRoll) {
+    // Do not include roll vault position because the margin will be
+    // incorrectly included in the fee value
     feeValue = collateralBalance
       .toUnderlying()
       .sub(depositBalance || TokenBalance.zero(underlying))
