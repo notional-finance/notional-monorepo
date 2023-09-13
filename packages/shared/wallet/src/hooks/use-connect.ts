@@ -35,7 +35,6 @@ export const useConnect = () => {
     (walletLabel?: string) => {
       // No change to wallets, nothing to do here.
       if (!walletLabel || currentLabel === walletLabel) return;
-      trackEvent('CONNECT_WALLET', { wallet: walletLabel });
       connect({ autoSelect: { label: walletLabel, disableModals: true } });
     },
     [connect, currentLabel]
@@ -74,6 +73,7 @@ export const useConnect = () => {
             selectedChain,
             selectedAddress,
             isReadOnlyAddress: false,
+            label: wallet.label,
           },
         });
       }

@@ -21,6 +21,7 @@ export function ViewAsAccount() {
           signer: undefined,
           selectedAddress: address,
           isReadOnlyAddress: true,
+          label: 'ReadOnly',
         },
       });
       clearWalletSideDrawer();

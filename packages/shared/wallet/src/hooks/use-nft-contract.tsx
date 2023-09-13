@@ -5,7 +5,6 @@ import {
   useNotionalContext,
 } from '@notional-finance/notionable-hooks';
 import { useHistory, useLocation } from 'react-router-dom';
-import { trackEvent } from '@notional-finance/helpers';
 import { BETA_ACCESS } from '@notional-finance/notionable';
 
 export const useNftContract = (selectedAddress?: string) => {
@@ -28,7 +27,7 @@ export const useNftContract = (selectedAddress?: string) => {
   }, [history, hasContestNFT, pathname]);
 
   useEffect(() => {
-    if (selectedNetwork && selectedAddress) {
+    if (selectedNetwork && selectedAddress && !hasContestNFT) {
       const providerURL = getProviderURLFromNetwork(selectedNetwork, true);
       const url = `${providerURL}/getNFTs?owner=${selectedAddress}&contractAddresses[]=0x965b3aad78cdab2cc778243b12705ba3b7c5048c&withMetadata=false`;
       updateNotional({ hasContestNFT: BETA_ACCESS.PENDING });
@@ -38,9 +37,9 @@ export const useNftContract = (selectedAddress?: string) => {
         .then((resp) => {
           try {
             if (resp['totalCount'] > 0) {
-              updateNotional({ hasContestNFT: BETA_ACCESS.CONFIRMED });
-              trackEvent('NFT_UNLOCK', {
-                tokenId: resp['ownedNfts'][0]['id']['tokenId'],
+              updateNotional({
+                hasContestNFT: BETA_ACCESS.CONFIRMED,
+                contestTokenId: resp['ownedNfts'][0]['id']['tokenId'],
               });
             } else {
               updateNotional({ hasContestNFT: BETA_ACCESS.REJECTED });
@@ -51,7 +50,7 @@ export const useNftContract = (selectedAddress?: string) => {
           }
         });
     }
-  }, [updateNotional, selectedAddress, selectedNetwork]);
+  }, [updateNotional, selectedAddress, selectedNetwork, hasContestNFT]);
 };
 
 export default useNftContract;

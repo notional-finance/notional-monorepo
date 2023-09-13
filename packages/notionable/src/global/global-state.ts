@@ -32,6 +32,7 @@ interface OnboardState {
     selectedChain?: Network;
     selectedAddress: string;
     isReadOnlyAddress?: boolean;
+    label?: string;
   };
 }
 
@@ -47,7 +48,8 @@ interface AccountState {
   isAccountPending: boolean;
   isAccountReady: boolean;
   selectedAccount?: string;
-  hasContestNFT: BETA_ACCESS;
+  hasContestNFT?: BETA_ACCESS;
+  contestTokenId?: string;
 }
 interface UserSettingsState {
   themeVariant: THEME_VARIANTS;
@@ -74,7 +76,6 @@ export interface GlobalState
 
 export const initialGlobalState: GlobalState = {
   hasSelectedChainError: false,
-  hasContestNFT: BETA_ACCESS.REJECTED,
   isNetworkReady: false,
   isNetworkPending: false,
   cacheHostname: CACHE_HOSTNAME,
