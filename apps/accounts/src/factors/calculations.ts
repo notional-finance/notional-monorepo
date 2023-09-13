@@ -21,6 +21,7 @@ export function calculateAccountIRR(
 
   const allVaultRisk = VaultAccountRiskProfile.getAllRiskProfiles(account);
 
+  // TODO: unclaimed NOTE will not be included here...
   const totalNetWorth = allVaultRisk
     .map((v) => v.netWorth().toToken(ETH, 'None', snapshotTimestamp))
     .reduce((p, c) => p.add(c), portfolioNetWorth);
@@ -31,9 +32,23 @@ export function calculateAccountIRR(
       (h) =>
         h.bundleName === 'Deposit' ||
         h.bundleName === 'Deposit and Transfer' ||
-        h.bundleName === 'Withdraw'
+        h.bundleName === 'Withdraw' ||
+        h.bundleName === 'Transfer Incentive'
     )
     .map((h) => {
+      if (h.bundleName === 'Transfer Incentive') {
+        // Converts the value of NOTE to ETH at the given snapshot time
+        const b = h.tokenAmount.toFiat('ETH', snapshotTimestamp).toFloat();
+        const balance = TokenBalance.fromFloat(b.toFixed(18), ETH);
+
+        return {
+          date: new Date(h.timestamp * 1000),
+          // This should be a positive cash flow
+          amount: balance.toFloat(),
+          balance,
+        };
+      }
+
       let balance = h.underlyingAmountRealized
         .toUnderlying()
         .toToken(ETH, 'None', snapshotTimestamp);
