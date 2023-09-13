@@ -1,5 +1,7 @@
 import { Box, useTheme } from '@mui/material';
 import {
+  Faq,
+  FaqHeader,
   DataTable,
   SliderDisplay,
   TABLE_VARIANTS,
@@ -7,28 +9,32 @@ import {
 import { VAULT_SUB_NAV_ACTIONS } from '@notional-finance/util';
 import { useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { VaultSubNav, MobileVaultSummary } from '../components';
+import { VaultSubNav, MobileVaultSummary, HowItWorksFaq } from '../components';
 import { VaultActionContext } from './vault-action-provider';
-import { useReturnDrivers } from '../hooks/use-return-drivers';
-import { useVaultCapacity } from '../hooks/use-vault-capacity';
 import { messages } from '../messages';
 import {
   LiquidationChart,
   PerformanceChart,
   TradeActionSummary,
 } from '@notional-finance/trade';
-import { useVaultPriceExposure } from '../hooks/use-vault-price-exposure';
-import { useVaultExistingFactors } from '../hooks/use-vault-existing-factors';
+import {
+  useVaultPriceExposure,
+  useVaultExistingFactors,
+  useReturnDrivers,
+  useVaultCapacity,
+  useVaultFaq,
+} from '../hooks';
 import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
 
 export const VaultSummary = () => {
   const theme = useTheme();
   const { state } = useContext(VaultActionContext);
-  const { vaultAddress, deposit } = state;
+  const { vaultAddress, deposit, selectedDepositToken } = state;
   const { tableColumns, returnDrivers } = useReturnDrivers(vaultAddress);
   const { data, columns } = useVaultPriceExposure(state);
   const { vaultShare, assetLiquidationPrice, priorBorrowRate, leverageRatio } =
     useVaultExistingFactors();
+  const { faqHeaderLinks, faqs } = useVaultFaq(selectedDepositToken);
 
   const {
     overCapacityError,
@@ -122,6 +128,20 @@ export const VaultSummary = () => {
                   vaultShare?.maturity === PRIME_CASH_VAULT_MATURITY,
               }}
             />
+            {selectedDepositToken && (
+              <Faq
+                sx={{ boxShadow: 'none' }}
+                question={<FormattedMessage defaultMessage={'How it Works'} />}
+                componentAnswer={
+                  <HowItWorksFaq tokenSymbol={selectedDepositToken} />
+                }
+                questionDescription={
+                  <FormattedMessage
+                    defaultMessage={'Learn how leveraged vaults work.'}
+                  />
+                }
+              />
+            )}
             <LiquidationChart
               state={state}
               vaultCollateral={vaultShare}
@@ -160,6 +180,24 @@ export const VaultSummary = () => {
                 }
               />
             </Box>
+            <FaqHeader
+              title={
+                <FormattedMessage defaultMessage={'Leveraged Vault FAQ'} />
+              }
+              links={faqHeaderLinks}
+            />
+            {faqs.map(({ question, answer, componentAnswer }, index) => (
+              <Faq
+                key={index}
+                question={question}
+                answer={answer}
+                componentAnswer={componentAnswer}
+                sx={{
+                  marginBottom: theme.spacing(2),
+                  boxShadow: theme.shape.shadowStandard,
+                }}
+              />
+            ))}
             {/* <Box id={VAULT_SUB_NAV_ACTIONS.STRATEGY_DETAILS}>
               <VaultDescription vaultAddress={vaultAddress} />
             </Box> */}

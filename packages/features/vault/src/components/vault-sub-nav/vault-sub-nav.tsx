@@ -214,7 +214,7 @@ const MainContainer = styled(Box)(
   height: ${theme.spacing(6)};
   top: 74px;
   position: fixed;
-  z-index: 1;
+  z-index: 2;
   display: flex;
   background: ${theme.palette.background.accentDefault};
   ${theme.breakpoints.up('lg')} {
