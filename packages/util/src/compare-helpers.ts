@@ -2,7 +2,7 @@ export function getChangeType(
   current: number | undefined | null,
   updated: number | undefined | null
 ) {
-  if (!current && updated) return 'increase';
+  if (!current && updated) return updated > 0 ? 'increase' : 'decrease';
   else if (!updated && current) return 'cleared';
   else if (updated && current)
     return updated === current

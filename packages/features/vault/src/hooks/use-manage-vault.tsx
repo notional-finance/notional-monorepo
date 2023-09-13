@@ -1,10 +1,40 @@
+import { useContext, useEffect } from 'react';
 import { FormattedMessage } from 'react-intl';
+import { VaultActionContext } from '../vault-view/vault-action-provider';
+import { TokenBalance } from '@notional-finance/core-entities';
+import { useAllMarkets } from '@notional-finance/notionable-hooks';
+import { leveragedYield } from '@notional-finance/util';
+import { formatNumberAsPercent } from '@notional-finance/helpers';
 
-export function useManageVault(
-  vaultAddress: string | undefined,
-  hasVaultPosition: boolean
-) {
-  if (!hasVaultPosition || !vaultAddress) {
+export function useManageVault() {
+  const {
+    state: {
+      vaultAddress,
+      priorAccountRisk,
+      tradeType,
+      debtOptions,
+      deposit,
+      depositBalance,
+    },
+    updateState,
+  } = useContext(VaultActionContext);
+  const {
+    yields: { vaultShares },
+  } = useAllMarkets();
+  const vaultSharesAPY = vaultShares.find(
+    (y) => y.token.vaultAddress === vaultAddress
+  )?.totalAPY;
+
+  useEffect(() => {
+    // This is used to get the debt options for rolling the maturity
+    if (tradeType !== 'RollVaultPosition' || !depositBalance)
+      updateState({
+        tradeType: 'RollVaultPosition',
+        depositBalance: deposit ? TokenBalance.zero(deposit) : undefined,
+      });
+  }, [tradeType, updateState, deposit, depositBalance]);
+
+  if (!priorAccountRisk || !vaultAddress) {
     return {
       reduceLeverageOptions: [],
       manageVaultOptions: [],
@@ -24,14 +54,27 @@ export function useManageVault(
       },
     ];
 
-    const rollMaturityOptions = [
-      {
-        label: <FormattedMessage defaultMessage={'Roll Vault Position'} />,
-        link: `/vaults/${vaultAddress}/RollVaultPosition`,
-        key: 'RollVaultPosition',
-        totalAPY: '12.54% APY'
-      },
-    ];
+    const rollMaturityOptions =
+      debtOptions
+        ?.map((o) => {
+          const totalAPY = leveragedYield(
+            vaultSharesAPY,
+            o.interestRate,
+            priorAccountRisk.leverageRatio || 0
+          );
+          return {
+            label: <FormattedMessage defaultMessage={'Roll Vault Position'} />,
+            link: `/vaults/${vaultAddress}/RollVaultPosition/${o.token.id}`,
+            key: 'RollVaultPosition',
+            onClick: () => {
+              updateState({ debt: o.token });
+            },
+            totalAPY: totalAPY
+              ? `${formatNumberAsPercent(totalAPY)} Total APY`
+              : undefined,
+          };
+        })
+        .filter((_) => !!_.totalAPY) || [];
 
     return {
       reduceLeverageOptions: [

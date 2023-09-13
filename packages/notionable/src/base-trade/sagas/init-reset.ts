@@ -63,6 +63,8 @@ export function resetOnTradeTypeChange(
           riskFactorLimit: undefined,
           postAccountRisk: undefined,
           postTradeBalances: undefined,
+          collateral: undefined,
+          debt: undefined,
         };
       } else {
         return undefined;

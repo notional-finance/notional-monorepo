@@ -8,6 +8,7 @@ import {
   PRIME_CASH_VAULT_MATURITY,
   filterEmpty,
   getChangeType,
+  leveragedYield,
 } from '@notional-finance/util';
 import {
   Observable,
@@ -133,15 +134,6 @@ function averageFixedRate(
   } else {
     return newBorrowRate;
   }
-}
-
-function leveragedYield(
-  strategyAPY: number | undefined,
-  borrowAPY: number | undefined,
-  leverageRatio: number
-) {
-  if (strategyAPY === undefined || borrowAPY === undefined) return undefined;
-  return strategyAPY + (strategyAPY - borrowAPY) * leverageRatio;
 }
 
 function vaultRiskSummary(

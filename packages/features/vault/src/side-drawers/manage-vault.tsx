@@ -19,11 +19,11 @@ import { useManageVault } from '../hooks/use-manage-vault';
 export const ManageVault = () => {
   const theme = useTheme();
   const {
-    state: { vaultAddress, priorAccountRisk },
+    state: { vaultAddress },
   } = useContext(VaultActionContext);
-  const { vaultName } = useVaultProperties(vaultAddress);
   const { reduceLeverageOptions, manageVaultOptions, rollMaturityOptions } =
-    useManageVault(vaultAddress, !!priorAccountRisk);
+    useManageVault();
+  const { vaultName } = useVaultProperties(vaultAddress);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -89,16 +89,19 @@ export const ManageVault = () => {
             <Title>
               <FormattedMessage defaultMessage={'Convert Maturity'} />
             </Title>
-            {rollMaturityOptions.map(({ label, link, totalAPY }, index) => (
-              <SideDrawerButton
-                key={index}
-                sx={{ padding: theme.spacing(2.5) }}
-                to={link}
-              >
-                <ButtonText sx={{ flex: 1 }}>{label}</ButtonText>
-                <ButtonData>{totalAPY}</ButtonData>
-              </SideDrawerButton>
-            ))}
+            {rollMaturityOptions.map(
+              ({ label, link, totalAPY, onClick }, index) => (
+                <SideDrawerButton
+                  key={index}
+                  sx={{ padding: theme.spacing(2.5) }}
+                  to={link}
+                  onClick={onClick}
+                >
+                  <ButtonText sx={{ flex: 1 }}>{label}</ButtonText>
+                  <ButtonData>{totalAPY}</ButtonData>
+                </SideDrawerButton>
+              )
+            )}
           </>
         )}
       </MainWrapper>

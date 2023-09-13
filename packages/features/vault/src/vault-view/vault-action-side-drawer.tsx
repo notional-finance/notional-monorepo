@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect } from 'react';
+import { ComponentType, useCallback, useContext, useEffect } from 'react';
 import { Drawer, SideBarSubHeader } from '@notional-finance/mui';
 import { Transition, TransitionStatus } from 'react-transition-group';
 import { Box, SxProps, useTheme } from '@mui/material';
@@ -46,7 +46,7 @@ export const VaultActionSideDrawer = () => {
   }, [clearSideDrawer]);
 
   const {
-    state: { vaultAddress, priorAccountRisk, tradeType },
+    state: { vaultAddress, priorAccountRisk, tradeType, debt },
     updateState,
   } = useContext(VaultActionContext);
   const hasVaultPosition = !!priorAccountRisk;
@@ -63,9 +63,12 @@ export const VaultActionSideDrawer = () => {
     updateState({ tradeType: undefined, confirm: false });
   }, [vaultAddress, history, updateState]);
 
-  const VaultDrawer = tradeType
-    ? VaultDrawers[tradeType as VaultTradeType]
-    : null;
+  let VaultDrawer: ComponentType | null = null;
+  if (tradeType === 'RollVaultPosition') {
+    VaultDrawer = debt ? VaultDrawers['RollVaultPosition'] : null;
+  } else if (tradeType) {
+    VaultDrawer = VaultDrawers[tradeType as VaultTradeType];
+  }
 
   let drawerEl;
   if (!hasVaultPosition) {
@@ -73,7 +76,7 @@ export const VaultActionSideDrawer = () => {
   } else {
     drawerEl = (
       <Box>
-        <Transition in={!tradeType} timeout={150}>
+        <Transition in={!VaultDrawer} timeout={150}>
           {(state: TransitionStatus) => {
             return (
               <Box
@@ -82,12 +85,12 @@ export const VaultActionSideDrawer = () => {
                   ...fadeTransition[state],
                 }}
               >
-                {!tradeType && <ManageVault />}
+                {!VaultDrawer && <ManageVault />}
               </Box>
             );
           }}
         </Transition>
-        <Transition in={!!tradeType} timeout={150}>
+        <Transition in={!!VaultDrawer} timeout={150}>
           {(state: TransitionStatus) => {
             return (
               <Box
@@ -96,7 +99,7 @@ export const VaultActionSideDrawer = () => {
                   ...slideTransition[state],
                 }}
               >
-                {!!tradeType && VaultDrawer && (
+                {VaultDrawer && (
                   <>
                     <SideBarSubHeader
                       paddingTop="150px"
