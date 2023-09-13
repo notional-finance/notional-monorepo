@@ -1,18 +1,13 @@
 import { Box, useTheme } from '@mui/material';
 import {
   DataTable,
-  PageLoading,
   SliderDisplay,
   TABLE_VARIANTS,
 } from '@notional-finance/mui';
 import { VAULT_SUB_NAV_ACTIONS } from '@notional-finance/util';
 import { useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
-import {
-  VaultDescription,
-  VaultSubNav,
-  MobileVaultSummary,
-} from '../components';
+import { VaultSubNav, MobileVaultSummary } from '../components';
 import { VaultActionContext } from './vault-action-provider';
 import { useReturnDrivers } from '../hooks/use-return-drivers';
 import { useVaultCapacity } from '../hooks/use-vault-capacity';
@@ -29,8 +24,7 @@ import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
 export const VaultSummary = () => {
   const theme = useTheme();
   const { state } = useContext(VaultActionContext);
-  const { vaultAddress, vaultConfig, deposit } = state;
-  const vaultName = vaultConfig?.name;
+  const { vaultAddress, deposit } = state;
   const { tableColumns, returnDrivers } = useReturnDrivers(vaultAddress);
   const { data, columns } = useVaultPriceExposure(state);
   const { vaultShare, assetLiquidationPrice, priorBorrowRate, leverageRatio } =
@@ -43,8 +37,6 @@ export const VaultSummary = () => {
     capacityUsedPercentage,
     capacityWithUserBorrowPercentage,
   } = useVaultCapacity();
-
-  if (!vaultName || !vaultAddress) return <PageLoading />;
 
   const userCapacityMark = capacityWithUserBorrowPercentage
     ? [
@@ -168,9 +160,9 @@ export const VaultSummary = () => {
                 }
               />
             </Box>
-            <Box id={VAULT_SUB_NAV_ACTIONS.STRATEGY_DETAILS}>
+            {/* <Box id={VAULT_SUB_NAV_ACTIONS.STRATEGY_DETAILS}>
               <VaultDescription vaultAddress={vaultAddress} />
-            </Box>
+            </Box> */}
           </TradeActionSummary>
         </Box>
       </Box>

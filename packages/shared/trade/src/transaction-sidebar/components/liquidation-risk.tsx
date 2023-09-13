@@ -59,17 +59,19 @@ export const LiquidationRisk = ({ state }: { state: TradeState }) => {
     return null;
   } else if (priorAccountNoRisk) {
     // Show state zero
-    <DataTable
-      tableVariant={TABLE_VARIANTS.MINI}
-      tableTitle={<FormattedMessage defaultMessage={'Liquidation Risk'} />}
-      stateZeroMessage={
-        <FormattedMessage
-          defaultMessage={'Input parameters to see your liquidation risk.'}
-        />
-      }
-      data={[]}
-      columns={columns}
-    />;
+    return (
+      <DataTable
+        tableVariant={TABLE_VARIANTS.MINI}
+        tableTitle={<FormattedMessage defaultMessage={'Liquidation Risk'} />}
+        stateZeroMessage={
+          <FormattedMessage
+            defaultMessage={'Input parameters to see your liquidation risk.'}
+          />
+        }
+        data={[]}
+        columns={columns}
+      />
+    );
   }
 
   return (

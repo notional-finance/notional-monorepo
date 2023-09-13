@@ -34,6 +34,14 @@ export function formatNumberToDigits(num: string | number, digits = 3) {
   });
 }
 
+export function formatNumberAsPercentWithUndefined(
+  num: number | string | undefined,
+  defaultValue: string,
+  decimals = 2
+) {
+  return num === undefined ? defaultValue : `${formatNumber(num, decimals)}%`;
+}
+
 export function formatNumberAsPercent(num: number | string, decimals = 2) {
   return `${formatNumber(num, decimals)}%`;
 }

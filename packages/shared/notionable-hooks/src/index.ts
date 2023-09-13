@@ -18,6 +18,7 @@ export * from './use-vault';
 export * from './use-query-params';
 export * from './use-summary';
 export * from './use-chart';
+export * from './use-liquidation-prices';
 
 export type BaseTradeContext = ObservableContext<BaseTradeState>;
 export type TradeContext = ObservableContext<TradeState>;

@@ -1,5 +1,5 @@
 import { SingleDisplayChart } from '@notional-finance/mui';
-import { BaseTradeState } from '@notional-finance/notionable';
+import { TradeState, VaultTradeState } from '@notional-finance/notionable';
 import { useLiquidationChart } from './use-liquidation-chart';
 import { Box, useTheme } from '@mui/material';
 import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
@@ -7,9 +7,9 @@ import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
 export const LiquidationChart = ({
   state,
   vaultCollateral,
-  vaultLiquidationPrice
+  vaultLiquidationPrice,
 }: {
-  state: BaseTradeState;
+  state: TradeState | VaultTradeState;
   vaultCollateral?: TokenDefinition;
   vaultLiquidationPrice?: TokenBalance;
 }) => {

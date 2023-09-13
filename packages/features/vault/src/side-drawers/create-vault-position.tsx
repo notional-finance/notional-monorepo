@@ -1,5 +1,5 @@
-import { useContext } from 'react';
-import { useCurrencyInputRef, PageLoading } from '@notional-finance/mui';
+import { useContext, useEffect } from 'react';
+import { useCurrencyInputRef } from '@notional-finance/mui';
 import { Box, styled, useTheme } from '@mui/material';
 import { VaultActionContext } from '../vault-view/vault-action-provider';
 import { VaultSideDrawer } from '../components/vault-side-drawer';
@@ -15,13 +15,16 @@ export const CreateVaultPosition = () => {
   const theme = useTheme();
   const context = useContext(VaultActionContext);
   const {
-    state: { deposit },
+    state: { tradeType },
+    updateState,
   } = context;
   const { currencyInputRef } = useCurrencyInputRef();
   const { inputErrorMsg } = useVaultActionErrors();
-  const primaryBorrowSymbol = deposit?.symbol;
 
-  if (!primaryBorrowSymbol) return <PageLoading />;
+  useEffect(() => {
+    if (tradeType === undefined)
+      updateState({ tradeType: 'CreateVaultPosition' });
+  }, [tradeType, updateState]);
 
   return (
     <>

@@ -30,7 +30,8 @@ export class AccountRiskProfile extends BaseRiskProfile {
       (t) =>
         !t.isVaultToken &&
         t.tokenType !== 'Underlying' &&
-        t.tokenType !== 'Fiat'
+        t.tokenType !== 'Fiat' &&
+        t.tokenType !== 'NOTE'
     );
 
     super(balances, 'ETH', _network);

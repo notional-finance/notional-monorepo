@@ -16,6 +16,8 @@ import { useGeoipBlock } from '@notional-finance/helpers';
 import { useVaultCapacity } from '../hooks';
 import { VaultTradeType } from '@notional-finance/notionable';
 import { FormattedMessage } from 'react-intl';
+import { TradeSummary } from '@notional-finance/trade/transaction-sidebar/components/trade-summary';
+import { CreateVaultLiquidationRisk } from './create-vault-liquidation-risk';
 
 interface VaultSideDrawerProps {
   children?: React.ReactNode | React.ReactNode[];
@@ -30,10 +32,8 @@ export const VaultSideDrawer = ({
 }: VaultSideDrawerProps) => {
   const isBlocked = useGeoipBlock();
   const history = useHistory();
-  const {
-    state: { vaultAddress, tradeType: _tradeType, canSubmit, confirm },
-    updateState,
-  } = context;
+  const { state, updateState } = context;
+  const { vaultAddress, tradeType: _tradeType, canSubmit, confirm } = state;
   const { minDepositRequired } = useVaultProperties(vaultAddress);
   const { minBorrowSize } = useVaultCapacity();
   const tradeType = _tradeType as VaultTradeType;
@@ -80,7 +80,12 @@ export const VaultSideDrawer = ({
       hideTextOnMobile={false}
     >
       {children}
-      <VaultDetailsTable key={'vault-risk-table'} />
+      {tradeType === 'CreateVaultPosition' ? (
+        <CreateVaultLiquidationRisk key={'vault-risk-table'} state={state} />
+      ) : (
+        <VaultDetailsTable key={'vault-risk-table'} />
+      )}
+      <TradeSummary key={'vault-trade-summary'} state={state} />
     </ActionSidebar>
   );
 };

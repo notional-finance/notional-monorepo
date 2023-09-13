@@ -4,12 +4,7 @@ import {
   TokenBalance,
   TokenDefinition,
 } from '@notional-finance/core-entities';
-import {
-  AccountRiskProfile,
-  RiskFactorKeys,
-  RiskFactorLimit,
-  VaultAccountRiskProfile,
-} from '@notional-finance/risk-engine';
+import { RiskFactorKeys, RiskFactorLimit } from '@notional-finance/risk-engine';
 import {
   CalculationFn,
   CalculationFnParams,
@@ -18,6 +13,7 @@ import {
 import { PopulatedTransaction } from 'ethers';
 import { VaultTradeConfiguration, VaultTradeType } from './vault-trade-config';
 import { TradeType } from './trade-config';
+import { AccountRiskSummary, VaultAccountRiskSummary } from './sagas';
 export { TradeConfiguration } from './trade-config';
 export { VaultTradeConfiguration } from './vault-trade-config';
 export type { TradeType } from './trade-config';
@@ -26,7 +22,7 @@ export type { VaultTradeType } from './vault-trade-config';
 export type FilterFunc = (
   t: TokenDefinition,
   a: AccountDefinition | null,
-  s: BaseTradeState
+  s: VaultTradeState | TradeState
 ) => boolean;
 
 export interface TransactionConfig {
@@ -122,10 +118,6 @@ interface TransactionState {
   /** Net cost of debts in underlying terms*/
   netRealizedDebtBalance?: TokenBalance;
 
-  /**
-   * The accounts entire set of balances post trade, for vault trades
-   * this is only the vault related balances.
-   */
   postTradeBalances?: TokenBalance[];
 }
 
@@ -150,21 +142,13 @@ export interface BaseTradeState
     TransactionState,
     VaultState {}
 
-export interface TradeState extends BaseTradeState {
-  /** Account risk factors prior to any changes to the account */
-  priorAccountRisk?: ReturnType<AccountRiskProfile['getAllRiskFactors']>;
-  /** Account risk factors after changes applied to the account */
-  postAccountRisk?: ReturnType<AccountRiskProfile['getAllRiskFactors']>;
-}
+export interface TradeState
+  extends BaseTradeState,
+    Partial<Omit<AccountRiskSummary, 'postTradeBalances'>> {}
 
-export interface VaultTradeState extends BaseTradeState {
-  /** Account risk factors prior to any changes to the account */
-  priorAccountRisk?: ReturnType<VaultAccountRiskProfile['getAllRiskFactors']>;
-  /** Account risk factors after changes applied to the account */
-  postAccountRisk?: ReturnType<VaultAccountRiskProfile['getAllRiskFactors']>;
-  /** All the prior vault balances (if any) */
-  priorVaultBalances?: TokenBalance[];
-}
+export interface VaultTradeState
+  extends BaseTradeState,
+    Partial<Omit<VaultAccountRiskSummary, 'postTradeBalances'>> {}
 
 export const initialBaseTradeState: BaseTradeState = {
   isReady: false,

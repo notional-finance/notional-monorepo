@@ -4,26 +4,18 @@ import {
   YieldData,
   fCashMarket,
   FiatKeys,
-  Registry,
 } from '@notional-finance/core-entities';
 import {
-  formatLeverageRatio,
   formatNumberAsPercent,
+  formatNumberAsPercentWithUndefined,
   formatTokenType,
 } from '@notional-finance/helpers';
 import {
   BaseTradeState,
   TradeState,
   VaultTradeState,
-  isVaultTrade,
 } from '@notional-finance/notionable';
-import {
-  RATE_DECIMALS,
-  RATE_PRECISION,
-  SECONDS_IN_DAY,
-  getMidnightUTC,
-  zipByKeyToArray,
-} from '@notional-finance/util';
+import { RATE_DECIMALS, RATE_PRECISION } from '@notional-finance/util';
 import {
   IntlShape,
   MessageDescriptor,
@@ -31,14 +23,7 @@ import {
   useIntl,
 } from 'react-intl';
 import { useAllMarkets } from './use-market';
-import {
-  useAccountDefinition,
-  usePortfolioRiskProfile,
-  useVaultRiskProfiles,
-} from './use-account';
-import { AccountRiskProfile } from '@notional-finance/risk-engine';
 import { useFiat } from './use-user-settings';
-import { useSelectedNetwork } from './use-notional';
 
 interface DetailItem {
   label: React.ReactNode;
@@ -401,7 +386,7 @@ function getTradeDetail(
   throw Error('invalid asset key');
 }
 
-export function useTradeSummary(state: BaseTradeState) {
+export function useTradeSummary(state: VaultTradeState | TradeState) {
   const intl = useIntl();
   const baseCurrency = useFiat();
   const {
@@ -415,7 +400,10 @@ export function useTradeSummary(state: BaseTradeState) {
   } = state;
 
   // TODO: if underlying is not all the same the convert to fiat currency instead
-  const underlying = netAssetBalance?.underlying || netDebtBalance?.underlying;
+  const underlying =
+    netAssetBalance?.underlying ||
+    netDebtBalance?.underlying ||
+    depositBalance?.token;
   if (!canSubmit || !underlying)
     return {
       summary: undefined,
@@ -475,42 +463,75 @@ export function useTradeSummary(state: BaseTradeState) {
         isTotalRow: true,
       };
 
+  let feeValue = TokenBalance.zero(underlying);
   const summary: DetailItem[] = [];
   if (isLeverageOrRoll) {
-    if (depositBalance?.isPositive()) {
+    if (
+      depositBalance?.isPositive() ||
+      tradeType === 'IncreaseVaultPosition' ||
+      tradeType === 'RollVaultPosition'
+    ) {
       // Deposit and Mint X
-      summary.push(
-        getTradeDetail(
-          depositBalance,
-          'Asset',
-          'deposit',
-          intl,
-          collateralBalance.token
-        )
-      );
+      if (depositBalance?.isPositive()) {
+        summary.push(
+          getTradeDetail(
+            depositBalance,
+            'Asset',
+            'deposit',
+            intl,
+            collateralBalance.token
+          )
+        );
+      }
       // NOTE: technically net asset changes may occur here inside Leveraged Lend
       // or Leveraged Liquidity but currently they won't show in the trade summary
       // Borrow
       summary.push(getTradeDetail(debtBalance, 'Debt', 'none', intl));
+
+      // NOTE: rolling a vault debt will repay and withdraw all current shares
+      if (tradeType === 'RollVaultPosition') {
+        const { priorVaultBalances } = state as VaultTradeState;
+        if (priorVaultBalances) {
+          const debt = priorVaultBalances.find(
+            (t) => t.tokenType === 'VaultDebt'
+          );
+          const assets = priorVaultBalances.find(
+            (t) => t.tokenType === 'VaultShare'
+          );
+          if (debt) {
+            summary.push(getTradeDetail(debt.neg(), 'Debt', 'repay', intl));
+            feeValue = debt.toUnderlying().sub(debtBalance.toUnderlying());
+          }
+
+          if (assets)
+            summary.push(
+              getTradeDetail(assets.neg(), 'Asset', 'withdraw', intl)
+            );
+        }
+      }
+
       // Mint X - deposit
       summary.push(
         getTradeDetail(
-          collateralBalance.toUnderlying().sub(depositBalance),
+          depositBalance
+            ? collateralBalance.toUnderlying().sub(depositBalance)
+            : collateralBalance.toUnderlying(),
           'Asset',
           'none',
           intl,
           collateralBalance.token
         )
       );
-    } else if (depositBalance?.isNegative()) {
-      // NOTE: this is only going to be a withdraw vault transaction
+    } else if (
+      tradeType === 'WithdrawVault' ||
+      tradeType === 'WithdrawAndRepayVault'
+    ) {
       // Sell assets
       summary.push(
         getTradeDetail(collateralBalance.neg(), 'Asset', 'withdraw', intl)
       );
       // Repay debt
-      summary.push(getTradeDetail(debtBalance, 'Debt', 'deposit', intl));
-
+      summary.push(getTradeDetail(debtBalance, 'Debt', 'repay', intl));
       /** NOTE: net asset and balance changes are used below here **/
     } else if (tradeType === 'Deleverage') {
       // In deleverage, the collateral and asset are reversed.
@@ -546,6 +567,9 @@ export function useTradeSummary(state: BaseTradeState) {
         // This is the new asset balance
         summary.push(getTradeDetail(netAssetBalance, 'Asset', 'none', intl));
     }
+  } else if (tradeType === 'DepositVaultCollateral') {
+    if (collateralBalance)
+      summary.push(getTradeDetail(collateralBalance, 'Asset', 'deposit', intl));
   } else if (depositBalance?.isPositive()) {
     if (netDebtBalance?.isZero() === false)
       summary.push(getTradeDetail(netDebtBalance, 'Debt', 'deposit', intl));
@@ -589,8 +613,11 @@ export function useTradeSummary(state: BaseTradeState) {
     return { summary: undefined, total: undefined };
   }
 
-  let feeValue = TokenBalance.zero(underlying);
-  if (isLeverageOrRoll) {
+  if (tradeType === 'RollVaultPosition') {
+    // No-Op: value is set above
+  } else if (isLeverageOrRoll) {
+    // Do not include roll vault position because the margin will be
+    // incorrectly included in the fee value
     feeValue = collateralBalance
       .toUnderlying()
       .sub(depositBalance || TokenBalance.zero(underlying))
@@ -623,67 +650,16 @@ export function useTradeSummary(state: BaseTradeState) {
   return { summary, total };
 }
 
-type ChangeType = 'increase' | 'decrease' | 'none' | 'cleared';
-interface CompareData {
-  label: string;
-  current: string;
-  updated: string;
-  changeType: ChangeType;
-  isCurrentNegative: boolean;
-  isUpdatedNegative: boolean;
-  sortOrder: number;
-}
-
 export function usePortfolioComparison(
-  state: BaseTradeState,
+  state: TradeState | VaultTradeState,
   fiat: FiatKeys = 'USD'
 ) {
-  const { account } = useAccountDefinition();
-  const network = useSelectedNetwork();
-  const { postTradeBalances, tradeType, vaultAddress } = state;
-  const priorBalances = account
-    ? isVaultTrade(tradeType) && vaultAddress
-      ? account.balances.filter(
-          (t) => t.isVaultToken && t.vaultAddress === vaultAddress
-        )
-      : new AccountRiskProfile(account.balances, network).balances
-    : [];
-
-  const tableData: CompareData[] | undefined = postTradeBalances
-    ?.filter((t) => t.tokenType !== 'Underlying')
-    .map((b) => {
-      const { titleWithMaturity } =
-        b.tokenType === 'PrimeCash' && b.isNegative()
-          ? formatTokenType(
-              Registry.getTokenRegistry().getPrimeDebt(b.network, b.currencyId)
-            )
-          : formatTokenType(b.token);
-      const current =
-        priorBalances.find((t) => t.tokenId === b.tokenId) || b.copy(0);
-
-      let changeType: string | undefined;
-      if (current.isZero() && b.isZero()) changeType = undefined;
-      else {
-        changeType = current.eq(b)
-          ? 'none'
-          : current.gt(b)
-          ? 'decrease'
-          : 'increase';
-      }
-
-      return {
-        label: titleWithMaturity,
-        current: current.toFiat(fiat).toDisplayStringWithSymbol(3, true),
-        isCurrentNegative: current.isNegative(),
-        updated: b.toFiat(fiat).toDisplayStringWithSymbol(3, true),
-        isUpdatedNegative: b.isNegative(),
-        sortOrder: b.sub(current).abs().toFloat(),
-        changeType,
-      };
-    })
-    .filter(({ changeType }) => changeType !== undefined) as CompareData[];
-
-  const allTableData = tableData?.sort((a, b) => b.sortOrder - a.sortOrder);
+  const { postTradeBalances, comparePortfolio } = state;
+  const allTableData = (comparePortfolio || []).map((p) => ({
+    ...p,
+    current: p.current.toFiat(fiat).toDisplayStringWithSymbol(3, true),
+    updated: p.updated.toFiat(fiat).toDisplayStringWithSymbol(3, true),
+  }));
   const filteredTableData = allTableData.filter(
     ({ changeType }) => changeType !== 'none'
   );
@@ -696,194 +672,63 @@ export function usePortfolioComparison(
   };
 }
 
-function getChangeType(
-  current: number | undefined | null,
-  updated: number | undefined | null
+function formatLiquidationPrices(
+  liquidationPrice: TradeState['liquidationPrice'],
+  baseCurrency: FiatKeys,
+  intl: IntlShape
 ) {
-  // TODO: need to show something else here for health factor
-  if (!current && updated) return 'increase';
-  else if (!updated && current) return 'cleared';
-  else if (updated && current)
-    return updated === current
-      ? 'none'
-      : updated > current
-      ? 'increase'
-      : 'decrease';
-  else return 'none';
-}
-
-function getPriceDistance(
-  current: TokenBalance,
-  liquidation: TokenBalance | null | undefined
-) {
-  if (!liquidation) return null;
-  if (current.isZero()) return 0;
   return (
-    (100 * (current.toFloat() - liquidation.toFloat())) / current.toFloat()
+    (liquidationPrice || []).map((p) => {
+      return {
+        ...p,
+        label: p.isPriceRisk
+          ? intl.formatMessage(
+              { defaultMessage: '{asset} / {base} Liquidation Price' },
+              {
+                asset: p.asset.symbol,
+                base: baseCurrency,
+              }
+            )
+          : intl.formatMessage(
+              { defaultMessage: '{asset} Liquidation Price' },
+              {
+                asset: formatTokenType(p.asset).title,
+              }
+            ),
+        current: p.isPriceRisk
+          ? p.current?.toFiat(baseCurrency).toDisplayStringWithSymbol(3) ||
+            'No Risk'
+          : p.current?.toUnderlying().toDisplayStringWithSymbol(3) || 'No Risk',
+        updated: p.isPriceRisk
+          ? p.updated?.toFiat(baseCurrency).toDisplayStringWithSymbol(3) ||
+            'No Risk'
+          : p.updated?.toUnderlying().toDisplayStringWithSymbol(3) || 'No Risk',
+      };
+    }) || []
   );
-}
-
-function getPriceChange(asset: TokenDefinition, toFiat?: FiatKeys) {
-  const unit = TokenBalance.unit(asset);
-  const currentPrice = toFiat ? unit.toFiat(toFiat) : unit.toUnderlying();
-  const tref = getMidnightUTC();
-
-  try {
-    const oneDay = toFiat
-      ? unit.toFiat(toFiat, tref - SECONDS_IN_DAY)
-      : unit.toUnderlying(tref - SECONDS_IN_DAY);
-    const sevenDay = toFiat
-      ? unit.toFiat(toFiat, tref - 7 * SECONDS_IN_DAY)
-      : unit.toUnderlying(tref - 7 * SECONDS_IN_DAY);
-    return {
-      oneDayChange:
-        ((currentPrice.toFloat() - oneDay.toFloat()) / currentPrice.toFloat()) *
-        100,
-      sevenDayChange:
-        ((currentPrice.toFloat() - sevenDay.toFloat()) /
-          currentPrice.toFloat()) *
-        100,
-      currentPrice,
-    };
-  } catch (e) {
-    return {
-      onDayChange: undefined,
-      sevenDayChange: undefined,
-      currentPrice,
-    };
-  }
-}
-
-function getLiquidationPrices(
-  prior: ReturnType<AccountRiskProfile['getAllLiquidationPrices']>,
-  post: ReturnType<AccountRiskProfile['getAllLiquidationPrices']>,
-  fiatToken: FiatKeys
-) {
-  return zipByKeyToArray(prior, post, (t) => t.asset.id).map(
-    ([current, updated]) => {
-      const asset = (current?.asset || updated?.asset) as TokenDefinition;
-      if (asset.tokenType === 'Underlying') {
-        const { currentPrice, oneDayChange, sevenDayChange } = getPriceChange(
-          asset,
-          fiatToken
-        );
-        return {
-          label: `${asset.symbol} / ${fiatToken} Liquidation Price`,
-          asset,
-          underlying: asset,
-          currentPrice,
-          current:
-            current?.threshold
-              ?.toFiat(fiatToken)
-              .toDisplayStringWithSymbol(3) || 'No Risk',
-          updated:
-            updated?.threshold
-              ?.toFiat(fiatToken)
-              .toDisplayStringWithSymbol(3) || 'No Risk',
-          changeType: getChangeType(
-            current?.threshold?.toFloat(),
-            updated?.threshold?.toFloat()
-          ),
-          currentPriceDistance: getPriceDistance(
-            currentPrice,
-            current?.threshold
-          ),
-          updatedPriceDistance: getPriceDistance(
-            currentPrice,
-            updated?.threshold
-          ),
-          // Debt thresholds improve as they increase
-          greenOnArrowUp: updated?.isDebtThreshold ? true : false,
-          isPriceRisk: true,
-          isAssetRisk: false,
-          oneDayChange,
-          sevenDayChange,
-        };
-      } else {
-        const { currentPrice, oneDayChange, sevenDayChange } =
-          getPriceChange(asset);
-
-        return {
-          label: `${formatTokenType(asset).title} Liquidation Price`,
-          asset,
-          underlying: currentPrice.token,
-          currentPrice,
-          current:
-            current?.threshold?.toUnderlying().toDisplayStringWithSymbol(3) ||
-            'No Risk',
-          updated:
-            updated?.threshold?.toUnderlying().toDisplayStringWithSymbol(3) ||
-            'No Risk',
-          changeType: getChangeType(
-            current?.threshold?.toFloat(),
-            updated?.threshold?.toFloat()
-          ),
-          currentPriceDistance: getPriceDistance(
-            currentPrice,
-            current?.threshold
-          ),
-          updatedPriceDistance: getPriceDistance(
-            currentPrice,
-            updated?.threshold
-          ),
-          // Debt thresholds improve as they increase
-          greenOnArrowUp: updated?.isDebtThreshold ? true : false,
-          oneDayChange,
-          sevenDayChange,
-          isPriceRisk: false,
-          isAssetRisk: true,
-        };
-      }
-    }
-  );
-}
-
-export function useCurrentLiquidationPrices() {
-  const portfolioRisk = usePortfolioRiskProfile();
-  const vaults = useVaultRiskProfiles();
-  const baseCurrency = useFiat();
-
-  const portfolioLiquidation = getLiquidationPrices(
-    portfolioRisk.getAllLiquidationPrices() || [],
-    [],
-    baseCurrency
-  );
-
-  const vaultLiquidation = vaults.map((v) => {
-    return {
-      vaultAddress: v.vaultAddress,
-      vaultName: v.vaultConfig.name,
-      liquidationPrices: getLiquidationPrices(
-        v.getAllLiquidationPrices() || [],
-        [],
-        baseCurrency
-      ),
-    };
-  });
-
-  return { portfolioLiquidation, vaultLiquidation };
 }
 
 export function usePortfolioLiquidationRisk(state: TradeState) {
-  const { priorAccountRisk, postAccountRisk } = state;
+  const {
+    priorAccountRisk,
+    postAccountRisk,
+    healthFactor: _h,
+    liquidationPrice,
+  } = state;
   const onlyCurrent = !postAccountRisk;
   const intl = useIntl();
   const baseCurrency = useFiat();
   const healthFactor = {
+    ..._h,
     label: intl.formatMessage({ defaultMessage: 'Health Factor' }),
-    current: priorAccountRisk?.healthFactor?.toFixed(2) || 'No Risk',
-    updated: postAccountRisk?.healthFactor?.toFixed(2) || 'No Risk',
-    changeType: getChangeType(
-      priorAccountRisk?.healthFactor,
-      postAccountRisk?.healthFactor
-    ),
-    greenOnArrowUp: true,
+    current: _h?.current?.toFixed(2) || 'No Risk',
+    updated: _h?.updated?.toFixed(2) || 'No Risk',
   };
 
-  const mergedLiquidationPrices = getLiquidationPrices(
-    priorAccountRisk?.liquidationPrice || [],
-    postAccountRisk?.liquidationPrice || [],
-    baseCurrency
+  const liquidationPrices = formatLiquidationPrices(
+    liquidationPrice,
+    baseCurrency,
+    intl
   );
 
   return {
@@ -892,55 +737,55 @@ export function usePortfolioLiquidationRisk(state: TradeState) {
     priorAccountNoRisk:
       priorAccountRisk === undefined || priorAccountRisk?.healthFactor === null,
     postAccountNoRisk: postAccountRisk?.healthFactor === null,
-    tableData: [healthFactor, ...mergedLiquidationPrices],
+    tableData: [healthFactor, ...liquidationPrices],
   };
 }
 
 export function useVaultLiquidationRisk(state: VaultTradeState) {
-  const { priorAccountRisk, postAccountRisk } = state;
+  const {
+    priorAccountRisk,
+    postAccountRisk,
+    netWorth,
+    liquidationPrice,
+    borrowAPY,
+    totalAPY,
+  } = state;
   const onlyCurrent = !postAccountRisk;
   const intl = useIntl();
   const baseCurrency = useFiat();
 
   const factors = [
     {
-      label: intl.formatMessage({ defaultMessage: 'Assets' }),
-      current: priorAccountRisk?.assets.toDisplayStringWithSymbol(3, true),
-      updated: postAccountRisk?.assets.toDisplayStringWithSymbol(3, true),
-      changeType: getChangeType(
-        priorAccountRisk?.assets.toFloat(),
-        postAccountRisk?.assets.toFloat()
-      ),
-      greenOnArrowUp: true,
+      ...totalAPY,
+      label: intl.formatMessage({ defaultMessage: 'Total APY' }),
+      current: formatNumberAsPercentWithUndefined(totalAPY?.current, '-'),
+      updated: formatNumberAsPercentWithUndefined(totalAPY?.updated, '-'),
     },
     {
-      label: intl.formatMessage({ defaultMessage: 'Debts' }),
-      current: priorAccountRisk?.debts.toDisplayStringWithSymbol(3, true),
-      updated: postAccountRisk?.debts.toDisplayStringWithSymbol(3, true),
-      changeType: getChangeType(
-        priorAccountRisk?.debts.toFloat(),
-        postAccountRisk?.debts.toFloat()
-      ),
-      greenOnArrowUp: true,
+      ...netWorth,
+      label: intl.formatMessage({ defaultMessage: 'Net Worth' }),
+      current:
+        netWorth?.current
+          ?.toFiat(baseCurrency)
+          .toDisplayStringWithSymbol(3, true) || '-',
+      updated:
+        netWorth?.updated
+          ?.toFiat(baseCurrency)
+          .toDisplayStringWithSymbol(3, true) || '-',
     },
     {
-      label: intl.formatMessage({ defaultMessage: 'Leverage Ratio' }),
-      current: formatLeverageRatio(priorAccountRisk?.leverageRatio || 0),
-      updated: formatLeverageRatio(postAccountRisk?.leverageRatio || 0),
-      changeType: getChangeType(
-        priorAccountRisk?.leverageRatio,
-        postAccountRisk?.leverageRatio
-      ),
-      greenOnArrowUp: false,
+      ...borrowAPY,
+      label: intl.formatMessage({ defaultMessage: 'Borrow APY' }),
+      current: formatNumberAsPercentWithUndefined(borrowAPY?.current, '-'),
+      updated: formatNumberAsPercentWithUndefined(borrowAPY?.updated, '-'),
     },
-    // TODO: need to add the APY here
   ];
 
-  const mergedLiquidationPrices = getLiquidationPrices(
-    priorAccountRisk?.liquidationPrice || [],
-    postAccountRisk?.liquidationPrice || [],
-    baseCurrency
-  ).filter((p) => p.isPriceRisk);
+  const liquidationPrices = formatLiquidationPrices(
+    (liquidationPrice || []).filter((p) => p.isPriceRisk),
+    baseCurrency,
+    intl
+  );
 
   return {
     onlyCurrent,
@@ -950,6 +795,6 @@ export function useVaultLiquidationRisk(state: VaultTradeState) {
       priorAccountRisk?.leverageRatio === null,
     postAccountNoRisk:
       postAccountRisk === undefined || postAccountRisk?.leverageRatio === null,
-    tableData: [...factors, ...mergedLiquidationPrices],
+    tableData: [...factors, ...liquidationPrices],
   };
 }

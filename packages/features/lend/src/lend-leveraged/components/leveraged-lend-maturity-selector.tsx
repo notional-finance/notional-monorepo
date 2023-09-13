@@ -219,7 +219,6 @@ const VariableMaturityCard = ({
       maturityData={
         {
           tradeRate: variableRate,
-          hasLiquidity: true,
         } as MaturityData
       }
     />

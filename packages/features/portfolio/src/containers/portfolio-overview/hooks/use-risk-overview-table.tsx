@@ -3,16 +3,11 @@ import {
   MultiValueCell,
   MultiValueIconCell,
 } from '@notional-finance/mui';
-import {
-  useCurrentLiquidationPrices,
-  useFiat,
-} from '@notional-finance/notionable-hooks';
+import { useCurrentLiquidationPrices } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
 
 export const useRiskOverviewTable = () => {
-  const { portfolioLiquidation, vaultLiquidation } =
-    useCurrentLiquidationPrices();
-  const baseCurrency = useFiat();
+  const { exchangeRateRisk, vaultLiquidation } = useCurrentLiquidationPrices();
 
   const riskOverviewColumns: DataTableColumn[] = [
     {
@@ -59,50 +54,12 @@ export const useRiskOverviewTable = () => {
     },
   ];
 
-  const liquidationPrices = portfolioLiquidation
-    .filter(({ isPriceRisk }) => isPriceRisk)
-    .map(({ asset, currentPrice, current }) => {
-      return {
-        collateral: {
-          symbol: asset.symbol,
-          label: asset.symbol,
-        },
-        riskFactor: {
-          data: [`${asset.symbol}/${baseCurrency}`, 'Chainlink Oracle Price'],
-          isNegative: false,
-        },
-        currentPrice: currentPrice.toDisplayStringWithSymbol(3),
-        liquidationPrice: current,
-      };
-    });
-
   const vaultLiquidationPrice = vaultLiquidation.flatMap(
-    ({ vaultName, liquidationPrices }) => {
-      return liquidationPrices
-        .filter(({ asset }) => asset.tokenType === 'VaultShare')
-        .map(({ underlying, currentPrice, current }) => {
-          return {
-            collateral: {
-              symbol: underlying.symbol,
-              label: vaultName,
-              caption: 'Leveraged Vault',
-            },
-            riskFactor: {
-              data: [
-                `Vault Shares/${underlying.symbol}`,
-                'Chainlink Oracle Price',
-              ],
-              isNegative: false,
-            },
-            currentPrice: currentPrice.toDisplayStringWithSymbol(3),
-            liquidationPrice: current,
-          };
-        });
-    }
+    ({ liquidationPrices }) => liquidationPrices
   );
 
   return {
     riskOverviewColumns,
-    riskOverviewData: liquidationPrices.concat(vaultLiquidationPrice),
+    riskOverviewData: exchangeRateRisk.concat(vaultLiquidationPrice),
   };
 };

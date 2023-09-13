@@ -11,13 +11,13 @@ import {
 export function createVaultContext() {
   return createObservableContext<VaultTradeState>(
     'vault-context',
-    initialBaseTradeState
+    initialBaseTradeState as VaultTradeState
   );
 }
 
 export function useVaultContext() {
   const { updateState, state$, state } = useObservableContext<VaultTradeState>(
-    initialBaseTradeState,
+    initialBaseTradeState as VaultTradeState,
     createVaultTradeManager
   );
 

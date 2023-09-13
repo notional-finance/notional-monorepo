@@ -6,11 +6,15 @@ import {
   NegativeValueCell,
   TABLE_VARIANTS,
 } from '@notional-finance/mui';
-import { BaseTradeState } from '@notional-finance/notionable';
+import { TradeState, VaultTradeState } from '@notional-finance/notionable';
 import { usePortfolioComparison } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
 
-export const PortfolioCompare = ({ state }: { state: BaseTradeState }) => {
+export const PortfolioCompare = ({
+  state,
+}: {
+  state: TradeState | VaultTradeState;
+}) => {
   const theme = useTheme();
   const [showHiddenRows, setShowHiddenRows] = useState(false);
   const { onlyCurrent, allTableData, filteredTableData } =

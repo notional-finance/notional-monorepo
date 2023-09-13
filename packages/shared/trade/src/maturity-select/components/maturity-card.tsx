@@ -23,8 +23,8 @@ export function MaturityCard({
   isVariable,
 }: MaturityCardProps) {
   const theme = useTheme();
-  const { tradeRate, hasLiquidity, maturity, tokenId } = maturityData;
-  const disabled = tradeRate === undefined || !hasLiquidity;
+  const { tradeRate, maturity, tokenId } = maturityData;
+  const disabled = tradeRate === undefined;
 
   const handleSelect = () => {
     if (!disabled) onSelect(tokenId);
@@ -83,9 +83,8 @@ export function MaturityCard({
         )}
       </BodySecondary>
       <LabelValue fontWeight="regular">
-        {!hasLiquidity && <FormattedMessage defaultMessage="Not Initialized" />}
         {tradeRate === undefined && '--'}
-        {hasLiquidity && tradeRate !== undefined && (
+        {tradeRate !== undefined && (
           <CountUp value={tradeRate} suffix="%" duration={1} />
         )}
       </LabelValue>

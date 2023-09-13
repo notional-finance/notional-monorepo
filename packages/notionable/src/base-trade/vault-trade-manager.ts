@@ -9,15 +9,12 @@ import {
   availableTokens,
   buildTransaction,
   resetOnTradeTypeChange,
-  defaultLeverageRatio,
   simulateTransaction,
-} from './logic';
-import {
-  selectedAccount,
-  selectedNetwork,
   selectedPool,
   selectedVaultAdapter,
-} from './selectors';
+  defaultVaultLeverageRatio,
+} from './sagas';
+import { selectedAccount, selectedNetwork } from '../global';
 import { calculate } from './trade-calculation';
 
 export function createVaultTradeManager(
@@ -36,7 +33,7 @@ export function createVaultTradeManager(
     buildTransaction(state$, account$),
     postVaultAccountRisk(state$, account$),
     calculate(state$, debtPool$, of(undefined), vaultAdapter$, account$),
-    defaultLeverageRatio(state$, network$),
+    defaultVaultLeverageRatio(state$, network$),
     priorVaultAccountRisk(state$, account$),
     availableTokens(state$, network$, account$),
     initVaultState(state$, network$, global$),

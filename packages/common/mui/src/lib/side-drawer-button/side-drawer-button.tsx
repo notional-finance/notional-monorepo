@@ -2,6 +2,7 @@ import { styled, Box, useTheme, SxProps, alpha } from '@mui/material';
 import { colors } from '@notional-finance/styles';
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { ButtonText } from '../typography/typography';
 
 export interface SideDrawerButtonProps {
   children: React.ReactNode;
@@ -44,6 +45,19 @@ const Button = styled(Box)(
   &:hover {
     background: ${alpha(colors.aqua, 0.5)};
   }
+  `
+);
+
+export const ButtonData = styled(ButtonText)(
+  ({ theme }) => `
+    float: right;
+    border: ${theme.shape.borderStandard};
+    border-color: ${theme.palette.primary.light};
+    background: ${theme.palette.background.paper};
+    padding: ${theme.spacing(1, 2)};
+    border-radius: ${theme.shape.borderRadius()};
+    color: ${theme.palette.common.black};
+    margin-bottom: 0px;
   `
 );
 

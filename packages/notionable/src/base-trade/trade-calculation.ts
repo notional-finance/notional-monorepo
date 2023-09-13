@@ -25,11 +25,23 @@ import { isHashable } from '../utils';
 import {
   BaseTradeState,
   TokenOption,
+  TradeConfiguration,
   TradeType,
+  VaultTradeConfiguration,
   VaultTradeType,
   isVaultTrade,
 } from './base-trade-store';
-import { getTradeConfig } from './logic';
+
+export function getTradeConfig(tradeType?: TradeType | VaultTradeType) {
+  if (!tradeType) throw Error('Trade type undefined');
+
+  const config =
+    TradeConfiguration[tradeType as TradeType] ||
+    VaultTradeConfiguration[tradeType as VaultTradeType];
+
+  if (!config) throw Error('Trade configuration not found');
+  return config;
+}
 
 export function calculateMaxWithdraw(
   state$: Observable<BaseTradeState>,
@@ -102,17 +114,33 @@ export function calculate(
     // we don't get race conditions around duplicate input keys. The second
     // parameter ensures that we start a new buffer on every emission
     bufferCount(2, 1),
-    // Add this here to throttle calculations for the UI a bit.
-    auditTime(100),
-    map(([[p], [s, debtPool, collateralPool, a, vaultAdapter]]) => ({
-      prevCalculateInputKeys: p.calculateInputKeys,
-      prevInputsSatisfied: p.inputsSatisfied,
-      s,
-      debtPool,
-      collateralPool,
-      a,
-      vaultAdapter,
-    })),
+    map(([[p], [s, debtPool, collateralPool, a, vaultAdapter]]) => {
+      // Need to calculate the previous input keys because the updates lag in
+      // the state emission causing duplicate calculations.
+      const { requiredArgs, calculateCollateralOptions, calculateDebtOptions } =
+        getTradeConfig(s.tradeType);
+      const { inputsSatisfied, keys } = getRequiredArgs(
+        requiredArgs,
+        p,
+        a,
+        collateralPool,
+        debtPool,
+        vaultAdapter
+      );
+
+      return {
+        prevCalculateInputKeys: keys.join('|'),
+        prevInputsSatisfied: inputsSatisfied,
+        s,
+        debtPool,
+        collateralPool,
+        a,
+        vaultAdapter,
+        requiredArgs,
+        calculateCollateralOptions,
+        calculateDebtOptions,
+      };
+    }),
     map(
       ({
         prevInputsSatisfied,
@@ -122,14 +150,10 @@ export function calculate(
         collateralPool,
         a,
         vaultAdapter,
+        requiredArgs,
+        calculateCollateralOptions,
+        calculateDebtOptions,
       }) => {
-        const {
-          requiredArgs,
-          calculateCollateralOptions,
-          calculateDebtOptions,
-        } = getTradeConfig(s.tradeType);
-
-        // Skip the rest of the trade logic if this is set to true
         if (s.maxWithdraw) return undefined;
 
         const { inputsSatisfied, inputs, keys } = getRequiredArgs(

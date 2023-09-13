@@ -11,3 +11,12 @@ export function formatInterestRate(rate?: number, precision = 3) {
 
   return `${rateString}%`;
 }
+
+export function leveragedYield(
+  strategyAPY: number | undefined,
+  borrowAPY: number | undefined,
+  leverageRatio: number
+) {
+  if (strategyAPY === undefined || borrowAPY === undefined) return undefined;
+  return strategyAPY + (strategyAPY - borrowAPY) * leverageRatio;
+}
