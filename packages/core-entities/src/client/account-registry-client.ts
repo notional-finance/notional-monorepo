@@ -488,9 +488,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
             ),
             accountIncentiveDebt: Object.keys(results).flatMap(
               (k) =>
-                (k.includes('balance')
-                  ? results[k]
-                  : k.includes('account')
+                (k.includes('account')
                   ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     (results[k] as any)['accountIncentiveDebt']
                   : []) as AccountIncentiveDebt[]

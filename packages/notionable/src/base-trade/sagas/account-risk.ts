@@ -84,14 +84,16 @@ export function postAccountRisk(
                   );
 
                 if (balanceBefore) {
-                  if (!accountIncentiveDebt)
-                    throw Error('Unknown account incentive debt');
-                  return note.add(
-                    calculateNTokenIncentives(
-                      balanceBefore,
-                      accountIncentiveDebt.value
-                    )
-                  );
+                  if (!accountIncentiveDebt) {
+                    return note;
+                  } else {
+                    return note.add(
+                      calculateNTokenIncentives(
+                        balanceBefore,
+                        accountIncentiveDebt.value
+                      )
+                    );
+                  }
                 }
               }
 
