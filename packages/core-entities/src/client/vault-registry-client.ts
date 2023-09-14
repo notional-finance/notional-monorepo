@@ -9,6 +9,10 @@ export class VaultRegistryClient extends ClientRegistry<VaultMetadata> {
     return Routes.Vaults;
   }
 
+  isVaultEnabled(network: Network, vaultAddress: string) {
+    return this.isKeyRegistered(network, vaultAddress);
+  }
+
   getVaultAdapter(network: Network, vaultAddress: string) {
     const params = this.getLatestFromSubject(network, vaultAddress);
     if (!params) throw Error('No vault params found');
