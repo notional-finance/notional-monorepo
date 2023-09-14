@@ -2,13 +2,19 @@ import { Box, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { ExternalLinkIcon } from '@notional-finance/icons';
 import { ExternalLink, Body, H5 } from '@notional-finance/mui';
+import { VaultsDataProps } from '../vault-view/vault-summary';
 
 interface RiskFaqProps {
-  tokenSymbol?: string;
+  vaultStrategyData?: VaultsDataProps;
 }
 
-export const RiskFaq = ({ tokenSymbol }: RiskFaqProps) => {
+export const RiskFaq = ({ vaultStrategyData }: RiskFaqProps) => {
   const theme = useTheme();
+
+  if (!vaultStrategyData) return null;
+
+  const { primaryBorrowCurrency, secondaryCurrency } = vaultStrategyData;
+
   return (
     <Box>
       <H5
@@ -68,10 +74,11 @@ export const RiskFaq = ({ tokenSymbol }: RiskFaqProps) => {
       <Body sx={{ marginBottom: theme.spacing(2) }}>
         <FormattedMessage
           defaultMessage={
-            'If the price of st{tokenSymbol}/{tokenSymbol} changes, you could make or lose money. If it moves past your liquidation price, you could get liquidated.'
+            'If the price of {secondaryCurrency}/{primaryBorrowCurrency} changes, you could make or lose money. If it moves past your liquidation price, you could get liquidated.'
           }
           values={{
-            tokenSymbol,
+            primaryBorrowCurrency,
+            secondaryCurrency,
           }}
         />
       </Body>

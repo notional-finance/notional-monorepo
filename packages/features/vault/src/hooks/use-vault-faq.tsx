@@ -8,6 +8,7 @@ import {
   getEtherscanAddressLink,
   NotionalAddress,
 } from '@notional-finance/util';
+import { VaultsDataProps } from '../vault-view/vault-summary';
 
 interface FaqProps {
   question: ReactNode;
@@ -15,7 +16,7 @@ interface FaqProps {
   componentAnswer?: ReactNode;
 }
 
-export const useVaultFaq = (tokenSymbol: string | undefined) => {
+export const useVaultFaq = (vaultStrategyData: VaultsDataProps | undefined) => {
   const selectedNetwork = useSelectedNetwork();
   const faqHeaderLinks = [
     {
@@ -42,7 +43,7 @@ export const useVaultFaq = (tokenSymbol: string | undefined) => {
           description={'faq question'}
         />
       ),
-      componentAnswer: <RiskFaq tokenSymbol={tokenSymbol} />,
+      componentAnswer: <RiskFaq vaultStrategyData={vaultStrategyData} />,
     },
     {
       question: (

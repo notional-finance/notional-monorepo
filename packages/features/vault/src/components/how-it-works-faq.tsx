@@ -1,47 +1,30 @@
-import { Body, ExternalLink, H4, H5 } from '@notional-finance/mui';
+import { Body, ExternalLink, H5 } from '@notional-finance/mui';
 import { ExternalLinkIcon } from '@notional-finance/icons';
 import { Box, useTheme, styled } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { CurveVaultImg } from './curve-vault-img';
+import { BalancerVaultImg } from './balancer-vault-img';
+import { VaultsDataProps } from '../vault-view/vault-summary';
 
 interface HowItWorksFaqProps {
   tokenSymbol: string;
-  vaultAddress: string;
-}
-
-interface vaultsData {
-  baseProtocol: string;
-  boosterProtocol: string;
-  primaryBorrowCurrency: string;
-  secondaryCurrency: string;
-  incentiveToken1: string;
-  incentiveToken2: string;
+  vaultStrategyData: VaultsDataProps;
 }
 
 export const HowItWorksFaq = ({
   tokenSymbol,
-  vaultAddress,
+  vaultStrategyData,
 }: HowItWorksFaqProps) => {
   const theme = useTheme();
-
-  const vaultsData: Record<string, vaultsData> = {
-    '0xdb08f663e5d765949054785f2ed1b2aa1e9c22cf': {
-      baseProtocol: 'Curve',
-      boosterProtocol: 'Convex',
-      primaryBorrowCurrency: 'FRAX',
-      secondaryCurrency: 'USDC',
-      incentiveToken1: 'CRV',
-      incentiveToken2: 'CVX',
-    },
-    // balancerTBD: {
-    //   baseProtocol: 'Balancer',
-    //   boosterProtocol: 'Aura',
-    //   primaryBorrowCurrency: 'ETH',
-    //   secondaryCurrency: 'wstETH',
-    //   incentiveToken1: 'BAL',
-    //   incentiveToken2: 'AURA',
-    // },
-  };
+  const {
+    baseProtocol,
+    boosterProtocol,
+    primaryBorrowCurrency,
+    secondaryCurrency,
+    incentiveToken1,
+    incentiveToken2,
+    vaultStrategyId,
+  } = vaultStrategyData;
 
   return (
     <div>
@@ -69,8 +52,12 @@ export const HowItWorksFaq = ({
               />
             </BodyText>
             <ImageWrapper>
-              {'0xdb08f663e5d765949054785f2ed1b2aa1e9c22cf' ===
-                vaultAddress && <CurveVaultImg tokenSymbol={tokenSymbol} />}
+              {'0x05f1ce9c' === vaultStrategyId && (
+                <CurveVaultImg tokenSymbol={tokenSymbol} />
+              )}
+              {'0x77721081' === vaultStrategyId && (
+                <BalancerVaultImg tokenSymbol={tokenSymbol} />
+              )}
             </ImageWrapper>
             <H5
               sx={{
@@ -82,30 +69,29 @@ export const HowItWorksFaq = ({
             </H5>
             <BodyText>
               <FormattedMessage
-                defaultMessage={`Take {primaryBorrowCurrency} and provide liquidity to the {primaryBorrowCurrency}/{secondaryCurrency} pool on {baseProtocol}.`}
+                defaultMessage={`1. Take {primaryBorrowCurrency} and provide liquidity to the {primaryBorrowCurrency}/{secondaryCurrency} pool on {baseProtocol}.`}
                 values={{
-                  primaryBorrowCurrency:
-                    vaultsData[vaultAddress].primaryBorrowCurrency,
-                  secondaryCurrency: vaultsData[vaultAddress].secondaryCurrency,
-                  baseProtocol: vaultsData[vaultAddress].baseProtocol,
+                  primaryBorrowCurrency: primaryBorrowCurrency,
+                  secondaryCurrency: secondaryCurrency,
+                  baseProtocol: baseProtocol,
                 }}
               />
             </BodyText>
             <BodyText>
               <FormattedMessage
-                defaultMessage={`Stake the {baseProtocol} LP tokens on {boosterProtocol}.`}
+                defaultMessage={`2. Stake the {baseProtocol} LP tokens on {boosterProtocol}.`}
                 values={{
-                  baseProtocol: vaultsData[vaultAddress].baseProtocol,
-                  boosterProtocol: vaultsData[vaultAddress].boosterProtocol,
+                  baseProtocol: baseProtocol,
+                  boosterProtocol: boosterProtocol,
                 }}
               />
             </BodyText>
             <BodyText>
               <FormattedMessage
-                defaultMessage={`Harvest and reinvest {incentiveToken2} and {incentiveToken1} incentives back into the pool on a weekly basis.`}
+                defaultMessage={`3. Harvest and reinvest {incentiveToken2} and {incentiveToken1} incentives back into the pool on a weekly basis.`}
                 values={{
-                  incentiveToken1: vaultsData[vaultAddress].incentiveToken1,
-                  incentiveToken2: vaultsData[vaultAddress].incentiveToken2,
+                  incentiveToken1: incentiveToken1,
+                  incentiveToken2: incentiveToken2,
                 }}
               />
             </BodyText>
@@ -122,16 +108,17 @@ export const HowItWorksFaq = ({
                 defaultMessage={`You earn the strategy APY on your deposit + borrowed funds and you pay the borrow APY on your borrowed funds.`}
               />
             </BodyText>
-            <H4
+            <H5
               sx={{
                 textTransform: 'uppercase',
+                fontSize: '14px',
                 color: theme.palette.typography.light,
               }}
             >
               <FormattedMessage
                 defaultMessage={`Total APY = strategy APY + (strategy APY - borrow APY) * leverage`}
               />
-            </H4>
+            </H5>
           </Box>
           <ExternalLink
             href="https://docs.notional.finance/leveraged-vaults/leveraged-vaults/balancer-aura-wsteth-weth-strategy"

@@ -26,17 +26,48 @@ import {
 } from '../hooks';
 import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
 
+export interface VaultsDataProps {
+  baseProtocol: string;
+  boosterProtocol: string;
+  primaryBorrowCurrency: string;
+  secondaryCurrency: string;
+  incentiveToken1: string;
+  incentiveToken2: string;
+  vaultStrategyId?: string;
+}
+
+const vaultStrategyData: Record<string, VaultsDataProps> = {
+  '0x05f1ce9c': {
+    baseProtocol: 'Curve',
+    boosterProtocol: 'Convex',
+    primaryBorrowCurrency: 'FRAX',
+    secondaryCurrency: 'USDC',
+    incentiveToken1: 'CRV',
+    incentiveToken2: 'CVX',
+    vaultStrategyId: '0x05f1ce9c',
+  },
+  '0x77721081': {
+    baseProtocol: 'Balancer',
+    boosterProtocol: 'Aura',
+    primaryBorrowCurrency: 'ETH',
+    secondaryCurrency: 'wstETH',
+    incentiveToken1: 'BAL',
+    incentiveToken2: 'AURA',
+    vaultStrategyId: '0x77721081',
+  },
+};
+
 export const VaultSummary = () => {
   const theme = useTheme();
   const { state } = useContext(VaultActionContext);
-  const { vaultAddress, deposit, selectedDepositToken } = state;
+  const { vaultAddress, deposit, selectedDepositToken, vaultConfig } = state;
   const { tableColumns, returnDrivers } = useReturnDrivers(vaultAddress);
   const { data, columns } = useVaultPriceExposure(state);
   const { vaultShare, assetLiquidationPrice, priorBorrowRate, leverageRatio } =
     useVaultExistingFactors();
-  const { faqHeaderLinks, faqs } = useVaultFaq(selectedDepositToken);
-
-  console.log(typeof vaultAddress);
+  const { faqHeaderLinks, faqs } = useVaultFaq(
+    vaultStrategyData[vaultConfig?.strategy]
+  );
 
   const {
     overCapacityError,
@@ -130,23 +161,29 @@ export const VaultSummary = () => {
                   vaultShare?.maturity === PRIME_CASH_VAULT_MATURITY,
               }}
             />
-            {selectedDepositToken && vaultAddress && (
-              <Faq
-                sx={{ boxShadow: 'none' }}
-                question={<FormattedMessage defaultMessage={'How it Works'} />}
-                componentAnswer={
-                  <HowItWorksFaq
-                    tokenSymbol={selectedDepositToken}
-                    vaultAddress={vaultAddress}
-                  />
-                }
-                questionDescription={
-                  <FormattedMessage
-                    defaultMessage={'Learn how leveraged vaults work.'}
-                  />
-                }
-              />
-            )}
+            {selectedDepositToken &&
+              vaultConfig?.strategy &&
+              vaultStrategyData[vaultConfig?.strategy] && (
+                <Faq
+                  sx={{ boxShadow: 'none' }}
+                  question={
+                    <FormattedMessage defaultMessage={'How it Works'} />
+                  }
+                  componentAnswer={
+                    <HowItWorksFaq
+                      tokenSymbol={selectedDepositToken}
+                      vaultStrategyData={
+                        vaultStrategyData[vaultConfig.strategy]
+                      }
+                    />
+                  }
+                  questionDescription={
+                    <FormattedMessage
+                      defaultMessage={'Learn how leveraged vaults work.'}
+                    />
+                  }
+                />
+              )}
             <LiquidationChart
               state={state}
               vaultCollateral={vaultShare}
