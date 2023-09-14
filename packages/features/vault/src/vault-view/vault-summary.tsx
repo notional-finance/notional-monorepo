@@ -36,6 +36,8 @@ export const VaultSummary = () => {
     useVaultExistingFactors();
   const { faqHeaderLinks, faqs } = useVaultFaq(selectedDepositToken);
 
+  console.log(typeof vaultAddress);
+
   const {
     overCapacityError,
     totalCapacityRemaining,
@@ -133,7 +135,10 @@ export const VaultSummary = () => {
                 sx={{ boxShadow: 'none' }}
                 question={<FormattedMessage defaultMessage={'How it Works'} />}
                 componentAnswer={
-                  <HowItWorksFaq tokenSymbol={selectedDepositToken} />
+                  <HowItWorksFaq
+                    tokenSymbol={selectedDepositToken}
+                    vaultAddress={vaultAddress}
+                  />
                 }
                 questionDescription={
                   <FormattedMessage
@@ -180,24 +185,26 @@ export const VaultSummary = () => {
                 }
               />
             </Box>
-            <FaqHeader
-              title={
-                <FormattedMessage defaultMessage={'Leveraged Vault FAQ'} />
-              }
-              links={faqHeaderLinks}
-            />
-            {faqs.map(({ question, answer, componentAnswer }, index) => (
-              <Faq
-                key={index}
-                question={question}
-                answer={answer}
-                componentAnswer={componentAnswer}
-                sx={{
-                  marginBottom: theme.spacing(2),
-                  boxShadow: theme.shape.shadowStandard,
-                }}
+            <Box id={VAULT_SUB_NAV_ACTIONS.FAQ}>
+              <FaqHeader
+                title={
+                  <FormattedMessage defaultMessage={'Leveraged Vault FAQ'} />
+                }
+                links={faqHeaderLinks}
               />
-            ))}
+              {faqs.map(({ question, answer, componentAnswer }, index) => (
+                <Faq
+                  key={index}
+                  question={question}
+                  answer={answer}
+                  componentAnswer={componentAnswer}
+                  sx={{
+                    marginBottom: theme.spacing(2),
+                    boxShadow: theme.shape.shadowStandard,
+                  }}
+                />
+              ))}
+            </Box>
             {/* <Box id={VAULT_SUB_NAV_ACTIONS.STRATEGY_DETAILS}>
               <VaultDescription vaultAddress={vaultAddress} />
             </Box> */}

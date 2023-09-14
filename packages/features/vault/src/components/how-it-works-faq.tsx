@@ -1,17 +1,23 @@
 import { Body, ExternalLink, H5 } from '@notional-finance/mui';
-// TODO: Create a place to house images like this one where they can be shared from
-import { useHowItWorks } from '../hooks';
+import { useThemeVariant } from '@notional-finance/notionable-hooks';
+import { THEME_VARIANTS } from '@notional-finance/util';
 import { ExternalLinkIcon } from '@notional-finance/icons';
 import { Box, useTheme, styled } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
+import { CurveVaultImg } from './curve-vault-img';
 
 interface HowItWorksFaqProps {
   tokenSymbol: string;
+  vaultAddress?: string;
 }
 
-export const HowItWorksFaq = ({ tokenSymbol }: HowItWorksFaqProps) => {
+export const HowItWorksFaq = ({
+  tokenSymbol,
+  vaultAddress,
+}: HowItWorksFaqProps) => {
   const theme = useTheme();
-  const LendFixedImage = useHowItWorks(tokenSymbol);
+  const themeVariant = useThemeVariant();
+  const lightMode = themeVariant === THEME_VARIANTS.LIGHT;
 
   return (
     <div>
@@ -39,7 +45,13 @@ export const HowItWorksFaq = ({ tokenSymbol }: HowItWorksFaqProps) => {
               />
             </BodyText>
             <ImageWrapper>
-              <LendFixedImage />
+              {'0xdb08f663e5d765949054785f2ed1b2aa1e9c22cf' ===
+                vaultAddress && (
+                <CurveVaultImg
+                  tokenSymbol={tokenSymbol}
+                  lightMode={lightMode}
+                />
+              )}
             </ImageWrapper>
             <H5
               sx={{

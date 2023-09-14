@@ -8,3 +8,4 @@ export * from './vault-leverage-slider';
 export * from './how-it-works-faq';
 export * from './risks-faq';
 export * from './create-vault-liquidation-risk';
+export * from './balancer-vault-img';

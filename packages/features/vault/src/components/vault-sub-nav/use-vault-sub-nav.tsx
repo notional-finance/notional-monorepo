@@ -20,13 +20,18 @@ export const useVaultSubNav = () => {
       anchor: VAULT_SUB_NAV_ACTIONS.STRATEGY_DETAILS,
     },
     {
+      label: <FormattedMessage defaultMessage={'FAQs'} />,
+      key: VAULT_SUB_NAV_ACTIONS.FAQ,
+      anchor: VAULT_SUB_NAV_ACTIONS.FAQ,
+    },
+    {
       label: <FormattedMessage defaultMessage={'Back to top'} />,
       key: VAULT_SUB_NAV_ACTIONS.BACK_TO_TOP,
       anchor: VAULT_SUB_NAV_ACTIONS.OVERVIEW,
       callback: () => scroll.scrollToTop(),
     },
     {
-      label: <FormattedMessage defaultMessage={'Full Documentation'} />,
+      label: <FormattedMessage defaultMessage={'Docs'} />,
       key: VAULT_SUB_NAV_ACTIONS.FULL_DOCUMENTATION,
       // TODO: we need to have a registry for this
       href: 'https://docs.notional.finance/leveraged-vaults/leveraged-vaults/balancer-aura-wsteth-weth-strategy',
