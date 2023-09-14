@@ -1,6 +1,4 @@
-import { Body, ExternalLink, H5 } from '@notional-finance/mui';
-import { useThemeVariant } from '@notional-finance/notionable-hooks';
-import { THEME_VARIANTS } from '@notional-finance/util';
+import { Body, ExternalLink, H4, H5 } from '@notional-finance/mui';
 import { ExternalLinkIcon } from '@notional-finance/icons';
 import { Box, useTheme, styled } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
@@ -8,7 +6,16 @@ import { CurveVaultImg } from './curve-vault-img';
 
 interface HowItWorksFaqProps {
   tokenSymbol: string;
-  vaultAddress?: string;
+  vaultAddress: string;
+}
+
+interface vaultsData {
+  baseProtocol: string;
+  boosterProtocol: string;
+  primaryBorrowCurrency: string;
+  secondaryCurrency: string;
+  incentiveToken1: string;
+  incentiveToken2: string;
 }
 
 export const HowItWorksFaq = ({
@@ -16,8 +23,25 @@ export const HowItWorksFaq = ({
   vaultAddress,
 }: HowItWorksFaqProps) => {
   const theme = useTheme();
-  const themeVariant = useThemeVariant();
-  const lightMode = themeVariant === THEME_VARIANTS.LIGHT;
+
+  const vaultsData: Record<string, vaultsData> = {
+    '0xdb08f663e5d765949054785f2ed1b2aa1e9c22cf': {
+      baseProtocol: 'Curve',
+      boosterProtocol: 'Convex',
+      primaryBorrowCurrency: 'FRAX',
+      secondaryCurrency: 'USDC',
+      incentiveToken1: 'CRV',
+      incentiveToken2: 'CVX',
+    },
+    // balancerTBD: {
+    //   baseProtocol: 'Balancer',
+    //   boosterProtocol: 'Aura',
+    //   primaryBorrowCurrency: 'ETH',
+    //   secondaryCurrency: 'wstETH',
+    //   incentiveToken1: 'BAL',
+    //   incentiveToken2: 'AURA',
+    // },
+  };
 
   return (
     <div>
@@ -46,12 +70,7 @@ export const HowItWorksFaq = ({
             </BodyText>
             <ImageWrapper>
               {'0xdb08f663e5d765949054785f2ed1b2aa1e9c22cf' ===
-                vaultAddress && (
-                <CurveVaultImg
-                  tokenSymbol={tokenSymbol}
-                  lightMode={lightMode}
-                />
-              )}
+                vaultAddress && <CurveVaultImg tokenSymbol={tokenSymbol} />}
             </ImageWrapper>
             <H5
               sx={{
@@ -63,17 +82,30 @@ export const HowItWorksFaq = ({
             </H5>
             <BodyText>
               <FormattedMessage
-                defaultMessage={`Take ETH and provide liquidity to the {tokenSymbol}/wst{tokenSymbol} pool on Balancer.`}
+                defaultMessage={`Take {primaryBorrowCurrency} and provide liquidity to the {primaryBorrowCurrency}/{secondaryCurrency} pool on {baseProtocol}.`}
                 values={{
-                  tokenSymbol,
+                  primaryBorrowCurrency:
+                    vaultsData[vaultAddress].primaryBorrowCurrency,
+                  secondaryCurrency: vaultsData[vaultAddress].secondaryCurrency,
+                  baseProtocol: vaultsData[vaultAddress].baseProtocol,
                 }}
               />
             </BodyText>
-            <BodyText sx={{ marginBottom: theme.spacing(4) }}>
+            <BodyText>
               <FormattedMessage
-                defaultMessage={`The difference between the amount of f{tokenSymbol} you buy and the amount of {tokenSymbol} you lend is the fixed amount of interest that you will earn between now and maturity.`}
+                defaultMessage={`Stake the {baseProtocol} LP tokens on {boosterProtocol}.`}
                 values={{
-                  tokenSymbol,
+                  baseProtocol: vaultsData[vaultAddress].baseProtocol,
+                  boosterProtocol: vaultsData[vaultAddress].boosterProtocol,
+                }}
+              />
+            </BodyText>
+            <BodyText>
+              <FormattedMessage
+                defaultMessage={`Harvest and reinvest {incentiveToken2} and {incentiveToken1} incentives back into the pool on a weekly basis.`}
+                values={{
+                  incentiveToken1: vaultsData[vaultAddress].incentiveToken1,
+                  incentiveToken2: vaultsData[vaultAddress].incentiveToken2,
                 }}
               />
             </BodyText>
@@ -83,30 +115,26 @@ export const HowItWorksFaq = ({
                 marginBottom: theme.spacing(2),
               }}
             >
-              <FormattedMessage
-                defaultMessage={`What are fixed rate liquidity pools?`}
-              />
+              <FormattedMessage defaultMessage={'RETURNS'} />
             </H5>
             <BodyText>
               <FormattedMessage
-                defaultMessage={`Fixed rate liquidity pools are Uniswap-like liquidity pools that allow you to trade between {tokenSymbol} and f{tokenSymbol} using an AMM. Fixed rate liquidity pools provide the liquidity you need to create a fixed rate loan.`}
-                values={{
-                  tokenSymbol,
-                }}
+                defaultMessage={`You earn the strategy APY on your deposit + borrowed funds and you pay the borrow APY on your borrowed funds.`}
               />
             </BodyText>
-            <Body>
+            <H4
+              sx={{
+                textTransform: 'uppercase',
+                color: theme.palette.typography.light,
+              }}
+            >
               <FormattedMessage
-                defaultMessage={`Fixed rate liquidity pools also give you the option to exit early by allowing you to sell your f{tokenSymbol} on the pool before it matures.`}
-                values={{
-                  tokenSymbol,
-                }}
+                defaultMessage={`Total APY = strategy APY + (strategy APY - borrow APY) * leverage`}
               />
-            </Body>
+            </H4>
           </Box>
-          {/* TODO: ADD LINK TO DOCS */}
           <ExternalLink
-            href=""
+            href="https://docs.notional.finance/leveraged-vaults/leveraged-vaults/balancer-aura-wsteth-weth-strategy"
             textDecoration
             accent
             style={{
@@ -116,7 +144,7 @@ export const HowItWorksFaq = ({
             }}
           >
             <FormattedMessage
-              defaultMessage={'Fixed Rate Lending Documentation'}
+              defaultMessage={'Leveraged Vault Documentation'}
             />
             <ExternalLinkIcon
               sx={{ fontSize: '12px', marginLeft: theme.spacing(0.5) }}

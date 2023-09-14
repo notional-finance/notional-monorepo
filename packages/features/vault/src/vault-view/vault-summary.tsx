@@ -130,7 +130,7 @@ export const VaultSummary = () => {
                   vaultShare?.maturity === PRIME_CASH_VAULT_MATURITY,
               }}
             />
-            {selectedDepositToken && (
+            {selectedDepositToken && vaultAddress && (
               <Faq
                 sx={{ boxShadow: 'none' }}
                 question={<FormattedMessage defaultMessage={'How it Works'} />}
