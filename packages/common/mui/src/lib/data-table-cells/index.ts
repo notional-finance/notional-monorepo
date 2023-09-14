@@ -12,4 +12,5 @@ export * from './negative-value-cell/negative-value-cell';
 export * from './slider-cell/slider-cell';
 export * from './text-with-icon-cell/text-with-icon-cell';
 export * from './txn-hash-cell/txn-hash-cell';
+export * from './arrow-change-cell/arrow-change-cell';
 
