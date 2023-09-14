@@ -9,6 +9,7 @@ export const useVaultCards = () => {
     yields: { leveragedVaults },
     getMax,
   } = useAllMarkets();
+  
   const allVaults = listedVaults.map(
     ({
       vaultAddress,

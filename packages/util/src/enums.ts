@@ -44,6 +44,7 @@ export enum VAULT_SUB_NAV_ACTIONS {
   MARKET_RETURNS = 'market-returns',
   YIELD_DRIVERS = 'yeild-drivers',
   STRATEGY_DETAILS = 'strategy-details',
+  FAQ = 'faq',
   BACK_TO_TOP = 'back-to-top',
   FULL_DOCUMENTATION = 'full-documentation',
 }
