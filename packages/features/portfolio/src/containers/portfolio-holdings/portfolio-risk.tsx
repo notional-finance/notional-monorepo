@@ -18,6 +18,7 @@ import {
   MultiValueIconCell,
   PageLoading,
   SliderRisk,
+  ChevronCell,
 } from '@notional-finance/mui';
 import {
   useAccountReady,
@@ -115,6 +116,7 @@ const LiquidationPriceColumns: DataTableColumn[] = [
     Header: (
       <FormattedMessage defaultMessage="24H %" description={'column header'} />
     ),
+    Cell: ChevronCell,
     accessor: 'oneDayChange',
     textAlign: 'right',
   },
