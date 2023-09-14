@@ -2,14 +2,11 @@ import { Box, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { ExternalLinkIcon } from '@notional-finance/icons';
 import { ExternalLink, Body, H5 } from '@notional-finance/mui';
-import { VaultsDataProps } from '../vault-view/vault-summary';
+import { useVaultStrategyData } from '../hooks';
 
-interface RiskFaqProps {
-  vaultStrategyData?: VaultsDataProps;
-}
-
-export const RiskFaq = ({ vaultStrategyData }: RiskFaqProps) => {
+export const RiskFaq = () => {
   const theme = useTheme();
+  const vaultStrategyData = useVaultStrategyData();
 
   if (!vaultStrategyData) return null;
 

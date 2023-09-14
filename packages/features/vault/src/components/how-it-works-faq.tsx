@@ -3,19 +3,19 @@ import { ExternalLinkIcon } from '@notional-finance/icons';
 import { Box, useTheme, styled } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { CurveVaultImg } from './curve-vault-img';
+import { useVaultStrategyData } from '../hooks';
 import { BalancerVaultImg } from './balancer-vault-img';
-import { VaultsDataProps } from '../vault-view/vault-summary';
 
 interface HowItWorksFaqProps {
   tokenSymbol: string;
-  vaultStrategyData: VaultsDataProps;
 }
 
-export const HowItWorksFaq = ({
-  tokenSymbol,
-  vaultStrategyData,
-}: HowItWorksFaqProps) => {
+export const HowItWorksFaq = ({ tokenSymbol }: HowItWorksFaqProps) => {
   const theme = useTheme();
+  const vaultStrategyData = useVaultStrategyData();
+
+  if (!vaultStrategyData) return null;
+
   const {
     baseProtocol,
     boosterProtocol,
