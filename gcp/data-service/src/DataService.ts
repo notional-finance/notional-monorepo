@@ -8,6 +8,7 @@ import {
   ONE_HOUR_MS,
   RATE_DECIMALS,
   RATE_PRECISION,
+  PRIME_CASH_VAULT_MATURITY,
 } from '@notional-finance/util';
 import {
   AccountFetchMode,
@@ -296,7 +297,7 @@ export default class DataService {
     );
   }
 
-  public async _getNTokenTvl(network: Network, yields: any) {
+  private async _getNTokenTvl(network: Network, yields: any) {
     const exchanges = HistoricalRegistry.getExchangeRegistry();
     const config = HistoricalRegistry.getConfigurationRegistry();
     const tokens = HistoricalRegistry.getTokenRegistry();
@@ -356,6 +357,52 @@ export default class DataService {
       });
   }
 
+  private async _getLeveragedVaultYield(
+    network: Network,
+    block: ethers.ethers.providers.Block
+  ) {
+    const vaults = HistoricalRegistry.getVaultRegistry();
+    const fCashYields = await this._getFCashTvl(network, block);
+    const debtYields = (await this._getTvl(network, block, 'PrimeDebt')).concat(
+      fCashYields
+    );
+    const tokens = HistoricalRegistry.getTokenRegistry();
+
+    return tokens
+      .getAllTokens(network)
+      .filter(
+        (v) =>
+          v.tokenType === 'VaultShare' &&
+          (v.maturity ? v.maturity > block.timestamp : true)
+      )
+      .flatMap((v) => {
+        const debt = debtYields.find(
+          (d) =>
+            d.token.currencyId === v.currencyId &&
+            (v.maturity === PRIME_CASH_VAULT_MATURITY
+              ? d.token.tokenType === 'PrimeDebt'
+              : d.token.tokenType === 'fCash' &&
+                d.token.maturity === v.maturity)
+        );
+        if (!debt) throw Error('Matching debt not found');
+        if (!v.vaultAddress) throw Error('Vault address not defined');
+        if (!v.underlying) throw Error('underlying is not defined');
+        // Ensures that the oracle registry side effect happens here so that we
+        // can properly get the TVL value.
+        vaults.getVaultAdapter(network, v.vaultAddress);
+        const underlying = tokens.getTokenByID(network, v.underlying);
+        const totalAPY = 0;
+
+        return {
+          token: v,
+          underlying,
+          totalAPY,
+          interestAPY: 0,
+          tvl: v.totalSupply?.toUnderlying() || TokenBalance.zero(underlying),
+        };
+      });
+  }
+
   public async syncYieldData(ts: number) {
     // TODO: support multiple networks here
     const network = Network.ArbitrumOne;
@@ -387,8 +434,12 @@ export default class DataService {
     const fCashTvl = await this._getFCashTvl(network, block);
     const yields = primeCashTvl.concat(primeDebtTvl).concat(fCashTvl);
     const nTokenTvl = await this._getNTokenTvl(network, yields);
+    const vaultTvl = await this._getLeveragedVaultYield(network, block);
 
-    const yieldData = primeCashTvl.concat(fCashTvl).concat(nTokenTvl);
+    const yieldData = primeCashTvl
+      .concat(fCashTvl)
+      .concat(nTokenTvl)
+      .concat(vaultTvl);
 
     if (yieldData.length > 0) {
       const yieldQuery = this.db

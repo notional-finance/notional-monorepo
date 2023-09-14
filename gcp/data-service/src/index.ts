@@ -204,17 +204,6 @@ async function main() {
     }
   });
 
-  app.post('/accounts', async (req, res) => {
-    try {
-      if (req.body.accountId && req.body.accountId !== '') {
-        await dataService.insertAccounts([req.body.accountId]);
-      }
-      res.status(200).send('OK');
-    } catch (e: any) {
-      res.status(500).send(e.toString());
-    }
-  });
-
   app.post('/events', async (req, res) => {
     try {
       const accountIds: string[] = [];
@@ -249,10 +238,13 @@ async function main() {
       });
 
       if (accountIds.length > 0) {
-        await dataService.insertAccounts(accountIds);
+        await dataService.insertAccounts(Network.ArbitrumOne, accountIds);
       }
       if (vaultAccounts.length > 0) {
-        await dataService.insertVaultAccounts(vaultAccounts);
+        await dataService.insertVaultAccounts(
+          Network.ArbitrumOne,
+          vaultAccounts
+        );
       }
       res.status(200).send('OK');
     } catch (e: any) {

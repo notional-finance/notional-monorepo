@@ -81,7 +81,7 @@ export class HistoricalRegistry extends Registry {
           continue;
         }
         await new Promise<void>((resolve) => {
-          client.triggerRefresh(network, resolve, blockNumber);
+          client.triggerRefresh(network, resolve);
           if (route == Routes.Tokens)
             Registry.registerDefaultPoolTokens(network);
         });

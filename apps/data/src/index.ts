@@ -35,6 +35,12 @@ async function getConfigurationData(network: Network, blockNumber: number) {
   return server.serializeToJSON(network);
 }
 
+async function getVaultData(network: Network, blockNumber: number) {
+  const server = new Servers.VaultRegistryServer();
+  await server.refreshAtBlock(network, blockNumber);
+  return server.serializeToJSON(network);
+}
+
 export default {
   async fetch(request: Request, env: Env) {
     const url = new URL(request.url);
@@ -93,6 +99,20 @@ export default {
           throw Error('Block number is required');
         }
         const data = await getConfigurationData(
+          network as Network,
+          parseInt(blockNumber)
+        );
+        return new Response(data, {
+          status: 200,
+          statusText: 'OK',
+        });
+      }
+      case Routes.Vaults: {
+        const blockNumber = url.pathname.split('/')[3];
+        if (!blockNumber) {
+          throw Error('Block number is required');
+        }
+        const data = await getVaultData(
           network as Network,
           parseInt(blockNumber)
         );
