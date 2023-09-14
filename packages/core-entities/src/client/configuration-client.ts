@@ -73,7 +73,10 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
   }
 
   getAllListedVaults(network: Network) {
-    return this.getLatestFromSubject(network, network)?.vaultConfigurations;
+    return this.getLatestFromSubject(
+      network,
+      network
+    )?.vaultConfigurations.filter((v) => v.enabled);
   }
 
   getVaultConfig(network: Network, vaultAddress: string) {

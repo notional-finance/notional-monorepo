@@ -1,9 +1,10 @@
 query AllVaults {
-    vaultConfigurations(where: { enabled: true }) {
+    vaultConfigurations {
         id
         vaultAddress
         strategy
         name
+        enabled
     }
 
   _meta {

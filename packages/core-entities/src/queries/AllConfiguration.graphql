@@ -74,7 +74,7 @@ query AllConfiguration {
         }
     }
 
-    vaultConfigurations(where: { enabled: true }) {
+    vaultConfigurations {
         id
         vaultAddress
         strategy
