@@ -7277,7 +7277,7 @@ export type AllTokensByBlockQuery = { tokens: Array<(
 export type AllVaultsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type AllVaultsQuery = { vaultConfigurations: Array<Pick<VaultConfiguration, 'id' | 'vaultAddress' | 'strategy' | 'name'>>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
+export type AllVaultsQuery = { vaultConfigurations: Array<Pick<VaultConfiguration, 'id' | 'vaultAddress' | 'strategy' | 'name' | 'enabled'>>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
 
 export type AllVaultsByBlockQueryVariables = Exact<{
   blockNumber?: InputMaybe<Scalars['Int']>;
@@ -7489,7 +7489,7 @@ export const AllConfigurationDocument = gql`
       lastAccumulatedTime
     }
   }
-  vaultConfigurations(where: {enabled: true}) {
+  vaultConfigurations {
     id
     vaultAddress
     strategy
@@ -7773,11 +7773,12 @@ export const AllTokensByBlockDocument = gql`
     ` as unknown as DocumentNode<AllTokensByBlockQuery, AllTokensByBlockQueryVariables>;
 export const AllVaultsDocument = gql`
     query AllVaults {
-  vaultConfigurations(where: {enabled: true}) {
+  vaultConfigurations {
     id
     vaultAddress
     strategy
     name
+    enabled
   }
   _meta {
     block {

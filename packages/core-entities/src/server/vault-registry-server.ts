@@ -21,7 +21,13 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
     );
 
     const calls = data['data'].vaultConfigurations.map(
-      ({ vaultAddress }: { vaultAddress: string }) => {
+      ({
+        vaultAddress,
+        enabled,
+      }: {
+        vaultAddress: string;
+        enabled: boolean;
+      }) => {
         const override = vaultOverrides[vaultAddress];
         if (override) {
           const bn = data['data']._meta.block.number as number;
@@ -67,6 +73,7 @@ export class VaultRegistryServer extends ServerRegistry<VaultMetadata> {
               totalLPTokens,
               totalVaultShares,
               secondaryTradeParams: '0x',
+              enabled,
             };
           },
         };

@@ -10,7 +10,8 @@ export class VaultRegistryClient extends ClientRegistry<VaultMetadata> {
   }
 
   isVaultEnabled(network: Network, vaultAddress: string) {
-    return this.isKeyRegistered(network, vaultAddress);
+    const params = this.getLatestFromSubject(network, vaultAddress);
+    return params?.enabled || false;
   }
 
   getVaultAdapter(network: Network, vaultAddress: string) {

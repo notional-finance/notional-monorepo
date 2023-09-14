@@ -6,7 +6,7 @@ import {
   PRIME_CASH_VAULT_MATURITY,
   INTERNAL_TOKEN_DECIMALS,
 } from '@notional-finance/util';
-import { VaultAdapter } from './VaultAdapter';
+import { BaseVaultParams, VaultAdapter } from './VaultAdapter';
 import { BaseLiquidityPool } from '../exchanges';
 import { TokenBalance } from '../token-balance';
 import { defaultAbiCoder } from 'ethers/lib/utils';
@@ -14,7 +14,7 @@ import { Registry } from '../Registry';
 import { BigNumber } from 'ethers';
 import { TokenDefinition } from '../Definitions';
 
-export interface SingleSidedLPParams {
+export interface SingleSidedLPParams extends BaseVaultParams {
   pool: string;
   singleSidedTokenIndex: number;
   totalLPTokens: TokenBalance;
@@ -32,7 +32,7 @@ export class SingleSidedLP extends VaultAdapter {
   public secondaryTradeParams: string;
 
   constructor(network: Network, vaultAddress: string, p: SingleSidedLPParams) {
-    super();
+    super(p.enabled);
 
     this.pool = Registry.getExchangeRegistry().getPoolInstance(network, p.pool);
     this.singleSidedTokenIndex = p.singleSidedTokenIndex;

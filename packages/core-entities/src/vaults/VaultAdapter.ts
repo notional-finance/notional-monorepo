@@ -8,10 +8,14 @@ import {
 } from '../Definitions';
 import { Registry } from '../Registry';
 
+export interface BaseVaultParams {
+  enabled: boolean;
+}
+
 export abstract class VaultAdapter {
   abstract get hashKey(): string;
 
-  constructor() {
+  constructor(public enabled: boolean) {
     // NO-OP
   }
 
