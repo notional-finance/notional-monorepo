@@ -7,6 +7,7 @@ import {
   SliderCell,
   ExpandedRows,
   ChevronCell,
+  ArrowChangeCell,
 } from '@notional-finance/mui';
 import {
   formatCryptoWithFiat,
@@ -28,6 +29,56 @@ import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
 import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
 import { TokenBalance } from '@notional-finance/core-entities';
 import { useHistory } from 'react-router-dom';
+
+const vaultRiskTableColumns: DataTableColumn[] = [
+  {
+    Header: (
+      <FormattedMessage
+        defaultMessage="Exchange Rate"
+        description={'column header'}
+      />
+    ),
+    Cell: MultiValueIconCell,
+    accessor: 'exchangeRate',
+    textAlign: 'left',
+  },
+  {
+    Header: (
+      <FormattedMessage
+        defaultMessage="Liquidation Price"
+        description={'column header'}
+      />
+    ),
+    accessor: 'liquidationPrice',
+    textAlign: 'right',
+  },
+  {
+    Header: (
+      <FormattedMessage
+        defaultMessage="Current Price"
+        description={'column header'}
+      />
+    ),
+    accessor: 'currentPrice',
+    textAlign: 'right',
+  },
+  {
+    Header: (
+      <FormattedMessage defaultMessage="24H %" description={'column header'} />
+    ),
+    Cell: ArrowChangeCell,
+    accessor: 'oneDayChange',
+    textAlign: 'right',
+  },
+  {
+    Header: (
+      <FormattedMessage defaultMessage="7D %" description={'column header'} />
+    ),
+    Cell: ArrowChangeCell,
+    accessor: 'sevenDayChange',
+    textAlign: 'right',
+  },
+];
 
 export function getVaultLeveragePercentage(
   v: VaultAccountRiskProfile,
@@ -151,12 +202,35 @@ export const useVaultHoldingsTable = () => {
       (b) => b.vaultAddress === v.vaultAddress
     );
 
-    const vaultRiskTableData = vaultRiskData?.liquidationPrices.map((data) => {
-      return {
-        ...data,
-        strategyId: v.vaultConfig.strategy,
-      };
-    });
+    const vaultRiskTableData = vaultRiskData?.liquidationPrices.map(
+      ({
+        currentPrice,
+        liquidationPrice,
+        oneDayChange,
+        sevenDayChange,
+        collateral,
+      }) => {
+        const primary = collateral.symbol === 'FRAX' ? 'FRAX' : 'ETH';
+        const secondary = collateral.symbol === 'FRAX' ? 'USDC' : 'wstETH';
+        return {
+          currentPrice,
+          liquidationPrice,
+          oneDayChange,
+          sevenDayChange,
+          exchangeRate: {
+            symbol: collateral.symbol,
+            label: (
+              <span>
+                {primary}
+                <span style={{ color: theme.palette.typography.light }}>
+                  &nbsp;/&nbsp;{secondary}
+                </span>
+              </span>
+            ),
+          },
+        };
+      }
+    );
 
     const denom = v.denom(v.defaultSymbol);
     const profit = (assetPnL?.totalProfitAndLoss || TokenBalance.zero(denom))
@@ -240,6 +314,7 @@ export const useVaultHoldingsTable = () => {
           assetOrVaultId: config.vaultAddress,
         })}`,
         riskTableData: vaultRiskTableData,
+        riskTableColumns: vaultRiskTableColumns,
       },
     };
   });
