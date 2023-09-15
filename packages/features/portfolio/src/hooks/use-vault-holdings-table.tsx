@@ -208,26 +208,14 @@ export const useVaultHoldingsTable = () => {
         liquidationPrice,
         oneDayChange,
         sevenDayChange,
-        collateral,
+        exchangeRate,
       }) => {
-        const primary = collateral.symbol === 'FRAX' ? 'FRAX' : 'ETH';
-        const secondary = collateral.symbol === 'FRAX' ? 'USDC' : 'wstETH';
         return {
           currentPrice,
           liquidationPrice,
           oneDayChange,
           sevenDayChange,
-          exchangeRate: {
-            symbol: collateral.symbol,
-            label: (
-              <span>
-                {primary}
-                <span style={{ color: theme.palette.typography.light }}>
-                  &nbsp;/&nbsp;{secondary}
-                </span>
-              </span>
-            ),
-          },
+          exchangeRate,
         };
       }
     );

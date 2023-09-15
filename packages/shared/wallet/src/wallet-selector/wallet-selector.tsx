@@ -39,10 +39,9 @@ export function WalletSelector() {
 
   const { isReadOnlyAddress, icon, currentLabel } = useConnect();
   const {
-    globalState: { selectedAccount },
+    globalState: { selectedAccount, isAccountPending },
   } = useNotionalContext();
   const truncatedAddress = useTruncatedAddress();
-
   const [notificationsActive, setNotificationsActive] =
     useState<boolean>(false);
   const [showAlert, setShowAlert] = useState<boolean>(false);
@@ -149,7 +148,7 @@ export function WalletSelector() {
               </Box>
             </>
           )}
-          {!truncatedAddress && (
+          {!truncatedAddress && !isAccountPending && (
             <ProcessContainer
               onClick={() => handleClick(SETTINGS_SIDE_DRAWERS.CONNECT_WALLET)}
             >
@@ -158,7 +157,7 @@ export function WalletSelector() {
               </ButtonText>
             </ProcessContainer>
           )}
-          {!isReadOnlyAddress && !truncatedAddress && (
+          {isAccountPending && (
             <ProcessContainer>
               <ProgressIndicator type="circular" size={18} />
             </ProcessContainer>
