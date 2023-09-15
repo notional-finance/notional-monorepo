@@ -30,7 +30,8 @@ export const ManageMaturities = () => {
     ? PORTFOLIO_ACTIONS.MANAGE_BORROW
     : PORTFOLIO_ACTIONS.MANAGE_LEND;
 
-  const rollMaturities = useManageMaturities(borrowOrLend);
+  const assetKey = pathname.split('/')[4];
+  const rollMaturities = useManageMaturities(borrowOrLend, assetKey);
 
   const handleMaturityClick = (route: string) => {
     history.push(`${pathname}/${route}`);

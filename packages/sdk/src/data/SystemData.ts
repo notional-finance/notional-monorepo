@@ -162,9 +162,13 @@ export async function fetchSystem(
   provider: ethers.providers.JsonRpcBatchProvider,
   exchangeRateApiKey: string,
   skipFetchSetup: boolean,
-  _usdExchangeRates: Record<string, BigNumber>
+  _usdExchangeRates: Record<string, BigNumber>,
+  subgraphApiKey?: string
 ) {
-  const { addresses, graphEndpoint } = Notional.getChainConfig(chainId);
+  const { addresses, graphEndpoint } = Notional.getChainConfig(
+    chainId,
+    subgraphApiKey
+  );
 
   const signer = new VoidSigner(ethers.constants.AddressZero, provider);
   const contracts = Notional.getContracts(addresses, signer);

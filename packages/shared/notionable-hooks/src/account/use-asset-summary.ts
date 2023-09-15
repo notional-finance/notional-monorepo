@@ -9,6 +9,7 @@ import {
 } from '@notional-finance/shared-config';
 
 export interface AssetSummary {
+  assetKey: string;
   underlyingSymbol: string;
   maturity: number;
   currentValue: TypedBigNumber;
@@ -68,6 +69,7 @@ export function useAssetSummary(borrowOrLend: LEND_BORROW) {
       }
 
       return {
+        assetKey: a.assetKey,
         underlyingSymbol: a.underlyingSymbol,
         maturity: a.maturity,
         currentValue: a.underlyingInternalPV,

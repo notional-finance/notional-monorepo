@@ -128,7 +128,9 @@ export const useAssetSummaryTable = (borrowOrLend: LEND_BORROW) => {
         rawMaturity: moment.unix(data.maturity).format(),
         removeAssetRoute: data.removeAssetRoute,
         route:
-          borrowOrLend === LEND_BORROW.LEND ? 'manage-lend' : 'manage-borrow',
+          borrowOrLend === LEND_BORROW.LEND
+            ? `manage-lend/${data.assetKey}`
+            : `manage-borrow/${data.assetKey}`,
       };
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
