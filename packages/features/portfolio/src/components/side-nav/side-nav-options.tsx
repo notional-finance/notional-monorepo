@@ -33,7 +33,7 @@ export const SideNavOptons = () => {
             theme={theme}
             to={to}
           >
-            <Box sx={{ paddingRight: theme.spacing(2), display: 'flex' }}>
+            <Box sx={{ paddingRight: theme.spacing(3), display: 'flex' }}>
               {Icon}
             </Box>
             <TitleWrapper>
