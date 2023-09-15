@@ -14,6 +14,7 @@ interface TableActionRowProps {
       actionRow: {
         txnHistory: string;
         buttonBarData: ButtonOptionsType[];
+        riskTableData: any[];
         subRowData: {
           label: ReactNode;
           value: any;
@@ -26,8 +27,10 @@ interface TableActionRowProps {
 export const TableActionRow = ({ row }: TableActionRowProps) => {
   const theme = useTheme();
   const {
-    actionRow: { txnHistory, buttonBarData, subRowData },
+    actionRow: { txnHistory, buttonBarData, subRowData, riskTableData },
   } = row.original;
+
+  console.log({ riskTableData });
 
   return (
     <Container>

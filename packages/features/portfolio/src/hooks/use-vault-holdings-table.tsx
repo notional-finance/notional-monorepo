@@ -19,6 +19,7 @@ import { FormattedMessage } from 'react-intl';
 import {
   useBalanceStatements,
   useVaultRiskProfiles,
+  useCurrentLiquidationPrices,
   useFiat,
   useAllMarkets,
 } from '@notional-finance/notionable-hooks';
@@ -62,6 +63,7 @@ export const useVaultHoldingsTable = () => {
   } = useAllMarkets();
   const history = useHistory();
   const balanceStatements = useBalanceStatements();
+  const { vaultLiquidation } = useCurrentLiquidationPrices();
 
   const vaultHoldingsColumns: DataTableColumn[] = useMemo(() => {
     return [
@@ -145,6 +147,16 @@ export const useVaultHoldingsTable = () => {
     const cashPnL = balanceStatements?.find(
       (b) => b.token.id === v.vaultCash.tokenId
     );
+    const vaultRiskData = vaultLiquidation?.find(
+      (b) => b.vaultAddress === v.vaultAddress
+    );
+
+    const vaultRiskTableData = vaultRiskData?.liquidationPrices.map((data) => {
+      return {
+        ...data,
+        strategyId: v.vaultConfig.strategy,
+      };
+    });
 
     const denom = v.denom(v.defaultSymbol);
     const profit = (assetPnL?.totalProfitAndLoss || TokenBalance.zero(denom))
@@ -227,6 +239,7 @@ export const useVaultHoldingsTable = () => {
           txnHistoryType: TXN_HISTORY_TYPE.LEVERAGED_VAULT,
           assetOrVaultId: config.vaultAddress,
         })}`,
+        riskTableData: vaultRiskTableData,
       },
     };
   });
