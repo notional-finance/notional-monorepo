@@ -594,7 +594,7 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
       NOTE
     );
 
-    const accumulatedNOTEPerNToken = config.incentives.accumulatedNOTEPerNToken
+    const accumulatedNOTEPerNToken = config.incentives?.accumulatedNOTEPerNToken
       ? // NOTE: this value is stored in 18 decimals natively, but downscale it here
         // for calculations
         TokenBalance.from(
@@ -605,7 +605,7 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
 
     return {
       incentiveEmissionRate,
-      lastAccumulatedTime: config.incentives.lastAccumulatedTime as
+      lastAccumulatedTime: config.incentives?.lastAccumulatedTime as
         | number
         | undefined,
       accumulatedNOTEPerNToken,

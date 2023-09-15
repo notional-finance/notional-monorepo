@@ -373,7 +373,9 @@ export default class DataService {
       .filter(
         (v) =>
           v.tokenType === 'VaultShare' &&
-          (v.maturity ? v.maturity > block.timestamp : true)
+          (v.maturity ? v.maturity > block.timestamp : true) &&
+          !!v.vaultAddress &&
+          vaults.isVaultEnabled(v.network, v.vaultAddress)
       )
       .flatMap((v) => {
         const debt = debtYields.find(
