@@ -7,6 +7,7 @@ import {
   SliderCell,
   ExpandedRows,
   ChevronCell,
+  ArrowChangeCell,
 } from '@notional-finance/mui';
 import {
   formatCryptoWithFiat,
@@ -19,6 +20,7 @@ import { FormattedMessage } from 'react-intl';
 import {
   useBalanceStatements,
   useVaultRiskProfiles,
+  useCurrentLiquidationPrices,
   useFiat,
   useAllMarkets,
 } from '@notional-finance/notionable-hooks';
@@ -27,6 +29,56 @@ import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
 import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
 import { TokenBalance } from '@notional-finance/core-entities';
 import { useHistory } from 'react-router-dom';
+
+const vaultRiskTableColumns: DataTableColumn[] = [
+  {
+    Header: (
+      <FormattedMessage
+        defaultMessage="Exchange Rate"
+        description={'column header'}
+      />
+    ),
+    Cell: MultiValueIconCell,
+    accessor: 'exchangeRate',
+    textAlign: 'left',
+  },
+  {
+    Header: (
+      <FormattedMessage
+        defaultMessage="Liquidation Price"
+        description={'column header'}
+      />
+    ),
+    accessor: 'liquidationPrice',
+    textAlign: 'right',
+  },
+  {
+    Header: (
+      <FormattedMessage
+        defaultMessage="Current Price"
+        description={'column header'}
+      />
+    ),
+    accessor: 'currentPrice',
+    textAlign: 'right',
+  },
+  {
+    Header: (
+      <FormattedMessage defaultMessage="24H %" description={'column header'} />
+    ),
+    Cell: ArrowChangeCell,
+    accessor: 'oneDayChange',
+    textAlign: 'right',
+  },
+  {
+    Header: (
+      <FormattedMessage defaultMessage="7D %" description={'column header'} />
+    ),
+    Cell: ArrowChangeCell,
+    accessor: 'sevenDayChange',
+    textAlign: 'right',
+  },
+];
 
 export function getVaultLeveragePercentage(
   v: VaultAccountRiskProfile,
@@ -62,6 +114,7 @@ export const useVaultHoldingsTable = () => {
   } = useAllMarkets();
   const history = useHistory();
   const balanceStatements = useBalanceStatements();
+  const { vaultLiquidation } = useCurrentLiquidationPrices();
 
   const vaultHoldingsColumns: DataTableColumn[] = useMemo(() => {
     return [
@@ -145,6 +198,27 @@ export const useVaultHoldingsTable = () => {
     const cashPnL = balanceStatements?.find(
       (b) => b.token.id === v.vaultCash.tokenId
     );
+    const vaultRiskData = vaultLiquidation?.find(
+      (b) => b.vaultAddress === v.vaultAddress
+    );
+
+    const vaultRiskTableData = vaultRiskData?.liquidationPrices.map(
+      ({
+        currentPrice,
+        liquidationPrice,
+        oneDayChange,
+        sevenDayChange,
+        exchangeRate,
+      }) => {
+        return {
+          currentPrice,
+          liquidationPrice,
+          oneDayChange,
+          sevenDayChange,
+          exchangeRate,
+        };
+      }
+    );
 
     const denom = v.denom(v.defaultSymbol);
     const profit = (assetPnL?.totalProfitAndLoss || TokenBalance.zero(denom))
@@ -227,6 +301,8 @@ export const useVaultHoldingsTable = () => {
           txnHistoryType: TXN_HISTORY_TYPE.LEVERAGED_VAULT,
           assetOrVaultId: config.vaultAddress,
         })}`,
+        riskTableData: vaultRiskTableData,
+        riskTableColumns: vaultRiskTableColumns,
       },
     };
   });

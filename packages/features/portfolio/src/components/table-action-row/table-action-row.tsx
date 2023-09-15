@@ -1,7 +1,15 @@
 import { ReactNode } from 'react';
 import { Box, useTheme, styled } from '@mui/material';
+import { FormattedMessage } from 'react-intl';
 import { ActionRowButton } from '../action-row-button/action-row-button';
-import { H5, H4, ButtonBar, ButtonOptionsType } from '@notional-finance/mui';
+import {
+  H5,
+  H4,
+  ButtonBar,
+  ButtonOptionsType,
+  DataTableColumn,
+  DataTable,
+} from '@notional-finance/mui';
 import { colors } from '@notional-finance/styles';
 import { defineMessages } from 'react-intl';
 
@@ -14,6 +22,8 @@ interface TableActionRowProps {
       actionRow: {
         txnHistory: string;
         buttonBarData: ButtonOptionsType[];
+        riskTableData: any[];
+        riskTableColumns: DataTableColumn[];
         subRowData: {
           label: ReactNode;
           value: any;
@@ -26,48 +36,73 @@ interface TableActionRowProps {
 export const TableActionRow = ({ row }: TableActionRowProps) => {
   const theme = useTheme();
   const {
-    actionRow: { txnHistory, buttonBarData, subRowData },
+    actionRow: {
+      txnHistory,
+      buttonBarData,
+      subRowData,
+      riskTableData,
+      riskTableColumns,
+    },
   } = row.original;
 
   return (
-    <Container>
-      <ApyContainer>
-        {subRowData.map(({ label, value }, index) => (
-          <Box key={index}>
-            <Label>{label}</Label>
-            <H4
-              sx={{
-                color: value < 0 || value.includes('-') ? colors.red : '',
-              }}
-            >
-              {value}
-            </H4>
-          </Box>
-        ))}
-      </ApyContainer>
-      <ButtonContainer>
-        <ButtonBar
-          buttonOptions={buttonBarData}
+    <Box
+      sx={{
+        background: theme.palette.background.default,
+        paddingBottom: theme.spacing(3),
+      }}
+    >
+      <Container>
+        <ApyContainer>
+          {subRowData.map(({ label, value }, index) => (
+            <Box key={index}>
+              <Label>{label}</Label>
+              <H4
+                sx={{
+                  color: value < 0 || value.includes('-') ? colors.red : '',
+                }}
+              >
+                {value}
+              </H4>
+            </Box>
+          ))}
+        </ApyContainer>
+        <ButtonContainer>
+          <ButtonBar
+            buttonOptions={buttonBarData}
+            sx={{
+              height: theme.spacing(5),
+            }}
+          />
+          {txnHistory && (
+            <ActionRowButton
+              variant="outlined"
+              size="medium"
+              {...defineMessages({
+                label: {
+                  defaultMessage: 'Transaction History',
+                  description: 'button text',
+                },
+              })}
+              route={txnHistory}
+              sx={{ marginLeft: theme.spacing(3) }}
+            />
+          )}
+        </ButtonContainer>
+      </Container>
+      {riskTableData && riskTableData.length > 0 && (
+        <DataTable
+          tableTitle={<FormattedMessage defaultMessage={'Liquidation Risk'} />}
+          columns={riskTableColumns}
+          data={riskTableData}
           sx={{
-            height: theme.spacing(5),
+            width: '96%',
+            margin: `auto`,
+            paddingBottom: theme.spacing(3),
           }}
         />
-        {txnHistory && (
-          <ActionRowButton
-            variant="outlined"
-            size="medium"
-            {...defineMessages({
-              label: {
-                defaultMessage: 'Transaction History',
-                description: 'button text',
-              },
-            })}
-            route={txnHistory}
-            sx={{ marginLeft: theme.spacing(3) }}
-          />
-        )}
-      </ButtonContainer>
-    </Container>
+      )}
+    </Box>
   );
 };
 

@@ -138,7 +138,10 @@ function parseUnderlyingLiquidationPrice(
   return {
     // Used on portfolio screen
     exchangeRate: {
-      symbol: icon,
+      symbol:
+        asset.tokenType === 'VaultShare' && threshold
+          ? threshold?.toUnderlying()?.symbol
+          : icon,
       label: (
         <span>
           {titleWithMaturity}

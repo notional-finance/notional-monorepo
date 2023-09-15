@@ -42,7 +42,7 @@ export const SideNavOptons = () => {
                 msg={navLabels[id]}
                 sx={{ whiteSpace: 'nowrap' }}
               />
-              <Box>
+              <Box sx={{ paddingLeft: theme.spacing(2) }}>
                 {notifications > 0 && (
                   <NotificationNum>{notifications}</NotificationNum>
                 )}
@@ -88,6 +88,7 @@ const SideNavItem = styled(Link, {
     background: ${selected ? theme.palette.primary.dark : 'transparent'};
     border-radius: ${selected ? '60px' : '0px'};
     padding: ${theme.spacing(1.5, 3)};
+    padding-right: 12px;
     margin-top: ${!firstItem ? theme.spacing(1.5) : '0px'};
     display: flex;
     align-items: center;
