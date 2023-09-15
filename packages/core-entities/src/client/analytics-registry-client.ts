@@ -126,6 +126,7 @@ export class AnalyticsRegistryClient extends ClientRegistry<AnalyticsData> {
     )?.pipe(
       map((d) => {
         const tokens = Registry.getTokenRegistry();
+        const vaults = Registry.getVaultRegistry();
         return (
           d?.map((p) => {
             const token = tokens.getTokenByID(network, p['token_id'] as string);
@@ -138,7 +139,11 @@ export class AnalyticsRegistryClient extends ClientRegistry<AnalyticsData> {
             const timestamp = p['timestamp'] as number;
 
             // Vault APYs need to be rewritten via their specific view
-            if (token.tokenType === 'VaultShare' && token.vaultAddress) {
+            if (
+              token.tokenType === 'VaultShare' &&
+              token.vaultAddress &&
+              vaults.isVaultEnabled(network, token.vaultAddress)
+            ) {
               const vaultData = this.getVault(network, token.vaultAddress);
               totalAPY =
                 vaultData?.find((d) => d.timestamp === timestamp)?.totalAPY ||
