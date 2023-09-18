@@ -50,10 +50,10 @@ export function LendFixed({
     //    assuming that the rate does not change:
     //  exchangeRateRatio = exchangeRateAtSubmit / exchangeRateAtConfirmation
     //  exchangeRateRatio = e^ [ timeToConfirmation / SECONDS_IN_YEAR ]
-    //  if timeToConfirmation = 4 hours (bad case assumption):
-    //    e ^ -(3600 * 4 / SECONDS_IN_YEAR) ~ 0.9995
+    //  if timeToConfirmation = 2 hours (bad case assumption):
+    //    e ^ -(3600 * 2 / SECONDS_IN_YEAR) ~ 0.9997
     collateralBalance = collateralBalance.scale(
-      RATE_PRECISION - BASIS_POINT * 5,
+      RATE_PRECISION - BASIS_POINT * 3,
       RATE_PRECISION
     );
 

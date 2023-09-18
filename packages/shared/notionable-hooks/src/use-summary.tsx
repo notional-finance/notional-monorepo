@@ -622,17 +622,25 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
       .toUnderlying()
       .sub(depositBalance || TokenBalance.zero(underlying))
       .add(debtBalance.toUnderlying());
-  } else if (collateralBalance && depositBalance) {
+  } else if (
+    collateralBalance &&
+    depositBalance &&
+    // NOTE: Deposit balances are emitted prior to collateral balances here and
+    // so it causes the fee value to "toggle" a bit as the value changes. Ideally
+    // we move the calculations into the observable so this is hidden
+    collateralBalance.currencyId === depositBalance.currencyId
+  ) {
     feeValue = depositBalance
       .toUnderlying()
       .sub(collateralBalance.toUnderlying());
-  } else if (debtBalance && depositBalance) {
+  } else if (
+    debtBalance &&
+    depositBalance &&
+    debtBalance.currencyId === depositBalance.currencyId
+  ) {
     feeValue = depositBalance.toUnderlying().sub(debtBalance.toUnderlying());
   }
 
-  // TODO: Deposit balances are emitted prior to collateral balances here and
-  // so it causes the fee value to "toggle" a bit as the value changes. Ideally
-  // we move the calculations into the observable so this is hidden
   summary.push({
     label: intl.formatMessage({ defaultMessage: 'Fees and Slippage' }),
     value: {
