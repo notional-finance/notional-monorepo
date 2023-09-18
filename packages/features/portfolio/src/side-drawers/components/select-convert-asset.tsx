@@ -114,9 +114,11 @@ export const SelectConvertAsset = ({ context }: SelectConvertAssetProps) => {
           }}
         >
           <ButtonText sx={{ flex: 1 }}>{text}</ButtonText>
-          <ButtonData>{`${formatNumberAsPercent(o?.interestRate || 0)} ${
-            o.token.tokenType === 'fCash' ? 'Fixed APY' : 'APY'
-          }`}</ButtonData>
+          {!!o.interestRate && (
+            <ButtonData>{`${formatNumberAsPercent(o.interestRate)} ${
+              o.token.tokenType === 'fCash' ? 'Fixed APY' : 'APY'
+            }`}</ButtonData>
+          )}
         </SideDrawerButton>
       );
     },
@@ -125,12 +127,12 @@ export const SelectConvertAsset = ({ context }: SelectConvertAssetProps) => {
 
   const fixedOptions =
     options
-      ?.filter((t) => t.token.tokenType === 'fCash' && !!t.balance)
+      ?.filter((t) => t.token.tokenType === 'fCash')
       .map(createTokenOption) || [];
 
   const variableOptions =
     options
-      ?.filter((t) => t.token.tokenType !== 'fCash' && !!t.balance)
+      ?.filter((t) => t.token.tokenType !== 'fCash')
       .map(createTokenOption) || [];
 
   const title = convertFromToken
