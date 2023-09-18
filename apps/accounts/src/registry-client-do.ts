@@ -67,7 +67,7 @@ export class RegistryClientDO extends BaseDO<Env> {
         await this.checkTotalSupply(network);
         await this.saveAccountFactors(network);
         await this.saveYieldData(network);
-        // await this.checkDBMonitors(network);
+        await this.checkDBMonitors(network);
       }
 
       return new Response('Ok', { status: 200 });
@@ -479,17 +479,54 @@ export class RegistryClientDO extends BaseDO<Env> {
     }
   }
 
-  // private async checkDBMonitors(network: Network) {
-  //   const monitorViews = [
-  //     'monitoring_chainlink_price_updates',
-  //     'monitoring_fCash_rates',
-  //     'monitoring_nToken_value',
-  //     'monitoring_pCash_and_pDebt_exchange_rate_monotonicity',
-  //     'monitoring_pCash_balances',
-  //     'monitoring_tvl',
-  //     'monitoring_vault_share_value',
-  //   ];
-  // }
+  private async checkDBMonitors(network: Network) {
+    const analytics = Registry.getAnalyticsRegistry();
+    const monitoringViews = [
+      'monitoring_chainlink_price_updates',
+      'monitoring_fCash_rates',
+      'monitoring_nToken_value',
+      'monitoring_pCash_and_pDebt_exchange_rate_monotonicity',
+      'monitoring_pCash_balances',
+      'monitoring_tvl',
+      'monitoring_vault_share_value',
+    ];
+
+    const networkTag = `network:${network}`;
+    const viewLengthSeries = [];
+
+    for (const m of monitoringViews) {
+      const data = await analytics.getView(network, m);
+      viewLengthSeries.push({
+        metric: 'registry.monitoring.length',
+        points: [
+          {
+            value: data.length,
+            timestamp: getNowSeconds(),
+          },
+        ],
+        tags: [networkTag, `monitor:${m}`],
+        type: MetricType.Gauge,
+      });
+
+      for (const d of data) {
+        for (const key of Object.keys(d)) {
+          if (key.endsWith('_check') && d[key] === false) {
+            await this.logger.submitEvent({
+              host: this.serviceName,
+              network,
+              aggregation_key: 'MonitoringCheckFailed',
+              alert_type: 'error',
+              title: `Monitor ${m} Failed`,
+              tags: [networkTag, `monitor:${m}`],
+              text: JSON.stringify(d),
+            });
+          }
+        }
+      }
+    }
+
+    await this.logger.submitMetrics({ series: viewLengthSeries });
+  }
 
   private async saveYieldData(network: Network) {
     await this.putStorageKey(
