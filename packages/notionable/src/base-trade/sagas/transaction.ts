@@ -94,7 +94,7 @@ export function simulateTransaction(
           applySimulationToAccount(network, populatedTransaction, a)
         ).pipe(
           map(({ balancesAfter }) => {
-            const mismatchedBalances = zipByKeyToArray(
+            const zippedBalances = zipByKeyToArray(
               balancesAfter.filter((t) =>
                 vaultAddress
                   ? t.isVaultToken && t.vaultAddress === vaultAddress
@@ -105,7 +105,9 @@ export function simulateTransaction(
               postTradeBalances?.filter((t) => t.tokenType !== 'VaultCash') ||
                 [],
               (t) => t.tokenId
-            )
+            );
+
+            const mismatchedBalances = zippedBalances
               .map(([simulated, calculated]) => ({
                 rel:
                   !!simulated && !!calculated && !calculated.isZero()
@@ -114,17 +116,22 @@ export function simulateTransaction(
                     : simulated
                     ? simulated.abs().toFloat()
                     : (calculated as TokenBalance).abs().toFloat(),
+                abs:
+                  !!simulated && !!calculated
+                    ? simulated.toFloat() - calculated.toFloat()
+                    : simulated?.abs().toFloat() ||
+                      (calculated as TokenBalance).abs().toFloat(),
                 simulatedBalance: simulated,
                 calculatedBalance: calculated,
               }))
-              .filter(({ rel, simulatedBalance }) =>
+              .filter(({ rel, abs, simulatedBalance }) =>
                 // Allow for more tolerance in this scenario since we do not accurately account
                 // for dust repayment within the calculation. The actual amount of vault shares
                 // is relatively insignificant.
                 tradeType === 'RollVaultPosition' &&
                 simulatedBalance?.tokenType === 'VaultShare'
-                  ? Math.abs(rel) > 5e-2
-                  : Math.abs(rel) > 5e-4
+                  ? Math.abs(rel) > 5e-2 && Math.abs(abs) > 5e-5
+                  : Math.abs(rel) > 5e-4 && Math.abs(abs) > 5e-5
               );
 
             if (mismatchedBalances.length > 0) {
