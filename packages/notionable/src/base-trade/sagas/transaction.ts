@@ -108,22 +108,30 @@ export function simulateTransaction(
             );
 
             const mismatchedBalances = zippedBalances
-              .map(([simulated, calculated]) => ({
-                rel:
-                  !!simulated && !!calculated && !calculated.isZero()
-                    ? (simulated.toFloat() - calculated.toFloat()) /
-                      calculated.toFloat()
-                    : simulated
-                    ? simulated.abs().toFloat()
-                    : (calculated as TokenBalance).abs().toFloat(),
-                abs:
-                  !!simulated && !!calculated
-                    ? simulated.toFloat() - calculated.toFloat()
-                    : simulated?.abs().toFloat() ||
-                      (calculated as TokenBalance).abs().toFloat(),
-                simulatedBalance: simulated,
-                calculatedBalance: calculated,
-              }))
+              .map(([simulated, calculated]) => {
+                let rel = 0;
+                let abs = 0;
+                if (simulated && calculated) {
+                  rel = calculated.isZero()
+                    ? simulated.toFloat()
+                    : (simulated.toFloat() - calculated.toFloat()) /
+                      calculated.toFloat();
+                  abs = simulated.toFloat() - calculated.toFloat();
+                } else if (simulated) {
+                  rel = simulated.toFloat();
+                  abs = simulated.toFloat();
+                } else if (calculated) {
+                  rel = calculated.toFloat();
+                  abs = calculated.toFloat();
+                }
+
+                return {
+                  rel,
+                  abs,
+                  simulatedBalance: simulated,
+                  calculatedBalance: calculated,
+                };
+              })
               .filter(({ rel, abs, simulatedBalance }) =>
                 // Allow for more tolerance in this scenario since we do not accurately account
                 // for dust repayment within the calculation. The actual amount of vault shares
