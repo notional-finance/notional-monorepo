@@ -13,7 +13,6 @@ import {
 } from '../../typography/typography';
 import { FormattedMessage } from 'react-intl';
 import { NotionalTheme, colors } from '@notional-finance/styles';
-import { formatNumberToDigits } from '@notional-finance/helpers';
 
 interface AllRates {
   rate: string;
@@ -37,9 +36,9 @@ export const CurrencyFixed = (props: CurrencyFixedProps) => {
   const theme = useTheme();
   const { route, symbol, buttonText, rate, allRates, apyTagline } = props;
   const [hovered, setHovered] = useState(false);
-  // NOTE: limits digits to 3 because of the longer APY suffix, higher
+  // NOTE: limits digits to 2 decimal places because of the longer APY suffix, higher
   // apy rates will get cut off.
-  const formattedRate = `${formatNumberToDigits(rate, 3)}%`;
+  const formattedRate = `${rate.toPrecision(2)}%`;
 
   return (
     <Link to={route}>
