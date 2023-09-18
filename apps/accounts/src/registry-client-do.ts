@@ -5,6 +5,7 @@ import {
   SETTLEMENT_RESERVE,
   convertToSignedfCashId,
   getNowSeconds,
+  groupArrayToMap,
 } from '@notional-finance/util';
 import {
   AccountFetchMode,
@@ -79,30 +80,43 @@ export class RegistryClientDO extends BaseDO<Env> {
   private async checkDataFreshness(network: Network) {
     const networkTag = `network:${network}`;
     const timestamp = getNowSeconds();
+    const tableKey = {
+      notional_assets_apys_and_tvls: 'token_id',
+      historical_oracle_values: 'id',
+    };
+
     const analyticsData = Registry.getAnalyticsRegistry()
       .getAllSubjectKeys(network)
-      .map((k) => {
-        const latestTimestamp = Math.max(
-          ...(
-            Registry.getAnalyticsRegistry().getLatestFromSubject(
-              network,
-              k,
-              0
-            ) || []
-          ).map((d) => (d['timestamp'] || d['Timestamp'] || 0) as number)
+      .flatMap((k) => {
+        const groupingKey = tableKey[k];
+        const latestData =
+          Registry.getAnalyticsRegistry().getLatestFromSubject(network, k, 0) ||
+          [];
+
+        const grouped = groupArrayToMap(
+          latestData,
+          (t) => t[groupingKey] || 'all'
         );
 
-        return {
-          metric: `registry.lastUpdateTimestamp`,
-          points: [
-            {
-              value: timestamp - latestTimestamp,
-              timestamp,
-            },
-          ],
-          tags: [networkTag, `registry:analytics`, `view:${k}`],
-          type: MetricType.Gauge,
-        };
+        return Array.from(grouped.keys()).map((g) => {
+          const latestTimestamp = Math.max(
+            ...grouped
+              .get(g)
+              .map((d) => (d['timestamp'] || d['Timestamp'] || 0) as number)
+          );
+
+          return {
+            metric: `registry.lastUpdateTimestamp`,
+            points: [
+              {
+                value: timestamp - latestTimestamp,
+                timestamp,
+              },
+            ],
+            tags: [networkTag, `registry:analytics`, `view:${k}:${g}`],
+            type: MetricType.Gauge,
+          };
+        });
       });
 
     await this.logger.submitMetrics({

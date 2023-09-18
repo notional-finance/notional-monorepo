@@ -1,4 +1,3 @@
-import { TokenBalance } from '@notional-finance/core-entities';
 import { applySimulationToAccount } from '@notional-finance/transaction';
 import {
   logError,

@@ -18,7 +18,6 @@ type AnalyticsData = DataPoint[];
 
 const VIEWS = [
   'historical_oracle_values',
-  'notional_asset_historical_prices',
   'notional_assets_apys_and_tvls',
   'ntoken_trading_fees_apys',
 ] as const;
@@ -53,48 +52,6 @@ export class AnalyticsRegistryClient extends ClientRegistry<AnalyticsData> {
     if (v === null) return null;
     else if (typeof v === 'string') return fn(parseFloat(v));
     else return fn(v);
-  }
-
-  subscribeHistoricalPrices(network: Network) {
-    return this.subscribeDataSet(
-      network,
-      'notional_asset_historical_prices'
-    )?.pipe(
-      map((d) => {
-        const tokens = Registry.getTokenRegistry();
-        return (
-          d?.map((p) => {
-            const token = tokens.getTokenByID(network, p['token_id'] as string);
-            const underlying = tokens.getTokenByID(
-              network,
-              p['underlying_token_id'] as string
-            );
-
-            return {
-              token,
-              timestamp: p['timestamp'] as number,
-              assetToUnderlying: this._convertOrNull(
-                p['asset_to_underlying_exchange_rate'],
-                (d) => TokenBalance.fromFloat(d.toFixed(6), underlying)
-              ),
-              underlyingToETH: this._convertOrNull(
-                p['underlying_to_eth_exchange_rate'],
-                (d) => TokenBalance.fromFloat(d.toFixed(6), this.ETH)
-              ),
-              assetToUSD: this._convertOrNull(
-                p['asset_to_usd_exchange_rate'],
-                (d) => TokenBalance.fromFloat(d.toFixed(6), this.USD)
-              ),
-              underlyingToUSD: this._convertOrNull(
-                p['underlying_to_usd_exchange_rate'],
-                (d) => TokenBalance.fromFloat(d.toFixed(6), this.USD)
-              ),
-            };
-          }) || []
-        );
-      }),
-      shareReplay(1)
-    );
   }
 
   subscribeNTokenTradingFees(network: Network) {
@@ -235,10 +192,6 @@ export class AnalyticsRegistryClient extends ClientRegistry<AnalyticsData> {
 
   getHistoricalOracles(network: Network, timestamp: number) {
     return this._getLatest(this.subscribeHistoricalOracles(network, timestamp));
-  }
-
-  getHistoricalPrices(network: Network) {
-    return this._getLatest(this.subscribeHistoricalPrices(network));
   }
 
   getNTokenTradingFees(network: Network) {
