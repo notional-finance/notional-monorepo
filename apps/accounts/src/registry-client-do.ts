@@ -232,7 +232,7 @@ export class RegistryClientDO extends BaseDO<Env> {
       }
 
       const vaultKeys = a.balances
-        .filter((b) => b.tokenType === 'VaultShare' && !b.isZero())
+        .filter((b) => b.tokenType === 'VaultShare')
         .map((b) => `${a.address}:${b.vaultAddress}`.toLowerCase());
       for (const k of vaultKeys) {
         if (vaultAccountSet.has(k)) vaultAccountSet.delete(k);
