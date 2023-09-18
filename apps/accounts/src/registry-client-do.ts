@@ -1,11 +1,14 @@
 import { DurableObjectState } from '@cloudflare/workers-types';
 import {
+  AssetType,
   Network,
   PRIME_CASH_VAULT_MATURITY,
   SETTLEMENT_RESERVE,
   convertToSignedfCashId,
+  decodeERC1155Id,
   getNowSeconds,
   groupArrayToMap,
+  isERC1155Id,
 } from '@notional-finance/util';
 import {
   AccountFetchMode,
@@ -64,6 +67,7 @@ export class RegistryClientDO extends BaseDO<Env> {
         await this.checkTotalSupply(network);
         await this.saveAccountFactors(network);
         await this.saveYieldData(network);
+        // await this.checkDBMonitors(network);
       }
 
       return new Response('Ok', { status: 200 });
@@ -432,23 +436,22 @@ export class RegistryClientDO extends BaseDO<Env> {
         network,
         v.vaultAddress
       );
-      const totalComputedBorrows = config
-        .getVaultActiveMaturities(network, v.vaultAddress)
-        .reduce((t, m) => {
-          const { primaryDebtID } = config.getVaultIDs(
-            network,
-            v.vaultAddress,
-            m
+      const totalComputedBorrows = Array.from(totalBalances.keys())
+        .filter((k) => isERC1155Id(k))
+        .filter((k) => {
+          const { vaultAddress, assetType } = decodeERC1155Id(k);
+          return (
+            vaultAddress === v.vaultAddress &&
+            assetType === AssetType.VAULT_DEBT_ASSET_TYPE
           );
-          if (m === PRIME_CASH_VAULT_MATURITY) {
-            return t.add(
-              totalBalances.get(primaryDebtID)?.toUnderlying() || t.copy(0)
-            );
+        })
+        .reduce((t, k) => {
+          const b = totalBalances.get(k);
+          if (b.maturity === PRIME_CASH_VAULT_MATURITY) {
+            return t.add(b.toUnderlying() || t.copy(0));
           } else {
-            return t.add(
-              // fCash is added to borrow capacity at the notional value
-              t.copy(totalBalances.get(primaryDebtID)?.scaleTo(t.decimals) || 0)
-            );
+            // fCash is added to borrow capacity at the notional value
+            return t.add(t.copy(b.scaleTo(t.decimals) || 0));
           }
         }, TokenBalance.zero(totalUsedPrimaryBorrowCapacity.token));
 
@@ -475,6 +478,18 @@ export class RegistryClientDO extends BaseDO<Env> {
       }
     }
   }
+
+  // private async checkDBMonitors(network: Network) {
+  //   const monitorViews = [
+  //     'monitoring_chainlink_price_updates',
+  //     'monitoring_fCash_rates',
+  //     'monitoring_nToken_value',
+  //     'monitoring_pCash_and_pDebt_exchange_rate_monotonicity',
+  //     'monitoring_pCash_balances',
+  //     'monitoring_tvl',
+  //     'monitoring_vault_share_value',
+  //   ];
+  // }
 
   private async saveYieldData(network: Network) {
     await this.putStorageKey(
