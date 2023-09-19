@@ -482,7 +482,7 @@ export class RegistryClientDO extends BaseDO<Env> {
   private async checkDBMonitors(network: Network) {
     const analytics = Registry.getAnalyticsRegistry();
     const monitoringViews = [
-      // 'monitoring_chainlink_price_updates',
+      'monitoring_chainlink_price_updates',
       'monitoring_fCash_rates',
       'monitoring_nToken_value',
       'monitoring_pCash_and_pDebt_exchange_rate_monotonicity',
