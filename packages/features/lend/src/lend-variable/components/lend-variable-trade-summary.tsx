@@ -22,10 +22,8 @@ export const LendVariableTradeSummary = () => {
   const theme = useTheme();
   const context = useContext(LendVariableContext);
   const { state } = context;
-  const { collateral, deposit } = state;
-  const { faqs, faqHeaderLinks } = useLendVariableFaq(
-    state.selectedDepositToken
-  );
+  const { collateral, deposit, selectedDepositToken } = state;
+  const { faqs, faqHeaderLinks } = useLendVariableFaq(selectedDepositToken);
   const totalsData = useVariableTotals(state);
   const { apyData, tvlData } = useTokenHistory(collateral);
   const {
@@ -33,7 +31,6 @@ export const LendVariableTradeSummary = () => {
     chartToolTipData,
     areaChartStyles,
     chartHeaderData,
-    chartInfoBoxData,
     borrowUtilization,
   } = useInterestRateUtilizationChart(deposit?.currencyId, 'lend');
 
@@ -103,7 +100,6 @@ export const LendVariableTradeSummary = () => {
                 </ChartContainer>
               ),
               chartHeaderData: chartHeaderData,
-              chartInfoBoxData: chartInfoBoxData,
               bottomLabel: <FormattedMessage defaultMessage={'Utilization'} />,
             },
           ]}

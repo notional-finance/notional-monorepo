@@ -20,16 +20,15 @@ export const BorrowVariableTradeSummary = () => {
   const theme = useTheme();
   const context = useContext(BorrowVariableContext);
   const { state } = context;
-  const { deposit, debt } = state;
+  const { deposit, debt, selectedDepositToken } = state;
   const {
     areaChartData,
     chartToolTipData,
     areaChartStyles,
     chartHeaderData,
-    chartInfoBoxData,
     borrowUtilization,
   } = useInterestRateUtilizationChart(deposit?.currencyId, 'borrow');
-  const { faqs, faqHeaderLinks } = useBorrowVariableFaq();
+  const { faqs, faqHeaderLinks } = useBorrowVariableFaq(selectedDepositToken);
   const totalsData = useVariableTotals(state);
   const { apyData, tvlData } = useTokenHistory(debt);
 
@@ -109,7 +108,6 @@ export const BorrowVariableTradeSummary = () => {
                 </ChartContainer>
               ),
               chartHeaderData: chartHeaderData,
-              chartInfoBoxData: chartInfoBoxData,
               bottomLabel: <FormattedMessage defaultMessage={'Utilization'} />,
             },
           ]}

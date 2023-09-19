@@ -1,7 +1,6 @@
 import { ReactNode } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
-import { getContractUrls } from '@notional-finance/helpers';
 import {
   getEtherscanAddressLink,
   NotionalAddress,
@@ -21,20 +20,6 @@ export const useLendLeveragedFaq = (tokenSymbol?: string) => {
       href: 'https://docs.notional.finance/notional-v3/product-guides/leveraged-lending',
       text: (
         <FormattedMessage defaultMessage={'Leveraged Lending Documentation'} />
-      ),
-    },
-    {
-      href:
-        tokenSymbol && getContractUrls(tokenSymbol)
-          ? getContractUrls(tokenSymbol).prime
-          : '',
-      text: (
-        <FormattedMessage
-          defaultMessage={'Prime {tokenSymbol} Contract'}
-          values={{
-            tokenSymbol,
-          }}
-        />
       ),
     },
     {

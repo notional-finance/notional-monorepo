@@ -17,7 +17,7 @@ export const RepayDebt = () => {
       <PortfolioHoldingSelect
         tightMarginTop
         context={context}
-        inputLabel={messages[PORTFOLIO_ACTIONS.REPAY_DEBT]['inputLabel']}
+        inputLabel={messages[PORTFOLIO_ACTIONS.REPAY_DEBT]['inputLabelTwo']}
         filterBalances={(b) =>
           b.isNegative() &&
           (b.tokenType === 'PrimeDebt' || b.tokenType === 'fCash')

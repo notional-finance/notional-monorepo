@@ -2,7 +2,6 @@ import { useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import {
   ChartToolTipDataProps,
-  Body,
   ChartHeaderDataProps,
   AreaChartStylesProps,
   LEGEND_LINE_TYPES,
@@ -55,38 +54,6 @@ export const useInterestRateUtilizationChart = (
       ];
     }
   }
-
-  const chartInfoBoxData = [
-    {
-      TextComponent: (
-        <Body sx={{ marginBottom: theme.spacing(2) }}>
-          <FormattedMessage
-            defaultMessage={
-              'The {factor} utilization factor is used to calculate the prime {factor} premium and is based on the utilization of the variable rate {factorTwo} market.'
-            }
-            values={{
-              factor: actionType,
-              factorTwo: actionType === 'borrow' ? 'lending' : 'borrowing',
-            }}
-          />
-        </Body>
-      ),
-    },
-    {
-      TextComponent: (
-        <Body>
-          <FormattedMessage
-            defaultMessage={
-              'More {factor} means higher utilization and a higher utilization factor. Fewer {factor} means lower utilization and a lower utilization factor.'
-            }
-            values={{
-              factor: actionType === 'borrow' ? 'borrowers' : 'lenders',
-            }}
-          />
-        </Body>
-      ),
-    },
-  ];
 
   const chartHeaderData: ChartHeaderDataProps = {
     textHeader:
@@ -163,7 +130,6 @@ export const useInterestRateUtilizationChart = (
     areaChartStyles,
     chartToolTipData,
     chartHeaderData,
-    chartInfoBoxData,
     borrowUtilization,
   };
 };

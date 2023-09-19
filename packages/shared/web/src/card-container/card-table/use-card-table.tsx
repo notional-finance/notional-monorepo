@@ -277,7 +277,7 @@ export const useCardTable = () => {
           ),
           value: (
             <HeadingSubtitle>
-              <FormattedMessage defaultMessage="No" />
+              <FormattedMessage defaultMessage="Yes" />
             </HeadingSubtitle>
           ),
         },

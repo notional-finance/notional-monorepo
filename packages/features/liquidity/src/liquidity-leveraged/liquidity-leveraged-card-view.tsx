@@ -77,7 +77,7 @@ export const LiquidityLeveragedCardView = () => {
               description: 'page heading',
             })}
             subtitle={defineMessage({
-              defaultMessage: `Multiple your returns by providing liquidity with leverage. Select your borrow rate and leverage and put on the whole position in one transaction.
+              defaultMessage: `Multiply your returns returns by providing liquidity with leverage. Select your borrow rate and leverage and put on the whole position in one transaction.
               `,
               description: 'page heading subtitle',
             })}

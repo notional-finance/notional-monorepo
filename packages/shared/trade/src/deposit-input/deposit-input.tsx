@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Box } from '@mui/material';
+import { Box, useTheme } from '@mui/material';
 import {
   CurrencyInput,
   CurrencyInputHandle,
@@ -48,6 +48,7 @@ export const DepositInput = React.forwardRef<
     ref
   ) => {
     const history = useHistory();
+    const theme = useTheme();
     const {
       state: {
         deposit,
@@ -83,7 +84,7 @@ export const DepositInput = React.forwardRef<
       return <PageLoading />;
 
     return (
-      <Box>
+      <Box sx={{ marginBottom: theme.spacing(3) }}>
         <InputLabel inputLabel={inputLabel} />
         <CurrencyInput
           ref={ref}

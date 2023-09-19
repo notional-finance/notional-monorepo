@@ -123,6 +123,7 @@ const HeadingContainer = styled(Box)(
   ({ theme }) => `
   display: flex;
   justify-content: space-between;
+  align-items: center;
   margin-bottom: ${theme.spacing(1)};
   margin-left: ${theme.spacing(2.5)};
   margin-right: ${theme.spacing(2.5)};

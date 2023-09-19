@@ -1,7 +1,8 @@
+import { useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Body } from '@notional-finance/mui';
 import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
-import { getContractUrls } from '@notional-finance/helpers';
+import { LeveragedLiquidityContext } from '../../liquidity-leveraged/liquidity-leveraged';
 import {
   getEtherscanAddressLink,
   NotionalAddress,
@@ -10,6 +11,10 @@ import { RiskFaq } from '../components';
 
 export const useLiquidityFaq = (tokenSymbol: string) => {
   const selectedNetwork = useSelectedNetwork();
+  const context = useContext(LeveragedLiquidityContext);
+  const {
+    state: { collateral },
+  } = context;
   const faqHeaderLinks = [
     {
       href: 'https://docs.notional.finance/notional-v3/product-guides/leveraged-liquidity ',
@@ -21,8 +26,8 @@ export const useLiquidityFaq = (tokenSymbol: string) => {
     },
     {
       href:
-        tokenSymbol && getContractUrls(tokenSymbol)
-          ? getContractUrls(tokenSymbol).nToken
+        selectedNetwork && collateral?.address
+          ? getEtherscanAddressLink(collateral.address, selectedNetwork)
           : '',
       text: (
         <FormattedMessage

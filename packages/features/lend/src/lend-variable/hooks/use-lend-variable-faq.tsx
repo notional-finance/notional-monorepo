@@ -1,7 +1,7 @@
-import { ReactNode } from 'react';
+import { useContext, ReactNode } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
-import { getContractUrls } from '@notional-finance/helpers';
+import { LendVariableContext } from '../../lend-variable/lend-variable';
 import {
   getEtherscanAddressLink,
   NotionalAddress,
@@ -16,6 +16,11 @@ interface FaqProps {
 
 export const useLendVariableFaq = (tokenSymbol?: string) => {
   const selectedNetwork = useSelectedNetwork();
+  const context = useContext(LendVariableContext);
+  const {
+    state: { collateral },
+  } = context;
+
   const faqHeaderLinks = [
     {
       href: 'https://docs.notional.finance/notional-v3/product-guides/variable-rate-lending',
@@ -25,8 +30,8 @@ export const useLendVariableFaq = (tokenSymbol?: string) => {
     },
     {
       href:
-        tokenSymbol && getContractUrls(tokenSymbol)
-          ? getContractUrls(tokenSymbol).prime
+        selectedNetwork && collateral?.address
+          ? getEtherscanAddressLink(collateral.address, selectedNetwork)
           : '',
       text: (
         <FormattedMessage
@@ -80,7 +85,7 @@ export const useLendVariableFaq = (tokenSymbol?: string) => {
       ),
       answer: (
         <FormattedMessage
-          defaultMessage={`Lenders earn yield by lending their funds to over-collateralized borrowers. Any funds that aren’t being utilized by borrowers on Notional can be deposited on external money markets to generate additional yield.`}
+          defaultMessage={`Yield on Notional comes from lending to over-collateralized borrowers and advanced DeFi users who want leverage on DeFi yield strategies.`}
         />
       ),
     },

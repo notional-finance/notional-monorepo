@@ -1,12 +1,30 @@
 import { TradeType, VaultTradeType } from '@notional-finance/notionable';
 import { MessageDescriptor, defineMessages } from 'react-intl';
-
+export type CombinedTokenTypes =
+  | 'fCash-PrimeDebt'
+  | 'PrimeDebt-fCash'
+  | 'PrimeCash-fCash'
+  | 'fCash-PrimeCash'
+  | 'fCash-fCash'
+  | 'nToken-PrimeCash'
+  | 'nToken-fCash'
+  | 'fCash-nToken'
+  | 'PrimeCash-nToken';
 export const TransactionHeadings: Record<
   TradeType | VaultTradeType,
   {
     heading: MessageDescriptor;
     helptext: MessageDescriptor;
     headerText?: MessageDescriptor;
+    'fCash-PrimeDebt'?: MessageDescriptor;
+    'PrimeDebt-fCash'?: MessageDescriptor;
+    'PrimeCash-fCash'?: MessageDescriptor;
+    'fCash-PrimeCash'?: MessageDescriptor;
+    'fCash-fCash'?: MessageDescriptor;
+    'nToken-PrimeCash'?: MessageDescriptor;
+    'nToken-fCash'?: MessageDescriptor;
+    'fCash-nToken'?: MessageDescriptor;
+    'PrimeCash-nToken'?: MessageDescriptor;
   }
 > = {
   LendFixed: defineMessages({
@@ -36,15 +54,15 @@ export const TransactionHeadings: Record<
   BorrowFixed: defineMessages({
     heading: { defaultMessage: 'Borrow Fixed' },
     helptext: {
-      defaultMessage:
-        'Borrow with confidence, fixed rates lock in what you pay.',
+      defaultMessage: 'Get peace of mind with a fixed rate on your loan.',
     },
     headerText: { defaultMessage: 'Borrow' },
   }),
   BorrowVariable: defineMessages({
     heading: { defaultMessage: 'Borrow Variable' },
     helptext: {
-      defaultMessage: 'TBD',
+      defaultMessage:
+        'Borrow against your crypto with full flexibility. Leave your loan open or pay it back whenever you want with no penalty.',
     },
     headerText: { defaultMessage: 'Borrow' },
   }),
@@ -52,7 +70,7 @@ export const TransactionHeadings: Record<
     heading: { defaultMessage: 'Provide Liquidity' },
     helptext: {
       defaultMessage:
-        'You will receive nTokens in return for providing liquidity to all markets at once. nTokens earn yield from cToken supply rates, trading fees, and fCash interest. nToken holders also earn NOTE incentives.',
+        'Provide liquidity to all fixed rate liquidity pools in this currency at once to earn interest, fees, and NOTE incentives.',
     },
     headerText: { defaultMessage: 'Provide' },
   }),
@@ -60,7 +78,7 @@ export const TransactionHeadings: Record<
     heading: { defaultMessage: 'Leveraged Liquidity' },
     helptext: {
       defaultMessage:
-        'Multiple your returns by providing liquidity with leverage. Select your borrow rate and leverage and put on the whole position in one transaction.',
+        'Multiply your returns by providing liquidity with leverage. Select your borrow rate and leverage and put on the whole position in one transaction.',
     },
     headerText: { defaultMessage: 'Provide' },
   }),
@@ -73,29 +91,64 @@ export const TransactionHeadings: Record<
   Withdraw: defineMessages({
     heading: { defaultMessage: 'Withdraw' },
     helptext: {
-      defaultMessage:
-        'Withdraw balances from Notional into the connected wallet.',
+      defaultMessage: 'Withdraw from Notional to your wallet.',
     },
   }),
   RepayDebt: defineMessages({
     heading: { defaultMessage: 'Repay Debt' },
     helptext: {
-      defaultMessage: 'Repay your debt before maturity at the market rate.',
+      defaultMessage: 'Repay your debt with assets from your wallet.',
     },
   }),
   Deleverage: defineMessages({
     heading: { defaultMessage: 'Deleverage' },
-    helptext: { defaultMessage: 'Deleverage a lending position' },
+    helptext: {
+      defaultMessage:
+        'Reduce a leveraged lending or leveraged liquidity position',
+    },
   }),
   ConvertAsset: defineMessages({
     heading: { defaultMessage: 'Manage Asset' },
     helptext: {
-      defaultMessage: 'Repay your cash debt to avoid settlement penalties.',
+      defaultMessage: 'Convert your asset into a new asset type.',
+    },
+    'PrimeDebt-fCash': {
+      defaultMessage: 'Convert your variable rate loan to a fixed rate',
+    },
+    'PrimeCash-fCash': {
+      defaultMessage: 'Convert your variable rate loan to a fixed rate',
+    },
+    'fCash-PrimeCash': {
+      defaultMessage: 'Convert your fixed rate loan to a variable rate',
+    },
+    'fCash-fCash': {
+      defaultMessage: 'Roll your loan to a new maturity and rate',
+    },
+    'nToken-PrimeCash': {
+      defaultMessage: 'Convert your liquidity to a variable rate loan',
+    },
+    'nToken-fCash': {
+      defaultMessage: 'Convert your liquidity to a fixed rate loan',
+    },
+    'fCash-nToken': {
+      defaultMessage: 'Convert your fixed rate loan to providing liquidity',
+    },
+    'PrimeCash-nToken': {
+      defaultMessage: 'Convert your variable rate loan to providing liquidity',
     },
   }),
   RollDebt: defineMessages({
     heading: { defaultMessage: 'Manage Debt' },
-    helptext: { defaultMessage: 'Manage your debt' },
+    'fCash-PrimeDebt': {
+      defaultMessage: 'Convert your fixed rate loan to a variable rate',
+    },
+    'PrimeCash-fCash': {
+      defaultMessage: 'Convert your variable rate loan to a fixed rate',
+    },
+    'fCash-fCash': {
+      defaultMessage: 'Roll your loan to a new maturity and rate',
+    },
+    helptext: { defaultMessage: 'Roll your debt to a new maturity' },
   }),
   /** Vault Headings **/
   CreateVaultPosition: defineMessages({

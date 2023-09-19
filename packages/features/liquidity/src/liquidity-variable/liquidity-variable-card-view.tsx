@@ -68,7 +68,7 @@ export const LiquidityVariableCardView = () => {
               description: 'page heading',
             })}
             subtitle={defineMessage({
-              defaultMessage: `Set it and forget it. Earn passive interest, fees, and NOTE from depositing into Notional's liquidity pools.`,
+              defaultMessage: `Set it and forget it. Earn passive interest, fees, and NOTE from depositing into Notional's fixed rate liquidity pools.`,
               description: 'page heading subtitle',
             })}
             linkText={defineMessage({

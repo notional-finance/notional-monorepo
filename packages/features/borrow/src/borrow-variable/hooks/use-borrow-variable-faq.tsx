@@ -1,8 +1,9 @@
-import { ReactNode } from 'react';
+import { useContext, ReactNode } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useTheme } from '@mui/material';
-import { Body } from '@notional-finance/mui';
+import { Body, ExternalLink } from '@notional-finance/mui';
 import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
+import { BorrowVariableContext } from '../borrow-variable';
 import {
   getEtherscanAddressLink,
   NotionalAddress,
@@ -14,16 +15,33 @@ interface FaqProps {
   componentAnswer?: ReactNode;
 }
 
-export const useBorrowVariableFaq = () => {
+export const useBorrowVariableFaq = (tokenSymbol?: string) => {
   const theme = useTheme();
+  const context = useContext(BorrowVariableContext);
+  const {
+    state: { debt },
+  } = context;
   const selectedNetwork = useSelectedNetwork();
 
-  // TODO: Docs link
   const faqHeaderLinks = [
     {
       href: 'https://docs.notional.finance/notional-v3/product-guides/variable-rate-borrowing',
       text: (
         <FormattedMessage defaultMessage={'Variable Borrow Documentation'} />
+      ),
+    },
+    {
+      href:
+        selectedNetwork && debt?.address
+          ? getEtherscanAddressLink(debt.address, selectedNetwork)
+          : '',
+      text: (
+        <FormattedMessage
+          defaultMessage={'Prime {tokenSymbol} Contract'}
+          values={{
+            tokenSymbol,
+          }}
+        />
       ),
     },
     {
@@ -99,22 +117,21 @@ export const useBorrowVariableFaq = () => {
         />
       ),
       componentAnswer: (
-        <>
-          <Body sx={{ marginBottom: theme.spacing(1) }}>
-            <FormattedMessage
-              defaultMessage={
-                'Your Max LTV depends on what asset you want to borrow and what asset you’re using as collateral. You can select your desired collateral asset on the righthand side of this page and it will show you the max LTV for that collateral asset + this debt asset.'
-              }
-            />
-          </Body>
-          <Body>
-            <FormattedMessage
-              defaultMessage={
-                'Or you can go to our docs and find an exhaustive list of Max LTVs for every collateral asset and debt asset pair.'
-              }
-            />
-          </Body>
-        </>
+        <Body sx={{ marginBottom: theme.spacing(1) }}>
+          <FormattedMessage
+            defaultMessage={`Your Max LTV depends on what asset you’re borrowing and what you’re using as collateral. For a full table of Max LTVs by asset and collateral type, go to our <a1>docs.</a1>`}
+            values={{
+              a1: (msg: ReactNode) => (
+                <ExternalLink
+                  accent
+                  href="https://docs.notional.finance/notional-v3/borrower-resources/max-ltv-table"
+                >
+                  {msg}
+                </ExternalLink>
+              ),
+            }}
+          />
+        </Body>
       ),
     },
     {
