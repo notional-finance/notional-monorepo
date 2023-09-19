@@ -25,13 +25,14 @@ export const PerformanceChart = ({
   apyChartData?: ChartComponentsProps;
 }) => {
   const theme = useTheme();
+  const hideTextHeader = apyChartData ? true : false;
   const {
     areaChartData,
     areaChartStyles,
     areaChartHeaderData,
     currentLeveragedReturn,
     chartToolTipData,
-  } = usePerformanceChart(state, priorVaultFactors);
+  } = usePerformanceChart(state, priorVaultFactors, hideTextHeader);
 
   const chartComponents: ChartComponentsProps[] = [
     {

@@ -22,7 +22,8 @@ export function usePerformanceChart(
     isPrimeBorrow: boolean;
     vaultBorrowRate?: number;
     leverageRatio?: number;
-  }
+  },
+  hideTextHeader?: boolean
 ) {
   const theme = useTheme();
   const { debt, debtOptions, collateralOptions, riskFactorLimit, tradeType } =
@@ -107,7 +108,11 @@ export function usePerformanceChart(
   };
 
   const areaChartHeaderData: ChartHeaderDataProps = {
-    textHeader: <FormattedMessage defaultMessage={'Performance To Date'} />,
+    textHeader: hideTextHeader ? (
+      ''
+    ) : (
+      <FormattedMessage defaultMessage={'Performance To Date'} />
+    ),
     legendData: [
       {
         label: <FormattedMessage defaultMessage={'Unleveraged Returns'} />,
