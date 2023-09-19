@@ -439,6 +439,7 @@ export default class DataService {
     const vaultTvl = await this._getLeveragedVaultYield(network, block);
 
     const yieldData = primeCashTvl
+      .concat(primeDebtTvl)
       .concat(fCashTvl)
       .concat(nTokenTvl)
       .concat(vaultTvl);
