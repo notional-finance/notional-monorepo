@@ -66,12 +66,11 @@ export const TransactionSidebar = ({
     if (debt?.tokenType && collateral?.tokenType) {
       const CombinedTokenType =
         `${debt?.tokenType}-${collateral?.tokenType}` as CombinedTokenTypes;
-
       return TransactionHeadings[tradeType][CombinedTokenType]
         ? TransactionHeadings[tradeType][CombinedTokenType]
-        : TransactionHeadings[tradeType].helptext;
+        : undefined;
     } else {
-      return TransactionHeadings[tradeType].helptext;
+      return undefined;
     }
   };
 
@@ -89,7 +88,9 @@ export const TransactionSidebar = ({
       helptext={
         leverageDisabled
           ? errorMessage.geoErrorHeading
-          : helptext || getTokenSpecificHelpText()
+          : helptext ||
+            getTokenSpecificHelpText() ||
+            TransactionHeadings[tradeType].helptext
       }
       advancedToggle={advancedToggle}
       CustomActionButton={isPortfolio ? undefined : TradeActionButton}

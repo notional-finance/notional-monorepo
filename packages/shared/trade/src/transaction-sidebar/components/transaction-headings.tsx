@@ -9,7 +9,9 @@ export type CombinedTokenTypes =
   | 'nToken-PrimeCash'
   | 'nToken-fCash'
   | 'fCash-nToken'
-  | 'PrimeCash-nToken';
+  | 'PrimeCash-nToken'
+  | 'PrimeDebt-nToken';
+
 export const TransactionHeadings: Record<
   TradeType | VaultTradeType,
   {
@@ -25,6 +27,7 @@ export const TransactionHeadings: Record<
     'nToken-fCash'?: MessageDescriptor;
     'fCash-nToken'?: MessageDescriptor;
     'PrimeCash-nToken'?: MessageDescriptor;
+    'PrimeDebt-nToken'?: MessageDescriptor;
   }
 > = {
   LendFixed: defineMessages({
@@ -134,6 +137,9 @@ export const TransactionHeadings: Record<
       defaultMessage: 'Convert your fixed rate loan to providing liquidity',
     },
     'PrimeCash-nToken': {
+      defaultMessage: 'Convert your variable rate loan to providing liquidity',
+    },
+    'PrimeDebt-nToken': {
       defaultMessage: 'Convert your variable rate loan to providing liquidity',
     },
   }),
