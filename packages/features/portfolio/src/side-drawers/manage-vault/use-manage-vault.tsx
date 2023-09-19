@@ -1,33 +1,52 @@
-import { useVaultAccount } from '@notional-finance/notionable-hooks';
+import { useVault, useVaultAccount } from '@notional-finance/notionable-hooks';
 import { VAULT_ACTIONS } from '@notional-finance/shared-config';
 import { useQueryParams } from '@notional-finance/utils';
 import { FormattedMessage } from 'react-intl';
 
 export function useManageVault() {
   const { vaultAddress } = useQueryParams();
+  const { vaultConfig } = useVault(vaultAddress);
   const { vaultAccount, canRollMaturity } = useVaultAccount(vaultAddress);
+  const isEnabled = vaultConfig?.enabled;
 
   if (!vaultAccount) {
     return { reduceLeverageOptions: [], manageVaultOptions: [] };
   } else if (vaultAccount.canSettle()) {
-    return {
-      reduceLeverageOptions: [],
-      manageVaultOptions: [
-        {
-          label: <FormattedMessage defaultMessage={'Create Vault Position'} />,
-          link: `/vaults/${vaultAddress}/${VAULT_ACTIONS.CREATE_VAULT_POSITION}`,
-          key: VAULT_ACTIONS.CREATE_VAULT_POSITION,
-        },
-        {
-          label: (
-            <FormattedMessage defaultMessage={'Withdraw Matured Position'} />
-          ),
-          link: `/vaults/${vaultAddress}/${VAULT_ACTIONS.WITHDRAW_VAULT_POST_MATURITY}`,
-          key: VAULT_ACTIONS.WITHDRAW_VAULT_POST_MATURITY,
-        },
-      ],
-    };
-  } else {
+    if (isEnabled) {
+      return {
+        reduceLeverageOptions: [],
+        manageVaultOptions: [
+          {
+            label: (
+              <FormattedMessage defaultMessage={'Create Vault Position'} />
+            ),
+            link: `/vaults/${vaultAddress}/${VAULT_ACTIONS.CREATE_VAULT_POSITION}`,
+            key: VAULT_ACTIONS.CREATE_VAULT_POSITION,
+          },
+          {
+            label: (
+              <FormattedMessage defaultMessage={'Withdraw Matured Position'} />
+            ),
+            link: `/vaults/${vaultAddress}/${VAULT_ACTIONS.WITHDRAW_VAULT_POST_MATURITY}`,
+            key: VAULT_ACTIONS.WITHDRAW_VAULT_POST_MATURITY,
+          },
+        ],
+      };
+    } else {
+      return {
+        reduceLeverageOptions: [],
+        manageVaultOptions: [
+          {
+            label: (
+              <FormattedMessage defaultMessage={'Withdraw Matured Position'} />
+            ),
+            link: `/vaults/${vaultAddress}/${VAULT_ACTIONS.WITHDRAW_VAULT_POST_MATURITY}`,
+            key: VAULT_ACTIONS.WITHDRAW_VAULT_POST_MATURITY,
+          },
+        ],
+      };
+    }
+  } else if (isEnabled) {
     const manageVaultOptions = [
       {
         label: <FormattedMessage defaultMessage={'Withdraw'} />,
@@ -64,5 +83,7 @@ export function useManageVault() {
       ],
       manageVaultOptions,
     };
+  } else {
+    return { reduceLeverageOptions: [], manageVaultOptions: [] };
   }
 }

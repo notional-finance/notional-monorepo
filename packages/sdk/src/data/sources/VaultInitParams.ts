@@ -11,24 +11,22 @@ export default async function getVaultInitParams(
 ) {
   const results = (
     await Promise.all(
-      vaults
-        .filter(({ enabled }) => enabled)
-        .map(async ({ strategy, vaultAddress }) => {
-          try {
-            const { initParams } = await VaultFactory.buildVault(
-              strategy,
-              vaultAddress,
-              provider
-            );
-            return {
-              vaultAddress,
-              initParams: JSON.stringify(initParams),
-            };
-          } catch (e) {
-            console.error(e);
-            return undefined;
-          }
-        })
+      vaults.map(async ({ strategy, vaultAddress }) => {
+        try {
+          const { initParams } = await VaultFactory.buildVault(
+            strategy,
+            vaultAddress,
+            provider
+          );
+          return {
+            vaultAddress,
+            initParams: JSON.stringify(initParams),
+          };
+        } catch (e) {
+          console.error(e);
+          return undefined;
+        }
+      })
     )
   ).filter((r) => r !== undefined) as {
     vaultAddress: string;
