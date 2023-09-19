@@ -44,7 +44,7 @@ export const BorrowFixedCardView = () => {
             defaultMessage: 'Read fixed borrow docs',
             description: 'docs link',
           })}
-          docsLink="https://docs.notional.finance/notional-v2/what-you-can-do/fixed-rate-borrowing"
+          docsLink="https://docs.notional.finance/notional-v3/product-guides/fixed-rate-borrowing"
         >
           {cardData.map(([symbol, yields], index) => {
             const minRate = getMin(yields)?.totalAPY || 0;

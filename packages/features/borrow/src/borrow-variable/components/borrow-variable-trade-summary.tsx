@@ -1,10 +1,8 @@
 import { useContext } from 'react';
 import { Box, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
-import {
-  useBorrowVariableFaq,
-  useInterestRateUtilizationChart,
-} from '../hooks';
+import { useBorrowVariableFaq } from '../hooks';
+import { useInterestRateUtilizationChart } from '@notional-finance/trade';
 import { HowItWorksFaq } from './how-it-works-faq';
 import {
   Faq,
@@ -30,32 +28,70 @@ export const BorrowVariableTradeSummary = () => {
     chartHeaderData,
     chartInfoBoxData,
     borrowUtilization,
-  } = useInterestRateUtilizationChart(deposit?.currencyId);
+  } = useInterestRateUtilizationChart(deposit?.currencyId, 'borrow');
   const { faqs, faqHeaderLinks } = useBorrowVariableFaq();
   const totalsData = useVariableTotals(state);
-  const { apyData } = useTokenHistory(debt);
+  const { apyData, tvlData } = useTokenHistory(debt);
 
   return (
     <TradeActionSummary state={state}>
       <MultiDisplayChart
         chartComponents={[
           {
-            id: 'area-chart',
-            title: 'Variable APY',
+            id: 'apy-area-chart',
+            title: 'APY',
             Component: (
               <ChartContainer>
                 <AreaChart
                   showCartesianGrid
                   xAxisTickFormat="date"
                   areaChartData={apyData}
-                  condenseXAxisTime={true}
                   areaLineType="linear"
                 />
               </ChartContainer>
             ),
-            chartHeaderData: {
-              textHeader: <FormattedMessage defaultMessage={'Variable APY'} />,
-            },
+            // chartHeaderData: {
+            //   textHeader: (
+            //     <Box
+            //       sx={{
+            //         background: theme.palette.background.default,
+            //         border: theme.shape.borderStandard,
+            //         borderRadius: theme.shape.borderRadius(),
+            //         padding: theme.spacing(0.5, 1),
+            //       }}
+            //     >
+            //       <FormattedMessage defaultMessage={'90 Day'} />
+            //     </Box>
+            //   ),
+            // },
+          },
+          {
+            id: 'tvl-area-chart',
+            title: 'TVL',
+            Component: (
+              <ChartContainer>
+                <AreaChart
+                  showCartesianGrid
+                  xAxisTickFormat="date"
+                  areaChartData={tvlData}
+                  areaLineType="linear"
+                />
+              </ChartContainer>
+            ),
+            // chartHeaderData: {
+            //   textHeader: (
+            //     <Box
+            //       sx={{
+            //         background: theme.palette.background.default,
+            //         border: theme.shape.borderStandard,
+            //         borderRadius: theme.shape.borderRadius(),
+            //         padding: theme.spacing(0.5, 1),
+            //       }}
+            //     >
+            //       <FormattedMessage defaultMessage={'90 Day'} />
+            //     </Box>
+            //   ),
+            // },
           },
         ]}
       />
@@ -92,7 +128,6 @@ export const BorrowVariableTradeSummary = () => {
                   <AreaChart
                     showCartesianGrid
                     areaLineType="linear"
-                    condenseXAxisTime={true}
                     xAxisTickFormat="percent"
                     areaChartData={areaChartData}
                     areaChartStyles={areaChartStyles}

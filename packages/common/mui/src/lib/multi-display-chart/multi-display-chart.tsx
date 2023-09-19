@@ -11,7 +11,7 @@ import {
   chartInfoBoxDataProps,
 } from '../chart-info-box/chart-info-box';
 
-interface ChartComponentsProps {
+export interface ChartComponentsProps {
   id: string;
   title: string;
   Component: ReactNode;

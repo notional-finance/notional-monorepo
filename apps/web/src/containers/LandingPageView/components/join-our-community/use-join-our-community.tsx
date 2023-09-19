@@ -32,7 +32,7 @@ export const useJoinOurCommunity = (): JoinOurCommunityProps[] => {
     },
     {
       title: <FormattedMessage defaultMessage={'User Documentation'} />,
-      link: 'https://docs.notional.finance/notional-v2/',
+      link: 'https://docs.notional.finance/notional-v3',
       linkText: <FormattedMessage defaultMessage={'Read Docs'} />,
       icon: docsIcon,
       text: (
@@ -76,7 +76,7 @@ export const useJoinOurCommunity = (): JoinOurCommunityProps[] => {
     },
     {
       title: <FormattedMessage defaultMessage={'Developer Docs'} />,
-      link: 'https://docs.notional.finance/developer-documentation/',
+      link: 'https://docs.notional.finance/v3-technical-docs/deployed-contracts/notional-v3',
       linkText: <FormattedMessage defaultMessage={'Read Docs'} />,
       icon: devDocsIcon,
       text: (

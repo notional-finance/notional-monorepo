@@ -24,7 +24,7 @@ export const useBorrowFixedFaq = () => {
   } = useContext(BorrowFixedContext);
   const faqHeaderLinks = [
     {
-      href: 'https://docs.notional.finance/notional-v2/product-guides/fixed-rate-borrowing',
+      href: 'https://docs.notional.finance/notional-v3/product-guides/fixed-rate-borrowing',
       text: <FormattedMessage defaultMessage={'Fixed Borrow Documentation'} />,
     },
     {

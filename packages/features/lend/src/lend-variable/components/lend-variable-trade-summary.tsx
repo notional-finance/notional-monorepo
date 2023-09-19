@@ -11,41 +11,91 @@ import {
 } from '@notional-finance/mui';
 import { useLendVariableFaq } from '../hooks';
 import { LendVariableContext } from '../../lend-variable/lend-variable';
-import { TradeActionSummary, useVariableTotals } from '@notional-finance/trade';
+import {
+  TradeActionSummary,
+  useVariableTotals,
+  useInterestRateUtilizationChart,
+} from '@notional-finance/trade';
 import { useTokenHistory } from '@notional-finance/notionable-hooks';
 
 export const LendVariableTradeSummary = () => {
   const theme = useTheme();
   const context = useContext(LendVariableContext);
   const { state } = context;
-  const { collateral } = state;
+  const { collateral, deposit } = state;
   const { faqs, faqHeaderLinks } = useLendVariableFaq(
     state.selectedDepositToken
   );
   const totalsData = useVariableTotals(state);
-  const { apyData } = useTokenHistory(collateral);
+  const { apyData, tvlData } = useTokenHistory(collateral);
+  const {
+    areaChartData,
+    chartToolTipData,
+    areaChartStyles,
+    chartHeaderData,
+    chartInfoBoxData,
+    borrowUtilization,
+  } = useInterestRateUtilizationChart(deposit?.currencyId, 'lend');
 
   return (
     <TradeActionSummary state={state}>
       <MultiDisplayChart
         chartComponents={[
           {
-            id: 'area-chart',
-            title: 'Variable APY',
+            id: 'apy-area-chart',
+            title: 'APY',
             Component: (
               <ChartContainer>
                 <AreaChart
                   showCartesianGrid
                   xAxisTickFormat="date"
                   areaChartData={apyData}
-                  condenseXAxisTime={true}
                   areaLineType="linear"
                 />
               </ChartContainer>
             ),
-            chartHeaderData: {
-              textHeader: <FormattedMessage defaultMessage={'Variable APY'} />,
-            },
+            // chartHeaderData: {
+            //   textHeader: (
+            //     <Box
+            //       sx={{
+            //         background: theme.palette.background.default,
+            //         border: theme.shape.borderStandard,
+            //         borderRadius: theme.shape.borderRadius(),
+            //         padding: theme.spacing(0.5, 1),
+            //       }}
+            //     >
+            //       <FormattedMessage defaultMessage={'90 Day'} />
+            //     </Box>
+            //   ),
+            // },
+          },
+          {
+            id: 'tvl-area-chart',
+            title: 'TVL',
+            Component: (
+              <ChartContainer>
+                <AreaChart
+                  showCartesianGrid
+                  xAxisTickFormat="date"
+                  areaChartData={tvlData}
+                  areaLineType="linear"
+                />
+              </ChartContainer>
+            ),
+            // chartHeaderData: {
+            //   textHeader: (
+            //     <Box
+            //       sx={{
+            //         background: theme.palette.background.default,
+            //         border: theme.shape.borderStandard,
+            //         borderRadius: theme.shape.borderRadius(),
+            //         padding: theme.spacing(0.5, 1),
+            //       }}
+            //     >
+            //       <FormattedMessage defaultMessage={'90 Day'} />
+            //     </Box>
+            //   ),
+            // },
           },
         ]}
       />
@@ -61,6 +111,32 @@ export const LendVariableTradeSummary = () => {
           <TotalBox title={title} value={value} key={index} />
         ))}
       </Box>
+      {areaChartData.length > 0 && (
+        <MultiDisplayChart
+          chartComponents={[
+            {
+              id: 'area-chart',
+              title: 'Lend Rate Utilization',
+              Component: (
+                <ChartContainer>
+                  <AreaChart
+                    showCartesianGrid
+                    areaLineType="linear"
+                    xAxisTickFormat="percent"
+                    areaChartData={areaChartData}
+                    areaChartStyles={areaChartStyles}
+                    chartToolTipData={chartToolTipData}
+                    referenceLineValue={borrowUtilization}
+                  />
+                </ChartContainer>
+              ),
+              chartHeaderData: chartHeaderData,
+              chartInfoBoxData: chartInfoBoxData,
+              bottomLabel: <FormattedMessage defaultMessage={'Utilization'} />,
+            },
+          ]}
+        />
+      )}
       <FaqHeader
         title={<FormattedMessage defaultMessage={'Variable Lend FAQ'} />}
         links={faqHeaderLinks}

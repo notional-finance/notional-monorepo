@@ -75,7 +75,7 @@ export const LiquidityVariableCardView = () => {
               defaultMessage: 'Read provide liquidity docs',
               description: 'docs link',
             })}
-            docsLink="https://docs.notional.finance/notional-v2/what-you-can-do/providing-liquidity"
+            docsLink="https://docs.notional.finance/notional-v3/product-guides/providing-liquidity"
             sx={{
               marginBottom: '0px',
             }}

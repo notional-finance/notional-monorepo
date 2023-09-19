@@ -44,7 +44,7 @@ export function LendCardView() {
             defaultMessage: 'Read fixed lend docs',
             description: 'docs link',
           })}
-          docsLink="https://docs.notional.finance/notional-v2/what-you-can-do/fixed-rate-lending"
+          docsLink="https://docs.notional.finance/notional-v3/product-guides/fixed-rate-lending"
         >
           {cardData.map(([symbol, yields], index) => {
             const route = `/${PRODUCTS.LEND_FIXED}/${symbol}`;

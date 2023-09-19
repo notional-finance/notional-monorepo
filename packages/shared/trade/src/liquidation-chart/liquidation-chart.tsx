@@ -48,7 +48,6 @@ export const LiquidationChart = ({
                   yAxisDomain={yAxisDomain}
                   chartToolTipData={chartToolTipData}
                   areaChartData={areaChartData}
-                  condenseXAxisTime={true}
                   areaLineType="linear"
                 />
               </ChartContainer>

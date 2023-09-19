@@ -36,7 +36,7 @@ export const RiskFaq = ({ tokenSymbol }: RiskFaqProps) => {
             color: theme.palette.typography.main,
           }}
         >
-          <FormattedMessage defaultMessage={'Migration: '} />
+          <FormattedMessage defaultMessage={'Mitigation: '} />
         </Box>{' '}
         <FormattedMessage
           defaultMessage={
@@ -44,9 +44,8 @@ export const RiskFaq = ({ tokenSymbol }: RiskFaqProps) => {
           }
         />
       </Body>
-      {/* TODO: Add LINK */}
       <ExternalLink
-        href=""
+        href="https://github.com/notional-finance/contracts-v2/blob/master/audits/README.md"
         textDecoration
         accent
         style={{ display: 'flex', alignItems: 'center' }}
@@ -79,7 +78,7 @@ export const RiskFaq = ({ tokenSymbol }: RiskFaqProps) => {
             color: theme.palette.typography.main,
           }}
         >
-          <FormattedMessage defaultMessage={'Migration: '} />
+          <FormattedMessage defaultMessage={'Mitigation: '} />
         </Box>{' '}
         <FormattedMessage
           defaultMessage={
@@ -111,7 +110,7 @@ export const RiskFaq = ({ tokenSymbol }: RiskFaqProps) => {
             color: theme.palette.typography.main,
           }}
         >
-          <FormattedMessage defaultMessage={'Migration: '} />
+          <FormattedMessage defaultMessage={'Mitigation: '} />
         </Box>{' '}
         <FormattedMessage
           defaultMessage={`Bounded fixed interest rate ranges limit potential IL.`}
@@ -142,7 +141,7 @@ export const RiskFaq = ({ tokenSymbol }: RiskFaqProps) => {
             color: theme.palette.typography.main,
           }}
         >
-          <FormattedMessage defaultMessage={'Migration: '} />
+          <FormattedMessage defaultMessage={'Mitigation: '} />
         </Box>{' '}
         <FormattedMessage
           defaultMessage={`High utilization increases interest rates and incentivizes users to lend which re-enables n{tokenSymbol} redemption for {tokenSymbol}.`}

@@ -21,7 +21,7 @@ export const useBorrowVariableFaq = () => {
   // TODO: Docs link
   const faqHeaderLinks = [
     {
-      href: '',
+      href: 'https://docs.notional.finance/notional-v3/product-guides/variable-rate-borrowing',
       text: (
         <FormattedMessage defaultMessage={'Variable Borrow Documentation'} />
       ),

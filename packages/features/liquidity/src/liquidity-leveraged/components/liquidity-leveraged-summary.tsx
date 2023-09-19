@@ -1,5 +1,10 @@
 import { Box, useTheme } from '@mui/material';
-import { FaqHeader, Faq } from '@notional-finance/mui';
+import {
+  FaqHeader,
+  Faq,
+  AreaChart,
+  ChartContainer,
+} from '@notional-finance/mui';
 import {
   LiquidationChart,
   PerformanceChart,
@@ -9,20 +14,37 @@ import { useLiquidityFaq, useNTokenPriceExposure } from '../hooks';
 import { FormattedMessage } from 'react-intl';
 import { useContext } from 'react';
 import { LeveragedLiquidityContext } from '../liquidity-leveraged';
+import { useTokenHistory } from '@notional-finance/notionable-hooks';
 import { DataTable } from '@notional-finance/mui';
 import { HowItWorksFaq } from './how-it-works-faq';
 
 export const LiquidityLeveragedSummary = () => {
   const theme = useTheme();
   const { state } = useContext(LeveragedLiquidityContext);
-  const { selectedDepositToken, deposit } = state;
+  const { selectedDepositToken, deposit, collateral } = state;
   const tokenSymbol = selectedDepositToken || '';
   const { faqs, faqHeaderLinks } = useLiquidityFaq(tokenSymbol);
   const { data, columns } = useNTokenPriceExposure(state);
+  const { apyData } = useTokenHistory(collateral);
+
+  const apyChart = {
+    id: 'apy-area-chart',
+    title: 'APY',
+    Component: (
+      <ChartContainer>
+        <AreaChart
+          showCartesianGrid
+          xAxisTickFormat="date"
+          areaChartData={apyData}
+          areaLineType="linear"
+        />
+      </ChartContainer>
+    ),
+  };
 
   return (
     <TradeActionSummary state={state}>
-      <PerformanceChart state={state} />
+      <PerformanceChart state={state} apyChartData={apyChart} />
       <LiquidationChart state={state} />
       <Box marginBottom={theme.spacing(5)}>
         <DataTable

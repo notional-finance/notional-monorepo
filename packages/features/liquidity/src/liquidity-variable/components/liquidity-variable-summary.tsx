@@ -31,29 +31,39 @@ export const LiquidityVariableSummary = () => {
   const totalsData = useTotalsData(tokenSymbol);
   const { returnDriversColumns, returnDriversData, infoBoxData } =
     useReturnDriversTable();
-  const { apyData } = useTokenHistory(collateral);
+  const { apyData, tvlData } = useTokenHistory(collateral);
 
   return (
     <TradeActionSummary state={state}>
       <MultiDisplayChart
         chartComponents={[
           {
-            id: 'area-chart',
-            title: 'Variable APY',
+            id: 'apy-area-chart',
+            title: 'APY',
             Component: (
               <ChartContainer>
                 <AreaChart
                   showCartesianGrid
                   xAxisTickFormat="date"
                   areaChartData={apyData}
-                  condenseXAxisTime={true}
                   areaLineType="linear"
                 />
               </ChartContainer>
             ),
-            chartHeaderData: {
-              textHeader: <FormattedMessage defaultMessage={'Variable APY'} />,
-            },
+          },
+          {
+            id: 'tvl-area-chart',
+            title: 'TVL',
+            Component: (
+              <ChartContainer>
+                <AreaChart
+                  showCartesianGrid
+                  xAxisTickFormat="date"
+                  areaChartData={tvlData}
+                  areaLineType="linear"
+                />
+              </ChartContainer>
+            ),
           },
         ]}
       />

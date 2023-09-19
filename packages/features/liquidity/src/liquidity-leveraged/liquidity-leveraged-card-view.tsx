@@ -85,7 +85,7 @@ export const LiquidityLeveragedCardView = () => {
               defaultMessage: 'Read leveraged liquidity docs',
               description: 'docs link',
             })}
-            docsLink="https://docs.notional.finance/notional-v2/what-you-can-do/providing-liquidity"
+            docsLink="https://docs.notional.finance/notional-v3/product-guides/leveraged-liquidity"
             sx={{
               marginBottom: '0px',
             }}

@@ -36,7 +36,7 @@ export const BorrowVariableCardView = () => {
             defaultMessage: 'Read variable borrow docs',
             description: 'docs link',
           })}
-          docsLink="https://docs.notional.finance/notional-v2/what-you-can-do/fixed-rate-borrowing"
+          docsLink="https://docs.notional.finance/notional-v3/product-guides/variable-rate-borrowing"
         >
           {variableBorrow.map(({ underlying, totalAPY }, index) => {
             return (

@@ -38,7 +38,7 @@ export const HeroContent = () => {
               background: colors.matteGreen,
             },
           }}
-          href="https://docs.notional.finance/notional-v2/"
+          href="https://docs.notional.finance/notional-v3"
         >
           <FormattedMessage defaultMessage={'View Docs'} />
         </Button>

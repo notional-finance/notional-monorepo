@@ -17,7 +17,7 @@ export const useLendFixedFaq = () => {
   const selectedNetwork = useSelectedNetwork();
   const faqHeaderLinks = [
     {
-      href: 'https://docs.notional.finance/notional-v2/product-guides/fixed-rate-lending',
+      href: 'https://docs.notional.finance/notional-v3/product-guides/fixed-rate-lending',
       text: <FormattedMessage defaultMessage={'Fixed Lending Documentation'} />,
     },
     {

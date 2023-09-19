@@ -30,7 +30,7 @@ export const ExitEarlyFaq = ({ selectedDepositToken }: ExitEarlyFaqProps) => {
                 a1: (msg: React.ReactNode) => (
                   <ExternalLink
                     accent
-                    href="https://docs.notional.finance/notional-v2/trading-fcash/exiting-early"
+                    href="https://docs.notional.finance/notional-v3/trading-fcash/exiting-early"
                   >
                     {msg}
                   </ExternalLink>
