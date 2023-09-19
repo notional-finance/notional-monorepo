@@ -25,18 +25,23 @@ export interface Env {
   VERSION: string;
   NX_ENV: string;
   NX_COMMIT_REF: string;
+  SUPPORTED_CHAINS: string[];
 }
 
 const REFRESH_INTERVAL_MILLISECONDS = 6 * 1000;
 
-const supportedChains = [
-  {
+const supportedChains = {
+  mainnet: {
     chainId: 1,
     network: 'mainnet',
     url: 'https://eth-mainnet.alchemyapi.io/v2',
   },
-  // { chainId: 5, network: 'goerli', url: 'https://eth-goerli.alchemyapi.io/v2' },
-];
+  goerli: {
+    chainId: 5,
+    network: 'goerli',
+    url: 'https://eth-goerli.alchemyapi.io/v2',
+  },
+};
 
 export class SystemCache {
   private state: DurableObjectState;
@@ -162,8 +167,8 @@ export class SystemCache {
   async alarm() {
     const usdExchangeRates = await this.useCachedExchangeRates();
 
-    for (const chain of supportedChains) {
-      const { url, network, chainId } = chain;
+    for (const chain of this.env.SUPPORTED_CHAINS) {
+      const { url, network, chainId } = supportedChains[chain];
       try {
         const providerUrl = `${url}/${this.env.ALCHEMY_KEY}`;
         const providerNetwork = ethers.providers.getNetwork(network);
