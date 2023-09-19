@@ -222,8 +222,8 @@ export class SingleSidedLP extends VaultAdapter {
         .map(({ tokenOutPrice, lpTokenValueOut }) => ({
           price: tokenOutPrice,
           vaultSharePrice: lpTokenValueOut.scale(
-            this.totalVaultShares,
-            this.totalLPTokens.scaleTo(INTERNAL_TOKEN_DECIMALS)
+            this.totalLPTokens.scaleTo(INTERNAL_TOKEN_DECIMALS),
+            this.totalVaultShares
           ),
         }))
         .reverse()
@@ -237,8 +237,8 @@ export class SingleSidedLP extends VaultAdapter {
             .map(({ tokenInPrice, lpTokenValueIn }) => ({
               price: tokenInPrice,
               vaultSharePrice: lpTokenValueIn.scale(
-                this.totalVaultShares,
-                this.totalLPTokens.scaleTo(INTERNAL_TOKEN_DECIMALS)
+                this.totalLPTokens.scaleTo(INTERNAL_TOKEN_DECIMALS),
+                this.totalVaultShares
               ),
             }))
         )
