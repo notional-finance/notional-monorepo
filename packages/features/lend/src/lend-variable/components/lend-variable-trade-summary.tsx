@@ -54,20 +54,6 @@ export const LendVariableTradeSummary = () => {
                 />
               </ChartContainer>
             ),
-            // chartHeaderData: {
-            //   textHeader: (
-            //     <Box
-            //       sx={{
-            //         background: theme.palette.background.default,
-            //         border: theme.shape.borderStandard,
-            //         borderRadius: theme.shape.borderRadius(),
-            //         padding: theme.spacing(0.5, 1),
-            //       }}
-            //     >
-            //       <FormattedMessage defaultMessage={'90 Day'} />
-            //     </Box>
-            //   ),
-            // },
           },
           {
             id: 'tvl-area-chart',
@@ -82,20 +68,6 @@ export const LendVariableTradeSummary = () => {
                 />
               </ChartContainer>
             ),
-            // chartHeaderData: {
-            //   textHeader: (
-            //     <Box
-            //       sx={{
-            //         background: theme.palette.background.default,
-            //         border: theme.shape.borderStandard,
-            //         borderRadius: theme.shape.borderRadius(),
-            //         padding: theme.spacing(0.5, 1),
-            //       }}
-            //     >
-            //       <FormattedMessage defaultMessage={'90 Day'} />
-            //     </Box>
-            //   ),
-            // },
           },
         ]}
       />
