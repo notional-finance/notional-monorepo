@@ -43,5 +43,5 @@ export function useMaxRepay(context: BaseTradeContext) {
     }
   }, [maxRepay, updateState, setCurrencyInput]);
 
-  return { onMaxValue, currencyInputRef };
+  return { onMaxValue, currencyInputRef, setCurrencyInput };
 }

@@ -6,11 +6,20 @@ import { useTradeContext } from '@notional-finance/notionable-hooks';
 import { useParams } from 'react-router';
 import { PortfolioParams } from '@notional-finance/side-drawer';
 import { useMaxRepay } from './hooks/use-max-repay';
+import { useEffect } from 'react';
 
 export const RepayDebt = () => {
   const context = useTradeContext('RepayDebt');
   const { category, sideDrawerKey } = useParams<PortfolioParams>();
-  const { currencyInputRef, onMaxValue } = useMaxRepay(context);
+  const { currencyInputRef, setCurrencyInput, onMaxValue } =
+    useMaxRepay(context);
+  const {
+    state: { collateral },
+  } = context;
+
+  useEffect(() => {
+    setCurrencyInput('');
+  }, [collateral?.id, setCurrencyInput]);
 
   return (
     <PortfolioSideDrawer context={context}>
