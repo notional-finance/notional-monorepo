@@ -16,7 +16,7 @@ export const useNTokenPriceExposure = (state: BaseTradeState) => {
           .map(({ interestRate, price, profitLoss }) => {
             return {
               interestRate: formatNumberAsPercent(interestRate),
-              price: price.toDisplayString(3),
+              price: price.toDisplayString(4),
               profitLoss: {
                 isNegative: profitLoss.isNegative(),
                 displayValue: profitLoss.toDisplayStringWithSymbol(3, true),
