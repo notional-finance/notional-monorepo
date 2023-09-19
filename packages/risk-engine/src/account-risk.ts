@@ -340,8 +340,14 @@ export class AccountRiskProfile extends BaseRiskProfile {
       );
 
     if (haircut === 0) {
+      const totalDebts = this.totalCurrencyDebtsRiskAdjusted(
+        balance.currencyId
+      );
+      // If there are no debts in the local currency then the entire balance is withdrawable
+      if (totalDebts.isZero()) return balance;
+
       const netLocal = this.totalCurrencyAssetsRiskAdjusted(balance.currencyId)
-        .add(this.totalCurrencyDebtsRiskAdjusted(balance.currencyId))
+        .add(totalDebts)
         .toToken(token);
 
       return netLocal.lt(balance) ? netLocal : balance;

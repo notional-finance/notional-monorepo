@@ -1,4 +1,3 @@
-import { TokenBalance } from '@notional-finance/core-entities';
 import { applySimulationToAccount } from '@notional-finance/transaction';
 import {
   logError,
@@ -94,7 +93,7 @@ export function simulateTransaction(
           applySimulationToAccount(network, populatedTransaction, a)
         ).pipe(
           map(({ balancesAfter }) => {
-            const mismatchedBalances = zipByKeyToArray(
+            const zippedBalances = zipByKeyToArray(
               balancesAfter.filter((t) =>
                 vaultAddress
                   ? t.isVaultToken && t.vaultAddress === vaultAddress
@@ -105,26 +104,41 @@ export function simulateTransaction(
               postTradeBalances?.filter((t) => t.tokenType !== 'VaultCash') ||
                 [],
               (t) => t.tokenId
-            )
-              .map(([simulated, calculated]) => ({
-                rel:
-                  !!simulated && !!calculated && !calculated.isZero()
-                    ? (simulated.toFloat() - calculated.toFloat()) /
-                      calculated.toFloat()
-                    : simulated
-                    ? simulated.abs().toFloat()
-                    : (calculated as TokenBalance).abs().toFloat(),
-                simulatedBalance: simulated,
-                calculatedBalance: calculated,
-              }))
-              .filter(({ rel, simulatedBalance }) =>
+            );
+
+            const mismatchedBalances = zippedBalances
+              .map(([simulated, calculated]) => {
+                let rel = 0;
+                let abs = 0;
+                if (simulated && calculated) {
+                  rel = calculated.isZero()
+                    ? simulated.toFloat()
+                    : (simulated.toFloat() - calculated.toFloat()) /
+                      calculated.toFloat();
+                  abs = simulated.toFloat() - calculated.toFloat();
+                } else if (simulated) {
+                  rel = simulated.toFloat();
+                  abs = simulated.toFloat();
+                } else if (calculated) {
+                  rel = calculated.toFloat();
+                  abs = calculated.toFloat();
+                }
+
+                return {
+                  rel,
+                  abs,
+                  simulatedBalance: simulated,
+                  calculatedBalance: calculated,
+                };
+              })
+              .filter(({ rel, abs, simulatedBalance }) =>
                 // Allow for more tolerance in this scenario since we do not accurately account
                 // for dust repayment within the calculation. The actual amount of vault shares
                 // is relatively insignificant.
                 tradeType === 'RollVaultPosition' &&
                 simulatedBalance?.tokenType === 'VaultShare'
-                  ? Math.abs(rel) > 5e-2
-                  : Math.abs(rel) > 5e-4
+                  ? Math.abs(rel) > 5e-2 && Math.abs(abs) > 5e-5
+                  : Math.abs(rel) > 5e-4 && Math.abs(abs) > 5e-5
               );
 
             if (mismatchedBalances.length > 0) {

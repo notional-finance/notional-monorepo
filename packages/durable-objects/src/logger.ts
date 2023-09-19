@@ -46,7 +46,8 @@ type DDEventKey =
   | 'SettlementReserveMismatch'
   | 'TotalSupplyMismatch'
   | 'TotalSupplyMissing'
-  | 'TotalBorrowCapacityMismatch';
+  | 'TotalBorrowCapacityMismatch'
+  | 'MonitoringCheckFailed';
 
 type DDEventAlertType = 'error' | 'warning' | 'info';
 

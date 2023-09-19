@@ -1,10 +1,14 @@
 import { DurableObjectState } from '@cloudflare/workers-types';
 import {
+  AssetType,
   Network,
   PRIME_CASH_VAULT_MATURITY,
   SETTLEMENT_RESERVE,
   convertToSignedfCashId,
+  decodeERC1155Id,
   getNowSeconds,
+  groupArrayToMap,
+  isERC1155Id,
 } from '@notional-finance/util';
 import {
   AccountFetchMode,
@@ -63,6 +67,7 @@ export class RegistryClientDO extends BaseDO<Env> {
         await this.checkTotalSupply(network);
         await this.saveAccountFactors(network);
         await this.saveYieldData(network);
+        await this.checkDBMonitors(network);
       }
 
       return new Response('Ok', { status: 200 });
@@ -79,30 +84,43 @@ export class RegistryClientDO extends BaseDO<Env> {
   private async checkDataFreshness(network: Network) {
     const networkTag = `network:${network}`;
     const timestamp = getNowSeconds();
+    const tableKey = {
+      notional_assets_apys_and_tvls: 'token_id',
+      historical_oracle_values: 'id',
+    };
+
     const analyticsData = Registry.getAnalyticsRegistry()
       .getAllSubjectKeys(network)
-      .map((k) => {
-        const latestTimestamp = Math.max(
-          ...(
-            Registry.getAnalyticsRegistry().getLatestFromSubject(
-              network,
-              k,
-              0
-            ) || []
-          ).map((d) => (d['timestamp'] || d['Timestamp'] || 0) as number)
+      .flatMap((k) => {
+        const groupingKey = tableKey[k];
+        const latestData =
+          Registry.getAnalyticsRegistry().getLatestFromSubject(network, k, 0) ||
+          [];
+
+        const grouped = groupArrayToMap(
+          latestData,
+          (t) => t[groupingKey] || 'all'
         );
 
-        return {
-          metric: `registry.lastUpdateTimestamp`,
-          points: [
-            {
-              value: timestamp - latestTimestamp,
-              timestamp,
-            },
-          ],
-          tags: [networkTag, `registry:analytics`, `view:${k}`],
-          type: MetricType.Gauge,
-        };
+        return Array.from(grouped.keys()).map((g) => {
+          const latestTimestamp = Math.max(
+            ...grouped
+              .get(g)
+              .map((d) => (d['timestamp'] || d['Timestamp'] || 0) as number)
+          );
+
+          return {
+            metric: `registry.lastUpdateTimestamp`,
+            points: [
+              {
+                value: timestamp - latestTimestamp,
+                timestamp,
+              },
+            ],
+            tags: [networkTag, `registry:analytics`, `view:${k}:${g}`],
+            type: MetricType.Gauge,
+          };
+        });
       });
 
     await this.logger.submitMetrics({
@@ -218,7 +236,7 @@ export class RegistryClientDO extends BaseDO<Env> {
       }
 
       const vaultKeys = a.balances
-        .filter((b) => b.tokenType === 'VaultShare' && !b.isZero())
+        .filter((b) => b.tokenType === 'VaultShare')
         .map((b) => `${a.address}:${b.vaultAddress}`.toLowerCase());
       for (const k of vaultKeys) {
         if (vaultAccountSet.has(k)) vaultAccountSet.delete(k);
@@ -418,23 +436,22 @@ export class RegistryClientDO extends BaseDO<Env> {
         network,
         v.vaultAddress
       );
-      const totalComputedBorrows = config
-        .getVaultActiveMaturities(network, v.vaultAddress)
-        .reduce((t, m) => {
-          const { primaryDebtID } = config.getVaultIDs(
-            network,
-            v.vaultAddress,
-            m
+      const totalComputedBorrows = Array.from(totalBalances.keys())
+        .filter((k) => isERC1155Id(k))
+        .filter((k) => {
+          const { vaultAddress, assetType } = decodeERC1155Id(k);
+          return (
+            vaultAddress === v.vaultAddress &&
+            assetType === AssetType.VAULT_DEBT_ASSET_TYPE
           );
-          if (m === PRIME_CASH_VAULT_MATURITY) {
-            return t.add(
-              totalBalances.get(primaryDebtID)?.toUnderlying() || t.copy(0)
-            );
+        })
+        .reduce((t, k) => {
+          const b = totalBalances.get(k);
+          if (b.maturity === PRIME_CASH_VAULT_MATURITY) {
+            return t.add(b.toUnderlying() || t.copy(0));
           } else {
-            return t.add(
-              // fCash is added to borrow capacity at the notional value
-              t.copy(totalBalances.get(primaryDebtID)?.scaleTo(t.decimals) || 0)
-            );
+            // fCash is added to borrow capacity at the notional value
+            return t.add(t.copy(b.scaleTo(t.decimals) || 0));
           }
         }, TokenBalance.zero(totalUsedPrimaryBorrowCapacity.token));
 
@@ -460,6 +477,55 @@ export class RegistryClientDO extends BaseDO<Env> {
         });
       }
     }
+  }
+
+  private async checkDBMonitors(network: Network) {
+    const analytics = Registry.getAnalyticsRegistry();
+    const monitoringViews = [
+      'monitoring_chainlink_price_updates',
+      'monitoring_fCash_rates',
+      'monitoring_nToken_value',
+      'monitoring_pCash_and_pDebt_exchange_rate_monotonicity',
+      'monitoring_pCash_balances',
+      'monitoring_tvl',
+      'monitoring_vault_share_value',
+    ];
+
+    const networkTag = `network:${network}`;
+    const viewLengthSeries = [];
+
+    for (const m of monitoringViews) {
+      const data = await analytics.getView(network, m);
+      viewLengthSeries.push({
+        metric: 'registry.monitoring.length',
+        points: [
+          {
+            value: data.length,
+            timestamp: getNowSeconds(),
+          },
+        ],
+        tags: [networkTag, `monitor:${m}`],
+        type: MetricType.Gauge,
+      });
+
+      for (const d of data) {
+        for (const key of Object.keys(d)) {
+          if (key.endsWith('_check') && d[key] === false) {
+            await this.logger.submitEvent({
+              host: this.serviceName,
+              network,
+              aggregation_key: 'MonitoringCheckFailed',
+              alert_type: 'error',
+              title: `Monitor ${m} Failed`,
+              tags: [networkTag, `monitor:${m}`],
+              text: JSON.stringify(d),
+            });
+          }
+        }
+      }
+    }
+
+    await this.logger.submitMetrics({ series: viewLengthSeries });
   }
 
   private async saveYieldData(network: Network) {
