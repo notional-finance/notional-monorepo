@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 import { BigNumber, ethers, VoidSigner } from 'ethers';
 import Notional, { Contracts } from '../../src';
 import { AccountGraphLoader } from '../../src/account';
@@ -6,12 +8,10 @@ import { decodeBinary, fetchAndEncodeSystem } from '../../src/data/SystemData';
 import { getNowSeconds } from '../../src/libs/utils';
 import { VaultFactory } from '../../src/vaults';
 
-require('dotenv').config();
-
 const mainnetAddresses = require('../../src/config/mainnet.json');
 
 const mainnetGraphEndpoint =
-  'https://api.thegraph.com/subgraphs/name/notional-finance/mainnet-debug';
+  'https://api.thegraph.com/subgraphs/name/notional-finance/mainnet-v2';
 
 describe('System Integration Test', () => {
   let provider: ethers.providers.JsonRpcBatchProvider;
@@ -27,7 +27,7 @@ describe('System Integration Test', () => {
     notional = await Notional.load(1, provider);
   });
 
-  it.only('loads account data', async () => {
+  it('loads account data', async () => {
     const addr = '0x9a25d79ab755718e0b12bd3c927a010a543c2b31';
     const account = await notional.getAccount(addr);
     await account.accountData?.fetchHistory(addr);
@@ -42,7 +42,7 @@ describe('System Integration Test', () => {
     );
   });
 
-  it('returns system configuration from the graph', async () => {
+  it.only('returns system configuration from the graph', async () => {
     const graphClient = new GraphClient(mainnetGraphEndpoint, 0, false);
     const { binary, json } = await fetchAndEncodeSystem(
       graphClient,
@@ -54,6 +54,7 @@ describe('System Integration Test', () => {
     );
 
     const initData = decodeBinary(binary, provider);
+    console.log(initData);
   });
 
   it('calculates a liquidation threshold', async () => {
