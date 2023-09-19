@@ -7714,10 +7714,7 @@ export const AllOraclesByBlockDocument = gql`
     ` as unknown as DocumentNode<AllOraclesByBlockQuery, AllOraclesByBlockQueryVariables>;
 export const AllTokensDocument = gql`
     query AllTokens {
-  tokens(
-    where: {id_not: "0xaf88d065e77c8cc2239327c5edb3a432268e5831"}
-    first: 1000
-  ) {
+  tokens(first: 1000) {
     id
     tokenType
     tokenInterface

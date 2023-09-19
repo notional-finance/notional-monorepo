@@ -1,6 +1,5 @@
 query AllTokens {
-    # Temporarily filter out native USDC
-    tokens (where: {id_not: "0xaf88d065e77c8cc2239327c5edb3a432268e5831"}, first: 1000) {
+    tokens (first: 1000) {
         id
         tokenType
         tokenInterface
