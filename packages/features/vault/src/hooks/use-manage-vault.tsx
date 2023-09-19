@@ -3,8 +3,14 @@ import { FormattedMessage } from 'react-intl';
 import { VaultActionContext } from '../vault-view/vault-action-provider';
 import { TokenBalance } from '@notional-finance/core-entities';
 import { useAllMarkets } from '@notional-finance/notionable-hooks';
-import { leveragedYield } from '@notional-finance/util';
-import { formatNumberAsPercent } from '@notional-finance/helpers';
+import {
+  PRIME_CASH_VAULT_MATURITY,
+  leveragedYield,
+} from '@notional-finance/util';
+import {
+  formatMaturity,
+  formatNumberAsPercent,
+} from '@notional-finance/helpers';
 
 export function useManageVault() {
   const {
@@ -62,8 +68,19 @@ export function useManageVault() {
             o.interestRate,
             priorAccountRisk.leverageRatio || 0
           );
+          const label =
+            o.token.maturity &&
+            o.token.maturity !== PRIME_CASH_VAULT_MATURITY ? (
+              <FormattedMessage
+                defaultMessage={'Convert to Fixed ({maturity})'}
+                values={{ maturity: formatMaturity(o.token.maturity) }}
+              />
+            ) : (
+              <FormattedMessage defaultMessage={'Convert to Open Term'} />
+            );
+
           return {
-            label: <FormattedMessage defaultMessage={'Roll Vault Position'} />,
+            label,
             link: `/vaults/${vaultAddress}/RollVaultPosition/${o.token.id}`,
             key: 'RollVaultPosition',
             onClick: () => {

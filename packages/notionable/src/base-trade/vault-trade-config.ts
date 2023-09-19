@@ -139,7 +139,16 @@ export const VaultTradeConfiguration = {
    */
   DepositVaultCollateral: {
     calculationFn: calculateVaultDeposit,
-    requiredArgs: ['collateral', 'depositBalance', 'vaultAdapter'],
+    requiredArgs: [
+      'collateral',
+      'depositBalance',
+      'vaultAdapter',
+      // NOTE: these args below are not strictly required by the calculation
+      // but are added here to manage race conditions when switching tradeTypes
+      'debtPool',
+      'balances',
+      'vaultLastUpdateTime',
+    ],
     collateralFilter: (t, a, s: VaultTradeState) =>
       t.tokenType === 'VaultShare' &&
       t.vaultAddress === s.vaultAddress &&
