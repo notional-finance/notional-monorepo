@@ -83,7 +83,11 @@ export function getInitVaultAction({
     activeVaultMarkets,
     vaultAddress
   );
-  const eligibleActions = getEligibleActions(eligibleMarkets, vaultAccount);
+  const eligibleActions = getEligibleActions(
+    eligibleMarkets,
+    vaultAccount,
+    vaultConfig.enabled
+  );
   const minLeverageRatio = BaseVault.collateralToLeverageRatio(
     vaultConfig.maxRequiredAccountCollateralRatioBasisPoints
   );
@@ -201,9 +205,17 @@ function getEligibleMarkets(
 
 function getEligibleActions(
   eligibleMarkets: Market[],
-  vaultAccount: VaultAccount
+  vaultAccount: VaultAccount,
+  isEnabled: boolean
 ) {
   const eligibleActions: VAULT_ACTIONS[] = [];
+
+  if (!isEnabled) {
+    // If not enabled vaults can only withdraw
+    return vaultAccount.canSettle()
+      ? [VAULT_ACTIONS.WITHDRAW_VAULT_POST_MATURITY]
+      : [VAULT_ACTIONS.WITHDRAW_VAULT];
+  }
 
   // If no maturity, can only create new position
   if (vaultAccount.maturity === 0) {
