@@ -32,7 +32,7 @@ export function priorAccountRisk(
     map(([, account]) =>
       account
         ? accountRiskSummary(
-            new AccountRiskProfile(account.balances),
+            new AccountRiskProfile(account.balances, account.network),
             undefined
           )
         : undefined
@@ -59,7 +59,7 @@ export function postAccountRisk(
         { calculationSuccess, collateralBalance, debtBalance, inputErrors },
       ]) => {
         const prior = account
-          ? new AccountRiskProfile(account.balances)
+          ? new AccountRiskProfile(account.balances, account.network)
           : undefined;
         const newBalances = [collateralBalance, debtBalance].filter(
           (b) => b !== undefined
