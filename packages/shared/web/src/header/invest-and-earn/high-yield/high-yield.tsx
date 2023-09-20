@@ -23,7 +23,7 @@ export function HighYield() {
       ),
       description: (
         <FormattedMessage
-          defaultMessage={'Leverage DeFi yields and earn up to {rate} APY'}
+          defaultMessage={'Leverage DeFi yields and earn'}
           values={{
             rate: highestVaultApy,
           }}
@@ -43,7 +43,11 @@ export function HighYield() {
           }}
         />
       ),
-      description: <FormattedMessage defaultMessage={'Stake NOTE and earn protocol revenues.'} />,
+      description: (
+        <FormattedMessage
+          defaultMessage={'Stake NOTE and earn protocol revenues.'}
+        />
+      ),
       external: false,
     },
     {
