@@ -39,9 +39,12 @@ export abstract class BaseRegistry<T> {
   /** Last time the timestamp was updated for a given block */
   protected lastUpdateTimestamp = new Map<Network, BehaviorSubject<number>>();
 
+  protected timestampOverride: number | undefined;
+
   protected abstract _refresh(
     network: Network,
-    blockNumber?: number
+    blockNumber?: number,
+    atTimestamp?: number
   ): Promise<CacheSchema<T>>;
 
   /** Gets the map of subjects for a given network, checking for existence */
@@ -142,12 +145,13 @@ export abstract class BaseRegistry<T> {
   public triggerRefresh(
     network: Network,
     onComplete?: () => void,
-    blockNumber?: number
+    blockNumber?: number,
+    atTimestamp?: number
   ) {
     of(1)
       .pipe(
         switchMap(() => {
-          return from(this._refresh(network, blockNumber));
+          return from(this._refresh(network, blockNumber, atTimestamp));
         })
       )
       .subscribe((d) => {

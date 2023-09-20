@@ -241,10 +241,21 @@ export default class DataService {
         const market = exchanges.getfCashMarket(network, t.currencyId);
         const interestAPY = market.getSpotInterestRate(t) || 0;
         const underlying = tokens.getTokenByID(network, t.underlying);
+        let tvl;
+        try {
+          tvl = t.totalSupply?.toUnderlying() || TokenBalance.zero(underlying);
+        } catch (e: any) {
+          console.warn(
+            `Failed to get tvl ${block.number} ${t.currencyId}, ${t.underlying}: ` +
+              +e.toString()
+          );
+          throw e;
+        }
 
         return {
           token: t,
-          tvl: t.totalSupply?.toUnderlying() || TokenBalance.zero(underlying),
+          underlying: t.underlying,
+          tvl: tvl,
           totalAPY: interestAPY,
           interestAPY,
         };
@@ -279,9 +290,19 @@ export default class DataService {
         const pCash = fCashMarket.poolParams.perMarketCash[marketIndex - 1];
         const fCash = fCashMarket.poolParams.perMarketfCash[marketIndex - 1];
 
+        let tvl;
+        try {
+          tvl = fCash.toUnderlying().add(pCash.toUnderlying());
+        } catch (e: any) {
+          console.warn(
+            `Failed to get tvl ${block.number} ${y.token.address}: ` +
+              e.toString()
+          );
+        }
+
         // Adds the prime cash value in the nToken to the fCash TVL
         return Object.assign(y, {
-          tvl: fCash.toUnderlying().add(pCash.toUnderlying()),
+          tvl: tvl,
         });
       });
 
@@ -306,6 +327,10 @@ export default class DataService {
       .getAllTokens(network)
       .filter((t) => t.tokenType === 'nToken')
       .map((t) => {
+        let tvl;
+        let totalAPY;
+        let interestAPY;
+
         const fCashMarket = exchanges.getPoolInstance<fCashMarket>(
           network,
           t.address
@@ -313,45 +338,58 @@ export default class DataService {
         if (!t.underlying) throw Error('underlying not defined');
         const underlying = tokens.getTokenByID(network, t.underlying);
 
-        const { incentiveEmissionRate: annualizedNOTEIncentives } =
-          config.getAnnualizedNOTEIncentives(t);
-        const nTokenTVL = fCashMarket.totalValueLocked(0);
+        try {
+          const { incentiveEmissionRate: annualizedNOTEIncentives } =
+            config.getAnnualizedNOTEIncentives(t);
+          const nTokenTVL = fCashMarket.totalValueLocked(0);
 
-        // Total fees over the last week divided by the total value locked
-        const incentiveAPY = this._convertRatioToYield(
-          annualizedNOTEIncentives,
-          nTokenTVL
-        );
-
-        const { numerator, denominator } = fCashMarket.balances
-          .map((b) => {
-            const underlying = b.toUnderlying();
-            const apy = yields.find((y) => y.token.id === b.tokenId)?.totalAPY;
-            if (apy === undefined) {
-              throw Error(`${b.symbol} yield not found`);
-            }
-
-            // Blended yield is the weighted average of the APYs
-            return {
-              numerator: underlying
-                .mulInRatePrecision(Math.floor(apy * RATE_PRECISION))
-                .scaleTo(RATE_DECIMALS),
-              denominator: underlying.scaleTo(RATE_DECIMALS),
-            };
-          })
-          .reduce(
-            (r, { numerator, denominator }) => ({
-              numerator: r.numerator + numerator.toNumber(),
-              denominator: r.denominator + denominator.toNumber(),
-            }),
-            { numerator: 0, denominator: 0 }
+          // Total fees over the last week divided by the total value locked
+          const incentiveAPY = this._convertRatioToYield(
+            annualizedNOTEIncentives,
+            nTokenTVL
           );
-        const interestAPY = numerator / denominator;
+
+          const { numerator, denominator } = fCashMarket.balances
+            .map((b) => {
+              const underlying = b.toUnderlying();
+              const apy = yields.find(
+                (y) => y.token.id === b.tokenId
+              )?.totalAPY;
+              if (apy === undefined) {
+                throw Error(`${b.symbol} yield not found`);
+              }
+
+              // Blended yield is the weighted average of the APYs
+              return {
+                numerator: underlying
+                  .mulInRatePrecision(Math.floor(apy * RATE_PRECISION))
+                  .scaleTo(RATE_DECIMALS),
+                denominator: underlying.scaleTo(RATE_DECIMALS),
+              };
+            })
+            .reduce(
+              (r, { numerator, denominator }) => ({
+                numerator: r.numerator + numerator.toNumber(),
+                denominator: r.denominator + denominator.toNumber(),
+              }),
+              { numerator: 0, denominator: 0 }
+            );
+          interestAPY = numerator / denominator;
+
+          totalAPY = incentiveAPY + interestAPY;
+
+          tvl = t.totalSupply?.toUnderlying() || TokenBalance.zero(underlying);
+        } catch (e: any) {
+          console.warn(
+            `Failed to get tvl ${underlying.address}: ` + e.toString()
+          );
+        }
 
         return {
           token: t,
-          tvl: t.totalSupply?.toUnderlying() || TokenBalance.zero(underlying),
-          totalAPY: incentiveAPY + interestAPY,
+          underlying: underlying.address,
+          tvl: tvl,
+          totalAPY: totalAPY,
           interestAPY,
         };
       });
@@ -378,29 +416,39 @@ export default class DataService {
           vaults.isVaultEnabled(v.network, v.vaultAddress)
       )
       .flatMap((v) => {
-        const debt = debtYields.find(
-          (d) =>
-            d.token.currencyId === v.currencyId &&
-            (v.maturity === PRIME_CASH_VAULT_MATURITY
-              ? d.token.tokenType === 'PrimeDebt'
-              : d.token.tokenType === 'fCash' &&
-                d.token.maturity === v.maturity)
-        );
-        if (!debt) throw Error('Matching debt not found');
-        if (!v.vaultAddress) throw Error('Vault address not defined');
-        if (!v.underlying) throw Error('underlying is not defined');
-        // Ensures that the oracle registry side effect happens here so that we
-        // can properly get the TVL value.
-        vaults.getVaultAdapter(network, v.vaultAddress);
-        const underlying = tokens.getTokenByID(network, v.underlying);
+        let tvl;
         const totalAPY = 0;
+
+        if (!v.underlying) throw Error('underlying is not defined');
+        const underlying = tokens.getTokenByID(network, v.underlying);
+
+        try {
+          const debt = debtYields.find(
+            (d) =>
+              d.token.currencyId === v.currencyId &&
+              (v.maturity === PRIME_CASH_VAULT_MATURITY
+                ? d.token.tokenType === 'PrimeDebt'
+                : d.token.tokenType === 'fCash' &&
+                  d.token.maturity === v.maturity)
+          );
+
+          if (!debt) throw Error('Matching debt not found');
+          if (!v.vaultAddress) throw Error('Vault address not defined');
+          // Ensures that the oracle registry side effect happens here so that we
+          // can properly get the TVL value.
+          vaults.getVaultAdapter(network, v.vaultAddress);
+
+          tvl = v.totalSupply?.toUnderlying() || TokenBalance.zero(underlying);
+        } catch (e: any) {
+          console.warn(`Failed to get tvl: ` + e.toString());
+        }
 
         return {
           token: v,
-          underlying,
+          underlying: underlying.address,
           totalAPY,
           interestAPY: 0,
-          tvl: v.totalSupply?.toUnderlying() || TokenBalance.zero(underlying),
+          tvl: tvl,
         };
       });
   }
@@ -424,10 +472,11 @@ export default class DataService {
 
     await HistoricalRegistry.refreshAtBlock(
       Network.All,
-      await this.getBlockNumberFromTs(Network.Mainnet, ts)
+      await this.getBlockNumberFromTs(Network.Mainnet, ts),
+      ts
     );
 
-    await HistoricalRegistry.refreshAtBlock(network, blockNumber);
+    await HistoricalRegistry.refreshAtBlock(network, blockNumber, ts);
 
     const block = await this.provider.getBlock(blockNumber);
 
@@ -452,8 +501,8 @@ export default class DataService {
               block_number: blockNumber,
               network_id: networkToId[network],
               token: y.token.id,
-              total_value_locked: y.tvl.toExactString(),
-              underlying: y.tvl.tokenId,
+              total_value_locked: y.tvl?.toExactString(),
+              underlying: y.underlying,
               total_apy: y.totalAPY,
               interest_apy: y.interestAPY,
               debt_token: '',

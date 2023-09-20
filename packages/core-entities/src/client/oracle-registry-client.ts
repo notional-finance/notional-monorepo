@@ -92,7 +92,7 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
           if (oracle.oracleType === 'fCashOracleRate') {
             // Suppress historical oracle rates
             const { maturity } = decodeERC1155Id(oracle.quote);
-            if (maturity < getNowSeconds()) return;
+            if (maturity < (this.timestampOverride || getNowSeconds())) return;
           }
 
           const quoteToBase =
@@ -399,7 +399,7 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
   interestToExchangeRate(
     interestRate: BigNumber,
     maturity: number,
-    currentTime = getNowSeconds()
+    currentTime = this.timestampOverride || getNowSeconds()
   ) {
     return OracleRegistryClient.interestToExchangeRate(
       interestRate,

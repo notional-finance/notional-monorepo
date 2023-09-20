@@ -14,7 +14,11 @@ export class HistoricalRegistry extends Registry {
     super.initialize(cacheHostname, fetchMode, false);
   }
 
-  public static async refreshAtBlock(network: Network, blockNumber: number) {
+  public static async refreshAtBlock(
+    network: Network,
+    blockNumber: number,
+    timestamp: number
+  ) {
     // NOTE: refresh needs to run in this particular order.
     const clients = [
       [Routes.Tokens, this._tokens, true],
@@ -30,7 +34,7 @@ export class HistoricalRegistry extends Registry {
           continue;
         }
         await new Promise<void>((resolve) => {
-          client.triggerRefresh(network, resolve, blockNumber);
+          client.triggerRefresh(network, resolve, blockNumber, timestamp);
           if (route == Routes.Tokens)
             Registry.registerDefaultPoolTokens(network);
         });
