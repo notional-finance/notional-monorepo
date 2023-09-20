@@ -1,15 +1,15 @@
 import { BaseTradeState } from '@notional-finance/notionable';
-import { useAccountDefinition } from '@notional-finance/notionable-hooks';
+import { usePortfolioRiskProfile } from '@notional-finance/notionable-hooks';
 import { useParams } from 'react-router';
 
 export function useConvertOptions(state: BaseTradeState) {
   const { tradeType, collateralOptions, debtOptions } = state;
-  const { account } = useAccountDefinition();
+  const portfolio = usePortfolioRiskProfile();
   const { selectedToken: selectedParamToken } = useParams<{
     selectedToken: string;
   }>();
 
-  let initialConvertFromBalance = account?.balances.find(
+  let initialConvertFromBalance = portfolio.balances.find(
     (t) => t.tokenId === selectedParamToken
   );
 

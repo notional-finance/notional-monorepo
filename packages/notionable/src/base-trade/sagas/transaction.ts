@@ -19,8 +19,9 @@ import {
   map,
 } from 'rxjs';
 import { selectedAccount, selectedNetwork } from '../../global';
-import { BaseTradeState } from '../base-trade-store';
+import { BaseTradeState, isVaultTrade } from '../base-trade-store';
 import { getTradeConfig } from '../trade-calculation';
+import { AccountRiskProfile } from '@notional-finance/risk-engine';
 
 export function buildTransaction(
   state$: Observable<BaseTradeState>,
@@ -36,11 +37,16 @@ export function buildTransaction(
         s.transactionError === undefined
       ) {
         const config = getTradeConfig(s.tradeType);
+        // Using the risk profile here ensures that we use settled balances
+        const accountBalances = isVaultTrade(s.tradeType)
+          ? a.balances
+          : new AccountRiskProfile(a.balances, a.network).balances;
+
         return from(
           config
             .transactionBuilder({
               ...s,
-              accountBalances: a.balances || [],
+              accountBalances,
               vaultLastUpdateTime: a.vaultLastUpdateTime || {},
               address: a.address,
               network: a.network,

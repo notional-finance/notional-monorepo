@@ -106,21 +106,32 @@ export function usePortfolioHoldings() {
           )
           .find(({ token }) => token.id === b.tokenId);
 
+        const maturedTokenId = b.hasMatured
+          ? b.isPositive()
+            ? b.toPrimeCash().tokenId
+            : b.toPrimeDebt().tokenId
+          : b.token.id;
+        const oppositeTokenId = b.hasMatured
+          ? b.isPositive()
+            ? b.toPrimeDebt().tokenId
+            : b.toPrimeCash().tokenId
+          : b.token.id;
         const marketApyData = formatNumberAsPercent(
-          nonLeveragedYields.find((y) => y.token.id === b.token.id)?.totalAPY ||
-            0
+          nonLeveragedYields.find((y) => y.token.id === maturedTokenId)
+            ?.totalAPY || 0
         );
 
         return {
           asset: {
             symbol: icon,
-            label: titleWithMaturity,
+            label: b.hasMatured
+              ? `Matured ${titleWithMaturity}`
+              : titleWithMaturity,
             caption:
               b.token.tokenType === 'fCash' && s?.impliedFixedRate !== undefined
                 ? `${formatNumberAsPercent(s.impliedFixedRate)} APY at Maturity`
                 : undefined,
           },
-          // TODO: this has a caption for note incentives
           marketApy: {
             data: [
               {
@@ -172,8 +183,8 @@ export function usePortfolioHoldings() {
                 callback: () => {
                   history.push(
                     b.isPositive()
-                      ? `/portfolio/holdings/${PORTFOLIO_ACTIONS.CONVERT_ASSET}/${b.token.id}`
-                      : `/portfolio/holdings/${PORTFOLIO_ACTIONS.ROLL_DEBT}/${b.token.id}`
+                      ? `/portfolio/holdings/${PORTFOLIO_ACTIONS.CONVERT_ASSET}/${oppositeTokenId}`
+                      : `/portfolio/holdings/${PORTFOLIO_ACTIONS.ROLL_DEBT}/${oppositeTokenId}`
                   );
                 },
               },
@@ -184,7 +195,7 @@ export function usePortfolioHoldings() {
                     ),
                     callback: () => {
                       history.push(
-                        `/portfolio/holdings/${PORTFOLIO_ACTIONS.WITHDRAW}/${b.token.id}`
+                        `/portfolio/holdings/${PORTFOLIO_ACTIONS.WITHDRAW}/${maturedTokenId}`
                       );
                     },
                   }
@@ -192,7 +203,7 @@ export function usePortfolioHoldings() {
                     buttonText: <FormattedMessage defaultMessage={'Repay'} />,
                     callback: () => {
                       history.push(
-                        `/portfolio/holdings/${PORTFOLIO_ACTIONS.REPAY_DEBT}/${b.token.id}`
+                        `/portfolio/holdings/${PORTFOLIO_ACTIONS.REPAY_DEBT}/${maturedTokenId}`
                       );
                     },
                   },

@@ -26,10 +26,10 @@ export const RepayDebt = () => {
       <PortfolioHoldingSelect
         tightMarginTop
         context={context}
-        inputLabel={messages[PORTFOLIO_ACTIONS.REPAY_DEBT]['inputLabelTwo']}
+        inputLabel={messages[PORTFOLIO_ACTIONS.REPAY_DEBT]['inputLabel']}
         filterBalances={(b) =>
           b.isNegative() &&
-          (b.tokenType === 'PrimeDebt' || b.tokenType === 'fCash')
+          (b.tokenType === 'PrimeCash' || b.tokenType === 'fCash')
         }
       />
       <DepositInput
@@ -40,7 +40,7 @@ export const RepayDebt = () => {
         newRoute={(newToken) =>
           `/portfolio/${category}/${sideDrawerKey}/${newToken}`
         }
-        inputLabel={messages[PORTFOLIO_ACTIONS.REPAY_DEBT]['inputLabel']}
+        inputLabel={messages[PORTFOLIO_ACTIONS.REPAY_DEBT]['inputLabelTwo']}
       />
     </PortfolioSideDrawer>
   );

@@ -4,7 +4,6 @@ import { MessageDescriptor } from 'react-intl';
 import {
   useFiat,
   BaseTradeContext,
-  useAccountDefinition,
   usePortfolioRiskProfile,
   useCurrency,
 } from '@notional-finance/notionable-hooks';
@@ -36,7 +35,6 @@ export const PortfolioHoldingSelect = ({
     updateState,
     state: { collateral, debt },
   } = context;
-  const { account } = useAccountDefinition();
   const { primeCash, primeDebt } = useCurrency();
   const profile = usePortfolioRiskProfile();
   const selectedToken = isWithdraw ? debt : collateral;
@@ -53,7 +51,7 @@ export const PortfolioHoldingSelect = ({
       : selectedToken?.id;
 
   const options = useMemo(() => {
-    return account?.balances.filter(filterBalances)?.map((b) => {
+    return profile.balances.filter(filterBalances)?.map((b) => {
       if (isWithdraw) {
         const maxWithdraw = profile.maxWithdraw(b.token);
         return {
@@ -65,14 +63,14 @@ export const PortfolioHoldingSelect = ({
         // isRepay
         const underlying = b.toUnderlying();
         return {
-          token: b.token,
+          token: b.tokenType === 'PrimeCash' ? b.toPrimeDebt().token : b.token,
           largeFigure: underlying.toFloat() || 0,
           largeFigureSuffix: b.underlying.symbol,
           caption: underlying.toFiat(baseCurrency).toDisplayStringWithSymbol(),
         };
       }
     });
-  }, [account, filterBalances, profile, isWithdraw, baseCurrency]);
+  }, [filterBalances, profile, isWithdraw, baseCurrency]);
 
   const onSelect = useCallback(
     (id: string | null) => {
