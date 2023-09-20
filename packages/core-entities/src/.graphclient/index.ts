@@ -7037,7 +7037,7 @@ const notionalV3Transforms = [];
 const additionalTypeDefs = [] as any[];
 const notionalV3Handler = new GraphqlHandler({
               name: "NotionalV3",
-              config: {"endpoint":"https://api.studio.thegraph.com/query/33671/notional-finance-v3-{context.chainName:arbitrum}/v0.0.172"},
+              config: {"endpoint":"https://api.studio.thegraph.com/query/33671/notional-finance-v3-{context.chainName:arbitrum}/v0.1.2"},
               baseDir,
               cache,
               pubsub,
@@ -7714,10 +7714,7 @@ export const AllOraclesByBlockDocument = gql`
     ` as unknown as DocumentNode<AllOraclesByBlockQuery, AllOraclesByBlockQueryVariables>;
 export const AllTokensDocument = gql`
     query AllTokens {
-  tokens(
-    where: {id_not: "0xaf88d065e77c8cc2239327c5edb3a432268e5831"}
-    first: 1000
-  ) {
+  tokens(first: 1000) {
     id
     tokenType
     tokenInterface

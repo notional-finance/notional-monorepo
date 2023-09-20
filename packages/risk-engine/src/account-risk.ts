@@ -12,10 +12,6 @@ import { BaseRiskProfile } from './base-risk';
 import { SymbolOrID } from './types';
 
 export class AccountRiskProfile extends BaseRiskProfile {
-  static from(balances: TokenBalance[]) {
-    return new AccountRiskProfile(balances);
-  }
-
   static simulate(from: TokenBalance[], apply: TokenBalance[]) {
     return new AccountRiskProfile([...from, ...apply]);
   }
