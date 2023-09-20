@@ -36,5 +36,5 @@ export function useMaxWithdraw(context: BaseTradeContext) {
     }
   }, [maxWithdraw, updateState, setCurrencyInput, debt]);
 
-  return { onMaxValue, currencyInputRef };
+  return { onMaxValue, currencyInputRef, setCurrencyInput };
 }

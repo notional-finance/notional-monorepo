@@ -6,11 +6,21 @@ import { useParams } from 'react-router';
 import { DepositInput, PortfolioHoldingSelect } from '@notional-finance/trade';
 import { messages } from './messages';
 import { useMaxWithdraw } from './hooks/use-max-withdraw';
+import { useEffect } from 'react';
 
 export const Withdraw = () => {
   const context = useTradeContext('Withdraw');
   const { category, sideDrawerKey } = useParams<PortfolioParams>();
-  const { currencyInputRef, onMaxValue } = useMaxWithdraw(context);
+  const { currencyInputRef, setCurrencyInput, onMaxValue } =
+    useMaxWithdraw(context);
+
+  const {
+    state: { debt },
+  } = context;
+
+  useEffect(() => {
+    setCurrencyInput('');
+  }, [debt?.id, setCurrencyInput]);
 
   return (
     <PortfolioSideDrawer context={context}>

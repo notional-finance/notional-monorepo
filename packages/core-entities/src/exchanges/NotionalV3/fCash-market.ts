@@ -970,8 +970,12 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
         if (!spotRate) throw Error('Spot Rate undefined');
         const timeToMaturity = t.maturity - blockTime;
         const netfCashPV =
-          this.getfCashPV(interestRate, t.maturity - blockTime) -
-          this.getfCashPV(spotRate, timeToMaturity);
+          this.getfCashPV(interestRate, timeToMaturity) -
+          this.getfCashPV(
+            // Spot rates are returned as percentages
+            Math.floor((spotRate * RATE_PRECISION) / 100),
+            timeToMaturity
+          );
 
         const utilization = this.getUtilization(i + 1, interestRate);
         // Assume that we trade at 1-1:

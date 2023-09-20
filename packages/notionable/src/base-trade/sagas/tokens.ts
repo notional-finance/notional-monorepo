@@ -80,6 +80,7 @@ export function availableTokens(
         p.deposit?.id === c.deposit?.id &&
         p.collateral?.id === c.collateral?.id &&
         p.debt?.id === c.debt?.id &&
+        p.selectedDepositToken === c.selectedDepositToken &&
         p.tradeType === c.tradeType
       );
     }),

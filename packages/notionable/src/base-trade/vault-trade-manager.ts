@@ -32,10 +32,10 @@ export function createVaultTradeManager(
     simulateTransaction(state$, account$, network$),
     buildTransaction(state$, account$),
     postVaultAccountRisk(state$, account$),
-    calculate(state$, debtPool$, of(undefined), vaultAdapter$, account$),
     defaultVaultLeverageRatio(state$, network$),
     priorVaultAccountRisk(state$, account$),
     availableTokens(state$, network$, account$),
+    calculate(state$, debtPool$, of(undefined), vaultAdapter$, account$),
     initVaultState(state$, network$, global$),
     resetOnNetworkChange(global$, state$),
     resetOnTradeTypeChange(state$, true)

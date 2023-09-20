@@ -125,7 +125,7 @@ export function calculate(
           requiredArgs,
           calculateCollateralOptions,
           calculateDebtOptions,
-        } = getTradeConfig(s.tradeType);
+        } = getTradeConfig(p.tradeType);
 
         // NOTE: need to use the same parameters in the previous state
         const { inputsSatisfied, keys } = getRequiredArgs(
@@ -138,6 +138,7 @@ export function calculate(
         );
 
         return {
+          prevTradeType: p.tradeType,
           prevCalculateInputKeys: keys.join('|'),
           prevInputsSatisfied: inputsSatisfied,
           s,
@@ -153,6 +154,7 @@ export function calculate(
     ),
     map(
       ({
+        prevTradeType,
         prevInputsSatisfied,
         prevCalculateInputKeys,
         s,
@@ -177,7 +179,8 @@ export function calculate(
 
         const calculateInputKeys = keys.join('|');
         return prevInputsSatisfied !== inputsSatisfied ||
-          prevCalculateInputKeys !== calculateInputKeys
+          prevCalculateInputKeys !== calculateInputKeys ||
+          prevTradeType !== s.tradeType
           ? {
               inputs,
               inputsSatisfied,
