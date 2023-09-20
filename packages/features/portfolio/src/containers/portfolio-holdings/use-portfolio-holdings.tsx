@@ -111,7 +111,7 @@ export function usePortfolioHoldings() {
             ? b.toPrimeCash().tokenId
             : b.toPrimeDebt().tokenId
           : b.token.id;
-        const oppositeTokenId = b.hasMatured
+        const manageTokenId = b.hasMatured
           ? b.isPositive()
             ? b.toPrimeDebt().tokenId
             : b.toPrimeCash().tokenId
@@ -183,8 +183,8 @@ export function usePortfolioHoldings() {
                 callback: () => {
                   history.push(
                     b.isPositive()
-                      ? `/portfolio/holdings/${PORTFOLIO_ACTIONS.CONVERT_ASSET}/${oppositeTokenId}`
-                      : `/portfolio/holdings/${PORTFOLIO_ACTIONS.ROLL_DEBT}/${oppositeTokenId}`
+                      ? `/portfolio/holdings/${PORTFOLIO_ACTIONS.CONVERT_ASSET}/${manageTokenId}`
+                      : `/portfolio/holdings/${PORTFOLIO_ACTIONS.ROLL_DEBT}/${manageTokenId}`
                   );
                 },
               },
