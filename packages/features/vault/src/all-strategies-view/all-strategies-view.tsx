@@ -13,7 +13,7 @@ export const AllStrategyView = () => {
 
   return (
     <ThemeProvider theme={themeLanding}>
-      <FeatureLoader featureLoaded={allVaults?.length > 0}>
+      <FeatureLoader featureLoaded={!!allVaults}>
         <CardContainer
           heading={defineMessage({
             defaultMessage: 'Leveraged Vaults',
@@ -24,10 +24,10 @@ export const AllStrategyView = () => {
             description: 'page heading subtitle',
           })}
           linkText={defineMessage({
-            defaultMessage: 'Read leveraged vault docs',
+            defaultMessage: 'New Vaults Coming Soon on Notional V3',
             description: 'docs link',
           })}
-          docsLink="https://docs.notional.finance/notional-v2/what-you-can-do/leveraged-vaults"
+          docsLink="https://docs.notional.finance/notional-v3"
         >
           {allVaults?.map((v) => {
             const {
@@ -52,7 +52,7 @@ export const AllStrategyView = () => {
                 capacityRemaining={capacityRemaining}
               />
             );
-          })}
+          }) || []}
         </CardContainer>
       </FeatureLoader>
     </ThemeProvider>
