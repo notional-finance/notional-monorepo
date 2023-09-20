@@ -38,7 +38,7 @@ export const CurrencyFixed = (props: CurrencyFixedProps) => {
   const [hovered, setHovered] = useState(false);
   // NOTE: limits digits to 2 decimal places because of the longer APY suffix, higher
   // apy rates will get cut off.
-  const formattedRate = `${rate.toPrecision(2)}%`;
+  const formattedRate = `${rate.toPrecision(3)}%`;
 
   return (
     <Link to={route}>

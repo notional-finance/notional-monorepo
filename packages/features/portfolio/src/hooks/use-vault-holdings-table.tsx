@@ -245,6 +245,9 @@ export const useVaultHoldingsTable = () => {
             ? 'Open Term'
             : `Maturity: ${formatMaturity(v.maturity)}`,
       },
+      // Assets and debts are shown on the overview page
+      assets: formatCryptoWithFiat(baseCurrency, v.totalAssets()),
+      debts: formatCryptoWithFiat(baseCurrency, v.totalDebt()),
       netWorth: formatCryptoWithFiat(baseCurrency, v.netWorth()),
       profit: formatCryptoWithFiat(baseCurrency, profit),
       totalAPY: formatNumberAsPercent(totalAPY),
