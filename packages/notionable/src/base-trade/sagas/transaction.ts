@@ -4,6 +4,7 @@ import {
   filterEmpty,
   IS_TEST_ENV,
   zipByKeyToArray,
+  getNowSeconds,
 } from '@notional-finance/util';
 import {
   Observable,
@@ -117,8 +118,17 @@ export function simulateTransaction(
                       calculated.toFloat();
                   abs = simulated.toFloat() - calculated.toFloat();
                 } else if (simulated) {
-                  rel = simulated.toFloat();
-                  abs = simulated.toFloat();
+                  if (
+                    simulated.maturity &&
+                    simulated.maturity < getNowSeconds()
+                  ) {
+                    // This is a matured balance, it should be cleared to zero
+                    rel = 0;
+                    abs = 0;
+                  } else {
+                    rel = simulated.toFloat();
+                    abs = simulated.toFloat();
+                  }
                 } else if (calculated) {
                   rel = calculated.toFloat();
                   abs = calculated.toFloat();
