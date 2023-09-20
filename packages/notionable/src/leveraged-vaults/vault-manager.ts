@@ -19,7 +19,7 @@ const hiddenStrategies = ['CrossCurrencyfCash'];
 system$.subscribe((system) => {
   if (system) {
     const listedVaults = system
-      .getAllVaults(true)
+      .getAllVaults(false)
       .map((v) => {
         return {
           vaultConfig: v,
