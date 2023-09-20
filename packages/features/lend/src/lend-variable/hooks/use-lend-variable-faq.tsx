@@ -1,5 +1,11 @@
-import { ReactNode } from 'react';
+import { useContext, ReactNode } from 'react';
 import { FormattedMessage } from 'react-intl';
+import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
+import { LendVariableContext } from '../../lend-variable/lend-variable';
+import {
+  getEtherscanAddressLink,
+  NotionalAddress,
+} from '@notional-finance/util';
 import { RiskFaq } from '../components';
 
 interface FaqProps {
@@ -9,16 +15,24 @@ interface FaqProps {
 }
 
 export const useLendVariableFaq = (tokenSymbol?: string) => {
-  // TODO: ADD LINKS
+  const selectedNetwork = useSelectedNetwork();
+  const context = useContext(LendVariableContext);
+  const {
+    state: { collateral },
+  } = context;
+
   const faqHeaderLinks = [
     {
-      href: '',
+      href: 'https://docs.notional.finance/notional-v3/product-guides/variable-rate-lending',
       text: (
         <FormattedMessage defaultMessage={'Variable Lending Documentation'} />
       ),
     },
     {
-      href: '',
+      href:
+        selectedNetwork && collateral?.address
+          ? getEtherscanAddressLink(collateral.address, selectedNetwork)
+          : '',
       text: (
         <FormattedMessage
           defaultMessage={'Prime {tokenSymbol} Contract'}
@@ -29,7 +43,12 @@ export const useLendVariableFaq = (tokenSymbol?: string) => {
       ),
     },
     {
-      href: '',
+      href: selectedNetwork
+        ? getEtherscanAddressLink(
+            NotionalAddress[selectedNetwork],
+            selectedNetwork
+          )
+        : '',
       text: <FormattedMessage defaultMessage={'Notional Contract'} />,
     },
   ];
@@ -66,7 +85,7 @@ export const useLendVariableFaq = (tokenSymbol?: string) => {
       ),
       answer: (
         <FormattedMessage
-          defaultMessage={`Lenders earn yield by lending their funds to over-collateralized borrowers. Any funds that aren’t being utilized by borrowers on Notional can be deposited on external money markets to generate additional yield.`}
+          defaultMessage={`Yield on Notional comes from lending to over-collateralized borrowers and advanced DeFi users who want leverage on DeFi yield strategies.`}
         />
       ),
     },

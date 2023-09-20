@@ -1,10 +1,8 @@
 import { useContext } from 'react';
 import { Box, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
-import {
-  useBorrowVariableFaq,
-  useInterestRateUtilizationChart,
-} from '../hooks';
+import { useBorrowVariableFaq } from '../hooks';
+import { useInterestRateUtilizationChart } from '@notional-finance/trade';
 import { HowItWorksFaq } from './how-it-works-faq';
 import {
   Faq,
@@ -22,40 +20,49 @@ export const BorrowVariableTradeSummary = () => {
   const theme = useTheme();
   const context = useContext(BorrowVariableContext);
   const { state } = context;
-  const { deposit, debt } = state;
+  const { deposit, debt, selectedDepositToken } = state;
   const {
     areaChartData,
     chartToolTipData,
     areaChartStyles,
     chartHeaderData,
-    chartInfoBoxData,
     borrowUtilization,
-  } = useInterestRateUtilizationChart(deposit?.currencyId);
-  const { faqs, faqHeaderLinks } = useBorrowVariableFaq();
+  } = useInterestRateUtilizationChart(deposit?.currencyId, 'borrow');
+  const { faqs, faqHeaderLinks } = useBorrowVariableFaq(selectedDepositToken);
   const totalsData = useVariableTotals(state);
-  const { apyData } = useTokenHistory(debt);
+  const { apyData, tvlData } = useTokenHistory(debt);
 
   return (
     <TradeActionSummary state={state}>
       <MultiDisplayChart
         chartComponents={[
           {
-            id: 'area-chart',
-            title: 'Variable APY',
+            id: 'apy-area-chart',
+            title: 'APY',
             Component: (
               <ChartContainer>
                 <AreaChart
                   showCartesianGrid
                   xAxisTickFormat="date"
                   areaChartData={apyData}
-                  condenseXAxisTime={true}
                   areaLineType="linear"
                 />
               </ChartContainer>
             ),
-            chartHeaderData: {
-              textHeader: <FormattedMessage defaultMessage={'Variable APY'} />,
-            },
+          },
+          {
+            id: 'tvl-area-chart',
+            title: 'TVL',
+            Component: (
+              <ChartContainer>
+                <AreaChart
+                  showCartesianGrid
+                  xAxisTickFormat="date"
+                  areaChartData={tvlData}
+                  areaLineType="linear"
+                />
+              </ChartContainer>
+            ),
           },
         ]}
       />
@@ -92,7 +99,6 @@ export const BorrowVariableTradeSummary = () => {
                   <AreaChart
                     showCartesianGrid
                     areaLineType="linear"
-                    condenseXAxisTime={true}
                     xAxisTickFormat="percent"
                     areaChartData={areaChartData}
                     areaChartStyles={areaChartStyles}
@@ -102,7 +108,6 @@ export const BorrowVariableTradeSummary = () => {
                 </ChartContainer>
               ),
               chartHeaderData: chartHeaderData,
-              chartInfoBoxData: chartInfoBoxData,
               bottomLabel: <FormattedMessage defaultMessage={'Utilization'} />,
             },
           ]}

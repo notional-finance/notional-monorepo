@@ -167,7 +167,7 @@ export const Footer = () => {
           </Label>
           <HeadingSubtitle
             contrast
-            href="https://docs.notional.finance/notional-v2/faq"
+            href="https://docs.notional.finance/notional-v3"
             marginBottom={theme.spacing(4)}
           >
             <FormattedMessage

@@ -2,7 +2,6 @@ import { useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import {
   ChartToolTipDataProps,
-  Body,
   ChartHeaderDataProps,
   AreaChartStylesProps,
   LEGEND_LINE_TYPES,
@@ -17,7 +16,8 @@ import { colors } from '@notional-finance/styles';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
 
 export const useInterestRateUtilizationChart = (
-  currencyId: number | undefined
+  currencyId: number | undefined,
+  actionType: string
 ) => {
   const theme = useTheme();
   const selectedNetwork = useSelectedNetwork();
@@ -55,38 +55,21 @@ export const useInterestRateUtilizationChart = (
     }
   }
 
-  const chartInfoBoxData = [
-    {
-      TextComponent: (
-        <Body sx={{ marginBottom: theme.spacing(2) }}>
-          <FormattedMessage
-            defaultMessage={
-              'The borrow utilization factor is used to calculate the prime borrow premium and is based on the utilization of the variable rate lending market.'
-            }
-          />
-        </Body>
-      ),
-    },
-    {
-      TextComponent: (
-        <Body>
-          <FormattedMessage
-            defaultMessage={
-              'More borrowers means higher utilization and a higher utilization factor. Fewer borrowers means lower utilization and a lower utilization factor.'
-            }
-          />
-        </Body>
-      ),
-    },
-  ];
-
   const chartHeaderData: ChartHeaderDataProps = {
-    textHeader: (
-      <FormattedMessage defaultMessage={'Prime Borrow Rate | Utilization'} />
-    ),
+    textHeader:
+      actionType === 'borrow' ? (
+        <FormattedMessage defaultMessage={'Prime Borrow Rate | Utilization'} />
+      ) : (
+        <FormattedMessage defaultMessage={'Prime Lending Rate | Utilization'} />
+      ),
     legendData: [
       {
-        label: <FormattedMessage defaultMessage={'Prime Borrow Rate'} />,
+        label:
+          actionType === 'borrow' ? (
+            <FormattedMessage defaultMessage={'Prime Borrow Rate'} />
+          ) : (
+            <FormattedMessage defaultMessage={'Prime Lending Rate'} />
+          ),
         // TODO: Add correct value here
         value: '-',
         lineColor: colors.blueAccent,
@@ -111,14 +94,23 @@ export const useInterestRateUtilizationChart = (
     area: {
       lineColor: colors.blueAccent,
       lineType: LEGEND_LINE_TYPES.SOLID,
-      formatTitle: (area: any) => (
-        <FormattedMessage
-          defaultMessage="{rate} Prime Borrow Rate"
-          values={{
-            rate: <span>{formatNumberAsPercent(area)}</span>,
-          }}
-        />
-      ),
+      formatTitle: (area: any) => {
+        return actionType === 'borrow' ? (
+          <FormattedMessage
+            defaultMessage="{rate} Prime Borrow Rate"
+            values={{
+              rate: <span>{formatNumberAsPercent(area)}</span>,
+            }}
+          />
+        ) : (
+          <FormattedMessage
+            defaultMessage="{rate} Prime Lending Rate"
+            values={{
+              rate: <span>{formatNumberAsPercent(area)}</span>,
+            }}
+          />
+        );
+      },
     },
   };
 
@@ -138,7 +130,6 @@ export const useInterestRateUtilizationChart = (
     areaChartStyles,
     chartToolTipData,
     chartHeaderData,
-    chartInfoBoxData,
     borrowUtilization,
   };
 };

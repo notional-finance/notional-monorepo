@@ -17,7 +17,7 @@ export const useLendFixedFaq = () => {
   const selectedNetwork = useSelectedNetwork();
   const faqHeaderLinks = [
     {
-      href: 'https://docs.notional.finance/notional-v2/product-guides/fixed-rate-lending',
+      href: 'https://docs.notional.finance/notional-v3/product-guides/fixed-rate-lending',
       text: <FormattedMessage defaultMessage={'Fixed Lending Documentation'} />,
     },
     {
@@ -40,7 +40,7 @@ export const useLendFixedFaq = () => {
       ),
       answer: (
         <FormattedMessage
-          defaultMessage={`Yield on Notional comes from over-collateralized borrowing by advanced DeFi users who want to get leverage on DeFi yield strategies.`}
+          defaultMessage={`Yield on Notional comes from lending to over-collateralized borrowers and advanced DeFi users who want leverage on DeFi yield strategies.`}
           description={'faq answer'}
         />
       ),

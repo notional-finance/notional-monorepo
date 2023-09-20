@@ -2,6 +2,7 @@ import {
   MultiDisplayChart,
   AreaChart,
   ChartContainer,
+  ChartComponentsProps,
 } from '@notional-finance/mui';
 import { TradeState, VaultTradeState } from '@notional-finance/notionable';
 import { usePerformanceChart } from './use-performance-chart';
@@ -12,6 +13,7 @@ import { FormattedMessage } from 'react-intl';
 export const PerformanceChart = ({
   state,
   priorVaultFactors,
+  apyChartData,
 }: {
   state: TradeState | VaultTradeState;
   priorVaultFactors?: {
@@ -20,48 +22,51 @@ export const PerformanceChart = ({
     vaultBorrowRate?: number;
     leverageRatio?: number;
   };
+  apyChartData?: ChartComponentsProps;
 }) => {
   const theme = useTheme();
+  const hideTextHeader = apyChartData ? true : false;
   const {
     areaChartData,
     areaChartStyles,
     areaChartHeaderData,
     currentLeveragedReturn,
     chartToolTipData,
-  } = usePerformanceChart(state, priorVaultFactors);
+  } = usePerformanceChart(state, priorVaultFactors, hideTextHeader);
+
+  const chartComponents: ChartComponentsProps[] = [
+    {
+      id: 'area-chart',
+      title: 'Performance To Date',
+      Component: (
+        <ChartContainer>
+          <AreaChart
+            showEmptyState={currentLeveragedReturn === undefined ? true : false}
+            emptyStateMessage={
+              <FormattedMessage
+                defaultMessage={'Fill in inputs to see leveraged returns'}
+              />
+            }
+            showCartesianGrid
+            xAxisTickFormat="date"
+            areaChartData={areaChartData}
+            areaLineType="linear"
+            chartToolTipData={chartToolTipData}
+            areaChartStyles={areaChartStyles}
+          />
+        </ChartContainer>
+      ),
+      chartHeaderData: areaChartHeaderData,
+    },
+  ];
+
+  if (apyChartData) {
+    chartComponents.push(apyChartData);
+  }
 
   return (
     <Box marginBottom={theme.spacing(5)}>
-      <MultiDisplayChart
-        chartComponents={[
-          {
-            id: 'area-chart',
-            title: 'Performance To Date',
-            Component: (
-              <ChartContainer>
-                <AreaChart
-                  showEmptyState={
-                    currentLeveragedReturn === undefined ? true : false
-                  }
-                  emptyStateMessage={
-                    <FormattedMessage
-                      defaultMessage={'Fill in inputs to see leveraged returns'}
-                    />
-                  }
-                  showCartesianGrid
-                  xAxisTickFormat="date"
-                  areaChartData={areaChartData}
-                  condenseXAxisTime={true}
-                  areaLineType="linear"
-                  chartToolTipData={chartToolTipData}
-                  areaChartStyles={areaChartStyles}
-                />
-              </ChartContainer>
-            ),
-            chartHeaderData: areaChartHeaderData,
-          },
-        ]}
-      />
+      <MultiDisplayChart chartComponents={chartComponents} />
     </Box>
   );
 };

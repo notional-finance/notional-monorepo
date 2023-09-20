@@ -48,7 +48,7 @@ export function LendLeveragedCardView() {
           subtitle={subtitle}
           linkText={docsText}
           leveraged={true}
-          docsLink="https://docs.notional.finance/notional-v2/what-you-can-do/fixed-rate-lending"
+          docsLink="https://docs.notional.finance/notional-v3/product-guides/leveraged-lending"
         >
           {cardData.map(([symbol, yields], index) => {
             const route = `/${PRODUCTS.LEND_LEVERAGED}/${symbol}`;

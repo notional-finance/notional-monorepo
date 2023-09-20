@@ -11,7 +11,7 @@ import {
   chartInfoBoxDataProps,
 } from '../chart-info-box/chart-info-box';
 
-interface ChartComponentsProps {
+export interface ChartComponentsProps {
   id: string;
   title: string;
   Component: ReactNode;
@@ -46,8 +46,9 @@ export const MultiDisplayChart = ({
             }}
           >
             <ButtonContainer>
-              {chartComponents.map(({ id, title }) => (
+              {chartComponents.map(({ id, title }, index) => (
                 <H4
+                  key={index}
                   sx={{
                     cursor: 'pointer',
                     paddingBottom: theme.spacing(1),

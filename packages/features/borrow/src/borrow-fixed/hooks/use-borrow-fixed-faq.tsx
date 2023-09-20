@@ -1,7 +1,7 @@
 import { useContext, ReactNode } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Box, useTheme } from '@mui/material';
-import { Body } from '@notional-finance/mui';
+import { ExternalLink, Body } from '@notional-finance/mui';
 import { ExitEarlyFaq } from '../components';
 import { BorrowFixedContext } from '../borrow-fixed';
 import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
@@ -24,7 +24,7 @@ export const useBorrowFixedFaq = () => {
   } = useContext(BorrowFixedContext);
   const faqHeaderLinks = [
     {
-      href: 'https://docs.notional.finance/notional-v2/product-guides/fixed-rate-borrowing',
+      href: 'https://docs.notional.finance/notional-v3/product-guides/fixed-rate-borrowing',
       text: <FormattedMessage defaultMessage={'Fixed Borrow Documentation'} />,
     },
     {
@@ -74,16 +74,17 @@ export const useBorrowFixedFaq = () => {
         <Box>
           <Body sx={{ marginBottom: theme.spacing(2) }}>
             <FormattedMessage
-              defaultMessage={
-                'Your Max LTV depends on what asset you want to borrow and what asset you’re using as collateral. You can select your desired collateral asset on the righthand side of this page and it will show you the max LTV for that collateral asset + this debt asset.'
-              }
-            />
-          </Body>
-          <Body>
-            <FormattedMessage
-              defaultMessage={
-                'Or you can go to our docs and find an exhaustive list of Max LTVs for every collateral asset and debt asset pair.'
-              }
+              defaultMessage={`Your Max LTV depends on what asset you’re borrowing and what you’re using as collateral. For a full table of Max LTVs by asset and collateral type, go to our <a1>docs.</a1>`}
+              values={{
+                a1: (msg: ReactNode) => (
+                  <ExternalLink
+                    accent
+                    href="https://docs.notional.finance/notional-v3/borrower-resources/max-ltv-table"
+                  >
+                    {msg}
+                  </ExternalLink>
+                ),
+              }}
             />
           </Body>
         </Box>

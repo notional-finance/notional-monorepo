@@ -23,7 +23,7 @@ export function ResourcesLearn() {
       description: (
         <FormattedMessage defaultMessage={'Learn how Notional works'} />
       ),
-      to: 'https://docs.notional.finance/notional-v2/',
+      to: 'https://docs.notional.finance/notional-v3',
     },
     {
       title: <FormattedMessage defaultMessage={'Developer Documentation'} />,
@@ -35,7 +35,7 @@ export function ResourcesLearn() {
       description: (
         <FormattedMessage defaultMessage={'Review technical specifications'} />
       ),
-      to: 'https://docs.notional.finance/developer-documentation/',
+      to: 'https://docs.notional.finance/v3-technical-docs/deployed-contracts/notional-v3',
     },
     {
       title: <FormattedMessage defaultMessage={'Video Tutorials'} />,
@@ -53,7 +53,7 @@ export function ResourcesLearn() {
       description: (
         <FormattedMessage defaultMessage={'Understand selected parameters'} />
       ),
-      to: 'https://docs.notional.finance/governance',
+      to: 'https://docs.notional.finance/v3-risk-parameters/',
       hideBorder: true,
     },
   ];

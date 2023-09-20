@@ -65,7 +65,7 @@ export const messages = {
     },
     helptext: {
       defaultMessage:
-        'Withdraw from your vault position fully or to a new leverage ratio.',
+        'Withdraw from your vault position.',
       description: 'helptext',
     },
     inputLabel: {
@@ -127,7 +127,7 @@ export const messages = {
     },
     helptext: {
       defaultMessage:
-        'Borrow from a longer term maturity to avoid settlement, minimum borrow size: {minBorrowSize}',
+        'Roll your borrow position to a new maturity',
       description: 'helptext',
     },
     maturity: {

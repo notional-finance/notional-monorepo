@@ -9,7 +9,10 @@ import { MessageDescriptor, defineMessages } from 'react-intl';
 import { useGeoipBlock } from '@notional-finance/helpers';
 import TradeActionButton from '../trade-action-button/trade-action-button';
 import Confirmation2 from '../transaction-confirmation/confirmation2';
-import { TransactionHeadings } from './components/transaction-headings';
+import {
+  TransactionHeadings,
+  CombinedTokenTypes,
+} from './components/transaction-headings';
 import { LiquidationRisk } from './components/liquidation-risk';
 import { TradeSummary } from './components/trade-summary';
 
@@ -40,7 +43,7 @@ export const TransactionSidebar = ({
   onCancelCallback,
 }: TransactionSidebarProps) => {
   const { state, updateState } = context;
-  const { canSubmit, confirm, tradeType } = state;
+  const { canSubmit, confirm, tradeType, debt, collateral } = state;
   const isBlocked = useGeoipBlock();
   const handleSubmit = useCallback(() => {
     updateState({ confirm: true });
@@ -59,6 +62,18 @@ export const TransactionSidebar = ({
     },
   });
 
+  const getTokenSpecificHelpText = () => {
+    if (debt?.tokenType && collateral?.tokenType) {
+      const CombinedTokenType =
+        `${debt?.tokenType}-${collateral?.tokenType}` as CombinedTokenTypes;
+      return TransactionHeadings[tradeType][CombinedTokenType]
+        ? TransactionHeadings[tradeType][CombinedTokenType]
+        : undefined;
+    } else {
+      return undefined;
+    }
+  };
+
   return confirm ? (
     <Confirmation2
       heading={heading}
@@ -73,7 +88,9 @@ export const TransactionSidebar = ({
       helptext={
         leverageDisabled
           ? errorMessage.geoErrorHeading
-          : helptext || TransactionHeadings[tradeType].helptext
+          : helptext ||
+            getTokenSpecificHelpText() ||
+            TransactionHeadings[tradeType].helptext
       }
       advancedToggle={advancedToggle}
       CustomActionButton={isPortfolio ? undefined : TradeActionButton}

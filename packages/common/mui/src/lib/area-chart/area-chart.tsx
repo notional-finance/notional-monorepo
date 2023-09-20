@@ -55,7 +55,6 @@ export interface AreaChartProps {
   areaChartButtonLabel?: ReactNode;
   barChartButtonLabel?: ReactNode;
   showCartesianGrid?: boolean;
-  condenseXAxisTime?: boolean;
   isMultiChart?: boolean;
   areaLineType?: 'linear' | 'monotone';
   emptyStateMessage?: ReactNode;
@@ -71,7 +70,6 @@ export const AreaChart = ({
   areaChartStyles,
   chartToolTipData,
   showCartesianGrid,
-  condenseXAxisTime,
   areaLineType = 'monotone',
   isMultiChart,
   emptyStateMessage,
@@ -83,10 +81,15 @@ export const AreaChart = ({
 
   const xAxisTickHandler = (v: number, i: number) => {
     let result = '';
-    if (typeof v === 'number') {
-      const showTick = i % 15 === 0;
-      const date = getDateString(v);
-      result = showTick ? date.toUpperCase() : '';
+    if (xAxisTickFormat === 'date') {
+      if (typeof v === 'number') {
+        const showTick = i % 15 === 0;
+        const date = getDateString(v);
+        result = showTick ? date.toUpperCase() : '';
+      }
+    }
+    if (xAxisTickFormat === 'percent') {
+      result = formatNumberAsPercent(v);
     }
     return result;
   };
@@ -122,7 +125,7 @@ export const AreaChart = ({
       >
         <ComposedChart
           data={areaChartData}
-          margin={{ right: 25, left: 25, bottom: 30 }}
+          margin={{ right: 30, left: 20, bottom: 30 }}
         >
           {showCartesianGrid && (
             <CartesianGrid
@@ -163,9 +166,11 @@ export const AreaChart = ({
               fontSize: '12px',
             }}
             interval={0}
-            tickFormatter={condenseXAxisTime ? xAxisTickHandler : undefined}
+            tickFormatter={
+              xAxisTickFormat === 'date' ? xAxisTickHandler : undefined
+            }
             tick={
-              !condenseXAxisTime ? (
+              xAxisTickFormat === 'percent' ? (
                 <XAxisTick xAxisTickFormat={xAxisTickFormat} />
               ) : undefined
             }

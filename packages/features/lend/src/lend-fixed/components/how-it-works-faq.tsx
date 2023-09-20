@@ -90,7 +90,7 @@ export const HowItWorksFaq = ({ tokenSymbol }: HowItWorksFaqProps) => {
           </Box>
           {/* TODO: ADD LINK TO DOCS */}
           <ExternalLink
-            href=""
+            href="https://docs.notional.finance/notional-v3/product-guides/fixed-rate-lending"
             textDecoration
             accent
             style={{

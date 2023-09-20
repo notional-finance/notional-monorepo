@@ -1,16 +1,32 @@
+import { useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Body } from '@notional-finance/mui';
+import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
+import { LiquidityContext } from '../../liquidity-variable/liquidity-variable';
+import {
+  getEtherscanAddressLink,
+  NotionalAddress,
+} from '@notional-finance/util';
 import { RiskFaq } from '../components';
 
 export const useLiquidityFaq = (tokenSymbol: string) => {
-  // TODO: ADD LINKS
+  const selectedNetwork = useSelectedNetwork();
+  const context = useContext(LiquidityContext);
+  const {
+    state: { collateral },
+  } = context;
   const faqHeaderLinks = [
     {
-      href: '',
-      text: <FormattedMessage defaultMessage={'nToken Documentation'} />,
+      href: 'https://docs.notional.finance/notional-v3/product-guides/providing-liquidity',
+      text: (
+        <FormattedMessage defaultMessage={'Provide Liquidity Documentation'} />
+      ),
     },
     {
-      href: '',
+      href:
+        selectedNetwork && collateral?.address
+          ? getEtherscanAddressLink(collateral.address, selectedNetwork)
+          : '',
       text: (
         <FormattedMessage
           defaultMessage={'n{tokenSymbol} Contract'}
@@ -21,7 +37,12 @@ export const useLiquidityFaq = (tokenSymbol: string) => {
       ),
     },
     {
-      href: '',
+      href: selectedNetwork
+        ? getEtherscanAddressLink(
+            NotionalAddress[selectedNetwork],
+            selectedNetwork
+          )
+        : '',
       text: <FormattedMessage defaultMessage={'Notional Contract'} />,
     },
   ];

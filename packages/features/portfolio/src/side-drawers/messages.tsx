@@ -21,10 +21,18 @@ export const messages: Record<PORTFOLIO_ACTIONS, PortfolioMessages> = {
       defaultMessage: 'Enter the amount to deposit',
       description: '',
     },
+    inputLabelTwo: {
+      defaultMessage: 'Choose deposit asset type',
+      description: '',
+    },
   }),
   [PORTFOLIO_ACTIONS.REPAY_DEBT]: defineMessages({
     inputLabel: {
       defaultMessage: 'Enter the amount of fCash to repay',
+      description: '',
+    },
+    inputLabelTwo: {
+      defaultMessage: 'Enter amount of debt to repay',
       description: '',
     },
   }),
@@ -55,6 +63,10 @@ export const messages: Record<PORTFOLIO_ACTIONS, PortfolioMessages> = {
   [PORTFOLIO_ACTIONS.WITHDRAW]: defineMessages({
     inputLabel: {
       defaultMessage: 'Enter the amount to withdraw',
+      description: '',
+    },
+    inputLabelTwo: {
+      defaultMessage: 'Choose asset to withdraw',
       description: '',
     },
     cashWithdrawn: { defaultMessage: 'Cash Withdrawn', description: '' },

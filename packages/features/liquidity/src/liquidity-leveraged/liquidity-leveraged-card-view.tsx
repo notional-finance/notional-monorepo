@@ -77,7 +77,7 @@ export const LiquidityLeveragedCardView = () => {
               description: 'page heading',
             })}
             subtitle={defineMessage({
-              defaultMessage: `Multiple your returns by providing liquidity with leverage. Select your borrow rate and leverage and put on the whole position in one transaction.
+              defaultMessage: `Multiply your returns returns by providing liquidity with leverage. Select your borrow rate and leverage and put on the whole position in one transaction.
               `,
               description: 'page heading subtitle',
             })}
@@ -85,7 +85,7 @@ export const LiquidityLeveragedCardView = () => {
               defaultMessage: 'Read leveraged liquidity docs',
               description: 'docs link',
             })}
-            docsLink="https://docs.notional.finance/notional-v2/what-you-can-do/providing-liquidity"
+            docsLink="https://docs.notional.finance/notional-v3/product-guides/leveraged-liquidity"
             sx={{
               marginBottom: '0px',
             }}

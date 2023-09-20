@@ -39,7 +39,7 @@ export const RiskFaq = () => {
             color: theme.palette.typography.main,
           }}
         >
-          <FormattedMessage defaultMessage={'Migration: '} />
+          <FormattedMessage defaultMessage={'Mitigation: '} />
         </Box>{' '}
         <FormattedMessage
           defaultMessage={
@@ -47,9 +47,8 @@ export const RiskFaq = () => {
           }
         />
       </Body>
-      {/* TODO: Add LINK */}
       <ExternalLink
-        href=""
+        href="https://github.com/notional-finance/contracts-v2/blob/master/audits/README.md"
         textDecoration
         accent
         style={{ display: 'flex', alignItems: 'center' }}
@@ -86,7 +85,7 @@ export const RiskFaq = () => {
             color: theme.palette.typography.main,
           }}
         >
-          <FormattedMessage defaultMessage={'Migration: '} />
+          <FormattedMessage defaultMessage={'Mitigation: '} />
         </Box>{' '}
         <FormattedMessage defaultMessage={'Don’t max out your leverage.'} />
       </Body>
@@ -111,7 +110,7 @@ export const RiskFaq = () => {
             color: theme.palette.typography.main,
           }}
         >
-          <FormattedMessage defaultMessage={'Migration: '} />
+          <FormattedMessage defaultMessage={'Mitigation: '} />
         </Box>{' '}
         <FormattedMessage
           defaultMessage={`Borrow at a fixed rate to avoid unexpected borrow rate spikes.`}

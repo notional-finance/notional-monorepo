@@ -40,7 +40,7 @@ export const DepositCollateral = () => {
       <CollateralSelect
         tightMarginTop
         context={context}
-        inputLabel={messages[PORTFOLIO_ACTIONS.DEPOSIT]['inputLabel']}
+        inputLabel={messages[PORTFOLIO_ACTIONS.DEPOSIT]['inputLabelTwo']}
       />
     </PortfolioSideDrawer>
   );

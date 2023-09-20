@@ -61,9 +61,9 @@ export function getEtherscanTransactionLink(txnHash: string, network?: Network) 
 export function getEtherscanAddressLink(contractAddress: string, network?: Network) {
   switch (network) {
     case Network.Mainnet:
-      return `https://etherscan.io/tx/${contractAddress}`;
+      return `https://etherscan.io/address/${contractAddress}#code`;
     case Network.ArbitrumOne:
-      return `https://arbiscan.io/tx/${contractAddress}`;
+      return `https://arbiscan.io/address/${contractAddress}#code`;
     default:
       return '';
   }

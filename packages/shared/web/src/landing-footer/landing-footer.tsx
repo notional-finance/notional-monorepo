@@ -34,7 +34,7 @@ export const LandingFooter = () => {
               <li>
                 <HeadingSubtitle
                   contrast
-                  href="https://docs.notional.finance/notional-v2/"
+                  href="https://docs.notional.finance/notional-v3"
                 >
                   <FormattedMessage defaultMessage="User Documentation" />
                 </HeadingSubtitle>
@@ -42,7 +42,7 @@ export const LandingFooter = () => {
               <li>
                 <HeadingSubtitle
                   contrast
-                  href="https://docs.notional.finance/developer-documentation/"
+                  href="https://docs.notional.finance/v3-technical-docs/deployed-contracts/notional-v3"
                 >
                   <FormattedMessage defaultMessage="Developer Documentation" />
                 </HeadingSubtitle>
@@ -62,7 +62,7 @@ export const LandingFooter = () => {
               <li>
                 <HeadingSubtitle
                   contrast
-                  href="https://docs.notional.finance/governance"
+                  href="https://docs.notional.finance/v3-risk-parameters/"
                 >
                   <FormattedMessage defaultMessage="Governance Parameters" />
                 </HeadingSubtitle>

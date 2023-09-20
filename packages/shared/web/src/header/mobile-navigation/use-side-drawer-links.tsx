@@ -35,7 +35,7 @@ export const useResourceLinks = () => {
         {
           key: 'user_documentation',
           label: <FormattedMessage defaultMessage={'User Documentation'} />,
-          link: 'https://docs.notional.finance/notional-v2/',
+          link: 'https://docs.notional.finance/notional-v3',
           iconImg: (
             <DocsIcon
               sx={{ color: theme.palette.common.black, fontSize: '1.125rem' }}
@@ -47,7 +47,7 @@ export const useResourceLinks = () => {
           label: (
             <FormattedMessage defaultMessage={'Developer Documentation'} />
           ),
-          link: 'https://docs.notional.finance/developer-documentation/',
+          link: 'https://docs.notional.finance/v3-technical-docs/deployed-contracts/notional-v3',
           iconImg: (
             <DeveloperDocsIcon
               sx={{ color: theme.palette.common.black, fontSize: '1.125rem' }}
@@ -257,7 +257,7 @@ export const useSideDrawerLinks = (dataKey: MOBILE_SUB_NAV_ACTIONS) => {
       {
         key: 'security_audits',
         label: <FormattedMessage defaultMessage={'Security Audits'} />,
-        link: 'https://github.com/notional-finance/contracts-v2/tree/master/audits',
+        link: 'https://github.com/notional-finance/contracts-v2/blob/master/audits/README.md',
         iconImg: (
           <ResourcesIcon
             sx={{ color: theme.palette.common.black, fontSize: '1.125rem' }}

@@ -18,7 +18,7 @@ export const Withdraw = () => {
         tightMarginTop
         isWithdraw
         context={context}
-        inputLabel={messages[PORTFOLIO_ACTIONS.WITHDRAW]['inputLabel']}
+        inputLabel={messages[PORTFOLIO_ACTIONS.WITHDRAW]['inputLabelTwo']}
         filterBalances={(b) =>
           b.isPositive() &&
           (b.tokenType === 'PrimeCash' ||

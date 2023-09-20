@@ -1,5 +1,10 @@
 import { ReactNode } from 'react';
 import { FormattedMessage } from 'react-intl';
+import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
+import {
+  getEtherscanAddressLink,
+  NotionalAddress,
+} from '@notional-finance/util';
 import { RiskFaq } from '../components';
 
 interface FaqProps {
@@ -9,27 +14,21 @@ interface FaqProps {
 }
 
 export const useLendLeveragedFaq = (tokenSymbol?: string) => {
-  // TODO: ADD LINKS
+  const selectedNetwork = useSelectedNetwork();
   const faqHeaderLinks = [
     {
-      href: '',
+      href: 'https://docs.notional.finance/notional-v3/product-guides/leveraged-lending',
       text: (
-        <FormattedMessage defaultMessage={'Variable Lending Documentation'} />
+        <FormattedMessage defaultMessage={'Leveraged Lending Documentation'} />
       ),
     },
     {
-      href: '',
-      text: (
-        <FormattedMessage
-          defaultMessage={'Prime {tokenSymbol} Contract'}
-          values={{
-            tokenSymbol,
-          }}
-        />
-      ),
-    },
-    {
-      href: '',
+      href: selectedNetwork
+        ? getEtherscanAddressLink(
+            NotionalAddress[selectedNetwork],
+            selectedNetwork
+          )
+        : '',
       text: <FormattedMessage defaultMessage={'Notional Contract'} />,
     },
   ];
