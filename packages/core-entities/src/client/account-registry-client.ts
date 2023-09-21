@@ -6,6 +6,7 @@ import {
 import {
   AggregateCall,
   NO_OP,
+  aggregate,
   getMulticall,
 } from '@notional-finance/multicall';
 import {
@@ -42,6 +43,10 @@ import {
 import { ClientRegistry } from './client-registry';
 // eslint-disable-next-line @nrwl/nx/enforce-module-boundaries
 import { BalanceSnapshot, ProfitLossLineItem, Token } from '../.graphclient';
+
+const USE_CROSS_FETCH =
+  process.env['NX_USE_CROSS_FETCH'] === 'true' ||
+  process.env['NODE_ENV'] === 'test';
 
 export enum AccountFetchMode {
   // Used for the frontend UI, will fetch data for a single account direct from
@@ -605,34 +610,79 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
 
   private async _fetchBatchAccounts(network: Network) {
     const { AllAccountsDocument } = await loadGraphClientDeferred();
-    return fetchUsingGraph(network, AllAccountsDocument, (r) => {
-      return r.accounts.reduce((o, a) => {
-        const acct = {
-          address: a.id,
-          network,
-          systemAccountType: a.systemAccountType,
-          balances:
-            a.balances?.map((b) =>
-              TokenBalance.fromID(b.current.currentBalance, b.token.id, network)
-            ) || [],
-          balanceStatement: a.balances
-            ?.filter((b) => !!b.token.underlying)
-            .map((b) =>
-              this._parseCurrentBalanceStatement(
-                b.current as BalanceSnapshot,
-                b.token as Token,
-                network
-              )
-            ),
-          accountHistory:
-            a.profitLossLineItems?.map((p) =>
-              this._parseTransactionHistory(p as ProfitLossLineItem, network)
-            ) || [],
-        } as AccountDefinition;
+    const accounts = await fetchUsingGraph(
+      network,
+      AllAccountsDocument,
+      (r) => {
+        return r.accounts.reduce((o, a) => {
+          const acct = {
+            address: a.id,
+            network,
+            systemAccountType: a.systemAccountType,
+            balances:
+              a.balances?.map((b) =>
+                TokenBalance.fromID(
+                  b.current.currentBalance,
+                  b.token.id,
+                  network
+                )
+              ) || [],
+            balanceStatement: a.balances
+              ?.filter((b) => !!b.token.underlying)
+              .map((b) =>
+                this._parseCurrentBalanceStatement(
+                  b.current as BalanceSnapshot,
+                  b.token as Token,
+                  network
+                )
+              ),
+            accountHistory:
+              a.profitLossLineItems?.map((p) =>
+                this._parseTransactionHistory(p as ProfitLossLineItem, network)
+              ) || [],
+          } as AccountDefinition;
 
-        return Object.assign(o, { [a.id]: acct });
-      }, {} as Record<string, AccountDefinition>);
+          return Object.assign(o, { [a.id]: acct });
+        }, {} as Record<string, AccountDefinition>);
+      }
+    );
+
+    const provider = getProviderFromNetwork(network, !USE_CROSS_FETCH);
+    const nowSeconds = getNowSeconds();
+    const notional = new Contract(
+      NotionalAddress[network],
+      NotionalV3ABI,
+      provider
+    ) as NotionalV3;
+
+    const { results: noteClaims } = await aggregate<TokenBalance>(
+      accounts.values.map(([a]) => {
+        return {
+          target: notional,
+          method: 'nTokenGetClaimableIncentives',
+          args: [a, nowSeconds + 100],
+          key: a,
+          transform: (
+            r: Awaited<ReturnType<NotionalV3['nTokenGetClaimableIncentives']>>
+          ) => {
+            return TokenBalance.fromID(r, 'NOTE', Network.All);
+          },
+        };
+      }),
+      provider
+    );
+
+    Object.entries(noteClaims).forEach(([acct, currentNOTE]) => {
+      const definition = accounts.values.find(([a]) => a === acct);
+      if (definition && definition[1]) {
+        definition[1].noteClaim = {
+          currentNOTE,
+          noteAccruedPerSecond: currentNOTE.copy(0),
+        };
+      }
     });
+
+    return accounts;
   }
 
   private _parseCurrentBalanceStatement(
