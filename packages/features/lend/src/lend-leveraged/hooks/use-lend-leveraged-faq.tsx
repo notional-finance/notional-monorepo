@@ -1,11 +1,12 @@
 import { ReactNode } from 'react';
+import { Box, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 import {
   getEtherscanAddressLink,
   NotionalAddress,
 } from '@notional-finance/util';
-import { RiskFaq } from '../components';
+import { RiskFaq, FCashExample } from '../components';
 
 interface FaqProps {
   question: ReactNode;
@@ -14,6 +15,7 @@ interface FaqProps {
 }
 
 export const useLendLeveragedFaq = (tokenSymbol?: string) => {
+  const theme = useTheme();
   const selectedNetwork = useSelectedNetwork();
   const faqHeaderLinks = [
     {
@@ -36,54 +38,90 @@ export const useLendLeveragedFaq = (tokenSymbol?: string) => {
     {
       question: (
         <FormattedMessage
-          defaultMessage={
-            'What is Prime {tokenSymbol} and Prime {tokenSymbol} Debt?'
-          }
+          defaultMessage={'What is f{tokenSymbol}?'}
           description={'faq question'}
           values={{
             tokenSymbol,
           }}
         />
       ),
-      answer: (
-        <FormattedMessage
-          defaultMessage={`Prime {tokenSymbol} is {tokenSymbol} that is being lent on Notional’s variable rate {tokenSymbol} lending market. Prime {tokenSymbol} debt is {tokenSymbol} that is being borrowed form the variable rate {tokenSymbol} lending market.`}
-          description={'faq answer'}
-          values={{
-            tokenSymbol,
-          }}
-        />
-      ),
+      componentAnswer: tokenSymbol ? (
+        <FCashExample tokenSymbol={tokenSymbol} />
+      ) : null,
     },
 
     {
       question: (
         <FormattedMessage
-          defaultMessage={'Where does the yield come from?'}
+          defaultMessage={'What happens at maturity?'}
           description={'faq question'}
         />
       ),
       answer: (
         <FormattedMessage
-          defaultMessage={`Lenders earn yield by lending their funds to over-collateralized borrowers. Any funds that aren’t being utilized by borrowers on Notional can be deposited on external money markets to generate additional yield.`}
+          defaultMessage={`At maturity, your f{tokenSymbol} will automatically net off against your variable rate position. You will be left with a variable rate lending position equal to your initial capital + any profit or loss.`}
+          values={{
+            tokenSymbol,
+          }}
         />
       ),
     },
     {
       question: (
         <FormattedMessage
-          defaultMessage={'Why is the Prime {tokenSymbol} debt APY so high?'}
+          defaultMessage={'Can I exit early?'}
           description={'faq question'}
-          values={{
-            tokenSymbol,
-          }}
         />
       ),
       answer: (
+        <>
+          <Box sx={{ marginBottom: theme.spacing(2) }}>
+            <FormattedMessage
+              defaultMessage={`Yes. You can can deleverage and exit in one transaction by trading your f{tokenSymbol} on an active fixed rate liquidity pool and then using the {tokenSymbol} you receive to repay your debt.`}
+              description={'faq answer'}
+              values={{
+                tokenSymbol,
+              }}
+            />
+          </Box>
+          <Box sx={{ marginBottom: theme.spacing(2) }}>
+            <FormattedMessage
+              defaultMessage={`f{tokenSymbol} on the three month or six month maturity will always be liquid, but f{tokenSymbol} on the one year maturity will be illiquid for a period of three months and you would not be able to exit during this time.`}
+              description={'faq answer'}
+              values={{
+                tokenSymbol,
+              }}
+            />
+          </Box>
+        </>
+      ),
+    },
+    {
+      question: (
         <FormattedMessage
-          defaultMessage={`Variable rate borrowers on Notional are willing to pay high rates to use Notional’s leveraged vaults. Leveraged vaults allow advanced DeFi users to get Leverage for whitelisted, over-collateralized DeFi yield strategies. This pushes the borrowing rate up and drives high returns for lenders.`}
-          description={'faq answer'}
+          defaultMessage={'Is there a cost to exit?'}
+          description={'faq question'}
         />
+      ),
+
+      answer: (
+        <>
+          <Box sx={{ marginBottom: theme.spacing(2) }}>
+            <FormattedMessage
+              defaultMessage={`If you exit after maturity there is no cost. If you exit before maturity, you will pay a transaction fee when you trade your f{tokenSymbol} on the liquidity pool.`}
+              description={'faq answer'}
+              values={{
+                tokenSymbol,
+              }}
+            />
+          </Box>
+          <Box sx={{ marginBottom: theme.spacing(2) }}>
+            <FormattedMessage
+              defaultMessage={`The transaction cost you pay depends on the level of interest rates and the time to maturity. The higher the interest rate or the longer the time to maturity, the larger the fee. The lower the interest rate or the closer to maturity, the smaller the fee.`}
+              description={'faq answer'}
+            />
+          </Box>
+        </>
       ),
     },
     {
@@ -94,7 +132,7 @@ export const useLendLeveragedFaq = (tokenSymbol?: string) => {
         />
       ),
 
-      componentAnswer: <RiskFaq />,
+      componentAnswer: <RiskFaq tokenSymbol={tokenSymbol} />,
     },
   ];
 

@@ -1,6 +1,7 @@
 import { useContext } from 'react';
+import { useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
-import { Body } from '@notional-finance/mui';
+import { Body, ExternalLink } from '@notional-finance/mui';
 import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 import { LeveragedLiquidityContext } from '../../liquidity-leveraged/liquidity-leveraged';
 import {
@@ -10,6 +11,7 @@ import {
 import { RiskFaq } from '../components';
 
 export const useLiquidityFaq = (tokenSymbol: string) => {
+  const theme = useTheme();
   const selectedNetwork = useSelectedNetwork();
   const context = useContext(LeveragedLiquidityContext);
   const {
@@ -17,7 +19,7 @@ export const useLiquidityFaq = (tokenSymbol: string) => {
   } = context;
   const faqHeaderLinks = [
     {
-      href: 'https://docs.notional.finance/notional-v3/product-guides/leveraged-liquidity ',
+      href: 'https://docs.notional.finance/notional-v3/product-guides/leveraged-liquidity',
       text: (
         <FormattedMessage
           defaultMessage={'Leveraged Liquidity Documentation'}
@@ -52,16 +54,6 @@ export const useLiquidityFaq = (tokenSymbol: string) => {
     {
       question: (
         <FormattedMessage
-          defaultMessage={'What are the risks?'}
-          description={'faq question'}
-        />
-      ),
-      componentAnswer: <RiskFaq tokenSymbol={tokenSymbol} />,
-    },
-
-    {
-      question: (
-        <FormattedMessage
           defaultMessage={'What is n{tokenSymbol}?'}
           description={'faq question'}
           values={{
@@ -70,9 +62,46 @@ export const useLiquidityFaq = (tokenSymbol: string) => {
         />
       ),
       answer: (
+        <>
+          <FormattedMessage
+            defaultMessage={
+              'n{tokenSymbol} is an ERC20 token that automates providing liquidity to all of Notional’s {tokenSymbol} fixed rates liquidity pools at once.'
+            }
+            values={{
+              tokenSymbol,
+            }}
+          />
+          <FormattedMessage
+            defaultMessage={
+              'Learn more about n{tokenSymbol}, how it works, and how it earns returns on the <a1>provide liquidity page.</a1>'
+            }
+            values={{
+              tokenSymbol,
+              a1: (msg: React.ReactNode) => (
+                <ExternalLink
+                  accent
+                  textDecoration
+                  href="https://docs.notional.finance/notional-v3/trading-fcash/exiting-early"
+                >
+                  {msg}
+                </ExternalLink>
+              ),
+            }}
+          />
+        </>
+      ),
+    },
+    {
+      question: (
+        <FormattedMessage
+          defaultMessage={'How do I exit my position?'}
+          description={'faq question'}
+        />
+      ),
+      answer: (
         <FormattedMessage
           defaultMessage={
-            'n{tokenSymbol} is a simple and easy way to earn returns from providing liquidity to all fixed rate {tokenSymbol} liquidity pools at once. n{tokenSymbol} is an ERC20 token that automates providing liquidity to give you a fully passive experience. Set, forget, and earn rewards!'
+            'Users can deleverage and exit in one transaction by redeeming their n{tokenSymbol} to {tokenSymbol} and then using that {tokenSymbol} to repay their debt.'
           }
           values={{
             tokenSymbol,
@@ -83,137 +112,45 @@ export const useLiquidityFaq = (tokenSymbol: string) => {
     {
       question: (
         <FormattedMessage
-          defaultMessage={'Where do n{tokenSymbol} returns come from?'}
+          defaultMessage={'Is there a cost to exit?'}
           description={'faq question'}
-          values={{
-            tokenSymbol,
-          }}
         />
       ),
       componentAnswer: (
-        <div>
-          <Body>
-            <FormattedMessage
-              defaultMessage={'n{tokenSymbol} earns returns in three ways:'}
-              values={{
-                tokenSymbol,
-              }}
-            />
-          </Body>
-          <Body>
-            •{' '}
+        <>
+          <Body sx={{ marginBottom: theme.spacing(2) }}>
             <FormattedMessage
               defaultMessage={
-                'Interest accrual on Prime {tokenSymbol} and f{tokenSymbol}'
+                'There is no cost to provide liquidity and mint n{tokenSymbol}, but there is a cost when you redeem your n{tokenSymbol} to {tokenSymbol}.'
               }
+              description={'faq answer'}
               values={{
                 tokenSymbol,
               }}
             />
           </Body>
           <Body>
-            •{' '}
             <FormattedMessage
               defaultMessage={
-                'f{tokenSymbol} Transaction fees any time a user borrows or lends at a fixed rate'
+                'The redemption cost depends on n{tokenSymbol}’s utilization. The higher {tokenSymbol} fixed interest rates, the higher n{tokenSymbol}’s utilization and the greater the redemption cost.'
               }
+              description={'faq answer'}
               values={{
                 tokenSymbol,
               }}
             />
           </Body>
-          <Body>
-            • <FormattedMessage defaultMessage={'NOTE incentives'} />
-          </Body>
-        </div>
+        </>
       ),
     },
     {
       question: (
         <FormattedMessage
-          defaultMessage={'Is n{tokenSymbol} Redeemable?'}
-          description={'faq question'}
-          values={{
-            tokenSymbol,
-          }}
-        />
-      ),
-
-      componentAnswer: (
-        <div>
-          <Body>
-            <FormattedMessage
-              defaultMessage={
-                'n{tokenSymbol} can always be redeemable for {tokenSymbol} except when utilization on Notional’s lending markets is very high.'
-              }
-              description={'faq answer'}
-              values={{
-                tokenSymbol,
-              }}
-            />
-          </Body>
-          <br />
-          <Body>
-            <FormattedMessage
-              defaultMessage={
-                'When utilization is too high, n{tokenSymbol} can be redeemed for a proportional share of the Prime {tokenSymbol} and f{tokenSymbol} held in the n{tokenSymbol} account.'
-              }
-              description={'faq answer'}
-              values={{
-                tokenSymbol,
-              }}
-            />
-          </Body>
-        </div>
-      ),
-    },
-    {
-      question: (
-        <FormattedMessage
-          defaultMessage={'What is Leverage Mode?'}
+          defaultMessage={'What are the risks?'}
           description={'faq question'}
         />
       ),
-
-      componentAnswer: (
-        <div>
-          <Body>
-            <FormattedMessage
-              defaultMessage={
-                'Leverage mode makes it easy to borrow against your n{tokenSymbol} at a fixed or variable rate in order to provide more n{tokenSymbol} in a single transaction.'
-              }
-              description={'faq answer'}
-              values={{
-                tokenSymbol,
-              }}
-            />
-          </Body>
-          <br />
-          <Body>
-            <FormattedMessage
-              defaultMessage={
-                'Using leverage can increase your yield if the n{tokenSymbol} APY is greater than the borrow rate.'
-              }
-              description={'faq answer'}
-              values={{
-                tokenSymbol,
-              }}
-            />
-          </Body>
-          <br />
-          <Body>
-            <FormattedMessage
-              defaultMessage={
-                'But leverage also includes liquidation risk. The n{tokenSymbol} price is stable, but it can temporarily decrease due to IL. So if you decide to use leverage, be careful.'
-              }
-              description={'faq answer'}
-              values={{
-                tokenSymbol,
-              }}
-            />
-          </Body>
-        </div>
-      ),
+      componentAnswer: <RiskFaq tokenSymbol={tokenSymbol} />,
     },
   ];
 

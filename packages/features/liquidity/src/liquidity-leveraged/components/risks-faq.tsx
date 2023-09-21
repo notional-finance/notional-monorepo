@@ -97,7 +97,7 @@ export const RiskFaq = ({ tokenSymbol }: RiskFaqProps) => {
       </H5>
       <Body sx={{ marginBottom: theme.spacing(2) }}>
         <FormattedMessage
-          defaultMessage={`As fixed interest rates move, n{tokenSymbol} can become a fixed rate borrower or a fixed rate lender. Changes in n{tokenSymbol}’s borrowing and lending positions can affect the n{tokenSymbol}/{tokenSymbol} price.`}
+          defaultMessage={`Changes in {tokenSymbol} fixed interest rates can lead to price declines for n{tokenSymbol} due to IL. n{tokenSymbol} price declines can cause losses and lead to liquidation depending on the amount of leverage used.`}
           values={{
             tokenSymbol,
           }}

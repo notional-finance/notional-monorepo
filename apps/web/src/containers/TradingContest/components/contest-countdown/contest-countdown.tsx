@@ -77,6 +77,7 @@ const CountDownContainer = styled(Box)(
     color: ${colors.white};
     display: flex;
     justify-content: space-between;
+    align-items: center;
     font-size: 36px;
     font-style: normal;
     font-weight: 400;

@@ -5,7 +5,7 @@ import {
   BarChartIcon,
   BarChartLateralIcon,
   BarCharLightningIcon,
-  StakeIcon,
+  // StakeIcon,
   VaultIcon,
 } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
@@ -90,25 +90,25 @@ export const useInvestEarnLinks = () => {
       ),
       external: false,
     },
-    {
-      title: <FormattedMessage defaultMessage={'NOTE Staking'} />,
-      to: '/stake',
-      icon: (
-        <StakeIcon
-          sx={{
-            fontSize: theme.spacing(3),
-            stroke: theme.palette.common.black,
-            fill: 'transparent',
-          }}
-        />
-      ),
-      description: (
-        <FormattedMessage
-          defaultMessage={'Stake NOTE and earn protocol revenues.'}
-        />
-      ),
-      external: false,
-    },
+    // {
+    //   title: <FormattedMessage defaultMessage={'NOTE Staking'} />,
+    //   to: '/stake',
+    //   icon: (
+    //     <StakeIcon
+    //       sx={{
+    //         fontSize: theme.spacing(3),
+    //         stroke: theme.palette.common.black,
+    //         fill: 'transparent',
+    //       }}
+    //     />
+    //   ),
+    //   description: (
+    //     <FormattedMessage
+    //       defaultMessage={'Stake NOTE and earn protocol revenues.'}
+    //     />
+    //   ),
+    //   external: false,
+    // },
   ];
 
   const highYieldLinks: SectionLinkProps[] = [

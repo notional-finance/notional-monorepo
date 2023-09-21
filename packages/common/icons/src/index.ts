@@ -51,6 +51,7 @@ export * from './lib/developer-docs-icon/developer-docs-icon';
 export * from './lib/defi-Llama-icon/defi-Llama-icon';
 export * from './lib/dune-icon/dune-icon';
 export * from './lib/forum-icon/forum-icon';
+export * from './lib/equals-icon/equals-icon';
 export * from './lib/four-square-icon/four-square-icon';
 export * from './lib/gear-icon/gear-icon';
 export * from './lib/google-cal-icon/google-cal-icon';

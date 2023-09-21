@@ -1,6 +1,7 @@
 import { Body, ExternalLink, H5 } from '@notional-finance/mui';
 import { ExternalLinkIcon } from '@notional-finance/icons';
 import { Box, useTheme, styled } from '@mui/material';
+import { FCashExample } from './fcash-example';
 import { FormattedMessage } from 'react-intl';
 
 interface HowItWorksFaqProps {
@@ -24,15 +25,12 @@ export const HowItWorksFaq = ({ tokenSymbol }: HowItWorksFaqProps) => {
           >
             <BodyText>
               <FormattedMessage
-                defaultMessage={`A Leveraged liquidity transaction allows you to provide liquidity, borrow against that liquidity, and then provide more liquidity.`}
-                values={{
-                  tokenSymbol,
-                }}
+                defaultMessage={`A leveraged lend is an interest rate arbitrage position that borrows from one maturity and lends to a different maturity.`}
               />
             </BodyText>
             <BodyText>
               <FormattedMessage
-                defaultMessage={`Leveraged liquidity allows you to earn the spread between the liquidity yield and the borrow rate that you choose.`}
+                defaultMessage={`A leveraged lend either borrows variable and lends fixed, or lends variable and borrows fixed. The variable rate loan comes from Notional’s variable rate lending market and the fixed rate loan comes from buying or selling f{tokenSymbol}.`}
                 values={{
                   tokenSymbol,
                 }}
@@ -47,28 +45,13 @@ export const HowItWorksFaq = ({ tokenSymbol }: HowItWorksFaqProps) => {
               }}
             >
               <FormattedMessage
-                defaultMessage={`What is n{tokenSymbol}?`}
+                defaultMessage={`What is f{tokenSymbol}?`}
                 values={{
                   tokenSymbol,
                 }}
               />
             </H5>
-            <BodyText>
-              <FormattedMessage
-                defaultMessage={`n{tokenSymbol} is the token you receive when you provide {tokenSymbol} liquidity. n{tokenSymbol} automates providing liquidity to all of Notional’s {tokenSymbol} fixed rate liquidity pools.`}
-                values={{
-                  tokenSymbol,
-                }}
-              />
-            </BodyText>
-            <BodyText>
-              <FormattedMessage
-                defaultMessage={`n{tokenSymbol} gives you a passive return from interest accrual on assets in the fixed rate liquidity pools, transaction fees, and NOTE incentives.`}
-                values={{
-                  tokenSymbol,
-                }}
-              />
-            </BodyText>
+            <FCashExample tokenSymbol={tokenSymbol} />
             <H5
               sx={{
                 color: theme.palette.typography.main,
@@ -78,15 +61,16 @@ export const HowItWorksFaq = ({ tokenSymbol }: HowItWorksFaqProps) => {
               }}
             >
               <FormattedMessage
-                defaultMessage={`n{tokenSymbol} / {tokenSymbol} Price Risk`}
+                defaultMessage={`f{tokenSymbol} / {tokenSymbol} Price Risk`}
                 values={{
                   tokenSymbol,
                 }}
               />
             </H5>
+
             <BodyText>
               <FormattedMessage
-                defaultMessage={`The n{tokenSymbol} / {tokenSymbol} price gradually increases as n{tokenSymbol} accrues interest and earns fees. However, because n{tokenSymbol} is providing liquidity to fixed rate liquidity pools, it can also have IL as fixed interest rates move.`}
+                defaultMessage={`The f{tokenSymbol} / {tokenSymbol} price will always equal 1 at maturity. But before maturity, this price can fluctuate.`}
                 values={{
                   tokenSymbol,
                 }}
@@ -94,15 +78,20 @@ export const HowItWorksFaq = ({ tokenSymbol }: HowItWorksFaqProps) => {
             </BodyText>
             <BodyText>
               <FormattedMessage
-                defaultMessage={`The more fixed rates move, the larger the potential IL hit for the n{tokenSymbol} / {tokenSymbol} price. n{tokenSymbol} IL is generally very low, but it can cause liquidation for highly leveraged liquidity positions.`}
+                defaultMessage={`When the fixed rate increases, the f{tokenSymbol} / {tokenSymbol} price decreases. When the fixed rate decreases, the f{tokenSymbol} / {tokenSymbol} price increases.`}
                 values={{
                   tokenSymbol,
                 }}
+              />
+            </BodyText>
+            <BodyText>
+              <FormattedMessage
+                defaultMessage={`This can cause unrealized profit or loss for leveraged lending positions and potentially even liquidation.`}
               />
             </BodyText>
           </Box>
           <ExternalLink
-            href="https://docs.notional.finance/notional-v3/product-guides/leveraged-liquidity"
+            href="https://docs.notional.finance/notional-v3/product-guides/leveraged-lending"
             textDecoration
             accent
             style={{
@@ -112,7 +101,7 @@ export const HowItWorksFaq = ({ tokenSymbol }: HowItWorksFaqProps) => {
             }}
           >
             <FormattedMessage
-              defaultMessage={'Leveraged Liquidity Documentation'}
+              defaultMessage={'Leveraged Lending Documentation'}
             />
             <ExternalLinkIcon
               sx={{ fontSize: '12px', marginLeft: theme.spacing(0.5) }}

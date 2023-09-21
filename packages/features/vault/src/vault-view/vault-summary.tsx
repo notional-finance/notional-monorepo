@@ -165,7 +165,7 @@ export const VaultSummary = () => {
                 columns={columns}
               />
             </Box>
-            <Box id={VAULT_SUB_NAV_ACTIONS.MARKET_RETURNS}>
+            <Box id={VAULT_SUB_NAV_ACTIONS.RETURN_DRIVERS}>
               <DataTable
                 data={returnDrivers}
                 columns={tableColumns}

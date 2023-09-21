@@ -88,7 +88,6 @@ export const HowItWorksFaq = ({ tokenSymbol }: HowItWorksFaqProps) => {
               />
             </Body>
           </Box>
-          {/* TODO: ADD LINK TO DOCS */}
           <ExternalLink
             href="https://docs.notional.finance/notional-v3/product-guides/fixed-rate-lending"
             textDecoration

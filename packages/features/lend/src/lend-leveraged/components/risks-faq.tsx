@@ -3,7 +3,11 @@ import { FormattedMessage } from 'react-intl';
 import { ExternalLinkIcon } from '@notional-finance/icons';
 import { ExternalLink, Body, H5 } from '@notional-finance/mui';
 
-export const RiskFaq = () => {
+interface RiskFaqProps {
+  tokenSymbol?: string;
+}
+
+export const RiskFaq = ({ tokenSymbol }: RiskFaqProps) => {
   const theme = useTheme();
   return (
     <Box>
@@ -82,6 +86,43 @@ export const RiskFaq = () => {
           defaultMessage={
             'Conservative Risk parameters and significant liquidation discounts mean prompt liquidations and low probability of insolvency.'
           }
+        />
+      </Body>
+      <H5
+        sx={{
+          color: theme.palette.typography.main,
+          marginTop: theme.spacing(2),
+          marginBottom: theme.spacing(2),
+        }}
+      >
+        <FormattedMessage defaultMessage={'Price Risk'} />
+      </H5>
+      <Body sx={{ marginBottom: theme.spacing(2) }}>
+        <FormattedMessage
+          defaultMessage={
+            'Changes in {tokenSymbol} fixed interest rates can lead to price declines for f{tokenSymbol}. f{tokenSymbol} price declines can cause losses and lead to liquidation depending on the amount of leverage used.'
+          }
+          values={{
+            tokenSymbol,
+          }}
+        />
+      </Body>
+      <Body>
+        <Box
+          component={'span'}
+          sx={{
+            color: theme.palette.typography.main,
+          }}
+        >
+          <FormattedMessage defaultMessage={'Mitigation: '} />
+        </Box>{' '}
+        <FormattedMessage
+          defaultMessage={
+            'Bounded fixed interest rate ranges limit potential f{tokenSymbol} price declines.'
+          }
+          values={{
+            tokenSymbol,
+          }}
         />
       </Body>
     </Box>

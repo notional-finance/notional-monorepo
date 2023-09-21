@@ -36,7 +36,11 @@ export const PendingTransaction = ({
             rel="noreferrer"
             className="etherscan-link"
           >
-            <FormattedMessage defaultMessage={'View on Etherscan'} />
+            {selectedNetwork === 'arbitrum' ? (
+              <FormattedMessage defaultMessage={'View on Arbiscan'} />
+            ) : (
+              <FormattedMessage defaultMessage={'View on Etherscan'} />
+            )}
             <ExternalLinkIcon
               sx={{ marginLeft: '0.25rem', height: '1rem', marginTop: '-1px' }}
               fill={theme.palette.primary.main}
@@ -54,7 +58,11 @@ export const PendingTransaction = ({
             rel="noreferrer"
             className="etherscan-link"
           >
-            <FormattedMessage defaultMessage={'View on Etherscan'} />
+            {selectedNetwork === 'arbitrum' ? (
+              <FormattedMessage defaultMessage={'View on Arbiscan'} />
+            ) : (
+              <FormattedMessage defaultMessage={'View on Etherscan'} />
+            )}
             <ExternalLinkIcon
               sx={{ marginLeft: '0.25rem', height: '1rem', marginTop: '-1px' }}
               fill={theme.palette.primary.main}
