@@ -223,7 +223,10 @@ export default abstract class BaseLiquidityPool<
       // In a single sided exit, do a binary search for the amount of LP tokens required
       // to exit the pool
       const amountOutRequired = tokensOut[singleSidedExitTokenIndex];
-      const lpRequiredInRP = this.getLPTokenSpotValue(singleSidedExitTokenIndex)
+      const lpRequiredInRP = this.getLPTokenOracleValue(
+        this.oneLPToken(),
+        singleSidedExitTokenIndex
+      )
         .scaleTo(RATE_DECIMALS)
         .toNumber();
 

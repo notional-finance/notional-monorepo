@@ -28,7 +28,7 @@ export const messages: Record<PORTFOLIO_ACTIONS, PortfolioMessages> = {
   }),
   [PORTFOLIO_ACTIONS.REPAY_DEBT]: defineMessages({
     inputLabel: {
-      defaultMessage: 'Enter the amount of fCash to repay',
+      defaultMessage: 'Choose the debt to repay',
       description: '',
     },
     inputLabelTwo: {

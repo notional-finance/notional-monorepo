@@ -84,13 +84,7 @@ export const AssetInput = React.forwardRef<
       availableTokens = [selectedToken];
 
     const { inputAmount, maxBalanceString, errorMsg, setInputString } =
-      useAssetInput(
-        selectedToken,
-        debtOrCollateral === 'Debt',
-        tradeType === 'RollDebt' ||
-          tradeType === 'ConvertAsset' ||
-          tradeType === 'Deleverage'
-      );
+      useAssetInput(selectedToken, debtOrCollateral === 'Debt');
 
     const {
       hasUserTouched,

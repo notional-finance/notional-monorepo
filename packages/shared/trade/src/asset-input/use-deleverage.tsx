@@ -2,7 +2,7 @@ import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
 import { formatTokenType } from '@notional-finance/helpers';
 import { CurrencyInputHandle } from '@notional-finance/mui';
 import { BaseTradeState } from '@notional-finance/notionable';
-import { useAccountDefinition } from '@notional-finance/notionable-hooks';
+import { usePortfolioRiskProfile } from '@notional-finance/notionable-hooks';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 export const useDeleverage = (
@@ -20,7 +20,7 @@ export const useDeleverage = (
   debtOrCollateral: 'Debt' | 'Collateral',
   updateState: (args: Partial<BaseTradeState>) => void
 ) => {
-  const { account } = useAccountDefinition();
+  const profile = usePortfolioRiskProfile();
   const [hasUserTouched, setHasUserTouched] = useState(false);
 
   useEffect(() => {
@@ -71,8 +71,10 @@ export const useDeleverage = (
           (inputAmount &&
             computedBalance &&
             inputAmount.abs().eq(computedBalance.abs()))
-        )
+        ) {
           return;
+        }
+
         updateState(
           debtOrCollateral === 'Debt'
             ? {
@@ -99,13 +101,16 @@ export const useDeleverage = (
     if (deleverage) {
       return (
         availableTokens?.map((t) => {
-          const balance = account?.balances.find((b) =>
-            t.tokenType === 'PrimeCash'
-              ? b.tokenType === 'PrimeDebt' && t.currencyId === b.currencyId
-              : t.tokenType === 'PrimeDebt'
-              ? b.tokenType === 'PrimeCash' && t.currencyId === b.currencyId
-              : b.tokenId === t.id
-          );
+          const balance =
+            t?.tokenType === 'PrimeDebt'
+              ? profile.balances
+                  .find(
+                    (b) =>
+                      b.tokenType === 'PrimeCash' &&
+                      b.currencyId === t.currencyId
+                  )
+                  ?.toToken(t)
+              : profile.balances.find((b) => b.tokenId === t?.id);
           const { title } = formatTokenType(t);
 
           return {
@@ -126,7 +131,7 @@ export const useDeleverage = (
     } else {
       return availableTokens?.map((token) => ({ token })) || [];
     }
-  }, [availableTokens, deleverage, account?.balances]);
+  }, [availableTokens, deleverage, profile]);
 
   return {
     options,

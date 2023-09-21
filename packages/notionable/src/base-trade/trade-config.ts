@@ -60,11 +60,15 @@ function offsettingBalance(
     );
   } else if (t.tokenType === 'PrimeCash') {
     return !!account?.balances.find(
-      (b) => b.tokenType === 'PrimeDebt' && b.currencyId === t.currencyId
+      (b) =>
+        b.currencyId === t.currencyId &&
+        (b.tokenType === 'PrimeDebt' || (b.hasMatured && b.isNegative()))
     );
   } else if (t.tokenType === 'PrimeDebt') {
     return !!account?.balances.find(
-      (b) => b.tokenType === 'PrimeCash' && b.currencyId === t.currencyId
+      (b) =>
+        b.currencyId === t.currencyId &&
+        (b.tokenType === 'PrimeCash' || (b.hasMatured && b.isPositive()))
     );
   } else if (t.tokenType === 'nToken') {
     return !!account?.balances.find((b) => b.token.id === t.id);

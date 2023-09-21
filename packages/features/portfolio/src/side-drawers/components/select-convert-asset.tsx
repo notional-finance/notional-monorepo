@@ -114,7 +114,7 @@ export const SelectConvertAsset = ({ context }: SelectConvertAssetProps) => {
           }}
         >
           <ButtonText sx={{ flex: 1 }}>{text}</ButtonText>
-          {!!o.interestRate && (
+          {o.interestRate !== undefined && (
             <ButtonData>{`${formatNumberAsPercent(o.interestRate)} ${
               o.token.tokenType === 'fCash' ? 'Fixed APY' : 'APY'
             }`}</ButtonData>

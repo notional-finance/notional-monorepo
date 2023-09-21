@@ -4,6 +4,7 @@ import {
   filterEmpty,
   IS_TEST_ENV,
   zipByKeyToArray,
+  getNowSeconds,
 } from '@notional-finance/util';
 import {
   Observable,
@@ -18,8 +19,9 @@ import {
   map,
 } from 'rxjs';
 import { selectedAccount, selectedNetwork } from '../../global';
-import { BaseTradeState } from '../base-trade-store';
+import { BaseTradeState, isVaultTrade } from '../base-trade-store';
 import { getTradeConfig } from '../trade-calculation';
+import { AccountRiskProfile } from '@notional-finance/risk-engine';
 
 export function buildTransaction(
   state$: Observable<BaseTradeState>,
@@ -35,11 +37,16 @@ export function buildTransaction(
         s.transactionError === undefined
       ) {
         const config = getTradeConfig(s.tradeType);
+        // Using the risk profile here ensures that we use settled balances
+        const accountBalances = isVaultTrade(s.tradeType)
+          ? a.balances
+          : new AccountRiskProfile(a.balances, a.network).balances;
+
         return from(
           config
             .transactionBuilder({
               ...s,
-              accountBalances: a.balances || [],
+              accountBalances,
               vaultLastUpdateTime: a.vaultLastUpdateTime || {},
               address: a.address,
               network: a.network,
@@ -117,8 +124,17 @@ export function simulateTransaction(
                       calculated.toFloat();
                   abs = simulated.toFloat() - calculated.toFloat();
                 } else if (simulated) {
-                  rel = simulated.toFloat();
-                  abs = simulated.toFloat();
+                  if (
+                    simulated.maturity &&
+                    simulated.maturity < getNowSeconds()
+                  ) {
+                    // This is a matured balance, it should be cleared to zero
+                    rel = 0;
+                    abs = 0;
+                  } else {
+                    rel = simulated.toFloat();
+                    abs = simulated.toFloat();
+                  }
                 } else if (calculated) {
                   rel = calculated.toFloat();
                   abs = calculated.toFloat();
