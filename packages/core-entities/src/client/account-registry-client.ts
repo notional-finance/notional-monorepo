@@ -713,6 +713,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
 
     return {
       token: tokens.getTokenByID(network, tokenId),
+      blockNumber: current.blockNumber,
       underlying: tokens.getTokenByID(network, underlying.id),
       currentBalance: currentStatement.balance,
       adjustedCostBasis: currentStatement.adjustedCostBasis,
@@ -806,6 +807,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
 
     return {
       timestamp: p.timestamp,
+      blockNumber: p.blockNumber,
       token,
       vaultName,
       underlying: Registry.getTokenRegistry().getTokenByID(

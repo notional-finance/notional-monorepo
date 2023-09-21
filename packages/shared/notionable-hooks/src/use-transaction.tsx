@@ -8,6 +8,7 @@ import { map, switchMap } from 'rxjs';
 import { useNotionalContext, useSelectedNetwork } from './use-notional';
 import { useLocation } from 'react-router';
 import { Registry } from '@notional-finance/core-entities';
+import { useAccountDefinition } from './use-account';
 
 export enum TransactionStatus {
   NONE = 'none',
@@ -107,6 +108,24 @@ function usePendingTransaction(hash?: string) {
   const transactionReceipt = hash ? completedTransactions[hash] : undefined;
 
   return { transactionReceipt, reverted: transactionReceipt?.status === 0 };
+}
+
+export function usePendingPnLCalculation() {
+  const {
+    globalState: { sentTransactions, completedTransactions },
+  } = useNotionalContext();
+  const { account } = useAccountDefinition();
+  const hasPending = Object.keys(sentTransactions).length > 0;
+  const mostRecentCompletedBlock = Math.max(
+    ...(Object.entries(completedTransactions).map(
+      ([, tr]) => tr.blockNumber
+    ) || [0])
+  );
+  const latestProcessedTxnBlock = Math.max(
+    ...(account?.accountHistory?.map(({ blockNumber }) => blockNumber) || [0])
+  );
+
+  return hasPending || mostRecentCompletedBlock > latestProcessedTxnBlock;
 }
 
 export function useTransactionStatus() {
