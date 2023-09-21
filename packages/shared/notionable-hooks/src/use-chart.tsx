@@ -17,8 +17,8 @@ function fillChartDaily<T extends { timestamp: number }>(
   const startTS = floorToMidnight(
     Math.min(...data.map(({ timestamp }) => timestamp))
   );
-  const endTS = floorToMidnight(getNowSeconds()) - SECONDS_IN_DAY;
-  const buckets = (endTS - startTS) / SECONDS_IN_DAY;
+  const endTS = floorToMidnight(getNowSeconds());
+  const buckets = (endTS - startTS) / SECONDS_IN_DAY + 1;
 
   // This algorithm ensures that the data is sorted.
   return new Array(buckets).fill(0).map((_, i) => {
