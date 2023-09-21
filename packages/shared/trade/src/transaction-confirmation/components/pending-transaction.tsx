@@ -2,6 +2,7 @@ import { styled, Box, useTheme } from '@mui/material';
 import { ExternalLinkIcon } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
 import { getEtherscanTransactionLink } from '@notional-finance/util';
+import { Network } from '@notional-finance/util';
 import {
   TransactionStatus,
   useSelectedNetwork,
@@ -36,7 +37,11 @@ export const PendingTransaction = ({
             rel="noreferrer"
             className="etherscan-link"
           >
-            <FormattedMessage defaultMessage={'View on Etherscan'} />
+            {selectedNetwork === Network.ArbitrumOne ? (
+              <FormattedMessage defaultMessage={'View on Arbiscan'} />
+            ) : (
+              <FormattedMessage defaultMessage={'View on Etherscan'} />
+            )}
             <ExternalLinkIcon
               sx={{ marginLeft: '0.25rem', height: '1rem', marginTop: '-1px' }}
               fill={theme.palette.primary.main}
@@ -54,7 +59,11 @@ export const PendingTransaction = ({
             rel="noreferrer"
             className="etherscan-link"
           >
-            <FormattedMessage defaultMessage={'View on Etherscan'} />
+            {selectedNetwork === Network.ArbitrumOne ? (
+              <FormattedMessage defaultMessage={'View on Arbiscan'} />
+            ) : (
+              <FormattedMessage defaultMessage={'View on Etherscan'} />
+            )}
             <ExternalLinkIcon
               sx={{ marginLeft: '0.25rem', height: '1rem', marginTop: '-1px' }}
               fill={theme.palette.primary.main}

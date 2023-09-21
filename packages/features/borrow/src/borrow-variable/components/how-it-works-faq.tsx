@@ -65,9 +65,8 @@ export const HowItWorksFaq = () => {
           />
         </BodyText>
       </Box>
-      {/* TODO: ADD LINK TO DOCS */}
       <ExternalLink
-        href=""
+        href="https://docs.notional.finance/notional-v3/product-guides/variable-rate-borrowing"
         textDecoration
         accent
         style={{

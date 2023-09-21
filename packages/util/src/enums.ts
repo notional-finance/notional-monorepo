@@ -42,7 +42,7 @@ export enum MOBILE_SUB_NAV_ACTIONS {
 export enum VAULT_SUB_NAV_ACTIONS {
   OVERVIEW = 'overview',
   MARKET_RETURNS = 'market-returns',
-  YIELD_DRIVERS = 'yeild-drivers',
+  RETURN_DRIVERS = 'return-drivers',
   STRATEGY_DETAILS = 'strategy-details',
   FAQ = 'faq',
   BACK_TO_TOP = 'back-to-top',

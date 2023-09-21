@@ -3,9 +3,14 @@ import { colors } from '@notional-finance/styles';
 import { Button } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
 import { useContestRulesInfo } from '../../hooks';
+import { BETA_ACCESS } from '@notional-finance/notionable';
+import { useNotionalContext } from '@notional-finance/notionable-hooks';
 
 export const ContestRulesInfo = () => {
   const { dataSetOne, dataSetTwo } = useContestRulesInfo();
+  const {
+    globalState: { hasContestNFT },
+  } = useNotionalContext();
 
   return (
     <>
@@ -55,38 +60,32 @@ export const ContestRulesInfo = () => {
             <LineItem>{text}</LineItem>
           </Box>
         ))}
-        <ButtonContainer>
-          <Button
-            size="large"
-            to="/contest-leaderboard"
-            sx={{
-              width: '300px',
-              fontFamily: 'Avenir Next',
-            }}
-          >
-            <FormattedMessage defaultMessage={'View Full Leaderboard'} />
-          </Button>
-          <Button
-            size="large"
-            href="https://form.jotform.com/232396345681160"
-            sx={{
-              width: '300px',
-              fontFamily: 'Avenir Next',
-            }}
-          >
-            <FormattedMessage defaultMessage={'Join Waitlist'} />
-          </Button>
 
-          <Button
-            size="large"
-            sx={{
-              width: '300px',
-              fontFamily: 'Avenir Next',
-            }}
-            to="/contest"
-          >
-            <FormattedMessage defaultMessage={'Contest Home'} />
-          </Button>
+        <ButtonContainer>
+          {hasContestNFT !== BETA_ACCESS.CONFIRMED && (
+            <>
+              <Button
+                size="large"
+                sx={{
+                  width: '300px',
+                  fontFamily: 'Avenir Next',
+                }}
+                to="/contest"
+              >
+                <FormattedMessage defaultMessage={'Contest Home'} />
+              </Button>
+              <Button
+                size="large"
+                to="/contest-leaderboard"
+                sx={{
+                  width: '300px',
+                  fontFamily: 'Avenir Next',
+                }}
+              >
+                <FormattedMessage defaultMessage={'View Full Leaderboard'} />
+              </Button>
+            </>
+          )}
         </ButtonContainer>
       </Container>
     </>

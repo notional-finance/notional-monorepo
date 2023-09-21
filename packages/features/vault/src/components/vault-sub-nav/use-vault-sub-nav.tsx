@@ -10,14 +10,9 @@ export const useVaultSubNav = () => {
       anchor: VAULT_SUB_NAV_ACTIONS.OVERVIEW,
     },
     {
-      label: <FormattedMessage defaultMessage={'Market Returns'} />,
-      key: VAULT_SUB_NAV_ACTIONS.MARKET_RETURNS,
-      anchor: VAULT_SUB_NAV_ACTIONS.MARKET_RETURNS,
-    },
-    {
-      label: <FormattedMessage defaultMessage={'Strategy Details'} />,
-      key: VAULT_SUB_NAV_ACTIONS.STRATEGY_DETAILS,
-      anchor: VAULT_SUB_NAV_ACTIONS.STRATEGY_DETAILS,
+      label: <FormattedMessage defaultMessage={'Return Drivers'} />,
+      key: VAULT_SUB_NAV_ACTIONS.RETURN_DRIVERS,
+      anchor: VAULT_SUB_NAV_ACTIONS.RETURN_DRIVERS,
     },
     {
       label: <FormattedMessage defaultMessage={'FAQs'} />,

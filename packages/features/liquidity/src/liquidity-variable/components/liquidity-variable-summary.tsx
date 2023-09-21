@@ -59,6 +59,7 @@ export const LiquidityVariableSummary = () => {
                 <AreaChart
                   showCartesianGrid
                   xAxisTickFormat="date"
+                  yAxisTickFormat="usd"
                   areaChartData={tvlData}
                   areaLineType="linear"
                 />

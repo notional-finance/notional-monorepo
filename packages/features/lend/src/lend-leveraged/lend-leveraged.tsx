@@ -10,7 +10,7 @@ import {
   createTradeContext,
   useTradeContext,
 } from '@notional-finance/notionable-hooks';
-import { LendLeveragedSidebar } from './components';
+import { LendLeveragedSidebar, HowItWorksFaq } from './components';
 import {
   LiquidationChart,
   PerformanceChart,
@@ -44,6 +44,22 @@ export const LendLeveraged = () => {
           mainContent={
             <TradeActionSummary state={state}>
               <PerformanceChart state={state} />
+              {selectedDepositToken && (
+                <Faq
+                  sx={{ boxShadow: 'none' }}
+                  question={
+                    <FormattedMessage defaultMessage={'How it Works'} />
+                  }
+                  componentAnswer={
+                    <HowItWorksFaq tokenSymbol={selectedDepositToken} />
+                  }
+                  questionDescription={
+                    <FormattedMessage
+                      defaultMessage={'Learn how leveraged lending works.'}
+                    />
+                  }
+                />
+              )}
               <LiquidationChart state={state} />
               <DataTable
                 maxHeight={theme.spacing(40)}

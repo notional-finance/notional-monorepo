@@ -104,9 +104,8 @@ export const HowItWorksFaq = ({ tokenSymbol }: HowItWorksFaqProps) => {
               />
             </Body>
           </Box>
-          {/* TODO: ADD LINK TO DOCS */}
           <ExternalLink
-            href=""
+            href="https://docs.notional.finance/notional-v3/product-guides/providing-liquidity"
             textDecoration
             accent
             style={{
@@ -116,7 +115,7 @@ export const HowItWorksFaq = ({ tokenSymbol }: HowItWorksFaqProps) => {
             }}
           >
             <FormattedMessage
-              defaultMessage={'Fixed Rate Lending Documentation'}
+              defaultMessage={'Provide liquidity documentation'}
             />
             <ExternalLinkIcon
               sx={{ fontSize: '12px', marginLeft: theme.spacing(0.5) }}

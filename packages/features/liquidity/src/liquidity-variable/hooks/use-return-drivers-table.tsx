@@ -94,14 +94,22 @@ export const useReturnDriversTable = () => {
         asset: { label: 'Total' },
         value: {
           data: [
-            fCashData?.totalValueLocked(0).toUnderlying().toDisplayString(),
-            fCashData
-              ?.totalValueLocked(0)
-              .toUnderlying()
-              .toFiat(baseCurrency)
-              .toDisplayStringWithSymbol(),
+            {
+              displayValue: fCashData
+                ?.totalValueLocked(0)
+                .toUnderlying()
+                .toDisplayString(),
+              isNegative: false,
+            },
+            {
+              displayValue: fCashData
+                ?.totalValueLocked(0)
+                .toUnderlying()
+                .toFiat(baseCurrency)
+                .toDisplayStringWithSymbol(),
+              isNegative: false,
+            },
           ],
-          isNegative: false,
         },
         apy: liquidityData?.totalAPY ? liquidityData?.totalAPY : 0,
       },

@@ -60,6 +60,7 @@ export const BorrowVariableTradeSummary = () => {
                   xAxisTickFormat="date"
                   areaChartData={tvlData}
                   areaLineType="linear"
+                  yAxisTickFormat="usd"
                 />
               </ChartContainer>
             ),

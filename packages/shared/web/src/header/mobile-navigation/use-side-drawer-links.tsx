@@ -2,7 +2,7 @@ import {
   PieChartIcon,
   VaultIcon,
   BarChartIcon,
-  StakeIcon,
+  // StakeIcon,
   DocsIcon,
   InsuranceIcon,
   NotionalPlainIcon,
@@ -204,21 +204,21 @@ export const useSideDrawerLinks = (dataKey: MOBILE_SUB_NAV_ACTIONS) => {
           />
         ),
       },
-      {
-        key: 'stake',
-        label: <FormattedMessage defaultMessage={'Stake Note'} />,
-        link: '/stake',
-        iconImg: (
-          <StakeIcon
-            className="color-stroke"
-            sx={{
-              fontSize: '1.125rem',
-              stroke: theme.palette.common.black,
-              fill: 'transparent',
-            }}
-          />
-        ),
-      },
+      // {
+      //   key: 'stake',
+      //   label: <FormattedMessage defaultMessage={'Stake Note'} />,
+      //   link: '/stake',
+      //   iconImg: (
+      //     <StakeIcon
+      //       className="color-stroke"
+      //       sx={{
+      //         fontSize: '1.125rem',
+      //         stroke: theme.palette.common.black,
+      //         fill: 'transparent',
+      //       }}
+      //     />
+      //   ),
+      // },
     ],
     [MOBILE_SUB_NAV_ACTIONS.COMPANY]: [
       {

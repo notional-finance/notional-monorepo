@@ -45,6 +45,16 @@ export const LiquidityLeveragedSummary = () => {
   return (
     <TradeActionSummary state={state}>
       <PerformanceChart state={state} apyChartData={apyChart} />
+      <Faq
+        sx={{ boxShadow: 'none' }}
+        question={<FormattedMessage defaultMessage={'How it Works'} />}
+        componentAnswer={<HowItWorksFaq tokenSymbol={tokenSymbol} />}
+        questionDescription={
+          <FormattedMessage
+            defaultMessage={'Learn how leveraged liquidity works.'}
+          />
+        }
+      />
       <LiquidationChart state={state} />
       <Box marginBottom={theme.spacing(5)}>
         <DataTable
@@ -64,19 +74,6 @@ export const LiquidityLeveragedSummary = () => {
           columns={columns}
         />
       </Box>
-      <Faq
-        sx={{ boxShadow: 'none' }}
-        question={<FormattedMessage defaultMessage={'How it Works'} />}
-        componentAnswer={<HowItWorksFaq tokenSymbol={tokenSymbol} />}
-        questionDescription={
-          <FormattedMessage
-            defaultMessage={'Learn how n{tokenSymbol} works and what it does.'}
-            values={{
-              tokenSymbol,
-            }}
-          />
-        }
-      />
       <Box sx={{ marginTop: theme.spacing(5) }}>
         <FaqHeader
           title={

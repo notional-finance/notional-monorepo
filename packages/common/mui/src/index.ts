@@ -41,7 +41,6 @@ export * from './lib/mini-button/mini-button';
 export * from './lib/multi-display-chart/multi-display-chart';
 export * from './lib/multi-select-dropdown/multi-select-dropdown';
 export * from './lib/page-loading/page-loading';
-export * from './lib/previous-ui-popup/previous-ui-popup';
 export * from './lib/progress-indicator/progress-indicator';
 export * from './lib/section/section';
 export * from './lib/scroll-to-top/scroll-to-top';

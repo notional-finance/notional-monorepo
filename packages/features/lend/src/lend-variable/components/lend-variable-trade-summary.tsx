@@ -61,6 +61,7 @@ export const LendVariableTradeSummary = () => {
                   showCartesianGrid
                   xAxisTickFormat="date"
                   areaChartData={tvlData}
+                  yAxisTickFormat="usd"
                   areaLineType="linear"
                 />
               </ChartContainer>
