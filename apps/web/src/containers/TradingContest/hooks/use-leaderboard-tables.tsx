@@ -27,11 +27,6 @@ export const useLeaderBoardTables = () => {
       accessor: 'totalAPY',
       textAlign: 'right',
     },
-    // {
-    //   Header: 'Leverage',
-    //   accessor: 'leverage',
-    //   textAlign: 'right',
-    // },
     {
       Header: 'Total Deposits',
       accessor: 'totalDeposits',

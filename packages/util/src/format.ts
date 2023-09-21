@@ -15,8 +15,14 @@ export function formatInterestRate(rate?: number, precision = 3) {
 export function leveragedYield(
   strategyAPY: number | undefined,
   borrowAPY: number | undefined,
-  leverageRatio: number
+  leverageRatio: number | null | undefined
 ) {
-  if (strategyAPY === undefined || borrowAPY === undefined) return undefined;
+  if (
+    strategyAPY === undefined ||
+    borrowAPY === undefined ||
+    leverageRatio === undefined ||
+    leverageRatio === null
+  )
+    return undefined;
   return strategyAPY + (strategyAPY - borrowAPY) * leverageRatio;
 }

@@ -1,7 +1,11 @@
 import { Registry, TokenDefinition } from '@notional-finance/core-entities';
 import { useSelectedNetwork } from './use-notional';
 import { floorToMidnight } from '@notional-finance/helpers';
-import { SECONDS_IN_DAY, getNowSeconds } from '@notional-finance/util';
+import {
+  SECONDS_IN_DAY,
+  getNowSeconds,
+  leveragedYield,
+} from '@notional-finance/util';
 
 /** Ensures that chart always has default values throughout the specified range.  */
 function fillChartDaily<T extends { timestamp: number }>(
@@ -83,12 +87,7 @@ export function useLeveragedPerformance(
       return {
         timestamp: d.timestamp,
         strategyReturn: totalAPY,
-        leveragedReturn:
-          borrowRate !== undefined &&
-          leverageRatio !== null &&
-          leverageRatio !== undefined
-            ? totalAPY + (totalAPY - borrowRate) * leverageRatio
-            : undefined,
+        leveragedReturn: leveragedYield(totalAPY, borrowRate, leverageRatio),
       };
     }),
     { strategyReturn: 0, leveragedReturn: undefined }
