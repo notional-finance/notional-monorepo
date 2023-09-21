@@ -87,6 +87,7 @@ export class HistoricalRegistry extends Registry {
           continue;
         }
         env['FAKE_TIME'] = timestamp.toString();
+        env['USE_FAKE_TIME'] = 'true';
 
         await new Promise<void>((resolve) => {
           client.triggerRefresh(network, resolve);
