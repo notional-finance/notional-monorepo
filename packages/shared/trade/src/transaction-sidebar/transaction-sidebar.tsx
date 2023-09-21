@@ -60,7 +60,8 @@ export const TransactionSidebar = ({
   const leverageDisabled = isBlocked && tradeType.includes('Leveraged');
   const errorMessage = defineMessages({
     geoErrorHeading: {
-      defaultMessage: 'Leveraged products are not available in the US',
+      defaultMessage:
+        'Leveraged products are not available in the US or to VPN users',
     },
   });
 

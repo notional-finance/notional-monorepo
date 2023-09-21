@@ -103,7 +103,7 @@ export function TradeActionButton({
       onClick={isAccountReady ? _onSubmit : () => handleConnectWallet()}
     >
       {leverageDisabled ? (
-        <FormattedMessage defaultMessage={'Not Available for US Persons'} />
+        <FormattedMessage defaultMessage={'Not Available for US Persons or VPN Users'} />
       ) : (
         <FormattedMessage
           {...(isAccountReady

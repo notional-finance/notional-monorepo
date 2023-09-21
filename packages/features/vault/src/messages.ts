@@ -308,7 +308,7 @@ export const messages = {
       description: 'error message',
     },
     blockedGeoActionHelptext: {
-      defaultMessage: 'Leveraged products are not available in the US',
+      defaultMessage: 'Leveraged products are not available in the US or to VPN users',
       description: 'error message',
     },
   }),
