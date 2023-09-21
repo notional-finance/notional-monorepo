@@ -1,6 +1,5 @@
 export * from './array-helpers';
 export * from './blog-helpers';
-export * from './error-helpers';
 export * from './i18n-helpers';
 export * from './number-helpers';
 export * from './rpc-helpers';

@@ -3,10 +3,12 @@ import {
   PageLoading,
   ToggleSwitchProps,
 } from '@notional-finance/mui';
-import { TradeContext } from '@notional-finance/notionable-hooks';
+import {
+  TradeContext,
+  useGeoipBlock,
+} from '@notional-finance/notionable-hooks';
 import { useCallback } from 'react';
 import { MessageDescriptor, defineMessages } from 'react-intl';
-import { useGeoipBlock } from '@notional-finance/helpers';
 import TradeActionButton from '../trade-action-button/trade-action-button';
 import Confirmation2 from '../transaction-confirmation/confirmation2';
 import {

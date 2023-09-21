@@ -11,8 +11,8 @@ import { VaultDetailsTable } from './vault-details-table';
 import {
   VaultContext,
   useVaultProperties,
+  useGeoipBlock,
 } from '@notional-finance/notionable-hooks';
-import { useGeoipBlock } from '@notional-finance/helpers';
 import { useVaultCapacity } from '../hooks';
 import { VaultTradeType } from '@notional-finance/notionable';
 import { FormattedMessage } from 'react-intl';
