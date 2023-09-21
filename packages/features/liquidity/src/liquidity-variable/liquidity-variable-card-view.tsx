@@ -48,7 +48,7 @@ export const LiquidityVariableCardView = () => {
       const oneNoteUSD = TokenBalance.unit(NOTE).toFiat(baseCurrency);
       setNotePriceString(`$${oneNoteUSD.toDisplayString()}`);
     }
-  }, [network]);
+  }, [network, baseCurrency]);
 
   return (
     <ThemeProvider theme={themeLanding}>
