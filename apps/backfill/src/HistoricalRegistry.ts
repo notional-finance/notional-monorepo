@@ -88,9 +88,8 @@ export class HistoricalRegistry extends Registry {
         }
         env['FAKE_TIME'] = timestamp.toString();
 
-        console.log('TRIGGERING CLIENT REFERSH', this.tmpDataDirectory);
         await new Promise<void>((resolve) => {
-          client.triggerRefresh(network, resolve, blockNumber);
+          client.triggerRefresh(network, resolve);
           if (route == Routes.Tokens)
             Registry.registerDefaultPoolTokens(network);
         });
