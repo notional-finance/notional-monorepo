@@ -3,10 +3,12 @@ import {
   PageLoading,
   ToggleSwitchProps,
 } from '@notional-finance/mui';
-import { TradeContext } from '@notional-finance/notionable-hooks';
+import {
+  TradeContext,
+  useGeoipBlock,
+} from '@notional-finance/notionable-hooks';
 import { useCallback } from 'react';
 import { MessageDescriptor, defineMessages } from 'react-intl';
-import { useGeoipBlock } from '@notional-finance/helpers';
 import TradeActionButton from '../trade-action-button/trade-action-button';
 import Confirmation2 from '../transaction-confirmation/confirmation2';
 import {
@@ -58,7 +60,8 @@ export const TransactionSidebar = ({
   const leverageDisabled = isBlocked && tradeType.includes('Leveraged');
   const errorMessage = defineMessages({
     geoErrorHeading: {
-      defaultMessage: 'Leveraged products are not available in the US',
+      defaultMessage:
+        'Leveraged products are not available in the US or to VPN users',
     },
   });
 

@@ -36,11 +36,8 @@ export const Incentive = ({
 }: IncentiveVariantProps) => {
   const theme = useTheme();
 
-  const formattedTotalRate = `${formatNumberAsPercent(
-    rate + incentiveRate,
-    2
-  )} APY`;
-  const formattedRate = `${formatNumberAsPercent(rate, 2)} APY`;
+  const formattedTotalRate = `${formatNumberAsPercent(rate, 2)} APY`;
+  const formattedRate = `${formatNumberAsPercent(rate - incentiveRate, 2)} APY`;
   const formattedIncentiveRate = `${formatNumberAsPercent(
     incentiveRate,
     2

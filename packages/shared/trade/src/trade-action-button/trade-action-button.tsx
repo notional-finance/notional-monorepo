@@ -2,9 +2,11 @@ import { defineMessage, FormattedMessage, MessageDescriptor } from 'react-intl';
 import { NotionalTheme } from '@notional-finance/styles';
 import { useTheme, styled } from '@mui/material';
 import { Button } from '@notional-finance/mui';
-import { useAccountReady } from '@notional-finance/notionable-hooks';
+import {
+  useAccountReady,
+  useGeoipBlock,
+} from '@notional-finance/notionable-hooks';
 import { SETTINGS_SIDE_DRAWERS } from '@notional-finance/util';
-import { useGeoipBlock } from '@notional-finance/helpers';
 import {
   useSideDrawerState,
   useSideDrawerManager,
@@ -101,7 +103,7 @@ export function TradeActionButton({
       onClick={isAccountReady ? _onSubmit : () => handleConnectWallet()}
     >
       {leverageDisabled ? (
-        <FormattedMessage defaultMessage={'Not Available for US Persons'} />
+        <FormattedMessage defaultMessage={'Not Available for US Persons or VPN Users'} />
       ) : (
         <FormattedMessage
           {...(isAccountReady

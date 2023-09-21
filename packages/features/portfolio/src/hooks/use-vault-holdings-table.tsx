@@ -24,7 +24,7 @@ import {
   useFiat,
   useAllMarkets,
 } from '@notional-finance/notionable-hooks';
-import { TXN_HISTORY_TYPE } from '@notional-finance/util';
+import { TXN_HISTORY_TYPE, leveragedYield } from '@notional-finance/util';
 import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
 import { VaultAccountRiskProfile } from '@notional-finance/risk-engine';
 import { TokenBalance } from '@notional-finance/core-entities';
@@ -234,8 +234,7 @@ export const useVaultHoldingsTable = () => {
             (d) => d.token.id === v.vaultDebt.unwrapVaultToken().tokenId
           )?.totalAPY || 0;
 
-    const totalAPY =
-      strategyAPY + (strategyAPY - borrowAPY) * (leverageRatio || 0);
+    const totalAPY = leveragedYield(strategyAPY, borrowAPY, leverageRatio || 0);
     return {
       strategy: {
         symbol: formatTokenType(denom).icon,
@@ -250,7 +249,7 @@ export const useVaultHoldingsTable = () => {
       debts: formatCryptoWithFiat(baseCurrency, v.totalDebt()),
       netWorth: formatCryptoWithFiat(baseCurrency, v.netWorth()),
       profit: formatCryptoWithFiat(baseCurrency, profit),
-      totalAPY: formatNumberAsPercent(totalAPY),
+      totalAPY: totalAPY ? formatNumberAsPercent(totalAPY) : undefined,
       leveragePercentage: leveragePercentage
         ? {
             value: leveragePercentage,

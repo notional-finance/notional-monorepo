@@ -20,11 +20,15 @@ export function calculateAccountIRR(
     .toToken(ETH, 'None', snapshotTimestamp);
 
   const allVaultRisk = VaultAccountRiskProfile.getAllRiskProfiles(account);
+  const unclaimedNOTE = (
+    account.noteClaim?.currentNOTE ||
+    TokenBalance.fromSymbol(0, 'NOTE', account.network)
+  ).toFiat('ETH');
 
-  // TODO: unclaimed NOTE will not be included here...
   const totalNetWorth = allVaultRisk
     .map((v) => v.netWorth().toToken(ETH, 'None', snapshotTimestamp))
-    .reduce((p, c) => p.add(c), portfolioNetWorth);
+    .reduce((p, c) => p.add(c), portfolioNetWorth)
+    .add(TokenBalance.from(unclaimedNOTE.n, ETH));
 
   const cashFlows: CashFlow[] = (account.accountHistory || [])
     .sort((a, b) => a.timestamp - b.timestamp)

@@ -4,7 +4,10 @@ import {
   useAccountDefinition,
   useAllMarkets,
 } from '@notional-finance/notionable-hooks';
-import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
+import {
+  PRIME_CASH_VAULT_MATURITY,
+  leveragedYield,
+} from '@notional-finance/util';
 
 export function useVaultExistingFactors() {
   const { state } = useContext(VaultActionContext);
@@ -41,13 +44,7 @@ export function useVaultExistingFactors() {
     (y) => y.token.id === vaultShare?.tokenId
   )?.totalAPY;
 
-  const totalAPY =
-    strategyAPY !== undefined &&
-    priorBorrowRate !== undefined &&
-    leverageRatio !== undefined &&
-    leverageRatio !== null
-      ? strategyAPY + (strategyAPY - priorBorrowRate) * leverageRatio
-      : undefined;
+  const totalAPY = leveragedYield(strategyAPY, priorBorrowRate, leverageRatio);
 
   return {
     vaultShare: vaultShare?.token,
