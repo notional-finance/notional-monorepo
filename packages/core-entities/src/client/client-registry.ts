@@ -63,10 +63,8 @@ export abstract class ClientRegistry<T> extends BaseRegistry<T> {
 
   protected async _refresh(
     network: Network,
-    blockNumber?: number,
-    atTimestamp?: number
+    blockNumber?: number
   ): Promise<CacheSchema<T>> {
-    this.timestampOverride = atTimestamp;
     return this._fetch(network, blockNumber?.toString());
   }
 }

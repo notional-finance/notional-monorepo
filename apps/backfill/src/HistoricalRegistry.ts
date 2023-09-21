@@ -10,6 +10,7 @@ import {
   ClientRegistry,
   ServerRegistry,
 } from '@notional-finance/core-entities';
+import { env } from 'node:process';
 
 export class HistoricalRegistry extends Registry {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -50,24 +51,29 @@ export class HistoricalRegistry extends Registry {
     };
   }
 
-  public static async refreshAtBlock(network: Network, blockNumber: number) {
+  public static async refreshAtBlock(
+    network: Network,
+    blockNumber: number,
+    timestamp: number
+  ) {
     if (!this.servers) throw Error('Servers undefined');
     if (!this.tmpDataDirectory) throw Error('Servers undefined');
 
     // NOTE: refresh needs to run in this particular order.
     const clients = [
-      [Routes.Tokens, this._tokens, true],
-      [Routes.Exchanges, this._exchanges, false],
-      [Routes.Oracles, this._oracles, true],
-      [Routes.Configuration, this._configurations, false],
-      [Routes.Vaults, this._vaults, false],
-      [Routes.Yields, this._yields, false],
-    ] as [Routes, ClientRegistry<unknown> | undefined, boolean][];
+      [Routes.Tokens, this._tokens],
+      [Routes.Exchanges, this._exchanges],
+      [Routes.Oracles, this._oracles],
+      [Routes.Configuration, this._configurations],
+      [Routes.Vaults, this._vaults],
+      [Routes.Yields, this._yields],
+    ] as [Routes, ClientRegistry<unknown> | undefined][];
 
-    for (const [route, client, allNetwork] of clients) {
+    for (const [route, client] of clients) {
       const server = this.servers[route];
       if (server) {
-        if (network === Network.All && !allNetwork) {
+        const hasAllNetwork = this.servers[route].hasAllNetwork();
+        if (network === Network.All && !hasAllNetwork) {
           continue;
         }
         await this.servers[route].refreshAtBlock(network, blockNumber);
@@ -77,11 +83,14 @@ export class HistoricalRegistry extends Registry {
       }
 
       if (client) {
-        if (network === Network.All && !allNetwork) {
+        if (network === Network.All) {
           continue;
         }
+        env['FAKE_TIME'] = timestamp.toString();
+
+        console.log('TRIGGERING CLIENT REFERSH', this.tmpDataDirectory);
         await new Promise<void>((resolve) => {
-          client.triggerRefresh(network, resolve);
+          client.triggerRefresh(network, resolve, blockNumber);
           if (route == Routes.Tokens)
             Registry.registerDefaultPoolTokens(network);
         });
