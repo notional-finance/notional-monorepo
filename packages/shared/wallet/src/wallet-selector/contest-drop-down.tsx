@@ -127,7 +127,7 @@ export function ContestDropdown() {
             <Button
               size="large"
               variant="outlined"
-              to="contest-leaderboard"
+              to="/contest-leaderboard"
               sx={{
                 width: '358px',
                 border: `1px solid ${colors.neonTurquoise}`,
