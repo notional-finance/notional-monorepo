@@ -86,7 +86,7 @@ export const VaultSummary = () => {
           sx={{
             display: 'flex',
             justifyContent: 'center',
-            marginTop: theme.spacing(6),
+            marginTop: theme.spacing(10),
           }}
         >
           <TradeActionSummary

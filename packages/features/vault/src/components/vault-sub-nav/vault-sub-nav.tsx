@@ -133,7 +133,8 @@ export const VaultSubNav = () => {
 
 const HiddenSidebar = styled(Box)(
   ({ theme }) => `
-  width: 543px;
+  width: 558px;
+  background: transparent;
   ${theme.breakpoints.down('md')} {
     display: none;
   }
@@ -197,14 +198,9 @@ const NavItemContainer = styled(Box)(
   ({ theme }) => `
   flex: 1;
   display: flex;
-  min-width: ${theme.spacing(94)};
-  ${theme.breakpoints.down('lg')} {
-    margin: ${theme.spacing(0, 2)};
-  }
-  ${theme.breakpoints.up('lg')} {
-    max-width: 1000px;
-    margin: 0px auto;
-  }
+  background: ${theme.palette.background.accentDefault};
+  padding: ${theme.spacing(0, 8)};
+  min-width: ${theme.spacing(100)};
 `
 );
 
@@ -216,10 +212,7 @@ const MainContainer = styled(Box)(
   position: fixed;
   z-index: 2;
   display: flex;
-  background: ${theme.palette.background.accentDefault};
-  ${theme.breakpoints.up('lg')} {
-    padding: ${theme.spacing(0, 8)};
-  }
+  justify-content: space-between;
   ${theme.breakpoints.down('sm')} {
     display: none;
   }
