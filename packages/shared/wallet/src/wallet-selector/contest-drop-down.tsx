@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { V3BetaIcon, CloseX } from '@notional-finance/icons';
 import { Button } from '@notional-finance/mui';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useHistory } from 'react-router-dom';
 import { Box, styled, Popover, useTheme } from '@mui/material';
 import {
   setInLocalStorage,
@@ -12,21 +12,18 @@ import { colors } from '@notional-finance/styles';
 
 export function ContestDropdown() {
   const theme = useTheme();
+  const history = useHistory();
   const { pathname } = useLocation();
   const userSettings = getFromLocalStorage('userSettings');
   const [anchorEl, setAnchorEl] = useState<any>(null);
   const open = Boolean(anchorEl);
 
   useEffect(() => {
-    const test = document.getElementById('beta-icon');
+    const anchor = document.getElementById('beta-icon');
     if (!userSettings.hideV3Popup && pathname === '/portfolio/overview') {
-      setAnchorEl(test);
+      setAnchorEl(anchor);
     }
   }, [userSettings, pathname]);
-
-  const handleClick = (event: any) => {
-    setAnchorEl(event?.currentTarget);
-  };
 
   const handleClose = () => {
     setAnchorEl(null);
@@ -40,7 +37,7 @@ export function ContestDropdown() {
     <Wrapper>
       <V3BetaIcon
         id="beta-icon"
-        onClick={(event: any) => handleClick(event)}
+        onClick={() => history.push('/contest-leaderboard')}
         sx={{
           height: theme.spacing(6.25),
           width: theme.spacing(6.25),
@@ -58,6 +55,7 @@ export function ContestDropdown() {
           marginTop: '10px',
           '.MuiPopover-paper': {
             background: '#0A2433',
+            marginTop: '5px',
             boxShadow: theme.shape.shadowLarge(),
             width: {
               xs: '100%',
@@ -77,74 +75,95 @@ export function ContestDropdown() {
           horizontal: 'center',
         }}
       >
-        <InnerWrapper>
+        <>
           <Box
             sx={{
+              textAlign: 'center',
+              background: theme.palette.background.default,
+              boxShadow: 'none',
               display: 'flex',
-              flexDirection: 'row',
-              justifyContent: 'space-between',
+              justifyContent: 'center',
             }}
           >
-            <Box>
-              <Title>
-                <FormattedMessage defaultMessage={'V3 BETA CONTEST'} />
-              </Title>
-              <Text>
-                Click here to view the contest leader board and your position.
-              </Text>
-              <SubText>
-                Once you transact in the V3 beta, you'll automatically be
-                entered in the competition.
-              </SubText>
-            </Box>
-            <CloseX
-              onClick={() => handleClose()}
+            <Box
               sx={{
-                cursor: 'pointer',
-                stroke: colors.neonTurquoise,
-                marginTop: theme.spacing(1),
+                width: 0,
+                height: 0,
+                borderStyle: 'solid',
+                borderWidth: '0 30px 25px 30px;',
+                borderColor: 'transparent transparent #0A2433 transparent',
               }}
-            />
+            ></Box>
           </Box>
-          <ButtonContainer>
-            <Button
-              size="large"
+          <InnerWrapper>
+            <Box
               sx={{
-                marginBottom: theme.spacing(3),
-                width: '358px',
-                fontFamily: 'Avenir Next',
-                cursor: 'pointer',
-                background: colors.neonTurquoise,
-                color: colors.black,
-                ':hover': {
-                  background: colors.white,
-                },
-              }}
-              onClick={() => handleClose()}
-            >
-              <FormattedMessage defaultMessage={'Start Earning'} />
-            </Button>
-            <Button
-              size="large"
-              variant="outlined"
-              to="/contest-leaderboard"
-              sx={{
-                width: '358px',
-                border: `1px solid ${colors.neonTurquoise}`,
-                cursor: 'pointer',
-                color: colors.neonTurquoise,
-                ':hover': {
-                  background: colors.matteGreen,
-                },
-                fontFamily: 'Avenir Next',
+                display: 'flex',
+                flexDirection: 'row',
+                justifyContent: 'space-between',
               }}
             >
-              <FormattedMessage
-                defaultMessage={'See leaderboard / Rules & Prizes'}
+              <Box>
+                <Title>
+                  <FormattedMessage defaultMessage={'V3 BETA CONTEST'} />
+                </Title>
+                <Text>
+                  Click here to view the contest leader board and your position.
+                </Text>
+                <SubText>
+                  Once you transact in the V3 beta, you'll automatically be
+                  entered in the competition.
+                </SubText>
+              </Box>
+              <CloseX
+                onClick={() => handleClose()}
+                sx={{
+                  cursor: 'pointer',
+                  stroke: colors.neonTurquoise,
+                  marginTop: theme.spacing(1),
+                }}
               />
-            </Button>
-          </ButtonContainer>
-        </InnerWrapper>
+            </Box>
+            <ButtonContainer>
+              <Button
+                size="large"
+                sx={{
+                  marginBottom: theme.spacing(3),
+                  width: '358px',
+                  fontFamily: 'Avenir Next',
+                  cursor: 'pointer',
+                  background: colors.neonTurquoise,
+                  color: colors.black,
+                  ':hover': {
+                    background: colors.white,
+                  },
+                }}
+                onClick={() => handleClose()}
+              >
+                <FormattedMessage defaultMessage={'Start Earning'} />
+              </Button>
+              <Button
+                size="large"
+                variant="outlined"
+                to="/contest-leaderboard"
+                sx={{
+                  width: '358px',
+                  border: `1px solid ${colors.neonTurquoise}`,
+                  cursor: 'pointer',
+                  color: colors.neonTurquoise,
+                  ':hover': {
+                    background: colors.matteGreen,
+                  },
+                  fontFamily: 'Avenir Next',
+                }}
+              >
+                <FormattedMessage
+                  defaultMessage={'See leaderboard / Rules & Prizes'}
+                />
+              </Button>
+            </ButtonContainer>
+          </InnerWrapper>
+        </>
       </Popover>
     </Wrapper>
   );
@@ -213,7 +232,6 @@ const InnerWrapper = styled(Box)(
     width: 100%;
     padding: ${theme.spacing(10)};
     padding-top: ${theme.spacing(8)};
-    border: 1px solid ${colors.neonTurquoise};
     ${theme.breakpoints.down('sm')} {
       width: 100%;
       padding: ${theme.spacing(1)};
