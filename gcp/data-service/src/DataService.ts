@@ -21,6 +21,7 @@ import {
   buildOperations,
   defaultConfigDefs,
   defaultDataWriters,
+  defaultGraphEndpoints,
 } from './config';
 import {
   BackfillType,
@@ -32,10 +33,12 @@ import {
   SubgraphOperation,
   TableName,
   VaultAccount,
+  ProtocolName,
 } from './types';
 import { aggregate } from '@notional-finance/multicall';
-import { ApolloClient, HttpLink, InMemoryCache } from '@apollo/client';
+import { ApolloClient, HttpLink, InMemoryCache, gql } from '@apollo/client';
 import { HistoricalRegistry } from './HistoricalRegistry';
+import { graphQueries } from './graphQueries';
 
 // TODO: fetch from DB
 const networkToId = {
@@ -694,6 +697,68 @@ export default class DataService {
       return select.limit(limit);
     }
     return select;
+  }
+
+  public async syncAccounts(network: Network, isVault: boolean) {
+    const endpoint = defaultGraphEndpoints[ProtocolName.NotionalV3][network];
+    if (!endpoint) {
+      throw Error('Subgraph endpoint not defined');
+    }
+    const client = new ApolloClient({
+      link: new HttpLink({
+        uri: endpoint,
+        fetch,
+      }),
+      cache: new InMemoryCache(),
+    });
+
+    const size = 1000;
+    let offset = 0;
+
+    do {
+      const resp = await client.query({
+        query: gql(
+          isVault
+            ? graphQueries.NotionalV3VaultAccounts
+            : graphQueries.NotionalV3Accounts
+        ),
+        variables: {
+          size: size,
+          offset: offset,
+        },
+      });
+
+      if (isVault) {
+        const balances = resp.data['balances'];
+        if (balances.length === 0) {
+          break;
+        }
+
+        await this.insertVaultAccounts(
+          network,
+          balances.map((b) => ({
+            accountId: b.account.id,
+            vaultId: b.token.vaultAddress,
+          }))
+        );
+
+        offset += balances.length;
+      } else {
+        const accounts = resp.data['accounts'];
+        if (accounts.length === 0) {
+          break;
+        }
+
+        await this.insertAccounts(
+          network,
+          accounts.map((a) => a.id)
+        );
+
+        offset += accounts.length;
+      }
+
+      await new Promise((r) => setTimeout(r, this.settings.backfillDelayMs));
+    } while (1);
   }
 
   public async insertAccounts(network: Network, accountIds: string[]) {
