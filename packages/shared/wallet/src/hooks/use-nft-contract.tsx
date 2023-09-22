@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { getProviderURLFromNetwork } from '@notional-finance/util';
 import {
   useSelectedNetwork,
@@ -11,9 +11,10 @@ export const useNftContract = (selectedAddress?: string) => {
   const selectedNetwork = useSelectedNetwork();
   const history = useHistory();
   const { pathname } = useLocation();
+  const [pending, setPending] = useState(false);
   const {
     updateNotional,
-    globalState: { hasContestNFT },
+    globalState: { hasContestNFT, isAccountReady },
   } = useNotionalContext();
 
   useEffect(() => {
@@ -27,14 +28,22 @@ export const useNftContract = (selectedAddress?: string) => {
   }, [history, hasContestNFT, pathname]);
 
   useEffect(() => {
-    if (selectedNetwork && selectedAddress && !hasContestNFT) {
+    if (
+      selectedNetwork &&
+      selectedAddress &&
+      isAccountReady &&
+      !pending &&
+      !hasContestNFT
+    ) {
       const providerURL = getProviderURLFromNetwork(selectedNetwork, true);
       const url = `${providerURL}/getNFTs?owner=${selectedAddress}&contractAddresses[]=0x965b3aad78cdab2cc778243b12705ba3b7c5048c&withMetadata=false`;
+      setPending(true);
       updateNotional({ hasContestNFT: BETA_ACCESS.PENDING });
 
       fetch(url)
         .then((resp) => resp.json())
         .then((resp) => {
+          setPending(false);
           try {
             if (resp['totalCount'] > 0) {
               updateNotional({
@@ -50,7 +59,14 @@ export const useNftContract = (selectedAddress?: string) => {
           }
         });
     }
-  }, [updateNotional, selectedAddress, selectedNetwork, hasContestNFT]);
+  }, [
+    updateNotional,
+    selectedAddress,
+    selectedNetwork,
+    hasContestNFT,
+    isAccountReady,
+    pending,
+  ]);
 };
 
 export default useNftContract;
