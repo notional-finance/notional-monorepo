@@ -1,8 +1,9 @@
-import { SvgIcon, SvgIconProps } from '@mui/material';
+import { SvgIcon, SvgIconProps, SxProps } from '@mui/material';
 
 /* eslint-disable-next-line */
 export interface ArrowRightIconProps extends SvgIconProps {
   fill?: string;
+  sx?: SxProps;
 }
 
 export function ArrowRightIcon(props: ArrowRightIconProps) {
