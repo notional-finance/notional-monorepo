@@ -204,6 +204,28 @@ async function main() {
     }
   });
 
+  app.get('/syncAccounts', async (req, res) => {
+    try {
+      const params = parseQueryParams(req.query);
+      res.send(
+        JSON.stringify(await dataService.syncAccounts(params.network, false))
+      );
+    } catch (e: any) {
+      res.status(500).send(e.toString());
+    }
+  });
+
+  app.get('/syncVaultAccounts', async (req, res) => {
+    try {
+      const params = parseQueryParams(req.query);
+      res.send(
+        JSON.stringify(await dataService.syncAccounts(params.network, true))
+      );
+    } catch (e: any) {
+      res.status(500).send(e.toString());
+    }
+  });
+
   app.post('/events', async (req, res) => {
     try {
       const accountIds: string[] = [];

@@ -48,4 +48,27 @@ export const graphQueries = {
         }
     }
     `,
+  NotionalV3Accounts: `
+    query NotionalV3Accounts($size: Int, $offset: Int) {
+      accounts(first: $size, skip: $offset, where: {systemAccountType: "None"}) {
+        id
+      }
+    }
+    `,
+  NotionalV3VaultAccounts: `
+    query NotionalV3VaultAccounts($size: Int, $offset: Int) {
+      balances(
+        first: $size
+        skip: $offset
+        where: {account_: {systemAccountType: "None"}, token_: {tokenType_in: ["VaultDebt"]}, current_: {currentBalance_gt: 0}}
+      ) {
+        account {
+          id
+        }
+        token {
+          vaultAddress
+        }
+      }
+    }
+    `,
 };
