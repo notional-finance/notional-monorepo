@@ -58,7 +58,7 @@ export const ContestHero = () => {
                 marginTop: theme.spacing(5),
               }}
             >
-              <ProgressIndicator />
+              <ProgressIndicator type="notional" />
             </Box>
           ) : (
             <>
