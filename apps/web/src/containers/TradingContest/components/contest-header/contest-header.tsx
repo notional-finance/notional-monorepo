@@ -67,7 +67,7 @@ const Container = styled(Box)(
     ${theme.breakpoints.down('md')} {
       display: block;
       border: none;
-      margin-top: 0px;
+      margin-top: 13px;
     }
     `
 );

@@ -5,10 +5,10 @@ import { FormattedMessage } from 'react-intl';
 import { useHistory } from 'react-router-dom';
 
 export const ContestBackButton = () => {
-  const { push } = useHistory();
+  const history = useHistory();
 
   return (
-    <Button onClick={() => push('/contest')}>
+    <Button onClick={() => history.goBack()}>
       <ArrowIcon sx={{ transform: 'rotate(-90deg)' }} />
       <FormattedMessage defaultMessage={'Back'} />
     </Button>

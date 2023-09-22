@@ -103,6 +103,7 @@ export function NetworkSelector() {
         onClick={handleClick}
         startIcon={<TokenIcon symbol="arb" size="medium" />}
         endIcon={<ArrowIcon sx={{ transform: 'rotate(-180deg)' }} />}
+        sx={{ boxShadow: 'none' }}
       >
         <TextWrapper theme={theme}>{chains[0].label}</TextWrapper>
       </DropdownButton>
@@ -164,7 +165,6 @@ const NetworkSelectorWrapper = styled(Box)(
     #basic-menu {
       border-radius: ${theme.shape.borderRadius()};
     }
-    box-shadow: ${theme.shape.shadowStandard};
     ${theme.breakpoints.down('sm')} {
       margin-left: 0px;
       margin-top: ${theme.spacing(3)};

@@ -35,7 +35,7 @@ const AppShell = styled(Box)(
   min-height: 100vh;
   padding-top: 67px;
 
-  @media (max-width: 1152px) {
+  @media (max-width: 1440px) {
     padding-top: 51px;
   },
 
