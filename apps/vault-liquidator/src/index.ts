@@ -11,6 +11,7 @@ import { Logger } from '@notional-finance/durable-objects';
 
 export interface Env {
   ACCOUNT_SERVICE_URL: string;
+  DATA_SERVICE_AUTH_TOKEN: string;
   NETWORK: string;
   FLASH_LIQUIDATOR_CONTRACT: string;
   FLASH_LIQUIDATOR_OWNER: string;
@@ -32,10 +33,7 @@ export interface Env {
 }
 
 // TODO: this needs to be fetched dynamically
-const vaults = [
-  '0xdb08f663e5D765949054785F2eD1b2aa1e9C22Cf',
-  '0xaE38F4B960f44d86e798f36a374a1Ac3f2D859fa',
-];
+const vaults = ['0xdb08f663e5D765949054785F2eD1b2aa1e9C22Cf'];
 
 class ArbitrumGasOracle implements IGasOracle {
   public async getGasPrice(): Promise<BigNumber> {
@@ -52,7 +50,13 @@ const run = async (env: Env) => {
     service: 'vault-liquidator',
   });
 
-  const accounts = (await (await fetch(env.ACCOUNT_SERVICE_URL)).json()) as any;
+  const accounts = (await (
+    await fetch(env.ACCOUNT_SERVICE_URL, {
+      headers: {
+        'x-auth-token': env.DATA_SERVICE_AUTH_TOKEN,
+      },
+    })
+  ).json()) as any;
   const addrs = accounts.map((a) => a.id);
   const provider = getProviderFromNetwork(Network[env.NETWORK], true);
   const liq = new VaultV3Liquidator(

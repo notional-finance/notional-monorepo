@@ -28,6 +28,34 @@ import type {
   PromiseOrValue,
 } from "./common";
 
+export type TradeStruct = {
+  tradeType: PromiseOrValue<BigNumberish>;
+  sellToken: PromiseOrValue<string>;
+  buyToken: PromiseOrValue<string>;
+  amount: PromiseOrValue<BigNumberish>;
+  limit: PromiseOrValue<BigNumberish>;
+  deadline: PromiseOrValue<BigNumberish>;
+  exchangeData: PromiseOrValue<BytesLike>;
+};
+
+export type TradeStructOutput = [
+  number,
+  string,
+  string,
+  BigNumber,
+  BigNumber,
+  BigNumber,
+  string
+] & {
+  tradeType: number;
+  sellToken: string;
+  buyToken: string;
+  amount: BigNumber;
+  limit: BigNumber;
+  deadline: BigNumber;
+  exchangeData: string;
+};
+
 export declare namespace IExchangeV3 {
   export type OrderStruct = {
     makerAddress: PromiseOrValue<string>;
@@ -79,6 +107,18 @@ export declare namespace IExchangeV3 {
   };
 }
 
+export declare namespace IStrategyVault {
+  export type ReinvestRewardParamsStruct = {
+    tradeData: PromiseOrValue<BytesLike>;
+    minPoolClaim: PromiseOrValue<BigNumberish>;
+  };
+
+  export type ReinvestRewardParamsStructOutput = [string, BigNumber] & {
+    tradeData: string;
+    minPoolClaim: BigNumber;
+  };
+}
+
 export interface TreasuryManagerInterface extends utils.Interface {
   functions: {
     "ASSET_PROXY()": FunctionFragment;
@@ -86,18 +126,23 @@ export interface TreasuryManagerInterface extends utils.Interface {
     "BALANCER_VAULT()": FunctionFragment;
     "EXCHANGE()": FunctionFragment;
     "MAXIMUM_COOL_DOWN_PERIOD_SECONDS()": FunctionFragment;
+    "MAX_ORACLE_WINDOW_SIZE()": FunctionFragment;
     "NOTE()": FunctionFragment;
     "NOTE_ETH_POOL_ID()": FunctionFragment;
     "NOTE_INDEX()": FunctionFragment;
     "NOTIONAL()": FunctionFragment;
+    "TRADING_MODULE()": FunctionFragment;
     "WETH()": FunctionFragment;
     "WETH_INDEX()": FunctionFragment;
     "_getNOTESpotPrice()": FunctionFragment;
     "approveBalancer()": FunctionFragment;
     "approveToken(address,uint256)": FunctionFragment;
     "cancelOrder((address,address,address,address,uint256,uint256,uint256,uint256,uint256,uint256,bytes,bytes,bytes,bytes))": FunctionFragment;
+    "claimBAL()": FunctionFragment;
     "claimOwnership()": FunctionFragment;
+    "claimVaultRewardTokens(address)": FunctionFragment;
     "coolDownTimeInSeconds()": FunctionFragment;
+    "executeTrade((uint8,address,address,uint256,uint256,uint256,bytes),uint8)": FunctionFragment;
     "harvestAssetsFromNotional(uint16[])": FunctionFragment;
     "harvestCOMPFromNotional(address[])": FunctionFragment;
     "initialize(address,address,uint32)": FunctionFragment;
@@ -108,13 +153,16 @@ export interface TreasuryManagerInterface extends utils.Interface {
     "notePurchaseLimit()": FunctionFragment;
     "owner()": FunctionFragment;
     "pendingOwner()": FunctionFragment;
+    "priceOracleWindowInSeconds()": FunctionFragment;
     "priceOracles(address)": FunctionFragment;
     "proxiableUUID()": FunctionFragment;
+    "reinvestVaultReward(address,(bytes,uint256))": FunctionFragment;
     "sNOTE()": FunctionFragment;
     "setCoolDownTime(uint32)": FunctionFragment;
     "setManager(address)": FunctionFragment;
     "setNOTEPurchaseLimit(uint256)": FunctionFragment;
     "setPriceOracle(address,address)": FunctionFragment;
+    "setPriceOracleWindow(uint32)": FunctionFragment;
     "setSlippageLimit(address,uint256)": FunctionFragment;
     "slippageLimits(address)": FunctionFragment;
     "transferOwnership(address,bool,bool)": FunctionFragment;
@@ -131,18 +179,23 @@ export interface TreasuryManagerInterface extends utils.Interface {
       | "BALANCER_VAULT"
       | "EXCHANGE"
       | "MAXIMUM_COOL_DOWN_PERIOD_SECONDS"
+      | "MAX_ORACLE_WINDOW_SIZE"
       | "NOTE"
       | "NOTE_ETH_POOL_ID"
       | "NOTE_INDEX"
       | "NOTIONAL"
+      | "TRADING_MODULE"
       | "WETH"
       | "WETH_INDEX"
       | "_getNOTESpotPrice"
       | "approveBalancer"
       | "approveToken"
       | "cancelOrder"
+      | "claimBAL"
       | "claimOwnership"
+      | "claimVaultRewardTokens"
       | "coolDownTimeInSeconds"
+      | "executeTrade"
       | "harvestAssetsFromNotional"
       | "harvestCOMPFromNotional"
       | "initialize"
@@ -153,13 +206,16 @@ export interface TreasuryManagerInterface extends utils.Interface {
       | "notePurchaseLimit"
       | "owner"
       | "pendingOwner"
+      | "priceOracleWindowInSeconds"
       | "priceOracles"
       | "proxiableUUID"
+      | "reinvestVaultReward"
       | "sNOTE"
       | "setCoolDownTime"
       | "setManager"
       | "setNOTEPurchaseLimit"
       | "setPriceOracle"
+      | "setPriceOracleWindow"
       | "setSlippageLimit"
       | "slippageLimits"
       | "transferOwnership"
@@ -186,6 +242,10 @@ export interface TreasuryManagerInterface extends utils.Interface {
     functionFragment: "MAXIMUM_COOL_DOWN_PERIOD_SECONDS",
     values?: undefined
   ): string;
+  encodeFunctionData(
+    functionFragment: "MAX_ORACLE_WINDOW_SIZE",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "NOTE", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "NOTE_ETH_POOL_ID",
@@ -196,6 +256,10 @@ export interface TreasuryManagerInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "NOTIONAL", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "TRADING_MODULE",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "WETH", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "WETH_INDEX",
@@ -217,13 +281,22 @@ export interface TreasuryManagerInterface extends utils.Interface {
     functionFragment: "cancelOrder",
     values: [IExchangeV3.OrderStruct]
   ): string;
+  encodeFunctionData(functionFragment: "claimBAL", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "claimOwnership",
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "claimVaultRewardTokens",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "coolDownTimeInSeconds",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "executeTrade",
+    values: [TradeStruct, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "harvestAssetsFromNotional",
@@ -268,12 +341,20 @@ export interface TreasuryManagerInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "priceOracleWindowInSeconds",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "priceOracles",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "proxiableUUID",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "reinvestVaultReward",
+    values: [PromiseOrValue<string>, IStrategyVault.ReinvestRewardParamsStruct]
   ): string;
   encodeFunctionData(functionFragment: "sNOTE", values?: undefined): string;
   encodeFunctionData(
@@ -291,6 +372,10 @@ export interface TreasuryManagerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "setPriceOracle",
     values: [PromiseOrValue<string>, PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setPriceOracleWindow",
+    values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "setSlippageLimit",
@@ -342,6 +427,10 @@ export interface TreasuryManagerInterface extends utils.Interface {
     functionFragment: "MAXIMUM_COOL_DOWN_PERIOD_SECONDS",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "MAX_ORACLE_WINDOW_SIZE",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "NOTE", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "NOTE_ETH_POOL_ID",
@@ -349,6 +438,10 @@ export interface TreasuryManagerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "NOTE_INDEX", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "NOTIONAL", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "TRADING_MODULE",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "WETH", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "WETH_INDEX", data: BytesLike): Result;
   decodeFunctionResult(
@@ -367,12 +460,21 @@ export interface TreasuryManagerInterface extends utils.Interface {
     functionFragment: "cancelOrder",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "claimBAL", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "claimOwnership",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "claimVaultRewardTokens",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "coolDownTimeInSeconds",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "executeTrade",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -407,11 +509,19 @@ export interface TreasuryManagerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "priceOracleWindowInSeconds",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "priceOracles",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "proxiableUUID",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "reinvestVaultReward",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "sNOTE", data: BytesLike): Result;
@@ -426,6 +536,10 @@ export interface TreasuryManagerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "setPriceOracle",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setPriceOracleWindow",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -454,14 +568,19 @@ export interface TreasuryManagerInterface extends utils.Interface {
     "AssetsInvested(uint256,uint256)": EventFragment;
     "BeaconUpgraded(address)": EventFragment;
     "COMPHarvested(address[],uint256)": EventFragment;
+    "Initialized(uint8)": EventFragment;
     "InvestmentCoolDownUpdated(uint256)": EventFragment;
     "ManagementTransferred(address,address)": EventFragment;
     "NOTEPurchaseLimitUpdated(uint256)": EventFragment;
     "OrderCancelled(uint8,bytes32,uint256)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
     "PriceOracleUpdated(address,address)": EventFragment;
+    "PriceOracleWindowUpdated(uint256)": EventFragment;
     "SlippageLimitUpdated(address,uint256)": EventFragment;
+    "TradeExecuted(address,address,uint256,uint256)": EventFragment;
     "Upgraded(address)": EventFragment;
+    "VaultRewardReinvested(address,address,uint256,uint256)": EventFragment;
+    "VaultRewardTokensClaimed(address,address[],uint256[])": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "AdminChanged"): EventFragment;
@@ -469,14 +588,19 @@ export interface TreasuryManagerInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "AssetsInvested"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "BeaconUpgraded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "COMPHarvested"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "InvestmentCoolDownUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ManagementTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "NOTEPurchaseLimitUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OrderCancelled"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PriceOracleUpdated"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "PriceOracleWindowUpdated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SlippageLimitUpdated"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "TradeExecuted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Upgraded"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "VaultRewardReinvested"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "VaultRewardTokensClaimed"): EventFragment;
 }
 
 export interface AdminChangedEventObject {
@@ -532,6 +656,13 @@ export type COMPHarvestedEvent = TypedEvent<
 >;
 
 export type COMPHarvestedEventFilter = TypedEventFilter<COMPHarvestedEvent>;
+
+export interface InitializedEventObject {
+  version: number;
+}
+export type InitializedEvent = TypedEvent<[number], InitializedEventObject>;
+
+export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
 
 export interface InvestmentCoolDownUpdatedEventObject {
   newCoolDownTimeSeconds: BigNumber;
@@ -603,6 +734,17 @@ export type PriceOracleUpdatedEvent = TypedEvent<
 export type PriceOracleUpdatedEventFilter =
   TypedEventFilter<PriceOracleUpdatedEvent>;
 
+export interface PriceOracleWindowUpdatedEventObject {
+  _priceOracleWindowInSeconds: BigNumber;
+}
+export type PriceOracleWindowUpdatedEvent = TypedEvent<
+  [BigNumber],
+  PriceOracleWindowUpdatedEventObject
+>;
+
+export type PriceOracleWindowUpdatedEventFilter =
+  TypedEventFilter<PriceOracleWindowUpdatedEvent>;
+
 export interface SlippageLimitUpdatedEventObject {
   tokenAddress: string;
   slippageLimit: BigNumber;
@@ -615,12 +757,52 @@ export type SlippageLimitUpdatedEvent = TypedEvent<
 export type SlippageLimitUpdatedEventFilter =
   TypedEventFilter<SlippageLimitUpdatedEvent>;
 
+export interface TradeExecutedEventObject {
+  sellToken: string;
+  buyToken: string;
+  sellAmount: BigNumber;
+  buyAmount: BigNumber;
+}
+export type TradeExecutedEvent = TypedEvent<
+  [string, string, BigNumber, BigNumber],
+  TradeExecutedEventObject
+>;
+
+export type TradeExecutedEventFilter = TypedEventFilter<TradeExecutedEvent>;
+
 export interface UpgradedEventObject {
   implementation: string;
 }
 export type UpgradedEvent = TypedEvent<[string], UpgradedEventObject>;
 
 export type UpgradedEventFilter = TypedEventFilter<UpgradedEvent>;
+
+export interface VaultRewardReinvestedEventObject {
+  vault: string;
+  rewardToken: string;
+  soldAmount: BigNumber;
+  poolClaimAmount: BigNumber;
+}
+export type VaultRewardReinvestedEvent = TypedEvent<
+  [string, string, BigNumber, BigNumber],
+  VaultRewardReinvestedEventObject
+>;
+
+export type VaultRewardReinvestedEventFilter =
+  TypedEventFilter<VaultRewardReinvestedEvent>;
+
+export interface VaultRewardTokensClaimedEventObject {
+  vault: string;
+  rewardTokens: string[];
+  claimedBalances: BigNumber[];
+}
+export type VaultRewardTokensClaimedEvent = TypedEvent<
+  [string, string[], BigNumber[]],
+  VaultRewardTokensClaimedEventObject
+>;
+
+export type VaultRewardTokensClaimedEventFilter =
+  TypedEventFilter<VaultRewardTokensClaimedEvent>;
 
 export interface TreasuryManager extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -661,6 +843,8 @@ export interface TreasuryManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[number]>;
 
+    MAX_ORACLE_WINDOW_SIZE(overrides?: CallOverrides): Promise<[number]>;
+
     NOTE(overrides?: CallOverrides): Promise<[string]>;
 
     NOTE_ETH_POOL_ID(overrides?: CallOverrides): Promise<[string]>;
@@ -668,6 +852,8 @@ export interface TreasuryManager extends BaseContract {
     NOTE_INDEX(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     NOTIONAL(overrides?: CallOverrides): Promise<[string]>;
+
+    TRADING_MODULE(overrides?: CallOverrides): Promise<[string]>;
 
     WETH(overrides?: CallOverrides): Promise<[string]>;
 
@@ -690,11 +876,26 @@ export interface TreasuryManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    claimBAL(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     claimOwnership(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    claimVaultRewardTokens(
+      vault: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     coolDownTimeInSeconds(overrides?: CallOverrides): Promise<[number]>;
+
+    executeTrade(
+      trade: TradeStruct,
+      dexId: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     harvestAssetsFromNotional(
       currencies: PromiseOrValue<BigNumberish>[],
@@ -736,12 +937,20 @@ export interface TreasuryManager extends BaseContract {
 
     pendingOwner(overrides?: CallOverrides): Promise<[string]>;
 
+    priceOracleWindowInSeconds(overrides?: CallOverrides): Promise<[number]>;
+
     priceOracles(
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[string]>;
 
     proxiableUUID(overrides?: CallOverrides): Promise<[string]>;
+
+    reinvestVaultReward(
+      vault: PromiseOrValue<string>,
+      params: IStrategyVault.ReinvestRewardParamsStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     sNOTE(overrides?: CallOverrides): Promise<[string]>;
 
@@ -763,6 +972,11 @@ export interface TreasuryManager extends BaseContract {
     setPriceOracle(
       tokenAddress: PromiseOrValue<string>,
       oracleAddress: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setPriceOracleWindow(
+      _priceOracleWindowInSeconds: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -816,6 +1030,8 @@ export interface TreasuryManager extends BaseContract {
 
   MAXIMUM_COOL_DOWN_PERIOD_SECONDS(overrides?: CallOverrides): Promise<number>;
 
+  MAX_ORACLE_WINDOW_SIZE(overrides?: CallOverrides): Promise<number>;
+
   NOTE(overrides?: CallOverrides): Promise<string>;
 
   NOTE_ETH_POOL_ID(overrides?: CallOverrides): Promise<string>;
@@ -823,6 +1039,8 @@ export interface TreasuryManager extends BaseContract {
   NOTE_INDEX(overrides?: CallOverrides): Promise<BigNumber>;
 
   NOTIONAL(overrides?: CallOverrides): Promise<string>;
+
+  TRADING_MODULE(overrides?: CallOverrides): Promise<string>;
 
   WETH(overrides?: CallOverrides): Promise<string>;
 
@@ -845,11 +1063,26 @@ export interface TreasuryManager extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  claimBAL(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   claimOwnership(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  claimVaultRewardTokens(
+    vault: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   coolDownTimeInSeconds(overrides?: CallOverrides): Promise<number>;
+
+  executeTrade(
+    trade: TradeStruct,
+    dexId: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   harvestAssetsFromNotional(
     currencies: PromiseOrValue<BigNumberish>[],
@@ -891,12 +1124,20 @@ export interface TreasuryManager extends BaseContract {
 
   pendingOwner(overrides?: CallOverrides): Promise<string>;
 
+  priceOracleWindowInSeconds(overrides?: CallOverrides): Promise<number>;
+
   priceOracles(
     arg0: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<string>;
 
   proxiableUUID(overrides?: CallOverrides): Promise<string>;
+
+  reinvestVaultReward(
+    vault: PromiseOrValue<string>,
+    params: IStrategyVault.ReinvestRewardParamsStruct,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   sNOTE(overrides?: CallOverrides): Promise<string>;
 
@@ -918,6 +1159,11 @@ export interface TreasuryManager extends BaseContract {
   setPriceOracle(
     tokenAddress: PromiseOrValue<string>,
     oracleAddress: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setPriceOracleWindow(
+    _priceOracleWindowInSeconds: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -973,6 +1219,8 @@ export interface TreasuryManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<number>;
 
+    MAX_ORACLE_WINDOW_SIZE(overrides?: CallOverrides): Promise<number>;
+
     NOTE(overrides?: CallOverrides): Promise<string>;
 
     NOTE_ETH_POOL_ID(overrides?: CallOverrides): Promise<string>;
@@ -980,6 +1228,8 @@ export interface TreasuryManager extends BaseContract {
     NOTE_INDEX(overrides?: CallOverrides): Promise<BigNumber>;
 
     NOTIONAL(overrides?: CallOverrides): Promise<string>;
+
+    TRADING_MODULE(overrides?: CallOverrides): Promise<string>;
 
     WETH(overrides?: CallOverrides): Promise<string>;
 
@@ -1000,9 +1250,32 @@ export interface TreasuryManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    claimBAL(overrides?: CallOverrides): Promise<void>;
+
     claimOwnership(overrides?: CallOverrides): Promise<void>;
 
+    claimVaultRewardTokens(
+      vault: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<
+      [string[], BigNumber[]] & {
+        rewardTokens: string[];
+        claimedBalances: BigNumber[];
+      }
+    >;
+
     coolDownTimeInSeconds(overrides?: CallOverrides): Promise<number>;
+
+    executeTrade(
+      trade: TradeStruct,
+      dexId: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<
+      [BigNumber, BigNumber] & {
+        amountSold: BigNumber;
+        amountBought: BigNumber;
+      }
+    >;
 
     harvestAssetsFromNotional(
       currencies: PromiseOrValue<BigNumberish>[],
@@ -1044,12 +1317,27 @@ export interface TreasuryManager extends BaseContract {
 
     pendingOwner(overrides?: CallOverrides): Promise<string>;
 
+    priceOracleWindowInSeconds(overrides?: CallOverrides): Promise<number>;
+
     priceOracles(
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<string>;
 
     proxiableUUID(overrides?: CallOverrides): Promise<string>;
+
+    reinvestVaultReward(
+      vault: PromiseOrValue<string>,
+      params: IStrategyVault.ReinvestRewardParamsStruct,
+      overrides?: CallOverrides
+    ): Promise<
+      [string, BigNumber, BigNumber, BigNumber] & {
+        rewardToken: string;
+        soldAmount: BigNumber;
+        poolClaimAmount: BigNumber;
+        strategyTokenAmount: BigNumber;
+      }
+    >;
 
     sNOTE(overrides?: CallOverrides): Promise<string>;
 
@@ -1071,6 +1359,11 @@ export interface TreasuryManager extends BaseContract {
     setPriceOracle(
       tokenAddress: PromiseOrValue<string>,
       oracleAddress: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setPriceOracleWindow(
+      _priceOracleWindowInSeconds: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1153,6 +1446,9 @@ export interface TreasuryManager extends BaseContract {
     ): COMPHarvestedEventFilter;
     COMPHarvested(ctokens?: null, amount?: null): COMPHarvestedEventFilter;
 
+    "Initialized(uint8)"(version?: null): InitializedEventFilter;
+    Initialized(version?: null): InitializedEventFilter;
+
     "InvestmentCoolDownUpdated(uint256)"(
       newCoolDownTimeSeconds?: null
     ): InvestmentCoolDownUpdatedEventFilter;
@@ -1205,6 +1501,13 @@ export interface TreasuryManager extends BaseContract {
       oracleAddress?: null
     ): PriceOracleUpdatedEventFilter;
 
+    "PriceOracleWindowUpdated(uint256)"(
+      _priceOracleWindowInSeconds?: null
+    ): PriceOracleWindowUpdatedEventFilter;
+    PriceOracleWindowUpdated(
+      _priceOracleWindowInSeconds?: null
+    ): PriceOracleWindowUpdatedEventFilter;
+
     "SlippageLimitUpdated(address,uint256)"(
       tokenAddress?: null,
       slippageLimit?: null
@@ -1214,12 +1517,49 @@ export interface TreasuryManager extends BaseContract {
       slippageLimit?: null
     ): SlippageLimitUpdatedEventFilter;
 
+    "TradeExecuted(address,address,uint256,uint256)"(
+      sellToken?: PromiseOrValue<string> | null,
+      buyToken?: PromiseOrValue<string> | null,
+      sellAmount?: null,
+      buyAmount?: null
+    ): TradeExecutedEventFilter;
+    TradeExecuted(
+      sellToken?: PromiseOrValue<string> | null,
+      buyToken?: PromiseOrValue<string> | null,
+      sellAmount?: null,
+      buyAmount?: null
+    ): TradeExecutedEventFilter;
+
     "Upgraded(address)"(
       implementation?: PromiseOrValue<string> | null
     ): UpgradedEventFilter;
     Upgraded(
       implementation?: PromiseOrValue<string> | null
     ): UpgradedEventFilter;
+
+    "VaultRewardReinvested(address,address,uint256,uint256)"(
+      vault?: PromiseOrValue<string> | null,
+      rewardToken?: PromiseOrValue<string> | null,
+      soldAmount?: null,
+      poolClaimAmount?: null
+    ): VaultRewardReinvestedEventFilter;
+    VaultRewardReinvested(
+      vault?: PromiseOrValue<string> | null,
+      rewardToken?: PromiseOrValue<string> | null,
+      soldAmount?: null,
+      poolClaimAmount?: null
+    ): VaultRewardReinvestedEventFilter;
+
+    "VaultRewardTokensClaimed(address,address[],uint256[])"(
+      vault?: PromiseOrValue<string> | null,
+      rewardTokens?: null,
+      claimedBalances?: null
+    ): VaultRewardTokensClaimedEventFilter;
+    VaultRewardTokensClaimed(
+      vault?: PromiseOrValue<string> | null,
+      rewardTokens?: null,
+      claimedBalances?: null
+    ): VaultRewardTokensClaimedEventFilter;
   };
 
   estimateGas: {
@@ -1235,6 +1575,8 @@ export interface TreasuryManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    MAX_ORACLE_WINDOW_SIZE(overrides?: CallOverrides): Promise<BigNumber>;
+
     NOTE(overrides?: CallOverrides): Promise<BigNumber>;
 
     NOTE_ETH_POOL_ID(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1242,6 +1584,8 @@ export interface TreasuryManager extends BaseContract {
     NOTE_INDEX(overrides?: CallOverrides): Promise<BigNumber>;
 
     NOTIONAL(overrides?: CallOverrides): Promise<BigNumber>;
+
+    TRADING_MODULE(overrides?: CallOverrides): Promise<BigNumber>;
 
     WETH(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1264,11 +1608,26 @@ export interface TreasuryManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    claimBAL(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     claimOwnership(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    claimVaultRewardTokens(
+      vault: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     coolDownTimeInSeconds(overrides?: CallOverrides): Promise<BigNumber>;
+
+    executeTrade(
+      trade: TradeStruct,
+      dexId: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     harvestAssetsFromNotional(
       currencies: PromiseOrValue<BigNumberish>[],
@@ -1310,12 +1669,20 @@ export interface TreasuryManager extends BaseContract {
 
     pendingOwner(overrides?: CallOverrides): Promise<BigNumber>;
 
+    priceOracleWindowInSeconds(overrides?: CallOverrides): Promise<BigNumber>;
+
     priceOracles(
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     proxiableUUID(overrides?: CallOverrides): Promise<BigNumber>;
+
+    reinvestVaultReward(
+      vault: PromiseOrValue<string>,
+      params: IStrategyVault.ReinvestRewardParamsStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     sNOTE(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1337,6 +1704,11 @@ export interface TreasuryManager extends BaseContract {
     setPriceOracle(
       tokenAddress: PromiseOrValue<string>,
       oracleAddress: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setPriceOracleWindow(
+      _priceOracleWindowInSeconds: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1395,6 +1767,10 @@ export interface TreasuryManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    MAX_ORACLE_WINDOW_SIZE(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     NOTE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     NOTE_ETH_POOL_ID(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -1402,6 +1778,8 @@ export interface TreasuryManager extends BaseContract {
     NOTE_INDEX(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     NOTIONAL(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    TRADING_MODULE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     WETH(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -1424,12 +1802,27 @@ export interface TreasuryManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    claimBAL(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     claimOwnership(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    claimVaultRewardTokens(
+      vault: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     coolDownTimeInSeconds(
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    executeTrade(
+      trade: TradeStruct,
+      dexId: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     harvestAssetsFromNotional(
@@ -1474,12 +1867,22 @@ export interface TreasuryManager extends BaseContract {
 
     pendingOwner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    priceOracleWindowInSeconds(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     priceOracles(
       arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     proxiableUUID(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    reinvestVaultReward(
+      vault: PromiseOrValue<string>,
+      params: IStrategyVault.ReinvestRewardParamsStruct,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
 
     sNOTE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -1501,6 +1904,11 @@ export interface TreasuryManager extends BaseContract {
     setPriceOracle(
       tokenAddress: PromiseOrValue<string>,
       oracleAddress: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setPriceOracleWindow(
+      _priceOracleWindowInSeconds: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
