@@ -6,11 +6,7 @@
         "name": "_notional",
         "type": "address"
       },
-      {
-        "internalType": "contract WETH9",
-        "name": "_weth",
-        "type": "address"
-      },
+      { "internalType": "contract WETH9", "name": "_weth", "type": "address" },
       {
         "internalType": "contract IVault",
         "name": "_balancerVault",
@@ -21,35 +17,24 @@
         "name": "_noteETHPoolId",
         "type": "bytes32"
       },
+      { "internalType": "contract IERC20", "name": "_note", "type": "address" },
       {
-        "internalType": "contract IERC20",
-        "name": "_note",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
+        "internalType": "contract IStakedNote",
         "name": "_sNOTE",
         "type": "address"
       },
-      {
-        "internalType": "address",
-        "name": "_assetProxy",
-        "type": "address"
-      },
+      { "internalType": "address", "name": "_assetProxy", "type": "address" },
       {
         "internalType": "contract IExchangeV3",
         "name": "_exchange",
         "type": "address"
       },
+      { "internalType": "uint256", "name": "_wethIndex", "type": "uint256" },
+      { "internalType": "uint256", "name": "_noteIndex", "type": "uint256" },
       {
-        "internalType": "uint256",
-        "name": "_wethIndex",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_noteIndex",
-        "type": "uint256"
+        "internalType": "contract ITradingModule",
+        "name": "_tradingModule",
+        "type": "address"
       }
     ],
     "stateMutability": "nonpayable",
@@ -142,6 +127,19 @@
       }
     ],
     "name": "COMPHarvested",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "version",
+        "type": "uint8"
+      }
+    ],
+    "name": "Initialized",
     "type": "event"
   },
   {
@@ -257,6 +255,19 @@
     "inputs": [
       {
         "indexed": false,
+        "internalType": "uint256",
+        "name": "_priceOracleWindowInSeconds",
+        "type": "uint256"
+      }
+    ],
+    "name": "PriceOracleWindowUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
         "internalType": "address",
         "name": "tokenAddress",
         "type": "address"
@@ -277,6 +288,37 @@
       {
         "indexed": true,
         "internalType": "address",
+        "name": "sellToken",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "buyToken",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "sellAmount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "buyAmount",
+        "type": "uint256"
+      }
+    ],
+    "name": "TradeExecuted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
         "name": "implementation",
         "type": "address"
       }
@@ -285,15 +327,65 @@
     "type": "event"
   },
   {
-    "inputs": [],
-    "name": "ASSET_PROXY",
-    "outputs": [
+    "anonymous": false,
+    "inputs": [
       {
+        "indexed": true,
         "internalType": "address",
-        "name": "",
+        "name": "vault",
         "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "rewardToken",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "soldAmount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "poolClaimAmount",
+        "type": "uint256"
       }
     ],
+    "name": "VaultRewardReinvested",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "vault",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "contract IERC20[]",
+        "name": "rewardTokens",
+        "type": "address[]"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256[]",
+        "name": "claimedBalances",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "VaultRewardTokensClaimed",
+    "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "ASSET_PROXY",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
     "stateMutability": "view",
     "type": "function"
   },
@@ -301,11 +393,7 @@
     "inputs": [],
     "name": "BALANCER_POOL_TOKEN",
     "outputs": [
-      {
-        "internalType": "contract ERC20",
-        "name": "",
-        "type": "address"
-      }
+      { "internalType": "contract ERC20", "name": "", "type": "address" }
     ],
     "stateMutability": "view",
     "type": "function"
@@ -314,11 +402,7 @@
     "inputs": [],
     "name": "BALANCER_VAULT",
     "outputs": [
-      {
-        "internalType": "contract IVault",
-        "name": "",
-        "type": "address"
-      }
+      { "internalType": "contract IVault", "name": "", "type": "address" }
     ],
     "stateMutability": "view",
     "type": "function"
@@ -327,11 +411,7 @@
     "inputs": [],
     "name": "EXCHANGE",
     "outputs": [
-      {
-        "internalType": "contract IExchangeV3",
-        "name": "",
-        "type": "address"
-      }
+      { "internalType": "contract IExchangeV3", "name": "", "type": "address" }
     ],
     "stateMutability": "view",
     "type": "function"
@@ -339,13 +419,14 @@
   {
     "inputs": [],
     "name": "MAXIMUM_COOL_DOWN_PERIOD_SECONDS",
-    "outputs": [
-      {
-        "internalType": "uint32",
-        "name": "",
-        "type": "uint32"
-      }
-    ],
+    "outputs": [{ "internalType": "uint32", "name": "", "type": "uint32" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "MAX_ORACLE_WINDOW_SIZE",
+    "outputs": [{ "internalType": "uint32", "name": "", "type": "uint32" }],
     "stateMutability": "view",
     "type": "function"
   },
@@ -353,11 +434,7 @@
     "inputs": [],
     "name": "NOTE",
     "outputs": [
-      {
-        "internalType": "contract IERC20",
-        "name": "",
-        "type": "address"
-      }
+      { "internalType": "contract IERC20", "name": "", "type": "address" }
     ],
     "stateMutability": "view",
     "type": "function"
@@ -365,26 +442,14 @@
   {
     "inputs": [],
     "name": "NOTE_ETH_POOL_ID",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
+    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "NOTE_INDEX",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },
@@ -403,10 +468,10 @@
   },
   {
     "inputs": [],
-    "name": "WETH",
+    "name": "TRADING_MODULE",
     "outputs": [
       {
-        "internalType": "contract WETH9",
+        "internalType": "contract ITradingModule",
         "name": "",
         "type": "address"
       }
@@ -416,27 +481,24 @@
   },
   {
     "inputs": [],
-    "name": "WETH_INDEX",
+    "name": "WETH",
     "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
+      { "internalType": "contract WETH9", "name": "", "type": "address" }
     ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
+    "name": "WETH_INDEX",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "_getNOTESpotPrice",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },
@@ -449,16 +511,8 @@
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      }
+      { "internalType": "address", "name": "token", "type": "address" },
+      { "internalType": "uint256", "name": "amount", "type": "uint256" }
     ],
     "name": "approveToken",
     "outputs": [],
@@ -499,26 +553,14 @@
             "name": "takerAssetAmount",
             "type": "uint256"
           },
-          {
-            "internalType": "uint256",
-            "name": "makerFee",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "takerFee",
-            "type": "uint256"
-          },
+          { "internalType": "uint256", "name": "makerFee", "type": "uint256" },
+          { "internalType": "uint256", "name": "takerFee", "type": "uint256" },
           {
             "internalType": "uint256",
             "name": "expirationTimeSeconds",
             "type": "uint256"
           },
-          {
-            "internalType": "uint256",
-            "name": "salt",
-            "type": "uint256"
-          },
+          { "internalType": "uint256", "name": "salt", "type": "uint256" },
           {
             "internalType": "bytes",
             "name": "makerAssetData",
@@ -552,31 +594,78 @@
   },
   {
     "inputs": [],
-    "name": "claimOwnership",
+    "name": "claimBAL",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [],
-    "name": "coolDownTimeInSeconds",
+    "name": "claimOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "vault", "type": "address" }
+    ],
+    "name": "claimVaultRewardTokens",
     "outputs": [
       {
-        "internalType": "uint32",
-        "name": "",
-        "type": "uint32"
+        "internalType": "contract IERC20[]",
+        "name": "rewardTokens",
+        "type": "address[]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "claimedBalances",
+        "type": "uint256[]"
       }
     ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "coolDownTimeInSeconds",
+    "outputs": [{ "internalType": "uint32", "name": "", "type": "uint32" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
       {
-        "internalType": "uint16[]",
-        "name": "currencies",
-        "type": "uint16[]"
-      }
+        "components": [
+          {
+            "internalType": "enum TradeType",
+            "name": "tradeType",
+            "type": "uint8"
+          },
+          { "internalType": "address", "name": "sellToken", "type": "address" },
+          { "internalType": "address", "name": "buyToken", "type": "address" },
+          { "internalType": "uint256", "name": "amount", "type": "uint256" },
+          { "internalType": "uint256", "name": "limit", "type": "uint256" },
+          { "internalType": "uint256", "name": "deadline", "type": "uint256" },
+          { "internalType": "bytes", "name": "exchangeData", "type": "bytes" }
+        ],
+        "internalType": "struct Trade",
+        "name": "trade",
+        "type": "tuple"
+      },
+      { "internalType": "uint8", "name": "dexId", "type": "uint8" }
+    ],
+    "name": "executeTrade",
+    "outputs": [
+      { "internalType": "uint256", "name": "amountSold", "type": "uint256" },
+      { "internalType": "uint256", "name": "amountBought", "type": "uint256" }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint16[]", "name": "currencies", "type": "uint16[]" }
     ],
     "name": "harvestAssetsFromNotional",
     "outputs": [],
@@ -585,11 +674,7 @@
   },
   {
     "inputs": [
-      {
-        "internalType": "address[]",
-        "name": "ctokens",
-        "type": "address[]"
-      }
+      { "internalType": "address[]", "name": "ctokens", "type": "address[]" }
     ],
     "name": "harvestCOMPFromNotional",
     "outputs": [],
@@ -598,16 +683,8 @@
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "_owner",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_manager",
-        "type": "address"
-      },
+      { "internalType": "address", "name": "_owner", "type": "address" },
+      { "internalType": "address", "name": "_manager", "type": "address" },
       {
         "internalType": "uint32",
         "name": "_coolDownTimeInSeconds",
@@ -621,21 +698,9 @@
   },
   {
     "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "wethAmount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "noteAmount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "minBPT",
-        "type": "uint256"
-      }
+      { "internalType": "uint256", "name": "wethAmount", "type": "uint256" },
+      { "internalType": "uint256", "name": "noteAmount", "type": "uint256" },
+      { "internalType": "uint256", "name": "minBPT", "type": "uint256" }
     ],
     "name": "investWETHAndNOTE",
     "outputs": [],
@@ -644,134 +709,110 @@
   },
   {
     "inputs": [
-      {
-        "internalType": "bytes",
-        "name": "data",
-        "type": "bytes"
-      },
-      {
-        "internalType": "bytes",
-        "name": "signature",
-        "type": "bytes"
-      }
+      { "internalType": "bytes", "name": "data", "type": "bytes" },
+      { "internalType": "bytes", "name": "signature", "type": "bytes" }
     ],
     "name": "isValidSignature",
-    "outputs": [
-      {
-        "internalType": "bytes4",
-        "name": "",
-        "type": "bytes4"
-      }
-    ],
+    "outputs": [{ "internalType": "bytes4", "name": "", "type": "bytes4" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "lastInvestTimestamp",
-    "outputs": [
-      {
-        "internalType": "uint32",
-        "name": "",
-        "type": "uint32"
-      }
-    ],
+    "outputs": [{ "internalType": "uint32", "name": "", "type": "uint32" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "manager",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "notePurchaseLimit",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "owner",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "pendingOwner",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
+    "inputs": [],
+    "name": "priceOracleWindowInSeconds",
+    "outputs": [{ "internalType": "uint32", "name": "", "type": "uint32" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
     "name": "priceOracles",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "proxiableUUID",
-    "outputs": [
+    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "vault", "type": "address" },
       {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
+        "components": [
+          { "internalType": "bytes", "name": "tradeData", "type": "bytes" },
+          {
+            "internalType": "uint256",
+            "name": "minPoolClaim",
+            "type": "uint256"
+          }
+        ],
+        "internalType": "struct IStrategyVault.ReinvestRewardParams",
+        "name": "params",
+        "type": "tuple"
       }
     ],
-    "stateMutability": "view",
+    "name": "reinvestVaultReward",
+    "outputs": [
+      { "internalType": "address", "name": "rewardToken", "type": "address" },
+      { "internalType": "uint256", "name": "soldAmount", "type": "uint256" },
+      {
+        "internalType": "uint256",
+        "name": "poolClaimAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "strategyTokenAmount",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "sNOTE",
     "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
+      { "internalType": "contract IStakedNote", "name": "", "type": "address" }
     ],
     "stateMutability": "view",
     "type": "function"
@@ -791,11 +832,7 @@
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "newManager",
-        "type": "address"
-      }
+      { "internalType": "address", "name": "newManager", "type": "address" }
     ],
     "name": "setManager",
     "outputs": [],
@@ -804,11 +841,7 @@
   },
   {
     "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "purchaseLimit",
-        "type": "uint256"
-      }
+      { "internalType": "uint256", "name": "purchaseLimit", "type": "uint256" }
     ],
     "name": "setNOTEPurchaseLimit",
     "outputs": [],
@@ -817,16 +850,8 @@
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "tokenAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "oracleAddress",
-        "type": "address"
-      }
+      { "internalType": "address", "name": "tokenAddress", "type": "address" },
+      { "internalType": "address", "name": "oracleAddress", "type": "address" }
     ],
     "name": "setPriceOracle",
     "outputs": [],
@@ -836,15 +861,20 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "tokenAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "slippageLimit",
-        "type": "uint256"
+        "internalType": "uint32",
+        "name": "_priceOracleWindowInSeconds",
+        "type": "uint32"
       }
+    ],
+    "name": "setPriceOracleWindow",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "tokenAddress", "type": "address" },
+      { "internalType": "uint256", "name": "slippageLimit", "type": "uint256" }
     ],
     "name": "setSlippageLimit",
     "outputs": [],
@@ -852,41 +882,17 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
+    "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
     "name": "slippageLimits",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "newOwner",
-        "type": "address"
-      },
-      {
-        "internalType": "bool",
-        "name": "direct",
-        "type": "bool"
-      },
-      {
-        "internalType": "bool",
-        "name": "renounce",
-        "type": "bool"
-      }
+      { "internalType": "address", "name": "newOwner", "type": "address" },
+      { "internalType": "bool", "name": "direct", "type": "bool" },
+      { "internalType": "bool", "name": "renounce", "type": "bool" }
     ],
     "name": "transferOwnership",
     "outputs": [],
@@ -913,11 +919,7 @@
         "name": "newImplementation",
         "type": "address"
       },
-      {
-        "internalType": "bytes",
-        "name": "data",
-        "type": "bytes"
-      }
+      { "internalType": "bytes", "name": "data", "type": "bytes" }
     ],
     "name": "upgradeToAndCall",
     "outputs": [],
@@ -926,16 +928,8 @@
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "token",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      }
+      { "internalType": "address", "name": "token", "type": "address" },
+      { "internalType": "uint256", "name": "amount", "type": "uint256" }
     ],
     "name": "withdraw",
     "outputs": [],

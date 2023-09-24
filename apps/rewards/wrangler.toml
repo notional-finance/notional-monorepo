@@ -1,0 +1,21 @@
+main = "./src/index.ts"
+compatibility_date = "2022-11-11"
+
+workers_dev = true
+node_compat = true
+minify = true
+logpush = true
+usage_model = "bundled"
+
+[env.dev]
+name = "rewards-dev"
+
+[env.dev.vars]
+NETWORK = 'ArbitrumOne'
+TREASURY_MANAGER_ADDRESS = '0x53144559c0d4a3304e2dd9dafbd685247429216d'
+
+[env.beta]
+name = "rewards-beta"
+
+[env.prod]
+name = "rewards"

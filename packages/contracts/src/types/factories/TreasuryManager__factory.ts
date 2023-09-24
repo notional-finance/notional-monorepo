@@ -38,7 +38,7 @@ const _abi = [
         type: "address",
       },
       {
-        internalType: "address",
+        internalType: "contract IStakedNote",
         name: "_sNOTE",
         type: "address",
       },
@@ -61,6 +61,11 @@ const _abi = [
         internalType: "uint256",
         name: "_noteIndex",
         type: "uint256",
+      },
+      {
+        internalType: "contract ITradingModule",
+        name: "_tradingModule",
+        type: "address",
       },
     ],
     stateMutability: "nonpayable",
@@ -153,6 +158,19 @@ const _abi = [
       },
     ],
     name: "COMPHarvested",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint8",
+        name: "version",
+        type: "uint8",
+      },
+    ],
+    name: "Initialized",
     type: "event",
   },
   {
@@ -268,6 +286,19 @@ const _abi = [
     inputs: [
       {
         indexed: false,
+        internalType: "uint256",
+        name: "_priceOracleWindowInSeconds",
+        type: "uint256",
+      },
+    ],
+    name: "PriceOracleWindowUpdated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
         internalType: "address",
         name: "tokenAddress",
         type: "address",
@@ -288,11 +319,98 @@ const _abi = [
       {
         indexed: true,
         internalType: "address",
+        name: "sellToken",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "buyToken",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "sellAmount",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "buyAmount",
+        type: "uint256",
+      },
+    ],
+    name: "TradeExecuted",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
         name: "implementation",
         type: "address",
       },
     ],
     name: "Upgraded",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "vault",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "rewardToken",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "soldAmount",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "poolClaimAmount",
+        type: "uint256",
+      },
+    ],
+    name: "VaultRewardReinvested",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "vault",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "contract IERC20[]",
+        name: "rewardTokens",
+        type: "address[]",
+      },
+      {
+        indexed: false,
+        internalType: "uint256[]",
+        name: "claimedBalances",
+        type: "uint256[]",
+      },
+    ],
+    name: "VaultRewardTokensClaimed",
     type: "event",
   },
   {
@@ -362,6 +480,19 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "MAX_ORACLE_WINDOW_SIZE",
+    outputs: [
+      {
+        internalType: "uint32",
+        name: "",
+        type: "uint32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "NOTE",
     outputs: [
       {
@@ -405,6 +536,19 @@ const _abi = [
     outputs: [
       {
         internalType: "contract NotionalTreasuryAction",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "TRADING_MODULE",
+    outputs: [
+      {
+        internalType: "contract ITradingModule",
         name: "",
         type: "address",
       },
@@ -563,8 +707,39 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "claimBAL",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
     name: "claimOwnership",
     outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "vault",
+        type: "address",
+      },
+    ],
+    name: "claimVaultRewardTokens",
+    outputs: [
+      {
+        internalType: "contract IERC20[]",
+        name: "rewardTokens",
+        type: "address[]",
+      },
+      {
+        internalType: "uint256[]",
+        name: "claimedBalances",
+        type: "uint256[]",
+      },
+    ],
     stateMutability: "nonpayable",
     type: "function",
   },
@@ -579,6 +754,72 @@ const _abi = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        components: [
+          {
+            internalType: "enum TradeType",
+            name: "tradeType",
+            type: "uint8",
+          },
+          {
+            internalType: "address",
+            name: "sellToken",
+            type: "address",
+          },
+          {
+            internalType: "address",
+            name: "buyToken",
+            type: "address",
+          },
+          {
+            internalType: "uint256",
+            name: "amount",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "limit",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "deadline",
+            type: "uint256",
+          },
+          {
+            internalType: "bytes",
+            name: "exchangeData",
+            type: "bytes",
+          },
+        ],
+        internalType: "struct Trade",
+        name: "trade",
+        type: "tuple",
+      },
+      {
+        internalType: "uint8",
+        name: "dexId",
+        type: "uint8",
+      },
+    ],
+    name: "executeTrade",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "amountSold",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "amountBought",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -743,6 +984,19 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "priceOracleWindowInSeconds",
+    outputs: [
+      {
+        internalType: "uint32",
+        name: "",
+        type: "uint32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "address",
@@ -775,11 +1029,62 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [
+      {
+        internalType: "address",
+        name: "vault",
+        type: "address",
+      },
+      {
+        components: [
+          {
+            internalType: "bytes",
+            name: "tradeData",
+            type: "bytes",
+          },
+          {
+            internalType: "uint256",
+            name: "minPoolClaim",
+            type: "uint256",
+          },
+        ],
+        internalType: "struct IStrategyVault.ReinvestRewardParams",
+        name: "params",
+        type: "tuple",
+      },
+    ],
+    name: "reinvestVaultReward",
+    outputs: [
+      {
+        internalType: "address",
+        name: "rewardToken",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "soldAmount",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "poolClaimAmount",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "strategyTokenAmount",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "sNOTE",
     outputs: [
       {
-        internalType: "address",
+        internalType: "contract IStakedNote",
         name: "",
         type: "address",
       },
@@ -840,6 +1145,19 @@ const _abi = [
       },
     ],
     name: "setPriceOracle",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint32",
+        name: "_priceOracleWindowInSeconds",
+        type: "uint32",
+      },
+    ],
+    name: "setPriceOracleWindow",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

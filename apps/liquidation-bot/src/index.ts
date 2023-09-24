@@ -14,6 +14,7 @@ import { Logger } from '@notional-finance/durable-objects';
 
 export interface Env {
   ACCOUNT_SERVICE_URL: string;
+  DATA_SERVICE_AUTH_TOKEN: string;
   ZERO_EX_SWAP_URL: string;
   ZERO_EX_API_KEY: string;
   NETWORK: string;
@@ -43,7 +44,13 @@ const run = async (env: Env) => {
     service: 'liquidator',
   });
 
-  const accounts = (await (await fetch(env.ACCOUNT_SERVICE_URL)).json()) as any;
+  const accounts = (await (
+    await fetch(env.ACCOUNT_SERVICE_URL, {
+      headers: {
+        'x-auth-token': env.DATA_SERVICE_AUTH_TOKEN,
+      },
+    })
+  ).json()) as any;
   const addrs = accounts.map((a) => a.account_id);
 
   const provider = getProviderFromNetwork(Network[env.NETWORK], true);
