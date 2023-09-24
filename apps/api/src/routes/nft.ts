@@ -17,7 +17,7 @@ const NFT = {
       image: BetaPass,
     },
   },
-  '0x': {
+  '0x04C09BE50750B4189457168032b3C1702bA2f09d': {
     '0': {
       name: 'The Sad Sack',
       description: 'Sadly, leverage is not for you.',
