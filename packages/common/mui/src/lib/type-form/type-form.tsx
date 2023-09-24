@@ -122,7 +122,7 @@ export const TypeForm = () => {
             <Widget
               height={750}
               width={495}
-              id="https://eehxwr6nfuc.typeform.com/to/H7HRrARr"
+              id="https://eehxwr6nfuc.typeform.com/to/AClgXM23"
               style={{ fontSize: 16, zIndex: 99999 }}
               onSubmit={handleSubmit}
             ></Widget>
