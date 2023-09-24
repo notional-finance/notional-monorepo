@@ -10,14 +10,14 @@ const NFT = {
       image: BetaPass,
     },
   },
-  '0x1BeaB4729Fc8C7B16Bc4D849f40aD81F9F563283': {
+  '0x7c2d3a5fa3b41f4e6e2086bb19372016a7533f3e': {
     default: {
       name: 'Notional Beta Contest Pass',
       description: 'Notional Arbitrum Beta contest pass.',
       image: BetaPass,
     },
   },
-  '0x04C09BE50750B4189457168032b3C1702bA2f09d': {
+  '0xed8cbc13a2043d9c93115eeb3c9e4323e34659c3': {
     '0': {
       name: 'The Sad Sack',
       description: 'Sadly, leverage is not for you.',
@@ -41,7 +41,8 @@ const NFT = {
 
 export const handleNFT = (request: IRequest, _env: APIEnv) => {
   const url = new URL(request.url);
-  const [_, _nft, address, tokenId] = url.pathname.split('/');
+  const [_, _nft, _address, tokenId] = url.pathname.split('/');
+  const address = _address.toLowerCase();
   // Additional metadata standards can be found here:
   // https://docs.opensea.io/docs/metadata-standards
   if (NFT[address][tokenId]) {

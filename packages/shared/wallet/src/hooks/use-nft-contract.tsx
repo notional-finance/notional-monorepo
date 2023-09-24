@@ -7,6 +7,8 @@ import {
 import { useHistory, useLocation } from 'react-router-dom';
 import { BETA_ACCESS } from '@notional-finance/notionable';
 
+const NFT = '0x7c2d3a5fa3b41f4e6e2086bb19372016a7533f3e';
+
 export const useNftContract = (selectedAddress?: string) => {
   const selectedNetwork = useSelectedNetwork();
   const history = useHistory();
@@ -36,7 +38,7 @@ export const useNftContract = (selectedAddress?: string) => {
       !hasContestNFT
     ) {
       const providerURL = getProviderURLFromNetwork(selectedNetwork, true);
-      const url = `${providerURL}/getNFTs?owner=${selectedAddress}&contractAddresses[]=0x965b3aad78cdab2cc778243b12705ba3b7c5048c&withMetadata=false`;
+      const url = `${providerURL}/getNFTs?owner=${selectedAddress}&contractAddresses[]=${NFT}&withMetadata=false`;
       setPending(true);
       updateNotional({ hasContestNFT: BETA_ACCESS.PENDING });
 
