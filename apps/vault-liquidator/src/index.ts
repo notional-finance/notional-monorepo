@@ -57,7 +57,8 @@ const run = async (env: Env) => {
       },
     })
   ).json()) as any;
-  const addrs = accounts.map((a) => a.id);
+  const addrs = accounts.map((a) => a.account_id);
+
   const provider = getProviderFromNetwork(Network[env.NETWORK], true);
   const liq = new VaultV3Liquidator(
     provider,
