@@ -4,7 +4,7 @@ import { useTheme, styled } from '@mui/material';
 import { Button } from '@notional-finance/mui';
 import {
   useAccountReady,
-  useGeoipBlock,
+  useLeverageBlock,
 } from '@notional-finance/notionable-hooks';
 import { SETTINGS_SIDE_DRAWERS } from '@notional-finance/util';
 import {
@@ -56,7 +56,7 @@ export function TradeActionButton({
   margin,
 }: TradeActionButtonProps) {
   const theme = useTheme();
-  const isBlocked = useGeoipBlock();
+  const isBlocked = useLeverageBlock();
   const isAccountReady = useAccountReady();
   const { sideDrawerOpen } = useSideDrawerState();
   const { setWalletSideDrawer, clearWalletSideDrawer } = useSideDrawerManager();
@@ -103,7 +103,9 @@ export function TradeActionButton({
       onClick={isAccountReady ? _onSubmit : () => handleConnectWallet()}
     >
       {leverageDisabled ? (
-        <FormattedMessage defaultMessage={'Not Available for US Persons or VPN Users'} />
+        <FormattedMessage
+          defaultMessage={'Not Available for US Persons or VPN Users'}
+        />
       ) : (
         <FormattedMessage
           {...(isAccountReady

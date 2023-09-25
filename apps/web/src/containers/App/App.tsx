@@ -1,6 +1,7 @@
 import {
   NotionalContext,
   useGlobalContext,
+  useSanctionsBlock,
 } from '@notional-finance/notionable-hooks';
 import { TrackingConsent } from '@notional-finance/shared-web';
 import { Web3OnboardProvider } from '@web3-onboard/react';
@@ -57,6 +58,7 @@ import { Markets } from '../Markets';
 
 const AllRoutes = () => {
   const [routeKey, setRouteKey] = useState('');
+  useSanctionsBlock()
   // Have this hook here to ensure that all children routes will see updates if the onboard
   // context changes (there is a useEffect hook inside here listening for changes in the
   // onboard context)

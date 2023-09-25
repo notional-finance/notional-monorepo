@@ -1,4 +1,8 @@
-import { filterEmpty, Network } from '@notional-finance/util';
+import {
+  filterEmpty,
+  getProviderFromNetwork,
+  Network,
+} from '@notional-finance/util';
 import {
   Observable,
   merge,
@@ -8,6 +12,7 @@ import {
   map,
   distinctUntilChanged,
   tap,
+  from,
 } from 'rxjs';
 import { BETA_ACCESS, GlobalState } from './global-state';
 import {
@@ -17,6 +22,10 @@ import {
   onSelectedNetworkChange,
 } from './logic';
 import { trackEvent } from '@notional-finance/helpers';
+import { Contract } from 'ethers';
+
+const vpnCheck = 'https://detect.notional.finance/';
+const dataURL = process.env['NX_DATA_URL'] || 'https://data.notional.finance';
 
 export const loadGlobalManager = (
   state$: Observable<GlobalState>
@@ -112,6 +121,20 @@ export const loadGlobalManager = (
           wallet: wallet?.label || 'unknown',
         });
       }
+    }),
+    filter(({ selectedAccount }) => selectedAccount !== undefined),
+    switchMap(({ selectedAccount }) => {
+      // Chain Analysis Sanctioned Address Oracle
+      const sanctionList = new Contract(
+        '0x40c57923924b5c5c5455c48d93317139addac8fb',
+        ['function isSanctioned(address) view returns (bool)'],
+        getProviderFromNetwork(Network.Mainnet)
+      );
+      return from(
+        (
+          sanctionList['isSanctioned'](selectedAccount) as Promise<boolean>
+        ).then((isSanctionedAddress) => ({ isSanctionedAddress }))
+      );
     })
   );
 
@@ -127,6 +150,20 @@ export const loadGlobalManager = (
     })
   );
 
+  const onAppLoad$ = state$.pipe(
+    filter(({ country }) => country === undefined),
+    switchMap(() => {
+      return from(
+        Promise.all([
+          fetch(vpnCheck),
+          fetch(`${dataURL}/geoip`).then((r) => r.json()),
+        ]).then(([vpn, geoip]) => {
+          return { country: vpn.status !== 200 ? 'VPN' : geoip['country'] };
+        })
+      );
+    })
+  );
+
   return merge(
     onSelectedNetworkChange$,
     onNetworkPending$,
@@ -134,6 +171,7 @@ export const loadGlobalManager = (
     onWalletDisconnect$,
     onAccountPending$,
     onAccountConnect$,
-    onNFTUnlock$
+    onNFTUnlock$,
+    onAppLoad$
   );
 };

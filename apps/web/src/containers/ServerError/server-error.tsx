@@ -11,9 +11,26 @@ const errorMessages = defineMessages({
     defaultMessage: "We can't find the page you're looking for",
     description: 'server error message',
   },
+  '451': {
+    defaultMessage:
+      'Your region is blocked due to US sanctions. See the affected export control list here: https://orpa.princeton.edu/export-controls/sanctioned-countries',
+    description: 'server error message',
+  },
   '500': {
     defaultMessage: 'Internal system error',
     description: 'server error message',
+  },
+});
+
+const errorHeader = defineMessages({
+  '404': {
+    defaultMessage: 'Not Found',
+  },
+  '451': {
+    defaultMessage: 'Unavailable For Legal Reasons',
+  },
+  '500': {
+    defaultMessage: 'Internal System Error',
   },
 });
 
@@ -47,9 +64,8 @@ export const ServerError = () => {
             marginBottom: theme.spacing(3),
             marginRight: theme.spacing(3),
           }}
-        >
-          <FormattedMessage defaultMessage={'Oops, something went wrong...'} />
-        </H2>
+          msg={errorHeader[errorCode] || errorHeader['500']}
+        />
         <H4
           contrast
           sx={{ marginBottom: theme.spacing(6) }}
