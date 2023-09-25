@@ -15,7 +15,7 @@ export const LiquidityVariableSidebar = () => {
   const { currencyInputRef } = useCurrencyInputRef();
 
   const handleLeverUpToggle = useCallback(() => {
-    history.push(`/${PRODUCTS.LIQUIDITY_VARIABLE}/${selectedDepositToken}`);
+    history.push(`/${PRODUCTS.LIQUIDITY_LEVERAGED}/${selectedDepositToken}`);
   }, [history, selectedDepositToken]);
 
   return (

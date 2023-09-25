@@ -1,4 +1,8 @@
-import { Switch as MuiSwitch, SwitchProps as MuiSwitchProps, useTheme } from '@mui/material';
+import {
+  Switch as MuiSwitch,
+  SwitchProps as MuiSwitchProps,
+  useTheme,
+} from '@mui/material';
 
 /* eslint-disable-next-line */
 export interface SwitchProps extends MuiSwitchProps {}
@@ -24,15 +28,18 @@ export function Switch({ sx = {}, checked = false, ...rest }: SwitchProps) {
         color: theme.palette.common.white,
         '& + .MuiSwitch-track': {
           opacity: 1,
-          backgroundColor: theme.palette.primary.light ?? theme.palette.error.main,
+          backgroundColor:
+            theme.palette.primary.light ?? theme.palette.error.main,
         },
       },
     },
     '& .MuiSwitch-thumb': {
-      color: checked ? theme.palette.common.white : theme.palette.borders.accentPaper,
+      color: checked
+        ? theme.palette.common.white
+        : theme.palette.borders.accentPaper,
       width: 15,
       height: 15,
-      borderRadius: 6,
+      borderRadius: '7px',
       transition: theme.transitions.create(['width'], {
         duration: 200,
       }),
