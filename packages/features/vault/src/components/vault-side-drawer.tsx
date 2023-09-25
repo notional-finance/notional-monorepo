@@ -11,7 +11,7 @@ import { VaultDetailsTable } from './vault-details-table';
 import {
   VaultContext,
   useVaultProperties,
-  useGeoipBlock,
+  useLeverageBlock,
 } from '@notional-finance/notionable-hooks';
 import { useVaultCapacity } from '../hooks';
 import { VaultTradeType } from '@notional-finance/notionable';
@@ -30,7 +30,7 @@ export const VaultSideDrawer = ({
   advancedToggle,
   context,
 }: VaultSideDrawerProps) => {
-  const isBlocked = useGeoipBlock();
+  const isBlocked = useLeverageBlock();
   const history = useHistory();
   const { state, updateState } = context;
   const { vaultAddress, tradeType: _tradeType, canSubmit, confirm } = state;

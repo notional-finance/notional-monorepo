@@ -24,7 +24,7 @@ import {
 import { trackEvent } from '@notional-finance/helpers';
 import { Contract } from 'ethers';
 
-const vpnCheck = 'http://detect.notional.finance/';
+const vpnCheck = 'https://detect.notional.finance/';
 const dataURL = process.env['NX_DATA_URL'] || 'https://data.notional.finance';
 
 export const loadGlobalManager = (
