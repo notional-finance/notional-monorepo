@@ -1,16 +1,7 @@
 import {
-  IS_LOCAL_ENV,
   PRIME_CASH_VAULT_MATURITY,
   SECONDS_IN_DAY,
 } from '@notional-finance/util';
-
-export function getNowSeconds() {
-  if (IS_LOCAL_ENV && process.env['FAKE_TIME']) {
-    return parseInt(process.env['FAKE_TIME'], 10);
-  }
-
-  return Math.floor(new Date().getTime() / 1000);
-}
 
 export interface DateStringOptions {
   slashesFormat?: boolean;

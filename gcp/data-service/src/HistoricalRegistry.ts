@@ -5,6 +5,7 @@ import {
   Routes,
   ClientRegistry,
 } from '@notional-finance/core-entities';
+import { env } from 'node:process';
 
 export class HistoricalRegistry extends Registry {
   static override initialize(
@@ -14,7 +15,11 @@ export class HistoricalRegistry extends Registry {
     super.initialize(cacheHostname, fetchMode, false);
   }
 
-  public static async refreshAtBlock(network: Network, blockNumber: number) {
+  public static async refreshAtBlock(
+    network: Network,
+    blockNumber: number,
+    timestamp: number
+  ) {
     // NOTE: refresh needs to run in this particular order.
     const clients = [
       [Routes.Tokens, this._tokens, true],
@@ -29,6 +34,10 @@ export class HistoricalRegistry extends Registry {
         if (network === Network.All && !allNetwork) {
           continue;
         }
+
+        env['FAKE_TIME'] = timestamp.toString();
+        env['USE_FAKE_TIME'] = 'true';
+
         await new Promise<void>((resolve) => {
           client.triggerRefresh(network, resolve, blockNumber);
           if (route == Routes.Tokens)
