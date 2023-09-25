@@ -13,6 +13,8 @@ name = "rewards-dev"
 [env.dev.vars]
 NETWORK = 'ArbitrumOne'
 TREASURY_MANAGER_ADDRESS = '0x53144559c0d4a3304e2dd9dafbd685247429216d'
+TX_RELAY_URL = 'https://tx-relay-arbitrum-dot-monitoring-agents.uc.r.appspot.com'
+ZERO_EX_PRICE_URL = 'https://arbitrum.api.0x.org/swap/v1/quote'
 
 [env.beta]
 name = "rewards-beta"
