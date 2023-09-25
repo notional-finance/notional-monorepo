@@ -4,7 +4,7 @@ interface GeoIpResponse {
   country: string;
 }
 
-const vpnCheck = 'http://detect.notional.finance/';
+const vpnCheck = 'https://detect.notional.finance/';
 const dataURL = process.env['NX_DATA_URL'] || 'https://data.notional.finance';
 const env = process.env['NODE_ENV'];
 // https://orpa.princeton.edu/export-controls/sanctioned-countries
