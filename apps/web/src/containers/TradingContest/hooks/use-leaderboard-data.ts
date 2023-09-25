@@ -67,6 +67,7 @@ export function useLeaderboardData() {
             username: {
               text: truncateAddress(a.address),
               dataSet: 'highRoller',
+              fullAddress: a.address,
             },
             address: a.address,
             totalAPY: formatNumberAsPercent(a.irr),
@@ -88,7 +89,7 @@ export function useLeaderboardData() {
           .filter((a) => a.irr < 0)
           .map((a, i) => ({
             rank: (i + 1).toString().padStart(2, '0'),
-            username: { text: truncateAddress(a.address), dataSet: 'sadSack' },
+            username: { text: truncateAddress(a.address), dataSet: 'sadSack', fullAddress: a.address },
             address: a.address,
             totalAPY: formatNumberAsPercent(a.irr),
             totalEarnings: TokenBalance.fromJSON(a.earnings)
@@ -113,7 +114,7 @@ export function useLeaderboardData() {
           .sort((a, b) => b.irr - a.irr)
           .map((a, i) => ({
             rank: (i + 1).toString().padStart(2, '0'),
-            username: { text: truncateAddress(a.address), dataSet: 'fatCat' },
+            username: { text: truncateAddress(a.address), dataSet: 'fatCat', fullAddress: a.address },
             address: a.address,
             totalAPY: formatNumberAsPercent(a.irr),
             totalEarnings: TokenBalance.fromJSON(a.earnings)

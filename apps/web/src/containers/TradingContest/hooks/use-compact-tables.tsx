@@ -1,6 +1,6 @@
 import {
   ContestTableColumn,
-  customIconCell,
+  CustomIconCell,
   idCell,
 } from '@notional-finance/mui';
 import { useLeaderboardData } from './use-leaderboard-data';
@@ -16,7 +16,7 @@ export const useCompactTables = () => {
     },
     {
       Header: 'test',
-      Cell: customIconCell,
+      Cell: CustomIconCell,
       accessor: 'username',
       textAlign: 'left',
     },

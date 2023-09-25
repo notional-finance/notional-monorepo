@@ -1,6 +1,6 @@
 import {
   ContestTableColumn,
-  customIconCell,
+  CustomIconCell,
   // addressCell,
   idCell,
 } from '@notional-finance/mui';
@@ -18,7 +18,7 @@ export const useLeaderBoardTables = () => {
     },
     {
       Header: '',
-      Cell: customIconCell,
+      Cell: CustomIconCell,
       accessor: 'username',
       textAlign: 'left',
     },

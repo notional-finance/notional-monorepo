@@ -10,6 +10,7 @@ import MetaMask from './images/meta-mask.svg';
 import WalletConnect from './images/wallet-connect.svg';
 import Ledger from './images/ledger.svg';
 import Trezor from './images/trezor.svg';
+import Rabby from './images/rabby.svg';
 import CoinbaseWallet from './images/coinbase-wallet.svg';
 import {
   getProviderURLFromNetwork,
@@ -36,6 +37,10 @@ export const modules = [
   {
     label: 'MetaMask',
     icon: MetaMask,
+  },
+  {
+    label: 'Rabby Wallet',
+    icon: Rabby,
   },
   {
     label: 'WalletConnect',
