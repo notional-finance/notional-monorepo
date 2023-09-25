@@ -120,3 +120,20 @@ export type RouteType =
   | 'Portfolio'
   | 'PortfolioTransaction'
   | 'Confirmation';
+
+export enum DEX_ID {
+  UNKNOWN,
+  UNISWAP_V2,
+  UNISWAP_V3,
+  ZERO_EX,
+  BALANCER_V2,
+  CURVE,
+  NOTIONAL_VAULT,
+}
+
+export enum TRADE_TYPE {
+  EXACT_IN_SINGLE,
+  EXACT_OUT_SINGLE,
+  EXACT_IN_BATCH,
+  EXACT_OUT_BATCH,
+}
