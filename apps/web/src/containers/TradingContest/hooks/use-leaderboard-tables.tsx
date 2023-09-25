@@ -1,7 +1,6 @@
 import {
   ContestTableColumn,
   CustomIconCell,
-  // addressCell,
   idCell,
 } from '@notional-finance/mui';
 import { useLeaderboardData } from './use-leaderboard-data';
@@ -42,12 +41,6 @@ export const useLeaderBoardTables = () => {
       accessor: 'totalEarnings',
       textAlign: 'right',
     },
-    // {
-    //   Header: 'View Portfolio',
-    //   accessor: 'address',
-    //   Cell: addressCell,
-    //   textAlign: 'right',
-    // },
   ];
   const { highRollerData, sadSackData, fatCatData, currentUserData } =
     useLeaderboardData();
