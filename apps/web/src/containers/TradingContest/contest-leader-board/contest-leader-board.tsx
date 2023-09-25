@@ -131,7 +131,6 @@ export const ContestLeaderBoard = () => {
                   }
                   columns={leaderBoardColumns}
                   data={sadSackData}
-                  tableLoading={sadSackData.length === 0}
                 />
               </TableContainer>
             </MainContainer>

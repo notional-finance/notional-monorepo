@@ -8,6 +8,7 @@ import { PageLoading } from '../page-loading/page-loading';
 import { useTable, useExpanded, useSortBy } from 'react-table';
 import { FormattedMessage } from 'react-intl';
 import { TableCell } from '../typography/typography';
+import { colors } from '@notional-finance/styles';
 import { ContestTableColumn, CONTEST_TABLE_VARIANTS } from './types';
 
 interface ContestTableProps {
@@ -124,12 +125,16 @@ export const ContestTable = ({
             <PageLoading type="notional" />
           ) : (
             <TableCell
-              sx={{ textAlign: 'center', margin: theme.spacing(4, 0) }}
+              sx={{
+                textAlign: 'center',
+                margin: theme.spacing(4, 0),
+                color: colors.white,
+              }}
             >
               {stateZeroMessage ? (
                 stateZeroMessage
               ) : (
-                <FormattedMessage defaultMessage={'No Data Available'} />
+                <FormattedMessage defaultMessage={'No entrants'} />
               )}
             </TableCell>
           )}
