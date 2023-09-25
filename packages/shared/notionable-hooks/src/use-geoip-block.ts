@@ -35,6 +35,7 @@ export function useGeoipBlock() {
     });
   }, []);
 
+  console.log('Current GeoIP Location: ', country);
   return isProd
     ? country === 'N/A' || country === 'US' || country === 'VPN'
     : false;
