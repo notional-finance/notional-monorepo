@@ -33,21 +33,13 @@ export type DeploymentParamsStruct = {
   pool: PromiseOrValue<string>;
   tradingModule: PromiseOrValue<string>;
   isSelfLPToken: PromiseOrValue<boolean>;
-  settlementPeriodInSeconds: PromiseOrValue<BigNumberish>;
 };
 
-export type DeploymentParamsStructOutput = [
-  number,
-  string,
-  string,
-  boolean,
-  number
-] & {
+export type DeploymentParamsStructOutput = [number, string, string, boolean] & {
   primaryBorrowCurrencyId: number;
   pool: string;
   tradingModule: string;
   isSelfLPToken: boolean;
-  settlementPeriodInSeconds: number;
 };
 
 export type ConvexVaultDeploymentParamsStruct = {
@@ -66,14 +58,12 @@ export type StrategyVaultSettingsStruct = {
   postMaturitySettlementSlippageLimitPercent: PromiseOrValue<BigNumberish>;
   emergencySettlementSlippageLimitPercent: PromiseOrValue<BigNumberish>;
   maxPoolShare: PromiseOrValue<BigNumberish>;
-  settlementCoolDownInMinutes: PromiseOrValue<BigNumberish>;
   oraclePriceDeviationLimitPercent: PromiseOrValue<BigNumberish>;
   poolSlippageLimitPercent: PromiseOrValue<BigNumberish>;
 };
 
 export type StrategyVaultSettingsStructOutput = [
   BigNumber,
-  number,
   number,
   number,
   number,
@@ -86,7 +76,6 @@ export type StrategyVaultSettingsStructOutput = [
   postMaturitySettlementSlippageLimitPercent: number;
   emergencySettlementSlippageLimitPercent: number;
   maxPoolShare: number;
-  settlementCoolDownInMinutes: number;
   oraclePriceDeviationLimitPercent: number;
   poolSlippageLimitPercent: number;
 };
@@ -111,7 +100,6 @@ export type StrategyVaultStateStructOutput = [
 };
 
 export type StrategyContextStruct = {
-  settlementPeriodInSeconds: PromiseOrValue<BigNumberish>;
   tradingModule: PromiseOrValue<string>;
   vaultSettings: StrategyVaultSettingsStruct;
   vaultState: StrategyVaultStateStruct;
@@ -120,14 +108,12 @@ export type StrategyContextStruct = {
 };
 
 export type StrategyContextStructOutput = [
-  number,
   string,
   StrategyVaultSettingsStructOutput,
   StrategyVaultStateStructOutput,
   BigNumber,
   boolean
 ] & {
-  settlementPeriodInSeconds: number;
   tradingModule: string;
   vaultSettings: StrategyVaultSettingsStructOutput;
   vaultState: StrategyVaultStateStructOutput;
@@ -270,6 +256,27 @@ export declare namespace IStrategyVault {
   };
 }
 
+export declare namespace ISingleSidedLPStrategyVault {
+  export type SingleSidedLPStrategyVaultInfoStruct = {
+    pool: PromiseOrValue<string>;
+    singleSidedTokenIndex: PromiseOrValue<BigNumberish>;
+    totalLPTokens: PromiseOrValue<BigNumberish>;
+    totalVaultShares: PromiseOrValue<BigNumberish>;
+  };
+
+  export type SingleSidedLPStrategyVaultInfoStructOutput = [
+    string,
+    number,
+    BigNumber,
+    BigNumber
+  ] & {
+    pool: string;
+    singleSidedTokenIndex: number;
+    totalLPTokens: BigNumber;
+    totalVaultShares: BigNumber;
+  };
+}
+
 export interface Curve2TokenConvexVaultInterface extends utils.Interface {
   functions: {
     "DEFAULT_ADMIN_ROLE()": FunctionFragment;
@@ -283,13 +290,15 @@ export interface Curve2TokenConvexVaultInterface extends utils.Interface {
     "deleverageAccount(address,address,address,uint16,int256)": FunctionFragment;
     "depositFromNotional(address,uint256,uint256,bytes)": FunctionFragment;
     "getEmergencySettlementPoolClaimAmount(uint256)": FunctionFragment;
+    "getExchangeRate(uint256)": FunctionFragment;
     "getRoleAdmin(bytes32)": FunctionFragment;
     "getRoles()": FunctionFragment;
     "getSpotPrice(uint256)": FunctionFragment;
     "getStrategyContext()": FunctionFragment;
+    "getStrategyVaultInfo()": FunctionFragment;
     "grantRole(bytes32,address)": FunctionFragment;
     "hasRole(bytes32,address)": FunctionFragment;
-    "initialize((string,uint16,(uint256,uint32,uint32,uint32,uint16,uint16,uint16,uint16)))": FunctionFragment;
+    "initialize((string,uint16,(uint256,uint32,uint32,uint32,uint16,uint16,uint16)))": FunctionFragment;
     "name()": FunctionFragment;
     "proxiableUUID()": FunctionFragment;
     "redeemFromNotional(address,address,uint256,uint256,uint256,bytes)": FunctionFragment;
@@ -298,7 +307,7 @@ export interface Curve2TokenConvexVaultInterface extends utils.Interface {
     "repaySecondaryBorrowCallback(address,uint256,bytes)": FunctionFragment;
     "restoreVault(uint256)": FunctionFragment;
     "revokeRole(bytes32,address)": FunctionFragment;
-    "setStrategyVaultSettings((uint256,uint32,uint32,uint32,uint16,uint16,uint16,uint16))": FunctionFragment;
+    "setStrategyVaultSettings((uint256,uint32,uint32,uint32,uint16,uint16,uint16))": FunctionFragment;
     "settleVaultEmergency(uint256,bytes)": FunctionFragment;
     "strategy()": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
@@ -319,10 +328,12 @@ export interface Curve2TokenConvexVaultInterface extends utils.Interface {
       | "deleverageAccount"
       | "depositFromNotional"
       | "getEmergencySettlementPoolClaimAmount"
+      | "getExchangeRate"
       | "getRoleAdmin"
       | "getRoles"
       | "getSpotPrice"
       | "getStrategyContext"
+      | "getStrategyVaultInfo"
       | "grantRole"
       | "hasRole"
       | "initialize"
@@ -396,6 +407,10 @@ export interface Curve2TokenConvexVaultInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
+    functionFragment: "getExchangeRate",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "getRoleAdmin",
     values: [PromiseOrValue<BytesLike>]
   ): string;
@@ -406,6 +421,10 @@ export interface Curve2TokenConvexVaultInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "getStrategyContext",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getStrategyVaultInfo",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -521,6 +540,10 @@ export interface Curve2TokenConvexVaultInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "getExchangeRate",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getRoleAdmin",
     data: BytesLike
   ): Result;
@@ -531,6 +554,10 @@ export interface Curve2TokenConvexVaultInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "getStrategyContext",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getStrategyVaultInfo",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "grantRole", data: BytesLike): Result;
@@ -750,6 +777,11 @@ export interface Curve2TokenConvexVault extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber] & { poolClaimToSettle: BigNumber }>;
 
+    getExchangeRate(
+      maturity: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
     getRoleAdmin(
       role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -767,6 +799,12 @@ export interface Curve2TokenConvexVault extends BaseContract {
     getStrategyContext(
       overrides?: CallOverrides
     ): Promise<[Curve2TokenConvexStrategyContextStructOutput]>;
+
+    getStrategyVaultInfo(
+      overrides?: CallOverrides
+    ): Promise<
+      [ISingleSidedLPStrategyVault.SingleSidedLPStrategyVaultInfoStructOutput]
+    >;
 
     grantRole(
       role: PromiseOrValue<BytesLike>,
@@ -909,6 +947,11 @@ export interface Curve2TokenConvexVault extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
+  getExchangeRate(
+    maturity: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
   getRoleAdmin(
     role: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
@@ -926,6 +969,10 @@ export interface Curve2TokenConvexVault extends BaseContract {
   getStrategyContext(
     overrides?: CallOverrides
   ): Promise<Curve2TokenConvexStrategyContextStructOutput>;
+
+  getStrategyVaultInfo(
+    overrides?: CallOverrides
+  ): Promise<ISingleSidedLPStrategyVault.SingleSidedLPStrategyVaultInfoStructOutput>;
 
   grantRole(
     role: PromiseOrValue<BytesLike>,
@@ -1078,6 +1125,11 @@ export interface Curve2TokenConvexVault extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    getExchangeRate(
+      maturity: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     getRoleAdmin(
       role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -1095,6 +1147,10 @@ export interface Curve2TokenConvexVault extends BaseContract {
     getStrategyContext(
       overrides?: CallOverrides
     ): Promise<Curve2TokenConvexStrategyContextStructOutput>;
+
+    getStrategyVaultInfo(
+      overrides?: CallOverrides
+    ): Promise<ISingleSidedLPStrategyVault.SingleSidedLPStrategyVaultInfoStructOutput>;
 
     grantRole(
       role: PromiseOrValue<BytesLike>,
@@ -1130,7 +1186,13 @@ export interface Curve2TokenConvexVault extends BaseContract {
     reinvestReward(
       params: ReinvestRewardParamsStruct,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<
+      [string, BigNumber, BigNumber] & {
+        rewardToken: string;
+        amountSold: BigNumber;
+        poolClaimAmount: BigNumber;
+      }
+    >;
 
     renounceRole(
       role: PromiseOrValue<BytesLike>,
@@ -1299,6 +1361,11 @@ export interface Curve2TokenConvexVault extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    getExchangeRate(
+      maturity: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     getRoleAdmin(
       role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -1312,6 +1379,8 @@ export interface Curve2TokenConvexVault extends BaseContract {
     ): Promise<BigNumber>;
 
     getStrategyContext(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getStrategyVaultInfo(overrides?: CallOverrides): Promise<BigNumber>;
 
     grantRole(
       role: PromiseOrValue<BytesLike>,
@@ -1457,6 +1526,11 @@ export interface Curve2TokenConvexVault extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    getExchangeRate(
+      maturity: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     getRoleAdmin(
       role: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -1470,6 +1544,10 @@ export interface Curve2TokenConvexVault extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     getStrategyContext(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getStrategyVaultInfo(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
