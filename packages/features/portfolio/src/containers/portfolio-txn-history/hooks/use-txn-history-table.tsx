@@ -173,8 +173,8 @@ export const useTxnHistoryTable = (
           'Transaction Type': `${
             transactionType.label
           } ${transactionType.symbol.toUpperCase()}`,
-          'Underlying Amount': underlyingAmount,
-          'Asset Amount': assetAmount.data[0],
+          'Underlying Amount': underlyingAmount.data[0].displayValue,
+          'Asset Amount': assetAmount.data[0].displayValue,
           Asset: asset.label,
           Price: price,
           Time: getDateString(time, { showTime: true, slashesFormat: true }),
