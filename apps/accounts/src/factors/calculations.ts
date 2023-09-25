@@ -27,6 +27,7 @@ export const excludeAccounts = [
   '0xe6fb62c2218fd9e3c948f0549a2959b509a293c8',
   '0x650f94282ee5e8fffe7336eb6a5e30dcfa61201c',
   '0xd74e7325dFab7D7D1ecbf22e6E6874061C50f243',
+  '0xbf778fc19d0b55575711b6339a3680d07352b221',
 ];
 
 export function calculateAccountIRR(
