@@ -56,6 +56,11 @@ interface UserSettingsState {
   baseCurrency: FiatKeys;
 }
 
+interface ExportControlsState {
+  country?: string;
+  isSanctionedAddress: boolean;
+}
+
 interface TransactionState {
   sentTransactions: Record<string, TransactionResponse>;
   completedTransactions: Record<string, TransactionReceipt>;
@@ -72,6 +77,7 @@ export interface GlobalState
     OnboardState,
     TransactionState,
     UserSettingsState,
+    ExportControlsState,
     ErrorState {}
 
 export const initialGlobalState: GlobalState = {
@@ -87,4 +93,5 @@ export const initialGlobalState: GlobalState = {
     ? userSettings?.themeVariant
     : THEME_VARIANTS.LIGHT,
   baseCurrency: userSettings?.baseCurrency ? userSettings?.baseCurrency : 'USD',
+  isSanctionedAddress: false,
 };
