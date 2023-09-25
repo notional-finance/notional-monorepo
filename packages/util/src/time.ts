@@ -8,7 +8,8 @@ import {
 
 export function getNowSeconds() {
   const fakeTime = process.env['FAKE_TIME'] || process.env['NX_FAKE_TIME'];
-  if (IS_LOCAL_ENV && fakeTime) {
+  const useFakeTime = process.env['USE_FAKE_TIME'] || IS_LOCAL_ENV;
+  if (useFakeTime && fakeTime) {
     return parseInt(fakeTime, 10);
   }
   return Math.floor(new Date().getTime() / 1000);

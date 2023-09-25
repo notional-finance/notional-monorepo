@@ -5,6 +5,7 @@ import {
   Routes,
   ClientRegistry,
 } from '@notional-finance/core-entities';
+import { env } from 'node:process';
 
 export class HistoricalRegistry extends Registry {
   static override initialize(
@@ -33,8 +34,12 @@ export class HistoricalRegistry extends Registry {
         if (network === Network.All && !allNetwork) {
           continue;
         }
+
+        env['FAKE_TIME'] = timestamp.toString();
+        env['USE_FAKE_TIME'] = 'true';
+
         await new Promise<void>((resolve) => {
-          client.triggerRefresh(network, resolve, blockNumber, timestamp);
+          client.triggerRefresh(network, resolve, blockNumber);
           if (route == Routes.Tokens)
             Registry.registerDefaultPoolTokens(network);
         });

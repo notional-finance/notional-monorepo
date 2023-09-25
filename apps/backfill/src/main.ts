@@ -112,8 +112,8 @@ async function main() {
 
     const mainnetBlock = parseInt(mainnetBlockRows[0].block_number);
 
-    await HistoricalRegistry.refreshAtBlock(Network.All, mainnetBlock);
-    await HistoricalRegistry.refreshAtBlock(network, block);
+    await HistoricalRegistry.refreshAtBlock(Network.All, mainnetBlock, ts);
+    await HistoricalRegistry.refreshAtBlock(network, block, ts);
     console.log(`Refreshed data at ${block}`);
     const yieldData = getYieldData(network, block);
     const oracleData = getOracleData(network);
