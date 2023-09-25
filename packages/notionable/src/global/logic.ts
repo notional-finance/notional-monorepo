@@ -56,7 +56,12 @@ export async function onAccountPending(
     );
   });
 
-  return { isAccountReady, isAccountPending: false };
+  return {
+    isAccountReady,
+    isAccountPending: false,
+    hasContestNFT: undefined,
+    contestTokenId: undefined,
+  };
 }
 
 export async function disconnectAccount(selectedNetwork: Network) {

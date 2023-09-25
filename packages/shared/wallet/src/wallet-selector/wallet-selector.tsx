@@ -79,7 +79,7 @@ export function WalletSelector() {
   };
 
   return (
-    <>
+    <Box sx={{ display: 'flex', alignItems: 'center' }}>
       <OuterContainer>
         <ContestDropdown />
         <Container>
@@ -163,7 +163,7 @@ export function WalletSelector() {
       </OuterContainer>
       <WalletSideDrawer />
       {!pathname.includes('contest') && <NetworkSelector />}
-    </>
+    </Box>
   );
 }
 

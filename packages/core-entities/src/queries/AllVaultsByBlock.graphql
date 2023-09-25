@@ -4,6 +4,7 @@ query AllVaultsByBlock($blockNumber: Int) {
         vaultAddress
         strategy
         name
+        enabled
     }
 
   _meta {

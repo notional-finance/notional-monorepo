@@ -58,7 +58,7 @@ export const ContestHero = () => {
                 marginTop: theme.spacing(5),
               }}
             >
-              <ProgressIndicator />
+              <ProgressIndicator type="notional" />
             </Box>
           ) : (
             <>
@@ -164,6 +164,10 @@ const TextAndButtonWrapper = styled(Box)(
   width: ${theme.spacing(75)};
   ${theme.breakpoints.down('md')} {
     width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
   }
   `
 );

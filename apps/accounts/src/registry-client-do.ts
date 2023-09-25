@@ -4,6 +4,7 @@ import {
   Network,
   PRIME_CASH_VAULT_MATURITY,
   SETTLEMENT_RESERVE,
+  ZERO_ADDRESS,
   convertToSignedfCashId,
   decodeERC1155Id,
   getNowSeconds,
@@ -102,25 +103,45 @@ export class RegistryClientDO extends BaseDO<Env> {
           (t) => t[groupingKey] || 'all'
         );
 
-        return Array.from(grouped.keys()).map((g) => {
-          const latestTimestamp = Math.max(
-            ...grouped
-              .get(g)
-              .map((d) => (d['timestamp'] || d['Timestamp'] || 0) as number)
-          );
+        return Array.from(grouped.keys())
+          .filter((tokenId) => {
+            if (
+              k === 'notional_assets_apys_and_tvls' &&
+              isERC1155Id(tokenId.toString())
+            ) {
+              const { maturity, vaultAddress } = decodeERC1155Id(
+                tokenId.toString()
+              );
+              if (maturity < getNowSeconds()) return false;
+              if (vaultAddress !== undefined && vaultAddress !== ZERO_ADDRESS) {
+                return Registry.getVaultRegistry().isVaultEnabled(
+                  network,
+                  vaultAddress
+                );
+              }
+            }
 
-          return {
-            metric: `registry.lastUpdateTimestamp`,
-            points: [
-              {
-                value: timestamp - latestTimestamp,
-                timestamp,
-              },
-            ],
-            tags: [networkTag, `registry:analytics`, `view:${k}:${g}`],
-            type: MetricType.Gauge,
-          };
-        });
+            return true;
+          })
+          .map((g) => {
+            const latestTimestamp = Math.max(
+              ...grouped
+                .get(g)
+                .map((d) => (d['timestamp'] || d['Timestamp'] || 0) as number)
+            );
+
+            return {
+              metric: `registry.lastUpdateTimestamp`,
+              points: [
+                {
+                  value: timestamp - latestTimestamp,
+                  timestamp,
+                },
+              ],
+              tags: [networkTag, `registry:analytics`, `view:${k}:${g}`],
+              type: MetricType.Gauge,
+            };
+          });
       });
 
     await this.logger.submitMetrics({

@@ -681,6 +681,24 @@ export const configDefs: ConfigDefinition[] = [
       contractABI: ERC20ABI,
       method: 'balanceOf',
       args: ['0x1344A36A1B56144C3Bc62E7757377D288fDE0369'],
+      finalBlock: 132900685,
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'usdcProxyBalance',
+      decimals: 6,
+    },
+    network: Network.ArbitrumOne,
+  },
+  {
+    sourceType: SourceType.Multicall,
+    sourceConfig: {
+      contractAddress: '0xaf88d065e77c8cC2239327C5EDb3A432268e5831',
+      contractABI: ERC20ABI,
+      method: 'balanceOf',
+      args: ['0x1344A36A1B56144C3Bc62E7757377D288fDE0369'],
+      firstBlock: 132900686,
     },
     tableName: TableName.GenericData,
     dataConfig: {

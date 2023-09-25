@@ -7284,7 +7284,7 @@ export type AllVaultsByBlockQueryVariables = Exact<{
 }>;
 
 
-export type AllVaultsByBlockQuery = { vaultConfigurations: Array<Pick<VaultConfiguration, 'id' | 'vaultAddress' | 'strategy' | 'name'>>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
+export type AllVaultsByBlockQuery = { vaultConfigurations: Array<Pick<VaultConfiguration, 'id' | 'vaultAddress' | 'strategy' | 'name' | 'enabled'>>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
 
 
 export const AccountBalanceStatementDocument = gql`
@@ -7791,6 +7791,7 @@ export const AllVaultsByBlockDocument = gql`
     vaultAddress
     strategy
     name
+    enabled
   }
   _meta {
     block {
