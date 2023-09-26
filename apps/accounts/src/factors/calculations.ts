@@ -103,7 +103,7 @@ export function calculateAccountIRR(
   let irr = 0;
   if (!totalNetWorth.isZero()) {
     try {
-      irr = xirr(allFlows);
+      irr = xirr(allFlows) * 100;
     } catch (e) {
       console.log(
         'IRR Failed',
