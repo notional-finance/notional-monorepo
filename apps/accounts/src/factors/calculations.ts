@@ -7,14 +7,14 @@ import {
   AccountRiskProfile,
   VaultAccountRiskProfile,
 } from '@notional-finance/risk-engine';
-import { getNowSeconds } from '@notional-finance/util';
+import { getNowSeconds, groupArrayToMap } from '@notional-finance/util';
 
 const contestStart = 1695625200;
 // const contestEnd = 1698044400;
 
 export const excludeAccounts = [
   '0x7f6f138c955e5b1017a12e4567d90c62abb00074',
-  '0x424da3efc0dc677be66afe1967fb631fabb86799',
+  '0x424da3eFC0dC677be66aFE1967Fb631fAbb86799',
   '0x7d7935edd4b6cdb5f34b0e1cceaf85a3c4a11254',
   '0xcece1920d4dbb96baf88705ce0a6eb3203ed2eb1',
   '0x46a6f15b5a5cd0f1c93f87c4af0a0586fc9d07e8',
@@ -94,16 +94,41 @@ export function calculateAccountIRR(
     .reduce((s, { balance }) => s.add(balance), TokenBalance.from(0, ETH))
     .neg();
 
-  const allFlows = cashFlows.concat({
-    date: new Date(getNowSeconds() * 1000),
-    amount: totalNetWorth.toFloat(),
-    balance: totalNetWorth,
-  });
+  // NOTE: groups up the cash flow to sum up flows that occur at the same time
+  const allFlows = Array.from(
+    groupArrayToMap(
+      cashFlows.concat({
+        date: new Date(getNowSeconds() * 1000),
+        amount: totalNetWorth.toFloat(),
+        balance: totalNetWorth,
+      }),
+      (t) => t.date.getTime() / 1000
+    ).entries()
+  )
+    .map(([, flow]) => {
+      return flow.reduce(
+        (f, c, i) => {
+          return i > 0
+            ? {
+                ...f,
+                amount: f.amount + c.amount,
+                balance: f.balance.add(c.balance),
+              }
+            : f;
+        },
+        {
+          date: flow[0].date,
+          amount: flow[0].amount,
+          balance: flow[0].balance,
+        }
+      );
+    })
+    .sort((a, b) => a.date.getTime() - b.date.getTime());
 
   let irr = 0;
   if (!totalNetWorth.isZero()) {
     try {
-      irr = xirr(allFlows);
+      irr = xirr(allFlows) * 100;
     } catch (e) {
       console.log(
         'IRR Failed',
