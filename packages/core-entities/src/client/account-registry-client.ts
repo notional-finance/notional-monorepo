@@ -410,12 +410,10 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
               balances.push(TokenBalance.from(b.nTokenBalance, nToken));
             }
 
-            if (b.accountIncentiveDebt.gt(0)) {
-              accountIncentiveDebt.push({
-                value: TokenBalance.from(b.accountIncentiveDebt, NOTE),
-                currencyId: b.currencyId,
-              });
-            }
+            accountIncentiveDebt.push({
+              value: TokenBalance.from(b.accountIncentiveDebt, NOTE),
+              currencyId: b.currencyId,
+            });
 
             return balances;
           });
