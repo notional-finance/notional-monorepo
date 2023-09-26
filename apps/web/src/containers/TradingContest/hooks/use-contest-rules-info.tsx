@@ -5,7 +5,7 @@ export const useContestRulesInfo = () => {
     {
       text: (
         <FormattedMessage
-          defaultMessage={`The yield competition will take place from 12 AM Eastern Time on Monday September 25 to 12 AM Eastern Time Monday October 23.`}
+          defaultMessage={`The yield competition will take place from 12 AM Eastern Time on Monday September 25 to 12 AM Eastern Time Monday October 25.`}
         />
       ),
     },

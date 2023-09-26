@@ -10,8 +10,8 @@ interface ContestCountDownProps {
 }
 
 export const ContestCountDown = ({ title }: ContestCountDownProps) => {
-  // This is a millisecond timestamp for 12 AM on 10/23/2023
-  const futureDate = 1698019200000;
+  // This is a millisecond timestamp for 12 AM on 10/25/2023
+  const futureDate = 1698210000000;
   return (
     <Container>
       <TitleText>{title}</TitleText>
