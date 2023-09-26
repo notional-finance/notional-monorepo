@@ -28,10 +28,10 @@ export function buildTransaction(
   account$: ReturnType<typeof selectedAccount>
 ) {
   return combineLatest([state$, account$]).pipe(
-    filter(([state]) => state.canSubmit),
     switchMap(([s, a]) => {
       if (
         a &&
+        s.canSubmit &&
         s.confirm &&
         s.populatedTransaction === undefined &&
         s.transactionError === undefined
@@ -125,8 +125,8 @@ export function simulateTransaction(
                   abs = simulated.toFloat() - calculated.toFloat();
                 } else if (simulated) {
                   if (
-                    simulated.maturity &&
-                    simulated.maturity < getNowSeconds()
+                    simulated.token.maturity &&
+                    simulated.token.maturity < getNowSeconds()
                   ) {
                     // This is a matured balance, it should be cleared to zero
                     rel = 0;
@@ -147,15 +147,21 @@ export function simulateTransaction(
                   calculatedBalance: calculated,
                 };
               })
-              .filter(({ rel, abs, simulatedBalance }) =>
+              .filter(({ rel, abs, simulatedBalance, calculatedBalance }) => {
                 // Allow for more tolerance in this scenario since we do not accurately account
                 // for dust repayment within the calculation. The actual amount of vault shares
                 // is relatively insignificant.
-                tradeType === 'RollVaultPosition' &&
-                simulatedBalance?.tokenType === 'VaultShare'
-                  ? Math.abs(rel) > 5e-2 && Math.abs(abs) > 5e-5
-                  : Math.abs(rel) > 5e-4 && Math.abs(abs) > 5e-5
-              );
+                if (
+                  (tradeType === 'RollVaultPosition' &&
+                    simulatedBalance?.tokenType === 'VaultShare') ||
+                  simulatedBalance?.symbol === 'NOTE' ||
+                  calculatedBalance?.symbol === 'NOTE'
+                ) {
+                  return Math.abs(rel) > 5e-2 && Math.abs(abs) > 5e-5;
+                } else {
+                  return Math.abs(rel) > 5e-4 && Math.abs(abs) > 5e-5;
+                }
+              });
 
             if (mismatchedBalances.length > 0) {
               logError(

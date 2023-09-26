@@ -85,12 +85,11 @@ export function postAccountRisk(
                   if (!accountIncentiveDebt) {
                     return note;
                   } else {
-                    return note.add(
-                      calculateNTokenIncentives(
-                        balanceBefore,
-                        accountIncentiveDebt.value
-                      )
+                    const additionalNOTE = calculateNTokenIncentives(
+                      balanceBefore,
+                      accountIncentiveDebt.value
                     );
+                    return note.add(additionalNOTE);
                   }
                 }
               }
