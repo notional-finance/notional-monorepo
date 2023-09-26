@@ -730,12 +730,11 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
     snapshot: BalanceSnapshot,
     network: Network
   ) {
-    let balance = TokenBalance.fromID(
+    const balance = TokenBalance.fromID(
       snapshot.currentBalance,
       tokenId,
       network
     );
-    if (balance.tokenType === 'PrimeDebt') balance = balance.neg();
 
     const adjustedCostBasis = TokenBalance.fromID(
       snapshot.adjustedCostBasis,
