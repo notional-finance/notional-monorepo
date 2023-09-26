@@ -15,7 +15,6 @@ const contestStart = 1695625200;
 export const excludeAccounts = [
   '0x7f6f138c955e5b1017a12e4567d90c62abb00074',
   '0x424da3efc0dc677be66afe1967fb631fabb86799',
-  '0x1831f47aca338450ed5e97d93d8339735a31bd05',
   '0x7d7935edd4b6cdb5f34b0e1cceaf85a3c4a11254',
   '0xcece1920d4dbb96baf88705ce0a6eb3203ed2eb1',
   '0x46a6f15b5a5cd0f1c93f87c4af0a0586fc9d07e8',
