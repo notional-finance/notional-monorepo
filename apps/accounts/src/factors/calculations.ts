@@ -136,7 +136,7 @@ export function calculateAccountIRR(
     Math.min(...allFlows.map(({ date }) => date.getTime()));
   const minDeposit = TokenBalance.unit(
     Registry.getTokenRegistry().getTokenBySymbol(Network.All, 'USD')
-  ).scale(100, 1);
+  );
 
   let irr = 0;
   if (

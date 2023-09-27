@@ -33,13 +33,6 @@ export const useContestRulesInfo = () => {
     {
       text: (
         <FormattedMessage
-          defaultMessage={`Users can not deposit more than 1,000 USD. If the value of a user’s account grows while it’s on Notional and comes to exceed 1,000 USD, the user will not be disqualified. But users who push their account value over 1,000 USD by depositing will be disqualified.`}
-        />
-      ),
-    },
-    {
-      text: (
-        <FormattedMessage
           defaultMessage={`NOTE incentives are counted as earnings and will be converted to USD as of the average NOTE price over the course of the contest.`}
         />
       ),
@@ -63,7 +56,7 @@ export const useContestRulesInfo = () => {
     {
       text: (
         <FormattedMessage
-          defaultMessage={`Realized APY can not be gamed or affected by making deposits or withdrawals. Users are free to deposit and withdraw in any currency as frequently as they want provided they stay under the $1,000 max account value.`}
+          defaultMessage={`Realized APY can not be gamed or affected by making deposits or withdrawals. Users are free to deposit and withdraw in any currency as frequently as they want.`}
         />
       ),
     },
