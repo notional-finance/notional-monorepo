@@ -59,6 +59,7 @@ export interface AreaChartProps {
   areaLineType?: 'linear' | 'monotone';
   emptyStateMessage?: ReactNode;
   showEmptyState?: boolean;
+  title?: string;
 }
 
 export const AreaChart = ({
@@ -74,10 +75,28 @@ export const AreaChart = ({
   isMultiChart,
   emptyStateMessage,
   showEmptyState,
+  title,
 }: AreaChartProps) => {
   const theme = useTheme();
 
-  const defaultChartToolTipData = useDefaultToolTips();
+  const yAxisTickHandler = (yAxisTickFormat, v: number) => {
+    if (yAxisTickFormat === 'percent' && typeof v === 'number') {
+      return formatNumberAsPercent(v);
+    }
+    if (yAxisTickFormat === 'usd' && typeof v === 'number') {
+      return `$${formatNumberToDigits(v, 2)}`;
+    }
+    if (yAxisTickFormat === 'number' && typeof v === 'number') {
+      return formatNumber(v, 2);
+    }
+    return `${v}`;
+  };
+
+  const defaultChartToolTipData = useDefaultToolTips(
+    yAxisTickHandler,
+    yAxisTickFormat,
+    title
+  );
 
   const xAxisTickHandler = (v: number, i: number) => {
     let result = '';
@@ -92,19 +111,6 @@ export const AreaChart = ({
       result = formatNumberAsPercent(v);
     }
     return result;
-  };
-
-  const yAxisTickHandler = (v: number) => {
-    if (yAxisTickFormat === 'percent' && typeof v === 'number') {
-      return formatNumberAsPercent(v);
-    }
-    if (yAxisTickFormat === 'usd' && typeof v === 'number') {
-      return `$${formatNumberToDigits(v, 2)}`;
-    }
-    if (yAxisTickFormat === 'number' && typeof v === 'number') {
-      return formatNumber(v, 2);
-    }
-    return `${v}`;
   };
 
   return (
@@ -188,7 +194,7 @@ export const AreaChart = ({
             tickLine={false}
             axisLine={false}
             style={{ fill: theme.palette.typography.light, fontSize: '12px' }}
-            tickFormatter={(v: number) => yAxisTickHandler(v)}
+            tickFormatter={(v: number) => yAxisTickHandler(yAxisTickFormat, v)}
           />
           <Line
             type="monotone"

@@ -1,13 +1,14 @@
-import {
-  getDateString,
-  formatNumberAsPercent,
-} from '@notional-finance/helpers';
+import { getDateString } from '@notional-finance/helpers';
 import { useTheme } from '@mui/material';
 import { ChartToolTipDataProps } from '../chart-tool-tip/chart-tool-tip';
 import { FormattedMessage } from 'react-intl';
 import { LEGEND_LINE_TYPES } from '../chart-header/chart-header';
 
-export const useDefaultToolTips = () => {
+export const useDefaultToolTips = (
+  yAxisTickHandler,
+  yAxisTickFormat,
+  title
+) => {
   const theme = useTheme();
   const chartToolTipData: ChartToolTipDataProps = {
     timestamp: {
@@ -25,9 +26,10 @@ export const useDefaultToolTips = () => {
       lineType: LEGEND_LINE_TYPES.SOLID,
       formatTitle: (area) => (
         <FormattedMessage
-          defaultMessage={'{apy} APY'}
+          defaultMessage={'{value} {title}'}
           values={{
-            apy: <span>{formatNumberAsPercent(area)}</span>,
+            value: <span>{yAxisTickHandler(yAxisTickFormat, area)}</span>,
+            title: <span>{title}</span>,
           }}
         />
       ),

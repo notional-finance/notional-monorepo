@@ -58,7 +58,6 @@ export const CustomIconCell = ({ cell }) => {
           position: 'absolute',
           borderRadius: theme.shape.borderRadius(),
           border: `1px solid ${theme.palette.primary.light}`,
-          marginTop: theme.spacing(12),
           transition: 'all 0.3s ease-in-out',
           opacity: showAlert ? 1 : 0,
         }}
