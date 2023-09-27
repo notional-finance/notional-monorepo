@@ -16,11 +16,11 @@ const FormWrapper = styled(Box)(
     z-index: 99;
     font-weight: bold;
     text-align: center;
-    bottom: 0;
+    top: 0;
     right: 0;
-    margin: 40px;
-    margin-right: 15px;
+    margin-right: 26px;
     margin-bottom: 150px;
+    margin-top: 110px;
     box-shadow: -2px 1px 24px rgba(20, 41, 102, 0.2), 0px 4px 16px rgba(29, 116, 119, 0.4);
     @media (max-width: 400px) {
       display: none;
@@ -81,7 +81,7 @@ export const TypeForm = () => {
     if (!typeFormSubmitted) {
       setHideOverallForm(false);
     }
-  }, 15000);
+  }, 5000);
   return (
     <FormWrapper>
       {!hideOverallForm && (

@@ -43,6 +43,7 @@ export const LiquidityVariableSummary = () => {
             Component: (
               <ChartContainer>
                 <AreaChart
+                  title="APY"
                   showCartesianGrid
                   xAxisTickFormat="date"
                   areaChartData={apyData}
@@ -57,6 +58,7 @@ export const LiquidityVariableSummary = () => {
             Component: (
               <ChartContainer>
                 <AreaChart
+                  title="TVL"
                   showCartesianGrid
                   xAxisTickFormat="date"
                   yAxisTickFormat="usd"

@@ -27,7 +27,7 @@ export const useAnalyticsDropdown = () => {
     },
     {
       title: <FormattedMessage defaultMessage={'Dune Dashboard'} />,
-      to: 'https://dune.com/PierreYves_Gendron/Notional-V2-Dashboard',
+      to: 'https://dune.com/PierreYves_Gendron/notional-finance-v3',
       icon: (
         <DuneIcon
           sx={{

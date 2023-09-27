@@ -42,6 +42,7 @@ export const BorrowVariableTradeSummary = () => {
             Component: (
               <ChartContainer>
                 <AreaChart
+                  title={'APY'}
                   showCartesianGrid
                   xAxisTickFormat="date"
                   areaChartData={apyData}
@@ -56,6 +57,7 @@ export const BorrowVariableTradeSummary = () => {
             Component: (
               <ChartContainer>
                 <AreaChart
+                  title={'TVL'}
                   showCartesianGrid
                   xAxisTickFormat="date"
                   areaChartData={tvlData}
