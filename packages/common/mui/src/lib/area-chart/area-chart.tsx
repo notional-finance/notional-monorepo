@@ -62,6 +62,19 @@ export interface AreaChartProps {
   title?: string;
 }
 
+export const yAxisTickHandler = (yAxisTickFormat, v: number) => {
+  if (yAxisTickFormat === 'percent' && typeof v === 'number') {
+    return formatNumberAsPercent(v);
+  }
+  if (yAxisTickFormat === 'usd' && typeof v === 'number') {
+    return `$${formatNumberToDigits(v, 2)}`;
+  }
+  if (yAxisTickFormat === 'number' && typeof v === 'number') {
+    return formatNumber(v, 2);
+  }
+  return `${v}`;
+};
+
 export const AreaChart = ({
   areaChartData,
   xAxisTickFormat = 'date',
@@ -79,24 +92,7 @@ export const AreaChart = ({
 }: AreaChartProps) => {
   const theme = useTheme();
 
-  const yAxisTickHandler = (yAxisTickFormat, v: number) => {
-    if (yAxisTickFormat === 'percent' && typeof v === 'number') {
-      return formatNumberAsPercent(v);
-    }
-    if (yAxisTickFormat === 'usd' && typeof v === 'number') {
-      return `$${formatNumberToDigits(v, 2)}`;
-    }
-    if (yAxisTickFormat === 'number' && typeof v === 'number') {
-      return formatNumber(v, 2);
-    }
-    return `${v}`;
-  };
-
-  const defaultChartToolTipData = useDefaultToolTips(
-    yAxisTickHandler,
-    yAxisTickFormat,
-    title
-  );
+  const defaultChartToolTipData = useDefaultToolTips(yAxisTickFormat, title);
 
   const xAxisTickHandler = (v: number, i: number) => {
     let result = '';

@@ -3,12 +3,9 @@ import { useTheme } from '@mui/material';
 import { ChartToolTipDataProps } from '../chart-tool-tip/chart-tool-tip';
 import { FormattedMessage } from 'react-intl';
 import { LEGEND_LINE_TYPES } from '../chart-header/chart-header';
+import { yAxisTickHandler } from './area-chart';
 
-export const useDefaultToolTips = (
-  yAxisTickHandler,
-  yAxisTickFormat,
-  title
-) => {
+export const useDefaultToolTips = (yAxisTickFormat, title) => {
   const theme = useTheme();
   const chartToolTipData: ChartToolTipDataProps = {
     timestamp: {
