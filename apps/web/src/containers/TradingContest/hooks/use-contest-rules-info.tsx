@@ -33,13 +33,6 @@ export const useContestRulesInfo = () => {
     {
       text: (
         <FormattedMessage
-          defaultMessage={`Users can not deposit more than 1,000 USD. If the value of a user’s account grows while it’s on Notional and comes to exceed 1,000 USD, the user will not be disqualified. But users who push their account value over 1,000 USD by depositing will be disqualified.`}
-        />
-      ),
-    },
-    {
-      text: (
-        <FormattedMessage
           defaultMessage={`NOTE incentives are counted as earnings and will be converted to USD as of the average NOTE price over the course of the contest.`}
         />
       ),

@@ -29,7 +29,7 @@ export function useLiquidationChart(
     debt,
     tradeType,
     priorAccountRisk,
-    canSubmit,
+    inputsSatisfied,
   } = state;
 
   const token =
@@ -151,6 +151,6 @@ export function useLiquidationChart(
     areaChartHeaderData,
     chartToolTipData,
     yAxisDomain,
-    showEmptyState: !canSubmit,
+    showEmptyState: !inputsSatisfied,
   };
 }

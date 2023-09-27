@@ -41,11 +41,23 @@ export const useInterestRateUtilizationChart = (
         },
         {
           timestamp: (primeCashCurve.kinkUtilization1 * 100) / RATE_PRECISION,
-          area: (primeCashCurve.kinkRate1 * 100) / RATE_PRECISION,
+          area:
+            actionType === 'borrow'
+              ? (primeCashCurve.kinkRate1 * 100) / RATE_PRECISION
+              : (primeCashCurve.kinkRate1 *
+                  primeCashCurve.kinkUtilization1 *
+                  100) /
+                (RATE_PRECISION * RATE_PRECISION),
         },
         {
           timestamp: (primeCashCurve.kinkUtilization2 * 100) / RATE_PRECISION,
-          area: (primeCashCurve.kinkRate2 * 100) / RATE_PRECISION,
+          area:
+            actionType === 'borrow'
+              ? (primeCashCurve.kinkRate2 * 100) / RATE_PRECISION
+              : (primeCashCurve.kinkRate2 *
+                  primeCashCurve.kinkUtilization2 *
+                  100) /
+                (RATE_PRECISION * RATE_PRECISION),
         },
         {
           timestamp: 100,
@@ -62,20 +74,6 @@ export const useInterestRateUtilizationChart = (
       ) : (
         <FormattedMessage defaultMessage={'Prime Lending Rate | Utilization'} />
       ),
-    legendData: [
-      {
-        label:
-          actionType === 'borrow' ? (
-            <FormattedMessage defaultMessage={'Prime Borrow Rate'} />
-          ) : (
-            <FormattedMessage defaultMessage={'Prime Lending Rate'} />
-          ),
-        // TODO: Add correct value here
-        value: '-',
-        lineColor: colors.blueAccent,
-        lineType: LEGEND_LINE_TYPES.SOLID,
-      },
-    ],
   };
 
   const chartToolTipData: ChartToolTipDataProps = {
