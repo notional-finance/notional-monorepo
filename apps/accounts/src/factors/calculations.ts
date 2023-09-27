@@ -1,5 +1,6 @@
 import {
   AccountDefinition,
+  Registry,
   TokenBalance,
 } from '@notional-finance/core-entities';
 import { CashFlow, xirr } from './xirr';
@@ -7,7 +8,12 @@ import {
   AccountRiskProfile,
   VaultAccountRiskProfile,
 } from '@notional-finance/risk-engine';
-import { getNowSeconds, groupArrayToMap } from '@notional-finance/util';
+import {
+  Network,
+  ONE_MINUTE_MS,
+  getNowSeconds,
+  groupArrayToMap,
+} from '@notional-finance/util';
 
 const contestStart = 1695625200;
 // const contestEnd = 1698044400;
@@ -125,8 +131,18 @@ export function calculateAccountIRR(
     })
     .sort((a, b) => a.date.getTime() - b.date.getTime());
 
+  const msSinceFirstDeposit =
+    getNowSeconds() * 1000 -
+    Math.min(...allFlows.map(({ date }) => date.getTime()));
+  const minDeposit = TokenBalance.unit(
+    Registry.getTokenRegistry().getTokenBySymbol(Network.All, 'USD')
+  );
+
   let irr = 0;
-  if (!totalNetWorth.isZero()) {
+  if (
+    totalNetWorth.toFiat('USD').gt(minDeposit) &&
+    msSinceFirstDeposit > 15 * ONE_MINUTE_MS
+  ) {
     try {
       irr = xirr(allFlows) * 100;
     } catch (e) {

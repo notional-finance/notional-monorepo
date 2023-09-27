@@ -56,7 +56,7 @@ export const useContestRulesInfo = () => {
     {
       text: (
         <FormattedMessage
-          defaultMessage={`Realized APY can not be gamed or affected by making deposits or withdrawals. Users are free to deposit and withdraw in any currency as frequently as they want provided they stay under the $1,000 max account value.`}
+          defaultMessage={`Realized APY can not be gamed or affected by making deposits or withdrawals. Users are free to deposit and withdraw in any currency as frequently as they want.`}
         />
       ),
     },
