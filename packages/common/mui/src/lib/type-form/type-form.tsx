@@ -86,7 +86,7 @@ export const TypeForm = () => {
     const now = new Date().getTime();
     if (timeDismissed && now - timeDismissed > 24 * 60 * 60 * 1000) {
       setInLocalStorage('typeForm', { timeOfDismissal: undefined });
-      setHideOverallForm(true);
+      setHideOverallForm(false);
     }
   };
 
