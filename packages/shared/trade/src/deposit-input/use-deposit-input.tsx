@@ -36,13 +36,17 @@ export function useDepositInput(
   let errorMsg: MessageDescriptor | undefined;
   // Check that this is strictly true, when undefined it means the wallet data is
   // unknown or the input amount is undefined
-  if (!isWithdraw && isAccountReady && insufficientBalance === true) {
+  if (
+    !isWithdraw &&
+    isAccountReady &&
+    selectedDepositToken === 'USDC' &&
+    insufficientBalance === true
+  ) {
+    errorMsg = tradeErrors.usdcNotUSDCeMsg;
+  } else if (!isWithdraw && isAccountReady && insufficientBalance === true) {
     errorMsg = tradeErrors.insufficientBalance;
   } else if (!isWithdraw && isAccountReady && insufficientAllowance === true) {
     errorMsg = tradeErrors.insufficientAllowance;
-  }
-  if (selectedDepositToken === 'USDC' && insufficientBalance === true) {
-    errorMsg = tradeErrors.usdcNotUSDCeMsg;
   }
 
   return {
