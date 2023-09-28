@@ -161,6 +161,12 @@ export const DataTableBody = ({
               tableVariant={tableVariant}
               styleLastRow={styleLastRow}
               onClick={handleClick}
+              sx={{
+                '&:hover #dropdown-arrow-button': {
+                  transition: 'all 0.3s ease',
+                  background: theme.palette.info.light,
+                },
+              }}
               {...row['getRowProps']()}
             >
               {row['cells'].map((cell: Record<string, any>) => {
