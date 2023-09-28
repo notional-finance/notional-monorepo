@@ -3,6 +3,7 @@ import { Box, useTheme } from '@mui/material';
 import {
   TradeActionHeader,
   PageLoading,
+  TypeForm,
   TradeSummaryContainer,
   TradeActionTitle,
 } from '@notional-finance/mui';
@@ -119,6 +120,7 @@ export function TradeActionSummary({
 
   return (
     <TradeSummaryContainer>
+      <TypeForm />
       <Box marginBottom={theme.spacing(5)}>
         <TradeActionHeader
           token={selectedToken}
