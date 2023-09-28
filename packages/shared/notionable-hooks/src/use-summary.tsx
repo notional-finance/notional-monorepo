@@ -396,7 +396,8 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
     debtBalance,
     collateralBalance,
     tradeType,
-    canSubmit,
+    inputsSatisfied,
+    calculationSuccess,
   } = state;
 
   // TODO: if underlying is not all the same the convert to fiat currency instead
@@ -404,7 +405,7 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
     netAssetBalance?.underlying ||
     netDebtBalance?.underlying ||
     depositBalance?.token;
-  if (!canSubmit || !underlying)
+  if (!inputsSatisfied || !calculationSuccess || !underlying)
     return {
       summary: undefined,
       total: undefined,
