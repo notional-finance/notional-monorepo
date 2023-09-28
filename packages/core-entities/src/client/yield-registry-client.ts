@@ -300,7 +300,8 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
             (d.token.tokenType === 'fCash'
               ? lend.token.maturity !== d.token.maturity
               : true) &&
-            d.token.currencyId === lend.token.currencyId
+            d.token.currencyId === lend.token.currencyId &&
+            !(d.token.tokenType === 'fCash' && lend.token.tokenType === 'fCash')
         )
         .map((debt) => {
           let leverageRatio: number;
