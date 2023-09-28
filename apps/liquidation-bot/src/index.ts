@@ -6,18 +6,19 @@ import {
 import { BigNumber } from 'ethers';
 import NotionalV3Liquidator from './NotionalV3Liquidator';
 import * as tokens from './config/tokens.json';
-import * as currencies from './config/currencies.json';
 import * as overrides from './config/overrides.json';
 import { ERC20__factory } from '@notional-finance/contracts';
 import { MetricNames } from './types';
 import { Logger } from '@notional-finance/durable-objects';
+import { AccountFetchMode, Registry } from '@notional-finance/core-entities';
 
 export interface Env {
+  NX_DATA_URL: string;
   ACCOUNT_SERVICE_URL: string;
   DATA_SERVICE_AUTH_TOKEN: string;
   ZERO_EX_SWAP_URL: string;
   ZERO_EX_API_KEY: string;
-  NETWORK: string;
+  NETWORK: Network;
   FLASH_LIQUIDATOR_CONTRACT: string;
   FLASH_LIQUIDATOR_OWNER: string;
   FLASH_LENDER_ADDRESS: string;
@@ -37,6 +38,20 @@ export interface Env {
 }
 
 const run = async (env: Env) => {
+  Registry.initialize(
+    env.NX_DATA_URL,
+    AccountFetchMode.BATCH_ACCOUNT_VIA_SERVER,
+    false
+  );
+
+  // First trigger a refresh for all supported networks
+  await Registry.triggerRefresh(env.NETWORK);
+
+  const reg = Registry.getTokenRegistry();
+  const allTokens = reg
+    .getAllTokens(env.NETWORK)
+    .filter((t) => t.currencyId && t.tokenType === 'Underlying');
+
   const logger = new Logger({
     apiKey: env.DD_API_KEY,
     version: '1',
@@ -53,7 +68,7 @@ const run = async (env: Env) => {
   ).json()) as any;
   const addrs = accounts.map((a) => a.account_id);
 
-  const provider = getProviderFromNetwork(Network[env.NETWORK], true);
+  const provider = getProviderFromNetwork(env.NETWORK, true);
   const liq = new NotionalV3Liquidator(
     provider,
     {
@@ -66,11 +81,11 @@ const run = async (env: Env) => {
       dustThreshold: BigNumber.from(env.DUST_THRESHOLD),
       txRelayUrl: env.TX_RELAY_URL,
       txRelayAuthToken: env.TX_RELAY_AUTH_TOKEN,
-      currencies: currencies.arbitrum.map((c) => {
+      currencies: allTokens.map((c) => {
         return {
-          id: c.id,
-          tokenType: c.type,
-          hasTransferFee: c.hasTransferFee,
+          id: c.currencyId,
+          tokenType: '',
+          hasTransferFee: false,
           underlyingName: c.name,
           underlyingSymbol: c.symbol,
           underlyingDecimals: BigNumber.from(10).pow(c.decimals),

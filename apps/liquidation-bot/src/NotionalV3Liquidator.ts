@@ -13,9 +13,10 @@ import LiquidationHelper from './LiquidationHelper';
 import ProfitCalculator from './ProfitCalculator';
 import AaveFlashLoanProvider from './lenders/AaveFlashLender';
 import { Logger } from '@notional-finance/durable-objects';
+import { Network } from '@notional-finance/util';
 
 export type LiquidatorSettings = {
-  network: string;
+  network: Network;
   flashLiquidatorAddress: string;
   flashLiquidatorOwner: string;
   flashLenderAddress: string;
