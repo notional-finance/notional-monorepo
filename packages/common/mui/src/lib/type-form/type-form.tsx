@@ -12,15 +12,13 @@ import { FormattedMessage } from 'react-intl';
 const FormWrapper = styled(Box)(
   ({ theme }) => `
     position: absolute;
-    background-color: ${theme.palette.common.white};
     z-index: 99;
     font-weight: bold;
     text-align: center;
-    top: 0;
-    margin-left: 140px;
-    margin-bottom: 150px;
-    margin-top: 280px;
-    box-shadow: -2px 1px 24px rgba(20, 41, 102, 0.2), 0px 4px 16px rgba(29, 116, 119, 0.4);
+    padding-top: ${theme.spacing(25)};
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
     @media (max-width: 400px) {
       display: none;
     }
@@ -30,8 +28,10 @@ const FormWrapper = styled(Box)(
 const StartWrapper = styled(Box)(
   ({ theme }) => `
     color: ${theme.palette.common.white};
-    width: 495px;
-    height: 370px;
+    height: ${theme.spacing(46)};
+    width: ${theme.spacing(62)};
+    background-color: ${theme.palette.common.white};
+    box-shadow: -2px 1px 24px rgba(20, 41, 102, 0.2), 0px 4px 16px rgba(29, 116, 119, 0.4);
     `
 );
 
@@ -147,6 +147,7 @@ export const TypeForm = () => {
           )}
         </>
       )}
+      <Box sx={{ width: '543px' }}></Box>
     </FormWrapper>
   );
 };
