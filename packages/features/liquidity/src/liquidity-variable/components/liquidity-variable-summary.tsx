@@ -25,10 +25,10 @@ import { useTokenHistory } from '@notional-finance/notionable-hooks';
 export const LiquidityVariableSummary = () => {
   const theme = useTheme();
   const { state } = useContext(LiquidityContext);
-  const { selectedDepositToken, collateral } = state;
+  const { selectedDepositToken, collateral, collateralBalance } = state;
   const tokenSymbol = selectedDepositToken || '';
   const { faqs, faqHeaderLinks } = useLiquidityFaq(tokenSymbol);
-  const totalsData = useTotalsData(tokenSymbol);
+  const totalsData = useTotalsData(tokenSymbol, collateralBalance);
   const { returnDriversColumns, returnDriversData, infoBoxData } =
     useReturnDriversTable();
   const { apyData, tvlData } = useTokenHistory(collateral);

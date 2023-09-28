@@ -106,77 +106,87 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
       });
   }
 
-  getNTokenYield(network: Network): YieldData[] {
+  getSimulatedNTokenYield(netNTokens: TokenBalance): YieldData {
+    const network = netNTokens.network;
+
     const exchanges = Registry.getExchangeRegistry();
     const config = Registry.getConfigurationRegistry();
-    const tokens = Registry.getTokenRegistry();
     const nTokenFees =
       Registry.getAnalyticsRegistry().getNTokenTradingFees(network);
     const yields = this.getPrimeCashYield(network).concat(
       this.getfCashYield(network)
     );
+    const fCashMarket = exchanges.getPoolInstance<fCashMarket>(
+      network,
+      netNTokens.token.address
+    );
+
+    const underlying = netNTokens.underlying;
+    if (!underlying) throw Error('underlying not defined');
+
+    const { incentiveEmissionRate: annualizedNOTEIncentives } =
+      config.getAnnualizedNOTEIncentives(netNTokens.token);
+    const nTokenTVL = fCashMarket
+      .totalValueLocked(0)
+      .add(netNTokens.toPrimeCash());
+
+    // Total fees over the last week divided by the total value locked
+    const feeAPY =
+      nTokenFees?.find((f) => f.token.id === netNTokens.tokenId)?.apy || 0;
+    const incentiveAPY = this._convertRatioToYield(
+      annualizedNOTEIncentives,
+      nTokenTVL
+    );
+
+    const { numerator, denominator } = fCashMarket.balances
+      .map((b) => {
+        const underlying = b.toUnderlying().add(netNTokens.toUnderlying());
+        const apy = yields.find((y) => y.token.id === b.tokenId)?.totalAPY;
+        if (apy === undefined) {
+          throw Error(`${b.symbol} yield not found`);
+        }
+
+        // Blended yield is the weighted average of the APYs
+        return {
+          numerator: underlying
+            .mulInRatePrecision(Math.floor(apy * RATE_PRECISION))
+            .scaleTo(RATE_DECIMALS),
+          denominator: underlying.scaleTo(RATE_DECIMALS),
+        };
+      })
+      .reduce(
+        (r, { numerator, denominator }) => ({
+          numerator: r.numerator + numerator.toNumber(),
+          denominator: r.denominator + denominator.toNumber(),
+        }),
+        { numerator: 0, denominator: 0 }
+      );
+    const interestAPY = numerator / denominator;
+
+    return {
+      token: netNTokens.token,
+      tvl: netNTokens.token.totalSupply?.toUnderlying(),
+      underlying,
+      totalAPY: incentiveAPY + feeAPY + interestAPY,
+      interestAPY,
+      feeAPY,
+      incentives: [
+        {
+          tokenId: annualizedNOTEIncentives.tokenId,
+          incentiveAPY,
+        },
+      ],
+    };
+  }
+
+  getNTokenYield(network: Network): YieldData[] {
+    const tokens = Registry.getTokenRegistry();
 
     return tokens
       .getAllTokens(network)
       .filter((t) => t.tokenType === 'nToken')
       .map((t) => {
-        const fCashMarket = exchanges.getPoolInstance<fCashMarket>(
-          network,
-          t.address
-        );
-        if (!t.underlying) throw Error('underlying not defined');
-        const underlying = tokens.getTokenByID(network, t.underlying);
-
-        const { incentiveEmissionRate: annualizedNOTEIncentives } =
-          config.getAnnualizedNOTEIncentives(t);
-        const nTokenTVL = fCashMarket.totalValueLocked(0);
-
-        // Total fees over the last week divided by the total value locked
-        const feeAPY = nTokenFees?.find((f) => f.token.id === t.id)?.apy || 0;
-        const incentiveAPY = this._convertRatioToYield(
-          annualizedNOTEIncentives,
-          nTokenTVL
-        );
-
-        const { numerator, denominator } = fCashMarket.balances
-          .map((b) => {
-            const underlying = b.toUnderlying();
-            const apy = yields.find((y) => y.token.id === b.tokenId)?.totalAPY;
-            if (apy === undefined) {
-              throw Error(`${b.symbol} yield not found`);
-            }
-
-            // Blended yield is the weighted average of the APYs
-            return {
-              numerator: underlying
-                .mulInRatePrecision(Math.floor(apy * RATE_PRECISION))
-                .scaleTo(RATE_DECIMALS),
-              denominator: underlying.scaleTo(RATE_DECIMALS),
-            };
-          })
-          .reduce(
-            (r, { numerator, denominator }) => ({
-              numerator: r.numerator + numerator.toNumber(),
-              denominator: r.denominator + denominator.toNumber(),
-            }),
-            { numerator: 0, denominator: 0 }
-          );
-        const interestAPY = numerator / denominator;
-
-        return {
-          token: t,
-          tvl: t.totalSupply?.toUnderlying(),
-          underlying,
-          totalAPY: incentiveAPY + feeAPY + interestAPY,
-          interestAPY,
-          feeAPY,
-          incentives: [
-            {
-              tokenId: annualizedNOTEIncentives.tokenId,
-              incentiveAPY,
-            },
-          ],
-        };
+        return this.getSimulatedNTokenYield(TokenBalance.zero(t));
       });
   }
 
@@ -290,7 +300,8 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
             (d.token.tokenType === 'fCash'
               ? lend.token.maturity !== d.token.maturity
               : true) &&
-            d.token.currencyId === lend.token.currencyId
+            d.token.currencyId === lend.token.currencyId &&
+            !(d.token.tokenType === 'fCash' && lend.token.tokenType === 'fCash')
         )
         .map((debt) => {
           let leverageRatio: number;

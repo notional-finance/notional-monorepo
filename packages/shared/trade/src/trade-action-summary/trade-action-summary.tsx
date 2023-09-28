@@ -16,6 +16,7 @@ import {
 import LeverageInfoRow from './components/leverage-info-row';
 import { formatTokenType } from '@notional-finance/helpers';
 import { Registry, TokenDefinition } from '@notional-finance/core-entities';
+import { leveragedYield } from '@notional-finance/util';
 
 interface TradeActionSummaryProps {
   state: BaseTradeState;
@@ -100,12 +101,7 @@ export function TradeActionSummary({
 
   let totalAPY: number | undefined;
   if (isLeveraged) {
-    totalAPY =
-      leverageRatio !== undefined &&
-      apySpread !== undefined &&
-      assetAPY !== undefined
-        ? assetAPY + apySpread * leverageRatio
-        : undefined;
+    totalAPY = leveragedYield(assetAPY, debtAPY, leverageRatio);
   } else {
     totalAPY = assetAPY !== undefined ? assetAPY : debtAPY;
   }

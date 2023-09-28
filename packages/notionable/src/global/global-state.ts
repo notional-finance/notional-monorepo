@@ -4,7 +4,7 @@ import {
 } from '@ethersproject/providers';
 import { Network } from '@notional-finance/util';
 import { THEME_VARIANTS } from '@notional-finance/util';
-import { FiatKeys } from '@notional-finance/core-entities';
+import { FiatKeys, TokenDefinition } from '@notional-finance/core-entities';
 import { getFromLocalStorage } from '@notional-finance/helpers';
 import { Signer } from 'ethers';
 
@@ -63,6 +63,7 @@ interface ExportControlsState {
 
 interface TransactionState {
   sentTransactions: Record<string, TransactionResponse>;
+  awaitingBalanceChanges: Record<string, TokenDefinition[]>;
   completedTransactions: Record<string, TransactionReceipt>;
 }
 
@@ -89,6 +90,7 @@ export const initialGlobalState: GlobalState = {
   isAccountReady: false,
   sentTransactions: {},
   completedTransactions: {},
+  awaitingBalanceChanges: {},
   themeVariant: userSettings?.themeVariant
     ? userSettings?.themeVariant
     : THEME_VARIANTS.LIGHT,

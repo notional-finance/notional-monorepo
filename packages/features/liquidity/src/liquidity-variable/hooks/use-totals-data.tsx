@@ -2,14 +2,20 @@ import { useAllMarkets, useFiat } from '@notional-finance/notionable-hooks';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
 import { SparklesIcon } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
+import { Registry, TokenBalance } from '@notional-finance/core-entities';
 
-export const useTotalsData = (tokenSymbol: string) => {
+export const useTotalsData = (
+  tokenSymbol: string,
+  nTokenAmount?: TokenBalance
+) => {
   const { yields } = useAllMarkets();
   const baseCurrency = useFiat();
 
-  const liquidityData = yields.liquidity.find(
-    ({ underlying }) => underlying.symbol === tokenSymbol
-  );
+  const liquidityData = nTokenAmount
+    ? Registry.getYieldRegistry().getSimulatedNTokenYield(nTokenAmount)
+    : yields.liquidity.find(
+        ({ underlying }) => underlying.symbol === tokenSymbol
+      );
 
   return [
     {
