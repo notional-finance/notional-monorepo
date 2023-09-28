@@ -20,9 +20,19 @@ export function tradeSummary(
         p.tradeType === c.tradeType
     ),
     map(
-      ([account, { canSubmit, collateralBalance, debtBalance, tradeType }]) => {
+      ([
+        account,
+        {
+          inputsSatisfied,
+          calculationSuccess,
+          collateralBalance,
+          debtBalance,
+          tradeType,
+        },
+      ]) => {
         if (
-          canSubmit &&
+          inputsSatisfied &&
+          calculationSuccess &&
           !collateralBalance?.isVaultToken &&
           !debtBalance?.isVaultToken
         ) {

@@ -30,6 +30,7 @@ export function useLiquidationChart(
     tradeType,
     priorAccountRisk,
     inputsSatisfied,
+    calculationSuccess
   } = state;
 
   const token =
@@ -151,6 +152,6 @@ export function useLiquidationChart(
     areaChartHeaderData,
     chartToolTipData,
     yAxisDomain,
-    showEmptyState: !inputsSatisfied,
+    showEmptyState: (!inputsSatisfied || !calculationSuccess),
   };
 }
