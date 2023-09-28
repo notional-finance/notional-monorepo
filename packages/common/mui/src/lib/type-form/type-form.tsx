@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTheme, Button, Box } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { Widget } from '@typeform/embed-react';
@@ -17,10 +17,9 @@ const FormWrapper = styled(Box)(
     font-weight: bold;
     text-align: center;
     top: 0;
-    right: 0;
-    margin-right: 26px;
+    margin-left: 140px;
     margin-bottom: 150px;
-    margin-top: 110px;
+    margin-top: 280px;
     box-shadow: -2px 1px 24px rgba(20, 41, 102, 0.2), 0px 4px 16px rgba(29, 116, 119, 0.4);
     @media (max-width: 400px) {
       display: none;
@@ -70,18 +69,39 @@ export const TypeForm = () => {
   const theme = useTheme();
   const [hideOverallForm, setHideOverallForm] = useState<boolean>(true);
   const [showWidget, setShowWidget] = useState<boolean>(false);
+  const timeDismissed = getFromLocalStorage('typeForm').timeOfDismissal;
 
   const handleSubmit = () => {
     setInLocalStorage('typeForm', { formSubmitted: true });
     setHideOverallForm(true);
   };
 
+  const handleDismiss = () => {
+    const now = new Date().getTime();
+    setInLocalStorage('typeForm', { timeOfDismissal: now });
+    setHideOverallForm(true);
+  };
+
+  const checkTimestamp = () => {
+    const now = new Date().getTime();
+    if (timeDismissed && now - timeDismissed > 24 * 60 * 60 * 1000) {
+      setInLocalStorage('typeForm', { timeOfDismissal: undefined });
+      setHideOverallForm(true);
+    }
+  };
+
+  useEffect(() => {
+    checkTimestamp();
+  }, []);
+
   setTimeout(() => {
     const typeFormSubmitted = getFromLocalStorage('typeForm').formSubmitted;
-    if (!typeFormSubmitted) {
+    const timeDismissed = getFromLocalStorage('typeForm').timeOfDismissal;
+    if (!typeFormSubmitted && !timeDismissed) {
       setHideOverallForm(false);
     }
   }, 5000);
+
   return (
     <FormWrapper>
       {!hideOverallForm && (
@@ -91,7 +111,7 @@ export const TypeForm = () => {
               <WaveButtonIcon></WaveButtonIcon>
               <Title>
                 <FormattedMessage
-                  defaultMessage={'Help us build a better Notional!'}
+                  defaultMessage={'Give us feedback on our Beta!'}
                 />
               </Title>
               <Text>
@@ -111,10 +131,8 @@ export const TypeForm = () => {
               >
                 <FormattedMessage defaultMessage={'Start Survey'} />
               </Button>
-              <DismissText onClick={handleSubmit}>
-                <FormattedMessage
-                  defaultMessage={"Dismiss and don't show again"}
-                />
+              <DismissText onClick={handleDismiss}>
+                <FormattedMessage defaultMessage={'Do this later'} />
               </DismissText>
             </StartWrapper>
           )}
