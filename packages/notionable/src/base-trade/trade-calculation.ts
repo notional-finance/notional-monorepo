@@ -515,9 +515,7 @@ function _getTradedInterestRate(
     );
     interestRate = fCashMarket.getPrimeDebtRate(utilization);
   } else if (amount.tokenType === 'nToken') {
-    return Registry.getYieldRegistry()
-      .getAllYields(amount.network)
-      .find((y) => y.token.id === amount.tokenId && y.leveraged === undefined)
+    return Registry.getYieldRegistry().getSimulatedNTokenYield(amount)
       ?.totalAPY;
   }
 
