@@ -7,7 +7,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { map, switchMap } from 'rxjs';
 import { useNotionalContext, useSelectedNetwork } from './use-notional';
 import { useLocation } from 'react-router';
-import { Registry } from '@notional-finance/core-entities';
+import { Registry, TokenDefinition } from '@notional-finance/core-entities';
 import { useAccountDefinition } from './use-account';
 
 export enum TransactionStatus {
@@ -22,14 +22,17 @@ export enum TransactionStatus {
 
 function useSubmitTransaction() {
   const {
-    globalState: { wallet, sentTransactions },
+    globalState: { wallet, sentTransactions, awaitingBalanceChanges },
     updateNotional,
   } = useNotionalContext();
   const signer = wallet?.signer;
   const { pathname } = useLocation();
 
   const submitTransaction = useCallback(
-    async (populatedTransaction: PopulatedTransaction) => {
+    async (
+      populatedTransaction: PopulatedTransaction,
+      tokens?: TokenDefinition[]
+    ) => {
       if (!signer) throw Error('Signer undefined');
       const tx = await signer.sendTransaction(populatedTransaction);
       trackEvent('CONFIRM_TXN', { url: pathname });
@@ -39,11 +42,14 @@ function useSubmitTransaction() {
         sentTransactions: Object.assign(sentTransactions, {
           [hash]: tx,
         }),
+        awaitingBalanceChanges: Object.assign(awaitingBalanceChanges, {
+          [hash]: tokens,
+        }),
       });
 
       return hash;
     },
-    [updateNotional, signer, sentTransactions, pathname]
+    [updateNotional, signer, sentTransactions, pathname, awaitingBalanceChanges]
   );
 
   return {
@@ -112,20 +118,26 @@ function usePendingTransaction(hash?: string) {
 
 export function usePendingPnLCalculation() {
   const {
-    globalState: { sentTransactions, completedTransactions },
+    globalState: { completedTransactions, awaitingBalanceChanges },
   } = useNotionalContext();
   const { account } = useAccountDefinition();
-  const hasPending = Object.keys(sentTransactions).length > 0;
-  const mostRecentCompletedBlock = Math.max(
-    ...(Object.entries(completedTransactions).map(
-      ([, tr]) => tr.blockNumber
-    ) || [0])
-  );
+
   const latestProcessedTxnBlock = Math.max(
     ...(account?.accountHistory?.map(({ blockNumber }) => blockNumber) || [0])
   );
+  const pendingTokens = Object.entries(completedTransactions).flatMap(
+    ([hash, tr]) =>
+      tr.blockNumber > latestProcessedTxnBlock
+        ? awaitingBalanceChanges[hash]
+        : []
+  );
+  const pendingTxns = Object.entries(completedTransactions)
+    .map(([hash, tr]) =>
+      tr.blockNumber > latestProcessedTxnBlock ? hash : undefined
+    )
+    .filter((h) => !!h) as string[];
 
-  return hasPending || mostRecentCompletedBlock > latestProcessedTxnBlock;
+  return { pendingTokens, pendingTxns };
 }
 
 export function useTransactionStatus() {
@@ -148,10 +160,13 @@ export function useTransactionStatus() {
   }, [transactionReceipt, reverted, network]);
 
   const onSubmit = useCallback(
-    (populatedTransaction?: PopulatedTransaction) => {
+    (
+      populatedTransaction?: PopulatedTransaction,
+      tokens?: TokenDefinition[]
+    ) => {
       if (populatedTransaction) {
         setTransactionStatus(TransactionStatus.WAIT_USER_CONFIRM);
-        submitTransaction(populatedTransaction)
+        submitTransaction(populatedTransaction, tokens)
           .then((hash) => {
             setTransactionStatus(TransactionStatus.SUBMITTED);
             setTransactionHash(hash);

@@ -20,6 +20,7 @@ import {
 import { OrderDetails } from './components/order-details';
 import { PortfolioCompare } from './components/portfolio-compare';
 import { TradeState } from '@notional-finance/notionable';
+import { TokenDefinition } from '@notional-finance/core-entities';
 
 export interface ConfirmationProps {
   heading: React.ReactNode;
@@ -38,7 +39,7 @@ export const Confirmation2 = ({
 }: ConfirmationProps) => {
   const theme = useTheme();
   const { state, updateState } = context;
-  const { populatedTransaction, transactionError } = state;
+  const { populatedTransaction, transactionError, debt, collateral } = state;
   const onTxnCancel = useCallback(() => {
     updateState({ confirm: false });
   }, [updateState]);
@@ -107,7 +108,14 @@ export const Confirmation2 = ({
             ? TransactionStatus.ERROR_BUILDING
             : transactionStatus
         }
-        onSubmit={() => onSubmit(populatedTransaction)}
+        onSubmit={() =>
+          onSubmit(
+            populatedTransaction,
+            [debt, collateral].filter(
+              (t) => t !== undefined
+            ) as TokenDefinition[]
+          )
+        }
         onCancel={onCancel || onTxnCancel}
         onReturnToForm={onReturnToForm}
         isDisabled={isReadOnlyAddress || !!transactionError}
