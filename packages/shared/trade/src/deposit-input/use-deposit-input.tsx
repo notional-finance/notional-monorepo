@@ -41,6 +41,9 @@ export function useDepositInput(
   } else if (!isWithdraw && isAccountReady && insufficientAllowance === true) {
     errorMsg = tradeErrors.insufficientAllowance;
   }
+  if (selectedDepositToken === 'USDC' && insufficientBalance === true) {
+    errorMsg = tradeErrors.usdcNotUSDCeMsg;
+  }
 
   return {
     inputAmount: isWithdraw ? inputAmount?.neg() : inputAmount,
