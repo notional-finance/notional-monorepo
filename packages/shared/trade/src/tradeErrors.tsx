@@ -55,4 +55,9 @@ export const tradeErrors = defineMessages({
     defaultMessage: 'Reduce leverage or increase deposit to continue',
     description: 'warning message',
   },
+  usdcNotUSDCeMsg: {
+    defaultMessage:
+      'Insufficient balance. Notional accepts native USDC, not USDC.e on Arbitrum.',
+    description: 'warning message',
+  },
 });

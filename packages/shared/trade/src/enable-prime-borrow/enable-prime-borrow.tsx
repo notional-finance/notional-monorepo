@@ -40,7 +40,7 @@ export function EnablePrimeBorrow() {
           <>
             <CheckCircle color="primary" sx={{ margin: theme.spacing(0, 1) }} />
             <LabelValue inline sx={{ color: theme.palette.typography.main }}>
-              <FormattedMessage defaultMessage="Prime Borrow Enabled" />
+              <FormattedMessage defaultMessage="Variable Borrow Enabled" />
             </LabelValue>
           </>
         ) : (
@@ -59,7 +59,7 @@ export function EnablePrimeBorrow() {
               />
             )}
             <LabelValue inline sx={{ color: theme.palette.typography.light }}>
-              <FormattedMessage defaultMessage="Prime Borrow Disabled" />
+              <FormattedMessage defaultMessage="Variable Borrow Disabled" />
             </LabelValue>
           </>
         )}
