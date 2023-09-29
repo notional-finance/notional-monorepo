@@ -25,7 +25,7 @@ export const useDashboardLinks = () => {
     },
     {
       title: 'Dune Dashboard',
-      link: 'https://dune.com/PierreYves_Gendron/Notional-V2-Dashboard',
+      link: 'https://dune.com/PierreYves_Gendron/notional-dashboard',
       image: dune,
       icon: (
         <DuneIcon
