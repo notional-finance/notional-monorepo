@@ -20,13 +20,6 @@ export const useTotalsData = (
         ({ underlying }) => underlying.symbol === tokenSymbol
       );
 
-  if (liquidityData?.incentives && liquidityData?.incentives[0]?.incentiveAPY) {
-    console.log(
-      'liquidityData?.incentives[0]?.incentiveAPY: ',
-      liquidityData?.incentives[0]?.incentiveAPY
-    );
-  }
-
   return [
     {
       title: <FormattedMessage defaultMessage={'TVL'} />,
