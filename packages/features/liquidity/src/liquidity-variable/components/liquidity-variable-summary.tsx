@@ -78,8 +78,15 @@ export const LiquidityVariableSummary = () => {
           marginTop: theme.spacing(3),
         }}
       >
-        {totalsData.map(({ title, value, Icon }, index) => (
-          <TotalBox title={title} value={value} key={index} Icon={Icon} />
+        {totalsData.map(({ title, value, Icon, prefix, suffix }, index) => (
+          <TotalBox
+            title={title}
+            value={value}
+            key={index}
+            Icon={Icon}
+            prefix={prefix}
+            suffix={suffix}
+          />
         ))}
       </Box>
       <Faq

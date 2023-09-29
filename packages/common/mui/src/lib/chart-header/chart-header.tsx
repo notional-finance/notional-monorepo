@@ -88,8 +88,9 @@ export const ChartHeader = ({
         {chartHeaderData?.legendData &&
           chartHeaderData?.legendData.length > 0 &&
           chartHeaderData.legendData.map(
-            ({ value, label, lineColor, lineType }) => (
+            ({ value, label, lineColor, lineType }, index) => (
               <ChartLegend
+                key={index}
                 value={value}
                 label={label}
                 lineColor={lineColor}

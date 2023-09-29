@@ -70,7 +70,11 @@ export const Incentive = ({
                 sx={{ height: '1.5em', marginRight: theme.spacing(1) }}
               />
             )}
-            <H4 textAlign="left" marginBottom={theme.spacing(4)}>
+            <H4
+              textAlign="left"
+              marginBottom={theme.spacing(4)}
+              sx={{ color: formattedTotalRate.includes('-') ? colors.red : '' }}
+            >
               {formattedTotalRate}
             </H4>
           </Box>
@@ -78,14 +82,24 @@ export const Incentive = ({
           <SectionTitle textAlign="left" marginBottom={theme.spacing(1)}>
             <FormattedMessage defaultMessage={'ORGANIC'} />
           </SectionTitle>
-          <CardInput textAlign="left" marginBottom={theme.spacing(3)}>
+          <CardInput
+            textAlign="left"
+            marginBottom={theme.spacing(3)}
+            sx={{ color: formattedRate.includes('-') ? colors.red : '' }}
+          >
             {formattedRate}
           </CardInput>
           <SectionTitle textAlign="left" marginBottom={theme.spacing(1)}>
             <PlusIcon width={'9px'} />
             <FormattedMessage defaultMessage="NOTE INCENTIVE" />
           </SectionTitle>
-          <CardInput textAlign="left" marginBottom={theme.spacing(3)}>
+          <CardInput
+            textAlign="left"
+            marginBottom={theme.spacing(3)}
+            sx={{
+              color: formattedIncentiveRate.includes('-') ? colors.red : '',
+            }}
+          >
             {formattedIncentiveRate}
           </CardInput>
         </>
