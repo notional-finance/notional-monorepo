@@ -1,11 +1,11 @@
 import { FormattedMessage } from 'react-intl';
 import { TradeState } from '@notional-finance/notionable';
+import { FiatSymbols } from '@notional-finance/core-entities';
 import {
   useFiat,
   useCurrency,
   useTokenHistory,
 } from '@notional-finance/notionable-hooks';
-import { formatNumberAsPercent } from '@notional-finance/helpers';
 
 export const useVariableTotals = (state: TradeState) => {
   const isBorrow = state.tradeType === 'BorrowVariable';
@@ -31,23 +31,20 @@ export const useVariableTotals = (state: TradeState) => {
       ? lastSevenApys.reduce((a, b) => a + b) / lastSevenApys.length
       : 0;
 
-    return formatNumberAsPercent(averageApy);
+    return averageApy;
   };
 
   return [
     {
       title: <FormattedMessage defaultMessage={'Total Lent'} />,
-      value:
-        totalLentData?.totalSupply
-          ?.toFiat(baseCurrency)
-          .toDisplayStringWithSymbol() || '-',
+      value: totalLentData?.totalSupply?.toFiat(baseCurrency).toFloat() || '-',
+      prefix: FiatSymbols[baseCurrency] ? FiatSymbols[baseCurrency] : '$',
     },
     {
       title: <FormattedMessage defaultMessage={'Total Borrowed'} />,
       value:
-        totalBorrowedData?.totalSupply
-          ?.toFiat(baseCurrency)
-          .toDisplayStringWithSymbol() || '-',
+        totalBorrowedData?.totalSupply?.toFiat(baseCurrency).toFloat() || '-',
+      prefix: FiatSymbols[baseCurrency] ? FiatSymbols[baseCurrency] : '$',
     },
     {
       title: isBorrow ? (
@@ -56,6 +53,7 @@ export const useVariableTotals = (state: TradeState) => {
         <FormattedMessage defaultMessage={'Total Lenders'} />
       ),
       value: isBorrow ? getSevenDayAvgApy() : '-',
+      suffix: isBorrow ? '%' : '',
     },
   ];
 };

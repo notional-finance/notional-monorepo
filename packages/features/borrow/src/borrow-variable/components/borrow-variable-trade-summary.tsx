@@ -77,8 +77,14 @@ export const BorrowVariableTradeSummary = () => {
           marginTop: theme.spacing(3),
         }}
       >
-        {totalsData.map(({ title, value }, index) => (
-          <TotalBox title={title} value={value} key={index} />
+        {totalsData.map(({ title, value, prefix, suffix }, index) => (
+          <TotalBox
+            title={title}
+            value={value}
+            key={index}
+            prefix={prefix}
+            suffix={suffix}
+          />
         ))}
       </Box>
       <Faq
@@ -111,7 +117,6 @@ export const BorrowVariableTradeSummary = () => {
                 </ChartContainer>
               ),
               chartHeaderData: chartHeaderData,
-              bottomLabel: <FormattedMessage defaultMessage={'Utilization'} />,
             },
           ]}
         />

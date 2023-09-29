@@ -67,7 +67,7 @@ export const Confirmation2 = ({
             a: (msg: string) => (
               <ExternalLink
                 href="/terms"
-                style={{ color: theme.palette.primary.accent }}
+                style={{ color: theme.palette.primary.light }}
               >
                 {msg}
               </ExternalLink>
@@ -131,7 +131,7 @@ const TermsOfService = styled(HeadingSubtitle)(
   ({ theme }) => `
   margin-top: ${theme.spacing(2)};
   margin-bottom: ${theme.spacing(3)};
-  color: ${theme.palette.borders.accentPaper};
+  color: ${theme.palette.typography.light};
 `
 );
 

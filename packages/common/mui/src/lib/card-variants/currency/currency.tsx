@@ -48,7 +48,11 @@ export const Currency = (props: CurrencyProps) => {
                 sx={{ height: '1.5em', marginRight: theme.spacing(1) }}
               />
             )}
-            <H4 textAlign="left" marginBottom={theme.spacing(4)}>
+            <H4
+              textAlign="left"
+              marginBottom={theme.spacing(4)}
+              sx={{ color: rate < 0 ? colors.red : '' }}
+            >
               <FormattedMessage
                 defaultMessage="{formattedRate} APY"
                 values={{

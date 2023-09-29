@@ -1,16 +1,26 @@
 import { Box, useTheme } from '@mui/material';
 import { ReactNode } from 'react';
 import { Body, LabelValue } from '../typography/typography';
+import CountUp from '../count-up/count-up';
 
 /* eslint-disable-next-line */
 export interface TotalBoxProps {
   title: ReactNode;
-  value?: string | number;
+  value?: number | string;
+  prefix?: string;
+  suffix?: string;
   Icon?: any;
 }
 
-export function TotalBox({ title, value, Icon }: TotalBoxProps) {
+export function TotalBox({
+  title,
+  value,
+  Icon,
+  suffix,
+  prefix,
+}: TotalBoxProps) {
   const theme = useTheme();
+
   return (
     <Box
       sx={{
@@ -35,7 +45,13 @@ export function TotalBox({ title, value, Icon }: TotalBoxProps) {
           />
         )}
       </Body>
-      <LabelValue>{value}</LabelValue>
+      <LabelValue>
+        {value !== undefined && typeof value === 'number' ? (
+          <CountUp value={value} prefix={prefix} suffix={suffix} duration={1} />
+        ) : (
+          value
+        )}
+      </LabelValue>
     </Box>
   );
 }

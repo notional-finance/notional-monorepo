@@ -5,6 +5,7 @@ import {
   ChartHeaderDataProps,
   AreaChartStylesProps,
   LEGEND_LINE_TYPES,
+  CountUp,
 } from '@notional-finance/mui';
 import { RATE_PRECISION } from '@notional-finance/util';
 import {
@@ -29,6 +30,32 @@ export const useInterestRateUtilizationChart = (
     borrowUtilization =
       (fCashMarket.getPrimeCashUtilization() * 100) / RATE_PRECISION;
 
+    const formatChartData = () => {
+      let count = 0;
+      const data: Record<string, number>[] = [];
+      while (count < 90) {
+        const updatedCount = (count += 10);
+        data.push({
+          timestamp: updatedCount,
+          area:
+            actionType === 'borrow'
+              ? (fCashMarket.getPrimeDebtRate(
+                  (updatedCount / 100) * RATE_PRECISION
+                ) *
+                  100) /
+                RATE_PRECISION
+              : (fCashMarket.getPrimeSupplyRate(
+                  (updatedCount / 100) * RATE_PRECISION
+                ) *
+                  100) /
+                RATE_PRECISION,
+        });
+      }
+      return data;
+    };
+
+    const chartData = formatChartData();
+
     const { primeCashCurve } = Registry.getConfigurationRegistry().getConfig(
       selectedNetwork,
       currencyId
@@ -39,26 +66,7 @@ export const useInterestRateUtilizationChart = (
           timestamp: 0.0,
           area: 0.0,
         },
-        {
-          timestamp: (primeCashCurve.kinkUtilization1 * 100) / RATE_PRECISION,
-          area:
-            actionType === 'borrow'
-              ? (primeCashCurve.kinkRate1 * 100) / RATE_PRECISION
-              : (primeCashCurve.kinkRate1 *
-                  primeCashCurve.kinkUtilization1 *
-                  100) /
-                (RATE_PRECISION * RATE_PRECISION),
-        },
-        {
-          timestamp: (primeCashCurve.kinkUtilization2 * 100) / RATE_PRECISION,
-          area:
-            actionType === 'borrow'
-              ? (primeCashCurve.kinkRate2 * 100) / RATE_PRECISION
-              : (primeCashCurve.kinkRate2 *
-                  primeCashCurve.kinkUtilization2 *
-                  100) /
-                (RATE_PRECISION * RATE_PRECISION),
-        },
+        ...chartData,
         {
           timestamp: 100,
           area: (primeCashCurve.maxRate * 100) / RATE_PRECISION,
@@ -74,17 +82,27 @@ export const useInterestRateUtilizationChart = (
       ) : (
         <FormattedMessage defaultMessage={'Prime Lending Rate | Utilization'} />
       ),
+    legendData: [
+      {
+        label: <FormattedMessage defaultMessage={'Current Utilization'} />,
+        value: borrowUtilization ? (
+          <CountUp value={borrowUtilization} suffix="%" decimals={2} />
+        ) : undefined,
+        lineColor: theme.palette.background.accentPaper,
+        lineType: LEGEND_LINE_TYPES.DASHED,
+      },
+    ],
   };
 
   const chartToolTipData: ChartToolTipDataProps = {
     timestamp: {
-      lineColor: theme.palette.background.accentPaper,
+      lineColor: 'transparent',
       lineType: LEGEND_LINE_TYPES.DASHED,
-      formatTitle: () => (
+      formatTitle: (timestamp: any) => (
         <FormattedMessage
           defaultMessage="{rate} utilization"
           values={{
-            rate: <span>{formatNumberAsPercent(borrowUtilization)}</span>,
+            rate: <span>{formatNumberAsPercent(timestamp)}</span>,
           }}
         />
       ),

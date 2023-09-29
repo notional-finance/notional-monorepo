@@ -14,6 +14,7 @@ import {
   SmallTableCell,
   TableCell as TypographyTableCell,
 } from '../../typography/typography';
+import { useHistory } from 'react-router';
 
 interface StyledTableRowProps extends TableRowProps {
   theme: NotionalTheme;
@@ -109,6 +110,7 @@ export const DataTableBody = ({
   initialState,
 }: DataTableBodyProps) => {
   const theme = useTheme() as NotionalTheme;
+  const history = useHistory();
   return (
     <TableBody>
       {rows.map((row, i) => {
@@ -129,6 +131,12 @@ export const DataTableBody = ({
               [row.index]: !initialState?.expanded[row.index],
             };
             setExpandedRows(newState);
+          }
+          if (row.original.view) {
+            history.push(row.original.view);
+          }
+          if (row.original?.txLink?.href) {
+            window.open(row.original.txLink.href, '_blank');
           }
         };
 
@@ -151,6 +159,16 @@ export const DataTableBody = ({
             }
           : {};
 
+        const rowHoverStyles =
+          row.original.view || row.original?.txLink?.href
+            ? {
+                '&:hover': {
+                  background: theme.palette.info.light,
+                  cursor: 'pointer',
+                },
+              }
+            : {};
+
         return (
           <Fragment key={`row-container-${i}`}>
             <StyledTableRow
@@ -166,6 +184,7 @@ export const DataTableBody = ({
                   transition: 'all 0.3s ease',
                   background: theme.palette.info.light,
                 },
+                ...rowHoverStyles,
               }}
               {...row['getRowProps']()}
             >
