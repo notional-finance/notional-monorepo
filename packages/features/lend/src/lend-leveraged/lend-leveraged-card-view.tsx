@@ -55,32 +55,35 @@ export function LendLeveragedCardView() {
             const maxYield = getMax(yields);
 
             return (
-              <Currency
-                key={index}
-                symbol={symbol}
-                rate={maxYield?.totalAPY || 0}
-                route={route}
-                returnTitle={
-                  <FormattedMessage
-                    defaultMessage="{leverage} Leverage"
-                    values={{
-                      leverage: formatLeverageRatio(
-                        maxYield?.leveraged?.leverageRatio || 0,
-                        2
-                      ),
-                    }}
-                  />
-                }
-                leveraged
-                buttonText={
-                  <FormattedMessage
-                    defaultMessage="Lend {underlying}"
-                    values={{
-                      underlying: symbol,
-                    }}
-                  />
-                }
-              />
+              maxYield?.totalAPY &&
+              maxYield?.totalAPY > 0 && (
+                <Currency
+                  key={index}
+                  symbol={symbol}
+                  rate={maxYield?.totalAPY || 0}
+                  route={route}
+                  returnTitle={
+                    <FormattedMessage
+                      defaultMessage="{leverage} Leverage"
+                      values={{
+                        leverage: formatLeverageRatio(
+                          maxYield?.leveraged?.leverageRatio || 0,
+                          2
+                        ),
+                      }}
+                    />
+                  }
+                  leveraged
+                  buttonText={
+                    <FormattedMessage
+                      defaultMessage="Lend {underlying}"
+                      values={{
+                        underlying: symbol,
+                      }}
+                    />
+                  }
+                />
+              )
             );
           })}
         </CardContainer>
