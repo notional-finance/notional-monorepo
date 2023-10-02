@@ -64,7 +64,8 @@ export function calculateAccountIRR(
         h.bundleName === 'Deposit' ||
         h.bundleName === 'Deposit and Transfer' ||
         h.bundleName === 'Withdraw' ||
-        h.bundleName === 'Transfer Incentive'
+        h.bundleName === 'Transfer Incentive' ||
+        h.bundleName === 'Transfer Asset'
     )
     .map((h) => {
       if (h.bundleName === 'Transfer Incentive') {
@@ -80,13 +81,9 @@ export function calculateAccountIRR(
         };
       }
 
-      let balance = h.underlyingAmountRealized
+      const balance = h.underlyingAmountRealized
         .toUnderlying()
         .toToken(ETH, 'None', snapshotTimestamp);
-
-      if (h.bundleName === 'Deposit and Transfer') {
-        balance = balance.neg();
-      }
 
       return {
         date: new Date(h.timestamp * 1000),
