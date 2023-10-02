@@ -28,13 +28,13 @@ export const LiquidityVariableSummary = () => {
   const { selectedDepositToken, collateral, collateralBalance } = state;
   const tokenSymbol = selectedDepositToken || '';
   const { faqs, faqHeaderLinks } = useLiquidityFaq(tokenSymbol);
-  const totalsData = useTotalsData(tokenSymbol, collateralBalance);
+  const { totalsData, liquidityYieldData} = useTotalsData(tokenSymbol, collateralBalance);
   const { returnDriversColumns, returnDriversData, infoBoxData } =
     useReturnDriversTable();
   const { apyData, tvlData } = useTokenHistory(collateral);
 
   return (
-    <TradeActionSummary state={state}>
+    <TradeActionSummary state={state} liquidityYieldData={liquidityYieldData}>
       <MultiDisplayChart
         chartComponents={[
           {
