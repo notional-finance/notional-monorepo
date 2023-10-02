@@ -78,7 +78,6 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
 
   getfCashYield(network: Network) {
     const exchanges = Registry.getExchangeRegistry();
-    const tokens = Registry.getTokenRegistry();
 
     return this._getSpotRate(network, 'fCash')
       .filter(
@@ -88,12 +87,11 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
           !isIdiosyncratic(y.token.maturity)
       )
       .map((y) => {
-        if (!y.token.maturity) throw Error();
+        if (!y.token.maturity || !y.token.currencyId) throw Error();
 
-        const nToken = tokens.getNToken(network, y.token.currencyId);
-        const fCashMarket = exchanges.getPoolInstance<fCashMarket>(
+        const fCashMarket = exchanges.getfCashMarket(
           network,
-          nToken.address
+          y.token.currencyId
         );
         const marketIndex = fCashMarket.getMarketIndex(y.token.maturity);
         const pCash = fCashMarket.poolParams.perMarketCash[marketIndex - 1];
@@ -113,9 +111,6 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
     const config = Registry.getConfigurationRegistry();
     const nTokenFees =
       Registry.getAnalyticsRegistry().getNTokenTradingFees(network);
-    const yields = this.getPrimeCashYield(network).concat(
-      this.getfCashYield(network)
-    );
     const fCashMarket = exchanges.getPoolInstance<fCashMarket>(
       network,
       netNTokens.token.address
@@ -140,8 +135,15 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
 
     const { numerator, denominator } = fCashMarket.balances
       .map((b) => {
-        const underlying = b.toUnderlying().add(netNTokens.toUnderlying());
-        const apy = yields.find((y) => y.token.id === b.tokenId)?.totalAPY;
+        const underlying = b.toUnderlying();
+        const apy =
+          b.tokenType === 'PrimeCash'
+            ? (fCashMarket.getPrimeSupplyRate(
+                fCashMarket.getPrimeCashUtilization(netNTokens.toPrimeCash())
+              ) *
+                100) /
+              RATE_PRECISION
+            : fCashMarket.getSpotInterestRate(b.token);
         if (apy === undefined) {
           throw Error(`${b.symbol} yield not found`);
         }
