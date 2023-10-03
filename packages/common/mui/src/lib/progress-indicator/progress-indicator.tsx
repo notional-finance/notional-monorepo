@@ -8,7 +8,7 @@ import {
 import NotionalLogo from '../../assets/icons/notional_lottie.json';
 
 export interface ProgressIndicatorProps {
-  type?: 'linear' | 'circular' | 'notional' | 'vertical-lines';
+  type?: 'linear' | 'circular' | 'notional';
   width?: '25' | '50' | '60' | '75' | '100';
   circleSize?: number;
   size?: number;
@@ -52,12 +52,6 @@ export const ProgressIndicator = ({
             <Controls visible={false} />
           </Player>
         </div>
-      );
-    } else if (type === 'vertical-lines') {
-      indicator = (
-        <VeritalLoader>
-          <div className="progress-indicator-vertical-lines"></div>
-        </VeritalLoader>
       );
     } else {
       indicator = (
@@ -121,70 +115,6 @@ const StyledProgressIndicator = styled('div')`
 
   .width-size-75 {
     width: 75%;
-  }
-`;
-
-const VeritalLoader = styled('div')`
-  height: 40px;
-  width: 40px;
-  .progress-indicator-vertical-lines,
-  .progress-indicator-vertical-lines:before,
-  .progress-indicator-vertical-lines:after {
-    background: #ffffff;
-    -webkit-animation: load1 1s infinite ease-in-out;
-    animation: load1 1s infinite ease-in-out;
-    width: 1em;
-    height: 4em;
-  }
-  .progress-indicator-vertical-lines {
-    color: #ffffff;
-    text-indent: -9999em;
-    margin: 88px auto;
-    position: relative;
-    font-size: 11px;
-    -webkit-transform: translateZ(0);
-    -ms-transform: translateZ(0);
-    transform: translateZ(0);
-    -webkit-animation-delay: -0.16s;
-    animation-delay: -0.16s;
-  }
-  .progress-indicator-vertical-lines:before,
-  .progress-indicator-vertical-lines:after {
-    position: absolute;
-    top: 0;
-    content: '';
-  }
-  .progress-indicator-vertical-lines:before {
-    left: -1.5em;
-    -webkit-animation-delay: -0.32s;
-    animation-delay: -0.32s;
-  }
-  .progress-indicator-vertical-lines:after {
-    left: 1.5em;
-  }
-  @-webkit-keyframes load1 {
-    0%,
-    80%,
-    100% {
-      box-shadow: 0 0;
-      height: 4em;
-    }
-    40% {
-      box-shadow: 0 -2em;
-      height: 5em;
-    }
-  }
-  @keyframes load1 {
-    0%,
-    80%,
-    100% {
-      box-shadow: 0 0;
-      height: 4em;
-    }
-    40% {
-      box-shadow: 0 -2em;
-      height: 5em;
-    }
   }
 `;
 
