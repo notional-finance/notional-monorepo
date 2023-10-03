@@ -217,6 +217,7 @@ const ButtonData = styled(ButtonText)(
 
 const SubSidebar = styled(Box)(
   ({ theme }) => `
+  min-height: 180vh;
   height: 100%;
   top: 0;
   left: 0;

@@ -89,6 +89,7 @@ declare module '@mui/material/styles' {
     error: PaletteColor;
     warning: PaletteColor;
     info: PaletteColor;
+    pending: PaletteColor;
     success: PaletteColor;
   }
 
@@ -102,6 +103,7 @@ declare module '@mui/material/styles' {
     error?: PaletteColorOptions;
     warning?: PaletteColorOptions;
     info?: PaletteColorOptions;
+    pending?: PaletteColorOptions;
     success?: PaletteColorOptions;
   }
 
@@ -659,6 +661,12 @@ const getThemeData = (
             : colors.white,
         dark: colors.aqua,
         accent: colors.neonTurquoise,
+      },
+      pending: {
+        light: alpha(colors.blueAccent, 0.15),
+        main: colors.blueAccent,
+        dark: colors.blueAccent,
+        accent: colors.blueAccent,
       },
       success: {
         main: colors.aqua,

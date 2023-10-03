@@ -1,4 +1,4 @@
-import { Network } from './constants';;
+import { Network } from './constants';
 
 export function getNetworkIdFromHostname(hostname: string) {
   switch (hostname) {

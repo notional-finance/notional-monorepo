@@ -39,7 +39,7 @@ const StyledTradeActionButton = styled(Button, {
   ({ theme, width, margin, canSubmit }: StyledTradeActionButtonProps) => `
   width: ${width || '100%'};
   margin: ${margin || ''};
-  text-transform: capitalize;
+  text-transform: inherit;
   &.MuiButton-root {
     color: ${!canSubmit ? theme.palette.borders.accentPaper : ''};
   }
@@ -80,7 +80,7 @@ export function TradeActionButton({
   const buttonTextWalletConnected =
     walletConnectedText ||
     defineMessage({
-      defaultMessage: 'Confirm & Submit Trade',
+      defaultMessage: 'Continue to Review',
       description: 'call to action button',
     });
 

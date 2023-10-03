@@ -1,16 +1,25 @@
 import { Player, Controls } from '@lottiefiles/react-lottie-player';
-import { CircularProgress, LinearProgress, styled } from '@mui/material';
+import {
+  CircularProgress,
+  LinearProgress,
+  SxProps,
+  styled,
+} from '@mui/material';
 import NotionalLogo from '../../assets/icons/notional_lottie.json';
 
 export interface ProgressIndicatorProps {
   type?: 'linear' | 'circular' | 'notional';
   width?: '25' | '50' | '60' | '75' | '100';
+  circleSize?: number;
   size?: number;
+  sx?: SxProps;
 }
 
 export const ProgressIndicator = ({
   type = 'circular',
+  circleSize,
   width = '100',
+  sx,
   ...rest
 }: ProgressIndicatorProps) => {
   const display = () => {
@@ -49,6 +58,7 @@ export const ProgressIndicator = ({
         <div className="progress-indicator-circular">
           <CircularProgress
             {...rest}
+            size={circleSize}
             classes={{
               colorPrimary: 'color-circular-primary',
               colorSecondary: 'color-circular-secondary',
@@ -65,7 +75,11 @@ export const ProgressIndicator = ({
     );
   };
 
-  return <StyledProgressIndicator>{display()}</StyledProgressIndicator>;
+  return (
+    <StyledProgressIndicator sx={{ ...sx }}>
+      {display()}
+    </StyledProgressIndicator>
+  );
 };
 
 const StyledProgressIndicator = styled('div')`

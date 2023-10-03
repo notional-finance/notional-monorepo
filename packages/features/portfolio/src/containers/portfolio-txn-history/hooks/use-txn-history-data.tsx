@@ -3,6 +3,7 @@ import { TXN_HISTORY_TYPE } from '@notional-finance/util';
 import {
   useTransactionHistory,
   useSelectedNetwork,
+  usePendingPnLCalculation,
 } from '@notional-finance/notionable-hooks';
 import { TokenIcon } from '@notional-finance/icons';
 import {
@@ -18,6 +19,7 @@ export const useTxnHistoryData = (txnHistoryType: TXN_HISTORY_TYPE) => {
   let assetOrVaultData: SelectedOptions[] = [];
   let currencyData: SelectedOptions[] = [];
 
+  const pendingTokenData = usePendingPnLCalculation();
   const accountHistory = useTransactionHistory();
   const selectedNetwork = useSelectedNetwork();
 
@@ -121,7 +123,12 @@ export const useTxnHistoryData = (txnHistoryType: TXN_HISTORY_TYPE) => {
   const allCurrencyOptions = removeDuplicateObjects(currencyData);
   const allAssetOrVaultOptions = removeDuplicateObjects(assetOrVaultData);
 
-  return { accountHistoryData, allCurrencyOptions, allAssetOrVaultOptions };
+  return {
+    accountHistoryData,
+    allCurrencyOptions,
+    allAssetOrVaultOptions,
+    pendingTokenData,
+  };
 };
 
 export default useTxnHistoryData;

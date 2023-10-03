@@ -21,6 +21,7 @@ import {
   useAccountDefinition,
   useAllMarkets,
   useBalanceStatements,
+  usePendingPnLCalculation,
 } from '@notional-finance/notionable-hooks';
 import { convertToSignedfCashId } from '@notional-finance/util';
 
@@ -35,6 +36,7 @@ export function usePortfolioHoldings() {
     nonLeveragedYields,
     yields: { liquidity },
   } = useAllMarkets();
+  const pendingTokenData = usePendingPnLCalculation();
 
   const portfolioHoldingsColumns: DataTableColumn[] = useMemo(() => {
     return [
@@ -58,6 +60,7 @@ export function usePortfolioHoldings() {
         accessor: 'amountPaid',
         textAlign: 'right',
         expandableTable: true,
+        showLoadingSpinner: true,
       },
       {
         Header: <FormattedMessage defaultMessage="Present Value" />,
@@ -72,6 +75,7 @@ export function usePortfolioHoldings() {
         accessor: 'earnings',
         textAlign: 'right',
         expandableTable: true,
+        showLoadingSpinner: true,
       },
       {
         Header: '',
@@ -83,138 +87,158 @@ export function usePortfolioHoldings() {
     ];
   }, []);
 
-  const portfolioHoldingsData =
-    account?.balances
-      .filter(
-        (b) =>
-          !b.isZero() &&
-          !b.isVaultToken &&
-          b.token.tokenType !== 'Underlying' &&
-          b.token.tokenType !== 'NOTE'
-      )
-      .map((b) => {
-        const { titleWithMaturity, icon } = formatTokenType(b.token);
-        const s = balanceStatements.find(
-          (s) =>
-            s.token.id === convertToSignedfCashId(b.tokenId, b.isNegative())
-        );
+  const portfolioHoldingsData = useMemo(() => {
+    return (
+      account?.balances
+        .filter(
+          (b) =>
+            !b.isZero() &&
+            !b.isVaultToken &&
+            b.token.tokenType !== 'Underlying' &&
+            b.token.tokenType !== 'NOTE'
+        )
+        .map((b) => {
+          const { titleWithMaturity, icon } = formatTokenType(b.token);
+          const s = balanceStatements.find(
+            (s) =>
+              s.token.id === convertToSignedfCashId(b.tokenId, b.isNegative())
+          );
 
-        const noteIncentives = liquidity
-          .filter(
-            ({ incentives }) =>
-              incentives?.length && incentives[0].incentiveAPY > 0
-          )
-          .find(({ token }) => token.id === b.tokenId);
+          const noteIncentives = liquidity
+            .filter(
+              ({ incentives }) =>
+                incentives?.length && incentives[0].incentiveAPY > 0
+            )
+            .find(({ token }) => token.id === b.tokenId);
 
-        const maturedTokenId = b.hasMatured
-          ? b.isPositive()
-            ? b.toPrimeCash().tokenId
-            : b.toPrimeDebt().tokenId
-          : b.token.id;
-        const manageTokenId = b.hasMatured
-          ? b.isPositive()
-            ? b.toPrimeDebt().tokenId
-            : b.toPrimeCash().tokenId
-          : b.token.id;
-        const marketApyData = formatNumberAsPercent(
-          nonLeveragedYields.find((y) => y.token.id === maturedTokenId)
-            ?.totalAPY || 0
-        );
+          const maturedTokenId = b.hasMatured
+            ? b.isPositive()
+              ? b.toPrimeCash().tokenId
+              : b.toPrimeDebt().tokenId
+            : b.token.id;
+          const manageTokenId = b.hasMatured
+            ? b.isPositive()
+              ? b.toPrimeDebt().tokenId
+              : b.toPrimeCash().tokenId
+            : b.token.id;
+          const marketApyData = formatNumberAsPercent(
+            nonLeveragedYields.find((y) => y.token.id === maturedTokenId)
+              ?.totalAPY || 0
+          );
 
-        return {
-          asset: {
-            symbol: icon,
-            label: b.hasMatured
-              ? `Matured ${titleWithMaturity}`
-              : titleWithMaturity,
-            caption:
-              b.token.tokenType === 'fCash' && s?.impliedFixedRate !== undefined
-                ? `${formatNumberAsPercent(s.impliedFixedRate)} APY at Maturity`
-                : undefined,
-          },
-          marketApy: {
-            data: [
-              {
-                displayValue: marketApyData,
-                isNegative: marketApyData.includes('-'),
-              },
-              {
-                displayValue:
-                  noteIncentives && noteIncentives.incentives
-                    ? `${formatNumberAsPercent(
-                        noteIncentives.incentives[0].incentiveAPY
-                      )} NOTE`
-                    : '',
-                isNegative: false,
-              },
-            ],
-          },
-          amountPaid: s
-            ? formatCryptoWithFiat(baseCurrency, s.accumulatedCostRealized)
-            : '-',
-          presentValue: formatCryptoWithFiat(baseCurrency, b.toUnderlying()),
-          earnings: s
-            ? s.totalProfitAndLoss
-                .toFiat(baseCurrency)
-                .toDisplayStringWithSymbol()
-            : '-',
-          actionRow: {
-            subRowData: [
-              {
-                label: <FormattedMessage defaultMessage={'Amount'} />,
-                value: b.toDisplayString(3, true),
-              },
-              {
-                label: <FormattedMessage defaultMessage={'Entry Price'} />,
-                value: s
-                  ? s.adjustedCostBasis.toDisplayStringWithSymbol(3)
-                  : '-',
-              },
-              {
-                label: <FormattedMessage defaultMessage={'Current Price'} />,
-                value: `${TokenBalance.unit(b.token)
-                  .toUnderlying()
-                  .toDisplayString(3)} ${b.underlying.symbol}`,
-              },
-            ],
-            buttonBarData: [
-              {
-                buttonText: <FormattedMessage defaultMessage={'Manage'} />,
-                callback: () => {
-                  history.push(
-                    b.isPositive()
-                      ? `/portfolio/holdings/${PORTFOLIO_ACTIONS.CONVERT_ASSET}/${manageTokenId}`
-                      : `/portfolio/holdings/${PORTFOLIO_ACTIONS.ROLL_DEBT}/${manageTokenId}`
-                  );
+          return {
+            asset: {
+              symbol: icon,
+              label: b.hasMatured
+                ? `Matured ${titleWithMaturity}`
+                : titleWithMaturity,
+              caption:
+                b.token.tokenType === 'fCash' &&
+                s?.impliedFixedRate !== undefined
+                  ? `${formatNumberAsPercent(
+                      s.impliedFixedRate
+                    )} APY at Maturity`
+                  : undefined,
+            },
+            marketApy: {
+              data: [
+                {
+                  displayValue: marketApyData,
+                  isNegative: marketApyData.includes('-'),
                 },
-              },
-              b.isPositive()
-                ? {
-                    buttonText: (
-                      <FormattedMessage defaultMessage={'Withdraw'} />
-                    ),
-                    callback: () => {
-                      history.push(
-                        `/portfolio/holdings/${PORTFOLIO_ACTIONS.WITHDRAW}/${maturedTokenId}`
-                      );
-                    },
-                  }
-                : {
-                    buttonText: <FormattedMessage defaultMessage={'Repay'} />,
-                    callback: () => {
-                      history.push(
-                        `/portfolio/holdings/${PORTFOLIO_ACTIONS.REPAY_DEBT}/${maturedTokenId}`
-                      );
-                    },
+                {
+                  displayValue:
+                    noteIncentives && noteIncentives.incentives
+                      ? `${formatNumberAsPercent(
+                          noteIncentives.incentives[0].incentiveAPY
+                        )} NOTE`
+                      : '',
+                  isNegative: false,
+                },
+              ],
+            },
+            amountPaid: s
+              ? formatCryptoWithFiat(baseCurrency, s.accumulatedCostRealized)
+              : '-',
+            pendingTokenData: pendingTokenData.pendingTokens?.find(
+              ({ id }) => id === b?.token.id
+            ),
+            presentValue: formatCryptoWithFiat(baseCurrency, b.toUnderlying()),
+            earnings: s
+              ? s.totalProfitAndLoss
+                  .toFiat(baseCurrency)
+                  .toDisplayStringWithSymbol()
+              : '-',
+            actionRow: {
+              subRowData: [
+                {
+                  label: <FormattedMessage defaultMessage={'Amount'} />,
+                  value: b.toDisplayString(3, true),
+                },
+                {
+                  label: <FormattedMessage defaultMessage={'Entry Price'} />,
+                  value: s
+                    ? s.adjustedCostBasis.toDisplayStringWithSymbol(3)
+                    : '-',
+                  showLoadingSpinner: true,
+                },
+                {
+                  label: <FormattedMessage defaultMessage={'Current Price'} />,
+                  value: `${TokenBalance.unit(b.token)
+                    .toUnderlying()
+                    .toDisplayString(3)} ${b.underlying.symbol}`,
+                },
+              ],
+              buttonBarData: [
+                {
+                  buttonText: <FormattedMessage defaultMessage={'Manage'} />,
+                  callback: () => {
+                    history.push(
+                      b.isPositive()
+                        ? `/portfolio/holdings/${PORTFOLIO_ACTIONS.CONVERT_ASSET}/${manageTokenId}`
+                        : `/portfolio/holdings/${PORTFOLIO_ACTIONS.ROLL_DEBT}/${manageTokenId}`
+                    );
                   },
-            ],
-            txnHistory: `/portfolio/transaction-history?${new URLSearchParams({
-              txnHistoryType: TXN_HISTORY_TYPE.PORTFOLIO_HOLDINGS,
-              assetOrVaultId: b.token.id,
-            })}`,
-          },
-        };
-      }) || [];
+                },
+                b.isPositive()
+                  ? {
+                      buttonText: (
+                        <FormattedMessage defaultMessage={'Withdraw'} />
+                      ),
+                      callback: () => {
+                        history.push(
+                          `/portfolio/holdings/${PORTFOLIO_ACTIONS.WITHDRAW}/${maturedTokenId}`
+                        );
+                      },
+                    }
+                  : {
+                      buttonText: <FormattedMessage defaultMessage={'Repay'} />,
+                      callback: () => {
+                        history.push(
+                          `/portfolio/holdings/${PORTFOLIO_ACTIONS.REPAY_DEBT}/${maturedTokenId}`
+                        );
+                      },
+                    },
+              ],
+              txnHistory: `/portfolio/transaction-history?${new URLSearchParams(
+                {
+                  txnHistoryType: TXN_HISTORY_TYPE.PORTFOLIO_HOLDINGS,
+                  assetOrVaultId: b.token.id,
+                }
+              )}`,
+            },
+          };
+        }) || []
+    );
+  }, [
+    pendingTokenData,
+    account?.balances,
+    balanceStatements,
+    baseCurrency,
+    history,
+    liquidity,
+    nonLeveragedYields,
+  ]);
 
   useEffect(() => {
     const formattedExpandedRows = portfolioHoldingsColumns.reduce(
@@ -235,6 +259,7 @@ export function usePortfolioHoldings() {
   return {
     portfolioHoldingsColumns,
     portfolioHoldingsData,
+    pendingTokenData,
     setExpandedRows,
     initialState,
   };
