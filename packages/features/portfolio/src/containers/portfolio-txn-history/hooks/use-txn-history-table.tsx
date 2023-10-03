@@ -188,5 +188,9 @@ export const useTxnHistoryTable = (
 
   const txnHistoryData = filterTxnHistoryData();
 
-  return { txnHistoryData, txnHistoryColumns, marketDataCSVFormatter };
+  return {
+    txnHistoryData,
+    txnHistoryColumns,
+    marketDataCSVFormatter,
+  };
 };

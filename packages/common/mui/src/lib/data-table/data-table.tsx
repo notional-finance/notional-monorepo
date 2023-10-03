@@ -7,6 +7,10 @@ import { DataTableTitleBar } from './data-table-title-bar/data-table-title-bar';
 import { DataTableTabBar } from './data-table-tab-bar/data-table-tab-bar';
 import { DataTableHead } from './data-table-head/data-table-head';
 import { DataTableBody } from './data-table-body/data-table-body';
+import { ErrorMessage } from '../error-message/error-message';
+import { getEtherscanTransactionLink } from '@notional-finance/util';
+import { truncateAddress } from '@notional-finance/helpers';
+import { LaunchIcon } from '@notional-finance/icons';
 import {
   DataTableInfoBox,
   InfoBoxDataProps,
@@ -23,10 +27,13 @@ import {
   TableTitleButtonsType,
   TABLE_VARIANTS,
 } from './types';
+import { ExternalLink } from '../external-link/external-link';
 
 interface DataTableProps {
   columns: Array<DataTableColumn>;
   data: Array<any>;
+  pendingTokenData?: Record<any, any>;
+  pendingMessage?: ReactNode;
   CustomRowComponent?: ({ row }: { row: any }) => JSX.Element;
   CustomTabComponent?: React.FunctionComponent;
   TabComponentVisible?: boolean;
@@ -54,6 +61,8 @@ interface DataTableProps {
 export const DataTable = ({
   columns,
   data,
+  pendingTokenData,
+  pendingMessage,
   CustomRowComponent,
   CustomTabComponent,
   TabComponentVisible,
@@ -137,6 +146,7 @@ export const DataTable = ({
     DataTableFilterBar: 
       - Requires filterBarData to function. The filterBarData will automatically populate one or more filter dropdowns depending on need. 
   */
+
   const height = ref.current?.clientHeight;
   const width = ref.current?.clientWidth;
 
@@ -193,6 +203,54 @@ export const DataTable = ({
       {tabBarProps && <DataTableTabBar tabBarProps={tabBarProps} />}
 
       {TabComponentVisible && CustomTabComponent && <CustomTabComponent />}
+      {pendingTokenData && pendingTokenData.pendingTokens.length > 0 && (
+        <Box>
+          <ErrorMessage
+            message={
+              pendingMessage || (
+                <FormattedMessage defaultMessage={'action pending...'} />
+              )
+            }
+            variant="pending"
+            sx={{
+              margin: 'auto',
+              width: '97.5%',
+            }}
+            marginBottom={true}
+          >
+            {pendingTokenData.pendingTokens.map(({ network }, index) => (
+              <ExternalLink
+                key={index}
+                href={getEtherscanTransactionLink(
+                  pendingTokenData.pendingTxns[index],
+                  network
+                )}
+                accent
+                style={{
+                  textDecorationColor: theme.palette.typography.accent,
+                }}
+                textDecoration
+              >
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}
+                >
+                  {truncateAddress(pendingTokenData.pendingTxns[index])}
+                  <LaunchIcon
+                    sx={{
+                      marginTop: '5px',
+                      marginLeft: theme.spacing(1),
+                    }}
+                  />
+                </Box>
+              </ExternalLink>
+            ))}
+          </ErrorMessage>
+        </Box>
+      )}
+
       {tableReady ? (
         <>
           {!maxHeight && (
@@ -202,7 +260,6 @@ export const DataTable = ({
                 tableVariant={tableVariant}
                 expandableTable={expandableTable}
               />
-
               <DataTableBody
                 rows={displayedRows}
                 prepareRow={prepareRow}

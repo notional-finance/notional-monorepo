@@ -11,6 +11,7 @@ export const PortfolioHoldings = () => {
   const {
     portfolioHoldingsColumns,
     portfolioHoldingsData,
+    pendingTokenData,
     setExpandedRows,
     initialState,
   } = usePortfolioHoldings();
@@ -20,6 +21,14 @@ export const PortfolioHoldings = () => {
       <PortfolioRisk />
       <DataTable
         data={portfolioHoldingsData}
+        pendingTokenData={pendingTokenData}
+        pendingMessage={
+          <FormattedMessage
+            defaultMessage={
+              'Recalculating positions. Check back later to see your positions.'
+            }
+          />
+        }
         columns={portfolioHoldingsColumns}
         CustomRowComponent={TableActionRow}
         tableTitle={

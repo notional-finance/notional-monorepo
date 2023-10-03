@@ -1,13 +1,26 @@
 import { Box } from '@mui/material';
 import { TableCell, LargeTableCell } from '../../typography/typography';
+import { ProgressIndicator } from '../../progress-indicator/progress-indicator';
 import { colors } from '@notional-finance/styles';
 
 export const DisplayCell = ({ cell }): JSX.Element => {
-  const { column, value } = cell;
+  const { column, value, row } = cell;
   const FirstValue = column?.expandableTable ? LargeTableCell : TableCell;
+
+  const amountPaidPending =
+    column.showLoadingSpinner && row.original.pendingTokenData;
+
   return (
     <TableCell>
-      {value && column.displayFormatter && parseFloat(value) !== 0 ? (
+      {amountPaidPending ? (
+        <ProgressIndicator
+          circleSize={24}
+          sx={{
+            display: 'flex',
+            justifyContent: column?.textAlign,
+          }}
+        />
+      ) : value && column.displayFormatter && parseFloat(value) !== 0 ? (
         <Box sx={{ h4: { color: parseFloat(value) < 0 ? colors.red : '' } }}>
           <FirstValue
             sx={{

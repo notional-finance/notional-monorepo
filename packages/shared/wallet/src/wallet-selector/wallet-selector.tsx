@@ -150,7 +150,7 @@ export function WalletSelector() {
           )}
           {isAccountPending && (
             <ProcessContainer>
-              <ProgressIndicator type="circular" size={18} />
+              <ProgressIndicator type="circular" circleSize={18} />
             </ProcessContainer>
           )}
           <IconContainer

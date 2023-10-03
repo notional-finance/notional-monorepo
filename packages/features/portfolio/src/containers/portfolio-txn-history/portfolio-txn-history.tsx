@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { DataTable, ButtonBar } from '@notional-finance/mui';
 import { TXN_HISTORY_TYPE } from '@notional-finance/util';
 import { useLocation } from 'react-router-dom';
+import { FormattedMessage } from 'react-intl';
 import {
   useTxnHistoryTable,
   useTxnHistoryButtonBar,
@@ -14,8 +15,12 @@ export const PortfolioTransactionHistory = () => {
   const [txnHistoryType, setTxnHistoryType] = useState<TXN_HISTORY_TYPE>(
     TXN_HISTORY_TYPE.PORTFOLIO_HOLDINGS
   );
-  const { accountHistoryData, allCurrencyOptions, allAssetOrVaultOptions } =
-    useTxnHistoryData(txnHistoryType);
+  const {
+    accountHistoryData,
+    allCurrencyOptions,
+    allAssetOrVaultOptions,
+    pendingTokenData,
+  } = useTxnHistoryData(txnHistoryType);
   const buttonData = useTxnHistoryButtonBar(setTxnHistoryType, txnHistoryType);
   const {
     dropdownsData,
@@ -54,6 +59,10 @@ export const PortfolioTransactionHistory = () => {
         data={txnHistoryData || []}
         columns={txnHistoryColumns}
         filterBarData={dropdownsData}
+        pendingMessage={
+          <FormattedMessage defaultMessage={'Calculating transaction'} />
+        }
+        pendingTokenData={pendingTokenData}
         clearQueryAndFilters={clearQueryAndFilters}
         marketDataCSVFormatter={marketDataCSVFormatter}
       />

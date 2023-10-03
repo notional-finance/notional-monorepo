@@ -12,13 +12,21 @@ interface ContestNftsProps {
 
 export const ContestNfts = ({ hideButton }: ContestNftsProps) => {
   const theme = useTheme();
+
+  const handleClick = (key: string) => {
+    window.open(
+      `https://opensea.io/assets/arbitrum/0xed8cbc13a2043d9c93115eeb3c9e4323e34659c3/${key}`,
+      '_blank'
+    );
+  };
+
   return (
     <Container>
       <TitleText>
         <FormattedMessage defaultMessage={'Cash & NFT Prizes'} />
       </TitleText>
       <NftContainer>
-        <NftDisplay>
+        <NftDisplay onClick={() => handleClick('2')}>
           <img
             src={highRoller}
             alt="high roller"
@@ -30,7 +38,7 @@ export const ContestNfts = ({ hideButton }: ContestNftsProps) => {
           </NftTitle>
           <NftSubTitle>20,000 NOTE</NftSubTitle>
         </NftDisplay>
-        <NftDisplay>
+        <NftDisplay onClick={() => handleClick('1')}>
           <img
             src={fatCat}
             alt="fat cat"
@@ -42,7 +50,7 @@ export const ContestNfts = ({ hideButton }: ContestNftsProps) => {
           </NftTitle>
           <NftSubTitle>7,500 NOTE</NftSubTitle>
         </NftDisplay>
-        <NftDisplay>
+        <NftDisplay onClick={() => handleClick('0')}>
           <img
             src={sadSack}
             alt="sad sack"
@@ -131,6 +139,7 @@ const NftDisplay = styled(Box)(
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  cursor: pointer;
   `
 );
 
