@@ -7,12 +7,11 @@ export const DisplayCell = ({ cell }): JSX.Element => {
   const { column, value, row } = cell;
   const FirstValue = column?.expandableTable ? LargeTableCell : TableCell;
 
-  const amountPaidPending =
-    column.showLoadingSpinner && row.original.pendingTokenData;
+  const isPending = column.showLoadingSpinner && row.original.pendingTokenData;
 
   return (
     <TableCell>
-      {amountPaidPending ? (
+      {isPending ? (
         <ProgressIndicator
           circleSize={24}
           sx={{

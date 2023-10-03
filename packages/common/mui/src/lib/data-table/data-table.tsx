@@ -7,10 +7,7 @@ import { DataTableTitleBar } from './data-table-title-bar/data-table-title-bar';
 import { DataTableTabBar } from './data-table-tab-bar/data-table-tab-bar';
 import { DataTableHead } from './data-table-head/data-table-head';
 import { DataTableBody } from './data-table-body/data-table-body';
-import { ErrorMessage } from '../error-message/error-message';
-import { getEtherscanTransactionLink } from '@notional-finance/util';
-import { truncateAddress } from '@notional-finance/helpers';
-import { LaunchIcon } from '@notional-finance/icons';
+import { DataTablePending } from './data-table-pending/data-table-pending';
 import {
   DataTableInfoBox,
   InfoBoxDataProps,
@@ -27,7 +24,6 @@ import {
   TableTitleButtonsType,
   TABLE_VARIANTS,
 } from './types';
-import { ExternalLink } from '../external-link/external-link';
 
 interface DataTableProps {
   columns: Array<DataTableColumn>;
@@ -204,51 +200,10 @@ export const DataTable = ({
 
       {TabComponentVisible && CustomTabComponent && <CustomTabComponent />}
       {pendingTokenData && pendingTokenData.pendingTokens.length > 0 && (
-        <Box>
-          <ErrorMessage
-            message={
-              pendingMessage || (
-                <FormattedMessage defaultMessage={'action pending...'} />
-              )
-            }
-            variant="pending"
-            sx={{
-              margin: 'auto',
-              width: '97.5%',
-            }}
-            marginBottom={true}
-          >
-            {pendingTokenData.pendingTokens.map(({ network }, index) => (
-              <ExternalLink
-                key={index}
-                href={getEtherscanTransactionLink(
-                  pendingTokenData.pendingTxns[index],
-                  network
-                )}
-                accent
-                style={{
-                  textDecorationColor: theme.palette.typography.accent,
-                }}
-                textDecoration
-              >
-                <Box
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                  }}
-                >
-                  {truncateAddress(pendingTokenData.pendingTxns[index])}
-                  <LaunchIcon
-                    sx={{
-                      marginTop: '5px',
-                      marginLeft: theme.spacing(1),
-                    }}
-                  />
-                </Box>
-              </ExternalLink>
-            ))}
-          </ErrorMessage>
-        </Box>
+        <DataTablePending
+          pendingTokenData={pendingTokenData}
+          pendingMessage={pendingMessage}
+        />
       )}
 
       {tableReady ? (
