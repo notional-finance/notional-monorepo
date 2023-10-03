@@ -56,25 +56,33 @@ const handleViews = (request: IRequest, env: APIEnv) => {
   return _handler(request, env.VIEWS_DO, env.VIEWS_NAME);
 };
 
-const handleDataDogForward = (request: IRequest, _env: APIEnv) => {
-  const ddforward = decodeURI((request.query['ddforward'] as string) || '');
+const handleDataDogForward = async (request: IRequest, _env: APIEnv) => {
+  const ddforward = (request.query['ddforward'] as string) || '';
   if (ddforward) {
     const _request = request as unknown as CFRequest;
-
+    const body = await request.text();
     return fetch(`https://browser-intake-datadoghq.com${ddforward}`, {
       method: 'POST',
-      body: request.body,
+      body,
       headers: {
-        'X-Forwarded-For': _request.headers['CF-Connecting-IP'],
-        'Content-Type': 'application/json',
+        'X-Forwarded-For': _request.headers.get('cf-connecting-ip'),
       },
     });
   }
   return new Response('Invalid ddforward param', { status: 500 });
 };
 
-const handlePlausibleForward = (request: IRequest, _env: APIEnv) => {
-  return fetch('https://plausible.io/api/event', request);
+const handlePlausibleForward = async (request: IRequest, _env: APIEnv) => {
+  const body = JSON.stringify(await request.json());
+  return await fetch('https://plausible.io/api/event', {
+    method: 'POST',
+    body,
+    headers: {
+      'User-Agent': request.headers.get('user-agent'),
+      'X-Forwarded-For': request.headers.get('cf-connecting-ip'),
+      'Content-Type': 'application/json',
+    },
+  });
 };
 
 export {
