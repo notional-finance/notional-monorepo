@@ -184,7 +184,7 @@ export function useAccountHistoryChart(
 
         return { timestamp: start, assets, debts, netWorth: assets.sub(debts) };
       });
-  } catch {
+  } catch (e) {
     return undefined;
   }
 }
