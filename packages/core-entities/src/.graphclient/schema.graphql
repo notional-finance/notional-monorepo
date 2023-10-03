@@ -22,6 +22,11 @@ type Account {
   lastUpdateTimestamp: Int!
   lastUpdateTransactionHash: Bytes!
   systemAccountType: SystemAccount!
+  allowPrimeBorrow: Boolean
+  nextSettleTime: BigInt
+  hasPortfolioAssetDebt: Boolean
+  hasCashDebt: Boolean
+  bitmapCurrencyId: Int
   """All current balances linked to this account"""
   balances(skip: Int = 0, first: Int = 100, orderBy: Balance_orderBy, orderDirection: OrderDirection, where: Balance_filter): [Balance!]
   """All historical token transfers linked to this account"""
@@ -95,6 +100,34 @@ input Account_filter {
   systemAccountType_not: SystemAccount
   systemAccountType_in: [SystemAccount!]
   systemAccountType_not_in: [SystemAccount!]
+  allowPrimeBorrow: Boolean
+  allowPrimeBorrow_not: Boolean
+  allowPrimeBorrow_in: [Boolean!]
+  allowPrimeBorrow_not_in: [Boolean!]
+  nextSettleTime: BigInt
+  nextSettleTime_not: BigInt
+  nextSettleTime_gt: BigInt
+  nextSettleTime_lt: BigInt
+  nextSettleTime_gte: BigInt
+  nextSettleTime_lte: BigInt
+  nextSettleTime_in: [BigInt!]
+  nextSettleTime_not_in: [BigInt!]
+  hasPortfolioAssetDebt: Boolean
+  hasPortfolioAssetDebt_not: Boolean
+  hasPortfolioAssetDebt_in: [Boolean!]
+  hasPortfolioAssetDebt_not_in: [Boolean!]
+  hasCashDebt: Boolean
+  hasCashDebt_not: Boolean
+  hasCashDebt_in: [Boolean!]
+  hasCashDebt_not_in: [Boolean!]
+  bitmapCurrencyId: Int
+  bitmapCurrencyId_not: Int
+  bitmapCurrencyId_gt: Int
+  bitmapCurrencyId_lt: Int
+  bitmapCurrencyId_gte: Int
+  bitmapCurrencyId_lte: Int
+  bitmapCurrencyId_in: [Int!]
+  bitmapCurrencyId_not_in: [Int!]
   balances_: Balance_filter
   transfersFrom_: Transfer_filter
   transfersTo_: Transfer_filter
@@ -114,6 +147,11 @@ enum Account_orderBy {
   lastUpdateTimestamp
   lastUpdateTransactionHash
   systemAccountType
+  allowPrimeBorrow
+  nextSettleTime
+  hasPortfolioAssetDebt
+  hasCashDebt
+  bitmapCurrencyId
   balances
   transfersFrom
   transfersTo
@@ -679,6 +717,11 @@ enum Balance_orderBy {
   account__lastUpdateTimestamp
   account__lastUpdateTransactionHash
   account__systemAccountType
+  account__allowPrimeBorrow
+  account__nextSettleTime
+  account__hasPortfolioAssetDebt
+  account__hasCashDebt
+  account__bitmapCurrencyId
   firstUpdateBlockNumber
   firstUpdateTimestamp
   firstUpdateTransactionHash
@@ -2807,6 +2850,11 @@ enum ProfitLossLineItem_orderBy {
   account__lastUpdateTimestamp
   account__lastUpdateTransactionHash
   account__systemAccountType
+  account__allowPrimeBorrow
+  account__nextSettleTime
+  account__hasPortfolioAssetDebt
+  account__hasCashDebt
+  account__bitmapCurrencyId
   tokenAmount
   token
   token__id
@@ -4693,6 +4741,11 @@ enum TradingModulePermission_orderBy {
   sender__lastUpdateTimestamp
   sender__lastUpdateTransactionHash
   sender__systemAccountType
+  sender__allowPrimeBorrow
+  sender__nextSettleTime
+  sender__hasPortfolioAssetDebt
+  sender__hasCashDebt
+  sender__bitmapCurrencyId
   token
   token__id
   token__firstUpdateBlockNumber
@@ -5193,6 +5246,11 @@ enum Transfer_orderBy {
   from__lastUpdateTimestamp
   from__lastUpdateTransactionHash
   from__systemAccountType
+  from__allowPrimeBorrow
+  from__nextSettleTime
+  from__hasPortfolioAssetDebt
+  from__hasCashDebt
+  from__bitmapCurrencyId
   to
   to__id
   to__firstUpdateBlockNumber
@@ -5202,6 +5260,11 @@ enum Transfer_orderBy {
   to__lastUpdateTimestamp
   to__lastUpdateTransactionHash
   to__systemAccountType
+  to__allowPrimeBorrow
+  to__nextSettleTime
+  to__hasPortfolioAssetDebt
+  to__hasCashDebt
+  to__bitmapCurrencyId
   operator
   operator__id
   operator__firstUpdateBlockNumber
@@ -5211,6 +5274,11 @@ enum Transfer_orderBy {
   operator__lastUpdateTimestamp
   operator__lastUpdateTransactionHash
   operator__systemAccountType
+  operator__allowPrimeBorrow
+  operator__nextSettleTime
+  operator__hasPortfolioAssetDebt
+  operator__hasCashDebt
+  operator__bitmapCurrencyId
   transferType
   fromSystemAccount
   toSystemAccount

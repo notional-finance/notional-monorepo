@@ -14,35 +14,40 @@ export const useTotalsData = (
   const { yields } = useAllMarkets();
   const baseCurrency = useFiat();
 
-  const liquidityData = nTokenAmount
+  const liquidityYieldData = nTokenAmount
     ? Registry.getYieldRegistry().getSimulatedNTokenYield(nTokenAmount)
     : yields.liquidity.find(
         ({ underlying }) => underlying.symbol === tokenSymbol
       );
 
-  return [
-    {
-      title: <FormattedMessage defaultMessage={'TVL'} />,
-      value: liquidityData?.tvl?.toFiat(baseCurrency).toFloat() || '-',
-      prefix: FiatSymbols[baseCurrency] ? FiatSymbols[baseCurrency] : '$',
-    },
-    {
-      title: <FormattedMessage defaultMessage={'Incentive APY'} />,
-      value:
-        liquidityData?.incentives && liquidityData?.incentives[0]?.incentiveAPY
-          ? liquidityData?.incentives[0]?.incentiveAPY
-          : '-',
-      Icon: SparklesIcon,
-      suffix:
-        liquidityData?.incentives && liquidityData?.incentives[0]?.incentiveAPY
-          ? '%'
-          : '',
-    },
-    {
-      title: <FormattedMessage defaultMessage={'Liquidity Providers'} />,
-      value: '-',
-    },
-  ];
+  return {
+    totalsData: [
+      {
+        title: <FormattedMessage defaultMessage={'TVL'} />,
+        value: liquidityYieldData?.tvl?.toFiat(baseCurrency).toFloat() || '-',
+        prefix: FiatSymbols[baseCurrency] ? FiatSymbols[baseCurrency] : '$',
+      },
+      {
+        title: <FormattedMessage defaultMessage={'Incentive APY'} />,
+        value:
+          liquidityYieldData?.incentives &&
+          liquidityYieldData?.incentives[0]?.incentiveAPY
+            ? liquidityYieldData?.incentives[0]?.incentiveAPY
+            : '-',
+        Icon: SparklesIcon,
+        suffix:
+          liquidityYieldData?.incentives &&
+          liquidityYieldData?.incentives[0]?.incentiveAPY
+            ? '%'
+            : '',
+      },
+      {
+        title: <FormattedMessage defaultMessage={'Liquidity Providers'} />,
+        value: '-',
+      },
+    ],
+    liquidityYieldData,
+  };
 };
 
 export default useTotalsData;

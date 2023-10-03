@@ -32,6 +32,11 @@ export type Account = {
   lastUpdateTimestamp: Scalars['Int'];
   lastUpdateTransactionHash: Scalars['Bytes'];
   systemAccountType: SystemAccount;
+  allowPrimeBorrow?: Maybe<Scalars['Boolean']>;
+  nextSettleTime?: Maybe<Scalars['BigInt']>;
+  hasPortfolioAssetDebt?: Maybe<Scalars['Boolean']>;
+  hasCashDebt?: Maybe<Scalars['Boolean']>;
+  bitmapCurrencyId?: Maybe<Scalars['Int']>;
   /** All current balances linked to this account */
   balances?: Maybe<Array<Balance>>;
   /** All historical token transfers linked to this account */
@@ -141,6 +146,34 @@ export type Account_filter = {
   systemAccountType_not?: InputMaybe<SystemAccount>;
   systemAccountType_in?: InputMaybe<Array<SystemAccount>>;
   systemAccountType_not_in?: InputMaybe<Array<SystemAccount>>;
+  allowPrimeBorrow?: InputMaybe<Scalars['Boolean']>;
+  allowPrimeBorrow_not?: InputMaybe<Scalars['Boolean']>;
+  allowPrimeBorrow_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  allowPrimeBorrow_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  nextSettleTime?: InputMaybe<Scalars['BigInt']>;
+  nextSettleTime_not?: InputMaybe<Scalars['BigInt']>;
+  nextSettleTime_gt?: InputMaybe<Scalars['BigInt']>;
+  nextSettleTime_lt?: InputMaybe<Scalars['BigInt']>;
+  nextSettleTime_gte?: InputMaybe<Scalars['BigInt']>;
+  nextSettleTime_lte?: InputMaybe<Scalars['BigInt']>;
+  nextSettleTime_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  nextSettleTime_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  hasPortfolioAssetDebt?: InputMaybe<Scalars['Boolean']>;
+  hasPortfolioAssetDebt_not?: InputMaybe<Scalars['Boolean']>;
+  hasPortfolioAssetDebt_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  hasPortfolioAssetDebt_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  hasCashDebt?: InputMaybe<Scalars['Boolean']>;
+  hasCashDebt_not?: InputMaybe<Scalars['Boolean']>;
+  hasCashDebt_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  hasCashDebt_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  bitmapCurrencyId?: InputMaybe<Scalars['Int']>;
+  bitmapCurrencyId_not?: InputMaybe<Scalars['Int']>;
+  bitmapCurrencyId_gt?: InputMaybe<Scalars['Int']>;
+  bitmapCurrencyId_lt?: InputMaybe<Scalars['Int']>;
+  bitmapCurrencyId_gte?: InputMaybe<Scalars['Int']>;
+  bitmapCurrencyId_lte?: InputMaybe<Scalars['Int']>;
+  bitmapCurrencyId_in?: InputMaybe<Array<Scalars['Int']>>;
+  bitmapCurrencyId_not_in?: InputMaybe<Array<Scalars['Int']>>;
   balances_?: InputMaybe<Balance_filter>;
   transfersFrom_?: InputMaybe<Transfer_filter>;
   transfersTo_?: InputMaybe<Transfer_filter>;
@@ -160,6 +193,11 @@ export type Account_orderBy =
   | 'lastUpdateTimestamp'
   | 'lastUpdateTransactionHash'
   | 'systemAccountType'
+  | 'allowPrimeBorrow'
+  | 'nextSettleTime'
+  | 'hasPortfolioAssetDebt'
+  | 'hasCashDebt'
+  | 'bitmapCurrencyId'
   | 'balances'
   | 'transfersFrom'
   | 'transfersTo'
@@ -747,6 +785,11 @@ export type Balance_orderBy =
   | 'account__lastUpdateTimestamp'
   | 'account__lastUpdateTransactionHash'
   | 'account__systemAccountType'
+  | 'account__allowPrimeBorrow'
+  | 'account__nextSettleTime'
+  | 'account__hasPortfolioAssetDebt'
+  | 'account__hasCashDebt'
+  | 'account__bitmapCurrencyId'
   | 'firstUpdateBlockNumber'
   | 'firstUpdateTimestamp'
   | 'firstUpdateTransactionHash'
@@ -2899,6 +2942,11 @@ export type ProfitLossLineItem_orderBy =
   | 'account__lastUpdateTimestamp'
   | 'account__lastUpdateTransactionHash'
   | 'account__systemAccountType'
+  | 'account__allowPrimeBorrow'
+  | 'account__nextSettleTime'
+  | 'account__hasPortfolioAssetDebt'
+  | 'account__hasCashDebt'
+  | 'account__bitmapCurrencyId'
   | 'tokenAmount'
   | 'token'
   | 'token__id'
@@ -4539,6 +4587,11 @@ export type TradingModulePermission_orderBy =
   | 'sender__lastUpdateTimestamp'
   | 'sender__lastUpdateTransactionHash'
   | 'sender__systemAccountType'
+  | 'sender__allowPrimeBorrow'
+  | 'sender__nextSettleTime'
+  | 'sender__hasPortfolioAssetDebt'
+  | 'sender__hasCashDebt'
+  | 'sender__bitmapCurrencyId'
   | 'token'
   | 'token__id'
   | 'token__firstUpdateBlockNumber'
@@ -5089,6 +5142,11 @@ export type Transfer_orderBy =
   | 'from__lastUpdateTimestamp'
   | 'from__lastUpdateTransactionHash'
   | 'from__systemAccountType'
+  | 'from__allowPrimeBorrow'
+  | 'from__nextSettleTime'
+  | 'from__hasPortfolioAssetDebt'
+  | 'from__hasCashDebt'
+  | 'from__bitmapCurrencyId'
   | 'to'
   | 'to__id'
   | 'to__firstUpdateBlockNumber'
@@ -5098,6 +5156,11 @@ export type Transfer_orderBy =
   | 'to__lastUpdateTimestamp'
   | 'to__lastUpdateTransactionHash'
   | 'to__systemAccountType'
+  | 'to__allowPrimeBorrow'
+  | 'to__nextSettleTime'
+  | 'to__hasPortfolioAssetDebt'
+  | 'to__hasCashDebt'
+  | 'to__bitmapCurrencyId'
   | 'operator'
   | 'operator__id'
   | 'operator__firstUpdateBlockNumber'
@@ -5107,6 +5170,11 @@ export type Transfer_orderBy =
   | 'operator__lastUpdateTimestamp'
   | 'operator__lastUpdateTransactionHash'
   | 'operator__systemAccountType'
+  | 'operator__allowPrimeBorrow'
+  | 'operator__nextSettleTime'
+  | 'operator__hasPortfolioAssetDebt'
+  | 'operator__hasCashDebt'
+  | 'operator__bitmapCurrencyId'
   | 'transferType'
   | 'fromSystemAccount'
   | 'toSystemAccount'

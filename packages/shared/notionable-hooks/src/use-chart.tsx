@@ -1,11 +1,19 @@
-import { Registry, TokenDefinition } from '@notional-finance/core-entities';
+import {
+  Registry,
+  TokenBalance,
+  TokenDefinition,
+} from '@notional-finance/core-entities';
 import { useSelectedNetwork } from './use-notional';
 import { floorToMidnight } from '@notional-finance/helpers';
 import {
+  Network,
   SECONDS_IN_DAY,
+  SECONDS_IN_MONTH,
   getNowSeconds,
   leveragedYield,
 } from '@notional-finance/util';
+import { useAccountDefinition } from './use-account';
+import { useFiat } from './use-user-settings';
 
 /** Ensures that chart always has default values throughout the specified range.  */
 function fillChartDaily<T extends { timestamp: number }>(
@@ -107,4 +115,76 @@ export function useAssetPriceHistory(token: TokenDefinition | undefined) {
     })),
     { assetPrice: 0 }
   );
+}
+
+export function useAccountHistoryChart(
+  startTime = getNowSeconds() - SECONDS_IN_MONTH,
+  endTime = getNowSeconds(),
+  tickSizeInSeconds = SECONDS_IN_DAY
+) {
+  const { account } = useAccountDefinition();
+  const baseCurrency = useFiat();
+  if (!account) return undefined;
+
+  const allHistoricalSnapshots =
+    account?.balanceStatement
+      ?.flatMap((b) => b.historicalSnapshots)
+      .sort((a, b) => a.timestamp - b.timestamp) || [];
+
+  const base = Registry.getTokenRegistry().getTokenBySymbol(
+    Network.All,
+    baseCurrency
+  );
+
+  // Bucket the start and end time ranges
+  const numBuckets = Math.ceil((endTime - startTime) / tickSizeInSeconds);
+  try {
+    return new Array(numBuckets)
+      .fill(0)
+      .map((_, i) => {
+        const start = startTime + i * tickSizeInSeconds;
+        return { start, end: start + tickSizeInSeconds };
+      })
+      .map(({ start, end }) => {
+        const snapshotsAtTime = Array.from(
+          allHistoricalSnapshots
+            .filter(({ timestamp }) => timestamp < end)
+            .reduce((t, s) => {
+              // This will always set the token id key to the latest snapshot value, preserving
+              // the previous snapshot value if there was no update in this time block
+              t.set(s.balance.tokenId, s);
+              return t;
+            }, new Map<string, typeof allHistoricalSnapshots[number]>())
+            .values()
+        );
+
+        const assets = snapshotsAtTime
+          ?.filter(
+            ({ balance }) =>
+              !(
+                balance.unwrapVaultToken().token.isFCashDebt === true ||
+                balance.tokenType === 'PrimeDebt' ||
+                balance.isNegative()
+              )
+          )
+          .reduce((t, b) => {
+            return t.add(b.balance.toFiat(baseCurrency, floorToMidnight(end)));
+          }, TokenBalance.zero(base));
+
+        const debts = snapshotsAtTime
+          ?.filter(
+            ({ balance }) =>
+              balance.unwrapVaultToken().token.isFCashDebt === true ||
+              balance.tokenType === 'PrimeDebt' ||
+              balance.isNegative()
+          )
+          .reduce((t, b) => {
+            return t.sub(b.balance.toFiat(baseCurrency, floorToMidnight(end)));
+          }, TokenBalance.zero(base));
+
+        return { timestamp: start, assets, debts, netWorth: assets.sub(debts) };
+      });
+  } catch (e) {
+    return undefined;
+  }
 }

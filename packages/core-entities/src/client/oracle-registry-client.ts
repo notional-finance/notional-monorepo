@@ -165,7 +165,8 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
     network: Network,
     path: string[],
     riskAdjusted: RiskAdjustment,
-    subjectMapOverride?: SubjectMap<OracleDefinition>
+    subjectMapOverride?: SubjectMap<OracleDefinition>,
+    timestamp = getNowSeconds()
   ) {
     const subjects = subjectMapOverride
       ? subjectMapOverride
@@ -185,8 +186,30 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
         if (!n) throw Error(`${token} node is not found`);
         node = n;
 
-        const o = subjects.get(node.id)?.asObservable();
-        if (!o) throw Error(`Update Subject for ${node.id} not found`);
+        let o = subjects.get(node.id)?.asObservable();
+        if (!o) {
+          // When doing historical pricing, if the settlement rate is not found then switch it to
+          // use the fCash oracle rate prior to maturity. The settlement rate will be in the path
+          // post maturity.
+          if (node.id.endsWith('fCashSettlementRate')) {
+            const [base] = node.id.split(':');
+            const { maturity, currencyId } = decodeERC1155Id(base);
+            if (timestamp && timestamp < maturity) {
+              const underlying = Registry.getTokenRegistry().getUnderlying(
+                network,
+                currencyId
+              );
+              // fCashOracleRate is from underlying => fCash id, settlement rates are from
+              // fCash id => prime cash
+              o = subjects
+                .get(`${underlying.id}:${base}:fCashOracleRate`)
+                ?.asObservable();
+            }
+          }
+
+          if (!o)
+            throw Error(`Update Subject for ${node.id} not found at ${timestamp}`);
+        }
         observable = o;
       }
 
@@ -225,7 +248,8 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
 
             const exchangeRate = this.interestToExchangeRate(
               node.inverted ? rate : rate.mul(-1),
-              maturity
+              maturity,
+              timestamp
             );
 
             if (
@@ -289,7 +313,8 @@ export class OracleRegistryClient extends ClientRegistry<OracleDefinition> {
       network,
       path,
       riskAdjusted,
-      subjectMap
+      subjectMap,
+      timestamp
     );
     let latestRate: ExchangeRate | null = null;
 

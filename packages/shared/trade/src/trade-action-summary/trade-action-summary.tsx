@@ -15,11 +15,17 @@ import {
 } from '@notional-finance/notionable-hooks';
 import LeverageInfoRow from './components/leverage-info-row';
 import { formatTokenType } from '@notional-finance/helpers';
-import { Registry, TokenDefinition } from '@notional-finance/core-entities';
+import {
+  Registry,
+  TokenDefinition,
+  YieldData,
+} from '@notional-finance/core-entities';
 import { leveragedYield } from '@notional-finance/util';
+import { LiquidityYieldInfo } from './components/liquidity-yield-info';
 
 interface TradeActionSummaryProps {
   state: BaseTradeState;
+  liquidityYieldData?: YieldData;
   priorVaultFactors?: {
     vaultShare?: TokenDefinition;
     vaultBorrowRate?: number;
@@ -31,6 +37,7 @@ interface TradeActionSummaryProps {
 export function TradeActionSummary({
   state,
   priorVaultFactors,
+  liquidityYieldData,
   children,
 }: TradeActionSummaryProps) {
   const theme = useTheme();
@@ -131,6 +138,9 @@ export function TradeActionSummary({
             apySpread={apySpread}
             leverage={leverageRatio}
           />
+        )}
+        {liquidityYieldData && (
+          <LiquidityYieldInfo liquidityYieldData={liquidityYieldData} />
         )}
       </Box>
       {children}
