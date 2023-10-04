@@ -17,11 +17,12 @@ export const ChevronCell = ({ row }): JSX.Element => {
     >
       <IconButton
         aria-label="expand row"
+        id="dropdown-arrow-button"
         size="small"
         sx={{
           paddingLeft: '0px',
-          height: '30px',
-          width: '30px',
+          height: '40px',
+          width: '40px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',

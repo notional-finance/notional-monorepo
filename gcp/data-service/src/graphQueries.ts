@@ -60,7 +60,7 @@ export const graphQueries = {
       balances(
         first: $size
         skip: $offset
-        where: {account_: {systemAccountType: "None"}, token_: {tokenType_in: ["VaultDebt"]}, current_: {currentBalance_gt: 0}}
+        where: {account_: {systemAccountType: "None"}, token_: {tokenType_in: ["VaultShare"]}}
       ) {
         account {
           id

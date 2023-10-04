@@ -106,6 +106,7 @@ export interface PoolDefinition {
 
 export interface BalanceStatement {
   token: TokenDefinition;
+  blockNumber: number;
   underlying: TokenDefinition;
   currentBalance: TokenBalance;
   adjustedCostBasis: TokenBalance;
@@ -129,6 +130,7 @@ export interface BalanceStatement {
 
 export interface AccountHistory {
   timestamp: number;
+  blockNumber: number;
   token: TokenDefinition;
   underlying: TokenDefinition;
   tokenAmount: TokenBalance;

@@ -161,7 +161,7 @@ export const useSettingsSideDrawer = () => {
       active: false,
       label: (
         <FormattedMessage
-          defaultMessage="Prime Borrow"
+          defaultMessage="Variable Borrow"
           description={'Dark Mode option title'}
         />
       ),

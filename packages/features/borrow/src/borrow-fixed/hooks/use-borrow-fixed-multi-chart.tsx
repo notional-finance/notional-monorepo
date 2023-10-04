@@ -19,8 +19,9 @@ export const useBorrowFixedMultiChart = () => {
   const {
     state: { deposit },
   } = context;
-  const { areaChartData, apyToolTipData, tvlToolTipData } =
-    useInteractiveMaturityChart(deposit?.currencyId);
+  const { areaChartData, apyToolTipData } = useInteractiveMaturityChart(
+    deposit?.currencyId
+  );
   const { selectedfCashId, onSelect } = useMaturitySelect(
     'Collateral',
     context
@@ -51,10 +52,10 @@ export const useBorrowFixedMultiChart = () => {
       Component: (
         <ChartContainer>
           <AreaChart
+            title="TVL"
             showCartesianGrid
             xAxisTickFormat="date"
             areaChartData={tvlData}
-            chartToolTipData={tvlToolTipData}
             areaLineType="linear"
             yAxisTickFormat="usd"
           />

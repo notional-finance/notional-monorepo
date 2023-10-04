@@ -4,7 +4,7 @@ import {
 } from '@ethersproject/providers';
 import { Network } from '@notional-finance/util';
 import { THEME_VARIANTS } from '@notional-finance/util';
-import { FiatKeys } from '@notional-finance/core-entities';
+import { FiatKeys, TokenDefinition } from '@notional-finance/core-entities';
 import { getFromLocalStorage } from '@notional-finance/helpers';
 import { Signer } from 'ethers';
 
@@ -56,8 +56,14 @@ interface UserSettingsState {
   baseCurrency: FiatKeys;
 }
 
+interface ExportControlsState {
+  country?: string;
+  isSanctionedAddress: boolean;
+}
+
 interface TransactionState {
   sentTransactions: Record<string, TransactionResponse>;
+  awaitingBalanceChanges: Record<string, TokenDefinition[]>;
   completedTransactions: Record<string, TransactionReceipt>;
 }
 
@@ -72,6 +78,7 @@ export interface GlobalState
     OnboardState,
     TransactionState,
     UserSettingsState,
+    ExportControlsState,
     ErrorState {}
 
 export const initialGlobalState: GlobalState = {
@@ -83,8 +90,10 @@ export const initialGlobalState: GlobalState = {
   isAccountReady: false,
   sentTransactions: {},
   completedTransactions: {},
+  awaitingBalanceChanges: {},
   themeVariant: userSettings?.themeVariant
     ? userSettings?.themeVariant
     : THEME_VARIANTS.LIGHT,
   baseCurrency: userSettings?.baseCurrency ? userSettings?.baseCurrency : 'USD',
+  isSanctionedAddress: false,
 };

@@ -8,6 +8,7 @@ export const ContestHeader = () => {
     <Container>
       <ImgWrapper
         sx={{
+          borderRight: `1px solid ${colors.neonTurquoise}`,
           svg: {
             height: '40px',
             width: '40px',
@@ -23,6 +24,7 @@ export const ContestHeader = () => {
       </InnerContainer>
       <ImgWrapper
         sx={{
+          borderLeft: `1px solid ${colors.neonTurquoise}`,
           svg: {
             height: '40px',
             width: '40px',
@@ -77,11 +79,11 @@ const ImgWrapper = styled(Box)(
   display: flex;
   align-items: center;
   justify-content: center;
+
   padding: 14px;
   ${theme.breakpoints.down('md')} {
     display: none;
   }
-  ,
     `
 );
 

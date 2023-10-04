@@ -49,6 +49,7 @@ export const OrderDetails = ({ state }: { state: BaseTradeState }) => {
           sx={{
             display: 'inline-flex',
             marginTop: theme.spacing(2),
+            marginBottom: theme.spacing(6),
             padding: theme.spacing(0.5, 1.75),
             color: theme.palette.primary.light,
             float: 'right',

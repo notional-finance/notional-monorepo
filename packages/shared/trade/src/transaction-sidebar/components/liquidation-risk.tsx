@@ -16,7 +16,7 @@ import { FormattedMessage } from 'react-intl';
 export const LiquidationRisk = ({ state }: { state: TradeState }) => {
   const theme = useTheme();
   const isAccountReady = useAccountReady();
-  const { tradeType } = state;
+  const { tradeType, inputsSatisfied, calculationSuccess } = state;
   const {
     onlyCurrent,
     priorAccountNoRisk,
@@ -57,7 +57,7 @@ export const LiquidationRisk = ({ state }: { state: TradeState }) => {
     return null;
   } else if (priorAccountNoRisk && postAccountNoRisk) {
     return null;
-  } else if (priorAccountNoRisk) {
+  } else if (!inputsSatisfied || !calculationSuccess) {
     // Show state zero
     return (
       <DataTable

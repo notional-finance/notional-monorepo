@@ -5,7 +5,7 @@ export const useContestRulesInfo = () => {
     {
       text: (
         <FormattedMessage
-          defaultMessage={`The yield competition will take place from 12 AM Eastern Time on Monday September 25 to 12 AM Eastern Time Monday October 23.`}
+          defaultMessage={`The yield competition will take place from 12 AM Eastern Time on Monday September 25 to 12 AM Eastern Time Monday October 25.`}
         />
       ),
     },
@@ -27,13 +27,6 @@ export const useContestRulesInfo = () => {
       text: (
         <FormattedMessage
           defaultMessage={`Users can use any supported currency and instrument.`}
-        />
-      ),
-    },
-    {
-      text: (
-        <FormattedMessage
-          defaultMessage={`Users can not deposit more than 1,000 USD. If the value of a user’s account grows while it’s on Notional and comes to exceed 1,000 USD, the user will not be disqualified. But users who push their account value over 1,000 USD by depositing will be disqualified.`}
         />
       ),
     },
@@ -63,7 +56,7 @@ export const useContestRulesInfo = () => {
     {
       text: (
         <FormattedMessage
-          defaultMessage={`Realized APY can not be gamed or affected by making deposits or withdrawals. Users are free to deposit and withdraw in any currency as frequently as they want provided they stay under the $1,000 max account value.`}
+          defaultMessage={`Realized APY can not be gamed or affected by making deposits or withdrawals. Users are free to deposit and withdraw in any currency as frequently as they want.`}
         />
       ),
     },

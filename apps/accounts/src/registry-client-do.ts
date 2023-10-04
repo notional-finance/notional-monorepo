@@ -10,6 +10,7 @@ import {
   getNowSeconds,
   groupArrayToMap,
   isERC1155Id,
+  unique,
 } from '@notional-finance/util';
 import {
   AccountFetchMode,
@@ -17,7 +18,7 @@ import {
   TokenBalance,
 } from '@notional-finance/core-entities';
 import { BaseDO, MetricType } from '@notional-finance/durable-objects';
-import { calculateAccountIRR } from './factors/calculations';
+import { calculateAccountIRR, excludeAccounts } from './factors/calculations';
 import { Env } from '.';
 
 export class RegistryClientDO extends BaseDO<Env> {
@@ -256,9 +257,11 @@ export class RegistryClientDO extends BaseDO<Env> {
         });
       }
 
-      const vaultKeys = a.balances
-        .filter((b) => b.tokenType === 'VaultShare')
-        .map((b) => `${a.address}:${b.vaultAddress}`.toLowerCase());
+      const vaultKeys = unique(
+        a.balances
+          .filter((b) => b.tokenType === 'VaultShare')
+          .map((b) => `${a.address}:${b.vaultAddress}`.toLowerCase())
+      );
       for (const k of vaultKeys) {
         if (vaultAccountSet.has(k)) vaultAccountSet.delete(k);
         else {
@@ -310,6 +313,12 @@ export class RegistryClientDO extends BaseDO<Env> {
     const allFactors = allAccounts
       .map((a) => accounts.getLatestFromSubject(network, a))
       .filter((acct) => acct.systemAccountType === 'None')
+      .filter(
+        (acct) =>
+          excludeAccounts.find(
+            (a) => a.toLowerCase() === acct.address.toLowerCase()
+          ) === undefined
+      )
       .map((account) => ({
         address: account.address,
         ...calculateAccountIRR(account, undefined),

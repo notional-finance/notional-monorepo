@@ -75,14 +75,15 @@ const StyledTabs = styled(Tabs)(
   border-radius: 100px;
   background-color: ${theme.palette.background.default};
   min-height: unset;
-  padding: ${theme.spacing(1, 2)};
+  padding: ${theme.spacing(0.5)};
   margin-bottom: ${theme.spacing(4)};
   box-shadow: ${theme.shape.shadowStandard};
+  border-radius: ${theme?.spacing(4)};
 
   .MuiTabs-indicator {
     z-index: 1;
     background-color: ${theme.palette.primary.light};
-    border-radius: 20px;
+    border-radius: ${theme?.spacing(4)};
     height: 100%;
   }
 `

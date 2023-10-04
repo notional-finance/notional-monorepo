@@ -1,42 +1,52 @@
-import { logError } from '@notional-finance/util';
-import { useEffect, useState } from 'react';
-interface GeoIpResponse {
-  country: string;
-}
+import { useHistory, useLocation } from 'react-router';
+import { useNotionalContext } from './use-notional';
+import { useEffect } from 'react';
 
-const vpnCheck = 'http://detect.notional.finance/';
-const dataURL = process.env['NX_DATA_URL'] || 'https://data.notional.finance';
 const env = process.env['NODE_ENV'];
 // https://orpa.princeton.edu/export-controls/sanctioned-countries
-// const BlockedRegions = [
-//   'US', Cuba, Iran, Iraq, Syria, North Korea, Russia, Belarus,
-//   Central African Republic, Congo, Lebanon, Liberia, Libya,
-//   Somalia, Venezuela, Yemen, Zimbabwe
-// ]
-// Sanctions oracle...
-// https://etherscan.io/address/0x40c57923924b5c5c5455c48d93317139addac8fb
+const SanctionedCountries = [
+  'CU', // Cuba
+  'IR', // Iran
+  'IQ', // Iraq
+  'SY', // Syria
+  'KP', // North Korea
+  'RU', // Russia
+  'BY', // Belarus
+  'CF', // Central African Republic
+  'CD', // Democratic Republic of the Congo
+  'CG', // Congo
+  'LB', // Lebanon
+  'LR', // Liberia
+  'LY', // Libya
+  'SO', // Somalia
+  'VE', // Venezuela
+  'YE', // Yemen
+  'ZW', // Zimbabwe
+];
 
-export function useGeoipBlock() {
-  const [country, setCountry] = useState<string>('N/A');
+export function useLeverageBlock() {
+  const {
+    globalState: { country },
+  } = useNotionalContext();
   const isProd = env === 'production';
 
-  useEffect(() => {
-    const fetchIPBlock = async () => {
-      const resp: GeoIpResponse = await (
-        await fetch(`${dataURL}/geoip`)
-      ).json();
-      const vpnResp = await fetch(vpnCheck);
-      if (vpnResp.status !== 200) setCountry('VPN');
-      else setCountry(resp.country);
-    };
-
-    fetchIPBlock().catch((e) => {
-      logError(e as Error, 'leveraged-vaults', 'use-geoip-block');
-    });
-  }, []);
-
-  console.log('Current GeoIP Location: ', country);
   return isProd
-    ? country === 'N/A' || country === 'US' || country === 'VPN'
+    ? country === undefined || country === 'US' || country === 'VPN'
     : false;
+}
+
+export function useSanctionsBlock() {
+  const {
+    globalState: { country, isSanctionedAddress },
+  } = useNotionalContext();
+  const history = useHistory();
+  const { pathname } = useLocation();
+
+  const isSanctioned =
+    SanctionedCountries.find((s) => s === country) || isSanctionedAddress;
+  useEffect(() => {
+    if (isSanctioned && pathname !== 'error') {
+      history.push('/error?code=451');
+    }
+  }, [history, pathname, isSanctioned]);
 }

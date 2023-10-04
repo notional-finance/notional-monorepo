@@ -410,12 +410,10 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
               balances.push(TokenBalance.from(b.nTokenBalance, nToken));
             }
 
-            if (b.accountIncentiveDebt.gt(0)) {
-              accountIncentiveDebt.push({
-                value: TokenBalance.from(b.accountIncentiveDebt, NOTE),
-                currencyId: b.currencyId,
-              });
-            }
+            accountIncentiveDebt.push({
+              value: TokenBalance.from(b.accountIncentiveDebt, NOTE),
+              currencyId: b.currencyId,
+            });
 
             return balances;
           });
@@ -715,6 +713,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
 
     return {
       token: tokens.getTokenByID(network, tokenId),
+      blockNumber: current.blockNumber,
       underlying: tokens.getTokenByID(network, underlying.id),
       currentBalance: currentStatement.balance,
       adjustedCostBasis: currentStatement.adjustedCostBasis,
@@ -732,12 +731,11 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
     snapshot: BalanceSnapshot,
     network: Network
   ) {
-    let balance = TokenBalance.fromID(
+    const balance = TokenBalance.fromID(
       snapshot.currentBalance,
       tokenId,
       network
     );
-    if (balance.tokenType === 'PrimeDebt') balance = balance.neg();
 
     const adjustedCostBasis = TokenBalance.fromID(
       snapshot.adjustedCostBasis,
@@ -809,6 +807,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
 
     return {
       timestamp: p.timestamp,
+      blockNumber: p.blockNumber,
       token,
       vaultName,
       underlying: Registry.getTokenRegistry().getTokenByID(

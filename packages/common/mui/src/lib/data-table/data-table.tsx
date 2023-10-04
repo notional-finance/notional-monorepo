@@ -7,6 +7,7 @@ import { DataTableTitleBar } from './data-table-title-bar/data-table-title-bar';
 import { DataTableTabBar } from './data-table-tab-bar/data-table-tab-bar';
 import { DataTableHead } from './data-table-head/data-table-head';
 import { DataTableBody } from './data-table-body/data-table-body';
+import { DataTablePending } from './data-table-pending/data-table-pending';
 import {
   DataTableInfoBox,
   InfoBoxDataProps,
@@ -27,6 +28,8 @@ import {
 interface DataTableProps {
   columns: Array<DataTableColumn>;
   data: Array<any>;
+  pendingTokenData?: Record<any, any>;
+  pendingMessage?: ReactNode;
   CustomRowComponent?: ({ row }: { row: any }) => JSX.Element;
   CustomTabComponent?: React.FunctionComponent;
   TabComponentVisible?: boolean;
@@ -54,6 +57,8 @@ interface DataTableProps {
 export const DataTable = ({
   columns,
   data,
+  pendingTokenData,
+  pendingMessage,
   CustomRowComponent,
   CustomTabComponent,
   TabComponentVisible,
@@ -137,6 +142,7 @@ export const DataTable = ({
     DataTableFilterBar: 
       - Requires filterBarData to function. The filterBarData will automatically populate one or more filter dropdowns depending on need. 
   */
+
   const height = ref.current?.clientHeight;
   const width = ref.current?.clientWidth;
 
@@ -193,6 +199,13 @@ export const DataTable = ({
       {tabBarProps && <DataTableTabBar tabBarProps={tabBarProps} />}
 
       {TabComponentVisible && CustomTabComponent && <CustomTabComponent />}
+      {pendingTokenData && pendingTokenData.pendingTokens.length > 0 && (
+        <DataTablePending
+          pendingTokenData={pendingTokenData}
+          pendingMessage={pendingMessage}
+        />
+      )}
+
       {tableReady ? (
         <>
           {!maxHeight && (
@@ -202,7 +215,6 @@ export const DataTable = ({
                 tableVariant={tableVariant}
                 expandableTable={expandableTable}
               />
-
               <DataTableBody
                 rows={displayedRows}
                 prepareRow={prepareRow}

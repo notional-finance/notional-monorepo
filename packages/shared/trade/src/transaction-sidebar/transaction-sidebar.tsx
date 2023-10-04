@@ -5,7 +5,7 @@ import {
 } from '@notional-finance/mui';
 import {
   TradeContext,
-  useGeoipBlock,
+  useLeverageBlock,
 } from '@notional-finance/notionable-hooks';
 import { useCallback } from 'react';
 import { MessageDescriptor, defineMessages } from 'react-intl';
@@ -46,7 +46,7 @@ export const TransactionSidebar = ({
 }: TransactionSidebarProps) => {
   const { state, updateState } = context;
   const { canSubmit, confirm, tradeType, debt, collateral } = state;
-  const isBlocked = useGeoipBlock();
+  const isBlocked = useLeverageBlock();
   const handleSubmit = useCallback(() => {
     updateState({ confirm: true });
   }, [updateState]);
@@ -61,7 +61,7 @@ export const TransactionSidebar = ({
   const errorMessage = defineMessages({
     geoErrorHeading: {
       defaultMessage:
-        'Leveraged products are not available in the US or to VPN users',
+        'Leveraged products are not available in the US or to VPN users. Non-Leveraged products are available to all users globally.',
     },
   });
 

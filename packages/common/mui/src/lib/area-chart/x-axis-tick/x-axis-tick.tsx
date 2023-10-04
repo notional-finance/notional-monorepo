@@ -41,7 +41,7 @@ export const XAxisTick = (props) => {
             })
           : ''}
         {xAxisTickFormat === 'percent' && typeof value === 'number'
-          ? formatNumberAsPercent(value)
+          ? formatNumberAsPercent(value, 0)
           : ''}
       </text>
     </g>

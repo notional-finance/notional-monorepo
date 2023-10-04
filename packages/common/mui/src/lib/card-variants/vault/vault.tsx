@@ -60,7 +60,10 @@ export const Vault = ({
             {vaultName}
           </SmallInput>
           <SectionTitle textAlign="left" gutter="default">
-            <FormattedMessage defaultMessage="{leverage} LEVERAGE" values={{ leverage }} />
+            <FormattedMessage
+              defaultMessage="{leverage} LEVERAGE"
+              values={{ leverage }}
+            />
           </SectionTitle>
           <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
             <LightningIcon
@@ -70,6 +73,7 @@ export const Vault = ({
               textAlign="left"
               marginBottom={theme.spacing(3)}
               fontWeight="bold"
+              sx={{ color: rate < 0 ? colors.red : '' }}
             >
               {formattedRate}
             </H4>

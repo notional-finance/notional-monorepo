@@ -9,6 +9,7 @@ import {
   ButtonOptionsType,
   DataTableColumn,
   DataTable,
+  ProgressIndicator,
 } from '@notional-finance/mui';
 import { colors } from '@notional-finance/styles';
 import { defineMessages } from 'react-intl';
@@ -27,8 +28,10 @@ interface TableActionRowProps {
         subRowData: {
           label: ReactNode;
           value: any;
+          showLoadingSpinner?: boolean;
         }[];
       };
+      pendingTokenData?: Record<any, any>;
     };
   };
 }
@@ -43,6 +46,7 @@ export const TableActionRow = ({ row }: TableActionRowProps) => {
       riskTableData,
       riskTableColumns,
     },
+    pendingTokenData,
   } = row.original;
 
   return (
@@ -54,16 +58,20 @@ export const TableActionRow = ({ row }: TableActionRowProps) => {
     >
       <Container>
         <ApyContainer>
-          {subRowData.map(({ label, value }, index) => (
+          {subRowData.map(({ label, value, showLoadingSpinner }, index) => (
             <Box key={index}>
               <Label>{label}</Label>
-              <H4
-                sx={{
-                  color: value < 0 || value.includes('-') ? colors.red : '',
-                }}
-              >
-                {value}
-              </H4>
+              {pendingTokenData && showLoadingSpinner ? (
+                <ProgressIndicator circleSize={24} />
+              ) : (
+                <H4
+                  sx={{
+                    color: value < 0 || value.includes('-') ? colors.red : '',
+                  }}
+                >
+                  {value}
+                </H4>
+              )}
             </Box>
           ))}
         </ApyContainer>

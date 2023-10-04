@@ -25,16 +25,16 @@ import { useTokenHistory } from '@notional-finance/notionable-hooks';
 export const LiquidityVariableSummary = () => {
   const theme = useTheme();
   const { state } = useContext(LiquidityContext);
-  const { selectedDepositToken, collateral } = state;
+  const { selectedDepositToken, collateral, collateralBalance } = state;
   const tokenSymbol = selectedDepositToken || '';
   const { faqs, faqHeaderLinks } = useLiquidityFaq(tokenSymbol);
-  const totalsData = useTotalsData(tokenSymbol);
+  const { totalsData, liquidityYieldData} = useTotalsData(tokenSymbol, collateralBalance);
   const { returnDriversColumns, returnDriversData, infoBoxData } =
     useReturnDriversTable();
   const { apyData, tvlData } = useTokenHistory(collateral);
 
   return (
-    <TradeActionSummary state={state}>
+    <TradeActionSummary state={state} liquidityYieldData={liquidityYieldData}>
       <MultiDisplayChart
         chartComponents={[
           {
@@ -43,6 +43,7 @@ export const LiquidityVariableSummary = () => {
             Component: (
               <ChartContainer>
                 <AreaChart
+                  title="APY"
                   showCartesianGrid
                   xAxisTickFormat="date"
                   areaChartData={apyData}
@@ -57,6 +58,7 @@ export const LiquidityVariableSummary = () => {
             Component: (
               <ChartContainer>
                 <AreaChart
+                  title="TVL"
                   showCartesianGrid
                   xAxisTickFormat="date"
                   yAxisTickFormat="usd"
@@ -76,8 +78,15 @@ export const LiquidityVariableSummary = () => {
           marginTop: theme.spacing(3),
         }}
       >
-        {totalsData.map(({ title, value, Icon }, index) => (
-          <TotalBox title={title} value={value} key={index} Icon={Icon} />
+        {totalsData.map(({ title, value, Icon, prefix, suffix }, index) => (
+          <TotalBox
+            title={title}
+            value={value}
+            key={index}
+            Icon={Icon}
+            prefix={prefix}
+            suffix={suffix}
+          />
         ))}
       </Box>
       <Faq

@@ -121,6 +121,8 @@ export class AccountRiskProfile extends BaseRiskProfile {
       const totalDebtsLocal = this.totalCurrencyDebtsRiskAdjusted(currencyId);
       const netLocal = totalAssetsLocal.add(totalDebtsLocal);
       let netFC: TokenBalance;
+      let totalAssetsDenom: TokenBalance;
+      let totalDebtsDenom: TokenBalance;
 
       if (netLocal.currencyId === denom.currencyId) {
         // Handle special case when netLocal is in the denom currency
@@ -128,17 +130,22 @@ export class AccountRiskProfile extends BaseRiskProfile {
           Registry.getConfigurationRegistry().getCurrencyHaircutAndBuffer(
             denom
           );
-        netFC = netLocal
+        const adjustment = netLocal.isPositive() ? haircut : buffer;
+        netFC = netLocal.toUnderlying().scale(adjustment, PERCENTAGE_BASIS);
+        totalAssetsDenom = totalAssetsLocal
           .toUnderlying()
-          .scale(netLocal.isPositive() ? haircut : buffer, PERCENTAGE_BASIS);
+          .scale(adjustment, PERCENTAGE_BASIS);
+        totalDebtsDenom = totalDebtsLocal
+          .toUnderlying()
+          .scale(adjustment, PERCENTAGE_BASIS);
       } else {
-        netFC = netLocal.toToken(
-          denom,
-          netLocal.isNegative() ? 'Debt' : 'Asset'
-        );
+        const adjustment = netLocal.isNegative() ? 'Debt' : 'Asset';
+        netFC = netLocal.toToken(denom, adjustment);
+        totalAssetsDenom = totalAssetsLocal.toToken(denom, adjustment);
+        totalDebtsDenom = totalDebtsLocal.toToken(denom, adjustment);
       }
 
-      return { currencyId, netFC };
+      return { currencyId, netFC, totalAssetsDenom, totalDebtsDenom };
     });
   }
 
@@ -148,11 +155,11 @@ export class AccountRiskProfile extends BaseRiskProfile {
     const factors = this.freeCollateralFactors();
 
     const totalPositiveFC = factors.reduce(
-      (t, { netFC }) => (netFC.isPositive() ? t.add(netFC) : t),
+      (t, { totalAssetsDenom }) => t.add(totalAssetsDenom),
       TokenBalance.zero(denom)
     );
     const totalNegativeFC = factors.reduce(
-      (t, { netFC }) => (netFC.isNegative() ? t.add(netFC) : t),
+      (t, { totalDebtsDenom }) => t.add(totalDebtsDenom),
       TokenBalance.zero(denom)
     );
 

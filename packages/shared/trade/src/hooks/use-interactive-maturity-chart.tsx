@@ -8,7 +8,6 @@ import { useFCashMarket } from '@notional-finance/notionable-hooks';
 import {
   getDateString,
   formatNumberAsPercent,
-  formatNumberToDigits,
 } from '@notional-finance/helpers';
 
 export const useInteractiveMaturityChart = (currencyId: number | undefined) => {
@@ -35,27 +34,6 @@ export const useInteractiveMaturityChart = (currencyId: number | undefined) => {
     textHeader: <FormattedMessage defaultMessage={'APY by Maturity'} />,
   };
 
-  const tvlToolTipData: ChartToolTipDataProps = {
-    timestamp: {
-      formatTitle: (timestamp: any) => (
-        <FormattedMessage
-          defaultMessage="Date: {date}"
-          values={{ date: getDateString(timestamp) }}
-        />
-      ),
-    },
-    area: {
-      lineColor: theme.palette.typography.accent,
-      lineType: LEGEND_LINE_TYPES.SOLID,
-      formatTitle: (area: any) => (
-        <FormattedMessage
-          defaultMessage="TVL: {rate}"
-          values={{ rate: `$${formatNumberToDigits(area)}` }}
-        />
-      ),
-    },
-  };
-
   const apyToolTipData: ChartToolTipDataProps = {
     timestamp: {
       formatTitle: (timestamp: any) => (
@@ -77,7 +55,7 @@ export const useInteractiveMaturityChart = (currencyId: number | undefined) => {
     },
   };
 
-  return { areaChartData, tvlToolTipData, apyToolTipData, chartHeaderData };
+  return { areaChartData, apyToolTipData, chartHeaderData };
 };
 
 export default useInteractiveMaturityChart;

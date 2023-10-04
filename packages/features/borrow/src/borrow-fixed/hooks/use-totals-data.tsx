@@ -1,5 +1,5 @@
 import { FormattedMessage } from 'react-intl';
-import { TokenBalance } from '@notional-finance/core-entities';
+import { TokenBalance, FiatSymbols } from '@notional-finance/core-entities';
 import {
   useFiat,
   useAllMarkets,
@@ -36,13 +36,13 @@ export const useTotalsData = (selectedDepositToken: string | undefined) => {
   return [
     {
       title: <FormattedMessage defaultMessage={'TVL'} />,
-      value: tvlData?.toFiat(baseCurrency).toDisplayStringWithSymbol() || '-',
+      value: tvlData?.toFiat(baseCurrency).toFloat() || '-',
+      prefix: FiatSymbols[baseCurrency] ? FiatSymbols[baseCurrency] : '$',
     },
     {
       title: <FormattedMessage defaultMessage={'Total Fixed Rate Debt'} />,
-      value:
-        totalFixedRateDebt?.toFiat(baseCurrency).toDisplayStringWithSymbol() ||
-        '-',
+      value: totalFixedRateDebt?.toFiat(baseCurrency).toFloat() || '-',
+      prefix: FiatSymbols[baseCurrency] ? FiatSymbols[baseCurrency] : '$',
     },
     {
       title: <FormattedMessage defaultMessage={'Fixed Rate Borrowers'} />,

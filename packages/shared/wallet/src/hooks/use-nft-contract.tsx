@@ -21,6 +21,8 @@ export const useNftContract = (selectedAddress?: string) => {
 
   useEffect(() => {
     if (!hasContestNFT) {
+      if (pathname.includes('error')) return;
+
       if (pathname.includes('contest')) {
         history.push(pathname);
       } else {

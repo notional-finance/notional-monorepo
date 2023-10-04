@@ -1,15 +1,17 @@
 import { ReactNode } from 'react';
-import { Box, styled, useTheme } from '@mui/material';
+import { Box, SxProps, styled, useTheme } from '@mui/material';
 import { AlertIcon } from '@notional-finance/icons';
 import { LabelValue, Caption } from '../typography/typography';
 import { NotionalTheme } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
 
 interface ErrorMessageProps {
-  variant: 'error' | 'warning' | 'info';
+  variant: 'error' | 'warning' | 'info' | 'pending';
   title?: ReactNode;
   message?: ReactNode | string;
   marginBottom?: boolean;
+  sx?: SxProps;
+  children?: ReactNode;
 }
 
 export interface ErrorContainerProps {
@@ -22,6 +24,8 @@ export const ErrorMessage = ({
   title,
   message,
   marginBottom,
+  children,
+  sx,
 }: ErrorMessageProps) => {
   const theme = useTheme();
   let defaultTitle: React.ReactNode;
@@ -35,6 +39,9 @@ export const ErrorMessage = ({
     case 'info':
       defaultTitle = <FormattedMessage defaultMessage={'Info'} />;
       break;
+    case 'pending':
+      defaultTitle = <FormattedMessage defaultMessage={'Pending'} />;
+      break;
   }
 
   return message ? (
@@ -42,6 +49,7 @@ export const ErrorMessage = ({
       variant={variant}
       theme={theme}
       sx={{
+        ...sx,
         marginTop: marginBottom ? undefined : theme.spacing(3),
         marginBottom: marginBottom ? theme.spacing(3) : undefined,
       }}
@@ -58,6 +66,7 @@ export const ErrorMessage = ({
           {message}
         </Caption>
       </ErrorContent>
+      {children}
     </ErrorContainer>
   ) : (
     <span></span>
