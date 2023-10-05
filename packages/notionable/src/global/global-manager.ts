@@ -155,7 +155,7 @@ export const loadGlobalManager = (
     switchMap(() => {
       return from(
         Promise.all([
-          fetch(vpnCheck),
+          fetch(vpnCheck).catch(() => ({ status: 403 })),
           fetch(`${dataURL}/geoip`).then((r) => r.json()),
         ]).then(([vpn, geoip]) => {
           return { country: vpn.status !== 200 ? 'VPN' : geoip['country'] };
