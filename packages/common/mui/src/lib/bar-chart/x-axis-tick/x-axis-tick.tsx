@@ -36,6 +36,7 @@ export const XAxisTick = (props) => {
       >
         {xAxisTickFormat === 'date' && typeof value === 'number'
           ? intl.formatDate(value * 1000, {
+              day: 'numeric',
               month: 'short',
               year: 'numeric',
             })

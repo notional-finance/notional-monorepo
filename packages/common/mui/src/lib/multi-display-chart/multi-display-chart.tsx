@@ -7,6 +7,10 @@ import {
   ChartHeaderDataProps,
 } from '../chart-header/chart-header';
 import {
+  ChartHeaderTotals,
+  ChartHeaderTotalsDataProps,
+} from '../chart-header-totals/chart-header-totals';
+import {
   ChartInfoBox,
   chartInfoBoxDataProps,
 } from '../chart-info-box/chart-info-box';
@@ -16,6 +20,7 @@ export interface ChartComponentsProps {
   title: string;
   Component: ReactNode;
   chartHeaderData?: ChartHeaderDataProps;
+  chartHeaderTotalsData?: ChartHeaderTotalsDataProps[];
   chartInfoBoxData?: chartInfoBoxDataProps[];
   bottomLabel?: ReactNode;
 }
@@ -84,6 +89,11 @@ export const MultiDisplayChart = ({
               chartHeaderData={currentChart?.chartHeaderData}
               setChartInfoBoxActive={setChartInfoBoxActive}
               showInfoIcon={currentChart?.chartInfoBoxData ? true : false}
+            />
+          )}
+          {currentChart?.chartHeaderTotalsData && (
+            <ChartHeaderTotals
+              chartHeaderTotalsData={currentChart?.chartHeaderTotalsData}
             />
           )}
           <ChartContainer>{currentChart?.Component}</ChartContainer>
