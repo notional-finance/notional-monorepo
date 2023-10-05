@@ -262,6 +262,27 @@ async function main() {
             });
           }
         }
+
+        const transferBatch = event.matchReasons.find(
+          (reason) =>
+            reason.signature ===
+            'TransferBatch(address,address,address,uint256[],uint256[])'
+        );
+        if (transferBatch) {
+          transferBatch.params.ids.forEach((id) => {
+            const params = decodeERC1155Id(padToHex256(BigNumber.from(id)));
+            if (
+              params.assetType === AssetType.VAULT_SHARE_ASSET_TYPE &&
+              params.vaultAddress
+            ) {
+              accountIds.push(transferBatch.params.to);
+              vaultAccounts.push({
+                accountId: transferBatch.params.to,
+                vaultId: params.vaultAddress,
+              });
+            }
+          });
+        }
       });
 
       if (accountIds.length > 0) {
