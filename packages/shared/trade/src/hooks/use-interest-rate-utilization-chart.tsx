@@ -8,11 +8,7 @@ import {
   CountUp,
 } from '@notional-finance/mui';
 import { RATE_PRECISION } from '@notional-finance/util';
-import {
-  useSelectedNetwork,
-  useFCashMarket,
-} from '@notional-finance/notionable-hooks';
-import { Registry } from '@notional-finance/core-entities';
+import { useFCashMarket } from '@notional-finance/notionable-hooks';
 import { colors } from '@notional-finance/styles';
 import { formatNumberAsPercent } from '@notional-finance/helpers';
 
@@ -21,59 +17,26 @@ export const useInterestRateUtilizationChart = (
   actionType: string
 ) => {
   const theme = useTheme();
-  const selectedNetwork = useSelectedNetwork();
   const fCashMarket = useFCashMarket(currencyId);
 
-  let areaChartData: any[] = [];
-  let borrowUtilization = 0;
-  if (selectedNetwork && currencyId && fCashMarket) {
-    borrowUtilization =
-      (fCashMarket.getPrimeCashUtilization() * 100) / RATE_PRECISION;
-
-    const formatChartData = () => {
-      let count = 0;
-      const data: Record<string, number>[] = [];
-      while (count < 90) {
-        const updatedCount = (count += 10);
-        data.push({
-          timestamp: updatedCount,
+  const areaChartData = fCashMarket
+    ? Array(101)
+        .fill(0)
+        .map((_, i) => ({
+          timestamp: i,
           area:
             actionType === 'borrow'
-              ? (fCashMarket.getPrimeDebtRate(
-                  (updatedCount / 100) * RATE_PRECISION
-                ) *
+              ? (fCashMarket.getPrimeDebtRate((i / 100) * RATE_PRECISION) *
                   100) /
                 RATE_PRECISION
-              : (fCashMarket.getPrimeSupplyRate(
-                  (updatedCount / 100) * RATE_PRECISION
-                ) *
+              : (fCashMarket.getPrimeSupplyRate((i / 100) * RATE_PRECISION) *
                   100) /
                 RATE_PRECISION,
-        });
-      }
-      return data;
-    };
-
-    const chartData = formatChartData();
-
-    const { primeCashCurve } = Registry.getConfigurationRegistry().getConfig(
-      selectedNetwork,
-      currencyId
-    );
-    if (primeCashCurve) {
-      areaChartData = [
-        {
-          timestamp: 0.0,
-          area: 0.0,
-        },
-        ...chartData,
-        {
-          timestamp: 100,
-          area: (primeCashCurve.maxRate * 100) / RATE_PRECISION,
-        },
-      ];
-    }
-  }
+        }))
+    : [];
+  const borrowUtilization = fCashMarket
+    ? (fCashMarket.getPrimeCashUtilization() * 100) / RATE_PRECISION
+    : 0;
 
   const chartHeaderData: ChartHeaderDataProps = {
     textHeader:
@@ -98,7 +61,7 @@ export const useInterestRateUtilizationChart = (
     timestamp: {
       lineColor: 'transparent',
       lineType: LEGEND_LINE_TYPES.DASHED,
-      formatTitle: (timestamp: any) => (
+      formatTitle: (timestamp) => (
         <FormattedMessage
           defaultMessage="{rate} utilization"
           values={{
@@ -110,7 +73,7 @@ export const useInterestRateUtilizationChart = (
     area: {
       lineColor: colors.blueAccent,
       lineType: LEGEND_LINE_TYPES.SOLID,
-      formatTitle: (area: any) => {
+      formatTitle: (area) => {
         return actionType === 'borrow' ? (
           <FormattedMessage
             defaultMessage="{rate} Prime Borrow Rate"

@@ -60,6 +60,7 @@ export interface AreaChartProps {
   emptyStateMessage?: ReactNode;
   showEmptyState?: boolean;
   title?: string;
+  xAxisTickCount?: number;
 }
 
 export const yAxisTickHandler = (yAxisTickFormat, v: number) => {
@@ -89,6 +90,7 @@ export const AreaChart = ({
   emptyStateMessage,
   showEmptyState,
   title,
+  xAxisTickCount = 0,
 }: AreaChartProps) => {
   const theme = useTheme();
 
@@ -151,7 +153,7 @@ export const AreaChart = ({
           <XAxis
             dataKey="timestamp"
             type={xAxisTickFormat === 'date' ? 'category' : 'number'}
-            tickCount={0}
+            tickCount={xAxisTickCount}
             axisLine={false}
             tickSize={0}
             tickMargin={38}
