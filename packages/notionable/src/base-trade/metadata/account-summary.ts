@@ -17,6 +17,8 @@ export function tradeSummary(
         p.depositBalance?.hashKey === c.depositBalance?.hashKey &&
         p.collateralBalance?.hashKey === c.collateralBalance?.hashKey &&
         p.debtBalance?.hashKey === c.debtBalance?.hashKey &&
+        p.inputsSatisfied === c.inputsSatisfied &&
+        p.calculationSuccess === c.calculationSuccess &&
         p.tradeType === c.tradeType
     ),
     map(
