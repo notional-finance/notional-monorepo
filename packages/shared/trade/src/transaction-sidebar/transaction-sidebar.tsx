@@ -17,6 +17,7 @@ import {
 } from './components/transaction-headings';
 import { LiquidationRisk } from './components/liquidation-risk';
 import { TradeSummary } from './components/trade-summary';
+import { EnablePrimeBorrow } from '../enable-prime-borrow/enable-prime-borrow';
 
 interface TransactionSidebarProps {
   heading?: MessageDescriptor;
@@ -26,6 +27,7 @@ interface TransactionSidebarProps {
   children: React.ReactNode;
   advancedToggle?: ToggleSwitchProps;
   isPortfolio?: boolean;
+  enablePrimeBorrow?: boolean;
   handleLeverUpToggle?: () => void;
   onReturnToForm?: () => void;
   onConfirmCancel?: () => void;
@@ -41,6 +43,7 @@ export const TransactionSidebar = ({
   leveredUp,
   advancedToggle,
   isPortfolio,
+  enablePrimeBorrow,
   onReturnToForm,
   onCancelCallback,
 }: TransactionSidebarProps) => {
@@ -108,6 +111,7 @@ export const TransactionSidebar = ({
       {children}
       <LiquidationRisk state={state} />
       <TradeSummary state={state} />
+      {enablePrimeBorrow && <EnablePrimeBorrow />}
     </ActionSidebar>
   );
 };

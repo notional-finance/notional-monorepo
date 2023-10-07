@@ -2,7 +2,6 @@ import { useContext } from 'react';
 import { ErrorMessage, useCurrencyInputRef } from '@notional-finance/mui';
 import {
   DepositInput,
-  EnablePrimeBorrow,
   TransactionSidebar,
   tradeErrors,
 } from '@notional-finance/trade';
@@ -23,7 +22,7 @@ export const BorrowVariableSidebar = () => {
     : undefined;
 
   return (
-    <TransactionSidebar context={context}>
+    <TransactionSidebar context={context} enablePrimeBorrow>
       <DepositInput
         ref={currencyInputRef}
         inputRef={currencyInputRef}
@@ -52,7 +51,6 @@ export const BorrowVariableSidebar = () => {
           }
         />
       )}
-      <EnablePrimeBorrow />
     </TransactionSidebar>
   );
 };
