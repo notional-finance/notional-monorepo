@@ -116,9 +116,15 @@ export function TradeActionSummary({
         <TradeActionHeader
           token={selectedToken}
           tokenBottom={tokenBottom}
-          hideTokenName={isVault}
           actionText={
-            isVault ? vaultConfig?.name : <FormattedMessage {...headerText} />
+            isVault ? (
+              vaultConfig?.name
+            ) : (
+              <FormattedMessage
+                {...headerText}
+                values={{ token: deposit?.symbol || '' }}
+              />
+            )
           }
         />
         <TradeActionTitle value={totalAPY} title={apySuffix} valueSuffix="%" />
