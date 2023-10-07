@@ -76,20 +76,25 @@ export function calculateMaxWithdraw(
         vaultAdapter
       );
 
-      const { netRealizedCollateralBalance, netRealizedDebtBalance } =
-        executeCalculation(inputsSatisfied, s.tradeType, inputs) as {
-          netRealizedDebtBalance: TokenBalance | undefined;
-          netRealizedCollateralBalance: TokenBalance | undefined;
-        };
+      const {
+        netRealizedCollateralBalance,
+        netRealizedDebtBalance,
+        calculationSuccess,
+        calculateError,
+      } = executeCalculation(inputsSatisfied, s.tradeType, inputs) as {
+        netRealizedDebtBalance: TokenBalance | undefined;
+        netRealizedCollateralBalance: TokenBalance | undefined;
+        calculationSuccess: boolean,
+        calculateError: string | undefined,
+      };
 
-      if (netRealizedCollateralBalance || netRealizedDebtBalance) {
-        return {
-          netRealizedDebtBalance: netRealizedDebtBalance,
-          netRealizedCollateralBalance: netRealizedCollateralBalance,
-        };
-      } else {
-        return undefined;
-      }
+      return {
+        inputsSatisfied,
+        calculationSuccess,
+        calculateError,
+        netRealizedDebtBalance: netRealizedDebtBalance,
+        netRealizedCollateralBalance: netRealizedCollateralBalance,
+      };
     }),
     filterEmpty()
   );

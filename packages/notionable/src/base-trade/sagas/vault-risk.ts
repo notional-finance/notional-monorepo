@@ -70,11 +70,10 @@ export function postVaultAccountRisk(
           inputErrors,
         },
       ]) => {
-        if (!vaultAddress || !account) return undefined;
-        const prior = VaultAccountRiskProfile.fromAccount(
-          vaultAddress,
-          account
-        );
+        if (!vaultAddress || !collateralBalance) return undefined;
+        const prior = account
+          ? VaultAccountRiskProfile.fromAccount(vaultAddress, account)
+          : undefined;
         const post =
           calculationSuccess && collateralBalance
             ? (tradeType === 'RollVaultPosition' ||

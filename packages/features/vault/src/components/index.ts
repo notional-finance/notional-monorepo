@@ -1,4 +1,3 @@
-export * from './vault-description';
 export * from './vault-sub-nav/vault-sub-nav';
 export * from './mobile-vault-summary';
 export * from './transaction-cost-caption';

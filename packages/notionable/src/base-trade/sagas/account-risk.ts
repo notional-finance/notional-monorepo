@@ -105,7 +105,8 @@ export function postAccountRisk(
           ...s,
           canSubmit:
             post &&
-            s.postAccountRisk?.freeCollateral.isPositive() &&
+            (s.postAccountRisk?.freeCollateral.isPositive() ||
+              s.postAccountRisk?.freeCollateral.isZero()) &&
             inputErrors === false,
         };
       }
