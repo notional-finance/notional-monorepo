@@ -16,6 +16,8 @@ import {
   AccountFetchMode,
   Registry,
   TokenBalance,
+  fetchGraph,
+  loadGraphClientDeferred,
 } from '@notional-finance/core-entities';
 import { BaseDO, MetricType } from '@notional-finance/durable-objects';
 import { calculateAccountIRR, excludeAccounts } from './factors/calculations';
@@ -90,6 +92,22 @@ export class RegistryClientDO extends BaseDO<Env> {
       notional_assets_apys_and_tvls: 'token_id',
       historical_oracle_values: 'id',
     };
+
+    const { MetaDocument } = await loadGraphClientDeferred();
+    const { finalResults } = await fetchGraph(network, MetaDocument, (r) => r);
+    const subgraph = [
+      {
+        metric: 'registry.lastUpdateTimestamp',
+        points: [
+          {
+            value: timestamp - finalResults._meta.block.timestamp,
+            timestamp,
+          },
+        ],
+        tags: [networkTag, `registry:subgraph`],
+        type: MetricType.Gauge,
+      },
+    ];
 
     const analyticsData = Registry.getAnalyticsRegistry()
       .getAllSubjectKeys(network)
@@ -214,7 +232,9 @@ export class RegistryClientDO extends BaseDO<Env> {
           tags: [networkTag, 'registry:configuration'],
           type: MetricType.Gauge,
         },
-      ].concat(analyticsData),
+      ]
+        .concat(analyticsData)
+        .concat(subgraph),
     });
   }
 
