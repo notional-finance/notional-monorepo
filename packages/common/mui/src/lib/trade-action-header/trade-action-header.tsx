@@ -42,14 +42,14 @@ export function TradeActionHeader({
       ) : (
         <TokenIcon symbol={token} size="medium" />
       )}
-      <H3
+      <Box
         sx={{
           fontWeight: theme.typography.fontWeightRegular,
           marginLeft: theme.spacing(2),
         }}
       >
         {actionText}
-      </H3>
+    </Box>
     </Box>
   );
 }
