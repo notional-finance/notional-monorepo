@@ -7209,6 +7209,12 @@ const merger = new(BareMerger as any)({
           return printWithCache(AllVaultsByBlockDocument);
         },
         location: 'AllVaultsByBlockDocument.graphql'
+      },{
+        document: MetaDocument,
+        get rawSDL() {
+          return printWithCache(MetaDocument);
+        },
+        location: 'MetaDocument.graphql'
       }
     ];
     },
@@ -7358,6 +7364,14 @@ export type AllVaultsByBlockQueryVariables = Exact<{
 
 
 export type AllVaultsByBlockQuery = { vaultConfigurations: Array<Pick<VaultConfiguration, 'id' | 'vaultAddress' | 'strategy' | 'name' | 'enabled'>>, _meta?: Maybe<{ block: Pick<_Block_, 'number'> }> };
+
+export type MetaQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MetaQuery = { _meta?: Maybe<(
+    Pick<_Meta_, 'deployment' | 'hasIndexingErrors'>
+    & { block: Pick<_Block_, 'number' | 'hash' | 'timestamp'> }
+  )> };
 
 
 export const AccountBalanceStatementDocument = gql`
@@ -7873,6 +7887,20 @@ export const AllVaultsByBlockDocument = gql`
   }
 }
     ` as unknown as DocumentNode<AllVaultsByBlockQuery, AllVaultsByBlockQueryVariables>;
+export const MetaDocument = gql`
+    query Meta {
+  _meta {
+    block {
+      number
+      hash
+      timestamp
+    }
+    deployment
+    hasIndexingErrors
+  }
+}
+    ` as unknown as DocumentNode<MetaQuery, MetaQueryVariables>;
+
 
 
 
@@ -7920,6 +7948,9 @@ export function getSdk<C, E>(requester: Requester<C, E>) {
     },
     AllVaultsByBlock(variables?: AllVaultsByBlockQueryVariables, options?: C): Promise<AllVaultsByBlockQuery> {
       return requester<AllVaultsByBlockQuery, AllVaultsByBlockQueryVariables>(AllVaultsByBlockDocument, variables, options) as Promise<AllVaultsByBlockQuery>;
+    },
+    Meta(variables?: MetaQueryVariables, options?: C): Promise<MetaQuery> {
+      return requester<MetaQuery, MetaQueryVariables>(MetaDocument, variables, options) as Promise<MetaQuery>;
     }
   };
 }

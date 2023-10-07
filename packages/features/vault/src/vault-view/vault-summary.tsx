@@ -200,9 +200,6 @@ export const VaultSummary = () => {
                 />
               ))}
             </Box>
-            {/* <Box id={VAULT_SUB_NAV_ACTIONS.STRATEGY_DETAILS}>
-              <VaultDescription vaultAddress={vaultAddress} />
-            </Box> */}
           </TradeActionSummary>
         </Box>
       </Box>

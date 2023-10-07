@@ -16,7 +16,6 @@ const FormWrapper = styled(Box)(
     font-weight: bold;
     text-align: center;
     padding-top: ${theme.spacing(25)};
-    display: flex;
     flex-direction: row;
     justify-content: center;
     @media (max-width: 400px) {
@@ -82,17 +81,13 @@ export const TypeForm = () => {
     setHideOverallForm(true);
   };
 
-  const checkTimestamp = () => {
+  useEffect(() => {
     const now = new Date().getTime();
     if (timeDismissed && now - timeDismissed > 24 * 60 * 60 * 1000) {
       setInLocalStorage('typeForm', { timeOfDismissal: undefined });
       setHideOverallForm(false);
     }
-  };
-
-  useEffect(() => {
-    checkTimestamp();
-  }, []);
+  }, [timeDismissed]);
 
   setTimeout(() => {
     const typeFormSubmitted = getFromLocalStorage('typeForm').formSubmitted;
@@ -103,7 +98,7 @@ export const TypeForm = () => {
   }, 5000);
 
   return (
-    <FormWrapper>
+    <FormWrapper display={hideOverallForm ? 'none' : 'flex'}>
       {!hideOverallForm && (
         <>
           {showWidget === false && (
