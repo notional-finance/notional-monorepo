@@ -3,7 +3,6 @@ import { defineMessage } from 'react-intl';
 import { useCurrencyInputRef } from '@notional-finance/mui';
 import {
   DepositInput,
-  EnablePrimeBorrow,
   LeverageSlider,
   TransactionSidebar,
 } from '@notional-finance/trade';
@@ -40,6 +39,7 @@ export const LendLeveragedSidebar = () => {
       handleLeverUpToggle={handleLeverUpToggle}
       context={context}
       leveredUp
+      enablePrimeBorrow={debt?.tokenType === 'PrimeDebt'}
     >
       <DepositInput
         ref={currencyInputRef}
@@ -59,7 +59,6 @@ export const LendLeveragedSidebar = () => {
           description: 'input label',
         })}
       />
-      {debt?.tokenType === 'PrimeDebt' && <EnablePrimeBorrow />}
     </TransactionSidebar>
   );
 };
