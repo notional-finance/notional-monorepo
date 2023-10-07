@@ -94,14 +94,14 @@ export const useLiquidityFaq = (tokenSymbol: string) => {
     {
       question: (
         <FormattedMessage
-          defaultMessage={'How do I exit my position?'}
+          defaultMessage={'Can I exit anytime?'}
           description={'faq question'}
         />
       ),
       answer: (
         <FormattedMessage
           defaultMessage={
-            'Users can deleverage and exit in one transaction by redeeming their n{tokenSymbol} to {tokenSymbol} and then using that {tokenSymbol} to repay their debt.'
+            'Yes, you can redeem your liquidity, repay your leverage, and withdraw your assets at any time.'
           }
           values={{
             tokenSymbol,
