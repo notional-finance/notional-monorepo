@@ -36,7 +36,7 @@ export const TransactionHeadings: Record<
       defaultMessage:
         'Lock in a fixed interest rate today.  Fixed rates guarantee your APY.',
     },
-    headerText: { defaultMessage: 'Lend' },
+    headerText: { defaultMessage: 'Lend {token}' },
   }),
   LendVariable: defineMessages({
     heading: { defaultMessage: 'Variable Lending' },
@@ -44,7 +44,7 @@ export const TransactionHeadings: Record<
       defaultMessage:
         'Earn passive income with market-leading variable interest rates and full redeemability. Withdraw your cash whenever you need it.',
     },
-    headerText: { defaultMessage: 'Lend' },
+    headerText: { defaultMessage: 'Lend {token}' },
   }),
   LeveragedLend: defineMessages({
     heading: { defaultMessage: 'Leveraged Lending' },
@@ -52,14 +52,14 @@ export const TransactionHeadings: Record<
       defaultMessage:
         "Arbitrage Notional's interest rates by borrowing at a low rate and lending at a higher one with leverage for maximum returns.",
     },
-    headerText: { defaultMessage: 'Lend' },
+    headerText: { defaultMessage: 'Lend {token} with Leverage' },
   }),
   BorrowFixed: defineMessages({
     heading: { defaultMessage: 'Borrow Fixed' },
     helptext: {
       defaultMessage: 'Get peace of mind with a fixed rate on your loan.',
     },
-    headerText: { defaultMessage: 'Borrow' },
+    headerText: { defaultMessage: 'Borrow {token}' },
   }),
   BorrowVariable: defineMessages({
     heading: { defaultMessage: 'Borrow Variable' },
@@ -67,7 +67,7 @@ export const TransactionHeadings: Record<
       defaultMessage:
         'Borrow against your crypto with full flexibility. Leave your loan open or pay it back whenever you want with no penalty.',
     },
-    headerText: { defaultMessage: 'Borrow' },
+    headerText: { defaultMessage: 'Borrow {token}' },
   }),
   MintNToken: defineMessages({
     heading: { defaultMessage: 'Provide Liquidity' },
@@ -75,7 +75,7 @@ export const TransactionHeadings: Record<
       defaultMessage:
         'Provide liquidity to all fixed rate liquidity pools in this currency at once to earn interest, fees, and NOTE incentives.',
     },
-    headerText: { defaultMessage: 'Provide' },
+    headerText: { defaultMessage: 'Provide {token} Liquidity' },
   }),
   LeveragedNToken: defineMessages({
     heading: { defaultMessage: 'Leveraged Liquidity' },
@@ -83,7 +83,7 @@ export const TransactionHeadings: Record<
       defaultMessage:
         'Multiply your returns by providing liquidity with leverage. Select your borrow rate and leverage and put on the whole position in one transaction.',
     },
-    headerText: { defaultMessage: 'Provide' },
+    headerText: { defaultMessage: 'Provide {token} Liquidity with Leverage' },
   }),
   Deposit: defineMessages({
     heading: { defaultMessage: 'Deposit Collateral' },
