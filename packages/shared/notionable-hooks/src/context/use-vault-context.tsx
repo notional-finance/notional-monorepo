@@ -1,7 +1,7 @@
 import {
   VaultTradeState,
   createVaultTradeManager,
-  initialBaseTradeState,
+  initialVaultTradeState,
 } from '@notional-finance/notionable';
 import {
   createObservableContext,
@@ -11,13 +11,13 @@ import {
 export function createVaultContext() {
   return createObservableContext<VaultTradeState>(
     'vault-context',
-    initialBaseTradeState as VaultTradeState
+    initialVaultTradeState
   );
 }
 
 export function useVaultContext() {
   const { updateState, state$, state } = useObservableContext<VaultTradeState>(
-    initialBaseTradeState as VaultTradeState,
+    initialVaultTradeState,
     createVaultTradeManager
   );
 
