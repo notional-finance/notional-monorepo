@@ -4,7 +4,7 @@ import {
   useAllMarkets,
   useFiat,
 } from '@notional-finance/notionable-hooks';
-import { LiquidityContext } from '../liquidity-variable';
+import { LiquidityContext } from '../../liquidity';
 import {
   formatTokenType,
   formatNumberAsPercent,

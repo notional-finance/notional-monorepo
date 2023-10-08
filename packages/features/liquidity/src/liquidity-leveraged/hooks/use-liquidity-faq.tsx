@@ -3,7 +3,7 @@ import { useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { Body, ExternalLink } from '@notional-finance/mui';
 import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
-import { LeveragedLiquidityContext } from '../../liquidity-leveraged/liquidity-leveraged';
+import { LiquidityContext } from '../../liquidity';
 import {
   getEtherscanAddressLink,
   NotionalAddress,
@@ -13,7 +13,7 @@ import { RiskFaq } from '../components';
 export const useLiquidityFaq = (tokenSymbol: string) => {
   const theme = useTheme();
   const selectedNetwork = useSelectedNetwork();
-  const context = useContext(LeveragedLiquidityContext);
+  const context = useContext(LiquidityContext);
   const {
     state: { collateral },
   } = context;

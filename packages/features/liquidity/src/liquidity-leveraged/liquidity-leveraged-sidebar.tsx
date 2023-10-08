@@ -8,12 +8,12 @@ import {
 import { useHistory } from 'react-router-dom';
 import { useCurrencyInputRef } from '@notional-finance/mui';
 import { defineMessage } from 'react-intl';
-import { LeveragedLiquidityContext } from '../liquidity-leveraged';
+import { LiquidityContext } from '../liquidity';
 import { PRODUCTS } from '@notional-finance/util';
 
 export const LiquidityLeveragedSidebar = () => {
   const history = useHistory();
-  const context = useContext(LeveragedLiquidityContext);
+  const context = useContext(LiquidityContext);
   const {
     state: { selectedDepositToken, debt },
   } = context;
