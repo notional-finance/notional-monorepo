@@ -55,6 +55,9 @@ interface UserInputs {
   redeemToWETH: boolean;
   maxWithdraw: boolean;
   inputErrors: boolean;
+
+  /** Set to true if the user is inputting custom leverage amounts */
+  customizeLeverage: boolean;
 }
 
 /** Calculated values based on token inputs */
@@ -118,6 +121,7 @@ interface TransactionState {
   /** Net cost of debts in underlying terms*/
   netRealizedDebtBalance?: TokenBalance;
 
+  /** Calculated updates to the account balances post trade */
   postTradeBalances?: TokenBalance[];
 }
 
@@ -160,6 +164,12 @@ export const initialBaseTradeState: BaseTradeState = {
   calculationSuccess: false,
   maxWithdraw: false,
   inputErrors: false,
+  customizeLeverage: false,
+};
+
+export const initialVaultTradeState: VaultTradeState = {
+  ...initialBaseTradeState,
+  customizeLeverage: true,
 };
 
 export function isVaultTrade(tradeType?: VaultTradeType | TradeType) {
