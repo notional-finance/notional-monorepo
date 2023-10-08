@@ -16,7 +16,6 @@ import {
   formatLeverageRatio,
   formatNumberAsPercent,
 } from '@notional-finance/helpers';
-import { useDebtAPY } from '@notional-finance/notionable-hooks';
 import { useMaxYield } from '../hooks/use-max-yield';
 
 export const LiquidityTerms = () => {
@@ -33,7 +32,6 @@ export const LiquidityTerms = () => {
   } = state;
 
   const maxYield = useMaxYield(deposit);
-  const debtAPY = useDebtAPY(state);
   const leverageRatio =
     riskFactorLimit?.riskFactor === 'leverageRatio'
       ? (riskFactorLimit.limit as number)
@@ -144,12 +142,7 @@ export const LiquidityTerms = () => {
                   msg={defineMessage({ defaultMessage: 'Borrow' })}
                 />
                 <LabelValue>
-                  <FormattedMessage
-                    defaultMessage={'{apy} Variable'}
-                    values={{
-                      apy: debtAPY ? formatNumberAsPercent(debtAPY) : '',
-                    }}
-                  />
+                  <FormattedMessage defaultMessage={'Variable'} />
                 </LabelValue>
               </Box>
             </BoundedBox>
