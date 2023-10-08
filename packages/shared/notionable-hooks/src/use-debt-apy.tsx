@@ -1,5 +1,5 @@
 import { BaseTradeState } from '@notional-finance/notionable';
-import { useAllMarkets } from '@notional-finance/notionable-hooks';
+import { useAllMarkets } from './use-market';
 
 export const useDebtAPY = (state: BaseTradeState) => {
   const { debtOptions, debt } = state;
