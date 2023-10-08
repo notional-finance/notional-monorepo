@@ -265,6 +265,7 @@ export interface YieldData {
   nativeTokenAPY?: number;
   interestAPY?: number;
   feeAPY?: number;
+  strategyAPY?: number;
   incentives?: {
     tokenId: string;
     incentiveAPY: number;
