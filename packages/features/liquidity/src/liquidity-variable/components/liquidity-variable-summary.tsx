@@ -3,11 +3,11 @@ import {
   TABLE_VARIANTS,
   FaqHeader,
   Faq,
-  TotalBox,
   DataTable,
   Body,
   AreaChart,
   MultiDisplayChart,
+  TotalRow,
 } from '@notional-finance/mui';
 import { TradeActionSummary } from '@notional-finance/trade';
 import {
@@ -70,25 +70,7 @@ export const LiquidityVariableSummary = () => {
           },
         ]}
       />
-      <Box
-        sx={{
-          display: 'flex',
-          gap: theme.spacing(5),
-          marginBottom: theme.spacing(3),
-          marginTop: theme.spacing(3),
-        }}
-      >
-        {totalsData.map(({ title, value, Icon, prefix, suffix }, index) => (
-          <TotalBox
-            title={title}
-            value={value}
-            key={index}
-            Icon={Icon}
-            prefix={prefix}
-            suffix={suffix}
-          />
-        ))}
-      </Box>
+      <TotalRow totalsData={totalsData} />
       <Faq
         sx={{ boxShadow: 'none' }}
         question={<FormattedMessage defaultMessage={'How it Works'} />}
