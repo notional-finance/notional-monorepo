@@ -16,8 +16,9 @@ export interface CustomTypographyProps extends StylesProps {
   uppercase?: boolean;
   gutter?: 'default' | 'tight' | 'none';
   msg?: MessageDescriptor;
-  component?: any;
   // NOTE: This is intentionally a any type. MUI does not provide a clear way to get the type for this
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  component?: any;
 }
 
 const makeVariant = (

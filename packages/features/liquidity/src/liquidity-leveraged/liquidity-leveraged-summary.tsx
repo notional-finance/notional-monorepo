@@ -17,7 +17,7 @@ import { FormattedMessage } from 'react-intl';
 import { useContext } from 'react';
 import { LiquidityContext } from '../liquidity';
 import {
-  useAllMarkets,
+  useDebtAPY,
   useTokenHistory,
 } from '@notional-finance/notionable-hooks';
 import { DataTable } from '@notional-finance/mui';
@@ -33,15 +33,9 @@ export const LiquidityLeveragedSummary = () => {
     collateral,
     customizeLeverage,
     collateralBalance,
-    debtOptions,
-    debt,
   } = state;
   const tokenSymbol = selectedDepositToken || '';
-  const { nonLeveragedYields } = useAllMarkets();
-  const debtAPY = !customizeLeverage
-    ? debtOptions?.find((d) => d.token.id === debt?.id)?.interestRate ||
-      nonLeveragedYields.find((y) => y.token.id === debt?.id)?.totalAPY
-    : undefined;
+  const debtAPY = useDebtAPY(state);
   const { totalsData, liquidityYieldData } = useTotalsData(
     tokenSymbol,
     collateralBalance,
@@ -66,7 +60,10 @@ export const LiquidityLeveragedSummary = () => {
   };
 
   return (
-    <TradeActionSummary state={state} liquidityYieldData={liquidityYieldData}>
+    <TradeActionSummary
+      state={state}
+      liquidityYieldData={customizeLeverage ? undefined : liquidityYieldData}
+    >
       <PerformanceChart state={state} apyChartData={apyChart} />
       {customizeLeverage ? (
         <>
