@@ -51,6 +51,7 @@ export function TradeActionSummary({
     vaultConfig,
     riskFactorLimit,
     vaultAddress,
+    customizeLeverage
   } = state;
   const isVault = !!vaultAddress;
   const { nonLeveragedYields } = useAllMarkets();
@@ -137,7 +138,7 @@ export function TradeActionSummary({
           }
         />
         <TradeActionTitle value={totalAPY} title={apySuffix} valueSuffix="%" />
-        {isLeveraged && (
+        {isLeveraged && customizeLeverage && (
           <LeverageInfoRow
             assetSymbol={title}
             assetAPY={assetAPY}
