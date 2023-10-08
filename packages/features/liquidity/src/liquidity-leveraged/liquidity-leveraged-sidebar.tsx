@@ -1,8 +1,6 @@
 import { useCallback, useContext } from 'react';
 import {
   DepositInput,
-  VariableFixedMaturityToggle,
-  LeverageSlider,
   TransactionSidebar,
 } from '@notional-finance/trade';
 import { useHistory } from 'react-router-dom';
@@ -10,6 +8,7 @@ import { useCurrencyInputRef } from '@notional-finance/mui';
 import { defineMessage } from 'react-intl';
 import { LiquidityContext } from '../liquidity';
 import { PRODUCTS } from '@notional-finance/util';
+import { LiquidityTerms } from './components/liquidity-terms';
 
 export const LiquidityLeveragedSidebar = () => {
   const history = useHistory();
@@ -40,14 +39,7 @@ export const LiquidityLeveragedSidebar = () => {
           description: 'input label',
         })}
       />
-      <VariableFixedMaturityToggle context={context} />
-      <LeverageSlider
-        context={context}
-        inputLabel={defineMessage({
-          defaultMessage: '3. Specify your leverage',
-          description: 'input label',
-        })}
-      />
+      <LiquidityTerms />
     </TransactionSidebar>
   );
 };
