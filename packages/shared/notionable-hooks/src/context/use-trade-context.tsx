@@ -24,7 +24,11 @@ export function useTradeContext(tradeType: TradeType) {
   );
 
   useEffect(() => {
-    updateState({ tradeType });
+    updateState({
+      tradeType,
+      // Change the default setting for leveraged lend
+      customizeLeverage: tradeType === 'LeveragedLend',
+    });
   }, [updateState, tradeType]);
 
   return { updateState, state$, state };
