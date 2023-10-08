@@ -155,7 +155,7 @@ export function VariableFixedMaturityToggle({
     <Box>
       <InputLabel
         inputLabel={defineMessage({
-          defaultMessage: '2. Select variable or fixed borrow',
+          defaultMessage: 'Select variable or fixed borrow',
         })}
       />
       <TabToggle

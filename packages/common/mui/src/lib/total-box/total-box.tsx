@@ -1,15 +1,15 @@
 import { Box, useTheme } from '@mui/material';
-import { ReactNode } from 'react';
+import React, { ReactNode } from 'react';
 import { Body, LabelValue } from '../typography/typography';
 import CountUp from '../count-up/count-up';
 
 /* eslint-disable-next-line */
 export interface TotalBoxProps {
   title: ReactNode;
-  value?: number | string;
+  value?: number | React.ReactNode;
   prefix?: string;
   suffix?: string;
-  Icon?: any;
+  Icon?: React.ElementType;
 }
 
 export function TotalBox({
