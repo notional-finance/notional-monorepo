@@ -61,6 +61,7 @@ export * from './lib/tab-toggle/tab-toggle';
 export * from './lib/toggle/toggle';
 export * from './lib/toggle-switch/toggle-switch';
 export * from './lib/total-box/total-box';
+export * from './lib/total-box/total-row';
 export * from './lib/trade-action-header/trade-action-header';
 export * from './lib/trade-action-title/trade-action-title';
 export * from './lib/trade-summary-container/trade-summary-container';

@@ -1,14 +1,14 @@
-import { Box, useTheme } from "@mui/material";
-import { YieldData } from "@notional-finance/core-entities";
-import { H4, Subtitle, CountUp } from "@notional-finance/mui";
-import { FormattedMessage } from "react-intl";
+import { Box, useTheme } from '@mui/material';
+import { YieldData } from '@notional-finance/core-entities';
+import { H4, Subtitle, CountUp } from '@notional-finance/mui';
+import { FormattedMessage } from 'react-intl';
 
 export const LiquidityYieldInfo = ({
   liquidityYieldData,
 }: {
   liquidityYieldData: YieldData;
 }) => {
-  const theme = useTheme()
+  const theme = useTheme();
   return (
     <Box display="inline-flex">
       <H4>
@@ -18,7 +18,11 @@ export const LiquidityYieldInfo = ({
       <Subtitle
         sx={{
           marginRight: theme.spacing(2),
-          color: theme.palette.typography.light,
+          color:
+            liquidityYieldData?.interestAPY !== undefined &&
+            liquidityYieldData?.interestAPY < 0
+              ? theme.palette.error.main
+              : theme.palette.typography.light,
         }}
       >
         {liquidityYieldData?.interestAPY !== undefined ? (
