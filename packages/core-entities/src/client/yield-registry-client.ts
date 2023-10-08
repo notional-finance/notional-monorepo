@@ -217,6 +217,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
         debt.totalAPY,
         leverageRatio
       ),
+      strategyAPY: yieldData.totalAPY,
       leveraged: {
         debtToken: debt.token,
         debtRate: debt.totalAPY,
