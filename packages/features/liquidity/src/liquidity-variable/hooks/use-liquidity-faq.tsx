@@ -2,7 +2,7 @@ import { useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Body } from '@notional-finance/mui';
 import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
-import { LiquidityContext } from '../../liquidity-variable/liquidity-variable';
+import { LiquidityContext } from '../../liquidity';
 import {
   getEtherscanAddressLink,
   NotionalAddress,

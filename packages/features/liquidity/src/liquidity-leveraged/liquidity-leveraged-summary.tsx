@@ -12,21 +12,21 @@ import {
   PerformanceChart,
   TradeActionSummary,
 } from '@notional-finance/trade';
-import { useLiquidityFaq, useNTokenPriceExposure } from '../hooks';
+import { useLiquidityFaq, useNTokenPriceExposure } from './hooks';
 import { FormattedMessage } from 'react-intl';
 import { useContext } from 'react';
-import { LeveragedLiquidityContext } from '../liquidity-leveraged';
+import { LiquidityContext } from '../liquidity';
 import {
   useAllMarkets,
   useTokenHistory,
 } from '@notional-finance/notionable-hooks';
 import { DataTable } from '@notional-finance/mui';
-import { HowItWorksFaq } from './how-it-works-faq';
-import { useTotalsData } from '../../liquidity-variable/hooks/use-totals-data';
+import { HowItWorksFaq } from './components';
+import { useTotalsData } from '../liquidity-variable/hooks/use-totals-data';
 
 export const LiquidityLeveragedSummary = () => {
   const theme = useTheme();
-  const { state } = useContext(LeveragedLiquidityContext);
+  const { state } = useContext(LiquidityContext);
   const {
     selectedDepositToken,
     deposit,
