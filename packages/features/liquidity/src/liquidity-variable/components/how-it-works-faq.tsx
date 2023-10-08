@@ -1,5 +1,4 @@
 import { Body, ExternalLink, H5 } from '@notional-finance/mui';
-// TODO: Create a place to house images like this one where they can be shared from
 import { useHowItWorks } from '../hooks/use-how-it-works';
 import { ExternalLinkIcon } from '@notional-finance/icons';
 import { Box, useTheme, styled } from '@mui/material';

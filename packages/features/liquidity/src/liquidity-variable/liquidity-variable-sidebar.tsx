@@ -3,7 +3,7 @@ import { DepositInput, TransactionSidebar } from '@notional-finance/trade';
 import { useHistory } from 'react-router-dom';
 import { useCurrencyInputRef } from '@notional-finance/mui';
 import { defineMessage } from 'react-intl';
-import { LiquidityContext } from '../liquidity-variable';
+import { LiquidityContext } from '../liquidity';
 import { PRODUCTS } from '@notional-finance/util';
 
 export const LiquidityVariableSidebar = () => {
