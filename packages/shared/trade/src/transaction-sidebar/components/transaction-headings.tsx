@@ -156,6 +156,12 @@ export const TransactionHeadings: Record<
     },
     helptext: { defaultMessage: 'Roll your debt to a new maturity' },
   }),
+  DeleverageWithdraw: defineMessages({
+    heading: { defaultMessage: 'Withdraw' },
+    helptext: {
+      defaultMessage: 'Reduce your leveraged position and withdraw assets.',
+    },
+  }),
   /** Vault Headings **/
   CreateVaultPosition: defineMessages({
     heading: { defaultMessage: 'x' },
