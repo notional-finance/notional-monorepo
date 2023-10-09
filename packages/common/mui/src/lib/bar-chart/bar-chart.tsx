@@ -4,7 +4,8 @@ import {
   formatNumberAsAbbr,
   formatNumber,
 } from '@notional-finance/helpers';
-import { XAxisTick } from './x-axis-tick/x-axis-tick';
+// import { XAxisTick } from './x-axis-tick/x-axis-tick';
+// import { ONE_WEEK, SECONDS_IN_DAY } from '@notional-finance/util';
 import {
   BarChart as RechartsBarChart,
   Bar,
@@ -39,7 +40,6 @@ export const BarChart = ({
   barConfig,
 }: BarChartProps) => {
   const theme = useTheme();
-  // const currencySymbol = barConfig[0].currencySymbol;
 
   const yAxisTickHandler = (v: number) => {
     if (yAxisTickFormat === 'percent' && typeof v === 'number') {
@@ -54,25 +54,29 @@ export const BarChart = ({
     return `${v}`;
   };
 
+  console.log({ barChartData });
+  const testData = barChartData.filter((data) => data.totalAssets > 0);
+
   return (
     <ResponsiveContainer width="100%" height={300}>
       <RechartsBarChart
-        barSize={8}
-        data={barChartData}
-        margin={{ top: 30, right: 10, left: 10, bottom: 20 }}
+        // barSize={8}
+        data={testData}
+        // margin={{ top: 30, right: 10, left: 10, bottom: 20 }}
       >
         <CartesianGrid
           vertical={false}
           height={300}
           stroke={theme.palette.borders.paper}
         />
-        <XAxis
+        <XAxis dataKey="timestamp" />
+        {/* <XAxis
           dataKey="timestamp"
           axisLine={false}
           tickLine={false}
           type={'category'}
           tick={<XAxisTick xAxisTickFormat={'date'} />}
-        />
+        /> */}
         <YAxis
           tickLine={false}
           axisLine={false}

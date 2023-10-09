@@ -15,7 +15,11 @@ export const XAxisTick = (props) => {
   } = props;
 
   let textAnchor = 'middle';
+  console.log({ visibleTicksCount });
+  console.log({ index });
   const xTranslateValue = visibleTicksCount - index === 1 ? x - 25 : x;
+  console.log({ xTranslateValue });
+  console.log({ x });
   if (index === 0) {
     textAnchor = 'start';
   } else if (visibleTicksCount === 2 && index === visibleTicksCount - 1) {
