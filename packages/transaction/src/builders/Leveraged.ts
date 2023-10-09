@@ -74,6 +74,8 @@ export function DeleverageLend({
   network,
   collateralBalance,
   debtBalance,
+  maxWithdraw,
+  depositBalance,
 }: PopulateTransactionInputs) {
   if (!(collateralBalance?.isNegative() && debtBalance?.isPositive())) {
     throw Error('Collateral and Debt must be defined');
@@ -89,8 +91,8 @@ export function DeleverageLend({
         getBalanceAndTradeAction(
           DepositActionType.None,
           TokenBalance.zero(collateralBalance.underlying), // no deposits
-          false,
-          undefined, // No Withdraws
+          maxWithdraw,
+          maxWithdraw ? undefined : depositBalance?.neg().toPrimeCash(),
           false,
           [collateralBalance, debtBalance].filter(
             (t) => t.tokenType === 'fCash'
@@ -170,6 +172,7 @@ export function DeleverageNToken({
   collateralBalance,
   debtBalance,
   accountBalances,
+  depositBalance,
 }: PopulateTransactionInputs) {
   if (!collateralBalance || !debtBalance)
     throw Error('All balances must be defined');
@@ -179,7 +182,9 @@ export function DeleverageNToken({
   const adjustedDebtBalance = debtBalance
     .mulInRatePrecision(RATE_PRECISION + 0.01 * BASIS_POINT)
     .neg();
-  const { cashBalance } = hasExistingCashBalance(debtBalance, accountBalances);
+  
+  const { withdrawEntireCashBalance, withdrawAmountInternalPrecision } =
+    hasExistingCashBalance(depositBalance || debtBalance, accountBalances);
   return populateNotionalTxnAndGas(
     network,
     address,
@@ -190,9 +195,8 @@ export function DeleverageNToken({
         getBalanceAndTradeAction(
           DepositActionType.RedeemNToken,
           adjustedDebtBalance,
-          // Withdraw any pCash if there is none so we don't leave any dust behind
-          cashBalance === undefined,
-          undefined, // No Withdraws
+          withdrawEntireCashBalance,
+          withdrawAmountInternalPrecision,
           false,
           collateralBalance.tokenType === 'fCash' ? [collateralBalance] : []
         ),
