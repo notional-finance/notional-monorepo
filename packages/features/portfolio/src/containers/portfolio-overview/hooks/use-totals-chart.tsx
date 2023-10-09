@@ -9,16 +9,16 @@ export const useTotalsChart = () => {
   const baseCurrency = useFiat();
   const historyData = useAccountHistoryChart();
 
-  const barChartData = historyData?.map(
-    ({ assets, debts, netWorth, timestamp }) => {
+  const barChartData = historyData
+    ?.map(({ assets, debts, netWorth, timestamp }) => {
       return {
         totalAssets: assets.toFloat(),
         totalDebts: debts.toFloat(),
         totalNetWorth: netWorth.toFloat(),
         timestamp,
       };
-    }
-  );
+    })
+    .slice(-15);
 
   const headerHistoryData = historyData
     ? historyData[historyData.length - 1]

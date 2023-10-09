@@ -17,6 +17,7 @@ import {
 } from 'recharts';
 import { ReactNode } from 'react';
 import { useTheme } from '@mui/material';
+import { useIntl } from 'react-intl';
 
 export interface BarConfigProps {
   dataKey: string;
@@ -40,6 +41,7 @@ export const BarChart = ({
   barConfig,
 }: BarChartProps) => {
   const theme = useTheme();
+  const intl = useIntl();
 
   const yAxisTickHandler = (v: number) => {
     if (yAxisTickFormat === 'percent' && typeof v === 'number') {
@@ -54,14 +56,18 @@ export const BarChart = ({
     return `${v}`;
   };
 
-  console.log({ barChartData });
-  const testData = barChartData.filter((data) => data.totalAssets > 0);
+  const formatDate = (date) => {
+    return intl.formatDate(date * 1000, {
+      day: 'numeric',
+      month: 'short',
+    });
+  };
 
   return (
     <ResponsiveContainer width="100%" height={300}>
       <RechartsBarChart
-        // barSize={8}
-        data={testData}
+        barSize={8}
+        data={barChartData}
         // margin={{ top: 30, right: 10, left: 10, bottom: 20 }}
       >
         <CartesianGrid
@@ -69,12 +75,20 @@ export const BarChart = ({
           height={300}
           stroke={theme.palette.borders.paper}
         />
-        <XAxis dataKey="timestamp" />
+        <XAxis
+          dataKey="timestamp"
+          tickLine={false}
+          tickFormatter={formatDate}
+          interval={0}
+        />
         {/* <XAxis
           dataKey="timestamp"
           axisLine={false}
           tickLine={false}
           type={'category'}
+          domain={[(min: number) => min, (max: number) => max]}
+          interval={0}
+          scale="time"
           tick={<XAxisTick xAxisTickFormat={'date'} />}
         /> */}
         <YAxis
