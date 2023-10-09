@@ -86,4 +86,4 @@ export * from './lib/note-icon/note-icon';
 export * from './lib/eth-icon/eth-icon';
 export * from './lib/sgd-icon/sgd-icon';
 export * from './lib/try-icon/try-icon';
-
+export * from './lib/double-token-icon/double-token-icon';

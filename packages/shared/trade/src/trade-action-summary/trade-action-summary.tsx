@@ -9,17 +9,10 @@ import {
 import { BaseTradeState, isVaultTrade } from '@notional-finance/notionable';
 import { TransactionHeadings } from '../transaction-sidebar/components/transaction-headings';
 import { FormattedMessage } from 'react-intl';
-import {
-  useAllMarkets,
-  useSelectedNetwork,
-} from '@notional-finance/notionable-hooks';
+import { useAllMarkets } from '@notional-finance/notionable-hooks';
 import LeverageInfoRow from './components/leverage-info-row';
 import { formatTokenType } from '@notional-finance/helpers';
-import {
-  Registry,
-  TokenDefinition,
-  YieldData,
-} from '@notional-finance/core-entities';
+import { TokenDefinition, YieldData } from '@notional-finance/core-entities';
 import { leveragedYield } from '@notional-finance/util';
 import { LiquidityYieldInfo } from './components/liquidity-yield-info';
 
@@ -41,7 +34,6 @@ export function TradeActionSummary({
   children,
 }: TradeActionSummaryProps) {
   const theme = useTheme();
-  const network = useSelectedNetwork();
   const {
     tradeType,
     deposit,
@@ -73,19 +65,17 @@ export function TradeActionSummary({
   );
 
   const selectedToken =
-    tradeType === 'LeveragedNToken' || tradeType === 'MintNToken'
-      ? collateral?.symbol
-      : // NOTE: this is required to get the selectedToken on vault screens
-      // if the trade type has not been set yet.
-      isVault &&
-        deposit === undefined &&
-        !!network &&
-        !!vaultConfig?.primaryBorrowCurrency.id
-      ? Registry.getTokenRegistry().getTokenByID(
-          network,
-          vaultConfig.primaryBorrowCurrency.id
-        )?.symbol
+    (tradeType === 'LeveragedLend' ||
+      'LeveragedNToken' ||
+      tradeType === 'MintNToken') &&
+    collateral
+      ? formatTokenType(collateral).icon
       : deposit?.symbol;
+
+  const tokenBottom =
+    (tradeType === 'LeveragedNToken' || tradeType === 'LeveragedLend') && debt
+      ? formatTokenType(debt).icon
+      : undefined;
 
   const assetAPY =
     collateralOptions?.find((c) => c.token.id === collateral?.id)
@@ -125,6 +115,7 @@ export function TradeActionSummary({
       <Box marginBottom={theme.spacing(5)}>
         <TradeActionHeader
           token={selectedToken}
+          tokenBottom={tokenBottom}
           hideTokenName={isVault}
           actionText={
             isVault ? vaultConfig?.name : <FormattedMessage {...headerText} />

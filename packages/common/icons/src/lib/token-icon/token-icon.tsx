@@ -10,11 +10,7 @@ import freth from '../../assets/icons/currencies/fRETH.svg';
 import preth from '../../assets/icons/currencies/pRETH.svg';
 import usdc from '../../assets/icons/currencies/currency-usdc.svg';
 import dai from '../../assets/icons/currencies/currency-dai.svg';
-import cwbtc from '../../assets/icons/currencies/currency-cwbtc.svg';
-import ceth from '../../assets/icons/currencies/currency-ceth.svg';
-import cusdc from '../../assets/icons/currencies/currency-cusdc.svg';
 import pusdc from '../../assets/icons/currencies/pUSDC.svg';
-import cdai from '../../assets/icons/currencies/currency-cdai.svg';
 import note from '../../assets/icons/currencies/NOTE-20x20.png';
 import note32px from '../../assets/icons/currencies/NOTE-32x32.png';
 import snote from '../../assets/icons/currencies/sNOTE-20x20.png';
@@ -152,26 +148,6 @@ export const TokenImageList: TokenImageMap = {
     name: 'pdai',
     img: pDAI,
     alt: 'prime DAI icon',
-  },
-  cwbtc: {
-    name: 'cwbtc',
-    img: cwbtc,
-    alt: 'Compound Wrapped Bitcoin icon',
-  },
-  ceth: {
-    name: 'ceth',
-    img: ceth,
-    alt: 'Compound Ethereum icon',
-  },
-  cusdc: {
-    name: 'cusdc',
-    img: cusdc,
-    alt: 'Compound USD Coin icon',
-  },
-  cdai: {
-    name: 'cdai',
-    img: cdai,
-    alt: 'Compound DAI Stablecoin icon',
   },
   note: {
     name: 'note',
