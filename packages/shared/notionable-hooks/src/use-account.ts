@@ -7,6 +7,10 @@ import {
   VaultAccountRiskProfile,
 } from '@notional-finance/risk-engine';
 import { truncateAddress } from '@notional-finance/helpers';
+import { convertToSignedfCashId } from '@notional-finance/util';
+import { useAllMarkets } from './use-market';
+import { usePendingPnLCalculation } from './use-transaction';
+import { useMemo } from 'react';
 
 export function useAccountDefinition() {
   const {
@@ -100,5 +104,58 @@ export function usePortfolioRiskProfile() {
         b.tokenType !== 'NOTE'
     ) || [],
     network
+  );
+}
+
+export function useHoldings() {
+  const { account } = useAccountDefinition();
+  const balanceStatements = useBalanceStatements();
+  const { nonLeveragedYields } = useAllMarkets();
+  const { pendingTokens } = usePendingPnLCalculation();
+
+  return useMemo(
+    () =>
+      account?.balances
+        .filter(
+          (b) =>
+            !b.isZero() &&
+            !b.isVaultToken &&
+            b.token.tokenType !== 'Underlying' &&
+            b.token.tokenType !== 'NOTE'
+        )
+        .map((balance) => {
+          const statement = balanceStatements.find(
+            (s) =>
+              s.token.id ===
+              convertToSignedfCashId(balance.tokenId, balance.isNegative())
+          );
+          const maturedTokenId = balance.hasMatured
+            ? balance.isPositive()
+              ? balance.toPrimeCash().tokenId
+              : balance.toPrimeDebt().tokenId
+            : balance.token.id;
+
+          const marketYield = nonLeveragedYields.find(
+            ({ token }) => token.id === maturedTokenId
+          );
+
+          const manageTokenId = balance.hasMatured
+            ? balance.isPositive()
+              ? balance.toPrimeDebt().tokenId
+              : balance.toPrimeCash().tokenId
+            : balance.token.id;
+
+          const isPending = pendingTokens.find((t) => t.id === balance.tokenId);
+
+          return {
+            balance,
+            statement,
+            marketYield,
+            manageTokenId,
+            maturedTokenId,
+            isPending,
+          };
+        }) || [],
+    [pendingTokens, account, balanceStatements, nonLeveragedYields]
   );
 }
