@@ -276,11 +276,43 @@ export const TradeConfiguration = {
 
   /**
    * Inputs:
+   * depositToken, collateral, debt (pre-selected)
+   * withdrawAmount
+   * riskFactorLimit (pre-selected)
+   *
+   * Outputs:
+   * debtBalance (PrimeDebt, fCash, nToken)
+   * collateralBalance (PrimeCash, fCash)
+   */
+  DeleverageWithdraw: {
+    calculationFn: calculateDebtCollateralGivenDepositRiskLimit,
+    requiredArgs: [
+      'collateral',
+      'debt',
+      'collateralPool',
+      'debtPool',
+      'depositBalance',
+      'riskFactorLimit',
+      'balances',
+    ],
+    collateralFilter: (t, a, s) =>
+      t.tokenType !== 'nToken' &&
+      onlySameCurrency(t, s.deposit) &&
+      offsettingBalance(t, a, false),
+    debtFilter: (t, a, s) =>
+      onlySameCurrency(t, s.collateral) &&
+      offsettingBalance(t, a, true) &&
+      offsettingDebt(t, a),
+    transactionBuilder: Deleverage,
+  } as TransactionConfig,
+
+  /**
+   * Inputs:
    * selectedDebtToken
    * selectedCollateralToken
    *
    * Outputs:
-   * debtBalance (PrimeDebt, fCash)
+   * debtBalance (PrimeDebt, fCash, nToken)
    * collateralBalance (PrimeCash, fCash)
    */
   Deleverage: {
