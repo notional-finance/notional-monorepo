@@ -123,6 +123,7 @@ export function useHoldings() {
             b.token.tokenType !== 'Underlying' &&
             b.token.tokenType !== 'NOTE'
         )
+        .sort((a, b) => a.currencyId - b.currencyId)
         .map((balance) => {
           const statement = balanceStatements.find(
             (s) =>
