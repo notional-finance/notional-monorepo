@@ -73,6 +73,8 @@ export function DeleverageLend({
   network,
   collateralBalance,
   debtBalance,
+  maxWithdraw,
+  depositBalance,
 }: PopulateTransactionInputs) {
   if (!(collateralBalance?.isNegative() && debtBalance?.isPositive())) {
     throw Error('Collateral and Debt must be defined');
@@ -88,8 +90,8 @@ export function DeleverageLend({
         getBalanceAndTradeAction(
           DepositActionType.None,
           TokenBalance.zero(collateralBalance.underlying), // no deposits
-          false,
-          undefined, // No Withdraws
+          maxWithdraw,
+          maxWithdraw ? undefined : depositBalance?.neg().toPrimeCash(),
           false,
           [collateralBalance, debtBalance].filter(
             (t) => t.tokenType === 'fCash'
@@ -168,6 +170,8 @@ export function DeleverageNToken({
   network,
   collateralBalance,
   debtBalance,
+  maxWithdraw,
+  depositBalance,
 }: PopulateTransactionInputs) {
   if (!collateralBalance || !debtBalance)
     throw Error('All balances must be defined');
@@ -183,8 +187,8 @@ export function DeleverageNToken({
         getBalanceAndTradeAction(
           DepositActionType.RedeemNToken,
           debtBalance.neg(),
-          false,
-          undefined, // No Withdraws
+          maxWithdraw,
+          maxWithdraw ? undefined : depositBalance?.neg().toPrimeCash(),
           false,
           collateralBalance.tokenType === 'fCash' ? [collateralBalance] : []
         ),
