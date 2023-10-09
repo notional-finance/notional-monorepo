@@ -1,7 +1,7 @@
 import { BarChartToolTip } from './bar-chart-tool-tip/bar-chart-tool-tip';
 import {
   formatNumberAsPercent,
-  formatNumberToDigits,
+  formatNumberAsAbbr,
   formatNumber,
 } from '@notional-finance/helpers';
 import { XAxisTick } from './x-axis-tick/x-axis-tick';
@@ -20,6 +20,7 @@ import { useTheme } from '@mui/material';
 export interface BarConfigProps {
   dataKey: string;
   fill: string;
+  value?: string;
   radius?: number[];
   title?: ReactNode;
   currencySymbol?: string;
@@ -38,14 +39,14 @@ export const BarChart = ({
   barConfig,
 }: BarChartProps) => {
   const theme = useTheme();
-  const currencySymbol = barConfig[0].currencySymbol;
+  // const currencySymbol = barConfig[0].currencySymbol;
 
   const yAxisTickHandler = (v: number) => {
     if (yAxisTickFormat === 'percent' && typeof v === 'number') {
       return formatNumberAsPercent(v);
     }
     if (yAxisTickFormat === 'currency' && typeof v === 'number') {
-      return `${currencySymbol}${formatNumberToDigits(v, 2)}`;
+      return formatNumberAsAbbr(v, 2);
     }
     if (yAxisTickFormat === 'number' && typeof v === 'number') {
       return formatNumber(v, 2);

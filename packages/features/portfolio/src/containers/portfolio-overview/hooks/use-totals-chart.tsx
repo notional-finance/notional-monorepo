@@ -9,8 +9,6 @@ export const useTotalsChart = () => {
   const baseCurrency = useFiat();
   const historyData = useAccountHistoryChart();
 
-  console.log('historyData', historyData);
-
   const barChartData = historyData?.map(
     ({ assets, debts, netWorth, timestamp }) => {
       return {
@@ -21,6 +19,10 @@ export const useTotalsChart = () => {
       };
     }
   );
+
+  const headerHistoryData = historyData
+    ? historyData[historyData.length - 1]
+    : undefined;
 
   const barConfig = [
     {
@@ -38,8 +40,7 @@ export const useTotalsChart = () => {
       currencySymbol: FiatSymbols[baseCurrency]
         ? FiatSymbols[baseCurrency]
         : '$',
-      value: '$658,000',
-      percentChange: '0.05%',
+      value: headerHistoryData?.netWorth?.toDisplayStringWithSymbol(),
     },
     {
       dataKey: 'totalAssets',
@@ -56,8 +57,7 @@ export const useTotalsChart = () => {
       currencySymbol: FiatSymbols[baseCurrency]
         ? FiatSymbols[baseCurrency]
         : '$',
-      value: '$832,000',
-      percentChange: '0.05%',
+      value: headerHistoryData?.assets?.toDisplayStringWithSymbol(),
     },
     {
       dataKey: 'totalDebts',
@@ -74,8 +74,7 @@ export const useTotalsChart = () => {
       currencySymbol: FiatSymbols[baseCurrency]
         ? FiatSymbols[baseCurrency]
         : '$',
-      value: '$174,000',
-      percentChange: '-0.05%',
+      value: headerHistoryData?.debts?.toDisplayStringWithSymbol(),
     },
   ];
 
