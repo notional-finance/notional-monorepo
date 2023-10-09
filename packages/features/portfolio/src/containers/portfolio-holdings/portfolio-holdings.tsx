@@ -10,7 +10,8 @@ export const PortfolioHoldings = () => {
   const buttonData = usePortfolioButtonBar();
   const {
     portfolioHoldingsColumns,
-    portfolioHoldingsData,
+    detailedHoldings,
+    // groupedHoldings,
     pendingTokenData,
     setExpandedRows,
     initialState,
@@ -20,7 +21,7 @@ export const PortfolioHoldings = () => {
     <Box>
       <PortfolioRisk />
       <DataTable
-        data={portfolioHoldingsData}
+        data={detailedHoldings}
         pendingTokenData={pendingTokenData}
         pendingMessage={
           <FormattedMessage
