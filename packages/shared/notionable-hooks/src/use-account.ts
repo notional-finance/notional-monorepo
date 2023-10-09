@@ -11,6 +11,7 @@ import { convertToSignedfCashId, leveragedYield } from '@notional-finance/util';
 import { useAllMarkets } from './use-market';
 import { usePendingPnLCalculation } from './use-transaction';
 import { useMemo } from 'react';
+import { useFiat } from './use-user-settings';
 
 export function useAccountDefinition() {
   const {
@@ -218,4 +219,45 @@ export function useVaultHoldings() {
       }),
     [vaults, balanceStatements, pendingTokens, vaultShares, variableBorrow]
   );
+}
+
+export function useAccountCurrentAPY() {
+  const baseCurrency = useFiat();
+  const holdings = useHoldings();
+  const vaults = useVaultHoldings();
+
+  const { weightedYield, netWorth } = vaults.reduce(
+    ({ weightedYield, netWorth }, { totalAPY, vault }) => {
+      const w = vault.netWorth().toFiat(baseCurrency).toFloat();
+      return totalAPY !== undefined
+        ? {
+            weightedYield: weightedYield + totalAPY * w,
+            netWorth: netWorth + w,
+          }
+        : {
+            weightedYield,
+            netWorth,
+          };
+    },
+    holdings.reduce(
+      ({ weightedYield, netWorth }, { marketYield, balance }) => {
+        const w = balance.toFiat(baseCurrency).toFloat();
+        return marketYield?.totalAPY !== undefined
+          ? {
+              weightedYield: weightedYield + marketYield.totalAPY * w,
+              netWorth: netWorth + w,
+            }
+          : {
+              weightedYield,
+              netWorth,
+            };
+      },
+      {
+        weightedYield: 0,
+        netWorth: 0,
+      }
+    )
+  );
+
+  return netWorth !== 0 ? weightedYield / netWorth : undefined;
 }
