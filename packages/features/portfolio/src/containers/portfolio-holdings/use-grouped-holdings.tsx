@@ -46,13 +46,9 @@ export function useGroupedHoldings() {
   const debts = holdings.filter(({ balance }) => balance.isNegative());
   const groupedTokens = assets.reduce((l, asset) => {
     const matchingDebts = debts.filter(
-      ({ balance }) => balance.currencyId === asset.balance.currencyId
+      ({ balance: debt }) => debt.currencyId === asset.balance.currencyId
     );
-    const matchingAssets = assets.filter(
-      ({ balance }) => balance.currencyId === asset.balance.currencyId
-    );
-    if (matchingDebts.length === 1 && matchingAssets.length === 1)
-      l.push({ asset, debt: matchingDebts[0] });
+    if (matchingDebts.length === 1) l.push({ asset, debt: matchingDebts[0] });
 
     return l;
   }, [] as { asset: typeof holdings[number]; debt: typeof holdings[number] }[]);
@@ -70,8 +66,7 @@ export function useGroupedHoldings() {
       const { icon } = formatTokenType(asset.token);
       const presentValue = asset.toUnderlying().add(debt.toUnderlying());
       const leverageRatio =
-        debt.toUnderlying().neg().ratioWith(presentValue).toNumber() /
-        RATE_PRECISION;
+        debt.toUnderlying().ratioWith(presentValue).toNumber() / RATE_PRECISION;
 
       // NOTE: this accounts for matured debts and uses the variable APY after maturity
       const borrowAPY =
@@ -80,7 +75,7 @@ export function useGroupedHoldings() {
           : debtStatement?.impliedFixedRate;
 
       const marketApy = leveragedYield(
-        assetYield?.totalAPY,
+        assetYield?.strategyAPY,
         borrowAPY,
         leverageRatio
       );
@@ -136,9 +131,7 @@ export function useGroupedHoldings() {
           ? formatCryptoWithFiat(baseCurrency, amountPaid)
           : '-',
         presentValue: formatCryptoWithFiat(baseCurrency, presentValue),
-        earnings: earnings
-          ? earnings.toFiat(baseCurrency).toDisplayStringWithSymbol(3, true)
-          : '-',
+        earnings: earnings ? formatCryptoWithFiat(baseCurrency, earnings) : '-',
         actionRow: {
           subRowData: [
             {
@@ -148,7 +141,7 @@ export function useGroupedHoldings() {
             {
               label: <FormattedMessage defaultMessage={'Strategy APY'} />,
               value: formatNumberAsPercentWithUndefined(
-                assetYield?.totalAPY,
+                assetYield?.strategyAPY,
                 '-',
                 3
               ),
