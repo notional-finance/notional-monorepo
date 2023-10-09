@@ -24,15 +24,15 @@ export type ExpandedRows = {
   [key: string]: boolean;
 };
 
-
 export type DataTableColumn = Column & {
   expandableTable?: boolean;
   textAlign?: string;
   showLinkIcon?: boolean;
   defaultCanSort?: boolean;
   sortType?: string;
-  displayFormatter?: any; 
-  marginRight?: any; 
+  displayFormatter?: any;
+  marginRight?: any;
   className?: string;
   sticky?: string;
+  showLoadingSpinner?: boolean;
 };
