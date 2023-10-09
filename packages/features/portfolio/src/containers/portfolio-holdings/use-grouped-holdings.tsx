@@ -131,7 +131,9 @@ export function useGroupedHoldings() {
           ? formatCryptoWithFiat(baseCurrency, amountPaid)
           : '-',
         presentValue: formatCryptoWithFiat(baseCurrency, presentValue),
-        earnings: earnings ? formatCryptoWithFiat(baseCurrency, earnings) : '-',
+        earnings: earnings
+          ? earnings.toFiat(baseCurrency).toDisplayStringWithSymbol(3, true)
+          : '-',
         actionRow: {
           subRowData: [
             {
