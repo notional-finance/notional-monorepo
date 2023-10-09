@@ -8,8 +8,8 @@ import { PortfolioRisk } from './portfolio-risk';
 export const PortfolioHoldings = () => {
   const {
     portfolioHoldingsColumns,
-    // detailedHoldings,
-    groupedHoldings,
+    detailedHoldings,
+    // groupedHoldings,
     pendingTokenData,
     setExpandedRows,
     initialState,
@@ -19,7 +19,7 @@ export const PortfolioHoldings = () => {
     <Box>
       <PortfolioRisk />
       <DataTable
-        data={groupedHoldings}
+        data={detailedHoldings}
         pendingTokenData={pendingTokenData}
         pendingMessage={
           <FormattedMessage
