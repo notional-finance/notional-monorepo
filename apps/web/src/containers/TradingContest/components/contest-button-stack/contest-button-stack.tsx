@@ -21,6 +21,7 @@ export const ContestButtonStack = ({
   const {
     globalState: { hasContestNFT },
   } = useNotionalContext();
+
   const { setWalletSideDrawer } = useSideDrawerManager();
 
   return (
