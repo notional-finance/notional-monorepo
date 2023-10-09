@@ -94,4 +94,4 @@ const Columns = [
     textAlign: 'left',
     expandableTable: true,
   },
-];
+] as const;
