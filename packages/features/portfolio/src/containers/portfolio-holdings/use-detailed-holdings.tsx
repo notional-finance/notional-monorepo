@@ -96,7 +96,9 @@ export function useDetailedHoldings() {
             : '-',
           presentValue: formatCryptoWithFiat(baseCurrency, b.toUnderlying()),
           earnings: s
-            ? formatCryptoWithFiat(baseCurrency, s.totalProfitAndLoss)
+            ? s.totalProfitAndLoss
+                .toFiat(baseCurrency)
+                .toDisplayStringWithSymbol(3, true)
             : '-',
           actionRow: {
             subRowData: [
