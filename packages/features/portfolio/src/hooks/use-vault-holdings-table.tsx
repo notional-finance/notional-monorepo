@@ -221,12 +221,14 @@ export const useVaultHoldingsTable = () => {
     );
 
     const denom = v.denom(v.defaultSymbol);
+    // TODO: needs pending spinner
     const profit = (assetPnL?.totalProfitAndLoss || TokenBalance.zero(denom))
       .sub(debtPnL?.totalProfitAndLoss || TokenBalance.zero(denom))
       .add(cashPnL?.totalProfitAndLoss || TokenBalance.zero(denom));
     const strategyAPY =
       vaultShares.find((y) => y.token.vaultAddress === v.vaultAddress)
         ?.totalAPY || 0;
+    // TODO: needs pending spinner
     const borrowAPY =
       debtPnL?.impliedFixedRate !== undefined
         ? debtPnL.impliedFixedRate
