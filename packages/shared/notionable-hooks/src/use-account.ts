@@ -1,5 +1,5 @@
 import { useObservableState } from 'observable-hooks';
-import { Registry } from '@notional-finance/core-entities';
+import { Registry, TokenBalance } from '@notional-finance/core-entities';
 import { useNotionalContext, useSelectedNetwork } from './use-notional';
 import { EMPTY } from 'rxjs';
 import {
@@ -7,7 +7,7 @@ import {
   VaultAccountRiskProfile,
 } from '@notional-finance/risk-engine';
 import { truncateAddress } from '@notional-finance/helpers';
-import { convertToSignedfCashId } from '@notional-finance/util';
+import { convertToSignedfCashId, leveragedYield } from '@notional-finance/util';
 import { useAllMarkets } from './use-market';
 import { usePendingPnLCalculation } from './use-transaction';
 import { useMemo } from 'react';
@@ -158,5 +158,64 @@ export function useHoldings() {
           };
         }) || [],
     [pendingTokens, account, balanceStatements, nonLeveragedYields]
+  );
+}
+
+export function useVaultHoldings() {
+  const vaults = useVaultRiskProfiles();
+  const balanceStatements = useBalanceStatements();
+  const { pendingTokens } = usePendingPnLCalculation();
+  const {
+    yields: { variableBorrow, vaultShares },
+  } = useAllMarkets();
+
+  return useMemo(
+    () =>
+      vaults.map((v) => {
+        const debtPnL = balanceStatements.find(
+          (b) => b.token.id === v.vaultDebt.tokenId
+        );
+        const assetPnL = balanceStatements?.find(
+          (b) => b.token.id === v.vaultShares.tokenId
+        );
+        const cashPnL = balanceStatements?.find(
+          (b) => b.token.id === v.vaultCash.tokenId
+        );
+        const isPending = pendingTokens.find(
+          (t) => t.id === v.vaultShares.tokenId
+        );
+        const denom = v.denom(v.defaultSymbol);
+        const profit = (
+          assetPnL?.totalProfitAndLoss || TokenBalance.zero(denom)
+        )
+          .sub(debtPnL?.totalProfitAndLoss || TokenBalance.zero(denom))
+          .add(cashPnL?.totalProfitAndLoss || TokenBalance.zero(denom));
+        const strategyAPY =
+          vaultShares.find((y) => y.token.vaultAddress === v.vaultAddress)
+            ?.totalAPY || 0;
+        const borrowAPY =
+          debtPnL?.impliedFixedRate !== undefined
+            ? debtPnL.impliedFixedRate
+            : variableBorrow.find(
+                (d) => d.token.id === v.vaultDebt.unwrapVaultToken().tokenId
+              )?.totalAPY || 0;
+
+        const totalAPY = leveragedYield(
+          strategyAPY,
+          borrowAPY,
+          v.leverageRatio() || 0
+        );
+
+        return {
+          vault: v,
+          totalAPY,
+          borrowAPY,
+          strategyAPY,
+          profit,
+          isPending,
+          denom,
+        };
+      }),
+    [vaults, balanceStatements, pendingTokens, vaultShares, variableBorrow]
   );
 }
