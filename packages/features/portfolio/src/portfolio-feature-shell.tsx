@@ -1,9 +1,12 @@
 import { useEffect } from 'react';
 import { Box, styled } from '@mui/material';
-import { useNotionalContext } from '@notional-finance/notionable-hooks';
+import {
+  useAccountReady,
+  useNotionalContext,
+} from '@notional-finance/notionable-hooks';
 import { useParams } from 'react-router-dom';
-import { SideDrawer } from '@notional-finance/mui';
-import { usePortfolioSideDrawers } from './hooks';
+import { ButtonBar, SideDrawer } from '@notional-finance/mui';
+import { usePortfolioButtonBar, usePortfolioSideDrawers } from './hooks';
 import {
   SideNav,
   PortfolioMobileNav,
@@ -31,9 +34,23 @@ export interface PortfolioParams {
 }
 
 export const PortfolioFeatureShell = () => {
+  const {
+    globalState: { isNetworkReady, isAccountPending },
+  } = useNotionalContext();
+
+  return (
+    <FeatureLoader featureLoaded={isNetworkReady && !isAccountPending}>
+      <Portfolio />
+    </FeatureLoader>
+  );
+};
+
+const Portfolio = () => {
   const params = useParams<PortfolioParams>();
   const { clearSideDrawer } = useSideDrawerManager();
   const { SideDrawerComponent, openDrawer } = usePortfolioSideDrawers();
+  const isAccountReady = useAccountReady();
+  const buttonData = usePortfolioButtonBar();
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -43,6 +60,8 @@ export const PortfolioFeatureShell = () => {
     clearSideDrawer(
       `/portfolio/${params?.category || PORTFOLIO_CATEGORIES.OVERVIEW}`
     );
+    // NOTE: this must only run once on component mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleDrawer = () => {
@@ -51,59 +70,62 @@ export const PortfolioFeatureShell = () => {
     );
   };
 
-  const {
-    globalState: { isAccountReady, isNetworkReady, isAccountPending },
-  } = useNotionalContext();
-
-  return (
-    <FeatureLoader featureLoaded={isNetworkReady && !isAccountPending}>
-      {isAccountReady ? (
-        <PortfolioContainer>
-          <SideDrawer
-            callback={handleDrawer}
-            openDrawer={openDrawer}
-            zIndex={1202}
-            marginTop="80px"
-          >
-            {SideDrawerComponent && <SideDrawerComponent />}
-          </SideDrawer>
-          <PortfolioSidebar>
-            <SideNav />
-          </PortfolioSidebar>
-          <PortfolioMainContent>
-            <ClaimNoteButton />
-            {(params.category === PORTFOLIO_CATEGORIES.OVERVIEW ||
-              params.category === undefined) && <PortfolioOverview />}
-            {params.category === PORTFOLIO_CATEGORIES.HOLDINGS && (
-              <PortfolioHoldings />
-            )}
-            {params.category === PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS && (
-              <PortfolioVaults />
-            )}
-            {params.category === PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY && (
-              <PortfolioTransactionHistory />
-            )}
-          </PortfolioMainContent>
-          <PortfolioMobileNav />
-        </PortfolioContainer>
-      ) : (
-        <PortfolioContainer>
-          <PortfolioSidebar>
-            <SideNav />
-          </PortfolioSidebar>
-          <PortfolioMainContent>
-            {params.category === PORTFOLIO_CATEGORIES.OVERVIEW ||
-            params.category === undefined ? (
-              <EmptyPortfolioOverview walletConnected={false} />
-            ) : (
-              <EmptyPortfolio />
-            )}
-          </PortfolioMainContent>
-        </PortfolioContainer>
-      )}
-    </FeatureLoader>
+  return isAccountReady ? (
+    <PortfolioContainer>
+      <SideDrawer
+        callback={handleDrawer}
+        openDrawer={openDrawer}
+        zIndex={1202}
+        marginTop="80px"
+      >
+        {SideDrawerComponent && <SideDrawerComponent />}
+      </SideDrawer>
+      <PortfolioSidebar>
+        <SideNav />
+      </PortfolioSidebar>
+      <PortfolioMainContent>
+        <ActionButtonRow>
+          {params.category === PORTFOLIO_CATEGORIES.HOLDINGS && (
+            <ButtonBar buttonOptions={buttonData} />
+          )}
+          <ClaimNoteButton />
+        </ActionButtonRow>
+        {(params.category === PORTFOLIO_CATEGORIES.OVERVIEW ||
+          params.category === undefined) && <PortfolioOverview />}
+        {params.category === PORTFOLIO_CATEGORIES.HOLDINGS && (
+          <PortfolioHoldings />
+        )}
+        {params.category === PORTFOLIO_CATEGORIES.LEVERAGED_VAULTS && (
+          <PortfolioVaults />
+        )}
+        {params.category === PORTFOLIO_CATEGORIES.TRANSACTION_HISTORY && (
+          <PortfolioTransactionHistory />
+        )}
+      </PortfolioMainContent>
+      <PortfolioMobileNav />
+    </PortfolioContainer>
+  ) : (
+    <PortfolioContainer>
+      <PortfolioSidebar>
+        <SideNav />
+      </PortfolioSidebar>
+      <PortfolioMainContent>
+        {params.category === PORTFOLIO_CATEGORIES.OVERVIEW ||
+        params.category === undefined ? (
+          <EmptyPortfolioOverview walletConnected={false} />
+        ) : (
+          <EmptyPortfolio />
+        )}
+      </PortfolioMainContent>
+    </PortfolioContainer>
   );
 };
+
+const ActionButtonRow = styled(Box)`
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+`;
 
 const PortfolioContainer = styled(Box)(
   ({ theme }) => `
