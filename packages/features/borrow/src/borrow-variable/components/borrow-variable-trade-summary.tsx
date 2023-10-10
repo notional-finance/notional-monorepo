@@ -113,6 +113,7 @@ export const BorrowVariableTradeSummary = () => {
                     areaChartStyles={areaChartStyles}
                     chartToolTipData={chartToolTipData}
                     referenceLineValue={borrowUtilization}
+                    xAxisTickCount={12}
                   />
                 </ChartContainer>
               ),
