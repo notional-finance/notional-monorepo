@@ -153,7 +153,6 @@ export const AreaChart = ({
             dataKey="timestamp"
             type={xAxisTickFormat === 'date' ? 'category' : 'number'}
             tickCount={xAxisTickCount}
-            axisLine={false}
             tickSize={0}
             tickMargin={38}
             axisLine={{ stroke: theme.palette.borders.paper }}
