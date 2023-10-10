@@ -8,3 +8,4 @@ export * from './storage-helpers';
 export * from './text-helpers';
 export * from './time-helpers';
 export * from './tracking-helpers';
+export * from './window-helpers';

@@ -1,8 +1,4 @@
-import {
-  MultiDisplayChart,
-  AreaChart,
-  ChartContainer,
-} from '@notional-finance/mui';
+import { MultiDisplayChart, AreaChart } from '@notional-finance/mui';
 import { TradeState, VaultTradeState } from '@notional-finance/notionable';
 import { useLiquidationChart } from './use-liquidation-chart';
 import { Box, useTheme } from '@mui/material';
@@ -34,23 +30,22 @@ export const LiquidationChart = ({
           {
             id: 'area-chart',
             title: 'Liquidation Chart',
+            hideTopGridLine: true,
             Component: (
-              <ChartContainer>
-                <AreaChart
-                  showEmptyState={showEmptyState}
-                  emptyStateMessage={
-                    <FormattedMessage
-                      defaultMessage={'Fill in inputs to see your price risk'}
-                    />
-                  }
-                  showCartesianGrid
-                  yAxisTickFormat="number"
-                  yAxisDomain={yAxisDomain}
-                  chartToolTipData={chartToolTipData}
-                  areaChartData={areaChartData}
-                  areaLineType="linear"
-                />
-              </ChartContainer>
+              <AreaChart
+                showEmptyState={showEmptyState}
+                emptyStateMessage={
+                  <FormattedMessage
+                    defaultMessage={'Fill in inputs to see your price risk'}
+                  />
+                }
+                showCartesianGrid
+                yAxisTickFormat="number"
+                yAxisDomain={yAxisDomain}
+                chartToolTipData={chartToolTipData}
+                areaChartData={areaChartData}
+                areaLineType="linear"
+              />
             ),
             chartHeaderData: areaChartHeaderData,
           },

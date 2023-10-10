@@ -134,7 +134,6 @@ export const AreaChart = ({
           {showCartesianGrid && (
             <CartesianGrid
               vertical={false}
-              horizontal
               height={300}
               stroke={theme.palette.borders.paper}
             />
@@ -154,9 +153,9 @@ export const AreaChart = ({
             dataKey="timestamp"
             type={xAxisTickFormat === 'date' ? 'category' : 'number'}
             tickCount={xAxisTickCount}
-            axisLine={false}
             tickSize={0}
             tickMargin={38}
+            axisLine={{ stroke: theme.palette.borders.paper }}
             domain={
               xAxisTickFormat === 'date'
                 ? [

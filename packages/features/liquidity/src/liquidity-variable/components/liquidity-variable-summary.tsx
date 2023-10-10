@@ -6,7 +6,6 @@ import {
   TotalBox,
   DataTable,
   Body,
-  ChartContainer,
   AreaChart,
   MultiDisplayChart,
 } from '@notional-finance/mui';
@@ -28,7 +27,10 @@ export const LiquidityVariableSummary = () => {
   const { selectedDepositToken, collateral, collateralBalance } = state;
   const tokenSymbol = selectedDepositToken || '';
   const { faqs, faqHeaderLinks } = useLiquidityFaq(tokenSymbol);
-  const { totalsData, liquidityYieldData} = useTotalsData(tokenSymbol, collateralBalance);
+  const { totalsData, liquidityYieldData } = useTotalsData(
+    tokenSymbol,
+    collateralBalance
+  );
   const { returnDriversColumns, returnDriversData, infoBoxData } =
     useReturnDriversTable();
   const { apyData, tvlData } = useTokenHistory(collateral);
@@ -40,32 +42,30 @@ export const LiquidityVariableSummary = () => {
           {
             id: 'apy-area-chart',
             title: 'APY',
+            hideTopGridLine: true,
             Component: (
-              <ChartContainer>
-                <AreaChart
-                  title="APY"
-                  showCartesianGrid
-                  xAxisTickFormat="date"
-                  areaChartData={apyData}
-                  areaLineType="linear"
-                />
-              </ChartContainer>
+              <AreaChart
+                title="APY"
+                showCartesianGrid
+                xAxisTickFormat="date"
+                areaChartData={apyData}
+                areaLineType="linear"
+              />
             ),
           },
           {
             id: 'tvl-area-chart',
             title: 'TVL',
+            hideTopGridLine: true,
             Component: (
-              <ChartContainer>
-                <AreaChart
-                  title="TVL"
-                  showCartesianGrid
-                  xAxisTickFormat="date"
-                  yAxisTickFormat="usd"
-                  areaChartData={tvlData}
-                  areaLineType="linear"
-                />
-              </ChartContainer>
+              <AreaChart
+                title="TVL"
+                showCartesianGrid
+                xAxisTickFormat="date"
+                yAxisTickFormat="usd"
+                areaChartData={tvlData}
+                areaLineType="linear"
+              />
             ),
           },
         ]}

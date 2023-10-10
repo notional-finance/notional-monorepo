@@ -1,7 +1,6 @@
 import {
   MultiDisplayChart,
   AreaChart,
-  ChartContainer,
   ChartComponentsProps,
 } from '@notional-finance/mui';
 import { TradeState, VaultTradeState } from '@notional-finance/notionable';
@@ -38,23 +37,22 @@ export const PerformanceChart = ({
     {
       id: 'area-chart',
       title: 'Performance To Date',
+      hideTopGridLine: true,
       Component: (
-        <ChartContainer>
-          <AreaChart
-            showEmptyState={currentLeveragedReturn === undefined ? true : false}
-            emptyStateMessage={
-              <FormattedMessage
-                defaultMessage={'Fill in inputs to see leveraged returns'}
-              />
-            }
-            showCartesianGrid
-            xAxisTickFormat="date"
-            areaChartData={areaChartData}
-            areaLineType="linear"
-            chartToolTipData={chartToolTipData}
-            areaChartStyles={areaChartStyles}
-          />
-        </ChartContainer>
+        <AreaChart
+          showEmptyState={currentLeveragedReturn === undefined ? true : false}
+          emptyStateMessage={
+            <FormattedMessage
+              defaultMessage={'Fill in inputs to see leveraged returns'}
+            />
+          }
+          showCartesianGrid
+          xAxisTickFormat="date"
+          areaChartData={areaChartData}
+          areaLineType="linear"
+          chartToolTipData={chartToolTipData}
+          areaChartStyles={areaChartStyles}
+        />
       ),
       chartHeaderData: areaChartHeaderData,
     },

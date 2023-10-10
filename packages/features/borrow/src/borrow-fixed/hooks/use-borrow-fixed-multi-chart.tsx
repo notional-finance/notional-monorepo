@@ -1,9 +1,5 @@
 import { useContext } from 'react';
-import {
-  InteractiveAreaChart,
-  AreaChart,
-  ChartContainer,
-} from '@notional-finance/mui';
+import { InteractiveAreaChart, AreaChart } from '@notional-finance/mui';
 import {
   useTokenHistory,
   useCurrency,
@@ -36,6 +32,7 @@ export const useBorrowFixedMultiChart = () => {
     {
       id: 'interactive-chart',
       title: 'APY By Maturity',
+      hideTopGridLine: false,
       Component: (
         <InteractiveAreaChart
           interactiveAreaChartData={areaChartData}
@@ -49,17 +46,16 @@ export const useBorrowFixedMultiChart = () => {
     {
       id: 'area-chart',
       title: 'TVL',
+      hideTopGridLine: true,
       Component: (
-        <ChartContainer>
-          <AreaChart
-            title="TVL"
-            showCartesianGrid
-            xAxisTickFormat="date"
-            areaChartData={tvlData}
-            areaLineType="linear"
-            yAxisTickFormat="usd"
-          />
-        </ChartContainer>
+        <AreaChart
+          title="TVL"
+          showCartesianGrid
+          xAxisTickFormat="date"
+          areaChartData={tvlData}
+          areaLineType="linear"
+          yAxisTickFormat="usd"
+        />
       ),
     },
   ];
