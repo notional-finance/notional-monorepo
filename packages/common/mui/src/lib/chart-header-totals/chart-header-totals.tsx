@@ -87,7 +87,7 @@ const ColorBar = styled(Box, {
   border-bottom-left-radius: 5px;
   border-bottom-right-radius: 5px;
   width: 6px;
-  height: 40px;
+  height: ${theme.spacing(5)};
   background: ${barColor};
   margin-right: ${theme.spacing(1)};
 `
