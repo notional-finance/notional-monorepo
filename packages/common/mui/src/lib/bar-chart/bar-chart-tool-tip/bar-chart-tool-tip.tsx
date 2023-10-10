@@ -2,7 +2,7 @@ import { Box, styled } from '@mui/material';
 import { H5 } from '../../typography/typography';
 import { TooltipProps } from 'recharts';
 import { BarConfigProps } from '../bar-chart';
-import { useIntl } from 'react-intl';
+import { getDateString } from '@notional-finance/helpers';
 import { formatNumberToDigits } from '@notional-finance/helpers';
 
 export interface BarChartToolTipProps extends TooltipProps<number, string> {
@@ -11,18 +11,13 @@ export interface BarChartToolTipProps extends TooltipProps<number, string> {
 
 export const BarChartToolTip = (props: BarChartToolTipProps) => {
   const { payload, barConfig } = props;
-  const intl = useIntl();
 
   return (
     <ToolTipBox>
       <Item>
         <Box component={'span'}>
           {payload && payload.length > 0
-            ? intl.formatDate(payload[0]?.payload?.timestamp * 1000, {
-                day: 'numeric',
-                month: 'short',
-                year: 'numeric',
-              })
+            ? getDateString(payload[0]?.payload?.timestamp)
             : ''}
         </Box>
       </Item>

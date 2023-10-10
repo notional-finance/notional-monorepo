@@ -14,8 +14,9 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { ReactNode } from 'react';
+import { getDateString } from '@notional-finance/helpers';
 import { useTheme, Box } from '@mui/material';
-import { FormattedMessage, useIntl } from 'react-intl';
+import { FormattedMessage } from 'react-intl';
 
 export interface BarConfigProps {
   dataKey: string;
@@ -42,7 +43,6 @@ export const BarChart = ({
   noChartData,
 }: BarChartProps) => {
   const theme = useTheme();
-  const intl = useIntl();
 
   const yAxisTickHandler = (v: number) => {
     if (yAxisTickFormat === 'percent' && typeof v === 'number') {
@@ -58,10 +58,7 @@ export const BarChart = ({
   };
 
   const formatDate = (date) => {
-    return intl.formatDate(date * 1000, {
-      day: 'numeric',
-      month: 'short',
-    });
+    return getDateString(date, { hideYear: true });
   };
 
   return (

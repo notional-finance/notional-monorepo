@@ -2,9 +2,11 @@ import { useState } from 'react';
 import { useAccountHistoryChart } from '@notional-finance/notionable-hooks';
 import { FiatSymbols } from '@notional-finance/core-entities';
 import { useFiat } from '@notional-finance/notionable-hooks';
+import { useWindowDimensions } from '@notional-finance/helpers';
 import {
   THEME_VARIANTS,
   SECONDS_IN_MONTH,
+  SECONDS_IN_DAY,
   getNowSeconds,
 } from '@notional-finance/util';
 import { colors } from '@notional-finance/styles';
@@ -13,19 +15,20 @@ import { FormattedMessage } from 'react-intl';
 
 export const useTotalsChart = () => {
   const baseCurrency = useFiat();
+  const windowDimensions = useWindowDimensions();
   const [secondsMultiple, setSecondsMultiple] = useState(1.5);
 
-  window.addEventListener('resize', () => {
-    if (window.innerWidth <= 1152 && secondsMultiple !== 1.2) {
-      setSecondsMultiple(1.2);
-    }
-    if (window.innerWidth > 1200 && secondsMultiple !== 1.5) {
-      setSecondsMultiple(1.5);
-    }
-  });
+  if (windowDimensions.width <= 1152 && secondsMultiple !== 1.2) {
+    setSecondsMultiple(1.2);
+  }
+  if (windowDimensions.width > 1200 && secondsMultiple !== 1.5) {
+    setSecondsMultiple(1.5);
+  }
 
   const historyData = useAccountHistoryChart(
-    getNowSeconds() - SECONDS_IN_MONTH * secondsMultiple
+    getNowSeconds() - SECONDS_IN_MONTH * secondsMultiple,
+    getNowSeconds(),
+    SECONDS_IN_DAY * 3
   );
   const themeVariant = useThemeVariant();
   let noChartData = true;

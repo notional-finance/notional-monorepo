@@ -8,7 +8,6 @@ import { floorToMidnight } from '@notional-finance/helpers';
 import {
   Network,
   SECONDS_IN_DAY,
-  SECONDS_IN_MONTH,
   getNowSeconds,
   leveragedYield,
 } from '@notional-finance/util';
@@ -117,11 +116,10 @@ export function useAssetPriceHistory(token: TokenDefinition | undefined) {
   );
 }
 
-//TODO: Update this hook to return the total net worth in USD, total assets in USD, and total debts in USD as well as the value change percentage overtime
 export function useAccountHistoryChart(
-  startTime = getNowSeconds() - SECONDS_IN_MONTH * 1.5,
-  endTime = getNowSeconds(),
-  tickSizeInSeconds = SECONDS_IN_DAY * 3
+  startTime: number,
+  endTime: number,
+  tickSizeInSeconds: number
 ) {
   const { account } = useAccountDefinition();
   const baseCurrency = useFiat();
