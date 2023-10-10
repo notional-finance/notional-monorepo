@@ -46,8 +46,6 @@ export const MultiDisplayChart = ({
     boolean | undefined
   >(undefined);
 
-  console.log({ currentChart });
-
   return (
     <TradeSummaryBox sx={{ width: '100%', padding: theme.spacing(3) }}>
       {chartComponents.length > 1 ? (
