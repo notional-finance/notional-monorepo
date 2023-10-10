@@ -1,9 +1,4 @@
-import {
-  DataTable,
-  MultiDisplayChart,
-  ChartContainer,
-  BarChart,
-} from '@notional-finance/mui';
+import { DataTable, MultiDisplayChart, BarChart } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
 import {
   useTotalsChart,
@@ -21,7 +16,7 @@ export const PortfolioOverview = () => {
   const { vaultHoldingsData } = useVaultHoldingsTable();
   const { overviewVaultHoldingsColumns } = useOverviewVaultHoldingsColumns();
   const { riskOverviewData, riskOverviewColumns } = useRiskOverviewTable();
-  const { barChartData, barConfig } = useTotalsChart();
+  const { barChartData, barConfig, noChartData } = useTotalsChart();
   const noOverviewData =
     totalHoldingsData.length === 0 &&
     vaultHoldingsData.length === 0 &&
@@ -37,15 +32,15 @@ export const PortfolioOverview = () => {
                 chartHeaderTotalsData: barConfig,
                 id: 'apy-area-chart',
                 title: 'APY',
+                hideTopGridLine: false,
                 Component: (
-                  <ChartContainer>
-                    <BarChart
-                      barChartData={barChartData}
-                      barConfig={barConfig}
-                      xAxisTickFormat="date"
-                      yAxisTickFormat="currency"
-                    />
-                  </ChartContainer>
+                  <BarChart
+                    noChartData={noChartData}
+                    barChartData={barChartData}
+                    barConfig={barConfig}
+                    xAxisTickFormat="date"
+                    yAxisTickFormat="currency"
+                  />
                 ),
               },
             ]}

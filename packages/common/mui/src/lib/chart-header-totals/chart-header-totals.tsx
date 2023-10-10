@@ -36,8 +36,7 @@ export const ChartHeaderTotals = ({
         <Box
           key={index}
           sx={{
-            flex: index === 0 ? 1 : 0,
-            marginRight: index === 1 ? theme.spacing(8) : '0px',
+            marginRight: index === 0 ? theme.spacing(8) : theme.spacing(5),
             display: 'flex',
             flexDirection: 'row',
             alignItems: 'center',
@@ -62,7 +61,7 @@ const HeadingContainer = styled(Box)(
   justify-content: flex-start;
   align-items: center;
   margin-bottom: ${theme.spacing(1)};
-  margin-left: ${theme.spacing(2.5)};
+  margin-left: ${theme.spacing(1.25)};
   margin-right: ${theme.spacing(2.5)};
 `
 );

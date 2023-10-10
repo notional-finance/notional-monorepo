@@ -15,27 +15,39 @@ export const BarChartToolTip = (props: BarChartToolTipProps) => {
 
   return (
     <ToolTipBox>
+      <Item>
+        <Box component={'span'}>
+          {payload && payload.length > 0
+            ? intl.formatDate(payload[0]?.payload?.timestamp * 1000, {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric',
+              })
+            : ''}
+        </Box>
+      </Item>
       {payload?.map((item, index) => (
         <Item key={index}>
-          <Box>{barConfig[index]?.title}</Box>
-          <Box>
-            {item.value
-              ? `${barConfig[index]?.currencySymbol} ${formatNumberToDigits(
-                  item.value
-                )}`
-              : `${barConfig[index]?.currencySymbol} 0`}
+          <Box
+            sx={{
+              whiteSpace: 'nowrap',
+              borderLeft: `3px solid ${barConfig[index].fill}`,
+            }}
+          >
+            <Box
+              component={'span'}
+              sx={{ marginLeft: '8px', marginRight: '8px' }}
+            >
+              {item.value
+                ? `${barConfig[index]?.currencySymbol}${formatNumberToDigits(
+                    item.value
+                  )}`
+                : `${barConfig[index]?.currencySymbol}0`}
+            </Box>
+            {barConfig[index]?.toolTipTitle}
           </Box>
         </Item>
       ))}
-      <Item>
-        {payload && payload.length > 0
-          ? intl.formatDate(payload[0]?.payload?.timestamp * 1000, {
-              day: 'numeric',
-              month: 'short',
-              year: 'numeric',
-            })
-          : ''}
-      </Item>
     </ToolTipBox>
   );
 };
@@ -50,6 +62,7 @@ const Item = styled(H5)(
   border-bottom: 0px;
   margin: ${theme.spacing(1)};
   padding-left: 8px;
+  whitespace: nowrap;
   span {
     color: ${theme.palette.typography.main};
   }

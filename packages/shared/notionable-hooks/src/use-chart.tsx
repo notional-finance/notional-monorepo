@@ -119,7 +119,7 @@ export function useAssetPriceHistory(token: TokenDefinition | undefined) {
 
 //TODO: Update this hook to return the total net worth in USD, total assets in USD, and total debts in USD as well as the value change percentage overtime
 export function useAccountHistoryChart(
-  startTime = getNowSeconds() - SECONDS_IN_MONTH * 45,
+  startTime = getNowSeconds() - SECONDS_IN_MONTH * 1.5,
   endTime = getNowSeconds(),
   tickSizeInSeconds = SECONDS_IN_DAY * 3
 ) {

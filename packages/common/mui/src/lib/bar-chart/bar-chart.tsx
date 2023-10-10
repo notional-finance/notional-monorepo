@@ -4,8 +4,6 @@ import {
   formatNumberAsAbbr,
   formatNumber,
 } from '@notional-finance/helpers';
-// import { XAxisTick } from './x-axis-tick/x-axis-tick';
-// import { ONE_WEEK, SECONDS_IN_DAY } from '@notional-finance/util';
 import {
   BarChart as RechartsBarChart,
   Bar,
@@ -16,8 +14,8 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { ReactNode } from 'react';
-import { useTheme } from '@mui/material';
-import { useIntl } from 'react-intl';
+import { useTheme, Box } from '@mui/material';
+import { FormattedMessage, useIntl } from 'react-intl';
 
 export interface BarConfigProps {
   dataKey: string;
@@ -25,11 +23,13 @@ export interface BarConfigProps {
   value?: string;
   radius?: number[];
   title?: ReactNode;
+  toolTipTitle?: ReactNode;
   currencySymbol?: string;
 }
 
 export interface BarChartProps {
   barChartData: any[];
+  noChartData?: boolean;
   barConfig: BarConfigProps[];
   xAxisTickFormat?: 'date' | 'percent';
   yAxisTickFormat?: 'percent' | 'number' | 'currency';
@@ -39,6 +39,7 @@ export const BarChart = ({
   yAxisTickFormat = 'percent',
   barChartData,
   barConfig,
+  noChartData,
 }: BarChartProps) => {
   const theme = useTheme();
   const intl = useIntl();
@@ -64,54 +65,55 @@ export const BarChart = ({
   };
 
   return (
-    <ResponsiveContainer width="100%" height={300}>
-      <RechartsBarChart
-        barSize={8}
-        data={barChartData}
-        // margin={{ top: 30, right: 10, left: 10, bottom: 20 }}
-      >
-        <CartesianGrid
-          vertical={false}
-          height={300}
-          stroke={theme.palette.borders.paper}
-        />
-        <XAxis
-          dataKey="timestamp"
-          tickLine={false}
-          tickFormatter={formatDate}
-          interval={0}
-        />
-        {/* <XAxis
-          dataKey="timestamp"
-          axisLine={false}
-          tickLine={false}
-          type={'category'}
-          domain={[(min: number) => min, (max: number) => max]}
-          interval={0}
-          scale="time"
-          tick={<XAxisTick xAxisTickFormat={'date'} />}
-        /> */}
-        <YAxis
-          tickLine={false}
-          axisLine={false}
-          tickFormatter={(v: number) => yAxisTickHandler(v)}
-        />
-        <Tooltip
-          wrapperStyle={{ outline: 'none' }}
-          content={<BarChartToolTip barConfig={barConfig} />}
-          cursor={{ fill: 'transparent' }}
-          position={{ y: 0 }}
-        />
-        {barConfig.map(({ dataKey, fill }, index) => (
-          <Bar
-            key={index}
-            dataKey={dataKey}
-            fill={fill}
-            radius={[8, 8, 0, 0]}
+    <Box>
+      {noChartData ? (
+        <Box sx={{ marginLeft: theme.spacing(3), marginTop: theme.spacing(6) }}>
+          <FormattedMessage
+            defaultMessage={'You have no active orders or historical data.'}
           />
-        ))}
-      </RechartsBarChart>
-    </ResponsiveContainer>
+        </Box>
+      ) : (
+        <ResponsiveContainer width="100%" height={300}>
+          <RechartsBarChart
+            barSize={7}
+            data={barChartData}
+            margin={{ top: 30, right: 10, left: 10, bottom: 0 }}
+          >
+            <CartesianGrid
+              vertical={false}
+              stroke={theme.palette.borders.paper}
+            />
+            <XAxis
+              dataKey="timestamp"
+              tickLine={false}
+              tickFormatter={formatDate}
+              axisLine={{ stroke: theme.palette.borders.paper }}
+              interval={0}
+            />
+            <YAxis
+              tickLine={false}
+              axisLine={false}
+              tickFormatter={(v: number) => yAxisTickHandler(v)}
+            />
+            <Tooltip
+              wrapperStyle={{ outline: 'none' }}
+              content={<BarChartToolTip barConfig={barConfig} />}
+              cursor={{ fill: 'transparent' }}
+              position={{ y: 0 }}
+            />
+
+            {barConfig.map(({ dataKey, fill }, index) => (
+              <Bar
+                key={index}
+                dataKey={dataKey}
+                fill={fill}
+                radius={[8, 8, 0, 0]}
+              />
+            ))}
+          </RechartsBarChart>
+        </ResponsiveContainer>
+      )}
+    </Box>
   );
 };
 

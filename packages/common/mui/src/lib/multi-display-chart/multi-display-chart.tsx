@@ -2,6 +2,7 @@ import { useState, ReactNode } from 'react';
 import { Box, styled, useTheme } from '@mui/material';
 import { TradeSummaryBox } from '../trade-summary-box/trade-summary-box';
 import { H4, Body } from '../typography/typography';
+import { NotionalTheme } from '@notional-finance/styles';
 import {
   ChartHeader,
   ChartHeaderDataProps,
@@ -23,6 +24,12 @@ export interface ChartComponentsProps {
   chartHeaderTotalsData?: ChartHeaderTotalsDataProps[];
   chartInfoBoxData?: chartInfoBoxDataProps[];
   bottomLabel?: ReactNode;
+  hideTopGridLine?: boolean;
+}
+
+export interface ChartContainerProps {
+  theme: NotionalTheme;
+  hideTopGridLine?: boolean;
 }
 
 interface MultiDisplayChartProps {
@@ -38,6 +45,8 @@ export const MultiDisplayChart = ({
   const [chartInfoBoxActive, setChartInfoBoxActive] = useState<
     boolean | undefined
   >(undefined);
+
+  console.log({ currentChart });
 
   return (
     <TradeSummaryBox sx={{ width: '100%', padding: theme.spacing(3) }}>
@@ -80,7 +89,12 @@ export const MultiDisplayChart = ({
               />
             )}
           </Box>
-          <ChartContainer>{currentChart?.Component}</ChartContainer>
+          <ChartContainer
+            hideTopGridLine={currentChart?.hideTopGridLine}
+            theme={theme}
+          >
+            {currentChart?.Component}
+          </ChartContainer>
         </>
       ) : (
         <>
@@ -96,7 +110,12 @@ export const MultiDisplayChart = ({
               chartHeaderTotalsData={currentChart?.chartHeaderTotalsData}
             />
           )}
-          <ChartContainer>{currentChart?.Component}</ChartContainer>
+          <ChartContainer
+            hideTopGridLine={currentChart?.hideTopGridLine}
+            theme={theme}
+          >
+            {currentChart?.Component}
+          </ChartContainer>
           {currentChart?.bottomLabel && (
             <Body sx={{ textAlign: 'center', marginTop: theme.spacing(1) }}>
               {currentChart.bottomLabel}
@@ -116,8 +135,10 @@ export const MultiDisplayChart = ({
   );
 };
 
-export const ChartContainer = styled(Box)(
-  ({ theme }) => `
+export const ChartContainer = styled(Box, {
+  shouldForwardProp: (prop: string) => prop !== 'hideTopGridLine',
+})(
+  ({ hideTopGridLine, theme }: ChartContainerProps) => `
   width: 100%;
   height: 100%;
   font-size: ${theme.typography.body1.fontSize};
@@ -125,10 +146,8 @@ export const ChartContainer = styled(Box)(
     filter: drop-shadow(${theme.shape.chartLineShadow});
   }
   .recharts-wrapper .recharts-cartesian-grid-horizontal line:first-child,
-  .recharts-wrapper .recharts-cartesian-grid-horizontal line:last-child,
-  .recharts-wrapper .recharts-cartesian-grid-vertical line:first-child,
-  .recharts-wrapper .recharts-cartesian-grid-vertical line:last-child {
-    stroke-opacity: 0 !important;
+  .recharts-wrapper .recharts-cartesian-grid-horizontal line:last-child {
+    stroke-opacity: ${hideTopGridLine ? '0 !important' : ''};
   }
 `
 );
