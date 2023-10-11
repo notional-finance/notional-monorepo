@@ -39,7 +39,7 @@ export const Confirmation2 = ({
 }: ConfirmationProps) => {
   const theme = useTheme();
   const { state, updateState } = context;
-  const { populatedTransaction, transactionError, debt, collateral } = state;
+  const { populatedTransaction, transactionError, debt, collateral, tradeType } = state;
   const onTxnCancel = useCallback(() => {
     updateState({ confirm: false });
   }, [updateState]);
@@ -124,6 +124,7 @@ export const Confirmation2 = ({
         }
         onSubmit={() =>
           onSubmit(
+            tradeType || 'unknown',
             populatedTransaction,
             [debt, collateral].filter(
               (t) => t !== undefined

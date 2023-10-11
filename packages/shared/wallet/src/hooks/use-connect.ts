@@ -43,7 +43,7 @@ export const useConnect = () => {
   const disconnectWallet = useCallback(() => {
     if (currentLabel) {
       disconnect({ label: currentLabel });
-      trackEvent('DISCONNECT_WALLET', { wallet: currentLabel });
+      trackEvent('DisconnectWallet', { wallet: currentLabel });
     }
     updateNotional({ wallet: undefined });
   }, [disconnect, currentLabel, updateNotional]);

@@ -30,14 +30,19 @@ function useSubmitTransaction() {
 
   const submitTransaction = useCallback(
     async (
+      transactionLabel: string,
       populatedTransaction: PopulatedTransaction,
       tokens?: TokenDefinition[]
     ) => {
       if (!signer) throw Error('Signer undefined');
       const tx = await signer.sendTransaction(populatedTransaction);
-      trackEvent('CONFIRM_TXN', { url: pathname });
-
       const { hash } = tx;
+      trackEvent('SubmitTxn', {
+        url: pathname,
+        txnHash: hash,
+        transactionLabel,
+      });
+
       updateNotional({
         sentTransactions: Object.assign(sentTransactions, {
           [hash]: tx,
@@ -161,12 +166,13 @@ export function useTransactionStatus() {
 
   const onSubmit = useCallback(
     (
+      transactionLabel: string,
       populatedTransaction?: PopulatedTransaction,
       tokens?: TokenDefinition[]
     ) => {
       if (populatedTransaction) {
         setTransactionStatus(TransactionStatus.WAIT_USER_CONFIRM);
-        submitTransaction(populatedTransaction, tokens)
+        submitTransaction(transactionLabel, populatedTransaction, tokens)
           .then((hash) => {
             setTransactionStatus(TransactionStatus.SUBMITTED);
             setTransactionHash(hash);
@@ -174,7 +180,7 @@ export function useTransactionStatus() {
           .catch((e) => {
             logError(e, 'use-transaction', 'onSubmit');
             // If we see an error here it is most likely due to user rejection
-            trackEvent('REJECT_TXN', { url: pathname });
+            trackEvent('RejectTxn', { url: pathname });
             setTransactionStatus(TransactionStatus.NONE);
           });
       }

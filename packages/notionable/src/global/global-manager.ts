@@ -139,7 +139,7 @@ export const loadGlobalManager = (
     distinctUntilChanged((p, c) => p.hasContestNFT === c.hasContestNFT),
     tap(({ hasContestNFT, selectedAccount, contestTokenId }) => {
       if (selectedAccount && hasContestNFT === BETA_ACCESS.CONFIRMED) {
-        trackEvent('NFT_UNLOCK', {
+        trackEvent('NFTUnlock', {
           selectedAccount,
           contestTokenId: contestTokenId || 'unknown',
         });

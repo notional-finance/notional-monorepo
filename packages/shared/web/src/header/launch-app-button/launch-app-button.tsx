@@ -5,12 +5,7 @@ import { Link } from 'react-router-dom';
 import { FormattedMessage } from 'react-intl';
 import { LaunchIcon } from '@notional-finance/icons';
 
-/* eslint-disable-next-line */
-export interface LaunchAppButtonProps {
-  onLaunch: () => void;
-}
-
-export function LaunchAppButton({ onLaunch }: LaunchAppButtonProps) {
+export function LaunchAppButton() {
   const theme = useNotionalTheme(THEME_VARIANTS.LIGHT);
 
   return (
@@ -19,7 +14,6 @@ export function LaunchAppButton({ onLaunch }: LaunchAppButtonProps) {
       to="/portfolio/overview"
       variant="outlined"
       color="primary"
-      onClick={onLaunch}
       endIcon={
         <LaunchIcon
           sx={{

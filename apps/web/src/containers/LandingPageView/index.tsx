@@ -1,6 +1,5 @@
 import { Box, ThemeProvider } from '@mui/material';
 import { THEME_VARIANTS } from '@notional-finance/util';
-import { trackEvent } from '@notional-finance/helpers';
 import {
   OurBackers,
   NotionalBlog,
@@ -23,16 +22,13 @@ import {
 export const LandingPageView = () => {
   const theme = useNotionalTheme(THEME_VARIANTS.DARK, 'landing');
   const lightTheme = useNotionalTheme(THEME_VARIANTS.LIGHT);
-  const handleAppLaunch = () => {
-    trackEvent('LAUNCH_APP');
-  };
 
   return (
     <ThemeProvider theme={theme}>
       <FeatureLoader backgroundColor={colors.black}>
         <>
           <Header>
-            <LaunchAppButton onLaunch={handleAppLaunch} />
+            <LaunchAppButton />
           </Header>
           <Box
             sx={{

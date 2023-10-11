@@ -18,9 +18,9 @@ const PROXY_HOST =
 type RouteState = { routeType: RouteType } | undefined;
 type Route = Location<RouteState>;
 
-export function initPlausible() {}
-
-export function trackEvent(category: string, props?: any) {}
+export function trackEvent(category: string, props?: Record<string, unknown>) {
+  analytics.track(category, props);
+}
 
 export function trackOutboundLink(href: string) {
   const url = new URL(href);
@@ -37,10 +37,6 @@ export function trackOutboundLink(href: string) {
 //   // page
 //   // user id
 //   // confirmation
-
-// }
-
-// export function trackTransactionFlow() {
 
 // }
 
@@ -61,9 +57,8 @@ export function trackPageView(
   prevLocation?: Route
 ) {
   analytics.page(
-    currentLocation.state?.routeType || currentLocation.pathname === '/'
-      ? 'Landing'
-      : 'unknown',
+    currentLocation.state?.routeType ||
+      (currentLocation.pathname === '/' ? 'Landing' : 'unknown'),
     currentLocation.pathname,
     {
       selectedNetwork,

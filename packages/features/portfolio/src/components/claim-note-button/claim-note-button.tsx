@@ -56,7 +56,7 @@ export const ClaimNoteButton = () => {
       accountBalances: [],
       maxWithdraw: false,
     });
-    onSubmit(await txn);
+    onSubmit('ClaimNOTE', await txn);
   }, [onSubmit, isReadOnlyAddress, account, network]);
 
   return (
