@@ -22,7 +22,12 @@ export enum TransactionStatus {
 
 function useSubmitTransaction() {
   const {
-    globalState: { wallet, sentTransactions, awaitingBalanceChanges },
+    globalState: {
+      wallet,
+      sentTransactions,
+      awaitingBalanceChanges,
+      selectedNetwork,
+    },
     updateNotional,
   } = useNotionalContext();
   const signer = wallet?.signer;
@@ -41,6 +46,7 @@ function useSubmitTransaction() {
         url: pathname,
         txnHash: hash,
         transactionLabel,
+        selectedNetwork,
       });
 
       updateNotional({
@@ -54,7 +60,14 @@ function useSubmitTransaction() {
 
       return hash;
     },
-    [updateNotional, signer, sentTransactions, pathname, awaitingBalanceChanges]
+    [
+      updateNotional,
+      signer,
+      sentTransactions,
+      pathname,
+      awaitingBalanceChanges,
+      selectedNetwork,
+    ]
   );
 
   return {
@@ -180,12 +193,16 @@ export function useTransactionStatus() {
           .catch((e) => {
             logError(e, 'use-transaction', 'onSubmit');
             // If we see an error here it is most likely due to user rejection
-            trackEvent('RejectTxn', { url: pathname, transactionLabel });
+            trackEvent('RejectTxn', {
+              url: pathname,
+              transactionLabel,
+              selectedNetwork: network,
+            });
             setTransactionStatus(TransactionStatus.NONE);
           });
       }
     },
-    [submitTransaction, pathname]
+    [submitTransaction, pathname, network]
   );
 
   return {

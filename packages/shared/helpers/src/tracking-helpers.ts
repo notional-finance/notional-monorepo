@@ -42,11 +42,11 @@ export function trackOutboundLink(href: string) {
 
 export function identify(
   account: string,
-  network: Network | undefined,
+  selectedNetwork: Network | undefined,
   walletLabel: string
 ) {
   analytics.identify(account, {
-    network,
+    selectedNetwork,
     walletLabel,
   });
 }

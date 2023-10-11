@@ -43,10 +43,10 @@ export const useConnect = () => {
   const disconnectWallet = useCallback(() => {
     if (currentLabel) {
       disconnect({ label: currentLabel });
-      trackEvent('DisconnectWallet', { wallet: currentLabel });
+      trackEvent('DisconnectWallet', { wallet: currentLabel, selectedNetwork });
     }
     updateNotional({ wallet: undefined });
-  }, [disconnect, currentLabel, updateNotional]);
+  }, [disconnect, currentLabel, updateNotional, selectedNetwork]);
 
   // Listens for wallet changes and sets the primary wallet as well as sends the
   // addresses to the Notional global state
