@@ -1,11 +1,7 @@
 import { useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Box } from '@mui/material';
-import {
-  useNotionalContext,
-  useNotionalError,
-} from '@notional-finance/notionable-hooks';
-import { usePageTracking } from '@notional-finance/helpers';
+import { useNotionalError } from '@notional-finance/notionable-hooks';
 
 interface RouteContainerProps {
   children: React.ReactNode | React.ReactNode[];
@@ -14,10 +10,6 @@ interface RouteContainerProps {
 const RouteContainer = ({ children }: RouteContainerProps) => {
   const history = useHistory();
   const { error } = useNotionalError();
-  const {
-    globalState: { selectedNetwork },
-  } = useNotionalContext();
-  usePageTracking(selectedNetwork);
 
   useEffect(() => {
     if (error) {

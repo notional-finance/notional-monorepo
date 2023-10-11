@@ -2,8 +2,9 @@ import { CompatRoute } from 'react-router-dom-v5-compat';
 import { Footer, Header } from '@notional-finance/shared-web';
 import { WalletSelector } from '@notional-finance/wallet';
 import { Box, styled } from '@mui/material';
-import { useLocation } from 'react-router';
 import { RouteType } from '@notional-finance/util';
+import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
+import { usePageTrack } from '@notional-finance/helpers';
 
 const AppLayoutRoute = ({
   component: Component,
@@ -14,17 +15,13 @@ const AppLayoutRoute = ({
   path: string;
   routeType: RouteType;
 }) => {
-  const location = useLocation();
-  location.state = {
-    ...(location['state'] as Record<string, unknown>),
-    routeType,
-  };
+  const selectedNetwork = useSelectedNetwork();
+  usePageTrack(routeType, selectedNetwork);
 
   return (
     <CompatRoute
       path={path}
       key={path}
-      location={location}
       render={(matchProps: Record<string, unknown>) => (
         <Box>
           <AppShell>

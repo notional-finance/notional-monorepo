@@ -1,7 +1,9 @@
-import { CompatRoute, useLocation } from 'react-router-dom-v5-compat';
+import { CompatRoute } from 'react-router-dom-v5-compat';
 import { Box, styled } from '@mui/material';
 import { colors } from '@notional-finance/styles';
 import { RouteType } from '@notional-finance/util';
+import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
+import { usePageTrack } from '@notional-finance/helpers';
 
 const LandingPageLayoutRoute = ({
   component: Component,
@@ -12,11 +14,8 @@ const LandingPageLayoutRoute = ({
   path: string;
   routeType: RouteType;
 }) => {
-  const location = useLocation();
-  location.state = {
-    ...(location['state'] as Record<string, unknown>),
-    routeType,
-  };
+  const selectedNetwork = useSelectedNetwork();
+  usePageTrack(routeType, selectedNetwork);
 
   return (
     <CompatRoute

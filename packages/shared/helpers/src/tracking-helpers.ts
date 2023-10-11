@@ -6,7 +6,7 @@ import {
 import { AnalyticsBrowser } from '@segment/analytics-next';
 import { Location } from 'history';
 import { useEffect, useState } from 'react';
-import { useHistory } from 'react-router';
+import { useHistory, useLocation } from 'react-router';
 
 export const analytics = AnalyticsBrowser.load({
   writeKey: 'XZALrDl4xda9wqUZLkoZ3qKvrtLYOXO9',
@@ -62,37 +62,19 @@ export function trackPageView(
     currentLocation.pathname,
     {
       selectedNetwork,
+      isEntry: prevLocation === undefined,
       prevPath: prevLocation?.pathname,
       prevRouteType: prevLocation?.state?.routeType,
     }
   );
 }
 
-export const usePageTracking = (selectedNetwork?: Network) => {
+const useBackStack = () => {
   const history = useHistory<RouteState>();
-  const [backStack, setBackStack] = useState<Route[]>([]);
-
-  useEffect(() => {
-    const defaultNetwork = getDefaultNetworkFromHostname(
-      window.location.hostname
-    );
-    setBackStack([history.location]);
-    trackPageView(defaultNetwork, history.location);
-    // NOTE: history.listen does not track the initial landing page so all of the data
-    // is initialized here.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const [backStack, setBackStack] = useState<Route[]>([history.location]);
 
   useEffect(() => {
     return history.listen((location, action) => {
-      if (selectedNetwork) {
-        trackPageView(
-          selectedNetwork,
-          location,
-          backStack[backStack.length - 1]
-        );
-      }
-
       setBackStack((backStack) => {
         switch (action) {
           case 'POP':
@@ -104,5 +86,29 @@ export const usePageTracking = (selectedNetwork?: Network) => {
         }
       });
     });
-  }, [setBackStack, history, backStack, selectedNetwork]);
+  }, [setBackStack, history, backStack]);
+
+  return backStack;
+};
+
+export const usePageTrack = (
+  routeType: RouteType,
+  selectedNetwork?: Network
+) => {
+  const location = useLocation();
+  const backStack = useBackStack();
+
+  useEffect(() => {
+    location.state = {
+      ...(location['state'] as Record<string, unknown>),
+      routeType,
+    };
+    trackPageView(
+      selectedNetwork ||
+        getDefaultNetworkFromHostname(window.location.hostname),
+      location as Location<RouteState>,
+      backStack[backStack.length - 2]
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location]);
 };
