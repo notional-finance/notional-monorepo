@@ -21,7 +21,7 @@ import {
   onNetworkPending,
   onSelectedNetworkChange,
 } from './logic';
-import { trackEvent } from '@notional-finance/helpers';
+import { identify, trackEvent } from '@notional-finance/helpers';
 import { Contract } from 'ethers';
 
 const vpnCheck = 'https://detect.notional.finance/';
@@ -114,12 +114,9 @@ export const loadGlobalManager = (
 
   const onAccountConnect$ = state$.pipe(
     distinctUntilChanged((p, c) => p.selectedAccount === c.selectedAccount),
-    tap(({ selectedAccount, wallet }) => {
+    tap(({ selectedAccount, wallet, selectedNetwork }) => {
       if (selectedAccount) {
-        trackEvent('CONNECT_WALLET', {
-          selectedAccount,
-          wallet: wallet?.label || 'unknown',
-        });
+        identify(selectedAccount, selectedNetwork, wallet?.label || 'unknown');
       }
     }),
     filter(({ selectedAccount }) => selectedAccount !== undefined),
