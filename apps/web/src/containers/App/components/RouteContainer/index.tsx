@@ -1,18 +1,23 @@
 import { useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Box } from '@mui/material';
-import Plausible from 'plausible-tracker';
-import { useNotionalError } from '@notional-finance/notionable-hooks';
+import {
+  useNotionalContext,
+  useNotionalError,
+} from '@notional-finance/notionable-hooks';
+import { usePageTracking } from '@notional-finance/helpers';
 
 interface RouteContainerProps {
   children: React.ReactNode | React.ReactNode[];
-  onRouteChange: (path: string) => void;
 }
 
-const RouteContainer = ({ children, onRouteChange }: RouteContainerProps) => {
+const RouteContainer = ({ children }: RouteContainerProps) => {
   const history = useHistory();
   const { error } = useNotionalError();
-  const { trackPageview } = Plausible();
+  const {
+    globalState: { selectedNetwork },
+  } = useNotionalContext();
+  usePageTracking(selectedNetwork);
 
   useEffect(() => {
     if (error) {
@@ -21,13 +26,6 @@ const RouteContainer = ({ children, onRouteChange }: RouteContainerProps) => {
       );
     }
   }, [error, history]);
-
-  useEffect(() => {
-    return history.listen((location) => {
-      onRouteChange(location.pathname);
-      trackPageview();
-    });
-  }, [history, onRouteChange, trackPageview]);
 
   return <Box height="100%">{children}</Box>;
 };
