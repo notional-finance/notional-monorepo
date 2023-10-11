@@ -5,6 +5,7 @@ import { Box, styled } from '@mui/material';
 import { RouteType } from '@notional-finance/util';
 import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 import { usePageTrack } from '@notional-finance/helpers';
+import { useLocation } from 'react-router';
 
 const AppLayoutRoute = ({
   component: Component,
@@ -15,13 +16,14 @@ const AppLayoutRoute = ({
   path: string;
   routeType: RouteType;
 }) => {
+  const location = useLocation();
   const selectedNetwork = useSelectedNetwork();
   usePageTrack(routeType, selectedNetwork);
 
   return (
     <CompatRoute
       path={path}
-      key={path}
+      key={location.hash}
       render={(matchProps: Record<string, unknown>) => (
         <Box>
           <AppShell>
