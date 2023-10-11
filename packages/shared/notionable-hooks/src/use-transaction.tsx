@@ -180,7 +180,7 @@ export function useTransactionStatus() {
           .catch((e) => {
             logError(e, 'use-transaction', 'onSubmit');
             // If we see an error here it is most likely due to user rejection
-            trackEvent('RejectTxn', { url: pathname });
+            trackEvent('RejectTxn', { url: pathname, transactionLabel });
             setTransactionStatus(TransactionStatus.NONE);
           });
       }
