@@ -21,9 +21,16 @@ type Route = Location<RouteState>;
 export function initPlausible() {}
 
 export function trackEvent(category: string, props?: any) {}
-// export function trackOutboundLink() {
 
-// }
+export function trackOutboundLink(href: string) {
+  const url = new URL(href);
+  let event = 'Link';
+  if (url.hostname === 'docs.notional.finance') event = 'Doc Link';
+  analytics.track(event, {
+    hostname: url.hostname,
+    href,
+  });
+}
 
 // export function trackInputInteraction() {
 //   // input fields

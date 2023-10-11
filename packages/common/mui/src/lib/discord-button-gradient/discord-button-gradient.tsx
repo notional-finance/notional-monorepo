@@ -1,6 +1,7 @@
 import { useTheme, Box, Button } from '@mui/material';
 import { ButtonText } from '../typography/typography';
 import { DiscordIcon } from '@notional-finance/icons';
+import { trackOutboundLink } from '@notional-finance/helpers';
 
 /* eslint-disable-next-line */
 export interface DiscordButtonGradientProps {
@@ -39,6 +40,7 @@ export function DiscordButtonGradient({
       href="https://discord.notional.finance"
       target="_blank"
       rel="noreferrer"
+      onClick={() => trackOutboundLink('https://discord.notional.finance')}
     >
       <ButtonText fontWeight="medium">{buttonText}</ButtonText>
     </Button>
