@@ -439,6 +439,14 @@ export type BalanceSnapshot = {
   _accumulatedCostRealized: Scalars['BigInt'];
   /** Cumulative realized cost using adjusted cost basis for internal PnL calculations */
   _accumulatedCostAdjustedBasis: Scalars['BigInt'];
+  /** Current account incentive debt for NOTE */
+  currentNOTEIncentiveDebt: Scalars['BigInt'];
+  /** Previous account incentive debt for NOTE */
+  previousNOTEIncentiveDebt: Scalars['BigInt'];
+  /** Total NOTE accrued over the lifetime of this balance */
+  totalNOTEAccrued: Scalars['BigInt'];
+  /** NOTE Earnings adjusted for balance changes */
+  adjustedNOTEEarned: Scalars['BigInt'];
   profitLossLineItems?: Maybe<Array<ProfitLossLineItem>>;
 };
 
@@ -606,6 +614,38 @@ export type BalanceSnapshot_filter = {
   _accumulatedCostAdjustedBasis_lte?: InputMaybe<Scalars['BigInt']>;
   _accumulatedCostAdjustedBasis_in?: InputMaybe<Array<Scalars['BigInt']>>;
   _accumulatedCostAdjustedBasis_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  currentNOTEIncentiveDebt?: InputMaybe<Scalars['BigInt']>;
+  currentNOTEIncentiveDebt_not?: InputMaybe<Scalars['BigInt']>;
+  currentNOTEIncentiveDebt_gt?: InputMaybe<Scalars['BigInt']>;
+  currentNOTEIncentiveDebt_lt?: InputMaybe<Scalars['BigInt']>;
+  currentNOTEIncentiveDebt_gte?: InputMaybe<Scalars['BigInt']>;
+  currentNOTEIncentiveDebt_lte?: InputMaybe<Scalars['BigInt']>;
+  currentNOTEIncentiveDebt_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  currentNOTEIncentiveDebt_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  previousNOTEIncentiveDebt?: InputMaybe<Scalars['BigInt']>;
+  previousNOTEIncentiveDebt_not?: InputMaybe<Scalars['BigInt']>;
+  previousNOTEIncentiveDebt_gt?: InputMaybe<Scalars['BigInt']>;
+  previousNOTEIncentiveDebt_lt?: InputMaybe<Scalars['BigInt']>;
+  previousNOTEIncentiveDebt_gte?: InputMaybe<Scalars['BigInt']>;
+  previousNOTEIncentiveDebt_lte?: InputMaybe<Scalars['BigInt']>;
+  previousNOTEIncentiveDebt_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  previousNOTEIncentiveDebt_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  totalNOTEAccrued?: InputMaybe<Scalars['BigInt']>;
+  totalNOTEAccrued_not?: InputMaybe<Scalars['BigInt']>;
+  totalNOTEAccrued_gt?: InputMaybe<Scalars['BigInt']>;
+  totalNOTEAccrued_lt?: InputMaybe<Scalars['BigInt']>;
+  totalNOTEAccrued_gte?: InputMaybe<Scalars['BigInt']>;
+  totalNOTEAccrued_lte?: InputMaybe<Scalars['BigInt']>;
+  totalNOTEAccrued_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  totalNOTEAccrued_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  adjustedNOTEEarned?: InputMaybe<Scalars['BigInt']>;
+  adjustedNOTEEarned_not?: InputMaybe<Scalars['BigInt']>;
+  adjustedNOTEEarned_gt?: InputMaybe<Scalars['BigInt']>;
+  adjustedNOTEEarned_lt?: InputMaybe<Scalars['BigInt']>;
+  adjustedNOTEEarned_gte?: InputMaybe<Scalars['BigInt']>;
+  adjustedNOTEEarned_lte?: InputMaybe<Scalars['BigInt']>;
+  adjustedNOTEEarned_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  adjustedNOTEEarned_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   profitLossLineItems_?: InputMaybe<ProfitLossLineItem_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
@@ -642,6 +682,10 @@ export type BalanceSnapshot_orderBy =
   | '_accumulatedBalance'
   | '_accumulatedCostRealized'
   | '_accumulatedCostAdjustedBasis'
+  | 'currentNOTEIncentiveDebt'
+  | 'previousNOTEIncentiveDebt'
+  | 'totalNOTEAccrued'
+  | 'adjustedNOTEEarned'
   | 'profitLossLineItems';
 
 export type Balance_filter = {
@@ -833,6 +877,10 @@ export type Balance_orderBy =
   | 'current___accumulatedBalance'
   | 'current___accumulatedCostRealized'
   | 'current___accumulatedCostAdjustedBasis'
+  | 'current__currentNOTEIncentiveDebt'
+  | 'current__previousNOTEIncentiveDebt'
+  | 'current__totalNOTEAccrued'
+  | 'current__adjustedNOTEEarned'
   | 'snapshots';
 
 export type BlockChangedFilter = {
@@ -2712,6 +2760,8 @@ export type ProfitLossLineItem = {
   impliedFixedRate?: Maybe<Scalars['BigInt']>;
   /** Set to true for line items that do not materially change the balance at the end of the txn */
   isTransientLineItem: Scalars['Boolean'];
+  /** Set to a value that points to the token that generated an incentive payment */
+  incentivizedToken?: Maybe<Token>;
 };
 
 export type ProfitLossLineItem_filter = {
@@ -2917,6 +2967,27 @@ export type ProfitLossLineItem_filter = {
   isTransientLineItem_not?: InputMaybe<Scalars['Boolean']>;
   isTransientLineItem_in?: InputMaybe<Array<Scalars['Boolean']>>;
   isTransientLineItem_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  incentivizedToken?: InputMaybe<Scalars['String']>;
+  incentivizedToken_not?: InputMaybe<Scalars['String']>;
+  incentivizedToken_gt?: InputMaybe<Scalars['String']>;
+  incentivizedToken_lt?: InputMaybe<Scalars['String']>;
+  incentivizedToken_gte?: InputMaybe<Scalars['String']>;
+  incentivizedToken_lte?: InputMaybe<Scalars['String']>;
+  incentivizedToken_in?: InputMaybe<Array<Scalars['String']>>;
+  incentivizedToken_not_in?: InputMaybe<Array<Scalars['String']>>;
+  incentivizedToken_contains?: InputMaybe<Scalars['String']>;
+  incentivizedToken_contains_nocase?: InputMaybe<Scalars['String']>;
+  incentivizedToken_not_contains?: InputMaybe<Scalars['String']>;
+  incentivizedToken_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  incentivizedToken_starts_with?: InputMaybe<Scalars['String']>;
+  incentivizedToken_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  incentivizedToken_not_starts_with?: InputMaybe<Scalars['String']>;
+  incentivizedToken_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  incentivizedToken_ends_with?: InputMaybe<Scalars['String']>;
+  incentivizedToken_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  incentivizedToken_not_ends_with?: InputMaybe<Scalars['String']>;
+  incentivizedToken_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  incentivizedToken_?: InputMaybe<Token_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<ProfitLossLineItem_filter>>>;
@@ -2955,6 +3026,10 @@ export type ProfitLossLineItem_orderBy =
   | 'balanceSnapshot___accumulatedBalance'
   | 'balanceSnapshot___accumulatedCostRealized'
   | 'balanceSnapshot___accumulatedCostAdjustedBasis'
+  | 'balanceSnapshot__currentNOTEIncentiveDebt'
+  | 'balanceSnapshot__previousNOTEIncentiveDebt'
+  | 'balanceSnapshot__totalNOTEAccrued'
+  | 'balanceSnapshot__adjustedNOTEEarned'
   | 'account'
   | 'account__id'
   | 'account__firstUpdateBlockNumber'
@@ -3017,7 +3092,28 @@ export type ProfitLossLineItem_orderBy =
   | 'realizedPrice'
   | 'spotPrice'
   | 'impliedFixedRate'
-  | 'isTransientLineItem';
+  | 'isTransientLineItem'
+  | 'incentivizedToken'
+  | 'incentivizedToken__id'
+  | 'incentivizedToken__firstUpdateBlockNumber'
+  | 'incentivizedToken__firstUpdateTimestamp'
+  | 'incentivizedToken__firstUpdateTransactionHash'
+  | 'incentivizedToken__lastUpdateBlockNumber'
+  | 'incentivizedToken__lastUpdateTimestamp'
+  | 'incentivizedToken__lastUpdateTransactionHash'
+  | 'incentivizedToken__tokenType'
+  | 'incentivizedToken__tokenInterface'
+  | 'incentivizedToken__currencyId'
+  | 'incentivizedToken__name'
+  | 'incentivizedToken__symbol'
+  | 'incentivizedToken__decimals'
+  | 'incentivizedToken__precision'
+  | 'incentivizedToken__totalSupply'
+  | 'incentivizedToken__hasTransferFee'
+  | 'incentivizedToken__isfCashDebt'
+  | 'incentivizedToken__maturity'
+  | 'incentivizedToken__vaultAddress'
+  | 'incentivizedToken__tokenAddress';
 
 export type Query = {
   token?: Maybe<Token>;
@@ -6537,6 +6633,10 @@ export type BalanceSnapshotResolvers<ContextType = MeshContext & { chainName: st
   _accumulatedBalance?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   _accumulatedCostRealized?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   _accumulatedCostAdjustedBasis?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  currentNOTEIncentiveDebt?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  previousNOTEIncentiveDebt?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  totalNOTEAccrued?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  adjustedNOTEEarned?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   profitLossLineItems?: Resolver<Maybe<Array<ResolversTypes['ProfitLossLineItem']>>, ParentType, ContextType, RequireFields<BalanceSnapshotprofitLossLineItemsArgs, 'skip' | 'first'>>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
@@ -6723,6 +6823,7 @@ export type ProfitLossLineItemResolvers<ContextType = MeshContext & { chainName:
   spotPrice?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   impliedFixedRate?: Resolver<Maybe<ResolversTypes['BigInt']>, ParentType, ContextType>;
   isTransientLineItem?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  incentivizedToken?: Resolver<Maybe<ResolversTypes['Token']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -7110,7 +7211,7 @@ const notionalV3Transforms = [];
 const additionalTypeDefs = [] as any[];
 const notionalV3Handler = new GraphqlHandler({
               name: "NotionalV3",
-              config: {"endpoint":"https://api.studio.thegraph.com/query/33671/notional-finance-v3-{context.chainName:arbitrum}/v0.1.5"},
+              config: {"endpoint":"https://api.studio.thegraph.com/query/33671/notional-finance-v3-{context.chainName:arbitrum}/v0.0.178"},
               baseDir,
               cache,
               pubsub,
