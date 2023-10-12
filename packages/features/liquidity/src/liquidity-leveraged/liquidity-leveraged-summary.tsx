@@ -1,12 +1,5 @@
 import { Box, useTheme } from '@mui/material';
-import { FaqHeader, Faq, AreaChart } from '@notional-finance/mui';
-import {
-  FaqHeader,
-  Faq,
-  AreaChart,
-  ChartContainer,
-  TotalRow,
-} from '@notional-finance/mui';
+import { FaqHeader, Faq, AreaChart, TotalRow } from '@notional-finance/mui';
 import {
   LiquidationChart,
   PerformanceChart,
