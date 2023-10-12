@@ -12,6 +12,7 @@ import {
   useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
 import { NotionalTheme } from '@notional-finance/styles';
+import { trackOutboundLink } from '@notional-finance/helpers';
 
 interface PendingTransactionProps {
   hash: string;
@@ -29,6 +30,7 @@ export const PendingTransaction = ({
   const theme = useTheme();
   const selectedNetwork = useSelectedNetwork();
   const [showAlert, setShowAlert] = useState<boolean>(false);
+  const txnLink = getEtherscanTransactionLink(hash, selectedNetwork);
 
   useEffect(() => {
     if (showAlert) {
@@ -65,10 +67,11 @@ export const PendingTransaction = ({
               defaultMessage={'Check the status of your transaction:'}
             />
             <StyledLink
-              href={getEtherscanTransactionLink(hash, selectedNetwork)}
+              href={txnLink}
               target="_blank"
               rel="noreferrer"
               className="etherscan-link"
+              onClick={() => trackOutboundLink(txnLink)}
             >
               <Box
                 sx={{

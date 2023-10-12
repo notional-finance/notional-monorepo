@@ -26,7 +26,7 @@ export function useEnablePrimeBorrow() {
         accountBalances: [],
         maxWithdraw: false
       });
-      onSubmit(await txn);
+      onSubmit('EnablePrimeBorrow', await txn);
     }
   }, [network, account?.address, onSubmit]);
 
@@ -39,7 +39,7 @@ export function useEnablePrimeBorrow() {
         accountBalances: [],
         maxWithdraw: false
       });
-      onSubmit(await txn);
+      onSubmit('DisablePrimeBorrow', await txn);
     }
   }, [network, account?.address, onSubmit]);
 

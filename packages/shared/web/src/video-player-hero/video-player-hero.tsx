@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Box, ThemeProvider } from '@mui/material';
 import YouTube from 'react-youtube';
-import { useLocation } from 'react-router';
 import playButtonSvg from '@notional-finance/assets/icons/icon-play-video.svg';
 import aboutUsBackground from '@notional-finance/assets/images/about-us-background.svg';
-import { trackEvent } from '@notional-finance/helpers';
 import { HeadingSubtitle, useWindowDimensions } from '@notional-finance/mui';
 import { YouTubePlayer } from 'youtube-player/dist/types';
 import { useNotionalTheme } from '@notional-finance/styles';
@@ -21,7 +19,6 @@ export const VideoPlayerHero = ({
   titleText,
   heightUnits,
 }: VideoPlayerHeroProps) => {
-  const { pathname } = useLocation();
   const theme = useNotionalTheme(THEME_VARIANTS.DARK);
   const [isVideoPlaying, setVideoPlaying] = useState(false);
   const [videoTarget, setVideoTarget] = useState<YouTubePlayer | undefined>(
@@ -46,7 +43,6 @@ export const VideoPlayerHero = ({
   };
 
   const playVideo = () => {
-    trackEvent('PLAY_VIDEO', { url: pathname });
     setVideoPlaying(true);
     if (videoTarget) {
       videoTarget.playVideo();

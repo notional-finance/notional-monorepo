@@ -3,6 +3,7 @@ import { Body, H3 } from '@notional-finance/mui';
 import { ArrowIcon, DiscordIcon } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
 import { useRef } from 'react';
+import { trackOutboundLink } from '@notional-finance/helpers';
 
 export function ConnectCommunity() {
   const theme = useTheme();
@@ -14,6 +15,7 @@ export function ConnectCommunity() {
       component="a"
       href="https://discord.notional.finance"
       target="_blank"
+      onClick={() => trackOutboundLink('https://discord.notional.finance')}
       rel="noreferrer"
       sx={{
         display: 'flex',

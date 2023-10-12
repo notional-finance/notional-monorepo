@@ -1,15 +1,30 @@
-import PropTypes from 'prop-types';
 import { CompatRoute } from 'react-router-dom-v5-compat';
 import { Footer, Header } from '@notional-finance/shared-web';
 import { WalletSelector } from '@notional-finance/wallet';
 import { Box, styled } from '@mui/material';
+import { RouteType } from '@notional-finance/util';
+import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
+import { usePageTrack } from '@notional-finance/helpers';
+import { useLocation } from 'react-router';
 
-const AppLayoutRoute = ({ component: Component, path, routeKey }) => {
+const AppLayoutRoute = ({
+  component: Component,
+  path,
+  routeType,
+}: {
+  component: React.ElementType;
+  path: string;
+  routeType: RouteType;
+}) => {
+  const location = useLocation();
+  const selectedNetwork = useSelectedNetwork();
+  usePageTrack(routeType, selectedNetwork);
+
   return (
     <CompatRoute
       path={path}
-      key={routeKey}
-      render={(matchProps) => (
+      key={location.hash}
+      render={(matchProps: Record<string, unknown>) => (
         <Box>
           <AppShell>
             <Header>
@@ -27,8 +42,7 @@ const AppLayoutRoute = ({ component: Component, path, routeKey }) => {
   );
 };
 
-const AppShell = styled(Box)(
-  ({ theme }) => `
+const AppShell = styled(Box)`
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -39,30 +53,17 @@ const AppShell = styled(Box)(
     padding-top: 51px;
   },
 
-`
-);
+`;
 
-const MainContent = styled('div')(
-  ({ theme }) => `
+const MainContent = styled('div')`
   display: flex;
   flex-grow: 1;
-  &>div {
+  & > div {
     height: 100%;
     width: 100%;
   }
-`
-);
+`;
 
 const StyledFooter = styled(Footer)({});
-
-AppLayoutRoute.propTypes = {
-  component: PropTypes.elementType.isRequired,
-  path: PropTypes.string.isRequired,
-  routeKey: PropTypes.string,
-};
-
-AppLayoutRoute.defaultProps = {
-  routeKey: '',
-};
 
 export default AppLayoutRoute;

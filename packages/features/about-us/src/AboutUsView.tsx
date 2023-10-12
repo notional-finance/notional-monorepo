@@ -9,16 +9,11 @@ import {
   EmailCaptureSection,
   LandingFooter,
 } from '@notional-finance/shared-web';
-import { trackEvent } from '@notional-finance/helpers';
 import { useNotionalTheme } from '@notional-finance/styles';
 import MeetTheTeam from './MeetTheTeam';
 
 export const AboutUsView = () => {
   const theme = useNotionalTheme(THEME_VARIANTS.LIGHT);
-  const handleAppLaunch = () => {
-    trackEvent('LAUNCH_APP');
-  };
-
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
@@ -28,7 +23,7 @@ export const AboutUsView = () => {
       <FeatureLoader>
         <>
           <Header>
-            <LaunchAppButton onLaunch={handleAppLaunch} />
+            <LaunchAppButton />
           </Header>
           <Box
             sx={{

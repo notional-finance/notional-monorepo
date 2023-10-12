@@ -12,6 +12,7 @@ import {
   MenuItem,
   ListItemIcon,
 } from '@mui/material';
+import { trackOutboundLink } from '@notional-finance/helpers';
 
 export interface DropdownItem {
   label: string;
@@ -75,8 +76,9 @@ export function Dropdown({
     setAnchorEl(event.currentTarget);
   };
 
-  const handleClose = () => {
+  const handleClose = (href?: string) => {
     setAnchorEl(null);
+    if (href) trackOutboundLink(href);
   };
 
   return (
@@ -116,7 +118,7 @@ export function Dropdown({
         id="basic-menu"
         anchorEl={anchorEl}
         open={open}
-        onClose={handleClose}
+        onClose={() => handleClose()}
         transitionDuration={{ exit: 0, enter: 200 }}
         MenuListProps={{
           'aria-labelledby': 'basic-button',
@@ -126,12 +128,15 @@ export function Dropdown({
         {dropDownItems.map(({ label, Icon, href }, index) => (
           <MenuItem
             key={`${label}-${index}`}
-            onClick={handleClose}
+            onClick={() => handleClose(href)}
             component="a"
             target="_blank"
             href={href}
             sx={{
-              borderBottom: LastMenuItem.label === label ? 'none' : theme.shape.borderStandard,
+              borderBottom:
+                LastMenuItem.label === label
+                  ? 'none'
+                  : theme.shape.borderStandard,
               width: '90%',
               margin: 'auto',
               padding: '15px 10px',
