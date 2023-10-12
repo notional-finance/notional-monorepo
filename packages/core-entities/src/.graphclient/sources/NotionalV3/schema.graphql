@@ -357,6 +357,14 @@ type BalanceSnapshot {
   Cumulative realized cost using adjusted cost basis for internal PnL calculations
   """
   _accumulatedCostAdjustedBasis: BigInt!
+  """Current account incentive debt for NOTE"""
+  currentNOTEIncentiveDebt: BigInt!
+  """Previous account incentive debt for NOTE"""
+  previousNOTEIncentiveDebt: BigInt!
+  """Total NOTE accrued over the lifetime of this balance"""
+  totalNOTEAccrued: BigInt!
+  """NOTE Earnings adjusted for balance changes"""
+  adjustedNOTEEarned: BigInt!
   profitLossLineItems(skip: Int = 0, first: Int = 100, orderBy: ProfitLossLineItem_orderBy, orderDirection: OrderDirection, where: ProfitLossLineItem_filter): [ProfitLossLineItem!]
 }
 
@@ -515,6 +523,38 @@ input BalanceSnapshot_filter {
   _accumulatedCostAdjustedBasis_lte: BigInt
   _accumulatedCostAdjustedBasis_in: [BigInt!]
   _accumulatedCostAdjustedBasis_not_in: [BigInt!]
+  currentNOTEIncentiveDebt: BigInt
+  currentNOTEIncentiveDebt_not: BigInt
+  currentNOTEIncentiveDebt_gt: BigInt
+  currentNOTEIncentiveDebt_lt: BigInt
+  currentNOTEIncentiveDebt_gte: BigInt
+  currentNOTEIncentiveDebt_lte: BigInt
+  currentNOTEIncentiveDebt_in: [BigInt!]
+  currentNOTEIncentiveDebt_not_in: [BigInt!]
+  previousNOTEIncentiveDebt: BigInt
+  previousNOTEIncentiveDebt_not: BigInt
+  previousNOTEIncentiveDebt_gt: BigInt
+  previousNOTEIncentiveDebt_lt: BigInt
+  previousNOTEIncentiveDebt_gte: BigInt
+  previousNOTEIncentiveDebt_lte: BigInt
+  previousNOTEIncentiveDebt_in: [BigInt!]
+  previousNOTEIncentiveDebt_not_in: [BigInt!]
+  totalNOTEAccrued: BigInt
+  totalNOTEAccrued_not: BigInt
+  totalNOTEAccrued_gt: BigInt
+  totalNOTEAccrued_lt: BigInt
+  totalNOTEAccrued_gte: BigInt
+  totalNOTEAccrued_lte: BigInt
+  totalNOTEAccrued_in: [BigInt!]
+  totalNOTEAccrued_not_in: [BigInt!]
+  adjustedNOTEEarned: BigInt
+  adjustedNOTEEarned_not: BigInt
+  adjustedNOTEEarned_gt: BigInt
+  adjustedNOTEEarned_lt: BigInt
+  adjustedNOTEEarned_gte: BigInt
+  adjustedNOTEEarned_lte: BigInt
+  adjustedNOTEEarned_in: [BigInt!]
+  adjustedNOTEEarned_not_in: [BigInt!]
   profitLossLineItems_: ProfitLossLineItem_filter
   """Filter for the block changed event."""
   _change_block: BlockChangedFilter
@@ -551,6 +591,10 @@ enum BalanceSnapshot_orderBy {
   _accumulatedBalance
   _accumulatedCostRealized
   _accumulatedCostAdjustedBasis
+  currentNOTEIncentiveDebt
+  previousNOTEIncentiveDebt
+  totalNOTEAccrued
+  adjustedNOTEEarned
   profitLossLineItems
 }
 
@@ -743,6 +787,10 @@ enum Balance_orderBy {
   current___accumulatedBalance
   current___accumulatedCostRealized
   current___accumulatedCostAdjustedBasis
+  current__currentNOTEIncentiveDebt
+  current__previousNOTEIncentiveDebt
+  current__totalNOTEAccrued
+  current__adjustedNOTEEarned
   snapshots
 }
 
@@ -2598,6 +2646,10 @@ type ProfitLossLineItem {
   Set to true for line items that do not materially change the balance at the end of the txn
   """
   isTransientLineItem: Boolean!
+  """
+  Set to a value that points to the token that generated an incentive payment
+  """
+  incentivizedToken: Token
 }
 
 input ProfitLossLineItem_filter {
@@ -2803,6 +2855,27 @@ input ProfitLossLineItem_filter {
   isTransientLineItem_not: Boolean
   isTransientLineItem_in: [Boolean!]
   isTransientLineItem_not_in: [Boolean!]
+  incentivizedToken: String
+  incentivizedToken_not: String
+  incentivizedToken_gt: String
+  incentivizedToken_lt: String
+  incentivizedToken_gte: String
+  incentivizedToken_lte: String
+  incentivizedToken_in: [String!]
+  incentivizedToken_not_in: [String!]
+  incentivizedToken_contains: String
+  incentivizedToken_contains_nocase: String
+  incentivizedToken_not_contains: String
+  incentivizedToken_not_contains_nocase: String
+  incentivizedToken_starts_with: String
+  incentivizedToken_starts_with_nocase: String
+  incentivizedToken_not_starts_with: String
+  incentivizedToken_not_starts_with_nocase: String
+  incentivizedToken_ends_with: String
+  incentivizedToken_ends_with_nocase: String
+  incentivizedToken_not_ends_with: String
+  incentivizedToken_not_ends_with_nocase: String
+  incentivizedToken_: Token_filter
   """Filter for the block changed event."""
   _change_block: BlockChangedFilter
   and: [ProfitLossLineItem_filter]
@@ -2841,6 +2914,10 @@ enum ProfitLossLineItem_orderBy {
   balanceSnapshot___accumulatedBalance
   balanceSnapshot___accumulatedCostRealized
   balanceSnapshot___accumulatedCostAdjustedBasis
+  balanceSnapshot__currentNOTEIncentiveDebt
+  balanceSnapshot__previousNOTEIncentiveDebt
+  balanceSnapshot__totalNOTEAccrued
+  balanceSnapshot__adjustedNOTEEarned
   account
   account__id
   account__firstUpdateBlockNumber
@@ -2904,6 +2981,27 @@ enum ProfitLossLineItem_orderBy {
   spotPrice
   impliedFixedRate
   isTransientLineItem
+  incentivizedToken
+  incentivizedToken__id
+  incentivizedToken__firstUpdateBlockNumber
+  incentivizedToken__firstUpdateTimestamp
+  incentivizedToken__firstUpdateTransactionHash
+  incentivizedToken__lastUpdateBlockNumber
+  incentivizedToken__lastUpdateTimestamp
+  incentivizedToken__lastUpdateTransactionHash
+  incentivizedToken__tokenType
+  incentivizedToken__tokenInterface
+  incentivizedToken__currencyId
+  incentivizedToken__name
+  incentivizedToken__symbol
+  incentivizedToken__decimals
+  incentivizedToken__precision
+  incentivizedToken__totalSupply
+  incentivizedToken__hasTransferFee
+  incentivizedToken__isfCashDebt
+  incentivizedToken__maturity
+  incentivizedToken__vaultAddress
+  incentivizedToken__tokenAddress
 }
 
 type Query {
