@@ -13,8 +13,11 @@ interface SideNavItemProps extends LinkProps {
   firstItem?: boolean;
   open?: boolean;
 }
+interface SideNavOptonsProps {
+  open?: boolean;
+}
 
-export const SideNavOptons = () => {
+export const SideNavOptons = ({ open }: SideNavOptonsProps) => {
   const theme = useTheme();
   const { useOptions } = useSideNav();
   const sideNav = useOptions();
@@ -35,6 +38,7 @@ export const SideNavOptons = () => {
           >
             <Box sx={{ paddingRight: theme.spacing(3), display: 'flex' }}>
               {Icon}
+              {notifications > 0 && open === false && <Dot></Dot>}
             </Box>
             <TitleWrapper>
               <H5
@@ -78,6 +82,21 @@ const TitleWrapper = styled(Box)(
   `
 );
 
+const Dot = styled(Box)(
+  ({ theme }) => `
+    height: 10px;
+    width: 10px;
+    background-color: ${theme.palette.typography.accent};
+    border-radius: 50%;
+    display: none;
+    margin-left: -3px;
+    margin-top: -2px;
+    ${theme.breakpoints.down('lg')} {
+      display: inline-block;
+    }
+  `
+);
+
 const SideNavItem = styled(Link, {
   shouldForwardProp: (prop: string) =>
     prop !== 'selected' && prop !== 'firstItem',
@@ -93,10 +112,10 @@ const SideNavItem = styled(Link, {
     display: flex;
     align-items: center;
     justify-content: flex-start;
+    cursor: pointer;
     color: ${
       selected ? theme.palette.common.white : theme.palette.typography.light
     };
-    cursor: pointer;
     &:hover {
       ${
         !selected
@@ -105,6 +124,7 @@ const SideNavItem = styled(Link, {
       border-radius: 60px;`
           : ''
       }
+      cursor: pointer;
     }
     ${theme.breakpoints.down('lg')} {
         width: ${theme.spacing(33)};
