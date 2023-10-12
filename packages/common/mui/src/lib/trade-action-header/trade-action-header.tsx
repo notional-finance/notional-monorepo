@@ -1,22 +1,28 @@
 import { Box, useTheme } from '@mui/material';
-import { TokenIcon } from '@notional-finance/icons';
+import { DoubleTokenIcon, TokenIcon } from '@notional-finance/icons';
 import { ReactNode } from 'react';
 
 /* eslint-disable-next-line */
 export interface TradeActionHeaderProps {
   token: string;
+  tokenBottom?: string;
   hideTokenName?: boolean;
   actionText: ReactNode;
 }
 
-export function TradeActionHeader({ token, actionText, hideTokenName }: TradeActionHeaderProps) {
+export function TradeActionHeader({
+  token,
+  actionText,
+  hideTokenName,
+  tokenBottom,
+}: TradeActionHeaderProps) {
   const theme = useTheme();
 
   return (
     <Box
       sx={{
-        marginBottom: '1.5625rem',
-        padding: '0.75rem',
+        marginBottom: theme.spacing(3),
+        padding: theme.spacing(2),
         display: 'inline-flex',
         justifyContent: 'center',
         alignItems: 'center',
@@ -26,14 +32,20 @@ export function TradeActionHeader({ token, actionText, hideTokenName }: TradeAct
         border: '1px solid',
         borderImageSource: theme.gradient.aqua,
         borderImageSlice: 1,
-        '&>img': {
-          marginRight: '1rem',
-        },
       }}
     >
-      <TokenIcon symbol={token} size="medium" />
+      {tokenBottom ? (
+        <DoubleTokenIcon
+          symbolTop={token}
+          symbolBottom={tokenBottom}
+          size="medium"
+        />
+      ) : (
+        <TokenIcon symbol={token} size="medium" />
+      )}
       <Box
         sx={{
+          marginLeft: theme.spacing(2),
           fontSize: '1.375rem',
           fontWeight: 400,
         }}
