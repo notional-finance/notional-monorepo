@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { styled, Box, useTheme } from '@mui/material';
+import { styled, Box, useTheme, alpha } from '@mui/material';
 import { ExternalLinkIcon, CopyIcon } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
 import { getEtherscanTransactionLink } from '@notional-finance/util';
+import { colors } from '@notional-finance/styles';
 import { truncateAddress } from '@notional-finance/helpers';
-import { Caption } from '@notional-finance/mui';
+import { CopyCaption } from '@notional-finance/mui';
 import { Network } from '@notional-finance/util';
 import {
   TransactionStatus,
@@ -55,19 +56,14 @@ export const PendingTransaction = ({
               display: 'flex',
               justifyContent: 'space-between',
               width: '100%',
-              marginBottom: '16px',
+              marginBottom: theme.spacing(2),
+              whiteSpace: 'nowrap',
+              color: theme.palette.typography.main,
             }}
           >
-            <Box
-              sx={{
-                whiteSpace: 'nowrap',
-                color: theme.palette.typography.main,
-              }}
-            >
-              <FormattedMessage
-                defaultMessage={'Check the status of your transaction:'}
-              />
-            </Box>
+            <FormattedMessage
+              defaultMessage={'Check the status of your transaction:'}
+            />
             <StyledLink
               href={getEtherscanTransactionLink(hash, selectedNetwork)}
               target="_blank"
@@ -101,16 +97,11 @@ export const PendingTransaction = ({
               display: 'flex',
               justifyContent: 'space-between',
               width: '100%',
+              whiteSpace: 'nowrap',
+              color: theme.palette.typography.main,
             }}
           >
-            <Box
-              sx={{
-                whiteSpace: 'nowrap',
-                color: theme.palette.typography.main,
-              }}
-            >
-              <FormattedMessage defaultMessage={'Transaction Hash:'} />
-            </Box>
+            <FormattedMessage defaultMessage={'Transaction Hash:'} />
             <Box
               sx={{
                 whiteSpace: 'nowrap',
@@ -131,20 +122,10 @@ export const PendingTransaction = ({
                   marginTop: '-1px',
                 }}
               />
-              <Caption
-                sx={{
-                  background: theme.palette.background.paper,
-                  color: theme.palette.typography.main,
-                  padding: theme.spacing(1.5),
-                  position: 'absolute',
-                  borderRadius: theme.shape.borderRadius(),
-                  border: `1px solid ${theme.palette.primary.light}`,
-                  transition: 'all 0.3s ease-in-out',
-                  opacity: showAlert ? 1 : 0,
-                }}
-              >
-                <FormattedMessage defaultMessage="Hash Copied" />
-              </Caption>
+              <CopyCaption
+                title={<FormattedMessage defaultMessage="Hash Copied" />}
+                showAlert={showAlert}
+              />
             </Box>
           </Box>
         </ConfirmedContainer>
@@ -156,15 +137,15 @@ export const PendingTransaction = ({
 const Container = styled(Box)(
   ({ theme }) => `
   border-radius: ${theme.shape.borderRadius()};
-  padding: 0.675rem;
-  margin-top: 2rem;
-  margin-bottom: 1.25rem;
+  padding: ${theme.spacing(1.25)};
+  margin-top: ${theme.spacing(4)};
+  margin-bottom: ${theme.spacing(2.5)};
   display: flex;
   justify-content: center;
   align-items: center;
 
   img {
-    margin-left: 0.675rem;
+    margin-left: ${theme.spacing(1.25)};
     position: relative;
     top: 1px;
   }
@@ -196,7 +177,7 @@ const ConfirmedContainer = styled(Container, {
   ({ transactionStatus, theme }: ContainerProps) => `
   background: ${
     transactionStatus === TransactionStatus.CONFIRMED
-      ? 'rgba(19, 187, 194, 0.15)'
+      ? alpha(colors.aqua, 0.1)
       : theme.palette.background.default
   };
   border: 1px solid ${
