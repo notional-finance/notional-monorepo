@@ -8,12 +8,12 @@ import { Location } from 'history';
 import { useEffect, useState } from 'react';
 import { useHistory, useLocation } from 'react-router';
 
-export const analytics = AnalyticsBrowser.load({
-  writeKey: 'XZALrDl4xda9wqUZLkoZ3qKvrtLYOXO9',
-});
-
 const PROXY_HOST =
   process.env['NX_DATA_URL'] || 'https://data.notional.finance';
+
+export const analytics = AnalyticsBrowser.load({
+  writeKey: process.env['NX_SEGMENT_KEY'] as string,
+});
 
 export type RouteState = { routeType: RouteType } | undefined;
 type Route = Location<RouteState>;
