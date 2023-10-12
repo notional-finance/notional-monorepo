@@ -11,7 +11,11 @@ import {
 import WalletSideDrawer from '../wallet-side-drawer/wallet-side-drawer';
 import { getNotificationsData } from './wallet-selector.service';
 import NetworkSelector from '../network-selector/network-selector';
-import { ProgressIndicator, ButtonText, Caption } from '@notional-finance/mui';
+import {
+  ProgressIndicator,
+  ButtonText,
+  CopyCaption,
+} from '@notional-finance/mui';
 import { ContestDropdown } from './contest-drop-down';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { useConnect } from '../hooks';
@@ -108,21 +112,10 @@ export function WalletSelector() {
                   alignItems: 'center',
                 }}
               >
-                <Caption
-                  sx={{
-                    background: theme.palette.background.paper,
-                    color: theme.palette.typography.main,
-                    padding: theme.spacing(1.5),
-                    position: 'absolute',
-                    borderRadius: theme.shape.borderRadius(),
-                    border: `1px solid ${theme.palette.primary.light}`,
-                    marginTop: theme.spacing(12),
-                    transition: 'all 0.3s ease-in-out',
-                    opacity: showAlert ? 1 : 0,
-                  }}
-                >
-                  <FormattedMessage defaultMessage="Address Copied" />
-                </Caption>
+                <CopyCaption
+                  showAlert={showAlert}
+                  sx={{ marginTop: theme.spacing(12) }}
+                />
                 <Box onClick={handleCopy}>
                   <ButtonText>{truncatedAddress}</ButtonText>
                 </Box>

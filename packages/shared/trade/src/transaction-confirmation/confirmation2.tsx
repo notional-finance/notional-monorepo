@@ -57,31 +57,45 @@ export const Confirmation2 = ({
             : transactionStatus
         }
       />
-      <Divider variant="fullWidth" sx={{ background: 'white' }} />
       <TermsOfService theme={theme}>
-        <FormattedMessage
-          defaultMessage={
-            'By submitting a trade on our platform you agree to our <a>terms of service.</a>'
-          }
-          values={{
-            a: (msg: string) => (
-              <ExternalLink
-                href="/terms"
-                style={{ color: theme.palette.primary.light }}
-              >
-                {msg}
-              </ExternalLink>
-            ),
-          }}
-        />
+        {transactionStatus === TransactionStatus.NONE && (
+          <FormattedMessage
+            defaultMessage={
+              'By submitting a trade on our platform you agree to our <a>terms of service.</a>'
+            }
+            values={{
+              a: (msg: string) => (
+                <ExternalLink
+                  href="/terms"
+                  style={{ color: theme.palette.primary.light }}
+                >
+                  {msg}
+                </ExternalLink>
+              ),
+            }}
+          />
+        )}
+        {transactionStatus === TransactionStatus.SUBMITTED && (
+          <FormattedMessage
+            defaultMessage={
+              'You will be notified when the transaction is complete.'
+            }
+          />
+        )}
       </TermsOfService>
+
+      <Divider
+        variant="fullWidth"
+        sx={{ background: 'white', marginBottom: theme.spacing(6) }}
+      />
+
+      <OrderDetails state={state} />
       {transactionHash && (
         <PendingTransaction
           hash={transactionHash}
           transactionStatus={transactionStatus}
         />
       )}
-      <OrderDetails state={state} />
       {(transactionStatus === TransactionStatus.REVERT || transactionError) && (
         <Box sx={{ height: theme.spacing(8), marginBottom: theme.spacing(6) }}>
           <ErrorMessage
@@ -132,6 +146,7 @@ const TermsOfService = styled(HeadingSubtitle)(
   margin-top: ${theme.spacing(2)};
   margin-bottom: ${theme.spacing(3)};
   color: ${theme.palette.typography.light};
+  font-size: 14px;
 `
 );
 

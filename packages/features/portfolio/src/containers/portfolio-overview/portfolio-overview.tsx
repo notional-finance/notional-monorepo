@@ -16,7 +16,7 @@ export const PortfolioOverview = () => {
   const { vaultHoldingsData } = useVaultHoldingsTable();
   const { overviewVaultHoldingsColumns } = useOverviewVaultHoldingsColumns();
   const { riskOverviewData, riskOverviewColumns } = useRiskOverviewTable();
-  const { barChartData, barConfig, noChartData } = useTotalsChart();
+  const { barChartData, barConfig } = useTotalsChart();
   const noOverviewData =
     totalHoldingsData.length === 0 &&
     vaultHoldingsData.length === 0 &&
@@ -35,7 +35,6 @@ export const PortfolioOverview = () => {
                 hideTopGridLine: false,
                 Component: (
                   <BarChart
-                    noChartData={noChartData}
                     barChartData={barChartData}
                     barConfig={barConfig}
                     xAxisTickFormat="date"

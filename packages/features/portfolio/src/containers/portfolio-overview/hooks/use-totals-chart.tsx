@@ -31,7 +31,6 @@ export const useTotalsChart = () => {
     SECONDS_IN_DAY * 3
   );
   const themeVariant = useThemeVariant();
-  let noChartData = true;
 
   const barChartData = historyData?.map(
     ({ assets, debts, netWorth, timestamp }) => {
@@ -47,13 +46,6 @@ export const useTotalsChart = () => {
   const headerHistoryData = historyData
     ? historyData[historyData.length - 1]
     : undefined;
-
-  const noAssetsOrDebts =
-    headerHistoryData &&
-    headerHistoryData?.debts.toFloat() > 0 &&
-    headerHistoryData?.assets.toFloat() > 0;
-
-  if (noAssetsOrDebts) noChartData = false;
 
   const barConfig = [
     {
@@ -105,7 +97,7 @@ export const useTotalsChart = () => {
     );
   }
 
-  return { barChartData, barConfig, noChartData };
+  return { barChartData, barConfig };
 };
 
 export default useTotalsChart;

@@ -1,7 +1,7 @@
 import { useTheme, Box, styled } from '@mui/material';
 import { H2, Subtitle, Button } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
-import connectImage from './connect-image.svg';
+import connectImage from './connect-wallet.svg';
 import { ProductRateCards } from './product-rate-cards';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { SETTINGS_SIDE_DRAWERS } from '@notional-finance/util';

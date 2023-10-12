@@ -1,16 +1,25 @@
-import { styled, Box, useTheme } from '@mui/material';
-import { ExternalLinkIcon } from '@notional-finance/icons';
+import { useState, useEffect } from 'react';
+import { styled, Box, useTheme, alpha } from '@mui/material';
+import { ExternalLinkIcon, CopyIcon } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
 import { getEtherscanTransactionLink } from '@notional-finance/util';
+import { colors } from '@notional-finance/styles';
+import { truncateAddress } from '@notional-finance/helpers';
+import { CopyCaption } from '@notional-finance/mui';
 import { Network } from '@notional-finance/util';
 import {
   TransactionStatus,
   useSelectedNetwork,
 } from '@notional-finance/notionable-hooks';
+import { NotionalTheme } from '@notional-finance/styles';
 
 interface PendingTransactionProps {
   hash: string;
   transactionStatus: string;
+}
+interface ContainerProps {
+  transactionStatus: string;
+  theme: NotionalTheme;
 }
 
 export const PendingTransaction = ({
@@ -19,86 +28,137 @@ export const PendingTransaction = ({
 }: PendingTransactionProps) => {
   const theme = useTheme();
   const selectedNetwork = useSelectedNetwork();
+  const [showAlert, setShowAlert] = useState<boolean>(false);
 
-  switch (transactionStatus) {
-    case TransactionStatus.WAIT_USER_CONFIRM:
-      return (
+  useEffect(() => {
+    if (showAlert) {
+      setTimeout(() => {
+        setShowAlert(false);
+      }, 1000);
+    }
+  }, [showAlert, setShowAlert]);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(hash);
+    setShowAlert(true);
+  };
+
+  return (
+    <Box>
+      {TransactionStatus.WAIT_USER_CONFIRM === transactionStatus ? (
         <PendingContainer>
           <FormattedMessage defaultMessage={'Confirm Transaction in Wallet'} />
         </PendingContainer>
-      );
-    case TransactionStatus.SUBMITTED:
-      return (
-        <PendingContainer>
-          <FormattedMessage defaultMessage={'Transaction Pending'} />: &nbsp;
-          <StyledLink
-            href={getEtherscanTransactionLink(hash, selectedNetwork)}
-            target="_blank"
-            rel="noreferrer"
-            className="etherscan-link"
+      ) : (
+        <ConfirmedContainer theme={theme} transactionStatus={transactionStatus}>
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              width: '100%',
+              marginBottom: theme.spacing(2),
+              whiteSpace: 'nowrap',
+              color: theme.palette.typography.main,
+            }}
           >
-            {selectedNetwork === Network.ArbitrumOne ? (
-              <FormattedMessage defaultMessage={'View on Arbiscan'} />
-            ) : (
-              <FormattedMessage defaultMessage={'View on Etherscan'} />
-            )}
-            <ExternalLinkIcon
-              sx={{ marginLeft: '0.25rem', height: '1rem', marginTop: '-1px' }}
-              fill={theme.palette.primary.main}
+            <FormattedMessage
+              defaultMessage={'Check the status of your transaction:'}
             />
-          </StyledLink>
-        </PendingContainer>
-      );
-    case TransactionStatus.CONFIRMED:
-      return (
-        <ConfirmedContainer>
-          <FormattedMessage defaultMessage={'Transaction Confirmed'} />: &nbsp;
-          <StyledLink
-            href={getEtherscanTransactionLink(hash, selectedNetwork)}
-            target="_blank"
-            rel="noreferrer"
-            className="etherscan-link"
+            <StyledLink
+              href={getEtherscanTransactionLink(hash, selectedNetwork)}
+              target="_blank"
+              rel="noreferrer"
+              className="etherscan-link"
+            >
+              <Box
+                sx={{
+                  textDecoration: 'underline',
+                  color: theme.palette.typography.accent,
+                }}
+              >
+                {selectedNetwork === Network.ArbitrumOne ? (
+                  <FormattedMessage defaultMessage={'Arbiscan'} />
+                ) : (
+                  <FormattedMessage defaultMessage={'Etherscan'} />
+                )}
+              </Box>
+              <ExternalLinkIcon
+                sx={{
+                  marginLeft: '0.25rem',
+                  height: '1rem',
+                  marginTop: '-1px',
+                  fill: theme.palette.typography.accent,
+                }}
+              />
+            </StyledLink>
+          </Box>
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              width: '100%',
+              whiteSpace: 'nowrap',
+              color: theme.palette.typography.main,
+            }}
           >
-            {selectedNetwork === Network.ArbitrumOne ? (
-              <FormattedMessage defaultMessage={'View on Arbiscan'} />
-            ) : (
-              <FormattedMessage defaultMessage={'View on Etherscan'} />
-            )}
-            <ExternalLinkIcon
-              sx={{ marginLeft: '0.25rem', height: '1rem', marginTop: '-1px' }}
-              fill={theme.palette.primary.main}
-            />
-          </StyledLink>
+            <FormattedMessage defaultMessage={'Transaction Hash:'} />
+            <Box
+              sx={{
+                whiteSpace: 'nowrap',
+                textDecoration: 'underline',
+                textDecorationColor: theme.palette.typography.accent,
+                color: theme.palette.typography.accent,
+                fontSize: '14px',
+                cursor: 'pointer',
+              }}
+              onClick={handleCopy}
+            >
+              {truncateAddress(hash)}
+              <CopyIcon
+                fill={theme.palette.typography.accent}
+                sx={{
+                  marginLeft: '0.25rem',
+                  height: '1rem',
+                  marginTop: '-1px',
+                }}
+              />
+              <CopyCaption
+                title={<FormattedMessage defaultMessage="Hash Copied" />}
+                showAlert={showAlert}
+              />
+            </Box>
+          </Box>
         </ConfirmedContainer>
-      );
-    default:
-      return null;
-  }
+      )}
+    </Box>
+  );
 };
 
 const Container = styled(Box)(
   ({ theme }) => `
   border-radius: ${theme.shape.borderRadius()};
-  padding: 0.675rem;
-  margin-top: 2rem;
-  margin-bottom: 1.25rem;
+  padding: ${theme.spacing(1.25)};
+  margin-top: ${theme.spacing(4)};
+  margin-bottom: ${theme.spacing(2.5)};
   display: flex;
   justify-content: center;
   align-items: center;
 
   img {
-    margin-left: 0.675rem;
+    margin-left: ${theme.spacing(1.25)};
     position: relative;
     top: 1px;
   }
 `
 );
 
-const StyledLink = styled('a')`
+const StyledLink = styled('a')(
+  `
   display: flex;
   justify-content: center;
   align-items: center;
-`;
+`
+);
 
 const PendingContainer = styled(Container)(
   ({ theme }) => `
@@ -111,11 +171,27 @@ const PendingContainer = styled(Container)(
 `
 );
 
-const ConfirmedContainer = styled(Container)(
-  ({ theme }) => `
-  background: ${theme.palette.background.accentDefault};
+const ConfirmedContainer = styled(Container, {
+  shouldForwardProp: (prop: string) => prop !== 'transactionStatus',
+})(
+  ({ transactionStatus, theme }: ContainerProps) => `
+  background: ${
+    transactionStatus === TransactionStatus.CONFIRMED
+      ? alpha(colors.aqua, 0.1)
+      : theme.palette.background.default
+  };
+  border: 1px solid ${
+    transactionStatus === TransactionStatus.CONFIRMED
+      ? theme.palette.primary.accent
+      : 'transparent'
+  };
   opacity: 0.95;
   color: ${theme.palette.common.white};
+  padding: ${theme.spacing(3)};
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 
   a {
     color: ${theme.palette.primary.accent};
