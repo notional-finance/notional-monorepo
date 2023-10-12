@@ -172,7 +172,7 @@ const PendingContainer = styled(Container)(
 );
 
 const ConfirmedContainer = styled(Container, {
-  shouldForwardProp: (prop: string) => prop !== 'hovered',
+  shouldForwardProp: (prop: string) => prop !== 'transactionStatus',
 })(
   ({ transactionStatus, theme }: ContainerProps) => `
   background: ${
