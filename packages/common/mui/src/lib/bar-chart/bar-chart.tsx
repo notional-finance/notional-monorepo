@@ -30,7 +30,6 @@ export interface BarConfigProps {
 
 export interface BarChartProps {
   barChartData: any[];
-  noChartData?: boolean;
   barConfig: BarConfigProps[];
   xAxisTickFormat?: 'date' | 'percent';
   yAxisTickFormat?: 'percent' | 'number' | 'currency';
@@ -40,7 +39,6 @@ export const BarChart = ({
   yAxisTickFormat = 'percent',
   barChartData,
   barConfig,
-  noChartData,
 }: BarChartProps) => {
   const theme = useTheme();
 
@@ -61,9 +59,11 @@ export const BarChart = ({
     return getDateString(date, { hideYear: true });
   };
 
+  console.log({});
+
   return (
     <Box>
-      {noChartData ? (
+      {barConfig.length === 0 ? (
         <Box sx={{ marginLeft: theme.spacing(3), marginTop: theme.spacing(6) }}>
           <FormattedMessage
             defaultMessage={'You have no active orders or historical data.'}

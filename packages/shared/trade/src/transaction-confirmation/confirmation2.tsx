@@ -4,6 +4,7 @@ import {
   HeadingSubtitle,
   Drawer,
   ErrorMessage,
+  Button,
 } from '@notional-finance/mui';
 import {
   BaseTradeContext,
@@ -57,31 +58,45 @@ export const Confirmation2 = ({
             : transactionStatus
         }
       />
-      <Divider variant="fullWidth" sx={{ background: 'white' }} />
       <TermsOfService theme={theme}>
-        <FormattedMessage
-          defaultMessage={
-            'By submitting a trade on our platform you agree to our <a>terms of service.</a>'
-          }
-          values={{
-            a: (msg: string) => (
-              <ExternalLink
-                href="/terms"
-                style={{ color: theme.palette.primary.light }}
-              >
-                {msg}
-              </ExternalLink>
-            ),
-          }}
-        />
+        {transactionStatus === TransactionStatus.NONE && (
+          <FormattedMessage
+            defaultMessage={
+              'By submitting a trade on our platform you agree to our <a>terms of service.</a>'
+            }
+            values={{
+              a: (msg: string) => (
+                <ExternalLink
+                  href="/terms"
+                  style={{ color: theme.palette.primary.light }}
+                >
+                  {msg}
+                </ExternalLink>
+              ),
+            }}
+          />
+        )}
+        {transactionStatus === TransactionStatus.SUBMITTED && (
+          <FormattedMessage
+            defaultMessage={
+              'You will be notified when the transaction is complete.'
+            }
+          />
+        )}
       </TermsOfService>
+
+      <Divider
+        variant="fullWidth"
+        sx={{ background: 'white', marginBottom: theme.spacing(6) }}
+      />
+
+      <OrderDetails state={state} />
       {transactionHash && (
         <PendingTransaction
           hash={transactionHash}
           transactionStatus={transactionStatus}
         />
       )}
-      <OrderDetails state={state} />
       {(transactionStatus === TransactionStatus.REVERT || transactionError) && (
         <Box sx={{ height: theme.spacing(8), marginBottom: theme.spacing(6) }}>
           <ErrorMessage
@@ -102,25 +117,32 @@ export const Confirmation2 = ({
         transactionError === undefined && (
           <PortfolioCompare state={state as TradeState} />
         )}
-      <TransactionButtons
-        transactionStatus={
-          transactionError
-            ? TransactionStatus.ERROR_BUILDING
-            : transactionStatus
-        }
-        onSubmit={() =>
-          onSubmit(
-            populatedTransaction,
-            [debt, collateral].filter(
-              (t) => t !== undefined
-            ) as TokenDefinition[]
-          )
-        }
-        onCancel={onCancel || onTxnCancel}
-        onReturnToForm={onReturnToForm}
-        isDisabled={isReadOnlyAddress || !!transactionError}
-        isLoaded={populatedTransaction !== undefined}
-      />
+      {transactionStatus === TransactionStatus.SUBMITTED ||
+      transactionStatus === TransactionStatus.CONFIRMED ? (
+        <Button to="portfolio/overview" size="large" variant="outlined">
+          <FormattedMessage defaultMessage={'View In Portfolio'} />
+        </Button>
+      ) : (
+        <TransactionButtons
+          transactionStatus={
+            transactionError
+              ? TransactionStatus.ERROR_BUILDING
+              : transactionStatus
+          }
+          onSubmit={() =>
+            onSubmit(
+              populatedTransaction,
+              [debt, collateral].filter(
+                (t) => t !== undefined
+              ) as TokenDefinition[]
+            )
+          }
+          onCancel={onCancel || onTxnCancel}
+          onReturnToForm={onReturnToForm}
+          isDisabled={isReadOnlyAddress || !!transactionError}
+          isLoaded={populatedTransaction !== undefined}
+        />
+      )}
     </>
   );
 
@@ -132,6 +154,7 @@ const TermsOfService = styled(HeadingSubtitle)(
   margin-top: ${theme.spacing(2)};
   margin-bottom: ${theme.spacing(3)};
   color: ${theme.palette.typography.light};
+  font-size: 14px;
 `
 );
 

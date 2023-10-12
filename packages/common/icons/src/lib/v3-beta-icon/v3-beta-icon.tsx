@@ -8,8 +8,8 @@ export function V3BetaIcon(props: V3BetaIconProps) {
   return (
     <SvgIcon {...props} viewBox="0 0 40 46">
       <path
-        fill-rule="evenodd"
-        clip-rule="evenodd"
+        fillRule="evenodd"
+        clipRule="evenodd"
         d="M40 11.5L20 0L0 11.5V34.5L20 46L40 34.5V11.5Z"
         fill={colors.matteGreen}
       />
@@ -21,8 +21,8 @@ export function V3BetaIcon(props: V3BetaIconProps) {
         fill="#33F8FF"
       />
       <path
-        fill-rule="evenodd"
-        clip-rule="evenodd"
+        fillRule="evenodd"
+        clipRule="evenodd"
         d="M20 1.65891L1.44253 12.3295V33.6705L20 44.3411L38.5575 33.6705V12.3295L20 1.65891ZM40 11.5L20 0L0 11.5V34.5L20 46L40 34.5V11.5Z"
         fill="#33F8FF"
       />

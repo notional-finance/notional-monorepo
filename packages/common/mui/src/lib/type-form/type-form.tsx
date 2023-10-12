@@ -12,7 +12,7 @@ import { FormattedMessage } from 'react-intl';
 const FormWrapper = styled(Box)(
   ({ theme }) => `
     position: absolute;
-    z-index: 99;
+    z-index: 1;
     font-weight: bold;
     text-align: center;
     padding-top: ${theme.spacing(25)};
