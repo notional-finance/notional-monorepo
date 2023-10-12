@@ -118,4 +118,5 @@ export type RouteType =
   | 'Transaction'
   | 'Error'
   | 'Portfolio'
-  | 'PortfolioTransaction';
+  | 'PortfolioTransaction'
+  | 'Confirmation';

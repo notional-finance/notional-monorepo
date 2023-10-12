@@ -15,7 +15,7 @@ export const analytics = AnalyticsBrowser.load({
 const PROXY_HOST =
   process.env['NX_DATA_URL'] || 'https://data.notional.finance';
 
-type RouteState = { routeType: RouteType } | undefined;
+export type RouteState = { routeType: RouteType } | undefined;
 type Route = Location<RouteState>;
 
 export function trackEvent(category: string, props?: Record<string, unknown>) {
@@ -59,7 +59,7 @@ export function trackPageView(
   );
 }
 
-const useBackStack = () => {
+export const useBackStack = () => {
   const history = useHistory<RouteState>();
   const [backStack, setBackStack] = useState<Route[]>([history.location]);
 
