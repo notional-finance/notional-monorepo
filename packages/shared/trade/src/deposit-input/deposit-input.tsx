@@ -11,6 +11,7 @@ import { useDepositInput } from './use-deposit-input';
 import { useHistory } from 'react-router';
 import TokenApprovalView from '../token-approval-view/token-approval-view';
 import { BaseTradeContext } from '@notional-finance/notionable-hooks';
+import { TokenBalance } from '@notional-finance/core-entities';
 
 interface DepositInputProps {
   context: BaseTradeContext;
@@ -22,6 +23,7 @@ interface DepositInputProps {
   inputRef: React.RefObject<CurrencyInputHandle>;
   isWithdraw?: boolean;
   useZeroDefault?: boolean;
+  requiredApprovalAmount?: TokenBalance;
 }
 
 /**
@@ -44,6 +46,7 @@ export const DepositInput = React.forwardRef<
       errorMsgOverride,
       isWithdraw,
       useZeroDefault,
+      requiredApprovalAmount,
     },
     ref
   ) => {
@@ -132,7 +135,9 @@ export const DepositInput = React.forwardRef<
         {!isWithdraw && (
           <TokenApprovalView
             symbol={selectedDepositToken}
-            requiredAmount={inputAmount}
+            // NOTE: this override is used when maxRepay is selected since the input amount
+            // is not changed during that interaction
+            requiredAmount={requiredApprovalAmount || inputAmount}
           />
         )}
       </Box>
