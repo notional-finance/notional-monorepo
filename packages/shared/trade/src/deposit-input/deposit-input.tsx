@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { Box, useTheme } from '@mui/material';
 import {
+  Caption,
   CurrencyInput,
   CurrencyInputHandle,
   InputLabel,
@@ -12,6 +13,7 @@ import { useHistory } from 'react-router';
 import TokenApprovalView from '../token-approval-view/token-approval-view';
 import { BaseTradeContext } from '@notional-finance/notionable-hooks';
 import { TokenBalance } from '@notional-finance/core-entities';
+import { WalletIcon } from '@notional-finance/icons';
 
 interface DepositInputProps {
   context: BaseTradeContext;
@@ -63,6 +65,7 @@ export const DepositInput = React.forwardRef<
     } = context;
     const {
       inputAmount,
+      maxBalance,
       maxBalanceString,
       errorMsg,
       decimalPlaces,
@@ -88,7 +91,28 @@ export const DepositInput = React.forwardRef<
 
     return (
       <Box sx={{ marginBottom: theme.spacing(3) }}>
-        <InputLabel inputLabel={inputLabel} />
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'baseline',
+            justifyContent: 'space-between',
+          }}
+        >
+          <InputLabel inputLabel={inputLabel} />
+          {maxBalance && (
+            <Caption sx={{ color: theme.palette.typography.main }}>
+              <WalletIcon
+                sx={{
+                  fontSize: '12px',
+                  position: 'relative',
+                  top: '1px',
+                  marginRight: theme.spacing(0.5),
+                }}
+              />
+              &nbsp;{maxBalance.toDisplayStringWithSymbol(3, true)}
+            </Caption>
+          )}
+        </Box>
         <CurrencyInput
           ref={ref}
           placeholder="0.00000000"

@@ -101,6 +101,7 @@ export const LendVariableTradeSummary = () => {
                   areaChartStyles={areaChartStyles}
                   chartToolTipData={chartToolTipData}
                   referenceLineValue={borrowUtilization}
+                  xAxisTickCount={12}
                 />
               ),
               chartHeaderData: chartHeaderData,
