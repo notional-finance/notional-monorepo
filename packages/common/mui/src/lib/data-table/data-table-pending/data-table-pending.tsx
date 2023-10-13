@@ -47,7 +47,9 @@ export const DataTablePending = ({
                 alignItems: 'center',
               }}
             >
-              {truncateAddress(pendingTokenData.pendingTxns[index])}
+              {pendingTokenData.pendingTxns[index]
+                ? truncateAddress(pendingTokenData.pendingTxns[index])
+                : ''}
               <LaunchIcon
                 sx={{
                   marginTop: '5px',

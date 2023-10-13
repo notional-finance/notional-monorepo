@@ -18,6 +18,12 @@ export function usePortfolioHoldings() {
 
   const { totals, detailedHoldings } = useDetailedHoldings();
   const { groupedRows, groupedTokens } = useGroupedHoldings();
+
+  // If groupedRows length is zero don't show grouped holdings or toggle
+
+  console.log({ groupedRows });
+  console.log({ detailedHoldings });
+
   const groupedHoldings = groupedRows.concat(
     detailedHoldings.filter(({ tokenId }) => !groupedTokens.includes(tokenId))
   );
