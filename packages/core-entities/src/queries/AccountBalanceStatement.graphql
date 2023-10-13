@@ -17,6 +17,7 @@ query AccountBalanceStatement($accountId: ID!) {
         totalProfitAndLossAtSnapshot
         totalInterestAccrualAtSnapshot
         impliedFixedRate
+        adjustedNOTEEarned
       }
       snapshots(first: 25, orderBy: blockNumber, orderDirection: desc) {
         timestamp
