@@ -8,7 +8,6 @@ import { floorToMidnight } from '@notional-finance/helpers';
 import {
   Network,
   SECONDS_IN_DAY,
-  SECONDS_IN_MONTH,
   getNowSeconds,
   leveragedYield,
 } from '@notional-finance/util';
@@ -118,9 +117,9 @@ export function useAssetPriceHistory(token: TokenDefinition | undefined) {
 }
 
 export function useAccountHistoryChart(
-  startTime = getNowSeconds() - SECONDS_IN_MONTH,
-  endTime = getNowSeconds(),
-  tickSizeInSeconds = SECONDS_IN_DAY
+  startTime: number,
+  endTime: number,
+  tickSizeInSeconds: number
 ) {
   const { account } = useAccountDefinition();
   const baseCurrency = useFiat();

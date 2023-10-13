@@ -111,6 +111,16 @@ export enum LOCALES {
 
 export type SIDE_DRAWERS_TYPE = SETTINGS_SIDE_DRAWERS | PORTFOLIO_ACTIONS;
 
+export type RouteType =
+  | 'Landing'
+  | 'Card'
+  | 'Markets'
+  | 'Transaction'
+  | 'Error'
+  | 'Portfolio'
+  | 'PortfolioTransaction'
+  | 'Confirmation';
+
 export enum DEX_ID {
   UNKNOWN,
   UNISWAP_V2,

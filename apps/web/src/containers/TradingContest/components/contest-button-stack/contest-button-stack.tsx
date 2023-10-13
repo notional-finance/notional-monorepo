@@ -18,7 +18,10 @@ export const ContestButtonStack = ({
   buttonText,
 }: ContestButtonStackProps) => {
   const theme = useTheme();
-  const { globalState: { hasContestNFT }} = useNotionalContext()
+  const {
+    globalState: { hasContestNFT },
+  } = useNotionalContext();
+
   const { setWalletSideDrawer } = useSideDrawerManager();
 
   return (
@@ -42,7 +45,7 @@ export const ContestButtonStack = ({
         <Button
           size="large"
           variant="outlined"
-          href="https://form.jotform.com/232396345681160"
+          href="https://docs.google.com/forms/d/e/1FAIpQLSfaQV96qU6ucw_zL3ypQLMrPnPxHWYQr9oQO7eYHWwZ12T80A/closedform"
           sx={{
             width: '358px',
             border: `1px solid ${colors.neonTurquoise}`,

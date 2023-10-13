@@ -60,6 +60,7 @@ export interface AreaChartProps {
   emptyStateMessage?: ReactNode;
   showEmptyState?: boolean;
   title?: string;
+  xAxisTickCount?: number;
 }
 
 export const yAxisTickHandler = (yAxisTickFormat, v: number) => {
@@ -89,6 +90,7 @@ export const AreaChart = ({
   emptyStateMessage,
   showEmptyState,
   title,
+  xAxisTickCount = 0,
 }: AreaChartProps) => {
   const theme = useTheme();
 
@@ -132,7 +134,6 @@ export const AreaChart = ({
           {showCartesianGrid && (
             <CartesianGrid
               vertical={false}
-              horizontal
               height={300}
               stroke={theme.palette.borders.paper}
             />
@@ -151,10 +152,10 @@ export const AreaChart = ({
           <XAxis
             dataKey="timestamp"
             type={xAxisTickFormat === 'date' ? 'category' : 'number'}
-            tickCount={0}
-            axisLine={false}
+            tickCount={xAxisTickCount}
             tickSize={0}
             tickMargin={38}
+            axisLine={{ stroke: theme.palette.borders.paper }}
             domain={
               xAxisTickFormat === 'date'
                 ? [

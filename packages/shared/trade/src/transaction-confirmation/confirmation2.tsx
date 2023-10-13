@@ -8,9 +8,10 @@ import {
 import {
   BaseTradeContext,
   TransactionStatus,
+  useSelectedNetwork,
   useTransactionStatus,
 } from '@notional-finance/notionable-hooks';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { FormattedMessage } from 'react-intl';
 import {
   PendingTransaction,
@@ -21,6 +22,8 @@ import { OrderDetails } from './components/order-details';
 import { PortfolioCompare } from './components/portfolio-compare';
 import { TradeState } from '@notional-finance/notionable';
 import { TokenDefinition } from '@notional-finance/core-entities';
+import { trackEvent, RouteState } from '@notional-finance/helpers';
+import { useLocation } from 'react-router';
 
 export interface ConfirmationProps {
   heading: React.ReactNode;
@@ -39,10 +42,29 @@ export const Confirmation2 = ({
 }: ConfirmationProps) => {
   const theme = useTheme();
   const { state, updateState } = context;
-  const { populatedTransaction, transactionError, debt, collateral } = state;
+  const selectedNetwork = useSelectedNetwork();
+  const location = useLocation<RouteState>();
+  const {
+    populatedTransaction,
+    transactionError,
+    debt,
+    collateral,
+    tradeType,
+  } = state;
   const onTxnCancel = useCallback(() => {
     updateState({ confirm: false });
   }, [updateState]);
+
+  useEffect(() => {
+    trackEvent('Confirmation', {
+      selectedNetwork,
+      tradeType,
+      path: location.pathname,
+      routeType: location.state?.routeType || 'unknown',
+    });
+    // NOTE: only execute once on page load
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const { isReadOnlyAddress, transactionStatus, transactionHash, onSubmit } =
     useTransactionStatus();
@@ -57,31 +79,45 @@ export const Confirmation2 = ({
             : transactionStatus
         }
       />
-      <Divider variant="fullWidth" sx={{ background: 'white' }} />
       <TermsOfService theme={theme}>
-        <FormattedMessage
-          defaultMessage={
-            'By submitting a trade on our platform you agree to our <a>terms of service.</a>'
-          }
-          values={{
-            a: (msg: string) => (
-              <ExternalLink
-                href="/terms"
-                style={{ color: theme.palette.primary.light }}
-              >
-                {msg}
-              </ExternalLink>
-            ),
-          }}
-        />
+        {transactionStatus === TransactionStatus.NONE && (
+          <FormattedMessage
+            defaultMessage={
+              'By submitting a trade on our platform you agree to our <a>terms of service.</a>'
+            }
+            values={{
+              a: (msg: string) => (
+                <ExternalLink
+                  href="/terms"
+                  style={{ color: theme.palette.primary.light }}
+                >
+                  {msg}
+                </ExternalLink>
+              ),
+            }}
+          />
+        )}
+        {transactionStatus === TransactionStatus.SUBMITTED && (
+          <FormattedMessage
+            defaultMessage={
+              'You will be notified when the transaction is complete.'
+            }
+          />
+        )}
       </TermsOfService>
+
+      <Divider
+        variant="fullWidth"
+        sx={{ background: 'white', marginBottom: theme.spacing(6) }}
+      />
+
+      <OrderDetails state={state} />
       {transactionHash && (
         <PendingTransaction
           hash={transactionHash}
           transactionStatus={transactionStatus}
         />
       )}
-      <OrderDetails state={state} />
       {(transactionStatus === TransactionStatus.REVERT || transactionError) && (
         <Box sx={{ height: theme.spacing(8), marginBottom: theme.spacing(6) }}>
           <ErrorMessage
@@ -110,6 +146,7 @@ export const Confirmation2 = ({
         }
         onSubmit={() =>
           onSubmit(
+            tradeType || 'unknown',
             populatedTransaction,
             [debt, collateral].filter(
               (t) => t !== undefined
@@ -132,6 +169,7 @@ const TermsOfService = styled(HeadingSubtitle)(
   margin-top: ${theme.spacing(2)};
   margin-bottom: ${theme.spacing(3)};
   color: ${theme.palette.typography.light};
+  font-size: 14px;
 `
 );
 

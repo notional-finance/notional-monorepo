@@ -40,7 +40,10 @@ export const useTokenApproval = (symbol: string) => {
           }
 
           const allowance = approve ? constants.MaxUint256 : constants.Zero;
-          onSubmit(await erc20.populateTransaction.approve(spender, allowance));
+          onSubmit(
+            'ApproveToken',
+            await erc20.populateTransaction.approve(spender, allowance)
+          );
         }
       } catch (error) {
         // todo

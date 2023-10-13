@@ -1,77 +1,63 @@
 import { Box, styled } from '@mui/material';
 import { H5 } from '../../typography/typography';
 import { TooltipProps } from 'recharts';
-
-export interface BarChartToolTipDataProps {
-  dataPointOne?: {
-    lineColor: string;
-    lineType: 'dashed' | 'solid' | 'none';
-    formatTitle: (data: number) => string | JSX.Element;
-  };
-  dataPointTwo?: {
-    lineColor: string;
-    lineType: 'dashed' | 'solid' | 'none';
-    formatTitle: (data: number) => string | JSX.Element;
-  };
-  dataPointThree?: {
-    lineColor: string;
-    lineType: 'dashed' | 'solid' | 'none';
-    formatTitle: (data: number) => string | JSX.Element;
-  };
-}
+import { BarConfigProps } from '../bar-chart';
+import { getDateString } from '@notional-finance/helpers';
+import { formatNumberToDigits } from '@notional-finance/helpers';
 
 export interface BarChartToolTipProps extends TooltipProps<number, string> {
-  barChartToolTipData?: any;
+  barConfig: BarConfigProps[];
 }
 
 export const BarChartToolTip = (props: BarChartToolTipProps) => {
-  const { active, payload, barChartToolTipData } = props;
-  if (active && payload) {
-    const { dataPointOne, dataPointTwo, total } = payload[0].payload;
+  const { payload, barConfig } = props;
 
-    return (
-      <ToolTipBox>
-        {barChartToolTipData?.dataPointOne && (
-          <Item
+  return (
+    <ToolTipBox>
+      <Item>
+        <Box component={'span'}>
+          {payload && payload.length > 0
+            ? getDateString(payload[0]?.payload?.timestamp)
+            : ''}
+        </Box>
+      </Item>
+      {payload?.map((item, index) => (
+        <Item key={index}>
+          <Box
             sx={{
-              borderColor: barChartToolTipData?.dataPointOne.lineColor,
-              borderStyle: barChartToolTipData?.dataPointOne.lineType,
+              whiteSpace: 'nowrap',
+              borderLeft: `3px solid ${barConfig[index].fill}`,
             }}
           >
-            {barChartToolTipData?.dataPointOne.formatTitle(dataPointOne)}
-          </Item>
-        )}
-        {barChartToolTipData?.dataPointTwo && dataPointTwo && (
-          <Item
-            sx={{
-              borderColor: barChartToolTipData?.dataPointTwo.lineColor,
-              borderStyle: barChartToolTipData?.dataPointTwo.lineType,
-            }}
-          >
-            {barChartToolTipData?.dataPointTwo.formatTitle(dataPointTwo)}
-          </Item>
-        )}
-        {barChartToolTipData?.total && total && (
-          <Item sx={{ borderColor: 'transparent', borderStyle: 'solid' }}>
-            {barChartToolTipData?.total.formatTitle(
-              dataPointOne + dataPointTwo
-            )}
-          </Item>
-        )}
-      </ToolTipBox>
-    );
-  }
-  return null;
+            <Box
+              component={'span'}
+              sx={{ marginLeft: '8px', marginRight: '8px' }}
+            >
+              {item.value
+                ? `${barConfig[index]?.currencySymbol}${formatNumberToDigits(
+                    item.value
+                  )}`
+                : `${barConfig[index]?.currencySymbol}0`}
+            </Box>
+            {barConfig[index]?.toolTipTitle}
+          </Box>
+        </Item>
+      ))}
+    </ToolTipBox>
+  );
 };
 
 const Item = styled(H5)(
   ({ theme }) => `
+  display: flex;
+  flex-direction: column;
   border-left: 3px;
   border-top: 0px;
   border-right: 0px;
   border-bottom: 0px;
   margin: ${theme.spacing(1)};
   padding-left: 8px;
+  whitespace: nowrap;
   span {
     color: ${theme.palette.typography.main};
   }

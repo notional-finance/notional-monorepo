@@ -19,6 +19,7 @@
     "@mui/icons-material": "^5.8.3",
     "@mui/lab": "^5.0.0-alpha.100",
     "@mui/material": "^5.8.3",
+    "@segment/analytics-next": "^1.58.0",
     "@swc/helpers": "~0.4.11",
     "@tryghost/content-api": "^1.5.13",
     "@typeform/embed-react": "^1.16.0",

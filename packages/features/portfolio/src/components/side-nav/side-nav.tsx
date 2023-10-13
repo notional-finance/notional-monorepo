@@ -24,7 +24,7 @@ export const SideNav = () => {
         open={open}
       >
         <Collapse orientation="horizontal" in={open} collapsedSize={64}>
-          <SideNavOptons />
+          <SideNavOptons open={open} />
         </Collapse>
       </Collapsible>
     </>

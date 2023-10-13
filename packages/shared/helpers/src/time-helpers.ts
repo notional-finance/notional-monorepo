@@ -6,6 +6,7 @@ import {
 export interface DateStringOptions {
   slashesFormat?: boolean;
   showTime?: boolean;
+  hideYear?: boolean;
 }
 
 export function getDateString(
@@ -14,6 +15,10 @@ export function getDateString(
 ) {
   // Multiply by 1000 because javascript uses milliseconds.
   const date = new Date(timestampInSeconds * 1000);
+  const month = date.toLocaleDateString('en-US', { month: 'short' });
+  const day = date.toLocaleDateString('en-US', { day: '2-digit' });
+  const year = date.toLocaleDateString('en-US', { year: 'numeric' });
+  
 
   if (opts?.slashesFormat && opts?.showTime) {
     return `${date.toLocaleDateString('en-US')}, ${date.toLocaleTimeString(
@@ -25,11 +30,10 @@ export function getDateString(
     )}`;
   } else if (opts?.slashesFormat) {
     return `${date.toLocaleDateString('en-US')}`;
+  } else if (opts?.hideYear) {
+    return `${month} ${day}`;
   }
 
-  const month = date.toLocaleDateString('en-US', { month: 'short' });
-  const day = date.toLocaleDateString('en-US', { day: '2-digit' });
-  const year = date.toLocaleDateString('en-US', { year: 'numeric' });
   return `${month} ${day} ${year}`;
 }
 

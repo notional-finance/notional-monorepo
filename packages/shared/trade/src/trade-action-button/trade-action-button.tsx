@@ -98,8 +98,8 @@ export function TradeActionButton({
       width={width}
       margin={margin}
       variant={buttonVariant || 'contained'}
-      disabled={!canSubmit}
-      canSubmit={canSubmit}
+      disabled={!isAccountReady ? false : !canSubmit}
+      canSubmit={!isAccountReady ? true : canSubmit}
       onClick={isAccountReady ? _onSubmit : () => handleConnectWallet()}
     >
       {leverageDisabled ? (

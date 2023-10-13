@@ -1,13 +1,11 @@
 import { useState } from 'react';
-import { Box, useTheme } from '@mui/material';
-import { Caption } from '../../typography/typography';
+import { Box } from '@mui/material';
+import { CopyCaption } from '../../copy-caption/copy-caption';
 import highRoller from './assets/high-roller.svg';
 import fatCat from './assets/fat-cat.svg';
 import sadSack from './assets/sad-sack.svg';
-import { FormattedMessage } from 'react-intl';
 
 export const CustomIconCell = ({ cell }) => {
-  const theme = useTheme();
   const [showAlert, setShowAlert] = useState<boolean>(false);
   const { row, value } = cell;
   if (!value) return null;
@@ -50,20 +48,7 @@ export const CustomIconCell = ({ cell }) => {
         />
       )}
       {text}
-      <Caption
-        sx={{
-          background: theme.palette.background.paper,
-          color: theme.palette.typography.main,
-          padding: theme.spacing(1.5),
-          position: 'absolute',
-          borderRadius: theme.shape.borderRadius(),
-          border: `1px solid ${theme.palette.primary.light}`,
-          transition: 'all 0.3s ease-in-out',
-          opacity: showAlert ? 1 : 0,
-        }}
-      >
-        <FormattedMessage defaultMessage="Address Copied" />
-      </Caption>
+      <CopyCaption showAlert={showAlert} />
     </Box>
   );
 };

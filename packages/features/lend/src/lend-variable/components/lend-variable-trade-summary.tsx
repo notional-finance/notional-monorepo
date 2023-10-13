@@ -6,7 +6,6 @@ import {
   FaqHeader,
   MultiDisplayChart,
   AreaChart,
-  ChartContainer,
   TotalBox,
 } from '@notional-finance/mui';
 import { useLendVariableFaq } from '../hooks';
@@ -41,32 +40,30 @@ export const LendVariableTradeSummary = () => {
           {
             id: 'apy-area-chart',
             title: 'APY',
+            hideTopGridLine: true,
             Component: (
-              <ChartContainer>
-                <AreaChart
-                  title="APY"
-                  showCartesianGrid
-                  xAxisTickFormat="date"
-                  areaChartData={apyData}
-                  areaLineType="linear"
-                />
-              </ChartContainer>
+              <AreaChart
+                title="APY"
+                showCartesianGrid
+                xAxisTickFormat="date"
+                areaChartData={apyData}
+                areaLineType="linear"
+              />
             ),
           },
           {
             id: 'tvl-area-chart',
             title: 'TVL',
+            hideTopGridLine: true,
             Component: (
-              <ChartContainer>
-                <AreaChart
-                  title="TVL"
-                  showCartesianGrid
-                  xAxisTickFormat="date"
-                  areaChartData={tvlData}
-                  yAxisTickFormat="usd"
-                  areaLineType="linear"
-                />
-              </ChartContainer>
+              <AreaChart
+                title="TVL"
+                showCartesianGrid
+                xAxisTickFormat="date"
+                areaChartData={tvlData}
+                yAxisTickFormat="usd"
+                areaLineType="linear"
+              />
             ),
           },
         ]}
@@ -96,17 +93,15 @@ export const LendVariableTradeSummary = () => {
               id: 'area-chart',
               title: 'Lend Rate Utilization',
               Component: (
-                <ChartContainer>
-                  <AreaChart
-                    showCartesianGrid
-                    areaLineType="linear"
-                    xAxisTickFormat="percent"
-                    areaChartData={areaChartData}
-                    areaChartStyles={areaChartStyles}
-                    chartToolTipData={chartToolTipData}
-                    referenceLineValue={borrowUtilization}
-                  />
-                </ChartContainer>
+                <AreaChart
+                  showCartesianGrid
+                  areaLineType="linear"
+                  xAxisTickFormat="percent"
+                  areaChartData={areaChartData}
+                  areaChartStyles={areaChartStyles}
+                  chartToolTipData={chartToolTipData}
+                  referenceLineValue={borrowUtilization}
+                />
               ),
               chartHeaderData: chartHeaderData,
             },

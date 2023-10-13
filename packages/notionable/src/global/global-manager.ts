@@ -21,7 +21,7 @@ import {
   onNetworkPending,
   onSelectedNetworkChange,
 } from './logic';
-import { trackEvent } from '@notional-finance/helpers';
+import { identify, trackEvent } from '@notional-finance/helpers';
 import { Contract } from 'ethers';
 
 const vpnCheck = 'https://detect.notional.finance/';
@@ -114,12 +114,9 @@ export const loadGlobalManager = (
 
   const onAccountConnect$ = state$.pipe(
     distinctUntilChanged((p, c) => p.selectedAccount === c.selectedAccount),
-    tap(({ selectedAccount, wallet }) => {
+    tap(({ selectedAccount, wallet, selectedNetwork }) => {
       if (selectedAccount) {
-        trackEvent('CONNECT_WALLET', {
-          selectedAccount,
-          wallet: wallet?.label || 'unknown',
-        });
+        identify(selectedAccount, selectedNetwork, wallet?.label || 'unknown');
       }
     }),
     filter(({ selectedAccount }) => selectedAccount !== undefined),
@@ -142,7 +139,7 @@ export const loadGlobalManager = (
     distinctUntilChanged((p, c) => p.hasContestNFT === c.hasContestNFT),
     tap(({ hasContestNFT, selectedAccount, contestTokenId }) => {
       if (selectedAccount && hasContestNFT === BETA_ACCESS.CONFIRMED) {
-        trackEvent('NFT_UNLOCK', {
+        trackEvent('NFTUnlock', {
           selectedAccount,
           contestTokenId: contestTokenId || 'unknown',
         });

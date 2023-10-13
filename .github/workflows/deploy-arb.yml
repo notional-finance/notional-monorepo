@@ -38,6 +38,7 @@ jobs:
           NX_DD_SITE: ${{ secrets.NX_DD_SITE }}
           NX_APP_URL: ${{ secrets.NX_APP_URL }}
           NX_DATA_URL: ${{ secrets.NX_DATA_URL }}
+          NX_SEGMENT_KEY: ${{ secrets.NX_SEGMENT_KEY }}
           NX_ENV: ${{ github.event.inputs.environment || 'arb' }}
           NX_COMMIT_REF: ${{ github.sha }}
       - name: Publish Dev

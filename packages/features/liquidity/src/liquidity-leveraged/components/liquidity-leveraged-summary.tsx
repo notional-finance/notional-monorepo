@@ -1,10 +1,5 @@
 import { Box, useTheme } from '@mui/material';
-import {
-  FaqHeader,
-  Faq,
-  AreaChart,
-  ChartContainer,
-} from '@notional-finance/mui';
+import { FaqHeader, Faq, AreaChart } from '@notional-finance/mui';
 import {
   LiquidationChart,
   PerformanceChart,
@@ -30,15 +25,14 @@ export const LiquidityLeveragedSummary = () => {
   const apyChart = {
     id: 'apy-area-chart',
     title: 'APY',
+    hideTopGridLine: true,
     Component: (
-      <ChartContainer>
-        <AreaChart
-          showCartesianGrid
-          xAxisTickFormat="date"
-          areaChartData={apyData}
-          areaLineType="linear"
-        />
-      </ChartContainer>
+      <AreaChart
+        showCartesianGrid
+        xAxisTickFormat="date"
+        areaChartData={apyData}
+        areaLineType="linear"
+      />
     ),
   };
 

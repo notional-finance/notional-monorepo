@@ -1,4 +1,4 @@
-import { styled, Box } from '@mui/material';
+import { styled, Box, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import transactionSuccessSvg from '../../icons/icon-checkmark.svg';
 import transactionErrorSvg from '../../icons/icon-alert.svg';
@@ -10,6 +10,7 @@ import { TransactionStatus } from '@notional-finance/notionable-hooks';
 
 const Heading = styled(LargeInputTextEmphasized)`
   margin-bottom: 1.25rem;
+  display: flex;
 `;
 
 const StatusIcon = styled(Box)`
@@ -26,6 +27,7 @@ export const StatusHeading = ({
   heading,
   transactionStatus,
 }: StatusHeadingProps) => {
+  const theme = useTheme();
   let statusIcon;
   let headingText;
 
@@ -38,9 +40,7 @@ export const StatusHeading = ({
       break;
     case TransactionStatus.SUBMITTED:
       statusIcon = <ProgressIndicator type="notional" width="75" />;
-      headingText = (
-        <FormattedMessage defaultMessage={'Transaction Submitted.'} />
-      );
+      headingText = <FormattedMessage defaultMessage={'Pending...'} />;
       break;
     case TransactionStatus.CONFIRMED:
       statusIcon = (
@@ -51,7 +51,21 @@ export const StatusHeading = ({
         />
       );
       headingText = (
-        <FormattedMessage defaultMessage={'Success! Transaction Confirmed.'} />
+        <FormattedMessage
+          defaultMessage={'<span>Success!</span> Transaction Confirmed.'}
+          values={{
+            span: (msg: string) => (
+              <Box
+                style={{
+                  color: theme.palette.typography.accent,
+                  marginRight: theme.spacing(1),
+                }}
+              >
+                {msg}
+              </Box>
+            ),
+          }}
+        />
       );
       break;
     case TransactionStatus.REVERT:

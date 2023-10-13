@@ -1,5 +1,5 @@
 import { useTheme } from '@mui/material';
-import { trackEvent } from '@notional-finance/helpers';
+import { trackOutboundLink } from '@notional-finance/helpers';
 
 interface ExternalLinkProps {
   href: string;
@@ -31,12 +31,7 @@ export const ExternalLink = ({
       }}
       target="_blank"
       rel="noreferrer"
-      onClick={() =>
-        trackEvent('OUTBOUND_LINK', {
-          href,
-          isDocs: href.includes('docs.notional.finance'),
-        })
-      }
+      onClick={() => trackOutboundLink(href)}
     >
       {children}
     </a>

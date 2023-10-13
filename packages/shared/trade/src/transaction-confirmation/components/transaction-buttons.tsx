@@ -34,14 +34,16 @@ export const TransactionButtons = ({
     case TransactionStatus.SUBMITTED:
     case TransactionStatus.CONFIRMED:
       return (
-        <Button
-          variant="outlined"
-          onClick={onReturnToForm || onCancel}
-          size="large"
-          sx={{ marginTop: theme.spacing(4), width: '100%' }}
-        >
-          <FormattedMessage defaultMessage={'Return to Form'} />
-        </Button>
+        <Box sx={{ marginTop: theme.spacing(6) }}>
+          <Button
+            to="/portfolio/overview"
+            size="large"
+            variant="outlined"
+            sx={{ width: '100%' }}
+          >
+            <FormattedMessage defaultMessage={'View In Portfolio'} />
+          </Button>
+        </Box>
       );
     case TransactionStatus.ERROR_BUILDING:
     case TransactionStatus.REVERT:
@@ -65,6 +67,8 @@ export const TransactionButtons = ({
           </Button>
         </Box>
       );
+    case TransactionStatus.WAIT_USER_CONFIRM:
+      return <Box></Box>;
     default:
       return (
         <ButtonContainer>

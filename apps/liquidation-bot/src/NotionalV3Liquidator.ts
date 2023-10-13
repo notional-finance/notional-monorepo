@@ -237,16 +237,17 @@ export default class NotionalV3Liquidator {
       body: payload,
     });
 
-    /*await this.logger.submitEvent({
+    await this.logger.submitEvent({
       aggregation_key: 'AccountLiquidated',
       alert_type: 'info',
+      host: 'cloudflare',
+      network: this.settings.network,
       title: `Account liquidated`,
       tags: [
         `account:${flashLiq.accountLiq.accountId}`,
-        `network:${this.settings.network}`,
         `event:account_liquidated`,
       ],
       text: `Liquidated account ${flashLiq.accountLiq.accountId}`,
-    });*/
+    });
   }
 }

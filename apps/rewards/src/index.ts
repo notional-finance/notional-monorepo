@@ -1,8 +1,6 @@
 import {
   TreasuryManager__factory,
   ERC20__factory,
-  Curve2TokenConvexVaultABI,
-  Curve2TokenConvexVault__factory,
   Curve2TokenConvexVault,
 } from '@notional-finance/contracts';
 import {
@@ -12,6 +10,7 @@ import {
   getProviderFromNetwork,
 } from '@notional-finance/util';
 import { BigNumber, ethers } from 'ethers';
+import { vaults } from './vaults';
 
 export interface Env {
   NETWORK: string;
@@ -26,15 +25,6 @@ const TRADE_PARAMS = 'tuple(uint16,uint8,uint256,bool,bytes)';
 const SINGLE_SIDED_TRADE_PARAMS = `tuple(address,address,uint256,${TRADE_PARAMS})`;
 const VAULT_TRADE_PARAMS = `tuple(${SINGLE_SIDED_TRADE_PARAMS},${SINGLE_SIDED_TRADE_PARAMS})`;
 const ONE = BigNumber.from('1000000000000000000');
-
-// TODO: fetch these from DB or blockchain
-const vaults = [
-  {
-    address: '0xdb08f663e5D765949054785F2eD1b2aa1e9C22Cf',
-    abi: Curve2TokenConvexVaultABI,
-    factory: Curve2TokenConvexVault__factory,
-  },
-];
 
 const claimRewards = async (env: Env, provider: any) => {
   return Promise.all(
@@ -211,7 +201,15 @@ const reinvestRewards = async (env: Env, provider: any) => {
 };
 
 export default {
-  async fetch(): Promise<Response> {
+  async fetch(
+    request: Request,
+    env: Env,
+    _: ExecutionContext
+  ): Promise<Response> {
+    const provider = getProviderFromNetwork(Network[env.NETWORK], true);
+
+    await claimRewards(env, provider);
+    await reinvestRewards(env, provider);
     return new Response('OK');
   },
   async scheduled(_: ScheduledController, env: Env): Promise<void> {
