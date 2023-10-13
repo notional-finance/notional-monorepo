@@ -11,8 +11,13 @@ import { useEffect } from 'react';
 export const RepayDebt = () => {
   const context = useTradeContext('RepayDebt');
   const { category, sideDrawerKey } = useParams<PortfolioParams>();
-  const { currencyInputRef, setCurrencyInput, onMaxValue } =
-    useMaxRepay(context);
+  const {
+    currencyInputRef,
+    setCurrencyInput,
+    onMaxValue,
+    errorMsg,
+    requiredApprovalAmount,
+  } = useMaxRepay(context);
   const {
     state: { collateral },
   } = context;
@@ -41,6 +46,8 @@ export const RepayDebt = () => {
           `/portfolio/${category}/${sideDrawerKey}/${newToken}`
         }
         inputLabel={messages[PORTFOLIO_ACTIONS.REPAY_DEBT]['inputLabelTwo']}
+        errorMsgOverride={errorMsg}
+        requiredApprovalAmount={requiredApprovalAmount}
       />
     </PortfolioSideDrawer>
   );
