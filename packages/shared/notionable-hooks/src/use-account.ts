@@ -17,11 +17,13 @@ export function useAccountDefinition() {
   const {
     globalState: { selectedNetwork, selectedAccount, isAccountReady },
   } = useNotionalContext();
-  const registry = Registry.getAccountRegistry();
 
   const account$ =
     selectedNetwork && selectedAccount && isAccountReady
-      ? registry.subscribeAccount(selectedNetwork, selectedAccount)
+      ? Registry.getAccountRegistry().subscribeAccount(
+          selectedNetwork,
+          selectedAccount
+        )
       : undefined;
   const account = useObservableState(account$ || EMPTY) || undefined;
 
