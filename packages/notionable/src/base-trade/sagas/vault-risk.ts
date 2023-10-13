@@ -147,14 +147,8 @@ function vaultRiskSummary(
     ? Registry.getYieldRegistry().getAllYields(network)
     : [];
 
-  const priorBorrowRate =
-    prior?.maturity === PRIME_CASH_VAULT_MATURITY
-      ? yields.find(
-          (t) =>
-            t.token.tokenType === 'PrimeDebt' &&
-            t.token.currencyId === prior.vaultDebt.currencyId
-        )?.totalAPY
-      : prior?.lastImpliedFixedRate;
+  const priorBorrowRate = prior?.borrowAPY
+  const priorAPY = prior?.totalAPY;
   const postBorrowRate =
     post?.maturity === PRIME_CASH_VAULT_MATURITY
       ? newBorrowRate
@@ -164,11 +158,6 @@ function vaultRiskSummary(
       y.token.tokenType === 'VaultShare' &&
       y.token.vaultAddress === (prior?.vaultAddress || post?.vaultAddress)
   )?.totalAPY;
-  const priorAPY = leveragedYield(
-    vaultSharesAPY,
-    priorBorrowRate,
-    priorAccountRisk?.leverageRatio || 0
-  );
   const postAPY = leveragedYield(
     vaultSharesAPY,
     postBorrowRate,
