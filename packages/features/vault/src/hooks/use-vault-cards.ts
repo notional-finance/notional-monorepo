@@ -1,15 +1,18 @@
+import { formatLeverageRatio } from '@notional-finance/helpers';
 import {
   useAllMarkets,
   useAllVaults,
+  useVaultRiskProfiles,
 } from '@notional-finance/notionable-hooks';
 
 export const useVaultCards = () => {
   const listedVaults = useAllVaults();
+  const accountVaults = useVaultRiskProfiles();
   const {
     yields: { leveragedVaults },
     getMax,
   } = useAllMarkets();
-  
+
   const allVaults = listedVaults.map(
     ({
       vaultAddress,
@@ -28,13 +31,22 @@ export const useVaultCards = () => {
       const capacityUsedPercentage = totalUsedPrimaryBorrowCapacity
         .scale(100, maxPrimaryBorrowCapacity)
         .toNumber();
+      const vaultPosition = accountVaults.find(
+        (p) => p.vaultAddress === vaultAddress
+      );
+      const leverage = formatLeverageRatio(
+        vaultPosition?.leverageRatio() || y?.leveraged?.leverageRatio || 0,
+        1
+      );
 
       return {
         vaultAddress: vaultAddress,
         minDepositRequired,
         underlyingSymbol: primaryToken.symbol,
-        headlineRate: y?.totalAPY,
-        leverage: `${y?.leveraged?.leverageRatio.toFixed(1)}x`,
+        hasVaultPosition: !!vaultPosition,
+        headlineRate: vaultPosition?.totalAPY || y?.totalAPY,
+        netWorth: vaultPosition?.netWorth().toDisplayStringWithSymbol(3, true),
+        leverage,
         vaultName: name,
         capacityUsedPercentage,
         capacityRemaining: capacityRemaining.toDisplayStringWithSymbol(0),
