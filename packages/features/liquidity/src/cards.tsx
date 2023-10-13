@@ -7,7 +7,11 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { useEffect, useState } from 'react';
 import { FormattedMessage, MessageDescriptor, defineMessage } from 'react-intl';
-import { PRODUCTS, groupArrayToMap } from '@notional-finance/util';
+import {
+  PRODUCTS,
+  groupArrayToMap,
+  leveragedYield,
+} from '@notional-finance/util';
 import { CardContainer, FeatureLoader } from '@notional-finance/shared-web';
 import { useNotionalTheme } from '@notional-finance/styles';
 import {
@@ -185,12 +189,36 @@ export const LiquidityLeveragedCardView = () => {
     yields: { leveragedLiquidity },
     getMax,
   } = useAllMarkets();
-  const cardData = [
+  const maximumAPY = [
     ...groupArrayToMap(
       leveragedLiquidity,
       (t) => t.underlying.symbol
     ).entries(),
-  ].map(([, data]) => getMax(data)) as YieldData[];
+  ]
+    .map(([, data]) => getMax(data))
+    .map((y) => {
+      return {
+        ...y,
+        // This is the absolute maximum apy at the highest leverage ratio
+        totalAPY: leveragedYield(
+          y?.strategyAPY,
+          y?.leveraged?.debtRate,
+          y?.leveraged?.maxLeverageRatio
+        ),
+      };
+    }) as YieldData[];
+
+  // These are the default yields using prime debt
+  const cardData = leveragedLiquidity
+    .filter((y) => y.leveraged?.debtToken.tokenType === 'PrimeDebt')
+    .map((y) => {
+      return {
+        ...y,
+        maxAPY: maximumAPY.find(
+          (m) => m.token.currencyId === y.token.currencyId
+        )?.totalAPY,
+      };
+    });
 
   return (
     <LiquidityCardView
