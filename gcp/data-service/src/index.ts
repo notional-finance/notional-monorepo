@@ -90,6 +90,11 @@ async function main() {
 
   app.use(express.json());
   app.use(function (req, res, next) {
+    if (req.url.endsWith('/events') || req.url.endsWith('/')) {
+      next();
+      return;
+    }
+
     const authToken = req.headers['x-auth-token'];
     if (!authToken || authToken !== process.env.DATA_SERVICE_AUTH_TOKEN) {
       res.status(403).send('Invalid auth token');
@@ -256,6 +261,27 @@ async function main() {
               vaultId: params.vaultAddress,
             });
           }
+        }
+
+        const transferBatch = event.matchReasons.find(
+          (reason) =>
+            reason.signature ===
+            'TransferBatch(address,address,address,uint256[],uint256[])'
+        );
+        if (transferBatch) {
+          transferBatch.params.ids.forEach((id) => {
+            const params = decodeERC1155Id(padToHex256(BigNumber.from(id)));
+            if (
+              params.assetType === AssetType.VAULT_SHARE_ASSET_TYPE &&
+              params.vaultAddress
+            ) {
+              accountIds.push(transferBatch.params.to);
+              vaultAccounts.push({
+                accountId: transferBatch.params.to,
+                vaultId: params.vaultAddress,
+              });
+            }
+          });
         }
       });
 

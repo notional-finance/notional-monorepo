@@ -13,9 +13,10 @@ import LiquidationHelper from './LiquidationHelper';
 import ProfitCalculator from './ProfitCalculator';
 import AaveFlashLoanProvider from './lenders/AaveFlashLender';
 import { Logger } from '@notional-finance/durable-objects';
+import { Network } from '@notional-finance/util';
 
 export type LiquidatorSettings = {
-  network: string;
+  network: Network;
   flashLiquidatorAddress: string;
   flashLiquidatorOwner: string;
   flashLenderAddress: string;
@@ -94,10 +95,7 @@ export default class NotionalV3Liquidator {
   }
 
   private toExternal(input: any, externalPrecision: BigNumber) {
-    if (!input.success) {
-      return BigNumber.from(0);
-    }
-    return input.value
+    return input
       .mul(externalPrecision)
       .div(NotionalV3Liquidator.INTERNAL_PRECISION);
   }
@@ -188,17 +186,24 @@ export default class NotionalV3Liquidator {
       liq.getFlashLoanAmountCall(this.notionalContract, ra.id)
     );
 
-    const { results } = await aggregate(calls, this.provider, undefined, false);
+    const { results } = await aggregate(calls, this.provider, undefined, true);
 
     return await this.profitCalculator.sortByProfitability(
       liquidations
         .map((liq) => {
-          const flashLoanAmount = this.toExternal(
+          const result =
             results[
               `${ra.id}:${liq.getLiquidationType()}:${
                 liq.getLocalCurrency().id
               }:${liq.getCollateralCurrencyId()}:loanAmount`
-            ],
+            ];
+
+          if (!result) {
+            return null;
+          }
+
+          const flashLoanAmount = this.toExternal(
+            result,
             liq.getLocalCurrency().underlyingDecimals
           );
 
@@ -210,7 +215,7 @@ export default class NotionalV3Liquidator {
               .div(1000),
           };
         })
-        .filter((liq) => !liq.flashLoanAmount.isZero())
+        .filter((liq) => liq && !liq.flashLoanAmount.isZero())
     );
   }
 
@@ -235,10 +240,11 @@ export default class NotionalV3Liquidator {
     await this.logger.submitEvent({
       aggregation_key: 'AccountLiquidated',
       alert_type: 'info',
+      host: 'cloudflare',
+      network: this.settings.network,
       title: `Account liquidated`,
       tags: [
         `account:${flashLiq.accountLiq.accountId}`,
-        `network:${this.settings.network}`,
         `event:account_liquidated`,
       ],
       text: `Liquidated account ${flashLiq.accountLiq.accountId}`,

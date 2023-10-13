@@ -47,11 +47,6 @@ const _abi = [
                 name: "isSelfLPToken",
                 type: "bool",
               },
-              {
-                internalType: "uint32",
-                name: "settlementPeriodInSeconds",
-                type: "uint32",
-              },
             ],
             internalType: "struct DeploymentParams",
             name: "baseParams",
@@ -128,6 +123,11 @@ const _abi = [
       },
     ],
     name: "PoolShareTooHigh",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "VaultLocked",
     type: "error",
   },
   {
@@ -505,6 +505,25 @@ const _abi = [
   {
     inputs: [
       {
+        internalType: "uint256",
+        name: "maturity",
+        type: "uint256",
+      },
+    ],
+    name: "getExchangeRate",
+    outputs: [
+      {
+        internalType: "int256",
+        name: "",
+        type: "int256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "bytes32",
         name: "role",
         type: "bytes32",
@@ -589,11 +608,6 @@ const _abi = [
           {
             components: [
               {
-                internalType: "uint32",
-                name: "settlementPeriodInSeconds",
-                type: "uint32",
-              },
-              {
                 internalType: "contract ITradingModule",
                 name: "tradingModule",
                 type: "address",
@@ -623,11 +637,6 @@ const _abi = [
                   {
                     internalType: "uint16",
                     name: "maxPoolShare",
-                    type: "uint16",
-                  },
-                  {
-                    internalType: "uint16",
-                    name: "settlementCoolDownInMinutes",
                     type: "uint16",
                   },
                   {
@@ -793,6 +802,42 @@ const _abi = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "getStrategyVaultInfo",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "address",
+            name: "pool",
+            type: "address",
+          },
+          {
+            internalType: "uint8",
+            name: "singleSidedTokenIndex",
+            type: "uint8",
+          },
+          {
+            internalType: "uint256",
+            name: "totalLPTokens",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "totalVaultShares",
+            type: "uint256",
+          },
+        ],
+        internalType:
+          "struct ISingleSidedLPStrategyVault.SingleSidedLPStrategyVaultInfo",
+        name: "",
+        type: "tuple",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "bytes32",
@@ -873,11 +918,6 @@ const _abi = [
               {
                 internalType: "uint16",
                 name: "maxPoolShare",
-                type: "uint16",
-              },
-              {
-                internalType: "uint16",
-                name: "settlementCoolDownInMinutes",
                 type: "uint16",
               },
               {
@@ -997,7 +1037,23 @@ const _abi = [
       },
     ],
     name: "reinvestReward",
-    outputs: [],
+    outputs: [
+      {
+        internalType: "address",
+        name: "rewardToken",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "amountSold",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "poolClaimAmount",
+        type: "uint256",
+      },
+    ],
     stateMutability: "nonpayable",
     type: "function",
   },
@@ -1106,11 +1162,6 @@ const _abi = [
           {
             internalType: "uint16",
             name: "maxPoolShare",
-            type: "uint16",
-          },
-          {
-            internalType: "uint16",
-            name: "settlementCoolDownInMinutes",
             type: "uint16",
           },
           {

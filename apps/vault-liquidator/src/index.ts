@@ -8,10 +8,14 @@ import * as tokens from './config/tokens.json';
 import VaultV3Liquidator from './VaultV3Liquidator';
 import { IGasOracle, MetricNames } from './types';
 import { Logger } from '@notional-finance/durable-objects';
+import { AccountFetchMode, Registry } from '@notional-finance/core-entities';
 
 export interface Env {
+  NX_DATA_URL: string;
+  SUPPORTED_NETWORKS: Network[];
   ACCOUNT_SERVICE_URL: string;
-  NETWORK: string;
+  DATA_SERVICE_AUTH_TOKEN: string;
+  NETWORK: Network;
   FLASH_LIQUIDATOR_CONTRACT: string;
   FLASH_LIQUIDATOR_OWNER: string;
   FLASH_LENDER_ADDRESS: string;
@@ -31,12 +35,6 @@ export interface Env {
   ZERO_EX_API_KEY: string;
 }
 
-// TODO: this needs to be fetched dynamically
-const vaults = [
-  '0xdb08f663e5D765949054785F2eD1b2aa1e9C22Cf',
-  '0xaE38F4B960f44d86e798f36a374a1Ac3f2D859fa',
-];
-
 class ArbitrumGasOracle implements IGasOracle {
   public async getGasPrice(): Promise<BigNumber> {
     // 0.1 gwei
@@ -45,6 +43,20 @@ class ArbitrumGasOracle implements IGasOracle {
 }
 
 const run = async (env: Env) => {
+  Registry.initialize(
+    env.NX_DATA_URL,
+    AccountFetchMode.BATCH_ACCOUNT_VIA_SERVER,
+    false
+  );
+
+  // First trigger a refresh for all supported networks
+  await Registry.triggerRefresh(env.NETWORK);
+
+  const reg = Registry.getVaultRegistry();
+  const vaults = reg
+    .getAllSubjectKeys(env.NETWORK)
+    .filter((addr) => reg.isVaultEnabled(env.NETWORK, addr));
+
   const logger = new Logger({
     apiKey: env.DD_API_KEY,
     version: '1',
@@ -52,9 +64,16 @@ const run = async (env: Env) => {
     service: 'vault-liquidator',
   });
 
-  const accounts = (await (await fetch(env.ACCOUNT_SERVICE_URL)).json()) as any;
-  const addrs = accounts.map((a) => a.id);
-  const provider = getProviderFromNetwork(Network[env.NETWORK], true);
+  const accounts = (await (
+    await fetch(env.ACCOUNT_SERVICE_URL, {
+      headers: {
+        'x-auth-token': env.DATA_SERVICE_AUTH_TOKEN,
+      },
+    })
+  ).json()) as any;
+  const addrs = accounts.map((a) => a.account_id);
+
+  const provider = getProviderFromNetwork(env.NETWORK, true);
   const liq = new VaultV3Liquidator(
     provider,
     {

@@ -814,7 +814,7 @@ export default class DataService {
     return this.db
       .insert(
         accountIds.map((id) => ({
-          account_id: id,
+          account_id: id.toLowerCase(),
           network_id: this.networkToId(network),
         }))
       )
@@ -830,8 +830,8 @@ export default class DataService {
     return this.db
       .insert(
         vaultAccounts.map((va) => ({
-          account_id: va.accountId,
-          vault_id: va.vaultId,
+          account_id: va.accountId.toLowerCase(),
+          vault_id: va.vaultId.toLowerCase(),
           network_id: this.networkToId(network),
         }))
       )

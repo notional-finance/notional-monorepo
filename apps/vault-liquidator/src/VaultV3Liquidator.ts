@@ -8,9 +8,10 @@ import {
   VaultLiquidator__factory,
 } from '@notional-finance/contracts';
 import { Logger } from '@notional-finance/durable-objects';
+import { Network } from '@notional-finance/util';
 
 export type LiquidatorSettings = {
-  network: string;
+  network: Network;
   vaultAddrs: string[];
   flashLiquidatorAddress: string;
   flashLiquidatorOwner: string;
@@ -316,7 +317,7 @@ export default class VaultV3Liquidator {
       data: encodedTransaction,
     });
 
-    await fetch(this.settings.txRelayUrl + '/v1/calls/0', {
+    await fetch(this.settings.txRelayUrl + '/v1/txes/0', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -328,10 +329,11 @@ export default class VaultV3Liquidator {
     await this.logger.submitEvent({
       aggregation_key: 'AccountLiquidated',
       alert_type: 'info',
+      host: 'cloudflare',
+      network: this.settings.network,
       title: `Account liquidated`,
       tags: [
         `account:${accountLiq.account.id}`,
-        `network:${this.settings.network}`,
         `event:vault_account_liquidated`,
       ],
       text: `Liquidated account ${accountLiq.account.id}`,

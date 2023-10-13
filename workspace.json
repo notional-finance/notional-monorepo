@@ -23,6 +23,7 @@
     "notionable": "packages/notionable",
     "registry": "apps/registry",
     "registry-exchange": "apps/registry-exchange",
+    "rewards": "apps/rewards",
     "risk-engine": "packages/risk-engine",
     "shared-assets": "packages/shared/assets",
     "shared-helpers": "packages/shared/helpers",
