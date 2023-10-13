@@ -97,7 +97,11 @@ export const useTotalsChart = () => {
     );
   }
 
-  return { barChartData, barConfig };
+  return {
+    barChartData:
+      headerHistoryData?.netWorth.toFloat() === 0 ? [] : barChartData,
+    barConfig,
+  };
 };
 
 export default useTotalsChart;
