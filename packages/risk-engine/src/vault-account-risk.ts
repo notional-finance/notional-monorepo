@@ -11,6 +11,7 @@ import {
   RATE_PRECISION,
   SECONDS_IN_YEAR,
   getNowSeconds,
+  leveragedYield,
 } from '@notional-finance/util';
 import { BaseRiskProfile } from './base-risk';
 import { SymbolOrID } from './types';
@@ -203,6 +204,26 @@ export class VaultAccountRiskProfile extends BaseRiskProfile {
     const v = this.balances.find((t) => t.tokenType === 'VaultShare');
     if (!v) throw Error('Vault Shares not found');
     return v;
+  }
+
+  get borrowAPY() {
+    const fCashMarket = Registry.getExchangeRegistry().getfCashMarket(
+      this.network,
+      this.vaultDebt.currencyId
+    );
+    return this.vaultDebt.maturity === PRIME_CASH_VAULT_MATURITY
+      ? fCashMarket.getSpotInterestRate(this.vaultDebt.unwrapVaultToken().token)
+      : this.lastImpliedFixedRate || 0;
+  }
+
+  get strategyAPY() {
+    return Registry.getYieldRegistry()
+      .getAllYields(this.network)
+      .find(({ token }) => token.id === this.vaultShares.tokenId)?.totalAPY;
+  }
+
+  get totalAPY() {
+    return leveragedYield(this.strategyAPY, this.borrowAPY, this.leverageRatio());
   }
 
   protected _netCurrencyDebt() {
