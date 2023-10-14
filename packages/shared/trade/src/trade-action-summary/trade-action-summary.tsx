@@ -43,7 +43,7 @@ export function TradeActionSummary({
     vaultConfig,
     riskFactorLimit,
     vaultAddress,
-    customizeLeverage
+    customizeLeverage,
   } = state;
   const isVault = !!vaultAddress;
   const { nonLeveragedYields } = useAllMarkets();
@@ -67,7 +67,7 @@ export function TradeActionSummary({
 
   const selectedToken =
     (tradeType === 'LeveragedLend' ||
-      'LeveragedNToken' ||
+      tradeType === 'LeveragedNToken' ||
       tradeType === 'MintNToken') &&
     collateral
       ? formatTokenType(collateral).icon
