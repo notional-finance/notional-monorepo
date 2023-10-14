@@ -1,6 +1,6 @@
 import { useContext, useEffect } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { VaultActionContext } from '../vault-view/vault-action-provider';
+import { VaultActionContext } from '../vault';
 import { TokenBalance } from '@notional-finance/core-entities';
 import { useAllMarkets } from '@notional-finance/notionable-hooks';
 import {

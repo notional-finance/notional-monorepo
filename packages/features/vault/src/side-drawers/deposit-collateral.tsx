@@ -1,6 +1,6 @@
 import { DepositInput } from '@notional-finance/trade';
 import { VaultSideDrawer } from '../components/vault-side-drawer';
-import { VaultActionContext } from '../vault-view/vault-action-provider';
+import { VaultActionContext } from '../vault';
 import { messages } from '../messages';
 import { useCurrencyInputRef } from '@notional-finance/mui';
 import { useVaultActionErrors } from '../hooks';
