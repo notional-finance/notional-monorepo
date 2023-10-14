@@ -165,8 +165,8 @@ export const DrawerRoute = ({
 
   return (
     <Route path={path} exact={false}>
-      {/* <Transition in timeout={150}>
-        {(state: TransitionStatus) => {
+      <Transition in timeout={300}>
+        {(state: TransitionStatus) => (
           <Box
             sx={
               // Root drawer has a different fade in state
@@ -180,19 +180,19 @@ export const DrawerRoute = ({
                     ...slideTransition[state],
                   }
             }
-          > */}
-      {!isRootDrawer && (
-        // Root drawer does not have a back button
-        <SideBarSubHeader
-          paddingTop={theme.spacing(18)}
-          callback={onBack || history.goBack}
-          titleText={defineMessage({ defaultMessage: 'Back' })}
-        />
-      )}
-      <Component />
-      {/* </Box>;
-        }}
-      // </Transition> */}
+          >
+            {!isRootDrawer && (
+              // Root drawer does not have a back button
+              <SideBarSubHeader
+                paddingTop={theme.spacing(18)}
+                callback={onBack || history.goBack}
+                titleText={defineMessage({ defaultMessage: 'Back' })}
+              />
+            )}
+            <Component />
+          </Box>
+        )}
+      </Transition>
     </Route>
   );
 };
