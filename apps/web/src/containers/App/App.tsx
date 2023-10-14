@@ -43,7 +43,7 @@ import {
   LiquidityLeveragedCardView,
 } from '@notional-finance/liquidity-feature-shell';
 import {
-  VaultActionProvider,
+  VaultView,
   VaultCardView,
 } from '@notional-finance/vault-feature-shell';
 import { TermsView } from '../../containers/TermsView';
@@ -139,12 +139,12 @@ const AllRoutes = () => {
           />
           <AppLayoutRoute
             path="/vaults/:vaultAddress/:tradeType"
-            component={VaultActionProvider}
+            component={VaultView}
             routeType="PortfolioTransaction"
           />
           <AppLayoutRoute
             path="/vaults/:vaultAddress"
-            component={VaultActionProvider}
+            component={VaultView}
             routeType="Transaction"
           />
           <AppLayoutRoute

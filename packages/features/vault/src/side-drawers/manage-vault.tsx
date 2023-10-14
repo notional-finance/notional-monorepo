@@ -11,7 +11,7 @@ import {
 } from '@notional-finance/mui';
 import { useVaultProperties } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
-import { VaultActionContext } from '../vault-view/vault-action-provider';
+import { VaultActionContext } from '../vault';
 import { messages } from '../messages';
 import { VaultDetailsTable } from '../components';
 import { useManageVault } from '../hooks/use-manage-vault';

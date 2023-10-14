@@ -1,4 +1,4 @@
-import { VaultActionContext } from '../vault-view/vault-action-provider';
+import { VaultActionContext } from '../vault';
 import { VaultSideDrawer } from '../components';
 import { useContext } from 'react';
 

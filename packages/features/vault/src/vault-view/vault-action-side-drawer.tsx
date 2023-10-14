@@ -2,7 +2,7 @@ import { ComponentType, useCallback, useContext, useEffect } from 'react';
 import { Drawer, SideBarSubHeader } from '@notional-finance/mui';
 import { Transition, TransitionStatus } from 'react-transition-group';
 import { Box, SxProps, useTheme } from '@mui/material';
-import { VaultActionContext } from '../vault-view/vault-action-provider';
+import { VaultActionContext } from '../vault';
 import { defineMessage } from 'react-intl';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { useHistory } from 'react-router';
@@ -37,6 +37,7 @@ const slideTransition: Record<TransitionStatus, SxProps> = {
 };
 
 export const VaultActionSideDrawer = () => {
+  // TODO: this component needs to be generic...
   const theme = useTheme();
   const history = useHistory();
   const { clearSideDrawer } = useSideDrawerManager();

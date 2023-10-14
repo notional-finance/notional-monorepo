@@ -1,7 +1,7 @@
 import { useContext, useEffect } from 'react';
 import { VaultLeverageSlider, VaultSideDrawer } from '../components';
 import { messages } from '../messages';
-import { VaultActionContext } from '../vault-view/vault-action-provider';
+import { VaultActionContext } from '../vault';
 import { TokenBalance } from '@notional-finance/core-entities';
 
 export const WithdrawAndRepayDebt = () => {

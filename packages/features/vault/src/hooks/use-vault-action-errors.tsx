@@ -3,7 +3,7 @@ import { formatLeverageRatio } from '@notional-finance/helpers';
 import { useVaultCapacity } from './use-vault-capacity';
 import { useContext } from 'react';
 import { MessageDescriptor } from 'react-intl';
-import { VaultActionContext } from '../vault-view/vault-action-provider';
+import { VaultActionContext } from '../vault';
 import { messages } from '../messages';
 import { tradeErrors } from '@notional-finance/trade';
 

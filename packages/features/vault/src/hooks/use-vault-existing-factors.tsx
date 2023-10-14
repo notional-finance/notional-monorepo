@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { VaultActionContext } from '../vault-view/vault-action-provider';
+import { VaultActionContext } from '../vault';
 import {
   useAccountDefinition,
   useAllMarkets,

@@ -8,7 +8,7 @@ import {
 } from '@notional-finance/mui';
 import { useVaultCapacity } from '../hooks/use-vault-capacity';
 import { TokenIcon } from '@notional-finance/icons';
-import { VaultActionContext } from '../vault-view/vault-action-provider';
+import { VaultActionContext } from '../vault';
 import { messages } from '../messages';
 import { FormattedMessage } from 'react-intl';
 
