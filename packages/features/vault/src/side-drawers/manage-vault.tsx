@@ -1,5 +1,5 @@
 import { Box, styled, useTheme } from '@mui/material';
-import { useContext, useEffect } from 'react';
+import { useContext } from 'react';
 import { PORTFOLIO_ACTIONS } from '@notional-finance/util';
 import {
   ButtonData,
@@ -24,10 +24,6 @@ export const ManageVault = () => {
   const { reduceLeverageOptions, manageVaultOptions, rollMaturityOptions } =
     useManageVault();
   const { vaultName } = useVaultProperties(vaultAddress);
-
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
 
   return (
     <Box>

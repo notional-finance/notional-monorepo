@@ -1,25 +1,13 @@
-import { useContext, useEffect } from 'react';
+import { useContext } from 'react';
 import { VaultLeverageSlider, VaultSideDrawer } from '../components';
 import { messages } from '../messages';
 import { VaultActionContext } from '../vault';
-import { TokenBalance } from '@notional-finance/core-entities';
 
 export const WithdrawAndRepayDebt = () => {
   const context = useContext(VaultActionContext);
   const {
-    state: { calculateError, postAccountRisk, deposit },
-    updateState,
+    state: { calculateError, postAccountRisk },
   } = context;
-
-  useEffect(() => {
-    // No withdraws when doing a deleverage action
-    if (deposit) {
-      updateState({
-        depositBalance: TokenBalance.zero(deposit),
-        tradeType: 'WithdrawAndRepayVault',
-      });
-    }
-  }, [updateState, deposit]);
 
   const sliderError = calculateError
     ? messages['WithdrawAndRepayVault']['leverageTooHigh']

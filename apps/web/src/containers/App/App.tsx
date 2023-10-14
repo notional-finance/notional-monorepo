@@ -138,11 +138,6 @@ const AllRoutes = () => {
             routeType="Card"
           />
           <AppLayoutRoute
-            path="/vaults/:vaultAddress/:tradeType"
-            component={VaultView}
-            routeType="PortfolioTransaction"
-          />
-          <AppLayoutRoute
             path="/vaults/:vaultAddress"
             component={VaultView}
             routeType="Transaction"
