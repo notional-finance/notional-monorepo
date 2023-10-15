@@ -7,7 +7,7 @@ import {
 import { FeatureLoader } from '@notional-finance/shared-web';
 import React from 'react';
 import {
-  LiquidityLeveragedSidebar,
+  LiquidityLeveragedSideDrawer,
   LiquidityLeveragedSummary,
 } from './liquidity-leveraged';
 import {
@@ -48,8 +48,8 @@ const LiquidityView = ({
 export const LiquidityLeveraged = () => {
   return (
     <LiquidityView
-      tradeType="LeveragedNToken"
-      sidebar={<LiquidityLeveragedSidebar />}
+      tradeType="CreateLeveragedNToken"
+      sidebar={<LiquidityLeveragedSideDrawer />}
       mainContent={<LiquidityLeveragedSummary />}
     />
   );

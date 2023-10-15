@@ -38,6 +38,7 @@ export function resetOnTradeTypeChange(
     filterEmpty(),
     pairwise(),
     map(([prev, cur]) => {
+      // TODO: this logic may need to change esp for rolling maturities
       if (
         !isVault &&
         prev.tradeType !== undefined &&
@@ -111,6 +112,7 @@ export function initState(
   return combineLatest([state$, selectedNetwork$, global$]).pipe(
     filter(
       ([{ isReady, tradeType }, selectedNetwork, { isAccountPending }]) =>
+      // TODO: this might cripple us
         !isReady && !!selectedNetwork && !!tradeType && !isAccountPending
     ),
     map(() => ({ isReady: true }))
