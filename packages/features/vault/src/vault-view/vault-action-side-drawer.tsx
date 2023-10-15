@@ -10,7 +10,7 @@ import {
   RollMaturity,
 } from '../side-drawers';
 import { TokenBalance } from '@notional-finance/core-entities';
-import { SideDrawerRouter } from './side-drawer-route';
+import { SideDrawerRouter } from '@notional-finance/trade';
 
 export const VaultActionSideDrawer = () => {
   const {
@@ -48,12 +48,10 @@ export const VaultActionSideDrawer = () => {
       defaultNoPosition={'CreateVaultPosition'}
       routes={[
         {
-          isRootDrawer: true,
           tradeType: 'CreateVaultPosition',
           Component: CreateVaultPosition,
         },
         {
-          isRootDrawer: true,
           tradeType: 'Manage',
           Component: ManageVault,
           initialState: {
