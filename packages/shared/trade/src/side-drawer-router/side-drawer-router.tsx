@@ -1,12 +1,16 @@
-import { Box, SxProps, useTheme } from '@mui/material';
-import { Drawer, SideBarSubHeader } from '@notional-finance/mui';
+import { useTheme } from '@mui/material';
+import {
+  Drawer,
+  SideBarSubHeader,
+  DrawerTransition,
+} from '@notional-finance/mui';
 import {
   BaseTradeState,
   TradeType,
   VaultTradeType,
 } from '@notional-finance/notionable';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect } from 'react';
 import { defineMessage } from 'react-intl';
 import {
   Route,
@@ -15,7 +19,6 @@ import {
   useHistory,
   useLocation,
 } from 'react-router';
-import { Transition, TransitionStatus } from 'react-transition-group';
 
 type Path = TradeType | VaultTradeType | 'Manage';
 type UpdateState = (args: Partial<BaseTradeState>) => void;
@@ -108,32 +111,6 @@ export const SideDrawerRouter = ({
   );
 };
 
-const fadeStart = {
-  transition: `opacity 150ms ease`,
-  opacity: 0,
-};
-
-const fadeTransition: Record<TransitionStatus, SxProps> = {
-  entering: { opacity: 0 },
-  entered: { opacity: 1 },
-  exiting: { opacity: 1 },
-  exited: { opacity: 0 },
-  unmounted: {},
-};
-
-const slideStart = {
-  transition: `transform 150ms ease`,
-  transform: 'translateX(130%)',
-};
-
-const slideTransition: Record<TransitionStatus, SxProps> = {
-  entering: { transform: 'translateX(130%)' },
-  entered: { transform: 'translateX(0)' },
-  exiting: { transform: 'translateX(0)' },
-  exited: { transform: 'translateX(130%)' },
-  unmounted: {},
-};
-
 const DrawerRoute = ({
   Component,
   isRootDrawer,
@@ -151,15 +128,6 @@ const DrawerRoute = ({
 }) => {
   const history = useHistory();
   const theme = useTheme();
-  const ref = useRef(null);
-  const [inState, setInState] = useState(false);
-
-  useEffect(() => {
-    return () => setInState(false);
-    // NOTE: ensure this cleanup function only triggers once for the unmount
-    // transition animation
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   useEffect(() => {
     if (
@@ -175,60 +143,21 @@ const DrawerRoute = ({
       tradeType: tradeType === 'Manage' ? undefined : tradeType,
       ...(initialState || {}),
     });
-
-    // This sets the in state after the component initially mounts which
-    // triggers the transition state animation to occur
-    setInState(true);
   }, [updateState, currentTradeType, tradeType, initialState]);
 
   return (
     <Route path={path} exact={false}>
-      <Transition nodeRef={ref} in={inState} timeout={150}>
-        {(state: TransitionStatus) => {
-          console.log(
-            'transition state',
-            isRootDrawer,
-            state,
-            isRootDrawer
-              ? {
-                  ...fadeStart,
-                  ...fadeTransition[state],
-                }
-              : {
-                  ...slideStart,
-                  ...slideTransition[state],
-                }
-          );
-
-          return (
-            <Box
-              ref={ref}
-              sx={
-                // Root drawer has a different fade in state
-                isRootDrawer
-                  ? {
-                      ...fadeStart,
-                      ...fadeTransition[state],
-                    }
-                  : {
-                      ...slideStart,
-                      ...slideTransition[state],
-                    }
-              }
-            >
-              {!isRootDrawer && (
-                // Root drawer does not have a back button
-                <SideBarSubHeader
-                  paddingTop={theme.spacing(18)}
-                  callback={onBack || history.goBack}
-                  titleText={defineMessage({ defaultMessage: 'Back' })}
-                />
-              )}
-              <Component />
-            </Box>
-          );
-        }}
-      </Transition>
+      <DrawerTransition fade={isRootDrawer}>
+        {!isRootDrawer && (
+          // Root drawer does not have a back button
+          <SideBarSubHeader
+            paddingTop={theme.spacing(18)}
+            callback={onBack || history.goBack}
+            titleText={defineMessage({ defaultMessage: 'Back' })}
+          />
+        )}
+        <Component />
+      </DrawerTransition>
     </Route>
   );
 };

@@ -88,7 +88,7 @@ export const useConnect = () => {
     isReadOnlyAddress,
   ]);
 
-  useNftContract(selectedAddress);
+  // useNftContract(selectedAddress);
 
   return {
     isReadOnlyAddress,
