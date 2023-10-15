@@ -7,7 +7,11 @@ import {
   VaultAccountRiskProfile,
 } from '@notional-finance/risk-engine';
 import { truncateAddress } from '@notional-finance/helpers';
-import { convertToSignedfCashId, leveragedYield } from '@notional-finance/util';
+import {
+  RATE_PRECISION,
+  convertToSignedfCashId,
+  leveragedYield,
+} from '@notional-finance/util';
 import { useAllMarkets } from './use-market';
 import { usePendingPnLCalculation } from './use-transaction';
 import { useMemo } from 'react';
@@ -162,6 +166,49 @@ export function useHoldings() {
         }) || [],
     [pendingTokens, account, balanceStatements, nonLeveragedYields]
   );
+}
+
+export function useGroupedTokens() {
+  const holdings = useHoldings();
+
+  return useMemo(() => {
+    const assets = holdings.filter(({ balance }) => balance.isPositive());
+    const debts = holdings.filter(({ balance }) => balance.isNegative());
+
+    return assets.reduce(
+      (l, asset) => {
+        const matchingDebts = debts.filter(
+          ({ balance }) => balance.currencyId === asset.balance.currencyId
+        );
+        const matchingAssets = assets.filter(
+          ({ balance }) => balance.currencyId === asset.balance.currencyId
+        );
+
+        // Only creates a grouped holding if there is exactly one matching asset and debt
+        if (matchingDebts.length === 1 && matchingAssets.length === 1) {
+          const debt = matchingDebts[0];
+          const presentValue = asset.balance
+            .toUnderlying()
+            .add(debt.balance.toUnderlying());
+          const leverageRatio =
+            debt.balance
+              .toUnderlying()
+              .neg()
+              .ratioWith(presentValue)
+              .toNumber() / RATE_PRECISION;
+          l.push({ asset, debt, leverageRatio, presentValue });
+        }
+
+        return l;
+      },
+      [] as {
+        asset: typeof holdings[number];
+        debt: typeof holdings[number];
+        leverageRatio: number;
+        presentValue: TokenBalance;
+      }[]
+    );
+  }, [holdings]);
 }
 
 export function useVaultHoldings() {
