@@ -21,6 +21,7 @@ export const LiquidityVariableSidebar = () => {
   return (
     <TransactionSidebar
       context={context}
+      showDrawer
       handleLeverUpToggle={handleLeverUpToggle}
     >
       <DepositInput

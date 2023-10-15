@@ -12,10 +12,11 @@ export const CreateOrIncreasePosition = () => {
   const history = useHistory();
   const context = useContext(LiquidityContext);
   const {
-    state: { selectedDepositToken, debt },
+    state: { selectedDepositToken, debt, collateral },
   } = context;
   const { currencyInputRef } = useCurrencyInputRef();
-  const { depositTokensWithPositions } = useLeveragedNTokenPositions();
+  const { depositTokensWithPositions } =
+    useLeveragedNTokenPositions(collateral);
 
   const handleLeverUpToggle = useCallback(() => {
     history.push(`/${PRODUCTS.LIQUIDITY_VARIABLE}/${selectedDepositToken}`);

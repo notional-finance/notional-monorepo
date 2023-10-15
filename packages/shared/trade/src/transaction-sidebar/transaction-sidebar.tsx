@@ -27,6 +27,7 @@ interface TransactionSidebarProps {
   children: React.ReactNode;
   advancedToggle?: ToggleSwitchProps;
   isPortfolio?: boolean;
+  showDrawer?: boolean;
   enablePrimeBorrow?: boolean;
   handleLeverUpToggle?: () => void;
   onReturnToForm?: () => void;
@@ -43,6 +44,7 @@ export const TransactionSidebar = ({
   leveredUp,
   advancedToggle,
   isPortfolio,
+  showDrawer,
   enablePrimeBorrow,
   onReturnToForm,
   onCancelCallback,
@@ -84,7 +86,7 @@ export const TransactionSidebar = ({
     <Confirmation2
       heading={heading}
       context={context}
-      showDrawer={isPortfolio ? false : true}
+      showDrawer={isPortfolio ? false : showDrawer === true}
       onReturnToForm={onReturnToForm}
       onCancel={onConfirmCancel}
     />
@@ -105,7 +107,7 @@ export const TransactionSidebar = ({
       handleLeverUpToggle={handleLeverUpToggle}
       onCancelCallback={onCancelCallback}
       leveredUp={leveredUp || false}
-      showDrawer={isPortfolio ? false : true}
+      showDrawer={isPortfolio ? false : showDrawer === true}
       hideTextOnMobile={isPortfolio ? false : true}
     >
       {children}

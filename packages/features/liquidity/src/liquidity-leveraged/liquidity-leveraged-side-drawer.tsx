@@ -8,17 +8,16 @@ import { useLeveragedNTokenPositions } from './hooks/use-leveraged-ntoken-positi
 export const LiquidityLeveragedSideDrawer = () => {
   const context = useContext(LiquidityContext);
   const {
-    state: { selectedDepositToken, tradeType },
-    updateState,
+    state: { collateral },
   } = context;
-  const { currentPosition } = useLeveragedNTokenPositions();
+  const { currentPosition } = useLeveragedNTokenPositions(collateral);
 
   return (
     <SideDrawerRouter
       currentTradeType={tradeType}
       updateState={updateState}
       hasPosition={!!currentPosition}
-      rootPath={`/${PRODUCTS.LIQUIDITY_LEVERAGED}/${selectedDepositToken}`}
+      rootPath={`/${PRODUCTS.LIQUIDITY_LEVERAGED}`}
       defaultHasPosition={'IncreaseLeveragedNToken'}
       defaultNoPosition={'CreateLeveragedNToken'}
       routes={[
