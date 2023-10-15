@@ -8,7 +8,7 @@ import {
   BaseTradeState,
   TradeType,
   VaultTradeType,
-  isHashable,
+  getComparisonKey,
 } from '@notional-finance/notionable';
 import { BaseTradeContext } from '@notional-finance/notionable-hooks';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
@@ -121,12 +121,8 @@ const DrawerRoute = ({
 
   useEffect(() => {
     const allStateMatches = Object.keys(requiredState).every((k) => {
-      const s = isHashable(state[k])
-        ? (state[k] as { hashKey: string }).hashKey
-        : state[k];
-      const r = isHashable(requiredState[k])
-        ? (requiredState[k] as { hashKey: string }).hashKey
-        : requiredState[k];
+      const s = getComparisonKey(k, state);
+      const r = getComparisonKey(k, requiredState);
       return s === r;
     });
     if (allStateMatches) return;

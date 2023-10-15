@@ -128,7 +128,7 @@ const AllRoutes = () => {
             routeType="Card"
           />
           <AppLayoutRoute
-            path="/liquidity-leveraged/:selectedDepositToken"
+            path="/liquidity-leveraged/:action/:selectedDepositToken"
             component={LiquidityLeveraged}
             routeType="Transaction"
           />

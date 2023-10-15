@@ -1,22 +1,21 @@
-import { useCallback, useContext } from 'react';
-import {
-  DepositInput,
-  TransactionSidebar,
-} from '@notional-finance/trade';
-import { useHistory } from 'react-router-dom';
 import { useCurrencyInputRef } from '@notional-finance/mui';
-import { defineMessage } from 'react-intl';
-import { LiquidityContext } from '../liquidity';
+import { TransactionSidebar, DepositInput } from '@notional-finance/trade';
 import { PRODUCTS } from '@notional-finance/util';
-import { LiquidityTerms } from './components/liquidity-terms';
+import { useContext, useCallback } from 'react';
+import { defineMessage } from 'react-intl';
+import { useHistory } from 'react-router';
+import { LiquidityTerms } from '../components/liquidity-terms';
+import { LiquidityContext } from '../../liquidity';
+import { useLeveragedNTokenPositions } from '../hooks/use-leveraged-ntoken-positions';
 
-export const LiquidityLeveragedSidebar = () => {
+export const CreateOrIncreasePosition = () => {
   const history = useHistory();
   const context = useContext(LiquidityContext);
   const {
     state: { selectedDepositToken, debt },
   } = context;
   const { currencyInputRef } = useCurrencyInputRef();
+  const { depositTokensWithPositions } = useLeveragedNTokenPositions();
 
   const handleLeverUpToggle = useCallback(() => {
     history.push(`/${PRODUCTS.LIQUIDITY_VARIABLE}/${selectedDepositToken}`);
@@ -33,7 +32,13 @@ export const LiquidityLeveragedSidebar = () => {
         ref={currencyInputRef}
         inputRef={currencyInputRef}
         context={context}
-        newRoute={(newToken) => `/${PRODUCTS.LIQUIDITY_LEVERAGED}/${newToken}`}
+        newRoute={(newToken) => {
+          return `/${PRODUCTS.LIQUIDITY_LEVERAGED}/${
+            depositTokensWithPositions.includes(newToken || '')
+              ? 'IncreaseLeveragedNToken'
+              : 'CreateLeveragedNToken'
+          }/${newToken}`;
+        }}
         inputLabel={defineMessage({
           defaultMessage: '1. Enter deposit amount',
           description: 'input label',
@@ -43,5 +48,3 @@ export const LiquidityLeveragedSidebar = () => {
     </TransactionSidebar>
   );
 };
-
-export default LiquidityLeveragedSidebar;
