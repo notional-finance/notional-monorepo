@@ -6,7 +6,7 @@ import {
   VaultTradeType,
 } from '@notional-finance/notionable';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { defineMessage } from 'react-intl';
 import {
   Route,
@@ -21,7 +21,6 @@ type Path = TradeType | VaultTradeType | 'Manage';
 type UpdateState = (args: Partial<BaseTradeState>) => void;
 
 interface DrawerRouteProps {
-  isRootDrawer?: boolean;
   tradeType: Path;
   Component: React.ComponentType;
   initialState?: Partial<BaseTradeState>;
@@ -96,6 +95,10 @@ export const SideDrawerRouter = ({
             key={i}
             path={`${rootPath}/${r.tradeType}`}
             currentTradeType={currentTradeType}
+            isRootDrawer={
+              r.tradeType === defaultHasPosition ||
+              r.tradeType === defaultNoPosition
+            }
             updateState={updateState}
             {...r}
           />
@@ -131,7 +134,7 @@ const slideTransition: Record<TransitionStatus, SxProps> = {
   unmounted: {},
 };
 
-export const DrawerRoute = ({
+const DrawerRoute = ({
   Component,
   isRootDrawer,
   onBack,
@@ -141,12 +144,22 @@ export const DrawerRoute = ({
   initialState,
   updateState,
 }: DrawerRouteProps & {
+  isRootDrawer: boolean;
   path: string;
   updateState: UpdateState;
   currentTradeType: TradeType | VaultTradeType | undefined;
 }) => {
   const history = useHistory();
   const theme = useTheme();
+  const ref = useRef(null);
+  const [inState, setInState] = useState(false);
+
+  useEffect(() => {
+    return () => setInState(false);
+    // NOTE: ensure this cleanup function only triggers once for the unmount
+    // transition animation
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (
@@ -155,43 +168,66 @@ export const DrawerRoute = ({
         currentTradeType === initialState.tradeType)
     )
       return;
+
     updateState({
       // If "Manage" is defined then the initial state must supply a trade
       // type if required.
       tradeType: tradeType === 'Manage' ? undefined : tradeType,
       ...(initialState || {}),
     });
+
+    // This sets the in state after the component initially mounts which
+    // triggers the transition state animation to occur
+    setInState(true);
   }, [updateState, currentTradeType, tradeType, initialState]);
 
   return (
     <Route path={path} exact={false}>
-      <Transition in timeout={300}>
-        {(state: TransitionStatus) => (
-          <Box
-            sx={
-              // Root drawer has a different fade in state
-              isRootDrawer
-                ? {
-                    ...fadeStart,
-                    ...fadeTransition[state],
-                  }
-                : {
-                    ...slideStart,
-                    ...slideTransition[state],
-                  }
-            }
-          >
-            {!isRootDrawer && (
-              // Root drawer does not have a back button
-              <SideBarSubHeader
-                paddingTop={theme.spacing(18)}
-                callback={onBack || history.goBack}
-                titleText={defineMessage({ defaultMessage: 'Back' })}
-              />
-            )}
-            <Component />
-          </Box>
-        )}
+      <Transition nodeRef={ref} in={inState} timeout={150}>
+        {(state: TransitionStatus) => {
+          console.log(
+            'transition state',
+            isRootDrawer,
+            state,
+            isRootDrawer
+              ? {
+                  ...fadeStart,
+                  ...fadeTransition[state],
+                }
+              : {
+                  ...slideStart,
+                  ...slideTransition[state],
+                }
+          );
+
+          return (
+            <Box
+              ref={ref}
+              sx={
+                // Root drawer has a different fade in state
+                isRootDrawer
+                  ? {
+                      ...fadeStart,
+                      ...fadeTransition[state],
+                    }
+                  : {
+                      ...slideStart,
+                      ...slideTransition[state],
+                    }
+              }
+            >
+              {!isRootDrawer && (
+                // Root drawer does not have a back button
+                <SideBarSubHeader
+                  paddingTop={theme.spacing(18)}
+                  callback={onBack || history.goBack}
+                  titleText={defineMessage({ defaultMessage: 'Back' })}
+                />
+              )}
+              <Component />
+            </Box>
+          );
+        }}
       </Transition>
     </Route>
   );

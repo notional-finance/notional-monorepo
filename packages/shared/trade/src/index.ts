@@ -21,5 +21,6 @@ export * from './transaction-sidebar/transaction-sidebar';
 export * from './transaction-sidebar/components/transaction-headings';
 export * from './performance-chart/performance-chart';
 export * from './liquidation-chart/liquidation-chart';
+export * from './side-drawer-router/side-drawer-router';
 
 export * from './hooks';
