@@ -22,7 +22,7 @@ export const BorrowVariableSidebar = () => {
     : undefined;
 
   return (
-    <TransactionSidebar context={context} enablePrimeBorrow>
+    <TransactionSidebar context={context} enablePrimeBorrow showDrawer>
       <DepositInput
         ref={currencyInputRef}
         inputRef={currencyInputRef}
