@@ -1,4 +1,4 @@
-import { useContext, useEffect } from 'react';
+import { useContext } from 'react';
 import { VaultActionContext } from '../vault';
 import {
   ManageVault,
@@ -13,71 +13,69 @@ import { TokenBalance } from '@notional-finance/core-entities';
 import { SideDrawerRouter } from '@notional-finance/trade';
 
 export const VaultActionSideDrawer = () => {
+  const context = useContext(VaultActionContext);
   const {
-    state: {
-      vaultAddress,
-      priorAccountRisk,
-      tradeType,
-      deposit,
-      depositBalance,
-    },
-    updateState,
-  } = useContext(VaultActionContext);
-  const hasVaultPosition = !!priorAccountRisk;
-
-  useEffect(() => {
-    if (
-      (tradeType === 'RollVaultPosition' ||
-        tradeType === 'WithdrawAndRepayVault') &&
-      !depositBalance?.isZero() &&
-      deposit
-    ) {
-      // This update state cannot go inside the the initial state due to
-      // race conditions on when deposit is initialized
-      updateState({ depositBalance: TokenBalance.zero(deposit) });
-    }
-  }, [tradeType, deposit, depositBalance, updateState]);
+    state: { vaultAddress, priorAccountRisk, deposit },
+  } = context;
 
   return (
     <SideDrawerRouter
-      currentTradeType={tradeType}
-      updateState={updateState}
-      hasPosition={hasVaultPosition}
+      context={context}
+      hasPosition={!!priorAccountRisk}
       rootPath={`/vaults/${vaultAddress}`}
       defaultHasPosition={'Manage'}
       defaultNoPosition={'CreateVaultPosition'}
       routes={[
         {
-          tradeType: 'CreateVaultPosition',
+          relPath: 'CreateVaultPosition',
           Component: CreateVaultPosition,
-        },
-        {
-          tradeType: 'Manage',
-          Component: ManageVault,
-          initialState: {
-            tradeType: 'RollVaultPosition',
-            confirm: false,
+          requiredState: {
+            tradeType: 'CreateVaultPosition',
           },
         },
         {
-          tradeType: 'DepositVaultCollateral',
+          relPath: 'Manage',
+          Component: ManageVault,
+          requiredState: {
+            tradeType: 'RollVaultPosition',
+            depositBalance: deposit ? TokenBalance.zero(deposit) : undefined,
+          },
+        },
+        {
+          relPath: 'DepositVaultCollateral',
           Component: DepositCollateral,
+          requiredState: {
+            tradeType: 'DepositVaultCollateral',
+          },
         },
         {
-          tradeType: 'IncreaseVaultPosition',
+          relPath: 'IncreaseVaultPosition',
           Component: IncreaseVaultPosition,
+          requiredState: {
+            tradeType: 'IncreaseVaultPosition',
+          },
         },
         {
-          tradeType: 'RollVaultPosition',
+          relPath: 'RollVaultPosition',
           Component: RollMaturity,
+          requiredState: {
+            tradeType: 'RollVaultPosition',
+          },
         },
         {
-          tradeType: 'WithdrawAndRepayVault',
+          relPath: 'WithdrawAndRepayVault',
           Component: WithdrawAndRepayDebt,
+          requiredState: {
+            tradeType: 'WithdrawAndRepayVault',
+            depositBalance: deposit ? TokenBalance.zero(deposit) : undefined,
+          },
         },
         {
-          tradeType: 'WithdrawVault',
+          relPath: 'WithdrawVault',
           Component: WithdrawVault,
+          requiredState: {
+            tradeType: 'WithdrawVault',
+          },
         },
       ]}
     />

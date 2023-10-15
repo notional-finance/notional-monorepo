@@ -8,7 +8,9 @@ import {
   BaseTradeState,
   TradeType,
   VaultTradeType,
+  isHashable,
 } from '@notional-finance/notionable';
+import { BaseTradeContext } from '@notional-finance/notionable-hooks';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { useEffect } from 'react';
 import { defineMessage } from 'react-intl';
@@ -20,24 +22,22 @@ import {
   useLocation,
 } from 'react-router';
 
-type Path = TradeType | VaultTradeType | 'Manage';
-type UpdateState = (args: Partial<BaseTradeState>) => void;
-
 interface DrawerRouteProps {
-  tradeType: Path;
+  relPath: string;
   Component: React.ComponentType;
-  initialState?: Partial<BaseTradeState>;
+  requiredState: Partial<BaseTradeState> & {
+    tradeType: TradeType | VaultTradeType;
+  };
   onBack?: () => void;
 }
 
 interface SideDrawerRouterProps {
-  currentTradeType: TradeType | VaultTradeType | undefined;
   hasPosition: boolean;
   rootPath: string;
-  defaultHasPosition: Path;
-  defaultNoPosition: Path;
+  defaultHasPosition: string;
+  defaultNoPosition: string;
   routes: DrawerRouteProps[];
-  updateState: UpdateState;
+  context: BaseTradeContext;
 }
 
 export const SideDrawerRouter = ({
@@ -46,8 +46,7 @@ export const SideDrawerRouter = ({
   defaultNoPosition,
   routes,
   rootPath,
-  currentTradeType,
-  updateState,
+  context,
 }: SideDrawerRouterProps) => {
   const history = useHistory();
   const { pathname } = useLocation();
@@ -85,24 +84,17 @@ export const SideDrawerRouter = ({
   }, [clearSideDrawer]);
 
   return (
-    <Drawer
-      size="large"
-      // TODO: can we get away without this padding...
-      // sx={{
-      //   paddingTop: tradeType ? theme.spacing(4, 2) : '',
-      // }}
-    >
+    <Drawer size="large">
       <Switch>
         {routes.map((r, i) => (
           <DrawerRoute
             key={i}
-            path={`${rootPath}/${r.tradeType}`}
-            currentTradeType={currentTradeType}
+            path={`${rootPath}/${r.relPath}`}
+            context={context}
             isRootDrawer={
-              r.tradeType === defaultHasPosition ||
-              r.tradeType === defaultNoPosition
+              r.relPath === defaultHasPosition ||
+              r.relPath === defaultNoPosition
             }
-            updateState={updateState}
             {...r}
           />
         ))}
@@ -116,34 +108,31 @@ const DrawerRoute = ({
   isRootDrawer,
   onBack,
   path,
-  tradeType,
-  currentTradeType,
-  initialState,
-  updateState,
+  requiredState,
+  context,
 }: DrawerRouteProps & {
   isRootDrawer: boolean;
   path: string;
-  updateState: UpdateState;
-  currentTradeType: TradeType | VaultTradeType | undefined;
+  context: BaseTradeContext;
 }) => {
   const history = useHistory();
   const theme = useTheme();
+  const { state, updateState } = context;
 
   useEffect(() => {
-    if (
-      currentTradeType === tradeType ||
-      (initialState?.tradeType !== undefined &&
-        currentTradeType === initialState.tradeType)
-    )
-      return;
-
-    updateState({
-      // If "Manage" is defined then the initial state must supply a trade
-      // type if required.
-      tradeType: tradeType === 'Manage' ? undefined : tradeType,
-      ...(initialState || {}),
+    const allStateMatches = Object.keys(requiredState).every((k) => {
+      const s = isHashable(state[k])
+        ? (state[k] as { hashKey: string }).hashKey
+        : state[k];
+      const r = isHashable(requiredState[k])
+        ? (requiredState[k] as { hashKey: string }).hashKey
+        : requiredState[k];
+      return s === r;
     });
-  }, [updateState, currentTradeType, tradeType, initialState]);
+    if (allStateMatches) return;
+
+    updateState(requiredState);
+  }, [updateState, requiredState, state]);
 
   return (
     <Route path={path} exact={false}>
