@@ -105,8 +105,6 @@ export function useGroupedHoldings() {
               debtStatement?.totalProfitAndLoss
             )
           : undefined;
-
-      // TODO: Is there a way to tell the difference between Leveraged Liquidity and Leveraged Lend? Are the symbols different?
       return {
         asset: {
           symbol: icon,
