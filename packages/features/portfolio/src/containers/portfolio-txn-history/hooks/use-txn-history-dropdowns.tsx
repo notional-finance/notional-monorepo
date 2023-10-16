@@ -36,8 +36,6 @@ export const useTxnHistoryDropdowns = (
     setCurrencyOptions([]);
   }, [txnHistoryType]);
 
-  // const handleSetAssets = (assetOrVaultId, debtId) => {};
-
   useEffect(() => {
     const queryParams = new URLSearchParams(search);
     const assetOrVaultId = queryParams?.get('assetOrVaultId');
