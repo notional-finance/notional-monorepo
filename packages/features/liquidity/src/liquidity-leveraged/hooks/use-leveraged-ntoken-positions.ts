@@ -1,15 +1,18 @@
-import { TokenDefinition } from '@notional-finance/core-entities';
-import { useGroupedTokens } from '@notional-finance/notionable-hooks';
+import { useNotionalContext } from '@notional-finance/notionable-hooks';
 
-export const useLeveragedNTokenPositions = (nToken?: TokenDefinition) => {
-  const nTokenPositions = useGroupedTokens().filter(
-    ({ asset }) => asset.balance.tokenType === 'nToken'
+export const useLeveragedNTokenPositions = (selectedDepositToken?: string) => {
+  const {
+    globalState: { holdingsGroups },
+  } = useNotionalContext();
+
+  const nTokenPositions = holdingsGroups.filter(
+    ({ asset }) => asset.tokenType === 'nToken'
   );
   const currentPosition = nTokenPositions.find(
-    ({ asset }) => asset.balance.tokenId === nToken?.id
+    ({ asset }) => asset.underlying.symbol === selectedDepositToken
   );
   const depositTokensWithPositions = nTokenPositions.map(
-    ({ asset }) => asset.balance.underlying.symbol
+    ({ asset }) => asset.underlying.symbol
   );
 
   return { currentPosition, depositTokensWithPositions };

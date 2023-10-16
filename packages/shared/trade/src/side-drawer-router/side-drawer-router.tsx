@@ -24,6 +24,7 @@ import {
 
 interface DrawerRouteProps {
   relPath: string;
+  isRootDrawer?: boolean;
   Component: React.ComponentType;
   requiredState: Partial<BaseTradeState> & {
     tradeType: TradeType | VaultTradeType;
@@ -38,6 +39,7 @@ interface SideDrawerRouterProps {
   defaultNoPosition: string;
   routes: DrawerRouteProps[];
   context: BaseTradeContext;
+  routeMatch?: string;
 }
 
 export const SideDrawerRouter = ({
@@ -47,13 +49,14 @@ export const SideDrawerRouter = ({
   routes,
   rootPath,
   context,
+  routeMatch,
 }: SideDrawerRouterProps) => {
   const history = useHistory();
   const { pathname } = useLocation();
 
   useEffect(() => {
     const match = matchPath<{ path: string }>(pathname, {
-      path: `${rootPath}/:path`,
+      path: routeMatch || `${rootPath}/:path`,
     });
     const noPath = !match || match.params.path === undefined;
     const incorrectDefault =
@@ -69,6 +72,7 @@ export const SideDrawerRouter = ({
       history.push(defaultPath);
     }
   }, [
+    routeMatch,
     pathname,
     hasPosition,
     defaultHasPosition,
@@ -91,10 +95,6 @@ export const SideDrawerRouter = ({
             key={i}
             path={`${rootPath}/${r.relPath}`}
             context={context}
-            isRootDrawer={
-              r.relPath === defaultHasPosition ||
-              r.relPath === defaultNoPosition
-            }
             {...r}
           />
         ))}
@@ -111,7 +111,7 @@ const DrawerRoute = ({
   requiredState,
   context,
 }: DrawerRouteProps & {
-  isRootDrawer: boolean;
+  isRootDrawer?: boolean;
   path: string;
   context: BaseTradeContext;
 }) => {
@@ -120,11 +120,14 @@ const DrawerRoute = ({
   const { state, updateState } = context;
 
   useEffect(() => {
-    const allStateMatches = Object.keys(requiredState).every((k) => {
-      const s = getComparisonKey(k, state);
-      const r = getComparisonKey(k, requiredState);
-      return s === r;
-    });
+    const allStateMatches = Object.keys(requiredState)
+      // NOTE: this means that required state cannot clear previously set state
+      .filter((k) => requiredState[k] !== undefined)
+      .every((k) => {
+        const s = getComparisonKey(k, state);
+        const r = getComparisonKey(k, requiredState);
+        return s === r;
+      });
     if (allStateMatches) return;
 
     updateState(requiredState);

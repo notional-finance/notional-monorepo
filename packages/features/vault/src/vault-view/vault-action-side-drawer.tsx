@@ -27,6 +27,7 @@ export const VaultActionSideDrawer = () => {
       defaultNoPosition={'CreateVaultPosition'}
       routes={[
         {
+          isRootDrawer: true,
           relPath: 'CreateVaultPosition',
           Component: CreateVaultPosition,
           requiredState: {
@@ -34,6 +35,7 @@ export const VaultActionSideDrawer = () => {
           },
         },
         {
+          isRootDrawer: true,
           relPath: 'Manage',
           Component: ManageVault,
           requiredState: {

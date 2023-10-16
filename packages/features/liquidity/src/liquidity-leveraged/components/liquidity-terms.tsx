@@ -7,7 +7,7 @@ import {
   ToggleSwitch,
 } from '@notional-finance/mui';
 import { FormattedMessage, defineMessage } from 'react-intl';
-import { useContext, useEffect } from 'react';
+import { useContext } from 'react';
 import {
   LeverageSlider,
   VariableFixedMaturityToggle,
@@ -22,47 +22,13 @@ export const LiquidityTerms = () => {
   const context = useContext(LiquidityContext);
   const theme = useTheme();
   const { state, updateState } = context;
-  const {
-    customizeLeverage,
-    riskFactorLimit,
-    debt,
-    availableDebtTokens,
-    defaultLeverageRatio,
-    deposit,
-  } = state;
+  const { customizeLeverage, riskFactorLimit, deposit } = state;
 
   const maxYield = useMaxYield(deposit);
   const leverageRatio =
     riskFactorLimit?.riskFactor === 'leverageRatio'
       ? (riskFactorLimit.limit as number)
       : 0;
-
-  useEffect(() => {
-    if (
-      !customizeLeverage &&
-      deposit &&
-      defaultLeverageRatio &&
-      defaultLeverageRatio !== leverageRatio &&
-      (debt === undefined || debt.tokenType !== 'PrimeDebt')
-    ) {
-      updateState({
-        debt: availableDebtTokens?.find((t) => t.tokenType === 'PrimeDebt'),
-        riskFactorLimit: {
-          riskFactor: 'leverageRatio',
-          limit: defaultLeverageRatio,
-          args: [deposit.currencyId],
-        },
-      });
-    }
-  }, [
-    debt,
-    customizeLeverage,
-    availableDebtTokens,
-    updateState,
-    deposit,
-    defaultLeverageRatio,
-    leverageRatio,
-  ]);
 
   const toggleLeverage = () =>
     updateState({ customizeLeverage: !customizeLeverage });
