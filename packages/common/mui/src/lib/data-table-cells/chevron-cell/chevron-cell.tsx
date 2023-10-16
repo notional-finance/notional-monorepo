@@ -15,31 +15,33 @@ export const ChevronCell = ({ row }): JSX.Element => {
         justifyContent: 'center',
       }}
     >
-      <IconButton
-        aria-label="expand row"
-        id="dropdown-arrow-button"
-        size="small"
-        sx={{
-          paddingLeft: '0px',
-          height: '40px',
-          width: '40px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          paddingRight: '0px',
-        }}
-      >
-        {
-          <ArrowIcon
-            className="dropdown-arrow"
-            sx={{
-              color: theme.palette.primary.light,
-              transform: `rotate(${row.isExpanded ? '0' : '180'}deg)`,
-              transition: 'transform .5s ease-in-out',
-            }}
-          />
-        }
-      </IconButton>
+      {!row.original.isTotalRow && (
+        <IconButton
+          aria-label="expand row"
+          id="dropdown-arrow-button"
+          size="small"
+          sx={{
+            paddingLeft: '0px',
+            height: '40px',
+            width: '40px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            paddingRight: '0px',
+          }}
+        >
+          {
+            <ArrowIcon
+              className="dropdown-arrow"
+              sx={{
+                color: theme.palette.primary.light,
+                transform: `rotate(${row.isExpanded ? '0' : '180'}deg)`,
+                transition: 'transform .5s ease-in-out',
+              }}
+            />
+          }
+        </IconButton>
+      )}
     </Box>
   );
 };

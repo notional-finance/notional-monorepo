@@ -15,6 +15,13 @@ export type TabBarPropsType = {
   currentTab: number;
 };
 
+export type ToggleBarPropsType = {
+  toggleData: { label: ReactNode; id: number }[];
+  setToggleOption: Dispatch<SetStateAction<number>>;
+  toggleOption: number;
+  showToggle: boolean;
+};
+
 export type TableTitleButtonsType = {
   buttonText: string | ReactNode;
   callback: () => void;
