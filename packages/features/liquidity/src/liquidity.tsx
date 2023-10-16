@@ -6,10 +6,10 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { FeatureLoader } from '@notional-finance/shared-web';
 import React from 'react';
-// import {
-//   LiquidityLeveragedSidebar,
-//   LiquidityLeveragedSummary,
-// } from './liquidity-leveraged';
+import {
+  LiquidityLeveragedSidebar,
+  LiquidityLeveragedSummary,
+} from './liquidity-leveraged';
 import {
   LiquidityVariableSidebar,
   LiquidityVariableSummary,
@@ -47,12 +47,11 @@ const LiquidityView = ({
 
 export const LiquidityLeveraged = () => {
   return (
-    <div>LiquidityLeveraged</div>
-    // <LiquidityView
-    //   tradeType="LeveragedNToken"
-    //   sidebar={<LiquidityLeveragedSidebar />}
-    //   mainContent={<LiquidityLeveragedSummary />}
-    // />
+    <LiquidityView
+      tradeType="LeveragedNToken"
+      sidebar={<LiquidityLeveragedSidebar />}
+      mainContent={<LiquidityLeveragedSummary />}
+    />
   );
 };
 
