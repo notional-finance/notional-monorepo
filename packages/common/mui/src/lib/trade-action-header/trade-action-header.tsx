@@ -50,7 +50,6 @@ export function TradeActionHeader({
         {actionText}
       </Box>
     </Box>
-    </Box>
   );
 }
 
