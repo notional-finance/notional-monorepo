@@ -2,12 +2,13 @@ import { Box, styled, useTheme } from '@mui/material';
 import { LiquidityContext } from '../../liquidity';
 import {
   Body,
+  ButtonText,
   InputLabel,
   LabelValue,
   ToggleSwitch,
 } from '@notional-finance/mui';
-import { FormattedMessage, defineMessage } from 'react-intl';
-import { useContext } from 'react';
+import { FormattedMessage, MessageDescriptor, defineMessage } from 'react-intl';
+import React, { useContext } from 'react';
 import {
   LeverageSlider,
   VariableFixedMaturityToggle,
@@ -17,18 +18,142 @@ import {
   formatNumberAsPercent,
 } from '@notional-finance/helpers';
 import { useMaxYield } from '../hooks/use-max-yield';
+import { useHistory } from 'react-router';
+import { useLeveragedNTokenPositions } from '../hooks';
+import { PRODUCTS } from '@notional-finance/util';
 
-export const LiquidityTerms = () => {
-  const context = useContext(LiquidityContext);
+export const CustomLiquidityTerms = () => {
   const theme = useTheme();
-  const { state, updateState } = context;
-  const { customizeLeverage, riskFactorLimit, deposit } = state;
+  const context = useContext(LiquidityContext);
 
+  return (
+    <LiquidityTerms
+      inputLabel={defineMessage({ defaultMessage: '2. Customize your terms' })}
+      hasPosition={false}
+    >
+      <Box
+        sx={{
+          borderRadius: theme.shape.borderRadius(),
+          border: theme.shape.borderStandard,
+          padding: theme.spacing(2),
+        }}
+      >
+        <VariableFixedMaturityToggle context={context} />
+        <Box height={theme.spacing(6)} />
+        <LeverageSlider
+          context={context}
+          inputLabel={defineMessage({
+            defaultMessage: 'Specify your leverage',
+            description: 'input label',
+          })}
+        />
+      </Box>
+    </LiquidityTerms>
+  );
+};
+
+export const DefaultLiquidityTerms = () => {
+  const {
+    state: { customizeLeverage, riskFactorLimit, deposit },
+    updateState,
+  } = useContext(LiquidityContext);
+
+  const toggleLeverage = () =>
+    updateState({ customizeLeverage: !customizeLeverage });
   const maxYield = useMaxYield(deposit);
   const leverageRatio =
     riskFactorLimit?.riskFactor === 'leverageRatio'
       ? (riskFactorLimit.limit as number)
       : 0;
+
+  return (
+    <LiquidityTerms
+      inputLabel={defineMessage({
+        defaultMessage: 'Default Terms are Selected',
+      })}
+      hasPosition={false}
+    >
+      <TermsBox
+        hasPosition={false}
+        leverageRatio={leverageRatio}
+        borrowType="Variable"
+        actionClick={toggleLeverage}
+        actionBody={
+          <Box>
+            <Body
+              gutter="default"
+              main
+              msg={defineMessage({ defaultMessage: 'Customize' })}
+            />
+            <Body>
+              <FormattedMessage
+                defaultMessage={'Up to {max} APY'}
+                values={{
+                  max: maxYield ? formatNumberAsPercent(maxYield) : '',
+                }}
+              />
+            </Body>
+          </Box>
+        }
+      />
+    </LiquidityTerms>
+  );
+};
+
+export const ManageLiquidityTerms = () => {
+  const history = useHistory();
+  const {
+    state: { riskFactorLimit, deposit },
+  } = useContext(LiquidityContext);
+  const { currentPosition } = useLeveragedNTokenPositions(deposit?.symbol);
+
+  const leverageRatio =
+    riskFactorLimit?.riskFactor === 'leverageRatio'
+      ? (riskFactorLimit.limit as number)
+      : 0;
+
+  return (
+    <LiquidityTerms
+      inputLabel={defineMessage({
+        defaultMessage: 'Current Terms',
+      })}
+      hasPosition={true}
+    >
+      <TermsBox
+        hasPosition={true}
+        leverageRatio={leverageRatio}
+        borrowType={
+          currentPosition?.debt.tokenType === 'fCash' ? 'Fixed' : 'Variable'
+        }
+        actionClick={() =>
+          history.push(
+            `/${PRODUCTS.LIQUIDITY_LEVERAGED}/Manage/${deposit?.symbol}`
+          )
+        }
+        actionBody={
+          <Box sx={{ alignItems: 'center', display: 'flex' }}>
+            <ButtonText accent>
+              <FormattedMessage defaultMessage={'Manage Position'} />
+            </ButtonText>
+          </Box>
+        }
+      />
+    </LiquidityTerms>
+  );
+};
+
+const LiquidityTerms = ({
+  inputLabel,
+  hasPosition,
+  children,
+}: {
+  inputLabel: MessageDescriptor;
+  hasPosition: boolean;
+  children: React.ReactNode | React.ReactNode[];
+}) => {
+  const context = useContext(LiquidityContext);
+  const { state, updateState } = context;
+  const { customizeLeverage } = state;
 
   const toggleLeverage = () =>
     updateState({ customizeLeverage: !customizeLeverage });
@@ -42,104 +167,91 @@ export const LiquidityTerms = () => {
           alignItems: 'baseline',
         }}
       >
-        <InputLabel
-          inputLabel={
-            customizeLeverage
-              ? defineMessage({
-                  defaultMessage: '2. Customize your terms',
-                })
-              : defineMessage({
-                  defaultMessage: 'Default Terms are Selected',
-                })
-          }
-        />
-        <ToggleSwitch
-          isChecked={customizeLeverage}
-          onToggle={toggleLeverage}
-          label={<FormattedMessage defaultMessage={'Customize'} />}
-        />
-      </Box>
-      <Box>
-        {customizeLeverage ? (
-          <Box
-            sx={{
-              borderRadius: theme.shape.borderRadius(),
-              border: theme.shape.borderStandard,
-              padding: theme.spacing(2),
-            }}
-          >
-            <VariableFixedMaturityToggle context={context} />
-            <Box height={theme.spacing(6)} />
-            <LeverageSlider
-              context={context}
-              inputLabel={defineMessage({
-                defaultMessage: 'Specify your leverage',
-                description: 'input label',
-              })}
-            />
-          </Box>
-        ) : (
-          <Box
-            sx={{
-              display: 'flex',
-              width: '100%',
-              justifyContent: 'space-around',
-            }}
-          >
-            <BoundedBox
-              sx={{
-                marginRight: theme.spacing(3),
-                background: theme.palette.info.light,
-                border: `1px solid ${theme.palette.primary.light}`,
-              }}
-            >
-              <Box sx={{ marginRight: theme.spacing(6) }}>
-                <Body
-                  uppercase
-                  gutter="default"
-                  msg={defineMessage({ defaultMessage: 'Leverage' })}
-                />
-                <LabelValue>{formatLeverageRatio(leverageRatio, 2)}</LabelValue>
-              </Box>
-              <Box sx={{ width: '50%' }}>
-                <Body
-                  uppercase
-                  gutter="default"
-                  msg={defineMessage({ defaultMessage: 'Borrow' })}
-                />
-                <LabelValue>
-                  <FormattedMessage defaultMessage={'Variable'} />
-                </LabelValue>
-              </Box>
-            </BoundedBox>
-            <BoundedBox
-              sx={{
-                ':hover': {
-                  background: theme.palette.info.light,
-                  cursor: 'pointer',
-                },
-              }}
-              aria-controls="button"
-              onClick={toggleLeverage}
-            >
-              <Box>
-                <Body
-                  gutter="default"
-                  msg={defineMessage({ defaultMessage: 'Customize' })}
-                />
-                <Body>
-                  <FormattedMessage
-                    defaultMessage={'Up to {max} APY'}
-                    values={{
-                      max: maxYield ? formatNumberAsPercent(maxYield) : '',
-                    }}
-                  />
-                </Body>
-              </Box>
-            </BoundedBox>
-          </Box>
+        <InputLabel inputLabel={inputLabel} />
+        {!hasPosition && (
+          <ToggleSwitch
+            isChecked={customizeLeverage}
+            onToggle={toggleLeverage}
+            label={<FormattedMessage defaultMessage={'Customize'} />}
+          />
         )}
       </Box>
+      <Box>{children}</Box>
+    </Box>
+  );
+};
+
+const TermsBox = ({
+  leverageRatio,
+  hasPosition,
+  borrowType,
+  actionClick,
+  actionBody,
+}: {
+  leverageRatio: number;
+  hasPosition: boolean;
+  borrowType: 'Fixed' | 'Variable';
+  actionBody: React.ReactNode;
+  actionClick: () => void;
+}) => {
+  const theme = useTheme();
+
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        width: '100%',
+        justifyContent: 'space-between',
+      }}
+    >
+      <BoundedBox
+        sx={{
+          flexGrow: 1,
+          marginRight: theme.spacing(3),
+          background: hasPosition ? undefined : theme.palette.info.light,
+          border: hasPosition
+            ? theme.shape.borderStandard
+            : `1px solid ${theme.palette.primary.light}`,
+        }}
+      >
+        <Box sx={{ marginRight: theme.spacing(6) }}>
+          <Body
+            uppercase
+            gutter="default"
+            msg={defineMessage({ defaultMessage: 'Leverage' })}
+          />
+          <LabelValue>{formatLeverageRatio(leverageRatio, 2)}</LabelValue>
+        </Box>
+        <Box sx={{ width: '50%' }}>
+          <Body
+            uppercase
+            gutter="default"
+            msg={defineMessage({ defaultMessage: 'Borrow' })}
+          />
+          <LabelValue>
+            {borrowType === 'Variable' ? (
+              <FormattedMessage defaultMessage={'Variable'} />
+            ) : (
+              <FormattedMessage defaultMessage={'Fixed'} />
+            )}
+          </LabelValue>
+        </Box>
+      </BoundedBox>
+      <BoundedBox
+        sx={{
+          border: hasPosition
+            ? `1px solid ${theme.palette.primary.light}`
+            : theme.shape.borderStandard,
+          ':hover': {
+            background: theme.palette.info.light,
+            cursor: 'pointer',
+          },
+        }}
+        aria-controls="button"
+        onClick={actionClick}
+      >
+        {actionBody}
+      </BoundedBox>
     </Box>
   );
 };

@@ -4,7 +4,11 @@ import { PRODUCTS } from '@notional-finance/util';
 import { useContext, useCallback } from 'react';
 import { defineMessage } from 'react-intl';
 import { useHistory } from 'react-router';
-import { LiquidityTerms } from '../components/liquidity-terms';
+import {
+  CustomLiquidityTerms,
+  DefaultLiquidityTerms,
+  ManageLiquidityTerms,
+} from '../components/liquidity-terms';
 import { LiquidityContext } from '../../liquidity';
 import { useLeveragedNTokenPositions } from '../hooks/use-leveraged-ntoken-positions';
 
@@ -12,10 +16,10 @@ export const CreateOrIncreasePosition = () => {
   const history = useHistory();
   const context = useContext(LiquidityContext);
   const {
-    state: { selectedDepositToken, debt },
+    state: { selectedDepositToken, debt, customizeLeverage },
   } = context;
   const { currencyInputRef } = useCurrencyInputRef();
-  const { depositTokensWithPositions } =
+  const { currentPosition, depositTokensWithPositions } =
     useLeveragedNTokenPositions(selectedDepositToken);
 
   const handleLeverUpToggle = useCallback(() => {
@@ -45,7 +49,13 @@ export const CreateOrIncreasePosition = () => {
           description: 'input label',
         })}
       />
-      <LiquidityTerms />
+      {currentPosition ? (
+        <ManageLiquidityTerms />
+      ) : customizeLeverage ? (
+        <CustomLiquidityTerms />
+      ) : (
+        <DefaultLiquidityTerms />
+      )}
     </TransactionSidebar>
   );
 };
