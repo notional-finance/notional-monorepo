@@ -104,13 +104,13 @@ export const BorrowVariableTradeSummary = () => {
               Component: (
                 <AreaChart
                   showCartesianGrid
+                  xAxisTickCount={12}
                   areaLineType="linear"
                   xAxisTickFormat="percent"
                   areaChartData={areaChartData}
                   areaChartStyles={areaChartStyles}
                   chartToolTipData={chartToolTipData}
                   referenceLineValue={borrowUtilization}
-                  xAxisTickCount={12}
                 />
               ),
               chartHeaderData: chartHeaderData,

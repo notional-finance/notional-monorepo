@@ -1,7 +1,6 @@
 import { Box, useTheme } from '@mui/material';
 import { DoubleTokenIcon, TokenIcon } from '@notional-finance/icons';
 import { ReactNode } from 'react';
-import { H3 } from '../typography/typography';
 
 /* eslint-disable-next-line */
 export interface TradeActionHeaderProps {
@@ -42,14 +41,14 @@ export function TradeActionHeader({
       ) : (
         <TokenIcon symbol={token} size="medium" />
       )}
-      <H3
+      <Box
         sx={{
           fontWeight: theme.typography.fontWeightRegular,
           marginLeft: theme.spacing(2),
         }}
       >
         {actionText}
-      </H3>
+      </Box>
     </Box>
   );
 }

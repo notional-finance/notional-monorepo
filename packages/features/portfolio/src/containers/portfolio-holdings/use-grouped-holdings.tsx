@@ -68,6 +68,7 @@ export function useGroupedHoldings() {
     }) => {
       const underlying = asset.underlying;
       const { icon } = formatTokenType(asset.token);
+      const debtData = formatTokenType(debt.token);
       const presentValue = asset.toUnderlying().add(debt.toUnderlying());
       const leverageRatio =
         debt.toUnderlying().neg().ratioWith(presentValue).toNumber() /
@@ -104,10 +105,10 @@ export function useGroupedHoldings() {
               debtStatement?.totalProfitAndLoss
             )
           : undefined;
-
       return {
         asset: {
           symbol: icon,
+          symbolBottom: debtData?.icon,
           label:
             asset.tokenType === 'nToken'
               ? `Leveraged ${underlying.symbol} Liquidity`
@@ -175,6 +176,7 @@ export function useGroupedHoldings() {
           txnHistory: `/portfolio/transaction-history?${new URLSearchParams({
             txnHistoryType: TXN_HISTORY_TYPE.PORTFOLIO_HOLDINGS,
             assetOrVaultId: asset.token.id,
+            debtId: debtStatement?.token.id || '',
           })}`,
         },
       };

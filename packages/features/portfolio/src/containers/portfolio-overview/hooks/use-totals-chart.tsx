@@ -97,7 +97,12 @@ export const useTotalsChart = () => {
     );
   }
 
-  return { barChartData, barConfig };
+  const hasData = historyData?.find(({ netWorth }) => netWorth.toFloat() > 0);
+
+  return {
+    barChartData: hasData ? barChartData : [],
+    barConfig,
+  };
 };
 
 export default useTotalsChart;
