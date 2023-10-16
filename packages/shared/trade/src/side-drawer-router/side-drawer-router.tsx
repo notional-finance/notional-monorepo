@@ -55,9 +55,8 @@ export const SideDrawerRouter = ({
   const { pathname } = useLocation();
 
   useEffect(() => {
-    const match = matchPath<{ path: string }>(pathname, {
-      path: routeMatch || `${rootPath}/:path`,
-    });
+    const path = routeMatch || `${rootPath}/:path`;
+    const match = matchPath<{ path: string }>(pathname, { path });
     const noPath = !match || match.params.path === undefined;
     const incorrectDefault =
       match &&
@@ -66,9 +65,10 @@ export const SideDrawerRouter = ({
         : match.params.path !== defaultNoPosition);
 
     if (noPath || incorrectDefault) {
-      const defaultPath = `${rootPath}/${
+      const defaultPath = path.replace(
+        ':path',
         hasPosition ? defaultHasPosition : defaultNoPosition
-      }`;
+      );
       history.push(defaultPath);
     }
   }, [

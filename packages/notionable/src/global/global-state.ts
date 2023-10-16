@@ -55,7 +55,7 @@ interface AccountState {
   hasContestNFT?: BETA_ACCESS;
   contestTokenId?: string;
   // Groupings of 1 asset and 1 debt in the same currency
-  holdingsGroups: {
+  holdingsGroups?: {
     asset: TokenBalance;
     debt: TokenBalance;
     presentValue: TokenBalance;

@@ -34,8 +34,8 @@ export const LiquidityLeveragedSideDrawer = () => {
       hasPosition={!!currentPosition}
       routeMatch={`/${PRODUCTS.LIQUIDITY_LEVERAGED}/:path/${selectedDepositToken}`}
       rootPath={`/${PRODUCTS.LIQUIDITY_LEVERAGED}`}
-      defaultHasPosition={`IncreaseLeveragedNToken/${selectedDepositToken}`}
-      defaultNoPosition={`CreateLeveragedNToken/${selectedDepositToken}`}
+      defaultHasPosition={`IncreaseLeveragedNToken`}
+      defaultNoPosition={`CreateLeveragedNToken`}
       routes={[
         {
           isRootDrawer: true,
