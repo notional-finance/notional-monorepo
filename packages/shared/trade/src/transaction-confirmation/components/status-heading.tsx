@@ -7,6 +7,7 @@ import {
   LargeInputTextEmphasized,
 } from '@notional-finance/mui';
 import { TransactionStatus } from '@notional-finance/notionable-hooks';
+import { colors } from '@notional-finance/styles';
 
 const Heading = styled(LargeInputTextEmphasized)`
   margin-bottom: 1.25rem;
@@ -77,7 +78,15 @@ export const StatusHeading = ({
           alt="Exclamation point"
         />
       );
-      headingText = <FormattedMessage defaultMessage={'Error'} />;
+      headingText = (
+        <Box
+          sx={{
+            color: colors.red,
+          }}
+        >
+          <FormattedMessage defaultMessage={'Error!'} />
+        </Box>
+      );
       break;
     default:
       statusIcon = (

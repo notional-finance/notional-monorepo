@@ -97,6 +97,7 @@ export const LendVariableTradeSummary = () => {
                   showCartesianGrid
                   areaLineType="linear"
                   xAxisTickFormat="percent"
+                  xAxisTickCount={12}
                   areaChartData={areaChartData}
                   areaChartStyles={areaChartStyles}
                   chartToolTipData={chartToolTipData}

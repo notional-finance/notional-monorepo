@@ -13,16 +13,11 @@ import { useGroupedHoldings } from './use-grouped-holdings';
 
 export function usePortfolioHoldings() {
   const [expandedRows, setExpandedRows] = useState<ExpandedRows | null>(null);
+  const [toggleOption, setToggleOption] = useState<number>(0);
   const initialState = expandedRows !== null ? { expanded: expandedRows } : {};
   const pendingTokenData = usePendingPnLCalculation();
-
-  const { totals, detailedHoldings } = useDetailedHoldings();
+  const { detailedHoldings } = useDetailedHoldings();
   const { groupedRows, groupedTokens } = useGroupedHoldings();
-
-  // If groupedRows length is zero don't show grouped holdings or toggle
-
-  console.log({ groupedRows });
-  console.log({ detailedHoldings });
 
   const groupedHoldings = groupedRows.concat(
     detailedHoldings.filter(({ tokenId }) => !groupedTokens.includes(tokenId))
@@ -44,9 +39,25 @@ export function usePortfolioHoldings() {
     }
   }, [expandedRows, setExpandedRows]);
 
+  const toggleData = [
+    {
+      id: 0,
+      label: <FormattedMessage defaultMessage="Default" />,
+    },
+    {
+      id: 1,
+      label: <FormattedMessage defaultMessage="Detailed" />,
+    },
+  ];
+
   return {
     portfolioHoldingsColumns: Columns,
-    totals,
+    toggleBarProps: {
+      toggleOption,
+      setToggleOption,
+      toggleData,
+      showToggle: groupedRows.length > 0,
+    },
     groupedHoldings,
     detailedHoldings,
     pendingTokenData,
