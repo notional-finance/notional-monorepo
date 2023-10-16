@@ -70,3 +70,4 @@ export * from './lib/type-form/type-form';
 export * from './lib/typography/typography';
 export * from './lib/external-link/external-link';
 export * from './lib/drawer-transition/drawer-transition';
+export * from './lib/manage-side-drawer/manage-side-drawer';
