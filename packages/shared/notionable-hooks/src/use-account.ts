@@ -170,7 +170,7 @@ export function useGroupedTokens() {
     globalState: { holdingsGroups },
   } = useNotionalContext();
 
-  return holdingsGroups
+  return (holdingsGroups || [])
     .map(({ asset, debt, leverageRatio, presentValue }) => {
       return {
         asset: holdings.find(

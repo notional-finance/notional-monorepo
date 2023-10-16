@@ -74,6 +74,7 @@ export const loadGlobalManager = (
       return {
         isAccountPending: true,
         isAccountReady: false,
+        holdingsGroups: undefined,
         // Selected address must always be defined here
         selectedAccount: cur.wallet?.selectedAddress,
       };
@@ -91,6 +92,7 @@ export const loadGlobalManager = (
       return {
         isAccountPending: false,
         isAccountReady: false,
+        holdingsGroups: [],
         selectedAccount: undefined,
       };
     })
@@ -172,6 +174,7 @@ export const loadGlobalManager = (
         return Registry.getAccountRegistry()
           .subscribeAccount(s.selectedNetwork, s.selectedAccount)
           .pipe(
+            filter((a) => a !== null),
             map((account) => {
               const balances =
                 account?.balances.filter(

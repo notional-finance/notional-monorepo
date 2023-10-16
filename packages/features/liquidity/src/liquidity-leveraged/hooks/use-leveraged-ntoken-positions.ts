@@ -4,6 +4,13 @@ export const useLeveragedNTokenPositions = (selectedDepositToken?: string) => {
   const {
     globalState: { holdingsGroups },
   } = useNotionalContext();
+  if (holdingsGroups === undefined) {
+    return {
+      isLoading: true,
+      currentPosition: undefined,
+      depositTokensWithPositions: [] as string[],
+    };
+  }
 
   const nTokenPositions = holdingsGroups.filter(
     ({ asset }) => asset.tokenType === 'nToken'
@@ -15,5 +22,5 @@ export const useLeveragedNTokenPositions = (selectedDepositToken?: string) => {
     ({ asset }) => asset.underlying.symbol
   );
 
-  return { currentPosition, depositTokensWithPositions };
+  return { isLoading: false, currentPosition, depositTokensWithPositions };
 };
