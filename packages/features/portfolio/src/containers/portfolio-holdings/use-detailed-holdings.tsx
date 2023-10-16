@@ -53,23 +53,24 @@ export function useDetailedHoldings() {
         maturedTokenId,
         manageTokenId,
       }) => {
-        const { titleWithMaturity, icon } = formatTokenType(b.token);
+        const isDebt = b.isNegative();
+        const { icon, formattedTitle, title } = formatTokenType(
+          b.token,
+          isDebt
+        );
         const marketApy = marketYield?.totalAPY;
         const noteIncentives = marketYield?.incentives?.find(
           ({ tokenId }) => tokenId === NOTE?.id
         );
+
         return {
           tokenId: b.tokenId,
           pendingTokenData: isPending ? b.token : undefined,
           asset: {
             symbol: icon,
-            label: b.hasMatured
-              ? `Matured ${titleWithMaturity}`
-              : titleWithMaturity,
-            caption:
-              b.token.tokenType === 'fCash' && s?.impliedFixedRate !== undefined
-                ? `${formatNumberAsPercent(s.impliedFixedRate)} APY at Maturity`
-                : undefined,
+            symbolBottom: '',
+            label: formattedTitle ? formattedTitle : title,
+            caption: title,
           },
           marketApy: {
             data: [
@@ -86,6 +87,11 @@ export function useDetailedHoldings() {
                   ? `${formatNumberAsPercent(
                       noteIncentives?.incentiveAPY
                     )} NOTE`
+                  : b.token.tokenType === 'fCash' &&
+                    s?.impliedFixedRate !== undefined
+                  ? `${formatNumberAsPercent(
+                      s.impliedFixedRate
+                    )} APY at Maturity`
                   : '',
                 isNegative: false,
               },
@@ -104,7 +110,7 @@ export function useDetailedHoldings() {
             subRowData: [
               {
                 label: <FormattedMessage defaultMessage={'Amount'} />,
-                value: b.toDisplayString(3, true),
+                value: `${b.toDisplayString(3, true)} ${title}`,
               },
               {
                 label: <FormattedMessage defaultMessage={'Entry Price'} />,
@@ -159,7 +165,30 @@ export function useDetailedHoldings() {
           },
         };
       }
-    );
+    ) as any[];
+
+    detailedHoldings.push({
+      asset: {
+        symbol: '',
+        symbolBottom: '',
+        label: 'Total',
+        caption: '',
+      },
+      marketApy: {
+        data: [
+          {
+            displayValue: '',
+            isNegative: false,
+          },
+        ],
+      },
+      amountPaid: totals.amountPaid.toDisplayStringWithSymbol(),
+      presentValue: totals.presentValue.toDisplayStringWithSymbol(),
+      earnings: totals.earnings.toDisplayStringWithSymbol(),
+      actionRow: undefined,
+      tokenId: ' ',
+      isTotalRow: true,
+    });
 
     return { detailedHoldings, totals };
   }, [holdings, baseCurrency, history, fiatToken, NOTE]);

@@ -303,7 +303,7 @@ export function TokenIcon({
   style,
   useAccentBorderImg,
 }: TokenIconProps) {
-  const tokenKey = symbol.toLowerCase();
+  const tokenKey = symbol?.toLowerCase();
   const tokenIcon: TokenImg = Object.keys(TokenImageList).includes(tokenKey)
     ? TokenImageList[tokenKey]
     : TokenImageList['unknown'];
@@ -323,7 +323,7 @@ export function TokenIcon({
       : tokenIcon.img;
 
   if (tokenIcon.name === 'unknown') {
-    tokenIcon.alt = `${symbol.toLowerCase()} ${tokenIcon.alt}`;
+    tokenIcon.alt = `${symbol?.toLowerCase()} ${tokenIcon.alt}`;
   }
 
   return (

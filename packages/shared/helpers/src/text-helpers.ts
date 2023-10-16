@@ -23,18 +23,24 @@ export function truncateText(text: string, numOfChars: number) {
 }
 
 /** Used with the transaction history table */
-export function formatTokenType(token: TokenDefinition): {
+export function formatTokenType(token: TokenDefinition, isDebt?: boolean): {
   title: string;
   icon: string;
   caption?: string;
+  formattedTitle?: string;
   titleWithMaturity: string;
 } {
+  const underlying = Registry.getTokenRegistry().getUnderlying(
+    token.network,
+    token.currencyId
+  );
   switch (token.tokenType) {
     case 'Underlying':
     case 'nToken':
       return {
         title: token.symbol,
         icon: token.symbol,
+        formattedTitle: `${underlying.symbol} Liquidity`,
         titleWithMaturity: token.symbol,
       };
     case 'PrimeDebt':
@@ -46,21 +52,19 @@ export function formatTokenType(token: TokenDefinition): {
           token.currencyId
         ).symbol,
         titleWithMaturity: token.name,
+        formattedTitle: `Variable ${underlying.symbol} Borrow`,
       };
     case 'PrimeCash':
       return {
         title: token.name,
         icon: token.symbol,
         titleWithMaturity: token.name,
+        formattedTitle: `Variable ${underlying.symbol} Lend`,
       };
     case 'fCash': {
-      const underlying = Registry.getTokenRegistry().getUnderlying(
-        token.network,
-        token.currencyId
-      );
-
       return {
         title: `f${underlying.symbol}`,
+        formattedTitle: `Fixed ${underlying.symbol} ${isDebt ? 'Borrow' : 'Lend'}`,
         caption: formatMaturity(token.maturity || 0),
         icon: `f${underlying.symbol}`,
         titleWithMaturity: `f${underlying.symbol} ${formatMaturity(

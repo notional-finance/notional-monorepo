@@ -8,7 +8,8 @@ import { PortfolioRisk } from './portfolio-risk';
 export const PortfolioHoldings = () => {
   const {
     portfolioHoldingsColumns,
-    // detailedHoldings,
+    detailedHoldings,
+    toggleBarProps,
     groupedHoldings,
     pendingTokenData,
     setExpandedRows,
@@ -19,7 +20,10 @@ export const PortfolioHoldings = () => {
     <Box>
       <PortfolioRisk />
       <DataTable
-        data={groupedHoldings}
+        toggleBarProps={toggleBarProps}
+        data={
+          toggleBarProps.toggleOption === 0 ? groupedHoldings : detailedHoldings
+        }
         pendingTokenData={pendingTokenData}
         pendingMessage={
           <FormattedMessage

@@ -251,7 +251,7 @@ export const DataTableBody = ({
                 );
               })}
             </StyledTableRow>
-            {CustomRowComponent && (
+            {CustomRowComponent && !row.original.isTotalRow && (
               <TableRow key={`sub-row-${i}`}>
                 <TableCell
                   sx={{
