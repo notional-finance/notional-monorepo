@@ -56,11 +56,11 @@ const StyledTabs = styled(Tabs, {
   height: 100%;
   border-radius: ${theme?.shape.borderRadius()};
   border: ${theme?.shape.borderStandard};
-  max-height: 3rem;
+  max-height: ${theme?.spacing(6)};
   min-height: unset;
   margin-top: 0px;
   margin-bottom: 0px;
-  padding: 3px;
+  padding: ${theme?.spacing(0.375)};
   box-shadow: ${theme?.shape.shadowStandard};
   min-height: ${minHeight};
   transition: background 0.3s ease;
@@ -84,7 +84,7 @@ const StyledTab = styled(Tab)(
   height: 100%;
   font-family: ${theme.typography.fontFamily};
   color: ${colors.greenGrey};
-  font-weight: 500;
+  font-weight: ${theme.typography.fontWeightRegular};
   padding: ${theme.spacing(1)};
   z-index: 2;
   transition-delay: 0s;
