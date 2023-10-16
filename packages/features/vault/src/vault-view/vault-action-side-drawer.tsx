@@ -22,13 +22,13 @@ export const VaultActionSideDrawer = () => {
     <SideDrawerRouter
       context={context}
       hasPosition={!!priorAccountRisk}
-      rootPath={`/vaults/${vaultAddress}`}
+      routeMatch={`/vaults/${vaultAddress}/:path`}
       defaultHasPosition={'Manage'}
       defaultNoPosition={'CreateVaultPosition'}
       routes={[
         {
           isRootDrawer: true,
-          relPath: 'CreateVaultPosition',
+          slug: 'CreateVaultPosition',
           Component: CreateVaultPosition,
           requiredState: {
             tradeType: 'CreateVaultPosition',
@@ -36,7 +36,7 @@ export const VaultActionSideDrawer = () => {
         },
         {
           isRootDrawer: true,
-          relPath: 'Manage',
+          slug: 'Manage',
           Component: ManageVault,
           requiredState: {
             tradeType: 'RollVaultPosition',
@@ -44,28 +44,28 @@ export const VaultActionSideDrawer = () => {
           },
         },
         {
-          relPath: 'DepositVaultCollateral',
+          slug: 'DepositVaultCollateral',
           Component: DepositCollateral,
           requiredState: {
             tradeType: 'DepositVaultCollateral',
           },
         },
         {
-          relPath: 'IncreaseVaultPosition',
+          slug: 'IncreaseVaultPosition',
           Component: IncreaseVaultPosition,
           requiredState: {
             tradeType: 'IncreaseVaultPosition',
           },
         },
         {
-          relPath: 'RollVaultPosition',
+          slug: 'RollVaultPosition',
           Component: RollMaturity,
           requiredState: {
             tradeType: 'RollVaultPosition',
           },
         },
         {
-          relPath: 'WithdrawAndRepayVault',
+          slug: 'WithdrawAndRepayVault',
           Component: WithdrawAndRepayDebt,
           requiredState: {
             tradeType: 'WithdrawAndRepayVault',
@@ -73,7 +73,7 @@ export const VaultActionSideDrawer = () => {
           },
         },
         {
-          relPath: 'WithdrawVault',
+          slug: 'WithdrawVault',
           Component: WithdrawVault,
           requiredState: {
             tradeType: 'WithdrawVault',

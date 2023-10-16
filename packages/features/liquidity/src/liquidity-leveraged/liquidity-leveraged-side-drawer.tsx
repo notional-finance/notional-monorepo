@@ -32,13 +32,12 @@ export const LiquidityLeveragedSideDrawer = () => {
       context={context}
       hasPosition={!!currentPosition}
       routeMatch={`/${PRODUCTS.LIQUIDITY_LEVERAGED}/:path/${selectedDepositToken}`}
-      rootPath={`/${PRODUCTS.LIQUIDITY_LEVERAGED}`}
       defaultHasPosition={`IncreaseLeveragedNToken`}
       defaultNoPosition={`CreateLeveragedNToken`}
       routes={[
         {
           isRootDrawer: true,
-          relPath: 'CreateLeveragedNToken',
+          slug: 'CreateLeveragedNToken',
           Component: CreateOrIncreasePosition,
           requiredState: {
             tradeType: 'LeveragedNToken',
@@ -59,7 +58,7 @@ export const LiquidityLeveragedSideDrawer = () => {
         },
         {
           isRootDrawer: true,
-          relPath: 'IncreaseLeveragedNToken',
+          slug: 'IncreaseLeveragedNToken',
           Component: CreateOrIncreasePosition,
           requiredState: {
             tradeType: 'LeveragedNToken',
@@ -74,6 +73,15 @@ export const LiquidityLeveragedSideDrawer = () => {
               : undefined,
           },
         },
+        // {
+        //   relPath: 'Manage',
+        //   Component: ManagePosition,
+        //   requiredState: {
+        //     tradeType: 'RollDebt',
+        //     collateralBalance
+        //     collateral
+        //   }
+        // }
       ]}
     />
   );
