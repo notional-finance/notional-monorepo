@@ -23,7 +23,7 @@ import {
 } from 'react-router';
 
 interface DrawerRouteProps {
-  relPath: string;
+  slug: string;
   isRootDrawer?: boolean;
   Component: React.ComponentType;
   requiredState: Partial<BaseTradeState> & {
@@ -34,12 +34,11 @@ interface DrawerRouteProps {
 
 interface SideDrawerRouterProps {
   hasPosition: boolean;
-  rootPath: string;
   defaultHasPosition: string;
   defaultNoPosition: string;
   routes: DrawerRouteProps[];
   context: BaseTradeContext;
-  routeMatch?: string;
+  routeMatch: string;
 }
 
 export const SideDrawerRouter = ({
@@ -47,7 +46,6 @@ export const SideDrawerRouter = ({
   defaultHasPosition,
   defaultNoPosition,
   routes,
-  rootPath,
   context,
   routeMatch,
 }: SideDrawerRouterProps) => {
@@ -55,8 +53,7 @@ export const SideDrawerRouter = ({
   const { pathname } = useLocation();
 
   useEffect(() => {
-    const path = routeMatch || `${rootPath}/:path`;
-    const match = matchPath<{ path: string }>(pathname, { path });
+    const match = matchPath<{ path: string }>(pathname, { path: routeMatch });
     const noPath = !match || match.params.path === undefined;
     const incorrectDefault =
       match &&
@@ -65,7 +62,7 @@ export const SideDrawerRouter = ({
         : match.params.path !== defaultNoPosition);
 
     if (noPath || incorrectDefault) {
-      const defaultPath = path.replace(
+      const defaultPath = routeMatch.replace(
         ':path',
         hasPosition ? defaultHasPosition : defaultNoPosition
       );
@@ -78,7 +75,6 @@ export const SideDrawerRouter = ({
     defaultHasPosition,
     defaultNoPosition,
     history,
-    rootPath,
   ]);
 
   const { clearSideDrawer } = useSideDrawerManager();
@@ -93,7 +89,7 @@ export const SideDrawerRouter = ({
         {routes.map((r, i) => (
           <DrawerRoute
             key={i}
-            path={`${rootPath}/${r.relPath}`}
+            path={routeMatch.replace(':path', r.slug)}
             context={context}
             {...r}
           />
