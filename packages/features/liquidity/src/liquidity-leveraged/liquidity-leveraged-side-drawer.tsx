@@ -2,9 +2,14 @@ import { useContext } from 'react';
 import { SideDrawerRouter } from '@notional-finance/trade';
 import { LiquidityContext } from '../liquidity';
 import { PRODUCTS } from '@notional-finance/util';
-import { CreateOrIncreasePosition } from './side-drawers';
+import {
+  CreateOrIncreasePosition,
+  ManageLeveragedLiquidity,
+  RollMaturity,
+} from './side-drawers';
 import { useLeveragedNTokenPositions } from './hooks/use-leveraged-ntoken-positions';
 import { useParams } from 'react-router';
+import { RiskFactorLimit } from '@notional-finance/risk-engine';
 
 export const LiquidityLeveragedSideDrawer = () => {
   const context = useContext(LiquidityContext);
@@ -22,10 +27,19 @@ export const LiquidityLeveragedSideDrawer = () => {
     },
   } = context;
   const loaded = deposit && deposit?.symbol === selectedDepositToken;
-  // TODO: loading condition exists if holdings groups is not properly loaded by the
-  // time the account is ready. Need to clear holdings groups on isAccountPending
-  // and get at least one calculation before execution here...
+
   const { currentPosition } = useLeveragedNTokenPositions(selectedDepositToken);
+  const currentPositionState = {
+    collateral: currentPosition?.asset.token,
+    debt: currentPosition?.debt.token,
+    riskFactorLimit: currentPosition?.leverageRatio
+      ? ({
+          riskFactor: 'leverageRatio',
+          limit: currentPosition?.leverageRatio,
+          args: [currentPosition?.asset.currencyId],
+        } as RiskFactorLimit<'leverageRatio'>)
+      : undefined,
+  };
 
   return (
     <SideDrawerRouter
@@ -62,26 +76,42 @@ export const LiquidityLeveragedSideDrawer = () => {
           Component: CreateOrIncreasePosition,
           requiredState: {
             tradeType: 'LeveragedNToken',
-            collateral: currentPosition?.asset.token,
-            debt: currentPosition?.debt.token,
-            riskFactorLimit: currentPosition?.leverageRatio
-              ? {
-                  riskFactor: 'leverageRatio',
-                  limit: currentPosition?.leverageRatio,
-                  args: [currentPosition?.asset.currencyId],
-                }
-              : undefined,
+            ...currentPositionState,
+          },
+        },
+        {
+          slug: 'Manage',
+          Component: ManageLeveragedLiquidity,
+          requiredState: {
+            tradeType: 'RollDebt',
+            collateralBalance: currentPosition?.debt.neg(),
+            ...currentPositionState,
+          },
+        },
+        {
+          slug: 'RollMaturity',
+          Component: RollMaturity,
+          requiredState: {
+            tradeType: 'RollDebt',
           },
         },
         // {
-        //   relPath: 'Manage',
-        //   Component: ManagePosition,
+        //   slug: 'AdjustLeverage',
+        //   Component: AdjustLeverage,
         //   requiredState: {
-        //     tradeType: 'RollDebt',
-        //     collateralBalance
-        //     collateral
-        //   }
-        // }
+        //     tradeType: 'LeveragedNToken',
+        //     depositBalance: loaded ? TokenBalance.zero(deposit) : undefined,
+        //     ...currentPositionState,
+        //   },
+        // },
+        // {
+        //   slug: 'Withdraw',
+        //   Component: Withdraw,
+        //   requiredState: {
+        //     tradeType: 'LeveragedNToken',
+        //     ...currentPositionState,
+        //   },
+        // },
       ]}
     />
   );

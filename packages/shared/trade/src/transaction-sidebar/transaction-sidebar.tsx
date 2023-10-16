@@ -24,7 +24,7 @@ interface TransactionSidebarProps {
   helptext?: MessageDescriptor;
   context: TradeContext;
   leveredUp?: boolean;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   advancedToggle?: ToggleSwitchProps;
   isPortfolio?: boolean;
   showDrawer?: boolean;
