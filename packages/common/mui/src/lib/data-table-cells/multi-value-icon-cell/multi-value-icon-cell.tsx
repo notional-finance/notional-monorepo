@@ -1,5 +1,9 @@
 import { Box, useTheme } from '@mui/material';
-import { TokenIcon } from '@notional-finance/icons';
+import {
+  TokenIcon,
+  DoubleTokenIcon,
+  LightningIcon,
+} from '@notional-finance/icons';
 import {
   TableCell,
   SmallTableCell,
@@ -48,15 +52,28 @@ export const MultiValueIconCell = (props): JSX.Element => {
 
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
-      {values.symbol && <TokenIcon symbol={values.symbol} size="medium" />}
-      <Box marginLeft={theme.spacing(1)}>
+      {!original.isTotalRow &&
+        (values.symbol && values.symbolBottom ? (
+          <DoubleTokenIcon
+            size="medium"
+            symbolTop={values.symbol}
+            symbolBottom={values.symbolBottom}
+          />
+        ) : (
+          <TokenIcon symbol={values.symbol} size="medium" />
+        ))}
+
+      <Box sx={{ marginLeft: theme.spacing(1), marginRight: theme.spacing(1) }}>
         <FirstValue gutter="default" sx={{ marginBottom: '0px' }}>
           {values.label}
         </FirstValue>
-        <SecondValue sx={{ marginBottom: '0px' }}>
+        <SecondValue
+          sx={{ marginBottom: '0px', color: theme.palette.typography.light }}
+        >
           {values.caption || ''}
         </SecondValue>
       </Box>
+      {values.symbol && values.symbolBottom ? <LightningIcon /> : null}
     </Box>
   );
 };

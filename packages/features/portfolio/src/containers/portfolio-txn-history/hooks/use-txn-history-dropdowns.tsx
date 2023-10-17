@@ -38,13 +38,15 @@ export const useTxnHistoryDropdowns = (
 
   useEffect(() => {
     const queryParams = new URLSearchParams(search);
-    if (queryParams && queryParams.get('assetOrVaultId')) {
-      const assetOrVaultId = queryParams.get('assetOrVaultId');
-      const urlOption = allAssetOrVaultOptions.find(
-        ({ id }) => id === assetOrVaultId
+    const assetOrVaultId = queryParams?.get('assetOrVaultId');
+    const debtId = queryParams?.get('debtId') || '';
+
+    if (queryParams && assetOrVaultId) {
+      const urlOption = allAssetOrVaultOptions.filter(
+        ({ id }) => id === assetOrVaultId || id === debtId
       );
       if (urlOption && assetOrVaultOptions.length === 0) {
-        setAssetOrVaultOptions([urlOption]);
+        setAssetOrVaultOptions([...urlOption]);
       }
     }
   }, [search, allAssetOrVaultOptions, assetOrVaultOptions]);

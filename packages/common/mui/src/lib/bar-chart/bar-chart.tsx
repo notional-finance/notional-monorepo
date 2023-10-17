@@ -59,11 +59,9 @@ export const BarChart = ({
     return getDateString(date, { hideYear: true });
   };
 
-  console.log({});
-
   return (
     <Box>
-      {barConfig.length === 0 ? (
+      {barChartData.length === 0 ? (
         <Box sx={{ marginLeft: theme.spacing(3), marginTop: theme.spacing(6) }}>
           <FormattedMessage
             defaultMessage={'You have no active orders or historical data.'}
