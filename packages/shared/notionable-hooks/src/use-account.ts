@@ -12,6 +12,7 @@ import { useAllMarkets } from './use-market';
 import { usePendingPnLCalculation } from './use-transaction';
 import { useMemo } from 'react';
 import { useFiat } from './use-user-settings';
+import { calculateNTokenIncentives } from '@notional-finance/transaction';
 
 export function useAccountDefinition() {
   const {
@@ -151,6 +152,19 @@ export function useHoldings() {
 
           const isPending = pendingTokens.find((t) => t.id === balance.tokenId);
 
+          let totalNOTEEarnings: TokenBalance | undefined;
+          if (balance.tokenType === 'nToken' && statement) {
+            const accountIncentiveDebt = account?.accountIncentiveDebt?.find(
+              ({ currencyId }) => currencyId === balance.currencyId
+            );
+            const additionalNOTE = accountIncentiveDebt
+              ? calculateNTokenIncentives(balance, accountIncentiveDebt.value)
+              : statement.adjustedNOTEEarned.copy(0);
+
+            totalNOTEEarnings =
+              statement.adjustedNOTEEarned.add(additionalNOTE);
+          }
+
           return {
             balance,
             statement,
@@ -158,6 +172,7 @@ export function useHoldings() {
             manageTokenId,
             maturedTokenId,
             isPending,
+            totalNOTEEarnings,
           };
         }) || [],
     [pendingTokens, account, balanceStatements, nonLeveragedYields]
