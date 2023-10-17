@@ -306,6 +306,13 @@ function getTypography(
         color: getFontColors(themeVariant).accent,
         marginBottom: pxToMargin(48),
       },
+      largeInputEmphasized: {
+        fontSize: pxToRem(24),
+        fontWeight: fontWeight.demiBold,
+        color: getFontColors(themeVariant).primary,
+        lineHeight,
+        marginBottom: pxToMargin(24),
+      },
       diagramTitle: {
         fontSize: pxToRem(22),
         fontWeight: fontWeight.demiBold,
