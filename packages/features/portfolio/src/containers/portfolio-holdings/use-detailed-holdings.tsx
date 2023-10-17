@@ -14,7 +14,11 @@ import {
   useHoldings,
   useNOTE,
 } from '@notional-finance/notionable-hooks';
-import { PORTFOLIO_ACTIONS, TXN_HISTORY_TYPE } from '@notional-finance/util';
+import {
+  Network,
+  PORTFOLIO_ACTIONS,
+  TXN_HISTORY_TYPE,
+} from '@notional-finance/util';
 
 export function useDetailedHoldings() {
   const holdings = useHoldings();
@@ -52,6 +56,7 @@ export function useDetailedHoldings() {
         isPending,
         maturedTokenId,
         manageTokenId,
+        totalNOTEEarnings,
       }) => {
         const isDebt = b.isNegative();
         const { icon, formattedTitle, title } = formatTokenType(
@@ -62,6 +67,17 @@ export function useDetailedHoldings() {
         const noteIncentives = marketYield?.incentives?.find(
           ({ tokenId }) => tokenId === NOTE?.id
         );
+        const totalEarningsWithNOTE = s?.totalProfitAndLoss
+          .toFiat(baseCurrency)
+          .add(
+            totalNOTEEarnings?.toFiat(baseCurrency) ||
+              TokenBalance.fromSymbol(0, baseCurrency, Network.All)
+          );
+        // NOTE: for the tooltip, the earnings are:
+        // Only show the tooltip if:
+        // const showEarningsTooltip = totalNOTEEarnings?.isPositive()
+        //  underlying: totalProfitAndLoss (totalProfitAndLoss.toFiat(baseCurrency))
+        //  NOTE: totalNOTEEarnings (totalNOTEEarnings.toFiat(baseCurrency))
 
         return {
           tokenId: b.tokenId,
@@ -101,11 +117,8 @@ export function useDetailedHoldings() {
             ? formatCryptoWithFiat(baseCurrency, s.accumulatedCostRealized)
             : '-',
           presentValue: formatCryptoWithFiat(baseCurrency, b.toUnderlying()),
-          earnings: s
-            ? s.totalProfitAndLoss
-                .toFiat(baseCurrency)
-                .toDisplayStringWithSymbol(3, true)
-            : '-',
+          earnings:
+            totalEarningsWithNOTE?.toDisplayStringWithSymbol(3, true) || '-',
           actionRow: {
             subRowData: [
               {
