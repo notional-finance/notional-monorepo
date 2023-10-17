@@ -698,6 +698,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
       current as BalanceSnapshot,
       network
     );
+    const NOTE = Registry.getTokenRegistry().getTokenBySymbol(network, 'NOTE');
 
     const currentProfitAndLoss = currentStatement.balance
       .toUnderlying()
@@ -709,6 +710,10 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
       );
     const totalInterestAccrual = currentProfitAndLoss.sub(
       currentStatement.totalILAndFees
+    );
+    const adjustedNOTEEarned = TokenBalance.from(
+      current.adjustedNOTEEarned,
+      NOTE
     );
 
     return {
@@ -722,6 +727,7 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
       totalProfitAndLoss: currentProfitAndLoss,
       totalInterestAccrual,
       accumulatedCostRealized: currentStatement.accumulatedCostRealized,
+      adjustedNOTEEarned,
     };
   }
 
