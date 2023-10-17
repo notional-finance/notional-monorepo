@@ -128,7 +128,7 @@ const ContentWrapper = styled(Box, {
 `
 );
 
-const StyledIcon = styled(Box)(
+export const StyledIcon = styled(Box)(
   ({ theme }) => `
   position: relative;
   left: ${theme.spacing(23)};
