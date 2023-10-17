@@ -1,4 +1,3 @@
-import { ReactNode } from 'react';
 import { Box, useTheme, styled } from '@mui/material';
 import { Card } from '../../card/card';
 import { Link } from 'react-router-dom';
@@ -24,22 +23,25 @@ export interface VaultProps {
   capacityUsedPercentage: number;
   capacityRemaining: string;
   route: string;
-  buttonText: ReactNode;
+  hasVaultPosition: boolean;
+  netWorth?: string;
 }
 
 export const Vault = ({
   vaultName,
   leverage,
+  netWorth,
   rate,
   symbol,
   minDepositRequired,
   capacityUsedPercentage,
   capacityRemaining,
   route,
-  buttonText,
+  hasVaultPosition,
 }: VaultProps) => {
   const theme = useTheme();
   const formattedRate = `${formatNumberAsPercent(rate, 2)} APY`;
+
   return (
     <Link to={route}>
       <Card height={'auto'}>
@@ -60,10 +62,14 @@ export const Vault = ({
             {vaultName}
           </SmallInput>
           <SectionTitle textAlign="left" gutter="default">
-            <FormattedMessage
-              defaultMessage="{leverage} LEVERAGE"
-              values={{ leverage }}
-            />
+            {hasVaultPosition ? (
+              <FormattedMessage defaultMessage="current APY" />
+            ) : (
+              <FormattedMessage
+                defaultMessage="{leverage} LEVERAGE"
+                values={{ leverage }}
+              />
+            )}
           </SectionTitle>
           <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
             <LightningIcon
@@ -80,11 +86,16 @@ export const Vault = ({
           </Box>
 
           <SectionTitle textAlign="left" marginBottom={theme.spacing(1)}>
-            <FormattedMessage defaultMessage="MINIMUM DEPOSIT" />
+            {hasVaultPosition ? (
+              <FormattedMessage defaultMessage="CURRENT NET WORTH" />
+            ) : (
+              <FormattedMessage defaultMessage="MINIMUM DEPOSIT" />
+            )}
           </SectionTitle>
           <SmallInput textAlign="left" marginBottom={theme.spacing(5)}>
-            {minDepositRequired}
+            {hasVaultPosition ? netWorth : minDepositRequired}
           </SmallInput>
+
           <SectionTitle textAlign="left">
             <FormattedMessage defaultMessage="VAULT BORROW CAPACITY" />
           </SectionTitle>
@@ -94,6 +105,7 @@ export const Vault = ({
             value={capacityUsedPercentage}
             step={1}
             disabled={true}
+            hideThumb
             sx={{
               marginBottom: theme.spacing(0),
             }}
@@ -117,12 +129,16 @@ export const Vault = ({
         <Button
           fullWidth
           size="large"
-          variant="contained"
+          variant={hasVaultPosition ? 'outlined' : 'contained'}
           sx={{
             textTransform: 'uppercase',
           }}
         >
-          {buttonText}
+          {hasVaultPosition ? (
+            <FormattedMessage defaultMessage="Manage Vault" />
+          ) : (
+            <FormattedMessage defaultMessage="Enter Vault" />
+          )}
         </Button>
       </Card>
     </Link>
