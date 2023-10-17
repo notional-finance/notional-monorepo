@@ -84,8 +84,8 @@ export const LiquidityLeveragedSideDrawer = () => {
           Component: ManageLeveragedLiquidity,
           requiredState: {
             tradeType: 'RollDebt',
+            collateral: currentPosition?.debt.token,
             collateralBalance: currentPosition?.debt.neg(),
-            ...currentPositionState,
           },
         },
         {

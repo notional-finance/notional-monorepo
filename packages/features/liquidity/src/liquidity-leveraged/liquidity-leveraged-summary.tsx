@@ -5,7 +5,11 @@ import {
   PerformanceChart,
   TradeActionSummary,
 } from '@notional-finance/trade';
-import { useLiquidityFaq, useNTokenPriceExposure } from './hooks';
+import {
+  useLeveragedNTokenPositions,
+  useLiquidityFaq,
+  useNTokenPriceExposure,
+} from './hooks';
 import { FormattedMessage } from 'react-intl';
 import { useContext } from 'react';
 import { LiquidityContext } from '../liquidity';
@@ -26,12 +30,22 @@ export const LiquidityLeveragedSummary = () => {
     collateral,
     customizeLeverage,
     collateralBalance,
+    tradeType,
+    debt,
   } = state;
   const tokenSymbol = selectedDepositToken || '';
-  const debtAPY = useDebtAPY(state);
+  const { currentPosition } = useLeveragedNTokenPositions(selectedDepositToken);
+  const nTokenBalance =
+    tradeType === 'LeveragedNToken'
+      ? collateralBalance
+      : currentPosition?.asset;
+  const debtOverride =
+    tradeType === 'RollDebt' && !debt ? currentPosition?.debt.token : undefined;
+
+  const debtAPY = useDebtAPY(state, debtOverride);
   const { totalsData, liquidityYieldData } = useTotalsData(
     tokenSymbol,
-    collateralBalance,
+    nTokenBalance,
     debtAPY
   );
   const { faqs, faqHeaderLinks } = useLiquidityFaq(tokenSymbol);

@@ -1,4 +1,3 @@
-import { useTheme } from '@mui/material';
 import { useContext, useEffect } from 'react';
 import { PORTFOLIO_ACTIONS } from '@notional-finance/util';
 import {
@@ -15,7 +14,6 @@ import { VaultDetailsTable } from '../components';
 import { useManageVault } from '../hooks/use-manage-vault';
 
 export const ManageVault = () => {
-  const theme = useTheme();
   const {
     state: { vaultAddress },
   } = useContext(VaultActionContext);
@@ -30,11 +28,7 @@ export const ManageVault = () => {
   const optionSections = [
     {
       buttons: manageVaultOptions.map(({ label, link }, index) => (
-        <SideDrawerButton
-          key={index}
-          sx={{ padding: theme.spacing(2.5) }}
-          to={link}
-        >
+        <SideDrawerButton key={index} to={link}>
           <ButtonText>{label}</ButtonText>
         </SideDrawerButton>
       )),
@@ -42,11 +36,7 @@ export const ManageVault = () => {
     {
       title: <FormattedMessage defaultMessage={'Reduce Leverage'} />,
       buttons: reduceLeverageOptions.map(({ label, link }, index) => (
-        <SideDrawerButton
-          key={index}
-          sx={{ padding: theme.spacing(2.5) }}
-          to={link}
-        >
+        <SideDrawerButton key={index} to={link}>
           <ButtonText>{label}</ButtonText>
         </SideDrawerButton>
       )),
@@ -55,13 +45,8 @@ export const ManageVault = () => {
       title: <FormattedMessage defaultMessage={'Convert Maturity'} />,
       buttons: rollMaturityOptions.map(
         ({ label, link, totalAPY, onClick }, index) => (
-          <SideDrawerButton
-            key={index}
-            sx={{ padding: theme.spacing(2.5) }}
-            to={link}
-            onClick={onClick}
-          >
-            <ButtonText sx={{ flex: 1 }}>{label}</ButtonText>
+          <SideDrawerButton key={index} to={link} onClick={onClick}>
+            <ButtonText sx={{ display: 'flex', flex: 1 }}>{label}</ButtonText>
             <ButtonData>{totalAPY}</ButtonData>
           </SideDrawerButton>
         )

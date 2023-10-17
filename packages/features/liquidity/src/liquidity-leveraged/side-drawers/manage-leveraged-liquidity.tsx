@@ -2,7 +2,6 @@ import { useContext } from 'react';
 import { Box, useTheme } from '@mui/material';
 import { LiquidityContext } from '../../liquidity';
 import { FormattedMessage } from 'react-intl';
-import { useParams } from 'react-router';
 import { PRODUCTS, leveragedYield } from '@notional-finance/util';
 import {
   ButtonData,
@@ -19,11 +18,8 @@ import { useAllMarkets } from '@notional-finance/notionable-hooks';
 
 export const ManageLeveragedLiquidity = () => {
   const theme = useTheme();
-  const { selectedDepositToken } = useParams<{
-    selectedDepositToken?: string;
-  }>();
   const {
-    state: { debtOptions, collateral },
+    state: { debtOptions, selectedDepositToken },
     updateState,
   } = useContext(LiquidityContext);
   const {
@@ -31,62 +27,73 @@ export const ManageLeveragedLiquidity = () => {
   } = useAllMarkets();
   const { currentPosition } = useLeveragedNTokenPositions(selectedDepositToken);
   const nTokenAPY = liquidity.find(
-    (y) => y.token.id === collateral?.id
+    (y) => y.token.id === currentPosition?.asset?.tokenId
   )?.totalAPY;
 
-  const rollMaturityOptions = (debtOptions || [])
-    .filter((t) => t.token.id !== currentPosition?.debt.tokenId)
-    .map((o) => {
-      const label =
-        o.token.tokenType === 'fCash' ? (
-          <FormattedMessage
-            defaultMessage={'Roll to {date}'}
-            values={{ date: formatMaturity(o.token.maturity || 0) }}
-          />
-        ) : (
-          <FormattedMessage defaultMessage={'Convert to Variable'} />
-        );
-      const totalAPY = leveragedYield(
-        nTokenAPY,
-        o.interestRate,
-        currentPosition?.leverageRatio
+  const rollMaturityOptions = (debtOptions || []).map((o) => {
+    const label =
+      o.token.tokenType === 'fCash' ? (
+        <FormattedMessage
+          defaultMessage={'Roll to {date}'}
+          values={{ date: formatMaturity(o.token.maturity || 0) }}
+        />
+      ) : (
+        <FormattedMessage defaultMessage={'Convert to Variable'} />
       );
+    const totalAPY = leveragedYield(
+      nTokenAPY,
+      o.interestRate,
+      currentPosition?.leverageRatio
+    );
 
-      return (
-        <SideDrawerButton
-          key={o.token.id}
-          onClick={() => updateState({ debt: o.token })}
-          to={`/${PRODUCTS.LEND_LEVERAGED}/RollMaturity/${o.token.id}`}
-        >
-          <ButtonText sx={{ flex: 1 }}>{label}</ButtonText>
-          {totalAPY !== undefined && (
-            <ButtonData>{`${formatNumberAsPercent(totalAPY)} APY`}</ButtonData>
-          )}
-        </SideDrawerButton>
-      );
-    });
+    return (
+      <SideDrawerButton
+        key={o.token.id}
+        onClick={() => updateState({ debt: o.token })}
+        to={`/${PRODUCTS.LIQUIDITY_LEVERAGED}/RollMaturity/${selectedDepositToken}`}
+        variant="outlined"
+        sx={{
+          border: `1px solid ${theme.palette.primary.light}`,
+          background: 'unset',
+          ':hover': {
+            background: theme.palette.info.light,
+            '.button-data': {
+              background: theme.palette.background.default,
+            },
+          },
+        }}
+      >
+        <ButtonText sx={{ display: 'flex', flex: 1 }}>{label}</ButtonText>
+        {totalAPY !== undefined && (
+          <ButtonData
+            className={`button-data`}
+            sx={{
+              background: theme.palette.info.light,
+              border: 'unset',
+            }}
+          >{`${formatNumberAsPercent(totalAPY)} APY`}</ButtonData>
+        )}
+      </SideDrawerButton>
+    );
+  });
 
   const optionSections = [
     {
       buttons: [
         {
           label: <FormattedMessage defaultMessage={'Deposit'} />,
-          link: `${PRODUCTS.LIQUIDITY_LEVERAGED}/IncreaseLeveragedNToken/${selectedDepositToken}`,
+          link: `/${PRODUCTS.LIQUIDITY_LEVERAGED}/IncreaseLeveragedNToken/${selectedDepositToken}`,
         },
         {
           label: <FormattedMessage defaultMessage={'Withdraw'} />,
-          link: `${PRODUCTS.LIQUIDITY_LEVERAGED}/Withdraw/${selectedDepositToken}`,
+          link: `/${PRODUCTS.LIQUIDITY_LEVERAGED}/Withdraw/${selectedDepositToken}`,
         },
         {
           label: <FormattedMessage defaultMessage={'Adjust Leverage'} />,
-          link: `${PRODUCTS.LIQUIDITY_LEVERAGED}/AdjustLeverage/${selectedDepositToken}`,
+          link: `/${PRODUCTS.LIQUIDITY_LEVERAGED}/AdjustLeverage/${selectedDepositToken}`,
         },
       ].map(({ label, link }, index) => (
-        <SideDrawerButton
-          key={index}
-          sx={{ padding: theme.spacing(2.5) }}
-          to={link}
-        >
+        <SideDrawerButton key={index} to={link}>
           <ButtonText>{label}</ButtonText>
         </SideDrawerButton>
       )),
