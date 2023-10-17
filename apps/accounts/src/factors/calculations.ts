@@ -50,11 +50,17 @@ export function calculateAccountIRR(
     account.noteClaim?.currentNOTE ||
     TokenBalance.fromSymbol(0, 'NOTE', account.network)
   ).toFiat('ETH');
+  const claimedNOTE = account.balanceStatement
+    .reduce((note, s) => {
+      return s.totalNOTEAccrued ? note.add(s.totalNOTEAccrued) : note;
+    }, TokenBalance.fromSymbol(0, 'NOTE', account.network))
+    .toFiat('ETH');
 
   const totalNetWorth = allVaultRisk
     .map((v) => v.netWorth().toToken(ETH, 'None', snapshotTimestamp))
     .reduce((p, c) => p.add(c), portfolioNetWorth)
-    .add(TokenBalance.from(unclaimedNOTE.n, ETH));
+    .add(TokenBalance.from(unclaimedNOTE.n, ETH))
+    .add(TokenBalance.from(claimedNOTE.n, ETH));
 
   const cashFlows: CashFlow[] = (account.accountHistory || [])
     .filter((a) => contestStart < a.timestamp)
