@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { Box, useTheme } from '@mui/material';
+import { useTheme } from '@mui/material';
 import { LiquidityContext } from '../../liquidity';
 import { FormattedMessage } from 'react-intl';
 import { PRODUCTS, leveragedYield } from '@notional-finance/util';
@@ -15,6 +15,7 @@ import {
   formatNumberAsPercent,
 } from '@notional-finance/helpers';
 import { useAllMarkets } from '@notional-finance/notionable-hooks';
+import { LiquidityDetailsTable } from '../components/liquidity-details-table';
 
 export const ManageLeveragedLiquidity = () => {
   const theme = useTheme();
@@ -114,7 +115,7 @@ export const ManageLeveragedLiquidity = () => {
           }}
         />
       }
-      detailsTable={<Box />}
+      detailsTable={<LiquidityDetailsTable />}
       portfolioLink="/portfolio/holdings"
       optionSections={optionSections}
     />

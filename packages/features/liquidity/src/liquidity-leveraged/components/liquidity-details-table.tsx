@@ -1,19 +1,19 @@
 import { FormattedMessage } from 'react-intl';
-import { useVaultDetailsTable } from '../hooks/use-vault-details-table';
 import { PositionDetailsTable } from '@notional-finance/trade';
+import { useLiquidityDetails } from '../hooks/use-liquidity-details';
 
-interface VaultDetailsTableProps {
+interface LiquidityDetailsTableProps {
   hideUpdatedColumn?: boolean;
 }
 
-export const VaultDetailsTable = ({
+export const LiquidityDetailsTable = ({
   hideUpdatedColumn,
-}: VaultDetailsTableProps) => {
-  const { tableData, maturity, tooRisky, onlyCurrent } = useVaultDetailsTable();
+}: LiquidityDetailsTableProps) => {
+  const { tableData, maturity, tooRisky, onlyCurrent } = useLiquidityDetails();
 
   return (
     <PositionDetailsTable
-      title={<FormattedMessage defaultMessage={'Vault Details'} />}
+      title={<FormattedMessage defaultMessage={'Position Details'} />}
       hideUpdatedColumn={hideUpdatedColumn}
       tableData={tableData}
       maturity={maturity}
