@@ -161,8 +161,8 @@ const ContentWrapper = styled(Box, {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  width: 474px;
-  min-height: 108px;
+  width: ${theme.spacing(59.25)};
+  min-height: ${theme.spacing(13.5)};
   margin-bottom: ${theme.spacing(2)};
   margin-top: ${theme.spacing(3)};
   margin-right: ${theme.spacing(4)};
@@ -190,7 +190,7 @@ const StyledIcon = styled(Box)(
     left: ${theme.spacing(-1)};
     border-radius: 50%;
     border: 10px solid ${colors.white};
-    padding: 34px;
+    padding: ${theme.spacing(4.25)};
     background: ${theme.palette.common.white};
     box-shadow: ${theme.shape.shadowStandard};
     z-index: 1;
