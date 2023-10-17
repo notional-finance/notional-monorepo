@@ -25,6 +25,9 @@ export const useSummaryState = (): BaseTradeState => {
       collateralBalance:
         internalState.collateralBalance?.tokenType === 'nToken'
           ? internalState.collateralBalance
+          : // TODO: will this break anything if we reduce nTokens?
+          internalState.debtBalance?.tokenType === 'nToken'
+          ? internalState.debtBalance
           : undefined,
       riskFactorLimit: internalState.riskFactorLimit || {
         riskFactor: 'leverageRatio',

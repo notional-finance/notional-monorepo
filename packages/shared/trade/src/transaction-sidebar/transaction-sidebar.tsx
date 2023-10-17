@@ -29,6 +29,7 @@ interface TransactionSidebarProps {
   isPortfolio?: boolean;
   showDrawer?: boolean;
   enablePrimeBorrow?: boolean;
+  riskComponent?: React.ReactNode;
   handleLeverUpToggle?: () => void;
   onReturnToForm?: () => void;
   onConfirmCancel?: () => void;
@@ -46,6 +47,7 @@ export const TransactionSidebar = ({
   isPortfolio,
   showDrawer,
   enablePrimeBorrow,
+  riskComponent,
   onReturnToForm,
   onCancelCallback,
 }: TransactionSidebarProps) => {
@@ -111,7 +113,7 @@ export const TransactionSidebar = ({
       hideTextOnMobile={isPortfolio ? false : true}
     >
       {children}
-      <LiquidationRisk state={state} />
+      {riskComponent || <LiquidationRisk state={state} />}
       <TradeSummary state={state} />
       {enablePrimeBorrow && <EnablePrimeBorrow />}
     </ActionSidebar>

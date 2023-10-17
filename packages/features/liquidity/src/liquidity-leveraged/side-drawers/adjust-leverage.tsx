@@ -2,6 +2,7 @@ import { useContext } from 'react';
 import { LiquidityContext } from '../../liquidity';
 import { LeverageSlider, TransactionSidebar } from '@notional-finance/trade';
 import { defineMessage } from 'react-intl';
+import { LiquidityDetailsTable } from '../components/liquidity-details-table';
 
 export const AdjustLeverage = () => {
   const context = useContext(LiquidityContext);
@@ -9,7 +10,10 @@ export const AdjustLeverage = () => {
   // then we need to swap the debt and collateral tokens
 
   return (
-    <TransactionSidebar context={context}>
+    <TransactionSidebar
+      context={context}
+      riskComponent={<LiquidityDetailsTable />}
+    >
       <LeverageSlider
         context={context}
         inputLabel={defineMessage({

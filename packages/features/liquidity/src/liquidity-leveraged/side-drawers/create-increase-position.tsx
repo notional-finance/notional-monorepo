@@ -11,6 +11,7 @@ import {
 } from '../components/liquidity-terms';
 import { LiquidityContext } from '../../liquidity';
 import { useLeveragedNTokenPositions } from '../hooks/use-leveraged-ntoken-positions';
+import { LiquidityDetailsTable } from '../components/liquidity-details-table';
 
 export const CreateOrIncreasePosition = () => {
   const history = useHistory();
@@ -31,6 +32,7 @@ export const CreateOrIncreasePosition = () => {
       context={context}
       handleLeverUpToggle={handleLeverUpToggle}
       leveredUp
+      riskComponent={currentPosition ? <LiquidityDetailsTable /> : undefined}
       enablePrimeBorrow={debt?.tokenType === 'PrimeDebt'}
     >
       <DepositInput
