@@ -46,22 +46,16 @@ export const Markets = () => {
             />
           </StyledTopContent>
         </Background>
-        <Box
-          sx={{
-            maxWidth: '1335px',
-            margin: 'auto',
-            marginTop: '-240px',
-            marginBottom: '160px',
-          }}
-        >
+        <TableContainer>
           <DataTable
+            maxHeight="620px"
             data={marketTableData}
             columns={marketTableColumns}
             tableVariant={TABLE_VARIANTS.SORTABLE}
             filterBarData={dropdownsData}
             marketDataCSVFormatter={marketDataCSVFormatter}
           />
-        </Box>
+        </TableContainer>
       </Box>
     </FeatureLoader>
   );
@@ -78,6 +72,19 @@ const Title = styled(H1)(
 `
 );
 
+const TableContainer = styled(Box)(
+  ({ theme }) => `
+  max-width: 1335px;
+  margin: auto;
+  margin-top: -240px;
+  margin-bottom: 160px;
+  ${theme.breakpoints.down('sm')} {
+    margin-top: 0px;
+    margin-bottom: 0px;
+  }
+`
+);
+
 const Background = styled(Box)(
   ({ theme }) => `
   background: linear-gradient(90deg, #053542 28.68%, #06657E 126.35%);
@@ -87,6 +94,10 @@ const Background = styled(Box)(
   min-width: 100%;
   ${theme.breakpoints.down('md')} {
     height: ${theme.spacing(94)};
+  }
+  ${theme.breakpoints.down('sm')} {
+    height: ${theme.spacing(10)};
+    padding-top: 75px;
   }
 `
 );
@@ -106,6 +117,7 @@ const StyledTopContent = styled(Box)(
   ${theme.breakpoints.down('sm')} {
     margin-left: ${theme.spacing(2)};
     margin-right: ${theme.spacing(2)};
+    min-height: ${theme.spacing(10)};
   }
 `
 );
