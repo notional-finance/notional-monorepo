@@ -24,7 +24,7 @@ export const RiskFaq = () => {
       </H5>
       <Body>
         <FormattedMessage
-          defaultMessage={`A hack of Notional’s smart contracts or a protocol which Notional is integrated with could lead to a loss of funds.`}
+          defaultMessage={`A hack of Notional's smart contracts or a protocol which Notional is integrated with could lead to a loss of funds.`}
         />
       </Body>
       <Body

@@ -43,7 +43,7 @@ export const useVaultCards = () => {
         vaultAddress: vaultAddress,
         minDepositRequired,
         underlyingSymbol: primaryToken.symbol,
-        hasVaultPosition: !!vaultPosition,
+        hasPosition: !!vaultPosition,
         headlineRate: vaultPosition?.totalAPY || y?.totalAPY,
         netWorth: vaultPosition?.netWorth().toDisplayStringWithSymbol(3, true),
         leverage,

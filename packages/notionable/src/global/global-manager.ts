@@ -2,6 +2,7 @@ import {
   filterEmpty,
   getProviderFromNetwork,
   Network,
+  RATE_PRECISION,
 } from '@notional-finance/util';
 import {
   Observable,
@@ -13,6 +14,7 @@ import {
   distinctUntilChanged,
   tap,
   from,
+  of,
 } from 'rxjs';
 import { BETA_ACCESS, GlobalState } from './global-state';
 import {
@@ -23,6 +25,7 @@ import {
 } from './logic';
 import { identify, trackEvent } from '@notional-finance/helpers';
 import { Contract } from 'ethers';
+import { Registry, TokenBalance } from '@notional-finance/core-entities';
 
 const vpnCheck = 'https://detect.notional.finance/';
 const dataURL = process.env['NX_DATA_URL'] || 'https://data.notional.finance';
@@ -71,6 +74,7 @@ export const loadGlobalManager = (
       return {
         isAccountPending: true,
         isAccountReady: false,
+        holdingsGroups: undefined,
         // Selected address must always be defined here
         selectedAccount: cur.wallet?.selectedAddress,
       };
@@ -88,6 +92,7 @@ export const loadGlobalManager = (
       return {
         isAccountPending: false,
         isAccountReady: false,
+        holdingsGroups: [],
         selectedAccount: undefined,
       };
     })
@@ -161,7 +166,66 @@ export const loadGlobalManager = (
     })
   );
 
+  const calculateHoldingGroups$ = state$.pipe(
+    filter((s) => s.isAccountReady),
+    distinctUntilChanged((p, c) => p.selectedAccount === c.selectedAccount),
+    switchMap((s) => {
+      if (s.selectedNetwork && s.selectedAccount) {
+        return Registry.getAccountRegistry()
+          .subscribeAccount(s.selectedNetwork, s.selectedAccount)
+          .pipe(
+            filter((a) => a !== null),
+            map((account) => {
+              const balances =
+                account?.balances.filter(
+                  (b) =>
+                    !b.isZero() &&
+                    !b.isVaultToken &&
+                    b.token.tokenType !== 'Underlying' &&
+                    b.token.tokenType !== 'NOTE'
+                ) || [];
+              const assets = balances.filter((b) => b.isPositive());
+              const debts = balances.filter((b) => b.isNegative());
+
+              const holdingsGroups = assets.reduce((l, asset) => {
+                const matchingDebts = debts.filter(
+                  (b) => b.currencyId === asset.currencyId
+                );
+                const matchingAssets = assets.filter(
+                  (b) => b.currencyId === asset.currencyId
+                );
+
+                // Only creates a grouped holding if there is exactly one matching asset and debt
+                if (matchingDebts.length === 1 && matchingAssets.length === 1) {
+                  const asset = matchingAssets[0];
+                  const debt = matchingDebts[0];
+                  const presentValue = asset
+                    .toUnderlying()
+                    .add(debt.toUnderlying());
+                  const leverageRatio =
+                    debt
+                      .toUnderlying()
+                      .neg()
+                      .ratioWith(presentValue)
+                      .toNumber() / RATE_PRECISION;
+                  l.push({ asset, debt, presentValue, leverageRatio });
+                }
+
+                return l;
+              }, [] as { asset: TokenBalance; debt: TokenBalance; presentValue: TokenBalance; leverageRatio: number }[]);
+
+              return { holdingsGroups };
+            })
+          );
+      }
+
+      return of(undefined);
+    }),
+    filterEmpty()
+  );
+
   return merge(
+    calculateHoldingGroups$,
     onSelectedNetworkChange$,
     onNetworkPending$,
     onWalletConnect$,
