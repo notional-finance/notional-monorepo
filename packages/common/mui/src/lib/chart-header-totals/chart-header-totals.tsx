@@ -29,6 +29,7 @@ export const ChartHeaderTotals = ({
   chartHeaderTotalsData,
 }: ChartHeaderTotalsProps) => {
   const theme = useTheme();
+  const lastIndex = chartHeaderTotalsData.length - 1;
 
   return (
     <HeadingContainer>
@@ -36,10 +37,17 @@ export const ChartHeaderTotals = ({
         <Box
           key={index}
           sx={{
-            marginRight: index === 0 ? theme.spacing(8) : theme.spacing(5),
+            marginRight:
+              index === 0
+                ? theme.spacing(8)
+                : lastIndex === index
+                ? '0px'
+                : theme.spacing(5),
             display: 'flex',
             flexDirection: 'row',
             alignItems: 'center',
+            justifyContent: lastIndex === index ? 'end' : 'flex-start',
+            flex: lastIndex === index ? 1 : 'unset',
           }}
         >
           <ColorBar barColor={fill} theme={theme}></ColorBar>

@@ -46,6 +46,10 @@ export function formatNumberAsPercent(num: number | string, decimals = 2) {
   return `${formatNumber(num, decimals)}%`;
 }
 
+export function formatNumberAsAPY(num: number | string, decimals = 2) {
+  return `${formatNumberAsPercent(num, decimals)} APY`;
+}
+
 export function formatNumberAsAbbr(
   num: number,
   decimalPlaces = 3,

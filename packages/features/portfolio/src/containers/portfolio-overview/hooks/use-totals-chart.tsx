@@ -1,8 +1,14 @@
 import { useState } from 'react';
 import { useAccountHistoryChart } from '@notional-finance/notionable-hooks';
 import { FiatSymbols } from '@notional-finance/core-entities';
-import { useFiat } from '@notional-finance/notionable-hooks';
-import { useWindowDimensions } from '@notional-finance/helpers';
+import {
+  useAccountCurrentAPY,
+  useFiat,
+} from '@notional-finance/notionable-hooks';
+import {
+  useWindowDimensions,
+  formatNumberAsPercent,
+} from '@notional-finance/helpers';
 import {
   THEME_VARIANTS,
   SECONDS_IN_MONTH,
@@ -16,6 +22,7 @@ import { FormattedMessage } from 'react-intl';
 export const useTotalsChart = () => {
   const baseCurrency = useFiat();
   const windowDimensions = useWindowDimensions();
+  const accountApy = useAccountCurrentAPY();
   const [secondsMultiple, setSecondsMultiple] = useState(1.5);
 
   if (windowDimensions.width <= 1152 && secondsMultiple !== 1.2) {
@@ -95,6 +102,20 @@ export const useTotalsChart = () => {
         value: headerHistoryData?.debts?.toDisplayStringWithSymbol(),
       }
     );
+  }
+
+  if (accountApy) {
+    barConfig.push({
+      dataKey: 'currentApy',
+      title: <FormattedMessage defaultMessage="Current APY" />,
+      toolTipTitle: <FormattedMessage defaultMessage="Debts" />,
+      fill: 'transparent',
+      radius: [8, 8, 0, 0],
+      currencySymbol: FiatSymbols[baseCurrency]
+        ? FiatSymbols[baseCurrency]
+        : '$',
+      value: formatNumberAsPercent(accountApy),
+    });
   }
 
   const hasData = historyData?.find(({ netWorth }) => netWorth.toFloat() > 0);
