@@ -5,14 +5,14 @@ on:
       environment:
         description: 'Choose an environment to deploy to: <arb>'
         required: true
-        default: 'dev'
+        default: 'arb-dev'
   push:
     branches:
       - feat/default-liquidity-leverage
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.environment || 'dev' }}
+    environment: ${{ github.event.inputs.environment || 'arb-dev' }}
     permissions:
       contents: read
       deployments: write
@@ -46,7 +46,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: notional-web-${{ github.event.inputs.environment || 'dev' }}
+          projectName: notional-web-${{ github.event.inputs.environment || 'arb-dev' }}
           directory: dist/apps/web
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
       - name: Slack Notification
