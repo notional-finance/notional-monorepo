@@ -5,7 +5,7 @@ import {
   useSelectedNetwork,
   useThemeVariant,
 } from '@notional-finance/notionable-hooks';
-import { defineMessage, FormattedMessage } from 'react-intl';
+import { defineMessage } from 'react-intl';
 import { ThemeProvider } from '@mui/material';
 import { useVaultCards } from './hooks';
 
@@ -43,7 +43,9 @@ export const VaultCardView = () => {
               minDepositRequired,
               vaultAddress,
               underlyingSymbol,
+              hasVaultPosition,
               headlineRate,
+              netWorth,
               vaultName,
               capacityUsedPercentage,
               capacityRemaining,
@@ -52,13 +54,14 @@ export const VaultCardView = () => {
             return (
               <Vault
                 key={vaultAddress}
+                hasVaultPosition={hasVaultPosition}
                 vaultName={vaultName}
                 symbol={underlyingSymbol}
                 rate={headlineRate || 0}
                 leverage={leverage}
+                netWorth={netWorth}
                 minDepositRequired={minDepositRequired}
                 route={`/vaults/${vaultAddress}`}
-                buttonText={<FormattedMessage defaultMessage="Enter Vault" />}
                 capacityUsedPercentage={capacityUsedPercentage}
                 capacityRemaining={capacityRemaining}
               />

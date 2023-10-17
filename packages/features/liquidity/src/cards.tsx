@@ -17,6 +17,7 @@ import { useNotionalTheme } from '@notional-finance/styles';
 import {
   useWindowDimensions,
   Incentive,
+  IncentiveLeveraged,
   HeadingSubtitle,
 } from '@notional-finance/mui';
 import { Link } from 'react-router-dom';
@@ -95,10 +96,7 @@ const LiquidityCardView = ({
             leveraged={isLeveraged}
           >
             {cardData.map(
-              (
-                { underlying, totalAPY, incentives, leveraged, hasPosition },
-                i
-              ) => {
+              ({ underlying, totalAPY, incentives, leveraged, maxAPY }, i) => {
                 const route = isLeveraged
                   ? `/${routePath}/${
                       hasPosition
@@ -109,7 +107,24 @@ const LiquidityCardView = ({
                 const noteApy =
                   incentives?.find(({ tokenId }) => tokenId !== undefined)
                     ?.incentiveAPY || 0;
-                return (
+                return isLeveraged ? (
+                  <IncentiveLeveraged
+                    key={`incentive-${i}`}
+                    symbol={underlying.symbol}
+                    rate={totalAPY}
+                    incentiveRate={noteApy}
+                    customRate={maxAPY}
+                    route={route}
+                    buttonText={
+                      <FormattedMessage
+                        defaultMessage="Provide {symbol}"
+                        values={{
+                          symbol: underlying.symbol,
+                        }}
+                      />
+                    }
+                  />
+                ) : (
                   <Incentive
                     key={`incentive-${i}`}
                     symbol={underlying.symbol}
