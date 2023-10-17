@@ -96,7 +96,17 @@ const LiquidityCardView = ({
             leveraged={isLeveraged}
           >
             {cardData.map(
-              ({ underlying, totalAPY, incentives, leveraged, maxAPY }, i) => {
+              (
+                {
+                  underlying,
+                  totalAPY,
+                  incentives,
+                  leveraged,
+                  maxAPY,
+                  hasPosition,
+                },
+                i
+              ) => {
                 const route = isLeveraged
                   ? `/${routePath}/${
                       hasPosition
