@@ -139,6 +139,26 @@ export const useLiquidityDetails = () => {
     },
   ];
 
+  if (currentHoldings?.debt.marketYield?.token.tokenType === 'fCash') {
+    // TODO: need to look at debt or collateral options here...
+    const newFixedRate = newDebt?.tokenType === 'fCash';
+
+    table.push({
+      label: 'Borrow Rate',
+      current: formatNumberAsPercentWithUndefined(
+        currentHoldings.borrowAPY,
+        '-'
+      ),
+      updated: {
+        value: newFixedRate ? '?' : 'Variable',
+        arrowUp: false,
+        checkmark: false,
+        greenOnCheckmark: false,
+        greenOnArrowUp: false,
+      },
+    });
+  }
+
   return {
     onlyCurrent,
     tableData: table,

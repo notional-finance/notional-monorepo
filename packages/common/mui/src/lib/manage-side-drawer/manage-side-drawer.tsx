@@ -1,8 +1,8 @@
 import { Box, styled, useTheme } from '@mui/material';
 import {
-  H4,
   LabelValue,
   LargeInputTextEmphasized,
+  LinkText,
 } from '../typography/typography';
 import { useEffect } from 'react';
 import { FormattedMessage } from 'react-intl';
@@ -39,16 +39,14 @@ export const ManageSideDrawer = ({
             {heading}
           </LargeInputTextEmphasized>
           {detailsTable}
-          <H4
+          <LinkText
             to={portfolioLink}
             sx={{
-              marginTop: theme.spacing(3),
-              textDecoration: 'underline',
-              color: theme.palette.typography.accent,
+              marginTop: theme.spacing(1),
             }}
           >
             <FormattedMessage defaultMessage={'View in Portfolio'} />
-          </H4>
+          </LinkText>
         </TableWrapper>
         {optionSections.map(({ title, buttons }, i) =>
           buttons.length > 0 ? (
