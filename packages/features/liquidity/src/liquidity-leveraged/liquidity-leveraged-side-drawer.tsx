@@ -3,13 +3,16 @@ import { SideDrawerRouter } from '@notional-finance/trade';
 import { LiquidityContext } from '../liquidity';
 import { PRODUCTS } from '@notional-finance/util';
 import {
+  AdjustLeverage,
   CreateOrIncreasePosition,
   ManageLeveragedLiquidity,
   RollMaturity,
+  Withdraw,
 } from './side-drawers';
 import { useLeveragedNTokenPositions } from './hooks/use-leveraged-ntoken-positions';
 import { useParams } from 'react-router';
 import { RiskFactorLimit } from '@notional-finance/risk-engine';
+import { TokenBalance } from '@notional-finance/core-entities';
 
 export const LiquidityLeveragedSideDrawer = () => {
   const context = useContext(LiquidityContext);
@@ -96,23 +99,26 @@ export const LiquidityLeveragedSideDrawer = () => {
             tradeType: 'RollDebt',
           },
         },
-        // {
-        //   slug: 'AdjustLeverage',
-        //   Component: AdjustLeverage,
-        //   requiredState: {
-        //     tradeType: 'LeveragedNToken',
-        //     depositBalance: loaded ? TokenBalance.zero(deposit) : undefined,
-        //     ...currentPositionState,
-        //   },
-        // },
-        // {
-        //   slug: 'Withdraw',
-        //   Component: Withdraw,
-        //   requiredState: {
-        //     tradeType: 'LeveragedNToken',
-        //     ...currentPositionState,
-        //   },
-        // },
+        {
+          slug: 'AdjustLeverage',
+          Component: AdjustLeverage,
+          requiredState: {
+            tradeType: 'LeveragedNToken',
+            depositBalance: loaded ? TokenBalance.zero(deposit) : undefined,
+            ...currentPositionState,
+          },
+        },
+        {
+          slug: 'Withdraw',
+          Component: Withdraw,
+          requiredState: {
+            tradeType: 'LeveragedNToken',
+            // NOTE: during withdraw the debt and asset are flipped
+            collateral: currentPosition?.debt.token,
+            debt: currentPosition?.asset.token,
+            riskFactorLimit: currentPositionState?.riskFactorLimit,
+          },
+        },
       ]}
     />
   );
