@@ -255,6 +255,7 @@ export interface YieldData {
   token: TokenDefinition;
   underlying: TokenDefinition;
   totalAPY: number;
+  maxAPY?: number;
   tvl?: TokenBalance;
   leveraged?: {
     debtToken: TokenDefinition;
