@@ -8,7 +8,7 @@ import {
 } from '@notional-finance/mui';
 import { BaseTradeState, isVaultTrade } from '@notional-finance/notionable';
 import { TransactionHeadings } from '../transaction-sidebar/components/transaction-headings';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, defineMessage } from 'react-intl';
 import { useAllMarkets } from '@notional-finance/notionable-hooks';
 import LeverageInfoRow from './components/leverage-info-row';
 import { formatTokenType } from '@notional-finance/helpers';
@@ -49,7 +49,8 @@ export function TradeActionSummary({
   const { nonLeveragedYields } = useAllMarkets();
 
   const messages = tradeType ? TransactionHeadings[tradeType] : undefined;
-  const headerText = messages?.headerText;
+  const headerText =
+    messages?.headerText || defineMessage({ defaultMessage: 'unknown ' });
   const isLeveraged =
     tradeType === 'LeveragedNToken' ||
     tradeType === 'LeveragedLend' ||

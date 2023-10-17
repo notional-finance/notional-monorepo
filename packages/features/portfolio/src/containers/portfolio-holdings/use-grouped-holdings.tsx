@@ -45,19 +45,14 @@ export function useGroupedHoldings() {
         marketYield: assetYield,
         statement: assetStatement,
       },
-      debt: { balance: debt, statement: debtStatement, marketYield: debtYield },
+      debt: { balance: debt, statement: debtStatement },
       leverageRatio,
       presentValue,
+      borrowAPY,
     }) => {
       const underlying = asset.underlying;
       const { icon } = formatTokenType(asset.token);
       const debtData = formatTokenType(debt.token);
-
-      // NOTE: this accounts for matured debts and uses the variable APY after maturity
-      const borrowAPY =
-        debtYield?.token.tokenType === 'PrimeDebt'
-          ? debtYield?.totalAPY
-          : debtStatement?.impliedFixedRate;
 
       const marketApy = leveragedYield(
         assetYield?.totalAPY,
