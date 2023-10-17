@@ -7211,7 +7211,7 @@ const notionalV3Transforms = [];
 const additionalTypeDefs = [] as any[];
 const notionalV3Handler = new GraphqlHandler({
               name: "NotionalV3",
-              config: {"endpoint":"https://api.studio.thegraph.com/query/33671/notional-finance-v3-{context.chainName:arbitrum}/v0.0.178"},
+              config: {"endpoint":"https://api.studio.thegraph.com/query/33671/notional-finance-v3-{context.chainName:arbitrum}/v0.1.9"},
               baseDir,
               cache,
               pubsub,
@@ -7364,7 +7364,7 @@ export type AccountBalanceStatementQuery = { account?: Maybe<(
     & { balances?: Maybe<Array<{ token: (
         Pick<Token, 'id'>
         & { underlying?: Maybe<Pick<Token, 'id'>> }
-      ), current: Pick<BalanceSnapshot, 'timestamp' | 'blockNumber' | 'currentBalance' | '_accumulatedCostRealized' | 'adjustedCostBasis' | 'currentProfitAndLossAtSnapshot' | 'totalILAndFeesAtSnapshot' | 'totalProfitAndLossAtSnapshot' | 'totalInterestAccrualAtSnapshot' | 'impliedFixedRate'>, snapshots?: Maybe<Array<Pick<BalanceSnapshot, 'timestamp' | 'blockNumber' | 'currentBalance' | '_accumulatedCostRealized' | 'adjustedCostBasis' | 'currentProfitAndLossAtSnapshot' | 'totalILAndFeesAtSnapshot' | 'totalProfitAndLossAtSnapshot' | 'totalInterestAccrualAtSnapshot' | 'impliedFixedRate'>>> }>> }
+      ), current: Pick<BalanceSnapshot, 'timestamp' | 'blockNumber' | 'currentBalance' | '_accumulatedCostRealized' | 'adjustedCostBasis' | 'currentProfitAndLossAtSnapshot' | 'totalILAndFeesAtSnapshot' | 'totalProfitAndLossAtSnapshot' | 'totalInterestAccrualAtSnapshot' | 'impliedFixedRate' | 'adjustedNOTEEarned' | 'totalNOTEAccrued'>, snapshots?: Maybe<Array<Pick<BalanceSnapshot, 'timestamp' | 'blockNumber' | 'currentBalance' | '_accumulatedCostRealized' | 'adjustedCostBasis' | 'currentProfitAndLossAtSnapshot' | 'totalILAndFeesAtSnapshot' | 'totalProfitAndLossAtSnapshot' | 'totalInterestAccrualAtSnapshot' | 'impliedFixedRate'>>> }>> }
   )> };
 
 export type AccountTransactionHistoryQueryVariables = Exact<{
@@ -7388,7 +7388,7 @@ export type AllAccountsQuery = { accounts: Array<(
     & { balances?: Maybe<Array<{ token: (
         Pick<Token, 'id'>
         & { underlying?: Maybe<Pick<Token, 'id'>> }
-      ), current: Pick<BalanceSnapshot, 'timestamp' | 'blockNumber' | 'currentBalance' | '_accumulatedCostRealized' | 'adjustedCostBasis' | 'currentProfitAndLossAtSnapshot' | 'totalILAndFeesAtSnapshot' | 'totalProfitAndLossAtSnapshot' | 'totalInterestAccrualAtSnapshot' | 'impliedFixedRate'> }>>, profitLossLineItems?: Maybe<Array<(
+      ), current: Pick<BalanceSnapshot, 'timestamp' | 'blockNumber' | 'currentBalance' | '_accumulatedCostRealized' | 'adjustedCostBasis' | 'currentProfitAndLossAtSnapshot' | 'totalILAndFeesAtSnapshot' | 'totalProfitAndLossAtSnapshot' | 'totalInterestAccrualAtSnapshot' | 'impliedFixedRate' | 'adjustedNOTEEarned' | 'totalNOTEAccrued'> }>>, profitLossLineItems?: Maybe<Array<(
       Pick<ProfitLossLineItem, 'timestamp' | 'blockNumber' | 'tokenAmount' | 'underlyingAmountRealized' | 'underlyingAmountSpot' | 'realizedPrice' | 'spotPrice' | 'impliedFixedRate' | 'isTransientLineItem'>
       & { transactionHash: Pick<Transaction, 'id'>, token: Pick<Token, 'id' | 'tokenType'>, underlyingToken: Pick<Token, 'id'>, bundle: Pick<TransferBundle, 'bundleName'> }
     )>> }
@@ -7497,6 +7497,8 @@ export const AccountBalanceStatementDocument = gql`
         totalProfitAndLossAtSnapshot
         totalInterestAccrualAtSnapshot
         impliedFixedRate
+        adjustedNOTEEarned
+        totalNOTEAccrued
       }
       snapshots(first: 25, orderBy: blockNumber, orderDirection: desc) {
         timestamp
@@ -7570,6 +7572,8 @@ export const AllAccountsDocument = gql`
         totalProfitAndLossAtSnapshot
         totalInterestAccrualAtSnapshot
         impliedFixedRate
+        adjustedNOTEEarned
+        totalNOTEAccrued
       }
     }
     profitLossLineItems(first: 1000, orderBy: blockNumber, orderDirection: desc) {
