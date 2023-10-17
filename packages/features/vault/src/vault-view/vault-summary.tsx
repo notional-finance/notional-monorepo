@@ -10,7 +10,7 @@ import { VAULT_SUB_NAV_ACTIONS } from '@notional-finance/util';
 import { useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { VaultSubNav, MobileVaultSummary, HowItWorksFaq } from '../components';
-import { VaultActionContext } from './vault-action-provider';
+import { VaultActionContext } from '../vault';
 import { messages } from '../messages';
 import {
   LiquidationChart,

@@ -8,15 +8,11 @@ import {
   formatTokenType,
 } from '@notional-finance/helpers';
 import {
-  useHoldings,
   useFiat,
   useNOTE,
+  useGroupedTokens,
 } from '@notional-finance/notionable-hooks';
-import {
-  RATE_PRECISION,
-  TXN_HISTORY_TYPE,
-  leveragedYield,
-} from '@notional-finance/util';
+import { TXN_HISTORY_TYPE, leveragedYield } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
 
 function formatCaption(asset: TokenBalance, debt: TokenBalance) {
@@ -38,24 +34,9 @@ function formatCaption(asset: TokenBalance, debt: TokenBalance) {
 }
 
 export function useGroupedHoldings() {
-  const holdings = useHoldings();
   const baseCurrency = useFiat();
   const NOTE = useNOTE();
-
-  const assets = holdings.filter(({ balance }) => balance.isPositive());
-  const debts = holdings.filter(({ balance }) => balance.isNegative());
-  const groupedTokens = assets.reduce((l, asset) => {
-    const matchingDebts = debts.filter(
-      ({ balance }) => balance.currencyId === asset.balance.currencyId
-    );
-    const matchingAssets = assets.filter(
-      ({ balance }) => balance.currencyId === asset.balance.currencyId
-    );
-    if (matchingDebts.length === 1 && matchingAssets.length === 1)
-      l.push({ asset, debt: matchingDebts[0] });
-
-    return l;
-  }, [] as { asset: typeof holdings[number]; debt: typeof holdings[number] }[]);
+  const groupedTokens = useGroupedTokens();
 
   const groupedRows = groupedTokens.map(
     ({
@@ -64,21 +45,14 @@ export function useGroupedHoldings() {
         marketYield: assetYield,
         statement: assetStatement,
       },
-      debt: { balance: debt, statement: debtStatement, marketYield: debtYield },
+      debt: { balance: debt, statement: debtStatement },
+      leverageRatio,
+      presentValue,
+      borrowAPY,
     }) => {
       const underlying = asset.underlying;
       const { icon } = formatTokenType(asset.token);
       const debtData = formatTokenType(debt.token);
-      const presentValue = asset.toUnderlying().add(debt.toUnderlying());
-      const leverageRatio =
-        debt.toUnderlying().neg().ratioWith(presentValue).toNumber() /
-        RATE_PRECISION;
-
-      // NOTE: this accounts for matured debts and uses the variable APY after maturity
-      const borrowAPY =
-        debtYield?.token.tokenType === 'PrimeDebt'
-          ? debtYield?.totalAPY
-          : debtStatement?.impliedFixedRate;
 
       const marketApy = leveragedYield(
         assetYield?.totalAPY,

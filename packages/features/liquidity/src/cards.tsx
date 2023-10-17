@@ -27,6 +27,7 @@ import {
   YieldData,
 } from '@notional-finance/core-entities';
 import { formatLeverageRatio } from '@notional-finance/helpers';
+import { useLeveragedNTokenPositions } from './liquidity-leveraged/hooks/use-leveraged-ntoken-positions';
 
 const StyledLink = styled(Link)(
   ({ theme }) => `
@@ -44,7 +45,7 @@ const LiquidityCardView = ({
   routePath,
   isLeveraged,
 }: {
-  cardData: YieldData[];
+  cardData: (YieldData & { hasPosition?: boolean; maxAPY?: number })[];
   messages: {
     heading: MessageDescriptor;
     subtitle: MessageDescriptor;
@@ -95,8 +96,24 @@ const LiquidityCardView = ({
             leveraged={isLeveraged}
           >
             {cardData.map(
-              ({ underlying, totalAPY, incentives, leveraged, maxAPY }, i) => {
-                const route = `/${routePath}/${underlying.symbol}`;
+              (
+                {
+                  underlying,
+                  totalAPY,
+                  incentives,
+                  leveraged,
+                  maxAPY,
+                  hasPosition,
+                },
+                i
+              ) => {
+                const route = isLeveraged
+                  ? `/${routePath}/${
+                      hasPosition
+                        ? 'IncreaseLeveragedNToken'
+                        : 'CreateLeveragedNToken'
+                    }/${underlying.symbol}`
+                  : `/${routePath}/${underlying.symbol}`;
                 const noteApy =
                   incentives?.find(({ tokenId }) => tokenId !== undefined)
                     ?.incentiveAPY || 0;
@@ -207,6 +224,7 @@ export const LiquidityLeveragedCardView = () => {
     yields: { leveragedLiquidity },
     getMax,
   } = useAllMarkets();
+  const { depositTokensWithPositions } = useLeveragedNTokenPositions();
   const maximumAPY = [
     ...groupArrayToMap(
       leveragedLiquidity,
@@ -232,6 +250,7 @@ export const LiquidityLeveragedCardView = () => {
     .map((y) => {
       return {
         ...y,
+        hasPosition: depositTokensWithPositions.includes(y.underlying.symbol),
         maxAPY: maximumAPY.find(
           (m) => m.token.currencyId === y.token.currencyId
         )?.totalAPY,

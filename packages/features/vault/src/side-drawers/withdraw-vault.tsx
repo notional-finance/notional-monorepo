@@ -8,7 +8,7 @@ import {
   PageLoading,
   useCurrencyInputRef,
 } from '@notional-finance/mui';
-import { VaultActionContext } from '../vault-view/vault-action-provider';
+import { VaultActionContext } from '../vault';
 import { VaultSideDrawer } from '../components/vault-side-drawer';
 import { messages } from '../messages';
 import { useVaultRiskProfile } from '@notional-finance/notionable-hooks';

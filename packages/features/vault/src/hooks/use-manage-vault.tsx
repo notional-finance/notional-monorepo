@@ -1,7 +1,6 @@
-import { useContext, useEffect } from 'react';
+import { useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
-import { VaultActionContext } from '../vault-view/vault-action-provider';
-import { TokenBalance } from '@notional-finance/core-entities';
+import { VaultActionContext } from '../vault';
 import { useAllMarkets } from '@notional-finance/notionable-hooks';
 import {
   PRIME_CASH_VAULT_MATURITY,
@@ -14,14 +13,7 @@ import {
 
 export function useManageVault() {
   const {
-    state: {
-      vaultAddress,
-      priorAccountRisk,
-      tradeType,
-      debtOptions,
-      deposit,
-      depositBalance,
-    },
+    state: { vaultAddress, priorAccountRisk, debtOptions },
     updateState,
   } = useContext(VaultActionContext);
   const {
@@ -30,15 +22,6 @@ export function useManageVault() {
   const vaultSharesAPY = vaultShares.find(
     (y) => y.token.vaultAddress === vaultAddress
   )?.totalAPY;
-
-  useEffect(() => {
-    // This is used to get the debt options for rolling the maturity
-    if (tradeType !== 'RollVaultPosition' || !depositBalance)
-      updateState({
-        tradeType: 'RollVaultPosition',
-        depositBalance: deposit ? TokenBalance.zero(deposit) : undefined,
-      });
-  }, [tradeType, updateState, deposit, depositBalance]);
 
   if (!priorAccountRisk || !vaultAddress) {
     return {

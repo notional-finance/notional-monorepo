@@ -36,6 +36,7 @@ export const LendLeveragedSidebar = () => {
 
   return (
     <TransactionSidebar
+      showDrawer
       handleLeverUpToggle={handleLeverUpToggle}
       context={context}
       leveredUp

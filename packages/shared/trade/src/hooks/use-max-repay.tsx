@@ -4,10 +4,10 @@ import {
   usePortfolioRiskProfile,
   useWalletBalanceInputCheck,
 } from '@notional-finance/notionable-hooks';
-import { tradeErrors } from '@notional-finance/trade';
 import { BASIS_POINT, RATE_PRECISION } from '@notional-finance/util';
 import { useCallback } from 'react';
 import { MessageDescriptor } from 'react-intl';
+import { tradeErrors } from '../tradeErrors';
 
 export function useMaxRepay(context: BaseTradeContext) {
   const {

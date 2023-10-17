@@ -5,10 +5,12 @@ import {
   PerformanceChart,
   TradeActionSummary,
 } from '@notional-finance/trade';
-import { useLiquidityFaq, useNTokenPriceExposure } from './hooks';
+import {
+  useLiquidityFaq,
+  useNTokenPriceExposure,
+  useSummaryState,
+} from './hooks';
 import { FormattedMessage } from 'react-intl';
-import { useContext } from 'react';
-import { LiquidityContext } from '../liquidity';
 import {
   useDebtAPY,
   useTokenHistory,
@@ -19,7 +21,7 @@ import { useTotalsData } from '../liquidity-variable/hooks/use-totals-data';
 
 export const LiquidityLeveragedSummary = () => {
   const theme = useTheme();
-  const { state } = useContext(LiquidityContext);
+  const state = useSummaryState();
   const {
     selectedDepositToken,
     deposit,
@@ -28,6 +30,7 @@ export const LiquidityLeveragedSummary = () => {
     collateralBalance,
   } = state;
   const tokenSymbol = selectedDepositToken || '';
+
   const debtAPY = useDebtAPY(state);
   const { totalsData, liquidityYieldData } = useTotalsData(
     tokenSymbol,
