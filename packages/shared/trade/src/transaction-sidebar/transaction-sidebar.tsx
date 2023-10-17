@@ -24,10 +24,12 @@ interface TransactionSidebarProps {
   helptext?: MessageDescriptor;
   context: TradeContext;
   leveredUp?: boolean;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   advancedToggle?: ToggleSwitchProps;
   isPortfolio?: boolean;
+  showDrawer?: boolean;
   enablePrimeBorrow?: boolean;
+  riskComponent?: React.ReactNode;
   handleLeverUpToggle?: () => void;
   onReturnToForm?: () => void;
   onConfirmCancel?: () => void;
@@ -43,7 +45,9 @@ export const TransactionSidebar = ({
   leveredUp,
   advancedToggle,
   isPortfolio,
+  showDrawer,
   enablePrimeBorrow,
+  riskComponent,
   onReturnToForm,
   onCancelCallback,
 }: TransactionSidebarProps) => {
@@ -84,7 +88,7 @@ export const TransactionSidebar = ({
     <Confirmation2
       heading={heading}
       context={context}
-      showDrawer={isPortfolio ? false : true}
+      showDrawer={isPortfolio ? false : showDrawer === true}
       onReturnToForm={onReturnToForm}
       onCancel={onConfirmCancel}
     />
@@ -105,11 +109,11 @@ export const TransactionSidebar = ({
       handleLeverUpToggle={handleLeverUpToggle}
       onCancelCallback={onCancelCallback}
       leveredUp={leveredUp || false}
-      showDrawer={isPortfolio ? false : true}
+      showDrawer={isPortfolio ? false : showDrawer === true}
       hideTextOnMobile={isPortfolio ? false : true}
     >
       {children}
-      <LiquidationRisk state={state} />
+      {riskComponent || <LiquidationRisk state={state} />}
       <TradeSummary state={state} />
       {enablePrimeBorrow && <EnablePrimeBorrow />}
     </ActionSidebar>

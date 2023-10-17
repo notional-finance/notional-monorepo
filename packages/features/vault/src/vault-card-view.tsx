@@ -43,7 +43,7 @@ export const VaultCardView = () => {
               minDepositRequired,
               vaultAddress,
               underlyingSymbol,
-              hasVaultPosition,
+              hasPosition,
               headlineRate,
               netWorth,
               vaultName,
@@ -54,7 +54,7 @@ export const VaultCardView = () => {
             return (
               <Vault
                 key={vaultAddress}
-                hasVaultPosition={hasVaultPosition}
+                hasVaultPosition={hasPosition}
                 vaultName={vaultName}
                 symbol={underlyingSymbol}
                 rate={headlineRate || 0}

@@ -14,7 +14,7 @@ export const BorrowFixedSidebar = () => {
   const context = useContext(BorrowFixedContext);
 
   return (
-    <TransactionSidebar context={context}>
+    <TransactionSidebar context={context} showDrawer>
       <DepositInput
         ref={currencyInputRef}
         inputRef={currencyInputRef}
