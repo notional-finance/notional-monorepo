@@ -13,7 +13,7 @@ import {
 import { PlusIcon } from '@notional-finance/icons';
 import { colors } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
-import { formatNumberAsPercent } from '@notional-finance/helpers';
+import { formatNumberAsAPY } from '@notional-finance/helpers';
 
 export interface IncentiveVariantProps {
   symbol: string;
@@ -36,12 +36,9 @@ export const Incentive = ({
 }: IncentiveVariantProps) => {
   const theme = useTheme();
 
-  const formattedTotalRate = `${formatNumberAsPercent(rate, 2)} APY`;
-  const formattedRate = `${formatNumberAsPercent(rate - incentiveRate, 2)} APY`;
-  const formattedIncentiveRate = `${formatNumberAsPercent(
-    incentiveRate,
-    2
-  )} APY`;
+  const formattedTotalRate = formatNumberAsAPY(rate);
+  const formattedRate = formatNumberAsAPY(rate - incentiveRate);
+  const formattedIncentiveRate = formatNumberAsAPY(incentiveRate);
 
   return (
     <Link to={route}>
