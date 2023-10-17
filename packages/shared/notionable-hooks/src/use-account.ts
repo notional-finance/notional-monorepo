@@ -174,21 +174,21 @@ export function useGroupedTokens() {
     .map(({ asset, debt, leverageRatio, presentValue }) => {
       const debtHoldings = holdings.find(
         ({ balance }) => balance.tokenId === debt.tokenId
-      ) as typeof holdings[number];
+      );
 
       return {
         asset: holdings.find(
           ({ balance }) => balance.tokenId === asset.tokenId
         ) as typeof holdings[number],
-        debt: debtHoldings,
+        debt: debtHoldings as typeof holdings[number],
         leverageRatio,
         presentValue,
         borrowAPY:
           // NOTE: this accounts for matured debts and uses the variable APY after maturity
-          debtHoldings &&
           debtHoldings?.marketYield?.token.tokenType === 'PrimeDebt'
             ? debtHoldings.marketYield.totalAPY
-            : debtHoldings.statement?.impliedFixedRate,
+            : // Need to check for undefined here if the debtHoldings is undefined
+              debtHoldings?.statement?.impliedFixedRate,
       };
     })
     .filter(({ asset, debt }) => asset !== undefined && debt !== undefined);

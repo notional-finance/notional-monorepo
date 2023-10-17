@@ -91,6 +91,7 @@ export const SettingsSideDrawer = ({
           >
             <H4
               sx={{
+                display: 'flex',
                 flex: 1,
                 color: theme.palette.common.black,
               }}
@@ -123,6 +124,7 @@ export const SettingsSideDrawer = ({
           >
             <H4
               sx={{
+                display: 'flex',
                 flex: 1,
                 color: theme.palette.common.black,
               }}

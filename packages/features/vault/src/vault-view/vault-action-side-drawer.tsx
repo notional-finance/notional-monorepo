@@ -11,12 +11,26 @@ import {
 } from '../side-drawers';
 import { TokenBalance } from '@notional-finance/core-entities';
 import { SideDrawerRouter } from '@notional-finance/trade';
+import { RiskFactorLimit } from '@notional-finance/risk-engine';
 
 export const VaultActionSideDrawer = () => {
   const context = useContext(VaultActionContext);
   const {
-    state: { vaultAddress, priorAccountRisk, deposit },
+    state: {
+      vaultAddress,
+      priorAccountRisk,
+      deposit,
+      defaultLeverageRatio,
+      riskFactorLimit,
+    },
   } = context;
+  const defaultRiskLimit: RiskFactorLimit<'leverageRatio'> | undefined =
+    defaultLeverageRatio && !riskFactorLimit
+      ? {
+          riskFactor: 'leverageRatio',
+          limit: defaultLeverageRatio,
+        }
+      : undefined;
 
   return (
     <SideDrawerRouter
@@ -32,6 +46,7 @@ export const VaultActionSideDrawer = () => {
           Component: CreateVaultPosition,
           requiredState: {
             tradeType: 'CreateVaultPosition',
+            riskFactorLimit: defaultRiskLimit,
           },
         },
         {
@@ -55,6 +70,7 @@ export const VaultActionSideDrawer = () => {
           Component: IncreaseVaultPosition,
           requiredState: {
             tradeType: 'IncreaseVaultPosition',
+            riskFactorLimit: defaultRiskLimit,
           },
         },
         {
@@ -70,6 +86,7 @@ export const VaultActionSideDrawer = () => {
           requiredState: {
             tradeType: 'WithdrawAndRepayVault',
             depositBalance: deposit ? TokenBalance.zero(deposit) : undefined,
+            riskFactorLimit: defaultRiskLimit,
           },
         },
         {
