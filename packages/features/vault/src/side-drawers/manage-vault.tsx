@@ -1,23 +1,19 @@
-import { Box, styled, useTheme } from '@mui/material';
 import { useContext, useEffect } from 'react';
 import { PORTFOLIO_ACTIONS } from '@notional-finance/util';
 import {
   ButtonData,
   ButtonText,
-  H4,
-  LabelValue,
-  LargeInputTextEmphasized,
+  ManageSideDrawer,
   SideDrawerButton,
 } from '@notional-finance/mui';
 import { useVaultProperties } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
-import { VaultActionContext } from '../vault-view/vault-action-provider';
+import { VaultActionContext } from '../vault';
 import { messages } from '../messages';
 import { VaultDetailsTable } from '../components';
 import { useManageVault } from '../hooks/use-manage-vault';
 
 export const ManageVault = () => {
-  const theme = useTheme();
   const {
     state: { vaultAddress },
   } = useContext(VaultActionContext);
@@ -29,110 +25,50 @@ export const ManageVault = () => {
     window.scrollTo(0, 0);
   }, []);
 
-  return (
-    <Box>
-      <MainWrapper>
-        <TableWrapper>
-          <LargeInputTextEmphasized
-            gutter="default"
-            sx={{ marginBottom: theme.spacing(5) }}
-          >
-            <FormattedMessage
-              {...messages[PORTFOLIO_ACTIONS.MANAGE_VAULT].headingTwo}
-              values={{
-                vaultName,
-              }}
-            />
-          </LargeInputTextEmphasized>
-          <VaultDetailsTable
-            key={'vault-risk-table'}
-            hideUpdatedColumn={true}
-          />
-          <H4
-            to="/portfolio/vaults"
-            sx={{
-              marginTop: theme.spacing(3),
-              textDecoration: 'underline',
-              color: theme.palette.typography.accent,
-            }}
-          >
-            <FormattedMessage defaultMessage={'View in Portfolio'} />
-          </H4>
-        </TableWrapper>
-        {manageVaultOptions.map(({ label, link }, index) => (
-          <SideDrawerButton
-            key={index}
-            sx={{ padding: theme.spacing(2.5) }}
-            to={link}
-          >
-            <ButtonText>{label}</ButtonText>
+  const optionSections = [
+    {
+      buttons: manageVaultOptions.map(({ label, link }, index) => (
+        <SideDrawerButton key={index} to={link}>
+          <ButtonText>{label}</ButtonText>
+        </SideDrawerButton>
+      )),
+    },
+    {
+      title: <FormattedMessage defaultMessage={'Reduce Leverage'} />,
+      buttons: reduceLeverageOptions.map(({ label, link }, index) => (
+        <SideDrawerButton key={index} to={link}>
+          <ButtonText>{label}</ButtonText>
+        </SideDrawerButton>
+      )),
+    },
+    {
+      title: <FormattedMessage defaultMessage={'Convert Maturity'} />,
+      buttons: rollMaturityOptions.map(
+        ({ label, link, totalAPY, onClick }, index) => (
+          <SideDrawerButton key={index} to={link} onClick={onClick}>
+            <ButtonText sx={{ display: 'flex', flex: 1 }}>{label}</ButtonText>
+            <ButtonData>{totalAPY}</ButtonData>
           </SideDrawerButton>
-        ))}
-        {reduceLeverageOptions.length > 0 && (
-          <>
-            <Title>
-              <FormattedMessage defaultMessage={'Reduce leverage'} />
-            </Title>
-            {reduceLeverageOptions.map(({ label, link }, index) => (
-              <SideDrawerButton
-                key={index}
-                sx={{ padding: theme.spacing(2.5) }}
-                to={link}
-              >
-                <ButtonText>{label}</ButtonText>
-              </SideDrawerButton>
-            ))}
-          </>
-        )}
-        {rollMaturityOptions.length > 0 && (
-          <>
-            <Title>
-              <FormattedMessage defaultMessage={'Convert Maturity'} />
-            </Title>
-            {rollMaturityOptions.map(
-              ({ label, link, totalAPY, onClick }, index) => (
-                <SideDrawerButton
-                  key={index}
-                  sx={{ padding: theme.spacing(2.5) }}
-                  to={link}
-                  onClick={onClick}
-                >
-                  <ButtonText sx={{ flex: 1 }}>{label}</ButtonText>
-                  <ButtonData>{totalAPY}</ButtonData>
-                </SideDrawerButton>
-              )
-            )}
-          </>
-        )}
-      </MainWrapper>
-    </Box>
+        )
+      ),
+    },
+  ];
+
+  return (
+    <ManageSideDrawer
+      heading={
+        <FormattedMessage
+          {...messages[PORTFOLIO_ACTIONS.MANAGE_VAULT].headingTwo}
+          values={{
+            vaultName,
+          }}
+        />
+      }
+      detailsTable={
+        <VaultDetailsTable key={'vault-risk-table'} hideUpdatedColumn={true} />
+      }
+      portfolioLink="/portfolio/vaults"
+      optionSections={optionSections}
+    />
   );
 };
-
-const TableWrapper = styled(Box)(
-  ({ theme }) => `
-  margin-bottom: ${theme.spacing(5)};
-  ${theme.breakpoints.down('sm')} {
-    margin-top: ${theme.spacing(5)};
-  }
-  `
-);
-
-const MainWrapper = styled(Box)(
-  ({ theme }) => `
-  ${theme.breakpoints.down('sm')} {
-    display: flex;
-    flex-direction: column-reverse;
-  }
-  `
-);
-
-const Title = styled(LabelValue)(
-  ({ theme }) => `
-  margin-bottom: ${theme.spacing(2.5)};
-  margin-top: ${theme.spacing(5)};
-  color: ${theme.palette.borders.accentDefault};
-  font-weight: 700;
-  text-transform: uppercase;
-  `
-);

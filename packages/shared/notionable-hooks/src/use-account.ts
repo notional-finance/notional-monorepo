@@ -164,6 +164,36 @@ export function useHoldings() {
   );
 }
 
+export function useGroupedTokens() {
+  const holdings = useHoldings();
+  const {
+    globalState: { holdingsGroups },
+  } = useNotionalContext();
+
+  return (holdingsGroups || [])
+    .map(({ asset, debt, leverageRatio, presentValue }) => {
+      const debtHoldings = holdings.find(
+        ({ balance }) => balance.tokenId === debt.tokenId
+      );
+
+      return {
+        asset: holdings.find(
+          ({ balance }) => balance.tokenId === asset.tokenId
+        ) as typeof holdings[number],
+        debt: debtHoldings as typeof holdings[number],
+        leverageRatio,
+        presentValue,
+        borrowAPY:
+          // NOTE: this accounts for matured debts and uses the variable APY after maturity
+          debtHoldings?.marketYield?.token.tokenType === 'PrimeDebt'
+            ? debtHoldings.marketYield.totalAPY
+            : // Need to check for undefined here if the debtHoldings is undefined
+              debtHoldings?.statement?.impliedFixedRate,
+      };
+    })
+    .filter(({ asset, debt }) => asset !== undefined && debt !== undefined);
+}
+
 export function useVaultHoldings() {
   const vaults = useVaultRiskProfiles();
   const balanceStatements = useBalanceStatements();

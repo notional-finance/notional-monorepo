@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 import { formatMaturity } from '@notional-finance/helpers';
-import { VaultActionContext } from '../vault-view/vault-action-provider';
+import { VaultActionContext } from '../vault';
 import { useVaultLiquidationRisk } from '@notional-finance/notionable-hooks';
 
 export function useVaultDetailsTable() {

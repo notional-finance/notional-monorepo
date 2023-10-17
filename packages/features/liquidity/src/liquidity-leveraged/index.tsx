@@ -1,2 +1,2 @@
-export * from './liquidity-leveraged-sidebar';
+export * from './liquidity-leveraged-side-drawer';
 export * from './liquidity-leveraged-summary';

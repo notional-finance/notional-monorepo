@@ -4,7 +4,11 @@ import {
 } from '@ethersproject/providers';
 import { Network } from '@notional-finance/util';
 import { THEME_VARIANTS } from '@notional-finance/util';
-import { FiatKeys, TokenDefinition } from '@notional-finance/core-entities';
+import {
+  FiatKeys,
+  TokenBalance,
+  TokenDefinition,
+} from '@notional-finance/core-entities';
 import { getFromLocalStorage } from '@notional-finance/helpers';
 import { Signer } from 'ethers';
 
@@ -50,6 +54,13 @@ interface AccountState {
   selectedAccount?: string;
   hasContestNFT?: BETA_ACCESS;
   contestTokenId?: string;
+  // Groupings of 1 asset and 1 debt in the same currency
+  holdingsGroups?: {
+    asset: TokenBalance;
+    debt: TokenBalance;
+    presentValue: TokenBalance;
+    leverageRatio: number;
+  }[];
 }
 interface UserSettingsState {
   themeVariant: THEME_VARIANTS;
@@ -88,6 +99,7 @@ export const initialGlobalState: GlobalState = {
   cacheHostname: CACHE_HOSTNAME,
   isAccountPending: false,
   isAccountReady: false,
+  holdingsGroups: [],
   sentTransactions: {},
   completedTransactions: {},
   awaitingBalanceChanges: {},
