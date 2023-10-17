@@ -14,10 +14,11 @@ import {
 } from '../../typography/typography';
 import { PlusIcon } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
+import { StyledIcon } from '../currency-fixed/currency-fixed';
 import { formatNumberAsAPY } from '@notional-finance/helpers';
 import { NotionalTheme, colors } from '@notional-finance/styles';
 
-export interface IncentiveActiveProps {
+export interface IncentiveLeveragedProps {
   symbol: string;
   rate: number;
   incentiveRate: number;
@@ -31,14 +32,14 @@ interface ContentWrapperProps {
   theme: NotionalTheme;
 }
 
-export const IncentiveActive = ({
+export const IncentiveLeveraged = ({
   symbol,
   rate,
   incentiveRate,
   customRate = 0,
   route,
   buttonText,
-}: IncentiveActiveProps) => {
+}: IncentiveLeveragedProps) => {
   const theme = useTheme();
   const [hovered, setHovered] = useState(false);
   const formattedTotalRate = formatNumberAsAPY(rate);
@@ -171,33 +172,4 @@ const ContentWrapper = styled(Box, {
 `
 );
 
-const StyledIcon = styled(Box)(
-  ({ theme }) => `
-  position: relative;
-  left: ${theme.spacing(23)};
-  img {
-    left: 0px;
-    top: ${theme.spacing(3)};
-    position: absolute;
-    z-index: 2;
-  }
-  &::after {
-    position: absolute;
-    content: '';
-    top: ${theme.spacing(2)};
-    right: 0px;
-    bottom: 0px;
-    left: ${theme.spacing(-1)};
-    border-radius: 50%;
-    border: 10px solid ${colors.white};
-    padding: ${theme.spacing(4.25)};
-    background: ${theme.palette.common.white};
-    box-shadow: ${theme.shape.shadowStandard};
-    z-index: 1;
-    width: 0;
-    height: 0;
-  }
-`
-);
-
-export default IncentiveActive;
+export default IncentiveLeveraged;

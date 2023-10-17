@@ -17,7 +17,7 @@ import { useNotionalTheme } from '@notional-finance/styles';
 import {
   useWindowDimensions,
   Incentive,
-  IncentiveActive,
+  IncentiveLeveraged,
   HeadingSubtitle,
 } from '@notional-finance/mui';
 import { Link } from 'react-router-dom';
@@ -101,7 +101,7 @@ const LiquidityCardView = ({
                   incentives?.find(({ tokenId }) => tokenId !== undefined)
                     ?.incentiveAPY || 0;
                 return isLeveraged ? (
-                  <IncentiveActive
+                  <IncentiveLeveraged
                     key={`incentive-${i}`}
                     symbol={underlying.symbol}
                     rate={totalAPY}
