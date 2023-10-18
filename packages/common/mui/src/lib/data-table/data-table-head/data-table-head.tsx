@@ -54,6 +54,7 @@ export const DataTableHead = ({
                   ? theme.shape.borderStandard
                   : 'none',
                 whiteSpace: 'nowrap',
+                minWidth: column['width'] || 'auto',
                 width: column['width'] || 'auto',
               }}
               {...(tableVariant === TABLE_VARIANTS.SORTABLE

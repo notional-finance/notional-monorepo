@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { CSVLink } from 'react-csv';
-import { Box, useTheme } from '@mui/material';
+import { styled, Box, useTheme } from '@mui/material';
 import { MultiSelectDropdown } from '../../multi-select-dropdown/multi-select-dropdown';
 import { Button } from '../../button/button';
 import { DownloadIcon } from '@notional-finance/icons';
@@ -35,14 +35,7 @@ export const DataTableFilterBar = ({
   };
 
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        margin: theme.spacing(3),
-      }}
-    >
+    <Container>
       <Box
         sx={{
           display: 'flex',
@@ -92,8 +85,20 @@ export const DataTableFilterBar = ({
           />
         </Button>
       </CSVLink>
-    </Box>
+    </Container>
   );
 };
+
+const Container = styled(Box)(
+  ({ theme }) => `
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: ${theme.spacing(3)};
+  ${theme.breakpoints.down('sm')} {
+    display: none;
+  }
+`
+);
 
 export default DataTableFilterBar;

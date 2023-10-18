@@ -46,9 +46,14 @@ export const Markets = () => {
             />
           </StyledTopContent>
         </Background>
+        <MobileTitle>
+          <Title sx={{ marginBottom: theme.spacing(5) }}>
+            <FormattedMessage defaultMessage={'Markets'} />
+          </Title>
+        </MobileTitle>
         <TableContainer>
           <DataTable
-            maxHeight="620px"
+            maxHeight={theme.spacing(69)}
             data={marketTableData}
             columns={marketTableColumns}
             tableVariant={TABLE_VARIANTS.SORTABLE}
@@ -68,6 +73,18 @@ const Title = styled(H1)(
   align-items: center;
   ${theme.breakpoints.down('sm')} {
     font-size: 36px;
+  }
+`
+);
+
+const MobileTitle = styled(Box)(
+  ({ theme }) => `
+  display: none;
+  ${theme.breakpoints.down('sm')} {
+    padding-left: ${theme.spacing(2)};
+    padding-top: ${theme.spacing(8)};
+    display: flex;
+    background: linear-gradient(90deg, #053542 28.68%, #06657E 126.35%);
   }
 `
 );
@@ -96,8 +113,7 @@ const Background = styled(Box)(
     height: ${theme.spacing(94)};
   }
   ${theme.breakpoints.down('sm')} {
-    height: ${theme.spacing(10)};
-    padding-top: 75px;
+    display: none;
   }
 `
 );
@@ -115,9 +131,7 @@ const StyledTopContent = styled(Box)(
     margin-right: ${theme.spacing(6)};
   }
   ${theme.breakpoints.down('sm')} {
-    margin-left: ${theme.spacing(2)};
-    margin-right: ${theme.spacing(2)};
-    min-height: ${theme.spacing(10)};
+    display: none;
   }
 `
 );
