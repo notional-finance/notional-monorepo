@@ -259,8 +259,7 @@ export const TradeConfiguration = {
       'debtPool',
       'depositBalance',
       'riskFactorLimit',
-      // NOTE: balances is not a required input b/c the leverage ratio
-      // used in the risk factor limit is only calculated on a per trade basis
+      'balances',
     ],
     collateralFilter: (t, _, s) =>
       t.tokenType === 'nToken' && onlySameCurrency(t, s.deposit),

@@ -17,6 +17,7 @@ interface LeverageSliderProps {
   errorMsg?: MessageDescriptor;
   infoMsg?: MessageDescriptor;
   bottomCaption?: JSX.Element;
+  onChange?: (leverageRatio: number) => void;
 }
 
 export const LeverageSlider = ({
@@ -26,6 +27,7 @@ export const LeverageSlider = ({
   cashBorrowed,
   bottomCaption,
   context,
+  onChange,
 }: LeverageSliderProps) => {
   const {
     state: {
@@ -74,6 +76,8 @@ export const LeverageSlider = ({
 
   const onChangeCommitted = useCallback(
     (leverageRatio: number) => {
+      if (!isFinite(leverageRatio)) return;
+
       updateState({
         riskFactorLimit: {
           riskFactor: 'leverageRatio',
@@ -102,7 +106,7 @@ export const LeverageSlider = ({
       ref={sliderInputRef}
       min={0}
       max={maxLeverageRatio}
-      onChangeCommitted={onChangeCommitted}
+      onChangeCommitted={onChange || onChangeCommitted}
       infoMsg={infoMsg}
       errorMsg={errorMsg}
       topRightCaption={topRightCaption}
