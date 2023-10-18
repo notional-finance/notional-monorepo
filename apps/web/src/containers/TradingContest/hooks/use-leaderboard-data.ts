@@ -74,7 +74,7 @@ export function useLeaderboardData() {
             totalEarnings: TokenBalance.fromJSON(a.earnings)
               .toFiat('USD')
               .toDisplayStringWithSymbol(),
-            totalDeposits: TokenBalance.fromJSON(a.netDeposits)
+            totalDeposits: TokenBalance.fromJSON(a.netDeposits).isNegative() ? `$0.000` : TokenBalance.fromJSON(a.netDeposits)
               .toFiat('USD')
               .toDisplayStringWithSymbol(),
             netWorth: TokenBalance.fromJSON(a.totalNetWorth)
@@ -95,7 +95,7 @@ export function useLeaderboardData() {
             totalEarnings: TokenBalance.fromJSON(a.earnings)
               .toFiat('USD')
               .toDisplayStringWithSymbol(),
-            totalDeposits: TokenBalance.fromJSON(a.netDeposits)
+            totalDeposits: TokenBalance.fromJSON(a.netDeposits).isNegative() ? '$0.000' : TokenBalance.fromJSON(a.netDeposits)
               .toFiat('USD')
               .toDisplayStringWithSymbol(),
             netWorth: TokenBalance.fromJSON(a.totalNetWorth)
@@ -120,7 +120,7 @@ export function useLeaderboardData() {
             totalEarnings: TokenBalance.fromJSON(a.earnings)
               .toFiat('USD')
               .toDisplayStringWithSymbol(),
-            totalDeposits: TokenBalance.fromJSON(a.netDeposits)
+            totalDeposits: TokenBalance.fromJSON(a.netDeposits).isNegative() ? '$0.000' : TokenBalance.fromJSON(a.netDeposits)
               .toFiat('USD')
               .toDisplayStringWithSymbol(),
             netWorth: TokenBalance.fromJSON(a.totalNetWorth)
