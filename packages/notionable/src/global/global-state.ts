@@ -63,7 +63,7 @@ interface ExportControlsState {
 
 interface TransactionState {
   sentTransactions: Record<string, TransactionResponse>;
-  awaitingBalanceChanges: Record<string, TokenDefinition[]>;
+  awaitingBalanceChanges: Record<string, TokenDefinition[] | undefined>;
   completedTransactions: Record<string, TransactionReceipt>;
 }
 

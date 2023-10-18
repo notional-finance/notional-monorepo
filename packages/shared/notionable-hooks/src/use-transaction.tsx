@@ -146,7 +146,7 @@ export function usePendingPnLCalculation() {
   const pendingTokens = Object.entries(completedTransactions).flatMap(
     ([hash, tr]) =>
       tr.blockNumber > latestProcessedTxnBlock
-        ? awaitingBalanceChanges[hash]
+        ? awaitingBalanceChanges[hash] || []
         : []
   );
   const pendingTxns = Object.entries(completedTransactions)
