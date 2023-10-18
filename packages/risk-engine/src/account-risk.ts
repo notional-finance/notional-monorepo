@@ -356,11 +356,17 @@ export class AccountRiskProfile extends BaseRiskProfile {
       return netLocal.lt(balance) ? netLocal : balance;
     }
 
-    const maxWithdraw = this.getWithdrawRequiredToMaintainRiskFactor(token, {
-      riskFactor: 'freeCollateral',
-      limit: TokenBalance.zero(this.denom(this.defaultSymbol)),
-    });
+    try {
+      const maxWithdraw = this.getWithdrawRequiredToMaintainRiskFactor(token, {
+        riskFactor: 'freeCollateral',
+        limit: TokenBalance.zero(this.denom(this.defaultSymbol)),
+      });
 
-    return maxWithdraw.neg().lt(balance) ? maxWithdraw.neg() : balance;
+      return maxWithdraw.neg().lt(balance) ? maxWithdraw.neg() : balance;
+    } catch (e) {
+      // This can throw errors when the account is very close to zero balance
+      console.error(e);
+      return TokenBalance.zero(token);
+    }
   }
 }
