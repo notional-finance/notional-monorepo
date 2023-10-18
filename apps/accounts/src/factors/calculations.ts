@@ -70,23 +70,9 @@ export function calculateAccountIRR(
         h.bundleName === 'Deposit' ||
         h.bundleName === 'Deposit and Transfer' ||
         h.bundleName === 'Withdraw' ||
-        h.bundleName === 'Transfer Incentive' ||
         h.bundleName === 'Transfer Asset'
     )
     .map((h) => {
-      if (h.bundleName === 'Transfer Incentive') {
-        // Converts the value of NOTE to ETH at the given snapshot time
-        const b = h.tokenAmount.toFiat('ETH', snapshotTimestamp).toFloat();
-        const balance = TokenBalance.fromFloat(b.toFixed(18), ETH);
-
-        return {
-          date: new Date(h.timestamp * 1000),
-          // This should be a positive cash flow
-          amount: balance.toFloat(),
-          balance,
-        };
-      }
-
       const balance = h.underlyingAmountRealized
         .toUnderlying()
         .toToken(ETH, 'None', snapshotTimestamp);
