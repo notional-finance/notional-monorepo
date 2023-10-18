@@ -8,10 +8,7 @@ import {
   Curve2TokenPoolV1_SelfLPTokenNoAdmin,
 } from './Curve/Curve2TokenPoolV1';
 import Curve2TokenPoolV2 from './Curve/Curve2TokenPoolV2';
-import {
-  TwoTokenComposableStablePool,
-  ThreeTokenComposableStablePool,
-} from './BalancerV2/composable-stable-pool';
+import { ComposableStablePool } from './BalancerV2/composable-stable-pool';
 import { TokenBalance } from '../token-balance';
 import { Network } from '@notional-finance/util';
 import { fCashMarket } from './NotionalV3/fCash-market';
@@ -33,8 +30,7 @@ const PoolClasses: Record<
   MetaStablePool: MetaStablePool,
   WeightedPool: WeightedPool,
   fCashMarket: fCashMarket,
-  TwoTokenComposableStablePool: TwoTokenComposableStablePool,
-  ThreeTokenComposableStablePool: ThreeTokenComposableStablePool,
+  ComposableStablePool: ComposableStablePool,
   Curve2TokenPoolV1: Curve2TokenPoolV1,
   Curve2TokenPoolV1_SelfLPToken: Curve2TokenPoolV1_SelfLPToken,
   Curve2TokenPoolV1_SelfLPTokenNoAdmin: Curve2TokenPoolV1_SelfLPTokenNoAdmin,
@@ -46,8 +42,7 @@ export {
   MetaStablePool,
   WeightedPool,
   BaseLiquidityPool,
-  TwoTokenComposableStablePool,
-  ThreeTokenComposableStablePool,
+  ComposableStablePool,
   fCashMarket,
   PoolClasses,
   PoolConstructor,

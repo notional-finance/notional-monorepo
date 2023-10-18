@@ -9,15 +9,11 @@ import {
 } from '@notional-finance/contracts';
 import { getNowSeconds, Network } from '@notional-finance/util';
 import { PoolTestHarness } from './PoolTestHarness';
-import {
-  MetaStablePool,
-  ThreeTokenComposableStablePool,
-  TwoTokenComposableStablePool,
-} from '../../../src/exchanges';
+import { MetaStablePool, ComposableStablePool } from '../../../src/exchanges';
 import { TokenBalance } from '../../../src/token-balance';
 
 export class BalancerV2Harness extends PoolTestHarness<
-  MetaStablePool | TwoTokenComposableStablePool | ThreeTokenComposableStablePool
+  MetaStablePool | ComposableStablePool
 > {
   public JoinKind = {
     EXACT_TOKENS_IN_FOR_BPT_OUT: {
