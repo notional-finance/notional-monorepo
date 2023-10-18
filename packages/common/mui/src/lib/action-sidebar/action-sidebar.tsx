@@ -15,7 +15,10 @@ import {
 import { NotionalTheme } from '@notional-finance/styles';
 
 export interface ActionSidebarProps {
-  heading: MessageDescriptor;
+  heading:
+    | MessageDescriptor
+    | { defaultMessage: string }
+    | { values?: Record<string, unknown> };
   helptext:
     | MessageDescriptor
     | { defaultMessage: string }

@@ -12,12 +12,16 @@ export const AdjustLeverage = () => {
   return (
     <TransactionSidebar
       context={context}
+      heading={defineMessage({ defaultMessage: 'Adjust Leverage' })}
+      helptext={defineMessage({
+        defaultMessage: 'Increase or decrease your position leverage.',
+      })}
       riskComponent={<LiquidityDetailsTable />}
     >
       <LeverageSlider
         context={context}
         inputLabel={defineMessage({
-          defaultMessage: 'Adjust Leverage Ratio',
+          defaultMessage: 'Specify Leverage',
         })}
       />
     </TransactionSidebar>

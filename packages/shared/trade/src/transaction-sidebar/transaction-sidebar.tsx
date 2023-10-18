@@ -21,8 +21,14 @@ import { EnablePrimeBorrow } from '../enable-prime-borrow/enable-prime-borrow';
 import { isLeveragedTrade } from '@notional-finance/notionable';
 
 interface TransactionSidebarProps {
-  heading?: MessageDescriptor;
-  helptext?: MessageDescriptor;
+  heading?:
+    | MessageDescriptor
+    | { defaultMessage: string }
+    | { values?: Record<string, unknown> };
+  helptext?:
+    | MessageDescriptor
+    | { defaultMessage: string }
+    | { values?: Record<string, unknown> };
   context: TradeContext;
   leveredUp?: boolean;
   children?: React.ReactNode;
