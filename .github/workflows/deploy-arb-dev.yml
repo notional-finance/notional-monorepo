@@ -5,14 +5,14 @@ on:
       environment:
         description: 'Choose an environment to deploy to: <arb>'
         required: true
-        default: 'arb-dev'
+        default: 'arb'
   push:
     branches:
       - feat/default-liquidity-leverage
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.environment || 'arb-dev' }}
+    environment: ${{ github.event.inputs.environment || 'arb' }}
     permissions:
       contents: read
       deployments: write
@@ -39,7 +39,7 @@ jobs:
           NX_APP_URL: ${{ secrets.NX_APP_URL }}
           NX_DATA_URL: ${{ secrets.NX_DATA_URL }}
           NX_SEGMENT_KEY: ${{ secrets.NX_SEGMENT_KEY }}
-          NX_ENV: ${{ github.event.inputs.environment || 'dev' }}
+          NX_ENV: ${{ github.event.inputs.environment || 'arb' }}
           NX_COMMIT_REF: ${{ github.sha }}
       - name: Publish Dev
         uses: cloudflare/pages-action@1
