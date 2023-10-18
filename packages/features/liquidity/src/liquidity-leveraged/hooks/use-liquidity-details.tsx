@@ -24,6 +24,7 @@ export const useLiquidityDetails = () => {
     comparePortfolio,
     collateralBalance,
     debtBalance,
+    debtOptions,
   } = state;
   const { tableData, tooRisky, onlyCurrent } =
     usePortfolioLiquidationRisk(state);
@@ -33,8 +34,7 @@ export const useLiquidityDetails = () => {
   const { currentHoldings } = useLeveragedNTokenPositions(selectedDepositToken);
   const newDebt = comparePortfolio?.find(
     ({ updated }) =>
-      updated.underlying.symbol === selectedDepositToken &&
-      !updated.isPositive()
+      updated.underlying.symbol === selectedDepositToken && updated.isNegative()
   )?.updated;
   const newAsset = comparePortfolio?.find(
     ({ updated }) =>
@@ -140,8 +140,27 @@ export const useLiquidityDetails = () => {
   ];
 
   if (currentHoldings?.debt.marketYield?.token.tokenType === 'fCash') {
-    // TODO: need to look at debt or collateral options here...
-    const newFixedRate = newDebt?.tokenType === 'fCash';
+    let newBorrowRate = debtOptions?.find(
+      (t) =>
+        t.token.id === newDebt?.tokenId ||
+        (t.token.tokenType === 'PrimeDebt' &&
+          newDebt?.tokenType === 'PrimeCash')
+    )?.interestRate;
+
+    if (
+      newDebt?.tokenType === 'fCash' &&
+      debtBalance &&
+      currentHoldings.borrowAPY !== undefined &&
+      newBorrowRate !== undefined
+    ) {
+      // In this case, the user is borrowing more fCash and we need to average in the new fixed rate.
+      // In any other case, including withdrawing fCash, the borrow APY will not change.
+      // [newBalance * prevImpliedRate - netBalance * (newRate - prevRate)] / newBalance
+      newBorrowRate =
+        (newDebt.toFloat() * currentHoldings.borrowAPY -
+          debtBalance.toFloat() * (newBorrowRate - currentHoldings.borrowAPY)) /
+        newDebt.toFloat();
+    }
 
     table.push({
       label: 'Borrow Rate',
@@ -150,9 +169,12 @@ export const useLiquidityDetails = () => {
         '-'
       ),
       updated: {
-        value: newFixedRate ? '?' : 'Variable',
-        arrowUp: false,
-        checkmark: false,
+        value: formatNumberAsPercentWithUndefined(newBorrowRate, '-'),
+        arrowUp:
+          getChangeType(currentHoldings.borrowAPY, newBorrowRate) ===
+          'increase',
+        checkmark:
+          getChangeType(currentHoldings.borrowAPY, newBorrowRate) === 'cleared',
         greenOnCheckmark: false,
         greenOnArrowUp: false,
       },
