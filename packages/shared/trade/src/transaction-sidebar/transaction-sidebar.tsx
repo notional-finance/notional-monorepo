@@ -18,6 +18,7 @@ import {
 import { LiquidationRisk } from './components/liquidation-risk';
 import { TradeSummary } from './components/trade-summary';
 import { EnablePrimeBorrow } from '../enable-prime-borrow/enable-prime-borrow';
+import { isLeveragedTrade } from '@notional-finance/notionable';
 
 interface TransactionSidebarProps {
   heading?: MessageDescriptor;
@@ -64,7 +65,7 @@ export const TransactionSidebar = ({
 
   if (tradeType === undefined) return <PageLoading />;
 
-  const leverageDisabled = isBlocked && tradeType.includes('Leveraged');
+  const leverageDisabled = isBlocked && isLeveragedTrade(tradeType);
   const errorMessage = defineMessages({
     geoErrorHeading: {
       defaultMessage:

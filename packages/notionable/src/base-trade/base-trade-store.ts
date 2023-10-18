@@ -176,3 +176,12 @@ export function isVaultTrade(tradeType?: VaultTradeType | TradeType) {
   if (!tradeType) return false;
   return Object.keys(VaultTradeConfiguration).includes(tradeType);
 }
+
+export function isLeveragedTrade(tradeType?: VaultTradeType | TradeType) {
+  if (!tradeType) return false;
+  return (
+    isVaultTrade(tradeType) ||
+    tradeType === 'LeveragedLend' ||
+    tradeType === 'LeveragedNToken'
+  );
+}
