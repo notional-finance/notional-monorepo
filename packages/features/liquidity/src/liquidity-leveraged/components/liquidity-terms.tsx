@@ -60,7 +60,9 @@ export const DefaultLiquidityTerms = () => {
 
   const toggleLeverage = () =>
     updateState({ customizeLeverage: !customizeLeverage });
-  const maxYield = useMaxYield(deposit);
+  const maxYield = useMaxYield().find(
+    (y) => y.token.currencyId === deposit?.currencyId
+  )?.totalAPY;
   const leverageRatio =
     riskFactorLimit?.riskFactor === 'leverageRatio'
       ? (riskFactorLimit.limit as number)
