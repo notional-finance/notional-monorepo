@@ -204,6 +204,7 @@ export class ComposableStablePool extends BaseLiquidityPool<ComposableStablePool
               );
             }
           }
+          return balances;
         },
       },
     ];
