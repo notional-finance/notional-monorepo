@@ -11,6 +11,7 @@ import { getNowSeconds, Network } from '@notional-finance/util';
 import { PoolTestHarness } from './PoolTestHarness';
 import { MetaStablePool, ComposableStablePool } from '../../../src/exchanges';
 import { TokenBalance } from '../../../src/token-balance';
+import { ComposableStablePoolParams } from 'packages/core-entities/src/exchanges/BalancerV2/composable-stable-pool';
 
 export class BalancerV2Harness extends PoolTestHarness<
   MetaStablePool | ComposableStablePool
@@ -156,22 +157,30 @@ export class BalancerV2Harness extends PoolTestHarness<
       );
     }
 
-    /*const maxAmountsIn: TokenBalance[] = [];
+    const maxAmountsIn: BigNumber[] = [];
+    const assets: string[] = [];
+    const poolParams = this.poolInstance
+      .poolParams as ComposableStablePoolParams;
 
-    for (let i = 0; i < tokensIn.length; i++) {
-      if (i !== this.poolInstance.poolParams.bptIndex) {
-        maxAmountsIn.push(this.poolInstance.oneLPToken().copy(0));
+    // Add BPT to maxAmountsIn
+    let tokenIndex = 0;
+    for (let i = 0; i < tokensIn.length + 1; i++) {
+      if (i === poolParams.bptIndex) {
+        maxAmountsIn.push(BigNumber.from(0));
+        assets.push(this.poolInstance.oneLPToken().token.address);
       } else {
-        maxAmountsIn.push(tokensIn[i]);
+        maxAmountsIn.push(tokensIn[tokenIndex].n);
+        assets.push(this.tokens()[tokenIndex].address);
+        tokenIndex++;
       }
-    }*/
+    }
 
     const balanceBefore = await this.balanceOf(signer);
     await this.balancerVault
       .connect(signer)
       .joinPool(this.poolInstance.poolParams.poolId, address, address, {
-        assets: this.tokens().map((_) => _.address),
-        maxAmountsIn: tokensIn.map((_) => _.n),
+        assets: assets,
+        maxAmountsIn: maxAmountsIn,
         userData,
         fromInternalBalance: false,
       });
@@ -194,14 +203,27 @@ export class BalancerV2Harness extends PoolTestHarness<
       [this.ExitKind.EXACT_BPT_IN_FOR_TOKENS_OUT.kind, lpTokenAmount]
     );
 
+    const assets: string[] = [];
+    const poolParams = this.poolInstance
+      .poolParams as ComposableStablePoolParams;
+
+    let tokenIndex = 0;
+    for (let i = 0; i < this.tokens().length + 1; i++) {
+      if (i === poolParams.bptIndex) {
+        assets.push(this.poolInstance.oneLPToken().token.address);
+      } else {
+        assets.push(this.tokens()[tokenIndex++].address);
+      }
+    }
+
     const balancesBefore = await Promise.all(
       this.tokens().map((t) => t.balanceOf(address))
     );
     await this.balancerVault
       .connect(signer)
       .exitPool(this.poolInstance.poolParams.poolId, address, address, {
-        assets: this.tokens().map((_) => _.address),
-        minAmountsOut: minTokensOut || Array(this.tokens.length).fill(0),
+        assets: assets,
+        minAmountsOut: minTokensOut || Array(this.tokens.length + 1).fill(0),
         userData,
         toInternalBalance: false,
       });

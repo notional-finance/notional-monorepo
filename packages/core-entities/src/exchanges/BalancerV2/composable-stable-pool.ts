@@ -12,7 +12,7 @@ import BaseLiquidityPool from '../base-liquidity-pool';
 import FixedPoint from './fixed-point';
 import MetaStablePool, { MetaStablePoolParams } from './meta-stable-pool';
 
-interface ComposableStablePoolParams extends MetaStablePoolParams {
+export interface ComposableStablePoolParams extends MetaStablePoolParams {
   bptIndex: number;
 }
 
@@ -194,7 +194,7 @@ export class ComposableStablePool extends BaseLiquidityPool<ComposableStablePool
         ) =>
           r.balances
             // Skip the BPT index on the boosted pool, it is not in calculations
-            .filter((_, i) => i === aggregateResults[`${poolAddress}.bptIndex`])
+            .filter((_, i) => i !== aggregateResults[`${poolAddress}.bptIndex`])
             .map((b, i) => {
               return TokenBalance.toJSON(b, r.tokens[i], network);
             }),
