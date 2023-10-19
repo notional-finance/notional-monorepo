@@ -516,7 +516,7 @@ export function calculateDebtCollateralGivenDepositRiskLimit({
         debtBalance,
       });
     },
-    depositBalance?.neg().scaleTo(RATE_DECIMALS).toNumber() || RATE_PRECISION
+    depositBalance?.abs().scaleTo(RATE_DECIMALS).toNumber() || RATE_PRECISION
   );
 
   return {
@@ -546,7 +546,6 @@ export function calculateDebtCollateralGivenDepositRiskLimit({
       : {}),
   };
 }
-
 
 /**
  * Calculates vault debt and collateral given a risk limit
