@@ -186,3 +186,13 @@ export function isLeveragedTrade(tradeType?: VaultTradeType | TradeType) {
     tradeType === 'LeveragedNTokenAdjustLeverage'
   );
 }
+
+export function isDeleverageWithSwappedTokens(s?: BaseTradeState) {
+  if (!s?.tradeType) return false;
+  return (
+    s?.tradeType === 'Deleverage' ||
+    s?.tradeType === 'DeleverageWithdraw' ||
+    (s?.tradeType === 'LeveragedNTokenAdjustLeverage' &&
+      s?.collateral?.tokenType !== 'nToken')
+  );
+}

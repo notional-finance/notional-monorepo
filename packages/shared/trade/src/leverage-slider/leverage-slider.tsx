@@ -9,6 +9,7 @@ import { BaseTradeContext } from '@notional-finance/notionable-hooks';
 import { useCallback, useEffect, useMemo } from 'react';
 import { MessageDescriptor } from 'react-intl';
 import { TokenBalance } from '@notional-finance/core-entities';
+import { isDeleverageWithSwappedTokens } from '@notional-finance/notionable';
 
 interface LeverageSliderProps {
   context: BaseTradeContext;
@@ -18,6 +19,7 @@ interface LeverageSliderProps {
   infoMsg?: MessageDescriptor;
   bottomCaption?: JSX.Element;
   leverageCurrencyId?: number;
+  isDeleverage?: boolean;
   onChange?: (leverageRatio: number) => void;
 }
 
@@ -29,6 +31,7 @@ export const LeverageSlider = ({
   bottomCaption,
   context,
   leverageCurrencyId,
+  isDeleverage,
   onChange,
 }: LeverageSliderProps) => {
   const {
@@ -39,22 +42,24 @@ export const LeverageSlider = ({
       deposit,
       maxLeverageRatio,
       defaultLeverageRatio,
-      tradeType,
+      collateral,
       debtOptions,
+      collateralOptions,
       debt,
     },
     updateState,
   } = context;
   const { sliderInputRef, setSliderInput } = useSliderInputRef();
-  const borrowRate = debtOptions?.find(
-    (o) => o.token.id === debt?.id
-  )?.interestRate;
+  const borrowRate = isDeleverageWithSwappedTokens(context.state)
+    ? collateralOptions?.find((o) => o.token.id === collateral?.id)
+        ?.interestRate
+    : debtOptions?.find((o) => o.token.id === debt?.id)?.interestRate;
   const topRightCaption =
     borrowRate !== undefined ? (
       <>
         <CountUp value={borrowRate} suffix={'%'} decimals={2} />
         &nbsp;
-        {tradeType === 'WithdrawAndRepayVault' ? (
+        {isDeleverage ? (
           <FormattedMessage defaultMessage={'Repay APY'} />
         ) : (
           <FormattedMessage defaultMessage={'Borrow APY'} />
@@ -105,14 +110,12 @@ export const LeverageSlider = ({
       bottomCaption={bottomCaption}
       inputLabel={inputLabel}
       sliderLeverageInfo={{
-        debtHeading:
-          tradeType === 'WithdrawAndRepayVault'
-            ? defineMessage({ defaultMessage: 'Debt Repaid' })
-            : defineMessage({ defaultMessage: 'Borrow Amount' }),
-        assetHeading:
-          tradeType === 'WithdrawAndRepayVault'
-            ? defineMessage({ defaultMessage: 'Assets Sold' })
-            : defineMessage({ defaultMessage: 'Asset Amount' }),
+        debtHeading: isDeleverage
+          ? defineMessage({ defaultMessage: 'Debt Repaid' })
+          : defineMessage({ defaultMessage: 'Borrow Amount' }),
+        assetHeading: isDeleverage
+          ? defineMessage({ defaultMessage: 'Assets Sold' })
+          : defineMessage({ defaultMessage: 'Asset Amount' }),
         debtValue: cashBorrowed
           ? cashBorrowed.toUnderlying().abs().toFloat()
           : debtBalance?.toUnderlying().abs().toFloat(),

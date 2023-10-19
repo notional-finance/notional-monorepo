@@ -11,6 +11,7 @@ import {
 import {
   TradeState,
   VaultTradeState,
+  isDeleverageWithSwappedTokens,
   isLeveragedTrade,
 } from '../base-trade-store';
 
@@ -31,16 +32,18 @@ export function defaultLeverageRatio(
     withLatestFrom(selectedNetwork$),
     map(([s, network]) => {
       if (s.deposit === undefined) return undefined;
+      const { debt, collateral } = isDeleverageWithSwappedTokens(s)
+        ? { debt: s.collateral, collateral: s.debt }
+        : { debt: s.debt, collateral: s.collateral };
+
       const options = (
         s.tradeType === 'LeveragedLend'
           ? Registry.getYieldRegistry().getLeveragedLendYield(network)
           : Registry.getYieldRegistry().getLeveragedNTokenYield(network)
       )
         .filter((y) => y.underlying.id === s.deposit?.id)
-        .filter((y) => (s.collateral ? y.token.id === s.collateral.id : true))
-        .filter((y) =>
-          s.debt ? y.leveraged?.debtToken.id === s.debt.id : true
-        );
+        .filter((y) => (collateral ? y.token.id === collateral.id : true))
+        .filter((y) => (debt ? y.leveraged?.debtToken.id === debt.id : true));
 
       return {
         minLeverageRatio: 0,
