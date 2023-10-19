@@ -472,10 +472,6 @@ export function calculateDeleverage({
   }
 }
 
-/**
- * Calculates how much debt and collateral will be required given a deposit balance and a risk limit
- * that the account wants to maintain. Can be used to simulate leveraging up or deleveraging.
- */
 export function calculateDebtCollateralGivenDepositRiskLimit({
   collateral,
   debt,
@@ -493,10 +489,23 @@ export function calculateDebtCollateralGivenDepositRiskLimit({
   balances?: TokenBalance[];
   riskFactorLimit: RiskFactorLimit<RiskFactorKeys>;
 }) {
-  return new AccountRiskProfile(
-    balances ? balances : [],
+  const debtDeposit = depositBalance?.isNegative()
+    ? calculateDebt({ debt, debtPool, depositBalance })
+    : undefined;
+  const collateralDeposit = depositBalance?.isPositive()
+    ? calculateCollateral({ collateral, collateralPool, depositBalance })
+    : undefined;
+
+  const profile = new AccountRiskProfile(
+    (balances ? balances : []).concat(
+      [debtDeposit?.debtBalance, collateralDeposit?.collateralBalance].filter(
+        (t) => !!t
+      ) as TokenBalance[]
+    ),
     collateral.network
-  ).getDebtAndCollateralMaintainRiskFactor(
+  );
+
+  const results = profile.getDebtAndCollateralMaintainRiskFactor(
     debt,
     riskFactorLimit,
     (debtBalance: TokenBalance) => {
@@ -505,11 +514,37 @@ export function calculateDebtCollateralGivenDepositRiskLimit({
         collateralPool,
         debtPool,
         debtBalance,
-        depositBalance,
       });
     },
-    depositBalance?.scaleTo(RATE_DECIMALS).toNumber() || RATE_PRECISION
+    depositBalance?.abs().scaleTo(RATE_DECIMALS).toNumber() || RATE_PRECISION
   );
+
+  return {
+    ...results,
+    ...(collateralDeposit
+      ? {
+          collateralBalance: results.collateralBalance.add(
+            collateralDeposit.collateralBalance
+          ),
+          collateralFee: results.collateralFee.add(
+            collateralDeposit.collateralFee
+          ),
+          netRealizedCollateralBalance:
+            results.netRealizedCollateralBalance.add(
+              collateralDeposit.netRealizedCollateralBalance
+            ),
+        }
+      : {}),
+    ...(debtDeposit
+      ? {
+          debtBalance: results.debtBalance.add(debtDeposit.debtBalance),
+          debtFee: results.debtFee.add(debtDeposit.debtFee),
+          netRealizedDebtBalance: results.netRealizedDebtBalance.add(
+            debtDeposit.netRealizedDebtBalance
+          ),
+        }
+      : {}),
+  };
 }
 
 /**

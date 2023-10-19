@@ -25,6 +25,9 @@ import { PRODUCTS } from '@notional-finance/util';
 export const CustomLiquidityTerms = () => {
   const theme = useTheme();
   const context = useContext(LiquidityContext);
+  const {
+    state: { deposit },
+  } = context;
 
   return (
     <LiquidityTerms
@@ -42,6 +45,7 @@ export const CustomLiquidityTerms = () => {
         <Box height={theme.spacing(6)} />
         <LeverageSlider
           context={context}
+          leverageCurrencyId={deposit?.currencyId}
           inputLabel={defineMessage({
             defaultMessage: 'Specify your leverage',
             description: 'input label',
@@ -60,7 +64,9 @@ export const DefaultLiquidityTerms = () => {
 
   const toggleLeverage = () =>
     updateState({ customizeLeverage: !customizeLeverage });
-  const maxYield = useMaxYield(deposit);
+  const maxYield = useMaxYield().find(
+    (y) => y.token.currencyId === deposit?.currencyId
+  )?.totalAPY;
   const leverageRatio =
     riskFactorLimit?.riskFactor === 'leverageRatio'
       ? (riskFactorLimit.limit as number)

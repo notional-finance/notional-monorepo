@@ -15,7 +15,7 @@ export const LendLeveragedSidebar = () => {
   const history = useHistory();
   const context = useContext(LendLeveragedContext);
   const {
-    state: { selectedDepositToken, debt },
+    state: { selectedDepositToken, debt, deposit },
   } = context;
   const { currencyInputRef } = useCurrencyInputRef();
 
@@ -55,6 +55,7 @@ export const LendLeveragedSidebar = () => {
       <LeveragedLendMaturitySelector context={context} />
       <LeverageSlider
         context={context}
+        leverageCurrencyId={deposit?.currencyId}
         inputLabel={defineMessage({
           defaultMessage: '3. Specify your leverage',
           description: 'input label',

@@ -24,6 +24,8 @@ export const useLiquidityDetails = () => {
     comparePortfolio,
     collateralBalance,
     debtBalance,
+    debtOptions,
+    collateralOptions,
   } = state;
   const { tableData, tooRisky, onlyCurrent } =
     usePortfolioLiquidationRisk(state);
@@ -33,8 +35,7 @@ export const useLiquidityDetails = () => {
   const { currentHoldings } = useLeveragedNTokenPositions(selectedDepositToken);
   const newDebt = comparePortfolio?.find(
     ({ updated }) =>
-      updated.underlying.symbol === selectedDepositToken &&
-      !updated.isPositive()
+      updated.underlying.symbol === selectedDepositToken && updated.isNegative()
   )?.updated;
   const newAsset = comparePortfolio?.find(
     ({ updated }) =>
@@ -69,12 +70,45 @@ export const useLiquidityDetails = () => {
     currentHoldings?.borrowAPY,
     currentHoldings?.leverageRatio
   );
-  const newAPY = leveragedYield(
-    newNTokenAPY,
-    currentHoldings?.borrowAPY,
-    currentHoldings?.leverageRatio
-  );
 
+  const newBorrowRate =
+    debtOptions?.find(
+      (t) =>
+        t.token.id === newDebt?.tokenId ||
+        (t.token.tokenType === 'PrimeDebt' &&
+          newDebt?.tokenType === 'PrimeCash')
+    )?.interestRate ||
+    // NOTE: the borrow rate will be "collateral" when reducing the position, however,
+    // the "newDebt" variable here always refers to the proper debt token
+    collateralOptions?.find(
+      (t) =>
+        t.token.id === newDebt?.tokenId ||
+        (t.token.tokenType === 'PrimeCash' &&
+          newDebt?.tokenType === 'PrimeCash')
+    )?.interestRate;
+
+  let newFixedRate;
+  if (
+    newDebt?.tokenType === 'fCash' &&
+    debtBalance &&
+    currentHoldings?.borrowAPY !== undefined &&
+    newBorrowRate !== undefined
+  ) {
+    newFixedRate =
+      // If the debt balance is fCash then we average the new fixed rate into the current
+      // fixed rate since the user is increasing their position.
+      // [newBalance * prevImpliedRate - netBalance * (newRate - prevRate)] / newBalance
+      debtBalance.tokenId === newDebt.tokenId
+        ? (newDebt.toFloat() * currentHoldings.borrowAPY -
+            debtBalance.toFloat() *
+              (newBorrowRate - currentHoldings.borrowAPY)) /
+          newDebt.toFloat()
+        : // If the collateral balance is fCash that means the position is being reduced,
+          // and we do not need to change the borrow rate.
+          currentHoldings.borrowAPY;
+  }
+
+  const newAPY = leveragedYield(newNTokenAPY, newBorrowRate, newLeverageRatio);
   const maturity = currentHoldings?.debt.marketYield?.token.maturity;
   const [healthFactorRow] = tableData;
   const table = [
@@ -140,9 +174,6 @@ export const useLiquidityDetails = () => {
   ];
 
   if (currentHoldings?.debt.marketYield?.token.tokenType === 'fCash') {
-    // TODO: need to look at debt or collateral options here...
-    const newFixedRate = newDebt?.tokenType === 'fCash';
-
     table.push({
       label: 'Borrow Rate',
       current: formatNumberAsPercentWithUndefined(
@@ -150,9 +181,11 @@ export const useLiquidityDetails = () => {
         '-'
       ),
       updated: {
-        value: newFixedRate ? '?' : 'Variable',
-        arrowUp: false,
-        checkmark: false,
+        value: formatNumberAsPercentWithUndefined(newFixedRate, '-'),
+        arrowUp:
+          getChangeType(currentHoldings.borrowAPY, newFixedRate) === 'increase',
+        checkmark:
+          getChangeType(currentHoldings.borrowAPY, newFixedRate) === 'cleared',
         greenOnCheckmark: false,
         greenOnArrowUp: false,
       },

@@ -28,6 +28,7 @@ export const LiquidityLeveragedSummary = () => {
     collateral,
     customizeLeverage,
     collateralBalance,
+    riskFactorLimit,
   } = state;
   const tokenSymbol = selectedDepositToken || '';
 
@@ -35,7 +36,8 @@ export const LiquidityLeveragedSummary = () => {
   const { totalsData, liquidityYieldData } = useTotalsData(
     tokenSymbol,
     collateralBalance,
-    debtAPY
+    debtAPY,
+    riskFactorLimit?.limit as number | undefined
   );
   const { faqs, faqHeaderLinks } = useLiquidityFaq(tokenSymbol);
   const { data, columns } = useNTokenPriceExposure(state);

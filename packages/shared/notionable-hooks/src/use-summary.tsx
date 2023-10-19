@@ -469,6 +469,7 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
   if (isLeverageOrRoll) {
     if (
       depositBalance?.isPositive() ||
+      tradeType === 'LeveragedNTokenAdjustLeverage' ||
       tradeType === 'IncreaseVaultPosition' ||
       tradeType === 'RollVaultPosition'
     ) {
@@ -534,8 +535,10 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
       // Repay debt
       summary.push(getTradeDetail(debtBalance, 'Debt', 'repay', intl));
       /** NOTE: net asset and balance changes are used below here **/
-    } else if (tradeType === 'Deleverage') {
-      // In deleverage, the collateral and asset are reversed.
+    } else if (
+      tradeType === 'Deleverage' ||
+      tradeType === 'DeleverageWithdraw'
+    ) {
       summary.push(getTradeDetail(debtBalance, 'Asset', 'none', intl));
       summary.push(getTradeDetail(collateralBalance, 'Debt', 'repay', intl));
     } else if (tradeType === 'RollDebt') {

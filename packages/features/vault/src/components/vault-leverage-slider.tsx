@@ -20,7 +20,13 @@ export const VaultLeverageSlider = ({
   context: VaultContext;
 }) => {
   const {
-    state: { deposit, debtFee, collateralFee, netRealizedDebtBalance },
+    state: {
+      deposit,
+      debtFee,
+      collateralFee,
+      netRealizedDebtBalance,
+      tradeType,
+    },
   } = context;
   const { underMinAccountBorrow, leverageRatioError, minBorrowSize } =
     useVaultActionErrors();
@@ -54,6 +60,7 @@ export const VaultLeverageSlider = ({
       context={context}
       infoMsg={sliderInfo}
       errorMsg={errorMsg}
+      isDeleverage={tradeType === 'WithdrawAndRepayVault'}
       cashBorrowed={netRealizedDebtBalance}
       bottomCaption={
         <TransactionCostCaption

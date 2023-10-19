@@ -131,7 +131,7 @@ export const IncentiveLeveraged = ({
                     color: theme.palette.typography.main,
                   }}
                 >
-                  <FormattedMessage defaultMessage="Up To " />
+                  <FormattedMessage defaultMessage="Up to " />
                 </Label>
                 <LargeInputTextEmphasized>
                   {formattedCustomRate}

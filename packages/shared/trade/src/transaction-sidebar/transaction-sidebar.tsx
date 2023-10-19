@@ -8,7 +8,11 @@ import {
   useLeverageBlock,
 } from '@notional-finance/notionable-hooks';
 import { useCallback } from 'react';
-import { MessageDescriptor, defineMessages } from 'react-intl';
+import {
+  FormattedMessage,
+  MessageDescriptor,
+  defineMessages,
+} from 'react-intl';
 import TradeActionButton from '../trade-action-button/trade-action-button';
 import Confirmation2 from '../transaction-confirmation/confirmation2';
 import {
@@ -18,10 +22,17 @@ import {
 import { LiquidationRisk } from './components/liquidation-risk';
 import { TradeSummary } from './components/trade-summary';
 import { EnablePrimeBorrow } from '../enable-prime-borrow/enable-prime-borrow';
+import { isLeveragedTrade } from '@notional-finance/notionable';
 
 interface TransactionSidebarProps {
-  heading?: MessageDescriptor;
-  helptext?: MessageDescriptor;
+  heading?:
+    | MessageDescriptor
+    | { defaultMessage: string }
+    | { values?: Record<string, unknown> };
+  helptext?:
+    | MessageDescriptor
+    | { defaultMessage: string }
+    | { values?: Record<string, unknown> };
   context: TradeContext;
   leveredUp?: boolean;
   children?: React.ReactNode;
@@ -64,7 +75,7 @@ export const TransactionSidebar = ({
 
   if (tradeType === undefined) return <PageLoading />;
 
-  const leverageDisabled = isBlocked && tradeType.includes('Leveraged');
+  const leverageDisabled = isBlocked && isLeveragedTrade(tradeType);
   const errorMessage = defineMessages({
     geoErrorHeading: {
       defaultMessage:
@@ -86,7 +97,7 @@ export const TransactionSidebar = ({
 
   return confirm ? (
     <Confirmation2
-      heading={heading}
+      heading={heading && <FormattedMessage {...heading} />}
       context={context}
       showDrawer={isPortfolio ? false : showDrawer === true}
       onReturnToForm={onReturnToForm}

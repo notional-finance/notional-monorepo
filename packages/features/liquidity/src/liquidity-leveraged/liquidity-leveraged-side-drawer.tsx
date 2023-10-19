@@ -27,6 +27,7 @@ export const LiquidityLeveragedSideDrawer = () => {
       availableDebtTokens,
       defaultLeverageRatio,
       deposit,
+      riskFactorLimit,
     },
   } = context;
   const loaded = deposit && deposit?.symbol === selectedDepositToken;
@@ -102,16 +103,20 @@ export const LiquidityLeveragedSideDrawer = () => {
           slug: 'AdjustLeverage',
           Component: AdjustLeverage,
           requiredState: {
-            tradeType: 'LeveragedNToken',
+            tradeType: 'LeveragedNTokenAdjustLeverage',
             depositBalance: loaded ? TokenBalance.zero(deposit) : undefined,
-            ...currentPositionState,
+            // NOTE: debt and collateral will change based on where the requested
+            // leverage ratio sits in relation to the current leverage
+            riskFactorLimit: riskFactorLimit
+              ? undefined
+              : currentPositionState?.riskFactorLimit,
           },
         },
         {
           slug: 'Withdraw',
           Component: Withdraw,
           requiredState: {
-            tradeType: 'LeveragedNToken',
+            tradeType: 'DeleverageWithdraw',
             // NOTE: during withdraw the debt and asset are flipped
             collateral: currentPosition?.debt.token,
             debt: currentPosition?.asset.token,

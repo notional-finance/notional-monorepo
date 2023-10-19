@@ -58,8 +58,10 @@ export function usePortfolioHoldings() {
       toggleData,
       showToggle: groupedRows.length > 0,
     },
-    groupedHoldings,
-    detailedHoldings,
+    groupedHoldings: groupedHoldings.sort((a, b) => a.sortOrder - b.sortOrder),
+    detailedHoldings: detailedHoldings.sort(
+      (a, b) => a.sortOrder - b.sortOrder
+    ),
     pendingTokenData,
     setExpandedRows,
     initialState,
