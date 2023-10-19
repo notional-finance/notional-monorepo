@@ -8,7 +8,11 @@ import {
   useLeverageBlock,
 } from '@notional-finance/notionable-hooks';
 import { useCallback } from 'react';
-import { MessageDescriptor, defineMessages } from 'react-intl';
+import {
+  FormattedMessage,
+  MessageDescriptor,
+  defineMessages,
+} from 'react-intl';
 import TradeActionButton from '../trade-action-button/trade-action-button';
 import Confirmation2 from '../transaction-confirmation/confirmation2';
 import {
@@ -93,7 +97,7 @@ export const TransactionSidebar = ({
 
   return confirm ? (
     <Confirmation2
-      heading={heading}
+      heading={heading && <FormattedMessage {...heading} />}
       context={context}
       showDrawer={isPortfolio ? false : showDrawer === true}
       onReturnToForm={onReturnToForm}
