@@ -7,6 +7,7 @@ import {
   formatNumberAsPercent,
   formatCryptoWithFiat,
   formatNumberAsPercentWithUndefined,
+  getHoldingsSortOrder,
 } from '@notional-finance/helpers';
 import {
   useFiat,
@@ -78,6 +79,7 @@ export function useDetailedHoldings() {
         //  NOTE: totalNOTEEarnings (totalNOTEEarnings.toFiat(baseCurrency))
 
         return {
+          sortOrder: getHoldingsSortOrder(b.token),
           tokenId: b.tokenId,
           pendingTokenData: isPending ? b.token : undefined,
           asset: {

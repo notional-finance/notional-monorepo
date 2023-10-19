@@ -6,11 +6,13 @@ import {
   Registry,
   TokenBalance,
 } from '@notional-finance/core-entities';
+import { leveragedYield } from '@notional-finance/util';
 
 export const useTotalsData = (
   tokenSymbol: string,
   nTokenAmount?: TokenBalance,
-  debtAPY?: number
+  debtAPY?: number,
+  leverageRatio?: number
 ) => {
   const { yields } = useAllMarkets();
   const baseCurrency = useFiat();
@@ -21,9 +23,28 @@ export const useTotalsData = (
         ({ underlying }) => underlying.symbol === tokenSymbol
       );
 
-  if (debtAPY && liquidityYieldData?.interestAPY !== undefined) {
+  if (
+    leverageRatio &&
+    debtAPY &&
+    liquidityYieldData?.interestAPY !== undefined
+  ) {
     // If using leverage apply the debt APY to the interest apy
-    liquidityYieldData.interestAPY = liquidityYieldData.interestAPY - debtAPY;
+    liquidityYieldData.interestAPY = leveragedYield(
+      liquidityYieldData.interestAPY,
+      debtAPY,
+      leverageRatio
+    );
+  }
+
+  if (leverageRatio && !!liquidityYieldData?.incentives) {
+    // If using leverage apply the
+    liquidityYieldData.incentives = liquidityYieldData.incentives.map(
+      ({ tokenId, incentiveAPY }) => ({
+        tokenId,
+        incentiveAPY:
+          leveragedYield(incentiveAPY, 0, leverageRatio) || incentiveAPY,
+      })
+    );
   }
 
   return {

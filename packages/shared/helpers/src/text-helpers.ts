@@ -33,10 +33,13 @@ export function formatTokenType(
   formattedTitle: string;
   titleWithMaturity: string;
 } {
-  const underlying = Registry.getTokenRegistry().getUnderlying(
-    token.network,
-    token.currencyId
-  );
+  const underlying =
+    token.tokenType === 'NOTE'
+      ? token
+      : Registry.getTokenRegistry().getUnderlying(
+          token.network,
+          token.currencyId
+        );
   switch (token.tokenType) {
     case 'Underlying':
     case 'nToken':
