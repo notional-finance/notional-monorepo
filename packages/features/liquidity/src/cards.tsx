@@ -7,11 +7,7 @@ import {
 } from '@notional-finance/notionable-hooks';
 import { useEffect, useState } from 'react';
 import { FormattedMessage, MessageDescriptor, defineMessage } from 'react-intl';
-import {
-  PRODUCTS,
-  groupArrayToMap,
-  leveragedYield,
-} from '@notional-finance/util';
+import { PRODUCTS } from '@notional-finance/util';
 import { CardContainer, FeatureLoader } from '@notional-finance/shared-web';
 import { useNotionalTheme } from '@notional-finance/styles';
 import {
@@ -28,6 +24,7 @@ import {
 } from '@notional-finance/core-entities';
 import { formatLeverageRatio } from '@notional-finance/helpers';
 import { useLeveragedNTokenPositions } from './liquidity-leveraged/hooks/use-leveraged-ntoken-positions';
+import { useMaxYield } from './liquidity-leveraged/hooks/use-max-yield';
 
 const StyledLink = styled(Link)(
   ({ theme }) => `
@@ -222,27 +219,9 @@ export const LiquidityVariableCardView = () => {
 export const LiquidityLeveragedCardView = () => {
   const {
     yields: { leveragedLiquidity },
-    getMax,
   } = useAllMarkets();
   const { depositTokensWithPositions } = useLeveragedNTokenPositions();
-  const maximumAPY = [
-    ...groupArrayToMap(
-      leveragedLiquidity,
-      (t) => t.underlying.symbol
-    ).entries(),
-  ]
-    .map(([, data]) => getMax(data))
-    .map((y) => {
-      return {
-        ...y,
-        // This is the absolute maximum apy at the highest leverage ratio
-        totalAPY: leveragedYield(
-          y?.strategyAPY,
-          y?.leveraged?.debtRate,
-          y?.leveraged?.maxLeverageRatio
-        ),
-      };
-    }) as YieldData[];
+  const allMaxAPYs = useMaxYield();
 
   // These are the default yields using prime debt
   const cardData = leveragedLiquidity
@@ -251,7 +230,7 @@ export const LiquidityLeveragedCardView = () => {
       return {
         ...y,
         hasPosition: depositTokensWithPositions.includes(y.underlying.symbol),
-        maxAPY: maximumAPY.find(
+        maxAPY: allMaxAPYs.find(
           (m) => m.token.currencyId === y.token.currencyId
         )?.totalAPY,
       };

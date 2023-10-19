@@ -7,6 +7,7 @@ import {
   formatNumberAsPercent,
   formatCryptoWithFiat,
   formatNumberAsPercentWithUndefined,
+  getHoldingsSortOrder,
 } from '@notional-finance/helpers';
 import {
   useFiat,
@@ -59,10 +60,8 @@ export function useDetailedHoldings() {
         totalNOTEEarnings,
       }) => {
         const isDebt = b.isNegative();
-        const { icon, formattedTitle, title } = formatTokenType(
-          b.token,
-          isDebt
-        );
+        const { icon, formattedTitle, titleWithMaturity, title } =
+          formatTokenType(b.token, isDebt);
         const marketApy = marketYield?.totalAPY;
         const noteIncentives = marketYield?.incentives?.find(
           ({ tokenId }) => tokenId === NOTE?.id
@@ -80,13 +79,14 @@ export function useDetailedHoldings() {
         //  NOTE: totalNOTEEarnings (totalNOTEEarnings.toFiat(baseCurrency))
 
         return {
+          sortOrder: getHoldingsSortOrder(b.token),
           tokenId: b.tokenId,
           pendingTokenData: isPending ? b.token : undefined,
           asset: {
             symbol: icon,
             symbolBottom: '',
-            label: formattedTitle ? formattedTitle : title,
-            caption: title,
+            label: formattedTitle,
+            caption: titleWithMaturity,
           },
           marketApy: {
             data: [
@@ -178,7 +178,7 @@ export function useDetailedHoldings() {
           },
         };
       }
-    ) as any[];
+    );
 
     detailedHoldings.push({
       asset: {
@@ -201,7 +201,7 @@ export function useDetailedHoldings() {
       actionRow: undefined,
       tokenId: ' ',
       isTotalRow: true,
-    });
+    } as unknown as typeof detailedHoldings[number]);
 
     return { detailedHoldings, totals };
   }, [holdings, baseCurrency, history, fiatToken, NOTE]);

@@ -6,7 +6,7 @@ import {
   TradeSummaryContainer,
   TradeActionTitle,
 } from '@notional-finance/mui';
-import { BaseTradeState, isVaultTrade } from '@notional-finance/notionable';
+import { BaseTradeState, isLeveragedTrade } from '@notional-finance/notionable';
 import { TransactionHeadings } from '../transaction-sidebar/components/transaction-headings';
 import { FormattedMessage, defineMessage } from 'react-intl';
 import { useAllMarkets } from '@notional-finance/notionable-hooks';
@@ -52,10 +52,7 @@ export function TradeActionSummary({
   const headerText =
     messages?.headerText || defineMessage({ defaultMessage: 'unknown ' });
   const isLeveraged =
-    tradeType === 'LeveragedNToken' ||
-    tradeType === 'LeveragedLend' ||
-    isVaultTrade(tradeType) ||
-    priorVaultFactors !== undefined;
+    isLeveragedTrade(tradeType) || priorVaultFactors !== undefined;
   const collateral = state.collateral || priorVaultFactors?.vaultShare;
 
   const apySuffix = isLeveraged ? (

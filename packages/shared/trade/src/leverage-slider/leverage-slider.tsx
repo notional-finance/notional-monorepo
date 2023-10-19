@@ -9,6 +9,7 @@ import { BaseTradeContext } from '@notional-finance/notionable-hooks';
 import { useCallback, useEffect, useMemo } from 'react';
 import { MessageDescriptor } from 'react-intl';
 import { TokenBalance } from '@notional-finance/core-entities';
+import { isDeleverageWithSwappedTokens } from '@notional-finance/notionable';
 
 interface LeverageSliderProps {
   context: BaseTradeContext;
@@ -17,6 +18,9 @@ interface LeverageSliderProps {
   errorMsg?: MessageDescriptor;
   infoMsg?: MessageDescriptor;
   bottomCaption?: JSX.Element;
+  leverageCurrencyId?: number;
+  isDeleverage?: boolean;
+  onChange?: (leverageRatio: number) => void;
 }
 
 export const LeverageSlider = ({
@@ -26,6 +30,9 @@ export const LeverageSlider = ({
   cashBorrowed,
   bottomCaption,
   context,
+  leverageCurrencyId,
+  isDeleverage,
+  onChange,
 }: LeverageSliderProps) => {
   const {
     state: {
@@ -35,22 +42,24 @@ export const LeverageSlider = ({
       deposit,
       maxLeverageRatio,
       defaultLeverageRatio,
-      tradeType,
+      collateral,
       debtOptions,
+      collateralOptions,
       debt,
     },
     updateState,
   } = context;
   const { sliderInputRef, setSliderInput } = useSliderInputRef();
-  const borrowRate = debtOptions?.find(
-    (o) => o.token.id === debt?.id
-  )?.interestRate;
+  const borrowRate = isDeleverageWithSwappedTokens(context.state)
+    ? collateralOptions?.find((o) => o.token.id === collateral?.id)
+        ?.interestRate
+    : debtOptions?.find((o) => o.token.id === debt?.id)?.interestRate;
   const topRightCaption =
     borrowRate !== undefined ? (
       <>
         <CountUp value={borrowRate} suffix={'%'} decimals={2} />
         &nbsp;
-        {tradeType === 'WithdrawAndRepayVault' ? (
+        {isDeleverage ? (
           <FormattedMessage defaultMessage={'Repay APY'} />
         ) : (
           <FormattedMessage defaultMessage={'Borrow APY'} />
@@ -58,31 +67,23 @@ export const LeverageSlider = ({
       </>
     ) : undefined;
 
-  // Used to set the context for the leverage ratio slider.
-  const args: [number | undefined] | undefined = useMemo(
-    () =>
-      deposit &&
-      (tradeType === 'LeveragedLend' || tradeType === 'LeveragedNToken')
-        ? [deposit.currencyId]
-        : undefined,
-    [deposit, tradeType]
-  );
-
   const zeroUnderlying = useMemo(() => {
     return deposit ? TokenBalance.zero(deposit) : undefined;
   }, [deposit]);
 
   const onChangeCommitted = useCallback(
     (leverageRatio: number) => {
+      if (!isFinite(leverageRatio)) return;
+
       updateState({
         riskFactorLimit: {
           riskFactor: 'leverageRatio',
           limit: leverageRatio,
-          args,
+          args: leverageCurrencyId ? [leverageCurrencyId] : undefined,
         },
       });
     },
-    [updateState, args]
+    [updateState, leverageCurrencyId]
   );
 
   useEffect(() => {
@@ -102,21 +103,19 @@ export const LeverageSlider = ({
       ref={sliderInputRef}
       min={0}
       max={maxLeverageRatio}
-      onChangeCommitted={onChangeCommitted}
+      onChangeCommitted={onChange || onChangeCommitted}
       infoMsg={infoMsg}
       errorMsg={errorMsg}
       topRightCaption={topRightCaption}
       bottomCaption={bottomCaption}
       inputLabel={inputLabel}
       sliderLeverageInfo={{
-        debtHeading:
-          tradeType === 'WithdrawAndRepayVault'
-            ? defineMessage({ defaultMessage: 'Debt Repaid' })
-            : defineMessage({ defaultMessage: 'Borrow Amount' }),
-        assetHeading:
-          tradeType === 'WithdrawAndRepayVault'
-            ? defineMessage({ defaultMessage: 'Assets Sold' })
-            : defineMessage({ defaultMessage: 'Asset Amount' }),
+        debtHeading: isDeleverage
+          ? defineMessage({ defaultMessage: 'Debt Repaid' })
+          : defineMessage({ defaultMessage: 'Borrow Amount' }),
+        assetHeading: isDeleverage
+          ? defineMessage({ defaultMessage: 'Assets Sold' })
+          : defineMessage({ defaultMessage: 'Asset Amount' }),
         debtValue: cashBorrowed
           ? cashBorrowed.toUnderlying().abs().toFloat()
           : debtBalance?.toUnderlying().abs().toFloat(),

@@ -176,3 +176,23 @@ export function isVaultTrade(tradeType?: VaultTradeType | TradeType) {
   if (!tradeType) return false;
   return Object.keys(VaultTradeConfiguration).includes(tradeType);
 }
+
+export function isLeveragedTrade(tradeType?: VaultTradeType | TradeType) {
+  if (!tradeType) return false;
+  return (
+    isVaultTrade(tradeType) ||
+    tradeType === 'LeveragedLend' ||
+    tradeType === 'LeveragedNToken' ||
+    tradeType === 'LeveragedNTokenAdjustLeverage'
+  );
+}
+
+export function isDeleverageWithSwappedTokens(s?: BaseTradeState) {
+  if (!s?.tradeType) return false;
+  return (
+    s?.tradeType === 'Deleverage' ||
+    s?.tradeType === 'DeleverageWithdraw' ||
+    (s?.tradeType === 'LeveragedNTokenAdjustLeverage' &&
+      s?.collateral?.tokenType !== 'nToken')
+  );
+}
