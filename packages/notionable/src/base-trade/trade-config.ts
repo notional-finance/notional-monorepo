@@ -271,6 +271,34 @@ export const TradeConfiguration = {
     transactionBuilder: LeveragedNToken,
   } as TransactionConfig,
 
+  LeveragedNTokenAdjustLeverage: {
+    calculationFn: calculateDebtCollateralGivenDepositRiskLimit,
+    requiredArgs: [
+      'collateral',
+      'debt',
+      'collateralPool',
+      'debtPool',
+      'depositBalance',
+      'riskFactorLimit',
+      'balances',
+    ],
+    // NOTE: collateral and debt can switch based on the risk factor limit
+    collateralFilter: (t, _, s) =>
+      onlySameCurrency(t, s.deposit) &&
+      (s.collateral?.tokenType === 'nToken' || s.collateral === undefined
+        ? t.tokenType === 'nToken'
+        : t.tokenType === 'fCash' || t.tokenType === 'PrimeCash'),
+    debtFilter: (t, _, s) =>
+      onlySameCurrency(t, s.deposit) &&
+      (s.collateral?.tokenType === 'nToken' || s.collateral === undefined
+        ? t.tokenType === 'fCash' || t.tokenType === 'PrimeCash'
+        : t.tokenType === 'nToken'),
+    calculateDebtOptions: true,
+    calculateCollateralOptions: true,
+    // TODO: this needs to change
+    transactionBuilder: LeveragedNToken,
+  } as TransactionConfig,
+
   /** Deleverage Yield Actions */
 
   /**

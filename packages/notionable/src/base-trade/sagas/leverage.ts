@@ -8,17 +8,18 @@ import {
   withLatestFrom,
   map,
 } from 'rxjs';
-import { TradeState, VaultTradeState } from '../base-trade-store';
+import {
+  TradeState,
+  VaultTradeState,
+  isLeveragedTrade,
+} from '../base-trade-store';
 
 export function defaultLeverageRatio(
   state$: Observable<TradeState>,
   selectedNetwork$: ReturnType<typeof selectedNetwork>
 ) {
   return state$.pipe(
-    filter(
-      (s) =>
-        s.tradeType === 'LeveragedLend' || s.tradeType === 'LeveragedNToken'
-    ),
+    filter((s) => isLeveragedTrade(s.tradeType)),
     distinctUntilChanged((p, c) => {
       return (
         p.deposit?.id === c.deposit?.id &&

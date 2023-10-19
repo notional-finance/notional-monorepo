@@ -103,7 +103,7 @@ export const LiquidityLeveragedSideDrawer = () => {
           slug: 'AdjustLeverage',
           Component: AdjustLeverage,
           requiredState: {
-            tradeType: 'LeveragedNToken',
+            tradeType: 'LeveragedNTokenAdjustLeverage',
             depositBalance: loaded ? TokenBalance.zero(deposit) : undefined,
             // NOTE: debt and collateral will change based on where the requested
             // leverage ratio sits in relation to the current leverage
