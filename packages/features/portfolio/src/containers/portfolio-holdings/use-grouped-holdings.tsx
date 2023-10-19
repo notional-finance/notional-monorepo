@@ -6,6 +6,7 @@ import {
   formatNumberAsPercent,
   formatNumberAsPercentWithUndefined,
   formatTokenType,
+  getHoldingsSortOrder,
 } from '@notional-finance/helpers';
 import {
   useFiat,
@@ -80,6 +81,8 @@ export function useGroupedHoldings() {
             )
           : undefined;
       return {
+        sortOrder: getHoldingsSortOrder(asset.token),
+        tokenId: asset.tokenId,
         asset: {
           symbol: icon,
           symbolBottom: debtData?.icon,

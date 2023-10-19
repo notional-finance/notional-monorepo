@@ -200,6 +200,14 @@ export abstract class BaseRiskProfile implements RiskFactors {
     );
   }
 
+  /** Total value of assets in the specified currency */
+  totalCurrencyAssets(currencyId: number, denominated = this.defaultSymbol) {
+    return this._totalValue(
+      this.collateral.filter((t) => t.token.currencyId === currencyId),
+      this.denom(denominated)
+    );
+  }
+
   netWorth() {
     return this.totalAssets().add(this.totalDebt());
   }
@@ -280,8 +288,14 @@ export abstract class BaseRiskProfile implements RiskFactors {
     const value = this.getRiskFactor(riskFactor, args);
     const riskFactorInRP = this._getRiskFactorInRP(riskFactor, limit);
     const netLocal = this.netCollateralAvailable(localUnderlyingId);
-    const totalAssets = this.totalAssets(localUnderlyingId);
-    const totalDebt = this.totalDebt(localUnderlyingId);
+    const totalAssets =
+      args && riskFactor === 'leverageRatio' && typeof args[0] === 'number'
+        ? this.totalCurrencyAssets(args[0])
+        : this.totalAssets(localUnderlyingId);
+    const totalDebt =
+      args && riskFactor === 'leverageRatio' && typeof args[0] === 'number'
+        ? this.totalCurrencyDebts(args[0])
+        : this.totalDebt(localUnderlyingId);
 
     // NOTE: multiples should move the risk factor closer towards limit == value, so
     // if the limit is satisfied the next iteration of the loop will move closer towards

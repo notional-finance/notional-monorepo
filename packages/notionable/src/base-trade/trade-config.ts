@@ -16,6 +16,7 @@ import {
   LendVariable,
   LeveragedLend,
   LeveragedNToken,
+  LeveragedNTokenAdjustLeverage,
   MintNToken,
   RepayDebt,
   RollLendOrDebt,
@@ -259,8 +260,7 @@ export const TradeConfiguration = {
       'debtPool',
       'depositBalance',
       'riskFactorLimit',
-      // NOTE: balances is not a required input b/c the leverage ratio
-      // used in the risk factor limit is only calculated on a per trade basis
+      'balances',
     ],
     collateralFilter: (t, _, s) =>
       t.tokenType === 'nToken' && onlySameCurrency(t, s.deposit),
@@ -270,6 +270,33 @@ export const TradeConfiguration = {
     calculateDebtOptions: true,
     calculateCollateralOptions: true,
     transactionBuilder: LeveragedNToken,
+  } as TransactionConfig,
+
+  LeveragedNTokenAdjustLeverage: {
+    calculationFn: calculateDebtCollateralGivenDepositRiskLimit,
+    requiredArgs: [
+      'collateral',
+      'debt',
+      'collateralPool',
+      'debtPool',
+      'depositBalance',
+      'riskFactorLimit',
+      'balances',
+    ],
+    // NOTE: collateral and debt can switch based on the risk factor limit
+    collateralFilter: (t, _, s) =>
+      onlySameCurrency(t, s.deposit) &&
+      (s.collateral?.tokenType === 'nToken' || s.collateral === undefined
+        ? t.tokenType === 'nToken'
+        : t.tokenType === 'fCash' || t.tokenType === 'PrimeCash'),
+    debtFilter: (t, _, s) =>
+      onlySameCurrency(t, s.deposit) &&
+      (s.collateral?.tokenType === 'nToken' || s.collateral === undefined
+        ? t.tokenType === 'fCash' || t.tokenType === 'PrimeCash'
+        : t.tokenType === 'nToken'),
+    calculateDebtOptions: true,
+    calculateCollateralOptions: true,
+    transactionBuilder: LeveragedNTokenAdjustLeverage,
   } as TransactionConfig,
 
   /** Deleverage Yield Actions */
@@ -304,6 +331,7 @@ export const TradeConfiguration = {
       offsettingBalance(t, a, true) &&
       offsettingDebt(t, a),
     transactionBuilder: Deleverage,
+    calculateCollateralOptions: true,
   } as TransactionConfig,
 
   /**
