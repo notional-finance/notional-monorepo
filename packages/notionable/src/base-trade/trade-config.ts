@@ -9,7 +9,6 @@ import {
   calculateDebt,
   calculateDebtCollateralGivenDepositRiskLimit,
   calculateDeleverage,
-  calculateDeleverageWithdraw,
   ConvertAsset,
   Deleverage,
   Deposit,
@@ -313,7 +312,7 @@ export const TradeConfiguration = {
    * collateralBalance (PrimeCash, fCash)
    */
   DeleverageWithdraw: {
-    calculationFn: calculateDeleverageWithdraw,
+    calculationFn: calculateDebtCollateralGivenDepositRiskLimit,
     requiredArgs: [
       'collateral',
       'debt',

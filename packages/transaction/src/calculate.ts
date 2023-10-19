@@ -472,65 +472,6 @@ export function calculateDeleverage({
   }
 }
 
-export function calculateDeleverageWithdraw({
-  collateral,
-  debt,
-  collateralPool,
-  debtPool,
-  depositBalance,
-  balances,
-  riskFactorLimit,
-}: {
-  collateral: TokenDefinition;
-  debt: TokenDefinition;
-  collateralPool: fCashMarket;
-  debtPool: fCashMarket;
-  depositBalance: TokenBalance | undefined;
-  balances?: TokenBalance[];
-  riskFactorLimit: RiskFactorLimit<RiskFactorKeys>;
-}) {
-  let profile = new AccountRiskProfile(
-    balances ? balances : [],
-    collateral.network
-  );
-
-  const { debtBalance, netRealizedDebtBalance, debtFee } = calculateDebt({
-    debt,
-    debtPool,
-    depositBalance,
-  });
-
-  profile = profile.simulate([debtBalance]);
-
-  const results = profile.getDebtAndCollateralMaintainRiskFactor(
-    debt,
-    riskFactorLimit,
-    (debtBalance: TokenBalance) => {
-      return calculateCollateral({
-        collateral,
-        collateralPool,
-        debtPool,
-        debtBalance,
-      });
-    },
-    depositBalance?.neg().scaleTo(RATE_DECIMALS).toNumber() || RATE_PRECISION
-  );
-
-  return {
-    ...results,
-    // NOTE: need to add these back in so that the trade summary calculations are correct
-    debtBalance: results.debtBalance.add(debtBalance),
-    debtFee: results.debtFee.add(debtFee),
-    netRealizedDebtBalance: results.netRealizedDebtBalance.add(
-      netRealizedDebtBalance
-    ),
-  };
-}
-
-/**
- * Calculates how much debt and collateral will be required given a deposit balance and a risk limit
- * that the account wants to maintain. Can be used to simulate leveraging up or deleveraging.
- */
 export function calculateDebtCollateralGivenDepositRiskLimit({
   collateral,
   debt,
@@ -548,10 +489,23 @@ export function calculateDebtCollateralGivenDepositRiskLimit({
   balances?: TokenBalance[];
   riskFactorLimit: RiskFactorLimit<RiskFactorKeys>;
 }) {
-  return new AccountRiskProfile(
-    balances ? balances : [],
+  const debtDeposit = depositBalance?.isNegative()
+    ? calculateDebt({ debt, debtPool, depositBalance })
+    : undefined;
+  const collateralDeposit = depositBalance?.isPositive()
+    ? calculateCollateral({ collateral, collateralPool, depositBalance })
+    : undefined;
+
+  const profile = new AccountRiskProfile(
+    (balances ? balances : []).concat(
+      [debtDeposit?.debtBalance, collateralDeposit?.collateralBalance].filter(
+        (t) => !!t
+      ) as TokenBalance[]
+    ),
     collateral.network
-  ).getDebtAndCollateralMaintainRiskFactor(
+  );
+
+  const results = profile.getDebtAndCollateralMaintainRiskFactor(
     debt,
     riskFactorLimit,
     (debtBalance: TokenBalance) => {
@@ -560,14 +514,39 @@ export function calculateDebtCollateralGivenDepositRiskLimit({
         collateralPool,
         debtPool,
         debtBalance,
-        // NOTE: putting the deposit balance here ensures that the returned
-        // collateralBalance values reflects the deposit
-        depositBalance,
       });
     },
-    depositBalance?.scaleTo(RATE_DECIMALS).toNumber() || RATE_PRECISION
+    depositBalance?.neg().scaleTo(RATE_DECIMALS).toNumber() || RATE_PRECISION
   );
+
+  return {
+    ...results,
+    ...(collateralDeposit
+      ? {
+          collateralBalance: results.collateralBalance.add(
+            collateralDeposit.collateralBalance
+          ),
+          collateralFee: results.collateralFee.add(
+            collateralDeposit.collateralFee
+          ),
+          netRealizedCollateralBalance:
+            results.netRealizedCollateralBalance.add(
+              collateralDeposit.netRealizedCollateralBalance
+            ),
+        }
+      : {}),
+    ...(debtDeposit
+      ? {
+          debtBalance: results.debtBalance.add(debtDeposit.debtBalance),
+          debtFee: results.debtFee.add(debtDeposit.debtFee),
+          netRealizedDebtBalance: results.netRealizedDebtBalance.add(
+            debtDeposit.netRealizedDebtBalance
+          ),
+        }
+      : {}),
+  };
 }
+
 
 /**
  * Calculates vault debt and collateral given a risk limit
