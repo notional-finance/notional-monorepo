@@ -194,13 +194,12 @@ export class ComposableStablePool extends BaseLiquidityPool<ComposableStablePool
         ) => {
           const balances: any[] = [];
           for (let i = 0; i < r.balances.length; i++) {
-            if (i !== aggregateResults[`${poolAddress}.bptIndex`]) {
+            if (i != aggregateResults[`${poolAddress}.bptIndex`]) {
               balances.push(
                 TokenBalance.toJSON(r.balances[i], r.tokens[i], network)
               );
             }
           }
-          return balances;
         },
       },
     ];
