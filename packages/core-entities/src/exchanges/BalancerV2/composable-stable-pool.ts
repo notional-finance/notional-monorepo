@@ -167,15 +167,19 @@ export class ComposableStablePool extends BaseLiquidityPool<ComposableStablePool
         ) => FixedPoint.from(r.value),
       },
       {
-        stage: 0,
+        stage: 1,
         target: pool,
         method: 'getScalingFactors',
         key: 'scalingFactors',
         transform: (
           r: Awaited<
             ReturnType<BalancerBoostedPool['functions']['getScalingFactors']>
-          >[0]
-        ) => r.map(FixedPoint.from),
+          >[0],
+          aggregateResults: any
+        ) =>
+          r
+            .filter((_, i) => i != aggregateResults[`${poolAddress}.bptIndex`])
+            .map(FixedPoint.from),
       },
       {
         stage: 1,
