@@ -58,6 +58,21 @@ const WHALES: Record<Network, string[][]> = {
       '0xC9B8a3FDECB9D5b218d02555a8Baf332E5B740d5',
       '0xb84f14d736bca08736bfce58ed6c5e3a58cf8191',
     ],
+    // Balancer.fi cbETH/wstETH/rETH
+    [
+      '0x4a2F6Ae7F3e5D715689530873ec35593Dc28951B',
+      '0x2eb5661002b68ebe887d29d415c3a3b52536912c',
+    ],
+    // cbETH
+    [
+      '0x1DEBd73E752bEaF79865Fd6446b0c970EaE7732f',
+      '0x1DEBd73E752bEaF79865Fd6446b0c970EaE7732f',
+    ],
+    // rETH
+    [
+      '0xEC70Dcb4A1EFa46b8F2D97C310C9c4790ba5ffA8',
+      '0xEC70Dcb4A1EFa46b8F2D97C310C9c4790ba5ffA8',
+    ],
   ],
   [Network.Mainnet]: [
     // WETH

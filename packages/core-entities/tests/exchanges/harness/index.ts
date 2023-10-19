@@ -19,17 +19,17 @@ export const TestConfig: Record<
   [Network.All]: [],
   [Network.Mainnet]: [
     {
-      // stETH/ETH Balancer MetaStablePool
-      address: '0x32296969ef14eb0c6d29669c550d4a0449130230',
-      Harness: BalancerV2Harness,
-    },
-    {
       // Curve.fi Factory Crypto Pool: cbETH/ETH
       address: '0x5b6C539b224014A09B3388e51CaAA8e354c959C8',
       Harness: CurveV2Harness,
     },
   ],
   [Network.ArbitrumOne]: [
+    {
+      // cbETH/wstETH/rETH Balancer Composable Pool
+      address: '0x4a2F6Ae7F3e5D715689530873ec35593Dc28951B',
+      Harness: BalancerV2Harness,
+    },
     {
       // nUSDC
       address: '0x0F13fb925eDC3E1FE947209010d9c0E072986ADc',
