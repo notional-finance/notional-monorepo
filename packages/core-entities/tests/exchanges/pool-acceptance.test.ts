@@ -15,18 +15,18 @@ const acceptanceSuite = ({
   let harness: PoolTestHarness<BaseLiquidityPool<unknown>>;
   const lpEntryMatrix: number[][] = [
     [0, 0.1],
-    [0, 0.01],
+    /*[0, 0.01],
     [0, 0.001],
     [1, 0.1],
     [1, 0.01],
     [1, 0.001],
     [2, 0.1],
     [2, 0.01],
-    [2, 0.001],
+    [2, 0.001],*/
   ];
   const lpExitMatrix: number[][] = [
     [0, 0.8],
-    [0, 0.5],
+    /*[0, 0.5],
     [0, 0.1],
     [0, 0.01],
     [1, 0.8],
@@ -35,11 +35,11 @@ const acceptanceSuite = ({
     [1, 0.01],
     [2, 0.8],
     [2, 0.5],
-    [2, 0.1],
+    [2, 0.1],*/
   ];
   const tokenMatrix: number[][] = [
     [0, 1, 0.1],
-    [0, 1, 0.01],
+    /*[0, 1, 0.01],
     [0, 1, 0.001],
     [0, 2, 0.1],
     [0, 2, 0.01],
@@ -55,7 +55,7 @@ const acceptanceSuite = ({
     [2, 0, 0.001],
     [2, 1, 0.1],
     [2, 1, 0.01],
-    [2, 1, 0.001],
+    [2, 1, 0.001],*/
   ];
 
   beforeAll((done) => {

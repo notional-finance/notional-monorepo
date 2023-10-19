@@ -2,7 +2,7 @@ const crossFetch = require('cross-fetch');
 const fs = require('fs');
 
 async function main() {
-  const apiHostname = 'http://127.0.0.1:8787';
+  const apiHostname = 'https://data-dev.notional.finance';
   await new Promise((resolve) => setTimeout(resolve, 1000));
   const c = await crossFetch(`${apiHostname}/arbitrum/configuration`).then(
     (r) => r.text()
@@ -12,8 +12,8 @@ async function main() {
     r.text()
   );
 
-  const e = await crossFetch(`http://127.0.0.1:56132/arbitrum/exchanges`).then(
-    (r) => r.text()
+  const e = await crossFetch(`${apiHostname}/arbitrum/exchanges`).then((r) =>
+    r.text()
   );
 
   const o = await crossFetch(`${apiHostname}/arbitrum/oracles`).then((r) =>

@@ -12,6 +12,10 @@ import BaseLiquidityPool from '../base-liquidity-pool';
 import FixedPoint from './fixed-point';
 import MetaStablePool, { MetaStablePoolParams } from './meta-stable-pool';
 
+interface ComposableStablePoolParams extends MetaStablePoolParams {
+  bptIndex: number;
+}
+
 /**
  * The design for the ComposableStablePool is distinct from most other liquidity pools. The ComposableStablePool
  * is a MetaStablePool that holds LinearPoolBPT tokens as its balances. User interaction will generally go via the
@@ -22,7 +26,7 @@ import MetaStablePool, { MetaStablePoolParams } from './meta-stable-pool';
  * Therefore, in this design, the inputs and outputs will be denominated in underlying tokens (i.e. linearPoolMainToken),
  * and the code will do all the necessary conversion to underlying tokens.
  */
-export class ComposableStablePool extends BaseLiquidityPool<MetaStablePoolParams> {
+export class ComposableStablePool extends BaseLiquidityPool<ComposableStablePoolParams> {
   protected static NUM_LINEAR_POOL_TOKENS: number;
   private baseMetaStablePool: MetaStablePool;
 
@@ -30,7 +34,7 @@ export class ComposableStablePool extends BaseLiquidityPool<MetaStablePoolParams
     protected override _network: Network,
     protected override _balances: TokenBalance[],
     protected override _totalSupply: TokenBalance,
-    public override poolParams: MetaStablePoolParams
+    public override poolParams: ComposableStablePoolParams
   ) {
     super(_network, _balances, _totalSupply, poolParams);
 

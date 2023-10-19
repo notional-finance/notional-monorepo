@@ -156,6 +156,16 @@ export class BalancerV2Harness extends PoolTestHarness<
       );
     }
 
+    /*const maxAmountsIn: TokenBalance[] = [];
+
+    for (let i = 0; i < tokensIn.length; i++) {
+      if (i !== this.poolInstance.poolParams.bptIndex) {
+        maxAmountsIn.push(this.poolInstance.oneLPToken().copy(0));
+      } else {
+        maxAmountsIn.push(tokensIn[i]);
+      }
+    }*/
+
     const balanceBefore = await this.balanceOf(signer);
     await this.balancerVault
       .connect(signer)
