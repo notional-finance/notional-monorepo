@@ -8,7 +8,7 @@ import { useLeveragedNTokenPositions } from '../hooks';
 export const AdjustLeverage = () => {
   const context = useContext(LiquidityContext);
   const {
-    state: { selectedDepositToken, debt, collateral },
+    state: { selectedDepositToken, debt, collateral, deposit },
     updateState,
   } = context;
   const { currentPosition } = useLeveragedNTokenPositions(selectedDepositToken);
@@ -69,6 +69,7 @@ export const AdjustLeverage = () => {
     >
       <LeverageSlider
         context={context}
+        leverageCurrencyId={deposit?.currencyId}
         inputLabel={defineMessage({
           defaultMessage: 'Specify Leverage',
         })}

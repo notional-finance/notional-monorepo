@@ -25,6 +25,9 @@ import { PRODUCTS } from '@notional-finance/util';
 export const CustomLiquidityTerms = () => {
   const theme = useTheme();
   const context = useContext(LiquidityContext);
+  const {
+    state: { deposit },
+  } = context;
 
   return (
     <LiquidityTerms
@@ -42,6 +45,7 @@ export const CustomLiquidityTerms = () => {
         <Box height={theme.spacing(6)} />
         <LeverageSlider
           context={context}
+          leverageCurrencyId={deposit?.currencyId}
           inputLabel={defineMessage({
             defaultMessage: 'Specify your leverage',
             description: 'input label',

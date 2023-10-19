@@ -17,6 +17,7 @@ interface LeverageSliderProps {
   errorMsg?: MessageDescriptor;
   infoMsg?: MessageDescriptor;
   bottomCaption?: JSX.Element;
+  leverageCurrencyId?: number;
   onChange?: (leverageRatio: number) => void;
 }
 
@@ -27,6 +28,7 @@ export const LeverageSlider = ({
   cashBorrowed,
   bottomCaption,
   context,
+  leverageCurrencyId,
   onChange,
 }: LeverageSliderProps) => {
   const {
@@ -60,16 +62,6 @@ export const LeverageSlider = ({
       </>
     ) : undefined;
 
-  // Used to set the context for the leverage ratio slider.
-  const args: [number | undefined] | undefined = useMemo(
-    () =>
-      deposit &&
-      (tradeType === 'LeveragedLend' || tradeType === 'LeveragedNToken')
-        ? [deposit.currencyId]
-        : undefined,
-    [deposit, tradeType]
-  );
-
   const zeroUnderlying = useMemo(() => {
     return deposit ? TokenBalance.zero(deposit) : undefined;
   }, [deposit]);
@@ -82,11 +74,11 @@ export const LeverageSlider = ({
         riskFactorLimit: {
           riskFactor: 'leverageRatio',
           limit: leverageRatio,
-          args,
+          args: leverageCurrencyId ? [leverageCurrencyId] : undefined,
         },
       });
     },
-    [updateState, args]
+    [updateState, leverageCurrencyId]
   );
 
   useEffect(() => {
