@@ -169,48 +169,18 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
       ],
     },
     {
-      address: '0x4a2F6Ae7F3e5D715689530873ec35593Dc28951B',
+      address: '0x9791d590788598535278552EEcD4b211bFc790CB',
       PoolClass: 'ComposableStablePool',
       registerTokens: [
-        // wstETH / cbETH / rETH Pool
+        // wstETH / WETH Pool
         {
-          id: '0x4a2F6Ae7F3e5D715689530873ec35593Dc28951B',
-          address: '0x4a2F6Ae7F3e5D715689530873ec35593Dc28951B',
+          id: '0x9791d590788598535278552EEcD4b211bFc790CB',
+          address: '0x9791d590788598535278552EEcD4b211bFc790CB',
           network: Network.ArbitrumOne,
-          symbol: 'B-wstETH-cbETH-rETH-Stable',
-          name: 'Balancer wstETH-cbETH-rETH Stable Pool',
+          symbol: 'B-wstETH-WETH-Stable',
+          name: 'Balancer wstETH-WETH-Stable Pool',
           decimals: 18,
           tokenInterface: 'ERC20',
-          tokenType: 'Underlying',
-        },
-        {
-          id: '0x5979D7b546E38E414F7E9822514be443A4800529',
-          address: '0x5979D7b546E38E414F7E9822514be443A4800529',
-          network: Network.ArbitrumOne,
-          symbol: 'wstETH',
-          name: 'wstETH',
-          decimals: 18,
-          tokenInterface: 'ERC20', // TODO: change this to Ether interface
-          tokenType: 'Underlying',
-        },
-        {
-          id: '0x1DEBd73E752bEaF79865Fd6446b0c970EaE7732f',
-          address: '0x1DEBd73E752bEaF79865Fd6446b0c970EaE7732f',
-          network: Network.ArbitrumOne,
-          symbol: 'cbETH',
-          name: 'cbETH',
-          decimals: 18,
-          tokenInterface: 'ERC20', // TODO: change this to Ether interface
-          tokenType: 'Underlying',
-        },
-        {
-          id: '0xEC70Dcb4A1EFa46b8F2D97C310C9c4790ba5ffA8',
-          address: '0xEC70Dcb4A1EFa46b8F2D97C310C9c4790ba5ffA8',
-          network: Network.ArbitrumOne,
-          symbol: 'rETH',
-          name: 'rETH',
-          decimals: 18,
-          tokenInterface: 'ERC20', // TODO: change this to Ether interface
           tokenType: 'Underlying',
         },
       ],
