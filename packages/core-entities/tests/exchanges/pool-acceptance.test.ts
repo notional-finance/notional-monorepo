@@ -64,7 +64,6 @@ const acceptanceSuite = ({
         Network.ArbitrumOne,
         address,
         () => {
-          console.log('ready');
           harness = new Harness(Network.ArbitrumOne, address, provider);
           done();
         }
