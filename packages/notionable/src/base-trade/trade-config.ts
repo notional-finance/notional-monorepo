@@ -17,6 +17,7 @@ import {
   LendVariable,
   LeveragedLend,
   LeveragedNToken,
+  LeveragedNTokenAdjustLeverage,
   MintNToken,
   RepayDebt,
   RollLendOrDebt,
@@ -296,8 +297,7 @@ export const TradeConfiguration = {
         : t.tokenType === 'nToken'),
     calculateDebtOptions: true,
     calculateCollateralOptions: true,
-    // TODO: this needs to change
-    transactionBuilder: LeveragedNToken,
+    transactionBuilder: LeveragedNTokenAdjustLeverage,
   } as TransactionConfig,
 
   /** Deleverage Yield Actions */

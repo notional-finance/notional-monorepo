@@ -206,3 +206,11 @@ export async function Deleverage(i: PopulateTransactionInputs) {
     return DeleverageLend(i);
   }
 }
+
+export function LeveragedNTokenAdjustLeverage(i: PopulateTransactionInputs) {
+  if (i.collateralBalance?.tokenType === 'nToken') {
+    return LeveragedLend(i);
+  } else {
+    return DeleverageNToken(i);
+  }
+}
