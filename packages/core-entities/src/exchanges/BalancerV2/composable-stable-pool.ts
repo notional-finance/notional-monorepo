@@ -191,13 +191,17 @@ export class ComposableStablePool extends BaseLiquidityPool<ComposableStablePool
           r: Awaited<ReturnType<BalancerVault['functions']['getPoolTokens']>>,
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           aggregateResults: any
-        ) =>
-          r.balances
-            // Skip the BPT index on the boosted pool, it is not in calculations
-            .filter((_, i) => i !== aggregateResults[`${poolAddress}.bptIndex`])
-            .map((b, i) => {
-              return TokenBalance.toJSON(b, r.tokens[i], network);
-            }),
+        ) => {
+          const balances: any[] = [];
+          for (let i = 0; i < r.balances.length; i++) {
+            if (i !== aggregateResults[`${poolAddress}.bptIndex`]) {
+              balances.push(
+                TokenBalance.toJSON(r.balances[i], r.tokens[i], network)
+              );
+            }
+          }
+          return balances;
+        },
       },
     ];
   }
