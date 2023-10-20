@@ -93,13 +93,8 @@ export class ComposableStablePool extends BaseLiquidityPool<ComposableStablePool
     tokenIndexOut: number,
     _balanceOverrides?: TokenBalance[]
   ) {
-    const tokenIndexIn = this.getTokenIndex(tokensIn.token);
-    const scaledAmountIn = FixedPoint.from(tokensIn.n).mulDown(
-      this.poolParams.scalingFactors[tokenIndexIn]
-    );
-
     const { tokensOut, feesPaid } = this.baseMetaStablePool.calculateTokenTrade(
-      tokensIn.copy(scaledAmountIn.n),
+      tokensIn,
       tokenIndexOut,
       _balanceOverrides
     );

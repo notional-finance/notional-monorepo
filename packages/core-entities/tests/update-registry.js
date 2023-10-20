@@ -39,6 +39,7 @@ async function main() {
     'historical_oracle_values',
     'notional_asset_historical_prices',
     'notional_assets_apys_and_tvls',
+    'ntoken_trading_fees_apys',
     '0xb6efe4f505248846465f944801e299c14269126b',
     '0xb9bdaa34ea52c3e2f3ec39fcd8146887e6b1c78c',
     '0xdb08f663e5d765949054785f2ed1b2aa1e9c22cf',

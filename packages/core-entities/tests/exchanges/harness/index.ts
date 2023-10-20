@@ -30,7 +30,7 @@ export const TestConfig: Record<
       address: '0x9791d590788598535278552EEcD4b211bFc790CB',
       Harness: BalancerV2Harness,
     },
-    /* {
+    {
       // nUSDC
       address: '0x0F13fb925eDC3E1FE947209010d9c0E072986ADc',
       Harness: NotionalV3Harness,
@@ -42,7 +42,7 @@ export const TestConfig: Record<
     {
       address: '0xC9B8a3FDECB9D5b218d02555a8Baf332E5B740d5',
       Harness: CurveV1Harness<Curve2TokenPoolV1_SelfLPTokenNoAdmin>,
-    }, */
+    },
   ],
 };
 

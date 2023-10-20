@@ -41,13 +41,13 @@ export class BalancerV2Harness extends PoolTestHarness<
       // [EXACT_BPT_IN_FOR_ONE_TOKEN_OUT, bptAmountIn, exitTokenIndex]
       encoding: ['uint256', 'uint256', 'uint256'],
     },
-    EXACT_BPT_IN_FOR_TOKENS_OUT: {
-      kind: 1,
-      // [EXACT_BPT_IN_FOR_TOKENS_OUT, bptAmountIn]
+    EXACT_BPT_IN_FOR_ALL_TOKENS_OUT: {
+      kind: 2,
+      // [EXACT_BPT_IN_FOR_ALL_TOKENS_OUT, bptAmountIn]
       encoding: ['uint256', 'uint256'],
     },
     BPT_IN_FOR_EXACT_TOKENS_OUT: {
-      kind: 2,
+      kind: 1,
       // [BPT_IN_FOR_EXACT_TOKENS_OUT, amountsOut, maxBPTAmountIn]
       encoding: ['uint256', 'uint256[]', 'uint256'],
     },
@@ -122,21 +122,39 @@ export class BalancerV2Harness extends PoolTestHarness<
       ]
     );
 
-    const balanceBefore = await this.balanceOf(signer);
+    const assets: string[] = [];
+    const poolParams = this.poolInstance
+      .poolParams as ComposableStablePoolParams;
+
+    let tokenIndex = 0;
+    for (let i = 0; i < this.tokens().length + 1; i++) {
+      if (i == poolParams.bptIndex) {
+        assets.push(this.poolInstance.oneLPToken().token.address);
+      } else {
+        assets.push(this.tokens()[tokenIndex].address);
+        tokenIndex++;
+      }
+    }
+
+    const balanceBefore = await this.tokens()[exitTokenIndex].balanceOf(
+      address
+    );
     await this.balancerVault
       .connect(signer)
       .exitPool(this.poolInstance.poolParams.poolId, address, address, {
-        assets: this.poolInstance.balances.map((_) => _.token.address),
-        minAmountsOut: Array(this.poolInstance.balances.length).fill(0),
+        assets: assets,
+        minAmountsOut: Array(this.poolInstance.balances.length + 1).fill(0),
         userData,
         toInternalBalance: false,
       });
-    const balanceAfter = await this.balanceOf(signer);
+    const balanceAfter = await this.tokens()[exitTokenIndex].balanceOf(address);
 
     const feesPaid = this.poolInstance.zeroTokenArray();
 
     return {
-      tokensOut: balanceAfter.sub(balanceBefore),
+      tokensOut: this.poolInstance.balances[exitTokenIndex].copy(
+        balanceAfter.sub(balanceBefore)
+      ),
       feesPaid,
     };
   }
@@ -164,13 +182,11 @@ export class BalancerV2Harness extends PoolTestHarness<
 
     // Add BPT to maxAmountsIn
     let tokenIndex = 0;
-    for (let i = 0; i < tokensIn.length; i++) {
-      if (i === poolParams.bptIndex) {
+    for (let i = 0; i < tokensIn.length + 1; i++) {
+      if (i == poolParams.bptIndex) {
         maxAmountsIn.push(BigNumber.from(0));
         assets.push(this.poolInstance.oneLPToken().token.address);
       } else {
-        console.log(tokensIn);
-        console.log(tokenIndex);
         maxAmountsIn.push(tokensIn[tokenIndex].n);
         assets.push(this.tokens()[tokenIndex].address);
         tokenIndex++;
@@ -201,8 +217,8 @@ export class BalancerV2Harness extends PoolTestHarness<
   ) {
     const address = await signer.getAddress();
     const userData = ethers.utils.defaultAbiCoder.encode(
-      this.ExitKind.EXACT_BPT_IN_FOR_TOKENS_OUT.encoding,
-      [this.ExitKind.EXACT_BPT_IN_FOR_TOKENS_OUT.kind, lpTokenAmount]
+      this.ExitKind.EXACT_BPT_IN_FOR_ALL_TOKENS_OUT.encoding,
+      [this.ExitKind.EXACT_BPT_IN_FOR_ALL_TOKENS_OUT.kind, lpTokenAmount]
     );
 
     const assets: string[] = [];
@@ -211,10 +227,11 @@ export class BalancerV2Harness extends PoolTestHarness<
 
     let tokenIndex = 0;
     for (let i = 0; i < this.tokens().length + 1; i++) {
-      if (i === poolParams.bptIndex) {
+      if (i == poolParams.bptIndex) {
         assets.push(this.poolInstance.oneLPToken().token.address);
       } else {
-        assets.push(this.tokens()[tokenIndex++].address);
+        assets.push(this.tokens()[tokenIndex].address);
+        tokenIndex++;
       }
     }
 
@@ -225,7 +242,7 @@ export class BalancerV2Harness extends PoolTestHarness<
       .connect(signer)
       .exitPool(this.poolInstance.poolParams.poolId, address, address, {
         assets: assets,
-        minAmountsOut: minTokensOut || Array(this.tokens.length + 1).fill(0),
+        minAmountsOut: minTokensOut || Array(this.tokens().length + 1).fill(0),
         userData,
         toInternalBalance: false,
       });
@@ -273,7 +290,7 @@ export class BalancerV2Harness extends PoolTestHarness<
         toInternalBalance: false,
       },
       0,
-      getNowSeconds() + 1000
+      getNowSeconds() + 20000
     );
     const balanceAfter = await this.tokens()[tokensOutIndex].balanceOf(address);
 
