@@ -176,14 +176,12 @@ const Title = styled(H4)(`
   display: flex;
   flex-direction: row;
   align-items: center;
+  font-weight: 500;
 `);
 
 const SelectAll = styled(LinkText)(
   ({ theme }) => `
-  color: ${theme.palette.typography.accent};
-  text-decoration: underline;
   padding: ${theme.spacing(2)};
-  font-size: 14px;
 `
 );
 
@@ -192,8 +190,8 @@ const CategoryContainer = styled(Box)(
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: ${theme.spacing(2)};
-  padding: ${theme.spacing(0, 2, 0, 2)};
+  padding: ${theme.spacing(2, 2, 0, 2)};
+  background: ${theme.palette.common.white};
 `
 );
 
