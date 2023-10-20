@@ -34,4 +34,5 @@ export type DataTableColumn = Column & {
   displayFormatter?: any; 
   marginRight?: any; 
   className?: string;
+  sticky?: string;
 };

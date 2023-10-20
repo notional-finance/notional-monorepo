@@ -25,7 +25,14 @@ export const DataTableHead = ({
           tableVariant === TABLE_VARIANTS.TOTAL_ROW
             ? theme.shape.borderStandard
             : '',
-        marginRight: '20px',
+        marginRight: theme.spacing(2.5),
+        '.sticky-column': {
+          position: 'sticky',
+          left: 0,
+          whiteSpace: 'normal',
+          background: theme.palette.background.paper,
+          zIndex: 2,
+        },
       }}
     >
       {headerGroups.map((headerGroup: HeaderGroup) => (
@@ -37,6 +44,7 @@ export const DataTableHead = ({
         >
           {headerGroup.headers.map((column: DataTableColumn) => (
             <TableCell
+              className={column.className}
               sx={{
                 color: expandableTable
                   ? theme.palette.background.accentDefault

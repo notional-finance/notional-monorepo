@@ -15,10 +15,12 @@ import {
   useMarketTableDropdowns,
 } from './hooks';
 import { FeatureLoader } from '@notional-finance/shared-web';
+import { MarketsMobileNav, MobileFilterOptions } from './components';
 
 export const Markets = () => {
   const theme = useTheme();
   const [marketType, setMarketType] = useState<MARKET_TYPE>(MARKET_TYPE.EARN);
+  const [filterOpen, setFilterOpen] = useState<boolean>(false);
   const buttonData = useButtonBar(setMarketType, marketType);
   const { dropdownsData, currencyOptions, productOptions } =
     useMarketTableDropdowns(marketType);
@@ -28,7 +30,7 @@ export const Markets = () => {
 
   return (
     <FeatureLoader featureLoaded={true}>
-      <Box>
+      <Box sx={{ marginBottom: theme.spacing(20) }}>
         <Background>
           <StyledTopContent>
             <Title gutter="default">
@@ -53,7 +55,6 @@ export const Markets = () => {
         </MobileTitle>
         <TableContainer>
           <DataTable
-            maxHeight={theme.spacing(69)}
             data={marketTableData}
             columns={marketTableColumns}
             tableVariant={TABLE_VARIANTS.SORTABLE}
@@ -61,6 +62,17 @@ export const Markets = () => {
             marketDataCSVFormatter={marketDataCSVFormatter}
           />
         </TableContainer>
+        <MarketsMobileNav
+          setMarketType={setMarketType}
+          marketType={marketType}
+          filterOpen={filterOpen}
+          setFilterOpen={setFilterOpen}
+        />
+        <MobileFilterOptions
+          filterData={dropdownsData.reverse()}
+          filterOpen={filterOpen}
+          setFilterOpen={setFilterOpen}
+        />
       </Box>
     </FeatureLoader>
   );
@@ -91,13 +103,13 @@ const MobileTitle = styled(Box)(
 
 const TableContainer = styled(Box)(
   ({ theme }) => `
-  max-width: 1335px;
+  max-width: ${theme.spacing(167)};
   margin: auto;
-  margin-top: -240px;
-  margin-bottom: 160px;
+  margin-top: -${theme.spacing(30)};
+  margin-bottom: ${theme.spacing(20)};
   ${theme.breakpoints.down('sm')} {
     margin-top: 0px;
-    margin-bottom: 0px;
+    margin-bottom: ${theme.spacing(7.5)};
   }
 `
 );

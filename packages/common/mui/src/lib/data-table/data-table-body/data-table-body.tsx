@@ -97,9 +97,17 @@ const StyledTableRow = styled(TableRow, {
     }
     .sticky-column {
       position: sticky;
-      left: 0;
-      white-space: normal;
+      left: 0;      
       background: ${theme.palette.background.paper};
+
+      ${theme.breakpoints.down('sm')} {
+        white-space: normal;
+        padding: 0px;
+        #inner-cell {
+          padding: ${theme.spacing(2)};
+          box-shadow: 0px 34px 50px -15px rgba(20, 42, 74, 0.80);   
+        }
+      }
     }
     .MuiTableRow-root, &:nth-of-type(odd) {
       .sticky-column {
@@ -200,10 +208,6 @@ export const DataTableBody = ({
               {...row['getRowProps']()}
             >
               {row['cells'].map((cell: Record<string, any>) => {
-                console.log(
-                  `cell['column']['width']: `,
-                  cell['column']['width']
-                );
                 return (
                   <TableCell
                     className={cell['column'].className}
@@ -238,6 +242,7 @@ export const DataTableBody = ({
                       </SmallTableCell>
                     ) : (
                       <TypographyTableCell
+                        id="inner-cell"
                         sx={{
                           fontSize: CustomRowComponent ? theme.spacing(2) : '',
                         }}
