@@ -15,10 +15,12 @@ import {
   useMarketTableDropdowns,
 } from './hooks';
 import { FeatureLoader } from '@notional-finance/shared-web';
+import { MarketsMobileNav, MobileFilterOptions } from './components';
 
 export const Markets = () => {
   const theme = useTheme();
   const [marketType, setMarketType] = useState<MARKET_TYPE>(MARKET_TYPE.EARN);
+  const [filterOpen, setFilterOpen] = useState<boolean>(false);
   const buttonData = useButtonBar(setMarketType, marketType);
   const { dropdownsData, currencyOptions, productOptions } =
     useMarketTableDropdowns(marketType);
@@ -28,7 +30,7 @@ export const Markets = () => {
 
   return (
     <FeatureLoader featureLoaded={true}>
-      <Box>
+      <Box sx={{ marginBottom: theme.spacing(20) }}>
         <Background>
           <StyledTopContent>
             <Title gutter="default">
@@ -46,14 +48,12 @@ export const Markets = () => {
             />
           </StyledTopContent>
         </Background>
-        <Box
-          sx={{
-            maxWidth: '1335px',
-            margin: 'auto',
-            marginTop: '-240px',
-            marginBottom: '160px',
-          }}
-        >
+        <MobileTitle>
+          <Title sx={{ marginBottom: theme.spacing(5) }}>
+            <FormattedMessage defaultMessage={'Markets'} />
+          </Title>
+        </MobileTitle>
+        <TableContainer>
           <DataTable
             data={marketTableData}
             columns={marketTableColumns}
@@ -61,7 +61,18 @@ export const Markets = () => {
             filterBarData={dropdownsData}
             marketDataCSVFormatter={marketDataCSVFormatter}
           />
-        </Box>
+        </TableContainer>
+        <MarketsMobileNav
+          setMarketType={setMarketType}
+          marketType={marketType}
+          filterOpen={filterOpen}
+          setFilterOpen={setFilterOpen}
+        />
+        <MobileFilterOptions
+          filterData={dropdownsData.reverse()}
+          filterOpen={filterOpen}
+          setFilterOpen={setFilterOpen}
+        />
       </Box>
     </FeatureLoader>
   );
@@ -78,6 +89,31 @@ const Title = styled(H1)(
 `
 );
 
+const MobileTitle = styled(Box)(
+  ({ theme }) => `
+  display: none;
+  ${theme.breakpoints.down('sm')} {
+    padding-left: ${theme.spacing(2)};
+    padding-top: ${theme.spacing(8)};
+    display: flex;
+    background: linear-gradient(90deg, #053542 28.68%, #06657E 126.35%);
+  }
+`
+);
+
+const TableContainer = styled(Box)(
+  ({ theme }) => `
+  max-width: ${theme.spacing(167)};
+  margin: auto;
+  margin-top: -${theme.spacing(30)};
+  margin-bottom: ${theme.spacing(20)};
+  ${theme.breakpoints.down('sm')} {
+    margin-top: 0px;
+    margin-bottom: ${theme.spacing(7.5)};
+  }
+`
+);
+
 const Background = styled(Box)(
   ({ theme }) => `
   background: linear-gradient(90deg, #053542 28.68%, #06657E 126.35%);
@@ -87,6 +123,9 @@ const Background = styled(Box)(
   min-width: 100%;
   ${theme.breakpoints.down('md')} {
     height: ${theme.spacing(94)};
+  }
+  ${theme.breakpoints.down('sm')} {
+    display: none;
   }
 `
 );
@@ -104,8 +143,7 @@ const StyledTopContent = styled(Box)(
     margin-right: ${theme.spacing(6)};
   }
   ${theme.breakpoints.down('sm')} {
-    margin-left: ${theme.spacing(2)};
-    margin-right: ${theme.spacing(2)};
+    display: none;
   }
 `
 );

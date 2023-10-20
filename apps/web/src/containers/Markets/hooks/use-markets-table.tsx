@@ -17,12 +17,14 @@ import {
 } from '@notional-finance/helpers';
 import { useAllMarkets, useFiat } from '@notional-finance/notionable-hooks';
 import { FormattedMessage } from 'react-intl';
+import { useTheme } from '@mui/material';
 
 export const useMarketsTable = (
   marketType: MARKET_TYPE,
   currencyOptions: SelectedOptions[],
   productOptions: SelectedOptions[]
 ) => {
+  const theme = useTheme();
   const baseCurrency = useFiat();
   const { earnYields, borrowYields } = useAllMarkets();
 
@@ -35,8 +37,11 @@ export const useMarketsTable = (
         />
       ),
       Cell: MultiValueIconCell,
+      className: 'sticky-column',
       accessor: 'currency',
       textAlign: 'left',
+      width: theme.spacing(18.75),
+      marginRight: theme.spacing(1.25),
     },
     {
       Header: (
@@ -47,6 +52,8 @@ export const useMarketsTable = (
       ),
       accessor: 'product',
       textAlign: 'left',
+      width: theme.spacing(15.875),
+      marginRight: theme.spacing(1.25),
     },
     {
       Header: (
@@ -60,6 +67,8 @@ export const useMarketsTable = (
       accessor: 'totalAPY',
       textAlign: 'left',
       sortType: 'basic',
+      width: theme.spacing(14.5),
+      marginRight: theme.spacing(1.25),
     },
     {
       Header: (
@@ -73,6 +82,8 @@ export const useMarketsTable = (
       accessor: 'totalTVL',
       textAlign: 'right',
       sortType: 'basic',
+      width: theme.spacing(14.5),
+      marginRight: theme.spacing(1.25),
     },
     {
       Header: (
@@ -86,6 +97,8 @@ export const useMarketsTable = (
       accessor: 'leverage',
       textAlign: 'right',
       sortType: 'basic',
+      width: theme.spacing(14.5),
+      marginRight: theme.spacing(1.25),
     },
     {
       Header: (
@@ -98,6 +111,8 @@ export const useMarketsTable = (
       displayFormatter: getDateString,
       accessor: 'maturity',
       textAlign: 'right',
+      width: theme.spacing(14.5),
+      marginRight: theme.spacing(1.25),
     },
     {
       Header: (
@@ -111,12 +126,16 @@ export const useMarketsTable = (
       accessor: 'noteAPY',
       textAlign: 'right',
       sortType: 'basic',
+      width: theme.spacing(14.5),
+      marginRight: theme.spacing(1.25),
     },
     {
       Header: '',
       Cell: LinkCell,
       accessor: 'view',
       textAlign: 'right',
+      width: theme.spacing(14.5),
+      marginRight: theme.spacing(1.25),
     },
   ];
 

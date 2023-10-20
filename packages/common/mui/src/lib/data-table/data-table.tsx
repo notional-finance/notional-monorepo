@@ -209,21 +209,23 @@ export const DataTable = ({
       {tableReady ? (
         <>
           {!maxHeight && (
-            <Table {...getTableProps()}>
-              <DataTableHead
-                headerGroups={headerGroups}
-                tableVariant={tableVariant}
-                expandableTable={expandableTable}
-              />
-              <DataTableBody
-                rows={displayedRows}
-                prepareRow={prepareRow}
-                tableVariant={tableVariant}
-                CustomRowComponent={CustomRowComponent}
-                setExpandedRows={setExpandedRows}
-                initialState={initialState}
-              />
-            </Table>
+            <div style={{ overflow: 'auto' }}>
+              <Table {...getTableProps()}>
+                <DataTableHead
+                  headerGroups={headerGroups}
+                  tableVariant={tableVariant}
+                  expandableTable={expandableTable}
+                />
+                <DataTableBody
+                  rows={displayedRows}
+                  prepareRow={prepareRow}
+                  tableVariant={tableVariant}
+                  CustomRowComponent={CustomRowComponent}
+                  setExpandedRows={setExpandedRows}
+                  initialState={initialState}
+                />
+              </Table>
+            </div>
           )}
           {maxHeight && (
             <>

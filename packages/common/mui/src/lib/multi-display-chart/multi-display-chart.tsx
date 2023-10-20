@@ -143,7 +143,7 @@ export const ChartContainer = styled(Box, {
   .recharts-area-curve {
     filter: drop-shadow(${theme.shape.chartLineShadow});
   }
-  .recharts-wrapper .recharts-cartesian-grid-horizontal line:first-child,
+  .recharts-wrapper .recharts-cartesian-grid-horizontal line:first-of-type,
   .recharts-wrapper .recharts-cartesian-grid-horizontal line:last-child {
     stroke-opacity: ${hideTopGridLine ? '0 !important' : ''};
   }
