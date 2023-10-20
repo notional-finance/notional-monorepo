@@ -42,8 +42,9 @@ export function MarketsMobileNav({
         }}
       >
         <NavOption>
-          {options.map(({ title, Icon, id }) => (
+          {options.map(({ title, Icon, id }, index) => (
             <CustomLink
+              key={`${index}-${id}`}
               id={id}
               theme={theme}
               marketType={marketType}

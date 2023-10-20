@@ -72,8 +72,11 @@ export function MobileFilterOptions({
     >
       <Box sx={{ marginBottom: '105px' }}>
         {filterData.map(
-          ({ selectedOptions, setSelectedOptions, data, placeHolderText }) => (
-            <Box>
+          (
+            { selectedOptions, setSelectedOptions, data, placeHolderText },
+            index
+          ) => (
+            <Box key={index}>
               <CategoryContainer>
                 <H5>{placeHolderText}</H5>
                 <SelectAll
