@@ -40,7 +40,7 @@ export const useMarketsTable = (
       className: 'sticky-column',
       accessor: 'currency',
       textAlign: 'left',
-      width: '150px',
+      width: theme.spacing(18.75),
       marginRight: theme.spacing(1.25),
     },
     {
@@ -52,7 +52,7 @@ export const useMarketsTable = (
       ),
       accessor: 'product',
       textAlign: 'left',
-      width: '127px',
+      width: theme.spacing(15.875),
       marginRight: theme.spacing(1.25),
     },
     {
@@ -67,7 +67,7 @@ export const useMarketsTable = (
       accessor: 'totalAPY',
       textAlign: 'left',
       sortType: 'basic',
-      width: '116px',
+      width: theme.spacing(14.5),
       marginRight: theme.spacing(1.25),
     },
     {
@@ -82,7 +82,7 @@ export const useMarketsTable = (
       accessor: 'totalTVL',
       textAlign: 'right',
       sortType: 'basic',
-      width: '116px',
+      width: theme.spacing(14.5),
       marginRight: theme.spacing(1.25),
     },
     {
@@ -97,7 +97,7 @@ export const useMarketsTable = (
       accessor: 'leverage',
       textAlign: 'right',
       sortType: 'basic',
-      width: '116px',
+      width: theme.spacing(14.5),
       marginRight: theme.spacing(1.25),
     },
     {
@@ -111,7 +111,7 @@ export const useMarketsTable = (
       displayFormatter: getDateString,
       accessor: 'maturity',
       textAlign: 'right',
-      width: '116px',
+      width: theme.spacing(14.5),
       marginRight: theme.spacing(1.25),
     },
     {
@@ -126,7 +126,7 @@ export const useMarketsTable = (
       accessor: 'noteAPY',
       textAlign: 'right',
       sortType: 'basic',
-      width: '116px',
+      width: theme.spacing(14.5),
       marginRight: theme.spacing(1.25),
     },
     {
@@ -134,7 +134,7 @@ export const useMarketsTable = (
       Cell: LinkCell,
       accessor: 'view',
       textAlign: 'right',
-      width: '116px',
+      width: theme.spacing(14.5),
       marginRight: theme.spacing(1.25),
     },
   ];
