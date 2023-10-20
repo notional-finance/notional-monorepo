@@ -1,6 +1,7 @@
 import { useHistory, useLocation } from 'react-router';
 import { useNotionalContext } from './use-notional';
 import { useEffect } from 'react';
+import { isTestHost } from '@notional-finance/util';
 
 const env = process.env['NODE_ENV'];
 // https://orpa.princeton.edu/export-controls/sanctioned-countries
@@ -28,7 +29,7 @@ export function useLeverageBlock() {
   const {
     globalState: { country },
   } = useNotionalContext();
-  const isProd = env === 'production';
+  const isProd = env === 'production' && !isTestHost();
 
   return isProd
     ? country === undefined || country === 'US' || country === 'VPN'
