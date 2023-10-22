@@ -19,6 +19,7 @@ const contestStart = 1695625200;
 // const contestEnd = 1698044400;
 
 export const excludeAccounts = [
+  '0x4e8014ff5bace498dab1a9e2b5c3f4240bc059b6',
   '0x7f6f138c955e5b1017a12e4567d90c62abb00074',
   '0x424da3eFC0dC677be66aFE1967Fb631fAbb86799',
   '0x7d7935edd4b6cdb5f34b0e1cceaf85a3c4a11254',
@@ -119,6 +120,8 @@ export function calculateAccountIRR(
       );
     })
     .sort((a, b) => a.date.getTime() - b.date.getTime());
+
+  console.log(account.accountHistory);
 
   const msSinceFirstDeposit =
     getNowSeconds() * 1000 -
