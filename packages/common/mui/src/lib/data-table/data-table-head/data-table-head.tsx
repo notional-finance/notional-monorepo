@@ -1,13 +1,25 @@
 import { HeaderGroup } from 'react-table';
 import { DataTableColumn, TABLE_VARIANTS } from '../types';
-import { TableCell, TableHead, TableRow, useTheme } from '@mui/material';
+import {
+  TableCell,
+  TableHead,
+  TableRow,
+  useTheme,
+  styled,
+} from '@mui/material';
 import { UpAndDownIcon } from '@notional-finance/icons';
 import { TableColumnHeading } from '../../typography/typography';
+import { NotionalTheme } from '@notional-finance/styles';
 
 interface DataTableHeadProps {
   headerGroups: Array<HeaderGroup>;
   expandableTable: boolean;
   tableVariant?: TABLE_VARIANTS;
+}
+interface TableHeadContainerProps {
+  expandableTable: boolean;
+  tableVariant?: TABLE_VARIANTS;
+  theme: NotionalTheme;
 }
 
 export const DataTableHead = ({
@@ -17,23 +29,10 @@ export const DataTableHead = ({
 }: DataTableHeadProps) => {
   const theme = useTheme();
   return (
-    <TableHead
-      sx={{
-        position: 'relative',
-        boxShadow: expandableTable ? theme.shape.shadowStandard : '',
-        borderBottom:
-          tableVariant === TABLE_VARIANTS.TOTAL_ROW
-            ? theme.shape.borderStandard
-            : '',
-        marginRight: theme.spacing(2.5),
-        '.sticky-column': {
-          position: 'sticky',
-          left: 0,
-          whiteSpace: 'normal',
-          background: theme.palette.background.paper,
-          zIndex: 2,
-        },
-      }}
+    <TableHeadContainer
+      expandableTable={expandableTable}
+      tableVariant={tableVariant}
+      theme={theme}
     >
       {headerGroups.map((headerGroup: HeaderGroup) => (
         <TableRow
@@ -62,7 +61,9 @@ export const DataTableHead = ({
                   ? theme.shape.borderStandard
                   : 'none',
                 whiteSpace: 'nowrap',
-                minWidth: column['width'] || 'auto',
+                'sticky-column': {
+                  minWidth: column['width'],
+                },
                 width: column['width'] || 'auto',
               }}
               {...(tableVariant === TABLE_VARIANTS.SORTABLE
@@ -89,8 +90,34 @@ export const DataTableHead = ({
           ))}
         </TableRow>
       ))}
-    </TableHead>
+    </TableHeadContainer>
   );
 };
+
+const TableHeadContainer = styled(TableHead, {
+  shouldForwardProp: (prop: string) =>
+    prop !== 'expandableTable' && prop !== 'tableVariant',
+})(
+  ({ expandableTable, tableVariant, theme }: TableHeadContainerProps) => `
+  position: relative;
+  box-shadow: ${expandableTable ? theme.shape.shadowStandard : ''};
+  border-bottom:
+    ${
+      tableVariant === TABLE_VARIANTS.TOTAL_ROW
+        ? theme.shape.borderStandard
+        : ''
+    };
+  margin-right: ${theme.spacing(2.5)};
+  ${theme.breakpoints.down('sm')} {
+    .sticky-column {
+      position: sticky;
+      left: 0;
+      white-space: normal;
+      background: ${theme.palette.background.paper};
+      z-index: 2;
+    }
+  }
+`
+);
 
 export default DataTableHead;

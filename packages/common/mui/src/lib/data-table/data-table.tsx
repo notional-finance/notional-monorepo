@@ -209,7 +209,7 @@ export const DataTable = ({
       {tableReady ? (
         <>
           {!maxHeight && (
-            <div style={{ overflow: 'auto' }}>
+            <div style={{ overflow: filterBarData ? 'auto' : '' }}>
               <Table {...getTableProps()}>
                 <DataTableHead
                   headerGroups={headerGroups}
