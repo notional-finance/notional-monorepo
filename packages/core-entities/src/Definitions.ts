@@ -114,8 +114,8 @@ export interface BalanceStatement {
   totalProfitAndLoss: TokenBalance;
   totalInterestAccrual: TokenBalance;
   accumulatedCostRealized: TokenBalance;
-  adjustedNOTEEarned: TokenBalance;
-  totalNOTEAccrued: TokenBalance;
+  adjustedNOTEClaimed: TokenBalance;
+  totalNOTEClaimed: TokenBalance;
   impliedFixedRate?: number;
 
   historicalSnapshots: {

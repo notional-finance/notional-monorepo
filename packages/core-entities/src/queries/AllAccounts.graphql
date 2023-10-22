@@ -21,8 +21,8 @@ query AllAccounts {
                 totalProfitAndLossAtSnapshot
                 totalInterestAccrualAtSnapshot
                 impliedFixedRate
-                adjustedNOTEEarned
-                totalNOTEAccrued
+                adjustedNOTEClaimed
+                totalNOTEClaimed
             }
         }
         profitLossLineItems(

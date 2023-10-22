@@ -52,7 +52,7 @@ export function calculateAccountIRR(
   ).toFiat('ETH');
   const claimedNOTE = account.balanceStatement
     .reduce((note, s) => {
-      return s.totalNOTEAccrued ? note.add(s.totalNOTEAccrued) : note;
+      return s.totalNOTEClaimed ? note.add(s.totalNOTEClaimed) : note;
     }, TokenBalance.fromSymbol(0, 'NOTE', account.network))
     .toFiat('ETH');
 

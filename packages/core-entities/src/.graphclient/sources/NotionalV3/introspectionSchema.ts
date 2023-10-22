@@ -5479,7 +5479,7 @@ const schemaAST = {
           },
           "name": {
             "kind": "Name",
-            "value": "totalNOTEAccrued"
+            "value": "totalNOTEClaimed"
           },
           "arguments": [],
           "type": {
@@ -5503,7 +5503,7 @@ const schemaAST = {
           },
           "name": {
             "kind": "Name",
-            "value": "adjustedNOTEEarned"
+            "value": "adjustedNOTEClaimed"
           },
           "arguments": [],
           "type": {
@@ -8405,7 +8405,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "totalNOTEAccrued"
+            "value": "totalNOTEClaimed"
           },
           "type": {
             "kind": "NamedType",
@@ -8420,7 +8420,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "totalNOTEAccrued_not"
+            "value": "totalNOTEClaimed_not"
           },
           "type": {
             "kind": "NamedType",
@@ -8435,7 +8435,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "totalNOTEAccrued_gt"
+            "value": "totalNOTEClaimed_gt"
           },
           "type": {
             "kind": "NamedType",
@@ -8450,7 +8450,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "totalNOTEAccrued_lt"
+            "value": "totalNOTEClaimed_lt"
           },
           "type": {
             "kind": "NamedType",
@@ -8465,7 +8465,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "totalNOTEAccrued_gte"
+            "value": "totalNOTEClaimed_gte"
           },
           "type": {
             "kind": "NamedType",
@@ -8480,7 +8480,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "totalNOTEAccrued_lte"
+            "value": "totalNOTEClaimed_lte"
           },
           "type": {
             "kind": "NamedType",
@@ -8495,7 +8495,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "totalNOTEAccrued_in"
+            "value": "totalNOTEClaimed_in"
           },
           "type": {
             "kind": "ListType",
@@ -8516,7 +8516,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "totalNOTEAccrued_not_in"
+            "value": "totalNOTEClaimed_not_in"
           },
           "type": {
             "kind": "ListType",
@@ -8537,7 +8537,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "adjustedNOTEEarned"
+            "value": "adjustedNOTEClaimed"
           },
           "type": {
             "kind": "NamedType",
@@ -8552,7 +8552,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "adjustedNOTEEarned_not"
+            "value": "adjustedNOTEClaimed_not"
           },
           "type": {
             "kind": "NamedType",
@@ -8567,7 +8567,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "adjustedNOTEEarned_gt"
+            "value": "adjustedNOTEClaimed_gt"
           },
           "type": {
             "kind": "NamedType",
@@ -8582,7 +8582,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "adjustedNOTEEarned_lt"
+            "value": "adjustedNOTEClaimed_lt"
           },
           "type": {
             "kind": "NamedType",
@@ -8597,7 +8597,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "adjustedNOTEEarned_gte"
+            "value": "adjustedNOTEClaimed_gte"
           },
           "type": {
             "kind": "NamedType",
@@ -8612,7 +8612,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "adjustedNOTEEarned_lte"
+            "value": "adjustedNOTEClaimed_lte"
           },
           "type": {
             "kind": "NamedType",
@@ -8627,7 +8627,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "adjustedNOTEEarned_in"
+            "value": "adjustedNOTEClaimed_in"
           },
           "type": {
             "kind": "ListType",
@@ -8648,7 +8648,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "adjustedNOTEEarned_not_in"
+            "value": "adjustedNOTEClaimed_not_in"
           },
           "type": {
             "kind": "ListType",
@@ -8990,7 +8990,7 @@ const schemaAST = {
           "kind": "EnumValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "totalNOTEAccrued"
+            "value": "totalNOTEClaimed"
           },
           "directives": []
         },
@@ -8998,7 +8998,7 @@ const schemaAST = {
           "kind": "EnumValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "adjustedNOTEEarned"
+            "value": "adjustedNOTEClaimed"
           },
           "directives": []
         },
@@ -11542,7 +11542,7 @@ const schemaAST = {
           "kind": "EnumValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "current__totalNOTEAccrued"
+            "value": "current__totalNOTEClaimed"
           },
           "directives": []
         },
@@ -11550,7 +11550,7 @@ const schemaAST = {
           "kind": "EnumValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "current__adjustedNOTEEarned"
+            "value": "current__adjustedNOTEClaimed"
           },
           "directives": []
         },
@@ -41128,7 +41128,7 @@ const schemaAST = {
           "kind": "EnumValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "balanceSnapshot__totalNOTEAccrued"
+            "value": "balanceSnapshot__totalNOTEClaimed"
           },
           "directives": []
         },
@@ -41136,7 +41136,7 @@ const schemaAST = {
           "kind": "EnumValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "balanceSnapshot__adjustedNOTEEarned"
+            "value": "balanceSnapshot__adjustedNOTEClaimed"
           },
           "directives": []
         },

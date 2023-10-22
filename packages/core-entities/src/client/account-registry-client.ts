@@ -711,11 +711,11 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
     const totalInterestAccrual = currentProfitAndLoss.sub(
       currentStatement.totalILAndFees
     );
-    const adjustedNOTEEarned = TokenBalance.from(
-      current.adjustedNOTEEarned,
+    const adjustedNOTEClaimed = TokenBalance.from(
+      current.adjustedNOTEClaimed,
       NOTE
     );
-    const totalNOTEAccrued = TokenBalance.from(current.totalNOTEAccrued, NOTE);
+    const totalNOTEClaimed = TokenBalance.from(current.totalNOTEClaimed, NOTE);
 
     return {
       token: tokens.getTokenByID(network, tokenId),
@@ -728,8 +728,8 @@ export class AccountRegistryClient extends ClientRegistry<AccountDefinition> {
       totalProfitAndLoss: currentProfitAndLoss,
       totalInterestAccrual,
       accumulatedCostRealized: currentStatement.accumulatedCostRealized,
-      adjustedNOTEEarned,
-      totalNOTEAccrued,
+      adjustedNOTEClaimed,
+      totalNOTEClaimed,
     };
   }
 
