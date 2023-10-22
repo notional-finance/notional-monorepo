@@ -444,9 +444,9 @@ export type BalanceSnapshot = {
   /** Previous account incentive debt for NOTE */
   previousNOTEIncentiveDebt: Scalars['BigInt'];
   /** Total NOTE accrued over the lifetime of this balance */
-  totalNOTEAccrued: Scalars['BigInt'];
+  totalNOTEClaimed: Scalars['BigInt'];
   /** NOTE Earnings adjusted for balance changes */
-  adjustedNOTEEarned: Scalars['BigInt'];
+  adjustedNOTEClaimed: Scalars['BigInt'];
   profitLossLineItems?: Maybe<Array<ProfitLossLineItem>>;
 };
 
@@ -630,22 +630,22 @@ export type BalanceSnapshot_filter = {
   previousNOTEIncentiveDebt_lte?: InputMaybe<Scalars['BigInt']>;
   previousNOTEIncentiveDebt_in?: InputMaybe<Array<Scalars['BigInt']>>;
   previousNOTEIncentiveDebt_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  totalNOTEAccrued?: InputMaybe<Scalars['BigInt']>;
-  totalNOTEAccrued_not?: InputMaybe<Scalars['BigInt']>;
-  totalNOTEAccrued_gt?: InputMaybe<Scalars['BigInt']>;
-  totalNOTEAccrued_lt?: InputMaybe<Scalars['BigInt']>;
-  totalNOTEAccrued_gte?: InputMaybe<Scalars['BigInt']>;
-  totalNOTEAccrued_lte?: InputMaybe<Scalars['BigInt']>;
-  totalNOTEAccrued_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  totalNOTEAccrued_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  adjustedNOTEEarned?: InputMaybe<Scalars['BigInt']>;
-  adjustedNOTEEarned_not?: InputMaybe<Scalars['BigInt']>;
-  adjustedNOTEEarned_gt?: InputMaybe<Scalars['BigInt']>;
-  adjustedNOTEEarned_lt?: InputMaybe<Scalars['BigInt']>;
-  adjustedNOTEEarned_gte?: InputMaybe<Scalars['BigInt']>;
-  adjustedNOTEEarned_lte?: InputMaybe<Scalars['BigInt']>;
-  adjustedNOTEEarned_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  adjustedNOTEEarned_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  totalNOTEClaimed?: InputMaybe<Scalars['BigInt']>;
+  totalNOTEClaimed_not?: InputMaybe<Scalars['BigInt']>;
+  totalNOTEClaimed_gt?: InputMaybe<Scalars['BigInt']>;
+  totalNOTEClaimed_lt?: InputMaybe<Scalars['BigInt']>;
+  totalNOTEClaimed_gte?: InputMaybe<Scalars['BigInt']>;
+  totalNOTEClaimed_lte?: InputMaybe<Scalars['BigInt']>;
+  totalNOTEClaimed_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  totalNOTEClaimed_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  adjustedNOTEClaimed?: InputMaybe<Scalars['BigInt']>;
+  adjustedNOTEClaimed_not?: InputMaybe<Scalars['BigInt']>;
+  adjustedNOTEClaimed_gt?: InputMaybe<Scalars['BigInt']>;
+  adjustedNOTEClaimed_lt?: InputMaybe<Scalars['BigInt']>;
+  adjustedNOTEClaimed_gte?: InputMaybe<Scalars['BigInt']>;
+  adjustedNOTEClaimed_lte?: InputMaybe<Scalars['BigInt']>;
+  adjustedNOTEClaimed_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  adjustedNOTEClaimed_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   profitLossLineItems_?: InputMaybe<ProfitLossLineItem_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
@@ -684,8 +684,8 @@ export type BalanceSnapshot_orderBy =
   | '_accumulatedCostAdjustedBasis'
   | 'currentNOTEIncentiveDebt'
   | 'previousNOTEIncentiveDebt'
-  | 'totalNOTEAccrued'
-  | 'adjustedNOTEEarned'
+  | 'totalNOTEClaimed'
+  | 'adjustedNOTEClaimed'
   | 'profitLossLineItems';
 
 export type Balance_filter = {
@@ -879,8 +879,8 @@ export type Balance_orderBy =
   | 'current___accumulatedCostAdjustedBasis'
   | 'current__currentNOTEIncentiveDebt'
   | 'current__previousNOTEIncentiveDebt'
-  | 'current__totalNOTEAccrued'
-  | 'current__adjustedNOTEEarned'
+  | 'current__totalNOTEClaimed'
+  | 'current__adjustedNOTEClaimed'
   | 'snapshots';
 
 export type BlockChangedFilter = {
@@ -3028,8 +3028,8 @@ export type ProfitLossLineItem_orderBy =
   | 'balanceSnapshot___accumulatedCostAdjustedBasis'
   | 'balanceSnapshot__currentNOTEIncentiveDebt'
   | 'balanceSnapshot__previousNOTEIncentiveDebt'
-  | 'balanceSnapshot__totalNOTEAccrued'
-  | 'balanceSnapshot__adjustedNOTEEarned'
+  | 'balanceSnapshot__totalNOTEClaimed'
+  | 'balanceSnapshot__adjustedNOTEClaimed'
   | 'account'
   | 'account__id'
   | 'account__firstUpdateBlockNumber'
@@ -6635,8 +6635,8 @@ export type BalanceSnapshotResolvers<ContextType = MeshContext & { chainName: st
   _accumulatedCostAdjustedBasis?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   currentNOTEIncentiveDebt?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   previousNOTEIncentiveDebt?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  totalNOTEAccrued?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  adjustedNOTEEarned?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  totalNOTEClaimed?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  adjustedNOTEClaimed?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   profitLossLineItems?: Resolver<Maybe<Array<ResolversTypes['ProfitLossLineItem']>>, ParentType, ContextType, RequireFields<BalanceSnapshotprofitLossLineItemsArgs, 'skip' | 'first'>>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
@@ -7211,7 +7211,7 @@ const notionalV3Transforms = [];
 const additionalTypeDefs = [] as any[];
 const notionalV3Handler = new GraphqlHandler({
               name: "NotionalV3",
-              config: {"endpoint":"https://api.studio.thegraph.com/query/33671/notional-finance-v3-{context.chainName:arbitrum}/v0.1.9"},
+              config: {"endpoint":"https://api.studio.thegraph.com/query/33671/notional-finance-v3-{context.chainName:arbitrum}/v0.1.12"},
               baseDir,
               cache,
               pubsub,
@@ -7364,7 +7364,7 @@ export type AccountBalanceStatementQuery = { account?: Maybe<(
     & { balances?: Maybe<Array<{ token: (
         Pick<Token, 'id'>
         & { underlying?: Maybe<Pick<Token, 'id'>> }
-      ), current: Pick<BalanceSnapshot, 'timestamp' | 'blockNumber' | 'currentBalance' | '_accumulatedCostRealized' | 'adjustedCostBasis' | 'currentProfitAndLossAtSnapshot' | 'totalILAndFeesAtSnapshot' | 'totalProfitAndLossAtSnapshot' | 'totalInterestAccrualAtSnapshot' | 'impliedFixedRate' | 'adjustedNOTEEarned' | 'totalNOTEAccrued'>, snapshots?: Maybe<Array<Pick<BalanceSnapshot, 'timestamp' | 'blockNumber' | 'currentBalance' | '_accumulatedCostRealized' | 'adjustedCostBasis' | 'currentProfitAndLossAtSnapshot' | 'totalILAndFeesAtSnapshot' | 'totalProfitAndLossAtSnapshot' | 'totalInterestAccrualAtSnapshot' | 'impliedFixedRate'>>> }>> }
+      ), current: Pick<BalanceSnapshot, 'timestamp' | 'blockNumber' | 'currentBalance' | '_accumulatedCostRealized' | 'adjustedCostBasis' | 'currentProfitAndLossAtSnapshot' | 'totalILAndFeesAtSnapshot' | 'totalProfitAndLossAtSnapshot' | 'totalInterestAccrualAtSnapshot' | 'impliedFixedRate' | 'adjustedNOTEClaimed' | 'totalNOTEClaimed'>, snapshots?: Maybe<Array<Pick<BalanceSnapshot, 'timestamp' | 'blockNumber' | 'currentBalance' | '_accumulatedCostRealized' | 'adjustedCostBasis' | 'currentProfitAndLossAtSnapshot' | 'totalILAndFeesAtSnapshot' | 'totalProfitAndLossAtSnapshot' | 'totalInterestAccrualAtSnapshot' | 'impliedFixedRate'>>> }>> }
   )> };
 
 export type AccountTransactionHistoryQueryVariables = Exact<{
@@ -7388,7 +7388,7 @@ export type AllAccountsQuery = { accounts: Array<(
     & { balances?: Maybe<Array<{ token: (
         Pick<Token, 'id'>
         & { underlying?: Maybe<Pick<Token, 'id'>> }
-      ), current: Pick<BalanceSnapshot, 'timestamp' | 'blockNumber' | 'currentBalance' | '_accumulatedCostRealized' | 'adjustedCostBasis' | 'currentProfitAndLossAtSnapshot' | 'totalILAndFeesAtSnapshot' | 'totalProfitAndLossAtSnapshot' | 'totalInterestAccrualAtSnapshot' | 'impliedFixedRate' | 'adjustedNOTEEarned' | 'totalNOTEAccrued'> }>>, profitLossLineItems?: Maybe<Array<(
+      ), current: Pick<BalanceSnapshot, 'timestamp' | 'blockNumber' | 'currentBalance' | '_accumulatedCostRealized' | 'adjustedCostBasis' | 'currentProfitAndLossAtSnapshot' | 'totalILAndFeesAtSnapshot' | 'totalProfitAndLossAtSnapshot' | 'totalInterestAccrualAtSnapshot' | 'impliedFixedRate' | 'adjustedNOTEClaimed' | 'totalNOTEClaimed'> }>>, profitLossLineItems?: Maybe<Array<(
       Pick<ProfitLossLineItem, 'timestamp' | 'blockNumber' | 'tokenAmount' | 'underlyingAmountRealized' | 'underlyingAmountSpot' | 'realizedPrice' | 'spotPrice' | 'impliedFixedRate' | 'isTransientLineItem'>
       & { transactionHash: Pick<Transaction, 'id'>, token: Pick<Token, 'id' | 'tokenType'>, underlyingToken: Pick<Token, 'id'>, bundle: Pick<TransferBundle, 'bundleName'> }
     )>> }
@@ -7497,8 +7497,8 @@ export const AccountBalanceStatementDocument = gql`
         totalProfitAndLossAtSnapshot
         totalInterestAccrualAtSnapshot
         impliedFixedRate
-        adjustedNOTEEarned
-        totalNOTEAccrued
+        adjustedNOTEClaimed
+        totalNOTEClaimed
       }
       snapshots(first: 25, orderBy: blockNumber, orderDirection: desc) {
         timestamp
@@ -7572,8 +7572,8 @@ export const AllAccountsDocument = gql`
         totalProfitAndLossAtSnapshot
         totalInterestAccrualAtSnapshot
         impliedFixedRate
-        adjustedNOTEEarned
-        totalNOTEAccrued
+        adjustedNOTEClaimed
+        totalNOTEClaimed
       }
     }
     profitLossLineItems(first: 1000, orderBy: blockNumber, orderDirection: desc) {
