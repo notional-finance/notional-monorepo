@@ -8,6 +8,7 @@ import {
   populateTxnAndGas,
   hasExistingCashBalance,
 } from './common';
+import { BASIS_POINT, RATE_PRECISION } from '@notional-finance/util';
 
 export function EnablePrimeBorrow({
   address,
@@ -168,10 +169,17 @@ export function DeleverageNToken({
   network,
   collateralBalance,
   debtBalance,
+  accountBalances,
 }: PopulateTransactionInputs) {
   if (!collateralBalance || !debtBalance)
     throw Error('All balances must be defined');
 
+  // Adjust the debt balance up slightly to reduce the chance of dust balances
+  // causing fCash to fail.
+  const adjustedDebtBalance = debtBalance
+    .mulInRatePrecision(RATE_PRECISION + 0.01 * BASIS_POINT)
+    .neg();
+  const { cashBalance } = hasExistingCashBalance(debtBalance, accountBalances);
   return populateNotionalTxnAndGas(
     network,
     address,
@@ -179,11 +187,11 @@ export function DeleverageNToken({
     [
       address,
       [
-        // TODO: prime debt leaves dust here...
         getBalanceAndTradeAction(
           DepositActionType.RedeemNToken,
-          debtBalance.neg(),
-          false,
+          adjustedDebtBalance,
+          // Withdraw any pCash if there is none so we don't leave any dust behind
+          cashBalance === undefined,
           undefined, // No Withdraws
           false,
           collateralBalance.tokenType === 'fCash' ? [collateralBalance] : []
