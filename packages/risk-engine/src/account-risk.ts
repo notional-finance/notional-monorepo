@@ -10,6 +10,7 @@ import {
 } from '@notional-finance/util';
 import { BaseRiskProfile } from './base-risk';
 import { SymbolOrID } from './types';
+import { BigNumber } from 'ethers';
 
 export class AccountRiskProfile extends BaseRiskProfile {
   static simulate(from: TokenBalance[], apply: TokenBalance[]) {
@@ -45,7 +46,13 @@ export class AccountRiskProfile extends BaseRiskProfile {
     const debts = this.totalDebt();
     if (debts.isZero()) return null;
 
-    return this._toPercent(this.totalAssets(), debts.neg());
+    try {
+      return this._toPercent(this.totalAssets(), debts.neg());
+    } catch (e) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      if ((e as any)['code'] === 'NUMERIC_FAULT') return null;
+      throw e;
+    }
   }
 
   maxLoanToValue() {
