@@ -10,7 +10,7 @@ import {
 } from '@notional-finance/util';
 import { BaseRiskProfile } from './base-risk';
 import { SymbolOrID } from './types';
-import { BigNumber } from 'ethers';
+
 
 export class AccountRiskProfile extends BaseRiskProfile {
   static simulate(from: TokenBalance[], apply: TokenBalance[]) {

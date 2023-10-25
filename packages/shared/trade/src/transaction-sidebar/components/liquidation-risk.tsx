@@ -55,10 +55,13 @@ export const LiquidationRisk = ({ state }: { state: TradeState }) => {
   ) {
     // Don't show the risk table for these pages
     return null;
-  } else if (!isAccountReady && (tradeType === 'BorrowFixed' || tradeType === 'BorrowVariable')) {
+  } else if (
+    !isAccountReady &&
+    (tradeType === 'BorrowFixed' || tradeType === 'BorrowVariable')
+  ) {
     // Don't show liquidation risk on borrow pages if the account is not connected, it has
     // no meaning without collateral information
-    return null
+    return null;
   } else if (priorAccountNoRisk && postAccountNoRisk) {
     return null;
   } else if (!inputsSatisfied || !calculationSuccess) {

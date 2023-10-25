@@ -95,26 +95,24 @@ const StyledTableRow = styled(TableRow, {
         };
       }
     }
+    ${theme.breakpoints.down('sm')} {
     .sticky-column {
       position: sticky;
       left: 0;      
-      background: ${theme.palette.background.paper};
-
-      ${theme.breakpoints.down('sm')} {
-        white-space: normal;
-        padding: 0px;
-        #inner-cell {
+      background: ${theme.palette.background.paper};      
+      white-space: normal;
+      padding: 0px;
+      #inner-cell {
           padding: ${theme.spacing(2)};
           box-shadow: 0px 34px 50px -15px rgba(20, 42, 74, 0.80);   
         }
       }
-    }
     .MuiTableRow-root, &:nth-of-type(odd) {
       .sticky-column {
         background: ${theme.palette.background.default};
       }
     }
-      
+  }  
         
 
   `
@@ -219,7 +217,6 @@ export const DataTableBody = ({
                       textAlign: cell['column'].textAlign || 'center',
                       borderBottom: 'none',
                       whiteSpace: 'nowrap',
-                      minWidth: cell['column']['width'] || 'auto',
                       width: cell['column']['width'] || 'auto',
                     }}
                     {...cell['getCellProps']()}
