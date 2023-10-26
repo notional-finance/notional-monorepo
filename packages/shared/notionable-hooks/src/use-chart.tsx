@@ -162,7 +162,7 @@ export function useAccountHistoryChart(
             ({ balance }) =>
               !(
                 balance.unwrapVaultToken().token.isFCashDebt === true ||
-                balance.tokenType === 'PrimeDebt' ||
+                balance.unwrapVaultToken().tokenType === 'PrimeDebt' ||
                 balance.isNegative()
               )
           )
@@ -174,7 +174,7 @@ export function useAccountHistoryChart(
           ?.filter(
             ({ balance }) =>
               balance.unwrapVaultToken().token.isFCashDebt === true ||
-              balance.tokenType === 'PrimeDebt' ||
+              balance.unwrapVaultToken().tokenType === 'PrimeDebt' ||
               balance.isNegative()
           )
           .reduce((t, b) => {

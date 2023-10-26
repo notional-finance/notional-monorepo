@@ -10,7 +10,7 @@ import {
 } from '@notional-finance/util';
 import { RiskFaq } from '../components';
 
-export const useLiquidityFaq = (tokenSymbol: string) => {
+export const useLeveragedLiquidityFaq = (tokenSymbol: string) => {
   const theme = useTheme();
   const selectedNetwork = useSelectedNetwork();
   const context = useContext(LiquidityContext);
@@ -81,7 +81,7 @@ export const useLiquidityFaq = (tokenSymbol: string) => {
                 <ExternalLink
                   accent
                   textDecoration
-                  href="https://docs.notional.finance/notional-v3/trading-fcash/exiting-early"
+                  href="https://docs.notional.finance/notional-v3/product-guides/providing-liquidity"
                 >
                   {msg}
                 </ExternalLink>
@@ -89,6 +89,32 @@ export const useLiquidityFaq = (tokenSymbol: string) => {
             }}
           />
         </>
+      ),
+    },
+    {
+      question: (
+        <FormattedMessage
+          defaultMessage={'What is leveraged liquidity?'}
+          description={'faq question'}
+        />
+      ),
+      answer: (
+        <FormattedMessage
+          defaultMessage={
+            'A Leveraged liquidity transaction allows you to provide liquidity, borrow against that liquidity, and then provide more liquidity. Leveraged liquidity allows you to earn the spread between the liquidity yield and the borrow rate that you choose. Learn more about providing liquidity on the <a1>provide liquidity</a1> page.'
+          }
+          values={{
+            a1: (msg: React.ReactNode) => (
+              <ExternalLink
+                accent
+                textDecoration
+                href="https://docs.notional.finance/notional-v3/product-guides/providing-liquidity"
+              >
+                {msg}
+              </ExternalLink>
+            ),
+          }}
+        />
       ),
     },
     {
