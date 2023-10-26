@@ -11,7 +11,7 @@ import { convertToSignedfCashId, leveragedYield } from '@notional-finance/util';
 import { useAllMarkets } from './use-market';
 import { usePendingPnLCalculation } from './use-transaction';
 import { useMemo } from 'react';
-import { useFiat } from './use-user-settings';
+import { useFiat, useFiatToken } from './use-user-settings';
 import { calculateNTokenIncentives } from '@notional-finance/transaction';
 
 export function useAccountDefinition() {
@@ -191,6 +191,10 @@ export function useGroupedTokens() {
         ({ balance }) => balance.tokenId === debt.tokenId
       );
 
+      // If the leverage ratio is not significant, then do not consider the
+      // tokens to be grouped
+      if (leverageRatio < 0.01) return { asset: undefined };
+
       return {
         asset: holdings.find(
           ({ balance }) => balance.tokenId === asset.tokenId
@@ -206,7 +210,13 @@ export function useGroupedTokens() {
               debtHoldings?.statement?.impliedFixedRate,
       };
     })
-    .filter(({ asset, debt }) => asset !== undefined && debt !== undefined);
+    .filter(({ asset, debt }) => asset !== undefined && debt !== undefined) as {
+    asset: typeof holdings[number];
+    debt: typeof holdings[number];
+    leverageRatio: number;
+    presentValue: TokenBalance;
+    borrowAPY: number | undefined;
+  }[];
 }
 
 export function useVaultHoldings() {
@@ -268,43 +278,52 @@ export function useVaultHoldings() {
   );
 }
 
-export function useAccountCurrentAPY() {
+export function useAccountCurrentFactors() {
   const baseCurrency = useFiat();
+  const fiatToken = useFiatToken();
   const holdings = useHoldings();
   const vaults = useVaultHoldings();
 
-  const { weightedYield, netWorth } = vaults.reduce(
-    ({ weightedYield, netWorth }, { totalAPY, vault }) => {
-      const w = vault.netWorth().toFiat(baseCurrency).toFloat();
-      return totalAPY !== undefined
-        ? {
-            weightedYield: weightedYield + totalAPY * w,
-            netWorth: netWorth + w,
-          }
-        : {
-            weightedYield,
-            netWorth,
-          };
+  const { weightedYield, netWorth, debts, assets } = vaults.reduce(
+    ({ weightedYield, netWorth, debts, assets }, { totalAPY, vault }) => {
+      const { debts: d, assets: a, netWorth: _w } = vault.getAllRiskFactors();
+      const w = _w.toFiat(baseCurrency).toFloat();
+      return {
+        weightedYield: weightedYield + (totalAPY || 0) * w,
+        netWorth: netWorth.add(_w.toFiat(baseCurrency)),
+        debts: debts.add(d.toFiat(baseCurrency)),
+        assets: assets.add(a.toFiat(baseCurrency)),
+      };
     },
     holdings.reduce(
-      ({ weightedYield, netWorth }, { marketYield, balance }) => {
-        const w = balance.toFiat(baseCurrency).toFloat();
-        return marketYield?.totalAPY !== undefined
-          ? {
-              weightedYield: weightedYield + marketYield.totalAPY * w,
-              netWorth: netWorth + w,
-            }
-          : {
-              weightedYield,
-              netWorth,
-            };
+      (
+        { weightedYield, netWorth, assets, debts },
+        { marketYield, balance }
+      ) => {
+        const w = balance.toFiat(baseCurrency);
+        return {
+          weightedYield:
+            weightedYield + (marketYield?.totalAPY || 0) * w.toFloat(),
+          netWorth: netWorth.add(w),
+          debts: balance.isNegative() ? debts.add(w) : debts,
+          assets: balance.isPositive() ? assets.add(w) : assets,
+        };
       },
       {
         weightedYield: 0,
-        netWorth: 0,
+        netWorth: TokenBalance.zero(fiatToken),
+        debts: TokenBalance.zero(fiatToken),
+        assets: TokenBalance.zero(fiatToken),
       }
     )
   );
 
-  return netWorth !== 0 ? weightedYield / netWorth : undefined;
+  return {
+    currentAPY: !netWorth.isZero()
+      ? weightedYield / netWorth.toFloat()
+      : undefined,
+    netWorth,
+    debts,
+    assets,
+  };
 }

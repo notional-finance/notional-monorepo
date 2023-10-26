@@ -28,7 +28,7 @@ export const PortfolioHoldings = () => {
         pendingMessage={
           <FormattedMessage
             defaultMessage={
-              'Pending: positions are being recalculated to reflect your last transaction'
+              'Positions are being recalculated to reflect your last transaction'
             }
           />
         }

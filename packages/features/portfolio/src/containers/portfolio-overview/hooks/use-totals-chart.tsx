@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useAccountHistoryChart } from '@notional-finance/notionable-hooks';
 import { FiatSymbols } from '@notional-finance/core-entities';
 import {
-  useAccountCurrentAPY,
+  useAccountCurrentFactors,
   useFiat,
 } from '@notional-finance/notionable-hooks';
 import {
@@ -22,7 +22,7 @@ import { FormattedMessage } from 'react-intl';
 export const useTotalsChart = () => {
   const baseCurrency = useFiat();
   const windowDimensions = useWindowDimensions();
-  const accountApy = useAccountCurrentAPY();
+  const { currentAPY, netWorth, debts, assets } = useAccountCurrentFactors();
   const [secondsMultiple, setSecondsMultiple] = useState(1.5);
 
   if (windowDimensions.width <= 1152 && secondsMultiple !== 1.2) {
@@ -50,10 +50,6 @@ export const useTotalsChart = () => {
     }
   );
 
-  const headerHistoryData = historyData
-    ? historyData[historyData.length - 1]
-    : undefined;
-
   const barConfig = [
     {
       dataKey: 'totalNetWorth',
@@ -67,11 +63,11 @@ export const useTotalsChart = () => {
       currencySymbol: FiatSymbols[baseCurrency]
         ? FiatSymbols[baseCurrency]
         : '$',
-      value: headerHistoryData?.netWorth?.toDisplayStringWithSymbol(),
+      value: netWorth.toDisplayStringWithSymbol(0),
     },
   ];
 
-  if (headerHistoryData && headerHistoryData?.debts.toFloat() > 0) {
+  if (debts.isNegative()) {
     barConfig.push(
       {
         dataKey: 'totalAssets',
@@ -85,7 +81,7 @@ export const useTotalsChart = () => {
         currencySymbol: FiatSymbols[baseCurrency]
           ? FiatSymbols[baseCurrency]
           : '$',
-        value: headerHistoryData?.assets?.toDisplayStringWithSymbol(),
+        value: assets.toDisplayStringWithSymbol(0),
       },
       {
         dataKey: 'totalDebts',
@@ -99,12 +95,12 @@ export const useTotalsChart = () => {
         currencySymbol: FiatSymbols[baseCurrency]
           ? FiatSymbols[baseCurrency]
           : '$',
-        value: headerHistoryData?.debts?.toDisplayStringWithSymbol(),
+        value: debts.abs().toDisplayStringWithSymbol(0),
       }
     );
   }
 
-  if (accountApy) {
+  if (currentAPY) {
     barConfig.push({
       dataKey: 'currentApy',
       title: <FormattedMessage defaultMessage="Current APY" />,
@@ -114,7 +110,7 @@ export const useTotalsChart = () => {
       currencySymbol: FiatSymbols[baseCurrency]
         ? FiatSymbols[baseCurrency]
         : '$',
-      value: formatNumberAsPercent(accountApy),
+      value: formatNumberAsPercent(currentAPY),
     });
   }
 

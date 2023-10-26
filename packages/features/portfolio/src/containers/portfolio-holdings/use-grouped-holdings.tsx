@@ -13,7 +13,11 @@ import {
   useNOTE,
   useGroupedTokens,
 } from '@notional-finance/notionable-hooks';
-import { TXN_HISTORY_TYPE, leveragedYield } from '@notional-finance/util';
+import {
+  Network,
+  TXN_HISTORY_TYPE,
+  leveragedYield,
+} from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
 
 function formatCaption(asset: TokenBalance, debt: TokenBalance) {
@@ -45,6 +49,7 @@ export function useGroupedHoldings() {
         balance: asset,
         marketYield: assetYield,
         statement: assetStatement,
+        totalNOTEEarnings,
       },
       debt: { balance: debt, statement: debtStatement },
       leverageRatio,
@@ -80,6 +85,12 @@ export function useGroupedHoldings() {
               debtStatement?.totalProfitAndLoss
             )
           : undefined;
+      const totalEarningsWithNOTE = earnings
+        ?.toFiat(baseCurrency)
+        .add(
+          totalNOTEEarnings?.toFiat(baseCurrency) ||
+            TokenBalance.fromSymbol(0, baseCurrency, Network.All)
+        );
       return {
         sortOrder: getHoldingsSortOrder(asset.token),
         tokenId: asset.tokenId,
@@ -114,8 +125,10 @@ export function useGroupedHoldings() {
           ? formatCryptoWithFiat(baseCurrency, amountPaid)
           : '-',
         presentValue: formatCryptoWithFiat(baseCurrency, presentValue),
-        earnings: earnings
-          ? earnings.toFiat(baseCurrency).toDisplayStringWithSymbol(3, true)
+        earnings: totalEarningsWithNOTE
+          ? totalEarningsWithNOTE
+              .toFiat(baseCurrency)
+              .toDisplayStringWithSymbol(3, true)
           : '-',
         actionRow: {
           subRowData: [
