@@ -173,18 +173,20 @@ export function DeleverageNToken({
   debtBalance,
   accountBalances,
   depositBalance,
+  maxWithdraw,
 }: PopulateTransactionInputs) {
   if (!collateralBalance || !debtBalance)
     throw Error('All balances must be defined');
 
   // Adjust the debt balance up slightly to reduce the chance of dust balances
   // causing fCash to fail.
-  const adjustedDebtBalance = debtBalance
-    .mulInRatePrecision(RATE_PRECISION + 0.01 * BASIS_POINT)
-    .neg();
-  
+  const adjustedDebtBalance = maxWithdraw
+    ? debtBalance.neg()
+    : debtBalance.mulInRatePrecision(RATE_PRECISION + 0.01 * BASIS_POINT).neg();
+
   const { withdrawEntireCashBalance, withdrawAmountInternalPrecision } =
     hasExistingCashBalance(depositBalance || debtBalance, accountBalances);
+
   return populateNotionalTxnAndGas(
     network,
     address,
@@ -217,7 +219,7 @@ export async function Deleverage(i: PopulateTransactionInputs) {
 
 export function LeveragedNTokenAdjustLeverage(i: PopulateTransactionInputs) {
   if (i.collateralBalance?.tokenType === 'nToken') {
-    return LeveragedLend(i);
+    return LeveragedNToken(i);
   } else {
     return DeleverageNToken(i);
   }

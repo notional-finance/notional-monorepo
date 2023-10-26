@@ -12,7 +12,7 @@ export const AdjustLeverage = () => {
     updateState,
   } = context;
   const { currentPosition } = useLeveragedNTokenPositions(selectedDepositToken);
-  const [isDeleverage, setIsDeleverage] = useState(false)
+  const [isDeleverage, setIsDeleverage] = useState(false);
 
   // NOTE: when the leverage slider goes below the account's default position
   // then we need to swap the debt and collateral tokens
@@ -21,12 +21,14 @@ export const AdjustLeverage = () => {
       if (!isFinite(leverageRatio)) return;
 
       if (currentPosition) {
+        // NOTE: these state updates reset the context and cause a double calculation
+        // due to available collateral tokens changing...
         if (
           leverageRatio >= currentPosition.leverageRatio &&
           (debt?.id !== currentPosition.debt.tokenId ||
             collateral?.id !== currentPosition.asset.tokenId)
         ) {
-          setIsDeleverage(false)
+          setIsDeleverage(false);
           updateState({
             collateral: currentPosition.asset.token,
             debt: currentPosition.debt.token,
@@ -38,7 +40,7 @@ export const AdjustLeverage = () => {
           (debt?.id !== currentPosition.asset.tokenId ||
             collateral?.id !== currentPosition.debt.tokenId)
         ) {
-          setIsDeleverage(true)
+          setIsDeleverage(true);
           updateState({
             collateral: currentPosition.debt.token,
             debt: currentPosition.asset.token,
