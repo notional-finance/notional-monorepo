@@ -3,7 +3,7 @@ import {
   MultiValueCell,
   DataTableColumn,
 } from '@notional-finance/mui';
-import { formatValueWithFiat } from '@notional-finance/helpers';
+import { formatCryptoWithFiat } from '@notional-finance/helpers';
 import {
   useAccountReady,
   usePortfolioRiskProfile,
@@ -79,12 +79,12 @@ export const useTotalHoldingsTable = () => {
 
         return {
           currency: underlying.symbol,
-          netWorth: formatValueWithFiat(
+          netWorth: formatCryptoWithFiat(
             baseCurrency,
             totalAssets.add(totalDebts)
           ),
-          assets: formatValueWithFiat(baseCurrency, totalAssets),
-          debts: formatValueWithFiat(baseCurrency, totalDebts, true),
+          assets: formatCryptoWithFiat(baseCurrency, totalAssets),
+          debts: formatCryptoWithFiat(baseCurrency, totalDebts),
         };
       })
     : [];

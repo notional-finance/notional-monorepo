@@ -44,7 +44,10 @@ export class TokenBalance {
     // NOTE: this is used during balance summary where fCash debt is marked
     // with a positive amount
     return new TokenBalance(
-      (token.isFCashDebt || token.tokenType === 'PrimeDebt') && !_n.isNegative()
+      (token.isFCashDebt ||
+        token.tokenType === 'PrimeDebt' ||
+        token.tokenType === 'VaultDebt') &&
+      !_n.isNegative()
         ? _n.mul(-1)
         : _n,
       token.id,
