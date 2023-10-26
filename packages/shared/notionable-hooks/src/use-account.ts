@@ -191,6 +191,10 @@ export function useGroupedTokens() {
         ({ balance }) => balance.tokenId === debt.tokenId
       );
 
+      // If the leverage ratio is not significant, then do not consider the
+      // tokens to be grouped
+      if (leverageRatio < 0.01) return { asset: undefined };
+
       return {
         asset: holdings.find(
           ({ balance }) => balance.tokenId === asset.tokenId
@@ -206,7 +210,13 @@ export function useGroupedTokens() {
               debtHoldings?.statement?.impliedFixedRate,
       };
     })
-    .filter(({ asset, debt }) => asset !== undefined && debt !== undefined);
+    .filter(({ asset, debt }) => asset !== undefined && debt !== undefined) as {
+    asset: typeof holdings[number];
+    debt: typeof holdings[number];
+    leverageRatio: number;
+    presentValue: TokenBalance;
+    borrowAPY: number | undefined;
+  }[];
 }
 
 export function useVaultHoldings() {
