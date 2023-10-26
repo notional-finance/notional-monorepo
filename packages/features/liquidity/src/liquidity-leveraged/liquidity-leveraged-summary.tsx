@@ -6,7 +6,7 @@ import {
   TradeActionSummary,
 } from '@notional-finance/trade';
 import {
-  useLiquidityFaq,
+  useLeveragedLiquidityFaq,
   useNTokenPriceExposure,
   useSummaryState,
 } from './hooks';
@@ -39,7 +39,7 @@ export const LiquidityLeveragedSummary = () => {
     debtAPY,
     riskFactorLimit?.limit as number | undefined
   );
-  const { faqs, faqHeaderLinks } = useLiquidityFaq(tokenSymbol);
+  const { faqs, faqHeaderLinks } = useLeveragedLiquidityFaq(tokenSymbol);
   const { data, columns } = useNTokenPriceExposure(state);
   const { apyData } = useTokenHistory(collateral);
 
