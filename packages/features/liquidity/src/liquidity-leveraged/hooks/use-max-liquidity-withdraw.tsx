@@ -1,0 +1,52 @@
+import { useCurrencyInputRef } from '@notional-finance/mui';
+import {
+  BaseTradeContext,
+  useCurrency,
+  usePortfolioRiskProfile,
+} from '@notional-finance/notionable-hooks';
+import { useCallback } from 'react';
+
+export function useMaxLiquidityWithdraw(context: BaseTradeContext) {
+  const { updateState, state } = context;
+  const { debt: nToken, collateral } = state;
+  const profile = usePortfolioRiskProfile();
+  const { primeDebt } = useCurrency();
+  const repayToken =
+    collateral?.tokenType === 'PrimeCash'
+      ? primeDebt.find((t) => t.currencyId === collateral?.currencyId)
+      : collateral;
+  const maxRepayBalance = profile.balances.find(
+    (t) => t.tokenId === repayToken?.id
+  );
+  const nTokenBalance = profile.balances.find((t) => t.tokenId === nToken?.id);
+
+  const maxWithdraw =
+    nTokenBalance && maxRepayBalance
+      ? nTokenBalance.toUnderlying().add(maxRepayBalance.toUnderlying())
+      : undefined;
+  const { setCurrencyInput, currencyInputRef } = useCurrencyInputRef();
+
+  const onMaxValue = useCallback(() => {
+    if (maxWithdraw) {
+      setCurrencyInput(maxWithdraw?.toUnderlying().toExactString(), false);
+
+      updateState({
+        maxWithdraw: true,
+        calculationSuccess: true,
+        depositBalance: maxWithdraw.toUnderlying().neg(),
+        // TODO: these values are not correct if the liquidity is collateralizing
+        // another position, we cannot fully redeem the nToken balance?
+        collateralBalance: maxRepayBalance?.neg(),
+        debtBalance: nTokenBalance?.neg(),
+      });
+    }
+  }, [
+    maxRepayBalance,
+    nTokenBalance,
+    maxWithdraw,
+    setCurrencyInput,
+    updateState,
+  ]);
+
+  return { onMaxValue, currencyInputRef, setCurrencyInput };
+}

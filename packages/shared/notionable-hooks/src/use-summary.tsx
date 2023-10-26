@@ -390,7 +390,7 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
   const intl = useIntl();
   const baseCurrency = useFiat();
   const {
-    depositBalance,
+    depositBalance: _d,
     netAssetBalance,
     netDebtBalance,
     debtBalance,
@@ -398,7 +398,11 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
     tradeType,
     inputsSatisfied,
     calculationSuccess,
+    maxWithdraw,
+    debtFee,
+    collateralFee,
   } = state;
+  let depositBalance = _d;
 
   // TODO: if underlying is not all the same the convert to fiat currency instead
   const underlying =
@@ -413,56 +417,6 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
 
   // On leverage or roll, labels are slightly different
   const isLeverageOrRoll = !!debtBalance && !!collateralBalance;
-
-  // Label is Total to Wallet or Total from Wallet
-  const total: DetailItem = depositBalance
-    ? {
-        label: intl.formatMessage(
-          depositBalance.isPositive()
-            ? OrderDetailLabels.amountFromWallet
-            : OrderDetailLabels.amountToWallet
-        ),
-        value: {
-          data: [
-            {
-              displayValue: depositBalance
-                .abs()
-                .toUnderlying()
-                .toDisplayStringWithSymbol(3, true),
-              isNegative: false,
-            },
-            {
-              displayValue: depositBalance
-                .abs()
-                .toFiat(baseCurrency)
-                .toDisplayStringWithSymbol(),
-              isNegative: false,
-            },
-          ],
-        },
-        isTotalRow: true,
-      }
-    : {
-        label: intl.formatMessage(OrderDetailLabels.amountFromWallet),
-        value: {
-          data: [
-            {
-              displayValue: TokenBalance.zero(underlying).toDisplayString(
-                3,
-                true
-              ),
-              isNegative: false,
-            },
-            {
-              displayValue: TokenBalance.zero(underlying)
-                .toFiat(baseCurrency)
-                .toDisplayStringWithSymbol(),
-              isNegative: false,
-            },
-          ],
-        },
-        isTotalRow: true,
-      };
 
   let feeValue = TokenBalance.zero(underlying);
   const summary: DetailItem[] = [];
@@ -619,6 +573,16 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
 
   if (tradeType === 'RollVaultPosition') {
     // No-Op: value is set above
+  } else if (
+    tradeType === 'DeleverageWithdraw' &&
+    maxWithdraw &&
+    debtFee &&
+    collateralFee
+  ) {
+    // The deposit balance is slightly incorrect when calculating deleverage withdraw
+    // because we do not account for slippage and fees when we trigger a max withdraw
+    feeValue = debtFee.toUnderlying().add(collateralFee.toUnderlying()).neg();
+    depositBalance = depositBalance?.sub(feeValue);
   } else if (isLeverageOrRoll) {
     // Do not include roll vault position because the margin will be
     // incorrectly included in the fee value
@@ -656,6 +620,56 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
       ],
     },
   });
+
+  // Label is Total to Wallet or Total from Wallet
+  const total: DetailItem = depositBalance
+    ? {
+        label: intl.formatMessage(
+          depositBalance.isPositive()
+            ? OrderDetailLabels.amountFromWallet
+            : OrderDetailLabels.amountToWallet
+        ),
+        value: {
+          data: [
+            {
+              displayValue: depositBalance
+                .abs()
+                .toUnderlying()
+                .toDisplayStringWithSymbol(3, true),
+              isNegative: false,
+            },
+            {
+              displayValue: depositBalance
+                .abs()
+                .toFiat(baseCurrency)
+                .toDisplayStringWithSymbol(),
+              isNegative: false,
+            },
+          ],
+        },
+        isTotalRow: true,
+      }
+    : {
+        label: intl.formatMessage(OrderDetailLabels.amountFromWallet),
+        value: {
+          data: [
+            {
+              displayValue: TokenBalance.zero(underlying).toDisplayString(
+                3,
+                true
+              ),
+              isNegative: false,
+            },
+            {
+              displayValue: TokenBalance.zero(underlying)
+                .toFiat(baseCurrency)
+                .toDisplayStringWithSymbol(),
+              isNegative: false,
+            },
+          ],
+        },
+        isTotalRow: true,
+      };
 
   summary.push({ ...total });
 
