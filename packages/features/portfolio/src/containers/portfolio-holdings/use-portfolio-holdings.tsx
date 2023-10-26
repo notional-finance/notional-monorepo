@@ -10,8 +10,10 @@ import {
 import { usePendingPnLCalculation } from '@notional-finance/notionable-hooks';
 import { useDetailedHoldings } from './use-detailed-holdings';
 import { useGroupedHoldings } from './use-grouped-holdings';
+import { useTheme } from '@mui/material';
 
 export function usePortfolioHoldings() {
+  const theme = useTheme();
   const [expandedRows, setExpandedRows] = useState<ExpandedRows | null>(null);
   const [toggleOption, setToggleOption] = useState<number>(0);
   const initialState = expandedRows !== null ? { expanded: expandedRows } : {};
@@ -50,6 +52,55 @@ export function usePortfolioHoldings() {
     },
   ];
 
+  const Columns = [
+    {
+      Header: <FormattedMessage defaultMessage="Asset" />,
+      Cell: MultiValueIconCell,
+      accessor: 'asset',
+      textAlign: 'left',
+      expandableTable: true,
+      width: theme.spacing(37.5),
+    },
+    {
+      Header: <FormattedMessage defaultMessage="Market APY" />,
+      Cell: MultiValueCell,
+      accessor: 'marketApy',
+      textAlign: 'right',
+      expandableTable: true,
+      width: theme.spacing(25),
+    },
+    {
+      Header: <FormattedMessage defaultMessage="Amount Paid" />,
+      Cell: MultiValueCell,
+      accessor: 'amountPaid',
+      textAlign: 'right',
+      expandableTable: true,
+      showLoadingSpinner: true,
+    },
+    {
+      Header: <FormattedMessage defaultMessage="Present Value" />,
+      Cell: MultiValueCell,
+      accessor: 'presentValue',
+      textAlign: 'right',
+      expandableTable: true,
+    },
+    {
+      Header: <FormattedMessage defaultMessage="Total Earnings" />,
+      Cell: DisplayCell,
+      accessor: 'earnings',
+      textAlign: 'right',
+      expandableTable: true,
+      showLoadingSpinner: true,
+    },
+    {
+      Header: '',
+      Cell: ChevronCell,
+      accessor: 'chevron',
+      textAlign: 'left',
+      expandableTable: true,
+    },
+  ];
+
   return {
     portfolioHoldingsColumns: Columns,
     toggleBarProps: {
@@ -67,50 +118,3 @@ export function usePortfolioHoldings() {
     initialState,
   };
 }
-
-const Columns = [
-  {
-    Header: <FormattedMessage defaultMessage="Asset" />,
-    Cell: MultiValueIconCell,
-    accessor: 'asset',
-    textAlign: 'left',
-    expandableTable: true,
-  },
-  {
-    Header: <FormattedMessage defaultMessage="Market APY" />,
-    Cell: MultiValueCell,
-    accessor: 'marketApy',
-    textAlign: 'right',
-    expandableTable: true,
-  },
-  {
-    Header: <FormattedMessage defaultMessage="Amount Paid" />,
-    Cell: MultiValueCell,
-    accessor: 'amountPaid',
-    textAlign: 'right',
-    expandableTable: true,
-    showLoadingSpinner: true,
-  },
-  {
-    Header: <FormattedMessage defaultMessage="Present Value" />,
-    Cell: MultiValueCell,
-    accessor: 'presentValue',
-    textAlign: 'right',
-    expandableTable: true,
-  },
-  {
-    Header: <FormattedMessage defaultMessage="Total Earnings" />,
-    Cell: DisplayCell,
-    accessor: 'earnings',
-    textAlign: 'right',
-    expandableTable: true,
-    showLoadingSpinner: true,
-  },
-  {
-    Header: '',
-    Cell: ChevronCell,
-    accessor: 'chevron',
-    textAlign: 'left',
-    expandableTable: true,
-  },
-];
