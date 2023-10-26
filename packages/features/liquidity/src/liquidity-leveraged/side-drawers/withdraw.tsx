@@ -1,16 +1,13 @@
 import { useContext } from 'react';
 import { LiquidityContext } from '../../liquidity';
-import {
-  DepositInput,
-  TransactionSidebar,
-  useMaxWithdraw,
-} from '@notional-finance/trade';
+import { DepositInput, TransactionSidebar } from '@notional-finance/trade';
 import { defineMessage } from 'react-intl';
 import { LiquidityDetailsTable } from '../components/liquidity-details-table';
+import { useMaxLiquidityWithdraw } from '../hooks/use-max-liquidity-withdraw';
 
 export const Withdraw = () => {
   const context = useContext(LiquidityContext);
-  const { currencyInputRef, onMaxValue } = useMaxWithdraw(context);
+  const { currencyInputRef, onMaxValue } = useMaxLiquidityWithdraw(context);
 
   return (
     <TransactionSidebar

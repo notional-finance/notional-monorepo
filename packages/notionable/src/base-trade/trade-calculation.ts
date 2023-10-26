@@ -81,11 +81,15 @@ export function calculateMaxWithdraw(
         netRealizedDebtBalance,
         calculationSuccess,
         calculateError,
+        debtFee,
+        collateralFee,
       } = executeCalculation(inputsSatisfied, s.tradeType, inputs) as {
         netRealizedDebtBalance: TokenBalance | undefined;
         netRealizedCollateralBalance: TokenBalance | undefined;
-        calculationSuccess: boolean,
-        calculateError: string | undefined,
+        debtFee: TokenBalance | undefined;
+        collateralFee: TokenBalance | undefined;
+        calculationSuccess: boolean;
+        calculateError: string | undefined;
       };
 
       return {
@@ -94,6 +98,8 @@ export function calculateMaxWithdraw(
         calculateError,
         netRealizedDebtBalance: netRealizedDebtBalance,
         netRealizedCollateralBalance: netRealizedCollateralBalance,
+        debtFee,
+        collateralFee,
       };
     }),
     filterEmpty()
