@@ -45,7 +45,7 @@ export const LiquidityLeveragedSummary = () => {
 
   const apyChart = {
     id: 'apy-area-chart',
-    title: 'APY',
+    title: collateral ? `${collateral.symbol} APY` : 'APY',
     hideTopGridLine: true,
     Component: (
       <AreaChart
