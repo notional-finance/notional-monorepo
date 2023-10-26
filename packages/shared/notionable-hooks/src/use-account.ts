@@ -159,10 +159,10 @@ export function useHoldings() {
             );
             const additionalNOTE = accountIncentiveDebt
               ? calculateNTokenIncentives(balance, accountIncentiveDebt.value)
-              : statement.adjustedNOTEEarned.copy(0);
+              : statement.adjustedNOTEClaimed.copy(0);
 
             totalNOTEEarnings =
-              statement.adjustedNOTEEarned.add(additionalNOTE);
+              statement.adjustedNOTEClaimed.add(additionalNOTE);
           }
 
           return {
