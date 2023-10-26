@@ -23,7 +23,7 @@ export function CopyCaption({ showAlert, title, sx }: CopyCaptionProps) {
         borderRadius: theme.shape.borderRadius(),
         border: `1px solid ${theme.palette.primary.light}`,
         transition: 'all 0.3s ease-in-out',
-        opacity: showAlert ? 1 : 0,
+        display: showAlert ? 'block' : 'none',
         ...sx,
       }}
     >
