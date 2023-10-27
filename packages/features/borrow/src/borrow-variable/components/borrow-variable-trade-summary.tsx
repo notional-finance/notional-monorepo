@@ -3,7 +3,6 @@ import { Box, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { useBorrowVariableFaq } from '../hooks';
 import { useInterestRateUtilizationChart } from '@notional-finance/trade';
-import { HowItWorksFaq } from './how-it-works-faq';
 import {
   Faq,
   FaqHeader,
@@ -84,16 +83,6 @@ export const BorrowVariableTradeSummary = () => {
           />
         ))}
       </Box>
-      <Faq
-        sx={{ boxShadow: 'none' }}
-        question={<FormattedMessage defaultMessage={'How it Works'} />}
-        componentAnswer={<HowItWorksFaq />}
-        questionDescription={
-          <FormattedMessage
-            defaultMessage={'Learn how variable rate borrowing works'}
-          />
-        }
-      />
       {areaChartData.length > 0 && (
         <MultiDisplayChart
           chartComponents={[

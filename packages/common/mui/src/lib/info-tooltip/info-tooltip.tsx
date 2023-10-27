@@ -1,5 +1,5 @@
 import { InfoIcon } from '@notional-finance/icons';
-import { MessageDescriptor } from 'react-intl';
+import { Caption } from '../typography/typography';
 import {
   useTheme,
   Tooltip,
@@ -9,27 +9,40 @@ import {
   tooltipClasses,
   TooltipProps,
 } from '@mui/material';
-import { Caption } from '../typography/typography';
+import { MessageDescriptor } from 'react-intl';
+import React from 'react';
 
 /* eslint-disable-next-line */
 export interface InfoTooltipProps {
-  toolTipText: MessageDescriptor;
+  ToolTipComp?: React.FC;
+  toolTipText?: MessageDescriptor;
   sx?: SxProps;
+  iconColor?: string;
+  iconSize?: string;
 }
 
-export function InfoTooltip({ toolTipText, sx }: InfoTooltipProps) {
+export function InfoTooltip({
+  ToolTipComp,
+  toolTipText,
+  sx,
+  iconColor,
+  iconSize,
+}: InfoTooltipProps) {
   const theme = useTheme();
-  const iconSize = theme.typography.caption.fontSize;
+  const iconSizes = iconSize ? iconSize : theme.typography.caption.fontSize;
 
   return (
-    <StyledToolTip arrow title={<Caption msg={toolTipText} />}>
+    <StyledToolTip
+      arrow
+      title={ToolTipComp ? <ToolTipComp /> : <Caption msg={toolTipText} />}
+    >
       <Box
         component="span"
-        sx={{ width: iconSize, height: iconSize, display: 'flex', ...sx }}
+        sx={{ width: iconSizes, height: iconSizes, display: 'flex', ...sx }}
       >
         <InfoIcon
-          fill={theme.palette.borders.accentPaper}
-          sx={{ fontSize: iconSize }}
+          fill={iconColor ? iconColor : theme.palette.borders.accentPaper}
+          sx={{ fontSize: iconSizes }}
         />
       </Box>
     </StyledToolTip>

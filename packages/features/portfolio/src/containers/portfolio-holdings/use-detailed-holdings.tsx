@@ -72,11 +72,6 @@ export function useDetailedHoldings() {
             totalNOTEEarnings?.toFiat(baseCurrency) ||
               TokenBalance.fromSymbol(0, baseCurrency, Network.All)
           );
-        // NOTE: for the tooltip, the earnings are:
-        // Only show the tooltip if:
-        // const showEarningsTooltip = totalNOTEEarnings?.isPositive()
-        //  underlying: totalProfitAndLoss (totalProfitAndLoss.toFiat(baseCurrency))
-        //  NOTE: totalNOTEEarnings (totalNOTEEarnings.toFiat(baseCurrency))
 
         return {
           sortOrder: getHoldingsSortOrder(b.token),
@@ -119,7 +114,7 @@ export function useDetailedHoldings() {
           presentValue: formatCryptoWithFiat(baseCurrency, b.toUnderlying()),
           earnings:
             totalEarningsWithNOTE?.toDisplayStringWithSymbol(3, true) || '-',
-          earningsToolTip: totalNOTEEarnings?.isPositive()
+          toolTipData: totalNOTEEarnings?.isPositive()
             ? {
                 underlyingBaseCurrency: s?.totalProfitAndLoss
                   .toFiat(baseCurrency)
