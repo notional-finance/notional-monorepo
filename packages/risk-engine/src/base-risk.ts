@@ -378,7 +378,7 @@ export abstract class BaseRiskProfile implements RiskFactors {
       //  repay = [debt * (1 + limit) - limit * asset] / (1 - limit)
       let initialEstimateInRP: number;
 
-      if (value === null || (value as number) < 0.05) {
+      if (value === null || (value as number) < 1) {
         // If there is no leverage or a very small amount, then use the limit
         // as the number of debt units times the total assets.
         initialEstimateInRP = totalAssets.isZero()

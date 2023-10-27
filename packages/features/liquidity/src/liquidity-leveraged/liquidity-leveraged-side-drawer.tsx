@@ -79,7 +79,8 @@ export const LiquidityLeveragedSideDrawer = () => {
           slug: 'IncreaseLeveragedNToken',
           Component: CreateOrIncreasePosition,
           requiredState: {
-            tradeType: 'LeveragedNToken',
+            tradeType: 'IncreaseLeveragedNToken',
+            selectedDepositToken,
             ...currentPositionState,
           },
         },
