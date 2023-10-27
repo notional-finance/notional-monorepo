@@ -471,6 +471,22 @@ export function calculateDeleverage({
     return { debtBalance, collateralBalance };
   }
 }
+export function calculateDeleverageWithdraw(i: {
+  collateral: TokenDefinition;
+  debt: TokenDefinition;
+  collateralPool: fCashMarket;
+  debtPool: fCashMarket;
+  depositBalance: TokenBalance | undefined;
+  balances?: TokenBalance[];
+  riskFactorLimit: RiskFactorLimit<RiskFactorKeys>;
+  maxWithdraw?: boolean;
+  collateralBalance?: TokenBalance;
+  debtBalance?: TokenBalance;
+}) {
+  if (i.maxWithdraw) return calculateCollateral(i);
+
+  return calculateDebtCollateralGivenDepositRiskLimit(i);
+}
 
 export function calculateDebtCollateralGivenDepositRiskLimit({
   collateral,

@@ -36,8 +36,6 @@ export function useMaxLiquidityWithdraw(context: BaseTradeContext) {
         maxWithdraw: true,
         calculationSuccess: true,
         depositBalance: maxWithdraw.toUnderlying().neg(),
-        // TODO: these values are not correct if the liquidity is collateralizing
-        // another position, we cannot fully redeem the nToken balance?
         collateralBalance: maxRepayBalance?.neg(),
         debtBalance: nTokenBalance?.neg(),
       });
