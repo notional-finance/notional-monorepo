@@ -1,11 +1,7 @@
 import { Box, ThemeProvider, styled } from '@mui/material';
 import { THEME_VARIANTS } from '@notional-finance/util';
 import { FeatureLoader } from '@notional-finance/shared-web';
-import {
-  ContestHeader,
-  ContestCountDown,
-  ContestBackButton,
-} from '../components';
+import { ContestHeader, ContestBackButton } from '../components';
 import { ContestTable, LinkText } from '@notional-finance/mui';
 import { useNotionalTheme } from '@notional-finance/styles';
 import { FormattedMessage } from 'react-intl';
@@ -46,9 +42,6 @@ export const ContestLeaderBoard = () => {
             <MainContainer>
               <ContestHeader />
               <ContestBackButton />
-              <ContestCountDown
-                title={<FormattedMessage defaultMessage={'Leaderboard'} />}
-              />
               {currentUserData.length > 0 && (
                 <UserTableContainer>
                   <TitleText>
