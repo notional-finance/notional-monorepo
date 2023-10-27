@@ -41,7 +41,7 @@ export const NotificationsSideDrawer = ({
         <SideBarSubHeader
           paddingTop={`${theme.spacing(1)}`}
           callback={() => toggleDrawer(false)}
-          titleText={defineMessage({ defaultMessage: 'back' })}
+          titleText={defineMessage({ defaultMessage: 'Back' })}
         />
       )}
       <Title>

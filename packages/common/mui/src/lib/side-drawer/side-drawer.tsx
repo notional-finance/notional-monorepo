@@ -74,7 +74,7 @@ export function SideDrawer({
         {!CustomHeader && (
           <SideBarSubHeader
             callback={() => callback()}
-            titleText={defineMessage({ defaultMessage: 'back' })}
+            titleText={defineMessage({ defaultMessage: 'Back' })}
           />
         )}
         {children}

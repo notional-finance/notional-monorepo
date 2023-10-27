@@ -91,7 +91,7 @@ const MobileSideDrawer = ({
                 fontWeight: theme.typography.fontWeightRegular,
               }}
             >
-              <FormattedMessage defaultMessage="back" />
+              <FormattedMessage defaultMessage="Back" />
             </H4>
           </Box>
         </Box>

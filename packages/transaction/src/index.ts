@@ -5,6 +5,7 @@ import {
   calculateDebt,
   calculateDebtCollateralGivenDepositRiskLimit,
   calculateDeleverage,
+  calculateDeleverageWithdraw,
   calculateDeposit,
   calculateDepositCollateralGivenDebtRiskLimit,
   calculateDepositDebtGivenCollateralRiskLimit,
@@ -26,6 +27,7 @@ export type CalculationFn =
   | typeof calculateDebt
   | typeof calculateDeposit
   | typeof calculateDeleverage
+  | typeof calculateDeleverageWithdraw
   | typeof calculateDebtCollateralGivenDepositRiskLimit
   | typeof calculateDepositCollateralGivenDebtRiskLimit
   | typeof calculateDepositDebtGivenCollateralRiskLimit
@@ -42,6 +44,7 @@ export type CalculationFnParams =
   | ParamKeys<typeof calculateDebt>
   | ParamKeys<typeof calculateDeposit>
   | ParamKeys<typeof calculateDeleverage>
+  | ParamKeys<typeof calculateDeleverageWithdraw>
   | ParamKeys<typeof calculateDebtCollateralGivenDepositRiskLimit>
   | ParamKeys<typeof calculateDepositCollateralGivenDebtRiskLimit>
   | ParamKeys<typeof calculateDepositDebtGivenCollateralRiskLimit>

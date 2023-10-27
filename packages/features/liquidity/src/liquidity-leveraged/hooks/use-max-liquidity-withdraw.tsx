@@ -20,6 +20,8 @@ export function useMaxLiquidityWithdraw(context: BaseTradeContext) {
   );
   const nTokenBalance = profile.balances.find((t) => t.tokenId === nToken?.id);
 
+  // NOTE: this will show a liquidation risk error if the PNL on the liquidity
+  // is being used to collateralize some other debt.
   const maxWithdraw =
     nTokenBalance && maxRepayBalance
       ? nTokenBalance.toUnderlying().add(maxRepayBalance.toUnderlying())
@@ -34,8 +36,6 @@ export function useMaxLiquidityWithdraw(context: BaseTradeContext) {
         maxWithdraw: true,
         calculationSuccess: true,
         depositBalance: maxWithdraw.toUnderlying().neg(),
-        // TODO: these values are not correct if the liquidity is collateralizing
-        // another position, we cannot fully redeem the nToken balance?
         collateralBalance: maxRepayBalance?.neg(),
         debtBalance: nTokenBalance?.neg(),
       });

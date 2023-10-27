@@ -28,7 +28,7 @@ export const ConvertAsset = () => {
           top: 0,
           background: theme.palette.background.paper,
         }}
-        titleText={defineMessage({ defaultMessage: 'back' })}
+        titleText={defineMessage({ defaultMessage: 'Back' })}
       ></SideBarSubHeader>
       <AssetInput
         ref={currencyInputRef}

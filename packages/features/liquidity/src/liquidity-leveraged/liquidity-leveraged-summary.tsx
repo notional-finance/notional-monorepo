@@ -35,7 +35,7 @@ export const LiquidityLeveragedSummary = () => {
   const debtAPY = useDebtAPY(state);
   const { totalsData, liquidityYieldData } = useTotalsData(
     tokenSymbol,
-    collateralBalance,
+    collateralBalance?.tokenType === 'nToken' ? collateralBalance : undefined,
     debtAPY,
     riskFactorLimit?.limit as number | undefined
   );
