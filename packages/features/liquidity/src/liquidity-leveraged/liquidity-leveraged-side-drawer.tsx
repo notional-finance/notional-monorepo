@@ -121,6 +121,7 @@ export const LiquidityLeveragedSideDrawer = () => {
             collateral: currentPosition?.debt.token,
             debt: currentPosition?.asset.token,
             riskFactorLimit: currentPositionState?.riskFactorLimit,
+            selectedDepositToken,
           },
         },
       ]}

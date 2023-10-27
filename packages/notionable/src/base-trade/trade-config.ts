@@ -445,7 +445,7 @@ export const TradeConfiguration = {
       'collateral',
       'collateralBalance',
     ],
-    depositFilter: () => false,
+    depositFilter: (t, _, s) => onlySameCurrency(t, s.collateral),
     collateralFilter: (t, a) =>
       (t.tokenType === 'fCash' || t.tokenType === 'PrimeCash') &&
       offsettingBalance(t, a),
