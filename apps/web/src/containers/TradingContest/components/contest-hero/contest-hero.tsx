@@ -65,9 +65,7 @@ export const ContestHero = () => {
               <TitleText>
                 {connected && hasContestNFT === BETA_ACCESS.CONFIRMED && (
                   <FormattedMessage
-                    defaultMessage={
-                      'Welcome to the V3 Closed Beta Contest on Arbitrum'
-                    }
+                    defaultMessage={'Welcome to the V3 Closed Beta on Arbitrum'}
                   />
                 )}
                 {connected && hasContestNFT === BETA_ACCESS.REJECTED && (
