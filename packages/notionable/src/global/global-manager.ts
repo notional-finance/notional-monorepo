@@ -208,7 +208,12 @@ export const loadGlobalManager = (
                       .neg()
                       .ratioWith(presentValue)
                       .toNumber() / RATE_PRECISION;
-                  l.push({ asset, debt, presentValue, leverageRatio });
+
+                  // NOTE: enforce a minimum leverage ratio on these to ensure that dust balances
+                  // don't create leveraged positions
+                  if (leverageRatio > 0.05) {
+                    l.push({ asset, debt, presentValue, leverageRatio });
+                  }
                 }
 
                 return l;

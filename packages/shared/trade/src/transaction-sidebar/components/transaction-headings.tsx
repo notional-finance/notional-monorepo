@@ -85,11 +85,18 @@ export const TransactionHeadings: Record<
     },
     headerText: { defaultMessage: 'Provide {token} Liquidity with Leverage' },
   }),
+  IncreaseLeveragedNToken: defineMessages({
+    heading: { defaultMessage: 'Leveraged Liquidity' },
+    helptext: {
+      defaultMessage:
+        'Multiply your returns by providing liquidity with leverage. Select your borrow rate and leverage and put on the whole position in one transaction.',
+    },
+    headerText: { defaultMessage: 'Provide {token} Liquidity with Leverage' },
+  }),
   LeveragedNTokenAdjustLeverage: defineMessages({
     heading: { defaultMessage: 'Adjust Leverage' },
     helptext: {
-      defaultMessage:
-        'Increase or decrease your position leverage',
+      defaultMessage: 'Increase or decrease your position leverage',
     },
     headerText: { defaultMessage: 'Provide {token} Liquidity with Leverage' },
   }),

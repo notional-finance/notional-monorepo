@@ -350,6 +350,11 @@ function getRequiredArgs(
             Object.assign(inputs, { [r]: s[r] }),
             [...keys, (s[r] as number | undefined)?.toString() || ''],
           ];
+        case 'maxWithdraw':
+          return [
+            Object.assign(inputs, { [r]: s[r] }),
+            [...keys, (s[r] as boolean | undefined)?.toString() || ''],
+          ];
         default:
           return [inputs, keys];
       }
