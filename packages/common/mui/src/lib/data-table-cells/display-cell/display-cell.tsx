@@ -9,9 +9,16 @@ export const DisplayCell = ({ cell }): JSX.Element => {
 
   const isPending = column.showLoadingSpinner && row.original.pendingTokenData;
   const ToolTip = column?.ToolTip;
+  const toolTipData = row.original?.toolTipData;
 
   return (
-    <TableCell>
+    <TableCell
+      sx={{
+        display: 'flex',
+        justifyContent: column.textAlign,
+        alignItems: 'center',
+      }}
+    >
       {isPending ? (
         <ProgressIndicator
           circleSize={24}
@@ -60,7 +67,7 @@ export const DisplayCell = ({ cell }): JSX.Element => {
           </FirstValue>
         </Box>
       )}
-      <ToolTip />
+      {toolTipData && ToolTip && <ToolTip toolTipData={toolTipData} />}
     </TableCell>
   );
 };

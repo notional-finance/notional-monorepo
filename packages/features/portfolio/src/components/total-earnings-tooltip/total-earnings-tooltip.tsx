@@ -1,44 +1,70 @@
-// import { Box, useTheme, styled } from '@mui/material';
-import {
-  tooltipClasses,
-  TooltipProps,
-  Tooltip,
-  Box,
-  styled,
-} from '@mui/material';
+import { H5, InfoTooltip } from '@notional-finance/mui';
+import { NotionalTheme } from '@notional-finance/styles';
+import { Box, styled, useTheme } from '@mui/material';
 
-export const TotalEarningsTooltip = () => {
-  const test = [1, 23, 43, 4, 46, 45];
+interface TotalEarningsTooltipProps {
+  toolTipData: {
+    underlyingBaseCurrency: string;
+    underlying: string;
+    noteBaseCurrency: string;
+    note: string;
+  };
+}
 
-  const NewComp = () => {
+interface FirstValueProps {
+  theme: NotionalTheme;
+  isNegative?: boolean;
+}
+
+export const TotalEarningsTooltip = ({
+  toolTipData: { underlyingBaseCurrency, underlying, noteBaseCurrency, note },
+}: TotalEarningsTooltipProps) => {
+  const theme = useTheme();
+
+  const HoverComponent = () => {
     return (
       <Box>
-        {test.map((data) => (
-          <Box sx={{ color: 'red' }}>{data}</Box>
-        ))}
+        <ValueContainer sx={{ marginBottom: theme.spacing(1) }}>
+          <FirstValue theme={theme} isNegative={underlying.includes('-')}>
+            {underlying}
+          </FirstValue>
+          <H5>({underlyingBaseCurrency})</H5>
+        </ValueContainer>
+        <ValueContainer>
+          <FirstValue theme={theme} isNegative={note.includes('-')}>
+            {note}
+          </FirstValue>
+          <H5>({noteBaseCurrency})</H5>
+        </ValueContainer>
       </Box>
     );
   };
 
   return (
-    <StyledToolTip title={<NewComp />}>
-      <Box>TESTINGS</Box>
-    </StyledToolTip>
+    <InfoTooltip
+      sx={{ marginLeft: theme.spacing(1) }}
+      iconColor={theme.palette.typography.accent}
+      ToolTipComp={HoverComponent}
+      iconSize={theme.spacing(2)}
+    ></InfoTooltip>
   );
 };
 
-const StyledToolTip = styled(({ className, ...props }: TooltipProps) => (
-  <Tooltip {...props} classes={{ popper: className }} />
-))(({ theme }) => ({
-  [`& .${tooltipClasses.tooltip}`]: {
-    padding: '8px 16px',
-    backgroundColor: theme.palette.common.white,
-    boxShadow: '-2px 0px 24px 0px #1429661A, 0px 3px 11px 0px #1D74771F',
-    borderRadius: theme.shape.borderRadius(),
-  },
-  [`& .${tooltipClasses.arrow}`]: {
-    color: theme.palette.common.white,
-  },
-}));
+const ValueContainer = styled(Box)(`
+  display: flex;
+  flex-direction: row;
+  justify-content: end;
+`);
+
+const FirstValue = styled(H5, {
+  shouldForwardProp: (prop: string) => prop !== 'isNegative',
+})(
+  ({ theme, isNegative }: FirstValueProps) => `
+  margin-right: ${theme.spacing(1)};
+  color: ${
+    isNegative ? theme.palette.error.main : theme.palette.typography.main
+  };
+`
+);
 
 export default TotalEarningsTooltip;
