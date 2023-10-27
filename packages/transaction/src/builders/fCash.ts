@@ -30,6 +30,7 @@ export function LendFixed({
   depositBalance,
   redeemToWETH,
   accountBalances,
+  maxWithdraw,
 }: PopulateTransactionInputs) {
   if (!collateralBalance) throw Error('Collateral balance undefined');
   if (!depositBalance) throw Error('Deposit balance undefined');
@@ -52,10 +53,15 @@ export function LendFixed({
     //  exchangeRateRatio = e^ [ timeToConfirmation / SECONDS_IN_YEAR ]
     //  if timeToConfirmation = 2 hours (bad case assumption):
     //    e ^ -(3600 * 2 / SECONDS_IN_YEAR) ~ 0.9997
-    collateralBalance = collateralBalance.scale(
-      RATE_PRECISION - BASIS_POINT * 3,
-      RATE_PRECISION
-    );
+
+    // NOTE: if "maxWithdraw" is specified then use the full collateral balance since this would
+    // represent a full repayment and we do not want to de-rate the fCash balance at all.
+    collateralBalance = maxWithdraw
+      ? collateralBalance
+      : collateralBalance.scale(
+          RATE_PRECISION - BASIS_POINT * 3,
+          RATE_PRECISION
+        );
 
     return populateNotionalTxnAndGas(
       network,
