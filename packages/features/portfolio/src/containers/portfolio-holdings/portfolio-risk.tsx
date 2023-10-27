@@ -11,6 +11,7 @@ import { ArrowIcon } from '@notional-finance/icons';
 import {
   DataTable,
   DataTableColumn,
+  InfoTooltip,
   H4,
   Label,
   LabelValue,
@@ -157,8 +158,17 @@ export const PortfolioRisk = () => {
             : theme.shape.borderRadius(),
         }}
       >
-        <H4 gutter={'default'}>
+        <H4 gutter={'default'} sx={{ display: 'flex', alignItems: 'center' }}>
           <FormattedMessage defaultMessage={'Portfolio Health Factor'} />
+          <InfoTooltip
+            iconColor={theme.palette.typography.accent}
+            iconSize={theme.spacing(2)}
+            sx={{ marginLeft: theme.spacing(1) }}
+            toolTipText={defineMessage({
+              defaultMessage:
+                'Your health factor measures the riskiness of your account. If your health factor drops below 1, you can be liquidated.',
+            })}
+          />
         </H4>
         <Box sx={{ display: 'flex' }}>
           <Box sx={{ width: '50%' }}>
