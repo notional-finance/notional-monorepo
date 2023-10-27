@@ -105,15 +105,8 @@ export function ContestDropdown() {
             >
               <Box>
                 <Title>
-                  <FormattedMessage defaultMessage={'V3 BETA CONTEST'} />
+                  <FormattedMessage defaultMessage={'NOTIONAL V3 BETA'} />
                 </Title>
-                <Text>
-                  Click here to view the contest leader board and your position.
-                </Text>
-                <SubText>
-                  Once you transact in the V3 beta, you'll automatically be
-                  entered in the competition.
-                </SubText>
               </Box>
               <CloseX
                 onClick={() => handleClose()}
@@ -201,29 +194,6 @@ const Title = styled(Box)(
   letter-spacing: 10px;
   color: ${colors.white};
   margin-bottom: ${theme.spacing(8)};
-  `
-);
-
-const Text = styled(Box)(
-  ({ theme }) => `
-  font-family: Avenir Next;
-  font-size: 22px;
-  font-style: normal;
-  font-weight: 500;
-  line-height: normal;
-  color: ${colors.white};
-  margin-bottom: ${theme.spacing(3)};
-  `
-);
-
-const SubText = styled(Box)(
-  `
-  font-family: Avenir Next;
-  font-size: 18px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: normal;
-  color: ${colors.lightGrey};
   `
 );
 

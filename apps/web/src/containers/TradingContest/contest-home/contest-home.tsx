@@ -1,11 +1,9 @@
 import { Box, ThemeProvider, styled } from '@mui/material';
 import { THEME_VARIANTS } from '@notional-finance/util';
 import { FeatureLoader } from '@notional-finance/shared-web';
-import { FormattedMessage } from 'react-intl';
 import {
   ContestHeader,
   ContestHero,
-  ContestCountDown,
   ContestMultiTable,
   ContestNfts,
 } from '../components';
@@ -39,9 +37,6 @@ export const ContestHome = () => {
           </MainContainer>
           <OpacityBG>
             <MainContainer>
-              <ContestCountDown
-                title={<FormattedMessage defaultMessage={'v3 Beta Contest '} />}
-              />
               <ContestMultiTable />
               <ContestNfts />
             </MainContainer>
