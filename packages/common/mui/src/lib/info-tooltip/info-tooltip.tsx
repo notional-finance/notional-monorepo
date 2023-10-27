@@ -53,7 +53,7 @@ const StyledToolTip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} classes={{ popper: className }} />
 ))(({ theme }) => ({
   [`& .${tooltipClasses.tooltip}`]: {
-    padding: '8px 16px',
+    padding: theme.spacing(2),
     backgroundColor: theme.palette.common.white,
     boxShadow: '-2px 0px 24px 0px #1429661A, 0px 3px 11px 0px #1D74771F',
     borderRadius: theme.shape.borderRadius(),
