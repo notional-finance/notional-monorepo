@@ -642,7 +642,7 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
               displayValue: depositBalance
                 .abs()
                 .toFiat(baseCurrency)
-                .toDisplayStringWithSymbol(),
+                .toDisplayStringWithSymbol(3, true),
               isNegative: false,
             },
           ],
@@ -663,7 +663,7 @@ export function useTradeSummary(state: VaultTradeState | TradeState) {
             {
               displayValue: TokenBalance.zero(underlying)
                 .toFiat(baseCurrency)
-                .toDisplayStringWithSymbol(),
+                .toDisplayStringWithSymbol(3, true),
               isNegative: false,
             },
           ],

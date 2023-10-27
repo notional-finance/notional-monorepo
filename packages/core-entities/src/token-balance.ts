@@ -359,15 +359,15 @@ export class TokenBalance {
     let suffix = '';
 
     if (abbr) {
-      if (value < 1_000) {
+      if (Math.abs(value) < 1_000) {
         suffix = '';
-      } else if (value < 1_000_000) {
+      } else if (Math.abs(value) < 1_000_000) {
         suffix = 'k';
         value = value / 1_000;
-      } else if (value < 1_000_000_000) {
+      } else if (Math.abs(value) < 1_000_000_000) {
         suffix = 'm';
         value = value / 1_000_000;
-      } else if (value < 1_000_000_000_000) {
+      } else if (Math.abs(value) < 1_000_000_000_000) {
         suffix = 'b';
         value = value / 1_000_000_000;
       }
