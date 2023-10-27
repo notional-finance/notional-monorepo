@@ -406,7 +406,7 @@ export abstract class BaseRiskProfile implements RiskFactors {
           .toNumber();
       }
 
-      return initialEstimateInRP;
+      return Math.abs(initialEstimateInRP);
     } else if (riskFactor === 'liquidationPrice') {
       const _value = value as TokenBalance | null;
       const _limit = limit as TokenBalance;
