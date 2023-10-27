@@ -260,6 +260,7 @@ export const TradeConfiguration = {
       'debtPool',
       'depositBalance',
       'riskFactorLimit',
+      // TODO: need to remove this on create leveraged ntoken
       'balances',
     ],
     collateralFilter: (t, _, s) =>
@@ -445,10 +446,10 @@ export const TradeConfiguration = {
       'collateral',
       'collateralBalance',
     ],
-    depositFilter: (t, _, s) => onlySameCurrency(t, s.collateral),
-    collateralFilter: (t, a) =>
+    collateralFilter: (t, a, s) =>
       (t.tokenType === 'fCash' || t.tokenType === 'PrimeCash') &&
-      offsettingBalance(t, a),
+      offsettingBalance(t, a) &&
+      (s.deposit ? onlySameCurrency(t, s.deposit) : true),
     debtFilter: (t, _, s) =>
       (t.tokenType === 'fCash' || t.tokenType === 'PrimeDebt') &&
       onlySameCurrency(t, s.collateral) &&
