@@ -7,6 +7,7 @@ import {
   ExpandedRows,
   ChevronCell,
 } from '@notional-finance/mui';
+import { TotalEarningsTooltip } from '../../components';
 import { usePendingPnLCalculation } from '@notional-finance/notionable-hooks';
 import { useDetailedHoldings } from './use-detailed-holdings';
 import { useGroupedHoldings } from './use-grouped-holdings';
@@ -20,7 +21,7 @@ export function usePortfolioHoldings() {
   const pendingTokenData = usePendingPnLCalculation();
   const { detailedHoldings } = useDetailedHoldings();
   const { groupedRows, groupedTokens } = useGroupedHoldings();
-
+  console.log({ detailedHoldings });
   const groupedHoldings = groupedRows.concat(
     detailedHoldings.filter(({ tokenId }) => !groupedTokens.includes(tokenId))
   );
@@ -87,6 +88,7 @@ export function usePortfolioHoldings() {
     {
       Header: <FormattedMessage defaultMessage="Total Earnings" />,
       Cell: DisplayCell,
+      ToolTip: TotalEarningsTooltip,
       accessor: 'earnings',
       textAlign: 'right',
       expandableTable: true,

@@ -119,6 +119,18 @@ export function useDetailedHoldings() {
           presentValue: formatCryptoWithFiat(baseCurrency, b.toUnderlying()),
           earnings:
             totalEarningsWithNOTE?.toDisplayStringWithSymbol(3, true) || '-',
+          earningsToolTip: totalNOTEEarnings?.isPositive()
+            ? {
+                underlyingBaseCurrency: s?.totalProfitAndLoss
+                  .toFiat(baseCurrency)
+                  .toDisplayStringWithSymbol(),
+                underlying: s?.totalProfitAndLoss.toDisplayStringWithSymbol(),
+                noteBaseCurrency: totalNOTEEarnings
+                  .toFiat(baseCurrency)
+                  .toDisplayStringWithSymbol(),
+                note: totalNOTEEarnings.toDisplayStringWithSymbol(),
+              }
+            : undefined,
           actionRow: {
             subRowData: [
               {
