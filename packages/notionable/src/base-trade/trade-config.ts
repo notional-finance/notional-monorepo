@@ -9,6 +9,7 @@ import {
   calculateDebt,
   calculateDebtCollateralGivenDepositRiskLimit,
   calculateDeleverage,
+  calculateDeleverageWithdraw,
   ConvertAsset,
   Deleverage,
   Deposit,
@@ -260,6 +261,26 @@ export const TradeConfiguration = {
       'debtPool',
       'depositBalance',
       'riskFactorLimit',
+    ],
+    collateralFilter: (t, _, s) =>
+      t.tokenType === 'nToken' && onlySameCurrency(t, s.deposit),
+    debtFilter: (t, _, s) =>
+      (t.tokenType === 'fCash' || t.tokenType === 'PrimeDebt') &&
+      onlySameCurrency(t, s.deposit),
+    calculateDebtOptions: true,
+    calculateCollateralOptions: true,
+    transactionBuilder: LeveragedNToken,
+  } as TransactionConfig,
+
+  IncreaseLeveragedNToken: {
+    calculationFn: calculateDebtCollateralGivenDepositRiskLimit,
+    requiredArgs: [
+      'collateral',
+      'debt',
+      'collateralPool',
+      'debtPool',
+      'depositBalance',
+      'riskFactorLimit',
       'balances',
     ],
     collateralFilter: (t, _, s) =>
@@ -312,7 +333,7 @@ export const TradeConfiguration = {
    * collateralBalance (PrimeCash, fCash)
    */
   DeleverageWithdraw: {
-    calculationFn: calculateDebtCollateralGivenDepositRiskLimit,
+    calculationFn: calculateDeleverageWithdraw,
     requiredArgs: [
       'collateral',
       'debt',
@@ -321,6 +342,7 @@ export const TradeConfiguration = {
       'depositBalance',
       'riskFactorLimit',
       'balances',
+      'maxWithdraw',
     ],
     collateralFilter: (t, a, s) =>
       t.tokenType !== 'nToken' &&
@@ -445,10 +467,10 @@ export const TradeConfiguration = {
       'collateral',
       'collateralBalance',
     ],
-    depositFilter: () => false,
-    collateralFilter: (t, a) =>
+    collateralFilter: (t, a, s) =>
       (t.tokenType === 'fCash' || t.tokenType === 'PrimeCash') &&
-      offsettingBalance(t, a),
+      offsettingBalance(t, a) &&
+      (s.deposit ? onlySameCurrency(t, s.deposit) : true),
     debtFilter: (t, _, s) =>
       (t.tokenType === 'fCash' || t.tokenType === 'PrimeDebt') &&
       onlySameCurrency(t, s.collateral) &&

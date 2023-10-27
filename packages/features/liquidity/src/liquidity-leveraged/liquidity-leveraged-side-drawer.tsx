@@ -79,7 +79,8 @@ export const LiquidityLeveragedSideDrawer = () => {
           slug: 'IncreaseLeveragedNToken',
           Component: CreateOrIncreasePosition,
           requiredState: {
-            tradeType: 'LeveragedNToken',
+            tradeType: 'IncreaseLeveragedNToken',
+            selectedDepositToken,
             ...currentPositionState,
           },
         },
@@ -90,6 +91,7 @@ export const LiquidityLeveragedSideDrawer = () => {
             tradeType: 'RollDebt',
             collateral: currentPosition?.debt.token,
             collateralBalance: currentPosition?.debt.neg(),
+            selectedDepositToken,
           },
         },
         {
@@ -121,6 +123,7 @@ export const LiquidityLeveragedSideDrawer = () => {
             collateral: currentPosition?.debt.token,
             debt: currentPosition?.asset.token,
             riskFactorLimit: currentPositionState?.riskFactorLimit,
+            selectedDepositToken,
           },
         },
       ]}

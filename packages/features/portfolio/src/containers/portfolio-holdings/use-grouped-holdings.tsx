@@ -19,6 +19,7 @@ import {
   leveragedYield,
 } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
+import { useHistory } from 'react-router';
 
 function formatCaption(asset: TokenBalance, debt: TokenBalance) {
   if (asset.tokenType === 'nToken' && debt.tokenType === 'PrimeDebt') {
@@ -42,6 +43,7 @@ export function useGroupedHoldings() {
   const baseCurrency = useFiat();
   const NOTE = useNOTE();
   const groupedTokens = useGroupedTokens();
+  const history = useHistory();
 
   const groupedRows = groupedTokens.map(
     ({
@@ -153,13 +155,17 @@ export function useGroupedHoldings() {
             {
               buttonText: <FormattedMessage defaultMessage={'Manage'} />,
               callback: () => {
-                return;
+                history.push(
+                  `/liquidity-leveraged/Manage/${underlying.symbol}`
+                );
               },
             },
             {
               buttonText: <FormattedMessage defaultMessage={'Withdraw'} />,
               callback: () => {
-                return;
+                history.push(
+                  `/liquidity-leveraged/Withdraw/${underlying.symbol}`
+                );
               },
             },
           ],

@@ -191,10 +191,6 @@ export function useGroupedTokens() {
         ({ balance }) => balance.tokenId === debt.tokenId
       );
 
-      // If the leverage ratio is not significant, then do not consider the
-      // tokens to be grouped
-      if (leverageRatio < 0.01) return { asset: undefined };
-
       return {
         asset: holdings.find(
           ({ balance }) => balance.tokenId === asset.tokenId

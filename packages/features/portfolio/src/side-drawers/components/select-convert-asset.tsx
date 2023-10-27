@@ -113,7 +113,7 @@ export const SelectConvertAsset = ({ context }: SelectConvertAssetProps) => {
             height: theme.spacing(8),
           }}
         >
-          <ButtonText sx={{ flex: 1 }}>{text}</ButtonText>
+          <ButtonText sx={{ display: 'flex', flex: 1 }}>{text}</ButtonText>
           {o.interestRate !== undefined && (
             <ButtonData>{`${formatNumberAsPercent(o.interestRate)} ${
               o.token.tokenType === 'fCash' ? 'Fixed APY' : 'APY'
