@@ -8,6 +8,7 @@ export const DisplayCell = ({ cell }): JSX.Element => {
   const FirstValue = column?.expandableTable ? LargeTableCell : TableCell;
 
   const isPending = column.showLoadingSpinner && row.original.pendingTokenData;
+  const ToolTip = column?.ToolTip;
 
   return (
     <TableCell>
@@ -59,6 +60,7 @@ export const DisplayCell = ({ cell }): JSX.Element => {
           </FirstValue>
         </Box>
       )}
+      <ToolTip />
     </TableCell>
   );
 };
