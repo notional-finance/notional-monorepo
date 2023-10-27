@@ -1,7 +1,7 @@
 import { useContext, ReactNode } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { useTheme } from '@mui/material';
-import { Body, ExternalLink } from '@notional-finance/mui';
+import { Body } from '@notional-finance/mui';
 import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
 import { BorrowVariableContext } from '../borrow-variable';
 import {
@@ -59,79 +59,27 @@ export const useBorrowVariableFaq = (tokenSymbol?: string) => {
     {
       question: (
         <FormattedMessage
-          defaultMessage={'What is the prime borrow premium?'}
-          description={'faq question'}
-        />
-      ),
-      componentAnswer: (
-        <>
-          <Body sx={{ marginBottom: theme.spacing(1) }}>
-            <FormattedMessage
-              defaultMessage={
-                'The prime borrow premium is the extra yield that variable rate borrowers pay on top of the external lending rate. It is based on the utilization of the variable rate lending market.'
-              }
-            />
-          </Body>
-          <Body sx={{ fontWeight: 600 }}>
-            <FormattedMessage
-              defaultMessage={
-                'Borrow rate = external lending rate + prime borrow premium'
-              }
-            />
-          </Body>
-        </>
-      ),
-    },
-    {
-      question: (
-        <FormattedMessage
-          defaultMessage={'What is the external lending rate?'}
-          description={'faq question'}
-        />
-      ),
-
-      componentAnswer: (
-        <>
-          <Body sx={{ marginBottom: theme.spacing(1) }}>
-            <FormattedMessage
-              defaultMessage={
-                'The external lending rate is the rate that Notional is earning on assets in external money markets which aren’t being utilized by borrowers on Notional.'
-              }
-            />
-          </Body>
-          <Body sx={{ fontWeight: 600 }}>
-            <FormattedMessage
-              defaultMessage={
-                'Borrow rate = external lending rate + prime borrow premium'
-              }
-            />
-          </Body>
-        </>
-      ),
-    },
-    {
-      question: (
-        <FormattedMessage
           defaultMessage={'What is the Max LTV?'}
           description={'faq question'}
         />
       ),
       componentAnswer: (
-        <Body sx={{ marginBottom: theme.spacing(1) }}>
-          <FormattedMessage
-            defaultMessage={`Your Max LTV depends on what asset you’re borrowing and what you’re using as collateral. For a full table of Max LTVs by asset and collateral type, go to our <a1>docs.</a1>`}
-            values={{
-              a1: (msg: ReactNode) => (
-                <ExternalLink
-                  accent
-                  href="https://docs.notional.finance/notional-v3/borrower-resources/max-ltv-table"
-                >
-                  {msg}
-                </ExternalLink>
-              ),
-            }}
-          />
-        </Body>
+        <>
+          <Body sx={{ marginBottom: theme.spacing(1) }}>
+            <FormattedMessage
+              defaultMessage={
+                'Your Max LTV depends on what asset you want to borrow and what asset you’re using as collateral. You can select your desired collateral asset on the right hand side of this page and it will show you the max LTV for that collateral asset + this debt asset.'
+              }
+            />
+          </Body>
+          <Body>
+            <FormattedMessage
+              defaultMessage={
+                'Or you can go to our docs and find an exhaustive list of Max LTVs for every collateral asset and debt asset pair.'
+              }
+            />
+          </Body>
+        </>
       ),
     },
     {
@@ -141,6 +89,7 @@ export const useBorrowVariableFaq = (tokenSymbol?: string) => {
           description={'faq question'}
         />
       ),
+
       componentAnswer: (
         <>
           <Body sx={{ marginBottom: theme.spacing(1) }}>

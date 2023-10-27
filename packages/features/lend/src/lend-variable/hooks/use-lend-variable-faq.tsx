@@ -92,23 +92,6 @@ export const useLendVariableFaq = (tokenSymbol?: string) => {
     {
       question: (
         <FormattedMessage
-          defaultMessage={'Why is the Prime {tokenSymbol} debt APY so high?'}
-          description={'faq question'}
-          values={{
-            tokenSymbol,
-          }}
-        />
-      ),
-      answer: (
-        <FormattedMessage
-          defaultMessage={`Variable rate borrowers on Notional are willing to pay high rates to use Notional’s leveraged vaults. Leveraged vaults allow advanced DeFi users to get Leverage for whitelisted, over-collateralized DeFi yield strategies. This pushes the borrowing rate up and drives high returns for lenders.`}
-          description={'faq answer'}
-        />
-      ),
-    },
-    {
-      question: (
-        <FormattedMessage
           defaultMessage={'What are the risks?'}
           description={'faq question'}
         />
