@@ -378,16 +378,15 @@ export abstract class BaseRiskProfile implements RiskFactors {
       //  repay = [debt * (1 + limit) - limit * asset] / (1 - limit)
       let initialEstimateInRP: number;
 
-      if (value === null && totalAssets.isZero()) {
-        initialEstimateInRP =
-          (riskFactorInRP * estimateScalarInRP) / RATE_PRECISION;
-      } else if (value === null) {
-        // If there is no leverage, then use the limit as the number of debt
-        // units times the total assets.
-        initialEstimateInRP = totalAssets
-          .mulInRatePrecision(riskFactorInRP)
-          .scaleTo(RATE_DECIMALS)
-          .toNumber();
+      if (value === null || (value as number) < 0.05) {
+        // If there is no leverage or a very small amount, then use the limit
+        // as the number of debt units times the total assets.
+        initialEstimateInRP = totalAssets.isZero()
+          ? (riskFactorInRP * estimateScalarInRP) / RATE_PRECISION
+          : totalAssets
+              .mulInRatePrecision(riskFactorInRP)
+              .scaleTo(RATE_DECIMALS)
+              .toNumber();
       } else if (netLocal.isPositive()) {
         initialEstimateInRP = totalDebt
           .neg()
@@ -406,7 +405,7 @@ export abstract class BaseRiskProfile implements RiskFactors {
           .toNumber();
       }
 
-      return Math.abs(initialEstimateInRP);
+      return initialEstimateInRP;
     } else if (riskFactor === 'liquidationPrice') {
       const _value = value as TokenBalance | null;
       const _limit = limit as TokenBalance;
