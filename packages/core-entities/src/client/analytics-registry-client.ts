@@ -5,7 +5,7 @@ import {
 } from '@notional-finance/util';
 import { Routes } from '../server';
 import { ClientRegistry } from './client-registry';
-import { map, shareReplay, take, Observable } from 'rxjs';
+import { map, take, Observable } from 'rxjs';
 import { Registry } from '../Registry';
 import { TokenBalance } from '../token-balance';
 import { BigNumber } from 'ethers';
@@ -71,8 +71,7 @@ export class AnalyticsRegistryClient extends ClientRegistry<AnalyticsData> {
             };
           }) || []
         );
-      }),
-      shareReplay(1)
+      })
     );
   }
 
@@ -128,8 +127,7 @@ export class AnalyticsRegistryClient extends ClientRegistry<AnalyticsData> {
             };
           }) || []
         );
-      }),
-      shareReplay(1)
+      })
     );
   }
 
@@ -157,8 +155,7 @@ export class AnalyticsRegistryClient extends ClientRegistry<AnalyticsData> {
             };
           }) || []
         );
-      }),
-      shareReplay(1)
+      })
     );
   }
 
@@ -185,8 +182,7 @@ export class AnalyticsRegistryClient extends ClientRegistry<AnalyticsData> {
               } as OracleDefinition;
             }) || []
         );
-      }),
-      shareReplay(1)
+      })
     );
   }
 
