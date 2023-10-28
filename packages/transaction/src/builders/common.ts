@@ -58,6 +58,7 @@ export function hasExistingCashBalance(
       !b.isZero()
   );
 
+  // If a cash balance exists, do not withdraw it
   const withdrawEntireCashBalance = cashBalance ? false : true;
   const withdrawAmountInternalPrecision = withdrawEntireCashBalance
     ? undefined

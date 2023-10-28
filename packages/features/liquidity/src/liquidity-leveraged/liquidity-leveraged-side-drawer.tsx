@@ -89,8 +89,15 @@ export const LiquidityLeveragedSideDrawer = () => {
           Component: ManageLeveragedLiquidity,
           requiredState: {
             tradeType: 'RollDebt',
-            collateral: currentPosition?.debt.token,
-            collateralBalance: currentPosition?.debt.neg(),
+            ...(currentPosition?.debt.tokenType === 'PrimeDebt'
+              ? {
+                  collateral: currentPosition?.debt.toPrimeCash().token,
+                  collateralBalance: currentPosition?.debt.toPrimeCash().neg(),
+                }
+              : {
+                  collateral: currentPosition?.debt.token,
+                  collateralBalance: currentPosition?.debt.neg(),
+                }),
             selectedDepositToken,
           },
         },
