@@ -6,10 +6,12 @@ import {
   BorrowFixed,
   BorrowVariable,
   calculateCollateral,
+  calculateConvertAsset,
   calculateDebt,
   calculateDebtCollateralGivenDepositRiskLimit,
   calculateDeleverage,
   calculateDeleverageWithdraw,
+  calculateRollDebt,
   ConvertAsset,
   Deleverage,
   Deposit,
@@ -426,7 +428,7 @@ export const TradeConfiguration = {
    * collateralBalance (i.e. new fCash or PrimeCash asset amount held)
    */
   ConvertAsset: {
-    calculationFn: calculateCollateral,
+    calculationFn: calculateConvertAsset,
     requiredArgs: ['collateral', 'collateralPool', 'debtPool', 'debtBalance'],
     depositFilter: () => false,
     debtFilter: (t, a) =>
@@ -459,7 +461,7 @@ export const TradeConfiguration = {
    */
   RollDebt: {
     // User will input amount of debt fcash to repay (i.e. collateral balance) and we calculate new fcash debt
-    calculationFn: calculateDebt,
+    calculationFn: calculateRollDebt,
     requiredArgs: [
       'debt',
       'collateralPool',

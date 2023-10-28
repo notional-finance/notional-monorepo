@@ -12,6 +12,7 @@ import {
   VaultAccountRiskProfile,
 } from '@notional-finance/risk-engine';
 import {
+  BASIS_POINT,
   getNowSeconds,
   INTERNAL_TOKEN_PRECISION,
   PRIME_CASH_VAULT_MATURITY,
@@ -318,6 +319,43 @@ export function calculateDeposit({
     debtFee,
   };
 }
+export function calculateConvertAsset(
+  i: Parameters<typeof calculateCollateral>[0]
+) {
+  const c = calculateCollateral(i);
+
+  if (
+    i.debtBalance?.tokenType === 'PrimeDebt' ||
+    c.collateralBalance.tokenType === 'fCash'
+  ) {
+    // If repaying prime debt, borrow slightly more to ensure that we cover the interest accrued
+    // and then withdraw all the excess cash balance. Because we are rolling the debt there should
+    // result in a zero cash balance.
+    c.collateralBalance = c.collateralBalance.mulInRatePrecision(
+      RATE_PRECISION - 5 * BASIS_POINT
+    );
+  }
+
+  return c;
+}
+
+export function calculateRollDebt(i: Parameters<typeof calculateDebt>[0]) {
+  const d = calculateDebt(i);
+
+  if (
+    i.collateralBalance?.tokenType === 'PrimeCash' ||
+    d.debtBalance.tokenType === 'fCash'
+  ) {
+    // If repaying prime debt, borrow slightly more to ensure that we cover the interest accrued
+    // and then withdraw all the excess cash balance. Because we are rolling the debt there should
+    // result in a zero cash balance.
+    d.debtBalance = d.debtBalance.mulInRatePrecision(
+      RATE_PRECISION + 5 * BASIS_POINT
+    );
+  }
+
+  return d;
+}
 
 /**
  * Calculates how much deposit and debt will be required given a collateral balance and a risk limit
@@ -471,6 +509,7 @@ export function calculateDeleverage({
     return { debtBalance, collateralBalance };
   }
 }
+
 export function calculateDeleverageWithdraw(i: {
   collateral: TokenDefinition;
   debt: TokenDefinition;

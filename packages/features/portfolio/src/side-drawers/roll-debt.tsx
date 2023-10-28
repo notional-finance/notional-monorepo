@@ -29,7 +29,7 @@ export const RollDebt = () => {
           background: theme.palette.background.paper,
         }}
         titleText={defineMessage({ defaultMessage: 'Back' })}
-      ></SideBarSubHeader>
+      />
       <AssetInput
         ref={currencyInputRef}
         prefillMax
