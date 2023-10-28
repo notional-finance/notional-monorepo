@@ -209,9 +209,9 @@ export const DataTable = ({
       )}
 
       {TabComponentVisible && CustomTabComponent && <CustomTabComponent />}
-      {pendingTokenData && pendingTokenData.pendingTokens.length > 0 && (
+      {pendingTokenData && pendingTokenData.pendingTxns.length > 0 && (
         <DataTablePending
-          pendingTokenData={pendingTokenData}
+          pendingTxns={pendingTokenData.pendingTxns}
           pendingMessage={pendingMessage}
         />
       )}
