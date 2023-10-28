@@ -249,7 +249,7 @@ export const loadGlobalManager = (
         ).length > 0
       ) {
         // If there is a new balance change then trigger an refresh almost immediately
-        return interval(1);
+        return interval(100);
       } else {
         // Without any new balance changes then only poll every 30 seconds until the pending
         // txns are cleared.

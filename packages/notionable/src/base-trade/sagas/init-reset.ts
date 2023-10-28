@@ -38,7 +38,6 @@ export function resetOnTradeTypeChange(
     filterEmpty(),
     pairwise(),
     map(([prev, cur]) => {
-      // TODO: this logic may need to change esp for rolling maturities
       if (
         !isVault &&
         prev.tradeType !== undefined &&

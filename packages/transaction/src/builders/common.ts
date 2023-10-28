@@ -54,7 +54,8 @@ export function hasExistingCashBalance(
   const cashBalance = balances.find(
     (b) =>
       (b.tokenType === 'PrimeCash' || b.tokenType === 'PrimeDebt') &&
-      b.token.currencyId === tokenBalance.currencyId
+      b.token.currencyId === tokenBalance.currencyId &&
+      !b.isZero()
   );
 
   const withdrawEntireCashBalance = cashBalance ? false : true;
