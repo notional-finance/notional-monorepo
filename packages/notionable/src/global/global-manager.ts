@@ -266,13 +266,13 @@ export const loadGlobalManager = (
             ({ blockNumber }) => blockNumber
           ) || [0])
         );
-        const pendingTokens = Object.entries(completedTransactions).flatMap(
-          ([hash, tr]) =>
-            tr.blockNumber > latestProcessedTxnBlock
-              ? awaitingBalanceChanges[hash] || []
-              : []
+        const completed = Object.entries(completedTransactions);
+        const pendingTokens = completed.flatMap(([hash, tr]) =>
+          tr.blockNumber > latestProcessedTxnBlock
+            ? awaitingBalanceChanges[hash] || []
+            : []
         );
-        const pendingTxns = Object.entries(completedTransactions)
+        const pendingTxns = completed
           .map(([hash, tr]) =>
             tr.blockNumber > latestProcessedTxnBlock ? hash : undefined
           )
@@ -283,7 +283,12 @@ export const loadGlobalManager = (
         const _awaitingBalanceChanges = Object.keys(
           awaitingBalanceChanges
         ).reduce((acc, hash) => {
+          // If the transaction is still pending a calculation, include it in the awaiting list
           if (pendingTxns.includes(hash))
+            return Object.assign(acc, { [hash]: awaitingBalanceChanges[hash] });
+          // If the transaction is not found in the completed list, then also keep
+          // it in the awaiting list
+          if (!completed.find(([h]) => h === hash))
             return Object.assign(acc, { [hash]: awaitingBalanceChanges[hash] });
           return acc;
         }, {});

@@ -307,6 +307,7 @@ export function RollLendOrDebt({
   debtBalance,
   collateralBalance,
   accountBalances,
+  maxWithdraw,
 }: PopulateTransactionInputs) {
   if (!collateralBalance || !debtBalance)
     throw Error('Debt and Collateral Balances must be defined');
@@ -321,24 +322,14 @@ export function RollLendOrDebt({
     accountBalances
   );
 
-  // Check if we are rolling the entire balance of the existing asset
-  const isEntireBalance = !!accountBalances.find(
-    (t) =>
-      t.hashKey === collateralBalance?.neg().hashKey ||
-      t.hashKey === debtBalance?.neg().hashKey
-  );
-
-  // Withdraw all the cash balance if the collateral or debt is a cash balance
-  // and we are converting the entire balance.
+  // Withdraw the entire cash balance when converting into or out of prime cash
+  // and we are attempting to convert the entire balance so that all dust is
+  // cleared. If there is no cash balance and we are converting between fCash or
+  // nTokens then cash will be withdrawn if there is no prior cash balance to maintain
+  // a zero cash balance.
   withdrawEntireCashBalance =
     withdrawEntireCashBalance ||
-    // isEntireBalance may not match when rolling variable debt to fCash but we should
-    // always withdraw entire cash balance here to remove any dust
-    (collateralBalance.tokenType === 'PrimeCash' &&
-      debtBalance.tokenType === 'fCash') ||
-    // NOTE: is entire cash balance will not match when rolling variable debt to fCash,
-    // but that is ok
-    (isEntireBalance &&
+    (maxWithdraw &&
       (collateralBalance.tokenType === 'PrimeCash' ||
         debtBalance.tokenType === 'PrimeDebt'));
 

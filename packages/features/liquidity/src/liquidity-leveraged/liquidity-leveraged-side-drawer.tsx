@@ -106,6 +106,9 @@ export const LiquidityLeveragedSideDrawer = () => {
           Component: RollMaturity,
           requiredState: {
             tradeType: 'RollDebt',
+            // Always roll the entire debt when doing roll debt from this
+            // screen. Partial rolls will break up the grouping.
+            maxWithdraw: true,
           },
         },
         {
