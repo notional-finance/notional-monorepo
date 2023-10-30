@@ -106,17 +106,30 @@ const run = async (env: Env) => {
     series: [],
   };
 
-  ddSeries.series.push({
-    metric: MetricNames.NUM_RISKY_ACCOUNTS,
-    points: [
-      {
-        value: riskyAccounts.length,
-        timestamp: getNowSeconds(),
-      },
-    ],
-    type: MetricType.Gauge,
-    tags: [`network:${env.NETWORK}`],
-  });
+  ddSeries.series.push(
+    {
+      metric: MetricNames.NUM_RISKY_ACCOUNTS,
+      points: [
+        {
+          value: riskyAccounts.length,
+          timestamp: getNowSeconds(),
+        },
+      ],
+      type: MetricType.Gauge,
+      tags: [`network:${env.NETWORK}`],
+    },
+    {
+      metric: MetricNames.TOTAL_ACCOUNTS_PROCESSED,
+      points: [
+        {
+          value: accounts.length,
+          timestamp: getNowSeconds(),
+        },
+      ],
+      type: MetricType.Gauge,
+      tags: [`network:${env.NETWORK}`],
+    }
+  );
 
   if (riskyAccounts.length > 0) {
     const riskyAccount = riskyAccounts[0];
