@@ -4,7 +4,7 @@ import { formatTokenType } from '@notional-finance/helpers';
 import { HeadingSubtitle, Label, InputLabel } from '@notional-finance/mui';
 import {
   BaseTradeContext,
-  useBalance,
+  useMaxAssetBalance,
 } from '@notional-finance/notionable-hooks';
 import { MessageDescriptor, defineMessage } from 'react-intl';
 
@@ -38,8 +38,8 @@ export function useDeleverageLabels(context: BaseTradeContext) {
     state: { debt, collateral },
   } = context;
   // NOTE: debt and collateral inputs are reversed in this method on purpose
-  const debtBalance = useBalance(collateral?.symbol);
-  const collateralBalance = useBalance(debt?.symbol);
+  const debtBalance = useMaxAssetBalance(collateral);
+  const collateralBalance = useMaxAssetBalance(debt);
   const debtValue = ValueString(
     defineMessage({
       defaultMessage: 'Selected Debt:',
