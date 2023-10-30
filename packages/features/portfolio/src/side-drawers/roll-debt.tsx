@@ -7,6 +7,7 @@ import { messages } from './messages';
 import { defineMessage } from 'react-intl';
 import { SelectConvertAsset } from './components/select-convert-asset';
 import { useTheme } from '@mui/material';
+import { TokenBalance } from '@notional-finance/core-entities';
 
 export const RollDebt = () => {
   const theme = useTheme();
@@ -16,6 +17,17 @@ export const RollDebt = () => {
     state: { debt },
     updateState,
   } = context;
+
+  const onBalanceChange = (
+    inputAmount: TokenBalance | undefined,
+    _: TokenBalance | undefined,
+    maxBalance: TokenBalance | undefined
+  ) => {
+    updateState({
+      collateralBalance: inputAmount,
+      maxWithdraw: maxBalance && inputAmount?.eq(maxBalance),
+    });
+  };
 
   return debt === undefined ? (
     <SelectConvertAsset context={context} />
@@ -32,9 +44,10 @@ export const RollDebt = () => {
       />
       <AssetInput
         ref={currencyInputRef}
-        prefillMax
         debtOrCollateral="Collateral"
         context={context}
+        prefillMax
+        onBalanceChange={onBalanceChange}
         inputRef={currencyInputRef}
         inputLabel={messages[PORTFOLIO_ACTIONS.ROLL_DEBT]['inputLabel']}
       />
