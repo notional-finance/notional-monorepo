@@ -346,6 +346,7 @@ export const TradeConfiguration = {
       'balances',
       'maxWithdraw',
     ],
+    depositFilter: (t, _, s) => onlySameCurrency(t, s.collateral),
     collateralFilter: (t, a, s) =>
       t.tokenType !== 'nToken' &&
       onlySameCurrency(t, s.deposit) &&

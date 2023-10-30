@@ -125,7 +125,7 @@ export const useDeleverage = (
           displayToken = primeDebt.find((p) => p.currencyId === t.currencyId);
         }
 
-        const { title } = formatTokenType(t);
+        const { title } = formatTokenType(displayToken || t);
 
         return {
           token: t,

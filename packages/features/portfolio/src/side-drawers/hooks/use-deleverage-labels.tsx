@@ -40,6 +40,7 @@ export function useDeleverageLabels(context: BaseTradeContext) {
   // NOTE: debt and collateral inputs are reversed in this method on purpose
   const debtBalance = useMaxAssetBalance(collateral);
   const collateralBalance = useMaxAssetBalance(debt);
+  // TODO: these labels are wrong on prime cash / prime debt....
   const debtValue = ValueString(
     defineMessage({
       defaultMessage: 'Selected Debt:',
