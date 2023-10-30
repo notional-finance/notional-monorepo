@@ -89,8 +89,15 @@ export const LiquidityLeveragedSideDrawer = () => {
           Component: ManageLeveragedLiquidity,
           requiredState: {
             tradeType: 'RollDebt',
-            collateral: currentPosition?.debt.token,
-            collateralBalance: currentPosition?.debt.neg(),
+            ...(currentPosition?.debt.tokenType === 'PrimeDebt'
+              ? {
+                  collateral: currentPosition?.debt.toPrimeCash().token,
+                  collateralBalance: currentPosition?.debt.toPrimeCash().neg(),
+                }
+              : {
+                  collateral: currentPosition?.debt.token,
+                  collateralBalance: currentPosition?.debt.neg(),
+                }),
             selectedDepositToken,
           },
         },
@@ -99,6 +106,9 @@ export const LiquidityLeveragedSideDrawer = () => {
           Component: RollMaturity,
           requiredState: {
             tradeType: 'RollDebt',
+            // Always roll the entire debt when doing roll debt from this
+            // screen. Partial rolls will break up the grouping.
+            maxWithdraw: true,
           },
         },
         {

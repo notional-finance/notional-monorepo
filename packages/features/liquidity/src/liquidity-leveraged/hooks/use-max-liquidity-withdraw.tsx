@@ -48,5 +48,5 @@ export function useMaxLiquidityWithdraw(context: BaseTradeContext) {
     updateState,
   ]);
 
-  return { onMaxValue, currencyInputRef, setCurrencyInput };
+  return { onMaxValue, currencyInputRef, setCurrencyInput, maxWithdraw };
 }

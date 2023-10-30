@@ -4,14 +4,17 @@ import { LeverageSlider, TransactionSidebar } from '@notional-finance/trade';
 import { defineMessage } from 'react-intl';
 import { LiquidityDetailsTable } from '../components/liquidity-details-table';
 import { useLeveragedNTokenPositions } from '../hooks';
+import { useCurrency } from '@notional-finance/notionable-hooks';
+import { ErrorMessage } from '@notional-finance/mui';
 
 export const AdjustLeverage = () => {
   const context = useContext(LiquidityContext);
   const {
-    state: { selectedDepositToken, debt, collateral, deposit },
+    state: { selectedDepositToken, debt, collateral, deposit, calculateError },
     updateState,
   } = context;
   const { currentPosition } = useLeveragedNTokenPositions(selectedDepositToken);
+  const { primeCash } = useCurrency();
   const [isDeleverage, setIsDeleverage] = useState(false);
 
   // NOTE: when the leverage slider goes below the account's default position
@@ -42,7 +45,12 @@ export const AdjustLeverage = () => {
         ) {
           setIsDeleverage(true);
           updateState({
-            collateral: currentPosition.debt.token,
+            collateral:
+              currentPosition.debt.tokenType === 'PrimeDebt'
+                ? primeCash.find(
+                    (t) => t.currencyId === currentPosition.debt.currencyId
+                  )
+                : currentPosition.debt.token,
             debt: currentPosition.asset.token,
             collateralBalance: undefined,
             debtBalance: undefined,
@@ -58,7 +66,7 @@ export const AdjustLeverage = () => {
         });
       }
     },
-    [currentPosition, debt, collateral, updateState]
+    [currentPosition, debt, collateral, updateState, primeCash]
   );
 
   return (
@@ -75,6 +83,9 @@ export const AdjustLeverage = () => {
         })}
         onChange={onChange}
       />
+      {calculateError && (
+        <ErrorMessage message={calculateError} variant="error" />
+      )}
     </TransactionSidebar>
   );
 };

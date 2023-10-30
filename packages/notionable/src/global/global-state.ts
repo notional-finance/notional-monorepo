@@ -10,7 +10,7 @@ import {
   TokenDefinition,
 } from '@notional-finance/core-entities';
 import { getFromLocalStorage } from '@notional-finance/helpers';
-import { Signer } from 'ethers';
+import { Signer, ethers } from 'ethers';
 
 const userSettings = getFromLocalStorage('userSettings');
 
@@ -37,6 +37,7 @@ interface OnboardState {
     selectedAddress: string;
     isReadOnlyAddress?: boolean;
     label?: string;
+    provider?: ethers.providers.Provider;
   };
 }
 
@@ -76,6 +77,8 @@ interface TransactionState {
   sentTransactions: Record<string, TransactionResponse>;
   awaitingBalanceChanges: Record<string, TokenDefinition[] | undefined>;
   completedTransactions: Record<string, TransactionReceipt>;
+  pendingTokens: TokenDefinition[];
+  pendingTxns: string[];
 }
 
 interface ErrorState {
@@ -103,6 +106,8 @@ export const initialGlobalState: GlobalState = {
   sentTransactions: {},
   completedTransactions: {},
   awaitingBalanceChanges: {},
+  pendingTokens: [],
+  pendingTxns: [],
   themeVariant: userSettings?.themeVariant
     ? userSettings?.themeVariant
     : THEME_VARIANTS.LIGHT,

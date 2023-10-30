@@ -31,52 +31,54 @@ export const ManageLeveragedLiquidity = () => {
     (y) => y.token.id === currentPosition?.asset?.tokenId
   )?.totalAPY;
 
-  const rollMaturityOptions = (debtOptions || []).map((o) => {
-    const label =
-      o.token.tokenType === 'fCash' ? (
-        <FormattedMessage
-          defaultMessage={'Roll to {date}'}
-          values={{ date: formatMaturity(o.token.maturity || 0) }}
-        />
-      ) : (
-        <FormattedMessage defaultMessage={'Convert to Variable'} />
+  const rollMaturityOptions = (debtOptions || [])
+    .filter((o) => o.token.currencyId === currentPosition?.asset.currencyId)
+    .map((o) => {
+      const label =
+        o.token.tokenType === 'fCash' ? (
+          <FormattedMessage
+            defaultMessage={'Roll to {date}'}
+            values={{ date: formatMaturity(o.token.maturity || 0) }}
+          />
+        ) : (
+          <FormattedMessage defaultMessage={'Convert to Variable'} />
+        );
+      const totalAPY = leveragedYield(
+        nTokenAPY,
+        o.interestRate,
+        currentPosition?.leverageRatio
       );
-    const totalAPY = leveragedYield(
-      nTokenAPY,
-      o.interestRate,
-      currentPosition?.leverageRatio
-    );
 
-    return (
-      <SideDrawerButton
-        key={o.token.id}
-        onClick={() => updateState({ debt: o.token })}
-        to={`/${PRODUCTS.LIQUIDITY_LEVERAGED}/RollMaturity/${selectedDepositToken}`}
-        variant="outlined"
-        sx={{
-          border: `1px solid ${theme.palette.primary.light}`,
-          background: 'unset',
-          ':hover': {
-            background: theme.palette.info.light,
-            '.button-data': {
-              background: theme.palette.background.default,
-            },
-          },
-        }}
-      >
-        <ButtonText sx={{ display: 'flex', flex: 1 }}>{label}</ButtonText>
-        {totalAPY !== undefined && (
-          <ButtonData
-            className={`button-data`}
-            sx={{
+      return (
+        <SideDrawerButton
+          key={o.token.id}
+          onClick={() => updateState({ debt: o.token })}
+          to={`/${PRODUCTS.LIQUIDITY_LEVERAGED}/RollMaturity/${selectedDepositToken}`}
+          variant="outlined"
+          sx={{
+            border: `1px solid ${theme.palette.primary.light}`,
+            background: 'unset',
+            ':hover': {
               background: theme.palette.info.light,
-              border: 'unset',
-            }}
-          >{`${formatNumberAsPercent(totalAPY)} APY`}</ButtonData>
-        )}
-      </SideDrawerButton>
-    );
-  });
+              '.button-data': {
+                background: theme.palette.background.default,
+              },
+            },
+          }}
+        >
+          <ButtonText sx={{ display: 'flex', flex: 1 }}>{label}</ButtonText>
+          {totalAPY !== undefined && (
+            <ButtonData
+              className={`button-data`}
+              sx={{
+                background: theme.palette.info.light,
+                border: 'unset',
+              }}
+            >{`${formatNumberAsPercent(totalAPY)} APY`}</ButtonData>
+          )}
+        </SideDrawerButton>
+      );
+    });
 
   const optionSections = [
     {

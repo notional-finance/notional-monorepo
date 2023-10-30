@@ -14,6 +14,7 @@ import {
   LiquidityVariableSidebar,
   LiquidityVariableSummary,
 } from './liquidity-variable';
+import { useLocation } from 'react-router';
 
 export const LiquidityContext = createTradeContext('Liquidity');
 
@@ -46,9 +47,11 @@ const LiquidityView = ({
 };
 
 export const LiquidityLeveraged = () => {
+  // This resolves a race condition when linking directly from the portfolio page
+  const { pathname } = useLocation();
   return (
     <LiquidityView
-      tradeType="LeveragedNToken"
+      tradeType={pathname.includes('Manage') ? 'RollDebt' : 'LeveragedNToken'}
       sidebar={<LiquidityLeveragedSideDrawer />}
       mainContent={<LiquidityLeveragedSummary />}
     />

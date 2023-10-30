@@ -13,6 +13,7 @@ import { usePendingPnLCalculation } from './use-transaction';
 import { useMemo } from 'react';
 import { useFiat, useFiatToken } from './use-user-settings';
 import { calculateNTokenIncentives } from '@notional-finance/transaction';
+import { useMaxAssetBalance } from './use-wallet';
 
 export function useAccountDefinition() {
   const {
@@ -62,11 +63,6 @@ export function useAccountReady() {
   return isAccountReady;
 }
 
-export function useBalance(selectedToken?: string) {
-  const { account } = useAccountDefinition();
-  return account?.balances.find((t) => t.token.symbol === selectedToken);
-}
-
 export function usePrimeCashBalance(selectedToken: string | undefined | null) {
   const selectedNetwork = useSelectedNetwork();
   const tokens = Registry.getTokenRegistry();
@@ -79,7 +75,7 @@ export function usePrimeCashBalance(selectedToken: string | undefined | null) {
       ? tokens.getPrimeCash(selectedNetwork, token.currencyId)
       : undefined;
 
-  return useBalance(primeCash?.symbol);
+  return useMaxAssetBalance(primeCash);
 }
 
 export function useVaultRiskProfile(vaultAddress?: string) {
