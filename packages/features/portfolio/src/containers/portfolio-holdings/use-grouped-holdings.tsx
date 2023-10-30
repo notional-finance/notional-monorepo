@@ -132,6 +132,19 @@ export function useGroupedHoldings() {
               .toFiat(baseCurrency)
               .toDisplayStringWithSymbol(3, true)
           : '-',
+        toolTipData: totalNOTEEarnings?.isPositive()
+          ? {
+              underlyingBaseCurrency: assetStatement?.totalProfitAndLoss
+                .toFiat(baseCurrency)
+                .toDisplayStringWithSymbol(),
+              underlying:
+                assetStatement?.totalProfitAndLoss.toDisplayStringWithSymbol(),
+              noteBaseCurrency: totalNOTEEarnings
+                .toFiat(baseCurrency)
+                .toDisplayStringWithSymbol(),
+              note: totalNOTEEarnings.toDisplayStringWithSymbol(),
+            }
+          : undefined,
         actionRow: {
           subRowData: [
             {
