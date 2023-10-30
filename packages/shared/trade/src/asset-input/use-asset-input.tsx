@@ -1,30 +1,45 @@
 import {
   useAccountReady,
-  usePortfolioRiskProfile,
+  useMaxAssetBalance,
 } from '@notional-finance/notionable-hooks';
 import { useState } from 'react';
 import { MessageDescriptor } from 'react-intl';
 import { useInputAmount } from '../common';
 import { tradeErrors } from '../tradeErrors';
-import { TokenDefinition } from '@notional-finance/core-entities';
+import { BaseTradeState } from '@notional-finance/notionable';
 
 export function useAssetInput(
-  selectedToken: TokenDefinition | undefined,
-  isDebt: boolean
+  state: BaseTradeState,
+  debtOrCollateral: 'Debt' | 'Collateral'
 ) {
   const [inputString, setInputString] = useState<string>('');
   const isAccountReady = useAccountReady();
-  const profile = usePortfolioRiskProfile();
-  const maxBalance =
-    selectedToken?.tokenType === 'PrimeDebt'
-      ? profile.balances
-          .find(
-            (b) =>
-              b.tokenType === 'PrimeCash' &&
-              b.currencyId === selectedToken.currencyId
-          )
-          ?.toToken(selectedToken)
-      : profile.balances.find((b) => b.tokenId === selectedToken?.id);
+  const {
+    debt,
+    collateral,
+    collateralBalance,
+    debtBalance,
+    availableCollateralTokens,
+    availableDebtTokens,
+    tradeType,
+  } = state;
+
+  const selectedToken = debtOrCollateral === 'Debt' ? debt : collateral;
+  const computedBalance =
+    debtOrCollateral === 'Debt' ? debtBalance : collateralBalance;
+  let availableTokens =
+    debtOrCollateral === 'Debt'
+      ? availableDebtTokens
+      : availableCollateralTokens;
+  if (
+    selectedToken &&
+    (availableTokens?.length === 0 ||
+      tradeType === 'ConvertAsset' ||
+      tradeType === 'RollDebt')
+  )
+    availableTokens = [selectedToken];
+
+  const maxBalance = useMaxAssetBalance(selectedToken);
   const { inputAmount } = useInputAmount(inputString, selectedToken?.symbol);
 
   const insufficientBalance =
@@ -38,10 +53,13 @@ export function useAssetInput(
   }
 
   return {
-    inputAmount: isDebt ? inputAmount?.neg() : inputAmount,
+    inputAmount: debtOrCollateral === 'Debt' ? inputAmount?.neg() : inputAmount,
     maxBalance: maxBalance?.abs(),
     maxBalanceString: maxBalance?.abs().toExactString(),
     errorMsg,
     setInputString,
+    computedBalance,
+    selectedToken,
+    availableTokens: availableTokens?.map((token) => ({ token })) || [],
   };
 }

@@ -7,7 +7,8 @@ import { useMaxLiquidityWithdraw } from '../hooks/use-max-liquidity-withdraw';
 
 export const Withdraw = () => {
   const context = useContext(LiquidityContext);
-  const { currencyInputRef, onMaxValue } = useMaxLiquidityWithdraw(context);
+  const { currencyInputRef, onMaxValue, maxWithdraw } =
+    useMaxLiquidityWithdraw(context);
 
   return (
     <TransactionSidebar
@@ -23,6 +24,7 @@ export const Withdraw = () => {
         isWithdraw
         context={context}
         inputRef={currencyInputRef}
+        maxWithdraw={maxWithdraw}
         onMaxValue={onMaxValue}
         inputLabel={defineMessage({
           defaultMessage: 'Enter amount to withdraw',

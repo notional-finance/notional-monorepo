@@ -43,7 +43,14 @@ export function defaultLeverageRatio(
       )
         .filter((y) => y.underlying.id === s.deposit?.id)
         .filter((y) => (collateral ? y.token.id === collateral.id : true))
-        .filter((y) => (debt ? y.leveraged?.debtToken.id === debt.id : true));
+        .filter((y) =>
+          debt
+            ? // Need to flip the prime cash to prime debt during deleverage
+              debt.tokenType === 'PrimeCash'
+              ? y.leveraged?.debtToken.tokenType === 'PrimeDebt'
+              : y.leveraged?.debtToken.id === debt.id
+            : true
+        );
 
       return {
         minLeverageRatio: 0,

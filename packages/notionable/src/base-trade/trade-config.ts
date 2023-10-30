@@ -6,10 +6,12 @@ import {
   BorrowFixed,
   BorrowVariable,
   calculateCollateral,
+  calculateConvertAsset,
   calculateDebt,
   calculateDebtCollateralGivenDepositRiskLimit,
   calculateDeleverage,
   calculateDeleverageWithdraw,
+  calculateRollDebt,
   ConvertAsset,
   Deleverage,
   Deposit,
@@ -305,16 +307,22 @@ export const TradeConfiguration = {
       'balances',
     ],
     // NOTE: collateral and debt can switch based on the risk factor limit
-    collateralFilter: (t, _, s) =>
+    collateralFilter: (t, a, s) =>
       onlySameCurrency(t, s.deposit) &&
-      (s.collateral?.tokenType === 'nToken' || s.collateral === undefined
-        ? t.tokenType === 'nToken'
-        : t.tokenType === 'fCash' || t.tokenType === 'PrimeCash'),
-    debtFilter: (t, _, s) =>
+      (s.debt?.tokenType === 'nToken'
+        ? // show the offsetting debt
+          offsettingBalance(t, a) &&
+          (t.tokenType === 'fCash' || t.tokenType === 'PrimeCash')
+        : // otherwise show the nToken
+          t.tokenType === 'nToken'),
+    debtFilter: (t, a, s) =>
       onlySameCurrency(t, s.deposit) &&
-      (s.collateral?.tokenType === 'nToken' || s.collateral === undefined
-        ? t.tokenType === 'fCash' || t.tokenType === 'PrimeCash'
-        : t.tokenType === 'nToken'),
+      (s.debt?.tokenType === 'nToken'
+        ? // if the debt token is an nToken then only show that
+          t.tokenType === 'nToken'
+        : // otherwise only show the offsetting debt token
+          offsettingDebt(t, a) &&
+          (t.tokenType === 'fCash' || t.tokenType === 'PrimeDebt')),
     calculateDebtOptions: true,
     calculateCollateralOptions: true,
     transactionBuilder: LeveragedNTokenAdjustLeverage,
@@ -344,6 +352,7 @@ export const TradeConfiguration = {
       'balances',
       'maxWithdraw',
     ],
+    depositFilter: (t, _, s) => onlySameCurrency(t, s.collateral),
     collateralFilter: (t, a, s) =>
       t.tokenType !== 'nToken' &&
       onlySameCurrency(t, s.deposit) &&
@@ -426,7 +435,7 @@ export const TradeConfiguration = {
    * collateralBalance (i.e. new fCash or PrimeCash asset amount held)
    */
   ConvertAsset: {
-    calculationFn: calculateCollateral,
+    calculationFn: calculateConvertAsset,
     requiredArgs: ['collateral', 'collateralPool', 'debtPool', 'debtBalance'],
     depositFilter: () => false,
     debtFilter: (t, a) =>
@@ -459,7 +468,7 @@ export const TradeConfiguration = {
    */
   RollDebt: {
     // User will input amount of debt fcash to repay (i.e. collateral balance) and we calculate new fcash debt
-    calculationFn: calculateDebt,
+    calculationFn: calculateRollDebt,
     requiredArgs: [
       'debt',
       'collateralPool',

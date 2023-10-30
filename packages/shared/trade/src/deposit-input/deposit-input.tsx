@@ -24,6 +24,7 @@ interface DepositInputProps {
   errorMsgOverride?: MessageDescriptor;
   inputRef: React.RefObject<CurrencyInputHandle>;
   isWithdraw?: boolean;
+  maxWithdraw?: TokenBalance;
   useZeroDefault?: boolean;
   requiredApprovalAmount?: TokenBalance;
 }
@@ -47,6 +48,7 @@ export const DepositInput = React.forwardRef<
       inputRef,
       errorMsgOverride,
       isWithdraw,
+      maxWithdraw,
       useZeroDefault,
       requiredApprovalAmount,
     },
@@ -99,7 +101,7 @@ export const DepositInput = React.forwardRef<
           }}
         >
           <InputLabel inputLabel={inputLabel} />
-          {maxBalance && (
+          {(maxWithdraw || maxBalance) && (
             <Caption sx={{ color: theme.palette.typography.main }}>
               <WalletIcon
                 sx={{
@@ -109,7 +111,7 @@ export const DepositInput = React.forwardRef<
                   marginRight: theme.spacing(0.5),
                 }}
               />
-              &nbsp;{maxBalance.toDisplayStringWithSymbol(3, true)}
+              &nbsp;{((maxWithdraw || maxBalance) as TokenBalance).toDisplayStringWithSymbol(3, true)}
             </Caption>
           )}
         </Box>

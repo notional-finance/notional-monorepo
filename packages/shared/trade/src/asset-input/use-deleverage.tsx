@@ -1,33 +1,43 @@
 import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
 import { formatTokenType } from '@notional-finance/helpers';
 import { CurrencyInputHandle } from '@notional-finance/mui';
-import { BaseTradeState } from '@notional-finance/notionable';
-import { usePortfolioRiskProfile } from '@notional-finance/notionable-hooks';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  BaseTradeContext,
+  useCurrency,
+  usePortfolioRiskProfile,
+} from '@notional-finance/notionable-hooks';
+import { useCallback, useEffect, useMemo } from 'react';
 
 export const useDeleverage = (
-  availableTokens: TokenDefinition[] | undefined,
-  deleverage:
-    | {
-        isPrimaryInput: boolean;
-        setPrimaryInput: (input: 'Debt' | 'Collateral') => void;
-      }
-    | undefined,
+  context: BaseTradeContext,
+  isPrimaryInput: boolean,
   inputRef: React.RefObject<CurrencyInputHandle>,
-  computedBalance: TokenBalance | undefined,
-  debt: TokenDefinition | undefined,
-  collateral: TokenDefinition | undefined,
-  debtOrCollateral: 'Debt' | 'Collateral',
-  updateState: (args: Partial<BaseTradeState>) => void
+  debtOrCollateral: 'Debt' | 'Collateral'
 ) => {
+  const {
+    state: {
+      debt,
+      collateral,
+      availableCollateralTokens,
+      availableDebtTokens,
+      debtBalance,
+      collateralBalance,
+    },
+    updateState,
+  } = context;
+  const computedBalance =
+    debtOrCollateral === 'Debt' ? debtBalance : collateralBalance;
+  const availableTokens =
+    debtOrCollateral === 'Debt'
+      ? availableDebtTokens
+      : availableCollateralTokens;
   const profile = usePortfolioRiskProfile();
-  const [hasUserTouched, setHasUserTouched] = useState(false);
+  const { primeCash, primeDebt } = useCurrency();
 
   useEffect(() => {
     // If the input control is no longer the primary, it will just mirror
     // the computed amount without firing updates.
-    if (deleverage?.isPrimaryInput === false) {
-      setHasUserTouched(false);
+    if (!isPrimaryInput) {
       const newStringValue =
         computedBalance?.isZero() || computedBalance === undefined
           ? ''
@@ -37,7 +47,7 @@ export const useDeleverage = (
         inputRef.current?.setInputOverride(newStringValue, false);
       }
     }
-  }, [deleverage, computedBalance, inputRef]);
+  }, [isPrimaryInput, computedBalance, inputRef]);
 
   const updateDeleverageToken = useCallback(
     (tokenId: string | null) => {
@@ -61,9 +71,10 @@ export const useDeleverage = (
   const updateBalances = useCallback(
     (
       inputAmount: TokenBalance | undefined,
-      computedBalance: TokenBalance | undefined
+      computedBalance: TokenBalance | undefined,
+      _maxBalance: TokenBalance | undefined
     ) => {
-      if (deleverage?.isPrimaryInput === true && collateral && debt) {
+      if (isPrimaryInput && collateral && debt) {
         // In here, this input is the "primary". Only update the state if the
         // amounts are actually different or else we get a infinite loop
         if (
@@ -86,58 +97,57 @@ export const useDeleverage = (
                 debtBalance: TokenBalance.zero(debt),
               }
         );
-      } else if (deleverage === undefined) {
-        updateState(
-          debtOrCollateral === 'Debt'
-            ? { debtBalance: inputAmount }
-            : { collateralBalance: inputAmount }
-        );
       }
     },
-    [deleverage, debtOrCollateral, debt, collateral, updateState]
+    [isPrimaryInput, debtOrCollateral, debt, collateral, updateState]
   );
 
   const options = useMemo(() => {
-    if (deleverage) {
-      return (
-        availableTokens?.map((t) => {
-          const balance =
-            t?.tokenType === 'PrimeDebt'
-              ? profile.balances
-                  .find(
-                    (b) =>
-                      b.tokenType === 'PrimeCash' &&
-                      b.currencyId === t.currencyId
-                  )
-                  ?.toToken(t)
-              : profile.balances.find((b) => b.tokenId === t?.id);
-          const { title } = formatTokenType(t);
+    return (
+      availableTokens?.map((t) => {
+        const balance =
+          t?.tokenType === 'PrimeDebt'
+            ? profile.balances
+                .find(
+                  (b) =>
+                    b.tokenType === 'PrimeCash' && b.currencyId === t.currencyId
+                )
+                ?.toToken(t)
+            : profile.balances.find((b) => b.tokenId === t?.id);
+        let displayToken: TokenDefinition | undefined;
+        // Flip the titles since this is inverted inside the calculation
+        if (t.tokenType === 'PrimeDebt' && debtOrCollateral === 'Debt') {
+          displayToken = primeCash.find((p) => p.currencyId === t.currencyId);
+        } else if (
+          t.tokenType === 'PrimeCash' &&
+          debtOrCollateral === 'Collateral'
+        ) {
+          displayToken = primeDebt.find((p) => p.currencyId === t.currencyId);
+        }
 
-          return {
-            token: t,
-            content: balance
-              ? {
-                  largeFigure: balance.toFloat(),
-                  largeFigureSuffix: title,
-                  shouldCountUp: false,
-                  caption: balance
-                    .toFiat('USD')
-                    .toDisplayStringWithSymbol(3, true),
-                }
-              : undefined,
-          };
-        }) || []
-      );
-    } else {
-      return availableTokens?.map((token) => ({ token })) || [];
-    }
-  }, [availableTokens, deleverage, profile]);
+        const { title } = formatTokenType(displayToken || t);
+
+        return {
+          token: t,
+          displayToken,
+          content: balance
+            ? {
+                largeFigure: balance.toFloat(),
+                largeFigureSuffix: title,
+                shouldCountUp: false,
+                caption: balance
+                  .toFiat('USD')
+                  .toDisplayStringWithSymbol(3, true),
+              }
+            : undefined,
+        };
+      }) || []
+    );
+  }, [availableTokens, primeCash, primeDebt, debtOrCollateral, profile]);
 
   return {
     options,
     updateBalances,
-    hasUserTouched,
-    setHasUserTouched,
     updateDeleverageToken,
   };
 };

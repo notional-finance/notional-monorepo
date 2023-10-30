@@ -35,7 +35,8 @@ export const useLiquidityDetails = () => {
   const { currentHoldings } = useLeveragedNTokenPositions(selectedDepositToken);
   const newDebt = comparePortfolio?.find(
     ({ updated }) =>
-      updated.underlying.symbol === selectedDepositToken && updated.isNegative()
+      updated.underlying.symbol === selectedDepositToken &&
+      updated.tokenType !== 'nToken'
   )?.updated;
   const newAsset = comparePortfolio?.find(
     ({ updated }) =>

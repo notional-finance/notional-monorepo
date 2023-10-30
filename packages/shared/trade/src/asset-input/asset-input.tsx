@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Box } from '@mui/material';
 import {
   CurrencyInput,
@@ -11,15 +11,21 @@ import { useHistory } from 'react-router';
 import { INTERNAL_TOKEN_DECIMALS } from '@notional-finance/util';
 import { useAssetInput } from './use-asset-input';
 import { BaseTradeContext } from '@notional-finance/notionable-hooks';
-import { useDeleverage } from './use-deleverage';
+import { CurrencySelectOption } from '@notional-finance/mui';
+import { TokenBalance } from '@notional-finance/core-entities';
 
 interface AssetInputProps {
   context: BaseTradeContext;
   prefillMax?: boolean;
-  deleverage?: {
-    isPrimaryInput: boolean;
-    setPrimaryInput: (input: 'Debt' | 'Collateral') => void;
-  };
+  onMaxValue?: () => void;
+  onBalanceChange: (
+    inputAmount: TokenBalance | undefined,
+    computedBalance: TokenBalance | undefined,
+    maxBalance: TokenBalance | undefined
+  ) => void;
+  afterInputChange?: (input: string) => void;
+  afterTokenChange?: (newToken: string | null) => void;
+  options?: CurrencySelectOption[];
   debtOrCollateral: 'Debt' | 'Collateral';
   newRoute?: (newToken: string | null) => string;
   warningMsg?: React.ReactNode;
@@ -40,68 +46,56 @@ export const AssetInput = React.forwardRef<
 >(
   (
     {
+      prefillMax,
       context,
       newRoute,
       warningMsg,
+      onMaxValue,
+      onBalanceChange,
+      afterInputChange,
+      afterTokenChange,
+      options,
       // Manual label override required for deleverage labels
       label,
       inputLabel,
       inputRef,
       errorMsgOverride,
       debtOrCollateral,
-      prefillMax,
-      deleverage,
     },
     ref
   ) => {
     const history = useHistory();
-    const {
-      state: {
-        debt,
-        collateral,
-        availableCollateralTokens,
-        availableDebtTokens,
-        calculateError,
-        debtBalance,
-        collateralBalance,
-        tradeType,
-      },
-      updateState,
-    } = context;
-    const selectedToken = debtOrCollateral === 'Debt' ? debt : collateral;
-    const computedBalance =
-      debtOrCollateral === 'Debt' ? debtBalance : collateralBalance;
-    let availableTokens =
-      debtOrCollateral === 'Debt'
-        ? availableDebtTokens
-        : availableCollateralTokens;
-    if (
-      selectedToken &&
-      (availableTokens?.length === 0 ||
-        tradeType === 'ConvertAsset' ||
-        tradeType === 'RollDebt')
-    )
-      availableTokens = [selectedToken];
-
-    const { inputAmount, maxBalanceString, errorMsg, setInputString } =
-      useAssetInput(selectedToken, debtOrCollateral === 'Debt');
+    const { state, updateState } = context;
+    const { calculateError } = state;
+    const [hasUserTouched, setHasUserTouched] = useState(false);
 
     const {
-      hasUserTouched,
-      options,
-      updateBalances,
-      setHasUserTouched,
-      updateDeleverageToken,
-    } = useDeleverage(
-      availableTokens,
-      deleverage,
-      inputRef,
       computedBalance,
-      debt,
-      collateral,
-      debtOrCollateral,
-      updateState
-    );
+      selectedToken,
+      availableTokens,
+      inputAmount,
+      maxBalanceString,
+      maxBalance,
+      errorMsg,
+      setInputString,
+    } = useAssetInput(state, debtOrCollateral);
+
+    // const {
+    //   hasUserTouched,
+    //   options,
+    //   updateBalances,
+    //   setHasUserTouched,
+    //   updateDeleverageToken,
+    // } = useDeleverage(
+    //   availableTokens,
+    //   deleverage,
+    //   inputRef,
+    //   computedBalance,
+    //   debt,
+    //   collateral,
+    //   debtOrCollateral,
+    //   updateState
+    // );
 
     useEffect(() => {
       if (
@@ -115,9 +109,18 @@ export const AssetInput = React.forwardRef<
     }, [inputRef, maxBalanceString, prefillMax, inputAmount, hasUserTouched]);
 
     useEffect(() => {
-      updateBalances(inputAmount, computedBalance);
+      if (inputAmount?.hashKey !== computedBalance?.hashKey) {
+        onBalanceChange(inputAmount, computedBalance, maxBalance);
+      }
+      // Exhaustive deps is disabled since we are using hashKeys for comparison
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [updateBalances, inputAmount?.hashKey, computedBalance?.hashKey]);
+    }, [
+      updateState,
+      onBalanceChange,
+      inputAmount?.hashKey,
+      computedBalance?.hashKey,
+      maxBalance?.hashKey,
+    ]);
 
     useEffect(() => {
       updateState({
@@ -130,11 +133,10 @@ export const AssetInput = React.forwardRef<
         setInputString(input);
         setHasUserTouched(true);
 
-        // Signifies that this input control will now "take over" and no longer
-        // mirror the computed balance.
-        if (deleverage) deleverage?.setPrimaryInput(debtOrCollateral);
+        // Used as a hook for leverage inputs
+        if (afterInputChange) afterInputChange(input);
       },
-      [deleverage, debtOrCollateral, setInputString, setHasUserTouched]
+      [afterInputChange, setInputString]
     );
 
     if (!availableTokens) return <PageLoading />;
@@ -146,7 +148,8 @@ export const AssetInput = React.forwardRef<
           ref={ref}
           placeholder="0.00000000"
           decimals={INTERNAL_TOKEN_DECIMALS}
-          maxValue={maxBalanceString}
+          maxValue={onMaxValue ? undefined : maxBalanceString}
+          onMaxValue={onMaxValue}
           onInputChange={onInputChange}
           errorMsg={
             errorMsgOverride ? (
@@ -158,14 +161,15 @@ export const AssetInput = React.forwardRef<
             )
           }
           warningMsg={warningMsg}
-          options={options}
+          options={options || availableTokens}
           defaultValue={selectedToken?.id || null}
           onSelectChange={(newToken: string | null) => {
             // Always clear the input string when we change tokens
             inputRef.current?.setInputOverride('');
-            if (deleverage) updateDeleverageToken(newToken);
-            else if (newToken !== selectedToken?.symbol && newRoute)
+            if (newToken !== selectedToken?.symbol && newRoute)
               history.push(newRoute(newToken));
+
+            if (afterTokenChange) afterTokenChange(newToken);
           }}
           style={{
             landingPage: false,
