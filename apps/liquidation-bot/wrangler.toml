@@ -31,3 +31,6 @@ name = "liquidation-bot-beta"
 
 [env.prod]
 name = "liquidation-bot"
+
+[triggers]
+crons = ["0/10 * * * *"]
