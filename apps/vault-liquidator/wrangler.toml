@@ -30,3 +30,6 @@ name = "vault-liquidator-beta"
 
 [env.prod]
 name = "vault-liquidator"
+
+[triggers]
+crons = ["0/10 * * * *"]

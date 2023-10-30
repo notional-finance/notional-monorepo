@@ -12,7 +12,9 @@ export interface IFlashLoanProvider {
 
 export class MetricNames {
   public static readonly NUM_RISKY_ACCOUNTS =
-    'liquidator_bot.num_risky_accounts';
+    'flash_liquidator.num_risky_accounts';
+  public static readonly TOTAL_ACCOUNTS_PROCESSED =
+    'flash_liquidator.total_accounts_processed';
 }
 
 export enum LiquidationType {

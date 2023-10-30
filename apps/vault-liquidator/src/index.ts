@@ -7,8 +7,11 @@ import { BigNumber, ethers } from 'ethers';
 import * as tokens from './config/tokens.json';
 import VaultV3Liquidator from './VaultV3Liquidator';
 import { IGasOracle, MetricNames } from './types';
-import { Logger } from '@notional-finance/durable-objects';
-import { AccountFetchMode, Registry } from '@notional-finance/core-entities';
+import {
+  DDSeries,
+  Logger,
+  MetricType,
+} from '@notional-finance/durable-objects';
 
 export interface Env {
   NX_DATA_URL: string;
@@ -43,19 +46,9 @@ class ArbitrumGasOracle implements IGasOracle {
 }
 
 const run = async (env: Env) => {
-  Registry.initialize(
-    env.NX_DATA_URL,
-    AccountFetchMode.BATCH_ACCOUNT_VIA_SERVER,
-    false
-  );
-
-  // First trigger a refresh for all supported networks
-  await Registry.triggerRefresh(env.NETWORK);
-
-  const reg = Registry.getVaultRegistry();
-  const vaults = reg
-    .getAllSubjectKeys(env.NETWORK)
-    .filter((addr) => reg.isVaultEnabled(env.NETWORK, addr));
+  const allVaults = await (
+    await fetch(`https://data-dev.notional.finance/${env.NETWORK}/vaults`)
+  ).json();
 
   const logger = new Logger({
     apiKey: env.DD_API_KEY,
@@ -78,7 +71,9 @@ const run = async (env: Env) => {
     provider,
     {
       network: env.NETWORK,
-      vaultAddrs: vaults,
+      vaultAddrs: allVaults['values']
+        .filter(([, v]) => v['enabled'] === true)
+        .map(([v]) => v),
       flashLiquidatorAddress: env.FLASH_LIQUIDATOR_CONTRACT,
       flashLiquidatorOwner: env.FLASH_LIQUIDATOR_OWNER,
       flashLenderAddress: env.FLASH_LENDER_ADDRESS,
@@ -100,16 +95,34 @@ const run = async (env: Env) => {
 
   const riskyAccounts = await liq.getRiskyAccounts(addrs);
 
-  const ddSeries = {
+  const ddSeries: DDSeries = {
     series: [],
   };
 
-  ddSeries.series.push({
-    name: MetricNames.NUM_RISKY_ACCOUNTS,
-    value: riskyAccounts.length,
-    tags: [`network:${env.NETWORK}`],
-    timestamp: getNowSeconds(),
-  });
+  ddSeries.series.push(
+    {
+      metric: MetricNames.NUM_RISKY_ACCOUNTS,
+      points: [
+        {
+          value: riskyAccounts.length,
+          timestamp: getNowSeconds(),
+        },
+      ],
+      type: MetricType.Gauge,
+      tags: [`network:${env.NETWORK}`],
+    },
+    {
+      metric: MetricNames.TOTAL_ACCOUNTS_PROCESSED,
+      points: [
+        {
+          value: accounts.length,
+          timestamp: getNowSeconds(),
+        },
+      ],
+      type: MetricType.Gauge,
+      tags: [`network:${env.NETWORK}`],
+    }
+  );
 
   if (riskyAccounts.length > 0) {
     const riskyAccount = riskyAccounts[0];

@@ -9,8 +9,11 @@ import * as tokens from './config/tokens.json';
 import * as overrides from './config/overrides.json';
 import { ERC20__factory } from '@notional-finance/contracts';
 import { MetricNames } from './types';
-import { Logger } from '@notional-finance/durable-objects';
-import { AccountFetchMode, Registry } from '@notional-finance/core-entities';
+import {
+  DDSeries,
+  Logger,
+  MetricType,
+} from '@notional-finance/durable-objects';
 
 export interface Env {
   NX_DATA_URL: string;
@@ -38,19 +41,9 @@ export interface Env {
 }
 
 const run = async (env: Env) => {
-  Registry.initialize(
-    env.NX_DATA_URL,
-    AccountFetchMode.BATCH_ACCOUNT_VIA_SERVER,
-    false
-  );
-
-  // First trigger a refresh for all supported networks
-  await Registry.triggerRefresh(env.NETWORK);
-
-  const reg = Registry.getTokenRegistry();
-  const allTokens = reg
-    .getAllTokens(env.NETWORK)
-    .filter((t) => t.currencyId && t.tokenType === 'Underlying');
+  const allTokens = await (
+    await fetch(`https://data-dev.notional.finance/${env.NETWORK}/tokens`)
+  ).json();
 
   const logger = new Logger({
     apiKey: env.DD_API_KEY,
@@ -81,18 +74,20 @@ const run = async (env: Env) => {
       dustThreshold: BigNumber.from(env.DUST_THRESHOLD),
       txRelayUrl: env.TX_RELAY_URL,
       txRelayAuthToken: env.TX_RELAY_AUTH_TOKEN,
-      currencies: allTokens.map((c) => {
-        return {
-          id: c.currencyId,
-          tokenType: '',
-          hasTransferFee: false,
-          underlyingName: c.name,
-          underlyingSymbol: c.symbol,
-          underlyingDecimals: BigNumber.from(10).pow(c.decimals),
-          underlyingDecimalPlaces: c.decimals,
-          underlyingContract: ERC20__factory.connect(c.address, provider),
-        };
-      }),
+      currencies: allTokens['values']
+        .filter(([, t]) => t['tokenType'] === 'Underlying')
+        .map(([, c]) => {
+          return {
+            id: c.currencyId,
+            tokenType: '',
+            hasTransferFee: false,
+            underlyingName: c.name,
+            underlyingSymbol: c.symbol,
+            underlyingDecimals: BigNumber.from(10).pow(c.decimals),
+            underlyingDecimalPlaces: c.decimals,
+            underlyingContract: ERC20__factory.connect(c.address, provider),
+          };
+        }),
       overrides: overrides.arbitrum,
       tokens: new Map<string, string>(Object.entries(tokens.arbitrum)),
       zeroExUrl: env.ZERO_EX_SWAP_URL,
@@ -107,16 +102,34 @@ const run = async (env: Env) => {
 
   const riskyAccounts = await liq.getRiskyAccounts(addrs);
 
-  const ddSeries = {
+  const ddSeries: DDSeries = {
     series: [],
   };
 
-  ddSeries.series.push({
-    name: MetricNames.NUM_RISKY_ACCOUNTS,
-    value: riskyAccounts.length,
-    tags: [`network:${env.NETWORK}`],
-    timestamp: getNowSeconds(),
-  });
+  ddSeries.series.push(
+    {
+      metric: MetricNames.NUM_RISKY_ACCOUNTS,
+      points: [
+        {
+          value: riskyAccounts.length,
+          timestamp: getNowSeconds(),
+        },
+      ],
+      type: MetricType.Gauge,
+      tags: [`network:${env.NETWORK}`],
+    },
+    {
+      metric: MetricNames.TOTAL_ACCOUNTS_PROCESSED,
+      points: [
+        {
+          value: accounts.length,
+          timestamp: getNowSeconds(),
+        },
+      ],
+      type: MetricType.Gauge,
+      tags: [`network:${env.NETWORK}`],
+    }
+  );
 
   if (riskyAccounts.length > 0) {
     const riskyAccount = riskyAccounts[0];
@@ -132,11 +145,7 @@ const run = async (env: Env) => {
 };
 
 export default {
-  async fetch(
-    request: Request,
-    env: Env,
-    _: ExecutionContext
-  ): Promise<Response> {
+  async fetch(__: Request, env: Env, _: ExecutionContext): Promise<Response> {
     try {
       await run(env);
     } catch (e) {
@@ -148,7 +157,7 @@ export default {
     return response;
   },
   async scheduled(
-    controller: ScheduledController,
+    __: ScheduledController,
     env: Env,
     _: ExecutionContext
   ): Promise<void> {

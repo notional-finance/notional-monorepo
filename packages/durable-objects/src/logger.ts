@@ -33,7 +33,7 @@ type DDMetric = {
   tags: string[];
 };
 
-type DDSeries = {
+export type DDSeries = {
   series: DDMetric[];
 };
 

@@ -7,6 +7,8 @@ export interface IGasOracle {
 export class MetricNames {
   public static readonly NUM_RISKY_ACCOUNTS =
     'vault_liquidator.num_risky_accounts';
+  public static readonly TOTAL_ACCOUNTS_PROCESSED =
+    'vault_liquidator.total_accounts_processed';
 }
 
 export type RiskyAccount = {
