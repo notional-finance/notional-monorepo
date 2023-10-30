@@ -307,16 +307,22 @@ export const TradeConfiguration = {
       'balances',
     ],
     // NOTE: collateral and debt can switch based on the risk factor limit
-    collateralFilter: (t, _, s) =>
+    collateralFilter: (t, a, s) =>
       onlySameCurrency(t, s.deposit) &&
-      (s.collateral?.tokenType === 'nToken' || s.collateral === undefined
-        ? t.tokenType === 'nToken'
-        : t.tokenType === 'fCash' || t.tokenType === 'PrimeCash'),
-    debtFilter: (t, _, s) =>
+      (s.debt?.tokenType === 'nToken'
+        ? // show the offsetting debt
+          offsettingBalance(t, a) &&
+          (t.tokenType === 'fCash' || t.tokenType === 'PrimeCash')
+        : // otherwise show the nToken
+          t.tokenType === 'nToken'),
+    debtFilter: (t, a, s) =>
       onlySameCurrency(t, s.deposit) &&
-      (s.collateral?.tokenType === 'nToken' || s.collateral === undefined
-        ? t.tokenType === 'fCash' || t.tokenType === 'PrimeCash'
-        : t.tokenType === 'nToken'),
+      (s.debt?.tokenType === 'nToken'
+        ? // if the debt token is an nToken then only show that
+          t.tokenType === 'nToken'
+        : // otherwise only show the offsetting debt token
+          offsettingDebt(t, a) &&
+          (t.tokenType === 'fCash' || t.tokenType === 'PrimeDebt')),
     calculateDebtOptions: true,
     calculateCollateralOptions: true,
     transactionBuilder: LeveragedNTokenAdjustLeverage,

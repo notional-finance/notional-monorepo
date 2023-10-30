@@ -29,7 +29,8 @@ export function useTradeContext(tradeType: TradeType) {
       // Change the default setting for leveraged lend
       customizeLeverage: tradeType === 'LeveragedLend',
     });
-  }, [updateState, tradeType]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return { updateState, state$, state };
 }
