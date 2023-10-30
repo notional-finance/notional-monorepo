@@ -48,7 +48,7 @@ export const useVariableTotals = (state: TradeState) => {
     },
     {
       title: isBorrow ? (
-        <FormattedMessage defaultMessage={'Average APY'} />
+        <FormattedMessage defaultMessage={'(7d) Average APY'} />
       ) : (
         <FormattedMessage defaultMessage={'Total Lenders'} />
       ),
