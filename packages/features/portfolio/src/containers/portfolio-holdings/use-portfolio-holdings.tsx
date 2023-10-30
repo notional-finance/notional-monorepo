@@ -21,7 +21,7 @@ export function usePortfolioHoldings() {
   const pendingTokenData = usePendingPnLCalculation();
   const { detailedHoldings } = useDetailedHoldings();
   const { groupedRows, groupedTokens } = useGroupedHoldings();
-  console.log({ detailedHoldings });
+
   const groupedHoldings = groupedRows.concat(
     detailedHoldings.filter(({ tokenId }) => !groupedTokens.includes(tokenId))
   );
