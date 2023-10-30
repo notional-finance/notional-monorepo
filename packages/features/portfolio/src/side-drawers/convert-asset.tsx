@@ -25,7 +25,7 @@ export const ConvertAsset = () => {
   ) => {
     updateState({
       debtBalance: inputAmount,
-      maxWithdraw: maxBalance && inputAmount?.eq(maxBalance.neg()),
+      maxWithdraw: maxBalance && inputAmount?.neg().eq(maxBalance),
     });
   };
 
