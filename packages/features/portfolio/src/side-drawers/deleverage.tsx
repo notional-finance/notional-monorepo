@@ -1,6 +1,6 @@
 import { useCurrencyInputRef, HeadingSubtitle } from '@notional-finance/mui';
 import { useTradeContext } from '@notional-finance/notionable-hooks';
-import { AssetInput } from '@notional-finance/trade';
+import { DeleverageInput } from '@notional-finance/trade';
 import { PortfolioSideDrawer } from './components/portfolio-side-drawer';
 import { defineMessage } from 'react-intl';
 import { Box, useTheme } from '@mui/material';
@@ -34,27 +34,23 @@ export const Deleverage = () => {
             borderRadius: theme.shape.borderRadius(),
           }}
         >
-          <AssetInput
+          <DeleverageInput
             ref={debtInputRef}
             context={context}
             inputRef={debtInputRef}
-            deleverage={{
-              isPrimaryInput: primaryInput === 'Collateral',
-              setPrimaryInput,
-            }}
+            isPrimaryInput={primaryInput === 'Collateral'}
+            setPrimaryInput={setPrimaryInput}
             // NOTE: this actually refers to debt to repay but internally
             // it is referred to as collateral since it will be decreasing
             debtOrCollateral="Collateral"
             label={debtInputLabel}
           />
-          <AssetInput
+          <DeleverageInput
             ref={collateralInputRef}
             context={context}
             inputRef={collateralInputRef}
-            deleverage={{
-              isPrimaryInput: primaryInput === 'Debt',
-              setPrimaryInput,
-            }}
+            isPrimaryInput={primaryInput === 'Debt'}
+            setPrimaryInput={setPrimaryInput}
             // NOTE: this actually refers to collateral
             debtOrCollateral="Debt"
             label={collateralInputLabel}
