@@ -10,7 +10,6 @@ import { Routes } from '@notional-finance/core-entities/src/server';
 export {
   TokenRegistryDO,
   ConfigurationRegistryDO,
-  OracleRegistryDO,
   VaultRegistryDO,
 } from '@notional-finance/durable-objects';
 
@@ -28,9 +27,6 @@ export default {
       case Routes.Tokens:
         ns = env.TOKEN_REGISTRY_DO;
         break;
-      case Routes.Oracles:
-        ns = env.ORACLE_REGISTRY_DO;
-        break;
       case Routes.Configuration:
         ns = env.CONFIGURATION_REGISTRY_DO;
         break;
@@ -47,7 +43,6 @@ export default {
     await Promise.all([
       runHealthCheck(env.TOKEN_REGISTRY_DO, env.VERSION),
       runHealthCheck(env.CONFIGURATION_REGISTRY_DO, env.VERSION),
-      runHealthCheck(env.ORACLE_REGISTRY_DO, env.VERSION),
       runHealthCheck(env.VAULT_REGISTRY_DO, env.VERSION),
     ]);
   },

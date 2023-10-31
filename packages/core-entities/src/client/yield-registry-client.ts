@@ -11,7 +11,6 @@ import { Registry } from '../Registry';
 import { Routes } from '../server';
 import { ClientRegistry } from './client-registry';
 import { TokenType, YieldData } from '../Definitions';
-import { fCashMarket } from '../exchanges';
 import { TokenBalance } from '../token-balance';
 import { BigNumber } from 'ethers';
 
@@ -38,7 +37,7 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
       .map((t) => {
         if (!t.currencyId) throw Error('Missing currency id');
         if (!t.underlying) throw Error(`Token has no underlying`);
-        const market = exchanges.getfCashMarket(network, t.currencyId);
+        const market = exchanges.getNotionalMarket(network, t.currencyId);
         const interestAPY = market.getSpotInterestRate(t) || 0;
         const underlying = tokens.getTokenByID(network, t.underlying);
 
@@ -111,9 +110,9 @@ export class YieldRegistryClient extends ClientRegistry<YieldData> {
     const config = Registry.getConfigurationRegistry();
     const nTokenFees =
       Registry.getAnalyticsRegistry().getNTokenTradingFees(network);
-    const fCashMarket = exchanges.getPoolInstance<fCashMarket>(
+    const fCashMarket = exchanges.getfCashMarket(
       network,
-      netNTokens.token.address
+      netNTokens.currencyId
     );
 
     const underlying = netNTokens.underlying;

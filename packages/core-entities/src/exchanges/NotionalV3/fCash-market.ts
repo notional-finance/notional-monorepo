@@ -18,9 +18,12 @@ import {
 } from '@notional-finance/contracts';
 import { BigNumber, Contract } from 'ethers';
 import { TokenBalance } from '../../token-balance';
-import BaseLiquidityPool from '../base-liquidity-pool';
-import { TokenDefinition } from '../../Definitions';
 import { Registry } from '../../Registry';
+import {
+  BaseNotionalMarket,
+  InterestRateParameters,
+} from './BaseNotionalMarket';
+import { TokenDefinition } from '../../Definitions';
 
 interface fCashMarketParams {
   perMarketCash: TokenBalance[];
@@ -31,18 +34,7 @@ interface fCashMarketParams {
   interestRateCurve: InterestRateParameters[];
 }
 
-interface InterestRateParameters {
-  kinkUtilization1: number;
-  kinkUtilization2: number;
-  kinkRate1: number;
-  kinkRate2: number;
-  maxRate: number;
-  minFeeRate: number;
-  maxFeeRate: number;
-  feeRatePercent: number;
-}
-
-export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
+export class fCashMarket extends BaseNotionalMarket<fCashMarketParams> {
   /**
    * fCash markets are modeled as multiple token AMM.
    * this.balance[0] is the total cash held by the nToken
@@ -369,7 +361,7 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
    * @param cashAmount a token balance in prime cash denomination
    * @param balanceOverrides if provided, must be denominated in net fCash
    */
-  public getfCashGivenCashAmount(
+  private getfCashGivenCashAmount(
     marketIndex: number,
     cashAmount: TokenBalance,
     balanceOverrides?: TokenBalance[],
@@ -492,7 +484,7 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
     return this.getfCashExchangeRate(postFeeInterestRate, timeToMaturity);
   }
 
-  public getCashGivenfCashAmount(
+  private getCashGivenfCashAmount(
     marketIndex: number,
     fCashAmount: TokenBalance,
     balanceOverrides?: TokenBalance[],
@@ -554,66 +546,6 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
       .toNumber();
   }
 
-  protected getInterestRate(marketIndex: number, utilization: number) {
-    if (utilization < 0 || RATE_PRECISION < utilization)
-      throw Error('Insufficient Liquidity');
-    const irParams = this.getIRParams(marketIndex);
-    if (utilization <= irParams.kinkUtilization1) {
-      return Math.floor(
-        (utilization * irParams.kinkRate1) / irParams.kinkUtilization1
-      );
-    } else if (utilization <= irParams.kinkUtilization2) {
-      return Math.floor(
-        ((utilization - irParams.kinkUtilization1) *
-          (irParams.kinkRate2 - irParams.kinkRate1)) /
-          (irParams.kinkUtilization2 - irParams.kinkUtilization1) +
-          irParams.kinkRate1
-      );
-    } else {
-      return Math.floor(
-        ((utilization - irParams.kinkUtilization2) *
-          (irParams.maxRate - irParams.kinkRate2)) /
-          (RATE_PRECISION - irParams.kinkUtilization2) +
-          irParams.kinkRate2
-      );
-    }
-  }
-
-  protected getPostFeeInterestRate(
-    marketIndex: number,
-    preFeeInterestRate: number,
-    isBorrow: boolean
-  ) {
-    const irParams = this.getIRParams(marketIndex);
-
-    let feeRate = Math.floor(
-      (preFeeInterestRate * irParams.feeRatePercent) / 100
-    );
-    if (feeRate < irParams.minFeeRate) feeRate = irParams.minFeeRate;
-    if (feeRate > irParams.maxFeeRate) feeRate = irParams.maxFeeRate;
-
-    if (isBorrow) {
-      return preFeeInterestRate + feeRate;
-    } else {
-      return Math.max(preFeeInterestRate - feeRate, 0);
-    }
-  }
-
-  /**
-   * Returns FV = e ^ (rate * time)
-   * @param interestRate in 1e9 precision
-   * @param timeToMaturity seconds until maturity
-   */
-  public getfCashExchangeRate(interestRate: number, timeToMaturity: number) {
-    const r =
-      (interestRate * timeToMaturity) / (RATE_PRECISION * SECONDS_IN_YEAR);
-    return Math.floor(Math.exp(r) * RATE_PRECISION);
-  }
-
-  public getfCashPV(interestRate: number, timeToMaturity: number) {
-    return this.getfCashExchangeRate(-interestRate, timeToMaturity);
-  }
-
   protected getIRParams(marketIndex: number) {
     if (marketIndex === 0) {
       const primeCashCurve = Registry.getConfigurationRegistry().getConfig(
@@ -627,7 +559,7 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
     return this.poolParams.interestRateCurve[marketIndex - 1];
   }
 
-  public getMarketCashUnderlying(
+  private getMarketCashUnderlying(
     marketIndex: number,
     marketCashBalanceOverride?: TokenBalance[]
   ) {
@@ -636,13 +568,13 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
     ].toUnderlying();
   }
 
-  public getTimeToMaturity(marketIndex: number, nowSeconds = getNowSeconds()) {
+  private getTimeToMaturity(marketIndex: number, nowSeconds = getNowSeconds()) {
     const { token } = this.balances[marketIndex];
     if (!token.maturity) throw Error('Unknown maturity for fCash token');
     return token.maturity - nowSeconds;
   }
 
-  public getProportionalHoldings(
+  private getProportionalHoldings(
     lpTokens: TokenBalance,
     acceptIdiosyncratic: boolean
   ) {
@@ -757,69 +689,21 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
     return this.balances.findIndex((t) => t.typeKey === fCash.typeKey) === -1;
   }
 
-  public getZeroUnderlying() {
+  private getZeroUnderlying() {
     return this.balances[0].toUnderlying().copy(0);
   }
 
-  public getPrimeCashUtilization(
-    netPrimeSupply?: TokenBalance,
-    netPrimeDebt?: TokenBalance
-  ) {
-    const pCash = Registry.getTokenRegistry().getPrimeCash(
-      this._network,
-      this.poolParams.currencyId
+  protected getfCashSpotRate(token: TokenDefinition) {
+    const marketIndex = this.getMarketIndex(token.maturity);
+    const utilization = this.getfCashUtilization(
+      this.poolParams.perMarketfCash[marketIndex - 1].copy(0),
+      this.poolParams.perMarketfCash[marketIndex - 1],
+      this.poolParams.perMarketCash[marketIndex - 1].toUnderlying()
     );
-    const pDebt = Registry.getTokenRegistry().getPrimeDebt(
-      this._network,
-      this.poolParams.currencyId
-    );
-    const supply = pCash.totalSupply?.add(
-      netPrimeSupply || TokenBalance.zero(pCash)
-    );
-    const debt = pDebt.totalSupply?.add(
-      netPrimeDebt || TokenBalance.zero(pDebt)
-    );
-    if (!supply || !debt) throw Error('Missing prime total supply');
 
-    return debt.ratioWith(supply).toNumber();
-  }
-
-  public getPrimeSupplyRate(utilization: number) {
-    // Prime supply is the pre fee debt interest rate * utilization
     return (
-      (this.getInterestRate(0, utilization) * utilization) / RATE_PRECISION
+      (this.getInterestRate(marketIndex, utilization) * 100) / RATE_PRECISION
     );
-  }
-
-  public getPrimeDebtRate(utilization: number) {
-    return this.getPostFeeInterestRate(
-      0,
-      this.getInterestRate(0, utilization),
-      true
-    );
-  }
-
-  public getSpotInterestRate(token: TokenDefinition) {
-    if (token.tokenType === 'PrimeCash') {
-      const utilization = this.getPrimeCashUtilization();
-      return (this.getPrimeSupplyRate(utilization) * 100) / RATE_PRECISION;
-    } else if (token.tokenType === 'PrimeDebt') {
-      const utilization = this.getPrimeCashUtilization();
-      return (this.getPrimeDebtRate(utilization) * 100) / RATE_PRECISION;
-    } else if (token.tokenType === 'fCash') {
-      const marketIndex = this.getMarketIndex(token.maturity);
-      const utilization = this.getfCashUtilization(
-        this.poolParams.perMarketfCash[marketIndex - 1].copy(0),
-        this.poolParams.perMarketfCash[marketIndex - 1],
-        this.poolParams.perMarketCash[marketIndex - 1].toUnderlying()
-      );
-
-      return (
-        (this.getInterestRate(marketIndex, utilization) * 100) / RATE_PRECISION
-      );
-    } else {
-      return undefined;
-    }
   }
 
   public getSlippageRate(fCash: TokenBalance, slippageFactor: number) {
@@ -874,7 +758,7 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
     );
   }
 
-  public tenor(marketIndex: number): string {
+  public static tenor(marketIndex: number): string {
     switch (marketIndex) {
       case 1:
         return '3 Month';
@@ -1002,7 +886,7 @@ export class fCashMarket extends BaseLiquidityPool<fCashMarketParams> {
       );
   }
 
-  public getUtilization(marketIndex: number, interestRate: number) {
+  private getUtilization(marketIndex: number, interestRate: number) {
     const irParams = this.getIRParams(marketIndex);
     if (interestRate <= irParams.kinkRate1) {
       return Math.floor(
