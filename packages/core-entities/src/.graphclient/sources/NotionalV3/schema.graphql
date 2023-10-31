@@ -882,7 +882,7 @@ type CurrencyConfiguration {
   pvHaircutPercentage: Int
   """Discount on nToken PV given to liquidators"""
   liquidationHaircutPercentage: Int
-  incentives: Incentive!
+  incentives: Incentive
 }
 
 input CurrencyConfiguration_filter {

@@ -88,6 +88,13 @@ const defaultPools: Record<Network, PoolDefinition[]> = {
       earliestBlock: 123865068,
     },
     {
+      // ncbETH
+      address: '0x809B43d2A81A34c4D91BF4815A544d839d0773Bb',
+      PoolClass: 'fCashMarket',
+      registerTokens: [],
+      earliestBlock: 145559028,
+    },
+    {
       address: '0xC9B8a3FDECB9D5b218d02555a8Baf332E5B740d5',
       PoolClass: 'Curve2TokenPoolV1_SelfLPTokenNoAdmin',
       registerTokens: [

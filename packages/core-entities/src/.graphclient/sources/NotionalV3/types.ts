@@ -941,7 +941,7 @@ export type CurrencyConfiguration = {
   pvHaircutPercentage?: Maybe<Scalars['Int']>;
   /** Discount on nToken PV given to liquidators */
   liquidationHaircutPercentage?: Maybe<Scalars['Int']>;
-  incentives: Incentive;
+  incentives?: Maybe<Incentive>;
 };
 
 
