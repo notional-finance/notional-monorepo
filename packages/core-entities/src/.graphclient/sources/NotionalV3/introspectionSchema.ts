@@ -12711,13 +12711,10 @@ const schemaAST = {
           },
           "arguments": [],
           "type": {
-            "kind": "NonNullType",
-            "type": {
-              "kind": "NamedType",
-              "name": {
-                "kind": "Name",
-                "value": "Incentive"
-              }
+            "kind": "NamedType",
+            "name": {
+              "kind": "Name",
+              "value": "Incentive"
             }
           },
           "directives": []
