@@ -2,11 +2,13 @@ import { filterEmpty, Network } from '@notional-finance/util';
 import { map } from 'rxjs';
 import {
   BaseLiquidityPool,
+  BaseNotionalMarket,
   fCashMarket,
   PoolClasses,
   PoolConstructor,
+  pCashMarket,
 } from '../exchanges';
-import { PoolDefinition, Registry } from '..';
+import { PoolDefinition, Registry, TokenBalance } from '..';
 import { ClientRegistry } from './client-registry';
 import { Routes } from '../server';
 import { ethers } from 'ethers';
@@ -46,6 +48,36 @@ export class ExchangeRegistryClient extends ClientRegistry<PoolDefinition> {
   public getfCashMarket(network: Network, currencyId: number) {
     const nToken = Registry.getTokenRegistry().getNToken(network, currencyId);
     return this.getPoolInstance<fCashMarket>(network, nToken.address);
+  }
+
+  public getNotionalMarket(network: Network, currencyId: number) {
+    try {
+      const nToken = Registry.getTokenRegistry().getNToken(network, currencyId);
+      return this.getPoolInstance<BaseNotionalMarket<{ currencyId: number }>>(
+        network,
+        nToken.address
+      );
+    } catch {
+      const pCash = Registry.getTokenRegistry().getPrimeCash(
+        network,
+        currencyId
+      );
+      const { primeCashCurve } = Registry.getConfigurationRegistry().getConfig(
+        network,
+        currencyId
+      );
+      if (!primeCashCurve) throw Error('Prime Cash Curve not found');
+
+      return new pCashMarket(
+        network,
+        [pCash.totalSupply || TokenBalance.zero(pCash)],
+        pCash.totalSupply || TokenBalance.zero(pCash),
+        {
+          currencyId,
+          primeCashCurve,
+        }
+      );
+    }
   }
 
   private _buildPool<T>(network: Network, pool: PoolDefinition) {

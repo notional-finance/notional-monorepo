@@ -15,6 +15,8 @@ import {
 import { TokenBalance } from '../token-balance';
 import { Network } from '@notional-finance/util';
 import { fCashMarket } from './NotionalV3/fCash-market';
+import { BaseNotionalMarket } from './NotionalV3/BaseNotionalMarket';
+import { pCashMarket } from './NotionalV3/pCash-market';
 
 type PoolConstructor = new (
   network: Network,
@@ -51,4 +53,6 @@ export {
   PoolConstructor,
   Curve2TokenPoolV1,
   Curve2TokenPoolV2,
+  BaseNotionalMarket,
+  pCashMarket,
 };

@@ -542,14 +542,10 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
   getMinLendRiskAdjustedDiscountFactor(fCash: TokenDefinition) {
     if (!fCash.currencyId || !fCash.maturity) throw Error('Invalid fCash');
     const config = this.getConfig(fCash.network, fCash.currencyId);
-    const nToken = Registry.getTokenRegistry().getNToken(
-      fCash.network,
-      fCash.currencyId
-    );
     const fCashMarket =
-      Registry.getExchangeRegistry().getPoolInstance<fCashMarket>(
+      Registry.getExchangeRegistry().getfCashMarket(
         fCash.network,
-        nToken.address
+        fCash.currencyId
       );
     const marketIndex = fCashMarket.getMarketIndex(fCash.maturity);
 
