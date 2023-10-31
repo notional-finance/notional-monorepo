@@ -51,6 +51,13 @@ import usdt_alt from '../../assets/icons/currencies/usdt-alt.svg';
 import fusdt from '../../assets/icons/currencies/fUSDT.svg';
 import nusdt from '../../assets/icons/currencies/nUSDT.svg';
 import pusdt from '../../assets/icons/currencies/pUSDT.svg';
+import pcbETH from '../../assets/icons/currencies/pcbETH.svg';
+import pGMX from '../../assets/icons/currencies/pGMX.svg';
+import pRDNT from '../../assets/icons/currencies/pRDNT.svg';
+import pARB from '../../assets/icons/currencies/pARB.svg';
+import ncbETH from '../../assets/icons/currencies/ncbETH.svg';
+import fcbETH from '../../assets/icons/currencies/fcbETH.svg';
+import cbETH from '../../assets/icons/currencies/cbETH.svg';
 
 export interface TokenImg {
   name: string;
@@ -282,6 +289,41 @@ export const TokenImageList: TokenImageMap = {
     img: frax,
     accentBorderImg: frax_alt,
     alt: 'frax',
+  },
+  pcbETH: {
+    name: 'pcbETH',
+    img: pcbETH,
+    alt: 'pcbETH',
+  },
+  pGMX: {
+    name: 'pGMX',
+    img: pGMX,
+    alt: 'pGMX',
+  },
+  pRDNT: {
+    name: 'pRDNT',
+    img: pRDNT,
+    alt: 'pRDNT',
+  },
+  pARB: {
+    name: 'pARB',
+    img: pARB,
+    alt: 'pARB',
+  },
+  ncbETH: {
+    name: 'ncbETH',
+    img: ncbETH,
+    alt: 'ncbETH',
+  },
+  fcbETH: {
+    name: 'fcbETH',
+    img: fcbETH,
+    alt: 'fcbETH',
+  },
+  cbETH: {
+    name: 'cbETH',
+    img: cbETH,
+    alt: 'cbETH',
   },
   unknown: {
     name: 'unknown',

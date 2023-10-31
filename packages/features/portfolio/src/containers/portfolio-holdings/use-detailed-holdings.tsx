@@ -58,6 +58,7 @@ export function useDetailedHoldings() {
         maturedTokenId,
         manageTokenId,
         totalNOTEEarnings,
+        hasMatured,
       }) => {
         const isDebt = b.isNegative();
         const { icon, formattedTitle, titleWithMaturity, title } =
@@ -76,7 +77,7 @@ export function useDetailedHoldings() {
         return {
           sortOrder: getHoldingsSortOrder(b.token),
           tokenId: b.tokenId,
-          pendingTokenData: isPending ? b.token : undefined,
+          isPending,
           asset: {
             symbol: icon,
             symbolBottom: '',
@@ -178,6 +179,7 @@ export function useDetailedHoldings() {
                     },
                   },
             ],
+            hasMatured: hasMatured,
             txnHistory: `/portfolio/transaction-history?${new URLSearchParams({
               txnHistoryType: TXN_HISTORY_TYPE.PORTFOLIO_HOLDINGS,
               assetOrVaultId: b.token.id,

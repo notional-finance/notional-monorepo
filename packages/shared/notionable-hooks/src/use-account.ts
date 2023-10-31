@@ -160,6 +160,7 @@ export function useHoldings() {
             totalNOTEEarnings =
               statement.adjustedNOTEClaimed.add(additionalNOTE);
           }
+          const hasMatured = balance.hasMatured;
 
           return {
             balance,
@@ -169,6 +170,7 @@ export function useHoldings() {
             maturedTokenId,
             isPending,
             totalNOTEEarnings,
+            hasMatured,
           };
         }) || [],
     [pendingTokens, account, balanceStatements, nonLeveragedYields]
@@ -187,13 +189,17 @@ export function useGroupedTokens() {
         ({ balance }) => balance.tokenId === debt.tokenId
       );
 
+      const assetHoldings = holdings.find(
+        ({ balance }) => balance.tokenId === asset.tokenId
+      ) as typeof holdings[number];
+
       return {
-        asset: holdings.find(
-          ({ balance }) => balance.tokenId === asset.tokenId
-        ) as typeof holdings[number],
+        asset: assetHoldings,
         debt: debtHoldings as typeof holdings[number],
+        isPending: assetHoldings?.isPending || debtHoldings?.isPending ? true : false,
         leverageRatio,
         presentValue,
+        hasMatured: asset?.hasMatured || debt?.hasMatured ? true : false,
         borrowAPY:
           // NOTE: this accounts for matured debts and uses the variable APY after maturity
           debtHoldings?.marketYield?.token.tokenType === 'PrimeDebt'
@@ -205,6 +211,8 @@ export function useGroupedTokens() {
     .filter(({ asset, debt }) => asset !== undefined && debt !== undefined) as {
     asset: typeof holdings[number];
     debt: typeof holdings[number];
+    hasMatured: boolean;
+    isPending: boolean;
     leverageRatio: number;
     presentValue: TokenBalance;
     borrowAPY: number | undefined;

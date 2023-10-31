@@ -21,6 +21,8 @@ export const TotalEarningsTooltip = ({
 }: TotalEarningsTooltipProps) => {
   const theme = useTheme();
 
+  console.log({ underlyingBaseCurrency, underlying, noteBaseCurrency, note });
+
   const HoverComponent = () => {
     return (
       <Box>

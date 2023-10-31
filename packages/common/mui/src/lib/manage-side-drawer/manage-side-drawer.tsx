@@ -51,11 +51,7 @@ export const ManageSideDrawer = ({
         {optionSections.map(({ title, buttons }, i) =>
           buttons.length > 0 ? (
             <Box key={`section-${i}`}>
-              {title && (
-                <Title>
-                  <FormattedMessage defaultMessage={'Reduce leverage'} />
-                </Title>
-              )}
+              {title && <Title>{title}</Title>}
               {buttons}
             </Box>
           ) : null

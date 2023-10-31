@@ -10,6 +10,7 @@ import {
   DataTableColumn,
   DataTable,
   ProgressIndicator,
+  ErrorMessage,
 } from '@notional-finance/mui';
 import { colors } from '@notional-finance/styles';
 import { defineMessages } from 'react-intl';
@@ -30,8 +31,10 @@ interface TableActionRowProps {
           value: any;
           showLoadingSpinner?: boolean;
         }[];
+        hasMatured?: boolean;
       };
-      pendingTokenData?: Record<any, any>;
+      asset;
+      isPending?: boolean;
     };
   };
 }
@@ -45,15 +48,20 @@ export const TableActionRow = ({ row }: TableActionRowProps) => {
       subRowData,
       riskTableData,
       riskTableColumns,
+      hasMatured,
     },
-    pendingTokenData,
+    asset,
+    isPending,
   } = row.original;
 
   return (
     <Box
       sx={{
         background: theme.palette.background.default,
-        paddingBottom: theme.spacing(3),
+        paddingBottom:
+          (riskTableData && riskTableData.length > 0) || hasMatured
+            ? theme.spacing(4)
+            : '0px',
       }}
     >
       <Container>
@@ -61,8 +69,13 @@ export const TableActionRow = ({ row }: TableActionRowProps) => {
           {subRowData.map(({ label, value, showLoadingSpinner }, index) => (
             <Box key={index}>
               <Label>{label}</Label>
-              {pendingTokenData && showLoadingSpinner ? (
-                <ProgressIndicator circleSize={24} />
+              {isPending && showLoadingSpinner ? (
+                <ProgressIndicator
+                  circleSize={16}
+                  sx={{
+                    alignItems: 'baseline',
+                  }}
+                />
               ) : (
                 <H4
                   sx={{
@@ -98,6 +111,26 @@ export const TableActionRow = ({ row }: TableActionRowProps) => {
           )}
         </ButtonContainer>
       </Container>
+      {hasMatured && (
+        <Box sx={{ margin: theme.spacing(0, 7) }}>
+          <ErrorMessage
+            variant="pending"
+            title={<FormattedMessage defaultMessage={'Asset Matured'} />}
+            message={
+              <FormattedMessage
+                defaultMessage={
+                  'Your matured {symbol} is currently earning the variable lending rate. You can roll to a new fixed rate or do nothing and continue earning the variable rate.'
+                }
+                values={{
+                  symbol: asset.symbol,
+                }}
+              />
+            }
+            maxWidth={'100%'}
+            sx={{ marginTop: '0px' }}
+          />
+        </Box>
+      )}
       {riskTableData && riskTableData.length > 0 && (
         <DataTable
           tableTitle={<FormattedMessage defaultMessage={'Liquidation Risk'} />}
@@ -118,7 +151,7 @@ const Container = styled(Box)(
   ({ theme }) => `
   display: flex;
   justify-content: space-between;
-  height: ${theme.spacing(18)};
+  padding: ${theme.spacing(5, 0)};
   align-items: center;
   background: ${theme.palette.background.default};
 `
@@ -135,7 +168,7 @@ const ApyContainer = styled(Box)(
 const ButtonContainer = styled(Box)(
   ({ theme }) => `
   display: flex;
-  margin-right: ${theme.spacing(3)};
+  margin-right: ${theme.spacing(7)};
   `
 );
 
