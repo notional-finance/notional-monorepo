@@ -1,5 +1,5 @@
 query AllConfiguration {
-    currencyConfigurations(where: {id_not: "10"}) {
+    currencyConfigurations {
         id
         underlying { id }
         pCash { id }
