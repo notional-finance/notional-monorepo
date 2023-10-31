@@ -66,12 +66,14 @@ export function selectedPool(
     distinctUntilChanged(),
     filterEmpty(),
     withLatestFrom(selectedNetwork$),
-    switchMap(([currencyId, network]) =>
-      Registry.getExchangeRegistry().subscribeNotionalMarket(
+    switchMap(([currencyId, network]) => {
+      const pool = Registry.getExchangeRegistry().subscribeNotionalMarket(
         network,
         currencyId
-      )
-    ),
+      );
+      if (!pool) return of(undefined);
+      return pool;
+    }),
     startWith(undefined)
   );
 }
