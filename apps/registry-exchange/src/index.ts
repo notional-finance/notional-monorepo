@@ -7,7 +7,10 @@ import { RegistryDOEnv } from '@notional-finance/durable-objects';
 import { Routes } from '@notional-finance/core-entities/src/server';
 
 // Exports durable objects so migrations can be run
-export { ExchangeRegistryDO } from '@notional-finance/durable-objects';
+export {
+  ExchangeRegistryDO,
+  OracleRegistryDO,
+} from '@notional-finance/durable-objects';
 
 async function runHealthCheck(ns: DurableObjectNamespace, version: string) {
   const stub = ns.get(ns.idFromName(version));
@@ -23,6 +26,9 @@ export default {
       case Routes.Exchanges:
         ns = env.EXCHANGE_REGISTRY_DO;
         break;
+      case Routes.Oracles:
+        ns = env.ORACLE_REGISTRY_DO;
+        break;
     }
 
     const stub = ns.get(ns.idFromName(env.VERSION));
@@ -30,6 +36,9 @@ export default {
   },
   async scheduled(_: ScheduledController, env: RegistryDOEnv): Promise<void> {
     // Run a healthcheck against all of the durable objects.
-    await Promise.all([runHealthCheck(env.EXCHANGE_REGISTRY_DO, env.VERSION)]);
+    await Promise.all([
+      runHealthCheck(env.EXCHANGE_REGISTRY_DO, env.VERSION),
+      runHealthCheck(env.ORACLE_REGISTRY_DO, env.VERSION),
+    ]);
   },
 };

@@ -14,19 +14,10 @@ new_classes = [
     "ExchangeRegistryDO",
 ]
 
-[env.local]
-name = "registry-exchange-local"
-minify = false
-
-[env.local.vars]
-NX_ENV = 'local'
-VERSION = 'v1'
-NX_DATA_URL = 'https://data-dev.notional.finance'
-SUPPORTED_NETWORKS = ['arbitrum', 'all']
-
-[env.local.durable_objects]
-bindings = [
-  { name = "EXCHANGE_REGISTRY_DO", class_name = "ExchangeRegistryDO" },
+[[migrations]]
+tag = "v2"
+new_classes = [
+    "OracleRegistryDO",
 ]
 
 [env.dev]
@@ -36,13 +27,14 @@ name = "registry-exchange-dev"
 NX_ENV = 'dev'
 # This is version that defines the durable object to retreive, increment it to reset
 # the durable object to a clean version
-VERSION = 'v1'
+VERSION = 'v2'
 NX_DATA_URL = 'https://data-dev.notional.finance'
 SUPPORTED_NETWORKS = [ 'arbitrum', 'all' ]
 
 [env.dev.durable_objects]
 bindings = [
   { name = "EXCHANGE_REGISTRY_DO", class_name = "ExchangeRegistryDO" },
+  { name = "ORACLE_REGISTRY_DO", class_name = "OracleRegistryDO" },
 ]
 
 
@@ -51,11 +43,12 @@ name = "registry-exchange"
 
 [env.prod.vars]
 NX_ENV = 'prod'
-VERSION = 'v1'
+VERSION = 'v2'
 NX_DATA_URL = 'https://data.notional.finance'
 SUPPORTED_NETWORKS = [ 'arbitrum', 'all' ]
 
 [env.prod.durable_objects]
 bindings = [
   { name = "EXCHANGE_REGISTRY_DO", class_name = "ExchangeRegistryDO" },
+  { name = "ORACLE_REGISTRY_DO", class_name = "OracleRegistryDO" },
 ]
