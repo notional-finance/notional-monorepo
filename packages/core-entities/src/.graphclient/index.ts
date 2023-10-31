@@ -7605,7 +7605,7 @@ export const AllAccountsDocument = gql`
     ` as unknown as DocumentNode<AllAccountsQuery, AllAccountsQueryVariables>;
 export const AllConfigurationDocument = gql`
     query AllConfiguration {
-  currencyConfigurations {
+  currencyConfigurations(where: {id_not: "10"}) {
     id
     underlying {
       id
@@ -7906,7 +7906,10 @@ export const AllOraclesByBlockDocument = gql`
     ` as unknown as DocumentNode<AllOraclesByBlockQuery, AllOraclesByBlockQueryVariables>;
 export const AllTokensDocument = gql`
     query AllTokens {
-  tokens(first: 1000) {
+  tokens(
+    where: {id_not_in: ["0x8652de5310746e8de24cbe17ee8b5fe1e78febcc", "0x692749e5bd565c37f5f562f71b335eefe046eaa0"]}
+    first: 1000
+  ) {
     id
     tokenType
     tokenInterface
