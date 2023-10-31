@@ -14,7 +14,6 @@ import {
   AccountFetchMode,
   TokenBalance,
   TokenType,
-  fCashMarket,
 } from '@notional-finance/core-entities';
 import { fetch } from 'cross-fetch';
 import {
@@ -241,10 +240,10 @@ export default class DataService {
       .map((t) => {
         if (!t.currencyId) throw Error('Missing currency id');
         if (!t.underlying) throw Error(`Token has no underlying`);
-        const market = exchanges.getfCashMarket(network, t.currencyId);
+        const market = exchanges.getNotionalMarket(network, t.currencyId);
         const interestAPY = market.getSpotInterestRate(t) || 0;
         const underlying = tokens.getTokenByID(network, t.underlying);
-        let tvl;
+        let tvl: TokenBalance;
         try {
           tvl = t.totalSupply?.toUnderlying() || TokenBalance.zero(underlying);
         } catch (e: any) {
@@ -269,7 +268,6 @@ export default class DataService {
     network: Network,
     block: ethers.ethers.providers.Block
   ) {
-    const tokens = HistoricalRegistry.getTokenRegistry();
     const exchanges = HistoricalRegistry.getExchangeRegistry();
 
     const fCashData = await this._getTvl(network, block, 'fCash');
@@ -282,12 +280,11 @@ export default class DataService {
           !isIdiosyncratic(y.token.maturity)
       )
       .map((y) => {
-        if (!y.token.maturity) throw Error();
+        if (!y.token.maturity || !y.token.currencyId) throw Error();
 
-        const nToken = tokens.getNToken(network, y.token.currencyId);
-        const fCashMarket = exchanges.getPoolInstance<fCashMarket>(
+        const fCashMarket = exchanges.getfCashMarket(
           network,
-          nToken.address
+          y.token.currencyId
         );
         const marketIndex = fCashMarket.getMarketIndex(y.token.maturity);
         const pCash = fCashMarket.poolParams.perMarketCash[marketIndex - 1];
@@ -334,11 +331,9 @@ export default class DataService {
         let totalAPY;
         let interestAPY;
 
-        const fCashMarket = exchanges.getPoolInstance<fCashMarket>(
-          network,
-          t.address
-        );
-        if (!t.underlying) throw Error('underlying not defined');
+        if (!t.underlying || !t.currencyId)
+          throw Error('underlying not defined');
+        const fCashMarket = exchanges.getfCashMarket(network, t.currencyId);
         const underlying = tokens.getTokenByID(network, t.underlying);
 
         try {
