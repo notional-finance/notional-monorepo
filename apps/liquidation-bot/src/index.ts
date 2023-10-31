@@ -6,7 +6,7 @@ import {
 import { BigNumber } from 'ethers';
 import NotionalV3Liquidator from './NotionalV3Liquidator';
 import * as tokens from './config/tokens.json';
-import * as overrides from './config/overrides.json';
+import { overrides } from './config/overrides';
 import { ERC20__factory } from '@notional-finance/contracts';
 import { MetricNames } from './types';
 import {
