@@ -42,3 +42,6 @@ name = "data-beta"
 
 [env.prod]
 name = "data"
+
+[triggers]
+crons = ["0/20 * * * *"]
