@@ -4,7 +4,6 @@ import {
   RiskAdjustment,
   TokenBalance,
   TokenDefinition,
-  fCashMarket,
 } from '..';
 import { Routes } from '../server';
 import { AllConfigurationQuery } from '../server/configuration-server';
@@ -542,11 +541,10 @@ export class ConfigurationClient extends ClientRegistry<AllConfigurationQuery> {
   getMinLendRiskAdjustedDiscountFactor(fCash: TokenDefinition) {
     if (!fCash.currencyId || !fCash.maturity) throw Error('Invalid fCash');
     const config = this.getConfig(fCash.network, fCash.currencyId);
-    const fCashMarket =
-      Registry.getExchangeRegistry().getfCashMarket(
-        fCash.network,
-        fCash.currencyId
-      );
+    const fCashMarket = Registry.getExchangeRegistry().getfCashMarket(
+      fCash.network,
+      fCash.currencyId
+    );
     const marketIndex = fCashMarket.getMarketIndex(fCash.maturity);
 
     // Convert this to an exchange rate

@@ -2,7 +2,6 @@ import {
   VaultAdapter,
   Registry,
   TokenDefinition,
-  fCashMarket,
 } from '@notional-finance/core-entities';
 import { filterEmpty, unique } from '@notional-finance/util';
 import {
@@ -67,24 +66,12 @@ export function selectedPool(
     distinctUntilChanged(),
     filterEmpty(),
     withLatestFrom(selectedNetwork$),
-    switchMap(([currencyId, network]) => {
-      try {
-        const nToken = Registry.getTokenRegistry().getNToken(
-          network,
-          currencyId
-        );
-
-        return (
-          Registry.getExchangeRegistry().subscribePoolInstance<fCashMarket>(
-            network,
-            nToken.address
-          ) || of(undefined)
-        );
-      } catch {
-        // Some currencies do not have nTokens
-        return of(undefined);
-      }
-    }),
+    switchMap(([currencyId, network]) =>
+      Registry.getExchangeRegistry().subscribeNotionalMarket(
+        network,
+        currencyId
+      )
+    ),
     startWith(undefined)
   );
 }

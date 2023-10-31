@@ -60,7 +60,12 @@ export function hasExistingCashBalance(
   const withdrawEntireCashBalance = cashBalance ? false : true;
   const withdrawAmountInternalPrecision = withdrawEntireCashBalance
     ? undefined
-    : exchangeToLocalPrime(
+    : tokenBalance.tokenType === 'PrimeCash' ||
+      tokenBalance.tokenType === 'PrimeDebt'
+    ? tokenBalance.toPrimeCash()
+    : // Only execute this method for fCash and nTokens since some tokens
+      // may not have nToken / fCash markets.
+      exchangeToLocalPrime(
         tokenBalance,
         Registry.getExchangeRegistry().getfCashMarket(
           tokenBalance.network,
