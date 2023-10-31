@@ -2,7 +2,7 @@ import { H5, InfoTooltip } from '@notional-finance/mui';
 import { NotionalTheme } from '@notional-finance/styles';
 import { Box, styled, useTheme } from '@mui/material';
 
-interface TotalEarningsTooltipProps {
+export interface TotalEarningsTooltipProps {
   toolTipData: {
     underlyingBaseCurrency: string;
     underlying: string;
