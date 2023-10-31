@@ -22,9 +22,11 @@ export function usePortfolioHoldings() {
   const { detailedHoldings } = useDetailedHoldings();
   const { groupedRows, groupedTokens } = useGroupedHoldings();
 
-  const groupedHoldings = groupedRows.concat(
-    detailedHoldings.filter(({ tokenId }) => !groupedTokens.includes(tokenId))
+  const filteredHoldings = detailedHoldings.filter(
+    ({ tokenId }) => !groupedTokens.includes(tokenId)
   );
+
+  const groupedHoldings = [...groupedRows, ...filteredHoldings];
 
   useEffect(() => {
     const formattedExpandedRows = Columns.reduce(

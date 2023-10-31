@@ -54,6 +54,8 @@ export function useGroupedHoldings() {
         totalNOTEEarnings,
       },
       debt: { balance: debt, statement: debtStatement },
+      hasMatured,
+      isPending,
       leverageRatio,
       presentValue,
       borrowAPY,
@@ -105,6 +107,7 @@ export function useGroupedHoldings() {
               : `Leveraged ${underlying.symbol} Lend`,
           caption: formatCaption(asset, debt),
         },
+        isPending,
         marketApy: {
           data: [
             {
@@ -134,11 +137,10 @@ export function useGroupedHoldings() {
           : '-',
         toolTipData: totalNOTEEarnings?.isPositive()
           ? {
-              underlyingBaseCurrency: assetStatement?.totalProfitAndLoss
-                .toFiat(baseCurrency)
+              underlyingBaseCurrency: earnings
+                ?.toFiat(baseCurrency)
                 .toDisplayStringWithSymbol(),
-              underlying:
-                assetStatement?.totalProfitAndLoss.toDisplayStringWithSymbol(),
+              underlying: earnings?.toDisplayStringWithSymbol(),
               noteBaseCurrency: totalNOTEEarnings
                 .toFiat(baseCurrency)
                 .toDisplayStringWithSymbol(),
@@ -158,6 +160,7 @@ export function useGroupedHoldings() {
                 '-',
                 3
               ),
+              showLoadingSpinner: true,
             },
             {
               label: <FormattedMessage defaultMessage={'Leverage Ratio'} />,
@@ -182,6 +185,7 @@ export function useGroupedHoldings() {
               },
             },
           ],
+          hasMatured: hasMatured,
           txnHistory: `/portfolio/transaction-history?${new URLSearchParams({
             txnHistoryType: TXN_HISTORY_TYPE.PORTFOLIO_HOLDINGS,
             assetOrVaultId: asset.token.id,

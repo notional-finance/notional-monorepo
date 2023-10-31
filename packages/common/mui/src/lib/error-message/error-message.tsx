@@ -11,6 +11,7 @@ interface ErrorMessageProps {
   message?: ReactNode | string;
   marginBottom?: boolean;
   sx?: SxProps;
+  maxWidth?: string;
   children?: ReactNode;
 }
 
@@ -25,6 +26,7 @@ export const ErrorMessage = ({
   message,
   marginBottom,
   children,
+  maxWidth,
   sx,
 }: ErrorMessageProps) => {
   const theme = useTheme();
@@ -49,9 +51,9 @@ export const ErrorMessage = ({
       variant={variant}
       theme={theme}
       sx={{
-        ...sx,
         marginTop: marginBottom ? undefined : theme.spacing(3),
         marginBottom: marginBottom ? theme.spacing(3) : undefined,
+        ...sx,
       }}
     >
       <AlertIcon sx={{ fill: theme.palette[variant].dark }} />
@@ -59,7 +61,7 @@ export const ErrorMessage = ({
         <LabelValue>{title || defaultTitle}</LabelValue>
         <Caption
           sx={{
-            maxWidth: theme.spacing(46),
+            maxWidth: maxWidth ? maxWidth : theme.spacing(46),
             overflow: 'hidden',
           }}
         >

@@ -20,7 +20,7 @@ export const DataTablePending = ({
   const selectedNetwork = useSelectedNetwork();
 
   return (
-    <Box>
+    <Box sx={{ marginBottom: theme.spacing(3) }}>
       <ErrorMessage
         message={pendingMessage}
         variant="pending"
