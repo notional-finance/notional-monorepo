@@ -182,6 +182,24 @@ export default class ProfitCalculator {
       totalProfit = results[1];
       collateralProfit = results[2];
     } catch (e) {
+      const txn = await liquidator.populateTransaction['flashLoan'](
+        flashLiq.flashBorrowAsset,
+        flashLiq.accountLiq.flashLoanAmount,
+        flashLiq.accountLiq.liquidation.encode(
+          flashLiq.accountLiq.accountId,
+          false,
+          flashLiq.preLiquidationTrade,
+          flashLiq.collateralTrade
+        ),
+        flashLiq.accountLiq.liquidation.getLocalUnderlyingAddress(),
+        flashLiq.accountLiq.liquidation.getCollateralUnderlyingAddress(),
+        {
+          from: this.settings.liquidatorOwner,
+        }
+      );
+      console.error(flashLiq.flashBorrowAsset);
+      console.error(flashLiq.accountLiq.flashLoanAmount.toString());
+      console.error('Populated Txn', txn);
       console.error(e);
     }
 

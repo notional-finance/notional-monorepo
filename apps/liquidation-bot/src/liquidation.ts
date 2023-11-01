@@ -215,7 +215,7 @@ export default class Liquidation {
     );
   }
 
-  public getFlashLoanAmountCall(target: Contract, account: string) {
+  public getFlashLoanAmountCall(notional: Contract, account: string) {
     // TODO: enable this once we figure out how to deal with nToken residuals
     /*if (
       this.type === LiquidationType.LOCAL_CURRENCY ||
@@ -252,61 +252,118 @@ export default class Liquidation {
 
     switch (this.type) {
       case LiquidationType.LOCAL_CURRENCY: {
-        return {
-          stage: 0,
-          target: target,
-          transform: (r) => r[0],
-          method: 'calculateLocalCurrencyLiquidation',
-          args: [account, this.localCurrency.id, 0],
-          key: `${account}:${this.type}:${this.localCurrency.id}:0:loanAmount`,
-        };
+        const key = `${account}:${this.type}:${this.localCurrency.id}:0`;
+        return [
+          {
+            stage: 0,
+            target: notional,
+            transform: (r) => r[0],
+            method: 'calculateLocalCurrencyLiquidation',
+            args: [account, this.localCurrency.id, 0],
+            key: `${key}:pCashLoanAmount`,
+          },
+          {
+            stage: 1,
+            target: notional,
+            method: 'convertCashBalanceToExternal',
+            args: (r) => [
+              this.localCurrency.id,
+              r[`${key}:pCashLoanAmount`] || 0,
+              true,
+            ],
+            key: `${key}:loanAmount`,
+          },
+        ];
       }
       case LiquidationType.COLLATERAL_CURRENCY: {
-        return {
-          stage: 0,
-          target: target,
-          transform: (r) => r[0],
-          method: 'calculateCollateralCurrencyLiquidation',
-          args: [
-            account,
-            this.localCurrency.id,
-            this.collateralCurrencyId,
-            0,
-            0,
-          ],
-          key: `${account}:${this.type}:${this.localCurrency.id}:${this.collateralCurrencyId}:loanAmount`,
-        };
+        const key = `${account}:${this.type}:${this.localCurrency.id}:0:pCashLoanAmount`;
+        return [
+          {
+            stage: 0,
+            target: notional,
+            transform: (r) => r[0],
+            method: 'calculateCollateralCurrencyLiquidation',
+            args: [
+              account,
+              this.localCurrency.id,
+              this.collateralCurrencyId,
+              0,
+              0,
+            ],
+            key: `${key}:pCashLoanAmount`,
+          },
+          {
+            stage: 1,
+            target: notional,
+            method: 'convertCashBalanceToExternal',
+            args: (r) => [
+              this.localCurrency.id,
+              r[`${key}:pCashLoanAmount`] || 0,
+              true,
+            ],
+            key: `${key}:loanAmount`,
+          },
+        ];
       }
       case LiquidationType.LOCAL_FCASH: {
-        return {
-          stage: 0,
-          target: target,
-          transform: (r) => r[1],
-          method: 'calculatefCashLocalLiquidation',
-          args: [
-            account,
-            this.localCurrency.id,
-            this.maturities,
-            this.maturities.map(() => 0),
-          ],
-          key: `${account}:${this.type}:${this.localCurrency.id}:0:loanAmount`,
-        };
+        const key = `${account}:${this.type}:${this.localCurrency.id}:0`;
+        return [
+          {
+            stage: 0,
+            target: notional,
+            transform: (r) => r[1],
+            method: 'calculatefCashLocalLiquidation',
+            args: [
+              account,
+              this.localCurrency.id,
+              this.maturities,
+              this.maturities.map(() => 0),
+            ],
+            key: `${key}:pCashLoanAmount`,
+          },
+          {
+            stage: 1,
+            target: notional,
+            method: 'convertCashBalanceToExternal',
+            args: (r) => [
+              this.localCurrency.id,
+              r[`${key}:pCashLoanAmount`] || 0,
+              true,
+            ],
+            key: `${key}:loanAmount`,
+          },
+        ];
       }
       case LiquidationType.CROSS_CURRENCY_FCASH: {
-        return {
-          stage: 0,
-          target: target,
-          transform: (r) => r[1],
-          method: 'calculatefCashCrossCurrencyLiquidation',
-          args: [
-            account,
-            this.localCurrency.id,
-            this.collateralCurrencyId,
-            this.maturities,
-            this.maturities.map(() => 0),
-          ],
-          key: `${account}:${this.type}:${this.localCurrency.id}:${this.collateralCurrencyId}:loanAmount`,
-        };
+        const key = `${account}:${this.type}:${this.localCurrency.id}:${this.collateralCurrencyId}`;
+        return [
+          {
+            stage: 0,
+            target: notional,
+            // TODO: this is in prime cash
+            transform: (r) => r[1],
+            method: 'calculatefCashCrossCurrencyLiquidation',
+            args: [
+              account,
+              this.localCurrency.id,
+              this.collateralCurrencyId,
+              this.maturities,
+              this.maturities.map(() => 0),
+            ],
+            key: `${key}:pCashLoanAmount`,
+          },
+          {
+            stage: 1,
+            target: notional,
+            method: 'convertCashBalanceToExternal',
+            args: (r) => [
+              this.localCurrency.id,
+              r[`${key}:pCashLoanAmount`] || 0,
+              true,
+            ],
+            key: `${key}:loanAmount`,
+          },
+        ];
       }
     }
 

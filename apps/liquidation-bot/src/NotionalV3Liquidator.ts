@@ -182,7 +182,7 @@ export default class NotionalV3Liquidator {
     ra: RiskyAccount
   ): Promise<FlashLiquidation[]> {
     const liquidations = this.liquidationHelper.getPossibleLiquidations(ra);
-    const calls = liquidations.map((liq) =>
+    const calls = liquidations.flatMap((liq) =>
       liq.getFlashLoanAmountCall(this.notionalContract, ra.id)
     );
 
@@ -191,26 +191,20 @@ export default class NotionalV3Liquidator {
     return await this.profitCalculator.sortByProfitability(
       liquidations
         .map((liq) => {
-          const result =
-            results[
-              `${ra.id}:${liq.getLiquidationType()}:${
-                liq.getLocalCurrency().id
-              }:${liq.getCollateralCurrencyId()}:loanAmount`
-            ];
+          const result = results[
+            `${ra.id}:${liq.getLiquidationType()}:${
+              liq.getLocalCurrency().id
+            }:${liq.getCollateralCurrencyId()}:loanAmount`
+          ] as BigNumber;
 
           if (!result) {
             return null;
           }
 
-          const flashLoanAmount = this.toExternal(
-            result,
-            liq.getLocalCurrency().underlyingDecimals
-          );
-
           return {
             accountId: ra.id,
             liquidation: liq,
-            flashLoanAmount: flashLoanAmount
+            flashLoanAmount: result
               .mul(this.settings.flashLoanBuffer)
               .div(1000),
           };
