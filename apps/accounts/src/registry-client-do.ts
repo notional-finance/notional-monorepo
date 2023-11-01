@@ -539,6 +539,7 @@ export class RegistryClientDO extends BaseDO<Env> {
       'monitoring_pCash_balances',
       'monitoring_tvl',
       'monitoring_vault_share_value',
+      'monitoring_vault_reinvestments',
     ];
 
     const networkTag = `network:${network}`;
