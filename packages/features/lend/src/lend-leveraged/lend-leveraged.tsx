@@ -6,6 +6,7 @@ import {
   DataTable,
 } from '@notional-finance/mui';
 import { trackEvent } from '@notional-finance/helpers';
+import { TRACKING_EVENTS } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
 import { useLocation } from 'react-router-dom';
 import {
@@ -50,9 +51,9 @@ export const LendLeveraged = () => {
               {selectedDepositToken && (
                 <Faq
                   onClick={() =>
-                    trackEvent('ToolTip', {
+                    trackEvent(TRACKING_EVENTS.TOOL_TIP, {
                       path: pathname,
-                      type: 'HowItWorks',
+                      type: TRACKING_EVENTS.HOW_IT_WORKS,
                       title: undefined,
                     })
                   }
@@ -113,9 +114,9 @@ export const LendLeveraged = () => {
                 ) => (
                   <Faq
                     onClick={() =>
-                      trackEvent('ToolTip', {
+                      trackEvent(TRACKING_EVENTS.TOOL_TIP, {
                         path: pathname,
-                        type: 'FAQ',
+                        type: TRACKING_EVENTS.FAQ,
                         title: questionString,
                       })
                     }

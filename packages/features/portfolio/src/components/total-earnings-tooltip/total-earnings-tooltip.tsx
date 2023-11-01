@@ -1,6 +1,7 @@
 import { H5, InfoTooltip } from '@notional-finance/mui';
 import { NotionalTheme } from '@notional-finance/styles';
 import { trackEvent } from '@notional-finance/helpers';
+import { TRACKING_EVENTS } from '@notional-finance/util';
 import { useLocation } from 'react-router-dom';
 import { Box, styled, useTheme } from '@mui/material';
 
@@ -46,9 +47,9 @@ export const TotalEarningsTooltip = ({
   return (
     <InfoTooltip
       onMouseEnter={() =>
-        trackEvent('ToolTip', {
+        trackEvent(TRACKING_EVENTS.TOOL_TIP, {
           path: pathname,
-          type: 'HoverTooltip',
+          type: TRACKING_EVENTS.HOVER_TOOL_TIP,
           title: 'total earnings tooltip',
         })
       }

@@ -23,6 +23,7 @@ import { PortfolioCompare } from './components/portfolio-compare';
 import { TradeState } from '@notional-finance/notionable';
 import { TokenDefinition } from '@notional-finance/core-entities';
 import { trackEvent, RouteState } from '@notional-finance/helpers';
+import { TRACKING_EVENTS } from '@notional-finance/util';
 import { useLocation } from 'react-router';
 
 export interface ConfirmationProps {
@@ -56,7 +57,7 @@ export const Confirmation2 = ({
   }, [updateState]);
 
   useEffect(() => {
-    trackEvent('Confirmation', {
+    trackEvent(TRACKING_EVENTS.CONFIRMATION, {
       selectedNetwork,
       tradeType,
       path: location.pathname,

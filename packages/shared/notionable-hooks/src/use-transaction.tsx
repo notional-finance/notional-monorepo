@@ -1,6 +1,6 @@
 import { TransactionReceipt } from '@ethersproject/providers';
 import { trackEvent } from '@notional-finance/helpers';
-import { filterEmpty, logError } from '@notional-finance/util';
+import { filterEmpty, logError, TRACKING_EVENTS } from '@notional-finance/util';
 import { PopulatedTransaction } from 'ethers';
 import { useObservable, useSubscription } from 'observable-hooks';
 import { useCallback, useEffect, useState } from 'react';
@@ -41,7 +41,7 @@ function useSubmitTransaction() {
       if (!signer) throw Error('Signer undefined');
       const tx = await signer.sendTransaction(populatedTransaction);
       const { hash } = tx;
-      trackEvent('SubmitTxn', {
+      trackEvent(TRACKING_EVENTS.SUBMIT_TXN, {
         url: pathname,
         txnHash: hash,
         transactionLabel,
@@ -175,7 +175,7 @@ export function useTransactionStatus() {
           .catch((e) => {
             logError(e, 'use-transaction', 'onSubmit');
             // If we see an error here it is most likely due to user rejection
-            trackEvent('RejectTxn', {
+            trackEvent(TRACKING_EVENTS.REJECT_TXN, {
               url: pathname,
               transactionLabel,
               selectedNetwork: network,
