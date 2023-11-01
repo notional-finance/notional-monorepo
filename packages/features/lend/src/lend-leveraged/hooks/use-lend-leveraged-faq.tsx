@@ -37,7 +37,7 @@ export const useLendLeveragedFaq = (tokenSymbol?: string) => {
   ];
   const faqs: FaqProps[] = [
     {
-      questionString: 'What is fTokenSymbol?',
+      questionString: 'What is fCash?',
       question: (
         <FormattedMessage
           defaultMessage={'What is f{tokenSymbol}?'}
