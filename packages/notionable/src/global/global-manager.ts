@@ -3,6 +3,7 @@ import {
   getProviderFromNetwork,
   Network,
   RATE_PRECISION,
+  TRACKING_EVENTS
 } from '@notional-finance/util';
 import {
   Observable,
@@ -148,7 +149,7 @@ export const loadGlobalManager = (
     distinctUntilChanged((p, c) => p.hasContestNFT === c.hasContestNFT),
     tap(({ hasContestNFT, selectedAccount, contestTokenId }) => {
       if (selectedAccount && hasContestNFT === BETA_ACCESS.CONFIRMED) {
-        trackEvent('NFTUnlock', {
+        trackEvent(TRACKING_EVENTS.NFT_UNLOCK, {
           selectedAccount,
           contestTokenId: contestTokenId || 'unknown',
         });

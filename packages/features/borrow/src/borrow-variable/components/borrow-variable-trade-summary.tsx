@@ -3,6 +3,7 @@ import { Box, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { useBorrowVariableFaq } from '../hooks';
 import { trackEvent } from '@notional-finance/helpers';
+import { TRACKING_EVENTS } from '@notional-finance/util';
 import { useLocation } from 'react-router-dom';
 import { useInterestRateUtilizationChart } from '@notional-finance/trade';
 import {
@@ -119,9 +120,9 @@ export const BorrowVariableTradeSummary = () => {
         ({ question, questionString, answer, componentAnswer }, index) => (
           <Faq
             onClick={() =>
-              trackEvent('ToolTip', {
+              trackEvent(TRACKING_EVENTS.TOOL_TIP, {
                 path: pathname,
-                type: 'FAQ',
+                type: TRACKING_EVENTS.FAQ,
                 title: questionString,
               })
             }

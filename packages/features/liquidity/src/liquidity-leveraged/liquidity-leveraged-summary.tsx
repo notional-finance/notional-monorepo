@@ -6,6 +6,7 @@ import {
   TradeActionSummary,
 } from '@notional-finance/trade';
 import { trackEvent } from '@notional-finance/helpers';
+import { TRACKING_EVENTS } from '@notional-finance/util';
 import { useLocation } from 'react-router-dom';
 import {
   useLeveragedLiquidityFaq,
@@ -112,9 +113,9 @@ export const LiquidityLeveragedSummary = () => {
           ({ answer, question, questionString, componentAnswer }, index) => (
             <Faq
               onClick={() =>
-                trackEvent('ToolTip', {
+                trackEvent(TRACKING_EVENTS.TOOL_TIP, {
                   path: pathname,
-                  type: 'FAQ',
+                  type: TRACKING_EVENTS.FAQ,
                   title: questionString,
                 })
               }

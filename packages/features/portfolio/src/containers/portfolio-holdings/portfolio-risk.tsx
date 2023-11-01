@@ -22,6 +22,7 @@ import {
   SliderRisk,
   ArrowChangeCell,
 } from '@notional-finance/mui';
+import { TRACKING_EVENTS } from '@notional-finance/util';
 import {
   useAccountReady,
   useCurrentLiquidationPrices,
@@ -164,9 +165,9 @@ export const PortfolioRisk = () => {
           <FormattedMessage defaultMessage={'Portfolio Health Factor'} />
           <InfoTooltip
             onMouseEnter={() =>
-              trackEvent('ToolTip', {
+              trackEvent(TRACKING_EVENTS.TOOL_TIP, {
                 path: pathname,
-                type: 'HoverTooltip',
+                type: TRACKING_EVENTS.HOVER_TOOL_TIP,
                 title: 'Portfolio Health Factor',
               })
             }
