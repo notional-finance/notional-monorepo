@@ -3,6 +3,7 @@ import { Box, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { useTotalsData, useBorrowFixedFaq } from '../hooks';
 import { trackEvent } from '@notional-finance/helpers';
+import { TRACKING_EVENTS } from '@notional-finance/util';
 import { useLocation } from 'react-router-dom';
 import { HowItWorksFaq } from './how-it-works-faq';
 import {
@@ -52,9 +53,9 @@ export const BorrowFixedTradeSummary = () => {
       {selectedDepositToken && (
         <Faq
           onClick={() =>
-            trackEvent('ToolTip', {
+            trackEvent(TRACKING_EVENTS.TOOL_TIP, {
               path: pathname,
-              type: 'HowItWorks',
+              type: TRACKING_EVENTS.HOW_IT_WORKS,
               title: undefined,
             })
           }
@@ -90,9 +91,9 @@ export const BorrowFixedTradeSummary = () => {
         ({ question, questionString, answer, componentAnswer }, index) => (
           <Faq
             onClick={() =>
-              trackEvent('ToolTip', {
+              trackEvent(TRACKING_EVENTS.TOOL_TIP, {
                 path: pathname,
-                type: 'FAQ',
+                type: TRACKING_EVENTS.FAQ,
                 title: questionString,
               })
             }

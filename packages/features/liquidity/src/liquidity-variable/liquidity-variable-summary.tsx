@@ -11,6 +11,7 @@ import {
 } from '@notional-finance/mui';
 import { useLocation } from 'react-router-dom';
 import { trackEvent } from '@notional-finance/helpers';
+import { TRACKING_EVENTS } from '@notional-finance/util';
 import { TradeActionSummary } from '@notional-finance/trade';
 import { useLiquidityFaq, useTotalsData, useReturnDriversTable } from './hooks';
 import { FormattedMessage } from 'react-intl';
@@ -72,9 +73,9 @@ export const LiquidityVariableSummary = () => {
       <TotalRow totalsData={totalsData} />
       <Faq
         onClick={() =>
-          trackEvent('ToolTip', {
+          trackEvent(TRACKING_EVENTS.TOOL_TIP, {
             path: pathname,
-            type: 'HowItWorks',
+            type: TRACKING_EVENTS.HOW_IT_WORKS,
             title: undefined,
           })
         }
@@ -138,9 +139,9 @@ export const LiquidityVariableSummary = () => {
           ({ answer, question, questionString, componentAnswer }, index) => (
             <Faq
               onClick={() =>
-                trackEvent('ToolTip', {
+                trackEvent(TRACKING_EVENTS.TOOL_TIP, {
                   path: pathname,
-                  type: 'FAQ',
+                  type: TRACKING_EVENTS.FAQ,
                   title: questionString,
                 })
               }
