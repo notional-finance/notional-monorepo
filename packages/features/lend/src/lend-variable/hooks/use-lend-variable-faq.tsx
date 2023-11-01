@@ -9,6 +9,7 @@ import {
 import { RiskFaq } from '../components';
 
 interface FaqProps {
+  questionString: string;
   question: ReactNode;
   answer?: ReactNode;
   componentAnswer?: ReactNode;
@@ -54,6 +55,7 @@ export const useLendVariableFaq = (tokenSymbol?: string) => {
   ];
   const faqs: FaqProps[] = [
     {
+      questionString: 'What is Prime tokenSymbol and Prime tokenSymbol Debt?',
       question: (
         <FormattedMessage
           defaultMessage={
@@ -75,8 +77,8 @@ export const useLendVariableFaq = (tokenSymbol?: string) => {
         />
       ),
     },
-
     {
+      questionString: 'Where does the yield come from?',
       question: (
         <FormattedMessage
           defaultMessage={'Where does the yield come from?'}
@@ -90,6 +92,7 @@ export const useLendVariableFaq = (tokenSymbol?: string) => {
       ),
     },
     {
+      questionString: 'What are the risks?',
       question: (
         <FormattedMessage
           defaultMessage={'What are the risks?'}

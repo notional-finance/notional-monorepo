@@ -52,6 +52,7 @@ export const useLeveragedLiquidityFaq = (tokenSymbol: string) => {
   ];
   const faqs = [
     {
+      questionString: 'What is nTokenSymbol?',
       question: (
         <FormattedMessage
           defaultMessage={'What is n{tokenSymbol}?'}
@@ -92,6 +93,7 @@ export const useLeveragedLiquidityFaq = (tokenSymbol: string) => {
       ),
     },
     {
+      questionString: 'What is leveraged liquidity?',
       question: (
         <FormattedMessage
           defaultMessage={'What is leveraged liquidity?'}
@@ -118,6 +120,7 @@ export const useLeveragedLiquidityFaq = (tokenSymbol: string) => {
       ),
     },
     {
+      questionString: 'Can I exit anytime?',
       question: (
         <FormattedMessage
           defaultMessage={'Can I exit anytime?'}
@@ -136,6 +139,7 @@ export const useLeveragedLiquidityFaq = (tokenSymbol: string) => {
       ),
     },
     {
+      questionString: 'Is there a cost to exit?',
       question: (
         <FormattedMessage
           defaultMessage={'Is there a cost to exit?'}
@@ -170,6 +174,7 @@ export const useLeveragedLiquidityFaq = (tokenSymbol: string) => {
       ),
     },
     {
+      questionString: 'What are the risks?',
       question: (
         <FormattedMessage
           defaultMessage={'What are the risks?'}

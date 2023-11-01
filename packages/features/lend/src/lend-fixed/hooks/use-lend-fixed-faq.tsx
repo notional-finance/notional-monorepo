@@ -8,6 +8,7 @@ import {
 } from '@notional-finance/util';
 
 interface FaqProps {
+  questionString: string;
   question: ReactNode;
   answer?: ReactNode;
   componentAnswer?: ReactNode;
@@ -32,6 +33,7 @@ export const useLendFixedFaq = () => {
   ];
   const faqs: FaqProps[] = [
     {
+      questionString: 'Where does the yield come from?',
       question: (
         <FormattedMessage
           defaultMessage={'Where does the yield come from?'}
@@ -47,6 +49,7 @@ export const useLendFixedFaq = () => {
     },
 
     {
+      questionString: 'What happens at maturity?',
       question: (
         <FormattedMessage
           defaultMessage={'What happens at maturity?'}
@@ -60,6 +63,7 @@ export const useLendFixedFaq = () => {
       ),
     },
     {
+      questionString: 'Can I exit early?',
       question: (
         <FormattedMessage
           defaultMessage={'Can I exit early?'}
@@ -69,6 +73,7 @@ export const useLendFixedFaq = () => {
       answer: <ExitEarlyFaq />,
     },
     {
+      questionString: 'What are the risks?',
       question: (
         <FormattedMessage
           defaultMessage={'What are the risks?'}

@@ -10,6 +10,7 @@ import {
 } from '@notional-finance/util';
 
 interface FaqProps {
+  questionString: string;
   question: ReactNode;
   answer?: ReactNode;
   componentAnswer?: ReactNode;
@@ -57,6 +58,7 @@ export const useBorrowVariableFaq = (tokenSymbol?: string) => {
 
   const faqs: FaqProps[] = [
     {
+      questionString: 'What is the Max LTV?',
       question: (
         <FormattedMessage
           defaultMessage={'What is the Max LTV?'}
@@ -83,6 +85,7 @@ export const useBorrowVariableFaq = (tokenSymbol?: string) => {
       ),
     },
     {
+      questionString: 'When will I get liquidated?',
       question: (
         <FormattedMessage
           defaultMessage={'When will I get liquidated?'}

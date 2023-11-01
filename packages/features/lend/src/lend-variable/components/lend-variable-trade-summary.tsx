@@ -1,6 +1,7 @@
 import { useContext } from 'react';
 import { Box, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
+import { trackEvent } from '@notional-finance/helpers';
 import {
   Faq,
   FaqHeader,
@@ -8,6 +9,7 @@ import {
   AreaChart,
   TotalBox,
 } from '@notional-finance/mui';
+import { useLocation } from 'react-router-dom';
 import { useLendVariableFaq } from '../hooks';
 import { LendVariableContext } from '../../lend-variable/lend-variable';
 import {
@@ -19,6 +21,7 @@ import { useTokenHistory } from '@notional-finance/notionable-hooks';
 
 export const LendVariableTradeSummary = () => {
   const theme = useTheme();
+  const { pathname } = useLocation();
   const context = useContext(LendVariableContext);
   const { state } = context;
   const { collateral, deposit, selectedDepositToken } = state;
@@ -113,14 +116,23 @@ export const LendVariableTradeSummary = () => {
         title={<FormattedMessage defaultMessage={'Variable Lend FAQ'} />}
         links={faqHeaderLinks}
       />
-      {faqs.map(({ question, answer, componentAnswer }, index) => (
-        <Faq
-          key={index}
-          question={question}
-          answer={answer}
-          componentAnswer={componentAnswer}
-        />
-      ))}
+      {faqs.map(
+        ({ question, questionString, answer, componentAnswer }, index) => (
+          <Faq
+            onClick={() =>
+              trackEvent('ToolTip', {
+                path: pathname,
+                type: 'FAQ',
+                title: questionString,
+              })
+            }
+            key={index}
+            question={question}
+            answer={answer}
+            componentAnswer={componentAnswer}
+          />
+        )
+      )}
     </TradeActionSummary>
   );
 };

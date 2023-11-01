@@ -1,5 +1,7 @@
 import { H5, InfoTooltip } from '@notional-finance/mui';
 import { NotionalTheme } from '@notional-finance/styles';
+import { trackEvent } from '@notional-finance/helpers';
+import { useLocation } from 'react-router-dom';
 import { Box, styled, useTheme } from '@mui/material';
 
 export interface TotalEarningsTooltipProps {
@@ -20,6 +22,7 @@ export const TotalEarningsTooltip = ({
   toolTipData: { underlyingBaseCurrency, underlying, noteBaseCurrency, note },
 }: TotalEarningsTooltipProps) => {
   const theme = useTheme();
+  const { pathname } = useLocation();
 
   const HoverComponent = () => {
     return (
@@ -42,6 +45,13 @@ export const TotalEarningsTooltip = ({
 
   return (
     <InfoTooltip
+      onMouseEnter={() =>
+        trackEvent('ToolTip', {
+          path: pathname,
+          type: 'HoverTooltip',
+          title: 'total earnings tooltip',
+        })
+      }
       sx={{ marginLeft: theme.spacing(1) }}
       iconColor={theme.palette.typography.accent}
       ToolTipComp={HoverComponent}
