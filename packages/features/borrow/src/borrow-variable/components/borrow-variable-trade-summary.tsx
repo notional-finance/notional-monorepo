@@ -2,6 +2,8 @@ import { useContext } from 'react';
 import { Box, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { useBorrowVariableFaq } from '../hooks';
+import { trackEvent } from '@notional-finance/helpers';
+import { useLocation } from 'react-router-dom';
 import { useInterestRateUtilizationChart } from '@notional-finance/trade';
 import {
   Faq,
@@ -16,6 +18,7 @@ import { useTokenHistory } from '@notional-finance/notionable-hooks';
 
 export const BorrowVariableTradeSummary = () => {
   const theme = useTheme();
+  const { pathname } = useLocation();
   const context = useContext(BorrowVariableContext);
   const { state } = context;
   const { deposit, debt, selectedDepositToken } = state;
@@ -112,17 +115,26 @@ export const BorrowVariableTradeSummary = () => {
         links={faqHeaderLinks}
       />
 
-      {faqs.map(({ question, answer, componentAnswer }, index) => (
-        <Faq
-          key={index}
-          question={question}
-          answer={answer}
-          componentAnswer={componentAnswer}
-          sx={{
-            marginBottom: theme.spacing(2),
-          }}
-        />
-      ))}
+      {faqs.map(
+        ({ question, questionString, answer, componentAnswer }, index) => (
+          <Faq
+            onClick={() =>
+              trackEvent('ToolTip', {
+                path: pathname,
+                type: 'FAQ',
+                title: questionString,
+              })
+            }
+            key={index}
+            question={question}
+            answer={answer}
+            componentAnswer={componentAnswer}
+            sx={{
+              marginBottom: theme.spacing(2),
+            }}
+          />
+        )
+      )}
     </TradeActionSummary>
   );
 };

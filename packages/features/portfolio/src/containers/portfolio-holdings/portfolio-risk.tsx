@@ -6,8 +6,9 @@ import {
   styled,
   useTheme,
 } from '@mui/material';
-import { formatNumberAsPercent } from '@notional-finance/helpers';
+import { formatNumberAsPercent, trackEvent } from '@notional-finance/helpers';
 import { ArrowIcon } from '@notional-finance/icons';
+import { useLocation } from 'react-router-dom';
 import {
   DataTable,
   DataTableColumn,
@@ -133,6 +134,7 @@ const LiquidationPriceColumns: DataTableColumn[] = [
 
 export const PortfolioRisk = () => {
   const theme = useTheme();
+  const { pathname } = useLocation();
   const [isExpanded, setExpanded] = useState(false);
   const isAccountReady = useAccountReady();
   const profile = usePortfolioRiskProfile();
@@ -161,6 +163,13 @@ export const PortfolioRisk = () => {
         <H4 gutter={'default'} sx={{ display: 'flex', alignItems: 'center' }}>
           <FormattedMessage defaultMessage={'Portfolio Health Factor'} />
           <InfoTooltip
+            onMouseEnter={() =>
+              trackEvent('ToolTip', {
+                path: pathname,
+                type: 'HoverTooltip',
+                title: 'Portfolio Health Factor',
+              })
+            }
             iconColor={theme.palette.typography.accent}
             iconSize={theme.spacing(2)}
             sx={{ marginLeft: theme.spacing(1) }}

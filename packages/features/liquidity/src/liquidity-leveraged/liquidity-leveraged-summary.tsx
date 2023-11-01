@@ -5,6 +5,8 @@ import {
   PerformanceChart,
   TradeActionSummary,
 } from '@notional-finance/trade';
+import { trackEvent } from '@notional-finance/helpers';
+import { useLocation } from 'react-router-dom';
 import {
   useLeveragedLiquidityFaq,
   useNTokenPriceExposure,
@@ -22,6 +24,7 @@ import { useTotalsData } from '../liquidity-variable/hooks/use-totals-data';
 export const LiquidityLeveragedSummary = () => {
   const theme = useTheme();
   const state = useSummaryState();
+  const { pathname } = useLocation();
   const {
     selectedDepositToken,
     deposit,
@@ -105,14 +108,23 @@ export const LiquidityLeveragedSummary = () => {
           }
           links={faqHeaderLinks}
         />
-        {faqs.map(({ answer, question, componentAnswer }, index) => (
-          <Faq
-            key={index}
-            question={question}
-            answer={answer}
-            componentAnswer={componentAnswer}
-          ></Faq>
-        ))}
+        {faqs.map(
+          ({ answer, question, questionString, componentAnswer }, index) => (
+            <Faq
+              onClick={() =>
+                trackEvent('ToolTip', {
+                  path: pathname,
+                  type: 'FAQ',
+                  title: questionString,
+                })
+              }
+              key={index}
+              question={question}
+              answer={answer}
+              componentAnswer={componentAnswer}
+            ></Faq>
+          )
+        )}
       </Box>
     </TradeActionSummary>
   );

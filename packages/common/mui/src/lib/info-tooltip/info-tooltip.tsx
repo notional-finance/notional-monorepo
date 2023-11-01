@@ -19,6 +19,7 @@ export interface InfoTooltipProps {
   sx?: SxProps;
   iconColor?: string;
   iconSize?: string;
+  onMouseEnter?: () => void;
 }
 
 export function InfoTooltip({
@@ -27,12 +28,14 @@ export function InfoTooltip({
   sx,
   iconColor,
   iconSize,
+  onMouseEnter,
 }: InfoTooltipProps) {
   const theme = useTheme();
   const iconSizes = iconSize ? iconSize : theme.typography.caption.fontSize;
 
   return (
     <StyledToolTip
+      onMouseEnter={onMouseEnter}
       arrow
       title={ToolTipComp ? <ToolTipComp /> : <Caption msg={toolTipText} />}
     >

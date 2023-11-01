@@ -9,12 +9,10 @@ import {
   MultiDisplayChart,
   TotalRow,
 } from '@notional-finance/mui';
+import { useLocation } from 'react-router-dom';
+import { trackEvent } from '@notional-finance/helpers';
 import { TradeActionSummary } from '@notional-finance/trade';
-import {
-  useLiquidityFaq,
-  useTotalsData,
-  useReturnDriversTable,
-} from './hooks';
+import { useLiquidityFaq, useTotalsData, useReturnDriversTable } from './hooks';
 import { FormattedMessage } from 'react-intl';
 import { useContext } from 'react';
 import { LiquidityContext } from '../liquidity';
@@ -23,6 +21,7 @@ import { useTokenHistory } from '@notional-finance/notionable-hooks';
 
 export const LiquidityVariableSummary = () => {
   const theme = useTheme();
+  const { pathname } = useLocation();
   const { state } = useContext(LiquidityContext);
   const { selectedDepositToken, collateral, collateralBalance } = state;
   const tokenSymbol = selectedDepositToken || '';
@@ -72,6 +71,13 @@ export const LiquidityVariableSummary = () => {
       />
       <TotalRow totalsData={totalsData} />
       <Faq
+        onClick={() =>
+          trackEvent('ToolTip', {
+            path: pathname,
+            type: 'HowItWorks',
+            title: undefined,
+          })
+        }
         sx={{ boxShadow: 'none' }}
         question={<FormattedMessage defaultMessage={'How it Works'} />}
         componentAnswer={<HowItWorksFaq tokenSymbol={tokenSymbol} />}
@@ -128,14 +134,23 @@ export const LiquidityVariableSummary = () => {
           title={<FormattedMessage defaultMessage={'Provide Liquidity FAQ'} />}
           links={faqHeaderLinks}
         />
-        {faqs.map(({ answer, question, componentAnswer }, index) => (
-          <Faq
-            key={index}
-            question={question}
-            answer={answer}
-            componentAnswer={componentAnswer}
-          ></Faq>
-        ))}
+        {faqs.map(
+          ({ answer, question, questionString, componentAnswer }, index) => (
+            <Faq
+              onClick={() =>
+                trackEvent('ToolTip', {
+                  path: pathname,
+                  type: 'FAQ',
+                  title: questionString,
+                })
+              }
+              key={index}
+              question={question}
+              answer={answer}
+              componentAnswer={componentAnswer}
+            ></Faq>
+          )
+        )}
       </Box>
     </TradeActionSummary>
   );

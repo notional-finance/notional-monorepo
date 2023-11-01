@@ -11,6 +11,7 @@ import {
 } from '@notional-finance/util';
 
 interface FaqProps {
+  questionString: string;
   question: ReactNode;
   answer?: ReactNode;
   componentAnswer?: ReactNode;
@@ -39,6 +40,7 @@ export const useBorrowFixedFaq = () => {
   ];
   const faqs: FaqProps[] = [
     {
+      questionString: 'What happens at maturity?',
       question: (
         <FormattedMessage
           defaultMessage={'What happens at maturity?'}
@@ -52,8 +54,8 @@ export const useBorrowFixedFaq = () => {
         />
       ),
     },
-
     {
+      questionString: 'Can I exit early?',
       question: (
         <FormattedMessage
           defaultMessage={'Can I exit early?'}
@@ -63,6 +65,7 @@ export const useBorrowFixedFaq = () => {
       answer: <ExitEarlyFaq selectedDepositToken={selectedDepositToken} />,
     },
     {
+      questionString: 'What is the Max LTV?',
       question: (
         <FormattedMessage
           defaultMessage={'What is the Max LTV?'}
@@ -91,6 +94,7 @@ export const useBorrowFixedFaq = () => {
       ),
     },
     {
+      questionString: 'When will I get liquidated?',
       question: (
         <FormattedMessage
           defaultMessage={'When will I get liquidated?'}
