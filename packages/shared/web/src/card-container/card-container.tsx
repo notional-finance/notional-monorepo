@@ -90,7 +90,9 @@ export function CardContainer({
           </ContentContainer>
         </StyledTopContent>
       </Background>
-      <StyledCardList>{children}</StyledCardList>
+      <Box sx={{ width: '100%', textAlign: 'center' }}>
+        <StyledCardList>{children}</StyledCardList>
+      </Box>
       <CardMobileNav />
     </MainContainer>
   );
@@ -169,6 +171,7 @@ const StyledCardList = styled('ul')(
   margin-top: -${theme.spacing(24.5)};
   margin-bottom: ${theme.spacing(22)};
   width: 100%;
+  max-width: ${theme.spacing(187.5)};
   grid-gap: ${theme.spacing(5)};
 `
 );
