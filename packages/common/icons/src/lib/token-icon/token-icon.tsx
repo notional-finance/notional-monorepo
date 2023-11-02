@@ -1,6 +1,7 @@
 import unknown from '../../assets/icons/currencies/currency-unknown.svg';
 import wbtc from '../../assets/icons/currencies/currency-wbtc.svg';
 import arb from '../../assets/icons/currencies/arbitrum.svg';
+import arb_alt from '../../assets/icons/currencies/arb-alt.svg';
 import eth from '../../assets/icons/currencies/currency-eth.svg';
 import peth from '../../assets/icons/currencies/pETH.svg';
 import reth from '../../assets/icons/currencies/rETH.svg';
@@ -54,12 +55,15 @@ import pusdt from '../../assets/icons/currencies/pUSDT.svg';
 import pcbETH from '../../assets/icons/currencies/pcbETH.svg';
 import pGMX from '../../assets/icons/currencies/pGMX.svg';
 import gmx from '../../assets/icons/currencies/GMX.svg';
+import gmx_alt from '../../assets/icons/currencies/gmx-alt.svg';
 import pRDNT from '../../assets/icons/currencies/pRDNT.svg';
 import rndt from '../../assets/icons/currencies/RDNT.svg';
+import rndt_alt from '../../assets/icons/currencies/rdnt-alt.svg';
 import pARB from '../../assets/icons/currencies/pARB.svg';
 import ncbETH from '../../assets/icons/currencies/ncbETH.svg';
 import fcbETH from '../../assets/icons/currencies/fcbETH.svg';
 import cbETH from '../../assets/icons/currencies/cbETH.svg';
+import cbeth_alt from '../../assets/icons/currencies/cbeth-alt.svg';
 
 export interface TokenImg {
   name: string;
@@ -264,6 +268,7 @@ export const TokenImageList: TokenImageMap = {
   arb: {
     name: 'arb',
     img: arb,
+    accentBorderImg: arb_alt,
     alt: 'arb',
   },
   trading_fees: {
@@ -300,6 +305,7 @@ export const TokenImageList: TokenImageMap = {
   gmx: {
     name: 'gmx',
     img: gmx,
+    accentBorderImg: gmx_alt,
     alt: 'gmx',
   },
   pgmx: {
@@ -310,6 +316,7 @@ export const TokenImageList: TokenImageMap = {
   rndt: {
     name: 'rndt',
     img: rndt,
+    accentBorderImg: rndt_alt,
     alt: 'rndt',
   },
   prdnt: {
@@ -335,6 +342,7 @@ export const TokenImageList: TokenImageMap = {
   cbeth: {
     name: 'cbETH',
     img: cbETH,
+    accentBorderImg: cbeth_alt,
     alt: 'cbETH',
   },
   unknown: {
