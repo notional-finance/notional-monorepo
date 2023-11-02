@@ -3,7 +3,7 @@ import {
   PieChartIcon,
   BarChartIcon,
   BarChartLateralIcon,
-  BarCharLightningIcon,
+  // BarCharLightningIcon,
   VaultIcon,
   CoinsIcon,
   CoinsCircleIcon,
@@ -22,7 +22,7 @@ export const useEmptyPortfolioOverview = () => {
       liquidity,
       fCashBorrow,
       variableBorrow,
-      leveragedLend,
+      // leveragedLend,
       leveragedLiquidity,
     },
   } = useAllMarkets();
@@ -42,20 +42,20 @@ export const useEmptyPortfolioOverview = () => {
         />
       ),
     },
-    {
-      title: <FormattedMessage defaultMessage={'Leveraged Lend'} />,
-      link: '/lend-leveraged',
-      apy: `${formatNumberAsPercent(leveragedLend?.totalAPY || 0)}`,
-      symbol: leveragedVaults?.underlying.symbol,
-      icon: (
-        <BarCharLightningIcon
-          sx={{
-            fontSize: theme.spacing(3),
-            fill: theme.palette.common.black,
-          }}
-        />
-      ),
-    },
+    // {
+    //   title: <FormattedMessage defaultMessage={'Leveraged Lend'} />,
+    //   link: '/lend-leveraged',
+    //   apy: `${formatNumberAsPercent(leveragedLend?.totalAPY || 0)}`,
+    //   symbol: leveragedVaults?.underlying.symbol,
+    //   icon: (
+    //     <BarCharLightningIcon
+    //       sx={{
+    //         fontSize: theme.spacing(3),
+    //         fill: theme.palette.common.black,
+    //       }}
+    //     />
+    //   ),
+    // },
     {
       title: <FormattedMessage defaultMessage={'Provide Liquidity'} />,
       link: '/liquidity-variable',

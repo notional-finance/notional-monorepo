@@ -4,7 +4,7 @@ import {
   PieChartIcon,
   BarChartIcon,
   BarChartLateralIcon,
-  BarCharLightningIcon,
+  // BarCharLightningIcon,
   // StakeIcon,
   VaultIcon,
 } from '@notional-finance/icons';
@@ -20,7 +20,7 @@ export const useInvestEarnLinks = () => {
       liquidity,
       leveragedVaults,
       variableLend,
-      leveragedLend,
+      // leveragedLend,
       leveragedLiquidity,
     },
   } = useAllMarkets();
@@ -133,27 +133,27 @@ export const useInvestEarnLinks = () => {
       ),
       external: false,
     },
-    {
-      title: <FormattedMessage defaultMessage={'Leveraged Lending'} />,
-      to: '/lend-leveraged',
-      icon: (
-        <BarCharLightningIcon
-          sx={{
-            fontSize: theme.spacing(3),
-            fill: theme.palette.common.black,
-          }}
-        />
-      ),
-      description: (
-        <FormattedMessage
-          defaultMessage={'Lend with leverage and earn up to {rate} APY'}
-          values={{
-            rate: formatNumberAsPercent(leveragedLend?.totalAPY || 0),
-          }}
-        />
-      ),
-      external: false,
-    },
+    // {
+    //   title: <FormattedMessage defaultMessage={'Leveraged Lending'} />,
+    //   to: '/lend-leveraged',
+    //   icon: (
+    //     <BarCharLightningIcon
+    //       sx={{
+    //         fontSize: theme.spacing(3),
+    //         fill: theme.palette.common.black,
+    //       }}
+    //     />
+    //   ),
+    //   description: (
+    //     <FormattedMessage
+    //       defaultMessage={'Lend with leverage and earn up to {rate} APY'}
+    //       values={{
+    //         rate: formatNumberAsPercent(leveragedLend?.totalAPY || 0),
+    //       }}
+    //     />
+    //   ),
+    //   external: false,
+    // },
     {
       title: <FormattedMessage defaultMessage={'Leveraged Liquidity'} />,
       to: '/liquidity-leveraged',

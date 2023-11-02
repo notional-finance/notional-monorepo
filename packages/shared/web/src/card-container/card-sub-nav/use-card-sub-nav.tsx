@@ -42,10 +42,10 @@ export const useCardSubNav = () => {
       title: <FormattedMessage defaultMessage={'Leveraged Vaults'} />,
       to: '/vaults',
     },
-    {
-      title: <FormattedMessage defaultMessage={'Leveraged Lending'} />,
-      to: '/lend-leveraged',
-    },
+    // {
+    //   title: <FormattedMessage defaultMessage={'Leveraged Lending'} />,
+    //   to: '/lend-leveraged',
+    // },
     {
       title: <FormattedMessage defaultMessage={'Leveraged Liquidity'} />,
       to: '/liquidity-leveraged',
