@@ -32,6 +32,12 @@ function onlySameCurrency(t: TokenDefinition, other?: TokenDefinition) {
   return other?.currencyId ? t.currencyId === other.currencyId : true;
 }
 
+function hasNToken(t: TokenDefinition, listedTokens: TokenDefinition[]) {
+  return !!listedTokens.find(
+    (_) => t.currencyId === _.currencyId && _.tokenType === 'nToken'
+  );
+}
+
 function offsettingDebt(t: TokenDefinition, account: AccountDefinition | null) {
   return !!account?.balances.find(
     (b) =>
@@ -148,6 +154,7 @@ export const TradeConfiguration = {
   LendFixed: {
     calculationFn: calculateCollateral,
     requiredArgs: ['collateral', 'depositBalance', 'collateralPool'],
+    depositFilter: (t, _, __, l) => hasNToken(t, l),
     collateralFilter: (t, _, s) =>
       t.tokenType === 'fCash' && onlySameCurrency(t, s.deposit),
     debtFilter: () => false,
@@ -163,6 +170,7 @@ export const TradeConfiguration = {
   MintNToken: {
     calculationFn: calculateCollateral,
     requiredArgs: ['collateral', 'depositBalance', 'collateralPool'],
+    depositFilter: (t, _, __, l) => hasNToken(t, l),
     collateralFilter: (t, _a, s) =>
       t.tokenType === 'nToken' && onlySameCurrency(t, s.deposit),
     debtFilter: () => false,
@@ -195,6 +203,7 @@ export const TradeConfiguration = {
   BorrowFixed: {
     calculationFn: calculateDebt,
     requiredArgs: ['debt', 'depositBalance', 'debtPool'],
+    depositFilter: (t, _, __, l) => hasNToken(t, l),
     debtFilter: (t, _, s) =>
       t.tokenType === 'fCash' && onlySameCurrency(t, s.deposit),
     collateralFilter: () => false,
