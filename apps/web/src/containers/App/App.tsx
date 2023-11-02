@@ -23,11 +23,11 @@ import { useNotionalTheme } from '@notional-finance/styles';
 import { AboutUsView } from '@notional-finance/about-us-feature-shell';
 import {
   LendFixed,
-  LendLeveraged,
+  // LendLeveraged,
   LendVariable,
   LendCardView,
   LendVariableCardView,
-  LendLeveragedCardView,
+  // LendLeveragedCardView,
 } from '@notional-finance/lend-feature-shell';
 import { PortfolioFeatureShell } from '@notional-finance/portfolio-feature-shell';
 import {
@@ -92,11 +92,11 @@ const AllRoutes = () => {
             component={LendFixed}
             routeType="Transaction"
           />
-          <AppLayoutRoute
+          {/* <AppLayoutRoute
             path="/lend-leveraged/:selectedDepositToken"
             component={LendLeveraged}
             routeType="Transaction"
-          />
+          /> */}
           <AppLayoutRoute
             path="/lend-fixed"
             component={LendCardView}
@@ -112,11 +112,11 @@ const AllRoutes = () => {
             component={LendVariableCardView}
             routeType="Card"
           />
-          <AppLayoutRoute
+          {/* <AppLayoutRoute
             path="/lend-leveraged"
             component={LendLeveragedCardView}
             routeType="Card"
-          />
+          /> */}
           <AppLayoutRoute
             path="/liquidity-variable/:selectedDepositToken"
             component={LiquidityVariable}

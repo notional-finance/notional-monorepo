@@ -19,6 +19,7 @@ import {
   TransactionHeadings,
   CombinedTokenTypes,
 } from './components/transaction-headings';
+import { useLocation } from 'react-router-dom';
 import { LiquidationRisk } from './components/liquidation-risk';
 import { TradeSummary } from './components/trade-summary';
 import { EnablePrimeBorrow } from '../enable-prime-borrow/enable-prime-borrow';
@@ -63,6 +64,7 @@ export const TransactionSidebar = ({
   onCancelCallback,
 }: TransactionSidebarProps) => {
   const { state, updateState } = context;
+  const { pathname } = useLocation();
   const { canSubmit, confirm, tradeType, debt, collateral } = state;
   const isBlocked = useLeverageBlock();
   const handleSubmit = useCallback(() => {
@@ -120,6 +122,7 @@ export const TransactionSidebar = ({
       handleLeverUpToggle={handleLeverUpToggle}
       onCancelCallback={onCancelCallback}
       leveredUp={leveredUp || false}
+      showLeverUpToggle={!pathname.includes('lend')}
       showDrawer={isPortfolio ? false : showDrawer === true}
       hideTextOnMobile={isPortfolio ? false : true}
     >

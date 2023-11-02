@@ -22,9 +22,9 @@ export const CardSubNav = () => {
 
   const handleLeverUpToggle = () => {
     const routes = {
-      '/lend-fixed': '/lend-leveraged',
-      '/lend-variable': '/lend-leveraged',
-      '/lend-leveraged': '/lend-fixed',
+      '/lend-fixed': '/liquidity-leveraged',
+      '/lend-variable': '/liquidity-leveraged',
+      // '/lend-leveraged': '/lend-fixed',
       '/liquidity-variable': '/liquidity-leveraged',
       '/liquidity-leveraged': '/liquidity-variable',
       '/vaults': '/lend-fixed',
