@@ -15,7 +15,7 @@ import {
   getChangeType,
   leveragedYield,
 } from '@notional-finance/util';
-import { Registry } from '@notional-finance/core-entities';
+import { Registry, TokenBalance } from '@notional-finance/core-entities';
 
 export const useLiquidityDetails = () => {
   const { state } = useContext(LiquidityContext);
@@ -44,13 +44,14 @@ export const useLiquidityDetails = () => {
       updated.tokenType === 'nToken'
   )?.updated;
 
-  let newLeverageRatio;
-  let newNetWorth;
+  let newLeverageRatio: number | null | undefined;
+  let newNetWorth: TokenBalance | undefined;
   if (newDebt && newAsset) {
     newNetWorth = newAsset.toUnderlying().add(newDebt.toUnderlying());
-    newLeverageRatio =
-      newDebt.toUnderlying().neg().ratioWith(newNetWorth).toNumber() /
-      RATE_PRECISION;
+    newLeverageRatio = newNetWorth.isZero()
+      ? null
+      : newDebt.toUnderlying().neg().ratioWith(newNetWorth).toNumber() /
+        RATE_PRECISION;
   }
 
   const currentNTokenAPY = liquidity.find(

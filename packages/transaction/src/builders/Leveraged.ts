@@ -184,8 +184,26 @@ export function DeleverageNToken({
     ? debtBalance.neg()
     : debtBalance.mulInRatePrecision(RATE_PRECISION + 0.01 * BASIS_POINT).neg();
 
-  const { withdrawEntireCashBalance, withdrawAmountInternalPrecision } =
-    hasExistingCashBalance(depositBalance || debtBalance, accountBalances);
+  let {
+    // eslint-disable-next-line prefer-const
+    cashBalance,
+    withdrawEntireCashBalance,
+    withdrawAmountInternalPrecision,
+  } = hasExistingCashBalance(
+    depositBalance?.neg() || debtBalance,
+    accountBalances
+  );
+
+  if (
+    maxWithdraw &&
+    cashBalance?.isNegative() &&
+    collateralBalance.tokenType === 'PrimeCash'
+  ) {
+    // In this case, we can safely execute a max withdraw because we are repaying a prime debt
+    // and any residual cash from deleverage can be cleared
+    withdrawEntireCashBalance = true;
+    withdrawAmountInternalPrecision = undefined;
+  }
 
   return populateNotionalTxnAndGas(
     network,

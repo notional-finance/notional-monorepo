@@ -130,7 +130,10 @@ export const LiquidityLeveragedSideDrawer = () => {
           requiredState: {
             tradeType: 'DeleverageWithdraw',
             // NOTE: during withdraw the debt and asset are flipped
-            collateral: currentPosition?.debt.token,
+            collateral:
+              currentPosition?.debt.tokenType === 'PrimeDebt'
+                ? currentPosition?.debt.toPrimeCash().token
+                : currentPosition?.debt.token,
             debt: currentPosition?.asset.token,
             riskFactorLimit: currentPositionState?.riskFactorLimit,
             selectedDepositToken,
