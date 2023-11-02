@@ -276,7 +276,7 @@ export default class Liquidation {
         ];
       }
       case LiquidationType.COLLATERAL_CURRENCY: {
-        const key = `${account}:${this.type}:${this.localCurrency.id}:0:pCashLoanAmount`;
+        const key = `${account}:${this.type}:${this.localCurrency.id}:${this.collateralCurrencyId}`;
         return [
           {
             stage: 0,
@@ -340,7 +340,6 @@ export default class Liquidation {
           {
             stage: 0,
             target: notional,
-            // TODO: this is in prime cash
             transform: (r) => r[1],
             method: 'calculatefCashCrossCurrencyLiquidation',
             args: [

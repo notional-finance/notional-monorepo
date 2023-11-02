@@ -199,7 +199,7 @@ export default class ProfitCalculator {
       );
       console.error(flashLiq.flashBorrowAsset);
       console.error(flashLiq.accountLiq.flashLoanAmount.toString());
-      console.error('Populated Txn', txn);
+      console.error('Populated Txn', JSON.stringify(txn));
       console.error(e);
     }
 
@@ -278,6 +278,8 @@ export default class ProfitCalculator {
             estimatedProfit: netProfit,
           });
         }
+        // Need to sleep a bit between 0x calls
+        await new Promise((resolve) => setTimeout(resolve, 500));
       } catch (e) {
         console.error(e);
       }
