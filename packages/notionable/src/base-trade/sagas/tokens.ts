@@ -100,7 +100,9 @@ export function availableTokens(
         // By default we only allow tokens with a currency id specified (i.e. they are listed
         // on Notional)
         .filter((t) =>
-          depositFilter ? depositFilter(t, account, s) : !!t.currencyId
+          depositFilter
+            ? depositFilter(t, account, s, listedTokens)
+            : !!t.currencyId
         );
       const deposit = getSelectedToken(
         availableDepositTokens,
@@ -121,7 +123,9 @@ export function availableTokens(
               (t.maturity || 0) > getNowSeconds())
         )
         .filter((t) =>
-          collateralFilter ? collateralFilter(t, account, newState) : true
+          collateralFilter
+            ? collateralFilter(t, account, newState, listedTokens)
+            : true
         );
 
       const availableDebtTokens = listedTokens
@@ -135,7 +139,9 @@ export function availableTokens(
               t.isFCashDebt === false && // Always use positive fCash
               (t.maturity || 0) > getNowSeconds())
         )
-        .filter((t) => (debtFilter ? debtFilter(t, account, newState) : true));
+        .filter((t) =>
+          debtFilter ? debtFilter(t, account, newState, listedTokens) : true
+        );
 
       const hasChanged =
         availableCollateralTokens.map((t) => t.id).join(':') !==

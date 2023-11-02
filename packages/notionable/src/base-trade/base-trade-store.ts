@@ -22,7 +22,8 @@ export type { VaultTradeType } from './vault-trade-config';
 export type FilterFunc = (
   t: TokenDefinition,
   a: AccountDefinition | null,
-  s: VaultTradeState | TradeState
+  s: VaultTradeState | TradeState,
+  l: TokenDefinition[]
 ) => boolean;
 
 export interface TransactionConfig {
