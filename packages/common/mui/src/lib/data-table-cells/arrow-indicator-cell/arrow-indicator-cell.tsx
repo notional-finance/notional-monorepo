@@ -69,12 +69,11 @@ export const ArrowIndicatorCell = ({
               sx={{
                 marginLeft: spacing(0.5),
                 marginRight: spacing(-0.25),
-                color:
-                  tooRisky || isNegative
-                    ? palette.error.main
-                    : arrowUp
-                    ? colorOnUp
-                    : colorOnDown,
+                color: tooRisky
+                  ? palette.error.main
+                  : arrowUp
+                  ? colorOnUp
+                  : colorOnDown,
                 width: spacing(1.5),
                 transform: arrowUp ? 'rotate(180deg)' : 'rotate(270deg)',
               }}
