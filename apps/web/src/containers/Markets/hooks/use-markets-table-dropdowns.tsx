@@ -4,7 +4,7 @@ import {
   PieChartIcon,
   BarChartIcon,
   BarChartLateralIcon,
-  BarCharLightningIcon,
+  // BarCharLightningIcon,
   VaultIcon,
   CoinsIcon,
   CoinsCircleIcon,
@@ -76,18 +76,18 @@ export const useMarketTableDropdowns = (marketType) => {
           />
         ),
       },
-      {
-        id: 'Leveraged Lend',
-        title: 'Leveraged Lend',
-        icon: (
-          <BarCharLightningIcon
-            sx={{
-              fontSize: theme.spacing(2),
-              fill: theme.palette.common.black,
-            }}
-          />
-        ),
-      },
+      // {
+      //   id: 'Leveraged Lend',
+      //   title: 'Leveraged Lend',
+      //   icon: (
+      //     <BarCharLightningIcon
+      //       sx={{
+      //         fontSize: theme.spacing(2),
+      //         fill: theme.palette.common.black,
+      //       }}
+      //     />
+      //   ),
+      // },
       {
         id: 'Leveraged Liquidity',
         title: 'Leveraged Liquidity',

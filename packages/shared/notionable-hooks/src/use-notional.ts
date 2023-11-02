@@ -33,6 +33,13 @@ export function useSelectedNetwork() {
   return isNetworkReady ? selectedNetwork : undefined;
 }
 
+export function useNOTE() {
+  const network = useSelectedNetwork();
+  return network
+    ? Registry.getTokenRegistry().getTokenBySymbol(network, 'NOTE')
+    : undefined;
+}
+
 export function useNotionalError() {
   const {
     globalState: { error },

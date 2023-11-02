@@ -2,6 +2,9 @@ import { useContext } from 'react';
 import { Box, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { HowItWorksFaq } from './how-it-works-faq';
+import { trackEvent } from '@notional-finance/helpers';
+import { TRACKING_EVENTS } from '@notional-finance/util';
+import { useLocation } from 'react-router-dom';
 import {
   DataTable,
   Faq,
@@ -22,6 +25,7 @@ import {
 
 export const LendFixedTradeSummary = () => {
   const theme = useTheme();
+  const { pathname } = useLocation();
   const context = useContext(LendFixedContext);
   const { state } = context;
   const { selectedDepositToken, deposit } = state;
@@ -51,6 +55,13 @@ export const LendFixedTradeSummary = () => {
 
       {selectedDepositToken && (
         <Faq
+          onClick={() =>
+            trackEvent(TRACKING_EVENTS.TOOL_TIP, {
+              path: pathname,
+              type: TRACKING_EVENTS.HOW_IT_WORKS,
+              title: undefined,
+            })
+          }
           sx={{ boxShadow: 'none' }}
           question={<FormattedMessage defaultMessage={'How it Works'} />}
           componentAnswer={<HowItWorksFaq tokenSymbol={selectedDepositToken} />}
@@ -79,18 +90,27 @@ export const LendFixedTradeSummary = () => {
         title={<FormattedMessage defaultMessage={'Fixed Lend FAQ'} />}
         links={faqHeaderLinks}
       />
-      {faqs.map(({ question, answer, componentAnswer }, index) => (
-        <Faq
-          key={index}
-          question={question}
-          answer={answer}
-          componentAnswer={componentAnswer}
-          sx={{
-            marginBottom: theme.spacing(2),
-            boxShadow: theme.shape.shadowStandard,
-          }}
-        />
-      ))}
+      {faqs.map(
+        ({ question, questionString, answer, componentAnswer }, index) => (
+          <Faq
+            onClick={() =>
+              trackEvent(TRACKING_EVENTS.TOOL_TIP, {
+                path: pathname,
+                type: TRACKING_EVENTS.FAQ,
+                title: questionString,
+              })
+            }
+            key={index}
+            question={question}
+            answer={answer}
+            componentAnswer={componentAnswer}
+            sx={{
+              marginBottom: theme.spacing(2),
+              boxShadow: theme.shape.shadowStandard,
+            }}
+          />
+        )
+      )}
     </TradeActionSummary>
   );
 };

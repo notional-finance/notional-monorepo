@@ -5,6 +5,7 @@ import { ArrowIcon } from '@notional-finance/icons';
 import { DataTableFilterBar } from './data-table-filter-bar/data-table-filter-bar';
 import { DataTableTitleBar } from './data-table-title-bar/data-table-title-bar';
 import { DataTableTabBar } from './data-table-tab-bar/data-table-tab-bar';
+import { DataTableToggle } from './data-table-toggle/data-table-toggle';
 import { DataTableHead } from './data-table-head/data-table-head';
 import { DataTableBody } from './data-table-body/data-table-body';
 import { DataTablePending } from './data-table-pending/data-table-pending';
@@ -22,6 +23,7 @@ import {
   ExpandedRows,
   TabBarPropsType,
   TableTitleButtonsType,
+  ToggleBarPropsType,
   TABLE_VARIANTS,
 } from './types';
 
@@ -34,6 +36,7 @@ interface DataTableProps {
   CustomTabComponent?: React.FunctionComponent;
   TabComponentVisible?: boolean;
   tabBarProps?: TabBarPropsType;
+  toggleBarProps?: ToggleBarPropsType;
   tableTitleButtons?: TableTitleButtonsType[];
   tableTitle?: JSX.Element;
   tableTitleSubText?: JSX.Element;
@@ -63,6 +66,7 @@ export const DataTable = ({
   CustomTabComponent,
   TabComponentVisible,
   tabBarProps,
+  toggleBarProps,
   tableTitle,
   tableTitleSubText,
   tableVariant,
@@ -175,7 +179,7 @@ export const DataTable = ({
       }
       component={Paper}
     >
-      {tableTitle && (
+      {tableTitle && !toggleBarProps && (
         <DataTableTitleBar
           tableTitle={tableTitle}
           tableTitleSubText={tableTitleSubText}
@@ -197,11 +201,17 @@ export const DataTable = ({
       )}
 
       {tabBarProps && <DataTableTabBar tabBarProps={tabBarProps} />}
+      {toggleBarProps && tableTitle && (
+        <DataTableToggle
+          toggleBarProps={toggleBarProps}
+          tableTitle={tableTitle}
+        />
+      )}
 
       {TabComponentVisible && CustomTabComponent && <CustomTabComponent />}
-      {pendingTokenData && pendingTokenData.pendingTokens.length > 0 && (
+      {pendingTokenData && pendingTokenData.pendingTxns.length > 0 && (
         <DataTablePending
-          pendingTokenData={pendingTokenData}
+          pendingTxns={pendingTokenData.pendingTxns}
           pendingMessage={pendingMessage}
         />
       )}

@@ -2,7 +2,7 @@ import { useContext } from 'react';
 import { FormattedMessage } from 'react-intl';
 import { Body } from '@notional-finance/mui';
 import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
-import { LiquidityContext } from '../../liquidity-variable/liquidity-variable';
+import { LiquidityContext } from '../../liquidity';
 import {
   getEtherscanAddressLink,
   NotionalAddress,
@@ -48,6 +48,7 @@ export const useLiquidityFaq = (tokenSymbol: string) => {
   ];
   const faqs = [
     {
+      questionString: 'What are the risks?',
       question: (
         <FormattedMessage
           defaultMessage={'What are the risks?'}
@@ -58,6 +59,7 @@ export const useLiquidityFaq = (tokenSymbol: string) => {
     },
 
     {
+      questionString: 'What is nTokenSymbol?',
       question: (
         <FormattedMessage
           defaultMessage={'What is n{tokenSymbol}?'}
@@ -79,6 +81,7 @@ export const useLiquidityFaq = (tokenSymbol: string) => {
       ),
     },
     {
+      questionString: 'Where do nTokenSymbol returns come from?',
       question: (
         <FormattedMessage
           defaultMessage={'Where do n{tokenSymbol} returns come from?'}
@@ -127,6 +130,7 @@ export const useLiquidityFaq = (tokenSymbol: string) => {
       ),
     },
     {
+      questionString: 'Is nTokenSymbol redeemable?',
       question: (
         <FormattedMessage
           defaultMessage={'Is n{tokenSymbol} Redeemable?'}
@@ -166,6 +170,7 @@ export const useLiquidityFaq = (tokenSymbol: string) => {
       ),
     },
     {
+      questionString: 'What is Leverage Mode?',
       question: (
         <FormattedMessage
           defaultMessage={'What is Leverage Mode?'}

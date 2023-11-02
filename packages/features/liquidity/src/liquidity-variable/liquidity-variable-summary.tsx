@@ -3,26 +3,26 @@ import {
   TABLE_VARIANTS,
   FaqHeader,
   Faq,
-  TotalBox,
   DataTable,
   Body,
   AreaChart,
   MultiDisplayChart,
+  TotalRow,
 } from '@notional-finance/mui';
+import { useLocation } from 'react-router-dom';
+import { trackEvent } from '@notional-finance/helpers';
+import { TRACKING_EVENTS } from '@notional-finance/util';
 import { TradeActionSummary } from '@notional-finance/trade';
-import {
-  useLiquidityFaq,
-  useTotalsData,
-  useReturnDriversTable,
-} from '../hooks';
+import { useLiquidityFaq, useTotalsData, useReturnDriversTable } from './hooks';
 import { FormattedMessage } from 'react-intl';
 import { useContext } from 'react';
-import { LiquidityContext } from '../liquidity-variable';
-import { HowItWorksFaq } from './how-it-works-faq';
+import { LiquidityContext } from '../liquidity';
+import { HowItWorksFaq } from './components';
 import { useTokenHistory } from '@notional-finance/notionable-hooks';
 
 export const LiquidityVariableSummary = () => {
   const theme = useTheme();
+  const { pathname } = useLocation();
   const { state } = useContext(LiquidityContext);
   const { selectedDepositToken, collateral, collateralBalance } = state;
   const tokenSymbol = selectedDepositToken || '';
@@ -70,26 +70,15 @@ export const LiquidityVariableSummary = () => {
           },
         ]}
       />
-      <Box
-        sx={{
-          display: 'flex',
-          gap: theme.spacing(5),
-          marginBottom: theme.spacing(3),
-          marginTop: theme.spacing(3),
-        }}
-      >
-        {totalsData.map(({ title, value, Icon, prefix, suffix }, index) => (
-          <TotalBox
-            title={title}
-            value={value}
-            key={index}
-            Icon={Icon}
-            prefix={prefix}
-            suffix={suffix}
-          />
-        ))}
-      </Box>
+      <TotalRow totalsData={totalsData} />
       <Faq
+        onClick={() =>
+          trackEvent(TRACKING_EVENTS.TOOL_TIP, {
+            path: pathname,
+            type: TRACKING_EVENTS.HOW_IT_WORKS,
+            title: undefined,
+          })
+        }
         sx={{ boxShadow: 'none' }}
         question={<FormattedMessage defaultMessage={'How it Works'} />}
         componentAnswer={<HowItWorksFaq tokenSymbol={tokenSymbol} />}
@@ -146,14 +135,23 @@ export const LiquidityVariableSummary = () => {
           title={<FormattedMessage defaultMessage={'Provide Liquidity FAQ'} />}
           links={faqHeaderLinks}
         />
-        {faqs.map(({ answer, question, componentAnswer }, index) => (
-          <Faq
-            key={index}
-            question={question}
-            answer={answer}
-            componentAnswer={componentAnswer}
-          ></Faq>
-        ))}
+        {faqs.map(
+          ({ answer, question, questionString, componentAnswer }, index) => (
+            <Faq
+              onClick={() =>
+                trackEvent(TRACKING_EVENTS.TOOL_TIP, {
+                  path: pathname,
+                  type: TRACKING_EVENTS.FAQ,
+                  title: questionString,
+                })
+              }
+              key={index}
+              question={question}
+              answer={answer}
+              componentAnswer={componentAnswer}
+            ></Faq>
+          )
+        )}
       </Box>
     </TradeActionSummary>
   );

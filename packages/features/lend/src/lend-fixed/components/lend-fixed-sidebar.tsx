@@ -28,6 +28,7 @@ export const LendFixedSidebar = () => {
     <TransactionSidebar
       handleLeverUpToggle={handleLeverUpToggle}
       context={context}
+      showDrawer
     >
       <DepositInput
         ref={currencyInputRef}

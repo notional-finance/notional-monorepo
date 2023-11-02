@@ -47,7 +47,10 @@ export function getRpcUrl(networkId: number) {
   }
 }
 
-export function getEtherscanTransactionLink(txnHash: string, network?: Network) {
+export function getEtherscanTransactionLink(
+  txnHash: string,
+  network?: Network
+) {
   switch (network) {
     case Network.Mainnet:
       return `https://etherscan.io/tx/${txnHash}`;
@@ -58,7 +61,10 @@ export function getEtherscanTransactionLink(txnHash: string, network?: Network) 
   }
 }
 
-export function getEtherscanAddressLink(contractAddress: string, network?: Network) {
+export function getEtherscanAddressLink(
+  contractAddress: string,
+  network?: Network
+) {
   switch (network) {
     case Network.Mainnet:
       return `https://etherscan.io/address/${contractAddress}#code`;
@@ -67,4 +73,12 @@ export function getEtherscanAddressLink(contractAddress: string, network?: Netwo
     default:
       return '';
   }
+}
+
+export function isTestHost() {
+  return (
+    window.location.hostname === 'arbitrum-dev.notional.finance' ||
+    window.location.hostname === 'dev.notional.finance' ||
+    window.location.hostname === 'localhost:3000'
+  );
 }

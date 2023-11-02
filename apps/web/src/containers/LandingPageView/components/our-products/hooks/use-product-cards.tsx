@@ -9,7 +9,7 @@ export const useProductCards = () => {
       variableLend,
       leveragedVaults,
       leveragedLiquidity,
-      leveragedLend,
+      // leveragedLend,
       liquidity,
       fCashBorrow,
       variableBorrow,
@@ -79,20 +79,20 @@ export const useProductCards = () => {
       apyTitle: <FormattedMessage defaultMessage={'as high as'} />,
       loading: leveragedVaults === null,
     },
-    {
-      title: <FormattedMessage defaultMessage={'Leveraged Lending'} />,
-      link: '/lend-leveraged',
-      text: (
-        <FormattedMessage
-          defaultMessage={`Arbitrage Notional's interest rates by borrowing from one maturity and lending to another with leverage.`}
-        />
-      ),
-      apy: `${formatNumberAsPercent(leveragedLend?.totalAPY || 0)} APY`,
-      symbol: leveragedLend?.underlying.symbol,
-      groupedSymbols: 'eth_dai_usdc_wbtc',
-      apyTitle: <FormattedMessage defaultMessage={'as high as'} />,
-      loading: leveragedLend === null,
-    },
+    // {
+    //   title: <FormattedMessage defaultMessage={'Leveraged Lending'} />,
+    //   link: '/lend-leveraged',
+    //   text: (
+    //     <FormattedMessage
+    //       defaultMessage={`Arbitrage Notional's interest rates by borrowing from one maturity and lending to another with leverage.`}
+    //     />
+    //   ),
+    //   apy: `${formatNumberAsPercent(leveragedLend?.totalAPY || 0)} APY`,
+    //   symbol: leveragedLend?.underlying.symbol,
+    //   groupedSymbols: 'eth_dai_usdc_wbtc',
+    //   apyTitle: <FormattedMessage defaultMessage={'as high as'} />,
+    //   loading: leveragedLend === null,
+    // },
     {
       title: <FormattedMessage defaultMessage={'Leveraged Liquidity'} />,
       link: '/liquidity-leveraged',

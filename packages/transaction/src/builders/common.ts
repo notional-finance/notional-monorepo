@@ -54,14 +54,17 @@ export function hasExistingCashBalance(
   const cashBalance = balances.find(
     (b) =>
       (b.tokenType === 'PrimeCash' || b.tokenType === 'PrimeDebt') &&
-      b.token.currencyId === tokenBalance.currencyId
+      b.token.currencyId === tokenBalance.currencyId &&
+      !b.isZero()
   );
 
+  // If a cash balance exists, do not withdraw it
   const withdrawEntireCashBalance = cashBalance ? false : true;
   const withdrawAmountInternalPrecision = withdrawEntireCashBalance
     ? undefined
     : tokenBalance.tokenType === 'PrimeCash' ||
-      tokenBalance.tokenType === 'PrimeDebt'
+      tokenBalance.tokenType === 'PrimeDebt' ||
+      tokenBalance.tokenType === 'Underlying'
     ? tokenBalance.toPrimeCash()
     : // Only execute this method for fCash and nTokens since some tokens
       // may not have nToken / fCash markets.

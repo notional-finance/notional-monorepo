@@ -6,11 +6,13 @@ import {
   styled,
   useTheme,
 } from '@mui/material';
-import { formatNumberAsPercent } from '@notional-finance/helpers';
+import { formatNumberAsPercent, trackEvent } from '@notional-finance/helpers';
 import { ArrowIcon } from '@notional-finance/icons';
+import { useLocation } from 'react-router-dom';
 import {
   DataTable,
   DataTableColumn,
+  InfoTooltip,
   H4,
   Label,
   LabelValue,
@@ -20,6 +22,7 @@ import {
   SliderRisk,
   ArrowChangeCell,
 } from '@notional-finance/mui';
+import { TRACKING_EVENTS } from '@notional-finance/util';
 import {
   useAccountReady,
   useCurrentLiquidationPrices,
@@ -132,6 +135,7 @@ const LiquidationPriceColumns: DataTableColumn[] = [
 
 export const PortfolioRisk = () => {
   const theme = useTheme();
+  const { pathname } = useLocation();
   const [isExpanded, setExpanded] = useState(false);
   const isAccountReady = useAccountReady();
   const profile = usePortfolioRiskProfile();
@@ -157,8 +161,24 @@ export const PortfolioRisk = () => {
             : theme.shape.borderRadius(),
         }}
       >
-        <H4 gutter={'default'}>
+        <H4 gutter={'default'} sx={{ display: 'flex', alignItems: 'center' }}>
           <FormattedMessage defaultMessage={'Portfolio Health Factor'} />
+          <InfoTooltip
+            onMouseEnter={() =>
+              trackEvent(TRACKING_EVENTS.TOOL_TIP, {
+                path: pathname,
+                type: TRACKING_EVENTS.HOVER_TOOL_TIP,
+                title: 'Portfolio Health Factor',
+              })
+            }
+            iconColor={theme.palette.typography.accent}
+            iconSize={theme.spacing(2)}
+            sx={{ marginLeft: theme.spacing(1) }}
+            toolTipText={defineMessage({
+              defaultMessage:
+                'Your health factor measures the riskiness of your account. If your health factor drops below 1, you can be liquidated.',
+            })}
+          />
         </H4>
         <Box sx={{ display: 'flex' }}>
           <Box sx={{ width: '50%' }}>

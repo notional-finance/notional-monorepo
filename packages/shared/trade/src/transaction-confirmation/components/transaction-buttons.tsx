@@ -4,6 +4,8 @@ import { Button } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
 import { TransactionStatus } from '@notional-finance/notionable-hooks';
 import { DiscordIcon } from '@notional-finance/icons';
+import { useSideDrawerManager } from '@notional-finance/side-drawer';
+import { useLocation } from 'react-router';
 
 const ButtonContainer = styled(Box)`
   margin-top: 40px;
@@ -30,16 +32,23 @@ export const TransactionButtons = ({
   isDisabled,
 }: TransactionButtonsProps) => {
   const theme = useTheme();
+  const { clearSideDrawer } = useSideDrawerManager();
+  const { pathname } = useLocation();
+  const portfolioLink = pathname.includes('vaults')
+    ? '/portfolio/vaults'
+    : '/portfolio/holdings';
+
   switch (transactionStatus) {
     case TransactionStatus.SUBMITTED:
     case TransactionStatus.CONFIRMED:
       return (
         <Box sx={{ marginTop: theme.spacing(6) }}>
           <Button
-            to="/portfolio/overview"
+            to={portfolioLink}
             size="large"
             variant="outlined"
             sx={{ width: '100%' }}
+            onClick={() => clearSideDrawer()}
           >
             <FormattedMessage defaultMessage={'View In Portfolio'} />
           </Button>

@@ -78,14 +78,6 @@ export class AccountRiskProfile extends BaseRiskProfile {
     return this._totalRiskAdjusted(this.debts, this.denom(denominated));
   }
 
-  /** Total value of assets in the specified currency */
-  totalCurrencyAssets(currencyId: number, denominated = this.defaultSymbol) {
-    return this._totalValue(
-      this.collateral.filter((t) => t.token.currencyId === currencyId),
-      this.denom(denominated)
-    );
-  }
-
   /** Total value of assets in the specified currency with risk adjustments */
   totalCurrencyAssetsRiskAdjusted(currencyId: number) {
     return this._totalRiskAdjusted(

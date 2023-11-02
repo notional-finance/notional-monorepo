@@ -3,16 +3,23 @@ import { PortfolioSideDrawer } from './components/portfolio-side-drawer';
 import { useTradeContext } from '@notional-finance/notionable-hooks';
 import { PortfolioParams } from '../portfolio-feature-shell';
 import { useParams } from 'react-router';
-import { DepositInput, PortfolioHoldingSelect } from '@notional-finance/trade';
+import {
+  DepositInput,
+  PortfolioHoldingSelect,
+  useMaxWithdraw,
+} from '@notional-finance/trade';
 import { messages } from './messages';
-import { useMaxWithdraw } from './hooks/use-max-withdraw';
 import { useEffect } from 'react';
 
 export const Withdraw = () => {
   const context = useTradeContext('Withdraw');
   const { category, sideDrawerKey } = useParams<PortfolioParams>();
-  const { currencyInputRef, setCurrencyInput, onMaxValue } =
-    useMaxWithdraw(context);
+  const {
+    currencyInputRef,
+    setCurrencyInput,
+    onMaxValue,
+    maxWithdrawUnderlying,
+  } = useMaxWithdraw(context);
 
   const {
     state: { debt },
@@ -41,6 +48,7 @@ export const Withdraw = () => {
         isWithdraw
         context={context}
         inputRef={currencyInputRef}
+        maxWithdraw={maxWithdrawUnderlying}
         onMaxValue={onMaxValue}
         newRoute={(newToken) =>
           `/portfolio/${category}/${sideDrawerKey}/${newToken}`

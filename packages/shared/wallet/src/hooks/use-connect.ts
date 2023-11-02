@@ -1,6 +1,6 @@
 import { trackEvent } from '@notional-finance/helpers';
 import { useNotionalContext } from '@notional-finance/notionable-hooks';
-import { getNetworkFromId } from '@notional-finance/util';
+import { getNetworkFromId, TRACKING_EVENTS } from '@notional-finance/util';
 import { useConnectWallet } from '@web3-onboard/react';
 import { BigNumber, ethers } from 'ethers';
 import { useCallback, useEffect } from 'react';
@@ -43,7 +43,7 @@ export const useConnect = () => {
   const disconnectWallet = useCallback(() => {
     if (currentLabel) {
       disconnect({ label: currentLabel });
-      trackEvent('DisconnectWallet', { wallet: currentLabel, selectedNetwork });
+      trackEvent(TRACKING_EVENTS.DISCONNECT_WALLET, { wallet: currentLabel, selectedNetwork });
     }
     updateNotional({ wallet: undefined });
   }, [disconnect, currentLabel, updateNotional, selectedNetwork]);

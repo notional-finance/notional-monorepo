@@ -13,13 +13,13 @@ export const MultiValueCell = ({ cell }): JSX.Element => {
   const FirstValue = column?.expandableTable ? LargeTableCell : TableCell;
   const SecondValue = column?.expandableTable ? TableCell : SmallTableCell;
 
-  const isPending = column.showLoadingSpinner && row.original.pendingTokenData;
+  const isPending = column.showLoadingSpinner && row.original.isPending;
 
   return (
     <Box className="multi-value-cell">
       {isPending ? (
         <ProgressIndicator
-          circleSize={24}
+          circleSize={16}
           sx={{
             display: 'flex',
             justifyContent: column?.textAlign,

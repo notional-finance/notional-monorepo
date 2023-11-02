@@ -6,9 +6,9 @@ import {
   TradeSummaryContainer,
   TradeActionTitle,
 } from '@notional-finance/mui';
-import { BaseTradeState, isVaultTrade } from '@notional-finance/notionable';
+import { BaseTradeState, isLeveragedTrade } from '@notional-finance/notionable';
 import { TransactionHeadings } from '../transaction-sidebar/components/transaction-headings';
-import { FormattedMessage } from 'react-intl';
+import { FormattedMessage, defineMessage } from 'react-intl';
 import { useAllMarkets } from '@notional-finance/notionable-hooks';
 import LeverageInfoRow from './components/leverage-info-row';
 import { formatTokenType } from '@notional-finance/helpers';
@@ -43,17 +43,16 @@ export function TradeActionSummary({
     vaultConfig,
     riskFactorLimit,
     vaultAddress,
+    customizeLeverage,
   } = state;
   const isVault = !!vaultAddress;
   const { nonLeveragedYields } = useAllMarkets();
 
   const messages = tradeType ? TransactionHeadings[tradeType] : undefined;
-  const headerText = messages?.headerText;
+  const headerText =
+    messages?.headerText || defineMessage({ defaultMessage: 'unknown ' });
   const isLeveraged =
-    tradeType === 'LeveragedNToken' ||
-    tradeType === 'LeveragedLend' ||
-    isVaultTrade(tradeType) ||
-    priorVaultFactors !== undefined;
+    isLeveragedTrade(tradeType) || priorVaultFactors !== undefined;
   const collateral = state.collateral || priorVaultFactors?.vaultShare;
 
   const apySuffix = isLeveraged ? (
@@ -66,7 +65,7 @@ export function TradeActionSummary({
 
   const selectedToken =
     (tradeType === 'LeveragedLend' ||
-      'LeveragedNToken' ||
+      tradeType === 'LeveragedNToken' ||
       tradeType === 'MintNToken') &&
     collateral
       ? formatTokenType(collateral).icon
@@ -116,13 +115,19 @@ export function TradeActionSummary({
         <TradeActionHeader
           token={selectedToken}
           tokenBottom={tokenBottom}
-          hideTokenName={isVault}
           actionText={
-            isVault ? vaultConfig?.name : <FormattedMessage {...headerText} />
+            isVault ? (
+              vaultConfig?.name
+            ) : (
+              <FormattedMessage
+                {...headerText}
+                values={{ token: deposit?.symbol || '' }}
+              />
+            )
           }
         />
         <TradeActionTitle value={totalAPY} title={apySuffix} valueSuffix="%" />
-        {isLeveraged && (
+        {isLeveraged && customizeLeverage && (
           <LeverageInfoRow
             assetSymbol={title}
             assetAPY={assetAPY}

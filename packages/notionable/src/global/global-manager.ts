@@ -2,6 +2,8 @@ import {
   filterEmpty,
   getProviderFromNetwork,
   Network,
+  RATE_PRECISION,
+  TRACKING_EVENTS,
 } from '@notional-finance/util';
 import {
   Observable,
@@ -13,6 +15,10 @@ import {
   distinctUntilChanged,
   tap,
   from,
+  of,
+  combineLatest,
+  audit,
+  interval,
 } from 'rxjs';
 import { BETA_ACCESS, GlobalState } from './global-state';
 import {
@@ -23,6 +29,8 @@ import {
 } from './logic';
 import { identify, trackEvent } from '@notional-finance/helpers';
 import { Contract } from 'ethers';
+import { Registry, TokenBalance } from '@notional-finance/core-entities';
+import { selectedAccount } from './selectors';
 
 const vpnCheck = 'https://detect.notional.finance/';
 const dataURL = process.env['NX_DATA_URL'] || 'https://data.notional.finance';
@@ -71,6 +79,7 @@ export const loadGlobalManager = (
       return {
         isAccountPending: true,
         isAccountReady: false,
+        holdingsGroups: undefined,
         // Selected address must always be defined here
         selectedAccount: cur.wallet?.selectedAddress,
       };
@@ -88,6 +97,7 @@ export const loadGlobalManager = (
       return {
         isAccountPending: false,
         isAccountReady: false,
+        holdingsGroups: [],
         selectedAccount: undefined,
       };
     })
@@ -139,7 +149,7 @@ export const loadGlobalManager = (
     distinctUntilChanged((p, c) => p.hasContestNFT === c.hasContestNFT),
     tap(({ hasContestNFT, selectedAccount, contestTokenId }) => {
       if (selectedAccount && hasContestNFT === BETA_ACCESS.CONFIRMED) {
-        trackEvent('NFTUnlock', {
+        trackEvent(TRACKING_EVENTS.NFT_UNLOCK, {
           selectedAccount,
           contestTokenId: contestTokenId || 'unknown',
         });
@@ -161,7 +171,146 @@ export const loadGlobalManager = (
     })
   );
 
+  const calculateHoldingGroups$ = state$.pipe(
+    filter((s) => s.isAccountReady),
+    distinctUntilChanged((p, c) => p.selectedAccount === c.selectedAccount),
+    switchMap((s) => {
+      if (s.selectedNetwork && s.selectedAccount) {
+        return Registry.getAccountRegistry()
+          .subscribeAccount(s.selectedNetwork, s.selectedAccount)
+          .pipe(
+            filter((a) => a !== null),
+            map((account) => {
+              const balances =
+                account?.balances.filter(
+                  (b) =>
+                    !b.isZero() &&
+                    !b.isVaultToken &&
+                    b.token.tokenType !== 'Underlying' &&
+                    b.token.tokenType !== 'NOTE'
+                ) || [];
+              const assets = balances.filter((b) => b.isPositive());
+              const debts = balances.filter((b) => b.isNegative());
+
+              const holdingsGroups = assets.reduce((l, asset) => {
+                const matchingDebts = debts.filter(
+                  (b) => b.currencyId === asset.currencyId
+                );
+                const matchingAssets = assets.filter(
+                  (b) =>
+                    b.currencyId === asset.currencyId &&
+                    asset.tokenType === 'nToken'
+                );
+
+                // Only creates a grouped holding if there is exactly one matching asset and debt
+                if (matchingDebts.length === 1 && matchingAssets.length === 1) {
+                  const asset = matchingAssets[0];
+                  const debt = matchingDebts[0];
+                  const presentValue = asset
+                    .toUnderlying()
+                    .add(debt.toUnderlying());
+                  const leverageRatio =
+                    debt
+                      .toUnderlying()
+                      .neg()
+                      .ratioWith(presentValue)
+                      .toNumber() / RATE_PRECISION;
+
+                  // NOTE: enforce a minimum leverage ratio on these to ensure that dust balances
+                  // don't create leveraged positions
+                  if (leverageRatio > 0.05) {
+                    l.push({ asset, debt, presentValue, leverageRatio });
+                  }
+                }
+
+                return l;
+              }, [] as { asset: TokenBalance; debt: TokenBalance; presentValue: TokenBalance; leverageRatio: number }[]);
+
+              return { holdingsGroups };
+            })
+          );
+      }
+
+      return of(undefined);
+    }),
+    filterEmpty()
+  );
+
+  const onPendingPnL$ = combineLatest([state$, selectedAccount(state$)]).pipe(
+    filter(
+      ([{ awaitingBalanceChanges }]) =>
+        Object.keys(awaitingBalanceChanges).length > 0
+    ),
+    // The audit time timer will start when the filter emits for the first time
+    // and then throttle the values that are passed into the map function below.
+    // throttleTime does not work because new observables are created on every
+    // state emission
+    audit(([{ awaitingBalanceChanges, pendingTxns }]) => {
+      if (
+        Object.keys(awaitingBalanceChanges).filter(
+          (t) => !pendingTxns.includes(t)
+        ).length > 0
+      ) {
+        // If there is a new balance change then trigger an refresh almost immediately
+        return interval(100);
+      } else {
+        // Without any new balance changes then only poll every 30 seconds until the pending
+        // txns are cleared.
+        return interval(30_000);
+      }
+    }),
+    map(
+      ([
+        { completedTransactions, awaitingBalanceChanges, selectedNetwork },
+        account,
+      ]) => {
+        const latestProcessedTxnBlock = Math.max(
+          ...(account?.accountHistory?.map(
+            ({ blockNumber }) => blockNumber
+          ) || [0])
+        );
+        const completed = Object.entries(completedTransactions);
+        const pendingTokens = completed.flatMap(([hash, tr]) =>
+          tr.blockNumber > latestProcessedTxnBlock
+            ? awaitingBalanceChanges[hash] || []
+            : []
+        );
+        const pendingTxns = completed
+          .map(([hash, tr]) =>
+            tr.blockNumber > latestProcessedTxnBlock ? hash : undefined
+          )
+          .filter((h) => !!h) as string[];
+
+        // This clears any balance changes that are being "awaited" if they are not
+        // in the pending txn list
+        const _awaitingBalanceChanges = Object.keys(
+          awaitingBalanceChanges
+        ).reduce((acc, hash) => {
+          // If the transaction is still pending a calculation, include it in the awaiting list
+          if (pendingTxns.includes(hash))
+            return Object.assign(acc, { [hash]: awaitingBalanceChanges[hash] });
+          // If the transaction is not found in the completed list, then also keep
+          // it in the awaiting list
+          if (!completed.find(([h]) => h === hash))
+            return Object.assign(acc, { [hash]: awaitingBalanceChanges[hash] });
+          return acc;
+        }, {});
+
+        if (pendingTxns.length > 0 && selectedNetwork) {
+          Registry.getAccountRegistry().triggerRefreshPromise(selectedNetwork);
+        }
+
+        return {
+          pendingTokens,
+          pendingTxns,
+          awaitingBalanceChanges: _awaitingBalanceChanges,
+        };
+      }
+    )
+  );
+
   return merge(
+    calculateHoldingGroups$,
     onSelectedNetworkChange$,
     onNetworkPending$,
     onWalletConnect$,
@@ -169,6 +318,7 @@ export const loadGlobalManager = (
     onAccountPending$,
     onAccountConnect$,
     onNFTUnlock$,
-    onAppLoad$
+    onAppLoad$,
+    onPendingPnL$
   );
 };

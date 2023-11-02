@@ -110,8 +110,19 @@ export function initState(
 ) {
   return combineLatest([state$, selectedNetwork$, global$]).pipe(
     filter(
-      ([{ isReady, tradeType }, selectedNetwork, { isAccountPending }]) =>
-        !isReady && !!selectedNetwork && !!tradeType && !isAccountPending
+      ([
+        { isReady, tradeType },
+        selectedNetwork,
+        { isAccountPending, holdingsGroups },
+      ]) => {
+        return (
+          !isReady &&
+          !!selectedNetwork &&
+          !!tradeType &&
+          !isAccountPending &&
+          !!holdingsGroups
+        );
+      }
     ),
     map(() => ({ isReady: true }))
   );

@@ -15,7 +15,10 @@ import {
 import { NotionalTheme } from '@notional-finance/styles';
 
 export interface ActionSidebarProps {
-  heading: MessageDescriptor;
+  heading:
+    | MessageDescriptor
+    | { defaultMessage: string }
+    | { values?: Record<string, unknown> };
   helptext:
     | MessageDescriptor
     | { defaultMessage: string }
@@ -32,6 +35,7 @@ export interface ActionSidebarProps {
   handleLeverUpToggle?: () => void;
   leveredUp?: boolean;
   handleSubmit?: () => void;
+  showLeverUpToggle?: boolean;
 }
 export interface ActionSideBarContainerProps {
   hideTextOnMobile: boolean;
@@ -71,6 +75,7 @@ export const ActionSidebar = ({
   hideTextOnMobile = true,
   handleLeverUpToggle,
   leveredUp,
+  showLeverUpToggle,
   handleSubmit,
 }: ActionSidebarProps) => {
   const theme = useTheme();
@@ -89,13 +94,15 @@ export const ActionSidebar = ({
           >
             <FormattedMessage {...heading} />
           </LargeInputTextEmphasized>
-          {handleLeverUpToggle && leveredUp !== undefined && (
-            <LeverUpToggle
-              leveredUp={leveredUp}
-              altBackground={false}
-              handleLeverUpToggle={handleLeverUpToggle}
-            />
-          )}
+          {showLeverUpToggle &&
+            handleLeverUpToggle &&
+            leveredUp !== undefined && (
+              <LeverUpToggle
+                leveredUp={leveredUp}
+                altBackground={false}
+                handleLeverUpToggle={handleLeverUpToggle}
+              />
+            )}
           <H4
             gutter="default"
             sx={{

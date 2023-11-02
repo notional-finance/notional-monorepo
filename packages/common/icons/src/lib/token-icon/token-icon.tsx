@@ -1,6 +1,7 @@
 import unknown from '../../assets/icons/currencies/currency-unknown.svg';
 import wbtc from '../../assets/icons/currencies/currency-wbtc.svg';
 import arb from '../../assets/icons/currencies/arbitrum.svg';
+import arb_alt from '../../assets/icons/currencies/arb-alt.svg';
 import eth from '../../assets/icons/currencies/currency-eth.svg';
 import peth from '../../assets/icons/currencies/pETH.svg';
 import reth from '../../assets/icons/currencies/rETH.svg';
@@ -51,6 +52,18 @@ import usdt_alt from '../../assets/icons/currencies/usdt-alt.svg';
 import fusdt from '../../assets/icons/currencies/fUSDT.svg';
 import nusdt from '../../assets/icons/currencies/nUSDT.svg';
 import pusdt from '../../assets/icons/currencies/pUSDT.svg';
+import pcbETH from '../../assets/icons/currencies/pcbETH.svg';
+import pGMX from '../../assets/icons/currencies/pGMX.svg';
+import gmx from '../../assets/icons/currencies/GMX.svg';
+import gmx_alt from '../../assets/icons/currencies/gmx-alt.svg';
+import pRDNT from '../../assets/icons/currencies/pRDNT.svg';
+import rndt from '../../assets/icons/currencies/RDNT.svg';
+import rndt_alt from '../../assets/icons/currencies/rdnt-alt.svg';
+import pARB from '../../assets/icons/currencies/pARB.svg';
+import ncbETH from '../../assets/icons/currencies/ncbETH.svg';
+import fcbETH from '../../assets/icons/currencies/fcbETH.svg';
+import cbETH from '../../assets/icons/currencies/cbETH.svg';
+import cbeth_alt from '../../assets/icons/currencies/cbeth-alt.svg';
 
 export interface TokenImg {
   name: string;
@@ -255,6 +268,7 @@ export const TokenImageList: TokenImageMap = {
   arb: {
     name: 'arb',
     img: arb,
+    accentBorderImg: arb_alt,
     alt: 'arb',
   },
   trading_fees: {
@@ -283,6 +297,54 @@ export const TokenImageList: TokenImageMap = {
     accentBorderImg: frax_alt,
     alt: 'frax',
   },
+  pcbeth: {
+    name: 'pcbETH',
+    img: pcbETH,
+    alt: 'pcbETH',
+  },
+  gmx: {
+    name: 'gmx',
+    img: gmx,
+    accentBorderImg: gmx_alt,
+    alt: 'gmx',
+  },
+  pgmx: {
+    name: 'pGMX',
+    img: pGMX,
+    alt: 'pGMX',
+  },
+  rndt: {
+    name: 'rndt',
+    img: rndt,
+    accentBorderImg: rndt_alt,
+    alt: 'rndt',
+  },
+  prdnt: {
+    name: 'pRDNT',
+    img: pRDNT,
+    alt: 'pRDNT',
+  },
+  parb: {
+    name: 'pARB',
+    img: pARB,
+    alt: 'pARB',
+  },
+  ncbeth: {
+    name: 'ncbETH',
+    img: ncbETH,
+    alt: 'ncbETH',
+  },
+  fcbeth: {
+    name: 'fcbETH',
+    img: fcbETH,
+    alt: 'fcbETH',
+  },
+  cbeth: {
+    name: 'cbETH',
+    img: cbETH,
+    accentBorderImg: cbeth_alt,
+    alt: 'cbETH',
+  },
   unknown: {
     name: 'unknown',
     img: unknown,
@@ -303,7 +365,7 @@ export function TokenIcon({
   style,
   useAccentBorderImg,
 }: TokenIconProps) {
-  const tokenKey = symbol.toLowerCase();
+  const tokenKey = symbol?.toLowerCase();
   const tokenIcon: TokenImg = Object.keys(TokenImageList).includes(tokenKey)
     ? TokenImageList[tokenKey]
     : TokenImageList['unknown'];
@@ -323,7 +385,7 @@ export function TokenIcon({
       : tokenIcon.img;
 
   if (tokenIcon.name === 'unknown') {
-    tokenIcon.alt = `${symbol.toLowerCase()} ${tokenIcon.alt}`;
+    tokenIcon.alt = `${symbol?.toLowerCase()} ${tokenIcon.alt}`;
   }
 
   return (

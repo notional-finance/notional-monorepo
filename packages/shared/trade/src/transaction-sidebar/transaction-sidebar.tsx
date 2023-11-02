@@ -8,24 +8,40 @@ import {
   useLeverageBlock,
 } from '@notional-finance/notionable-hooks';
 import { useCallback } from 'react';
-import { MessageDescriptor, defineMessages } from 'react-intl';
+import {
+  FormattedMessage,
+  MessageDescriptor,
+  defineMessages,
+} from 'react-intl';
 import TradeActionButton from '../trade-action-button/trade-action-button';
 import Confirmation2 from '../transaction-confirmation/confirmation2';
 import {
   TransactionHeadings,
   CombinedTokenTypes,
 } from './components/transaction-headings';
+import { useLocation } from 'react-router-dom';
 import { LiquidationRisk } from './components/liquidation-risk';
 import { TradeSummary } from './components/trade-summary';
+import { EnablePrimeBorrow } from '../enable-prime-borrow/enable-prime-borrow';
+import { isLeveragedTrade } from '@notional-finance/notionable';
 
 interface TransactionSidebarProps {
-  heading?: MessageDescriptor;
-  helptext?: MessageDescriptor;
+  heading?:
+    | MessageDescriptor
+    | { defaultMessage: string }
+    | { values?: Record<string, unknown> };
+  helptext?:
+    | MessageDescriptor
+    | { defaultMessage: string }
+    | { values?: Record<string, unknown> };
   context: TradeContext;
   leveredUp?: boolean;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   advancedToggle?: ToggleSwitchProps;
   isPortfolio?: boolean;
+  showDrawer?: boolean;
+  enablePrimeBorrow?: boolean;
+  riskComponent?: React.ReactNode;
   handleLeverUpToggle?: () => void;
   onReturnToForm?: () => void;
   onConfirmCancel?: () => void;
@@ -41,10 +57,14 @@ export const TransactionSidebar = ({
   leveredUp,
   advancedToggle,
   isPortfolio,
+  showDrawer,
+  enablePrimeBorrow,
+  riskComponent,
   onReturnToForm,
   onCancelCallback,
 }: TransactionSidebarProps) => {
   const { state, updateState } = context;
+  const { pathname } = useLocation();
   const { canSubmit, confirm, tradeType, debt, collateral } = state;
   const isBlocked = useLeverageBlock();
   const handleSubmit = useCallback(() => {
@@ -57,7 +77,7 @@ export const TransactionSidebar = ({
 
   if (tradeType === undefined) return <PageLoading />;
 
-  const leverageDisabled = isBlocked && tradeType.includes('Leveraged');
+  const leverageDisabled = isBlocked && isLeveragedTrade(tradeType);
   const errorMessage = defineMessages({
     geoErrorHeading: {
       defaultMessage:
@@ -79,9 +99,9 @@ export const TransactionSidebar = ({
 
   return confirm ? (
     <Confirmation2
-      heading={heading}
+      heading={heading && <FormattedMessage {...heading} />}
       context={context}
-      showDrawer={isPortfolio ? false : true}
+      showDrawer={isPortfolio ? false : showDrawer === true}
       onReturnToForm={onReturnToForm}
       onCancel={onConfirmCancel}
     />
@@ -102,12 +122,14 @@ export const TransactionSidebar = ({
       handleLeverUpToggle={handleLeverUpToggle}
       onCancelCallback={onCancelCallback}
       leveredUp={leveredUp || false}
-      showDrawer={isPortfolio ? false : true}
+      showLeverUpToggle={!pathname.includes('lend')}
+      showDrawer={isPortfolio ? false : showDrawer === true}
       hideTextOnMobile={isPortfolio ? false : true}
     >
       {children}
-      <LiquidationRisk state={state} />
+      {riskComponent || <LiquidationRisk state={state} />}
       <TradeSummary state={state} />
+      {enablePrimeBorrow && <EnablePrimeBorrow />}
     </ActionSidebar>
   );
 };

@@ -1,19 +1,16 @@
 import { useContext } from 'react';
-import { VaultActionContext } from '../vault-view/vault-action-provider';
+import { VaultActionContext } from '../vault';
 import {
   useAccountDefinition,
   useAllMarkets,
 } from '@notional-finance/notionable-hooks';
-import {
-  PRIME_CASH_VAULT_MATURITY,
-  leveragedYield,
-} from '@notional-finance/util';
+import { PRIME_CASH_VAULT_MATURITY } from '@notional-finance/util';
 
 export function useVaultExistingFactors() {
   const { state } = useContext(VaultActionContext);
   const { account } = useAccountDefinition();
   const {
-    yields: { variableBorrow, vaultShares },
+    yields: { variableBorrow },
   } = useAllMarkets();
   const { priorVaultBalances, priorAccountRisk, postAccountRisk } = state;
 
@@ -40,17 +37,11 @@ export function useVaultExistingFactors() {
     postAccountRisk?.leverageRatio ||
     priorAccountRisk?.leverageRatio ||
     undefined;
-  const strategyAPY = vaultShares.find(
-    (y) => y.token.id === vaultShare?.tokenId
-  )?.totalAPY;
-
-  const totalAPY = leveragedYield(strategyAPY, priorBorrowRate, leverageRatio);
 
   return {
     vaultShare: vaultShare?.token,
     assetLiquidationPrice,
     priorBorrowRate,
     leverageRatio,
-    totalAPY,
   };
 }

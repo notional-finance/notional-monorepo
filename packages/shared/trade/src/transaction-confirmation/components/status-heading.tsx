@@ -77,7 +77,15 @@ export const StatusHeading = ({
           alt="Exclamation point"
         />
       );
-      headingText = <FormattedMessage defaultMessage={'Error'} />;
+      headingText = (
+        <Box
+          sx={{
+            color: theme.palette.error.main,
+          }}
+        >
+          <FormattedMessage defaultMessage={'Error!'} />
+        </Box>
+      );
       break;
     default:
       statusIcon = (

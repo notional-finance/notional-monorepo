@@ -7,13 +7,21 @@ export const DisplayCell = ({ cell }): JSX.Element => {
   const { column, value, row } = cell;
   const FirstValue = column?.expandableTable ? LargeTableCell : TableCell;
 
-  const isPending = column.showLoadingSpinner && row.original.pendingTokenData;
+  const isPending = column.showLoadingSpinner && row.original.isPending;
+  const ToolTip = column?.ToolTip;
+  const toolTipData = row.original?.toolTipData;
 
   return (
-    <TableCell>
+    <TableCell
+      sx={{
+        display: 'flex',
+        justifyContent: column.textAlign,
+        alignItems: 'center',
+      }}
+    >
       {isPending ? (
         <ProgressIndicator
-          circleSize={24}
+          circleSize={16}
           sx={{
             display: 'flex',
             justifyContent: column?.textAlign,
@@ -58,6 +66,9 @@ export const DisplayCell = ({ cell }): JSX.Element => {
             {value}
           </FirstValue>
         </Box>
+      )}
+      {toolTipData && ToolTip && !isPending && (
+        <ToolTip toolTipData={toolTipData} />
       )}
     </TableCell>
   );

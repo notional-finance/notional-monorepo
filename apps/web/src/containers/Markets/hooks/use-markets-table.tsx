@@ -140,43 +140,47 @@ export const useMarketsTable = (
   ];
 
   const formatMarketData = (allMarketsData: typeof borrowYields) => {
-    return allMarketsData.map((data) => {
-      const {
-        underlying,
-        token,
-        totalAPY,
-        product,
-        incentives,
-        leveraged,
-        tvl,
-        link,
-      } = data;
-      return {
-        currency: underlying.symbol,
-        product: product,
-        //NOTE: This ensures that 0.00% is displayed instead of "-" in the cell
-        totalAPY: totalAPY === 0 ? 0.00001 : totalAPY,
-        maturity:
-          !token.maturity || token.maturity === PRIME_CASH_VAULT_MATURITY
-            ? 0
-            : token.maturity,
-        leverage:
-          leveraged && leveraged.leverageRatio ? leveraged.leverageRatio : 0,
-        totalTVL: tvl?.toFiat(baseCurrency).toFloat() || 0,
-        noteAPY:
-          incentives && incentives.length > 0 && incentives[0]?.incentiveAPY > 0
-            ? incentives[0]?.incentiveAPY
-            : 0,
-        view: link,
-        multiValueCellData: {
-          currency: {
-            symbol: underlying.symbol,
-            label: underlying.symbol,
-            caption: formatYieldCaption(data),
+    return allMarketsData
+      .map((data) => {
+        const {
+          underlying,
+          token,
+          totalAPY,
+          product,
+          incentives,
+          leveraged,
+          tvl,
+          link,
+        } = data;
+        return {
+          currency: underlying.symbol,
+          product: product,
+          //NOTE: This ensures that 0.00% is displayed instead of "-" in the cell
+          totalAPY: totalAPY === 0 ? 0.00001 : totalAPY,
+          maturity:
+            !token.maturity || token.maturity === PRIME_CASH_VAULT_MATURITY
+              ? 0
+              : token.maturity,
+          leverage:
+            leveraged && leveraged.leverageRatio ? leveraged.leverageRatio : 0,
+          totalTVL: tvl?.toFiat(baseCurrency).toFloat() || 0,
+          noteAPY:
+            incentives &&
+            incentives.length > 0 &&
+            incentives[0]?.incentiveAPY > 0
+              ? incentives[0]?.incentiveAPY
+              : 0,
+          view: link,
+          multiValueCellData: {
+            currency: {
+              symbol: underlying.symbol,
+              label: underlying.symbol,
+              caption: formatYieldCaption(data),
+            },
           },
-        },
-      };
-    });
+        };
+      })
+      .filter(({ product }) => product !== 'Leveraged Lend');
   };
 
   const initialData =

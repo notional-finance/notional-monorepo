@@ -2,15 +2,15 @@ import { usePortfolioHoldings } from './use-portfolio-holdings';
 import { DataTable } from '@notional-finance/mui';
 import { FormattedMessage } from 'react-intl';
 import { TableActionRow } from '../../components';
-import { usePortfolioButtonBar } from '../../hooks';
 import { Box } from '@mui/material';
 import { PortfolioRisk } from './portfolio-risk';
 
 export const PortfolioHoldings = () => {
-  const buttonData = usePortfolioButtonBar();
   const {
     portfolioHoldingsColumns,
-    portfolioHoldingsData,
+    detailedHoldings,
+    toggleBarProps,
+    groupedHoldings,
     pendingTokenData,
     setExpandedRows,
     initialState,
@@ -20,12 +20,15 @@ export const PortfolioHoldings = () => {
     <Box>
       <PortfolioRisk />
       <DataTable
-        data={portfolioHoldingsData}
+        toggleBarProps={toggleBarProps}
+        data={
+          toggleBarProps.toggleOption === 0 ? groupedHoldings : detailedHoldings
+        }
         pendingTokenData={pendingTokenData}
         pendingMessage={
           <FormattedMessage
             defaultMessage={
-              'Recalculating positions. Check back later to see your positions.'
+              'Positions are being recalculated to reflect your last transaction'
             }
           />
         }
@@ -37,7 +40,6 @@ export const PortfolioHoldings = () => {
             description="table title"
           />
         }
-        tableTitleButtons={buttonData}
         initialState={initialState}
         setExpandedRows={setExpandedRows}
       />

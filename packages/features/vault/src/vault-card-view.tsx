@@ -1,20 +1,26 @@
 import { CardContainer, FeatureLoader } from '@notional-finance/shared-web';
 import { Vault } from '@notional-finance/mui';
 import { useNotionalTheme } from '@notional-finance/styles';
-import { useThemeVariant } from '@notional-finance/notionable-hooks';
-import { defineMessage, FormattedMessage } from 'react-intl';
+import {
+  useSelectedNetwork,
+  useThemeVariant,
+} from '@notional-finance/notionable-hooks';
+import { defineMessage } from 'react-intl';
 import { ThemeProvider } from '@mui/material';
 import { useVaultCards } from './hooks';
 
 export const VaultCardView = () => {
   const themeVariant = useThemeVariant();
   const allVaults = useVaultCards();
+  const network = useSelectedNetwork();
   const themeLanding = useNotionalTheme(themeVariant, 'landing');
 
   return (
     <ThemeProvider theme={themeLanding}>
       <FeatureLoader
-        featureLoaded={allVaults?.length > 0 && themeVariant ? true : false}
+        featureLoaded={
+          !!network && allVaults?.length > 0 && themeVariant ? true : false
+        }
       >
         <CardContainer
           heading={defineMessage({
@@ -37,7 +43,9 @@ export const VaultCardView = () => {
               minDepositRequired,
               vaultAddress,
               underlyingSymbol,
+              hasPosition,
               headlineRate,
+              netWorth,
               vaultName,
               capacityUsedPercentage,
               capacityRemaining,
@@ -46,13 +54,14 @@ export const VaultCardView = () => {
             return (
               <Vault
                 key={vaultAddress}
+                hasVaultPosition={hasPosition}
                 vaultName={vaultName}
                 symbol={underlyingSymbol}
                 rate={headlineRate || 0}
                 leverage={leverage}
+                netWorth={netWorth}
                 minDepositRequired={minDepositRequired}
                 route={`/vaults/${vaultAddress}`}
-                buttonText={<FormattedMessage defaultMessage="Enter Vault" />}
                 capacityUsedPercentage={capacityUsedPercentage}
                 capacityRemaining={capacityRemaining}
               />

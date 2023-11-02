@@ -200,6 +200,14 @@ export abstract class BaseRiskProfile implements RiskFactors {
     );
   }
 
+  /** Total value of assets in the specified currency */
+  totalCurrencyAssets(currencyId: number, denominated = this.defaultSymbol) {
+    return this._totalValue(
+      this.collateral.filter((t) => t.token.currencyId === currencyId),
+      this.denom(denominated)
+    );
+  }
+
   netWorth() {
     return this.totalAssets().add(this.totalDebt());
   }
@@ -280,8 +288,14 @@ export abstract class BaseRiskProfile implements RiskFactors {
     const value = this.getRiskFactor(riskFactor, args);
     const riskFactorInRP = this._getRiskFactorInRP(riskFactor, limit);
     const netLocal = this.netCollateralAvailable(localUnderlyingId);
-    const totalAssets = this.totalAssets(localUnderlyingId);
-    const totalDebt = this.totalDebt(localUnderlyingId);
+    const totalAssets =
+      args && riskFactor === 'leverageRatio' && typeof args[0] === 'number'
+        ? this.totalCurrencyAssets(args[0])
+        : this.totalAssets(localUnderlyingId);
+    const totalDebt =
+      args && riskFactor === 'leverageRatio' && typeof args[0] === 'number'
+        ? this.totalCurrencyDebts(args[0])
+        : this.totalDebt(localUnderlyingId);
 
     // NOTE: multiples should move the risk factor closer towards limit == value, so
     // if the limit is satisfied the next iteration of the loop will move closer towards
@@ -364,16 +378,15 @@ export abstract class BaseRiskProfile implements RiskFactors {
       //  repay = [debt * (1 + limit) - limit * asset] / (1 - limit)
       let initialEstimateInRP: number;
 
-      if (value === null && totalAssets.isZero()) {
-        initialEstimateInRP =
-          (riskFactorInRP * estimateScalarInRP) / RATE_PRECISION;
-      } else if (value === null) {
-        // If there is no leverage, then use the limit as the number of debt
-        // units times the total assets.
-        initialEstimateInRP = totalAssets
-          .mulInRatePrecision(riskFactorInRP)
-          .scaleTo(RATE_DECIMALS)
-          .toNumber();
+      if (value === null || (value as number) < 1) {
+        // If there is no leverage or a very small amount, then use the limit
+        // as the number of debt units times the total assets.
+        initialEstimateInRP = totalAssets.isZero()
+          ? (riskFactorInRP * estimateScalarInRP) / RATE_PRECISION
+          : totalAssets
+              .mulInRatePrecision(riskFactorInRP)
+              .scaleTo(RATE_DECIMALS)
+              .toNumber();
       } else if (netLocal.isPositive()) {
         initialEstimateInRP = totalDebt
           .neg()

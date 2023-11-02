@@ -9,6 +9,7 @@ export interface CustomTypographyProps extends StylesProps {
   accent?: boolean;
   contrast?: boolean;
   error?: boolean;
+  main?: boolean;
   href?: string;
   to?: string;
   fontWeight?: 'light' | 'regular' | 'medium' | 'bold';
@@ -16,8 +17,9 @@ export interface CustomTypographyProps extends StylesProps {
   uppercase?: boolean;
   gutter?: 'default' | 'tight' | 'none';
   msg?: MessageDescriptor;
-  component?: any;
   // NOTE: This is intentionally a any type. MUI does not provide a clear way to get the type for this
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  component?: any;
 }
 
 const makeVariant = (
@@ -30,6 +32,7 @@ const makeVariant = (
     contrast,
     error,
     href,
+    main,
     to,
     inline,
     uppercase,
@@ -43,6 +46,7 @@ const makeVariant = (
     if (accent) color = theme.palette.typography.accent;
     if (contrast) color = theme.palette.typography.contrastText;
     if (error) color = theme.palette.error.main;
+    if (main) color = theme.palette.typography.main;
     let marginBottom;
     if (gutter === 'none') marginBottom = theme.spacing(0);
     if (gutter === 'tight') marginBottom = theme.spacing(0.5);

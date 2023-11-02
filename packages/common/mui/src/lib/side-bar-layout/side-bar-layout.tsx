@@ -48,7 +48,7 @@ export function SideBarLayout({
           marginTop: {
             xs: theme.spacing(2),
             sm: theme.spacing(2),
-            md: theme.spacing(2),
+            md: theme.spacing(6),
             lg: theme.spacing(6),
             xl: theme.spacing(6),
           },

@@ -21,6 +21,7 @@ export interface FaqProps {
   componentAnswer?: ReactNode;
   slug?: string;
   sx?: SxProps;
+  onClick?: () => void;
 }
 
 const INITIAL_TIP = 'Copy Link';
@@ -33,6 +34,7 @@ export function Faq({
   componentAnswer,
   slug = '',
   sx,
+  onClick,
 }: FaqProps) {
   const { origin, pathname, hash } = window.location;
   const url = `${origin}${pathname}${slug}`;
@@ -67,6 +69,7 @@ export function Faq({
 
   return (
     <Accordion
+      onClick={onClick}
       expanded={expanded}
       onChange={handleChange}
       ref={faqRef}

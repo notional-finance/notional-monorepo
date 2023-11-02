@@ -109,6 +109,18 @@ export enum LOCALES {
   ZH_CN = 'zh-CN',
 }
 
+export enum TRACKING_EVENTS {
+  HOW_IT_WORKS = 'HowItWorks',
+  FAQ = 'FAQ',
+  HOVER_TOOL_TIP = 'HoverTooltip',
+  TOOL_TIP= "ToolTip",
+  NFT_UNLOCK= "NFTUnlock",
+  SUBMIT_TXN = 'SubmitTxn',
+  REJECT_TXN = 'RejectTxn',
+  CONFIRMATION = 'Confirmation',
+  DISCONNECT_WALLET = 'DisconnectWallet',
+}
+
 export type SIDE_DRAWERS_TYPE = SETTINGS_SIDE_DRAWERS | PORTFOLIO_ACTIONS;
 
 export type RouteType =

@@ -2,8 +2,10 @@ import { useContext } from 'react';
 import { Box, useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { useBorrowVariableFaq } from '../hooks';
+import { trackEvent } from '@notional-finance/helpers';
+import { TRACKING_EVENTS } from '@notional-finance/util';
+import { useLocation } from 'react-router-dom';
 import { useInterestRateUtilizationChart } from '@notional-finance/trade';
-import { HowItWorksFaq } from './how-it-works-faq';
 import {
   Faq,
   FaqHeader,
@@ -17,6 +19,7 @@ import { useTokenHistory } from '@notional-finance/notionable-hooks';
 
 export const BorrowVariableTradeSummary = () => {
   const theme = useTheme();
+  const { pathname } = useLocation();
   const context = useContext(BorrowVariableContext);
   const { state } = context;
   const { deposit, debt, selectedDepositToken } = state;
@@ -84,16 +87,6 @@ export const BorrowVariableTradeSummary = () => {
           />
         ))}
       </Box>
-      <Faq
-        sx={{ boxShadow: 'none' }}
-        question={<FormattedMessage defaultMessage={'How it Works'} />}
-        componentAnswer={<HowItWorksFaq />}
-        questionDescription={
-          <FormattedMessage
-            defaultMessage={'Learn how variable rate borrowing works'}
-          />
-        }
-      />
       {areaChartData.length > 0 && (
         <MultiDisplayChart
           chartComponents={[
@@ -104,13 +97,13 @@ export const BorrowVariableTradeSummary = () => {
               Component: (
                 <AreaChart
                   showCartesianGrid
+                  xAxisTickCount={12}
                   areaLineType="linear"
                   xAxisTickFormat="percent"
                   areaChartData={areaChartData}
                   areaChartStyles={areaChartStyles}
                   chartToolTipData={chartToolTipData}
                   referenceLineValue={borrowUtilization}
-                  xAxisTickCount={12}
                 />
               ),
               chartHeaderData: chartHeaderData,
@@ -123,17 +116,26 @@ export const BorrowVariableTradeSummary = () => {
         links={faqHeaderLinks}
       />
 
-      {faqs.map(({ question, answer, componentAnswer }, index) => (
-        <Faq
-          key={index}
-          question={question}
-          answer={answer}
-          componentAnswer={componentAnswer}
-          sx={{
-            marginBottom: theme.spacing(2),
-          }}
-        />
-      ))}
+      {faqs.map(
+        ({ question, questionString, answer, componentAnswer }, index) => (
+          <Faq
+            onClick={() =>
+              trackEvent(TRACKING_EVENTS.TOOL_TIP, {
+                path: pathname,
+                type: TRACKING_EVENTS.FAQ,
+                title: questionString,
+              })
+            }
+            key={index}
+            question={question}
+            answer={answer}
+            componentAnswer={componentAnswer}
+            sx={{
+              marginBottom: theme.spacing(2),
+            }}
+          />
+        )
+      )}
     </TradeActionSummary>
   );
 };

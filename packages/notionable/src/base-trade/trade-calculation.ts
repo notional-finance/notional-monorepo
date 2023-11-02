@@ -81,11 +81,19 @@ export function calculateMaxWithdraw(
         netRealizedDebtBalance,
         calculationSuccess,
         calculateError,
+        debtFee,
+        collateralFee,
+        collateralBalance,
+        debtBalance,
       } = executeCalculation(inputsSatisfied, s.tradeType, inputs) as {
         netRealizedDebtBalance: TokenBalance | undefined;
         netRealizedCollateralBalance: TokenBalance | undefined;
-        calculationSuccess: boolean,
-        calculateError: string | undefined,
+        debtFee: TokenBalance | undefined;
+        collateralFee: TokenBalance | undefined;
+        calculationSuccess: boolean;
+        calculateError: string | undefined;
+        collateralBalance: TokenBalance | undefined;
+        debtBalance: TokenBalance | undefined;
       };
 
       return {
@@ -94,6 +102,10 @@ export function calculateMaxWithdraw(
         calculateError,
         netRealizedDebtBalance: netRealizedDebtBalance,
         netRealizedCollateralBalance: netRealizedCollateralBalance,
+        debtFee,
+        collateralFee,
+        ...(s.tradeType === 'RollDebt' ? { debtBalance } : {}),
+        ...(s.tradeType === 'ConvertAsset' ? { collateralBalance } : {}),
       };
     }),
     filterEmpty()
@@ -343,6 +355,11 @@ function getRequiredArgs(
           return [
             Object.assign(inputs, { [r]: s[r] }),
             [...keys, (s[r] as number | undefined)?.toString() || ''],
+          ];
+        case 'maxWithdraw':
+          return [
+            Object.assign(inputs, { [r]: s[r] }),
+            [...keys, (s[r] as boolean | undefined)?.toString() || ''],
           ];
         default:
           return [inputs, keys];

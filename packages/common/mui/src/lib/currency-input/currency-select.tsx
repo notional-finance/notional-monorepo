@@ -12,6 +12,8 @@ import { formatTokenType } from '@notional-finance/helpers';
 
 export interface CurrencySelectOption {
   token: TokenDefinition;
+  // Used for cases when we want to flip the prime cash / prime debt tokens
+  displayToken?: TokenDefinition;
   content?: {
     largeFigure: number;
     largeFigureSuffix: string;
@@ -111,7 +113,9 @@ export const formatOption = (
   theme: NotionalTheme,
   wrapInOption = true
 ) => {
-  const { icon, titleWithMaturity } = formatTokenType(option.token);
+  const { icon, titleWithMaturity } = formatTokenType(
+    option.displayToken || option.token
+  );
   let rightContent: ReactNode | undefined;
   if (option.content) {
     const c = option.content;

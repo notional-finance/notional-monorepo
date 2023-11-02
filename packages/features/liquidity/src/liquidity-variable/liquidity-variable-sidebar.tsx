@@ -3,8 +3,9 @@ import { DepositInput, TransactionSidebar } from '@notional-finance/trade';
 import { useHistory } from 'react-router-dom';
 import { useCurrencyInputRef } from '@notional-finance/mui';
 import { defineMessage } from 'react-intl';
-import { LiquidityContext } from '../liquidity-variable';
+import { LiquidityContext } from '../liquidity';
 import { PRODUCTS } from '@notional-finance/util';
+import { useLeveragedNTokenPositions } from '../liquidity-leveraged/hooks';
 
 export const LiquidityVariableSidebar = () => {
   const history = useHistory();
@@ -13,14 +14,23 @@ export const LiquidityVariableSidebar = () => {
     state: { selectedDepositToken },
   } = context;
   const { currencyInputRef } = useCurrencyInputRef();
+  const { depositTokensWithPositions } =
+    useLeveragedNTokenPositions(selectedDepositToken);
 
   const handleLeverUpToggle = useCallback(() => {
-    history.push(`/${PRODUCTS.LIQUIDITY_LEVERAGED}/${selectedDepositToken}`);
-  }, [history, selectedDepositToken]);
+    history.push(
+      `/${PRODUCTS.LIQUIDITY_LEVERAGED}/${
+        depositTokensWithPositions.includes(selectedDepositToken || '')
+          ? 'IncreaseLeveragedNToken'
+          : 'CreateLeveragedNToken'
+      }/${selectedDepositToken}`
+    );
+  }, [history, selectedDepositToken, depositTokensWithPositions]);
 
   return (
     <TransactionSidebar
       context={context}
+      showDrawer
       handleLeverUpToggle={handleLeverUpToggle}
     >
       <DepositInput

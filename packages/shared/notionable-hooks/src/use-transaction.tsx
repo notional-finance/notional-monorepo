@@ -1,6 +1,6 @@
 import { TransactionReceipt } from '@ethersproject/providers';
 import { trackEvent } from '@notional-finance/helpers';
-import { filterEmpty, logError } from '@notional-finance/util';
+import { filterEmpty, logError, TRACKING_EVENTS } from '@notional-finance/util';
 import { PopulatedTransaction } from 'ethers';
 import { useObservable, useSubscription } from 'observable-hooks';
 import { useCallback, useEffect, useState } from 'react';
@@ -8,7 +8,6 @@ import { map, switchMap } from 'rxjs';
 import { useNotionalContext, useSelectedNetwork } from './use-notional';
 import { useLocation } from 'react-router';
 import { Registry, TokenDefinition } from '@notional-finance/core-entities';
-import { useAccountDefinition } from './use-account';
 
 export enum TransactionStatus {
   NONE = 'none',
@@ -42,7 +41,7 @@ function useSubmitTransaction() {
       if (!signer) throw Error('Signer undefined');
       const tx = await signer.sendTransaction(populatedTransaction);
       const { hash } = tx;
-      trackEvent('SubmitTxn', {
+      trackEvent(TRACKING_EVENTS.SUBMIT_TXN, {
         url: pathname,
         txnHash: hash,
         transactionLabel,
@@ -136,25 +135,8 @@ function usePendingTransaction(hash?: string) {
 
 export function usePendingPnLCalculation() {
   const {
-    globalState: { completedTransactions, awaitingBalanceChanges },
+    globalState: { pendingTokens, pendingTxns },
   } = useNotionalContext();
-  const { account } = useAccountDefinition();
-
-  const latestProcessedTxnBlock = Math.max(
-    ...(account?.accountHistory?.map(({ blockNumber }) => blockNumber) || [0])
-  );
-  const pendingTokens = Object.entries(completedTransactions).flatMap(
-    ([hash, tr]) =>
-      tr.blockNumber > latestProcessedTxnBlock
-        ? awaitingBalanceChanges[hash] || []
-        : []
-  );
-  const pendingTxns = Object.entries(completedTransactions)
-    .map(([hash, tr]) =>
-      tr.blockNumber > latestProcessedTxnBlock ? hash : undefined
-    )
-    .filter((h) => !!h) as string[];
-
   return { pendingTokens, pendingTxns };
 }
 
@@ -193,7 +175,7 @@ export function useTransactionStatus() {
           .catch((e) => {
             logError(e, 'use-transaction', 'onSubmit');
             // If we see an error here it is most likely due to user rejection
-            trackEvent('RejectTxn', {
+            trackEvent(TRACKING_EVENTS.REJECT_TXN, {
               url: pathname,
               transactionLabel,
               selectedNetwork: network,

@@ -1,5 +1,5 @@
 import { TokenBalance, TokenDefinition } from '@notional-finance/core-entities';
-import { useAccountDefinition } from './use-account';
+import { useAccountDefinition, usePortfolioRiskProfile } from './use-account';
 
 export function useWalletAllowances() {
   const { account } = useAccountDefinition();
@@ -40,4 +40,16 @@ export function useWalletBalanceInputCheck(
     insufficientBalance,
     insufficientAllowance,
   };
+}
+
+export function useMaxAssetBalance(token: TokenDefinition | undefined) {
+  const profile = usePortfolioRiskProfile();
+  return token?.tokenType === 'PrimeDebt'
+    ? profile.balances
+        .find(
+          (b) =>
+            b.tokenType === 'PrimeCash' && b.currencyId === token.currencyId
+        )
+        ?.toToken(token)
+    : profile.balances.find((b) => b.tokenId === token?.id);
 }

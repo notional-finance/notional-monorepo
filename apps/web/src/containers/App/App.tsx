@@ -23,11 +23,11 @@ import { useNotionalTheme } from '@notional-finance/styles';
 import { AboutUsView } from '@notional-finance/about-us-feature-shell';
 import {
   LendFixed,
-  LendLeveraged,
+  // LendLeveraged,
   LendVariable,
   LendCardView,
   LendVariableCardView,
-  LendLeveragedCardView,
+  // LendLeveragedCardView,
 } from '@notional-finance/lend-feature-shell';
 import { PortfolioFeatureShell } from '@notional-finance/portfolio-feature-shell';
 import {
@@ -43,7 +43,7 @@ import {
   LiquidityLeveragedCardView,
 } from '@notional-finance/liquidity-feature-shell';
 import {
-  VaultActionProvider,
+  VaultView,
   VaultCardView,
 } from '@notional-finance/vault-feature-shell';
 import { TermsView } from '../../containers/TermsView';
@@ -92,11 +92,11 @@ const AllRoutes = () => {
             component={LendFixed}
             routeType="Transaction"
           />
-          <AppLayoutRoute
+          {/* <AppLayoutRoute
             path="/lend-leveraged/:selectedDepositToken"
             component={LendLeveraged}
             routeType="Transaction"
-          />
+          /> */}
           <AppLayoutRoute
             path="/lend-fixed"
             component={LendCardView}
@@ -112,11 +112,11 @@ const AllRoutes = () => {
             component={LendVariableCardView}
             routeType="Card"
           />
-          <AppLayoutRoute
+          {/* <AppLayoutRoute
             path="/lend-leveraged"
             component={LendLeveragedCardView}
             routeType="Card"
-          />
+          /> */}
           <AppLayoutRoute
             path="/liquidity-variable/:selectedDepositToken"
             component={LiquidityVariable}
@@ -128,7 +128,7 @@ const AllRoutes = () => {
             routeType="Card"
           />
           <AppLayoutRoute
-            path="/liquidity-leveraged/:selectedDepositToken"
+            path="/liquidity-leveraged/:action/:selectedDepositToken"
             component={LiquidityLeveraged}
             routeType="Transaction"
           />
@@ -138,13 +138,8 @@ const AllRoutes = () => {
             routeType="Card"
           />
           <AppLayoutRoute
-            path="/vaults/:vaultAddress/:tradeType"
-            component={VaultActionProvider}
-            routeType="PortfolioTransaction"
-          />
-          <AppLayoutRoute
             path="/vaults/:vaultAddress"
-            component={VaultActionProvider}
+            component={VaultView}
             routeType="Transaction"
           />
           <AppLayoutRoute

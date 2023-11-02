@@ -74,6 +74,8 @@ export function DeleverageLend({
   network,
   collateralBalance,
   debtBalance,
+  maxWithdraw,
+  depositBalance,
 }: PopulateTransactionInputs) {
   if (!(collateralBalance?.isNegative() && debtBalance?.isPositive())) {
     throw Error('Collateral and Debt must be defined');
@@ -89,8 +91,8 @@ export function DeleverageLend({
         getBalanceAndTradeAction(
           DepositActionType.None,
           TokenBalance.zero(collateralBalance.underlying), // no deposits
-          false,
-          undefined, // No Withdraws
+          maxWithdraw,
+          maxWithdraw ? undefined : depositBalance?.neg().toPrimeCash(),
           false,
           [collateralBalance, debtBalance].filter(
             (t) => t.tokenType === 'fCash'
@@ -170,16 +172,39 @@ export function DeleverageNToken({
   collateralBalance,
   debtBalance,
   accountBalances,
+  depositBalance,
+  maxWithdraw,
 }: PopulateTransactionInputs) {
   if (!collateralBalance || !debtBalance)
     throw Error('All balances must be defined');
 
   // Adjust the debt balance up slightly to reduce the chance of dust balances
   // causing fCash to fail.
-  const adjustedDebtBalance = debtBalance
-    .mulInRatePrecision(RATE_PRECISION + 0.01 * BASIS_POINT)
-    .neg();
-  const { cashBalance } = hasExistingCashBalance(debtBalance, accountBalances);
+  const adjustedDebtBalance = maxWithdraw
+    ? debtBalance.neg()
+    : debtBalance.mulInRatePrecision(RATE_PRECISION + 0.01 * BASIS_POINT).neg();
+
+  let {
+    // eslint-disable-next-line prefer-const
+    cashBalance,
+    withdrawEntireCashBalance,
+    withdrawAmountInternalPrecision,
+  } = hasExistingCashBalance(
+    depositBalance?.neg() || debtBalance,
+    accountBalances
+  );
+
+  if (
+    maxWithdraw &&
+    cashBalance?.isNegative() &&
+    collateralBalance.tokenType === 'PrimeCash'
+  ) {
+    // In this case, we can safely execute a max withdraw because we are repaying a prime debt
+    // and any residual cash from deleverage can be cleared
+    withdrawEntireCashBalance = true;
+    withdrawAmountInternalPrecision = undefined;
+  }
+
   return populateNotionalTxnAndGas(
     network,
     address,
@@ -190,9 +215,8 @@ export function DeleverageNToken({
         getBalanceAndTradeAction(
           DepositActionType.RedeemNToken,
           adjustedDebtBalance,
-          // Withdraw any pCash if there is none so we don't leave any dust behind
-          cashBalance === undefined,
-          undefined, // No Withdraws
+          withdrawEntireCashBalance,
+          withdrawAmountInternalPrecision,
           false,
           collateralBalance.tokenType === 'fCash' ? [collateralBalance] : []
         ),
@@ -208,5 +232,13 @@ export async function Deleverage(i: PopulateTransactionInputs) {
     return LeveragedLend(i);
   } else {
     return DeleverageLend(i);
+  }
+}
+
+export function LeveragedNTokenAdjustLeverage(i: PopulateTransactionInputs) {
+  if (i.collateralBalance?.tokenType === 'nToken') {
+    return LeveragedNToken(i);
+  } else {
+    return DeleverageNToken(i);
   }
 }

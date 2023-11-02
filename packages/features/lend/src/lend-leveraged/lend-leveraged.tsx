@@ -5,7 +5,10 @@ import {
   FaqHeader,
   DataTable,
 } from '@notional-finance/mui';
+import { trackEvent } from '@notional-finance/helpers';
+import { TRACKING_EVENTS } from '@notional-finance/util';
 import { FormattedMessage } from 'react-intl';
+import { useLocation } from 'react-router-dom';
 import {
   createTradeContext,
   useTradeContext,
@@ -27,6 +30,7 @@ export const LendLeveragedContext = createTradeContext('LeveragedLend');
 
 export const LendLeveraged = () => {
   const theme = useTheme();
+  const { pathname } = useLocation();
   const context = useTradeContext('LeveragedLend');
   const { state } = context;
   const { isReady, confirm, selectedDepositToken, deposit } = state;
@@ -46,6 +50,13 @@ export const LendLeveraged = () => {
               <PerformanceChart state={state} />
               {selectedDepositToken && (
                 <Faq
+                  onClick={() =>
+                    trackEvent(TRACKING_EVENTS.TOOL_TIP, {
+                      path: pathname,
+                      type: TRACKING_EVENTS.HOW_IT_WORKS,
+                      title: undefined,
+                    })
+                  }
                   sx={{ boxShadow: 'none' }}
                   question={
                     <FormattedMessage defaultMessage={'How it Works'} />
@@ -96,14 +107,26 @@ export const LendLeveraged = () => {
                 }
                 links={faqHeaderLinks}
               />
-              {faqs.map(({ question, answer, componentAnswer }, index) => (
-                <Faq
-                  key={index}
-                  question={question}
-                  answer={answer}
-                  componentAnswer={componentAnswer}
-                />
-              ))}
+              {faqs.map(
+                (
+                  { question, questionString, answer, componentAnswer },
+                  index
+                ) => (
+                  <Faq
+                    onClick={() =>
+                      trackEvent(TRACKING_EVENTS.TOOL_TIP, {
+                        path: pathname,
+                        type: TRACKING_EVENTS.FAQ,
+                        title: questionString,
+                      })
+                    }
+                    key={index}
+                    question={question}
+                    answer={answer}
+                    componentAnswer={componentAnswer}
+                  />
+                )
+              )}
             </TradeActionSummary>
           }
         />

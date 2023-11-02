@@ -3,17 +3,17 @@ import { useTheme } from '@mui/material';
 import { FormattedMessage } from 'react-intl';
 import { Body, ExternalLink } from '@notional-finance/mui';
 import { useSelectedNetwork } from '@notional-finance/notionable-hooks';
-import { LeveragedLiquidityContext } from '../../liquidity-leveraged/liquidity-leveraged';
+import { LiquidityContext } from '../../liquidity';
 import {
   getEtherscanAddressLink,
   NotionalAddress,
 } from '@notional-finance/util';
 import { RiskFaq } from '../components';
 
-export const useLiquidityFaq = (tokenSymbol: string) => {
+export const useLeveragedLiquidityFaq = (tokenSymbol: string) => {
   const theme = useTheme();
   const selectedNetwork = useSelectedNetwork();
-  const context = useContext(LeveragedLiquidityContext);
+  const context = useContext(LiquidityContext);
   const {
     state: { collateral },
   } = context;
@@ -52,6 +52,7 @@ export const useLiquidityFaq = (tokenSymbol: string) => {
   ];
   const faqs = [
     {
+      questionString: 'What is nTokenSymbol?',
       question: (
         <FormattedMessage
           defaultMessage={'What is n{tokenSymbol}?'}
@@ -81,7 +82,7 @@ export const useLiquidityFaq = (tokenSymbol: string) => {
                 <ExternalLink
                   accent
                   textDecoration
-                  href="https://docs.notional.finance/notional-v3/trading-fcash/exiting-early"
+                  href="https://docs.notional.finance/notional-v3/product-guides/providing-liquidity"
                 >
                   {msg}
                 </ExternalLink>
@@ -92,16 +93,44 @@ export const useLiquidityFaq = (tokenSymbol: string) => {
       ),
     },
     {
+      questionString: 'What is leveraged liquidity?',
       question: (
         <FormattedMessage
-          defaultMessage={'How do I exit my position?'}
+          defaultMessage={'What is leveraged liquidity?'}
           description={'faq question'}
         />
       ),
       answer: (
         <FormattedMessage
           defaultMessage={
-            'Users can deleverage and exit in one transaction by redeeming their n{tokenSymbol} to {tokenSymbol} and then using that {tokenSymbol} to repay their debt.'
+            'A Leveraged liquidity transaction allows you to provide liquidity, borrow against that liquidity, and then provide more liquidity. Leveraged liquidity allows you to earn the spread between the liquidity yield and the borrow rate that you choose. Learn more about providing liquidity on the <a1>provide liquidity</a1> page.'
+          }
+          values={{
+            a1: (msg: React.ReactNode) => (
+              <ExternalLink
+                accent
+                textDecoration
+                href="https://docs.notional.finance/notional-v3/product-guides/providing-liquidity"
+              >
+                {msg}
+              </ExternalLink>
+            ),
+          }}
+        />
+      ),
+    },
+    {
+      questionString: 'Can I exit anytime?',
+      question: (
+        <FormattedMessage
+          defaultMessage={'Can I exit anytime?'}
+          description={'faq question'}
+        />
+      ),
+      answer: (
+        <FormattedMessage
+          defaultMessage={
+            'Yes, you can redeem your liquidity, repay your leverage, and withdraw your assets at any time.'
           }
           values={{
             tokenSymbol,
@@ -110,6 +139,7 @@ export const useLiquidityFaq = (tokenSymbol: string) => {
       ),
     },
     {
+      questionString: 'Is there a cost to exit?',
       question: (
         <FormattedMessage
           defaultMessage={'Is there a cost to exit?'}
@@ -144,6 +174,7 @@ export const useLiquidityFaq = (tokenSymbol: string) => {
       ),
     },
     {
+      questionString: 'What are the risks?',
       question: (
         <FormattedMessage
           defaultMessage={'What are the risks?'}

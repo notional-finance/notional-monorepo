@@ -46,6 +46,10 @@ export function formatNumberAsPercent(num: number | string, decimals = 2) {
   return `${formatNumber(num, decimals)}%`;
 }
 
+export function formatNumberAsAPY(num: number | string, decimals = 2) {
+  return `${formatNumberAsPercent(num, decimals)} APY`;
+}
+
 export function formatNumberAsAbbr(
   num: number,
   decimalPlaces = 3,
@@ -53,15 +57,15 @@ export function formatNumberAsAbbr(
 ) {
   let suffix = '';
 
-  if (num < 1_000) {
+  if (Math.abs(num) < 1_000) {
     suffix = '';
-  } else if (num < 1_000_000) {
+  } else if (Math.abs(num) < 1_000_000) {
     suffix = 'k';
     num = num / 1_000;
-  } else if (num < 1_000_000_000) {
+  } else if (Math.abs(num) < 1_000_000_000) {
     suffix = 'm';
     num = num / 1_000_000;
-  } else if (num < 1_000_000_000_000) {
+  } else if (Math.abs(num) < 1_000_000_000_000) {
     suffix = 'b';
     num = num / 1_000_000_000;
   }

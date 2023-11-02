@@ -9,6 +9,7 @@ import {
 import { RiskFaq, FCashExample } from '../components';
 
 interface FaqProps {
+  questionString: string;
   question: ReactNode;
   answer?: ReactNode;
   componentAnswer?: ReactNode;
@@ -36,6 +37,7 @@ export const useLendLeveragedFaq = (tokenSymbol?: string) => {
   ];
   const faqs: FaqProps[] = [
     {
+      questionString: 'What is fCash?',
       question: (
         <FormattedMessage
           defaultMessage={'What is f{tokenSymbol}?'}
@@ -49,8 +51,8 @@ export const useLendLeveragedFaq = (tokenSymbol?: string) => {
         <FCashExample tokenSymbol={tokenSymbol} />
       ) : null,
     },
-
     {
+      questionString: 'What happens at maturity?',
       question: (
         <FormattedMessage
           defaultMessage={'What happens at maturity?'}
@@ -67,6 +69,7 @@ export const useLendLeveragedFaq = (tokenSymbol?: string) => {
       ),
     },
     {
+      questionString: 'Can I exit early?',
       question: (
         <FormattedMessage
           defaultMessage={'Can I exit early?'}
@@ -97,6 +100,7 @@ export const useLendLeveragedFaq = (tokenSymbol?: string) => {
       ),
     },
     {
+      questionString: 'Is there a cost to exit?',
       question: (
         <FormattedMessage
           defaultMessage={'Is there a cost to exit?'}
@@ -125,6 +129,7 @@ export const useLendLeveragedFaq = (tokenSymbol?: string) => {
       ),
     },
     {
+      questionString: 'What are the risks?',
       question: (
         <FormattedMessage
           defaultMessage={'What are the risks?'}

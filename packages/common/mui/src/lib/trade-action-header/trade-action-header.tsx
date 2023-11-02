@@ -1,19 +1,18 @@
 import { Box, useTheme } from '@mui/material';
 import { DoubleTokenIcon, TokenIcon } from '@notional-finance/icons';
 import { ReactNode } from 'react';
+import { H3 } from '../typography/typography';
 
 /* eslint-disable-next-line */
 export interface TradeActionHeaderProps {
   token: string;
   tokenBottom?: string;
-  hideTokenName?: boolean;
   actionText: ReactNode;
 }
 
 export function TradeActionHeader({
   token,
   actionText,
-  hideTokenName,
   tokenBottom,
 }: TradeActionHeaderProps) {
   const theme = useTheme();
@@ -43,16 +42,15 @@ export function TradeActionHeader({
       ) : (
         <TokenIcon symbol={token} size="medium" />
       )}
-      <Box
+      <H3
         sx={{
+          fontSize: theme.typography.pxToRem(22),
+          fontWeight: theme.typography.fontWeightRegular,
           marginLeft: theme.spacing(2),
-          fontSize: '1.375rem',
-          fontWeight: 400,
         }}
       >
         {actionText}
-        {hideTokenName ? null : `\xa0${token}`}
-      </Box>
+      </H3>
     </Box>
   );
 }

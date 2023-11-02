@@ -30,6 +30,7 @@ export function LendFixed({
   depositBalance,
   redeemToWETH,
   accountBalances,
+  maxWithdraw,
 }: PopulateTransactionInputs) {
   if (!collateralBalance) throw Error('Collateral balance undefined');
   if (!depositBalance) throw Error('Deposit balance undefined');
@@ -52,10 +53,15 @@ export function LendFixed({
     //  exchangeRateRatio = e^ [ timeToConfirmation / SECONDS_IN_YEAR ]
     //  if timeToConfirmation = 2 hours (bad case assumption):
     //    e ^ -(3600 * 2 / SECONDS_IN_YEAR) ~ 0.9997
-    collateralBalance = collateralBalance.scale(
-      RATE_PRECISION - BASIS_POINT * 3,
-      RATE_PRECISION
-    );
+
+    // NOTE: if "maxWithdraw" is specified then use the full collateral balance since this would
+    // represent a full repayment and we do not want to de-rate the fCash balance at all.
+    collateralBalance = maxWithdraw
+      ? collateralBalance
+      : collateralBalance.scale(
+          RATE_PRECISION - BASIS_POINT * 3,
+          RATE_PRECISION
+        );
 
     return populateNotionalTxnAndGas(
       network,
@@ -300,6 +306,8 @@ export function RollLendOrDebt({
   network,
   debtBalance,
   collateralBalance,
+  accountBalances,
+  maxWithdraw,
 }: PopulateTransactionInputs) {
   if (!collateralBalance || !debtBalance)
     throw Error('Debt and Collateral Balances must be defined');
@@ -308,6 +316,22 @@ export function RollLendOrDebt({
     (collateralBalance.isPositive() && debtBalance.isPositive())
   )
     throw Error('Debt and Collateral Balances positive and negative signed');
+
+  let { withdrawEntireCashBalance } = hasExistingCashBalance(
+    debtBalance.toPrimeCash(),
+    accountBalances
+  );
+
+  // Withdraw the entire cash balance when converting into or out of prime cash
+  // and we are attempting to convert the entire balance so that all dust is
+  // cleared. If there is no cash balance and we are converting between fCash or
+  // nTokens then cash will be withdrawn if there is no prior cash balance to maintain
+  // a zero cash balance.
+  withdrawEntireCashBalance =
+    withdrawEntireCashBalance ||
+    (maxWithdraw &&
+      (collateralBalance.tokenType === 'PrimeCash' ||
+        debtBalance.tokenType === 'PrimeDebt'));
 
   return populateNotionalTxnAndGas(
     network,
@@ -325,7 +349,7 @@ export function RollLendOrDebt({
         getBalanceAndTradeAction(
           DepositActionType.None,
           TokenBalance.zero(debtBalance.underlying),
-          false,
+          withdrawEntireCashBalance,
           undefined,
           false,
           [debtBalance, collateralBalance].filter(
