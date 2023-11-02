@@ -63,7 +63,8 @@ export function hasExistingCashBalance(
   const withdrawAmountInternalPrecision = withdrawEntireCashBalance
     ? undefined
     : tokenBalance.tokenType === 'PrimeCash' ||
-      tokenBalance.tokenType === 'PrimeDebt'
+      tokenBalance.tokenType === 'PrimeDebt' ||
+      tokenBalance.tokenType === 'Underlying'
     ? tokenBalance.toPrimeCash()
     : // Only execute this method for fCash and nTokens since some tokens
       // may not have nToken / fCash markets.
