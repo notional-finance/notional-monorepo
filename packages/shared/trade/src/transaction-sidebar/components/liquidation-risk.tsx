@@ -41,6 +41,7 @@ export const LiquidationRisk = ({ state }: { state: TradeState }) => {
     columns.push({
       Header: <FormattedMessage defaultMessage={'Updated'} />,
       Cell: ArrowIndicatorCell,
+      tooRisky,
       accessor: 'updated',
       textAlign: 'right',
     });
