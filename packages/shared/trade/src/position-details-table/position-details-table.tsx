@@ -29,37 +29,6 @@ interface PositionDetailsTableProps {
   }[];
 }
 
-const TABLE_COLUMNS: DataTableColumn[] = [
-  {
-    Header: (
-      <FormattedMessage defaultMessage="Detail" description={'Detail header'} />
-    ),
-    accessor: 'label',
-    textAlign: 'left',
-  },
-  {
-    Header: (
-      <FormattedMessage
-        defaultMessage="Current"
-        description={'Current header'}
-      />
-    ),
-    accessor: 'current',
-    textAlign: 'right',
-  },
-  {
-    Header: (
-      <FormattedMessage
-        defaultMessage="Updated"
-        description={'Updated header'}
-      />
-    ),
-    Cell: ArrowIndicatorCell,
-    accessor: 'updated',
-    textAlign: 'right',
-  },
-];
-
 export const PositionDetailsTable = ({
   title,
   hideUpdatedColumn,
@@ -69,6 +38,41 @@ export const PositionDetailsTable = ({
   onlyCurrent,
 }: PositionDetailsTableProps) => {
   const theme = useTheme();
+
+  const TABLE_COLUMNS: DataTableColumn[] = [
+    {
+      Header: (
+        <FormattedMessage
+          defaultMessage="Detail"
+          description={'Detail header'}
+        />
+      ),
+      accessor: 'label',
+      textAlign: 'left',
+    },
+    {
+      Header: (
+        <FormattedMessage
+          defaultMessage="Current"
+          description={'Current header'}
+        />
+      ),
+      accessor: 'current',
+      textAlign: 'right',
+    },
+    {
+      Header: (
+        <FormattedMessage
+          defaultMessage="Updated"
+          description={'Updated header'}
+        />
+      ),
+      tooRisky,
+      Cell: ArrowIndicatorCell,
+      accessor: 'updated',
+      textAlign: 'right',
+    },
+  ];
 
   return (
     <Box>
