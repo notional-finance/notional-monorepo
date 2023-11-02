@@ -43,4 +43,5 @@ export type DataTableColumn = Column & {
   sticky?: string;
   showLoadingSpinner?: boolean;
   ToolTip?: ReactNode;
+  tooRisky?: boolean;
 };
