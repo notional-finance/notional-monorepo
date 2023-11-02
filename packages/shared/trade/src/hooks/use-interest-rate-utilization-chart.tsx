@@ -41,9 +41,13 @@ export const useInterestRateUtilizationChart = (
   const chartHeaderData: ChartHeaderDataProps = {
     textHeader:
       actionType === 'borrow' ? (
-        <FormattedMessage defaultMessage={'Prime Borrow Rate | Utilization'} />
+        <FormattedMessage
+          defaultMessage={'Variable Borrow Rate | Utilization'}
+        />
       ) : (
-        <FormattedMessage defaultMessage={'Prime Lending Rate | Utilization'} />
+        <FormattedMessage
+          defaultMessage={'Variable Lending Rate | Utilization'}
+        />
       ),
     legendData: [
       {
