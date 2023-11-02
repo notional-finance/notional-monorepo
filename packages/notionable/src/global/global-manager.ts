@@ -3,7 +3,7 @@ import {
   getProviderFromNetwork,
   Network,
   RATE_PRECISION,
-  TRACKING_EVENTS
+  TRACKING_EVENTS,
 } from '@notional-finance/util';
 import {
   Observable,
@@ -197,7 +197,9 @@ export const loadGlobalManager = (
                   (b) => b.currencyId === asset.currencyId
                 );
                 const matchingAssets = assets.filter(
-                  (b) => b.currencyId === asset.currencyId
+                  (b) =>
+                    b.currencyId === asset.currencyId &&
+                    asset.tokenType === 'nToken'
                 );
 
                 // Only creates a grouped holding if there is exactly one matching asset and debt
