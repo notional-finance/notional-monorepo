@@ -1,6 +1,7 @@
 import { AngledArrowIcon, CheckmarkIcon } from '@notional-finance/icons';
 import { Box, useTheme } from '@mui/material';
 import { SmallTableCell } from '../../typography/typography';
+import { colors } from '@notional-finance/styles';
 
 export interface ArrowIndicatorCellData {
   value: string;
@@ -22,7 +23,7 @@ export const ArrowIndicatorCell = ({
   cell,
 }: ArrowIndicatorCellProps): JSX.Element => {
   const {
-    column: { textAlign },
+    column: { textAlign, tooRisky },
     value: {
       arrowUp,
       checkmark,
@@ -33,18 +34,15 @@ export const ArrowIndicatorCell = ({
     },
   } = cell;
   const { palette, shape, spacing } = useTheme();
-  const colorOnUp = greenOnArrowUp ? palette.primary.light : palette.error.main;
-  const colorOnDown = greenOnArrowUp
+  const arrowColor = tooRisky
     ? palette.error.main
+    : greenOnArrowUp
+    ? colors.orange
     : palette.primary.light;
-  let backgroundColor = palette.info.light;
-  // Don't show background highlight on default
-  if (arrowUp === null) backgroundColor = palette.background.default;
-  if (arrowUp === true && greenOnArrowUp === false)
-    backgroundColor = palette.error.light;
-  if (arrowUp === false && greenOnArrowUp === true)
-    backgroundColor = palette.error.light;
-  const valueTextColor = isNegative
+
+  const valueTextColor = tooRisky
+    ? palette.error.main
+    : isNegative
     ? palette.error.main
     : palette.typography.main;
 
@@ -57,7 +55,6 @@ export const ArrowIndicatorCell = ({
     >
       <Box
         sx={{
-          background: backgroundColor,
           padding: spacing(0.25, 1),
           // Establish a minimum width for the box if it doesn't have a value
           minWidth: spacing(8),
@@ -77,7 +74,7 @@ export const ArrowIndicatorCell = ({
               sx={{
                 marginLeft: spacing(0.5),
                 marginRight: spacing(-0.25),
-                color: arrowUp ? colorOnUp : colorOnDown,
+                color: arrowColor,
                 width: spacing(1.5),
                 transform: arrowUp ? 'rotate(180deg)' : 'rotate(270deg)',
               }}
