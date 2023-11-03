@@ -4,9 +4,9 @@ import { CurrencyOverride } from '../types';
 export const overrides = {
   [Network.ArbitrumOne]: [
     {
-      // cbETH: flash borrow wstETH
+      // cbETH: flash borrow rETH
       id: 9,
-      flashBorrowAsset: '0x5979D7b546E38E414F7E9822514be443A4800529',
+      flashBorrowAsset: '0xEC70Dcb4A1EFa46b8F2D97C310C9c4790ba5ffA8',
     },
     {
       // GMX: flash borrow WETH
