@@ -230,19 +230,21 @@ export default class NotionalV3Liquidator {
       },
       body: payload,
     });
-    console.log('TXN RESPONSE', await resp.text());
 
-    await this.logger.submitEvent({
-      aggregation_key: 'AccountLiquidated',
-      alert_type: 'info',
-      host: 'cloudflare',
-      network: this.settings.network,
-      title: `Account liquidated`,
-      tags: [
-        `account:${flashLiq.accountLiq.accountId}`,
-        `event:account_liquidated`,
-      ],
-      text: `Liquidated account ${flashLiq.accountLiq.accountId}`,
-    });
+    if (resp.status == 200) {
+      const respInfo = await resp.json();
+      await this.logger.submitEvent({
+        aggregation_key: 'AccountLiquidated',
+        alert_type: 'info',
+        host: 'cloudflare',
+        network: this.settings.network,
+        title: `Account liquidated`,
+        tags: [
+          `account:${flashLiq.accountLiq.accountId}`,
+          `event:account_liquidated`,
+        ],
+        text: `Liquidated account ${flashLiq.accountLiq.accountId}, ${respInfo['hash']}`,
+      });
+    }
   }
 }
