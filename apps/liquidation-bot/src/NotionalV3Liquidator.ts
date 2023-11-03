@@ -222,7 +222,7 @@ export default class NotionalV3Liquidator {
       data: encodedTransaction,
     });
 
-    await fetch(this.settings.txRelayUrl + '/v1/txes/0', {
+    const resp = await fetch(this.settings.txRelayUrl + '/v1/txes/0', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -230,6 +230,7 @@ export default class NotionalV3Liquidator {
       },
       body: payload,
     });
+    console.log('TXN RESPONSE', await resp.text());
 
     await this.logger.submitEvent({
       aggregation_key: 'AccountLiquidated',

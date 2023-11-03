@@ -60,8 +60,11 @@ export default class ProfitCalculator {
         '0x-api-key': this.settings.zeroExApiKey,
       },
     });
+
+    // Wait 1 sec between estimations because of rate limits
+    await new Promise((resolve) => setTimeout(resolve, 1000));
     if (resp.status !== 200) {
-      throw Error('Bad 0x response');
+      throw Error(`Bad 0x response:  ${await resp.text()}`);
     }
 
     const data = await resp.json();
@@ -228,20 +231,15 @@ export default class ProfitCalculator {
       flashLiq.accountLiq.liquidation.getLocalUnderlyingAddress()
     ) {
       if (flashAssetProfit.gt(0)) {
-        // FX profit denominated to flash loan currency to local currency
-        totalProfit = totalProfit.add(
-          BigNumber.from(
-            (
-              await this.getZeroExData(
-                this.settings.zeroExUrl,
-                flashLiq.flashBorrowAsset,
-                flashLiq.accountLiq.liquidation.getLocalUnderlyingAddress(),
-                flashAssetProfit,
-                true
-              )
-            ).buyAmount
-          )
+        const estimation = await this.getZeroExData(
+          this.settings.zeroExUrl,
+          flashLiq.flashBorrowAsset,
+          flashLiq.accountLiq.liquidation.getLocalUnderlyingAddress(),
+          flashAssetProfit,
+          true
         );
+        // FX profit denominated to flash loan currency to local currency
+        totalProfit = totalProfit.add(BigNumber.from(estimation.buyAmount));
       }
     }
 
