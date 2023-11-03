@@ -71,4 +71,17 @@ export const graphQueries = {
       }
     }
     `,
+  NotionalV3VaultReinvestments: `
+  query NotionalV3VaultReinvestments($vault: String) {
+    reinvestments(
+      orderBy: timestamp,
+      orderDirection:desc,
+      first:1,
+      where:{vault: $vault}
+    ) {
+      timestamp
+      vault { id }
+    }
+  }
+  `,
 };

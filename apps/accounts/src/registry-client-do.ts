@@ -539,6 +539,7 @@ export class RegistryClientDO extends BaseDO<Env> {
       'monitoring_pCash_balances',
       'monitoring_tvl',
       'monitoring_vault_share_value',
+      'monitoring_vault_reinvestments',
     ];
 
     const networkTag = `network:${network}`;
@@ -559,18 +560,23 @@ export class RegistryClientDO extends BaseDO<Env> {
       });
 
       for (const d of data) {
-        for (const key of Object.keys(d)) {
-          if (key.endsWith('_check') && d[key] === false) {
-            await this.logger.submitEvent({
-              host: this.serviceName,
-              network,
-              aggregation_key: 'MonitoringCheckFailed',
-              alert_type: 'error',
-              title: `Monitor ${m} Failed`,
-              tags: [networkTag, `monitor:${m}`],
-              text: JSON.stringify(d),
-            });
-          }
+        const checkPassed = Object.keys(d)
+          .filter((k) => k.endsWith('_check'))
+          .every((k) => d[k]);
+        if (!checkPassed) {
+          const text = Object.keys(d)
+            .map((k) => `${k}: ${d[k]}`)
+            .join('\n');
+
+          await this.logger.submitEvent({
+            host: this.serviceName,
+            network,
+            aggregation_key: 'MonitoringCheckFailed',
+            alert_type: 'error',
+            title: `Monitor ${m} Failed`,
+            tags: [networkTag, `monitor:${m}`],
+            text,
+          });
         }
       }
     }

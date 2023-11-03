@@ -182,7 +182,7 @@ export default class NotionalV3Liquidator {
     ra: RiskyAccount
   ): Promise<FlashLiquidation[]> {
     const liquidations = this.liquidationHelper.getPossibleLiquidations(ra);
-    const calls = liquidations.map((liq) =>
+    const calls = liquidations.flatMap((liq) =>
       liq.getFlashLoanAmountCall(this.notionalContract, ra.id)
     );
 
@@ -191,26 +191,20 @@ export default class NotionalV3Liquidator {
     return await this.profitCalculator.sortByProfitability(
       liquidations
         .map((liq) => {
-          const result =
-            results[
-              `${ra.id}:${liq.getLiquidationType()}:${
-                liq.getLocalCurrency().id
-              }:${liq.getCollateralCurrencyId()}:loanAmount`
-            ];
+          const result = results[
+            `${ra.id}:${liq.getLiquidationType()}:${
+              liq.getLocalCurrency().id
+            }:${liq.getCollateralCurrencyId()}:loanAmount`
+          ] as BigNumber;
 
           if (!result) {
             return null;
           }
 
-          const flashLoanAmount = this.toExternal(
-            result,
-            liq.getLocalCurrency().underlyingDecimals
-          );
-
           return {
             accountId: ra.id,
             liquidation: liq,
-            flashLoanAmount: flashLoanAmount
+            flashLoanAmount: result
               .mul(this.settings.flashLoanBuffer)
               .div(1000),
           };
@@ -228,7 +222,7 @@ export default class NotionalV3Liquidator {
       data: encodedTransaction,
     });
 
-    await fetch(this.settings.txRelayUrl + '/v1/txes/0', {
+    const resp = await fetch(this.settings.txRelayUrl + '/v1/txes/0', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -237,17 +231,20 @@ export default class NotionalV3Liquidator {
       body: payload,
     });
 
-    await this.logger.submitEvent({
-      aggregation_key: 'AccountLiquidated',
-      alert_type: 'info',
-      host: 'cloudflare',
-      network: this.settings.network,
-      title: `Account liquidated`,
-      tags: [
-        `account:${flashLiq.accountLiq.accountId}`,
-        `event:account_liquidated`,
-      ],
-      text: `Liquidated account ${flashLiq.accountLiq.accountId}`,
-    });
+    if (resp.status == 200) {
+      const respInfo = await resp.json();
+      await this.logger.submitEvent({
+        aggregation_key: 'AccountLiquidated',
+        alert_type: 'info',
+        host: 'cloudflare',
+        network: this.settings.network,
+        title: `Account liquidated`,
+        tags: [
+          `account:${flashLiq.accountLiq.accountId}`,
+          `event:account_liquidated`,
+        ],
+        text: `Liquidated account ${flashLiq.accountLiq.accountId}, ${respInfo['hash']}`,
+      });
+    }
   }
 }

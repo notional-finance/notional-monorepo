@@ -33,6 +33,13 @@ export default {
       case Routes.Vaults:
         ns = env.VAULT_REGISTRY_DO;
         break;
+      case 'healthcheck':
+        await Promise.all([
+          runHealthCheck(env.TOKEN_REGISTRY_DO, env.VERSION),
+          runHealthCheck(env.CONFIGURATION_REGISTRY_DO, env.VERSION),
+          runHealthCheck(env.VAULT_REGISTRY_DO, env.VERSION),
+        ]);
+        return new Response(JSON.stringify({ status: 'OK' }));
     }
 
     const stub = ns.get(ns.idFromName(env.VERSION));

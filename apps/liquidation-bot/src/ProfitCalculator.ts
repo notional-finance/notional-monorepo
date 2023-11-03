@@ -60,8 +60,11 @@ export default class ProfitCalculator {
         '0x-api-key': this.settings.zeroExApiKey,
       },
     });
+
+    // Wait 1 sec between estimations because of rate limits
+    await new Promise((resolve) => setTimeout(resolve, 1000));
     if (resp.status !== 200) {
-      throw Error('Bad 0x response');
+      throw Error(`Bad 0x response:  ${await resp.text()}`);
     }
 
     const data = await resp.json();
@@ -182,6 +185,24 @@ export default class ProfitCalculator {
       totalProfit = results[1];
       collateralProfit = results[2];
     } catch (e) {
+      const txn = await liquidator.populateTransaction['flashLoan'](
+        flashLiq.flashBorrowAsset,
+        flashLiq.accountLiq.flashLoanAmount,
+        flashLiq.accountLiq.liquidation.encode(
+          flashLiq.accountLiq.accountId,
+          false,
+          flashLiq.preLiquidationTrade,
+          flashLiq.collateralTrade
+        ),
+        flashLiq.accountLiq.liquidation.getLocalUnderlyingAddress(),
+        flashLiq.accountLiq.liquidation.getCollateralUnderlyingAddress(),
+        {
+          from: this.settings.liquidatorOwner,
+        }
+      );
+      console.error(flashLiq.flashBorrowAsset);
+      console.error(flashLiq.accountLiq.flashLoanAmount.toString());
+      console.error('Populated Txn', JSON.stringify(txn));
       console.error(e);
     }
 
@@ -210,20 +231,15 @@ export default class ProfitCalculator {
       flashLiq.accountLiq.liquidation.getLocalUnderlyingAddress()
     ) {
       if (flashAssetProfit.gt(0)) {
-        // FX profit denominated to flash loan currency to local currency
-        totalProfit = totalProfit.add(
-          BigNumber.from(
-            (
-              await this.getZeroExData(
-                this.settings.zeroExUrl,
-                flashLiq.flashBorrowAsset,
-                flashLiq.accountLiq.liquidation.getLocalUnderlyingAddress(),
-                flashAssetProfit,
-                true
-              )
-            ).buyAmount
-          )
+        const estimation = await this.getZeroExData(
+          this.settings.zeroExUrl,
+          flashLiq.flashBorrowAsset,
+          flashLiq.accountLiq.liquidation.getLocalUnderlyingAddress(),
+          flashAssetProfit,
+          true
         );
+        // FX profit denominated to flash loan currency to local currency
+        totalProfit = totalProfit.add(BigNumber.from(estimation.buyAmount));
       }
     }
 
@@ -260,6 +276,8 @@ export default class ProfitCalculator {
             estimatedProfit: netProfit,
           });
         }
+        // Need to sleep a bit between 0x calls
+        await new Promise((resolve) => setTimeout(resolve, 500));
       } catch (e) {
         console.error(e);
       }

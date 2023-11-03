@@ -29,6 +29,12 @@ export default {
       case Routes.Oracles:
         ns = env.ORACLE_REGISTRY_DO;
         break;
+      case 'healthcheck':
+        await Promise.all([
+          runHealthCheck(env.EXCHANGE_REGISTRY_DO, env.VERSION),
+          runHealthCheck(env.ORACLE_REGISTRY_DO, env.VERSION),
+        ]);
+        return new Response(JSON.stringify({ status: 'OK' }));
     }
 
     const stub = ns.get(ns.idFromName(env.VERSION));

@@ -643,6 +643,24 @@ export const configDefs: ConfigDefinition[] = [
     network: Network.ArbitrumOne,
   },
   {
+    sourceType: SourceType.Subgraph,
+    sourceConfig: {
+      protocol: ProtocolName.NotionalV3,
+      query: graphQueries.NotionalV3VaultReinvestments,
+      args: {
+        vault: '0xdb08f663e5d765949054785f2ed1b2aa1e9c22cf',
+      },
+      transform: (r) => r.reinvestments[0].timestamp,
+    },
+    tableName: TableName.GenericData,
+    dataConfig: {
+      strategyId: Strategy.Generic,
+      variable: 'FRAX/USDC Curve Reinvestment Timestamp',
+      decimals: 0,
+    },
+    network: Network.ArbitrumOne,
+  },
+  {
     sourceType: SourceType.Multicall,
     sourceConfig: {
       contractAddress: '0xcA11bde05977b3631167028862bE2a173976CA11',
