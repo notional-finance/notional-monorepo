@@ -4,7 +4,6 @@ import { useTheme, styled } from '@mui/material';
 import { Button } from '@notional-finance/mui';
 import {
   useAccountReady,
-  useLeverageBlock,
 } from '@notional-finance/notionable-hooks';
 import { SETTINGS_SIDE_DRAWERS } from '@notional-finance/util';
 import {
@@ -21,6 +20,7 @@ export interface TradeActionButtonProps {
   walletNotConnectedText?: MessageDescriptor;
   buttonVariant?: 'text' | 'outlined' | 'contained' | undefined;
   width?: string;
+  leverageDisabled?: boolean;
   margin?: string;
 }
 
@@ -54,16 +54,13 @@ export function TradeActionButton({
   buttonVariant = 'contained',
   width,
   margin,
+  leverageDisabled
 }: TradeActionButtonProps) {
   const theme = useTheme();
-  const isBlocked = useLeverageBlock();
   const isAccountReady = useAccountReady();
   const { sideDrawerOpen } = useSideDrawerState();
   const { setWalletSideDrawer, clearWalletSideDrawer } = useSideDrawerManager();
   const { pathname } = useLocation();
-  const leverageDisabled =
-    isBlocked &&
-    (pathname.includes('leveraged') || pathname.includes('vaults'));
   const history = useHistory();
   const _onSubmit =
     onSubmit ?? (() => history.push(`${pathname}?confirm=true`));
