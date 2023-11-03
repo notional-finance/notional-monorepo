@@ -33,6 +33,7 @@ export interface ActionSidebarProps {
   hideTextOnMobile?: boolean;
   advancedToggle?: ToggleSwitchProps;
   handleLeverUpToggle?: () => void;
+  leverageDisabled?: boolean;
   leveredUp?: boolean;
   handleSubmit?: () => void;
   showLeverUpToggle?: boolean;
@@ -77,6 +78,7 @@ export const ActionSidebar = ({
   leveredUp,
   showLeverUpToggle,
   handleSubmit,
+  leverageDisabled,
 }: ActionSidebarProps) => {
   const theme = useTheme();
   const inner = (
@@ -154,7 +156,11 @@ export const ActionSidebar = ({
           />
         )}
         {handleSubmit && CustomActionButton && (
-          <CustomActionButton onSubmit={handleSubmit} canSubmit={canSubmit} />
+          <CustomActionButton
+            onSubmit={handleSubmit}
+            canSubmit={canSubmit}
+            leverageDisabled={leverageDisabled}
+          />
         )}
       </FormSection>
     </>

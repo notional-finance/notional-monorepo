@@ -74,6 +74,7 @@ export const VaultSideDrawer = ({
       advancedToggle={advancedToggle}
       showDrawer={false}
       canSubmit={canSubmit && !isBlocked}
+      leverageDisabled={isBlocked}
       cancelRoute={''}
       CustomActionButton={TradeActionButton}
       handleSubmit={handleSubmit}
