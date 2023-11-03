@@ -152,7 +152,7 @@ export function Header({ children }: HeaderProps) {
               <H4 sx={{ color: colors.black, fontWeight: 500 }}>
                 <FormattedMessage
                   defaultMessage={
-                    'Notional V3 Closed Beta is Live on Arbitrum! <a1>Try it now</a1>'
+                    'Notional V3 is Live on Arbitrum! <a1>Try it now</a1>'
                   }
                   values={{
                     a1: (msg: any) => (
