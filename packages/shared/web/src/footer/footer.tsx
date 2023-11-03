@@ -157,13 +157,6 @@ export const Footer = () => {
           >
             <DiscordFooter />
           </ExternalLink>
-          <ExternalLink
-            href="https://classic.notional.finance"
-            textDecoration
-            style={{ color: theme.palette.info.accent }}
-          >
-            <FormattedMessage defaultMessage={'View Previous UI'} />
-          </ExternalLink>
         </FooterLeft>
         <FooterCenter>
           <Label accent uppercase marginBottom={theme.spacing(4)}>
