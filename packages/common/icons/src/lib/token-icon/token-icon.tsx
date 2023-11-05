@@ -57,8 +57,8 @@ import pGMX from '../../assets/icons/currencies/pGMX.svg';
 import gmx from '../../assets/icons/currencies/GMX.svg';
 import gmx_alt from '../../assets/icons/currencies/gmx-alt.svg';
 import pRDNT from '../../assets/icons/currencies/pRDNT.svg';
-import rndt from '../../assets/icons/currencies/RDNT.svg';
-import rndt_alt from '../../assets/icons/currencies/rdnt-alt.svg';
+import rdnt from '../../assets/icons/currencies/RDNT.svg';
+import rdnt_alt from '../../assets/icons/currencies/rdnt-alt.svg';
 import pARB from '../../assets/icons/currencies/pARB.svg';
 import ncbETH from '../../assets/icons/currencies/ncbETH.svg';
 import fcbETH from '../../assets/icons/currencies/fcbETH.svg';
@@ -313,11 +313,11 @@ export const TokenImageList: TokenImageMap = {
     img: pGMX,
     alt: 'pGMX',
   },
-  rndt: {
-    name: 'rndt',
-    img: rndt,
-    accentBorderImg: rndt_alt,
-    alt: 'rndt',
+  rdnt: {
+    name: 'rdnt',
+    img: rdnt,
+    accentBorderImg: rdnt_alt,
+    alt: 'rdnt',
   },
   prdnt: {
     name: 'pRDNT',
