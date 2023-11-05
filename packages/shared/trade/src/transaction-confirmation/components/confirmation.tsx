@@ -1,50 +1,36 @@
+import { useCallback } from 'react';
 import { Divider, styled, useTheme, Box } from '@mui/material';
 import {
   ExternalLink,
   HeadingSubtitle,
-  Drawer,
   ErrorMessage,
 } from '@notional-finance/mui';
+import { TokenDefinition } from '@notional-finance/core-entities';
+import { TradeState } from '@notional-finance/notionable';
 import {
   BaseTradeContext,
   TransactionStatus,
-  useSelectedNetwork,
   useTransactionStatus,
 } from '@notional-finance/notionable-hooks';
-import { useCallback, useEffect } from 'react';
+import { TransactionButtons } from './transaction-buttons';
+import { PortfolioCompare } from './portfolio-compare';
+import { OrderDetails } from './order-details';
+import { PendingTransaction } from './pending-transaction';
 import { FormattedMessage } from 'react-intl';
-import {
-  PendingTransaction,
-  StatusHeading,
-  TransactionButtons,
-} from './components';
-import { OrderDetails } from './components/order-details';
-import { PortfolioCompare } from './components/portfolio-compare';
-import { TradeState } from '@notional-finance/notionable';
-import { TokenDefinition } from '@notional-finance/core-entities';
-import { trackEvent, RouteState } from '@notional-finance/helpers';
-import { TRACKING_EVENTS } from '@notional-finance/util';
-import { useLocation } from 'react-router';
 
 export interface ConfirmationProps {
-  heading: React.ReactNode;
   context: BaseTradeContext;
   onCancel?: () => void;
   onReturnToForm?: () => void;
-  showDrawer?: boolean;
 }
 
-export const Confirmation2 = ({
-  heading,
+export const Confirmation = ({
   context,
   onCancel,
   onReturnToForm,
-  showDrawer = true,
 }: ConfirmationProps) => {
   const theme = useTheme();
   const { state, updateState } = context;
-  const selectedNetwork = useSelectedNetwork();
-  const location = useLocation<RouteState>();
   const {
     populatedTransaction,
     transactionError,
@@ -52,34 +38,14 @@ export const Confirmation2 = ({
     collateral,
     tradeType,
   } = state;
+  const { isReadOnlyAddress, transactionStatus, transactionHash, onSubmit } =
+    useTransactionStatus();
   const onTxnCancel = useCallback(() => {
     updateState({ confirm: false });
   }, [updateState]);
 
-  useEffect(() => {
-    trackEvent(TRACKING_EVENTS.CONFIRMATION, {
-      selectedNetwork,
-      tradeType,
-      path: location.pathname,
-      routeType: location.state?.routeType || 'unknown',
-    });
-    // NOTE: only execute once on page load
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const { isReadOnlyAddress, transactionStatus, transactionHash, onSubmit } =
-    useTransactionStatus();
-
-  const inner = (
+  return (
     <>
-      <StatusHeading
-        heading={heading}
-        transactionStatus={
-          transactionError
-            ? TransactionStatus.ERROR_BUILDING
-            : transactionStatus
-        }
-      />
       <TermsOfService theme={theme}>
         {transactionStatus === TransactionStatus.NONE && (
           <FormattedMessage
@@ -161,17 +127,15 @@ export const Confirmation2 = ({
       />
     </>
   );
-
-  return showDrawer ? <Drawer size="large">{inner}</Drawer> : inner;
 };
 
 const TermsOfService = styled(HeadingSubtitle)(
   ({ theme }) => `
-  margin-top: ${theme.spacing(2)};
-  margin-bottom: ${theme.spacing(3)};
-  color: ${theme.palette.typography.light};
-  font-size: 14px;
-`
+    margin-top: ${theme.spacing(2)};
+    margin-bottom: ${theme.spacing(3)};
+    color: ${theme.palette.typography.light};
+    font-size: 14px;
+  `
 );
 
-export default Confirmation2;
+export default Confirmation;

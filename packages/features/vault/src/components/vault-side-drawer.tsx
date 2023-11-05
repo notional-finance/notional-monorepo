@@ -4,7 +4,10 @@ import {
   ToggleSwitchProps,
   ProgressIndicator,
 } from '@notional-finance/mui';
-import { TradeActionButton, Confirmation2 } from '@notional-finance/trade';
+import {
+  TradeActionButton,
+  TransactionConfirmation,
+} from '@notional-finance/trade';
 import { useHistory } from 'react-router';
 import { messages } from '../messages';
 import { VaultDetailsTable } from './vault-details-table';
@@ -50,7 +53,7 @@ export const VaultSideDrawer = ({
   if (!tradeType) return <ProgressIndicator type="notional" />;
 
   return confirm ? (
-    <Confirmation2
+    <TransactionConfirmation
       heading={<FormattedMessage {...messages[tradeType].heading} />}
       context={context}
       onCancel={handleCancel}

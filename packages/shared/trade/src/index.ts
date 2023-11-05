@@ -2,7 +2,7 @@ export * from './trade-action-summary/trade-action-summary';
 export * from './trade-action-summary/mobile-trade-action-summary';
 export * from './token-approval-view/token-approval-view';
 export * from './token-approval-view/use-token-approval';
-export * from './transaction-confirmation/confirmation2';
+export * from './transaction-confirmation/transaction-confirmation';
 export * from './leverage-slider/leverage-slider';
 export * from './deposit-input/deposit-input';
 export * from './maturity-select/maturity-select';

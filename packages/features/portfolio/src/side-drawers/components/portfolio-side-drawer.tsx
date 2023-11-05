@@ -11,12 +11,14 @@ interface PortfolioSideDrawerProps {
   children?: React.ReactNode | React.ReactNode[];
   advancedToggle?: ToggleSwitchProps;
   context: TradeContext;
+  isWithdraw?: boolean;
 }
 
 export const PortfolioSideDrawer = ({
   context,
   children,
   advancedToggle,
+  isWithdraw,
 }: PortfolioSideDrawerProps) => {
   const theme = useTheme();
   const { category } = useParams<PortfolioParams>();
@@ -35,6 +37,7 @@ export const PortfolioSideDrawer = ({
       onCancelCallback={onCancel}
       onReturnToForm={onCancel}
       advancedToggle={advancedToggle}
+      isWithdraw={isWithdraw}
     >
       <Box sx={{ marginBottom: theme.spacing(6) }}>{children}</Box>
     </TransactionSidebar>

@@ -22,11 +22,15 @@ export const BorrowVariableSidebar = () => {
     : undefined;
 
   return (
-    <TransactionSidebar context={context} enablePrimeBorrow showDrawer>
+    <TransactionSidebar
+      context={context}
+      enablePrimeBorrow
+      showDrawer
+      isWithdraw
+    >
       <DepositInput
         ref={currencyInputRef}
         inputRef={currencyInputRef}
-        isWithdraw
         context={context}
         newRoute={(newToken) => `/${PRODUCTS.BORROW_VARIABLE}/${newToken}`}
         inputLabel={defineMessage({

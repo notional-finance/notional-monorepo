@@ -30,7 +30,7 @@ export function useDepositInput(
     maxBalanceString,
     maxBalance,
     insufficientBalance,
-    insufficientAllowance,
+    // insufficientAllowance,
   } = useWalletBalanceInputCheck(token, inputAmount);
 
   let errorMsg: MessageDescriptor | undefined;
@@ -45,9 +45,11 @@ export function useDepositInput(
     errorMsg = tradeErrors.usdcNotUSDCeMsg;
   } else if (!isWithdraw && isAccountReady && insufficientBalance === true) {
     errorMsg = tradeErrors.insufficientBalance;
-  } else if (!isWithdraw && isAccountReady && insufficientAllowance === true) {
-    errorMsg = tradeErrors.insufficientAllowance;
   }
+
+  // else if (!isWithdraw && isAccountReady && insufficientAllowance === true) {
+  //   errorMsg = tradeErrors.insufficientAllowance;
+  // }
 
   return {
     inputAmount: isWithdraw ? inputAmount?.neg() : inputAmount,

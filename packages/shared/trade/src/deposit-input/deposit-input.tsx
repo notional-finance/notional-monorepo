@@ -10,7 +10,7 @@ import {
 import { FormattedMessage, MessageDescriptor } from 'react-intl';
 import { useDepositInput } from './use-deposit-input';
 import { useHistory } from 'react-router';
-import TokenApprovalView from '../token-approval-view/token-approval-view';
+// import TokenApprovalView from '../token-approval-view/token-approval-view';
 import { BaseTradeContext } from '@notional-finance/notionable-hooks';
 import { TokenBalance } from '@notional-finance/core-entities';
 import { WalletIcon } from '@notional-finance/icons';
@@ -50,7 +50,7 @@ export const DepositInput = React.forwardRef<
       isWithdraw,
       maxWithdraw,
       useZeroDefault,
-      requiredApprovalAmount,
+      // requiredApprovalAmount,
     },
     ref
   ) => {
@@ -73,6 +73,8 @@ export const DepositInput = React.forwardRef<
       decimalPlaces,
       setInputString,
     } = useDepositInput(selectedDepositToken, isWithdraw, useZeroDefault);
+
+    console.log({ isWithdraw });
 
     useEffect(() => {
       updateState({
@@ -111,7 +113,10 @@ export const DepositInput = React.forwardRef<
                   marginRight: theme.spacing(0.5),
                 }}
               />
-              &nbsp;{((maxWithdraw || maxBalance) as TokenBalance).toDisplayStringWithSymbol(3, true)}
+              &nbsp;
+              {(
+                (maxWithdraw || maxBalance) as TokenBalance
+              ).toDisplayStringWithSymbol(3, true)}
             </Caption>
           )}
         </Box>
@@ -158,14 +163,14 @@ export const DepositInput = React.forwardRef<
             landingPage: false,
           }}
         />
-        {!isWithdraw && (
+        {/* {!isWithdraw && (
           <TokenApprovalView
             symbol={selectedDepositToken}
             // NOTE: this override is used when maxRepay is selected since the input amount
             // is not changed during that interaction
             requiredAmount={requiredApprovalAmount || inputAmount}
           />
-        )}
+        )} */}
       </Box>
     );
   }

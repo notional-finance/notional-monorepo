@@ -6,15 +6,17 @@ import {
 import {
   TradeContext,
   useLeverageBlock,
+  useWalletBalanceInputCheck,
 } from '@notional-finance/notionable-hooks';
 import { useCallback } from 'react';
+import { useInputAmount } from '../common';
 import {
   FormattedMessage,
   MessageDescriptor,
   defineMessages,
 } from 'react-intl';
 import TradeActionButton from '../trade-action-button/trade-action-button';
-import Confirmation2 from '../transaction-confirmation/confirmation2';
+import TransactionConfirmation from '../transaction-confirmation/transaction-confirmation';
 import {
   TransactionHeadings,
   CombinedTokenTypes,
@@ -47,6 +49,7 @@ interface TransactionSidebarProps {
   onReturnToForm?: () => void;
   onConfirmCancel?: () => void;
   onCancelCallback?: () => void;
+  isWithdraw?: boolean;
 }
 
 export const TransactionSidebar = ({
@@ -63,10 +66,18 @@ export const TransactionSidebar = ({
   riskComponent,
   onReturnToForm,
   onCancelCallback,
+  isWithdraw = false,
 }: TransactionSidebarProps) => {
   const { state, updateState } = context;
   const { pathname } = useLocation();
-  const { canSubmit, confirm, tradeType, debt, collateral } = state;
+  const {
+    selectedDepositToken,
+    canSubmit,
+    confirm,
+    tradeType,
+    debt,
+    collateral,
+  } = state;
   const isBlocked = useLeverageBlock();
   const handleSubmit = useCallback(() => {
     updateState({ confirm: true });
@@ -75,6 +86,20 @@ export const TransactionSidebar = ({
   const onConfirmCancel = useCallback(() => {
     updateState({ confirm: false });
   }, [updateState]);
+
+  const { token, inputAmount } = useInputAmount(
+    '0.00000001',
+    selectedDepositToken
+  );
+
+  const { insufficientAllowance } = useWalletBalanceInputCheck(
+    token,
+    inputAmount
+  );
+
+  // TODO Show token approval component if isWithdraw is false and insufficientAllowance is true
+
+  console.log({ insufficientAllowance });
 
   if (tradeType === undefined) return <PageLoading />;
 
@@ -105,9 +130,10 @@ export const TransactionSidebar = ({
   };
 
   return confirm ? (
-    <Confirmation2
+    <TransactionConfirmation
       heading={heading && <FormattedMessage {...heading} />}
       context={context}
+      showApprovals={isWithdraw ? false : insufficientAllowance}
       showDrawer={isPortfolio ? false : showDrawer === true}
       onReturnToForm={onReturnToForm}
       onCancel={onConfirmCancel}

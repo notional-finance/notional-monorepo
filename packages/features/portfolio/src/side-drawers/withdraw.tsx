@@ -30,7 +30,7 @@ export const Withdraw = () => {
   }, [debt?.id, setCurrencyInput]);
 
   return (
-    <PortfolioSideDrawer context={context}>
+    <PortfolioSideDrawer context={context} isWithdraw>
       <PortfolioHoldingSelect
         tightMarginTop
         isWithdraw
@@ -45,7 +45,6 @@ export const Withdraw = () => {
       />
       <DepositInput
         ref={currencyInputRef}
-        isWithdraw
         context={context}
         inputRef={currencyInputRef}
         maxWithdraw={maxWithdrawUnderlying}
