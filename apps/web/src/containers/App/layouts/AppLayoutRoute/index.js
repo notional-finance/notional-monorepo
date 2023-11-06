@@ -1,7 +1,6 @@
 import PropTypes from 'prop-types';
 import { CompatRoute } from 'react-router-dom-v5-compat';
 import { Footer, Header } from '@notional-finance/shared-web';
-import { PreviousUiPopup } from '@notional-finance/mui';
 import { WalletSelector } from '@notional-finance/wallet';
 import { Box, styled } from '@mui/material';
 
@@ -20,7 +19,6 @@ const AppLayoutRoute = ({ component: Component, path, routeKey }) => {
             <MainContent>
               <Component {...matchProps} />
             </MainContent>
-            <PreviousUiPopup />
             <StyledFooter />
           </AppShell>
         </Box>
