@@ -9,15 +9,95 @@ import {
 import { WaveButtonIcon } from '@notional-finance/icons';
 import { FormattedMessage } from 'react-intl';
 
+export const TypeForm = () => {
+  const theme = useTheme();
+  const [hideOverallForm, setHideOverallForm] = useState<boolean>(true);
+  const [showWidget, setShowWidget] = useState<boolean>(false);
+  const timeDismissed = getFromLocalStorage('typeForm').timeOfDismissal;
+
+  const handleSubmit = () => {
+    setInLocalStorage('typeForm', { formSubmitted: true });
+    setHideOverallForm(true);
+  };
+
+  const handleDismiss = () => {
+    const now = new Date().getTime();
+    setInLocalStorage('typeForm', { timeOfDismissal: now });
+    setHideOverallForm(true);
+  };
+
+  useEffect(() => {
+    const now = new Date().getTime();
+    if (timeDismissed && now - timeDismissed > 24 * 60 * 60 * 1000) {
+      setInLocalStorage('typeForm', { timeOfDismissal: undefined });
+      setHideOverallForm(false);
+    }
+  }, [timeDismissed]);
+
+  setTimeout(() => {
+    const typeFormSubmitted = getFromLocalStorage('typeForm').formSubmitted;
+    const timeDismissed = getFromLocalStorage('typeForm').timeOfDismissal;
+    if (!typeFormSubmitted && !timeDismissed) {
+      setHideOverallForm(false);
+    }
+  }, 3000);
+
+  return (
+    <FormWrapper display={hideOverallForm ? 'none' : 'flex'}>
+      {!hideOverallForm && (
+        <>
+          {showWidget === false && (
+            <StartWrapper>
+              <WaveButtonIcon></WaveButtonIcon>
+              <Title>
+                <FormattedMessage defaultMessage={'Give us feedback!'} />
+              </Title>
+              <Text>
+                <FormattedMessage
+                  defaultMessage={'takes less than 2 minutes'}
+                />
+              </Text>
+              <Button
+                onClick={() => setShowWidget(true)}
+                variant="contained"
+                sx={{
+                  textTransform: 'none',
+                  borderRadius: '0px',
+                  padding: '12px 48px',
+                  backgroundColor: theme.palette.primary.light,
+                }}
+              >
+                <FormattedMessage defaultMessage={'Start Survey'} />
+              </Button>
+              <DismissText onClick={handleDismiss}>
+                <FormattedMessage defaultMessage={'Do this later'} />
+              </DismissText>
+            </StartWrapper>
+          )}
+          {showWidget === true && (
+            <Widget
+              height={750}
+              width={495}
+              id="https://eehxwr6nfuc.typeform.com/to/s38adFvr"
+              style={{ fontSize: 16, zIndex: 99999 }}
+              onSubmit={handleSubmit}
+            ></Widget>
+          )}
+        </>
+      )}
+    </FormWrapper>
+  );
+};
+
 const FormWrapper = styled(Box)(
   ({ theme }) => `
-    position: absolute;
-    z-index: 2;
+    position: fixed;
+    z-index: 6;
     font-weight: bold;
+    right: 0;
     text-align: center;
-    padding-top: ${theme.spacing(25)};
-    flex-direction: row;
-    justify-content: center;
+    bottom: 0;
+    margin: ${theme.spacing(4)};
     @media (max-width: 400px) {
       display: none;
     }
@@ -63,88 +143,5 @@ const Text = styled('div')(
     margin-bottom: 10px;
     `
 );
-
-export const TypeForm = () => {
-  const theme = useTheme();
-  const [hideOverallForm, setHideOverallForm] = useState<boolean>(true);
-  const [showWidget, setShowWidget] = useState<boolean>(false);
-  const timeDismissed = getFromLocalStorage('typeForm').timeOfDismissal;
-
-  const handleSubmit = () => {
-    setInLocalStorage('typeForm', { formSubmitted: true });
-    setHideOverallForm(true);
-  };
-
-  const handleDismiss = () => {
-    const now = new Date().getTime();
-    setInLocalStorage('typeForm', { timeOfDismissal: now });
-    setHideOverallForm(true);
-  };
-
-  useEffect(() => {
-    const now = new Date().getTime();
-    if (timeDismissed && now - timeDismissed > 24 * 60 * 60 * 1000) {
-      setInLocalStorage('typeForm', { timeOfDismissal: undefined });
-      setHideOverallForm(false);
-    }
-  }, [timeDismissed]);
-
-  setTimeout(() => {
-    const typeFormSubmitted = getFromLocalStorage('typeForm').formSubmitted;
-    const timeDismissed = getFromLocalStorage('typeForm').timeOfDismissal;
-    if (!typeFormSubmitted && !timeDismissed) {
-      setHideOverallForm(false);
-    }
-  }, 5000);
-
-  return (
-    <FormWrapper display={hideOverallForm ? 'none' : 'flex'}>
-      {!hideOverallForm && (
-        <>
-          {showWidget === false && (
-            <StartWrapper>
-              <WaveButtonIcon></WaveButtonIcon>
-              <Title>
-                <FormattedMessage
-                  defaultMessage={'Give us feedback on our Beta!'}
-                />
-              </Title>
-              <Text>
-                <FormattedMessage
-                  defaultMessage={'takes less than 2 minutes'}
-                />
-              </Text>
-              <Button
-                onClick={() => setShowWidget(true)}
-                variant="contained"
-                sx={{
-                  textTransform: 'none',
-                  borderRadius: '0px',
-                  padding: '12px 48px',
-                  backgroundColor: theme.palette.primary.light,
-                }}
-              >
-                <FormattedMessage defaultMessage={'Start Survey'} />
-              </Button>
-              <DismissText onClick={handleDismiss}>
-                <FormattedMessage defaultMessage={'Do this later'} />
-              </DismissText>
-            </StartWrapper>
-          )}
-          {showWidget === true && (
-            <Widget
-              height={750}
-              width={495}
-              id="https://eehxwr6nfuc.typeform.com/to/AClgXM23"
-              style={{ fontSize: 16, zIndex: 99999 }}
-              onSubmit={handleSubmit}
-            ></Widget>
-          )}
-        </>
-      )}
-      <Box sx={{ width: '543px' }}></Box>
-    </FormWrapper>
-  );
-};
 
 export default TypeForm;
