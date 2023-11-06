@@ -93,7 +93,7 @@ export const IncentiveLeveraged = ({
                 {formattedIncentiveRate}
               </CardInput>
             </Box>
-            <Box>
+            <Box sx={{ minWidth: theme.spacing(27) }}>
               <SectionTitle textAlign="left" marginBottom={theme.spacing(1)}>
                 <FormattedMessage defaultMessage="Default Terms" />
               </SectionTitle>
@@ -162,7 +162,7 @@ const ContentWrapper = styled(Box, {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  width: ${theme.spacing(59.25)};
+  width: ${theme.spacing(64)};
   min-height: ${theme.spacing(13.5)};
   margin-bottom: ${theme.spacing(2)};
   margin-top: ${theme.spacing(3)};
