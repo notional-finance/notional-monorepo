@@ -143,7 +143,7 @@ export function Header({ children }: HeaderProps) {
                   a1: (msg: any) => (
                     <ExternalLink
                       textDecoration
-                      href="https://arbitrum.notional.finance/contest"
+                      href="https://arbitrum.notional.finance"
                       style={{ fontWeight: 600 }}
                     >
                       {msg}
