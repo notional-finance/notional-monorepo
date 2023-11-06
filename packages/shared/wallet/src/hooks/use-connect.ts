@@ -4,7 +4,7 @@ import { getNetworkFromId, TRACKING_EVENTS } from '@notional-finance/util';
 import { useConnectWallet } from '@web3-onboard/react';
 import { BigNumber, ethers } from 'ethers';
 import { useCallback, useEffect } from 'react';
-import useNftContract from './use-nft-contract';
+// import useNftContract from './use-nft-contract';
 
 export const useConnect = () => {
   const { globalState, updateNotional } = useNotionalContext();
@@ -88,7 +88,7 @@ export const useConnect = () => {
     isReadOnlyAddress,
   ]);
 
-  useNftContract(selectedAddress);
+  // useNftContract(selectedAddress);
 
   return {
     isReadOnlyAddress,
