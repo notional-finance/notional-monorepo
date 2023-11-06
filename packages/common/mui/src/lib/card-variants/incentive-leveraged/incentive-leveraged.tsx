@@ -93,7 +93,7 @@ export const IncentiveLeveraged = ({
                 {formattedIncentiveRate}
               </CardInput>
             </Box>
-            <Box>
+            <Box sx={{ minWidth: theme.spacing(27) }}>
               <SectionTitle textAlign="left" marginBottom={theme.spacing(1)}>
                 <FormattedMessage defaultMessage="Default Terms" />
               </SectionTitle>
