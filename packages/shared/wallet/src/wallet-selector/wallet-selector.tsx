@@ -16,7 +16,6 @@ import {
   ButtonText,
   CopyCaption,
 } from '@notional-finance/mui';
-import { ContestDropdown } from './contest-drop-down';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { useConnect } from '../hooks';
 import { useWalletSideDrawer } from '../hooks';
@@ -85,7 +84,6 @@ export function WalletSelector() {
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
       <OuterContainer>
-        <ContestDropdown />
         <Container>
           {truncatedAddress && (
             <>
