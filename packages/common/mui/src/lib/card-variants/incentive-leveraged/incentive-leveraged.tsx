@@ -162,7 +162,7 @@ const ContentWrapper = styled(Box, {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  width: ${theme.spacing(59.25)};
+  width: ${theme.spacing(64)};
   min-height: ${theme.spacing(13.5)};
   margin-bottom: ${theme.spacing(2)};
   margin-top: ${theme.spacing(3)};
