@@ -5,7 +5,7 @@ import {
   useNotionalContext,
 } from '@notional-finance/notionable-hooks';
 import { useParams } from 'react-router-dom';
-import { ButtonBar, SideDrawer } from '@notional-finance/mui';
+import { ButtonBar, SideDrawer, TypeForm } from '@notional-finance/mui';
 import { usePortfolioButtonBar, usePortfolioSideDrawers } from './hooks';
 import {
   SideNav,
@@ -91,7 +91,12 @@ const Portfolio = () => {
           <ClaimNoteButton />
         </ActionButtonRow>
         {(params.category === PORTFOLIO_CATEGORIES.OVERVIEW ||
-          params.category === undefined) && <PortfolioOverview />}
+          params.category === undefined) && (
+          <>
+            <PortfolioOverview />
+            <TypeForm />
+          </>
+        )}
         {params.category === PORTFOLIO_CATEGORIES.HOLDINGS && (
           <PortfolioHoldings />
         )}
@@ -112,7 +117,10 @@ const Portfolio = () => {
       <PortfolioMainContent>
         {params.category === PORTFOLIO_CATEGORIES.OVERVIEW ||
         params.category === undefined ? (
-          <EmptyPortfolioOverview walletConnected={false} />
+          <>
+            <EmptyPortfolioOverview walletConnected={false} />
+            <TypeForm />
+          </>
         ) : (
           <EmptyPortfolio />
         )}
