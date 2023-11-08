@@ -4,6 +4,7 @@ import { useCurrencyInputRef } from '@notional-finance/mui';
 import {
   DepositInput,
   LeverageSlider,
+  LiquidationRisk,
   TransactionSidebar,
 } from '@notional-finance/trade';
 import { useHistory } from 'react-router-dom';

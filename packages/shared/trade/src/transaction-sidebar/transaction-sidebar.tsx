@@ -8,7 +8,6 @@ import {
   VaultContext,
   TradeContext,
   useLeverageBlock,
-  useWalletBalanceInputCheck,
 } from '@notional-finance/notionable-hooks';
 import { TradeState } from '@notional-finance/notionable';
 import { useCallback, useEffect, useState } from 'react';

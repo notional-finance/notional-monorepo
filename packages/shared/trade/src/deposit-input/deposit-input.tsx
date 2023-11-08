@@ -72,8 +72,6 @@ export const DepositInput = React.forwardRef<
       setInputString,
     } = useDepositInput(selectedDepositToken, isWithdraw, useZeroDefault);
 
-    console.log({ isWithdraw });
-
     useEffect(() => {
       updateState({
         depositBalance: inputAmount,
