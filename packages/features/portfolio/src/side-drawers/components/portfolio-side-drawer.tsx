@@ -1,5 +1,5 @@
 import { ToggleSwitchProps } from '@notional-finance/mui';
-import { TransactionSidebar } from '@notional-finance/trade';
+import { TransactionSidebar, LiquidationRisk } from '@notional-finance/trade';
 import { useParams } from 'react-router';
 import { useSideDrawerManager } from '@notional-finance/side-drawer';
 import { PortfolioParams } from '../../portfolio-feature-shell';
@@ -38,6 +38,7 @@ export const PortfolioSideDrawer = ({
       onReturnToForm={onCancel}
       advancedToggle={advancedToggle}
       isWithdraw={isWithdraw}
+      riskComponent={<LiquidationRisk state={context.state} />}
     >
       <Box sx={{ marginBottom: theme.spacing(6) }}>{children}</Box>
     </TransactionSidebar>

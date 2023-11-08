@@ -2,6 +2,7 @@ import { useContext } from 'react';
 import { ErrorMessage, useCurrencyInputRef } from '@notional-finance/mui';
 import {
   DepositInput,
+  LiquidationRisk,
   TransactionSidebar,
   tradeErrors,
 } from '@notional-finance/trade';
@@ -24,9 +25,9 @@ export const BorrowVariableSidebar = () => {
   return (
     <TransactionSidebar
       context={context}
-      enablePrimeBorrow
       showDrawer
       isWithdraw
+      riskComponent={<LiquidationRisk state={context.state} />}
     >
       <DepositInput
         ref={currencyInputRef}

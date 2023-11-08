@@ -1,25 +1,14 @@
-import { useCallback } from 'react';
-import {
-  ActionSidebar,
-  ToggleSwitchProps,
-  ProgressIndicator,
-} from '@notional-finance/mui';
-import {
-  TradeActionButton,
-  TransactionConfirmation,
-} from '@notional-finance/trade';
+import { ToggleSwitchProps } from '@notional-finance/mui';
+import { TransactionSidebar } from '@notional-finance/trade';
 import { useHistory } from 'react-router';
 import { messages } from '../messages';
 import { VaultDetailsTable } from './vault-details-table';
 import {
   VaultContext,
   useVaultProperties,
-  useLeverageBlock,
 } from '@notional-finance/notionable-hooks';
 import { useVaultCapacity } from '../hooks';
 import { VaultTradeType } from '@notional-finance/notionable';
-import { FormattedMessage } from 'react-intl';
-import { TradeSummary } from '@notional-finance/trade/transaction-sidebar/components/trade-summary';
 import { CreateVaultLiquidationRisk } from './create-vault-liquidation-risk';
 
 interface VaultSideDrawerProps {
@@ -33,55 +22,30 @@ export const VaultSideDrawer = ({
   advancedToggle,
   context,
 }: VaultSideDrawerProps) => {
-  const isBlocked = useLeverageBlock();
   const history = useHistory();
-  const { state, updateState } = context;
-  const { vaultAddress, tradeType: _tradeType, canSubmit, confirm } = state;
+  const { state } = context;
+  const { vaultAddress, tradeType: _tradeType } = state;
   const { minDepositRequired } = useVaultProperties(vaultAddress);
   const { minBorrowSize } = useVaultCapacity();
   const tradeType = _tradeType as VaultTradeType;
 
-  const handleCancel = useCallback(() => {
-    history.push(`/vaults/${vaultAddress}`);
-    updateState({ confirm: false });
-  }, [vaultAddress, updateState, history]);
+  if (!tradeType) return null;
 
-  const handleSubmit = useCallback(() => {
-    updateState({ confirm: true });
-  }, [updateState]);
-
-  if (!tradeType) return <ProgressIndicator type="notional" />;
-
-  return confirm ? (
-    <TransactionConfirmation
-      heading={<FormattedMessage {...messages[tradeType].heading} />}
+  return (
+    <TransactionSidebar
       context={context}
-      onCancel={handleCancel}
       showDrawer={false}
-      onReturnToForm={handleCancel}
-    />
-  ) : (
-    <ActionSidebar
       heading={messages[tradeType].heading}
-      helptext={
-        isBlocked
-          ? messages.error.blockedGeoActionHelptext
-          : {
-              ...messages[tradeType].helptext,
-              values: {
-                minDepositRequired,
-                minBorrowSize,
-              },
-            }
-      }
       advancedToggle={advancedToggle}
-      showDrawer={false}
-      canSubmit={canSubmit && !isBlocked}
-      leverageDisabled={isBlocked}
-      cancelRoute={''}
-      CustomActionButton={TradeActionButton}
-      handleSubmit={handleSubmit}
+      onCancelRouteCallback={() => history.push(`/vaults/${vaultAddress}`)}
       hideTextOnMobile={false}
+      helptext={{
+        ...messages[tradeType].helptext,
+        values: {
+          minDepositRequired,
+          minBorrowSize,
+        },
+      }}
     >
       {children}
       {tradeType === 'CreateVaultPosition' ? (
@@ -89,7 +53,6 @@ export const VaultSideDrawer = ({
       ) : (
         <VaultDetailsTable key={'vault-risk-table'} />
       )}
-      <TradeSummary key={'vault-trade-summary'} state={state} />
-    </ActionSidebar>
+    </TransactionSidebar>
   );
 };

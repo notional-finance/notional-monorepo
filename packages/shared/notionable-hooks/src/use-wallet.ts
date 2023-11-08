@@ -35,6 +35,7 @@ export function useWalletBalanceInputCheck(
     inputAmount && maxBalance ? allowance?.lt(inputAmount) : false;
 
   return {
+    allowance,
     maxBalanceString: maxBalance?.toExactString(),
     maxBalance,
     insufficientBalance,

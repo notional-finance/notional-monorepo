@@ -1,7 +1,7 @@
 import { useTradeContext } from '@notional-finance/notionable-hooks';
 import { PortfolioSideDrawer } from './components/portfolio-side-drawer';
 import { PORTFOLIO_ACTIONS } from '@notional-finance/util';
-import { AssetInput, EnablePrimeBorrow } from '@notional-finance/trade';
+import { AssetInput } from '@notional-finance/trade';
 import { useCurrencyInputRef, SideBarSubHeader } from '@notional-finance/mui';
 import { messages } from './messages';
 import { defineMessage } from 'react-intl';
@@ -51,7 +51,6 @@ export const RollDebt = () => {
         inputRef={currencyInputRef}
         inputLabel={messages[PORTFOLIO_ACTIONS.ROLL_DEBT]['inputLabel']}
       />
-      {debt.tokenType === 'PrimeDebt' && <EnablePrimeBorrow />}
     </PortfolioSideDrawer>
   );
 };

@@ -4,6 +4,7 @@ import { useCurrencyInputRef } from '@notional-finance/mui';
 import {
   DepositInput,
   LeverageSlider,
+  LiquidationRisk,
   TransactionSidebar,
 } from '@notional-finance/trade';
 import { useHistory } from 'react-router-dom';
@@ -15,7 +16,7 @@ export const LendLeveragedSidebar = () => {
   const history = useHistory();
   const context = useContext(LendLeveragedContext);
   const {
-    state: { selectedDepositToken, debt, deposit },
+    state: { selectedDepositToken, deposit },
   } = context;
   const { currencyInputRef } = useCurrencyInputRef();
 
@@ -38,9 +39,9 @@ export const LendLeveragedSidebar = () => {
     <TransactionSidebar
       showDrawer
       handleLeverUpToggle={handleLeverUpToggle}
+      riskComponent={<LiquidationRisk state={context.state} />}
       context={context}
       leveredUp
-      enablePrimeBorrow={debt?.tokenType === 'PrimeDebt'}
     >
       <DepositInput
         ref={currencyInputRef}

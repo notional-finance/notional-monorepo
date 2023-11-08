@@ -49,7 +49,6 @@ export const RollMaturity = () => {
       context={context}
       heading={heading}
       helptext={helptext}
-      enablePrimeBorrow={debt?.tokenType === 'PrimeDebt'}
       riskComponent={<LiquidityDetailsTable />}
     />
   );

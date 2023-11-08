@@ -47,7 +47,7 @@ export function useEnablePrimeBorrow() {
     enablePrimeBorrow,
     disablePrimeBorrow,
     isPrimeBorrowAllowed,
-    transactionStatus,
+    variableBorrowTxnStatus: transactionStatus,
     isSignerConnected: account && !isReadOnlyAddress,
   };
 }

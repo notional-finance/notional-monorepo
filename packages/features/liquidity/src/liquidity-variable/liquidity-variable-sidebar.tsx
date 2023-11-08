@@ -1,5 +1,9 @@
 import { useCallback, useContext } from 'react';
-import { DepositInput, TransactionSidebar } from '@notional-finance/trade';
+import {
+  DepositInput,
+  TransactionSidebar,
+  LiquidationRisk,
+} from '@notional-finance/trade';
 import { useHistory } from 'react-router-dom';
 import { useCurrencyInputRef } from '@notional-finance/mui';
 import { defineMessage } from 'react-intl';
@@ -32,6 +36,7 @@ export const LiquidityVariableSidebar = () => {
       context={context}
       showDrawer
       handleLeverUpToggle={handleLeverUpToggle}
+      riskComponent={<LiquidationRisk state={context.state} />}
     >
       <DepositInput
         ref={currencyInputRef}
