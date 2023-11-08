@@ -144,8 +144,6 @@ export const TransactionSidebar = ({
     }
   };
 
-  console.log({ context });
-
   return showTxnApprovals ? (
     <TransactionApprovals
       context={context}
