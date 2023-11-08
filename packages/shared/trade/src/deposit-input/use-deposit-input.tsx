@@ -43,10 +43,6 @@ export function useDepositInput(
     errorMsg = tradeErrors.insufficientBalance;
   }
 
-  // else if (!isWithdraw && isAccountReady && insufficientAllowance === true) {
-  //   errorMsg = tradeErrors.insufficientAllowance;
-  // }
-
   return {
     inputAmount: isWithdraw ? inputAmount?.neg() : inputAmount,
     maxBalance: isWithdraw ? undefined : maxBalance,
