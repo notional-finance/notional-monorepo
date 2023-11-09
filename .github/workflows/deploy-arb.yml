@@ -8,7 +8,7 @@ on:
         default: 'arb'
   push:
     branches:
-      - alpha/arbitrum
+      - v3/main
 jobs:
   deploy:
     runs-on: ubuntu-latest
