@@ -8,7 +8,7 @@ on:
         default: 'arb'
   push:
     branches:
-      - feat/default-liquidity-leverage
+      - v3/dev
 jobs:
   deploy:
     runs-on: ubuntu-latest
